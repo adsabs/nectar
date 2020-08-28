@@ -1,5 +1,8 @@
-<img alt="honeycomb" src="https://provider.sirv.com/Images/nicubunu_Honey.svg" width="100" />
-# Nectar
+<p align="center">
+  <img alt="honeycomb" src="https://provider.sirv.com/Images/nicubunu_Honey.svg" width="100" />
+</p>
+
+## Nectar
 
 ### Get things going
 
