@@ -20,7 +20,8 @@
       "@src/*": ["src/*"],
       "@mocks/*": ["mocks/*"],
       "@api/*": ["api/*"],
-      "@recoil/*": ["recoil/*"]
+      "@recoil/*": ["recoil/*"],
+      "@utils/*": ["utils/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],

@@ -4,18 +4,25 @@
   "private": true,
   "scripts": {
     "debug": "NODE_OPTIONS='--inspect' next dev",
-    "dev": "next dev",
+    "dev": "next dev -p 8000",
     "build": "next build",
-    "start": "next start"
+    "start": "next start -p 8000"
   },
   "dependencies": {
     "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.56",
+    "@types/cors": "^2.8.7",
+    "@types/qs": "^6.9.4",
+    "@types/ramda": "^0.27.14",
     "axios": "^0.20.0",
     "axios-debug-log": "^0.8.0",
+    "cors": "^2.8.5",
     "date-fns": "^2.16.1",
     "next": "9.5.2",
+    "nookies": "^2.4.0",
+    "qs": "^6.9.4",
+    "ramda": "^0.27.1",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-query": "^2.14.1",

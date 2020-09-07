@@ -14,12 +14,12 @@ const Home: React.FC = () => {
 
   return (
     <>
-      <Grid container direction="column" component="section">
+      {/* <Grid container direction="column" component="section">
         <Grid container justify="center" className={classes.search}>
           <SearchBar />
         </Grid>
         <Grid item></Grid>
-      </Grid>
+      </Grid> */}
     </>
   );
 };

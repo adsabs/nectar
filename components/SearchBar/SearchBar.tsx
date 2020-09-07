@@ -1,6 +1,7 @@
 import React from 'react';
 import { useRecoilState } from 'recoil';
 import { queryState } from '@recoil/atoms';
+import { useRouter } from 'next/router';
 import {
   makeStyles,
   Theme,
@@ -16,10 +17,12 @@ const SearchBar: React.FC<ISearchBarProps> = () => {
   const classes = useStyles();
   const [query, setQuery] = useRecoilState(queryState);
   const [value, setValue] = React.useState(query);
+  const router = useRouter();
   React.useEffect(() => {
     if (value !== query) {
       setValue(query);
     }
+    router.push({ query: { q: query } });
   }, [query]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

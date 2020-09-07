@@ -1,10 +1,11 @@
 import { Grid, makeStyles, Theme, createStyles } from '@material-ui/core';
 import { NextPageContext, NextPage } from 'next';
-import { useSetRecoilState } from 'recoil';
+import { RecoilRoot } from 'recoil';
 import { queryState } from '@recoil/atoms';
 import SearchBar from '@components/SearchBar';
 import NumFound from '@components/NumFound';
 import Results from '@components/Results';
+import React from 'react';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -16,20 +17,23 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const SearchPage: NextPage<SearchPageProps> = ({ searchQuery }) => {
   const classes = useStyles();
-  useSetRecoilState(queryState)(searchQuery);
 
   return (
-    <>
+    <RecoilRoot
+      initializeState={({ set }) => {
+        set(queryState, searchQuery);
+      }}
+    >
       <Grid container direction="column" component="section">
         <Grid item className={classes.search}>
           <SearchBar />
-          {/* <NumFound /> */}
+          <NumFound />
         </Grid>
         <Grid item>
           <Results />
         </Grid>
       </Grid>
-    </>
+    </RecoilRoot>
   );
 };
 
