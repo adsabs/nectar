@@ -1,11 +1,13 @@
 import axios from 'axios';
 
 const getToken = async () => {
-  const res = await axios.get<AuthPayload>(
+  const { data } = await axios.get<AuthPayload>(
     `${process.env.API_HOST}/accounts/bootstrap`
   );
 
-  return res.data.access_token;
+  console.log(data);
+
+  return { token: data.access_token, expires: data.expire_in };
 };
 
 export default getToken;

@@ -7,7 +7,7 @@ export const queryState = atom({
 });
 
 export const resultState = atom<SearchResult>({
-  default: { numFound: 0, start: 0, docs: [] },
+  default: { numFound: 0, start: 0, docs: [], nextCursorMark: '' },
   key: 'result',
 });
 

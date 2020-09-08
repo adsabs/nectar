@@ -15,6 +15,8 @@ import type { DocsEntity } from '@api/search';
 import { Skeleton } from '@material-ui/lab';
 import ResultCheckbox from './/ResultCheckbox';
 import AuthorList from './AuthorList';
+import ShowAbstractButton from './ShowAbstractButton';
+import ShowAbstractTray from './ShowAbstractTray';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -48,6 +50,7 @@ const Item: React.FC<IItemProps> = ({
   articleData,
 }) => {
   const classes = useStyles();
+  const [showAbstract, setShowAbstract] = React.useState(false);
 
   if (!articleData) {
     return (
@@ -77,9 +80,13 @@ const Item: React.FC<IItemProps> = ({
           {/* Article data */}
           <Grid item className={classes.articleContainer}>
             <Grid container direction="column">
-              <Grid container justify="space-between">
+              <Grid container justify="space-between" alignItems="center">
                 <Typography variant="body1">{articleData.bibcode}</Typography>
                 <Typography variant="body1">{articleData.pubdate}</Typography>
+                <ShowAbstractButton
+                  selected={showAbstract}
+                  onChange={setShowAbstract}
+                />
               </Grid>
               <Typography variant="h6" color="textPrimary">
                 {articleData.title}
@@ -95,6 +102,7 @@ const Item: React.FC<IItemProps> = ({
           </Grid>
         </Grid>
       </CardContent>
+      <ShowAbstractTray show={showAbstract} id={articleData.id} />
     </Card>
   );
 };

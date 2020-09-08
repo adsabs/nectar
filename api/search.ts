@@ -5,8 +5,14 @@ export interface SearchParams {
   query: string;
   fields?: string;
   sort?: string;
+  nextCursorMark?: string;
 }
-const search = async ({ query, fields, sort }: SearchParams) => {
+const search = async ({
+  query,
+  fields,
+  sort,
+  nextCursorMark,
+}: SearchParams) => {
   if (query.length === 0) {
     throw new Error('No Query');
   }
@@ -17,9 +23,11 @@ const search = async ({ query, fields, sort }: SearchParams) => {
       fl:
         fields ??
         'bibcode,title,id,pubdate,author,author_count,[fields author=10]',
-      sort: sort ?? 'date desc',
+      sort: `id asc,${sort ?? 'date desc'}`,
+      cursorMark: nextCursorMark ?? '*',
     },
     paramsSerializer: (params) => {
+      console.log('params', params);
       return qs.stringify(params);
     },
   });
@@ -27,10 +35,11 @@ const search = async ({ query, fields, sort }: SearchParams) => {
 };
 
 const processResponse = (payload: SearchPayload): SearchResult => {
-  const { response } = payload;
+  const { response, nextCursorMark } = payload;
 
   return {
     ...response,
+    nextCursorMark,
     docs: response.docs.map((d) => ({
       ...d,
       pubdate:
@@ -42,11 +51,14 @@ const processResponse = (payload: SearchPayload): SearchResult => {
 
 export default search;
 
-export interface SearchResult extends Response {}
+export interface SearchResult extends Response {
+  nextCursorMark: string;
+}
 
 export interface SearchPayload {
   responseHeader: ResponseHeader;
   response: Response;
+  nextCursorMark: string;
 }
 export interface ResponseHeader {
   status: number;
