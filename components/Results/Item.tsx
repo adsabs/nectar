@@ -1,27 +1,26 @@
-import React from 'react';
+import type { DocsEntity } from '@api/search';
 import {
   Card,
   CardContent,
-  Typography,
-  makeStyles,
-  Theme,
   createStyles,
   Grid,
-  Divider,
-  FormControlLabel,
   Link,
+  makeStyles,
+  Theme,
+  Typography,
 } from '@material-ui/core';
-import type { DocsEntity } from '@api/search';
 import { Skeleton } from '@material-ui/lab';
-import ResultCheckbox from './/ResultCheckbox';
+import React from 'react';
 import AuthorList from './AuthorList';
+import ResultCheckbox from './ResultCheckbox';
 import ShowAbstractButton from './ShowAbstractButton';
 import ShowAbstractTray from './ShowAbstractTray';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      margin: '10px 0 10px 0',
+      marginTop: theme.spacing(1),
+      marginBottom: theme.spacing(1),
     },
     content: {
       padding: 0,
@@ -68,29 +67,29 @@ const Item: React.FC<IItemProps> = ({
         <Grid container wrap="nowrap">
           {/* Selection area */}
           <Grid item className={classes.selectionContainer}>
-            <Grid container direction="column" justify="center">
-              <FormControlLabel
-                control={<ResultCheckbox id={articleData.id} />}
-                label={showIndex && index}
-                labelPlacement="start"
-              />
-            </Grid>
+            {/* <Grid container direction="column" justify="center"> */}
+            <ResultCheckbox id={articleData.id} label={index} />
+            {/* </Grid> */}
           </Grid>
 
           {/* Article data */}
           <Grid item className={classes.articleContainer}>
             <Grid container direction="column">
               <Grid container justify="space-between" alignItems="center">
-                <Typography variant="body1">{articleData.bibcode}</Typography>
+                <Link href={`/abs/${articleData.bibcode}`}>
+                  <Typography variant="body1">{articleData.bibcode}</Typography>
+                </Link>
                 <Typography variant="body1">{articleData.pubdate}</Typography>
                 <ShowAbstractButton
                   selected={showAbstract}
                   onChange={setShowAbstract}
                 />
               </Grid>
-              <Typography variant="h6" color="textPrimary">
-                {articleData.title}
-              </Typography>
+              <Link href={`/abs/${articleData.bibcode}`}>
+                <Typography variant="h6" color="textPrimary">
+                  {articleData.title}
+                </Typography>
+              </Link>
               <Grid container>
                 <AuthorList
                   id={articleData.id}

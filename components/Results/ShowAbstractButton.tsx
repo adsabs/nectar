@@ -1,11 +1,13 @@
-import React from 'react';
-import { ToggleButton } from '@material-ui/lab';
 import { Receipt } from '@material-ui/icons';
+import { ToggleButton } from '@material-ui/lab';
+import React from 'react';
 
 const ShowAbstractButton: React.FC<IShowAbstractButtonProps> = ({
   selected,
   onChange,
 }) => {
+  if (!process.browser) return null;
+
   return (
     <ToggleButton
       value="check"

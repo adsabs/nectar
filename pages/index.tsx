@@ -1,5 +1,4 @@
-import { Grid, makeStyles, Theme, createStyles } from '@material-ui/core';
-import SearchBar from '@components/SearchBar';
+import { createStyles, makeStyles, Theme } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

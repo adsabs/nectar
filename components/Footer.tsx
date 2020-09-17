@@ -1,11 +1,5 @@
-import {
-  Typography,
-  Grid,
-  createStyles,
-  makeStyles,
-  Theme,
-} from '@material-ui/core';
 import Copyright from '@components/Copyright';
+import { createStyles, Grid, makeStyles, Theme } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

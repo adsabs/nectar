@@ -1,16 +1,16 @@
-import React from 'react';
+import Api from '@api/api';
+import { SearchResult } from '@api/search';
 import {
   Collapse,
-  makeStyles,
-  Theme,
   createStyles,
+  makeStyles,
   Paper,
-  Typography,
+  Theme,
+  Typography
 } from '@material-ui/core';
-import { useQuery } from 'react-query';
-import axios from 'axios';
-import { SearchResult } from '@api/search';
 import { Skeleton } from '@material-ui/lab';
+import React from 'react';
+import { useQuery } from 'react-query';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -72,7 +72,8 @@ const useSearch = (id: string) => {
   return useQuery(
     [`author_${id}_search`, { query, fields }],
     async (key, { query, fields }) => {
-      const { data } = await axios.get<SearchResult>('/api/search', {
+      const { data } = await Api.request<SearchResult>({
+        url: '/api/search',
         params: { q: query, fl: fields },
       });
       return data;

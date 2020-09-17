@@ -1,12 +1,11 @@
+import NavBar from '@components/NavBar';
 import {
-  Grid,
   Container,
   createStyles,
+  Grid,
   makeStyles,
   Theme,
 } from '@material-ui/core';
-import NavBar from '@components/NavBar';
-import Footer from '@components/Footer';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

@@ -1,46 +1,32 @@
-import React from 'react';
-import { useRecoilState } from 'recoil';
-import { queryState } from '@recoil/atoms';
-import { useRouter } from 'next/router';
 import {
-  makeStyles,
-  Theme,
   createStyles,
-  Paper,
-  InputBase,
-  IconButton,
   Divider,
+  IconButton,
+  InputBase,
+  makeStyles,
+  Paper,
+  Theme,
 } from '@material-ui/core';
 import { Search } from '@material-ui/icons';
+import React from 'react';
 
-const SearchBar: React.FC<ISearchBarProps> = () => {
+const SearchBar: React.FC<ISearchBarProps> = ({ query }) => {
   const classes = useStyles();
-  const [query, setQuery] = useRecoilState(queryState);
   const [value, setValue] = React.useState(query);
-  const router = useRouter();
+  // const router = useRouter();
   React.useEffect(() => {
     if (value !== query) {
       setValue(query);
     }
-    router.push({ query: { q: query } });
+    // router.push({ query: { q: query } });
   }, [query]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.currentTarget.value);
   };
-  const handleSubmit = (e: React.FormEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setQuery(value);
-  };
-
-  const formProps = {
-    action: '/search/query',
-    method: 'get',
-    onSubmit: handleSubmit,
-  };
 
   return (
-    <Paper component="form" className={classes.root} {...formProps}>
+    <Paper className={classes.root}>
       <InputBase
         className={classes.input}
         placeholder="Search"
@@ -60,7 +46,9 @@ const SearchBar: React.FC<ISearchBarProps> = () => {
   );
 };
 
-interface ISearchBarProps {}
+interface ISearchBarProps {
+  query?: string;
+}
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

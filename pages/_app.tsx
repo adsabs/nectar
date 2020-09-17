@@ -1,22 +1,19 @@
-import '../styles/globals.css';
-import React from 'react';
-import type { AppProps } from 'next/app';
-import axios from 'axios';
-import Head from 'next/head';
-import { ThemeProvider, CssBaseline } from '@material-ui/core';
 import Layout from '@components/Layout';
+import { CssBaseline, ThemeProvider } from '@material-ui/core';
 import theme from '@theme';
-import qs from 'qs';
+import App, { AppContext, AppProps } from 'next/app';
+import Head from 'next/head';
+import React from 'react';
+import '../styles/globals.css';
 
-const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
+const NectarApp: NextPage<AppProps> = ({ Component, pageProps }) => {
   React.useEffect(() => {
     // remove server-side injected CSS
     const jssStyles = document.querySelector('#jss-server-side');
     jssStyles?.parentElement?.removeChild(jssStyles);
-  });
+  }, []);
 
-  axios.defaults.paramsSerializer = (params) => qs.stringify(params);
-  axios.defaults.withCredentials = true;
+  console.log({ pageProps });
 
   return (
     <>
@@ -37,4 +34,31 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
   );
 };
 
-export default MyApp;
+NectarApp.getInitialProps = async (ctx: AppContext) => {
+  console.log({ ctx });
+
+  const appProps = await App.getInitialProps(ctx);
+  return {
+    ...appProps,
+  };
+};
+
+// export const getServerSideProps: GetServerSideProps = async (
+//   ctx: GetServerSidePropsContext
+// ) => {
+//   console.log('server side get props!', ctx);
+//   return { props: { foo: 'bar' } };
+// };
+
+// export const getStaticProps: GetStaticProps = async (
+//   ctx: GetStaticPropsContext
+// ) => {
+//   console.log('server static side get props!', ctx);
+
+//   return {
+//     test: 'foo',
+//     props: {},
+//   };
+// };
+
+export default NectarApp;

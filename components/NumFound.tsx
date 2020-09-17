@@ -1,10 +1,7 @@
-import { Typography, Box } from '@material-ui/core';
-import { useRecoilValue } from 'recoil';
-import { numFoundState } from '@recoil/selectors';
+import { Box, Typography } from '@material-ui/core';
+import React from 'react';
 
-const NumFound: React.FC<INumFoundProps> = () => {
-  const numFound = useRecoilValue(numFoundState);
-
+const NumFound: React.FC<INumFoundProps> = React.memo(({ numFound = 0 }) => {
   return (
     <Typography variant="caption" component="article">
       Your search returned{' '}
@@ -14,8 +11,10 @@ const NumFound: React.FC<INumFoundProps> = () => {
       results
     </Typography>
   );
-};
+});
 
-interface INumFoundProps {}
+interface INumFoundProps {
+  numFound: number;
+}
 
 export default NumFound;

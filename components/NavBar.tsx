@@ -1,15 +1,16 @@
 import {
   AppBar,
-  Toolbar,
-  Typography,
   Button,
-  IconButton,
   createStyles,
+  Grid,
+  IconButton,
   makeStyles,
   Theme,
+  Toolbar,
+  Typography,
 } from '@material-ui/core';
-
 import { Menu } from '@material-ui/icons';
+import Link from 'next/link';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -41,10 +42,18 @@ const NavBar: React.FC = () => {
           >
             <Menu />
           </IconButton>
-          <Typography variant="h6" className={classes.title}>
-            Nectar
-          </Typography>
-          <Button color="inherit">Login</Button>
+          <Grid item className={classes.title}>
+            <Link href="/search/query" passHref>
+              <Button component="a" color="inherit">
+                <Typography variant="h6">ADS</Typography>
+              </Button>
+            </Link>
+          </Grid>
+          <Link href="/login" passHref>
+            <Button component="a" color="inherit">
+              Login
+            </Button>
+          </Link>
         </Toolbar>
       </AppBar>
     </header>
