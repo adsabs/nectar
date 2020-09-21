@@ -25,6 +25,7 @@
     "@xstate/react": "^0.8.1",
     "axios": "^0.20.0",
     "axios-debug-log": "^0.8.0",
+    "bulma": "^0.9.0",
     "cookie": "^0.4.1",
     "cookie-session": "^1.4.0",
     "cors": "^2.8.5",
@@ -37,6 +38,8 @@
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-query": "^2.14.1",
+    "recoil": "^0.0.13",
+    "sass": "^1.26.11",
     "xstate": "^4.13.0"
   },
   "devDependencies": {

@@ -15,7 +15,6 @@ const ResultCheckbox: React.FC<IResultCheckboxProps> = ({ label, id }) => {
       labelPlacement="start"
       control={
         <Checkbox
-          disabled={!process.browser}
           checked={checked}
           onChange={handleChecked}
           inputProps={{ 'aria-label': 'select' }}

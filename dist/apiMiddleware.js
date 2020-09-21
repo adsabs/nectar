@@ -39,51 +39,38 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var cookie_session_1 = __importDefault(require("cookie-session"));
-var express_1 = __importDefault(require("express"));
-var morgan_1 = __importDefault(require("morgan"));
-var next_1 = __importDefault(require("next"));
-var apiMiddleware_1 = __importDefault(require("./apiMiddleware"));
-var dev = process.env.NODE_ENV !== 'production';
-var app = next_1.default({ dev: dev });
-var handle = app.getRequestHandler();
-var port = process.env.PORT || 8000;
-(function () { return __awaiter(void 0, void 0, void 0, function () {
-    var server, e_1;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                _a.trys.push([0, 2, , 3]);
-                return [4 /*yield*/, app.prepare()];
-            case 1:
-                _a.sent();
-                server = express_1.default();
-                server.use(express_1.default.urlencoded({ extended: true }));
-                server.set('trust proxy', 1);
-                server.use(cookie_session_1.default({
-                    name: 'nectar_session',
-                    keys: [process.env.COOKIE_SECRET || ''],
-                    maxAge: 24 * 60 * 60 * 1000,
-                    httpOnly: false,
-                }));
-                server.use(morgan_1.default('short'));
-                server.use(apiMiddleware_1.default());
-                server.all('*', function (req, res) {
-                    console.log('--->', req.originalUrl);
-                    return handle(req, res);
-                });
-                server.listen(port, function (err) {
-                    if (err)
-                        throw err;
-                    console.log("> Ready on localhost:" + port + " - env " + process.env.NODE_ENV);
-                });
-                return [3 /*break*/, 3];
-            case 2:
-                e_1 = _a.sent();
-                console.error(e_1);
-                process.exit(1);
-                return [3 /*break*/, 3];
-            case 3: return [2 /*return*/];
-        }
-    });
-}); })();
+var axios_1 = __importDefault(require("axios"));
+var date_fns_1 = require("date-fns");
+var isExpired = function (user) {
+    return date_fns_1.isPast(date_fns_1.parseISO(user.expires_in));
+};
+var apiMiddleware = function (config) {
+    return function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
+        var session, headers, _a, _b, username, anonymous, access_token, expires_in, bootstrapHeaders;
+        return __generator(this, function (_c) {
+            switch (_c.label) {
+                case 0:
+                    session = req.session;
+                    // check if session user is set and is not expired
+                    if (session.user && !isExpired(session.user)) {
+                        return [2 /*return*/, next()];
+                    }
+                    headers = {};
+                    if (req.headers.cookie) {
+                        headers.cookie = req.headers.cookie;
+                    }
+                    return [4 /*yield*/, axios_1.default.get(process.env.NEXT_PUBLIC_API_HOST + "/accounts/bootstrap", {
+                            headers: headers,
+                        })];
+                case 1:
+                    _a = _c.sent(), _b = _a.data, username = _b.username, anonymous = _b.anonymous, access_token = _b.access_token, expires_in = _b.expires_in, bootstrapHeaders = _a.headers;
+                    // store the user data in our session
+                    session.user = { username: username, anonymous: anonymous, access_token: access_token, expires_in: expires_in };
+                    session.apiSessionCookie = res.setHeader('set-cookie', bootstrapHeaders['set-cookie'][0]);
+                    next();
+                    return [2 /*return*/];
+            }
+        });
+    }); };
+};
+exports.default = apiMiddleware;

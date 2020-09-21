@@ -20,7 +20,7 @@ const port = process.env.PORT || 8000;
     server.use(
       cookieSession({
         name: 'nectar_session',
-        secret: process.env.COOKIE_SECRET || '',
+        keys: [process.env.COOKIE_SECRET || ''],
         maxAge: 24 * 60 * 60 * 1000, // 24 hours
         httpOnly: false,
       })

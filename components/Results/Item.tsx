@@ -4,17 +4,17 @@ import {
   CardContent,
   createStyles,
   Grid,
-  Link,
   makeStyles,
+  NoSsr,
   Theme,
   Typography,
 } from '@material-ui/core';
 import { Skeleton } from '@material-ui/lab';
+import Link from 'next/link';
 import React from 'react';
 import AuthorList from './AuthorList';
 import ResultCheckbox from './ResultCheckbox';
 import ShowAbstractButton from './ShowAbstractButton';
-import ShowAbstractTray from './ShowAbstractTray';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -30,15 +30,12 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     selectionContainer: {
       minWidth: '75px',
-      paddingRight: '10px',
+      paddingRight: theme.spacing(1),
       borderRight: `solid 1px ${theme.palette.divider}`,
-      '& > *': {
-        height: '100%',
-      },
     },
     articleContainer: {
-      padding: '10px',
-      width: '100%',
+      padding: theme.spacing(1),
+      flex: 1,
     },
   })
 );
@@ -62,15 +59,21 @@ const Item: React.FC<IItemProps> = ({
   }
 
   return (
-    <Card variant="outlined" className={classes.root}>
-      <CardContent className={classes.content}>
+    // <Card variant="outlined" className={classes.root}>
+    //   <CardContent className={classes.content}>content</CardContent>
+    // </Card>
+
+    <Card variant="outlined" classes={{ root: classes.root }}>
+      <CardContent classes={{ root: classes.content }}>
         <Grid container wrap="nowrap">
           {/* Selection area */}
-          <Grid item className={classes.selectionContainer}>
-            {/* <Grid container direction="column" justify="center"> */}
-            <ResultCheckbox id={articleData.id} label={index} />
-            {/* </Grid> */}
-          </Grid>
+          <NoSsr>
+            <Grid item className={classes.selectionContainer}>
+              <Grid container direction="column" justify="center">
+                <ResultCheckbox id={articleData.id} label={index} />
+              </Grid>
+            </Grid>
+          </NoSsr>
 
           {/* Article data */}
           <Grid item className={classes.articleContainer}>
@@ -101,7 +104,7 @@ const Item: React.FC<IItemProps> = ({
           </Grid>
         </Grid>
       </CardContent>
-      <ShowAbstractTray show={showAbstract} id={articleData.id} />
+      {/* <ShowAbstractTray show={showAbstract} id={articleData.id} /> */}
     </Card>
   );
 };

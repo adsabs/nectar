@@ -13,12 +13,10 @@ import React from 'react';
 const SearchBar: React.FC<ISearchBarProps> = ({ query }) => {
   const classes = useStyles();
   const [value, setValue] = React.useState(query);
-  // const router = useRouter();
   React.useEffect(() => {
     if (value !== query) {
       setValue(query);
     }
-    // router.push({ query: { q: query } });
   }, [query]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
