@@ -1,5 +1,5 @@
 import { DocsEntity } from '@api/search';
-import { createStyles, makeStyles, Paper, Theme } from '@material-ui/core';
+import { Box, createStyles, makeStyles, Paper, Theme, useTheme } from '@material-ui/core';
 import React from 'react';
 import Item from './Item';
 
@@ -15,6 +15,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const Results: React.FC<IResultsProps> = ({ docs }) => {
   const classes = useStyles();
+  const theme = useTheme();
 
   if (docs.length <= 0) {
     return (
@@ -25,11 +26,11 @@ const Results: React.FC<IResultsProps> = ({ docs }) => {
   }
 
   return (
-    <>
+    <Box mt={theme.spacing(1)}>
       {docs.map((d, index) => (
         <Item key={d.id} articleData={d} index={index + 1} showIndex={true} />
       ))}
-    </>
+    </Box>
   );
 };
 

@@ -1,20 +1,19 @@
 import type { DocsEntity } from '@api/search';
 import {
   Card,
+  CardActions,
   CardContent,
   createStyles,
-  Grid,
+  IconButton,
   makeStyles,
   NoSsr,
   Theme,
-  Typography,
+  useTheme,
 } from '@material-ui/core';
+import { Favorite } from '@material-ui/icons';
 import { Skeleton } from '@material-ui/lab';
-import Link from 'next/link';
 import React from 'react';
-import AuthorList from './AuthorList';
 import ResultCheckbox from './ResultCheckbox';
-import ShowAbstractButton from './ShowAbstractButton';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -37,6 +36,11 @@ const useStyles = makeStyles((theme: Theme) =>
       padding: theme.spacing(1),
       flex: 1,
     },
+    actions: {
+      '& > *': {
+        marginLeft: 'auto',
+      },
+    },
   })
 );
 
@@ -47,6 +51,7 @@ const Item: React.FC<IItemProps> = ({
 }) => {
   const classes = useStyles();
   const [showAbstract, setShowAbstract] = React.useState(false);
+  const theme = useTheme();
 
   if (!articleData) {
     return (
@@ -63,49 +68,74 @@ const Item: React.FC<IItemProps> = ({
     //   <CardContent className={classes.content}>content</CardContent>
     // </Card>
 
-    <Card variant="outlined" classes={{ root: classes.root }}>
-      <CardContent classes={{ root: classes.content }}>
-        <Grid container wrap="nowrap">
-          {/* Selection area */}
-          <NoSsr>
-            <Grid item className={classes.selectionContainer}>
-              <Grid container direction="column" justify="center">
-                <ResultCheckbox id={articleData.id} label={index} />
-              </Grid>
-            </Grid>
-          </NoSsr>
-
-          {/* Article data */}
-          <Grid item className={classes.articleContainer}>
-            <Grid container direction="column">
-              <Grid container justify="space-between" alignItems="center">
-                <Link href={`/abs/${articleData.bibcode}`}>
-                  <Typography variant="body1">{articleData.bibcode}</Typography>
-                </Link>
-                <Typography variant="body1">{articleData.pubdate}</Typography>
-                <ShowAbstractButton
-                  selected={showAbstract}
-                  onChange={setShowAbstract}
-                />
-              </Grid>
-              <Link href={`/abs/${articleData.bibcode}`}>
-                <Typography variant="h6" color="textPrimary">
-                  {articleData.title}
-                </Typography>
-              </Link>
-              <Grid container>
-                <AuthorList
-                  id={articleData.id}
-                  authors={articleData.author ?? []}
-                  count={articleData.author_count ?? 0}
-                />
-              </Grid>
-            </Grid>
-          </Grid>
-        </Grid>
+    <Card className={classes.root}>
+      <CardContent>
+        <NoSsr>
+          <div className={classes.selectionContainer}>
+            <ResultCheckbox id={articleData.id} label={index} />
+          </div>
+        </NoSsr>
       </CardContent>
-      {/* <ShowAbstractTray show={showAbstract} id={articleData.id} /> */}
+      <CardActions classes={{}} className={classes.actions}>
+        <IconButton aria-label="add to favorites">
+          <Favorite />
+        </IconButton>
+      </CardActions>
     </Card>
+
+    // <Card variant="outlined" classes={{ root: classes.root }}>
+
+    //   {/* <Link href={`/abs/${articleData.bibcode}`}>
+    //       <Typography variant="body1">{articleData.bibcode}</Typography>
+    //     </Link>
+    //     <Typography variant="body1">{articleData.pubdate}</Typography>
+    //     <ShowAbstractButton
+    //       selected={showAbstract}
+    //       onChange={setShowAbstract}
+    //     /> */}
+
+    //   <CardContent classes={{ root: classes.content }}>
+
+    //   {/* <Grid container>
+    //       <AuthorList
+    //         id={articleData.id}
+    //         authors={articleData.author ?? []}
+    //         count={articleData.author_count ?? 0}
+    //       />
+    //     </Grid> */}
+    //     {/* <Grid container wrap="nowrap"> */}
+    //       {/* Selection area */}
+    //     {/* <NoSsr>
+    //         <Grid item className={classes.selectionContainer}>
+    //           <Grid container direction="column" justify="center">
+    //             <ResultCheckbox id={articleData.id} label={index} />
+    //           </Grid>
+    //         </Grid>
+    //       </NoSsr>
+
+    //       {/* Article data */}
+    //     {/* <Grid item className={classes.articleContainer}>
+    //         <Grid container direction="column">
+
+    //           <Link href={`/abs/${articleData.bibcode}`}>
+    //             {articleData.title}
+    //           </Link>
+    //           <Grid container>
+    //             <AuthorList
+    //               id={articleData.id}
+    //               authors={articleData.author ?? []}
+    //               count={articleData.author_count ?? 0}
+    //             />
+    //           </Grid>
+    //         </Grid> */}
+    //     {/* </Grid> */}
+    //     {/* </Grid> */}
+    //   </CardContent>
+    //   <CardActionArea>
+    //     test
+    //   </CardActionArea>
+    //   {/* <ShowAbstractTray show={showAbstract} id={articleData.id} /> */}
+    // </Card>
   );
 };
 

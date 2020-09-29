@@ -5,7 +5,7 @@ import {
   InputBase,
   makeStyles,
   Paper,
-  Theme,
+  Theme
 } from '@material-ui/core';
 import { Search } from '@material-ui/icons';
 import React from 'react';
