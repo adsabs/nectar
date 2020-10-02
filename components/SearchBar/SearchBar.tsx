@@ -5,22 +5,19 @@ import {
   InputBase,
   makeStyles,
   Paper,
-  Theme
+  Theme,
 } from '@material-ui/core';
 import { Search } from '@material-ui/icons';
+import { queryState } from '@recoil/atoms';
 import React from 'react';
+import { useRecoilState } from 'recoil';
 
-const SearchBar: React.FC<ISearchBarProps> = ({ query }) => {
+const SearchBar: React.FC<ISearchBarProps> = ({}) => {
   const classes = useStyles();
-  const [value, setValue] = React.useState(query);
-  React.useEffect(() => {
-    if (value !== query) {
-      setValue(query);
-    }
-  }, [query]);
+  const [query, setQuery] = useRecoilState(queryState);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(e.currentTarget.value);
+    setQuery({ q: e.currentTarget.value });
   };
 
   return (
@@ -30,7 +27,7 @@ const SearchBar: React.FC<ISearchBarProps> = ({ query }) => {
         placeholder="Search"
         name="q"
         onChange={handleChange}
-        value={value}
+        value={query.q}
       />
       <Divider className={classes.divider} orientation="vertical" />
       <IconButton
@@ -44,9 +41,7 @@ const SearchBar: React.FC<ISearchBarProps> = ({ query }) => {
   );
 };
 
-interface ISearchBarProps {
-  query?: string;
-}
+interface ISearchBarProps {}
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

@@ -1,4 +1,9 @@
-import { GetServerSidePropsContext, NextPageContext } from 'next';
+import {
+  GetServerSidePropsContext,
+  NextApiRequest,
+  NextPageContext
+} from 'next';
+import { ParsedUrlQuery } from 'querystring';
 import Api from './api';
 
 const defaultParams = {
@@ -6,34 +11,43 @@ const defaultParams = {
   sort: 'date desc',
 };
 
-const search = async (
-  ctx: NextPageContext | GetServerSidePropsContext,
-  searchParams?: SearchParams
-) => {
-  console.log(ctx.query);
-
-  const queryParams = Object.keys(ctx.query).reduce((acc, k) => {
-    const value = ctx.query[k];
+const normalizeQuery = (query: ParsedUrlQuery) => {
+  return Object.keys(query).reduce((acc, k) => {
+    const value = query[k];
     if (!value) {
       return acc;
     }
-    return { ...acc, [k]: Array.isArray(value) ? value.join('') : value ?? '' };
+    return {
+      ...acc,
+      [k]: Array.isArray(value) ? value.join('') : value ?? '',
+    };
   }, {});
+};
+
+const search = async ({ ctx, req, searchParams }: ISearchProps) => {
+  const request = ctx ? ctx.req : req ? req : undefined;
+  if (!request) {
+    throw new Error('no context/request object found');
+  }
+  const query = ctx ? ctx.query : req ? req.query : {};
 
   const params: SearchParams = {
     ...defaultParams,
-    ...queryParams,
+    ...normalizeQuery(query),
     ...searchParams,
   };
 
   if (!params.q) {
-    throw Error('no query');
+    throw new Error('no query');
   }
 
-  const { data: searchResponse } = await Api.request<SearchPayload>(ctx, {
-    url: '/search/query',
-    params,
-  });
+  const { data: searchResponse } = await Api.request<SearchPayload>(
+    {
+      url: '/search/query',
+      params,
+    },
+    { req: request }
+  );
 
   return searchResponse;
 };
@@ -43,6 +57,12 @@ export interface SearchParams {
   fl?: string;
   sort?: string;
   rows?: number;
+}
+
+export interface ISearchProps {
+  ctx?: NextPageContext | GetServerSidePropsContext<ParsedUrlQuery>;
+  req?: NextApiRequest;
+  searchParams?: SearchParams;
 }
 
 export default search;
@@ -138,10 +158,12 @@ export interface DocsEntity {
   pubnote: string[];
   property: string[];
   id: string;
+  aff: string[];
   page: string[];
   bibcode: string;
   author: string[];
   esources: string[];
+  orcid_pub: string[];
   email: string[];
   citation_count: number;
   pub: string;

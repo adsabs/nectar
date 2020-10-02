@@ -24,14 +24,17 @@ class User {
     }
 
     try {
-      const { data, headers } = await Api.request(this.ctx, {
-        method: 'post',
-        url: '/accounts/user',
-        headers: {
-          'X-CSRFToken': csrf,
+      const { data, headers } = await Api.request(
+        {
+          method: 'post',
+          url: '/accounts/user',
+          headers: {
+            'X-CSRFToken': csrf,
+          },
+          params: { username, password },
         },
-        params: { username, password },
-      });
+        this.ctx
+      );
 
       this.response?.setHeader('set-cookie', headers['set-cookie'][0]);
       this.request.session = null;
@@ -50,10 +53,13 @@ class User {
     const {
       data: { csrf },
       headers,
-    } = await Api.request<{ csrf: string }>(this.ctx, {
-      url: '/accounts/csrf',
-      method: 'get',
-    });
+    } = await Api.request<{ csrf: string }>(
+      {
+        url: '/accounts/csrf',
+        method: 'get',
+      },
+      this.ctx
+    );
 
     this.response?.setHeader('set-cookie', headers['set-cookie'][0]);
 

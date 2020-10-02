@@ -3,7 +3,7 @@ import React from 'react';
 
 const NumFound: React.FC<INumFoundProps> = React.memo(({ numFound = 0 }) => {
   return (
-    <Typography variant="caption" component="article">
+    <Typography variant="caption" component="article" role="status">
       Your search returned{' '}
       <Box fontWeight="fontWeightMedium" display="inline">
         {numFound.toLocaleString()}

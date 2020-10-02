@@ -24,29 +24,29 @@ const ShowAbstractTray: React.FC<IShowAbstractTrayProps> = ({ id, show }) => {
 
   // const abstract = data?.docs?.[0].abstract;
 
-  // return (
-  //   <Collapse in={show}>
-  //     <Paper elevation={4} className={classes.paper}>
-  //       {!isLoading && !abstract && (
-  //         <Typography variant="body2" component="p">
-  //           No abstract
-  //         </Typography>
-  //       )}
-  //       {isLoading ? (
-  //         <>
-  //           <Skeleton variant="text" />
-  //           <Skeleton variant="text" />
-  //           <Skeleton variant="text" />
-  //           <Skeleton variant="text" />
-  //         </>
-  //       ) : (
-  //         <Typography variant="body2" component="p">
-  //           {abstract}
-  //         </Typography>
-  //       )}
-  //     </Paper>
-  //   </Collapse>
-  // );
+  return (
+    <Collapse in={show}>
+      <Paper elevation={4} className={classes.paper}>
+        {!isLoading && !abstract && (
+          <Typography variant="body2" component="p">
+            No abstract
+          </Typography>
+        )}
+        {isLoading ? (
+          <>
+            <Skeleton variant="text" />
+            <Skeleton variant="text" />
+            <Skeleton variant="text" />
+            <Skeleton variant="text" />
+          </>
+        ) : (
+          <Typography variant="body2" component="p">
+            {abstract}
+          </Typography>
+        )}
+      </Paper>
+    </Collapse>
+  );
 };
 
 export interface IShowAbstractTrayProps {

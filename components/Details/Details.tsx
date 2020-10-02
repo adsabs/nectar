@@ -1,14 +1,13 @@
-import React from 'react';
 import { DocsEntity } from '@api/search';
-import {
-  makeStyles,
-  Theme,
-  createStyles,
-  Paper,
-  Typography,
-  Grid,
-} from '@material-ui/core';
 import AuthorList from '@components/Results/AuthorList';
+import {
+  createStyles,
+  makeStyles,
+  Paper,
+  Theme,
+  Typography,
+} from '@material-ui/core';
+import React from 'react';
 import AttributeList from './AttributeList';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -36,16 +35,29 @@ const Details: React.FC<IDetailsProps> = React.memo(
 
     return (
       <Paper className={classes.root} elevation={3}>
-        <Typography variant="h6">{doc.title}</Typography>
+        <Typography variant="h6" component="h2">
+          {doc.title}
+        </Typography>
+
+        <Typography variant="srOnly" component="h3">
+          Abstract
+        </Typography>
         <Typography variant="body1">{doc.abstract}</Typography>
-        <Grid container>
-          <AuthorList
-            authors={doc.author}
-            count={doc.author_count}
-            id={doc.id}
-            links
-          />
-        </Grid>
+
+        <Typography variant="srOnly" component="h3">
+          Authors
+        </Typography>
+        <AuthorList
+          authors={doc.author}
+          count={doc.author_count}
+          links
+          canShowAll
+          id={doc.id}
+        />
+
+        <Typography variant="srOnly" component="h3">
+          Article Attributes
+        </Typography>
         <AttributeList doc={doc} />
       </Paper>
     );

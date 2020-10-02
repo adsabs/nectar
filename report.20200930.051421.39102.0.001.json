@@ -1,0 +1,409 @@
+
+{
+  "header": {
+    "event": "Allocation failed - JavaScript heap out of memory",
+    "trigger": "FatalError",
+    "filename": "report.20200930.051421.39102.0.001.json",
+    "dumpEventTime": "2020-09-30T05:14:21Z",
+    "dumpEventTimeStamp": "1601457261668",
+    "processId": 39102,
+    "cwd": "/home/tim/code/nectar",
+    "commandLine": [
+      "/home/tim/.nvm/versions/node/v11.14.0/bin/node",
+      "/home/tim/.yarn/bin/ts-node",
+      "--project",
+      "tsconfig.server.json",
+      "server/index.ts"
+    ],
+    "nodejsVersion": "v11.14.0",
+    "glibcVersionRuntime": "2.31",
+    "glibcVersionCompiler": "2.12",
+    "wordSize": 64,
+    "arch": "x64",
+    "platform": "linux",
+    "componentVersions": {
+      "node": "11.14.0",
+      "v8": "7.0.276.38-node.18",
+      "uv": "1.27.0",
+      "zlib": "1.2.11",
+      "brotli": "1.0.7",
+      "ares": "1.15.0",
+      "modules": "67",
+      "nghttp2": "1.37.0",
+      "napi": "4",
+      "llhttp": "1.1.1",
+      "http_parser": "2.8.0",
+      "openssl": "1.1.1b",
+      "cldr": "34.0",
+      "icu": "63.1",
+      "tz": "2018e",
+      "unicode": "11.0"
+    },
+    "release": {
+      "name": "node",
+      "headersUrl": "https://nodejs.org/download/release/v11.14.0/node-v11.14.0-headers.tar.gz",
+      "sourceUrl": "https://nodejs.org/download/release/v11.14.0/node-v11.14.0.tar.gz"
+    },
+    "osName": "Linux",
+    "osRelease": "5.4.0-7642-generic",
+    "osVersion": "#46~1598628707~20.04~040157c-Ubuntu SMP Fri Aug 28 18:02:16 UTC ",
+    "osMachine": "x86_64",
+    "host": "pop-os"
+  },
+  "javascriptStack": {
+    "message": "No stack.",
+    "stack": [
+      "Unavailable."
+    ]
+  },
+  "nativeStack": [
+    {
+      "pc": "0x0000000000a6e18d",
+      "symbol": "report::TriggerNodeReport(v8::Isolate*, node::Environment*, char const*, char const*, std::string const&, v8::Local<v8::String>) [/home/tim/.nvm/versions/node/v11.14.0/bin/node]"
+    },
+    {
+      "pc": "0x000000000095c8a3",
+      "symbol": "node::OnFatalError(char const*, char const*) [/home/tim/.nvm/versions/node/v11.14.0/bin/node]"
+    },
+    {
+      "pc": "0x0000000000b3b77e",
+      "symbol": "v8::Utils::ReportOOMFailure(v8::internal::Isolate*, char const*, bool) [/home/tim/.nvm/versions/node/v11.14.0/bin/node]"
+    },
+    {
+      "pc": "0x0000000000b3b9b4",
+      "symbol": "v8::internal::V8::FatalProcessOutOfMemory(v8::internal::Isolate*, char const*, bool) [/home/tim/.nvm/versions/node/v11.14.0/bin/node]"
+    },
+    {
+      "pc": "0x0000000000f3b002",
+      "symbol": " [/home/tim/.nvm/versions/node/v11.14.0/bin/node]"
+    },
+    {
+      "pc": "0x0000000000f3b108",
+      "symbol": "v8::internal::Heap::CheckIneffectiveMarkCompact(unsigned long, double) [/home/tim/.nvm/versions/node/v11.14.0/bin/node]"
+    },
+    {
+      "pc": "0x0000000000f47828",
+      "symbol": "v8::internal::Heap::PerformGarbageCollection(v8::internal::GarbageCollector, v8::GCCallbackFlags) [/home/tim/.nvm/versions/node/v11.14.0/bin/node]"
+    },
+    {
+      "pc": "0x0000000000f4833b",
+      "symbol": "v8::internal::Heap::CollectGarbage(v8::internal::AllocationSpace, v8::internal::GarbageCollectionReason, v8::GCCallbackFlags) [/home/tim/.nvm/versions/node/v11.14.0/bin/node]"
+    },
+    {
+      "pc": "0x0000000000f4b071",
+      "symbol": "v8::internal::Heap::AllocateRawWithRetryOrFail(int, v8::internal::AllocationSpace, v8::internal::AllocationAlignment) [/home/tim/.nvm/versions/node/v11.14.0/bin/node]"
+    },
+    {
+      "pc": "0x0000000000f152a4",
+      "symbol": "v8::internal::Factory::NewFillerObject(int, bool, v8::internal::AllocationSpace) [/home/tim/.nvm/versions/node/v11.14.0/bin/node]"
+    },
+    {
+      "pc": "0x00000000011cb5ae",
+      "symbol": "v8::internal::Runtime_AllocateInNewSpace(int, v8::internal::Object**, v8::internal::Isolate*) [/home/tim/.nvm/versions/node/v11.14.0/bin/node]"
+    },
+    {
+      "pc": "0x00001c0b7fe4fc5d",
+      "symbol": ""
+    }
+  ],
+  "javascriptHeap": {
+    "totalMemory": 1509273600,
+    "totalCommittedMemory": 1507329560,
+    "usedMemory": 1433079792,
+    "availableMemory": 26627856,
+    "memoryLimit": 1526909922,
+    "heapSpaces": {
+      "read_only_space": {
+        "memorySize": 524288,
+        "committedMemory": 42224,
+        "capacity": 515584,
+        "used": 33520,
+        "available": 482064
+      },
+      "new_space": {
+        "memorySize": 33554432,
+        "committedMemory": 33038216,
+        "capacity": 16498688,
+        "used": 8467136,
+        "available": 8031552
+      },
+      "old_space": {
+        "memorySize": 702746624,
+        "committedMemory": 702204320,
+        "capacity": 658969560,
+        "used": 658299672,
+        "available": 669888
+      },
+      "code_space": {
+        "memorySize": 8388608,
+        "committedMemory": 8129344,
+        "capacity": 7008576,
+        "used": 7008576,
+        "available": 0
+      },
+      "map_space": {
+        "memorySize": 8925184,
+        "committedMemory": 8780992,
+        "capacity": 6616400,
+        "used": 6616400,
+        "available": 0
+      },
+      "large_object_space": {
+        "memorySize": 755134464,
+        "committedMemory": 755134464,
+        "capacity": 770098840,
+        "used": 752654488,
+        "available": 17444352
+      },
+      "new_large_object_space": {
+        "memorySize": 0,
+        "committedMemory": 0,
+        "capacity": 0,
+        "used": 0,
+        "available": 0
+      }
+    }
+  },
+  "resourceUsage": {
+    "userCpuSeconds": 601.041,
+    "kernelCpuSeconds": 20.14,
+    "cpuConsumptionPercent": 5.40111,
+    "maxRss": 1653616640,
+    "pageFaults": {
+      "IORequired": 17,
+      "IONotRequired": 4136817
+    },
+    "fsActivity": {
+      "reads": 7352,
+      "writes": 3766760
+    }
+  },
+  "uvthreadResourceUsage": {
+    "userCpuSeconds": 283.745,
+    "kernelCpuSeconds": 9.79039,
+    "cpuConsumptionPercent": 2.55226,
+    "fsActivity": {
+      "reads": 4640,
+      "writes": 0
+    }
+  },
+  "libuv": [
+  ],
+  "environmentVariables": {
+    "GJS_DEBUG_TOPICS": "JS ERROR;JS LOG",
+    "LESSOPEN": "| /usr/bin/lesspipe %s",
+    "npm_package_devDependencies__types_node": "^14.6.1",
+    "npm_package_dependencies__material_ui_icons": "^4.9.1",
+    "LANGUAGE": "en_US:en",
+    "USER": "tim",
+    "LC_TIME": "en_US.UTF-8",
+    "npm_config_version_commit_hooks": "true",
+    "npm_config_user_agent": "yarn/1.22.5 npm/? node/v11.14.0 linux x64",
+    "npm_package_dependencies__types_ramda": "^0.27.14",
+    "npm_package_dependencies__types_cors": "^2.8.7",
+    "npm_package_dependencies__types_cookie": "^0.4.0",
+    "npm_package_dependencies__material_ui_core": "^4.11.0",
+    "npm_config_bin_links": "true",
+    "SSH_AGENT_PID": "2293",
+    "XDG_SESSION_TYPE": "x11",
+    "GIT_ASKPASS": "/usr/share/code/resources/app/extensions/git/dist/askpass.sh",
+    "npm_node_execpath": "/home/tim/.nvm/versions/node/v11.14.0/bin/node",
+    "npm_config_init_version": "1.0.0",
+    "npm_config_yarn_offline_mirror_pruning": "true",
+    "SHLVL": "1",
+    "HOME": "/home/tim",
+    "CHROME_DESKTOP": "code-url-handler.desktop",
+    "npm_package_devDependencies__typescript_eslint_parser": "^3.10.1",
+    "npm_package_scripts_build_server": "tsc --project tsconfig.server.json",
+    "TERM_PROGRAM_VERSION": "1.49.2",
+    "DESKTOP_SESSION": "pop",
+    "NVM_BIN": "/home/tim/.nvm/versions/node/v11.14.0/bin",
+    "NVM_INC": "/home/tim/.nvm/versions/node/v11.14.0/include/node",
+    "GIO_LAUNCHED_DESKTOP_FILE": "/usr/share/applications/code.desktop",
+    "npm_config_init_license": "MIT",
+    "NODE_OPTIONS": "--require /home/tim/.config/Code/User/workspaceStorage/58610cf463ad51c3b7411c5bf4980b82/ms-vscode.js-debug/bootloader.js",
+    "GNOME_SHELL_SESSION_MODE": "pop",
+    "GTK_MODULES": "gail:atk-bridge:appmenu-gtk-module",
+    "VSCODE_GIT_ASKPASS_MAIN": "/usr/share/code/resources/app/extensions/git/dist/askpass-main.js",
+    "YARN_WRAP_OUTPUT": "false",
+    "npm_config_version_tag_prefix": "v",
+    "LC_MONETARY": "en_US.UTF-8",
+    "VSCODE_GIT_ASKPASS_NODE": "/usr/share/code/code",
+    "MANAGERPID": "2079",
+    "IM_CONFIG_CHECK_ENV": "1",
+    "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/1000/bus",
+    "npm_package_devDependencies_eslint_plugin_react_hooks": "^4.1.0",
+    "COLORTERM": "truecolor",
+    "LIBVIRT_DEFAULT_URI": "qemu:///system",
+    "GIO_LAUNCHED_DESKTOP_FILE_PID": "37339",
+    "npm_package_description": "### Get things going",
+    "npm_package_devDependencies_typescript": "^4.0.2",
+    "npm_package_dependencies_qs": "^6.9.4",
+    "npm_package_dependencies__types_cookie_session": "^2.0.41",
+    "NVM_DIR": "/home/tim/.nvm",
+    "npm_package_readmeFilename": "README.md",
+    "npm_package_dependencies__types_morgan": "^1.9.1",
+    "IM_CONFIG_PHASE": "1",
+    "npm_package_devDependencies_prettier": "2.1.1",
+    "npm_package_scripts_dev": "NODE_ENV=development ts-node --project tsconfig.server.json server/index.ts",
+    "LOGNAME": "tim",
+    "JOURNAL_STREAM": "9:62695",
+    "_": "/usr/bin/yarn",
+    "npm_package_dependencies_express": "^4.17.1",
+    "npm_package_private": "true",
+    "XDG_SESSION_CLASS": "user",
+    "GIT_BRANCH": "initial-updates",
+    "npm_package_devDependencies__typescript_eslint_eslint_plugin": "^3.10.1",
+    "npm_package_dependencies_babel_plugin_styled_components": "^1.11.1",
+    "npm_config_registry": "https://registry.yarnpkg.com",
+    "USERNAME": "tim",
+    "TERM": "xterm-256color",
+    "GNOME_DESKTOP_SESSION_ID": "this-is-deprecated",
+    "npm_package_scripts_start": "NODE_ENV=production node dist/index.js",
+    "npm_package_scripts_debug": "NODE_OPTIONS='--inspect=9090' ts-node --project tsconfig.server.json server/index.ts",
+    "npm_config_ignore_scripts": "",
+    "WINDOWPATH": "2",
+    "npm_package_dependencies_xstate": "^4.13.0",
+    "npm_package_dependencies_axios": "^0.20.0",
+    "PATH": "/tmp/yarn--1601445760389-0.13792168771333468:/home/tim/code/nectar/node_modules/.bin:/home/tim/.config/yarn/link/node_modules/.bin:/home/tim/.nvm/versions/node/v11.14.0/libexec/lib/node_modules/npm/bin/node-gyp-bin:/home/tim/.nvm/versions/node/v11.14.0/lib/node_modules/npm/bin/node-gyp-bin:/home/tim/.nvm/versions/node/v11.14.0/bin/node_modules/npm/bin/node-gyp-bin:/home/tim/.yarn/bin:/home/tim/.npm-global/bin:/home/tim/.local/bin:/home/tim/.yarn/bin:/home/tim/.nvm/versions/node/v11.14.0/bin:/home/tim/.npm-global/bin:/home/tim/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+    "NODE": "/home/tim/.nvm/versions/node/v11.14.0/bin/node",
+    "SESSION_MANAGER": "local/pop-os:@/tmp/.ICE-unix/4284,unix/pop-os:/tmp/.ICE-unix/4284",
+    "INVOCATION_ID": "4f21c7023da2404a9d4547bd7fb5d94e",
+    "PAPERSIZE": "letter",
+    "npm_package_name": "nectar",
+    "XDG_MENU_PREFIX": "gnome-",
+    "LC_ADDRESS": "en_US.UTF-8",
+    "XDG_RUNTIME_DIR": "/run/user/1000",
+    "npm_package_devDependencies_eslint_plugin_jsx_a11y": "^6.3.1",
+    "DISPLAY": ":1",
+    "LANG": "en_US.UTF-8",
+    "XDG_CURRENT_DESKTOP": "Unity",
+    "LC_TELEPHONE": "en_US.UTF-8",
+    "npm_package_devDependencies_eslint": "^7.7.0",
+    "npm_package_dependencies_react_dom": "16.13.1",
+    "npm_package_scripts_build_next": "next build",
+    "XMODIFIERS": "@im=ibus",
+    "XDG_SESSION_DESKTOP": "pop",
+    "XAUTHORITY": "/run/user/1000/gdm/Xauthority",
+    "LS_COLORS": "rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:",
+    "VSCODE_GIT_IPC_HANDLE": "/run/user/1000/vscode-git-fd7fee990b.sock",
+    "TERM_PROGRAM": "vscode",
+    "npm_lifecycle_script": "NODE_ENV=development ts-node --project tsconfig.server.json server/index.ts",
+    "SSH_AUTH_SOCK": "/run/user/1000/keyring/ssh",
+    "ORIGINAL_XDG_CURRENT_DESKTOP": "pop:GNOME",
+    "npm_package_dependencies__types_qs": "^6.9.4",
+    "npm_config_version_git_message": "v%s",
+    "SHELL": "/bin/bash",
+    "LC_NAME": "en_US.UTF-8",
+    "npm_lifecycle_event": "dev",
+    "npm_package_devDependencies__types_react": "^16.9.48",
+    "npm_package_version": "0.1.0",
+    "QT_ACCESSIBILITY": "1",
+    "GDMSESSION": "pop",
+    "npm_config_argv": "{\"remain\":[],\"cooked\":[\"run\",\"dev\"],\"original\":[\"dev\"]}",
+    "npm_package_dependencies_ramda": "^0.27.1",
+    "npm_package_dependencies_cors": "^2.8.5",
+    "npm_package_dependencies_cookie": "^0.4.1",
+    "npm_package_scripts_build": "yarn run build:next && yarn run build:server",
+    "LESSCLOSE": "/usr/bin/lesspipe %s %s",
+    "npm_package_dependencies__xstate_fsm": "^1.5.1",
+    "LC_MEASUREMENT": "en_US.UTF-8",
+    "npm_package_dependencies__types_express": "^4.17.8",
+    "npm_config_version_git_tag": "true",
+    "npm_config_version_git_sign": "",
+    "__GIT_PROMPT_SHOW_UNTRACKED_FILES": "",
+    "GPG_AGENT_INFO": "/run/user/1000/gnupg/S.gpg-agent:0:1",
+    "GJS_DEBUG_OUTPUT": "stderr",
+    "LC_IDENTIFICATION": "en_US.UTF-8",
+    "npm_package_dependencies_sass": "^1.26.11",
+    "npm_config_strict_ssl": "true",
+    "VSCODE_INSPECTOR_OPTIONS": "{\"inspectorIpc\":\"/tmp/node-cdp.18880-1.sock.deferred\",\"deferredMode\":true,\"waitForDebugger\":\"\",\"execPath\":\"/home/tim/.nvm/versions/node/v11.14.0/bin/node\",\"onlyEntrypoint\":false,\"autoAttachMode\":\"smart\",\"aaPatterns\":[\"!**/node_modules/**\",\"**/$KNOWN_TOOLS$/**\"],\"ppid\":39102}",
+    "QT_IM_MODULE": "ibus",
+    "npm_package_dependencies_recoil": "^0.0.13",
+    "PWD": "/home/tim/code/nectar",
+    "npm_execpath": "/usr/share/yarn/bin/yarn.js",
+    "XDG_CONFIG_DIRS": "/etc/xdg/xdg-pop:/etc/xdg",
+    "NVM_CD_FLAGS": "",
+    "XDG_DATA_DIRS": "/usr/share/pop:/home/tim/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop",
+    "LC_NUMERIC": "en_US.UTF-8",
+    "npm_package_dependencies_date_fns": "^2.16.1",
+    "npm_package_dependencies__xstate_react": "^0.8.1",
+    "npm_config_save_prefix": "^",
+    "npm_config_ignore_optional": "",
+    "npm_config_yarn_offline_mirror": "/home/tim/npm-packages-offline-cache",
+    "LC_PAPER": "en_US.UTF-8",
+    "npm_package_dependencies_react_query": "^2.14.1",
+    "npm_package_dependencies_next": "9.5.2",
+    "npm_package_dependencies_cookie_session": "^1.4.0",
+    "npm_package_dependencies_axios_debug_log": "^0.8.0",
+    "npm_package_dependencies__material_ui_lab": "^4.0.0-alpha.56",
+    "NODE_ENV": "development",
+    "INIT_CWD": "/home/tim/code/nectar",
+    "npm_package_dependencies_react": "16.13.1",
+    "npm_package_dependencies_morgan": "^1.10.0",
+    "__NEXT_PROCESSED_ENV": "true",
+    "HOSTNAME": "localhost",
+    "PORT": "8000",
+    "HOST": "http://localhost:8000",
+    "NEXT_PUBLIC_API_HOST": "https://devapi.adsabs.harvard.edu/v1",
+    "DEBUG": "axios",
+    "COOKIE_SECRET": "9taXu4Pv6IRYWy52AEuudktJK8GNIyFSK8j26ZIdbiYGuGOPkTvTiihvXOoxW5BeZ5YutlkhDI7zKDw45PJMh88YYjfBgFYWRUI"
+  },
+  "userLimits": {
+    "core_file_size_blocks": {
+      "soft": 0,
+      "hard": "unlimited"
+    },
+    "data_seg_size_kbytes": {
+      "soft": "unlimited",
+      "hard": "unlimited"
+    },
+    "file_size_blocks": {
+      "soft": "unlimited",
+      "hard": "unlimited"
+    },
+    "max_locked_memory_bytes": {
+      "soft": 67108864,
+      "hard": 67108864
+    },
+    "max_memory_size_kbytes": {
+      "soft": "unlimited",
+      "hard": "unlimited"
+    },
+    "open_files": {
+      "soft": 1048576,
+      "hard": 1048576
+    },
+    "stack_size_bytes": {
+      "soft": 8388608,
+      "hard": "unlimited"
+    },
+    "cpu_time_seconds": {
+      "soft": "unlimited",
+      "hard": "unlimited"
+    },
+    "max_user_processes": {
+      "soft": 63660,
+      "hard": 63660
+    },
+    "virtual_memory_kbytes": {
+      "soft": "unlimited",
+      "hard": "unlimited"
+    }
+  },
+  "sharedObjects": [
+    "linux-vdso.so.1",
+    "/lib/x86_64-linux-gnu/libdl.so.2",
+    "/lib/x86_64-linux-gnu/librt.so.1",
+    "/lib/x86_64-linux-gnu/libstdc++.so.6",
+    "/lib/x86_64-linux-gnu/libm.so.6",
+    "/lib/x86_64-linux-gnu/libgcc_s.so.1",
+    "/lib/x86_64-linux-gnu/libpthread.so.0",
+    "/lib/x86_64-linux-gnu/libc.so.6",
+    "/lib64/ld-linux-x86-64.so.2",
+    "/lib/x86_64-linux-gnu/libnss_files.so.2",
+    "/lib/x86_64-linux-gnu/libnss_mdns4_minimal.so.2",
+    "/lib/x86_64-linux-gnu/libresolv.so.2",
+    "/lib/x86_64-linux-gnu/libnss_dns.so.2"
+  ]
+}

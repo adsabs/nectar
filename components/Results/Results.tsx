@@ -1,11 +1,19 @@
 import { DocsEntity } from '@api/search';
-import { Box, createStyles, makeStyles, Paper, Theme, useTheme } from '@material-ui/core';
+import {
+  createStyles,
+  makeStyles,
+  Paper,
+  Theme,
+  Typography,
+} from '@material-ui/core';
 import React from 'react';
 import Item from './Item';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    root: {},
+    root: {
+      marginTop: theme.spacing(2),
+    },
     noResults: {
       marginTop: theme.spacing(3),
       padding: theme.spacing(3),
@@ -15,22 +23,36 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const Results: React.FC<IResultsProps> = ({ docs }) => {
   const classes = useStyles();
-  const theme = useTheme();
 
   if (docs.length <= 0) {
     return (
-      <Paper elevation={3} className={classes.noResults}>
-        No results
-      </Paper>
+      <>
+        <Typography variant="srOnly" component="h2">
+          Results
+        </Typography>
+        <Paper elevation={3} className={classes.noResults}>
+          No results
+        </Paper>
+      </>
     );
   }
 
   return (
-    <Box mt={theme.spacing(1)}>
+    <article className={classes.root}>
+      <Typography variant="srOnly" component="h2">
+        Results
+      </Typography>
       {docs.map((d, index) => (
-        <Item key={d.id} articleData={d} index={index + 1} showIndex={true} />
+        <Item
+          key={d.id}
+          articleData={d}
+          index={index + 1}
+          showIndex={true}
+          prevBibcode={docs?.[index - 1]?.bibcode ?? undefined}
+          nextBibcode={docs?.[index + 1]?.bibcode ?? undefined}
+        />
       ))}
-    </Box>
+    </article>
   );
 };
 

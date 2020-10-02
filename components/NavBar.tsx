@@ -5,12 +5,15 @@ import {
   Grid,
   IconButton,
   makeStyles,
+  NoSsr,
   Theme,
   Toolbar,
   Typography,
 } from '@material-ui/core';
-import { Menu } from '@material-ui/icons';
+import { Brightness3, BrightnessHigh, Menu } from '@material-ui/icons';
 import Link from 'next/link';
+import React from 'react';
+import useDarkMode from 'use-dark-mode';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -45,10 +48,15 @@ const NavBar: React.FC = () => {
           <Grid item className={classes.title}>
             <Link href="/search/query" passHref>
               <Button component="a" color="inherit">
-                <Typography variant="h6">ADS</Typography>
+                <Typography variant="h6" component="h1">
+                  ADS
+                </Typography>
               </Button>
             </Link>
           </Grid>
+          <NoSsr>
+            <ThemeToggle />
+          </NoSsr>
           <Link href="/login" passHref>
             <Button component="a" color="inherit">
               Login
@@ -57,6 +65,16 @@ const NavBar: React.FC = () => {
         </Toolbar>
       </AppBar>
     </header>
+  );
+};
+
+const ThemeToggle = () => {
+  const { value: isDark, toggle } = useDarkMode();
+
+  return (
+    <IconButton color="inherit" aria-label="theme toggle" onClick={toggle}>
+      {isDark ? <BrightnessHigh /> : <Brightness3 />}
+    </IconButton>
   );
 };
 

@@ -6,8 +6,6 @@ const ShowAbstractButton: React.FC<IShowAbstractButtonProps> = ({
   selected,
   onChange,
 }) => {
-  if (!process.browser) return null;
-
   return (
     <ToggleButton
       value="check"

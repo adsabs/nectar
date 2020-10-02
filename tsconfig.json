@@ -17,7 +17,7 @@
     "baseUrl": ".",
     "paths": {
       "@components/*": ["components/*"],
-      "@theme": ["theme/createTheme.ts"],
+      "@theme/*": ["theme/*"],
       "@src/*": ["src/*"],
       "@mocks/*": ["mocks/*"],
       "@api/*": ["api/*"],

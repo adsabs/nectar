@@ -1,18 +1,19 @@
 import type { DocsEntity } from '@api/search';
+import Link from '@components/Link';
 import {
   Card,
-  CardActions,
   CardContent,
   createStyles,
-  IconButton,
+  Grid,
   makeStyles,
   NoSsr,
+  Paper,
   Theme,
-  useTheme,
+  Typography,
 } from '@material-ui/core';
-import { Favorite } from '@material-ui/icons';
 import { Skeleton } from '@material-ui/lab';
 import React from 'react';
+import AuthorList from './AuthorList';
 import ResultCheckbox from './ResultCheckbox';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -36,6 +37,7 @@ const useStyles = makeStyles((theme: Theme) =>
       padding: theme.spacing(1),
       flex: 1,
     },
+
     actions: {
       '& > *': {
         marginLeft: 'auto',
@@ -44,14 +46,8 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const Item: React.FC<IItemProps> = ({
-  index = 0,
-  showIndex = false,
-  articleData,
-}) => {
+const Item: React.FC<IItemProps> = ({ index = 0, articleData }) => {
   const classes = useStyles();
-  const [showAbstract, setShowAbstract] = React.useState(false);
-  const theme = useTheme();
 
   if (!articleData) {
     return (
@@ -68,80 +64,53 @@ const Item: React.FC<IItemProps> = ({
     //   <CardContent className={classes.content}>content</CardContent>
     // </Card>
 
-    <Card className={classes.root}>
-      <CardContent>
+    <Paper elevation={2} className={classes.root}>
+      <Grid container>
         <NoSsr>
           <div className={classes.selectionContainer}>
             <ResultCheckbox id={articleData.id} label={index} />
           </div>
         </NoSsr>
-      </CardContent>
-      <CardActions classes={{}} className={classes.actions}>
-        <IconButton aria-label="add to favorites">
-          <Favorite />
-        </IconButton>
-      </CardActions>
-    </Card>
-
-    // <Card variant="outlined" classes={{ root: classes.root }}>
-
-    //   {/* <Link href={`/abs/${articleData.bibcode}`}>
-    //       <Typography variant="body1">{articleData.bibcode}</Typography>
-    //     </Link>
-    //     <Typography variant="body1">{articleData.pubdate}</Typography>
-    //     <ShowAbstractButton
-    //       selected={showAbstract}
-    //       onChange={setShowAbstract}
-    //     /> */}
-
-    //   <CardContent classes={{ root: classes.content }}>
-
-    //   {/* <Grid container>
-    //       <AuthorList
-    //         id={articleData.id}
-    //         authors={articleData.author ?? []}
-    //         count={articleData.author_count ?? 0}
-    //       />
-    //     </Grid> */}
-    //     {/* <Grid container wrap="nowrap"> */}
-    //       {/* Selection area */}
-    //     {/* <NoSsr>
-    //         <Grid item className={classes.selectionContainer}>
-    //           <Grid container direction="column" justify="center">
-    //             <ResultCheckbox id={articleData.id} label={index} />
-    //           </Grid>
-    //         </Grid>
-    //       </NoSsr>
-
-    //       {/* Article data */}
-    //     {/* <Grid item className={classes.articleContainer}>
-    //         <Grid container direction="column">
-
-    //           <Link href={`/abs/${articleData.bibcode}`}>
-    //             {articleData.title}
-    //           </Link>
-    //           <Grid container>
-    //             <AuthorList
-    //               id={articleData.id}
-    //               authors={articleData.author ?? []}
-    //               count={articleData.author_count ?? 0}
-    //             />
-    //           </Grid>
-    //         </Grid> */}
-    //     {/* </Grid> */}
-    //     {/* </Grid> */}
-    //   </CardContent>
-    //   <CardActionArea>
-    //     test
-    //   </CardActionArea>
-    //   {/* <ShowAbstractTray show={showAbstract} id={articleData.id} /> */}
-    // </Card>
+        <Grid item className={classes.articleContainer}>
+          <Grid container justify="space-between">
+            <Link
+              href={{
+                pathname: '/abs/[id]',
+                query: { id: articleData.bibcode },
+              }}
+            >
+              <Typography variant="body1">{articleData.bibcode}</Typography>
+            </Link>
+            <Typography variant="body1">{articleData.pubdate}</Typography>
+          </Grid>
+          <Link href={`/abs/${articleData.bibcode}`}>
+            <Typography variant="h6" component="h3">
+              {articleData.title}
+            </Typography>
+          </Link>
+          <Grid container>
+            <AuthorList
+              authors={articleData.author}
+              count={articleData.author_count}
+              id={articleData.id}
+            />
+          </Grid>
+          {/* <NoSsr>
+            <Grid container justify="flex-end">
+              <ShowAbstractButton
+                selected={showAbstract}
+                onChange={setShowAbstract}
+              />
+            </Grid>
+          </NoSsr> */}
+        </Grid>
+      </Grid>
+    </Paper>
   );
 };
 
 interface IItemProps {
   articleData?: DocsEntity;
-  showIndex?: boolean;
   index?: number;
 }
 

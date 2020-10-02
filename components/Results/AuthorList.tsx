@@ -1,97 +1,55 @@
-import { Typography } from '@material-ui/core';
-import Link from 'next/link';
+import AuthorModal from '@components/AuthorModal';
+import Link from '@components/Link';
+import { Grid, NoSsr, Typography } from '@material-ui/core';
 import React from 'react';
 
 const MAX = 10;
-const AuthorList: React.FC<IAuthorListProps> = ({ authors, count, links }) => {
-  const handleClickMore = () => console.log('more');
+const AuthorList: React.FC<IAuthorListProps> = ({
+  authors = [],
+  count = 0,
+  links,
+  canShowAll,
+  id,
+}) => {
   return (
     <>
-      {links
-        ? authors.map((author) => (
-            <Link
-              href={`/search/query?q=author:"${author}"`}
-              key={author}
-              passHref
-            >
-              <Typography variant="body1" component="a">
+      <Grid container>
+        {links
+          ? authors.map((author) => (
+              <Link
+                href={`/search/query?q=author:"${author}"`}
+                key={author}
+                passHref
+              >
+                <Typography variant="body1">{author};&nbsp;</Typography>
+              </Link>
+            ))
+          : authors.map((author) => (
+              <Typography variant="body1" key={author}>
                 {author};&nbsp;
               </Typography>
-            </Link>
-          ))
-        : authors.map((author) => (
-            <Typography variant="body1" key={author}>
-              {author};&nbsp;
-            </Typography>
-          ))}
-      {count > MAX &&
-        (process.browser ? (
-          <Typography
-            component="button"
-            variant="body1"
-            onClick={handleClickMore}
-          >
+            ))}
+        {count > MAX && (
+          <Typography color="textSecondary" variant="body1">
             and {count - MAX} more
           </Typography>
-        ) : (
-          <Typography variant="body1">and {count - MAX} more</Typography>
-        ))}
+        )}
+      </Grid>
+      {canShowAll && (
+        <NoSsr>
+          <AuthorModal id={id} />
+        </NoSsr>
+      )}
     </>
   );
 };
 
-// const AuthorListDynamic: React.FC<IAuthorListProps> = ({ authors, count }) => {
-//   const handleClickMore = () => console.log('more');
-
-//   return (
-//     <>
-//       {authors.map((author) => (
-//         <Typography variant="body1" key={author}>
-//           {author};&nbsp;
-//         </Typography>
-//       ))}
-//       {count > MAX && (
-//         <Typography
-//           component="button"
-//           variant="body1"
-//           onClick={handleClickMore}
-//         >
-//           and {count - MAX} more
-//         </Typography>
-//       )}
-//     </>
-//   );
-// };
-
-// const AuthorListStatic: React.FC<IAuthorListProps> = ({ authors, count }) => {
-//   return (
-//     <>
-//       {authors.map((author) => (
-//         <Typography variant="body1" key={author}>
-//           {author};&nbsp;
-//         </Typography>
-//       ))}
-//       {count > MAX && (
-//         <Typography variant="body1">and {count - MAX} more</Typography>
-//       )}
-//     </>
-//   );
-// };
-
-// const AuthorList: React.FC<IAuthorListProps> = (props) => {
-//   return (
-//     <NoScript
-//       component={<AuthorListDynamic {...props} />}
-//       fallbackComponent={<AuthorListStatic {...props} />}
-//     />
-//   );
-// };
-
 export interface IAuthorListProps {
   authors: string[];
   count: number;
-  id: string;
   links?: boolean;
+  id: string;
+  canShowAll?: boolean;
 }
 
 export default AuthorList;
