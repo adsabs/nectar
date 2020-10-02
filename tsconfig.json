@@ -10,9 +10,20 @@
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "node",
+    "downlevelIteration": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "baseUrl": ".",
+    "paths": {
+      "@components/*": ["components/*"],
+      "@theme/*": ["theme/*"],
+      "@src/*": ["src/*"],
+      "@mocks/*": ["mocks/*"],
+      "@api/*": ["api/*"],
+      "@recoil/*": ["recoil/*"],
+      "@utils/*": ["utils/*"]
+    }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
