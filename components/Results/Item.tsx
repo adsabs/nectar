@@ -60,10 +60,6 @@ const Item: React.FC<IItemProps> = ({ index = 0, articleData }) => {
   }
 
   return (
-    // <Card variant="outlined" className={classes.root}>
-    //   <CardContent className={classes.content}>content</CardContent>
-    // </Card>
-
     <Paper elevation={2} className={classes.root}>
       <Grid container>
         <NoSsr>
@@ -73,12 +69,7 @@ const Item: React.FC<IItemProps> = ({ index = 0, articleData }) => {
         </NoSsr>
         <Grid item className={classes.articleContainer}>
           <Grid container justify="space-between">
-            <Link
-              href={{
-                pathname: '/abs/[id]',
-                query: { id: articleData.bibcode },
-              }}
-            >
+            <Link href={`/abs/${articleData.bibcode}`}>
               <Typography variant="body1">{articleData.bibcode}</Typography>
             </Link>
             <Typography variant="body1">{articleData.pubdate}</Typography>
@@ -95,14 +86,6 @@ const Item: React.FC<IItemProps> = ({ index = 0, articleData }) => {
               id={articleData.id}
             />
           </Grid>
-          {/* <NoSsr>
-            <Grid container justify="flex-end">
-              <ShowAbstractButton
-                selected={showAbstract}
-                onChange={setShowAbstract}
-              />
-            </Grid>
-          </NoSsr> */}
         </Grid>
       </Grid>
     </Paper>

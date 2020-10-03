@@ -6,7 +6,6 @@ import { dialogMachine } from './machine';
 
 const AuthorModal: React.FC<IAuthorModal> = ({ id }) => {
   const [state, send] = useMachine(dialogMachine);
-  const open = state.matches('opened');
   const toggle = () => send('TOGGLE');
 
   return (
@@ -15,7 +14,7 @@ const AuthorModal: React.FC<IAuthorModal> = ({ id }) => {
         See All Authors
       </Button>
 
-      <AuthorTable id={id} onClose={toggle} open={open} />
+      <AuthorTable id={id} onClose={toggle} open={state.matches('opened')} />
     </>
   );
 };

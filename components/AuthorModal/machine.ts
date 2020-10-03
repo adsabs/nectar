@@ -1,5 +1,6 @@
 import { SearchPayload } from '@api/search';
 import axios from 'axios';
+import { Author } from 'pages/abs/[id]/authors';
 import { map, transpose } from 'ramda';
 import { assign, Machine, send, spawn } from 'xstate';
 
@@ -33,8 +34,6 @@ interface AuthorTableSchema {
     failure: {};
   };
 }
-
-type Author = { name: string; aff: string; orcid: string };
 
 interface AuthorTableContext {
   id: string;

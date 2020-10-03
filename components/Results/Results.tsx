@@ -43,14 +43,7 @@ const Results: React.FC<IResultsProps> = ({ docs }) => {
         Results
       </Typography>
       {docs.map((d, index) => (
-        <Item
-          key={d.id}
-          articleData={d}
-          index={index + 1}
-          showIndex={true}
-          prevBibcode={docs?.[index - 1]?.bibcode ?? undefined}
-          nextBibcode={docs?.[index + 1]?.bibcode ?? undefined}
-        />
+        <Item key={d.id} articleData={d} index={index + 1} />
       ))}
     </article>
   );
@@ -61,30 +54,3 @@ interface IResultsProps {
 }
 
 export default Results;
-
-// const useSearch = () => {
-//   const query = useRecoilValue(queryState);
-//   const setSelectedDocs = useSetRecoilState(selectedDocsState);
-
-//   React.useEffect(() => {
-//     queryCache.setQueryData('search', { query });
-//     setSelectedDocs([]);
-//   }, [query]);
-//   return useInfiniteQuery(
-//     ['search', { query }],
-//     async (key, { query }, nextCursorMark) => {
-//       const { data } = await axios.get<SearchResult>('/api/search', {
-//         params: { q: query, c: nextCursorMark },
-//         withCredentials: true,
-//       });
-//       return data;
-//     },
-//     {
-//       refetchOnWindowFocus: false,
-//       retry: 1,
-//       getFetchMore: (lastGroup) => {
-//         return lastGroup.nextCursorMark;
-//       },
-//     }
-//   );
-// };

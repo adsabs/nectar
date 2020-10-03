@@ -9,7 +9,7 @@ import {
   Theme,
   Typography,
 } from '@material-ui/core';
-import { NextPage, NextPageContext } from 'next';
+import { GetServerSideProps, GetServerSidePropsContext, NextPage } from 'next';
 import Head from 'next/head';
 import React from 'react';
 
@@ -64,7 +64,9 @@ const DetailsPage: NextPage<DetailsPageProps> = ({ doc }) => {
   );
 };
 
-DetailsPage.getInitialProps = async (ctx: NextPageContext) => {
+export const getServerSideProps: GetServerSideProps<DetailsPageProps> = async (
+  ctx: GetServerSidePropsContext
+) => {
   console.log(ctx);
   try {
     const {
@@ -101,10 +103,14 @@ DetailsPage.getInitialProps = async (ctx: NextPageContext) => {
     });
 
     return {
-      doc: docs[0],
+      props: {
+        doc: docs[0],
+      },
     };
   } catch (e) {
-    return {};
+    return {
+      props: { doc: undefined },
+    };
   }
 };
 

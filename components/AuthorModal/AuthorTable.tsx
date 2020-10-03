@@ -20,7 +20,7 @@ import {
   PaginationEvent,
 } from './machine';
 
-const AuthorTable = ({ id, open, onClose }: IAuthorTableProps) => {
+const AuthorTable: React.FC<IAuthorTableProps> = ({ id, open, onClose }) => {
   const authorTableMachine = React.useMemo(() => createAuthorTableMachine(id), [
     id,
   ]);
@@ -85,7 +85,7 @@ const PagerTable: React.FC<PagerTableProps> = ({ pagerService }) => {
 
   return (
     <>
-      <TableContainer style={{ minWidth: '100%' }}>
+      <TableContainer>
         <Table size="small" aria-label="author affiliation table">
           <TableHead>
             <TableRow>
