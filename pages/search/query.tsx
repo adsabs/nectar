@@ -8,7 +8,6 @@ import {
   queryState,
   resultState,
 } from '@recoil/atoms';
-import { usePersistenceObserver } from '@recoil/state';
 import { GetServerSideProps, GetServerSidePropsContext, NextPage } from 'next';
 import Head from 'next/head';
 import React from 'react';
@@ -29,7 +28,6 @@ const SearchPage: NextPage<SearchPageProps> = ({
 }) => {
   const classes = useStyles();
   const setIsSubmitting = useSetRecoilState(isSubmittingSearchState);
-  usePersistenceObserver();
 
   const formProps = {
     action: '/search/query',
