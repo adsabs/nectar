@@ -1,9 +1,11 @@
-import { createStyles, makeStyles, Theme } from '@material-ui/core';
+import SearchBar from '@components/SearchBar';
+import { createStyles, Grid, makeStyles, Theme } from '@material-ui/core';
+import React from 'react';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     search: {
-      margin: '10px 0 10px 0',
+      marginTop: theme.spacing(4),
     },
   })
 );
@@ -11,14 +13,21 @@ const useStyles = makeStyles((theme: Theme) =>
 const Home: React.FC = () => {
   const classes = useStyles();
 
+  const formProps = {
+    action: '/search',
+    method: 'get',
+    onSubmit: (e: React.FormEvent<HTMLFormElement>) => {
+      console.log('submitting');
+    },
+  };
+
   return (
     <>
-      {/* <Grid container direction="column" component="section">
-        <Grid container justify="center" className={classes.search}>
+      <Grid container direction="column" component="form" {...formProps}>
+        <Grid className={classes.search} component="section">
           <SearchBar />
         </Grid>
-        <Grid item></Grid>
-      </Grid> */}
+      </Grid>
     </>
   );
 };

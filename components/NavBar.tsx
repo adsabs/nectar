@@ -1,25 +1,25 @@
+import Link from '@components/Link';
 import {
   AppBar,
   Button,
   createStyles,
   Grid,
-  IconButton,
   makeStyles,
-  NoSsr,
   Theme,
   Toolbar,
   Typography,
+  withStyles,
 } from '@material-ui/core';
-import { Brightness3, BrightnessHigh, Menu } from '@material-ui/icons';
-import Link from 'next/link';
 import React from 'react';
-import useDarkMode from 'use-dark-mode';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       display: 'flex',
       flexGrow: 1,
+      '& *': {
+        color: theme.palette.secondary.contrastText,
+      },
     },
     menuButton: {
       marginRight: theme.spacing(2),
@@ -27,54 +27,53 @@ const useStyles = makeStyles((theme: Theme) =>
     title: {
       flexGrow: 1,
     },
+    logo: {
+      width: 48,
+      marginRight: 10,
+    },
+    logoText: {
+      fontWeight: 'bold',
+      textTransform: 'lowercase',
+    },
   })
 );
 
+const DarkAppBar = withStyles((theme: Theme) => ({
+  root: {
+    backgroundColor: theme.palette.grey[900],
+  },
+}))(AppBar);
+
 const NavBar: React.FC = () => {
   const classes = useStyles();
-
   return (
     <header className={classes.root}>
-      <AppBar component="section" position="static">
-        <Toolbar>
-          <IconButton
-            edge="start"
-            className={classes.menuButton}
-            color="inherit"
-            aria-label="menu"
-          >
-            <Menu />
-          </IconButton>
+      <DarkAppBar component="section" position="static">
+        <Toolbar variant="dense">
           <Grid item className={classes.title}>
-            <Link href="/search/query" passHref>
-              <Button component="a" color="inherit">
-                <Typography variant="h6" component="h1">
-                  ADS
-                </Typography>
-              </Button>
-            </Link>
-          </Grid>
-          <NoSsr>
-            <ThemeToggle />
-          </NoSsr>
-          <Link href="/login" passHref>
-            <Button component="a" color="inherit">
-              Login
+            <Button component={Link} href="/">
+              <img
+                className={classes.logo}
+                src="/img/transparent_logo.svg"
+                alt="ads logo"
+              />
+              <Typography
+                variant="h5"
+                component="h1"
+                className={classes.logoText}
+              >
+                ads
+                <Typography variant="srOnly">go home</Typography>
+              </Typography>
             </Button>
-          </Link>
+          </Grid>
+          {/* <ThemeToggle /> */}
+          <Button component={Link} href="/login">
+            Login
+          </Button>
         </Toolbar>
-      </AppBar>
+      </DarkAppBar>
     </header>
-  );
-};
-
-const ThemeToggle = () => {
-  const { value: isDark, toggle } = useDarkMode();
-
-  return (
-    <IconButton color="inherit" aria-label="theme toggle" onClick={toggle}>
-      {isDark ? <BrightnessHigh /> : <Brightness3 />}
-    </IconButton>
   );
 };
 

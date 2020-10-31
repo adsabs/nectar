@@ -1,7 +1,7 @@
 import { SearchPayload } from '@api/search';
 import axios from 'axios';
 import { Author } from 'pages/abs/[id]/authors';
-import { map, transpose } from 'ramda';
+import { addIndex, map, transpose } from 'ramda';
 import { assign, Machine, send, spawn } from 'xstate';
 
 /**
@@ -102,14 +102,16 @@ const fetchAuthors = async (context: AuthorTableContext) => {
   });
 
   const { author, aff, orcid_pub } = data?.response.docs[0];
-  return map(
-    ([author, aff, orcid_pub]) => ({
+  const indexedMap = addIndex(map);
+  return indexedMap((val, i) => {
+    const [author, aff, orcid_pub] = <string[]>val;
+    return {
+      position: i + 1,
       name: author,
       aff,
       orcid: orcid_pub,
-    }),
-    transpose([author, aff, orcid_pub])
-  );
+    };
+  }, transpose([author, aff, orcid_pub]));
 };
 
 interface PaginationSchema {

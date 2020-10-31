@@ -5,7 +5,7 @@ import AuthorTable from './AuthorTable';
 import { dialogMachine } from './machine';
 
 const AuthorModal: React.FC<IAuthorModal> = ({ id }) => {
-  const [state, send] = useMachine(dialogMachine);
+  const [state, send] = useMachine(dialogMachine, { devTools: true });
   const toggle = () => send('TOGGLE');
 
   return (

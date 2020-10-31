@@ -1,52 +1,53 @@
 import {
   createStyles,
-  Divider,
   IconButton,
   InputBase,
   makeStyles,
   Paper,
   Theme,
 } from '@material-ui/core';
-import { Search } from '@material-ui/icons';
-import { queryState } from '@recoil/atoms';
+import { Search as SearchIcon } from '@material-ui/icons';
+import { Autocomplete } from '@material-ui/lab';
 import React from 'react';
-import { useRecoilState } from 'recoil';
+import QuickFields from './QuickFields';
 
-const SearchBar: React.FC<ISearchBarProps> = ({}) => {
+const SearchBar: React.FC<ISearchBarProps> = ({ value, onChange }) => {
   const classes = useStyles();
-  const [query, setQuery] = useRecoilState(queryState);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setQuery({ q: e.currentTarget.value });
-  };
 
   return (
-    <Paper className={classes.root}>
-      <InputBase
-        className={classes.input}
-        placeholder="Search"
-        name="q"
-        onChange={handleChange}
-        value={query.q}
-      />
-      <Divider className={classes.divider} orientation="vertical" />
-      <IconButton
-        className={classes.iconButton}
-        aria-label="search"
-        type="submit"
-      >
-        <Search />
-      </IconButton>
-    </Paper>
+    <Autocomplete
+      id="search-input"
+      options={['test', 'test2']}
+      openOnFocus={false}
+      renderInput={(params) => (
+        <Paper className={classes.root} innerRef={params.InputProps.ref}>
+          <InputBase
+            placeholder="Search"
+            name="q"
+            defaultValue={value}
+            {...params.inputProps}
+            className={classes.input}
+          />
+          <QuickFields />
+          <IconButton
+            className={classes.searchButton}
+            aria-label="search"
+            type="submit"
+          >
+            <SearchIcon />
+          </IconButton>
+        </Paper>
+      )}
+    />
   );
 };
 
-interface ISearchBarProps {}
+interface ISearchBarProps extends React.InputHTMLAttributes<HTMLInputElement> {}
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      padding: '2px 4px',
+      padding: 0,
       display: 'flex',
       alignItems: 'center',
       width: '100%',
@@ -58,9 +59,13 @@ const useStyles = makeStyles((theme: Theme) =>
     iconButton: {
       padding: 10,
     },
-    divider: {
-      height: 28,
-      margin: 4,
+    searchButton: {
+      borderRadius: '0 4px 4px 0',
+      color: theme.palette.getContrastText(theme.palette.secondary.main),
+      backgroundColor: theme.palette.secondary.main,
+      '&:hover': {
+        backgroundColor: theme.palette.secondary.dark,
+      },
     },
   })
 );

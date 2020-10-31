@@ -1,21 +1,10 @@
-FROM node:12
+from node:12
 
-ENV PORT 8000
+RUN apt-get update \
+    apt-get install -y git
 
-# create application directory
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
+RUN mkdir /workspaces/nectar \
+    cd /workspaces \
+    git clone https://github.com/adsabs/Nectar.git nectar
 
-# install deps
-COPY package*.json /usr/src/app
-RUN yarn install
-
-# copy source files
-COPY . /usr/src/app
-
-# build
-RUN yarn build
-EXPOSE 8000
-
-# run app
-CMD "yarn" "dev" "--port" "8000"
+WORKDIR /workspaces/nectar

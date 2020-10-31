@@ -1,3 +1,4 @@
+import Link from '@components/Link';
 import {
   CircularProgress,
   Dialog,
@@ -24,7 +25,7 @@ const AuthorTable: React.FC<IAuthorTableProps> = ({ id, open, onClose }) => {
   const authorTableMachine = React.useMemo(() => createAuthorTableMachine(id), [
     id,
   ]);
-  const [state, send] = useMachine(authorTableMachine);
+  const [state, send] = useMachine(authorTableMachine, { devTools: true });
 
   React.useEffect(() => {
     if (open) {
@@ -89,26 +90,30 @@ const PagerTable: React.FC<PagerTableProps> = ({ pagerService }) => {
         <Table size="small" aria-label="author affiliation table">
           <TableHead>
             <TableRow>
-              <TableCell>Id</TableCell>
+              <TableCell>#</TableCell>
               <TableCell>Name</TableCell>
               <TableCell align="right">Affiliation</TableCell>
               <TableCell align="right">ORCiD</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map(({ name, aff, orcid }, i) => (
+            {rows.map(({ name, aff, orcid, position }, i) => (
               <TableRow key={`${name}_${i}}`}>
                 <TableCell component="th" scope="row">
-                  {i + 1}
+                  {position}
                 </TableCell>
                 <TableCell component="th" scope="row">
-                  {name}
+                  <Link href={`/search/query?q=author:"${name}"`}>{name}</Link>
                 </TableCell>
                 <TableCell align="right" component="th" scope="row">
-                  {aff}
+                  {aff === '-' ? null : aff}
                 </TableCell>
                 <TableCell align="right" component="th" scope="row">
-                  {orcid}
+                  {orcid === '-' ? null : (
+                    <Link href={`/search/query?q=orcid:"${orcid}"`}>
+                      <img src="/orcid.png" alt={orcid} />
+                    </Link>
+                  )}
                 </TableCell>
               </TableRow>
             ))}

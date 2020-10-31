@@ -52,13 +52,17 @@ const AuthorPage: NextPage<AuthorPageProps> = ({ authors, title, bibcode }) => {
                   {i + 1}
                 </TableCell>
                 <TableCell component="th" scope="row">
-                  {name}
+                  <Link href={`/search/query?q=author:"${name}"`}>{name}</Link>
                 </TableCell>
                 <TableCell align="right" component="th" scope="row">
-                  {aff}
+                  {aff === '-' ? null : aff}
                 </TableCell>
                 <TableCell align="right" component="th" scope="row">
-                  {orcid}
+                  {orcid === '-' ? null : (
+                    <Link href={`/search/query?q=orcid:"${orcid}"`}>
+                      <img src="/orcid.png" alt={orcid} />
+                    </Link>
+                  )}
                 </TableCell>
               </TableRow>
             ))}
@@ -69,7 +73,12 @@ const AuthorPage: NextPage<AuthorPageProps> = ({ authors, title, bibcode }) => {
   );
 };
 
-export type Author = { name: string; aff: string; orcid: string };
+export type Author = {
+  name: string;
+  aff: string;
+  orcid: string;
+  position?: number;
+};
 
 interface AuthorPageProps {
   authors: Author[];
