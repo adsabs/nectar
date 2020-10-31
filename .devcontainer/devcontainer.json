@@ -1,0 +1,7 @@
+{
+  "name": "Nectar",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "extensions": ["esbenp.prettier-vscode", "dbaeumer.vscode-eslint"]
+}

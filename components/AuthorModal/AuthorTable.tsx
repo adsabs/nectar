@@ -1,73 +1,135 @@
-import { SearchPayload } from '@api/search';
+import Link from '@components/Link';
 import {
+  CircularProgress,
   Dialog,
   DialogContent,
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
 } from '@material-ui/core';
-import axios from 'axios';
-import { map, transpose } from 'ramda';
+import { Alert } from '@material-ui/lab';
+import { useMachine, useService } from '@xstate/react';
 import React from 'react';
-import { useQuery } from 'react-query';
+import { Interpreter } from 'xstate';
+import {
+  createAuthorTableMachine,
+  PaginationContext,
+  PaginationEvent,
+} from './machine';
 
-const AuthorTable = ({ id, open, onClose }: IAuthorTableProps) => {
-  const [authors, setAuthors] = React.useState<AuthorAff[]>([]);
-  const { data, isSuccess, isFetching } = useSearch(id);
+const AuthorTable: React.FC<IAuthorTableProps> = ({ id, open, onClose }) => {
+  const authorTableMachine = React.useMemo(() => createAuthorTableMachine(id), [
+    id,
+  ]);
+  const [state, send] = useMachine(authorTableMachine, { devTools: true });
 
   React.useEffect(() => {
-    if (isSuccess && data) {
-      const { author, aff, orcid_pub } = data.docs[0];
-      const val = map(
-        ([author, aff, orcid_pub]) => ({
-          name: author,
-          aff,
-          orcid: orcid_pub,
-        }),
-        transpose([author, aff, orcid_pub])
-      );
-
-      setAuthors(val);
+    if (open) {
+      send('FETCH');
     }
-  }, [isSuccess]);
+  }, [open]);
+
+  const handleClose = () => {
+    send('RESET');
+    onClose();
+  };
 
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       aria-describedby="author-aff-progress"
-      aria-busy={isFetching}
+      aria-busy={state.matches('loading')}
       maxWidth="lg"
     >
-      <DialogContent>
+      {state.matches('loading') && (
+        <DialogContent>
+          <CircularProgress />
+        </DialogContent>
+      )}
+      {state.matches('failure') && (
+        <DialogContent>
+          <Alert severity="error">
+            Something went wrong with the request, please try again.
+          </Alert>
+        </DialogContent>
+      )}
+      {state.matches('loaded') && (
+        <DialogContent>
+          <PagerTable pagerService={state.context.pager} />
+        </DialogContent>
+      )}
+    </Dialog>
+  );
+};
+
+interface PagerTableProps {
+  pagerService: Interpreter<PaginationContext, any, PaginationEvent, any>;
+}
+const PagerTable: React.FC<PagerTableProps> = ({ pagerService }) => {
+  const [state, send] = useService(pagerService);
+  const { count, rowsPerPage, page, rows } = state.context;
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    send({ type: 'UPDATE_PER_PAGE', value: +event.target.value });
+  };
+
+  const handleChangePage = (_: unknown, value: number) => {
+    send({ type: 'UPDATE_PAGE', value });
+  };
+
+  return (
+    <>
+      <TableContainer>
         <Table size="small" aria-label="author affiliation table">
           <TableHead>
             <TableRow>
-              <TableCell>Id</TableCell>
+              <TableCell>#</TableCell>
               <TableCell>Name</TableCell>
               <TableCell align="right">Affiliation</TableCell>
               <TableCell align="right">ORCiD</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {authors.map(({ name, aff, orcid }, i) => (
+            {rows.map(({ name, aff, orcid, position }, i) => (
               <TableRow key={`${name}_${i}}`}>
                 <TableCell component="th" scope="row">
-                  {i + 1}
+                  {position}
                 </TableCell>
                 <TableCell component="th" scope="row">
-                  {name}
+                  <Link href={`/search/query?q=author:"${name}"`}>{name}</Link>
                 </TableCell>
-                <TableCell align="right">{aff}</TableCell>
-                <TableCell align="right">{orcid}</TableCell>
+                <TableCell align="right" component="th" scope="row">
+                  {aff === '-' ? null : aff}
+                </TableCell>
+                <TableCell align="right" component="th" scope="row">
+                  {orcid === '-' ? null : (
+                    <Link href={`/search/query?q=orcid:"${orcid}"`}>
+                      <img src="/orcid.png" alt={orcid} />
+                    </Link>
+                  )}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
-      </DialogContent>
-    </Dialog>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[10, 25, 50, 100]}
+        component="div"
+        count={count}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onChangePage={handleChangePage}
+        onChangeRowsPerPage={handleChangeRowsPerPage}
+      />
+    </>
   );
 };
 
@@ -77,30 +139,4 @@ export interface IAuthorTableProps {
   onClose(): void;
 }
 
-export default React.memo<IAuthorTableProps>(
-  AuthorTable,
-  (prev, next) => prev.id === next.id
-);
-
-const useSearch = (id: string) => {
-  const query = `id:${id}`;
-  const fields = 'id,author,aff,orcid_pub';
-
-  return useQuery(
-    [`author_${id}_search`, { query, fields }],
-    async (key, { query, fields }) => {
-      const { data } = await axios.get<SearchPayload>('/api/search', {
-        params: { q: query, fl: fields },
-      });
-
-      return data?.response;
-    },
-    { refetchOnWindowFocus: false, retry: false, suspense: true }
-  );
-};
-
-type AuthorAff = {
-  name: string;
-  aff: string;
-  orcid: string;
-};
+export default AuthorTable;

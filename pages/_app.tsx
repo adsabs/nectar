@@ -1,6 +1,7 @@
 import Layout from '@components/Layout';
-import { createMuiTheme, ThemeProvider } from '@material-ui/core';
+import { ThemeProvider } from '@material-ui/core';
 import CssBaseline from '@material-ui/core/CssBaseline';
+import appTheme from '@theme';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import React from 'react';
@@ -19,16 +20,16 @@ const NectarApp = ({ Component, pageProps }: AppProps) => {
   const { value: isDark } = useDarkMode(false);
 
   const theme = React.useMemo(
-    () =>
-      createMuiTheme({
-        palette: {
-          type: isDark ? 'dark' : 'light',
-        },
-      }),
+    () => ({ ...appTheme, palette: { ...appTheme.palette, type: 'dark' } }),
+    // createMuiTheme(
+    //   isDark
+    //     ? { ...appTheme, palette: { ...appTheme.palette, type: 'dark' } }
+    //     : { ...appTheme, palette: { ...appTheme.palette, type: 'light' } }
+    // ),
     [isDark]
   );
 
-  // const theme = isDark ? darkTheme : lightTheme;
+  console.log('render', theme.palette.type);
 
   return (
     <>
@@ -38,6 +39,7 @@ const NectarApp = ({ Component, pageProps }: AppProps) => {
           name="viewport"
           content="minimum-scale=1, initial-scale=1, width=device-width"
         />
+        <meta name="theme-color" content={theme.palette.primary.main} />
       </Head>
       <ThemeProvider theme={theme}>
         <CssBaseline />

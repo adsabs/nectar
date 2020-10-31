@@ -41,6 +41,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var cookie_session_1 = __importDefault(require("cookie-session"));
 var express_1 = __importDefault(require("express"));
+var express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 var morgan_1 = __importDefault(require("morgan"));
 var next_1 = __importDefault(require("next"));
 var apiMiddleware_1 = __importDefault(require("./apiMiddleware"));
@@ -48,6 +49,14 @@ var dev = process.env.NODE_ENV !== 'production';
 var app = next_1.default({ dev: dev });
 var handle = app.getRequestHandler();
 var port = process.env.PORT || 8000;
+var limiter = express_rate_limit_1.default({
+    windowMs: 15 * 60 * 1000,
+    max: 3,
+    skip: function (req) {
+        console.log('session', req.cookies, req.session);
+        return !!req.session;
+    },
+});
 (function () { return __awaiter(void 0, void 0, void 0, function () {
     var server, e_1;
     return __generator(this, function (_a) {
@@ -60,6 +69,7 @@ var port = process.env.PORT || 8000;
                 server = express_1.default();
                 server.use(express_1.default.urlencoded({ extended: true }));
                 server.set('trust proxy', 1);
+                server.use('/api/', limiter);
                 server.use(cookie_session_1.default({
                     name: 'nectar_session',
                     keys: [process.env.COOKIE_SECRET || ''],

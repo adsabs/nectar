@@ -6,6 +6,8 @@ import {
   makeStyles,
   Theme,
 } from '@material-ui/core';
+import { useRouter } from 'next/router';
+import LandingHero from './LandingHero';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -17,11 +19,16 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const Layout: React.FC = ({ children }) => {
   const classes = useStyles();
+  const router = useRouter();
+  const showHero = ['/', '/classic-form', '/paper-form'].includes(
+    router.asPath
+  );
 
   return (
     <Grid container direction="column" component="section">
       <Grid item component={NavBar} />
       <Grid item component="main">
+        {showHero && <LandingHero />}
         <Container>{children ?? ''}</Container>
       </Grid>
       {/* <Grid item component={Footer} /> */}
