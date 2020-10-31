@@ -4,7 +4,7 @@
       "type": "node",
       "request": "launch",
       "name": "Next.js Server (debug)",
-      "runtimeExecutable": "/home/tim/.yarn/bin/ts-node",
+      "runtimeExecutable": "/usr/local/share/npm-global/bin/ts-node",
       "env": {
         "NODE_OPTIONS": "--inspect"
       },
@@ -18,7 +18,7 @@
       "env": {
         "NODE_ENV": "development"
       },
-      "runtimeExecutable": "/home/tim/.yarn/bin/ts-node",
+      "runtimeExecutable": "/usr/local/share/npm-global/bin/ts-node",
       "runtimeArgs": ["--project", "tsconfig.server.json", "server/index.ts"]
     }
   ]
