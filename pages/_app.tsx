@@ -7,6 +7,7 @@ import Head from 'next/head';
 import React from 'react';
 import { RecoilRoot } from 'recoil';
 import useDarkMode from 'use-dark-mode';
+import '../styles/tailwind.output.css';
 
 const NectarApp = ({ Component, pageProps }: AppProps) => {
   // React.useEffect(() => {
