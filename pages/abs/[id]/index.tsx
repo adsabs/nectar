@@ -1,14 +1,5 @@
 import search, { DocsEntity } from '@api/search';
-import Details from '@components/Details';
-import ActionsButtons from '@components/Details/ActionButtons';
-import GoBackButton from '@components/GoBackButton';
-import {
-  createStyles,
-  Grid,
-  makeStyles,
-  Theme,
-  Typography,
-} from '@material-ui/core';
+import { createStyles, makeStyles, Theme } from '@material-ui/core';
 import { GetServerSideProps, GetServerSidePropsContext, NextPage } from 'next';
 import Head from 'next/head';
 import React from 'react';
@@ -41,25 +32,7 @@ const DetailsPage: NextPage<DetailsPageProps> = ({ doc }) => {
   return (
     <>
       <Head>{doc && <title>{doc.title}</title>}</Head>
-      <Grid
-        container
-        direction="column"
-        component="form"
-        {...formProps}
-        className={classes.root}
-      >
-        <Grid item className={classes.detailsActions}>
-          <GoBackButton />
-        </Grid>
-        <Grid item component="section">
-          {doc ? (
-            <Details doc={doc} />
-          ) : (
-            <Typography variant="h3">No record found</Typography>
-          )}
-        </Grid>
-        {doc && <ActionsButtons id={doc.id} />}
-      </Grid>
+      <pre>{JSON.stringify(doc, null, 2)}</pre>
     </>
   );
 };

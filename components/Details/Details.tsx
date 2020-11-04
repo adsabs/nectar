@@ -1,5 +1,5 @@
 import { DocsEntity } from '@api/search';
-import AuthorList from '@components/Results/AuthorList';
+import AuthorList from '@components/results/AuthorList';
 import {
   createStyles,
   makeStyles,

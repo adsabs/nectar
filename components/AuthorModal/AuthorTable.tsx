@@ -1,4 +1,3 @@
-import Link from '@components/Link';
 import {
   CircularProgress,
   Dialog,
@@ -13,6 +12,7 @@ import {
 } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import { useMachine, useService } from '@xstate/react';
+import Link from 'next/link';
 import React from 'react';
 import { Interpreter } from 'xstate';
 import {

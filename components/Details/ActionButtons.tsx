@@ -1,7 +1,7 @@
-import Link from '@components/Link';
 import { Button, Grid } from '@material-ui/core';
 import { ArrowBack, ArrowForward } from '@material-ui/icons';
 import { resultState } from '@recoil/atoms';
+import Link from 'next/link';
 import { findIndex, propEq } from 'ramda';
 import React from 'react';
 import { useRecoilValue } from 'recoil';

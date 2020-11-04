@@ -1,6 +1,6 @@
 import AuthorModal from '@components/AuthorModal';
-import Link from '@components/Link';
 import { Button, Grid, NoSsr, Typography } from '@material-ui/core';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
 
