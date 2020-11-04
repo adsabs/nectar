@@ -1,5 +1,4 @@
 import type { DocsEntity } from '@api/search';
-import Link from '@components/Link';
 import {
   Card,
   CardContent,
@@ -12,6 +11,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import { Skeleton } from '@material-ui/lab';
+import Link from 'next/link';
 import React from 'react';
 import AuthorList from './AuthorList';
 import ResultCheckbox from './ResultCheckbox';

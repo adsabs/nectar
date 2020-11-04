@@ -1,7 +1,4 @@
-from node:12
-
-RUN apt-get update \
-    apt-get install -y git
+from mcr.microsoft.com/vscode/devcontainers/typescript-node:0-$VARIANT
 
 RUN mkdir /workspaces/nectar \
     cd /workspaces \

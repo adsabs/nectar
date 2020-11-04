@@ -3,5 +3,10 @@
   "dockerComposeFile": "docker-compose.yml",
   "service": "app",
   "workspaceFolder": "/workspace",
-  "extensions": ["esbenp.prettier-vscode", "dbaeumer.vscode-eslint"]
+  "extensions": [
+	"esbenp.prettier-vscode",
+	"dbaeumer.vscode-eslint",
+	"mutantdino.resourcemonitor",
+	"bradlc.vscode-tailwindcss"
+]
 }

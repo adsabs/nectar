@@ -1,5 +1,4 @@
 import search from '@api/search';
-import Link from '@components/Link';
 import {
   Box,
   Paper,
@@ -13,6 +12,7 @@ import {
 } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { GetServerSideProps, GetServerSidePropsContext, NextPage } from 'next';
+import Link from 'next/link';
 import { map, transpose } from 'ramda';
 import React from 'react';
 
