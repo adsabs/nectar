@@ -1,6 +1,5 @@
 import search, { DocsEntity, SearchResult } from '@api/search';
 import Button from '@components/base/button';
-import NumFound from '@components/numfound';
 import SearchBar from '@components/searchbar';
 import {
   faCaretRight,
@@ -10,9 +9,12 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { queryState } from '@recoil/atoms';
 import { GetServerSideProps, GetServerSidePropsContext, NextPage } from 'next';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import React from 'react';
 import { MutableSnapshot, RecoilRoot, useRecoilValue } from 'recoil';
+
+const NumFound = dynamic(() => import('@components/numfound'), { ssr: false });
 
 const SearchPage: NextPage<SearchPageProps> = ({
   searchQuery,

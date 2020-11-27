@@ -7,6 +7,7 @@
 	"esbenp.prettier-vscode",
 	"dbaeumer.vscode-eslint",
 	"mutantdino.resourcemonitor",
-	"bradlc.vscode-tailwindcss"
+	"bradlc.vscode-tailwindcss",
+	"sudoaugustin.tailwindcss-transpiler"
 ]
 }
