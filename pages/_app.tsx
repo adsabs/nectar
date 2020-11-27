@@ -4,7 +4,7 @@ import Head from 'next/head';
 import React from 'react';
 import { RecoilRoot } from 'recoil';
 import useDarkMode from 'use-dark-mode';
-import '../styles/tailwind.output.css';
+import '../styles/index.css';
 
 const NectarApp = ({ Component, pageProps }: AppProps) => {
   const { value: isDark } = useDarkMode(false);

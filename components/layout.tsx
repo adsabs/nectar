@@ -1,5 +1,5 @@
 import Footer from '@components/footer';
-import LandingHero from '@components/landingHero';
+import LandingHero from '@components/landinghero';
 import NavBar from '@components/navbar';
 import { useRouter } from 'next/router';
 import React from 'react';

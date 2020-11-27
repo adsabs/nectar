@@ -28,7 +28,7 @@ const SearchBar: React.FC<ISearchBarProps> = () => {
       <label htmlFor="search" className="sr-only">
         Search
       </label>
-      <div className="mt-1 relative rounded-md shadow-sm">
+      <div className="mt-1 relative rounded-md shadow-md">
         <input
           type="text"
           className="form-input block w-full h-12 pl-2 pr-28 text-sm sm:leading-5 md:text-lg"
