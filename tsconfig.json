@@ -27,5 +27,5 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules", "components/__tests__"]
+  "exclude": ["node_modules", "cypress", "components/__tests__"]
 }
