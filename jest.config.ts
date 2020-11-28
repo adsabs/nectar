@@ -15,6 +15,13 @@ const config: Config.InitialOptions = {
       tsconfig: 'tsconfig.test.json',
     },
   },
+  collectCoverageFrom: ['components/**/*.tsx'],
+  coverageThreshold: {
+    global: {
+      lines: 90,
+      statements: 90,
+    },
+  },
 };
 
 export default config;
