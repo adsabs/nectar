@@ -33,9 +33,6 @@ yarn-error.log*
 # env
 .env
 
-# docker-compose
-.devcontainer/docker-compose.yml
-
 # compiled styles
 styles/index.css
 

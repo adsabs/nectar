@@ -12,5 +12,3 @@ services:
     volumes:
       - ..:/workspace:cached
     command: /bin/sh -c "while sleep 1000; do :; done"
-    environment:
-      DOPPLER_TOKEN: dp.st.dev.NJFFC8pbdklPmf34RIsbMiOHR7RAcsv1qaBvDByK
