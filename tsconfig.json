@@ -13,11 +13,11 @@
     "downlevelIteration": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "types": ["jest"],
     "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
       "@components/*": ["components/*"],
-      "@theme": ["theme"],
       "@src/*": ["src/*"],
       "@mocks/*": ["mocks/*"],
       "@api/*": ["api/*"],
@@ -27,5 +27,5 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "components/__tests__"]
 }

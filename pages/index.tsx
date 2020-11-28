@@ -13,7 +13,7 @@ import { useRecoilState } from 'recoil';
 const Home: React.FC = () => {
   const [{ q: searchQuery }, setQueryState] = useRecoilState(queryState);
   const handleExampleClick = (text: string) => {
-    setQueryState({ q: `${searchQuery} ${text}` });
+    setQueryState({ q: `${searchQuery ? `${searchQuery} ` : ''}${text}` });
   };
 
   return (

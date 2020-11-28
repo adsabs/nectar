@@ -4,10 +4,10 @@
   "service": "app",
   "workspaceFolder": "/workspace",
   "extensions": [
-	"esbenp.prettier-vscode",
-	"dbaeumer.vscode-eslint",
-	"mutantdino.resourcemonitor",
-	"bradlc.vscode-tailwindcss",
-	"sudoaugustin.tailwindcss-transpiler"
-]
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "mutantdino.resourcemonitor",
+    "bradlc.vscode-tailwindcss",
+    "sudoaugustin.tailwindcss-transpiler"
+  ]
 }

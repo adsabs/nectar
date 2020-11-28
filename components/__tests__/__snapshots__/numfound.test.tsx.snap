@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<div>
+  <article
+    class="text-xs"
+    role="status"
+  >
+    Your search returned
+     
+    <span
+      class="font-bold"
+    >
+      10
+    </span>
+     results
+  </article>
+</div>
+`;

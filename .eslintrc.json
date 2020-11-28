@@ -1,12 +1,13 @@
 {
   "root": true,
   "parser": "@typescript-eslint/parser",
-  "plugins": ["@typescript-eslint"],
+  "plugins": ["@typescript-eslint", "testing-library", "jest-dom"],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
     "jsx-a11y",
-    "react-hooks"
+    "react-hooks",
+    "plugin:cypress/recommended"
   ],
   "rules": {
     "react-hooks/rules-of-hooks": "error",
@@ -16,5 +17,8 @@
         "additionalHooks": "useRecoilCallback"
       }
     ]
+  },
+  "env": {
+    "jest": true
   }
 }

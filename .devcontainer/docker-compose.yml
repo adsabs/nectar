@@ -13,4 +13,4 @@ services:
       - ..:/workspace:cached
     command: /bin/sh -c "while sleep 1000; do :; done"
     environment:
-      DOPPLER_TOKEN: dp.st.dev.NYcb6F2CIFTB51PHLtRfm1o9lUnycJ3FYfskJ7S6
+      DOPPLER_TOKEN: dp.st.dev.NJFFC8pbdklPmf34RIsbMiOHR7RAcsv1qaBvDByK
