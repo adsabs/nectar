@@ -1,4 +1,3 @@
-yarn test:ci
 yarn build
 yarn start &
 yarn cy
