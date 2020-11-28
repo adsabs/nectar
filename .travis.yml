@@ -1,14 +1,13 @@
 language: node_js
 node_js: '12.18.4'
 cache:
+  npm: true
   directories:
-    - ~/.npm
     - ~/.cache
 git:
   submodules: false
-install: yarn install
+install:
+  - yarn install
+  - yarn cypress install
 script:
-  - yarn test
-  - yarn dev &
-  - yarn cy
-  - kill $(jobs -p) || true
+  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash ./.travis/run_on_pull_requests; fi'
