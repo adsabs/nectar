@@ -1,0 +1,8 @@
+language: node_js
+node_js: '12.18.4'
+cache: npm
+git:
+  submodules: false
+install: yarn install
+script:
+  - yarn test
