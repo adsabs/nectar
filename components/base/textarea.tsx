@@ -1,4 +1,4 @@
-import { DetailedHTMLProps, TextareaHTMLAttributes } from 'react';
+import React, { DetailedHTMLProps, TextareaHTMLAttributes } from 'react';
 
 interface ITextareaProps
   extends DetailedHTMLProps<
