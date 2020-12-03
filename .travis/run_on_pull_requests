@@ -1,4 +1,4 @@
 yarn build
 yarn start &
-yarn cy
+wait-on http://localhost:8000 && yarn cy
 kill $(jobs -p) || true
