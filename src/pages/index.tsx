@@ -61,36 +61,6 @@ const Home: React.FC = () => {
   );
 };
 
-// const IsolatedSearchBar = () => {
-//   const [value, setValue] = React.useState('');
-//   const handleClear = () => {
-//     setValue('');
-//   };
-//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//     setValue(e.currentTarget.value);
-//   };
-
-//   const handleExampleClick = (text: string) => {
-//     setValue(`${value} ${text}`);
-//   };
-
-//   return (
-//     <>
-//       <div className="my-6">
-//         <SearchBar
-//           value={value}
-//           onChange={handleChange}
-//           onClear={handleClear}
-//         />
-//       </div>
-//       <div className="mt-4">
-//         <h3 className="text-lg text-center mb-3 font-bold">Search Examples</h3>
-//         <SearchExamples onClick={handleExampleClick} />
-//       </div>
-//     </>
-//   );
-// };
-
 const SearchExamples = React.memo<{ onClick(text: string): void }>(
   ({ onClick }) => {
     const examplesLeft = [
