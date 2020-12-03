@@ -17,15 +17,12 @@
     "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
-      "@components/*": ["components/*"],
-      "@src/*": ["src/*"],
-      "@mocks/*": ["mocks/*"],
+      "@components/*": ["src/components/*"],
       "@api/*": ["api/*"],
-      "@recoil/*": ["recoil/*"],
-      "@utils/*": ["utils/*"],
-      "@machines/*": ["machines/*"]
+      "@recoil/*": ["src/recoil/*"],
+      "@styles/*": ["styles/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules", "cypress", "components/__tests__"]
+  "exclude": ["node_modules", "cypress", "src/components/__tests__"]
 }
