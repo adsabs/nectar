@@ -3,6 +3,10 @@
   "compilerOptions": {
     "jsx": "react"
   },
-  "include": ["./components/**/*.test.tsx", "jest.config.ts", "jest.setup.ts"],
+  "include": [
+    "./src/components/**/*.test.tsx",
+    "jest.config.ts",
+    "jest.setup.ts"
+  ],
   "exclude": ["node_modules"]
 }

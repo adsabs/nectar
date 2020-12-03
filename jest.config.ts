@@ -4,7 +4,7 @@ const config: Config.InitialOptions = {
   testEnvironment: 'jsdom',
   preset: 'ts-jest',
   verbose: true,
-  roots: ['components'],
+  roots: ['src/components'],
   transform: {
     '^.+\\.tsx?$': 'ts-jest',
   },
@@ -15,7 +15,7 @@ const config: Config.InitialOptions = {
       tsconfig: 'tsconfig.test.json',
     },
   },
-  collectCoverageFrom: ['components/**/*.tsx'],
+  collectCoverageFrom: ['src/components/**/*.tsx'],
   coverageThreshold: {
     global: {
       lines: 0,

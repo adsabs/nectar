@@ -1,9 +1,8 @@
-import { DetailedHTMLProps, InputHTMLAttributes } from 'react';
+import React, { DetailedHTMLProps, InputHTMLAttributes } from 'react';
 
-const Radio: React.FC<DetailedHTMLProps<
-  InputHTMLAttributes<HTMLInputElement>,
-  HTMLInputElement
->> = (props) => {
+const Radio: React.FC<
+  DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>
+> = (props) => {
   const { children, ...inputProps } = props;
 
   return (

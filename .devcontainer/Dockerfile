@@ -17,6 +17,3 @@ RUN apt-get update && apt-get install -y \
   libxtst6 \
   xauth \
   xvfb
-
-# Install doppler during build phase
-RUN (curl -Ls https://cli.doppler.com/install.sh || wget -qO- https://cli.doppler.com/install.sh) | sh

@@ -11,6 +11,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Image from 'next/image';
 import Link from 'next/link';
+import React from 'react';
 
 const SimpleLink: React.FC<{ href: string; icon?: IconProp }> = ({
   children,
@@ -85,7 +86,7 @@ const Footer: React.FC = () => {
           </div>
         </div>
         <div className="flex-col text-gray-100">
-          <p className="text-lg text-gray-100 mb-3">Resources</p>
+          <p className="text-lg mb-3">Resources</p>
           <SimpleLink href="/about" icon={faQuestionCircle}>
             About ADS
           </SimpleLink>
