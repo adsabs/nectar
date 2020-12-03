@@ -98,7 +98,7 @@ const renderCollectionCheckboxes = (selected: string[]) => {
       <span className="mr-1">Limit query to:</span>
       <>
         {['astronomy', 'physics', 'general'].map((label) => (
-          <label className="inline-flex items-center mx-1">
+          <label className="inline-flex items-center mx-1" key={label}>
             <input
               type="checkbox"
               className="form-checkbox"
