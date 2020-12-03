@@ -11,6 +11,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Image from 'next/image';
 import Link from 'next/link';
+import React from 'react';
 
 const SimpleLink: React.FC<{ href: string; icon?: IconProp }> = ({
   children,

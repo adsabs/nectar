@@ -1,4 +1,4 @@
-import { DetailedHTMLProps, InputHTMLAttributes } from 'react';
+import React, { DetailedHTMLProps, InputHTMLAttributes } from 'react';
 
 interface ITextboxProps
   extends DetailedHTMLProps<
