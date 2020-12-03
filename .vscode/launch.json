@@ -6,7 +6,8 @@
       "name": "Next.js Server (debug)",
       "runtimeExecutable": "/usr/local/share/npm-global/bin/ts-node",
       "env": {
-        "NODE_OPTIONS": "--inspect"
+        "NODE_OPTIONS": "--inspect",
+        "NODE_ENV": "production"
       },
       "runtimeArgs": ["--project", "tsconfig.server.json", "server/index.ts"],
       "port": 9229
