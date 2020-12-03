@@ -1,9 +1,9 @@
 import Layout from '@components/layout';
+import '@styles/index.css';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import React from 'react';
 import { RecoilRoot } from 'recoil';
-import '../styles/index.css';
 
 const NectarApp = ({ Component, pageProps }: AppProps) => {
   return (
