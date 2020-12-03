@@ -114,13 +114,13 @@ const Footer: React.FC = () => {
         </div>
         <div className="flex-col text-gray-100">
           <p className="text-lg text-gray-100 mb-3">Project</p>
-          <SimpleLink href="#">Privacy Policy</SimpleLink>
-          <SimpleLink href="#">Terms of Use</SimpleLink>
-          <SimpleLink href="#">
+          <SimpleLink href="/">Privacy Policy</SimpleLink>
+          <SimpleLink href="/">Terms of Use</SimpleLink>
+          <SimpleLink href="/">
             Smithsonian Astrophysical Observatory
           </SimpleLink>
-          <SimpleLink href="#">Smithsonian Institution</SimpleLink>
-          <SimpleLink href="#">NASA</SimpleLink>
+          <SimpleLink href="/">Smithsonian Institution</SimpleLink>
+          <SimpleLink href="/">NASA</SimpleLink>
         </div>
       </div>
     </footer>

@@ -32,7 +32,7 @@ const Home: React.FC = () => {
       </form>
       <hr className="divide-x-0 my-4 w-3/4 mx-auto" />
       <div className="flex w-3/4 mx-auto justify-evenly flex-col md:flex-row">
-        <Link href="#">
+        <Link href="/">
           <a className="text-blue-500 p-4 hover:bg-gray-200 flex flex-col items-center  justify-center ">
             <div className="text-4xl my-4">
               <FontAwesomeIcon icon={faLifeRing} />
@@ -40,7 +40,7 @@ const Home: React.FC = () => {
             <div className="font-bold">Use a classic ADS-style form</div>
           </a>
         </Link>
-        <Link href="#">
+        <Link href="/">
           <a className="text-blue-500 p-4 hover:bg-gray-200 flex flex-col items-center justify-center ">
             <div className="text-4xl my-4">
               <FontAwesomeIcon icon={faSearch} />
@@ -48,7 +48,7 @@ const Home: React.FC = () => {
             <div className="font-bold">Learn more about searching the ADS</div>
           </a>
         </Link>
-        <Link href="#">
+        <Link href="/">
           <a className="text-blue-500 p-4 hover:bg-gray-200 flex flex-col items-center  justify-center ">
             <div className="text-4xl my-4">
               <FontAwesomeIcon icon={faCode} />
