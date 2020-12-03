@@ -10,7 +10,7 @@ const NumFound: React.FC<INumFoundProps> = React.memo(({ numFound = 0 }) => {
 });
 
 interface INumFoundProps {
-  numFound: number;
+  numFound?: number;
 }
 
 export default NumFound;

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders correctly 1`] = `
+exports[`renders correctly with no props 1`] = `
 <div>
   <p
     class="text-xs"
@@ -11,7 +11,7 @@ exports[`renders correctly 1`] = `
     <span
       class="font-bold"
     >
-      10
+      0
     </span>
      results
   </p>
