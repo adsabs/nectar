@@ -34,7 +34,7 @@ yarn-error.log*
 .env
 
 # compiled styles
-styles/index.css
+/styles/index.css
 
 # compiled server
 /dist
