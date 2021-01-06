@@ -46,7 +46,7 @@
     "@typescript-eslint/parser": "^4.8.2",
     "@xstate/react": "^1.0.3",
     "autoprefixer": "10.0.4",
-    "axios": "^0.21.0",
+    "axios": "^0.21.1",
     "axios-debug-log": "^0.8.0",
     "clsx": "^1.1.1",
     "cookie": "^0.4.1",
