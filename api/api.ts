@@ -4,7 +4,7 @@ import { Request } from 'express';
 import { PathLike } from 'fs';
 import { IncomingMessage } from 'http';
 import qs from 'qs';
-import { IIncomingMessageWithSession } from 'server/apiMiddleware';
+import { IIncomingMessageWithSession } from 'server/middlewares/api';
 
 const config = {
   baseURL: process.env.NEXT_PUBLIC_API_HOST,

@@ -1,6 +1,6 @@
 import { ServerResponse } from 'http';
 import { NextPageContext } from 'next';
-import { IIncomingMessageWithSession } from './../server/apiMiddleware';
+import { IIncomingMessageWithSession } from './../server/middlewares/api';
 import Api from './api';
 
 class User {
