@@ -39,5 +39,3 @@ yarn-error.log*
 # compiled server
 /dist
 
-build-storybook.log
-storybook-static/
