@@ -12,13 +12,17 @@
     "yarn": "1.22.10"
   },
   "dependencies": {
+    "concurrently": "^6.0.0",
     "dotenv": "^8.2.0"
   },
   "scripts": {
     "server": "yarn workspace server start",
     "build:server": "yarn workspace server build",
     "build:frontend": "yarn workspace frontend build",
-    "start": "yarn build:server && yarn build:frontend && yarn server",
-    "dev": "yarn workspace server dev"
+    "build:components": "yarn workspace components build",
+    "watch:components": "yarn workspace components start",
+    "build": "yarn build:server && yarn build:components && yarn build:frontend",
+    "start": "yarn server",
+    "dev": "concurrently --kill-others \"yarn workspace server dev\" \"yarn watch:components\""
   }
 }
