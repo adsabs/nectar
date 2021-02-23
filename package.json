@@ -1,0 +1,24 @@
+{
+  "name": "monorepo-nectar",
+  "private": "true",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "workspaces": [
+    "packages/*"
+  ],
+  "volta": {
+    "node": "14.15.5",
+    "yarn": "1.22.10"
+  },
+  "dependencies": {
+    "dotenv": "^8.2.0"
+  },
+  "scripts": {
+    "server": "yarn workspace server start",
+    "build:server": "yarn workspace server build",
+    "build:frontend": "yarn workspace frontend build",
+    "start": "yarn build:server && yarn build:frontend && yarn server",
+    "dev": "yarn workspace server dev"
+  }
+}
