@@ -1,4 +1,5 @@
 FROM node:lts
 WORKDIR /app
-COPY . /app
-ENTRYPOINT [ "yarn", "build" ]
+COPY . .
+RUN yarn install --frozen-lockfile --production
+ENTRYPOINT [ "yarn", "build", "&&", "yarn", "start" ]
