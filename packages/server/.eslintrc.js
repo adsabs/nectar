@@ -1,3 +1,5 @@
-module.exports = {
-  extends: '@nectar/shared/.eslintrc.js',
-};
+const {
+  configs: { eslint },
+} = require('@nectar/shared');
+
+module.exports = eslint;
