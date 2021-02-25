@@ -6,7 +6,7 @@
 # install dependencies
 yarn bootstrap
 
-# development
+# development, watches for changes (hot reload)
 yarn dev
 
 # production build
@@ -27,4 +27,12 @@ docker build -t nectar .
 
 # start produuction server
 docker run -it -p 8000:8000 nectar
+```
+
+### Installing new dependencies
+
+```bash
+# should use lerna to install deps
+# lerna add <npm-package> --scope @nectar/<package>
+lerna add react --scope @nectar/frontend
 ```
