@@ -1,4 +1,4 @@
-import { Thing } from 'components';
+import { Thing } from '@nectar/components';
 import React, { FC } from 'react';
 
 const HomePage: FC = () => (

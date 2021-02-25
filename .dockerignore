@@ -1,2 +1,4 @@
 yarn-debug.log
 node_modules
+packages/*/node_modules
+packages/*/yarn-debug.log
