@@ -31,8 +31,7 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "name": "api",
-  "author": "Tim Hostetler",
+  "name": "@nectar/api",
   "module": "dist/api.esm.js",
   "size-limit": [
     {

@@ -11,8 +11,7 @@
     "yarn": "1.22.10"
   },
   "dependencies": {
-    "concurrently": "^6.0.0",
-    "dotenv": "^8.2.0"
+    "concurrently": "^6.0.0"
   },
   "scripts": {
     "bootstrap": "lerna bootstrap",
