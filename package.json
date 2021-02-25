@@ -15,9 +15,10 @@
     "dotenv": "^8.2.0"
   },
   "scripts": {
-    "start": "lerna run start --scope=@nectar/server",
-    "build": "lerna run build --stream",
-    "dev": "concurrently --kill-others \"lerna run dev --scope=@nectar/server\" \"lerna run start --scope=@nectar/components\""
+    "bootstrap": "lerna bootstrap",
+    "start": "lerna run start --stream --scope=@nectar/server",
+    "build": "NODE_ENV=production lerna run build --stream",
+    "dev": "NODE_ENV=production concurrently --kill-others \"lerna run dev --stream --scope=@nectar/server\" \"lerna run start --stream --scope=@nectar/components\""
   },
   "devDependencies": {
     "lerna": "^3.22.1"

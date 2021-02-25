@@ -4,7 +4,7 @@
 
 ```bash
 # install dependencies
-yarn install
+yarn bootstrap
 
 # development
 yarn dev
@@ -22,5 +22,9 @@ yarn test
 ### Docker
 
 ```bash
+# build image
+docker build -t nectar .
 
+# start produuction server
+docker run -it -p 8000:8000 nectar
 ```
