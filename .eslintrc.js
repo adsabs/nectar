@@ -1,5 +1,5 @@
 module.exports = {
-  extends: ['jsx-a11y', 'react-hooks'],
+  extends: ['prettier', 'react', 'react-hooks', 'jsx-a11y'],
   rules: {
     'react-hooks/rules-of-hooks': 'error',
   },

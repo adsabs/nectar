@@ -12,7 +12,7 @@ COPY ./packages/ ./packages/
 RUN yarn global add lerna
 
 # install deps in all packages and start production build
-RUN yarn bootstrap
+RUN yarn bootstrap --hoist
 RUN yarn build
 
 # set env variable port and expose

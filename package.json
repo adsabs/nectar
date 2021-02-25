@@ -10,9 +10,6 @@
     "node": "14.15.5",
     "yarn": "1.22.10"
   },
-  "dependencies": {
-    "concurrently": "^6.0.0"
-  },
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "start": "lerna run start --stream --scope=@nectar/server",
@@ -20,6 +17,13 @@
     "dev": "NODE_ENV=production concurrently --kill-others \"lerna run dev --stream --scope=@nectar/server\" \"lerna run start --stream --scope=@nectar/components\""
   },
   "devDependencies": {
+    "concurrently": "^6.0.0",
+    "eslint": "^7.20.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-jest": "^24.1.5",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-react": "^7.22.0",
+    "eslint-plugin-react-hooks": "^4.2.0",
     "lerna": "^3.22.1"
   }
 }
