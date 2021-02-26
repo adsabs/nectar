@@ -12,9 +12,9 @@
   },
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "start": "lerna run start --stream --scope=@nectar/server",
+    "start": "NODE_ENV=production lerna run start --stream --scope=@nectar/server",
     "build": "NODE_ENV=production lerna run build --stream",
-    "dev": "NODE_ENV=production concurrently --kill-others \"lerna run dev --stream --scope=@nectar/server\" \"lerna run start --stream --scope=@nectar/components\""
+    "dev": "concurrently --kill-others \"lerna run dev --stream --scope=@nectar/server\" \"lerna run start --stream --scope=@nectar/components\""
   },
   "devDependencies": {
     "concurrently": "^6.0.0",

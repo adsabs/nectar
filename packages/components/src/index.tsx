@@ -1,8 +1,9 @@
-import React, { FC, HTMLAttributes, ReactChild } from 'react';
+import React, { FC, HTMLAttributes } from 'react';
 
 export interface Props extends HTMLAttributes<HTMLDivElement> {
-  /** custom content, defaults to 'the snozzberries taste like snozzberries' */
-  children?: ReactChild;
+  count: number;
+  onIncrement: () => void;
+  onDecrement: () => void;
 }
 
 // Please do not use types off of a default export module or else Storybook Docs will suffer.
@@ -10,10 +11,24 @@ export interface Props extends HTMLAttributes<HTMLDivElement> {
 /**
  * A custom Thing component. Neat!
  */
-export const Thing: FC<Props> = ({ children }) => {
+export const Counter: FC<Props> = ({ count = 0, onIncrement, onDecrement }) => {
   return (
-    <div className="text-blue">
-      {children || `the  taste like snozzberries`}
+    <div className="flex-col p-4">
+      <p>count: {count}</p>
+      <p>
+        <button
+          className="focus:outline-none text-white text-sm py-2.5 px-5 rounded-md bg-blue-500 hover:bg-blue-600 hover:shadow-lg"
+          onClick={onIncrement}
+        >
+          +
+        </button>
+        <button
+          className="mx-4 focus:outline-none text-white text-sm py-2.5 px-5 rounded-md bg-blue-500 hover:bg-blue-600 hover:shadow-lg"
+          onClick={onDecrement}
+        >
+          -
+        </button>
+      </p>
     </div>
   );
 };
