@@ -1,19 +1,8 @@
-import { Counter } from '@nectar/components';
-import React, { FC } from 'react';
-import { useRootMachineContext } from '../context';
+import { NextPage } from 'next';
+import React from 'react';
 
-const HomePage: FC = () => {
-  const [current, send] = useRootMachineContext();
-
-  return (
-    <div>
-      <Counter
-        count={current.context.count}
-        onIncrement={() => send({ type: 'INC' })}
-        onDecrement={() => send({ type: 'DEC' })}
-      />
-    </div>
-  );
+const HomePage: NextPage = () => {
+  return <div>HOME PAGE</div>;
 };
 
 export default HomePage;

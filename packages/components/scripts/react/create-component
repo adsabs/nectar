@@ -1,0 +1,75 @@
+#!/usr/bin/env node
+
+const fs = require('fs');
+const path = require('path');
+const { component, story, test, barrel } = require('./templates.js');
+
+// grab component name from terminal argument
+const [name] = process.argv.slice(2);
+if (!name) throw new Error('You must include a component name.');
+const base = path.resolve(__dirname, `../..`);
+const dir = path.join(base, 'src', name);
+const testDir = path.join(base, 'test');
+const storyDir = path.join(base, 'stories');
+
+// throw an error if the file already exists
+if (fs.existsSync(dir))
+  throw new Error('A component with that name already exists.');
+
+// create the folder
+fs.mkdirSync(dir, { recursive: true }, err => {
+  if (err) {
+    throw err;
+  }
+});
+
+function writeFileErrorHandler(err) {
+  if (err) {
+    throw err;
+  }
+}
+
+// component.tsx
+fs.writeFile(
+  path.join(dir, `${name}.tsx`),
+  component(name),
+  writeFileErrorHandler,
+);
+// storybook.jsx
+fs.writeFile(
+  path.join(storyDir, `${name}.stories.tsx`),
+  story(name),
+  writeFileErrorHandler,
+);
+// test.tsx
+fs.writeFile(
+  path.join(testDir, `${name}.test.tsx`),
+  test(name),
+  writeFileErrorHandler,
+);
+// index.ts
+fs.writeFile(path.join(dir, 'index.ts'), barrel(name), writeFileErrorHandler);
+
+////////////////
+/// Optional ///
+////////////////
+
+console.log('src', path.join(base, 'src', 'index.ts'));
+
+// insert new component into 'components/index.ts file
+fs.readFile(path.join(base, 'src', 'index.ts'), 'utf8', function(err, data) {
+  if (err) throw err;
+
+  const content = [
+    ...data.match(/^(export.*;\n)$/g),
+    `export * from './${name}';\n`,
+  ]
+    .sort()
+    .join('');
+
+  fs.writeFile(
+    path.join(base, 'src', 'index.ts'),
+    content,
+    writeFileErrorHandler,
+  );
+});

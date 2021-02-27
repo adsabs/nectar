@@ -19,7 +19,8 @@
     "size": "size-limit",
     "analyze": "size-limit --why",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "create-component": "./scripts/react/create-component"
   },
   "module": "dist/components.esm.js",
   "size-limit": [
@@ -54,5 +55,10 @@
   "volta": {
     "node": "14.15.5"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.34",
+    "@fortawesome/free-brands-svg-icons": "^5.15.2",
+    "@fortawesome/free-solid-svg-icons": "^5.15.2",
+    "@fortawesome/react-fontawesome": "^0.1.14"
+  }
 }
