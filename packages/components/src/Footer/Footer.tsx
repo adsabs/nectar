@@ -18,7 +18,7 @@ const SimpleLink: React.FC<{ href: string; icon?: IconProp }> = ({
   href,
   icon,
 }) => {
-  const isExternal = href.match(/^http(s)/);
+  const isExternal = /^http(s)/.exec(href);
 
   return (
     <Link href={href}>

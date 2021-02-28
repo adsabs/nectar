@@ -16,18 +16,14 @@ const storyDir = path.join(base, 'stories');
 if (fs.existsSync(dir))
   throw new Error('A component with that name already exists.');
 
-// create the folder
-fs.mkdirSync(dir, { recursive: true }, err => {
-  if (err) {
-    throw err;
-  }
-});
-
 function writeFileErrorHandler(err) {
   if (err) {
     throw err;
   }
 }
+
+// create the folder
+fs.mkdirSync(dir, { recursive: true }, writeFileErrorHandler);
 
 // component.tsx
 fs.writeFile(
@@ -54,22 +50,8 @@ fs.writeFile(path.join(dir, 'index.ts'), barrel(name), writeFileErrorHandler);
 /// Optional ///
 ////////////////
 
-console.log('src', path.join(base, 'src', 'index.ts'));
-
-// insert new component into 'components/index.ts file
-fs.readFile(path.join(base, 'src', 'index.ts'), 'utf8', function(err, data) {
-  if (err) throw err;
-
-  const content = [
-    ...data.match(/^(export.*;\n)$/g),
-    `export * from './${name}';\n`,
-  ]
-    .sort()
-    .join('');
-
-  fs.writeFile(
-    path.join(base, 'src', 'index.ts'),
-    content,
-    writeFileErrorHandler,
-  );
-});
+fs.appendFile(
+  path.join(base, 'src', 'index.ts'),
+  `export * from './${name}';\n`,
+  writeFileErrorHandler,
+);

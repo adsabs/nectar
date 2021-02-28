@@ -1,0 +1,29 @@
+{
+  "extends": [
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "prettier"
+  ],
+  "plugins": ["react", "react-hooks", "jsx-a11y", "@typescript-eslint"],
+  "parser": "@typescript-eslint/parser",
+  "env": {
+    "es6": true
+  },
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx"],
+      "parserOptions": {
+        "project": [
+          "./packages/api/tsconfig.json",
+          "./packages/components/tsconfig.json",
+          "./packages/frontend/tsconfig.json",
+          "./packages/server/tsconfig.json"
+        ]
+      }
+    }
+  ],
+  "rules": {
+    "react-hooks/rules-of-hooks": "error",
+    "@typescript-eslint/no-empty-function": ["warn"]
+  }
+}
