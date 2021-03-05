@@ -3,19 +3,27 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import clsx from 'clsx';
 import React, { FC } from 'react';
 
-export const SearchBar: FC = ({}) => {
+interface ISearchBarProps {
+  query?: string;
+}
+
+export const SearchBar: FC<ISearchBarProps> = (props) => {
+  const { query = '' } = props;
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const query = '';
+  const [value, setValue] = React.useState<string>(query);
 
   const clearBtnCls = clsx(
     { hidden: query?.length === 0, block: query?.length > 0 },
     'absolute inset-y-0 right-20 flex items-center',
   );
 
-  const handleChange = React.useCallback(() => {}, []);
   const handleClear = React.useCallback(() => {
     inputRef?.current?.focus();
   }, [inputRef]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(e.currentTarget.value);
+  };
 
   return (
     <div>
@@ -28,9 +36,9 @@ export const SearchBar: FC = ({}) => {
           className="form-input block w-full h-12 pl-2 pr-28 text-sm sm:leading-5 md:text-lg"
           name="q"
           placeholder="Search"
-          value={query}
-          onChange={handleChange}
           ref={inputRef}
+          onChange={handleChange}
+          value={value}
         />
         <div className={clearBtnCls}>
           <button

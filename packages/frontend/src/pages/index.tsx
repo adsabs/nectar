@@ -4,21 +4,28 @@ import {
   faSearch,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { SearchExamples } from '@nectar/components';
-import { NextPage } from 'next';
+import { SearchBar, SearchExamples } from '@nectar/components';
+import { GetServerSideProps, NextPage } from 'next';
 import Link from 'next/link';
 import React from 'react';
 
-const HomePage: NextPage = () => {
-  const handleExampleClick: (text: string) => void = text => {
+interface IHomePageProps {
+  docs: string[];
+}
+
+const HomePage: NextPage<IHomePageProps> = ({ docs }) => {
+  const handleExampleClick: (text: string) => void = (text) => {
     console.log('example click', text);
   };
 
   return (
     <>
+      <div>{docs}</div>
       <h2 className="sr-only">Modern Search Form</h2>
       <form action="search" method="get">
-        <div className="my-6">{/* <SearchBar /> */}</div>
+        <div className="my-6">
+          <SearchBar />
+        </div>
         <div className="mt-4">
           <h3 className="text-lg text-center mb-3 font-bold">
             Search Examples
@@ -55,6 +62,21 @@ const HomePage: NextPage = () => {
       </div>
     </>
   );
+};
+
+export const getServerSideProps: GetServerSideProps<IHomePageProps> = async (
+  context,
+) => {
+  // const res = await api.articles.query({ q: 'star' });
+  // console.log({ res });
+  return new Promise((resolve) => {
+    const docs = [''];
+    return resolve({
+      props: {
+        docs,
+      },
+    });
+  });
 };
 
 export default HomePage;

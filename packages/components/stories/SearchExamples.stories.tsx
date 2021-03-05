@@ -1,9 +1,9 @@
-import React from 'react';
 import { Meta, Story } from '@storybook/react';
-import { SearchExamples, ISearchExamplesProps } from '../src/SearchExamples';
+import React from 'react';
+import { ISearchExamplesProps, SearchExamples } from '../src/SearchExamples';
 
 const meta: Meta = {
-  title: 'Component SearchExamples',
+  title: 'SearchExamples',
   component: SearchExamples,
   argTypes: {
     children: {
@@ -19,7 +19,9 @@ const meta: Meta = {
 
 export default meta;
 
-const Template: Story<ISearchExamplesProps> = args => <SearchExamples {...args} />;
+const Template: Story<ISearchExamplesProps> = (args) => (
+  <SearchExamples {...args} />
+);
 
 export const Default = Template.bind({});
 

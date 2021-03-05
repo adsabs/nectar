@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import React, { FC } from 'react';
+import { AboutDropdown } from './AboutDropdown';
 
 export const NavBar: FC = ({}) => {
   return (
-    <nav className="bg-gray-900 flex">
+    <nav className="bg-gray-1000 flex">
       <div className="px-4 sm:px-6 lg:px-8">
         <Link href="/">
           <a className="flex items-center h-12">
@@ -22,9 +23,15 @@ export const NavBar: FC = ({}) => {
       >
         Skip to content
       </a>
-      <div className="flex-grow flex justify-end items-center">
+      <div className="flex-grow flex justify-end items-center space-x-4 pr-4">
+        <AboutDropdown />
+        <Link href="/signup">
+          <a className="text-gray-300 hover:text-white focus:text-white">
+            Sign Up
+          </a>
+        </Link>
         <Link href="/login">
-          <a className="px-4 py-1 mr-3 rounded-md bg-gray-700 text-white hover:text-white hover:bg-gray-500 focus:text-white focus:bg-gray-500">
+          <a className="text-gray-300 hover:text-white focus:text-white">
             Login
           </a>
         </Link>

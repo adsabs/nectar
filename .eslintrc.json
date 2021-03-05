@@ -15,15 +15,23 @@
       "parserOptions": {
         "project": [
           "./packages/api/tsconfig.json",
-          "./packages/components/tsconfig.json",
+          "./packages/api/tsconfig.test.json",
           "./packages/frontend/tsconfig.json",
-          "./packages/server/tsconfig.json"
+          "./packages/server/tsconfig.json",
+          "./packages/server/tsconfig.test.json",
+          "./packages/components/tsconfig.json",
+          "./packages/components/tsconfig.test.json"
         ]
       }
     }
   ],
   "rules": {
     "react-hooks/rules-of-hooks": "error",
-    "@typescript-eslint/no-empty-function": ["warn"]
+    "@typescript-eslint/no-empty-function": ["warn"],
+    "@typescript-eslint/no-floating-promises": ["warn", { "ignoreIIFE": true }],
+    "@typescript-eslint/no-empty-interface": [
+      "error",
+      { "allowSingleExtends": false }
+    ]
   }
 }

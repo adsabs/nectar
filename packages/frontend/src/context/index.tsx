@@ -4,7 +4,7 @@ import { assign, Machine } from 'xstate';
 
 interface RootStateSchema {
   states: {
-    idle: {};
+    idle: Record<string, unknown>;
   };
 }
 
@@ -41,10 +41,10 @@ const rootMachine = Machine<RootContext, RootStateSchema, RootEvent>(
   {
     actions: {
       increment: assign({
-        count: ctx => ctx.count + 1,
+        count: (ctx) => ctx.count + 1,
       }),
       decrement: assign({
-        count: ctx => ctx.count - 1,
+        count: (ctx) => ctx.count - 1,
       }),
     },
   },

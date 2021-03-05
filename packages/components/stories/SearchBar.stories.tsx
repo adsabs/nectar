@@ -1,9 +1,9 @@
-import React from 'react';
 import { Meta, Story } from '@storybook/react';
-import { SearchBar, ISearchBarProps } from '../src/SearchBar';
+import React from 'react';
+import { ISearchBarProps, SearchBar } from '../src/SearchBar';
 
 const meta: Meta = {
-  title: 'Component SearchBar',
+  title: 'SearchBar',
   component: SearchBar,
   argTypes: {
     children: {
@@ -19,7 +19,7 @@ const meta: Meta = {
 
 export default meta;
 
-const Template: Story<ISearchBarProps> = args => <SearchBar {...args} />;
+const Template: Story<ISearchBarProps> = (args) => <SearchBar {...args} />;
 
 export const Default = Template.bind({});
 

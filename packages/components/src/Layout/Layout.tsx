@@ -1,5 +1,5 @@
 import React, { FC, HTMLAttributes, ReactChild } from 'react';
-import Footer from '../Footer/Footer';
+import { Footer } from '../Footer';
 import { NavBar } from '../NavBar';
 
 export interface ILayoutProps extends HTMLAttributes<HTMLDivElement> {

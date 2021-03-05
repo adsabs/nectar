@@ -1,17 +1,11 @@
 import { Meta, Story } from '@storybook/react';
 import React from 'react';
-import { Footer } from '../src/Footer';
+import { INumFoundProps, NumFound } from '../src/NumFound';
 
 const meta: Meta = {
-  title: 'Footer',
-  component: Footer,
-  argTypes: {
-    children: {
-      control: {
-        type: 'text',
-      },
-    },
-  },
+  title: 'NumFound',
+  component: NumFound,
+  argTypes: {},
   parameters: {
     controls: { expanded: true },
   },
@@ -19,7 +13,7 @@ const meta: Meta = {
 
 export default meta;
 
-const Template: Story = (args) => <Footer {...args} />;
+const Template: Story<INumFoundProps> = (args) => <NumFound {...args} />;
 
 export const Default = Template.bind({});
 

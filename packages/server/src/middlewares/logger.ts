@@ -2,8 +2,7 @@ import pino from 'pino';
 
 const config: pino.LoggerOptions = {
   name: 'nectar',
-  level: 'debug',
-  prettyPrint: { colorize: true },
+  level: process.env.LOG_LEVEL || 'error',
 };
 
-export default pino(config);
+export const logger = pino(config);

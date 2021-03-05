@@ -1,4 +1,6 @@
-exports.component = name => `import React, { FC, HTMLAttributes, ReactChild } from 'react';
+exports.component = (
+  name,
+) => `import React, { FC, HTMLAttributes, ReactChild } from 'react';
 
 export interface I${name}Props extends HTMLAttributes<HTMLDivElement> {
   children?: ReactChild
@@ -14,12 +16,12 @@ export const ${name}: FC<I${name}Props> = ({ children }) => {
 }
 `;
 
-exports.story = name => `import React from 'react';
+exports.story = (name) => `import React from 'react';
 import { Meta, Story } from '@storybook/react';
 import { ${name}, I${name}Props } from '../src/${name}';
 
 const meta: Meta = {
-  title: 'Component ${name}',
+  title: '${name}',
   component: ${name},
   argTypes: {
     children: {
@@ -42,7 +44,7 @@ export const Default = Template.bind({});
 Default.args = {};
 `;
 
-exports.test = name => `import React from 'react';
+exports.test = (name) => `import React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Default as ${name} } from '../stories/${name}.stories';
 
@@ -55,5 +57,5 @@ describe('${name}', () => {
 });
 `;
 
-exports.barrel = name => `export * from './${name}';
+exports.barrel = (name) => `export * from './${name}';
 `;

@@ -37,7 +37,7 @@ const SimpleLink: React.FC<{ href: string; icon?: IconProp }> = ({
   );
 };
 
-const Footer: React.FC = () => {
+export const Footer: React.FC = () => {
   return (
     <footer className="bg-gray-900 mt-3 py-6">
       <div className="container mx-auto flex flex-col md:flex-row px-3 md:px-0 justify-between">
@@ -48,7 +48,7 @@ const Footer: React.FC = () => {
           <p className="text-gray-500">adshelp[at]cfa.harvard.edu</p>
           <p className="text-gray-500">
             The ADS is operated by the Smithsonian Astrophysical Observatory
-            under NASA Cooperative Agreement NNX16AC86A
+            under NASA Cooperative Agreement 80NSSC21M0056
           </p>
           <div className="flex mt-3 items-center">
             <Link href="https://www.nasa.gov">
@@ -126,5 +126,3 @@ const Footer: React.FC = () => {
     </footer>
   );
 };
-
-export default Footer;

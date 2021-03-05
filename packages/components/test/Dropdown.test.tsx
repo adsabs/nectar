@@ -1,11 +1,11 @@
 import React from 'react';
 import * as ReactDOM from 'react-dom';
-import { Default as Layout } from '../stories/Layout.stories';
+import { Default as Dropdown } from '../stories/Dropdown.stories';
 
-describe('Layout', () => {
+describe('Dropdown', () => {
   it('renders without crashing', () => {
     const div = document.createElement('div');
-    ReactDOM.render(<Layout />, div);
+    ReactDOM.render(<Dropdown />, div);
     ReactDOM.unmountComponentAtNode(div);
   });
 });
