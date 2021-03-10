@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "analyze": "ANALYZE=true next build"
+    "analyze": "ANALYZE=true next build",
+    "styles": "npx tailwindcss-cli@latest build -o styles/index.css -c ./tailwind.config.js"
   },
   "dependencies": {
     "@nectar/api": "^0.0.1-alpha.0",

@@ -14,7 +14,7 @@ const baseConfig: AxiosRequestConfig = {
       'Cache-Control': 'no-cache, no-store, must-revalidate',
       'Content-Type': 'application/json',
       Accept: 'application/json',
-      Authorization: 'Bearer:ZzvKB69t9GuaIGUViqpfR56txsx79BJeggBsl252',
+      Authorization: 'Bearer:nygCEUOLMpBgsSw5tcWOzg1neANMaxqkfrHRXu59',
     },
   },
 };
@@ -27,7 +27,6 @@ export class Service {
   constructor(config?: AxiosRequestConfig) {
     // recursively merge configurations
     const cfg = (mergeDeepLeft as MDL)(config, baseConfig);
-    console.log(cfg);
     this.service = axios.create(cfg);
     // this.service.interceptors.response.use(
     //   this.handleSuccess.bind(this),

@@ -8,7 +8,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
 import React, { FC, ReactElement } from 'react';
-import { Dropdown, ItemType } from '../Dropdown';
+import { DropdownList, ItemType } from '../Dropdown';
 
 interface IItemLinkProps {
   href: string;
@@ -83,14 +83,18 @@ export const AboutDropdown = (): ReactElement => {
   };
 
   return (
-    <Dropdown
-      label="About"
+    <DropdownList
+      label={
+        <>
+          <FontAwesomeIcon icon={faQuestionCircle} /> About
+        </>
+      }
       items={items}
       onSelect={handleSelect}
       classes={{
         button: 'text-gray-300 hover:text-white focus:text-white',
       }}
-      offset={[0, 12]}
+      offset={[-60, 12]}
     />
   );
 };

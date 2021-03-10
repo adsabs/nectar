@@ -19,7 +19,7 @@ const port = process.env.PORT || 8080;
     server.set('trust proxy', 1);
 
     // apply middlewares
-    server.use(expressPinoLogger({ logger }));
+    server.use(expressPinoLogger({ logger, useLevel: 'error' }));
 
     server.all('*', (req: Request, res: Response) => async () =>
       await handle(req, res),

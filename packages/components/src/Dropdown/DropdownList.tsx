@@ -17,8 +17,8 @@ export type ItemType = {
   element?: ReactNode;
 };
 
-export interface IDropdownProps {
-  label: string;
+export interface IDropdownListProps {
+  label: ReactNode;
   items: ItemType[];
   onSelect: (id: ItemType['id']) => void;
   classes: {
@@ -27,11 +27,11 @@ export interface IDropdownProps {
   offset: [number, number];
 }
 
-export const Dropdown = (props: IDropdownProps): ReactElement => {
+export const DropdownList = (props: IDropdownListProps): ReactElement => {
   const { label, items, classes, onSelect, offset } = props;
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement>();
   const [popperElement, setPopperElement] = useState<HTMLDivElement>();
-  const [visible, setVisible] = useState<boolean>(true);
+  const [visible, setVisible] = useState<boolean>(false);
 
   const targetRef = useCallback((node) => {
     if (node !== null) {
@@ -102,7 +102,7 @@ export const Dropdown = (props: IDropdownProps): ReactElement => {
   );
 };
 
-Dropdown.defaultProps = {
+DropdownList.defaultProps = {
   label: 'BUTTON',
   items: [],
   onSelect: null,

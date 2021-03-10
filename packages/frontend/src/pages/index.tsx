@@ -4,6 +4,7 @@ import {
   faSearch,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import api from '@nectar/api';
 import { SearchBar, SearchExamples } from '@nectar/components';
 import { GetServerSideProps, NextPage } from 'next';
 import Link from 'next/link';
@@ -67,8 +68,8 @@ const HomePage: NextPage<IHomePageProps> = ({ docs }) => {
 export const getServerSideProps: GetServerSideProps<IHomePageProps> = async (
   context,
 ) => {
-  // const res = await api.articles.query({ q: 'star' });
-  // console.log({ res });
+  const res = await api.search.query({ q: 'star' });
+  console.log({ res });
   return new Promise((resolve) => {
     const docs = [''];
     return resolve({
