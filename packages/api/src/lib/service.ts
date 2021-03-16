@@ -1,9 +1,15 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import * as AxiosLogger from 'axios-logger';
+import type { RequestLogConfig } from 'axios-logger/lib/common/types';
 import { PathLike } from 'fs';
 import qs from 'qs';
 import { mergeDeepLeft } from 'ramda';
 
-const baseConfig: AxiosRequestConfig = {
+export interface IServiceConfig extends AxiosRequestConfig {
+  debug?: boolean;
+}
+
+const baseConfig: IServiceConfig = {
   baseURL: 'https://devapi.adsabs.harvard.edu/v1',
   withCredentials: true,
   timeout: 30000,
@@ -17,6 +23,12 @@ const baseConfig: AxiosRequestConfig = {
       Authorization: 'Bearer:nygCEUOLMpBgsSw5tcWOzg1neANMaxqkfrHRXu59',
     },
   },
+  debug: true,
+};
+
+const loggerConfig: RequestLogConfig = {
+  data: true,
+  prefixText: 'ADS API'
 };
 
 type MDL = <T>(ob1: T, obj2: T) => T;
@@ -24,17 +36,19 @@ type MDL = <T>(ob1: T, obj2: T) => T;
 export class Service {
   private service: AxiosInstance;
 
-  constructor(config?: AxiosRequestConfig) {
+  constructor(config?: IServiceConfig) {
     // recursively merge configurations
-    const cfg = (mergeDeepLeft as MDL)(config, baseConfig);
+    const cfg = (mergeDeepLeft as MDL)(config, baseConfig) || {};
     this.service = axios.create(cfg);
-    // this.service.interceptors.response.use(
-    //   this.handleSuccess.bind(this),
-    //   this.handleError.bind(this),
-    // );
+
+    if (cfg.debug) {
+      this.service.interceptors.request.use((request: AxiosRequestConfig) => {
+        return AxiosLogger.requestLogger(request, loggerConfig);
+      });
+    }
   }
 
-  request<T, E = unknown>(config?: AxiosRequestConfig): Promise<T> {
+  protected request<T, E = unknown>(config?: AxiosRequestConfig): Promise<T> {
     return new Promise<T>((resolve, reject) => {
       this.service
         .request<T>(config || {})
@@ -42,6 +56,9 @@ export class Service {
           resolve(response.data);
         })
         .catch((response: E) => {
+
+          
+
           reject(response);
         });
     });

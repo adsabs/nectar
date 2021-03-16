@@ -15,7 +15,7 @@
   },
   "scripts": {
     "start": "NODE_ENV=production node dist/index.js",
-    "dev": "node dist/index.js",
+    "dev": "tsdx watch --onSuccess \"node dist/index.js\"",
     "watch": "tsdx watch",
     "build": "tsdx build",
     "test": "tsdx test",

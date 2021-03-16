@@ -8,10 +8,10 @@ export interface ILayoutProps extends HTMLAttributes<HTMLDivElement> {
 
 export const Layout: FC<ILayoutProps> = ({ children }) => {
   return (
-    <section className="flex flex-col">
+    <section className="flex flex-col bg-ads-bg">
       <NavBar />
       <main>
-        <div className="container mx-auto" id="main-content">
+        <div className="container" id="main-content">
           {children}
         </div>
       </main>

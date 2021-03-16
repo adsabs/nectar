@@ -65,9 +65,7 @@ const HomePage: NextPage<IHomePageProps> = ({ docs }) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps<IHomePageProps> = async (
-  context,
-) => {
+export const getServerSideProps: GetServerSideProps<IHomePageProps> = async () => {
   const res = await api.search.query({ q: 'star' });
   console.log({ res });
   return new Promise((resolve) => {

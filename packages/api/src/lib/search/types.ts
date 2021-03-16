@@ -1,5 +1,3 @@
-import { Solr } from '../../../typings/solr';
-
 export interface IADSApiSearchParams {
   q: string;
   fl?: Solr.Field[];
@@ -18,11 +16,11 @@ export interface IADSApiSearchResponse {
   response: {
     numFound: number;
     start: number;
-    docs: DocsEntity[];
+    docs: IDocsEntity[];
   };
 }
 
-interface DocsEntity {
+interface IDocsEntity {
   abstract: string;
   ack: string;
   aff: string;

@@ -5,15 +5,19 @@ import { assign, Machine } from 'xstate';
 interface RootStateSchema {
   states: {
     idle: Record<string, unknown>;
+    hasResults: Record<string, unknown>;
   };
 }
 
 // The events that the machine handles
-type RootEvent = { type: 'INC' } | { type: 'DEC' };
+type RootEvent = { type: 'RESULTS'; payload: RootContext['results'] };
 
 // The context (extended state) of the machine
 interface RootContext {
-  count: number;
+  results: {
+    numFound: number;
+    docs: unknown[];
+  };
 }
 
 const rootMachine = Machine<RootContext, RootStateSchema, RootEvent>(
@@ -21,30 +25,27 @@ const rootMachine = Machine<RootContext, RootStateSchema, RootEvent>(
     id: 'root',
     initial: 'idle',
     context: {
-      count: 0,
+      results: {
+        numFound: 0,
+        docs: [],
+      },
     },
     states: {
       idle: {
         on: {
-          INC: {
-            target: 'idle',
-            actions: 'increment',
-          },
-          DEC: {
-            target: 'idle',
-            actions: 'decrement',
+          RESULTS: {
+            target: 'hasResults',
+            actions: 'updateResults',
           },
         },
       },
+      hasResults: {},
     },
   },
   {
     actions: {
-      increment: assign({
-        count: (ctx) => ctx.count + 1,
-      }),
-      decrement: assign({
-        count: (ctx) => ctx.count - 1,
+      updateResults: assign<RootContext, RootEvent>({
+        results: (_ctx, event) => event.payload,
       }),
     },
   },

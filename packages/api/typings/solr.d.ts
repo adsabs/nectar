@@ -1,5 +1,5 @@
-export namespace Solr {
-  export type Field =
+declare namespace Solr {
+  type Field =
     | 'abstract'
     | 'ack'
     | 'aff'
@@ -112,5 +112,5 @@ export namespace Solr {
     | 'entry_date'
     | 'read_count'
     | 'score';
-  export type Sort = [SortField, SortDirection];
+  type Sort = [SortField, SortDirection];
 }

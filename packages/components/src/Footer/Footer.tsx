@@ -39,7 +39,7 @@ const SimpleLink: React.FC<{ href: string; icon?: IconProp }> = ({
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="bg-gray-900 mt-3 py-6">
+    <footer className="bg-gray-1000 mt-3 py-6">
       <div className="container mx-auto flex flex-col md:flex-row px-3 md:px-0 justify-between">
         <div className="flex-col w-80">
           <p className="text-gray-100 mb-3">

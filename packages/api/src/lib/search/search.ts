@@ -1,3 +1,4 @@
+import { ApiTargets } from '../models';
 import { Service } from '../service';
 import {
   IADSApiSearchErrorResponse,
@@ -34,19 +35,16 @@ export class SearchService extends Service {
     rawParams: IADSApiSearchParams,
   ): Promise<IADSApiSearchResponse['response']> {
     const params = this.normalizeParams(rawParams);
-    try {
-      const { response } = await this.request<
-        IADSApiSearchResponse,
-        IADSApiSearchErrorResponse
-      >({
-        method: 'get',
-        url: '/search/query',
-        params,
-      });
 
-      return response;
-    } catch (e) {
-      throw new Error(e);
-    }
+    const { response } = await this.request<
+      IADSApiSearchResponse,
+      IADSApiSearchErrorResponse
+    >({
+      method: 'get',
+      url: ApiTargets.SEARCH,
+      params,
+    });
+
+    return response;
   }
 }

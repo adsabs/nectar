@@ -1,9 +1,12 @@
+import api from '@nectar/api';
 import { NumFound, SearchBar } from '@nectar/components';
 import { GetServerSideProps, NextPage } from 'next';
 import React from 'react';
+import { useRootMachineContext } from '../context';
 
 interface ISearchPageProps {
   query: string;
+  docs: unknown[];
   meta: {
     numFound: number;
   };
@@ -12,8 +15,13 @@ interface ISearchPageProps {
 const SearchPage: NextPage<ISearchPageProps> = (props) => {
   const {
     query = '',
+    docs = [],
     meta: { numFound = 0 },
   } = props;
+
+  const [current] = useRootMachineContext();
+
+  console.log(current.value, { docs });
 
   const handleSubmit = () => {
     console.log('submit');
@@ -29,7 +37,7 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
         onSubmit={handleSubmit}
       >
         <SearchBar query={query} />
-        <NumFound numFound={numFound} />
+        <NumFound count={numFound} />
       </form>
 
       {/* <div className="mt-6">
@@ -42,27 +50,32 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
 export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (
   ctx,
 ) => {
-  return new Promise((resolve, reject) => {
-    try {
-      const query: string =
-        typeof ctx.query.q === 'string'
-          ? ctx.query.q
-          : Array.isArray(ctx.query.q)
-          ? ctx.query.q.join(' ')
-          : '';
+  const query: string =
+    typeof ctx.query.q === 'string'
+      ? ctx.query.q
+      : Array.isArray(ctx.query.q)
+      ? ctx.query.q.join(' ')
+      : '';
 
-      return resolve({
-        props: {
-          query,
-          meta: {
-            numFound: 100,
-          },
-        },
-      });
-    } catch (e) {
-      return reject({});
-    }
-  });
+  try {
+    const { docs, numFound } = await api.search.query({ q: query });
+
+    return {
+      props: {
+        query,
+        docs,
+        meta: { numFound: numFound },
+      },
+    };
+  } catch (e) {
+    return {
+      props: {
+        query: '',
+        docs: [],
+        meta: { numFound: 0 },
+      },
+    };
+  }
 };
 
 export default SearchPage;

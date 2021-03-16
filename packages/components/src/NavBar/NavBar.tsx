@@ -27,9 +27,9 @@ export const NavBar: FC = ({}) => {
       <div className="flex-grow flex justify-end items-center space-x-4 pr-4">
         <OrcidDropdown />
         <AboutDropdown />
-        <Link href="/signup">
+        <Link href="/user/account/register">
           <a className="text-gray-300 hover:text-white focus:text-white">
-            Sign Up Now
+            Sign Up
           </a>
         </Link>
         <Link href="/login">
