@@ -14,7 +14,7 @@ export const SearchBar = (props: ISearchBarProps): React.ReactElement => {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [value, setValue] = React.useState<string>(query);
 
-  const [, send] = useMachine(SearchMachine);
+  const [current, send] = useMachine(SearchMachine);
 
   const clearBtnCls = clsx(
     { hidden: query?.length === 0, block: query?.length > 0 },
@@ -36,11 +36,13 @@ export const SearchBar = (props: ISearchBarProps): React.ReactElement => {
     });
   }, [value]);
 
+  const { context, value: state } = current;
   return (
     <div>
       <label htmlFor="search" className="sr-only">
         Search
       </label>
+      <code>{JSON.stringify({ context, state }, null, 2)}</code>
       <div className="mt-1 relative rounded-md shadow-md">
         <input
           type="text"

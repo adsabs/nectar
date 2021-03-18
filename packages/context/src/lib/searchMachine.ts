@@ -65,6 +65,10 @@ const config: MachineConfig<Context, Schema, Transition> = {
           actions: 'setResult',
           target: 'success',
         },
+        onError: {
+          actions: 'setError',
+          target: 'failure',
+        },
       },
     },
     success: {},
@@ -74,7 +78,8 @@ const config: MachineConfig<Context, Schema, Transition> = {
 
 const options: Partial<MachineOptions<Context, any>> = {
   services: {
-    fetchResult: async () => {
+    fetchResult: async ctx => {
+      console.log(ctx);
       const { docs, numFound } = await api.search.query({
         q: 'star',
         fl: ['bibcode', 'author', 'title', 'pubdate'],
@@ -89,6 +94,12 @@ const options: Partial<MachineOptions<Context, any>> = {
   actions: {
     setParams: assign({
       params: (ctx, evt) => mergeRight(ctx.params, evt.payload.params),
+    }),
+    setResult: assign({
+      result: (_ctx, evt) => evt.data,
+    }),
+    setError: assign({
+      error: (_ctx, evt) => evt.data,
     }),
   },
 };

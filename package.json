@@ -14,8 +14,9 @@
     "bootstrap": "lerna bootstrap",
     "start": "NODE_ENV=production dotenv -- lerna run start --stream --scope=@nectar/server",
     "build": "NODE_ENV=production dotenv -- lerna run build --stream",
-    "build:dev": "dotenv -- lerna run build --stream --scope '@nectar/{api,context,components}'",
-    "dev": "dotenv -- lerna run dev --stream --scope '@nectar/server'",
+    "build:dev": "dotenv -- lerna run build --stream --include-dependencies --scope '@nectar/{api,context,components}'",
+    "serve": "dotenv -- lerna run dev --stream --no-bail --scope '@nectar/server'",
+    "dev": "dotenv -- yarn build:dev && lerna run start --parallel --no-bail --scope '@nectar/api' --scope '@nectar/context' --scope '@nectar/components'",
     "styles": "lerna run styles --stream",
     "clean": "lerna run clean"
   },

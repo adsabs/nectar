@@ -17,7 +17,7 @@ const baseConfig: IServiceConfig = {
     qs.stringify(params, { indices: false }),
   headers: {
     common: {
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      // 'Cache-Control': 'no-cache, no-store, must-revalidate',
       'Content-Type': 'application/json',
       Accept: 'application/json',
       Authorization: 'Bearer:nygCEUOLMpBgsSw5tcWOzg1neANMaxqkfrHRXu59',

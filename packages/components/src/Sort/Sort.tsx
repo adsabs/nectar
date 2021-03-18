@@ -1,14 +1,18 @@
-import React, { FC, HTMLAttributes, ReactChild } from 'react';
-
+import React, { HTMLAttributes } from 'react';
+import { DropdownList } from '../Dropdown';
+import type { SortType } from './types';
 export interface ISortProps extends HTMLAttributes<HTMLDivElement> {
-  children?: ReactChild
+  sort: SortType
 }
 
-export const Sort: FC<ISortProps> = ({ children }) => {
+export const Sort = ({ sort }: ISortProps): React.ReactElement => {
+  const [sortValue, sortDirection] = sort;
+  console.log({ sortValue, sortDirection });
+
   return (
-    <div>
-      <p>👋 from Sort component</p>
-      <p>{ children }</p>
-    </div>
+    <DropdownList
+      label="click me"
+      items={[{id: 'test', label: 'label' }]}
+    />
   );
 }
