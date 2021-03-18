@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "api" },
+    { "path": "components" },
+    { "path": "context" },
+    { "path": "frontend" },
+    { "path": "server" }
+  ]
+}

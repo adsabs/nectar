@@ -10,7 +10,7 @@ export interface IServiceConfig extends AxiosRequestConfig {
 }
 
 const baseConfig: IServiceConfig = {
-  baseURL: 'https://devapi.adsabs.harvard.edu/v1',
+  baseURL: process.env.NEXT_PUBLIC_API_HOST,
   withCredentials: true,
   timeout: 30000,
   paramsSerializer: (params: PathLike) =>

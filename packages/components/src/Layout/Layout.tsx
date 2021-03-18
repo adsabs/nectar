@@ -8,7 +8,7 @@ export interface ILayoutProps extends HTMLAttributes<HTMLDivElement> {
 
 export const Layout: FC<ILayoutProps> = ({ children }) => {
   return (
-    <section className="flex flex-col bg-ads-bg">
+    <section className="flex flex-col bg-ads-base font-sans">
       <NavBar />
       <main>
         <div className="container" id="main-content">

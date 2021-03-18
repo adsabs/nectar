@@ -12,12 +12,13 @@
     "node": ">=10"
   },
   "scripts": {
-    "start": "tsdx watch",
+    "start": "tsdx watch --verbose",
     "build": "tsdx build",
     "test": "tsdx test",
     "prepare": "tsdx build",
     "size": "size-limit",
-    "analyze": "size-limit --why"
+    "analyze": "size-limit --why",
+    "clean": "rm -rf dist"
   },
   "module": "dist/api.esm.js",
   "size-limit": [

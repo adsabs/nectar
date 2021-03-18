@@ -1,12 +1,8 @@
-import { config } from 'dotenv';
 import express, { Request, Response } from 'express';
 import expressPinoLogger from 'express-pino-logger';
 import next from 'next';
-import path, { resolve } from 'path';
+import path from 'path';
 import { logger } from './middlewares';
-config({
-  path: resolve(__dirname, '../../../.env'),
-});
 
 const dev = process.env.NODE_ENV !== 'production';
 const dir = path.resolve(__dirname, '../../frontend');
@@ -34,6 +30,7 @@ const port = process.env.PORT || 8000;
 
     server.listen(port, (err?: unknown) => {
       if (err) throw err;
+
       console.log(
         `> Ready on localhost:${port} - env ${process.env.NODE_ENV ??
           'development'}`,

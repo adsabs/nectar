@@ -1,12 +1,13 @@
-import api from '@nectar/api';
-import { NumFound, SearchBar } from '@nectar/components';
+import api, { IDocsEntity } from '@nectar/api';
+import { NumFound, ResultList, SearchBar } from '@nectar/components';
+import { SearchMachine } from '@nectar/context';
+import { useMachine } from '@xstate/react';
 import { GetServerSideProps, NextPage } from 'next';
 import React from 'react';
-import { useRootMachineContext } from '../context';
 
 interface ISearchPageProps {
   query: string;
-  docs: unknown[];
+  docs: IDocsEntity[];
   meta: {
     numFound: number;
   };
@@ -19,12 +20,15 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
     meta: { numFound = 0 },
   } = props;
 
-  const [current] = useRootMachineContext();
+  const [, send] = useMachine(SearchMachine);
 
-  console.log(current.value, { docs });
+  if (docs.length > 0) {
+  }
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: React.ChangeEvent<HTMLFormElement>) => {
+    e.preventDefault();
     console.log('submit');
+    send('FETCH');
   };
 
   return (
@@ -39,10 +43,9 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
         <SearchBar query={query} />
         <NumFound count={numFound} />
       </form>
-
-      {/* <div className="mt-6">
-        <Results docs={searchResult.docs} />
-      </div> */}
+      <div className="my-3">
+        <ResultList docs={docs} />
+      </div>
     </>
   );
 };
@@ -58,7 +61,10 @@ export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (
       : '';
 
   try {
-    const { docs, numFound } = await api.search.query({ q: query });
+    const { docs, numFound } = await api.search.query({
+      q: query,
+      fl: ['bibcode', 'author', 'title', 'pubdate'],
+    });
 
     return {
       props: {

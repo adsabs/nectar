@@ -4,24 +4,18 @@ import {
   faSearch,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import api from '@nectar/api';
 import { SearchBar, SearchExamples } from '@nectar/components';
-import { GetServerSideProps, NextPage } from 'next';
+import { NextPage } from 'next';
 import Link from 'next/link';
 import React from 'react';
 
-interface IHomePageProps {
-  docs: string[];
-}
-
-const HomePage: NextPage<IHomePageProps> = ({ docs }) => {
+const HomePage: NextPage = () => {
   const handleExampleClick: (text: string) => void = (text) => {
     console.log('example click', text);
   };
 
   return (
     <>
-      <div>{docs}</div>
       <h2 className="sr-only">Modern Search Form</h2>
       <form action="search" method="get">
         <div className="my-6">
@@ -63,19 +57,6 @@ const HomePage: NextPage<IHomePageProps> = ({ docs }) => {
       </div>
     </>
   );
-};
-
-export const getServerSideProps: GetServerSideProps<IHomePageProps> = async () => {
-  const res = await api.search.query({ q: 'star' });
-  console.log({ res });
-  return new Promise((resolve) => {
-    const docs = [''];
-    return resolve({
-      props: {
-        docs,
-      },
-    });
-  });
 };
 
 export default HomePage;

@@ -5,3 +5,5 @@ export * from './NavBar';
 export * from './NumFound';
 export * from './SearchBar';
 export * from './SearchExamples';
+export * from './ResultList';
+export * from './Sort';

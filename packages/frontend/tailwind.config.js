@@ -18,7 +18,7 @@ module.exports = {
         sans: ['Roboto', ...defaultTheme.fontFamily.sans],
       },
       colors: {
-        'ads-bg': '#f3f7f9',
+        'ads-base': '#f3f7f9',
         gray: {
           1000: '#1a1a1a',
         },

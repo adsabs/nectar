@@ -1,8 +1,10 @@
+import { SolrField, SolrSort } from '../models';
+
 export interface IADSApiSearchParams {
   q: string;
-  fl?: Solr.Field[];
+  fl?: SolrField[];
   rows?: number;
-  sort?: Solr.Sort[];
+  sort?: SolrSort[];
 }
 
 export interface INormalizedADSApiSearchParams {
@@ -20,7 +22,7 @@ export interface IADSApiSearchResponse {
   };
 }
 
-interface IDocsEntity {
+export interface IDocsEntity {
   abstract: string;
   ack: string;
   aff: string;
@@ -28,7 +30,7 @@ interface IDocsEntity {
   alternate_bibcode: string;
   alternate_title: string;
   arxiv_class: string;
-  author: string;
+  author: string[];
   author_count: string;
   author_facet: string;
   author_facet_hier: string;

@@ -1,4 +1,4 @@
-// @nectar/api
+// @nectar/context
 {
   "extends": "../../tsconfig.base.json",
   "include": ["src"],
