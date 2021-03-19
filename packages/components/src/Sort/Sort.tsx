@@ -1,18 +1,67 @@
-import React, { HTMLAttributes } from 'react';
-import { DropdownList } from '../Dropdown';
-import type { SortType } from './types';
-export interface ISortProps extends HTMLAttributes<HTMLDivElement> {
-  sort: SortType
+import { SolrSort } from '@nectar/api';
+import React from 'react';
+import { sortValues } from './model';
+export interface ISortProps {
+  sort?: SolrSort;
+  onChange: (sort: SolrSort[]) => void;
 }
 
-export const Sort = ({ sort }: ISortProps): React.ReactElement => {
-  const [sortValue, sortDirection] = sort;
-  console.log({ sortValue, sortDirection });
+export const Sort = (props: ISortProps): React.ReactElement => {
+  const { sort, onChange } = props;
+  const [selected, setSelected] = React.useState<SolrSort>(['date', 'desc']);
+  React.useEffect(() => {
+    if (sort) {
+      setSelected(sort);
+    }
+  }, [sort]);
 
+  React.useEffect(() => {
+    if (typeof onChange === 'function') {
+      onChange([selected]);
+    }
+  }, [selected]);
+
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.currentTarget.value as SolrSort[0];
+    setSelected([val, selected[1]]);
+  };
+
+  const handleSortDirectionChange = (
+    e: React.ChangeEvent<HTMLSelectElement>,
+  ) => {
+    const val: SolrSort[1] = e.currentTarget.value as SolrSort[1];
+    setSelected([selected[0], val]);
+  };
+
+  const [sortValue, sortDirection] = selected;
   return (
-    <DropdownList
-      label="click me"
-      items={[{id: 'test', label: 'label' }]}
-    />
+    <div>
+      <label htmlFor="sort" className="block text-sm font-medium text-gray-700">
+        Sort
+      </label>
+      <div className="flex">
+        <select
+          name="sort"
+          id="sort"
+          onChange={handleSortChange}
+          value={sortValue}
+        >
+          {sortValues.map(({ id, text }) => (
+            <option value={id} key={id}>
+              {text}
+            </option>
+          ))}
+        </select>
+        <select
+          name="sortDirection"
+          id="sortDirection"
+          onChange={handleSortDirectionChange}
+          value={sortDirection}
+        >
+          <option value="asc">asc</option>
+          <option value="desc">desc</option>
+        </select>
+      </div>
+    </div>
   );
-}
+};

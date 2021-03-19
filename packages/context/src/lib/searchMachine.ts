@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import api, { IADSApiSearchParams, IDocsEntity } from '@nectar/api';
-import { mergeRight } from 'ramda';
 import {
   assign,
   Interpreter,
@@ -13,6 +12,7 @@ import {
 
 export interface Schema {
   states: {
+    initial: Record<string, unknown>;
     idle: Record<string, unknown>;
     fetching: Record<string, unknown>;
     success: Record<string, unknown>;
@@ -21,39 +21,54 @@ export interface Schema {
 }
 
 export type Transition =
-  | { type: 'FETCH' }
-  | { type: 'SET_PARAMS'; payload: { params: IADSApiSearchParams } };
+  | { type: 'SET_PARAMS'; payload: { params: Context['params'] } }
+  | { type: 'SET_RESULT'; payload: { result: Context['result'] } }
+  | { type: 'SEARCH' };
 
 export interface Context {
-  params: IADSApiSearchParams;
+  params: Partial<IADSApiSearchParams>;
   result: {
     docs: Partial<IDocsEntity>[];
     numFound: number;
   };
-  error: unknown;
+  error: { message: string; name: string; stack: string };
 }
 
 export type IResultMachine = Interpreter<Context, Schema, Transition>;
 
+const initialState: Context = {
+  params: {
+    q: '',
+    sort: [['date', 'desc']],
+  },
+  result: {
+    docs: [],
+    numFound: 0,
+  },
+  error: {
+    message: '',
+    name: '',
+    stack: '',
+  },
+};
+
 const config: MachineConfig<Context, Schema, Transition> = {
   key: 'result',
-  initial: 'idle',
-  context: {
-    params: {
-      q: '',
-    },
-    result: {
-      docs: [],
-      numFound: 0,
-    },
-    error: undefined,
-  },
+  initial: 'initial',
+  context: initialState,
   states: {
+    initial: {
+      always: 'idle',
+    },
     idle: {
+      entry: 'reset',
       on: {
-        FETCH: 'fetching',
+        SEARCH: 'fetching',
         SET_PARAMS: {
           actions: 'setParams',
+        },
+        SET_RESULT: {
+          actions: 'setInitialResults',
         },
       },
     },
@@ -71,8 +86,12 @@ const config: MachineConfig<Context, Schema, Transition> = {
         },
       },
     },
-    success: {},
-    failure: {},
+    success: {
+      on: { SET_PARAMS: 'idle' },
+    },
+    failure: {
+      on: { SET_PARAMS: 'idle' },
+    },
   },
 };
 
@@ -80,9 +99,13 @@ const options: Partial<MachineOptions<Context, any>> = {
   services: {
     fetchResult: async ctx => {
       console.log(ctx);
+      if (ctx.params.q === '' || typeof ctx.params.q === 'undefined') {
+        throw new Error('no query');
+      }
       const { docs, numFound } = await api.search.query({
-        q: 'star',
+        q: ctx.params.q,
         fl: ['bibcode', 'author', 'title', 'pubdate'],
+        sort: ctx.params.sort,
       });
 
       return {
@@ -93,13 +116,19 @@ const options: Partial<MachineOptions<Context, any>> = {
   },
   actions: {
     setParams: assign({
-      params: (ctx, evt) => mergeRight(ctx.params, evt.payload.params),
+      params: (ctx, evt) => ({ ...ctx.params, ...evt.payload.params }),
+    }),
+    setInitialResults: assign({
+      result: (_ctx, evt) => evt.payload.result,
     }),
     setResult: assign({
       result: (_ctx, evt) => evt.data,
     }),
     setError: assign({
       error: (_ctx, evt) => evt.data,
+    }),
+    reset: assign({
+      error: (_ctx, _evt) => initialState.error,
     }),
   },
 };

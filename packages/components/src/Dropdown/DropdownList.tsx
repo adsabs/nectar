@@ -74,7 +74,7 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
     setVisible(false);
   };
 
-  const popperClasses = clsx('border divide-y flex flex-col', {
+  const popperClasses = clsx('border divide-y flex flex-col z-50 bg-white', {
     hidden: !visible,
   });
 

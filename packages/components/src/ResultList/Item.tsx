@@ -5,15 +5,31 @@ import React from 'react';
 interface IItemProps {
   doc: IDocsEntity;
   index: number;
+  selected: boolean;
+  onSelect: (item: IDocsEntity['id']) => void;
 }
 
-export const Item = ({ doc, index }: IItemProps): React.ReactElement => {
-  const { bibcode = '', pubdate = '', title = '', author = [] } = doc;
+export const Item = (props: IItemProps): React.ReactElement => {
+  const { doc, index, selected, onSelect } = props;
+  const { bibcode = '', pubdate = '', title = '', author = [], id } = doc;
+
+  const handleSelect = () => {
+    onSelect(id);
+  };
 
   return (
-    <div className="flex border p-1 rounded-lg bg-white">
+    <div className="flex border py-1 px-2 rounded-md bg-white">
       <div className="hidden md:flex items-center justify-center mr-3">
         {index}
+      </div>
+      <div className="hidden md:flex items-center justify-center mr-3">
+        <input
+          type="checkbox"
+          name={`result-checkbox-${index}`}
+          id={`result-checkbox-${index}`}
+          onChange={handleSelect}
+          checked={selected}
+        />
       </div>
       <div className="flex flex-col flex-1">
         <div className="flex justify-between">

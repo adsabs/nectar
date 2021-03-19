@@ -1,20 +1,17 @@
 import { faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { SearchMachine } from '@nectar/context';
-import { useMachine } from '@xstate/react';
 import clsx from 'clsx';
 import React from 'react';
 
 interface ISearchBarProps {
   query?: string;
+  onChange?: (value: string) => void;
 }
 
 export const SearchBar = (props: ISearchBarProps): React.ReactElement => {
-  const { query = '' } = props;
+  const { query = '', onChange } = props;
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [value, setValue] = React.useState<string>(query);
-
-  const [current, send] = useMachine(SearchMachine);
 
   const clearBtnCls = clsx(
     { hidden: query?.length === 0, block: query?.length > 0 },
@@ -30,19 +27,17 @@ export const SearchBar = (props: ISearchBarProps): React.ReactElement => {
   };
 
   React.useEffect(() => {
-    send({
-      type: 'SET_PARAMS',
-      payload: { params: { q: value } },
-    });
+    if (typeof onChange === 'function') {
+      onChange(value);
+    }
   }, [value]);
 
-  const { context, value: state } = current;
   return (
     <div>
       <label htmlFor="search" className="sr-only">
         Search
       </label>
-      <code>{JSON.stringify({ context, state }, null, 2)}</code>
+
       <div className="mt-1 relative rounded-md shadow-md">
         <input
           type="text"

@@ -8,6 +8,7 @@ export default {
   user: new UserService(),
 };
 
+export { SolrField, SolrSort } from './lib/models';
 export {
   IADSApiSearchErrorResponse,
   IADSApiSearchParams,
