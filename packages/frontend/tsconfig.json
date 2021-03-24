@@ -1,7 +1,7 @@
 // @nectar/frontend
 {
   "extends": "../../tsconfig.base.json",
-  "include": ["src"],
+  "include": ["src", "cypress/integration/**/*.ts"],
   "compilerOptions": {
     "rootDir": ".",
     "target": "es5",
@@ -9,6 +9,7 @@
     "noEmit": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "types": ["cypress"]
   }
 }

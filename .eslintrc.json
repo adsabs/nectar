@@ -4,7 +4,7 @@
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
     "prettier"
   ],
-  "plugins": ["react", "react-hooks", "jsx-a11y", "@typescript-eslint"],
+  "plugins": ["react", "react-hooks", "jsx-a11y", "@typescript-eslint", "jest"],
   "parser": "@typescript-eslint/parser",
   "env": {
     "es6": true

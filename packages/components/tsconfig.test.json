@@ -2,6 +2,7 @@
   "extends": "./tsconfig.json",
   "include": ["test", "stories"],
   "compilerOptions": {
-    "rootDir": "."
+    "rootDir": ".",
+    "types": ["jest"]
   }
 }
