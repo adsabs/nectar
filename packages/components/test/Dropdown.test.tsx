@@ -1,10 +1,11 @@
-import { render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 import React from 'react';
-import { Default as Dropdown } from '../stories/Dropdown.stories';
+import { Default as Dropdown, DefaultArgs as DropdownArgs } from '../stories/Dropdown.stories';
 
 describe('Dropdown', () => {
-  it('renders without crashing', () => {
-    const html = render(<Dropdown {...Dropdown.args} />);
-    expect(html).toMatchInlineSnapshot(``)
+  it('Renders without crashing', () => {
+    act(() => {
+      render(<Dropdown {...DropdownArgs} />);
+    })
   });
 });

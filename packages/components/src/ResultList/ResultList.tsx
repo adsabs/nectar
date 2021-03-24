@@ -3,21 +3,26 @@ import React from 'react';
 import { Item } from './Item';
 import { Skeleton } from './Skeleton';
 
+type Id = IDocsEntity["id"]
+interface IResultDoc extends Partial<IDocsEntity> {
+  id: Id
+};
+
 export interface IResultListProps {
-  docs: IDocsEntity[];
-  selected: IDocsEntity['id'][];
-  onSelectedChange: (item: IDocsEntity['id'][]) => void;
+  docs: IResultDoc[];
+  selected: Id[];
+  onSelectedChange: (item: Id[]) => void;
   loading: boolean;
 }
 
 export const ResultList = (props: IResultListProps): React.ReactElement => {
   const { docs, loading = false, selected, onSelectedChange } = props;
 
-  const [selectedDocs, setSelectedDocs] = React.useState<IDocsEntity['id'][]>(
+  const [selectedDocs, setSelectedDocs] = React.useState<Id[]>(
     [],
   );
 
-  const handleSelect = (item: IDocsEntity['id']) => {
+  const handleSelect = (item: Id) => {
     const index = selectedDocs.indexOf(item);
     if (index > -1) {
       setSelectedDocs([

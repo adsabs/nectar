@@ -25,4 +25,4 @@ const Template: Story<ISearchExamplesProps> = (args) => (
 
 export const Default = Template.bind({});
 
-Default.args = {};
+export const DefaultArgs = Default.args = {};

@@ -1,6 +1,6 @@
-import React from 'react';
 import { Meta, Story } from '@storybook/react';
-import { ListBox, IListBoxProps } from '../src/ListBox';
+import React from 'react';
+import { IListBoxProps, ListBox } from '../src/ListBox';
 
 const meta: Meta = {
   title: 'ListBox',
@@ -23,4 +23,6 @@ const Template: Story<IListBoxProps> = args => <ListBox {...args} />;
 
 export const Default = Template.bind({});
 
-Default.args = {};
+export const DefaultArgs = Default.args = {
+  label: 'ListBox Demo'
+};

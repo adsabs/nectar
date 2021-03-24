@@ -23,4 +23,4 @@ const Template: Story = (args) => <Footer {...args} />;
 
 export const Default = Template.bind({});
 
-Default.args = {};
+export const DefaultArgs = Default.args = {};

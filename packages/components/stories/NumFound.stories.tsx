@@ -18,13 +18,21 @@ export default meta;
 const Template: Story<INumFoundProps> = (args) => <NumFound {...args} />;
 
 export const Default = Template.bind({});
-Default.args = {};
+export const DefaultArgs = Default.args = {};
 
 export const WithResults = Template.bind({});
-WithResults.args = { count: 500 }
+export const WithResultsArgs = WithResults.args = {
+  count: 500
+}
 
 export const TotalCitations = Template.bind({});
-TotalCitations.args = { ...WithResults.args, citationsCount: 100 }
+export const TotalCitationsArgs = TotalCitations.args = {
+  ...WithResults.args,
+  citationsCount: 100
+}
 
 export const TotalNormalizedCitations = Template.bind({});
-TotalNormalizedCitations.args = { ...WithResults.args, normalizedCitationsCount: 100 };
+export const TotalNormalizedCitationsArgs = TotalNormalizedCitations.args = {
+  ...WithResults.args,
+  normalizedCitationsCount: 100
+};

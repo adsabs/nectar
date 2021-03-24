@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import clsx from 'clsx';
 import React from 'react';
 
-interface ISearchBarProps {
+export interface ISearchBarProps {
   query?: string;
   onChange?: (value: string) => void;
 }

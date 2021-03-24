@@ -3,7 +3,7 @@ import Link from 'next/link';
 import React from 'react';
 
 interface IItemProps {
-  doc: IDocsEntity;
+  doc: Partial<IDocsEntity>;
   index: number;
   selected: boolean;
   onSelect: (item: IDocsEntity['id']) => void;
@@ -14,7 +14,9 @@ export const Item = (props: IItemProps): React.ReactElement => {
   const { bibcode = '', pubdate = '', title = '', author = [], id } = doc;
 
   const handleSelect = () => {
-    onSelect(id);
+    if (id) {
+      onSelect(id);
+    }
   };
 
   return (

@@ -3,7 +3,7 @@ import React, { FC } from 'react';
 import { AboutDropdown } from './AboutDropdown';
 import { OrcidDropdown } from './OrcidDropdown';
 
-export const NavBar: FC = ({}) => {
+export const NavBar: FC = () => {
   return (
     <nav className="bg-gray-1000 flex">
       <div className="px-4 sm:px-6 lg:px-8">

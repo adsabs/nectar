@@ -3,7 +3,7 @@ import React from 'react';
 import { sortValues } from './model';
 export interface ISortProps {
   sort?: SolrSort;
-  onChange: (sort: SolrSort[]) => void;
+  onChange?: (sort: SolrSort[]) => void;
 }
 
 export const Sort = (props: ISortProps): React.ReactElement => {

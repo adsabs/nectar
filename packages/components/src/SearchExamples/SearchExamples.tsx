@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import { examples } from './examples';
 
 export interface ISearchExamplesProps {
-  onClick(text: string): void;
+  onClick?(text: string): void;
 }
 
 export const SearchExamples: FC<ISearchExamplesProps> = ({ onClick }) => {

@@ -1,6 +1,6 @@
-import React from 'react';
 import { Meta, Story } from '@storybook/react';
-import { Sort, ISortProps } from '../src/Sort';
+import React from 'react';
+import { ISortProps, Sort } from '../src/Sort';
 
 const meta: Meta = {
   title: 'Sort',
@@ -23,4 +23,4 @@ const Template: Story<ISortProps> = args => <Sort {...args} />;
 
 export const Default = Template.bind({});
 
-Default.args = {};
+export const DefaultArgs = Default.args = {};
