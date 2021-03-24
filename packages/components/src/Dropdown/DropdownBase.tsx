@@ -7,7 +7,7 @@ import { usePopper } from 'react-popper';
 
 export interface IDropdownBaseProps {
   label: ReactNode;
-  renderButton({ ref }: { ref(): HTMLButtonElement }): ReactNode;
+  renderButton({ ref }: { ref(): HTMLButtonElement | undefined }): ReactNode;
   classes: {
     button?: string;
     container?: string;
@@ -16,8 +16,7 @@ export interface IDropdownBaseProps {
   children: ReactNode;
 }
 
-export const DropdownBase = (props: IDropdownBaseProps): ReactElement => {
-  const { label, classes, offset, children, renderButton } = props;
+export const DropdownBase = ({ label, classes, offset, children, renderButton }: IDropdownBaseProps): ReactElement => {
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement>();
   const [popperElement, setPopperElement] = useState<HTMLDivElement>();
   const [visible, setVisible] = useState<boolean>(false);
@@ -60,7 +59,7 @@ export const DropdownBase = (props: IDropdownBaseProps): ReactElement => {
 
   return (
     <OutsideClickHandler onOutsideClick={handleOutsideClick}>
-      {renderButton({ ref })}
+      {renderButton({ ref: () => referenceElement })}
       <button
         type="button"
         ref={targetRef}

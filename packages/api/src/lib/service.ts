@@ -10,7 +10,7 @@ export interface IServiceConfig extends AxiosRequestConfig {
 }
 
 const baseConfig: IServiceConfig = {
-  baseURL: process.env.NEXT_PUBLIC_API_HOST,
+  baseURL: process.env.API_HOST,
   withCredentials: true,
   timeout: 30000,
   paramsSerializer: (params: PathLike) =>
@@ -18,9 +18,8 @@ const baseConfig: IServiceConfig = {
   headers: {
     common: {
       // 'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      Authorization: 'Bearer:nygCEUOLMpBgsSw5tcWOzg1neANMaxqkfrHRXu59',
+      // 'Content-Type': 'application/json',
+      // Accept: 'application/json',
     },
   },
   debug: true,
@@ -37,6 +36,7 @@ export class Service {
   private service: AxiosInstance;
 
   constructor(config?: IServiceConfig) {
+
     // recursively merge configurations
     const cfg = (mergeDeepLeft as MDL)(config, baseConfig) || {};
     this.service = axios.create(cfg);
@@ -56,9 +56,6 @@ export class Service {
           resolve(response.data);
         })
         .catch((response: E) => {
-
-          
-
           reject(response);
         });
     });

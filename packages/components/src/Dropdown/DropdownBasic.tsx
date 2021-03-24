@@ -7,16 +7,16 @@ import { usePopper } from 'react-popper';
 
 export interface IDropdownBasicProps {
   label: ReactNode;
-  classes: {
+  classes?: {
     button?: string;
     container?: string;
   };
-  offset: [number, number];
-  children: ReactNode;
+  offset?: [number, number];
+  children?: ReactNode;
 }
 
 export const DropdownBasic = (props: IDropdownBasicProps): ReactElement => {
-  const { label, classes, offset, children } = props;
+  const { label, classes = {}, offset = [0, 0], children } = props;
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement>();
   const [popperElement, setPopperElement] = useState<HTMLDivElement>();
   const [visible, setVisible] = useState<boolean>(false);

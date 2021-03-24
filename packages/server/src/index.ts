@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import expressPinoLogger from 'express-pino-logger';
 import next from 'next';
 import path from 'path';
-import { logger } from './middlewares';
+import { logger, session } from './middlewares';
 
 const dev = process.env.NODE_ENV !== 'production';
 const dir = path.resolve(__dirname, '../../frontend');
@@ -24,6 +24,8 @@ const port = process.env.PORT || 8000;
         logger,
       }),
     );
+    server.use(session);
+    // server.use(api);
 
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     server.all('*', (req: Request, res: Response) => handle(req, res));

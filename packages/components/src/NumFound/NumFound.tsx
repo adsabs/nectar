@@ -18,14 +18,14 @@ export const NumFound = (props: INumFoundProps): ReactElement => {
   const citationsString =
     typeof citationsCount === 'number' ? (
       <>
-        with <span className="font-bold">{sanitizeNum(citationsCount)}</span>{' '}
+        {' '}with <span className="font-bold">{sanitizeNum(citationsCount)}</span>{' '}
         total citations
       </>
     ) : null;
   const normalizedCitationsString =
     typeof normalizedCitationsCount === 'number' ? (
       <>
-        with{' '}
+        {' '}with{' '}
         <span className="font-bold">
           {sanitizeNum(normalizedCitationsCount)}
         </span>{' '}
@@ -36,7 +36,7 @@ export const NumFound = (props: INumFoundProps): ReactElement => {
   return (
     <p role="status" className="text-xs">
       Your search returned <span className="font-bold">{countString}</span>{' '}
-      results {citationsString} {normalizedCitationsString}
+      results{citationsString}{normalizedCitationsString}
     </p>
   );
 };

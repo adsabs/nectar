@@ -2,14 +2,9 @@ const api = require('./dist/index').default;
 
 (async () => {
   try {
-    const data = await api.user.register({
-      email: 'twhostetler0+testx6@gmail.com',
-      password1: 'test1',
-      password2: 'test2',
-      verify_url: '/',
-    });
+    const { response, data } = await api.accounts.bootstrap();
 
-    console.log(JSON.stringify(data, null, 2));
+    console.log(JSON.stringify({ response, data }, null, 2));
   } catch (e) {
     console.log(e);
   }

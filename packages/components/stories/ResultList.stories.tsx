@@ -1,6 +1,6 @@
-import React from 'react';
 import { Meta, Story } from '@storybook/react';
-import { ResultList, IResultListProps } from '../src/ResultList';
+import React from 'react';
+import { IResultListProps, ResultList } from '../src/ResultList';
 
 const meta: Meta = {
   title: 'ResultList',
@@ -23,4 +23,9 @@ const Template: Story<IResultListProps> = args => <ResultList {...args} />;
 
 export const Default = Template.bind({});
 
-Default.args = {};
+Default.args = {
+  docs: [{ id: 1, bibcode: 'bibcode' }],
+  selected: [],
+  onSelectedChange: () => { },
+  loading: false
+};

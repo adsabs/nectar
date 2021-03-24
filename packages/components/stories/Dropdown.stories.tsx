@@ -1,10 +1,10 @@
 import { Meta, Story } from '@storybook/react';
 import React from 'react';
-import { DropdownList, IDropdownListProps } from '../src/Dropdown';
+import { DropdownBasic, IDropdownBasicProps } from '../src/Dropdown';
 
 const meta: Meta = {
   title: 'Dropdown',
-  component: DropdownList,
+  component: DropdownBasic,
   argTypes: {
     items: {
       defaultValue: [
@@ -21,10 +21,12 @@ const meta: Meta = {
 
 export default meta;
 
-const Template: Story<IDropdownListProps> = (args) => (
-  <DropdownList {...args} />
+const Template: Story<IDropdownBasicProps> = (args) => (
+  <DropdownBasic {...args} />
 );
 
-export const Default = Template.bind({});
+export const Default: Story<IDropdownBasicProps> = Template.bind({});
 
-Default.args = {};
+Default.args = {
+  label: 'Dropdown'
+};
