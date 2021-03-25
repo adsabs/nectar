@@ -8,10 +8,6 @@ import {
 } from './types';
 
 export class UserService extends Service {
-  constructor() {
-    super();
-  }
-
   public async login(): Promise<unknown> {
     await new Promise((_) => _);
     return null;

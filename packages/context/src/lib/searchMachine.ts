@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import api, { IADSApiSearchParams, IDocsEntity } from '@nectar/api';
+import Adsapi, { IADSApiSearchParams, IDocsEntity } from '@nectar/api';
 import {
   assign,
   Interpreter,
@@ -98,11 +98,12 @@ const config: MachineConfig<Context, Schema, Transition> = {
 const options: Partial<MachineOptions<Context, any>> = {
   services: {
     fetchResult: async ctx => {
-      console.log(ctx);
       if (ctx.params.q === '' || typeof ctx.params.q === 'undefined') {
         throw new Error('no query');
       }
-      const { docs, numFound } = await api.search.query({
+      const { access_token: token } = await Adsapi.bootstrap();
+      const adsapi = new Adsapi({ token });
+      const { docs, numFound } = await adsapi.search.query({
         q: ctx.params.q,
         fl: ['bibcode', 'author', 'title', 'pubdate'],
         sort: ctx.params.sort,

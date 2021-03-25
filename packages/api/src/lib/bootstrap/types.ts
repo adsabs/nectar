@@ -8,7 +8,7 @@ export interface IADSApiBootstrapResponse {
   ratelimit: number;
   anonymous: boolean;
   client_secret: string;
-  expire_in: Date;
+  expire_in: string;
   refresh_token: string;
 }
 

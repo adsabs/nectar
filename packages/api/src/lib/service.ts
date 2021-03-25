@@ -1,16 +1,18 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import * as AxiosLogger from 'axios-logger';
-import type { RequestLogConfig } from 'axios-logger/lib/common/types';
+import { RequestLogConfig } from 'axios-logger/lib/common/types';
 import { PathLike } from 'fs';
 import qs from 'qs';
 import { mergeDeepLeft } from 'ramda';
 
 export interface IServiceConfig extends AxiosRequestConfig {
   debug?: boolean;
+  token?: string;
 }
 
 const baseConfig: IServiceConfig = {
-  baseURL: process.env.API_HOST,
+  token: undefined,
+  baseURL: process.env.NEXT_PUBLIC_API_HOST,
   withCredentials: true,
   timeout: 30000,
   paramsSerializer: (params: PathLike) =>
@@ -27,7 +29,7 @@ const baseConfig: IServiceConfig = {
 
 const loggerConfig: RequestLogConfig = {
   data: true,
-  prefixText: 'ADS API'
+  prefixText: 'ADS API',
 };
 
 type MDL = <T>(ob1: T, obj2: T) => T;
@@ -35,23 +37,36 @@ type MDL = <T>(ob1: T, obj2: T) => T;
 export class Service {
   private service: AxiosInstance;
 
-  constructor(config?: IServiceConfig) {
-
+  constructor(config: IServiceConfig) {
     // recursively merge configurations
-    const cfg = (mergeDeepLeft as MDL)(config, baseConfig) || {};
+    const { token, debug, ...cfg } =
+      (mergeDeepLeft as MDL)(config, baseConfig) || {};
     this.service = axios.create(cfg);
 
-    if (cfg.debug) {
+    this.service.interceptors.request.use((request: AxiosRequestConfig) => {
+      if (typeof token === 'string') {
+        (request.headers as { authorization: string })[
+          'authorization'
+        ] = `Bearer:${token}`;
+      }
+      return request;
+    });
+
+    if (debug) {
       this.service.interceptors.request.use((request: AxiosRequestConfig) => {
         return AxiosLogger.requestLogger(request, loggerConfig);
       });
     }
   }
 
-  protected request<T, E = unknown>(config?: AxiosRequestConfig): Promise<T> {
+  protected request<T, E = unknown>(
+    config: AxiosRequestConfig = {},
+  ): Promise<T> {
+    console.log('==CONFIG==', config);
+
     return new Promise<T>((resolve, reject) => {
       this.service
-        .request<T>(config || {})
+        .request<T>(config)
         .then((response) => {
           resolve(response.data);
         })

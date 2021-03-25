@@ -9,10 +9,6 @@ import {
 import { validate } from './validator';
 
 export class SearchService extends Service {
-  constructor() {
-    super();
-  }
-
   private normalizeParams(
     params: IADSApiSearchParams,
   ): INormalizedADSApiSearchParams {

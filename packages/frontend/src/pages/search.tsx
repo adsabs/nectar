@@ -1,4 +1,4 @@
-import api, { IADSApiSearchParams, IDocsEntity } from '@nectar/api';
+import AdsApi, { IADSApiBootstrapData, IADSApiSearchParams, IDocsEntity } from '@nectar/api';
 import { NumFound, ResultList, SearchBar, Sort } from '@nectar/components';
 import { SearchMachine } from '@nectar/context';
 import { useMachine } from '@xstate/react';
@@ -19,6 +19,8 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
     docs = [],
     meta: { numFound = 0 },
   } = props;
+
+  console.log({ query, docs, numFound })
 
   const [searchMachineCurrent, searchMachineSend] = useMachine(SearchMachine);
 
@@ -105,18 +107,27 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
 export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (
   ctx,
 ) => {
+  console.log('GET SERVER SIDE PROPS')
+
   const query: string =
     typeof ctx.query.q === 'string'
       ? ctx.query.q
       : Array.isArray(ctx.query.q)
-      ? ctx.query.q.join(' ')
-      : '';
+        ? ctx.query.q.join(' ')
+        : '';
+
+  const request = ctx.req as typeof ctx.req & { session: { userData: IADSApiBootstrapData } };
+  const userData = request.session.userData;
+  console.log('dsflkj =- ', userData);
 
   try {
-    const { docs, numFound } = await api.search.query({
+    const adsapi = new AdsApi({ token: userData.access_token });
+    const { docs, numFound } = await adsapi.search.query({
       q: query,
       fl: ['bibcode', 'author', 'title', 'pubdate'],
     });
+
+    console.log('###query###', { query, numFound, docs })
 
     return {
       props: {

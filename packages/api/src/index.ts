@@ -1,15 +1,7 @@
-import { LibrariesService } from './lib/libraries';
-import { SearchService } from './lib/search';
-import { UserService } from './lib/user';
-import { AccountsService } from './lib/accounts';
+import { Adsapi } from './lib/api';
+export default Adsapi;
 
-export default {
-  search: new SearchService(),
-  libraries: new LibrariesService(),
-  user: new UserService(),
-  accounts: new AccountsService(),
-};
-
+export { IADSApiBootstrapData } from './lib/bootstrap/types';
 export { SolrField, SolrSort } from './lib/models';
 export {
   IADSApiSearchErrorResponse,
@@ -17,5 +9,3 @@ export {
   IADSApiSearchResponse,
   IDocsEntity,
 } from './lib/search/types';
-
-export { IADSApiBootstrapData } from './lib/accounts/types';

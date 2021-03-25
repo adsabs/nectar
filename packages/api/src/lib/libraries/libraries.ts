@@ -8,10 +8,6 @@ import {
 } from './types';
 
 export class LibrariesService extends Service {
-  constructor() {
-    super();
-  }
-
   // private normalizeParams(
   //   params: IADSApiSearchParams,
   // ): INormalizedADSApiSearchParams {

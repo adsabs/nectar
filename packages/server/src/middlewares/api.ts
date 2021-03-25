@@ -1,9 +1,9 @@
-import adsapi, { IADSApiBootstrapData } from '@nectar/api';
-import { isPast } from 'date-fns';
+import Adsapi, { IADSApiBootstrapData } from '@nectar/api';
+import { isPast, parseISO } from 'date-fns';
 import { RequestHandler as Middleware } from 'express';
 
 const isExpired = (userData: IADSApiBootstrapData) =>
-  isPast(new Date(userData.expire_in));
+  isPast(parseISO(userData.expire_in));
 
 export const api: Middleware = async (req, res, next) => {
   // grab reference to our current session from the request
@@ -18,10 +18,12 @@ export const api: Middleware = async (req, res, next) => {
 
   // bootstrap to get the user data
   try {
-    const userData = await adsapi.accounts.bootstrap();
+    const userData = await Adsapi.bootstrap();
     session.userData = userData;
   } catch (e) {
     console.error(e);
+  } finally {
+    next();
   }
 };
 
