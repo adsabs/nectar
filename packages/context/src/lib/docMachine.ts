@@ -12,11 +12,19 @@ import {
 
 export interface Schema {
   states: {
-    initial: Record<string, unknown>;
-    idle: Record<string, unknown>;
-    fetchingAbstract: Record<string, unknown>;
-    success: Record<string, unknown>;
-    failure: Record<string, unknown>;
+    abstract: {
+      states: {
+        idle: Record<string, unknown>;
+        fetching: Record<string, unknown>;
+        loaded: Record<string, unknown>;
+        failure: Record<string, unknown>;
+      };
+    };
+    select: {
+      states: {
+        idle: Record<string, unknown>;
+      };
+    };
   };
 }
 
@@ -26,9 +34,11 @@ export interface Context {
   id: IDocsEntity['id'];
   selected: boolean;
   meta: {
-    abstract: IDocsEntity['abs'];
+    abstract: IDocsEntity['abstract'];
   };
-  error: { message: string; name: string; stack: string };
+  error?: {
+    message: string;
+  };
 }
 
 export type IDocMachine = Interpreter<Context, Schema, Transition>;
@@ -39,47 +49,56 @@ export const initialState: Context = {
   meta: {
     abstract: '',
   },
-  error: {
-    message: '',
-    name: '',
-    stack: '',
-  },
+  error: undefined,
 };
 
 const config: MachineConfig<Context, Schema, Transition> = {
   key: 'doc',
-  initial: 'initial',
+  type: 'parallel',
   context: initialState,
   states: {
-    initial: {
-      always: 'idle',
-    },
-    idle: {
-      on: {
-        GET_ABSTRACT: 'fetchingAbstract',
-        TOGGLE_SELECT: {
-          actions: 'toggleSelect',
+    abstract: {
+      initial: 'idle',
+      states: {
+        idle: {
+          on: {
+            GET_ABSTRACT: 'fetching',
+          },
+        },
+        fetching: {
+          invoke: {
+            id: 'fetchAbstract',
+            src: 'fetchAbstract',
+            onDone: {
+              actions: 'setAbstract',
+              target: 'loaded',
+            },
+            onError: {
+              target: 'failure',
+              actions: 'setError',
+            },
+          },
+        },
+        loaded: {
+          type: 'final',
+        },
+        failure: {
+          after: {
+            5000: 'idle',
+          },
         },
       },
     },
-    fetchingAbstract: {
-      invoke: {
-        id: 'fetchAbstract',
-        src: 'fetchAbstract',
-        onDone: {
-          actions: 'setAbstract',
-          target: 'success',
+    select: {
+      initial: 'idle',
+      states: {
+        idle: {
+          on: {
+            TOGGLE_SELECT: {
+              actions: 'toggleSelect',
+            },
+          },
         },
-        onError: {
-          actions: 'setError',
-          target: 'failure',
-        },
-      },
-    },
-    success: {},
-    failure: {
-      after: {
-        5000: 'idle',
       },
     },
   },
@@ -102,11 +121,11 @@ const options: Partial<MachineOptions<Context, any>> = {
     setAbstract: assign({
       meta: (ctx, evt) => ({ ...ctx.meta, abstract: evt.data }),
     }),
-    setAbstractError: assign({
-      error: (_ctx, evt) => evt.data,
-    }),
     toggleSelect: assign({
       selected: ctx => !ctx.selected,
+    }),
+    setError: assign({
+      error: (_ctx, evt) => evt.data,
     }),
   },
 };

@@ -25,10 +25,10 @@ export const Item = (props: IItemProps): React.ReactElement => {
   const [showAbstract, setShowAbstract] = React.useState(false);
 
   useEffect(() => {
-    if (state.matches('success')) {
+    if (state.matches('abstract.loaded')) {
       setShowAbstract(true);
     }
-  }, [state.value])
+  }, [(state.value as { abstract: string }).abstract])
 
   const handleSelect = () => {
     send({ type: 'TOGGLE_SELECT' });
@@ -36,7 +36,7 @@ export const Item = (props: IItemProps): React.ReactElement => {
 
   const handleShowAbstractClick = () => {
     send({ type: 'GET_ABSTRACT' });
-    if (state.matches('success')) {
+    if (state.matches('abstract.loaded')) {
       setShowAbstract(!showAbstract);
     }
   }
@@ -69,13 +69,18 @@ export const Item = (props: IItemProps): React.ReactElement => {
         </Link>
         <div className="text-xs">{author.slice(0, 3).join('; ')}</div>
         <div className="flex">
-          <button onClick={handleShowAbstractClick}>{
-            state.matches('fetchingAbstract')
+          <button onClick={handleShowAbstractClick} disabled={state.matches('abstract.failure')}>{
+            state.matches('abstract.fetching')
               ? <FontAwesomeIcon icon={faSpinner} pulse />
               : showAbstract
                 ? <FontAwesomeIcon icon={faFolderOpen} />
                 : <FontAwesomeIcon icon={faFolder} />
           }</button>
+          <span className="ml-3 text-red-600">
+            {
+              state.matches('abstract.failure') && state.context.error?.message
+            }
+          </span>
         </div>
         {showAbstract &&
           <div className="border p-2 mt-2">{state.context.meta.abstract}</div>
