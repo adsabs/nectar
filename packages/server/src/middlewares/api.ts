@@ -9,8 +9,6 @@ export const api: Middleware = async (req, res, next) => {
   // grab reference to our current session from the request
   const session = req.session as ISession;
 
-  console.log('session', session);
-
   // ideal, we have a session and it is not expired, we can move to next
   if (session.userData && !isExpired(session.userData)) {
     return next();

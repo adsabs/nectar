@@ -1,7 +1,7 @@
 import AdsApi, { IADSApiBootstrapData, IADSApiSearchParams, IDocsEntity } from '@nectar/api';
 import { NumFound, ResultList, SearchBar, Sort } from '@nectar/components';
-import { SearchMachine } from '@nectar/context';
-import { useMachine } from '@xstate/react';
+import { useRootMachineContext } from '@nectar/context';
+import { useActor } from '@xstate/react';
 import { GetServerSideProps, NextPage } from 'next';
 import React from 'react';
 
@@ -20,12 +20,16 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
     meta: { numFound = 0 },
   } = props;
 
+  const [root] = useRootMachineContext();
+
   console.log({ query, docs, numFound })
 
-  const [searchMachineCurrent, searchMachineSend] = useMachine(SearchMachine);
+  const [state, send] = useActor(root.context.searchMachineRef);
+
+  console.log({ state })
 
   React.useEffect(() => {
-    searchMachineSend({
+    send({
       type: 'SET_RESULT',
       payload: { result: { docs, numFound } },
     });
@@ -34,7 +38,7 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
   const handleSubmit = (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log('submit');
-    searchMachineSend('SEARCH');
+    send({ type: 'SEARCH' });
   };
 
   const handleParamsChange = <P extends keyof IADSApiSearchParams>(
@@ -42,30 +46,25 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
     searchOnChange?: boolean,
   ) => (value: IADSApiSearchParams[P]) => {
     console.log('change', param, value);
-    searchMachineSend({
+    send({
       type: 'SET_PARAMS',
       payload: { params: { [param]: value } },
     });
     if (searchOnChange) {
-      searchMachineSend('SEARCH');
+      send({ type: 'SEARCH' });
     }
   };
 
-  const handleSelectedItemChange = (items: IDocsEntity['id'][]) => {
-    console.log('selected', items);
-  };
-
-  const { context, value: state } = searchMachineCurrent;
   return (
     <div className="min-h-screen">
       <h2 className="sr-only">Results</h2>
       <code>
         {JSON.stringify(
           {
-            params: context.params,
-            numFound: context.result.numFound,
-            error: context.error.message,
-            state,
+            params: state.context.params,
+            numFound: state.context.result.numFound,
+            error: state.context.error.message,
+            state: state.value,
           },
           null,
           2,
@@ -78,24 +77,22 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
         onSubmit={handleSubmit}
       >
         <SearchBar query={query} onChange={handleParamsChange<'q'>('q')} />
-        <NumFound count={searchMachineCurrent.context.result.numFound} />
+        <NumFound count={state.context.result.numFound} />
       </form>
       <div className="my-3 flex space-x-2">
         <div className="border rounded-md p-3 bg-white">
           <Sort onChange={handleParamsChange<'sort'>('sort', true)} />
         </div>
         <div className="flex-grow">
-          {searchMachineCurrent.matches('failure') ? (
+          {state.matches('failure') ? (
             <div className="flex flex-col border rounded-md bg-white p-3">
               <h3>Something went wrong with this query!</h3>
-              <code>{searchMachineCurrent.context.error.message}</code>
+              <code>{state.context.error.message}</code>
             </div>
           ) : (
             <ResultList
-              docs={searchMachineCurrent.context.result.docs as IDocsEntity[]}
-              loading={searchMachineCurrent.matches('fetching')}
-              selected={[]}
-              onSelectedChange={handleSelectedItemChange}
+              docs={state.context.result.docs as IDocsEntity[]}
+              loading={state.matches('fetching')}
             />
           )}
         </div>
@@ -107,8 +104,6 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
 export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (
   ctx,
 ) => {
-  console.log('GET SERVER SIDE PROPS')
-
   const query: string =
     typeof ctx.query.q === 'string'
       ? ctx.query.q
@@ -118,16 +113,12 @@ export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (
 
   const request = ctx.req as typeof ctx.req & { session: { userData: IADSApiBootstrapData } };
   const userData = request.session.userData;
-  console.log('dsflkj =- ', userData);
-
   try {
     const adsapi = new AdsApi({ token: userData.access_token });
     const { docs, numFound } = await adsapi.search.query({
       q: query,
       fl: ['bibcode', 'author', 'title', 'pubdate'],
     });
-
-    console.log('###query###', { query, numFound, docs })
 
     return {
       props: {

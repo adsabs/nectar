@@ -1,4 +1,6 @@
 import { IDocsEntity } from '@nectar/api';
+import { useRootMachineContext } from '@nectar/context';
+import { useActor } from '@xstate/react';
 import React from 'react';
 import { Item } from './Item';
 import { Skeleton } from './Skeleton';
@@ -10,37 +12,15 @@ interface IResultDoc extends Partial<IDocsEntity> {
 
 export interface IResultListProps {
   docs: IResultDoc[];
-  selected: Id[];
-  onSelectedChange: (item: Id[]) => void;
   loading: boolean;
 }
 
 export const ResultList = (props: IResultListProps): React.ReactElement => {
-  const { docs, loading = false, selected, onSelectedChange } = props;
+  const { docs, loading = false, } = props;
+  const [root] = useRootMachineContext();
+  const [state] = useActor(root.context.resultsMachineRef);
+  console.log('state', state)
 
-  const [selectedDocs, setSelectedDocs] = React.useState<Id[]>(
-    [],
-  );
-
-  const handleSelect = (item: Id) => {
-    const index = selectedDocs.indexOf(item);
-    if (index > -1) {
-      setSelectedDocs([
-        ...selectedDocs.slice(0, index),
-        ...selectedDocs.slice(index + 1),
-      ]);
-    } else {
-      setSelectedDocs([...selectedDocs, item]);
-    }
-  };
-
-  React.useEffect(() => {
-    setSelectedDocs(selected);
-  }, [selected]);
-
-  React.useEffect(() => {
-    onSelectedChange(selectedDocs);
-  }, [selectedDocs]);
 
   let list;
   if (loading) {
@@ -51,8 +31,7 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
         doc={doc}
         key={doc.id}
         index={index + 1}
-        onSelect={handleSelect}
-        selected={selectedDocs.includes(doc.id)}
+        service={state.context.docRefs[doc.id]}
       />
     ));
   }

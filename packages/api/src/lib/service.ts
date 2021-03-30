@@ -62,8 +62,6 @@ export class Service {
   protected request<T, E = unknown>(
     config: AxiosRequestConfig = {},
   ): Promise<T> {
-    console.log('==CONFIG==', config);
-
     return new Promise<T>((resolve, reject) => {
       this.service
         .request<T>(config)

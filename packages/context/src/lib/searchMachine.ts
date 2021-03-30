@@ -8,6 +8,7 @@ import {
   Machine,
   MachineConfig,
   MachineOptions,
+  sendParent,
 } from 'xstate';
 
 export interface Schema {
@@ -34,7 +35,7 @@ export interface Context {
   error: { message: string; name: string; stack: string };
 }
 
-export type IResultMachine = Interpreter<Context, Schema, Transition>;
+export type ISearchMachine = Interpreter<Context, Schema, Transition>;
 
 const initialState: Context = {
   params: {
@@ -53,7 +54,7 @@ const initialState: Context = {
 };
 
 const config: MachineConfig<Context, Schema, Transition> = {
-  key: 'result',
+  key: 'search',
   initial: 'initial',
   context: initialState,
   states: {
@@ -77,7 +78,7 @@ const config: MachineConfig<Context, Schema, Transition> = {
         id: 'fetchResults',
         src: 'fetchResult',
         onDone: {
-          actions: 'setResult',
+          actions: ['setResult', 'updateDocs'],
           target: 'success',
         },
         onError: {
@@ -131,6 +132,10 @@ const options: Partial<MachineOptions<Context, any>> = {
     reset: assign({
       error: (_ctx, _evt) => initialState.error,
     }),
+    updateDocs: sendParent(ctx => ({
+      type: 'RESULTS.SET_DOCS',
+      payload: { docs: ctx.result.docs.map(d => d.id) },
+    })),
   },
 };
 

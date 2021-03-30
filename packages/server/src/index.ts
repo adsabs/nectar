@@ -1,5 +1,4 @@
 import express, { Request, Response } from 'express';
-import expressPinoLogger from 'express-pino-logger';
 import next from 'next';
 import path from 'path';
 import { api, logger, session } from './middlewares';
@@ -19,11 +18,7 @@ const port = process.env.PORT || 8000;
     server.set('trust proxy', 1);
 
     // apply middlewares
-    server.use(
-      expressPinoLogger({
-        logger,
-      }),
-    );
+    server.use(logger);
     server.use(session);
     server.use(api);
 

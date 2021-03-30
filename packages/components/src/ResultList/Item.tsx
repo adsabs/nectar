@@ -1,23 +1,45 @@
+import { faFolder, faFolderOpen, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IDocsEntity } from '@nectar/api';
+import { DocTransition, IDocMachine } from '@nectar/context';
+import { useActor } from '@xstate/react';
 import Link from 'next/link';
-import React from 'react';
+import React, { useEffect } from 'react';
+import { ActorRef } from 'xstate';
+import { createNullActor } from 'xstate/lib/Actor';
 
 interface IItemProps {
   doc: Partial<IDocsEntity>;
   index: number;
-  selected: boolean;
-  onSelect: (item: IDocsEntity['id']) => void;
+  service: ActorRef<DocTransition, IDocMachine['state']>
 }
 
 export const Item = (props: IItemProps): React.ReactElement => {
-  const { doc, index, selected, onSelect } = props;
+  const { doc, index, service = createNullActor(`doc`) } = props;
   const { bibcode = '', pubdate = '', title = '', author = [], id } = doc;
+  const actor = useActor(service);
+  const [, send] = actor;
+  const state = actor[0] as IDocMachine['state'];
+  console.log('doc', state);
+
+  const [showAbstract, setShowAbstract] = React.useState(false);
+
+  useEffect(() => {
+    if (state.matches('success')) {
+      setShowAbstract(true);
+    }
+  }, [state.value])
 
   const handleSelect = () => {
-    if (id) {
-      onSelect(id);
-    }
+    send({ type: 'TOGGLE_SELECT' });
   };
+
+  const handleShowAbstractClick = () => {
+    send({ type: 'GET_ABSTRACT' });
+    if (state.matches('success')) {
+      setShowAbstract(!showAbstract);
+    }
+  }
 
   return (
     <div className="flex border py-1 px-2 rounded-md bg-white">
@@ -30,7 +52,7 @@ export const Item = (props: IItemProps): React.ReactElement => {
           name={`result-checkbox-${index}`}
           id={`result-checkbox-${index}`}
           onChange={handleSelect}
-          checked={selected}
+          checked={state.context.selected}
         />
       </div>
       <div className="flex flex-col flex-1">
@@ -46,6 +68,18 @@ export const Item = (props: IItemProps): React.ReactElement => {
           </a>
         </Link>
         <div className="text-xs">{author.slice(0, 3).join('; ')}</div>
+        <div className="flex">
+          <button onClick={handleShowAbstractClick}>{
+            state.matches('fetchingAbstract')
+              ? <FontAwesomeIcon icon={faSpinner} pulse />
+              : showAbstract
+                ? <FontAwesomeIcon icon={faFolderOpen} />
+                : <FontAwesomeIcon icon={faFolder} />
+          }</button>
+        </div>
+        {showAbstract &&
+          <div className="border p-2 mt-2">{state.context.meta.abstract}</div>
+        }
       </div>
     </div>
   );

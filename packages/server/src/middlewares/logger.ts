@@ -1,8 +1,9 @@
-import pino from 'pino';
+import expressPinoLogger from 'express-pino-logger';
 
-const config: pino.LoggerOptions = {
+const config: expressPinoLogger.Options = {
   name: 'nectar',
   level: process.env.LOG_LEVEL || 'silent',
+  prettyPrint: true,
 };
 
-export const logger = pino(config);
+export const logger = expressPinoLogger(config);
