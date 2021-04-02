@@ -6,19 +6,18 @@ import {
   IADSApiSearchResponse,
   INormalizedADSApiSearchParams,
 } from './types';
-import { validate } from './validator';
 
 export class SearchService extends Service {
   private normalizeParams(
     params: IADSApiSearchParams,
   ): INormalizedADSApiSearchParams {
-    if (!validate(params)) {
-      throw new Error(
-        validate.errors
-          ?.map((e) => `${e.dataPath} ${e.message ?? ''}`)
-          .join('\n'),
-      );
-    }
+    // if (!validate(params)) {
+    //   throw new Error(
+    //     validate.errors
+    //       ?.map((e) => `${e.dataPath} ${e.message ?? ''}`)
+    //       .join('\n'),
+    //   );
+    // }
 
     return {
       ...params,

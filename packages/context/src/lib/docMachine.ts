@@ -8,6 +8,7 @@ import {
   Machine,
   MachineConfig,
   MachineOptions,
+  sendParent,
 } from 'xstate';
 
 export interface Schema {
@@ -93,12 +94,24 @@ const config: MachineConfig<Context, Schema, Transition> = {
       states: {
         unselected: {
           on: {
-            TOGGLE_SELECT: 'selected',
+            TOGGLE_SELECT: {
+              target: 'selected',
+              actions: sendParent(ctx => ({
+                type: 'RESULTS.SELECT',
+                payload: { id: ctx.id },
+              })),
+            },
           },
         },
         selected: {
           on: {
-            TOGGLE_SELECT: 'unselected',
+            TOGGLE_SELECT: {
+              target: 'unselected',
+              actions: sendParent(ctx => ({
+                type: 'RESULTS.UNSELECT',
+                payload: { id: ctx.id },
+              })),
+            },
           },
         },
       },

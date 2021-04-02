@@ -24,6 +24,7 @@ export interface Schema {
 export type Transition =
   | { type: 'SET_PARAMS'; payload: { params: Context['params'] } }
   | { type: 'SET_RESULT'; payload: { result: Context['result'] } }
+  | { type: 'HIGHLIGHTS' }
   | { type: 'SEARCH' };
 
 export interface Context {

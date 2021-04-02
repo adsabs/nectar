@@ -1,5 +1,5 @@
 import AdsApi, { IADSApiBootstrapData, IADSApiSearchParams, IDocsEntity } from '@nectar/api';
-import { NumFound, ResultList, SearchBar, Sort } from '@nectar/components';
+import { NumFound, ResultList, SearchBar, ShowSelection, Sort } from '@nectar/components';
 import { useRootMachineContext } from '@nectar/context';
 import { useActor } from '@xstate/react';
 import { GetServerSideProps, NextPage } from 'next';
@@ -81,8 +81,10 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
         <div className="border rounded-md p-3 bg-white">
           <Sort onChange={handleParamsChange<'sort'>('sort', true)} />
           <div>
-
+            <h3>Selection:</h3>
+            <ShowSelection />
           </div>
+
         </div>
         <div className="flex-grow">
           {state.matches('failure') ? (

@@ -5,6 +5,11 @@ export interface IADSApiSearchParams {
   fl?: SolrField[];
   rows?: number;
   sort?: SolrSort[];
+  hl?: boolean;
+  'hl.fl'?: string;
+  'hl.maxAnalyzedChars'?: number;
+  'hl.requireFieldMatch'?: boolean;
+  'hl.usePhraseHighlighter'?: boolean;
 }
 
 export interface INormalizedADSApiSearchParams {
