@@ -5,22 +5,18 @@ import { DocTransition, IDocMachine } from '@nectar/context';
 import { useActor } from '@xstate/react';
 import Link from 'next/link';
 import React, { useEffect } from 'react';
-import { ActorRef } from 'xstate';
-import { createNullActor } from 'xstate/lib/Actor';
+import { Sender } from 'xstate';
 
 interface IItemProps {
   doc: Partial<IDocsEntity>;
   index: number;
-  service: ActorRef<DocTransition, IDocMachine['state']>
+  service: IDocMachine
 }
 
 export const Item = (props: IItemProps): React.ReactElement => {
-  const { doc, index, service = createNullActor(`doc`) } = props;
+  const { doc, index, service } = props;
   const { bibcode = '', pubdate = '', title = '', author = [], id } = doc;
-  const actor = useActor(service);
-  const [, send] = actor;
-  const state = actor[0] as IDocMachine['state'];
-  console.log('doc', state);
+  const [state, send] = useActor(service) as [IDocMachine['state'], Sender<DocTransition>];
 
   const [showAbstract, setShowAbstract] = React.useState(false);
 
@@ -52,7 +48,7 @@ export const Item = (props: IItemProps): React.ReactElement => {
           name={`result-checkbox-${index}`}
           id={`result-checkbox-${index}`}
           onChange={handleSelect}
-          checked={state.context.selected}
+          checked={state.matches('select.selected')}
         />
       </div>
       <div className="flex flex-col flex-1">

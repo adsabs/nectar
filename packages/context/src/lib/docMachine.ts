@@ -22,7 +22,8 @@ export interface Schema {
     };
     select: {
       states: {
-        idle: Record<string, unknown>;
+        unselected: Record<string, unknown>;
+        selected: Record<string, unknown>;
       };
     };
   };
@@ -32,7 +33,6 @@ export type Transition = { type: 'GET_ABSTRACT' } | { type: 'TOGGLE_SELECT' };
 
 export interface Context {
   id: IDocsEntity['id'];
-  selected: boolean;
   meta: {
     abstract: IDocsEntity['abstract'];
   };
@@ -45,7 +45,6 @@ export type IDocMachine = Interpreter<Context, Schema, Transition>;
 
 export const initialState: Context = {
   id: '',
-  selected: false,
   meta: {
     abstract: '',
   },
@@ -90,13 +89,16 @@ const config: MachineConfig<Context, Schema, Transition> = {
       },
     },
     select: {
-      initial: 'idle',
+      initial: 'unselected',
       states: {
-        idle: {
+        unselected: {
           on: {
-            TOGGLE_SELECT: {
-              actions: 'toggleSelect',
-            },
+            TOGGLE_SELECT: 'selected',
+          },
+        },
+        selected: {
+          on: {
+            TOGGLE_SELECT: 'unselected',
           },
         },
       },
@@ -120,9 +122,6 @@ const options: Partial<MachineOptions<Context, any>> = {
   actions: {
     setAbstract: assign({
       meta: (ctx, evt) => ({ ...ctx.meta, abstract: evt.data }),
-    }),
-    toggleSelect: assign({
-      selected: ctx => !ctx.selected,
     }),
     setError: assign({
       error: (_ctx, evt) => evt.data,

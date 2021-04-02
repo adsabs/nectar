@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { IDocsEntity } from '@nectar/api';
 import {
-  ActorRef,
+  Actor,
   assign,
   Interpreter,
   Machine,
@@ -15,7 +15,7 @@ import {
   IDocMachine,
   initialState as initialDocMachineState,
   machine as docMachine,
-  Transition as ItemTransition,
+  Transition as IDocTransition,
 } from './docMachine';
 
 export interface Schema {
@@ -25,13 +25,15 @@ export interface Schema {
   };
 }
 
-export type Transition = {
+type SetDocs = {
   type: 'RESULTS.SET_DOCS';
   payload: { docs: IDocsEntity['id'][] };
 };
 
+export type Transition = SetDocs;
+
 export interface Context {
-  docRefs: Record<string, ActorRef<ItemTransition, IDocMachine['state']>>;
+  docRefs: Record<string, Actor<IDocMachine['state'], IDocTransition>>;
 }
 
 export type IResultsMachine = Interpreter<Context, Schema, Transition>;
@@ -60,22 +62,28 @@ const config: MachineConfig<Context, Schema, Transition> = {
 
 const options: Partial<MachineOptions<Context, any>> = {
   actions: {
-    setDocs: assign<Context, Transition>({
-      docRefs: (_ctx, evt) => {
-        console.log('spawning docs', evt.payload);
-        const refs = evt.payload.docs.reduce(
-          (acc, id) => ({
-            ...acc,
-            [id]: spawn(
-              docMachine.withContext({ ...initialDocMachineState, id }),
-              `doc-${id}`
-            ),
-          }),
-          {}
-        );
-        console.log({ refs });
-        return refs;
-      },
+    setDocs: assign<Context, SetDocs>((ctx, evt) => {
+      console.log('spawning docs', evt.payload);
+
+      // stop all running children
+      Object.values(ctx.docRefs).forEach(d => {
+        if (typeof d.stop === 'function') {
+          d.stop();
+        }
+      });
+
+      // spawn new actors (children) from payload
+      const docRefs = evt.payload.docs.reduce(
+        (acc, id) => ({
+          ...acc,
+          [id]: spawn(
+            docMachine.withContext({ ...initialDocMachineState, id }),
+            { name: `doc-${id}`, sync: true }
+          ),
+        }),
+        {}
+      );
+      return { docRefs };
     }),
   },
 };

@@ -26,8 +26,6 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
 
   const [state, send] = useActor(root.context.searchMachineRef);
 
-  console.log({ state })
-
   React.useEffect(() => {
     send({
       type: 'SET_RESULT',
@@ -82,6 +80,9 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
       <div className="my-3 flex space-x-2">
         <div className="border rounded-md p-3 bg-white">
           <Sort onChange={handleParamsChange<'sort'>('sort', true)} />
+          <div>
+
+          </div>
         </div>
         <div className="flex-grow">
           {state.matches('failure') ? (
