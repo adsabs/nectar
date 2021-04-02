@@ -5,19 +5,18 @@ import { DocTransition, IDocMachine } from '@nectar/context';
 import { useActor } from '@xstate/react';
 import Link from 'next/link';
 import React, { useEffect } from 'react';
-import { Sender } from 'xstate';
+import { Actor, Sender } from 'xstate';
 
 interface IItemProps {
   doc: Partial<IDocsEntity>;
   index: number;
-  service: IDocMachine
+  service: Actor<IDocMachine['state'], DocTransition>
 }
 
 export const Item = (props: IItemProps): React.ReactElement => {
   const { doc, index, service } = props;
-  const { bibcode = '', pubdate = '', title = '', author = [], id } = doc;
+  const { bibcode = '', pubdate = '', title = '', author = [] } = doc;
   const [state, send] = useActor(service) as [IDocMachine['state'], Sender<DocTransition>];
-
   const [showAbstract, setShowAbstract] = React.useState(false);
 
   useEffect(() => {

@@ -8,3 +8,4 @@ export * from './SearchExamples';
 export * from './ResultList';
 export * from './Sort';
 export * from './ListBox';
+export * from './ShowSelection';
