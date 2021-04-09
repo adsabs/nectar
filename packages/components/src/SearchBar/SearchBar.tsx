@@ -6,10 +6,11 @@ import React from 'react';
 export interface ISearchBarProps {
   query?: string;
   onChange?: (value: string) => void;
+  onSubmit: () => void;
 }
 
 export const SearchBar = (props: ISearchBarProps): React.ReactElement => {
-  const { query = '', onChange } = props;
+  const { query = '', onChange, onSubmit } = props;
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [value, setValue] = React.useState<string>(query);
 
@@ -26,6 +27,11 @@ export const SearchBar = (props: ISearchBarProps): React.ReactElement => {
     setValue(e.currentTarget.value);
   };
 
+  const handleSubmit = (e: React.ChangeEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    onSubmit();
+  }
+
   React.useEffect(() => {
     if (typeof onChange === 'function') {
       onChange(value);
@@ -33,7 +39,9 @@ export const SearchBar = (props: ISearchBarProps): React.ReactElement => {
   }, [value]);
 
   return (
-    <div>
+    <form action="/search"
+      method="get"
+      onSubmit={handleSubmit}>
       <label htmlFor="search" className="sr-only">
         Search
       </label>
@@ -71,6 +79,6 @@ export const SearchBar = (props: ISearchBarProps): React.ReactElement => {
           </button>
         </div>
       </div>
-    </div>
+    </form>
   );
 };
