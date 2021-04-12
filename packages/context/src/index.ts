@@ -5,4 +5,4 @@ export {
   rootService,
   RootTransitionType,
 } from './lib/rootMachine';
-export { machine as searchMachine } from './lib/searchMachine';
+export { searchMachine, SearchMachineTransition } from './lib/searchMachine';

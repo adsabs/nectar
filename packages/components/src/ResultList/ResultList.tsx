@@ -11,6 +11,8 @@ export interface IResultListProps {
 export const ResultList = (props: IResultListProps): React.ReactElement => {
   const { docs, loading = false, } = props;
 
+  console.log({ resultList: props })
+
   let list;
   if (loading) {
     list = <Skeleton count={10} />;

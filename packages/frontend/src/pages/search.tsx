@@ -4,11 +4,10 @@ import AdsApi, {
   IDocsEntity,
 } from '@nectar/api';
 import { NumFound, ResultList, SearchBar, Sort } from '@nectar/components';
-import { rootService, RootTransitionType } from '@nectar/context';
+import { rootService, RootTransitionType, searchMachine } from '@nectar/context';
 import { useInterpret, useSelector } from '@xstate/react';
 import { GetServerSideProps, NextPage } from 'next';
 import React from 'react';
-import { searchMachine } from './searchMachine';
 
 interface ISearchPageProps {
   userData: IADSApiBootstrapData;
@@ -26,14 +25,16 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
     docs = [],
     meta: { numFound = 0 },
   } = props;
-
   const service = useInterpret(searchMachine, { devTools: true });
   const { send: rootSend } = rootService;
   const { send } = service;
   const result = useSelector(service, (state) => state.context.result);
   const error = useSelector(service, (state) => state.context.error);
+  const isLoading = useSelector(service, (state) => state.matches('fetching'));
+  const isFailure = useSelector(service, (state) => state.matches('failure'));
 
   console.log({ query, docs, numFound });
+  console.log({ service: service.state })
 
   React.useEffect(() => {
     send({ type: 'SET_RESULT', payload: { result: { docs, numFound } } });
@@ -73,7 +74,9 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
           onChange={handleParamsChange<'q'>('q')}
           onSubmit={() => send({ type: 'SEARCH' })}
         />
-        <NumFound count={result.numFound} />
+        {!isLoading &&
+          <NumFound count={result.numFound} />
+        }
       </div>
       <div className="my-3 flex space-x-2">
         <div className="border rounded-md p-3 bg-white">
@@ -84,7 +87,7 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
           </div>
         </div>
         <div className="flex-grow">
-          {service.state?.matches('failure') ? (
+          {isFailure ? (
             <div className="flex flex-col border rounded-md bg-white p-3">
               <h3>Something went wrong with this query!</h3>
               <code>{error.message}</code>
@@ -92,7 +95,7 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
           ) : (
             <ResultList
               docs={result.docs as IDocsEntity[]}
-              loading={service.state?.matches('fetching')}
+              loading={isLoading}
             />
           )}
         </div>
