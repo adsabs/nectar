@@ -20,6 +20,7 @@ export const SearchBar = (props: ISearchBarProps): React.ReactElement => {
   );
 
   const handleClear = React.useCallback(() => {
+    setValue('');
     inputRef?.current?.focus();
   }, [inputRef]);
 

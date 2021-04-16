@@ -13,7 +13,9 @@ export interface Schema {
   };
 }
 
-export type Transition = { type: TransitionTypes.GET_ABSTRACT };
+export type GET_ABSTRACT = { type: TransitionTypes.GET_ABSTRACT };
+
+export type Transition = GET_ABSTRACT;
 
 export interface Context {
   id: IDocsEntity['id'];

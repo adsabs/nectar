@@ -3,8 +3,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import Adsapi from '@nectar/api';
 import { assign, Machine, MachineConfig, MachineOptions } from 'xstate';
-import { rootService } from '../../../../context/dist';
-import { Context, Schema, Transition } from './types';
+import { rootService, RootTransitionType } from '../root';
+import { Context, Schema, Transition, TransitionType } from './types';
 
 const initialState: Context = {
   params: {
@@ -33,11 +33,11 @@ const config: MachineConfig<Context, Schema, Transition> = {
     idle: {
       entry: 'reset',
       on: {
-        SEARCH: 'fetching',
-        SET_PARAMS: {
+        [TransitionType.SEARCH]: 'fetching',
+        [TransitionType.SET_PARAMS]: {
           actions: 'setParams',
         },
-        SET_RESULT: {
+        [TransitionType.SET_RESULT]: {
           actions: 'setInitialResults',
         },
       },
@@ -57,17 +57,17 @@ const config: MachineConfig<Context, Schema, Transition> = {
       },
     },
     success: {
-      on: { SET_PARAMS: 'idle' },
+      on: { [TransitionType.SET_PARAMS]: 'idle' },
     },
     failure: {
-      on: { SET_PARAMS: 'idle' },
+      on: { [TransitionType.SET_PARAMS]: 'idle' },
     },
   },
 };
 
 const options: Partial<MachineOptions<Context, any>> = {
   services: {
-    fetchResult: async (ctx) => {
+    fetchResult: async ctx => {
       if (ctx.params.q === '' || typeof ctx.params.q === 'undefined') {
         throw new Error('no query');
       }
@@ -83,7 +83,14 @@ const options: Partial<MachineOptions<Context, any>> = {
       const adsapi = new Adsapi({ token });
       const { docs, numFound } = await adsapi.search.query({
         q: ctx.params.q,
-        fl: ['bibcode', 'author', 'title', 'pubdate'],
+        fl: [
+          'bibcode',
+          'title',
+          'author',
+          '[fields author=3]',
+          'author_count',
+          'pubdate',
+        ],
         sort: ctx.params.sort,
       });
 
@@ -98,10 +105,16 @@ const options: Partial<MachineOptions<Context, any>> = {
       params: (ctx, evt) => ({ ...ctx.params, ...evt.payload.params }),
     }),
     setInitialResults: assign({
-      result: (_ctx, evt) => evt.payload.result,
+      result: (_ctx, evt) => {
+        sendResultToRoot(evt.payload.result);
+        return evt.payload.result;
+      },
     }),
     setResult: assign({
-      result: (_ctx, evt) => evt.data,
+      result: (_ctx, evt) => {
+        sendResultToRoot(evt.data);
+        return evt.data;
+      },
     }),
     setError: assign({
       error: (_ctx, evt) => evt.data,
@@ -112,7 +125,21 @@ const options: Partial<MachineOptions<Context, any>> = {
   },
 };
 
+const sendResultToRoot = (result: Context['result']) => {
+  const { docs, numFound } = result;
+  const { send } = rootService;
+
+  // update the root machine with latest result data
+  send([
+    { type: RootTransitionType.SET_DOCS, payload: { docs } },
+    {
+      type: RootTransitionType.SET_NUM_FOUND,
+      payload: { numFound },
+    },
+  ]);
+};
+
 export const searchMachine = Machine<Context, Schema, Transition>(
   config,
-  options,
+  options
 );

@@ -2,16 +2,22 @@ import AdsApi, {
   IADSApiBootstrapData,
   IADSApiSearchParams,
   IDocsEntity,
+  SolrSort
 } from '@nectar/api';
 import { NumFound, ResultList, SearchBar, Sort } from '@nectar/components';
-import { rootService, RootTransitionType, searchMachine } from '@nectar/context';
-import { useInterpret, useSelector } from '@xstate/react';
+import { SearchMachineTransitionTypes, useSearchMachine } from '@nectar/context';
 import { GetServerSideProps, NextPage } from 'next';
+import Router from 'next/router';
+import qs from 'qs';
 import React from 'react';
+import { normalizeURLParams } from '../utils';
 
 interface ISearchPageProps {
-  userData: IADSApiBootstrapData;
-  query: string;
+  params: {
+    q: string,
+    fl?: string[],
+    sort?: SolrSort[]
+  },
   docs: IDocsEntity[];
   meta: {
     numFound: number;
@@ -20,50 +26,42 @@ interface ISearchPageProps {
 
 const SearchPage: NextPage<ISearchPageProps> = (props) => {
   const {
-    userData,
-    query = '',
+    params: {
+      q: query,
+      sort
+    },
     docs = [],
     meta: { numFound = 0 },
   } = props;
-  const service = useInterpret(searchMachine, { devTools: true });
-  const { send: rootSend } = rootService;
-  const { send } = service;
-  const result = useSelector(service, (state) => state.context.result);
-  const error = useSelector(service, (state) => state.context.error);
-  const isLoading = useSelector(service, (state) => state.matches('fetching'));
-  const isFailure = useSelector(service, (state) => state.matches('failure'));
+  const { service, result, error, isLoading, isFailure } = useSearchMachine({
+    initialResult: { docs, numFound },
+    initialParams: props.params
+  });
 
-  console.log({ query, docs, numFound });
-  console.log({ service: service.state })
-
-  React.useEffect(() => {
-    send({ type: 'SET_RESULT', payload: { result: { docs, numFound } } });
-  }, [docs, numFound]);
-
-  React.useEffect(() => {
-    const { docs, numFound } = result;
-
-    // updates the root context
-    rootSend({ type: RootTransitionType.SET_DOCS, payload: { docs } });
-    rootSend({ type: RootTransitionType.SET_NUM_FOUND, payload: { numFound } });
-    rootSend({
-      type: RootTransitionType.SET_USER_DATA,
-      payload: { user: userData },
-    });
-  }, [result]);
+  console.log('passed in params', props.params);
 
   const handleParamsChange = <P extends keyof IADSApiSearchParams>(
     param: P,
     searchOnChange?: boolean,
   ) => (value: IADSApiSearchParams[P]) => {
-    send({
-      type: 'SET_PARAMS',
+    service.send({
+      type: SearchMachineTransitionTypes.SET_PARAMS,
       payload: { params: { [param]: value } },
     });
     if (searchOnChange) {
-      send({ type: 'SEARCH' });
+      service.send({ type: SearchMachineTransitionTypes.SEARCH });
     }
   };
+
+  const handleSubmit = () => {
+    service.send({ type: SearchMachineTransitionTypes.SEARCH });
+
+    // update the URL with the current params
+    void Router.push({
+      query: qs.stringify(service.state.context.params)
+    });
+    console.log('query params', qs.stringify(service.state.context.params))
+  }
 
   return (
     <div className="min-h-screen">
@@ -72,7 +70,7 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
         <SearchBar
           query={query}
           onChange={handleParamsChange<'q'>('q')}
-          onSubmit={() => send({ type: 'SEARCH' })}
+          onSubmit={handleSubmit}
         />
         {!isLoading &&
           <NumFound count={result.numFound} />
@@ -80,11 +78,7 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
       </div>
       <div className="my-3 flex space-x-2">
         <div className="border rounded-md p-3 bg-white">
-          <Sort onChange={handleParamsChange<'sort'>('sort', true)} />
-          <div>
-            <h3>Selection:</h3>
-            <ShowSelection />
-          </div>
+          <Sort onChange={handleParamsChange<'sort'>('sort', true)} sort={sort ? sort[0] : undefined} />
         </div>
         <div className="flex-grow">
           {isFailure ? (
@@ -104,64 +98,41 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
   );
 };
 
-const ShowSelection = () => {
-  const selectedIds = useSelector(
-    rootService,
-    (state) => state.context.selectedDocs,
-  );
-  const docs = useSelector(rootService, (state) => state.context.result.docs);
-  console.log({ selectedIds, docs });
-
-  const selectedDocs = docs.filter((doc) => selectedIds.includes(doc.id));
-
-  return (
-    <ul>
-      {selectedDocs.map(({ id, bibcode }) => (
-        <li key={id}>{bibcode}</li>
-      ))}
-    </ul>
-  );
-};
-
 export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (
   ctx,
 ) => {
-  const query: string =
-    typeof ctx.query.q === 'string'
-      ? ctx.query.q
-      : Array.isArray(ctx.query.q)
-      ? ctx.query.q.join(' ')
-      : '';
+
+  const query = normalizeURLParams(ctx.query);
 
   const request = ctx.req as typeof ctx.req & {
     session: { userData: IADSApiBootstrapData };
   };
   const userData = request.session.userData;
   try {
-    const adsapi = new AdsApi({ token: userData.access_token });
-    const { docs, numFound } = await adsapi.search.query({
-      q: query,
+    const params = {
+      q: query.q,
       fl: ['bibcode', 'author', 'title', 'pubdate'],
-    });
+      sort: [...query.sort.split(',').map(val => val.split(' ') as SolrSort)]
+    };
+    const adsapi = new AdsApi({ token: userData.access_token });
+    const { docs, numFound } = await adsapi.search.query(params);
 
     return {
       props: {
-        userData,
-        query,
+        params,
         docs,
         meta: { numFound: numFound },
       },
     };
   } catch (e) {
+    console.error(e);
     return {
       props: {
-        userData: {
-          username: 'anonymous',
-          access_token: '',
-          expire_in: '',
-          anonymous: true,
+        params: {
+          q: '',
+          fl: [],
+          sort: []
         },
-        query: '',
         docs: [],
         meta: { numFound: 0 },
       },

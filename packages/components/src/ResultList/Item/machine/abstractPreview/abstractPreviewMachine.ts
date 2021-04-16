@@ -1,8 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import Adsapi from '@nectar/api';
-import { assign, Machine, MachineConfig, MachineOptions } from 'xstate';
+import {
+  assign,
+  DoneEventObject,
+  Machine,
+  MachineConfig,
+  MachineOptions,
+} from 'xstate';
 import { Context, Schema, Transition, TransitionTypes } from './types';
 
 export const initialState: Context = {
@@ -62,11 +66,11 @@ const options: Partial<MachineOptions<Context, any>> = {
     },
   },
   actions: {
-    setAbstract: assign({
+    setAbstract: assign<Context, DoneEventObject>({
       meta: (ctx, evt) => ({ ...ctx.meta, abstract: evt.data }),
     }),
-    setError: assign({
-      error: (_ctx, evt) => evt.data,
+    setError: assign<Context, DoneEventObject>({
+      error: (_ctx, evt) => evt.data as Context['error'],
     }),
   },
 };

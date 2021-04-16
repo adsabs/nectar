@@ -1,7 +1,7 @@
 // @nectar/frontend
 {
   "extends": "../../tsconfig.base.json",
-  "include": ["src", "cypress/integration/**/*.ts", "../context/src/lib/searchMachine/types.ts", "../context/src/lib/searchMachine/index.tsx"],
+  "include": ["src", "cypress/integration/**/*.ts", "../context/src/lib/search/types.ts", "../context/src/lib/search/index.tsx"],
   "compilerOptions": {
     "rootDir": ".",
     "target": "es5",

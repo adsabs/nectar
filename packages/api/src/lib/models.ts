@@ -97,7 +97,8 @@ export type SolrField =
   | 'similar()'
   | 'topn()'
   | 'trending()'
-  | 'useful()';
+  | 'useful()'
+  | string;
 
 type SolrSortDirection = 'desc' | 'asc';
 type SolrSortField =
