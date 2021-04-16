@@ -6,10 +6,10 @@ import { assign, Machine, MachineConfig, MachineOptions } from 'xstate';
 import { rootService, RootTransitionType } from '../root';
 import { Context, Schema, Transition, TransitionType } from './types';
 
-const initialState: Context = {
+export const initialContext: Context = {
   params: {
     q: '',
-    sort: [['date', 'desc']],
+    sort: [],
   },
   result: {
     docs: [],
@@ -25,21 +25,25 @@ const initialState: Context = {
 const config: MachineConfig<Context, Schema, Transition> = {
   key: 'search',
   initial: 'initial',
-  context: initialState,
+  context: initialContext,
   states: {
     initial: {
-      always: 'idle',
+      always: 'success',
     },
     idle: {
       entry: 'reset',
       on: {
-        [TransitionType.SEARCH]: 'fetching',
-        [TransitionType.SET_PARAMS]: {
-          actions: 'setParams',
-        },
-        [TransitionType.SET_RESULT]: {
-          actions: 'setInitialResults',
-        },
+        [TransitionType.SEARCH]: { target: 'fetching', cond: 'validQuery' },
+        [TransitionType.SET_PARAMS]: [
+          {
+            target: 'fetching',
+            cond: 'sortHasChanged',
+            actions: 'setParams',
+          },
+          {
+            actions: 'setParams',
+          },
+        ],
       },
     },
     fetching: {
@@ -57,15 +61,47 @@ const config: MachineConfig<Context, Schema, Transition> = {
       },
     },
     success: {
-      on: { [TransitionType.SET_PARAMS]: 'idle' },
+      on: {
+        [TransitionType.SET_PARAMS]: [
+          // {
+          //   target: 'fetching',
+          //   cond: 'sortHasChanged',
+          //   actions: 'setParams',
+          // },
+          {
+            target: 'idle',
+            actions: 'setParams',
+          },
+        ],
+      },
     },
     failure: {
-      on: { [TransitionType.SET_PARAMS]: 'idle' },
+      on: {
+        [TransitionType.SET_PARAMS]: [
+          // {
+          //   target: 'fetching',
+          //   cond: 'sortHasChanged',
+          //   actions: 'setParams',
+          // },
+          {
+            target: 'idle',
+            actions: 'setParams',
+          },
+        ],
+      },
     },
   },
 };
 
 const options: Partial<MachineOptions<Context, any>> = {
+  guards: {
+    validQuery: ctx =>
+      typeof ctx.params.q === 'string' && ctx.params.q.length > 0,
+    sortHasChanged: (ctx, evt) =>
+      Object.keys(evt.payload.params).includes('sort') &&
+      typeof ctx.params.q === 'string' &&
+      ctx.params.q.length > 0,
+  },
   services: {
     fetchResult: async ctx => {
       if (ctx.params.q === '' || typeof ctx.params.q === 'undefined') {
@@ -104,12 +140,6 @@ const options: Partial<MachineOptions<Context, any>> = {
     setParams: assign({
       params: (ctx, evt) => ({ ...ctx.params, ...evt.payload.params }),
     }),
-    setInitialResults: assign({
-      result: (_ctx, evt) => {
-        sendResultToRoot(evt.payload.result);
-        return evt.payload.result;
-      },
-    }),
     setResult: assign({
       result: (_ctx, evt) => {
         sendResultToRoot(evt.data);
@@ -120,7 +150,7 @@ const options: Partial<MachineOptions<Context, any>> = {
       error: (_ctx, evt) => evt.data,
     }),
     reset: assign({
-      error: (_ctx, _evt) => initialState.error,
+      error: (_ctx, _evt) => initialContext.error,
     }),
   },
 };

@@ -1,7 +1,7 @@
 import {
   faCode,
   faLifeRing,
-  faSearch
+  faSearch,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { SearchBar, SearchExamples } from '@nectar/components';
@@ -19,7 +19,7 @@ const HomePage: NextPage = () => {
       <h2 className="sr-only">Modern Search Form</h2>
       <form action="search" method="get">
         <div className="my-6">
-          <SearchBar onSubmit={() => { }} />
+          <SearchBar onSubmit={() => {}} />
         </div>
         <div className="mt-4">
           <h3 className="text-lg text-center mb-3 font-bold">
@@ -30,7 +30,7 @@ const HomePage: NextPage = () => {
       </form>
       <hr className="divide-x-0 my-4 w-3/4 mx-auto" />
       <div className="flex w-3/4 mx-auto justify-evenly flex-col md:flex-row">
-        <Link href="#">
+        <Link href="/classic-form">
           <a className="text-blue-500 p-4 hover:bg-gray-200 flex flex-col items-center  justify-center ">
             <div className="text-4xl my-4">
               <FontAwesomeIcon icon={faLifeRing} />
@@ -38,7 +38,7 @@ const HomePage: NextPage = () => {
             <div className="font-bold">Use a classic ADS-style form</div>
           </a>
         </Link>
-        <Link href="#">
+        <Link href="/paper-form">
           <a className="text-blue-500 p-4 hover:bg-gray-200 flex flex-col items-center justify-center ">
             <div className="text-4xl my-4">
               <FontAwesomeIcon icon={faSearch} />

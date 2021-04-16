@@ -100,8 +100,8 @@ export type SolrField =
   | 'useful()'
   | string;
 
-type SolrSortDirection = 'desc' | 'asc';
-type SolrSortField =
+export type SolrSortDirection = 'desc' | 'asc';
+export type SolrSortField =
   | 'author_count'
   | 'bibcode'
   | 'citation_count'
@@ -112,7 +112,7 @@ type SolrSortField =
   | 'entry_date'
   | 'read_count'
   | 'score';
-export type SolrSort = [SolrSortField, SolrSortDirection];
+export type SolrSort = `${SolrSortField} ${SolrSortDirection}`;
 
 export enum ApiTargets {
   BOOTSTRAP = '/accounts/bootstrap',

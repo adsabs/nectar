@@ -2,7 +2,12 @@ import { Adsapi } from './lib/api';
 export default Adsapi;
 
 export { IADSApiBootstrapData } from './lib/bootstrap/types';
-export { SolrField, SolrSort } from './lib/models';
+export {
+  SolrField,
+  SolrSort,
+  SolrSortDirection,
+  SolrSortField,
+} from './lib/models';
 export {
   IADSApiSearchErrorResponse,
   IADSApiSearchParams,

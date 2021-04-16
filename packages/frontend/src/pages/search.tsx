@@ -2,22 +2,25 @@ import AdsApi, {
   IADSApiBootstrapData,
   IADSApiSearchParams,
   IDocsEntity,
-  SolrSort
+  SolrSort,
 } from '@nectar/api';
 import { NumFound, ResultList, SearchBar, Sort } from '@nectar/components';
-import { SearchMachineTransitionTypes, useSearchMachine } from '@nectar/context';
+import {
+  SearchMachineTransitionTypes,
+  useSearchMachine,
+} from '@nectar/context';
 import { GetServerSideProps, NextPage } from 'next';
-import Router from 'next/router';
+import { useRouter } from 'next/router';
 import qs from 'qs';
 import React from 'react';
 import { normalizeURLParams } from '../utils';
 
 interface ISearchPageProps {
   params: {
-    q: string,
-    fl?: string[],
-    sort?: SolrSort[]
-  },
+    q: string;
+    fl?: string[];
+    sort?: SolrSort[];
+  };
   docs: IDocsEntity[];
   meta: {
     numFound: number;
@@ -26,42 +29,48 @@ interface ISearchPageProps {
 
 const SearchPage: NextPage<ISearchPageProps> = (props) => {
   const {
-    params: {
-      q: query,
-      sort
-    },
+    params: { q: query, sort },
     docs = [],
     meta: { numFound = 0 },
   } = props;
+
+  console.log('params', { props });
+
   const { service, result, error, isLoading, isFailure } = useSearchMachine({
     initialResult: { docs, numFound },
-    initialParams: props.params
+    initialParams: props.params,
   });
+  const router = useRouter();
 
-  console.log('passed in params', props.params);
+  React.useEffect(() => {
+    if (isLoading) {
+      const { q, sort } = service.state.context.params;
+
+      void router.push(
+        {
+          query: qs.stringify({ q, sort }, { indices: false }),
+        },
+        undefined,
+        { shallow: true },
+      );
+    }
+  }, [isLoading]);
 
   const handleParamsChange = <P extends keyof IADSApiSearchParams>(
     param: P,
-    searchOnChange?: boolean,
   ) => (value: IADSApiSearchParams[P]) => {
-    service.send({
-      type: SearchMachineTransitionTypes.SET_PARAMS,
-      payload: { params: { [param]: value } },
-    });
-    if (searchOnChange) {
-      service.send({ type: SearchMachineTransitionTypes.SEARCH });
+    console.log('set params', param, value);
+    if (!isLoading) {
+      service.send({
+        type: SearchMachineTransitionTypes.SET_PARAMS,
+        payload: { params: { [param]: value } },
+      });
     }
   };
 
   const handleSubmit = () => {
     service.send({ type: SearchMachineTransitionTypes.SEARCH });
-
-    // update the URL with the current params
-    void Router.push({
-      query: qs.stringify(service.state.context.params)
-    });
-    console.log('query params', qs.stringify(service.state.context.params))
-  }
+  };
 
   return (
     <div className="min-h-screen">
@@ -72,13 +81,14 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
           onChange={handleParamsChange<'q'>('q')}
           onSubmit={handleSubmit}
         />
-        {!isLoading &&
-          <NumFound count={result.numFound} />
-        }
+        {!isLoading && <NumFound count={result.numFound} />}
       </div>
       <div className="my-3 flex space-x-2">
         <div className="border rounded-md p-3 bg-white">
-          <Sort onChange={handleParamsChange<'sort'>('sort', true)} sort={sort ? sort[0] : undefined} />
+          <Sort
+            onChange={handleParamsChange<'sort'>('sort')}
+            sort={sort ? sort[0] : undefined}
+          />
         </div>
         <div className="flex-grow">
           {isFailure ? (
@@ -101,7 +111,6 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
 export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (
   ctx,
 ) => {
-
   const query = normalizeURLParams(ctx.query);
 
   const request = ctx.req as typeof ctx.req & {
@@ -111,8 +120,15 @@ export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (
   try {
     const params = {
       q: query.q,
-      fl: ['bibcode', 'author', 'title', 'pubdate'],
-      sort: [...query.sort.split(',').map(val => val.split(' ') as SolrSort)]
+      fl: [
+        'bibcode',
+        'title',
+        'author',
+        '[fields author=3]',
+        'author_count',
+        'pubdate',
+      ],
+      sort: query.sort ? (query.sort.split(',') as SolrSort[]) : [],
     };
     const adsapi = new AdsApi({ token: userData.access_token });
     const { docs, numFound } = await adsapi.search.query(params);
@@ -131,7 +147,7 @@ export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (
         params: {
           q: '',
           fl: [],
-          sort: []
+          sort: [],
         },
         docs: [],
         meta: { numFound: 0 },

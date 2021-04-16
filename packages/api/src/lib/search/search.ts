@@ -21,7 +21,7 @@ export class SearchService extends Service {
 
     return {
       ...params,
-      sort: params.sort?.map(([type, dir]) => `${type} ${dir}`).join(' '),
+      sort: params.sort?.join(','),
       fl: ['id', ...(params.fl ?? [])].join(','),
     };
   }

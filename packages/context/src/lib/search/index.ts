@@ -1,3 +1,7 @@
-export { useSearchMachine } from './hooks';
 export { searchMachine } from './searchMachine';
-export { TransitionType as SearchMachineTransitionTypes } from './types';
+export {
+  Context as SearchMachineContext,
+  Transition as SearchMachineTransition,
+  TransitionType as SearchMachineTransitionTypes,
+} from './types';
+export { useSearchMachine } from './useSearchMachine';

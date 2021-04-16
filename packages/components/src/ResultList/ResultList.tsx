@@ -9,20 +9,14 @@ export interface IResultListProps {
 }
 
 export const ResultList = (props: IResultListProps): React.ReactElement => {
-  const { docs, loading = false, } = props;
-
-  console.log({ resultList: props })
+  const { docs, loading = false } = props;
 
   let list;
   if (loading) {
     list = <Skeleton count={10} />;
   } else {
     list = docs.map((doc, index) => (
-      <Item
-        doc={doc}
-        key={doc.id}
-        index={index + 1}
-      />
+      <Item doc={doc} key={doc.id} index={index + 1} />
     ));
   }
 
