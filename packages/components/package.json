@@ -13,8 +13,8 @@
     "node": ">=10"
   },
   "scripts": {
-    "start": "tsdx watch --noClean --verbose",
-    "build": "tsdx build",
+    "start": "tsdx watch --format esm --tsconfig ./tsconfig.build.json --noClean --verbose",
+    "build": "tsdx build --tsconfig ./tsconfig.build.json",
     "test": "tsdx test --passWithNoTests",
     "test:watch": "tsdx test --watch",
     "test:coverage": "tsdx test --coverage",
