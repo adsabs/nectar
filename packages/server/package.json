@@ -15,9 +15,9 @@
   },
   "scripts": {
     "start": "NODE_ENV=production node dist/index.js",
-    "dev": "tsdx watch --noClean --verbose --onSuccess \"node dist/index.js\"",
-    "watch": "tsdx watch --noClean --verbose",
-    "build": "tsdx build",
+    "dev": "yarn run watch --onSuccess \"node dist/index.js\"",
+    "watch": "tsdx watch --format esm --tsconfig ./tsconfig.build.json --noClean --verbose",
+    "build": "tsdx build --tsconfig ./tsconfig.build.json",
     "test": "tsdx test",
     "lint": "tsdx lint",
     "size": "size-limit",

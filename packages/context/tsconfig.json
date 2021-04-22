@@ -1,8 +1,4 @@
 // @nectar/context
 {
-  "extends": "../../tsconfig.base.json",
-  "include": ["src", "rootMachine.tsx"],
-  "compilerOptions": {
-    "rootDir": "./src"
-  }
+  "extends": "../../tsconfig.json"
 }
