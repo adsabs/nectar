@@ -12,13 +12,17 @@ import {
   SET_NUM_FOUND,
   SET_QUERY,
   SET_SELECTED_DOCS,
+  SET_USER_DATA,
   Transition,
   TransitionType,
 } from './types';
 
 export const initialContext: Context = {
   user: {
-    isLoggedIn: false,
+    username: 'anonymous',
+    anonymous: true,
+    access_token: '',
+    expire_in: '',
   },
   query: {
     q: '',
@@ -40,7 +44,7 @@ const config: MachineConfig<Context, Schema, Transition> = {
         [TransitionType.SET_DOCS]: { actions: 'setDocs' },
         [TransitionType.SET_NUM_FOUND]: { actions: 'setNumFound' },
         [TransitionType.SET_SELECTED_DOCS]: { actions: 'setSelectedDocs' },
-        [TransitionType.SET_LOGGED_IN]: { actions: 'setLoggedIn' },
+        [TransitionType.SET_USER_DATA]: { actions: 'setUserData' },
         [TransitionType.SET_QUERY]: { actions: 'setQuery' },
       },
     },
@@ -61,6 +65,9 @@ const options: Partial<MachineOptions<Context, any>> = {
     }),
     setQuery: assign<Context, SET_QUERY>({
       query: (ctx, evt) => evt.payload.query,
+    }),
+    setUserData: assign<Context, SET_USER_DATA>({
+      user: (ctx, evt) => evt.payload.user,
     }),
   },
 };
