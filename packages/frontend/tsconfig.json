@@ -1,6 +1,6 @@
 // @nectar/frontend
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "../../tsconfig.json",
   "include": ["src", "cypress/integration/**/*.ts"],
   "compilerOptions": {
     "rootDir": ".",

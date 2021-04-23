@@ -2,12 +2,15 @@ import AdsApi, {
   IADSApiBootstrapData,
   IADSApiSearchParams,
   IDocsEntity,
-  SolrSort,
+  SolrSort
 } from '@nectar/api';
 import { NumFound, ResultList, SearchBar, Sort } from '@nectar/components';
 import {
+  rootInitialContext,
+  rootService,
+  RootTransitionType,
   SearchMachineTransitionTypes,
-  useSearchMachine,
+  useSearchMachine
 } from '@nectar/context';
 import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -16,6 +19,7 @@ import React from 'react';
 import { normalizeURLParams } from '../utils';
 
 interface ISearchPageProps {
+  userData: IADSApiBootstrapData,
   params: {
     q: string;
     fl?: string[];
@@ -29,10 +33,16 @@ interface ISearchPageProps {
 
 const SearchPage: NextPage<ISearchPageProps> = (props) => {
   const {
+    userData,
     params: { q: query, sort },
     docs = [],
     meta: { numFound = 0 },
   } = props;
+
+  // update the root machine with user data
+  React.useEffect(() => {
+    rootService.send({ type: RootTransitionType.SET_USER_DATA, payload: { user: userData } });
+  }, [userData]);
 
   console.log('params', { props });
 
@@ -135,6 +145,7 @@ export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (
 
     return {
       props: {
+        userData,
         params,
         docs,
         meta: { numFound: numFound },
@@ -144,6 +155,7 @@ export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (
     console.error(e);
     return {
       props: {
+        userData: rootInitialContext.user,
         params: {
           q: '',
           fl: [],
