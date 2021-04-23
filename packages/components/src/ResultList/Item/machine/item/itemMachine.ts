@@ -41,6 +41,7 @@ const config: MachineConfig<Context, Schema, Transition> = {
   },
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const options: Partial<MachineOptions<Context, any>> = {
   actions: {
     addToRootContext: assign((ctx) => {

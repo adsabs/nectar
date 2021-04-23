@@ -11,11 +11,18 @@ export interface Schema {
   };
 }
 
+export enum TransitionType {
+  SET_PARAMS = 'SET_PARAMS',
+  SET_RESULT = 'SET_RESULT',
+  HIGHLIGHTS = 'HIGHLIGHTS',
+  SEARCH = 'SEARCH',
+}
+
 export type Transition =
-  | { type: 'SET_PARAMS'; payload: { params: Context['params'] } }
-  | { type: 'SET_RESULT'; payload: { result: Context['result'] } }
-  | { type: 'HIGHLIGHTS' }
-  | { type: 'SEARCH' };
+  | { type: TransitionType.SET_PARAMS; payload: { params: Context['params'] } }
+  | { type: TransitionType.SET_RESULT; payload: { result: Context['result'] } }
+  | { type: TransitionType.HIGHLIGHTS }
+  | { type: TransitionType.SEARCH };
 
 export interface Context {
   params: Partial<IADSApiSearchParams>;

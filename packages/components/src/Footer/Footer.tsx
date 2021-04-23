@@ -42,9 +42,7 @@ export const Footer: React.FC = () => {
     <footer className="bg-gray-1000 mt-3 py-6">
       <div className="container mx-auto flex flex-col md:flex-row px-3 md:px-0 justify-between">
         <div className="flex-col w-80">
-          <p className="text-gray-100 mb-3">
-            © The SAO/NASA Astrophysics Data System
-          </p>
+          <p className="text-gray-100 mb-3">© The SAO/NASA ssss Data System</p>
           <p className="text-gray-500">adshelp[at]cfa.harvard.edu</p>
           <p className="text-gray-500">
             The ADS is operated by the Smithsonian Astrophysical Observatory

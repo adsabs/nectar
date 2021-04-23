@@ -12,6 +12,7 @@ export interface ISearchBarProps {
 export const SearchBar = (props: ISearchBarProps): React.ReactElement => {
   const { query = '', onChange, onSubmit } = props;
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const firstRender = React.useRef(true);
   const [value, setValue] = React.useState<string>(query);
 
   const clearBtnCls = clsx(
@@ -20,6 +21,7 @@ export const SearchBar = (props: ISearchBarProps): React.ReactElement => {
   );
 
   const handleClear = React.useCallback(() => {
+    setValue('');
     inputRef?.current?.focus();
   }, [inputRef]);
 
@@ -30,18 +32,21 @@ export const SearchBar = (props: ISearchBarProps): React.ReactElement => {
   const handleSubmit = (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
     onSubmit();
-  }
+  };
 
   React.useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+
     if (typeof onChange === 'function') {
       onChange(value);
     }
   }, [value]);
 
   return (
-    <form action="/search"
-      method="get"
-      onSubmit={handleSubmit}>
+    <form action="/search" method="get" onSubmit={handleSubmit}>
       <label htmlFor="search" className="sr-only">
         Search
       </label>

@@ -1,5 +1,5 @@
-import { SolrSort } from '@nectar/api';
-import React from 'react';
+import { SolrSort, SolrSortDirection, SolrSortField } from '@nectar/api';
+import React, { useRef } from 'react';
 import { sortValues } from './model';
 export interface ISortProps {
   sort?: SolrSort;
@@ -8,28 +8,38 @@ export interface ISortProps {
 
 export const Sort = (props: ISortProps): React.ReactElement => {
   const { sort, onChange } = props;
-  const [selected, setSelected] = React.useState<SolrSort>(['date', 'desc']);
+  const firstRender = useRef(true);
+  const [selected, setSelected] = React.useState<
+    [SolrSortField, SolrSortDirection]
+  >(['date', 'desc']);
   React.useEffect(() => {
     if (sort) {
-      setSelected(sort);
+      // split the incoming sort to conform to tuple style
+      const [val, dir] = sort.split(' ') as [SolrSortField, SolrSortDirection];
+      setSelected([val, dir]);
     }
   }, [sort]);
 
   React.useEffect(() => {
-    if (typeof onChange === 'function') {
-      onChange([selected]);
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
     }
-  }, [selected]);
+
+    if (typeof onChange === 'function') {
+      onChange([selected.join(' ') as SolrSort]);
+    }
+  }, [selected, onChange]);
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const val = e.currentTarget.value as SolrSort[0];
+    const val = e.currentTarget.value as SolrSortField;
     setSelected([val, selected[1]]);
   };
 
   const handleSortDirectionChange = (
     e: React.ChangeEvent<HTMLSelectElement>,
   ) => {
-    const val: SolrSort[1] = e.currentTarget.value as SolrSort[1];
+    const val = e.currentTarget.value as SolrSortDirection;
     setSelected([selected[0], val]);
   };
 

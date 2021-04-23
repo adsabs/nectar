@@ -6,14 +6,16 @@ import { AbstractPreview } from './AbstractPreview';
 import { itemMachine, ItemMachine } from './machine/item';
 
 interface IItemProps {
-  doc: Pick<IDocsEntity, 'id' | 'bibcode' | 'pubdate' | 'title' | 'author'> & Partial<IDocsEntity>;
+  doc: Pick<IDocsEntity, 'id' | 'bibcode'> & Partial<IDocsEntity>;
   index: number;
 }
 
 export const Item = (props: IItemProps): React.ReactElement => {
   const { doc, index } = props;
-  const { bibcode, pubdate, title, author, id } = doc;
-  const [state, send] = useMachine(itemMachine.withContext({ id }), { devTools: true });
+  const { bibcode, pubdate, title = 'Untitled', author = [], id } = doc;
+  const [state, send] = useMachine(itemMachine.withContext({ id }), {
+    devTools: true,
+  });
 
   const handleSelect = () => {
     send({ type: ItemMachine.TransitionTypes.TOGGLE_SELECT });
@@ -38,14 +40,16 @@ export const Item = (props: IItemProps): React.ReactElement => {
           <Link href={`/abs/${bibcode}`}>
             <a className="text-xs hover:underline">{bibcode}</a>
           </Link>
-          <div className="text-xs">{pubdate}</div>
+          {pubdate && <div className="text-xs">{pubdate}</div>}
         </div>
         <Link href={`/abs/${bibcode}`}>
           <a className="text-blue-700 text-lg hover:underline">
             <h3>{title}</h3>
           </a>
         </Link>
-        <div className="text-xs">{author.slice(0, 3).join('; ')}</div>
+        {author.length > 0 && (
+          <div className="text-xs">{author.slice(0, 3).join('; ')}</div>
+        )}
         <div className="flex">
           <AbstractPreview id={id} />
         </div>

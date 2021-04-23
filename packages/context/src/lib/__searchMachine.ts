@@ -1,9 +1,42 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import Adsapi from '@nectar/api';
-import { assign, Machine, MachineConfig, MachineOptions } from 'xstate';
-import { Context, Schema, Transition } from './types';
+import Adsapi, { IADSApiSearchParams, IDocsEntity } from '@nectar/api';
+import {
+  assign,
+  Interpreter,
+  Machine,
+  MachineConfig,
+  MachineOptions,
+} from 'xstate';
+import { rootService } from './rootMachine';
+
+export interface Schema {
+  states: {
+    initial: Record<string, unknown>;
+    idle: Record<string, unknown>;
+    fetching: Record<string, unknown>;
+    success: Record<string, unknown>;
+    failure: Record<string, unknown>;
+  };
+}
+
+export type Transition =
+  | { type: 'SET_PARAMS'; payload: { params: Context['params'] } }
+  | { type: 'SET_RESULT'; payload: { result: Context['result'] } }
+  | { type: 'HIGHLIGHTS' }
+  | { type: 'SEARCH' };
+
+export interface Context {
+  params: Partial<IADSApiSearchParams>;
+  result: {
+    docs: (Pick<IDocsEntity, 'id'> & Partial<IDocsEntity>)[];
+    numFound: number;
+  };
+  error: { message: string; name: string; stack: string };
+}
+
+export type ISearchMachine = Interpreter<Context, Schema, Transition>;
 
 const initialState: Context = {
   params: {
@@ -66,11 +99,17 @@ const config: MachineConfig<Context, Schema, Transition> = {
 
 const options: Partial<MachineOptions<Context, any>> = {
   services: {
-    fetchResult: async (ctx) => {
+    fetchResult: async ctx => {
       if (ctx.params.q === '' || typeof ctx.params.q === 'undefined') {
         throw new Error('no query');
       }
-      const { access_token: token } = await Adsapi.bootstrap();
+      let {
+        user: { access_token: token },
+      } = rootService.state.context;
+      if (typeof token !== 'string' || token.length === 0) {
+        const { access_token } = await Adsapi.bootstrap();
+        token = access_token;
+      }
       const adsapi = new Adsapi({ token });
       const { docs, numFound } = await adsapi.search.query({
         q: ctx.params.q,
@@ -103,7 +142,4 @@ const options: Partial<MachineOptions<Context, any>> = {
   },
 };
 
-export const searchMachine = Machine<Context, Schema, Transition>(
-  config,
-  options,
-);
+export const machine = Machine<Context, Schema, Transition>(config, options);
