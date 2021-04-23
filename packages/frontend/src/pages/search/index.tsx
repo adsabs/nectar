@@ -1,7 +1,7 @@
 import AdsApi, {
   IADSApiBootstrapData,
   IADSApiSearchParams,
-  IDocsEntity
+  IDocsEntity,
 } from '@nectar/api';
 import { NumFound, ResultList, SearchBar, Sort } from '@nectar/components';
 import { rootService, RootTransitionType } from '@nectar/context';
@@ -11,6 +11,7 @@ import React from 'react';
 import { searchMachine } from './searchMachine';
 
 interface ISearchPageProps {
+  userData: IADSApiBootstrapData;
   query: string;
   docs: IDocsEntity[];
   meta: {
@@ -20,6 +21,7 @@ interface ISearchPageProps {
 
 const SearchPage: NextPage<ISearchPageProps> = (props) => {
   const {
+    userData,
     query = '',
     docs = [],
     meta: { numFound = 0 },
@@ -43,6 +45,10 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
     // updates the root context
     rootSend({ type: RootTransitionType.SET_DOCS, payload: { docs } });
     rootSend({ type: RootTransitionType.SET_NUM_FOUND, payload: { numFound } });
+    rootSend({
+      type: RootTransitionType.SET_USER_DATA,
+      payload: { user: userData },
+    });
   }, [result]);
 
   const handleParamsChange = <P extends keyof IADSApiSearchParams>(
@@ -103,8 +109,7 @@ const ShowSelection = () => {
   const docs = useSelector(rootService, (state) => state.context.result.docs);
   console.log({ selectedIds, docs });
 
-  const selectedDocs = docs
-    .filter((doc) => selectedIds.includes(doc.id));
+  const selectedDocs = docs.filter((doc) => selectedIds.includes(doc.id));
 
   return (
     <ul>
@@ -122,8 +127,8 @@ export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (
     typeof ctx.query.q === 'string'
       ? ctx.query.q
       : Array.isArray(ctx.query.q)
-        ? ctx.query.q.join(' ')
-        : '';
+      ? ctx.query.q.join(' ')
+      : '';
 
   const request = ctx.req as typeof ctx.req & {
     session: { userData: IADSApiBootstrapData };
@@ -138,6 +143,7 @@ export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (
 
     return {
       props: {
+        userData,
         query,
         docs,
         meta: { numFound: numFound },
@@ -146,6 +152,12 @@ export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (
   } catch (e) {
     return {
       props: {
+        userData: {
+          username: 'anonymous',
+          access_token: '',
+          expire_in: '',
+          anonymous: true,
+        },
         query: '',
         docs: [],
         meta: { numFound: 0 },

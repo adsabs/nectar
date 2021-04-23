@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import Adsapi from '@nectar/api';
 import { assign, Machine, MachineConfig, MachineOptions } from 'xstate';
+import { rootService } from '../../../../context/dist';
 import { Context, Schema, Transition } from './types';
 
 const initialState: Context = {
@@ -70,7 +71,15 @@ const options: Partial<MachineOptions<Context, any>> = {
       if (ctx.params.q === '' || typeof ctx.params.q === 'undefined') {
         throw new Error('no query');
       }
-      const { access_token: token } = await Adsapi.bootstrap();
+
+      let {
+        user: { access_token: token },
+      } = rootService.state.context;
+      if (typeof token !== 'string' || token.length === 0) {
+        const { access_token } = await Adsapi.bootstrap();
+        token = access_token;
+      }
+
       const adsapi = new Adsapi({ token });
       const { docs, numFound } = await adsapi.search.query({
         q: ctx.params.q,
