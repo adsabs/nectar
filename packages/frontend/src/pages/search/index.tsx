@@ -2,7 +2,7 @@ import AdsApi, {
   IADSApiBootstrapData,
   IADSApiSearchParams,
   IDocsEntity,
-  SolrSort
+  SolrSort,
 } from '@nectar/api';
 import { NumFound, ResultList, SearchBar, Sort } from '@nectar/components';
 import {
@@ -10,16 +10,17 @@ import {
   rootService,
   RootTransitionType,
   SearchMachineTransitionTypes,
-  useSearchMachine
+  useSearchMachine,
 } from '@nectar/context';
 import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
 import qs from 'qs';
 import React from 'react';
-import { normalizeURLParams } from '../utils';
+import { normalizeURLParams } from '../../utils';
 
 interface ISearchPageProps {
-  userData: IADSApiBootstrapData,
+  error?: Error;
+  userData: IADSApiBootstrapData;
   params: {
     q: string;
     fl?: string[];
@@ -41,7 +42,10 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
 
   // update the root machine with user data
   React.useEffect(() => {
-    rootService.send({ type: RootTransitionType.SET_USER_DATA, payload: { user: userData } });
+    rootService.send({
+      type: RootTransitionType.SET_USER_DATA,
+      payload: { user: userData },
+    });
   }, [userData]);
 
   console.log('params', { props });
@@ -127,34 +131,24 @@ export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (
     session: { userData: IADSApiBootstrapData };
   };
   const userData = request.session.userData;
-  try {
-    const params = {
-      q: query.q,
-      fl: [
-        'bibcode',
-        'title',
-        'author',
-        '[fields author=3]',
-        'author_count',
-        'pubdate',
-      ],
-      sort: query.sort ? (query.sort.split(',') as SolrSort[]) : [],
-    };
-    const adsapi = new AdsApi({ token: userData.access_token });
-    const { docs, numFound } = await adsapi.search.query(params);
-
+  const params = {
+    q: query.q,
+    fl: [
+      'bibcode',
+      'title',
+      'author',
+      '[fields author=3]',
+      'author_count',
+      'pubdate',
+    ],
+    sort: query.sort ? (query.sort.split(',') as SolrSort[]) : [],
+  };
+  const adsapi = new AdsApi({ token: userData.access_token });
+  const result = await adsapi.search.query(params);
+  if (result.isErr()) {
     return {
       props: {
-        userData,
-        params,
-        docs,
-        meta: { numFound: numFound },
-      },
-    };
-  } catch (e) {
-    console.error(e);
-    return {
-      props: {
+        error: result.error,
         userData: rootInitialContext.user,
         params: {
           q: '',
@@ -166,6 +160,17 @@ export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (
       },
     };
   }
+
+  const { docs, numFound } = result.value;
+
+  return {
+    props: {
+      userData,
+      params,
+      docs,
+      meta: { numFound: numFound },
+    },
+  };
 };
 
 export default SearchPage;

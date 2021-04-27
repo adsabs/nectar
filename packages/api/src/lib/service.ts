@@ -2,6 +2,7 @@ import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import * as AxiosLogger from 'axios-logger';
 import { RequestLogConfig } from 'axios-logger/lib/common/types';
 import { PathLike } from 'fs';
+import { err, ok, Result } from 'neverthrow';
 import qs from 'qs';
 import { mergeDeepLeft } from 'ramda';
 
@@ -59,18 +60,14 @@ export class Service {
     }
   }
 
-  protected request<T, E = unknown>(
+  protected async request<T>(
     config: AxiosRequestConfig = {},
-  ): Promise<T> {
-    return new Promise<T>((resolve, reject) => {
-      this.service
-        .request<T>(config)
-        .then((response) => {
-          resolve(response.data);
-        })
-        .catch((response: E) => {
-          reject(response);
-        });
-    });
+  ): Promise<Result<T, Error>> {
+    try {
+      const { data } = await this.service.request<T>(config);
+      return ok(data);
+    } catch (e) {
+      return err(e || 'API Request Error');
+    }
   }
 }

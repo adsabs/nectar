@@ -15,14 +15,9 @@ export const api: Middleware = async (req, res, next) => {
   }
 
   // bootstrap to get the user data
-  try {
-    const userData = await Adsapi.bootstrap();
-    session.userData = userData;
-  } catch (e) {
-    console.error(e);
-  } finally {
-    next();
-  }
+  const result = await Adsapi.bootstrap();
+  result.map((userData) => (session.userData = userData));
+  next();
 };
 
 export interface ISession extends CookieSessionInterfaces.CookieSessionObject {

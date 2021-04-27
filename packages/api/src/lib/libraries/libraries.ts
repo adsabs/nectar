@@ -1,8 +1,9 @@
+import { AxiosRequestConfig } from 'axios';
+import { err, ok, Result } from 'neverthrow';
 import { ApiTargets } from '../models';
 import { Service } from '../service';
 import {
   ILibraryApiEntityResponse,
-  ILibraryApiErrorResponse,
   ILibraryApiResponse,
   ILibraryEntity,
 } from './types';
@@ -30,35 +31,42 @@ export class LibrariesService extends Service {
     id,
   }: {
     id: ILibraryEntity['id'];
-  }): Promise<ILibraryApiEntityResponse> {
-    try {
-      const { documents, updates, metadata } = await this.request<
-        ILibraryApiEntityResponse,
-        ILibraryApiErrorResponse
-      >({
-        method: 'get',
-        url: `${ApiTargets.LIBRARIES}/${id}`,
-      });
+  }): Promise<Result<ILibraryApiEntityResponse, Error>> {
+    const config: AxiosRequestConfig = {
+      method: 'get',
+      url: `${ApiTargets.LIBRARIES}/${id}`,
+    };
 
-      return { documents, updates, metadata };
-    } catch (e) {
-      throw new Error(e);
-    }
+    return await new Promise((resolve) => {
+      this.request<ILibraryApiEntityResponse>(config).then(
+        (result) => {
+          result.match(
+            ({ documents, updates, metadata }) =>
+              resolve(ok({ documents, updates, metadata })),
+            (e) => resolve(err(e)),
+          );
+        },
+        (e) => resolve(err(e)),
+      );
+    });
   }
 
-  public async getLibraries(): Promise<ILibraryApiResponse> {
-    try {
-      const data = await this.request<
-        ILibraryApiResponse,
-        ILibraryApiErrorResponse
-      >({
-        method: 'get',
-        url: ApiTargets.LIBRARIES,
-      });
+  public async getLibraries(): Promise<Result<ILibraryApiResponse, Error>> {
+    const config: AxiosRequestConfig = {
+      method: 'get',
+      url: ApiTargets.LIBRARIES,
+    };
 
-      return data;
-    } catch (e) {
-      throw new Error(e);
-    }
+    return await new Promise((resolve) => {
+      this.request<ILibraryApiResponse>(config).then(
+        (result) => {
+          result.match(
+            (data) => resolve(ok(data)),
+            (e) => resolve(err(e)),
+          );
+        },
+        (e) => resolve(err(e)),
+      );
+    });
   }
 }

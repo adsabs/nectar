@@ -112,12 +112,13 @@ const options: Partial<MachineOptions<Context, any>> = {
         user: { access_token: token },
       } = rootService.state.context;
       if (typeof token !== 'string' || token.length === 0) {
-        const { access_token } = await Adsapi.bootstrap();
-        token = access_token;
+        const result = await Adsapi.bootstrap();
+        result.map(({ access_token }) => (token = access_token));
       }
 
       const adsapi = new Adsapi({ token });
-      const { docs, numFound } = await adsapi.search.query({
+
+      const result = await adsapi.search.query({
         q: ctx.params.q,
         fl: [
           'bibcode',
@@ -130,10 +131,12 @@ const options: Partial<MachineOptions<Context, any>> = {
         sort: ctx.params.sort,
       });
 
-      return {
-        docs,
-        numFound,
-      };
+      if (result.isErr()) {
+        throw result.error;
+      }
+
+      const { docs, numFound } = result.value;
+      return { ...ctx, result: { docs, numFound } };
     },
   },
   actions: {

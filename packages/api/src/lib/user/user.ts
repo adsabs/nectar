@@ -1,11 +1,8 @@
+import { AxiosRequestConfig } from 'axios';
+import { err, ok, Result } from 'neverthrow';
 import { ApiTargets } from '../models';
 import { Service } from '../service';
-import {
-  ICSRFResponse,
-  IRegisterErrorResponse,
-  IRegisterParams,
-  IRegisterResponse,
-} from './types';
+import { ICSRFResponse } from './types';
 
 export class UserService extends Service {
   public async login(): Promise<unknown> {
@@ -18,37 +15,40 @@ export class UserService extends Service {
     return null;
   }
 
-  public async register(
-    params: IRegisterParams,
-  ): Promise<IRegisterResponse | IRegisterErrorResponse> {
-    const CSRFToken = await this.getCSRFToken();
-    const data = await this.request<IRegisterResponse, IRegisterErrorResponse>({
-      method: 'post',
-      url: ApiTargets.REGISTER,
-      headers: {
-        'X-CSRFToken': CSRFToken,
-      },
-      params,
-    });
+  // public async register(
+  //   params: IRegisterParams,
+  // ): Promise<IRegisterResponse> {
+  //   const CSRFToken = await this.getCSRFToken();
+  //   const data = await this.request<IRegisterResponse>({
+  //     method: 'post',
+  //     url: ApiTargets.REGISTER,
+  //     headers: {
+  //       'X-CSRFToken': CSRFToken,
+  //     },
+  //     params,
+  //   });
 
-    return data;
-  }
+  //   return data;
+  // }
 
   public async resetPassword(): Promise<unknown> {
     await new Promise((_) => _);
     return null;
   }
 
-  private async getCSRFToken(): Promise<ICSRFResponse['csrf']> {
-    try {
-      const { csrf } = await this.request<ICSRFResponse>({
-        method: 'get',
-        url: ApiTargets.CSRF,
-      });
+  private async getCSRFToken(): Promise<Result<ICSRFResponse['csrf'], Error>> {
+    const config: AxiosRequestConfig = { method: 'get', url: ApiTargets.CSRF };
 
-      return csrf;
-    } catch (e) {
-      throw new Error(e);
-    }
+    return await new Promise((resolve) => {
+      this.request<ICSRFResponse>(config).then(
+        (result) => {
+          result.match(
+            ({ csrf }) => resolve(ok(csrf)),
+            (e) => resolve(err(e)),
+          );
+        },
+        (e) => resolve(err(e)),
+      );
+    });
   }
 }

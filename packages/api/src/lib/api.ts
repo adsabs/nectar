@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { err, ok, Result } from 'neverthrow';
 import { IADSApiBootstrapData } from './bootstrap/types';
 import { LibrariesService } from './libraries/libraries';
 import { ApiTargets } from './models';
@@ -18,26 +19,26 @@ export class Adsapi {
 
   public static bootstrap(
     config: IServiceConfig = {},
-  ): Promise<IADSApiBootstrapData> {
-    return new Promise((resolve, reject) => {
+  ): Promise<Result<IADSApiBootstrapData, Error>> {
+    return new Promise((resolve) => {
       axios
         .create({ ...config, baseURL: process.env.NEXT_PUBLIC_API_HOST })
         .request<IADSApiBootstrapData>({
           method: 'get',
           url: ApiTargets.BOOTSTRAP,
         })
-        .then((response) => {
-          const {
-            access_token,
-            expire_in,
-            anonymous,
-            username,
-          } = response.data;
-          resolve({ access_token, expire_in, anonymous, username });
-        })
-        .catch((response) => {
-          reject(response);
-        });
+        .then(
+          (response) => {
+            const {
+              access_token,
+              expire_in,
+              anonymous,
+              username,
+            } = response.data;
+            resolve(ok({ access_token, expire_in, anonymous, username }));
+          },
+          (e) => resolve(err(e)),
+        );
     });
   }
 }
