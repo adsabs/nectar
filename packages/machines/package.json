@@ -1,11 +1,12 @@
 {
-  "name": "@nectar/api",
+  "name": "@nectar/machines",
   "version": "1.0.0",
   "private": true,
   "main": "src/index.ts",
   "author": "ADS Team",
   "license": "MIT",
   "peerDependencies": {
+    "react": "*",
     "typescript": "*"
   }
 }

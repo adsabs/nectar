@@ -4,8 +4,7 @@ import path from 'path';
 import { api, logger, session } from './middlewares';
 
 const dev = process.env.NODE_ENV !== 'production';
-const dir = path.resolve(__dirname, '../../frontend');
-const app = next({ dev, dir });
+const app = next({ dev, dir: path.resolve(__dirname, '..') });
 const handle = app.getRequestHandler();
 const port = process.env.PORT || 8000;
 
@@ -29,8 +28,9 @@ const port = process.env.PORT || 8000;
       if (err) throw err;
 
       console.log(
-        `> Ready on localhost:${port} - env ${process.env.NODE_ENV ??
-          'development'}`,
+        `> Ready on localhost:${port} - env ${
+          process.env.NODE_ENV ?? 'development'
+        }`,
       );
     });
   } catch (e) {

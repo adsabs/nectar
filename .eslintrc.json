@@ -15,14 +15,9 @@
       "parserOptions": {
         "project": [
           "./packages/api/tsconfig.json",
-          "./packages/api/tsconfig.test.json",
-          "./packages/frontend/tsconfig.json",
-          "./packages/server/tsconfig.json",
-          "./packages/server/tsconfig.test.json",
+          "./packages/web/tsconfig.json",
           "./packages/components/tsconfig.json",
-          "./packages/components/tsconfig.test.json",
-          "./packages/context/tsconfig.json",
-          "./packages/context/tsconfig.test.json"
+          "./packages/machines/tsconfig.json"
         ]
       }
     }
