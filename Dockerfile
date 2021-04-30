@@ -2,17 +2,12 @@ FROM node:14.15.5-buster-slim
 WORKDIR /app
 
 # copy assets
-COPY .env .
-COPY ./package*.json .
-COPY yarn.lock .
-COPY lerna.json .
-COPY ./packages/ ./packages/
+COPY . .
 
-# add lerna dep
-RUN yarn global add lerna
+# install deps
+RUN yarn --pure-lockfile
 
-# install deps in all packages and start production build
-RUN yarn bootstrap --hoist
+# start production build
 RUN yarn build
 
 # set env variable port and expose
