@@ -13,12 +13,7 @@
     {
       "files": ["*.ts", "*.tsx"],
       "parserOptions": {
-        "project": [
-          "./packages/api/tsconfig.json",
-          "./packages/web/tsconfig.json",
-          "./packages/components/tsconfig.json",
-          "./packages/machines/tsconfig.json"
-        ]
+        "project": ["./tsconfig.json"]
       }
     }
   ],
