@@ -1,10 +1,10 @@
-import { ISortProps, Sort } from '@components/Sort';
+import { Footer } from '@components/Footer';
 import { Meta, Story } from '@storybook/react';
 import React from 'react';
 
 const meta: Meta = {
-  title: 'Sort',
-  component: Sort,
+  title: 'Footer',
+  component: Footer,
   argTypes: {
     children: {
       control: {
@@ -19,8 +19,8 @@ const meta: Meta = {
 
 export default meta;
 
-const Template: Story<ISortProps> = (args) => <Sort {...args} />;
+const Template: Story = (args) => <Footer {...args} />;
 
 export const Default = Template.bind({});
 
-export const DefaultArgs = (Default.args = {});
+Default.args = {};

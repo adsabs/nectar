@@ -1,10 +1,13 @@
-import { IListBoxProps, ListBox } from '@components/ListBox';
+import {
+  ISearchExamplesProps,
+  SearchExamples,
+} from '@components/SearchExamples';
 import { Meta, Story } from '@storybook/react';
 import React from 'react';
 
 const meta: Meta = {
-  title: 'ListBox',
-  component: ListBox,
+  title: 'SearchExamples',
+  component: SearchExamples,
   argTypes: {
     children: {
       control: {
@@ -19,10 +22,10 @@ const meta: Meta = {
 
 export default meta;
 
-const Template: Story<IListBoxProps> = (args) => <ListBox {...args} />;
+const Template: Story<ISearchExamplesProps> = (args) => (
+  <SearchExamples {...args} />
+);
 
 export const Default = Template.bind({});
 
-export const DefaultArgs = (Default.args = {
-  label: 'ListBox Demo',
-});
+Default.args = {};

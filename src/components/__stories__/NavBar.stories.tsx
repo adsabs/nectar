@@ -1,10 +1,10 @@
-import { Footer } from '@components/Footer';
+import { NavBar } from '@components/NavBar';
 import { Meta, Story } from '@storybook/react';
 import React from 'react';
 
 const meta: Meta = {
-  title: 'Footer',
-  component: Footer,
+  title: 'NavBar',
+  component: NavBar,
   argTypes: {
     children: {
       control: {
@@ -19,8 +19,8 @@ const meta: Meta = {
 
 export default meta;
 
-const Template: Story = (args) => <Footer {...args} />;
+const Template: Story = (args) => <NavBar {...args} />;
 
 export const Default = Template.bind({});
 
-export const DefaultArgs = (Default.args = {});
+Default.args = {};

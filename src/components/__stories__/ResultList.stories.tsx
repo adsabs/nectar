@@ -23,9 +23,9 @@ const Template: Story<IResultListProps> = (args) => <ResultList {...args} />;
 
 export const Default = Template.bind({});
 
-export const DefaultArgs = (Default.args = {
+Default.args = {
   docs: [{ id: '1', bibcode: 'bibcode' }],
   selected: [],
   onSelectedChange: () => {},
   loading: false,
-});
+};

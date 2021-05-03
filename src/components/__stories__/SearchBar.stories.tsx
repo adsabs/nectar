@@ -23,4 +23,4 @@ const Template: Story<ISearchBarProps> = (args) => <SearchBar {...args} />;
 
 export const Default = Template.bind({});
 
-export const DefaultArgs = (Default.args = {});
+Default.args = {};

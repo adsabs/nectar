@@ -30,6 +30,6 @@ const Template: Story<IDropdownBasicProps> = (args) => (
 
 export const Default: Story<IDropdownBasicProps> = Template.bind({});
 
-export const DefaultArgs: IDropdownBasicProps = (Default.args = {
+Default.args = {
   label: 'Dropdown',
-});
+};
