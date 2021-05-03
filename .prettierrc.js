@@ -1,8 +1,0 @@
-module.exports = {
-  singleQuote: true,
-  tabWidth: 2,
-  semi: true,
-  useTabs: false,
-  trailingComma: 'all',
-  arrowParens: 'always',
-};

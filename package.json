@@ -1,44 +1,148 @@
 {
-  "name": "monorepo-nectar",
-  "version": "1.0.0",
-  "license": "MIT",
-  "private": "true",
-  "workspaces": [
-    "packages/*"
-  ],
-  "volta": {
-    "node": "14.15.5",
-    "yarn": "1.22.10"
+  "name": "nectar",
+  "private": true,
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=10"
   },
+  "module": "dist/server.esm.js",
   "scripts": {
-    "bootstrap": "lerna bootstrap",
-    "start": "NODE_ENV=production dotenv -- lerna run start --stream --scope=@nectar/server",
-    "build": "NODE_ENV=production dotenv -- lerna run build --stream",
-    "build:dev": "dotenv -- lerna run build --stream --include-dependencies --scope '@nectar/{api,context,components}'",
-    "serve": "dotenv -- lerna run dev --stream --no-bail --scope '@nectar/server'",
-    "dev": "dotenv -- yarn build:dev && lerna run start --parallel --no-bail --scope '@nectar/api' --scope '@nectar/context' --scope '@nectar/components'",
-    "styles": "lerna run styles --stream",
-    "clean": "lerna run clean"
+    "dev": "nodemon",
+    "build": "next build && tsc --project tsconfig.server.json",
+    "start": "NODE_ENV=production node dist/server/index.js",
+    "analyze": "ANALYZE=true next build",
+    "styles": "tailwind build -o styles/index.css -c ./tailwind.config.js",
+    "test": "jest",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.35",
+    "@fortawesome/free-brands-svg-icons": "^5.15.3",
+    "@fortawesome/free-solid-svg-icons": "^5.15.3",
+    "@fortawesome/react-fontawesome": "^0.1.14",
+    "@xstate/react": "^1.3.3",
+    "axios": "^0.21.1",
+    "clsx": "^1.1.1",
+    "cookie-session": "^1.4.0",
+    "date-fns": "^2.21.1",
+    "express": "^4.17.1",
+    "express-pino-logger": "^6.0.0",
+    "neverthrow": "^4.2.1",
+    "pino-pretty": "^4.7.1",
+    "ramda": "^0.27.1",
+    "react": "17.0.1",
+    "react-dom": "17.0.1",
+    "react-outside-click-handler": "^1.3.0",
+    "typescript": "^4.2.2",
+    "xstate": "^4.16.2"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^10.0.7",
+    "@storybook/addon-actions": "^6.2.9",
+    "@storybook/addon-essentials": "^6.2.9",
+    "@storybook/addon-links": "^6.2.9",
+    "@storybook/react": "^6.2.9",
+    "@testing-library/react": "^11.2.6",
+    "@types/cookie-session": "^2.0.42",
+    "@types/express": "^4.17.11",
+    "@types/express-pino-logger": "^4.0.2",
+    "@types/jest": "^26.0.23",
+    "@types/node": "^14.14.31",
+    "@types/ramda": "^0.27.38",
+    "@types/react": "^17.0.2",
     "@typescript-eslint/eslint-plugin": "^4.15.2",
     "@typescript-eslint/parser": "^4.15.2",
-    "concurrently": "^6.0.0",
-    "dotenv-cli": "^4.0.0",
+    "autoprefixer": "^10.2.4",
+    "axios-logger": "^2.5.0",
+    "cypress": "^6.8.0",
     "eslint": "^7.20.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-jest": "^24.3.2",
-    "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-react": "^7.22.0",
-    "eslint-plugin-react-hooks": "^4.2.0",
-    "lerna": "^4.0.0",
-    "typescript": "^4.2.2"
+    "jest": "^26.6.3",
+    "next": "^10.2.0",
+    "nodemon": "^2.0.7",
+    "postcss": "^8.2.6",
+    "regenerator-runtime": "^0.13.7",
+    "storybook": "^6.2.9",
+    "tailwindcss": "^2.0.3",
+    "tsconfig-paths-webpack-plugin": "^3.5.1",
+    "tslib": "^2.2.0"
   },
-  "dependencies": {
-    "@types/ramda": "^0.27.38",
-    "ramda": "^0.27.1"
+  "volta": {
+    "node": "14.16.1",
+    "yarn": "1.22.10"
   },
-  "resolutions": {
-    "**/typescript": "^4.1.3"
+  "jest": {
+    "rootDir": "src/components",
+    "moduleNameMapper": {
+      "@components/(.*)": "<rootDir>/$1"
+    }
+  },
+  "prettier": {
+    "singleQuote": true,
+    "tabWidth": 2,
+    "semi": true,
+    "useTabs": false,
+    "trailingComma": "all",
+    "arrowParens": "always"
+  },
+  "eslintConfig": {
+    "extends": [
+      "plugin:@typescript-eslint/recommended",
+      "plugin:@typescript-eslint/recommended-requiring-type-checking",
+      "prettier"
+    ],
+    "plugins": [
+      "react",
+      "react-hooks",
+      "jsx-a11y",
+      "@typescript-eslint",
+      "jest"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "env": {
+      "es6": true
+    },
+    "overrides": [
+      {
+        "files": [
+          "*.ts",
+          "*.tsx"
+        ],
+        "parserOptions": {
+          "project": [
+            "./tsconfig.json"
+          ]
+        }
+      }
+    ],
+    "rules": {
+      "react-hooks/rules-of-hooks": "error",
+      "@typescript-eslint/no-empty-function": [
+        "warn"
+      ],
+      "@typescript-eslint/no-floating-promises": [
+        "warn",
+        {
+          "ignoreIIFE": true
+        }
+      ],
+      "@typescript-eslint/no-empty-interface": [
+        "error",
+        {
+          "allowSingleExtends": false
+        }
+      ],
+      "@typescript-eslint/unbound-method": [
+        "error",
+        {
+          "ignoreStatic": true
+        }
+      ]
+    }
   }
 }

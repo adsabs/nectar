@@ -1,4 +1,0 @@
-// @nectar/components
-{
-  "extends": "../../tsconfig.json"
-}

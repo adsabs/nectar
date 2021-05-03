@@ -1,0 +1,5 @@
+{
+  "watch": ["server"],
+  "exec": "tsc --project tsconfig.json && node dist/server/index.js",
+  "ext": "js ts"
+}
