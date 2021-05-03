@@ -12,6 +12,7 @@
     "start": "NODE_ENV=production node dist/server/index.js",
     "analyze": "ANALYZE=true next build",
     "styles": "tailwind build -o styles/index.css -c ./tailwind.config.js",
+    "test": "jest",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "storybook": "start-storybook -p 6006",
@@ -39,9 +40,6 @@
     "xstate": "^4.16.2"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.14.0",
-    "@babel/preset-react": "^7.13.13",
-    "@babel/preset-typescript": "^7.13.0",
     "@next/bundle-analyzer": "^10.0.7",
     "@storybook/addon-actions": "^6.2.9",
     "@storybook/addon-essentials": "^6.2.9",
@@ -68,6 +66,7 @@
     "next": "^10.2.0",
     "nodemon": "^2.0.7",
     "postcss": "^8.2.6",
+    "regenerator-runtime": "^0.13.7",
     "storybook": "^6.2.9",
     "tailwindcss": "^2.0.3",
     "tsconfig-paths-webpack-plugin": "^3.5.1",
@@ -76,5 +75,74 @@
   "volta": {
     "node": "14.16.1",
     "yarn": "1.22.10"
+  },
+  "jest": {
+    "rootDir": "src/components",
+    "moduleNameMapper": {
+      "@components/(.*)": "<rootDir>/$1"
+    }
+  },
+  "prettier": {
+    "singleQuote": true,
+    "tabWidth": 2,
+    "semi": true,
+    "useTabs": false,
+    "trailingComma": "all",
+    "arrowParens": "always"
+  },
+  "eslintConfig": {
+    "extends": [
+      "plugin:@typescript-eslint/recommended",
+      "plugin:@typescript-eslint/recommended-requiring-type-checking",
+      "prettier"
+    ],
+    "plugins": [
+      "react",
+      "react-hooks",
+      "jsx-a11y",
+      "@typescript-eslint",
+      "jest"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "env": {
+      "es6": true
+    },
+    "overrides": [
+      {
+        "files": [
+          "*.ts",
+          "*.tsx"
+        ],
+        "parserOptions": {
+          "project": [
+            "./tsconfig.json"
+          ]
+        }
+      }
+    ],
+    "rules": {
+      "react-hooks/rules-of-hooks": "error",
+      "@typescript-eslint/no-empty-function": [
+        "warn"
+      ],
+      "@typescript-eslint/no-floating-promises": [
+        "warn",
+        {
+          "ignoreIIFE": true
+        }
+      ],
+      "@typescript-eslint/no-empty-interface": [
+        "error",
+        {
+          "allowSingleExtends": false
+        }
+      ],
+      "@typescript-eslint/unbound-method": [
+        "error",
+        {
+          "ignoreStatic": true
+        }
+      ]
+    }
   }
 }

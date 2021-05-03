@@ -1,7 +1,7 @@
 import { Layout } from '@components';
 import { AppProps } from 'next/app';
 import React, { FC } from 'react';
-import '../../styles/index.css';
+import 'tailwindcss/tailwind.css';
 
 const NectarApp: FC<AppProps> = ({ Component, pageProps }) => {
   return (
