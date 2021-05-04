@@ -6,12 +6,11 @@ export type {
   SolrField,
   SolrSort,
   SolrSortDirection,
-  SolrSortField
+  SolrSortField,
 } from './lib/models';
 export type {
   IADSApiSearchErrorResponse,
   IADSApiSearchParams,
   IADSApiSearchResponse,
-  IDocsEntity
+  IDocsEntity,
 } from './lib/search/types';
-

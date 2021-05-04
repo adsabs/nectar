@@ -5,26 +5,26 @@ import { OrcidDropdown } from './OrcidDropdown';
 
 export const NavBar: FC = () => {
   return (
-    <nav className="bg-gray-1000 flex">
+    <nav className="flex bg-gray-1000">
       <div className="px-4 sm:px-6 lg:px-8">
         <Link href="/">
           <a className="flex items-center h-12">
             <img
-              className="h-10 w-10"
+              className="w-10 h-10"
               src="/img/transparent_logo.svg"
               alt="Workflow logo"
             />
-            <h1 className="text-white text-2xl font-medium ml-2">ads</h1>
+            <h1 className="ml-2 text-white text-2xl font-medium">ads</h1>
           </a>
         </Link>
       </div>
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only text-white flex items-center"
+        className="flex items-center text-white focus:not-sr-only sr-only"
       >
         Skip to content
       </a>
-      <div className="flex-grow flex justify-end items-center space-x-4 pr-4">
+      <div className="flex flex-grow items-center justify-end pr-4 space-x-4">
         <OrcidDropdown />
         <AboutDropdown />
         <Link href="/user/account/register">

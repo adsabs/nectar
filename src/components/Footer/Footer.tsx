@@ -39,16 +39,16 @@ const SimpleLink: React.FC<{ href: string; icon?: IconProp }> = ({
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="bg-gray-1000 mt-3 py-6">
-      <div className="container mx-auto flex flex-col md:flex-row px-3 md:px-0 justify-between">
+    <footer className="mt-3 py-6 bg-gray-1000">
+      <div className="container flex flex-col justify-between mx-auto px-3 md:flex-row md:px-0">
         <div className="flex-col w-80">
-          <p className="text-gray-100 mb-3">© The SAO/NASA ssss Data System</p>
+          <p className="mb-3 text-gray-100">© The SAO/NASA ssss Data System</p>
           <p className="text-gray-500">adshelp[at]cfa.harvard.edu</p>
           <p className="text-gray-500">
             The ADS is operated by the Smithsonian Astrophysical Observatory
             under NASA Cooperative Agreement 80NSSC21M0056
           </p>
-          <div className="flex mt-3 items-center">
+          <div className="flex items-center mt-3">
             <Link href="https://www.nasa.gov">
               <a rel="noopener noreferrer">
                 <Image
@@ -84,7 +84,7 @@ export const Footer: React.FC = () => {
           </div>
         </div>
         <div className="flex-col text-gray-100">
-          <p className="text-lg mb-3">Resources</p>
+          <p className="mb-3 text-lg">Resources</p>
           <SimpleLink href="/about" icon={faQuestionCircle}>
             About ADS
           </SimpleLink>
@@ -102,7 +102,7 @@ export const Footer: React.FC = () => {
           </SimpleLink>
         </div>
         <div className="flex-col text-gray-100">
-          <p className="text-lg text-gray-100 mb-3">Social</p>
+          <p className="mb-3 text-gray-100 text-lg">Social</p>
           <SimpleLink href="https://twitter.com/adsabs" icon={faTwitter}>
             @adsabs
           </SimpleLink>
@@ -111,7 +111,7 @@ export const Footer: React.FC = () => {
           </SimpleLink>
         </div>
         <div className="flex-col text-gray-100">
-          <p className="text-lg text-gray-100 mb-3">Project</p>
+          <p className="mb-3 text-gray-100 text-lg">Project</p>
           <SimpleLink href="#">Privacy Policy</SimpleLink>
           <SimpleLink href="#">Terms of Use</SimpleLink>
           <SimpleLink href="#">

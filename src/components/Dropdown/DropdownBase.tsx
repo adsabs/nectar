@@ -16,7 +16,13 @@ export interface IDropdownBaseProps {
   children: ReactNode;
 }
 
-export const DropdownBase = ({ label, classes, offset, children, renderButton }: IDropdownBaseProps): ReactElement => {
+export const DropdownBase = ({
+  label,
+  classes,
+  offset,
+  children,
+  renderButton,
+}: IDropdownBaseProps): ReactElement => {
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement>();
   const [popperElement, setPopperElement] = useState<HTMLDivElement>();
   const [visible, setVisible] = useState<boolean>(false);

@@ -22,11 +22,11 @@ export const Item = (props: IItemProps): React.ReactElement => {
   };
 
   return (
-    <div className="flex border py-1 px-2 rounded-md bg-white">
-      <div className="hidden md:flex items-center justify-center mr-3">
+    <div className="flex px-2 py-1 bg-white border rounded-md">
+      <div className="hidden items-center justify-center mr-3 md:flex">
         {index}
       </div>
-      <div className="hidden md:flex items-center justify-center mr-3">
+      <div className="hidden items-center justify-center mr-3 md:flex">
         <input
           type="checkbox"
           name={`result-checkbox-${index}`}
@@ -35,15 +35,15 @@ export const Item = (props: IItemProps): React.ReactElement => {
           checked={state.matches('selected')}
         />
       </div>
-      <div className="flex flex-col flex-1">
+      <div className="flex flex-1 flex-col">
         <div className="flex justify-between">
           <Link href={`/abs/${bibcode}`}>
-            <a className="text-xs hover:underline">{bibcode}</a>
+            <a className="hover:underline text-xs">{bibcode}</a>
           </Link>
           {pubdate && <div className="text-xs">{pubdate}</div>}
         </div>
         <Link href={`/abs/${bibcode}`}>
-          <a className="text-blue-700 text-lg hover:underline">
+          <a className="text-blue-700 hover:underline text-lg">
             <h3>{title}</h3>
           </a>
         </Link>

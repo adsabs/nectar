@@ -33,7 +33,7 @@ export const OrcidDropdown = (): ReactElement => {
       <button
         onClick={handleOrcidSignIn}
         type="button"
-        className="bg-blue-600 text-white border rounded-md p-2 hover:shadow-md"
+        className="p-2 text-white bg-blue-600 border rounded-md hover:shadow-md"
       >
         Sign into ORCID to claim papers in ADS
       </button>

@@ -12,13 +12,13 @@ export const Skeleton = (props: ISkeletonProps): React.ReactElement => {
     <>
       {range(0, count).map((i) => (
         <div
-          className="flex border py-1 px-2 rounded-md bg-white"
+          className="flex px-2 py-1 bg-white border rounded-md"
           key={i.toString()}
         >
-          <div className="animate-pulse w-full space-y-1">
-            <div className="h-4 bg-gray-300 rounded w-1/4"> </div>
+          <div className="w-full space-y-1 animate-pulse">
+            <div className="w-1/4 h-4 bg-gray-300 rounded"> </div>
             <div className="h-4 bg-gray-300 rounded"></div>
-            <div className="h-4 bg-gray-300 rounded w-5/6"></div>
+            <div className="w-5/6 h-4 bg-gray-300 rounded"></div>
           </div>
         </div>
       ))}

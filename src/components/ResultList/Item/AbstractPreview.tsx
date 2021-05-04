@@ -56,7 +56,7 @@ export const AbstractPreview = ({
         {state.matches('failure') && state.context.error?.message}
       </span>
       {showAbstract && (
-        <div className="border p-2 mt-2">{state.context.meta.abstract}</div>
+        <div className="mt-2 p-2 border">{state.context.meta.abstract}</div>
       )}
     </div>
   );
