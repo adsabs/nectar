@@ -12,9 +12,9 @@ export const NavBar: FC = () => {
             <img
               className="w-10 h-10"
               src="/img/transparent_logo.svg"
-              alt="Workflow logo"
+              aria-hidden="true"
             />
-            <h1 className="ml-2 text-white text-2xl font-medium">ads</h1>
+            <h1 className="ml-2 text-white text-2xl font-bold">ads</h1>
           </a>
         </Link>
       </div>

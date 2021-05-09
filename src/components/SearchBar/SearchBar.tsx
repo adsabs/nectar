@@ -1,5 +1,4 @@
-import { faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { SearchIcon } from '@heroicons/react/solid';
 import clsx from 'clsx';
 import Downshift, {
   ControllerStateAndHelpers,
@@ -137,7 +136,7 @@ const Input = React.forwardRef<
         type="submit"
         className="px-3 py-2 text-white bg-blue-500 rounded-md"
       >
-        <FontAwesomeIcon icon={faSearch} />{' '}
+        <SearchIcon />
         <span className="sr-only">Search</span>
       </button>
     </div>

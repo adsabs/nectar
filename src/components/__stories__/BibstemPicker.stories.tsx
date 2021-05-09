@@ -1,10 +1,10 @@
 import { Meta, Story } from '@storybook/react';
 import React from 'react';
-import { LandingTabs } from '../LandingTabs';
+import { BibstemPicker, IBibstemPickerProps } from '../BibstemPicker';
 
 const meta: Meta = {
-  title: 'LandingTabs',
-  component: LandingTabs,
+  title: 'BibstemPicker',
+  component: BibstemPicker,
   argTypes: {
     children: {
       control: {
@@ -19,8 +19,10 @@ const meta: Meta = {
 
 export default meta;
 
-const Template: Story = (args) => <LandingTabs {...args} />;
+const Template: Story<IBibstemPickerProps> = (args) => (
+  <BibstemPicker {...args} />
+);
 
-export const Default = Template.bind({}) as Story;
+export const Default = Template.bind({}) as Story<IBibstemPickerProps>;
 
 Default.args = {};

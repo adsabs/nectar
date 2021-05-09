@@ -1,10 +1,9 @@
 import { SearchBar, SearchExamples } from '@components';
 import {
-  faCode,
-  faLifeRing,
-  faSearch,
-} from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+  CodeIcon,
+  SearchCircleIcon,
+  SupportIcon,
+} from '@heroicons/react/solid';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import React from 'react';
@@ -15,7 +14,7 @@ const HomePage: NextPage = () => {
   };
 
   return (
-    <>
+    <div className="mx-auto px-4 py-12 max-w-7xl sm:px-6 lg:px-8">
       <h2 className="sr-only">Modern Search Form</h2>
       <form action="search" method="get">
         <div className="my-6">
@@ -33,7 +32,7 @@ const HomePage: NextPage = () => {
         <Link href="/classic-form">
           <a className="flex flex-col items-center justify-center p-4 text-blue-500 hover:bg-gray-200">
             <div className="my-4 text-4xl">
-              <FontAwesomeIcon icon={faLifeRing} />
+              <SupportIcon />
             </div>
             <div className="font-bold">Use a classic ADS-style form</div>
           </a>
@@ -41,7 +40,7 @@ const HomePage: NextPage = () => {
         <Link href="/paper-form">
           <a className="flex flex-col items-center justify-center p-4 text-blue-500 hover:bg-gray-200">
             <div className="my-4 text-4xl">
-              <FontAwesomeIcon icon={faSearch} />
+              <SearchCircleIcon />
             </div>
             <div className="font-bold">Learn more about searching the ADS</div>
           </a>
@@ -49,13 +48,13 @@ const HomePage: NextPage = () => {
         <Link href="#">
           <a className="flex flex-col items-center justify-center p-4 text-blue-500 hover:bg-gray-200">
             <div className="my-4 text-4xl">
-              <FontAwesomeIcon icon={faCode} />
+              <CodeIcon />
             </div>
             <div className="font-bold">Access ADS data with our API</div>
           </a>
         </Link>
       </div>
-    </>
+    </div>
   );
 };
 

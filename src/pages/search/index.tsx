@@ -4,7 +4,7 @@ import AdsApi, {
   IDocsEntity,
   SolrSort,
 } from '@api';
-import { NumFound, ResultList, SearchBar, Sort } from '@components';
+import { NumFound, ResultList, Sort } from '@components';
 import {
   rootInitialContext,
   rootService,
@@ -90,7 +90,7 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
     <form className="min-h-screen" onSubmit={handleSubmit}>
       <h2 className="sr-only">Results</h2>
       <div className="mt-6">
-        <SearchBar query={query} onChange={handleParamsChange<'q'>('q')} />
+        {/* <SearchBar query={query} onChange={handleParamsChange<'q'>('q')} /> */}
         {!isLoading && <NumFound count={result.numFound} />}
       </div>
       <div className="flex my-3 space-x-2">

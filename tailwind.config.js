@@ -15,10 +15,11 @@ module.exports = {
     }),
     extend: {
       fontFamily: {
-        sans: ['Roboto', ...defaultTheme.fontFamily.sans],
+        sans: ['Helvetica', 'Roboto', ...defaultTheme.fontFamily.sans],
       },
       colors: {
-        'ads-base': '#f3f7f9',
+        // 'ads-base': '#f3f7f9',
+        'ads-base': '#ffffff',
         gray: {
           1000: '#1a1a1a',
         },

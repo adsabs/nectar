@@ -1,5 +1,4 @@
-import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { ChevronDownIcon } from '@heroicons/react/solid';
 import clsx from 'clsx';
 import React, { ReactElement, ReactNode, useCallback, useState } from 'react';
 import OutsideClickHandler from 'react-outside-click-handler';
@@ -65,7 +64,7 @@ export const DropdownBasic = (props: IDropdownBasicProps): ReactElement => {
         className={classes.button}
         onClick={handleClick}
       >
-        {label} <FontAwesomeIcon icon={faCaretDown} />
+        {label} <ChevronDownIcon className="inline w-4 h-4" />
       </button>
       <div
         ref={popperRef}

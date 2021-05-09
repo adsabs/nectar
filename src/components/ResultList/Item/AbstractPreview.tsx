@@ -1,10 +1,9 @@
 import { IDocsEntity } from '@api';
 import {
-  faFolder,
-  faFolderOpen,
-  faSpinner,
-} from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+  FolderIcon,
+  FolderOpenIcon,
+  RefreshIcon,
+} from '@heroicons/react/solid';
 import { useMachine } from '@xstate/react';
 import React, { useEffect } from 'react';
 import {
@@ -45,11 +44,11 @@ export const AbstractPreview = ({
         disabled={state.matches('failure')}
       >
         {state.matches('fetching') ? (
-          <FontAwesomeIcon icon={faSpinner} pulse />
+          <RefreshIcon />
         ) : showAbstract ? (
-          <FontAwesomeIcon icon={faFolderOpen} />
+          <FolderOpenIcon />
         ) : (
-          <FontAwesomeIcon icon={faFolder} />
+          <FolderIcon />
         )}
       </button>
       <span className="ml-3 text-red-600">

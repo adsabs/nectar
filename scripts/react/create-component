@@ -31,6 +31,8 @@ fs.writeFile(
   component(name),
   writeFileErrorHandler,
 );
+// component barrel
+fs.writeFile(path.join(dir, `index.ts`), barrel(name), writeFileErrorHandler);
 // storybook.jsx
 fs.writeFile(
   path.join(storyDir, `${name}.stories.tsx`),
@@ -43,15 +45,13 @@ fs.writeFile(
   test(name),
   writeFileErrorHandler,
 );
-// index.ts
-fs.writeFile(path.join(dir, 'index.ts'), barrel(name), writeFileErrorHandler);
 
 ////////////////
 /// Optional ///
 ////////////////
 
 fs.appendFile(
-  path.join(base, 'src', 'index.ts'),
-  `export * from './${name}';\n`,
+  path.join(base, 'src/components', 'index.ts'),
+  `${barrel(name)}\n`,
   writeFileErrorHandler,
 );
