@@ -11,7 +11,7 @@ export const Layout: FC<ILayoutProps> = ({ children }) => {
     <section className="flex flex-col font-sans bg-ads-base">
       <NavBar />
       <main>
-        <div className="container" id="main-content">
+        <div className="container mx-auto" id="main-content">
           {children}
         </div>
       </main>
