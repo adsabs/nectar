@@ -46,7 +46,7 @@ export const Sort = (props: ISortProps): React.ReactElement => {
   const [sortValue, sortDirection] = selected;
   return (
     <div>
-      <label htmlFor="sort" className="block text-sm font-medium text-gray-700">
+      <label htmlFor="sort" className="block text-gray-700 text-sm font-medium">
         Sort
       </label>
       <div className="flex">

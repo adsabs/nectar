@@ -87,18 +87,14 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
   };
 
   return (
-    <div className="min-h-screen">
+    <form className="min-h-screen" onSubmit={handleSubmit}>
       <h2 className="sr-only">Results</h2>
       <div className="mt-6">
-        <SearchBar
-          query={query}
-          onChange={handleParamsChange<'q'>('q')}
-          onSubmit={handleSubmit}
-        />
+        <SearchBar query={query} onChange={handleParamsChange<'q'>('q')} />
         {!isLoading && <NumFound count={result.numFound} />}
       </div>
-      <div className="my-3 flex space-x-2">
-        <div className="border rounded-md p-3 bg-white">
+      <div className="flex my-3 space-x-2">
+        <div className="p-3 bg-white border rounded-md">
           <Sort
             onChange={handleParamsChange<'sort'>('sort')}
             sort={sort ? sort[0] : undefined}
@@ -106,7 +102,7 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
         </div>
         <div className="flex-grow">
           {isFailure ? (
-            <div className="flex flex-col border rounded-md bg-white p-3">
+            <div className="flex flex-col p-3 bg-white border rounded-md">
               <h3>Something went wrong with this query!</h3>
               <code>{error.message}</code>
             </div>
@@ -118,7 +114,7 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
           )}
         </div>
       </div>
-    </div>
+    </form>
   );
 };
 

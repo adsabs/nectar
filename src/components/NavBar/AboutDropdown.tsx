@@ -19,7 +19,7 @@ const ItemLink: FC<IItemLinkProps> = (props): ReactElement => {
   return (
     <Link href={href}>
       <a>
-        <div className="text-gray-700 h-full w-full">{children}</div>
+        <div className="w-full h-full text-gray-700">{children}</div>
       </a>
     </Link>
   );

@@ -74,7 +74,7 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
     setVisible(false);
   };
 
-  const popperClasses = clsx('border divide-y flex flex-col z-50 bg-white', {
+  const popperClasses = clsx('z-50 flex flex-col bg-white border divide-y', {
     hidden: !visible,
   });
 
@@ -119,7 +119,7 @@ const Item = (props: IItemProps): ReactElement => {
     item: { label, element },
     ...restProps
   } = props;
-  const itemClasses = clsx('px-3 text-left hover:bg-gray-100 py-2');
+  const itemClasses = clsx('px-3 py-2 text-left hover:bg-gray-100');
 
   if (element) {
     return <div className={itemClasses}>{element}</div>;

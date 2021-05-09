@@ -12,7 +12,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props) => {
   const { doc, error } = props;
 
   return (
-    <div className="shadow-md m-2">
+    <div className="m-2 shadow-md">
       {error && <pre>{JSON.stringify(error)}</pre>}
 
       <div>{doc?.title}</div>
