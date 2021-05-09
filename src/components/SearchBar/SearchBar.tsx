@@ -1,4 +1,4 @@
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import clsx from 'clsx';
 import Downshift, {
@@ -9,20 +9,21 @@ import { compose, filter, uniqBy } from 'ramda';
 import React from 'react';
 import { TypeaheadOption, typeaheadOptions } from './types';
 export interface ISearchBarProps {
-  query?: string;
+  initialQuery?: string;
   onChange?: (value: string) => void;
 }
 
 export const SearchBar = (props: ISearchBarProps): React.ReactElement => {
-  // const { query = '', onChange } = props;
+  const { initialQuery = '', onChange } = props;
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const [query, setQuery] = React.useState(initialQuery);
 
-  // const [value, setValue] = React.useState<string>(query);
-
-  // const clearBtnCls = clsx(
-  //   { hidden: query?.length === 0, block: query?.length > 0 },
-  //   'absolute inset-y-0 right-20 flex items-center',
-  // );
+  // call the passed in handler upon input change
+  React.useEffect(() => {
+    if (typeof onChange === 'function') {
+      onChange(query);
+    }
+  }, [onChange, query]);
 
   const handleSelection = (
     item: TypeaheadOption,
@@ -41,7 +42,6 @@ export const SearchBar = (props: ISearchBarProps): React.ReactElement => {
     state.setState({ selectedItem: null });
   };
 
-  const [query, setQuery] = React.useState('');
   interface ITypeaheadState
     extends Partial<StateChangeOptions<TypeaheadOption>> {
     flag?: boolean;
@@ -88,7 +88,6 @@ export const SearchBar = (props: ISearchBarProps): React.ReactElement => {
         {(dsProps) => {
           return (
             <div>
-              {query}
               <Label {...dsProps} />
               <Input {...dsProps} ref={inputRef} />
               <Menu {...dsProps} />
@@ -96,7 +95,6 @@ export const SearchBar = (props: ISearchBarProps): React.ReactElement => {
           );
         }}
       </Downshift>
-      <div>something below</div>
     </>
   );
 };
@@ -108,15 +106,33 @@ const Input = React.forwardRef<
   const { getRootProps, getInputProps } = props;
   const inputProps = getInputProps();
 
+  // clear button logic, we watch on the current inputvalue
+  const [showClearBtn, setShowClearBtn] = React.useState(false);
+  const value = inputProps.value as string;
+  React.useEffect(() => setShowClearBtn(value && value.length > 0), [value]);
+  const handleClear = () => props.reset({ inputValue: '' });
+
   return (
     <div className="flex space-x-1" {...getRootProps({ refKey: 'ref' })}>
       <input
         type="text"
+        name="q"
         {...inputProps}
         ref={ref}
-        className="form-input flex-1 py-2 rounded-md"
+        className="form-input flex-1 py-2 rounded-md ring-0"
         placeholder="Search"
       />
+      {showClearBtn && (
+        <div className="relative">
+          <button
+            type="button"
+            onClick={handleClear}
+            className="absolute right-1 px-3 py-2 text-lg"
+          >
+            <FontAwesomeIcon fixedWidth icon={faTimes} />
+          </button>
+        </div>
+      )}
       <button
         type="submit"
         className="px-3 py-2 text-white bg-blue-500 rounded-md"
@@ -169,7 +185,10 @@ const Menu = (props: ControllerStateAndHelpers<TypeaheadOption>) => {
         })}
         className={itemCls}
       >
-        {item.label} | {item.value}
+        <span className="flex gap-3">
+          <div>{item.label}</div>
+          <div>({item.value})</div>
+        </span>
       </li>
     );
   };
@@ -194,15 +213,14 @@ const Menu = (props: ControllerStateAndHelpers<TypeaheadOption>) => {
 const alterQuery = (query: string, valueToAdd: string): string => {
   // look for non-whitespace chars at the end of the string
   const res = /(\S+)$/.exec(query);
+
+  // if no match, just return the new value
   if (res === null) {
-    return valueToAdd;
+    return valueToAdd || '';
   }
 
-  // get the length of this word
-  const len = res[0].length;
-
   // then replace those characters with the valueToAdd
-  return query.slice(0, -len) + valueToAdd;
+  return query.slice(0, -res[0].length) + valueToAdd;
 };
 
 /**
@@ -215,7 +233,10 @@ const filterOptions = (rawValue: string): TypeaheadOption[] => {
   const value = res === null ? rawValue : res[0].trim();
 
   return compose(
+    // remove duplicates
     uniqBy((item: TypeaheadOption) => item.value),
+
+    // filter on all text inside item (this may not be wanted)
     filter<TypeaheadOption, 'array'>(
       (item: TypeaheadOption) =>
         (value && item.match.includes(value)) ||

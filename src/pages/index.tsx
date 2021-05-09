@@ -14,14 +14,10 @@ const HomePage: NextPage = () => {
     console.log('example click', text);
   };
 
-  const handleSubmit = (e: React.ChangeEvent<HTMLFormElement>) => {
-    console.log('submit');
-  };
-
   return (
     <>
       <h2 className="sr-only">Modern Search Form</h2>
-      <form action="search" method="get" onSubmit={handleSubmit}>
+      <form action="search" method="get">
         <div className="my-6">
           <SearchBar />
         </div>
