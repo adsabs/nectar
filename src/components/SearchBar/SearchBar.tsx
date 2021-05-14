@@ -1,4 +1,4 @@
-import { SearchIcon } from '@heroicons/react/solid';
+import { SearchIcon, XIcon } from '@heroicons/react/solid';
 import clsx from 'clsx';
 import Downshift, {
   ControllerStateAndHelpers,
@@ -128,7 +128,7 @@ const Input = React.forwardRef<
             onClick={handleClear}
             className="absolute right-1 px-3 py-2 text-lg"
           >
-            <FontAwesomeIcon fixedWidth icon={faTimes} />
+            <XIcon className="w-4 h-4" />
           </button>
         </div>
       )}
