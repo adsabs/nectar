@@ -14,48 +14,52 @@ const HomePage: NextPage = () => {
   };
 
   return (
-    <div className="mx-auto px-4 py-12 max-w-7xl sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-3xl">
       <h2 className="sr-only">Modern Search Form</h2>
-      <form action="search" method="get">
-        <div className="my-6">
+      <form
+        action="search"
+        method="get"
+        className="grid gap-4 grid-cols-6 my-4"
+      >
+        <div className="col-span-6">
           <SearchBar />
         </div>
-        <div className="mt-4">
-          <h3 className="mb-3 text-center text-lg font-bold">
-            Search Examples
-          </h3>
+        <div className="col-span-6">
           <SearchExamples onClick={handleExampleClick} />
         </div>
+        <hr className="col-span-6" />
+        <BottomLink
+          icon={<SupportIcon className="my-4 w-16 h-16" />}
+          text="Use a classic ADS-style form"
+        />
+        <BottomLink
+          icon={<SearchCircleIcon className="my-4 w-16 h-16" />}
+          text="Learn more about searching the ADS"
+        />
+        <BottomLink
+          icon={<CodeIcon className="my-4 w-16 h-16" />}
+          text="Access ADS data with our API"
+        />
       </form>
-      <hr className="mx-auto my-4 w-3/4 divide-x-0" />
-      <div className="flex flex-col justify-evenly mx-auto w-3/4 md:flex-row">
-        <Link href="/classic-form">
-          <a className="flex flex-col items-center justify-center p-4 text-blue-500 hover:bg-gray-200">
-            <div className="my-4 text-4xl">
-              <SupportIcon />
-            </div>
-            <div className="font-bold">Use a classic ADS-style form</div>
-          </a>
-        </Link>
-        <Link href="/paper-form">
-          <a className="flex flex-col items-center justify-center p-4 text-blue-500 hover:bg-gray-200">
-            <div className="my-4 text-4xl">
-              <SearchCircleIcon />
-            </div>
-            <div className="font-bold">Learn more about searching the ADS</div>
-          </a>
-        </Link>
-        <Link href="#">
-          <a className="flex flex-col items-center justify-center p-4 text-blue-500 hover:bg-gray-200">
-            <div className="my-4 text-4xl">
-              <CodeIcon />
-            </div>
-            <div className="font-bold">Access ADS data with our API</div>
-          </a>
-        </Link>
-      </div>
     </div>
   );
 };
+
+const BottomLink = ({
+  icon,
+  text,
+}: {
+  icon: React.ReactElement;
+  text: string;
+}): React.ReactElement => (
+  <div className="col-span-6 md:col-span-2">
+    <Link href="/paper-form">
+      <a className="flex flex-col items-center justify-center p-4 text-blue-500 hover:bg-gray-200">
+        {icon}
+        <div className="text-center font-bold">{text}</div>
+      </a>
+    </Link>
+  </div>
+);
 
 export default HomePage;

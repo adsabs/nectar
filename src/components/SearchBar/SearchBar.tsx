@@ -136,7 +136,7 @@ const Input = React.forwardRef<
         type="submit"
         className="px-3 py-2 text-white bg-blue-500 rounded-md"
       >
-        <SearchIcon />
+        <SearchIcon className="w-4 h-4" />
         <span className="sr-only">Search</span>
       </button>
     </div>
