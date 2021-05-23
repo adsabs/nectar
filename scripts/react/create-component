@@ -8,9 +8,9 @@ const { component, story, test, barrel } = require('./templates.js');
 const [name] = process.argv.slice(2);
 if (!name) throw new Error('You must include a component name.');
 const base = path.resolve(__dirname, `../..`);
-const dir = path.join(base, 'src', name);
-const testDir = path.join(base, 'test');
-const storyDir = path.join(base, 'stories');
+const dir = path.join(base, 'src/components/', name);
+const testDir = path.join(base, 'src/components/__tests__');
+const storyDir = path.join(base, 'src/components/__stories__');
 
 // throw an error if the file already exists
 if (fs.existsSync(dir))
@@ -31,6 +31,8 @@ fs.writeFile(
   component(name),
   writeFileErrorHandler,
 );
+// component barrel
+fs.writeFile(path.join(dir, `index.ts`), barrel(name), writeFileErrorHandler);
 // storybook.jsx
 fs.writeFile(
   path.join(storyDir, `${name}.stories.tsx`),
@@ -43,15 +45,13 @@ fs.writeFile(
   test(name),
   writeFileErrorHandler,
 );
-// index.ts
-fs.writeFile(path.join(dir, 'index.ts'), barrel(name), writeFileErrorHandler);
 
 ////////////////
 /// Optional ///
 ////////////////
 
 fs.appendFile(
-  path.join(base, 'src', 'index.ts'),
-  `export * from './${name}';\n`,
+  path.join(base, 'src/components', 'index.ts'),
+  `${barrel(name)}\n`,
   writeFileErrorHandler,
 );

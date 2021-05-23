@@ -18,7 +18,7 @@ export const ${name}: FC<I${name}Props> = ({ children }) => {
 
 exports.story = (name) => `import React from 'react';
 import { Meta, Story } from '@storybook/react';
-import { ${name}, I${name}Props } from '../src/${name}';
+import { ${name}, I${name}Props } from '../${name}';
 
 const meta: Meta = {
   title: '${name}',
@@ -39,20 +39,18 @@ export default meta;
 
 const Template: Story<I${name}Props> = args => ${'<' + name} {...args} />;
 
-export const Default = Template.bind({});
+export const Default = Template.bind({}) as Story<I${name}Props>;
 
 Default.args = {};
 `;
 
 exports.test = (name) => `import React from 'react';
-import * as ReactDOM from 'react-dom';
-import { Default as ${name} } from '../stories/${name}.stories';
+import { render } from '@testing-library/react';
+import { Default as ${name} } from '../__stories__/${name}.stories';
 
 describe('${name}', () => {
   it('renders without crashing', () => {
-    const div = document.createElement('div');
-    ReactDOM.render(${'<' + name} />, div);
-    ReactDOM.unmountComponentAtNode(div);
+    render(${'<' + name} />);
   });
 });
 `;

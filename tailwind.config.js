@@ -1,7 +1,7 @@
 const defaultTheme = require('tailwindcss/defaultTheme');
 
 module.exports = {
-  purge: ['./pages/**/*.{ts,tsx}'],
+  purge: ['./src/pages/**/*.{ts,tsx}', './src/components/**/*.{ts,tsx}'],
   darkMode: false, // or 'media' or 'class'
   theme: {
     container: (theme) => ({
@@ -15,10 +15,11 @@ module.exports = {
     }),
     extend: {
       fontFamily: {
-        sans: ['Roboto', ...defaultTheme.fontFamily.sans],
+        sans: ['Helvetica', 'Roboto', ...defaultTheme.fontFamily.sans],
       },
       colors: {
-        'ads-base': '#f3f7f9',
+        // 'ads-base': '#f3f7f9',
+        'ads-base': '#ffffff',
         gray: {
           1000: '#1a1a1a',
         },

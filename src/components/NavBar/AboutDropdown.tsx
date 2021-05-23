@@ -1,11 +1,3 @@
-import {
-  faArchive,
-  faBullhorn,
-  faNewspaper,
-  faQuestionCircle,
-  faUsers,
-} from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
 import React, { FC, ReactElement } from 'react';
 import { DropdownList, ItemType } from '../Dropdown';
@@ -28,51 +20,27 @@ const ItemLink: FC<IItemLinkProps> = (props): ReactElement => {
 const items: ItemType[] = [
   {
     id: 'about',
-    element: (
-      <ItemLink href="/about">
-        <FontAwesomeIcon icon={faQuestionCircle} /> About ADS
-      </ItemLink>
-    ),
+    element: <ItemLink href="/about"> About ADS</ItemLink>,
   },
   {
     id: 'whats new',
-    element: (
-      <ItemLink href="/help/whats_new">
-        <FontAwesomeIcon icon={faBullhorn} /> What's New
-      </ItemLink>
-    ),
+    element: <ItemLink href="/help/whats_new"> What's New</ItemLink>,
   },
   {
     id: 'blog',
-    element: (
-      <ItemLink href="/blog">
-        <FontAwesomeIcon icon={faNewspaper} /> ADS Blog
-      </ItemLink>
-    ),
+    element: <ItemLink href="/blog"> ADS Blog</ItemLink>,
   },
   {
     id: 'help',
-    element: (
-      <ItemLink href="/help">
-        <FontAwesomeIcon icon={faQuestionCircle} /> ADS Help Pages
-      </ItemLink>
-    ),
+    element: <ItemLink href="/help"> ADS Help Pages</ItemLink>,
   },
   {
     id: 'legacy',
-    element: (
-      <ItemLink href="/help/legacy">
-        <FontAwesomeIcon icon={faArchive} /> ADS Legacy Services
-      </ItemLink>
-    ),
+    element: <ItemLink href="/help/legacy"> ADS Legacy Services</ItemLink>,
   },
   {
     id: 'careers',
-    element: (
-      <ItemLink href="/about/careers">
-        <FontAwesomeIcon icon={faUsers} /> Careers@ADS
-      </ItemLink>
-    ),
+    element: <ItemLink href="/about/careers"> Careers@ADS</ItemLink>,
   },
 ];
 
@@ -84,11 +52,7 @@ export const AboutDropdown = (): ReactElement => {
 
   return (
     <DropdownList
-      label={
-        <>
-          <FontAwesomeIcon icon={faQuestionCircle} /> About
-        </>
-      }
+      label="About"
       items={items}
       onSelect={handleSelect}
       classes={{

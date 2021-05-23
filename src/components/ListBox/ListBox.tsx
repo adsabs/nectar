@@ -1,5 +1,4 @@
-import { faSortAlphaUp } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { SortAscendingIcon } from '@heroicons/react/solid';
 import React from 'react';
 
 export interface IListBoxProps {
@@ -32,7 +31,7 @@ export const ListBox = (props: IListBoxProps): React.ReactElement => {
         >
           <span className="flex items-center divide-x-2">
             <div className="pr-2">
-              <FontAwesomeIcon icon={faSortAlphaUp} />
+              <SortAscendingIcon />
             </div>
             <div className="pl-2 py-2 whitespace-nowrap">Author Count</div>
           </span>
