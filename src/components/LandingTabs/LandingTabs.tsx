@@ -26,7 +26,7 @@ export const LandingTabs = (): React.ReactElement => {
         />
         <Tab href="/" label="Modern Form" active={asPath === '/'} />
         <Tab
-          href="/classic-form"
+          href="/paper-form"
           label="Paper Form"
           active={asPath === '/paper-form'}
         />

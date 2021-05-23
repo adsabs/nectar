@@ -7,18 +7,18 @@ import AdsApi, {
 import { NumFound, ResultList, Sort } from '@components';
 import {
   rootInitialContext,
-  rootService,
   RootTransitionType,
   SearchMachineTransitionTypes,
   useSearchMachine,
 } from '@machines';
+import { NectarPage } from '@types';
 import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
 import qs from 'qs';
 import React from 'react';
 import { normalizeURLParams } from '../../utils';
 
-interface ISearchPageProps {
+interface ISearchPageProps extends NectarPage {
   error?: Error;
   userData: IADSApiBootstrapData;
   params: {
@@ -38,6 +38,7 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
     params: { q: query, sort },
     docs = [],
     meta: { numFound = 0 },
+    service: rootService,
   } = props;
 
   // update the root machine with user data
@@ -118,9 +119,10 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (
-  ctx,
-) => {
+export const getServerSideProps: GetServerSideProps<
+  Omit<ISearchPageProps, 'service'>
+> = async (ctx) => {
+  console.log('query', ctx.query);
   const query = normalizeURLParams(ctx.query);
 
   const request = ctx.req as typeof ctx.req & {

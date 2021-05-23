@@ -1,3 +1,4 @@
+import { BibstemPicker, Button } from '@components';
 import clsx from 'clsx';
 import { NextPage } from 'next';
 import React from 'react';
@@ -5,11 +6,12 @@ import React from 'react';
 const ClassicForm: NextPage = () => {
   return (
     <form
-      method="get"
-      action="/classic-form"
-      className="grid gap-6 grid-cols-6 mx-auto my-4 px-4 py-12 max-w-3xl"
+      method="post"
+      action="/test"
+      className="grid gap-6 grid-cols-6 mx-auto my-4 px-4 py-12 lg:max-w-3xl"
     >
-      <fieldset className="sm:col-span-6">
+      <h2 className="sr-only">Classic Form</h2>
+      <fieldset className="col-span-6">
         <legend className="block pb-3 text-gray-700 text-sm font-bold">
           Limit Query
         </legend>
@@ -19,41 +21,37 @@ const ClassicForm: NextPage = () => {
           <Checkbox label="General" idPrefix="limit" />
         </div>
       </fieldset>
-      <LogicAndTextarea
-        label="Author"
-        desc="Author names, enter (Last, First M) one per line"
-      />
-      <LogicAndTextarea
-        label="Object"
-        desc="SIMBAD object search (one per line)"
-      />
-      <LogicAndInput label="Title" />
-      <LogicAndInput label="Abstract / Keywords" />
-      <fieldset className="sm:col-span-3">
+      <div className="col-span-6 sm:col-span-3">
+        <LogicAndTextarea
+          label="Author"
+          desc="Author names, enter (Last, First M) one per line"
+        />
+      </div>
+      <div className="col-span-6 sm:col-span-3">
+        <LogicAndTextarea
+          label="Object"
+          desc="SIMBAD object search (one per line)"
+        />
+      </div>
+      <div className="col-span-6">
+        <LogicAndInput label="Title" />
+      </div>
+      <div className="col-span-6">
+        <LogicAndInput label="Abstract / Keywords" />
+      </div>
+
+      <fieldset className="col-span-6">
         <legend className="sr-only">Property</legend>
         <div className="flex gap-4 mt-1 sm:col-span-2 sm:mt-0">
           <Checkbox label="Refereed only" idPrefix="property" bold />
           <Checkbox label="Physics" idPrefix="property" bold />
         </div>
       </fieldset>
-      <div className="sm:col-span-6">
-        <div className="flex">
-          <label
-            htmlFor="publication"
-            className="block flex-1 text-gray-700 text-sm font-bold"
-          >
-            Publication(s)
-          </label>
-        </div>
-        <div className="mt-1">
-          <input
-            type="text"
-            id="publication"
-            name="publication"
-            className="block w-full border-gray-300 focus:border-indigo-500 rounded-md shadow-sm focus:ring-indigo-500 sm:text-sm"
-            defaultValue={''}
-          />
-        </div>
+      <div className="col-span-6">
+        <BibstemPicker />
+      </div>
+      <div className="col-span-6 md:col-span-1">
+        <Button>Submit</Button>
       </div>
     </form>
   );
@@ -62,7 +60,7 @@ const ClassicForm: NextPage = () => {
 const LogicAndTextarea = ({ label, desc }: { label: string; desc: string }) => {
   const id = normalizeString(label);
   return (
-    <div className="sm:col-span-3">
+    <div>
       <div className="flex">
         <label
           htmlFor={id}
@@ -128,7 +126,7 @@ const LogicAndInput = ({
 }) => {
   const id = normalizeString(label);
   return (
-    <div className="sm:col-span-6">
+    <div>
       <div className="flex">
         <label
           htmlFor={id}
@@ -168,10 +166,10 @@ const LogicRadios = ({
 
   return (
     <>
-      <div className="relative flex space-x-4">
+      <div className="relative flex flex-col sm:flex-row md:space-x-3">
         {values[variant].map((id) => (
-          <>
-            <div className="flex items-center h-5" key={id}>
+          <div key={id}>
+            <div className="flex items-center h-5">
               <input
                 type="radio"
                 id={`logic_${normalizedName}_${id}`}
@@ -179,16 +177,17 @@ const LogicRadios = ({
                 defaultChecked={'and' === id}
                 className="w-4 h-4 text-blue-600 border-gray-300 rounded-lg focus:ring-blue-500"
               />
+
+              <div className="ml-3 text-sm">
+                <label
+                  htmlFor={`logic_${normalizedName}_${id}`}
+                  className="text-gray-700 uppercase"
+                >
+                  {id}
+                </label>
+              </div>
             </div>
-            <div className="ml-3 text-sm">
-              <label
-                htmlFor={`logic_${normalizedName}_${id}`}
-                className="text-gray-700 uppercase"
-              >
-                {id}
-              </label>
-            </div>
-          </>
+          </div>
         ))}
       </div>
     </>

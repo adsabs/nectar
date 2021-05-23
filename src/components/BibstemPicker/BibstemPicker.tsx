@@ -5,9 +5,15 @@ import {
   UseComboboxStateChange,
   useMultipleSelection,
 } from 'downshift';
+import dynamic from 'next/dynamic';
 import React from 'react';
-import { chainFrom } from 'transducist';
-import { bibstems } from './models';
+import type { IBibstemMenuProps } from './BibstemMenu';
+const BibstemMenu = dynamic(
+  () =>
+    // eslint-disable-next-line
+    (import('./BibstemMenu') as any).then((module) => module.BibstemMenu),
+  { loading: () => <li>loading...</li>, ssr: false },
+) as (props: IBibstemMenuProps) => React.ReactElement;
 
 export interface IBibstemPickerProps {
   initialSelectedItems?: string[];
@@ -36,12 +42,6 @@ export const BibstemPicker = ({
     }
   }, [onChange, selectedItems]);
 
-  // memoize the items filtering (heavy operation)
-  const items = React.useMemo(() => searchBibstems(inputValue, selectedItems), [
-    inputValue,
-    selectedItems,
-  ]);
-
   // clear input value and set selected item on blur
   const onComboboxStateChange = ({
     inputValue,
@@ -66,6 +66,9 @@ export const BibstemPicker = ({
         break;
     }
   };
+
+  const [items, setItems] = React.useState<string[]>([]);
+  const handleItemsChange = (updatedItems) => setItems(updatedItems);
 
   const {
     isOpen,
@@ -108,51 +111,16 @@ export const BibstemPicker = ({
         />
       </div>
       <ul {...getMenuProps()}>
-        {isOpen &&
-          items.map((item, index) => {
-            const [bibstem, description] = item.split('$$');
-            return (
-              <li
-                key={`${item}${index}`}
-                {...getItemProps({ item, index })}
-                style={
-                  highlightedIndex === index
-                    ? { backgroundColor: '#bde4ff' }
-                    : {}
-                }
-                className="divide-y-0"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="text-lg">{bibstem}</div>
-                  <div className="text-gray-600 text-sm">{description}</div>
-                </div>
-              </li>
-            );
-          })}
+        {isOpen && (
+          <BibstemMenu
+            onItemsChange={handleItemsChange}
+            highlightedIndex={highlightedIndex}
+            getItemProps={getItemProps}
+            inputValue={inputValue}
+            selectedItems={selectedItems}
+          />
+        )}
       </ul>
     </div>
   );
-};
-
-/**
- * Filters the bibstems and returns a list of filtered items that start with the search string
- *
- * @param {string} searchString string to search bibstems
- * @param {string[]} itemsToOmit items to exclude from the search (e.g. already selected)
- * @return {*}  {string[]}
- */
-const searchBibstems = (
-  searchString: string,
-  itemsToOmit: string[],
-): string[] => {
-  const formatted = searchString.toLowerCase();
-  const values = chainFrom(bibstems)
-    .filter(
-      (bibstem) =>
-        !itemsToOmit.includes(bibstem) &&
-        bibstem.toLowerCase().startsWith(formatted),
-    )
-    .take(25)
-    .toArray();
-  return values;
 };

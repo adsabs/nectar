@@ -23,6 +23,11 @@ const port = process.env.PORT || 8000;
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     server.all('*', (req: Request, res: Response) => handle(req, res));
 
+    server.post('/test', (req: Request, res: Response) => {
+      console.log('test', req);
+      handle(req, res);
+    });
+
     server.listen(port, (err?: unknown) => {
       if (err) throw err;
 
