@@ -7,7 +7,7 @@ const ClassicForm: NextPage = () => {
   return (
     <form
       method="post"
-      action="/test"
+      action="/api/classicform"
       className="grid gap-6 grid-cols-6 mx-auto my-4 px-4 py-12 lg:max-w-3xl"
     >
       <h2 className="sr-only">Classic Form</h2>
@@ -173,7 +173,7 @@ const LogicRadios = ({
               <input
                 type="radio"
                 id={`logic_${normalizedName}_${id}`}
-                name={name}
+                name={`logic_${name}`}
                 defaultChecked={'and' === id}
                 className="w-4 h-4 text-blue-600 border-gray-300 rounded-lg focus:ring-blue-500"
               />
