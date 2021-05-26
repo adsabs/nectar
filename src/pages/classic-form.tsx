@@ -1,4 +1,4 @@
-import { BibstemPicker, Button } from '@components';
+import { BibstemPicker, Button, TextInput } from '@components';
 import clsx from 'clsx';
 import { NextPage } from 'next';
 import React from 'react';
@@ -48,7 +48,15 @@ const ClassicForm: NextPage = () => {
         </div>
       </fieldset>
       <div className="col-span-6">
-        <BibstemPicker />
+        {process.browser ? (
+          <BibstemPicker />
+        ) : (
+          <TextInput
+            name="bibstems"
+            label="Bibstems"
+            labelClasses="block text-gray-700 text-sm font-bold"
+          />
+        )}
       </div>
       <div className="col-span-6 md:col-span-1">
         <Button>Submit</Button>
@@ -167,28 +175,29 @@ const LogicRadios = ({
   return (
     <>
       <div className="relative flex flex-col sm:flex-row md:space-x-3">
-        {values[variant].map((id) => (
-          <div key={id}>
-            <div className="flex items-center h-5">
-              <input
-                type="radio"
-                id={`logic_${normalizedName}_${id}`}
-                name={`logic_${name}`}
-                defaultChecked={'and' === id}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded-lg focus:ring-blue-500"
-              />
+        {values[variant].map((id) => {
+          const fullId = `logic_${normalizedName}_${id}`;
+          return (
+            <div key={id}>
+              <div className="flex items-center h-5">
+                <input
+                  type="radio"
+                  id={fullId}
+                  value={id}
+                  name={`logic_${name}`}
+                  defaultChecked={'and' === id}
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded-lg focus:ring-blue-500"
+                />
 
-              <div className="ml-3 text-sm">
-                <label
-                  htmlFor={`logic_${normalizedName}_${id}`}
-                  className="text-gray-700 uppercase"
-                >
-                  {id}
-                </label>
+                <div className="ml-3 text-sm">
+                  <label htmlFor={fullId} className="text-gray-700 uppercase">
+                    {id}
+                  </label>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </>
   );

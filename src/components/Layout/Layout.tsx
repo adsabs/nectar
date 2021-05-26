@@ -16,7 +16,7 @@ export const Layout: FC<ILayoutProps> = ({ children, service }) => {
     router.asPath,
   );
   return (
-    <section className="flex flex-col font-sans bg-ads-base">
+    <section className="flex flex-col font-sans bg-gray-50">
       <NavBar />
       <main>
         {isLandingPages && <LandingTabs />}

@@ -18,10 +18,12 @@ const BibstemMenu = dynamic(
 export interface IBibstemPickerProps {
   initialSelectedItems?: string[];
   onChange?: (items: string[]) => void;
+  name?: string;
 }
 
 export const BibstemPicker = ({
   onChange,
+  name = 'bibstems',
   initialSelectedItems = [],
 }: IBibstemPickerProps): React.ReactElement => {
   const [inputValue, setInputValue] = React.useState('');
@@ -38,7 +40,7 @@ export const BibstemPicker = ({
   // trigger onChange, if necessary to parent component
   React.useEffect(() => {
     if (typeof onChange === 'function') {
-      onChange(selectedItems);
+      onChange(selectedItems.map((item) => item.split('$$')[0]));
     }
   }, [onChange, selectedItems]);
 
@@ -65,6 +67,11 @@ export const BibstemPicker = ({
       default:
         break;
     }
+  };
+
+  const renderHiddenInput = () => {
+    const value = selectedItems.map((item) => item.split('$$')[0]).join(',');
+    return <input type="hidden" name={name} value={value} />;
   };
 
   const [items, setItems] = React.useState<string[]>([]);
@@ -109,6 +116,7 @@ export const BibstemPicker = ({
         <TextInput
           {...getInputProps(getDropdownProps({ preventKeyAction: isOpen }))}
         />
+        {renderHiddenInput()}
       </div>
       <ul {...getMenuProps()}>
         {isOpen && (
