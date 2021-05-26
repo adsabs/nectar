@@ -4,20 +4,22 @@ import { v4 as uuidv4 } from 'uuid';
 export interface ITextInputProps extends HTMLAttributes<HTMLInputElement> {
   name?: string;
   label?: string;
-  inputClasses?: string;
-  labelClasses?: string;
+  classes?: {
+    input?: string;
+    label?: string;
+  };
 }
 
 export const TextInput = React.forwardRef<HTMLInputElement, ITextInputProps>(
   (props, ref): React.ReactElement => {
-    const { label, inputClasses, labelClasses, ...inputProps } = props;
+    const { label, classes = {}, ...inputProps } = props;
     const labelStyles =
-      typeof labelClasses === 'string'
-        ? labelClasses
-        : 'block text-gray-700 text-sm font-medium';
+      typeof classes.label === 'string'
+        ? classes.label
+        : 'block text-gray-700 text-sm font-bold';
     const inputStyles = clsx(
-      typeof inputClasses === 'string'
-        ? inputClasses
+      typeof classes.input === 'string'
+        ? classes.input
         : 'block w-full border-gray-300 focus:border-indigo-500 rounded-md shadow-sm focus:ring-indigo-500 sm:text-sm',
       props.className,
     );

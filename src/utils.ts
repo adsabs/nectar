@@ -1,3 +1,4 @@
+import { NextApiRequest, NextApiResponse } from 'next';
 import { ParsedUrlQuery } from 'node:querystring';
 
 export const normalizeURLParams = (
@@ -22,3 +23,16 @@ export const normalizeURLParams = (
     };
   }, {});
 };
+
+export const initMiddleware = (
+  middleware: (
+    req: NextApiRequest,
+    res: NextApiResponse,
+    cb: (result: unknown) => void,
+  ) => unknown,
+) => (req: NextApiRequest, res: NextApiResponse): Promise<unknown> =>
+  new Promise((resolve, reject) =>
+    middleware(req, res, (result) =>
+      result instanceof Error ? reject(result) : resolve(result),
+    ),
+  );

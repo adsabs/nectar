@@ -1,67 +1,74 @@
-import { BibstemPicker, Button, TextInput } from '@components';
+import { BibstemPicker, Button, Sort, TextInput } from '@components';
 import clsx from 'clsx';
 import { NextPage } from 'next';
 import React from 'react';
 
 const ClassicForm: NextPage = () => {
   return (
-    <form
-      method="post"
-      action="/api/classicform"
-      className="grid gap-6 grid-cols-6 mx-auto my-4 px-4 py-12 lg:max-w-3xl"
-    >
-      <h2 className="sr-only">Classic Form</h2>
-      <fieldset className="col-span-6">
-        <legend className="block pb-3 text-gray-700 text-sm font-bold">
-          Limit Query
-        </legend>
-        <div className="flex gap-4 mt-1 sm:col-span-2 sm:mt-0">
-          <Checkbox label="Astronomy" checked idPrefix="limit" />
-          <Checkbox label="Physics" idPrefix="limit" />
-          <Checkbox label="General" idPrefix="limit" />
+    <section aria-labelledby="form-title">
+      <form
+        method="post"
+        action="/api/classicform"
+        className="grid gap-6 grid-cols-6 mx-auto my-8 px-4 py-8 bg-white shadow sm:rounded-lg lg:max-w-3xl"
+      >
+        <h2 className="sr-only" id="form-title">
+          Classic Form
+        </h2>
+        <fieldset className="col-span-6">
+          <legend className="block pb-3 text-gray-700 text-sm font-bold">Limit Query</legend>
+          <div className="flex gap-4 justify-between mt-1 sm:col-span-2 sm:justify-start sm:mt-0">
+            <Checkbox label="Astronomy" checked idPrefix="limit" />
+            <Checkbox label="Physics" idPrefix="limit" />
+            <Checkbox label="General" idPrefix="limit" />
+          </div>
+        </fieldset>
+        <div className="col-span-6 sm:col-span-3">
+          <LogicAndTextarea label="Author" desc="Author names, enter (Last, First M) one per line" />
         </div>
-      </fieldset>
-      <div className="col-span-6 sm:col-span-3">
-        <LogicAndTextarea
-          label="Author"
-          desc="Author names, enter (Last, First M) one per line"
-        />
-      </div>
-      <div className="col-span-6 sm:col-span-3">
-        <LogicAndTextarea
-          label="Object"
-          desc="SIMBAD object search (one per line)"
-        />
-      </div>
-      <div className="col-span-6">
-        <LogicAndInput label="Title" />
-      </div>
-      <div className="col-span-6">
-        <LogicAndInput label="Abstract / Keywords" />
-      </div>
+        <div className="col-span-6 sm:col-span-3">
+          <LogicAndTextarea label="Object" desc="SIMBAD object search (one per line)" />
+        </div>
+        <div className="col-span-3">
+          <TextInput label="Publication date start (YYYY/MM)" name="pubdate_start" placeholder="YYYY/MM" />
+        </div>
+        <div className="col-span-3">
+          <TextInput label="Publication date end (YYYY/MM)" name="pubdate_end" placeholder="YYYY/MM" />
+        </div>
+        <div className="col-span-6">
+          <LogicAndInput label="Title" />
+        </div>
+        <div className="col-span-6">
+          <LogicAndInput label="Abstract / Keywords" />
+        </div>
 
-      <fieldset className="col-span-6">
-        <legend className="sr-only">Property</legend>
-        <div className="flex gap-4 mt-1 sm:col-span-2 sm:mt-0">
-          <Checkbox label="Refereed only" idPrefix="property" bold />
-          <Checkbox label="Physics" idPrefix="property" bold />
+        <fieldset className="col-span-6">
+          <legend className="sr-only">Property</legend>
+          <div className="flex gap-4 justify-between mt-1 sm:col-span-2 sm:justify-start sm:mt-0">
+            <Checkbox label="Refereed only" idPrefix="property" bold />
+            <Checkbox label="Physics" idPrefix="property" bold />
+          </div>
+        </fieldset>
+        <div className="col-span-6">
+          {process.browser ? (
+            <BibstemPicker />
+          ) : (
+            <TextInput
+              name="bibstems"
+              label="Bibstems"
+              classes={{
+                label: 'block text-gray-700 text-sm font-bold',
+              }}
+            />
+          )}
         </div>
-      </fieldset>
-      <div className="col-span-6">
-        {process.browser ? (
-          <BibstemPicker />
-        ) : (
-          <TextInput
-            name="bibstems"
-            label="Bibstems"
-            labelClasses="block text-gray-700 text-sm font-bold"
-          />
-        )}
-      </div>
-      <div className="col-span-6 md:col-span-1">
-        <Button>Submit</Button>
-      </div>
-    </form>
+        <div className="col-span-6">
+          <Sort name="sort" />
+        </div>
+        <div className="col-span-6 md:col-span-1">
+          <Button>Submit</Button>
+        </div>
+      </form>
+    </section>
   );
 };
 
@@ -70,10 +77,7 @@ const LogicAndTextarea = ({ label, desc }: { label: string; desc: string }) => {
   return (
     <div>
       <div className="flex">
-        <label
-          htmlFor={id}
-          className="block flex-1 text-gray-700 text-sm font-bold"
-        >
+        <label htmlFor={id} className="block flex-1 text-gray-700 text-sm font-bold">
           {label}
         </label>
         <LogicRadios name={id} variant="andor" />
@@ -125,26 +129,15 @@ const Checkbox = ({
   );
 };
 
-const LogicAndInput = ({
-  label,
-  noLogic,
-}: {
-  label: string;
-  noLogic?: boolean;
-}) => {
+const LogicAndInput = ({ label, noLogic }: { label: string; noLogic?: boolean }) => {
   const id = normalizeString(label);
   return (
     <div>
       <div className="flex">
-        <label
-          htmlFor={id}
-          className="block flex-1 text-gray-700 text-sm font-bold"
-        >
+        <label htmlFor={id} className="block flex-1 text-gray-700 text-sm font-bold">
           {label}
         </label>
-        {!noLogic && (
-          <LogicRadios name={normalizeString(label)} variant="all" />
-        )}
+        {!noLogic && <LogicRadios name={normalizeString(label)} variant="all" />}
       </div>
       <div className="mt-1">
         <input
@@ -159,13 +152,7 @@ const LogicAndInput = ({
   );
 };
 
-const LogicRadios = ({
-  name,
-  variant = 'andor',
-}: {
-  name: string;
-  variant: 'andor' | 'all';
-}) => {
+const LogicRadios = ({ name, variant = 'andor' }: { name: string; variant: 'andor' | 'all' }) => {
   const values = {
     andor: ['and', 'or'],
     all: ['and', 'or', 'boolean'],
@@ -209,7 +196,6 @@ const LogicRadios = ({
  * @param {string} raw string to be normalized
  * @returns {string} normalized string
  */
-const normalizeString = (raw: string) =>
-  raw.replace(/\W+/g, '_').toLowerCase().trim();
+const normalizeString = (raw: string) => raw.replace(/\W+/g, '_').toLowerCase().trim();
 
 export default ClassicForm;

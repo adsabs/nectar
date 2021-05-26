@@ -12,11 +12,9 @@ export interface ILayoutProps extends HTMLAttributes<HTMLDivElement> {
 
 export const Layout: FC<ILayoutProps> = ({ children, service }) => {
   const router = useRouter();
-  const isLandingPages = /^(\/|\/classic-form|\/paper-form)$/.exec(
-    router.asPath,
-  );
+  const isLandingPages = /^(\/|\/classic-form|\/paper-form)$/.exec(router.asPath);
   return (
-    <section className="flex flex-col font-sans bg-gray-50">
+    <section className="flex flex-col min-h-screen font-sans bg-gray-100">
       <NavBar />
       <main>
         {isLandingPages && <LandingTabs />}
