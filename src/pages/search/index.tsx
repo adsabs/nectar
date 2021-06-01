@@ -36,19 +36,11 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
   } = props;
 
   const form = React.useRef<HTMLFormElement>(null);
-  console.log('params', { props });
 
-  // const handleParamsChange = <P extends keyof IADSApiSearchParams>(param: P) => (value: IADSApiSearchParams[P]) => {
-  //   console.log('set params', param, value);
-  // };
-
-  // const handleSubmit = () => {
-  //   // service.send({ type: SearchMachineTransitionTypes['SEARCH'] });
-  // };
-
+  /**
+   * On sort change, submit the form
+   */
   const handleSortChange = (updatedSort: SolrSort[]) => {
-    console.log('submit', { sort, updatedSort });
-    console.trace('submitting');
     if (sort && sort[0] !== updatedSort[0]) {
       form.current.submit();
     }
@@ -68,60 +60,17 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
             <div className="flex-1">
               <SearchBar initialQuery={query} />
             </div>
-            <Sort sort={sort ? sort[0] : undefined} onChange={handleSortChange} />
+            <Sort sort={sort} onChange={handleSortChange} />
           </div>
           <NumFound count={numFound} />
-          <Filters />
+          {/* <Filters /> */}
         </div>
         <div className="col-span-6">
           <ResultList docs={docs} />
         </div>
+        <div className="col-span-6"></div>
       </form>
     </section>
-
-    // <form method="get" action="/search">
-    //   <div className="lg:flex lg:items-center lg:justify-between">
-    //     <div className="flex-1 min-w-0">
-    //       <BreadCrumbs />
-    //       <h2 className="mt-2 text-white text-2xl font-bold leading-7 sr-only sm:text-3xl sm:truncate">
-    //         Search Results
-    //       </h2>
-    //       <div className="flex items-center space-x-5">
-    //         <div className="flex-1">
-    //           <SearchBar initialQuery={query} />
-    //         </div>
-    //         <div>
-    //           <MenuButtons />
-    //         </div>
-    //       </div>
-    //       <NumFound count={numFound} />
-    // <div className="flex flex-col mt-1 sm:flex-row sm:flex-wrap sm:mt-1 sm:space-x-6">
-    //   <div className="inline-flex items-center px-2 py-1 text-indigo-800 text-xs font-medium bg-indigo-100 rounded">
-    //     <PlusCircleIcon className="mr-1.5 w-5 h-5 text-indigo-400" aria-hidden="true" />
-    //     Collection: Astronomy
-    //   </div>
-    // </div>
-    //       <div className="mt-1">
-    //         <ResultList docs={docs} loading={false} />
-    //       </div>
-    //     </div>
-    //   </div>
-    // </form>
-    // <form className="min-h-screen" onSubmit={handleSubmit} method="get" target="/search">
-    //   <h2 className="sr-only">Results</h2>
-    //   <div className="mt-6">
-    //     <SearchBar initialQuery={query} />
-    //     <NumFound count={numFound} />
-    //   </div>
-    //   <div className="flex my-3 space-x-2">
-    //     <div className="p-3 bg-white border rounded-md">
-    //       <Sort onChange={handleSubmit} sort={sort ? sort[0] : undefined} name="sort" />
-    //     </div>
-    //     <div className="flex-grow">
-    //       <ResultList docs={docs} loading={false} />
-    //     </div>
-    //   </div>
-    // </form>
   );
 };
 

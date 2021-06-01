@@ -2,8 +2,7 @@ import { isPast, parseISO } from 'date-fns';
 import { RequestHandler as Middleware } from 'express';
 import Adsapi, { IADSApiBootstrapData } from '../../src/api';
 
-const isExpired = (userData: IADSApiBootstrapData) =>
-  isPast(parseISO(userData.expire_in));
+const isExpired = (userData: IADSApiBootstrapData) => isPast(parseISO(userData.expire_in));
 
 export const api: Middleware = async (req, res, next) => {
   // grab reference to our current session from the request
