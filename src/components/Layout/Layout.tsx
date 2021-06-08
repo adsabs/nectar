@@ -1,5 +1,4 @@
 import { LandingTabs } from '@components/LandingTabs';
-import { rootService } from '@machines';
 import { useRouter } from 'next/router';
 import React, { FC, HTMLAttributes, ReactChild } from 'react';
 import { Footer } from '../Footer';
@@ -7,10 +6,9 @@ import { NavBar } from '../NavBar';
 
 export interface ILayoutProps extends HTMLAttributes<HTMLDivElement> {
   children?: ReactChild;
-  service: typeof rootService;
 }
 
-export const Layout: FC<ILayoutProps> = ({ children, service }) => {
+export const Layout: FC<ILayoutProps> = ({ children }) => {
   const router = useRouter();
   const isLandingPages = /^(\/|\/classic-form|\/paper-form)$/.exec(router.asPath);
   return (

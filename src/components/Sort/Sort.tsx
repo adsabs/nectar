@@ -3,15 +3,17 @@ import React, { useRef } from 'react';
 import { sortValues } from './model';
 export interface ISortProps {
   name?: string;
-  sort?: SolrSort;
+  sort?: SolrSort[];
   hideLabel?: boolean;
   onChange?: (sort: SolrSort[]) => void;
 }
 
 export const Sort = (props: ISortProps): React.ReactElement => {
-  const { sort, onChange, name = 'sort', hideLabel } = props;
+  const { sort: initialSort = ['date desc'], onChange, name = 'sort', hideLabel } = props;
+  const [sort, ...additionalSorts] = initialSort;
   const firstRender = useRef(true);
   const [selected, setSelected] = React.useState<[SolrSortField, SolrSortDirection]>(['date', 'desc']);
+
   React.useEffect(() => {
     if (sort) {
       // split the incoming sort to conform to tuple style
@@ -27,7 +29,7 @@ export const Sort = (props: ISortProps): React.ReactElement => {
     }
 
     if (typeof onChange === 'function') {
-      onChange([selected.join(' ') as SolrSort]);
+      onChange([selected.join(' ') as SolrSort, ...additionalSorts]);
     }
   }, [selected, onChange]);
 
@@ -39,6 +41,10 @@ export const Sort = (props: ISortProps): React.ReactElement => {
   const handleSortDirectionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.currentTarget.value as SolrSortDirection;
     setSelected([selected[0], val]);
+  };
+
+  const getSortsAsString = () => {
+    return [selected.join(' '), ...additionalSorts].join(',');
   };
 
   const [sortValue, sortDirection] = selected;
@@ -71,7 +77,7 @@ export const Sort = (props: ISortProps): React.ReactElement => {
           <option value="asc">asc</option>
           <option value="desc">desc</option>
         </select>
-        <input type="hidden" name={name} value={selected.join(' ')} />
+        <input type="hidden" name={name} value={getSortsAsString()} />
       </div>
     </div>
   );

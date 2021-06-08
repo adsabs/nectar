@@ -27,6 +27,59 @@ export interface IADSApiSearchResponse {
   };
 }
 
+export enum Esources {
+  INSTITUTION = 'INSTITUTION',
+  AcA = 'AcA',
+  ADS_PDF = 'ADS_PDF',
+  ADS_SCAN = 'ADS_SCAN',
+  ALMA = 'ALMA',
+  ARI = 'ARI',
+  Astroverse = 'Astroverse',
+  ATNF = 'ATNF',
+  Author = 'Author',
+  AUTHOR_HTML = 'AUTHOR_HTML',
+  AUTHOR_PDF = 'AUTHOR_PDF',
+  BAVJ = 'BAVJ',
+  BICEP2 = 'BICEP2',
+  CADC = 'CADC',
+  CDS = 'CDS',
+  Chandra = 'Chandra',
+  Dryad = 'Dryad',
+  EPRINT_HTML = 'EPRINT_HTML',
+  EPRINT_PDF = 'EPRINT_PDF',
+  ESA = 'ESA',
+  ESO = 'ESO',
+  Figshare = 'Figshare',
+  GCPD = 'GCPD',
+  Github = 'Github',
+  GTC = 'GTC',
+  HEASARC = 'HEASARC',
+  Herschel = 'Herschel',
+  IBVS = 'IBVS',
+  INES = 'INES',
+  IRSA = 'IRSA',
+  ISO = 'ISO',
+  JWST = 'JWST',
+  KOA = 'KOA',
+  MAST = 'MAST',
+  NED = 'NED',
+  NExScI = 'NExScI',
+  NOAO = 'NOAO',
+  PANGAEA = 'PANGAEA',
+  PASA = 'PASA',
+  PDG = 'PDG',
+  PDS = 'PDS',
+  protocols = 'protocols',
+  PUB_HTML = 'PUB_HTML',
+  PUB_PDF = 'PUB_PDF',
+  SIMBAD = 'SIMBAD',
+  Spitzer = 'Spitzer',
+  TNS = 'TNS',
+  Vizier = 'Vizier',
+  XMM = 'XMM',
+  Zenodo = 'Zenodo',
+}
+
 export interface IDocsEntity {
   abstract: string;
   ack: string;
@@ -52,7 +105,7 @@ export interface IDocsEntity {
   classic_factor: string;
   comment: string;
   copyright: string;
-  data: string;
+  data: string[];
   data_facet: string;
   database: string;
   date: string;
@@ -63,7 +116,7 @@ export interface IDocsEntity {
   email: string;
   entdate: string;
   entry_date: string;
-  esources: string;
+  esources: Esources[];
   facility: string;
   first_author: string;
   first_author_facet_hier: string;
@@ -85,7 +138,7 @@ export interface IDocsEntity {
   keyword_norm: string;
   keyword_schema: string;
   lang: string;
-  links_data: string;
+  links_data: string[];
   nedid: string;
   nedtype: string;
   nedtype_object_facet_hier: string;
@@ -95,7 +148,7 @@ export interface IDocsEntity {
   page: string;
   page_count: string;
   page_range: string;
-  property: string;
+  property: string[];
   pub: string;
   pub_raw: string;
   pubdate: string;
