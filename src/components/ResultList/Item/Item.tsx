@@ -8,10 +8,11 @@ import { itemMachine, ItemMachine } from './machine/item';
 interface IItemProps {
   doc: Pick<IDocsEntity, 'id' | 'bibcode'> & Partial<IDocsEntity>;
   index: number;
+  hideCheckbox: boolean;
 }
 
 export const Item = (props: IItemProps): React.ReactElement => {
-  const { doc, index } = props;
+  const { doc, index, hideCheckbox = false } = props;
   const { bibcode, pubdate, title = 'Untitled', author = [], id } = doc;
   const [state, send] = useMachine(itemMachine.withContext({ id }), {
     devTools: true,
@@ -23,18 +24,18 @@ export const Item = (props: IItemProps): React.ReactElement => {
 
   return (
     <div className="flex px-2 py-1 bg-white border rounded-md">
-      <div className="hidden items-center justify-center mr-3 md:flex">
-        {index}
-      </div>
-      <div className="hidden items-center justify-center mr-3 md:flex">
-        <input
-          type="checkbox"
-          name={`result-checkbox-${index}`}
-          id={`result-checkbox-${index}`}
-          onChange={handleSelect}
-          checked={state.matches('selected')}
-        />
-      </div>
+      <div className="hidden items-center justify-center mr-3 md:flex">{index}</div>
+      {hideCheckbox ? null : (
+        <div className="hidden items-center justify-center mr-3 md:flex">
+          <input
+            type="checkbox"
+            name={`result-checkbox-${index}`}
+            id={`result-checkbox-${index}`}
+            onChange={handleSelect}
+            checked={state.matches('selected')}
+          />
+        </div>
+      )}
       <div className="flex flex-1 flex-col">
         <div className="flex justify-between">
           <Link href={`/abs/${bibcode}`}>
@@ -47,9 +48,7 @@ export const Item = (props: IItemProps): React.ReactElement => {
             <h3>{title}</h3>
           </a>
         </Link>
-        {author.length > 0 && (
-          <div className="text-xs">{author.slice(0, 3).join('; ')}</div>
-        )}
+        {author.length > 0 && <div className="text-xs">{author.slice(0, 3).join('; ')}</div>}
         <div className="flex">
           <AbstractPreview id={id} />
         </div>

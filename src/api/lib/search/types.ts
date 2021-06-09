@@ -100,10 +100,14 @@ export interface IDocsEntity {
   bibstem_facet: string;
   body: string;
   citation: string;
+  '[citations]': {
+    num_citations: number;
+    num_references: number;
+  };
   citation_count: string;
   cite_read_boost: string;
   classic_factor: string;
-  comment: string;
+  comment: string[];
   copyright: string;
   data: string[];
   data_facet: string;
@@ -133,7 +137,7 @@ export interface IDocsEntity {
   isbn: string;
   issn: string;
   issue: string;
-  keyword: string;
+  keyword: string[];
   keyword_facet: string;
   keyword_norm: string;
   keyword_schema: string;
@@ -157,6 +161,7 @@ export interface IDocsEntity {
   reader: string;
   recid: string;
   reference: string;
+  references_count: number;
   simbad_object_facet_hier: string;
   simbid: string;
   simbtype: string;
