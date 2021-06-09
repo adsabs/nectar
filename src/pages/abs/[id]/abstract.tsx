@@ -1,6 +1,7 @@
 import AdsApi, { IADSApiBootstrapData, IDocsEntity, SolrSort } from '@api';
 import { AbstractSideNav, AbstractSources } from '@components';
-// import katex from 'katex';
+import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
+import { LinkIcon } from '@heroicons/react/solid';
 import { GetServerSideProps, NextPage } from 'next';
 import { isNil } from 'ramda';
 import React from 'react';
@@ -15,14 +16,20 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props) => {
   const { doc, error } = props;
 
   return (
-    <div className="flex space-x-2">
-      <AbstractSideNav />
-      <section aria-labelledby="title" className="flex-1 my-8 px-4 py-8 w-full bg-white shadow sm:rounded-lg">
-        <div className="border-b border-gray-200 sm:pb-0 md:pb-3">
+    <section className="flex space-x-2">
+      <AbstractSideNav doc={doc} />
+      <article aria-labelledby="title" className="flex-1 my-8 px-4 py-8 w-full bg-white shadow sm:rounded-lg">
+        <div className="pb-1 border-b border-gray-200">
           <h2 className="prose-xl text-gray-900 font-medium leading-6" id="title">
             {doc.title}
           </h2>
           <div className="prose-sm text-gray-700">{doc.author.join('; ')}</div>
+          <a
+            href="#sources"
+            className="inline-flex items-center px-2.5 py-1.5 text-gray-700 text-xs font-medium hover:bg-gray-50 bg-white border border-gray-300 rounded focus:outline-none shadow-sm focus:ring-indigo-500 focus:ring-offset-2 focus:ring-2"
+          >
+            <LinkIcon className="mr-1 w-3 h-3" /> Jump to links
+          </a>
         </div>
         {isNil(doc.abstract) ? (
           <div className="prose-lg p-3">No Abstract</div>
@@ -30,8 +37,8 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props) => {
           <div className="prose-lg p-3" dangerouslySetInnerHTML={{ __html: doc.abstract }}></div>
         )}
         <Details doc={doc} />
-      </section>
-    </div>
+      </article>
+    </section>
   );
 };
 
@@ -58,7 +65,9 @@ const Details = ({ doc }: IDetailsProps) => {
           {entries.map(({ label, value }) => (
             <div key={label} className="py-4 sm:grid sm:gap-4 sm:grid-cols-3 sm:px-6 sm:py-5">
               <dt className="text-gray-500 text-sm font-medium">{label}</dt>
-              <dd className="mt-1 text-gray-900 text-sm sm:col-span-2 sm:mt-0">{value}</dd>
+              <dd className="mt-1 text-gray-900 text-sm sm:col-span-2 sm:mt-0">
+                {Array.isArray(value) ? value.join('; ') : value}
+              </dd>
             </div>
           ))}
         </dl>
@@ -75,6 +84,7 @@ export const getServerSideProps: GetServerSideProps<IAbstractPageProps> = async 
   const params = {
     q: `identifier:${query.id}`,
     fl: [
+      ...abstractPageNavDefaultQueryFields,
       'bibcode',
       'title',
       'author',
@@ -100,18 +110,9 @@ export const getServerSideProps: GetServerSideProps<IAbstractPageProps> = async 
   }
 
   const doc = result.value.docs[0];
-  // try {
-  //   // attempt to render any math on the abstract
-  //   return {
-  //     props: {
-  //       doc: { ...doc, abstract: katex.renderToString(String.raw`${doc.abstract}`, { throwOnError: true }) },
-  //     },
-  //   };
-  // } catch (e) {
   return {
     props: {
       doc,
     },
   };
-  // }
 };

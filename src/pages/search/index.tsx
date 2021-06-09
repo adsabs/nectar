@@ -146,7 +146,6 @@ const MenuButtons = () => (
 );
 
 export const getServerSideProps: GetServerSideProps<Omit<ISearchPageProps, 'service'>> = async (ctx) => {
-  console.log('query', ctx.query);
   const query = normalizeURLParams(ctx.query);
 
   const request = ctx.req as typeof ctx.req & {

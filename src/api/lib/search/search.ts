@@ -1,17 +1,11 @@
-import { AxiosRequestConfig } from 'axios';
+import { AxiosError, AxiosRequestConfig } from 'axios';
 import { err, ok, Result } from 'neverthrow';
 import { ApiTargets } from '../models';
 import { Service } from '../service';
-import {
-  IADSApiSearchParams,
-  IADSApiSearchResponse,
-  INormalizedADSApiSearchParams,
-} from './types';
+import { IADSApiSearchParams, IADSApiSearchResponse, INormalizedADSApiSearchParams } from './types';
 
 export class SearchService extends Service {
-  private normalizeParams(
-    params: IADSApiSearchParams,
-  ): INormalizedADSApiSearchParams {
+  private normalizeParams(params: IADSApiSearchParams): INormalizedADSApiSearchParams {
     return {
       ...params,
       sort: params.sort?.join(','),
@@ -19,9 +13,7 @@ export class SearchService extends Service {
     };
   }
 
-  async query(
-    rawParams: IADSApiSearchParams,
-  ): Promise<Result<IADSApiSearchResponse['response'], Error>> {
+  async query(rawParams: IADSApiSearchParams): Promise<Result<IADSApiSearchResponse['response'], Error | AxiosError>> {
     const params = this.normalizeParams(rawParams);
     const config: AxiosRequestConfig = {
       method: 'get',
@@ -34,10 +26,10 @@ export class SearchService extends Service {
         (result) => {
           result.match(
             ({ response }) => resolve(ok(response)),
-            (e) => resolve(err(e)),
+            (e: Error | AxiosError) => resolve(err(e)),
           );
         },
-        (e) => resolve(err(e)),
+        (e: Error | AxiosError) => resolve(err(e)),
       );
     });
   }
