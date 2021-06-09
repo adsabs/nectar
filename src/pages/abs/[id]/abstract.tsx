@@ -3,6 +3,7 @@ import { AbstractSideNav, AbstractSources } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 import { LinkIcon } from '@heroicons/react/solid';
 import { GetServerSideProps, NextPage } from 'next';
+import Head from 'next/head';
 import { isNil } from 'ramda';
 import React from 'react';
 import { normalizeURLParams } from 'src/utils';
@@ -17,9 +18,12 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props) => {
 
   return (
     <section className="flex space-x-2">
+      <Head>
+        <title>{doc.title}</title>
+      </Head>
       <AbstractSideNav doc={doc} />
       <article aria-labelledby="title" className="flex-1 my-8 px-4 py-8 w-full bg-white shadow sm:rounded-lg">
-        <div className="pb-1 border-b border-gray-200">
+        <div className="pb-1">
           <h2 className="prose-xl text-gray-900 font-medium leading-6" id="title">
             {doc.title}
           </h2>
@@ -58,23 +62,40 @@ const Details = ({ doc }: IDetailsProps) => {
   ];
 
   return (
-    <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-      <div className="px-4 py-5 border-t border-gray-200 sm:p-0">
-        <AbstractSources doc={doc} />
-        <dl className="sm:divide-gray-200 sm:divide-y">
-          {entries.map(({ label, value }) => (
-            <div key={label} className="py-4 sm:grid sm:gap-4 sm:grid-cols-3 sm:px-6 sm:py-5">
-              <dt className="text-gray-500 text-sm font-medium">{label}</dt>
-              <dd className="mt-1 text-gray-900 text-sm sm:col-span-2 sm:mt-0">
-                {Array.isArray(value) ? value.join('; ') : value}
-              </dd>
-            </div>
-          ))}
-        </dl>
+    <section>
+      <Section label="Sources" />
+      <AbstractSources doc={doc} />
+      <Section label="Export" />
+      <Section label="Details" />
+      <div className="mt-2 bg-white border border-gray-100 rounded-lg shadow overflow-hidden">
+        <div className="px-4 py-5 sm:p-0">
+          <dl className="sm:divide-gray-200 sm:divide-y">
+            {entries.map(({ label, value }) => (
+              <div key={label} className="py-4 sm:grid sm:gap-4 sm:grid-cols-3 sm:px-6 sm:py-5">
+                <dt className="text-gray-500 text-sm font-medium">{label}</dt>
+                <dd className="mt-1 text-gray-900 text-sm sm:col-span-2 sm:mt-0">
+                  {Array.isArray(value) ? value.join('; ') : value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
       </div>
-    </div>
+    </section>
   );
 };
+
+const Section = ({ label }: { label: string }) => (
+  <div className="relative">
+    <div className="absolute inset-0 flex items-center" aria-hidden="true">
+      <div className="w-full border-t border-gray-300" />
+    </div>
+    <div className="relative flex justify-start">
+      <span className="pr-3 text-gray-900 text-lg font-medium bg-white">{label}</span>
+    </div>
+  </div>
+);
+
 export const getServerSideProps: GetServerSideProps<IAbstractPageProps> = async (ctx) => {
   const query = normalizeURLParams(ctx.query);
   const request = ctx.req as typeof ctx.req & {

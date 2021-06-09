@@ -41,7 +41,7 @@ export const AbstractSources = ({ doc }: IAbstractSourcesProps): React.ReactElem
     );
   };
 
-  return <div className="py-4 border-b border-gray-200 sm:px-6 sm:py-5">{renderSources()}</div>;
+  return <div className="sm:px-6 sm:py-5">{renderSources()}</div>;
 };
 
 interface IFullTextSourceProps {

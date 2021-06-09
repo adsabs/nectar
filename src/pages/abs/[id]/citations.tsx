@@ -3,6 +3,7 @@ import { AbstractSideNav, ResultList } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
+import Head from 'next/head';
 import React from 'react';
 import { normalizeURLParams } from 'src/utils';
 
@@ -19,11 +20,14 @@ const CitationsPage: NextPage<ICitationsPageProps> = (props) => {
 
   return (
     <section className="flex space-x-2">
+      <Head>
+        <title>Citations | {originalDoc.title}</title>
+      </Head>
       <AbstractSideNav doc={originalDoc} />
       <article aria-labelledby="title" className="flex-1 my-8 px-4 py-8 w-full bg-white shadow sm:rounded-lg">
         <div className="border-b border-gray-200 sm:pb-0 md:pb-3">
           <h2 className="prose-xl text-gray-900 font-medium leading-6" id="title">
-            <em>Papers the cite</em> {originalDoc.title}
+            <em>Papers that cite</em> {originalDoc.title}
           </h2>
         </div>
         <ResultList docs={docs} hideCheckboxes={true} />

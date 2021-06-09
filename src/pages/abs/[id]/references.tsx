@@ -2,6 +2,7 @@ import AdsApi, { IADSApiBootstrapData, IADSApiSearchParams, IDocsEntity } from '
 import { AbstractSideNav, ResultList } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 import { GetServerSideProps, NextPage } from 'next';
+import Head from 'next/head';
 import React from 'react';
 import { normalizeURLParams } from 'src/utils';
 
@@ -18,6 +19,9 @@ const ReferencesPage: NextPage<ICitationsPageProps> = (props) => {
 
   return (
     <section className="flex space-x-2">
+      <Head>
+        <title>References | {originalDoc.title}</title>
+      </Head>
       <AbstractSideNav doc={originalDoc} />
       <article aria-labelledby="title" className="flex-1 my-8 px-4 py-8 w-full bg-white shadow sm:rounded-lg">
         <div className="border-b border-gray-200 sm:pb-0 md:pb-3">
