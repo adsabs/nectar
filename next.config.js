@@ -2,7 +2,10 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 });
 
-module.exports = withBundleAnalyzer({
+/**
+ * @type {import('next/dist/next-server/server/config').NextConfig}
+ **/
+const config = {
   poweredByHeader: false,
   reactStrictMode: true,
   async redirects() {
@@ -14,4 +17,9 @@ module.exports = withBundleAnalyzer({
       },
     ];
   },
-});
+  publicRuntimeConfig: {
+    apiHost: process.env.API_HOST,
+  },
+};
+
+module.exports = withBundleAnalyzer(config);
