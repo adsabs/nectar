@@ -1,3 +1,4 @@
+import { SolrSort } from '@api';
 import { BibstemPicker, Button, Sort, TextInput } from '@components';
 import { ClassicformController, RawClassicFormParams } from '@controllers/classicformController';
 import clsx from 'clsx';
@@ -21,16 +22,18 @@ const ClassicForm: NextPage = () => {
   const [formData, setFormData] = useReducer(formReducer, {});
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.currentTarget;
-
     setFormData({ name, value });
   };
+  const handleSortChange = React.useCallback(
+    (sort: SolrSort[]) => {
+      setFormData({ name: 'sort', value: sort.join(',') });
+    },
+    [setFormData],
+  );
   const handleOnSubmit = (e: React.ChangeEvent<HTMLFormElement>): void => {
     e.preventDefault();
-
-    console.log('formData', formData);
     const controller = new ClassicformController(formData as RawClassicFormParams);
-    console.log({ query: controller.getQuery() });
-    // void Router.push(`/search?${controller.getQuery()}`);
+    void Router.push(`/search?${controller.getQuery()}`);
   };
 
   return (
@@ -107,7 +110,7 @@ const ClassicForm: NextPage = () => {
           )}
         </div>
         <div className="col-span-6">
-          <Sort name="sort" />
+          <Sort name="sort" onChange={handleSortChange} />
         </div>
         <div className="col-span-6 md:col-span-1">
           <Button>Submit</Button>
