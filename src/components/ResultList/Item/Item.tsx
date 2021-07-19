@@ -24,9 +24,9 @@ export const Item = (props: IItemProps): React.ReactElement => {
 
   return (
     <div className="flex px-2 py-1 bg-white border rounded-md">
-      <div className="hidden items-center justify-center mr-3 md:flex">{index}</div>
+      <div className="items-center justify-center hidden mr-3 md:flex">{index}</div>
       {hideCheckbox ? null : (
-        <div className="hidden items-center justify-center mr-3 md:flex">
+        <div className="items-center justify-center hidden mr-3 md:flex">
           <input
             type="checkbox"
             name={`result-checkbox-${index}`}
@@ -36,16 +36,16 @@ export const Item = (props: IItemProps): React.ReactElement => {
           />
         </div>
       )}
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-col flex-1">
         <div className="flex justify-between">
           <Link href={`/abs/${bibcode}`}>
-            <a className="hover:underline text-xs">{bibcode}</a>
+            <a className="text-xs hover:underline">{bibcode}</a>
           </Link>
           {pubdate && <div className="text-xs">{pubdate}</div>}
         </div>
         <Link href={`/abs/${bibcode}`}>
-          <a className="text-blue-700 hover:underline text-lg">
-            <h3>{title}</h3>
+          <a className="text-blue-700 hover:underline">
+            <h3 className="text-lg" dangerouslySetInnerHTML={{ __html: title }}></h3>
           </a>
         </Link>
         {author.length > 0 && <div className="text-xs">{author.slice(0, 3).join('; ')}</div>}
