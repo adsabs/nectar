@@ -1,10 +1,4 @@
-import {
-  assign,
-  interpret,
-  Machine,
-  MachineConfig,
-  MachineOptions,
-} from 'xstate';
+import { assign, interpret, Machine, MachineConfig, MachineOptions } from 'xstate';
 import {
   Context,
   Schema,
@@ -74,7 +68,7 @@ const options: Partial<MachineOptions<Context, any>> = {
 
 const machine = Machine<Context, Schema, Transition>(config, options);
 
-export const service = interpret(machine);
+export const service = interpret(machine, { devTools: true });
 
 // start the interpreted machine
 service.start();

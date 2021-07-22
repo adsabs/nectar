@@ -12,12 +12,17 @@ export interface IResultListProps {
 export const ResultList = (props: IResultListProps): React.ReactElement => {
   const { docs = [], loading = false, hideCheckboxes = false } = props;
 
-  let list;
-  if (loading) {
-    list = <Skeleton count={10} />;
-  } else {
-    list = docs.map((doc, index) => <Item doc={doc} key={doc.id} index={index + 1} hideCheckbox={hideCheckboxes} />);
-  }
+  console.log('resultlist', docs);
 
-  return <div className="flex flex-col mt-1 space-y-1">{list}</div>;
+  return (
+    <div className="flex flex-col mt-1 space-y-1">
+      {loading ? (
+        <Skeleton count={10} />
+      ) : docs.length > 0 ? (
+        docs.map((doc, index) => <Item doc={doc} key={doc.id} index={index + 1} hideCheckbox={hideCheckboxes} />)
+      ) : (
+        <div className="flex items-center justify-center text-lg">No Results Found</div>
+      )}
+    </div>
+  );
 };

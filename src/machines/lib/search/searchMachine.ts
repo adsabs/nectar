@@ -4,13 +4,7 @@
 import Adsapi from '@api';
 import { assign, Machine, MachineConfig, MachineOptions } from 'xstate';
 import { rootService, RootTransitionType } from '../root';
-import {
-  Context,
-  Schema,
-  SET_PARAMS,
-  Transition,
-  TransitionType,
-} from './types';
+import { Context, Schema, SET_PARAMS, Transition, TransitionType } from './types';
 
 export const initialContext: Context = {
   params: {
@@ -101,12 +95,9 @@ const config: MachineConfig<Context, Schema, Transition> = {
 
 const options: Partial<MachineOptions<Context, any>> = {
   guards: {
-    validQuery: (ctx) =>
-      typeof ctx.params.q === 'string' && ctx.params.q.length > 0,
+    validQuery: (ctx) => typeof ctx.params.q === 'string' && ctx.params.q.length > 0,
     sortHasChanged: (ctx, evt) =>
-      Object.keys(evt.payload.params).includes('sort') &&
-      typeof ctx.params.q === 'string' &&
-      ctx.params.q.length > 0,
+      Object.keys(evt.payload.params).includes('sort') && typeof ctx.params.q === 'string' && ctx.params.q.length > 0,
   },
   services: {
     fetchResult: async (ctx) => {
@@ -126,14 +117,7 @@ const options: Partial<MachineOptions<Context, any>> = {
 
       const result = await adsapi.search.query({
         q: ctx.params.q,
-        fl: [
-          'bibcode',
-          'title',
-          'author',
-          '[fields author=3]',
-          'author_count',
-          'pubdate',
-        ],
+        fl: ['bibcode', 'title', 'author', '[fields author=3]', 'author_count', 'pubdate'],
         sort: ctx.params.sort,
       });
 
@@ -142,7 +126,7 @@ const options: Partial<MachineOptions<Context, any>> = {
       }
 
       const { docs, numFound } = result.value;
-      return { ...ctx, result: { docs, numFound } };
+      return { docs, numFound };
     },
   },
   actions: {
@@ -159,7 +143,7 @@ const options: Partial<MachineOptions<Context, any>> = {
       error: (_ctx, evt) => evt.data,
     }),
     reset: assign({
-      error: (_ctx, _evt) => initialContext.error,
+      error: () => initialContext.error,
     }),
   },
 };
@@ -178,7 +162,4 @@ const sendResultToRoot = (result: Context['result']) => {
   ]);
 };
 
-export const searchMachine = Machine<Context, Schema, Transition>(
-  config,
-  options,
-);
+export const searchMachine = Machine<Context, Schema, Transition>(config, options);

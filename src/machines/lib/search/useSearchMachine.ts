@@ -11,23 +11,20 @@ export interface IUseSearchMachineProps {
 export function useSearchMachine(props: IUseSearchMachineProps = {}) {
   const { initialResult, initialParams } = props;
 
-  const service = useInterpret<Context, Transition>(
-    searchMachine.withContext({
-      ...initialContext,
-      ...(initialResult && { result: initialResult }),
-      ...(initialParams && { params: initialParams }),
-    }),
-    { devTools: true },
-  );
+  const initialState = {
+    ...initialContext,
+    ...(initialResult && { result: initialResult }),
+    ...(initialParams && { params: initialParams }),
+  };
+  const service = useInterpret<Context, Transition>(searchMachine.withContext(initialState), { devTools: true });
 
-  service.onTransition((state) => {
-    console.log(state);
-  });
+  const state = {
+    service,
+    result: useSelector(service, (state) => state.context.result),
+    error: useSelector(service, (state) => state.context.error),
+    isLoading: useSelector(service, (state) => state.matches('fetching')),
+    isFailure: useSelector(service, (state) => state.matches('failure')),
+  };
 
-  const result = useSelector(service, (state) => state.context.result);
-  const error = useSelector(service, (state) => state.context.error);
-  const isLoading = useSelector(service, (state) => state.matches('fetching'));
-  const isFailure = useSelector(service, (state) => state.matches('failure'));
-
-  return { service, result, error, isLoading, isFailure };
+  return state;
 }
