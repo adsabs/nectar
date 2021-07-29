@@ -6,17 +6,15 @@ import { Skeleton } from './Skeleton';
 export interface IResultListProps {
   docs: IDocsEntity[];
   hideCheckboxes?: boolean;
-  loading?: boolean;
+  isLoading?: boolean;
 }
 
 export const ResultList = (props: IResultListProps): React.ReactElement => {
-  const { docs = [], loading = false, hideCheckboxes = false } = props;
-
-  console.log('resultlist', docs);
+  const { docs = [], isLoading = false, hideCheckboxes = false } = props;
 
   return (
     <div className="flex flex-col mt-1 space-y-1">
-      {loading ? (
+      {isLoading ? (
         <Skeleton count={10} />
       ) : docs.length > 0 ? (
         docs.map((doc, index) => <Item doc={doc} key={doc.id} index={index + 1} hideCheckbox={hideCheckboxes} />)

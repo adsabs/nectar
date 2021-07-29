@@ -1,16 +1,14 @@
-import AdsApi, { IADSApiBootstrapData, IDocsEntity, SolrSort } from '@api';
+import AdsApi, { IADSApiSearchParams, IDocsEntity, SolrSort } from '@api';
 import { NumFound, ResultList, SearchBar, Sort } from '@components';
-import { rootInitialContext, rootService, RootTransitionType, useSearchMachine } from '@machines';
-import { TransitionType } from '@machines/lib/search/types';
-import { NectarPage } from '@types';
-import { GetServerSideProps, NextPage } from 'next';
-import { useRouter } from 'next/router';
-import React, { useEffect } from 'react';
-import { normalizeURLParams } from '../../utils';
+import { INectarPageProps, withNectarPage } from '@hocs/withNectarPage';
+import { useSearchMachine } from '@machines';
+import { ISearchMachine, TransitionType } from '@machines/lib/search/types';
+import { normalizeURLParams, withNectarSessionData } from '@utils';
+import { useSelector } from '@xstate/react';
+import React, { ChangeEvent, useCallback } from 'react';
 
-interface ISearchPageProps extends NectarPage {
+interface ISearchPageProps extends INectarPageProps {
   error?: string;
-  userData: IADSApiBootstrapData;
   params: {
     q: string;
     fl?: string[];
@@ -22,171 +20,110 @@ interface ISearchPageProps extends NectarPage {
   };
 }
 
-// interface SearchPageState {
-//   query: string;
-//   sort: SolrSort[];
-// }
-
-// type SearchPageActions =
-//   | { type: 'SET_SORT'; value: SearchPageState['sort'] }
-//   | { type: 'SET_QUERY'; value: SearchPageState['query'] };
-
-// const searchPageReducer: Reducer<SearchPageState, SearchPageActions> = (state, action) => {
-//   switch (action.type) {
-//     case 'SET_SORT':
-//       return { ...state, sort: action.value };
-//     case 'SET_QUERY':
-//       return { ...state, query: action.value };
-//   }
-// };
-
-const SearchPage: NextPage<ISearchPageProps> = (props) => {
+const SearchPage = withNectarPage<ISearchPageProps>((props) => {
   const {
-    userData,
-    params: { q: query = '', sort = ['date desc'] },
+    params: { q, sort = ['date desc'] },
     docs = [],
     meta: { numFound = 0 },
+    error,
   } = props;
-  rootService.send(RootTransitionType.SET_USER_DATA, { payload: userData });
-  const Router = useRouter();
-  const form = React.useRef<HTMLFormElement>(null);
+
+  console.log('search page props', props);
+
+  return <Form params={{ q, sort }} serverResult={{ docs, numFound }} />;
+});
+
+interface IFormProps {
+  params: IADSApiSearchParams;
+  serverResult: {
+    docs: IDocsEntity[];
+    numFound: number;
+  };
+}
+const Form = (props: IFormProps): React.ReactElement => {
+  const {
+    params: { q: query, sort },
+    serverResult: { docs, numFound },
+  } = props;
+
+  // initialize the search machine that will run all the business logic
   const { service: searchService, result, error, isLoading, isFailure } = useSearchMachine({
     initialParams: { q: query, sort },
     initialResult: { docs, numFound },
   });
 
-  const updateRoute = () => {
-    const { q, sort } = searchService.state.context.params;
-    console.log('updating route', { q, sort });
-    void Router.push(`/search?q=${q}&sort=${sort.join(',')}`, undefined, { shallow: true });
-  };
-
-  // update route on initial render
-  useEffect(() => {
-    updateRoute();
-  }, [query, sort]);
-
   /**
-   * On sort change, submit the form
+   * update route and start searching
    */
-  const handleSortChange = React.useCallback((newSort: SolrSort[]) => {
-    searchService.send({ type: TransitionType.SET_PARAMS, payload: { params: { sort: newSort } } });
-  }, []);
-
-  // let service know the query changed, this is updated on keydown
-  const handleQueryChange = React.useCallback((newQuery: string) => {
-    searchService.send({ type: TransitionType.SET_PARAMS, payload: { params: { q: newQuery } } });
-  }, []);
-
-  // update route and start searching
-  const handleOnSubmit = (e: React.ChangeEvent<HTMLFormElement>) => {
+  const handleOnSubmit = (e: ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
-    updateRoute();
     searchService.send(TransitionType.SEARCH);
   };
 
   return (
-    <Form
-      ref={form}
-      onSubmit={handleOnSubmit}
-      onQueryChange={handleQueryChange}
-      onSortChange={handleSortChange}
-      sort={sort}
-      query={query}
-      numFound={result.numFound}
-      isFetching={isLoading}
-      isFailure={isFailure}
-      error={isFailure ? error.message : undefined}
-      docs={result.docs as IDocsEntity[]}
-    />
+    <section aria-labelledby="form-title">
+      <form
+        method="get"
+        action="/search"
+        onSubmit={handleOnSubmit}
+        className="grid grid-cols-6 gap-2 px-4 py-8 mx-auto my-8 bg-white shadow sm:rounded-lg lg:max-w-7xl"
+      >
+        <h2 className="sr-only" id="form-title">
+          Search Results
+        </h2>
+        <div className="col-span-6">
+          <div className="flex items-center space-x-3">
+            <div className="flex-1">
+              <SearchBar service={searchService} />
+            </div>
+            <SortWrapper service={searchService} />
+          </div>
+          <NumFound count={result.numFound} />
+          {/* <Filters /> */}
+        </div>
+        <div className="col-span-6">
+          {isFailure ? (
+            <div className="flex flex-col p-3 mt-1 space-y-1 border-2 border-red-600">
+              <div className="flex items-center justify-center text-lg text-red-600">{error}</div>
+            </div>
+          ) : (
+            <ResultList isLoading={isLoading} docs={result.docs as IDocsEntity[]} />
+          )}
+        </div>
+        <div className="col-span-6"></div>
+      </form>
+    </section>
   );
 };
 
-interface IFormProps {
-  onSubmit: React.ChangeEventHandler<HTMLFormElement>;
-  onQueryChange(val: string): void;
-  onSortChange(val: SolrSort[]): void;
-  query: string;
-  sort: SolrSort[];
-  numFound: number;
-  isFetching: boolean;
-  isFailure: boolean;
-  error: string;
-  docs: IDocsEntity[];
-}
-const Form = React.forwardRef<HTMLFormElement, IFormProps>(
-  (
-    {
-      onSubmit: handleOnSubmit,
-      query,
-      onQueryChange: handleQueryChange,
-      sort,
-      onSortChange: handleSortChange,
-      numFound,
-      isFetching,
-      isFailure,
-      error,
-      docs,
-    },
-    ref,
-  ) => {
-    return (
-      <section aria-labelledby="form-title">
-        <form
-          method="get"
-          action="/search"
-          ref={ref}
-          onSubmit={handleOnSubmit}
-          className="grid grid-cols-6 gap-2 px-4 py-8 mx-auto my-8 bg-white shadow sm:rounded-lg lg:max-w-7xl"
-        >
-          <h2 className="sr-only" id="form-title">
-            Search Results
-          </h2>
-          <div className="col-span-6">
-            <div className="flex items-center space-x-3">
-              <div className="flex-1">
-                <SearchBar initialQuery={query} onChange={handleQueryChange} />
-              </div>
-              <Sort sort={sort} onChange={handleSortChange} />
-            </div>
-            <NumFound count={numFound} />
-            {/* <Filters /> */}
-          </div>
-          <div className="col-span-6">
-            {isFailure ? (
-              <div className="flex flex-col p-3 mt-1 space-y-1 border-2 border-red-600">
-                <div className="flex items-center justify-center text-lg text-red-600">{error}</div>
-              </div>
-            ) : (
-              <ResultList loading={isFetching} docs={docs} />
-            )}
-          </div>
-          <div className="col-span-6"></div>
-        </form>
-      </section>
-    );
-  },
-);
+/**
+ * Wraps the <Sort/> component in order to isolate renders
+ */
+const SortWrapper = ({ service: searchService }: { service: ISearchMachine }) => {
+  const handleSortChange = useCallback((newSort: SolrSort[]) => {
+    searchService.send({ type: TransitionType.SET_PARAMS, payload: { params: { sort: newSort } } });
+  }, []);
 
-export const getServerSideProps: GetServerSideProps<Omit<ISearchPageProps, 'service'>> = async (ctx) => {
+  const sort = useSelector(searchService, (state) => state.context.params.sort);
+
+  return <Sort sort={sort} onChange={handleSortChange} />;
+};
+
+export const getServerSideProps = withNectarSessionData<ISearchPageProps>(async (ctx, sessionData) => {
   const query = normalizeURLParams(ctx.query);
 
-  const request = ctx.req as typeof ctx.req & {
-    session: { userData: IADSApiBootstrapData };
-  };
-  const userData = request.session.userData;
-  const params = {
+  const params: IADSApiSearchParams = {
     q: query.q,
     fl: ['bibcode', 'title', 'author', '[fields author=3]', 'author_count', 'pubdate'],
-    sort: query.sort ? (query.sort.split(',') as SolrSort[]) : [],
+    sort: query.sort ? (query.sort.split(',') as SolrSort[]) : ['date desc'],
   };
-  const adsapi = new AdsApi({ token: userData.access_token });
+  const adsapi = new AdsApi({ token: sessionData.access_token });
   const result = await adsapi.search.query(params);
   if (result.isErr()) {
     return {
       props: {
         error: result.error.message,
-        userData: rootInitialContext.user,
+        sessionData,
         params: {
           q: '',
           fl: [],
@@ -202,13 +139,13 @@ export const getServerSideProps: GetServerSideProps<Omit<ISearchPageProps, 'serv
 
   return {
     props: {
-      userData,
+      sessionData,
       params,
       docs,
-      meta: { numFound: numFound },
+      meta: { numFound },
     },
   };
-};
+});
 
 export default SearchPage;
 

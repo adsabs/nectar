@@ -6,13 +6,13 @@ import {
   SET_NUM_FOUND,
   SET_QUERY,
   SET_SELECTED_DOCS,
-  SET_USER_DATA,
+  SET_SESSION_DATA,
   Transition,
   TransitionType,
 } from './types';
 
 export const initialContext: Context = {
-  user: {
+  session: {
     username: 'anonymous',
     anonymous: true,
     access_token: '',
@@ -20,6 +20,7 @@ export const initialContext: Context = {
   },
   query: {
     q: '',
+    sort: [],
   },
   result: {
     docs: [],
@@ -38,7 +39,7 @@ const config: MachineConfig<Context, Schema, Transition> = {
         [TransitionType.SET_DOCS]: { actions: 'setDocs' },
         [TransitionType.SET_NUM_FOUND]: { actions: 'setNumFound' },
         [TransitionType.SET_SELECTED_DOCS]: { actions: 'setSelectedDocs' },
-        [TransitionType.SET_USER_DATA]: { actions: 'setUserData' },
+        [TransitionType.SET_SESSION_DATA]: { actions: 'setSessionData' },
         [TransitionType.SET_QUERY]: { actions: 'setQuery' },
       },
     },
@@ -60,15 +61,30 @@ const options: Partial<MachineOptions<Context, any>> = {
     setQuery: assign<Context, SET_QUERY>({
       query: (ctx, evt) => evt.payload.query,
     }),
-    setUserData: assign<Context, SET_USER_DATA>({
-      user: (ctx, evt) => evt.payload.user,
+    setSessionData: assign<Context, SET_SESSION_DATA>({
+      session: (ctx, evt) => evt.payload.session,
     }),
   },
 };
 
+const STORAGE_KEY = 'nectar-app-state';
 const machine = Machine<Context, Schema, Transition>(config, options);
+const persistedState =
+  typeof window === 'undefined'
+    ? initialContext
+    : (JSON.parse(window.localStorage.getItem(STORAGE_KEY)) as Context) || initialContext;
 
-export const service = interpret(machine, { devTools: true });
+export const service = interpret(machine.withContext(persistedState), { devTools: true });
+
+service.onChange((context, prev) => {
+  console.log('[context change]', { prev, context });
+  if (typeof window !== 'undefined') {
+    window.requestAnimationFrame(() => {
+      const { result, ...subContext } = context;
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(subContext));
+    });
+  }
+});
 
 // start the interpreted machine
 service.start();
