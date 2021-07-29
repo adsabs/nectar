@@ -1,5 +1,5 @@
-import { rootService } from '@machines';
+import { IADSApiBootstrapData } from '@api';
 
-export interface NectarPage {
-  service: typeof rootService;
+export interface INectarPageProps {
+  sessionData: IADSApiBootstrapData;
 }

@@ -1,14 +1,12 @@
-import { IADSApiBootstrapData, IDocsEntity } from '@api';
+import { IADSApiBootstrapData, IADSApiSearchParams, IDocsEntity } from '@api';
 
 export interface Context {
-  user: IADSApiBootstrapData;
+  session: IADSApiBootstrapData;
   result: {
     docs: (Pick<IDocsEntity, 'id'> & Partial<IDocsEntity>)[];
     numFound: number;
   };
-  query: {
-    q: string;
-  };
+  query: Partial<IADSApiSearchParams>;
   selectedDocs: IDocsEntity['id'][];
 }
 
@@ -17,7 +15,7 @@ export enum TransitionType {
   SET_QUERY = 'SET_QUERY',
   SET_NUM_FOUND = 'NUM_FOUND',
   SET_SELECTED_DOCS = 'SET_SELECTED_DOCS',
-  SET_USER_DATA = 'SET_USER_DATA',
+  SET_SESSION_DATA = 'SET_SESSION_DATA',
 }
 
 export type SET_DOCS = {
@@ -36,17 +34,12 @@ export type SET_QUERY = {
   type: TransitionType.SET_QUERY;
   payload: { query: Context['query'] };
 };
-export type SET_USER_DATA = {
-  type: TransitionType.SET_USER_DATA;
-  payload: { user: Context['user'] };
+export type SET_SESSION_DATA = {
+  type: TransitionType.SET_SESSION_DATA;
+  payload: { session: Context['session'] };
 };
 
-export type Transition =
-  | SET_DOCS
-  | SET_NUM_FOUND
-  | SET_SELECTED_DOCS
-  | SET_QUERY
-  | SET_USER_DATA;
+export type Transition = SET_DOCS | SET_NUM_FOUND | SET_SELECTED_DOCS | SET_QUERY | SET_SESSION_DATA;
 
 export type Schema = {
   states: {

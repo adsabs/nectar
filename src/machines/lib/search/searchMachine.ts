@@ -1,16 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import Adsapi from '@api';
 import { assign, Machine, MachineConfig, MachineOptions } from 'xstate';
-import { rootService, RootTransitionType } from '../root';
-import {
-  Context,
-  Schema,
-  SET_PARAMS,
-  Transition,
-  TransitionType,
-} from './types';
+import { Context, Schema, SET_PARAMS, Transition, TransitionType } from './types';
 
 export const initialContext: Context = {
   params: {
@@ -69,11 +61,6 @@ const config: MachineConfig<Context, Schema, Transition> = {
     success: {
       on: {
         [TransitionType.SET_PARAMS]: [
-          // {
-          //   target: 'fetching',
-          //   cond: 'sortHasChanged',
-          //   actions: 'setParams',
-          // },
           {
             target: 'idle',
             actions: 'setParams',
@@ -83,17 +70,7 @@ const config: MachineConfig<Context, Schema, Transition> = {
     },
     failure: {
       on: {
-        [TransitionType.SET_PARAMS]: [
-          // {
-          //   target: 'fetching',
-          //   cond: 'sortHasChanged',
-          //   actions: 'setParams',
-          // },
-          {
-            target: 'idle',
-            actions: 'setParams',
-          },
-        ],
+        [TransitionType.SEARCH]: { target: 'fetching', cond: 'validQuery' },
       },
     },
   },
@@ -101,84 +78,38 @@ const config: MachineConfig<Context, Schema, Transition> = {
 
 const options: Partial<MachineOptions<Context, any>> = {
   guards: {
-    validQuery: (ctx) =>
-      typeof ctx.params.q === 'string' && ctx.params.q.length > 0,
-    sortHasChanged: (ctx, evt) =>
-      Object.keys(evt.payload.params).includes('sort') &&
-      typeof ctx.params.q === 'string' &&
-      ctx.params.q.length > 0,
-  },
-  services: {
-    fetchResult: async (ctx) => {
-      if (ctx.params.q === '' || typeof ctx.params.q === 'undefined') {
-        throw new Error('no query');
-      }
-
-      let {
-        user: { access_token: token },
-      } = rootService.state.context;
-      if (typeof token !== 'string' || token.length === 0) {
-        const result = await Adsapi.bootstrap();
-        result.map(({ access_token }) => (token = access_token));
-      }
-
-      const adsapi = new Adsapi({ token });
-
-      const result = await adsapi.search.query({
-        q: ctx.params.q,
-        fl: [
-          'bibcode',
-          'title',
-          'author',
-          '[fields author=3]',
-          'author_count',
-          'pubdate',
-        ],
-        sort: ctx.params.sort,
-      });
-
-      if (result.isErr()) {
-        throw result.error;
-      }
-
-      const { docs, numFound } = result.value;
-      return { ...ctx, result: { docs, numFound } };
-    },
+    validQuery: (ctx) => typeof ctx.params.q === 'string' && ctx.params.q.length > 0,
+    sortHasChanged: (ctx, evt) => Object.keys(evt.payload.params).includes('sort'),
   },
   actions: {
     setParams: assign<Context, SET_PARAMS>({
       params: (ctx, evt) => ({ ...ctx.params, ...evt.payload.params }),
     }),
     setResult: assign({
-      result: (_ctx, evt) => {
-        sendResultToRoot(evt.data);
-        return evt.data;
-      },
+      result: (ctx, evt) => evt.data,
     }),
     setError: assign({
       error: (_ctx, evt) => evt.data,
     }),
     reset: assign({
-      error: (_ctx, _evt) => initialContext.error,
+      error: () => initialContext.error,
     }),
   },
 };
 
-const sendResultToRoot = (result: Context['result']) => {
-  const { docs, numFound } = result;
-  const { send } = rootService;
+// const sendResultToRoot = (ctx: Context, result: Context['result']) => {
+//   const { docs, numFound } = result;
+//   const { send } = rootService;
 
-  // update the root machine with latest result data
-  send([
-    { type: RootTransitionType.SET_DOCS, payload: { docs } },
-    {
-      type: RootTransitionType.SET_NUM_FOUND,
-      payload: { numFound },
-    },
-  ]);
-};
+//   // update the root machine with latest result data and current query
+//   send([
+//     { type: RootTransitionType.SET_DOCS, payload: { docs } } as SET_DOCS,
+//     {
+//       type: RootTransitionType.SET_NUM_FOUND,
+//       payload: { numFound },
+//     } as SET_NUM_FOUND,
+//     { type: RootTransitionType.SET_QUERY, payload: { query: ctx.params } } as SET_QUERY,
+//   ]);
+// };
 
-export const searchMachine = Machine<Context, Schema, Transition>(
-  config,
-  options,
-);
+export const searchMachine = Machine<Context, Schema, Transition>(config, options);
