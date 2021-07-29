@@ -8,6 +8,8 @@ export const initialContext: Context = {
   params: {
     q: '',
     sort: [],
+    rows: 10,
+    start: 0,
   },
   result: {
     docs: [],
@@ -17,6 +19,9 @@ export const initialContext: Context = {
     message: '',
     name: '',
     stack: '',
+  },
+  pagination: {
+    page: 1,
   },
 };
 
@@ -32,6 +37,7 @@ const config: MachineConfig<Context, Schema, Transition> = {
       entry: 'reset',
       on: {
         [TransitionType.SEARCH]: { target: 'fetching', cond: 'validQuery' },
+        [TransitionType.SET_PAGINATION]: { actions: 'setPagination' },
         [TransitionType.SET_PARAMS]: [
           {
             target: 'fetching',
@@ -71,6 +77,16 @@ const config: MachineConfig<Context, Schema, Transition> = {
     failure: {
       on: {
         [TransitionType.SEARCH]: { target: 'fetching', cond: 'validQuery' },
+        [TransitionType.SET_PARAMS]: [
+          {
+            target: 'fetching',
+            cond: 'sortHasChanged',
+            actions: 'setParams',
+          },
+          {
+            actions: 'setParams',
+          },
+        ],
       },
     },
   },
@@ -79,14 +95,14 @@ const config: MachineConfig<Context, Schema, Transition> = {
 const options: Partial<MachineOptions<Context, any>> = {
   guards: {
     validQuery: (ctx) => typeof ctx.params.q === 'string' && ctx.params.q.length > 0,
-    sortHasChanged: (ctx, evt) => Object.keys(evt.payload.params).includes('sort'),
+    sortHasChanged: (_ctx, evt) => Object.keys(evt.payload.params).includes('sort'),
   },
   actions: {
     setParams: assign<Context, SET_PARAMS>({
       params: (ctx, evt) => ({ ...ctx.params, ...evt.payload.params }),
     }),
     setResult: assign({
-      result: (ctx, evt) => evt.data,
+      result: (_ctx, evt) => evt.data,
     }),
     setError: assign({
       error: (_ctx, evt) => evt.data,
@@ -94,22 +110,10 @@ const options: Partial<MachineOptions<Context, any>> = {
     reset: assign({
       error: () => initialContext.error,
     }),
+    setPagination: assign({
+      pagination: (_ctx, evt) => evt.data,
+    }),
   },
 };
-
-// const sendResultToRoot = (ctx: Context, result: Context['result']) => {
-//   const { docs, numFound } = result;
-//   const { send } = rootService;
-
-//   // update the root machine with latest result data and current query
-//   send([
-//     { type: RootTransitionType.SET_DOCS, payload: { docs } } as SET_DOCS,
-//     {
-//       type: RootTransitionType.SET_NUM_FOUND,
-//       payload: { numFound },
-//     } as SET_NUM_FOUND,
-//     { type: RootTransitionType.SET_QUERY, payload: { query: ctx.params } } as SET_QUERY,
-//   ]);
-// };
 
 export const searchMachine = Machine<Context, Schema, Transition>(config, options);

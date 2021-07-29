@@ -1,3 +1,4 @@
+import { IADSApiSearchParams } from '@api';
 import { useADSApi } from '@hooks';
 import { useInterpret, useSelector } from '@xstate/react';
 import { useRouter } from 'next/router';
@@ -29,10 +30,11 @@ export function useSearchMachine(props: IUseSearchMachineProps = {}) {
           throw new Error('no query');
         }
         const { q, sort } = ctx.params;
-        const params = {
+
+        const params: IADSApiSearchParams = {
           q,
           fl: ['bibcode', 'title', 'author', '[fields author=3]', 'author_count', 'pubdate'],
-          sort,
+          ...ctx.params,
         };
         const result = await adsapi.search.query(params);
 

@@ -30,7 +30,7 @@ const SearchPage = withNectarPage<ISearchPageProps>((props) => {
 
   console.log('search page props', props);
 
-  return <Form params={{ q, sort }} serverResult={{ docs, numFound }} />;
+  return <Form params={{ q, sort }} serverResult={{ docs, numFound }} serverError={error} />;
 });
 
 interface IFormProps {
@@ -39,11 +39,13 @@ interface IFormProps {
     docs: IDocsEntity[];
     numFound: number;
   };
+  serverError: string;
 }
 const Form = (props: IFormProps): React.ReactElement => {
   const {
     params: { q: query, sort },
     serverResult: { docs, numFound },
+    serverError,
   } = props;
 
   // initialize the search machine that will run all the business logic
@@ -82,12 +84,14 @@ const Form = (props: IFormProps): React.ReactElement => {
           {/* <Filters /> */}
         </div>
         <div className="col-span-6">
-          {isFailure ? (
+          {isFailure || typeof serverError === 'string' ? (
             <div className="flex flex-col p-3 mt-1 space-y-1 border-2 border-red-600">
-              <div className="flex items-center justify-center text-lg text-red-600">{error}</div>
+              <div className="flex items-center justify-center text-lg text-red-600">
+                {error.message || serverError}
+              </div>
             </div>
           ) : (
-            <ResultList isLoading={isLoading} docs={result.docs as IDocsEntity[]} />
+            <ResultList isLoading={isLoading} docs={result.docs as IDocsEntity[]} service={searchService} />
           )}
         </div>
         <div className="col-span-6"></div>

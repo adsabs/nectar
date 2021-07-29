@@ -39,7 +39,7 @@
     "katex": "^0.13.11",
     "neverthrow": "^4.2.1",
     "nprogress": "^0.2.0",
-    "pino-pretty": "^4.7.1",
+    "pino-pretty": "^5.1.2",
     "ramda": "^0.27.1",
     "react": "17.0.1",
     "react-dom": "17.0.1",
