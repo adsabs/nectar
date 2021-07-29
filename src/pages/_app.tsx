@@ -6,6 +6,7 @@ import 'nprogress/nprogress.css';
 // import 'public/katex/katex.css';
 import React, { FC } from 'react';
 import 'tailwindcss/tailwind.css';
+import '../styles/styles.css';
 
 const TopProgressBar = dynamic(() => import('@components/TopProgressBar').then((mod) => mod.TopProgressBar), {
   ssr: false,

@@ -1,53 +1,50 @@
-import Link from 'next/link';
-import React, { FC, ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 import { DropdownList, ItemType } from '../Dropdown';
 
-interface IItemLinkProps {
-  href: string;
-}
-const ItemLink: FC<IItemLinkProps> = (props): ReactElement => {
-  const { href, children } = props;
+const menu = [
+  {
+    id: 'about-about',
+    path: '/about',
+    label: 'About ADS'
+  },
+  {
+    id: 'about-new',
+    path: '/help/whats_new',
+    label: 'What\'s New'
+  },
+  { 
+    id: 'about-blog',
+    path: '/blog',
+    label: 'ADS Blog'
+  },
+  {
+    id: 'about-help',
+    path: '/help/',
+    label: 'ADS Help Pages'
+  },
+  {
+    id: 'about-legacy',
+    path: '/help/legacy',
+    label: 'ADS Legacy Services'
+  },
+  {
+    id: 'about-careers',
+    path: '/about/careers',
+    label: 'Careers@ADS'
+  }
+]
 
-  return (
-    <Link href={href}>
-      <a>
-        <div className="w-full h-full text-gray-700">{children}</div>
-      </a>
-    </Link>
-  );
-};
-
-const items: ItemType[] = [
-  {
-    id: 'about',
-    element: <ItemLink href="/about"> About ADS</ItemLink>,
-  },
-  {
-    id: 'whats new',
-    element: <ItemLink href="/help/whats_new"> What's New</ItemLink>,
-  },
-  {
-    id: 'blog',
-    element: <ItemLink href="/blog"> ADS Blog</ItemLink>,
-  },
-  {
-    id: 'help',
-    element: <ItemLink href="/help"> ADS Help Pages</ItemLink>,
-  },
-  {
-    id: 'legacy',
-    element: <ItemLink href="/help/legacy"> ADS Legacy Services</ItemLink>,
-  },
-  {
-    id: 'careers',
-    element: <ItemLink href="/about/careers"> Careers@ADS</ItemLink>,
-  },
-];
+const items: ItemType[] = (() => {
+  return menu.map( item => ({
+    id: item.id,
+    label: item.label,
+  }))
+})();
 
 export const AboutDropdown = (): ReactElement => {
+
   const handleSelect = (id: string) => {
-    console.log(id);
-    return false;
+    window.open(menu.find((item) => id === item.id).path, '_blank', 'noopener,noreferrer')
   };
 
   return (
@@ -59,6 +56,8 @@ export const AboutDropdown = (): ReactElement => {
         button: 'text-gray-300 hover:text-white focus:text-white',
       }}
       offset={[-60, 12]}
+      useCustomLabel={false}
+      role='menu'
     />
   );
 };

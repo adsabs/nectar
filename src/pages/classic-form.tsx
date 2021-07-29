@@ -9,7 +9,7 @@ const ClassicForm: NextPage = () => {
       <form
         method="post"
         action="/api/classicform"
-        className="grid gap-6 grid-cols-6 mx-auto my-8 px-4 py-8 bg-white shadow sm:rounded-lg lg:max-w-3xl"
+        className="grid gap-6 grid-cols-6 mx-auto my-8 px-4 py-8 lg:max-w-3xl"
       >
         <h2 className="sr-only" id="form-title">
           Classic Form

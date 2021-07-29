@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* @layer base {
+  html {
+    @apply bg-white;
+    @apply text-gray-600;
+  }
+} */
+@layer base {
+  h1 {
+    @apply text-4xl;
+  }
+  h2 {
+    @apply text-3xl;
+  }
+  h3 {
+    @apply text-2xl;
+  }
+  h4 {
+    @apply text-xl;
+  }
+
+  .default-text-color {
+    @apply text-gray-500;
+  }
+
+  .defatul-bg-color {
+    @apply bg-white;
+  }
+
+  .navbar-text-color {
+    @apply text-gray-300;
+  }
+
+  .navbar-bg-color {
+    @apply bg-gray-1000;
+  }
+
+  .dropdown-triangle {
+    border: solid 2px;
+    border-width: 0 2px 2px 0;
+    display: inline-block;
+    padding: 2px;
+    margin: 5px 10px;
+  }
+  
+  .dropdown-triangle-down {
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+  }
+}

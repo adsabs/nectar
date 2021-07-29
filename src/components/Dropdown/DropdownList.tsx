@@ -1,14 +1,9 @@
 import { ChevronDownIcon } from '@heroicons/react/solid';
 import clsx from 'clsx';
-import React, {
-  HTMLAttributes,
-  ReactElement,
-  ReactNode,
-  useCallback,
-  useState,
-} from 'react';
+import React, { HTMLAttributes, ReactElement, ReactNode, useCallback, useState, KeyboardEvent } from 'react';
 import OutsideClickHandler from 'react-outside-click-handler';
 import { usePopper } from 'react-popper';
+import { Placement } from '@popperjs/core';
 
 export type ItemType = {
   id: string;
@@ -20,19 +15,25 @@ export interface IDropdownListProps {
   label: ReactNode;
   items: ItemType[];
   onSelect: (id: ItemType['id']) => void;
+  onExpanded?: () => void;
+  onClosed?: () => void;
   classes: {
     button: string;
   };
-  offset: [number, number];
+  offset?: [number, number];
+  useCustomLabel: boolean;
+  placement?: Placement;
+  role: string;
+  ariaLabel?: string;
 }
 
 export const DropdownList = (props: IDropdownListProps): ReactElement => {
-  const { label, items, classes, onSelect, offset } = props;
+  const { label, items, classes, onSelect, onExpanded, onClosed, offset, useCustomLabel, role, ariaLabel } = props;
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement>();
   const [popperElement, setPopperElement] = useState<HTMLDivElement>();
   const [visible, setVisible] = useState<boolean>(false);
 
-  const targetRef = useCallback((node) => {
+  const targetRef = useCallback((node: HTMLButtonElement) => {
     if (node !== null) {
       setReferenceElement(node);
     }
@@ -45,7 +46,7 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
   }, []);
 
   const { styles, attributes } = usePopper(referenceElement, popperElement, {
-    placement: 'bottom',
+    placement: props.placement,
     modifiers: [
       {
         name: 'offset',
@@ -56,21 +57,95 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
     ],
   });
 
-  const handleClick = () => {
-    setVisible(!visible);
+  const close = () => {
+    if (visible) {
+      setVisible(false);
+      onClosed();
+    }
   };
 
+  const open = () => {
+    if (!visible) {
+      setVisible(true);
+      onExpanded();
+    }
+  };
+
+  /* Click on dropdown */
+  const handleClick = () => {
+    setVisible(!visible);
+    visible ? onExpanded() : onClosed();
+  };
+
+  /* keydown on dropdown */
+  const handleKeyDown = (e: KeyboardEvent) => {
+    switch (e.key) {
+      case 'Enter':
+        e.preventDefault();
+        handleClick();
+        return;
+      case 'Space':
+        handleClick();
+        return;
+      case 'Escape':
+        close();
+        return;
+      case 'ArrowDown':
+        open();
+        focusItem(0);
+        return;
+      default:
+        return;
+    }
+  };
+
+  /* selected item */
   const handleSelect = useCallback(
     (item: ItemType) => {
       return () => {
         onSelect(item.id);
-      };
-    },
-    [onSelect],
+        close();
+      }
+    }, [onSelect]
   );
+  /* keydown on item */
+  const handleItemKeyDown = (key: string, item: ItemType, index: number) => {
+    switch (key) {
+      case 'Enter':
+        handleSelect(item);
+        return;
+      case 'Space':
+        handleSelect(item);
+        return;
+      case 'ArrowUp':
+        focusItem(index - 1);
+        return;
+      case 'ArrowDown':
+        focusItem(index + 1);
+        return;
+      case 'Escape':
+        close();
+        return;
+      case 'Tab':
+        close();
+        return;
+      default:
+        return;
+    }
+  };
+
+  const focusItem = (index: number) => {
+    if (index >= items.length) {
+      index = 0;
+    }
+    if (index < 0) {
+      index = items.length - 1;
+    }
+    document.getElementById(`${items[index].id}`).focus();
+  };
 
   const handleOutsideClick = () => {
-    setVisible(false);
+    close();
   };
 
   const popperClasses = clsx('z-50 flex flex-col bg-white border divide-y', {
@@ -82,10 +157,19 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
       <button
         type="button"
         ref={targetRef}
+        role={role}
+        
         className={classes.button}
         onClick={handleClick}
+        onKeyDown={handleKeyDown}
       >
-        {label} <ChevronDownIcon className="inline w-4 h-4" />
+        {useCustomLabel ? (
+          label
+        ) : (
+          <>
+            {label} <ChevronDownIcon className="inline w-4 h-4" />
+          </>
+        )}
       </button>
       <div
         ref={popperRef}
@@ -93,8 +177,14 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
         {...attributes.popper}
         className={popperClasses}
       >
-        {items.map((item) => (
-          <Item key={item.id} item={item} onClick={handleSelect(item)} />
+        {items.map((item, index) => (
+          <Item
+            key={item.id}
+            item={item}
+            tabIndex={0}
+            onClick={() => handleSelect(item)}
+            onKeyDown={(e) => handleItemKeyDown(e.key, item, index)}
+          />
         ))}
       </div>
     </OutsideClickHandler>
@@ -104,27 +194,32 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
 DropdownList.defaultProps = {
   label: 'BUTTON',
   items: [],
+  currentItem: null,
   onSelect: null,
+  onExpanded: () => undefined,
+  onClosed: () => undefined,
   classes: {},
   offset: [0, 15],
+  placement: 'bottom',
+  role: 'menu',
+  ariaLabel: null,
 };
 
-interface IItemProps
-  extends HTMLAttributes<HTMLButtonElement | HTMLDivElement> {
+interface IItemProps extends HTMLAttributes<HTMLButtonElement | HTMLDivElement> {
   item: ItemType;
 }
 const Item = (props: IItemProps): ReactElement => {
   const {
-    item: { label, element },
+    item: { id, label, element },
     ...restProps
   } = props;
   const itemClasses = clsx('px-3 py-2 text-left hover:bg-gray-100');
 
   if (element) {
-    return <div className={itemClasses}>{element}</div>;
+    return <button className={itemClasses} {...restProps} id={id} >{element}</button>;
   }
   return (
-    <button className={itemClasses} type="button" {...restProps}>
+    <button className={itemClasses} type="button" {...restProps} id={id}>
       {label}
     </button>
   );
