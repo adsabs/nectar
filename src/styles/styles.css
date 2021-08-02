@@ -2,12 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* @layer base {
-  html {
-    @apply bg-white;
-    @apply text-gray-600;
-  }
-} */
 @layer base {
   h1 {
     @apply text-4xl;
@@ -23,7 +17,7 @@
   }
 
   .default-text-color {
-    @apply text-gray-500;
+    @apply text-gray-600;
   }
 
   .defatul-bg-color {

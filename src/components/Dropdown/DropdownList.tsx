@@ -162,6 +162,7 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
         className={classes.button}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
+        aria-label={ariaLabel}
       >
         {useCustomLabel ? (
           label
