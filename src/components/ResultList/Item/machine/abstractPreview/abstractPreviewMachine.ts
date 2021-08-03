@@ -1,13 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import Adsapi from '@api';
 import { rootService } from '@machines';
-import {
-  assign,
-  DoneEventObject,
-  Machine,
-  MachineConfig,
-  MachineOptions,
-} from 'xstate';
+import { assign, DoneEventObject, Machine, MachineConfig, MachineOptions } from 'xstate';
 import { Context, Schema, Transition, TransitionTypes } from './types';
 
 export const initialState: Context = {
@@ -57,7 +51,7 @@ const options: Partial<MachineOptions<Context, any>> = {
   services: {
     fetchAbstract: async (ctx) => {
       let {
-        user: { access_token: token },
+        session: { access_token: token },
       } = rootService.state.context;
       if (typeof token !== 'string' || token.length === 0) {
         const result = await Adsapi.bootstrap();

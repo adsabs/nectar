@@ -1,5 +1,6 @@
 import { Layout } from '@components';
 import { rootService } from '@machines';
+import { AppProvider } from '@store';
 import { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import 'nprogress/nprogress.css';
@@ -14,12 +15,12 @@ const TopProgressBar = dynamic(() => import('@components/TopProgressBar').then((
 
 const NectarApp: FC<AppProps> = ({ Component, pageProps }) => {
   return (
-    <>
+    <AppProvider>
       <TopProgressBar />
       <Layout>
         <Component {...pageProps} service={rootService} />
       </Layout>
-    </>
+    </AppProvider>
   );
 };
 

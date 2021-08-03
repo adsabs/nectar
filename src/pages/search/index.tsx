@@ -1,22 +1,14 @@
-import AdsApi, { IADSApiBootstrapData, IDocsEntity, SolrSort } from '@api';
+import AdsApi, { IADSApiSearchParams, IDocsEntity, SolrSort } from '@api';
 import { NumFound, ResultList, SearchBar, Sort } from '@components';
-import {
-  ChevronRightIcon,
-  DownloadIcon,
-  GlobeAltIcon,
-  MinusCircleIcon,
-  PencilIcon,
-  PlusCircleIcon,
-} from '@heroicons/react/solid';
-import { rootInitialContext } from '@machines';
-import { NectarPage } from '@types';
-import { GetServerSideProps, NextPage } from 'next';
-import React from 'react';
-import { normalizeURLParams } from '../../utils';
+import { INectarPageProps, withNectarPage } from '@hocs/withNectarPage';
+import { useSearchMachine } from '@machines';
+import { ISearchMachine, TransitionType } from '@machines/lib/search/types';
+import { normalizeURLParams, withNectarSessionData } from '@utils';
+import { useSelector } from '@xstate/react';
+import React, { ChangeEvent, useCallback } from 'react';
 
-interface ISearchPageProps extends NectarPage {
+interface ISearchPageProps extends INectarPageProps {
   error?: string;
-  userData: IADSApiBootstrapData;
   params: {
     q: string;
     fl?: string[];
@@ -28,22 +20,44 @@ interface ISearchPageProps extends NectarPage {
   };
 }
 
-const SearchPage: NextPage<ISearchPageProps> = (props) => {
+const SearchPage = withNectarPage<ISearchPageProps>((props) => {
   const {
-    params: { q: query, sort },
+    params: { q, sort = ['date desc'] },
     docs = [],
     meta: { numFound = 0 },
+    error,
   } = props;
 
-  const form = React.useRef<HTMLFormElement>(null);
+  console.log('search page props', props);
+
+  return <Form params={{ q, sort }} serverResult={{ docs, numFound }} />;
+});
+
+interface IFormProps {
+  params: IADSApiSearchParams;
+  serverResult: {
+    docs: IDocsEntity[];
+    numFound: number;
+  };
+}
+const Form = (props: IFormProps): React.ReactElement => {
+  const {
+    params: { q: query, sort },
+    serverResult: { docs, numFound },
+  } = props;
+
+  // initialize the search machine that will run all the business logic
+  const { service: searchService, result, error, isLoading, isFailure } = useSearchMachine({
+    initialParams: { q: query, sort },
+    initialResult: { docs, numFound },
+  });
 
   /**
-   * On sort change, submit the form
+   * update route and start searching
    */
-  const handleSortChange = (updatedSort: SolrSort[]) => {
-    if (sort && sort[0] !== updatedSort[0]) {
-      form.current.submit();
-    }
+  const handleOnSubmit = (e: ChangeEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    searchService.send(TransitionType.SEARCH);
   };
 
   return (
@@ -51,22 +65,30 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
       <form
         method="get"
         action="/search"
-        ref={form}
-        className="grid gap-2 grid-cols-6 mx-auto my-8 px-4 py-8 bg-white shadow sm:rounded-lg lg:max-w-7xl"
+        onSubmit={handleOnSubmit}
+        className="grid grid-cols-6 gap-2 px-4 py-8 mx-auto my-8 bg-white shadow sm:rounded-lg lg:max-w-7xl"
       >
-        <h2 className="sr-only">Search Results</h2>
+        <h2 className="sr-only" id="form-title">
+          Search Results
+        </h2>
         <div className="col-span-6">
           <div className="flex items-center space-x-3">
             <div className="flex-1">
-              <SearchBar initialQuery={query} />
+              <SearchBar service={searchService} />
             </div>
-            <Sort sort={sort} onChange={handleSortChange} />
+            <SortWrapper service={searchService} />
           </div>
-          <NumFound count={numFound} />
+          <NumFound count={result.numFound} />
           {/* <Filters /> */}
         </div>
         <div className="col-span-6">
-          <ResultList docs={docs} />
+          {isFailure ? (
+            <div className="flex flex-col p-3 mt-1 space-y-1 border-2 border-red-600">
+              <div className="flex items-center justify-center text-lg text-red-600">{error}</div>
+            </div>
+          ) : (
+            <ResultList isLoading={isLoading} docs={result.docs as IDocsEntity[]} />
+          )}
         </div>
         <div className="col-span-6"></div>
       </form>
@@ -74,96 +96,34 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
   );
 };
 
-const Filters = () => (
-  <div className="flex flex-col mt-1 sm:flex-row sm:flex-wrap sm:mt-1 sm:space-x-6">
-    <div className="inline-flex items-center px-2 py-1 text-indigo-800 text-xs font-medium bg-indigo-100 rounded">
-      <PlusCircleIcon className="mr-1.5 w-5 h-5 text-indigo-400" aria-hidden="true" />
-      Collection: Astronomy
-    </div>
-    <div className="inline-flex items-center px-2 py-1 text-indigo-800 text-xs font-medium bg-indigo-100 rounded">
-      <PlusCircleIcon className="mr-1.5 w-5 h-5 text-indigo-400" aria-hidden="true" />
-      Collection: Physics
-    </div>
-    <div className="inline-flex items-center px-2 py-1 text-indigo-800 text-xs font-medium bg-indigo-100 rounded">
-      <MinusCircleIcon className="mr-1.5 w-5 h-5 text-indigo-400" aria-hidden="true" />
-      Author: Smith, S
-    </div>
-  </div>
-);
+/**
+ * Wraps the <Sort/> component in order to isolate renders
+ */
+const SortWrapper = ({ service: searchService }: { service: ISearchMachine }) => {
+  const handleSortChange = useCallback((newSort: SolrSort[]) => {
+    searchService.send({ type: TransitionType.SET_PARAMS, payload: { params: { sort: newSort } } });
+  }, []);
 
-const BreadCrumbs = () => (
-  <nav className="flex" aria-label="Breadcrumb">
-    <ol className="flex items-center space-x-4" role="list">
-      <li>
-        <div>
-          <a href="#" className="hover:text-gray-300 text-gray-600 text-sm font-medium">
-            Classic Search
-          </a>
-        </div>
-      </li>
-      <li>
-        <div className="flex items-center">
-          <ChevronRightIcon className="flex-shrink-0 w-5 h-5 text-gray-500" aria-hidden="true" />
-          <a href="#" className="ml-4 hover:text-gray-300 text-gray-600 text-sm font-medium">
-            Results
-          </a>
-        </div>
-      </li>
-    </ol>
-  </nav>
-);
+  const sort = useSelector(searchService, (state) => state.context.params.sort);
 
-const MenuButtons = () => (
-  <div className="flex">
-    <span className="hidden sm:block">
-      <button
-        type="button"
-        className="inline-flex items-center px-4 py-2 text-white text-sm font-medium bg-gray-600 hover:bg-gray-700 border border-transparent rounded-md focus:outline-none shadow-sm focus:ring-indigo-500 focus:ring-offset-gray-800 focus:ring-offset-2 focus:ring-2"
-      >
-        <PencilIcon className="-ml-1 mr-2 w-5 h-5 text-gray-300" aria-hidden="true" />
-        Sort
-      </button>
-    </span>
-    <span className="hidden ml-3 sm:block">
-      <button
-        type="button"
-        className="inline-flex items-center px-4 py-2 text-white text-sm font-medium bg-gray-600 hover:bg-gray-700 border border-transparent rounded-md focus:outline-none shadow-sm focus:ring-indigo-500 focus:ring-offset-gray-800 focus:ring-offset-2 focus:ring-2"
-      >
-        <DownloadIcon className="-ml-1 mr-2 w-5 h-5 text-gray-300" aria-hidden="true" />
-        Export
-      </button>
-    </span>
-    <span className="sm:ml-3">
-      <button
-        type="button"
-        className="inline-flex items-center px-4 py-2 text-white text-sm font-medium bg-indigo-500 hover:bg-indigo-600 border border-transparent rounded-md focus:outline-none shadow-sm focus:ring-indigo-500 focus:ring-offset-gray-800 focus:ring-offset-2 focus:ring-2"
-      >
-        <GlobeAltIcon className="-ml-1 mr-2 w-5 h-5" aria-hidden="true" />
-        Explore
-      </button>
-    </span>
-  </div>
-);
+  return <Sort sort={sort} onChange={handleSortChange} />;
+};
 
-export const getServerSideProps: GetServerSideProps<Omit<ISearchPageProps, 'service'>> = async (ctx) => {
+export const getServerSideProps = withNectarSessionData<ISearchPageProps>(async (ctx, sessionData) => {
   const query = normalizeURLParams(ctx.query);
 
-  const request = ctx.req as typeof ctx.req & {
-    session: { userData: IADSApiBootstrapData };
-  };
-  const userData = request.session.userData;
-  const params = {
+  const params: IADSApiSearchParams = {
     q: query.q,
     fl: ['bibcode', 'title', 'author', '[fields author=3]', 'author_count', 'pubdate'],
-    sort: query.sort ? (query.sort.split(',') as SolrSort[]) : [],
+    sort: query.sort ? (query.sort.split(',') as SolrSort[]) : ['date desc'],
   };
-  const adsapi = new AdsApi({ token: userData.access_token });
+  const adsapi = new AdsApi({ token: sessionData.access_token });
   const result = await adsapi.search.query(params);
   if (result.isErr()) {
     return {
       props: {
         error: result.error.message,
-        userData: rootInitialContext.user,
+        sessionData,
         params: {
           q: '',
           fl: [],
@@ -179,12 +139,83 @@ export const getServerSideProps: GetServerSideProps<Omit<ISearchPageProps, 'serv
 
   return {
     props: {
-      userData,
+      sessionData,
       params,
       docs,
-      meta: { numFound: numFound },
+      meta: { numFound },
     },
   };
-};
+});
 
 export default SearchPage;
+
+// const Filters = () => (
+//   <div className="flex flex-col mt-1 sm:flex-row sm:flex-wrap sm:mt-1 sm:space-x-6">
+//     <div className="inline-flex items-center px-2 py-1 text-xs font-medium text-indigo-800 bg-indigo-100 rounded">
+//       <PlusCircleIcon className="mr-1.5 w-5 h-5 text-indigo-400" aria-hidden="true" />
+//       Collection: Astronomy
+//     </div>
+//     <div className="inline-flex items-center px-2 py-1 text-xs font-medium text-indigo-800 bg-indigo-100 rounded">
+//       <PlusCircleIcon className="mr-1.5 w-5 h-5 text-indigo-400" aria-hidden="true" />
+//       Collection: Physics
+//     </div>
+//     <div className="inline-flex items-center px-2 py-1 text-xs font-medium text-indigo-800 bg-indigo-100 rounded">
+//       <MinusCircleIcon className="mr-1.5 w-5 h-5 text-indigo-400" aria-hidden="true" />
+//       Author: Smith, S
+//     </div>
+//   </div>
+// );
+
+// const BreadCrumbs = () => (
+//   <nav className="flex" aria-label="Breadcrumb">
+//     <ol className="flex items-center space-x-4" role="list">
+//       <li>
+//         <div>
+//           <a href="#" className="text-sm font-medium text-gray-600 hover:text-gray-300">
+//             Classic Search
+//           </a>
+//         </div>
+//       </li>
+//       <li>
+//         <div className="flex items-center">
+//           <ChevronRightIcon className="flex-shrink-0 w-5 h-5 text-gray-500" aria-hidden="true" />
+//           <a href="#" className="ml-4 text-sm font-medium text-gray-600 hover:text-gray-300">
+//             Results
+//           </a>
+//         </div>
+//       </li>
+//     </ol>
+//   </nav>
+// );
+
+// const MenuButtons = () => (
+//   <div className="flex">
+//     <span className="hidden sm:block">
+//       <button
+//         type="button"
+//         className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gray-600 border border-transparent rounded-md shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-indigo-500 focus:ring-offset-gray-800 focus:ring-offset-2 focus:ring-2"
+//       >
+//         <PencilIcon className="w-5 h-5 mr-2 -ml-1 text-gray-300" aria-hidden="true" />
+//         Sort
+//       </button>
+//     </span>
+//     <span className="hidden ml-3 sm:block">
+//       <button
+//         type="button"
+//         className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gray-600 border border-transparent rounded-md shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-indigo-500 focus:ring-offset-gray-800 focus:ring-offset-2 focus:ring-2"
+//       >
+//         <DownloadIcon className="w-5 h-5 mr-2 -ml-1 text-gray-300" aria-hidden="true" />
+//         Export
+//       </button>
+//     </span>
+//     <span className="sm:ml-3">
+//       <button
+//         type="button"
+//         className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-500 border border-transparent rounded-md shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-indigo-500 focus:ring-offset-gray-800 focus:ring-offset-2 focus:ring-2"
+//       >
+//         <GlobeAltIcon className="w-5 h-5 mr-2 -ml-1" aria-hidden="true" />
+//         Explore
+//       </button>
+//     </span>
+//   </div>
+// );

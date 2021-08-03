@@ -2,13 +2,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { rootService, RootTransitionType } from '@machines';
-import {
-  assign,
-  Interpreter,
-  Machine,
-  MachineConfig,
-  MachineOptions,
-} from 'xstate';
+import { SET_SELECTED_DOCS } from '@machines/lib/root/types';
+import { assign, Interpreter, Machine, MachineConfig, MachineOptions } from 'xstate';
 import { Context, Schema, Transition, TransitionTypes } from './types';
 
 export type IDocMachine = Interpreter<Context, Schema, Transition>;
@@ -50,19 +45,17 @@ const options: Partial<MachineOptions<Context, any>> = {
       send({
         type: RootTransitionType.SET_SELECTED_DOCS,
         payload: { selectedDocs },
-      });
+      } as SET_SELECTED_DOCS);
 
       return ctx;
     }),
     removeFromRootContext: assign((ctx) => {
       const { state, send } = rootService;
-      const selectedDocs = state.context.selectedDocs.filter(
-        (id) => id !== ctx.id,
-      );
+      const selectedDocs = state.context.selectedDocs.filter((id) => id !== ctx.id);
       send({
         type: RootTransitionType.SET_SELECTED_DOCS,
         payload: { selectedDocs },
-      });
+      } as SET_SELECTED_DOCS);
 
       return ctx;
     }),
