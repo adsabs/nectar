@@ -1,10 +1,12 @@
 import { SearchBar, SearchExamples } from '@components';
 import { CodeIcon, SearchCircleIcon, SupportIcon } from '@heroicons/react/solid';
+import { useSearchMachine } from '@machines';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import React from 'react';
 
 const HomePage: NextPage = () => {
+  const { service: searchService } = useSearchMachine();
   const handleExampleClick: (text: string) => void = (text) => {
     console.log('example click', text);
   };
@@ -20,7 +22,7 @@ const HomePage: NextPage = () => {
           Modern Search Form
         </h2>
         <div className="col-span-6">
-          <SearchBar />
+          <SearchBar service={searchService} />
         </div>
         <div className="col-span-6">
           <SearchExamples onClick={handleExampleClick} />
@@ -35,7 +37,7 @@ const BottomLink = ({ icon, text }: { icon: React.ReactElement; text: string }):
     <Link href="/paper-form">
       <a className="flex flex-col items-center justify-center p-4 text-blue-500 hover:bg-gray-200">
         {icon}
-        <div className="text-center font-bold">{text}</div>
+        <div className="font-bold text-center">{text}</div>
       </a>
     </Link>
   </div>

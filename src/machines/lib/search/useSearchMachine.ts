@@ -1,4 +1,3 @@
-import Adsapi from '@api';
 import { useADSApi } from '@hooks';
 import { useInterpret, useSelector } from '@xstate/react';
 import { useRouter } from 'next/router';
@@ -29,9 +28,7 @@ export function useSearchMachine(props: IUseSearchMachineProps = {}) {
         if (ctx.params.q === '' || typeof ctx.params.q === 'undefined') {
           throw new Error('no query');
         }
-
         const { q, sort } = ctx.params;
-
         const params = {
           q,
           fl: ['bibcode', 'title', 'author', '[fields author=3]', 'author_count', 'pubdate'],
@@ -66,7 +63,3 @@ export function useSearchMachine(props: IUseSearchMachineProps = {}) {
 
   return state;
 }
-
-const getFetcher = (adsapi: Adsapi) => {
-  return;
-};

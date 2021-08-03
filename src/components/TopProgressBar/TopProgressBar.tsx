@@ -23,5 +23,5 @@ export const TopProgressBar = (): React.ReactElement => {
     };
   }, [Router]);
 
-  return null;
+  return <></>;
 };
