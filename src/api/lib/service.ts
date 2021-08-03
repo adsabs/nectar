@@ -15,7 +15,9 @@ export interface IServiceConfig extends AxiosRequestConfig {
 
 const {
   publicRuntimeConfig: { apiHost },
-} = getConfig() as AppRuntimeConfig;
+} = (getConfig() as AppRuntimeConfig) || {
+  publicRuntimeConfig: { apiHost: process.env.API_HOST },
+};
 
 const baseConfig: IServiceConfig = {
   token: undefined,

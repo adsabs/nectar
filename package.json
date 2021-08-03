@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "nodemon",
     "build": "next build && tsc --project tsconfig.server.json",
+    "build:server": "tsc --project tsconfig.server.json",
     "start": "NODE_ENV=production node dist/server/index.js",
     "analyze": "ANALYZE=true next build",
     "test": "jest",

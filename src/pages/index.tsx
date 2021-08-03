@@ -1,14 +1,12 @@
 import { SearchBar, SearchExamples } from '@components';
 import { CodeIcon, SearchCircleIcon, SupportIcon } from '@heroicons/react/solid';
-import { useOnSearchSubmit } from '@hooks/useOnSearchSubmit';
+import { useSearchMachine } from '@machines';
 import { NextPage } from 'next';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 import React from 'react';
 
 const HomePage: NextPage = () => {
-  const Router = useRouter();
-  const handleOnSubmit = useOnSearchSubmit(Router);
+  const { service: searchService } = useSearchMachine();
   const handleExampleClick: (text: string) => void = (text) => {
     console.log('example click', text);
   };
@@ -19,13 +17,12 @@ const HomePage: NextPage = () => {
         method="get"
         action="/search"
         className="grid grid-cols-6 gap-6 px-4 py-8 mx-auto my-8 bg-white shadow sm:rounded-lg lg:max-w-3xl"
-        onSubmit={handleOnSubmit}
       >
         <h2 className="sr-only" id="form-title">
           Modern Search Form
         </h2>
         <div className="col-span-6">
-          <SearchBar />
+          <SearchBar service={searchService} />
         </div>
         <div className="col-span-6">
           <SearchExamples onClick={handleExampleClick} />

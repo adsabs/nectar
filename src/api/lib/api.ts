@@ -21,7 +21,11 @@ export class Adsapi {
   }
 
   public static bootstrap(config: IServiceConfig = {}): Promise<Result<IADSApiBootstrapData, Error>> {
-    const { publicRuntimeConfig } = getConfig() as AppRuntimeConfig;
+    const { publicRuntimeConfig } = (getConfig() as AppRuntimeConfig) || {
+      publicRuntimeConfig: {
+        apiHost: process.env.API_HOST,
+      },
+    };
 
     return new Promise((resolve) => {
       axios
