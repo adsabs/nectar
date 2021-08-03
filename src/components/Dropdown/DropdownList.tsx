@@ -85,12 +85,14 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
         handleClick();
         return;
       case 'Space':
+        e.preventDefault();
         handleClick();
         return;
       case 'Escape':
         close();
         return;
       case 'ArrowDown':
+        e.preventDefault();
         open();
         focusItem(0);
         return;
@@ -100,27 +102,28 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
   };
 
   /* selected item */
-  const handleSelect = useCallback(
-    (item: ItemType) => {
-      return () => {
-        onSelect(item.id);
-        close();
-      }
-    }, [onSelect]
-  );
+  const handleSelect = (item: ItemType) => {
+    onSelect(item.id);
+    close();    
+  };
+
   /* keydown on item */
-  const handleItemKeyDown = (key: string, item: ItemType, index: number) => {
-    switch (key) {
+  const handleItemKeyDown = (e: KeyboardEvent, item: ItemType, index: number) => {
+    switch (e.key) {
       case 'Enter':
+        e.preventDefault();
         handleSelect(item);
         return;
       case 'Space':
+        e.preventDefault();
         handleSelect(item);
         return;
       case 'ArrowUp':
+        e.preventDefault();
         focusItem(index - 1);
         return;
       case 'ArrowDown':
+        e.preventDefault();
         focusItem(index + 1);
         return;
       case 'Escape':
@@ -163,6 +166,7 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
         onClick={handleClick}
         onKeyDown={handleKeyDown}
         aria-label={ariaLabel}
+        aria-expanded={visible}
       >
         {useCustomLabel ? (
           label
@@ -184,7 +188,7 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
             item={item}
             tabIndex={0}
             onClick={() => handleSelect(item)}
-            onKeyDown={(e) => handleItemKeyDown(e.key, item, index)}
+            onKeyDown={(e) => handleItemKeyDown(e, item, index)}
           />
         ))}
       </div>

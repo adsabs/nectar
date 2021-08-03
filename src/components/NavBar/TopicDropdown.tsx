@@ -31,7 +31,6 @@ const topics: ItemType[] = [
 
 export const TopicDropdown = (): ReactElement => {
   const [selectedTopic, setSelectedTopic] = useState<ItemType>(topics[0]);
-  const [expanded, setExpanded] = useState<boolean>(false);
 
   const getLabelNode = (label: string) => (
     <div
@@ -44,23 +43,19 @@ export const TopicDropdown = (): ReactElement => {
   );
 
   return (
-    <div role="listbox" aria-label="Topic Selector" aria-expanded={expanded}>
-      <DropdownList
-        label={getLabelNode(selectedTopic.label)}
-        items={topics}
-        onSelect={(topicId: string) => {
-          setSelectedTopic(topics.find(topic => topic.id === topicId));
-        }}
-        onExpanded={() => setExpanded(true)}
-        onClosed={() => setExpanded(false)}
-        classes={{
-          button: '',
-        }}
-        useCustomLabel={true}
-        placement='bottom-start'
-        role='listbox'
-        ariaLabel="Topic selector"
-      />
-    </div>
+    <DropdownList
+      label={getLabelNode(selectedTopic.label)}
+      items={topics}
+      onSelect={(topicId: string) => {
+        setSelectedTopic(topics.find(topic => topic.id === topicId));
+      }}
+      classes={{
+        button: '',
+      }}
+      useCustomLabel={true}
+      placement='bottom-start'
+      role='listbox'
+      ariaLabel="Topic selector"
+    />
   );
 };

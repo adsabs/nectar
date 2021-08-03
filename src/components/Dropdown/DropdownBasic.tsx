@@ -69,12 +69,14 @@ export const DropdownBasic = (props: IDropdownBasicProps): ReactElement => {
         handleClick();
         return;
       case 'Space':
+        e.preventDefault();
         handleClick();
         return;
       case 'Escape':
         close();
         return;
       case 'ArrowDown':
+        e.preventDefault();
         open();
         popperElement.focus();
         return;
