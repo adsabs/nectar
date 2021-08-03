@@ -8,7 +8,7 @@ import React, { useEffect, useMemo } from 'react';
 import { TypeaheadOption, typeaheadOptions } from './types';
 export interface ISearchBarProps {
   isLoading?: boolean;
-  service?: ISearchMachine;
+  service: ISearchMachine;
 }
 
 const useQuery = (searchService: ISearchMachine): [string, (query: string) => void] => {
