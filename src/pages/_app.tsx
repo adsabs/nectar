@@ -1,5 +1,4 @@
 import { Layout } from '@components';
-import { rootService } from '@machines';
 import { AppProvider } from '@store';
 import { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
@@ -17,7 +16,7 @@ const NectarApp: FC<AppProps> = ({ Component, pageProps }) => {
     <AppProvider>
       <TopProgressBar />
       <Layout>
-        <Component {...pageProps} service={rootService} />
+        <Component {...pageProps} />
       </Layout>
     </AppProvider>
   );
