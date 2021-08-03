@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import Adsapi from '@api';
-import { rootService } from '@machines';
 import { assign, DoneEventObject, Machine, MachineConfig, MachineOptions } from 'xstate';
 import { Context, Schema, Transition, TransitionTypes } from './types';
 
@@ -50,25 +48,26 @@ const config: MachineConfig<Context, Schema, Transition> = {
 const options: Partial<MachineOptions<Context, any>> = {
   services: {
     fetchAbstract: async (ctx) => {
-      let {
-        session: { access_token: token },
-      } = rootService.state.context;
-      if (typeof token !== 'string' || token.length === 0) {
-        const result = await Adsapi.bootstrap();
-        result.map(({ access_token }) => (token = access_token));
-      }
+      return new Promise((resolve) => resolve(''));
+      // let {
+      //   session: { access_token: token },
+      // } = rootService.state.context;
+      // if (typeof token !== 'string' || token.length === 0) {
+      //   const result = await Adsapi.bootstrap();
+      //   result.map(({ access_token }) => (token = access_token));
+      // }
 
-      const adsapi = new Adsapi({ token });
-      const result = await adsapi.search.query({
-        q: `id:${ctx.id}`,
-        fl: ['abstract'],
-      });
+      // const adsapi = new Adsapi({ token });
+      // const result = await adsapi.search.query({
+      //   q: `id:${ctx.id}`,
+      //   fl: ['abstract'],
+      // });
 
-      if (result.isErr()) {
-        throw result.error;
-      }
+      // if (result.isErr()) {
+      //   throw result.error;
+      // }
 
-      return result.value.docs[0].abstract;
+      // return result.value.docs[0].abstract;
     },
   },
   actions: {
