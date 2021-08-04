@@ -1,3 +1,4 @@
+import { Topic } from '@types';
 import React from 'react';
 import { reducer } from './reducer';
 import { Action, IAppState } from './types';
@@ -10,6 +11,7 @@ const initialAppState: IAppState = {
     access_token: '',
     expire_in: '',
   },
+  topic: Topic.GENERAL
 };
 
 // wrap the main reducer so we can debug/push changes to local storage

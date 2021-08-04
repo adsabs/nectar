@@ -3,32 +3,38 @@ import { DropdownList } from '../Dropdown';
 
 const items = [
   {
-    id: 'about-about',
+    id: 'about',
+    domId: 'about-about',
     path: '/about',
     label: 'About ADS'
   },
   {
-    id: 'about-new',
+    id: 'new',
+    domId: 'about-new',
     path: '/help/whats_new',
     label: 'What\'s New'
   },
   { 
-    id: 'about-blog',
+    id: 'blog',
+    domId: 'about-blog',
     path: '/blog',
     label: 'ADS Blog'
   },
   {
-    id: 'about-help',
+    id: 'help',
+    domId: 'about-help',
     path: '/help/',
     label: 'ADS Help Pages'
   },
   {
-    id: 'about-legacy',
+    id: 'legacy',
+    domId: 'about-legacy',
     path: '/help/legacy',
     label: 'ADS Legacy Services'
   },
   {
-    id: 'about-careers',
+    id: 'careers',
+    domId: 'about-careers',
     path: '/about/careers',
     label: 'Careers@ADS'
   }
@@ -37,7 +43,8 @@ const items = [
 export const AboutDropdown = (): ReactElement => {
 
   const handleSelect = (id: string) => {
-    window.open(items.find((item) => id === item.id).path, '_blank', 'noopener,noreferrer')
+    if (typeof window !== 'undefined')
+      window.open(items.find((item) => id === item.id).path, '_blank', 'noopener,noreferrer')
   };
 
   return (
