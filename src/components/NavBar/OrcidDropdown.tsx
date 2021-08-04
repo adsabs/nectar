@@ -29,6 +29,7 @@ export const OrcidDropdown = (): ReactElement => {
         container: 'border p-3',
       }}
       offset={[-60, 12]}
+      role="menu"
     >
       <button
         onClick={handleOrcidSignIn}

@@ -23,10 +23,10 @@ export const LandingTabs = (): React.ReactElement => {
 };
 
 const TitleLogo = () => (
-  <article className="z-10 hidden gap-2 items-center text-white text-5xl sm:flex">
+  <h1 className="z-10 hidden gap-2 items-center text-white sm:flex">
     <Image src="/img/transparent_logo.svg" width="75px" height="75px" aria-hidden="true" />
-    <span className="font-bold">astrophysics</span> data system
-  </article>
+    <span className="font-bold text-gray-100">astrophysics</span> <span className="text-gray-100">data system</span>
+  </h1>
 );
 
 interface ITabProps {
@@ -38,9 +38,9 @@ const Tab = ({ href, label, active }: ITabProps) => {
   const classes = clsx(
     {
       'bg-opacity-100 text-blue-500 hover:text-blue-800': active,
-      'bg-opacity-0 hover:bg-opacity-20': !active,
+      'bg-opacity-0 text-gray-100 hover:bg-opacity-20': !active,
     },
-    'flex-auto px-5 py-3 bg-gray-100 rounded-t-md',
+    'flex-auto px-5 py-3 bg-white rounded-t-md',
   );
 
   return (

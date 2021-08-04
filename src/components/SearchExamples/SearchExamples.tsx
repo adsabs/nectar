@@ -27,11 +27,11 @@ export const SearchExamples: FC<ISearchExamplesProps> = ({
       </h3>
       <ul className="col-span-6 p-1 md:col-span-3">
         {examples.left.map(({ label, text }) => (
-          <li className="flex justify-between py-1" key={label}>
-            <div className="flex flex-1 items-center">{label}</div>
+          <li className="grid grid-cols-3 gap-5 py-1" key={label}>
+            <div className="col-span-1 text-right font-bold">{label}</div>
             <button
               type="button"
-              className="p-1 font-bold hover:bg-gray-200 border border-dotted"
+              className="col-span-2 p-1 hover:bg-gray-200 border border-dotted"
               onClick={createHandler(text)}
             >
               {text}
@@ -41,11 +41,11 @@ export const SearchExamples: FC<ISearchExamplesProps> = ({
       </ul>
       <ul className="col-span-6 p-1 md:col-span-3">
         {examples.right.map(({ label, text }) => (
-          <li className="flex justify-evenly py-1" key={label}>
-            <div className="flex flex-1 items-center">{label}</div>
+          <li className="grid grid-cols-3 gap-5 py-1" key={label}>
+            <div className="col-span-1 text-right font-bold">{label}</div>
             <button
               type="button"
-              className="p-1 font-bold hover:bg-gray-200 border border-dotted"
+              className="col-span-2 p-1 hover:bg-gray-200 border border-dotted"
               onClick={createHandler(text)}
             >
               {text}

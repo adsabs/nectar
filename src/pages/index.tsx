@@ -16,7 +16,7 @@ const HomePage: NextPage = () => {
       <form
         method="get"
         action="/search"
-        className="grid grid-cols-6 gap-6 px-4 py-8 mx-auto my-8 bg-white shadow sm:rounded-lg lg:max-w-3xl"
+        className="grid gap-6 grid-cols-6 mx-auto my-8 px-4 py-8 lg:max-w-3xl"
       >
         <h2 className="sr-only" id="form-title">
           Modern Search Form
@@ -27,10 +27,6 @@ const HomePage: NextPage = () => {
         <div className="col-span-6">
           <SearchExamples onClick={handleExampleClick} />
         </div>
-        <hr className="col-span-6" />
-        <BottomLink icon={<SupportIcon className="w-16 h-16 my-4" />} text="Use a classic ADS-style form" />
-        <BottomLink icon={<SearchCircleIcon className="w-16 h-16 my-4" />} text="Learn more about searching the ADS" />
-        <BottomLink icon={<CodeIcon className="w-16 h-16 my-4" />} text="Access ADS data with our API" />
       </form>
     </section>
   );

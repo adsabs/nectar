@@ -12,7 +12,7 @@ export const Layout: FC<ILayoutProps> = ({ children }) => {
   const router = useRouter();
   const isLandingPages = /^(\/|\/classic-form|\/paper-form)$/.exec(router.asPath);
   return (
-    <section className="flex flex-col min-h-screen font-sans bg-gray-100">
+    <section className="flex flex-col min-h-screen font-sans bg-white default-text-color">
       <NavBar />
       <main>
         {isLandingPages && <LandingTabs />}

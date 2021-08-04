@@ -1,53 +1,43 @@
-import Link from 'next/link';
-import React, { FC, ReactElement } from 'react';
-import { DropdownList, ItemType } from '../Dropdown';
+import React, { ReactElement } from 'react';
+import { DropdownList } from '../Dropdown';
 
-interface IItemLinkProps {
-  href: string;
-}
-const ItemLink: FC<IItemLinkProps> = (props): ReactElement => {
-  const { href, children } = props;
-
-  return (
-    <Link href={href}>
-      <a>
-        <div className="w-full h-full text-gray-700">{children}</div>
-      </a>
-    </Link>
-  );
-};
-
-const items: ItemType[] = [
+const items = [
   {
-    id: 'about',
-    element: <ItemLink href="/about"> About ADS</ItemLink>,
+    id: 'about-about',
+    path: '/about',
+    label: 'About ADS'
   },
   {
-    id: 'whats new',
-    element: <ItemLink href="/help/whats_new"> What's New</ItemLink>,
+    id: 'about-new',
+    path: '/help/whats_new',
+    label: 'What\'s New'
+  },
+  { 
+    id: 'about-blog',
+    path: '/blog',
+    label: 'ADS Blog'
   },
   {
-    id: 'blog',
-    element: <ItemLink href="/blog"> ADS Blog</ItemLink>,
+    id: 'about-help',
+    path: '/help/',
+    label: 'ADS Help Pages'
   },
   {
-    id: 'help',
-    element: <ItemLink href="/help"> ADS Help Pages</ItemLink>,
+    id: 'about-legacy',
+    path: '/help/legacy',
+    label: 'ADS Legacy Services'
   },
   {
-    id: 'legacy',
-    element: <ItemLink href="/help/legacy"> ADS Legacy Services</ItemLink>,
-  },
-  {
-    id: 'careers',
-    element: <ItemLink href="/about/careers"> Careers@ADS</ItemLink>,
-  },
-];
+    id: 'about-careers',
+    path: '/about/careers',
+    label: 'Careers@ADS'
+  }
+]
 
 export const AboutDropdown = (): ReactElement => {
+
   const handleSelect = (id: string) => {
-    console.log(id);
-    return false;
+    window.open(items.find((item) => id === item.id).path, '_blank', 'noopener,noreferrer')
   };
 
   return (
@@ -59,6 +49,8 @@ export const AboutDropdown = (): ReactElement => {
         button: 'text-gray-300 hover:text-white focus:text-white',
       }}
       offset={[-60, 12]}
+      useCustomLabel={false}
+      role='menu'
     />
   );
 };
