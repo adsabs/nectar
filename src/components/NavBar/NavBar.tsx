@@ -3,10 +3,12 @@ import React, { FC } from 'react';
 import { TopicDropdown } from './TopicDropdown';
 import { AboutDropdown } from './AboutDropdown';
 import { OrcidDropdown } from './OrcidDropdown';
+import styles from './NavBar.module.css'
+
 
 export const NavBar: FC = () => {
   return (
-    <nav className="flex bg-gray-1000 items-center">
+    <nav className={`flex ${styles['navbar-bg-color']} items-center`}>
       <div className="px-4 sm:px-6 lg:px-8">
         <Link href="/">
           <a className="flex items-center h-12">

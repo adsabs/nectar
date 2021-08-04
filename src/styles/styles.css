@@ -20,15 +20,7 @@
     @apply text-gray-600;
   }
 
-  .defatul-bg-color {
+  .default-bg-color {
     @apply bg-white;
-  }
-
-  .navbar-text-color {
-    @apply text-gray-300;
-  }
-
-  .navbar-bg-color {
-    @apply bg-gray-1000;
   }
 }

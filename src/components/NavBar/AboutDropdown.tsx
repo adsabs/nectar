@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
-import { DropdownList, ItemType } from '../Dropdown';
+import { DropdownList } from '../Dropdown';
 
-const menu = [
+const items = [
   {
     id: 'about-about',
     path: '/about',
@@ -34,17 +34,10 @@ const menu = [
   }
 ]
 
-const items: ItemType[] = (() => {
-  return menu.map( item => ({
-    id: item.id,
-    label: item.label,
-  }))
-})();
-
 export const AboutDropdown = (): ReactElement => {
 
   const handleSelect = (id: string) => {
-    window.open(menu.find((item) => id === item.id).path, '_blank', 'noopener,noreferrer')
+    window.open(items.find((item) => id === item.id).path, '_blank', 'noopener,noreferrer')
   };
 
   return (

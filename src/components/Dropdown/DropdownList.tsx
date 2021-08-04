@@ -4,11 +4,12 @@ import React, { HTMLAttributes, ReactElement, ReactNode, useCallback, useState, 
 import OutsideClickHandler from 'react-outside-click-handler';
 import { usePopper } from 'react-popper';
 import { Placement } from '@popperjs/core';
+import { useEffect } from 'react';
 
 export type ItemType = {
   id: string;
   label?: string;
-  element?: ReactNode;
+  path?: string;
 };
 
 export interface IDropdownListProps {
@@ -32,6 +33,8 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement>();
   const [popperElement, setPopperElement] = useState<HTMLDivElement>();
   const [visible, setVisible] = useState<boolean>(false);
+
+  useEffect(() => (visible? onExpanded() : onClosed()), [visible]);
 
   const targetRef = useCallback((node: HTMLButtonElement) => {
     if (node !== null) {
@@ -57,33 +60,17 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
     ],
   });
 
-  const close = () => {
-    if (visible) {
-      setVisible(false);
-      onClosed();
-    }
-  };
+  const close = () => setVisible(false);
 
-  const open = () => {
-    if (!visible) {
-      setVisible(true);
-      onExpanded();
-    }
-  };
+  const open = () => setVisible(true);
 
   /* Click on dropdown */
-  const handleClick = () => {
-    setVisible(!visible);
-    visible ? onExpanded() : onClosed();
-  };
+  const handleClick = () => setVisible(!visible);
 
   /* keydown on dropdown */
   const handleKeyDown = (e: KeyboardEvent) => {
     switch (e.key) {
       case 'Enter':
-        e.preventDefault();
-        handleClick();
-        return;
       case 'Space':
         e.preventDefault();
         handleClick();
@@ -95,8 +82,6 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
         e.preventDefault();
         open();
         focusItem(0);
-        return;
-      default:
         return;
     }
   };
@@ -111,9 +96,6 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
   const handleItemKeyDown = (e: KeyboardEvent, item: ItemType, index: number) => {
     switch (e.key) {
       case 'Enter':
-        e.preventDefault();
-        handleSelect(item);
-        return;
       case 'Space':
         e.preventDefault();
         handleSelect(item);
@@ -127,24 +109,15 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
         focusItem(index + 1);
         return;
       case 'Escape':
-        close();
-        return;
       case 'Tab':
-        close();
-        return;
-      default:
-        return;
+        return close();
     }
   };
 
   const focusItem = (index: number) => {
-    if (index >= items.length) {
-      index = 0;
-    }
-    if (index < 0) {
-      index = items.length - 1;
-    }
-    document.getElementById(`${items[index].id}`).focus();
+    const numItems = items.length;
+    const idx = index >= numItems? 0 : index < 0? numItems - 1 : index;
+    document.getElementById(`${items[idx].id}`).focus();
   };
 
   const handleOutsideClick = () => {

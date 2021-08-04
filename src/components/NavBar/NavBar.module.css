@@ -1,0 +1,7 @@
+.navbar-text-color {
+  @apply text-gray-300;
+}
+
+.navbar-bg-color {
+  @apply bg-gray-1000;
+}

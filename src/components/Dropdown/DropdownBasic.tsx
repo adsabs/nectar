@@ -53,34 +53,24 @@ export const DropdownBasic = (props: IDropdownBasicProps): ReactElement => {
     setVisible(false);
   };
 
-  const open = () => {
-    visible || setVisible(true);
-  }
+  const open = () => setVisible(true);
 
-  const close = () => {
-    !visible || setVisible(false);
-  }
+  const close = () => setVisible(false);
 
   /* keydown on dropdown */
   const handleKeyDown = (e: KeyboardEvent) => {
     switch (e.key) {
       case 'Enter':
-        e.preventDefault();
-        handleClick();
-        return;
       case 'Space':
         e.preventDefault();
         handleClick();
         return;
       case 'Escape':
-        close();
-        return;
+        return close();
       case 'ArrowDown':
         e.preventDefault();
         open();
         popperElement.focus();
-        return;
-      default:
         return;
     }
   };
@@ -88,10 +78,7 @@ export const DropdownBasic = (props: IDropdownBasicProps): ReactElement => {
   const handleChildrenKeydown = (e: KeyboardEvent) => {
     switch (e.key) {
       case 'Escape':
-        close();
-        return;
-      default:
-        return;
+        return close();
     }
   }
 
