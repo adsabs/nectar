@@ -17,7 +17,7 @@ export const NavBar: FC = () => {
               src="/img/transparent_logo.svg"
               aria-hidden="true"
             />
-            <h1 className="ml-2 text-white text-2xl font-bold">ads</h1>
+            <h1 className="ml-2 text-white text-2xl font-bold">SciX</h1>
           </a>
         </Link>
       </div>
