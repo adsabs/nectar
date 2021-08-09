@@ -5,6 +5,7 @@ import { AppEvent, useAppCtx } from '@store';
 import { Theme } from '@types';
 import styles from './NavBar.module.css';
 import { useRouter } from 'next/router';
+import clsx from 'clsx';
 
 const themes: ItemType[] = [
   {
@@ -57,12 +58,14 @@ export const ThemeDropdown = (): ReactElement => {
     setSelectedTheme(themeId);
   }
 
+  const selectorClasses = clsx(styles['navbar-bg-color'], styles['navbar-text-color'], 'flex items-center justify-between w-64 border border-gray-50 border-opacity-50 rounded-sm cursor-pointer');
+
   const getLabelNode = (itemId: string) => {
     const label = themes.find(item => item.id === itemId).label;
     return (
     <div
       id="themeSelector"
-      className={`${styles['navbar-bg-color']} ${styles['navbar-text-color']} flex items-center justify-between w-64 border border-gray-50 border-opacity-50 rounded-sm cursor-pointer`}
+      className={selectorClasses}
     >
       <span className="inline-block align-baseline p-1.5">{label}</span>
       <ChevronDownIcon className="inline m-1.5 w-4 h-4" />

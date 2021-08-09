@@ -4,11 +4,14 @@ import { ThemeDropdown } from './ThemeDropdown';
 import { AboutDropdown } from './AboutDropdown';
 import { OrcidDropdown } from './OrcidDropdown';
 import styles from './NavBar.module.css'
+import clsx from 'clsx';
 
 
 export const NavBar: FC = () => {
+  const navbarClasses = clsx(styles['navbar-bg-color'], 'flex items-center');
+
   return (
-    <nav className={`flex ${styles['navbar-bg-color']} items-center`}>
+    <nav className={navbarClasses}>
       <div className="px-4 sm:px-6 lg:px-8">
         <Link href="/">
           <a className="flex items-center h-12">
