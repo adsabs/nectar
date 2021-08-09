@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import React, { FC } from 'react';
-import { TopicDropdown } from './TopicDropdown';
+import { ThemeDropdown } from './ThemeDropdown';
 import { AboutDropdown } from './AboutDropdown';
 import { OrcidDropdown } from './OrcidDropdown';
 import styles from './NavBar.module.css'
@@ -21,7 +21,7 @@ export const NavBar: FC = () => {
           </a>
         </Link>
       </div>
-      <TopicDropdown />
+      <ThemeDropdown />
       <a
         href="#main-content"
         className="flex items-center text-white focus:not-sr-only sr-only"

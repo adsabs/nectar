@@ -1,14 +1,14 @@
 import { IADSApiBootstrapData } from '@api';
-import { Topic } from '../types';
+import { Theme } from '../types';
 
 export interface IAppState {
   user: IADSApiBootstrapData;
-  topic: Topic;
+  theme: Theme;
 }
 
 export enum AppEvent {
   SET_USER = 'SET_USER',
-  SET_TOPIC = 'SET_TOPIC',
+  SET_THEME = 'SET_THEME',
 }
 
-export type Action = { type: AppEvent; payload: IAppState['user'] | IAppState['topic'] };
+export type Action = { type: AppEvent; payload: IAppState['user'] | IAppState['theme'] };

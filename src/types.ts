@@ -11,7 +11,7 @@ export interface AppRuntimeConfig {
   serverRuntimeConfig: Record<string, string>;
 }
 
-export enum Topic {
+export enum Theme {
   GENERAL = 'GENERAL',
   ASTROPHYSICS = 'ASTROPHYSICS',
   HELIOPHYISCS = 'HELIOPHYSICS',

@@ -1,7 +1,18 @@
+import { useAppCtx } from '@store';
+import { Theme } from '@types';
 import { NextPage } from 'next';
+import { useRouter } from 'next/router';
 import React from 'react';
+import { useEffect } from 'react';
 
 const PaperForm: NextPage = () => {
+  const Router = useRouter();
+  const { state } = useAppCtx()
+  useEffect(() => {
+    if (state.theme !== Theme.ASTROPHYSICS) {
+      void Router.replace('/');
+    }
+  });
   return (
     <form className="grid gap-6 grid-cols-6 mx-auto my-4 px-4 py-12 max-w-3xl">
       <div className="col-span-6 px-2 py-4 bg-gray-100 shadow sm:rounded-md sm:overflow-hidden">
