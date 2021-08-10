@@ -42,6 +42,7 @@ export interface Context {
   error: { message: string; name: string; stack: string };
   pagination: {
     page: number;
+    numPerPage: number;
   };
 }
 

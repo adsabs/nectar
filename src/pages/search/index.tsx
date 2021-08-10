@@ -17,6 +17,7 @@ interface ISearchPageProps extends INectarPageProps {
   docs: IDocsEntity[];
   meta: {
     numFound: number;
+    page: number;
   };
 }
 
@@ -24,13 +25,13 @@ const SearchPage = withNectarPage<ISearchPageProps>((props) => {
   const {
     params: { q, sort = ['date desc'] },
     docs = [],
-    meta: { numFound = 0 },
+    meta: { numFound = 0, page },
     error,
   } = props;
 
   console.log('search page props', props);
 
-  return <Form params={{ q, sort }} serverResult={{ docs, numFound }} serverError={error} />;
+  return <Form params={{ q, sort }} serverResult={{ docs, numFound, page }} serverError={error} />;
 });
 
 interface IFormProps {
@@ -38,13 +39,14 @@ interface IFormProps {
   serverResult: {
     docs: IDocsEntity[];
     numFound: number;
+    page: number;
   };
   serverError: string;
 }
 const Form = (props: IFormProps): React.ReactElement => {
   const {
     params: { q: query, sort },
-    serverResult: { docs, numFound },
+    serverResult: { docs, numFound, page },
     serverError,
   } = props;
 
@@ -52,6 +54,7 @@ const Form = (props: IFormProps): React.ReactElement => {
   const { service: searchService, result, error, isLoading, isFailure } = useSearchMachine({
     initialParams: { q: query, sort },
     initialResult: { docs, numFound },
+    initialPagination: { numPerPage: 10, page },
   });
 
   /**
@@ -115,15 +118,24 @@ const SortWrapper = ({ service: searchService }: { service: ISearchMachine }) =>
 
 export const getServerSideProps = withNectarSessionData<ISearchPageProps>(async (ctx, sessionData) => {
   const query = normalizeURLParams(ctx.query);
+  const parsedPage = parseInt(query.p);
+  const page = isNaN(parsedPage) ? 1 : Math.abs(parsedPage);
+
+  console.log('page', page, (page - 1) * 10);
 
   const params: IADSApiSearchParams = {
     q: query.q,
     fl: ['bibcode', 'title', 'author', '[fields author=3]', 'author_count', 'pubdate'],
     sort: query.sort ? (query.sort.split(',') as SolrSort[]) : ['date desc'],
+    rows: 10,
+    start: (page - 1) * 10,
   };
+
+  console.log('search params', params);
   const adsapi = new AdsApi({ token: sessionData.access_token });
   const result = await adsapi.search.query(params);
   if (result.isErr()) {
+    console.log('is Error', result.error.message);
     return {
       props: {
         error: result.error.message,
@@ -134,19 +146,24 @@ export const getServerSideProps = withNectarSessionData<ISearchPageProps>(async 
           sort: [],
         },
         docs: [],
-        meta: { numFound: 0 },
+        meta: { numFound: 0, page },
       },
     };
   }
 
   const { docs, numFound } = result.value;
 
+  console.log(
+    'result',
+    docs.map((d) => d.bibcode),
+  );
+
   return {
     props: {
       sessionData,
       params,
       docs,
-      meta: { numFound },
+      meta: { numFound, page },
     },
   };
 });
