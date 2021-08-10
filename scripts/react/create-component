@@ -12,46 +12,32 @@ const dir = path.join(base, 'src/components/', name);
 const testDir = path.join(base, 'src/components/__tests__');
 const storyDir = path.join(base, 'src/components/__stories__');
 
-// throw an error if the file already exists
-if (fs.existsSync(dir))
-  throw new Error('A component with that name already exists.');
-
-function writeFileErrorHandler(err) {
+const writeFileErrorHandler = (err) => {
   if (err) {
     throw err;
   }
+};
+
+// if compnonent exists, do everything except create the component
+const componentExists = fs.existsSync(dir);
+
+if (!componentExists) {
+  // create the folder
+  fs.mkdirSync(dir, { recursive: true }, writeFileErrorHandler);
+  // component.tsx
+  fs.writeFile(path.join(dir, `${name}.tsx`), component(name), writeFileErrorHandler);
+  // component barrel
+  fs.writeFile(path.join(dir, `index.ts`), barrel(name), writeFileErrorHandler);
 }
-
-// create the folder
-fs.mkdirSync(dir, { recursive: true }, writeFileErrorHandler);
-
-// component.tsx
-fs.writeFile(
-  path.join(dir, `${name}.tsx`),
-  component(name),
-  writeFileErrorHandler,
-);
-// component barrel
-fs.writeFile(path.join(dir, `index.ts`), barrel(name), writeFileErrorHandler);
 // storybook.jsx
-fs.writeFile(
-  path.join(storyDir, `${name}.stories.tsx`),
-  story(name),
-  writeFileErrorHandler,
-);
+fs.writeFile(path.join(storyDir, `${name}.stories.tsx`), story(name), writeFileErrorHandler);
 // test.tsx
-fs.writeFile(
-  path.join(testDir, `${name}.test.tsx`),
-  test(name),
-  writeFileErrorHandler,
-);
+fs.writeFile(path.join(testDir, `${name}.test.tsx`), test(name), writeFileErrorHandler);
 
 ////////////////
 /// Optional ///
 ////////////////
 
-fs.appendFile(
-  path.join(base, 'src/components', 'index.ts'),
-  `${barrel(name)}\n`,
-  writeFileErrorHandler,
-);
+if (!componentExists) {
+  fs.appendFile(path.join(base, 'src/components', 'index.ts'), `${barrel(name)}\n`, writeFileErrorHandler);
+}
