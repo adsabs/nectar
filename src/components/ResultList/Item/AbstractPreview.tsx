@@ -40,15 +40,16 @@ export const AbstractPreview = ({
   return (
     <div className="flex">
       <button
+        title={showAbstract? "hide abstract" : "show abstract"}
         onClick={handleShowAbstractClick}
         disabled={state.matches('failure')}
       >
         {state.matches('fetching') ? (
-          <RefreshIcon />
+          <RefreshIcon className="default-icon default-link-color"/>
         ) : showAbstract ? (
-          <FolderOpenIcon />
+          <FolderOpenIcon className="default-icon default-link-color"/>
         ) : (
-          <FolderIcon />
+          <FolderIcon className="default-icon default-link-color"/>
         )}
       </button>
       <span className="ml-3 text-red-600">
