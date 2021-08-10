@@ -53,8 +53,8 @@ export const ThemeDropdown = (): ReactElement => {
 
   const [selectedTheme, setSelectedTheme] = useState<string>(getUserTheme());
 
-  const setUserTheme = (themeId: string) => {
-    dispatch({type: AppEvent.SET_THEME, payload: themeId as Theme});
+  const setUserTheme = (themeId: Theme) => {
+    dispatch({type: AppEvent.SET_THEME, payload: themeId });
     setSelectedTheme(themeId);
   }
 
@@ -73,7 +73,7 @@ export const ThemeDropdown = (): ReactElement => {
     )
   };
 
-  const handleOnSelect = (themeId: string) => {
+  const handleOnSelect = (themeId: Theme) => {
     setUserTheme(themeId);
     setSelectedTheme(themes.find((theme) => theme.id === themeId).id);
     if (themeId !== Theme.ASTROPHYSICS && (router.asPath === '/classic-form' || router.asPath === '/paper-form')) {

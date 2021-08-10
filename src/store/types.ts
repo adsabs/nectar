@@ -11,4 +11,6 @@ export enum AppEvent {
   SET_THEME = 'SET_THEME',
 }
 
-export type Action = { type: AppEvent; payload: IAppState['user'] | IAppState['theme'] };
+export type Action =
+  | { type: AppEvent.SET_USER; payload: IAppState['user'] }
+  | { type: AppEvent.SET_THEME; payload: IAppState['theme'] };
