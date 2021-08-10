@@ -45,6 +45,7 @@ export const Pagination = (props: IPaginationProps): React.ReactElement => {
             <a
               onClick={pageChangeHandler(index)}
               aria-current="page"
+              aria-label={`Current page, page ${page}`}
               className="relative z-10 inline-flex items-center px-4 py-2 text-sm font-medium text-indigo-600 border border-indigo-500 bg-indigo-50"
             >
               {index}
@@ -58,6 +59,7 @@ export const Pagination = (props: IPaginationProps): React.ReactElement => {
         <Link key={href} href={isBrowser ? '#' : href}>
           <a
             onClick={pageChangeHandler(index)}
+            aria-label={`Goto page ${page}`}
             className="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-50"
           >
             {index}
@@ -87,9 +89,18 @@ export const Pagination = (props: IPaginationProps): React.ReactElement => {
       'cursor-not-allowed': noNext,
     },
   );
+  const formattedTotalResults = totalResults.toLocaleString();
+  const paginationHeading = `Pagination, showing ${startIndex} to ${endIndex} of ${formattedTotalResults} results`;
 
   return (
-    <div {...divProps} className="flex items-center justify-between px-4 py-3 bg-white border-gray-200 sm:px-6">
+    <section
+      {...divProps}
+      aria-labelledby="pagination"
+      className="flex items-center justify-between px-4 py-3 bg-white border-gray-200 sm:px-6"
+    >
+      <h3 className="sr-only" id="pagination">
+        {paginationHeading}
+      </h3>
       <div className="flex justify-between flex-1 sm:hidden">
         <Link href={isBrowser ? '#' : prevHref}>
           <a className={mobilePrevButtonStyles} onClick={handlePrev}>
@@ -103,32 +114,34 @@ export const Pagination = (props: IPaginationProps): React.ReactElement => {
         </Link>
       </div>
       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-        <div>
+        <div aria-hidden="true">
           <p className="text-sm text-gray-700">
             Showing <span className="font-medium">{startIndex}</span> to <span className="font-medium">{endIndex}</span>{' '}
-            of <span className="font-medium">{totalResults}</span> results
+            of <span className="font-medium">{formattedTotalResults}</span> results
           </p>
         </div>
-        <div>
-          <nav className="relative z-0 inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-            <Link href={isBrowser ? '#' : prevHref}>
-              <a className={prevButtonStyles} onClick={handlePrev}>
-                <span className="sr-only">Previous</span>
-                <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
-              </a>
-            </Link>
+        <nav
+          className="relative z-0 inline-flex -space-x-px rounded-md shadow-sm"
+          role="navigation"
+          aria-label="Pagination"
+        >
+          <Link href={isBrowser ? '#' : prevHref}>
+            <a className={prevButtonStyles} onClick={handlePrev}>
+              <span className="sr-only">Previous</span>
+              <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
+            </a>
+          </Link>
 
-            {renderControls()}
+          {renderControls()}
 
-            <Link href={isBrowser ? '#' : nextHref}>
-              <a className={nextButtonStyles} onClick={handleNext}>
-                <span className="sr-only">Next</span>
-                <ChevronRightIcon className="w-5 h-5" aria-hidden="true" />
-              </a>
-            </Link>
-          </nav>
-        </div>
+          <Link href={isBrowser ? '#' : nextHref}>
+            <a className={nextButtonStyles} onClick={handleNext}>
+              <span className="sr-only">Next</span>
+              <ChevronRightIcon className="w-5 h-5" aria-hidden="true" />
+            </a>
+          </Link>
+        </nav>
       </div>
-    </div>
+    </section>
   );
 };

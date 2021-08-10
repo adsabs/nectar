@@ -66,14 +66,14 @@ const Form = (props: IFormProps): React.ReactElement => {
   };
 
   return (
-    <section aria-labelledby="form-title">
+    <article aria-labelledby="search-form-title">
       <form
         method="get"
         action="/search"
         onSubmit={handleOnSubmit}
         className="grid grid-cols-6 gap-2 px-4 py-8 mx-auto my-8 bg-white shadow sm:rounded-lg lg:max-w-7xl"
       >
-        <h2 className="sr-only" id="form-title">
+        <h2 className="sr-only" id="search-form-title">
           Search Results
         </h2>
         <div className="col-span-6">
@@ -99,7 +99,7 @@ const Form = (props: IFormProps): React.ReactElement => {
         </div>
         <div className="col-span-6"></div>
       </form>
-    </section>
+    </article>
   );
 };
 

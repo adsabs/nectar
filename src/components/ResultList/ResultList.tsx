@@ -22,7 +22,7 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
   });
 
   return (
-    <div {...divProps} className="flex flex-col mt-1 space-y-1">
+    <article {...divProps} className="flex flex-col mt-1 space-y-1">
       {isLoading ? (
         <Skeleton count={10} />
       ) : docs.length > 0 ? (
@@ -36,6 +36,6 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
       ) : (
         <div className="flex items-center justify-center text-lg">No Results Found</div>
       )}
-    </div>
+    </article>
   );
 };
