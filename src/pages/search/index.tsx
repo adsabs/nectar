@@ -29,8 +29,6 @@ const SearchPage = withNectarPage<ISearchPageProps>((props) => {
     error,
   } = props;
 
-  console.log('search page props', props);
-
   return <Form params={{ q, sort }} serverResult={{ docs, numFound, page }} serverError={error} />;
 });
 
@@ -121,8 +119,6 @@ export const getServerSideProps = withNectarSessionData<ISearchPageProps>(async 
   const parsedPage = parseInt(query.p);
   const page = isNaN(parsedPage) ? 1 : Math.abs(parsedPage);
 
-  console.log('page', page, (page - 1) * 10);
-
   const params: IADSApiSearchParams = {
     q: query.q,
     fl: ['bibcode', 'title', 'author', '[fields author=3]', 'author_count', 'pubdate'],
@@ -131,11 +127,9 @@ export const getServerSideProps = withNectarSessionData<ISearchPageProps>(async 
     start: (page - 1) * 10,
   };
 
-  console.log('search params', params);
   const adsapi = new AdsApi({ token: sessionData.access_token });
   const result = await adsapi.search.query(params);
   if (result.isErr()) {
-    console.log('is Error', result.error.message);
     return {
       props: {
         error: result.error.message,

@@ -66,8 +66,6 @@ export const usePagination = (searchService: ISearchMachine): IUsePagination => 
     [page],
   );
 
-  console.log({ totalPages, page, totalResults, numPerPage });
-
   return {
     nextHref: `/search?${qs.stringify({ ...query, p: clamp(1, totalPages, page + 1) })}`,
     prevHref: `/search?${qs.stringify({ ...query, p: clamp(1, totalPages, page - 1) })}`,
