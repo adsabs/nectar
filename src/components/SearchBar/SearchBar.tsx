@@ -136,7 +136,7 @@ const Input = React.forwardRef<HTMLInputElement, ControllerStateAndHelpers<Typea
             </button>
           )}
         </div>
-        <button className="relative inline-flex items-center px-4 py-2 -ml-px space-x-2 text-sm font-medium bg-blue-600 border border-blue-600 hover:bg-blue-500 focus:border-indigo-500 rounded-r-md focus:outline-none focus:ring-indigo-500 focus:ring-1">
+        <button className="relative inline-flex items-center px-4 py-2 -ml-px space-x-2 text-sm font-medium bg-blue-600 border border-blue-600 hover:bg-blue-500 focus:border-blue-500 rounded-r-md focus:outline-none focus:ring-blue-500 focus:ring-1">
           <SearchIcon className="w-5 h-5 text-white" aria-hidden="true" />
           <span className="sr-only">Search</span>
         </button>

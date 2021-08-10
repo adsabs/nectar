@@ -4,6 +4,6 @@ import { Default as ResultList } from '../__stories__/ResultList.stories';
 
 describe('ResultList', () => {
   it('renders without crashing', () => {
-    render(<ResultList docs={[]} />);
+    render(<ResultList docs={[]} showActions={true}/>);
   });
 });

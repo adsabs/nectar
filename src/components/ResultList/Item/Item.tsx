@@ -30,7 +30,6 @@ export const Item = (props: IItemProps): React.ReactElement => {
 
   return (
     <article className="flex bg-white border rounded-md shadow" aria-labelledby={`result-${id}`}>
-      <div className="items-center justify-center hidden mr-3 md:flex">{index}</div>
       {hideCheckbox ? null : (
         <div className={checkBgClass}>
           <div className={indexClass}>{index}</div>

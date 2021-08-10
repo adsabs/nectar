@@ -29,7 +29,7 @@ const CoreadsPage: NextPage<ICitationsPageProps> = (props) => {
             <em>Papers also read by those who read</em> {originalDoc.title}
           </h2>
         </div>
-        <ResultList docs={docs} hideCheckboxes={true} />
+        <ResultList docs={docs} hideCheckboxes={true} showActions={false} />
       </article>
     </section>
   );
