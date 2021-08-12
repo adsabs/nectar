@@ -1,13 +1,10 @@
 import { SolrSort } from '@api';
 import { BibstemPicker, Button, Sort, TextInput } from '@components';
 import { ClassicformController, RawClassicFormParams } from '@controllers/classicformController';
-import { useAppCtx } from '@store';
-import { Theme } from '@types';
 import clsx from 'clsx';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import React, { useReducer } from 'react';
-import { useEffect } from 'react';
 
 interface FormEvent {
   name: string;
@@ -22,12 +19,6 @@ const formReducer = (state: Record<string, string>, event: FormEvent) => {
 
 const ClassicForm: NextPage = () => {
   const Router = useRouter();
-  const { state } = useAppCtx();
-  useEffect( () => {
-    if (state.theme !== Theme.ASTROPHYSICS) {
-      void Router.replace('/');
-    }
-  });
   const [formData, setFormData] = useReducer(formReducer, {});
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.currentTarget;

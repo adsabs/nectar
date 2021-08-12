@@ -76,9 +76,6 @@ export const ThemeDropdown = (): ReactElement => {
   const handleOnSelect = (themeId: Theme) => {
     setUserTheme(themeId);
     setSelectedTheme(themes.find((theme) => theme.id === themeId).id);
-    if (themeId !== Theme.ASTROPHYSICS && (router.asPath === '/classic-form' || router.asPath === '/paper-form')) {
-      void router.replace('/');
-    }
   };
 
   return (
