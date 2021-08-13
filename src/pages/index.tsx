@@ -1,8 +1,6 @@
 import { SearchBar, SearchExamples } from '@components';
-import { CodeIcon, SearchCircleIcon, SupportIcon } from '@heroicons/react/solid';
 import { useSearchMachine } from '@machines';
 import { NextPage } from 'next';
-import Link from 'next/link';
 import React from 'react';
 
 const HomePage: NextPage = () => {
@@ -31,16 +29,5 @@ const HomePage: NextPage = () => {
     </section>
   );
 };
-
-const BottomLink = ({ icon, text }: { icon: React.ReactElement; text: string }): React.ReactElement => (
-  <div className="col-span-6 md:col-span-2">
-    <Link href="/paper-form">
-      <a className="flex flex-col items-center justify-center p-4 text-blue-500 hover:bg-gray-200">
-        {icon}
-        <div className="font-bold text-center">{text}</div>
-      </a>
-    </Link>
-  </div>
-);
 
 export default HomePage;

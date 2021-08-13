@@ -1,3 +1,4 @@
+import { Theme } from '@types';
 import React from 'react';
 import { reducer } from './reducer';
 import { Action, IAppState } from './types';
@@ -10,6 +11,7 @@ const initialAppState: IAppState = {
     access_token: '',
     expire_in: '',
   },
+  theme: Theme.GENERAL,
 };
 
 // wrap the main reducer so we can debug/push changes to local storage
@@ -41,7 +43,10 @@ const AppProvider = (props: React.PropsWithChildren<Record<string, unknown>>): R
     (initial): IAppState => {
       return typeof window === 'undefined'
         ? initial
-        : (JSON.parse(localStorage.getItem(APP_STORAGE_KEY)) as IAppState) || initial;
+        : {
+            ...((JSON.parse(localStorage.getItem(APP_STORAGE_KEY)) as IAppState) || initial),
+            ...initial,
+          };
     },
   );
   return React.createElement(ctx.Provider, { value: { state, dispatch }, ...props });

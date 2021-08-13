@@ -10,6 +10,7 @@ export type ItemType = {
   id: string;
   label?: string;
   path?: string;
+  domId: string;
 };
 
 export interface IDropdownListProps {
@@ -117,7 +118,8 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
   const focusItem = (index: number) => {
     const numItems = items.length;
     const idx = index >= numItems? 0 : index < 0? numItems - 1 : index;
-    document.getElementById(`${items[idx].id}`).focus();
+    if (typeof window !== 'undefined')
+      document.getElementById(`${items[idx].domId}`).focus();
   };
 
   const handleOutsideClick = () => {
@@ -188,16 +190,13 @@ interface IItemProps extends HTMLAttributes<HTMLButtonElement | HTMLDivElement> 
 }
 const Item = (props: IItemProps): ReactElement => {
   const {
-    item: { id, label, element },
+    item: { domId, label },
     ...restProps
   } = props;
   const itemClasses = clsx('px-3 py-2 text-left hover:bg-gray-100');
 
-  if (element) {
-    return <button className={itemClasses} {...restProps} id={id} >{element}</button>;
-  }
   return (
-    <button className={itemClasses} type="button" {...restProps} id={id}>
+    <button className={itemClasses} type="button" {...restProps} id={domId}>
       {label}
     </button>
   );
