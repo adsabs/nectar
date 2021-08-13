@@ -4,7 +4,7 @@ import { reducer } from './reducer';
 import { Action, IAppState } from './types';
 const APP_STORAGE_KEY = 'nectar-app-state';
 
-const initialAppState: IAppState = {
+export const initialAppState: IAppState = {
   user: {
     username: 'anonymous',
     anonymous: true,
@@ -44,8 +44,8 @@ const AppProvider = (props: React.PropsWithChildren<Record<string, unknown>>): R
       return typeof window === 'undefined'
         ? initial
         : {
-            ...((JSON.parse(localStorage.getItem(APP_STORAGE_KEY)) as IAppState) || initial),
             ...initial,
+            ...((JSON.parse(localStorage.getItem(APP_STORAGE_KEY)) as IAppState) || initial),
           };
     },
   );

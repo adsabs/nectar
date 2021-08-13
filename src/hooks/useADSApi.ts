@@ -3,15 +3,19 @@ import { AppEvent, useAppCtx } from '@store';
 import { isPast, parseISO } from 'date-fns';
 import { useEffect, useRef } from 'react';
 
-const isExpired = (maybeExpired: string) => isPast(parseISO(maybeExpired));
+// token is expired if we get any value other than a valid non-expired ISO date string
+const isExpired = (maybeExpired: string) =>
+  typeof maybeExpired === 'string' && maybeExpired.length > 0 ? isPast(parseISO(maybeExpired)) : true;
 
 export const useADSApi = (): { adsapi: Adsapi } => {
   const { state, dispatch } = useAppCtx();
   const adsApiInstance = useRef<Adsapi>(null);
+  const firstRender = useRef(true);
 
   useEffect(() => {
-    // drop out early if already instantiated
-    if (adsApiInstance.current instanceof Adsapi) {
+    // skip first render, to give server a chance to update user state
+    if (firstRender.current) {
+      firstRender.current = false;
       return;
     }
 
