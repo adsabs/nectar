@@ -37,10 +37,7 @@ export const usePagination = (searchService: ISearchMachine): IUsePagination => 
   const endIndex = startIndex + numPerPage - 1;
 
   // spreads the pagination control out, moving the current to the middle after the first few pages
-  const pageRange = range(
-    page === 1 ? 1 : page === 2 ? page - 1 : page === 3 ? page - 2 : page - 3,
-    page < totalPages - 3 ? page + 4 : page + (totalPages - page + 1),
-  );
+  const pageRange = range(page <= 3 ? 1 : page - 3, page < totalPages - 3 ? page + 4 : page + (totalPages - page + 1));
 
   const handleNext = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {

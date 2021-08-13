@@ -23,7 +23,7 @@ export const Item = (props: IItemProps): React.ReactElement => {
   };
 
   return (
-    <section className="flex px-2 py-1 bg-white border rounded-md" aria-labelledby={`result-${id}`}>
+    <article className="flex px-2 py-1 bg-white border rounded-md" aria-labelledby={`result-${id}`}>
       <div className="items-center justify-center hidden mr-3 md:flex">{index}</div>
       {hideCheckbox ? null : (
         <div className="items-center justify-center hidden mr-3 md:flex">
@@ -53,6 +53,6 @@ export const Item = (props: IItemProps): React.ReactElement => {
           <AbstractPreview id={id} />
         </div>
       </div>
-    </section>
+    </article>
   );
 };
