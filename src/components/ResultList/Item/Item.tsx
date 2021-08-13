@@ -23,7 +23,7 @@ export const Item = (props: IItemProps): React.ReactElement => {
   };
 
   return (
-    <div className="flex px-2 py-1 bg-white border rounded-md">
+    <article className="flex px-2 py-1 bg-white border rounded-md" aria-labelledby={`result-${id}`}>
       <div className="items-center justify-center hidden mr-3 md:flex">{index}</div>
       {hideCheckbox ? null : (
         <div className="items-center justify-center hidden mr-3 md:flex">
@@ -45,7 +45,7 @@ export const Item = (props: IItemProps): React.ReactElement => {
         </div>
         <Link href={`/abs/${bibcode}`}>
           <a className="text-blue-700 hover:underline">
-            <h3 className="text-lg" dangerouslySetInnerHTML={{ __html: title }}></h3>
+            <h3 className="text-lg" id={`result-${id}`} dangerouslySetInnerHTML={{ __html: title }}></h3>
           </a>
         </Link>
         {author.length > 0 && <div className="text-xs">{author.slice(0, 3).join('; ')}</div>}
@@ -53,6 +53,6 @@ export const Item = (props: IItemProps): React.ReactElement => {
           <AbstractPreview id={id} />
         </div>
       </div>
-    </div>
+    </article>
   );
 };

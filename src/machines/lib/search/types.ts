@@ -16,6 +16,7 @@ export enum TransitionType {
   SET_RESULT = 'SET_RESULT',
   HIGHLIGHTS = 'HIGHLIGHTS',
   SEARCH = 'SEARCH',
+  SET_PAGINATION = 'SET_PAGINATION',
 }
 
 export type SET_PARAMS = {
@@ -28,8 +29,9 @@ export type SET_RESULT = {
 };
 export type HIGHLIGHTS = { type: TransitionType.HIGHLIGHTS };
 export type SEARCH = { type: TransitionType.SEARCH };
+export type SET_PAGINATION = { type: TransitionType.SET_PAGINATION; payload: { pagination: Context['pagination'] } };
 
-export type Transition = SET_PARAMS | SET_RESULT | HIGHLIGHTS | SEARCH;
+export type Transition = SET_PARAMS | SET_RESULT | HIGHLIGHTS | SEARCH | SET_PAGINATION;
 
 export interface Context {
   params: Partial<IADSApiSearchParams>;
@@ -38,6 +40,10 @@ export interface Context {
     numFound: number;
   };
   error: { message: string; name: string; stack: string };
+  pagination: {
+    page: number;
+    numPerPage: number;
+  };
 }
 
 export type ISearchMachine = Interpreter<Context, Schema, Transition>;

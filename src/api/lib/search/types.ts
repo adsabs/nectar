@@ -4,6 +4,7 @@ export interface IADSApiSearchParams {
   q: string;
   fl?: SolrField[];
   rows?: number;
+  start?: number;
   sort?: SolrSort[];
   hl?: boolean;
   'hl.fl'?: string;

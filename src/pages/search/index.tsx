@@ -17,6 +17,7 @@ interface ISearchPageProps extends INectarPageProps {
   docs: IDocsEntity[];
   meta: {
     numFound: number;
+    page: number;
   };
 }
 
@@ -24,13 +25,11 @@ const SearchPage = withNectarPage<ISearchPageProps>((props) => {
   const {
     params: { q, sort = ['date desc'] },
     docs = [],
-    meta: { numFound = 0 },
+    meta: { numFound = 0, page },
     error,
   } = props;
 
-  console.log('search page props', props);
-
-  return <Form params={{ q, sort }} serverResult={{ docs, numFound }} />;
+  return <Form params={{ q, sort }} serverResult={{ docs, numFound, page }} serverError={error} />;
 });
 
 interface IFormProps {
@@ -38,18 +37,22 @@ interface IFormProps {
   serverResult: {
     docs: IDocsEntity[];
     numFound: number;
+    page: number;
   };
+  serverError: string;
 }
 const Form = (props: IFormProps): React.ReactElement => {
   const {
     params: { q: query, sort },
-    serverResult: { docs, numFound },
+    serverResult: { docs, numFound, page },
+    serverError,
   } = props;
 
   // initialize the search machine that will run all the business logic
   const { service: searchService, result, error, isLoading, isFailure } = useSearchMachine({
     initialParams: { q: query, sort },
     initialResult: { docs, numFound },
+    initialPagination: { numPerPage: 10, page },
   });
 
   /**
@@ -61,14 +64,14 @@ const Form = (props: IFormProps): React.ReactElement => {
   };
 
   return (
-    <section aria-labelledby="form-title">
+    <article aria-labelledby="search-form-title">
       <form
         method="get"
         action="/search"
         onSubmit={handleOnSubmit}
         className="grid grid-cols-6 gap-2 px-4 py-8 mx-auto my-8 bg-white shadow sm:rounded-lg lg:max-w-7xl"
       >
-        <h2 className="sr-only" id="form-title">
+        <h2 className="sr-only" id="search-form-title">
           Search Results
         </h2>
         <div className="col-span-6">
@@ -82,17 +85,19 @@ const Form = (props: IFormProps): React.ReactElement => {
           {/* <Filters /> */}
         </div>
         <div className="col-span-6">
-          {isFailure ? (
+          {isFailure || typeof serverError === 'string' ? (
             <div className="flex flex-col p-3 mt-1 space-y-1 border-2 border-red-600">
-              <div className="flex items-center justify-center text-lg text-red-600">{error}</div>
+              <div className="flex items-center justify-center text-lg text-red-600">
+                {error.message || serverError}
+              </div>
             </div>
           ) : (
-            <ResultList isLoading={isLoading} docs={result.docs as IDocsEntity[]} />
+            <ResultList isLoading={isLoading} docs={result.docs as IDocsEntity[]} service={searchService} />
           )}
         </div>
         <div className="col-span-6"></div>
       </form>
-    </section>
+    </article>
   );
 };
 
@@ -111,12 +116,17 @@ const SortWrapper = ({ service: searchService }: { service: ISearchMachine }) =>
 
 export const getServerSideProps = withNectarSessionData<ISearchPageProps>(async (ctx, sessionData) => {
   const query = normalizeURLParams(ctx.query);
+  const parsedPage = parseInt(query.p);
+  const page = isNaN(parsedPage) ? 1 : Math.abs(parsedPage);
 
   const params: IADSApiSearchParams = {
     q: query.q,
     fl: ['bibcode', 'title', 'author', '[fields author=3]', 'author_count', 'pubdate'],
     sort: query.sort ? (query.sort.split(',') as SolrSort[]) : ['date desc'],
+    rows: 10,
+    start: (page - 1) * 10,
   };
+
   const adsapi = new AdsApi({ token: sessionData.access_token });
   const result = await adsapi.search.query(params);
   if (result.isErr()) {
@@ -130,19 +140,24 @@ export const getServerSideProps = withNectarSessionData<ISearchPageProps>(async 
           sort: [],
         },
         docs: [],
-        meta: { numFound: 0 },
+        meta: { numFound: 0, page },
       },
     };
   }
 
   const { docs, numFound } = result.value;
 
+  console.log(
+    'result',
+    docs.map((d) => d.bibcode),
+  );
+
   return {
     props: {
       sessionData,
       params,
       docs,
-      meta: { numFound },
+      meta: { numFound, page },
     },
   };
 });
