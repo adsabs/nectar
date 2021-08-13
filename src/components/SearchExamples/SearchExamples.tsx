@@ -1,3 +1,4 @@
+import { useAppCtx } from '@store';
 import clsx from 'clsx';
 import React, { FC, HTMLAttributes } from 'react';
 import { examples } from './examples';
@@ -11,6 +12,8 @@ export const SearchExamples: FC<ISearchExamplesProps> = ({
   onClick,
   className,
 }) => {
+  const { state: appState } = useAppCtx();
+
   const rootClasses = clsx(className, 'grid gap-3 grid-cols-6');
 
   const createHandler = (text: string) => {
@@ -26,7 +29,7 @@ export const SearchExamples: FC<ISearchExamplesProps> = ({
         Search Examples
       </h3>
       <ul className="col-span-6 p-1 md:col-span-3">
-        {examples.left.map(({ label, text }) => (
+        {examples[appState.theme].left.map(({ label, text }) => (
           <li className="grid grid-cols-3 gap-5 py-1" key={label}>
             <div className="col-span-1 text-right font-bold">{label}</div>
             <button
@@ -40,7 +43,7 @@ export const SearchExamples: FC<ISearchExamplesProps> = ({
         ))}
       </ul>
       <ul className="col-span-6 p-1 md:col-span-3">
-        {examples.right.map(({ label, text }) => (
+        {examples[appState.theme].right.map(({ label, text }) => (
           <li className="grid grid-cols-3 gap-5 py-1" key={label}>
             <div className="col-span-1 text-right font-bold">{label}</div>
             <button
