@@ -1,4 +1,7 @@
 import { SolrSort, SolrSortDirection, SolrSortField } from '@api';
+import { DropdownList, SelectorLabel } from '@components/Dropdown';
+import clsx from 'clsx';
+import { sv } from 'date-fns/locale';
 import React, { useRef } from 'react';
 import { sortValues } from './model';
 export interface ISortProps {
@@ -33,13 +36,32 @@ export const Sort = (props: ISortProps): React.ReactElement => {
     }
   }, [selected, onChange]);
 
-  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const val = e.currentTarget.value as SolrSortField;
+  const sortItems = sortValues.map(({ id, text }) => ({
+    id: id,
+    domId: `sort-${id}`,
+    label: text
+  }));
+
+  const sortDirections = [
+    {
+      id: 'asc',
+      domId: 'sort-asc',
+      label: 'asc'
+    },
+    {
+      id: 'desc',
+      domId: 'sort-desc',
+      label: 'desc'
+    }
+  ]
+
+  const handleSortChange = (id: string) => {
+    const val = id as SolrSortField;
     setSelected([val, selected[1]]);
   };
 
-  const handleSortDirectionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const val = e.currentTarget.value as SolrSortDirection;
+  const handleSortDirectionChange = (id: string) => {
+    const val = id as SolrSortDirection;
     setSelected([selected[0], val]);
   };
 
@@ -47,7 +69,20 @@ export const Sort = (props: ISortProps): React.ReactElement => {
     return [selected.join(' '), ...additionalSorts].join(',');
   };
 
-  const [sortValue, sortDirection] = selected;
+  const sortSelectorClasses = clsx('text-sm font-md flex items-center justify-between w-52 border border-r-0 border-gray-400 rounded-md rounded-r-none cursor-pointer my-1');
+
+  const dirSelectorClasses = clsx('text-sm font-md flex items-center justify-between w-24 border border-gray-400 rounded-md rounded-l-none cursor-pointer my-1');
+
+  const getLabelNode = () => {
+    const sortValue = sortValues.find(sv => selected[0] === sv.id);
+    return <SelectorLabel text={sortValue.text} classes={sortSelectorClasses} />
+  }
+
+  const getDirectionNode = () => {
+    const dir = selected[1];
+    return <SelectorLabel text={dir} classes={dirSelectorClasses} />
+  }
+
   return (
     <div>
       {hideLabel && (
@@ -56,29 +91,34 @@ export const Sort = (props: ISortProps): React.ReactElement => {
         </label>
       )}
       <div className="flex mx-1 my-1">
-        <select
-          id="sort"
-          onChange={handleSortChange}
-          value={sortValue}
-          className="block flex-1 mt-1 pl-3 py-2 w-full text-base border-r-0 border-gray-300 focus:border-indigo-500 rounded-md rounded-r-none focus:outline-none focus:ring-indigo-500 sm:text-sm"
-          aria-label="Sort by"
-        >
-          {sortValues.map(({ id, text }) => (
-            <option value={id} key={id} aria-label={text}>
-              {text}
-            </option>
-          ))}
-        </select>
-        <select
-          id="sortDirection"
-          onChange={handleSortDirectionChange}
-          value={sortDirection}
-          className="block mt-1 pl-3 py-2 text-base border-gray-300 focus:border-indigo-500 rounded-l-none rounded-md focus:outline-none focus:ring-indigo-500 sm:text-sm"
-          aria-label="sort direction"
-        >
-          <option value="asc">asc</option>
-          <option value="desc">desc</option>
-        </select>
+        <DropdownList
+          label={getLabelNode()}
+          items={sortItems}
+          onSelect={handleSortChange}
+          classes={{
+            button: '',
+            list: 'w-52 text-sm font-md',
+          }}
+          offset={[0, 1]}
+          useCustomLabel={true}
+          placement="bottom-start"
+          role="listbox"
+          ariaLabel="Sort by"
+        />
+        <DropdownList
+          label={getDirectionNode()}
+          items={sortDirections}
+          onSelect={handleSortDirectionChange}
+          classes={{
+            button: '',
+            list: 'w-24 text-sm font-md',
+          }}
+          offset={[0, 1]}
+          useCustomLabel={true}
+          placement="bottom-start"
+          role="listbox"
+          ariaLabel="Sort by direction"
+        />
         <input type="hidden" name={name} value={getSortsAsString()} />
       </div>
     </div>

@@ -1,10 +1,8 @@
 import { ReactElement, useState } from 'react';
-import { ChevronDownIcon } from '@heroicons/react/solid';
-import { DropdownList, ItemType } from '../Dropdown';
+import { DropdownList, ItemType, SelectorLabel } from '@components/Dropdown';
 import { AppEvent, useAppCtx } from '@store';
 import { Theme } from '@types';
 import styles from './NavBar.module.css';
-import { useRouter } from 'next/router';
 import clsx from 'clsx';
 
 const themes: ItemType[] = [
@@ -44,8 +42,6 @@ export const ThemeDropdown = (): ReactElement => {
 
   const { state: appState, dispatch } = useAppCtx();
 
-  const router = useRouter();
-
   const getUserTheme = () => {
     const userTheme = appState.theme.toString();
     return userTheme? userTheme : Theme.GENERAL;
@@ -62,15 +58,8 @@ export const ThemeDropdown = (): ReactElement => {
 
   const getLabelNode = (itemId: string) => {
     const label = themes.find(item => item.id === itemId).label;
-    return (
-    <div
-      id="themeSelector"
-      className={selectorClasses}
-    >
-      <span className="inline-block align-baseline p-1.5">{label}</span>
-      <ChevronDownIcon className="inline m-1.5 w-4 h-4" />
-    </div>
-    )
+
+    return <SelectorLabel text={label} classes={selectorClasses} />
   };
 
   const handleOnSelect = (themeId: Theme) => {
@@ -85,6 +74,7 @@ export const ThemeDropdown = (): ReactElement => {
       onSelect={handleOnSelect}
       classes={{
         button: '',
+        list: 'w-64'
       }}
       offset={[0, 4]}
       useCustomLabel={true}
