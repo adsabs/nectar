@@ -11,7 +11,6 @@ export type ItemType = {
   label?: string;
   path?: string;
   domId: string;
-  element?: ReactElement;
 };
 
 export interface IDropdownListProps {
