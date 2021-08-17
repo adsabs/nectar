@@ -36,7 +36,7 @@ export const ListActions = (props: IListActionProp): React.ReactElement => {
       <div className="flex">
         <button className={hlClass} onClick={toggleShowHighlight}>Show Highlights</button>
         <button className={absClass} onClick={toggleShowAbstract}>Show Abstracts</button>
-        <Sort onChange={onSortChange} />
+        <Sort onChange={onSortChange} leftMargin="ml-1" />
       </div>
       <div className="flex bg-gray-100 justify-between items-center rounded-md">
         <div>

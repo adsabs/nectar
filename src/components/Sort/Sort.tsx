@@ -1,7 +1,6 @@
 import { SolrSort, SolrSortDirection, SolrSortField } from '@api';
 import { DropdownList, SelectorLabel } from '@components/Dropdown';
 import clsx from 'clsx';
-import { sv } from 'date-fns/locale';
 import React, { useRef } from 'react';
 import { sortValues } from './model';
 export interface ISortProps {
@@ -9,10 +8,12 @@ export interface ISortProps {
   sort?: SolrSort[];
   hideLabel?: boolean;
   onChange?: (sort: SolrSort[]) => void;
+  leftMargin?: string; // css selector
+  rightMargin?: string;
 }
 
 export const Sort = (props: ISortProps): React.ReactElement => {
-  const { sort: initialSort = ['date desc'], onChange, name = 'sort', hideLabel } = props;
+  const { sort: initialSort = ['date desc'], onChange, name = 'sort', hideLabel, leftMargin = 'ml-0', rightMargin = 'mr-0' } = props;
   const [sort, ...additionalSorts] = initialSort;
   const firstRender = useRef(true);
   const [selected, setSelected] = React.useState<[SolrSortField, SolrSortDirection]>(['date', 'desc']);
@@ -69,9 +70,9 @@ export const Sort = (props: ISortProps): React.ReactElement => {
     return [selected.join(' '), ...additionalSorts].join(',');
   };
 
-  const sortSelectorClasses = clsx('text-sm font-md flex items-center justify-between w-52 border border-r-0 border-gray-400 rounded-md rounded-r-none cursor-pointer my-1');
+  const sortSelectorClasses = clsx(leftMargin, 'text-sm font-md flex items-center justify-between w-52 h-10 border border-r-0 border-gray-300 rounded-md rounded-r-none cursor-pointer my-1');
 
-  const dirSelectorClasses = clsx('text-sm font-md flex items-center justify-between w-24 border border-gray-400 rounded-md rounded-l-none cursor-pointer my-1');
+  const dirSelectorClasses = clsx(rightMargin, 'text-sm font-md flex items-center justify-between w-24 h-10 border border-gray-300 rounded-md rounded-l-none cursor-pointer my-1');
 
   const getLabelNode = () => {
     const sortValue = sortValues.find(sv => selected[0] === sv.id);
@@ -90,7 +91,7 @@ export const Sort = (props: ISortProps): React.ReactElement => {
           Sort
         </label>
       )}
-      <div className="flex mx-1 my-1">
+      <div className="flex my-1">
         <DropdownList
           label={getLabelNode()}
           items={sortItems}
