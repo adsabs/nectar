@@ -33,21 +33,23 @@ export const ListActions = (props: IListActionProp): React.ReactElement => {
   
   return (
     <div>
-      <div className="flex">
-        <button className={hlClass} onClick={toggleShowHighlight}>Show Highlights</button>
-        <button className={absClass} onClick={toggleShowAbstract}>Show Abstracts</button>
-        <Sort onChange={onSortChange} leftMargin="ml-1" />
-      </div>
-      <div className="flex bg-gray-100 justify-between items-center rounded-md">
+      <div className="md:flex">
         <div>
-          <button className="link-button ml-4" onClick={onSelectAll}>Select All</button>
-          <button className="link-button" onClick={onSelectNone}>Select None</button>
-          <button className="link-button" onClick={onLimitedTo}>Limited To</button>
-          <button className="link-button" onClick={onExclude}>Exclude</button>
-          <span className="text-sm m-2">{selectedCount} Selected</span>
+          <button className={hlClass} onClick={toggleShowHighlight}>Show Highlights</button>
+          <button className={absClass} onClick={toggleShowAbstract}>Show Abstracts</button>
         </div>
-        <div>
-          <button className="default-button">Add to Library</button>
+        <Sort onChange={onSortChange} leftMargin="md:ml-1" />
+      </div>
+      <div className="flex flex-col items-start lg:flex-row bg-gray-100 lg:justify-between lg:items-center rounded-md">
+        <div className="order-2 lg:order-1">
+          <button className="link-button h-5 ml-4" onClick={onSelectAll}>Select All</button>
+          <button className="link-button h-5" onClick={onSelectNone}>Select None</button>
+          <button className="link-button h-5" onClick={onLimitedTo}>Limited To</button>
+          <button className="link-button h-5" onClick={onExclude}>Exclude</button>
+          <span className="text-sm m-2 h-5">{selectedCount} Selected</span>
+        </div>
+        <div className="order-1 lg:order-2">
+          <button className="default-button ml-2">Add to Library</button>
           <button className="default-button">Export</button>
           <button className="default-button mr-2">Explore</button>
         </div>
