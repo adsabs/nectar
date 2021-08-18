@@ -1,9 +1,10 @@
 import { ReactElement, useState } from 'react';
-import { DropdownList, ItemType, SelectorLabel } from '@components/Dropdown';
+import { DropdownList, SelectorLabel } from '@components/Dropdown';
 import { AppEvent, useAppCtx } from '@store';
 import { Theme } from '@types';
 import styles from './NavBar.module.css';
 import clsx from 'clsx';
+import { ItemType } from '@components/Dropdown/types';
 
 const themes: ItemType[] = [
   {

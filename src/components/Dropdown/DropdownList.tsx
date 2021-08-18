@@ -1,18 +1,10 @@
 import { ChevronDownIcon } from '@heroicons/react/solid';
 import clsx from 'clsx';
-import React, { HTMLAttributes, ReactElement, ReactNode, useCallback, useState, KeyboardEvent } from 'react';
+import React, { HTMLAttributes, ReactElement, ReactNode, useCallback, useState, KeyboardEvent, useEffect } from 'react';
 import OutsideClickHandler from 'react-outside-click-handler';
 import { usePopper } from 'react-popper';
 import { Placement } from '@popperjs/core';
-import { useEffect } from 'react';
-
-export type ItemType = {
-  id: string;
-  label?: string;
-  path?: string;
-  domId: string;
-};
-
+import { ItemType } from "./types";
 export interface IDropdownListProps {
   label: ReactNode;
   items: ItemType[];

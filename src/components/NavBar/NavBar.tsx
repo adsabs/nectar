@@ -1,50 +1,28 @@
 import Link from 'next/link';
 import React, { FC } from 'react';
 import { ThemeDropdown } from './ThemeDropdown';
-import { AboutDropdown } from './AboutDropdown';
-import { OrcidDropdown } from './OrcidDropdown';
-import styles from './NavBar.module.css'
+import styles from './NavBar.module.css';
 import clsx from 'clsx';
-
+import { NavMenus } from './NavMenus';
 
 export const NavBar: FC = () => {
-  const navbarClasses = clsx(styles['navbar-bg-color'], 'flex items-center');
+  const navbarClasses = clsx(styles['navbar-bg-color'], 'relative flex items-center');
 
   return (
     <nav className={navbarClasses}>
       <div className="px-4 sm:px-6 lg:px-8">
         <Link href="/">
           <a className="flex items-center h-12">
-            <img
-              className="w-10 h-10"
-              src="/img/transparent_logo.svg"
-              aria-hidden="true"
-            />
-            <h1 className="ml-2 text-white text-2xl font-bold">SciX</h1>
+            <img className="w-10 h-10" src="/img/transparent_logo.svg" aria-hidden="true" />
+            <h1 className="hidden ml-2 text-white text-2xl font-bold sm:inline">SciX</h1>
           </a>
         </Link>
       </div>
       <ThemeDropdown />
-      <a
-        href="#main-content"
-        className="flex items-center text-white focus:not-sr-only sr-only"
-      >
+      <a href="#main-content" className="flex items-center text-white focus:not-sr-only sr-only">
         Skip to content
       </a>
-      <div className="flex flex-grow items-center justify-end pr-4 space-x-4">
-        <OrcidDropdown />
-        <AboutDropdown />
-        <Link href="/user/account/register">
-          <a className="text-gray-300 hover:text-white focus:text-white">
-            Sign Up
-          </a>
-        </Link>
-        <Link href="/login">
-          <a className="text-gray-300 hover:text-white focus:text-white">
-            Login
-          </a>
-        </Link>
-      </div>
+      <NavMenus />
     </nav>
   );
 };
