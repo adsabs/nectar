@@ -4,6 +4,7 @@ import { useSelector } from '@xstate/react';
 import React, { HTMLAttributes } from 'react';
 import { Item } from './Item/Item';
 import { Pagination } from './Pagination';
+import { ListActions } from './ListActions';
 import { Skeleton } from './Skeleton';
 
 export interface IResultListProps extends HTMLAttributes<HTMLDivElement> {
@@ -11,10 +12,21 @@ export interface IResultListProps extends HTMLAttributes<HTMLDivElement> {
   hideCheckboxes?: boolean;
   isLoading?: boolean;
   service?: ISearchMachine;
+  showActions: boolean;
 }
 
 export const ResultList = (props: IResultListProps): React.ReactElement => {
-  const { docs = [], isLoading = false, hideCheckboxes = false, service: searchService, ...divProps } = props;
+  const { docs = [], isLoading = false, hideCheckboxes = false, service: searchService, showActions, ...divProps } = props;
+
+  const handleSortChange = () => {}
+
+  const handleSelectAll = () => {};
+
+  const handleSelectNone = () => {};
+
+  const handleLimitedTo = () => {};
+
+  const handleExclude = () => {};
 
   const indexStart = useSelector(searchService, (state) => {
     const { page, numPerPage } = state.context.pagination;
@@ -23,6 +35,16 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
 
   return (
     <article {...divProps} className="flex flex-col mt-1 space-y-1">
+      {isLoading || !showActions ? null : (
+        <ListActions
+          selectedCount={0}
+          onSortChange={handleSortChange}
+          onSelectAll={handleSelectAll}
+          onSelectNone={handleSelectNone}
+          onLimitedTo={handleLimitedTo}
+          onExclude={handleExclude}
+        />
+      )}
       {isLoading ? (
         <Skeleton count={10} />
       ) : docs.length > 0 ? (

@@ -79,7 +79,7 @@ const Form = (props: IFormProps): React.ReactElement => {
             <div className="flex-1">
               <SearchBar service={searchService} />
             </div>
-            <SortWrapper service={searchService} />
+            {/* <SortWrapper service={searchService} /> */}
           </div>
           <NumFound count={result.numFound} />
           {/* <Filters /> */}
@@ -92,7 +92,7 @@ const Form = (props: IFormProps): React.ReactElement => {
               </div>
             </div>
           ) : (
-            <ResultList isLoading={isLoading} docs={result.docs as IDocsEntity[]} service={searchService} />
+            <ResultList isLoading={isLoading} docs={result.docs as IDocsEntity[]} service={searchService} showActions={true} />
           )}
         </div>
         <div className="col-span-6"></div>

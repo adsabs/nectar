@@ -30,7 +30,7 @@ const CitationsPage: NextPage<ICitationsPageProps> = (props) => {
             <em>Papers that cite</em> {originalDoc.title}
           </h2>
         </div>
-        <ResultList docs={docs} hideCheckboxes={true} />
+        <ResultList docs={docs} hideCheckboxes={true} showActions={false} />
       </article>
     </section>
   );

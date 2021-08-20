@@ -54,6 +54,7 @@ export const AboutDropdown = (): ReactElement => {
       onSelect={handleSelect}
       classes={{
         button: 'text-gray-300 hover:text-white focus:text-white',
+        list: ''
       }}
       offset={[-60, 12]}
       useCustomLabel={false}

@@ -21,6 +21,7 @@ export interface IDropdownListProps {
   onClosed?: () => void;
   classes: {
     button: string;
+    list: string;
   };
   offset?: [number, number];
   useCustomLabel: boolean;
@@ -126,7 +127,7 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
     close();
   };
 
-  const popperClasses = clsx('z-50 flex flex-col bg-white border divide-y', {
+  const popperClasses = clsx(classes.list, 'z-50 flex flex-col bg-white border divide-y', {
     hidden: !visible,
   });
 
@@ -153,7 +154,7 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
       </button>
       <div
         ref={popperRef}
-        style={{ ...styles.popper, minWidth: '10rem' }}
+        style={{ ...styles.popper}}
         {...attributes.popper}
         className={popperClasses}
       >

@@ -29,7 +29,7 @@ const ReferencesPage: NextPage<ICitationsPageProps> = (props) => {
             <em>Papers referenced by</em> {originalDoc.title}
           </h2>
         </div>
-        <ResultList docs={docs} hideCheckboxes={true} />
+        <ResultList docs={docs} hideCheckboxes={true} showActions={false} />
       </article>
     </section>
   );
