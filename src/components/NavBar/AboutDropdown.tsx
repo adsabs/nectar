@@ -61,7 +61,7 @@ export const AboutDropdown = (props: IAboutDropdownProps): ReactElement => {
 
   const handleOnClose = () => {
     onFinished();
-  }
+  };
 
   return type === ListType.DROPDOWN ? (
     <DropdownList
@@ -69,8 +69,8 @@ export const AboutDropdown = (props: IAboutDropdownProps): ReactElement => {
       items={items}
       onSelect={handleSelect}
       classes={{
-        button: 'text-gray-300 hover:text-white focus:text-white',
-        list: ''
+        button: 'text-gray-300 hover:text-white focus:text-white flex justify-center items-center',
+        list: '',
       }}
       offset={[-60, 12]}
       useCustomLabel={false}
@@ -85,8 +85,12 @@ export const AboutDropdown = (props: IAboutDropdownProps): ReactElement => {
       onSelect={handleSelect}
       onClose={handleOnClose}
       classes={{
-        button: clsx(styles['navbar-text-color'], styles['navbar-bg-color'], 'hover:text-white text-left focus:text-white py-4'),
-        item: clsx(styles['navbar-text-color'], 'hover:text-white focus:text-white')
+        button: clsx(
+          styles['navbar-text-color'],
+          styles['navbar-bg-color'],
+          'flex items-center justify-start py-4 text-left hover:text-white focus:text-white',
+        ),
+        item: clsx(styles['navbar-text-color'], 'hover:text-white focus:text-white'),
       }}
       role="menu"
       reset={reset}

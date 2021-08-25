@@ -32,15 +32,15 @@ export const OrcidDropdown = (props: IOrcidDropdownProps): ReactElement => {
 
   const handleOnClose = () => {
     onFinished();
-  }
+  };
 
   const handleOrcidSignIn = () => {
     console.log('orcid sign in ');
   };
 
   const getOrcidLabelNode = () => {
-    return (        
-      <div>
+    return (
+      <>
         <Image
           src="/img/orcid_inactive.svg"
           width="18"
@@ -48,9 +48,9 @@ export const OrcidDropdown = (props: IOrcidDropdownProps): ReactElement => {
           alt="ORCID logo inactive"
           className="flex-shrink-0 m-auto"
         />
-        <span> ORCiD</span>
+        <span>&nbsp;ORCiD</span>
         <ChevronDownIcon className="inline w-4 h-4" />
-      </div>
+      </>
     );
   };
 
@@ -60,8 +60,8 @@ export const OrcidDropdown = (props: IOrcidDropdownProps): ReactElement => {
       items={items}
       onSelect={handleSelect}
       classes={{
-        button: 'text-gray-300 hover:text-white focus:text-white',
-        list: ''
+        button: 'text-gray-300 hover:text-white focus:text-white flex justify-center items-center',
+        list: '',
       }}
       offset={[-60, 12]}
       useCustomLabel={true}
@@ -78,7 +78,7 @@ export const OrcidDropdown = (props: IOrcidDropdownProps): ReactElement => {
         button: clsx(
           styles['navbar-text-color'],
           styles['navbar-bg-color'],
-          'py-4 text-left hover:text-white focus:text-white',
+          'flex items-center justify-start py-4 text-left hover:text-white focus:text-white',
         ),
         item: clsx(styles['navbar-text-color'], 'hover:text-white focus:text-white'),
       }}
