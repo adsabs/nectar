@@ -1,6 +1,7 @@
 import { ChevronDownIcon } from '@heroicons/react/solid';
 import clsx from 'clsx';
-import React, { HTMLAttributes, ReactElement, useEffect, useState, KeyboardEvent, ReactNode } from 'react';
+import React, { ReactElement, useEffect, useState, KeyboardEvent, ReactNode } from 'react';
+import { Item } from './ListItem';
 import { ItemType } from './types';
 
 export interface ICollapsibleListProps {
@@ -8,9 +9,9 @@ export interface ICollapsibleListProps {
   useCustomLabel: boolean;
   items: ItemType[];
   onSelect: (id: ItemType['id']) => void;
-  onExpanded?: () => void;
-  onCollapsed?: () => void;
-  onClose: () => void;
+  onExpanded?: () => void; // list expanded
+  onCollapsed?: () => void; // list collapsed
+  onEscaped: () => void; 
   classes: {
     button: string;
     item?: string;
@@ -21,13 +22,11 @@ export interface ICollapsibleListProps {
 }
 
 export const CollapsibleList = (props: ICollapsibleListProps): ReactElement => {
-  const { label, useCustomLabel, items, classes, onSelect, onExpanded, onCollapsed, onClose, role, ariaLabel, reset } = props;
+  const { label, useCustomLabel, items, classes, onSelect, onExpanded, onCollapsed, onEscaped, role, ariaLabel, reset } = props;
 
   const [visible, setVisible] = useState<boolean>(!closed);
 
   const collapse = () => setVisible(false);
-
-  const expand = () => setVisible(true);
 
   useEffect(() => (visible ? onExpanded() : onCollapsed()), [visible]);
 
@@ -37,29 +36,23 @@ export const CollapsibleList = (props: ICollapsibleListProps): ReactElement => {
     }
   }, [reset]);
 
+  // click on label, toggle list visibility
   const handleClick = () => {
     setVisible(!visible);
   };
 
+  // key down on label
   const handleKeyDown = (e: KeyboardEvent) => {
     switch (e.key) {
       case 'Enter':
       case 'Space':
       case ' ':
         e.preventDefault();
-        handleClick();
-        return;
-      case 'ArrowUp':
-        e.preventDefault();
-        // TODO 
-        return;
-      case 'ArrowDown':
-        e.preventDefault();
-        // TODO
+        setVisible(!visible);
         return;
       case 'Escape':
         collapse();
-        return onClose();
+        return onEscaped();
     }
   };
 
@@ -80,7 +73,7 @@ export const CollapsibleList = (props: ICollapsibleListProps): ReactElement => {
         return;
       case 'Escape':
         collapse();
-        return onClose();
+        return onEscaped();
     }
   };
 
@@ -137,28 +130,8 @@ CollapsibleList.defaultProps = {
   onSelect: null,
   onExpanded: () => undefined,
   onCollapsed: () => undefined,
-  onClose: () => undefined,
+  onEscaped: () => undefined,
   classes: {},
   role: 'menu',
   ariaLabel: null,
-};
-
-interface IItemProps extends HTMLAttributes<HTMLButtonElement | HTMLDivElement> {
-  item: ItemType;
-  classes: string;
-}
-
-const Item = (props: IItemProps): ReactElement => {
-  const {
-    item: { domId, label },
-    classes,
-    ...restProps
-  } = props;
-  const itemClasses = clsx(classes, 'px-3 py-2 text-left');
-
-  return (
-    <button className={itemClasses} type="button" {...restProps} id={domId}>
-      {label}
-    </button>
-  );
 };

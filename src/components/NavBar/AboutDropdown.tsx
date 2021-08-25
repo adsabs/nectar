@@ -76,6 +76,7 @@ export const AboutDropdown = (props: IAboutDropdownProps): ReactElement => {
       useCustomLabel={false}
       role="menu"
       placement="bottom-start"
+      ariaLabel="About Menu"
     />
   ) : (
     <CollapsibleList
@@ -83,7 +84,7 @@ export const AboutDropdown = (props: IAboutDropdownProps): ReactElement => {
       useCustomLabel={false}
       items={items}
       onSelect={handleSelect}
-      onClose={handleOnClose}
+      onEscaped={handleOnClose}
       classes={{
         button: clsx(
           styles['navbar-text-color'],
@@ -94,6 +95,7 @@ export const AboutDropdown = (props: IAboutDropdownProps): ReactElement => {
       }}
       role="menu"
       reset={reset}
+      ariaLabel="About Menu"
     />
   );
 };

@@ -66,6 +66,7 @@ export const OrcidDropdown = (props: IOrcidDropdownProps): ReactElement => {
       offset={[-60, 12]}
       useCustomLabel={true}
       role="menu"
+      ariaLabel="Orcid Menu"
     />
   ) : (
     <CollapsibleList
@@ -73,7 +74,7 @@ export const OrcidDropdown = (props: IOrcidDropdownProps): ReactElement => {
       useCustomLabel={true}
       items={items}
       onSelect={handleSelect}
-      onClose={handleOnClose}
+      onEscaped={handleOnClose}
       classes={{
         button: clsx(
           styles['navbar-text-color'],
@@ -84,6 +85,7 @@ export const OrcidDropdown = (props: IOrcidDropdownProps): ReactElement => {
       }}
       role="menu"
       reset={reset}
+      ariaLabel="Orcid Menu"
     />
   );
 };

@@ -13,6 +13,8 @@ export const NavMenus = (): ReactElement => {
 
   const [menuReset, setMenuReset] = useState<boolean>(true);
 
+  // reset all the sub menus (collapse) when main menu is closed
+  // for mobile menu only
   useEffect(() => {
     menuVisible ? setMenuReset(false) : setMenuReset(true);
   }, [menuVisible]);
@@ -36,12 +38,10 @@ export const NavMenus = (): ReactElement => {
         handleMenuToggle();
         return;
       case 'Escape':
-        close();
-        return;
+        return close();
       case 'ArrowDown':
         e.preventDefault();
-        open();
-        return;
+        return open();
     }
   };
 
@@ -51,13 +51,12 @@ export const NavMenus = (): ReactElement => {
 
   const close = () => {
     setMenuVisible(false);
-    // TODO collapse all menus
   };
 
   return (
     <>
       <div className="flex flex-grow items-center justify-end mr-2 md:invisible">
-        <button onKeyDown={handleMenuKeyDown}>
+        <button onKeyDown={handleMenuKeyDown} aria-label="Menu">
           <MenuIcon
             className={clsx(menuVisible ? 'text-white' : styles['navbar-text-color'], 'm-1 w-8 h-8')}
             onClick={handleMenuToggle}
@@ -82,28 +81,28 @@ export const NavMenus = (): ReactElement => {
           reset={menuReset}
         />
         <Link href="/user/account/register">
-          <a
+          <button
             className={clsx(
               styles['navbar-text-color'],
               styles['navbar-bg-color'],
-              'py-4 hover:text-white focus:text-white md:py-0',
+              'flex items-center justify-start py-4 hover:text-white focus:text-white md:py-0',
             )}
             onClick={handleSelected}
           >
             Sign Up
-          </a>
+          </button>
         </Link>
         <Link href="/login">
-          <a
+          <button
             className={clsx(
               styles['navbar-text-color'],
               styles['navbar-bg-color'],
-              'py-4 hover:text-white focus:text-white md:py-0',
+              'flex items-center justify-start py-4 hover:text-white focus:text-white md:py-0',
             )}
             onClick={handleSelected}
           >
             Login
-          </a>
+          </button>
         </Link>
       </div>
     </>

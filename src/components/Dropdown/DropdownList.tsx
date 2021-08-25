@@ -5,6 +5,7 @@ import OutsideClickHandler from 'react-outside-click-handler';
 import { usePopper } from 'react-popper';
 import { Placement } from '@popperjs/core';
 import { ItemType } from "./types";
+import { Item } from './ListItem';
 export interface IDropdownListProps {
   label: ReactNode;
   items: ItemType[];
@@ -157,6 +158,7 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
             tabIndex={0}
             onClick={() => handleSelect(item)}
             onKeyDown={(e) => handleItemKeyDown(e, item, index)}
+            classes="hover:bg-gray-100"
           />
         ))}
       </div>
@@ -176,21 +178,4 @@ DropdownList.defaultProps = {
   placement: 'bottom',
   role: 'menu',
   ariaLabel: null,
-};
-
-interface IItemProps extends HTMLAttributes<HTMLButtonElement | HTMLDivElement> {
-  item: ItemType;
-}
-const Item = (props: IItemProps): ReactElement => {
-  const {
-    item: { domId, label },
-    ...restProps
-  } = props;
-  const itemClasses = clsx('px-3 py-2 text-left hover:bg-gray-100');
-
-  return (
-    <button className={itemClasses} type="button" {...restProps} id={domId}>
-      {label}
-    </button>
-  );
 };

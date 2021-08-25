@@ -26,7 +26,7 @@ export const Footer: React.FC = () => {
   return (
     <footer className="mt-3 py-6 bg-gray-1000">
       <div className="container flex flex-col justify-between px-3 md:flex-row md:mx-auto md:px-0 ">
-        <div className="flex-col w-80 m-3md:my-0">
+        <div className="flex-col w-80 m-3 md:my-0">
           <p className="mb-3 text-gray-100">© The SAO/NASA Data System</p>
           <p className="text-gray-500">adshelp[at]cfa.harvard.edu</p>
           <p className="text-gray-500">

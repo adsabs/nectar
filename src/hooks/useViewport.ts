@@ -10,7 +10,7 @@ export enum Viewport {
 }
 
 export const useViewport = (): Viewport => {
-  const [width, setWidth] = useState<number>(); // if on server???
+  const [width, setWidth] = useState<number>();
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
