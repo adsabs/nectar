@@ -15,7 +15,6 @@ const TopProgressBar = dynamic(() => import('@components/TopProgressBar').then((
 });
 
 const NectarApp: FC<AppProps> = ({ Component, pageProps }) => {
-  console.log('page props', pageProps);
   return (
     <AppProvider>
       <ThemeRouter />
