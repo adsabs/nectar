@@ -11,17 +11,25 @@ interface IItemProps {
   doc: Pick<IDocsEntity, 'id' | 'bibcode'> & Partial<IDocsEntity>;
   index: number;
   hideCheckbox: boolean;
+  set?: boolean;
+  clear?: boolean;
+  onToggle: () => void;
 }
 
 export const Item = (props: IItemProps): React.ReactElement => {
-  const { doc, index, hideCheckbox = false } = props;
+  const { doc, index, hideCheckbox = false, set, clear, onToggle } = props;
   const { bibcode, pubdate, title = 'Untitled', author = [], id, citation} = doc;
   const [state, send] = useMachine(itemMachine.withContext({ id }), {
     devTools: true,
   });
 
+  if (set && state.matches('unselected') || clear && state.matches('selected')) {
+    send({ type: ItemMachine.TransitionTypes.TOGGLE_SELECT });
+  }
+
   const handleSelect = () => {
     send({ type: ItemMachine.TransitionTypes.TOGGLE_SELECT });
+    onToggle();
   };
 
   const checkBgClass = clsx(state.matches('selected')? "bg-blue-600" : "bg-gray-100", "items-center justify-center hidden mr-3 md:flex rounded-tl-md rounded-bl-md px-2");

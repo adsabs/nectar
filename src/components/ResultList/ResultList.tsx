@@ -6,7 +6,8 @@ import { Item } from './Item/Item';
 import { Pagination } from './Pagination';
 import { ListActions } from './ListActions';
 import { Skeleton } from './Skeleton';
-
+import { useEffect } from 'react';
+import { useState } from 'react';
 export interface IResultListProps extends HTMLAttributes<HTMLDivElement> {
   docs: IDocsEntity[];
   hideCheckboxes?: boolean;
@@ -16,22 +17,48 @@ export interface IResultListProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export const ResultList = (props: IResultListProps): React.ReactElement => {
-  const { docs = [], isLoading = false, hideCheckboxes = false, service: searchService, showActions, ...divProps } = props;
 
-  const handleSortChange = () => {}
+  const [selectAll, setSelectAll] = useState<boolean>(false);
+  const [selectNone, setSelectNone] = useState<boolean>(false);
+  const {
+    docs = [],
+    isLoading = false,
+    hideCheckboxes = false,
+    service: searchService,
+    showActions,
+    ...divProps
+  } = props;
 
-  const handleSelectAll = () => {};
+  const handleSortChange = () => {};
 
-  const handleSelectNone = () => {};
+  const handleSelectAll = () => {
+    setSelectNone(false);
+    setSelectAll(true);
+  };
+
+  const handleSelectNone = () => {
+    setSelectAll(false);
+    setSelectNone(true);
+  };
 
   const handleLimitedTo = () => {};
 
   const handleExclude = () => {};
 
+  const handleItemToggled = () => {
+    setSelectAll(false);
+    setSelectNone(false);
+  };
+
   const indexStart = useSelector(searchService, (state) => {
     const { page, numPerPage } = state.context.pagination;
     return (page - 1) * numPerPage + 1;
   });
+
+  useEffect(() => {
+    setSelectAll(false);
+    setSelectNone(false);
+  }, [indexStart]);
 
   return (
     <article {...divProps} className="flex flex-col mt-1 space-y-1">
@@ -50,7 +77,15 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
       ) : docs.length > 0 ? (
         <>
           {docs.map((doc, index) => (
-            <Item doc={doc} key={doc.id} index={indexStart + index} hideCheckbox={hideCheckboxes} />
+            <Item
+              doc={doc}
+              key={doc.id}
+              index={indexStart + index}
+              hideCheckbox={hideCheckboxes}
+              set={selectAll}
+              clear={selectNone}
+              onToggle={handleItemToggled}
+            />
           ))}
           {/* footer */}
           <Pagination service={searchService} />
