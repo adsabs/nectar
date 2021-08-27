@@ -1,12 +1,5 @@
-import { IADSApiBootstrapData } from '@api';
-import { INectarPageProps } from '@hocs/withNectarPage';
-import {
-  GetServerSideProps,
-  GetServerSidePropsContext,
-  GetServerSidePropsResult,
-  NextApiRequest,
-  NextApiResponse,
-} from 'next';
+import { IUserData } from '@api';
+import { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from 'next';
 import { ParsedUrlQuery } from 'node:querystring';
 
 export const normalizeURLParams = (query: ParsedUrlQuery): Record<string, string> => {
@@ -33,20 +26,7 @@ export const initMiddleware = (
   );
 
 export type ADSServerSideContext = GetServerSidePropsContext & {
-  req: GetServerSidePropsContext['req'] & { session: { userData: IADSApiBootstrapData } };
+  req: GetServerSidePropsContext['req'] & { session: { userData: IUserData } };
   parsedQuery: ParsedUrlQuery;
-  userData: IADSApiBootstrapData;
-};
-
-export const withNectarSessionData = <P extends INectarPageProps, Q extends ParsedUrlQuery = ParsedUrlQuery>(
-  fn: (ctx: GetServerSidePropsContext<Q>, userData: IADSApiBootstrapData) => Promise<GetServerSidePropsResult<P>>,
-): GetServerSideProps<P, Q> => {
-  return async (ctx) => {
-    const request = ctx.req as typeof ctx.req & {
-      session: { userData: IADSApiBootstrapData };
-    };
-    const sessionData = request.session.userData;
-
-    return await fn(ctx, sessionData);
-  };
+  userData: IUserData;
 };

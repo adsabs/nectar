@@ -1,13 +1,13 @@
 import AdsApi, { IADSApiSearchParams, IDocsEntity, SolrSort } from '@api';
 import { NumFound, ResultList, SearchBar, Sort } from '@components';
-import { INectarPageProps, withNectarPage } from '@hocs/withNectarPage';
 import { useSearchMachine } from '@machines';
 import { ISearchMachine, TransitionType } from '@machines/lib/search/types';
-import { normalizeURLParams, withNectarSessionData } from '@utils';
+import { normalizeURLParams } from '@utils';
 import { useSelector } from '@xstate/react';
+import { GetServerSideProps, NextPage } from 'next';
 import React, { ChangeEvent, useCallback } from 'react';
 
-interface ISearchPageProps extends INectarPageProps {
+interface ISearchPageProps {
   error?: string;
   params: {
     q: string;
@@ -21,7 +21,7 @@ interface ISearchPageProps extends INectarPageProps {
   };
 }
 
-const SearchPage = withNectarPage<ISearchPageProps>((props) => {
+const SearchPage: NextPage<ISearchPageProps> = (props) => {
   const {
     params: { q, sort = ['date desc'] },
     docs = [],
@@ -30,7 +30,7 @@ const SearchPage = withNectarPage<ISearchPageProps>((props) => {
   } = props;
 
   return <Form params={{ q, sort }} serverResult={{ docs, numFound, page }} serverError={error} />;
-});
+};
 
 interface IFormProps {
   params: IADSApiSearchParams;
@@ -69,7 +69,7 @@ const Form = (props: IFormProps): React.ReactElement => {
         method="get"
         action="/search"
         onSubmit={handleOnSubmit}
-        className="grid grid-cols-6 gap-2 px-4 py-8 mx-auto my-8 bg-white shadow sm:rounded-lg lg:max-w-7xl"
+        className="grid gap-2 grid-cols-6 mx-auto my-8 px-4 py-8 bg-white shadow sm:rounded-lg lg:max-w-7xl"
       >
         <h2 className="sr-only" id="search-form-title">
           Search Results
@@ -86,8 +86,8 @@ const Form = (props: IFormProps): React.ReactElement => {
         </div>
         <div className="col-span-6">
           {isFailure || typeof serverError === 'string' ? (
-            <div className="flex flex-col p-3 mt-1 space-y-1 border-2 border-red-600">
-              <div className="flex items-center justify-center text-lg text-red-600">
+            <div className="flex flex-col mt-1 p-3 border-2 border-red-600 space-y-1">
+              <div className="flex items-center justify-center text-red-600 text-lg">
                 {error.message || serverError}
               </div>
             </div>
@@ -114,7 +114,7 @@ const SortWrapper = ({ service: searchService }: { service: ISearchMachine }) =>
   return <Sort sort={sort} onChange={handleSortChange} />;
 };
 
-export const getServerSideProps = withNectarSessionData<ISearchPageProps>(async (ctx, sessionData) => {
+export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (ctx) => {
   const query = normalizeURLParams(ctx.query);
   const parsedPage = parseInt(query.p);
   const page = isNaN(parsedPage) ? 1 : Math.abs(parsedPage);
@@ -127,13 +127,12 @@ export const getServerSideProps = withNectarSessionData<ISearchPageProps>(async 
     start: (page - 1) * 10,
   };
 
-  const adsapi = new AdsApi({ token: sessionData.access_token });
+  const adsapi = new AdsApi({ token: ctx.req.session.userData.access_token });
   const result = await adsapi.search.query(params);
   if (result.isErr()) {
     return {
       props: {
         error: result.error.message,
-        sessionData,
         params: {
           q: '',
           fl: [],
@@ -154,13 +153,12 @@ export const getServerSideProps = withNectarSessionData<ISearchPageProps>(async 
 
   return {
     props: {
-      sessionData,
       params,
       docs,
       meta: { numFound, page },
     },
   };
-});
+};
 
 export default SearchPage;
 

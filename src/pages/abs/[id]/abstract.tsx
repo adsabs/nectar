@@ -1,4 +1,4 @@
-import AdsApi, { IADSApiBootstrapData, IDocsEntity, SolrSort } from '@api';
+import AdsApi, { IDocsEntity, IUserData, SolrSort } from '@api';
 import { AbstractSideNav, AbstractSources } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 import { LinkIcon } from '@heroicons/react/solid';
@@ -99,7 +99,7 @@ const Section = ({ label }: { label: string }) => (
 export const getServerSideProps: GetServerSideProps<IAbstractPageProps> = async (ctx) => {
   const query = normalizeURLParams(ctx.query);
   const request = ctx.req as typeof ctx.req & {
-    session: { userData: IADSApiBootstrapData };
+    session: { userData: IUserData };
   };
   const userData = request.session.userData;
   const params = {

@@ -1,5 +1,4 @@
-import { IADSApiSearchParams } from '@api';
-import { useADSApi } from '@hooks';
+import Adsapi, { IADSApiSearchParams } from '@api';
 import { AppEvent, useAppCtx } from '@store';
 import { useInterpret, useSelector } from '@xstate/react';
 import { useRouter } from 'next/router';
@@ -16,8 +15,12 @@ export interface IUseSearchMachineProps {
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function useSearchMachine(props: IUseSearchMachineProps = {}) {
   const { initialResult, initialParams, initialPagination } = props;
-  const { dispatch } = useAppCtx();
-  const { adsapi } = useADSApi();
+  const {
+    dispatch,
+    state: {
+      user: { access_token: token },
+    },
+  } = useAppCtx();
   const Router = useRouter();
 
   const initialState = {
@@ -40,7 +43,7 @@ export function useSearchMachine(props: IUseSearchMachineProps = {}) {
           fl: ['bibcode', 'title', 'author', '[fields author=3]', 'author_count', 'pubdate'],
           ...ctx.params,
         };
-
+        const adsapi = new Adsapi({ token });
         const result = await adsapi.search.query(params);
 
         if (result.isErr()) {

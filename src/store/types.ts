@@ -1,8 +1,8 @@
-import { IADSApiBootstrapData } from '@api';
+import { IUserData } from '@api';
 import { Theme } from '../types';
 
 export interface IAppState {
-  user: IADSApiBootstrapData;
+  user: IUserData;
   theme: Theme;
 }
 

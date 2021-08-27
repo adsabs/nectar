@@ -15,6 +15,7 @@ const TopProgressBar = dynamic(() => import('@components/TopProgressBar').then((
 });
 
 const NectarApp: FC<AppProps> = ({ Component, pageProps }) => {
+  console.log('page props', pageProps);
   return (
     <AppProvider>
       <ThemeRouter />
@@ -27,23 +28,22 @@ const NectarApp: FC<AppProps> = ({ Component, pageProps }) => {
 };
 
 const ThemeRouter = (): React.ReactElement => {
+  const { state } = useAppCtx();
+  const router = useRouter();
 
-    const { state } = useAppCtx();
-    const router = useRouter();
-
-    useEffect(() => {
-      // redirect to main form if path is not valid
-      if (typeof window !== 'undefined') {
-          if (state.theme !== Theme.ASTROPHYSICS && (router.asPath === '/classic-form' || router.asPath === '/paper-form')) {
-          void router.replace('/');
-        }
+  useEffect(() => {
+    // redirect to main form if path is not valid
+    if (typeof window !== 'undefined') {
+      if (
+        state.theme !== Theme.ASTROPHYSICS &&
+        (router.asPath === '/classic-form' || router.asPath === '/paper-form')
+      ) {
+        void router.replace('/');
       }
-  
-    }, [state.theme, router.asPath]);
+    }
+  }, [state.theme, router.asPath]);
 
-  return(
-    <></>
-  )
-}
+  return <></>;
+};
 
 export default NectarApp;

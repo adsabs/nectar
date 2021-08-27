@@ -20,7 +20,9 @@ const reducerWrapper: React.Reducer<IAppState, Action> = (state, action) => {
 
   // flush the current state to localStorage
   requestAnimationFrame(() => {
-    localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(newState));
+    // skip storing user data, we'll grab that from the server session
+    const { user, ...state } = newState;
+    localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(state));
   });
 
   return newState;
@@ -41,10 +43,14 @@ const AppProvider = (props: React.PropsWithChildren<Record<string, unknown>>): R
     reducerWrapper,
     initialAppState,
     (initial): IAppState => {
-      return typeof window === 'undefined'
+      const isServer = typeof window === 'undefined';
+      const sessionEl = isServer ? null : document.getElementById('__session__');
+
+      return isServer
         ? initial
         : {
             ...initial,
+            user: sessionEl !== null ? (JSON.parse(sessionEl.textContent) as IAppState['user']) : initial.user,
             ...((JSON.parse(localStorage.getItem(APP_STORAGE_KEY)) as IAppState) || initial),
           };
     },
