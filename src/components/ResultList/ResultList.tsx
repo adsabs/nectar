@@ -16,10 +16,20 @@ export interface IResultListProps extends HTMLAttributes<HTMLDivElement> {
   showActions: boolean;
 }
 
+interface ISelection {
+  selectAll: boolean,
+  selectNone: boolean,
+  selectedCount: number;
+}
+
 export const ResultList = (props: IResultListProps): React.ReactElement => {
 
-  const [selectAll, setSelectAll] = useState<boolean>(false);
-  const [selectNone, setSelectNone] = useState<boolean>(false);
+  const [selection, setSelection] = useState<ISelection>({
+    selectAll: false,
+    selectNone: false,
+    selectedCount: 0
+  });
+
   const {
     docs = [],
     isLoading = false,
@@ -29,25 +39,38 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
     ...divProps
   } = props;
 
+  const numPerPage = useSelector(searchService, (state) => {
+    return state.context.pagination.numPerPage;
+  });
+
   const handleSortChange = () => {};
 
   const handleSelectAll = () => {
-    setSelectNone(false);
-    setSelectAll(true);
+    setSelection({
+      selectAll: true,
+      selectNone: false,
+      selectedCount: numPerPage
+    });
   };
 
   const handleSelectNone = () => {
-    setSelectAll(false);
-    setSelectNone(true);
+    setSelection({
+      selectAll: false,
+      selectNone: true,
+      selectedCount: 0
+    });
   };
 
   const handleLimitedTo = () => {};
 
   const handleExclude = () => {};
 
-  const handleItemToggled = () => {
-    setSelectAll(false);
-    setSelectNone(false);
+  const handleItemSet = (check) => {
+    setSelection({
+      selectAll: false,
+      selectNone: false,
+      selectedCount: check? selection.selectedCount + 1 : selection.selectedCount - 1,
+    });
   };
 
   const indexStart = useSelector(searchService, (state) => {
@@ -56,15 +79,18 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
   });
 
   useEffect(() => {
-    setSelectAll(false);
-    setSelectNone(false);
+    setSelection({
+      selectAll: false,
+      selectNone: false,
+      selectedCount: 0
+    });
   }, [indexStart]);
 
   return (
     <article {...divProps} className="flex flex-col mt-1 space-y-1">
       {isLoading || !showActions ? null : (
         <ListActions
-          selectedCount={0}
+          selectedCount={selection.selectedCount}
           onSortChange={handleSortChange}
           onSelectAll={handleSelectAll}
           onSelectNone={handleSelectNone}
@@ -82,9 +108,9 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
               key={doc.id}
               index={indexStart + index}
               hideCheckbox={hideCheckboxes}
-              set={selectAll}
-              clear={selectNone}
-              onToggle={handleItemToggled}
+              set={selection.selectAll}
+              clear={selection.selectNone}
+              onSet={handleItemSet}
             />
           ))}
           {/* footer */}
