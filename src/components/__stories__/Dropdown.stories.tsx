@@ -7,11 +7,7 @@ const meta: Meta<IDropdownBasicProps> = {
   component: DropdownBasic,
   argTypes: {
     items: {
-      defaultValue: [
-        { label: 'First' },
-        { label: 'Second' },
-        { label: 'Third' },
-      ],
+      defaultValue: [{ label: 'First' }, { label: 'Second' }, { label: 'Third' }],
     },
   },
   parameters: {
@@ -24,11 +20,9 @@ const meta: Meta<IDropdownBasicProps> = {
 
 export default meta;
 
-const Template: Story<IDropdownBasicProps> = (args) => (
-  <DropdownBasic {...args} />
-);
+const Template: Story<IDropdownBasicProps> = (args) => <DropdownBasic {...args} />;
 
-export const Default: Story<IDropdownBasicProps> = Template.bind({});
+export const Default = Template.bind({}) as Story<IDropdownBasicProps>;
 
 Default.args = {
   label: 'Dropdown',

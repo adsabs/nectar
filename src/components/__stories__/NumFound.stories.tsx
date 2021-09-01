@@ -21,21 +21,21 @@ export default meta;
 
 const Template: Story<INumFoundProps> = (args) => <NumFound {...args} />;
 
-export const Default = Template.bind({});
+export const Default = Template.bind({}) as Story<INumFoundProps>;
 Default.args = {};
 
-export const WithResults = Template.bind({});
+export const WithResults = Template.bind({}) as Story<INumFoundProps>;
 WithResults.args = {
   count: 500,
 };
 
-export const TotalCitations = Template.bind({});
+export const TotalCitations = Template.bind({}) as Story<INumFoundProps>;
 TotalCitations.args = {
   ...WithResults.args,
   citationsCount: 100,
 };
 
-export const TotalNormalizedCitations = Template.bind({});
+export const TotalNormalizedCitations = Template.bind({}) as Story<INumFoundProps>;
 TotalNormalizedCitations.args = {
   ...WithResults.args,
   normalizedCitationsCount: 100,

@@ -21,6 +21,6 @@ export default meta;
 
 const Template: Story<ISearchBarProps> = (args) => <SearchBar {...args} />;
 
-export const Default = Template.bind({});
+export const Default = Template.bind({}) as Story<ISearchBarProps>;
 
 Default.args = {};

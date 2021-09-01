@@ -21,6 +21,6 @@ export default meta;
 
 const Template: Story = (args) => <Footer {...args} />;
 
-export const Default = Template.bind({});
+export const Default = Template.bind({}) as Story;
 
 Default.args = {};

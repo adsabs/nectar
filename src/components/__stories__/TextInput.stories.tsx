@@ -1,6 +1,6 @@
-import React from 'react';
 import { Meta, Story } from '@storybook/react';
-import { TextInput, ITextInputProps } from '../TextInput';
+import React from 'react';
+import { ITextInputProps, TextInput } from '../TextInput';
 
 const meta: Meta = {
   title: 'TextInput',
@@ -19,7 +19,7 @@ const meta: Meta = {
 
 export default meta;
 
-const Template: Story<ITextInputProps> = args => <TextInput {...args} />;
+const Template: Story<ITextInputProps> = (args) => <TextInput {...args} />;
 
 export const Default = Template.bind({}) as Story<ITextInputProps>;
 
