@@ -92,7 +92,12 @@ const Form = (props: IFormProps): React.ReactElement => {
               </div>
             </div>
           ) : (
-            <ResultList isLoading={isLoading} docs={result.docs as IDocsEntity[]} service={searchService} showActions={true} />
+            <ResultList
+              isLoading={isLoading}
+              docs={result.docs as IDocsEntity[]}
+              service={searchService}
+              showActions={true}
+            />
           )}
         </div>
         <div className="col-span-6"></div>

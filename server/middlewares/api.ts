@@ -1,5 +1,5 @@
-import Adsapi from '@api';
 import { RequestHandler as Middleware } from 'express';
+import Adsapi from '../../src/api';
 
 export const api: Middleware = async (req, res, next) => {
   // grab reference to our current session from the request

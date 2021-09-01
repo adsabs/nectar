@@ -1,11 +1,10 @@
-import { Session } from 'express-session';
 import Document, { DocumentContext, DocumentInitialProps, Head, Html, Main, NextScript } from 'next/document';
 import { IncomingMessage } from 'node:http';
 import { isNil } from 'ramda';
 import React from 'react';
 
 type NectarInitialProps = DocumentInitialProps & {
-  session: Session;
+  session: IncomingMessage['session'];
 };
 
 class MyDocument extends Document<NectarInitialProps> {
@@ -13,7 +12,7 @@ class MyDocument extends Document<NectarInitialProps> {
     const initialProps = (await Document.getInitialProps(ctx)) as NectarInitialProps;
 
     if (!isNil(ctx.req)) {
-      initialProps.session = (ctx.req as IncomingMessage & { session: Session }).session;
+      initialProps.session = ctx.req.session;
     }
 
     return initialProps;

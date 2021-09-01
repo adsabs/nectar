@@ -1,10 +1,11 @@
-import expressSession, { SessionOptions } from 'express-session';
+import CookieSession from 'cookie-session';
 
-const config: SessionOptions = {
-  secret: [process.env.COOKIE_SECRET],
-  cookie: {
-    maxAge: 24 * 60 * 60 * 1000,
-  },
+const config: CookieSessionInterfaces.CookieSessionOptions = {
+  name: 'nectar_session',
+  keys: [process.env.COOKIE_SECRET || ''],
+  maxAge: 24 * 60 * 60 * 1000, // 24 hours
+  httpOnly: false,
+  secure: false,
 };
 
-export const session = expressSession(config);
+export const session = CookieSession(config);
