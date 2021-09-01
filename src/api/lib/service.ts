@@ -51,7 +51,7 @@ export class Service {
     this.service = axios.create(cfg);
 
     this.service.interceptors.request.use((request: AxiosRequestConfig) => {
-      if (typeof token === 'string') {
+      if (typeof token === 'string' && token.length > 0) {
         (request.headers as { authorization: string })['authorization'] = `Bearer:${token}`;
       }
       return request;

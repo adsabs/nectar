@@ -33,10 +33,7 @@ const ThemeRouter = (): React.ReactElement => {
   useEffect(() => {
     // redirect to main form if path is not valid
     if (typeof window !== 'undefined') {
-      if (
-        state.theme !== Theme.ASTROPHYSICS &&
-        (router.asPath === '/classic-form' || router.asPath === '/paper-form')
-      ) {
+      if (state.theme !== Theme.ASTROPHYSICS && /\/(classic|paper)-form/.test(router.asPath)) {
         void router.replace('/');
       }
     }

@@ -1,9 +1,4 @@
 import { IUserData } from '@api';
-import { SessionData } from 'express-session';
-
-export interface INectarPageProps {
-  sessionData: IUserData;
-}
 
 export interface AppRuntimeConfig {
   publicRuntimeConfig: {
@@ -21,10 +16,8 @@ export enum Theme {
   BIO_PHYSICAL = 'BIO_PHYSICAL_SCIENCE',
 }
 
-declare module 'express-session' {
-  interface SessionData {
-    userData: IUserData;
-  }
+interface SessionData {
+  userData: IUserData;
 }
 
 declare module 'http' {
