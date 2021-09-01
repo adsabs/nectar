@@ -12,7 +12,4 @@ export interface IADSApiBootstrapResponse {
   refresh_token: string;
 }
 
-export type IADSApiBootstrapData = Pick<
-  IADSApiBootstrapResponse,
-  'username' | 'anonymous' | 'access_token' | 'expire_in'
->;
+export type IUserData = Pick<IADSApiBootstrapResponse, 'username' | 'anonymous' | 'access_token' | 'expire_in'>;

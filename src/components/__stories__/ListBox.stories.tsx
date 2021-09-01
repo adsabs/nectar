@@ -21,7 +21,7 @@ export default meta;
 
 const Template: Story<IListBoxProps> = (args) => <ListBox {...args} />;
 
-export const Default = Template.bind({});
+export const Default = Template.bind({}) as Story<IListBoxProps>;
 
 Default.args = {
   label: 'ListBox Demo',
