@@ -11,11 +11,12 @@ interface IItemProps {
   doc: Pick<IDocsEntity, 'id' | 'bibcode'> & Partial<IDocsEntity>;
   index: number;
   hideCheckbox: boolean;
+  showAbstract: boolean;
 }
 
 export const Item = (props: IItemProps): React.ReactElement => {
-  const { doc, index, hideCheckbox = false } = props;
-  const { bibcode, pubdate, title = 'Untitled', author = [], id, citation} = doc;
+  const { doc, index, hideCheckbox = false, showAbstract } = props;
+  const { bibcode, pubdate, title = 'Untitled', author = [], id, citation } = doc;
   const [state, send] = useMachine(itemMachine.withContext({ id }), {
     devTools: true,
   });
@@ -24,9 +25,15 @@ export const Item = (props: IItemProps): React.ReactElement => {
     send({ type: ItemMachine.TransitionTypes.TOGGLE_SELECT });
   };
 
-  const checkBgClass = clsx(state.matches('selected')? "bg-blue-600" : "bg-gray-100", "items-center justify-center hidden mr-3 md:flex rounded-tl-md rounded-bl-md px-2");
+  const checkBgClass = clsx(
+    state.matches('selected') ? 'bg-blue-600' : 'bg-gray-100',
+    'hidden items-center justify-center mr-3 px-2 rounded-bl-md rounded-tl-md md:flex',
+  );
 
-  const indexClass = clsx(state.matches('selected')? "text-white": "", "items-center justify-center hidden mr-3 md:flex")
+  const indexClass = clsx(
+    state.matches('selected') ? 'text-white' : '',
+    'hidden items-center justify-center mr-3 md:flex',
+  );
 
   return (
     <article className="flex bg-white border rounded-md shadow" aria-labelledby={`result-${id}`}>
@@ -43,10 +50,10 @@ export const Item = (props: IItemProps): React.ReactElement => {
           />
         </div>
       )}
-      <div className="flex flex-col flex-1 px-2 py-3">
+      <div className="flex flex-1 flex-col px-2 py-3">
         <div className="flex justify-between">
           <Link href={`/abs/${bibcode}`}>
-            <a className="text-xs hover:underline py-1">{bibcode}</a>
+            <a className="py-1 hover:underline text-xs">{bibcode}</a>
           </Link>
         </div>
         <Link href={`/abs/${bibcode}`}>
@@ -60,17 +67,17 @@ export const Item = (props: IItemProps): React.ReactElement => {
           {citation && <span className="text-xs">cite: {citation}</span>}
         </div>
         <div className="flex">
-          <AbstractPreview id={id} />
+          <AbstractPreview id={id} showAbstract={showAbstract} />
         </div>
       </div>
-      <div className="p-2 flex items-start">
-        <button title="Full text sources" tabIndex={0} >
+      <div className="flex items-start p-2">
+        <button title="Full text sources" tabIndex={0}>
           <DocumentTextIcon className="default-icon default-link-color" />
         </button>
-        <button title="Citations and references" tabIndex={0} >
+        <button title="Citations and references" tabIndex={0}>
           <ViewListIcon className="default-icon default-link-color" />
         </button>
-        <button title="Data" tabIndex={0} >
+        <button title="Data" tabIndex={0}>
           <DatabaseIcon className="default-icon default-link-color" />
         </button>
       </div>

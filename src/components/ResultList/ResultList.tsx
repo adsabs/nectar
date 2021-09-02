@@ -1,12 +1,11 @@
 import { IDocsEntity } from '@api';
 import { ISearchMachine } from '@machines/lib/search/types';
 import { useSelector } from '@xstate/react';
-import React, { HTMLAttributes } from 'react';
+import React, { HTMLAttributes, useState } from 'react';
 import { Item } from './Item/Item';
 import { Pagination } from './Pagination';
 import { ListActions } from './ListActions';
 import { Skeleton } from './Skeleton';
-
 export interface IResultListProps extends HTMLAttributes<HTMLDivElement> {
   docs: IDocsEntity[];
   hideCheckboxes?: boolean;
@@ -16,9 +15,20 @@ export interface IResultListProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export const ResultList = (props: IResultListProps): React.ReactElement => {
-  const { docs = [], isLoading = false, hideCheckboxes = false, service: searchService, showActions, ...divProps } = props;
+  const {
+    docs = [],
+    isLoading = false,
+    hideCheckboxes = false,
+    service: searchService,
+    showActions,
+    ...divProps
+  } = props;
 
-  const handleSortChange = () => {}
+  const [showAbstract, setShowAbstract] = useState(false);
+
+  const [showHighlight, setShowHightlight] = useState(false);
+
+  const handleSortChange = () => {};
 
   const handleSelectAll = () => {};
 
@@ -27,6 +37,14 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
   const handleLimitedTo = () => {};
 
   const handleExclude = () => {};
+
+  const handleSetAbstract = (on: boolean) => {
+    setShowAbstract(on);
+  };
+
+  const handleSetHighlight = (on: boolean) => {
+    setShowHightlight(on);
+  };
 
   const indexStart = useSelector(searchService, (state) => {
     const { page, numPerPage } = state.context.pagination;
@@ -43,6 +61,8 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
           onSelectNone={handleSelectNone}
           onLimitedTo={handleLimitedTo}
           onExclude={handleExclude}
+          onSetAbstract={handleSetAbstract}
+          onSetHighlight={handleSetHighlight}
         />
       )}
       {isLoading ? (
@@ -50,7 +70,13 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
       ) : docs.length > 0 ? (
         <>
           {docs.map((doc, index) => (
-            <Item doc={doc} key={doc.id} index={indexStart + index} hideCheckbox={hideCheckboxes} />
+            <Item
+              doc={doc}
+              key={doc.id}
+              index={indexStart + index}
+              hideCheckbox={hideCheckboxes}
+              showAbstract={showAbstract}
+            />
           ))}
           {/* footer */}
           <Pagination service={searchService} />
