@@ -4,7 +4,6 @@ node_modules
 .github
 .vscode
 .storybook
-cypress
 dist
 scripts
 stories
