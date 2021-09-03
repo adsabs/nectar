@@ -2,44 +2,80 @@
 
 ### Getting started
 
-install project dependencies
+#### NodeJS
+
+Install the JavaScript Tool Manager [Volta](https://volta.sh/):
 
 ```bash
-$ yarn install
+curl https://get.volta.sh | bash
 ```
 
-### Development
-
-Start the development server
+Volta gets installed in `$HOME/.volta/`, and it adds to `$HOME/.bashrc` the following lines:
 
 ```bash
-$ yarn dev
+export VOLTA_HOME="$HOME/.volta"
+export PATH="$VOLTA_HOME/bin:$PATH"
 ```
 
-### Production build
-
-build assets
+Therefore, it will be necessary to close and open again the terminal or run:
 
 ```bash
-$ yarn build
+source $HOME/.bashrc
 ```
 
-start production server
+Once this is done, anytime that we run `node` or `yarn` within nectar's directory, volta will kick in and read the `package.json` file, which can contain this definition:
+
+```
+"volta": {
+  "node": "14.16.1",
+  "yarn": "1.22.10"
+}
+```
+
+Therefore, volta will automatically download/enable the node and yarn version specified in `package.json`.
+
+
+#### Dependencies
+
+Install the project dependencies:
 
 ```bash
-$ yarn start
+yarn install --pure-lockfile
 ```
+
+#### Development
+
+Start the development server:
+
+```bash
+yarn dev
+```
+
+#### Production build
+
+Build the application:
+
+```bash
+yarn build
+```
+
+And start production server:
+
+```bash
+yarn start
+```
+
 
 ### Usage with Docker
 
-build docker image
+Build the docker image:
 
 ```bash
-$ docker build -t nectar .
+docker build -t nectar .
 ```
 
-start production server inside container
+And start the production server inside a container:
 
 ```bash
-$ docker run --rm -it -p 8000:8000 nectar
+docker run -it --rm --name nectar -p 8000:8000 nectar
 ```

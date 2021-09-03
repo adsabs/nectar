@@ -6,6 +6,7 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
  * @type {import('next/dist/next-server/server/config').NextConfig}
  **/
 const config = {
+  distDir: process.env.DIST_DIR || 'dist',
   poweredByHeader: false,
   reactStrictMode: true,
   async redirects() {
