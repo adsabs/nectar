@@ -1,9 +1,11 @@
 import { ReactElement, useState } from 'react';
-import { DropdownList, ItemType, SelectorLabel } from '@components/Dropdown';
+import { DropdownList, SelectorLabel } from '@components/Dropdown';
 import { AppEvent, useAppCtx } from '@store';
 import { Theme } from '@types';
 import styles from './NavBar.module.css';
 import clsx from 'clsx';
+import { ItemType } from '@components/Dropdown/types';
+import { useEffect } from 'react';
 
 const themes: ItemType[] = [
   {
@@ -39,27 +41,29 @@ const themes: ItemType[] = [
 ];
 
 export const ThemeDropdown = (): ReactElement => {
-
   const { state: appState, dispatch } = useAppCtx();
 
-  const getUserTheme = () => {
-    const userTheme = appState.theme.toString();
-    return userTheme? userTheme : Theme.GENERAL;
-  }
+  const [selectedTheme, setSelectedTheme] = useState<string>(Theme.GENERAL);
 
-  const [selectedTheme, setSelectedTheme] = useState<string>(getUserTheme());
+  useEffect(() => {
+    setSelectedTheme(appState.theme);
+  }, [appState.theme]);
 
   const setUserTheme = (themeId: Theme) => {
-    dispatch({type: AppEvent.SET_THEME, payload: themeId });
+    dispatch({ type: AppEvent.SET_THEME, payload: themeId });
     setSelectedTheme(themeId);
-  }
+  };
 
-  const selectorClasses = clsx(styles['navbar-bg-color'], styles['navbar-text-color'], 'flex items-center justify-between w-64 border border-gray-50 border-opacity-50 rounded-sm cursor-pointer');
+  const selectorClasses = clsx(
+    styles['navbar-bg-color'],
+    styles['navbar-text-color'],
+    'flex items-center justify-between w-64 border border-gray-50 border-opacity-50 rounded-sm cursor-pointer',
+  );
 
   const getLabelNode = (itemId: string) => {
-    const label = themes.find(item => item.id === itemId).label;
+    const label = themes.find((item) => item.id === itemId).label;
 
-    return <SelectorLabel text={label} classes={selectorClasses} />
+    return <SelectorLabel text={label} classes={selectorClasses} />;
   };
 
   const handleOnSelect = (themeId: Theme) => {
@@ -74,10 +78,9 @@ export const ThemeDropdown = (): ReactElement => {
       onSelect={handleOnSelect}
       classes={{
         button: '',
-        list: 'w-64'
+        list: 'w-64',
       }}
       offset={[0, 4]}
-      useCustomLabel={true}
       placement="bottom-start"
       role="listbox"
       ariaLabel="Theme selector"

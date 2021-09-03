@@ -13,7 +13,14 @@ export interface ISortProps {
 }
 
 export const Sort = (props: ISortProps): React.ReactElement => {
-  const { sort: initialSort = ['date desc'], onChange, name = 'sort', hideLabel, leftMargin = 'ml-0', rightMargin = 'mr-0' } = props;
+  const {
+    sort: initialSort = ['date desc'],
+    onChange,
+    name = 'sort',
+    hideLabel,
+    leftMargin = 'ml-0',
+    rightMargin = 'mr-0',
+  } = props;
   const [sort, ...additionalSorts] = initialSort;
   const firstRender = useRef(true);
   const [selected, setSelected] = React.useState<[SolrSortField, SolrSortDirection]>(['date', 'desc']);
@@ -40,21 +47,21 @@ export const Sort = (props: ISortProps): React.ReactElement => {
   const sortItems = sortValues.map(({ id, text }) => ({
     id: id,
     domId: `sort-${id}`,
-    label: text
+    label: text,
   }));
 
   const sortDirections = [
     {
       id: 'asc',
       domId: 'sort-asc',
-      label: 'asc'
+      label: 'asc',
     },
     {
       id: 'desc',
       domId: 'sort-desc',
-      label: 'desc'
-    }
-  ]
+      label: 'desc',
+    },
+  ];
 
   const handleSortChange = (id: string) => {
     const val = id as SolrSortField;
@@ -70,19 +77,25 @@ export const Sort = (props: ISortProps): React.ReactElement => {
     return [selected.join(' '), ...additionalSorts].join(',');
   };
 
-  const sortSelectorClasses = clsx(leftMargin, 'text-sm font-md flex items-center justify-between w-52 h-10 border border-r-0 border-gray-300 rounded-md rounded-r-none cursor-pointer my-1');
+  const sortSelectorClasses = clsx(
+    leftMargin,
+    'font-md flex items-center justify-between my-1 w-52 h-10 text-sm border border-r-0 border-gray-300 rounded-md rounded-r-none cursor-pointer',
+  );
 
-  const dirSelectorClasses = clsx(rightMargin, 'text-sm font-md flex items-center justify-between w-24 h-10 border border-gray-300 rounded-md rounded-l-none cursor-pointer my-1');
+  const dirSelectorClasses = clsx(
+    rightMargin,
+    'font-md flex items-center justify-between my-1 w-24 h-10 text-sm border border-gray-300 rounded-l-none rounded-md cursor-pointer',
+  );
 
   const getLabelNode = () => {
-    const sortValue = sortValues.find(sv => selected[0] === sv.id);
-    return <SelectorLabel text={sortValue.text} classes={sortSelectorClasses} />
-  }
+    const sortValue = sortValues.find((sv) => selected[0] === sv.id);
+    return <SelectorLabel text={sortValue.text} classes={sortSelectorClasses} />;
+  };
 
   const getDirectionNode = () => {
     const dir = selected[1];
-    return <SelectorLabel text={dir} classes={dirSelectorClasses} />
-  }
+    return <SelectorLabel text={dir} classes={dirSelectorClasses} />;
+  };
 
   return (
     <div>
@@ -101,7 +114,6 @@ export const Sort = (props: ISortProps): React.ReactElement => {
             list: 'w-52 text-sm font-md',
           }}
           offset={[0, 1]}
-          useCustomLabel={true}
           placement="bottom-start"
           role="listbox"
           ariaLabel="Sort by"
@@ -115,7 +127,6 @@ export const Sort = (props: ISortProps): React.ReactElement => {
             list: 'w-24 text-sm font-md',
           }}
           offset={[0, 1]}
-          useCustomLabel={true}
           placement="bottom-start"
           role="listbox"
           ariaLabel="Sort by direction"
