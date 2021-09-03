@@ -64,14 +64,12 @@ export const OrcidDropdown = (props: IOrcidDropdownProps): ReactElement => {
         list: '',
       }}
       offset={[-60, 12]}
-      useCustomLabel={true}
       role="menu"
       ariaLabel="Orcid Menu"
     />
   ) : (
     <CollapsibleList
       label={getOrcidLabelNode()}
-      useCustomLabel={true}
       items={items}
       onSelect={handleSelect}
       onEscaped={handleOnClose}

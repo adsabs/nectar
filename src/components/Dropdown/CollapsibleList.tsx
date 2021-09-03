@@ -5,13 +5,12 @@ import { Item } from './ListItem';
 import { ItemType } from './types';
 
 export interface ICollapsibleListProps {
-  label: ReactNode;
-  useCustomLabel: boolean;
+  label: ReactNode | string;
   items: ItemType[];
   onSelect: (id: ItemType['id']) => void;
   onExpanded?: () => void; // list expanded
   onCollapsed?: () => void; // list collapsed
-  onEscaped: () => void; 
+  onEscaped: () => void;
   classes: {
     button: string;
     item?: string;
@@ -22,9 +21,18 @@ export interface ICollapsibleListProps {
 }
 
 export const CollapsibleList = (props: ICollapsibleListProps): ReactElement => {
-  const { label, useCustomLabel, items, classes, onSelect, onExpanded, onCollapsed, onEscaped, role, ariaLabel, reset } = props;
+  const { label, items, classes, onSelect, onExpanded, onCollapsed, onEscaped, role, ariaLabel, reset } = props;
 
   const [visible, setVisible] = useState<boolean>(!closed);
+
+  const labelElement =
+    typeof label === 'string' ? (
+      <>
+        {label} <ChevronDownIcon className="inline w-4 h-4" />
+      </>
+    ) : (
+      label
+    );
 
   const collapse = () => setVisible(false);
 
@@ -99,15 +107,9 @@ export const CollapsibleList = (props: ICollapsibleListProps): ReactElement => {
         aria-label={ariaLabel}
         aria-expanded={visible}
       >
-        {useCustomLabel ? (
-          label
-        ) : (
-          <>
-            {label} <ChevronDownIcon className="inline w-4 h-4" />
-          </>
-        )}
+        {labelElement}
       </button>
-      <div className={clsx(visible && !reset? '' : 'hidden', 'flex flex-col')}>
+      <div className={clsx(visible && !reset ? '' : 'hidden', 'flex flex-col')}>
         {items.map((item, index) => (
           <Item
             key={item.id}

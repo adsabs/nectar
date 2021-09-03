@@ -73,7 +73,6 @@ export const AboutDropdown = (props: IAboutDropdownProps): ReactElement => {
         list: '',
       }}
       offset={[-60, 12]}
-      useCustomLabel={false}
       role="menu"
       placement="bottom-start"
       ariaLabel="About Menu"
@@ -81,7 +80,6 @@ export const AboutDropdown = (props: IAboutDropdownProps): ReactElement => {
   ) : (
     <CollapsibleList
       label="About"
-      useCustomLabel={false}
       items={items}
       onSelect={handleSelect}
       onEscaped={handleOnClose}
