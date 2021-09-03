@@ -1,5 +1,11 @@
 FROM node:14.16.1-buster-slim
 
+ENV LC_ALL C
+ENV DEBIAN_FRONTEND noninteractive
+# Cypress dependencies: https://docs.cypress.io/guides/continuous-integration/introduction#Dependencies
+RUN apt-get update && \
+    apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb -y
+
 WORKDIR /app
 
 # Copy application files (excluding unnecessary things such as node_modules)

@@ -3,9 +3,8 @@
   "private": true,
   "version": "0.0.1",
   "engines": {
-    "node": ">=10"
+    "node": ">=14"
   },
-  "module": "dist/server.esm.js",
   "scripts": {
     "dev": "nodemon",
     "build": "NEXT_TELEMETRY_DISABLED=1 DIST_DIR=./dist/ next build && tsc --project tsconfig.server.json --outDir ./dist/",

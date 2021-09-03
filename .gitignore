@@ -117,3 +117,4 @@ dist
 
 .vscode/
 dev/
+storybook-static/

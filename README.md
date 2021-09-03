@@ -51,6 +51,30 @@ Start the development server:
 yarn dev
 ```
 
+Run tests:
+
+```bash
+yarn test
+```
+
+Run storybook:
+
+```bash
+yarn storybook
+```
+
+To run cypress, start the production server in one terminal:
+
+```bash
+yarn start
+```
+
+And without closing it, open a new terminal and run cypress:
+
+```bash
+yarn cypress:run
+```
+
 #### Production build
 
 Build the application:
@@ -65,7 +89,6 @@ And start production server:
 yarn start
 ```
 
-
 ### Usage with Docker
 
 Build the docker image:
@@ -74,8 +97,19 @@ Build the docker image:
 docker build -t nectar .
 ```
 
-And start the production server inside a container:
+#### Production
+
+Start the production server inside a container:
 
 ```bash
-docker run -it --rm --name nectar -p 8000:8000 nectar
+docker run -it --rm --name nectar -p 8000:8000 -p 6006:6006 nectar yarn start
 ```
+
+#### Development
+
+Create a container mounting the current directory in the `/app/` and start a `bash` shell to run any desired commands:
+
+```bash
+docker run -it --rm --name nectar -p 8000:8000 -p 6006:6006 -v $PWD:/app/ nectar bash
+```
+
