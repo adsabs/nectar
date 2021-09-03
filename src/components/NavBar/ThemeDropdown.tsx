@@ -5,6 +5,7 @@ import { Theme } from '@types';
 import styles from './NavBar.module.css';
 import clsx from 'clsx';
 import { ItemType } from '@components/Dropdown/types';
+import { useEffect } from 'react';
 
 const themes: ItemType[] = [
   {
@@ -42,12 +43,11 @@ const themes: ItemType[] = [
 export const ThemeDropdown = (): ReactElement => {
   const { state: appState, dispatch } = useAppCtx();
 
-  const getUserTheme = () => {
-    const userTheme = appState.theme.toString();
-    return userTheme ? userTheme : Theme.GENERAL;
-  };
+  const [selectedTheme, setSelectedTheme] = useState<string>(Theme.GENERAL);
 
-  const [selectedTheme, setSelectedTheme] = useState<string>(getUserTheme());
+  useEffect(() => {
+    setSelectedTheme(appState.theme);
+  }, [appState.theme]);
 
   const setUserTheme = (themeId: Theme) => {
     dispatch({ type: AppEvent.SET_THEME, payload: themeId });
