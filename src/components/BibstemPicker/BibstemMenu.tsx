@@ -3,7 +3,7 @@ import { curry } from 'ramda';
 import React from 'react';
 import { usePopper } from 'react-popper';
 import { chainFrom } from 'transducist';
-import { bibstems } from './models';
+import { bibstems, ITEM_DELIMITER } from './models';
 
 export interface IBibstemMenuProps {
   onItemsChange: (items: string[]) => void;
@@ -28,13 +28,13 @@ export const BibstemMenu = (props: IBibstemMenuProps): React.ReactElement => {
   const { attributes, styles } = usePopper();
 
   return (
-    <div
+    <ul
       {...attributes.popper}
       style={styles.popper}
       className="left-1 mt-1 w-full max-h-64 bg-white rounded-b-sm focus:outline-none shadow-md divide-gray-100 divide-y-2 overflow-y-scroll origin-top-right ring-black ring-opacity-5 ring-1"
     >
       {items.map((item, index) => {
-        const [bibstem, description] = item.split('$$');
+        const [bibstem, description] = item.split(ITEM_DELIMITER);
         return (
           <div
             key={`${item}${index}`}
@@ -49,7 +49,7 @@ export const BibstemMenu = (props: IBibstemMenuProps): React.ReactElement => {
           </div>
         );
       })}
-    </div>
+    </ul>
   );
 };
 

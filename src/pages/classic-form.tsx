@@ -1,5 +1,5 @@
 import { SolrSort } from '@api';
-import { BibstemPicker, Button, Sort, TextInput } from '@components';
+import { BibstemPickerMultiple, Button, Sort, TextInput } from '@components';
 import { ClassicformController, RawClassicFormParams } from '@controllers/classicformController';
 import clsx from 'clsx';
 import { NextPage } from 'next';
@@ -47,8 +47,8 @@ const ClassicForm: NextPage = () => {
           Classic Form
         </h2>
         <fieldset className="col-span-6">
-          <legend className="block pb-3 text-sm font-bold text-gray-700">Limit Query</legend>
-          <div className="flex justify-between gap-4 mt-1 sm:col-span-2 sm:justify-start sm:mt-0">
+          <legend className="block pb-3 text-gray-700 text-sm font-bold">Limit Query</legend>
+          <div className="flex gap-4 justify-between mt-1 sm:col-span-2 sm:justify-start sm:mt-0">
             <Checkbox label="Astronomy" checked idPrefix="limit" onChange={handleChange} />
             <Checkbox label="Physics" idPrefix="limit" onChange={handleChange} />
             <Checkbox label="General" idPrefix="limit" onChange={handleChange} />
@@ -89,14 +89,14 @@ const ClassicForm: NextPage = () => {
 
         <fieldset className="col-span-6">
           <legend className="sr-only">Property</legend>
-          <div className="flex justify-between gap-4 mt-1 sm:col-span-2 sm:justify-start sm:mt-0">
+          <div className="flex gap-4 justify-between mt-1 sm:col-span-2 sm:justify-start sm:mt-0">
             <Checkbox label="Refereed only" idPrefix="property" bold onChange={handleChange} />
             <Checkbox label="Physics" idPrefix="property" bold onChange={handleChange} />
           </div>
         </fieldset>
         <div className="col-span-6">
           {process.browser ? (
-            <BibstemPicker />
+            <BibstemPickerMultiple />
           ) : (
             <TextInput
               onChange={handleChange}
@@ -132,7 +132,7 @@ const LogicAndTextarea = ({
   return (
     <div>
       <div className="flex">
-        <label htmlFor={id} className="flex-1 block text-sm font-bold text-gray-700">
+        <label htmlFor={id} className="block flex-1 text-gray-700 text-sm font-bold">
           {label}
         </label>
         <LogicRadios name={id} variant="andor" onChange={onChange} />
@@ -142,12 +142,12 @@ const LogicAndTextarea = ({
           id={id}
           name={id}
           rows={3}
-          className="block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          className="block w-full border-gray-300 focus:border-indigo-500 rounded-md shadow-sm focus:ring-indigo-500 sm:text-sm"
           defaultValue={''}
           onChange={onChange}
         />
       </div>
-      <p className="mt-2 text-sm text-gray-500">{desc}</p>
+      <p className="mt-2 text-gray-500 text-sm">{desc}</p>
     </div>
   );
 };
@@ -201,7 +201,7 @@ const LogicAndInput = ({
   return (
     <div>
       <div className="flex">
-        <label htmlFor={id} className="flex-1 block text-sm font-bold text-gray-700">
+        <label htmlFor={id} className="block flex-1 text-gray-700 text-sm font-bold">
           {label}
         </label>
         {!noLogic && <LogicRadios name={normalizeString(label)} variant="all" onChange={onChange} />}
@@ -212,7 +212,7 @@ const LogicAndInput = ({
           id={id}
           name={id}
           onChange={onChange}
-          className="block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          className="block w-full border-gray-300 focus:border-indigo-500 rounded-md shadow-sm focus:ring-indigo-500 sm:text-sm"
           defaultValue={''}
         />
       </div>
