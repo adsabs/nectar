@@ -17,17 +17,16 @@ export interface IResultListProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 interface ISelection {
-  selectAll: boolean,
-  selectNone: boolean,
+  selectAll: boolean;
+  selectNone: boolean;
   selectedCount: number;
 }
 
 export const ResultList = (props: IResultListProps): React.ReactElement => {
-
   const [selection, setSelection] = useState<ISelection>({
     selectAll: false,
     selectNone: false,
-    selectedCount: 0
+    selectedCount: 0,
   });
 
   const {
@@ -49,7 +48,7 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
     setSelection({
       selectAll: true,
       selectNone: false,
-      selectedCount: numPerPage
+      selectedCount: numPerPage,
     });
   };
 
@@ -57,7 +56,7 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
     setSelection({
       selectAll: false,
       selectNone: true,
-      selectedCount: 0
+      selectedCount: 0,
     });
   };
 
@@ -69,7 +68,7 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
     setSelection({
       selectAll: false,
       selectNone: false,
-      selectedCount: check? selection.selectedCount + 1 : selection.selectedCount - 1,
+      selectedCount: check ? selection.selectedCount + 1 : selection.selectedCount - 1,
     });
   };
 
@@ -82,7 +81,7 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
     setSelection({
       selectAll: false,
       selectNone: false,
-      selectedCount: 0
+      selectedCount: 0,
     });
   }, [indexStart]);
 
@@ -90,6 +89,7 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
     <article {...divProps} className="flex flex-col mt-1 space-y-1">
       {isLoading || !showActions ? null : (
         <ListActions
+          service={searchService}
           selectedCount={selection.selectedCount}
           onSortChange={handleSortChange}
           onSelectAll={handleSelectAll}
