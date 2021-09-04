@@ -1,11 +1,11 @@
 import { ChevronDownIcon } from '@heroicons/react/solid';
+import { Placement } from '@popperjs/core';
 import clsx from 'clsx';
-import React, { ReactElement, ReactNode, useCallback, useState, KeyboardEvent, useEffect } from 'react';
+import React, { KeyboardEvent, ReactElement, ReactNode, useCallback, useEffect, useState } from 'react';
 import OutsideClickHandler from 'react-outside-click-handler';
 import { usePopper } from 'react-popper';
-import { Placement } from '@popperjs/core';
-import { ItemType } from './types';
 import { Item } from './ListItem';
+import { ItemType } from './types';
 export interface IDropdownListProps {
   label: ReactNode | string;
   items: ItemType[];
@@ -120,7 +120,9 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
   const focusItem = (index: number) => {
     const numItems = items.length;
     const idx = index >= numItems ? 0 : index < 0 ? numItems - 1 : index;
-    if (typeof window !== 'undefined') document.getElementById(`${items[idx].domId}`).focus();
+    if (process.browser) {
+      document.getElementById(`${items[idx].domId}`).focus();
+    }
   };
 
   const handleOutsideClick = () => {

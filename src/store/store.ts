@@ -49,9 +49,8 @@ const safeParse = <T>(value: string, defaultValue: T): T => {
   return result().unwrapOr(defaultValue);
 };
 
-const isServer = typeof window === 'undefined';
 const fetchSessionDataFromDOM = (defaultValue: IAppState['user']): IAppState['user'] => {
-  const sessionEl = isServer ? null : document.getElementById('__session__');
+  const sessionEl = process.browser ? document.getElementById('__session__') : null;
 
   // parse out the session data from the DOM
   const result = fromThrowable<() => IncomingMessage['session'], Error>(() => {
@@ -69,13 +68,13 @@ const AppProvider = (props: React.PropsWithChildren<Record<string, unknown>>): R
     nectarAppReducer,
     initialAppState,
     (initial): IAppState => {
-      const newState = isServer
-        ? initial
-        : {
+      const newState = process.browser
+        ? {
             ...initial,
             ...safeParse(localStorage.getItem(APP_STORAGE_KEY), initial),
             user: fetchSessionDataFromDOM(initial.user),
-          };
+          }
+        : initial;
 
       return newState;
     },

@@ -1,6 +1,6 @@
 import { ChevronDownIcon } from '@heroicons/react/solid';
 import clsx from 'clsx';
-import React, { ReactElement, useEffect, useState, KeyboardEvent, ReactNode } from 'react';
+import React, { KeyboardEvent, ReactElement, ReactNode, useEffect, useState } from 'react';
 import { Item } from './ListItem';
 import { ItemType } from './types';
 
@@ -88,7 +88,9 @@ export const CollapsibleList = (props: ICollapsibleListProps): ReactElement => {
   const focusItem = (index: number) => {
     const numItems = items.length;
     const idx = index >= numItems ? 0 : index < 0 ? numItems - 1 : index;
-    if (typeof window !== 'undefined') document.getElementById(`${items[idx].domId}`).focus();
+    if (process.browser) {
+      document.getElementById(`${items[idx].domId}`).focus();
+    }
   };
 
   const handleSelect = (item: ItemType) => {

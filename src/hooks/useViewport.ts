@@ -13,7 +13,7 @@ export const useViewport = (): Viewport => {
   const [width, setWidth] = useState<number>();
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (process.browser) {
       const handleResize = () => setWidth(window.innerWidth);
       window.addEventListener('resize', handleResize);
 

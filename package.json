@@ -142,6 +142,10 @@
       }
     ],
     "rules": {
+      "curly": [
+        "warn",
+        "all"
+      ],
       "react-hooks/rules-of-hooks": "error",
       "@typescript-eslint/no-empty-function": [
         "warn"
