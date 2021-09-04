@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { FC, HTMLAttributes } from 'react';
+import React, { ButtonHTMLAttributes, DetailedHTMLProps, FC } from 'react';
 
 enum ButtonVariant {
   PRIMARY = 'primary',
@@ -14,7 +14,7 @@ enum ButtonSize {
   XL = 'xl',
 }
 
-export interface IButtonProps extends HTMLAttributes<HTMLInputElement> {
+export interface IButtonProps extends DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement> {
   variant?: `${ButtonVariant}`;
   size?: `${ButtonSize}`;
 }
@@ -37,7 +37,7 @@ export const Button: FC<IButtonProps> = ({ size, variant, ...props }) => {
     'px-4 py-2 text-base rounded-md': size === ButtonSize.LG,
     'px-6 py-3 text-base rounded-md': size === ButtonSize.XL,
   });
-  return <button type="button" role="button" {...props} className={styles}></button>;
+  return <button type="button" {...props} className={styles}></button>;
 };
 
 Button.defaultProps = {
