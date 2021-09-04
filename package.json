@@ -26,7 +26,8 @@
     "express": "^4.17.1",
     "express-pino-logger": "^6.0.0",
     "next": "^11.1.1",
-    "qs": "^6.10.1"
+    "qs": "^6.10.1",
+    "sharp": "^0.29.0"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0-0",
