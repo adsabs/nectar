@@ -1,7 +1,7 @@
 import { TextInput } from '@components/TextInput';
 import { useCombobox } from 'downshift';
 import dynamic from 'next/dynamic';
-import React from 'react';
+import React, { DetailedHTMLProps, InputHTMLAttributes } from 'react';
 import type { IBibstemMenuProps } from './BibstemMenu';
 import { ITEM_DELIMITER } from './models';
 const BibstemMenu = dynamic(
@@ -18,17 +18,16 @@ const BibstemMenu = dynamic(
   },
 ) as (props: IBibstemMenuProps) => React.ReactElement;
 
-export interface IBibstemPickerSingleProps {
+export interface IBibstemPickerSingleProps
+  extends DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> {
   initialSelectedItem?: string;
-  onChange?: (item: string) => void;
+  onItemUpdate: (item: string) => void;
   name?: string;
 }
 
-export const BibstemPickerSingle = ({
-  onChange,
-  name,
-  initialSelectedItem,
-}: IBibstemPickerSingleProps): React.ReactElement => {
+export const BibstemPickerSingle = (props: IBibstemPickerSingleProps): React.ReactElement => {
+  const { onItemUpdate, name, initialSelectedItem } = props;
+
   // store items locally, since this will be updated dynamically by the menu
   const [items, setItems] = React.useState<string[]>([]);
   const handleItemsChange = (updatedItems: string[]) => setItems(updatedItems);
@@ -46,30 +45,31 @@ export const BibstemPickerSingle = ({
   } = useCombobox<string>({
     items,
     initialSelectedItem,
+    onInputValueChange: ({ inputValue }) => {
+      // update item if user clears input
+      if (typeof onItemUpdate === 'function' && inputValue.length === 0) {
+        onItemUpdate(inputValue);
+      }
+    },
+    onSelectedItemChange: ({ inputValue }) => {
+      if (typeof onItemUpdate === 'function') {
+        onItemUpdate(inputValue);
+      }
+    },
     itemToString: (item) => item.split(ITEM_DELIMITER)[0],
   });
 
   // instead of overloading the prop, just convert to array
   const selectedItems = React.useMemo(() => [selectedItem], [selectedItem]);
 
-  // trigger onChange, if necessary to parent component
-  React.useEffect(() => {
-    if (typeof onChange === 'function') {
-      onChange(selectedItem.split(ITEM_DELIMITER)[0]);
-    }
-  }, [onChange, selectedItem]);
-
   return (
     <div>
       <label {...getLabelProps()} className="block flex-1 text-gray-700 text-sm font-bold">
-        Publication(s)
+        Publication
       </label>
 
       <div {...getComboboxProps()} className="flex mt-1">
-        <TextInput {...getInputProps()} />
-
-        {/* Create hidden input to hold the value (this is for ssr) */}
-        <input type="hidden" name={name} value={selectedItem} />
+        <TextInput name={name} {...getInputProps()} />
       </div>
       <div {...getMenuProps()} className="relative">
         {isOpen && (
