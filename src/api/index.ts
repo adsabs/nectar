@@ -3,6 +3,7 @@ export default Adsapi;
 
 export type { IUserData } from './lib/bootstrap/types';
 export type { SolrField, SolrSort, SolrSortDirection, SolrSortField } from './lib/models';
+export type { IADSApiReferenceParams, IADSApiReferenceResponse } from './lib/reference/types';
 export type {
   IADSApiSearchErrorResponse,
   IADSApiSearchParams,
