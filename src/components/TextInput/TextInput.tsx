@@ -1,8 +1,8 @@
 import clsx from 'clsx';
-import React, { HTMLAttributes } from 'react';
+import React, { DetailedHTMLProps, InputHTMLAttributes } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-export interface ITextInputProps extends HTMLAttributes<HTMLInputElement> {
-  name?: string;
+export interface ITextInputProps
+  extends Omit<DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>, 'ref'> {
   label?: string;
   helptext?: string;
   classes?: {
