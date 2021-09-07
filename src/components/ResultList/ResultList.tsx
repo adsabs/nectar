@@ -1,7 +1,7 @@
 import { IDocsEntity } from '@api';
 import { ISearchMachine } from '@machines/lib/search/types';
 import { useSelector } from '@xstate/react';
-import React, { HTMLAttributes, useState } from 'react';
+import React, { HTMLAttributes, useEffect, useState } from 'react';
 import { Item } from './Item/Item';
 import { Pagination } from './Pagination';
 import { ListActions } from './ListActions';
@@ -12,6 +12,12 @@ export interface IResultListProps extends HTMLAttributes<HTMLDivElement> {
   isLoading?: boolean;
   service?: ISearchMachine;
   showActions: boolean;
+}
+
+interface ISelection {
+  selectAll: boolean;
+  selectNone: boolean;
+  selectedCount: number;
 }
 
 export const ResultList = (props: IResultListProps): React.ReactElement => {
@@ -28,11 +34,33 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
 
   const [showHighlight, setShowHightlight] = useState(false);
 
+  const [selection, setSelection] = useState<ISelection>({
+    selectAll: false,
+    selectNone: false,
+    selectedCount: 0,
+  });
+
+  const numPerPage = useSelector(searchService, (state) => {
+    return state.context.pagination.numPerPage;
+  });
+
   const handleSortChange = () => {};
 
-  const handleSelectAll = () => {};
+  const handleSelectAll = () => {
+    setSelection({
+      selectAll: true,
+      selectNone: false,
+      selectedCount: numPerPage,
+    });
+  };
 
-  const handleSelectNone = () => {};
+  const handleSelectNone = () => {
+    setSelection({
+      selectAll: false,
+      selectNone: true,
+      selectedCount: 0,
+    });
+  };
 
   const handleLimitedTo = () => {};
 
@@ -46,16 +74,32 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
     setShowHightlight(on);
   };
 
+  const handleItemSet = (check: boolean) => {
+    setSelection({
+      selectAll: false,
+      selectNone: false,
+      selectedCount: check ? selection.selectedCount + 1 : selection.selectedCount - 1,
+    });
+  };
+
   const indexStart = useSelector(searchService, (state) => {
     const { page, numPerPage } = state.context.pagination;
     return (page - 1) * numPerPage + 1;
   });
 
+  useEffect(() => {
+    setSelection({
+      selectAll: false,
+      selectNone: false,
+      selectedCount: 0,
+    });
+  }, [indexStart]);
+
   return (
     <article {...divProps} className="flex flex-col mt-1 space-y-1">
       {isLoading || !showActions ? null : (
         <ListActions
-          selectedCount={0}
+          selectedCount={selection.selectedCount}
           onSortChange={handleSortChange}
           onSelectAll={handleSelectAll}
           onSelectNone={handleSelectNone}
@@ -76,6 +120,9 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
               index={indexStart + index}
               hideCheckbox={hideCheckboxes}
               showAbstract={showAbstract}
+              set={selection.selectAll}
+              clear={selection.selectNone}
+              onSet={handleItemSet}
             />
           ))}
           {/* footer */}

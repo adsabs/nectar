@@ -12,16 +12,25 @@ interface IItemProps {
   index: number;
   hideCheckbox: boolean;
   showAbstract: boolean;
+  set?: boolean;
+  clear?: boolean;
+  onSet: (check: boolean) => void;
 }
 
 export const Item = (props: IItemProps): React.ReactElement => {
-  const { doc, index, hideCheckbox = false, showAbstract } = props;
+  const { doc, index, hideCheckbox = false, showAbstract, set, clear, onSet } = props;
   const { bibcode, pubdate, title = 'Untitled', author = [], id, citation } = doc;
+
   const [state, send] = useMachine(itemMachine.withContext({ id }), {
     devTools: true,
   });
 
+  if ((set && state.matches('unselected')) || (clear && state.matches('selected'))) {
+    send({ type: ItemMachine.TransitionTypes.TOGGLE_SELECT });
+  }
+
   const handleSelect = () => {
+    state.matches('selected') ? onSet(false) : onSet(true);
     send({ type: ItemMachine.TransitionTypes.TOGGLE_SELECT });
   };
 
