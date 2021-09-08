@@ -1,6 +1,7 @@
 import { Layout } from '@components';
 import { AppProvider, useAppCtx } from '@store';
 import { Theme } from '@types';
+import { isBrowser } from '@utils';
 import { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
@@ -32,7 +33,7 @@ const ThemeRouter = (): React.ReactElement => {
 
   useEffect(() => {
     // redirect to main form if path is not valid
-    if (process.browser) {
+    if (isBrowser()) {
       if (state.theme !== Theme.ASTROPHYSICS && /\/(classic|paper)-form/.test(router.asPath)) {
         void router.replace('/');
       }

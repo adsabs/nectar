@@ -1,11 +1,11 @@
 import { Theme } from '@types';
+import { isBrowser } from '@utils';
 import { fromThrowable } from 'neverthrow';
 import { IncomingMessage } from 'node:http';
 import React from 'react';
 import { reducer } from './reducer';
 import { Action, IAppState } from './types';
 const APP_STORAGE_KEY = 'nectar-app-state';
-
 export const initialAppState: IAppState = {
   user: {
     username: 'anonymous',
@@ -50,7 +50,7 @@ const safeParse = <T>(value: string, defaultValue: T): T => {
 };
 
 const fetchSessionDataFromDOM = (defaultValue: IAppState['user']): IAppState['user'] => {
-  const sessionEl = process.browser ? document.getElementById('__session__') : null;
+  const sessionEl = isBrowser() ? document.getElementById('__session__') : null;
 
   // parse out the session data from the DOM
   const result = fromThrowable<() => IncomingMessage['session'], Error>(() => {
@@ -68,7 +68,7 @@ const AppProvider = (props: React.PropsWithChildren<Record<string, unknown>>): R
     nectarAppReducer,
     initialAppState,
     (initial): IAppState => {
-      const newState = process.browser
+      const newState = isBrowser()
         ? {
             ...initial,
             ...safeParse(localStorage.getItem(APP_STORAGE_KEY), initial),

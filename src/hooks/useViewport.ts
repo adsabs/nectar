@@ -1,3 +1,4 @@
+import { isBrowser } from '@utils';
 import { useEffect, useState } from 'react';
 
 export enum Viewport {
@@ -8,12 +9,11 @@ export enum Viewport {
   XL = 1280,
   XXL = 1536,
 }
-
 export const useViewport = (): Viewport => {
   const [width, setWidth] = useState<number>();
 
   useEffect(() => {
-    if (process.browser) {
+    if (isBrowser()) {
       const handleResize = () => setWidth(window.innerWidth);
       window.addEventListener('resize', handleResize);
 

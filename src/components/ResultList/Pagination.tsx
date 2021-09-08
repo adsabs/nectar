@@ -1,6 +1,7 @@
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/solid';
 import { usePagination } from '@hooks';
 import { ISearchMachine } from '@machines/lib/search/types';
+import { isBrowser } from '@utils';
 import clsx from 'clsx';
 import Link from 'next/link';
 import React, { HTMLAttributes } from 'react';
@@ -39,7 +40,7 @@ export const Pagination = (props: IPaginationProps): React.ReactElement => {
       // current page styling
       if (index === page) {
         return (
-          <Link key={href} href={process.browser ? '#' : href}>
+          <Link key={href} href={isBrowser() ? '#' : href}>
             <a
               onClick={pageChangeHandler(index)}
               aria-current="page"
@@ -54,7 +55,7 @@ export const Pagination = (props: IPaginationProps): React.ReactElement => {
 
       // normal, non-current page
       return (
-        <Link key={href} href={process.browser ? '#' : href}>
+        <Link key={href} href={isBrowser() ? '#' : href}>
           <a
             onClick={pageChangeHandler(index)}
             aria-label={`Goto page ${page}`}
@@ -100,12 +101,12 @@ export const Pagination = (props: IPaginationProps): React.ReactElement => {
         {paginationHeading}
       </h3>
       <div className="flex flex-1 justify-between sm:hidden">
-        <Link href={process.browser ? '#' : prevHref}>
+        <Link href={isBrowser() ? '#' : prevHref}>
           <a className={mobilePrevButtonStyles} onClick={handlePrev}>
             Previous
           </a>
         </Link>
-        <Link href={process.browser ? '#' : nextHref}>
+        <Link href={isBrowser() ? '#' : nextHref}>
           <a className={mobileNextButtonStyles} onClick={handleNext}>
             Next
           </a>
@@ -123,7 +124,7 @@ export const Pagination = (props: IPaginationProps): React.ReactElement => {
           role="navigation"
           aria-label="Pagination"
         >
-          <Link href={process.browser ? '#' : prevHref}>
+          <Link href={isBrowser() ? '#' : prevHref}>
             <a className={prevButtonStyles} onClick={handlePrev}>
               <span className="sr-only">Previous</span>
               <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
@@ -132,7 +133,7 @@ export const Pagination = (props: IPaginationProps): React.ReactElement => {
 
           {renderControls()}
 
-          <Link href={process.browser ? '#' : nextHref}>
+          <Link href={isBrowser() ? '#' : nextHref}>
             <a className={nextButtonStyles} onClick={handleNext}>
               <span className="sr-only">Next</span>
               <ChevronRightIcon className="w-5 h-5" aria-hidden="true" />

@@ -1,11 +1,11 @@
 import { SolrSort } from '@api';
 import { BibstemPickerMultiple, Button, Sort, TextInput } from '@components';
 import { ClassicformController, RawClassicFormParams } from '@controllers/classicformController';
+import { isBrowser } from '@utils';
 import clsx from 'clsx';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import React, { useReducer } from 'react';
-
 interface FormEvent {
   name: string;
   value: string;
@@ -95,7 +95,7 @@ const ClassicForm: NextPage = () => {
           </div>
         </fieldset>
         <div className="col-span-6">
-          {process.browser ? (
+          {isBrowser() ? (
             <BibstemPickerMultiple />
           ) : (
             <TextInput

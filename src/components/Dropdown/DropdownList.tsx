@@ -1,5 +1,6 @@
 import { ChevronDownIcon } from '@heroicons/react/solid';
 import { Placement } from '@popperjs/core';
+import { isBrowser } from '@utils';
 import clsx from 'clsx';
 import React, { KeyboardEvent, ReactElement, ReactNode, useCallback, useEffect, useState } from 'react';
 import OutsideClickHandler from 'react-outside-click-handler';
@@ -120,7 +121,7 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
   const focusItem = (index: number) => {
     const numItems = items.length;
     const idx = index >= numItems ? 0 : index < 0 ? numItems - 1 : index;
-    if (process.browser) {
+    if (isBrowser()) {
       document.getElementById(`${items[idx].domId}`).focus();
     }
   };

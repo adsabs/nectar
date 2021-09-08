@@ -3,6 +3,7 @@ import { BibstemPickerSingle, Button, TextInput } from '@components';
 import { PaperFormController } from '@controllers/paperformController';
 import { PaperFormType, RawPaperFormParams } from '@controllers/paperformController/types';
 import { useAppCtx } from '@store';
+import { isBrowser } from '@utils';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -82,7 +83,7 @@ const JournalQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
             >
               {/* Bibstem picker */}
               <div className="col-span-6">
-                {process.browser ? (
+                {isBrowser() ? (
                   <BibstemPickerSingle name="bibstem" onItemUpdate={handleBibstemUpdate} />
                 ) : (
                   <TextInput name="bibstem" label="Publication" />
