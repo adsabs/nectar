@@ -1,13 +1,11 @@
 import AdsApi, { IDocsEntity, IUserData, SolrSort } from '@api';
 import { AbstractSideNav, AbstractSources } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
-import { LinkIcon } from '@heroicons/react/solid';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { isNil } from 'ramda';
 import React from 'react';
 import { normalizeURLParams } from 'src/utils';
-
 export interface IAbstractPageProps {
   doc?: IDocsEntity;
   error?: Error;
@@ -28,13 +26,8 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props) => {
             {doc.title}
           </h2>
           <div className="prose-sm text-gray-700">{doc.author.join('; ')}</div>
-          <a
-            href="#sources"
-            className="inline-flex items-center px-2.5 py-1.5 text-gray-700 text-xs font-medium hover:bg-gray-50 bg-white border border-gray-300 rounded focus:outline-none shadow-sm focus:ring-indigo-500 focus:ring-offset-2 focus:ring-2"
-          >
-            <LinkIcon className="mr-1 w-3 h-3" /> Jump to links
-          </a>
         </div>
+        <AbstractSources doc={doc} />
         {isNil(doc.abstract) ? (
           <div className="prose-lg p-3">No Abstract</div>
         ) : (
@@ -63,8 +56,6 @@ const Details = ({ doc }: IDetailsProps) => {
 
   return (
     <section>
-      <Section label="Sources" />
-      <AbstractSources doc={doc} />
       <Section label="Export" />
       <Section label="Details" />
       <div className="mt-2 bg-white border border-gray-100 rounded-lg shadow overflow-hidden">

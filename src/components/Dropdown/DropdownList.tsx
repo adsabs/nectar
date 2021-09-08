@@ -32,7 +32,7 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
   const labelElement =
     typeof label === 'string' ? (
       <>
-        {label} <ChevronDownIcon className="inline w-4 h-4" />
+        {label} <ChevronDownIcon className="default-icon-sm inline" />
       </>
     ) : (
       label
