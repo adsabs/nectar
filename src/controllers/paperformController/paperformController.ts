@@ -1,16 +1,13 @@
 import Adsapi from '@api';
-import { PaperFormRequest } from '@pages/api/paperform/[id]';
 import qs from 'qs';
 import { PaperFormParams, PaperFormType, RawPaperFormParams } from './types';
 
 export class PaperFormController {
   public params: PaperFormParams;
   public query: string;
-  private adsapi: Adsapi;
 
-  constructor(public type: PaperFormType, public rawParams: RawPaperFormParams, public request: PaperFormRequest) {
+  constructor(public type: PaperFormType, public rawParams: RawPaperFormParams, private adsapi: Adsapi) {
     this.params = this.sanitizeRawParams();
-    this.adsapi = new Adsapi({ token: this.request.session.userData.access_token });
   }
 
   public async getQuery(): Promise<string> {
@@ -48,7 +45,7 @@ export class PaperFormController {
       case PaperFormType.BIBCODE_QUERY: {
         const { bibcodes } = this.params;
 
-        const result = await this.adsapi.vault.query({ q: `bibcode\n${bibcodes.join('\n')}` });
+        const result = await this.adsapi.vault.query({ bigquery: `bibcode\n${bibcodes.join('\n')}` });
 
         result.match(
           ({ qid }) => {
@@ -67,14 +64,18 @@ export class PaperFormController {
   private sanitizeRawParams(): PaperFormParams {
     const { bibcodes = '', bibstem = '', reference = '', page = '', volume = '', year = '' } = this.rawParams;
 
+    console.log('sanitize', this.rawParams);
+
     const clean: PaperFormParams = {
       bibstem,
       page,
-      bibcodes: bibcodes.split(/\w+/),
+      bibcodes: bibcodes.split(/[\s\n\r\t]+/),
       reference,
       volume,
       year,
     };
+
+    console.log('clean', clean);
 
     return clean;
   }

@@ -11,6 +11,7 @@ export interface IADSApiSearchParams {
   'hl.maxAnalyzedChars'?: number;
   'hl.requireFieldMatch'?: boolean;
   'hl.usePhraseHighlighter'?: boolean;
+  fq?: string;
 }
 
 export interface INormalizedADSApiSearchParams {

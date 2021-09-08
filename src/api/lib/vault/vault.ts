@@ -6,18 +6,25 @@ import { IADSApiVaultParams, IADSApiVaultResponse } from './types';
 
 export class VaultService extends Service {
   async query({
-    q,
+    bigquery,
     sort = ['date desc'],
+    q = '*:*',
+    fq = '{!bitset}',
+    ...otherParams
   }: IADSApiVaultParams): Promise<Result<IADSApiVaultResponse, Error | AxiosError>> {
     return await new Promise((resolve) => {
       const config: AxiosRequestConfig = {
-        method: 'get',
+        method: 'POST',
         url: `${ApiTargets.MYADS_STORAGE}/query`,
-        params: {
-          bigquery: q,
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded',
+        },
+        data: {
+          bigquery,
           sort,
-          q: '*:*',
-          fq: '{!bitset}',
+          q,
+          fq,
+          ...otherParams,
         },
       };
 

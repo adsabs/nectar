@@ -1,3 +1,4 @@
+import Adsapi from '@api';
 import { PaperFormController, PaperFormType, RawPaperFormParams } from '@controllers/paperformController';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
@@ -13,24 +14,16 @@ export default async (req: PaperFormRequest, res: NextApiResponse): Promise<void
     query: { id },
     body,
   } = req;
-  console.log({ id, body });
 
-  const controller = new PaperFormController(id, body, req);
+  const adsapi = new Adsapi({ token: req.session.userData.access_token });
 
   try {
+    const controller = new PaperFormController(id, body, adsapi);
     const query = await controller.getQuery();
-    console.log('redirecting to ', `/search?${query}`);
-    res.status(302);
-    res.setHeader('Location', `/search?${query}`);
-    res.json({ query });
-    res.end();
+    res.writeHead(302, { Location: `/search?${query}` });
   } catch (e) {
-    res.json({
-      error: e as Error,
-    });
+    res.writeHead(500, { Location: '/error/server' });
+  } finally {
+    res.end();
   }
-
-  // const paperFormController = new PaperFormController(params);
-  // const query = paperFormController.getQuery();
-  // res.redirect(`/search?${query}`);
 };

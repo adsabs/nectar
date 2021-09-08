@@ -1,12 +1,14 @@
+import Adsapi from '@api';
 import { BibstemPickerSingle, Button, TextInput } from '@components';
-import { PaperFormType } from '@controllers/paperformController/types';
-import axios from 'axios';
+import { PaperFormController } from '@controllers/paperformController';
+import { PaperFormType, RawPaperFormParams } from '@controllers/paperformController/types';
+import { useAppCtx } from '@store';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import { NextPage } from 'next';
-import qs from 'qs';
+import { useRouter } from 'next/router';
+import { curry } from 'ramda';
 import React from 'react';
 
-type Action = { type: 'UPDATE'; formType: PaperFormType; payload: { property: string; value: string } };
 type PaperFormState = {
   [PaperFormType.JOURNAL_QUERY]: {
     bibstem?: string;
@@ -22,41 +24,41 @@ type PaperFormState = {
   };
 };
 
-// const reducer: Reducer<PaperFormState, Action> = (state, action) => {
-//   switch (action.type) {
-//     case 'UPDATE':
-//       return {
-//         ...state,
-//         [action.formType]: {
-//           ...state[action.formType],
-//           [action.payload.property]: action.payload.value,
-//         },
-//       };
-//     default:
-//       return state;
-//   }
-// };
-
 const PaperForm: NextPage = () => {
+  const router = useRouter();
+  const { state } = useAppCtx();
+  const adsapi = new Adsapi({ token: state.user.access_token });
+
+  const handleSubmit = curry(async (type: PaperFormType, params: RawPaperFormParams) => {
+    try {
+      const controller = new PaperFormController(type, params, adsapi);
+      const query = await controller.getQuery();
+
+      // generate a search url from the query
+      void router.push(`/search?${query}`);
+    } catch (e) {
+      console.error(e);
+    }
+  });
+
   return (
     <article className="grid gap-6 grid-cols-6 mx-auto my-4 px-4 py-12 max-w-3xl">
-      <JournalQueryForm />
-      <ReferenceQueryForm />
-      <BibcodeQueryForm />
+      <JournalQueryForm onSubmit={handleSubmit(PaperFormType.JOURNAL_QUERY)} />
+      <ReferenceQueryForm onSubmit={handleSubmit(PaperFormType.REFERENCE_QUERY)} />
+      <BibcodeQueryForm onSubmit={handleSubmit(PaperFormType.BIBCODE_QUERY)} />
     </article>
   );
 };
 export default PaperForm;
-const JournalQueryForm = () => {
-  const apiUrl = `/api/paperform/${PaperFormType.JOURNAL_QUERY}`;
+
+type SubmitHandler = <T>(params: T) => Promise<void>;
+
+const JournalQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
   return (
     <Formik<PaperFormState[PaperFormType.JOURNAL_QUERY]>
       initialValues={{ bibstem: '', year: '', volume: '', pageid: '' }}
-      onSubmit={async (values, { setSubmitting }) => {
-        console.log(values);
-        const response = await axios.post(apiUrl, qs.stringify(values, { indices: false }));
-
-        console.log('response', response);
+      onSubmit={(values, { setSubmitting }) => {
+        void onSubmit(values);
         setSubmitting(false);
       }}
     >
@@ -73,7 +75,11 @@ const JournalQueryForm = () => {
               input field below will autocomplete on our current database of journal names, allowing you to type
               "Astrophysical Journal", for instance, to find the bibstem "ApJ".
             </div>
-            <Form method="POST" action={apiUrl} className="grid gap-x-4 grid-cols-6 mt-1 pt-2 px-2 border-t">
+            <Form
+              method="POST"
+              action={`/api/paperform/${PaperFormType.JOURNAL_QUERY}`}
+              className="grid gap-x-4 grid-cols-6 mt-1 pt-2 px-2 border-t"
+            >
               {/* Bibstem picker */}
               <div className="col-span-6">
                 {process.browser ? (
@@ -108,20 +114,12 @@ const JournalQueryForm = () => {
   );
 };
 
-const ReferenceQueryForm = () => {
-  const apiUrl = `/api/paperform/${PaperFormType.REFERENCE_QUERY}`;
+const ReferenceQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
   return (
     <Formik<PaperFormState[PaperFormType.REFERENCE_QUERY]>
       initialValues={{ reference: '' }}
-      onSubmit={async (values, { setSubmitting }) => {
-        console.log(values);
-        const response = await axios({
-          url: apiUrl,
-          method: 'POST',
-          data: qs.stringify(values, { indices: false }),
-        });
-
-        console.log('response', response);
+      onSubmit={(values, { setSubmitting }) => {
+        void onSubmit(values);
         setSubmitting(false);
       }}
     >
@@ -157,20 +155,12 @@ const ReferenceQueryForm = () => {
   );
 };
 
-const BibcodeQueryForm = () => {
-  const apiUrl = `/api/paperform/${PaperFormType.BIBCODE_QUERY}`;
+const BibcodeQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
   return (
     <Formik<PaperFormState[PaperFormType.BIBCODE_QUERY]>
       initialValues={{ bibcodes: '' }}
-      onSubmit={async (values, { setSubmitting }) => {
-        console.log(values);
-        const response = await axios({
-          url: apiUrl,
-          method: 'POST',
-          data: qs.stringify(values, { indices: false }),
-        });
-
-        console.log('response', response);
+      onSubmit={(values, { setSubmitting }) => {
+        void onSubmit(values);
         setSubmitting(false);
       }}
     >
