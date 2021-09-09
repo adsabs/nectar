@@ -46,17 +46,15 @@ export class PaperFormController {
         const { bibcodes } = this.params;
 
         const result = await this.adsapi.vault.query({ bigquery: `bibcode\n${bibcodes.join('\n')}` });
-
+        let q: string;
         result.match(
-          ({ qid }) => {
-            console.log({ qid });
-          },
+          ({ qid }) => (q = `docs(${qid})`),
           (e) => {
             throw e;
           },
         );
 
-        return '';
+        return qs.stringify({ q, sort: 'date desc' }, { indices: false });
       }
     }
   }

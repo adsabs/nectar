@@ -63,7 +63,7 @@ export const BibstemPickerSingle = (props: IBibstemPickerSingleProps): React.Rea
   const selectedItems = React.useMemo(() => [selectedItem], [selectedItem]);
 
   return (
-    <div>
+    <>
       <label {...getLabelProps()} className="block flex-1 text-gray-700 text-sm font-bold">
         Publication
       </label>
@@ -82,7 +82,7 @@ export const BibstemPickerSingle = (props: IBibstemPickerSingleProps): React.Rea
           />
         )}
       </div>
-    </div>
+    </>
   );
 };
 

@@ -27,7 +27,6 @@ const baseConfig: IServiceConfig = {
   paramsSerializer: (params: PathLike) => qs.stringify(params, { indices: false }),
   headers: {
     common: {
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
       'Content-Type': 'application/x-www-form-urlencoded',
       Accept: 'application/json',
     },

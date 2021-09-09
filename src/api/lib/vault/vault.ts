@@ -1,5 +1,6 @@
 import { AxiosError, AxiosRequestConfig } from 'axios';
 import { err, ok, Result } from 'neverthrow';
+import qs from 'qs';
 import { ApiTargets } from '../models';
 import { Service } from '../service';
 import { IADSApiVaultParams, IADSApiVaultResponse } from './types';
@@ -19,13 +20,13 @@ export class VaultService extends Service {
         headers: {
           'content-type': 'application/x-www-form-urlencoded',
         },
-        data: {
+        data: qs.stringify({
           bigquery,
           sort,
           q,
           fq,
           ...otherParams,
-        },
+        }),
       };
 
       this.request<IADSApiVaultResponse>(config).then(
