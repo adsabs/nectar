@@ -15,12 +15,12 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props) => {
   const { doc, error } = props;
 
   return (
-    <section className="flex space-x-2">
+    <section className="flex flex-col lg:flex-row lg:space-x-4">
       <Head>
         <title>{doc.title}</title>
       </Head>
       <AbstractSideNav doc={doc} />
-      <article aria-labelledby="title" className="flex-1 my-8 px-4 py-8 w-full bg-white shadow sm:rounded-lg">
+      <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
         <div className="pb-1">
           <h2 className="prose-xl text-gray-900 font-medium leading-6" id="title">
             {doc.title}

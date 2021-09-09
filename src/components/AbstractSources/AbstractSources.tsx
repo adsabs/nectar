@@ -1,6 +1,7 @@
 import { IDocsEntity } from '@api';
 import { DropdownList } from '@components';
 import { ChevronDownIcon, LockClosedIcon, LockOpenIcon } from '@heroicons/react/solid';
+import { useViewport, Viewport } from '@hooks';
 import { isNil } from 'ramda';
 import React, { HTMLAttributes } from 'react';
 import { IAssociatedWorks, IDataProductSource, IFullTextSource, processLinkData } from './linkGenerator';
@@ -10,6 +11,8 @@ export interface IAbstractSourcesProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export const AbstractSources = ({ doc }: IAbstractSourcesProps): React.ReactElement => {
+  const viewport = useViewport();
+
   if (!doc) {
     return <button className="default-button-inactive">Full Text Sources</button>;
   }
@@ -20,13 +23,24 @@ export const AbstractSources = ({ doc }: IAbstractSourcesProps): React.ReactElem
   }
   const sources = processLinkData(doc, null);
 
-  return (
+  return viewport >= Viewport.SM ? (
     <section className="flex justify-start ml-0">
       <FullTextDropdown sources={sources.fullTextSources} />
       <DataProductDropdown sources={sources.dataProducts} />
       <AssociatedWorksDropdown sources={sources.dataProducts} />
-      <button className="default-button">Add to library</button>
+      <button className="default-button px-2">Add to library</button>
     </section>
+  ) : (
+    <>
+      <section className="flex justify-start ml-0">
+        <FullTextDropdown sources={sources.fullTextSources} />
+        <DataProductDropdown sources={sources.dataProducts} />
+      </section>
+      <section className="flex justify-start ml-0">
+        <AssociatedWorksDropdown sources={sources.dataProducts} />
+        <button className="default-button px-2">Add to library</button>
+      </section>
+    </>
   );
 };
 

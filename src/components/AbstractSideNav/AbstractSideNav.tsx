@@ -16,7 +16,7 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): React.ReactElem
   const subPage = last(router.asPath.split('/'));
 
   return (
-    <nav className="hidden self-start my-8 p-1 bg-white shadow space-y-1 sm:block sm:rounded-lg" aria-label="Sidebar">
+    <nav className="self-start my-10 p-1 bg-white shadow space-y-1 lg:block lg:rounded-lg" aria-label="Sidebar">
       {navigation.map((item) => {
         const Icon = item.icon || DocumentIcon;
         const current = item.href === subPage;
