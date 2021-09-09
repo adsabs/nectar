@@ -79,7 +79,6 @@ const Form = (props: IFormProps): React.ReactElement => {
             <div className="flex-1">
               <SearchBar service={searchService} />
             </div>
-            {/* <SortWrapper service={searchService} /> */}
           </div>
           <NumFound count={result.numFound} />
           {/* <Filters /> */}
@@ -104,19 +103,6 @@ const Form = (props: IFormProps): React.ReactElement => {
       </form>
     </article>
   );
-};
-
-/**
- * Wraps the <Sort/> component in order to isolate renders
- */
-const SortWrapper = ({ service: searchService }: { service: ISearchMachine }) => {
-  const handleSortChange = useCallback((newSort: SolrSort[]) => {
-    searchService.send({ type: TransitionType.SET_PARAMS, payload: { params: { sort: newSort } } });
-  }, []);
-
-  const sort = useSelector(searchService, (state) => state.context.params.sort);
-
-  return <Sort sort={sort} onChange={handleSortChange} />;
 };
 
 export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (ctx) => {
