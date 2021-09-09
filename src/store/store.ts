@@ -49,21 +49,8 @@ const safeParse = <T>(value: string, defaultValue: T): T => {
   return result().unwrapOr(defaultValue);
 };
 
-const fetchSessionDataFromDOM = (defaultValue: IAppState['user']): IAppState['user'] => {
-  const sessionEl = isBrowser() ? document.getElementById('__session__') : null;
-
-  // parse out the session data from the DOM
-  const result = fromThrowable<() => IncomingMessage['session'], Error>(() => {
-    const text = sessionEl.textContent;
-    return JSON.parse(text) as IncomingMessage['session'];
-  });
-  return result().match(
-    ({ userData }) => userData,
-    () => defaultValue,
-  );
-};
-
-const AppProvider = (props: React.PropsWithChildren<Record<string, unknown>>): React.ReactElement => {
+const AppProvider = (props: React.PropsWithChildren<{ session: IncomingMessage['session'] }>): React.ReactElement => {
+  const { session } = props;
   const [state, dispatch] = React.useReducer(
     nectarAppReducer,
     initialAppState,
@@ -72,13 +59,13 @@ const AppProvider = (props: React.PropsWithChildren<Record<string, unknown>>): R
         ? {
             ...initial,
             ...safeParse(localStorage.getItem(APP_STORAGE_KEY), initial),
-            user: fetchSessionDataFromDOM(initial.user),
+            user: typeof session === 'undefined' ? initial.user : session.userData,
           }
         : initial;
-
       return newState;
     },
   );
+
   return React.createElement(ctx.Provider, { value: { state, dispatch }, ...props });
 };
 

@@ -1,8 +1,7 @@
-import Adsapi from '@api';
 import { BibstemPickerSingle, Button, TextInput } from '@components';
 import { PaperFormController } from '@controllers/paperformController';
 import { PaperFormType, RawPaperFormParams } from '@controllers/paperformController/types';
-import { useAppCtx } from '@store';
+import { useAPI } from '@hooks';
 import { isBrowser } from '@utils';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import { NextPage } from 'next';
@@ -27,12 +26,11 @@ type PaperFormState = {
 
 const PaperForm: NextPage = () => {
   const router = useRouter();
-  const { state } = useAppCtx();
-  const adsapi = new Adsapi({ token: state.user.access_token });
+  const { api } = useAPI();
 
   const handleSubmit = curry(async (type: PaperFormType, params: RawPaperFormParams) => {
     try {
-      const controller = new PaperFormController(type, params, adsapi);
+      const controller = new PaperFormController(type, params, api);
       const query = await controller.getQuery();
 
       // generate a search url from the query
