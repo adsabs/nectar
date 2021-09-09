@@ -4,38 +4,57 @@ import clsx from 'clsx';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React from 'react';
+import React, { Reducer, useEffect, useReducer } from 'react';
 
-const background = new Map<Theme, string>([
+const backgroundMap = new Map<Theme, string>([
   [Theme.GENERAL, '/img/bg-general.jpg'],
   [Theme.ASTROPHYSICS, '/img/star-bg-cropped.png'],
   [Theme.HELIOPHYISCS, '/img/bg-helio.jpg'],
   [Theme.PLANET_SCIENCE, '/img/bg-planet.jpg'],
   [Theme.EARTH_SCIENCE, '/img/bg-earth.jpg'],
   [Theme.BIO_PHYSICAL, '/img/bg-bio.jpg'],
-]); 
+]);
+
+const initialState = {
+  showTabs: true,
+  background: backgroundMap.get(Theme.ASTROPHYSICS),
+};
+type Action = { type: 'UPDATE_THEME'; payload: Theme };
+const reducer: Reducer<typeof initialState, Action> = (state, { type, payload }) => {
+  if (type === 'UPDATE_THEME') {
+    return {
+      showTabs: payload === Theme.ASTROPHYSICS,
+      background: backgroundMap.get(payload),
+    };
+  }
+
+  return state;
+};
 
 export const LandingTabs = (): React.ReactElement => {
-
-  const { state: appState } = useAppCtx();
-
+  const {
+    state: { theme },
+  } = useAppCtx();
   const { asPath } = useRouter();
+  const [{ background, showTabs }, dispatch] = useReducer(reducer, initialState);
+
+  useEffect(() => {
+    dispatch({ type: 'UPDATE_THEME', payload: theme });
+  }, [theme]);
 
   return (
     <div className="relative flex flex-col items-center justify-center">
-      <Image className="z-0 object-cover" src={background.get(appState.theme)} aria-hidden="true" layout="fill" />
+      <Image className="z-0 object-cover" src={background} aria-hidden="true" layout="fill" />
       <div className="flex items-center p-6">
         <TitleLogo />
       </div>
-      { appState.theme === Theme.ASTROPHYSICS ? (
+      {showTabs ? (
         <div className="z-10 flex gap-2 justify-center text-white text-xl">
           <Tab href="/classic-form" label="Classic Form" active={asPath === '/classic-form'} />
           <Tab href="/" label="Modern Form" active={asPath === '/'} />
           <Tab href="/paper-form" label="Paper Form" active={asPath === '/paper-form'} />
         </div>
-       ) : 
-        null 
-      }
+      ) : null}
     </div>
   );
 };
@@ -43,7 +62,7 @@ export const LandingTabs = (): React.ReactElement => {
 const TitleLogo = () => (
   <h1 className="z-10 hidden gap-2 items-center text-white sm:flex">
     <Image src="/img/transparent_logo.svg" width="75px" height="75px" aria-hidden="true" />
-    <span className="font-bold text-gray-100">NASA</span> <span className="text-gray-100">Science Explorer</span>
+    <span className="text-gray-100 font-bold">NASA</span> <span className="text-gray-100">Science Explorer</span>
   </h1>
 );
 
