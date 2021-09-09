@@ -1,6 +1,7 @@
 import { BibstemPickerSingle, Button, TextInput } from '@components';
 import { PaperFormController } from '@controllers/paperformController';
 import { PaperFormType, RawPaperFormParams } from '@controllers/paperformController/types';
+import { RefreshIcon } from '@heroicons/react/solid';
 import { useAPI } from '@hooks';
 import { isBrowser } from '@utils';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
@@ -52,13 +53,16 @@ export default PaperForm;
 
 type SubmitHandler = <T>(params: T) => Promise<void>;
 
+const LoadingIndicator = () => {
+  return <RefreshIcon className="w-5 h-5 animate-spin" />;
+};
+
 const JournalQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
   return (
     <Formik<PaperFormState[PaperFormType.JOURNAL_QUERY]>
       initialValues={{ bibstem: '', year: '', volume: '', pageid: '' }}
-      onSubmit={(values, { setSubmitting }) => {
+      onSubmit={(values) => {
         void onSubmit(values);
-        setSubmitting(false);
       }}
     >
       {({ isSubmitting, handleReset, setFieldValue }) => {
@@ -99,10 +103,10 @@ const JournalQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
                 <Field name="page" as={TextInput} label="Page / ID" />
                 <ErrorMessage name="page" component="div" />
               </div>
-              <Button size="sm" className="mt-3" disabled={isSubmitting} type="submit">
-                Search
+              <Button size="sm" className="mt-3 disabled:opacity-50" disabled={isSubmitting} type="submit">
+                {isSubmitting ? <LoadingIndicator /> : 'Search'}
               </Button>
-              <Button variant="link" className="mt-3" onClick={handleReset}>
+              <Button variant="link" className="mt-3 disabled:opacity-50" onClick={handleReset} disabled={isSubmitting}>
                 Reset
               </Button>
             </Form>
@@ -119,7 +123,6 @@ const ReferenceQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
       initialValues={{ reference: '' }}
       onSubmit={(values, { setSubmitting }) => {
         void onSubmit(values);
-        setSubmitting(false);
       }}
     >
       {({ isSubmitting, handleReset }) => (
@@ -141,10 +144,10 @@ const ReferenceQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
               />
               <ErrorMessage name="reference" component="div" />
             </div>
-            <Button size="sm" className="mt-3" disabled={isSubmitting} type="submit">
-              Search
+            <Button size="sm" className="mt-3 disabled:opacity-50" disabled={isSubmitting} type="submit">
+              {isSubmitting ? <LoadingIndicator /> : 'Search'}
             </Button>
-            <Button variant="link" className="mt-3" onClick={handleReset}>
+            <Button variant="link" className="mt-3 disabled:opacity-50" onClick={handleReset} disabled={isSubmitting}>
               Reset
             </Button>
           </Form>
@@ -160,7 +163,6 @@ const BibcodeQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
       initialValues={{ bibcodes: '' }}
       onSubmit={(values, { setSubmitting }) => {
         void onSubmit(values);
-        setSubmitting(false);
       }}
     >
       {({ isSubmitting, handleReset }) => (
@@ -190,10 +192,10 @@ const BibcodeQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
                 </div>
               </div>
             </div>
-            <Button size="sm" className="mt-3" disabled={isSubmitting} type="submit">
-              Search
+            <Button size="sm" className="mt-3 disabled:opacity-50" disabled={isSubmitting} type="submit">
+              {isSubmitting ? <LoadingIndicator /> : 'Search'}
             </Button>
-            <Button variant="link" className="mt-3" onClick={handleReset}>
+            <Button variant="link" className="mt-3 disabled:opacity-50" onClick={handleReset} disabled={isSubmitting}>
               Reset
             </Button>
           </Form>
