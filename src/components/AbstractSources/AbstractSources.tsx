@@ -14,7 +14,7 @@ export const AbstractSources = ({ doc }: IAbstractSourcesProps): React.ReactElem
   const viewport = useViewport();
 
   if (!doc) {
-    return <button className="default-button-inactive">Full Text Sources</button>;
+    return <button className="button-sm-inactive">Full Text Sources</button>;
   }
 
   const { esources } = doc;
@@ -28,7 +28,7 @@ export const AbstractSources = ({ doc }: IAbstractSourcesProps): React.ReactElem
       <FullTextDropdown sources={sources.fullTextSources} />
       <DataProductDropdown sources={sources.dataProducts} />
       <AssociatedWorksDropdown sources={sources.dataProducts} />
-      <button className="default-button px-2">Add to library</button>
+      <button className="button-sm px-2">Add to library</button>
     </section>
   ) : (
     <>
@@ -38,7 +38,7 @@ export const AbstractSources = ({ doc }: IAbstractSourcesProps): React.ReactElem
       </section>
       <section className="flex justify-start ml-0">
         <AssociatedWorksDropdown sources={sources.dataProducts} />
-        <button className="default-button px-2">Add to library</button>
+        <button className="button-sm px-2">Add to library</button>
       </section>
     </>
   );
@@ -47,12 +47,12 @@ export const AbstractSources = ({ doc }: IAbstractSourcesProps): React.ReactElem
 ///// dropdown components //////
 
 const dropdownClasses = {
-  button: 'default-button pl-2 pr-1',
+  button: 'button-sm pl-2 pr-1',
   list: 'border border-gray-400',
 };
 
 const dropdownClassesInactive = {
-  button: 'default-button-disabled pl-2 pr-1',
+  button: 'button-sm-disabled pl-2 pr-1',
   list: 'border border-gray-400',
 };
 interface IFullTextDropdownProps {
@@ -159,14 +159,14 @@ const AssociatedWorksDropdown = (props: IAssociatedWorksDropdownProps): React.Re
 
   return (
     <DropdownList
-      label="Associated Works"
+      label="Related Materials"
       items={associatedWorksItems}
       onSelect={handleSelect}
       classes={associatedWorksItems.length > 0 ? dropdownClasses : dropdownClassesInactive}
       placement={'bottom-start'}
       offset={[0, 2]}
       role="list"
-      ariaLabel="Associated Works"
+      ariaLabel="Related Materials"
     ></DropdownList>
   );
 };
