@@ -12,13 +12,13 @@ export interface ICitationsPageProps {
   error?: string;
 }
 
-const SimilarPage: NextPage<ICitationsPageProps> = (props) => {
+const SimilarPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProps) => {
   const { docs, originalDoc, error } = props;
 
   console.log(error);
 
   return (
-    <section className="flex space-x-2">
+    <section className="abstract-page-container">
       <Head>
         <title>Similar Papers | {originalDoc.title}</title>
       </Head>

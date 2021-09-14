@@ -11,11 +11,11 @@ export interface IAbstractPageProps {
   error?: Error;
 }
 
-const AbstractPage: NextPage<IAbstractPageProps> = (props) => {
+const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) => {
   const { doc, error } = props;
 
   return (
-    <section className="flex flex-col lg:flex-row lg:space-x-4">
+    <section className="abstract-page-container">
       <Head>
         <title>{doc.title}</title>
       </Head>

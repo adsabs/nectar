@@ -67,4 +67,8 @@
   .default-icon-sm {
     @apply m-1 w-4 h-4;
   }
+
+  .abstract-page-container {
+    @apply flex flex-col lg:flex-row lg:space-x-4;
+  }
 }
