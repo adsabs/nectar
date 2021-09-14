@@ -16,7 +16,7 @@ export const Layout: FC<ILayoutProps> = ({ children }) => {
       <NavBar />
       <main>
         {isLandingPages && <LandingTabs />}
-        <div className="mx-auto md:container" id="main-content">
+        <div className="mx-auto lg:container" id="main-content">
           {children}
         </div>
       </main>

@@ -1,5 +1,6 @@
 import { IDocsEntity } from '@api';
 import { DropdownList } from '@components';
+import { ItemType } from '@components/Dropdown/types';
 import { DocumentIcon } from '@heroicons/react/outline';
 import { ChevronDownIcon } from '@heroicons/react/solid';
 import { useViewport, Viewport } from '@hooks';
@@ -18,44 +19,6 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): React.ReactElem
   const router = useRouter();
   const subPage = last(router.asPath.split('/'));
   const viewport = useViewport();
-
-  const getSideMenu = () => {
-    return (
-      <nav className="self-start my-10 p-1 bg-white shadow space-y-1 lg:block lg:rounded-lg" aria-label="Sidebar">
-        {navigation.map((item) => {
-          const Icon = item.icon || DocumentIcon;
-          const current = item.href === subPage;
-          const count = getCount(item.href, doc);
-          const disabled = count === 0 && item.href !== Routes.ABSTRACT;
-          const showCount = count > 0 && item.href !== Routes.SIMILAR;
-          const href = { pathname: disabled ? Routes.ABSTRACT : item.href, query: { id: router.query.id } };
-
-          const linkStyle = clsx(
-            current ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
-            'group flex items-center px-3 py-2 text-sm font-medium rounded-md',
-            disabled && 'opacity-50 pointer-events-none',
-          );
-          const iconStyle = clsx(
-            current ? 'text-gray-500' : 'text-gray-400 group-hover:text-gray-500',
-            'flex-shrink-0 mr-3 w-6 h-6',
-          );
-          const countStyle = clsx(
-            current ? 'bg-white' : 'bg-gray-100 group-hover:bg-gray-200',
-            'inline-block ml-3 px-3 py-0.5 text-xs rounded-full',
-          );
-          return (
-            <Link key={item.name} href={href}>
-              <a className={linkStyle} aria-current={current ? 'page' : undefined}>
-                <Icon className={iconStyle} aria-hidden="true" />
-                <span className="flex-1 truncate">{item.name}</span>
-                {showCount ? <span className={countStyle}>{count}</span> : null}
-              </a>
-            </Link>
-          );
-        })}
-      </nav>
-    );
-  };
 
   const itemElements = navigation.map((item) => {
     const Icon = item.icon || DocumentIcon;
@@ -90,7 +53,7 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): React.ReactElem
   });
 
   const getTopMenu = () => {
-    const items = navigation.map((item, index) => {
+    const items: ItemType[] = navigation.map((item, index) => {
       return {
         id: item.name,
         label: itemElements[index],
