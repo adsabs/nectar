@@ -8,6 +8,7 @@ import React, { MouseEvent, useCallback, useState } from 'react';
 interface IListActionProp {
   service?: ISearchMachine;
   selectedCount: number;
+  totalCount: number;
   onSortChange: () => void;
   onSelectAll: () => void;
   onSelectNone: () => void;
@@ -16,7 +17,15 @@ interface IListActionProp {
 }
 
 export const ListActions = (props: IListActionProp): React.ReactElement => {
-  const { service: searchService, selectedCount, onSelectAll, onSelectNone, onLimitedTo, onExclude } = props;
+  const {
+    service: searchService,
+    selectedCount,
+    totalCount,
+    onSelectAll,
+    onSelectNone,
+    onLimitedTo,
+    onExclude,
+  } = props;
 
   const [showHighlight, setShowHighlight] = useState<boolean>(false);
 
@@ -25,23 +34,31 @@ export const ListActions = (props: IListActionProp): React.ReactElement => {
     setShowHighlight(!showHighlight);
   };
 
-  const handleSelectAll = () => {
+  const handleSelectAll = (e: MouseEvent) => {
+    e.preventDefault();
     onSelectAll();
   };
 
-  const handleSelectNone = () => {
+  const handleSelectNone = (e: MouseEvent) => {
+    e.preventDefault();
     onSelectNone();
   };
 
-  const handleLimitedTo = () => {
+  const handleLimitedTo = (e: MouseEvent) => {
+    e.preventDefault();
     onLimitedTo();
   };
 
-  const handleExclude = () => {
+  const handleExclude = (e: MouseEvent) => {
+    e.preventDefault();
     onExclude();
   };
 
   const hlClass = clsx(showHighlight ? 'default-button' : 'default-button-inactive', '-ml-0');
+
+  const linkBtnDisabled = clsx('link-button-disabled ml-4 h-5');
+
+  const linkBtn = clsx('link-button ml-4 h-5');
 
   return (
     <div>
@@ -55,16 +72,16 @@ export const ListActions = (props: IListActionProp): React.ReactElement => {
       </div>
       <div className="flex flex-col items-start bg-gray-100 rounded-md lg:flex-row lg:items-center lg:justify-between">
         <div className="order-2 lg:order-1">
-          <button className="link-button ml-4 h-5" onClick={handleSelectAll}>
+          <button className={selectedCount < totalCount ? linkBtn : linkBtnDisabled} onClick={handleSelectAll}>
             Select All
           </button>
-          <button className="link-button h-5" onClick={handleSelectNone}>
+          <button className={selectedCount > 0 ? linkBtn : linkBtnDisabled} onClick={handleSelectNone}>
             Select None
           </button>
-          <button className="link-button h-5" onClick={handleLimitedTo}>
+          <button className={selectedCount > 0 ? linkBtn : linkBtnDisabled} onClick={handleLimitedTo}>
             Limited To
           </button>
-          <button className="link-button h-5" onClick={handleExclude}>
+          <button className={selectedCount > 0 ? linkBtn : linkBtnDisabled} onClick={handleExclude}>
             Exclude
           </button>
           <span className="m-2 h-5 text-sm">{selectedCount} Selected</span>
