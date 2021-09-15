@@ -3,7 +3,7 @@ import { Sort } from '@components';
 import { ISearchMachine, TransitionType } from '@machines/lib/search/types';
 import { useSelector } from '@xstate/react';
 import clsx from 'clsx';
-import React, { useCallback, useState } from 'react';
+import React, { MouseEvent, useCallback, useState } from 'react';
 
 interface IListActionProp {
   service?: ISearchMachine;
@@ -16,26 +16,13 @@ interface IListActionProp {
 }
 
 export const ListActions = (props: IListActionProp): React.ReactElement => {
-  const {
-    service: searchService,
-    selectedCount,
-    onSortChange,
-    onSelectAll,
-    onSelectNone,
-    onLimitedTo,
-    onExclude,
-  } = props;
+  const { service: searchService, selectedCount, onSelectAll, onSelectNone, onLimitedTo, onExclude } = props;
 
   const [showHighlight, setShowHighlight] = useState<boolean>(false);
 
-  const [showAbstract, setShowAbstract] = useState<boolean>(false);
-
-  const toggleShowHighlight = () => {
+  const toggleShowHighlight = (e: MouseEvent) => {
+    e.preventDefault();
     setShowHighlight(!showHighlight);
-  };
-
-  const toggleShowAbstract = () => {
-    setShowAbstract(!showAbstract);
   };
 
   const handleSelectAll = () => {
@@ -56,20 +43,14 @@ export const ListActions = (props: IListActionProp): React.ReactElement => {
 
   const hlClass = clsx(showHighlight ? 'default-button' : 'default-button-inactive', '-ml-0');
 
-  const absClass = clsx(showAbstract ? 'default-button' : 'default-button-inactive');
-
   return (
     <div>
-      <div className="md:flex">
+      <div className="sm:flex">
         <div>
           <button className={hlClass} onClick={toggleShowHighlight}>
             Show Highlights
           </button>
-          <button className={absClass} onClick={toggleShowAbstract}>
-            Show Abstracts
-          </button>
         </div>
-        {/* <Sort onChange={onSortChange} leftMargin="md:ml-1" /> */}
         <SortWrapper service={searchService} />
       </div>
       <div className="flex flex-col items-start bg-gray-100 rounded-md lg:flex-row lg:items-center lg:justify-between">
