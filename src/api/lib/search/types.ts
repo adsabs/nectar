@@ -46,6 +46,7 @@ export enum Esources {
   CADC = 'CADC',
   CDS = 'CDS',
   Chandra = 'Chandra',
+  Dataverse = 'Dataverse',
   Dryad = 'Dryad',
   EPRINT_HTML = 'EPRINT_HTML',
   EPRINT_PDF = 'EPRINT_PDF',
