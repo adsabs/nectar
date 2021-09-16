@@ -30,3 +30,5 @@ export type ADSServerSideContext = GetServerSidePropsContext & {
   parsedQuery: ParsedUrlQuery;
   userData: IUserData;
 };
+
+export const isBrowser = (): boolean => typeof window !== 'undefined';

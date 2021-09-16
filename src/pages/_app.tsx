@@ -1,12 +1,14 @@
 import { Layout } from '@components';
 import { AppProvider, useAppCtx } from '@store';
 import { Theme } from '@types';
-import { AppProps } from 'next/app';
+import { isBrowser } from '@utils';
+import App, { AppContext, AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
+import { IncomingMessage } from 'node:http';
 import 'nprogress/nprogress.css';
 // import 'public/katex/katex.css';
-import React, { FC, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import 'tailwindcss/tailwind.css';
 import '../styles/styles.css';
 
@@ -14,9 +16,11 @@ const TopProgressBar = dynamic(() => import('@components/TopProgressBar').then((
   ssr: false,
 });
 
-const NectarApp: FC<AppProps> = ({ Component, pageProps }) => {
+type NectarAppProps = { session: IncomingMessage['session'] } & AppProps;
+
+const NectarApp = ({ Component, pageProps, session }: NectarAppProps) => {
   return (
-    <AppProvider>
+    <AppProvider session={session}>
       <ThemeRouter />
       <TopProgressBar />
       <Layout>
@@ -26,13 +30,21 @@ const NectarApp: FC<AppProps> = ({ Component, pageProps }) => {
   );
 };
 
+NectarApp.getInitialProps = async (appContext: AppContext) => {
+  // calls page's `getInitialProps` and fills `appProps.pageProps`
+  const appProps = await App.getInitialProps(appContext);
+
+  // pass session data through to App component
+  return { ...appProps, session: appContext.ctx.req?.session };
+};
+
 const ThemeRouter = (): React.ReactElement => {
   const { state } = useAppCtx();
   const router = useRouter();
 
   useEffect(() => {
     // redirect to main form if path is not valid
-    if (typeof window !== 'undefined') {
+    if (isBrowser()) {
       if (state.theme !== Theme.ASTROPHYSICS && /\/(classic|paper)-form/.test(router.asPath)) {
         void router.replace('/');
       }

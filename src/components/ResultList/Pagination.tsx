@@ -1,6 +1,7 @@
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/solid';
 import { usePagination } from '@hooks';
 import { ISearchMachine } from '@machines/lib/search/types';
+import { isBrowser } from '@utils';
 import clsx from 'clsx';
 import Link from 'next/link';
 import React, { HTMLAttributes } from 'react';
@@ -30,8 +31,6 @@ export const Pagination = (props: IPaginationProps): React.ReactElement => {
     return null;
   }
 
-  const isBrowser = typeof window !== 'undefined';
-
   const pageChangeHandler = (idx: number) => {
     return (e: React.MouseEvent<HTMLAnchorElement>) => handlePageChange(e, idx);
   };
@@ -41,12 +40,12 @@ export const Pagination = (props: IPaginationProps): React.ReactElement => {
       // current page styling
       if (index === page) {
         return (
-          <Link key={href} href={isBrowser ? '#' : href}>
+          <Link key={href} href={isBrowser() ? '#' : href}>
             <a
               onClick={pageChangeHandler(index)}
               aria-current="page"
               aria-label={`Current page, page ${page}`}
-              className="relative z-10 inline-flex items-center px-4 py-2 text-sm font-medium text-indigo-600 border border-indigo-500 bg-indigo-50"
+              className="relative z-10 inline-flex items-center px-4 py-2 text-indigo-600 text-sm font-medium bg-indigo-50 border border-indigo-500"
             >
               {index}
             </a>
@@ -56,11 +55,11 @@ export const Pagination = (props: IPaginationProps): React.ReactElement => {
 
       // normal, non-current page
       return (
-        <Link key={href} href={isBrowser ? '#' : href}>
+        <Link key={href} href={isBrowser() ? '#' : href}>
           <a
             onClick={pageChangeHandler(index)}
             aria-label={`Goto page ${page}`}
-            className="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-50"
+            className="relative inline-flex items-center px-4 py-2 text-gray-500 text-sm font-medium hover:bg-gray-50 bg-white border border-gray-300"
           >
             {index}
           </a>
@@ -101,13 +100,13 @@ export const Pagination = (props: IPaginationProps): React.ReactElement => {
       <h3 className="sr-only" id="pagination">
         {paginationHeading}
       </h3>
-      <div className="flex justify-between flex-1 sm:hidden">
-        <Link href={isBrowser ? '#' : prevHref}>
+      <div className="flex flex-1 justify-between sm:hidden">
+        <Link href={isBrowser() ? '#' : prevHref}>
           <a className={mobilePrevButtonStyles} onClick={handlePrev}>
             Previous
           </a>
         </Link>
-        <Link href={isBrowser ? '#' : nextHref}>
+        <Link href={isBrowser() ? '#' : nextHref}>
           <a className={mobileNextButtonStyles} onClick={handleNext}>
             Next
           </a>
@@ -115,17 +114,17 @@ export const Pagination = (props: IPaginationProps): React.ReactElement => {
       </div>
       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
         <div aria-hidden="true">
-          <p className="text-sm text-gray-700">
+          <p className="text-gray-700 text-sm">
             Showing <span className="font-medium">{startIndex}</span> to <span className="font-medium">{endIndex}</span>{' '}
             of <span className="font-medium">{formattedTotalResults}</span> results
           </p>
         </div>
         <nav
-          className="relative z-0 inline-flex -space-x-px rounded-md shadow-sm"
+          className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
           role="navigation"
           aria-label="Pagination"
         >
-          <Link href={isBrowser ? '#' : prevHref}>
+          <Link href={isBrowser() ? '#' : prevHref}>
             <a className={prevButtonStyles} onClick={handlePrev}>
               <span className="sr-only">Previous</span>
               <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
@@ -134,7 +133,7 @@ export const Pagination = (props: IPaginationProps): React.ReactElement => {
 
           {renderControls()}
 
-          <Link href={isBrowser ? '#' : nextHref}>
+          <Link href={isBrowser() ? '#' : nextHref}>
             <a className={nextButtonStyles} onClick={handleNext}>
               <span className="sr-only">Next</span>
               <ChevronRightIcon className="w-5 h-5" aria-hidden="true" />

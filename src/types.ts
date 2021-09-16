@@ -25,3 +25,23 @@ declare module 'http' {
     session: SessionData;
   }
 }
+
+export enum AppErrorCode {
+  SERVER_ERROR,
+}
+
+interface InnerError {
+  code: AppErrorCode;
+  [key: string]: unknown;
+}
+
+export interface AppError {
+  code: AppErrorCode;
+  message: string;
+  target?: string;
+  details?: Pick<AppError, 'code' | 'message' | 'target'>[];
+  innererror?: {
+    code: AppErrorCode;
+    innererror?: InnerError;
+  };
+}

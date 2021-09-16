@@ -4,24 +4,32 @@ import { useCombobox, UseComboboxStateChange, useMultipleSelection } from 'downs
 import dynamic from 'next/dynamic';
 import React from 'react';
 import type { IBibstemMenuProps } from './BibstemMenu';
+import { ITEM_DELIMITER } from './models';
 const BibstemMenu = dynamic(
   () =>
     // eslint-disable-next-line
     (import('./BibstemMenu') as any).then((module) => module.BibstemMenu),
-  { loading: () => <li>loading...</li>, ssr: false },
+  {
+    loading: () => (
+      <ul className="relative">
+        <li>loading...</li>
+      </ul>
+    ),
+    ssr: false,
+  },
 ) as (props: IBibstemMenuProps) => React.ReactElement;
 
-export interface IBibstemPickerProps {
+export interface IBibstemPickerMultipleProps {
   initialSelectedItems?: string[];
   onChange?: (items: string[]) => void;
   name?: string;
 }
 
-export const BibstemPicker = ({
+export const BibstemPickerMultiple = ({
   onChange,
   name = 'bibstems',
   initialSelectedItems = [],
-}: IBibstemPickerProps): React.ReactElement => {
+}: IBibstemPickerMultipleProps): React.ReactElement => {
   const [inputValue, setInputValue] = React.useState('');
   const {
     getSelectedItemProps,
@@ -36,7 +44,7 @@ export const BibstemPicker = ({
   // trigger onChange, if necessary to parent component
   React.useEffect(() => {
     if (typeof onChange === 'function') {
-      onChange(selectedItems.map((item) => item.split('$$')[0]));
+      onChange(selectedItems.map((item) => item.split(ITEM_DELIMITER)[0]));
     }
   }, [onChange, selectedItems]);
 
@@ -62,12 +70,12 @@ export const BibstemPicker = ({
   };
 
   const hiddenInput = React.useMemo(() => {
-    const value = selectedItems.map((item) => item.split('$$')[0]).join(',');
+    const value = selectedItems.map((item) => item.split(ITEM_DELIMITER)[0]).join(',');
     return <input type="hidden" name={name} value={value} />;
   }, [selectedItems]);
 
   const [items, setItems] = React.useState<string[]>([]);
-  const handleItemsChange = (updatedItems) => setItems(updatedItems);
+  const handleItemsChange = (updatedItems: string[]) => setItems(updatedItems);
 
   const {
     isOpen,
@@ -87,7 +95,7 @@ export const BibstemPicker = ({
   const renderPills = () => (
     <div className="grid gap-2 grid-flow-row grid-cols-4 md:grid-cols-8">
       {selectedItems.map((item, index) => {
-        const bibstem = item.split('$$')[0];
+        const bibstem = item.split(ITEM_DELIMITER)[0];
         return (
           <span
             key={`selected-item-${index}`}
@@ -121,7 +129,7 @@ export const BibstemPicker = ({
         <TextInput {...getInputProps(getDropdownProps({ preventKeyAction: isOpen }))} />
         {hiddenInput}
       </div>
-      <ul {...getMenuProps()} className="relative">
+      <div {...getMenuProps()} className="relative">
         {isOpen && (
           <BibstemMenu
             onItemsChange={handleItemsChange}
@@ -131,7 +139,7 @@ export const BibstemPicker = ({
             selectedItems={selectedItems}
           />
         )}
-      </ul>
+      </div>
     </div>
   );
 };

@@ -1,9 +1,9 @@
 import { ListType } from '@components/Dropdown/types';
+import { isBrowser } from '@utils';
 import clsx from 'clsx';
 import React, { ReactElement } from 'react';
-import { DropdownList, CollapsibleList } from '../Dropdown';
+import { CollapsibleList, DropdownList } from '../Dropdown';
 import styles from './NavBar.module.css';
-
 const items = [
   {
     id: 'about',
@@ -53,8 +53,9 @@ export const AboutDropdown = (props: IAboutDropdownProps): ReactElement => {
   const { type, reset, onFinished } = props;
 
   const handleSelect = (id: string) => {
-    if (typeof window !== 'undefined')
+    if (isBrowser()) {
       window.open(items.find((item) => id === item.id).path, '_blank', 'noopener,noreferrer');
+    }
 
     onFinished();
   };

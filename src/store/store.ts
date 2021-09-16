@@ -1,11 +1,11 @@
 import { Theme } from '@types';
+import { isBrowser } from '@utils';
 import { fromThrowable } from 'neverthrow';
 import { IncomingMessage } from 'node:http';
 import React from 'react';
 import { reducer } from './reducer';
 import { Action, IAppState } from './types';
 const APP_STORAGE_KEY = 'nectar-app-state';
-
 export const initialAppState: IAppState = {
   user: {
     username: 'anonymous',
@@ -49,37 +49,23 @@ const safeParse = <T>(value: string, defaultValue: T): T => {
   return result().unwrapOr(defaultValue);
 };
 
-const isServer = typeof window === 'undefined';
-const fetchSessionDataFromDOM = (defaultValue: IAppState['user']): IAppState['user'] => {
-  const sessionEl = isServer ? null : document.getElementById('__session__');
-
-  // parse out the session data from the DOM
-  const result = fromThrowable<() => IncomingMessage['session'], Error>(() => {
-    const text = sessionEl.textContent;
-    return JSON.parse(text) as IncomingMessage['session'];
-  });
-  return result().match(
-    ({ userData }) => userData,
-    () => defaultValue,
-  );
-};
-
-const AppProvider = (props: React.PropsWithChildren<Record<string, unknown>>): React.ReactElement => {
+const AppProvider = (props: React.PropsWithChildren<{ session: IncomingMessage['session'] }>): React.ReactElement => {
+  const { session } = props;
   const [state, dispatch] = React.useReducer(
     nectarAppReducer,
     initialAppState,
     (initial): IAppState => {
-      const newState = isServer
-        ? initial
-        : {
+      const newState = isBrowser()
+        ? {
             ...initial,
             ...safeParse(localStorage.getItem(APP_STORAGE_KEY), initial),
-            user: fetchSessionDataFromDOM(initial.user),
-          };
-
+            user: typeof session === 'undefined' ? initial.user : session.userData,
+          }
+        : initial;
       return newState;
     },
   );
+
   return React.createElement(ctx.Provider, { value: { state, dispatch }, ...props });
 };
 

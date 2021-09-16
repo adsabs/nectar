@@ -7,19 +7,25 @@ import { identity, isNil } from 'ramda';
 import { IUserData } from './bootstrap/types';
 import { LibrariesService } from './libraries/libraries';
 import { ApiTargets } from './models';
+import { ReferenceService } from './reference';
 import { SearchService } from './search/search';
 import { IServiceConfig } from './service';
 import { UserService } from './user/user';
+import { VaultService } from './vault';
 
 export class Adsapi {
   public search: SearchService;
   public libraries: LibrariesService;
   public user: UserService;
+  public reference: ReferenceService;
+  public vault: VaultService;
 
   constructor(config: IServiceConfig) {
     this.search = new SearchService(config);
     this.libraries = new LibrariesService(config);
     this.user = new UserService(config);
+    this.reference = new ReferenceService(config);
+    this.vault = new VaultService(config);
   }
 
   public static bootstrap(config: IServiceConfig = {}): Promise<Result<IUserData, Error>> {
