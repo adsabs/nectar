@@ -66,11 +66,13 @@ const FullTextDropdown = (props: IFullTextDropdownProps): React.ReactElement => 
     id: source.name,
     label: source.open ? (
       <>
-        {source.description} <LockOpenIcon className="default-icon-sm inline" />
+        <LockOpenIcon className="default-icon-sm inline" fill="green" />
+        {` ${source.name}`}
       </>
     ) : (
       <>
-        {source.description} <LockClosedIcon className="default-icon-sm inline" />
+        <LockClosedIcon className="default-icon-sm inline" />
+        {` ${source.name}`}
       </>
     ),
     path: source.url,
@@ -78,8 +80,9 @@ const FullTextDropdown = (props: IFullTextDropdownProps): React.ReactElement => 
   }));
 
   const handleSelect = (id: string) => {
-    if (typeof window !== 'undefined')
+    if (typeof window !== 'undefined') {
       window.open(fullSourceItems.find((item) => id === item.id).path, '_blank', 'noopener,noreferrer');
+    }
   };
 
   return (

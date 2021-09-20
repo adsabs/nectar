@@ -14,6 +14,8 @@ export interface IAbstractPageProps {
 const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) => {
   const { doc, error } = props;
 
+  console.log(doc);
+
   return (
     <section className="abstract-page-container">
       <Head>
@@ -22,10 +24,10 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
       <AbstractSideNav doc={doc} />
       <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
         <div className="pb-1">
-          <h2 className="prose-xl text-gray-900 font-medium leading-6" id="title">
+          <h2 className="prose-xl pb-5 text-gray-900 text-2xl font-medium leading-6" id="title">
             {doc.title}
           </h2>
-          <div className="prose-sm text-gray-700">{doc.author.join('; ')}</div>
+          <div className="prose-sm pb-3 text-gray-700">{doc.author.join('; ')}</div>
         </div>
         <AbstractSources doc={doc} />
         {isNil(doc.abstract) ? (
@@ -45,10 +47,13 @@ interface IDetailsProps {
   doc: IDocsEntity;
 }
 const Details = ({ doc }: IDetailsProps) => {
+  const arxiv = ((doc.identifier || []) as string[]).find((v) => v.match(/^arxiv/i));
+
   const entries = [
     { label: 'Publication', value: doc.pub },
     { label: 'Publication Date', value: doc.pubdate },
     { label: 'DOI', value: doc.doi },
+    { label: 'arXiv', value: arxiv },
     { label: 'Bibcode', value: doc.bibcode },
     { label: 'Keywords', value: doc.keyword },
     { label: 'E-Print Comments', value: doc.comment },
@@ -56,8 +61,6 @@ const Details = ({ doc }: IDetailsProps) => {
 
   return (
     <section>
-      <Section label="Export" />
-      <Section label="Details" />
       <div className="mt-2 bg-white border border-gray-100 rounded-lg shadow overflow-hidden">
         <div className="px-4 py-5 sm:p-0">
           <dl className="sm:divide-gray-200 sm:divide-y">
@@ -76,17 +79,6 @@ const Details = ({ doc }: IDetailsProps) => {
   );
 };
 
-const Section = ({ label }: { label: string }) => (
-  <div className="relative">
-    <div className="absolute inset-0 flex items-center" aria-hidden="true">
-      <div className="w-full border-t border-gray-300" />
-    </div>
-    <div className="relative flex justify-start">
-      <span className="pr-3 text-gray-900 text-lg font-medium bg-white">{label}</span>
-    </div>
-  </div>
-);
-
 export const getServerSideProps: GetServerSideProps<IAbstractPageProps> = async (ctx) => {
   const query = normalizeURLParams(ctx.query);
   const request = ctx.req as typeof ctx.req & {
@@ -97,6 +89,7 @@ export const getServerSideProps: GetServerSideProps<IAbstractPageProps> = async 
     q: `identifier:${query.id}`,
     fl: [
       ...abstractPageNavDefaultQueryFields,
+      'identifier',
       'bibcode',
       'title',
       'author',
