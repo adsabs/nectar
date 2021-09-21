@@ -8,6 +8,7 @@ import React from 'react';
 import { normalizeURLParams } from 'src/utils';
 import Link from 'next/link';
 import Image from 'next/image';
+import { createUrlByType } from '@components/AbstractSources/linkGenerator';
 
 export interface IAbstractPageProps {
   doc?: IDocsEntity;
@@ -88,9 +89,9 @@ const Details = ({ doc }: IDetailsProps) => {
   const entries = [
     { label: 'Publication', value: doc.pub },
     { label: 'Publication Date', value: doc.pubdate },
-    { label: 'DOI', value: doc.doi },
-    { label: 'arXiv', value: arxiv },
-    { label: 'Bibcode', value: doc.bibcode },
+    { label: 'DOI', value: doc.doi, href: createUrlByType(doc.bibcode, 'doi', doc.doi) },
+    { label: 'arXiv', value: arxiv, href: createUrlByType(doc.bibcode, 'arxiv', arxiv.split(':')[1]) },
+    { label: 'Bibcode', value: doc.bibcode, href: `/abs/${doc.bibcode}/abstract` },
     { label: 'Keywords', value: doc.keyword },
     { label: 'E-Print Comments', value: doc.comment },
   ];
@@ -100,11 +101,18 @@ const Details = ({ doc }: IDetailsProps) => {
       <div className="mt-2 bg-white border border-gray-100 rounded-lg shadow overflow-hidden">
         <div className="px-4 py-5 sm:p-0">
           <dl className="sm:divide-gray-200 sm:divide-y">
-            {entries.map(({ label, value }) => (
+            {entries.map(({ label, value, href }) => (
               <div key={label} className="py-4 sm:grid sm:gap-4 sm:grid-cols-3 sm:px-6 sm:py-5">
                 <dt className="text-gray-500 text-sm font-medium">{label}</dt>
                 <dd className="mt-1 text-gray-900 text-sm sm:col-span-2 sm:mt-0">
-                  {Array.isArray(value) ? value.join('; ') : value}
+                  {href && href !== '' && (
+                    <Link href={href}>
+                      <a className="link" target="_blank" rel="noreferrer">
+                        {Array.isArray(value) ? value.join('; ') : value}
+                      </a>
+                    </Link>
+                  )}
+                  {(!href || href === '') && <>{Array.isArray(value) ? value.join('; ') : value}</>}
                 </dd>
               </div>
             ))}
