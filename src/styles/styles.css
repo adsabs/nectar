@@ -60,6 +60,10 @@
     @apply m-2 h-10 text-blue-600 hover:underline text-sm;
   }
 
+  .link-button-disabled {
+    @apply m-2 h-10 text-sm;
+  }
+
   .default-icon {
     @apply m-1 w-6 h-6;
   }

@@ -49,7 +49,7 @@ export const LandingTabs = (): React.ReactElement => {
         <TitleLogo />
       </div>
       {showTabs ? (
-        <div className="z-10 flex gap-2 justify-center text-white text-xl">
+        <div className="z-10 flex gap-2 justify-center text-white sm:text-xl">
           <Tab href="/classic-form" label="Classic Form" active={asPath === '/classic-form'} />
           <Tab href="/" label="Modern Form" active={asPath === '/'} />
           <Tab href="/paper-form" label="Paper Form" active={asPath === '/paper-form'} />
