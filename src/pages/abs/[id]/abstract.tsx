@@ -6,6 +6,9 @@ import Head from 'next/head';
 import { isNil } from 'ramda';
 import React from 'react';
 import { normalizeURLParams } from 'src/utils';
+import Link from 'next/link';
+import Image from 'next/image';
+
 export interface IAbstractPageProps {
   doc?: IDocsEntity;
   error?: Error;
@@ -25,7 +28,42 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
           <h2 className="prose-xl pb-5 text-gray-900 text-2xl font-medium leading-6" id="title">
             {doc.title}
           </h2>
-          <div className="prose-sm pb-3 text-gray-700">{doc.author.join('; ')}</div>
+          <div className="prose-sm flex pb-3 text-gray-700">
+            {doc.author.map((a, index) => {
+              const orcid =
+                doc.orcid_pub && doc.orcid_pub[index] !== '-'
+                  ? doc.orcid_pub[index]
+                  : doc.orcid_user && doc.orcid_user[index] !== '-'
+                  ? doc.orcid_user[index]
+                  : doc.orcid_other && doc.orcid_other[index] !== '-'
+                  ? doc.orcid_other[index]
+                  : undefined;
+              return (
+                <span key={a} className="flex items-center justify-center">
+                  <Link
+                    href={`/search?q=${encodeURIComponent(`author:"${a}"`)}&sort=${encodeURIComponent(
+                      'date desc, bibcode desc',
+                    )}`}
+                  >
+                    <a className="link pl-2 pr-1">{a}</a>
+                  </Link>
+                  {'  '}
+                  {orcid && (
+                    <Link
+                      href={`/search?q=${encodeURIComponent(`orcid:${orcid}`)}&sort=${encodeURIComponent(
+                        `date desc, bibcode desc`,
+                      )}`}
+                    >
+                      <a style={{ height: 20 }}>
+                        <Image src="/img/orcid-active.svg" width="20" height="20" alt="Search by ORCID" />
+                      </a>
+                    </Link>
+                  )}
+                  {';  '}
+                </span>
+              );
+            })}
+          </div>
         </div>
         <AbstractSources doc={doc} />
         {isNil(doc.abstract) ? (
@@ -102,6 +140,9 @@ export const getServerSideProps: GetServerSideProps<IAbstractPageProps> = async 
       'comment',
       'esources',
       'property',
+      'orcid_pub',
+      'orcid_user',
+      'orcid_other',
     ],
     sort: query.sort ? (query.sort.split(',') as SolrSort[]) : [],
   };
