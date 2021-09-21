@@ -48,7 +48,7 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
     setSelection({
       selectAll: true,
       selectNone: false,
-      selectedCount: numPerPage,
+      selectedCount: total,
     });
   };
 
@@ -77,6 +77,13 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
     return (page - 1) * numPerPage + 1;
   });
 
+  const total = useSelector(searchService, (state) => {
+    const t = state.context.result.numFound;
+    const { page, numPerPage } = state.context.pagination;
+    const pages = Math.floor(t / numPerPage) + 1;
+    return page === pages ? t % numPerPage : numPerPage;
+  });
+
   useEffect(() => {
     setSelection({
       selectAll: false,
@@ -91,6 +98,7 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
         <ListActions
           service={searchService}
           selectedCount={selection.selectedCount}
+          totalCount={total}
           onSortChange={handleSortChange}
           onSelectAll={handleSelectAll}
           onSelectNone={handleSelectNone}
