@@ -54,10 +54,12 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): React.ReactElem
 
   const getTopMenu = () => {
     const items: ItemType[] = navigation.map((item, index) => {
+      const count = getCount(item.href, doc);
       return {
         id: item.name,
         label: itemElements[index],
         domId: `absNav-${item.name}`,
+        disabled: count === 0 && item.href !== Routes.ABSTRACT,
       };
     });
     const currentItem = navigation.find((item) => item.href === subPage);
@@ -65,11 +67,11 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): React.ReactElem
     const count = getCount(currentItem.href, doc);
     const showCount = count > 0 && currentItem.href !== Routes.SIMILAR;
     const label = (
-      <div className="text-gray-900' : 'text-gray-600 group flex items-center mt-5 px-3 py-2 text-left hover:text-gray-900 text-sm font-medium bg-gray-100 hover:bg-gray-50 rounded-md">
+      <div className="group flex items-center mt-5 px-3 py-2 text-left text-gray-600 hover:text-gray-900 text-sm font-medium bg-gray-100 hover:bg-gray-50 rounded-md">
         <Icon className="flex-shrink-0 mr-3 w-6 h-6 text-gray-500" aria-hidden="true" />
         <span className="flex-1 truncate">{currentItem.name}</span>
         {showCount ? (
-          <span className={'bg-white inline-block ml-3 px-3 py-0.5 text-xs rounded-full'}>{count}</span>
+          <span className="inline-block ml-3 px-3 py-0.5 text-xs bg-white rounded-full">{count}</span>
         ) : null}
         <ChevronDownIcon className="default-icon-sm" />
       </div>

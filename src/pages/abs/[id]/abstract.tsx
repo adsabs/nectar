@@ -14,8 +14,6 @@ export interface IAbstractPageProps {
 const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) => {
   const { doc, error } = props;
 
-  console.log(doc);
-
   return (
     <section className="abstract-page-container">
       <Head>

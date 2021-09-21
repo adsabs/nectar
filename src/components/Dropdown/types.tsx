@@ -10,4 +10,5 @@ export type ItemType = {
   label?: string | ReactElement;
   path?: string;
   domId: string;
+  disabled?: boolean;
 };
