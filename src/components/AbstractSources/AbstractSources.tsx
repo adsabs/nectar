@@ -1,83 +1,175 @@
 import { IDocsEntity } from '@api';
-import { DatabaseIcon, DocumentTextIcon } from '@heroicons/react/outline';
-import { ExternalLinkIcon } from '@heroicons/react/solid';
-import clsx from 'clsx';
-import Link from 'next/link';
+import { DropdownList } from '@components';
+import { ChevronDownIcon, LockClosedIcon, LockOpenIcon } from '@heroicons/react/solid';
+import { useViewport, Viewport } from '@hooks';
 import { isNil } from 'ramda';
 import React, { HTMLAttributes } from 'react';
-import { IDataProductSource, IFullTextSource, processLinkData } from './linkGenerator';
+import { IAssociatedWorks, IDataProductSource, IFullTextSource, processLinkData } from './linkGenerator';
 
 export interface IAbstractSourcesProps extends HTMLAttributes<HTMLDivElement> {
   doc?: IDocsEntity;
 }
 
 export const AbstractSources = ({ doc }: IAbstractSourcesProps): React.ReactElement => {
+  const viewport = useViewport();
+
   if (!doc) {
-    return null;
+    return <button className="button-sm-inactive">Full Text Sources</button>;
   }
-  const renderSources = () => {
-    const { esources } = doc;
-    if (isNil(esources)) {
-      return <h3 className="leading-3">No Sources</h3>;
-    }
-    const sources = processLinkData(doc, null);
 
-    return (
-      <section>
-        <h3 id="sources" className="sr-only">
-          Sources
-        </h3>
-        <div className="grid gap-1 grid-cols-12 md:gap-4">
-          {sources.fullTextSources.map((sourceData) => (
-            <FullTextSource key={sourceData.name} source={sourceData} />
-          ))}
-        </div>
-        <div className="grid gap-1 grid-cols-12 mt-1 md:gap-4">
-          {sources.dataProducts.map((sourceData) => (
-            <DataProduct key={sourceData.name} source={sourceData} />
-          ))}
-        </div>
+  const { esources } = doc;
+  if (isNil(esources)) {
+    return <h3 className="leading-3">No Sources</h3>;
+  }
+  const sources = processLinkData(doc, null);
+
+  return viewport >= Viewport.SM ? (
+    <section className="flex justify-start ml-0">
+      <FullTextDropdown sources={sources.fullTextSources} />
+      <DataProductDropdown sources={sources.dataProducts} />
+      <AssociatedWorksDropdown sources={sources.dataProducts} />
+      <button className="button-sm px-2">Add to library</button>
+    </section>
+  ) : (
+    <>
+      <section className="flex justify-start ml-0">
+        <FullTextDropdown sources={sources.fullTextSources} />
+        <DataProductDropdown sources={sources.dataProducts} />
       </section>
-    );
-  };
-
-  return <div className="sm:px-6 sm:py-5">{renderSources()}</div>;
-};
-
-interface IFullTextSourceProps {
-  source: IFullTextSource;
-}
-const FullTextSource = ({ source }: IFullTextSourceProps): React.ReactElement => {
-  const iconStyle = clsx('w-6 h-6', source.open ? 'text-green-400' : 'text-blue-400');
-
-  return (
-    <Link href={source.url}>
-      <a
-        title={`${source.description}${source.open ? ' (OPEN ACCESS)' : ''}`}
-        className="flex col-span-4 items-center p-1 hover:bg-gray-100 border border-gray-400 rounded-md space-x-1 md:col-span-3"
-      >
-        <DocumentTextIcon className={iconStyle} />
-        <span className="flex-1">{source.name}</span>
-        <ExternalLinkIcon className="w-4 h-4" />
-      </a>
-    </Link>
+      <section className="flex justify-start ml-0">
+        <AssociatedWorksDropdown sources={sources.dataProducts} />
+        <button className="button-sm px-2">Add to library</button>
+      </section>
+    </>
   );
 };
 
-interface IDataProductsProps {
-  source: IDataProductSource;
+///// dropdown components //////
+
+const dropdownClasses = {
+  button: 'button-sm pl-2 pr-1',
+  list: 'border border-gray-400',
+};
+
+const dropdownClassesInactive = {
+  button: 'button-sm-disabled pl-2 pr-1',
+  list: 'border border-gray-400',
+};
+interface IFullTextDropdownProps {
+  sources: IFullTextSource[];
 }
-const DataProduct = ({ source }: IDataProductsProps): React.ReactElement => {
+
+const FullTextDropdown = (props: IFullTextDropdownProps): React.ReactElement => {
+  const { sources } = props;
+
+  const fullSourceItems = sources.map((source) => ({
+    id: source.name,
+    label: source.open ? (
+      <>
+        <LockOpenIcon className="default-icon-sm inline" fill="green" />
+        {` ${source.name}`}
+      </>
+    ) : (
+      <>
+        <LockClosedIcon className="default-icon-sm inline" />
+        {` ${source.name}`}
+      </>
+    ),
+    path: source.url,
+    domId: `fullText-${source.name}`,
+  }));
+
+  const handleSelect = (id: string) => {
+    if (typeof window !== 'undefined') {
+      window.open(fullSourceItems.find((item) => id === item.id).path, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   return (
-    <Link href={source.url}>
-      <a
-        title={source.description}
-        className="flex col-span-4 items-center p-1 hover:bg-gray-100 border border-gray-400 rounded-md space-x-1 md:col-span-3"
-      >
-        <DatabaseIcon className="w-6 h-6" />
-        <span className="flex-1">{source.name}</span>
-        <ExternalLinkIcon className="w-4 h-4" />
-      </a>
-    </Link>
+    <DropdownList
+      label={
+        sources.find((s) => s.open) !== undefined ? (
+          <>
+            Full Text Sources <LockOpenIcon className="default-icon-sm inline" />{' '}
+            <ChevronDownIcon className="default-icon-sm inline" />
+          </>
+        ) : (
+          'Full Text Sources'
+        )
+      }
+      items={fullSourceItems}
+      onSelect={handleSelect}
+      classes={fullSourceItems.length > 0 ? dropdownClasses : dropdownClassesInactive}
+      placement={'bottom-start'}
+      offset={[0, 2]}
+      role="list"
+      ariaLabel="Full Text Sources"
+    ></DropdownList>
+  );
+};
+
+interface IDataProductDropdownProps {
+  sources: IDataProductSource[];
+}
+
+const DataProductDropdown = (props: IDataProductDropdownProps): React.ReactElement => {
+  const { sources } = props;
+
+  const dataProductItems = sources.map((source) => ({
+    id: source.name,
+    label: source.description,
+    path: source.url,
+    domId: `dataProd-${source.name}`,
+  }));
+
+  const handleSelect = (id: string) => {
+    if (typeof window !== 'undefined')
+      window.open(dataProductItems.find((item) => id === item.id).path, '_blank', 'noopener,noreferrer');
+  };
+
+  return (
+    <DropdownList
+      label="Data Products"
+      items={dataProductItems}
+      onSelect={handleSelect}
+      classes={dataProductItems.length > 0 ? dropdownClasses : dropdownClassesInactive}
+      placement={'bottom-start'}
+      offset={[0, 2]}
+      role="list"
+      ariaLabel="Data Products"
+    ></DropdownList>
+  );
+};
+
+interface IAssociatedWorksDropdownProps {
+  sources: IAssociatedWorks[];
+}
+
+const AssociatedWorksDropdown = (props: IAssociatedWorksDropdownProps): React.ReactElement => {
+  const { sources } = props;
+
+  const associatedWorksItems = sources.map((source) => ({
+    id: source.name,
+    label: source.description,
+    path: source.url,
+    domId: `associatedWorks-${source.name}`,
+  }));
+
+  const handleSelect = (id: string) => {
+    if (typeof window !== 'undefined')
+      window.open(associatedWorksItems.find((item) => id === item.id).path, '_blank', 'noopener,noreferrer');
+  };
+
+  return (
+    <DropdownList
+      label="Related Materials"
+      items={associatedWorksItems}
+      onSelect={handleSelect}
+      classes={associatedWorksItems.length > 0 ? dropdownClasses : dropdownClassesInactive}
+      placement={'bottom-start'}
+      offset={[0, 2]}
+      role="list"
+      ariaLabel="Related Materials"
+    ></DropdownList>
   );
 };

@@ -34,6 +34,12 @@ export interface IDataProductSource {
   description: string;
 }
 
+export interface IAssociatedWorks {
+  url: string;
+  name: string;
+  description: string;
+}
+
 /**
  * process the link data
  *

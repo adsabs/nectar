@@ -32,7 +32,7 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
   const labelElement =
     typeof label === 'string' ? (
       <>
-        {label} <ChevronDownIcon className="inline w-4 h-4" />
+        {label} <ChevronDownIcon className="default-icon-sm inline" />
       </>
     ) : (
       label
@@ -156,7 +156,7 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
             tabIndex={0}
             onClick={() => handleSelect(item)}
             onKeyDown={(e) => handleItemKeyDown(e, item, index)}
-            classes="hover:bg-gray-100"
+            classes={item.disabled ? 'cursor-default' : 'hover:bg-gray-100'}
           />
         ))}
       </div>
@@ -168,7 +168,7 @@ DropdownList.defaultProps = {
   label: 'BUTTON',
   items: [],
   currentItem: null,
-  onSelect: null,
+  onSelect: () => undefined,
   onExpanded: () => undefined,
   onClosed: () => undefined,
   classes: {},
