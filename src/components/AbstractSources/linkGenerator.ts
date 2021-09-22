@@ -34,7 +34,7 @@ export interface IDataProductSource {
   description: string;
 }
 
-export interface IAssociatedWorks {
+export interface IRelatedWorks {
   url: string;
   name: string;
   description: string;

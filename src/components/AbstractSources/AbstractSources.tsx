@@ -1,10 +1,11 @@
 import { IDocsEntity } from '@api';
 import { DropdownList } from '@components';
+import { ItemType } from '@components/Dropdown/types';
 import { ChevronDownIcon, LockClosedIcon, LockOpenIcon } from '@heroicons/react/solid';
 import { useViewport, Viewport } from '@hooks';
 import { isNil } from 'ramda';
 import React, { HTMLAttributes } from 'react';
-import { IAssociatedWorks, IDataProductSource, IFullTextSource, processLinkData } from './linkGenerator';
+import { IRelatedWorks, IDataProductSource, IFullTextSource, processLinkData } from './linkGenerator';
 
 export interface IAbstractSourcesProps extends HTMLAttributes<HTMLDivElement> {
   doc?: IDocsEntity;
@@ -26,18 +27,16 @@ export const AbstractSources = ({ doc }: IAbstractSourcesProps): React.ReactElem
   return viewport >= Viewport.SM ? (
     <section className="flex justify-start ml-0">
       <FullTextDropdown sources={sources.fullTextSources} />
-      <DataProductDropdown sources={sources.dataProducts} />
-      <AssociatedWorksDropdown sources={sources.dataProducts} />
+      <DataProductDropdown dataProducts={sources.dataProducts} relatedWorks={[]} />
       <button className="button-sm px-2">Add to library</button>
     </section>
   ) : (
     <>
       <section className="flex justify-start ml-0">
         <FullTextDropdown sources={sources.fullTextSources} />
-        <DataProductDropdown sources={sources.dataProducts} />
+        <DataProductDropdown dataProducts={sources.dataProducts} relatedWorks={[]} />
       </section>
       <section className="flex justify-start ml-0">
-        <AssociatedWorksDropdown sources={sources.dataProducts} />
         <button className="button-sm px-2">Add to library</button>
       </section>
     </>
@@ -108,68 +107,68 @@ const FullTextDropdown = (props: IFullTextDropdownProps): React.ReactElement => 
   );
 };
 
-interface IDataProductDropdownProps {
-  sources: IDataProductSource[];
+interface IRelatedMaterialsDropdownProps {
+  dataProducts: IDataProductSource[];
+  relatedWorks: IRelatedWorks[];
 }
 
-const DataProductDropdown = (props: IDataProductDropdownProps): React.ReactElement => {
-  const { sources } = props;
+const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): React.ReactElement => {
+  const { dataProducts, relatedWorks } = props;
 
-  const dataProductItems = sources.map((source) => ({
+  const dataProductItems = dataProducts.map((source) => ({
     id: source.name,
-    label: source.description,
+    label: source.name,
     path: source.url,
     domId: `dataProd-${source.name}`,
+    classes: 'pl-6',
   }));
 
-  const handleSelect = (id: string) => {
-    if (typeof window !== 'undefined')
-      window.open(dataProductItems.find((item) => id === item.id).path, '_blank', 'noopener,noreferrer');
-  };
-
-  return (
-    <DropdownList
-      label="Data Products"
-      items={dataProductItems}
-      onSelect={handleSelect}
-      classes={dataProductItems.length > 0 ? dropdownClasses : dropdownClassesInactive}
-      placement={'bottom-start'}
-      offset={[0, 2]}
-      role="list"
-      ariaLabel="Data Products"
-    ></DropdownList>
-  );
-};
-
-interface IAssociatedWorksDropdownProps {
-  sources: IAssociatedWorks[];
-}
-
-const AssociatedWorksDropdown = (props: IAssociatedWorksDropdownProps): React.ReactElement => {
-  const { sources } = props;
-
-  const associatedWorksItems = sources.map((source) => ({
+  const relatedWorkItems = relatedWorks.map((source) => ({
     id: source.name,
-    label: source.description,
+    label: source.name,
     path: source.url,
-    domId: `associatedWorks-${source.name}`,
+    domId: `relatedWorks-${source.name}`,
+    classes: 'pl-6',
   }));
 
+  const items: ItemType[] = [];
+
+  if (dataProductItems.length > 0) {
+    items.push({
+      id: 'data-subheading',
+      label: 'Data Products',
+      domId: 'dataProducts',
+      classes: 'text-gray-400 cursor-default',
+    });
+    items.push(...dataProductItems);
+  }
+
+  if (relatedWorkItems.length > 0) {
+    items.push({
+      id: 'related-subheading',
+      label: 'Related Works',
+      domId: 'relatedWorks',
+    });
+    items.push(...relatedWorkItems);
+  }
+
   const handleSelect = (id: string) => {
-    if (typeof window !== 'undefined')
-      window.open(associatedWorksItems.find((item) => id === item.id).path, '_blank', 'noopener,noreferrer');
+    if (typeof window !== 'undefined' && id !== 'data-subheading' && id !== 'related-subheading')
+      window.open(items.find((item) => id === item.id).path, '_blank', 'noopener,noreferrer');
   };
 
   return (
-    <DropdownList
-      label="Related Materials"
-      items={associatedWorksItems}
-      onSelect={handleSelect}
-      classes={associatedWorksItems.length > 0 ? dropdownClasses : dropdownClassesInactive}
-      placement={'bottom-start'}
-      offset={[0, 2]}
-      role="list"
-      ariaLabel="Related Materials"
-    ></DropdownList>
+    <>
+      <DropdownList
+        label="Related Materials"
+        items={items}
+        onSelect={handleSelect}
+        classes={items.length > 0 ? dropdownClasses : dropdownClassesInactive}
+        placement={'bottom-start'}
+        offset={[0, 2]}
+        role="list"
+        ariaLabel="Related materials"
+      ></DropdownList>
+    </>
   );
 };

@@ -156,7 +156,7 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
             tabIndex={0}
             onClick={() => handleSelect(item)}
             onKeyDown={(e) => handleItemKeyDown(e, item, index)}
-            classes={item.disabled ? 'cursor-default' : 'hover:bg-gray-100'}
+            classes={clsx(item.disabled ? 'cursor-default' : 'hover:bg-gray-100', item.classes)}
           />
         ))}
       </div>
