@@ -24,22 +24,12 @@ export const AbstractSources = ({ doc }: IAbstractSourcesProps): React.ReactElem
   }
   const sources = processLinkData(doc, null);
 
-  return viewport >= Viewport.SM ? (
-    <section className="flex justify-start ml-0">
+  return (
+    <section className="flex flex-wrap justify-start ml-0">
       <FullTextDropdown sources={sources.fullTextSources} />
       <DataProductDropdown dataProducts={sources.dataProducts} relatedWorks={[]} />
       <button className="button-sm px-2">Add to library</button>
     </section>
-  ) : (
-    <>
-      <section className="flex justify-start ml-0">
-        <FullTextDropdown sources={sources.fullTextSources} />
-        <DataProductDropdown dataProducts={sources.dataProducts} relatedWorks={[]} />
-      </section>
-      <section className="flex justify-start ml-0">
-        <button className="button-sm px-2">Add to library</button>
-      </section>
-    </>
   );
 };
 
@@ -134,27 +124,34 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): React.React
   const items: ItemType[] = [];
 
   if (dataProductItems.length > 0) {
+    // data product heading
     items.push({
       id: 'data-subheading',
       label: 'Data Products',
       domId: 'dataProducts',
-      classes: 'text-gray-400 cursor-default',
+      disabled: true,
     });
     items.push(...dataProductItems);
   }
 
   if (relatedWorkItems.length > 0) {
+    // related works heading
     items.push({
       id: 'related-subheading',
       label: 'Related Works',
       domId: 'relatedWorks',
+      disabled: true,
     });
     items.push(...relatedWorkItems);
   }
 
   const handleSelect = (id: string) => {
-    if (typeof window !== 'undefined' && id !== 'data-subheading' && id !== 'related-subheading')
-      window.open(items.find((item) => id === item.id).path, '_blank', 'noopener,noreferrer');
+    if (typeof window !== 'undefined') {
+      const url = items.find((item) => id === item.id).path;
+      if (url) {
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
+    }
   };
 
   return (

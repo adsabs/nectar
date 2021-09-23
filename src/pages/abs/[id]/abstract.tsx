@@ -29,7 +29,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
           <h2 className="prose-xl pb-5 text-gray-900 text-2xl font-medium leading-6" id="title">
             {doc.title}
           </h2>
-          <div className="prose-sm flex pb-3 text-gray-700">
+          <div className="prose-sm flex flex-wrap pb-3 text-gray-700">
             {doc.author.map((a, index) => {
               const orcid =
                 doc.orcid_pub && doc.orcid_pub[index] !== '-'

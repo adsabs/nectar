@@ -92,7 +92,9 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
 
   /* selected item */
   const handleSelect = (item: ItemType) => {
-    onSelect(item.id);
+    if (!item.disabled) {
+      onSelect(item.id);
+    }
     close();
   };
 
@@ -156,7 +158,7 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
             tabIndex={0}
             onClick={() => handleSelect(item)}
             onKeyDown={(e) => handleItemKeyDown(e, item, index)}
-            classes={clsx(item.disabled ? 'cursor-default' : 'hover:bg-gray-100', item.classes)}
+            classes={clsx(item.disabled ? 'text-gray-400 cursor-default' : 'hover:bg-gray-100', item.classes)}
           />
         ))}
       </div>
