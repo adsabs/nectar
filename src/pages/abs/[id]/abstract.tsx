@@ -105,14 +105,15 @@ const Details = ({ doc }: IDetailsProps) => {
               <div key={label} className="py-4 sm:grid sm:gap-4 sm:grid-cols-3 sm:px-6 sm:py-5">
                 <dt className="text-gray-500 text-sm font-medium">{label}</dt>
                 <dd className="mt-1 text-gray-900 text-sm sm:col-span-2 sm:mt-0">
-                  {href && href !== '' && (
+                  {href && href !== '' ? (
                     <Link href={href}>
                       <a className="link" target="_blank" rel="noreferrer">
                         {Array.isArray(value) ? value.join('; ') : value}
                       </a>
                     </Link>
+                  ) : (
+                    <>{Array.isArray(value) ? value.join('; ') : value}</>
                   )}
-                  {(!href || href === '') && <>{Array.isArray(value) ? value.join('; ') : value}</>}
                 </dd>
               </div>
             ))}
