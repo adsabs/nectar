@@ -94,6 +94,10 @@ export const LINK_TYPES: Record<Esources, ILinkType> = {
     shortName: 'Chandra',
     description: 'Chandra X-Ray Observatory',
   },
+  Dataverse: {
+    shortName: 'Dataverse',
+    description: 'Dataverse Project',
+  },
   Dryad: {
     shortName: 'Dryad',
     description: 'International Repository of Research Data',
