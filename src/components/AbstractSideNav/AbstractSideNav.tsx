@@ -1,4 +1,4 @@
-import { IDocsEntity } from '@api';
+import AdsApi, { IDocsEntity } from '@api';
 import { DropdownList } from '@components';
 import { ItemType } from '@components/Dropdown/types';
 import { DocumentIcon } from '@heroicons/react/outline';
@@ -8,9 +8,9 @@ import clsx from 'clsx';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { last } from 'ramda';
-import React, { HTMLAttributes } from 'react';
+import React, { HTMLAttributes, useEffect } from 'react';
 import { navigation, Routes } from './model';
-
+import { useAppCtx } from '@store';
 export interface IAbstractSideNavProps extends HTMLAttributes<HTMLDivElement> {
   doc?: IDocsEntity;
 }
@@ -19,13 +19,29 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): React.ReactElem
   const router = useRouter();
   const subPage = last(router.asPath.split('/'));
   const viewport = useViewport();
+  const {
+    state: { user },
+  } = useAppCtx();
+
+  const [hasGraphics, setHasGraphics] = React.useState<boolean>(false);
+
+  useEffect(() => {
+    async function initGraphics() {
+      const adsapi = new AdsApi({ token: user.access_token });
+      const result = await adsapi.graphics.query({
+        bibcode: Array.isArray(router.query.id) ? router.query.id[0] : router.query.id,
+      });
+      setHasGraphics(result.isErr() || result.value.Error ? false : true);
+    }
+    void initGraphics();
+  }, []);
 
   const itemElements = navigation.map((item) => {
     const Icon = item.icon || DocumentIcon;
     const current = item.href === subPage;
-    const count = getCount(item.href, doc);
+    const count = item.href === Routes.GRAPHICS && hasGraphics ? 1 : getCount(item.href, doc);
     const disabled = count === 0 && item.href !== Routes.ABSTRACT;
-    const showCount = count > 0 && item.href !== Routes.SIMILAR;
+    const showCount = count > 0 && item.href !== Routes.SIMILAR && item.href !== Routes.GRAPHICS;
     const href = { pathname: disabled ? Routes.ABSTRACT : item.href, query: { id: router.query.id } };
 
     const linkStyle = clsx(
