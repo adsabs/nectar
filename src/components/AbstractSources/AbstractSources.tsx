@@ -138,7 +138,7 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): React.React
     // related works heading
     items.push({
       id: 'related-subheading',
-      label: 'Related Works',
+      label: 'Related Materials',
       domId: 'relatedWorks',
       disabled: true,
     });
@@ -157,14 +157,14 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): React.React
   return (
     <>
       <DropdownList
-        label="Related Materials"
+        label="Other Resources"
         items={items}
         onSelect={handleSelect}
         classes={items.length > 0 ? dropdownClasses : dropdownClassesInactive}
         placement={'bottom-start'}
         offset={[0, 2]}
         role="list"
-        ariaLabel="Related materials"
+        ariaLabel="Other Resources"
       ></DropdownList>
     </>
   );
