@@ -78,7 +78,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
       <AbstractSideNav doc={doc} />
       <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
         <div className="pb-1">
-          <h2 className="prose-xl pb-5 text-gray-900 text-2xl font-medium leading-6" id="title">
+          <h2 className="prose-xl pb-5 text-gray-900 text-2xl font-medium leading-8" id="title">
             {doc.title}
           </h2>
           {aff.show ? (

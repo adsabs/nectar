@@ -16,7 +16,7 @@ export enum Routes {
   ABSTRACT = 'abstract',
   CITATIONS = 'citations',
   REFERENCES = 'references',
-  COREADS = 'co-reads',
+  COREADS = 'coreads',
   SIMILAR = 'similar',
   VOLUMECONTENT = 'toc',
   GRAPHICS = 'graphics',

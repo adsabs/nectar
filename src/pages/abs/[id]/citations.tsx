@@ -24,10 +24,10 @@ const CitationsPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProps
         <title>Citations | {originalDoc.title}</title>
       </Head>
       <AbstractSideNav doc={originalDoc} />
-      <article aria-labelledby="title" className="flex-1 my-8 px-4 py-8 w-full bg-white shadow sm:rounded-lg">
-        <div className="border-b border-gray-200 sm:pb-0 md:pb-3">
-          <h2 className="prose-xl text-gray-900 font-medium leading-6" id="title">
-            <em>Papers that cite</em> {originalDoc.title}
+      <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
+        <div className="pb-1">
+          <h2 className="prose-xl text-gray-900 font-medium leading-8" id="title">
+            <span>Papers that cite</span> <div className="text-2xl">{originalDoc.title}</div>
           </h2>
         </div>
         {/* <ResultList docs={docs} hideCheckboxes={true} showActions={false} /> */}
