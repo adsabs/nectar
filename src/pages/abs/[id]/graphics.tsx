@@ -7,7 +7,7 @@ import { AbstractSideNav } from '@components';
 import { normalizeURLParams } from '@utils';
 import { IADSApiGraphicsResponse } from '@api/lib/graphics/types';
 import Link from 'next/link';
-
+import Image from 'next/image';
 interface IGraphicsPageProps {
   graphics: IADSApiGraphicsResponse;
   originalDoc: IDocsEntity;
@@ -41,8 +41,14 @@ const GraphicsPage: NextPage<IGraphicsPageProps> = (props: IGraphicsPageProps) =
                     className="flex flex-col items-center justify-between m-2 p-2 border-2 border-gray-100 rounded-lg"
                   >
                     <Link href={figure.images[0].highres}>
-                      <a target="_blank" rel="noreferrer noopener">
-                        <img src={figure.images[0].thumbnail} className="p-5" alt={figure.figure_label}></img>
+                      <a target="_blank" rel="noreferrer noopener" className="relative">
+                        <Image
+                          src={figure.images[0].thumbnail}
+                          width="150"
+                          height="150"
+                          className="p-5"
+                          alt={figure.figure_label}
+                        ></Image>
                       </a>
                     </Link>
                     <span aria-hidden="true">{figure.figure_label}</span>
