@@ -1,4 +1,4 @@
-import AdsApi, { IADSApiGraphicsParams, IADSApiSearchParams, IDocsEntity, IUserData } from '@api';
+import AdsApi, { IADSApiGraphicsParams, IDocsEntity, IUserData } from '@api';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import React from 'react';
@@ -82,8 +82,6 @@ export const getServerSideProps: GetServerSideProps<IGraphicsPageProps> = async 
 
   if (result.isErr()) {
     return { props: { graphics: [], originalDoc, error: result.error } };
-  } else if (result.value.Error) {
-    return { props: { graphics: [], originalDoc, error: result.value.Error } };
   }
 
   return {
