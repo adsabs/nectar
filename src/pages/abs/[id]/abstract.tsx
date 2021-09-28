@@ -4,7 +4,7 @@ import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/m
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { isNil } from 'ramda';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { normalizeURLParams } from 'src/utils';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -15,8 +15,29 @@ export interface IAbstractPageProps {
   error?: Error;
 }
 
+const MAX_AUTHORS = 20;
+
 const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) => {
   const { doc, error } = props;
+
+  const [showNumAuthors, setShowNumAuthors] = useState<number>(MAX_AUTHORS);
+
+  const [showAff, setShowAff] = useState<boolean>(false);
+
+  // onComponentDidMount
+  useEffect(() => {
+    if (showNumAuthors > doc.author.length) {
+      setShowNumAuthors(doc.author.length);
+    }
+  }, []);
+
+  const handleShowAllAuthors = () => {
+    setShowNumAuthors(doc.author.length);
+  };
+
+  const handleShowLessAuthors = () => {
+    setShowNumAuthors(Math.min(doc.author.length, MAX_AUTHORS));
+  };
 
   return (
     <section className="abstract-page-container">
@@ -30,7 +51,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
             {doc.title}
           </h2>
           <div className="prose-sm flex flex-wrap pb-3 text-gray-700">
-            {doc.author.map((a, index) => {
+            {doc.author.slice(0, showNumAuthors).map((a, index) => {
               const orcid =
                 doc.orcid_pub && doc.orcid_pub[index] !== '-'
                   ? doc.orcid_pub[index]
@@ -64,6 +85,12 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                 </span>
               );
             })}
+            &nbsp;
+            {doc.author.length > showNumAuthors ? (
+              <a onClick={handleShowAllAuthors} className="link">
+                ... more
+              </a>
+            ) : null}
           </div>
         </div>
         <AbstractSources doc={doc} />
@@ -89,8 +116,8 @@ const Details = ({ doc }: IDetailsProps) => {
   const entries = [
     { label: 'Publication', value: doc.pub },
     { label: 'Publication Date', value: doc.pubdate },
-    { label: 'DOI', value: doc.doi, href: createUrlByType(doc.bibcode, 'doi', doc.doi) },
-    { label: 'arXiv', value: arxiv, href: createUrlByType(doc.bibcode, 'arxiv', arxiv.split(':')[1]) },
+    { label: 'DOI', value: doc.doi, href: doc.doi && createUrlByType(doc.bibcode, 'doi', doc.doi) },
+    { label: 'arXiv', value: arxiv, href: arxiv && createUrlByType(doc.bibcode, 'arxiv', arxiv.split(':')[1]) },
     { label: 'Bibcode', value: doc.bibcode, href: `/abs/${doc.bibcode}/abstract` },
     { label: 'Keywords', value: doc.keyword },
     { label: 'E-Print Comments', value: doc.comment },
@@ -138,7 +165,6 @@ export const getServerSideProps: GetServerSideProps<IAbstractPageProps> = async 
       'bibcode',
       'title',
       'author',
-      '[fields author=3]',
       'author_count',
       'pubdate',
       'abstract',

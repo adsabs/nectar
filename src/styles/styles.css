@@ -77,10 +77,14 @@
   }
 
   .link {
-    @apply text-blue-700 hover:underline;
+    @apply text-blue-700 hover:underline cursor-pointer;
   }
 
   .dropdown-list-item {
     @apply px-3 py-2 text-left;
+  }
+
+  .badge {
+    @apply m-1 px-1 text-sm border rounded;
   }
 }
