@@ -1,8 +1,7 @@
 import AdsApi, { IADSApiSearchParams, IDocsEntity, IUserData } from '@api';
-import { AbstractSideNav, ResultList } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
+import { AbsLayout } from '@components/Layout/AbsLayout';
 import { GetServerSideProps, NextPage } from 'next';
-import Head from 'next/head';
 import React from 'react';
 import { normalizeURLParams } from 'src/utils';
 
@@ -18,11 +17,7 @@ const CoreadsPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProps) 
   console.log(error);
 
   return (
-    <section className="abstract-page-container">
-      <Head>
-        <title>Co-Reads | {originalDoc.title}</title>
-      </Head>
-      <AbstractSideNav doc={originalDoc} />
+    <AbsLayout doc={originalDoc}>
       <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
         <div className="pb-1">
           <h2 className="prose-xl text-gray-900 font-medium leading-8" id="title">
@@ -31,7 +26,7 @@ const CoreadsPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProps) 
         </div>
         {/* <ResultList docs={docs} hideCheckboxes={true} showActions={false} /> */}
       </article>
-    </section>
+    </AbsLayout>
   );
 };
 

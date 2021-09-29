@@ -10,6 +10,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { createUrlByType } from '@components/AbstractSources/linkGenerator';
 import clsx from 'clsx';
+import { AbsLayout } from '@components/Layout/AbsLayout';
 
 export interface IAbstractPageProps {
   doc?: IDocsEntity;
@@ -71,11 +72,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
   const authorNameClass = clsx(!aff.show ? 'link pr-1' : 'link');
 
   return (
-    <section className="abstract-page-container">
-      <Head>
-        <title>{doc.title}</title>
-      </Head>
-      <AbstractSideNav doc={doc} />
+    <AbsLayout doc={doc}>
       <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
         <div className="pb-1">
           <h2 className="prose-xl pb-5 text-gray-900 text-2xl font-medium leading-8" id="title">
@@ -154,7 +151,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
         )}
         <Details doc={doc} />
       </article>
-    </section>
+    </AbsLayout>
   );
 };
 

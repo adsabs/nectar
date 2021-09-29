@@ -1,13 +1,12 @@
 import AdsApi, { IADSApiGraphicsParams, IDocsEntity, IUserData } from '@api';
 import { GetServerSideProps, NextPage } from 'next';
-import Head from 'next/head';
 import React from 'react';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
-import { AbstractSideNav } from '@components';
 import { normalizeURLParams } from '@utils';
 import { IADSApiGraphicsResponse } from '@api/lib/graphics/types';
 import Link from 'next/link';
 import Image from 'next/image';
+import { AbsLayout } from '@components/Layout/AbsLayout';
 interface IGraphicsPageProps {
   graphics: IADSApiGraphicsResponse;
   originalDoc: IDocsEntity;
@@ -17,11 +16,7 @@ interface IGraphicsPageProps {
 const GraphicsPage: NextPage<IGraphicsPageProps> = (props: IGraphicsPageProps) => {
   const { originalDoc, graphics, error } = props;
   return (
-    <section className="abstract-page-container">
-      <Head>
-        <title>Graphics | {originalDoc.title}</title>
-      </Head>
-      <AbstractSideNav doc={originalDoc} />
+    <AbsLayout doc={originalDoc}>
       <article aria-labelledby="title" className="flex-1 my-8 px-4 py-8 w-full bg-white shadow sm:rounded-lg">
         {error ? (
           <div>No Graphics</div>
@@ -59,7 +54,7 @@ const GraphicsPage: NextPage<IGraphicsPageProps> = (props: IGraphicsPageProps) =
           </>
         )}
       </article>
-    </section>
+    </AbsLayout>
   );
 };
 
