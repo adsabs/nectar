@@ -10,3 +10,4 @@ export type {
   IADSApiSearchResponse,
   IDocsEntity,
 } from './lib/search/types';
+export type { IADSApiGraphicsParams } from './lib/graphics/types';

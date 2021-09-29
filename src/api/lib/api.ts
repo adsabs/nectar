@@ -12,6 +12,7 @@ import { SearchService } from './search/search';
 import { IServiceConfig } from './service';
 import { UserService } from './user/user';
 import { VaultService } from './vault';
+import { GraphicsService } from './graphics/graphics';
 
 export class Adsapi {
   public search: SearchService;
@@ -19,6 +20,7 @@ export class Adsapi {
   public user: UserService;
   public reference: ReferenceService;
   public vault: VaultService;
+  public graphics: GraphicsService;
 
   constructor(config: IServiceConfig) {
     this.search = new SearchService(config);
@@ -26,6 +28,7 @@ export class Adsapi {
     this.user = new UserService(config);
     this.reference = new ReferenceService(config);
     this.vault = new VaultService(config);
+    this.graphics = new GraphicsService(config);
   }
 
   public static bootstrap(config: IServiceConfig = {}): Promise<Result<IUserData, Error>> {

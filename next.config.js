@@ -21,6 +21,9 @@ const config = {
   publicRuntimeConfig: {
     apiHost: process.env.API_HOST,
   },
+  images: {
+    domains: ['s3.amazonaws.com'],
+  },
 };
 
 module.exports = withBundleAnalyzer(config);
