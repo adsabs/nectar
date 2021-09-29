@@ -9,20 +9,27 @@ import { normalizeURLParams } from 'src/utils';
 import Link from 'next/link';
 import Image from 'next/image';
 import { createUrlByType } from '@components/AbstractSources/linkGenerator';
+import clsx from 'clsx';
 
 export interface IAbstractPageProps {
   doc?: IDocsEntity;
   error?: Error;
+  userData: IUserData;
+  params: {
+    q: string;
+    fl: string[];
+    sort: SolrSort[];
+  };
 }
 
 const MAX_AUTHORS = 20;
 
 const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) => {
-  const { doc, error } = props;
+  const { doc, error, userData, params } = props;
 
   const [showNumAuthors, setShowNumAuthors] = useState<number>(MAX_AUTHORS);
 
-  const [showAff, setShowAff] = useState<boolean>(false);
+  const [aff, setAff] = useState({ show: false, data: [] as string[] });
 
   // onComponentDidMount
   useEffect(() => {
@@ -39,6 +46,30 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
     setShowNumAuthors(Math.min(doc.author.length, MAX_AUTHORS));
   };
 
+  const handleShowAff = () => {
+    const adsapi = new AdsApi({ token: userData.access_token });
+    if (aff.data.length === 0) {
+      params.fl = ['aff'];
+      void adsapi.search.query(params).then((res) => {
+        if (res.isOk()) {
+          setAff({ show: true, data: res.value.docs[0].aff });
+        }
+      });
+    } else {
+      setAff({ show: true, data: aff.data });
+    }
+  };
+
+  const handleHideAff = () => {
+    setAff({ show: false, data: aff.data });
+  };
+
+  const authorsClass = clsx(!aff.show ? 'flex flex-wrap' : '', 'prose-sm pb-3 pl-2 text-gray-700');
+
+  const authorClass = clsx(!aff.show ? 'flex items-center' : '');
+
+  const authorNameClass = clsx(!aff.show ? 'link pr-1' : 'link');
+
   return (
     <section className="abstract-page-container">
       <Head>
@@ -50,7 +81,27 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
           <h2 className="prose-xl pb-5 text-gray-900 text-2xl font-medium leading-6" id="title">
             {doc.title}
           </h2>
-          <div className="prose-sm flex flex-wrap pb-3 text-gray-700">
+          {aff.show ? (
+            <button className="badge ml-1" onClick={handleHideAff}>
+              hide affiliations
+            </button>
+          ) : (
+            <button className="badge ml-1" onClick={handleShowAff}>
+              show affiliations
+            </button>
+          )}
+          {doc.author.length > showNumAuthors ? (
+            <span>
+              <button className="badge" onClick={handleShowAllAuthors}>
+                show all authors
+              </button>
+            </span>
+          ) : showNumAuthors > MAX_AUTHORS ? (
+            <button className="badge" onClick={handleShowLessAuthors}>
+              show less authors
+            </button>
+          ) : null}
+          <div className={authorsClass}>
             {doc.author.slice(0, showNumAuthors).map((a, index) => {
               const orcid =
                 doc.orcid_pub && doc.orcid_pub[index] !== '-'
@@ -61,13 +112,13 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                   ? doc.orcid_other[index]
                   : undefined;
               return (
-                <span key={a} className="flex items-center justify-center">
+                <div key={a} className={authorClass}>
                   <Link
                     href={`/search?q=${encodeURIComponent(`author:"${a}"`)}&sort=${encodeURIComponent(
                       'date desc, bibcode desc',
                     )}`}
                   >
-                    <a className="link pl-2 pr-1">{a}</a>
+                    <a className={authorNameClass}>{a}</a>
                   </Link>
                   {'  '}
                   {orcid && (
@@ -81,8 +132,10 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                       </a>
                     </Link>
                   )}
-                  {';  '}
-                </span>
+                  {'  '}
+                  {aff.show ? <>({aff.data[index]})</> : null}
+                  ;&nbsp;
+                </div>
               );
             })}
             &nbsp;
@@ -192,6 +245,8 @@ export const getServerSideProps: GetServerSideProps<IAbstractPageProps> = async 
   return {
     props: {
       doc,
+      userData,
+      params,
     },
   };
 };
