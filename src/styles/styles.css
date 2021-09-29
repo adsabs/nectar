@@ -75,4 +75,12 @@
   .abstract-page-container {
     @apply flex flex-col lg:flex-row lg:space-x-4;
   }
+
+  .link {
+    @apply text-blue-700 hover:underline;
+  }
+
+  .dropdown-list-item {
+    @apply px-3 py-2 text-left;
+  }
 }

@@ -29,7 +29,7 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): React.ReactElem
     const href = { pathname: disabled ? Routes.ABSTRACT : item.href, query: { id: router.query.id } };
 
     const linkStyle = clsx(
-      current ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+      current ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
       'group flex items-center px-3 py-2 text-sm font-medium rounded-md',
       disabled && 'opacity-50 pointer-events-none',
     );
@@ -67,7 +67,7 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): React.ReactElem
     const count = getCount(currentItem.href, doc);
     const showCount = count > 0 && currentItem.href !== Routes.SIMILAR;
     const label = (
-      <div className="group flex items-center mt-5 px-3 py-2 text-left text-gray-600 hover:text-gray-900 text-sm font-medium bg-gray-100 hover:bg-gray-50 rounded-md">
+      <div className="group flex items-center mt-5 px-3 py-2 text-left text-gray-600 text-sm font-medium bg-gray-100 rounded-md">
         <Icon className="flex-shrink-0 mr-3 w-6 h-6 text-gray-500" aria-hidden="true" />
         <span className="flex-1 truncate">{currentItem.name}</span>
         {showCount ? (

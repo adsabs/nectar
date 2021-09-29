@@ -11,4 +11,5 @@ export type ItemType = {
   path?: string;
   domId: string;
   disabled?: boolean;
+  classes?: string;
 };
