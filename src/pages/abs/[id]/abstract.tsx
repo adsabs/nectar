@@ -1,36 +1,111 @@
 import AdsApi, { IDocsEntity, IUserData, SolrSort } from '@api';
-import { AbstractSideNav, AbstractSources } from '@components';
+import { AbstractSources } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 import { GetServerSideProps, NextPage } from 'next';
-import Head from 'next/head';
 import { isNil } from 'ramda';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { normalizeURLParams } from 'src/utils';
 import Link from 'next/link';
 import Image from 'next/image';
 import { createUrlByType } from '@components/AbstractSources/linkGenerator';
+import clsx from 'clsx';
+import { AbsLayout } from '@components/Layout/AbsLayout';
+import { useAPI } from '@hooks';
+import { AxiosError } from 'axios';
 
 export interface IAbstractPageProps {
   doc?: IDocsEntity;
   error?: Error;
+  params: {
+    q: string;
+    fl: string[];
+    sort: SolrSort[];
+  };
 }
 
+const MAX_AUTHORS = 20;
+
 const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) => {
-  const { doc, error } = props;
+  const { doc, error, params } = props;
+
+  const [showNumAuthors, setShowNumAuthors] = useState<number>(MAX_AUTHORS);
+
+  const [aff, setAff] = useState({ show: false, data: [] as string[] });
+
+  // onComponentDidMount
+  useEffect(() => {
+    if (showNumAuthors > doc.author.length) {
+      setShowNumAuthors(doc.author.length);
+    }
+  }, [doc]);
+
+  const { api } = useAPI();
+
+  const handleShowAllAuthors = () => {
+    setShowNumAuthors(doc.author.length);
+  };
+
+  const handleShowLessAuthors = () => {
+    setShowNumAuthors(Math.min(doc.author.length, MAX_AUTHORS));
+  };
+
+  const handleShowAff = () => {
+    if (aff.data.length === 0) {
+      params.fl = ['aff'];
+      void api.search.query(params).then((result) => {
+        result.match(
+          (res) => {
+            setAff({ show: true, data: res.docs[0].aff });
+          },
+          () => {
+            return;
+          },
+        );
+      });
+    } else {
+      setAff({ show: true, data: aff.data });
+    }
+  };
+
+  const handleHideAff = () => {
+    setAff({ show: false, data: aff.data });
+  };
+
+  const authorsClass = clsx(!aff.show ? 'flex flex-wrap' : '', 'prose-sm pb-3 pl-2 text-gray-700');
+
+  const authorClass = clsx(!aff.show ? 'flex items-center' : '');
+
+  const authorNameClass = clsx(!aff.show ? 'link pr-1' : 'link');
 
   return (
-    <section className="abstract-page-container">
-      <Head>
-        <title>{doc.title}</title>
-      </Head>
-      <AbstractSideNav doc={doc} />
+    <AbsLayout doc={doc}>
       <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
         <div className="pb-1">
-          <h2 className="prose-xl pb-5 text-gray-900 text-2xl font-medium leading-6" id="title">
+          <h2 className="prose-xl pb-5 text-gray-900 text-2xl font-medium leading-8" id="title">
             {doc.title}
           </h2>
-          <div className="prose-sm flex flex-wrap pb-3 text-gray-700">
-            {doc.author.map((a, index) => {
+          {aff.show ? (
+            <button className="badge ml-1" onClick={handleHideAff}>
+              hide affiliations
+            </button>
+          ) : (
+            <button className="badge ml-1" onClick={handleShowAff}>
+              show affiliations
+            </button>
+          )}
+          {doc.author.length > showNumAuthors ? (
+            <span>
+              <button className="badge" onClick={handleShowAllAuthors}>
+                show all authors
+              </button>
+            </span>
+          ) : showNumAuthors > MAX_AUTHORS ? (
+            <button className="badge" onClick={handleShowLessAuthors}>
+              show less authors
+            </button>
+          ) : null}
+          <div className={authorsClass}>
+            {doc.author.slice(0, showNumAuthors).map((a, index) => {
               const orcid =
                 doc.orcid_pub && doc.orcid_pub[index] !== '-'
                   ? doc.orcid_pub[index]
@@ -40,13 +115,13 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                   ? doc.orcid_other[index]
                   : undefined;
               return (
-                <span key={a} className="flex items-center justify-center">
+                <div key={a} className={authorClass}>
                   <Link
                     href={`/search?q=${encodeURIComponent(`author:"${a}"`)}&sort=${encodeURIComponent(
                       'date desc, bibcode desc',
                     )}`}
                   >
-                    <a className="link pl-2 pr-1">{a}</a>
+                    <a className={authorNameClass}>{a}</a>
                   </Link>
                   {'  '}
                   {orcid && (
@@ -60,10 +135,18 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                       </a>
                     </Link>
                   )}
-                  {';  '}
-                </span>
+                  {'  '}
+                  {aff.show ? <>({aff.data[index]})</> : null}
+                  ;&nbsp;
+                </div>
               );
             })}
+            &nbsp;
+            {doc.author.length > showNumAuthors ? (
+              <a onClick={handleShowAllAuthors} className="link">
+                ... more
+              </a>
+            ) : null}
           </div>
         </div>
         <AbstractSources doc={doc} />
@@ -74,7 +157,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
         )}
         <Details doc={doc} />
       </article>
-    </section>
+    </AbsLayout>
   );
 };
 
@@ -89,8 +172,8 @@ const Details = ({ doc }: IDetailsProps) => {
   const entries = [
     { label: 'Publication', value: doc.pub },
     { label: 'Publication Date', value: doc.pubdate },
-    { label: 'DOI', value: doc.doi, href: createUrlByType(doc.bibcode, 'doi', doc.doi) },
-    { label: 'arXiv', value: arxiv, href: createUrlByType(doc.bibcode, 'arxiv', arxiv.split(':')[1]) },
+    { label: 'DOI', value: doc.doi, href: doc.doi && createUrlByType(doc.bibcode, 'doi', doc.doi) },
+    { label: 'arXiv', value: arxiv, href: arxiv && createUrlByType(doc.bibcode, 'arxiv', arxiv.split(':')[1]) },
     { label: 'Bibcode', value: doc.bibcode, href: `/abs/${doc.bibcode}/abstract` },
     { label: 'Keywords', value: doc.keyword },
     { label: 'E-Print Comments', value: doc.comment },
@@ -138,7 +221,6 @@ export const getServerSideProps: GetServerSideProps<IAbstractPageProps> = async 
       'bibcode',
       'title',
       'author',
-      '[fields author=3]',
       'author_count',
       'pubdate',
       'abstract',
@@ -166,6 +248,7 @@ export const getServerSideProps: GetServerSideProps<IAbstractPageProps> = async 
   return {
     props: {
       doc,
+      params,
     },
   };
 };

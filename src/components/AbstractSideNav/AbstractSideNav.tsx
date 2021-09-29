@@ -19,6 +19,7 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): React.ReactElem
   const router = useRouter();
   const subPage = last(router.asPath.split('/'));
   const viewport = useViewport();
+
   const {
     state: { user },
   } = useAppCtx();

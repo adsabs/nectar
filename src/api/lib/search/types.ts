@@ -86,7 +86,7 @@ export enum Esources {
 export interface IDocsEntity {
   abstract: string;
   ack: string;
-  aff: string;
+  aff: string[];
   aff_id: string;
   alternate_bibcode: string;
   alternate_title: string;
