@@ -1,8 +1,7 @@
 import AdsApi, { IDocsEntity, IUserData, SolrSort } from '@api';
-import { AbstractSideNav, AbstractSources } from '@components';
+import { AbstractSources } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 import { GetServerSideProps, NextPage } from 'next';
-import Head from 'next/head';
 import { isNil } from 'ramda';
 import React, { useEffect, useState } from 'react';
 import { normalizeURLParams } from 'src/utils';
@@ -11,11 +10,12 @@ import Image from 'next/image';
 import { createUrlByType } from '@components/AbstractSources/linkGenerator';
 import clsx from 'clsx';
 import { AbsLayout } from '@components/Layout/AbsLayout';
+import { useAPI } from '@hooks';
+import { AxiosError } from 'axios';
 
 export interface IAbstractPageProps {
   doc?: IDocsEntity;
   error?: Error;
-  userData: IUserData;
   params: {
     q: string;
     fl: string[];
@@ -26,7 +26,7 @@ export interface IAbstractPageProps {
 const MAX_AUTHORS = 20;
 
 const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) => {
-  const { doc, error, userData, params } = props;
+  const { doc, error, params } = props;
 
   const [showNumAuthors, setShowNumAuthors] = useState<number>(MAX_AUTHORS);
 
@@ -37,7 +37,9 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
     if (showNumAuthors > doc.author.length) {
       setShowNumAuthors(doc.author.length);
     }
-  }, []);
+  }, [doc]);
+
+  const { api } = useAPI();
 
   const handleShowAllAuthors = () => {
     setShowNumAuthors(doc.author.length);
@@ -48,13 +50,17 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
   };
 
   const handleShowAff = () => {
-    const adsapi = new AdsApi({ token: userData.access_token });
     if (aff.data.length === 0) {
       params.fl = ['aff'];
-      void adsapi.search.query(params).then((res) => {
-        if (res.isOk()) {
-          setAff({ show: true, data: res.value.docs[0].aff });
-        }
+      void api.search.query(params).then((result) => {
+        result.match(
+          (res) => {
+            setAff({ show: true, data: res.docs[0].aff });
+          },
+          () => {
+            return;
+          },
+        );
       });
     } else {
       setAff({ show: true, data: aff.data });
@@ -242,7 +248,6 @@ export const getServerSideProps: GetServerSideProps<IAbstractPageProps> = async 
   return {
     props: {
       doc,
-      userData,
       params,
     },
   };
