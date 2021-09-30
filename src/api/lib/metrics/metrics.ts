@@ -1,17 +1,18 @@
-import { IADSApiGraphicsParams, IADSApiGraphicsResponse } from '@api';
+import { IADSApiMetricsParams, IADSApiMetricsResponse } from '@api';
 import { AxiosError, AxiosRequestConfig } from 'axios';
 import { err, ok, Result } from 'neverthrow';
 import { ApiTargets } from '../models';
 import { Service } from '../service';
-export class GraphicsService extends Service {
-  async query(params: IADSApiGraphicsParams): Promise<Result<IADSApiGraphicsResponse, Error | AxiosError>> {
+
+export class MetricsService extends Service {
+  async query(params: IADSApiMetricsParams): Promise<Result<IADSApiMetricsResponse, Error | AxiosError>> {
     const config: AxiosRequestConfig = {
       method: 'get',
-      url: `${ApiTargets.GRAPHICS}/${params.bibcode}`,
+      url: `${ApiTargets.SERVICE_METRICS}/${params.bibcode}`,
     };
 
     return await new Promise((resolve) => {
-      this.request<IADSApiGraphicsResponse>(config).then(
+      this.request<IADSApiMetricsResponse>(config).then(
         (result) => {
           result.match(
             (response) => {

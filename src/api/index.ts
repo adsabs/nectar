@@ -10,4 +10,5 @@ export type {
   IADSApiSearchResponse,
   IDocsEntity,
 } from './lib/search/types';
-export type { IADSApiGraphicsParams } from './lib/graphics/types';
+export type { IADSApiGraphicsParams, IADSApiGraphicsResponse } from './lib/graphics/types';
+export type { IADSApiMetricsParams, IADSApiMetricsResponse } from './lib/metrics/types';
