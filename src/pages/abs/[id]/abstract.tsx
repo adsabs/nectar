@@ -11,8 +11,7 @@ import { createUrlByType } from '@components/AbstractSources/linkGenerator';
 import clsx from 'clsx';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { useAPI } from '@hooks';
-import { AxiosError } from 'axios';
-
+import DefaultErrorPage from 'next/error';
 export interface IAbstractPageProps {
   doc?: IDocsEntity;
   error?: Error;
@@ -34,7 +33,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
 
   // onComponentDidMount
   useEffect(() => {
-    if (showNumAuthors > doc.author.length) {
+    if (doc && showNumAuthors > doc.author.length) {
       setShowNumAuthors(doc.author.length);
     }
   }, [doc]);
@@ -77,7 +76,9 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
 
   const authorNameClass = clsx(!aff.show ? 'link pr-1' : 'link');
 
-  return (
+  return error ? (
+    <DefaultErrorPage statusCode={404} />
+  ) : (
     <AbsLayout doc={doc}>
       <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
         <div className="pb-1">
@@ -240,15 +241,14 @@ export const getServerSideProps: GetServerSideProps<IAbstractPageProps> = async 
   const adsapi = new AdsApi({ token: userData.access_token });
   const result = await adsapi.search.query(params);
 
-  if (result.isErr()) {
-    return { props: { error: result.error } };
-  }
-
-  const doc = result.value.docs[0];
-  return {
-    props: {
-      doc,
-      params,
-    },
-  };
+  return result.isErr()
+    ? { props: { error: result.error } }
+    : result.value.numFound === 0
+    ? { props: { error: 'No results found' } }
+    : {
+        props: {
+          doc: result.value.docs[0],
+          params,
+        },
+      };
 };

@@ -5,7 +5,7 @@ import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 import React from 'react';
 import { normalizeURLParams } from 'src/utils';
-
+import DefaultErrorPage from 'next/error';
 export interface ICitationsPageProps {
   docs: IDocsEntity[];
   originalDoc: IDocsEntity;
@@ -17,7 +17,9 @@ const CitationsPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProps
 
   console.log(error);
 
-  return (
+  return error ? (
+    <DefaultErrorPage statusCode={404} />
+  ) : (
     <AbsLayout doc={originalDoc}>
       <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
         <div className="pb-1">
@@ -60,14 +62,16 @@ export const getServerSideProps: GetServerSideProps<ICitationsPageProps> = async
     mainResult.isErr() ? (axios.isAxiosError(mainResult.error) ? mainResult.error.response.data : null) : null,
   );
 
-  if (mainResult.isErr()) {
-    return { props: { docs: [], originalDoc, error: mainResult.error.message } };
-  }
-
-  return {
-    props: {
-      docs: mainResult.value.docs,
-      originalDoc,
-    },
-  };
+  return !originalDoc
+    ? { props: { error: 'Document not found' } }
+    : mainResult.isErr()
+    ? { props: { docs: [], originalDoc, error: mainResult.error.message } }
+    : mainResult.value.numFound === 0
+    ? { props: { error: 'No results found' } }
+    : {
+        props: {
+          docs: mainResult.value.docs,
+          originalDoc,
+        },
+      };
 };

@@ -7,6 +7,7 @@ import { IADSApiGraphicsResponse } from '@api/lib/graphics/types';
 import Link from 'next/link';
 import Image from 'next/image';
 import { AbsLayout } from '@components/Layout/AbsLayout';
+import DefaultErrorPage from 'next/error';
 interface IGraphicsPageProps {
   graphics: IADSApiGraphicsResponse;
   originalDoc: IDocsEntity;
@@ -15,7 +16,9 @@ interface IGraphicsPageProps {
 
 const GraphicsPage: NextPage<IGraphicsPageProps> = (props: IGraphicsPageProps) => {
   const { originalDoc, graphics, error } = props;
-  return (
+  return error ? (
+    <DefaultErrorPage statusCode={404} />
+  ) : (
     <AbsLayout doc={originalDoc}>
       <article aria-labelledby="title" className="flex-1 my-8 px-4 py-8 w-full bg-white shadow sm:rounded-lg">
         {error ? (
@@ -81,14 +84,14 @@ export const getServerSideProps: GetServerSideProps<IGraphicsPageProps> = async 
   const result = await adsapi.graphics.query(params);
   const originalDoc = await getOriginalDoc(adsapi, query.id);
 
-  if (result.isErr()) {
-    return { props: { graphics: [], originalDoc, error: result.error } };
-  }
-
-  return {
-    props: {
-      graphics: result.value,
-      originalDoc,
-    },
-  };
+  return !originalDoc
+    ? { props: { error: 'Document not found' } }
+    : result.isErr()
+    ? { props: { graphics: [], originalDoc, error: result.error } }
+    : {
+        props: {
+          graphics: result.value,
+          originalDoc,
+        },
+      };
 };

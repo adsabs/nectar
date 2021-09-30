@@ -4,7 +4,7 @@ import { AbsLayout } from '@components/Layout/AbsLayout';
 import { GetServerSideProps, NextPage } from 'next';
 import React from 'react';
 import { normalizeURLParams } from 'src/utils';
-
+import DefaultErrorPage from 'next/error';
 export interface ICitationsPageProps {
   docs: IDocsEntity[];
   originalDoc: IDocsEntity;
@@ -16,7 +16,9 @@ const ReferencesPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProp
 
   console.log(error);
 
-  return (
+  return error ? (
+    <DefaultErrorPage statusCode={404} />
+  ) : (
     <AbsLayout doc={originalDoc}>
       <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
         <div className="pb-1">
@@ -55,14 +57,16 @@ export const getServerSideProps: GetServerSideProps<ICitationsPageProps> = async
   const result = await adsapi.search.query(params);
   const originalDoc = await getOriginalDoc(adsapi, query.id);
 
-  if (result.isErr()) {
-    return { props: { docs: [], originalDoc, error: result.error.message } };
-  }
-
-  return {
-    props: {
-      docs: result.value.docs,
-      originalDoc,
-    },
-  };
+  return !originalDoc
+    ? { props: { error: 'Document not found' } }
+    : result.isErr()
+    ? { props: { docs: [], originalDoc, error: result.error.message } }
+    : result.value.numFound === 0
+    ? { props: { error: 'No results found' } }
+    : {
+        props: {
+          docs: result.value.docs,
+          originalDoc,
+        },
+      };
 };
