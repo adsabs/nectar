@@ -5,7 +5,9 @@ import React from 'react';
 import DefaultErrorPage from 'next/error';
 import { normalizeURLParams } from '@utils';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
-import { plotCitationsHist, plotReadsHist } from '@graphUtils';
+import { getCitationTableData, getReadsTableData, plotCitationsHist, plotReadsHist } from '@graphUtils';
+import { CitationsTable } from '@components/Metrics/Citations/Table';
+import { ReadsTable } from '@components/Metrics/Reads/Table';
 interface IMetricsPageProps {
   metrics: IADSApiMetricsResponse;
   doc: IDocsEntity;
@@ -19,18 +21,35 @@ const MetricsPage: NextPage<IMetricsPageProps> = (props: IMetricsPageProps) => {
     return <DefaultErrorPage statusCode={404} title={error.message} />;
   }
 
-  console.log(metrics);
+  const hasCitations = metrics['citation stats']['total number of citations'] > 0;
+
+  const hasReads = metrics['basic stats']['total number of reads'] > 0;
+
   const hist = metrics.histograms;
-  const citations = {
+
+  // graph data
+  const citations_graph = {
     graphData: plotCitationsHist(false, hist.citations),
     normalizedGraphData: plotCitationsHist(true, hist.citations),
   };
-  console.log(citations);
-  const reads = {
+
+  const reads_graph = {
     graphData: plotReadsHist(false, hist.reads),
     normalizedGraphData: plotReadsHist(true, hist.reads),
   };
-  console.log(reads);
+
+  // table data
+  const citations_table = getCitationTableData({
+    refereed: metrics['citation stats refereed'],
+    total: metrics['citation stats'],
+  });
+
+  const reads_table = getReadsTableData({
+    refereed: metrics['basic stats refereed'],
+    total: metrics['basic stats'],
+  });
+
+  const headingClass = 'bg-gray-100 text-3xl h-16 p-2 font-light flex items-center my-5';
 
   return (
     <AbsLayout doc={doc}>
@@ -40,9 +59,22 @@ const MetricsPage: NextPage<IMetricsPageProps> = (props: IMetricsPageProps) => {
             <span>Metrics for </span> <div className="text-2xl">{doc.title}</div>
           </h2>
         </div>
-        <section>
-          <div></div>
-        </section>
+        {hasCitations ? (
+          <section>
+            <div className={headingClass}>
+              <h3>Citations</h3>
+            </div>
+            <CitationsTable data={citations_table} isAbstract={true} />
+          </section>
+        ) : null}
+        {hasReads ? (
+          <section>
+            <div className={headingClass}>
+              <h3>Reads</h3>
+            </div>
+            <ReadsTable data={reads_table} isAbstract={true} />
+          </section>
+        ) : null}
       </article>
     </AbsLayout>
   );
