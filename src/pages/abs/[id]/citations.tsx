@@ -1,11 +1,9 @@
 import AdsApi, { IADSApiSearchParams, IDocsEntity, IUserData } from '@api';
-import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 import React from 'react';
-import { normalizeURLParams } from 'src/utils';
-import DefaultErrorPage from 'next/error';
+import { getOriginalDoc, normalizeURLParams } from 'src/utils';
 export interface ICitationsPageProps {
   docs: IDocsEntity[];
   originalDoc: IDocsEntity;
@@ -15,11 +13,7 @@ export interface ICitationsPageProps {
 const CitationsPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProps) => {
   const { docs, originalDoc, error } = props;
 
-  console.log(error);
-
-  return error ? (
-    <DefaultErrorPage statusCode={404} />
-  ) : (
+  return (
     <AbsLayout doc={originalDoc}>
       <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
         <div className="pb-1">
@@ -27,21 +21,17 @@ const CitationsPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProps
             <span>Papers that cite</span> <div className="text-2xl">{originalDoc.title}</div>
           </h2>
         </div>
-        {/* <ResultList docs={docs} hideCheckboxes={true} showActions={false} /> */}
+        {error ? (
+          <div className="flex items-center justify-center w-full h-full text-xl">{error}</div>
+        ) : (
+          <>{/* <ResultList docs={docs} hideCheckboxes={true} showActions={false} /> */}</>
+        )}
       </article>
     </AbsLayout>
   );
 };
 
 export default CitationsPage;
-
-const getOriginalDoc = async (api: AdsApi, id: string) => {
-  const result = await api.search.query({
-    q: `identifier:${id}`,
-    fl: [...abstractPageNavDefaultQueryFields, 'title'],
-  });
-  return result.isOk() ? result.value.docs[0] : null;
-};
 
 export const getServerSideProps: GetServerSideProps<ICitationsPageProps> = async (ctx) => {
   const query = normalizeURLParams(ctx.query);
@@ -62,16 +52,16 @@ export const getServerSideProps: GetServerSideProps<ICitationsPageProps> = async
     mainResult.isErr() ? (axios.isAxiosError(mainResult.error) ? mainResult.error.response.data : null) : null,
   );
 
-  return !originalDoc
-    ? { props: { error: 'Document not found' } }
+  return originalDoc.notFound || originalDoc.error
+    ? { notFound: true }
     : mainResult.isErr()
-    ? { props: { docs: [], originalDoc, error: mainResult.error.message } }
+    ? { props: { docs: [], originalDoc: originalDoc.doc, error: 'Unable to get results' } }
     : mainResult.value.numFound === 0
-    ? { props: { error: 'No results found' } }
+    ? { props: { docs: [], originalDoc: originalDoc.doc, error: 'No results found' } }
     : {
         props: {
           docs: mainResult.value.docs,
-          originalDoc,
+          originalDoc: originalDoc.doc,
         },
       };
 };
