@@ -40,7 +40,7 @@ export interface IOriginalDoc {
   doc?: IDocsEntity;
 }
 
-export const getOriginalDoc = async (api: AdsApi, id: string): Promise<IOriginalDoc> => {
+export const getDocument = async (api: AdsApi, id: string): Promise<IOriginalDoc> => {
   const result = await api.search.query({
     q: `identifier:${id}`,
     fl: [...abstractPageNavDefaultQueryFields, 'title'],

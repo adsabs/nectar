@@ -1,7 +1,7 @@
 import AdsApi, { IADSApiGraphicsParams, IDocsEntity, IUserData } from '@api';
 import { GetServerSideProps, NextPage } from 'next';
 import React from 'react';
-import { getOriginalDoc, normalizeURLParams } from '@utils';
+import { getDocument, normalizeURLParams } from '@utils';
 import { IADSApiGraphicsResponse } from '@api/lib/graphics/types';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -68,7 +68,7 @@ export const getServerSideProps: GetServerSideProps<IGraphicsPageProps> = async 
   };
   const adsapi = new AdsApi({ token: userData.access_token });
   const result = await adsapi.graphics.query(params);
-  const originalDoc = await getOriginalDoc(adsapi, query.id);
+  const originalDoc = await getDocument(adsapi, query.id);
 
   return originalDoc.notFound || originalDoc.error
     ? { notFound: true }

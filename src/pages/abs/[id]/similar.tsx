@@ -2,7 +2,7 @@ import AdsApi, { IADSApiSearchParams, IDocsEntity, IUserData } from '@api';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { GetServerSideProps, NextPage } from 'next';
 import React from 'react';
-import { getOriginalDoc, normalizeURLParams } from 'src/utils';
+import { getDocument, normalizeURLParams } from 'src/utils';
 export interface ICitationsPageProps {
   docs: IDocsEntity[];
   originalDoc: IDocsEntity;
@@ -47,7 +47,7 @@ export const getServerSideProps: GetServerSideProps<ICitationsPageProps> = async
   };
   const adsapi = new AdsApi({ token: userData.access_token });
   const result = await adsapi.search.query(params);
-  const originalDoc = await getOriginalDoc(adsapi, query.id);
+  const originalDoc = await getDocument(adsapi, query.id);
 
   return originalDoc.notFound || originalDoc.error
     ? { notFound: true }
