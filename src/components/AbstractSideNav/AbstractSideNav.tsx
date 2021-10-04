@@ -26,23 +26,42 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): React.ReactElem
 
   const [hasGraphics, setHasGraphics] = React.useState<boolean>(false);
 
+  const [hasMetrics, setHasMetrics] = React.useState<boolean>(false);
+
+  const useCount = [Routes.CITATIONS, Routes.COREADS, Routes.REFERENCES, Routes.SIMILAR];
+
   useEffect(() => {
     async function initGraphics() {
       const adsapi = new AdsApi({ token: user.access_token });
       const result = await adsapi.graphics.query({
         bibcode: Array.isArray(router.query.id) ? router.query.id[0] : router.query.id,
       });
-      setHasGraphics(result.isErr() || result.value.Error ? false : true);
+      setHasGraphics(result.isErr() ? false : true);
     }
     void initGraphics();
+  }, []);
+
+  useEffect(() => {
+    async function initMetrics() {
+      const adsapi = new AdsApi({ token: user.access_token });
+      const result = await adsapi.metrics.query({
+        bibcode: Array.isArray(router.query.id) ? router.query.id[0] : router.query.id,
+      });
+      setHasMetrics(result.isErr() ? false : true);
+    }
+    void initMetrics();
   }, []);
 
   const itemElements = navigation.map((item) => {
     const Icon = item.icon || DocumentIcon;
     const current = item.href === subPage;
-    const count = item.href === Routes.GRAPHICS && hasGraphics ? 1 : getCount(item.href, doc);
+    const count = useCount.includes(item.href)
+      ? getCount(item.href, doc)
+      : (item.href === Routes.GRAPHICS && hasGraphics) || (item.href === Routes.METRICS && hasMetrics)
+      ? 1
+      : 0;
     const disabled = count === 0 && item.href !== Routes.ABSTRACT;
-    const showCount = count > 0 && item.href !== Routes.SIMILAR && item.href !== Routes.GRAPHICS;
+    const showCount = count > 0 && useCount.includes(item.href);
     const href = { pathname: disabled ? Routes.ABSTRACT : item.href, query: { id: router.query.id } };
 
     const linkStyle = clsx(
