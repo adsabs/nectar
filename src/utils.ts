@@ -43,7 +43,7 @@ export interface IOriginalDoc {
 export const getDocument = async (api: AdsApi, id: string): Promise<IOriginalDoc> => {
   const result = await api.search.query({
     q: `identifier:${id}`,
-    fl: [...abstractPageNavDefaultQueryFields, 'title'],
+    fl: [...abstractPageNavDefaultQueryFields, 'title', 'bibcode'],
   });
 
   return result.isErr()
@@ -51,4 +51,18 @@ export const getDocument = async (api: AdsApi, id: string): Promise<IOriginalDoc
     : result.value.numFound === 0
     ? { notFound: true }
     : { doc: result.value.docs[0] };
+};
+
+export const getHasGraphics = async (api: AdsApi, bibcode: string): Promise<boolean> => {
+  const result = await api.graphics.query({
+    bibcode: bibcode,
+  });
+  return result.isErr() ? false : true;
+};
+
+export const getHasMetrics = async (api: AdsApi, bibcode: string): Promise<boolean> => {
+  const result = await api.metrics.query({
+    bibcode: bibcode,
+  });
+  return result.isErr() ? false : true;
 };

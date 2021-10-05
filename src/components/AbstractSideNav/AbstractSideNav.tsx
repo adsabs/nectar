@@ -13,9 +13,11 @@ import { navigation, Routes } from './model';
 import { useAppCtx } from '@store';
 export interface IAbstractSideNavProps extends HTMLAttributes<HTMLDivElement> {
   doc?: IDocsEntity;
+  hasMetrics: boolean;
+  hasGraphics: boolean;
 }
 
-export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): React.ReactElement => {
+export const AbstractSideNav = ({ doc, hasMetrics, hasGraphics }: IAbstractSideNavProps): React.ReactElement => {
   const router = useRouter();
   const subPage = last(router.asPath.split('/'));
   const viewport = useViewport();
@@ -24,33 +26,7 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): React.ReactElem
     state: { user },
   } = useAppCtx();
 
-  const [hasGraphics, setHasGraphics] = React.useState<boolean>(false);
-
-  const [hasMetrics, setHasMetrics] = React.useState<boolean>(false);
-
   const useCount = [Routes.CITATIONS, Routes.COREADS, Routes.REFERENCES, Routes.SIMILAR];
-
-  useEffect(() => {
-    async function initGraphics() {
-      const adsapi = new AdsApi({ token: user.access_token });
-      const result = await adsapi.graphics.query({
-        bibcode: Array.isArray(router.query.id) ? router.query.id[0] : router.query.id,
-      });
-      setHasGraphics(result.isErr() ? false : true);
-    }
-    void initGraphics();
-  }, []);
-
-  useEffect(() => {
-    async function initMetrics() {
-      const adsapi = new AdsApi({ token: user.access_token });
-      const result = await adsapi.metrics.query({
-        bibcode: Array.isArray(router.query.id) ? router.query.id[0] : router.query.id,
-      });
-      setHasMetrics(result.isErr() ? false : true);
-    }
-    void initMetrics();
-  }, []);
 
   const itemElements = navigation.map((item) => {
     const Icon = item.icon || DocumentIcon;

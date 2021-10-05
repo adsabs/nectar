@@ -1,7 +1,7 @@
 import AdsApi, { IADSApiGraphicsParams, IDocsEntity, IUserData } from '@api';
 import { GetServerSideProps, NextPage } from 'next';
 import React from 'react';
-import { getDocument, normalizeURLParams } from '@utils';
+import { getDocument, normalizeURLParams, getHasGraphics, getHasMetrics } from '@utils';
 import { IADSApiGraphicsResponse } from '@api/lib/graphics/types';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -10,12 +10,14 @@ interface IGraphicsPageProps {
   graphics: IADSApiGraphicsResponse;
   originalDoc: IDocsEntity;
   error?: string;
+  hasGraphics: boolean;
+  hasMetrics: boolean;
 }
 
 const GraphicsPage: NextPage<IGraphicsPageProps> = (props: IGraphicsPageProps) => {
-  const { originalDoc, graphics, error } = props;
+  const { originalDoc, graphics, error, hasGraphics, hasMetrics } = props;
   return (
-    <AbsLayout doc={originalDoc}>
+    <AbsLayout doc={originalDoc} hasGraphics={hasGraphics} hasMetrics={hasMetrics}>
       <article aria-labelledby="title" className="flex-1 my-8 px-4 py-8 w-full bg-white shadow sm:rounded-lg">
         <div className="border-b border-gray-200 sm:pb-0 md:pb-3">
           <h2 className="prose-xl text-gray-900 font-medium leading-6" id="title">
@@ -69,15 +71,28 @@ export const getServerSideProps: GetServerSideProps<IGraphicsPageProps> = async 
   const adsapi = new AdsApi({ token: userData.access_token });
   const result = await adsapi.graphics.query(params);
   const originalDoc = await getDocument(adsapi, query.id);
+  const hasGraphics =
+    !originalDoc.notFound && !originalDoc.error ? await getHasGraphics(adsapi, params.bibcode) : false;
+  const hasMetrics = !originalDoc.notFound && !originalDoc.error ? await getHasMetrics(adsapi, params.bibcode) : false;
 
   return originalDoc.notFound || originalDoc.error
     ? { notFound: true }
     : result.isErr()
-    ? { props: { graphics: null, originalDoc: originalDoc.doc, error: 'Unable to get results' } }
+    ? {
+        props: {
+          graphics: null,
+          originalDoc: originalDoc.doc,
+          hasGraphics,
+          hasMetrics,
+          error: 'Unable to get results',
+        },
+      }
     : {
         props: {
           graphics: result.value,
           originalDoc: originalDoc.doc,
+          hasGraphics,
+          hasMetrics,
         },
       };
 };
