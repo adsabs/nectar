@@ -1,10 +1,15 @@
-exports.component = (
-  name,
-) => `import React, { FC, HTMLAttributes, ReactChild } from 'react';
+exports.component = (name) => `import React, { FC, HTMLAttributes, ReactChild } from 'react';
+import PT from 'prop-types';
 
 export interface I${name}Props extends HTMLAttributes<HTMLDivElement> {
   children?: ReactChild
 }
+
+const propTypes = {
+  children: PT.element;
+}
+
+const defaultProps = {};
 
 export const ${name}: FC<I${name}Props> = ({ children }) => {
   return (
@@ -13,7 +18,10 @@ export const ${name}: FC<I${name}Props> = ({ children }) => {
       <p>{ children }</p>
     </div>
   );
-}
+};
+
+${name}.propTypes = propTypes;
+${name}.defaultProps = defaultProps;
 `;
 
 exports.story = (name) => `import React from 'react';
