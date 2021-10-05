@@ -1,7 +1,7 @@
 import { Theme } from '@types';
 import { isBrowser } from '@utils';
+import { IncomingMessage } from 'http';
 import { fromThrowable } from 'neverthrow';
-import { IncomingMessage } from 'node:http';
 import React from 'react';
 import { reducer } from './reducer';
 import { Action, IAppState } from './types';
@@ -14,6 +14,7 @@ export const initialAppState: IAppState = {
     expire_in: '',
   },
   theme: Theme.GENERAL,
+  query: null,
 };
 
 // wrap the main reducer so we can debug/push changes to local storage
@@ -49,22 +50,26 @@ const safeParse = <T>(value: string, defaultValue: T): T => {
   return result().unwrapOr(defaultValue);
 };
 
-const AppProvider = (props: React.PropsWithChildren<{ session: IncomingMessage['session'] }>): React.ReactElement => {
-  const { session } = props;
-  const [state, dispatch] = React.useReducer(
-    nectarAppReducer,
-    initialAppState,
-    (initial): IAppState => {
-      const newState = isBrowser()
-        ? {
-            ...initial,
-            ...safeParse(localStorage.getItem(APP_STORAGE_KEY), initial),
-            user: typeof session === 'undefined' ? initial.user : session.userData,
-          }
-        : initial;
-      return newState;
-    },
-  );
+const AppProvider = (
+  props: React.PropsWithChildren<{ session: IncomingMessage['session']; initialStore?: Partial<IAppState> }>,
+): React.ReactElement => {
+  const { session, initialStore } = props;
+  const [state, dispatch] = React.useReducer(nectarAppReducer, initialAppState, (initial): IAppState => {
+    if (typeof initialStore !== 'undefined') {
+      return {
+        ...initial,
+        ...initialStore,
+      };
+    }
+    const newState = isBrowser()
+      ? {
+          ...initial,
+          ...safeParse(localStorage.getItem(APP_STORAGE_KEY), initial),
+          user: typeof session === 'undefined' ? initial.user : session.userData,
+        }
+      : initial;
+    return newState;
+  });
 
   return React.createElement(ctx.Provider, { value: { state, dispatch }, ...props });
 };
