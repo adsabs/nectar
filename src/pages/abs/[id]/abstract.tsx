@@ -1,17 +1,16 @@
 import AdsApi, { IDocsEntity, IUserData, SolrSort } from '@api';
 import { AbstractSources } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
+import { createUrlByType } from '@components/AbstractSources/linkGenerator';
+import { AbsLayout } from '@components/Layout/AbsLayout';
+import { useAPI } from '@hooks';
+import clsx from 'clsx';
 import { GetServerSideProps, NextPage } from 'next';
+import Image from 'next/image';
+import Link from 'next/link';
 import { isNil } from 'ramda';
 import React, { useEffect, useState } from 'react';
 import { normalizeURLParams } from 'src/utils';
-import Link from 'next/link';
-import Image from 'next/image';
-import { createUrlByType } from '@components/AbstractSources/linkGenerator';
-import clsx from 'clsx';
-import { AbsLayout } from '@components/Layout/AbsLayout';
-import { useAPI } from '@hooks';
-import { AxiosError } from 'axios';
 
 export interface IAbstractPageProps {
   doc?: IDocsEntity;
@@ -167,7 +166,7 @@ interface IDetailsProps {
   doc: IDocsEntity;
 }
 const Details = ({ doc }: IDetailsProps) => {
-  const arxiv = ((doc.identifier || []) as string[]).find((v) => v.match(/^arxiv/i));
+  const arxiv = (doc.identifier ?? []).find((v) => /^arxiv/i.exec(v));
 
   const entries = [
     { label: 'Publication', value: doc.pub },
@@ -241,7 +240,7 @@ export const getServerSideProps: GetServerSideProps<IAbstractPageProps> = async 
   const result = await adsapi.search.query(params);
 
   if (result.isErr()) {
-    return { props: { error: result.error } };
+    return { props: { error: result.error, params } };
   }
 
   const doc = result.value.docs[0];

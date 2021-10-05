@@ -2,6 +2,8 @@ import { Adsapi } from './lib/api';
 export default Adsapi;
 
 export type { IUserData } from './lib/bootstrap/types';
+export type { ExportApiFormat, IExportApiParams, IExportApiResponse, isExportApiFormat } from './lib/export/types';
+export type { IADSApiGraphicsParams, IADSApiGraphicsResponse } from './lib/graphics/types';
 export type { SolrField, SolrSort, SolrSortDirection, SolrSortField } from './lib/models';
 export type { IADSApiReferenceParams, IADSApiReferenceResponse } from './lib/reference/types';
 export type {
@@ -10,4 +12,3 @@ export type {
   IADSApiSearchResponse,
   IDocsEntity,
 } from './lib/search/types';
-export type { IADSApiGraphicsParams } from './lib/graphics/types';

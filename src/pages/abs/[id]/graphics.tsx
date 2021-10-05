@@ -1,12 +1,11 @@
-import AdsApi, { IADSApiGraphicsParams, IDocsEntity, IUserData } from '@api';
-import { GetServerSideProps, NextPage } from 'next';
-import React from 'react';
+import AdsApi, { IADSApiGraphicsParams, IADSApiGraphicsResponse, IDocsEntity, IUserData } from '@api';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
-import { normalizeURLParams } from '@utils';
-import { IADSApiGraphicsResponse } from '@api/lib/graphics/types';
-import Link from 'next/link';
-import Image from 'next/image';
 import { AbsLayout } from '@components/Layout/AbsLayout';
+import { normalizeURLParams } from '@utils';
+import { GetServerSideProps, NextPage } from 'next';
+import Image from 'next/image';
+import Link from 'next/link';
+import React from 'react';
 interface IGraphicsPageProps {
   graphics: IADSApiGraphicsResponse;
   originalDoc: IDocsEntity;
@@ -65,7 +64,7 @@ const getOriginalDoc = async (api: AdsApi, id: string) => {
     q: `identifier:${id}`,
     fl: [...abstractPageNavDefaultQueryFields, 'title'],
   });
-  return result.isOk() ? result.value.docs[0] : null;
+  return result.unwrapOr(null).docs[0];
 };
 
 export const getServerSideProps: GetServerSideProps<IGraphicsPageProps> = async (ctx) => {
@@ -82,7 +81,7 @@ export const getServerSideProps: GetServerSideProps<IGraphicsPageProps> = async 
   const originalDoc = await getOriginalDoc(adsapi, query.id);
 
   if (result.isErr()) {
-    return { props: { graphics: [], originalDoc, error: result.error } };
+    return { props: { graphics: {} as IADSApiGraphicsResponse, originalDoc, error: result.error.message } };
   }
 
   return {

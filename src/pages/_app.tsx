@@ -3,6 +3,7 @@ import { ApiProvider } from '@providers/api';
 import { AppProvider, useAppCtx } from '@store';
 import { Theme } from '@types';
 import { isBrowser } from '@utils';
+import type { IncomingMessage } from 'http';
 import App, { AppContext, AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
@@ -19,7 +20,7 @@ const TopProgressBar = dynamic(() => import('@components/TopProgressBar').then((
 
 type NectarAppProps = { session: IncomingMessage['session'] } & AppProps;
 
-const NectarApp = ({ Component, pageProps, session }: NectarAppProps) => {
+const NectarApp = ({ Component, pageProps, session }: NectarAppProps): React.ReactElement => {
   return (
     <AppProvider session={session}>
       <ApiProvider>

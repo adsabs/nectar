@@ -20,5 +20,5 @@ export interface IADSApiGraphicsResponse {
       ];
     },
   ];
-  Error: string;
+  Error?: string;
 }
