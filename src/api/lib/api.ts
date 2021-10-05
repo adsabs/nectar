@@ -5,6 +5,7 @@ import { err, ok, Result } from 'neverthrow';
 import getConfig from 'next/config';
 import { identity, isNil } from 'ramda';
 import { IUserData } from './bootstrap/types';
+import { ExportService } from './export';
 import { GraphicsService } from './graphics';
 import { LibrariesService } from './libraries/libraries';
 import { ApiTargets } from './models';
@@ -21,6 +22,7 @@ export class Adsapi {
   public reference: ReferenceService;
   public vault: VaultService;
   public graphics: GraphicsService;
+  public export: ExportService;
 
   constructor(config?: IServiceConfig) {
     this.search = new SearchService(config);
@@ -29,6 +31,7 @@ export class Adsapi {
     this.reference = new ReferenceService(config);
     this.vault = new VaultService(config);
     this.graphics = new GraphicsService(config);
+    this.export = new ExportService(config);
   }
 
   public static bootstrap(config: IServiceConfig = {}): Promise<Result<IUserData, Error>> {
