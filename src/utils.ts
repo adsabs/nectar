@@ -1,4 +1,5 @@
-import { IUserData } from '@api';
+import AdsApi, { IADSApiSearchParams, IDocsEntity, IUserData } from '@api';
+import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 import { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from 'next';
 import { ParsedUrlQuery } from 'node:querystring';
 
@@ -32,3 +33,22 @@ export type ADSServerSideContext = GetServerSidePropsContext & {
 };
 
 export const isBrowser = (): boolean => typeof window !== 'undefined';
+
+export interface IOriginalDoc {
+  error?: string;
+  notFound?: boolean;
+  doc?: IDocsEntity;
+}
+
+export const getDocument = async (api: AdsApi, id: string): Promise<IOriginalDoc> => {
+  const result = await api.search.query({
+    q: `identifier:${id}`,
+    fl: [...abstractPageNavDefaultQueryFields, 'title'],
+  });
+
+  return result.isErr()
+    ? { error: 'Unable to get document' }
+    : result.value.numFound === 0
+    ? { notFound: true }
+    : { doc: result.value.docs[0] };
+};

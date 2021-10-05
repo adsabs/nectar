@@ -11,8 +11,6 @@ import { createUrlByType } from '@components/AbstractSources/linkGenerator';
 import clsx from 'clsx';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { useAPI } from '@hooks';
-import { AxiosError } from 'axios';
-
 export interface IAbstractPageProps {
   doc?: IDocsEntity;
   error?: Error;
@@ -34,7 +32,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
 
   // onComponentDidMount
   useEffect(() => {
-    if (showNumAuthors > doc.author.length) {
+    if (doc && showNumAuthors > doc.author.length) {
       setShowNumAuthors(doc.author.length);
     }
   }, [doc]);
@@ -80,82 +78,89 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
   return (
     <AbsLayout doc={doc}>
       <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
-        <div className="pb-1">
-          <h2 className="prose-xl pb-5 text-gray-900 text-2xl font-medium leading-8" id="title">
-            {doc.title}
-          </h2>
-          {aff.show ? (
-            <button className="badge ml-1" onClick={handleHideAff}>
-              hide affiliations
-            </button>
-          ) : (
-            <button className="badge ml-1" onClick={handleShowAff}>
-              show affiliations
-            </button>
-          )}
-          {doc.author.length > showNumAuthors ? (
-            <span>
-              <button className="badge" onClick={handleShowAllAuthors}>
-                show all authors
-              </button>
-            </span>
-          ) : showNumAuthors > MAX_AUTHORS ? (
-            <button className="badge" onClick={handleShowLessAuthors}>
-              show less authors
-            </button>
-          ) : null}
-          <div className={authorsClass}>
-            {doc.author.slice(0, showNumAuthors).map((a, index) => {
-              const orcid =
-                doc.orcid_pub && doc.orcid_pub[index] !== '-'
-                  ? doc.orcid_pub[index]
-                  : doc.orcid_user && doc.orcid_user[index] !== '-'
-                  ? doc.orcid_user[index]
-                  : doc.orcid_other && doc.orcid_other[index] !== '-'
-                  ? doc.orcid_other[index]
-                  : undefined;
-              return (
-                <div key={a} className={authorClass}>
-                  <Link
-                    href={`/search?q=${encodeURIComponent(`author:"${a}"`)}&sort=${encodeURIComponent(
-                      'date desc, bibcode desc',
-                    )}`}
-                  >
-                    <a className={authorNameClass}>{a}</a>
-                  </Link>
-                  {'  '}
-                  {orcid && (
-                    <Link
-                      href={`/search?q=${encodeURIComponent(`orcid:${orcid}`)}&sort=${encodeURIComponent(
-                        `date desc, bibcode desc`,
-                      )}`}
-                    >
-                      <a style={{ height: 20 }}>
-                        <Image src="/img/orcid-active.svg" width="20" height="20" alt="Search by ORCID" />
-                      </a>
-                    </Link>
-                  )}
-                  {'  '}
-                  {aff.show ? <>({aff.data[index]})</> : null}
-                  ;&nbsp;
-                </div>
-              );
-            })}
-            &nbsp;
-            {doc.author.length > showNumAuthors ? (
-              <a onClick={handleShowAllAuthors} className="link">
-                ... more
-              </a>
-            ) : null}
-          </div>
-        </div>
-        <AbstractSources doc={doc} />
-        {isNil(doc.abstract) ? (
-          <div className="prose-lg p-3">No Abstract</div>
+        {error ? (
+          <div className="flex items-center justify-center w-full h-full text-xl">{error}</div>
         ) : (
-          <div className="prose-lg p-3" dangerouslySetInnerHTML={{ __html: doc.abstract }}></div>
+          <>
+            <div className="pb-1">
+              <h2 className="prose-xl pb-5 text-gray-900 text-2xl font-medium leading-8" id="title">
+                {doc.title}
+              </h2>
+              {aff.show ? (
+                <button className="badge ml-1" onClick={handleHideAff}>
+                  hide affiliations
+                </button>
+              ) : (
+                <button className="badge ml-1" onClick={handleShowAff}>
+                  show affiliations
+                </button>
+              )}
+              {doc.author.length > showNumAuthors ? (
+                <span>
+                  <button className="badge" onClick={handleShowAllAuthors}>
+                    show all authors
+                  </button>
+                </span>
+              ) : showNumAuthors > MAX_AUTHORS ? (
+                <button className="badge" onClick={handleShowLessAuthors}>
+                  show less authors
+                </button>
+              ) : null}
+              <div className={authorsClass}>
+                {doc.author.slice(0, showNumAuthors).map((a, index) => {
+                  const orcid =
+                    doc.orcid_pub && doc.orcid_pub[index] !== '-'
+                      ? doc.orcid_pub[index]
+                      : doc.orcid_user && doc.orcid_user[index] !== '-'
+                      ? doc.orcid_user[index]
+                      : doc.orcid_other && doc.orcid_other[index] !== '-'
+                      ? doc.orcid_other[index]
+                      : undefined;
+                  return (
+                    <div key={a} className={authorClass}>
+                      <Link
+                        href={`/search?q=${encodeURIComponent(`author:"${a}"`)}&sort=${encodeURIComponent(
+                          'date desc, bibcode desc',
+                        )}`}
+                      >
+                        <a className={authorNameClass}>{a}</a>
+                      </Link>
+                      {'  '}
+                      {orcid && (
+                        <Link
+                          href={`/search?q=${encodeURIComponent(`orcid:${orcid}`)}&sort=${encodeURIComponent(
+                            `date desc, bibcode desc`,
+                          )}`}
+                        >
+                          <a style={{ height: 20 }}>
+                            <Image src="/img/orcid-active.svg" width="20" height="20" alt="Search by ORCID" />
+                          </a>
+                        </Link>
+                      )}
+                      {'  '}
+                      {aff.show ? <>({aff.data[index]})</> : null}
+                      ;&nbsp;
+                    </div>
+                  );
+                })}
+                &nbsp;
+                {doc.author.length > showNumAuthors ? (
+                  <a onClick={handleShowAllAuthors} className="link">
+                    ... more
+                  </a>
+                ) : null}
+              </div>
+            </div>
+
+            <AbstractSources doc={doc} />
+            {isNil(doc.abstract) ? (
+              <div className="prose-lg p-3">No Abstract</div>
+            ) : (
+              <div className="prose-lg p-3" dangerouslySetInnerHTML={{ __html: doc.abstract }}></div>
+            )}
+            <Details doc={doc} />
+          </>
         )}
-        <Details doc={doc} />
       </article>
     </AbsLayout>
   );
@@ -240,15 +245,14 @@ export const getServerSideProps: GetServerSideProps<IAbstractPageProps> = async 
   const adsapi = new AdsApi({ token: userData.access_token });
   const result = await adsapi.search.query(params);
 
-  if (result.isErr()) {
-    return { props: { error: result.error } };
-  }
-
-  const doc = result.value.docs[0];
-  return {
-    props: {
-      doc,
-      params,
-    },
-  };
+  return result.isErr()
+    ? { props: { error: 'Unable to get abstract' } }
+    : result.value.numFound === 0
+    ? { notFound: true }
+    : {
+        props: {
+          doc: result.value.docs[0],
+          params,
+        },
+      };
 };
