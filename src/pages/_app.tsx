@@ -1,4 +1,5 @@
 import { Layout } from '@components';
+import { ApiProvider } from '@providers/api';
 import { AppProvider, useAppCtx } from '@store';
 import { Theme } from '@types';
 import { isBrowser } from '@utils';
@@ -21,11 +22,13 @@ type NectarAppProps = { session: IncomingMessage['session'] } & AppProps;
 const NectarApp = ({ Component, pageProps, session }: NectarAppProps) => {
   return (
     <AppProvider session={session}>
+      <ApiProvider>
       <ThemeRouter />
       <TopProgressBar />
       <Layout>
         <Component {...pageProps} />
       </Layout>
+      </ApiProvider>
     </AppProvider>
   );
 };
