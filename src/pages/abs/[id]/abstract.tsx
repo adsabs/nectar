@@ -13,8 +13,8 @@ import { AbsLayout } from '@components/Layout/AbsLayout';
 import { useAPI } from '@hooks';
 export interface IAbstractPageProps {
   doc?: IDocsEntity;
-  error?: Error;
-  params: {
+  error?: string;
+  params?: {
     q: string;
     fl: string[];
     sort: SolrSort[];
@@ -172,6 +172,7 @@ interface IDetailsProps {
   doc: IDocsEntity;
 }
 const Details = ({ doc }: IDetailsProps) => {
+  // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
   const arxiv = ((doc.identifier || []) as string[]).find((v) => v.match(/^arxiv/i));
 
   const entries = [

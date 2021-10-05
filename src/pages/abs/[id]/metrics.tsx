@@ -9,7 +9,7 @@ import { ReadsTable } from '@components/Metrics/Reads/Table';
 interface IMetricsPageProps {
   metrics: IADSApiMetricsResponse;
   originalDoc: IDocsEntity;
-  error?: Error;
+  error?: string;
 }
 
 const MetricsPage: NextPage<IMetricsPageProps> = (props: IMetricsPageProps) => {
@@ -106,7 +106,7 @@ export const getServerSideProps: GetServerSideProps<IMetricsPageProps> = async (
   return originalDoc.notFound || originalDoc.error
     ? { notFound: true }
     : result.isErr()
-    ? { props: { metrics: [], originalDoc: originalDoc.doc, error: 'Unable to get results' } }
+    ? { props: { metrics: null, originalDoc: originalDoc.doc, error: 'Unable to get results' } }
     : {
         props: {
           metrics: result.value,

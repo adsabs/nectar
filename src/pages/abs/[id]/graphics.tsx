@@ -73,7 +73,7 @@ export const getServerSideProps: GetServerSideProps<IGraphicsPageProps> = async 
   return originalDoc.notFound || originalDoc.error
     ? { notFound: true }
     : result.isErr()
-    ? { props: { graphics: [], originalDoc: originalDoc.doc, error: 'Unable to get results' } }
+    ? { props: { graphics: null, originalDoc: originalDoc.doc, error: 'Unable to get results' } }
     : {
         props: {
           graphics: result.value,
