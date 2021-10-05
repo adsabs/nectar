@@ -1,5 +1,6 @@
 import { SolrSort, SolrSortDirection, SolrSortField } from '@api';
 import { DropdownList, SelectorLabel } from '@components/Dropdown';
+import { isBrowser } from '@utils';
 import clsx from 'clsx';
 import React, { useRef } from 'react';
 import { sortValues } from './model';
@@ -96,6 +97,30 @@ export const Sort = (props: ISortProps): React.ReactElement => {
     const dir = selected[1];
     return <SelectorLabel text={dir} classes={dirSelectorClasses} />;
   };
+
+  // non-js initially rendered on the server, will be swapped out for the full-featured one below when it hits client
+  if (!isBrowser()) {
+    return (
+      <div className="my-1">
+        <label htmlFor="sort" className="block text-gray-700 text-sm font-bold sr-only">
+          Sort
+        </label>
+        <select
+          id="sort"
+          name="sort"
+          className="block mt-1 pl-3 pr-10 py-2 w-full text-base border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 sm:text-sm"
+          defaultValue={sort}
+        >
+          {sortItems.map((item) => (
+            <>
+              <option value={`${item.id} asc`}>{item.label} asc</option>
+              <option value={`${item.id} desc`}>{item.label} desc</option>
+            </>
+          ))}
+        </select>
+      </div>
+    );
+  }
 
   return (
     <div>
