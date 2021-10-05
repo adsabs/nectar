@@ -7,10 +7,11 @@ import type { IncomingMessage } from 'http';
 import App, { AppContext, AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { IncomingMessage } from 'node:http';
 import 'nprogress/nprogress.css';
 // import 'public/katex/katex.css';
 import React, { useEffect } from 'react';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import 'tailwindcss/tailwind.css';
 import '../styles/styles.css';
 
@@ -24,11 +25,12 @@ const NectarApp = ({ Component, pageProps, session }: NectarAppProps): React.Rea
   return (
     <AppProvider session={session}>
       <ApiProvider>
-      <ThemeRouter />
-      <TopProgressBar />
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
+        <ThemeRouter />
+        <TopProgressBar />
+        <ToastContainer />
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
       </ApiProvider>
     </AppProvider>
   );
