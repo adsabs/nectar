@@ -10,7 +10,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { isNil } from 'ramda';
 import React, { useEffect, useState } from 'react';
-import { normalizeURLParams } from 'src/utils';
+import { normalizeURLParams, isBrowser } from 'src/utils';
 export interface IAbstractPageProps {
   doc?: IDocsEntity;
   error?: string;
@@ -88,25 +88,30 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
               <h2 className="prose-xl pb-5 text-gray-900 text-2xl font-medium leading-8" id="title">
                 {doc.title}
               </h2>
-              {aff.show ? (
-                <button className="badge ml-1" onClick={handleHideAff}>
-                  hide affiliations
-                </button>
-              ) : (
-                <button className="badge ml-1" onClick={handleShowAff}>
-                  show affiliations
-                </button>
-              )}
-              {doc.author.length > showNumAuthors ? (
-                <span>
-                  <button className="badge" onClick={handleShowAllAuthors}>
-                    show all authors
-                  </button>
-                </span>
-              ) : showNumAuthors > MAX_AUTHORS ? (
-                <button className="badge" onClick={handleShowLessAuthors}>
-                  show less authors
-                </button>
+              {isBrowser() ? (
+                <>
+                  {aff.show ? (
+                    <button className="badge ml-1" onClick={handleHideAff}>
+                      hide affiliations
+                    </button>
+                  ) : (
+                    <button className="badge ml-1" onClick={handleShowAff}>
+                      show affiliations
+                    </button>
+                  )}
+
+                  {doc.author.length > showNumAuthors ? (
+                    <span>
+                      <button className="badge" onClick={handleShowAllAuthors}>
+                        show all authors
+                      </button>
+                    </span>
+                  ) : showNumAuthors > MAX_AUTHORS ? (
+                    <button className="badge" onClick={handleShowLessAuthors}>
+                      show less authors
+                    </button>
+                  ) : null}
+                </>
               ) : null}
               <div className={authorsClass}>
                 {doc.author.slice(0, showNumAuthors).map((a, index) => {
@@ -146,7 +151,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                   );
                 })}
                 &nbsp;
-                {doc.author.length > showNumAuthors ? (
+                {isBrowser() && doc.author.length > showNumAuthors ? (
                   <a onClick={handleShowAllAuthors} className="link">
                     ... more
                   </a>

@@ -2,7 +2,8 @@ import { IDocsEntity } from '@api';
 import { DropdownList } from '@components';
 import { ItemType } from '@components/Dropdown/types';
 import { ChevronDownIcon, LockClosedIcon, LockOpenIcon } from '@heroicons/react/solid';
-import { useViewport, Viewport } from '@hooks';
+import { isBrowser } from '@utils';
+import Link from 'next/link';
 import { isNil } from 'ramda';
 import React, { HTMLAttributes } from 'react';
 import { IRelatedWorks, IDataProductSource, IFullTextSource, processLinkData } from './linkGenerator';
@@ -12,15 +13,13 @@ export interface IAbstractSourcesProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export const AbstractSources = ({ doc }: IAbstractSourcesProps): React.ReactElement => {
-  const viewport = useViewport();
-
   if (!doc) {
     return <button className="button-sm-inactive">Full Text Sources</button>;
   }
 
   const { esources } = doc;
   if (isNil(esources)) {
-    return <h3 className="leading-3">No Sources</h3>;
+    return <h3>No Sources</h3>;
   }
   const sources = processLinkData(doc, null);
 
@@ -28,7 +27,7 @@ export const AbstractSources = ({ doc }: IAbstractSourcesProps): React.ReactElem
     <section className="flex flex-wrap justify-start ml-0">
       <FullTextDropdown sources={sources.fullTextSources} />
       <DataProductDropdown dataProducts={sources.dataProducts} relatedWorks={[]} />
-      <button className="button-sm px-2">Add to library</button>
+      {isBrowser() ? <button className="button-sm px-2">Add to library</button> : null}
     </section>
   );
 };
@@ -53,6 +52,7 @@ const FullTextDropdown = (props: IFullTextDropdownProps): React.ReactElement => 
 
   const fullSourceItems = sources.map((source) => ({
     id: source.name,
+    text: source.name,
     label: source.open ? (
       <>
         <LockOpenIcon className="default-icon-sm inline" fill="green" />
@@ -75,25 +75,40 @@ const FullTextDropdown = (props: IFullTextDropdownProps): React.ReactElement => 
   };
 
   return (
-    <DropdownList
-      label={
-        sources.find((s) => s.open) !== undefined ? (
-          <>
-            Full Text Sources <LockOpenIcon className="default-icon-sm inline" />{' '}
-            <ChevronDownIcon className="default-icon-sm inline" />
-          </>
-        ) : (
-          'Full Text Sources'
-        )
-      }
-      items={fullSourceItems}
-      onSelect={handleSelect}
-      classes={fullSourceItems.length > 0 ? dropdownClasses : dropdownClassesInactive}
-      placement={'bottom-start'}
-      offset={[0, 2]}
-      role="list"
-      ariaLabel="Full Text Sources"
-    ></DropdownList>
+    <>
+      {isBrowser() ? (
+        <DropdownList
+          label={
+            sources.find((s) => s.open) !== undefined ? (
+              <>
+                Full Text Sources <LockOpenIcon className="default-icon-sm inline" />{' '}
+                <ChevronDownIcon className="default-icon-sm inline" />
+              </>
+            ) : (
+              'Full Text Sources'
+            )
+          }
+          items={fullSourceItems}
+          onSelect={handleSelect}
+          classes={fullSourceItems.length > 0 ? dropdownClasses : dropdownClassesInactive}
+          placement={'bottom-start'}
+          offset={[0, 2]}
+          role="list"
+          ariaLabel="Full Text Sources"
+        ></DropdownList>
+      ) : (
+        <>
+          <div className="flex flex-col">
+            <h3>Full Text Sources</h3>
+            {fullSourceItems.map((item) => (
+              <Link key={item.id} href={item.path}>
+                <a className="link">{item.label}</a>
+              </Link>
+            ))}
+          </div>
+        </>
+      )}
+    </>
   );
 };
 
@@ -156,16 +171,18 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): React.React
 
   return (
     <>
-      <DropdownList
-        label="Other Resources"
-        items={items}
-        onSelect={handleSelect}
-        classes={items.length > 0 ? dropdownClasses : dropdownClassesInactive}
-        placement={'bottom-start'}
-        offset={[0, 2]}
-        role="list"
-        ariaLabel="Other Resources"
-      ></DropdownList>
+      {isBrowser() ? (
+        <DropdownList
+          label="Other Resources"
+          items={items}
+          onSelect={handleSelect}
+          classes={items.length > 0 ? dropdownClasses : dropdownClassesInactive}
+          placement={'bottom-start'}
+          offset={[0, 2]}
+          role="list"
+          ariaLabel="Other Resources"
+        ></DropdownList>
+      ) : null}
     </>
   );
 };
