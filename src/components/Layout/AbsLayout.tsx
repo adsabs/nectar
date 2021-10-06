@@ -13,7 +13,7 @@ export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc }) => {
     <>
       <section className="abstract-page-container">
         <Head>
-          <title>{doc.title}</title>
+          <title>{doc ? doc.title : ''}</title>
         </Head>
         <AbstractSideNav doc={doc} />
         {children}
