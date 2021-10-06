@@ -2,48 +2,21 @@ export interface IADSApiMetricsParams {
   bibcode: string;
 }
 
-export interface ICitationsHistogram {
-  'nonrefereed to nonrefereed': {
-    year: number;
-  };
-  'nonrefereed to nonrefereed normalized': {
-    year: number;
-  };
-  'nonrefereed to refereed': {
-    year: number;
-  };
-  'nonrefereed to refereed normalized': {
-    year: number;
-  };
-  'refereed to nonrefereed': {
-    year: number;
-  };
-  'refereed to nonrefereed normalized': {
-    year: number;
-  };
-  'refereed to refereed': {
-    year: number;
-  };
-  'refereed to refereed normalized': {
-    year: number;
-  };
-}
+export type CitationsHistogramKey =
+  | 'nonrefereed to nonrefereed'
+  | 'nonrefereed to nonrefereed normalized'
+  | 'nonrefereed to refereed'
+  | 'nonrefereed to refereed normalized'
+  | 'refereed to nonrefereed'
+  | 'refereed to nonrefereed normalized'
+  | 'refereed to refereed'
+  | 'refereed to refereed normalized';
 
-export interface IReadsHistogram {
-  'all reads': {
-    year: number;
-  };
-  'all reads normalized': {
-    year: number;
-  };
-  'refereed reads': {
-    year: number;
-  };
-  'refereed reads normalized': {
-    year: number;
-  };
-}
+export type ICitationsHistogram = Record<CitationsHistogramKey, { year: number }>;
 
+export type ReadsHistogramKey = 'all reads' | 'all reads normalized' | 'refereed reads' | 'refereed reads normalized';
+
+export type IReadsHistogram = Record<ReadsHistogramKey, { year: number }>;
 export interface IADSApiMetricsResponse {
   'basic stats': {
     'average number of downloads': number;
