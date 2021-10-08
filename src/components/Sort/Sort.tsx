@@ -112,10 +112,10 @@ export const Sort = (props: ISortProps): React.ReactElement => {
           defaultValue={sort}
         >
           {sortItems.map((item) => (
-            <>
+            <span key={item.label}>
               <option value={`${item.id} asc`}>{item.label} asc</option>
               <option value={`${item.id} desc`}>{item.label} desc</option>
-            </>
+            </span>
           ))}
         </select>
       </div>

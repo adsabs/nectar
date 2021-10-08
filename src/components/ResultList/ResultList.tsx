@@ -8,6 +8,7 @@ import { ListActions } from './ListActions';
 import { Skeleton } from './Skeleton';
 import { useEffect } from 'react';
 import { useState } from 'react';
+import { isBrowser } from '@utils';
 export interface IResultListProps extends HTMLAttributes<HTMLDivElement> {
   docs: IDocsEntity[];
   hideCheckboxes?: boolean;
@@ -94,17 +95,21 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
 
   return (
     <article {...divProps} className="flex flex-col mt-1 space-y-1">
-      {isLoading || !showActions ? null : (
-        <ListActions
-          service={searchService}
-          selectedCount={selection.selectedCount}
-          totalCount={total}
-          onSortChange={handleSortChange}
-          onSelectAll={handleSelectAll}
-          onSelectNone={handleSelectNone}
-          onLimitedTo={handleLimitedTo}
-          onExclude={handleExclude}
-        />
+      {!isBrowser() ? null : (
+        <div>
+          {isLoading || !showActions ? null : (
+            <ListActions
+              service={searchService}
+              selectedCount={selection.selectedCount}
+              totalCount={total}
+              onSortChange={handleSortChange}
+              onSelectAll={handleSelectAll}
+              onSelectNone={handleSelectNone}
+              onLimitedTo={handleLimitedTo}
+              onExclude={handleExclude}
+            />
+          )}
+        </div>
       )}
       {isLoading ? (
         <Skeleton count={10} />
@@ -115,7 +120,7 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
               doc={doc}
               key={doc.id}
               index={indexStart + index}
-              hideCheckbox={hideCheckboxes}
+              hideCheckbox={!isBrowser() ? true : hideCheckboxes}
               set={selection.selectAll}
               clear={selection.selectNone}
               onSet={handleItemSet}

@@ -102,7 +102,9 @@ const FullTextDropdown = (props: IFullTextDropdownProps): React.ReactElement => 
             <h3>Full Text Sources</h3>
             {fullSourceItems.map((item) => (
               <Link key={item.id} href={item.path}>
-                <a className="link">{item.label}</a>
+                <a className="link" ref="noreferrer noopener" target="_blank">
+                  {item.label}
+                </a>
               </Link>
             ))}
           </div>
