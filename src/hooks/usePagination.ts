@@ -3,7 +3,7 @@ import { useSelector } from '@xstate/react';
 import { useRouter } from 'next/router';
 import qs from 'qs';
 import { clamp, range } from 'ramda';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 
 export interface IUsePagination {
   nextHref: string;
@@ -47,7 +47,7 @@ export const usePagination = (searchService: ISearchMachine): IUsePagination => 
   const [state, setState] = React.useState(initialState);
   const { query } = useRouter();
 
-  useEffect(() => {
+  useMemo(() => {
     const { p } = query;
     const page = parseInt(Array.isArray(p) ? p[0] : p) || 1;
     const totalPages = Math.ceil(totalResults / numPerPage) || 1;
