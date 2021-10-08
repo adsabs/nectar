@@ -4,6 +4,7 @@ import { ThemeDropdown } from './ThemeDropdown';
 import styles from './NavBar.module.css';
 import clsx from 'clsx';
 import { NavMenus } from './NavMenus';
+import { isBrowser } from '@utils';
 
 export const NavBar: FC = () => {
   const navbarClasses = clsx(styles['navbar-bg-color'], 'relative flex items-center');
@@ -22,7 +23,7 @@ export const NavBar: FC = () => {
       <a href="#main-content" className="flex items-center text-white focus:not-sr-only sr-only">
         Skip to content
       </a>
-      <NavMenus />
+      {!isBrowser() ? null : <NavMenus />}
     </nav>
   );
 };
