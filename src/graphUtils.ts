@@ -1,6 +1,6 @@
+import { CitationsHistogramType, ReadsHistogramType } from '@api';
 import { ICitationsTableData } from '@components/Metrics/Citations/Table';
 import { IReadsTableData } from '@components/Metrics/Reads/Table';
-import { ICitationsHistogram, IReadsHistogram } from './api/lib/metrics/types';
 
 export interface IGraphData {
   key: string;
@@ -65,7 +65,7 @@ export interface IReadTableInput {
   };
 }
 
-export const plotCitationsHist = (normalize: boolean, citationsHist: ICitationsHistogram): IGraphData[] => {
+export const plotCitationsHist = (normalize: boolean, citationsHist: CitationsHistogramType): IGraphData[] => {
   const returnArray: IPair[][] = [];
   let data: { year: number }[];
   const c = citationsHist;
@@ -113,7 +113,7 @@ export const plotCitationsHist = (normalize: boolean, citationsHist: ICitationsH
     });
 };
 
-export const plotReadsHist = (normalize: boolean, readsHist: IReadsHistogram): IGraphData[] => {
+export const plotReadsHist = (normalize: boolean, readsHist: ReadsHistogramType): IGraphData[] => {
   let data: { [key: string]: number | string }[];
   const returnArray: IPair[][] = [];
 
