@@ -19,7 +19,7 @@ export const NavBar: FC = () => {
           </a>
         </Link>
       </div>
-      <ThemeDropdown />
+      {!isBrowser() ? null : <ThemeDropdown />}
       <a href="#main-content" className="flex items-center text-white focus:not-sr-only sr-only">
         Skip to content
       </a>
