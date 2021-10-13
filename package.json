@@ -101,6 +101,7 @@
     "regenerator-runtime": "^0.13.7",
     "sharp": "^0.29.0",
     "storybook": "^6.2.9",
+    "storybook-addon-next-router": "^3.0.8",
     "tailwindcss": "^2.0.3",
     "transducist": "^2.2.0",
     "tsconfig-paths-webpack-plugin": "^3.5.1",
