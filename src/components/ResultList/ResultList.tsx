@@ -1,4 +1,4 @@
-import { IDocsEntity } from '@api';
+import { IDocsEntity, SolrSort } from '@api';
 import { ISearchMachine } from '@machines/lib/search/types';
 import { useSelector } from '@xstate/react';
 import React, { HTMLAttributes } from 'react';
@@ -15,6 +15,9 @@ export interface IResultListProps extends HTMLAttributes<HTMLDivElement> {
   isLoading?: boolean;
   service?: ISearchMachine;
   showActions: boolean;
+  query: string;
+  sort: SolrSort[];
+  page: number;
 }
 
 interface ISelection {
@@ -36,6 +39,9 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
     hideCheckboxes = false,
     service: searchService,
     showActions,
+    query,
+    sort,
+    page,
     ...divProps
   } = props;
 
@@ -95,22 +101,23 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
 
   return (
     <article {...divProps} className="flex flex-col mt-1 space-y-1">
-      {!isBrowser() ? null : (
-        <div>
-          {isLoading || !showActions ? null : (
-            <ListActions
-              service={searchService}
-              selectedCount={selection.selectedCount}
-              totalCount={total}
-              onSortChange={handleSortChange}
-              onSelectAll={handleSelectAll}
-              onSelectNone={handleSelectNone}
-              onLimitedTo={handleLimitedTo}
-              onExclude={handleExclude}
-            />
-          )}
-        </div>
-      )}
+      <div>
+        {isLoading || !showActions ? null : (
+          <ListActions
+            service={searchService}
+            selectedCount={selection.selectedCount}
+            totalCount={total}
+            onSortChange={handleSortChange}
+            onSelectAll={handleSelectAll}
+            onSelectNone={handleSelectNone}
+            onLimitedTo={handleLimitedTo}
+            onExclude={handleExclude}
+            query={query}
+            sort={sort}
+            page={page}
+          />
+        )}
+      </div>
       {isLoading ? (
         <Skeleton count={10} />
       ) : docs.length > 0 ? (

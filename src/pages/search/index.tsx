@@ -1,11 +1,10 @@
 import AdsApi, { IADSApiSearchParams, IDocsEntity, SolrSort } from '@api';
 import { NumFound, ResultList, SearchBar, Sort } from '@components';
 import { useSearchMachine } from '@machines';
-import { ISearchMachine, TransitionType } from '@machines/lib/search/types';
+import { TransitionType } from '@machines/lib/search/types';
 import { normalizeURLParams } from '@utils';
-import { useSelector } from '@xstate/react';
 import { GetServerSideProps, NextPage } from 'next';
-import React, { ChangeEvent, useCallback } from 'react';
+import React, { ChangeEvent } from 'react';
 
 interface ISearchPageProps {
   error?: string;
@@ -96,6 +95,9 @@ const Form = (props: IFormProps): React.ReactElement => {
               docs={result.docs as IDocsEntity[]}
               service={searchService}
               showActions={true}
+              query={query}
+              sort={sort}
+              page={page}
             />
           )}
         </div>

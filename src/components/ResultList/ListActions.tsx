@@ -1,6 +1,9 @@
 import { SolrSort } from '@api';
 import { Sort } from '@components';
+import { ISimpleLinkDropdownItem, SimpleLinkDropdown } from '@components/Dropdown/SimpleLinkDropdown';
+import { sortValues } from '@components/Sort/model';
 import { ISearchMachine, TransitionType } from '@machines/lib/search/types';
+import { isBrowser } from '@utils';
 import { useSelector } from '@xstate/react';
 import clsx from 'clsx';
 import React, { MouseEvent, useCallback, useState } from 'react';
@@ -9,6 +12,9 @@ interface IListActionProp {
   service?: ISearchMachine;
   selectedCount: number;
   totalCount: number;
+  query: string;
+  sort: SolrSort[];
+  page: number;
   onSortChange: () => void;
   onSelectAll: () => void;
   onSelectNone: () => void;
@@ -21,6 +27,9 @@ export const ListActions = (props: IListActionProp): React.ReactElement => {
     service: searchService,
     selectedCount,
     totalCount,
+    query,
+    sort: [sort, ...otherSorts],
+    page,
     onSelectAll,
     onSelectNone,
     onLimitedTo,
@@ -60,39 +69,65 @@ export const ListActions = (props: IListActionProp): React.ReactElement => {
 
   const linkBtn = clsx('link-button ml-4 h-5');
 
+  const sortItems = sortValues.reduce((result: ISimpleLinkDropdownItem[], s) => {
+    result.push({
+      id: `${s.id} desc`,
+      domId: `sortBy-${s.id}`,
+      path: `search?q=${query}&sort=${s.id} desc&p=${page}`,
+      label: `${s.id} desc`,
+    });
+
+    result.push({
+      id: `${s.id} asc`,
+      domId: `sortBy-${s.id}`,
+      path: `search?q=${query}&sort=${s.id} asc&p=${page}`,
+      label: `${s.id} asc`,
+    });
+
+    return result;
+  }, []);
+
   return (
-    <div>
-      <div className="sm:flex">
-        <div>
-          <button className={hlClass} onClick={toggleShowHighlight}>
-            Show Highlights
-          </button>
-        </div>
-        <SortWrapper service={searchService} />
-      </div>
-      <div className="flex flex-col items-start bg-gray-100 rounded-md lg:flex-row lg:items-center lg:justify-between">
-        <div className="order-2 lg:order-1">
-          <button className={selectedCount < totalCount ? linkBtn : linkBtnDisabled} onClick={handleSelectAll}>
-            Select All
-          </button>
-          <button className={selectedCount > 0 ? linkBtn : linkBtnDisabled} onClick={handleSelectNone}>
-            Select None
-          </button>
-          <button className={selectedCount > 0 ? linkBtn : linkBtnDisabled} onClick={handleLimitedTo}>
-            Limited To
-          </button>
-          <button className={selectedCount > 0 ? linkBtn : linkBtnDisabled} onClick={handleExclude}>
-            Exclude
-          </button>
-          <span className="m-2 h-5 text-sm">{selectedCount} Selected</span>
-        </div>
-        <div className="order-1 lg:order-2">
-          <button className="default-button ml-2">Add to Library</button>
-          <button className="default-button">Export</button>
-          <button className="default-button mr-2">Explore</button>
-        </div>
-      </div>
-    </div>
+    <>
+      {!isBrowser() ? (
+        <span>
+          <SimpleLinkDropdown items={sortItems} selected={sort} label="Sort"></SimpleLinkDropdown>
+        </span>
+      ) : (
+        <>
+          <div className="sm:flex">
+            <div>
+              <button className={hlClass} onClick={toggleShowHighlight}>
+                Show Highlights
+              </button>
+            </div>
+            <SortWrapper service={searchService} />
+          </div>
+          <div className="flex flex-col items-start bg-gray-100 rounded-md lg:flex-row lg:items-center lg:justify-between">
+            <div className="order-2 lg:order-1">
+              <button className={selectedCount < totalCount ? linkBtn : linkBtnDisabled} onClick={handleSelectAll}>
+                Select All
+              </button>
+              <button className={selectedCount > 0 ? linkBtn : linkBtnDisabled} onClick={handleSelectNone}>
+                Select None
+              </button>
+              <button className={selectedCount > 0 ? linkBtn : linkBtnDisabled} onClick={handleLimitedTo}>
+                Limited To
+              </button>
+              <button className={selectedCount > 0 ? linkBtn : linkBtnDisabled} onClick={handleExclude}>
+                Exclude
+              </button>
+              <span className="m-2 h-5 text-sm">{selectedCount} Selected</span>
+            </div>
+            <div className="order-1 lg:order-2">
+              <button className="default-button ml-2">Add to Library</button>
+              <button className="default-button">Export</button>
+              <button className="default-button mr-2">Explore</button>
+            </div>
+          </div>
+        </>
+      )}
+    </>
   );
 };
 
