@@ -1,13 +1,12 @@
-import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
-import { AbsLayout } from '@components/Layout/AbsLayout';
 import AdsApi, { IADSApiGraphicsParams, IADSApiGraphicsResponse, IDocsEntity, IUserData } from '@api';
-import React from 'react';
-import { getDocument, normalizeURLParams } from '@utils'; 
+import { AbsLayout } from '@components/Layout/AbsLayout';
+import { getDocument, normalizeURLParams } from '@utils';
+import { GetServerSideProps, NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 interface IGraphicsPageProps {
-  graphics: IADSApiGraphicsResponse;
+  graphics?: IADSApiGraphicsResponse;
   originalDoc: IDocsEntity;
   error?: string;
 }
@@ -21,7 +20,7 @@ const GraphicsPage: NextPage<IGraphicsPageProps> = (props: IGraphicsPageProps) =
           <h2 className="prose-xl text-gray-900 font-medium leading-6" id="title">
             <em>Graphics from</em> <strong>{originalDoc.title}</strong>
           </h2>
-          <div className="my-2" dangerouslySetInnerHTML={{ __html: graphics.header }}></div>
+          {error ?? <div className="my-2" dangerouslySetInnerHTML={{ __html: graphics.header }}></div>}
         </div>
         {error ? (
           <div className="flex items-center justify-center w-full h-full text-xl">{error}</div>
@@ -73,7 +72,7 @@ export const getServerSideProps: GetServerSideProps<IGraphicsPageProps> = async 
   return originalDoc.notFound || originalDoc.error
     ? { notFound: true }
     : result.isErr()
-    ? { props: { graphics: {}, originalDoc: originalDoc.doc, error: 'Unable to get results' } }
+    ? { props: { originalDoc: originalDoc.doc, error: 'Unable to get results' } }
     : {
         props: {
           graphics: result.value,

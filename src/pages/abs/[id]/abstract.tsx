@@ -14,7 +14,7 @@ import { normalizeURLParams } from 'src/utils';
 
 export interface IAbstractPageProps {
   doc?: IDocsEntity;
-  error?: Error;
+  error?: string;
   params: {
     q: string;
     fl: string[];
