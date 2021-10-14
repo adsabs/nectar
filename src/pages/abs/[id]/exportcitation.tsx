@@ -1,9 +1,8 @@
 import Adsapi, { IDocsEntity } from '@api';
 import { ExportApiFormat, isExportApiFormat } from '@api/lib/export';
 import { Export } from '@components';
-import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 import { AbsLayout } from '@components/Layout/AbsLayout';
-import { normalizeURLParams } from '@utils';
+import { getDocument, getHasGraphics, getHasMetrics, normalizeURLParams } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import React from 'react';
 
@@ -12,11 +11,20 @@ interface IExportCitationPageProps {
   text?: string;
   format: ExportApiFormat;
   originalDoc: IDocsEntity;
+  hasGraphics: boolean;
+  hasMetrics: boolean;
 }
 
-const ExportCitationPage: NextPage<IExportCitationPageProps> = ({ originalDoc, bibcode, text, format }) => {
+const ExportCitationPage: NextPage<IExportCitationPageProps> = ({
+  originalDoc,
+  bibcode,
+  text,
+  format,
+  hasMetrics,
+  hasGraphics,
+}) => {
   return (
-    <AbsLayout doc={originalDoc}>
+    <AbsLayout doc={originalDoc} hasGraphics={hasGraphics} hasMetrics={hasMetrics}>
       <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
         <div className="pb-1">
           <h2 className="prose-xl text-gray-900 font-medium leading-8" id="title">
@@ -30,14 +38,6 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = ({ originalDoc, b
   );
 };
 
-const getOriginalDoc = async (api: Adsapi, id: string) => {
-  const result = await api.search.query({
-    q: `identifier:${id}`,
-    fl: [...abstractPageNavDefaultQueryFields, 'title'],
-  });
-  return result.unwrapOr(null).docs[0];
-};
-
 export const getServerSideProps: GetServerSideProps<IExportCitationPageProps> = async (ctx) => {
   const query = normalizeURLParams(ctx.query);
   const { access_token: token } = ctx.req.session.userData;
@@ -48,27 +48,35 @@ export const getServerSideProps: GetServerSideProps<IExportCitationPageProps> = 
     format,
   });
 
-  const originalDoc = await getOriginalDoc(adsapi, query.id);
-  console.log(originalDoc);
+  const originalDoc = await getDocument(adsapi, query.id);
+  const hasGraphics =
+    !originalDoc.notFound && !originalDoc.error ? await getHasGraphics(adsapi, originalDoc.doc.bibcode) : false;
+  const hasMetrics =
+    !originalDoc.notFound && !originalDoc.error ? await getHasMetrics(adsapi, originalDoc.doc.bibcode) : false;
 
-  if (result.isErr() || originalDoc === null) {
-    return {
-      props: {
-        bibcode: query.id,
-        format,
-        originalDoc,
-      },
-    };
-  }
-
-  return {
-    props: {
-      bibcode: query.id,
-      format,
-      text: result.value,
-      originalDoc,
-    },
-  };
+  return originalDoc.notFound || originalDoc.error
+    ? { notFound: true }
+    : result.isErr()
+    ? {
+        props: {
+          bibcode: query.id,
+          format,
+          originalDoc: originalDoc.doc,
+          hasGraphics,
+          hasMetrics,
+          error: 'Unable to get results',
+        },
+      }
+    : {
+        props: {
+          bibcode: query.id,
+          format,
+          text: result.value,
+          originalDoc: originalDoc.doc,
+          hasGraphics,
+          hasMetrics,
+        },
+      };
 };
 
 export default ExportCitationPage;
