@@ -1,20 +1,20 @@
 import AdsApi, { IDocsEntity, IUserData, SolrSort } from '@api';
 import { AbstractSources } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
+import { createUrlByType } from '@components/AbstractSources/linkGenerator';
+import { AbsLayout } from '@components/Layout/AbsLayout';
+import { useAPI } from '@hooks';
+import clsx from 'clsx';
 import { GetServerSideProps, NextPage } from 'next';
+import Image from 'next/image';
+import Link from 'next/link';
 import { isNil } from 'ramda';
 import React, { useEffect, useState } from 'react';
 import { getHasGraphics, getHasMetrics, normalizeURLParams } from 'src/utils';
-import Link from 'next/link';
-import Image from 'next/image';
-import { createUrlByType } from '@components/AbstractSources/linkGenerator';
-import clsx from 'clsx';
-import { AbsLayout } from '@components/Layout/AbsLayout';
-import { useAPI } from '@hooks';
 export interface IAbstractPageProps {
   doc?: IDocsEntity;
   error?: string;
-  params?: {
+  params: {
     q: string;
     fl: string[];
     sort: SolrSort[];
@@ -174,8 +174,7 @@ interface IDetailsProps {
   doc: IDocsEntity;
 }
 const Details = ({ doc }: IDetailsProps) => {
-  // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
-  const arxiv = ((doc.identifier || []) as string[]).find((v) => v.match(/^arxiv/i));
+  const arxiv = (doc.identifier ?? []).find((v) => /^arxiv/i.exec(v));
 
   const entries = [
     { label: 'Publication', value: doc.pub },
@@ -253,7 +252,7 @@ export const getServerSideProps: GetServerSideProps<IAbstractPageProps> = async 
     result.isOk() && result.value.numFound > 0 ? await getHasMetrics(adsapi, result.value.docs[0].bibcode) : false;
 
   return result.isErr()
-    ? { props: { doc: null, hasGraphics, hasMetrics, error: 'Unable to get abstract' } }
+    ? { props: { doc: null, hasGraphics, hasMetrics, params, error: 'Unable to get abstract' } }
     : result.value.numFound === 0
     ? { notFound: true }
     : {

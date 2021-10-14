@@ -119,7 +119,7 @@ export enum ApiTargets {
   SEARCH = 'search/query',
   QTREE = 'search/qtree',
   BIGQUERY = 'search/bigquery',
-  EXPORT = 'export/',
+  EXPORT = 'export',
   SERVICE_AUTHOR_NETWORK = 'vis/author-network',
   SERVICE_PAPER_NETWORK = 'vis/paper-network',
   SERVICE_WORDCLOUD = 'vis/word-cloud',

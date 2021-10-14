@@ -1,21 +1,10 @@
-import Adsapi from '@api';
-import { IServiceConfig } from '@api/lib/service';
-import { useAppCtx } from '@store';
-import { useEffect, useRef } from 'react';
+import { APIContext, apiCtx } from '@providers/api';
+import React from 'react';
 
-export const useAPI = (config?: IServiceConfig) => {
-  const {
-    state: {
-      user: { access_token: token },
-    },
-  } = useAppCtx();
-  const apiInstance = useRef<Adsapi>(new Adsapi({ ...config, token }));
-
-  useEffect(() => {
-    if (token.length > 0) {
-      apiInstance.current = new Adsapi({ ...config, token });
-    }
-  }, [token, config]);
-
-  return { api: apiInstance.current };
+export const useAPI = (): APIContext => {
+  const context = React.useContext(apiCtx);
+  if (typeof context === 'undefined') {
+    throw new Error('no provider for AppContext');
+  }
+  return { api: context.api };
 };

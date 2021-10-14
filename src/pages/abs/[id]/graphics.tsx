@@ -1,13 +1,12 @@
-import AdsApi, { IADSApiGraphicsParams, IDocsEntity, IUserData } from '@api';
 import { GetServerSideProps, NextPage } from 'next';
 import React from 'react';
 import { getDocument, normalizeURLParams, getHasGraphics, getHasMetrics } from '@utils';
-import { IADSApiGraphicsResponse } from '@api/lib/graphics/types';
 import Link from 'next/link';
-import Image from 'next/image';
+import AdsApi, { IADSApiGraphicsParams, IADSApiGraphicsResponse, IDocsEntity, IUserData } from '@api';
 import { AbsLayout } from '@components/Layout/AbsLayout';
+import Image from 'next/image';
 interface IGraphicsPageProps {
-  graphics: IADSApiGraphicsResponse;
+  graphics?: IADSApiGraphicsResponse;
   originalDoc: IDocsEntity;
   error?: string;
   hasGraphics: boolean;
@@ -23,7 +22,7 @@ const GraphicsPage: NextPage<IGraphicsPageProps> = (props: IGraphicsPageProps) =
           <h2 className="prose-xl text-gray-900 font-medium leading-6" id="title">
             <em>Graphics from</em> <strong>{originalDoc.title}</strong>
           </h2>
-          <div className="my-2" dangerouslySetInnerHTML={{ __html: graphics.header }}></div>
+          {error ?? <div className="my-2" dangerouslySetInnerHTML={{ __html: graphics.header }}></div>}
         </div>
         {error ? (
           <div className="flex items-center justify-center w-full h-full text-xl">{error}</div>

@@ -9,6 +9,7 @@ export type {
   IADSApiMetricsResponse,
   ReadsHistogramType,
 } from './lib/metrics/types';
+export type { ExportApiFormat, IExportApiParams, IExportApiResponse, isExportApiFormat } from './lib/export/types';
 export type { SolrField, SolrSort, SolrSortDirection, SolrSortField } from './lib/models';
 export type { IADSApiReferenceParams, IADSApiReferenceResponse } from './lib/reference/types';
 export type {
