@@ -25,10 +25,12 @@ export interface IAbstractPageProps {
 
 const MAX_AUTHORS = 20;
 
+const MAX_AUTHORS_STATIC = 50;
+
 const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) => {
   const { doc, error, params, hasGraphics, hasMetrics } = props;
 
-  const [showNumAuthors, setShowNumAuthors] = useState<number>(MAX_AUTHORS);
+  const [showNumAuthors, setShowNumAuthors] = useState<number>(isBrowser() ? MAX_AUTHORS : MAX_AUTHORS_STATIC);
 
   const [aff, setAff] = useState({ show: false, data: [] as string[] });
 
@@ -124,7 +126,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                       ? doc.orcid_other[index]
                       : undefined;
                   return (
-                    <div key={a} className={authorClass}>
+                    <div key={index} className={authorClass}>
                       <Link
                         href={`/search?q=${encodeURIComponent(`author:"${a}"`)}&sort=${encodeURIComponent(
                           'date desc, bibcode desc',
@@ -155,6 +157,9 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                   <a onClick={handleShowAllAuthors} className="link">
                     ... more
                   </a>
+                ) : null}
+                {!isBrowser() && doc.author.length > showNumAuthors ? (
+                  <span>{` and ${doc.author.length - showNumAuthors} more`}</span>
                 ) : null}
               </div>
             </div>
