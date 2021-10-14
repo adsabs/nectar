@@ -31,7 +31,7 @@ const baseConfig: IServiceConfig = {
       Accept: 'application/json',
     },
   },
-  debug: true,
+  debug: process.env.NODE_ENV === 'development',
 };
 
 const loggerConfig: RequestLogConfig = {
@@ -61,6 +61,10 @@ export class Service {
         return AxiosLogger.requestLogger(request, loggerConfig);
       });
     }
+  }
+
+  public getAxiosInstance(): AxiosInstance {
+    return this.service;
   }
 
   protected async request<T>(config: AxiosRequestConfig = {}): Promise<Result<T, Error>> {

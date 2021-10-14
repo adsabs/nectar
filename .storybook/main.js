@@ -15,14 +15,13 @@ module.exports = {
         },
       },
     },
+    'storybook-addon-next-router',
   ],
   typescript: {
     check: true,
   },
   webpackFinal: async (config) => {
-    [].push.apply(config.resolve.plugins, [
-      new TsconfigPathsPlugin({ extensions: config.resolve.extensions }),
-    ]);
+    [].push.apply(config.resolve.plugins, [new TsconfigPathsPlugin({ extensions: config.resolve.extensions })]);
 
     return config;
   },

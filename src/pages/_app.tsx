@@ -1,14 +1,17 @@
 import { Layout } from '@components';
+import { ApiProvider } from '@providers/api';
 import { AppProvider, useAppCtx } from '@store';
 import { Theme } from '@types';
 import { isBrowser } from '@utils';
+import type { IncomingMessage } from 'http';
 import App, { AppContext, AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { IncomingMessage } from 'node:http';
 import 'nprogress/nprogress.css';
 // import 'public/katex/katex.css';
 import React, { useEffect } from 'react';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import 'tailwindcss/tailwind.css';
 import '../styles/styles.css';
 
@@ -18,14 +21,17 @@ const TopProgressBar = dynamic(() => import('@components/TopProgressBar').then((
 
 type NectarAppProps = { session: IncomingMessage['session'] } & AppProps;
 
-const NectarApp = ({ Component, pageProps, session }: NectarAppProps) => {
+const NectarApp = ({ Component, pageProps, session }: NectarAppProps): React.ReactElement => {
   return (
     <AppProvider session={session}>
-      <ThemeRouter />
-      <TopProgressBar />
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
+      <ApiProvider>
+        <ThemeRouter />
+        <TopProgressBar />
+        <ToastContainer />
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </ApiProvider>
     </AppProvider>
   );
 };

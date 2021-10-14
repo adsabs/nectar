@@ -7,6 +7,8 @@ export const reducer: React.Reducer<IAppState, Action> = (state, action) => {
       return { ...state, user: action.payload };
     case AppEvent.SET_THEME:
       return { ...state, theme: action.payload };
+    case AppEvent.SET_CURRENT_QUERY:
+      return { ...state, query: action.payload };
     default:
       return state;
   }

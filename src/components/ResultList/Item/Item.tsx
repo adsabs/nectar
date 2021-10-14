@@ -1,14 +1,14 @@
 import { IDocsEntity } from '@api';
+import { DatabaseIcon, DocumentTextIcon, ViewListIcon } from '@heroicons/react/outline';
 import { useMachine } from '@xstate/react';
 import clsx from 'clsx';
 import Link from 'next/link';
 import React from 'react';
 import { AbstractPreview } from './AbstractPreview';
 import { itemMachine, ItemMachine } from './machine/item';
-import { DocumentTextIcon, ViewListIcon, DatabaseIcon } from '@heroicons/react/outline';
 
 interface IItemProps {
-  doc: Pick<IDocsEntity, 'id' | 'bibcode'> & Partial<IDocsEntity>;
+  doc: IDocsEntity;
   index: number;
   hideCheckbox: boolean;
   set?: boolean;
@@ -18,7 +18,7 @@ interface IItemProps {
 
 export const Item = (props: IItemProps): React.ReactElement => {
   const { doc, index, hideCheckbox = false, set, clear, onSet } = props;
-  const { bibcode, pubdate, title = 'Untitled', author = [], id, citation } = doc;
+  const { bibcode, pubdate, title = ['Untitled'], author = [], id, citation } = doc;
   const [state, send] = useMachine(itemMachine.withContext({ id }), {
     devTools: true,
   });
@@ -53,7 +53,7 @@ export const Item = (props: IItemProps): React.ReactElement => {
             id={`result-checkbox-${index}`}
             onChange={handleSelect}
             checked={state.matches('selected')}
-            aria-label={title}
+            aria-label={title[0]}
           />
         </div>
       )}
@@ -77,7 +77,7 @@ export const Item = (props: IItemProps): React.ReactElement => {
         <div className="flex flex-col px-2 py-3">
           <Link href={`/abs/${bibcode}`}>
             <a className="text-blue-700 hover:underline">
-              <h3 className="text-lg" id={`result-${id}`} dangerouslySetInnerHTML={{ __html: title }}></h3>
+              <h3 className="text-lg" id={`result-${id}`} dangerouslySetInnerHTML={{ __html: title[0] }}></h3>
             </a>
           </Link>
           {author.length > 0 && <div className="text-s">{author.slice(0, 3).join('; ')}</div>}

@@ -1,5 +1,5 @@
 import Adsapi, { IADSApiSearchParams } from '@api';
-import { useAppCtx } from '@store';
+import { AppEvent, useAppCtx } from '@store';
 import { useInterpret, useSelector } from '@xstate/react';
 import { useRouter } from 'next/router';
 import qs from 'qs';
@@ -16,6 +16,7 @@ export interface IUseSearchMachineProps {
 export function useSearchMachine(props: IUseSearchMachineProps = {}) {
   const { initialResult, initialParams, initialPagination } = props;
   const {
+    dispatch,
     state: {
       user: { access_token: token },
     },
@@ -51,6 +52,8 @@ export function useSearchMachine(props: IUseSearchMachineProps = {}) {
           console.error(result.error);
           throw result.error;
         }
+
+        dispatch({ type: AppEvent.SET_CURRENT_QUERY, payload: params });
 
         // update the url with the updated query and sort
         const queryParams = qs.stringify({ q, sort, p: ctx.pagination.page }, { arrayFormat: 'comma' });

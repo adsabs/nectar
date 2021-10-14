@@ -1,11 +1,10 @@
-import { ReactElement, useState } from 'react';
 import { DropdownList, SelectorLabel } from '@components/Dropdown';
+import { ItemType } from '@components/Dropdown/types';
 import { AppEvent, useAppCtx } from '@store';
 import { Theme } from '@types';
-import styles from './NavBar.module.css';
 import clsx from 'clsx';
-import { ItemType } from '@components/Dropdown/types';
-import { useEffect } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
+import styles from './NavBar.module.css';
 
 const themes: ItemType[] = [
   {
@@ -63,7 +62,7 @@ export const ThemeDropdown = (): ReactElement => {
   const getLabelNode = (itemId: string) => {
     const label = themes.find((item) => item.id === itemId).label;
 
-    return <SelectorLabel text={label} classes={selectorClasses} />;
+    return <SelectorLabel text={label as string} classes={selectorClasses} />;
   };
 
   const handleOnSelect = (themeId: Theme) => {
