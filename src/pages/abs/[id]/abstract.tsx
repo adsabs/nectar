@@ -179,7 +179,7 @@ interface IDetailsProps {
   doc: IDocsEntity;
 }
 const Details = ({ doc }: IDetailsProps) => {
-  const arxiv = (doc.identifier ?? []).find((v) => /^arxiv/i.exec(v));
+  const arxiv = (doc.identifier ?? ([] as string[])).find((v) => /^arxiv/i.exec(v));
 
   const entries = [
     { label: 'Publication', value: doc.pub },
