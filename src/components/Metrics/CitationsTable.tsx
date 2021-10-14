@@ -2,19 +2,7 @@ import { Popover } from '@components/Popover/Popover';
 import { QuestionMarkCircleIcon } from '@heroicons/react/solid';
 import clsx from 'clsx';
 import React, { ReactElement } from 'react';
-
-export interface ICitationsTableData {
-  numberOfCitingPapers: number[];
-  totalCitations: number[];
-  numberOfSelfCitations: number[];
-  averageCitations: number[];
-  medianCitations: number[];
-  normalizedCitations: number[];
-  refereedCitations: number[];
-  averageRefereedCitations: number[];
-  medianRefereedCitations: number[];
-  normalizedRefereedCitations: number[];
-}
+import { ICitationsTableData } from './types';
 
 export interface ICitationsTableProps {
   data: ICitationsTableData;

@@ -2,15 +2,7 @@ import { Popover } from '@components/Popover/Popover';
 import { QuestionMarkCircleIcon } from '@heroicons/react/solid';
 import clsx from 'clsx';
 import { ReactElement } from 'react';
-
-export interface IReadsTableData {
-  totalNumberOfReads: number[];
-  averageNumberOfReads: number[];
-  medianNumberOfReads: number[];
-  totalNumberOfDownloads: number[];
-  averageNumberOfDownloads: number[];
-  medianNumberOfDownloads: number[];
-}
+import { IReadsTableData } from './types';
 
 export interface IReadsTableProps {
   data: IReadsTableData;
