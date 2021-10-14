@@ -13,6 +13,7 @@ interface IExportCitationPageProps {
   originalDoc: IDocsEntity;
   hasGraphics: boolean;
   hasMetrics: boolean;
+  error?: string;
 }
 
 const ExportCitationPage: NextPage<IExportCitationPageProps> = ({
@@ -22,6 +23,7 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = ({
   format,
   hasMetrics,
   hasGraphics,
+  error,
 }) => {
   return (
     <AbsLayout doc={originalDoc} hasGraphics={hasGraphics} hasMetrics={hasMetrics}>
@@ -31,8 +33,11 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = ({
             <span>Export citation for</span> <div className="text-2xl">{originalDoc.title}</div>
           </h2>
         </div>
-
-        <Export initialBibcodes={[bibcode]} initialText={text} initialFormat={format} singleMode />
+        {error ? (
+          <div className="flex items-center justify-center w-full h-full text-xl">{error}</div>
+        ) : (
+          <Export initialBibcodes={[bibcode]} initialText={text} initialFormat={format} singleMode />
+        )}
       </article>
     </AbsLayout>
   );
