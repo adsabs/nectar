@@ -117,26 +117,26 @@ const Input = React.forwardRef<HTMLInputElement, ControllerStateAndHelpers<Typea
   return (
     <div {...getRootProps()}>
       <div className="flex mt-1 rounded-md shadow-sm">
-        <div className="relative flex items-stretch flex-grow focus-within:z-10">
+        <div className="relative focus-within:z-10 flex flex-grow items-stretch">
           <input
             type="text"
             name="q"
             {...inputProps}
             ref={ref}
-            className="block w-full pl-2 border-r-0 border-gray-300 rounded-none focus:border-r-2 focus:border-indigo-500 rounded-l-md focus:ring-indigo-500 sm:text-sm"
+            className="block pl-2 w-full border-r-0 focus:border-r-2 border-gray-300 focus:border-indigo-500 rounded-l-md rounded-none focus:ring-indigo-500 sm:text-sm"
             placeholder="Search"
           />
           {showClearBtn && (
             <button
               type="button"
               onClick={handleClear}
-              className="px-3 py-2 text-lg border-t border-b border-gray-300 flex-end"
+              className="flex-end px-3 py-2 text-lg border-b border-t border-gray-300"
             >
               <XIcon className="w-6 h-6" />
             </button>
           )}
         </div>
-        <button className="relative inline-flex items-center px-4 py-2 -ml-px space-x-2 text-sm font-medium bg-blue-600 border border-blue-600 hover:bg-blue-500 focus:border-blue-500 rounded-r-md focus:outline-none focus:ring-blue-500 focus:ring-1">
+        <button className="relative inline-flex items-center -ml-px px-4 py-2 text-sm font-medium hover:bg-blue-500 bg-blue-600 border focus:border-blue-500 border-blue-600 rounded-r-md focus:outline-none space-x-2 focus:ring-1 focus:ring-blue-500">
           <SearchIcon className="w-5 h-5 text-white" aria-hidden="true" />
           <span className="sr-only">Search</span>
         </button>
@@ -187,7 +187,7 @@ const Menu = (props: ControllerStateAndHelpers<TypeaheadOption>) => {
   const options = useMemo(() => filterOptions(inputValue), [inputValue, filterOptions]);
   const renderList = () => {
     return options.length > 0 ? (
-      <div className="absolute w-full mt-1 origin-top-right bg-white divide-y-2 divide-gray-100 rounded-b-sm shadow-md left-1 focus:outline-none ring-black ring-opacity-5 ring-1">
+      <div className="absolute left-1 mt-1 w-full bg-white rounded-b-sm focus:outline-none shadow-md divide-gray-100 divide-y-2 origin-top-right ring-1 ring-black ring-opacity-5">
         {options.map(renderItem)}
       </div>
     ) : null;
