@@ -1,5 +1,5 @@
 import AdsApi, { IDocsEntity, IUserData, SolrSort } from '@api';
-import { AbstractSources } from '@components';
+import { AbstractSources, metatagsQueryFields } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 import { createUrlByType } from '@components/AbstractSources/linkGenerator';
 import { AbsLayout } from '@components/Layout/AbsLayout';
@@ -234,23 +234,14 @@ export const getServerSideProps: GetServerSideProps<IAbstractPageProps> = async 
     q: `identifier:${query.id}`,
     fl: [
       ...abstractPageNavDefaultQueryFields,
-      'identifier',
-      'bibcode',
-      'title',
-      'author',
+      ...metatagsQueryFields,
       'author_count',
-      'pubdate',
-      'abstract',
-      'doi',
-      'data',
-      'keyword',
-      'pub',
       'comment',
-      'esources',
-      'property',
+      'data',
       'orcid_pub',
       'orcid_user',
       'orcid_other',
+      'property',
     ],
     sort: query.sort ? (query.sort.split(',') as SolrSort[]) : [],
   };

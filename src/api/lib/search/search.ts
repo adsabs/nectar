@@ -1,4 +1,4 @@
-import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
+import { SolrField } from '@api';
 import { AxiosError, AxiosRequestConfig } from 'axios';
 import { err, ok, Result } from 'neverthrow';
 import { ApiTargets } from '../models';
@@ -35,10 +35,10 @@ export class SearchService extends Service {
     });
   }
 
-  async getDocument(id: string): Promise<IDocument> {
+  async getDocument(identifier: string, fields: SolrField[]): Promise<IDocument> {
     const result = await this.query({
-      q: `identifier:${id}`,
-      fl: [...abstractPageNavDefaultQueryFields, 'title', 'bibcode'],
+      q: `identifier:${identifier}`,
+      fl: fields,
     });
 
     return result.isErr()

@@ -1,6 +1,7 @@
 import Adsapi, { IDocsEntity } from '@api';
 import { ExportApiFormat, isExportApiFormat } from '@api/lib/export';
-import { Export } from '@components';
+import { Export, metatagsQueryFields } from '@components';
+import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { normalizeURLParams } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
@@ -52,7 +53,10 @@ export const getServerSideProps: GetServerSideProps<IExportCitationPageProps> = 
     format,
   });
 
-  const originalDoc = await adsapi.search.getDocument(query.id);
+  const originalDoc = await adsapi.search.getDocument(query.id, [
+    ...abstractPageNavDefaultQueryFields,
+    ...metatagsQueryFields,
+  ]);
   const hasGraphics =
     !originalDoc.notFound && !originalDoc.error
       ? await adsapi.graphics.hasGraphics(adsapi, originalDoc.doc.bibcode)

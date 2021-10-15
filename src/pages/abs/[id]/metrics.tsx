@@ -1,5 +1,7 @@
 import AdsApi, { IADSApiMetricsParams, IDocsEntity, IUserData } from '@api';
 import { MetricsResponseKey, CitationsStatsKey, BasicStatsKey, IADSApiMetricsResponse } from '@api/lib/metrics/types';
+import { metatagsQueryFields } from '@components';
+import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { Metrics } from '@components/Metrics';
 import { normalizeURLParams } from '@utils';
@@ -55,7 +57,10 @@ export const getServerSideProps: GetServerSideProps<IMetricsPageProps> = async (
   };
   const adsapi = new AdsApi({ token: userData.access_token });
   const result = await adsapi.metrics.query(params);
-  const originalDoc = await adsapi.search.getDocument(query.id);
+  const originalDoc = await adsapi.search.getDocument(query.id, [
+    ...abstractPageNavDefaultQueryFields,
+    ...metatagsQueryFields,
+  ]);
   const hasGraphics =
     !originalDoc.notFound && !originalDoc.error ? await adsapi.graphics.hasGraphics(adsapi, params.bibcode) : false;
   const hasMetrics =

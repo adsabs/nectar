@@ -10,6 +10,7 @@ export * from './ListBox';
 export * from './Metrics';
 export * from './NavBar';
 export * from './NumFound';
+export * from './Metatags';
 export * from './ResultList';
 export * from './SearchBar';
 export * from './SearchExamples';
