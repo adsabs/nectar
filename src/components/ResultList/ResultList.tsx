@@ -1,14 +1,12 @@
 import { IDocsEntity, SolrSort } from '@api';
-import { ISearchMachine } from '@machines/lib/search/types';
-import { useSelector } from '@xstate/react';
-import React, { HTMLAttributes } from 'react';
-import { Item } from './Item/Item';
-import { Pagination } from './Pagination';
-import { ListActions } from './ListActions';
-import { Skeleton } from './Skeleton';
-import { useEffect } from 'react';
-import { useState } from 'react';
+import { ISearchMachine, TransitionType } from '@machines/lib/search/types';
 import { isBrowser } from '@utils';
+import { useSelector } from '@xstate/react';
+import React, { HTMLAttributes, ReactElement, useEffect, useState } from 'react';
+import { Item } from './Item/Item';
+import { ListActions } from './ListActions';
+import { Pagination } from './Pagination/Pagination';
+import { Skeleton } from './Skeleton';
 export interface IResultListProps extends HTMLAttributes<HTMLDivElement> {
   docs: IDocsEntity[];
   hideCheckboxes?: boolean;
@@ -36,7 +34,7 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
   const {
     docs = [],
     isLoading = false,
-    hideCheckboxes = false,
+    hideCheckboxes = !isBrowser(),
     service: searchService,
     showActions,
     query,
@@ -127,18 +125,29 @@ export const ResultList = (props: IResultListProps): React.ReactElement => {
               doc={doc}
               key={doc.id}
               index={indexStart + index}
-              hideCheckbox={!isBrowser() ? true : hideCheckboxes}
+              hideCheckbox={hideCheckboxes}
               set={selection.selectAll}
               clear={selection.selectNone}
               onSet={handleItemSet}
             />
           ))}
           {/* footer */}
-          <Pagination service={searchService} />
+          <PaginationWrapper searchService={searchService} />
         </>
       ) : (
         <div className="flex items-center justify-center text-lg">No Results Found</div>
       )}
     </article>
   );
+};
+
+const PaginationWrapper = ({ searchService }: { searchService: ISearchMachine }): ReactElement => {
+  const totalResults = useSelector(searchService, (state) => state.context.result.numFound);
+  const numPerPage = useSelector(searchService, (state) => state.context.pagination.numPerPage);
+
+  const updatePagination = (page: number) => {
+    searchService.send(TransitionType.SET_PAGINATION, { payload: { pagination: { page } } });
+  };
+
+  return <Pagination totalResults={totalResults} numPerPage={numPerPage} onPageChange={updatePagination} />;
 };

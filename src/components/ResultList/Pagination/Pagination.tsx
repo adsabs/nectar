@@ -1,31 +1,42 @@
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/solid';
-import { usePagination } from '@hooks';
-import { ISearchMachine } from '@machines/lib/search/types';
 import { isBrowser } from '@utils';
 import clsx from 'clsx';
 import Link from 'next/link';
 import React, { HTMLAttributes } from 'react';
+import { usePagination } from './usePagination';
 
 export interface IPaginationProps extends HTMLAttributes<HTMLDivElement> {
-  service: ISearchMachine;
+  totalResults: number;
+  numPerPage: number;
+  onPageChange: (page: number) => void;
 }
+
+const defaultProps = {
+  totalResults: 0,
+  numPerPage: 10,
+};
+
 export const Pagination = (props: IPaginationProps): React.ReactElement => {
-  const { service: searchService, ...divProps } = props;
+  const { totalResults, numPerPage, onPageChange, ...divProps } = props;
+
   const {
     nextHref,
     prevHref,
     pages,
-    page,
     startIndex,
     endIndex,
-    totalResults,
+    page,
     noNext,
     noPrev,
     noPagination,
     handleNext,
     handlePrev,
     handlePageChange,
-  } = usePagination(searchService);
+  } = usePagination({
+    totalResults,
+    numPerPage,
+    onPageChange,
+  });
 
   if (noPagination) {
     return null;
@@ -89,7 +100,11 @@ export const Pagination = (props: IPaginationProps): React.ReactElement => {
     },
   );
   const formattedTotalResults = totalResults.toLocaleString();
-  const paginationHeading = `Pagination, showing ${startIndex} to ${endIndex} of ${formattedTotalResults} results`;
+  const formattedStartIndex = startIndex.toLocaleString();
+  const formattedEndIndex = endIndex.toLocaleString();
+  const paginationHeading = `Pagination, showing ${formattedStartIndex} to ${
+    noNext ? formattedTotalResults : formattedEndIndex
+  } of ${formattedTotalResults} results`;
 
   return (
     <section
@@ -115,8 +130,9 @@ export const Pagination = (props: IPaginationProps): React.ReactElement => {
       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
         <div aria-hidden="true">
           <p className="text-gray-700 text-sm">
-            Showing <span className="font-medium">{startIndex}</span> to <span className="font-medium">{endIndex}</span>{' '}
-            of <span className="font-medium">{formattedTotalResults}</span> results
+            Showing <span className="font-medium">{formattedStartIndex}</span> to{' '}
+            <span className="font-medium">{noNext ? formattedTotalResults : formattedEndIndex}</span> of{' '}
+            <span className="font-medium">{formattedTotalResults}</span> results
           </p>
         </div>
         <nav
@@ -144,3 +160,4 @@ export const Pagination = (props: IPaginationProps): React.ReactElement => {
     </section>
   );
 };
+Pagination.defaultProps = defaultProps;

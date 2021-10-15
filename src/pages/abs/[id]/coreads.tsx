@@ -2,7 +2,9 @@ import AdsApi, { IADSApiSearchParams, IDocsEntity, IUserData } from '@api';
 import { metatagsQueryFields } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 import { AbsLayout } from '@components/Layout/AbsLayout';
+import { SimpleResultList } from '@components/ResultList';
 import { GetServerSideProps, NextPage } from 'next';
+import { useRouter } from 'next/router';
 import React from 'react';
 import { normalizeURLParams } from 'src/utils';
 export interface ICitationsPageProps {
@@ -13,10 +15,20 @@ export interface ICitationsPageProps {
   hasMetrics: boolean;
 }
 
+const getQueryParams = (id: string | string[]): IADSApiSearchParams => {
+  const idStr = Array.isArray(id) ? id[0] : id;
+  return {
+    q: `trending(identifier:${idStr}) -identifier:${idStr}`,
+    fl: ['bibcode', 'title', 'author', '[fields author=3]', 'author_count', 'pubdate'],
+    sort: ['score desc'],
+  };
+};
+
 const CoreadsPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProps) => {
   const { docs, originalDoc, error, hasGraphics, hasMetrics } = props;
+  const { query } = useRouter();
 
-  console.log(error);
+  console.log(originalDoc);
 
   return (
     <AbsLayout doc={originalDoc} hasGraphics={hasGraphics} hasMetrics={hasMetrics}>
@@ -29,7 +41,12 @@ const CoreadsPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProps) 
         {error ? (
           <div className="flex items-center justify-center w-full h-full text-xl">{error}</div>
         ) : (
-          <>{/* <ResultList docs={docs} hideCheckboxes={true} showActions={false} /> */}</>
+          <SimpleResultList
+            docs={docs}
+            query={getQueryParams(query.id)}
+            numFound={parseInt(originalDoc.read_count) ?? 0}
+            hideCheckboxes={true}
+          />
         )}
       </article>
     </AbsLayout>
@@ -44,13 +61,8 @@ export const getServerSideProps: GetServerSideProps<ICitationsPageProps> = async
     session: { userData: IUserData };
   };
   const userData = request.session.userData;
-  const params: IADSApiSearchParams = {
-    q: `trending(identifier:${query.id}) -identifier:${query.id}`,
-    fl: ['bibcode', 'title', 'author', '[fields author=3]', 'author_count', 'pubdate'],
-    sort: ['score desc'],
-  };
   const adsapi = new AdsApi({ token: userData.access_token });
-  const result = await adsapi.search.query(params);
+  const result = await adsapi.search.query(getQueryParams(query.id));
   const originalDoc = await adsapi.search.getDocument(query.id, [
     ...abstractPageNavDefaultQueryFields,
     ...metatagsQueryFields,
