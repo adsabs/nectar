@@ -1,67 +1,67 @@
+import { AdsSmallLogo } from '@components/images';
 import { useAppCtx } from '@store';
 import { Theme } from '@types';
 import clsx from 'clsx';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { Reducer, useEffect, useReducer } from 'react';
+import bioBg from 'public/img/bg-bio.jpg';
+import earthBg from 'public/img/bg-earth.jpg';
+import generalBg from 'public/img/bg-general.jpg';
+import helioBg from 'public/img/bg-helio.jpg';
+import planetBg from 'public/img/bg-planet.jpg';
+import starBg from 'public/img/star-bg-cropped.png';
+import React, { useEffect, useState } from 'react';
 
-const backgroundMap = new Map<Theme, string>([
-  [Theme.GENERAL, '/img/bg-general.jpg'],
-  [Theme.ASTROPHYSICS, '/img/star-bg-cropped.png'],
-  [Theme.HELIOPHYISCS, '/img/bg-helio.jpg'],
-  [Theme.PLANET_SCIENCE, '/img/bg-planet.jpg'],
-  [Theme.EARTH_SCIENCE, '/img/bg-earth.jpg'],
-  [Theme.BIO_PHYSICAL, '/img/bg-bio.jpg'],
+const backgroundMap = new Map<Theme, StaticImageData>([
+  [Theme.GENERAL, generalBg],
+  [Theme.ASTROPHYSICS, starBg],
+  [Theme.HELIOPHYISCS, helioBg],
+  [Theme.PLANET_SCIENCE, planetBg],
+  [Theme.EARTH_SCIENCE, earthBg],
+  [Theme.BIO_PHYSICAL, bioBg],
 ]);
-
-const initialState = {
-  showTabs: false,
-  background: backgroundMap.get(Theme.GENERAL),
-};
-type Action = { type: 'UPDATE_THEME'; payload: Theme };
-const reducer: Reducer<typeof initialState, Action> = (state, { type, payload }) => {
-  if (type === 'UPDATE_THEME') {
-    return {
-      showTabs: payload === Theme.ASTROPHYSICS,
-      background: backgroundMap.get(payload),
-    };
-  }
-
-  return state;
-};
 
 export const LandingTabs = (): React.ReactElement => {
   const {
     state: { theme },
   } = useAppCtx();
-  const { asPath } = useRouter();
-  const [{ background, showTabs }, dispatch] = useReducer(reducer, initialState);
+  const [showTabs, setShowTabs] = useState(false);
+  const [img, setImg] = useState<StaticImageData>(backgroundMap.get(Theme.GENERAL));
 
   useEffect(() => {
-    dispatch({ type: 'UPDATE_THEME', payload: theme });
+    setShowTabs(theme === Theme.ASTROPHYSICS);
+    setImg(backgroundMap.get(theme));
   }, [theme]);
 
   return (
-    <div className="relative flex flex-col items-center justify-center">
-      <Image className="z-0 object-cover" src={background} aria-hidden="true" layout="fill" />
+    <div className="relative flex flex-col items-center justify-center" suppressHydrationWarning>
+      <Image className="z-0 object-cover" src={img} aria-hidden="true" layout="fill" loading="eager" />
       <div className="flex items-center p-6">
         <TitleLogo />
       </div>
-      {showTabs ? (
-        <div className="z-10 flex gap-2 justify-center text-white sm:text-xl">
-          <Tab href="/classic-form" label="Classic Form" active={asPath === '/classic-form'} />
-          <Tab href="/" label="Modern Form" active={asPath === '/'} />
-          <Tab href="/paper-form" label="Paper Form" active={asPath === '/paper-form'} />
-        </div>
-      ) : null}
+      <Tabs show={showTabs} />
+    </div>
+  );
+};
+
+const Tabs = ({ show }: { show: boolean }) => {
+  const { asPath } = useRouter();
+  if (!show) {
+    return null;
+  }
+  return (
+    <div className="z-10 flex gap-2 justify-center text-white sm:text-xl">
+      <Tab href="/classic-form" label="Classic Form" active={asPath === '/classic-form'} />
+      <Tab href="/" label="Modern Form" active={asPath === '/'} />
+      <Tab href="/paper-form" label="Paper Form" active={asPath === '/paper-form'} />
     </div>
   );
 };
 
 const TitleLogo = () => (
   <h1 className="z-10 hidden gap-2 items-center text-white sm:flex">
-    <Image src="/img/transparent_logo.svg" width="75px" height="75px" aria-hidden="true" />
+    <AdsSmallLogo width="75px" height="75px" aria-hidden />
     <span className="text-gray-100 font-bold">NASA</span> <span className="text-gray-100">Science Explorer</span>
   </h1>
 );

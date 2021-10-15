@@ -5,6 +5,7 @@ export * from './Button';
 export * from './Dropdown';
 export * from './Export';
 export * from './Footer';
+export * from './images';
 export * from './Layout';
 export * from './ListBox';
 export * from './Metrics';
