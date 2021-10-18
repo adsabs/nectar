@@ -1,7 +1,6 @@
 import { SolrSort } from '@api';
 import { Sort } from '@components';
-import { ISimpleLinkDropdownItem, SimpleLinkDropdown } from '@components/Dropdown/SimpleLinkDropdown';
-import { sortValues } from '@components/Sort/model';
+import { SimpleSortDropdown } from '@components/Sort/SimpleSortDropdown';
 import { ISearchMachine, TransitionType } from '@machines/lib/search/types';
 import { isBrowser } from '@utils';
 import { useSelector } from '@xstate/react';
@@ -69,29 +68,11 @@ export const ListActions = (props: IListActionProp): React.ReactElement => {
 
   const linkBtn = clsx('link-button ml-4 h-5');
 
-  const sortItems = sortValues.reduce((result: ISimpleLinkDropdownItem[], s) => {
-    result.push({
-      id: `${s.id} desc`,
-      domId: `sortBy-${s.id}`,
-      path: `search?q=${query}&sort=${s.id} desc&p=${page}`,
-      label: `${s.id} desc`,
-    });
-
-    result.push({
-      id: `${s.id} asc`,
-      domId: `sortBy-${s.id}`,
-      path: `search?q=${query}&sort=${s.id} asc&p=${page}`,
-      label: `${s.id} asc`,
-    });
-
-    return result;
-  }, []);
-
   return (
     <>
       {!isBrowser() ? (
         <span>
-          <SimpleLinkDropdown items={sortItems} selected={sort} label="Sort"></SimpleLinkDropdown>
+          <SimpleSortDropdown query={query} selected={sort} page={page} />
         </span>
       ) : (
         <>

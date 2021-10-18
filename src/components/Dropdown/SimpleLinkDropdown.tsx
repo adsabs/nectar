@@ -18,10 +18,10 @@ export interface ISimpleLinkDropdownProps {
 }
 
 export const SimpleLinkDropdown = (props: ISimpleLinkDropdownProps): React.ReactElement => {
-  const { items, selected, label } = props;
+  const { items, selected, label, ...restProps } = props;
 
   return (
-    <div className={styles['simple-dropdown']}>
+    <div className={styles['simple-dropdown']} {...restProps}>
       <button className="button-simple" role="list">
         {label} <ChevronDownIcon className="inline w-4 h-4" />
       </button>
