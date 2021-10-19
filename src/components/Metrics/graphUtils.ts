@@ -13,55 +13,18 @@ export interface IPair {
 }
 export interface ICitationTableInput {
   refereed: {
-    [CitationsStatsKey.NORMALIZED_NUMBER_OF_CITATIONS]: number;
-    [CitationsStatsKey.AVERAGE_NUMBER_OF_REFEREED_CITATIONS]: number;
-    [CitationsStatsKey.MEDIAN_NUMBER_OF_CITATIONS]: number;
-    [CitationsStatsKey.MEDIAN_NUMBER_OF_REFEREED_CITATIONS]: number;
-    [CitationsStatsKey.NUMBER_OF_CITING_PAPERS]: number;
-    [CitationsStatsKey.AVERAGE_NUMBER_OF_CITATIONS]: number;
-    [CitationsStatsKey.TOTAL_NUMBER_OF_REFEREED_CITATIONS]: number;
-    [CitationsStatsKey.NORMALIZED_NUMBER_OF_REFEREED_CITATIONS]: number;
-    [CitationsStatsKey.NUMBER_OF_SELF_CITATIONS]: number;
-    [CitationsStatsKey.TOTAL_NUMBER_OF_CITATIONS]: number;
+    [key in CitationsStatsKey]: number;
   };
   total: {
-    [CitationsStatsKey.NUMBER_OF_SELF_CITATIONS]: number;
-    [CitationsStatsKey.AVERAGE_NUMBER_OF_REFEREED_CITATIONS]: number;
-    [CitationsStatsKey.MEDIAN_NUMBER_OF_CITATIONS]: number;
-    'self-citations': string[];
-    [CitationsStatsKey.NUMBER_OF_CITING_PAPERS]: number;
-    [CitationsStatsKey.AVERAGE_NUMBER_OF_CITATIONS]: number;
-    [CitationsStatsKey.TOTAL_NUMBER_OF_REFEREED_CITATIONS]: number;
-    [CitationsStatsKey.NORMALIZED_NUMBER_OF_REFEREED_CITATIONS]: number;
-    [CitationsStatsKey.MEDIAN_NUMBER_OF_REFEREED_CITATIONS]: number;
-    [CitationsStatsKey.TOTAL_NUMBER_OF_CITATIONS]: number;
-    [CitationsStatsKey.NORMALIZED_NUMBER_OF_CITATIONS]: number;
-  };
+    [key in CitationsStatsKey]: number;
+  } & { 'self-citations': string[] };
 }
 export interface IReadTableInput {
   refereed: {
-    [BasicStatsKey.MEDIAN_NUMBER_OF_DOWNLOADS]: number;
-    [BasicStatsKey.AVERAGE_NUMBER_OF_READS]: number;
-    [BasicStatsKey.NORMALIZED_PAPER_COUNT]: number;
-    [BasicStatsKey.RECENT_NUMBER_OF_READS]: number;
-    [BasicStatsKey.NUMBER_OF_PAPERS]: number;
-    [BasicStatsKey.RECENT_NUMBER_OF_DOWNLOADS]: number;
-    [BasicStatsKey.TOTAL_NUMBER_OF_READS]: number;
-    [BasicStatsKey.MEDIAN_NUMBER_OF_READS]: number;
-    [BasicStatsKey.TOTAL_NUMBER_OF_DOWNLOADS]: number;
-    [BasicStatsKey.AVERAGE_NUMBER_OF_DOWNLOADS]: number;
+    [key in BasicStatsKey]: number;
   };
   total: {
-    [BasicStatsKey.MEDIAN_NUMBER_OF_DOWNLOADS]: number;
-    [BasicStatsKey.AVERAGE_NUMBER_OF_READS]: number;
-    [BasicStatsKey.NORMALIZED_PAPER_COUNT]: number;
-    [BasicStatsKey.RECENT_NUMBER_OF_READS]: number;
-    [BasicStatsKey.NUMBER_OF_PAPERS]: number;
-    [BasicStatsKey.RECENT_NUMBER_OF_DOWNLOADS]: number;
-    [BasicStatsKey.TOTAL_NUMBER_OF_READS]: number;
-    [BasicStatsKey.MEDIAN_NUMBER_OF_READS]: number;
-    [BasicStatsKey.TOTAL_NUMBER_OF_DOWNLOADS]: number;
-    [BasicStatsKey.AVERAGE_NUMBER_OF_DOWNLOADS]: number;
+    [key in BasicStatsKey]: number;
   };
 }
 

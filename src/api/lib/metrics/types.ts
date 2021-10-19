@@ -72,7 +72,7 @@ export interface IADSApiMetricsResponse {
   } & { 'self-citations': string[] };
   [MetricsResponseKey.CITATION_STATS_REFEREED]: {
     [key in CitationsStatsKey]: number;
-  } & { 'self-citations': string[] };
+  };
   [MetricsResponseKey.HISTOGRAMS]: {
     citations: CitationsHistogramType;
     reads: ReadsHistogramType;
