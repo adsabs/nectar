@@ -2,7 +2,7 @@ import Adsapi, { IDocsEntity } from '@api';
 import { ExportApiFormat, isExportApiFormat } from '@api/lib/export';
 import { Export } from '@components';
 import { AbsLayout } from '@components/Layout/AbsLayout';
-import { getDocument, normalizeURLParams } from '@utils';
+import { normalizeURLParams } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import React from 'react';
 interface IExportCitationPageProps {
@@ -52,7 +52,7 @@ export const getServerSideProps: GetServerSideProps<IExportCitationPageProps> = 
     format,
   });
 
-  const originalDoc = await getDocument(adsapi, query.id);
+  const originalDoc = await adsapi.search.getDocument(query.id);
   const hasGraphics =
     !originalDoc.notFound && !originalDoc.error
       ? await adsapi.graphics.hasGraphics(adsapi, originalDoc.doc.bibcode)
