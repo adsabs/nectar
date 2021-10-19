@@ -7,6 +7,7 @@ export * from './Export';
 export * from './Footer';
 export * from './Layout';
 export * from './ListBox';
+export * from './Metrics';
 export * from './NavBar';
 export * from './NumFound';
 export * from './ResultList';

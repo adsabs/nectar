@@ -11,7 +11,6 @@ import Link from 'next/link';
 import { isNil } from 'ramda';
 import React, { useEffect, useState } from 'react';
 import { normalizeURLParams } from 'src/utils';
-
 export interface IAbstractPageProps {
   doc?: IDocsEntity;
   error?: string;
@@ -20,12 +19,14 @@ export interface IAbstractPageProps {
     fl: string[];
     sort: SolrSort[];
   };
+  hasGraphics: boolean;
+  hasMetrics: boolean;
 }
 
 const MAX_AUTHORS = 20;
 
 const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) => {
-  const { doc, error, params } = props;
+  const { doc, error, params, hasGraphics, hasMetrics } = props;
 
   const [showNumAuthors, setShowNumAuthors] = useState<number>(MAX_AUTHORS);
 
@@ -77,7 +78,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
   const authorNameClass = clsx(!aff.show ? 'link pr-1' : 'link');
 
   return (
-    <AbsLayout doc={doc}>
+    <AbsLayout doc={doc} hasGraphics={hasGraphics} hasMetrics={hasMetrics}>
       <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
         {error ? (
           <div className="flex items-center justify-center w-full h-full text-xl">{error}</div>
@@ -245,15 +246,25 @@ export const getServerSideProps: GetServerSideProps<IAbstractPageProps> = async 
   };
   const adsapi = new AdsApi({ token: userData.access_token });
   const result = await adsapi.search.query(params);
+  const hasGraphics =
+    result.isOk() && result.value.numFound > 0
+      ? await adsapi.graphics.hasGraphics(adsapi, result.value.docs[0].bibcode)
+      : false;
+  const hasMetrics =
+    result.isOk() && result.value.numFound > 0
+      ? await adsapi.metrics.hasMetrics(adsapi, result.value.docs[0].bibcode)
+      : false;
 
   return result.isErr()
-    ? { props: { error: 'Unable to get abstract', params } }
+    ? { props: { doc: null, hasGraphics, hasMetrics, params, error: 'Unable to get abstract' } }
     : result.value.numFound === 0
     ? { notFound: true }
     : {
         props: {
           doc: result.value.docs[0],
           params,
+          hasGraphics,
+          hasMetrics,
         },
       };
 };

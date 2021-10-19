@@ -60,9 +60,9 @@ export const ThemeDropdown = (): ReactElement => {
   );
 
   const getLabelNode = (itemId: string) => {
-    const label = themes.find((item) => item.id === itemId).label;
+    const label = themes.find((item) => item.id === itemId).label as string;
 
-    return <SelectorLabel text={label as string} classes={selectorClasses} />;
+    return <SelectorLabel text={label} classes={selectorClasses} />;
   };
 
   const handleOnSelect = (themeId: Theme) => {

@@ -1,20 +1,22 @@
+import { GetServerSideProps, NextPage } from 'next';
+import React from 'react';
+import { normalizeURLParams } from '@utils';
+import Link from 'next/link';
 import AdsApi, { IADSApiGraphicsParams, IADSApiGraphicsResponse, IDocsEntity, IUserData } from '@api';
 import { AbsLayout } from '@components/Layout/AbsLayout';
-import { getDocument, normalizeURLParams } from '@utils';
-import { GetServerSideProps, NextPage } from 'next';
 import Image from 'next/image';
-import Link from 'next/link';
-import React from 'react';
 interface IGraphicsPageProps {
   graphics?: IADSApiGraphicsResponse;
   originalDoc: IDocsEntity;
   error?: string;
+  hasGraphics: boolean;
+  hasMetrics: boolean;
 }
 
 const GraphicsPage: NextPage<IGraphicsPageProps> = (props: IGraphicsPageProps) => {
-  const { originalDoc, graphics, error } = props;
+  const { originalDoc, graphics, error, hasGraphics, hasMetrics } = props;
   return (
-    <AbsLayout doc={originalDoc}>
+    <AbsLayout doc={originalDoc} hasGraphics={hasGraphics} hasMetrics={hasMetrics}>
       <article aria-labelledby="title" className="flex-1 my-8 px-4 py-8 w-full bg-white shadow sm:rounded-lg">
         <div className="border-b border-gray-200 sm:pb-0 md:pb-3">
           <h2 className="prose-xl text-gray-900 font-medium leading-6" id="title">
@@ -67,16 +69,30 @@ export const getServerSideProps: GetServerSideProps<IGraphicsPageProps> = async 
   };
   const adsapi = new AdsApi({ token: userData.access_token });
   const result = await adsapi.graphics.query(params);
-  const originalDoc = await getDocument(adsapi, query.id);
+  const originalDoc = await adsapi.search.getDocument(query.id);
+  const hasGraphics =
+    !originalDoc.notFound && !originalDoc.error ? await adsapi.graphics.hasGraphics(adsapi, params.bibcode) : false;
+  const hasMetrics =
+    !originalDoc.notFound && !originalDoc.error ? await adsapi.metrics.hasMetrics(adsapi, params.bibcode) : false;
 
   return originalDoc.notFound || originalDoc.error
     ? { notFound: true }
     : result.isErr()
-    ? { props: { originalDoc: originalDoc.doc, error: 'Unable to get results' } }
+    ? {
+        props: {
+          graphics: null,
+          originalDoc: originalDoc.doc,
+          hasGraphics,
+          hasMetrics,
+          error: 'Unable to get results',
+        },
+      }
     : {
         props: {
           graphics: result.value,
           originalDoc: originalDoc.doc,
+          hasGraphics,
+          hasMetrics,
         },
       };
 };

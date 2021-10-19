@@ -1,8 +1,9 @@
+import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 import { AxiosError, AxiosRequestConfig } from 'axios';
 import { err, ok, Result } from 'neverthrow';
 import { ApiTargets } from '../models';
 import { Service } from '../service';
-import { IADSApiSearchParams, IADSApiSearchResponse, INormalizedADSApiSearchParams } from './types';
+import { IADSApiSearchParams, IADSApiSearchResponse, IDocument, INormalizedADSApiSearchParams } from './types';
 
 export class SearchService extends Service {
   private normalizeParams(params: IADSApiSearchParams): INormalizedADSApiSearchParams {
@@ -32,5 +33,18 @@ export class SearchService extends Service {
         (e: Error | AxiosError) => resolve(err(e)),
       );
     });
+  }
+
+  async getDocument(id: string): Promise<IDocument> {
+    const result = await this.query({
+      q: `identifier:${id}`,
+      fl: [...abstractPageNavDefaultQueryFields, 'title', 'bibcode'],
+    });
+
+    return result.isErr()
+      ? { error: 'Unable to get document' }
+      : result.value.numFound === 0
+      ? { notFound: true }
+      : { doc: result.value.docs[0] };
   }
 }

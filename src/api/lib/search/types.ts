@@ -179,6 +179,12 @@ export interface IDocsEntity {
   arxiv?: string;
 }
 
+export interface IDocument {
+  error?: string;
+  notFound?: boolean;
+  doc?: IDocsEntity;
+}
+
 export interface IADSApiSearchErrorResponse {
   error: string;
 }
