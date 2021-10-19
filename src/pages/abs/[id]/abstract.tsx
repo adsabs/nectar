@@ -115,53 +115,55 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                   ) : null}
                 </>
               ) : null}
-              <div className={authorsClass}>
-                {doc.author.slice(0, showNumAuthors).map((a, index) => {
-                  const orcid =
-                    doc.orcid_pub && doc.orcid_pub[index] !== '-'
-                      ? doc.orcid_pub[index]
-                      : doc.orcid_user && doc.orcid_user[index] !== '-'
-                      ? doc.orcid_user[index]
-                      : doc.orcid_other && doc.orcid_other[index] !== '-'
-                      ? doc.orcid_other[index]
-                      : undefined;
-                  return (
-                    <div key={index} className={authorClass}>
-                      <Link
-                        href={`/search?q=${encodeURIComponent(`author:"${a}"`)}&sort=${encodeURIComponent(
-                          'date desc, bibcode desc',
-                        )}`}
-                      >
-                        <a className={authorNameClass}>{a}</a>
-                      </Link>
-                      {'  '}
-                      {orcid && (
+              {doc.author && doc.author.length > 0 && (
+                <div className={authorsClass}>
+                  {doc.author.slice(0, showNumAuthors).map((a, index) => {
+                    const orcid =
+                      doc.orcid_pub && doc.orcid_pub[index] !== '-'
+                        ? doc.orcid_pub[index]
+                        : doc.orcid_user && doc.orcid_user[index] !== '-'
+                        ? doc.orcid_user[index]
+                        : doc.orcid_other && doc.orcid_other[index] !== '-'
+                        ? doc.orcid_other[index]
+                        : undefined;
+                    return (
+                      <div key={index} className={authorClass}>
                         <Link
-                          href={`/search?q=${encodeURIComponent(`orcid:${orcid}`)}&sort=${encodeURIComponent(
-                            `date desc, bibcode desc`,
+                          href={`/search?q=${encodeURIComponent(`author:"${a}"`)}&sort=${encodeURIComponent(
+                            'date desc, bibcode desc',
                           )}`}
                         >
-                          <a style={{ height: 20 }}>
-                            <Image src="/img/orcid-active.svg" width="20" height="20" alt="Search by ORCID" />
-                          </a>
+                          <a className={authorNameClass}>{a}</a>
                         </Link>
-                      )}
-                      {'  '}
-                      {aff.show ? <>({aff.data[index]})</> : null}
-                      ;&nbsp;
-                    </div>
-                  );
-                })}
-                &nbsp;
-                {isBrowser() && doc.author.length > showNumAuthors ? (
-                  <a onClick={handleShowAllAuthors} className="link">
-                    ... more
-                  </a>
-                ) : null}
-                {!isBrowser() && doc.author.length > showNumAuthors ? (
-                  <span>{` and ${doc.author.length - showNumAuthors} more`}</span>
-                ) : null}
-              </div>
+                        {'  '}
+                        {orcid && (
+                          <Link
+                            href={`/search?q=${encodeURIComponent(`orcid:${orcid}`)}&sort=${encodeURIComponent(
+                              `date desc, bibcode desc`,
+                            )}`}
+                          >
+                            <a style={{ height: 20 }}>
+                              <Image src="/img/orcid-active.svg" width="20" height="20" alt="Search by ORCID" />
+                            </a>
+                          </Link>
+                        )}
+                        {'  '}
+                        {aff.show ? <>({aff.data[index]})</> : null}
+                        ;&nbsp;
+                      </div>
+                    );
+                  })}
+                  &nbsp;
+                  {isBrowser() && doc.author.length > showNumAuthors ? (
+                    <a onClick={handleShowAllAuthors} className="link">
+                      ... more
+                    </a>
+                  ) : null}
+                  {!isBrowser() && doc.author.length > showNumAuthors ? (
+                    <span>{` and ${doc.author.length - showNumAuthors} more`}</span>
+                  ) : null}
+                </div>
+              )}
             </div>
 
             <AbstractSources doc={doc} />
