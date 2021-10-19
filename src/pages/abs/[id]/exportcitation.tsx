@@ -2,10 +2,9 @@ import Adsapi, { IDocsEntity } from '@api';
 import { ExportApiFormat, isExportApiFormat } from '@api/lib/export';
 import { Export } from '@components';
 import { AbsLayout } from '@components/Layout/AbsLayout';
-import { getDocument, getHasGraphics, getHasMetrics, normalizeURLParams } from '@utils';
+import { getDocument, normalizeURLParams } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import React from 'react';
-
 interface IExportCitationPageProps {
   bibcode: IDocsEntity['bibcode'];
   text?: string;
@@ -55,9 +54,13 @@ export const getServerSideProps: GetServerSideProps<IExportCitationPageProps> = 
 
   const originalDoc = await getDocument(adsapi, query.id);
   const hasGraphics =
-    !originalDoc.notFound && !originalDoc.error ? await getHasGraphics(adsapi, originalDoc.doc.bibcode) : false;
+    !originalDoc.notFound && !originalDoc.error
+      ? await adsapi.graphics.hasGraphics(adsapi, originalDoc.doc.bibcode)
+      : false;
   const hasMetrics =
-    !originalDoc.notFound && !originalDoc.error ? await getHasMetrics(adsapi, originalDoc.doc.bibcode) : false;
+    !originalDoc.notFound && !originalDoc.error
+      ? await adsapi.metrics.hasMetrics(adsapi, originalDoc.doc.bibcode)
+      : false;
 
   return originalDoc.notFound || originalDoc.error
     ? { notFound: true }

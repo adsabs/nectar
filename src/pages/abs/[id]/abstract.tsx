@@ -10,7 +10,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { isNil } from 'ramda';
 import React, { useEffect, useState } from 'react';
-import { getHasGraphics, getHasMetrics, normalizeURLParams } from 'src/utils';
+import { normalizeURLParams } from 'src/utils';
 export interface IAbstractPageProps {
   doc?: IDocsEntity;
   error?: string;
@@ -247,9 +247,13 @@ export const getServerSideProps: GetServerSideProps<IAbstractPageProps> = async 
   const adsapi = new AdsApi({ token: userData.access_token });
   const result = await adsapi.search.query(params);
   const hasGraphics =
-    result.isOk() && result.value.numFound > 0 ? await getHasGraphics(adsapi, result.value.docs[0].bibcode) : false;
+    result.isOk() && result.value.numFound > 0
+      ? await adsapi.graphics.hasGraphics(adsapi, result.value.docs[0].bibcode)
+      : false;
   const hasMetrics =
-    result.isOk() && result.value.numFound > 0 ? await getHasMetrics(adsapi, result.value.docs[0].bibcode) : false;
+    result.isOk() && result.value.numFound > 0
+      ? await adsapi.metrics.hasMetrics(adsapi, result.value.docs[0].bibcode)
+      : false;
 
   return result.isErr()
     ? { props: { doc: null, hasGraphics, hasMetrics, params, error: 'Unable to get abstract' } }

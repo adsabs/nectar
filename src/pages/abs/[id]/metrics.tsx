@@ -9,7 +9,7 @@ import {
   getReadsTableData,
 } from '@components/Metrics/graphUtils';
 import { ICitationsGraphData, IReadsGraphData, ICitationsTableData, IReadsTableData } from '@components/Metrics/types';
-import { normalizeURLParams, getDocument, getHasGraphics, getHasMetrics } from '@utils';
+import { normalizeURLParams, getDocument } from '@utils';
 import { NextPage, GetServerSideProps } from 'next';
 import React from 'react';
 
@@ -66,8 +66,9 @@ export const getServerSideProps: GetServerSideProps<IMetricsPageProps> = async (
   const result = await adsapi.metrics.query(params);
   const originalDoc = await getDocument(adsapi, query.id);
   const hasGraphics =
-    !originalDoc.notFound && !originalDoc.error ? await getHasGraphics(adsapi, params.bibcode) : false;
-  const hasMetrics = !originalDoc.notFound && !originalDoc.error ? await getHasMetrics(adsapi, params.bibcode) : false;
+    !originalDoc.notFound && !originalDoc.error ? await adsapi.graphics.hasGraphics(adsapi, params.bibcode) : false;
+  const hasMetrics =
+    !originalDoc.notFound && !originalDoc.error ? await adsapi.metrics.hasMetrics(adsapi, params.bibcode) : false;
 
   if (originalDoc.notFound || originalDoc.error) {
     return { notFound: true };

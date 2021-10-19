@@ -1,6 +1,6 @@
 import { GetServerSideProps, NextPage } from 'next';
 import React from 'react';
-import { getDocument, normalizeURLParams, getHasGraphics, getHasMetrics } from '@utils';
+import { getDocument, normalizeURLParams } from '@utils';
 import Link from 'next/link';
 import AdsApi, { IADSApiGraphicsParams, IADSApiGraphicsResponse, IDocsEntity, IUserData } from '@api';
 import { AbsLayout } from '@components/Layout/AbsLayout';
@@ -71,8 +71,9 @@ export const getServerSideProps: GetServerSideProps<IGraphicsPageProps> = async 
   const result = await adsapi.graphics.query(params);
   const originalDoc = await getDocument(adsapi, query.id);
   const hasGraphics =
-    !originalDoc.notFound && !originalDoc.error ? await getHasGraphics(adsapi, params.bibcode) : false;
-  const hasMetrics = !originalDoc.notFound && !originalDoc.error ? await getHasMetrics(adsapi, params.bibcode) : false;
+    !originalDoc.notFound && !originalDoc.error ? await adsapi.graphics.hasGraphics(adsapi, params.bibcode) : false;
+  const hasMetrics =
+    !originalDoc.notFound && !originalDoc.error ? await adsapi.metrics.hasMetrics(adsapi, params.bibcode) : false;
 
   return originalDoc.notFound || originalDoc.error
     ? { notFound: true }

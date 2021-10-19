@@ -3,7 +3,7 @@ import { AbsLayout } from '@components/Layout/AbsLayout';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 import React from 'react';
-import { getDocument, normalizeURLParams, getHasGraphics, getHasMetrics } from 'src/utils';
+import { getDocument, normalizeURLParams } from 'src/utils';
 export interface ICitationsPageProps {
   docs: IDocsEntity[];
   originalDoc: IDocsEntity;
@@ -50,9 +50,13 @@ export const getServerSideProps: GetServerSideProps<ICitationsPageProps> = async
   const mainResult = await adsapi.search.query(params);
   const originalDoc = await getDocument(adsapi, query.id);
   const hasGraphics =
-    !originalDoc.notFound && !originalDoc.error ? await getHasGraphics(adsapi, originalDoc.doc.bibcode) : false;
+    !originalDoc.notFound && !originalDoc.error
+      ? await adsapi.graphics.hasGraphics(adsapi, originalDoc.doc.bibcode)
+      : false;
   const hasMetrics =
-    !originalDoc.notFound && !originalDoc.error ? await getHasMetrics(adsapi, originalDoc.doc.bibcode) : false;
+    !originalDoc.notFound && !originalDoc.error
+      ? await adsapi.metrics.hasMetrics(adsapi, originalDoc.doc.bibcode)
+      : false;
 
   console.log(
     mainResult.isErr() ? (axios.isAxiosError(mainResult.error) ? mainResult.error.response.data : null) : null,
