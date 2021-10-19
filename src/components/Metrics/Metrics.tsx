@@ -1,18 +1,18 @@
+import { IADSApiMetricsResponse } from '@api';
+import { MetricsResponseKey, CitationsStatsKey, BasicStatsKey } from '@api/lib/metrics/types';
+import { useMetrics } from '@hooks/useMetrics';
 import React, { ReactElement } from 'react';
 import { CitationsTable } from './CitationsTable';
 import { ReadsTable } from './ReadsTable';
-import { ICitationsGraphData, ICitationsTableData, IReadsGraphData, IReadsTableData } from './types';
-
 interface IMetricsProps {
-  citationsGraph: ICitationsGraphData;
-  readsGraph: IReadsGraphData;
-  citationsTable: ICitationsTableData;
-  readsTable: IReadsTableData;
+  metrics: IADSApiMetricsResponse;
   isAbstract: boolean;
 }
 
 export const Metrics = (props: IMetricsProps): ReactElement => {
-  const { citationsGraph, readsGraph, citationsTable, readsTable, isAbstract } = props;
+  const { metrics, isAbstract } = props;
+
+  const { citationsGraph, readsGraph, citationsTable, readsTable } = useMetrics(metrics);
 
   const headingClass = 'bg-gray-100 text-3xl h-16 p-2 font-light flex items-center my-5';
 

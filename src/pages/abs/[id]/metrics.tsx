@@ -1,14 +1,7 @@
 import AdsApi, { IADSApiMetricsParams, IDocsEntity, IUserData } from '@api';
-import { MetricsResponseKey, CitationsStatsKey, BasicStatsKey } from '@api/lib/metrics/types';
+import { MetricsResponseKey, CitationsStatsKey, BasicStatsKey, IADSApiMetricsResponse } from '@api/lib/metrics/types';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { Metrics } from '@components/Metrics';
-import {
-  plotCitationsHist,
-  plotReadsHist,
-  getCitationTableData,
-  getReadsTableData,
-} from '@components/Metrics/graphUtils';
-import { ICitationsGraphData, IReadsGraphData, ICitationsTableData, IReadsTableData } from '@components/Metrics/types';
 import { normalizeURLParams, getDocument } from '@utils';
 import { NextPage, GetServerSideProps } from 'next';
 import React from 'react';
@@ -18,14 +11,16 @@ interface IMetricsPageProps {
   error?: string;
   hasGraphics: boolean;
   hasMetrics: boolean;
-  citationsGraph: ICitationsGraphData;
-  readsGraph: IReadsGraphData;
-  citationsTable: ICitationsTableData;
-  readsTable: IReadsTableData;
+  metrics: IADSApiMetricsResponse;
 }
 
 const MetricsPage: NextPage<IMetricsPageProps> = (props: IMetricsPageProps) => {
-  const { originalDoc, error, hasGraphics, hasMetrics, citationsGraph, readsGraph, citationsTable, readsTable } = props;
+  const { originalDoc, error, hasGraphics, hasMetrics, metrics } = props;
+
+  const hasCitations =
+    metrics && metrics[MetricsResponseKey.CITATION_STATS][CitationsStatsKey.TOTAL_NUMBER_OF_CITATIONS] > 0;
+
+  const hasReads = metrics && metrics[MetricsResponseKey.BASIC_STATS][BasicStatsKey.TOTAL_NUMBER_OF_READS] > 0;
 
   return (
     <AbsLayout doc={originalDoc} hasGraphics={hasGraphics} hasMetrics={hasMetrics}>
@@ -37,14 +32,10 @@ const MetricsPage: NextPage<IMetricsPageProps> = (props: IMetricsPageProps) => {
         </div>
         {error ? (
           <div className="flex items-center justify-center w-full h-full text-xl">{error}</div>
+        ) : hasCitations || hasReads ? (
+          <Metrics metrics={metrics} isAbstract={true} />
         ) : (
-          <Metrics
-            citationsGraph={citationsGraph}
-            readsGraph={readsGraph}
-            citationsTable={citationsTable}
-            readsTable={readsTable}
-            isAbstract={true}
-          />
+          <div className="flex items-center justify-center w-full h-full text-xl">{'No metrics data'}</div>
         )}
       </article>
     </AbsLayout>
@@ -70,71 +61,24 @@ export const getServerSideProps: GetServerSideProps<IMetricsPageProps> = async (
   const hasMetrics =
     !originalDoc.notFound && !originalDoc.error ? await adsapi.metrics.hasMetrics(adsapi, params.bibcode) : false;
 
-  if (originalDoc.notFound || originalDoc.error) {
-    return { notFound: true };
-  } else if (result.isErr()) {
-    return {
-      props: {
-        originalDoc: originalDoc.doc,
-        hasGraphics,
-        hasMetrics,
-        citationsGraph: null,
-        readsGraph: null,
-        citationsTable: null,
-        readsTable: null,
-        error: 'Unable to get results',
-      },
-    };
-  }
-
-  const metrics = result.value;
-
-  const hasCitations =
-    metrics && metrics[MetricsResponseKey.CITATION_STATS][CitationsStatsKey.TOTAL_NUMBER_OF_CITATIONS] > 0;
-
-  const hasReads = metrics && metrics[MetricsResponseKey.BASIC_STATS][BasicStatsKey.TOTAL_NUMBER_OF_READS] > 0;
-
-  const hist = metrics ? metrics.histograms : null;
-
-  // graph data
-  const citationsGraph = hasCitations
+  return originalDoc.notFound || originalDoc.error
+    ? { notFound: true }
+    : result.isErr()
     ? {
-        graphData: plotCitationsHist(false, hist.citations),
-        normalizedGraphData: plotCitationsHist(true, hist.citations),
+        props: {
+          originalDoc: originalDoc.doc,
+          hasGraphics,
+          hasMetrics,
+          error: 'Unable to get results',
+          metrics: null,
+        },
       }
-    : null;
-
-  const readsGraph = hasReads
-    ? {
-        graphData: plotReadsHist(false, hist.reads),
-        normalizedGraphData: plotReadsHist(true, hist.reads),
-      }
-    : null;
-
-  // table data
-  const citationsTable = hasCitations
-    ? getCitationTableData({
-        refereed: metrics[MetricsResponseKey.CITATION_STATS_REFEREED],
-        total: metrics[MetricsResponseKey.CITATION_STATS],
-      })
-    : null;
-
-  const readsTable = hasReads
-    ? getReadsTableData({
-        refereed: metrics[MetricsResponseKey.BASIC_STATS_REFEREED],
-        total: metrics[MetricsResponseKey.BASIC_STATS],
-      })
-    : null;
-
-  return {
-    props: {
-      originalDoc: originalDoc.doc,
-      hasGraphics,
-      hasMetrics,
-      citationsGraph,
-      readsGraph,
-      citationsTable,
-      readsTable,
-    },
-  };
+    : {
+        props: {
+          originalDoc: originalDoc.doc,
+          hasGraphics,
+          hasMetrics,
+          metrics: result.value,
+        },
+      };
 };
