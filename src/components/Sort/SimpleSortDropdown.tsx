@@ -1,6 +1,6 @@
 import { SolrSort, SolrSortDirection, SolrSortField } from '@api';
 import { SimpleLinkDropdown } from '@components/Dropdown/SimpleLinkDropdown';
-import { SortAscendingIcon, SortDescendingIcon } from '@heroicons/react/outline';
+import { ChevronDownIcon, SortAscendingIcon, SortDescendingIcon } from '@heroicons/react/outline';
 import Link from 'next/link';
 import qs from 'qs';
 import { ReactElement } from 'react';
@@ -24,13 +24,25 @@ export const SimpleSortDropdown = (props: ISimpleSortDropdownProps): ReactElemen
     path: `/search?${qs.stringify({ q: query, sort: `${id} ${dir}`, p: page })}`,
   }));
 
+  const directionLabel = (
+    <div
+      className="font-md flex items-center justify-between mr-0 p-2 w-56 h-6 text-sm border border-r-0 border-gray-300 rounded-l-md box-content cursor-pointer"
+      role="list"
+    >
+      {sortValues.find((v) => v.id === sort).text} <ChevronDownIcon className="inline w-4 h-4" />
+    </div>
+  );
   return (
-    <>
+    <div className="flex justify-start my-5">
       <SimpleLinkDropdown
         items={sortItems}
         selected={sort}
-        label={sortValues.find((v) => v.id === sort).text}
+        label={directionLabel}
         aria-label="Sort by"
+        classes={{
+          list: 'w-60 h-auto',
+          item: 'text-sm',
+        }}
       />
       <Link
         href={{ pathname: '/search', query: { q: query, sort: `${sort} ${dir === 'desc' ? 'asc' : 'desc'}`, p: page } }}
@@ -38,17 +50,17 @@ export const SimpleSortDropdown = (props: ISimpleSortDropdownProps): ReactElemen
         <a>
           {dir === 'asc' ? (
             <SortAscendingIcon
-              className="inline-block p-2 w-10 h-10 border border-gray-400 rounded-md"
+              className="ml-0 p-2 w-6 h-6 border border-gray-300 rounded-r-md box-content"
               aria-label="Ascending"
             />
           ) : (
             <SortDescendingIcon
-              className="inline-block p-2 w-10 h-10 border border-gray-400 rounded-md"
+              className="ml-0 p-2 w-6 h-6 border border-gray-300 rounded-r-md box-content"
               aria-label="Descending"
             />
           )}
         </a>
       </Link>
-    </>
+    </div>
   );
 };

@@ -1,4 +1,5 @@
 import { CheckIcon, ChevronDownIcon } from '@heroicons/react/outline';
+import clsx from 'clsx';
 import Link from 'next/link';
 import { ReactElement } from 'react';
 import styles from './Dropdown.module.css';
@@ -14,26 +15,35 @@ export interface ISimpleLinkDropdownItem {
 export interface ISimpleLinkDropdownProps {
   items: ISimpleLinkDropdownItem[];
   selected: string;
-  label: string;
+  label: string | ReactElement;
+  classes?: {
+    list?: string;
+    item?: string;
+  };
 }
 
 export const SimpleLinkDropdown = (props: ISimpleLinkDropdownProps): ReactElement => {
-  const { items, selected, label, ...restProps } = props;
+  const { items, selected, label, classes, ...restProps } = props;
+
+  const listClasses =
+    classes && classes.list ? clsx(styles['simple-dropdown-content'], classes.list) : styles['simple-dropdown-content'];
+
+  const itemClasses =
+    classes && classes.item ? clsx(styles['simple-dropdown-link'], classes.item) : styles['simple-dropdown-link'];
 
   return (
     <div className={styles['simple-dropdown']} {...restProps}>
-      <button className="button-simple" role="list">
-        {label} <ChevronDownIcon className="inline w-4 h-4" />
-      </button>
-      <div className={styles['simple-dropdown-content']}>
+      {typeof label === 'string' ? (
+        <button className="button-simple" role="list">
+          {label} <ChevronDownIcon className="inline w-4 h-4" />
+        </button>
+      ) : (
+        <>{label}</>
+      )}
+      <div className={listClasses}>
         {items.map((item) => (
           <Link key={item.id} href={item.path}>
-            <a
-              tabIndex={0}
-              className={styles['simple-dropdown-link']}
-              role="listitem"
-              aria-selected={selected === item.id}
-            >
+            <a tabIndex={0} className={itemClasses} role="listitem" aria-selected={selected === item.id}>
               {item.label} {selected === item.id ? <CheckIcon className="inline w-4 h-4" /> : null}
             </a>
           </Link>
