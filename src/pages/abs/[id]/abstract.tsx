@@ -138,9 +138,10 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                         {'  '}
                         {orcid && (
                           <Link
-                            href={`/search?q=${encodeURIComponent(`orcid:${orcid}`)}&sort=${encodeURIComponent(
-                              `date desc, bibcode desc`,
-                            )}`}
+                            href={{
+                              pathname: '/search',
+                              query: { q: `orcid:${orcid}`, sort: 'date desc, bibcode desc' },
+                            }}
                           >
                             <a style={{ height: 20 }}>
                               <Image src="/img/orcid-active.svg" width="20" height="20" alt="Search by ORCID" />

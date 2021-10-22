@@ -1,6 +1,7 @@
 import { SolrSort, SolrSortDirection, SolrSortField } from '@api';
 import { SimpleLinkDropdown } from '@components/Dropdown/SimpleLinkDropdown';
 import { SortAscendingIcon, SortDescendingIcon } from '@heroicons/react/outline';
+import qs from 'qs';
 import Link from 'next/link';
 import React from 'react';
 import { sortValues } from './model';
@@ -20,7 +21,7 @@ export const SimpleSortDropdown = (props: ISimpleSortDropdownProps): React.React
     id: id,
     domId: `sort-${id}`,
     label: text,
-    path: `search?q=${query}&sort=${id} ${dir}&p=${page}`,
+    path: `/search?${qs.stringify({ q: query, sort: `${id} ${dir}`, p: page })}`,
   }));
 
   return (
@@ -31,7 +32,9 @@ export const SimpleSortDropdown = (props: ISimpleSortDropdownProps): React.React
         label={sortValues.find((v) => v.id === sort).text}
         aria-label="Sort by"
       />
-      <Link href={`search?q=${query}&sort=${sort} ${dir === 'desc' ? 'asc' : 'desc'}&p=${page}`}>
+      <Link
+        href={{ pathname: '/search', query: { q: query, sort: `${sort} ${dir === 'desc' ? 'asc' : 'desc'}`, p: page } }}
+      >
         <a>
           {dir === 'asc' ? (
             <SortAscendingIcon
