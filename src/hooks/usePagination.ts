@@ -44,10 +44,9 @@ export const usePagination = (searchService: ISearchMachine): IUsePagination => 
     searchService.send(TransitionType.SET_PAGINATION, { payload: { pagination: { page } } });
   };
 
-  const [state, setState] = React.useState(initialState);
   const { query } = useRouter();
 
-  useMemo(() => {
+  const state = useMemo(() => {
     const { p } = query;
     const page = parseInt(Array.isArray(p) ? p[0] : p) || 1;
     const totalPages = Math.ceil(totalResults / numPerPage) || 1;
@@ -59,7 +58,7 @@ export const usePagination = (searchService: ISearchMachine): IUsePagination => 
     const startIndex = (page - 1) * numPerPage + 1;
     const endIndex = startIndex + numPerPage - 1;
 
-    setState({
+    return {
       nextHref: `/search?${qs.stringify({ ...query, p: clamp(1, totalPages, page + 1) })}`,
       prevHref: `/search?${qs.stringify({ ...query, p: clamp(1, totalPages, page - 1) })}`,
       pages: pageRange.map((index) => ({
@@ -72,7 +71,7 @@ export const usePagination = (searchService: ISearchMachine): IUsePagination => 
       noPrev: page === 1,
       noNext: page === totalPages,
       noPagination: totalPages === 1,
-    });
+    };
   }, [totalResults, numPerPage, query]);
 
   const handleNext = useCallback(
