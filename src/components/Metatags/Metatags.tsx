@@ -42,7 +42,7 @@ export const Metatags = (props: IMetatagsProps): React.ReactElement => {
   }
 
   const getFomattedNumericPubdate = (pubdate: string) => {
-    const regex = /(....)-(..)-(..)/;
+    const regex = /^(\d{4})-(\d{2})-(\d{2})$/;
     const res = regex.exec(pubdate);
     return `${res[1]}/${res[2]}`;
   };
@@ -53,12 +53,9 @@ export const Metatags = (props: IMetatagsProps): React.ReactElement => {
   };
 
   const getArXiv = (identifier: string[]) => {
-    identifier.forEach((id) => {
-      if (id.startsWith('arXiv')) {
-        return id;
-      }
+    return identifier.find((id) => {
+      return id.startsWith('arXiv');
     });
-    return '';
   };
 
   const title = doc.title ? doc.title.join('; ') : '';
