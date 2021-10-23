@@ -1,7 +1,8 @@
 import { IDocsEntity } from '@api';
-import React from 'react';
-import Head from 'next/head';
 import { Esources } from '@api/lib/search/types';
+import { format } from 'date-fns';
+import Head from 'next/head';
+import React from 'react';
 
 const ADS_BASE_URL = 'https://ui.adsabs.harvard.edu';
 
@@ -42,9 +43,11 @@ export const Metatags = (props: IMetatagsProps): React.ReactElement => {
   }
 
   const getFomattedNumericPubdate = (pubdate: string) => {
-    const regex = /^(\d{4})-(\d{2})-(\d{2})$/;
-    const res = regex.exec(pubdate);
-    return `${res[1]}/${res[2]}`;
+    try {
+      return format(new Date(pubdate), 'yyyy/MM');
+    } catch (e) {
+      return '';
+    }
   };
 
   const getLastPage = (page_range: string) => {
