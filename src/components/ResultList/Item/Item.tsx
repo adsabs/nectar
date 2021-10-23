@@ -2,11 +2,17 @@ import { IDocsEntity } from '@api';
 import { DatabaseIcon, DocumentTextIcon, ViewListIcon } from '@heroicons/react/outline';
 import { useMachine } from '@xstate/react';
 import clsx from 'clsx';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import React from 'react';
-import { AbstractPreview } from './AbstractPreview';
+import { IAbstractPreviewProps } from './AbstractPreview';
 import { itemMachine, ItemMachine } from './machine/item';
-import { isBrowser } from '@utils';
+
+const AbstractPreview = dynamic<IAbstractPreviewProps>(
+  () => import('./AbstractPreview').then((mod) => mod.AbstractPreview),
+  { ssr: false },
+);
+
 interface IItemProps {
   doc: IDocsEntity;
   index: number;
@@ -85,11 +91,9 @@ export const Item = (props: IItemProps): React.ReactElement => {
             {pubdate && <span className="text-xs">{pubdate}</span>}
             {citation && <span className="text-xs">cite: {citation}</span>}
           </div>
-          {!isBrowser() ? null : (
-            <div className="flex">
-              <AbstractPreview id={id} />
-            </div>
-          )}
+          <div className="flex">
+            <AbstractPreview id={id} />
+          </div>
         </div>
       </div>
     </article>
