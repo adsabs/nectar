@@ -1,10 +1,10 @@
-import Image from 'next/image';
+import { OrcidInactiveLogo } from '@components';
 import { ListType } from '@components/Dropdown/types';
+import { ChevronDownIcon } from '@heroicons/react/solid';
 import clsx from 'clsx';
 import React, { ReactElement } from 'react';
 import { CollapsibleList, DropdownList } from '../Dropdown';
 import styles from './NavBar.module.css';
-import { ChevronDownIcon } from '@heroicons/react/solid';
 
 interface IOrcidDropdownProps {
   type: ListType;
@@ -41,13 +41,7 @@ export const OrcidDropdown = (props: IOrcidDropdownProps): ReactElement => {
   const getOrcidLabelNode = () => {
     return (
       <>
-        <Image
-          src="/img/orcid_inactive.svg"
-          width="18"
-          height="18"
-          alt="ORCID logo inactive"
-          className="flex-shrink-0 m-auto"
-        />
+        <OrcidInactiveLogo width="18px" height="18px" aria-hidden className="flex-shrink-0 m-auto" />
         <span>&nbsp;ORCiD</span>
         <ChevronDownIcon className="inline w-4 h-4" />
       </>

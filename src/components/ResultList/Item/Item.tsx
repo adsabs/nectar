@@ -19,7 +19,7 @@ interface IItemProps {
   hideCheckbox: boolean;
   set?: boolean;
   clear?: boolean;
-  onSet: (check: boolean) => void;
+  onSet?: (check: boolean) => void;
 }
 
 export const Item = (props: IItemProps): React.ReactElement => {
@@ -91,9 +91,7 @@ export const Item = (props: IItemProps): React.ReactElement => {
             {pubdate && <span className="text-xs">{pubdate}</span>}
             {citation && <span className="text-xs">cite: {citation}</span>}
           </div>
-          <div className="flex">
-            <AbstractPreview id={id} />
-          </div>
+          <AbstractPreview id={id} />
         </div>
       </div>
     </article>

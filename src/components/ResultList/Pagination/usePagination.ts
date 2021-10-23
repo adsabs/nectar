@@ -1,18 +1,15 @@
-import { ISearchMachine, TransitionType } from '@machines/lib/search/types';
-import { useSelector } from '@xstate/react';
 import { useRouter } from 'next/router';
 import qs from 'qs';
 import { clamp, range } from 'ramda';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 export interface IUsePagination {
   nextHref: string;
   prevHref: string;
   pages: { index: number; href: string }[];
-  page: number;
   startIndex: number;
   endIndex: number;
-  totalResults: number;
+  page: number;
   noPrev: boolean;
   noNext: boolean;
   noPagination: boolean;
@@ -32,18 +29,17 @@ const initialState = {
   noPagination: false,
 };
 
-const reducer = (state: typeof initialState, action) => {
-  return state;
-};
+interface IUsePaginationProps {
+  totalResults: number;
+  numPerPage: number;
+  onPageChange: (page: number) => void;
+}
 
-export const usePagination = (searchService: ISearchMachine): IUsePagination => {
-  const totalResults = useSelector(searchService, (state) => state.context.result.numFound);
-  const numPerPage = useSelector(searchService, (state) => state.context.pagination.numPerPage);
-
-  const updatePagination = (page: number) => {
-    searchService.send(TransitionType.SET_PAGINATION, { payload: { pagination: { page } } });
-  };
-
+export const usePagination = ({
+  totalResults,
+  numPerPage,
+  onPageChange = () => {},
+}: IUsePaginationProps): IUsePagination => {
   const { query } = useRouter();
 
   const state = useMemo(() => {
@@ -77,7 +73,11 @@ export const usePagination = (searchService: ISearchMachine): IUsePagination => 
   const handleNext = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault();
-      updatePagination(state.page + 1);
+      if (state.noNext) {
+        return;
+      }
+
+      onPageChange(state.page + 1);
     },
     [state.page],
   );
@@ -85,7 +85,11 @@ export const usePagination = (searchService: ISearchMachine): IUsePagination => 
   const handlePrev = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault();
-      updatePagination(state.page - 1);
+      if (state.noPrev) {
+        return;
+      }
+
+      onPageChange(state.page - 1);
     },
     [state.page],
   );
@@ -93,14 +97,18 @@ export const usePagination = (searchService: ISearchMachine): IUsePagination => 
   const handlePageChange = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>, page: number) => {
       e.preventDefault();
-      updatePagination(page);
+
+      if (page === state.page) {
+        return;
+      }
+
+      onPageChange(page);
     },
     [state.page],
   );
 
   return {
     ...state,
-    totalResults,
     handleNext,
     handlePrev,
     handlePageChange,

@@ -1,50 +1,110 @@
 import { IDocsEntity } from '@api';
+import { Transition } from '@headlessui/react';
 import { FolderIcon, FolderOpenIcon, RefreshIcon } from '@heroicons/react/solid';
+import { useAPI } from '@hooks';
 import { useMachine } from '@xstate/react';
-import React, { useEffect, MouseEvent } from 'react';
-import { abstractPreviewInitialState, AbstractPreviewMachine, abstractPreviewMachine } from './machine/abstractPreview';
+import React from 'react';
+import { assign, ContextFrom, DoneInvokeEvent } from 'xstate';
+import { createModel } from 'xstate/lib/model';
+
+const createAbstractPreviewMachine = ({
+  initialContext,
+  fetchAbstract,
+}: {
+  initialContext: { abstract: string; show: boolean };
+  fetchAbstract: () => Promise<string>;
+}) => {
+  const model = createModel(initialContext, {
+    events: {
+      load: () => ({}),
+    },
+  });
+
+  return model.createMachine({
+    id: 'abstract-preview',
+    initial: 'idle',
+    states: {
+      idle: {
+        on: {
+          load: 'fetching',
+        },
+      },
+      fetching: {
+        invoke: {
+          src: fetchAbstract,
+          onDone: {
+            target: 'done',
+            actions: assign<ContextFrom<typeof model>, DoneInvokeEvent<string>>({
+              abstract: (_, ev) => ev.data,
+              show: true,
+            }),
+          },
+        },
+      },
+      done: {
+        on: {
+          load: {
+            actions: model.assign({
+              show: (ctx) => !ctx.show,
+            }),
+          },
+        },
+      },
+    },
+  });
+};
 
 export interface IAbstractPreviewProps {
   id: IDocsEntity['id'];
 }
 export const AbstractPreview = ({ id }: IAbstractPreviewProps): React.ReactElement => {
-  const [state, send] = useMachine(abstractPreviewMachine.withContext({ ...abstractPreviewInitialState, id }), {
-    devTools: true,
-  });
-  const [showAbstract, setShowAbstract] = React.useState(false);
-
-  useEffect(() => {
-    if (state.matches('loaded')) {
-      setShowAbstract(true);
-    }
-  }, [state]);
-
-  const handleShowAbstractClick = (e: MouseEvent) => {
-    e.preventDefault();
-    if (state.matches('loaded')) {
-      setShowAbstract(!showAbstract);
-    } else {
-      send({ type: AbstractPreviewMachine.TransitionTypes.GET_ABSTRACT });
-    }
-  };
+  const { api } = useAPI();
+  const [state, send] = useMachine(
+    createAbstractPreviewMachine({
+      fetchAbstract: async () => {
+        const result = await api.search.query({ q: `id:${id}`, fl: ['abstract'] });
+        return result.match(
+          ({ docs }) => (typeof docs[0].abstract === 'undefined' ? 'No Abstract' : docs[0].abstract),
+          (e) => {
+            throw e;
+          },
+        );
+      },
+      initialContext: { abstract: '', show: false },
+    }),
+  );
 
   return (
-    <div className="flex">
+    <div>
       <button
-        title={showAbstract ? 'hide abstract' : 'show abstract'}
-        onClick={handleShowAbstractClick}
-        disabled={state.matches('failure')}
+        type="button"
+        title={state.context.show ? 'hide abstract' : 'show abstract'}
+        onClick={() => send('load')}
+        disabled={false}
+        className="flex-col items-start"
       >
         {state.matches('fetching') ? (
-          <RefreshIcon className="default-icon default-link-color" />
-        ) : showAbstract ? (
+          <RefreshIcon className="default-icon default-link-color transform rotate-180 animate-spin" />
+        ) : state.context.show ? (
           <FolderOpenIcon className="default-icon default-link-color" />
         ) : (
           <FolderIcon className="default-icon default-link-color" />
         )}
       </button>
-      <span className="ml-3 text-red-600">{state.matches('failure') && state.context.error?.message}</span>
-      {showAbstract && <div className="mt-2 p-2 border">{state.context.meta.abstract}</div>}
+      <Transition
+        show={state.context.show}
+        enter="transition-opacity duration-75"
+        enterFrom="opacity-0"
+        enterTo="opacity-100"
+        leave="transition-opacity duration-150"
+        leaveFrom="opacity-100"
+        leaveTo="opacity-0"
+      >
+        <div
+          className="prose prose-md mt-2 p-2 max-w-none border shadow-md"
+          dangerouslySetInnerHTML={{ __html: state.context.abstract }}
+        ></div>
+      </Transition>
     </div>
   );
 };
