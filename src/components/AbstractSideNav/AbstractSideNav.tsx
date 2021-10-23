@@ -8,7 +8,7 @@ import clsx from 'clsx';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { last } from 'ramda';
-import React, { HTMLAttributes, useEffect } from 'react';
+import React, { HTMLAttributes } from 'react';
 import { navigation, Routes } from './model';
 import { useAppCtx } from '@store';
 export interface IAbstractSideNavProps extends HTMLAttributes<HTMLDivElement> {

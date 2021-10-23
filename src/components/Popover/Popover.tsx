@@ -1,3 +1,4 @@
+import { isBrowser } from '@utils';
 import clsx from 'clsx';
 import React, { ReactElement, ReactNode, useState } from 'react';
 import { usePopper } from 'react-popper';
@@ -34,9 +35,13 @@ export const Popover = (props: IPopoverProps): ReactElement => {
 
   return (
     <>
-      <button type="button" ref={setReferenceElement} onMouseOver={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-        {label}
-      </button>
+      {isBrowser() ? (
+        <button ref={setReferenceElement} onMouseOver={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+          {label}
+        </button>
+      ) : (
+        <span title={message}>{label}</span>
+      )}
 
       <div ref={setPopperElement} style={styles.popper} {...attributes.popper} className={popperClasses} {...restProps}>
         <strong>{title}</strong>

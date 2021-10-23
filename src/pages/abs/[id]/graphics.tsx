@@ -5,6 +5,8 @@ import Link from 'next/link';
 import AdsApi, { IADSApiGraphicsParams, IADSApiGraphicsResponse, IDocsEntity, IUserData } from '@api';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import Image from 'next/image';
+import { metatagsQueryFields } from '@components';
+import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 interface IGraphicsPageProps {
   graphics?: IADSApiGraphicsResponse;
   originalDoc: IDocsEntity;
@@ -69,7 +71,10 @@ export const getServerSideProps: GetServerSideProps<IGraphicsPageProps> = async 
   };
   const adsapi = new AdsApi({ token: userData.access_token });
   const result = await adsapi.graphics.query(params);
-  const originalDoc = await adsapi.search.getDocument(query.id);
+  const originalDoc = await adsapi.search.getDocument(query.id, [
+    ...abstractPageNavDefaultQueryFields,
+    ...metatagsQueryFields,
+  ]);
   const hasGraphics =
     !originalDoc.notFound && !originalDoc.error ? await adsapi.graphics.hasGraphics(adsapi, params.bibcode) : false;
   const hasMetrics =

@@ -2,10 +2,16 @@ import { IDocsEntity } from '@api';
 import { DatabaseIcon, DocumentTextIcon, ViewListIcon } from '@heroicons/react/outline';
 import { useMachine } from '@xstate/react';
 import clsx from 'clsx';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import React from 'react';
-import { AbstractPreview } from './AbstractPreview';
+import { IAbstractPreviewProps } from './AbstractPreview';
 import { itemMachine, ItemMachine } from './machine/item';
+
+const AbstractPreview = dynamic<IAbstractPreviewProps>(
+  () => import('./AbstractPreview').then((mod) => mod.AbstractPreview),
+  { ssr: false },
+);
 
 interface IItemProps {
   doc: IDocsEntity;
@@ -44,9 +50,9 @@ export const Item = (props: IItemProps): React.ReactElement => {
 
   return (
     <article className="flex bg-white border rounded-md shadow" aria-labelledby={`result-${id}`}>
-      {hideCheckbox ? null : (
-        <div className={checkBgClass}>
-          <div className={indexClass}>{index}</div>
+      <div className={checkBgClass}>
+        <div className={indexClass}>{index}</div>
+        {hideCheckbox ? null : (
           <input
             type="checkbox"
             name={`result-checkbox-${index}`}
@@ -55,8 +61,8 @@ export const Item = (props: IItemProps): React.ReactElement => {
             checked={state.matches('selected')}
             aria-label={title[0]}
           />
-        </div>
-      )}
+        )}
+      </div>
       <div className="flex flex-col w-full">
         <div className="flex flex-row justify-between">
           <Link href={`/abs/${bibcode}`}>

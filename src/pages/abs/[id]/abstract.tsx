@@ -1,5 +1,5 @@
 import AdsApi, { IDocsEntity, IUserData, SolrSort } from '@api';
-import { AbstractSources } from '@components';
+import { AbstractSources, metatagsQueryFields } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 import { createUrlByType } from '@components/AbstractSources/linkGenerator';
 import { AbsLayout } from '@components/Layout/AbsLayout';
@@ -10,7 +10,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { isNil } from 'ramda';
 import React, { useEffect, useState } from 'react';
-import { normalizeURLParams } from 'src/utils';
+import { normalizeURLParams, isBrowser } from 'src/utils';
 export interface IAbstractPageProps {
   doc?: IDocsEntity;
   error?: string;
@@ -25,10 +25,12 @@ export interface IAbstractPageProps {
 
 const MAX_AUTHORS = 20;
 
+const MAX_AUTHORS_STATIC = 50;
+
 const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) => {
   const { doc, error, params, hasGraphics, hasMetrics } = props;
 
-  const [showNumAuthors, setShowNumAuthors] = useState<number>(MAX_AUTHORS);
+  const [showNumAuthors, setShowNumAuthors] = useState<number>(isBrowser() ? MAX_AUTHORS : MAX_AUTHORS_STATIC);
 
   const [aff, setAff] = useState({ show: false, data: [] as string[] });
 
@@ -88,70 +90,81 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
               <h2 className="prose-xl pb-5 text-gray-900 text-2xl font-medium leading-8" id="title">
                 {doc.title}
               </h2>
-              {aff.show ? (
-                <button className="badge ml-1" onClick={handleHideAff}>
-                  hide affiliations
-                </button>
-              ) : (
-                <button className="badge ml-1" onClick={handleShowAff}>
-                  show affiliations
-                </button>
-              )}
-              {doc.author.length > showNumAuthors ? (
-                <span>
-                  <button className="badge" onClick={handleShowAllAuthors}>
-                    show all authors
-                  </button>
-                </span>
-              ) : showNumAuthors > MAX_AUTHORS ? (
-                <button className="badge" onClick={handleShowLessAuthors}>
-                  show less authors
-                </button>
+              {isBrowser() ? (
+                <>
+                  {aff.show ? (
+                    <button className="badge ml-1" onClick={handleHideAff}>
+                      hide affiliations
+                    </button>
+                  ) : (
+                    <button className="badge ml-1" onClick={handleShowAff}>
+                      show affiliations
+                    </button>
+                  )}
+
+                  {doc.author.length > showNumAuthors ? (
+                    <span>
+                      <button className="badge" onClick={handleShowAllAuthors}>
+                        show all authors
+                      </button>
+                    </span>
+                  ) : showNumAuthors > MAX_AUTHORS ? (
+                    <button className="badge" onClick={handleShowLessAuthors}>
+                      show less authors
+                    </button>
+                  ) : null}
+                </>
               ) : null}
-              <div className={authorsClass}>
-                {doc.author.slice(0, showNumAuthors).map((a, index) => {
-                  const orcid =
-                    doc.orcid_pub && doc.orcid_pub[index] !== '-'
-                      ? doc.orcid_pub[index]
-                      : doc.orcid_user && doc.orcid_user[index] !== '-'
-                      ? doc.orcid_user[index]
-                      : doc.orcid_other && doc.orcid_other[index] !== '-'
-                      ? doc.orcid_other[index]
-                      : undefined;
-                  return (
-                    <div key={a} className={authorClass}>
-                      <Link
-                        href={`/search?q=${encodeURIComponent(`author:"${a}"`)}&sort=${encodeURIComponent(
-                          'date desc, bibcode desc',
-                        )}`}
-                      >
-                        <a className={authorNameClass}>{a}</a>
-                      </Link>
-                      {'  '}
-                      {orcid && (
+              {doc.author && doc.author.length > 0 && (
+                <div className={authorsClass}>
+                  {doc.author.slice(0, showNumAuthors).map((a, index) => {
+                    const orcid =
+                      doc.orcid_pub && doc.orcid_pub[index] !== '-'
+                        ? doc.orcid_pub[index]
+                        : doc.orcid_user && doc.orcid_user[index] !== '-'
+                        ? doc.orcid_user[index]
+                        : doc.orcid_other && doc.orcid_other[index] !== '-'
+                        ? doc.orcid_other[index]
+                        : undefined;
+                    return (
+                      <div key={index} className={authorClass}>
                         <Link
-                          href={`/search?q=${encodeURIComponent(`orcid:${orcid}`)}&sort=${encodeURIComponent(
-                            `date desc, bibcode desc`,
+                          href={`/search?q=${encodeURIComponent(`author:"${a}"`)}&sort=${encodeURIComponent(
+                            'date desc, bibcode desc',
                           )}`}
                         >
-                          <a style={{ height: 20 }}>
-                            <Image src="/img/orcid-active.svg" width="20" height="20" alt="Search by ORCID" />
-                          </a>
+                          <a className={authorNameClass}>{a}</a>
                         </Link>
-                      )}
-                      {'  '}
-                      {aff.show ? <>({aff.data[index]})</> : null}
-                      ;&nbsp;
-                    </div>
-                  );
-                })}
-                &nbsp;
-                {doc.author.length > showNumAuthors ? (
-                  <a onClick={handleShowAllAuthors} className="link">
-                    ... more
-                  </a>
-                ) : null}
-              </div>
+                        {'  '}
+                        {orcid && (
+                          <Link
+                            href={{
+                              pathname: '/search',
+                              query: { q: `orcid:${orcid}`, sort: 'date desc, bibcode desc' },
+                            }}
+                          >
+                            <a style={{ height: 20 }}>
+                              <Image src="/img/orcid-active.svg" width="20" height="20" alt="Search by ORCID" />
+                            </a>
+                          </Link>
+                        )}
+                        {'  '}
+                        {aff.show ? <>({aff.data[index]})</> : null}
+                        ;&nbsp;
+                      </div>
+                    );
+                  })}
+                  &nbsp;
+                  {isBrowser() && doc.author.length > showNumAuthors ? (
+                    <a onClick={handleShowAllAuthors} className="link">
+                      ... more
+                    </a>
+                  ) : null}
+                  {!isBrowser() && doc.author.length > showNumAuthors ? (
+                    <span>{` and ${doc.author.length - showNumAuthors} more`}</span>
+                  ) : null}
+                </div>
+              )}
             </div>
 
             <AbstractSources doc={doc} />
@@ -174,7 +187,7 @@ interface IDetailsProps {
   doc: IDocsEntity;
 }
 const Details = ({ doc }: IDetailsProps) => {
-  const arxiv = (doc.identifier ?? []).find((v) => /^arxiv/i.exec(v));
+  const arxiv = (doc.identifier ?? ([] as string[])).find((v) => /^arxiv/i.exec(v));
 
   const entries = [
     { label: 'Publication', value: doc.pub },
@@ -224,23 +237,14 @@ export const getServerSideProps: GetServerSideProps<IAbstractPageProps> = async 
     q: `identifier:${query.id}`,
     fl: [
       ...abstractPageNavDefaultQueryFields,
-      'identifier',
-      'bibcode',
-      'title',
-      'author',
+      ...metatagsQueryFields,
       'author_count',
-      'pubdate',
-      'abstract',
-      'doi',
-      'data',
-      'keyword',
-      'pub',
       'comment',
-      'esources',
-      'property',
+      'data',
       'orcid_pub',
       'orcid_user',
       'orcid_other',
+      'property',
     ],
     sort: query.sort ? (query.sort.split(',') as SolrSort[]) : [],
   };

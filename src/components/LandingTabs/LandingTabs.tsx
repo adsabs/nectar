@@ -16,8 +16,8 @@ const backgroundMap = new Map<Theme, string>([
 ]);
 
 const initialState = {
-  showTabs: true,
-  background: backgroundMap.get(Theme.ASTROPHYSICS),
+  showTabs: false,
+  background: backgroundMap.get(Theme.GENERAL),
 };
 type Action = { type: 'UPDATE_THEME'; payload: Theme };
 const reducer: Reducer<typeof initialState, Action> = (state, { type, payload }) => {

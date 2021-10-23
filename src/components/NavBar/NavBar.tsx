@@ -1,12 +1,15 @@
 import Link from 'next/link';
 import React, { FC } from 'react';
-import { ThemeDropdown } from './ThemeDropdown';
 import styles from './NavBar.module.css';
 import clsx from 'clsx';
-import { NavMenus } from './NavMenus';
+import dynamic from 'next/dynamic';
 
 export const NavBar: FC = () => {
   const navbarClasses = clsx(styles['navbar-bg-color'], 'relative flex items-center');
+
+  const ThemeDropdown = dynamic(() => import('./ThemeDropdown').then((mod) => mod.ThemeDropdown), { ssr: false });
+
+  const NavMenus = dynamic(() => import('./NavMenus').then((mod) => mod.NavMenus), { ssr: false });
 
   return (
     <nav className={navbarClasses}>
