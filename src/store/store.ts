@@ -2,9 +2,19 @@ import { Theme } from '@types';
 import { isBrowser } from '@utils';
 import { IncomingMessage } from 'http';
 import { fromThrowable } from 'neverthrow';
-import React from 'react';
+import {
+  createContext,
+  createElement,
+  Dispatch,
+  PropsWithChildren,
+  ReactElement,
+  Reducer,
+  useContext,
+  useReducer,
+} from 'react';
 import { reducer } from './reducer';
 import { Action, IAppState } from './types';
+
 const APP_STORAGE_KEY = 'nectar-app-state';
 export const initialAppState: IAppState = {
   user: {
@@ -18,7 +28,7 @@ export const initialAppState: IAppState = {
 };
 
 // wrap the main reducer so we can debug/push changes to local storage
-const nectarAppReducer: React.Reducer<IAppState, Action> = (state, action) => {
+const nectarAppReducer: Reducer<IAppState, Action> = (state, action) => {
   console.groupCollapsed(`%cStore`, 'padding: 5px; color: white; background: dodgerblue', action.type);
   console.log('old', state);
   const newState: IAppState = reducer(state, action);
@@ -37,10 +47,10 @@ const nectarAppReducer: React.Reducer<IAppState, Action> = (state, action) => {
 
 type AppStoreApi = {
   state: IAppState;
-  dispatch: React.Dispatch<Action>;
+  dispatch: Dispatch<Action>;
 };
 
-const ctx = React.createContext<AppStoreApi>({
+const ctx = createContext<AppStoreApi>({
   state: null,
   dispatch: () => ({}),
 });
@@ -51,10 +61,10 @@ const safeParse = <T>(value: string, defaultValue: T): T => {
 };
 
 const AppProvider = (
-  props: React.PropsWithChildren<{ session: IncomingMessage['session']; initialStore?: Partial<IAppState> }>,
-): React.ReactElement => {
+  props: PropsWithChildren<{ session: IncomingMessage['session']; initialStore?: Partial<IAppState> }>,
+): ReactElement => {
   const { session, initialStore } = props;
-  const [state, dispatch] = React.useReducer(nectarAppReducer, initialAppState, (initial): IAppState => {
+  const [state, dispatch] = useReducer(nectarAppReducer, initialAppState, (initial): IAppState => {
     if (typeof initialStore !== 'undefined') {
       return {
         ...initial,
@@ -71,11 +81,11 @@ const AppProvider = (
     return newState;
   });
 
-  return React.createElement(ctx.Provider, { value: { state, dispatch }, ...props });
+  return createElement(ctx.Provider, { value: { state, dispatch }, ...props });
 };
 
 const useAppCtx = (): AppStoreApi => {
-  const context = React.useContext(ctx);
+  const context = useContext(ctx);
   if (typeof context === 'undefined') {
     throw new Error('no provider for AppContext');
   }

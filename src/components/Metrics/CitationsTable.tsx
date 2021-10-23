@@ -1,7 +1,7 @@
 import { Popover } from '@components/Popover/Popover';
 import { QuestionMarkCircleIcon } from '@heroicons/react/solid';
 import clsx from 'clsx';
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { ICitationsTableData } from './types';
 
 export interface ICitationsTableProps {

@@ -5,7 +5,8 @@ import { isBrowser } from '@utils';
 import clsx from 'clsx';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import React, { useReducer } from 'react';
+import { ChangeEvent, ChangeEventHandler, useCallback, useReducer } from 'react';
+
 interface FormEvent {
   name: string;
   value: string;
@@ -20,17 +21,17 @@ const formReducer = (state: Record<string, string>, event: FormEvent) => {
 const ClassicForm: NextPage = () => {
   const Router = useRouter();
   const [formData, setFormData] = useReducer(formReducer, {});
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.currentTarget;
     setFormData({ name, value });
   };
-  const handleSortChange = React.useCallback(
+  const handleSortChange = useCallback(
     (sort: SolrSort[]) => {
       setFormData({ name: 'sort', value: sort.join(',') });
     },
     [setFormData],
   );
-  const handleOnSubmit = (e: React.ChangeEvent<HTMLFormElement>): void => {
+  const handleOnSubmit = (e: ChangeEvent<HTMLFormElement>): void => {
     e.preventDefault();
     const controller = new ClassicformController(formData as RawClassicFormParams);
     void Router.push(`/search?${controller.getQuery()}`);
@@ -119,15 +120,7 @@ const ClassicForm: NextPage = () => {
   );
 };
 
-const LogicAndTextarea = ({
-  label,
-  desc,
-  onChange,
-}: {
-  label: string;
-  desc: string;
-  onChange: React.ChangeEventHandler;
-}) => {
+const LogicAndTextarea = ({ label, desc, onChange }: { label: string; desc: string; onChange: ChangeEventHandler }) => {
   const id = normalizeString(label);
   return (
     <div>
@@ -163,7 +156,7 @@ const Checkbox = ({
   label: string;
   checked?: boolean;
   bold?: boolean;
-  onChange: React.ChangeEventHandler;
+  onChange: ChangeEventHandler;
 }) => {
   const labelStyles = clsx({ 'font-bold': bold }, 'text-gray-700');
   const id = `${idPrefix}_${normalizeString(label)}`;
@@ -195,7 +188,7 @@ const LogicAndInput = ({
 }: {
   label: string;
   noLogic?: boolean;
-  onChange: React.ChangeEventHandler;
+  onChange: ChangeEventHandler;
 }) => {
   const id = normalizeString(label);
   return (
@@ -227,7 +220,7 @@ const LogicRadios = ({
 }: {
   name: string;
   variant: 'andor' | 'all';
-  onChange: React.ChangeEventHandler;
+  onChange: ChangeEventHandler;
 }) => {
   const values = {
     andor: ['and', 'or'],

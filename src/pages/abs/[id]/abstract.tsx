@@ -9,7 +9,7 @@ import { GetServerSideProps, NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { isNil } from 'ramda';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { normalizeURLParams, isBrowser } from 'src/utils';
 export interface IAbstractPageProps {
   doc?: IDocsEntity;

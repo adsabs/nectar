@@ -1,6 +1,6 @@
 import { MenuIcon } from '@heroicons/react/solid';
 import clsx from 'clsx';
-import React, { ReactElement, useState, KeyboardEvent, useEffect } from 'react';
+import { ReactElement, useState, KeyboardEvent, useEffect } from 'react';
 import { AboutDropdown } from './AboutDropdown';
 import { OrcidDropdown } from './OrcidDropdown';
 import styles from './NavBar.module.css';

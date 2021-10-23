@@ -2,7 +2,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/solid';
 import { isBrowser } from '@utils';
 import clsx from 'clsx';
 import Link from 'next/link';
-import React, { HTMLAttributes } from 'react';
+import { HTMLAttributes, MouseEvent, ReactElement } from 'react';
 import { usePagination } from './usePagination';
 
 export interface IPaginationProps extends HTMLAttributes<HTMLDivElement> {
@@ -16,7 +16,7 @@ const defaultProps = {
   numPerPage: 10,
 };
 
-export const Pagination = (props: IPaginationProps): React.ReactElement => {
+export const Pagination = (props: IPaginationProps): ReactElement => {
   const { totalResults, numPerPage, onPageChange, ...divProps } = props;
 
   const {
@@ -43,7 +43,7 @@ export const Pagination = (props: IPaginationProps): React.ReactElement => {
   }
 
   const pageChangeHandler = (idx: number) => {
-    return (e: React.MouseEvent<HTMLAnchorElement>) => handlePageChange(e, idx);
+    return (e: MouseEvent<HTMLAnchorElement>) => handlePageChange(e, idx);
   };
 
   const renderControls = () => {

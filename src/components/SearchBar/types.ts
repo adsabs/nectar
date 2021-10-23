@@ -182,8 +182,7 @@ export const typeaheadOptions: TypeaheadOption[] = [
   {
     value: 'trending()',
     label: 'Trending',
-    desc:
-      'Get papers most read by users who recently read your search result set',
+    desc: 'Get papers most read by users who recently read your search result set',
     match: 'trending(',
   },
   {

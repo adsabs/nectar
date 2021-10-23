@@ -63,49 +63,47 @@ export const processLinkData = (doc: IDocsEntity, linkServer: string) => {
     return rank > -1 ? rank : 9999;
   });
 
-  const mapOverSources = map<Esources, IFullTextSource>(
-    (el): IFullTextSource => {
-      const linkInfo = LINK_TYPES[el];
-      const identifier = doc.doi || doc.issn || doc.isbn;
+  const mapOverSources = map<Esources, IFullTextSource>((el): IFullTextSource => {
+    const linkInfo = LINK_TYPES[el];
+    const identifier = doc.doi || doc.issn || doc.isbn;
 
-      // Create an OpenURL
-      // Only create an openURL if the following is true:
-      //   - The article HAS an Identifier (doi, issn, isbn)
-      //   - The user is authenticated
-      //   - the user HAS a library link server
-      if (identifier && linkServer && countOpenUrls < 1) {
-        countOpenUrls += 1;
-        return {
-          url: getOpenUrl({ metadata: doc, linkServer }),
-          openUrl: true,
-          ...LINK_TYPES.INSTITUTION,
-        };
-      }
-
-      const maybeOpenSources = [
-        Esources.ADS_PDF,
-        Esources.ADS_SCAN,
-        Esources.AUTHOR_HTML,
-        Esources.AUTHOR_PDF,
-        Esources.EPRINT_HTML,
-        Esources.EPRINT_PDF,
-        Esources.PUB_HTML,
-        Esources.PUB_PDF,
-      ];
-
-      const [prefix] = el.split('_');
-      const open = maybeOpenSources.includes(el) && doc.property.includes(`${prefix}_OPENACCESS`);
-
+    // Create an OpenURL
+    // Only create an openURL if the following is true:
+    //   - The article HAS an Identifier (doi, issn, isbn)
+    //   - The user is authenticated
+    //   - the user HAS a library link server
+    if (identifier && linkServer && countOpenUrls < 1) {
+      countOpenUrls += 1;
       return {
-        url: createGatewayUrl(doc.bibcode, el),
-        open,
-        shortName: (linkInfo && linkInfo.shortName) || el,
-        name: (linkInfo && linkInfo.name) || el,
-        type: (linkInfo && linkInfo.type) || 'HTML',
-        description: linkInfo && linkInfo.description,
+        url: getOpenUrl({ metadata: doc, linkServer }),
+        openUrl: true,
+        ...LINK_TYPES.INSTITUTION,
       };
-    },
-  );
+    }
+
+    const maybeOpenSources = [
+      Esources.ADS_PDF,
+      Esources.ADS_SCAN,
+      Esources.AUTHOR_HTML,
+      Esources.AUTHOR_PDF,
+      Esources.EPRINT_HTML,
+      Esources.EPRINT_PDF,
+      Esources.PUB_HTML,
+      Esources.PUB_PDF,
+    ];
+
+    const [prefix] = el.split('_');
+    const open = maybeOpenSources.includes(el) && doc.property.includes(`${prefix}_OPENACCESS`);
+
+    return {
+      url: createGatewayUrl(doc.bibcode, el),
+      open,
+      shortName: (linkInfo && linkInfo.shortName) || el,
+      name: (linkInfo && linkInfo.name) || el,
+      type: (linkInfo && linkInfo.type) || 'HTML',
+      description: linkInfo && linkInfo.description,
+    };
+  });
 
   const processEsources = compose(sortByDefaultOrdering, mapOverSources);
   const fullTextSources = processEsources(doc.esources);
@@ -134,19 +132,17 @@ export const processLinkData = (doc: IDocsEntity, linkServer: string) => {
     });
   }
 
-  const mapOverDataProducts = map(
-    (product: string): IDataProductSource => {
-      const [source, count = '1'] = product.split(':');
-      const linkInfo = LINK_TYPES[source as Esources];
+  const mapOverDataProducts = map((product: string): IDataProductSource => {
+    const [source, count = '1'] = product.split(':');
+    const linkInfo = LINK_TYPES[source as Esources];
 
-      return {
-        url: createGatewayUrl(doc.bibcode, source),
-        count,
-        name: linkInfo ? linkInfo.shortName : source,
-        description: linkInfo ? linkInfo.description : source,
-      };
-    },
-  );
+    return {
+      url: createGatewayUrl(doc.bibcode, source),
+      count,
+      name: linkInfo ? linkInfo.shortName : source,
+      description: linkInfo ? linkInfo.description : source,
+    };
+  });
 
   const processDataProducts = compose(sortWith([descend(prop('count'))]), mapOverDataProducts);
 

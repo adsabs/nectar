@@ -2,11 +2,12 @@ import { IDocsEntity, SolrSort } from '@api';
 import { ISearchMachine, TransitionType } from '@machines/lib/search/types';
 import { isBrowser } from '@utils';
 import { useSelector } from '@xstate/react';
-import React, { HTMLAttributes, ReactElement, useEffect, useState } from 'react';
+import { HTMLAttributes, ReactElement, useEffect, useState } from 'react';
 import { Item } from './Item/Item';
 import { ListActions } from './ListActions';
-import { Pagination } from './Pagination/Pagination';
+import { Pagination } from './Pagination';
 import { Skeleton } from './Skeleton';
+
 export interface IResultListProps extends HTMLAttributes<HTMLDivElement> {
   docs: IDocsEntity[];
   hideCheckboxes?: boolean;
@@ -24,7 +25,7 @@ interface ISelection {
   selectedCount: number;
 }
 
-export const ResultList = (props: IResultListProps): React.ReactElement => {
+export const ResultList = (props: IResultListProps): ReactElement => {
   const [selection, setSelection] = useState<ISelection>({
     selectAll: false,
     selectNone: false,

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Meta, Story } from '@storybook/react';
 import { ResultList, IResultListProps } from '../ResultList';
 
@@ -19,7 +18,7 @@ const meta: Meta = {
 
 export default meta;
 
-const Template: Story<IResultListProps> = args => <ResultList {...args} />;
+const Template: Story<IResultListProps> = (args) => <ResultList {...args} />;
 
 export const Default = Template.bind({}) as Story<IResultListProps>;
 

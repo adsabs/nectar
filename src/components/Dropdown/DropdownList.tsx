@@ -2,7 +2,7 @@ import { ChevronDownIcon } from '@heroicons/react/solid';
 import { Placement } from '@popperjs/core';
 import { isBrowser } from '@utils';
 import clsx from 'clsx';
-import React, { KeyboardEvent, ReactElement, ReactNode, useCallback, useEffect, useState } from 'react';
+import { KeyboardEvent, ReactElement, ReactNode, useCallback, useEffect, useState } from 'react';
 import OutsideClickHandler from 'react-outside-click-handler';
 import { usePopper } from 'react-popper';
 import { Item } from './ListItem';

@@ -1,4 +1,4 @@
-import { Theme } from "@types";
+import { Theme } from '@types';
 
 export const examples = {
   [Theme.GENERAL]: {
@@ -115,4 +115,4 @@ export const examples = {
       { label: 'OR', text: 'abs:(virus OR disease)' },
     ],
   },
-}
+};

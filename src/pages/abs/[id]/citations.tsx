@@ -6,7 +6,6 @@ import { SimpleResultList } from '@components/ResultList';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
-import React from 'react';
 import { normalizeURLParams } from 'src/utils';
 export interface ICitationsPageProps {
   docs: IDocsEntity[];

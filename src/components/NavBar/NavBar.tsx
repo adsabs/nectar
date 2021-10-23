@@ -2,7 +2,7 @@ import { AdsSmallLogo } from '@components/images';
 import clsx from 'clsx';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import React, { FC } from 'react';
+import { FC } from 'react';
 import styles from './NavBar.module.css';
 
 const ThemeDropdown = dynamic(() => import('./ThemeDropdown').then((mod) => mod.ThemeDropdown), { ssr: false });

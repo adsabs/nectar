@@ -1,5 +1,5 @@
 import PT from 'prop-types';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { getTrackBackground, Range } from 'react-range';
 import { MAX_RECORDS } from './constants';
 import { ExportState } from './types';
@@ -19,7 +19,7 @@ const defaultProps = {
   max: MAX_RECORDS,
 };
 
-export const LimitRange = ({ limit, max, onLimitChange }: ILimitRangeProps): React.ReactElement => {
+export const LimitRange = ({ limit, max, onLimitChange }: ILimitRangeProps): ReactElement => {
   const handleLimitChange = useCallback(([limit]) => onLimitChange(limit), []);
 
   if (max <= 1) {

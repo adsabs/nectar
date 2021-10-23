@@ -1,9 +1,9 @@
 import { SolrSort, SolrSortDirection, SolrSortField } from '@api';
 import { SimpleLinkDropdown } from '@components/Dropdown/SimpleLinkDropdown';
 import { SortAscendingIcon, SortDescendingIcon } from '@heroicons/react/outline';
-import qs from 'qs';
 import Link from 'next/link';
-import React from 'react';
+import qs from 'qs';
+import { ReactElement } from 'react';
 import { sortValues } from './model';
 
 export interface ISimpleSortDropdownProps {
@@ -12,7 +12,7 @@ export interface ISimpleSortDropdownProps {
   page: number;
 }
 
-export const SimpleSortDropdown = (props: ISimpleSortDropdownProps): React.ReactElement => {
+export const SimpleSortDropdown = (props: ISimpleSortDropdownProps): ReactElement => {
   const { query, selected, page } = props;
 
   const [sort, dir] = selected.split(' ') as [SolrSortField, SolrSortDirection];

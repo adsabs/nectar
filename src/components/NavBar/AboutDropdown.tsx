@@ -1,7 +1,7 @@
 import { ListType } from '@components/Dropdown/types';
 import { isBrowser } from '@utils';
 import clsx from 'clsx';
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { CollapsibleList, DropdownList } from '../Dropdown';
 import styles from './NavBar.module.css';
 const items = [

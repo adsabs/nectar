@@ -1,6 +1,6 @@
 import { ChevronDownIcon } from '@heroicons/react/solid';
 import clsx from 'clsx';
-import React, { ReactElement, ReactNode, useCallback, useState, KeyboardEvent} from 'react';
+import { ReactElement, ReactNode, useCallback, useState, KeyboardEvent } from 'react';
 import OutsideClickHandler from 'react-outside-click-handler';
 import { usePopper } from 'react-popper';
 
@@ -80,7 +80,7 @@ export const DropdownBasic = (props: IDropdownBasicProps): ReactElement => {
       case 'Escape':
         return close();
     }
-  }
+  };
 
   const containerClasses = clsx('z-50 bg-white focus:border-blue-700', classes.container, {
     hidden: !visible,

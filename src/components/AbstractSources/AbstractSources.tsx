@@ -5,14 +5,14 @@ import { ChevronDownIcon, LockClosedIcon, LockOpenIcon } from '@heroicons/react/
 import { isBrowser } from '@utils';
 import Link from 'next/link';
 import { isNil } from 'ramda';
-import React, { HTMLAttributes } from 'react';
-import { IRelatedWorks, IDataProductSource, IFullTextSource, processLinkData } from './linkGenerator';
+import { HTMLAttributes, ReactElement } from 'react';
+import { IDataProductSource, IFullTextSource, IRelatedWorks, processLinkData } from './linkGenerator';
 
 export interface IAbstractSourcesProps extends HTMLAttributes<HTMLDivElement> {
   doc?: IDocsEntity;
 }
 
-export const AbstractSources = ({ doc }: IAbstractSourcesProps): React.ReactElement => {
+export const AbstractSources = ({ doc }: IAbstractSourcesProps): ReactElement => {
   if (!doc) {
     return <button className="button-sm-inactive">Full Text Sources</button>;
   }
@@ -47,7 +47,7 @@ interface IFullTextDropdownProps {
   sources: IFullTextSource[];
 }
 
-const FullTextDropdown = (props: IFullTextDropdownProps): React.ReactElement => {
+const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
   const { sources } = props;
 
   const fullSourceItems = sources.map((source) => ({
@@ -119,7 +119,7 @@ interface IRelatedMaterialsDropdownProps {
   relatedWorks: IRelatedWorks[];
 }
 
-const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): React.ReactElement => {
+const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElement => {
   const { dataProducts, relatedWorks } = props;
 
   const dataProductItems = dataProducts.map((source) => ({

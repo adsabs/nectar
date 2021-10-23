@@ -8,8 +8,7 @@ import App, { AppContext, AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import 'nprogress/nprogress.css';
-// import 'public/katex/katex.css';
-import React, { useEffect } from 'react';
+import { ReactElement, useEffect } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'tailwindcss/tailwind.css';
@@ -21,7 +20,7 @@ const TopProgressBar = dynamic(() => import('@components/TopProgressBar').then((
 
 type NectarAppProps = { session: IncomingMessage['session'] } & AppProps;
 
-const NectarApp = ({ Component, pageProps, session }: NectarAppProps): React.ReactElement => {
+const NectarApp = ({ Component, pageProps, session }: NectarAppProps): ReactElement => {
   return (
     <AppProvider session={session}>
       <ApiProvider>
@@ -44,7 +43,7 @@ NectarApp.getInitialProps = async (appContext: AppContext) => {
   return { ...appProps, session: appContext.ctx.req?.session };
 };
 
-const ThemeRouter = (): React.ReactElement => {
+const ThemeRouter = (): ReactElement => {
   const { state } = useAppCtx();
   const router = useRouter();
 

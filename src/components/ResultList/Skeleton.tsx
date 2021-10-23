@@ -1,11 +1,10 @@
 import { range } from 'ramda';
-import React from 'react';
 
 interface ISkeletonProps {
   count: number;
 }
 
-export const Skeleton = (props: ISkeletonProps): React.ReactElement => {
+export const Skeleton = (props: ISkeletonProps): ReactElement => {
   const { count } = props;
 
   return (

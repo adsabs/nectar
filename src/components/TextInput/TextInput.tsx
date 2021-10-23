@@ -1,6 +1,7 @@
 import clsx from 'clsx';
-import React, { DetailedHTMLProps, InputHTMLAttributes } from 'react';
+import { DetailedHTMLProps, forwardRef, InputHTMLAttributes, ReactElement } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+
 export interface ITextInputProps
   extends Omit<DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>, 'ref'> {
   label?: string;
@@ -12,7 +13,7 @@ export interface ITextInputProps
   };
 }
 
-export const TextInput = React.forwardRef<HTMLInputElement, ITextInputProps>((props, ref): React.ReactElement => {
+export const TextInput = forwardRef<HTMLInputElement, ITextInputProps>((props, ref): ReactElement => {
   const { label, classes, helptext, ...inputProps } = props;
   const labelStyles = typeof classes.label === 'string' ? classes.label : 'block text-sm font-medium text-gray-700';
   const inputStyles = clsx(

@@ -1,5 +1,4 @@
 import { GetServerSideProps, NextPage } from 'next';
-import React from 'react';
 import { normalizeURLParams } from '@utils';
 import Link from 'next/link';
 import AdsApi, { IADSApiGraphicsParams, IADSApiGraphicsResponse, IDocsEntity, IUserData } from '@api';

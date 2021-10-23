@@ -1,4 +1,3 @@
-import React from 'react';
 import { Meta, Story } from '@storybook/react';
 import { Button, IButtonProps } from '../Button';
 
@@ -19,7 +18,7 @@ const meta: Meta = {
 
 export default meta;
 
-const Template: Story<IButtonProps> = args => <Button {...args} />;
+const Template: Story<IButtonProps> = (args) => <Button {...args} />;
 
 export const Default = Template.bind({}) as Story<IButtonProps>;
 

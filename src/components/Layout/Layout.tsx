@@ -1,6 +1,6 @@
 import { LandingTabs } from '@components/LandingTabs';
 import { useRouter } from 'next/router';
-import React, { FC, HTMLAttributes, ReactChild } from 'react';
+import { FC, HTMLAttributes, ReactChild } from 'react';
 import { Footer } from '../Footer';
 import { NavBar } from '../NavBar';
 

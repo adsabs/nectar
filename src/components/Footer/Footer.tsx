@@ -2,9 +2,9 @@ import { NasaLogo, SmithsonianLogo } from '@components';
 import Image from 'next/image';
 import Link from 'next/link';
 import cfaLogo from 'public/img/cfa.png';
-import React from 'react';
+import { FC, ReactElement } from 'react';
 
-const SimpleLink: React.FC<{ href: string; icon?: React.ReactElement }> = ({ children, href, icon }) => {
+const SimpleLink: FC<{ href: string; icon?: ReactElement }> = ({ children, href, icon }) => {
   const isExternal = /^http(s)/.exec(href);
 
   return (
@@ -17,7 +17,7 @@ const SimpleLink: React.FC<{ href: string; icon?: React.ReactElement }> = ({ chi
   );
 };
 
-export const Footer: React.FC = () => {
+export const Footer: FC = () => {
   return (
     <footer className="mt-3 py-6 bg-gray-1000">
       <div className="container flex flex-col justify-between px-3 md:flex-row md:mx-auto md:px-0">

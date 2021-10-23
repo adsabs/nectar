@@ -4,8 +4,9 @@ import { useSelector } from '@xstate/react';
 import clsx from 'clsx';
 import Downshift, { ControllerStateAndHelpers, StateChangeOptions } from 'downshift';
 import { compose, filter, uniqBy } from 'ramda';
-import React, { useEffect, useMemo } from 'react';
+import { forwardRef, ReactElement, useEffect, useMemo, useRef, useState } from 'react';
 import { TypeaheadOption, typeaheadOptions } from './types';
+
 export interface ISearchBarProps {
   isLoading?: boolean;
   service: ISearchMachine;
@@ -19,9 +20,9 @@ const useQuery = (searchService: ISearchMachine): [string, (query: string) => vo
   return [query, setQuery];
 };
 
-export const SearchBar = (props: ISearchBarProps): React.ReactElement => {
+export const SearchBar = (props: ISearchBarProps): ReactElement => {
   const { service: searchService } = props;
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useQuery(searchService);
 
   const handleSelection = (item: TypeaheadOption, state: ControllerStateAndHelpers<TypeaheadOption>) => {
@@ -104,12 +105,12 @@ export const SearchBar = (props: ISearchBarProps): React.ReactElement => {
   );
 };
 
-const Input = React.forwardRef<HTMLInputElement, ControllerStateAndHelpers<TypeaheadOption>>((props, ref) => {
+const Input = forwardRef<HTMLInputElement, ControllerStateAndHelpers<TypeaheadOption>>((props, ref) => {
   const { getRootProps, getInputProps } = props;
   const inputProps = getInputProps();
 
   // clear button logic, we watch on the current inputvalue
-  const [showClearBtn, setShowClearBtn] = React.useState(false);
+  const [showClearBtn, setShowClearBtn] = useState(false);
   const value = inputProps.value as string;
   useEffect(() => setShowClearBtn(value && value.length > 0), [value]);
   const handleClear = () => props.reset({ inputValue: '' });
@@ -158,7 +159,7 @@ const Label = (props: ControllerStateAndHelpers<TypeaheadOption>) => {
 const Menu = (props: ControllerStateAndHelpers<TypeaheadOption>) => {
   const { getItemProps, getMenuProps, isOpen, inputValue, highlightedIndex, selectedItem } = props;
 
-  const renderItem = (item: TypeaheadOption, index: number): React.ReactElement => {
+  const renderItem = (item: TypeaheadOption, index: number): ReactElement => {
     const itemCls = clsx(
       {
         'bg-gray-300': selectedItem === item,

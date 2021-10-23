@@ -2,7 +2,7 @@ import { Listbox, Transition } from '@headlessui/react';
 import { CheckIcon, SelectorIcon } from '@heroicons/react/solid';
 import clsx from 'clsx';
 import PT from 'prop-types';
-import React from 'react';
+import { Fragment, ReactElement } from 'react';
 import { exportFormats } from './constants';
 import { ExportState } from './types';
 
@@ -16,7 +16,7 @@ const propTypes = {
   onFormatChange: PT.func.isRequired,
 };
 
-export const FormatSelector = ({ format, onFormatChange }: IFormatSelectorProps): React.ReactElement => {
+export const FormatSelector = ({ format, onFormatChange }: IFormatSelectorProps): ReactElement => {
   const cls = {
     label: 'block text-sm font-medium text-gray-700',
     button:
@@ -39,7 +39,7 @@ export const FormatSelector = ({ format, onFormatChange }: IFormatSelectorProps)
             </Listbox.Button>
             <Transition
               show={open}
-              as={React.Fragment}
+              as={Fragment}
               leave="transition ease-in duration-100"
               leaveFrom="opacity-100"
               leaveTo="opacity-0"

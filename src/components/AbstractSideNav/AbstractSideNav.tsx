@@ -1,23 +1,24 @@
-import AdsApi, { IDocsEntity } from '@api';
+import { IDocsEntity } from '@api';
 import { DropdownList } from '@components';
 import { ItemType } from '@components/Dropdown/types';
 import { DocumentIcon } from '@heroicons/react/outline';
 import { ChevronDownIcon } from '@heroicons/react/solid';
 import { useViewport, Viewport } from '@hooks';
+import { useAppCtx } from '@store';
 import clsx from 'clsx';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { last } from 'ramda';
-import React, { HTMLAttributes } from 'react';
+import { HTMLAttributes, ReactElement } from 'react';
 import { navigation, Routes } from './model';
-import { useAppCtx } from '@store';
+
 export interface IAbstractSideNavProps extends HTMLAttributes<HTMLDivElement> {
   doc?: IDocsEntity;
   hasMetrics: boolean;
   hasGraphics: boolean;
 }
 
-export const AbstractSideNav = ({ doc, hasMetrics, hasGraphics }: IAbstractSideNavProps): React.ReactElement => {
+export const AbstractSideNav = ({ doc, hasMetrics, hasGraphics }: IAbstractSideNavProps): ReactElement => {
   const router = useRouter();
   const subPage = last(router.asPath.split('/'));
   const viewport = useViewport();

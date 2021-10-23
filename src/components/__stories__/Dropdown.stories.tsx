@@ -1,6 +1,5 @@
 import { DropdownBasic, IDropdownBasicProps } from '@components/Dropdown';
 import { Meta, Story } from '@storybook/react';
-import React from 'react';
 
 const meta: Meta<IDropdownBasicProps> = {
   title: 'Dropdown',

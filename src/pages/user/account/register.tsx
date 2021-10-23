@@ -1,5 +1,4 @@
 import { NextPage } from 'next';
-import React from 'react';
 
 const Register: NextPage = () => {
   return (
@@ -39,27 +38,18 @@ const Register: NextPage = () => {
           </button>
           <div className="text-grey-dark mt-4 text-center text-sm">
             By signing up, you agree to the
-            <a
-              className="border-grey-dark text-grey-dark no-underline border-b"
-              href="#"
-            >
+            <a className="border-grey-dark text-grey-dark no-underline border-b" href="#">
               Terms of Service
             </a>{' '}
             and
-            <a
-              className="border-grey-dark text-grey-dark no-underline border-b"
-              href="#"
-            >
+            <a className="border-grey-dark text-grey-dark no-underline border-b" href="#">
               Privacy Policy
             </a>
           </div>
         </div>
         <div className="text-grey-dark mt-6">
           Already have an account?
-          <a
-            className="border-blue text-blue no-underline border-b"
-            href="../login/"
-          >
+          <a className="border-blue text-blue no-underline border-b" href="../login/">
             Log in
           </a>
           .

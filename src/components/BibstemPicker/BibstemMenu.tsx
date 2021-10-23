@@ -1,6 +1,6 @@
 import { UseComboboxGetItemPropsOptions } from 'downshift';
 import { curry } from 'ramda';
-import React from 'react';
+import { ReactElement, useEffect, useMemo } from 'react';
 import { usePopper } from 'react-popper';
 import { chainFrom } from 'transducist';
 import { bibstems, ITEM_DELIMITER } from './models';
@@ -14,16 +14,16 @@ export interface IBibstemMenuProps {
   getItemProps: (options: UseComboboxGetItemPropsOptions<string>) => unknown;
 }
 
-export const BibstemMenu = (props: IBibstemMenuProps): React.ReactElement => {
+export const BibstemMenu = (props: IBibstemMenuProps): ReactElement => {
   const { highlightedIndex, getItemProps, inputValue, selectedItems, onItemsChange, maxItemsToShow } = props;
 
   // partially apply the max items
-  const searchBibs = React.useMemo(() => searchBibstems(maxItemsToShow), [maxItemsToShow]);
+  const searchBibs = useMemo(() => searchBibstems(maxItemsToShow), [maxItemsToShow]);
 
   // memoize the items filtering (heavy operation)
-  const items = React.useMemo(() => searchBibs(inputValue, selectedItems), [inputValue, selectedItems]);
+  const items = useMemo(() => searchBibs(inputValue, selectedItems), [inputValue, selectedItems]);
 
-  React.useEffect(() => onItemsChange(items), [items]);
+  useEffect(() => onItemsChange(items), [items]);
 
   const { attributes, styles } = usePopper();
 
@@ -31,7 +31,7 @@ export const BibstemMenu = (props: IBibstemMenuProps): React.ReactElement => {
     <ul
       {...attributes.popper}
       style={styles.popper}
-      className="left-1 mt-1 w-full max-h-64 bg-white rounded-b-sm focus:outline-none shadow-md divide-gray-100 divide-y-2 overflow-y-scroll origin-top-right ring-black ring-opacity-5 ring-1"
+      className="left-1 mt-1 w-full max-h-64 bg-white rounded-b-sm focus:outline-none shadow-md divide-gray-100 divide-y-2 overflow-y-scroll origin-top-right ring-1 ring-black ring-opacity-5"
     >
       {items.map((item, index) => {
         const [bibstem, description] = item.split(ITEM_DELIMITER);

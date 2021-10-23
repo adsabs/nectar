@@ -1,4 +1,4 @@
-exports.component = (name) => `import React, { FC, HTMLAttributes, ReactChild } from 'react';
+exports.component = (name) => `import { FC, HTMLAttributes, ReactChild } from 'react';
 import PT from 'prop-types';
 
 export interface I${name}Props extends HTMLAttributes<HTMLDivElement> {
@@ -24,8 +24,7 @@ ${name}.propTypes = propTypes;
 ${name}.defaultProps = defaultProps;
 `;
 
-exports.story = (name) => `import React from 'react';
-import { Meta, Story } from '@storybook/react';
+exports.story = (name) => `import { Meta, Story } from '@storybook/react';
 import { ${name}, I${name}Props } from '../${name}';
 
 const meta: Meta = {
@@ -52,8 +51,7 @@ export const Default = Template.bind({}) as Story<I${name}Props>;
 Default.args = {};
 `;
 
-exports.test = (name) => `import React from 'react';
-import { render } from '@testing-library/react';
+exports.test = (name) => `import { render } from '@testing-library/react';
 import { Default as ${name} } from '../__stories__/${name}.stories';
 
 describe('${name}', () => {
