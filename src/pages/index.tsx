@@ -10,11 +10,7 @@ const HomePage: NextPage = () => {
 
   return (
     <section aria-labelledby="form-title">
-      <form
-        method="get"
-        action="/search"
-        className="grid gap-6 grid-cols-6 mx-auto my-8 px-4 py-8 lg:max-w-3xl"
-      >
+      <form method="get" action="/search" className="grid gap-6 grid-cols-6 mx-auto my-8 px-4 py-8 lg:max-w-3xl">
         <h2 className="sr-only" id="form-title">
           Modern Search Form
         </h2>

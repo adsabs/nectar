@@ -8,10 +8,7 @@ export interface ISearchExamplesProps {
   className?: HTMLAttributes<HTMLDivElement>['className'];
 }
 
-export const SearchExamples: FC<ISearchExamplesProps> = ({
-  onClick,
-  className,
-}) => {
+export const SearchExamples: FC<ISearchExamplesProps> = ({ onClick, className }) => {
   const { state: appState } = useAppCtx();
 
   const rootClasses = clsx(className, 'grid gap-3 grid-cols-6');
@@ -25,12 +22,10 @@ export const SearchExamples: FC<ISearchExamplesProps> = ({
 
   return (
     <div className={rootClasses}>
-      <h3 className="col-span-6 mb-3 text-center text-lg font-bold">
-        Search Examples
-      </h3>
+      <h3 className="col-span-6 mb-3 text-center text-lg font-bold">Search Examples</h3>
       <ul className="col-span-6 p-1 md:col-span-3">
         {examples[appState.theme].left.map(({ label, text }) => (
-          <li className="grid grid-cols-3 gap-5 py-1" key={label}>
+          <li className="grid gap-5 grid-cols-3 py-1" key={label}>
             <div className="col-span-1 text-right font-bold">{label}</div>
             <button
               type="button"
@@ -44,7 +39,7 @@ export const SearchExamples: FC<ISearchExamplesProps> = ({
       </ul>
       <ul className="col-span-6 p-1 md:col-span-3">
         {examples[appState.theme].right.map(({ label, text }) => (
-          <li className="grid grid-cols-3 gap-5 py-1" key={label}>
+          <li className="grid gap-5 grid-cols-3 py-1" key={label}>
             <div className="col-span-1 text-right font-bold">{label}</div>
             <button
               type="button"

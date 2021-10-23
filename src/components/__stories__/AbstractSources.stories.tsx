@@ -18,7 +18,7 @@ const meta: Meta = {
 
 export default meta;
 
-const Template: Story<IAbstractSourcesProps> = args => <AbstractSources {...args} />;
+const Template: Story<IAbstractSourcesProps> = (args) => <AbstractSources {...args} />;
 
 export const Default = Template.bind({}) as Story<IAbstractSourcesProps>;
 

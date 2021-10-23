@@ -80,7 +80,7 @@ export const DropdownBasic = (props: IDropdownBasicProps): ReactElement => {
       case 'Escape':
         return close();
     }
-  }
+  };
 
   const containerClasses = clsx('z-50 bg-white focus:border-blue-700', classes.container, {
     hidden: !visible,

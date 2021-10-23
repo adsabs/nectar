@@ -15,13 +15,7 @@ export interface IDropdownBaseProps {
   children: ReactNode;
 }
 
-export const DropdownBase = ({
-  label,
-  classes,
-  offset,
-  children,
-  renderButton,
-}: IDropdownBaseProps): ReactElement => {
+export const DropdownBase = ({ label, classes, offset, children, renderButton }: IDropdownBaseProps): ReactElement => {
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement>();
   const [popperElement, setPopperElement] = useState<HTMLDivElement>();
   const [visible, setVisible] = useState<boolean>(false);
@@ -65,12 +59,7 @@ export const DropdownBase = ({
   return (
     <OutsideClickHandler onOutsideClick={handleOutsideClick}>
       {renderButton({ ref: () => referenceElement })}
-      <button
-        type="button"
-        ref={targetRef}
-        className={classes.button}
-        onClick={handleClick}
-      >
+      <button type="button" ref={targetRef} className={classes.button} onClick={handleClick}>
         {label} <ChevronDownIcon className="inline w-4 h-4" />
       </button>
       <div
