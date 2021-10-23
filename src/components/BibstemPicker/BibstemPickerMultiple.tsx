@@ -2,9 +2,10 @@ import { TextInput } from '@components/TextInput';
 import { XIcon } from '@heroicons/react/solid';
 import { useCombobox, UseComboboxStateChange, useMultipleSelection } from 'downshift';
 import dynamic from 'next/dynamic';
-import React from 'react';
+import { ReactElement, useEffect, useMemo, useState } from 'react';
 import type { IBibstemMenuProps } from './BibstemMenu';
 import { ITEM_DELIMITER } from './models';
+
 const BibstemMenu = dynamic(
   () =>
     // eslint-disable-next-line
@@ -17,7 +18,7 @@ const BibstemMenu = dynamic(
     ),
     ssr: false,
   },
-) as (props: IBibstemMenuProps) => React.ReactElement;
+) as (props: IBibstemMenuProps) => ReactElement;
 
 export interface IBibstemPickerMultipleProps {
   initialSelectedItems?: string[];
@@ -29,20 +30,15 @@ export const BibstemPickerMultiple = ({
   onChange,
   name = 'bibstems',
   initialSelectedItems = [],
-}: IBibstemPickerMultipleProps): React.ReactElement => {
-  const [inputValue, setInputValue] = React.useState('');
-  const {
-    getSelectedItemProps,
-    getDropdownProps,
-    addSelectedItem,
-    removeSelectedItem,
-    selectedItems,
-  } = useMultipleSelection<string>({
-    initialSelectedItems,
-  });
+}: IBibstemPickerMultipleProps): ReactElement => {
+  const [inputValue, setInputValue] = useState('');
+  const { getSelectedItemProps, getDropdownProps, addSelectedItem, removeSelectedItem, selectedItems } =
+    useMultipleSelection<string>({
+      initialSelectedItems,
+    });
 
   // trigger onChange, if necessary to parent component
-  React.useEffect(() => {
+  useEffect(() => {
     if (typeof onChange === 'function') {
       onChange(selectedItems.map((item) => item.split(ITEM_DELIMITER)[0]));
     }
@@ -69,12 +65,12 @@ export const BibstemPickerMultiple = ({
     }
   };
 
-  const hiddenInput = React.useMemo(() => {
+  const hiddenInput = useMemo(() => {
     const value = selectedItems.map((item) => item.split(ITEM_DELIMITER)[0]).join(',');
     return <input type="hidden" name={name} value={value} />;
   }, [selectedItems]);
 
-  const [items, setItems] = React.useState<string[]>([]);
+  const [items, setItems] = useState<string[]>([]);
   const handleItemsChange = (updatedItems: string[]) => setItems(updatedItems);
 
   const {

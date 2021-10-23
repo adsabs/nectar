@@ -5,7 +5,7 @@ import { ISearchMachine, TransitionType } from '@machines/lib/search/types';
 import { isBrowser } from '@utils';
 import { useSelector } from '@xstate/react';
 import clsx from 'clsx';
-import React, { useCallback, useState } from 'react';
+import { ReactElement, useCallback, useState } from 'react';
 
 interface IListActionProp {
   service?: ISearchMachine;
@@ -21,7 +21,7 @@ interface IListActionProp {
   onExclude: () => void;
 }
 
-export const ListActions = (props: IListActionProp): React.ReactElement => {
+export const ListActions = (props: IListActionProp): ReactElement => {
   const {
     service: searchService,
     selectedCount,

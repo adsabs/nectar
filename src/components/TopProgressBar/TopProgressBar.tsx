@@ -1,8 +1,8 @@
 import { useRouter } from 'next/router';
 import NProgress from 'nprogress';
-import React from 'react';
+import { ReactElement, useEffect } from 'react';
 
-export const TopProgressBar = (): React.ReactElement => {
+export const TopProgressBar = (): ReactElement => {
   const Router = useRouter();
 
   const load = () => {
@@ -12,7 +12,7 @@ export const TopProgressBar = (): React.ReactElement => {
     NProgress.done();
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     Router.events.on('routeChangeStart', load);
     Router.events.on('routeChangeComplete', stop);
     Router.events.on('routeChangeError', stop);

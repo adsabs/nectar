@@ -1,8 +1,8 @@
 import { APIContext, apiCtx } from '@providers/api';
-import React from 'react';
+import { useContext } from 'react';
 
 export const useAPI = (): APIContext => {
-  const context = React.useContext(apiCtx);
+  const context = useContext(apiCtx);
   if (typeof context === 'undefined') {
     throw new Error('no provider for AppContext');
   }

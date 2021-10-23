@@ -1,6 +1,6 @@
 import { isBrowser } from '@utils';
 import clsx from 'clsx';
-import React, { ReactElement, ReactNode, useState } from 'react';
+import { ReactElement, ReactNode, useState } from 'react';
 import { usePopper } from 'react-popper';
 
 export interface IPopoverProps {

@@ -5,7 +5,6 @@ import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/m
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { normalizeURLParams } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
-import React from 'react';
 interface IExportCitationPageProps {
   bibcode: IDocsEntity['bibcode'];
   text?: string;

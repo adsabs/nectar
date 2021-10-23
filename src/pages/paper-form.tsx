@@ -8,7 +8,6 @@ import { ErrorMessage, Field, Form, Formik } from 'formik';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { curry } from 'ramda';
-import React from 'react';
 
 type PaperFormState = {
   [PaperFormType.JOURNAL_QUERY]: {

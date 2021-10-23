@@ -1,9 +1,10 @@
 import { TextInput } from '@components/TextInput';
 import { useCombobox } from 'downshift';
 import dynamic from 'next/dynamic';
-import React, { DetailedHTMLProps, InputHTMLAttributes } from 'react';
+import { DetailedHTMLProps, InputHTMLAttributes, ReactElement, useMemo, useState } from 'react';
 import type { IBibstemMenuProps } from './BibstemMenu';
 import { ITEM_DELIMITER } from './models';
+
 const BibstemMenu = dynamic(
   () =>
     // eslint-disable-next-line
@@ -16,7 +17,7 @@ const BibstemMenu = dynamic(
     ),
     ssr: false,
   },
-) as (props: IBibstemMenuProps) => React.ReactElement;
+) as (props: IBibstemMenuProps) => ReactElement;
 
 export interface IBibstemPickerSingleProps
   extends DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> {
@@ -25,11 +26,11 @@ export interface IBibstemPickerSingleProps
   name?: string;
 }
 
-export const BibstemPickerSingle = (props: IBibstemPickerSingleProps): React.ReactElement => {
+export const BibstemPickerSingle = (props: IBibstemPickerSingleProps): ReactElement => {
   const { onItemUpdate, name, initialSelectedItem } = props;
 
   // store items locally, since this will be updated dynamically by the menu
-  const [items, setItems] = React.useState<string[]>([]);
+  const [items, setItems] = useState<string[]>([]);
   const handleItemsChange = (updatedItems: string[]) => setItems(updatedItems);
 
   const {
@@ -60,7 +61,7 @@ export const BibstemPickerSingle = (props: IBibstemPickerSingleProps): React.Rea
   });
 
   // instead of overloading the prop, just convert to array
-  const selectedItems = React.useMemo(() => [selectedItem], [selectedItem]);
+  const selectedItems = useMemo(() => [selectedItem], [selectedItem]);
 
   return (
     <>

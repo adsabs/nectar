@@ -5,7 +5,6 @@ import { AbsLayout } from '@components/Layout/AbsLayout';
 import { SimpleResultList } from '@components/ResultList';
 import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
-import React from 'react';
 import { normalizeURLParams } from 'src/utils';
 export interface ICitationsPageProps {
   docs: IDocsEntity[];

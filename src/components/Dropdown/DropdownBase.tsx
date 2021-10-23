@@ -1,6 +1,6 @@
 import { ChevronDownIcon } from '@heroicons/react/solid';
 import clsx from 'clsx';
-import React, { ReactElement, ReactNode, useCallback, useState } from 'react';
+import { ReactElement, ReactNode, useCallback, useState } from 'react';
 import OutsideClickHandler from 'react-outside-click-handler';
 import { usePopper } from 'react-popper';
 

@@ -1,6 +1,5 @@
 import { CheckIcon, ChevronDownIcon } from '@heroicons/react/outline';
 import Link from 'next/link';
-import React from 'react';
 import styles from './Dropdown.module.css';
 
 /** Non JavaScript dropdown */
@@ -17,7 +16,7 @@ export interface ISimpleLinkDropdownProps {
   label: string;
 }
 
-export const SimpleLinkDropdown = (props: ISimpleLinkDropdownProps): React.ReactElement => {
+export const SimpleLinkDropdown = (props: ISimpleLinkDropdownProps): ReactElement => {
   const { items, selected, label, ...restProps } = props;
 
   return (

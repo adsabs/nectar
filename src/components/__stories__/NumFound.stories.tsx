@@ -1,6 +1,5 @@
 import { INumFoundProps, NumFound } from '@components/NumFound';
 import { Meta, Story } from '@storybook/react';
-import React from 'react';
 
 const meta: Meta = {
   title: 'NumFound',

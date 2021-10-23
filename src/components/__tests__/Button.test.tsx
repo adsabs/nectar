@@ -1,4 +1,3 @@
-import React from 'react';
 import { render } from '@testing-library/react';
 import { Default as Button } from '../__stories__/Button.stories';
 

@@ -1,6 +1,5 @@
 import { ISearchExamplesProps, SearchExamples } from '@components/SearchExamples';
 import { Meta, Story } from '@storybook/react';
-import React from 'react';
 
 const meta: Meta = {
   title: 'SearchExamples',

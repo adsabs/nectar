@@ -6,7 +6,6 @@ import { AbsLayout } from '@components/Layout/AbsLayout';
 import { Metrics } from '@components/Metrics';
 import { normalizeURLParams } from '@utils';
 import { NextPage, GetServerSideProps } from 'next';
-import React from 'react';
 
 interface IMetricsPageProps {
   originalDoc: IDocsEntity;

@@ -1,10 +1,10 @@
 import AdsApi, { IADSApiSearchParams, IDocsEntity, SolrSort } from '@api';
-import { NumFound, ResultList, SearchBar, Sort } from '@components';
+import { NumFound, ResultList, SearchBar } from '@components';
 import { useSearchMachine } from '@machines';
 import { TransitionType } from '@machines/lib/search/types';
 import { normalizeURLParams } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
-import React, { ChangeEvent } from 'react';
+import { ChangeEvent, ReactElement } from 'react';
 
 interface ISearchPageProps {
   error?: string;
@@ -40,7 +40,7 @@ interface IFormProps {
   };
   serverError: string;
 }
-const Form = (props: IFormProps): React.ReactElement => {
+const Form = (props: IFormProps): ReactElement => {
   const {
     params: { q: query, sort },
     serverResult: { docs, numFound, page },
@@ -48,7 +48,13 @@ const Form = (props: IFormProps): React.ReactElement => {
   } = props;
 
   // initialize the search machine that will run all the business logic
-  const { service: searchService, result, error, isLoading, isFailure } = useSearchMachine({
+  const {
+    service: searchService,
+    result,
+    error,
+    isLoading,
+    isFailure,
+  } = useSearchMachine({
     initialParams: { q: query, sort },
     initialResult: { docs, numFound },
     initialPagination: { numPerPage: 10, page },

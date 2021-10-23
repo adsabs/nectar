@@ -1,7 +1,6 @@
 import { SearchBar, SearchExamples } from '@components';
 import { useSearchMachine } from '@machines';
 import { NextPage } from 'next';
-import React from 'react';
 
 const HomePage: NextPage = () => {
   const { service: searchService } = useSearchMachine();

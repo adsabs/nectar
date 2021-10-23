@@ -1,7 +1,7 @@
 import { ChevronDownIcon } from '@heroicons/react/solid';
 import { isBrowser } from '@utils';
 import clsx from 'clsx';
-import React, { KeyboardEvent, ReactElement, ReactNode, useEffect, useState } from 'react';
+import { KeyboardEvent, ReactElement, ReactNode, useEffect, useState } from 'react';
 import { Item } from './ListItem';
 import { ItemType } from './types';
 

@@ -4,7 +4,7 @@ import { useMachine } from '@xstate/react';
 import clsx from 'clsx';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import React from 'react';
+import { ReactElement } from 'react';
 import { IAbstractPreviewProps } from './AbstractPreview';
 import { itemMachine, ItemMachine } from './machine/item';
 
@@ -22,7 +22,7 @@ interface IItemProps {
   onSet?: (check: boolean) => void;
 }
 
-export const Item = (props: IItemProps): React.ReactElement => {
+export const Item = (props: IItemProps): ReactElement => {
   const { doc, index, hideCheckbox = false, set, clear, onSet } = props;
   const { bibcode, pubdate, title = ['Untitled'], author = [], id, citation } = doc;
   const [state, send] = useMachine(itemMachine.withContext({ id }), {

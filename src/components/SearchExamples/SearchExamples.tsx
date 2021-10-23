@@ -1,6 +1,6 @@
 import { useAppCtx } from '@store';
 import clsx from 'clsx';
-import React, { FC, HTMLAttributes } from 'react';
+import { FC, HTMLAttributes } from 'react';
 import { examples } from './examples';
 
 export interface ISearchExamplesProps {

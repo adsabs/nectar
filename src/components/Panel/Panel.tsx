@@ -1,7 +1,7 @@
 import { XIcon } from '@heroicons/react/solid';
 import clsx from 'clsx';
 import PT from 'prop-types';
-import React, { FC, HTMLAttributes, ReactChild, useMemo } from 'react';
+import { FC, HTMLAttributes, ReactChild, useMemo } from 'react';
 
 export interface IPanelProps extends HTMLAttributes<HTMLDivElement> {
   children?: ReactChild;

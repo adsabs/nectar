@@ -2,7 +2,7 @@ import { IDocsEntity } from '@api';
 import { Esources } from '@api/lib/search/types';
 import { format } from 'date-fns';
 import Head from 'next/head';
-import React from 'react';
+import { ReactElement } from 'react';
 
 const ADS_BASE_URL = 'https://ui.adsabs.harvard.edu';
 
@@ -35,7 +35,7 @@ export const metatagsQueryFields: Partial<keyof IDocsEntity>[] = [
   'volume',
 ];
 
-export const Metatags = (props: IMetatagsProps): React.ReactElement => {
+export const Metatags = (props: IMetatagsProps): ReactElement => {
   const { doc } = props;
 
   if (!doc) {

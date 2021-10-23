@@ -2,7 +2,7 @@ import { IDocsEntity } from '@api';
 import { AbstractSideNav } from '@components';
 import { Metatags } from '@components/Metatags/Metatags';
 import Head from 'next/head';
-import React, { FC, ReactChild } from 'react';
+import { FC, ReactChild } from 'react';
 
 interface IAbsLayoutProps {
   children?: ReactChild;

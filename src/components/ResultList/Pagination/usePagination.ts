@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import qs from 'qs';
 import { clamp, range } from 'ramda';
-import React, { useCallback, useMemo } from 'react';
+import { MouseEvent, MouseEventHandler, useCallback, useMemo } from 'react';
 
 export interface IUsePagination {
   nextHref: string;
@@ -13,9 +13,9 @@ export interface IUsePagination {
   noPrev: boolean;
   noNext: boolean;
   noPagination: boolean;
-  handleNext: React.MouseEventHandler<HTMLAnchorElement>;
-  handlePrev: React.MouseEventHandler<HTMLAnchorElement>;
-  handlePageChange: (e: React.MouseEvent<HTMLAnchorElement>, page: number) => void;
+  handleNext: MouseEventHandler<HTMLAnchorElement>;
+  handlePrev: MouseEventHandler<HTMLAnchorElement>;
+  handlePageChange: (e: MouseEvent<HTMLAnchorElement>, page: number) => void;
 }
 const initialState = {
   nextHref: '',
@@ -71,7 +71,7 @@ export const usePagination = ({
   }, [totalResults, numPerPage, query]);
 
   const handleNext = useCallback(
-    (e: React.MouseEvent<HTMLAnchorElement>) => {
+    (e: MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault();
       if (state.noNext) {
         return;
@@ -83,7 +83,7 @@ export const usePagination = ({
   );
 
   const handlePrev = useCallback(
-    (e: React.MouseEvent<HTMLAnchorElement>) => {
+    (e: MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault();
       if (state.noPrev) {
         return;
@@ -95,7 +95,7 @@ export const usePagination = ({
   );
 
   const handlePageChange = useCallback(
-    (e: React.MouseEvent<HTMLAnchorElement>, page: number) => {
+    (e: MouseEvent<HTMLAnchorElement>, page: number) => {
       e.preventDefault();
 
       if (page === state.page) {

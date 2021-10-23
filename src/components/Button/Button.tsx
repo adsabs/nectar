@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { ButtonHTMLAttributes, DetailedHTMLProps, FC } from 'react';
+import { ButtonHTMLAttributes, DetailedHTMLProps, FC } from 'react';
 
 enum ButtonVariant {
   PRIMARY = 'primary',

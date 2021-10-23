@@ -1,7 +1,7 @@
 import { IADSApiMetricsResponse } from '@api';
 import { MetricsResponseKey, CitationsStatsKey, BasicStatsKey } from '@api/lib/metrics/types';
 import { useMetrics } from '@hooks/useMetrics';
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { CitationsTable } from './CitationsTable';
 import { ReadsTable } from './ReadsTable';
 interface IMetricsProps {

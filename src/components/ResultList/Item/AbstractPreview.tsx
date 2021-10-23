@@ -3,7 +3,6 @@ import { Transition } from '@headlessui/react';
 import { FolderIcon, FolderOpenIcon, RefreshIcon } from '@heroicons/react/solid';
 import { useAPI } from '@hooks';
 import { useMachine } from '@xstate/react';
-import React from 'react';
 import { assign, ContextFrom, DoneInvokeEvent } from 'xstate';
 import { createModel } from 'xstate/lib/model';
 

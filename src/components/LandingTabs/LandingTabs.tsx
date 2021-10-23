@@ -11,7 +11,7 @@ import generalBg from 'public/img/bg-general.jpg';
 import helioBg from 'public/img/bg-helio.jpg';
 import planetBg from 'public/img/bg-planet.jpg';
 import starBg from 'public/img/star-bg-cropped.png';
-import React, { useEffect, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 
 const backgroundMap = new Map<Theme, StaticImageData>([
   [Theme.GENERAL, generalBg],
@@ -22,7 +22,7 @@ const backgroundMap = new Map<Theme, StaticImageData>([
   [Theme.BIO_PHYSICAL, bioBg],
 ]);
 
-export const LandingTabs = (): React.ReactElement => {
+export const LandingTabs = (): ReactElement => {
   const {
     state: { theme },
   } = useAppCtx();

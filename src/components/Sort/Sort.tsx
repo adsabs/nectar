@@ -2,8 +2,9 @@ import { SolrSort, SolrSortDirection, SolrSortField } from '@api';
 import { DropdownList, SelectorLabel } from '@components/Dropdown';
 import { isBrowser } from '@utils';
 import clsx from 'clsx';
-import React, { useRef } from 'react';
+import { ReactElement, useEffect, useRef, useState } from 'react';
 import { sortValues } from './model';
+
 export interface ISortProps {
   name?: string;
   sort?: SolrSort[];
@@ -13,7 +14,7 @@ export interface ISortProps {
   rightMargin?: string;
 }
 
-export const Sort = (props: ISortProps): React.ReactElement => {
+export const Sort = (props: ISortProps): ReactElement => {
   const {
     sort: initialSort = ['date desc'],
     onChange,
@@ -24,9 +25,9 @@ export const Sort = (props: ISortProps): React.ReactElement => {
   } = props;
   const [sort, ...additionalSorts] = initialSort;
   const firstRender = useRef(true);
-  const [selected, setSelected] = React.useState<[SolrSortField, SolrSortDirection]>(['date', 'desc']);
+  const [selected, setSelected] = useState<[SolrSortField, SolrSortDirection]>(['date', 'desc']);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (sort) {
       // split the incoming sort to conform to tuple style
       const [val, dir] = sort.split(' ') as [SolrSortField, SolrSortDirection];
@@ -34,7 +35,7 @@ export const Sort = (props: ISortProps): React.ReactElement => {
     }
   }, [sort]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (firstRender.current) {
       firstRender.current = false;
       return;

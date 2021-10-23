@@ -1,19 +1,15 @@
 import { SortAscendingIcon } from '@heroicons/react/solid';
-import React from 'react';
 
 export interface IListBoxProps {
   // children?: ReactChild,
   label: string;
 }
 
-export const ListBox = (props: IListBoxProps): React.ReactElement => {
+export const ListBox = (props: IListBoxProps): ReactElement => {
   const { label } = props;
 
   const title = (
-    <label
-      id="listbox-label"
-      className="block text-gray-700 text-sm font-medium"
-    >
+    <label id="listbox-label" className="block text-gray-700 text-sm font-medium">
       {label}
     </label>
   );
@@ -27,7 +23,7 @@ export const ListBox = (props: IListBoxProps): React.ReactElement => {
           aria-haspopup="listbox"
           aria-expanded="true"
           aria-labelledby="listbox-label"
-          className="relative pl-3 pr-8 w-full text-left bg-white border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none shadow-sm cursor-default focus:ring-indigo-500 focus:ring-1 sm:text-sm"
+          className="relative pl-3 pr-8 w-full text-left bg-white border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none shadow-sm cursor-default focus:ring-1 focus:ring-indigo-500 sm:text-sm"
         >
           <span className="flex items-center divide-x-2">
             <div className="pr-2">
@@ -68,7 +64,7 @@ Leaving: "transition ease-in duration-100"
             role="listbox"
             aria-labelledby="listbox-label"
             aria-activedescendant="listbox-item-3"
-            className="py-1 max-h-56 text-base rounded-md focus:outline-none overflow-auto ring-black ring-opacity-5 ring-1 sm:text-sm"
+            className="py-1 max-h-56 text-base rounded-md focus:outline-none overflow-auto ring-1 ring-black ring-opacity-5 sm:text-sm"
           >
             {/*
     Select option, manage highlight styles based on mouseenter/mouseleave and keyboard navigation.
@@ -87,9 +83,7 @@ Leaving: "transition ease-in duration-100"
                   className="flex-shrink-0 w-6 h-6 rounded-full"
                 />
                 {/* Selected: "font-semibold", Not Selected: "font-normal" */}
-                <span className="block ml-3 font-normal truncate">
-                  Wade Cooper
-                </span>
+                <span className="block ml-3 font-normal truncate">Wade Cooper</span>
               </div>
               {/*
       Checkmark, only display for selected option.

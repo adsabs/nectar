@@ -6,7 +6,7 @@ import { ApiProvider } from '@providers/api';
 import { AppProvider } from '@store';
 import { Meta, Story } from '@storybook/react';
 import MockAdapter from 'axios-mock-adapter';
-import React from 'react';
+import { ReactElement } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { Export, IExportProps } from '../Export';
 
@@ -31,7 +31,7 @@ const meta: Meta<IExportProps> = {
     controls: { expanded: true },
   },
   decorators: [
-    (story): React.ReactElement => (
+    (story): ReactElement => (
       <AppProvider session={mockSession} initialStore={{ query: fixtures.mockQuery }}>
         <ApiProvider overrideInstance={api}>
           <ToastContainer />

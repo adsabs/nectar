@@ -26,7 +26,7 @@ export interface IUseExportReturns {
     onCustomFormatChange: (formatString: string) => void;
     onFormatChange: (format: ExportState['format']) => void;
     onLimitChange: (limit: ExportState['limit']) => void;
-    onSubmit: (e?: React.FormEvent<HTMLFormElement>) => void;
+    onSubmit: (e?: FormEvent<HTMLFormElement>) => void;
     onDownload: () => void;
   };
   service: Interpreter<ExportState & { allowedToLoad: boolean }>;
@@ -110,7 +110,7 @@ export const useExportMachine = ({
     [],
   );
 
-  const onSubmit = useCallback((e?: React.FormEvent<HTMLFormElement>): void => {
+  const onSubmit = useCallback((e?: FormEvent<HTMLFormElement>): void => {
     e?.preventDefault();
     send('load');
   }, []);
