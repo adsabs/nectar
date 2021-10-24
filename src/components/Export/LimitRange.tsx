@@ -1,5 +1,5 @@
 import PT from 'prop-types';
-import { useCallback } from 'react';
+import { ReactElement, useCallback } from 'react';
 import { getTrackBackground, Range } from 'react-range';
 import { MAX_RECORDS } from './constants';
 import { ExportState } from './types';

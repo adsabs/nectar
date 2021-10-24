@@ -1,5 +1,6 @@
 import { CheckIcon, ChevronDownIcon } from '@heroicons/react/outline';
 import Link from 'next/link';
+import { ReactElement } from 'react';
 import styles from './Dropdown.module.css';
 
 /** Non JavaScript dropdown */

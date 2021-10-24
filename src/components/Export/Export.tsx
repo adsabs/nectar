@@ -4,7 +4,7 @@ import { Panel } from '@components/Panel';
 import { Transition } from '@headlessui/react';
 import { DownloadIcon, DuplicateIcon, RefreshIcon } from '@heroicons/react/solid';
 import PT from 'prop-types';
-import { HTMLAttributes, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, HTMLAttributes, ReactElement, useEffect, useRef, useState } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { exportFormats } from './constants';
 import { FormatSelector } from './FormatSelector';

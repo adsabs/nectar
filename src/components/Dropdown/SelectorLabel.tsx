@@ -1,4 +1,5 @@
 import { ChevronDownIcon } from '@heroicons/react/solid';
+import { ReactElement } from 'react';
 
 export interface ISelectorLabelProps {
   text: string;
