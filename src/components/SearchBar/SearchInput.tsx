@@ -1,7 +1,7 @@
 import { RefreshIcon, SearchIcon, XIcon } from '@heroicons/react/solid';
 import { ControllerStateAndHelpers } from 'downshift';
 import PT from 'prop-types';
-import { forwardRef, useEffect, useState } from 'react';
+import { forwardRef, KeyboardEvent, useEffect, useState } from 'react';
 import { TypeaheadOption } from './types';
 
 export interface ISearchInputProps extends ControllerStateAndHelpers<TypeaheadOption> {
@@ -16,10 +16,17 @@ const propTypes = {
 };
 
 export const SearchInput = forwardRef<HTMLInputElement, ISearchInputProps>((props, ref) => {
-  const { isLoading, reset, getInputProps, getRootProps, inputValue } = props;
+  const { isLoading, reset, getInputProps, inputValue } = props;
   const [showClearBtn, setShowClearBtn] = useState(typeof inputValue === 'string' ? inputValue.length > 0 : false);
   const handleClear = () => reset({ inputValue: '' });
   useEffect(() => setShowClearBtn(typeof inputValue === 'string' ? inputValue.length > 0 : false), [inputValue]);
+
+  const handleInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    // by default, downshift captures home/end, prevent that here
+    if (e.key === 'Home' || e.key === 'End') {
+      (e.nativeEvent as typeof e.nativeEvent & { preventDownshiftDefault: boolean }).preventDownshiftDefault = true;
+    }
+  };
 
   return (
     <div className="flex mt-1 rounded-md shadow-sm">
@@ -28,7 +35,9 @@ export const SearchInput = forwardRef<HTMLInputElement, ISearchInputProps>((prop
           type="text"
           name="q"
           id="searchbar"
-          {...getInputProps()}
+          {...getInputProps({
+            onKeyDown: handleInputKeyDown,
+          })}
           ref={ref}
           className="block pl-2 w-full border-r-0 focus:border-r-2 border-gray-300 focus:border-indigo-500 rounded-l-md rounded-none focus:ring-indigo-500 sm:text-sm"
           placeholder="Search"
