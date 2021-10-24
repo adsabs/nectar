@@ -83,13 +83,16 @@ export const SearchBar = (props: ISearchBarProps): ReactElement => {
       initialInputValue={initialQuery}
       onSelect={handleItemSelected}
       initialIsOpen={false}
+      labelId="searchbar-label"
+      menuId="searchbar-menu"
+      inputId="searchbar"
     >
       {(dsProps) => {
         const { getLabelProps } = dsProps;
 
         return (
           <section>
-            <label id="searchbar-label" htmlFor="searchbar" {...getLabelProps()} className="sr-only">
+            <label {...getLabelProps()} className="sr-only">
               Search
             </label>
             <SearchInput {...dsProps} ref={inputRef} isLoading={isLoading} />

@@ -34,7 +34,6 @@ export const SearchInput = forwardRef<HTMLInputElement, ISearchInputProps>((prop
         <input
           type="text"
           name="q"
-          id="searchbar"
           {...getInputProps({
             onKeyDown: handleInputKeyDown,
           })}
