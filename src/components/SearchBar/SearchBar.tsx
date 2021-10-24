@@ -89,7 +89,7 @@ export const SearchBar = (props: ISearchBarProps): ReactElement => {
 
         return (
           <section>
-            <label {...getLabelProps()} className="sr-only">
+            <label id="searchbar-label" htmlFor="searchbar" {...getLabelProps()} className="sr-only">
               Search
             </label>
             <SearchInput {...dsProps} ref={inputRef} isLoading={isLoading} />
