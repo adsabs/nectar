@@ -1,6 +1,5 @@
 import { IDocsEntity } from '@api';
 import { Esources } from '@api/lib/search/types';
-import { format } from 'date-fns';
 import Head from 'next/head';
 import { ReactElement } from 'react';
 
@@ -43,11 +42,13 @@ export const Metatags = (props: IMetatagsProps): ReactElement => {
   }
 
   const getFomattedNumericPubdate = (pubdate: string) => {
-    try {
-      return format(new Date(pubdate), 'yyyy/MM');
-    } catch (e) {
+    const regex = /^(?<year>\d{4})-(?<month>\d{2})/;
+    const match = regex.exec(pubdate);
+    if (match === null) {
       return '';
     }
+    const { year, month } = match.groups;
+    return `${year}/${month}`;
   };
 
   const getLastPage = (page_range: string) => {
