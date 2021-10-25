@@ -99,7 +99,7 @@ export interface IDocsEntity {
   bibcode?: string;
   bibgroup?: string;
   bibgroup_facet?: string;
-  bibstem?: string;
+  bibstem?: string[];
   bibstem_facet?: string;
   body?: string;
   citation?: string;

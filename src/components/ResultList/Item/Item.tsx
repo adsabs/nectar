@@ -25,12 +25,13 @@ interface IItemProps {
 
 export const Item = (props: IItemProps): ReactElement => {
   const { doc, index, hideCheckbox = false, set, clear, onSet } = props;
-  const { bibcode, pubdate, title = ['Untitled'], author = [], id, citation } = doc;
+  const { bibcode, pubdate, title = ['Untitled'], author = [], id, citation, bibstem = [] } = doc;
   const [state, send] = useMachine(itemMachine.withContext({ id }), {
     devTools: true,
   });
 
   const formattedPubDate = getFomattedNumericPubdate(pubdate);
+  const [formattedBibstem] = bibstem;
 
   if ((set && state.matches('unselected')) || (clear && state.matches('selected'))) {
     send({ type: ItemMachine.TransitionTypes.TOGGLE_SELECT });
@@ -88,7 +89,11 @@ export const Item = (props: IItemProps): ReactElement => {
         <div className="flex flex-col">
           {author.length > 0 && <div className="text-s">{author.slice(0, 3).join('; ')}</div>}
           <div className="flex py-1">
-            {formattedPubDate && <span className="text-xs">{formattedPubDate}</span>}
+            <span className="text-xs">
+              {formattedPubDate}
+              {formattedPubDate && formattedBibstem ? ' | ' : ''}
+              {formattedBibstem}
+            </span>
             {citation && <span className="text-xs">cite: {citation}</span>}
           </div>
           <AbstractPreview id={id} />

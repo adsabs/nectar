@@ -41,7 +41,7 @@ export function useSearchMachine(props: IUseSearchMachineProps = {}) {
 
         const params: IADSApiSearchParams = {
           q,
-          fl: ['bibcode', 'title', 'author', '[fields author=3]', 'author_count', 'pubdate'],
+          fl: ['bibcode', 'title', 'author', '[fields author=3]', 'author_count', 'pubdate', 'bibstem'],
           ...ctx.params,
         };
 
