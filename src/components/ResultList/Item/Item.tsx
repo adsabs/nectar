@@ -1,5 +1,6 @@
 import { IDocsEntity } from '@api';
 import { DatabaseIcon, DocumentTextIcon, ViewListIcon } from '@heroicons/react/outline';
+import { getFomattedNumericPubdate } from '@utils';
 import { useMachine } from '@xstate/react';
 import clsx from 'clsx';
 import dynamic from 'next/dynamic';
@@ -28,6 +29,8 @@ export const Item = (props: IItemProps): ReactElement => {
   const [state, send] = useMachine(itemMachine.withContext({ id }), {
     devTools: true,
   });
+
+  const formattedPubDate = getFomattedNumericPubdate(pubdate);
 
   if ((set && state.matches('unselected')) || (clear && state.matches('selected'))) {
     send({ type: ItemMachine.TransitionTypes.TOGGLE_SELECT });
@@ -88,7 +91,7 @@ export const Item = (props: IItemProps): ReactElement => {
           </Link>
           {author.length > 0 && <div className="text-s">{author.slice(0, 3).join('; ')}</div>}
           <div className="flex py-1">
-            {pubdate && <span className="text-xs">{pubdate}</span>}
+            {formattedPubDate && <span className="text-xs">{formattedPubDate}</span>}
             {citation && <span className="text-xs">cite: {citation}</span>}
           </div>
           <AbstractPreview id={id} />
