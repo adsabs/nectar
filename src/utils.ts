@@ -53,3 +53,13 @@ export const getDocument = async (api: AdsApi, id: string): Promise<IOriginalDoc
     ? { notFound: true }
     : { doc: result.value.docs[0], numFound: result.value.numFound };
 };
+
+export const getFomattedNumericPubdate = (pubdate: string): string | null => {
+  const regex = /^(?<year>\d{4})-(?<month>\d{2})/;
+  const match = regex.exec(pubdate);
+  if (match === null) {
+    return null;
+  }
+  const { year, month } = match.groups;
+  return `${year}/${month}`;
+};
