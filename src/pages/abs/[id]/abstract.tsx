@@ -23,14 +23,12 @@ export interface IAbstractPageProps {
   hasMetrics: boolean;
 }
 
-const MAX_AUTHORS = 20;
-
-const MAX_AUTHORS_STATIC = 50;
+const MAX_AUTHORS = 50;
 
 const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) => {
   const { doc, error, params, hasGraphics, hasMetrics } = props;
 
-  const [showNumAuthors, setShowNumAuthors] = useState<number>(isBrowser() ? MAX_AUTHORS : MAX_AUTHORS_STATIC);
+  const [showNumAuthors, setShowNumAuthors] = useState<number>(MAX_AUTHORS);
 
   const [aff, setAff] = useState({ show: false, data: [] as string[] });
 
@@ -156,12 +154,12 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                   })}
                   &nbsp;
                   {isBrowser() && doc.author.length > showNumAuthors ? (
-                    <a onClick={handleShowAllAuthors} className="link">
-                      ... more
+                    <a onClick={handleShowAllAuthors} className="link italic">
+                      {` and ${doc.author.length - showNumAuthors} more`}
                     </a>
                   ) : null}
                   {!isBrowser() && doc.author.length > showNumAuthors ? (
-                    <span>{` and ${doc.author.length - showNumAuthors} more`}</span>
+                    <span className="italic">{` and ${doc.author.length - showNumAuthors} more`}</span>
                   ) : null}
                 </div>
               )}
