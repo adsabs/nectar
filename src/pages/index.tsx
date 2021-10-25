@@ -1,12 +1,12 @@
 import { SearchBar, SearchExamples } from '@components';
 import { useSearchMachine } from '@machines';
+import { ISearchMachine, TransitionType } from '@machines/lib/search/types';
+import { useSelector } from '@xstate/react';
 import { NextPage } from 'next';
+import { useCallback } from 'react';
 
 const HomePage: NextPage = () => {
   const { service: searchService } = useSearchMachine();
-  const handleExampleClick: (text: string) => void = (text) => {
-    console.log('example click', text);
-  };
 
   return (
     <section aria-labelledby="form-title">
@@ -18,11 +18,22 @@ const HomePage: NextPage = () => {
           <SearchBar service={searchService} />
         </div>
         <div className="col-span-6">
-          <SearchExamples onClick={handleExampleClick} />
+          <SearchExamplesWrapper searchService={searchService} />
         </div>
       </form>
     </section>
   );
+};
+
+const SearchExamplesWrapper = ({ searchService }: { searchService: ISearchMachine }) => {
+  const query = useSelector(searchService, (state) => state.context.params.q);
+  const handleExampleClick = useCallback(
+    (text: string) => {
+      searchService.send(TransitionType.SET_PARAMS, { payload: { params: { q: `${query} ${text}` } } });
+    },
+    [query],
+  );
+  return <SearchExamples onClick={handleExampleClick} />;
 };
 
 export default HomePage;
