@@ -19,7 +19,7 @@ const getQueryParams = (id: string | string[]): IADSApiSearchParams => {
   const idStr = Array.isArray(id) ? id[0] : id;
   return {
     q: `citations(identifier:${idStr})`,
-    fl: ['bibcode', 'title', 'author', '[fields author=3]', 'author_count', 'pubdate'],
+    fl: ['bibcode', 'title', 'author', '[fields author=10]', 'author_count', 'pubdate'],
     sort: ['date desc'],
   };
 };

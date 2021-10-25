@@ -25,7 +25,7 @@ interface IItemProps {
 
 export const Item = (props: IItemProps): ReactElement => {
   const { doc, index, hideCheckbox = false, set, clear, onSet } = props;
-  const { bibcode, pubdate, title = ['Untitled'], author = [], id, citation, bibstem = [] } = doc;
+  const { bibcode, pubdate, title = ['Untitled'], author = [], id, citation, bibstem = [], author_count } = doc;
   const [state, send] = useMachine(itemMachine.withContext({ id }), {
     devTools: true,
   });
@@ -87,7 +87,12 @@ export const Item = (props: IItemProps): ReactElement => {
           </div>
         </div>
         <div className="flex flex-col">
-          {author.length > 0 && <div className="text-s">{author.slice(0, 3).join('; ')}</div>}
+          {author.length > 0 && (
+            <div className="text-s">
+              {author.slice(0, 10).join('; ')}
+              {author_count > 10 && <span className="text-xs italic"> and {author_count - 10} more</span>}
+            </div>
+          )}
           <div className="flex py-1">
             <span className="text-xs">
               {formattedPubDate}
