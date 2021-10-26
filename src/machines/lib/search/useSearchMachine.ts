@@ -37,7 +37,7 @@ export function useSearchMachine(props: IUseSearchMachineProps = {}) {
         if (ctx.params.q === '' || typeof ctx.params.q === 'undefined') {
           throw new Error('no query');
         }
-        const { q, sort } = ctx.params;
+        const { q, sort, start } = ctx.params;
 
         const params: IADSApiSearchParams = {
           q,
@@ -55,11 +55,14 @@ export function useSearchMachine(props: IUseSearchMachineProps = {}) {
 
         dispatch({ type: AppEvent.SET_CURRENT_QUERY, payload: params });
 
+        const page = start === 0 ? 1 : ctx.pagination.page;
+
         // update the url with the updated query and sort
-        const queryParams = qs.stringify({ q, sort, p: ctx.pagination.page }, { arrayFormat: 'comma' });
+        const queryParams = qs.stringify({ q, sort, p: page }, { arrayFormat: 'comma' });
         const updatedPath = `/search?${queryParams}`;
+
         if (updatedPath !== Router.asPath) {
-          await Router.push(updatedPath, undefined, { shallow: true });
+          void Router.push(updatedPath, undefined, { shallow: true });
         }
 
         const { docs, numFound } = result.value;
