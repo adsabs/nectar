@@ -146,11 +146,6 @@ export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (c
 
   const { docs, numFound } = result.value;
 
-  console.log(
-    'result',
-    docs.map((d) => d.bibcode),
-  );
-
   return {
     props: {
       params,
