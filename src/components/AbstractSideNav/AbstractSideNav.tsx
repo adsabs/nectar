@@ -33,7 +33,9 @@ export const AbstractSideNav = ({ doc, hasMetrics, hasGraphics }: IAbstractSideN
     const Icon = item.icon || DocumentIcon;
     const current = item.href === subPage;
     const count =
-      (item.href === Routes.GRAPHICS && hasGraphics) || (item.href === Routes.METRICS && hasMetrics)
+      item.href === Routes.EXPORT ||
+      (item.href === Routes.GRAPHICS && hasGraphics) ||
+      (item.href === Routes.METRICS && hasMetrics)
         ? 1
         : getCount(item.href, doc);
     const disabled = count === 0 && item.href !== Routes.ABSTRACT;
