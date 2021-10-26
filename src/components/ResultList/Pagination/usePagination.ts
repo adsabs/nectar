@@ -56,7 +56,7 @@ export const usePagination = ({
   numPerPage = 10,
   onPageChange = () => {},
 }: IUsePaginationProps): IUsePagination => {
-  const { query } = useRouter();
+  const { query, pathname } = useRouter();
 
   const state = useMemo(() => {
     const page = parsePageFromQuery(query);
@@ -71,11 +71,11 @@ export const usePagination = ({
     const endIndex = startIndex + numPerPage - 1;
 
     return {
-      nextHref: `/?${qs.stringify({ ...query, p: clamp(1, totalPages, page + 1) })}`,
-      prevHref: `/?${qs.stringify({ ...query, p: clamp(1, totalPages, page - 1) })}`,
+      nextHref: `${pathname}?${qs.stringify({ ...query, p: clamp(1, totalPages, page + 1) })}`,
+      prevHref: `${pathname}?${qs.stringify({ ...query, p: clamp(1, totalPages, page - 1) })}`,
       pages: pageRange.map((index) => ({
         index,
-        href: `/?${qs.stringify({ ...query, p: index })}`,
+        href: `${pathname}?${qs.stringify({ ...query, p: index })}`,
       })),
       page,
       startIndex,

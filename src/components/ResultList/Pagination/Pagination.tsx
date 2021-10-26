@@ -184,7 +184,7 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
               <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
             </button>
           ) : (
-            <Link href={isBrowser() ? '#' : prevHref}>
+            <Link href={prevHref}>
               <a className={prevButtonStyles} data-testid="pagination-prev">
                 <span className="sr-only">Previous</span>
                 <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
