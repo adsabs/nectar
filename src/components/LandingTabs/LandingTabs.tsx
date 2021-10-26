@@ -27,7 +27,7 @@ export const LandingTabs = (): ReactElement => {
     state: { theme },
   } = useAppCtx();
   const [showTabs, setShowTabs] = useState(false);
-  const [img, setImg] = useState<StaticImageData>(backgroundMap.get(Theme.GENERAL));
+  const [img, setImg] = useState<StaticImageData>(null);
 
   useEffect(() => {
     setShowTabs(theme === Theme.ASTROPHYSICS);
@@ -35,8 +35,8 @@ export const LandingTabs = (): ReactElement => {
   }, [theme]);
 
   return (
-    <div className="relative flex flex-col items-center justify-center" suppressHydrationWarning>
-      <Image className="z-0 object-cover" src={img} aria-hidden="true" layout="fill" loading="eager" />
+    <div className="relative flex flex-col items-center justify-center bg-black" suppressHydrationWarning>
+      {img && <Image className="z-0 object-cover" src={img} aria-hidden="true" layout="fill" loading="eager" />}
       <div className="flex items-center p-6">
         <TitleLogo />
       </div>
