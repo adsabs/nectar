@@ -65,6 +65,8 @@ export const Metatags = (props: IMetatagsProps): ReactElement => {
 
   const arXiv = doc.identifier ? getArXiv(doc.identifier) : '';
 
+  const authors = doc.author ? doc.author.slice(0, 50) : [];
+
   return (
     <Head>
       <link rel="canonical" href={`${ADS_BASE_URL}/abs/${doc.bibcode}/abstract`} />
@@ -85,7 +87,7 @@ export const Metatags = (props: IMetatagsProps): ReactElement => {
 
       {doc.pubdate && <meta property="article:published_time" content={formatted_numeric_pubdate} />}
 
-      {doc.author && doc.author.map((a, i) => <meta key={`aa-${i}`} name="article:author" content={a} />)}
+      {doc.author && authors.map((a, i) => <meta key={`aa-${i}`} name="article:author" content={a} />)}
 
       {doc.doctype === 'Proceedings' ? (
         doc.bibstem && doc.bibstem.length > 0 && <meta name="citation_conference" content={doc.bibstem[0]} />
@@ -95,7 +97,7 @@ export const Metatags = (props: IMetatagsProps): ReactElement => {
 
       {doc.pubdate && <meta name="citation_date" content={formatted_numeric_pubdate} />}
 
-      {doc.author && doc.author.map((a, i) => <meta key={`ca-${i}`} name="citation_authors" content={a} />)}
+      {doc.author && authors.map((a, i) => <meta key={`ca-${i}`} name="citation_authors" content={a} />)}
 
       {doc.title && <meta name="citation_title" content={title} />}
 
@@ -159,7 +161,7 @@ export const Metatags = (props: IMetatagsProps): ReactElement => {
 
       <meta name="dc.title" content={title} />
 
-      {doc.author && doc.author.map((a, i) => <meta key={`dcc-${i}`} name="dc.creator" content={a} />)}
+      {doc.author && authors.map((a, i) => <meta key={`dcc-${i}`} name="dc.creator" content={a} />)}
 
       <meta name="twitter:card" content="summary_large_image" />
 

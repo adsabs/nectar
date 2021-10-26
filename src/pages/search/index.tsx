@@ -121,7 +121,7 @@ export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (c
 
   const params: IADSApiSearchParams = {
     q: query.q,
-    fl: ['bibcode', 'title', 'author', '[fields author=3]', 'author_count', 'pubdate', 'bibstem'],
+    fl: ['bibcode', 'title', 'author', '[fields author=10]', 'author_count', 'pubdate', 'bibstem'],
     sort: query.sort ? (query.sort.split(',') as SolrSort[]) : ['date desc'],
     rows: 10,
     start: (page - 1) * 10,

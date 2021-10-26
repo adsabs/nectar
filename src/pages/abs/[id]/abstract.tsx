@@ -23,14 +23,12 @@ export interface IAbstractPageProps {
   hasMetrics: boolean;
 }
 
-const MAX_AUTHORS = 20;
-
-const MAX_AUTHORS_STATIC = 50;
+const MAX_AUTHORS = 50;
 
 const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) => {
   const { doc, error, params, hasGraphics, hasMetrics } = props;
 
-  const [showNumAuthors, setShowNumAuthors] = useState<number>(isBrowser() ? MAX_AUTHORS : MAX_AUTHORS_STATIC);
+  const [showNumAuthors, setShowNumAuthors] = useState<number>(MAX_AUTHORS);
 
   const [aff, setAff] = useState({ show: false, data: [] as string[] });
 
@@ -135,7 +133,6 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                         >
                           <a className={authorNameClass}>{a}</a>
                         </Link>
-                        {'  '}
                         {orcid && (
                           <Link
                             href={{
@@ -144,24 +141,24 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                             }}
                           >
                             <a style={{ height: 20 }}>
+                              {'  '}
                               <Image src="/img/orcid-active.svg" width="20" height="20" alt="Search by ORCID" />
                             </a>
                           </Link>
                         )}
-                        {'  '}
                         {aff.show ? <>({aff.data[index]})</> : null}
-                        ;&nbsp;
+                        {index === MAX_AUTHORS - 1 || index + 1 === doc.author.length ? ' ' : ';'}&nbsp;
                       </div>
                     );
                   })}
                   &nbsp;
                   {isBrowser() && doc.author.length > showNumAuthors ? (
-                    <a onClick={handleShowAllAuthors} className="link">
-                      ... more
+                    <a onClick={handleShowAllAuthors} className="link italic">
+                      {`and ${doc.author.length - showNumAuthors} more`}
                     </a>
                   ) : null}
                   {!isBrowser() && doc.author.length > showNumAuthors ? (
-                    <span>{` and ${doc.author.length - showNumAuthors} more`}</span>
+                    <span className="italic">{`and ${doc.author.length - showNumAuthors} more`}</span>
                   ) : null}
                 </div>
               )}

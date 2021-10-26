@@ -27,16 +27,17 @@ export const AbstractSideNav = ({ doc, hasMetrics, hasGraphics }: IAbstractSideN
     state: { user },
   } = useAppCtx();
 
-  const useCount = [Routes.CITATIONS, Routes.COREADS, Routes.REFERENCES, Routes.SIMILAR];
+  const useCount = [Routes.CITATIONS, Routes.REFERENCES];
 
   const itemElements = navigation.map((item) => {
     const Icon = item.icon || DocumentIcon;
     const current = item.href === subPage;
-    const count = useCount.includes(item.href)
-      ? getCount(item.href, doc)
-      : (item.href === Routes.GRAPHICS && hasGraphics) || (item.href === Routes.METRICS && hasMetrics)
-      ? 1
-      : 0;
+    const count =
+      item.href === Routes.EXPORT ||
+      (item.href === Routes.GRAPHICS && hasGraphics) ||
+      (item.href === Routes.METRICS && hasMetrics)
+        ? 1
+        : getCount(item.href, doc);
     const disabled = count === 0 && item.href !== Routes.ABSTRACT;
     const showCount = count > 0 && useCount.includes(item.href);
     const href = { pathname: disabled ? Routes.ABSTRACT : item.href, query: { id: router.query.id } };

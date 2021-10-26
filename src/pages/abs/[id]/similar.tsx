@@ -18,7 +18,7 @@ const getQueryParams = (id: string | string[]): IADSApiSearchParams => {
   const idStr = Array.isArray(id) ? id[0] : id;
   return {
     q: `similar(identifier:${idStr})`,
-    fl: ['bibcode', 'title', 'author', '[fields author=3]', 'author_count', 'pubdate'],
+    fl: ['bibcode', 'title', 'author', '[fields author=10]', 'author_count', 'pubdate'],
     sort: ['score desc'],
   };
 };
@@ -55,7 +55,7 @@ export const getServerSideProps: GetServerSideProps<ICitationsPageProps> = async
   const userData = request.session.userData;
   const params: IADSApiSearchParams = {
     q: `similar(identifier:${query.id})`,
-    fl: ['bibcode', 'title', 'author', '[fields author=3]', 'author_count', 'pubdate'],
+    fl: ['bibcode', 'title', 'author', '[fields author=10]', 'author_count', 'pubdate'],
     sort: ['score desc'],
   };
   const adsapi = new AdsApi({ token: userData.access_token });
