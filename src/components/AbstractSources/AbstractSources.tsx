@@ -1,11 +1,11 @@
 import { IDocsEntity } from '@api';
 import { DropdownList } from '@components';
+import { SimpleLinkDropdown } from '@components/Dropdown/SimpleLinkDropdown';
 import { ItemType } from '@components/Dropdown/types';
 import { ChevronDownIcon, LockClosedIcon, LockOpenIcon } from '@heroicons/react/solid';
 import { isBrowser } from '@utils';
-import Link from 'next/link';
 import { isNil } from 'ramda';
-import { HTMLAttributes, ReactElement } from 'react';
+import React, { HTMLAttributes, ReactElement } from 'react';
 import { IDataProductSource, IFullTextSource, IRelatedWorks, processLinkData } from './linkGenerator';
 
 export interface IAbstractSourcesProps extends HTMLAttributes<HTMLDivElement> {
@@ -34,15 +34,10 @@ export const AbstractSources = ({ doc }: IAbstractSourcesProps): ReactElement =>
 
 ///// dropdown components //////
 
-const dropdownClasses = {
-  button: 'button-sm pl-2 pr-1',
-  list: 'border border-gray-400',
-};
+const dropdownButtonClasses = 'button-sm pl-2 pr-1 cursor-pointer';
 
-const dropdownClassesInactive = {
-  button: 'button-sm-disabled pl-2 pr-1',
-  list: 'border border-gray-400',
-};
+const dropdownButtonClassesInactive = 'button-sm-disabled pl-2 pr-1 cursor-default';
+
 interface IFullTextDropdownProps {
   sources: IFullTextSource[];
 }
@@ -74,41 +69,41 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
     }
   };
 
+  const label = (
+    <div className={sources.length > 0 ? dropdownButtonClasses : dropdownButtonClassesInactive}>
+      Full Text Sources{' '}
+      {sources.find((s) => s.open) !== undefined ? <LockOpenIcon className="default-icon-sm inline" /> : null}
+      <ChevronDownIcon className="default-icon-sm inline" />
+    </div>
+  );
+
   return (
     <>
       {isBrowser() ? (
         <DropdownList
-          label={
-            sources.find((s) => s.open) !== undefined ? (
-              <>
-                Full Text Sources <LockOpenIcon className="default-icon-sm inline" />{' '}
-                <ChevronDownIcon className="default-icon-sm inline" />
-              </>
-            ) : (
-              'Full Text Sources'
-            )
-          }
+          label={label}
           items={fullSourceItems}
           onSelect={handleSelect}
-          classes={fullSourceItems.length > 0 ? dropdownClasses : dropdownClassesInactive}
           placement={'bottom-start'}
+          classes={{ button: sources.length === 0 ? 'cursor-default' : '', list: '' }}
           offset={[0, 2]}
           role="list"
           ariaLabel="Full Text Sources"
         ></DropdownList>
       ) : (
-        <>
-          <div className="flex flex-col">
-            <h3>Full Text Sources</h3>
-            {fullSourceItems.map((item) => (
-              <Link key={item.id} href={item.path}>
-                <a className="link" ref="noreferrer noopener" target="_blank">
-                  {item.label}
-                </a>
-              </Link>
-            ))}
-          </div>
-        </>
+        <span>
+          <SimpleLinkDropdown
+            items={fullSourceItems}
+            label={label}
+            selected={''}
+            aria-label="Full Text Sources"
+            classes={{
+              label: fullSourceItems.length > 0 ? dropdownButtonClasses : dropdownButtonClassesInactive,
+              list: 'w-60 h-auto',
+              item: 'p-2 flex justify-start',
+            }}
+          />
+        </span>
       )}
     </>
   );
@@ -146,6 +141,7 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
       id: 'data-subheading',
       label: 'Data Products',
       domId: 'dataProducts',
+      path: '',
       disabled: true,
     });
     items.push(...dataProductItems);
@@ -157,6 +153,7 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
       id: 'related-subheading',
       label: 'Related Materials',
       domId: 'relatedWorks',
+      path: '',
       disabled: true,
     });
     items.push(...relatedWorkItems);
@@ -171,20 +168,45 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
     }
   };
 
+  const label = (
+    <div className={items.length > 0 ? dropdownButtonClasses : dropdownButtonClassesInactive}>
+      Other Resources <ChevronDownIcon className="default-icon-sm inline" />
+    </div>
+  );
+
   return (
     <>
       {isBrowser() ? (
-        <DropdownList
-          label="Other Resources"
-          items={items}
-          onSelect={handleSelect}
-          classes={items.length > 0 ? dropdownClasses : dropdownClassesInactive}
-          placement={'bottom-start'}
-          offset={[0, 2]}
-          role="list"
-          ariaLabel="Other Resources"
-        ></DropdownList>
-      ) : null}
+        <div>
+          <DropdownList
+            label={label}
+            items={items}
+            onSelect={handleSelect}
+            classes={{ button: items.length === 0 ? 'cursor-default' : '', list: '' }}
+            placement={'bottom-start'}
+            offset={[0, 2]}
+            role="list"
+            ariaLabel="Other Resources"
+          />
+        </div>
+      ) : (
+        <span>
+          {items.length > 0 ? (
+            <SimpleLinkDropdown
+              items={items}
+              label={label}
+              selected={''}
+              aria-label="Other Resources"
+              classes={{
+                list: 'w-60 h-auto',
+                item: 'p-2',
+              }}
+            />
+          ) : (
+            <>{label}</>
+          )}
+        </span>
+      )}
     </>
   );
 };
