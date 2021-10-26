@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import qs from 'qs';
+import { ParsedUrlQuery } from 'querystring';
 import { clamp, range } from 'ramda';
 import { MouseEvent, MouseEventHandler, useCallback, useMemo } from 'react';
 
@@ -13,39 +14,54 @@ export interface IUsePagination {
   noPrev: boolean;
   noNext: boolean;
   noPagination: boolean;
-  handleNext: MouseEventHandler<HTMLAnchorElement>;
-  handlePrev: MouseEventHandler<HTMLAnchorElement>;
-  handlePageChange: (e: MouseEvent<HTMLAnchorElement>, page: number) => void;
+  totalPages: number;
+  handleNext: MouseEventHandler<HTMLButtonElement>;
+  handlePrev: MouseEventHandler<HTMLButtonElement>;
+  handlePageChange: (e: MouseEvent<HTMLButtonElement>, page: number) => void;
 }
-const initialState = {
-  nextHref: '',
-  prevHref: '',
-  pages: [],
-  page: 1,
-  startIndex: 0,
-  endIndex: 1,
-  noPrev: true,
-  noNext: true,
-  noPagination: false,
-};
 
-interface IUsePaginationProps {
+export interface IUsePaginationProps {
   totalResults: number;
   numPerPage: number;
-  onPageChange: (page: number) => void;
+  onPageChange?: (page: number) => void;
 }
 
+/**
+ *
+ */
+const parsePageFromQuery = (query: ParsedUrlQuery): number => {
+  try {
+    const { p } = query;
+    const page = parseInt(Array.isArray(p) ? p[0] : p, 10);
+    return page === 0 || Number.isNaN(page) ? 1 : page;
+  } catch (e) {
+    return 1;
+  }
+};
+
+/**
+ *
+ */
+const getTotalPages = (totalResults: number, numPerPage: number): number => {
+  try {
+    const pages = Math.ceil(totalResults / clamp(1, 500, numPerPage));
+    return pages === 0 ? 1 : pages;
+  } catch (e) {
+    return 1;
+  }
+};
+
 export const usePagination = ({
-  totalResults,
-  numPerPage,
+  totalResults = 1,
+  numPerPage = 10,
   onPageChange = () => {},
 }: IUsePaginationProps): IUsePagination => {
   const { query } = useRouter();
 
   const state = useMemo(() => {
-    const { p } = query;
-    const page = parseInt(Array.isArray(p) ? p[0] : p) || 1;
-    const totalPages = Math.ceil(totalResults / numPerPage) || 1;
+    const page = parsePageFromQuery(query);
+    const totalPages = getTotalPages(totalResults, numPerPage);
+
     // spreads the pagination control out, moving the current to the middle after the first few pages
     const pageRange = range(
       page <= 3 ? 1 : page - 3,
@@ -55,23 +71,24 @@ export const usePagination = ({
     const endIndex = startIndex + numPerPage - 1;
 
     return {
-      nextHref: `/search?${qs.stringify({ ...query, p: clamp(1, totalPages, page + 1) })}`,
-      prevHref: `/search?${qs.stringify({ ...query, p: clamp(1, totalPages, page - 1) })}`,
+      nextHref: `/?${qs.stringify({ ...query, p: clamp(1, totalPages, page + 1) })}`,
+      prevHref: `/?${qs.stringify({ ...query, p: clamp(1, totalPages, page - 1) })}`,
       pages: pageRange.map((index) => ({
         index,
-        href: `/search?${qs.stringify({ ...query, p: index })}`,
+        href: `/?${qs.stringify({ ...query, p: index })}`,
       })),
       page,
       startIndex,
       endIndex,
       noPrev: page === 1,
       noNext: page === totalPages,
+      totalPages,
       noPagination: totalPages === 1,
     };
   }, [totalResults, numPerPage, query]);
 
   const handleNext = useCallback(
-    (e: MouseEvent<HTMLAnchorElement>) => {
+    (e: MouseEvent<HTMLButtonElement>) => {
       e.preventDefault();
       if (state.noNext) {
         return;
@@ -79,11 +96,11 @@ export const usePagination = ({
 
       onPageChange(state.page + 1);
     },
-    [state.page],
+    [state.page, onPageChange],
   );
 
   const handlePrev = useCallback(
-    (e: MouseEvent<HTMLAnchorElement>) => {
+    (e: MouseEvent<HTMLButtonElement>) => {
       e.preventDefault();
       if (state.noPrev) {
         return;
@@ -91,20 +108,19 @@ export const usePagination = ({
 
       onPageChange(state.page - 1);
     },
-    [state.page],
+    [state.page, onPageChange],
   );
 
   const handlePageChange = useCallback(
-    (e: MouseEvent<HTMLAnchorElement>, page: number) => {
+    (e: MouseEvent<HTMLButtonElement>, page: number) => {
       e.preventDefault();
 
       if (page === state.page) {
         return;
       }
-
       onPageChange(page);
     },
-    [state.page],
+    [state.page, onPageChange],
   );
 
   return {

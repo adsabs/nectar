@@ -43,18 +43,30 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
   }
 
   const pageChangeHandler = (idx: number) => {
-    return (e: MouseEvent<HTMLAnchorElement>) => handlePageChange(e, idx);
+    return (e: MouseEvent<HTMLButtonElement>) => handlePageChange(e, idx);
   };
 
   const renderControls = () => {
     return pages.map(({ index, href }) => {
       // current page styling
       if (index === page) {
-        return (
-          <Link key={href} href={isBrowser() ? '#' : href}>
+        return isBrowser() ? (
+          <button
+            type="button"
+            key={href}
+            onClick={pageChangeHandler(index)}
+            aria-current="page"
+            data-testid="pagination-item"
+            aria-label={`Current page, page ${page}`}
+            className="relative z-10 inline-flex items-center px-4 py-2 text-indigo-600 text-sm font-medium bg-indigo-50 border border-indigo-500"
+          >
+            {index}
+          </button>
+        ) : (
+          <Link key={href} href={href}>
             <a
-              onClick={pageChangeHandler(index)}
               aria-current="page"
+              data-testid="pagination-item"
               aria-label={`Current page, page ${page}`}
               className="relative z-10 inline-flex items-center px-4 py-2 text-indigo-600 text-sm font-medium bg-indigo-50 border border-indigo-500"
             >
@@ -65,11 +77,22 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
       }
 
       // normal, non-current page
-      return (
-        <Link key={href} href={isBrowser() ? '#' : href}>
+      return isBrowser() ? (
+        <button
+          type="button"
+          key={href}
+          onClick={pageChangeHandler(index)}
+          aria-label={`Goto page ${page}`}
+          data-testid="pagination-item"
+          className="relative inline-flex items-center px-4 py-2 text-gray-500 text-sm font-medium hover:bg-gray-50 bg-white border border-gray-300"
+        >
+          {index}
+        </button>
+      ) : (
+        <Link key={href} href={href}>
           <a
-            onClick={pageChangeHandler(index)}
             aria-label={`Goto page ${page}`}
+            data-testid="pagination-item"
             className="relative inline-flex items-center px-4 py-2 text-gray-500 text-sm font-medium hover:bg-gray-50 bg-white border border-gray-300"
           >
             {index}
@@ -109,6 +132,7 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
   return (
     <section
       {...divProps}
+      data-testid="pagination-container"
       aria-labelledby="pagination"
       className="flex items-center justify-between px-4 py-3 bg-white border-gray-200 sm:px-6"
     >
@@ -116,19 +140,33 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
         {paginationHeading}
       </h3>
       <div className="flex flex-1 justify-between sm:hidden">
-        <Link href={isBrowser() ? '#' : prevHref}>
-          <a className={mobilePrevButtonStyles} onClick={handlePrev}>
-            Previous
-          </a>
-        </Link>
-        <Link href={isBrowser() ? '#' : nextHref}>
-          <a className={mobileNextButtonStyles} onClick={handleNext}>
-            Next
-          </a>
-        </Link>
+        {isBrowser() ? (
+          <>
+            <button type="button" className={mobilePrevButtonStyles} onClick={handlePrev} data-testid="pagination-prev">
+              Previous
+            </button>
+            <button type="button" className={mobileNextButtonStyles} onClick={handleNext} data-testid="pagination-next">
+              Next
+            </button>
+          </>
+        ) : (
+          <>
+            <Link href={prevHref}>
+              <a className={mobilePrevButtonStyles} data-testid="pagination-prev">
+                Previous
+              </a>
+            </Link>
+
+            <Link href={nextHref}>
+              <a className={mobileNextButtonStyles} data-testid="pagination-next">
+                Next
+              </a>
+            </Link>
+          </>
+        )}
       </div>
       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-        <div aria-hidden="true">
+        <div data-testid="pagination-label">
           <p className="text-gray-700 text-sm">
             Showing <span className="font-medium">{formattedStartIndex}</span> to{' '}
             <span className="font-medium">{noNext ? formattedTotalResults : formattedEndIndex}</span> of{' '}
@@ -140,21 +178,35 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
           role="navigation"
           aria-label="Pagination"
         >
-          <Link href={isBrowser() ? '#' : prevHref}>
-            <a className={prevButtonStyles} onClick={handlePrev}>
+          {isBrowser() ? (
+            <button type="button" className={prevButtonStyles} onClick={handlePrev} data-testid="pagination-prev">
               <span className="sr-only">Previous</span>
               <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
-            </a>
-          </Link>
+            </button>
+          ) : (
+            <Link href={isBrowser() ? '#' : prevHref}>
+              <a className={prevButtonStyles} data-testid="pagination-prev">
+                <span className="sr-only">Previous</span>
+                <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
+              </a>
+            </Link>
+          )}
 
           {renderControls()}
 
-          <Link href={isBrowser() ? '#' : nextHref}>
-            <a className={nextButtonStyles} onClick={handleNext}>
+          {isBrowser() ? (
+            <button type="button" className={nextButtonStyles} onClick={handleNext} data-testid="pagination-next">
               <span className="sr-only">Next</span>
               <ChevronRightIcon className="w-5 h-5" aria-hidden="true" />
-            </a>
-          </Link>
+            </button>
+          ) : (
+            <Link href={nextHref}>
+              <a className={nextButtonStyles} data-testid="pagination-next">
+                <span className="sr-only">Next</span>
+                <ChevronRightIcon className="w-5 h-5" aria-hidden="true" />
+              </a>
+            </Link>
+          )}
         </nav>
       </div>
     </section>
