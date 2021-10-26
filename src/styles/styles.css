@@ -65,7 +65,7 @@
   }
 
   .link-button-disabled {
-    @apply m-2 h-10 text-sm;
+    @apply m-2 h-10 text-sm cursor-default;
   }
 
   .default-icon {
