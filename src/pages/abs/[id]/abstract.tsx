@@ -133,7 +133,6 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                         >
                           <a className={authorNameClass}>{a}</a>
                         </Link>
-                        {'  '}
                         {orcid && (
                           <Link
                             href={{
@@ -142,24 +141,24 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                             }}
                           >
                             <a style={{ height: 20 }}>
+                              {'  '}
                               <Image src="/img/orcid-active.svg" width="20" height="20" alt="Search by ORCID" />
                             </a>
                           </Link>
                         )}
-                        {'  '}
                         {aff.show ? <>({aff.data[index]})</> : null}
-                        ;&nbsp;
+                        {index === MAX_AUTHORS - 1 || index + 1 === doc.author.length ? ' ' : ';'}&nbsp;
                       </div>
                     );
                   })}
                   &nbsp;
                   {isBrowser() && doc.author.length > showNumAuthors ? (
                     <a onClick={handleShowAllAuthors} className="link italic">
-                      {` and ${doc.author.length - showNumAuthors} more`}
+                      {`and ${doc.author.length - showNumAuthors} more`}
                     </a>
                   ) : null}
                   {!isBrowser() && doc.author.length > showNumAuthors ? (
-                    <span className="italic">{` and ${doc.author.length - showNumAuthors} more`}</span>
+                    <span className="italic">{`and ${doc.author.length - showNumAuthors} more`}</span>
                   ) : null}
                 </div>
               )}
