@@ -11,6 +11,7 @@ import { IAppState } from '@store/types';
 import { act, render } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 import MockAdapter from 'axios-mock-adapter';
+import { FC } from 'react';
 import { Default as Export } from '../__stories__/Export.stories';
 
 // mock the router
