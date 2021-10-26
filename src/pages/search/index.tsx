@@ -1,8 +1,9 @@
 import AdsApi, { IADSApiSearchParams, IDocsEntity, SolrSort } from '@api';
-import { NumFound, ResultList, SearchBar } from '@components';
+import { ISearchBarProps, NumFound, ResultList, SearchBar } from '@components';
 import { useSearchMachine } from '@machines';
-import { TransitionType } from '@machines/lib/search/types';
+import { ISearchMachine, TransitionType } from '@machines/lib/search/types';
 import { normalizeURLParams } from '@utils';
+import { useSelector } from '@xstate/react';
 import { GetServerSideProps, NextPage } from 'next';
 import { ChangeEvent, ReactElement } from 'react';
 
@@ -82,7 +83,7 @@ const Form = (props: IFormProps): ReactElement => {
         <div className="col-span-6">
           <div className="flex items-center space-x-3">
             <div className="flex-1">
-              <SearchBar service={searchService} />
+              <SearchBarWrapper searchService={searchService} />
             </div>
           </div>
           <NumFound count={result.numFound} />
@@ -160,6 +161,16 @@ export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (c
 };
 
 export default SearchPage;
+
+const SearchBarWrapper = (props: Omit<ISearchBarProps, 'query' | 'onChange'> & { searchService: ISearchMachine }) => {
+  const { searchService, ...searchBarProps } = props;
+  const query = useSelector(searchService, (state) => state.context.params.q);
+  const isLoading = useSelector(searchService, (state) => state.matches('fetching'));
+  const setQuery = (query: string) => {
+    searchService.send(TransitionType.SET_PARAMS, { payload: { params: { q: query } } });
+  };
+  return <SearchBar initialQuery={query} onQueryChange={setQuery} isLoading={isLoading} {...searchBarProps} />;
+};
 
 // const Filters = () => (
 //   <div className="flex flex-col mt-1 sm:flex-row sm:flex-wrap sm:mt-1 sm:space-x-6">

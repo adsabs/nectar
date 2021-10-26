@@ -2,7 +2,7 @@ import { useAPI } from '@hooks';
 import { useAppCtx } from '@store';
 import { useMachine } from '@xstate/react';
 import { useRouter } from 'next/router';
-import { useCallback, useEffect } from 'react';
+import { FormEvent, useCallback, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { Interpreter } from 'xstate';
 import { exportFormats, MAX_RECORDS } from './constants';

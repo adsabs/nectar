@@ -1,4 +1,5 @@
 import { range } from 'ramda';
+import { ReactElement } from 'react';
 
 interface ISkeletonProps {
   count: number;

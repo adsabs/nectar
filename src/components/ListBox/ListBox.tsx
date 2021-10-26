@@ -1,4 +1,5 @@
 import { SortAscendingIcon } from '@heroicons/react/solid';
+import { ReactElement } from 'react';
 
 export interface IListBoxProps {
   // children?: ReactChild,

@@ -4,16 +4,9 @@ import { Meta, Story } from '@storybook/react';
 const meta: Meta = {
   title: 'SearchBar',
   component: SearchBar,
-  argTypes: {
-    children: {
-      control: {
-        type: 'text',
-      },
-    },
-  },
-  parameters: {
-    controls: { expanded: true },
-  },
+  argTypes: {},
+  parameters: {},
+  decorators: [],
 };
 
 export default meta;
@@ -21,5 +14,9 @@ export default meta;
 const Template: Story<ISearchBarProps> = (args) => <SearchBar {...args} />;
 
 export const Default = Template.bind({}) as Story<ISearchBarProps>;
+export const WithInitialQuery = Template.bind({}) as Story<ISearchBarProps>;
 
 Default.args = {};
+WithInitialQuery.args = {
+  initialQuery: 'author:"^accomazzi"',
+};
