@@ -154,10 +154,9 @@ export default SearchPage;
 
 const SearchBarWrapper = (props: Omit<ISearchBarProps, 'query' | 'onChange'> & { searchService: ISearchMachine }) => {
   const { searchService, ...searchBarProps } = props;
-  const { query, isLoading } = useSelector(searchService, (state) => ({
-    query: state.context.params.q,
-    isLoading: state.matches('fetching'),
-  }));
+  const query = useSelector(searchService, (state) => state.context.params.q);
+  const isLoading = useSelector(searchService, (state) => state.matches('fetching'));
+
   const setQuery = (query: string) => {
     searchService.send(TransitionType.SET_PARAMS, { payload: { params: { q: query } } });
   };
