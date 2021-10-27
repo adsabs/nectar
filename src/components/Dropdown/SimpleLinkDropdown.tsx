@@ -3,20 +3,15 @@ import clsx from 'clsx';
 import Link from 'next/link';
 import { ReactElement } from 'react';
 import styles from './Dropdown.module.css';
+import { ItemType } from './types';
 
 /** Non JavaScript dropdown */
-export interface ISimpleLinkDropdownItem {
-  id: string;
-  path: string;
-  domId: string;
-  label: string;
-}
-
 export interface ISimpleLinkDropdownProps {
-  items: ISimpleLinkDropdownItem[];
-  selected: string;
+  items: ItemType[];
+  selected?: string;
   label: string | ReactElement;
   classes?: {
+    label?: string;
     list?: string;
     item?: string;
   };
@@ -24,6 +19,8 @@ export interface ISimpleLinkDropdownProps {
 
 export const SimpleLinkDropdown = (props: ISimpleLinkDropdownProps): ReactElement => {
   const { items, selected, label, classes, ...restProps } = props;
+
+  const labelClasses = classes && classes.label ? clsx(classes.label) : 'button-simple';
 
   const listClasses =
     classes && classes.list ? clsx(styles['simple-dropdown-content'], classes.list) : styles['simple-dropdown-content'];
@@ -34,7 +31,7 @@ export const SimpleLinkDropdown = (props: ISimpleLinkDropdownProps): ReactElemen
   return (
     <div className={styles['simple-dropdown']} {...restProps}>
       {typeof label === 'string' ? (
-        <button className="button-simple" role="list">
+        <button className={labelClasses}>
           {label} <ChevronDownIcon className="inline w-4 h-4" />
         </button>
       ) : (
@@ -42,11 +39,19 @@ export const SimpleLinkDropdown = (props: ISimpleLinkDropdownProps): ReactElemen
       )}
       <div className={listClasses}>
         {items.map((item) => (
-          <Link key={item.id} href={item.path}>
-            <a tabIndex={0} className={itemClasses} role="listitem" aria-selected={selected === item.id}>
-              {item.label} {selected === item.id ? <CheckIcon className="inline w-4 h-4" /> : null}
-            </a>
-          </Link>
+          <>
+            {item.disabled ? (
+              <div className="p-2 text-gray-400 cursor-default">
+                {item.label} {selected === item.id ? <CheckIcon className="inline w-4 h-4" /> : null}
+              </div>
+            ) : (
+              <Link key={item.id} href={item.path}>
+                <a tabIndex={0} className={itemClasses} role="listitem" aria-selected={selected === item.id}>
+                  {item.label} {selected === item.id ? <CheckIcon className="inline w-4 h-4" /> : null}
+                </a>
+              </Link>
+            )}
+          </>
         ))}
       </div>
     </div>
