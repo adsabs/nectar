@@ -104,22 +104,22 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
 
   const mobilePrevButtonStyles = clsx(
     'relative inline-flex items-center px-4 py-2 text-gray-700 text-sm font-medium hover:bg-gray-50 bg-white border border-gray-300 rounded-md',
-    { 'cursor-not-allowed': noPrev },
+    { 'cursor-not-allowed opacity-70': noPrev },
   );
 
   const mobileNextButtonStyles = clsx(
     'relative inline-flex items-center ml-3 px-4 py-2 text-gray-700 text-sm font-medium hover:bg-gray-50 bg-white border border-gray-300 rounded-md',
-    { 'cursor-not-allowed': noNext },
+    { 'cursor-not-allowed opacity-70': noNext },
   );
 
   const prevButtonStyles = clsx(
     'relative inline-flex items-center px-2 py-2 text-gray-500 text-sm font-medium hover:bg-gray-50 bg-white border border-gray-300 rounded-l-md',
-    { 'cursor-not-allowed': noPrev },
+    { 'cursor-not-allowed opacity-70': noPrev },
   );
   const nextButtonStyles = clsx(
     'relative inline-flex items-center px-2 py-2 text-gray-500 text-sm font-medium hover:bg-gray-50 bg-white border border-gray-300 rounded-r-md',
     {
-      'cursor-not-allowed': noNext,
+      'cursor-not-allowed opacity-70': noNext,
     },
   );
   const formattedTotalResults = totalResults.toLocaleString();
