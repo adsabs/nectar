@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import PT from 'prop-types';
 import qs from 'qs';
 import { HTMLAttributes, ReactElement } from 'react';
+import { toast } from 'react-toastify';
 import { assign, ContextFrom, DoneInvokeEvent } from 'xstate';
 import { createModel } from 'xstate/lib/model';
 import { Item } from './Item';
@@ -44,7 +45,6 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
   } = router;
 
   const { basePath } = useBaseRouterPath();
-
   const [state, send] = useMachine(
     createResultListMachine({
       initialContext: { docs, page: parsePage(p) },
@@ -61,6 +61,7 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
         return result.match(
           ({ docs }) => docs,
           (e) => {
+            toast.error(e.message);
             throw e;
           },
         );
@@ -116,22 +117,29 @@ const createResultListMachine = ({
     initial: 'idle',
     states: {
       idle: {
-        on: {
-          updatePage: {
-            target: 'fetching',
-            actions: model.assign({ page: (_, ev) => ev.page }),
+        initial: 'standby',
+        states: {
+          standby: {
+            on: {
+              updatePage: {
+                target: '#result-machine.fetching',
+                actions: model.assign({ page: (_, ev) => ev.page }),
+              },
+            },
           },
+          hist: { type: 'history', history: 'shallow' },
         },
       },
       fetching: {
         invoke: {
           src: fetcher,
           onDone: {
-            target: 'idle',
+            target: 'idle.standby',
             actions: assign<ContextFrom<typeof model>, DoneInvokeEvent<IDocsEntity[]>>({
               docs: (_, ev) => ev.data,
             }),
           },
+          onError: 'idle.hist',
         },
       },
     },
