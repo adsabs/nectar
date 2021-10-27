@@ -126,6 +126,7 @@ export const ResultList = (props: IResultListProps): ReactElement => {
               set={selection.selectAll}
               clear={selection.selectNone}
               onSet={handleItemSet}
+              useNormCite={sort[0] === 'citation_count_norm asc' || sort[0] === 'citation_count_norm desc'}
             />
           ))}
           {/* footer */}

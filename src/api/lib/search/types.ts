@@ -108,6 +108,7 @@ export interface IDocsEntity {
     num_references?: number;
   };
   citation_count?: string;
+  citation_count_norm?: string;
   cite_read_boost?: string;
   classic_factor?: string;
   comment?: string[];
