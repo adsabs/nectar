@@ -28,9 +28,9 @@ const NectarApp = ({ Component, pageProps }: AppProps): ReactElement => {
   );
 
   return (
-    <AppProvider>
-      <ApiProvider>
-        <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <AppProvider>
+        <ApiProvider>
           <Hydrate state={(pageProps as { dehydratedState: unknown }).dehydratedState}>
             <ThemeRouter />
             <TopProgressBar />
@@ -40,9 +40,9 @@ const NectarApp = ({ Component, pageProps }: AppProps): ReactElement => {
             </Layout>
           </Hydrate>
           <ReactQueryDevtools />
-        </QueryClientProvider>
-      </ApiProvider>
-    </AppProvider>
+        </ApiProvider>
+      </AppProvider>
+    </QueryClientProvider>
   );
 };
 
