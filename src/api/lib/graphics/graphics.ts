@@ -1,4 +1,4 @@
-import AdsApi, { IADSApiGraphicsParams, IADSApiGraphicsResponse } from '@api';
+import { IADSApiGraphicsParams, IADSApiGraphicsResponse } from '@api';
 import { AxiosError, AxiosRequestConfig } from 'axios';
 import { err, ok, Result } from 'neverthrow';
 import { ApiTargets } from '../models';
@@ -27,12 +27,5 @@ export class GraphicsService extends Service {
         (e: Error | AxiosError) => resolve(err(e)),
       );
     });
-  }
-
-  async hasGraphics(api: AdsApi, bibcode: string): Promise<boolean> {
-    const result = await api.graphics.query({
-      bibcode: bibcode,
-    });
-    return result.isErr() ? false : true;
   }
 }
