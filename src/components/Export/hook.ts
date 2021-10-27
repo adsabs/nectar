@@ -52,7 +52,7 @@ export const useExportMachine = ({
       limit: singleMode ? 1 : initialBibcodes.length,
       format: initialFormat,
       singleMode,
-      loadInitially,
+      loadInitially: initialText === initialContext.text && loadInitially,
     },
     services: {
       fetchBibcodes: async ({ limit }) => {
