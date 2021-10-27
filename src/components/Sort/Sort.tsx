@@ -1,5 +1,6 @@
 import { SolrSort, SolrSortDirection, SolrSortField } from '@api';
 import { DropdownList, SelectorLabel } from '@components/Dropdown';
+import { SortAscendingIcon, SortDescendingIcon } from '@heroicons/react/outline';
 import { isBrowser } from '@utils';
 import clsx from 'clsx';
 import { ReactElement, useEffect, useRef, useState } from 'react';
@@ -52,19 +53,6 @@ export const Sort = (props: ISortProps): ReactElement => {
     label: text,
   }));
 
-  const sortDirections = [
-    {
-      id: 'asc',
-      domId: 'sort-asc',
-      label: 'asc',
-    },
-    {
-      id: 'desc',
-      domId: 'sort-desc',
-      label: 'desc',
-    },
-  ];
-
   const handleSortChange = (id: string) => {
     const val = id as SolrSortField;
     setSelected([val, selected[1]]);
@@ -81,22 +69,13 @@ export const Sort = (props: ISortProps): ReactElement => {
 
   const sortSelectorClasses = clsx(
     leftMargin,
-    'font-md flex items-center justify-between my-1 w-52 h-10 text-sm border border-r-0 border-gray-300 rounded-md rounded-r-none cursor-pointer',
-  );
-
-  const dirSelectorClasses = clsx(
     rightMargin,
-    'font-md flex items-center justify-between my-1 w-24 h-10 text-sm border border-gray-300 rounded-l-none rounded-md cursor-pointer',
+    'font-md flex items-center justify-between mr-0 p-2 w-52 h-6 text-sm border border-r-0 border-gray-300 rounded-l-md box-content cursor-pointer',
   );
 
   const getLabelNode = () => {
     const sortValue = sortValues.find((sv) => selected[0] === sv.id);
     return <SelectorLabel text={sortValue.text} classes={sortSelectorClasses} />;
-  };
-
-  const getDirectionNode = () => {
-    const dir = selected[1];
-    return <SelectorLabel text={dir} classes={dirSelectorClasses} />;
   };
 
   // non-js initially rendered on the server, will be swapped out for the full-featured one below when it hits client
@@ -130,7 +109,7 @@ export const Sort = (props: ISortProps): ReactElement => {
           Sort
         </label>
       )}
-      <div className="flex my-1">
+      <div className="flex justify-start">
         <DropdownList
           label={getLabelNode()}
           items={sortItems}
@@ -144,19 +123,23 @@ export const Sort = (props: ISortProps): ReactElement => {
           role="listbox"
           ariaLabel="Sort by"
         />
-        <DropdownList
-          label={getDirectionNode()}
-          items={sortDirections}
-          onSelect={handleSortDirectionChange}
-          classes={{
-            button: '',
-            list: 'w-24 text-sm font-md',
-          }}
-          offset={[0, 1]}
-          placement="bottom-start"
-          role="listbox"
-          ariaLabel="Sort by direction"
-        />
+        {selected[1] === 'asc' ? (
+          <div title="sort ascending">
+            <SortAscendingIcon
+              className="ml-0 p-2 w-6 h-6 border border-gray-300 rounded-r-md box-content cursor-pointer"
+              aria-label="Ascending"
+              onClick={() => handleSortDirectionChange('desc')}
+            />
+          </div>
+        ) : (
+          <div title="sort descending">
+            <SortDescendingIcon
+              className="ml-0 p-2 w-6 h-6 border border-gray-300 rounded-r-md box-content cursor-pointer"
+              aria-label="Descending"
+              onClick={() => handleSortDirectionChange('asc')}
+            />
+          </div>
+        )}
         <input type="hidden" name={name} value={getSortsAsString()} />
       </div>
     </div>

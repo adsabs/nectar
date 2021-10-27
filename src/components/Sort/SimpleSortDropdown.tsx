@@ -49,15 +49,19 @@ export const SimpleSortDropdown = (props: ISimpleSortDropdownProps): ReactElemen
       >
         <a>
           {dir === 'asc' ? (
-            <SortAscendingIcon
-              className="ml-0 p-2 w-6 h-6 border border-gray-300 rounded-r-md box-content"
-              aria-label="Ascending"
-            />
+            <div title="sort ascending">
+              <SortAscendingIcon
+                className="ml-0 p-2 w-6 h-6 border border-gray-300 rounded-r-md box-content cursor-pointer"
+                aria-label="Ascending"
+              />
+            </div>
           ) : (
-            <SortDescendingIcon
-              className="ml-0 p-2 w-6 h-6 border border-gray-300 rounded-r-md box-content"
-              aria-label="Descending"
-            />
+            <div title="sort descending">
+              <SortDescendingIcon
+                className="ml-0 p-2 w-6 h-6 border border-gray-300 rounded-r-md box-content cursor-pointer"
+                aria-label="Descending"
+              />
+            </div>
           )}
         </a>
       </Link>

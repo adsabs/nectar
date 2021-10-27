@@ -43,7 +43,7 @@ export const ListActions = (props: IListActionProp): ReactElement => {
   const handleLimitedTo = () => onLimitedTo();
   const handleExclude = () => onExclude();
 
-  const hlClass = clsx(showHighlight ? 'default-button' : 'default-button-inactive', '-ml-0');
+  const hlClass = clsx(showHighlight ? 'default-button' : 'default-button-inactive', 'm-0');
   const linkBtnDisabled = clsx('link-button-disabled ml-4 h-5');
   const linkBtn = clsx('link-button ml-4 h-5');
 
@@ -55,7 +55,7 @@ export const ListActions = (props: IListActionProp): ReactElement => {
         </span>
       ) : (
         <>
-          <div className="sm:flex">
+          <div className="my-1 sm:flex sm:justify-start">
             <div>
               <button type="button" className={hlClass} onClick={toggleShowHighlight}>
                 Show Highlights
