@@ -1,23 +1,23 @@
-import { GetServerSideProps, NextPage } from 'next';
-import { normalizeURLParams } from '@utils';
-import Link from 'next/link';
 import AdsApi, { IADSApiGraphicsParams, IADSApiGraphicsResponse, IDocsEntity, IUserData } from '@api';
-import { AbsLayout } from '@components/Layout/AbsLayout';
-import Image from 'next/image';
 import { metatagsQueryFields } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
+import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/queries';
+import { AbsLayout } from '@components/Layout/AbsLayout';
+import { normalizeURLParams } from '@utils';
+import { GetServerSideProps, NextPage } from 'next';
+import Image from 'next/image';
+import Link from 'next/link';
+import { dehydrate, QueryClient } from 'react-query';
 interface IGraphicsPageProps {
   graphics?: IADSApiGraphicsResponse;
   originalDoc: IDocsEntity;
   error?: string;
-  hasGraphics: boolean;
-  hasMetrics: boolean;
 }
 
 const GraphicsPage: NextPage<IGraphicsPageProps> = (props: IGraphicsPageProps) => {
-  const { originalDoc, graphics, error, hasGraphics, hasMetrics } = props;
+  const { originalDoc, graphics, error } = props;
   return (
-    <AbsLayout doc={originalDoc} hasGraphics={hasGraphics} hasMetrics={hasMetrics}>
+    <AbsLayout doc={originalDoc}>
       <article aria-labelledby="title" className="flex-1 my-8 px-4 py-8 w-full bg-white shadow sm:rounded-lg">
         <div className="border-b border-gray-200 sm:pb-0 md:pb-3">
           <h2 className="prose-xl text-gray-900 font-medium leading-6" id="title">
@@ -74,10 +74,13 @@ export const getServerSideProps: GetServerSideProps<IGraphicsPageProps> = async 
     ...abstractPageNavDefaultQueryFields,
     ...metatagsQueryFields,
   ]);
-  const hasGraphics =
-    !originalDoc.notFound && !originalDoc.error ? await adsapi.graphics.hasGraphics(adsapi, params.bibcode) : false;
-  const hasMetrics =
-    !originalDoc.notFound && !originalDoc.error ? await adsapi.metrics.hasMetrics(adsapi, params.bibcode) : false;
+
+  const queryClient = new QueryClient();
+  if (!originalDoc.notFound && !originalDoc.error) {
+    const { bibcode } = originalDoc.doc;
+    void (await queryClient.prefetchQuery(['hasGraphics', bibcode], () => fetchHasGraphics(adsapi, bibcode)));
+    void (await queryClient.prefetchQuery(['hasMetrics', bibcode], () => fetchHasMetrics(adsapi, bibcode)));
+  }
 
   return originalDoc.notFound || originalDoc.error
     ? { notFound: true }
@@ -86,8 +89,7 @@ export const getServerSideProps: GetServerSideProps<IGraphicsPageProps> = async 
         props: {
           graphics: null,
           originalDoc: originalDoc.doc,
-          hasGraphics,
-          hasMetrics,
+          dehydratedState: dehydrate(queryClient),
           error: 'Unable to get results',
         },
       }
@@ -95,8 +97,7 @@ export const getServerSideProps: GetServerSideProps<IGraphicsPageProps> = async 
         props: {
           graphics: result.value,
           originalDoc: originalDoc.doc,
-          hasGraphics,
-          hasMetrics,
+          dehydratedState: dehydrate(queryClient),
         },
       };
 };

@@ -1,17 +1,17 @@
 import AdsApi, { IADSApiSearchParams, IDocsEntity, IUserData } from '@api';
 import { metatagsQueryFields } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
+import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/queries';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { SimpleResultList } from '@components/ResultList';
 import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
+import { dehydrate, QueryClient } from 'react-query';
 import { normalizeURLParams } from 'src/utils';
 export interface ICitationsPageProps {
   docs: IDocsEntity[];
   originalDoc: IDocsEntity;
   error?: string;
-  hasGraphics: boolean;
-  hasMetrics: boolean;
 }
 
 const getQueryParams = (id: string | string[]): IADSApiSearchParams => {
@@ -24,13 +24,13 @@ const getQueryParams = (id: string | string[]): IADSApiSearchParams => {
 };
 
 const CoreadsPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProps) => {
-  const { docs, originalDoc, error, hasGraphics, hasMetrics } = props;
+  const { docs, originalDoc, error } = props;
   const { query } = useRouter();
 
   console.log(originalDoc);
 
   return (
-    <AbsLayout doc={originalDoc} hasGraphics={hasGraphics} hasMetrics={hasMetrics}>
+    <AbsLayout doc={originalDoc}>
       <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
         <div className="pb-1">
           <h2 className="prose-xl text-gray-900 font-medium leading-8" id="title">
@@ -61,32 +61,47 @@ export const getServerSideProps: GetServerSideProps<ICitationsPageProps> = async
   };
   const userData = request.session.userData;
   const adsapi = new AdsApi({ token: userData.access_token });
-  const result = await adsapi.search.query(getQueryParams(query.id));
+  const mainResult = await adsapi.search.query(getQueryParams(query.id));
   const originalDoc = await adsapi.search.getDocument(query.id, [
     ...abstractPageNavDefaultQueryFields,
     ...metatagsQueryFields,
   ]);
-  const hasGraphics =
-    !originalDoc.notFound && !originalDoc.error
-      ? await adsapi.graphics.hasGraphics(adsapi, originalDoc.doc.bibcode)
-      : false;
-  const hasMetrics =
-    !originalDoc.notFound && !originalDoc.error
-      ? await adsapi.metrics.hasMetrics(adsapi, originalDoc.doc.bibcode)
-      : false;
 
-  return originalDoc.notFound || originalDoc.error
-    ? { notFound: true }
-    : result.isErr()
-    ? { props: { docs: [], originalDoc: originalDoc.doc, hasGraphics, hasMetrics, error: 'Unable to get results' } }
-    : result.value.numFound === 0
-    ? { props: { docs: [], originalDoc: originalDoc.doc, hasGraphics, hasMetrics, error: 'No results found' } }
+  const queryClient = new QueryClient();
+  if (!originalDoc.notFound && !originalDoc.error) {
+    const { bibcode } = originalDoc.doc;
+    void (await queryClient.prefetchQuery(['hasGraphics', bibcode], () => fetchHasGraphics(adsapi, bibcode)));
+    void (await queryClient.prefetchQuery(['hasMetrics', bibcode], () => fetchHasMetrics(adsapi, bibcode)));
+  }
+
+  if (originalDoc.notFound || originalDoc.error) {
+    return { notFound: true };
+  }
+
+  const defaultProps = {
+    docs: [],
+    originalDoc: originalDoc.doc,
+    dehydratedState: dehydrate(queryClient),
+  };
+
+  return mainResult.isErr()
+    ? {
+        props: {
+          ...defaultProps,
+          error: 'Unable to get results',
+        },
+      }
+    : mainResult.value.numFound === 0
+    ? {
+        props: {
+          ...defaultProps,
+          error: 'No results found',
+        },
+      }
     : {
         props: {
-          docs: result.value.docs,
-          originalDoc: originalDoc.doc,
-          hasGraphics,
-          hasMetrics,
+          ...defaultProps,
+          docs: mainResult.value.docs,
         },
       };
 };
