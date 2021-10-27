@@ -44,10 +44,6 @@ export const ResultList = (props: IResultListProps): ReactElement => {
     ...divProps
   } = props;
 
-  const numPerPage = useSelector(searchService, (state) => {
-    return state.context.pagination.numPerPage;
-  });
-
   const handleSortChange = () => {};
 
   const handleSelectAll = () => {

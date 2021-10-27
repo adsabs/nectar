@@ -116,8 +116,9 @@ const Form = (props: IFormProps): ReactElement => {
 
 export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (ctx) => {
   const query = normalizeURLParams(ctx.query);
-  const parsedPage = parseInt(query.p);
-  const page = isNaN(parsedPage) ? 1 : Math.abs(parsedPage);
+  const parsedPage = parseInt(query.p, 10);
+  const page = isNaN(parsedPage) || Math.abs(parsedPage) > 500 ? 1 : Math.abs(parsedPage);
+  const adsapi = new AdsApi({ token: ctx.req.session.userData.access_token });
 
   const params: IADSApiSearchParams = {
     q: query.q,
@@ -127,37 +128,26 @@ export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (c
     start: (page - 1) * 10,
   };
 
-  const adsapi = new AdsApi({ token: ctx.req.session.userData.access_token });
   const result = await adsapi.search.query(params);
-  if (result.isErr()) {
-    return {
-      props: {
-        error: result.error.message,
-        params: {
-          q: '',
-          fl: [],
-          sort: [],
-        },
-        docs: [],
-        meta: { numFound: 0, page },
-      },
-    };
-  }
 
-  const { docs, numFound } = result.value;
-
-  console.log(
-    'result',
-    docs.map((d) => d.bibcode),
-  );
-
-  return {
-    props: {
+  const props = result.match(
+    ({ docs, numFound }) => ({
       params,
       docs,
       meta: { numFound, page },
-    },
-  };
+    }),
+    ({ message }) => ({
+      error: message,
+      params: {
+        q: '',
+        fl: [],
+        sort: [],
+      },
+      docs: [],
+      meta: { numFound: 0, page },
+    }),
+  );
+  return { props };
 };
 
 export default SearchPage;
@@ -166,6 +156,7 @@ const SearchBarWrapper = (props: Omit<ISearchBarProps, 'query' | 'onChange'> & {
   const { searchService, ...searchBarProps } = props;
   const query = useSelector(searchService, (state) => state.context.params.q);
   const isLoading = useSelector(searchService, (state) => state.matches('fetching'));
+
   const setQuery = (query: string) => {
     searchService.send(TransitionType.SET_PARAMS, { payload: { params: { q: query } } });
   };

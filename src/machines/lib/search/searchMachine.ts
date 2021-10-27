@@ -38,7 +38,7 @@ const config: MachineConfig<Context, Schema, Transition> = {
     idle: {
       entry: 'reset',
       on: {
-        [TransitionType.SEARCH]: { target: 'fetching', cond: 'validQuery' },
+        [TransitionType.SEARCH]: { actions: 'resetPagination', target: 'fetching', cond: 'validQuery' },
         [TransitionType.SET_PAGINATION]: [
           { actions: 'setPagination', target: 'fetching', cond: 'paginationHasChangedAndIsValid' },
         ],
@@ -46,10 +46,10 @@ const config: MachineConfig<Context, Schema, Transition> = {
           {
             target: 'fetching',
             cond: 'sortHasChanged',
-            actions: 'setParams',
+            actions: ['setParams', 'resetPagination'],
           },
           {
-            actions: 'setParams',
+            actions: ['setParams', 'resetPagination'],
           },
         ],
       },
@@ -108,6 +108,8 @@ const options: Partial<MachineOptions<Context, any>> = {
         .pagination as Context['pagination'];
       const totalPages = Math.ceil(ctx.result.numFound / numPerPage) || 1;
 
+      console.log('is valid pagination', { page, totalPages, numPerPage });
+
       if (
         // check if pagination actually changed
         equals(ctx.pagination, { ...ctx.pagination, ...evt.payload.pagination }) ||
@@ -124,7 +126,7 @@ const options: Partial<MachineOptions<Context, any>> = {
   },
   actions: {
     setParams: assign<Context, SET_PARAMS>({
-      params: (ctx, evt) => ({ ...ctx.params, ...evt.payload.params }),
+      params: (ctx, evt) => ({ ...ctx.params, ...evt.payload.params, start: 0 }),
     }),
     setResult: assign({
       result: (_ctx, evt) => evt.data,
@@ -135,11 +137,18 @@ const options: Partial<MachineOptions<Context, any>> = {
     reset: assign({
       error: () => initialContext.error,
     }),
+    resetPagination: assign<Context>({
+      pagination: () => initialContext.pagination,
+      params: (ctx) => ({ ...ctx.params, start: initialContext.params.start }),
+    }),
     setPagination: assign({
-      pagination: (ctx, evt) => ({ ...ctx.pagination, ...evt.payload.pagination }),
+      pagination: (ctx, evt) => {
+        return { ...ctx.pagination, ...evt.payload.pagination };
+      },
       params: (ctx, evt) => {
         const { page = ctx.pagination.page, numPerPage = ctx.pagination.numPerPage } = evt.payload
           .pagination as Context['pagination'];
+
         return { ...ctx.params, start: (page - 1) * numPerPage, rows: numPerPage };
       },
     }),

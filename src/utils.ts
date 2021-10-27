@@ -1,6 +1,8 @@
 import AdsApi, { IDocsEntity, IUserData } from '@api';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
+import { fromThrowable } from 'neverthrow';
 import { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from 'next';
+import { useRouter } from 'next/router';
 import { ParsedUrlQuery } from 'querystring';
 
 export const normalizeURLParams = (query: ParsedUrlQuery): Record<string, string> => {
@@ -62,4 +64,9 @@ export const getFomattedNumericPubdate = (pubdate: string): string | null => {
   }
   const { year, month } = match.groups;
   return `${year}/${month}`;
+};
+
+export const useBaseRouterPath = (): { basePath: string } => {
+  const { asPath } = useRouter();
+  return { basePath: fromThrowable<() => string, Error>(() => asPath.split('?')[0])().unwrapOr('/') };
 };

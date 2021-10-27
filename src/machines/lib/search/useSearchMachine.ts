@@ -3,6 +3,8 @@ import { AppEvent, useAppCtx } from '@store';
 import { useInterpret, useSelector } from '@xstate/react';
 import { useRouter } from 'next/router';
 import qs from 'qs';
+import { ParsedUrlQuery } from 'querystring';
+import { useEffect } from 'react';
 import { initialContext, searchMachine } from './searchMachine';
 import { Context, Transition } from './types';
 
@@ -22,7 +24,7 @@ export function useSearchMachine(props: IUseSearchMachineProps = {}) {
     },
   } = useAppCtx();
 
-  const Router = useRouter();
+  const router = useRouter();
 
   const initialState = {
     ...initialContext,
@@ -37,7 +39,7 @@ export function useSearchMachine(props: IUseSearchMachineProps = {}) {
         if (ctx.params.q === '' || typeof ctx.params.q === 'undefined') {
           throw new Error('no query');
         }
-        const { q, sort } = ctx.params;
+        const { q, sort, start } = ctx.params;
 
         const params: IADSApiSearchParams = {
           q,
@@ -55,11 +57,14 @@ export function useSearchMachine(props: IUseSearchMachineProps = {}) {
 
         dispatch({ type: AppEvent.SET_CURRENT_QUERY, payload: params });
 
-        // update the url with the updated query and sort
-        const queryParams = qs.stringify({ q, sort, p: ctx.pagination.page }, { arrayFormat: 'comma' });
+        const page = start === 0 ? 1 : ctx.pagination.page;
+
+        //update the url with the updated query and sort
+        const queryParams = qs.stringify({ q, sort, p: page }, { arrayFormat: 'comma' });
         const updatedPath = `/search?${queryParams}`;
-        if (updatedPath !== Router.asPath) {
-          await Router.push(updatedPath, undefined, { shallow: true });
+
+        if (updatedPath !== router.asPath) {
+          void router.push(updatedPath, undefined, { shallow: true });
         }
 
         const { docs, numFound } = result.value;
@@ -67,6 +72,17 @@ export function useSearchMachine(props: IUseSearchMachineProps = {}) {
       },
     },
   });
+
+  const page = useSelector(service, (state) => state.context.pagination.page);
+
+  // check on the `p` param to see if it needs updating
+  useEffect(() => {
+    const queryPage = parsePageFromQuery(router.query);
+    if (queryPage !== page) {
+      const { q, sort } = service.state.context.params;
+      void router.replace(`/search?${qs.stringify({ q, sort, p: page }, { arrayFormat: 'comma' })}`);
+    }
+  }, [router.query, page]);
 
   const state = {
     service,
@@ -78,3 +94,13 @@ export function useSearchMachine(props: IUseSearchMachineProps = {}) {
 
   return state;
 }
+
+const parsePageFromQuery = (query: ParsedUrlQuery): number => {
+  try {
+    const { p } = query;
+    const page = parseInt(Array.isArray(p) ? p[0] : p, 10);
+    return page === 0 || Number.isNaN(page) ? 1 : page;
+  } catch (e) {
+    return 1;
+  }
+};
