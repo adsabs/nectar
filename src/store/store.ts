@@ -1,7 +1,10 @@
+import { AppEvent } from '@store';
 import { Theme } from '@types';
 import { isBrowser } from '@utils';
+import axios from 'axios';
 import { IncomingMessage } from 'http';
 import { fromThrowable } from 'neverthrow';
+import { equals } from 'ramda';
 import {
   createContext,
   createElement,
@@ -10,6 +13,7 @@ import {
   ReactElement,
   Reducer,
   useContext,
+  useEffect,
   useReducer,
 } from 'react';
 import { reducer } from './reducer';
@@ -61,7 +65,7 @@ const safeParse = <T>(value: string, defaultValue: T): T => {
 };
 
 const AppProvider = (
-  props: PropsWithChildren<{ session: IncomingMessage['session']; initialStore?: Partial<IAppState> }>,
+  props: PropsWithChildren<{ session?: IncomingMessage['session']; initialStore?: Partial<IAppState> }>,
 ): ReactElement => {
   const { session, initialStore } = props;
   const [state, dispatch] = useReducer(nectarAppReducer, initialAppState, (initial): IAppState => {
@@ -80,6 +84,25 @@ const AppProvider = (
       : initial;
     return newState;
   });
+
+  /**
+   * Fetch the user data from the server
+   *
+   * Only runs if we don't already have user data loaded
+   */
+  useEffect(() => {
+    if (typeof session === 'undefined' || equals(state.user, initialStore.user)) {
+      const getUser = async () => {
+        const {
+          data: { userData },
+        } = await axios.get<IncomingMessage['session']>('/api/user');
+
+        dispatch({ type: AppEvent.SET_USER, payload: userData });
+      };
+
+      void getUser();
+    }
+  }, [session]);
 
   return createElement(ctx.Provider, { value: { state, dispatch }, ...props });
 };
