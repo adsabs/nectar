@@ -4,7 +4,7 @@ import { useMachine } from '@xstate/react';
 import { useRouter } from 'next/router';
 import PT from 'prop-types';
 import qs from 'qs';
-import React, { HTMLAttributes, ReactElement } from 'react';
+import { HTMLAttributes, ReactElement } from 'react';
 import { assign, ContextFrom, DoneInvokeEvent } from 'xstate';
 import { createModel } from 'xstate/lib/model';
 import { Item } from './Item';

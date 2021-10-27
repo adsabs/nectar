@@ -5,7 +5,7 @@ import { ItemType } from '@components/Dropdown/types';
 import { ChevronDownIcon, LockClosedIcon, LockOpenIcon } from '@heroicons/react/solid';
 import { isBrowser } from '@utils';
 import { isNil } from 'ramda';
-import React, { HTMLAttributes, ReactElement } from 'react';
+import { HTMLAttributes, ReactElement } from 'react';
 import { IDataProductSource, IFullTextSource, IRelatedWorks, processLinkData } from './linkGenerator';
 
 export interface IAbstractSourcesProps extends HTMLAttributes<HTMLDivElement> {
