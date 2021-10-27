@@ -65,7 +65,7 @@ export const Item = (props: IItemProps): ReactElement => {
           />
         )}
       </div>
-      <div className="flex flex-col w-full">
+      <div className="flex flex-col mb-1 mr-3 w-full">
         <div className="flex flex-row justify-between pr-2 py-2">
           <Link href={`/abs/${bibcode}`}>
             <a className="text-blue-700 hover:underline">
