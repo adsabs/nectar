@@ -1,3 +1,4 @@
+import { useBaseRouterPath } from '@utils';
 import { useRouter } from 'next/router';
 import qs from 'qs';
 import { ParsedUrlQuery } from 'querystring';
@@ -56,7 +57,8 @@ export const usePagination = ({
   numPerPage = 10,
   onPageChange = () => {},
 }: IUsePaginationProps): IUsePagination => {
-  const { query, pathname } = useRouter();
+  const { query } = useRouter();
+  const { basePath } = useBaseRouterPath();
 
   const state = useMemo(() => {
     const page = parsePageFromQuery(query);
@@ -71,11 +73,11 @@ export const usePagination = ({
     const endIndex = startIndex + numPerPage - 1;
 
     return {
-      nextHref: `${pathname}?${qs.stringify({ ...query, p: clamp(1, totalPages, page + 1) })}`,
-      prevHref: `${pathname}?${qs.stringify({ ...query, p: clamp(1, totalPages, page - 1) })}`,
+      nextHref: `${basePath}?${qs.stringify({ ...query, p: clamp(1, totalPages, page + 1) })}`,
+      prevHref: `${basePath}?${qs.stringify({ ...query, p: clamp(1, totalPages, page - 1) })}`,
       pages: pageRange.map((index) => ({
         index,
-        href: `${pathname}?${qs.stringify({ ...query, p: index })}`,
+        href: `${basePath}?${qs.stringify({ ...query, p: index })}`,
       })),
       page,
       startIndex,
@@ -85,7 +87,7 @@ export const usePagination = ({
       totalPages,
       noPagination: totalPages === 1,
     };
-  }, [totalResults, numPerPage, query]);
+  }, [totalResults, numPerPage, query, basePath]);
 
   const handleNext = useCallback(
     (e: MouseEvent<HTMLButtonElement>) => {

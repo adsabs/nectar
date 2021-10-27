@@ -1,5 +1,6 @@
 import { IADSApiSearchParams, IDocsEntity } from '@api';
 import { useAPI } from '@hooks';
+import { useBaseRouterPath } from '@utils';
 import { useMachine } from '@xstate/react';
 import { useRouter } from 'next/router';
 import PT from 'prop-types';
@@ -28,20 +29,33 @@ const propTypes = {
   numFound: PT.number,
   hideCheckboxes: PT.bool,
 };
+
+const parsePage = (p: string[] | string): number => {
+  const page = parseInt(Array.isArray(p) ? p[0] : p, 10);
+  return Number.isNaN(page) ? 1 : page;
+};
+
 export const SimpleResultList = (props: ISimpleResultListProps): ReactElement => {
   const { docs, numFound, hideCheckboxes, query, ...divProps } = props;
   const { api } = useAPI();
   const router = useRouter();
+  const {
+    query: { p },
+  } = router;
+
+  const { basePath } = useBaseRouterPath();
+
   const [state, send] = useMachine(
     createResultListMachine({
-      initialContext: { docs, page: 1 },
+      initialContext: { docs, page: parsePage(p) },
       fetcher: async (ctx) => {
         const result = await api.search.query({
           ...query,
           start: (ctx.page - 1) * 10 + 1,
           rows: 10,
         });
-        const url = `${router.asPath}?${qs.stringify({ p: ctx.page })}`;
+
+        const url = `${basePath}?${qs.stringify({ p: ctx.page })}`;
         void router.push(url, undefined, { shallow: true });
 
         return result.match(
