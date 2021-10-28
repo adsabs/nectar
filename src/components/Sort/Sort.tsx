@@ -124,21 +124,23 @@ export const Sort = (props: ISortProps): ReactElement => {
           ariaLabel="Sort by"
         />
         {selected[1] === 'asc' ? (
-          <div title="sort ascending">
-            <SortAscendingIcon
-              className="ml-0 p-2 w-6 h-6 border border-gray-300 rounded-r-md box-content cursor-pointer"
-              aria-label="Ascending"
-              onClick={() => handleSortDirectionChange('desc')}
-            />
-          </div>
+          <button
+            type="button"
+            onClick={() => handleSortDirectionChange('desc')}
+            className="ml-0 p-2 border border-gray-300 rounded-r-md box-content cursor-pointer"
+          >
+            <span className="sr-only">sort ascending</span>
+            <SortAscendingIcon className="w-6 h-6" aria-hidden="true" />
+          </button>
         ) : (
-          <div title="sort descending">
-            <SortDescendingIcon
-              className="ml-0 p-2 w-6 h-6 border border-gray-300 rounded-r-md box-content cursor-pointer"
-              aria-label="Descending"
-              onClick={() => handleSortDirectionChange('asc')}
-            />
-          </div>
+          <button
+            type="button"
+            onClick={() => handleSortDirectionChange('asc')}
+            className="ml-0 p-2 border border-gray-300 rounded-r-md box-content cursor-pointer"
+          >
+            <span className="sr-only">sort descending</span>
+            <SortDescendingIcon aria-hidden="true" className="w-6 h-6" />
+          </button>
         )}
         <input type="hidden" name={name} value={getSortsAsString()} />
       </div>

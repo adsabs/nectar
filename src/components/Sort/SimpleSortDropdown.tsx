@@ -29,7 +29,7 @@ export const SimpleSortDropdown = (props: ISimpleSortDropdownProps): ReactElemen
       className="font-md flex items-center justify-between mr-0 p-2 w-56 h-6 text-sm border border-r-0 border-gray-300 rounded-l-md box-content cursor-pointer"
       role="list"
     >
-      {sortValues.find((v) => v.id === sort).text} <ChevronDownIcon className="inline w-4 h-4" />
+      {sortValues.find((v) => v.id === sort).text} <ChevronDownIcon className="inline w-4 h-4" aria-hidden="true" />
     </div>
   );
   return (
@@ -49,19 +49,21 @@ export const SimpleSortDropdown = (props: ISimpleSortDropdownProps): ReactElemen
       >
         <a>
           {dir === 'asc' ? (
-            <div title="sort ascending">
+            <>
+              <span className="sr-only">sort ascending</span>
               <SortAscendingIcon
                 className="ml-0 p-2 w-6 h-6 border border-gray-300 rounded-r-md box-content cursor-pointer"
-                aria-label="Ascending"
+                aria-hidden="true"
               />
-            </div>
+            </>
           ) : (
-            <div title="sort descending">
+            <>
+              <span className="sr-only">sort descending</span>
               <SortDescendingIcon
                 className="ml-0 p-2 w-6 h-6 border border-gray-300 rounded-r-md box-content cursor-pointer"
-                aria-label="Descending"
+                aria-hidden="true"
               />
-            </div>
+            </>
           )}
         </a>
       </Link>
