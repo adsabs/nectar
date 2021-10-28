@@ -13,7 +13,6 @@ const AbstractPreview = dynamic<IAbstractPreviewProps>(
   () => import('./AbstractPreview').then((mod) => mod.AbstractPreview),
   { ssr: false },
 );
-
 interface IItemProps {
   doc: IDocsEntity;
   index: number;
@@ -21,10 +20,11 @@ interface IItemProps {
   set?: boolean;
   clear?: boolean;
   onSet?: (check: boolean) => void;
+  useNormCite?: boolean;
 }
 
 export const Item = (props: IItemProps): ReactElement => {
-  const { doc, index, hideCheckbox = false, set, clear, onSet } = props;
+  const { doc, index, hideCheckbox = false, set, clear, onSet, useNormCite } = props;
   const { bibcode, pubdate, title = ['Untitled'], author = [], id, citation, bibstem = [], author_count } = doc;
   const [state, send] = useMachine(itemMachine.withContext({ id }));
 
@@ -50,6 +50,22 @@ export const Item = (props: IItemProps): ReactElement => {
     'hidden items-center justify-center mr-3 md:flex',
   );
 
+  const cite = useNormCite ? (
+    doc.citation_count_norm && parseInt(doc.citation_count_norm) > 0 ? (
+      <Link href={`/abs/${bibcode}/citations`}>
+        <a className="link">
+          <span>cited(n): {doc.citation_count_norm}</span>
+        </a>
+      </Link>
+    ) : null
+  ) : doc.citation_count && parseInt(doc.citation_count) > 0 ? (
+    <Link href={`/abs/${bibcode}/citations`}>
+      <a className="link">
+        <span>cited: {doc.citation_count}</span>
+      </a>
+    </Link>
+  ) : null;
+
   return (
     <article className="flex bg-white border rounded-md shadow" aria-labelledby={`result-${id}`}>
       <div className={checkBgClass}>
@@ -65,7 +81,7 @@ export const Item = (props: IItemProps): ReactElement => {
           />
         )}
       </div>
-      <div className="flex flex-col w-full">
+      <div className="flex flex-col mb-1 mr-3 w-full">
         <div className="flex flex-row justify-between pr-2 py-2">
           <Link href={`/abs/${bibcode}`}>
             <a className="text-blue-700 hover:underline">
@@ -96,6 +112,11 @@ export const Item = (props: IItemProps): ReactElement => {
               {formattedPubDate}
               {formattedPubDate && formattedBibstem ? ' | ' : ''}
               {formattedBibstem}
+              {doc.citation_count &&
+                parseInt(doc.citation_count) > 0 &&
+                (formattedPubDate || formattedBibstem) &&
+                ' | '}
+              {cite}
             </span>
             {citation && <span className="text-xs">cite: {citation}</span>}
           </div>
