@@ -3,7 +3,13 @@ import { AxiosError, AxiosRequestConfig } from 'axios';
 import { err, ok, Result } from 'neverthrow';
 import { ApiTargets } from '../models';
 import { Service } from '../service';
-import { IADSApiSearchParams, IADSApiSearchResponse, IDocument, INormalizedADSApiSearchParams } from './types';
+import {
+  IADSApiSearchParams,
+  IADSApiSearchResponse,
+  IDocsEntity,
+  IDocument,
+  INormalizedADSApiSearchParams,
+} from './types';
 
 export class SearchService extends Service {
   private normalizeParams(params: IADSApiSearchParams): INormalizedADSApiSearchParams {
@@ -35,7 +41,7 @@ export class SearchService extends Service {
     });
   }
 
-  async getDocument(identifier: string, fields: SolrField[]): Promise<IDocument> {
+  async getDocument(identifier: string, fields: Partial<keyof IDocsEntity>[]): Promise<IDocument> {
     const result = await this.query({
       q: `identifier:${identifier}`,
       fl: fields,

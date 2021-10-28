@@ -9,6 +9,7 @@ export type ItemType = {
   id: string;
   label?: string | ReactElement;
   path?: string;
+  newTab?: boolean;
   domId: string;
   disabled?: boolean;
   classes?: string;

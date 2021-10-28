@@ -84,6 +84,7 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
             key={doc.id}
             index={(state.context.page - 1) * 10 + 1 + index}
             hideCheckbox={hideCheckboxes}
+            hideActions={true}
           />
         ))
       )}
