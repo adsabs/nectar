@@ -1,5 +1,4 @@
 import Adsapi, { IUserData } from '@api';
-import { identity } from 'ramda';
 import { useQuery } from 'react-query';
 
 export const useBootstrap = (onSuccess: (data: IUserData) => void): void => {
@@ -8,7 +7,13 @@ export const useBootstrap = (onSuccess: (data: IUserData) => void): void => {
 
 const fetchBootstrap = async (): Promise<IUserData> => {
   const result = await Adsapi.bootstrap();
-  return result.match(identity, (e) => {
-    throw new Error(e.message);
-  });
+  return result.match(
+    (response) => {
+      const { access_token, username, anonymous, expire_in } = response.data;
+      return { access_token, username, anonymous, expire_in };
+    },
+    (e) => {
+      throw new Error(e.message);
+    },
+  );
 };

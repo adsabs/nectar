@@ -3,18 +3,18 @@ import axios from 'axios';
 import { isPast, parseISO } from 'date-fns';
 import { err, ok, Result } from 'neverthrow';
 import getConfig from 'next/config';
-import { identity, isNil } from 'ramda';
-import { IUserData } from './bootstrap/types';
+import { isNil } from 'ramda';
+import { IADSApiBootstrapResponse, IUserData } from './bootstrap/types';
 import { ExportService } from './export';
 import { GraphicsService } from './graphics';
 import { LibrariesService } from './libraries/libraries';
+import { MetricsService } from './metrics';
 import { ApiTargets } from './models';
 import { ReferenceService } from './reference';
 import { SearchService } from './search/search';
 import { IServiceConfig } from './service';
 import { UserService } from './user/user';
 import { VaultService } from './vault';
-import { MetricsService } from './metrics';
 export class Adsapi {
   public search: SearchService;
   public libraries: LibrariesService;
@@ -36,7 +36,7 @@ export class Adsapi {
     this.export = new ExportService(config);
   }
 
-  public static bootstrap(config: IServiceConfig = {}): Promise<Result<IUserData, Error>> {
+  public static bootstrap(config: IServiceConfig = {}): Promise<Result<IADSApiBootstrapResponse, Error>> {
     const { publicRuntimeConfig } = (getConfig() as AppRuntimeConfig) || {
       publicRuntimeConfig: {
         apiHost: process.env.API_HOST,
@@ -51,22 +51,10 @@ export class Adsapi {
           url: ApiTargets.BOOTSTRAP,
         })
         .then(
-          (response) => {
-            const { access_token, expire_in, anonymous, username } = response.data;
-            resolve(ok({ access_token, expire_in, anonymous, username }));
-          },
+          (response: IADSApiBootstrapResponse) => resolve(ok(response)),
           (e) => resolve(err(e)),
         );
     });
-  }
-
-  public static async checkOrRefreshUserData(userData?: IUserData): Promise<Result<IUserData, Error>> {
-    if (this.checkUserData(userData)) {
-      return ok(userData);
-    }
-
-    const result = await this.bootstrap();
-    return result.map(identity).mapErr(identity);
   }
 
   static isValid(userData?: IUserData): userData is IUserData {
