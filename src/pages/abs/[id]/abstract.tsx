@@ -1,6 +1,7 @@
 import AdsApi, { IDocsEntity, IUserData, SolrSort } from '@api';
 import { AbstractSources, metatagsQueryFields } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
+import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/queries';
 import { createUrlByType } from '@components/AbstractSources/linkGenerator';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { useAPI } from '@hooks';
@@ -10,7 +11,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { isNil } from 'ramda';
 import { useEffect, useState } from 'react';
-import { normalizeURLParams, isBrowser } from 'src/utils';
+import { dehydrate, QueryClient } from 'react-query';
+import { isBrowser, normalizeURLParams } from 'src/utils';
 export interface IAbstractPageProps {
   doc?: IDocsEntity;
   error?: string;
@@ -19,14 +21,12 @@ export interface IAbstractPageProps {
     fl: string[];
     sort: SolrSort[];
   };
-  hasGraphics: boolean;
-  hasMetrics: boolean;
 }
 
 const MAX_AUTHORS = 50;
 
 const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) => {
-  const { doc, error, params, hasGraphics, hasMetrics } = props;
+  const { doc, error, params } = props;
 
   const [showNumAuthors, setShowNumAuthors] = useState<number>(MAX_AUTHORS);
 
@@ -78,7 +78,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
   const authorNameClass = clsx(!aff.show ? 'link pr-1' : 'link');
 
   return (
-    <AbsLayout doc={doc} hasGraphics={hasGraphics} hasMetrics={hasMetrics}>
+    <AbsLayout doc={doc}>
       <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
         {error ? (
           <div className="flex items-center justify-center w-full h-full text-xl">{error}</div>
@@ -247,25 +247,23 @@ export const getServerSideProps: GetServerSideProps<IAbstractPageProps> = async 
   };
   const adsapi = new AdsApi({ token: userData.access_token });
   const result = await adsapi.search.query(params);
-  const hasGraphics =
-    result.isOk() && result.value.numFound > 0
-      ? await adsapi.graphics.hasGraphics(adsapi, result.value.docs[0].bibcode)
-      : false;
-  const hasMetrics =
-    result.isOk() && result.value.numFound > 0
-      ? await adsapi.metrics.hasMetrics(adsapi, result.value.docs[0].bibcode)
-      : false;
+
+  const queryClient = new QueryClient();
+  if (result.isOk()) {
+    const { bibcode } = result.value.docs[0];
+    void (await queryClient.prefetchQuery(['hasGraphics', bibcode], () => fetchHasGraphics(adsapi, bibcode)));
+    void (await queryClient.prefetchQuery(['hasMetrics', bibcode], () => fetchHasMetrics(adsapi, bibcode)));
+  }
 
   return result.isErr()
-    ? { props: { doc: null, hasGraphics, hasMetrics, params, error: 'Unable to get abstract' } }
+    ? { props: { doc: null, params, error: 'Unable to get abstract' } }
     : result.value.numFound === 0
     ? { notFound: true }
     : {
         props: {
+          dehydratedState: dehydrate(queryClient),
           doc: result.value.docs[0],
           params,
-          hasGraphics,
-          hasMetrics,
         },
       };
 };

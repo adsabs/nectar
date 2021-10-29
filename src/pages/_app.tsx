@@ -8,7 +8,9 @@ import App, { AppContext, AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import 'nprogress/nprogress.css';
-import { ReactElement, useEffect } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
+import { Hydrate, QueryClient, QueryClientProvider } from 'react-query';
+import { ReactQueryDevtools } from 'react-query/devtools';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'tailwindcss/tailwind.css';
@@ -18,18 +20,32 @@ const TopProgressBar = dynamic(() => import('@components/TopProgressBar').then((
   ssr: false,
 });
 
-type NectarAppProps = { session: IncomingMessage['session'] } & AppProps;
+type NectarAppProps = {
+  session: IncomingMessage['session'];
+} & AppProps;
 
 const NectarApp = ({ Component, pageProps, session }: NectarAppProps): ReactElement => {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: { queries: { refetchOnWindowFocus: false, staleTime: Infinity } },
+      }),
+  );
+
   return (
     <AppProvider session={session}>
       <ApiProvider>
-        <ThemeRouter />
-        <TopProgressBar />
-        <ToastContainer />
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
+        <QueryClientProvider client={queryClient}>
+          <Hydrate state={(pageProps as { dehydratedState: unknown }).dehydratedState}>
+            <ThemeRouter />
+            <TopProgressBar />
+            <ToastContainer />
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          </Hydrate>
+          <ReactQueryDevtools />
+        </QueryClientProvider>
       </ApiProvider>
     </AppProvider>
   );

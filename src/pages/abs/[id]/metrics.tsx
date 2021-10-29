@@ -1,22 +1,22 @@
 import AdsApi, { IADSApiMetricsParams, IDocsEntity, IUserData } from '@api';
-import { MetricsResponseKey, CitationsStatsKey, BasicStatsKey, IADSApiMetricsResponse } from '@api/lib/metrics/types';
+import { BasicStatsKey, CitationsStatsKey, IADSApiMetricsResponse, MetricsResponseKey } from '@api/lib/metrics/types';
 import { metatagsQueryFields } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
+import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/queries';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { Metrics } from '@components/Metrics';
 import { normalizeURLParams } from '@utils';
-import { NextPage, GetServerSideProps } from 'next';
+import { GetServerSideProps, NextPage } from 'next';
+import { dehydrate, QueryClient } from 'react-query';
 
 interface IMetricsPageProps {
   originalDoc: IDocsEntity;
   error?: string;
-  hasGraphics: boolean;
-  hasMetrics: boolean;
   metrics: IADSApiMetricsResponse;
 }
 
 const MetricsPage: NextPage<IMetricsPageProps> = (props: IMetricsPageProps) => {
-  const { originalDoc, error, hasGraphics, hasMetrics, metrics } = props;
+  const { originalDoc, error, metrics } = props;
 
   const hasCitations =
     metrics && metrics[MetricsResponseKey.CITATION_STATS][CitationsStatsKey.TOTAL_NUMBER_OF_CITATIONS] > 0;
@@ -24,7 +24,7 @@ const MetricsPage: NextPage<IMetricsPageProps> = (props: IMetricsPageProps) => {
   const hasReads = metrics && metrics[MetricsResponseKey.BASIC_STATS][BasicStatsKey.TOTAL_NUMBER_OF_READS] > 0;
 
   return (
-    <AbsLayout doc={originalDoc} hasGraphics={hasGraphics} hasMetrics={hasMetrics}>
+    <AbsLayout doc={originalDoc}>
       <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
         <div className="pb-1">
           <h2 className="prose-xl pb-5 text-gray-900 text-2xl font-medium leading-8" id="title">
@@ -55,15 +55,19 @@ export const getServerSideProps: GetServerSideProps<IMetricsPageProps> = async (
     bibcode: query.id,
   };
   const adsapi = new AdsApi({ token: userData.access_token });
+
   const result = await adsapi.metrics.query(params);
   const originalDoc = await adsapi.search.getDocument(query.id, [
     ...abstractPageNavDefaultQueryFields,
     ...metatagsQueryFields,
   ]);
-  const hasGraphics =
-    !originalDoc.notFound && !originalDoc.error ? await adsapi.graphics.hasGraphics(adsapi, params.bibcode) : false;
-  const hasMetrics =
-    !originalDoc.notFound && !originalDoc.error ? await adsapi.metrics.hasMetrics(adsapi, params.bibcode) : false;
+
+  const queryClient = new QueryClient();
+  if (!originalDoc.notFound && !originalDoc.error) {
+    const { bibcode } = originalDoc.doc;
+    void (await queryClient.prefetchQuery(['hasGraphics', bibcode], () => fetchHasGraphics(adsapi, bibcode)));
+    void (await queryClient.prefetchQuery(['hasMetrics', bibcode], () => fetchHasMetrics(adsapi, bibcode)));
+  }
 
   return originalDoc.notFound || originalDoc.error
     ? { notFound: true }
@@ -71,8 +75,7 @@ export const getServerSideProps: GetServerSideProps<IMetricsPageProps> = async (
     ? {
         props: {
           originalDoc: originalDoc.doc,
-          hasGraphics,
-          hasMetrics,
+          dehydratedState: dehydrate(queryClient),
           error: 'Unable to get results',
           metrics: null,
         },
@@ -80,8 +83,7 @@ export const getServerSideProps: GetServerSideProps<IMetricsPageProps> = async (
     : {
         props: {
           originalDoc: originalDoc.doc,
-          hasGraphics,
-          hasMetrics,
+          dehydratedState: dehydrate(queryClient),
           metrics: result.value,
         },
       };

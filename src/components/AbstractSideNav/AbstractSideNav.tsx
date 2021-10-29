@@ -11,17 +11,18 @@ import { useRouter } from 'next/router';
 import { last } from 'ramda';
 import { HTMLAttributes, ReactElement } from 'react';
 import { navigation, Routes } from './model';
+import { useHasGraphics, useHasMetrics } from './queries';
 
 export interface IAbstractSideNavProps extends HTMLAttributes<HTMLDivElement> {
   doc?: IDocsEntity;
-  hasMetrics: boolean;
-  hasGraphics: boolean;
 }
 
-export const AbstractSideNav = ({ doc, hasMetrics, hasGraphics }: IAbstractSideNavProps): ReactElement => {
+export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement => {
   const router = useRouter();
   const subPage = last(router.asPath.split('/'));
   const viewport = useViewport();
+  const hasGraphics = useHasGraphics(doc);
+  const hasMetrics = useHasMetrics(doc);
 
   const {
     state: { user },
@@ -87,7 +88,7 @@ export const AbstractSideNav = ({ doc, hasMetrics, hasGraphics }: IAbstractSideN
         {showCount ? (
           <span className="inline-block ml-3 px-3 py-0.5 text-xs bg-white rounded-full">{count}</span>
         ) : null}
-        <ChevronDownIcon className="default-icon-sm" />
+        <ChevronDownIcon className="default-icon-sm" aria-hidden="true" />
       </div>
     );
 
@@ -124,10 +125,6 @@ const getCount = (route: Routes, doc: IDocsEntity) => {
       return typeof doc.citation_count === 'number' ? doc.citation_count : 0;
     case Routes.REFERENCES:
       return typeof doc['[citations]'].num_references === 'number' ? doc['[citations]'].num_references : 0;
-    case Routes.COREADS:
-      return typeof doc.read_count === 'number' ? doc.read_count : 0;
-    case Routes.SIMILAR:
-      return typeof doc.abstract !== 'undefined' ? 1 : 0;
     default:
       return 0;
   }

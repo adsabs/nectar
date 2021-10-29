@@ -2,30 +2,22 @@ import Adsapi, { IDocsEntity } from '@api';
 import { ExportApiFormat, isExportApiFormat } from '@api/lib/export';
 import { Export, metatagsQueryFields } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
+import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/queries';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { normalizeURLParams } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
+import { dehydrate, QueryClient } from 'react-query';
 interface IExportCitationPageProps {
   bibcode: IDocsEntity['bibcode'];
   text?: string;
   format: ExportApiFormat;
   originalDoc: IDocsEntity;
-  hasGraphics: boolean;
-  hasMetrics: boolean;
   error?: string;
 }
 
-const ExportCitationPage: NextPage<IExportCitationPageProps> = ({
-  originalDoc,
-  bibcode,
-  text,
-  format,
-  hasMetrics,
-  hasGraphics,
-  error,
-}) => {
+const ExportCitationPage: NextPage<IExportCitationPageProps> = ({ originalDoc, bibcode, text, format, error }) => {
   return (
-    <AbsLayout doc={originalDoc} hasGraphics={hasGraphics} hasMetrics={hasMetrics}>
+    <AbsLayout doc={originalDoc}>
       <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
         <div className="pb-1">
           <h2 className="prose-xl text-gray-900 font-medium leading-8" id="title">
@@ -56,14 +48,13 @@ export const getServerSideProps: GetServerSideProps<IExportCitationPageProps> = 
     ...abstractPageNavDefaultQueryFields,
     ...metatagsQueryFields,
   ]);
-  const hasGraphics =
-    !originalDoc.notFound && !originalDoc.error
-      ? await adsapi.graphics.hasGraphics(adsapi, originalDoc.doc.bibcode)
-      : false;
-  const hasMetrics =
-    !originalDoc.notFound && !originalDoc.error
-      ? await adsapi.metrics.hasMetrics(adsapi, originalDoc.doc.bibcode)
-      : false;
+
+  const queryClient = new QueryClient();
+  if (!originalDoc.notFound && !originalDoc.error) {
+    const { bibcode } = originalDoc.doc;
+    void (await queryClient.prefetchQuery(['hasGraphics', bibcode], () => fetchHasGraphics(adsapi, bibcode)));
+    void (await queryClient.prefetchQuery(['hasMetrics', bibcode], () => fetchHasMetrics(adsapi, bibcode)));
+  }
 
   return originalDoc.notFound || originalDoc.error
     ? { notFound: true }
@@ -73,9 +64,8 @@ export const getServerSideProps: GetServerSideProps<IExportCitationPageProps> = 
           bibcode: query.id,
           format,
           originalDoc: originalDoc.doc,
-          hasGraphics,
-          hasMetrics,
           error: 'Unable to get results',
+          dehydratedState: dehydrate(queryClient),
         },
       }
     : {
@@ -84,8 +74,7 @@ export const getServerSideProps: GetServerSideProps<IExportCitationPageProps> = 
           format,
           text: result.value,
           originalDoc: originalDoc.doc,
-          hasGraphics,
-          hasMetrics,
+          dehydratedState: dehydrate(queryClient),
         },
       };
 };
