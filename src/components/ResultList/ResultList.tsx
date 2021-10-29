@@ -1,4 +1,4 @@
-import { IDocsEntity, SolrSort } from '@api';
+import { IDocsEntity } from '@api';
 import { ISearchMachine, TransitionType } from '@machines/lib/search/types';
 import { isBrowser } from '@utils';
 import { useSelector } from '@xstate/react';
@@ -14,9 +14,6 @@ export interface IResultListProps extends HTMLAttributes<HTMLDivElement> {
   isLoading?: boolean;
   service?: ISearchMachine;
   showActions: boolean;
-  query: string;
-  sort: SolrSort[];
-  page: number;
 }
 
 interface ISelection {
@@ -38,9 +35,6 @@ export const ResultList = (props: IResultListProps): ReactElement => {
     hideCheckboxes = !isBrowser(),
     service: searchService,
     showActions,
-    query,
-    sort,
-    page,
     ...divProps
   } = props;
 
@@ -86,6 +80,11 @@ export const ResultList = (props: IResultListProps): ReactElement => {
     return page === pages ? t % numPerPage : numPerPage;
   });
 
+  const sort = useSelector(searchService, (state) => {
+    const params = state.context.params;
+    return params.sort;
+  });
+
   useEffect(() => {
     setSelection({
       selectAll: false,
@@ -107,9 +106,6 @@ export const ResultList = (props: IResultListProps): ReactElement => {
             onSelectNone={handleSelectNone}
             onLimitedTo={handleLimitedTo}
             onExclude={handleExclude}
-            query={query}
-            sort={sort}
-            page={page}
           />
         )}
       </div>
