@@ -1,10 +1,10 @@
 import { IDocsEntity } from '@api';
-import { DropdownList } from '@components';
 import { processLinkData } from '@components/AbstractSources/linkGenerator';
 import { SimpleLinkDropdown } from '@components/Dropdown/SimpleLinkDropdown';
 import { ItemType } from '@components/Dropdown/types';
 import { DatabaseIcon, DocumentTextIcon, ViewListIcon } from '@heroicons/react/outline';
-import { getFomattedNumericPubdate, isBrowser } from '@utils';
+import { useViewport, Viewport } from '@hooks';
+import { getFomattedNumericPubdate } from '@utils';
 import { useMachine } from '@xstate/react';
 import clsx from 'clsx';
 import dynamic from 'next/dynamic';
@@ -177,8 +177,6 @@ export const Item = (props: IItemProps): ReactElement => {
     </>
   );
 
-  // TODO data
-
   return (
     <article className="flex bg-white border rounded-md shadow" aria-labelledby={`result-${id}`}>
       <div className={checkBgClass}>
@@ -256,6 +254,8 @@ interface IItemDropdownProps {
 }
 
 export const ItemDropdown = ({ label, items }: IItemDropdownProps): ReactElement => {
+  const viewport = useViewport();
+  const listClasses = viewport > Viewport.MD ? 'h-auto w-auto' : 'h-auto w-auto absolute top-full -right-0';
   return (
     <span>
       <SimpleLinkDropdown
@@ -264,7 +264,7 @@ export const ItemDropdown = ({ label, items }: IItemDropdownProps): ReactElement
         selected={''}
         aria-label="Full Text Sources"
         classes={{
-          list: 'h-auto w-auto',
+          list: listClasses,
           item: 'p-2 flex justify-start text-sm',
         }}
       />
