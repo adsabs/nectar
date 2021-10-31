@@ -11,9 +11,6 @@ interface IListActionProp {
   service?: ISearchMachine;
   selectedCount: number;
   totalCount: number;
-  query: string;
-  sort: SolrSort[];
-  page: number;
   onSortChange: () => void;
   onSelectAll: () => void;
   onSelectNone: () => void;
@@ -26,9 +23,6 @@ export const ListActions = (props: IListActionProp): ReactElement => {
     service: searchService,
     selectedCount,
     totalCount,
-    query,
-    sort: [sort, ...otherSorts],
-    page,
     onSelectAll,
     onSelectNone,
     onLimitedTo,
@@ -36,6 +30,19 @@ export const ListActions = (props: IListActionProp): ReactElement => {
   } = props;
 
   const [showHighlight, setShowHighlight] = useState<boolean>(false);
+
+  const page = useSelector(searchService, (state) => {
+    return state.context.pagination.page;
+  });
+
+  const query = useSelector(searchService, (state) => {
+    return state.context.params.q;
+  });
+
+  const sort = useSelector(searchService, (state) => {
+    const params = state.context.params;
+    return params.sort;
+  });
 
   const toggleShowHighlight = () => setShowHighlight(!showHighlight);
   const handleSelectAll = () => onSelectAll();
@@ -51,7 +58,7 @@ export const ListActions = (props: IListActionProp): ReactElement => {
     <>
       {!isBrowser() ? (
         <span>
-          <SimpleSortDropdown query={query} selected={sort} page={page} />
+          <SimpleSortDropdown query={query} selected={sort[0]} page={page} />
         </span>
       ) : (
         <>

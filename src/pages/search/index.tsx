@@ -102,9 +102,6 @@ const Form = (props: IFormProps): ReactElement => {
               docs={result.docs as IDocsEntity[]}
               service={searchService}
               showActions={true}
-              query={query}
-              sort={sort}
-              page={page}
             />
           )}
         </div>
