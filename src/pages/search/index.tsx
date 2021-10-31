@@ -138,7 +138,6 @@ export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (c
     rows: 10,
     start: (page - 1) * 10,
   };
-
   const result = await adsapi.search.query(params);
 
   const props = result.match(
