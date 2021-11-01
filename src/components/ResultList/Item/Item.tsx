@@ -1,5 +1,4 @@
 import { IDocsEntity } from '@api';
-import { DatabaseIcon, DocumentTextIcon, ViewListIcon } from '@heroicons/react/outline';
 import { getFomattedNumericPubdate } from '@utils';
 import { useMachine } from '@xstate/react';
 import clsx from 'clsx';
@@ -7,6 +6,7 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { ReactElement } from 'react';
 import { IAbstractPreviewProps } from './AbstractPreview';
+import { ItemResourceDropdowns } from './ItemResourceDropdowns';
 import { itemMachine, ItemMachine } from './machine/item';
 
 const AbstractPreview = dynamic<IAbstractPreviewProps>(
@@ -17,6 +17,7 @@ interface IItemProps {
   doc: IDocsEntity;
   index: number;
   hideCheckbox: boolean;
+  hideActions: boolean;
   set?: boolean;
   clear?: boolean;
   onSet?: (check: boolean) => void;
@@ -24,7 +25,7 @@ interface IItemProps {
 }
 
 export const Item = (props: IItemProps): ReactElement => {
-  const { doc, index, hideCheckbox = false, set, clear, onSet, useNormCite } = props;
+  const { doc, index, hideCheckbox = false, hideActions = false, set, clear, onSet, useNormCite } = props;
   const { bibcode, pubdate, title = ['Untitled'], author = [], id, citation, bibstem = [], author_count } = doc;
   const [state, send] = useMachine(itemMachine.withContext({ id }));
 
@@ -50,6 +51,7 @@ export const Item = (props: IItemProps): ReactElement => {
     'hidden items-center justify-center mr-3 md:flex',
   );
 
+  // citations
   const cite = useNormCite ? (
     doc.citation_count_norm && parseInt(doc.citation_count_norm) > 0 ? (
       <Link href={`/abs/${bibcode}/citations`}>
@@ -88,17 +90,7 @@ export const Item = (props: IItemProps): ReactElement => {
               <h3 className="text-lg" id={`result-${id}`} dangerouslySetInnerHTML={{ __html: title[0] }}></h3>
             </a>
           </Link>
-          <div className="flex items-start">
-            <button title="Full text sources" tabIndex={0}>
-              <DocumentTextIcon className="default-icon default-link-color" />
-            </button>
-            <button title="Citations and references" tabIndex={0}>
-              <ViewListIcon className="default-icon default-link-color" />
-            </button>
-            <button title="Data" tabIndex={0}>
-              <DatabaseIcon className="default-icon default-link-color" />
-            </button>
-          </div>
+          <div className="flex items-start">{hideActions ? null : <ItemResourceDropdowns doc={doc} />}</div>
         </div>
         <div className="flex flex-col">
           {author.length > 0 && (

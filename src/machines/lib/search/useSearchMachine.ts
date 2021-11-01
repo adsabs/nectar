@@ -51,8 +51,12 @@ export function useSearchMachine(props: IUseSearchMachineProps = {}) {
             'author_count',
             'pubdate',
             'bibstem',
+            '[citations]',
             'citation_count',
             'citation_count_norm',
+            'esources',
+            'property',
+            'data',
           ],
           ...ctx.params,
         };

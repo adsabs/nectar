@@ -119,6 +119,7 @@ export const ResultList = (props: IResultListProps): ReactElement => {
               key={doc.id}
               index={indexStart + index}
               hideCheckbox={hideCheckboxes}
+              hideActions={false}
               set={selection.selectAll}
               clear={selection.selectNone}
               onSet={handleItemSet}

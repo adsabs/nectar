@@ -41,7 +41,7 @@ export const OrcidDropdown = (props: IOrcidDropdownProps): ReactElement => {
   const getOrcidLabelNode = () => {
     return (
       <>
-        <OrcidInactiveLogo width="18px" height="18px" aria-hidden className="flex-shrink-0 m-auto" />
+        <OrcidInactiveLogo width="18px" height="18px" aria-hidden className="flex-shrink-0" />
         <span>&nbsp;ORCiD</span>
         <ChevronDownIcon className="inline w-4 h-4" />
       </>
