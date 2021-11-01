@@ -4,9 +4,9 @@ import { getFomattedNumericPubdate } from '@utils';
 import Head from 'next/head';
 import { ReactElement } from 'react';
 
-const ADS_BASE_URL = 'https://ui.adsabs.harvard.edu';
+const ADS_BASE_URL = process.env.NEXT_PUBLIC_ADS_BASE_URL;
 
-const ABS_BASE_URL = `${ADS_BASE_URL}/abs`;
+const ABS_BASE_URL = process.env.NEXT_PUBLIC_ADS_ABS_URL;
 
 const LINKGWAY_BASE_URL = `${ADS_BASE_URL}/link_gateway`;
 interface IMetatagsProps {
