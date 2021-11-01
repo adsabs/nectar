@@ -59,7 +59,7 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
         void router.push(url, undefined, { shallow: true });
 
         return result.match(
-          ({ docs }) => docs,
+          ({ response: { docs } }) => docs,
           (e) => {
             toast.error(e.message);
             throw e;

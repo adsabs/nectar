@@ -27,8 +27,6 @@ const CoreadsPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProps) 
   const { docs, originalDoc, error } = props;
   const { query } = useRouter();
 
-  console.log(originalDoc);
-
   return (
     <AbsLayout doc={originalDoc}>
       <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
@@ -84,14 +82,18 @@ export const getServerSideProps: GetServerSideProps<ICitationsPageProps> = async
     dehydratedState: dehydrate(queryClient),
   };
 
-  return mainResult.isErr()
-    ? {
-        props: {
-          ...defaultProps,
-          error: 'Unable to get results',
-        },
-      }
-    : mainResult.value.numFound === 0
+  if (mainResult.isErr()) {
+    return {
+      props: {
+        ...defaultProps,
+        error: 'Unable to get results',
+      },
+    };
+  }
+
+  const { numFound, docs } = mainResult.value.response;
+
+  numFound === 0
     ? {
         props: {
           ...defaultProps,
@@ -101,7 +103,7 @@ export const getServerSideProps: GetServerSideProps<ICitationsPageProps> = async
     : {
         props: {
           ...defaultProps,
-          docs: mainResult.value.docs,
+          docs,
         },
       };
 };

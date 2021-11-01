@@ -64,7 +64,7 @@ export const AbstractPreview = ({ id }: IAbstractPreviewProps): React.ReactEleme
       fetchAbstract: async () => {
         const result = await api.search.query({ q: `id:${id}`, fl: ['abstract'] });
         return result.match(
-          ({ docs }) => (typeof docs[0].abstract === 'undefined' ? 'No Abstract' : docs[0].abstract),
+          ({ response: { docs } }) => (typeof docs[0].abstract === 'undefined' ? 'No Abstract' : docs[0].abstract),
           (e) => {
             throw e;
           },

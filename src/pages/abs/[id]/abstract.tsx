@@ -54,8 +54,8 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
       params.fl = ['aff'];
       void api.search.query(params).then((result) => {
         result.match(
-          (res) => {
-            setAff({ show: true, data: res.docs[0].aff });
+          ({ response }) => {
+            setAff({ show: true, data: response.docs[0].aff });
           },
           () => {
             return;
@@ -250,19 +250,23 @@ export const getServerSideProps: GetServerSideProps<IAbstractPageProps> = async 
 
   const queryClient = new QueryClient();
   if (result.isOk()) {
-    const { bibcode } = result.value.docs[0];
+    const { bibcode } = result.value.response.docs[0];
     void (await queryClient.prefetchQuery(['hasGraphics', bibcode], () => fetchHasGraphics(adsapi, bibcode)));
     void (await queryClient.prefetchQuery(['hasMetrics', bibcode], () => fetchHasMetrics(adsapi, bibcode)));
   }
 
-  return result.isErr()
-    ? { props: { doc: null, params, error: 'Unable to get abstract' } }
-    : result.value.numFound === 0
+  if (result.isErr()) {
+    return { props: { doc: null, params, error: 'Unable to get abstract' } };
+  }
+
+  const { numFound, docs } = result.value.response;
+
+  return numFound === 0
     ? { notFound: true }
     : {
         props: {
           dehydratedState: dehydrate(queryClient),
-          doc: result.value.docs[0],
+          doc: docs[0],
           params,
         },
       };

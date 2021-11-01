@@ -1,5 +1,4 @@
-import AdsApi, { IDocsEntity, IUserData } from '@api';
-import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
+import { IDocsEntity, IUserData } from '@api';
 import { fromThrowable } from 'neverthrow';
 import { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from 'next';
 import { useRouter } from 'next/router';
@@ -43,19 +42,6 @@ export interface IOriginalDoc {
   numFound?: number;
 }
 
-export const getDocument = async (api: AdsApi, id: string): Promise<IOriginalDoc> => {
-  const result = await api.search.query({
-    q: `identifier:${id}`,
-    fl: [...abstractPageNavDefaultQueryFields, 'title'],
-  });
-
-  return result.isErr()
-    ? { error: 'Unable to get document' }
-    : result.value.numFound === 0
-    ? { notFound: true }
-    : { doc: result.value.docs[0], numFound: result.value.numFound };
-};
-
 export const getFomattedNumericPubdate = (pubdate: string): string | null => {
   const regex = /^(?<year>\d{4})-(?<month>\d{2})/;
   const match = regex.exec(pubdate);
@@ -69,4 +55,9 @@ export const getFomattedNumericPubdate = (pubdate: string): string | null => {
 export const useBaseRouterPath = (): { basePath: string } => {
   const { asPath } = useRouter();
   return { basePath: fromThrowable<() => string, Error>(() => asPath.split('?')[0])().unwrapOr('/') };
+};
+
+export const truncateDecimal = (num: number, d: number): number => {
+  const regex = new RegExp(`^-?\\d+(\\.\\d{0,${d}})?`);
+  return parseFloat(regex.exec(num.toString())[0]);
 };

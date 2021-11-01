@@ -1,4 +1,3 @@
-import { SolrField } from '@api';
 import { AxiosError, AxiosRequestConfig } from 'axios';
 import { err, ok, Result } from 'neverthrow';
 import { ApiTargets } from '../models';
@@ -20,7 +19,7 @@ export class SearchService extends Service {
     };
   }
 
-  async query(rawParams: IADSApiSearchParams): Promise<Result<IADSApiSearchResponse['response'], Error | AxiosError>> {
+  async query(rawParams: IADSApiSearchParams): Promise<Result<IADSApiSearchResponse, Error | AxiosError>> {
     const params = this.normalizeParams(rawParams);
     const config: AxiosRequestConfig = {
       method: 'get',
@@ -32,7 +31,9 @@ export class SearchService extends Service {
       this.request<IADSApiSearchResponse>(config).then(
         (result) => {
           result.match(
-            ({ response }) => resolve(ok(response)),
+            ({ response, stats }) => {
+              stats ? resolve(ok({ response, stats })) : resolve(ok({ response }));
+            },
             (e: Error | AxiosError) => resolve(err(e)),
           );
         },
@@ -47,10 +48,11 @@ export class SearchService extends Service {
       fl: fields,
     });
 
-    return result.isErr()
-      ? { error: 'Unable to get document' }
-      : result.value.numFound === 0
-      ? { notFound: true }
-      : { doc: result.value.docs[0] };
+    if (result.isErr()) {
+      return { error: 'Unable to get document' };
+    }
+
+    const { numFound, docs } = result.value.response;
+    numFound === 0 ? { notFound: true } : { doc: docs[0] };
   }
 }
