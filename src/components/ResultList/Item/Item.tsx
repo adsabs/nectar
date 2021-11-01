@@ -1,16 +1,12 @@
 import { IDocsEntity } from '@api';
-import { processLinkData } from '@components/AbstractSources/linkGenerator';
-import { SimpleLinkDropdown } from '@components/Dropdown/SimpleLinkDropdown';
-import { ItemType } from '@components/Dropdown/types';
-import { DatabaseIcon, DocumentTextIcon, ViewListIcon } from '@heroicons/react/outline';
-import { useViewport, Viewport } from '@hooks';
 import { getFomattedNumericPubdate } from '@utils';
 import { useMachine } from '@xstate/react';
 import clsx from 'clsx';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { IAbstractPreviewProps } from './AbstractPreview';
+import { ItemResourceDropdowns } from './ItemResourceDropdowns';
 import { itemMachine, ItemMachine } from './machine/item';
 
 const AbstractPreview = dynamic<IAbstractPreviewProps>(
@@ -72,111 +68,6 @@ export const Item = (props: IItemProps): ReactElement => {
     </Link>
   ) : null;
 
-  // full text sources and data
-
-  let fullSourceItems: ItemType[] = [];
-
-  let dataProductItems: ItemType[] = [];
-
-  if (!hideActions && doc.esources) {
-    const sources = processLinkData(doc, null);
-
-    const fullTextSources = sources.fullTextSources;
-
-    const dataProducts = sources.dataProducts;
-
-    fullSourceItems = fullTextSources.map((source) => ({
-      id: source.name,
-      text: source.name,
-      label: source.name,
-      path: source.url,
-      domId: `fullText-${source.name}`,
-      newTab: true,
-    }));
-
-    dataProductItems = dataProducts.map((dp) => ({
-      id: dp.name,
-      text: dp.name,
-      label: dp.name,
-      path: dp.url,
-      domId: `dataProd-${dp.name}`,
-      newTab: true,
-    }));
-  }
-
-  const fullTextSourcesLabel = (
-    <>
-      {fullSourceItems.length > 0 ? (
-        <DocumentTextIcon
-          className="default-icon default-link-color cursor-pointer"
-          aria-label="Full text sources"
-          role="list"
-        />
-      ) : (
-        <DocumentTextIcon className="default-icon text-gray-300" aria-label="No Full text sources" role="list" />
-      )}
-    </>
-  );
-
-  const dataProductLabel = (
-    <>
-      {dataProductItems.length > 0 ? (
-        <DatabaseIcon
-          className="default-icon default-link-color cursor-pointer"
-          aria-label="Data products"
-          role="list"
-        />
-      ) : (
-        <DatabaseIcon className="default-icon text-gray-300" aria-label="No data products" role="list" />
-      )}
-    </>
-  );
-
-  // citations and references
-
-  const num_references =
-    !hideActions && doc['[citations]'] && typeof doc['[citations]'].num_references === 'number'
-      ? doc['[citations]'].num_references
-      : 0;
-
-  const num_citations =
-    !hideActions && doc['[citations]'] && typeof doc['[citations]'].num_citations === 'number'
-      ? doc['[citations]'].num_citations
-      : 0;
-
-  const referenceItems: ItemType[] = [];
-  if (num_citations > 0) {
-    referenceItems.push({
-      id: 'citations',
-      domId: `ref-dropdown-cit-${doc.bibcode}`,
-      label: `Citations (${num_citations})`,
-      path: `/abs/${bibcode}/citations`,
-    });
-  }
-
-  if (num_references > 0) {
-    referenceItems.push({
-      id: 'references',
-      domId: `ref-dropdown-ref-${doc.bibcode}`,
-      label: `References (${num_references})`,
-      path: `/abs/${bibcode}/references`,
-    });
-  }
-
-  const referencesLabel = (
-    <>
-      {referenceItems.length > 0 ? (
-        <ViewListIcon
-          className="default-icon default-link-color cursor-pointer"
-          aria-label="References and citations"
-          role="list"
-        />
-      ) : (
-        <ViewListIcon className="default-icon text-gray-300" aria-label="No references and citations" role="list" />
-      )}
-    </>
-  );
-
   return (
     <article className="flex bg-white border rounded-md shadow" aria-labelledby={`result-${id}`}>
       <div className={checkBgClass}>
@@ -199,27 +90,7 @@ export const Item = (props: IItemProps): ReactElement => {
               <h3 className="text-lg" id={`result-${id}`} dangerouslySetInnerHTML={{ __html: title[0] }}></h3>
             </a>
           </Link>
-          <div className="flex items-start">
-            {hideActions ? null : (
-              <>
-                {fullSourceItems.length > 0 ? (
-                  <ItemDropdown label={fullTextSourcesLabel} items={fullSourceItems} />
-                ) : (
-                  fullTextSourcesLabel
-                )}
-                {referenceItems.length > 0 ? (
-                  <ItemDropdown label={referencesLabel} items={referenceItems} />
-                ) : (
-                  referencesLabel
-                )}
-                {dataProductItems.length > 0 ? (
-                  <ItemDropdown label={dataProductLabel} items={dataProductItems} />
-                ) : (
-                  dataProductLabel
-                )}
-              </>
-            )}
-          </div>
+          <div className="flex items-start">{hideActions ? null : <ItemResourceDropdowns doc={doc} />}</div>
         </div>
         <div className="flex flex-col">
           {author.length > 0 && (
@@ -245,29 +116,5 @@ export const Item = (props: IItemProps): ReactElement => {
         </div>
       </div>
     </article>
-  );
-};
-
-interface IItemDropdownProps {
-  label: ReactElement | string;
-  items: ItemType[];
-}
-
-export const ItemDropdown = ({ label, items }: IItemDropdownProps): ReactElement => {
-  const viewport = useViewport();
-  const listClasses = viewport > Viewport.MD ? 'h-auto w-auto' : 'h-auto w-auto absolute top-full -right-0';
-  return (
-    <span>
-      <SimpleLinkDropdown
-        items={items}
-        label={label}
-        selected={''}
-        aria-label="Full Text Sources"
-        classes={{
-          list: listClasses,
-          item: 'p-2 flex justify-start text-sm',
-        }}
-      />
-    </span>
   );
 };
