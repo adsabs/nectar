@@ -84,13 +84,13 @@ export const Item = (props: IItemProps): ReactElement => {
         )}
       </div>
       <div className="flex flex-col mb-1 mr-3 w-full">
-        <div className="flex flex-row items-center justify-between pr-2 pt-1">
+        <div className="flex flex-row justify-between pr-2 pt-1">
           <Link href={`/abs/${bibcode}`}>
-            <a className="text-blue-700 hover:underline">
-              <h3 className="text-lg" id={`result-${id}`} dangerouslySetInnerHTML={{ __html: title[0] }}></h3>
+            <a className="pt-1 text-blue-700 hover:underline">
+              <h3 className="text-lg leading-6" id={`result-${id}`} dangerouslySetInnerHTML={{ __html: title[0] }}></h3>
             </a>
           </Link>
-          <div className="flex items-start">{hideActions ? null : <ItemResourceDropdowns doc={doc} />}</div>
+          <div className="flex items-start ml-2">{hideActions ? null : <ItemResourceDropdowns doc={doc} />}</div>
         </div>
         <div className="flex flex-col">
           {author.length > 0 && (

@@ -71,7 +71,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
     setAff({ show: false, data: aff.data });
   };
 
-  const authorsClass = clsx(!aff.show ? 'flex flex-wrap' : '', 'prose-sm pb-3 pl-2 text-gray-700');
+  const authorsClass = clsx(!aff.show ? 'flex flex-wrap' : '', 'prose-sm pl-2 text-gray-700');
 
   const authorClass = clsx(!aff.show ? 'flex items-center' : '');
 
