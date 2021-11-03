@@ -113,7 +113,7 @@ const ClassicForm: NextPage = () => {
           <Sort name="sort" onChange={handleSortChange} />
         </div>
         <div className="col-span-6 md:col-span-1">
-          <Button>Submit</Button>
+          <Button type="submit">Submit</Button>
         </div>
       </form>
     </section>
