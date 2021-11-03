@@ -18,7 +18,20 @@ const getQueryParams = (id: string | string[]): IADSApiSearchParams => {
   const idStr = Array.isArray(id) ? id[0] : id;
   return {
     q: `references(identifier:${idStr})`,
-    fl: ['bibcode', 'title', 'author', '[fields author=10]', 'author_count', 'pubdate'],
+    fl: [
+      'bibcode',
+      'title',
+      'author',
+      '[fields author=10]',
+      'author_count',
+      'pubdate',
+      'bibstem',
+      'citation_count',
+      '[citations]',
+      'esources',
+      'property',
+      'data',
+    ],
     sort: ['date desc'],
   };
 };

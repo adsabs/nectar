@@ -57,7 +57,6 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
 
         const url = `${basePath}?${qs.stringify({ p: ctx.page })}`;
         void router.push(url, undefined, { shallow: true });
-
         return result.match(
           ({ docs }) => docs,
           (e) => {
@@ -84,7 +83,7 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
             key={doc.id}
             index={(state.context.page - 1) * 10 + 1 + index}
             hideCheckbox={hideCheckboxes}
-            hideActions={true}
+            hideActions={false}
           />
         ))
       )}
