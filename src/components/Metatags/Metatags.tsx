@@ -4,11 +4,9 @@ import { getFomattedNumericPubdate } from '@utils';
 import Head from 'next/head';
 import { ReactElement } from 'react';
 
-const ADS_BASE_URL = process.env.NEXT_PUBLIC_ADS_BASE_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
-const ABS_BASE_URL = process.env.NEXT_PUBLIC_ADS_ABS_URL;
-
-const LINKGWAY_BASE_URL = `${ADS_BASE_URL}/link_gateway`;
+const LINKGWAY_BASE_URL = `${BASE_URL}/link_gateway`;
 interface IMetatagsProps {
   doc: IDocsEntity;
 }
@@ -55,9 +53,9 @@ export const Metatags = (props: IMetatagsProps): ReactElement => {
 
   const title = doc.title ? doc.title.join('; ') : '';
 
-  const url = `${ABS_BASE_URL}/${doc.bibcode}/abstract`;
+  const url = `${BASE_URL}/abs/${doc.bibcode}/abstract`;
 
-  const logo = `${ADS_BASE_URL}/styles/img/transparent_logo.svg`;
+  const logo = `${BASE_URL}/styles/img/transparent_logo.svg`;
 
   const formatted_numeric_pubdate = doc.pubdate ? getFomattedNumericPubdate(doc.pubdate) ?? '' : '';
 
@@ -69,7 +67,7 @@ export const Metatags = (props: IMetatagsProps): ReactElement => {
 
   return (
     <Head>
-      <link rel="canonical" href={`${ADS_BASE_URL}/abs/${doc.bibcode}/abstract`} />
+      <link rel="canonical" href={`${BASE_URL}/abs/${doc.bibcode}/abstract`} />
 
       <meta name="description" content={doc.abstract} />
 
