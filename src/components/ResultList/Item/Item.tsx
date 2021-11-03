@@ -84,7 +84,7 @@ export const Item = (props: IItemProps): ReactElement => {
         )}
       </div>
       <div className="flex flex-col mb-1 mr-3 w-full">
-        <div className="flex flex-row justify-between pr-2 py-2">
+        <div className="flex flex-row items-center justify-between pr-2 pt-1">
           <Link href={`/abs/${bibcode}`}>
             <a className="text-blue-700 hover:underline">
               <h3 className="text-lg" id={`result-${id}`} dangerouslySetInnerHTML={{ __html: title[0] }}></h3>
@@ -94,7 +94,7 @@ export const Item = (props: IItemProps): ReactElement => {
         </div>
         <div className="flex flex-col">
           {author.length > 0 && (
-            <div className="text-s">
+            <div className="text-sm">
               {author.slice(0, 10).join('; ')}
               {author_count > 10 && <span className="text-xs italic"> and {author_count - 10} more</span>}
             </div>
@@ -102,12 +102,11 @@ export const Item = (props: IItemProps): ReactElement => {
           <div className="flex py-1">
             <span className="text-xs">
               {formattedPubDate}
-              {formattedPubDate && formattedBibstem ? ' | ' : ''}
+              {formattedPubDate && formattedBibstem ? <>&nbsp;&nbsp;·&nbsp;&nbsp;</> : ''}
               {formattedBibstem}
-              {doc.citation_count &&
-                parseInt(doc.citation_count) > 0 &&
-                (formattedPubDate || formattedBibstem) &&
-                ' | '}
+              {doc.citation_count && parseInt(doc.citation_count) > 0 && (formattedPubDate || formattedBibstem) && (
+                <>&nbsp;&nbsp;·&nbsp;&nbsp;</>
+              )}
               {cite}
             </span>
             {citation && <span className="text-xs">cite: {citation}</span>}

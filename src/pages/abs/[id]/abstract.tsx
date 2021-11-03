@@ -85,7 +85,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
         ) : (
           <>
             <div className="pb-1">
-              <h2 className="prose-xl pb-5 text-gray-900 text-2xl font-medium leading-8" id="title">
+              <h2 className="prose-xl pb-2 text-gray-900 text-2xl font-medium leading-8" id="title">
                 {doc.title}
               </h2>
               {isBrowser() ? (
@@ -166,9 +166,9 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
 
             <AbstractSources doc={doc} />
             {isNil(doc.abstract) ? (
-              <div className="prose-lg p-3">No Abstract</div>
+              <div className="p-3">No Abstract</div>
             ) : (
-              <div className="prose-lg p-3" dangerouslySetInnerHTML={{ __html: doc.abstract }}></div>
+              <div className="p-3" dangerouslySetInnerHTML={{ __html: doc.abstract }}></div>
             )}
             <Details doc={doc} />
           </>
