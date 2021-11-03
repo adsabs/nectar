@@ -1,6 +1,5 @@
 import AdsApi, { IDocsEntity, IUserData } from '@api';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
-import { fromThrowable } from 'neverthrow';
 import { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from 'next';
 import { useRouter } from 'next/router';
 import { ParsedUrlQuery } from 'querystring';
@@ -66,7 +65,27 @@ export const getFomattedNumericPubdate = (pubdate: string): string | null => {
   return `${year}/${month}`;
 };
 
-export const useBaseRouterPath = (): { basePath: string } => {
+export const useBaseRouterPath = (): string => {
   const { asPath } = useRouter();
-  return { basePath: fromThrowable<() => string, Error>(() => asPath.split('?')[0])().unwrapOr('/') };
+  try {
+    return asPath.split('?')[0];
+  } catch (e) {
+    return '/';
+  }
+};
+
+/**
+ * extract the current page number from the query
+ */
+export const parsePageFromQuery = (query: ParsedUrlQuery): number => {
+  try {
+    const { p } = query;
+    const page = parseInt(Array.isArray(p) ? p[0] : p, 10);
+    if (page < 1) {
+      return 1;
+    }
+    return page === 0 || Number.isNaN(page) ? 1 : page;
+  } catch (e) {
+    return 1;
+  }
 };

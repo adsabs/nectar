@@ -1,4 +1,5 @@
 import { IADSApiSearchParams, IDocsEntity } from '@api';
+import { Pagination } from '@components';
 import { useAPI } from '@hooks';
 import { useBaseRouterPath } from '@utils';
 import { useMachine } from '@xstate/react';
@@ -10,7 +11,6 @@ import { toast } from 'react-toastify';
 import { assign, ContextFrom, DoneInvokeEvent } from 'xstate';
 import { createModel } from 'xstate/lib/model';
 import { Item } from './Item';
-import { Pagination } from './Pagination';
 import { Skeleton } from './Skeleton';
 
 export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {

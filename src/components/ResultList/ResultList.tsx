@@ -1,11 +1,11 @@
 import { IDocsEntity } from '@api';
+import { Pagination } from '@components';
 import { ISearchMachine, TransitionType } from '@machines/lib/search/types';
 import { isBrowser } from '@utils';
 import { useSelector } from '@xstate/react';
 import { HTMLAttributes, ReactElement, useEffect, useState } from 'react';
 import { Item } from './Item/Item';
 import { ListActions } from './ListActions';
-import { Pagination } from './Pagination';
 import { Skeleton } from './Skeleton';
 
 export interface IResultListProps extends HTMLAttributes<HTMLDivElement> {
