@@ -19,7 +19,7 @@ export interface IAbstractSideNavProps extends HTMLAttributes<HTMLDivElement> {
 
 export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement => {
   const router = useRouter();
-  const subPage = last(router.asPath.split('/'));
+  const subPage = last(router.asPath.split('/')).split('?')[0];
   const viewport = useViewport();
   const hasGraphics = useHasGraphics(doc);
   const hasMetrics = useHasMetrics(doc);
