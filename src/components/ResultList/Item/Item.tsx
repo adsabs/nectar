@@ -105,7 +105,7 @@ export const Item = (props: IItemProps): ReactElement => {
               {formattedPubDate && formattedBibstem ? <>&nbsp;&nbsp;·&nbsp;&nbsp;</> : ''}
               {formattedBibstem}
               {doc.citation_count && parseInt(doc.citation_count) > 0 && (formattedPubDate || formattedBibstem) && (
-                <>&nbsp;&nbsp;·&nbsp;&nbsp;</>
+                <span className="px-2">·</span>
               )}
               {cite}
             </span>
