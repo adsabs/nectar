@@ -5,6 +5,7 @@ import { DocumentIcon } from '@heroicons/react/outline';
 import { ChevronDownIcon } from '@heroicons/react/solid';
 import { useViewport, Viewport } from '@hooks';
 import { useAppCtx } from '@store';
+import { useBaseRouterPath } from '@utils';
 import clsx from 'clsx';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -19,7 +20,8 @@ export interface IAbstractSideNavProps extends HTMLAttributes<HTMLDivElement> {
 
 export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement => {
   const router = useRouter();
-  const subPage = last(router.asPath.split('/'));
+  const { basePath } = useBaseRouterPath();
+  const subPage = last(basePath);
   const viewport = useViewport();
   const hasGraphics = useHasGraphics(doc);
   const hasMetrics = useHasMetrics(doc);

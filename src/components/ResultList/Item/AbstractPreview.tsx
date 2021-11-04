@@ -85,10 +85,7 @@ export const AbstractPreview = ({ id }: IAbstractPreviewProps): React.ReactEleme
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
       >
-        <div
-          className="mt-2 p-2 border border-gray-100"
-          dangerouslySetInnerHTML={{ __html: state.context.abstract }}
-        ></div>
+        <div className="mt-2" dangerouslySetInnerHTML={{ __html: state.context.abstract }}></div>
       </Transition>
       <button
         type="button"
