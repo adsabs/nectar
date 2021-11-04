@@ -31,9 +31,7 @@ export class SearchService extends Service {
       this.request<IADSApiSearchResponse>(config).then(
         (result) => {
           result.match(
-            ({ response, stats }) => {
-              stats ? resolve(ok({ response, stats })) : resolve(ok({ response }));
-            },
+            ({ response, stats }) => resolve(ok({ response, stats })),
             (e: Error | AxiosError) => resolve(err(e)),
           );
         },
@@ -53,6 +51,6 @@ export class SearchService extends Service {
     }
 
     const { numFound, docs } = result.value.response;
-    numFound === 0 ? { notFound: true } : { doc: docs[0] };
+    return numFound === 0 ? { notFound: true } : { doc: docs[0] };
   }
 }

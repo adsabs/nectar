@@ -64,20 +64,6 @@ const Form = (props: IFormProps): ReactElement => {
     initialPagination: { numPerPage: 10, page },
   });
 
-  const citationCount = useSelector(searchService, (state) => {
-    const userSort = state.context.params.sort[0].split(' ')[0];
-    return userSort === 'citation_count' && state.context.result.stats?.stats_fields?.citation_count?.sum
-      ? state.context.result.stats.stats_fields.citation_count.sum
-      : null;
-  });
-
-  const normCitationCount = useSelector(searchService, (state) => {
-    const userSort = state.context.params.sort[0].split(' ')[0];
-    return userSort === 'citation_count_norm' && state.context.result.stats?.stats_fields?.citation_count_norm?.sum
-      ? truncateDecimal(state.context.result.stats.stats_fields.citation_count_norm.sum, 1)
-      : null;
-  });
-
   /**
    * update route and start searching
    */
@@ -103,11 +89,7 @@ const Form = (props: IFormProps): ReactElement => {
               <SearchBarWrapper searchService={searchService} />
             </div>
           </div>
-          <NumFound
-            count={result.numFound}
-            citationsCount={citationCount}
-            normalizedCitationsCount={normCitationCount}
-          />
+          <NumFound searchService={searchService} count={result.numFound} />
           {/* <Filters /> */}
         </div>
         <div className="col-span-6">

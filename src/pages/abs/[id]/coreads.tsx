@@ -93,7 +93,7 @@ export const getServerSideProps: GetServerSideProps<ICitationsPageProps> = async
 
   const { numFound, docs } = mainResult.value.response;
 
-  numFound === 0
+  return numFound === 0
     ? {
         props: {
           ...defaultProps,
