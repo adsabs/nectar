@@ -27,7 +27,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
       text: source.name,
       label: source.open ? (
         <>
-          <LockOpenIcon className="default-icon-sm inline" fill="green" />
+          <LockOpenIcon className="default-icon-sm inline" fill="green" aria-hidden />
           {` ${source.name}`}
         </>
       ) : (
