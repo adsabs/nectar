@@ -1,12 +1,12 @@
 import Adsapi, { IADSApiSearchParams } from '@api';
 import { AppEvent, useAppCtx } from '@store';
+import { parsePageFromQuery } from '@utils';
 import { useInterpret, useSelector } from '@xstate/react';
 import { useRouter } from 'next/router';
 import qs from 'qs';
-import { ParsedUrlQuery } from 'querystring';
 import { useEffect } from 'react';
 import { initialContext, searchMachine } from './searchMachine';
-import { Context, Transition } from './types';
+import { Context, Transition, TransitionType } from './types';
 
 export interface IUseSearchMachineProps {
   initialResult?: Context['result'];
@@ -78,7 +78,7 @@ export function useSearchMachine(props: IUseSearchMachineProps = {}) {
         const updatedPath = `/search?${queryParams}`;
 
         if (updatedPath !== router.asPath) {
-          void router.push(updatedPath, undefined, { shallow: true });
+          void router.push(updatedPath, undefined);
         }
 
         const { docs, numFound } = result.value;
@@ -93,8 +93,7 @@ export function useSearchMachine(props: IUseSearchMachineProps = {}) {
   useEffect(() => {
     const queryPage = parsePageFromQuery(router.query);
     if (queryPage !== page) {
-      const { q, sort } = service.state.context.params;
-      void router.replace(`/search?${qs.stringify({ q, sort, p: page }, { arrayFormat: 'comma' })}`);
+      service.send(TransitionType.SET_PAGINATION, { payload: { pagination: { page: queryPage } } });
     }
   }, [router.query, page]);
 
@@ -108,13 +107,3 @@ export function useSearchMachine(props: IUseSearchMachineProps = {}) {
 
   return state;
 }
-
-const parsePageFromQuery = (query: ParsedUrlQuery): number => {
-  try {
-    const { p } = query;
-    const page = parseInt(Array.isArray(p) ? p[0] : p, 10);
-    return page === 0 || Number.isNaN(page) ? 1 : page;
-  } catch (e) {
-    return 1;
-  }
-};
