@@ -10,7 +10,7 @@ import earthBg from 'public/img/bg-earth.jpg';
 import generalBg from 'public/img/bg-general.jpg';
 import helioBg from 'public/img/bg-helio.jpg';
 import planetBg from 'public/img/bg-planet.jpg';
-import starBg from 'public/img/star-bg-cropped.png';
+import starBg from 'public/img/bg-astro.jpg';
 import { ReactElement, useEffect, useState } from 'react';
 
 const backgroundMap = new Map<Theme, StaticImageData>([
