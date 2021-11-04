@@ -1,12 +1,15 @@
+// TODO: figure out how to turn this into a controllable compnent
+import { isBrowser } from '@utils';
 import Downshift, { ControllerStateAndHelpers, StateChangeOptions } from 'downshift';
 import PT from 'prop-types';
-import { ReactElement, useRef, useState } from 'react';
+import { ReactElement, useEffect, useRef, useState } from 'react';
 import { SearchInput } from './SearchInput';
 import { TypeaheadMenu } from './TypeaheadMenu';
 import { TypeaheadOption } from './types';
 
 export interface ISearchBarProps {
   initialQuery?: string;
+  value?: string;
   onQueryChange?: (query: string) => void;
   isLoading?: boolean;
 }
@@ -22,9 +25,27 @@ const propTypes = {
 };
 
 export const SearchBar = (props: ISearchBarProps): ReactElement => {
-  const { initialQuery, onQueryChange, isLoading } = props;
+  const { initialQuery, onQueryChange, isLoading, value } = props;
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState(initialQuery);
+
+  /**
+   * Hacky way around downshift for now, until we can figure out how to properly control
+   * this component
+   */
+  useEffect(() => {
+    if (
+      typeof value === 'string' &&
+      isBrowser() &&
+      inputRef.current !== null &&
+      query !== value &&
+      inputRef.current.value !== value
+    ) {
+      // use native value setter to apply value
+      Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set.call(inputRef.current, value);
+      inputRef.current.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  }, [value]);
 
   /**
    * State change handler

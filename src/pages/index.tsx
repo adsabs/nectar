@@ -52,7 +52,7 @@ const SearchBarWrapper = (props: Omit<ISearchBarProps, 'query' | 'onChange'> & {
   const setQuery = (query: string) => {
     searchService.send(TransitionType.SET_PARAMS, { payload: { params: { q: query } } });
   };
-  return <SearchBar initialQuery={query} onQueryChange={setQuery} {...searchBarProps} />;
+  return <SearchBar initialQuery={query} value={query} onQueryChange={setQuery} {...searchBarProps} />;
 };
 
 export default HomePage;
