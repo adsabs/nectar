@@ -32,7 +32,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
         </>
       ) : (
         <>
-          <LockClosedIcon className="default-icon-sm inline" />
+          <LockClosedIcon className="default-icon-sm inline" aria-hidden />
           {` ${source.name}`}
         </>
       ),
