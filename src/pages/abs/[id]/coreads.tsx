@@ -18,7 +18,20 @@ const getQueryParams = (id: string | string[]): IADSApiSearchParams => {
   const idStr = Array.isArray(id) ? id[0] : id;
   return {
     q: `trending(identifier:${idStr}) -identifier:${idStr}`,
-    fl: ['bibcode', 'title', 'author', '[fields author=10]', 'author_count', 'pubdate'],
+    fl: [
+      'bibcode',
+      'title',
+      'author',
+      '[fields author=10]',
+      'author_count',
+      'pubdate',
+      'bibstem',
+      'citation_count',
+      '[citations]',
+      'esources',
+      'property',
+      'data',
+    ],
     sort: ['score desc'],
   };
 };
@@ -26,8 +39,6 @@ const getQueryParams = (id: string | string[]): IADSApiSearchParams => {
 const CoreadsPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProps) => {
   const { docs, originalDoc, error } = props;
   const { query } = useRouter();
-
-  console.log(originalDoc);
 
   return (
     <AbsLayout doc={originalDoc}>

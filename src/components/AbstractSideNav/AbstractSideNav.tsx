@@ -125,6 +125,10 @@ const getCount = (route: Routes, doc: IDocsEntity) => {
       return typeof doc.citation_count === 'number' ? doc.citation_count : 0;
     case Routes.REFERENCES:
       return typeof doc['[citations]'].num_references === 'number' ? doc['[citations]'].num_references : 0;
+    case Routes.COREADS:
+      return typeof doc.read_count === 'number' ? doc.read_count : 0;
+    case Routes.SIMILAR:
+      return typeof doc.abstract !== 'undefined' ? 1 : 0;
     default:
       return 0;
   }
