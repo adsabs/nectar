@@ -4,6 +4,7 @@ import { SimpleLinkDropdown } from '@components/Dropdown/SimpleLinkDropdown';
 import { IDocsEntity } from '@api';
 import { processLinkData } from '@components/AbstractSources/linkGenerator';
 import { DatabaseIcon, DocumentTextIcon, ViewListIcon } from '@heroicons/react/outline';
+import { LockClosedIcon, LockOpenIcon } from '@heroicons/react/solid';
 
 export interface IItemResourceDropdownsProps {
   doc: IDocsEntity;
@@ -24,7 +25,17 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
     fullSourceItems = fullTextSources.map((source) => ({
       id: source.name,
       text: source.name,
-      label: source.name,
+      label: source.open ? (
+        <>
+          <LockOpenIcon className="default-icon-sm inline" fill="green" aria-hidden />
+          {` ${source.name}`}
+        </>
+      ) : (
+        <>
+          <LockClosedIcon className="default-icon-sm inline" aria-hidden />
+          {` ${source.name}`}
+        </>
+      ),
       path: source.url,
       domId: `fullText-${source.name}`,
       newTab: true,
