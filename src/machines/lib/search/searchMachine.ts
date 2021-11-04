@@ -108,8 +108,6 @@ const options: Partial<MachineOptions<Context, any>> = {
         .pagination as Context['pagination'];
       const totalPages = Math.ceil(ctx.result.numFound / numPerPage) || 1;
 
-      console.log('is valid pagination', { page, totalPages, numPerPage });
-
       if (
         // check if pagination actually changed
         equals(ctx.pagination, { ...ctx.pagination, ...evt.payload.pagination }) ||
