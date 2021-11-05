@@ -9,7 +9,7 @@ import { useBaseRouterPath } from '@utils';
 import clsx from 'clsx';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { last } from 'ramda';
+import { composeP, last } from 'ramda';
 import { HTMLAttributes, ReactElement } from 'react';
 import { navigation, Routes } from './model';
 import { useHasGraphics, useHasMetrics } from './queries';
@@ -21,7 +21,7 @@ export interface IAbstractSideNavProps extends HTMLAttributes<HTMLDivElement> {
 export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement => {
   const router = useRouter();
   const { basePath } = useBaseRouterPath();
-  const subPage = last(basePath);
+  const subPage = last(basePath.split('/'));
   const viewport = useViewport();
   const hasGraphics = useHasGraphics(doc);
   const hasMetrics = useHasMetrics(doc);
