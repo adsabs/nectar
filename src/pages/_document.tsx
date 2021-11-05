@@ -19,12 +19,6 @@ class MyDocument extends Document {
           <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
           <meta name="msapplication-TileColor" content="#da532c" />
           <meta name="theme-color" content="#ffffff" />
-
-          {/* Jira issue collector */}
-          <script
-            type="text/javascript"
-            src="https://adsabs.atlassian.net/s/d41d8cd98f00b204e9800998ecf8427e-T/-fzx0du/b/3/9edb822e6c4db3635f27806476c088cb/_/download/batch/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector.js?locale=en-US&collectorId=a22da864"
-          ></script>
         </Head>
         <body>
           <Main />
