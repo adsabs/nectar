@@ -1,4 +1,4 @@
-import { NextPage } from 'next';
+import { GetServerSideProps, NextPage } from 'next';
 
 const Register: NextPage = () => {
   return (
@@ -57,6 +57,15 @@ const Register: NextPage = () => {
       </div>
     </div>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  return {
+    redirect: {
+      destination: '/not-implemented',
+      permanent: false,
+    },
+  };
 };
 
 export default Register;
