@@ -1,4 +1,6 @@
-export interface IADSApiBootstrapResponse {
+import { AxiosResponse } from 'axios';
+
+export interface IBootstrapPayload {
   username: string;
   scopes: string[];
   client_id: string;
@@ -12,4 +14,10 @@ export interface IADSApiBootstrapResponse {
   refresh_token: string;
 }
 
-export type IUserData = Pick<IADSApiBootstrapResponse, 'username' | 'anonymous' | 'access_token' | 'expire_in'>;
+export interface IADSApiBootstrapResponse extends AxiosResponse<IBootstrapPayload> {
+  headers: {
+    'set-cookie': string;
+  };
+}
+
+export type IUserData = Pick<IBootstrapPayload, 'username' | 'anonymous' | 'access_token' | 'expire_in'>;

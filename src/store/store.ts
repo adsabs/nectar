@@ -1,3 +1,4 @@
+import { AppEvent } from '@store';
 import { Theme } from '@types';
 import { isBrowser } from '@utils';
 import { IncomingMessage } from 'http';
@@ -12,6 +13,7 @@ import {
   useContext,
   useReducer,
 } from 'react';
+import { useBootstrap } from './queries';
 import { reducer } from './reducer';
 import { Action, IAppState } from './types';
 
@@ -61,7 +63,7 @@ const safeParse = <T>(value: string, defaultValue: T): T => {
 };
 
 const AppProvider = (
-  props: PropsWithChildren<{ session: IncomingMessage['session']; initialStore?: Partial<IAppState> }>,
+  props: PropsWithChildren<{ session?: IncomingMessage['session']; initialStore?: Partial<IAppState> }>,
 ): ReactElement => {
   const { session, initialStore } = props;
   const [state, dispatch] = useReducer(nectarAppReducer, initialAppState, (initial): IAppState => {
@@ -79,6 +81,10 @@ const AppProvider = (
         }
       : initial;
     return newState;
+  });
+
+  useBootstrap((userData) => {
+    dispatch({ type: AppEvent.SET_USER, payload: userData });
   });
 
   return createElement(ctx.Provider, { value: { state, dispatch }, ...props });

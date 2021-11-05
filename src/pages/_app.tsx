@@ -3,8 +3,7 @@ import { ApiProvider } from '@providers/api';
 import { AppProvider, useAppCtx } from '@store';
 import { Theme } from '@types';
 import { isBrowser } from '@utils';
-import type { IncomingMessage } from 'http';
-import App, { AppContext, AppProps } from 'next/app';
+import { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import 'nprogress/nprogress.css';
@@ -20,11 +19,7 @@ const TopProgressBar = dynamic(() => import('@components/TopProgressBar').then((
   ssr: false,
 });
 
-type NectarAppProps = {
-  session: IncomingMessage['session'];
-} & AppProps;
-
-const NectarApp = ({ Component, pageProps, session }: NectarAppProps): ReactElement => {
+const NectarApp = ({ Component, pageProps }: AppProps): ReactElement => {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -33,9 +28,9 @@ const NectarApp = ({ Component, pageProps, session }: NectarAppProps): ReactElem
   );
 
   return (
-    <AppProvider session={session}>
-      <ApiProvider>
-        <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <AppProvider>
+        <ApiProvider>
           <Hydrate state={(pageProps as { dehydratedState: unknown }).dehydratedState}>
             <ThemeRouter />
             <TopProgressBar />
@@ -45,18 +40,10 @@ const NectarApp = ({ Component, pageProps, session }: NectarAppProps): ReactElem
             </Layout>
           </Hydrate>
           <ReactQueryDevtools />
-        </QueryClientProvider>
-      </ApiProvider>
-    </AppProvider>
+        </ApiProvider>
+      </AppProvider>
+    </QueryClientProvider>
   );
-};
-
-NectarApp.getInitialProps = async (appContext: AppContext) => {
-  // calls page's `getInitialProps` and fills `appProps.pageProps`
-  const appProps = await App.getInitialProps(appContext);
-
-  // pass session data through to App component
-  return { ...appProps, session: appContext.ctx.req?.session };
 };
 
 const ThemeRouter = (): ReactElement => {
