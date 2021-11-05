@@ -59,6 +59,7 @@ const Register: NextPage = () => {
   );
 };
 
+// eslint-disable-next-line @typescript-eslint/require-await
 export const getServerSideProps: GetServerSideProps = async () => {
   return {
     redirect: {
