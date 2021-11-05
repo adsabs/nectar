@@ -8,6 +8,9 @@ import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { dehydrate, QueryClient } from 'react-query';
 import { normalizeURLParams } from 'src/utils';
+import Link from 'next/link';
+import qs from 'qs';
+
 export interface ICitationsPageProps {
   docs: IDocsEntity[];
   originalDoc: IDocsEntity;
@@ -51,12 +54,22 @@ const CoreadsPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProps) 
         {error ? (
           <div className="flex items-center justify-center w-full h-full text-xl">{error}</div>
         ) : (
-          <SimpleResultList
-            docs={docs}
-            query={getQueryParams(query.id)}
-            numFound={parseInt(originalDoc.read_count) ?? 0}
-            hideCheckboxes={true}
-          />
+          <>
+            <Link
+              href={`/search?${qs.stringify({
+                q: `trending(bibcode:${originalDoc.bibcode}) -bibcode:${originalDoc.bibcode}`,
+                sort: 'score desc',
+              })}`}
+            >
+              <a className="link text-sm">View as search results</a>
+            </Link>
+            <SimpleResultList
+              docs={docs}
+              query={getQueryParams(query.id)}
+              numFound={parseInt(originalDoc.read_count) ?? 0}
+              hideCheckboxes={true}
+            />
+          </>
         )}
       </article>
     </AbsLayout>

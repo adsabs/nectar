@@ -8,6 +8,8 @@ import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { dehydrate, QueryClient } from 'react-query';
 import { normalizeURLParams } from 'src/utils';
+import Link from 'next/link';
+import qs from 'qs';
 export interface ICitationsPageProps {
   docs: IDocsEntity[];
   originalDoc: IDocsEntity;
@@ -51,7 +53,22 @@ const SimilarPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProps) 
         {error ? (
           <div className="flex items-center justify-center w-full h-full text-xl">{error}</div>
         ) : (
-          <SimpleResultList numFound={docs.length} query={getQueryParams(query.id)} docs={docs} hideCheckboxes={true} />
+          <>
+            <Link
+              href={`/search?${qs.stringify({
+                q: `similar(bibcode:${originalDoc.bibcode})`,
+                sort: 'score desc',
+              })}`}
+            >
+              <a className="link text-sm">View as search results</a>
+            </Link>
+            <SimpleResultList
+              numFound={docs.length}
+              query={getQueryParams(query.id)}
+              docs={docs}
+              hideCheckboxes={true}
+            />
+          </>
         )}
       </article>
     </AbsLayout>
