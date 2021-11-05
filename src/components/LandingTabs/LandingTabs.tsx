@@ -5,12 +5,12 @@ import clsx from 'clsx';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import starBg from 'public/img/bg-astro.jpg';
 import bioBg from 'public/img/bg-bio.jpg';
 import earthBg from 'public/img/bg-earth.jpg';
 import generalBg from 'public/img/bg-general.jpg';
 import helioBg from 'public/img/bg-helio.jpg';
 import planetBg from 'public/img/bg-planet.jpg';
-import starBg from 'public/img/bg-astro.jpg';
 import { ReactElement, useEffect, useState } from 'react';
 
 const backgroundMap = new Map<Theme, StaticImageData>([
@@ -36,7 +36,17 @@ export const LandingTabs = (): ReactElement => {
 
   return (
     <div className="relative flex flex-col items-center justify-center bg-black" suppressHydrationWarning>
-      {img && <Image className="z-0 object-cover" src={img} aria-hidden="true" layout="fill" loading="eager" />}
+      {img !== null && (
+        <Image
+          className="z-0 opacity-50 object-cover"
+          src={img}
+          aria-hidden="true"
+          layout="fill"
+          quality={30}
+          priority
+        />
+      )}
+
       <div className="flex items-center p-6">
         <TitleLogo />
       </div>
