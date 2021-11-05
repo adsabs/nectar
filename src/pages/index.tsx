@@ -1,14 +1,9 @@
-import { ISearchBarProps, ISearchExamplesProps, SearchBar } from '@components';
+import { ISearchBarProps, SearchBar, SearchExamples } from '@components';
 import { useSearchMachine } from '@machines';
 import { ISearchMachine, TransitionType } from '@machines/lib/search/types';
 import { useSelector } from '@xstate/react';
 import { NextPage } from 'next';
-import dynamic from 'next/dynamic';
 import { useCallback, useState } from 'react';
-const SearchExamples = dynamic<ISearchExamplesProps>(
-  () => import('../components/SearchExamples/SearchExamples').then((m) => m.SearchExamples),
-  { ssr: false },
-);
 
 const HomePage: NextPage = () => {
   const { service: searchService } = useSearchMachine();
@@ -32,7 +27,7 @@ const HomePage: NextPage = () => {
         <div className="col-span-6">
           <SearchBarWrapper searchService={searchService} isLoading={isLoading} />
         </div>
-        <div className="col-span-6">
+        <div className="col-span-6" suppressHydrationWarning>
           <SearchExamplesWrapper searchService={searchService} />
         </div>
       </form>
