@@ -9,6 +9,8 @@ import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { dehydrate, QueryClient } from 'react-query';
 import { normalizeURLParams } from 'src/utils';
+import Link from 'next/link';
+import qs from 'qs';
 export interface ICitationsPageProps {
   docs: IDocsEntity[];
   originalDoc: IDocsEntity;
@@ -52,12 +54,19 @@ const CitationsPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProps
         {error ? (
           <div className="flex items-center justify-center w-full h-full text-xl">{error}</div>
         ) : (
-          <SimpleResultList
-            query={getQueryParams(query.id)}
-            numFound={originalDoc['[citations]'].num_citations}
-            docs={docs}
-            hideCheckboxes={true}
-          />
+          <>
+            <Link
+              href={`/search?${qs.stringify({ q: `citations(bibcode:${originalDoc.bibcode})`, sort: 'date desc' })}`}
+            >
+              <a className="link text-sm">View as search results</a>
+            </Link>
+            <SimpleResultList
+              query={getQueryParams(query.id)}
+              numFound={originalDoc['[citations]'].num_citations}
+              docs={docs}
+              hideCheckboxes={true}
+            />
+          </>
         )}
       </article>
     </AbsLayout>
