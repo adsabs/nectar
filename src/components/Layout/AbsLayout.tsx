@@ -1,6 +1,7 @@
 import { IDocsEntity } from '@api';
 import { AbstractSideNav } from '@components';
 import { Metatags } from '@components/Metatags/Metatags';
+import { isBrowser } from '@utils';
 import Head from 'next/head';
 import { FC } from 'react';
 
@@ -12,10 +13,12 @@ export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc }) => {
   return (
     <>
       <section className="abstract-page-container">
-        <Head>
-          <title>{doc ? doc.title : ''}</title>
-        </Head>
-        <Metatags doc={doc} />
+        {!isBrowser() && (
+          <Head>
+            <title>{doc?.title ?? ''}</title>
+            <Metatags doc={doc} />
+          </Head>
+        )}
         <AbstractSideNav doc={doc} />
         {children}
       </section>

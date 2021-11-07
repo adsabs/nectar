@@ -1,12 +1,19 @@
 import { IDocsEntity } from '@api';
 import { Esources } from '@api/lib/search/types';
 import { getFomattedNumericPubdate } from '@utils';
-import Head from 'next/head';
+import getConfig from 'next/config';
 import { ReactElement } from 'react';
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+const getBaseUrl = () => {
+  try {
+    return getConfig().serverRuntimeConfig?.baseCanonicalUrl ?? '';
+  } catch (e) {
+    return '';
+  }
+};
 
-const LINKGWAY_BASE_URL = `${BASE_URL}/link_gateway`;
+const baseUrl = getBaseUrl();
+const LINKGWAY_BASE_URL = `${baseUrl}/link_gateway`;
 interface IMetatagsProps {
   doc: IDocsEntity;
 }
@@ -53,9 +60,9 @@ export const Metatags = (props: IMetatagsProps): ReactElement => {
 
   const title = doc.title ? doc.title.join('; ') : '';
 
-  const url = `${BASE_URL}/abs/${doc.bibcode}/abstract`;
+  const url = `${baseUrl}/abs/${doc.bibcode}/abstract`;
 
-  const logo = `${BASE_URL}/styles/img/transparent_logo.svg`;
+  const logo = `${baseUrl}/styles/img/transparent_logo.svg`;
 
   const formatted_numeric_pubdate = doc.pubdate ? getFomattedNumericPubdate(doc.pubdate) ?? '' : '';
 
@@ -66,8 +73,8 @@ export const Metatags = (props: IMetatagsProps): ReactElement => {
   const authors = doc.author ? doc.author.slice(0, 50) : [];
 
   return (
-    <Head>
-      <link rel="canonical" href={`${BASE_URL}/abs/${doc.bibcode}/abstract`} />
+    <>
+      <link rel="canonical" href={`${baseUrl}/abs/${doc.bibcode}/abstract`} />
 
       <meta name="description" content={doc.abstract} />
 
@@ -174,6 +181,6 @@ export const Metatags = (props: IMetatagsProps): ReactElement => {
       <meta name="twitter:image:src" content={logo} />
 
       <meta name="twitter:creator" content="@adsabs" />
-    </Head>
+    </>
   );
 };
