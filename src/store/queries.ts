@@ -2,7 +2,9 @@ import Adsapi, { IUserData } from '@api';
 import { useQuery } from 'react-query';
 
 export const useBootstrap = (onSuccess: (data: IUserData) => void): void => {
-  useQuery<IUserData>(['bootstrap'], fetchBootstrap, { onSuccess });
+  useQuery<IUserData>(['bootstrap'], fetchBootstrap, {
+    onSuccess,
+  });
 };
 
 const fetchBootstrap = async (): Promise<IUserData> => {

@@ -1,7 +1,6 @@
 import Adsapi, { IADSApiSearchResponse } from '@api';
 import { IExportApiParams, IExportApiResponse } from '@api/lib/export';
 import * as fixtures from '@components/__mocks__/exportMock';
-import { mockSession } from '@components/__mocks__/session';
 import { ApiProvider } from '@providers/api';
 import { AppProvider } from '@store';
 import { Meta, Story } from '@storybook/react';
@@ -32,7 +31,7 @@ const meta: Meta<IExportProps> = {
   },
   decorators: [
     (story): ReactElement => (
-      <AppProvider session={mockSession} initialStore={{ query: fixtures.mockQuery }}>
+      <AppProvider initialStore={{ query: fixtures.mockQuery }}>
         <ApiProvider overrideInstance={api}>
           <ToastContainer />
           {story()}
