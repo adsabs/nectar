@@ -10,7 +10,6 @@ export const api: Middleware = async (req, res, next) => {
   if (Adsapi.checkUserData(currentUserData)) {
     return next();
   }
-
   const bootstrapResponse = await Adsapi.bootstrap();
   if (bootstrapResponse.isOk()) {
     const { data, headers } = bootstrapResponse.value;
