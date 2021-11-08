@@ -4,7 +4,6 @@ import { ItemType } from '@components/Dropdown/types';
 import { DocumentIcon } from '@heroicons/react/outline';
 import { ChevronDownIcon } from '@heroicons/react/solid';
 import { useViewport, Viewport } from '@hooks';
-import { useAppCtx } from '@store';
 import { useBaseRouterPath } from '@utils';
 import clsx from 'clsx';
 import Link from 'next/link';
@@ -25,10 +24,6 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
   const viewport = useViewport();
   const hasGraphics = useHasGraphics(doc);
   const hasMetrics = useHasMetrics(doc);
-
-  const {
-    state: { user },
-  } = useAppCtx();
 
   const useCount = [Routes.CITATIONS, Routes.REFERENCES];
 
@@ -79,7 +74,7 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
         disabled: count === 0 && item.href !== Routes.ABSTRACT,
       };
     });
-    const currentItem = navigation.find((item) => item.href === subPage);
+    const currentItem = navigation.find((item) => item.href === subPage) ?? navigation[0];
     const Icon = currentItem.icon || DocumentIcon;
     const count = getCount(currentItem.href, doc);
     const showCount = count > 0 && currentItem.href !== Routes.SIMILAR;

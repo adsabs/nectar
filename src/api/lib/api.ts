@@ -1,8 +1,6 @@
-import { AppRuntimeConfig } from '@types';
 import axios from 'axios';
 import { isPast, parseISO } from 'date-fns';
 import { err, ok, Result } from 'neverthrow';
-import getConfig from 'next/config';
 import { isNil } from 'ramda';
 import { IADSApiBootstrapResponse, IUserData } from './bootstrap/types';
 import { ExportService } from './export';
@@ -14,6 +12,7 @@ import { ReferenceService } from './reference';
 import { SearchService } from './search/search';
 import { IServiceConfig } from './service';
 import { UserService } from './user/user';
+import { resolveApiBaseUrl } from './utils';
 import { VaultService } from './vault';
 export class Adsapi {
   public search: SearchService;
@@ -37,15 +36,11 @@ export class Adsapi {
   }
 
   public static bootstrap(config: IServiceConfig = {}): Promise<Result<IADSApiBootstrapResponse, Error>> {
-    const { publicRuntimeConfig } = (getConfig() as AppRuntimeConfig) || {
-      publicRuntimeConfig: {
-        apiHost: process.env.API_HOST,
-      },
-    };
+    const baseURL = resolveApiBaseUrl();
 
     return new Promise((resolve) => {
       axios
-        .create({ ...config, baseURL: publicRuntimeConfig.apiHost })
+        .create({ baseURL, ...config })
         .request<IUserData>({
           method: 'get',
           url: ApiTargets.BOOTSTRAP,
@@ -58,7 +53,13 @@ export class Adsapi {
   }
 
   static isValid(userData?: IUserData): userData is IUserData {
-    return !isNil(userData) && typeof userData.access_token === 'string' && typeof userData.expire_in === 'string';
+    return (
+      !isNil(userData) &&
+      typeof userData.access_token === 'string' &&
+      typeof userData.expire_in === 'string' &&
+      userData.access_token.length > 0 &&
+      userData.expire_in.length > 0
+    );
   }
 
   static isExpired(userData: IUserData): boolean {

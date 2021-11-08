@@ -3,7 +3,7 @@ import { ApiProvider } from '@providers/api';
 import { AppProvider, useAppCtx } from '@store';
 import { Theme } from '@types';
 import { isBrowser } from '@utils';
-import { AppProps } from 'next/app';
+import App, { AppContext, AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import 'nprogress/nprogress.css';
@@ -60,6 +60,11 @@ const ThemeRouter = (): ReactElement => {
   }, [state.theme, router.asPath]);
 
   return <></>;
+};
+
+NectarApp.getInitialProps = async (appContext: AppContext) => {
+  const appProps = await App.getInitialProps(appContext);
+  return { ...appProps };
 };
 
 export default NectarApp;

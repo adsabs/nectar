@@ -19,7 +19,11 @@ const config = {
     ];
   },
   publicRuntimeConfig: {
-    apiHost: process.env.API_HOST,
+    apiHost: process.env.API_HOST_CLIENT,
+  },
+  serverRuntimeConfig: {
+    apiHost: process.env.API_HOST_SERVER,
+    baseCanonicalUrl: process.env.BASE_CANONICAL_URL,
   },
   images: {
     domains: ['s3.amazonaws.com'],

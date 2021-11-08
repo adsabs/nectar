@@ -1,7 +1,6 @@
 import { AppEvent } from '@store';
 import { Theme } from '@types';
 import { isBrowser } from '@utils';
-import { IncomingMessage } from 'http';
 import { fromThrowable } from 'neverthrow';
 import {
   createContext,
@@ -39,9 +38,7 @@ const nectarAppReducer: Reducer<IAppState, Action> = (state, action) => {
 
   // flush the new state to localStorage
   requestAnimationFrame(() => {
-    // skip storing user data, we'll grab that from the server session
-    const { user, ...state } = newState;
-    localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(state));
+    localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(newState));
   });
 
   return newState;
@@ -62,10 +59,8 @@ const safeParse = <T>(value: string, defaultValue: T): T => {
   return result().unwrapOr(defaultValue);
 };
 
-const AppProvider = (
-  props: PropsWithChildren<{ session?: IncomingMessage['session']; initialStore?: Partial<IAppState> }>,
-): ReactElement => {
-  const { session, initialStore } = props;
+const AppProvider = (props: PropsWithChildren<{ initialStore?: Partial<IAppState> }>): ReactElement => {
+  const { initialStore } = props;
   const [state, dispatch] = useReducer(nectarAppReducer, initialAppState, (initial): IAppState => {
     if (typeof initialStore !== 'undefined') {
       return {
@@ -77,13 +72,12 @@ const AppProvider = (
       ? {
           ...initial,
           ...safeParse(localStorage.getItem(APP_STORAGE_KEY), initial),
-          user: typeof session === 'undefined' ? initial.user : session.userData,
         }
       : initial;
     return newState;
   });
 
-  useBootstrap((userData) => {
+  useBootstrap(state.user, (userData) => {
     dispatch({ type: AppEvent.SET_USER, payload: userData });
   });
 
