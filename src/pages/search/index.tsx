@@ -1,12 +1,12 @@
 import AdsApi, { IADSApiSearchParams, IDocsEntity, SolrSort } from '@api';
+import { ISearchStatsFields } from '@api/lib/search/types';
 import { ISearchBarProps, NumFound, ResultList, SearchBar } from '@components';
 import { useSearchMachine } from '@machines';
 import { ISearchMachine, TransitionType } from '@machines/lib/search/types';
-import { normalizeURLParams } from '@utils';
+import { normalizeURLParams, truncateDecimal } from '@utils';
 import { useSelector } from '@xstate/react';
 import { GetServerSideProps, NextPage } from 'next';
 import { ChangeEvent, ReactElement } from 'react';
-
 interface ISearchPageProps {
   error?: string;
   params: {
@@ -19,6 +19,7 @@ interface ISearchPageProps {
     numFound: number;
     page: number;
   };
+  stats?: ISearchStatsFields;
 }
 
 const SearchPage: NextPage<ISearchPageProps> = (props) => {
@@ -26,10 +27,11 @@ const SearchPage: NextPage<ISearchPageProps> = (props) => {
     params: { q, sort = ['date desc'] },
     docs = [],
     meta: { numFound = 0, page },
+    stats,
     error,
   } = props;
 
-  return <Form params={{ q, sort }} serverResult={{ docs, numFound, page }} serverError={error} />;
+  return <Form params={{ q, sort }} serverResult={{ docs, numFound, page, stats }} serverError={error} />;
 };
 
 interface IFormProps {
@@ -38,13 +40,14 @@ interface IFormProps {
     docs: IDocsEntity[];
     numFound: number;
     page: number;
+    stats: ISearchStatsFields;
   };
   serverError: string;
 }
 const Form = (props: IFormProps): ReactElement => {
   const {
     params: { q: query, sort },
-    serverResult: { docs, numFound, page },
+    serverResult: { docs, numFound, page, stats },
     serverError,
   } = props;
 
@@ -57,7 +60,7 @@ const Form = (props: IFormProps): ReactElement => {
     isFailure,
   } = useSearchMachine({
     initialParams: { q: query, sort },
-    initialResult: { docs, numFound },
+    initialResult: { docs, numFound, stats },
     initialPagination: { numPerPage: 10, page },
   });
 
@@ -86,7 +89,7 @@ const Form = (props: IFormProps): ReactElement => {
               <SearchBarWrapper searchService={searchService} />
             </div>
           </div>
-          <NumFound count={result.numFound} />
+          <NumFound searchService={searchService} count={result.numFound} />
           {/* <Filters /> */}
         </div>
         <div className="col-span-6">
@@ -117,6 +120,16 @@ export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (c
   const page = isNaN(parsedPage) || Math.abs(parsedPage) > 500 ? 1 : Math.abs(parsedPage);
   const adsapi = new AdsApi({ token: ctx.req.session.userData.access_token });
 
+  let stats = 'false';
+  let stats_field = '';
+  if (query.sort) {
+    const s = query.sort.split(',')[0].split(' ')[0];
+    if (s === 'citation_count' || s === 'citation_count_norm') {
+      stats = 'true';
+      stats_field = s;
+    }
+  }
+
   const params: IADSApiSearchParams = {
     q: query.q,
     fl: [
@@ -137,14 +150,17 @@ export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (c
     sort: query.sort ? (query.sort.split(',') as SolrSort[]) : ['date desc'],
     rows: 10,
     start: (page - 1) * 10,
+    stats: stats,
+    'stats.field': stats_field,
   };
   const result = await adsapi.search.query(params);
 
   const props = result.match(
-    ({ docs, numFound }) => ({
+    ({ response: { numFound, docs }, stats = null }) => ({
       params,
       docs,
       meta: { numFound, page },
+      stats,
     }),
     ({ message }) => ({
       error: message,
@@ -155,6 +171,7 @@ export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (c
       },
       docs: [],
       meta: { numFound: 0, page },
+      stats: null,
     }),
   );
   return { props };

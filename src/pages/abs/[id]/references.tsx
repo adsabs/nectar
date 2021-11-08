@@ -108,7 +108,7 @@ export const getServerSideProps: GetServerSideProps<ICitationsPageProps> = async
           dehydratedState: dehydrate(queryClient),
         },
       }
-    : result.value.numFound === 0
+    : result.value.response.numFound === 0
     ? {
         props: {
           docs: [],
@@ -119,7 +119,7 @@ export const getServerSideProps: GetServerSideProps<ICitationsPageProps> = async
       }
     : {
         props: {
-          docs: result.value.docs,
+          docs: result.value.response.docs,
           originalDoc: originalDoc.doc,
           dehydratedState: dehydrate(queryClient),
         },

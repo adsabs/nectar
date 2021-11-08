@@ -109,14 +109,18 @@ export const getServerSideProps: GetServerSideProps<ICitationsPageProps> = async
     dehydratedState: dehydrate(queryClient),
   };
 
-  return mainResult.isErr()
-    ? {
-        props: {
-          ...defaultProps,
-          error: 'Unable to get results',
-        },
-      }
-    : mainResult.value.numFound === 0
+  if (mainResult.isErr()) {
+    return {
+      props: {
+        ...defaultProps,
+        error: 'Unable to get results',
+      },
+    };
+  }
+
+  const { numFound, docs } = mainResult.value.response;
+
+  return numFound === 0
     ? {
         props: {
           ...defaultProps,
@@ -126,7 +130,7 @@ export const getServerSideProps: GetServerSideProps<ICitationsPageProps> = async
     : {
         props: {
           ...defaultProps,
-          docs: mainResult.value.docs,
+          docs,
         },
       };
 };

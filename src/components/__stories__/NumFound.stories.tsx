@@ -31,11 +31,9 @@ WithResults.args = {
 export const TotalCitations = Template.bind({}) as Story<INumFoundProps>;
 TotalCitations.args = {
   ...WithResults.args,
-  citationsCount: 100,
 };
 
 export const TotalNormalizedCitations = Template.bind({}) as Story<INumFoundProps>;
 TotalNormalizedCitations.args = {
   ...WithResults.args,
-  normalizedCitationsCount: 100,
 };

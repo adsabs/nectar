@@ -40,6 +40,15 @@ export function useSearchMachine(props: IUseSearchMachineProps = {}) {
           throw new Error('no query');
         }
         const { q, sort, start } = ctx.params;
+        let stats = 'false';
+        let stats_field = '';
+        if (sort) {
+          const s = sort[0].split(' ')[0];
+          if (s === 'citation_count' || s === 'citation_count_norm') {
+            stats = 'true';
+            stats_field = s;
+          }
+        }
 
         const params: IADSApiSearchParams = {
           q,
@@ -59,6 +68,8 @@ export function useSearchMachine(props: IUseSearchMachineProps = {}) {
             'data',
           ],
           ...ctx.params,
+          stats,
+          'stats.field': stats_field,
         };
 
         const adsapi = new Adsapi({ token });
@@ -81,8 +92,11 @@ export function useSearchMachine(props: IUseSearchMachineProps = {}) {
           void router.push(updatedPath, undefined, { shallow: true });
         }
 
-        const { docs, numFound } = result.value;
-        return { docs, numFound };
+        const {
+          response: { docs, numFound },
+          stats: statsFields = null,
+        } = result.value;
+        return { docs, numFound, stats: statsFields };
       },
     },
   });

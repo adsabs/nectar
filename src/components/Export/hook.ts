@@ -70,7 +70,7 @@ export const useExportMachine = ({
         });
 
         const bibcodes = searchResult.match(
-          ({ docs }) => docs.map((d) => d.bibcode),
+          ({ response: { docs } }) => docs.map((d) => d.bibcode),
           (e) => {
             toast.error(e.message);
             throw e;

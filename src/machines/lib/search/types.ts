@@ -1,4 +1,5 @@
 import { IADSApiSearchParams, IDocsEntity } from '@api';
+import { ISearchStatsFields } from '@api/lib/search/types';
 import { Interpreter } from 'xstate';
 
 export interface Schema {
@@ -38,6 +39,7 @@ export interface Context {
   result: {
     docs: (Pick<IDocsEntity, 'id'> & Partial<IDocsEntity>)[];
     numFound: number;
+    stats?: ISearchStatsFields;
   };
   error: { message: string; name: string; stack: string };
   pagination: {

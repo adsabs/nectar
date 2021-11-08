@@ -12,6 +12,8 @@ export interface IADSApiSearchParams {
   'hl.requireFieldMatch'?: boolean;
   'hl.usePhraseHighlighter'?: boolean;
   fq?: string;
+  stats?: string;
+  'stats.field'?: string;
 }
 
 export interface INormalizedADSApiSearchParams {
@@ -27,6 +29,25 @@ export interface IADSApiSearchResponse {
     start: number;
     docs: IDocsEntity[];
   };
+  stats?: ISearchStatsFields;
+}
+
+export interface ISearchStatsFields {
+  stats_fields: {
+    citation_count?: ISearchStats;
+    citation_count_norm?: ISearchStats;
+  };
+}
+
+export interface ISearchStats {
+  count: number;
+  max: number;
+  mean: number;
+  min: number;
+  missing: number;
+  stddev: number;
+  sum: number;
+  sumOfSquares: number;
 }
 
 export enum Esources {
