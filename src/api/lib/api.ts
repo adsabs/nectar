@@ -53,7 +53,13 @@ export class Adsapi {
   }
 
   static isValid(userData?: IUserData): userData is IUserData {
-    return !isNil(userData) && typeof userData.access_token === 'string' && typeof userData.expire_in === 'string';
+    return (
+      !isNil(userData) &&
+      typeof userData.access_token === 'string' &&
+      typeof userData.expire_in === 'string' &&
+      userData.access_token.length > 0 &&
+      userData.expire_in.length > 0
+    );
   }
 
   static isExpired(userData: IUserData): boolean {

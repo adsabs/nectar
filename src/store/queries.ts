@@ -1,9 +1,10 @@
 import Adsapi, { IUserData } from '@api';
 import { useQuery } from 'react-query';
 
-export const useBootstrap = (onSuccess: (data: IUserData) => void): void => {
+export const useBootstrap = (userData: IUserData, onSuccess: (data: IUserData) => void): void => {
   useQuery<IUserData>(['bootstrap'], fetchBootstrap, {
     onSuccess,
+    enabled: !Adsapi.isValid(userData),
   });
 };
 
