@@ -89,7 +89,7 @@ const Form = (props: IFormProps): ReactElement => {
               <SearchBarWrapper searchService={searchService} />
             </div>
           </div>
-          <NumFound searchService={searchService} count={result.numFound} />
+          {typeof serverError !== 'string' && <NumFound searchService={searchService} count={result.numFound} />}
           {/* <Filters /> */}
         </div>
         <div className="col-span-6">
