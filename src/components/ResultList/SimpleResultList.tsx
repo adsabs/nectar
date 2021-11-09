@@ -1,4 +1,4 @@
-import { IADSApiSearchParams, IDocsEntity } from '@api';
+import { IADSApiSearchParams, IDocsEntity, SolrField } from '@api';
 import { useAPI } from '@hooks';
 import { useBaseRouterPath } from '@utils';
 import { useMachine } from '@xstate/react';
@@ -47,15 +47,14 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
   const { basePath } = useBaseRouterPath();
   const [state, send] = useMachine(
     createResultListMachine({
-      initialContext: { docs, page: parsePage(p) },
+      initialContext: { docs, page: parsePage(p), query, basePath },
       fetcher: async (ctx) => {
         const result = await api.search.query({
-          ...query,
+          ...ctx.query,
           start: (ctx.page - 1) * 10 + 1,
           rows: 10,
         });
-
-        const url = `${basePath}?${qs.stringify({ p: ctx.page })}`;
+        const url = `${ctx.basePath}?${qs.stringify({ p: ctx.page })}`;
         void router.push(url, undefined, { shallow: true });
         return result.match(
           ({ response: { docs } }) => docs,
@@ -69,7 +68,7 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
   );
 
   useEffect(() => {
-    send('updateContext', { docs, page: p ? p : 1 });
+    send('updateContext', { query, docs, page: p ? p : 1, basePath });
   }, [query]);
 
   const handlePaginationChange = (page: number) => {
@@ -101,6 +100,8 @@ SimpleResultList.propTypes = propTypes;
 interface IResultListMachineContext {
   page: number;
   docs: IDocsEntity[];
+  query: IADSApiSearchParams;
+  basePath: string;
 }
 
 const createResultListMachine = ({
@@ -113,7 +114,12 @@ const createResultListMachine = ({
   const model = createModel(initialContext, {
     events: {
       updatePage: (page: number) => ({ page }),
-      updateContext: (page: number, docs: IDocsEntity[]) => ({ page, docs }),
+      updateContext: (query: IADSApiSearchParams, page: number, docs: IDocsEntity[], basePath: string) => ({
+        query,
+        page,
+        docs,
+        basePath,
+      }),
     },
   });
 
@@ -133,8 +139,10 @@ const createResultListMachine = ({
               updateContext: {
                 target: '#result-machine.idle.standby',
                 actions: model.assign({
+                  query: (_, ev) => ev.query,
                   page: (_, ev) => ev.page,
                   docs: (_, ev) => ev.docs,
+                  basePath: (_, ev) => ev.basePath,
                 }),
               },
             },
