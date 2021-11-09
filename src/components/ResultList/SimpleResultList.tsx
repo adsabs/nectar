@@ -5,7 +5,7 @@ import { useMachine } from '@xstate/react';
 import { useRouter } from 'next/router';
 import PT from 'prop-types';
 import qs from 'qs';
-import { HTMLAttributes, ReactElement } from 'react';
+import { HTMLAttributes, ReactElement, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { assign, ContextFrom, DoneInvokeEvent } from 'xstate';
 import { createModel } from 'xstate/lib/model';
@@ -68,6 +68,10 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
     }),
   );
 
+  useEffect(() => {
+    send('updateContext', { docs, page: p ? p : 1 });
+  }, [query]);
+
   const handlePaginationChange = (page: number) => {
     send('updatePage', { page });
   };
@@ -109,6 +113,7 @@ const createResultListMachine = ({
   const model = createModel(initialContext, {
     events: {
       updatePage: (page: number) => ({ page }),
+      updateContext: (page: number, docs: IDocsEntity[]) => ({ page, docs }),
     },
   });
 
@@ -124,6 +129,13 @@ const createResultListMachine = ({
               updatePage: {
                 target: '#result-machine.fetching',
                 actions: model.assign({ page: (_, ev) => ev.page }),
+              },
+              updateContext: {
+                target: '#result-machine.idle.standby',
+                actions: model.assign({
+                  page: (_, ev) => ev.page,
+                  docs: (_, ev) => ev.docs,
+                }),
               },
             },
           },
