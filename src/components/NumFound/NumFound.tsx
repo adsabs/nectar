@@ -17,17 +17,25 @@ export const NumFound = (props: INumFoundProps): ReactElement => {
   const { searchService, count = 0 } = props;
 
   const citationCount = useSelector(searchService, (state) => {
-    const userSort = state.context.params.sort[0].split(' ')[0];
-    return userSort === 'citation_count' && state.context.result.stats?.stats_fields?.citation_count?.sum
-      ? state.context.result.stats.stats_fields.citation_count.sum
-      : null;
+    try {
+      const userSort = state.context.params.sort[0].split(' ')[0];
+      return userSort === 'citation_count' && state.context.result.stats?.stats_fields?.citation_count?.sum
+        ? state.context.result.stats.stats_fields.citation_count.sum
+        : null;
+    } catch (e) {
+      return null;
+    }
   });
 
   const normCitationCount = useSelector(searchService, (state) => {
-    const userSort = state.context.params.sort[0].split(' ')[0];
-    return userSort === 'citation_count_norm' && state.context.result.stats?.stats_fields?.citation_count_norm?.sum
-      ? truncateDecimal(state.context.result.stats.stats_fields.citation_count_norm.sum, 1)
-      : null;
+    try {
+      const userSort = state.context.params.sort[0].split(' ')[0];
+      return userSort === 'citation_count_norm' && state.context.result.stats?.stats_fields?.citation_count_norm?.sum
+        ? truncateDecimal(state.context.result.stats.stats_fields.citation_count_norm.sum, 1)
+        : null;
+    } catch (e) {
+      return null;
+    }
   });
 
   const countString = typeof count === 'number' ? sanitizeNum(count) : '0';
