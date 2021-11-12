@@ -85,7 +85,7 @@ interface ITabProps {
 const Tab = ({ href, label, active }: ITabProps) => {
   const classes = clsx(
     {
-      'bg-opacity-100 text-blue-500 hover:text-blue-800': active,
+      'bg-opacity-100 text-blue-800': active,
       'bg-opacity-0 text-gray-100 hover:bg-opacity-20': !active,
     },
     'flex-auto px-5 py-3 bg-white rounded-t-md',

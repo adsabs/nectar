@@ -16,7 +16,7 @@ export const CitationsTable = (props: ICitationsTableProps): ReactElement => {
 
   const iconClass = 'default-icon text-gray-400';
 
-  const helpLabel = <QuestionMarkCircleIcon className={iconClass} />;
+  const helpLabel = <QuestionMarkCircleIcon className={iconClass} aria-label="tooltip" />;
 
   return (
     <table className="table">

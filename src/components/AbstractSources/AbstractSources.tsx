@@ -180,7 +180,7 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
   return (
     <>
       {isBrowser() ? (
-        <div>
+        <div aria-disabled={items.length === 0}>
           <DropdownList
             label={label}
             items={items}

@@ -105,6 +105,7 @@ export const Export = ({
             </Transition>
           </div>
           <textarea
+            aria-label="export text"
             data-testid="textarea"
             value={state.text}
             rows={10}
