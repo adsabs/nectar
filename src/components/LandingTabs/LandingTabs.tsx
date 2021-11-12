@@ -44,6 +44,7 @@ export const LandingTabs = (): ReactElement => {
           layout="fill"
           quality={30}
           priority
+          alt=""
         />
       )}
 

@@ -26,8 +26,8 @@ export const Footer: FC = () => {
             © The <abbr title="Smithsonian Astrophysical Observatory">SAO</abbr>/
             <abbr title="National Aeronautics and Space Administration">NASA</abbr> Data System
           </p>
-          <p className="text-gray-500">adshelp[at]cfa.harvard.edu</p>
-          <p className="text-gray-500">
+          <p className="text-gray-400">adshelp[at]cfa.harvard.edu</p>
+          <p className="text-gray-400">
             The <abbr title="Astrophysics Data System">ADS</abbr> is operated by the Smithsonian Astrophysical
             Observatory under <abbr title="National Aeronautics and Space Administration">NASA</abbr> Cooperative
             Agreement 80NSSC21M0056
@@ -50,7 +50,7 @@ export const Footer: FC = () => {
             <Link href="https://www.cfa.harvard.edu/">
               <a rel="noopener noreferrer" className="ml-2">
                 <span className="sr-only">Center for Astrophysics</span>
-                <Image src={cfaLogo} width="100px" height="41px" aria-hidden />
+                <Image src={cfaLogo} width="100px" height="41px" aria-hidden alt="" />
               </a>
             </Link>
           </div>
