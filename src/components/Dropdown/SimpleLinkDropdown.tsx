@@ -15,10 +15,12 @@ export interface ISimpleLinkDropdownProps {
     list?: string;
     item?: string;
   };
+  role: string;
+  itemRole: string;
 }
 
 export const SimpleLinkDropdown = (props: ISimpleLinkDropdownProps): ReactElement => {
-  const { items, selected, label, classes, ...restProps } = props;
+  const { items, selected, label, classes, role, itemRole, ...restProps } = props;
 
   const labelClasses = classes && classes.label ? clsx(classes.label) : 'button-simple';
 
@@ -29,7 +31,7 @@ export const SimpleLinkDropdown = (props: ISimpleLinkDropdownProps): ReactElemen
     classes && classes.item ? clsx(styles['simple-dropdown-link'], classes.item) : styles['simple-dropdown-link'];
 
   return (
-    <div className={styles['simple-dropdown']} {...restProps}>
+    <div className={styles['simple-dropdown']} {...restProps} role={role}>
       {typeof label === 'string' ? (
         <button className={labelClasses}>
           {label} <ChevronDownIcon className="inline w-4 h-4" aria-hidden="true" />
@@ -48,7 +50,7 @@ export const SimpleLinkDropdown = (props: ISimpleLinkDropdownProps): ReactElemen
               <Link key={item.id} href={item.path}>
                 <a
                   className={itemClasses}
-                  role="listitem"
+                  role={itemRole}
                   aria-selected={selected === item.id}
                   rel="noreferrer noopener"
                   target={item.newTab ? '_blank' : '_self'}

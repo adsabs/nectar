@@ -103,6 +103,8 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
               list: 'w-60 h-auto',
               item: 'p-2 flex justify-start',
             }}
+            role="listbox"
+            itemRole="listitem"
           />
         </span>
       )}
@@ -203,6 +205,8 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
                 list: 'w-60 h-auto',
                 item: 'p-2',
               }}
+              role="listbox"
+              itemRole="listitem"
             />
           ) : (
             <>{label}</>

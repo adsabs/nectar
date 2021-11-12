@@ -43,6 +43,8 @@ export const SimpleSortDropdown = (props: ISimpleSortDropdownProps): ReactElemen
           list: 'w-60 h-auto',
           item: 'text-sm',
         }}
+        role="listbox"
+        itemRole="listitem"
       />
       <Link
         href={{ pathname: '/search', query: { q: query, sort: `${sort} ${dir === 'desc' ? 'asc' : 'desc'}`, p: page } }}
