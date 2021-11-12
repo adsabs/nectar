@@ -89,6 +89,7 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
           offset={[0, 2]}
           role="list"
           ariaLabel="Full Text Sources"
+          itemRole="listitem"
         ></DropdownList>
       ) : (
         <span>
@@ -187,6 +188,7 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
             offset={[0, 2]}
             role="list"
             ariaLabel="Other Resources"
+            itemRole="listitem"
           />
         </div>
       ) : (

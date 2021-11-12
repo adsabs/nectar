@@ -77,6 +77,7 @@ export const AboutDropdown = (props: IAboutDropdownProps): ReactElement => {
       role="menu"
       placement="bottom-start"
       ariaLabel="About Menu"
+      itemRole="menuitem"
     />
   ) : (
     <CollapsibleList
@@ -93,6 +94,7 @@ export const AboutDropdown = (props: IAboutDropdownProps): ReactElement => {
         item: clsx(styles['navbar-text-color'], 'hover:text-white focus:text-white'),
       }}
       role="menu"
+      itemRole="menuitem"
       reset={reset}
       ariaLabel="About Menu"
     />

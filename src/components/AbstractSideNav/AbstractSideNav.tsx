@@ -97,6 +97,8 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
         label={<div className="mt-5 px-3 text-left">{label}</div>}
         classes={{ button: 'w-full', list: 'w-full' }}
         placement="bottom-start"
+        role="menu"
+        itemRole="menuitem"
       ></DropdownList>
     );
   };

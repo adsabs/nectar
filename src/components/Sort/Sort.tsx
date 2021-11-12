@@ -122,6 +122,7 @@ export const Sort = (props: ISortProps): ReactElement => {
           placement="bottom-start"
           role="listbox"
           ariaLabel="Sort by"
+          itemRole="listitem"
         />
         {selected[1] === 'asc' ? (
           <button

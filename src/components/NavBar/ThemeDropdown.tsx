@@ -83,6 +83,7 @@ export const ThemeDropdown = (): ReactElement => {
       placement="bottom-start"
       role="listbox"
       ariaLabel="Theme selector"
+      itemRole="listitem"
     />
   );
 };

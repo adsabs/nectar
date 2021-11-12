@@ -21,10 +21,11 @@ export interface IDropdownListProps {
   placement?: Placement;
   role: string;
   ariaLabel?: string;
+  itemRole: string;
 }
 
 export const DropdownList = (props: IDropdownListProps): ReactElement => {
-  const { label, items, classes, onSelect, onExpanded, onClosed, offset, role, ariaLabel } = props;
+  const { label, items, classes, onSelect, onExpanded, onClosed, offset, role, ariaLabel, itemRole } = props;
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement>();
   const [popperElement, setPopperElement] = useState<HTMLDivElement>();
   const [visible, setVisible] = useState<boolean>(false);
@@ -141,7 +142,6 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
       <button
         type="button"
         ref={targetRef}
-        role={role}
         className={classes.button}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
@@ -150,7 +150,7 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
       >
         {labelElement}
       </button>
-      <div ref={popperRef} style={{ ...styles.popper }} {...attributes.popper} className={popperClasses}>
+      <div ref={popperRef} style={{ ...styles.popper }} {...attributes.popper} className={popperClasses} role={role}>
         {items.map((item, index) => (
           <Item
             key={item.id}
@@ -159,6 +159,7 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
             onClick={() => handleSelect(item)}
             onKeyDown={(e) => handleItemKeyDown(e, item, index)}
             classes={clsx(item.disabled ? 'text-gray-400 cursor-default' : 'hover:bg-gray-100', item.classes)}
+            role={itemRole}
           />
         ))}
       </div>
