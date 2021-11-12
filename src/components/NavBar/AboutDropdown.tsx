@@ -76,7 +76,7 @@ export const AboutDropdown = (props: IAboutDropdownProps): ReactElement => {
       offset={[-60, 12]}
       role="menu"
       placement="bottom-start"
-      ariaLabel="About Menu"
+      ariaLabel="About"
       itemRole="menuitem"
     />
   ) : (
@@ -96,7 +96,7 @@ export const AboutDropdown = (props: IAboutDropdownProps): ReactElement => {
       role="menu"
       itemRole="menuitem"
       reset={reset}
-      ariaLabel="About Menu"
+      ariaLabel="About"
     />
   );
 };

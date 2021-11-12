@@ -73,7 +73,7 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
     <div className={sources.length > 0 ? dropdownButtonClasses : dropdownButtonClassesInactive}>
       Full Text Sources{' '}
       {sources.find((s) => s.open) !== undefined ? <LockOpenIcon className="default-icon-sm inline" /> : null}
-      <ChevronDownIcon className="default-icon-sm inline" />
+      <ChevronDownIcon className="default-icon-sm inline" aria-hidden="true" />
     </div>
   );
 
@@ -171,7 +171,7 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
 
   const label = (
     <div className={items.length > 0 ? dropdownButtonClasses : dropdownButtonClassesInactive}>
-      Other Resources <ChevronDownIcon className="default-icon-sm inline" />
+      Other Resources <ChevronDownIcon className="default-icon-sm inline" aria-hidden="true" />
     </div>
   );
 

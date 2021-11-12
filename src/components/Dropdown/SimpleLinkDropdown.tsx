@@ -32,7 +32,7 @@ export const SimpleLinkDropdown = (props: ISimpleLinkDropdownProps): ReactElemen
     <div className={styles['simple-dropdown']} {...restProps}>
       {typeof label === 'string' ? (
         <button className={labelClasses}>
-          {label} <ChevronDownIcon className="inline w-4 h-4" />
+          {label} <ChevronDownIcon className="inline w-4 h-4" aria-hidden="true" />
         </button>
       ) : (
         <>{label}</>
@@ -47,14 +47,14 @@ export const SimpleLinkDropdown = (props: ISimpleLinkDropdownProps): ReactElemen
             ) : (
               <Link key={item.id} href={item.path}>
                 <a
-                  tabIndex={0}
                   className={itemClasses}
                   role="listitem"
                   aria-selected={selected === item.id}
                   rel="noreferrer noopener"
                   target={item.newTab ? '_blank' : '_self'}
                 >
-                  {item.label} {selected === item.id ? <CheckIcon className="inline w-4 h-4" /> : null}
+                  {item.label}{' '}
+                  {selected === item.id ? <CheckIcon className="inline w-4 h-4" aria-hidden="true" /> : null}
                 </a>
               </Link>
             )}

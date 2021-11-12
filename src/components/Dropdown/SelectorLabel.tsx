@@ -11,7 +11,7 @@ export const SelectorLabel = (props: ISelectorLabelProps): ReactElement => {
   return (
     <div className={classes}>
       <span className="inline-block align-baseline p-1.5">{text}</span>
-      <ChevronDownIcon className="inline m-1.5 w-4 h-4" />
+      <ChevronDownIcon className="inline m-1.5 w-4 h-4" aria-hidden />
     </div>
   );
 };
