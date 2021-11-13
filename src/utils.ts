@@ -52,6 +52,18 @@ export const getFomattedNumericPubdate = (pubdate: string): string | null => {
   return `${year}/${month}`;
 };
 
+export const safeParse = <T>(value: string, defaultValue: T): T => {
+  try {
+    if (typeof value !== 'string') {
+      return defaultValue;
+    }
+
+    return JSON.parse(value) as T;
+  } catch (e) {
+    return defaultValue;
+  }
+};
+
 export const useBaseRouterPath = (): { basePath: string } => {
   const { asPath } = useRouter();
   return { basePath: fromThrowable<() => string, Error>(() => asPath.split('?')[0])().unwrapOr('/') };

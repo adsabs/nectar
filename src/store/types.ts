@@ -2,7 +2,7 @@ import { IADSApiSearchParams, IUserData } from '@api';
 import { Theme } from '../types';
 
 export interface IAppState {
-  user: IUserData;
+  user: Pick<IUserData, 'username' | 'anonymous'>;
   theme: Theme;
   query: IADSApiSearchParams;
 }
