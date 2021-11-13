@@ -2,9 +2,10 @@ import { AxiosError, AxiosRequestConfig } from 'axios';
 import { err, ok, Result } from 'neverthrow';
 import { ApiTargets } from '../models';
 import { Service } from '../service';
-import { ICSRFResponse } from './types';
+import { resolveApiBaseUrl } from '../utils';
+import { IADSApiBootstrapResponse, IBootstrapPayload, ICSRFResponse } from './types';
 
-export class UserService extends Service {
+export class AccountService extends Service {
   public async login(): Promise<unknown> {
     await new Promise((_) => _);
     return null;
@@ -47,6 +48,24 @@ export class UserService extends Service {
             (e: Error | AxiosError) => resolve(err(e)),
           );
         },
+        (e: Error | AxiosError) => resolve(err(e)),
+      );
+    });
+  }
+
+  async bootstrap(): Promise<Result<IADSApiBootstrapResponse, Error | AxiosError>> {
+    const config: AxiosRequestConfig = {
+      method: 'get',
+      url: ApiTargets.BOOTSTRAP,
+      baseURL: resolveApiBaseUrl(),
+    };
+
+    return await new Promise((resolve) => {
+      // use the service directly, to get around overriding `this.request`
+      const service = this.getAxiosInstance();
+
+      service.request<IBootstrapPayload, IADSApiBootstrapResponse>(config).then(
+        (response) => resolve(ok(response)),
         (e: Error | AxiosError) => resolve(err(e)),
       );
     });
