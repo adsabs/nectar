@@ -26,7 +26,7 @@ interface IItemProps {
 
 export const Item = (props: IItemProps): ReactElement => {
   const { doc, index, hideCheckbox = false, hideActions = false, set, clear, onSet, useNormCite } = props;
-  const { bibcode, pubdate, title = ['Untitled'], author = [], id, citation, bibstem = [], author_count } = doc;
+  const { bibcode, pubdate, title = ['Untitled'], author = [], id, bibstem = [], author_count } = doc;
   const [state, send] = useMachine(itemMachine.withContext({ id }));
   const formattedPubDate = getFomattedNumericPubdate(pubdate);
   const [formattedBibstem] = bibstem;
@@ -52,14 +52,14 @@ export const Item = (props: IItemProps): ReactElement => {
 
   // citations
   const cite = useNormCite ? (
-    doc.citation_count_norm && parseInt(doc.citation_count_norm) > 0 ? (
+    typeof doc.citation_count_norm === 'number' && doc.citation_count_norm > 0 ? (
       <Link href={`/abs/${bibcode}/citations`}>
         <a className="link">
           <span>cited(n): {doc.citation_count_norm}</span>
         </a>
       </Link>
     ) : null
-  ) : doc.citation_count && parseInt(doc.citation_count) > 0 ? (
+  ) : typeof doc.citation_count === 'number' && doc.citation_count > 0 ? (
     <Link href={`/abs/${bibcode}/citations`}>
       <a className="link">
         <span>cited: {doc.citation_count}</span>
@@ -103,12 +103,9 @@ export const Item = (props: IItemProps): ReactElement => {
               {formattedPubDate}
               {formattedPubDate && formattedBibstem ? <span className="px-2">·</span> : ''}
               {formattedBibstem}
-              {doc.citation_count && parseInt(doc.citation_count) > 0 && (formattedPubDate || formattedBibstem) ? (
-                <span className="px-2">·</span>
-              ) : null}
+              {cite && (formattedPubDate || formattedBibstem) ? <span className="px-2">·</span> : null}
               {cite}
             </span>
-            {citation && <span className="text-xs">cite: {citation}</span>}
           </div>
           <AbstractPreview id={id} />
         </div>
