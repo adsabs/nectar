@@ -17,12 +17,7 @@ export interface IUseSearchMachineProps {
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function useSearchMachine(props: IUseSearchMachineProps = {}) {
   const { initialResult, initialParams, initialPagination } = props;
-  const {
-    dispatch,
-    state: {
-      user: { access_token: token },
-    },
-  } = useAppCtx();
+  const { dispatch } = useAppCtx();
 
   const router = useRouter();
 
@@ -72,7 +67,7 @@ export function useSearchMachine(props: IUseSearchMachineProps = {}) {
           'stats.field': stats_field,
         };
 
-        const adsapi = new Adsapi({ token });
+        const adsapi = new Adsapi();
         const result = await adsapi.search.query(params);
 
         if (result.isErr()) {

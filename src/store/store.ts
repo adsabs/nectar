@@ -1,7 +1,6 @@
-import { AppEvent } from '@store';
+import { AUTH_STORAGE_KEY } from '@api/lib/utils';
 import { Theme } from '@types';
-import { isBrowser } from '@utils';
-import { fromThrowable } from 'neverthrow';
+import { isBrowser, safeParse } from '@utils';
 import {
   createContext,
   createElement,
@@ -12,7 +11,6 @@ import {
   useContext,
   useReducer,
 } from 'react';
-import { useBootstrap } from './queries';
 import { reducer } from './reducer';
 import { Action, IAppState } from './types';
 
@@ -21,8 +19,6 @@ export const initialAppState: IAppState = {
   user: {
     username: 'anonymous',
     anonymous: true,
-    access_token: '',
-    expire_in: '',
   },
   theme: Theme.GENERAL,
   query: null,
@@ -54,31 +50,29 @@ const ctx = createContext<AppStoreApi>({
   dispatch: () => ({}),
 });
 
-const safeParse = <T>(value: string, defaultValue: T): T => {
-  const result = fromThrowable<() => T, Error>(() => JSON.parse(value) as T);
-  return result().unwrapOr(defaultValue);
-};
-
 const AppProvider = (props: PropsWithChildren<{ initialStore?: Partial<IAppState> }>): ReactElement => {
   const { initialStore } = props;
   const [state, dispatch] = useReducer(nectarAppReducer, initialAppState, (initial): IAppState => {
+    // initializing store, this will use persisted (localStorage) data or default values
+
     if (typeof initialStore !== 'undefined') {
       return {
         ...initial,
         ...initialStore,
       };
     }
-    const newState = isBrowser()
-      ? {
-          ...initial,
-          ...safeParse(localStorage.getItem(APP_STORAGE_KEY), initial),
-        }
-      : initial;
-    return newState;
-  });
 
-  useBootstrap(state.user, (userData) => {
-    dispatch({ type: AppEvent.SET_USER, payload: userData });
+    if (isBrowser()) {
+      // pull only the username, in case user is logged in already
+      const { username, anonymous } = safeParse(localStorage.getItem(AUTH_STORAGE_KEY), initialAppState.user);
+      return {
+        ...initial,
+        ...safeParse(localStorage.getItem(APP_STORAGE_KEY), initial),
+        user: { username, anonymous },
+      };
+    }
+
+    return initial;
   });
 
   return createElement(ctx.Provider, { value: { state, dispatch }, ...props });

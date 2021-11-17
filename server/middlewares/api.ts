@@ -1,5 +1,6 @@
 import { RequestHandler as Middleware } from 'express';
 import Adsapi from '../../src/api';
+import { checkUserData } from '../../src/api/lib/utils';
 
 export const api: Middleware = async (req, res, next) => {
   // grab reference to our current session from the request
@@ -7,10 +8,12 @@ export const api: Middleware = async (req, res, next) => {
   const currentUserData = session.userData ?? null;
 
   // check if we have valid current userData, if so move on
-  if (Adsapi.checkUserData(currentUserData)) {
+  if (checkUserData(currentUserData)) {
     return next();
   }
-  const bootstrapResponse = await Adsapi.bootstrap();
+  const api = new Adsapi();
+
+  const bootstrapResponse = await api.accounts.bootstrap();
   if (bootstrapResponse.isOk()) {
     const { data, headers } = bootstrapResponse.value;
 
