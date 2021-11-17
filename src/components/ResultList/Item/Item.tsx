@@ -28,7 +28,6 @@ export const Item = (props: IItemProps): ReactElement => {
   const { doc, index, hideCheckbox = false, hideActions = false, set, clear, onSet, useNormCite } = props;
   const { bibcode, pubdate, title = ['Untitled'], author = [], id, citation, bibstem = [], author_count } = doc;
   const [state, send] = useMachine(itemMachine.withContext({ id }));
-
   const formattedPubDate = getFomattedNumericPubdate(pubdate);
   const [formattedBibstem] = bibstem;
 
@@ -102,11 +101,11 @@ export const Item = (props: IItemProps): ReactElement => {
           <div className="flex py-1">
             <span className="text-xs">
               {formattedPubDate}
-              {formattedPubDate && formattedBibstem ? <>&nbsp;&nbsp;·&nbsp;&nbsp;</> : ''}
+              {formattedPubDate && formattedBibstem ? <span className="px-2">·</span> : ''}
               {formattedBibstem}
-              {doc.citation_count && parseInt(doc.citation_count) > 0 && (formattedPubDate || formattedBibstem) && (
+              {doc.citation_count && parseInt(doc.citation_count) > 0 && (formattedPubDate || formattedBibstem) ? (
                 <span className="px-2">·</span>
-              )}
+              ) : null}
               {cite}
             </span>
             {citation && <span className="text-xs">cite: {citation}</span>}
