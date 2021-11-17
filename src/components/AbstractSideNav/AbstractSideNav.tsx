@@ -8,7 +8,7 @@ import { useBaseRouterPath } from '@utils';
 import clsx from 'clsx';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { composeP, last } from 'ramda';
+import { last } from 'ramda';
 import { HTMLAttributes, ReactElement } from 'react';
 import { navigation, Routes } from './model';
 import { useHasGraphics, useHasMetrics } from './queries';
@@ -24,6 +24,7 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
   const viewport = useViewport();
   const hasGraphics = useHasGraphics(doc);
   const hasMetrics = useHasMetrics(doc);
+  const hasToc = doc.property ? doc.property.indexOf('TOC') > -1 : false;
 
   const useCount = [Routes.CITATIONS, Routes.REFERENCES];
 
@@ -33,7 +34,8 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
     const count =
       item.href === Routes.EXPORT ||
       (item.href === Routes.GRAPHICS && hasGraphics) ||
-      (item.href === Routes.METRICS && hasMetrics)
+      (item.href === Routes.METRICS && hasMetrics) ||
+      (item.href === Routes.VOLUMECONTENT && hasToc)
         ? 1
         : getCount(item.href, doc);
     const disabled = count === 0 && item.href !== Routes.ABSTRACT;

@@ -95,4 +95,5 @@ export const abstractPageNavDefaultQueryFields: Partial<keyof IDocsEntity>[] = [
   '[citations]',
   'read_count',
   'abstract',
+  'property',
 ];
