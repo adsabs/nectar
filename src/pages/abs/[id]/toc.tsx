@@ -7,6 +7,8 @@ import { metatagsQueryFields, SimpleResultList } from '@components';
 import { dehydrate, QueryClient } from 'react-query';
 import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/queries';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
+import qs from 'qs';
 
 interface IVolumePageProps {
   originalDoc: IDocsEntity;
@@ -17,9 +19,9 @@ interface IVolumePageProps {
 
 const getQueryParams = (id: string | string[]): IADSApiSearchParams => {
   const idStr = Array.isArray(id) ? id[0] : id;
-  const bc = idStr[13] === 'E' ? idStr.substring(0, 14) : idStr.substring(0, 13);
+  const vol = getVolumeId(idStr);
   return {
-    q: `bibcode:${bc}*`,
+    q: `bibcode:${vol}`,
     fl: [
       'bibcode',
       'title',
@@ -38,10 +40,16 @@ const getQueryParams = (id: string | string[]): IADSApiSearchParams => {
   };
 };
 
+const getVolumeId = (id: string): string => {
+  return id[13] === 'E' ? `${id.substring(0, 14)}*` : `${id.substring(0, 13)}*`;
+};
+
 const VolumePage: NextPage<IVolumePageProps> = (props: IVolumePageProps) => {
   const { originalDoc, docs, numFound, error } = props;
 
   const { query } = useRouter();
+
+  const volumeId = getVolumeId(originalDoc.bibcode);
 
   return (
     <AbsLayout doc={originalDoc}>
@@ -55,6 +63,14 @@ const VolumePage: NextPage<IVolumePageProps> = (props: IVolumePageProps) => {
           <div className="flex items-center justify-center w-full h-full text-xl">{error}</div>
         ) : (
           <>
+            <Link
+              href={`/search?${qs.stringify({
+                q: `bibcode:${volumeId}`,
+                sort: 'date desc',
+              })}`}
+            >
+              <a className="link text-sm">View as search results</a>
+            </Link>
             <SimpleResultList query={getQueryParams(query.id)} numFound={numFound} docs={docs} hideCheckboxes={true} />
           </>
         )}
