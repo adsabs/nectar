@@ -120,9 +120,8 @@ export const Sort = (props: ISortProps): ReactElement => {
           }}
           offset={[0, 1]}
           placement="bottom-start"
-          role="listbox"
+          role={{ label: 'list', item: 'listitem' }}
           ariaLabel="Sort by"
-          itemRole="listitem"
         />
         {selected[1] === 'asc' ? (
           <button

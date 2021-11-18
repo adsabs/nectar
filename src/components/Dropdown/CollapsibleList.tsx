@@ -16,15 +16,16 @@ export interface ICollapsibleListProps {
     button: string;
     item?: string;
   };
-  role: string;
-  itemRole: string;
+  role: {
+    label: string;
+    item: string;
+  };
   ariaLabel?: string;
   reset: boolean;
 }
 
 export const CollapsibleList = (props: ICollapsibleListProps): ReactElement => {
-  const { label, items, classes, onSelect, onExpanded, onCollapsed, onEscaped, role, itemRole, ariaLabel, reset } =
-    props;
+  const { label, items, classes, onSelect, onExpanded, onCollapsed, onEscaped, role, ariaLabel, reset } = props;
 
   const [visible, setVisible] = useState<boolean>(!closed);
 
@@ -113,7 +114,7 @@ export const CollapsibleList = (props: ICollapsibleListProps): ReactElement => {
       >
         {labelElement}
       </button>
-      <div className={clsx(visible && !reset ? '' : 'hidden', 'flex flex-col')} role={role}>
+      <div className={clsx(visible && !reset ? '' : 'hidden', 'flex flex-col')} role={role.label}>
         {items.map((item, index) => (
           <Item
             key={item.id}
@@ -122,7 +123,7 @@ export const CollapsibleList = (props: ICollapsibleListProps): ReactElement => {
             onClick={() => handleSelect(item)}
             onKeyDown={(e) => handleItemKeyDown(e, item, index)}
             classes={classes.item}
-            role={itemRole}
+            role={role.item}
           />
         ))}
       </div>

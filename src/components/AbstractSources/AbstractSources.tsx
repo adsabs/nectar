@@ -87,9 +87,8 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
           placement={'bottom-start'}
           classes={{ button: sources.length === 0 ? 'cursor-default' : '', list: '' }}
           offset={[0, 2]}
-          role="list"
+          role={{ label: 'list', item: 'listitem' }}
           ariaLabel="Full Text Sources"
-          itemRole="listitem"
         ></DropdownList>
       ) : (
         <span>
@@ -103,8 +102,7 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
               list: 'w-60 h-auto',
               item: 'p-2 flex justify-start',
             }}
-            role="listbox"
-            itemRole="listitem"
+            role={{ label: 'list', item: 'listitem' }}
           />
         </span>
       )}
@@ -188,9 +186,8 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
             classes={{ button: items.length === 0 ? 'cursor-default' : '', list: '' }}
             placement={'bottom-start'}
             offset={[0, 2]}
-            role="list"
+            role={{ label: 'list', item: 'listitem' }}
             ariaLabel="Other Resources"
-            itemRole="listitem"
           />
         </div>
       ) : (
@@ -205,8 +202,7 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
                 list: 'w-60 h-auto',
                 item: 'p-2',
               }}
-              role="listbox"
-              itemRole="listitem"
+              role={{ label: 'list', item: 'listitem' }}
             />
           ) : (
             <>{label}</>

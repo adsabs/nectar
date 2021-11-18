@@ -19,13 +19,15 @@ export interface IDropdownListProps {
   };
   offset?: [number, number];
   placement?: Placement;
-  role: string;
+  role: {
+    label: string;
+    item: string;
+  };
   ariaLabel?: string;
-  itemRole: string;
 }
 
 export const DropdownList = (props: IDropdownListProps): ReactElement => {
-  const { label, items, classes, onSelect, onExpanded, onClosed, offset, role, ariaLabel, itemRole } = props;
+  const { label, items, classes, onSelect, onExpanded, onClosed, offset, role, ariaLabel } = props;
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement>();
   const [popperElement, setPopperElement] = useState<HTMLDivElement>();
   const [visible, setVisible] = useState<boolean>(false);
@@ -139,9 +141,9 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
 
   return (
     <OutsideClickHandler onOutsideClick={handleOutsideClick}>
-      <div role={role}>
+      <div role={role.label}>
         <button
-        type="button"
+          type="button"
           ref={targetRef}
           className={classes.button}
           onClick={handleClick}
@@ -160,7 +162,7 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
               onClick={() => handleSelect(item)}
               onKeyDown={(e) => handleItemKeyDown(e, item, index)}
               classes={clsx(item.disabled ? 'text-gray-400 cursor-default' : 'hover:bg-gray-100', item.classes)}
-              role={itemRole}
+              role={role.item}
             />
           ))}
         </div>
