@@ -143,7 +143,7 @@ interface IItemDropdownProps {
 
 export const ItemDropdown = ({ label, items }: IItemDropdownProps): ReactElement => {
   return (
-    <span>
+    <span tabIndex={0}>
       <SimpleLinkDropdown
         items={items}
         label={label}
@@ -153,6 +153,7 @@ export const ItemDropdown = ({ label, items }: IItemDropdownProps): ReactElement
           list: 'h-auto w-auto absolute top-full -right-0 lg:left-0 lg:right-auto',
           item: 'p-2 flex justify-start text-sm border-b',
         }}
+        role={{ label: 'list', item: 'listitem' }}
       />
     </span>
   );

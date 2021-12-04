@@ -19,7 +19,10 @@ export interface IDropdownListProps {
   };
   offset?: [number, number];
   placement?: Placement;
-  role: string;
+  role: {
+    label: string;
+    item: string;
+  };
   ariaLabel?: string;
 }
 
@@ -32,7 +35,7 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
   const labelElement =
     typeof label === 'string' ? (
       <>
-        {label} <ChevronDownIcon className="default-icon-sm inline" />
+        {label} <ChevronDownIcon className="default-icon-sm inline" aria-hidden="true" />
       </>
     ) : (
       label
@@ -138,29 +141,31 @@ export const DropdownList = (props: IDropdownListProps): ReactElement => {
 
   return (
     <OutsideClickHandler onOutsideClick={handleOutsideClick}>
-      <button
-        type="button"
-        ref={targetRef}
-        role={role}
-        className={classes.button}
-        onClick={handleClick}
-        onKeyDown={handleKeyDown}
-        aria-label={ariaLabel}
-        aria-expanded={visible}
-      >
-        {labelElement}
-      </button>
-      <div ref={popperRef} style={{ ...styles.popper }} {...attributes.popper} className={popperClasses}>
-        {items.map((item, index) => (
-          <Item
-            key={item.id}
-            item={item}
-            tabIndex={0}
-            onClick={() => handleSelect(item)}
-            onKeyDown={(e) => handleItemKeyDown(e, item, index)}
-            classes={clsx(item.disabled ? 'text-gray-400 cursor-default' : 'hover:bg-gray-100', item.classes)}
-          />
-        ))}
+      <div role={role.label}>
+        <button
+          type="button"
+          ref={targetRef}
+          className={classes.button}
+          onClick={handleClick}
+          onKeyDown={handleKeyDown}
+          aria-label={ariaLabel}
+          aria-expanded={visible}
+        >
+          {labelElement}
+        </button>
+        <div ref={popperRef} style={{ ...styles.popper }} {...attributes.popper} className={popperClasses}>
+          {items.map((item, index) => (
+            <Item
+              key={item.id}
+              item={item}
+              tabIndex={0}
+              onClick={() => handleSelect(item)}
+              onKeyDown={(e) => handleItemKeyDown(e, item, index)}
+              classes={clsx(item.disabled ? 'text-gray-400 cursor-default' : 'hover:bg-gray-100', item.classes)}
+              role={role.item}
+            />
+          ))}
+        </div>
       </div>
     </OutsideClickHandler>
   );

@@ -60,7 +60,7 @@ export const DropdownBase = ({ label, classes, offset, children, renderButton }:
     <OutsideClickHandler onOutsideClick={handleOutsideClick}>
       {renderButton({ ref: () => referenceElement })}
       <button type="button" ref={targetRef} className={classes.button} onClick={handleClick}>
-        {label} <ChevronDownIcon className="inline w-4 h-4" />
+        {label} <ChevronDownIcon className="inline w-4 h-4" aria-hidden="true" />
       </button>
       <div
         ref={popperRef}

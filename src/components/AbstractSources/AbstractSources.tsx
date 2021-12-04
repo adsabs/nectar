@@ -73,7 +73,7 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
     <div className={sources.length > 0 ? dropdownButtonClasses : dropdownButtonClassesInactive}>
       Full Text Sources{' '}
       {sources.find((s) => s.open) !== undefined ? <LockOpenIcon className="default-icon-sm inline" /> : null}
-      <ChevronDownIcon className="default-icon-sm inline" />
+      <ChevronDownIcon className="default-icon-sm inline" aria-hidden="true" />
     </div>
   );
 
@@ -87,7 +87,7 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
           placement={'bottom-start'}
           classes={{ button: sources.length === 0 ? 'cursor-default' : '', list: '' }}
           offset={[0, 2]}
-          role="list"
+          role={{ label: 'list', item: 'listitem' }}
           ariaLabel="Full Text Sources"
         ></DropdownList>
       ) : (
@@ -102,6 +102,7 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
               list: 'w-60 h-auto',
               item: 'p-2 flex justify-start',
             }}
+            role={{ label: 'list', item: 'listitem' }}
           />
         </span>
       )}
@@ -170,14 +171,14 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
 
   const label = (
     <div className={items.length > 0 ? dropdownButtonClasses : dropdownButtonClassesInactive}>
-      Other Resources <ChevronDownIcon className="default-icon-sm inline" />
+      Other Resources <ChevronDownIcon className="default-icon-sm inline" aria-hidden="true" />
     </div>
   );
 
   return (
     <>
       {isBrowser() ? (
-        <div>
+        <div aria-disabled={items.length === 0}>
           <DropdownList
             label={label}
             items={items}
@@ -185,7 +186,7 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
             classes={{ button: items.length === 0 ? 'cursor-default' : '', list: '' }}
             placement={'bottom-start'}
             offset={[0, 2]}
-            role="list"
+            role={{ label: 'list', item: 'listitem' }}
             ariaLabel="Other Resources"
           />
         </div>
@@ -201,6 +202,7 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
                 list: 'w-60 h-auto',
                 item: 'p-2',
               }}
+              role={{ label: 'list', item: 'listitem' }}
             />
           ) : (
             <>{label}</>

@@ -57,7 +57,7 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
     );
     return (
       <Link key={item.name} href={href}>
-        <a className={linkStyle} aria-current={current ? 'page' : undefined}>
+        <a className={linkStyle} aria-current={current ? 'page' : undefined} aria-disabled={disabled}>
           <Icon className={iconStyle} aria-hidden="true" />
           <span className="flex-1 truncate">{item.name}</span>
           {showCount ? <span className={countStyle}>{count}</span> : null}
@@ -97,6 +97,7 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
         label={<div className="mt-5 px-3 text-left">{label}</div>}
         classes={{ button: 'w-full', list: 'w-full' }}
         placement="bottom-start"
+        role={{ label: 'menu', item: 'menuitem' }}
       ></DropdownList>
     );
   };

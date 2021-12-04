@@ -9,7 +9,7 @@ class MyDocument extends Document {
 
   render(): ReactElement {
     return (
-      <Html>
+      <Html lang="en">
         <Head>
           {/* Favicon */}
           <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />

@@ -81,7 +81,7 @@ export const ThemeDropdown = (): ReactElement => {
       }}
       offset={[0, 4]}
       placement="bottom-start"
-      role="listbox"
+      role={{ label: 'list', item: 'listitem' }}
       ariaLabel="Theme selector"
     />
   );

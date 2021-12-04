@@ -15,10 +15,14 @@ export interface ISimpleLinkDropdownProps {
     list?: string;
     item?: string;
   };
+  role: {
+    label: string;
+    item: string;
+  };
 }
 
 export const SimpleLinkDropdown = (props: ISimpleLinkDropdownProps): ReactElement => {
-  const { items, selected, label, classes, ...restProps } = props;
+  const { items, selected, label, classes, role, ...restProps } = props;
 
   const labelClasses = classes && classes.label ? clsx(classes.label) : 'button-simple';
 
@@ -29,10 +33,10 @@ export const SimpleLinkDropdown = (props: ISimpleLinkDropdownProps): ReactElemen
     classes && classes.item ? clsx(styles['simple-dropdown-link'], classes.item) : styles['simple-dropdown-link'];
 
   return (
-    <div className={styles['simple-dropdown']} {...restProps}>
+    <div className={styles['simple-dropdown']} {...restProps} role={role.label}>
       {typeof label === 'string' ? (
         <button className={labelClasses}>
-          {label} <ChevronDownIcon className="inline w-4 h-4" />
+          {label} <ChevronDownIcon className="inline w-4 h-4" aria-hidden="true" />
         </button>
       ) : (
         <>{label}</>
@@ -47,14 +51,14 @@ export const SimpleLinkDropdown = (props: ISimpleLinkDropdownProps): ReactElemen
             ) : (
               <Link key={item.id} href={item.path}>
                 <a
-                  tabIndex={0}
                   className={itemClasses}
-                  role="listitem"
+                  role={role.item}
                   aria-selected={selected === item.id}
                   rel="noreferrer noopener"
                   target={item.newTab ? '_blank' : '_self'}
                 >
-                  {item.label} {selected === item.id ? <CheckIcon className="inline w-4 h-4" /> : null}
+                  {item.label}{' '}
+                  {selected === item.id ? <CheckIcon className="inline w-4 h-4" aria-hidden="true" /> : null}
                 </a>
               </Link>
             )}

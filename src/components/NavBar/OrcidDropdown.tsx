@@ -43,7 +43,7 @@ export const OrcidDropdown = (props: IOrcidDropdownProps): ReactElement => {
       <>
         <OrcidInactiveLogo width="18px" height="18px" aria-hidden className="flex-shrink-0" />
         <span>&nbsp;ORCiD</span>
-        <ChevronDownIcon className="inline w-4 h-4" />
+        <ChevronDownIcon className="inline w-4 h-4" aria-hidden="true" />
       </>
     );
   };
@@ -58,8 +58,8 @@ export const OrcidDropdown = (props: IOrcidDropdownProps): ReactElement => {
         list: '',
       }}
       offset={[-60, 12]}
-      role="menu"
-      ariaLabel="Orcid Menu"
+      role={{ label: 'menu', item: 'menuitem' }}
+      ariaLabel="Orcid"
     />
   ) : (
     <CollapsibleList
@@ -75,9 +75,9 @@ export const OrcidDropdown = (props: IOrcidDropdownProps): ReactElement => {
         ),
         item: clsx(styles['navbar-text-color'], 'hover:text-white focus:text-white'),
       }}
-      role="menu"
+      role={{ label: 'menu', item: 'menuitem' }}
       reset={reset}
-      ariaLabel="Orcid Menu"
+      ariaLabel="Orcid"
     />
   );
 };
