@@ -17,6 +17,10 @@
     "build-storybook": "build-storybook -s public"
   },
   "dependencies": {
+    "@chakra-ui/icons": "^1.1.1",
+    "@chakra-ui/react": "^1.7.2",
+    "@emotion/react": "^11.7.0",
+    "@emotion/styled": "^11.6.0",
     "@headlessui/react": "^1.1.1",
     "@heroicons/react": "^1.0.1",
     "@testing-library/react-hooks": "^7.0.2",
@@ -32,6 +36,7 @@
     "express": "^4.17.1",
     "express-pino-logger": "^6.0.0",
     "formik": "^2.2.9",
+    "framer-motion": "^4.1.17",
     "heroicon": "^0.0.2",
     "isomorphic-dompurify": "^0.15.0",
     "katex": "^0.13.11",

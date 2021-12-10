@@ -1,6 +1,7 @@
 import { Layout } from '@components';
 import { ApiProvider } from '@providers/api';
 import { AppProvider, useAppCtx } from '@store';
+import { ChakraProvider } from '@chakra-ui/react';
 import { Theme } from '@types';
 import { isBrowser } from '@utils';
 import App, { AppContext, AppProps } from 'next/app';
@@ -14,6 +15,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'tailwindcss/tailwind.css';
 import '../styles/styles.css';
+import theme from '../theme';
 
 const TopProgressBar = dynamic(() => import('@components/TopProgressBar').then((mod) => mod.TopProgressBar), {
   ssr: false,
@@ -28,21 +30,23 @@ const NectarApp = ({ Component, pageProps }: AppProps): ReactElement => {
   );
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AppProvider>
-        <ApiProvider>
-          <Hydrate state={(pageProps as { dehydratedState: unknown }).dehydratedState}>
-            <ThemeRouter />
-            <TopProgressBar />
-            <ToastContainer />
-            <Layout>
-              <Component {...pageProps} />
-            </Layout>
-          </Hydrate>
-          <ReactQueryDevtools />
-        </ApiProvider>
-      </AppProvider>
-    </QueryClientProvider>
+    <ChakraProvider theme={theme}>
+      <QueryClientProvider client={queryClient}>
+        <AppProvider>
+          <ApiProvider>
+            <Hydrate state={(pageProps as { dehydratedState: unknown }).dehydratedState}>
+              <ThemeRouter />
+              <TopProgressBar />
+              <ToastContainer />
+              <Layout>
+                <Component {...pageProps} />
+              </Layout>
+            </Hydrate>
+            <ReactQueryDevtools />
+          </ApiProvider>
+        </AppProvider>
+      </QueryClientProvider>
+    </ChakraProvider>
   );
 };
 
