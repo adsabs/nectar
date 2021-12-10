@@ -46,12 +46,42 @@ const theme = extendTheme(
         },
       },
       Menu: {
-        parts: ['button'],
+        parts: ['button', 'list', 'item'],
         variants: {
           navbar: {
             button: {
               color: 'gray.50',
               fontWeight: 'medium',
+              margin: '2',
+              _focus: { boxShadow: 'outline' },
+            },
+            list: {
+              zIndex: '20',
+            },
+          },
+        },
+      },
+      Drawer: {
+        parts: ['overlay', 'dialogContainer'],
+        variants: {
+          navbar: {
+            dialog: {
+              backgroundColor: 'gray.900',
+              color: 'gray.50',
+            },
+          },
+        },
+      },
+      List: {
+        parts: ['item'],
+        variants: {
+          navbar: {
+            item: {
+              paddingX: '1',
+              paddingY: '1',
+              cursor: 'pointer',
+              _hover: { background: 'gray.800' },
+              _focus: { outline: 'none', boxShadow: 'outline' },
             },
           },
         },

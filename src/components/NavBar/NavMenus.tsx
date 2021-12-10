@@ -1,110 +1,96 @@
-import { MenuIcon } from '@heroicons/react/solid';
-import clsx from 'clsx';
-import { ReactElement, useState, KeyboardEvent, useEffect } from 'react';
-import { AboutDropdown } from './AboutDropdown';
-import { OrcidDropdown } from './OrcidDropdown';
-import styles from './NavBar.module.css';
-import Link from 'next/link';
-import { ListType } from '@components/Dropdown/types';
+import { ReactElement, useRef } from 'react';
+import { ListType } from './types';
 import { useViewport, Viewport } from '@hooks';
+import { Box, Flex } from '@chakra-ui/layout';
+import { IconButton } from '@chakra-ui/button';
+import { HamburgerIcon } from '@chakra-ui/icons';
+import { Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel } from '@chakra-ui/accordion';
+import { OrcidDropdown } from './OrcidDropdown';
+import { AccountDropdown } from './AccountDropdown';
+import { AboutDropdown } from './AboutDropdown';
+import { useDisclosure } from '@chakra-ui/hooks';
+import { Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerOverlay } from '@chakra-ui/modal';
 
 export const NavMenus = (): ReactElement => {
-  const [menuVisible, setMenuVisible] = useState<boolean>(false);
-
-  const [menuReset, setMenuReset] = useState<boolean>(true);
-
-  // reset all the sub menus (collapse) when main menu is closed
-  // for mobile menu only
-  useEffect(() => {
-    menuVisible ? setMenuReset(false) : setMenuReset(true);
-  }, [menuVisible]);
-
   const viewport = useViewport();
 
-  const handleMenuToggle = () => {
-    setMenuVisible(!menuVisible);
-  };
-
-  const handleSelected = () => {
-    setMenuVisible(false);
-  };
-
-  const handleMenuKeyDown = (e: KeyboardEvent) => {
-    switch (e.key) {
-      case 'Enter':
-      case 'Space':
-      case ' ':
-        e.preventDefault();
-        handleMenuToggle();
-        return;
-      case 'Escape':
-        return close();
-      case 'ArrowDown':
-        e.preventDefault();
-        return open();
+  const toggleMenu = () => {
+    if (isOpen) {
+      onClose();
+    } else {
+      onOpen();
     }
   };
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const hamburgerRef = useRef();
 
-  const open = () => {
-    setMenuVisible(true);
-  };
-
-  const close = () => {
-    setMenuVisible(false);
-  };
+  // If viewport is MD or smaller, use vertical menu
 
   return (
-    <>
-      <div className="flex flex-grow items-center justify-end mr-2 md:invisible">
-        <button onKeyDown={handleMenuKeyDown} aria-label="Menu">
-          <MenuIcon
-            className={clsx(menuVisible ? 'text-white' : styles['navbar-text-color'], 'm-1 w-8 h-8')}
-            onClick={handleMenuToggle}
+    <Flex justifyContent="end" flexGrow={2}>
+      {viewport < Viewport.MD ? (
+        <Box justifyContent="end">
+          <IconButton
+            aria-label="menu"
+            icon={<HamburgerIcon />}
+            colorScheme="black"
+            size="lg"
+            onClick={toggleMenu}
+            ref={hamburgerRef}
           />
-        </button>
-      </div>
-      <div
-        className={clsx(
-          viewport < Viewport.MD && !menuVisible ? 'hidden' : '',
-          styles['navbar-bg-color'],
-          'md:initial absolute z-20 right-0 top-full flex flex-col flex-grow justify-end p-5 w-80 space-x-4 md:static md:flex-row md:items-center md:p-0 md:pr-4 md:w-max',
-        )}
-      >
-        <OrcidDropdown
-          type={viewport === Viewport.XS || viewport === Viewport.SM ? ListType.MENU : ListType.DROPDOWN}
-          onFinished={handleSelected}
-          reset={menuReset}
-        />
-        <AboutDropdown
-          type={viewport === Viewport.XS || viewport === Viewport.SM ? ListType.MENU : ListType.DROPDOWN}
-          onFinished={handleSelected}
-          reset={menuReset}
-        />
-        <Link href="/user/account/register">
-          <button
-            className={clsx(
-              styles['navbar-text-color'],
-              styles['navbar-bg-color'],
-              'flex items-center justify-start py-4 hover:text-white focus:text-white md:py-0',
-            )}
-            onClick={handleSelected}
-          >
-            Sign Up
-          </button>
-        </Link>
-        <Link href="/login">
-          <button
-            className={clsx(
-              styles['navbar-text-color'],
-              styles['navbar-bg-color'],
-              'flex items-center justify-start py-4 hover:text-white focus:text-white md:py-0',
-            )}
-            onClick={handleSelected}
-          >
-            Login
-          </button>
-        </Link>
-      </div>
-    </>
+          <Drawer variant="navbar" isOpen={isOpen} placement="right" onClose={onClose} finalFocusRef={hamburgerRef}>
+            <DrawerOverlay />
+            <DrawerContent>
+              <DrawerCloseButton />
+              <DrawerHeader></DrawerHeader>
+              <DrawerBody>
+                <Accordion allowMultiple defaultIndex={[0, 1, 2]}>
+                  <AccordionItem>
+                    <AccordionButton>
+                      <Box flex="1" textAlign="left" fontWeight="medium">
+                        Orcid
+                      </Box>
+                      <AccordionIcon />
+                    </AccordionButton>
+                    <AccordionPanel>
+                      <OrcidDropdown type={ListType.ACCORDION} onFinished={onClose} />
+                    </AccordionPanel>
+                  </AccordionItem>
+                  <AccordionItem>
+                    <AccordionButton>
+                      <Box flex="1" textAlign="left" fontWeight="medium">
+                        About
+                      </Box>
+                      <AccordionIcon />
+                    </AccordionButton>
+                    <AccordionPanel>
+                      <AboutDropdown type={ListType.ACCORDION} onFinished={onClose} />
+                    </AccordionPanel>
+                  </AccordionItem>
+                  <AccordionItem>
+                    <AccordionButton>
+                      <Box flex="1" textAlign="left" fontWeight="medium">
+                        Account
+                      </Box>
+                      <AccordionIcon />
+                    </AccordionButton>
+                    <AccordionPanel>
+                      <AccountDropdown type={ListType.ACCORDION} onFinished={onClose} />
+                    </AccordionPanel>
+                  </AccordionItem>
+                </Accordion>
+              </DrawerBody>
+            </DrawerContent>
+          </Drawer>
+        </Box>
+      ) : (
+        <Box display="flex" direction="row" mx={3}>
+          {/* Cannot use stack here, will produce warning with popper in menu */}
+          <OrcidDropdown type={ListType.DROPDOWN} />
+          <AboutDropdown type={ListType.DROPDOWN} />
+          <AccountDropdown type={ListType.DROPDOWN} />
+        </Box>
+      )}
+    </Flex>
   );
 };

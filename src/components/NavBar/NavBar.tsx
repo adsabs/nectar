@@ -10,7 +10,7 @@ const ThemeDropdown = dynamic(() => import('./ThemeDropdown').then((mod) => mod.
 const NavMenus = dynamic(() => import('./NavMenus').then((mod) => mod.NavMenus), { ssr: false });
 
 export const NavBar: FC = () => {
-  const navbarClasses = clsx(styles['navbar-bg-color'], 'relative flex items-center');
+  const navbarClasses = clsx(styles['navbar-bg-color'], 'relative flex items-center ');
 
   return (
     <nav className={navbarClasses}>
