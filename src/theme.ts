@@ -44,6 +44,15 @@ const theme = extendTheme(
         a: {
           color: 'blue.400',
         },
+        nav: {
+          backgroundColor: 'gray.900',
+        },
+        footer: {
+          backgroundColor: 'gray.900',
+        },
+        'footer a': {
+          color: 'gray.50',
+        },
       },
     },
     components: {

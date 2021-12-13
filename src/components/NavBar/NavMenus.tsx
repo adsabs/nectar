@@ -24,8 +24,6 @@ export const NavMenus = (): ReactElement => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const hamburgerRef = useRef();
 
-  // If viewport is MD or smaller, use vertical menu
-
   return (
     <Flex justifyContent="end" flexGrow={2}>
       {viewport < Viewport.MD ? (

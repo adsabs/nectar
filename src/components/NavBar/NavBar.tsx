@@ -1,32 +1,39 @@
+import { Heading, HStack, Box, Link as CLink } from '@chakra-ui/layout';
 import { AdsSmallLogo } from '@components/images';
-import clsx from 'clsx';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { FC } from 'react';
-import styles from './NavBar.module.css';
 
 const ThemeDropdown = dynamic(() => import('./ThemeDropdown').then((mod) => mod.ThemeDropdown), { ssr: false });
 
 const NavMenus = dynamic(() => import('./NavMenus').then((mod) => mod.NavMenus), { ssr: false });
 
 export const NavBar: FC = () => {
-  const navbarClasses = clsx(styles['navbar-bg-color'], 'relative flex items-center ');
-
   return (
-    <nav className={navbarClasses}>
-      <div className="px-4 sm:px-6 lg:px-8">
-        <Link href="/">
-          <a className="flex items-center h-12">
-            <AdsSmallLogo className="w-10 h-10" aria-hidden />
-            <h1 className="hidden ml-2 text-white text-2xl font-bold sm:inline">SciX</h1>
-          </a>
-        </Link>
-      </div>
-      <ThemeDropdown />
-      <a href="#main-content" className="flex items-center text-white focus:not-sr-only sr-only">
-        Skip to content
-      </a>
-      <NavMenus />
+    <nav>
+      <HStack direction="row" alignItems="center" spacing={3} margin={2}>
+        <Box display={{ base: 'none', sm: 'initial' }}>
+          <Link href="/">
+            <HStack cursor="pointer" spacing={1}>
+              <AdsSmallLogo className="w-10 h-10" aria-hidden />
+              <Heading
+                as="h1"
+                size="lg"
+                tabIndex={0}
+                color="gray.50"
+                _focus={{ boxShadow: 'outline', outline: 'none' }}
+              >
+                SciX
+              </Heading>
+            </HStack>
+          </Link>
+        </Box>
+        <ThemeDropdown />
+        <CLink href="#main-content" color="gray.50" className="focus:not-sr-only sr-only">
+          Skip to content
+        </CLink>
+        <NavMenus />
+      </HStack>
     </nav>
   );
 };
