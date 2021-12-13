@@ -1,6 +1,7 @@
 import { isBrowser } from '@utils';
 import { useEffect, useState } from 'react';
 
+/* these need to match the size defined in the theme */
 export enum Viewport {
   XS = 0,
   SM = 640,
