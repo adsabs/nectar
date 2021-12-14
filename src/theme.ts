@@ -41,6 +41,9 @@ const theme = extendTheme(
     },
     styles: {
       global: {
+        body: {
+          color: 'gray.700',
+        },
         a: {
           color: 'blue.400',
         },

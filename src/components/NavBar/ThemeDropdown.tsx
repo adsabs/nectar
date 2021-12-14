@@ -1,40 +1,45 @@
-import { DropdownList, SelectorLabel } from '@components/Dropdown';
-import { ItemType } from '@components/Dropdown/types';
 import { AppEvent, useAppCtx } from '@store';
 import { Theme } from '@types';
-import clsx from 'clsx';
 import { ReactElement, useEffect, useState } from 'react';
-import styles from './NavBar.module.css';
+import Select, { ControlProps, OptionProps, StylesConfig } from 'react-select';
+import { CSSObject } from '@emotion/react';
+import { useViewport, Viewport } from '@hooks';
 
-const themes: ItemType[] = [
+type ThemeOption = {
+  id: Theme;
+  value: string;
+  label: string;
+};
+
+const themes: ThemeOption[] = [
   {
     id: Theme.GENERAL,
-    domId: 'theme-general',
+    value: 'general',
     label: 'General Science',
   },
   {
     id: Theme.ASTROPHYSICS,
-    domId: 'theme-astrophysics',
+    value: 'astrophysics',
     label: 'Astrophysics',
   },
   {
     id: Theme.HELIOPHYISCS,
-    domId: 'theme-heliophysics',
+    value: 'heliophysics',
     label: 'Heliophysics',
   },
   {
     id: Theme.PLANET_SCIENCE,
-    domId: 'theme-planetary',
+    value: 'planetary',
     label: 'Planetary Science',
   },
   {
     id: Theme.EARTH_SCIENCE,
-    domId: 'theme-earth',
+    value: 'earth',
     label: 'Earth Science',
   },
   {
     id: Theme.BIO_PHYSICAL,
-    domId: 'theme-biophysical',
+    value: 'biophysical',
     label: 'Biological & Physical Science',
   },
 ];
@@ -42,47 +47,54 @@ const themes: ItemType[] = [
 export const ThemeDropdown = (): ReactElement => {
   const { state: appState, dispatch } = useAppCtx();
 
-  const [selectedTheme, setSelectedTheme] = useState<string>(Theme.GENERAL);
+  const viewport = useViewport();
+
+  const customStyles: StylesConfig<ThemeOption> = {
+    control: (provided: CSSObject, state: ControlProps<ThemeOption>) => ({
+      ...provided,
+      height: '2em',
+      borderRadius: '2px',
+      borderColor: 'var(--chakra-colors-gray-100)',
+      backgroundColor: 'var(--chakra-colors-gray-900)',
+      width: viewport < Viewport.XS ? '200px' : '270px',
+      outline: 'none',
+      boxShadow: state.isFocused ? 'var(--chakra-shadows-outline)' : 'none',
+    }),
+    indicatorSeparator: () => ({
+      isDisabled: true,
+    }),
+    singleValue: (provided: CSSObject) => ({
+      ...provided,
+      color: 'var(--chakra-colors-gray-100)',
+    }),
+    container: (provided: CSSObject) => ({
+      ...provided,
+      zIndex: 10,
+    }),
+    option: (provided: CSSObject, state: OptionProps) => ({
+      ...provided,
+      backgroundColor: state.isFocused ? 'var(--chakra-colors-gray-100)' : 'transparent',
+      color: 'var(--chakra-colors-gray-700)',
+    }),
+  };
+
+  const [selectedTheme, setSelectedTheme] = useState<ThemeOption>(themes[0]);
 
   useEffect(() => {
-    setSelectedTheme(appState.theme);
+    setSelectedTheme(themes.find((theme) => theme.id === appState.theme));
   }, [appState.theme]);
 
-  const setUserTheme = (themeId: Theme) => {
-    dispatch({ type: AppEvent.SET_THEME, payload: themeId });
-    setSelectedTheme(themeId);
-  };
-
-  const selectorClasses = clsx(
-    styles['navbar-bg-color'],
-    styles['navbar-text-color'],
-    'flex items-center justify-between w-64 border border-gray-50 border-opacity-50 rounded-sm cursor-pointer',
-  );
-
-  const getLabelNode = (itemId: string) => {
-    const label = themes.find((item) => item.id === itemId).label as string;
-
-    return <SelectorLabel text={label} classes={selectorClasses} />;
-  };
-
-  const handleOnSelect = (themeId: Theme) => {
-    setUserTheme(themeId);
-    setSelectedTheme(themes.find((theme) => theme.id === themeId).id);
+  const handleOnSelect = (selected: ThemeOption) => {
+    dispatch({ type: AppEvent.SET_THEME, payload: selected.id });
   };
 
   return (
-    <DropdownList
-      label={getLabelNode(selectedTheme)}
-      items={themes}
-      onSelect={handleOnSelect}
-      classes={{
-        button: '',
-        list: 'w-64',
-      }}
-      offset={[0, 4]}
-      placement="bottom-start"
-      role={{ label: 'list', item: 'listitem' }}
-      ariaLabel="Theme selector"
+    <Select
+      value={selectedTheme}
+      options={themes}
+      isSearchable={false}
+      styles={customStyles}
+      onChange={handleOnSelect}
     />
   );
 };
