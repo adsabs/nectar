@@ -1,6 +1,8 @@
 import { ListType } from './types';
 import { MouseEvent, ReactElement } from 'react';
 import { MenuDropdown } from './MenuDropdown';
+import { OrcidInactiveLogo } from '@components';
+import { HStack } from '@chakra-ui/layout';
 
 const items = [
   {
@@ -31,5 +33,12 @@ export const OrcidDropdown = (props: IOrcidDropdownProps): ReactElement => {
     console.log('orcid sign in ');
   };
 
-  return <MenuDropdown id="orcid" type={type} label="Orcid" items={items} onSelect={handleSelect} />;
+  const orcidLabel = (
+    <HStack spacing={1}>
+      <OrcidInactiveLogo className="flex-shrink-0 w-4 h-4" aria-hidden />
+      <span>ORCiD</span>
+    </HStack>
+  );
+
+  return <MenuDropdown id="orcid" type={type} label={orcidLabel} items={items} onSelect={handleSelect} />;
 };

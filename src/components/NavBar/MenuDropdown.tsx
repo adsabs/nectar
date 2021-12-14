@@ -1,6 +1,6 @@
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/menu';
-import { List, ListItem } from '@chakra-ui/layout';
+import { HStack, List, ListItem } from '@chakra-ui/layout';
 import { ListType, ItemType } from './types';
 import { isBrowser } from '@utils';
 import { MouseEvent, ReactElement, KeyboardEvent } from 'react';
@@ -41,7 +41,9 @@ export const MenuDropdown = (props: IMenuDropdownProps): ReactElement => {
   return type === ListType.DROPDOWN ? (
     <Menu variant="navbar">
       <MenuButton>
-        {label} <ChevronDownIcon />
+        <HStack>
+          <>{label}</> <ChevronDownIcon />
+        </HStack>
       </MenuButton>
       <MenuList>
         {items.map((item) => (
