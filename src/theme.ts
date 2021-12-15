@@ -52,6 +52,7 @@ const theme = extendTheme(
         },
         footer: {
           backgroundColor: 'gray.900',
+          color: 'gray.50',
         },
         'footer a': {
           color: 'gray.50',
@@ -62,6 +63,11 @@ const theme = extendTheme(
       Link: {
         baseStyle: {
           color: 'blue.400',
+        },
+        variants: {
+          footer: {
+            color: 'gray.50',
+          },
         },
       },
       Menu: {
