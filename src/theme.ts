@@ -1,4 +1,4 @@
-import { extendTheme, ThemeConfig, withDefaultColorScheme } from '@chakra-ui/react';
+import { extendTheme, ThemeConfig, withDefaultColorScheme, withDefaultSize } from '@chakra-ui/react';
 
 const theme = extendTheme(
   {
@@ -41,7 +41,7 @@ const theme = extendTheme(
     },
     styles: {
       global: {
-        body: {
+        'html, body': {
           color: 'gray.700',
         },
         a: {
@@ -111,9 +111,19 @@ const theme = extendTheme(
           },
         },
       },
+      FormLabel: {
+        baseStyle: {
+          fontWeight: 'bold',
+          fontSize: 'sm',
+        },
+      },
     },
   },
   withDefaultColorScheme({ colorScheme: 'blue' }),
+  withDefaultSize({
+    size: 'sm',
+    components: ['Input', 'Checkbox', 'Radio', 'Textarea'],
+  }),
 );
 
 export default theme;

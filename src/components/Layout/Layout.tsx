@@ -8,7 +8,7 @@ import { Container, Flex } from '@chakra-ui/layout';
 
 export const Layout: FC = ({ children }) => {
   const router = useRouter();
-  const isLandingPages = /^(\/|\/classic-form|\/paper-form)$/.exec(router.asPath);
+  const isLandingPages = /^(\/|\/classic-form(#main-content)?|\/paper-form(#main-content)?)$/.exec(router.asPath);
   return (
     <Flex direction="column">
       <Head>
