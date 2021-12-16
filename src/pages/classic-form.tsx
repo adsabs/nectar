@@ -111,10 +111,13 @@ const ClassicForm: NextPage = () => {
             </FormControl>
           )}
 
-          <Sort name="sort" onChange={handleSortChange} />
-          <Stack direction="row" spacing={1} justify="end">
-            <Button variant="outline">Clear</Button>
-            <Button type="submit">Submit</Button>
+          <FormControl>
+            <FormLabel>Sort</FormLabel>
+            <Sort name="sort" onChange={handleSortChange} />
+          </FormControl>
+          <Stack direction="row">
+            <Button type="submit">Search</Button>
+            <Button variant="outline">Reset</Button>
           </Stack>
         </Stack>
       </form>

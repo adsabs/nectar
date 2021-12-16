@@ -1,10 +1,13 @@
 import { SolrSort, SolrSortDirection, SolrSortField } from '@api';
-import { DropdownList, SelectorLabel } from '@components/Dropdown';
 import { SortAscendingIcon, SortDescendingIcon } from '@heroicons/react/outline';
 import { isBrowser } from '@utils';
-import clsx from 'clsx';
-import { ReactElement, useEffect, useRef, useState } from 'react';
+import { ReactElement, useEffect, useMemo, useRef, useState } from 'react';
 import { sortValues } from './model';
+import Select, { OptionProps, StylesConfig } from 'react-select';
+import { CSSObject } from '@emotion/react';
+import { IconButton } from '@chakra-ui/button';
+import { Box, HStack } from '@chakra-ui/layout';
+import { Input } from '@chakra-ui/input';
 
 export interface ISortProps {
   name?: string;
@@ -15,15 +18,14 @@ export interface ISortProps {
   rightMargin?: string;
 }
 
+interface SortOptionType {
+  id: string;
+  value: string;
+  label: string;
+}
+
 export const Sort = (props: ISortProps): ReactElement => {
-  const {
-    sort: initialSort = ['date desc'],
-    onChange,
-    name = 'sort',
-    hideLabel,
-    leftMargin = 'ml-0',
-    rightMargin = 'mr-0',
-  } = props;
+  const { sort: initialSort = ['date desc'], onChange, name = 'sort', hideLabel = false } = props;
   const [sort, ...additionalSorts] = initialSort;
   const firstRender = useRef(true);
   const [selected, setSelected] = useState<[SolrSortField, SolrSortDirection]>(['date', 'desc']);
@@ -47,14 +49,18 @@ export const Sort = (props: ISortProps): ReactElement => {
     }
   }, [selected, onChange]);
 
-  const sortItems = sortValues.map(({ id, text }) => ({
+  const sortItems: SortOptionType[] = sortValues.map(({ id, text }) => ({
     id: id,
-    domId: `sort-${id}`,
+    value: id,
     label: text,
   }));
 
-  const handleSortChange = (id: string) => {
-    const val = id as SolrSortField;
+  const selectedSortItem = useMemo(() => {
+    return sortItems.find((item) => item.id === selected[0]);
+  }, [selected]);
+
+  const handleSortChange = (sortItem: SortOptionType) => {
+    const val = sortItem.id as SolrSortField;
     setSelected([val, selected[1]]);
   };
 
@@ -67,24 +73,29 @@ export const Sort = (props: ISortProps): ReactElement => {
     return [selected.join(' '), ...additionalSorts].join(',');
   };
 
-  const sortSelectorClasses = clsx(
-    leftMargin,
-    rightMargin,
-    'font-md flex items-center justify-between mr-0 p-2 w-52 h-6 text-sm border border-r-0 border-gray-300 rounded-l-md box-content cursor-pointer',
-  );
-
-  const getLabelNode = () => {
-    const sortValue = sortValues.find((sv) => selected[0] === sv.id);
-    return <SelectorLabel text={sortValue.text} classes={sortSelectorClasses} />;
+  const customStyles: StylesConfig = {
+    control: (provided: CSSObject) => ({
+      ...provided,
+      height: '2.85em',
+      borderRadius: '2px 0 0 2px',
+    }),
+    indicatorSeparator: () => ({
+      isDisabled: true,
+    }),
+    container: (provided: CSSObject) => ({
+      ...provided,
+    }),
+    option: (provided: CSSObject, state: OptionProps) => ({
+      ...provided,
+      backgroundColor: state.isFocused ? 'var(--chakra-colors-gray-100)' : 'transparent',
+      color: 'var(--chakra-colors-gray-700)',
+    }),
   };
 
   // non-js initially rendered on the server, will be swapped out for the full-featured one below when it hits client
   if (!isBrowser()) {
     return (
-      <div className="my-1">
-        <label htmlFor="sort" className="block text-gray-700 text-sm font-bold sr-only">
-          Sort
-        </label>
+      <HStack spacing={0}>
         <select
           id="sort"
           name="sort"
@@ -98,52 +109,42 @@ export const Sort = (props: ISortProps): ReactElement => {
             </span>
           ))}
         </select>
-      </div>
+      </HStack>
     );
   }
 
   return (
-    <div>
-      {hideLabel && (
-        <label htmlFor="sort" className="block text-gray-700 text-sm font-bold">
-          Sort
-        </label>
-      )}
-      <div className="flex justify-start">
-        <DropdownList
-          label={getLabelNode()}
-          items={sortItems}
-          onSelect={handleSortChange}
-          classes={{
-            button: '',
-            list: 'w-52 text-sm font-md',
-          }}
-          offset={[0, 1]}
-          placement="bottom-start"
-          role={{ label: 'list', item: 'listitem' }}
-          ariaLabel="Sort by"
+    <HStack spacing={0}>
+      <Box width="250px" fontSize="sm">
+        <Select
+          value={selectedSortItem}
+          options={sortItems}
+          isSearchable={false}
+          styles={customStyles}
+          onChange={handleSortChange}
         />
-        {selected[1] === 'asc' ? (
-          <button
-            type="button"
-            onClick={() => handleSortDirectionChange('desc')}
-            className="ml-0 p-2 border border-gray-300 rounded-r-md box-content cursor-pointer"
-          >
-            <span className="sr-only">sort ascending</span>
-            <SortAscendingIcon className="w-6 h-6" aria-hidden="true" />
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={() => handleSortDirectionChange('asc')}
-            className="ml-0 p-2 border border-gray-300 rounded-r-md box-content cursor-pointer"
-          >
-            <span className="sr-only">sort descending</span>
-            <SortDescendingIcon aria-hidden="true" className="w-6 h-6" />
-          </button>
-        )}
-        <input type="hidden" name={name} value={getSortsAsString()} />
-      </div>
-    </div>
+      </Box>
+      {selected[1] === 'asc' ? (
+        <IconButton
+          onClick={() => handleSortDirectionChange('desc')}
+          icon={<SortAscendingIcon width="20px" />}
+          aria-label="Sort ascending"
+          borderLeftRadius="0"
+          borderRightRadius="2px"
+          size="md"
+        ></IconButton>
+      ) : (
+        <IconButton
+          onClick={() => handleSortDirectionChange('asc')}
+          icon={<SortDescendingIcon width="20px" />}
+          aria-label="Sort descending"
+          borderLeftRadius="0"
+          borderRightRadius="2px"
+          size="md"
+        ></IconButton>
+      )}
+
+      <Input type="hidden" name={name} value={getSortsAsString()} />
+    </HStack>
   );
 };
