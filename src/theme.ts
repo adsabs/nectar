@@ -98,7 +98,7 @@ const theme = extendTheme(
         },
       },
       List: {
-        parts: ['item'],
+        parts: ['container', 'item'],
         variants: {
           navbar: {
             item: {
@@ -107,6 +107,29 @@ const theme = extendTheme(
               cursor: 'pointer',
               _hover: { background: 'gray.800' },
               _focus: { outline: 'none', boxShadow: 'outline' },
+            },
+          },
+          autocomplete: {
+            container: {
+              zIndex: '10',
+              marginTop: '1',
+              left: '1',
+              width: 'full',
+              maxHeight: '64',
+              backgroundColor: 'white',
+              borderRadius: 'md',
+              shadow: 'md',
+              overflowY: 'scroll',
+              ring: '1',
+              ringColor: 'gray.100',
+              marginX: '0',
+            },
+            item: {
+              paddingX: '2',
+              paddingY: '2',
+              cursor: 'pointer',
+              color: 'gray.700',
+              _focus: { outline: 'none', boxShadow: 'outline', backgroundColor: 'gray.100' },
             },
           },
         },
