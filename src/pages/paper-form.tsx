@@ -1,13 +1,18 @@
-import { BibstemPickerSingle, Button, TextInput } from '@components';
+import { Box, Text, VStack, Grid, GridItem, Stack, Divider } from '@chakra-ui/layout';
+import { Button } from '@chakra-ui/button';
+import { BibstemPickerSingle, TextInput } from '@components';
 import { PaperFormController } from '@controllers/paperformController';
 import { PaperFormType, RawPaperFormParams } from '@controllers/paperformController/types';
 import { RefreshIcon } from '@heroicons/react/solid';
 import { useAPI } from '@hooks';
 import { isBrowser } from '@utils';
-import { ErrorMessage, Field, Form, Formik } from 'formik';
+import { ErrorMessage, Field, FieldProps, Form, Formik } from 'formik';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { curry } from 'ramda';
+import { FormControl, FormLabel, FormHelperText, FormErrorMessage } from '@chakra-ui/form-control';
+import { Textarea } from '@chakra-ui/textarea';
+import { Input } from '@chakra-ui/input';
 
 type PaperFormState = {
   [PaperFormType.JOURNAL_QUERY]: {
@@ -41,11 +46,11 @@ const PaperForm: NextPage = () => {
   });
 
   return (
-    <article className="grid gap-6 grid-cols-6 mx-auto my-4 px-4 py-12 max-w-3xl">
+    <VStack as="article" spacing={5} my={16}>
       <JournalQueryForm onSubmit={handleSubmit(PaperFormType.JOURNAL_QUERY)} />
       <ReferenceQueryForm onSubmit={handleSubmit(PaperFormType.REFERENCE_QUERY)} />
       <BibcodeQueryForm onSubmit={handleSubmit(PaperFormType.BIBCODE_QUERY)} />
-    </article>
+    </VStack>
   );
 };
 export default PaperForm;
@@ -68,48 +73,57 @@ const JournalQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
         const handleBibstemUpdate = (bibstem: string) => setFieldValue('bibstem', bibstem, false);
 
         return (
-          <section className="col-span-6 px-2 py-4 bg-gray-100 shadow sm:rounded-md" aria-labelledby="form-title">
-            <h2 className="text-gray-900 text-lg font-medium leading-6" id="journal-search-form">
+          <VStack
+            aria-labelledby="form-title"
+            backgroundColor="gray.50"
+            borderRadius={5}
+            shadow="base"
+            padding={5}
+            width="full"
+            alignItems="start"
+          >
+            <Text as="h2" fontSize="large" fontWeight="bold" id="journal-search-form">
               Journal Search
-            </h2>
-            <div className="prose-sm p-2">
+            </Text>
+            <Text fontSize="sm">
               A bibstem is an abbreviation that the ADS uses to identify a journal. A full list is available here. The
               input field below will autocomplete on our current database of journal names, allowing you to type
               "Astrophysical Journal", for instance, to find the bibstem "ApJ".
-            </div>
-            <Form
-              method="POST"
-              action={`/api/paperform/${PaperFormType.JOURNAL_QUERY}`}
-              className="grid gap-x-4 grid-cols-6 mt-1 pt-2 px-2 border-t"
-            >
+            </Text>
+            <Divider mb={5} />
+            <Form method="POST" action={`/api/paperform/${PaperFormType.JOURNAL_QUERY}`} className="w-full">
               {/* Bibstem picker */}
-              <div className="col-span-6">
-                {isBrowser() ? (
-                  <BibstemPickerSingle name="bibstem" onItemUpdate={handleBibstemUpdate} />
-                ) : (
-                  <TextInput name="bibstem" label="Publication" />
-                )}
-              </div>
-              <div className="col-span-2 mt-2">
-                <Field name="year" as={TextInput} label="Year" />
-                <ErrorMessage name="year" component="div" />
-              </div>
-              <div className="col-span-2 mt-2">
-                <Field name="volume" as={TextInput} label="Volume" />
-                <ErrorMessage name="volume" component="div" />
-              </div>
-              <div className="col-span-2 mt-2">
-                <Field name="page" as={TextInput} label="Page / ID" />
-                <ErrorMessage name="page" component="div" />
-              </div>
-              <Button size="sm" className="mt-3 disabled:opacity-50" disabled={isSubmitting} type="submit">
-                {isSubmitting ? <LoadingIndicator /> : 'Search'}
-              </Button>
-              <Button variant="link" className="mt-3 disabled:opacity-50" onClick={handleReset} disabled={isSubmitting}>
-                Reset
-              </Button>
+              <Grid gridColumn={6} gap={4}>
+                <GridItem colSpan={6}>
+                  {isBrowser() ? (
+                    <BibstemPickerSingle name="bibstem" onItemUpdate={handleBibstemUpdate} />
+                  ) : (
+                    <Input name="bibstem" label="Publication" />
+                  )}
+                </GridItem>
+                <GridItem colSpan={2}>
+                  <Field name="year" as={TextInput} label="Year" />
+                  <ErrorMessage name="year" component="div" />
+                </GridItem>
+                <GridItem colSpan={2}>
+                  <Field name="volume" as={TextInput} label="Volume" />
+                  <ErrorMessage name="volume" component="div" />
+                </GridItem>
+                <GridItem colSpan={2}>
+                  <Field name="page" as={TextInput} label="Page / ID" />
+                  <ErrorMessage name="page" component="div" />
+                </GridItem>
+              </Grid>
+              <Stack direction="row" mt={5}>
+                <Button size="sm" isDisabled={isSubmitting} type="submit" isLoading={isSubmitting}>
+                  Search
+                </Button>
+                <Button variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
+                  Reset
+                </Button>
+              </Stack>
             </Form>
-          </section>
+          </VStack>
         );
       }}
     </Formik>
@@ -125,32 +139,36 @@ const ReferenceQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
       }}
     >
       {({ isSubmitting, handleReset }) => (
-        <section className="col-span-6 px-2 py-4 bg-gray-100 shadow sm:rounded-md" aria-labelledby="form-title">
-          <h2 className="text-gray-900 text-lg font-medium leading-6" id="journal-search-form">
+        <Box
+          aria-labelledby="form-title"
+          backgroundColor="gray.50"
+          borderRadius={5}
+          shadow="base"
+          padding={5}
+          width="full"
+        >
+          <Text as="h2" fontSize="large" fontWeight="bold" id="journal-search-form">
             Reference Query
-          </h2>
-          <Form
-            method="POST"
-            action={`/api/paperform/${PaperFormType.REFERENCE_QUERY}`}
-            className="grid gap-x-4 grid-cols-6 mt-1 pt-2 px-2 border-t"
-          >
-            <div className="col-span-6 mt-3">
-              <Field
-                name="reference"
-                as={TextInput}
-                label="Reference"
-                helptext={`Enter a full reference string (eg Smith et al 2000, A&A 362, pp. 333-341)`}
-              />
-              <ErrorMessage name="reference" component="div" />
-            </div>
-            <Button size="sm" className="mt-3 disabled:opacity-50" disabled={isSubmitting} type="submit">
-              {isSubmitting ? <LoadingIndicator /> : 'Search'}
-            </Button>
-            <Button variant="link" className="mt-3 disabled:opacity-50" onClick={handleReset} disabled={isSubmitting}>
-              Reset
-            </Button>
+          </Text>
+          <Divider mb={5} />
+          <Form method="POST" action={`/api/paperform/${PaperFormType.REFERENCE_QUERY}`}>
+            <Field
+              name="reference"
+              as={TextInput}
+              label="Reference"
+              helptext={`Enter a full reference string (eg Smith et al 2000, A&A 362, pp. 333-341)`}
+            />
+            <ErrorMessage name="reference" component="div" />
+            <Stack direction="row" mt={5}>
+              <Button size="sm" isDisabled={isSubmitting} type="submit" isLoading={isSubmitting}>
+                Search
+              </Button>
+              <Button variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
+                Reset
+              </Button>
+            </Stack>
           </Form>
-        </section>
+        </Box>
       )}
     </Formik>
   );
@@ -165,40 +183,39 @@ const BibcodeQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
       }}
     >
       {({ isSubmitting, handleReset }) => (
-        <section className="col-span-6 px-2 py-4 bg-gray-100 shadow sm:rounded-md" aria-labelledby="form-title">
-          <h2 className="text-gray-900 text-lg font-medium leading-6" id="journal-search-form">
+        <Box
+          aria-labelledby="form-title"
+          backgroundColor="gray.50"
+          borderRadius={5}
+          shadow="base"
+          padding={5}
+          width="full"
+        >
+          <Text as="h2" fontSize="large" fontWeight="bold" id="journal-search-form">
             Bibliographic Code Query
-          </h2>
-          <Form
-            method="POST"
-            action={`/api/paperform/${PaperFormType.BIBCODE_QUERY}`}
-            className="grid gap-x-4 grid-cols-6 mt-1 pt-2 px-2 border-t"
-          >
-            <div className="col-span-6 mt-3">
-              <label htmlFor="bibcodes" className="block text-gray-700 text-sm font-bold">
-                List of Bibcodes
-              </label>
-              <div className="mt-1">
-                <Field
-                  as="textarea"
-                  name="bibcodes"
-                  id="bibcodes"
-                  className="block w-full border border-gray-300 focus:border-indigo-500 rounded-md shadow-sm focus:ring-indigo-500 sm:text-sm"
-                />
-                <ErrorMessage name="bibcodes" component="div" />
-                <div className="prose-sm prose text-gray-500">
-                  Enter list of Bibcodes (e.g. 1989ApJ...342L..71R), one per line.
-                </div>
-              </div>
-            </div>
-            <Button size="sm" className="mt-3 disabled:opacity-50" disabled={isSubmitting} type="submit">
-              {isSubmitting ? <LoadingIndicator /> : 'Search'}
-            </Button>
-            <Button variant="link" className="mt-3 disabled:opacity-50" onClick={handleReset} disabled={isSubmitting}>
-              Reset
-            </Button>
+          </Text>
+          <Divider mb={5} />
+          <Form method="POST" action={`/api/paperform/${PaperFormType.BIBCODE_QUERY}`}>
+            <Field name="bibcodes">
+              {({ field, form }: FieldProps) => (
+                <FormControl>
+                  <FormLabel htmlFor="bibcodes">List of Bibcodes</FormLabel>
+                  <Textarea id="bibcodes" {...field} />
+                  <FormErrorMessage>{form.errors.name}</FormErrorMessage>
+                  <FormHelperText>Enter list of Bibcodes (e.g. 1989ApJ...342L..71R), one per line.</FormHelperText>
+                </FormControl>
+              )}
+            </Field>
+            <Stack direction="row" mt={5}>
+              <Button size="sm" isDisabled={isSubmitting} type="submit" isLoading={isSubmitting}>
+                Search
+              </Button>
+              <Button variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
+                Reset
+              </Button>
+            </Stack>
           </Form>
-        </section>
+        </Box>
       )}
     </Formik>
   );

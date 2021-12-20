@@ -1,4 +1,10 @@
-import { extendTheme, ThemeConfig, withDefaultColorScheme, withDefaultSize } from '@chakra-ui/react';
+import {
+  extendTheme,
+  ThemeComponentProps,
+  ThemeConfig,
+  withDefaultColorScheme,
+  withDefaultSize,
+} from '@chakra-ui/react';
 
 const theme = extendTheme(
   {
@@ -140,12 +146,29 @@ const theme = extendTheme(
           fontSize: 'sm',
         },
       },
+      Input: {
+        parts: ['field'],
+        variants: {
+          outline: (props: ThemeComponentProps) => ({
+            field: {
+              backgroundColor: props.colorMode === 'light' ? 'white' : 'black',
+            },
+          }),
+        },
+      },
+      Textarea: {
+        variants: {
+          outline: (props: ThemeComponentProps) => ({
+            backgroundColor: props.colorMode === 'light' ? 'white' : 'black',
+          }),
+        },
+      },
     },
   },
   withDefaultColorScheme({ colorScheme: 'blue' }),
   withDefaultSize({
     size: 'sm',
-    components: ['Input', 'Checkbox', 'Radio', 'Textarea'],
+    components: ['Input', 'Checkbox', 'Radio', 'Textarea', 'Button'],
   }),
 );
 
