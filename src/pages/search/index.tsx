@@ -1,9 +1,12 @@
 import AdsApi, { IADSApiSearchParams, IDocsEntity, SolrSort } from '@api';
 import { ISearchStatsFields } from '@api/lib/search/types';
+import { Box, Flex } from '@chakra-ui/layout';
+import { Alert, AlertIcon } from '@chakra-ui/react';
+import { VisuallyHidden } from '@chakra-ui/visually-hidden';
 import { ISearchBarProps, NumFound, ResultList, SearchBar } from '@components';
 import { useSearchMachine } from '@machines';
 import { ISearchMachine, TransitionType } from '@machines/lib/search/types';
-import { normalizeURLParams, truncateDecimal } from '@utils';
+import { normalizeURLParams } from '@utils';
 import { useSelector } from '@xstate/react';
 import { GetServerSideProps, NextPage } from 'next';
 import { ChangeEvent, ReactElement } from 'react';
@@ -73,32 +76,22 @@ const Form = (props: IFormProps): ReactElement => {
   };
 
   return (
-    <article aria-labelledby="search-form-title">
-      <form
-        method="get"
-        action="/search"
-        onSubmit={handleOnSubmit}
-        className="grid gap-2 grid-cols-6 mx-auto my-8 px-4 py-8 bg-white shadow sm:rounded-lg lg:max-w-7xl"
-      >
-        <h2 className="sr-only" id="search-form-title">
+    <Box aria-labelledby="search-form-title" my={16}>
+      <form method="get" action="/search" onSubmit={handleOnSubmit}>
+        <VisuallyHidden as="h2" id="search-form-title">
           Search Results
-        </h2>
-        <div className="col-span-6">
-          <div className="flex items-center space-x-3">
-            <div className="flex-1">
-              <SearchBarWrapper searchService={searchService} />
-            </div>
-          </div>
+        </VisuallyHidden>
+        <Flex direction="column" width="full">
+          <SearchBarWrapper searchService={searchService} />
           <NumFound searchService={searchService} count={result.numFound} />
           {/* <Filters /> */}
-        </div>
-        <div className="col-span-6">
+        </Flex>
+        <Box mt={5}>
           {isFailure || typeof serverError === 'string' ? (
-            <div className="flex flex-col mt-1 p-3 border-2 border-red-600 space-y-1">
-              <div className="flex items-center justify-center text-red-600 text-lg">
-                {error.message || serverError}
-              </div>
-            </div>
+            <Alert status="error">
+              <AlertIcon />
+              {error.message || serverError}
+            </Alert>
           ) : (
             <ResultList
               isLoading={isLoading}
@@ -107,10 +100,9 @@ const Form = (props: IFormProps): ReactElement => {
               showActions={true}
             />
           )}
-        </div>
-        <div className="col-span-6"></div>
+        </Box>
       </form>
-    </article>
+    </Box>
   );
 };
 

@@ -1,7 +1,8 @@
 import { IDocsEntity } from '@api';
-import { Transition } from '@headlessui/react';
-import { ChevronDoubleDownIcon, ChevronDoubleUpIcon } from '@heroicons/react/outline';
-import { RefreshIcon } from '@heroicons/react/solid';
+import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
+import { Flex, Text, VStack } from '@chakra-ui/layout';
+import { Collapse } from '@chakra-ui/transition';
+import { IconButton } from '@chakra-ui/button';
 import { useAPI } from '@hooks';
 import { useMachine } from '@xstate/react';
 import { assign, ContextFrom, DoneInvokeEvent } from 'xstate';
@@ -75,33 +76,21 @@ export const AbstractPreview = ({ id }: IAbstractPreviewProps): React.ReactEleme
   );
 
   return (
-    <div className="flex flex-col items-center justify-center">
-      <Transition
-        show={state.context.show}
-        enter="transition-opacity duration-75"
-        enterFrom="opacity-0"
-        enterTo="opacity-100"
-        leave="transition-opacity duration-150"
-        leaveFrom="opacity-100"
-        leaveTo="opacity-0"
-      >
-        <div className="mt-2" dangerouslySetInnerHTML={{ __html: state.context.abstract }}></div>
-      </Transition>
-      <button
-        type="button"
-        title={state.context.show ? 'hide abstract' : 'show abstract'}
-        onClick={() => send('load')}
-        disabled={false}
-        className="flex-col items-start"
-      >
-        {state.matches('fetching') ? (
-          <RefreshIcon className="default-icon default-link-color transform rotate-180 animate-spin" />
-        ) : state.context.show ? (
-          <ChevronDoubleUpIcon className="default-icon-sm my-1 text-gray-300" />
-        ) : (
-          <ChevronDoubleDownIcon className="default-icon-sm text-gray-300" />
-        )}
-      </button>
-    </div>
+    <Flex direction="column" justifyContent="center" alignContent="center">
+      <Collapse in={state.context.show} animateOpacity>
+        <Text fontSize="md" mt={1} dangerouslySetInnerHTML={{ __html: state.context.abstract }} />
+      </Collapse>
+      <VStack>
+        <IconButton
+          aria-label={state.context.show ? 'hide abstract' : 'show abstract'}
+          onClick={() => send('load')}
+          disabled={false}
+          variant="unstyled"
+          width="fit-content"
+          isLoading={state.matches('fetching')}
+          icon={state.context.show ? <ChevronUpIcon /> : <ChevronDownIcon />}
+        />
+      </VStack>
+    </Flex>
   );
 };

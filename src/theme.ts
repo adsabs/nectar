@@ -38,6 +38,21 @@ const theme = extendTheme(
         '900': '#1A1A1A',
       },
     },
+    fontSizes: {
+      xs: '0.75rem',
+      sm: '0.8rem',
+      md: '0.9rem',
+      lg: '1rem',
+      xl: '1.25rem',
+      '2xl': '1.5rem',
+      '3xl': '1.875rem',
+      '4xl': '2.25rem',
+      '5xl': '3rem',
+      '6xl': '3.75rem',
+      '7xl': '4.5rem',
+      '8xl': '6rem',
+      '9xl': '8rem',
+    },
     breakpoints: {
       sm: '640px',
       md: '768px',
@@ -68,7 +83,7 @@ const theme = extendTheme(
     components: {
       Link: {
         baseStyle: {
-          color: 'blue.400',
+          color: 'blue.500',
         },
         variants: {
           footer: {
@@ -88,6 +103,13 @@ const theme = extendTheme(
             },
             list: {
               zIndex: '20',
+            },
+          },
+          compact: {
+            list: {
+              zIndex: '20',
+              fontSize: 'sm',
+              width: 'auto',
             },
           },
         },
@@ -163,12 +185,17 @@ const theme = extendTheme(
           }),
         },
       },
+      IconButton: {
+        baseStyle: {
+          fontSize: 'xs',
+        },
+      },
     },
   },
   withDefaultColorScheme({ colorScheme: 'blue' }),
   withDefaultSize({
     size: 'sm',
-    components: ['Input', 'Checkbox', 'Radio', 'Textarea', 'Button'],
+    components: ['Input', 'Checkbox', 'Radio', 'Textarea', 'Button', 'IconButton'],
   }),
 );
 

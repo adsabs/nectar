@@ -69,11 +69,11 @@
   }
 
   .default-icon {
-    @apply m-1 w-5 h-5;
+    @apply w-5 h-5;
   }
 
   .default-icon-sm {
-    @apply m-1 w-4 h-4;
+    @apply w-4 h-4;
   }
 
   .abstract-page-container {

@@ -1,20 +1,31 @@
-import { ItemType } from '@components/Dropdown/types';
-import { ReactElement } from 'react';
-import { SimpleLinkDropdown } from '@components/Dropdown/SimpleLinkDropdown';
+import { ReactElement, MouseEvent } from 'react';
 import { IDocsEntity } from '@api';
 import { processLinkData } from '@components/AbstractSources/linkGenerator';
 import { DatabaseIcon, DocumentTextIcon, ViewListIcon } from '@heroicons/react/outline';
-import { LockClosedIcon, LockOpenIcon } from '@heroicons/react/solid';
+import { IconButton } from '@chakra-ui/button';
+import { Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/menu';
+import { isBrowser } from '@utils';
+import { useRouter } from 'next/router';
+import { LockIcon, UnlockIcon } from '@chakra-ui/icons';
 
 export interface IItemResourceDropdownsProps {
   doc: IDocsEntity;
 }
 
+interface IItem {
+  id: string;
+  label: ReactElement | string;
+  path?: string;
+}
+
 export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): ReactElement => {
-  let fullSourceItems: ItemType[] = [];
+  const router = useRouter();
 
-  let dataProductItems: ItemType[] = [];
+  let fullSourceItems: IItem[] = [];
 
+  let dataProductItems: IItem[] = [];
+
+  // full text resources and data products
   if (doc.esources) {
     const sources = processLinkData(doc, null);
 
@@ -23,61 +34,31 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
     const dataProducts = sources.dataProducts;
 
     fullSourceItems = fullTextSources.map((source) => ({
-      id: source.name,
       text: source.name,
       label: source.open ? (
         <>
-          <LockOpenIcon className="default-icon-sm inline" fill="green" aria-hidden />
+          <UnlockIcon color="green.600" mr={1} />
           {` ${source.name}`}
         </>
       ) : (
         <>
-          <LockClosedIcon className="default-icon-sm inline" aria-hidden />
+          <LockIcon mr={1} />
           {` ${source.name}`}
         </>
       ),
       path: source.url,
-      domId: `fullText-${source.name}`,
+      id: `fullText-${source.name}`,
       newTab: true,
     }));
 
     dataProductItems = dataProducts.map((dp) => ({
-      id: dp.name,
       text: dp.name,
       label: dp.name,
       path: dp.url,
-      domId: `dataProd-${dp.name}`,
+      id: `dataProd-${dp.name}`,
       newTab: true,
     }));
   }
-
-  const fullTextSourcesLabel = (
-    <>
-      {fullSourceItems.length > 0 ? (
-        <DocumentTextIcon
-          className="default-icon default-link-color cursor-pointer"
-          aria-label="Full text sources"
-          role="list"
-        />
-      ) : (
-        <DocumentTextIcon className="default-icon text-gray-300" aria-label="No Full text sources" role="list" />
-      )}
-    </>
-  );
-
-  const dataProductLabel = (
-    <>
-      {dataProductItems.length > 0 ? (
-        <DatabaseIcon
-          className="default-icon default-link-color cursor-pointer"
-          aria-label="Data products"
-          role="list"
-        />
-      ) : (
-        <DatabaseIcon className="default-icon text-gray-300" aria-label="No data products" role="list" />
-      )}
-    </>
-  );
 
   // citations and references
 
@@ -87,11 +68,10 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
   const num_citations =
     doc['[citations]'] && typeof doc['[citations]'].num_citations === 'number' ? doc['[citations]'].num_citations : 0;
 
-  const referenceItems: ItemType[] = [];
+  const referenceItems: IItem[] = [];
   if (num_citations > 0) {
     referenceItems.push({
-      id: 'citations',
-      domId: `ref-dropdown-cit-${doc.bibcode}`,
+      id: `ref-dropdown-cit-${doc.bibcode}`,
       label: `Citations (${num_citations})`,
       path: `/abs/${doc.bibcode}/citations`,
     });
@@ -99,62 +79,97 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
 
   if (num_references > 0) {
     referenceItems.push({
-      id: 'references',
-      domId: `ref-dropdown-ref-${doc.bibcode}`,
+      id: `ref-dropdown-ref-${doc.bibcode}`,
       label: `References (${num_references})`,
       path: `/abs/${doc.bibcode}/references`,
     });
   }
 
-  const referencesLabel = (
-    <>
-      {referenceItems.length > 0 ? (
-        <ViewListIcon
-          className="default-icon default-link-color cursor-pointer"
-          aria-label="References and citations"
-          role="list"
-        />
-      ) : (
-        <ViewListIcon className="default-icon text-gray-300" aria-label="No references and citations" role="list" />
-      )}
-    </>
-  );
+  const handleResourceClick = (e: MouseEvent<HTMLElement>) => {
+    const id = (e.target as HTMLElement).dataset['id'];
+    if (isBrowser()) {
+      window.open(fullSourceItems.find((item) => id === item.id).path, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  const handleReferenceClick = (e: MouseEvent<HTMLElement>) => {
+    const id = (e.target as HTMLElement).dataset['id'];
+    if (isBrowser()) {
+      void router.push(referenceItems.find((item) => id === item.id).path);
+    }
+  };
+
+  const handleDataProductClick = (e: MouseEvent<HTMLElement>) => {
+    const id = (e.target as HTMLElement).dataset['id'];
+    if (isBrowser()) {
+      window.open(dataProductItems.find((item) => id === item.id).path, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   return (
     <>
-      {fullSourceItems.length > 0 ? (
-        <ItemDropdown label={fullTextSourcesLabel} items={fullSourceItems} />
-      ) : (
-        fullTextSourcesLabel
-      )}
-      {referenceItems.length > 0 ? <ItemDropdown label={referencesLabel} items={referenceItems} /> : referencesLabel}
-      {dataProductItems.length > 0 ? (
-        <ItemDropdown label={dataProductLabel} items={dataProductItems} />
-      ) : (
-        dataProductLabel
-      )}
+      {/* full resources menu */}
+      <Menu variant="compact">
+        <MenuButton
+          as={IconButton}
+          aria-label={fullSourceItems.length > 0 ? 'Full text sources' : 'No full text sources'}
+          icon={<DocumentTextIcon className="default-icon" />}
+          isDisabled={fullSourceItems.length === 0}
+          variant="link"
+          size="xs"
+        ></MenuButton>
+        {fullSourceItems.length > 0 && (
+          <MenuList>
+            {fullSourceItems.map((item) => (
+              <MenuItem key={item.id} data-id={item.id} onClick={handleResourceClick}>
+                {item.label}
+              </MenuItem>
+            ))}
+          </MenuList>
+        )}
+      </Menu>
+
+      {/* reference and citation items menu */}
+      <Menu variant="compact">
+        <MenuButton
+          as={IconButton}
+          aria-label={referenceItems.length > 0 ? 'References and citations' : 'No references and citations'}
+          icon={<ViewListIcon className="default-icon" />}
+          isDisabled={referenceItems.length === 0}
+          variant="link"
+          size="xs"
+        ></MenuButton>
+        {referenceItems.length > 0 && (
+          <MenuList>
+            {referenceItems.map((item) => (
+              <MenuItem key={item.id} data-id={item.id} onClick={handleReferenceClick}>
+                {item.label}
+              </MenuItem>
+            ))}
+          </MenuList>
+        )}
+      </Menu>
+
+      {/* data product items menu */}
+      <Menu variant="compact">
+        <MenuButton
+          as={IconButton}
+          aria-label={dataProductItems.length > 0 ? 'Data products' : 'No data products'}
+          icon={<DatabaseIcon className="default-icon" />}
+          isDisabled={dataProductItems.length === 0}
+          variant="link"
+          size="xs"
+        ></MenuButton>
+        {dataProductItems.length > 0 && (
+          <MenuList>
+            {dataProductItems.map((item) => (
+              <MenuItem key={item.id} data-id={item.id} onClick={handleDataProductClick}>
+                {item.label}
+              </MenuItem>
+            ))}
+          </MenuList>
+        )}
+      </Menu>
     </>
-  );
-};
-
-interface IItemDropdownProps {
-  label: ReactElement | string;
-  items: ItemType[];
-}
-
-export const ItemDropdown = ({ label, items }: IItemDropdownProps): ReactElement => {
-  return (
-    <span tabIndex={0}>
-      <SimpleLinkDropdown
-        items={items}
-        label={label}
-        selected={''}
-        aria-label="Full Text Sources"
-        classes={{
-          list: 'h-auto w-auto absolute top-full -right-0 lg:left-0 lg:right-auto',
-          item: 'p-2 flex justify-start text-sm border-b',
-        }}
-        role={{ label: 'list', item: 'listitem' }}
-      />
-    </span>
   );
 };
