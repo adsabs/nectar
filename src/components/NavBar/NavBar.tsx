@@ -10,7 +10,7 @@ const NavMenus = dynamic(() => import('./NavMenus').then((mod) => mod.NavMenus),
 
 export const NavBar: FC = () => {
   return (
-    <nav>
+    <Box as="nav" backgroundColor="gray.900">
       <HStack direction="row" alignItems="center" spacing={3} mx={4} my={2}>
         <Box display={{ base: 'none', sm: 'initial' }}>
           <Link href="/">
@@ -34,6 +34,6 @@ export const NavBar: FC = () => {
         </CLink>
         <NavMenus />
       </HStack>
-    </nav>
+    </Box>
   );
 };
