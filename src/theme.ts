@@ -185,9 +185,37 @@ const theme = extendTheme(
           }),
         },
       },
-      IconButton: {
-        baseStyle: {
-          fontSize: 'xs',
+      Button: {
+        variants: {
+          page: {
+            borderWidth: '1px',
+            borderRadius: '0',
+            borderColor: 'gray.200',
+            backgroundColor: 'transparent',
+            color: 'gray.700',
+          },
+          pageCurrent: {
+            borderWidth: '1px',
+            borderRadius: '0',
+            borderColor: 'blue.500',
+            backgroundColor: 'blue.50',
+            color: 'gray.700',
+            zIndex: '5',
+          },
+          pagePrev: {
+            borderWidth: '1px',
+            borderRadius: '5px 0 0 5px',
+            borderColor: 'gray.200',
+            backgroundColor: 'transparent',
+            color: 'gray.700',
+          },
+          pageNext: {
+            borderWidth: '1px',
+            borderRadius: '0 5px 5px 0',
+            borderColor: 'gray.200',
+            backgroundColor: 'transparent',
+            color: 'gray.700',
+          },
         },
       },
     },
