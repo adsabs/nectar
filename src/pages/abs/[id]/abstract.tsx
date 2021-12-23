@@ -1,14 +1,17 @@
 import AdsApi, { IDocsEntity, IUserData, SolrSort } from '@api';
+import { Box, Heading, Stack, HStack, Flex, Text, Link } from '@chakra-ui/layout';
+import { Table, Tbody, Tr, Td } from '@chakra-ui/table';
+import { Alert, AlertIcon } from '@chakra-ui/alert';
+import { Button } from '@chakra-ui/button';
 import { AbstractSources, metatagsQueryFields } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/queries';
 import { createUrlByType } from '@components/AbstractSources/linkGenerator';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { useAPI } from '@hooks';
-import clsx from 'clsx';
 import { GetServerSideProps, NextPage } from 'next';
-import Image from 'next/image';
-import Link from 'next/link';
+import NextImage from 'next/image';
+import NextLink from 'next/link';
 import { isNil } from 'ramda';
 import { useEffect, useState } from 'react';
 import { dehydrate, QueryClient } from 'react-query';
@@ -71,109 +74,98 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
     setAff({ show: false, data: aff.data });
   };
 
-  const authorsClass = clsx(!aff.show ? 'flex flex-wrap' : '', 'prose-sm pl-2 text-gray-700');
-
-  const authorClass = clsx(!aff.show ? 'flex items-center' : '');
-
-  const authorNameClass = clsx(!aff.show ? 'link pr-1' : 'link');
-
   return (
     <AbsLayout doc={doc}>
-      <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
+      <Box as="article" aria-labelledby="title">
         {error ? (
-          <div className="flex items-center justify-center w-full h-full text-xl">{error}</div>
+          <Alert status="error">
+            <AlertIcon />
+            {error}
+          </Alert>
         ) : (
-          <>
-            <div className="pb-1">
-              <h2 className="prose-xl pb-2 text-gray-900 text-2xl font-medium leading-8" id="title">
-                {doc.title}
-              </h2>
+          <Stack direction="column" spacing={2}>
+            <Heading as="h2" variant="abstract" id="title">
+              {doc.title}
+            </Heading>
+            <HStack spacing={1}>
               {isBrowser() ? (
                 <>
-                  {aff.show ? (
-                    <button className="badge ml-1" onClick={handleHideAff}>
-                      hide affiliations
-                    </button>
-                  ) : (
-                    <button className="badge ml-1" onClick={handleShowAff}>
-                      show affiliations
-                    </button>
+                  <Button onClick={aff.show ? handleHideAff : handleShowAff} variant="outline" size="xs">
+                    {aff.show ? 'hide affiliations' : 'show affiliations'}
+                  </Button>
+                  {doc.author.length > MAX_AUTHORS && (
+                    <Button
+                      onClick={doc.author.length > showNumAuthors ? handleShowAllAuthors : handleShowLessAuthors}
+                      variant="outline"
+                      size="xs"
+                    >
+                      {doc.author.length > showNumAuthors ? 'show all authors' : 'show less authors'}
+                    </Button>
                   )}
-
-                  {doc.author.length > showNumAuthors ? (
-                    <span>
-                      <button className="badge" onClick={handleShowAllAuthors}>
-                        show all authors
-                      </button>
-                    </span>
-                  ) : showNumAuthors > MAX_AUTHORS ? (
-                    <button className="badge" onClick={handleShowLessAuthors}>
-                      show less authors
-                    </button>
-                  ) : null}
                 </>
               ) : null}
-              {doc.author && doc.author.length > 0 && (
-                <div className={authorsClass}>
-                  {doc.author.slice(0, showNumAuthors).map((a, index) => {
-                    const orcid =
-                      doc.orcid_pub && doc.orcid_pub[index] !== '-'
-                        ? doc.orcid_pub[index]
-                        : doc.orcid_user && doc.orcid_user[index] !== '-'
-                        ? doc.orcid_user[index]
-                        : doc.orcid_other && doc.orcid_other[index] !== '-'
-                        ? doc.orcid_other[index]
-                        : undefined;
-                    return (
-                      <div key={index} className={authorClass}>
-                        <Link
-                          href={`/search?q=${encodeURIComponent(`author:"${a}"`)}&sort=${encodeURIComponent(
-                            'date desc, bibcode desc',
-                          )}`}
+            </HStack>
+            {doc.author && doc.author.length > 0 && (
+              <Flex direction={aff.show ? 'column' : 'row'} wrap="wrap" fontSize="md">
+                {doc.author.slice(0, showNumAuthors).map((a, index) => {
+                  const orcid =
+                    doc.orcid_pub && doc.orcid_pub[index] !== '-'
+                      ? doc.orcid_pub[index]
+                      : doc.orcid_user && doc.orcid_user[index] !== '-'
+                      ? doc.orcid_user[index]
+                      : doc.orcid_other && doc.orcid_other[index] !== '-'
+                      ? doc.orcid_other[index]
+                      : undefined;
+                  return (
+                    <Box mr={1}>
+                      <NextLink
+                        key={index}
+                        href={`/search?q=${encodeURIComponent(`author:"${a}"`)}&sort=${encodeURIComponent(
+                          'date desc, bibcode desc',
+                        )}`}
+                        passHref
+                      >
+                        <Link fontSize="md">{a}</Link>
+                      </NextLink>
+                      {orcid && (
+                        <NextLink
+                          href={{
+                            pathname: '/search',
+                            query: { q: `orcid:${orcid}`, sort: 'date desc, bibcode desc' },
+                          }}
+                          passHref
                         >
-                          <a className={authorNameClass}>{a}</a>
-                        </Link>
-                        {orcid && (
-                          <Link
-                            href={{
-                              pathname: '/search',
-                              query: { q: `orcid:${orcid}`, sort: 'date desc, bibcode desc' },
-                            }}
-                          >
-                            <a style={{ height: 20 }}>
-                              {'  '}
-                              <Image src="/img/orcid-active.svg" width="20" height="20" alt="Search by ORCID" />
-                            </a>
+                          <Link px={1}>
+                            <NextImage src="/img/orcid-active.svg" width="16px" height="16px" alt="Search by ORCID" />
                           </Link>
-                        )}
-                        {aff.show ? <>({aff.data[index]})</> : null}
-                        {index === MAX_AUTHORS - 1 || index + 1 === doc.author.length ? ' ' : ';'}&nbsp;
-                      </div>
-                    );
-                  })}
-                  &nbsp;
-                  {isBrowser() && doc.author.length > showNumAuthors ? (
-                    <a onClick={handleShowAllAuthors} className="link italic">
-                      {`and ${doc.author.length - showNumAuthors} more`}
-                    </a>
-                  ) : null}
-                  {!isBrowser() && doc.author.length > showNumAuthors ? (
-                    <span className="italic">{`and ${doc.author.length - showNumAuthors} more`}</span>
-                  ) : null}
-                </div>
-              )}
-            </div>
+                        </NextLink>
+                      )}
+                      {aff.show ? <>({aff.data[index]})</> : null}
+                      <>{index === MAX_AUTHORS - 1 || index + 1 === doc.author.length ? ' ' : ';'}</>
+                    </Box>
+                  );
+                })}
+                {isBrowser() && doc.author.length > showNumAuthors ? (
+                  <Link onClick={handleShowAllAuthors} fontStyle="italic">{`and ${
+                    doc.author.length - showNumAuthors
+                  } more`}</Link>
+                ) : null}
+                {!isBrowser() && doc.author.length > showNumAuthors ? (
+                  <Text as="span" fontStyle="italic">{`and ${doc.author.length - showNumAuthors} more`}</Text>
+                ) : null}
+              </Flex>
+            )}
 
             <AbstractSources doc={doc} />
             {isNil(doc.abstract) ? (
-              <div className="p-3">No Abstract</div>
+              <Text>No Abstract</Text>
             ) : (
-              <div className="p-3" dangerouslySetInnerHTML={{ __html: doc.abstract }}></div>
+              <Text dangerouslySetInnerHTML={{ __html: doc.abstract }}></Text>
             )}
             <Details doc={doc} />
-          </>
+          </Stack>
         )}
-      </article>
+      </Box>
     </AbsLayout>
   );
 };
@@ -197,30 +189,28 @@ const Details = ({ doc }: IDetailsProps) => {
   ];
 
   return (
-    <section>
-      <div className="mt-2 bg-white border border-gray-100 rounded-lg shadow overflow-hidden">
-        <div className="px-4 py-5 sm:p-0">
-          <dl className="sm:divide-gray-200 sm:divide-y">
-            {entries.map(({ label, value, href }) => (
-              <div key={label} className="py-4 sm:grid sm:gap-4 sm:grid-cols-3 sm:px-6 sm:py-5">
-                <dt className="text-gray-500 text-sm font-medium">{label}</dt>
-                <dd className="mt-1 text-gray-900 text-sm sm:col-span-2 sm:mt-0">
-                  {href && href !== '' ? (
-                    <Link href={href}>
-                      <a className="link" target="_blank" rel="noreferrer">
-                        {Array.isArray(value) ? value.join('; ') : value}
-                      </a>
+    <Box variant="simple" border="1px" borderColor="gray.50" borderRadius="md" shadow="sm">
+      <Table colorScheme="gray">
+        <Tbody>
+          {entries.map(({ label, value, href }) => (
+            <Tr key={label}>
+              <Td>{label}</Td>
+              <Td>
+                {href && href !== '' ? (
+                  <NextLink href={href}>
+                    <Link target="_blank" rel="noreferrer">
+                      {Array.isArray(value) ? value.join('; ') : value}
                     </Link>
-                  ) : (
-                    <>{Array.isArray(value) ? value.join('; ') : value}</>
-                  )}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-      </div>
-    </section>
+                  </NextLink>
+                ) : (
+                  <>{Array.isArray(value) ? value.join('; ') : value}</>
+                )}
+              </Td>
+            </Tr>
+          ))}
+        </Tbody>
+      </Table>
+    </Box>
   );
 };
 

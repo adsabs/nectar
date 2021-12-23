@@ -64,6 +64,7 @@ const theme = extendTheme(
       global: {
         'html, body': {
           color: 'gray.700',
+          fontSize: 'md',
         },
         a: {
           color: 'blue.400',
@@ -78,6 +79,13 @@ const theme = extendTheme(
       },
     },
     components: {
+      Heading: {
+        variants: {
+          abstract: {
+            fontSize: '2xl',
+          },
+        },
+      },
       Link: {
         baseStyle: {
           color: 'blue.500',

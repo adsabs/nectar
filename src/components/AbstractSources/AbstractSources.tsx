@@ -1,12 +1,14 @@
 import { IDocsEntity } from '@api';
-import { DropdownList } from '@components';
 import { SimpleLinkDropdown } from '@components/Dropdown/SimpleLinkDropdown';
 import { ItemType } from '@components/Dropdown/types';
-import { ChevronDownIcon, LockClosedIcon, LockOpenIcon } from '@heroicons/react/solid';
 import { isBrowser } from '@utils';
 import { isNil } from 'ramda';
-import { HTMLAttributes, ReactElement } from 'react';
+import { HTMLAttributes, ReactElement, MouseEvent } from 'react';
 import { IDataProductSource, IFullTextSource, IRelatedWorks, processLinkData } from './linkGenerator';
+import { Button } from '@chakra-ui/button';
+import { Text, HStack } from '@chakra-ui/layout';
+import { Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/menu';
+import { LockIcon, UnlockIcon, ChevronDownIcon } from '@chakra-ui/icons';
 
 export interface IAbstractSourcesProps extends HTMLAttributes<HTMLDivElement> {
   doc?: IDocsEntity;
@@ -14,21 +16,21 @@ export interface IAbstractSourcesProps extends HTMLAttributes<HTMLDivElement> {
 
 export const AbstractSources = ({ doc }: IAbstractSourcesProps): ReactElement => {
   if (!doc) {
-    return <button className="button-sm-inactive">Full Text Sources</button>;
+    return <></>;
   }
 
   const { esources } = doc;
   if (isNil(esources)) {
-    return <h3>No Sources</h3>;
+    return <Text>No Sources</Text>;
   }
   const sources = processLinkData(doc, null);
 
   return (
-    <section className="flex flex-wrap justify-start ml-0">
+    <HStack as="section" wrap="wrap" spacing={0} columnGap={2} rowGap={2}>
       <FullTextDropdown sources={sources.fullTextSources} />
       <DataProductDropdown dataProducts={sources.dataProducts} relatedWorks={[]} />
-      {isBrowser() ? <button className="button-sm px-2">Add to library</button> : null}
-    </section>
+      {isBrowser() ? <Button>Add to library</Button> : null}
+    </HStack>
   );
 };
 
@@ -47,15 +49,14 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
 
   const fullSourceItems = sources.map((source) => ({
     id: source.name,
-    text: source.name,
     label: source.open ? (
       <>
-        <LockOpenIcon className="default-icon-sm inline" fill="green" />
+        <UnlockIcon color="green.600" mr={1} />
         {` ${source.name}`}
       </>
     ) : (
       <>
-        <LockClosedIcon className="default-icon-sm inline" />
+        <LockIcon mr={1} />
         {` ${source.name}`}
       </>
     ),
@@ -63,34 +64,23 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
     domId: `fullText-${source.name}`,
   }));
 
-  const handleSelect = (id: string) => {
-    if (typeof window !== 'undefined') {
-      window.open(fullSourceItems.find((item) => id === item.id).path, '_blank', 'noopener,noreferrer');
+  const label = (
+    <Button rightIcon={<ChevronDownIcon />} isDisabled={fullSourceItems.length === 0}>
+      Full Text Sources
+    </Button>
+  );
+
+  const handleSelect = (e: MouseEvent<HTMLElement>) => {
+    const id = (e.target as HTMLElement).dataset['id'];
+    const path = fullSourceItems.find((item) => id === item.id)?.path;
+    if (isBrowser() && path) {
+      window.open(path, '_blank', 'noopener,noreferrer');
     }
   };
 
-  const label = (
-    <div className={sources.length > 0 ? dropdownButtonClasses : dropdownButtonClassesInactive}>
-      Full Text Sources{' '}
-      {sources.find((s) => s.open) !== undefined ? <LockOpenIcon className="default-icon-sm inline" /> : null}
-      <ChevronDownIcon className="default-icon-sm inline" aria-hidden="true" />
-    </div>
-  );
-
   return (
     <>
-      {isBrowser() ? (
-        <DropdownList
-          label={label}
-          items={fullSourceItems}
-          onSelect={handleSelect}
-          placement={'bottom-start'}
-          classes={{ button: sources.length === 0 ? 'cursor-default' : '', list: '' }}
-          offset={[0, 2]}
-          role={{ label: 'list', item: 'listitem' }}
-          ariaLabel="Full Text Sources"
-        ></DropdownList>
-      ) : (
+      {!isBrowser() ? (
         <span>
           <SimpleLinkDropdown
             items={fullSourceItems}
@@ -105,7 +95,23 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
             role={{ label: 'list', item: 'listitem' }}
           />
         </span>
-      )}
+      ) : null}
+      {isBrowser() ? (
+        <Menu>
+          <MenuButton as={Button} rightIcon={<ChevronDownIcon />} isDisabled={fullSourceItems.length === 0}>
+            Full Text Sources
+          </MenuButton>
+          {fullSourceItems.length > 0 && (
+            <MenuList>
+              {fullSourceItems.map((item) => (
+                <MenuItem key={item.id} data-id={item.id} onClick={handleSelect}>
+                  {item.label}
+                </MenuItem>
+              ))}
+            </MenuList>
+          )}
+        </Menu>
+      ) : null}
     </>
   );
 };
@@ -160,37 +166,23 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
     items.push(...relatedWorkItems);
   }
 
-  const handleSelect = (id: string) => {
-    if (typeof window !== 'undefined') {
-      const url = items.find((item) => id === item.id).path;
-      if (url) {
-        window.open(url, '_blank', 'noopener,noreferrer');
-      }
+  const label = (
+    <Button rightIcon={<ChevronDownIcon />} isDisabled={items.length === 0}>
+      Other Resources
+    </Button>
+  );
+
+  const handleSelect = (e: MouseEvent<HTMLElement>) => {
+    const id = (e.target as HTMLElement).dataset['id'];
+    const path = items.find((item) => id === item.id)?.path;
+    if (isBrowser() && path) {
+      window.open(path, '_blank', 'noopener,noreferrer');
     }
   };
 
-  const label = (
-    <div className={items.length > 0 ? dropdownButtonClasses : dropdownButtonClassesInactive}>
-      Other Resources <ChevronDownIcon className="default-icon-sm inline" aria-hidden="true" />
-    </div>
-  );
-
   return (
     <>
-      {isBrowser() ? (
-        <div aria-disabled={items.length === 0}>
-          <DropdownList
-            label={label}
-            items={items}
-            onSelect={handleSelect}
-            classes={{ button: items.length === 0 ? 'cursor-default' : '', list: '' }}
-            placement={'bottom-start'}
-            offset={[0, 2]}
-            role={{ label: 'list', item: 'listitem' }}
-            ariaLabel="Other Resources"
-          />
-        </div>
-      ) : (
+      {!isBrowser() ? (
         <span>
           {items.length > 0 ? (
             <SimpleLinkDropdown
@@ -204,11 +196,25 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
               }}
               role={{ label: 'list', item: 'listitem' }}
             />
-          ) : (
-            <>{label}</>
-          )}
+          ) : null}
         </span>
-      )}
+      ) : null}
+      {isBrowser() ? (
+        <Menu>
+          <MenuButton as={Button} rightIcon={<ChevronDownIcon />} isDisabled={items.length === 0}>
+            Other Resources
+          </MenuButton>
+          {items.length > 0 && (
+            <MenuList>
+              {items.map((item) => (
+                <MenuItem key={item.id} data-id={item.id} onClick={handleSelect}>
+                  {item.label}
+                </MenuItem>
+              ))}
+            </MenuList>
+          )}
+        </Menu>
+      ) : null}
     </>
   );
 };
