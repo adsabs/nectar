@@ -34,7 +34,6 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
     const dataProducts = sources.dataProducts;
 
     fullSourceItems = fullTextSources.map((source) => ({
-      text: source.name,
       label: source.open ? (
         <>
           <UnlockIcon color="green.600" mr={1} />
@@ -48,15 +47,12 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
       ),
       path: source.url,
       id: `fullText-${source.name}`,
-      newTab: true,
     }));
 
     dataProductItems = dataProducts.map((dp) => ({
-      text: dp.name,
       label: dp.name,
       path: dp.url,
       id: `dataProd-${dp.name}`,
-      newTab: true,
     }));
   }
 
@@ -83,22 +79,25 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
 
   const handleResourceClick: MouseEventHandler<HTMLElement> = (e) => {
     const id = e.currentTarget.dataset['id'];
-    if (isBrowser()) {
-      window.open(fullSourceItems.find((item) => id === item.id).path, '_blank', 'noopener,noreferrer');
+    const path = fullSourceItems.find((item) => id === item.id)?.path;
+    if (isBrowser() && path) {
+      window.open(path, '_blank', 'noopener,noreferrer');
     }
   };
 
   const handleReferenceClick: MouseEventHandler<HTMLElement> = (e) => {
     const id = e.currentTarget.dataset['id'];
-    if (isBrowser()) {
-      void router.push(referenceItems.find((item) => id === item.id).path);
+    const path = referenceItems.find((item) => id === item.id)?.path;
+    if (isBrowser() && path) {
+      void router.push(path);
     }
   };
 
   const handleDataProductClick: MouseEventHandler<HTMLElement> = (e) => {
     const id = e.currentTarget.dataset['id'];
-    if (isBrowser()) {
-      window.open(dataProductItems.find((item) => id === item.id).path, '_blank', 'noopener,noreferrer');
+    const path = dataProductItems.find((item) => id === item.id)?.path;
+    if (isBrowser() && path) {
+      window.open(path, '_blank', 'noopener,noreferrer');
     }
   };
 
