@@ -8,7 +8,7 @@ interface IAbsRefLayoutProps {
 
 export const AbstractRefLayout: FC<IAbsRefLayoutProps> = ({ children, titleDescription, docTitle }) => {
   return (
-    <Stack direction="column" as="section" aria-labelledby="title" gap={1}>
+    <Stack direction="column" as="section" aria-labelledby="title" gap={1} width="full">
       <Heading as="h2" id="title" fontSize="2xl">
         <Text as="span" fontSize="xl">
           {titleDescription}

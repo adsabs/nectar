@@ -83,7 +83,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
             {error}
           </Alert>
         ) : (
-          <Stack direction="column" spacing={2}>
+          <Stack direction="column" gap={2}>
             <Heading as="h2" variant="abstract" id="title">
               {doc.title}
             </Heading>
@@ -117,9 +117,8 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                       ? doc.orcid_other[index]
                       : undefined;
                   return (
-                    <Box mr={1}>
+                    <Box mr={1} key={index}>
                       <NextLink
-                        key={index}
                         href={`/search?q=${encodeURIComponent(`author:"${a}"`)}&sort=${encodeURIComponent(
                           'date desc, bibcode desc',
                         )}`}
@@ -190,7 +189,7 @@ const Details = ({ doc }: IDetailsProps) => {
 
   return (
     <Box variant="simple" border="1px" borderColor="gray.50" borderRadius="md" shadow="sm">
-      <Table colorScheme="gray">
+      <Table colorScheme="gray" size="md">
         <Tbody>
           {entries.map(({ label, value, href }) => (
             <Tr key={label}>

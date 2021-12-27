@@ -41,7 +41,7 @@ const theme = extendTheme(
     fontSizes: {
       xs: '0.75rem',
       sm: '0.8rem',
-      md: '0.9rem',
+      md: '0.95rem',
       lg: '1rem',
       xl: '1.25rem',
       '2xl': '1.5rem',
@@ -228,7 +228,7 @@ const theme = extendTheme(
   withDefaultColorScheme({ colorScheme: 'blue' }),
   withDefaultSize({
     size: 'sm',
-    components: ['Input', 'Checkbox', 'Radio', 'Textarea', 'Button', 'IconButton'],
+    components: ['Input', 'Checkbox', 'Radio', 'Textarea', 'Button', 'IconButton', 'Table'],
   }),
 );
 
