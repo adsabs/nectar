@@ -1,8 +1,9 @@
 import AdsApi, { IDocsEntity, IUserData, SolrSort } from '@api';
-import { Box, Stack, HStack, Flex, Text, Link } from '@chakra-ui/layout';
-import { Table, Tbody, Tr, Td } from '@chakra-ui/table';
 import { Alert, AlertIcon } from '@chakra-ui/alert';
 import { Button } from '@chakra-ui/button';
+import { Box, Flex, HStack, Link, Stack, Text } from '@chakra-ui/layout';
+import { Heading } from '@chakra-ui/react';
+import { Table, Tbody, Td, Tr } from '@chakra-ui/table';
 import { AbstractSources, metatagsQueryFields } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/queries';
@@ -83,7 +84,10 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
             {error}
           </Alert>
         ) : (
-          <Stack direction="column" spacing={2}>
+          <Stack direction="column" gap={2}>
+            <Heading as="h2" variant="abstract" id="title">
+              {doc.title}
+            </Heading>
             <HStack spacing={1}>
               {isBrowser() ? (
                 <>
