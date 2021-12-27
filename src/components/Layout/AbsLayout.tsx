@@ -1,5 +1,5 @@
 import { IDocsEntity } from '@api';
-import { Stack } from '@chakra-ui/layout';
+import { Stack, Flex } from '@chakra-ui/layout';
 import { AbstractSideNav } from '@components';
 import { Metatags } from '@components/Metatags/Metatags';
 import { isBrowser } from '@utils';
@@ -12,7 +12,7 @@ interface IAbsLayoutProps {
 
 export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc }) => {
   return (
-    <Stack direction={{ base: 'column', lg: 'row' }} my={{ base: '6', lg: '16' }} spacing={6}>
+    <Flex direction={{ base: 'column', lg: 'row' }} my={{ base: '6', lg: '16' }} gap={6}>
       {!isBrowser() && (
         <Head>
           <title>{doc?.title ?? ''}</title>
@@ -21,6 +21,6 @@ export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc }) => {
       )}
       <AbstractSideNav doc={doc} />
       {children}
-    </Stack>
+    </Flex>
   );
 };
