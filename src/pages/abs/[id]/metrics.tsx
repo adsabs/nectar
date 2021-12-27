@@ -1,6 +1,6 @@
 import AdsApi, { IADSApiMetricsParams, IDocsEntity, IUserData } from '@api';
 import { BasicStatsKey, CitationsStatsKey, IADSApiMetricsResponse, MetricsResponseKey } from '@api/lib/metrics/types';
-import { metatagsQueryFields } from '@components';
+import { metatagsQueryFields, AbstractRefLayout } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/queries';
 import { AbsLayout } from '@components/Layout/AbsLayout';
@@ -8,6 +8,7 @@ import { Metrics } from '@components/Metrics';
 import { normalizeURLParams } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import { dehydrate, QueryClient } from 'react-query';
+import { Alert, AlertIcon } from '@chakra-ui/alert';
 
 interface IMetricsPageProps {
   originalDoc: IDocsEntity;
@@ -25,20 +26,21 @@ const MetricsPage: NextPage<IMetricsPageProps> = (props: IMetricsPageProps) => {
 
   return (
     <AbsLayout doc={originalDoc}>
-      <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
-        <div className="pb-1">
-          <h2 className="prose-xl text-gray-900 font-medium leading-8" id="title">
-            <span>Metrics for </span> <div className="text-2xl">{originalDoc.title}</div>
-          </h2>
-        </div>
+      <AbstractRefLayout titleDescription="Metrics for" docTitle={originalDoc.title}>
         {error ? (
-          <div className="flex items-center justify-center w-full h-full text-xl">{error}</div>
+          <Alert status="error">
+            <AlertIcon />
+            {error}
+          </Alert>
         ) : hasCitations || hasReads ? (
           <Metrics metrics={metrics} isAbstract={true} />
         ) : (
-          <div className="flex items-center justify-center w-full h-full text-xl">{'No metrics data'}</div>
+          <Alert status="error">
+            <AlertIcon />
+            No metrics data
+          </Alert>
         )}
-      </article>
+      </AbstractRefLayout>
     </AbsLayout>
   );
 };

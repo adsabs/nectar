@@ -1,7 +1,9 @@
-import { Popover } from '@components/Popover/Popover';
-import { QuestionMarkCircleIcon } from '@heroicons/react/solid';
-import clsx from 'clsx';
+import { VisuallyHidden } from '@chakra-ui/visually-hidden';
+import { Box } from '@chakra-ui/layout';
+import { Table, Thead, Tbody, Tr, Td, Th } from '@chakra-ui/table';
 import { ReactElement } from 'react';
+import { Tooltip } from '@chakra-ui/tooltip';
+import { QuestionIcon } from '@chakra-ui/icons';
 import { IReadsTableData } from './types';
 
 export interface IReadsTableProps {
@@ -12,104 +14,86 @@ export interface IReadsTableProps {
 export const ReadsTable = (props: IReadsTableProps): ReactElement => {
   const { data, isAbstract } = props;
 
-  const hiddenAbsClass = clsx(isAbstract ? 'hidden' : '');
-
-  const iconClass = 'default-icon text-gray-400';
-
-  const helpLabel = <QuestionMarkCircleIcon className={iconClass} aria-label="tooltip" />;
-
   return (
-    <table className="table">
-      <thead>
-        <tr>
-          <th>
-            <span className="sr-only">no value</span>
-          </th>
-          <th>
-            <span className="sr-only">no value</span>
-          </th>
-          <th className={hiddenAbsClass}>Totals</th>
-          <th className={hiddenAbsClass}>Refereed</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Total number of reads</td>
-          <td>
-            <Popover
-              label={helpLabel}
-              title={'Total Number of Reads'}
-              message={
-                "The total number of times all papers were read. For each paper, a read is counted if an ADS user runs a search in our system and then requests to either view the paper's full bibliographic record or download the fulltext."
-              }
-            />
-          </td>
-          <td>{data.totalNumberOfReads[0]}</td>
-          <td className={hiddenAbsClass}>{data.totalNumberOfReads[1]}</td>
-        </tr>
-        <tr className={hiddenAbsClass}>
-          <td>Average number of reads</td>
-          <td>
-            <Popover
-              label={helpLabel}
-              title="<b>Average Number of Reads</b>"
-              message="The total number of reads divided by the number of papers."
-            />
-          </td>
-          <td>{data.averageNumberOfReads[0]}</td>
-          <td className={hiddenAbsClass}>{data.averageNumberOfReads[1]}</td>
-        </tr>
-        <tr className={hiddenAbsClass}>
-          <td>Median number of reads</td>
-          <td>
-            <Popover
-              label={helpLabel}
-              title={'Median Number of Reads'}
-              message={'The median of the reads distribution.'}
-            />
-          </td>
-          <td>{data.medianNumberOfReads[0]}</td>
-          <td className={hiddenAbsClass}>{data.medianNumberOfReads[1]}</td>
-        </tr>
+    <Table width="auto">
+      <Thead>
+        <Tr>
+          <Th>
+            <VisuallyHidden>no value</VisuallyHidden>
+          </Th>
+          <Th>
+            <VisuallyHidden>no value</VisuallyHidden>
+          </Th>
+          <Th>
+            <Box hidden={isAbstract}>Totals</Box>
+          </Th>
+          <Th hidden={isAbstract}>Refereed</Th>
+        </Tr>
+      </Thead>
+      <Tbody>
+        <Tr>
+          <Td>Total number of reads</Td>
+          <Td>
+            <Tooltip label="The total number of times all papers were read. For each paper, a read is counted if an ADS user runs a search in our system and then requests to either view the paper's full bibliographic record or download the fulltext.">
+              <QuestionIcon />
+            </Tooltip>
+          </Td>
+          <Td>{data.totalNumberOfReads[0]}</Td>
+          <Td hidden={isAbstract}>{data.totalNumberOfReads[1]}</Td>
+        </Tr>
+        <Tr hidden={isAbstract}>
+          <Td>Average number of reads</Td>
+          <Td>
+            <Tooltip label="The total number of reads divided by the number of papers.">
+              <QuestionIcon />
+            </Tooltip>
+          </Td>
+          <Td>{data.averageNumberOfReads[0]}</Td>
+          <Td hidden={isAbstract}>{data.averageNumberOfReads[1]}</Td>
+        </Tr>
+        <Tr hidden={isAbstract}>
+          <Td>Median number of reads</Td>
+          <Td>
+            <Tooltip label="The median of the reads distribution.">
+              <QuestionIcon />
+            </Tooltip>
+          </Td>
+          <Td>{data.medianNumberOfReads[0]}</Td>
+          <Td hidden={isAbstract}>{data.medianNumberOfReads[1]}</Td>
+        </Tr>
 
-        <tr>
-          <td>Total number of downloads</td>
-          <td>
-            <Popover
-              label={helpLabel}
-              title="Total Number of Downloads"
-              message="The total number of times full text (article or e-print) was accessed."
-            />
-          </td>
-          <td>{data.totalNumberOfDownloads[0]}</td>
-          <td className={hiddenAbsClass}>{data.totalNumberOfDownloads[1]}</td>
-        </tr>
-        <tr className={hiddenAbsClass}>
-          <td>Average number of downloads</td>
-          <td>
-            <Popover
-              label={helpLabel}
-              title="Average Number of Downloads"
-              message="The total number of downloads divided by the number of papers."
-            />
-          </td>
-          <td>{data.averageNumberOfDownloads[0]}</td>
-          <td className={hiddenAbsClass}>{data.averageNumberOfDownloads[1]}</td>
-        </tr>
+        <Tr>
+          <Td>Total number of downloads</Td>
+          <Td>
+            <Tooltip label="The total number of times full text (article or e-print) was accessed.">
+              <QuestionIcon />
+            </Tooltip>
+          </Td>
+          <Td>{data.totalNumberOfDownloads[0]}</Td>
+          <Td hidden={isAbstract}>{data.totalNumberOfDownloads[1]}</Td>
+        </Tr>
+        <Tr hidden={isAbstract}>
+          <Td>Average number of downloads</Td>
+          <Td>
+            <Tooltip label="The total number of downloads divided by the number of papers.">
+              <QuestionIcon />
+            </Tooltip>
+          </Td>
+          <Td>{data.averageNumberOfDownloads[0]}</Td>
+          <Td hidden={isAbstract}>{data.averageNumberOfDownloads[1]}</Td>
+        </Tr>
 
-        <tr className={hiddenAbsClass}>
-          <td>Median number of downloads</td>
-          <td>
-            <Popover
-              label={helpLabel}
-              title="Median Number of Downloads"
-              message="The median of the downloads distribution."
-            />
-          </td>
-          <td>{data.medianNumberOfDownloads[0]}</td>
-          <td className={hiddenAbsClass}>{data.medianNumberOfDownloads[1]}</td>
-        </tr>
-      </tbody>
-    </table>
+        <Tr hidden={isAbstract}>
+          <Td>Median number of downloads</Td>
+          <Td>
+            <Tooltip label="The median of the downloads distribution.">
+              <QuestionIcon />
+            </Tooltip>
+          </Td>
+          <Td>{data.medianNumberOfDownloads[0]}</Td>
+          <Td hidden={isAbstract}>{data.medianNumberOfDownloads[1]}</Td>
+        </Tr>
+      </Tbody>
+    </Table>
   );
 };

@@ -1,9 +1,9 @@
 import { IADSApiMetricsResponse } from '@api';
-import { MetricsResponseKey, CitationsStatsKey, BasicStatsKey } from '@api/lib/metrics/types';
 import { useMetrics } from '@hooks/useMetrics';
 import { ReactElement } from 'react';
 import { CitationsTable } from './CitationsTable';
 import { ReadsTable } from './ReadsTable';
+import { Box, Heading } from '@chakra-ui/layout';
 interface IMetricsProps {
   metrics: IADSApiMetricsResponse;
   isAbstract: boolean;
@@ -14,25 +14,23 @@ export const Metrics = (props: IMetricsProps): ReactElement => {
 
   const { citationsGraph, readsGraph, citationsTable, readsTable } = useMetrics(metrics);
 
-  const headingClass = 'bg-gray-100 text-3xl h-16 p-2 font-light flex items-center my-5';
-
   return (
     <>
       {citationsTable ? (
-        <section>
-          <div className={headingClass}>
-            <h3>Citations</h3>
-          </div>
+        <Box as="section">
+          <Heading as="h3" fontSize="2xl" fontWeight="light" backgroundColor="gray.50" p={3}>
+            Citations
+          </Heading>
           <CitationsTable data={citationsTable} isAbstract={isAbstract} />
-        </section>
+        </Box>
       ) : null}
       {readsTable ? (
-        <section>
-          <div className={headingClass}>
-            <h3>Reads</h3>
-          </div>
+        <Box as="section">
+          <Heading as="h3" fontSize="2xl" fontWeight="light" backgroundColor="gray.50" p={3}>
+            Reads
+          </Heading>
           <ReadsTable data={readsTable} isAbstract={isAbstract} />
-        </section>
+        </Box>
       ) : null}
     </>
   );
