@@ -5,9 +5,12 @@ import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/q
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { normalizeURLParams } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
-import Image from 'next/image';
-import Link from 'next/link';
+import NextImage from 'next/image';
+import NextLink from 'next/link';
 import { dehydrate, QueryClient } from 'react-query';
+import { Alert, AlertIcon } from '@chakra-ui/alert';
+import { Box, Flex, Link } from '@chakra-ui/layout';
+
 interface IGraphicsPageProps {
   graphics?: IADSApiGraphicsResponse;
   originalDoc: IDocsEntity;
@@ -18,41 +21,45 @@ const GraphicsPage: NextPage<IGraphicsPageProps> = (props: IGraphicsPageProps) =
   const { originalDoc, graphics, error } = props;
   return (
     <AbsLayout doc={originalDoc} titleDescription="Graphics from">
-      <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
-        <div className="pb-1">
-          <h2 className="prose-xl text-gray-900 font-medium leading-8" id="title">
-            <span>Graphics from</span> <div className="text-2xl">{originalDoc.title}</div>
-          </h2>
-          {error ?? <div className="my-2" dangerouslySetInnerHTML={{ __html: graphics.header }}></div>}
-        </div>
-        {error ? (
-          <div className="flex items-center justify-center w-full h-full text-xl">{error}</div>
-        ) : (
-          <div className="flex flex-wrap">
+      {error ? (
+        <Alert status="error">
+          <AlertIcon />
+          {error}
+        </Alert>
+      ) : (
+        <>
+          <Box dangerouslySetInnerHTML={{ __html: graphics.header }}></Box>
+          <Flex wrap="wrap">
             {graphics.figures.map((figure, index) => {
               return (
-                <div
+                <Flex
                   key={index}
-                  className="flex flex-col items-center justify-between m-2 p-2 border-2 border-gray-100 rounded-lg"
+                  direction="column"
+                  alignItems="center"
+                  borderWidth={1}
+                  borderColor="gray.100"
+                  borderRadius="md"
+                  p={2}
+                  m={2}
                 >
-                  <Link href={figure.images[0].highres}>
-                    <a target="_blank" rel="noreferrer noopener" className="relative">
-                      <Image
+                  <NextLink href={figure.images[0].highres} passHref>
+                    <Link target="_blank" rel="noreferrer noopener">
+                      <NextImage
                         src={figure.images[0].thumbnail}
                         width="150"
                         height="150"
                         className="p-5"
                         alt={figure.figure_label}
-                      ></Image>
-                    </a>
-                  </Link>
-                  <span aria-hidden="true">{figure.figure_label}</span>
-                </div>
+                      ></NextImage>
+                    </Link>
+                  </NextLink>
+                  <Box aria-hidden="true">{figure.figure_label}</Box>
+                </Flex>
               );
             })}
-          </div>
-        )}
-      </article>
+          </Flex>
+        </>
+      )}
     </AbsLayout>
   );
 };
