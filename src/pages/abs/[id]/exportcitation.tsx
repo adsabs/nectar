@@ -17,7 +17,7 @@ interface IExportCitationPageProps {
 
 const ExportCitationPage: NextPage<IExportCitationPageProps> = ({ originalDoc, bibcode, text, format, error }) => {
   return (
-    <AbsLayout doc={originalDoc}>
+    <AbsLayout doc={originalDoc} titleDescription="Export citation for">
       <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
         <div className="pb-1">
           <h2 className="prose-xl text-gray-900 font-medium leading-8" id="title">

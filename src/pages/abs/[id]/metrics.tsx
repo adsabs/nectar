@@ -1,6 +1,6 @@
 import AdsApi, { IADSApiMetricsParams, IDocsEntity, IUserData } from '@api';
 import { BasicStatsKey, CitationsStatsKey, IADSApiMetricsResponse, MetricsResponseKey } from '@api/lib/metrics/types';
-import { metatagsQueryFields, AbstractRefLayout } from '@components';
+import { metatagsQueryFields } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/queries';
 import { AbsLayout } from '@components/Layout/AbsLayout';
@@ -25,22 +25,20 @@ const MetricsPage: NextPage<IMetricsPageProps> = (props: IMetricsPageProps) => {
   const hasReads = metrics && metrics[MetricsResponseKey.BASIC_STATS][BasicStatsKey.TOTAL_NUMBER_OF_READS] > 0;
 
   return (
-    <AbsLayout doc={originalDoc}>
-      <AbstractRefLayout titleDescription="Metrics for" docTitle={originalDoc.title}>
-        {error ? (
-          <Alert status="error">
-            <AlertIcon />
-            {error}
-          </Alert>
-        ) : hasCitations || hasReads ? (
-          <Metrics metrics={metrics} isAbstract={true} />
-        ) : (
-          <Alert status="error">
-            <AlertIcon />
-            No metrics data
-          </Alert>
-        )}
-      </AbstractRefLayout>
+    <AbsLayout doc={originalDoc} titleDescription="Metrics for">
+      {error ? (
+        <Alert status="error">
+          <AlertIcon />
+          {error}
+        </Alert>
+      ) : hasCitations || hasReads ? (
+        <Metrics metrics={metrics} isAbstract={true} />
+      ) : (
+        <Alert status="error">
+          <AlertIcon />
+          No metrics data
+        </Alert>
+      )}
     </AbsLayout>
   );
 };

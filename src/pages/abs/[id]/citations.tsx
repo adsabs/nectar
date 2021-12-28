@@ -1,5 +1,5 @@
 import AdsApi, { IADSApiSearchParams, IDocsEntity, IUserData } from '@api';
-import { metatagsQueryFields, AbstractRefLayout } from '@components';
+import { metatagsQueryFields } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/queries';
 import { AbsLayout } from '@components/Layout/AbsLayout';
@@ -44,25 +44,23 @@ const CitationsPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProps
   const { query } = useRouter();
 
   return (
-    <AbsLayout doc={originalDoc}>
-      <AbstractRefLayout titleDescription="Papers that cite" docTitle={originalDoc.title}>
-        {error ? (
-          <Alert status="error">
-            <AlertIcon />
-            {error}
-          </Alert>
-        ) : (
-          <AbstractRefList
-            query={getQueryParams(query.id)}
-            docs={docs}
-            resultsLinkHref={`/search?${qs.stringify({
-              q: `citations(bibcode:${originalDoc.bibcode})`,
-              sort: 'date desc',
-            })}`}
-            numFound={originalDoc['[citations]'].num_citations}
-          />
-        )}
-      </AbstractRefLayout>
+    <AbsLayout doc={originalDoc} titleDescription="Papers that cite">
+      {error ? (
+        <Alert status="error">
+          <AlertIcon />
+          {error}
+        </Alert>
+      ) : (
+        <AbstractRefList
+          query={getQueryParams(query.id)}
+          docs={docs}
+          resultsLinkHref={`/search?${qs.stringify({
+            q: `citations(bibcode:${originalDoc.bibcode})`,
+            sort: 'date desc',
+          })}`}
+          numFound={originalDoc['[citations]'].num_citations}
+        />
+      )}
     </AbsLayout>
   );
 };

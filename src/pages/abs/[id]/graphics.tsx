@@ -17,7 +17,7 @@ interface IGraphicsPageProps {
 const GraphicsPage: NextPage<IGraphicsPageProps> = (props: IGraphicsPageProps) => {
   const { originalDoc, graphics, error } = props;
   return (
-    <AbsLayout doc={originalDoc}>
+    <AbsLayout doc={originalDoc} titleDescription="Graphics from">
       <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
         <div className="pb-1">
           <h2 className="prose-xl text-gray-900 font-medium leading-8" id="title">

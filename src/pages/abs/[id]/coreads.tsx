@@ -1,5 +1,5 @@
 import AdsApi, { IADSApiSearchParams, IDocsEntity, IUserData } from '@api';
-import { AbstractRefLayout, AbstractRefList, metatagsQueryFields } from '@components';
+import { AbstractRefList, metatagsQueryFields } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/queries';
 import { AbsLayout } from '@components/Layout/AbsLayout';
@@ -43,25 +43,23 @@ const CoreadsPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProps) 
   const { query } = useRouter();
 
   return (
-    <AbsLayout doc={originalDoc}>
-      <AbstractRefLayout titleDescription="Papers also read by those who read" docTitle={originalDoc.title}>
-        {error ? (
-          <Alert status="error">
-            <AlertIcon />
-            {error}
-          </Alert>
-        ) : (
-          <AbstractRefList
-            query={getQueryParams(query.id)}
-            docs={docs}
-            resultsLinkHref={`/search?${qs.stringify({
-              q: `trending(bibcode:${originalDoc.bibcode}) -bibcode:${originalDoc.bibcode}`,
-              sort: 'score desc',
-            })}`}
-            numFound={parseInt(originalDoc.read_count) ?? 0}
-          />
-        )}
-      </AbstractRefLayout>
+    <AbsLayout doc={originalDoc} titleDescription="Papers also read by those who read">
+      {error ? (
+        <Alert status="error">
+          <AlertIcon />
+          {error}
+        </Alert>
+      ) : (
+        <AbstractRefList
+          query={getQueryParams(query.id)}
+          docs={docs}
+          resultsLinkHref={`/search?${qs.stringify({
+            q: `trending(bibcode:${originalDoc.bibcode}) -bibcode:${originalDoc.bibcode}`,
+            sort: 'score desc',
+          })}`}
+          numFound={parseInt(originalDoc.read_count) ?? 0}
+        />
+      )}
     </AbsLayout>
   );
 };

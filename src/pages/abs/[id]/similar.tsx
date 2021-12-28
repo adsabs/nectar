@@ -1,5 +1,5 @@
 import AdsApi, { IADSApiSearchParams, IDocsEntity, IUserData } from '@api';
-import { metatagsQueryFields, AbstractRefLayout } from '@components';
+import { metatagsQueryFields } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/queries';
 import { AbsLayout } from '@components/Layout/AbsLayout';
@@ -43,25 +43,23 @@ const SimilarPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProps) 
   const { query } = useRouter();
 
   return (
-    <AbsLayout doc={originalDoc}>
-      <AbstractRefLayout titleDescription="Papers similar to" docTitle={originalDoc.title}>
-        {error ? (
-          <Alert status="error">
-            <AlertIcon />
-            {error}
-          </Alert>
-        ) : (
-          <AbstractRefList
-            query={getQueryParams(query.id)}
-            docs={docs}
-            resultsLinkHref={`/search?${qs.stringify({
-              q: `similar(bibcode:${originalDoc.bibcode})`,
-              sort: 'score desc',
-            })}`}
-            numFound={docs.length}
-          />
-        )}
-      </AbstractRefLayout>
+    <AbsLayout doc={originalDoc} titleDescription="Papers similar to">
+      {error ? (
+        <Alert status="error">
+          <AlertIcon />
+          {error}
+        </Alert>
+      ) : (
+        <AbstractRefList
+          query={getQueryParams(query.id)}
+          docs={docs}
+          resultsLinkHref={`/search?${qs.stringify({
+            q: `similar(bibcode:${originalDoc.bibcode})`,
+            sort: 'score desc',
+          })}`}
+          numFound={docs.length}
+        />
+      )}
     </AbsLayout>
   );
 };

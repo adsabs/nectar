@@ -1,5 +1,5 @@
 import AdsApi, { IDocsEntity, IUserData, SolrSort } from '@api';
-import { Box, Heading, Stack, HStack, Flex, Text, Link } from '@chakra-ui/layout';
+import { Box, Stack, HStack, Flex, Text, Link } from '@chakra-ui/layout';
 import { Table, Tbody, Tr, Td } from '@chakra-ui/table';
 import { Alert, AlertIcon } from '@chakra-ui/alert';
 import { Button } from '@chakra-ui/button';
@@ -75,7 +75,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
   };
 
   return (
-    <AbsLayout doc={doc}>
+    <AbsLayout doc={doc} titleDescription={''}>
       <Box as="article" aria-labelledby="title">
         {error ? (
           <Alert status="error">
@@ -84,9 +84,6 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
           </Alert>
         ) : (
           <Stack direction="column" gap={2}>
-            <Heading as="h2" variant="abstract" id="title">
-              {doc.title}
-            </Heading>
             <HStack spacing={1}>
               {isBrowser() ? (
                 <>

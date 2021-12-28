@@ -3,7 +3,7 @@ import { GetServerSideProps, NextPage } from 'next';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { normalizeURLParams } from '@utils';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
-import { metatagsQueryFields, AbstractRefLayout } from '@components';
+import { metatagsQueryFields } from '@components';
 import { dehydrate, QueryClient } from 'react-query';
 import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/queries';
 import { useRouter } from 'next/router';
@@ -53,25 +53,23 @@ const VolumePage: NextPage<IVolumePageProps> = (props: IVolumePageProps) => {
   const volumeId = getVolumeId(originalDoc.bibcode);
 
   return (
-    <AbsLayout doc={originalDoc}>
-      <AbstractRefLayout titleDescription="Papers in the same volume as" docTitle={originalDoc.title}>
-        {error ? (
-          <Alert status="error">
-            <AlertIcon />
-            {error}
-          </Alert>
-        ) : (
-          <AbstractRefList
-            query={getQueryParams(query.id)}
-            docs={docs}
-            resultsLinkHref={`/search?${qs.stringify({
-              q: `bibcode:${volumeId}`,
-              sort: 'date desc',
-            })}`}
-            numFound={numFound}
-          />
-        )}
-      </AbstractRefLayout>
+    <AbsLayout doc={originalDoc} titleDescription="Papers in the same volume as">
+      {error ? (
+        <Alert status="error">
+          <AlertIcon />
+          {error}
+        </Alert>
+      ) : (
+        <AbstractRefList
+          query={getQueryParams(query.id)}
+          docs={docs}
+          resultsLinkHref={`/search?${qs.stringify({
+            q: `bibcode:${volumeId}`,
+            sort: 'date desc',
+          })}`}
+          numFound={numFound}
+        />
+      )}
     </AbsLayout>
   );
 };
