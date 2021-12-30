@@ -14,6 +14,7 @@ export * from './NavBar';
 export * from './NumFound';
 export * from './Metatags';
 export * from './ResultList';
+export * from './Select';
 export * from './SearchBar';
 export * from './SearchExamples';
 export * from './Sort';
