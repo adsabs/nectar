@@ -1,7 +1,7 @@
-import { Heading, HStack, Box, Link as CLink } from '@chakra-ui/layout';
+import { Heading, HStack, Box, Link, Flex } from '@chakra-ui/layout';
 import { AdsSmallLogo } from '@components/images';
 import dynamic from 'next/dynamic';
-import Link from 'next/link';
+import NextLink from 'next/link';
 import { FC } from 'react';
 
 const ThemeDropdown = dynamic(() => import('./ThemeDropdown').then((mod) => mod.ThemeDropdown), { ssr: false });
@@ -11,29 +11,31 @@ const NavMenus = dynamic(() => import('./NavMenus').then((mod) => mod.NavMenus),
 export const NavBar: FC = () => {
   return (
     <Box as="nav" backgroundColor="gray.900">
-      <HStack direction="row" alignItems="center" spacing={3} mx={4} my={2}>
-        <Box display={{ base: 'none', sm: 'initial' }}>
-          <Link href="/">
-            <HStack cursor="pointer" spacing={1}>
-              <AdsSmallLogo className="w-10 h-10" aria-hidden />
-              <Heading
-                as="h1"
-                size="lg"
-                tabIndex={0}
-                color="gray.50"
-                _focus={{ boxShadow: 'outline', outline: 'none' }}
-              >
-                SciX
-              </Heading>
-            </HStack>
-          </Link>
-        </Box>
-        <ThemeDropdown />
-        <CLink href="#main-content" color="gray.50" className="focus:not-sr-only sr-only">
+      <Flex direction="row" alignItems="center" justifyContent="space-between" spacing={3} mx={4} my={2}>
+        <HStack spacing={3}>
+          <Box display={{ base: 'none', sm: 'initial' }}>
+            <NextLink href="/">
+              <HStack cursor="pointer" spacing={1}>
+                <AdsSmallLogo className="w-10 h-10" aria-hidden />
+                <Heading
+                  as="h1"
+                  size="lg"
+                  tabIndex={0}
+                  color="gray.50"
+                  _focus={{ boxShadow: 'outline', outline: 'none' }}
+                >
+                  SciX
+                </Heading>
+              </HStack>
+            </NextLink>
+          </Box>
+          <ThemeDropdown />
+        </HStack>
+        <Link href="#main-content" color="gray.50" className="focus:not-sr-only sr-only">
           Skip to content
-        </CLink>
+        </Link>
         <NavMenus />
-      </HStack>
+      </Flex>
     </Box>
   );
 };
