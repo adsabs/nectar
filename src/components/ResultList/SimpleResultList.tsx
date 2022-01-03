@@ -11,7 +11,7 @@ import { assign, ContextFrom, DoneInvokeEvent } from 'xstate';
 import { createModel } from 'xstate/lib/model';
 import { Item } from './Item';
 import { Pagination } from './Pagination';
-import { Skeleton } from './Skeleton';
+import { ItemsSkeleton } from './ItemsSkeleton';
 import { Flex } from '@chakra-ui/layout';
 
 export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
@@ -76,7 +76,7 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
   return (
     <Flex as="article" direction="column" {...divProps}>
       {state.matches('fetching') ? (
-        <Skeleton count={10} />
+        <ItemsSkeleton count={10} />
       ) : (
         state.context.docs.map((doc, index) => (
           <Item

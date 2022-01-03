@@ -6,7 +6,7 @@ import { HTMLAttributes, ReactElement, useEffect, useState } from 'react';
 import { Item } from './Item/Item';
 import { ListActions } from './ListActions';
 import { Pagination } from './Pagination';
-import { Skeleton } from './Skeleton';
+import { ItemsSkeleton } from './ItemsSkeleton';
 import { Box } from '@chakra-ui/layout';
 
 export interface IResultListProps extends HTMLAttributes<HTMLDivElement> {
@@ -111,7 +111,7 @@ export const ResultList = (props: IResultListProps): ReactElement => {
         )}
       </Box>
       {isLoading ? (
-        <Skeleton count={10} />
+        <ItemsSkeleton count={10} />
       ) : docs.length > 0 ? (
         <>
           {docs.map((doc, index) => (
