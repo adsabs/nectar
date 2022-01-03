@@ -6,12 +6,14 @@ import {
   withDefaultSize,
 } from '@chakra-ui/react';
 
-const theme = extendTheme(
+const config: ThemeConfig = {
+  initialColorMode: 'light', // use 'system' when we have dark mode switch
+  useSystemColorMode: false,
+};
+
+export const theme = extendTheme(
   {
-    config: {
-      initialColorMode: 'light', // use 'system' when we have dark mode switch
-      useSystemColorMode: false,
-    } as ThemeConfig,
+    config,
     colors: {
       blue: {
         '50': '#EAEDFA',

@@ -38,9 +38,9 @@ export const checks = {
   binaryCheck(val?: string): boolean {
     return typeof val === 'string';
   },
-  listCheck: pipe<string, string, string[]>(escape, listSanitizer),
-  dateCheck: pipe<string, string, [number, number] | undefined>(escape, dateSanitizer),
-  delimCheck: pipe<string, string, string[]>(escape, delimSanitizer),
+  listCheck: pipe(escape, listSanitizer),
+  dateCheck: pipe(escape, dateSanitizer),
+  delimCheck: pipe(escape, delimSanitizer),
 };
 
 export const stringifiers = {
