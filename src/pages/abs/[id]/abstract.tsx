@@ -107,7 +107,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
               ) : null}
             </HStack>
             {doc.author && doc.author.length > 0 && (
-              <Flex direction={aff.show ? 'column' : 'row'} wrap="wrap" fontSize="md">
+              <Flex direction={aff.show ? 'column' : 'row'} wrap="wrap">
                 {doc.author.slice(0, showNumAuthors).map((a, index) => {
                   const orcid =
                     doc.orcid_pub && doc.orcid_pub[index] !== '-'
@@ -125,7 +125,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                         )}`}
                         passHref
                       >
-                        <Link fontSize="md">{a}</Link>
+                        <Link>{a}</Link>
                       </NextLink>
                       {orcid && (
                         <NextLink

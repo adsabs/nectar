@@ -73,12 +73,7 @@ export const Item = (props: IItemProps): ReactElement => {
       aria-labelledby={`result-${id}`}
     >
       <Flex direction="row" className={checkBgClass} m={0}>
-        <Text
-          fontSize="sm"
-          color={state.matches('selected') ? 'white' : 'initial'}
-          display={{ base: 'none', md: 'initial' }}
-          mr={1}
-        >
+        <Text color={state.matches('selected') ? 'white' : 'initial'} display={{ base: 'none', md: 'initial' }} mr={1}>
           {index}
         </Text>
         {hideCheckbox ? null : (
@@ -95,7 +90,7 @@ export const Item = (props: IItemProps): ReactElement => {
       <Stack direction="column" width="full" spacing={0} mx={3} mt={2}>
         <Flex justifyContent="space-between">
           <NextLink href={`/abs/${bibcode}`} passHref>
-            <Link fontSize="md" fontWeight="semibold">
+            <Link fontWeight="semibold">
               <span dangerouslySetInnerHTML={{ __html: title[0] }}></span>
             </Link>
           </NextLink>

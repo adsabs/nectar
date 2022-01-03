@@ -170,7 +170,6 @@ const theme = extendTheme(
       FormLabel: {
         baseStyle: {
           fontWeight: 'bold',
-          fontSize: 'sm',
         },
       },
       Input: {

@@ -64,7 +64,6 @@ const SearchExample = (props: ISearchExampleProps) => {
           _hover: { backgroundColor: 'gray.50' },
           fontWeight: 'normal',
           overflowWrap: 'break-all',
-          fontSize: 'sm',
           padding: '2',
           display: 'flex',
           justifyContent: 'center',

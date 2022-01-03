@@ -129,7 +129,7 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
       </Box>
       <Flex justifyContent="space-between" display={{ base: 'none', sm: 'flex' }}>
         <Box data-testid="pagination-label">
-          <Text fontSize="sm">
+          <Text>
             Showing{' '}
             <Text as="span" fontWeight="semibold">
               {formattedStartIndex}
