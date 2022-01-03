@@ -1,9 +1,8 @@
 import { IDocsEntity } from '@api';
-import { Flex, Text, Badge, Box, Stack, HStack } from '@chakra-ui/layout';
+import { Flex, Text, Badge, Box, Stack } from '@chakra-ui/layout';
 import { Button } from '@chakra-ui/button';
 import { Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/menu';
 import { DocumentIcon } from '@heroicons/react/outline';
-import { useViewport, Viewport } from '@hooks';
 import { useBaseRouterPath } from '@utils';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
@@ -21,7 +20,6 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
   const router = useRouter();
   const { basePath } = useBaseRouterPath();
   const subPage = last(basePath.split('/'));
-  const viewport = useViewport();
   const hasGraphics = useHasGraphics(doc);
   const hasMetrics = useHasMetrics(doc);
   const hasToc = doc.property ? doc.property.indexOf('TOC') > -1 : false;
@@ -29,7 +27,7 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
   const useCount = [Routes.CITATIONS, Routes.REFERENCES];
 
   const items = navigation.map((item) => {
-    const Icon = item.icon || DocumentIcon;
+    const MenuIcon = item.icon || DocumentIcon;
     const current = item.href === subPage;
     const count =
       item.href === Routes.EXPORT ||
@@ -44,7 +42,7 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
 
     const label = (
       <Stack direction="row" alignItems="center">
-        <Icon className="2-6 mr-3 h-6" aria-hidden={true} />
+        <MenuIcon className="mr-3 w-6 h-6" aria-hidden="true" />
         <Text fontWeight="normal">{item.name}</Text>
         {showCount ? (
           <Badge
@@ -71,7 +69,7 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
       label,
       href,
       count,
-      icon: Icon,
+      icon: MenuIcon,
       showCount,
     };
   });
@@ -79,7 +77,7 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
   const getTopMenu = () => {
     const currentItem = items.find((item) => item.current) ?? items[0];
 
-    const { icon: Icon, showCount, count } = currentItem;
+    const { icon: MenuIcon, showCount, count } = currentItem;
 
     const label = (
       <Flex
@@ -89,9 +87,10 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
         borderRadius="md"
         px={3}
         py={2}
+        width="full"
       >
-        <HStack>
-          <Icon className="mr-3 w-6 h-6" aria-hidden="true" />
+        <Flex direction="row" width="full">
+          <MenuIcon className="mr-3 w-6 h-6" aria-hidden="true" />
           <Text>{currentItem.name}</Text>
           {showCount ? (
             <Badge
@@ -107,14 +106,14 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
               {count}
             </Badge>
           ) : null}
-        </HStack>
+        </Flex>
         <ChevronDownIcon />
       </Flex>
     );
 
     return (
       <Menu matchWidth>
-        <MenuButton>{label}</MenuButton>
+        <MenuButton width="full">{label}</MenuButton>
         <MenuList>
           {items.map((item) => (
             <MenuItem
@@ -135,31 +134,29 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
 
   return (
     <>
-      {viewport >= Viewport.LG ? (
-        <nav aria-label="sidebar">
-          <Flex direction="column" alignItems="start" justifyContent="start" shadow="md" borderRadius="md" p={2}>
-            {items.map((item) => (
-              <NextLink key={item.name} href={item.href} passHref>
-                <Button
-                  variant={item.current ? 'solid' : 'ghost'}
-                  size="md"
-                  aria-current={item.current ? 'page' : undefined}
-                  isDisabled={item.disabled}
-                  leftIcon={<item.icon />}
-                  width="full"
-                  justifyContent="start"
-                  colorScheme="gray"
-                  mb={1}
-                >
-                  {item.label}
-                </Button>
-              </NextLink>
-            ))}
-          </Flex>
-        </nav>
-      ) : (
-        getTopMenu()
-      )}
+      <Box as="nav" aria-label="sidebar" display={{ base: 'none', lg: 'initial' }}>
+        <Flex direction="column" alignItems="start" justifyContent="start" shadow="md" borderRadius="md" p={2}>
+          {items.map((item) => (
+            <NextLink key={item.name} href={item.href} passHref>
+              <Button
+                variant={item.current ? 'solid' : 'ghost'}
+                size="md"
+                aria-current={item.current ? 'page' : undefined}
+                isDisabled={item.disabled}
+                width="full"
+                justifyContent="start"
+                colorScheme="gray"
+                mb={1}
+              >
+                {item.label}
+              </Button>
+            </NextLink>
+          ))}
+        </Flex>
+      </Box>
+      <Box as="nav" display={{ base: 'initial', lg: 'none' }}>
+        {getTopMenu()}
+      </Box>
     </>
   );
 };

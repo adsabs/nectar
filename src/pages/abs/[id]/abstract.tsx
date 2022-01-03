@@ -83,7 +83,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
             {error}
           </Alert>
         ) : (
-          <Stack direction="column" gap={2}>
+          <Stack direction="column" spacing={2}>
             <HStack spacing={1}>
               {isBrowser() ? (
                 <>

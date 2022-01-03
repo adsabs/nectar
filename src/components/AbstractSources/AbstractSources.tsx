@@ -26,7 +26,7 @@ export const AbstractSources = ({ doc }: IAbstractSourcesProps): ReactElement =>
   const sources = processLinkData(doc, null);
 
   return (
-    <HStack as="section" wrap="wrap" spacing={0} columnGap={2} rowGap={2}>
+    <HStack as="section" wrap="wrap" spacing={0.5} columnGap={1} rowGap={1}>
       <FullTextDropdown sources={sources.fullTextSources} />
       <DataProductDropdown dataProducts={sources.dataProducts} relatedWorks={[]} />
       {isBrowser() ? <Button>Add to library</Button> : null}

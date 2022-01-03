@@ -78,6 +78,7 @@ export const Sort = (props: ISortProps): ReactElement => {
       ...provided,
       height: '2.85em',
       borderRadius: '2px 0 0 2px',
+      borderRightWidth: '0',
     }),
     indicatorSeparator: () => ({
       isDisabled: true,
@@ -126,6 +127,7 @@ export const Sort = (props: ISortProps): ReactElement => {
       </Box>
       {selected[1] === 'asc' ? (
         <IconButton
+          variant="outline"
           onClick={() => handleSortDirectionChange('desc')}
           icon={<SortAscendingIcon width="20px" />}
           aria-label="Sort ascending"
@@ -135,6 +137,7 @@ export const Sort = (props: ISortProps): ReactElement => {
         ></IconButton>
       ) : (
         <IconButton
+          variant="outline"
           onClick={() => handleSortDirectionChange('asc')}
           icon={<SortDescendingIcon width="20px" />}
           aria-label="Sort descending"

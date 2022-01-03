@@ -15,7 +15,7 @@ export const AbstractRefList = (props: IAbstractRefListProps): ReactElement => {
   const { query, docs, resultsLinkHref, numFound } = props;
 
   return (
-    <Stack direction="column" gap={1} mt={1} w="full">
+    <Stack direction="column" spacing={1} mt={1} w="full">
       <NextLink href={resultsLinkHref} passHref>
         <Link>View as search results</Link>
       </NextLink>

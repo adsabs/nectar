@@ -7,7 +7,7 @@ import { FormatSelector } from './FormatSelector';
 import { useExportMachine } from './hook';
 import { LimitRange } from './LimitRange';
 import { ExportState } from './types';
-import { Flex, HStack } from '@chakra-ui/layout';
+import { Flex, HStack, Stack } from '@chakra-ui/layout';
 import { Button } from '@chakra-ui/button';
 import { Collapse, Fade } from '@chakra-ui/transition';
 import { CloseButton } from '@chakra-ui/close-button';
@@ -64,17 +64,17 @@ export const Export = ({
   const noText = !state.text || state.text.length === 0;
 
   return (
-    <Flex
+    <Stack
       direction="column"
       aria-label="export"
       boxShadow={!singleMode ? 'md' : 'none'}
       borderRadius="md"
       p={!singleMode ? '5' : '0'}
-      gap={2}
+      spacing={2}
     >
       {!singleMode && <CloseButton as={Flex} justifyContent="end" width="full" />}
       <form onSubmit={onSubmit}>
-        <Flex direction="column" gap={3}>
+        <Stack direction="column" spacing={3}>
           <FormatSelector format={state.format} onFormatChange={onFormatChange} />
 
           <CustomFormatInput
@@ -88,7 +88,7 @@ export const Export = ({
               Apply
             </Button>
           </Collapse>
-        </Flex>
+        </Stack>
       </form>
       <HStack>
         <Button
@@ -108,7 +108,7 @@ export const Export = ({
         <Fade in={copied}>Copied!</Fade>
       </HStack>
       <Textarea aria-label="export text" value={state.text} rows={10} readOnly={true}></Textarea>
-    </Flex>
+    </Stack>
   );
 };
 Export.propTypes = propTypes;
