@@ -191,6 +191,13 @@ export const theme = extendTheme(
           }),
         },
       },
+      Text: {
+        variants: {
+          disabledLink: {
+            color: 'blue.200',
+          },
+        },
+      },
       Button: {
         variants: {
           page: {
