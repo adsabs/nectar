@@ -2,6 +2,7 @@ import { IDocsEntity } from '@api';
 import { IconButton } from '@chakra-ui/button';
 import { LockIcon, UnlockIcon } from '@chakra-ui/icons';
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
+import { SimpleLinkDropdown } from '@components';
 import { processLinkData } from '@components/AbstractSources/linkGenerator';
 import { DatabaseIcon, DocumentTextIcon, ViewListIcon } from '@heroicons/react/outline';
 import { isBrowser } from '@utils';
@@ -101,70 +102,140 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
     }
   };
 
+  const simpleFullSourceItemsLabel = (
+    <IconButton
+      aria-label={fullSourceItems.length > 0 ? 'Full text sources' : 'No full text sources'}
+      icon={<DocumentTextIcon className="default-icon" />}
+      isDisabled={fullSourceItems.length === 0}
+      variant="link"
+      size="xs"
+    />
+  );
+
+  const simpleRefItemsLabel = (
+    <IconButton
+      aria-label={referenceItems.length > 0 ? 'References and citations' : 'No references and citations'}
+      icon={<ViewListIcon className="default-icon" />}
+      isDisabled={referenceItems.length === 0}
+      variant="link"
+      size="xs"
+    />
+  );
+
+  const simpleDataItemsLabel = (
+    <IconButton
+      aria-label={dataProductItems.length > 0 ? 'Data products' : 'No data products'}
+      icon={<DatabaseIcon className="default-icon" />}
+      isDisabled={dataProductItems.length === 0}
+      variant="link"
+      size="xs"
+    />
+  );
+
   return (
     <>
       {/* full resources menu */}
-      <Menu variant="compact">
-        <MenuButton
-          as={IconButton}
-          aria-label={fullSourceItems.length > 0 ? 'Full text sources' : 'No full text sources'}
-          icon={<DocumentTextIcon className="default-icon" />}
-          isDisabled={fullSourceItems.length === 0}
-          variant="link"
-          size="xs"
-        />
-        {fullSourceItems.length > 0 && (
-          <MenuList>
-            {fullSourceItems.map((item) => (
-              <MenuItem key={item.id} data-id={item.id} onClick={handleResourceClick}>
-                {item.label}
-              </MenuItem>
-            ))}
-          </MenuList>
-        )}
-      </Menu>
+      {isBrowser() ? (
+        <Menu variant="compact">
+          <MenuButton
+            as={IconButton}
+            aria-label={fullSourceItems.length > 0 ? 'Full text sources' : 'No full text sources'}
+            icon={<DocumentTextIcon className="default-icon" />}
+            isDisabled={fullSourceItems.length === 0}
+            variant="link"
+            size="xs"
+          ></MenuButton>
+          {fullSourceItems.length > 0 && (
+            <MenuList>
+              {fullSourceItems.map((item) => (
+                <MenuItem key={item.id} data-id={item.id} onClick={handleResourceClick}>
+                  {item.label}
+                </MenuItem>
+              ))}
+            </MenuList>
+          )}
+        </Menu>
+      ) : (
+        <>
+          {fullSourceItems.length === 0 ? (
+            simpleFullSourceItemsLabel
+          ) : (
+            <SimpleLinkDropdown
+              items={fullSourceItems}
+              label={simpleFullSourceItemsLabel}
+              minWidth="170px"
+              alignRight={true}
+            />
+          )}
+        </>
+      )}
 
       {/* reference and citation items menu */}
-      <Menu variant="compact">
-        <MenuButton
-          as={IconButton}
-          aria-label={referenceItems.length > 0 ? 'References and citations' : 'No references and citations'}
-          icon={<ViewListIcon className="default-icon" />}
-          isDisabled={referenceItems.length === 0}
-          variant="link"
-          size="xs"
-        />
-        {referenceItems.length > 0 && (
-          <MenuList>
-            {referenceItems.map((item) => (
-              <MenuItem key={item.id} data-id={item.id} onClick={handleReferenceClick}>
-                {item.label}
-              </MenuItem>
-            ))}
-          </MenuList>
-        )}
-      </Menu>
+      {isBrowser() ? (
+        <Menu variant="compact">
+          <MenuButton
+            as={IconButton}
+            aria-label={referenceItems.length > 0 ? 'References and citations' : 'No references and citations'}
+            icon={<ViewListIcon className="default-icon" />}
+            isDisabled={referenceItems.length === 0}
+            variant="link"
+            size="xs"
+          ></MenuButton>
+          {referenceItems.length > 0 && (
+            <MenuList>
+              {referenceItems.map((item) => (
+                <MenuItem key={item.id} data-id={item.id} onClick={handleReferenceClick}>
+                  {item.label}
+                </MenuItem>
+              ))}
+            </MenuList>
+          )}
+        </Menu>
+      ) : (
+        <>
+          {referenceItems.length === 0 ? (
+            simpleRefItemsLabel
+          ) : (
+            <SimpleLinkDropdown items={referenceItems} label={simpleRefItemsLabel} minWidth="150px" alignRight={true} />
+          )}
+        </>
+      )}
 
       {/* data product items menu */}
-      <Menu variant="compact">
-        <MenuButton
-          as={IconButton}
-          aria-label={dataProductItems.length > 0 ? 'Data products' : 'No data products'}
-          icon={<DatabaseIcon className="default-icon" />}
-          isDisabled={dataProductItems.length === 0}
-          variant="link"
-          size="xs"
-        />
-        {dataProductItems.length > 0 && (
-          <MenuList>
-            {dataProductItems.map((item) => (
-              <MenuItem key={item.id} data-id={item.id} onClick={handleDataProductClick}>
-                {item.label}
-              </MenuItem>
-            ))}
-          </MenuList>
-        )}
-      </Menu>
+      {isBrowser() ? (
+        <Menu variant="compact">
+          <MenuButton
+            as={IconButton}
+            aria-label={dataProductItems.length > 0 ? 'Data products' : 'No data products'}
+            icon={<DatabaseIcon className="default-icon" />}
+            isDisabled={dataProductItems.length === 0}
+            variant="link"
+            size="xs"
+          ></MenuButton>
+          {dataProductItems.length > 0 && (
+            <MenuList>
+              {dataProductItems.map((item) => (
+                <MenuItem key={item.id} data-id={item.id} onClick={handleDataProductClick}>
+                  {item.label}
+                </MenuItem>
+              ))}
+            </MenuList>
+          )}
+        </Menu>
+      ) : (
+        <>
+          {dataProductItems.length === 0 ? (
+            simpleDataItemsLabel
+          ) : (
+            <SimpleLinkDropdown
+              items={dataProductItems}
+              label={simpleDataItemsLabel}
+              minWidth="120px"
+              alignRight={true}
+            />
+          )}
+        </>
+      )}
     </>
   );
 };
