@@ -197,7 +197,7 @@ const Details = ({ doc }: IDetailsProps) => {
               <Td>{label}</Td>
               <Td>
                 {href && href !== '' ? (
-                  <NextLink href={href}>
+                  <NextLink href={href} passHref>
                     <Link target="_blank" rel="noreferrer">
                       {Array.isArray(value) ? value.join('; ') : value}
                     </Link>

@@ -11,5 +11,4 @@ export type ItemType = {
   path?: string;
   newTab?: boolean;
   disabled?: boolean;
-  classes?: string;
 };

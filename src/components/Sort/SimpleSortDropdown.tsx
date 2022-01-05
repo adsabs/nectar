@@ -29,7 +29,7 @@ export const SimpleSortDropdown = (props: ISimpleSortDropdownProps): ReactElemen
 
   return (
     <div className="flex justify-start my-5">
-      <SimpleLinkDropdown items={sortItems} label={label} minWidth="250px" />
+      <SimpleLinkDropdown items={sortItems} label={label} minLabelWidth="250px" minListWidth="250px" />
       <NextLink
         href={{ pathname: '/search', query: { q: query, sort: `${sort} ${dir === 'desc' ? 'asc' : 'desc'}`, p: page } }}
         passHref

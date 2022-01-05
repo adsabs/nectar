@@ -1,9 +1,9 @@
 import { IDocsEntity } from '@api';
-import { Flex, Text, Badge, Box, Stack } from '@chakra-ui/layout';
+import { Flex, Text, Badge, Box, Stack, Link } from '@chakra-ui/layout';
 import { Button } from '@chakra-ui/button';
 import { Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/menu';
 import { DocumentIcon } from '@heroicons/react/outline';
-import { useBaseRouterPath } from '@utils';
+import { isBrowser, useBaseRouterPath } from '@utils';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { last } from 'ramda';
@@ -11,6 +11,9 @@ import { HTMLAttributes, ReactElement } from 'react';
 import { navigation, Routes } from './model';
 import { useHasGraphics, useHasMetrics } from './queries';
 import { ChevronDownIcon } from '@chakra-ui/icons';
+import { SimpleLinkDropdown } from '@components';
+import { ItemType } from '@components/Dropdown/types';
+import qs from 'qs';
 
 export interface IAbstractSideNavProps extends HTMLAttributes<HTMLDivElement> {
   doc?: IDocsEntity;
@@ -111,24 +114,42 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
       </Flex>
     );
 
+    const getSimpleItems = (): ItemType[] => {
+      const res = items.map((item) => ({
+        id: item.id,
+        label: item.label,
+        path: `${item.href.pathname}?${qs.stringify(item.href.query)}`,
+        disabled: item.disabled,
+      }));
+      return res;
+    };
+
     return (
-      <Menu matchWidth>
-        <MenuButton width="full">{label}</MenuButton>
-        <MenuList>
-          {items.map((item) => (
-            <MenuItem
-              key={item.id}
-              isDisabled={item.disabled}
-              backgroundColor={item.current ? 'gray.100' : 'transparent'}
-              mb={1}
-            >
-              <NextLink key={item.name} href={item.href}>
-                <Box width="full">{item.label}</Box>
-              </NextLink>
-            </MenuItem>
-          ))}
-        </MenuList>
-      </Menu>
+      <>
+        {isBrowser() ? (
+          <Menu matchWidth>
+            <MenuButton width="full">{label}</MenuButton>
+            <MenuList>
+              {items.map((item) => (
+                <MenuItem
+                  key={item.id}
+                  isDisabled={item.disabled}
+                  backgroundColor={item.current ? 'gray.100' : 'transparent'}
+                  mb={1}
+                >
+                  <NextLink key={item.name} href={item.href}>
+                    <Box width="full">{item.label}</Box>
+                  </NextLink>
+                </MenuItem>
+              ))}
+            </MenuList>
+          </Menu>
+        ) : (
+          <span>
+            <SimpleLinkDropdown items={getSimpleItems()} label={label} minLabelWidth="full" minListWidth="full" />
+          </span>
+        )}
+      </>
     );
   };
 
@@ -138,18 +159,20 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
         <Flex direction="column" alignItems="start" justifyContent="start" shadow="md" borderRadius="md" p={2}>
           {items.map((item) => (
             <NextLink key={item.name} href={item.href} passHref>
-              <Button
-                variant={item.current ? 'solid' : 'ghost'}
-                size="md"
-                aria-current={item.current ? 'page' : undefined}
-                isDisabled={item.disabled}
-                width="full"
-                justifyContent="start"
-                colorScheme="gray"
-                mb={1}
-              >
-                {item.label}
-              </Button>
+              <Link variant="dropdownItem" w="full">
+                <Button
+                  variant={item.current ? 'solid' : 'ghost'}
+                  size="md"
+                  aria-current={item.current ? 'page' : undefined}
+                  isDisabled={item.disabled}
+                  width="full"
+                  justifyContent="start"
+                  colorScheme="gray"
+                  mb={1}
+                >
+                  {item.label}
+                </Button>
+              </Link>
             </NextLink>
           ))}
         </Flex>

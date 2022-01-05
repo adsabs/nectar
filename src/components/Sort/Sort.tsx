@@ -75,7 +75,7 @@ export const Sort = (props: ISortProps): ReactElement => {
   // non-js initially rendered on the server, will be swapped out for the full-featured one below when it hits client
   if (!isBrowser()) {
     return (
-      <HStack spacing={0}>
+      <span>
         <ChakraSelect id="sort" name="sort" defaultValue={sort}>
           {sortItems.map((item) => (
             <span key={item.label}>
@@ -84,7 +84,7 @@ export const Sort = (props: ISortProps): ReactElement => {
             </span>
           ))}
         </ChakraSelect>
-      </HStack>
+      </span>
     );
   }
 

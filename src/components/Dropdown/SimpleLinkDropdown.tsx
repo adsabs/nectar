@@ -1,4 +1,4 @@
-import { Link, Text, Flex, Box } from '@chakra-ui/layout';
+import { Link, Flex, Box } from '@chakra-ui/layout';
 import NextLink from 'next/link';
 import { ReactElement } from 'react';
 import { ItemType } from './types';
@@ -8,23 +8,31 @@ import { ChevronDownIcon } from '@chakra-ui/icons';
 export interface ISimpleLinkDropdownProps {
   items: ItemType[];
   label: string | ReactElement;
-  minWidth?: string;
+  minLabelWidth?: string;
+  minListWidth?: string;
   alignRight?: boolean;
 }
 
 export const SimpleLinkDropdown = (props: ISimpleLinkDropdownProps): ReactElement => {
-  const { items, label, minWidth, alignRight } = props;
+  const { items, label, minLabelWidth, minListWidth, alignRight } = props;
 
   return (
-    <Box display="inline-block" position="relative" role="group">
+    <Box
+      display="inline-block"
+      position="relative"
+      role="group"
+      minW={minLabelWidth ? minLabelWidth : null}
+      tabIndex={0}
+    >
       {typeof label === 'string' ? (
         <Flex
           p={2}
           justifyContent="space-between"
           borderWidth={1}
           borderRightWidth="0"
-          minW={minWidth ? minWidth : null}
+          minW={minLabelWidth ? minLabelWidth : null}
           height="2.65em"
+          cursor="pointer"
         >
           {label} <ChevronDownIcon aria-hidden="true" />
         </Flex>
@@ -34,7 +42,7 @@ export const SimpleLinkDropdown = (props: ISimpleLinkDropdownProps): ReactElemen
       <Box
         backgroundColor="white"
         borderRadius="md"
-        minW={minWidth ? minWidth : null}
+        minW={minListWidth ? minListWidth : null}
         borderColor="gray.200"
         borderWidth={0.5}
         position="absolute"
@@ -53,7 +61,11 @@ export const SimpleLinkDropdown = (props: ISimpleLinkDropdownProps): ReactElemen
             p={2}
           >
             {item.disabled ? (
-              <Text color="gray.200">{item.label}</Text>
+              <Box width="full" m={0} px={2}>
+                <Box color="gray.200" cursor="not-allowed" aria-disabled>
+                  {item.label}
+                </Box>
+              </Box>
             ) : (
               <NextLink key={item.id} href={item.path} passHref>
                 <Link rel="noreferrer noopener" target={item.newTab ? '_blank' : '_self'} variant="dropdownItem">

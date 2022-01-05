@@ -62,7 +62,7 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
       </>
     ),
     path: source.url,
-    domId: `fullText-${source.name}`,
+    newTab: true,
   }));
 
   const label = (
@@ -86,7 +86,7 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
           {fullSourceItems.length === 0 ? (
             label
           ) : (
-            <SimpleLinkDropdown items={fullSourceItems} label={label} minWidth="170px" />
+            <SimpleLinkDropdown items={fullSourceItems} label={label} minListWidth="180px" />
           )}
         </span>
       ) : null}
@@ -147,12 +147,14 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
     id: source.name,
     label: source.name,
     path: source.url,
+    newTab: true,
   }));
 
   const relatedWorkItems = relatedWorks.map((source) => ({
     id: source.name,
     label: source.name,
     path: source.url,
+    newTab: true,
   }));
 >>>>>>> JS Independency fix - custom dropdown
 
@@ -197,7 +199,9 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
   return (
     <>
       {!isBrowser() ? (
-        <span>{items.length === 0 ? label : <SimpleLinkDropdown items={items} label={label} minWidth="150px" />}</span>
+        <span>
+          {items.length === 0 ? label : <SimpleLinkDropdown items={items} label={label} minListWidth="150px" />}
+        </span>
       ) : null}
       {isBrowser() ? (
         <Menu>
@@ -207,7 +211,7 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
           {items.length > 0 && (
             <MenuList>
               {items.map((item) => (
-                <MenuItem key={item.id} data-id={item.id} onClick={handleSelect}>
+                <MenuItem key={item.id} data-id={item.id} onClick={handleSelect} isDisabled={item.disabled}>
                   {item.label}
                 </MenuItem>
               ))}

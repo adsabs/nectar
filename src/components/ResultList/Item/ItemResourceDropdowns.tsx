@@ -48,12 +48,14 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
       ),
       path: source.url,
       id: `fullText-${source.name}`,
+      newTab: true,
     }));
 
     dataProductItems = dataProducts.map((dp) => ({
       label: dp.name,
       path: dp.url,
       id: `dataProd-${dp.name}`,
+      newTab: true,
     }));
   }
 
@@ -156,18 +158,18 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
           )}
         </Menu>
       ) : (
-        <>
+        <span>
           {fullSourceItems.length === 0 ? (
             simpleFullSourceItemsLabel
           ) : (
             <SimpleLinkDropdown
               items={fullSourceItems}
               label={simpleFullSourceItemsLabel}
-              minWidth="170px"
+              minListWidth="180px"
               alignRight={true}
             />
           )}
-        </>
+        </span>
       )}
 
       {/* reference and citation items menu */}
@@ -192,13 +194,18 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
           )}
         </Menu>
       ) : (
-        <>
+        <span>
           {referenceItems.length === 0 ? (
             simpleRefItemsLabel
           ) : (
-            <SimpleLinkDropdown items={referenceItems} label={simpleRefItemsLabel} minWidth="150px" alignRight={true} />
+            <SimpleLinkDropdown
+              items={referenceItems}
+              label={simpleRefItemsLabel}
+              minListWidth="150px"
+              alignRight={true}
+            />
           )}
-        </>
+        </span>
       )}
 
       {/* data product items menu */}
@@ -223,18 +230,18 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
           )}
         </Menu>
       ) : (
-        <>
+        <span>
           {dataProductItems.length === 0 ? (
             simpleDataItemsLabel
           ) : (
             <SimpleLinkDropdown
               items={dataProductItems}
               label={simpleDataItemsLabel}
-              minWidth="120px"
+              minListWidth="120px"
               alignRight={true}
             />
           )}
-        </>
+        </span>
       )}
     </>
   );
