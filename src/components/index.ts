@@ -2,6 +2,7 @@ export * from './AbstractRefList';
 export * from './AbstractSideNav';
 export * from './AbstractSources';
 export * from './BibstemPicker';
+export * from './Dropdown';
 export * from './Export';
 export * from './Footer';
 export * from './images';

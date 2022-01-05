@@ -6,6 +6,7 @@ import { sortValues } from './model';
 import { IconButton } from '@chakra-ui/button';
 import { Box, HStack } from '@chakra-ui/layout';
 import { Input } from '@chakra-ui/input';
+import { Select as ChakraSelect } from '@chakra-ui/react';
 import { Select, SortSelectorStyle } from '@components';
 
 export interface ISortProps {
@@ -75,19 +76,14 @@ export const Sort = (props: ISortProps): ReactElement => {
   if (!isBrowser()) {
     return (
       <HStack spacing={0}>
-        <select
-          id="sort"
-          name="sort"
-          className="block mt-1 pl-3 pr-10 py-2 w-full text-base border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 sm:text-sm"
-          defaultValue={sort}
-        >
+        <ChakraSelect id="sort" name="sort" defaultValue={sort}>
           {sortItems.map((item) => (
             <span key={item.label}>
-              <option value={`${item.id} asc`}>{item.label} asc</option>
-              <option value={`${item.id} desc`}>{item.label} desc</option>
+              <option value={`${item.id} asc`}>{item.label} - Asc</option>
+              <option value={`${item.id} desc`}>{item.label} - Desc</option>
             </span>
           ))}
-        </select>
+        </ChakraSelect>
       </HStack>
     );
   }
@@ -106,6 +102,7 @@ export const Sort = (props: ISortProps): ReactElement => {
           borderLeftRadius="0"
           borderRightRadius="2px"
           size="md"
+          colorScheme="gray"
         ></IconButton>
       ) : (
         <IconButton
@@ -116,6 +113,7 @@ export const Sort = (props: ISortProps): ReactElement => {
           borderLeftRadius="0"
           borderRightRadius="2px"
           size="md"
+          colorScheme="gray"
         ></IconButton>
       )}
 

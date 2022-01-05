@@ -96,6 +96,10 @@ export const theme = extendTheme(
           footer: {
             color: 'gray.50',
           },
+          dropdownItem: {
+            color: 'gray.700',
+            _hover: { textDecoration: 'none' },
+          },
         },
       },
       Menu: {
@@ -231,12 +235,20 @@ export const theme = extendTheme(
           },
         },
       },
+      Select: {
+        parts: ['field'],
+        baseStyle: {
+          field: {
+            borderRadius: 'sm',
+          },
+        },
+      },
     },
   },
   withDefaultColorScheme({ colorScheme: 'blue' }),
   withDefaultSize({
     size: 'sm',
-    components: ['Input', 'Checkbox', 'Radio', 'Textarea', 'Button', 'IconButton', 'Table'],
+    components: ['Input', 'Checkbox', 'Radio', 'Textarea', 'Button', 'IconButton', 'Table', 'Select'],
   }),
 );
 

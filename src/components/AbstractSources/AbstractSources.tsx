@@ -41,10 +41,6 @@ export const AbstractSources = ({ doc }: IAbstractSourcesProps): ReactElement =>
 
 ///// dropdown components //////
 
-const dropdownButtonClasses = 'button-sm pl-2 pr-1 cursor-pointer';
-
-const dropdownButtonClassesInactive = 'button-sm-disabled pl-2 pr-1 cursor-default';
-
 interface IFullTextDropdownProps {
   sources: IFullTextSource[];
 }
@@ -87,18 +83,11 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
     <>
       {!isBrowser() ? (
         <span>
-          <SimpleLinkDropdown
-            items={fullSourceItems}
-            label={label}
-            selected={''}
-            aria-label="Full Text Sources"
-            classes={{
-              label: fullSourceItems.length > 0 ? dropdownButtonClasses : dropdownButtonClassesInactive,
-              list: 'w-60 h-auto',
-              item: 'p-2 flex justify-start',
-            }}
-            role={{ label: 'list', item: 'listitem' }}
-          />
+          {fullSourceItems.length === 0 ? (
+            label
+          ) : (
+            <SimpleLinkDropdown items={fullSourceItems} label={label} minWidth="170px" />
+          )}
         </span>
       ) : null}
       {isBrowser() ? (
@@ -129,6 +118,7 @@ interface IRelatedMaterialsDropdownProps {
 const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElement => {
   const { dataProducts, relatedWorks } = props;
 
+<<<<<<< HEAD
   const dataProductItems = useMemo(
     () =>
       dataProducts.map((source) => ({
@@ -152,6 +142,19 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
       })),
     [],
   );
+=======
+  const dataProductItems = dataProducts.map((source) => ({
+    id: source.name,
+    label: source.name,
+    path: source.url,
+  }));
+
+  const relatedWorkItems = relatedWorks.map((source) => ({
+    id: source.name,
+    label: source.name,
+    path: source.url,
+  }));
+>>>>>>> JS Independency fix - custom dropdown
 
   const items: ItemType[] = [];
 
@@ -160,7 +163,6 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
     items.push({
       id: 'data-subheading',
       label: 'Data Products',
-      domId: 'dataProducts',
       path: '',
       disabled: true,
     });
@@ -172,7 +174,6 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
     items.push({
       id: 'related-subheading',
       label: 'Related Materials',
-      domId: 'relatedWorks',
       path: '',
       disabled: true,
     });
@@ -196,21 +197,7 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
   return (
     <>
       {!isBrowser() ? (
-        <span>
-          {items.length > 0 ? (
-            <SimpleLinkDropdown
-              items={items}
-              label={label}
-              selected={''}
-              aria-label="Other Resources"
-              classes={{
-                list: 'w-60 h-auto',
-                item: 'p-2',
-              }}
-              role={{ label: 'list', item: 'listitem' }}
-            />
-          ) : null}
-        </span>
+        <span>{items.length === 0 ? label : <SimpleLinkDropdown items={items} label={label} minWidth="150px" />}</span>
       ) : null}
       {isBrowser() ? (
         <Menu>

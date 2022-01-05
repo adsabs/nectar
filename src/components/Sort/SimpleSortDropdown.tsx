@@ -1,10 +1,12 @@
 import { SolrSort, SolrSortDirection, SolrSortField } from '@api';
 import { SimpleLinkDropdown } from '@components/Dropdown/SimpleLinkDropdown';
-import { ChevronDownIcon, SortAscendingIcon, SortDescendingIcon } from '@heroicons/react/outline';
-import Link from 'next/link';
+import NextLink from 'next/link';
 import qs from 'qs';
 import { ReactElement } from 'react';
 import { sortValues } from './model';
+import { SortAscendingIcon, SortDescendingIcon } from '@heroicons/react/outline/';
+import { Link } from '@chakra-ui/layout';
+import { IconButton } from '@chakra-ui/button';
 
 export interface ISimpleSortDropdownProps {
   query: string;
@@ -19,55 +21,43 @@ export const SimpleSortDropdown = (props: ISimpleSortDropdownProps): ReactElemen
 
   const sortItems = sortValues.map(({ id, text }) => ({
     id: id,
-    domId: `sort-${id}`,
     label: text,
     path: `/search?${qs.stringify({ q: query, sort: `${id} ${dir}`, p: page })}`,
   }));
 
-  const directionLabel = (
-    <div
-      className="font-md flex items-center justify-between mr-0 p-2 w-56 h-6 text-sm border border-r-0 border-gray-300 rounded-l-md box-content cursor-pointer"
-      role="list"
-    >
-      {sortValues.find((v) => v.id === sort).text} <ChevronDownIcon className="inline w-4 h-4" aria-hidden="true" />
-    </div>
-  );
+  const label = sortValues.find((v) => v.id === sort).text;
+
   return (
     <div className="flex justify-start my-5">
-      <SimpleLinkDropdown
-        items={sortItems}
-        selected={sort}
-        label={directionLabel}
-        aria-label="Sort by"
-        classes={{
-          list: 'w-60 h-auto',
-          item: 'text-sm',
-        }}
-        role={{ label: 'list', item: 'listitem' }}
-      />
-      <Link
+      <SimpleLinkDropdown items={sortItems} label={label} minWidth="250px" />
+      <NextLink
         href={{ pathname: '/search', query: { q: query, sort: `${sort} ${dir === 'desc' ? 'asc' : 'desc'}`, p: page } }}
+        passHref
       >
-        <a>
+        <Link color="gray.700">
           {dir === 'asc' ? (
-            <>
-              <span className="sr-only">sort ascending</span>
-              <SortAscendingIcon
-                className="ml-0 p-2 w-6 h-6 border border-gray-300 rounded-r-md box-content cursor-pointer"
-                aria-hidden="true"
-              />
-            </>
+            <IconButton
+              variant="outline"
+              icon={<SortAscendingIcon width="20px" />}
+              aria-label="Sort ascending"
+              borderLeftRadius="0"
+              borderRightRadius="2px"
+              size="md"
+              colorScheme="gray"
+            ></IconButton>
           ) : (
-            <>
-              <span className="sr-only">sort descending</span>
-              <SortDescendingIcon
-                className="ml-0 p-2 w-6 h-6 border border-gray-300 rounded-r-md box-content cursor-pointer"
-                aria-hidden="true"
-              />
-            </>
+            <IconButton
+              variant="outline"
+              icon={<SortDescendingIcon width="20px" />}
+              aria-label="Sort descending"
+              borderLeftRadius="0"
+              borderRightRadius="2px"
+              size="md"
+              colorScheme="gray"
+            ></IconButton>
           )}
-        </a>
-      </Link>
+        </Link>
+      </NextLink>
     </div>
   );
 };
