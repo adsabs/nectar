@@ -107,7 +107,7 @@ const ClassicForm: NextPage = () => {
           ) : (
             <FormControl>
               <FormLabel>Bibstems</FormLabel>
-              <Input name="bibstems" placeholder="YYYY/MM" onChange={handleChange} />
+              <Input name="bibstems" onChange={handleChange} />
             </FormControl>
           )}
 
