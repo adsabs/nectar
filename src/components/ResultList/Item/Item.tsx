@@ -1,7 +1,7 @@
 import { IDocsEntity } from '@api';
 import { Flex, Link, Text, Stack, Box } from '@chakra-ui/layout';
 import { Checkbox } from '@chakra-ui/checkbox';
-import { getFomattedNumericPubdate } from '@utils';
+import { getFomattedNumericPubdate, isBrowser } from '@utils';
 import { useMachine } from '@xstate/react';
 import clsx from 'clsx';
 import dynamic from 'next/dynamic';
@@ -95,7 +95,7 @@ export const Item = (props: IItemProps): ReactElement => {
             </Link>
           </NextLink>
           <Flex alignItems="start" ml={1}>
-            {hideActions ? null : <ItemResourceDropdowns doc={doc} />}
+            {!isBrowser() || hideActions ? null : <ItemResourceDropdowns doc={doc} />}
           </Flex>
         </Flex>
         <Flex direction="column">

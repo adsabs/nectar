@@ -11,7 +11,7 @@ import { HTMLAttributes, ReactElement } from 'react';
 import { navigation, Routes } from './model';
 import { useHasGraphics, useHasMetrics } from './queries';
 import { ChevronDownIcon } from '@chakra-ui/icons';
-import { SimpleLinkDropdown } from '@components';
+import { SimpleLinkDropdown, SimpleLinkList } from '@components';
 import { ItemType } from '@components/Dropdown/types';
 import qs from 'qs';
 
@@ -146,7 +146,13 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
           </Menu>
         ) : (
           <span>
-            <SimpleLinkDropdown items={getSimpleItems()} label={label} minLabelWidth="full" minListWidth="full" />
+            {/* <SimpleLinkDropdown items={getSimpleItems()} label={label} minLabelWidth="full" minListWidth="full" /> */}
+            <SimpleLinkList
+              items={getSimpleItems()}
+              minWidth="full"
+              selected={currentItem.id}
+              label="Abstract Navigation"
+            />
           </span>
         )}
       </>

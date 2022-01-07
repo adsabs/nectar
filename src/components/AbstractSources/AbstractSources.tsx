@@ -1,9 +1,9 @@
 import { IDocsEntity } from '@api';
 import { Button } from '@chakra-ui/button';
 import { ChevronDownIcon, LockIcon, UnlockIcon } from '@chakra-ui/icons';
-import { HStack, Text } from '@chakra-ui/layout';
+import { HStack, Text, VStack } from '@chakra-ui/layout';
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
-import { SimpleLinkDropdown } from '@components/Dropdown/SimpleLinkDropdown';
+import { SimpleLinkList } from '@components';
 import { ItemType } from '@components/Dropdown/types';
 import { isBrowser } from '@utils';
 import { isNil } from 'ramda';
@@ -31,11 +31,22 @@ export const AbstractSources = ({ doc }: IAbstractSourcesProps): ReactElement =>
   }
 
   return (
-    <HStack as="section" wrap="wrap" spacing={0.5} columnGap={1} rowGap={1}>
-      <FullTextDropdown sources={sources.fullTextSources} />
-      <DataProductDropdown dataProducts={sources.dataProducts} relatedWorks={[]} />
-      {isBrowser() ? <Button>Add to library</Button> : null}
-    </HStack>
+    <>
+      {!isBrowser() ? (
+        <span>
+          <VStack as="section" wrap="wrap" spacing={0.5} columnGap={1} rowGap={1} alignItems="start">
+            <FullTextDropdown sources={sources.fullTextSources} />
+            <DataProductDropdown dataProducts={sources.dataProducts} relatedWorks={[]} />
+          </VStack>
+        </span>
+      ) : (
+        <HStack as="section" wrap="wrap" spacing={0.5} columnGap={1} rowGap={1} alignItems="start">
+          <FullTextDropdown sources={sources.fullTextSources} />
+          <DataProductDropdown dataProducts={sources.dataProducts} relatedWorks={[]} />
+          <Button>Add to library</Button>
+        </HStack>
+      )}
+    </>
   );
 };
 
@@ -57,7 +68,7 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
       </>
     ) : (
       <>
-        <LockIcon mr={1} />
+        <LockIcon color="gray.700" mr={1} />
         {` ${source.name}`}
       </>
     ),
@@ -83,11 +94,12 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
     <>
       {!isBrowser() ? (
         <span>
-          {fullSourceItems.length === 0 ? (
+          {/* {fullSourceItems.length === 0 ? (
             label
           ) : (
             <SimpleLinkDropdown items={fullSourceItems} label={label} minListWidth="180px" />
-          )}
+          )} */}
+          <SimpleLinkList items={fullSourceItems} minWidth="180px" label="Full text sources" showLabel={true} asRow />
         </span>
       ) : null}
       {isBrowser() ? (
@@ -146,7 +158,7 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
     // data product heading
     items.push({
       id: 'data-subheading',
-      label: 'Data Products',
+      label: 'Data Products:',
       path: '',
       disabled: true,
     });
@@ -157,7 +169,7 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
     // related works heading
     items.push({
       id: 'related-subheading',
-      label: 'Related Materials',
+      label: 'Related Materials:',
       path: '',
       disabled: true,
     });
@@ -182,7 +194,8 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
     <>
       {!isBrowser() ? (
         <span>
-          {items.length === 0 ? label : <SimpleLinkDropdown items={items} label={label} minListWidth="150px" />}
+          {/* {items.length === 0 ? label : <SimpleLinkDropdown items={items} label={label} minListWidth="150px" />} */}
+          <SimpleLinkList items={items} minWidth="150px" label="Other Resources" showLabel={true} asRow />
         </span>
       ) : null}
       {isBrowser() ? (
