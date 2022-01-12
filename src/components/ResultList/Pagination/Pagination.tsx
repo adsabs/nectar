@@ -8,7 +8,7 @@ import { usePagination } from './usePagination';
 export interface IPaginationProps extends HTMLAttributes<HTMLDivElement> {
   totalResults: number;
   numPerPage: number;
-  onPageChange: (page: number) => void;
+  onPageChange: (page: number, start: number) => void;
 }
 
 const defaultProps = {
@@ -48,29 +48,31 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
 
   const renderControls = () => {
     return pages.map(({ index, href }) => {
+      const key = `pagination-link${href.pathname}/${index}`;
+
       // current page styling
       if (index === page) {
         return isBrowser() ? (
           <button
             type="button"
-            key={href}
+            key={key}
             onClick={pageChangeHandler(index)}
             aria-current="page"
             data-testid="pagination-item"
             aria-label={`Current page, page ${page}`}
             className="relative z-10 inline-flex items-center px-4 py-2 text-indigo-600 text-sm font-medium bg-indigo-50 border border-indigo-500"
           >
-            {index}
+            {index.toLocaleString()}
           </button>
         ) : (
-          <Link key={href} href={href}>
+          <Link key={key} href={href}>
             <a
               aria-current="page"
               data-testid="pagination-item"
               aria-label={`Current page, page ${page}`}
               className="relative z-10 inline-flex items-center px-4 py-2 text-indigo-600 text-sm font-medium bg-indigo-50 border border-indigo-500"
             >
-              {index}
+              {index.toLocaleString()}
             </a>
           </Link>
         );
@@ -80,22 +82,22 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
       return isBrowser() ? (
         <button
           type="button"
-          key={href}
+          key={key}
           onClick={pageChangeHandler(index)}
           aria-label={`Goto page ${page}`}
           data-testid="pagination-item"
           className="relative inline-flex items-center px-4 py-2 text-gray-500 text-sm font-medium hover:bg-gray-50 bg-white border border-gray-300"
         >
-          {index}
+          {index.toLocaleString()}
         </button>
       ) : (
-        <Link key={href} href={href}>
+        <Link key={key} href={href}>
           <a
             aria-label={`Goto page ${page}`}
             data-testid="pagination-item"
             className="relative inline-flex items-center px-4 py-2 text-gray-500 text-sm font-medium hover:bg-gray-50 bg-white border border-gray-300"
           >
-            {index}
+            {index.toLocaleString()}
           </a>
         </Link>
       );
