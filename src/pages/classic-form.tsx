@@ -70,17 +70,28 @@ const ClassicForm: NextPage = () => {
           <FormControl>
             <FormLabel>Limit Query</FormLabel>
             <CheckboxGroup>
-              <HStack>
-                <Checkbox id="limit_astronomy" name="limit_astronomy" onChange={handleChange} defaultChecked>
-                  Astronomy
-                </Checkbox>
-                <Checkbox id="limit_physics" name="limit_physics" onChange={handleChange}>
-                  Physics
-                </Checkbox>
-                <Checkbox id="limit_general" name="limit_general" onChange={handleChange}>
-                  General
-                </Checkbox>
-              </HStack>
+              {isMounted ? (
+                <HStack>
+                  <Checkbox id="limit_astronomy" name="limit_astronomy" onChange={handleChange} defaultChecked>
+                    Astronomy
+                  </Checkbox>
+                  <Checkbox id="limit_physics" name="limit_physics" onChange={handleChange}>
+                    Physics
+                  </Checkbox>
+                  <Checkbox id="limit_general" name="limit_general" onChange={handleChange}>
+                    General
+                  </Checkbox>
+                </HStack>
+              ) : (
+                <HStack>
+                  <input type="checkbox" id="limit_astronomy" name="limit_astronomy" defaultChecked />
+                  <label htmlFor="limit_astronomy">Astronomy</label>
+                  <input type="checkbox" id="limit_physics" name="limit_physics" />
+                  <label htmlFor="limit_physics">Physics</label>
+                  <input type="checkbox" id="limit_general" name="limit_general" />
+                  <label htmlFor="limit_general">General</label>
+                </HStack>
+              )}
             </CheckboxGroup>
           </FormControl>
           <Stack direction={{ base: 'column', sm: 'row' }} justifyContent="space-evenly" spacing={5}>
@@ -88,8 +99,14 @@ const ClassicForm: NextPage = () => {
               label="Author"
               desc="Author names, enter (Last, First M) one per line"
               onChange={handleChange}
+              isMounted={isMounted}
             />
-            <LogicAndTextarea label="Object" desc="SIMBAD object search (one per line)" onChange={handleChange} />
+            <LogicAndTextarea
+              label="Object"
+              desc="SIMBAD object search (one per line)"
+              onChange={handleChange}
+              isMounted={isMounted}
+            />
           </Stack>
           <HStack justifyContent="space-evenly" spacing={5}>
             <FormControl>
@@ -101,21 +118,30 @@ const ClassicForm: NextPage = () => {
               <Input name="pubdate_end" placeholder="YYYY/MM" onChange={handleChange} />
             </FormControl>
           </HStack>
-          <LogicAndInput label="Title" onChange={handleChange} />
+          <LogicAndInput label="Title" onChange={handleChange} isMounted={isMounted} />
 
-          <LogicAndInput label="Abstract / Keywords" onChange={handleChange} />
+          <LogicAndInput label="Abstract / Keywords" onChange={handleChange} isMounted={isMounted} />
 
           <FormControl>
             <VisuallyHidden>Property</VisuallyHidden>
             <CheckboxGroup>
-              <HStack>
-                <Checkbox id="refereed_only" name="property_refereed_only" onChange={handleChange} fontWeight="bold">
-                  Refereed only
-                </Checkbox>
-                <Checkbox id="physics" name="property_physics" onChange={handleChange} fontWeight="bold">
-                  Physics
-                </Checkbox>
-              </HStack>
+              {isMounted ? (
+                <HStack>
+                  <Checkbox id="refereed_only" name="property_refereed_only" onChange={handleChange} fontWeight="bold">
+                    Refereed only
+                  </Checkbox>
+                  <Checkbox id="physics" name="property_physics" onChange={handleChange} fontWeight="bold">
+                    Physics
+                  </Checkbox>
+                </HStack>
+              ) : (
+                <HStack>
+                  <input type="checkbox" id="refereed_only" name="property_refereed_only" />
+                  <label htmlFor="refereed_only">Refereed only</label>
+                  <input type="checkbox" id="physics" name="property_physics" />
+                  <label htmlFor="physics">Physics</label>
+                </HStack>
+              )}
             </CheckboxGroup>
           </FormControl>
           {isMounted ? (
@@ -143,14 +169,24 @@ const ClassicForm: NextPage = () => {
   );
 };
 
-const LogicAndTextarea = ({ label, desc, onChange }: { label: string; desc: string; onChange: ChangeEventHandler }) => {
+const LogicAndTextarea = ({
+  label,
+  desc,
+  onChange,
+  isMounted = true,
+}: {
+  label: string;
+  desc: string;
+  onChange: ChangeEventHandler;
+  isMounted: boolean;
+}) => {
   const id = normalizeString(label);
   return (
     <Box width="full">
       <FormControl>
         <Flex direction="row" justifyContent="space-between">
           <FormLabel>{label}</FormLabel>
-          <LogicRadios name={id} variant="andor" onChange={onChange} />
+          <LogicRadios name={id} variant="andor" onChange={onChange} isMounted={isMounted} />
         </Flex>
         <Textarea as="textarea" id={id} name={id} rows={3} defaultValue={''} onChange={onChange} />
         <FormHelperText>{desc}</FormHelperText>
@@ -163,10 +199,12 @@ const LogicAndInput = ({
   label,
   noLogic,
   onChange,
+  isMounted = true,
 }: {
   label: string;
   noLogic?: boolean;
   onChange: ChangeEventHandler;
+  isMounted: boolean;
 }) => {
   const id = normalizeString(label);
   return (
@@ -174,7 +212,9 @@ const LogicAndInput = ({
       <FormControl>
         <Flex direction="row" justifyContent="space-between">
           <FormLabel>{label}</FormLabel>
-          {!noLogic && <LogicRadios name={normalizeString(label)} variant="all" onChange={onChange} />}
+          {!noLogic && (
+            <LogicRadios name={normalizeString(label)} variant="all" onChange={onChange} isMounted={isMounted} />
+          )}
         </Flex>
         <Input id={id} name={id} onChange={onChange} defaultValue={''} />
       </FormControl>
@@ -186,10 +226,12 @@ const LogicRadios = ({
   name,
   variant = 'andor',
   onChange,
+  isMounted = true,
 }: {
   name: string;
   variant: 'andor' | 'all';
   onChange: ChangeEventHandler;
+  isMounted?: boolean;
 }) => {
   const values = {
     andor: ['and', 'or'],
@@ -198,18 +240,34 @@ const LogicRadios = ({
   const normalizedName = normalizeString(name);
 
   return (
-    <RadioGroup defaultValue="and">
-      <Stack direction="row">
-        {values[variant].map((id) => {
-          const fullId = `logic_${normalizedName}_${id}`;
-          return (
-            <Radio id={fullId} key={id} value={id} name={`logic_${name}`} onChange={onChange}>
-              {id}
-            </Radio>
-          );
-        })}
-      </Stack>
-    </RadioGroup>
+    <>
+      {isMounted ? (
+        <RadioGroup defaultValue="and">
+          <Stack direction="row">
+            {values[variant].map((id) => {
+              const fullId = `logic_${normalizedName}_${id}`;
+              return (
+                <Radio id={fullId} key={id} value={id} name={`logic_${name}`} onChange={onChange}>
+                  {id}
+                </Radio>
+              );
+            })}
+          </Stack>
+        </RadioGroup>
+      ) : (
+        <Stack direction="row">
+          {values[variant].map((id) => {
+            const fullId = `logic_${normalizedName}_${id}`;
+            return (
+              <>
+                <input type="radio" id={fullId} key={id} value={id} name={`logic_${name}`} checked={id === 'and'} />
+                <label htmlFor={fullId}>{id}</label>
+              </>
+            );
+          })}
+        </Stack>
+      )}
+    </>
   );
 };
 

@@ -56,8 +56,8 @@ const PaperForm: NextPage = () => {
         <title>NASA Science Explorer - Paper Form Search</title>
       </Head>
       <JournalQueryForm onSubmit={handleSubmit(PaperFormType.JOURNAL_QUERY)} isMounted={isMounted} />
-      <ReferenceQueryForm onSubmit={handleSubmit(PaperFormType.REFERENCE_QUERY)} />
-      <BibcodeQueryForm onSubmit={handleSubmit(PaperFormType.BIBCODE_QUERY)} />
+      <ReferenceQueryForm onSubmit={handleSubmit(PaperFormType.REFERENCE_QUERY)} isMounted={isMounted} />
+      <BibcodeQueryForm onSubmit={handleSubmit(PaperFormType.BIBCODE_QUERY)} isMounted={isMounted} />
     </VStack>
   );
 };
@@ -122,9 +122,11 @@ const JournalQueryForm = ({ onSubmit, isMounted }: { onSubmit: SubmitHandler; is
                 <Button size="sm" isDisabled={isSubmitting} type="submit" isLoading={isSubmitting}>
                   Search
                 </Button>
-                <Button variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
-                  Reset
-                </Button>
+                {isMounted && (
+                  <Button variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
+                    Reset
+                  </Button>
+                )}
               </Stack>
             </Form>
           </VStack>
@@ -134,7 +136,7 @@ const JournalQueryForm = ({ onSubmit, isMounted }: { onSubmit: SubmitHandler; is
   );
 };
 
-const ReferenceQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
+const ReferenceQueryForm = ({ onSubmit, isMounted }: { onSubmit: SubmitHandler; isMounted: boolean }) => {
   return (
     <Formik<PaperFormState[PaperFormType.REFERENCE_QUERY]>
       initialValues={{ reference: '' }}
@@ -167,9 +169,11 @@ const ReferenceQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
               <Button size="sm" isDisabled={isSubmitting} type="submit" isLoading={isSubmitting}>
                 Search
               </Button>
-              <Button variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
-                Reset
-              </Button>
+              {isMounted && (
+                <Button variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
+                  Reset
+                </Button>
+              )}
             </Stack>
           </Form>
         </Box>
@@ -178,7 +182,7 @@ const ReferenceQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
   );
 };
 
-const BibcodeQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
+const BibcodeQueryForm = ({ onSubmit, isMounted }: { onSubmit: SubmitHandler; isMounted: boolean }) => {
   return (
     <Formik<PaperFormState[PaperFormType.BIBCODE_QUERY]>
       initialValues={{ bibcodes: '' }}
@@ -214,9 +218,11 @@ const BibcodeQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
               <Button size="sm" isDisabled={isSubmitting} type="submit" isLoading={isSubmitting}>
                 Search
               </Button>
-              <Button variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
-                Reset
-              </Button>
+              {isMounted && (
+                <Button variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
+                  Reset
+                </Button>
+              )}
             </Stack>
           </Form>
         </Box>
