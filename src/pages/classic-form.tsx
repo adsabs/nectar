@@ -7,10 +7,9 @@ import { Checkbox, CheckboxGroup } from '@chakra-ui/checkbox';
 import VisuallyHidden from '@chakra-ui/visually-hidden';
 import { BibstemPickerMultiple, Sort } from '@components';
 import { ClassicformController, RawClassicFormParams } from '@controllers/classicformController';
-import { isBrowser } from '@utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { ChangeEvent, ChangeEventHandler, useCallback, useReducer } from 'react';
+import { ChangeEvent, ChangeEventHandler, useCallback, useReducer, useState, useEffect } from 'react';
 import { Textarea } from '@chakra-ui/textarea';
 import { Radio, RadioGroup } from '@chakra-ui/radio';
 
@@ -28,16 +27,24 @@ const formReducer = (state: Record<string, string>, event: FormEvent) => {
 const ClassicForm: NextPage = () => {
   const Router = useRouter();
   const [formData, setFormData] = useReducer(formReducer, {});
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.currentTarget;
     setFormData({ name, value });
   };
+
   const handleSortChange = useCallback(
     (sort: SolrSort[]) => {
       setFormData({ name: 'sort', value: sort.join(',') });
     },
     [setFormData],
   );
+
   const handleOnSubmit = (e: ChangeEvent<HTMLFormElement>): void => {
     e.preventDefault();
     const controller = new ClassicformController(formData as RawClassicFormParams);
@@ -102,7 +109,7 @@ const ClassicForm: NextPage = () => {
               </HStack>
             </CheckboxGroup>
           </FormControl>
-          {isBrowser() ? (
+          {isMounted ? (
             <BibstemPickerMultiple />
           ) : (
             <FormControl>

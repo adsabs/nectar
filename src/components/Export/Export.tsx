@@ -13,7 +13,6 @@ import { Collapse, Fade } from '@chakra-ui/transition';
 import { CloseButton } from '@chakra-ui/close-button';
 import { CopyIcon, DownloadIcon } from '@chakra-ui/icons';
 import { Textarea } from '@chakra-ui/react';
-import { isBrowser } from '@utils';
 
 export interface IExportProps extends HTMLAttributes<HTMLDivElement> {
   initialFormat?: ExportState['format'];
@@ -62,6 +61,12 @@ export const Export = ({
     loadInitially,
   });
 
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const noText = !state.text || state.text.length === 0;
 
   return (
@@ -74,7 +79,7 @@ export const Export = ({
       spacing={2}
     >
       {!singleMode && <CloseButton as={Flex} justifyContent="end" width="full" />}
-      {isBrowser() && (
+      {isMounted && (
         <form onSubmit={onSubmit}>
           <Stack direction="column" spacing={3}>
             <FormatSelector format={state.format} onFormatChange={onFormatChange} />
@@ -93,7 +98,7 @@ export const Export = ({
           </Stack>
         </form>
       )}
-      {isBrowser() && (
+      {isMounted && (
         <HStack>
           <Button
             data-testid="btn-download"

@@ -1,9 +1,8 @@
 import { Box, Flex, Text, Link } from '@chakra-ui/layout';
 import { Button, IconButton } from '@chakra-ui/button';
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
-import { isBrowser } from '@utils';
 import NextLink from 'next/link';
-import { HTMLAttributes, MouseEvent, ReactElement } from 'react';
+import { HTMLAttributes, MouseEvent, ReactElement, useState, useEffect } from 'react';
 import { usePagination } from './usePagination';
 import { VisuallyHidden } from '@chakra-ui/react';
 
@@ -20,6 +19,12 @@ const defaultProps = {
 
 export const Pagination = (props: IPaginationProps): ReactElement => {
   const { totalResults, numPerPage, onPageChange, ...divProps } = props;
+
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const {
     nextHref,
@@ -52,7 +57,7 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
     return pages.map(({ index, href }) => {
       // current page styling
       if (index === page) {
-        return isBrowser() ? (
+        return isMounted ? (
           <Button
             key={href}
             onClick={pageChangeHandler(index)}
@@ -73,7 +78,7 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
       }
 
       // normal, non-current page
-      return isBrowser() ? (
+      return isMounted ? (
         <Button
           key={href}
           onClick={pageChangeHandler(index)}
@@ -106,7 +111,7 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
         {paginationHeading}
       </VisuallyHidden>
       <Box display={{ sm: 'none' }}>
-        {isBrowser() ? (
+        {isMounted ? (
           <Flex justifyContent="space-between">
             <Button onClick={handlePrev} data-testid="pagination-prev" variant="outline" isDisabled={noPrev}>
               Previous
@@ -157,7 +162,7 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
           role="navigation"
           aria-label="Pagination"
         >
-          {isBrowser() ? (
+          {isMounted ? (
             <IconButton
               aria-label="previous"
               onClick={handlePrev}
@@ -180,9 +185,9 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
             </NextLink>
           )}
 
-          {isBrowser() && renderControls()}
+          {isMounted && renderControls()}
 
-          {isBrowser() ? (
+          {isMounted ? (
             <IconButton
               aria-label="next"
               onClick={handleNext}

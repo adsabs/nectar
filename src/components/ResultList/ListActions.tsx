@@ -4,9 +4,8 @@ import { Button } from '@chakra-ui/button';
 import { Sort } from '@components';
 import { SimpleSortDropdown } from '@components/Sort/SimpleSortDropdown';
 import { ISearchMachine, TransitionType } from '@machines/lib/search/types';
-import { isBrowser } from '@utils';
 import { useSelector } from '@xstate/react';
-import { ReactElement, useCallback, useState } from 'react';
+import { ReactElement, useCallback, useEffect, useState } from 'react';
 
 interface IListActionProp {
   service?: ISearchMachine;
@@ -32,6 +31,12 @@ export const ListActions = (props: IListActionProp): ReactElement => {
 
   const [showHighlight, setShowHighlight] = useState<boolean>(false);
 
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const page = useSelector(searchService, (state) => {
     return state.context.pagination.page;
   });
@@ -53,10 +58,8 @@ export const ListActions = (props: IListActionProp): ReactElement => {
 
   return (
     <Box>
-      {!isBrowser() ? (
-        <span>
-          <SimpleSortDropdown query={query} selected={sort[0]} page={page} />
-        </span>
+      {!isMounted ? (
+        <SimpleSortDropdown query={query} selected={sort[0]} page={page} />
       ) : (
         <Stack direction="column" spacing={1}>
           <Stack direction={{ base: 'column', sm: 'row' }} spacing={1} width="min-content">

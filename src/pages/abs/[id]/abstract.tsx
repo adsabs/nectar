@@ -16,7 +16,7 @@ import NextLink from 'next/link';
 import { isNil } from 'ramda';
 import { useEffect, useState } from 'react';
 import { dehydrate, QueryClient } from 'react-query';
-import { isBrowser, normalizeURLParams } from 'src/utils';
+import { normalizeURLParams } from 'src/utils';
 export interface IAbstractPageProps {
   doc?: IDocsEntity;
   error?: string;
@@ -36,7 +36,12 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
 
   const [aff, setAff] = useState({ show: false, data: [] as string[] });
 
-  // onComponentDidMount
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   useEffect(() => {
     if (doc && showNumAuthors > doc.author.length) {
       setShowNumAuthors(doc.author.length);
@@ -89,7 +94,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
               {doc.title}
             </Heading>
             <HStack spacing={1}>
-              {isBrowser() ? (
+              {isMounted ? (
                 <>
                   <Button onClick={aff.show ? handleHideAff : handleShowAff} variant="outline" size="xs">
                     {aff.show ? 'hide affiliations' : 'show affiliations'}
@@ -145,12 +150,12 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                     </Box>
                   );
                 })}
-                {isBrowser() && doc.author.length > showNumAuthors ? (
+                {isMounted && doc.author.length > showNumAuthors ? (
                   <Link onClick={handleShowAllAuthors} fontStyle="italic">{`and ${
                     doc.author.length - showNumAuthors
                   } more`}</Link>
                 ) : null}
-                {!isBrowser() && doc.author.length > showNumAuthors ? (
+                {!isMounted && doc.author.length > showNumAuthors ? (
                   <Text as="span" fontStyle="italic">{`and ${doc.author.length - showNumAuthors} more`}</Text>
                 ) : null}
               </Flex>

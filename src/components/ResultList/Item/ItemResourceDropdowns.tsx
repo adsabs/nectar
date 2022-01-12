@@ -7,7 +7,7 @@ import { processLinkData } from '@components/AbstractSources/linkGenerator';
 import { DatabaseIcon, DocumentTextIcon, ViewListIcon } from '@heroicons/react/outline';
 import { isBrowser } from '@utils';
 import { useRouter } from 'next/router';
-import { MouseEventHandler, ReactElement } from 'react';
+import { MouseEventHandler, ReactElement, useEffect, useState } from 'react';
 
 export interface IItemResourceDropdownsProps {
   doc: IDocsEntity;
@@ -21,6 +21,12 @@ interface IItem {
 
 export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): ReactElement => {
   const router = useRouter();
+
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   let fullSourceItems: IItem[] = [];
 
@@ -137,7 +143,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
   return (
     <>
       {/* full resources menu */}
-      {isBrowser() ? (
+      {isMounted ? (
         <Menu variant="compact">
           <MenuButton
             as={IconButton}
@@ -158,7 +164,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
           )}
         </Menu>
       ) : (
-        <span>
+        <>
           {fullSourceItems.length === 0 ? (
             simpleFullSourceItemsLabel
           ) : (
@@ -169,11 +175,11 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
               alignRight={true}
             />
           )}
-        </span>
+        </>
       )}
 
       {/* reference and citation items menu */}
-      {isBrowser() ? (
+      {isMounted ? (
         <Menu variant="compact">
           <MenuButton
             as={IconButton}
@@ -194,7 +200,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
           )}
         </Menu>
       ) : (
-        <span>
+        <>
           {referenceItems.length === 0 ? (
             simpleRefItemsLabel
           ) : (
@@ -205,11 +211,11 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
               alignRight={true}
             />
           )}
-        </span>
+        </>
       )}
 
       {/* data product items menu */}
-      {isBrowser() ? (
+      {isMounted ? (
         <Menu variant="compact">
           <MenuButton
             as={IconButton}
@@ -230,7 +236,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
           )}
         </Menu>
       ) : (
-        <span>
+        <>
           {dataProductItems.length === 0 ? (
             simpleDataItemsLabel
           ) : (
@@ -241,7 +247,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
               alignRight={true}
             />
           )}
-        </span>
+        </>
       )}
     </>
   );

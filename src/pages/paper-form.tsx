@@ -4,7 +4,6 @@ import { BibstemPickerSingle, TextInput } from '@components';
 import { PaperFormController } from '@controllers/paperformController';
 import { PaperFormType, RawPaperFormParams } from '@controllers/paperformController/types';
 import { useAPI } from '@hooks';
-import { isBrowser } from '@utils';
 import { ErrorMessage, Field, FieldProps, Form, Formik } from 'formik';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -12,6 +11,7 @@ import { curry } from 'ramda';
 import { FormControl, FormLabel, FormHelperText, FormErrorMessage } from '@chakra-ui/form-control';
 import { Textarea } from '@chakra-ui/textarea';
 import { Input } from '@chakra-ui/input';
+import { useState, useEffect } from 'react';
 
 type PaperFormState = {
   [PaperFormType.JOURNAL_QUERY]: {
@@ -31,6 +31,11 @@ type PaperFormState = {
 const PaperForm: NextPage = () => {
   const router = useRouter();
   const { api } = useAPI();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleSubmit = curry(async (type: PaperFormType, params: RawPaperFormParams) => {
     try {
@@ -46,7 +51,7 @@ const PaperForm: NextPage = () => {
 
   return (
     <VStack as="article" spacing={5} my={16}>
-      <JournalQueryForm onSubmit={handleSubmit(PaperFormType.JOURNAL_QUERY)} />
+      <JournalQueryForm onSubmit={handleSubmit(PaperFormType.JOURNAL_QUERY)} isMounted={isMounted} />
       <ReferenceQueryForm onSubmit={handleSubmit(PaperFormType.REFERENCE_QUERY)} />
       <BibcodeQueryForm onSubmit={handleSubmit(PaperFormType.BIBCODE_QUERY)} />
     </VStack>
@@ -56,7 +61,7 @@ export default PaperForm;
 
 type SubmitHandler = <T>(params: T) => Promise<void>;
 
-const JournalQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
+const JournalQueryForm = ({ onSubmit, isMounted }: { onSubmit: SubmitHandler; isMounted: boolean }) => {
   return (
     <Formik<PaperFormState[PaperFormType.JOURNAL_QUERY]>
       initialValues={{ bibstem: '', year: '', volume: '', pageid: '' }}
@@ -90,7 +95,7 @@ const JournalQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
               {/* Bibstem picker */}
               <Grid gridColumn={6} gap={4}>
                 <GridItem colSpan={6}>
-                  {isBrowser() ? (
+                  {isMounted ? (
                     <BibstemPickerSingle name="bibstem" onItemUpdate={handleBibstemUpdate} />
                   ) : (
                     <Input name="bibstem" label="Publication" />

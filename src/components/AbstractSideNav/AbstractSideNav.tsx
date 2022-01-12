@@ -3,11 +3,11 @@ import { Flex, Text, Badge, Box, Stack, Link } from '@chakra-ui/layout';
 import { Button } from '@chakra-ui/button';
 import { Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/menu';
 import { DocumentIcon } from '@heroicons/react/outline';
-import { isBrowser, useBaseRouterPath } from '@utils';
+import { useBaseRouterPath } from '@utils';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { last } from 'ramda';
-import { HTMLAttributes, ReactElement } from 'react';
+import { HTMLAttributes, ReactElement, useEffect, useState } from 'react';
 import { navigation, Routes } from './model';
 import { useHasGraphics, useHasMetrics } from './queries';
 import { ChevronDownIcon } from '@chakra-ui/icons';
@@ -28,6 +28,12 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
   const hasToc = doc.property ? doc.property.indexOf('TOC') > -1 : false;
 
   const useCount = [Routes.CITATIONS, Routes.REFERENCES];
+
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const items = navigation.map((item) => {
     const MenuIcon = item.icon || DocumentIcon;
@@ -126,7 +132,7 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
 
     return (
       <>
-        {isBrowser() ? (
+        {isMounted ? (
           <Menu matchWidth>
             <MenuButton width="full">{label}</MenuButton>
             <MenuList>
@@ -145,7 +151,7 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
             </MenuList>
           </Menu>
         ) : (
-          <span>
+          <>
             {/* <SimpleLinkDropdown items={getSimpleItems()} label={label} minLabelWidth="full" minListWidth="full" /> */}
             <SimpleLinkList
               items={getSimpleItems()}
@@ -153,7 +159,7 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
               selected={currentItem.id}
               label="Abstract Navigation"
             />
-          </span>
+          </>
         )}
       </>
     );
@@ -165,7 +171,7 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
         <Flex direction="column" alignItems="start" justifyContent="start" shadow="md" borderRadius="md" p={2}>
           {items.map((item) => (
             <NextLink key={item.name} href={item.href} passHref>
-              <Link variant="dropdownItem" w="full">
+              <Link variant="dropdownItem" w="full" tabIndex={-1}>
                 <Button
                   variant={item.current ? 'solid' : 'ghost'}
                   size="md"
