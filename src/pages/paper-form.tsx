@@ -114,8 +114,8 @@ const JournalQueryForm = ({ onSubmit, isMounted }: { onSubmit: SubmitHandler; is
                   <ErrorMessage name="volume" component="div" />
                 </GridItem>
                 <GridItem colSpan={2}>
-                  <Field name="page" as={TextInput} label="Page / ID" />
-                  <ErrorMessage name="page" component="div" />
+                  <Field name="pageid" as={TextInput} label="Page / ID" />
+                  <ErrorMessage name="pageid" component="div" />
                 </GridItem>
               </Grid>
               <Stack direction="row" mt={5}>

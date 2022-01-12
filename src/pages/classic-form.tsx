@@ -29,6 +29,7 @@ const ClassicForm: NextPage = () => {
   const Router = useRouter();
   const [formData, setFormData] = useReducer(formReducer, {});
   const [isMounted, setIsMounted] = useState(false);
+  const [key, setKey] = useState(Math.random());
 
   useEffect(() => {
     setIsMounted(true);
@@ -46,6 +47,10 @@ const ClassicForm: NextPage = () => {
     [setFormData],
   );
 
+  const handleFormReset = () => {
+    setKey(Math.random()); // used to reset some form elements (force rerender)
+  };
+
   const handleOnSubmit = (e: ChangeEvent<HTMLFormElement>): void => {
     e.preventDefault();
     const controller = new ClassicformController(formData as RawClassicFormParams);
@@ -58,7 +63,7 @@ const ClassicForm: NextPage = () => {
         <title>NASA Science Explorer - Classic Form Search</title>
       </Head>
       <form method="post" action="/api/classicform">
-        <Stack direction="column" spacing={5}>
+        <Stack direction="column" spacing={5} key={key}>
           <VisuallyHidden as="h2" id="form-title">
             Classic Form
           </VisuallyHidden>
@@ -128,7 +133,7 @@ const ClassicForm: NextPage = () => {
           </FormControl>
           <Stack direction="row">
             <Button type="submit">Search</Button>
-            <Button type="reset" variant="outline">
+            <Button type="reset" variant="outline" onClick={handleFormReset}>
               Reset
             </Button>
           </Stack>
