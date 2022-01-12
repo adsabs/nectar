@@ -1,6 +1,5 @@
 import { Box, Flex, Heading, HStack, Link, Stack, Text } from '@chakra-ui/layout';
 import { AdsSmallLogo } from '@components/images';
-import { useViewport, Viewport } from '@hooks';
 import { useAppCtx } from '@store';
 import { Theme } from '@types';
 import Image from 'next/image';
