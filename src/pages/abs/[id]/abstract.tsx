@@ -204,7 +204,7 @@ const Details = ({ doc }: IDetailsProps) => {
           {entries.map(({ label, value, href }) => (
             <Tr key={label}>
               <Td>{label}</Td>
-              <Td>
+              <Td wordBreak="break-word">
                 {href && href !== '' ? (
                   <NextLink href={href} passHref>
                     <Link target="_blank" rel="noreferrer">
