@@ -50,6 +50,7 @@ export enum MetricsResponseKey {
   SB = 'skipped bibcodes',
   H = 'histograms',
   E = 'Error',
+  EI = 'Error Info',
 }
 
 export type CitationsHistogramType = {
@@ -65,18 +66,19 @@ export interface IADSApiMetricsParams {
 }
 
 export interface IADSApiMetricsResponse {
-  [MetricsResponseKey.BS]: { [key in BasicStatsKey]: number };
-  [MetricsResponseKey.BSR]: { [key in BasicStatsKey]: number };
-  [MetricsResponseKey.CS]: {
+  [MetricsResponseKey.BS]?: { [key in BasicStatsKey]: number };
+  [MetricsResponseKey.BSR]?: { [key in BasicStatsKey]: number };
+  [MetricsResponseKey.CS]?: {
     [key in CitationsStatsKey]: number;
   } & { 'self-citations': string[] };
-  [MetricsResponseKey.CSR]: {
+  [MetricsResponseKey.CSR]?: {
     [key in CitationsStatsKey]: number;
   };
-  [MetricsResponseKey.H]: {
+  [MetricsResponseKey.H]?: {
     citations: CitationsHistogramType;
     reads: ReadsHistogramType;
   };
-  [MetricsResponseKey.SB]: string[];
-  [MetricsResponseKey.E]: string;
+  [MetricsResponseKey.SB]?: string[];
+  [MetricsResponseKey.E]?: string;
+  [MetricsResponseKey.EI]?: string;
 }
