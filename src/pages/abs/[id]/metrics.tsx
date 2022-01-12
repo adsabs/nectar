@@ -1,43 +1,56 @@
-import AdsApi, { IADSApiMetricsParams, IDocsEntity, IUserData } from '@api';
-import { BasicStatsKey, CitationsStatsKey, IADSApiMetricsResponse, MetricsResponseKey } from '@api/lib/metrics/types';
-import { metatagsQueryFields } from '@components';
-import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
-import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/queries';
+import { IADSApiSearchResponse } from '@api';
+import { IADSApiMetricsResponse } from '@api/lib/metrics/types';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { Metrics } from '@components/Metrics';
-import { normalizeURLParams } from '@utils';
+import { withDetailsPage } from '@hocs/withDetailsPage';
+import { composeNextGSSP, normalizeURLParams } from '@utils';
+import { fetchMetrics, metricsKeys, useGetMetrics } from '@_api/metrics';
+import { searchKeys, useGetAbstract } from '@_api/search';
 import { GetServerSideProps, NextPage } from 'next';
-import { dehydrate, QueryClient } from 'react-query';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
+import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
+import { toast } from 'react-toastify';
 
 interface IMetricsPageProps {
-  originalDoc: IDocsEntity;
-  error?: string;
-  metrics: IADSApiMetricsResponse;
+  id: string;
+  error?: {
+    status?: string;
+    message?: string;
+  };
 }
 
 const MetricsPage: NextPage<IMetricsPageProps> = (props: IMetricsPageProps) => {
-  const { originalDoc, error, metrics } = props;
+  const { id } = props;
+  const router = useRouter();
 
-  const hasCitations =
-    metrics && metrics[MetricsResponseKey.CITATION_STATS][CitationsStatsKey.TOTAL_NUMBER_OF_CITATIONS] > 0;
+  const {
+    data: {
+      docs: [doc],
+    },
+  } = useGetAbstract({ id });
 
-  const hasReads = metrics && metrics[MetricsResponseKey.BASIC_STATS][BasicStatsKey.TOTAL_NUMBER_OF_READS] > 0;
+  const { data: metrics, isError, isSuccess, error } = useGetMetrics(doc.bibcode, { keepPreviousData: true });
+
+  useEffect(() => {
+    if (isError) {
+      void router.replace('/abs/[id]/abstract', `/abs/${id}/abstract`);
+      toast(error, { type: 'error' });
+    }
+  }, [isError]);
+
+  console.log('metrics error!', { isError, isSuccess, error, metrics });
 
   return (
-    <AbsLayout doc={originalDoc}>
+    <AbsLayout doc={doc}>
       <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
         <div className="pb-1">
           <h2 className="prose-xl text-gray-900 font-medium leading-8" id="title">
-            <span>Metrics for </span> <div className="text-2xl">{originalDoc.title}</div>
+            <span>Metrics for </span> <div className="text-2xl">{doc.title}</div>
           </h2>
         </div>
-        {error ? (
-          <div className="flex items-center justify-center w-full h-full text-xl">{error}</div>
-        ) : hasCitations || hasReads ? (
-          <Metrics metrics={metrics} isAbstract={true} />
-        ) : (
-          <div className="flex items-center justify-center w-full h-full text-xl">{'No metrics data'}</div>
-        )}
+        {isError && <div className="flex items-center justify-center w-full h-full text-xl">{error}</div>}
+        {isSuccess && <Metrics metrics={metrics as IADSApiMetricsResponse} isAbstract={true} />}
       </article>
     </AbsLayout>
   );
@@ -45,46 +58,47 @@ const MetricsPage: NextPage<IMetricsPageProps> = (props: IMetricsPageProps) => {
 
 export default MetricsPage;
 
-export const getServerSideProps: GetServerSideProps<IMetricsPageProps> = async (ctx) => {
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage, async (ctx, state) => {
+  const api = (await import('@_api/api')).default;
+  const axios = (await import('axios')).default;
+  api.setToken(ctx.req.session.userData.access_token);
   const query = normalizeURLParams(ctx.query);
-  const request = ctx.req as typeof ctx.req & {
-    session: { userData: IUserData };
-  };
-  const userData = request.session.userData;
-  const params: IADSApiMetricsParams = {
-    bibcode: query.id,
-  };
-  const adsapi = new AdsApi({ token: userData.access_token });
 
-  const result = await adsapi.metrics.query(params);
-  const originalDoc = await adsapi.search.getDocument(query.id, [
-    ...abstractPageNavDefaultQueryFields,
-    ...metatagsQueryFields,
-  ]);
+  try {
+    const queryClient = new QueryClient();
+    hydrate(queryClient, state.props?.dehydratedState as DehydratedState);
+    const {
+      docs: [{ bibcode }],
+    } = queryClient.getQueryData<IADSApiSearchResponse['response']>(searchKeys.abstract(query.id));
 
-  const queryClient = new QueryClient();
-  if (!originalDoc.notFound && !originalDoc.error) {
-    const { bibcode } = originalDoc.doc;
-    void (await queryClient.prefetchQuery(['hasGraphics', bibcode], () => fetchHasGraphics(adsapi, bibcode)));
-    void (await queryClient.prefetchQuery(['hasMetrics', bibcode], () => fetchHasMetrics(adsapi, bibcode)));
-  }
+    void (await queryClient.prefetchQuery({
+      queryKey: metricsKeys.primary(bibcode),
+      queryFn: fetchMetrics,
+    }));
 
-  return originalDoc.notFound || originalDoc.error
-    ? { notFound: true }
-    : result.isErr()
-    ? {
+    return {
+      props: {
+        dehydratedState: dehydrate(queryClient),
+      },
+    };
+  } catch (e) {
+    if (axios.isAxiosError(e) && e.response) {
+      return {
         props: {
-          originalDoc: originalDoc.doc,
-          dehydratedState: dehydrate(queryClient),
-          error: 'Unable to get results',
-          metrics: null,
-        },
-      }
-    : {
-        props: {
-          originalDoc: originalDoc.doc,
-          dehydratedState: dehydrate(queryClient),
-          metrics: result.value,
+          error: {
+            status: e.response.status,
+            message: e.message,
+          },
         },
       };
-};
+    }
+    return {
+      props: {
+        error: {
+          status: 500,
+          message: 'Unknown server error',
+        },
+      },
+    };
+  }
+});

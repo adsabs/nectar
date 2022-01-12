@@ -1,81 +1,82 @@
-import AdsApi, { IDocsEntity, IUserData, SolrSort } from '@api';
-import { AbstractSources, metatagsQueryFields } from '@components';
-import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
-import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/queries';
+import { IDocsEntity } from '@api';
+import { AbstractSources } from '@components';
 import { createUrlByType } from '@components/AbstractSources/linkGenerator';
 import { AbsLayout } from '@components/Layout/AbsLayout';
-import { useAPI } from '@hooks';
-import clsx from 'clsx';
+import { withDetailsPage } from '@hocs/withDetailsPage';
+import { composeNextGSSP } from '@utils';
+import { useGetAbstract } from '@_api/search';
 import { GetServerSideProps, NextPage } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 import { isNil } from 'ramda';
-import { useEffect, useState } from 'react';
-import { dehydrate, QueryClient } from 'react-query';
-import { isBrowser, normalizeURLParams } from 'src/utils';
 export interface IAbstractPageProps {
-  doc?: IDocsEntity;
-  error?: string;
-  params: {
-    q: string;
-    fl: string[];
-    sort: SolrSort[];
+  id: string;
+  error?: {
+    status?: string;
+    message?: string;
   };
 }
 
-const MAX_AUTHORS = 50;
-
 const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) => {
-  const { doc, error, params } = props;
+  const { id, error } = props;
 
-  const [showNumAuthors, setShowNumAuthors] = useState<number>(MAX_AUTHORS);
+  const {
+    data: {
+      docs: [doc],
+    },
+  } = useGetAbstract({ id });
+  console.log('doc', doc);
 
-  const [aff, setAff] = useState({ show: false, data: [] as string[] });
+  // console.log(doc);
+  // console.log('client-side error', error);
 
-  // onComponentDidMount
-  useEffect(() => {
-    if (doc && showNumAuthors > doc.author.length) {
-      setShowNumAuthors(doc.author.length);
-    }
-  }, [doc]);
+  // const [showNumAuthors, setShowNumAuthors] = useState<number>(MAX_AUTHORS);
 
-  const { api } = useAPI();
+  // const [aff, setAff] = useState({ show: false, data: [] as string[] });
 
-  const handleShowAllAuthors = () => {
-    setShowNumAuthors(doc.author.length);
-  };
+  // // onComponentDidMount
+  // useEffect(() => {
+  //   if (doc && showNumAuthors > doc.author.length) {
+  //     setShowNumAuthors(doc.author.length);
+  //   }
+  // }, [doc]);
 
-  const handleShowLessAuthors = () => {
-    setShowNumAuthors(Math.min(doc.author.length, MAX_AUTHORS));
-  };
+  // const { api } = useAPI();
 
-  const handleShowAff = () => {
-    if (aff.data.length === 0) {
-      params.fl = ['aff'];
-      void api.search.query(params).then((result) => {
-        result.match(
-          ({ response }) => {
-            setAff({ show: true, data: response.docs[0].aff });
-          },
-          () => {
-            return;
-          },
-        );
-      });
-    } else {
-      setAff({ show: true, data: aff.data });
-    }
-  };
+  // const handleShowAllAuthors = () => {
+  //   setShowNumAuthors(doc.author.length);
+  // };
 
-  const handleHideAff = () => {
-    setAff({ show: false, data: aff.data });
-  };
+  // const handleShowLessAuthors = () => {
+  //   setShowNumAuthors(Math.min(doc.author.length, MAX_AUTHORS));
+  // };
 
-  const authorsClass = clsx(!aff.show ? 'flex flex-wrap' : '', 'prose-sm pl-2 text-gray-700');
+  // const handleShowAff = () => {
+  //   if (aff.data.length === 0) {
+  //     params.fl = ['aff'];
+  //     void api.search.query(params).then((result) => {
+  //       result.match(
+  //         ({ response }) => {
+  //           setAff({ show: true, data: response.docs[0].aff });
+  //         },
+  //         () => {
+  //           return;
+  //         },
+  //       );
+  //     });
+  //   } else {
+  //     setAff({ show: true, data: aff.data });
+  //   }
+  // };
 
-  const authorClass = clsx(!aff.show ? 'flex items-center' : '');
+  // const handleHideAff = () => {
+  //   setAff({ show: false, data: aff.data });
+  // };
 
-  const authorNameClass = clsx(!aff.show ? 'link pr-1' : 'link');
+  // const authorsClass = clsx(!aff.show ? 'flex flex-wrap' : '', 'prose-sm pl-2 text-gray-700');
+
+  // const authorClass = clsx(!aff.show ? 'flex items-center' : '');
+
+  // const authorNameClass = clsx(!aff.show ? 'link pr-1' : 'link');
 
   return (
     <AbsLayout doc={doc}>
@@ -88,7 +89,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
               <h2 className="prose-xl pb-2 text-gray-900 text-2xl font-medium leading-8" id="title">
                 {doc.title}
               </h2>
-              {isBrowser() ? (
+              {/* {isBrowser() ? (
                 <>
                   {aff.show ? (
                     <button className="badge ml-1" onClick={handleHideAff}>
@@ -161,7 +162,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                     <span className="italic">{`and ${doc.author.length - showNumAuthors} more`}</span>
                   ) : null}
                 </div>
-              )}
+              )} */}
             </div>
 
             <AbstractSources doc={doc} />
@@ -224,50 +225,57 @@ const Details = ({ doc }: IDetailsProps) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps<IAbstractPageProps> = async (ctx) => {
-  const query = normalizeURLParams(ctx.query);
-  const request = ctx.req as typeof ctx.req & {
-    session: { userData: IUserData };
-  };
-  const userData = request.session.userData;
-  const params = {
-    q: `identifier:${query.id}`,
-    fl: [
-      ...abstractPageNavDefaultQueryFields,
-      ...metatagsQueryFields,
-      'author_count',
-      'comment',
-      'data',
-      'orcid_pub',
-      'orcid_user',
-      'orcid_other',
-      'property',
-    ],
-    sort: query.sort ? (query.sort.split(',') as SolrSort[]) : [],
-  };
-  const adsapi = new AdsApi({ token: userData.access_token });
-  const result = await adsapi.search.query(params);
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage);
 
-  const queryClient = new QueryClient();
-  if (result.isOk()) {
-    const { bibcode } = result.value.response.docs[0];
-    void (await queryClient.prefetchQuery(['hasGraphics', bibcode], () => fetchHasGraphics(adsapi, bibcode)));
-    void (await queryClient.prefetchQuery(['hasMetrics', bibcode], () => fetchHasMetrics(adsapi, bibcode)));
-  }
+// export const getServerSideProps: GetServerSideProps = withDetailsPage((ctx) => {
+//   return {
+//     props: {
+//       doc: { bibcode: 'sldkjf' },
+//     },
+//   };
+// });
 
-  if (result.isErr()) {
-    return { props: { doc: null, params, error: 'Unable to get abstract' } };
-  }
+// const request = ctx.req as typeof ctx.req & {
+//   session: { userData: IUserData };
+// };
+// const userData = request.session.userData;
+// const params = {
+//   q: `identifier:${query.id}`,
+//   fl: [
+//     ...abstractPageNavDefaultQueryFields,
+//     ...metatagsQueryFields,
+//     'author_count',
+//     'comment',
+//     'data',
+//     'orcid_pub',
+//     'orcid_user',
+//     'orcid_other',
+//     'property',
+//   ],
+//   sort: query.sort ? (query.sort.split(',') as SolrSort[]) : [],
+// };
+// const adsapi = new AdsApi({ token: userData.access_token });
+// const result = await adsapi.search.query(params);
 
-  const { numFound, docs } = result.value.response;
+// const queryClient = new QueryClient();
+// if (result.isOk()) {
+//   const { bibcode } = result.value.response.docs[0];
+//   void (await queryClient.prefetchQuery(['hasGraphics', bibcode], () => fetchHasGraphics(adsapi, bibcode)));
+//   void (await queryClient.prefetchQuery(['hasMetrics', bibcode], () => fetchHasMetrics(adsapi, bibcode)));
+// }
 
-  return numFound === 0
-    ? { notFound: true }
-    : {
-        props: {
-          dehydratedState: dehydrate(queryClient),
-          doc: docs[0],
-          params,
-        },
-      };
-};
+// if (result.isErr()) {
+//   return { props: { doc: null, params, error: 'Unable to get abstract' } };
+// }
+
+// const { numFound, docs } = result.value.response;
+
+// return numFound === 0
+//   ? { notFound: true }
+//   : {
+//       props: {
+//         dehydratedState: dehydrate(queryClient),
+//         doc: docs[0],
+//         params,
+//       },
+//
