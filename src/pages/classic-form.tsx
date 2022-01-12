@@ -12,6 +12,7 @@ import { useRouter } from 'next/router';
 import { ChangeEvent, ChangeEventHandler, useCallback, useReducer, useState, useEffect } from 'react';
 import { Textarea } from '@chakra-ui/textarea';
 import { Radio, RadioGroup } from '@chakra-ui/radio';
+import Head from 'next/head';
 
 interface FormEvent {
   name: string;
@@ -53,6 +54,9 @@ const ClassicForm: NextPage = () => {
 
   return (
     <Box as="section" aria-labelledby="form-title" my={16}>
+      <Head>
+        <title>NASA Science Explorer - Classic Form Search</title>
+      </Head>
       <form method="post" action="/api/classicform">
         <Stack direction="column" spacing={5}>
           <VisuallyHidden as="h2" id="form-title">

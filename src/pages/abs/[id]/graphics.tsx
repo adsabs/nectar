@@ -10,6 +10,7 @@ import NextLink from 'next/link';
 import { dehydrate, QueryClient } from 'react-query';
 import { Alert, AlertIcon } from '@chakra-ui/alert';
 import { Box, Flex, Link } from '@chakra-ui/layout';
+import Head from 'next/head';
 
 interface IGraphicsPageProps {
   graphics?: IADSApiGraphicsResponse;
@@ -21,6 +22,9 @@ const GraphicsPage: NextPage<IGraphicsPageProps> = (props: IGraphicsPageProps) =
   const { originalDoc, graphics, error } = props;
   return (
     <AbsLayout doc={originalDoc} titleDescription="Graphics from">
+      <Head>
+        <title>NASA Science Explorer - Graphics - {originalDoc.title[0]}</title>
+      </Head>
       {error ? (
         <Alert status="error">
           <AlertIcon />

@@ -12,6 +12,7 @@ import { FormControl, FormLabel, FormHelperText, FormErrorMessage } from '@chakr
 import { Textarea } from '@chakra-ui/textarea';
 import { Input } from '@chakra-ui/input';
 import { useState, useEffect } from 'react';
+import Head from 'next/head';
 
 type PaperFormState = {
   [PaperFormType.JOURNAL_QUERY]: {
@@ -51,6 +52,9 @@ const PaperForm: NextPage = () => {
 
   return (
     <VStack as="article" spacing={5} my={16}>
+      <Head>
+        <title>NASA Science Explorer - Paper Form Search</title>
+      </Head>
       <JournalQueryForm onSubmit={handleSubmit(PaperFormType.JOURNAL_QUERY)} isMounted={isMounted} />
       <ReferenceQueryForm onSubmit={handleSubmit(PaperFormType.REFERENCE_QUERY)} />
       <BibcodeQueryForm onSubmit={handleSubmit(PaperFormType.BIBCODE_QUERY)} />

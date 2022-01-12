@@ -17,6 +17,7 @@ import { isNil } from 'ramda';
 import { useEffect, useState } from 'react';
 import { dehydrate, QueryClient } from 'react-query';
 import { normalizeURLParams } from 'src/utils';
+import Head from 'next/head';
 export interface IAbstractPageProps {
   doc?: IDocsEntity;
   error?: string;
@@ -82,6 +83,9 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
 
   return (
     <AbsLayout doc={doc} titleDescription={''}>
+      <Head>
+        <title>NASA Science Explorer - Abstract - {doc.title[0]}</title>
+      </Head>
       <Box as="article" aria-labelledby="title">
         {error ? (
           <Alert status="error">

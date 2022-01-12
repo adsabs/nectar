@@ -9,6 +9,7 @@ import { normalizeURLParams } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import { dehydrate, QueryClient } from 'react-query';
 import { Alert, AlertIcon } from '@chakra-ui/alert';
+import Head from 'next/head';
 
 interface IMetricsPageProps {
   originalDoc: IDocsEntity;
@@ -26,6 +27,9 @@ const MetricsPage: NextPage<IMetricsPageProps> = (props: IMetricsPageProps) => {
 
   return (
     <AbsLayout doc={originalDoc} titleDescription="Metrics for">
+      <Head>
+        <title>NASA Science Explorer - Metrics - {originalDoc.title[0]}</title>
+      </Head>
       {error ? (
         <Alert status="error">
           <AlertIcon />

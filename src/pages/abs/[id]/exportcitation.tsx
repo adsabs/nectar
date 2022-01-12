@@ -8,6 +8,7 @@ import { normalizeURLParams } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import { dehydrate, QueryClient } from 'react-query';
 import { Alert, AlertIcon } from '@chakra-ui/alert';
+import Head from 'next/head';
 
 interface IExportCitationPageProps {
   bibcode: IDocsEntity['bibcode'];
@@ -20,6 +21,9 @@ interface IExportCitationPageProps {
 const ExportCitationPage: NextPage<IExportCitationPageProps> = ({ originalDoc, bibcode, text, format, error }) => {
   return (
     <AbsLayout doc={originalDoc} titleDescription="Export citation for">
+      <Head>
+        <title>NASA Science Explorer - Export Citation - {originalDoc.title[0]}</title>
+      </Head>
       {error ? (
         <Alert status="error">
           <AlertIcon />
