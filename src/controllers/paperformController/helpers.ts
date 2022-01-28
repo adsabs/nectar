@@ -1,9 +1,9 @@
+import { stringifyUrlParams } from '@utils';
 import DOMPurify from 'isomorphic-dompurify';
-import qs from 'qs';
 import { head, pipe } from 'ramda';
 import { PaperFormParams } from './types';
 
-export const stringify = (params: Record<string, string>) => qs.stringify(params, { indices: false });
+export const stringify = (params: Record<string, string>) => stringifyUrlParams(params, { indices: false });
 const escape = (val?: string): string => (typeof val === 'string' ? DOMPurify.sanitize(val) : '');
 const listSanitizer = (v: string): string[] =>
   v.length > 0 ? (Array.from(v.matchAll(/[^\r\n]+/g), head) as string[]) : [];

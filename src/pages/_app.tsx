@@ -1,9 +1,9 @@
 import { Layout } from '@components';
 import { ApiProvider } from '@providers/api';
-import { AppProvider, useAppCtx } from '@store';
+import { AppState, StoreProvider, useCreateStore, useStore } from '@store';
 import { Theme } from '@types';
 import { isBrowser } from '@utils';
-import App, { AppContext, AppProps } from 'next/app';
+import { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import 'nprogress/nprogress.css';
@@ -23,15 +23,24 @@ const NectarApp = ({ Component, pageProps }: AppProps): ReactElement => {
   const [queryClient] = useState(
     () =>
       new QueryClient({
-        defaultOptions: { queries: { refetchOnWindowFocus: false, staleTime: Infinity } },
+        defaultOptions: {
+          queries: {
+            refetchOnWindowFocus: false,
+            staleTime: Infinity,
+          },
+        },
       }),
   );
 
+  const createStore = useCreateStore((pageProps as { dehydratedAppState: AppState })?.dehydratedAppState ?? {});
+
+  console.log('PAGE_PROPS', pageProps);
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <AppProvider>
+    <StoreProvider createStore={createStore}>
+      <QueryClientProvider client={queryClient}>
         <ApiProvider>
-          <Hydrate state={(pageProps as { dehydratedState: unknown }).dehydratedState}>
+          <Hydrate state={(pageProps as { dehydratedState: unknown })?.dehydratedState ?? {}}>
             <ThemeRouter />
             <TopProgressBar />
             <ToastContainer />
@@ -41,30 +50,25 @@ const NectarApp = ({ Component, pageProps }: AppProps): ReactElement => {
           </Hydrate>
           <ReactQueryDevtools />
         </ApiProvider>
-      </AppProvider>
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </StoreProvider>
   );
 };
 
 const ThemeRouter = (): ReactElement => {
-  const { state } = useAppCtx();
+  const theme = useStore((state) => state.theme);
   const router = useRouter();
 
   useEffect(() => {
     // redirect to main form if path is not valid
     if (isBrowser()) {
-      if (state.theme !== Theme.ASTROPHYSICS && /\/(classic|paper)-form/.test(router.asPath)) {
+      if (theme !== Theme.ASTROPHYSICS && /\/(classic|paper)-form/.test(router.asPath)) {
         void router.replace('/');
       }
     }
-  }, [state.theme, router.asPath]);
+  }, [theme, router.asPath]);
 
   return <></>;
-};
-
-NectarApp.getInitialProps = async (appContext: AppContext) => {
-  const appProps = await App.getInitialProps(appContext);
-  return { ...appProps };
 };
 
 export default NectarApp;

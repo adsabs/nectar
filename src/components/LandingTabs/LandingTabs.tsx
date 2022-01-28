@@ -1,5 +1,5 @@
 import { AdsSmallLogo } from '@components/images';
-import { useAppCtx } from '@store';
+import { useStore } from '@store/store';
 import { Theme } from '@types';
 import clsx from 'clsx';
 import Image from 'next/image';
@@ -23,9 +23,7 @@ const backgroundMap = new Map<Theme, StaticImageData>([
 ]);
 
 export const LandingTabs = (): ReactElement => {
-  const {
-    state: { theme },
-  } = useAppCtx();
+  const theme = useStore((state) => state.theme);
   const [showTabs, setShowTabs] = useState(false);
   const [img, setImg] = useState<StaticImageData>(null);
 

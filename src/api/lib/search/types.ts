@@ -26,7 +26,6 @@ export interface INormalizedADSApiSearchParams {
 export interface IADSApiSearchResponse {
   response: {
     numFound: number;
-    start: number;
     docs: IDocsEntity[];
   };
   stats?: ISearchStatsFields;

@@ -1,14 +1,14 @@
-import { useBaseRouterPath } from '@utils';
+import { APP_DEFAULTS } from '@config';
+import { noop, useBaseRouterPath } from '@utils';
 import { useRouter } from 'next/router';
-import qs from 'qs';
 import { ParsedUrlQuery } from 'querystring';
 import { clamp, range } from 'ramda';
 import { MouseEvent, MouseEventHandler, useCallback, useMemo } from 'react';
-
+import { UrlObject } from 'url';
 export interface IUsePagination {
-  nextHref: string;
-  prevHref: string;
-  pages: { index: number; href: string }[];
+  nextHref: UrlObject;
+  prevHref: UrlObject;
+  pages: { index: number; href: UrlObject }[];
   startIndex: number;
   endIndex: number;
   page: number;
@@ -24,7 +24,7 @@ export interface IUsePagination {
 export interface IUsePaginationProps {
   totalResults: number;
   numPerPage: number;
-  onPageChange?: (page: number) => void;
+  onPageChange?: (page: number, start: number) => void;
 }
 
 /**
@@ -54,15 +54,20 @@ const getTotalPages = (totalResults: number, numPerPage: number): number => {
 
 export const usePagination = ({
   totalResults = 1,
-  numPerPage = 10,
-  onPageChange = () => {},
+  numPerPage = APP_DEFAULTS.RESULT_PER_PAGE,
+  onPageChange = noop,
 }: IUsePaginationProps): IUsePagination => {
   const { query } = useRouter();
   const { basePath } = useBaseRouterPath();
 
   const state = useMemo(() => {
-    const page = parsePageFromQuery(query);
+    let page = parsePageFromQuery(query);
     const totalPages = getTotalPages(totalResults, numPerPage);
+
+    // make sure page cannot surpass totalPages
+    if (page > totalPages) {
+      page = totalPages;
+    }
 
     // spreads the pagination control out, moving the current to the middle after the first few pages
     const pageRange = range(
@@ -73,11 +78,11 @@ export const usePagination = ({
     const endIndex = startIndex + numPerPage - 1;
 
     return {
-      nextHref: `${basePath}?${qs.stringify({ ...query, p: clamp(1, totalPages, page + 1) })}`,
-      prevHref: `${basePath}?${qs.stringify({ ...query, p: clamp(1, totalPages, page - 1) })}`,
+      nextHref: { pathname: basePath, query: { ...query, p: clamp(1, totalPages, page + 1) } },
+      prevHref: { pathname: basePath, query: { ...query, p: clamp(1, totalPages, page - 1) } },
       pages: pageRange.map((index) => ({
         index,
-        href: `${basePath}?${qs.stringify({ ...query, p: index })}`,
+        href: { pathname: basePath, query: { ...query, p: index } },
       })),
       page,
       startIndex,
@@ -96,7 +101,9 @@ export const usePagination = ({
         return;
       }
 
-      onPageChange(state.page + 1);
+      const page = state.page + 1;
+      const start = (state.page - 1) * numPerPage;
+      onPageChange(page, start);
     },
     [state.page, onPageChange],
   );
@@ -108,7 +115,9 @@ export const usePagination = ({
         return;
       }
 
-      onPageChange(state.page - 1);
+      const page = state.page - 1;
+      const start = (state.page - 1) * numPerPage;
+      onPageChange(page, start);
     },
     [state.page, onPageChange],
   );
@@ -120,7 +129,9 @@ export const usePagination = ({
       if (page === state.page) {
         return;
       }
-      onPageChange(page);
+
+      const start = (page - 1) * numPerPage;
+      onPageChange(page, start);
     },
     [state.page, onPageChange],
   );

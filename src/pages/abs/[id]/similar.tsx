@@ -1,53 +1,60 @@
-import AdsApi, { IADSApiSearchParams, IDocsEntity, IUserData } from '@api';
-import { metatagsQueryFields } from '@components';
-import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
-import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/queries';
+import { IADSApiSearchParams, IADSApiSearchResponse } from '@api';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { SimpleResultList } from '@components/ResultList';
+import { Pagination } from '@components/ResultList/Pagination';
+import { APP_DEFAULTS } from '@config';
+import { withDetailsPage } from '@hocs/withDetailsPage';
+import { composeNextGSSP } from '@utils';
+import { searchKeys, useGetAbstract, useGetSimilar } from '@_api/search';
+import { getSimilarParams } from '@_api/search/models';
 import { GetServerSideProps, NextPage } from 'next';
-import { useRouter } from 'next/router';
-import { dehydrate, QueryClient } from 'react-query';
-import { normalizeURLParams } from 'src/utils';
 import Link from 'next/link';
-import qs from 'qs';
-export interface ICitationsPageProps {
-  docs: IDocsEntity[];
-  originalDoc: IDocsEntity;
-  error?: string;
+import { useRouter } from 'next/router';
+import { useMemo, useState } from 'react';
+import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
+import { normalizeURLParams } from 'src/utils';
+export interface ISimilarPageProps {
+  id: string;
+  defaultParams: {
+    start: IADSApiSearchParams['start'];
+  };
+  error?: {
+    status?: string;
+    message?: string;
+  };
 }
 
-const getQueryParams = (id: string | string[]): IADSApiSearchParams => {
-  const idStr = Array.isArray(id) ? id[0] : id;
-  return {
-    q: `similar(identifier:${idStr})`,
-    fl: [
-      'bibcode',
-      'title',
-      'author',
-      '[fields author=10]',
-      'author_count',
-      'pubdate',
-      'bibstem',
-      'citation_count',
-      '[citations]',
-      'esources',
-      'property',
-      'data',
-    ],
-    sort: ['score desc'],
+const SimilarPage: NextPage<ISimilarPageProps> = (props: ISimilarPageProps) => {
+  const { id, error, defaultParams } = props;
+  const {
+    data: {
+      docs: [doc],
+    },
+  } = useGetAbstract({ id });
+
+  const [start, setStart] = useState(defaultParams?.start ?? 0);
+  const params = useMemo(() => ({ bibcode: doc.bibcode, start }), [doc, start]);
+  const router = useRouter();
+
+  const handlePageChange = (page: number, start: number) => {
+    void router.push(
+      { pathname: '/abs/[id]/similar', query: { p: page } },
+      { pathname: `/abs/${doc.bibcode}/similar`, query: { p: page } },
+      {
+        shallow: true,
+      },
+    );
+    setStart(start);
   };
-};
 
-const SimilarPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProps) => {
-  const { docs, originalDoc, error } = props;
-  const { query } = useRouter();
-
+  const { data, isSuccess } = useGetSimilar(params, { keepPreviousData: true });
+  const similarParams = getSimilarParams(doc.bibcode, 0);
   return (
-    <AbsLayout doc={originalDoc}>
+    <AbsLayout doc={doc}>
       <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
         <div className="pb-1">
           <h2 className="prose-xl text-gray-900 font-medium leading-8" id="title">
-            <span>Papers similar to</span> <div className="text-2xl">{originalDoc.title}</div>
+            <span>Papers similar to</span> <div className="text-2xl">{doc.title}</div>
           </h2>
         </div>
         {error ? (
@@ -55,91 +62,75 @@ const SimilarPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProps) 
         ) : (
           <>
             <Link
-              href={`/search?${qs.stringify({
-                q: `similar(bibcode:${originalDoc.bibcode})`,
-                sort: 'score desc',
-              })}`}
+              href={{
+                pathname: '/search',
+                query: {
+                  q: similarParams.q,
+                  sort: similarParams.sort,
+                },
+              }}
             >
               <a className="link text-sm">View as search results</a>
             </Link>
-            <SimpleResultList
-              numFound={docs.length}
-              query={getQueryParams(query.id)}
-              docs={docs}
-              hideCheckboxes={true}
-            />
+            {isSuccess && <SimpleResultList docs={data.docs} hideCheckboxes={true} indexStart={params.start} />}
+            {isSuccess && <Pagination totalResults={data.numFound} numPerPage={10} onPageChange={handlePageChange} />}
           </>
         )}
       </article>
     </AbsLayout>
   );
 };
-
 export default SimilarPage;
 
-export const getServerSideProps: GetServerSideProps<ICitationsPageProps> = async (ctx) => {
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage, async (ctx, state) => {
+  const api = (await import('@_api/api')).default;
+  const { fetchSearch } = await import('@_api/search');
+  const axios = (await import('axios')).default;
+  api.setToken(ctx.req.session.userData.access_token);
   const query = normalizeURLParams(ctx.query);
-  const request = ctx.req as typeof ctx.req & {
-    session: { userData: IUserData };
-  };
-  const userData = request.session.userData;
-  const params: IADSApiSearchParams = {
-    q: `similar(identifier:${query.id})`,
-    fl: [
-      'bibcode',
-      'title',
-      'author',
-      '[fields author=10]',
-      'author_count',
-      'pubdate',
-      'bibstem',
-      'citation_count',
-      '[citations]',
-      'esources',
-      'property',
-      'data',
-    ],
-    sort: ['score desc'],
-  };
-  const adsapi = new AdsApi({ token: userData.access_token });
-  const result = await adsapi.search.query(params);
-  const originalDoc = await adsapi.search.getDocument(query.id, [
-    ...abstractPageNavDefaultQueryFields,
-    ...metatagsQueryFields,
-  ]);
+  const parsedPage = parseInt(query.p, 10);
+  const page = isNaN(parsedPage) || Math.abs(parsedPage) >= 100 ? 1 : Math.abs(parsedPage);
 
-  const queryClient = new QueryClient();
-  if (!originalDoc.notFound && !originalDoc.error) {
-    const { bibcode } = originalDoc.doc;
-    void (await queryClient.prefetchQuery(['hasGraphics', bibcode], () => fetchHasGraphics(adsapi, bibcode)));
-    void (await queryClient.prefetchQuery(['hasMetrics', bibcode], () => fetchHasMetrics(adsapi, bibcode)));
-  }
+  try {
+    const queryClient = new QueryClient();
+    hydrate(queryClient, state.props?.dehydratedState as DehydratedState);
+    const {
+      docs: [{ bibcode }],
+    } = queryClient.getQueryData<IADSApiSearchResponse['response']>(searchKeys.abstract(query.id));
 
-  return originalDoc.notFound || originalDoc.error
-    ? { notFound: true }
-    : result.isErr()
-    ? {
-        props: {
-          docs: [],
-          originalDoc: originalDoc.doc,
-          error: 'Unable to get results',
-          dehydratedState: dehydrate(queryClient),
+    const params = getSimilarParams(bibcode, (page - 1) * APP_DEFAULTS.RESULT_PER_PAGE);
+    void (await queryClient.prefetchQuery({
+      queryKey: searchKeys.similar({ bibcode, start: params.start }),
+      queryFn: fetchSearch,
+      meta: { params },
+    }));
+
+    return {
+      props: {
+        dehydratedState: dehydrate(queryClient),
+        defaultParams: {
+          start: params.start,
         },
-      }
-    : result.value.response.numFound === 0
-    ? {
+      },
+    };
+  } catch (e) {
+    if (axios.isAxiosError(e) && e.response) {
+      return {
         props: {
-          docs: [],
-          originalDoc: originalDoc.doc,
-          error: 'No results found',
-          dehydratedState: dehydrate(queryClient),
-        },
-      }
-    : {
-        props: {
-          docs: result.value.response.docs,
-          originalDoc: originalDoc.doc,
-          dehydratedState: dehydrate(queryClient),
+          error: {
+            status: e.response.status,
+            message: e.message,
+          },
         },
       };
-};
+    }
+    return {
+      props: {
+        error: {
+          status: 500,
+          message: 'Unknown server error',
+        },
+      },
+    };
+  }
+});

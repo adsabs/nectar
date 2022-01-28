@@ -1,4 +1,4 @@
-import { useAppCtx } from '@store';
+import { useStore } from '@store/store';
 import clsx from 'clsx';
 import { FC, HTMLAttributes } from 'react';
 import { examples } from './examples';
@@ -9,7 +9,7 @@ export interface ISearchExamplesProps {
 }
 
 export const SearchExamples: FC<ISearchExamplesProps> = ({ onClick, className }) => {
-  const { state: appState } = useAppCtx();
+  const theme = useStore((state) => state.theme);
 
   const rootClasses = clsx(className, 'grid gap-3 grid-cols-6');
 
@@ -24,7 +24,7 @@ export const SearchExamples: FC<ISearchExamplesProps> = ({ onClick, className })
     <div className={rootClasses}>
       <h3 className="col-span-6 mb-3 text-center text-lg font-bold">Search Examples</h3>
       <ul className="col-span-6 p-1 md:col-span-3">
-        {examples[appState.theme].left.map(({ label, text }) => (
+        {examples[theme].left.map(({ label, text }) => (
           <li className="grid gap-5 grid-cols-3 py-1" key={label}>
             <div className="col-span-1 text-right font-bold">{label}</div>
             <button
@@ -38,7 +38,7 @@ export const SearchExamples: FC<ISearchExamplesProps> = ({ onClick, className })
         ))}
       </ul>
       <ul className="col-span-6 p-1 md:col-span-3">
-        {examples[appState.theme].right.map(({ label, text }) => (
+        {examples[theme].right.map(({ label, text }) => (
           <li className="grid gap-5 grid-cols-3 py-1" key={label}>
             <div className="col-span-1 text-right font-bold">{label}</div>
             <button

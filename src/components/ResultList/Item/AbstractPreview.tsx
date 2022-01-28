@@ -1,83 +1,40 @@
 import { IDocsEntity } from '@api';
 import { Transition } from '@headlessui/react';
-import { ChevronDoubleDownIcon, ChevronDoubleUpIcon } from '@heroicons/react/outline';
-import { RefreshIcon } from '@heroicons/react/solid';
-import { useAPI } from '@hooks';
-import { useMachine } from '@xstate/react';
-import { assign, ContextFrom, DoneInvokeEvent } from 'xstate';
-import { createModel } from 'xstate/lib/model';
+import { ChevronDoubleDownIcon, ChevronDoubleUpIcon, RefreshIcon } from '@heroicons/react/outline';
+import { useGetAbstractPreview } from '@_api/search';
+import { useState } from 'react';
+import { toast } from 'react-toastify';
+export interface IAbstractPreviewProps {
+  bibcode: IDocsEntity['bibcode'];
+}
 
-const createAbstractPreviewMachine = ({
-  initialContext,
-  fetchAbstract,
-}: {
-  initialContext: { abstract: string; show: boolean };
-  fetchAbstract: () => Promise<string>;
-}) => {
-  const model = createModel(initialContext, {
-    events: {
-      load: () => ({}),
-    },
-  });
-
-  return model.createMachine({
-    id: 'abstract-preview',
-    initial: 'idle',
-    states: {
-      idle: {
-        on: {
-          load: 'fetching',
-        },
-      },
-      fetching: {
-        invoke: {
-          src: fetchAbstract,
-          onDone: {
-            target: 'done',
-            actions: assign<ContextFrom<typeof model>, DoneInvokeEvent<string>>({
-              abstract: (_, ev) => ev.data,
-              show: true,
-            }),
-          },
-        },
-      },
-      done: {
-        on: {
-          load: {
-            actions: model.assign({
-              show: (ctx) => !ctx.show,
-            }),
-          },
-        },
-      },
-    },
-  });
+const text = {
+  error: 'Problem loading abstract preview' as const,
+  noAbstract: 'No Abstract' as const,
+  hideAbstract: 'Hide Abstract Preview' as const,
+  showAbstract: 'Show Abstract Preview' as const,
+  seeFullAbstract: 'See full abstract' as const,
 };
 
-export interface IAbstractPreviewProps {
-  id: IDocsEntity['id'];
-}
-export const AbstractPreview = ({ id }: IAbstractPreviewProps): React.ReactElement => {
-  const { api } = useAPI();
-  const [state, send] = useMachine(
-    createAbstractPreviewMachine({
-      fetchAbstract: async () => {
-        const result = await api.search.query({ q: `id:${id}`, fl: ['abstract'] });
-        return result.match(
-          ({ response: { docs } }) => (typeof docs[0].abstract === 'undefined' ? 'No Abstract' : docs[0].abstract),
-          (e) => {
-            throw e;
-          },
-        );
+export const AbstractPreview = ({ bibcode }: IAbstractPreviewProps): React.ReactElement => {
+  const [show, setShow] = useState(false);
+  const { data, isFetching, isSuccess } = useGetAbstractPreview(
+    { bibcode },
+    {
+      enabled: show,
+      keepPreviousData: true,
+      onError: () => {
+        // show toast notification on error, and close drawer
+        toast(text.error, { type: 'error' });
+        setShow(false);
       },
-      initialContext: { abstract: '', show: false },
-    }),
+    },
   );
 
   return (
     <div className="flex flex-col items-center justify-center">
       <Transition
-        show={state.context.show}
+        show={show}
         enter="transition-opacity duration-75"
         enterFrom="opacity-0"
         enterTo="opacity-100"
@@ -85,18 +42,20 @@ export const AbstractPreview = ({ id }: IAbstractPreviewProps): React.ReactEleme
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
       >
-        <div className="mt-2" dangerouslySetInnerHTML={{ __html: state.context.abstract }}></div>
+        {isSuccess && (
+          <div className="mt-2" dangerouslySetInnerHTML={{ __html: data.docs[0]?.abstract ?? text.noAbstract }}></div>
+        )}
       </Transition>
       <button
         type="button"
-        title={state.context.show ? 'hide abstract' : 'show abstract'}
-        onClick={() => send('load')}
+        title={show ? text.hideAbstract : text.showAbstract}
+        onClick={() => setShow(!show)}
         disabled={false}
         className="flex-col items-start"
       >
-        {state.matches('fetching') ? (
+        {isFetching ? (
           <RefreshIcon className="default-icon default-link-color transform rotate-180 animate-spin" />
-        ) : state.context.show ? (
+        ) : show ? (
           <ChevronDoubleUpIcon className="default-icon-sm my-1 text-gray-300" />
         ) : (
           <ChevronDoubleDownIcon className="default-icon-sm text-gray-300" />

@@ -1,7 +1,8 @@
 import { IDocsEntity, IUserData } from '@api';
 import { fromThrowable } from 'neverthrow';
-import { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from 'next';
+import { GetServerSidePropsContext, GetServerSidePropsResult, NextApiRequest, NextApiResponse } from 'next';
 import { useRouter } from 'next/router';
+import qs from 'qs';
 import { ParsedUrlQuery } from 'querystring';
 
 export const normalizeURLParams = (query: ParsedUrlQuery): Record<string, string> => {
@@ -72,4 +73,40 @@ export const useBaseRouterPath = (): { basePath: string } => {
 export const truncateDecimal = (num: number, d: number): number => {
   const regex = new RegExp(`^-?\\d+(\\.\\d{0,${d}})?`);
   return parseFloat(regex.exec(num.toString())[0]);
+};
+
+/**
+ * Stringify url params, by default it will add the `?` prefix to the string
+ *
+ * @param  {unknown} params - url params to stringify
+ * @param  {qs.IStringifyOptions} options? - options to passed to stringifier
+ * @returns string
+ */
+export const stringifyUrlParams = (params: unknown, options?: qs.IStringifyOptions): string => {
+  return qs.stringify(params, { ...options, arrayFormat: 'comma', addQueryPrefix: true });
+};
+
+type IncomingGSSP = (
+  ctx: GetServerSidePropsContext,
+  props: { props: Record<string, unknown>; [key: string]: unknown },
+) => Promise<GetServerSidePropsResult<Record<string, unknown>>>;
+
+export const composeNextGSSP =
+  (...fns: IncomingGSSP[]) =>
+  async (ctx: GetServerSidePropsContext): Promise<GetServerSidePropsResult<Record<string, unknown>>> => {
+    let ssrProps = { props: {} };
+    for (const fn of fns) {
+      const result = await fn(ctx, ssrProps);
+      let props = {};
+      if ('props' in result) {
+        props = { ...ssrProps.props, ...result.props };
+      }
+      ssrProps = { ...ssrProps, ...result, props };
+    }
+
+    return ssrProps;
+  };
+
+export const noop = (): void => {
+  // do nothing
 };

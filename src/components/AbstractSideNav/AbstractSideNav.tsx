@@ -5,13 +5,14 @@ import { DocumentIcon } from '@heroicons/react/outline';
 import { ChevronDownIcon } from '@heroicons/react/solid';
 import { useViewport, Viewport } from '@hooks';
 import { useBaseRouterPath } from '@utils';
+import { useHasGraphics } from '@_api/graphics';
+import { useHasMetrics } from '@_api/metrics';
 import clsx from 'clsx';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { last } from 'ramda';
 import { HTMLAttributes, ReactElement } from 'react';
 import { navigation, Routes } from './model';
-import { useHasGraphics, useHasMetrics } from './queries';
 
 export interface IAbstractSideNavProps extends HTMLAttributes<HTMLDivElement> {
   doc?: IDocsEntity;
@@ -22,8 +23,8 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
   const { basePath } = useBaseRouterPath();
   const subPage = last(basePath.split('/'));
   const viewport = useViewport();
-  const hasGraphics = useHasGraphics(doc);
-  const hasMetrics = useHasMetrics(doc);
+  const hasGraphics = useHasGraphics(doc.bibcode);
+  const hasMetrics = useHasMetrics(doc.bibcode);
   const hasToc = doc.property ? doc.property.indexOf('TOC') > -1 : false;
 
   const useCount = [Routes.CITATIONS, Routes.REFERENCES];
@@ -40,6 +41,8 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
         : getCount(item.href, doc);
     const disabled = count === 0 && item.href !== Routes.ABSTRACT;
     const showCount = count > 0 && useCount.includes(item.href);
+
+    // TODO: fix this 'id' param issue
     const href = { pathname: disabled ? Routes.ABSTRACT : item.href, query: { id: router.query.id } };
 
     const linkStyle = clsx(

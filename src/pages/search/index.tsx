@@ -1,75 +1,69 @@
-import AdsApi, { IADSApiSearchParams, IDocsEntity, SolrSort } from '@api';
-import { ISearchStatsFields } from '@api/lib/search/types';
-import { ISearchBarProps, NumFound, ResultList, SearchBar } from '@components';
-import { useSearchMachine } from '@machines';
-import { ISearchMachine, TransitionType } from '@machines/lib/search/types';
-import { normalizeURLParams, truncateDecimal } from '@utils';
-import { useSelector } from '@xstate/react';
+import { IADSApiSearchParams, IADSApiSearchResponse, SolrSort } from '@api';
+import { NumFound, SearchBar, SimpleResultList } from '@components';
+import { Pagination } from '@components/ResultList/Pagination';
+import { AppState, useStore, useStoreApi } from '@store';
+import { normalizeURLParams } from '@utils';
+import { searchKeys, useSearch } from '@_api/search';
+import { defaultParams } from '@_api/search/models';
 import { GetServerSideProps, NextPage } from 'next';
-import { ChangeEvent, ReactElement } from 'react';
+import { useRouter } from 'next/router';
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { dehydrate, QueryClient } from 'react-query';
+
 interface ISearchPageProps {
-  error?: string;
-  params: {
-    q: string;
-    fl?: string[];
-    sort?: SolrSort[];
-  };
-  docs: IDocsEntity[];
-  meta: {
-    numFound: number;
-    page: number;
-  };
-  stats?: ISearchStatsFields;
+  searchParams: IADSApiSearchParams;
 }
 
-const SearchPage: NextPage<ISearchPageProps> = (props) => {
-  const {
-    params: { q, sort = ['date desc'] },
-    docs = [],
-    meta: { numFound = 0, page },
-    stats,
-    error,
-  } = props;
+const SearchPage: NextPage<ISearchPageProps> = ({ searchParams }) => {
+  const router = useRouter();
+  const store = useStoreApi();
+  const page = useRef(1);
+  const [submitted, setSubmitted] = useState(true);
+  const updateQuery = useStore((state) => state.updateQuery);
+  const setDocs = useStore((state) => state.setDocs);
+  const params = useMemo(() => store.getState().query, [submitted]);
 
-  return <Form params={{ q, sort }} serverResult={{ docs, numFound, page, stats }} serverError={error} />;
-};
-
-interface IFormProps {
-  params: IADSApiSearchParams;
-  serverResult: {
-    docs: IDocsEntity[];
-    numFound: number;
-    page: number;
-    stats: ISearchStatsFields;
+  const updateUrl = (params: IADSApiSearchParams) => {
+    // omit fl, rows, and start from url
+    const { fl, rows, start, ...cleanedParams } = params;
+    void router.push({ pathname: '/search', query: { ...cleanedParams, p: page.current } }, null, {
+      shallow: true,
+    });
   };
-  serverError: string;
-}
-const Form = (props: IFormProps): ReactElement => {
-  const {
-    params: { q: query, sort },
-    serverResult: { docs, numFound, page, stats },
-    serverError,
-  } = props;
 
-  // initialize the search machine that will run all the business logic
-  const {
-    service: searchService,
-    result,
-    error,
-    isLoading,
-    isFailure,
-  } = useSearchMachine({
-    initialParams: { q: query, sort },
-    initialResult: { docs, numFound, stats },
-    initialPagination: { numPerPage: 10, page },
+  // update Url on param update
+  useEffect(() => updateUrl(searchParams), [searchParams, page.current]);
+
+  const { data, error, isSuccess, isError, isFetching } = useSearch(params, {
+    keepPreviousData: true,
+    enabled: submitted,
+    onSuccess: (data: IADSApiSearchResponse['response']) => {
+      // update the docs with the latest results
+      setDocs(data.docs.map((d) => d.bibcode));
+      updateUrl(params);
+    },
   });
 
+  // when submitted, shallowly update the route with the updated params (including page)
+  useEffect(() => {
+    if (submitted) {
+      setSubmitted(false);
+    }
+  }, [submitted]);
+
+  // on page change, update the current query and submit
+  const handlePageChange = (currentPage: number, start: number) => {
+    page.current = currentPage;
+    updateQuery({ start });
+    setSubmitted(true);
+  };
+
   /**
-   * update route and start searching
+   * start searching
    */
   const handleOnSubmit = (e: ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
-    searchService.send(TransitionType.SEARCH);
+    setSubmitted(true);
   };
 
   return (
@@ -86,26 +80,18 @@ const Form = (props: IFormProps): ReactElement => {
         <div className="col-span-6">
           <div className="flex items-center space-x-3">
             <div className="flex-1">
-              <SearchBarWrapper searchService={searchService} />
+              <SearchBar isLoading={isFetching} />
             </div>
           </div>
-          <NumFound searchService={searchService} count={result.numFound} />
-          {/* <Filters /> */}
+          {!isFetching && <NumFound count={data?.numFound ?? 0} />}
         </div>
         <div className="col-span-6">
-          {isFailure || typeof serverError === 'string' ? (
+          {isSuccess && <SimpleResultList docs={data.docs} indexStart={params.start} />}
+          {isSuccess && <Pagination totalResults={data.numFound} numPerPage={10} onPageChange={handlePageChange} />}
+          {isError && (
             <div className="flex flex-col mt-1 p-3 border-2 border-red-600 space-y-1">
-              <div className="flex items-center justify-center text-red-600 text-lg">
-                {error.message || serverError}
-              </div>
+              <div className="flex items-center justify-center text-red-600 text-lg">{error}</div>
             </div>
-          ) : (
-            <ResultList
-              isLoading={isLoading}
-              docs={result.docs as IDocsEntity[]}
-              service={searchService}
-              showActions={true}
-            />
           )}
         </div>
         <div className="col-span-6"></div>
@@ -114,149 +100,95 @@ const Form = (props: IFormProps): ReactElement => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps<ISearchPageProps> = async (ctx) => {
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const api = (await import('@_api/api')).default;
+  const { fetchSearch } = await import('@_api/search');
   const query = normalizeURLParams(ctx.query);
   const parsedPage = parseInt(query.p, 10);
   const page = isNaN(parsedPage) || Math.abs(parsedPage) > 500 ? 1 : Math.abs(parsedPage);
-  const adsapi = new AdsApi({ token: ctx.req.session.userData.access_token });
-
-  let stats = 'false';
-  let stats_field = '';
-  if (query.sort) {
-    const s = query.sort.split(',')[0].split(' ')[0];
-    if (s === 'citation_count' || s === 'citation_count_norm') {
-      stats = 'true';
-      stats_field = s;
-    }
-  }
+  api.setToken(ctx.req.session.userData.access_token);
 
   const params: IADSApiSearchParams = {
-    q: query.q,
-    fl: [
-      'bibcode',
-      'title',
-      'author',
-      '[fields author=10]',
-      'author_count',
-      'pubdate',
-      'bibstem',
-      '[citations]',
-      'citation_count',
-      'citation_count_norm',
-      'esources',
-      'property',
-      'data',
-    ],
+    ...defaultParams,
+    q: query.q ?? '*:*',
     sort: query.sort ? (query.sort.split(',') as SolrSort[]) : ['date desc'],
-    rows: 10,
-    start: (page - 1) * 10,
-    stats: stats,
-    'stats.field': stats_field,
+    start: (page - 1) * defaultParams.rows,
   };
-  const result = await adsapi.search.query(params);
 
-  const props = result.match(
-    ({ response: { numFound, docs }, stats = null }) => ({
-      params,
-      docs,
-      meta: { numFound, page },
-      stats,
-    }),
-    ({ message }) => ({
-      error: message,
-      params: {
-        q: '',
-        fl: [],
-        sort: [],
-      },
-      docs: [],
-      meta: { numFound: 0, page },
-      stats: null,
-    }),
-  );
-  return { props };
+  // omit fields from queryKey
+  const { fl, ...cleanedParams } = params;
+  const queryClient = new QueryClient();
+  void (await queryClient.prefetchQuery({
+    queryKey: searchKeys.primary(cleanedParams),
+    queryFn: fetchSearch,
+    meta: { params },
+  }));
+
+  return {
+    props: {
+      dehydratedState: dehydrate(queryClient),
+      dehydratedAppState: { query: params } as AppState,
+      searchParams: params,
+    },
+  };
+
+  // const adsapi = new AdsApi({ token: ctx.req.session.userData.access_token });
+
+  // let stats = 'false';
+  // let stats_field = '';
+  // if (query.sort) {
+  //   const s = query.sort.split(',')[0].split(' ')[0];
+  //   if (s === 'citation_count' || s === 'citation_count_norm') {
+  //     stats = 'true';
+  //     stats_field = s;
+  //   }
+  // }
+
+  // const params: IADSApiSearchParams = {
+  //   q: query.q,
+  //   fl: [
+  //     'bibcode',
+  //     'title',
+  //     'author',
+  //     '[fields author=10]',
+  //     'author_count',
+  //     'pubdate',
+  //     'bibstem',
+  //     '[citations]',
+  //     'citation_count',
+  //     'citation_count_norm',
+  //     'esources',
+  //     'property',
+  //     'data',
+  //   ],
+  //   sort: query.sort ? (query.sort.split(',') as SolrSort[]) : ['date desc'],
+  //   rows: 10,
+  //   start: (page - 1) * 10,
+  //   stats: stats,
+  //   'stats.field': stats_field,
+  // };
+  // const result = await adsapi.search.query(params);
+
+  // const props = result.match(
+  //   ({ response: { numFound, docs }, stats = null }) => ({
+  //     params,
+  //     docs,
+  //     meta: { numFound, page },
+  //     stats,
+  //   }),
+  //   ({ message }) => ({
+  //     error: message,
+  //     params: {
+  //       q: '',
+  //       fl: [],
+  //       sort: [],
+  //     },
+  //     docs: [],
+  //     meta: { numFound: 0, page },
+  //     stats: null,
+  //   }),
+  // );
+  // return { props };
 };
 
 export default SearchPage;
-
-const SearchBarWrapper = (props: Omit<ISearchBarProps, 'query' | 'onChange'> & { searchService: ISearchMachine }) => {
-  const { searchService, ...searchBarProps } = props;
-  const query = useSelector(searchService, (state) => state.context.params.q);
-  const isLoading = useSelector(searchService, (state) => state.matches('fetching'));
-
-  const setQuery = (query: string) => {
-    searchService.send(TransitionType.SET_PARAMS, { payload: { params: { q: query } } });
-  };
-  return <SearchBar initialQuery={query} onQueryChange={setQuery} isLoading={isLoading} {...searchBarProps} />;
-};
-
-// const Filters = () => (
-//   <div className="flex flex-col mt-1 sm:flex-row sm:flex-wrap sm:mt-1 sm:space-x-6">
-//     <div className="inline-flex items-center px-2 py-1 text-xs font-medium text-indigo-800 bg-indigo-100 rounded">
-//       <PlusCircleIcon className="mr-1.5 w-5 h-5 text-indigo-400" aria-hidden="true" />
-//       Collection: Astronomy
-//     </div>
-//     <div className="inline-flex items-center px-2 py-1 text-xs font-medium text-indigo-800 bg-indigo-100 rounded">
-//       <PlusCircleIcon className="mr-1.5 w-5 h-5 text-indigo-400" aria-hidden="true" />
-//       Collection: Physics
-//     </div>
-//     <div className="inline-flex items-center px-2 py-1 text-xs font-medium text-indigo-800 bg-indigo-100 rounded">
-//       <MinusCircleIcon className="mr-1.5 w-5 h-5 text-indigo-400" aria-hidden="true" />
-//       Author: Smith, S
-//     </div>
-//   </div>
-// );
-
-// const BreadCrumbs = () => (
-//   <nav className="flex" aria-label="Breadcrumb">
-//     <ol className="flex items-center space-x-4" role="list">
-//       <li>
-//         <div>
-//           <a href="#" className="text-sm font-medium text-gray-600 hover:text-gray-300">
-//             Classic Search
-//           </a>
-//         </div>
-//       </li>
-//       <li>
-//         <div className="flex items-center">
-//           <ChevronRightIcon className="flex-shrink-0 w-5 h-5 text-gray-500" aria-hidden="true" />
-//           <a href="#" className="ml-4 text-sm font-medium text-gray-600 hover:text-gray-300">
-//             Results
-//           </a>
-//         </div>
-//       </li>
-//     </ol>
-//   </nav>
-// );
-
-// const MenuButtons = () => (
-//   <div className="flex">
-//     <span className="hidden sm:block">
-//       <button
-//         type="button"
-//         className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gray-600 border border-transparent rounded-md shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-indigo-500 focus:ring-offset-gray-800 focus:ring-offset-2 focus:ring-2"
-//       >
-//         <PencilIcon className="w-5 h-5 mr-2 -ml-1 text-gray-300" aria-hidden="true" />
-//         Sort
-//       </button>
-//     </span>
-//     <span className="hidden ml-3 sm:block">
-//       <button
-//         type="button"
-//         className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gray-600 border border-transparent rounded-md shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-indigo-500 focus:ring-offset-gray-800 focus:ring-offset-2 focus:ring-2"
-//       >
-//         <DownloadIcon className="w-5 h-5 mr-2 -ml-1 text-gray-300" aria-hidden="true" />
-//         Export
-//       </button>
-//     </span>
-//     <span className="sm:ml-3">
-//       <button
-//         type="button"
-//         className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-500 border border-transparent rounded-md shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-indigo-500 focus:ring-offset-gray-800 focus:ring-offset-2 focus:ring-2"
-//       >
-//         <GlobeAltIcon className="w-5 h-5 mr-2 -ml-1" aria-hidden="true" />
-//         Explore
-//       </button>
-//     </span>
-//   </div>
-// );

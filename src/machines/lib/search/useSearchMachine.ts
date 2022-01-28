@@ -1,13 +1,11 @@
 import Adsapi, { IADSApiSearchParams } from '@api';
-import { AppEvent, useAppCtx } from '@store';
+import { stringifyUrlParams } from '@utils';
 import { useInterpret, useSelector } from '@xstate/react';
 import { useRouter } from 'next/router';
-import qs from 'qs';
 import { ParsedUrlQuery } from 'querystring';
 import { useEffect } from 'react';
 import { initialContext, searchMachine } from './searchMachine';
 import { Context, Transition } from './types';
-
 export interface IUseSearchMachineProps {
   initialResult?: Context['result'];
   initialParams?: Context['params'];
@@ -17,7 +15,7 @@ export interface IUseSearchMachineProps {
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function useSearchMachine(props: IUseSearchMachineProps = {}) {
   const { initialResult, initialParams, initialPagination } = props;
-  const { dispatch } = useAppCtx();
+  // const { dispatch } = useAppCtx();
 
   const router = useRouter();
 
@@ -75,12 +73,12 @@ export function useSearchMachine(props: IUseSearchMachineProps = {}) {
           throw result.error;
         }
 
-        dispatch({ type: AppEvent.SET_CURRENT_QUERY, payload: params });
+        // dispatch({ type: AppEvent.SET_CURRENT_QUERY, payload: params });
 
         const page = start === 0 ? 1 : ctx.pagination.page;
 
         //update the url with the updated query and sort
-        const queryParams = qs.stringify({ q, sort, p: page }, { arrayFormat: 'comma' });
+        const queryParams = stringifyUrlParams({ q, sort, p: page }, { arrayFormat: 'comma' });
         const updatedPath = `/search?${queryParams}`;
 
         if (updatedPath !== router.asPath) {
@@ -103,7 +101,7 @@ export function useSearchMachine(props: IUseSearchMachineProps = {}) {
     const queryPage = parsePageFromQuery(router.query);
     if (queryPage !== page) {
       const { q, sort } = service.state.context.params;
-      void router.replace(`/search?${qs.stringify({ q, sort, p: page }, { arrayFormat: 'comma' })}`);
+      void router.replace(`/search${stringifyUrlParams({ q, sort, p: page }, { arrayFormat: 'comma' })}`);
     }
   }, [router.query, page]);
 

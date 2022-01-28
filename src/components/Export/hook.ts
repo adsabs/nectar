@@ -1,5 +1,5 @@
 import { useAPI } from '@hooks';
-import { useAppCtx } from '@store';
+import { useStore } from '@store';
 import { useMachine } from '@xstate/react';
 import { useRouter } from 'next/router';
 import { FormEvent, useCallback, useEffect } from 'react';
@@ -40,9 +40,7 @@ export const useExportMachine = ({
   singleMode = initialContext.singleMode,
 }: IUseExportProps): IUseExportReturns => {
   const { api } = useAPI();
-  const {
-    state: { query },
-  } = useAppCtx();
+  const query = useStore((state) => state.query);
   const [state, send, service] = useMachine(exportMachine, {
     devTools: true,
     context: {
