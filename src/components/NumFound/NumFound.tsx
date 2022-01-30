@@ -1,3 +1,6 @@
+import { useStore } from '@store';
+import { truncateDecimal } from '@utils';
+import { useGetSearchStats } from '@_api/search';
 import { ReactElement } from 'react';
 
 export interface INumFoundProps {
@@ -12,47 +15,35 @@ const sanitizeNum = (num: number): string => {
 export const NumFound = (props: INumFoundProps): ReactElement => {
   const { count = 0 } = props;
 
-  // const citationCount = useSelector(searchService, (state) => {
-  //   try {
-  //     const userSort = state.context.params.sort[0].split(' ')[0];
-  //     return userSort === 'citation_count' && state.context.result.stats?.stats_fields?.citation_count?.sum
-  //       ? state.context.result.stats.stats_fields.citation_count.sum
-  //       : null;
-  //   } catch (e) {
-  //     return null;
-  //   }
-  // });
-
-  // const normCitationCount = useSelector(searchService, (state) => {
-  //   try {
-  //     const userSort = state.context.params.sort[0].split(' ')[0];
-  //     return userSort === 'citation_count_norm' && state.context.result.stats?.stats_fields?.citation_count_norm?.sum
-  //       ? truncateDecimal(state.context.result.stats.stats_fields.citation_count_norm.sum, 1)
-  //       : null;
-  //   } catch (e) {
-  //     return null;
-  //   }
-  // });
-
   const countString = typeof count === 'number' ? sanitizeNum(count) : '0';
-  // const citationsString =
-  //   typeof citationCount === 'number' ? (
-  //     <>
-  //       {' '}
-  //       with <span className="font-bold">{sanitizeNum(citationCount)}</span> total citations
-  //     </>
-  //   ) : null;
-  // const normalizedCitationsString =
-  //   typeof normCitationCount === 'number' ? (
-  //     <>
-  //       {' '}
-  //       with <span className="font-bold">{sanitizeNum(normCitationCount)}</span> total normalized citations
-  //     </>
-  //   ) : null;
 
   return (
     <p role="status" className="mt-1 text-xs">
-      Your search returned <span className="font-bold">{countString}</span> results
+      Your search returned <span className="font-bold">{countString}</span> results <SortStats />
     </p>
   );
+};
+
+const SortStats = () => {
+  const latestQuery = useStore((state) => state.latestQuery);
+  const { data, isSuccess } = useGetSearchStats(latestQuery);
+
+  if (isSuccess && 'citation_count' in data.stats_fields) {
+    const count = sanitizeNum(data.stats_fields.citation_count.sum);
+    return (
+      <>
+        with <span className="font-bold">{count}</span> total citations
+      </>
+    );
+  }
+
+  if (isSuccess && 'citation_count_norm' in data.stats_fields) {
+    const count = sanitizeNum(truncateDecimal(data.stats_fields.citation_count_norm.sum, 2));
+    return (
+      <>
+        with <span className="font-bold">{count}</span> total normalized citations
+      </>
+    );
+  }
+  return null;
 };
