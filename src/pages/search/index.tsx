@@ -18,11 +18,37 @@ const SearchPage: NextPage<ISearchPageProps> = ({ searchParams }) => {
   const router = useRouter();
   const store = useStoreApi();
   const page = useRef(1);
+
+  /**
+   * Flag to watch for when updating state.  Page (or start) is the one
+   * param we want to ignore for param change when deciding to clear docs
+   */
+  const pageChangeFlag = useRef(false);
   const [submitted, setSubmitted] = useState(true);
   const updateQuery = useStore((state) => state.updateQuery);
   const setLatestQuery = useStore((state) => state.setLatestQuery);
+  const setSelectedDocs = useStore((state) => state.setSelected);
   const setDocs = useStore((state) => state.setDocs);
+
+  // memoize params (from state) to only update when we submit
   const params = useMemo(() => store.getState().query, [submitted]);
+
+  const onResultsChange = (data: Partial<IADSApiSearchResponse['response']>) => {
+    // update the docs with the latest results
+    setDocs(data.docs.map((d) => d.bibcode));
+
+    // update the url with the search params
+    updateUrl(params);
+
+    // save our latest successful query
+    setLatestQuery(params);
+
+    if (!pageChangeFlag.current) {
+      // don't clear docs on a page change, only if the other props change
+      setSelectedDocs([]);
+    }
+    pageChangeFlag.current = false;
+  };
 
   const updateUrl = (params: IADSApiSearchParams) => {
     // omit fl, rows, and start from url
@@ -38,13 +64,14 @@ const SearchPage: NextPage<ISearchPageProps> = ({ searchParams }) => {
   const { data, error, isSuccess, isError, isFetching } = useSearch(params, {
     keepPreviousData: true,
     enabled: submitted,
-    onSuccess: (data: IADSApiSearchResponse['response']) => {
-      // update the docs with the latest results
-      setDocs(data.docs.map((d) => d.bibcode));
-      updateUrl(params);
-      setLatestQuery(params);
-    },
   });
+
+  // call the onSuccess handler on all calls, rather than only on data fetches
+  useEffect(() => {
+    if (submitted) {
+      onResultsChange(data);
+    }
+  }, [submitted, data]);
 
   // when submitted, shallowly update the route with the updated params (including page)
   useEffect(() => {
@@ -56,6 +83,7 @@ const SearchPage: NextPage<ISearchPageProps> = ({ searchParams }) => {
   // on page change, update the current query and submit
   const handlePageChange = (currentPage: number, start: number) => {
     page.current = currentPage;
+    pageChangeFlag.current = true;
     updateQuery({ start });
     setSubmitted(true);
   };

@@ -1,10 +1,10 @@
 import { IDocsEntity } from '@api';
-import { useStore, useStoreApi } from '@store';
+import { useStore } from '@store';
 import { getFomattedNumericPubdate } from '@utils';
 import clsx from 'clsx';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { ChangeEvent, ReactElement, useState } from 'react';
+import { ChangeEvent, ReactElement, useCallback } from 'react';
 import { IAbstractPreviewProps } from './AbstractPreview';
 import { ItemResourceDropdowns } from './ItemResourceDropdowns';
 
@@ -94,16 +94,15 @@ export const Item = (props: IItemProps): ReactElement => {
 };
 
 const ItemCheckbox = ({ index, bibcode, title }: { index: number; bibcode: string; title: string[] }) => {
-  const store = useStoreApi();
-  const [isChecked, setIsChecked] = useState(() => store.getState().docs.selected.includes(bibcode));
-  const selectDoc = useStore((state) => state.selectDoc);
-  const unSelectDoc = useStore((state) => state.unSelectDoc);
+  const [selectDoc, unSelectDoc] = useStore((state) => [state.selectDoc, state.unSelectDoc]);
+
+  // memoize the isSelected callback on bibcode
+  const isChecked = useStore(useCallback((state) => state.isDocSelected(bibcode), [bibcode]));
 
   // on select, update the local state and appState
   const handleSelect = (e: ChangeEvent<HTMLInputElement>) => {
     const checked = e.target.checked;
     checked ? selectDoc(bibcode) : unSelectDoc(bibcode);
-    setIsChecked(checked);
   };
 
   return (
