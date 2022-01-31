@@ -1,12 +1,8 @@
 import Adsapi, { IADSApiSearchResponse } from '@api';
 import { IExportApiParams, IExportApiResponse } from '@api/lib/export';
 import * as fixtures from '@components/__mocks__/exportMock';
-import { ApiProvider } from '@providers/api';
-import { AppProvider } from '@store';
 import { Meta, Story } from '@storybook/react';
 import MockAdapter from 'axios-mock-adapter';
-import { ReactElement } from 'react';
-import { ToastContainer } from 'react-toastify';
 import { Export, IExportProps } from '../Export';
 
 const api = new Adsapi();
@@ -29,16 +25,16 @@ const meta: Meta<IExportProps> = {
   parameters: {
     controls: { expanded: true },
   },
-  decorators: [
-    (story): ReactElement => (
-      <AppProvider initialStore={{ query: fixtures.mockQuery }}>
-        <ApiProvider overrideInstance={api}>
-          <ToastContainer />
-          {story()}
-        </ApiProvider>
-      </AppProvider>
-    ),
-  ],
+  // decorators: [
+  //   (story): ReactElement => (
+  //     <AppProvider initialStore={{ query: fixtures.mockQuery }}>
+  //       <ApiProvider overrideInstance={api}>
+  //         <ToastContainer />
+  //         {story()}
+  //       </ApiProvider>
+  //     </AppProvider>
+  //   ),
+  // ],
 };
 
 export default meta;

@@ -40,6 +40,11 @@ export interface IRelatedWorks {
   description: string;
 }
 
+export interface ILinkData {
+  fullTextSources: IFullTextSource[];
+  dataProducts: IDataProductSource[];
+}
+
 /**
  * process the link data
  *
@@ -54,7 +59,7 @@ export interface IRelatedWorks {
  * @param {IDocsEntity} doc - the data object to process
  * @returns {object} - the fulltext and data sources
  */
-export const processLinkData = (doc: IDocsEntity, linkServer: string) => {
+export const processLinkData = (doc: IDocsEntity, linkServer: string): ILinkData => {
   let countOpenUrls = 0;
 
   // reorder the full text sources based on our default ordering

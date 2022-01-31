@@ -24,10 +24,6 @@ interface IVolumePageProps {
   };
 }
 
-const getVolumeId = (id: string): string => {
-  return id[13] === 'E' ? `${id.substring(0, 14)}*` : `${id.substring(0, 13)}*`;
-};
-
 const VolumePage: NextPage<IVolumePageProps> = (props: IVolumePageProps) => {
   const { id, error, defaultParams } = props;
   const {

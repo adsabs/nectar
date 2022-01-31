@@ -1,5 +1,6 @@
 import { Pagination } from '@components/ResultList/Pagination';
 import { render } from '@testing-library/react';
+import { noop } from '@utils';
 
 // mock the router
 jest.mock('next/router', () => ({
@@ -15,11 +16,11 @@ enum Ids {
 
 describe('Pagination', () => {
   it('should render without crashing', () => {
-    render(<Pagination onPageChange={() => {}} />);
+    render(<Pagination onPageChange={noop} />);
   });
 
   it('should render nothing if no pages are passed', () => {
-    const { container } = render(<Pagination onPageChange={() => {}} />);
+    const { container } = render(<Pagination onPageChange={noop} />);
     expect(container.hasChildNodes()).toBeFalsy();
   });
 });

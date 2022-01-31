@@ -3,7 +3,8 @@ import { useCombobox } from 'downshift';
 import dynamic from 'next/dynamic';
 import { DetailedHTMLProps, InputHTMLAttributes, ReactElement, useMemo, useState } from 'react';
 import type { IBibstemMenuProps } from './BibstemMenu';
-import { ITEM_DELIMITER } from './models';
+
+const ITEM_DELIMITER = '$$';
 
 const BibstemMenu = dynamic(
   () =>

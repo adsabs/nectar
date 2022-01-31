@@ -35,9 +35,8 @@ export const fetchHasMetrics = async (api: Adsapi, bibcode: string): Promise<boo
   }
 
   const metrics = result.value;
-  const hasCitations =
-    metrics && metrics[MetricsResponseKey.CITATION_STATS][CitationsStatsKey.TOTAL_NUMBER_OF_CITATIONS] > 0;
-  const hasReads = metrics && metrics[MetricsResponseKey.BASIC_STATS][BasicStatsKey.TOTAL_NUMBER_OF_READS] > 0;
+  const hasCitations = metrics && metrics[MetricsResponseKey.CS][CitationsStatsKey.TNRC] > 0;
+  const hasReads = metrics && metrics[MetricsResponseKey.BS][BasicStatsKey.TNR] > 0;
 
   return hasCitations || hasReads;
 };

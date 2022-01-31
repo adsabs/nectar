@@ -24,7 +24,7 @@ interface IItemProps {
 }
 
 export const Item = (props: IItemProps): ReactElement => {
-  const { doc, index, hideCheckbox = false, hideActions = false, set, clear, onSet, useNormCite } = props;
+  const { doc, index, hideCheckbox = false, hideActions = false, useNormCite } = props;
   const { bibcode, pubdate, title = ['Untitled'], author = [], bibstem = [], author_count } = doc;
 
   const formattedPubDate = getFomattedNumericPubdate(pubdate);

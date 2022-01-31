@@ -4,7 +4,8 @@ import { useCombobox, UseComboboxStateChange, useMultipleSelection } from 'downs
 import dynamic from 'next/dynamic';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import type { IBibstemMenuProps } from './BibstemMenu';
-import { ITEM_DELIMITER } from './models';
+
+const ITEM_DELIMITER = '$$';
 
 const BibstemMenu = dynamic(
   () =>

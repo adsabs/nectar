@@ -11,7 +11,7 @@ interface IMetricsProps {
 export const Metrics = (props: IMetricsProps): ReactElement => {
   const { metrics, isAbstract } = props;
 
-  const { citationsGraph, readsGraph, citationsTable, readsTable } = useMetrics(metrics);
+  const { citationsTable, readsTable } = useMetrics(metrics);
 
   const headingClass = 'bg-gray-100 text-3xl h-16 p-2 font-light flex items-center my-5';
 

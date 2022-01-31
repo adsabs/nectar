@@ -1,10 +1,8 @@
 import { SolrSort } from '@api';
 import { BibstemPickerMultiple, Button, Sort, TextInput } from '@components';
-import { ClassicformController, RawClassicFormParams } from '@controllers/classicformController';
 import { isBrowser } from '@utils';
 import clsx from 'clsx';
 import { NextPage } from 'next';
-import { useRouter } from 'next/router';
 import { ChangeEvent, ChangeEventHandler, useCallback, useReducer } from 'react';
 
 interface FormEvent {
@@ -19,8 +17,8 @@ const formReducer = (state: Record<string, string>, event: FormEvent) => {
 };
 
 const ClassicForm: NextPage = () => {
-  const Router = useRouter();
-  const [formData, setFormData] = useReducer(formReducer, {});
+  // const Router = useRouter();
+  const [, setFormData] = useReducer(formReducer, {});
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.currentTarget;
     setFormData({ name, value });
@@ -31,11 +29,11 @@ const ClassicForm: NextPage = () => {
     },
     [setFormData],
   );
-  const handleOnSubmit = (e: ChangeEvent<HTMLFormElement>): void => {
-    e.preventDefault();
-    const controller = new ClassicformController(formData as RawClassicFormParams);
-    void Router.push(`/search?${controller.getQuery()}`);
-  };
+  // const handleOnSubmit = (e: ChangeEvent<HTMLFormElement>): void => {
+  //   e.preventDefault();
+  //   const controller = new ClassicformController(formData as RawClassicFormParams);
+  //   void Router.push(`/search?${controller.getQuery()}`);
+  // };
 
   return (
     <section aria-labelledby="form-title">

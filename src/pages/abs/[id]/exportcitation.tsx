@@ -1,6 +1,6 @@
 import Adsapi, { IDocsEntity } from '@api';
 import { ExportApiFormat, isExportApiFormat } from '@api/lib/export';
-import { Export, metatagsQueryFields } from '@components';
+import { metatagsQueryFields } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/queries';
 import { AbsLayout } from '@components/Layout/AbsLayout';
@@ -26,9 +26,9 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = ({ originalDoc, b
         </div>
         {error ? (
           <div className="flex items-center justify-center w-full h-full text-xl">{error}</div>
-        ) : (
-          <Export initialBibcodes={[bibcode]} initialText={text} initialFormat={format} singleMode />
-        )}
+        ) : null
+        // <Export initialBibcodes={[bibcode]} initialText={text} initialFormat={format} singleMode />
+        }
       </article>
     </AbsLayout>
   );
