@@ -12,7 +12,7 @@ export interface IADSApiSearchParams {
   'hl.requireFieldMatch'?: boolean;
   'hl.usePhraseHighlighter'?: boolean;
   fq?: string;
-  stats?: string;
+  stats?: boolean;
   'stats.field'?: string;
 }
 
@@ -29,6 +29,11 @@ export interface IADSApiSearchResponse {
     docs: IDocsEntity[];
   };
   stats?: ISearchStatsFields;
+  responseHeader: {
+    QTime: number;
+    params: Partial<IADSApiSearchParams>;
+    status: number;
+  };
 }
 
 export interface ISearchStatsFields {

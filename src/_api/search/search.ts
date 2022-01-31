@@ -8,11 +8,13 @@ import {
   getCitationsParams,
   getCoreadsParams,
   getReferencesParams,
+  getSearchStatsParams,
   getSimilarParams,
   getTocParams,
 } from './models';
 
 export type UseSearchResult = UseQueryResult<Partial<IADSApiSearchResponse['response']>>;
+export type UseSearchStatsResult = UseQueryResult<Partial<IADSApiSearchResponse['stats']>>;
 
 export const searchKeys = {
   primary: (params: IADSApiSearchParams) => ['search', params] as const,
@@ -28,21 +30,23 @@ export const searchKeys = {
     ['search/similar', { bibcode, start }] as const,
   toc: ({ bibcode, start }: { bibcode: IDocsEntity['bibcode']; start: number }) =>
     ['search/toc', { bibcode, start }] as const,
+  stats: (params: IADSApiSearchParams) => ['search/stats', params] as const,
 };
+
+export const responseSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['response'] => data.response;
+export const statsSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['stats'] => data.stats;
 
 /**
  * Generic search hook
  */
-export const useSearch = (
-  params: IADSApiSearchParams,
-  options?: UseQueryOptions<IADSApiSearchResponse['response']>,
-): UseSearchResult => {
+export const useSearch = (params: IADSApiSearchParams, options?: UseQueryOptions): UseSearchResult => {
   // omit fields from queryKey
   const { fl, ...cleanParams } = params;
   return useQuery({
     queryKey: searchKeys.primary(cleanParams),
     queryFn: fetchSearch,
     meta: { params },
+    select: responseSelector,
     ...options,
   });
 };
@@ -59,6 +63,7 @@ export const useGetCitations = (
     queryKey: searchKeys.citations({ bibcode, start }),
     queryFn: fetchSearch,
     meta: { params },
+    select: responseSelector,
     ...options,
   });
 };
@@ -72,6 +77,7 @@ export const useGetReferences = (
     queryKey: searchKeys.references({ bibcode, start }),
     queryFn: fetchSearch,
     meta: { params },
+    select: responseSelector,
     ...options,
   });
 };
@@ -85,6 +91,7 @@ export const useGetCoreads = (
     queryKey: searchKeys.coreads({ bibcode, start }),
     queryFn: fetchSearch,
     meta: { params },
+    select: responseSelector,
     ...options,
   });
 };
@@ -98,6 +105,7 @@ export const useGetSimilar = (
     queryKey: searchKeys.similar({ bibcode, start }),
     queryFn: fetchSearch,
     meta: { params },
+    select: responseSelector,
     ...options,
   });
 };
@@ -111,13 +119,20 @@ export const useGetToc = (
     queryKey: searchKeys.toc({ bibcode, start }),
     queryFn: fetchSearch,
     meta: { params },
+    select: responseSelector,
     ...options,
   });
 };
 
 export const useGetAbstract = ({ id }: { id: string }, options?: UseQueryOptions): UseSearchResult => {
   const params = getAbstractParams(id);
-  return useQuery({ queryKey: searchKeys.abstract(id), queryFn: fetchSearch, meta: { params }, ...options });
+  return useQuery({
+    queryKey: searchKeys.abstract(id),
+    queryFn: fetchSearch,
+    meta: { params },
+    select: responseSelector,
+    ...options,
+  });
 };
 
 export const useGetAbstractPreview = (
@@ -125,17 +140,40 @@ export const useGetAbstractPreview = (
   options?: UseQueryOptions,
 ): UseSearchResult => {
   const params = { ...defaultParams, q: `identifier:"${bibcode}"`, fl: ['abstract'] };
-  return useQuery({ queryKey: searchKeys.preview(bibcode), queryFn: fetchSearch, meta: { params }, ...options });
+  return useQuery({
+    queryKey: searchKeys.preview(bibcode),
+    queryFn: fetchSearch,
+    meta: { params },
+    select: responseSelector,
+    ...options,
+  });
 };
 
-export const fetchSearch: QueryFunction<IADSApiSearchResponse['response']> = async ({ meta: { params } }) => {
+export const useGetSearchStats = (params: IADSApiSearchParams, options?: UseQueryOptions): UseSearchStatsResult => {
+  const isCitationSort =
+    Array.isArray(params.sort) && params.sort.length > 0 && /^citation_count(_norm)?/.test(params.sort[0]);
+
+  const searchParams: IADSApiSearchParams = getSearchStatsParams(params, isCitationSort ? params.sort[0] : '');
+
+  // omit fields from queryKey
+  const { fl, ...cleanParams } = params;
+
+  return useQuery({
+    queryKey: searchKeys.stats(cleanParams),
+    queryFn: fetchSearch,
+    meta: { params: searchParams },
+    enabled: isCitationSort,
+    select: statsSelector,
+    ...options,
+  });
+};
+
+export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta: { params } }) => {
   const config: ApiRequestConfig = {
     method: 'GET',
     url: ApiTargets.SEARCH,
     params,
   };
-  const {
-    data: { response },
-  } = await api.request<IADSApiSearchResponse>(config);
-  return response;
+  const { data } = await api.request<IADSApiSearchResponse>(config);
+  return data;
 };

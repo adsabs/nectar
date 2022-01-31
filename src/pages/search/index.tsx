@@ -4,7 +4,7 @@ import { Pagination } from '@components/ResultList/Pagination';
 import { AppState, useStore, useStoreApi } from '@store';
 import { normalizeURLParams } from '@utils';
 import { searchKeys, useSearch } from '@_api/search';
-import { defaultParams } from '@_api/search/models';
+import { defaultParams, getSearchStatsParams } from '@_api/search/models';
 import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
@@ -20,6 +20,7 @@ const SearchPage: NextPage<ISearchPageProps> = ({ searchParams }) => {
   const page = useRef(1);
   const [submitted, setSubmitted] = useState(true);
   const updateQuery = useStore((state) => state.updateQuery);
+  const setLatestQuery = useStore((state) => state.setLatestQuery);
   const setDocs = useStore((state) => state.setDocs);
   const params = useMemo(() => store.getState().query, [submitted]);
 
@@ -41,6 +42,7 @@ const SearchPage: NextPage<ISearchPageProps> = ({ searchParams }) => {
       // update the docs with the latest results
       setDocs(data.docs.map((d) => d.bibcode));
       updateUrl(params);
+      setLatestQuery(params);
     },
   });
 
@@ -118,77 +120,30 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   // omit fields from queryKey
   const { fl, ...cleanedParams } = params;
   const queryClient = new QueryClient();
+
+  // primary query prefetch
   void (await queryClient.prefetchQuery({
     queryKey: searchKeys.primary(cleanedParams),
     queryFn: fetchSearch,
     meta: { params },
   }));
 
+  // prefetch the citation counts for this query
+  if (/^citation_count(_norm)?/.test(params.sort[0])) {
+    void (await queryClient.prefetchQuery({
+      queryKey: searchKeys.stats(cleanedParams),
+      queryFn: fetchSearch,
+      meta: { params: getSearchStatsParams(params, params.sort[0]) },
+    }));
+  }
+
   return {
     props: {
       dehydratedState: dehydrate(queryClient),
-      dehydratedAppState: { query: params } as AppState,
+      dehydratedAppState: { query: params, latestQuery: params } as AppState,
       searchParams: params,
     },
   };
-
-  // const adsapi = new AdsApi({ token: ctx.req.session.userData.access_token });
-
-  // let stats = 'false';
-  // let stats_field = '';
-  // if (query.sort) {
-  //   const s = query.sort.split(',')[0].split(' ')[0];
-  //   if (s === 'citation_count' || s === 'citation_count_norm') {
-  //     stats = 'true';
-  //     stats_field = s;
-  //   }
-  // }
-
-  // const params: IADSApiSearchParams = {
-  //   q: query.q,
-  //   fl: [
-  //     'bibcode',
-  //     'title',
-  //     'author',
-  //     '[fields author=10]',
-  //     'author_count',
-  //     'pubdate',
-  //     'bibstem',
-  //     '[citations]',
-  //     'citation_count',
-  //     'citation_count_norm',
-  //     'esources',
-  //     'property',
-  //     'data',
-  //   ],
-  //   sort: query.sort ? (query.sort.split(',') as SolrSort[]) : ['date desc'],
-  //   rows: 10,
-  //   start: (page - 1) * 10,
-  //   stats: stats,
-  //   'stats.field': stats_field,
-  // };
-  // const result = await adsapi.search.query(params);
-
-  // const props = result.match(
-  //   ({ response: { numFound, docs }, stats = null }) => ({
-  //     params,
-  //     docs,
-  //     meta: { numFound, page },
-  //     stats,
-  //   }),
-  //   ({ message }) => ({
-  //     error: message,
-  //     params: {
-  //       q: '',
-  //       fl: [],
-  //       sort: [],
-  //     },
-  //     docs: [],
-  //     meta: { numFound: 0, page },
-  //     stats: null,
-  //   }),
-  // );
-  // return { props };
 };
 
 export default SearchPage;

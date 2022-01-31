@@ -29,7 +29,7 @@ export const withDetailsPage = async (
         dehydratedState: dehydrate(queryClient),
         dehydratedAppState: {
           docs: {
-            doc: primaryResult.docs[0].bibcode,
+            doc: primaryResult.response.docs[0].bibcode,
           },
         } as AppState,
         id: query.id,

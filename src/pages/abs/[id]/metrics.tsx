@@ -68,8 +68,10 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetail
     const queryClient = new QueryClient();
     hydrate(queryClient, state.props?.dehydratedState as DehydratedState);
     const {
-      docs: [{ bibcode }],
-    } = queryClient.getQueryData<IADSApiSearchResponse['response']>(searchKeys.abstract(query.id));
+      response: {
+        docs: [{ bibcode }],
+      },
+    } = queryClient.getQueryData<IADSApiSearchResponse>(searchKeys.abstract(query.id));
 
     void (await queryClient.prefetchQuery({
       queryKey: metricsKeys.primary(bibcode),
