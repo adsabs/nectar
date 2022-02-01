@@ -1,4 +1,5 @@
-import { GetState, SetState } from 'zustand';
+import { GetState } from 'zustand';
+import { NamedSet } from 'zustand/middleware';
 import { IAppStateDocsSlice, IAppStateSearchSlice, IAppStateThemeSlice, IAppStateUserSlice } from './slices';
 
 export type AppState = IAppStateSearchSlice & IAppStateThemeSlice & IAppStateUserSlice & IAppStateDocsSlice;
@@ -7,4 +8,4 @@ export interface IPersistedAppState {
   version: number;
 }
 
-export type StoreSlice<T> = (set: SetState<AppState>, get: GetState<AppState>) => T;
+export type StoreSlice<T> = (set: NamedSet<AppState>, get: GetState<AppState>) => T;

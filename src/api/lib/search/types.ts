@@ -29,7 +29,7 @@ export interface IADSApiSearchResponse {
     docs: IDocsEntity[];
   };
   stats?: ISearchStatsFields;
-  responseHeader: {
+  responseHeader?: {
     QTime: number;
     params: Partial<IADSApiSearchParams>;
     status: number;

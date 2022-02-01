@@ -177,3 +177,15 @@ export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta: 
   const { data } = await api.request<IADSApiSearchResponse>(config);
   return data;
 };
+
+export const fetchStats: QueryFunction<IADSApiSearchResponse['stats']> = async ({ meta: { params } }) => {
+  const config: ApiRequestConfig = {
+    method: 'GET',
+    url: ApiTargets.SEARCH,
+    params,
+  };
+  const {
+    data: { stats },
+  } = await api.request<IADSApiSearchResponse>(config);
+  return stats;
+};
