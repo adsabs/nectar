@@ -1,6 +1,6 @@
 import { SolrSort, SolrSortDirection, SolrSortField } from '@api';
 import { SortAscendingIcon, SortDescendingIcon } from '@heroicons/react/outline';
-import { ReactElement, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, ReactElement, useEffect, useMemo, useRef, useState } from 'react';
 import { sortValues } from './model';
 import { IconButton } from '@chakra-ui/button';
 import { Box, HStack } from '@chakra-ui/layout';
@@ -82,10 +82,10 @@ export const Sort = (props: ISortProps): ReactElement => {
     return (
       <ChakraSelect id="sort" name="sort" defaultValue={sort}>
         {sortItems.map((item) => (
-          <span key={item.label}>
+          <Fragment key={item.label}>
             <option value={`${item.id} asc`}>{item.label} - Asc</option>
             <option value={`${item.id} desc`}>{item.label} - Desc</option>
-          </span>
+          </Fragment>
         ))}
       </ChakraSelect>
     );

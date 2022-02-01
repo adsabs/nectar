@@ -68,15 +68,7 @@ export const Item = (props: IItemProps): ReactElement => {
   ) : null;
 
   return (
-    <Flex
-      direction="row"
-      as="article"
-      border="1px"
-      borderColor="gray.50"
-      mb={1}
-      borderRadius="md"
-      aria-labelledby={`result-${id}`}
-    >
+    <Flex direction="row" as="article" border="1px" borderColor="gray.50" mb={1} borderRadius="md">
       <Flex direction="row" className={checkBgClass} m={0}>
         <Text color={state.matches('selected') ? 'white' : 'initial'} display={{ base: 'none', md: 'initial' }} mr={1}>
           {index}
@@ -87,7 +79,7 @@ export const Item = (props: IItemProps): ReactElement => {
             id={`result-checkbox-${index}`}
             onChange={handleSelect}
             isChecked={state.matches('selected')}
-            aria-label={title[0]}
+            aria-label={`Select ${title[0]}`}
             size="md"
           />
         )}

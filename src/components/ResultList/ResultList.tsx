@@ -1,6 +1,5 @@
 import { IDocsEntity } from '@api';
 import { ISearchMachine, TransitionType } from '@machines/lib/search/types';
-import { isBrowser } from '@utils';
 import { useSelector } from '@xstate/react';
 import { HTMLAttributes, ReactElement, useEffect, useState } from 'react';
 import { Item } from './Item/Item';
@@ -29,11 +28,16 @@ export const ResultList = (props: IResultListProps): ReactElement => {
     selectNone: false,
     selectedCount: 0,
   });
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const {
     docs = [],
     isLoading = false,
-    hideCheckboxes = !isBrowser(),
+    hideCheckboxes = !isMounted,
     service: searchService,
     showActions,
     ...divProps

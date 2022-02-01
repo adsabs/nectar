@@ -9,7 +9,7 @@ import { BibstemPickerMultiple, Sort } from '@components';
 import { ClassicformController, RawClassicFormParams } from '@controllers/classicformController';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { ChangeEvent, ChangeEventHandler, useCallback, useReducer, useState, useEffect } from 'react';
+import { ChangeEvent, ChangeEventHandler, useCallback, useReducer, useState, useEffect, Fragment } from 'react';
 import { Textarea } from '@chakra-ui/textarea';
 import { Radio, RadioGroup } from '@chakra-ui/radio';
 import Head from 'next/head';
@@ -185,7 +185,7 @@ const LogicAndTextarea = ({
     <Box width="full">
       <FormControl>
         <Flex direction="row" justifyContent="space-between">
-          <FormLabel>{label}</FormLabel>
+          <FormLabel htmlFor={id}>{label}</FormLabel>
           <LogicRadios name={id} variant="andor" onChange={onChange} isMounted={isMounted} />
         </Flex>
         <Textarea as="textarea" id={id} name={id} rows={3} defaultValue={''} onChange={onChange} />
@@ -211,7 +211,7 @@ const LogicAndInput = ({
     <Box>
       <FormControl>
         <Flex direction="row" justifyContent="space-between">
-          <FormLabel>{label}</FormLabel>
+          <FormLabel htmlFor={id}>{label}</FormLabel>
           {!noLogic && (
             <LogicRadios name={normalizeString(label)} variant="all" onChange={onChange} isMounted={isMounted} />
           )}
@@ -247,7 +247,7 @@ const LogicRadios = ({
             {values[variant].map((id) => {
               const fullId = `logic_${normalizedName}_${id}`;
               return (
-                <Radio id={fullId} key={id} value={id} name={`logic_${name}`} onChange={onChange}>
+                <Radio id={fullId} key={fullId} value={id} name={`logic_${name}`} onChange={onChange}>
                   {id}
                 </Radio>
               );
@@ -259,10 +259,10 @@ const LogicRadios = ({
           {values[variant].map((id) => {
             const fullId = `logic_${normalizedName}_${id}`;
             return (
-              <>
-                <input type="radio" id={fullId} key={id} value={id} name={`logic_${name}`} checked={id === 'and'} />
+              <Fragment key={fullId}>
+                <input type="radio" id={fullId} value={id} name={`logic_${name}`} defaultChecked={id === 'and'} />
                 <label htmlFor={fullId}>{id}</label>
-              </>
+              </Fragment>
             );
           })}
         </Stack>
