@@ -28,6 +28,16 @@ const config = {
   images: {
     domains: ['s3.amazonaws.com'],
   },
+  webpack: (config) => {
+    config.module.rules = [
+      ...config.module.rules,
+      {
+        test: /src\/.*\/index.ts/i,
+        sideEffects: false,
+      },
+    ];
+    return config;
+  },
 };
 
 module.exports = withBundleAnalyzer(config);
