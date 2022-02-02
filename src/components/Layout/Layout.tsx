@@ -1,14 +1,14 @@
+import { Container, Flex } from '@chakra-ui/layout';
 import { LandingTabs } from '@components/LandingTabs';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { FC } from 'react';
 import { Footer } from '../Footer';
 import { NavBar } from '../NavBar';
-import Head from 'next/head';
-import { Container, Flex } from '@chakra-ui/layout';
 
 export const Layout: FC = ({ children }) => {
   const router = useRouter();
-  const isLandingPages = /^(\/|\/classic-form(#main-content)?|\/paper-form(#main-content)?)$/.exec(router.asPath);
+  const isLandingPages = /^(\/|\/(classic|paper)-form.*)$/.exec(router.asPath);
   return (
     <Flex direction="column">
       <Head>
