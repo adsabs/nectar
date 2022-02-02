@@ -1,12 +1,12 @@
-import { ReactElement, MouseEvent } from 'react';
 import { IDocsEntity } from '@api';
+import { IconButton } from '@chakra-ui/button';
+import { LockIcon, UnlockIcon } from '@chakra-ui/icons';
+import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
 import { processLinkData } from '@components/AbstractSources/linkGenerator';
 import { DatabaseIcon, DocumentTextIcon, ViewListIcon } from '@heroicons/react/outline';
-import { IconButton } from '@chakra-ui/button';
-import { Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/menu';
 import { isBrowser } from '@utils';
 import { useRouter } from 'next/router';
-import { LockIcon, UnlockIcon } from '@chakra-ui/icons';
+import { MouseEventHandler, ReactElement } from 'react';
 
 export interface IItemResourceDropdownsProps {
   doc: IDocsEntity;
@@ -61,12 +61,8 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
   }
 
   // citations and references
-
-  const num_references =
-    doc['[citations]'] && typeof doc['[citations]'].num_references === 'number' ? doc['[citations]'].num_references : 0;
-
-  const num_citations =
-    doc['[citations]'] && typeof doc['[citations]'].num_citations === 'number' ? doc['[citations]'].num_citations : 0;
+  const num_references = typeof doc['[citations]']?.num_references === 'number' ? doc['[citations]'].num_references : 0;
+  const num_citations = typeof doc['[citations]']?.num_citations === 'number' ? doc['[citations]'].num_citations : 0;
 
   const referenceItems: IItem[] = [];
   if (num_citations > 0) {
@@ -85,22 +81,22 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
     });
   }
 
-  const handleResourceClick = (e: MouseEvent<HTMLElement>) => {
-    const id = (e.target as HTMLElement).dataset['id'];
+  const handleResourceClick: MouseEventHandler<HTMLElement> = (e) => {
+    const id = e.currentTarget.dataset['id'];
     if (isBrowser()) {
       window.open(fullSourceItems.find((item) => id === item.id).path, '_blank', 'noopener,noreferrer');
     }
   };
 
-  const handleReferenceClick = (e: MouseEvent<HTMLElement>) => {
-    const id = (e.target as HTMLElement).dataset['id'];
+  const handleReferenceClick: MouseEventHandler<HTMLElement> = (e) => {
+    const id = e.currentTarget.dataset['id'];
     if (isBrowser()) {
       void router.push(referenceItems.find((item) => id === item.id).path);
     }
   };
 
-  const handleDataProductClick = (e: MouseEvent<HTMLElement>) => {
-    const id = (e.target as HTMLElement).dataset['id'];
+  const handleDataProductClick: MouseEventHandler<HTMLElement> = (e) => {
+    const id = e.currentTarget.dataset['id'];
     if (isBrowser()) {
       window.open(dataProductItems.find((item) => id === item.id).path, '_blank', 'noopener,noreferrer');
     }
@@ -117,7 +113,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
           isDisabled={fullSourceItems.length === 0}
           variant="link"
           size="xs"
-        ></MenuButton>
+        />
         {fullSourceItems.length > 0 && (
           <MenuList>
             {fullSourceItems.map((item) => (
@@ -138,7 +134,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
           isDisabled={referenceItems.length === 0}
           variant="link"
           size="xs"
-        ></MenuButton>
+        />
         {referenceItems.length > 0 && (
           <MenuList>
             {referenceItems.map((item) => (
@@ -159,7 +155,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
           isDisabled={dataProductItems.length === 0}
           variant="link"
           size="xs"
-        ></MenuButton>
+        />
         {dataProductItems.length > 0 && (
           <MenuList>
             {dataProductItems.map((item) => (
