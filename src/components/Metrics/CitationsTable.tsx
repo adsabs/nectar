@@ -1,10 +1,10 @@
-import { VisuallyHidden } from '@chakra-ui/visually-hidden';
+import { QuestionIcon } from '@chakra-ui/icons';
 import { Box } from '@chakra-ui/layout';
-import { Table, Thead, Tbody, Tr, Td, Th } from '@chakra-ui/table';
+import { Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/table';
+import { Tooltip } from '@chakra-ui/tooltip';
+import { VisuallyHidden } from '@chakra-ui/visually-hidden';
 import { ReactElement } from 'react';
 import { ICitationsTableData } from './types';
-import { Tooltip } from '@chakra-ui/tooltip';
-import { QuestionIcon } from '@chakra-ui/icons';
 
 export interface ICitationsTableProps {
   data: ICitationsTableData;
@@ -88,17 +88,13 @@ export const CitationsTable = (props: ICitationsTableProps): ReactElement => {
           <Td>
             <Tooltip
               label={
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: `For a list of N papers (i=1,...N), where N<sub>auth</sub>
-                        <sup>i</sup> is the number of authors for publication i and C<sub>i</sub> the number of
-                        citations that this paper received, the normalized citation count for each article is C
-                        <sub>i</sub>/N
-                        <sub>auth</sub>
-                        <sup>i</sup> ,and the 'normalized citations' for this list of N papers is the sum of these N
-                        numbers.`,
-                  }}
-                />
+                <div>
+                  For a list of N papers (i=1,...N), where N<sub>auth</sub>
+                  <sup>i</sup> is the number of authors for publication i and C<sub>i</sub> the number of citations that
+                  this paper received, the normalized citation count for each article is C<sub>i</sub>/N
+                  <sub>auth</sub>
+                  <sup>i</sup> ,and the 'normalized citations' for this list of N papers is the sum of these N numbers.
+                </div>
               }
             >
               <QuestionIcon />
