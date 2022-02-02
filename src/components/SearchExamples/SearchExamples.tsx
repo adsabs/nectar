@@ -1,6 +1,6 @@
 import { Box, Flex, Grid, GridItem, Heading, Text } from '@chakra-ui/layout';
 import { useAppCtx } from '@store';
-import { FC, HTMLAttributes } from 'react';
+import { FC, HTMLAttributes, MouseEventHandler, useMemo } from 'react';
 import { examples } from './examples';
 
 export interface ISearchExamplesProps {
@@ -11,12 +11,24 @@ export interface ISearchExamplesProps {
 export const SearchExamples: FC<ISearchExamplesProps> = ({ onClick }) => {
   const { state: appState } = useAppCtx();
 
-  const createHandler = (text: string) => {
+  const handleClick: MouseEventHandler<HTMLButtonElement> = (e) => {
     if (typeof onClick === 'function') {
-      return () => onClick(text);
+      onClick(e.currentTarget.dataset['text']);
     }
     return undefined;
   };
+
+  const [leftExamples, rightExamples] = useMemo(
+    () => [
+      examples[appState.theme].left.map(({ label, text }) => (
+        <SearchExample label={label} example={text} key={label} data-text={text} onClick={handleClick} />
+      )),
+      examples[appState.theme].right.map(({ label, text }) => (
+        <SearchExample label={label} example={text} key={label} data-text={text} onClick={handleClick} />
+      )),
+    ],
+    [appState.theme],
+  );
 
   return (
     <Flex justifyContent="center" direction="column" alignItems="center">
@@ -24,35 +36,28 @@ export const SearchExamples: FC<ISearchExamplesProps> = ({ onClick }) => {
         Search Examples
       </Heading>
       <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={5}>
-        <GridItem>
-          {examples[appState.theme].left.map(({ label, text }) => (
-            <SearchExample label={label} example={text} key={label} onClick={createHandler(text)} />
-          ))}
-        </GridItem>
-        <GridItem>
-          {examples[appState.theme].right.map(({ label, text }) => (
-            <SearchExample label={label} example={text} key={label} onClick={createHandler(text)} />
-          ))}
-        </GridItem>
+        <GridItem>{leftExamples}</GridItem>
+        <GridItem>{rightExamples}</GridItem>
       </Grid>
     </Flex>
   );
 };
 
-interface ISearchExampleProps {
+interface ISearchExampleProps extends HTMLAttributes<HTMLElement> {
   label: string;
   example: string;
-  onClick: () => void;
 }
 
 const SearchExample = (props: ISearchExampleProps) => {
-  const { label, example, onClick } = props;
+  const { label, example, ...buttonProps } = props;
   return (
     <Grid templateColumns="1fr 2fr" gap={3} my={1}>
       <Text align="right" fontWeight="semibold" py={2}>
         {label}
       </Text>
       <Box
+        as="button"
+        type="button"
         sx={{
           borderRadius: '0',
           border: 'var(--chakra-colors-gray-200) 1px dotted',
@@ -65,7 +70,7 @@ const SearchExample = (props: ISearchExampleProps) => {
           justifyContent: 'center',
           cursor: 'pointer',
         }}
-        onClick={onClick}
+        {...buttonProps}
       >
         {example}
       </Box>
