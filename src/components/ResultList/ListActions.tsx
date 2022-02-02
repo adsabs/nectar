@@ -1,10 +1,11 @@
 import { SolrSort } from '@api';
+import { Box, Stack } from '@chakra-ui/layout';
+import { Button } from '@chakra-ui/button';
 import { Sort } from '@components';
 import { SimpleSortDropdown } from '@components/Sort/SimpleSortDropdown';
 import { ISearchMachine, TransitionType } from '@machines/lib/search/types';
 import { isBrowser } from '@utils';
 import { useSelector } from '@xstate/react';
-import clsx from 'clsx';
 import { ReactElement, useCallback, useState } from 'react';
 
 interface IListActionProp {
@@ -50,65 +51,69 @@ export const ListActions = (props: IListActionProp): ReactElement => {
   const handleLimitedTo = () => onLimitedTo();
   const handleExclude = () => onExclude();
 
-  const hlClass = clsx(showHighlight ? 'default-button' : 'default-button-inactive', 'm-0');
-  const linkBtnDisabled = clsx('link-button-disabled ml-4 h-5');
-  const linkBtn = clsx('link-button ml-4 h-5');
-
   return (
-    <>
+    <Box>
       {!isBrowser() ? (
         <span>
           <SimpleSortDropdown query={query} selected={sort[0]} page={page} />
         </span>
       ) : (
-        <>
-          <div className="my-1 sm:flex sm:justify-start">
-            <div>
-              <button type="button" className={hlClass} onClick={toggleShowHighlight}>
-                Show Highlights
-              </button>
-            </div>
+        <Stack direction="column" spacing={1}>
+          <Stack direction={{ base: 'column', sm: 'row' }} spacing={1} width="min-content">
+            <Button
+              variant={showHighlight ? 'solid' : 'outline'}
+              onClick={toggleShowHighlight}
+              size="md"
+              borderRadius="2px"
+              fontSize="sm"
+            >
+              Show Highlights
+            </Button>
             <SortWrapper service={searchService} />
-          </div>
-          <div className="flex flex-col items-start bg-gray-100 rounded-md lg:flex-row lg:items-center lg:justify-between">
-            <div className="order-2 lg:order-1">
-              <button
-                type="button"
-                className={selectedCount < totalCount ? linkBtn : linkBtnDisabled}
+          </Stack>
+          <Stack
+            direction={{ base: 'column', md: 'row' }}
+            alignItems={{ base: 'start', md: 'center' }}
+            justifyContent={{ md: 'space-between' }}
+            backgroundColor="gray.50"
+            borderRadius="2px"
+            p={2}
+          >
+            <Stack
+              direction="row"
+              spacing={{ base: '2', md: '5' }}
+              order={{ base: '2', md: '1' }}
+              mt={{ base: '2', md: '0' }}
+              wrap="wrap"
+            >
+              <Button
+                variant="link"
+                fontWeight="normal"
+                disabled={!(selectedCount < totalCount)}
                 onClick={handleSelectAll}
               >
                 Select All
-              </button>
-              <button
-                type="button"
-                className={selectedCount > 0 ? linkBtn : linkBtnDisabled}
-                onClick={handleSelectNone}
-              >
+              </Button>
+              <Button variant="link" fontWeight="normal" disabled={selectedCount === 0} onClick={handleSelectNone}>
                 Select None
-              </button>
-              <button type="button" className={selectedCount > 0 ? linkBtn : linkBtnDisabled} onClick={handleLimitedTo}>
+              </Button>
+              <Button variant="link" fontWeight="normal" disabled={selectedCount === 0} onClick={handleLimitedTo}>
                 Limited To
-              </button>
-              <button type="button" className={selectedCount > 0 ? linkBtn : linkBtnDisabled} onClick={handleExclude}>
+              </Button>
+              <Button variant="link" fontWeight="normal" disabled={selectedCount === 0} onClick={handleExclude}>
                 Exclude
-              </button>
+              </Button>
               <span className="m-2 h-5 text-sm">{selectedCount} Selected</span>
-            </div>
-            <div className="order-1 lg:order-2">
-              <button type="button" className="default-button ml-2">
-                Add to Library
-              </button>
-              <button type="button" className="default-button">
-                Export
-              </button>
-              <button type="button" className="default-button mr-2">
-                Explore
-              </button>
-            </div>
-          </div>
-        </>
+            </Stack>
+            <Stack direction="row" mx={5} order={{ base: '1', md: '2' }} wrap="wrap">
+              <Button>Add to Library</Button>
+              <Button>Export</Button>
+              <Button>Explore</Button>
+            </Stack>
+          </Stack>
+        </Stack>
       )}
-    </>
+    </Box>
   );
 };
 

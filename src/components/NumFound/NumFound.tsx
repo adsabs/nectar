@@ -1,3 +1,4 @@
+import { Text } from '@chakra-ui/layout';
 import { ISearchMachine } from '@machines/lib/search/types';
 import { truncateDecimal } from '@utils';
 import { useSelector } from '@xstate/react';
@@ -43,21 +44,33 @@ export const NumFound = (props: INumFoundProps): ReactElement => {
     typeof citationCount === 'number' ? (
       <>
         {' '}
-        with <span className="font-bold">{sanitizeNum(citationCount)}</span> total citations
+        with{' '}
+        <Text as="span" fontWeight="bold" fontSize="xs">
+          {sanitizeNum(citationCount)}
+        </Text>{' '}
+        total citations
       </>
     ) : null;
   const normalizedCitationsString =
     typeof normCitationCount === 'number' ? (
       <>
         {' '}
-        with <span className="font-bold">{sanitizeNum(normCitationCount)}</span> total normalized citations
+        with{' '}
+        <Text as="span" fontWeight="bold" fontSize="xs">
+          {sanitizeNum(normCitationCount)}
+        </Text>{' '}
+        total normalized citations
       </>
     ) : null;
 
   return (
-    <p role="status" className="mt-1 text-xs">
-      Your search returned <span className="font-bold">{countString}</span> results{citationsString}
+    <Text role="status" fontSize="xs">
+      Your search returned{' '}
+      <Text as="span" fontWeight="bold">
+        {countString}
+      </Text>{' '}
+      results{citationsString}
       {normalizedCitationsString}
-    </p>
+    </Text>
   );
 };

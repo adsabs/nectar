@@ -7,6 +7,7 @@ import { Item } from './Item/Item';
 import { ListActions } from './ListActions';
 import { Pagination } from './Pagination';
 import { Skeleton } from './Skeleton';
+import { Box } from '@chakra-ui/layout';
 
 export interface IResultListProps extends HTMLAttributes<HTMLDivElement> {
   docs: IDocsEntity[];
@@ -94,8 +95,8 @@ export const ResultList = (props: IResultListProps): ReactElement => {
   }, [indexStart]);
 
   return (
-    <article {...divProps} className="flex flex-col mt-1 space-y-1">
-      <div>
+    <Box {...divProps}>
+      <Box mb={1}>
         {isLoading || !showActions ? null : (
           <ListActions
             service={searchService}
@@ -108,7 +109,7 @@ export const ResultList = (props: IResultListProps): ReactElement => {
             onExclude={handleExclude}
           />
         )}
-      </div>
+      </Box>
       {isLoading ? (
         <Skeleton count={10} />
       ) : docs.length > 0 ? (
@@ -132,7 +133,7 @@ export const ResultList = (props: IResultListProps): ReactElement => {
       ) : (
         <div className="flex items-center justify-center text-lg">No Results Found</div>
       )}
-    </article>
+    </Box>
   );
 };
 

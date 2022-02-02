@@ -1,9 +1,11 @@
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/solid';
+import { Box, Flex, Text, Link } from '@chakra-ui/layout';
+import { Button, IconButton } from '@chakra-ui/button';
+import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { isBrowser } from '@utils';
-import clsx from 'clsx';
-import Link from 'next/link';
+import NextLink from 'next/link';
 import { HTMLAttributes, MouseEvent, ReactElement } from 'react';
 import { usePagination } from './usePagination';
+import { VisuallyHidden } from '@chakra-ui/react';
 
 export interface IPaginationProps extends HTMLAttributes<HTMLDivElement> {
   totalResults: number;
@@ -51,77 +53,46 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
       // current page styling
       if (index === page) {
         return isBrowser() ? (
-          <button
-            type="button"
+          <Button
             key={href}
             onClick={pageChangeHandler(index)}
             aria-current="page"
             data-testid="pagination-item"
             aria-label={`Current page, page ${page}`}
-            className="relative z-10 inline-flex items-center px-4 py-2 text-indigo-600 text-sm font-medium bg-indigo-50 border border-indigo-500"
+            variant="pageCurrent"
           >
             {index}
-          </button>
+          </Button>
         ) : (
-          <Link key={href} href={href}>
-            <a
-              aria-current="page"
-              data-testid="pagination-item"
-              aria-label={`Current page, page ${page}`}
-              className="relative z-10 inline-flex items-center px-4 py-2 text-indigo-600 text-sm font-medium bg-indigo-50 border border-indigo-500"
-            >
+          <NextLink key={href} href={href} passHref>
+            <Link aria-current="page" data-testid="pagination-item" aria-label={`Current page, page ${page}`}>
               {index}
-            </a>
-          </Link>
+            </Link>
+          </NextLink>
         );
       }
 
       // normal, non-current page
       return isBrowser() ? (
-        <button
-          type="button"
+        <Button
           key={href}
           onClick={pageChangeHandler(index)}
           aria-label={`Goto page ${page}`}
           data-testid="pagination-item"
-          className="relative inline-flex items-center px-4 py-2 text-gray-500 text-sm font-medium hover:bg-gray-50 bg-white border border-gray-300"
+          variant="page"
         >
           {index}
-        </button>
+        </Button>
       ) : (
-        <Link key={href} href={href}>
-          <a
-            aria-label={`Goto page ${page}`}
-            data-testid="pagination-item"
-            className="relative inline-flex items-center px-4 py-2 text-gray-500 text-sm font-medium hover:bg-gray-50 bg-white border border-gray-300"
-          >
+        <NextLink key={href} href={href} passHref>
+          <Link aria-label={`Goto page ${page}`} data-testid="pagination-item">
             {index}
-          </a>
-        </Link>
+          </Link>
+        </NextLink>
       );
     });
   };
 
-  const mobilePrevButtonStyles = clsx(
-    'relative inline-flex items-center px-4 py-2 text-gray-700 text-sm font-medium hover:bg-gray-50 bg-white border border-gray-300 rounded-md',
-    { 'cursor-not-allowed opacity-70': noPrev },
-  );
-
-  const mobileNextButtonStyles = clsx(
-    'relative inline-flex items-center ml-3 px-4 py-2 text-gray-700 text-sm font-medium hover:bg-gray-50 bg-white border border-gray-300 rounded-md',
-    { 'cursor-not-allowed opacity-70': noNext },
-  );
-
-  const prevButtonStyles = clsx(
-    'relative inline-flex items-center px-2 py-2 text-gray-500 text-sm font-medium hover:bg-gray-50 bg-white border border-gray-300 rounded-l-md',
-    { 'cursor-not-allowed opacity-70': noPrev },
-  );
-  const nextButtonStyles = clsx(
-    'relative inline-flex items-center px-2 py-2 text-gray-500 text-sm font-medium hover:bg-gray-50 bg-white border border-gray-300 rounded-r-md',
-    {
-      'cursor-not-allowed opacity-70': noNext,
-    },
-  );
   const formattedTotalResults = totalResults.toLocaleString();
   const formattedStartIndex = startIndex.toLocaleString();
   const formattedEndIndex = endIndex.toLocaleString();
@@ -130,86 +101,101 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
   } of ${formattedTotalResults} results`;
 
   return (
-    <section
-      {...divProps}
-      data-testid="pagination-container"
-      aria-labelledby="pagination"
-      className="flex items-center justify-between px-4 py-3 bg-white border-gray-200 sm:px-6"
-    >
-      <h3 className="sr-only" id="pagination">
+    <Box as="section" {...divProps} data-testid="pagination-container" aria-labelledby="pagination" mt={3}>
+      <VisuallyHidden as="h3" id="pagination">
         {paginationHeading}
-      </h3>
-      <div className="flex flex-1 justify-between sm:hidden">
+      </VisuallyHidden>
+      <Box display={{ sm: 'none' }}>
         {isBrowser() ? (
-          <>
-            <button type="button" className={mobilePrevButtonStyles} onClick={handlePrev} data-testid="pagination-prev">
+          <Flex justifyContent="space-between">
+            <Button onClick={handlePrev} data-testid="pagination-prev" variant="outline" isDisabled={noPrev}>
               Previous
-            </button>
-            <button type="button" className={mobileNextButtonStyles} onClick={handleNext} data-testid="pagination-next">
+            </Button>
+            <Button onClick={handleNext} data-testid="pagination-next" variant="outline" isDisabled={noNext}>
               Next
-            </button>
-          </>
+            </Button>
+          </Flex>
         ) : (
-          <>
-            <Link href={prevHref}>
-              <a className={mobilePrevButtonStyles} data-testid="pagination-prev">
-                Previous
-              </a>
-            </Link>
+          <Flex justifyContent="space-between">
+            <NextLink href={prevHref} passHref>
+              <Link data-testid="pagination-prev">Previous</Link>
+            </NextLink>
 
-            <Link href={nextHref}>
-              <a className={mobileNextButtonStyles} data-testid="pagination-next">
-                Next
-              </a>
-            </Link>
-          </>
+            <NextLink href={nextHref} passHref>
+              <Link data-testid="pagination-next">Next</Link>
+            </NextLink>
+          </Flex>
         )}
-      </div>
-      <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-        <div data-testid="pagination-label">
-          <p className="text-gray-700 text-sm">
-            Showing <span className="font-medium">{formattedStartIndex}</span> to{' '}
-            <span className="font-medium">{noNext ? formattedTotalResults : formattedEndIndex}</span> of{' '}
-            <span className="font-medium">{formattedTotalResults}</span> results
-          </p>
-        </div>
-        <nav
+      </Box>
+      <Flex justifyContent="space-between" display={{ base: 'none', sm: 'flex' }}>
+        <Box data-testid="pagination-label">
+          <Text fontSize="sm">
+            Showing{' '}
+            <Text as="span" fontWeight="semibold">
+              {formattedStartIndex}
+            </Text>{' '}
+            to{' '}
+            <Text as="span" fontWeight="semibold">
+              {noNext ? formattedTotalResults : formattedEndIndex}
+            </Text>{' '}
+            of{' '}
+            <Text as="span" fontWeight="semibold">
+              {formattedTotalResults}
+            </Text>{' '}
+            results
+          </Text>
+        </Box>
+        <Box
           className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
           role="navigation"
           aria-label="Pagination"
         >
           {isBrowser() ? (
-            <button type="button" className={prevButtonStyles} onClick={handlePrev} data-testid="pagination-prev">
-              <span className="sr-only">Previous</span>
-              <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
-            </button>
+            <IconButton
+              aria-label="previous"
+              onClick={handlePrev}
+              data-testid="pagination-prev"
+              icon={<ChevronLeftIcon />}
+              isDisabled={noPrev}
+              variant="pagePrev"
+            />
           ) : (
-            <Link href={prevHref}>
-              <a className={prevButtonStyles} data-testid="pagination-prev">
-                <span className="sr-only">Previous</span>
-                <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
-              </a>
-            </Link>
+            <NextLink href={prevHref}>
+              <IconButton
+                aria-label="previous"
+                data-testid="pagination-prev"
+                icon={<ChevronLeftIcon />}
+                isDisabled={noPrev}
+                variant="pagePrev"
+              />
+            </NextLink>
           )}
 
           {renderControls()}
 
           {isBrowser() ? (
-            <button type="button" className={nextButtonStyles} onClick={handleNext} data-testid="pagination-next">
-              <span className="sr-only">Next</span>
-              <ChevronRightIcon className="w-5 h-5" aria-hidden="true" />
-            </button>
+            <IconButton
+              aria-label="next"
+              onClick={handleNext}
+              data-testid="pagination-next"
+              icon={<ChevronRightIcon />}
+              isDisabled={noNext}
+              variant="pageNext"
+            />
           ) : (
-            <Link href={nextHref}>
-              <a className={nextButtonStyles} data-testid="pagination-next">
-                <span className="sr-only">Next</span>
-                <ChevronRightIcon className="w-5 h-5" aria-hidden="true" />
-              </a>
-            </Link>
+            <NextLink href={nextHref}>
+              <IconButton
+                aria-label="next"
+                data-testid="pagination-next"
+                icon={<ChevronRightIcon />}
+                isDisabled={noNext}
+                variant="pageNext"
+              />
+            </NextLink>
           )}
-        </nav>
-      </div>
-    </section>
+        </Box>
+      </Flex>
+    </Box>
   );
 };
 Pagination.defaultProps = defaultProps;

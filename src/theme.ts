@@ -38,6 +38,21 @@ const theme = extendTheme(
         '900': '#1A1A1A',
       },
     },
+    fontSizes: {
+      xs: '0.75rem',
+      sm: '0.8rem',
+      md: '0.9rem',
+      lg: '1rem',
+      xl: '1.25rem',
+      '2xl': '1.5rem',
+      '3xl': '1.875rem',
+      '4xl': '2.25rem',
+      '5xl': '3rem',
+      '6xl': '3.75rem',
+      '7xl': '4.5rem',
+      '8xl': '6rem',
+      '9xl': '8rem',
+    },
     breakpoints: {
       sm: '640px',
       md: '768px',
@@ -68,7 +83,7 @@ const theme = extendTheme(
     components: {
       Link: {
         baseStyle: {
-          color: 'blue.400',
+          color: 'blue.500',
         },
         variants: {
           footer: {
@@ -88,6 +103,13 @@ const theme = extendTheme(
             },
             list: {
               zIndex: '20',
+            },
+          },
+          compact: {
+            list: {
+              zIndex: '20',
+              fontSize: 'sm',
+              width: 'auto',
             },
           },
         },
@@ -163,12 +185,45 @@ const theme = extendTheme(
           }),
         },
       },
+      Button: {
+        variants: {
+          page: {
+            borderWidth: '1px',
+            borderRadius: '0',
+            borderColor: 'gray.200',
+            backgroundColor: 'transparent',
+            color: 'gray.700',
+          },
+          pageCurrent: {
+            borderWidth: '1px',
+            borderRadius: '0',
+            borderColor: 'blue.500',
+            backgroundColor: 'blue.50',
+            color: 'gray.700',
+            zIndex: '5',
+          },
+          pagePrev: {
+            borderWidth: '1px',
+            borderRadius: '5px 0 0 5px',
+            borderColor: 'gray.200',
+            backgroundColor: 'transparent',
+            color: 'gray.700',
+          },
+          pageNext: {
+            borderWidth: '1px',
+            borderRadius: '0 5px 5px 0',
+            borderColor: 'gray.200',
+            backgroundColor: 'transparent',
+            color: 'gray.700',
+          },
+        },
+      },
     },
   },
   withDefaultColorScheme({ colorScheme: 'blue' }),
   withDefaultSize({
     size: 'sm',
-    components: ['Input', 'Checkbox', 'Radio', 'Textarea', 'Button'],
+    components: ['Input', 'Checkbox', 'Radio', 'Textarea', 'Button', 'IconButton'],
   }),
 );
 
