@@ -1,11 +1,13 @@
 import { isBrowser } from '@utils';
 import { useEffect, useState } from 'react';
 
+/* these need to match the size defined in the theme */
 export enum Viewport {
-  XS = 0,
-  SM = 640,
-  MD = 768,
-  LG = 1024,
+  BASE = 0, // mobile
+  XS = 480, // small tablets, this is not defined by the theme, but useful to have
+  SM = 640, // tablets
+  MD = 768, // small screens, laptop
+  LG = 1024, // desktop
   XL = 1280,
   XXL = 1536,
 }
@@ -23,7 +25,9 @@ export const useViewport = (): Viewport => {
   }, []);
 
   const viewport =
-    width < Viewport.SM
+    width < Viewport.XS
+      ? Viewport.BASE
+      : width < Viewport.SM
       ? Viewport.XS
       : width < Viewport.MD
       ? Viewport.SM
