@@ -12,6 +12,7 @@ import { createModel } from 'xstate/lib/model';
 import { Item } from './Item';
 import { Pagination } from './Pagination';
 import { Skeleton } from './Skeleton';
+import { Flex } from '@chakra-ui/layout';
 
 export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
   docs: IDocsEntity[];
@@ -73,7 +74,7 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
   };
 
   return (
-    <article {...divProps} className="flex flex-col mt-1 space-y-1">
+    <Flex as="article" direction="column" {...divProps}>
       {state.matches('fetching') ? (
         <Skeleton count={10} />
       ) : (
@@ -88,7 +89,7 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
         ))
       )}
       <Pagination totalResults={numFound} numPerPage={10} onPageChange={handlePaginationChange} />
-    </article>
+    </Flex>
   );
 };
 SimpleResultList.defaultProps = defaultProps;

@@ -8,6 +8,7 @@ import { Metrics } from '@components/Metrics';
 import { normalizeURLParams } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import { dehydrate, QueryClient } from 'react-query';
+import { Alert, AlertIcon } from '@chakra-ui/alert';
 
 interface IMetricsPageProps {
   originalDoc: IDocsEntity;
@@ -24,21 +25,20 @@ const MetricsPage: NextPage<IMetricsPageProps> = (props: IMetricsPageProps) => {
   const hasReads = metrics && metrics[MetricsResponseKey.BASIC_STATS][BasicStatsKey.TOTAL_NUMBER_OF_READS] > 0;
 
   return (
-    <AbsLayout doc={originalDoc}>
-      <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
-        <div className="pb-1">
-          <h2 className="prose-xl text-gray-900 font-medium leading-8" id="title">
-            <span>Metrics for </span> <div className="text-2xl">{originalDoc.title}</div>
-          </h2>
-        </div>
-        {error ? (
-          <div className="flex items-center justify-center w-full h-full text-xl">{error}</div>
-        ) : hasCitations || hasReads ? (
-          <Metrics metrics={metrics} isAbstract={true} />
-        ) : (
-          <div className="flex items-center justify-center w-full h-full text-xl">{'No metrics data'}</div>
-        )}
-      </article>
+    <AbsLayout doc={originalDoc} titleDescription="Metrics for">
+      {error ? (
+        <Alert status="error">
+          <AlertIcon />
+          {error}
+        </Alert>
+      ) : hasCitations || hasReads ? (
+        <Metrics metrics={metrics} isAbstract={true} />
+      ) : (
+        <Alert status="error">
+          <AlertIcon />
+          No metrics data
+        </Alert>
+      )}
     </AbsLayout>
   );
 };

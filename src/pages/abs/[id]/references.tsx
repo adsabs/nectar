@@ -3,13 +3,13 @@ import { metatagsQueryFields } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/queries';
 import { AbsLayout } from '@components/Layout/AbsLayout';
-import { SimpleResultList } from '@components/ResultList';
 import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { dehydrate, QueryClient } from 'react-query';
 import { normalizeURLParams } from 'src/utils';
-import Link from 'next/link';
 import qs from 'qs';
+import { Alert, AlertIcon } from '@chakra-ui/alert';
+import { AbstractRefList } from '@components/AbstractRefList';
 export interface ICitationsPageProps {
   docs: IDocsEntity[];
   originalDoc: IDocsEntity;
@@ -43,34 +43,23 @@ const ReferencesPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProp
   const { query } = useRouter();
 
   return (
-    <AbsLayout doc={originalDoc}>
-      <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
-        <div className="pb-1">
-          <h2 className="prose-xl text-gray-900 font-medium leading-8" id="title">
-            <span>Papers referenced by</span> <div className="text-2xl">{originalDoc.title}</div>
-          </h2>
-        </div>
-        {error ? (
-          <div className="flex items-center justify-center w-full h-full text-xl">{error}</div>
-        ) : (
-          <>
-            <Link
-              href={`/search?${qs.stringify({
-                q: `references(bibcode:${originalDoc.bibcode})`,
-                sort: 'first_author asc',
-              })}`}
-            >
-              <a className="link text-sm">View as search results</a>
-            </Link>
-            <SimpleResultList
-              numFound={originalDoc['[citations]'].num_references}
-              query={getQueryParams(query.id)}
-              docs={docs}
-              hideCheckboxes={true}
-            />
-          </>
-        )}
-      </article>
+    <AbsLayout doc={originalDoc} titleDescription="Paper referenced by">
+      {error ? (
+        <Alert status="error">
+          <AlertIcon />
+          {error}
+        </Alert>
+      ) : (
+        <AbstractRefList
+          query={getQueryParams(query.id)}
+          docs={docs}
+          resultsLinkHref={`/search?${qs.stringify({
+            q: `references(bibcode:${originalDoc.bibcode})`,
+            sort: 'first_author asc',
+          })}`}
+          numFound={originalDoc['[citations]'].num_references}
+        />
+      )}
     </AbsLayout>
   );
 };

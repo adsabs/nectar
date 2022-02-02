@@ -1,4 +1,6 @@
-export const exportFormats = {
+import { ExportApiFormat } from '@api';
+
+export const exportFormats: { [key: string]: { id: ExportApiFormat; label: string; help: string; ext: string } } = {
   bibtex: {
     id: 'bibtex',
     label: 'BibTeX',

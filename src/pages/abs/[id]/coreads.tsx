@@ -1,15 +1,14 @@
 import AdsApi, { IADSApiSearchParams, IDocsEntity, IUserData } from '@api';
-import { metatagsQueryFields } from '@components';
+import { AbstractRefList, metatagsQueryFields } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/queries';
 import { AbsLayout } from '@components/Layout/AbsLayout';
-import { SimpleResultList } from '@components/ResultList';
 import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { dehydrate, QueryClient } from 'react-query';
 import { normalizeURLParams } from 'src/utils';
-import Link from 'next/link';
 import qs from 'qs';
+import { Alert, AlertIcon } from '@chakra-ui/alert';
 
 export interface ICitationsPageProps {
   docs: IDocsEntity[];
@@ -44,34 +43,23 @@ const CoreadsPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProps) 
   const { query } = useRouter();
 
   return (
-    <AbsLayout doc={originalDoc}>
-      <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
-        <div className="pb-1">
-          <h2 className="prose-xl text-gray-900 font-medium leading-8" id="title">
-            <span>Papers also read by those who read</span> <div className="text-2xl">{originalDoc.title}</div>
-          </h2>
-        </div>
-        {error ? (
-          <div className="flex items-center justify-center w-full h-full text-xl">{error}</div>
-        ) : (
-          <>
-            <Link
-              href={`/search?${qs.stringify({
-                q: `trending(bibcode:${originalDoc.bibcode}) -bibcode:${originalDoc.bibcode}`,
-                sort: 'score desc',
-              })}`}
-            >
-              <a className="link text-sm">View as search results</a>
-            </Link>
-            <SimpleResultList
-              docs={docs}
-              query={getQueryParams(query.id)}
-              numFound={parseInt(originalDoc.read_count) ?? 0}
-              hideCheckboxes={true}
-            />
-          </>
-        )}
-      </article>
+    <AbsLayout doc={originalDoc} titleDescription="Papers also read by those who read">
+      {error ? (
+        <Alert status="error">
+          <AlertIcon />
+          {error}
+        </Alert>
+      ) : (
+        <AbstractRefList
+          query={getQueryParams(query.id)}
+          docs={docs}
+          resultsLinkHref={`/search?${qs.stringify({
+            q: `trending(bibcode:${originalDoc.bibcode}) -bibcode:${originalDoc.bibcode}`,
+            sort: 'score desc',
+          })}`}
+          numFound={parseInt(originalDoc.read_count) ?? 0}
+        />
+      )}
     </AbsLayout>
   );
 };

@@ -25,7 +25,7 @@ export const NavMenus = (): ReactElement => {
   const hamburgerRef = useRef();
 
   return (
-    <Flex justifyContent="end" flexGrow={2}>
+    <Flex justifyContent="end">
       {viewport < Viewport.MD ? (
         <Box justifyContent="end">
           <IconButton

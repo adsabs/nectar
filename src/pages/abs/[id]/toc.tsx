@@ -3,12 +3,13 @@ import { GetServerSideProps, NextPage } from 'next';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { normalizeURLParams } from '@utils';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
-import { metatagsQueryFields, SimpleResultList } from '@components';
+import { metatagsQueryFields } from '@components';
 import { dehydrate, QueryClient } from 'react-query';
 import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/queries';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
 import qs from 'qs';
+import { Alert, AlertIcon } from '@chakra-ui/alert';
+import { AbstractRefList } from '@components/AbstractRefList';
 
 interface IVolumePageProps {
   originalDoc: IDocsEntity;
@@ -52,29 +53,23 @@ const VolumePage: NextPage<IVolumePageProps> = (props: IVolumePageProps) => {
   const volumeId = getVolumeId(originalDoc.bibcode);
 
   return (
-    <AbsLayout doc={originalDoc}>
-      <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
-        <div className="pb-1">
-          <h2 className="prose-xl text-gray-900 font-medium leading-8" id="title">
-            <span>Papers in the same volume as</span> <div className="text-2xl">{originalDoc.title}</div>
-          </h2>
-        </div>
-        {error ? (
-          <div className="flex items-center justify-center w-full h-full text-xl">{error}</div>
-        ) : (
-          <>
-            <Link
-              href={`/search?${qs.stringify({
-                q: `bibcode:${volumeId}`,
-                sort: 'date desc',
-              })}`}
-            >
-              <a className="link text-sm">View as search results</a>
-            </Link>
-            <SimpleResultList query={getQueryParams(query.id)} numFound={numFound} docs={docs} hideCheckboxes={true} />
-          </>
-        )}
-      </article>
+    <AbsLayout doc={originalDoc} titleDescription="Papers in the same volume as">
+      {error ? (
+        <Alert status="error">
+          <AlertIcon />
+          {error}
+        </Alert>
+      ) : (
+        <AbstractRefList
+          query={getQueryParams(query.id)}
+          docs={docs}
+          resultsLinkHref={`/search?${qs.stringify({
+            q: `bibcode:${volumeId}`,
+            sort: 'date desc',
+          })}`}
+          numFound={numFound}
+        />
+      )}
     </AbsLayout>
   );
 };

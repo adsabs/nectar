@@ -3,7 +3,6 @@ import { Button } from '@chakra-ui/button';
 import { BibstemPickerSingle, TextInput } from '@components';
 import { PaperFormController } from '@controllers/paperformController';
 import { PaperFormType, RawPaperFormParams } from '@controllers/paperformController/types';
-import { RefreshIcon } from '@heroicons/react/solid';
 import { useAPI } from '@hooks';
 import { isBrowser } from '@utils';
 import { ErrorMessage, Field, FieldProps, Form, Formik } from 'formik';
@@ -56,10 +55,6 @@ const PaperForm: NextPage = () => {
 export default PaperForm;
 
 type SubmitHandler = <T>(params: T) => Promise<void>;
-
-const LoadingIndicator = () => {
-  return <RefreshIcon className="w-5 h-5 animate-spin" />;
-};
 
 const JournalQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
   return (

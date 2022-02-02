@@ -7,6 +7,8 @@ import { AbsLayout } from '@components/Layout/AbsLayout';
 import { normalizeURLParams } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import { dehydrate, QueryClient } from 'react-query';
+import { Alert, AlertIcon } from '@chakra-ui/alert';
+
 interface IExportCitationPageProps {
   bibcode: IDocsEntity['bibcode'];
   text?: string;
@@ -17,19 +19,15 @@ interface IExportCitationPageProps {
 
 const ExportCitationPage: NextPage<IExportCitationPageProps> = ({ originalDoc, bibcode, text, format, error }) => {
   return (
-    <AbsLayout doc={originalDoc}>
-      <article aria-labelledby="title" className="mx-0 my-10 px-4 w-full bg-white md:mx-2">
-        <div className="pb-1">
-          <h2 className="prose-xl text-gray-900 font-medium leading-8" id="title">
-            <span>Export citation for</span> <div className="text-2xl">{originalDoc.title}</div>
-          </h2>
-        </div>
-        {error ? (
-          <div className="flex items-center justify-center w-full h-full text-xl">{error}</div>
-        ) : (
-          <Export initialBibcodes={[bibcode]} initialText={text} initialFormat={format} singleMode />
-        )}
-      </article>
+    <AbsLayout doc={originalDoc} titleDescription="Export citation for">
+      {error ? (
+        <Alert status="error">
+          <AlertIcon />
+          {error}
+        </Alert>
+      ) : (
+        <Export initialBibcodes={[bibcode]} initialText={text} initialFormat={format} singleMode />
+      )}
     </AbsLayout>
   );
 };

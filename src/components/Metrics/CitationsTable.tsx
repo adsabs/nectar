@@ -1,6 +1,8 @@
-import { Popover } from '@components/Popover/Popover';
-import { QuestionMarkCircleIcon } from '@heroicons/react/solid';
-import clsx from 'clsx';
+import { QuestionIcon } from '@chakra-ui/icons';
+import { Box } from '@chakra-ui/layout';
+import { Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/table';
+import { Tooltip } from '@chakra-ui/tooltip';
+import { VisuallyHidden } from '@chakra-ui/visually-hidden';
 import { ReactElement } from 'react';
 import { ICitationsTableData } from './types';
 
@@ -12,163 +14,138 @@ export interface ICitationsTableProps {
 export const CitationsTable = (props: ICitationsTableProps): ReactElement => {
   const { data, isAbstract } = props;
 
-  const hiddenAbsClass = clsx(isAbstract ? 'hidden' : '');
-
-  const iconClass = 'default-icon text-gray-400';
-
-  const helpLabel = <QuestionMarkCircleIcon className={iconClass} aria-label="tooltip" />;
-
   return (
-    <table className="table">
-      <thead>
-        <tr>
-          <th>
-            <span className="sr-only">no value</span>
-          </th>
-          <th>
-            <span className="sr-only">no value</span>
-          </th>
-          <th className={hiddenAbsClass}>Totals</th>
-          <th className={hiddenAbsClass}>Refereed</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr className={hiddenAbsClass}>
-          <td>Number of citing papers</td>
-          <td>
-            <Popover
-              label={helpLabel}
-              title="Number of Citing Papers"
-              message="Number of unique papers citing the papers in the submitted list."
-              aria-hidden="true"
-            />
-            &nbsp;
-          </td>
-          <td>{data.numberOfCitingPapers[0]}</td>
-          <td className={hiddenAbsClass}>{data.numberOfCitingPapers[1]}</td>
-        </tr>
-        <tr>
-          <td>Total citations</td>
-          <td>
-            <Popover
-              label={helpLabel}
-              title="Total Citations"
-              message="The total number of times all papers in the list were cited."
-              aria-hidden="true"
-            />
-          </td>
-          <td>{data.totalCitations[0]}</td>
-          <td className={hiddenAbsClass}>{data.totalCitations[1]}</td>
-        </tr>
-        <tr className={hiddenAbsClass}>
-          <td>Number of self-citations</td>
-          <td>
-            <Popover
-              label={helpLabel}
-              title="Number of Self-Citations"
-              message="The number of citing papers that were also in the list from which the metrics were computed."
-              aria-hidden="true"
-            />
-          </td>
-          <td>{data.numberOfSelfCitations[0]}</td>
-          <td>{data.numberOfSelfCitations[1]}</td>
-        </tr>
+    <Table variant="simple" width="auto">
+      <Thead>
+        <Tr>
+          <Th>
+            <VisuallyHidden>no value</VisuallyHidden>
+          </Th>
+          <Th>
+            <VisuallyHidden>no value</VisuallyHidden>
+          </Th>
+          <Th>
+            <Box hidden={isAbstract}>Totals</Box>
+          </Th>
+          <Th hidden={isAbstract}>Refereed</Th>
+        </Tr>
+      </Thead>
+      <Tbody>
+        <Tr hidden={isAbstract}>
+          <Td>Number of citing papers</Td>
+          <Td>
+            <Tooltip label="Number of unique papers citing the papers in the submitted list.">
+              <QuestionIcon />
+            </Tooltip>
+          </Td>
+          <Td>{data.numberOfCitingPapers[0]}</Td>
+          <Td hidden={isAbstract}>{data.numberOfCitingPapers[1]}</Td>
+        </Tr>
+        <Tr>
+          <Td>Total citations</Td>
+          <Td>
+            <Tooltip label="The total number of times all papers in the list were cited.">
+              <QuestionIcon />
+            </Tooltip>
+          </Td>
+          <Td>{data.totalCitations[0]}</Td>
+          <Td hidden={isAbstract}>{data.totalCitations[1]}</Td>
+        </Tr>
+        <Tr hidden={isAbstract}>
+          <Td>Number of self-citations</Td>
+          <Td>
+            <Tooltip label="The number of citing papers that were also in the list from which the metrics were computed.">
+              <QuestionIcon />
+            </Tooltip>
+          </Td>
+          <Td>{data.numberOfSelfCitations[0]}</Td>
+          <Td>{data.numberOfSelfCitations[1]}</Td>
+        </Tr>
 
-        <tr className={hiddenAbsClass}>
-          <td>Average citations</td>
-          <td>
-            <Popover
-              label={helpLabel}
-              title="Average Citations"
-              message="The total number of citations divided by the number of papers."
-              aria-hidden="true"
-            />
-          </td>
-          <td>{data.averageCitations[0]}</td>
-          <td>{data.averageCitations[1]}</td>
-        </tr>
-        <tr className={hiddenAbsClass}>
-          <td>Median citations</td>
-          <td>
-            <Popover
-              label={helpLabel}
-              title="Median Citations"
-              message="The median of the citation distribution."
-              aria-hidden="true"
-            />
-          </td>
-          <td>{data.medianCitations[0]}</td>
-          <td>{data.medianCitations[1]}</td>
-        </tr>
+        <Tr hidden={isAbstract}>
+          <Td>Average citations</Td>
+          <Td>
+            <Tooltip label="The total number of citations divided by the number of papers.">
+              <QuestionIcon />
+            </Tooltip>
+          </Td>
+          <Td>{data.averageCitations[0]}</Td>
+          <Td>{data.averageCitations[1]}</Td>
+        </Tr>
+        <Tr hidden={isAbstract}>
+          <Td>Median citations</Td>
+          <Td>
+            <Tooltip label="The median of the citation distribution.">
+              <QuestionIcon />
+            </Tooltip>
+          </Td>
+          <Td>{data.medianCitations[0]}</Td>
+          <Td>{data.medianCitations[1]}</Td>
+        </Tr>
 
-        <tr>
-          <td>Normalized citations</td>
-          <td>
-            <Popover
-              label={helpLabel}
-              title="Normalized Citations"
-              aria-hidden="true"
-              message="For a list of N papers (i=1,...N), where N<sub>auth</sub><sup>i</sup> is the number of authors for publication i and C<sub>i</sub> the number of citations that this paper received, the normalized citation count for each article is C<sub>i</sub>/N<sub>auth</sub><sup>i</sup> ,and the 'normalized citations' for this list of N papers is the sum of these N numbers."
-            />
-          </td>
-          <td>{data.normalizedCitations[0]}</td>
-          <td className={hiddenAbsClass}>{data.normalizedCitations[1]}</td>
-        </tr>
+        <Tr>
+          <Td>Normalized citations</Td>
+          <Td>
+            <Tooltip
+              label={
+                <div>
+                  For a list of N papers (i=1,...N), where N<sub>auth</sub>
+                  <sup>i</sup> is the number of authors for publication i and C<sub>i</sub> the number of citations that
+                  this paper received, the normalized citation count for each article is C<sub>i</sub>/N
+                  <sub>auth</sub>
+                  <sup>i</sup> ,and the 'normalized citations' for this list of N papers is the sum of these N numbers.
+                </div>
+              }
+            >
+              <QuestionIcon />
+            </Tooltip>
+          </Td>
+          <Td>{data.normalizedCitations[0]}</Td>
+          <Td hidden={isAbstract}>{data.normalizedCitations[1]}</Td>
+        </Tr>
 
-        <tr>
-          <td>Refereed citations</td>
-          <td>
-            <Popover
-              label={helpLabel}
-              title="Refereed Citations"
-              aria-hidden="true"
-              message="Number of refereed citing papers."
-            />
-          </td>
-          <td>{data.refereedCitations[0]}</td>
-          <td className={hiddenAbsClass}>{data.refereedCitations[1]}</td>
-        </tr>
-        <tr className={hiddenAbsClass}>
-          <td>Average refereed citations</td>
-          <td>
-            <Popover
-              label={helpLabel}
-              title="Average Refereed Citations"
-              aria-hidden="true"
-              message="The average number of citations from refereed publications to all/refereed publications in the list."
-            />
-          </td>
-          <td>{data.averageRefereedCitations[0]}</td>
-          <td>{data.averageRefereedCitations[1]}</td>
-        </tr>
+        <Tr>
+          <Td>Refereed citations</Td>
+          <Td>
+            <Tooltip label="Number of refereed citing papers.">
+              <QuestionIcon />
+            </Tooltip>
+          </Td>
+          <Td>{data.refereedCitations[0]}</Td>
+          <Td hidden={isAbstract}>{data.refereedCitations[1]}</Td>
+        </Tr>
+        <Tr hidden={isAbstract}>
+          <Td>Average refereed citations</Td>
+          <Td>
+            <Tooltip label="The average number of citations from refereed publications to all/refereed publications in the list.">
+              <QuestionIcon />
+            </Tooltip>
+          </Td>
+          <Td>{data.averageRefereedCitations[0]}</Td>
+          <Td>{data.averageRefereedCitations[1]}</Td>
+        </Tr>
 
-        <tr className={hiddenAbsClass}>
-          <td>Median refereed citations</td>
-          <td>
-            <Popover
-              label={helpLabel}
-              title="Median Refereed Citations"
-              aria-hidden="true"
-              message="The average median of citations from refereed publications to all refereed publications in the list."
-            />
-          </td>
-          <td>{data.medianRefereedCitations[0]}</td>
-          <td>{data.medianRefereedCitations[1]}</td>
-        </tr>
-        <tr>
-          <td>Normalized refereed citations</td>
-          <td>
-            <Popover
-              label={helpLabel}
-              title="Normalized Refereed Citations"
-              aria-hidden="true"
-              message="The normalized number of citations from refereed publications to all refereed publications in the list."
-            />
-          </td>
-          <td>{data.normalizedRefereedCitations[0]}</td>
-          <td className={hiddenAbsClass}>{data.normalizedRefereedCitations[1]}</td>
-        </tr>
-      </tbody>
-    </table>
+        <Tr hidden={isAbstract}>
+          <Td>Median refereed citations</Td>
+          <Td>
+            <Tooltip label="The average median of citations from refereed publications to all refereed publications in the list.">
+              <QuestionIcon />
+            </Tooltip>
+          </Td>
+          <Td>{data.medianRefereedCitations[0]}</Td>
+          <Td>{data.medianRefereedCitations[1]}</Td>
+        </Tr>
+        <Tr>
+          <Td>Normalized refereed citations</Td>
+          <Td>
+            <Tooltip label="The normalized number of citations from refereed publications to all refereed publications in the list.">
+              <QuestionIcon />
+            </Tooltip>
+          </Td>
+          <Td>{data.normalizedRefereedCitations[0]}</Td>
+          <Td hidden={isAbstract}>{data.normalizedRefereedCitations[1]}</Td>
+        </Tr>
+      </Tbody>
+    </Table>
   );
 };

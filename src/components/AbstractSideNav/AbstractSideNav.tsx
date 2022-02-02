@@ -1,17 +1,16 @@
 import { IDocsEntity } from '@api';
-import { DropdownList } from '@components';
-import { ItemType } from '@components/Dropdown/types';
+import { Flex, Text, Badge, Box, Stack } from '@chakra-ui/layout';
+import { Button } from '@chakra-ui/button';
+import { Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/menu';
 import { DocumentIcon } from '@heroicons/react/outline';
-import { ChevronDownIcon } from '@heroicons/react/solid';
-import { useViewport, Viewport } from '@hooks';
 import { useBaseRouterPath } from '@utils';
-import clsx from 'clsx';
-import Link from 'next/link';
+import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { last } from 'ramda';
 import { HTMLAttributes, ReactElement } from 'react';
 import { navigation, Routes } from './model';
 import { useHasGraphics, useHasMetrics } from './queries';
+import { ChevronDownIcon } from '@chakra-ui/icons';
 
 export interface IAbstractSideNavProps extends HTMLAttributes<HTMLDivElement> {
   doc?: IDocsEntity;
@@ -21,15 +20,14 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
   const router = useRouter();
   const { basePath } = useBaseRouterPath();
   const subPage = last(basePath.split('/'));
-  const viewport = useViewport();
   const hasGraphics = useHasGraphics(doc);
   const hasMetrics = useHasMetrics(doc);
   const hasToc = doc.property ? doc.property.indexOf('TOC') > -1 : false;
 
   const useCount = [Routes.CITATIONS, Routes.REFERENCES];
 
-  const itemElements = navigation.map((item) => {
-    const Icon = item.icon || DocumentIcon;
+  const items = navigation.map((item) => {
+    const MenuIcon = item.icon || DocumentIcon;
     const current = item.href === subPage;
     const count =
       item.href === Routes.EXPORT ||
@@ -42,75 +40,123 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
     const showCount = count > 0 && useCount.includes(item.href);
     const href = { pathname: disabled ? Routes.ABSTRACT : item.href, query: { id: router.query.id } };
 
-    const linkStyle = clsx(
-      current ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
-      'group flex items-center px-3 py-2 text-sm font-medium rounded-md',
-      disabled && 'opacity-50 pointer-events-none',
+    const label = (
+      <Stack direction="row" alignItems="center">
+        <MenuIcon className="mr-3 w-6 h-6" aria-hidden="true" />
+        <Text fontWeight="normal">{item.name}</Text>
+        {showCount ? (
+          <Badge
+            mx={3}
+            py={1}
+            fontSize="xs"
+            fontWeight="normal"
+            borderRadius="xl"
+            colorScheme="gray"
+            px={2}
+            backgroundColor="gray.50"
+          >
+            {count}
+          </Badge>
+        ) : null}
+      </Stack>
     );
-    const iconStyle = clsx(
-      current ? 'text-gray-500' : 'text-gray-400 group-hover:text-gray-500',
-      'flex-shrink-0 mr-3 w-6 h-6',
-    );
-    const countStyle = clsx(
-      current ? 'bg-white' : 'bg-gray-100 group-hover:bg-gray-200',
-      'inline-block ml-3 px-3 py-0.5 text-xs rounded-full',
-    );
-    return (
-      <Link key={item.name} href={href}>
-        <a className={linkStyle} aria-current={current ? 'page' : undefined} aria-disabled={disabled}>
-          <Icon className={iconStyle} aria-hidden="true" />
-          <span className="flex-1 truncate">{item.name}</span>
-          {showCount ? <span className={countStyle}>{count}</span> : null}
-        </a>
-      </Link>
-    );
+
+    return {
+      id: item.name,
+      name: item.name,
+      disabled,
+      current,
+      label,
+      href,
+      count,
+      icon: MenuIcon,
+      showCount,
+    };
   });
 
   const getTopMenu = () => {
-    const items: ItemType[] = navigation.map((item, index) => {
-      const count = getCount(item.href, doc);
-      return {
-        id: item.name,
-        label: itemElements[index],
-        domId: `absNav-${item.name}`,
-        disabled: count === 0 && item.href !== Routes.ABSTRACT,
-      };
-    });
-    const currentItem = navigation.find((item) => item.href === subPage) ?? navigation[0];
-    const Icon = currentItem.icon || DocumentIcon;
-    const count = getCount(currentItem.href, doc);
-    const showCount = count > 0 && currentItem.href !== Routes.SIMILAR;
+    const currentItem = items.find((item) => item.current) ?? items[0];
+
+    const { icon: MenuIcon, showCount, count } = currentItem;
+
     const label = (
-      <div className="group flex items-center mt-5 px-3 py-2 text-left text-gray-600 text-sm font-medium bg-gray-100 rounded-md">
-        <Icon className="flex-shrink-0 mr-3 w-6 h-6 text-gray-500" aria-hidden="true" />
-        <span className="flex-1 truncate">{currentItem.name}</span>
-        {showCount ? (
-          <span className="inline-block ml-3 px-3 py-0.5 text-xs bg-white rounded-full">{count}</span>
-        ) : null}
-        <ChevronDownIcon className="default-icon-sm" aria-hidden="true" />
-      </div>
+      <Flex
+        alignItems="center"
+        justifyContent="space-between"
+        backgroundColor="gray.50"
+        borderRadius="md"
+        px={3}
+        py={2}
+        width="full"
+      >
+        <Flex direction="row" width="full">
+          <MenuIcon className="mr-3 w-6 h-6" aria-hidden="true" />
+          <Text>{currentItem.name}</Text>
+          {showCount ? (
+            <Badge
+              mx={3}
+              py={1}
+              fontSize="xs"
+              fontWeight="normal"
+              borderRadius="xl"
+              colorScheme="gray"
+              px={2}
+              backgroundColor="white"
+            >
+              {count}
+            </Badge>
+          ) : null}
+        </Flex>
+        <ChevronDownIcon />
+      </Flex>
     );
 
     return (
-      <DropdownList
-        items={items}
-        label={<div className="mt-5 px-3 text-left">{label}</div>}
-        classes={{ button: 'w-full', list: 'w-full' }}
-        placement="bottom-start"
-        role={{ label: 'menu', item: 'menuitem' }}
-      ></DropdownList>
+      <Menu matchWidth>
+        <MenuButton width="full">{label}</MenuButton>
+        <MenuList>
+          {items.map((item) => (
+            <MenuItem
+              key={item.id}
+              isDisabled={item.disabled}
+              backgroundColor={item.current ? 'gray.100' : 'transparent'}
+              mb={1}
+            >
+              <NextLink key={item.name} href={item.href}>
+                <Box width="full">{item.label}</Box>
+              </NextLink>
+            </MenuItem>
+          ))}
+        </MenuList>
+      </Menu>
     );
   };
 
   return (
     <>
-      {viewport >= Viewport.LG ? (
-        <nav className="self-start my-10 p-1 bg-white shadow space-y-1 lg:block lg:rounded-lg" aria-label="Sidebar">
-          {itemElements}
-        </nav>
-      ) : (
-        getTopMenu()
-      )}
+      <Box as="nav" aria-label="sidebar" display={{ base: 'none', lg: 'initial' }}>
+        <Flex direction="column" alignItems="start" justifyContent="start" shadow="md" borderRadius="md" p={2}>
+          {items.map((item) => (
+            <NextLink key={item.name} href={item.href} passHref>
+              <Button
+                variant={item.current ? 'solid' : 'ghost'}
+                size="md"
+                aria-current={item.current ? 'page' : undefined}
+                isDisabled={item.disabled}
+                width="full"
+                justifyContent="start"
+                colorScheme="gray"
+                mb={1}
+              >
+                {item.label}
+              </Button>
+            </NextLink>
+          ))}
+        </Flex>
+      </Box>
+      <Box as="nav" display={{ base: 'initial', lg: 'none' }}>
+        {getTopMenu()}
+      </Box>
     </>
   );
 };
