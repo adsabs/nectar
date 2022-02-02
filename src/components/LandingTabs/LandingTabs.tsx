@@ -1,4 +1,4 @@
-import { Link, Flex, Heading, Stack, Text, Box, HStack } from '@chakra-ui/layout';
+import { Box, Flex, Heading, HStack, Link, Stack, Text } from '@chakra-ui/layout';
 import { AdsSmallLogo } from '@components/images';
 import { useViewport, Viewport } from '@hooks';
 import { useAppCtx } from '@store';
@@ -81,13 +81,7 @@ const Tabs = ({ show }: { show: boolean }) => {
 const TitleLogo = () => {
   const viewport = useViewport();
   return (
-    <Stack
-      direction="row"
-      justifyContent="center"
-      alignItems="center"
-      spacing={3}
-      hidden={viewport < Viewport.SM ? true : false}
-    >
+    <Stack direction="row" justifyContent="center" alignItems="center" spacing={3} hidden={viewport < Viewport.SM}>
       <AdsSmallLogo className="w-16 h-16" aria-hidden />
       <Heading as="h2" color="white">
         <Text as="span" fontWeight="bold">
@@ -108,8 +102,9 @@ interface ITabProps {
 }
 const Tab = ({ href, label, active }: ITabProps) => {
   return (
-    <Link as={NextLink} href={href}>
+    <Link as={NextLink} href={href} passHref>
       <Box
+        as={'a'}
         backgroundColor={active ? 'white' : 'transparent'}
         color={active ? 'blue.400' : 'gray.50'}
         px={4}
@@ -117,7 +112,6 @@ const Tab = ({ href, label, active }: ITabProps) => {
         borderTopRadius={3}
         fontSize="md"
         fontWeight="semibold"
-        cursor="pointer"
       >
         {label}
       </Box>
