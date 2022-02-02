@@ -1,6 +1,6 @@
+import { Box, Flex, Grid, GridItem, Heading, Text } from '@chakra-ui/layout';
 import { useAppCtx } from '@store';
-import clsx from 'clsx';
-import { FC, HTMLAttributes } from 'react';
+import { FC, HTMLAttributes, MouseEventHandler, useMemo } from 'react';
 import { examples } from './examples';
 
 export interface ISearchExamplesProps {
@@ -8,49 +8,72 @@ export interface ISearchExamplesProps {
   className?: HTMLAttributes<HTMLDivElement>['className'];
 }
 
-export const SearchExamples: FC<ISearchExamplesProps> = ({ onClick, className }) => {
+export const SearchExamples: FC<ISearchExamplesProps> = ({ onClick }) => {
   const { state: appState } = useAppCtx();
 
-  const rootClasses = clsx(className, 'grid gap-3 grid-cols-6');
-
-  const createHandler = (text: string) => {
+  const handleClick: MouseEventHandler<HTMLButtonElement> = (e) => {
     if (typeof onClick === 'function') {
-      return () => onClick(text);
+      onClick(e.currentTarget.dataset['text']);
     }
     return undefined;
   };
 
+  const [leftExamples, rightExamples] = useMemo(
+    () => [
+      examples[appState.theme].left.map(({ label, text }) => (
+        <SearchExample label={label} example={text} key={label} data-text={text} onClick={handleClick} />
+      )),
+      examples[appState.theme].right.map(({ label, text }) => (
+        <SearchExample label={label} example={text} key={label} data-text={text} onClick={handleClick} />
+      )),
+    ],
+    [appState.theme],
+  );
+
   return (
-    <div className={rootClasses}>
-      <h3 className="col-span-6 mb-3 text-center text-lg font-bold">Search Examples</h3>
-      <ul className="col-span-6 p-1 md:col-span-3">
-        {examples[appState.theme].left.map(({ label, text }) => (
-          <li className="grid gap-5 grid-cols-3 py-1" key={label}>
-            <div className="col-span-1 text-right font-bold">{label}</div>
-            <button
-              type="button"
-              className="col-span-2 p-1 hover:bg-gray-200 border border-dotted"
-              onClick={createHandler(text)}
-            >
-              {text}
-            </button>
-          </li>
-        ))}
-      </ul>
-      <ul className="col-span-6 p-1 md:col-span-3">
-        {examples[appState.theme].right.map(({ label, text }) => (
-          <li className="grid gap-5 grid-cols-3 py-1" key={label}>
-            <div className="col-span-1 text-right font-bold">{label}</div>
-            <button
-              type="button"
-              className="col-span-2 p-1 hover:bg-gray-200 border border-dotted"
-              onClick={createHandler(text)}
-            >
-              {text}
-            </button>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <Flex justifyContent="center" direction="column" alignItems="center">
+      <Heading as="h3" size="md" mt={3} mb={5}>
+        Search Examples
+      </Heading>
+      <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={5}>
+        <GridItem>{leftExamples}</GridItem>
+        <GridItem>{rightExamples}</GridItem>
+      </Grid>
+    </Flex>
+  );
+};
+
+interface ISearchExampleProps extends HTMLAttributes<HTMLElement> {
+  label: string;
+  example: string;
+}
+
+const SearchExample = (props: ISearchExampleProps) => {
+  const { label, example, ...buttonProps } = props;
+  return (
+    <Grid templateColumns="1fr 2fr" gap={3} my={1}>
+      <Text align="right" fontWeight="semibold" py={2}>
+        {label}
+      </Text>
+      <Box
+        as="button"
+        type="button"
+        sx={{
+          borderRadius: '0',
+          border: 'var(--chakra-colors-gray-200) 1px dotted',
+          _hover: { backgroundColor: 'gray.50' },
+          fontWeight: 'normal',
+          overflowWrap: 'break-all',
+          fontSize: 'sm',
+          padding: '2',
+          display: 'flex',
+          justifyContent: 'center',
+          cursor: 'pointer',
+        }}
+        {...buttonProps}
+      >
+        {example}
+      </Box>
+    </Grid>
   );
 };

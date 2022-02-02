@@ -1,3 +1,4 @@
+import { Box, Flex, FormControl, FormLabel } from '@chakra-ui/react';
 import { TextInput } from '@components/TextInput';
 import { useCombobox } from 'downshift';
 import dynamic from 'next/dynamic';
@@ -64,15 +65,13 @@ export const BibstemPickerSingle = (props: IBibstemPickerSingleProps): ReactElem
   const selectedItems = useMemo(() => [selectedItem], [selectedItem]);
 
   return (
-    <>
-      <label {...getLabelProps()} className="block flex-1 text-gray-700 text-sm font-bold">
-        Publication
-      </label>
+    <FormControl>
+      <FormLabel {...getLabelProps()}>Publication</FormLabel>
 
-      <div {...getComboboxProps()} className="flex mt-1">
+      <Flex {...getComboboxProps()}>
         <TextInput name={name} {...getInputProps()} />
-      </div>
-      <div {...getMenuProps()} className="relative">
+      </Flex>
+      <Box {...getMenuProps()} position="relative">
         {isOpen && (
           <BibstemMenu
             onItemsChange={handleItemsChange}
@@ -82,8 +81,8 @@ export const BibstemPickerSingle = (props: IBibstemPickerSingleProps): ReactElem
             selectedItems={selectedItems}
           />
         )}
-      </div>
-    </>
+      </Box>
+    </FormControl>
   );
 };
 

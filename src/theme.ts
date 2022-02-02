@@ -1,4 +1,10 @@
-import { extendTheme, ThemeConfig, withDefaultColorScheme } from '@chakra-ui/react';
+import {
+  extendTheme,
+  ThemeComponentProps,
+  ThemeConfig,
+  withDefaultColorScheme,
+  withDefaultSize,
+} from '@chakra-ui/react';
 
 const theme = extendTheme(
   {
@@ -41,7 +47,7 @@ const theme = extendTheme(
     },
     styles: {
       global: {
-        body: {
+        'html, body': {
           color: 'gray.700',
         },
         a: {
@@ -52,6 +58,7 @@ const theme = extendTheme(
         },
         footer: {
           backgroundColor: 'gray.900',
+          color: 'gray.50',
         },
         'footer a': {
           color: 'gray.50',
@@ -62,6 +69,11 @@ const theme = extendTheme(
       Link: {
         baseStyle: {
           color: 'blue.400',
+        },
+        variants: {
+          footer: {
+            color: 'gray.50',
+          },
         },
       },
       Menu: {
@@ -92,7 +104,7 @@ const theme = extendTheme(
         },
       },
       List: {
-        parts: ['item'],
+        parts: ['container', 'item'],
         variants: {
           navbar: {
             item: {
@@ -103,11 +115,61 @@ const theme = extendTheme(
               _focus: { outline: 'none', boxShadow: 'outline' },
             },
           },
+          autocomplete: {
+            container: {
+              zIndex: '10',
+              marginTop: '1',
+              left: '1',
+              width: 'full',
+              maxHeight: '64',
+              backgroundColor: 'white',
+              borderRadius: 'md',
+              shadow: 'md',
+              overflowY: 'scroll',
+              ring: '1',
+              ringColor: 'gray.100',
+              marginX: '0',
+            },
+            item: {
+              paddingX: '2',
+              paddingY: '2',
+              cursor: 'pointer',
+              color: 'gray.700',
+              _focus: { outline: 'none', boxShadow: 'outline', backgroundColor: 'gray.100' },
+            },
+          },
+        },
+      },
+      FormLabel: {
+        baseStyle: {
+          fontWeight: 'bold',
+          fontSize: 'sm',
+        },
+      },
+      Input: {
+        parts: ['field'],
+        variants: {
+          outline: (props: ThemeComponentProps) => ({
+            field: {
+              backgroundColor: props.colorMode === 'light' ? 'white' : 'black',
+            },
+          }),
+        },
+      },
+      Textarea: {
+        variants: {
+          outline: (props: ThemeComponentProps) => ({
+            backgroundColor: props.colorMode === 'light' ? 'white' : 'black',
+          }),
         },
       },
     },
   },
   withDefaultColorScheme({ colorScheme: 'blue' }),
+  withDefaultSize({
+    size: 'sm',
+    components: ['Input', 'Checkbox', 'Radio', 'Textarea', 'Button'],
+  }),
 );
 
 export default theme;

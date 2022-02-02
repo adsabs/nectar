@@ -1,7 +1,7 @@
+import { ChakraProvider } from '@chakra-ui/react';
 import { Layout } from '@components';
 import { ApiProvider } from '@providers/api';
 import { AppProvider, useAppCtx } from '@store';
-import { ChakraProvider } from '@chakra-ui/react';
 import { Theme } from '@types';
 import { isBrowser } from '@utils';
 import App, { AppContext, AppProps } from 'next/app';
@@ -57,7 +57,7 @@ const ThemeRouter = (): ReactElement => {
   useEffect(() => {
     // redirect to main form if path is not valid
     if (isBrowser()) {
-      if (state.theme !== Theme.ASTROPHYSICS && /\/(classic|paper)-form/.test(router.asPath)) {
+      if (state.theme !== Theme.ASTROPHYSICS && /^\/(classic|paper)-form.*$/.test(router.asPath)) {
         void router.replace('/');
       }
     }

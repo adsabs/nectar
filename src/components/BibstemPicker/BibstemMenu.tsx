@@ -1,10 +1,10 @@
+import { List, ListItem, Text, HStack } from '@chakra-ui/layout';
 import { UseComboboxGetItemPropsOptions } from 'downshift';
 import { curry } from 'ramda';
 import { ReactElement, useEffect, useMemo } from 'react';
 import { usePopper } from 'react-popper';
 import { chainFrom } from 'transducist';
 import { bibstems, ITEM_DELIMITER } from './models';
-
 export interface IBibstemMenuProps {
   onItemsChange: (items: string[]) => void;
   inputValue: string;
@@ -28,28 +28,23 @@ export const BibstemMenu = (props: IBibstemMenuProps): ReactElement => {
   const { attributes, styles } = usePopper();
 
   return (
-    <ul
-      {...attributes.popper}
-      style={styles.popper}
-      className="left-1 mt-1 w-full max-h-64 bg-white rounded-b-sm focus:outline-none shadow-md divide-gray-100 divide-y-2 overflow-y-scroll origin-top-right ring-1 ring-black ring-opacity-5"
-    >
+    <List {...attributes.popper} style={styles.popper} variant="autocomplete">
       {items.map((item, index) => {
         const [bibstem, description] = item.split(ITEM_DELIMITER);
         return (
-          <div
+          <ListItem
             key={`${item}${index}`}
             {...getItemProps({ item, index })}
-            style={highlightedIndex === index ? { backgroundColor: '#bde4ff' } : {}}
-            className="px-1 py-0.5 cursor-pointer divide-y-0"
+            backgroundColor={highlightedIndex === index ? 'gray.100' : {}}
           >
-            <div className="flex items-center space-x-3">
-              <div className="text-lg">{bibstem}</div>
-              <div className="text-gray-600 text-sm">{description}</div>
-            </div>
-          </div>
+            <HStack alignItems="center" spacing={1}>
+              <Text fontSize="md">{bibstem}</Text>
+              <Text fontSize="sm">{description}</Text>
+            </HStack>
+          </ListItem>
         );
       })}
-    </ul>
+    </List>
   );
 };
 

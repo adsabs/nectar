@@ -1,9 +1,10 @@
+import { Box, Flex, Heading, HStack, Link, Stack, Text } from '@chakra-ui/layout';
 import { AdsSmallLogo } from '@components/images';
+import { useViewport, Viewport } from '@hooks';
 import { useAppCtx } from '@store';
 import { Theme } from '@types';
-import clsx from 'clsx';
 import Image from 'next/image';
-import Link from 'next/link';
+import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import starBg from 'public/img/bg-astro.jpg';
 import bioBg from 'public/img/bg-bio.jpg';
@@ -35,7 +36,14 @@ export const LandingTabs = (): ReactElement => {
   }, [theme]);
 
   return (
-    <div className="relative flex flex-col items-center justify-center bg-black" suppressHydrationWarning>
+    <Flex
+      direction="column"
+      justifyContent="center"
+      alignItems="center"
+      position="relative"
+      backgroundColor="black"
+      suppressHydrationWarning
+    >
       {img !== null && (
         <Image
           className="z-0 opacity-50 object-cover"
@@ -48,11 +56,11 @@ export const LandingTabs = (): ReactElement => {
         />
       )}
 
-      <div className="flex items-center p-6">
+      <Box padding={6} zIndex={5}>
         <TitleLogo />
-      </div>
+      </Box>
       <Tabs show={showTabs} />
-    </div>
+    </Flex>
   );
 };
 
@@ -62,20 +70,30 @@ const Tabs = ({ show }: { show: boolean }) => {
     return null;
   }
   return (
-    <div className="z-10 flex gap-2 justify-center text-white sm:text-xl">
+    <HStack justifyContent="center" spacing={2} zIndex={5} color="white" fontSize={{ base: 'md', sm: 'xl' }}>
       <Tab href="/classic-form" label="Classic Form" active={asPath === '/classic-form'} />
       <Tab href="/" label="Modern Form" active={asPath === '/'} />
       <Tab href="/paper-form" label="Paper Form" active={asPath === '/paper-form'} />
-    </div>
+    </HStack>
   );
 };
 
-const TitleLogo = () => (
-  <h1 className="z-10 hidden gap-2 items-center text-white sm:flex">
-    <AdsSmallLogo width="75px" height="75px" aria-hidden />
-    <span className="text-gray-100 font-bold">NASA</span> <span className="text-gray-100">Science Explorer</span>
-  </h1>
-);
+const TitleLogo = () => {
+  const viewport = useViewport();
+  return (
+    <Stack direction="row" justifyContent="center" alignItems="center" spacing={3} hidden={viewport < Viewport.SM}>
+      <AdsSmallLogo className="w-16 h-16" aria-hidden />
+      <Heading as="h2" color="white">
+        <Text as="span" fontWeight="bold">
+          NASA
+        </Text>{' '}
+        <Text as="span" fontWeight="normal">
+          Science Explorer
+        </Text>
+      </Heading>
+    </Stack>
+  );
+};
 
 interface ITabProps {
   href: string;
@@ -83,17 +101,20 @@ interface ITabProps {
   active: boolean;
 }
 const Tab = ({ href, label, active }: ITabProps) => {
-  const classes = clsx(
-    {
-      'bg-opacity-100 text-blue-800': active,
-      'bg-opacity-0 text-gray-100 hover:bg-opacity-20': !active,
-    },
-    'flex-auto px-5 py-3 bg-white rounded-t-md',
-  );
-
   return (
-    <Link href={href}>
-      <a className={classes}>{label}</a>
+    <Link as={NextLink} href={href} passHref>
+      <Box
+        as={'a'}
+        backgroundColor={active ? 'white' : 'transparent'}
+        color={active ? 'blue.400' : 'gray.50'}
+        px={4}
+        py={2}
+        borderTopRadius={3}
+        fontSize="md"
+        fontWeight="semibold"
+      >
+        {label}
+      </Box>
     </Link>
   );
 };

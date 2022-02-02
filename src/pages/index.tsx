@@ -1,3 +1,4 @@
+import { Box, Flex, Text } from '@chakra-ui/layout';
 import { ISearchBarProps, SearchBar, SearchExamples } from '@components';
 import { useSearchMachine } from '@machines';
 import { ISearchMachine, TransitionType } from '@machines/lib/search/types';
@@ -14,24 +15,21 @@ const HomePage: NextPage = () => {
   };
 
   return (
-    <section aria-labelledby="form-title">
-      <form
-        method="get"
-        action="/search"
-        onSubmit={handleSubmit}
-        className="grid gap-6 grid-cols-6 mx-auto my-8 px-4 py-8 lg:max-w-3xl"
-      >
-        <h2 className="sr-only" id="form-title">
+    <Box aria-labelledby="form-title" my={8}>
+      <form method="get" action="/search" onSubmit={handleSubmit}>
+        <Text as="h2" className="sr-only" id="form-title">
           Modern Search Form
-        </h2>
-        <div className="col-span-6">
-          <SearchBarWrapper searchService={searchService} isLoading={isLoading} />
-        </div>
-        <div className="col-span-6" suppressHydrationWarning>
-          <SearchExamplesWrapper searchService={searchService} />
-        </div>
+        </Text>
+        <Flex direction="column">
+          <Box my={2}>
+            <SearchBarWrapper searchService={searchService} isLoading={isLoading} />
+          </Box>
+          <Box mb={2} mt={5}>
+            <SearchExamplesWrapper searchService={searchService} />
+          </Box>
+        </Flex>
       </form>
-    </section>
+    </Box>
   );
 };
 
