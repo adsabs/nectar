@@ -118,15 +118,13 @@ interface IRelatedMaterialsDropdownProps {
 const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElement => {
   const { dataProducts, relatedWorks } = props;
 
-<<<<<<< HEAD
   const dataProductItems = useMemo(
     () =>
       dataProducts.map((source) => ({
         id: source.name,
         label: source.name,
         path: source.url,
-        domId: `dataProd-${source.name}`,
-        classes: 'pl-6',
+        newTab: true,
       })),
     [dataProducts],
   );
@@ -137,26 +135,10 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
         id: source.name,
         label: source.name,
         path: source.url,
-        domId: `relatedWorks-${source.name}`,
-        classes: 'pl-6',
+        newTab: true,
       })),
-    [],
+    [relatedWorks],
   );
-=======
-  const dataProductItems = dataProducts.map((source) => ({
-    id: source.name,
-    label: source.name,
-    path: source.url,
-    newTab: true,
-  }));
-
-  const relatedWorkItems = relatedWorks.map((source) => ({
-    id: source.name,
-    label: source.name,
-    path: source.url,
-    newTab: true,
-  }));
->>>>>>> JS Independency fix - custom dropdown
 
   const items: ItemType[] = [];
 
