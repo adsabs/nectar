@@ -1,64 +1,20 @@
-import { AppEvent, useAppCtx } from '@store';
-import { Theme } from '@types';
-import { ReactElement, useEffect, useState } from 'react';
-import { Select, ThemeSelectorStyle } from '@components';
 import { Box } from '@chakra-ui/layout';
+import { Select, ThemeSelectorStyle } from '@components';
+import { useStore } from '@store';
+import { ReactElement, useMemo } from 'react';
+import shallow from 'zustand/shallow';
+import { themes } from './models';
 
-type ThemeOption = {
-  id: Theme;
-  value: string;
-  label: string;
-};
-
-const themes: ThemeOption[] = [
-  {
-    id: Theme.GENERAL,
-    value: 'general',
-    label: 'General Science',
-  },
-  {
-    id: Theme.ASTROPHYSICS,
-    value: 'astrophysics',
-    label: 'Astrophysics',
-  },
-  {
-    id: Theme.HELIOPHYISCS,
-    value: 'heliophysics',
-    label: 'Heliophysics',
-  },
-  {
-    id: Theme.PLANET_SCIENCE,
-    value: 'planetary',
-    label: 'Planetary Science',
-  },
-  {
-    id: Theme.EARTH_SCIENCE,
-    value: 'earth',
-    label: 'Earth Science',
-  },
-  {
-    id: Theme.BIO_PHYSICAL,
-    value: 'biophysical',
-    label: 'Biological & Physical Science',
-  },
-];
+const options = Object.values(themes);
 
 export const ThemeDropdown = (): ReactElement => {
-  const { state: appState, dispatch } = useAppCtx();
+  const [theme, setTheme] = useStore((state) => [state.theme, state.setTheme], shallow);
 
-  const [selectedTheme, setSelectedTheme] = useState<ThemeOption>(themes[0]);
-
-  useEffect(() => {
-    setSelectedTheme(themes.find((theme) => theme.id === appState.theme));
-  }, [appState.theme]);
-
-  const handleOnSelect = (selected: Theme) => {
-    dispatch({ type: AppEvent.SET_THEME, payload: selected });
-  };
+  const option = useMemo(() => themes[theme], [theme]);
 
   return (
     <Box width={{ base: '200px', xs: '270px' }}>
-      <Select value={selectedTheme} options={themes} styles={ThemeSelectorStyle} onChange={handleOnSelect} />
+      <Select value={option} options={options} styles={ThemeSelectorStyle} onChange={setTheme} />
     </Box>
   );
 };
