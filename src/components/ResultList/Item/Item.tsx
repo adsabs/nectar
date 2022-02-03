@@ -52,7 +52,15 @@ export const Item = (props: IItemProps): ReactElement => {
 
   return (
     <Flex direction="row" as="article" border="1px" borderColor="gray.50" mb={1} borderRadius="md">
-      <Flex direction="row" m={0}>
+      <Flex
+        direction="row"
+        backgroundColor={isChecked ? 'blue.500' : 'gray.50'}
+        justifyContent="center"
+        alignItems="center"
+        mr="2"
+        px="2"
+        borderLeftRadius="md"
+      >
         <Text color={isChecked ? 'white' : 'initial'} display={{ base: 'none', md: 'initial' }} mr={1}>
           {index.toLocaleString()}
         </Text>
