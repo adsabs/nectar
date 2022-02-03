@@ -2,15 +2,13 @@ import { IDocsEntity } from '@api';
 import { Checkbox } from '@chakra-ui/checkbox';
 import { Box, Flex, Link, Stack, Text } from '@chakra-ui/layout';
 import { useIsClient } from '@hooks/useIsClient';
+import { useStore } from '@store';
 import { getFomattedNumericPubdate } from '@utils';
-import { useMachine } from '@xstate/react';
-import clsx from 'clsx';
 import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
-import { ReactElement } from 'react';
+import { ChangeEvent, ReactElement, useCallback } from 'react';
 import { IAbstractPreviewProps } from './AbstractPreview';
 import { ItemResourceDropdowns } from './ItemResourceDropdowns';
-import { itemMachine, ItemMachine } from './machine/item';
 
 const AbstractPreview = dynamic<IAbstractPreviewProps>(
   () => import('./AbstractPreview').then((mod) => mod.AbstractPreview),
@@ -28,26 +26,14 @@ interface IItemProps {
 }
 
 export const Item = (props: IItemProps): ReactElement => {
-  const { doc, index, hideCheckbox = false, hideActions = false, set, clear, onSet, useNormCite } = props;
+  const { doc, index, hideCheckbox = false, hideActions = false, useNormCite } = props;
   const { bibcode, pubdate, title = ['Untitled'], author = [], id, bibstem = [], author_count } = doc;
-  const [state, send] = useMachine(itemMachine.withContext({ id }));
   const formattedPubDate = getFomattedNumericPubdate(pubdate);
   const [formattedBibstem] = bibstem;
   const isClient = useIsClient();
 
-  if ((set && state.matches('unselected')) || (clear && state.matches('selected'))) {
-    send({ type: ItemMachine.TransitionTypes.TOGGLE_SELECT });
-  }
-
-  const handleSelect = () => {
-    state.matches('selected') ? onSet(false) : onSet(true);
-    send({ type: ItemMachine.TransitionTypes.TOGGLE_SELECT });
-  };
-
-  const checkBgClass = clsx(
-    state.matches('selected') ? 'bg-blue-600' : 'bg-gray-100',
-    'flex items-center justify-center mr-3 px-2 rounded-bl-md rounded-tl-md',
-  );
+  // memoize the isSelected callback on bibcode
+  const isChecked = useStore(useCallback((state) => state.isDocSelected(bibcode), [bibcode]));
 
   // citations
   const cite = useNormCite ? (
@@ -66,20 +52,11 @@ export const Item = (props: IItemProps): ReactElement => {
 
   return (
     <Flex direction="row" as="article" border="1px" borderColor="gray.50" mb={1} borderRadius="md">
-      <Flex direction="row" className={checkBgClass} m={0}>
-        <Text color={state.matches('selected') ? 'white' : 'initial'} display={{ base: 'none', md: 'initial' }} mr={1}>
-          {index}
+      <Flex direction="row" m={0}>
+        <Text color={isChecked ? 'white' : 'initial'} display={{ base: 'none', md: 'initial' }} mr={1}>
+          {index.toLocaleString()}
         </Text>
-        {hideCheckbox ? null : (
-          <Checkbox
-            name={`result-checkbox-${index}`}
-            id={`result-checkbox-${index}`}
-            onChange={handleSelect}
-            isChecked={state.matches('selected')}
-            aria-label={`Select ${title[0]}`}
-            size="md"
-          />
-        )}
+        {hideCheckbox ? null : <ItemCheckbox index={index} bibcode={bibcode} title={title} isChecked={isChecked} />}
       </Flex>
       <Stack direction="column" width="full" spacing={0} mx={3} mt={2}>
         <Flex justifyContent="space-between">
@@ -115,5 +92,27 @@ export const Item = (props: IItemProps): ReactElement => {
         </Flex>
       </Stack>
     </Flex>
+  );
+};
+
+const ItemCheckbox = (props: { index: number; bibcode: string; title: string[]; isChecked: boolean }) => {
+  const { index, bibcode, title, isChecked } = props;
+  const [selectDoc, unSelectDoc] = useStore((state) => [state.selectDoc, state.unSelectDoc]);
+
+  // on select, update the local state and appState
+  const handleSelect = (e: ChangeEvent<HTMLInputElement>) => {
+    const checked = e.target.checked;
+    checked ? selectDoc(bibcode) : unSelectDoc(bibcode);
+  };
+
+  return (
+    <Checkbox
+      name={`result-checkbox-${index}`}
+      id={`result-checkbox-${index}`}
+      onChange={handleSelect}
+      checked={isChecked}
+      aria-label={`${isChecked ? 'De-select' : 'Select'} item ${title[0]}`}
+      size="md"
+    />
   );
 };
