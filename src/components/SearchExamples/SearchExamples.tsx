@@ -1,5 +1,5 @@
 import { Box, Flex, Grid, GridItem, Heading, Text } from '@chakra-ui/layout';
-import { useAppCtx } from '@store';
+import { useStore } from '@store';
 import { FC, HTMLAttributes, MouseEventHandler, useMemo } from 'react';
 import { examples } from './examples';
 
@@ -9,7 +9,7 @@ export interface ISearchExamplesProps {
 }
 
 export const SearchExamples: FC<ISearchExamplesProps> = ({ onClick }) => {
-  const { state: appState } = useAppCtx();
+  const theme = useStore((state) => state.theme);
 
   const handleClick: MouseEventHandler<HTMLButtonElement> = (e) => {
     if (typeof onClick === 'function') {
@@ -20,14 +20,14 @@ export const SearchExamples: FC<ISearchExamplesProps> = ({ onClick }) => {
 
   const [leftExamples, rightExamples] = useMemo(
     () => [
-      examples[appState.theme].left.map(({ label, text }) => (
+      examples[theme].left.map(({ label, text }) => (
         <SearchExample label={label} example={text} key={label} data-text={text} onClick={handleClick} />
       )),
-      examples[appState.theme].right.map(({ label, text }) => (
+      examples[theme].right.map(({ label, text }) => (
         <SearchExample label={label} example={text} key={label} data-text={text} onClick={handleClick} />
       )),
     ],
-    [appState.theme],
+    [theme],
   );
 
   return (
