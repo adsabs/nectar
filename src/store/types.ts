@@ -1,19 +1,11 @@
-import { IADSApiSearchParams, IUserData } from '@api';
-import { Theme } from '../types';
+import { GetState } from 'zustand';
+import { NamedSet } from 'zustand/middleware';
+import { IAppStateDocsSlice, IAppStateSearchSlice, IAppStateThemeSlice, IAppStateUserSlice } from './slices';
 
-export interface IAppState {
-  user: Pick<IUserData, 'username' | 'anonymous'>;
-  theme: Theme;
-  query: IADSApiSearchParams;
+export type AppState = IAppStateSearchSlice & IAppStateThemeSlice & IAppStateUserSlice & IAppStateDocsSlice;
+export interface IPersistedAppState {
+  state: AppState;
+  version: number;
 }
 
-export enum AppEvent {
-  SET_USER = 'SET_USER',
-  SET_THEME = 'SET_THEME',
-  SET_CURRENT_QUERY = 'SET_CURRENT_QUERY',
-}
-
-export type Action =
-  | { type: AppEvent.SET_USER; payload: IAppState['user'] }
-  | { type: AppEvent.SET_THEME; payload: IAppState['theme'] }
-  | { type: AppEvent.SET_CURRENT_QUERY; payload: IAppState['query'] };
+export type StoreSlice<T> = (set: NamedSet<AppState>, get: GetState<AppState>) => T;
