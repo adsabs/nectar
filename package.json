@@ -55,7 +55,8 @@
     "react-toastify": "^8.0.2",
     "transducist": "^2.2.0",
     "uuid": "^8.3.2",
-    "xstate": "^4.25.0"
+    "xstate": "^4.25.0",
+    "zustand": "^3.6.9"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0-0",

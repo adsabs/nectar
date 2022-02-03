@@ -12,7 +12,7 @@ export interface IADSApiSearchParams {
   'hl.requireFieldMatch'?: boolean;
   'hl.usePhraseHighlighter'?: boolean;
   fq?: string;
-  stats?: string;
+  stats?: boolean;
   'stats.field'?: string;
 }
 
@@ -26,7 +26,6 @@ export interface INormalizedADSApiSearchParams {
 export interface IADSApiSearchResponse {
   response: {
     numFound: number;
-    start: number;
     docs: IDocsEntity[];
   };
   stats?: ISearchStatsFields;
