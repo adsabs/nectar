@@ -19,7 +19,7 @@ export const defaultFields: IADSApiSearchParams['fl'] = [
 
 export const defaultSort: IADSApiSearchParams['sort'] = ['date desc'];
 
-export const defaultParams: Partial<IADSApiSearchParams> = {
+export const defaultParams: IADSApiSearchParams = {
   q: '*:*',
   sort: ['date desc'],
   fl: defaultFields,
@@ -73,4 +73,11 @@ export const getAbstractParams = (id: string): IADSApiSearchParams => ({
   ...defaultParams,
   fl: [...defaultFields, 'read_count', 'abstract', 'comment', 'data', 'orcid_pub', 'orcid_user', 'orcid_other'],
   q: `identifier:"${id}"`,
+});
+
+export const getSearchStatsParams = (params: IADSApiSearchParams, field: string): IADSApiSearchParams => ({
+  ...params,
+  fl: ['id'],
+  stats: true,
+  'stats.field': field.replace(/\s(asc|desc)$/, ''),
 });
