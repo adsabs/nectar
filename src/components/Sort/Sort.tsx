@@ -3,11 +3,10 @@ import { SortAscendingIcon, SortDescendingIcon } from '@heroicons/react/outline'
 import { isBrowser } from '@utils';
 import { ReactElement, useEffect, useMemo, useRef, useState } from 'react';
 import { sortValues } from './model';
-import Select, { OptionProps, StylesConfig } from 'react-select';
-import { CSSObject } from '@emotion/react';
 import { IconButton } from '@chakra-ui/button';
 import { Box, HStack } from '@chakra-ui/layout';
 import { Input } from '@chakra-ui/input';
+import { Select, SortSelectorStyle } from '@components';
 
 export interface ISortProps {
   name?: string;
@@ -59,9 +58,8 @@ export const Sort = (props: ISortProps): ReactElement => {
     return sortItems.find((item) => item.id === selected[0]);
   }, [selected]);
 
-  const handleSortChange = (sortItem: SortOptionType) => {
-    const val = sortItem.id as SolrSortField;
-    setSelected([val, selected[1]]);
+  const handleSortChange = (sortItem: SolrSortField) => {
+    setSelected([sortItem, selected[1]]);
   };
 
   const handleSortDirectionChange = (id: string) => {
@@ -71,26 +69,6 @@ export const Sort = (props: ISortProps): ReactElement => {
 
   const getSortsAsString = () => {
     return [selected.join(' '), ...additionalSorts].join(',');
-  };
-
-  const customStyles: StylesConfig = {
-    control: (provided: CSSObject) => ({
-      ...provided,
-      height: '2.85em',
-      borderRadius: '2px 0 0 2px',
-      borderRightWidth: '0',
-    }),
-    indicatorSeparator: () => ({
-      isDisabled: true,
-    }),
-    container: (provided: CSSObject) => ({
-      ...provided,
-    }),
-    option: (provided: CSSObject, state: OptionProps) => ({
-      ...provided,
-      backgroundColor: state.isFocused ? 'var(--chakra-colors-gray-100)' : 'transparent',
-      color: 'var(--chakra-colors-gray-700)',
-    }),
   };
 
   // non-js initially rendered on the server, will be swapped out for the full-featured one below when it hits client
@@ -116,14 +94,8 @@ export const Sort = (props: ISortProps): ReactElement => {
 
   return (
     <HStack spacing={0}>
-      <Box width="250px" fontSize="sm">
-        <Select
-          value={selectedSortItem}
-          options={sortItems}
-          isSearchable={false}
-          styles={customStyles}
-          onChange={handleSortChange}
-        />
+      <Box width="250px">
+        <Select value={selectedSortItem} options={sortItems} styles={SortSelectorStyle} onChange={handleSortChange} />
       </Box>
       {selected[1] === 'asc' ? (
         <IconButton

@@ -67,14 +67,14 @@ const ClassicForm: NextPage = () => {
               </HStack>
             </CheckboxGroup>
           </FormControl>
-          <HStack justifyContent="space-evenly" spacing={5}>
+          <Stack direction={{ base: 'column', sm: 'row' }} justifyContent="space-evenly" spacing={5}>
             <LogicAndTextarea
               label="Author"
               desc="Author names, enter (Last, First M) one per line"
               onChange={handleChange}
             />
             <LogicAndTextarea label="Object" desc="SIMBAD object search (one per line)" onChange={handleChange} />
-          </HStack>
+          </Stack>
           <HStack justifyContent="space-evenly" spacing={5}>
             <FormControl>
               <FormLabel>Publication date start (YYYY/MM)</FormLabel>

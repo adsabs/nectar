@@ -1,9 +1,9 @@
 import { AppEvent, useAppCtx } from '@store';
 import { Theme } from '@types';
 import { ReactElement, useEffect, useState } from 'react';
-import Select, { ControlProps, OptionProps, StylesConfig } from 'react-select';
-import { CSSObject } from '@emotion/react';
 import { useViewport, Viewport } from '@hooks';
+import { Select, ThemeSelectorStyle } from '@components';
+import { Box } from '@chakra-ui/layout';
 
 type ThemeOption = {
   id: Theme;
@@ -49,52 +49,19 @@ export const ThemeDropdown = (): ReactElement => {
 
   const viewport = useViewport();
 
-  const customStyles: StylesConfig<ThemeOption> = {
-    control: (provided: CSSObject, state: ControlProps<ThemeOption>) => ({
-      ...provided,
-      height: '2em',
-      borderRadius: '2px',
-      borderColor: 'var(--chakra-colors-gray-100)',
-      backgroundColor: 'var(--chakra-colors-gray-900)',
-      width: viewport < Viewport.XS ? '200px' : '270px',
-      outline: 'none',
-      boxShadow: state.isFocused ? 'var(--chakra-shadows-outline)' : 'none',
-    }),
-    indicatorSeparator: () => ({
-      isDisabled: true,
-    }),
-    singleValue: (provided: CSSObject) => ({
-      ...provided,
-      color: 'var(--chakra-colors-gray-100)',
-    }),
-    container: (provided: CSSObject) => ({
-      ...provided,
-      zIndex: 10,
-    }),
-    option: (provided: CSSObject, state: OptionProps) => ({
-      ...provided,
-      backgroundColor: state.isFocused ? 'var(--chakra-colors-gray-100)' : 'transparent',
-      color: 'var(--chakra-colors-gray-700)',
-    }),
-  };
-
   const [selectedTheme, setSelectedTheme] = useState<ThemeOption>(themes[0]);
 
   useEffect(() => {
     setSelectedTheme(themes.find((theme) => theme.id === appState.theme));
   }, [appState.theme]);
 
-  const handleOnSelect = (selected: ThemeOption) => {
-    dispatch({ type: AppEvent.SET_THEME, payload: selected.id });
+  const handleOnSelect = (selected: Theme) => {
+    dispatch({ type: AppEvent.SET_THEME, payload: selected });
   };
 
   return (
-    <Select
-      value={selectedTheme}
-      options={themes}
-      isSearchable={false}
-      styles={customStyles}
-      onChange={handleOnSelect}
-    />
+    <Box width={viewport < Viewport.XS ? '200px' : '270px'}>
+      <Select value={selectedTheme} options={themes} styles={ThemeSelectorStyle} onChange={handleOnSelect} />
+    </Box>
   );
 };

@@ -9,7 +9,7 @@ const listSanitizer = (v: string): string[] =>
   v.length > 0 ? (Array.from(v.matchAll(/[^\r\n]+/g), head) as string[]) : [];
 
 export const checks = {
-  listCheck: pipe<string, string, string[]>(escape, listSanitizer),
+  listCheck: pipe(escape, listSanitizer),
   escape: (val: string) => escape(val),
 };
 

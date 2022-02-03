@@ -1,7 +1,7 @@
 import { IDocsEntity } from '@api';
 import { Stack, Heading, Text } from '@chakra-ui/layout';
 import { AbstractSideNav } from '@components';
-import { Metatags } from '@components/Metatags/Metatags';
+import { Metatags } from '@components';
 import Head from 'next/head';
 import { FC } from 'react';
 

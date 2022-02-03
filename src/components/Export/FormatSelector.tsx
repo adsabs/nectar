@@ -2,7 +2,7 @@ import PT from 'prop-types';
 import { ReactElement } from 'react';
 import { exportFormats } from './constants';
 import { ExportState } from './types';
-import { Select } from '@components';
+import { Select, DefaultSelectorStyle } from '@components';
 
 interface IFormatSelectorProps {
   format: ExportState['format'];
@@ -15,12 +15,21 @@ const propTypes = {
 };
 
 export const FormatSelector = ({ format, onFormatChange }: IFormatSelectorProps): ReactElement => {
+  const options = Object.values(exportFormats).map((format) => ({
+    id: format.id,
+    value: format.id,
+    label: format.label,
+    help: format.help,
+  }));
+
+  const selected = options.find((f) => f.id === format);
   return (
     <Select
       formLabel="Export Format"
-      options={Object.values(exportFormats)}
-      defaultOption={format}
-      onOptionSelected={onFormatChange}
+      options={options}
+      value={selected}
+      onChange={onFormatChange}
+      styles={DefaultSelectorStyle}
     />
   );
 };

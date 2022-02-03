@@ -110,7 +110,6 @@ const Tab = ({ href, label, active }: ITabProps) => {
         px={4}
         py={2}
         borderTopRadius={3}
-        fontSize="md"
         fontWeight="semibold"
       >
         {label}

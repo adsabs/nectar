@@ -65,7 +65,6 @@ export const ListActions = (props: IListActionProp): ReactElement => {
               onClick={toggleShowHighlight}
               size="md"
               borderRadius="2px"
-              fontSize="sm"
             >
               Show Highlights
             </Button>
