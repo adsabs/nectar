@@ -126,5 +126,5 @@ const SortWrapper = ({ service: searchService }: { service: ISearchMachine }) =>
 
   const sort = useSelector(searchService, (state) => state.context.params.sort);
 
-  return <Sort sort={sort} onChange={handleSortChange} leftMargin="md:ml-1" />;
+  return <Sort sort={sort} onChange={handleSortChange} />;
 };

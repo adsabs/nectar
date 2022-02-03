@@ -117,13 +117,20 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
           </Flex>
         ) : (
           <Flex justifyContent="space-between">
-            <NextLink href={prevHref} passHref>
-              <Link data-testid="pagination-prev">Previous</Link>
-            </NextLink>
-
-            <NextLink href={nextHref} passHref>
-              <Link data-testid="pagination-next">Next</Link>
-            </NextLink>
+            {noPrev ? (
+              <Text variant="disabledLink">Previous</Text>
+            ) : (
+              <NextLink href={prevHref} passHref>
+                <Link data-testid="pagination-prev">Previous</Link>
+              </NextLink>
+            )}
+            {noNext ? (
+              <Text variant="disabledLink">Next</Text>
+            ) : (
+              <NextLink href={nextHref} passHref>
+                <Link data-testid="pagination-next">Next</Link>
+              </NextLink>
+            )}
           </Flex>
         )}
       </Box>
@@ -160,18 +167,20 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
               variant="pagePrev"
             />
           ) : (
-            <NextLink href={prevHref}>
-              <IconButton
-                aria-label="previous"
-                data-testid="pagination-prev"
-                icon={<ChevronLeftIcon />}
-                isDisabled={noPrev}
-                variant="pagePrev"
-              />
+            <NextLink href={prevHref} passHref>
+              <Link>
+                <IconButton
+                  aria-label="previous"
+                  data-testid="pagination-prev"
+                  icon={<ChevronLeftIcon />}
+                  isDisabled={noPrev}
+                  variant="pagePrev"
+                />
+              </Link>
             </NextLink>
           )}
 
-          {renderControls()}
+          {isBrowser() && renderControls()}
 
           {isBrowser() ? (
             <IconButton
@@ -183,14 +192,16 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
               variant="pageNext"
             />
           ) : (
-            <NextLink href={nextHref}>
-              <IconButton
-                aria-label="next"
-                data-testid="pagination-next"
-                icon={<ChevronRightIcon />}
-                isDisabled={noNext}
-                variant="pageNext"
-              />
+            <NextLink href={nextHref} passHref>
+              <Link>
+                <IconButton
+                  aria-label="next"
+                  data-testid="pagination-next"
+                  icon={<ChevronRightIcon />}
+                  isDisabled={noNext}
+                  variant="pageNext"
+                />
+              </Link>
             </NextLink>
           )}
         </Box>

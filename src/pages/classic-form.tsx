@@ -107,7 +107,7 @@ const ClassicForm: NextPage = () => {
           ) : (
             <FormControl>
               <FormLabel>Bibstems</FormLabel>
-              <Input name="bibstems" placeholder="YYYY/MM" onChange={handleChange} />
+              <Input name="bibstems" onChange={handleChange} />
             </FormControl>
           )}
 
@@ -117,7 +117,9 @@ const ClassicForm: NextPage = () => {
           </FormControl>
           <Stack direction="row">
             <Button type="submit">Search</Button>
-            <Button variant="outline">Reset</Button>
+            <Button type="reset" variant="outline">
+              Reset
+            </Button>
           </Stack>
         </Stack>
       </form>

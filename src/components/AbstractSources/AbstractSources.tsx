@@ -41,10 +41,6 @@ export const AbstractSources = ({ doc }: IAbstractSourcesProps): ReactElement =>
 
 ///// dropdown components //////
 
-const dropdownButtonClasses = 'button-sm pl-2 pr-1 cursor-pointer';
-
-const dropdownButtonClassesInactive = 'button-sm-disabled pl-2 pr-1 cursor-default';
-
 interface IFullTextDropdownProps {
   sources: IFullTextSource[];
 }
@@ -66,7 +62,7 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
       </>
     ),
     path: source.url,
-    domId: `fullText-${source.name}`,
+    newTab: true,
   }));
 
   const label = (
@@ -87,18 +83,11 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
     <>
       {!isBrowser() ? (
         <span>
-          <SimpleLinkDropdown
-            items={fullSourceItems}
-            label={label}
-            selected={''}
-            aria-label="Full Text Sources"
-            classes={{
-              label: fullSourceItems.length > 0 ? dropdownButtonClasses : dropdownButtonClassesInactive,
-              list: 'w-60 h-auto',
-              item: 'p-2 flex justify-start',
-            }}
-            role={{ label: 'list', item: 'listitem' }}
-          />
+          {fullSourceItems.length === 0 ? (
+            label
+          ) : (
+            <SimpleLinkDropdown items={fullSourceItems} label={label} minListWidth="180px" />
+          )}
         </span>
       ) : null}
       {isBrowser() ? (
@@ -135,8 +124,7 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
         id: source.name,
         label: source.name,
         path: source.url,
-        domId: `dataProd-${source.name}`,
-        classes: 'pl-6',
+        newTab: true,
       })),
     [dataProducts],
   );
@@ -147,10 +135,9 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
         id: source.name,
         label: source.name,
         path: source.url,
-        domId: `relatedWorks-${source.name}`,
-        classes: 'pl-6',
+        newTab: true,
       })),
-    [],
+    [relatedWorks],
   );
 
   const items: ItemType[] = [];
@@ -160,7 +147,6 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
     items.push({
       id: 'data-subheading',
       label: 'Data Products',
-      domId: 'dataProducts',
       path: '',
       disabled: true,
     });
@@ -172,7 +158,6 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
     items.push({
       id: 'related-subheading',
       label: 'Related Materials',
-      domId: 'relatedWorks',
       path: '',
       disabled: true,
     });
@@ -197,19 +182,7 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
     <>
       {!isBrowser() ? (
         <span>
-          {items.length > 0 ? (
-            <SimpleLinkDropdown
-              items={items}
-              label={label}
-              selected={''}
-              aria-label="Other Resources"
-              classes={{
-                list: 'w-60 h-auto',
-                item: 'p-2',
-              }}
-              role={{ label: 'list', item: 'listitem' }}
-            />
-          ) : null}
+          {items.length === 0 ? label : <SimpleLinkDropdown items={items} label={label} minListWidth="150px" />}
         </span>
       ) : null}
       {isBrowser() ? (
@@ -220,7 +193,7 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
           {items.length > 0 && (
             <MenuList>
               {items.map((item) => (
-                <MenuItem key={item.id} data-id={item.id} onClick={handleSelect}>
+                <MenuItem key={item.id} data-id={item.id} onClick={handleSelect} isDisabled={item.disabled}>
                   {item.label}
                 </MenuItem>
               ))}

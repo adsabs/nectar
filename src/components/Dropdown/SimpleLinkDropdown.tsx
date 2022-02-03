@@ -1,70 +1,83 @@
-import { CheckIcon, ChevronDownIcon } from '@heroicons/react/outline';
-import clsx from 'clsx';
-import Link from 'next/link';
-import { Fragment, ReactElement } from 'react';
-import styles from './Dropdown.module.css';
+import { Link, Flex, Box } from '@chakra-ui/layout';
+import NextLink from 'next/link';
+import { ReactElement } from 'react';
 import { ItemType } from './types';
+import { ChevronDownIcon } from '@chakra-ui/icons';
 
 /** Non JavaScript dropdown */
 export interface ISimpleLinkDropdownProps {
   items: ItemType[];
-  selected?: string;
   label: string | ReactElement;
-  classes?: {
-    label?: string;
-    list?: string;
-    item?: string;
-  };
-  role: {
-    label: string;
-    item: string;
-  };
+  minLabelWidth?: string;
+  minListWidth?: string;
+  alignRight?: boolean;
 }
 
 export const SimpleLinkDropdown = (props: ISimpleLinkDropdownProps): ReactElement => {
-  const { items, selected, label, classes, role, ...restProps } = props;
-
-  const labelClasses = classes && classes.label ? clsx(classes.label) : 'button-simple';
-
-  const listClasses =
-    classes && classes.list ? clsx(styles['simple-dropdown-content'], classes.list) : styles['simple-dropdown-content'];
-
-  const itemClasses =
-    classes && classes.item ? clsx(styles['simple-dropdown-link'], classes.item) : styles['simple-dropdown-link'];
+  const { items, label, minLabelWidth, minListWidth, alignRight } = props;
 
   return (
-    <div className={styles['simple-dropdown']} {...restProps} role={role.label}>
+    <Box
+      display="inline-block"
+      position="relative"
+      role="group"
+      minW={minLabelWidth ? minLabelWidth : null}
+      tabIndex={0}
+    >
       {typeof label === 'string' ? (
-        <button className={labelClasses}>
-          {label} <ChevronDownIcon className="inline w-4 h-4" aria-hidden="true" />
-        </button>
+        <Flex
+          p={2}
+          justifyContent="space-between"
+          borderWidth={1}
+          borderRightWidth="0"
+          minW={minLabelWidth ? minLabelWidth : null}
+          height="2.65em"
+          cursor="pointer"
+        >
+          {label} <ChevronDownIcon aria-hidden="true" />
+        </Flex>
       ) : (
-        <>{label}</>
+        label
       )}
-      <div className={listClasses}>
+      <Box
+        backgroundColor="white"
+        borderRadius="md"
+        minW={minListWidth ? minListWidth : null}
+        borderColor="gray.200"
+        borderWidth={0.5}
+        position="absolute"
+        zIndex="10"
+        display="none"
+        _groupHover={{ display: 'block' }}
+        _groupFocus={{ display: 'block' }}
+        py={2}
+        right={alignRight ? '0' : 'unset'}
+      >
         {items.map((item) => (
-          <Fragment key={item.id}>
+          <Box
+            direction="column"
+            key={item.id}
+            _hover={{ backgroundColor: item.disabled ? 'transparent' : 'gray.100' }}
+            p={2}
+          >
             {item.disabled ? (
-              <div className="p-2 text-gray-400 cursor-default">
-                {item.label} {selected === item.id ? <CheckIcon className="inline w-4 h-4" /> : null}
-              </div>
+              <Box width="full" m={0} px={2}>
+                <Box color="gray.200" cursor="not-allowed" aria-disabled>
+                  {item.label}
+                </Box>
+              </Box>
             ) : (
-              <Link key={item.id} href={item.path}>
-                <a
-                  className={itemClasses}
-                  role={role.item}
-                  aria-selected={selected === item.id}
-                  rel="noreferrer noopener"
-                  target={item.newTab ? '_blank' : '_self'}
-                >
-                  {item.label}{' '}
-                  {selected === item.id ? <CheckIcon className="inline w-4 h-4" aria-hidden="true" /> : null}
-                </a>
-              </Link>
+              <NextLink key={item.id} href={item.path} passHref>
+                <Link rel="noreferrer noopener" target={item.newTab ? '_blank' : '_self'} variant="dropdownItem">
+                  <Box width="full" m={0} px={2}>
+                    {item.label}
+                  </Box>
+                </Link>
+              </NextLink>
             )}
-          </Fragment>
+          </Box>
         ))}
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };

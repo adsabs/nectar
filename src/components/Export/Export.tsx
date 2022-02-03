@@ -13,6 +13,7 @@ import { Collapse, Fade } from '@chakra-ui/transition';
 import { CloseButton } from '@chakra-ui/close-button';
 import { CopyIcon, DownloadIcon } from '@chakra-ui/icons';
 import { Textarea } from '@chakra-ui/react';
+import { isBrowser } from '@utils';
 
 export interface IExportProps extends HTMLAttributes<HTMLDivElement> {
   initialFormat?: ExportState['format'];
@@ -73,40 +74,44 @@ export const Export = ({
       spacing={2}
     >
       {!singleMode && <CloseButton as={Flex} justifyContent="end" width="full" />}
-      <form onSubmit={onSubmit}>
-        <Stack direction="column" spacing={3}>
-          <FormatSelector format={state.format} onFormatChange={onFormatChange} />
+      {isBrowser() && (
+        <form onSubmit={onSubmit}>
+          <Stack direction="column" spacing={3}>
+            <FormatSelector format={state.format} onFormatChange={onFormatChange} />
 
-          <CustomFormatInput
-            show={state.format === 'custom'}
-            customFormat={state.customFormat}
-            onChange={onCustomFormatChange}
-          />
-          {!singleMode && <LimitRange limit={state.limit} max={state.totalRecords} onLimitChange={onLimitChange} />}
-          <Collapse in={!singleMode || state.format === 'custom'}>
-            <Button data-testid="btn-apply" type="submit" isLoading={state.loading}>
-              Apply
-            </Button>
-          </Collapse>
-        </Stack>
-      </form>
-      <HStack>
-        <Button
-          data-testid="btn-download"
-          isDisabled={state.loading || noText}
-          onClick={onDownload}
-          rightIcon={<DownloadIcon />}
-        >
-          Download to File
-        </Button>
-        <CopyToClipboard text={state.text} onCopy={handleOnCopy}>
-          <Button data-testid="btn-copy" isDisabled={state.loading || noText} rightIcon={<CopyIcon />}>
-            Copy to Clipboard
+            <CustomFormatInput
+              show={state.format === 'custom'}
+              customFormat={state.customFormat}
+              onChange={onCustomFormatChange}
+            />
+            {!singleMode && <LimitRange limit={state.limit} max={state.totalRecords} onLimitChange={onLimitChange} />}
+            <Collapse in={!singleMode || state.format === 'custom'}>
+              <Button data-testid="btn-apply" type="submit" isLoading={state.loading}>
+                Apply
+              </Button>
+            </Collapse>
+          </Stack>
+        </form>
+      )}
+      {isBrowser() && (
+        <HStack>
+          <Button
+            data-testid="btn-download"
+            isDisabled={state.loading || noText}
+            onClick={onDownload}
+            rightIcon={<DownloadIcon />}
+          >
+            Download to File
           </Button>
-        </CopyToClipboard>
+          <CopyToClipboard text={state.text} onCopy={handleOnCopy}>
+            <Button data-testid="btn-copy" isDisabled={state.loading || noText} rightIcon={<CopyIcon />}>
+              Copy to Clipboard
+            </Button>
+          </CopyToClipboard>
 
-        <Fade in={copied}>Copied!</Fade>
-      </HStack>
+          <Fade in={copied}>Copied!</Fade>
+        </HStack>
+      )}
       <Textarea aria-label="export text" value={state.text} rows={10} readOnly={true}></Textarea>
     </Stack>
   );
