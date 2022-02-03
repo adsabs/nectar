@@ -1,18 +1,19 @@
 import { SolrSort } from '@api';
+import { Button } from '@chakra-ui/button';
+import { Checkbox, CheckboxGroup } from '@chakra-ui/checkbox';
 import { FormControl, FormHelperText, FormLabel } from '@chakra-ui/form-control';
 import { Input } from '@chakra-ui/input';
-import { Button } from '@chakra-ui/button';
 import { Box, Flex, HStack, Stack } from '@chakra-ui/layout';
-import { Checkbox, CheckboxGroup } from '@chakra-ui/checkbox';
+import { Radio, RadioGroup } from '@chakra-ui/radio';
+import { Textarea } from '@chakra-ui/textarea';
 import VisuallyHidden from '@chakra-ui/visually-hidden';
 import { BibstemPickerMultiple, Sort } from '@components';
 import { ClassicformController, RawClassicFormParams } from '@controllers/classicformController';
+import { useIsClient } from '@hooks/useIsClient';
 import { NextPage } from 'next';
-import { useRouter } from 'next/router';
-import { ChangeEvent, ChangeEventHandler, useCallback, useReducer, useState, useEffect, Fragment } from 'react';
-import { Textarea } from '@chakra-ui/textarea';
-import { Radio, RadioGroup } from '@chakra-ui/radio';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
+import { ChangeEvent, ChangeEventHandler, Fragment, useCallback, useReducer, useState } from 'react';
 
 interface FormEvent {
   name: string;
@@ -28,12 +29,8 @@ const formReducer = (state: Record<string, string>, event: FormEvent) => {
 const ClassicForm: NextPage = () => {
   const Router = useRouter();
   const [formData, setFormData] = useReducer(formReducer, {});
-  const [isMounted, setIsMounted] = useState(false);
+  const isClient = useIsClient();
   const [key, setKey] = useState(Math.random());
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.currentTarget;
@@ -70,7 +67,7 @@ const ClassicForm: NextPage = () => {
           <FormControl>
             <FormLabel>Limit Query</FormLabel>
             <CheckboxGroup>
-              {isMounted ? (
+              {isClient ? (
                 <HStack>
                   <Checkbox id="limit_astronomy" name="limit_astronomy" onChange={handleChange} defaultChecked>
                     Astronomy
@@ -99,13 +96,13 @@ const ClassicForm: NextPage = () => {
               label="Author"
               desc="Author names, enter (Last, First M) one per line"
               onChange={handleChange}
-              isMounted={isMounted}
+              isClient={isClient}
             />
             <LogicAndTextarea
               label="Object"
               desc="SIMBAD object search (one per line)"
               onChange={handleChange}
-              isMounted={isMounted}
+              isClient={isClient}
             />
           </Stack>
           <HStack justifyContent="space-evenly" spacing={5}>
@@ -118,14 +115,14 @@ const ClassicForm: NextPage = () => {
               <Input name="pubdate_end" placeholder="YYYY/MM" onChange={handleChange} />
             </FormControl>
           </HStack>
-          <LogicAndInput label="Title" onChange={handleChange} isMounted={isMounted} />
+          <LogicAndInput label="Title" onChange={handleChange} isClient={isClient} />
 
-          <LogicAndInput label="Abstract / Keywords" onChange={handleChange} isMounted={isMounted} />
+          <LogicAndInput label="Abstract / Keywords" onChange={handleChange} isClient={isClient} />
 
           <FormControl>
             <VisuallyHidden>Property</VisuallyHidden>
             <CheckboxGroup>
-              {isMounted ? (
+              {isClient ? (
                 <HStack>
                   <Checkbox id="refereed_only" name="property_refereed_only" onChange={handleChange} fontWeight="bold">
                     Refereed only
@@ -144,7 +141,7 @@ const ClassicForm: NextPage = () => {
               )}
             </CheckboxGroup>
           </FormControl>
-          {isMounted ? (
+          {isClient ? (
             <BibstemPickerMultiple />
           ) : (
             <FormControl>
@@ -173,12 +170,12 @@ const LogicAndTextarea = ({
   label,
   desc,
   onChange,
-  isMounted = true,
+  isClient = true,
 }: {
   label: string;
   desc: string;
   onChange: ChangeEventHandler;
-  isMounted: boolean;
+  isClient: boolean;
 }) => {
   const id = normalizeString(label);
   return (
@@ -186,7 +183,7 @@ const LogicAndTextarea = ({
       <FormControl>
         <Flex direction="row" justifyContent="space-between">
           <FormLabel htmlFor={id}>{label}</FormLabel>
-          <LogicRadios name={id} variant="andor" onChange={onChange} isMounted={isMounted} />
+          <LogicRadios name={id} variant="andor" onChange={onChange} isClient={isClient} />
         </Flex>
         <Textarea as="textarea" id={id} name={id} rows={3} defaultValue={''} onChange={onChange} />
         <FormHelperText>{desc}</FormHelperText>
@@ -199,12 +196,12 @@ const LogicAndInput = ({
   label,
   noLogic,
   onChange,
-  isMounted = true,
+  isClient = true,
 }: {
   label: string;
   noLogic?: boolean;
   onChange: ChangeEventHandler;
-  isMounted: boolean;
+  isClient: boolean;
 }) => {
   const id = normalizeString(label);
   return (
@@ -213,7 +210,7 @@ const LogicAndInput = ({
         <Flex direction="row" justifyContent="space-between">
           <FormLabel htmlFor={id}>{label}</FormLabel>
           {!noLogic && (
-            <LogicRadios name={normalizeString(label)} variant="all" onChange={onChange} isMounted={isMounted} />
+            <LogicRadios name={normalizeString(label)} variant="all" onChange={onChange} isClient={isClient} />
           )}
         </Flex>
         <Input id={id} name={id} onChange={onChange} defaultValue={''} />
@@ -226,12 +223,12 @@ const LogicRadios = ({
   name,
   variant = 'andor',
   onChange,
-  isMounted = true,
+  isClient = true,
 }: {
   name: string;
   variant: 'andor' | 'all';
   onChange: ChangeEventHandler;
-  isMounted?: boolean;
+  isClient?: boolean;
 }) => {
   const values = {
     andor: ['and', 'or'],
@@ -241,7 +238,7 @@ const LogicRadios = ({
 
   return (
     <>
-      {isMounted ? (
+      {isClient ? (
         <RadioGroup defaultValue="and">
           <Stack direction="row">
             {values[variant].map((id) => {

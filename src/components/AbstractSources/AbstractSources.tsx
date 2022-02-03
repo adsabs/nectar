@@ -5,8 +5,9 @@ import { HStack, Text, VStack } from '@chakra-ui/layout';
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
 import { SimpleLinkList } from '@components';
 import { ItemType } from '@components/Dropdown/types';
+import { useIsClient } from '@hooks/useIsClient';
 import { isNil } from 'ramda';
-import { HTMLAttributes, MouseEvent, MouseEventHandler, ReactElement, useEffect, useMemo, useState } from 'react';
+import { HTMLAttributes, MouseEvent, MouseEventHandler, ReactElement, useMemo } from 'react';
 import { IDataProductSource, IFullTextSource, IRelatedWorks, processLinkData } from './linkGenerator';
 
 export interface IAbstractSourcesProps extends HTMLAttributes<HTMLDivElement> {
@@ -14,16 +15,12 @@ export interface IAbstractSourcesProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export const AbstractSources = ({ doc }: IAbstractSourcesProps): ReactElement => {
-  const [isMounted, setIsMounted] = useState(false);
+  const isClient = useIsClient();
   const sources = useMemo(() => {
     if (doc && Array.isArray(doc.esources)) {
       return processLinkData(doc, null);
     }
   }, [doc]);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   if (!doc) {
     return <></>;
@@ -36,7 +33,7 @@ export const AbstractSources = ({ doc }: IAbstractSourcesProps): ReactElement =>
 
   return (
     <>
-      {!isMounted ? (
+      {!isClient ? (
         <VStack as="section" wrap="wrap" spacing={0.5} columnGap={1} rowGap={1} alignItems="start">
           <FullTextDropdown sources={sources.fullTextSources} />
           <DataProductDropdown dataProducts={sources.dataProducts} relatedWorks={[]} />
@@ -60,12 +57,7 @@ interface IFullTextDropdownProps {
 
 const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
   const { sources } = props;
-
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isClient = useIsClient();
 
   const fullSourceItems = sources.map((source) => ({
     id: source.name,
@@ -93,14 +85,14 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
   const handleSelect = (e: MouseEvent<HTMLElement>) => {
     const id = (e.target as HTMLElement).dataset['id'];
     const path = fullSourceItems.find((item) => id === item.id)?.path;
-    if (isMounted && path) {
+    if (isClient && path) {
       window.open(path, '_blank', 'noopener,noreferrer');
     }
   };
 
   return (
     <>
-      {!isMounted ? (
+      {!isClient ? (
         <span>
           {/* {fullSourceItems.length === 0 ? (
             label
@@ -110,7 +102,7 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
           <SimpleLinkList items={fullSourceItems} minWidth="180px" label="Full text sources" showLabel={true} asRow />
         </span>
       ) : null}
-      {isMounted ? (
+      {isClient ? (
         <Menu>
           <MenuButton as={Button} rightIcon={<ChevronDownIcon />} isDisabled={fullSourceItems.length === 0}>
             Full Text Sources
@@ -137,11 +129,7 @@ interface IRelatedMaterialsDropdownProps {
 
 const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElement => {
   const { dataProducts, relatedWorks } = props;
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isClient = useIsClient();
 
   const dataProductItems = useMemo(
     () =>
@@ -198,20 +186,20 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
   const handleSelect: MouseEventHandler<HTMLElement> = (e) => {
     const id = e.currentTarget.dataset['id'];
     const path = items.find((item) => id === item.id)?.path;
-    if (isMounted && path) {
+    if (isClient && path) {
       window.open(path, '_blank', 'noopener,noreferrer');
     }
   };
 
   return (
     <>
-      {!isMounted ? (
+      {!isClient ? (
         <span>
           {/* {items.length === 0 ? label : <SimpleLinkDropdown items={items} label={label} minListWidth="150px" />} */}
           <SimpleLinkList items={items} minWidth="150px" label="Other Resources" showLabel={true} asRow />
         </span>
       ) : null}
-      {isMounted ? (
+      {isClient ? (
         <Menu>
           <MenuButton as={Button} rightIcon={<ChevronDownIcon />} isDisabled={items.length === 0}>
             Other Resources

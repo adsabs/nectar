@@ -1,12 +1,13 @@
 import { IDocsEntity } from '@api';
+import { Box } from '@chakra-ui/layout';
+import { useIsClient } from '@hooks/useIsClient';
 import { ISearchMachine, TransitionType } from '@machines/lib/search/types';
 import { useSelector } from '@xstate/react';
 import { HTMLAttributes, ReactElement, useEffect, useState } from 'react';
 import { Item } from './Item/Item';
+import { ItemsSkeleton } from './ItemsSkeleton';
 import { ListActions } from './ListActions';
 import { Pagination } from './Pagination';
-import { ItemsSkeleton } from './ItemsSkeleton';
-import { Box } from '@chakra-ui/layout';
 
 export interface IResultListProps extends HTMLAttributes<HTMLDivElement> {
   docs: IDocsEntity[];
@@ -28,16 +29,12 @@ export const ResultList = (props: IResultListProps): ReactElement => {
     selectNone: false,
     selectedCount: 0,
   });
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isClient = useIsClient();
 
   const {
     docs = [],
     isLoading = false,
-    hideCheckboxes = !isMounted,
+    hideCheckboxes = !isClient,
     service: searchService,
     showActions,
     ...divProps

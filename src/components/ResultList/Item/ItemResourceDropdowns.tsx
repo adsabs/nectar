@@ -5,9 +5,10 @@ import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
 import { SimpleLinkDropdown } from '@components';
 import { processLinkData } from '@components/AbstractSources/linkGenerator';
 import { DatabaseIcon, DocumentTextIcon, ViewListIcon } from '@heroicons/react/outline';
+import { useIsClient } from '@hooks/useIsClient';
 import { isBrowser } from '@utils';
 import { useRouter } from 'next/router';
-import { MouseEventHandler, ReactElement, useEffect, useState } from 'react';
+import { MouseEventHandler, ReactElement } from 'react';
 
 export interface IItemResourceDropdownsProps {
   doc: IDocsEntity;
@@ -21,12 +22,7 @@ interface IItem {
 
 export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): ReactElement => {
   const router = useRouter();
-
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isClient = useIsClient();
 
   let fullSourceItems: IItem[] = [];
 
@@ -143,7 +139,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
   return (
     <>
       {/* full resources menu */}
-      {isMounted ? (
+      {isClient ? (
         <Menu variant="compact">
           <MenuButton
             as={IconButton}
@@ -179,7 +175,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
       )}
 
       {/* reference and citation items menu */}
-      {isMounted ? (
+      {isClient ? (
         <Menu variant="compact">
           <MenuButton
             as={IconButton}
@@ -215,7 +211,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
       )}
 
       {/* data product items menu */}
-      {isMounted ? (
+      {isClient ? (
         <Menu variant="compact">
           <MenuButton
             as={IconButton}

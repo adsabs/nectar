@@ -1,12 +1,13 @@
 import { SolrSort, SolrSortDirection, SolrSortField } from '@api';
-import { SortAscendingIcon, SortDescendingIcon } from '@heroicons/react/outline';
-import { Fragment, ReactElement, useEffect, useMemo, useRef, useState } from 'react';
-import { sortValues } from './model';
 import { IconButton } from '@chakra-ui/button';
-import { Box, HStack } from '@chakra-ui/layout';
 import { Input } from '@chakra-ui/input';
+import { Box, HStack } from '@chakra-ui/layout';
 import { Select as ChakraSelect } from '@chakra-ui/react';
 import { Select, SortSelectorStyle } from '@components';
+import { SortAscendingIcon, SortDescendingIcon } from '@heroicons/react/outline';
+import { useIsClient } from '@hooks/useIsClient';
+import { Fragment, ReactElement, useEffect, useMemo, useRef, useState } from 'react';
+import { sortValues } from './model';
 
 export interface ISortProps {
   name?: string;
@@ -48,11 +49,7 @@ export const Sort = (props: ISortProps): ReactElement => {
     }
   }, [selected, onChange]);
 
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isClient = useIsClient();
 
   const sortItems: SortOptionType[] = sortValues.map(({ id, text }) => ({
     id: id,
@@ -78,7 +75,7 @@ export const Sort = (props: ISortProps): ReactElement => {
   };
 
   // non-js initially rendered on the server, will be swapped out for the full-featured one below when it hits client
-  if (!isMounted) {
+  if (!isClient) {
     return (
       <ChakraSelect id="sort" name="sort" defaultValue={sort}>
         {sortItems.map((item) => (

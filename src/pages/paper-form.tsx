@@ -1,18 +1,18 @@
-import { Box, Text, VStack, Grid, GridItem, Stack, Divider } from '@chakra-ui/layout';
 import { Button } from '@chakra-ui/button';
+import { FormControl, FormErrorMessage, FormHelperText, FormLabel } from '@chakra-ui/form-control';
+import { Input } from '@chakra-ui/input';
+import { Box, Divider, Grid, GridItem, Stack, Text, VStack } from '@chakra-ui/layout';
+import { Textarea } from '@chakra-ui/textarea';
 import { BibstemPickerSingle, TextInput } from '@components';
 import { PaperFormController } from '@controllers/paperformController';
 import { PaperFormType, RawPaperFormParams } from '@controllers/paperformController/types';
 import { useAPI } from '@hooks';
+import { useIsClient } from '@hooks/useIsClient';
 import { ErrorMessage, Field, FieldProps, Form, Formik } from 'formik';
 import { NextPage } from 'next';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { curry } from 'ramda';
-import { FormControl, FormLabel, FormHelperText, FormErrorMessage } from '@chakra-ui/form-control';
-import { Textarea } from '@chakra-ui/textarea';
-import { Input } from '@chakra-ui/input';
-import { useState, useEffect } from 'react';
-import Head from 'next/head';
 
 type PaperFormState = {
   [PaperFormType.JOURNAL_QUERY]: {
@@ -32,11 +32,7 @@ type PaperFormState = {
 const PaperForm: NextPage = () => {
   const router = useRouter();
   const { api } = useAPI();
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isClient = useIsClient();
 
   const handleSubmit = curry(async (type: PaperFormType, params: RawPaperFormParams) => {
     try {
@@ -55,9 +51,9 @@ const PaperForm: NextPage = () => {
       <Head>
         <title>NASA Science Explorer - Paper Form Search</title>
       </Head>
-      <JournalQueryForm onSubmit={handleSubmit(PaperFormType.JOURNAL_QUERY)} isMounted={isMounted} />
-      <ReferenceQueryForm onSubmit={handleSubmit(PaperFormType.REFERENCE_QUERY)} isMounted={isMounted} />
-      <BibcodeQueryForm onSubmit={handleSubmit(PaperFormType.BIBCODE_QUERY)} isMounted={isMounted} />
+      <JournalQueryForm onSubmit={handleSubmit(PaperFormType.JOURNAL_QUERY)} isClient={isClient} />
+      <ReferenceQueryForm onSubmit={handleSubmit(PaperFormType.REFERENCE_QUERY)} isClient={isClient} />
+      <BibcodeQueryForm onSubmit={handleSubmit(PaperFormType.BIBCODE_QUERY)} isClient={isClient} />
     </VStack>
   );
 };
@@ -65,7 +61,7 @@ export default PaperForm;
 
 type SubmitHandler = <T>(params: T) => Promise<void>;
 
-const JournalQueryForm = ({ onSubmit, isMounted }: { onSubmit: SubmitHandler; isMounted: boolean }) => {
+const JournalQueryForm = ({ onSubmit, isClient }: { onSubmit: SubmitHandler; isClient: boolean }) => {
   return (
     <Formik<PaperFormState[PaperFormType.JOURNAL_QUERY]>
       initialValues={{ bibstem: '', year: '', volume: '', pageid: '' }}
@@ -99,7 +95,7 @@ const JournalQueryForm = ({ onSubmit, isMounted }: { onSubmit: SubmitHandler; is
               {/* Bibstem picker */}
               <Grid gridColumn={6} gap={4}>
                 <GridItem colSpan={6}>
-                  {isMounted ? (
+                  {isClient ? (
                     <BibstemPickerSingle name="bibstem" onItemUpdate={handleBibstemUpdate} />
                   ) : (
                     <Input name="bibstem" label="Publication" />
@@ -122,7 +118,7 @@ const JournalQueryForm = ({ onSubmit, isMounted }: { onSubmit: SubmitHandler; is
                 <Button size="sm" isDisabled={isSubmitting} type="submit" isLoading={isSubmitting}>
                   Search
                 </Button>
-                {isMounted && (
+                {isClient && (
                   <Button variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
                     Reset
                   </Button>
@@ -136,7 +132,7 @@ const JournalQueryForm = ({ onSubmit, isMounted }: { onSubmit: SubmitHandler; is
   );
 };
 
-const ReferenceQueryForm = ({ onSubmit, isMounted }: { onSubmit: SubmitHandler; isMounted: boolean }) => {
+const ReferenceQueryForm = ({ onSubmit, isClient }: { onSubmit: SubmitHandler; isClient: boolean }) => {
   return (
     <Formik<PaperFormState[PaperFormType.REFERENCE_QUERY]>
       initialValues={{ reference: '' }}
@@ -169,7 +165,7 @@ const ReferenceQueryForm = ({ onSubmit, isMounted }: { onSubmit: SubmitHandler; 
               <Button size="sm" isDisabled={isSubmitting} type="submit" isLoading={isSubmitting}>
                 Search
               </Button>
-              {isMounted && (
+              {isClient && (
                 <Button variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
                   Reset
                 </Button>
@@ -182,7 +178,7 @@ const ReferenceQueryForm = ({ onSubmit, isMounted }: { onSubmit: SubmitHandler; 
   );
 };
 
-const BibcodeQueryForm = ({ onSubmit, isMounted }: { onSubmit: SubmitHandler; isMounted: boolean }) => {
+const BibcodeQueryForm = ({ onSubmit, isClient }: { onSubmit: SubmitHandler; isClient: boolean }) => {
   return (
     <Formik<PaperFormState[PaperFormType.BIBCODE_QUERY]>
       initialValues={{ bibcodes: '' }}
@@ -218,7 +214,7 @@ const BibcodeQueryForm = ({ onSubmit, isMounted }: { onSubmit: SubmitHandler; is
               <Button size="sm" isDisabled={isSubmitting} type="submit" isLoading={isSubmitting}>
                 Search
               </Button>
-              {isMounted && (
+              {isClient && (
                 <Button variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
                   Reset
                 </Button>

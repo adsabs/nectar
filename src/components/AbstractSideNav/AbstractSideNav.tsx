@@ -1,19 +1,20 @@
 import { IDocsEntity } from '@api';
-import { Flex, Text, Badge, Box, Stack, Link } from '@chakra-ui/layout';
 import { Button } from '@chakra-ui/button';
-import { Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/menu';
+import { ChevronDownIcon } from '@chakra-ui/icons';
+import { Badge, Box, Flex, Link, Stack, Text } from '@chakra-ui/layout';
+import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
+import { SimpleLinkList } from '@components';
+import { ItemType } from '@components/Dropdown/types';
 import { DocumentIcon } from '@heroicons/react/outline';
+import { useIsClient } from '@hooks/useIsClient';
 import { useBaseRouterPath } from '@utils';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
+import qs from 'qs';
 import { last } from 'ramda';
-import { HTMLAttributes, ReactElement, useEffect, useState } from 'react';
+import { HTMLAttributes, ReactElement } from 'react';
 import { navigation, Routes } from './model';
 import { useHasGraphics, useHasMetrics } from './queries';
-import { ChevronDownIcon } from '@chakra-ui/icons';
-import { SimpleLinkDropdown, SimpleLinkList } from '@components';
-import { ItemType } from '@components/Dropdown/types';
-import qs from 'qs';
 
 export interface IAbstractSideNavProps extends HTMLAttributes<HTMLDivElement> {
   doc?: IDocsEntity;
@@ -26,14 +27,8 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
   const hasGraphics = useHasGraphics(doc);
   const hasMetrics = useHasMetrics(doc);
   const hasToc = doc.property ? doc.property.indexOf('TOC') > -1 : false;
-
   const useCount = [Routes.CITATIONS, Routes.REFERENCES];
-
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isClient = useIsClient();
 
   const items = navigation.map((item) => {
     const MenuIcon = item.icon || DocumentIcon;
@@ -132,7 +127,7 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
 
     return (
       <>
-        {isMounted ? (
+        {isClient ? (
           <Menu matchWidth>
             <MenuButton width="full">{label}</MenuButton>
             <MenuList>

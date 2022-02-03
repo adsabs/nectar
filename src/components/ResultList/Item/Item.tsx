@@ -1,12 +1,13 @@
 import { IDocsEntity } from '@api';
-import { Flex, Link, Text, Stack, Box } from '@chakra-ui/layout';
 import { Checkbox } from '@chakra-ui/checkbox';
+import { Box, Flex, Link, Stack, Text } from '@chakra-ui/layout';
+import { useIsClient } from '@hooks/useIsClient';
 import { getFomattedNumericPubdate } from '@utils';
 import { useMachine } from '@xstate/react';
 import clsx from 'clsx';
 import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
-import { ReactElement, useState, useEffect } from 'react';
+import { ReactElement } from 'react';
 import { IAbstractPreviewProps } from './AbstractPreview';
 import { ItemResourceDropdowns } from './ItemResourceDropdowns';
 import { itemMachine, ItemMachine } from './machine/item';
@@ -32,11 +33,7 @@ export const Item = (props: IItemProps): ReactElement => {
   const [state, send] = useMachine(itemMachine.withContext({ id }));
   const formattedPubDate = getFomattedNumericPubdate(pubdate);
   const [formattedBibstem] = bibstem;
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isClient = useIsClient();
 
   if ((set && state.matches('unselected')) || (clear && state.matches('selected'))) {
     send({ type: ItemMachine.TransitionTypes.TOGGLE_SELECT });
@@ -92,7 +89,7 @@ export const Item = (props: IItemProps): ReactElement => {
             </Link>
           </NextLink>
           <Flex alignItems="start" ml={1}>
-            {!isMounted || hideActions ? null : <ItemResourceDropdowns doc={doc} />}
+            {!isClient || hideActions ? null : <ItemResourceDropdowns doc={doc} />}
           </Flex>
         </Flex>
         <Flex direction="column">

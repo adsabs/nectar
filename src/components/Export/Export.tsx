@@ -1,4 +1,11 @@
+import { Button } from '@chakra-ui/button';
+import { CloseButton } from '@chakra-ui/close-button';
+import { CopyIcon, DownloadIcon } from '@chakra-ui/icons';
+import { Flex, HStack, Stack } from '@chakra-ui/layout';
+import { Textarea } from '@chakra-ui/react';
+import { Collapse, Fade } from '@chakra-ui/transition';
 import { TextInput } from '@components';
+import { useIsClient } from '@hooks/useIsClient';
 import PT from 'prop-types';
 import { ChangeEvent, HTMLAttributes, ReactElement, useEffect, useRef, useState } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
@@ -7,12 +14,6 @@ import { FormatSelector } from './FormatSelector';
 import { useExportMachine } from './hook';
 import { LimitRange } from './LimitRange';
 import { ExportState } from './types';
-import { Flex, HStack, Stack } from '@chakra-ui/layout';
-import { Button } from '@chakra-ui/button';
-import { Collapse, Fade } from '@chakra-ui/transition';
-import { CloseButton } from '@chakra-ui/close-button';
-import { CopyIcon, DownloadIcon } from '@chakra-ui/icons';
-import { Textarea } from '@chakra-ui/react';
 
 export interface IExportProps extends HTMLAttributes<HTMLDivElement> {
   initialFormat?: ExportState['format'];
@@ -61,11 +62,7 @@ export const Export = ({
     loadInitially,
   });
 
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isClient = useIsClient();
 
   const noText = !state.text || state.text.length === 0;
 
@@ -79,7 +76,7 @@ export const Export = ({
       spacing={2}
     >
       {!singleMode && <CloseButton as={Flex} justifyContent="end" width="full" />}
-      {isMounted && (
+      {isClient && (
         <form onSubmit={onSubmit}>
           <Stack direction="column" spacing={3}>
             <FormatSelector format={state.format} onFormatChange={onFormatChange} />
@@ -98,7 +95,7 @@ export const Export = ({
           </Stack>
         </form>
       )}
-      {isMounted && (
+      {isClient && (
         <HStack>
           <Button
             data-testid="btn-download"

@@ -78,9 +78,8 @@ const Tabs = ({ show }: { show: boolean }) => {
 };
 
 const TitleLogo = () => {
-  const viewport = useViewport();
   return (
-    <Stack direction="row" justifyContent="center" alignItems="center" spacing={3} hidden={viewport < Viewport.SM}>
+    <Stack direction="row" justifyContent="center" alignItems="center" spacing={3}>
       <AdsSmallLogo className="w-16 h-16" aria-hidden />
       <Heading as="h2" color="white">
         <Text as="span" fontWeight="bold">
