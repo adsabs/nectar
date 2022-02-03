@@ -4,13 +4,13 @@ import { Box, Flex, Link, Text } from '@chakra-ui/layout';
 import { VisuallyHidden } from '@chakra-ui/react';
 import { useIsClient } from '@hooks/useIsClient';
 import NextLink from 'next/link';
-import { HTMLAttributes, MouseEvent, ReactElement } from 'react';
+import { HTMLAttributes, MouseEventHandler, ReactElement } from 'react';
 import { usePagination } from './usePagination';
 
 export interface IPaginationProps extends HTMLAttributes<HTMLDivElement> {
   totalResults: number;
   numPerPage: number;
-  onPageChange: (page: number) => void;
+  onPageChange: (page: number, start: number) => void;
 }
 
 const defaultProps = {
@@ -45,18 +45,20 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
     return null;
   }
 
-  const pageChangeHandler = (idx: number) => {
-    return (e: MouseEvent<HTMLButtonElement>) => handlePageChange(e, idx);
+  const pageChangeHandler: MouseEventHandler<HTMLButtonElement> = (e) => {
+    handlePageChange(e, parseInt(e.currentTarget.dataset['index'], 10));
   };
 
   const renderControls = () => {
     return pages.map(({ index, href }) => {
+      const key = `pagination-link${href.pathname}/${index}`;
       // current page styling
       if (index === page) {
         return isClient ? (
           <Button
-            key={href}
-            onClick={pageChangeHandler(index)}
+            key={key}
+            onClick={pageChangeHandler}
+            data-index={index}
             aria-current="page"
             data-testid="pagination-item"
             aria-label={`Current page, page ${page}`}
@@ -65,7 +67,7 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
             {index}
           </Button>
         ) : (
-          <NextLink key={href} href={href} passHref>
+          <NextLink key={key} href={href} passHref>
             <Link aria-current="page" data-testid="pagination-item" aria-label={`Current page, page ${page}`}>
               {index}
             </Link>
@@ -76,8 +78,9 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
       // normal, non-current page
       return isClient ? (
         <Button
-          key={href}
-          onClick={pageChangeHandler(index)}
+          key={key}
+          onClick={pageChangeHandler}
+          data-index={index}
           aria-label={`Goto page ${page}`}
           data-testid="pagination-item"
           variant="page"
@@ -85,7 +88,7 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
           {index}
         </Button>
       ) : (
-        <NextLink key={href} href={href} passHref>
+        <NextLink key={key} href={href} passHref>
           <Link aria-label={`Goto page ${page}`} data-testid="pagination-item">
             {index}
           </Link>
