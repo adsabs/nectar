@@ -1,11 +1,11 @@
 import { IDocsEntity } from '@api';
 import { Button } from '@chakra-ui/button';
 import { ChevronDownIcon, LockIcon, UnlockIcon } from '@chakra-ui/icons';
-import { HStack, Text } from '@chakra-ui/layout';
+import { HStack, Text, VStack } from '@chakra-ui/layout';
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
-import { SimpleLinkDropdown } from '@components/Dropdown/SimpleLinkDropdown';
+import { SimpleLinkList } from '@components';
 import { ItemType } from '@components/Dropdown/types';
-import { isBrowser } from '@utils';
+import { useIsClient } from '@hooks/useIsClient';
 import { isNil } from 'ramda';
 import { HTMLAttributes, MouseEvent, MouseEventHandler, ReactElement, useMemo } from 'react';
 import { IDataProductSource, IFullTextSource, IRelatedWorks, processLinkData } from './linkGenerator';
@@ -15,6 +15,7 @@ export interface IAbstractSourcesProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export const AbstractSources = ({ doc }: IAbstractSourcesProps): ReactElement => {
+  const isClient = useIsClient();
   const sources = useMemo(() => {
     if (doc && Array.isArray(doc.esources)) {
       return processLinkData(doc, null);
@@ -31,11 +32,20 @@ export const AbstractSources = ({ doc }: IAbstractSourcesProps): ReactElement =>
   }
 
   return (
-    <HStack as="section" wrap="wrap" spacing={0.5} columnGap={1} rowGap={1}>
-      <FullTextDropdown sources={sources.fullTextSources} />
-      <DataProductDropdown dataProducts={sources.dataProducts} relatedWorks={[]} />
-      {isBrowser() ? <Button>Add to library</Button> : null}
-    </HStack>
+    <>
+      {!isClient ? (
+        <VStack as="section" wrap="wrap" spacing={0.5} columnGap={1} rowGap={1} alignItems="start">
+          <FullTextDropdown sources={sources.fullTextSources} />
+          <DataProductDropdown dataProducts={sources.dataProducts} relatedWorks={[]} />
+        </VStack>
+      ) : (
+        <HStack as="section" wrap="wrap" spacing={0.5} columnGap={1} rowGap={1} alignItems="start">
+          <FullTextDropdown sources={sources.fullTextSources} />
+          <DataProductDropdown dataProducts={sources.dataProducts} relatedWorks={[]} />
+          <Button>Add to library</Button>
+        </HStack>
+      )}
+    </>
   );
 };
 
@@ -47,6 +57,7 @@ interface IFullTextDropdownProps {
 
 const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
   const { sources } = props;
+  const isClient = useIsClient();
 
   const fullSourceItems = sources.map((source) => ({
     id: source.name,
@@ -57,7 +68,7 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
       </>
     ) : (
       <>
-        <LockIcon mr={1} />
+        <LockIcon color="gray.700" mr={1} />
         {` ${source.name}`}
       </>
     ),
@@ -74,23 +85,24 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
   const handleSelect = (e: MouseEvent<HTMLElement>) => {
     const id = (e.target as HTMLElement).dataset['id'];
     const path = fullSourceItems.find((item) => id === item.id)?.path;
-    if (isBrowser() && path) {
+    if (isClient && path) {
       window.open(path, '_blank', 'noopener,noreferrer');
     }
   };
 
   return (
     <>
-      {!isBrowser() ? (
+      {!isClient ? (
         <span>
-          {fullSourceItems.length === 0 ? (
+          {/* {fullSourceItems.length === 0 ? (
             label
           ) : (
             <SimpleLinkDropdown items={fullSourceItems} label={label} minListWidth="180px" />
-          )}
+          )} */}
+          <SimpleLinkList items={fullSourceItems} minWidth="180px" label="Full text sources" showLabel={true} asRow />
         </span>
       ) : null}
-      {isBrowser() ? (
+      {isClient ? (
         <Menu>
           <MenuButton as={Button} rightIcon={<ChevronDownIcon />} isDisabled={fullSourceItems.length === 0}>
             Full Text Sources
@@ -117,6 +129,7 @@ interface IRelatedMaterialsDropdownProps {
 
 const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElement => {
   const { dataProducts, relatedWorks } = props;
+  const isClient = useIsClient();
 
   const dataProductItems = useMemo(
     () =>
@@ -146,7 +159,7 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
     // data product heading
     items.push({
       id: 'data-subheading',
-      label: 'Data Products',
+      label: 'Data Products:',
       path: '',
       disabled: true,
     });
@@ -157,7 +170,7 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
     // related works heading
     items.push({
       id: 'related-subheading',
-      label: 'Related Materials',
+      label: 'Related Materials:',
       path: '',
       disabled: true,
     });
@@ -173,19 +186,20 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
   const handleSelect: MouseEventHandler<HTMLElement> = (e) => {
     const id = e.currentTarget.dataset['id'];
     const path = items.find((item) => id === item.id)?.path;
-    if (isBrowser() && path) {
+    if (isClient && path) {
       window.open(path, '_blank', 'noopener,noreferrer');
     }
   };
 
   return (
     <>
-      {!isBrowser() ? (
+      {!isClient ? (
         <span>
-          {items.length === 0 ? label : <SimpleLinkDropdown items={items} label={label} minListWidth="150px" />}
+          {/* {items.length === 0 ? label : <SimpleLinkDropdown items={items} label={label} minListWidth="150px" />} */}
+          <SimpleLinkList items={items} minWidth="150px" label="Other Resources" showLabel={true} asRow />
         </span>
       ) : null}
-      {isBrowser() ? (
+      {isClient ? (
         <Menu>
           <MenuButton as={Button} rightIcon={<ChevronDownIcon />} isDisabled={items.length === 0}>
             Other Resources

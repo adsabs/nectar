@@ -10,6 +10,7 @@ import { useRouter } from 'next/router';
 import qs from 'qs';
 import { Alert, AlertIcon } from '@chakra-ui/alert';
 import { AbstractRefList } from '@components/AbstractRefList';
+import Head from 'next/head';
 
 interface IVolumePageProps {
   originalDoc: IDocsEntity;
@@ -54,6 +55,9 @@ const VolumePage: NextPage<IVolumePageProps> = (props: IVolumePageProps) => {
 
   return (
     <AbsLayout doc={originalDoc} titleDescription="Papers in the same volume as">
+      <Head>
+        <title>NASA Science Explorer - Volume - {originalDoc.title[0]}</title>
+      </Head>
       {error ? (
         <Alert status="error">
           <AlertIcon />

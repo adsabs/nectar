@@ -9,6 +9,7 @@ import { ISearchMachine, TransitionType } from '@machines/lib/search/types';
 import { normalizeURLParams } from '@utils';
 import { useSelector } from '@xstate/react';
 import { GetServerSideProps, NextPage } from 'next';
+import Head from 'next/head';
 import { ChangeEvent, ReactElement } from 'react';
 interface ISearchPageProps {
   error?: string;
@@ -77,6 +78,9 @@ const Form = (props: IFormProps): ReactElement => {
 
   return (
     <Box aria-labelledby="search-form-title" my={16}>
+      <Head>
+        <title>NASA Science Explorer - Search Results</title>
+      </Head>
       <form method="get" action="/search" onSubmit={handleOnSubmit}>
         <VisuallyHidden as="h2" id="search-form-title">
           Search Results

@@ -1,8 +1,12 @@
 import { GetServerSideProps, NextPage } from 'next';
+import Head from 'next/head';
 
 const Register: NextPage = () => {
   return (
     <div className="bg-grey-lighter flex flex-col min-h-screen">
+      <Head>
+        <title>NASA Science Explorer - Register</title>
+      </Head>
       <div className="container flex flex-1 flex-col items-center justify-center mx-auto px-2 max-w-sm">
         <div className="px-6 py-8 w-full text-black bg-white rounded shadow-md">
           <h1 className="mb-8 text-center text-3xl">Sign up</h1>

@@ -1,5 +1,5 @@
 import { Container, Flex } from '@chakra-ui/layout';
-import { LandingTabs } from '@components/LandingTabs';
+import { LandingTabs } from '@components';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { FC } from 'react';

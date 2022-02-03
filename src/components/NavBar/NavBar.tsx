@@ -13,24 +13,23 @@ export const NavBar: FC = () => {
     <Box as="nav" backgroundColor="gray.900">
       <Flex direction="row" alignItems="center" justifyContent="space-between" spacing={3} mx={4} my={2}>
         <HStack spacing={3}>
-          <Box display={{ base: 'none', sm: 'initial' }}>
-            <NextLink href="/" passHref>
-              <Link _hover={{ textDecoration: 'none' }}>
-                <HStack cursor="pointer" spacing={1}>
-                  <AdsSmallLogo className="w-10 h-10" aria-hidden />
-                  <Heading
-                    as="h1"
-                    size="lg"
-                    tabIndex={0}
-                    color="gray.50"
-                    _focus={{ boxShadow: 'outline', outline: 'none' }}
-                  >
-                    SciX
-                  </Heading>
-                </HStack>
-              </Link>
-            </NextLink>
-          </Box>
+          <NextLink href="/" passHref>
+            <Link _hover={{ textDecoration: 'none' }}>
+              <HStack cursor="pointer" spacing={1}>
+                <AdsSmallLogo className="w-10 h-10" aria-hidden />
+                <Heading
+                  as="h1"
+                  size="lg"
+                  tabIndex={0}
+                  color="gray.50"
+                  _focus={{ boxShadow: 'outline', outline: 'none' }}
+                  display={{ base: 'none', sm: 'initial' }}
+                >
+                  SciX
+                </Heading>
+              </HStack>
+            </Link>
+          </NextLink>
           <ThemeDropdown />
         </HStack>
         <Link href="#main-content" color="gray.50" className="focus:not-sr-only sr-only">

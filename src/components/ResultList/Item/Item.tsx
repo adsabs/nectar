@@ -1,6 +1,7 @@
 import { IDocsEntity } from '@api';
-import { Flex, Link, Text, Stack, Box } from '@chakra-ui/layout';
 import { Checkbox } from '@chakra-ui/checkbox';
+import { Box, Flex, Link, Stack, Text } from '@chakra-ui/layout';
+import { useIsClient } from '@hooks/useIsClient';
 import { getFomattedNumericPubdate } from '@utils';
 import { useMachine } from '@xstate/react';
 import clsx from 'clsx';
@@ -32,6 +33,7 @@ export const Item = (props: IItemProps): ReactElement => {
   const [state, send] = useMachine(itemMachine.withContext({ id }));
   const formattedPubDate = getFomattedNumericPubdate(pubdate);
   const [formattedBibstem] = bibstem;
+  const isClient = useIsClient();
 
   if ((set && state.matches('unselected')) || (clear && state.matches('selected'))) {
     send({ type: ItemMachine.TransitionTypes.TOGGLE_SELECT });
@@ -63,15 +65,7 @@ export const Item = (props: IItemProps): ReactElement => {
   ) : null;
 
   return (
-    <Flex
-      direction="row"
-      as="article"
-      border="1px"
-      borderColor="gray.50"
-      mb={1}
-      borderRadius="md"
-      aria-labelledby={`result-${id}`}
-    >
+    <Flex direction="row" as="article" border="1px" borderColor="gray.50" mb={1} borderRadius="md">
       <Flex direction="row" className={checkBgClass} m={0}>
         <Text color={state.matches('selected') ? 'white' : 'initial'} display={{ base: 'none', md: 'initial' }} mr={1}>
           {index}
@@ -82,7 +76,7 @@ export const Item = (props: IItemProps): ReactElement => {
             id={`result-checkbox-${index}`}
             onChange={handleSelect}
             isChecked={state.matches('selected')}
-            aria-label={title[0]}
+            aria-label={`Select ${title[0]}`}
             size="md"
           />
         )}
@@ -95,7 +89,7 @@ export const Item = (props: IItemProps): ReactElement => {
             </Link>
           </NextLink>
           <Flex alignItems="start" ml={1}>
-            {hideActions ? null : <ItemResourceDropdowns doc={doc} />}
+            {!isClient || hideActions ? null : <ItemResourceDropdowns doc={doc} />}
           </Flex>
         </Flex>
         <Flex direction="column">

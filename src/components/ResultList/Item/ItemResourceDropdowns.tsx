@@ -5,6 +5,7 @@ import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
 import { SimpleLinkDropdown } from '@components';
 import { processLinkData } from '@components/AbstractSources/linkGenerator';
 import { DatabaseIcon, DocumentTextIcon, ViewListIcon } from '@heroicons/react/outline';
+import { useIsClient } from '@hooks/useIsClient';
 import { isBrowser } from '@utils';
 import { useRouter } from 'next/router';
 import { MouseEventHandler, ReactElement } from 'react';
@@ -21,6 +22,7 @@ interface IItem {
 
 export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): ReactElement => {
   const router = useRouter();
+  const isClient = useIsClient();
 
   let fullSourceItems: IItem[] = [];
 
@@ -137,7 +139,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
   return (
     <>
       {/* full resources menu */}
-      {isBrowser() ? (
+      {isClient ? (
         <Menu variant="compact">
           <MenuButton
             as={IconButton}
@@ -158,7 +160,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
           )}
         </Menu>
       ) : (
-        <span>
+        <>
           {fullSourceItems.length === 0 ? (
             simpleFullSourceItemsLabel
           ) : (
@@ -169,11 +171,11 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
               alignRight={true}
             />
           )}
-        </span>
+        </>
       )}
 
       {/* reference and citation items menu */}
-      {isBrowser() ? (
+      {isClient ? (
         <Menu variant="compact">
           <MenuButton
             as={IconButton}
@@ -194,7 +196,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
           )}
         </Menu>
       ) : (
-        <span>
+        <>
           {referenceItems.length === 0 ? (
             simpleRefItemsLabel
           ) : (
@@ -205,11 +207,11 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
               alignRight={true}
             />
           )}
-        </span>
+        </>
       )}
 
       {/* data product items menu */}
-      {isBrowser() ? (
+      {isClient ? (
         <Menu variant="compact">
           <MenuButton
             as={IconButton}
@@ -230,7 +232,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
           )}
         </Menu>
       ) : (
-        <span>
+        <>
           {dataProductItems.length === 0 ? (
             simpleDataItemsLabel
           ) : (
@@ -241,7 +243,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
               alignRight={true}
             />
           )}
-        </span>
+        </>
       )}
     </>
   );

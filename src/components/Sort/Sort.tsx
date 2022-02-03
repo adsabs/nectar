@@ -1,13 +1,13 @@
 import { SolrSort, SolrSortDirection, SolrSortField } from '@api';
-import { SortAscendingIcon, SortDescendingIcon } from '@heroicons/react/outline';
-import { isBrowser } from '@utils';
-import { ReactElement, useEffect, useMemo, useRef, useState } from 'react';
-import { sortValues } from './model';
 import { IconButton } from '@chakra-ui/button';
-import { Box, HStack } from '@chakra-ui/layout';
 import { Input } from '@chakra-ui/input';
+import { Box, HStack } from '@chakra-ui/layout';
 import { Select as ChakraSelect } from '@chakra-ui/react';
 import { Select, SortSelectorStyle } from '@components';
+import { SortAscendingIcon, SortDescendingIcon } from '@heroicons/react/outline';
+import { useIsClient } from '@hooks/useIsClient';
+import { Fragment, ReactElement, useEffect, useMemo, useRef, useState } from 'react';
+import { sortValues } from './model';
 
 export interface ISortProps {
   name?: string;
@@ -49,6 +49,8 @@ export const Sort = (props: ISortProps): ReactElement => {
     }
   }, [selected, onChange]);
 
+  const isClient = useIsClient();
+
   const sortItems: SortOptionType[] = sortValues.map(({ id, text }) => ({
     id: id,
     value: id,
@@ -73,18 +75,16 @@ export const Sort = (props: ISortProps): ReactElement => {
   };
 
   // non-js initially rendered on the server, will be swapped out for the full-featured one below when it hits client
-  if (!isBrowser()) {
+  if (!isClient) {
     return (
-      <span>
-        <ChakraSelect id="sort" name="sort" defaultValue={sort}>
-          {sortItems.map((item) => (
-            <span key={item.label}>
-              <option value={`${item.id} asc`}>{item.label} - Asc</option>
-              <option value={`${item.id} desc`}>{item.label} - Desc</option>
-            </span>
-          ))}
-        </ChakraSelect>
-      </span>
+      <ChakraSelect id="sort" name="sort" defaultValue={sort}>
+        {sortItems.map((item) => (
+          <Fragment key={item.label}>
+            <option value={`${item.id} asc`}>{item.label} - Asc</option>
+            <option value={`${item.id} desc`}>{item.label} - Desc</option>
+          </Fragment>
+        ))}
+      </ChakraSelect>
     );
   }
 

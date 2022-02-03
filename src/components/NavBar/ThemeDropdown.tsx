@@ -1,7 +1,6 @@
 import { AppEvent, useAppCtx } from '@store';
 import { Theme } from '@types';
 import { ReactElement, useEffect, useState } from 'react';
-import { useViewport, Viewport } from '@hooks';
 import { Select, ThemeSelectorStyle } from '@components';
 import { Box } from '@chakra-ui/layout';
 
@@ -47,8 +46,6 @@ const themes: ThemeOption[] = [
 export const ThemeDropdown = (): ReactElement => {
   const { state: appState, dispatch } = useAppCtx();
 
-  const viewport = useViewport();
-
   const [selectedTheme, setSelectedTheme] = useState<ThemeOption>(themes[0]);
 
   useEffect(() => {
@@ -60,7 +57,7 @@ export const ThemeDropdown = (): ReactElement => {
   };
 
   return (
-    <Box width={viewport < Viewport.XS ? '200px' : '270px'}>
+    <Box width={{ base: '200px', xs: '270px' }}>
       <Select value={selectedTheme} options={themes} styles={ThemeSelectorStyle} onChange={handleOnSelect} />
     </Box>
   );

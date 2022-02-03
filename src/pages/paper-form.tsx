@@ -1,17 +1,18 @@
-import { Box, Text, VStack, Grid, GridItem, Stack, Divider } from '@chakra-ui/layout';
 import { Button } from '@chakra-ui/button';
+import { FormControl, FormErrorMessage, FormHelperText, FormLabel } from '@chakra-ui/form-control';
+import { Input } from '@chakra-ui/input';
+import { Box, Divider, Grid, GridItem, Stack, Text, VStack } from '@chakra-ui/layout';
+import { Textarea } from '@chakra-ui/textarea';
 import { BibstemPickerSingle, TextInput } from '@components';
 import { PaperFormController } from '@controllers/paperformController';
 import { PaperFormType, RawPaperFormParams } from '@controllers/paperformController/types';
 import { useAPI } from '@hooks';
-import { isBrowser } from '@utils';
+import { useIsClient } from '@hooks/useIsClient';
 import { ErrorMessage, Field, FieldProps, Form, Formik } from 'formik';
 import { NextPage } from 'next';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { curry } from 'ramda';
-import { FormControl, FormLabel, FormHelperText, FormErrorMessage } from '@chakra-ui/form-control';
-import { Textarea } from '@chakra-ui/textarea';
-import { Input } from '@chakra-ui/input';
 
 type PaperFormState = {
   [PaperFormType.JOURNAL_QUERY]: {
@@ -31,6 +32,7 @@ type PaperFormState = {
 const PaperForm: NextPage = () => {
   const router = useRouter();
   const { api } = useAPI();
+  const isClient = useIsClient();
 
   const handleSubmit = curry(async (type: PaperFormType, params: RawPaperFormParams) => {
     try {
@@ -46,9 +48,12 @@ const PaperForm: NextPage = () => {
 
   return (
     <VStack as="article" spacing={5} my={16}>
-      <JournalQueryForm onSubmit={handleSubmit(PaperFormType.JOURNAL_QUERY)} />
-      <ReferenceQueryForm onSubmit={handleSubmit(PaperFormType.REFERENCE_QUERY)} />
-      <BibcodeQueryForm onSubmit={handleSubmit(PaperFormType.BIBCODE_QUERY)} />
+      <Head>
+        <title>NASA Science Explorer - Paper Form Search</title>
+      </Head>
+      <JournalQueryForm onSubmit={handleSubmit(PaperFormType.JOURNAL_QUERY)} isClient={isClient} />
+      <ReferenceQueryForm onSubmit={handleSubmit(PaperFormType.REFERENCE_QUERY)} isClient={isClient} />
+      <BibcodeQueryForm onSubmit={handleSubmit(PaperFormType.BIBCODE_QUERY)} isClient={isClient} />
     </VStack>
   );
 };
@@ -56,7 +61,7 @@ export default PaperForm;
 
 type SubmitHandler = <T>(params: T) => Promise<void>;
 
-const JournalQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
+const JournalQueryForm = ({ onSubmit, isClient }: { onSubmit: SubmitHandler; isClient: boolean }) => {
   return (
     <Formik<PaperFormState[PaperFormType.JOURNAL_QUERY]>
       initialValues={{ bibstem: '', year: '', volume: '', pageid: '' }}
@@ -90,7 +95,7 @@ const JournalQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
               {/* Bibstem picker */}
               <Grid gridColumn={6} gap={4}>
                 <GridItem colSpan={6}>
-                  {isBrowser() ? (
+                  {isClient ? (
                     <BibstemPickerSingle name="bibstem" onItemUpdate={handleBibstemUpdate} />
                   ) : (
                     <Input name="bibstem" label="Publication" />
@@ -105,17 +110,19 @@ const JournalQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
                   <ErrorMessage name="volume" component="div" />
                 </GridItem>
                 <GridItem colSpan={2}>
-                  <Field name="page" as={TextInput} label="Page / ID" />
-                  <ErrorMessage name="page" component="div" />
+                  <Field name="pageid" as={TextInput} label="Page / ID" />
+                  <ErrorMessage name="pageid" component="div" />
                 </GridItem>
               </Grid>
               <Stack direction="row" mt={5}>
                 <Button size="sm" isDisabled={isSubmitting} type="submit" isLoading={isSubmitting}>
                   Search
                 </Button>
-                <Button variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
-                  Reset
-                </Button>
+                {isClient && (
+                  <Button variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
+                    Reset
+                  </Button>
+                )}
               </Stack>
             </Form>
           </VStack>
@@ -125,7 +132,7 @@ const JournalQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
   );
 };
 
-const ReferenceQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
+const ReferenceQueryForm = ({ onSubmit, isClient }: { onSubmit: SubmitHandler; isClient: boolean }) => {
   return (
     <Formik<PaperFormState[PaperFormType.REFERENCE_QUERY]>
       initialValues={{ reference: '' }}
@@ -158,9 +165,11 @@ const ReferenceQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
               <Button size="sm" isDisabled={isSubmitting} type="submit" isLoading={isSubmitting}>
                 Search
               </Button>
-              <Button variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
-                Reset
-              </Button>
+              {isClient && (
+                <Button variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
+                  Reset
+                </Button>
+              )}
             </Stack>
           </Form>
         </Box>
@@ -169,7 +178,7 @@ const ReferenceQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
   );
 };
 
-const BibcodeQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
+const BibcodeQueryForm = ({ onSubmit, isClient }: { onSubmit: SubmitHandler; isClient: boolean }) => {
   return (
     <Formik<PaperFormState[PaperFormType.BIBCODE_QUERY]>
       initialValues={{ bibcodes: '' }}
@@ -205,9 +214,11 @@ const BibcodeQueryForm = ({ onSubmit }: { onSubmit: SubmitHandler }) => {
               <Button size="sm" isDisabled={isSubmitting} type="submit" isLoading={isSubmitting}>
                 Search
               </Button>
-              <Button variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
-                Reset
-              </Button>
+              {isClient && (
+                <Button variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
+                  Reset
+                </Button>
+              )}
             </Stack>
           </Form>
         </Box>

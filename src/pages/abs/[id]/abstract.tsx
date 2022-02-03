@@ -10,13 +10,15 @@ import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/q
 import { createUrlByType } from '@components/AbstractSources/linkGenerator';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { useAPI } from '@hooks';
+import { useIsClient } from '@hooks/useIsClient';
 import { GetServerSideProps, NextPage } from 'next';
+import Head from 'next/head';
 import NextImage from 'next/image';
 import NextLink from 'next/link';
 import { isNil } from 'ramda';
 import { useEffect, useState } from 'react';
 import { dehydrate, QueryClient } from 'react-query';
-import { isBrowser, normalizeURLParams } from 'src/utils';
+import { normalizeURLParams } from 'src/utils';
 export interface IAbstractPageProps {
   doc?: IDocsEntity;
   error?: string;
@@ -31,12 +33,10 @@ const MAX_AUTHORS = 50;
 
 const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) => {
   const { doc, error, params } = props;
-
   const [showNumAuthors, setShowNumAuthors] = useState<number>(MAX_AUTHORS);
-
   const [aff, setAff] = useState({ show: false, data: [] as string[] });
+  const isClient = useIsClient();
 
-  // onComponentDidMount
   useEffect(() => {
     if (doc && showNumAuthors > doc.author.length) {
       setShowNumAuthors(doc.author.length);
@@ -77,6 +77,9 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
 
   return (
     <AbsLayout doc={doc} titleDescription={''}>
+      <Head>
+        <title>NASA Science Explorer - Abstract - {doc.title[0]}</title>
+      </Head>
       <Box as="article" aria-labelledby="title">
         {error ? (
           <Alert status="error">
@@ -89,7 +92,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
               {doc.title}
             </Heading>
             <HStack spacing={1}>
-              {isBrowser() ? (
+              {isClient ? (
                 <>
                   <Button onClick={aff.show ? handleHideAff : handleShowAff} variant="outline" size="xs">
                     {aff.show ? 'hide affiliations' : 'show affiliations'}
@@ -145,12 +148,12 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                     </Box>
                   );
                 })}
-                {isBrowser() && doc.author.length > showNumAuthors ? (
+                {isClient && doc.author.length > showNumAuthors ? (
                   <Link onClick={handleShowAllAuthors} fontStyle="italic">{`and ${
                     doc.author.length - showNumAuthors
                   } more`}</Link>
                 ) : null}
-                {!isBrowser() && doc.author.length > showNumAuthors ? (
+                {!isClient && doc.author.length > showNumAuthors ? (
                   <Text as="span" fontStyle="italic">{`and ${doc.author.length - showNumAuthors} more`}</Text>
                 ) : null}
               </Flex>
@@ -195,7 +198,7 @@ const Details = ({ doc }: IDetailsProps) => {
           {entries.map(({ label, value, href }) => (
             <Tr key={label}>
               <Td>{label}</Td>
-              <Td>
+              <Td wordBreak="break-word">
                 {href && href !== '' ? (
                   <NextLink href={href} passHref>
                     <Link target="_blank" rel="noreferrer">

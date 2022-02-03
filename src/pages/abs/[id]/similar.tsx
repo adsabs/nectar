@@ -10,6 +10,7 @@ import { normalizeURLParams } from 'src/utils';
 import qs from 'qs';
 import { Alert, AlertIcon } from '@chakra-ui/alert';
 import { AbstractRefList } from '@components/AbstractRefList';
+import Head from 'next/head';
 export interface ICitationsPageProps {
   docs: IDocsEntity[];
   originalDoc: IDocsEntity;
@@ -44,6 +45,9 @@ const SimilarPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProps) 
 
   return (
     <AbsLayout doc={originalDoc} titleDescription="Papers similar to">
+      <Head>
+        <title>NASA Science Explorer - Similar - {originalDoc.title[0]}</title>
+      </Head>
       {error ? (
         <Alert status="error">
           <AlertIcon />
