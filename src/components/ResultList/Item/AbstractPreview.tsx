@@ -1,94 +1,55 @@
 import { IDocsEntity } from '@api';
+import { IconButton } from '@chakra-ui/button';
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import { Flex, Text, VStack } from '@chakra-ui/layout';
 import { Collapse } from '@chakra-ui/transition';
-import { IconButton } from '@chakra-ui/button';
-import { useAPI } from '@hooks';
-import { useMachine } from '@xstate/react';
-import { assign, ContextFrom, DoneInvokeEvent } from 'xstate';
-import { createModel } from 'xstate/lib/model';
-
-const createAbstractPreviewMachine = ({
-  initialContext,
-  fetchAbstract,
-}: {
-  initialContext: { abstract: string; show: boolean };
-  fetchAbstract: () => Promise<string>;
-}) => {
-  const model = createModel(initialContext, {
-    events: {
-      load: () => ({}),
-    },
-  });
-
-  return model.createMachine({
-    id: 'abstract-preview',
-    initial: 'idle',
-    states: {
-      idle: {
-        on: {
-          load: 'fetching',
-        },
-      },
-      fetching: {
-        invoke: {
-          src: fetchAbstract,
-          onDone: {
-            target: 'done',
-            actions: assign<ContextFrom<typeof model>, DoneInvokeEvent<string>>({
-              abstract: (_, ev) => ev.data,
-              show: true,
-            }),
-          },
-        },
-      },
-      done: {
-        on: {
-          load: {
-            actions: model.assign({
-              show: (ctx) => !ctx.show,
-            }),
-          },
-        },
-      },
-    },
-  });
-};
+import { useGetAbstractPreview } from '@_api/search';
+import { useState } from 'react';
+import { toast } from 'react-toastify';
 
 export interface IAbstractPreviewProps {
-  id: IDocsEntity['id'];
+  bibcode: IDocsEntity['bibcode'];
 }
-export const AbstractPreview = ({ id }: IAbstractPreviewProps): React.ReactElement => {
-  const { api } = useAPI();
-  const [state, send] = useMachine(
-    createAbstractPreviewMachine({
-      fetchAbstract: async () => {
-        const result = await api.search.query({ q: `id:${id}`, fl: ['abstract'] });
-        return result.match(
-          ({ response: { docs } }) => (typeof docs[0].abstract === 'undefined' ? 'No Abstract' : docs[0].abstract),
-          (e) => {
-            throw e;
-          },
-        );
+
+const text = {
+  error: 'Problem loading abstract preview' as const,
+  noAbstract: 'No Abstract' as const,
+  hideAbstract: 'Hide Abstract Preview' as const,
+  showAbstract: 'Show Abstract Preview' as const,
+  seeFullAbstract: 'See full abstract' as const,
+};
+
+export const AbstractPreview = ({ bibcode }: IAbstractPreviewProps): React.ReactElement => {
+  const [show, setShow] = useState(false);
+  const { data, isFetching, isSuccess } = useGetAbstractPreview(
+    { bibcode },
+    {
+      enabled: show,
+      keepPreviousData: true,
+      onError: () => {
+        // show toast notification on error, and close drawer
+        toast(text.error, { type: 'error' });
+        setShow(false);
       },
-      initialContext: { abstract: '', show: false },
-    }),
+    },
   );
 
   return (
     <Flex direction="column" justifyContent="center" alignContent="center">
-      <Collapse in={state.context.show} animateOpacity>
-        <Text fontSize="md" mt={1} dangerouslySetInnerHTML={{ __html: state.context.abstract }} />
-      </Collapse>
+      {isSuccess && (
+        <Collapse in={show} animateOpacity>
+          <Text fontSize="md" mt={1} dangerouslySetInnerHTML={{ __html: data.docs[0]?.abstract ?? text.noAbstract }} />
+        </Collapse>
+      )}
       <VStack>
         <IconButton
-          aria-label={state.context.show ? 'hide abstract' : 'show abstract'}
-          onClick={() => send('load')}
+          aria-label={show ? 'hide abstract' : 'show abstract'}
+          onClick={() => setShow(!show)}
           disabled={false}
           variant="unstyled"
           width="fit-content"
-          isLoading={state.matches('fetching')}
-          icon={state.context.show ? <ChevronUpIcon /> : <ChevronDownIcon />}
+          isLoading={isFetching}
+          icon={show ? <ChevronUpIcon /> : <ChevronDownIcon />}
         />
       </VStack>
     </Flex>

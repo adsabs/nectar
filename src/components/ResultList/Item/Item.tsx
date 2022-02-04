@@ -7,6 +7,7 @@ import { getFomattedNumericPubdate } from '@utils';
 import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
 import { ChangeEvent, ReactElement, useCallback } from 'react';
+import shallow from 'zustand/shallow';
 import { IAbstractPreviewProps } from './AbstractPreview';
 import { ItemResourceDropdowns } from './ItemResourceDropdowns';
 
@@ -96,7 +97,7 @@ export const Item = (props: IItemProps): ReactElement => {
             {cite && (formattedPubDate || formattedBibstem) ? <span className="px-2">·</span> : null}
             {cite}
           </Text>
-          <AbstractPreview id={id} />
+          <AbstractPreview bibcode={bibcode} />
         </Flex>
       </Stack>
     </Flex>
@@ -105,7 +106,7 @@ export const Item = (props: IItemProps): ReactElement => {
 
 const ItemCheckbox = (props: { index: number; bibcode: string; title: string[]; isChecked: boolean }) => {
   const { index, bibcode, title, isChecked } = props;
-  const [selectDoc, unSelectDoc] = useStore((state) => [state.selectDoc, state.unSelectDoc]);
+  const [selectDoc, unSelectDoc] = useStore((state) => [state.selectDoc, state.unSelectDoc], shallow);
 
   // on select, update the local state and appState
   const handleSelect = (e: ChangeEvent<HTMLInputElement>) => {
