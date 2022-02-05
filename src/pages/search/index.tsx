@@ -72,7 +72,7 @@ const SearchPage: NextPage<ISearchPageProps> = ({ searchParams }) => {
 
   // call the onSuccess handler on all calls, rather than only on data fetches
   useEffect(() => {
-    if (submitted) {
+    if (submitted && data) {
       onResultsChange(data);
     }
   }, [submitted, data]);
