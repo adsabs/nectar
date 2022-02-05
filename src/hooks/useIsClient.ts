@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 /**
  * SSR client-side hook for checking if we are on the client
  *
- * @see https://usehooks-ts.com/react-hook/use-is-client
+ * @link https://usehooks-ts.com/react-hook/use-is-client
  */
 export const useIsClient = (): boolean => {
   const [isClient, setIsClient] = useState(false);
