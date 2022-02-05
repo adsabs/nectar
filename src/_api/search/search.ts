@@ -6,6 +6,7 @@ import api, { ApiRequestConfig } from '../api';
 import {
   defaultParams,
   getAbstractParams,
+  getAffiliationParams,
   getCitationsParams,
   getCoreadsParams,
   getReferencesParams,
@@ -24,6 +25,8 @@ export const searchKeys = {
   primary: (params: IADSApiSearchParams) => ['search', params] as const,
   preview: (bibcode: IDocsEntity['bibcode']) => ['search/preview', { bibcode }] as const,
   abstract: (id: string) => ['search/abstract', { id }] as const,
+  affiliations: ({ bibcode, start }: { bibcode: IDocsEntity['bibcode']; start: number }) =>
+    ['search/affiliations', { bibcode, start }] as const,
   citations: ({ bibcode, start }: { bibcode: IDocsEntity['bibcode']; start: number }) =>
     ['search/citations', { bibcode, start }] as const,
   references: ({ bibcode, start }: { bibcode: IDocsEntity['bibcode']; start: number }) =>
@@ -132,6 +135,23 @@ export const useGetAbstract: ADSQuery<{ id: string }, UseSearchResult> = ({ id }
   const params = getAbstractParams(id);
   return useQuery({
     queryKey: searchKeys.abstract(id),
+    queryFn: fetchSearch,
+    meta: { params },
+    select: responseSelector,
+    ...options,
+  });
+};
+
+/**
+ * Get affiliations based on an id
+ */
+export const useGetAffiliations: ADSQuery<{ bibcode: IDocsEntity['bibcode']; start: number }, UseSearchResult> = (
+  { bibcode, start },
+  options,
+) => {
+  const params = getAffiliationParams(bibcode, start);
+  return useQuery({
+    queryKey: searchKeys.affiliations({ bibcode, start }),
     queryFn: fetchSearch,
     meta: { params },
     select: responseSelector,
