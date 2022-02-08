@@ -3,9 +3,10 @@ import { Alert, AlertIcon } from '@chakra-ui/alert';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { Metrics } from '@components/Metrics';
 import { withDetailsPage } from '@hocs/withDetailsPage';
+import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
 import { composeNextGSSP, normalizeURLParams } from '@utils';
 import { fetchMetrics, metricsKeys, useGetMetrics } from '@_api/metrics';
-import { searchKeys, useGetAbstract } from '@_api/search';
+import { searchKeys } from '@_api/search';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -25,11 +26,7 @@ const MetricsPage: NextPage<IMetricsPageProps> = (props: IMetricsPageProps) => {
   const { id } = props;
   const router = useRouter();
 
-  const {
-    data: {
-      docs: [doc],
-    },
-  } = useGetAbstract({ id });
+  const doc = useGetAbstractDoc(id);
 
   const { data: metrics, isError, isSuccess, error } = useGetMetrics(doc.bibcode, { keepPreviousData: true });
 
