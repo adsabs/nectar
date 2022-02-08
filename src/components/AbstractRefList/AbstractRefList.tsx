@@ -1,7 +1,7 @@
-import { Link, Stack } from '@chakra-ui/layout';
-import NextLink from 'next/link';
-import { SimpleResultList } from '@components';
 import { IADSApiSearchParams, IDocsEntity } from '@api';
+import { Link, Stack } from '@chakra-ui/layout';
+import { SimpleResultList } from '@components';
+import NextLink from 'next/link';
 import { ReactElement } from 'react';
 
 interface IAbstractRefListProps {
@@ -19,7 +19,7 @@ export const AbstractRefList = (props: IAbstractRefListProps): ReactElement => {
       <NextLink href={resultsLinkHref} passHref>
         <Link>View as search results</Link>
       </NextLink>
-      <SimpleResultList query={query} numFound={numFound} docs={docs} hideCheckboxes={true} />
+      <SimpleResultList docs={docs} hideCheckboxes={true} />
     </Stack>
   );
 };
