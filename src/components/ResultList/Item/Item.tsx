@@ -39,14 +39,14 @@ export const Item = (props: IItemProps): ReactElement => {
   // citations
   const cite = useNormCite ? (
     typeof doc.citation_count_norm === 'number' && doc.citation_count_norm > 0 ? (
-      <NextLink href={`/abs/${bibcode}/citations`} passHref>
+      <NextLink href={`/abs/[id]/citations`} as={`/abs/${bibcode}/citations`} passHref>
         <Link>
           <Text>cited(n): {doc.citation_count_norm}</Text>
         </Link>
       </NextLink>
     ) : null
   ) : typeof doc.citation_count === 'number' && doc.citation_count > 0 ? (
-    <NextLink href={`/abs/${bibcode}/citations`} passHref>
+    <NextLink href={`/abs/[id]/citations`} as={`/abs/${bibcode}/citations`} passHref>
       <Link>cited: {doc.citation_count}</Link>
     </NextLink>
   ) : null;
@@ -69,7 +69,7 @@ export const Item = (props: IItemProps): ReactElement => {
       </Flex>
       <Stack direction="column" width="full" spacing={0} mx={3} mt={2}>
         <Flex justifyContent="space-between">
-          <NextLink href={`/abs/${bibcode}`} passHref>
+          <NextLink href={`/abs/[id]/abstract`} as={`/abs/${bibcode}/abstract`} passHref>
             <Link fontWeight="semibold">
               <span dangerouslySetInnerHTML={{ __html: title[0] }}></span>
             </Link>
