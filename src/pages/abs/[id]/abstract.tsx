@@ -1,163 +1,90 @@
-import AdsApi, { IDocsEntity, IUserData, SolrSort } from '@api';
+import { IDocsEntity } from '@api';
 import { Alert, AlertIcon } from '@chakra-ui/alert';
-import { Button } from '@chakra-ui/button';
-import { Box, Flex, HStack, Link, Stack, Text } from '@chakra-ui/layout';
-import { Heading } from '@chakra-ui/react';
+import { Box, Link, Stack, Text } from '@chakra-ui/layout';
+import { Flex } from '@chakra-ui/react';
 import { Table, Tbody, Td, Tr } from '@chakra-ui/table';
-import { AbstractSources, metatagsQueryFields } from '@components';
-import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
-import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/queries';
+import { AbstractSources } from '@components';
 import { createUrlByType } from '@components/AbstractSources/linkGenerator';
+import { IAllAuthorsModalProps } from '@components/AllAuthorsModal';
+import { useGetAuthors } from '@components/AllAuthorsModal/useGetAuthors';
 import { AbsLayout } from '@components/Layout/AbsLayout';
-import { useAPI } from '@hooks';
-import { useIsClient } from '@hooks/useIsClient';
+import { APP_DEFAULTS } from '@config';
+import { withDetailsPage } from '@hocs/withDetailsPage';
+import { composeNextGSSP } from '@utils';
+import { useGetAbstract } from '@_api/search';
 import { GetServerSideProps, NextPage } from 'next';
+import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import NextImage from 'next/image';
 import NextLink from 'next/link';
 import { isNil } from 'ramda';
-import { useEffect, useState } from 'react';
-import { dehydrate, QueryClient } from 'react-query';
-import { normalizeURLParams } from 'src/utils';
+
+const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
+  () => import('@components/AllAuthorsModal').then((m) => m.AllAuthorsModal),
+  { ssr: false },
+);
+
 export interface IAbstractPageProps {
-  doc?: IDocsEntity;
-  error?: string;
-  params: {
-    q: string;
-    fl: string[];
-    sort: SolrSort[];
+  id: string;
+  error?: {
+    status?: string;
+    message?: string;
   };
 }
 
-const MAX_AUTHORS = 50;
+const MAX = APP_DEFAULTS.DETAILS_MAX_AUTHORS;
 
 const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) => {
-  const { doc, error, params } = props;
-  const [showNumAuthors, setShowNumAuthors] = useState<number>(MAX_AUTHORS);
-  const [aff, setAff] = useState({ show: false, data: [] as string[] });
-  const isClient = useIsClient();
+  const { id, error } = props;
 
-  useEffect(() => {
-    if (doc && showNumAuthors > doc.author.length) {
-      setShowNumAuthors(doc.author.length);
-    }
-  }, [doc]);
+  // this *should* only ever fetch from pre-filled cache
+  const { data, isSuccess } = useGetAbstract({ id });
 
-  const { api } = useAPI();
+  // should be able to access docs here directly
+  const doc = isSuccess ? data.docs?.[0] : undefined;
 
-  const handleShowAllAuthors = () => {
-    setShowNumAuthors(doc.author.length);
-  };
-
-  const handleShowLessAuthors = () => {
-    setShowNumAuthors(Math.min(doc.author.length, MAX_AUTHORS));
-  };
-
-  const handleShowAff = () => {
-    if (aff.data.length === 0) {
-      params.fl = ['aff'];
-      void api.search.query(params).then((result) => {
-        result.match(
-          ({ response }) => {
-            setAff({ show: true, data: response.docs[0].aff });
-          },
-          () => {
-            return;
-          },
-        );
-      });
-    } else {
-      setAff({ show: true, data: aff.data });
-    }
-  };
-
-  const handleHideAff = () => {
-    setAff({ show: false, data: aff.data });
-  };
+  // process authors from doc
+  const authors = useGetAuthors({ doc, includeAff: false });
 
   return (
     <AbsLayout doc={doc} titleDescription={''}>
-      <Head>
-        <title>NASA Science Explorer - Abstract - {doc.title[0]}</title>
-      </Head>
+      <Head>{isSuccess && <title>NASA Science Explorer - Abstract - {doc.title[0]}</title>}</Head>
       <Box as="article" aria-labelledby="title">
-        {error ? (
-          <Alert status="error">
+        {error && (
+          <Alert status="error" mt={2}>
             <AlertIcon />
-            {error}
+            {error.status}: {error.message}
           </Alert>
-        ) : (
+        )}
+        {isSuccess && (
           <Stack direction="column" gap={2}>
-            <Heading as="h2" variant="abstract" id="title">
-              {doc.title}
-            </Heading>
-            <HStack spacing={1}>
-              {isClient ? (
-                <>
-                  <Button onClick={aff.show ? handleHideAff : handleShowAff} variant="outline" size="xs">
-                    {aff.show ? 'hide affiliations' : 'show affiliations'}
-                  </Button>
-                  {doc.author.length > MAX_AUTHORS && (
-                    <Button
-                      onClick={doc.author.length > showNumAuthors ? handleShowAllAuthors : handleShowLessAuthors}
-                      variant="outline"
-                      size="xs"
-                    >
-                      {doc.author.length > showNumAuthors ? 'show all authors' : 'show less authors'}
-                    </Button>
+            <Flex wrap="wrap">
+              {authors.map(([author, orcid], index) => (
+                <Box mr={1} key={`${author}${index}`}>
+                  <NextLink
+                    href={{
+                      pathname: '/search',
+                      query: {
+                        q: typeof orcid === 'string' ? `orcid:${orcid}` : `author:${author}`,
+                        sort: 'date desc, bibcode desc',
+                      },
+                    }}
+                    passHref
+                  >
+                    <Link px={1}>{author}</Link>
+                  </NextLink>
+                  {typeof orcid === 'string' && (
+                    <NextImage src="/img/orcid-active.svg" width="16px" height="16px" alt="Search by ORCID" />
                   )}
-                </>
-              ) : null}
-            </HStack>
-            {doc.author && doc.author.length > 0 && (
-              <Flex direction={aff.show ? 'column' : 'row'} wrap="wrap">
-                {doc.author.slice(0, showNumAuthors).map((a, index) => {
-                  const orcid =
-                    doc.orcid_pub && doc.orcid_pub[index] !== '-'
-                      ? doc.orcid_pub[index]
-                      : doc.orcid_user && doc.orcid_user[index] !== '-'
-                      ? doc.orcid_user[index]
-                      : doc.orcid_other && doc.orcid_other[index] !== '-'
-                      ? doc.orcid_other[index]
-                      : undefined;
-                  return (
-                    <Box mr={1} key={index}>
-                      <NextLink
-                        href={`/search?q=${encodeURIComponent(`author:"${a}"`)}&sort=${encodeURIComponent(
-                          'date desc, bibcode desc',
-                        )}`}
-                        passHref
-                      >
-                        <Link>{a}</Link>
-                      </NextLink>
-                      {orcid && (
-                        <NextLink
-                          href={{
-                            pathname: '/search',
-                            query: { q: `orcid:${orcid}`, sort: 'date desc, bibcode desc' },
-                          }}
-                          passHref
-                        >
-                          <Link px={1}>
-                            <NextImage src="/img/orcid-active.svg" width="16px" height="16px" alt="Search by ORCID" />
-                          </Link>
-                        </NextLink>
-                      )}
-                      {aff.show ? <>({aff.data[index]})</> : null}
-                      <>{index === MAX_AUTHORS - 1 || index + 1 === doc.author.length ? ' ' : ';'}</>
-                    </Box>
-                  );
-                })}
-                {isClient && doc.author.length > showNumAuthors ? (
-                  <Link onClick={handleShowAllAuthors} fontStyle="italic">{`and ${
-                    doc.author.length - showNumAuthors
-                  } more`}</Link>
-                ) : null}
-                {!isClient && doc.author.length > showNumAuthors ? (
-                  <Text as="span" fontStyle="italic">{`and ${doc.author.length - showNumAuthors} more`}</Text>
-                ) : null}
-              </Flex>
-            )}
+                  <>{index === MAX - 1 || index === doc.author_count - 1 ? '' : ';'}</>
+                </Box>
+              ))}
+              {doc.author_count > MAX ? (
+                <AllAuthorsModal bibcode={doc.bibcode} label={`and ${doc.author_count - MAX} more`} />
+              ) : (
+                <AllAuthorsModal bibcode={doc.bibcode} label={'see all'} />
+              )}
+            </Flex>
 
             <AbstractSources doc={doc} />
             {isNil(doc.abstract) ? (
@@ -217,50 +144,4 @@ const Details = ({ doc }: IDetailsProps) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps<IAbstractPageProps> = async (ctx) => {
-  const query = normalizeURLParams(ctx.query);
-  const request = ctx.req as typeof ctx.req & {
-    session: { userData: IUserData };
-  };
-  const userData = request.session.userData;
-  const params = {
-    q: `identifier:${query.id}`,
-    fl: [
-      ...abstractPageNavDefaultQueryFields,
-      ...metatagsQueryFields,
-      'author_count',
-      'comment',
-      'data',
-      'orcid_pub',
-      'orcid_user',
-      'orcid_other',
-      'property',
-    ],
-    sort: query.sort ? (query.sort.split(',') as SolrSort[]) : [],
-  };
-  const adsapi = new AdsApi({ token: userData.access_token });
-  const result = await adsapi.search.query(params);
-
-  const queryClient = new QueryClient();
-  if (result.isOk()) {
-    const { bibcode } = result.value.response.docs[0];
-    void (await queryClient.prefetchQuery(['hasGraphics', bibcode], () => fetchHasGraphics(adsapi, bibcode)));
-    void (await queryClient.prefetchQuery(['hasMetrics', bibcode], () => fetchHasMetrics(adsapi, bibcode)));
-  }
-
-  if (result.isErr()) {
-    return { props: { doc: null, params, error: 'Unable to get abstract' } };
-  }
-
-  const { numFound, docs } = result.value.response;
-
-  return numFound === 0
-    ? { notFound: true }
-    : {
-        props: {
-          dehydratedState: dehydrate(queryClient),
-          doc: docs[0],
-          params,
-        },
-      };
-};
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage);

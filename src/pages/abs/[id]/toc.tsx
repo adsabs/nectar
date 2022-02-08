@@ -1,77 +1,75 @@
-import AdsApi, { IADSApiSearchParams, IDocsEntity, IUserData } from '@api';
-import { GetServerSideProps, NextPage } from 'next';
-import { AbsLayout } from '@components/Layout/AbsLayout';
-import { normalizeURLParams } from '@utils';
-import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
-import { metatagsQueryFields } from '@components';
-import { dehydrate, QueryClient } from 'react-query';
-import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/queries';
-import { useRouter } from 'next/router';
-import qs from 'qs';
+import { IADSApiSearchParams, IADSApiSearchResponse } from '@api';
 import { Alert, AlertIcon } from '@chakra-ui/alert';
 import { AbstractRefList } from '@components/AbstractRefList';
+import { AbsLayout } from '@components/Layout/AbsLayout';
+import { APP_DEFAULTS } from '@config';
+import { withDetailsPage } from '@hocs/withDetailsPage';
+import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
+import { composeNextGSSP, normalizeURLParams } from '@utils';
+import { searchKeys, useGetToc } from '@_api/search';
+import { getTocParams } from '@_api/search/models';
+import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
+import { useMemo, useState } from 'react';
+import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
 
 interface IVolumePageProps {
-  originalDoc: IDocsEntity;
-  docs: IDocsEntity[];
-  numFound: number;
-  error?: string;
+  id: string;
+  defaultParams: {
+    start: IADSApiSearchParams['start'];
+  };
+  error?: {
+    status?: string;
+    message?: string;
+  };
 }
 
-const getQueryParams = (id: string | string[]): IADSApiSearchParams => {
-  const idStr = Array.isArray(id) ? id[0] : id;
-  const vol = getVolumeId(idStr);
-  return {
-    q: `bibcode:${vol}`,
-    fl: [
-      'bibcode',
-      'title',
-      'author',
-      '[fields author=10]',
-      'author_count',
-      'pubdate',
-      'bibstem',
-      'citation_count',
-      '[citations]',
-      'esources',
-      'property',
-      'data',
-    ],
-    sort: ['date desc'],
-  };
-};
-
-const getVolumeId = (id: string): string => {
-  return id[13] === 'E' ? `${id.substring(0, 14)}*` : `${id.substring(0, 13)}*`;
-};
-
 const VolumePage: NextPage<IVolumePageProps> = (props: IVolumePageProps) => {
-  const { originalDoc, docs, numFound, error } = props;
+  const { id, error, defaultParams } = props;
+  const doc = useGetAbstractDoc(id);
 
-  const { query } = useRouter();
+  const [start, setStart] = useState(defaultParams?.start ?? 0);
+  const params = useMemo(() => ({ bibcode: doc.bibcode, start }), [doc, start]);
+  const router = useRouter();
 
-  const volumeId = getVolumeId(originalDoc.bibcode);
+  const handlePageChange = (page: number, start: number) => {
+    void router.push(
+      { pathname: '/abs/[id]/citations', query: { p: page } },
+      { pathname: `/abs/${doc.bibcode}/citations`, query: { p: page } },
+      {
+        shallow: true,
+      },
+    );
+    setStart(start);
+  };
 
+  const { data, isSuccess } = useGetToc(params, { keepPreviousData: true });
+  const tocParams = getTocParams(doc.bibcode, 0);
   return (
-    <AbsLayout doc={originalDoc} titleDescription="Papers in the same volume as">
+    <AbsLayout doc={doc} titleDescription="Papers in the same volume as">
       <Head>
-        <title>NASA Science Explorer - Volume - {originalDoc.title[0]}</title>
+        <title>NASA Science Explorer - Volume - {doc.title[0]}</title>
       </Head>
-      {error ? (
+      {error && (
         <Alert status="error">
           <AlertIcon />
           {error}
         </Alert>
-      ) : (
+      )}
+      {isSuccess && (
         <AbstractRefList
-          query={getQueryParams(query.id)}
-          docs={docs}
-          resultsLinkHref={`/search?${qs.stringify({
-            q: `bibcode:${volumeId}`,
-            sort: 'date desc',
-          })}`}
-          numFound={numFound}
+          docs={data.docs}
+          totalResults={data.numFound}
+          onPageChange={handlePageChange}
+          indexStart={params.start}
+          href={{
+            pathname: '/search',
+            query: {
+              q: tocParams.q,
+              sort: tocParams.sort,
+            },
+          }}
         />
       )}
     </AbsLayout>
@@ -80,60 +78,57 @@ const VolumePage: NextPage<IVolumePageProps> = (props: IVolumePageProps) => {
 
 export default VolumePage;
 
-export const getServerSideProps: GetServerSideProps<IVolumePageProps> = async (ctx) => {
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage, async (ctx, state) => {
+  const api = (await import('@_api/api')).default;
+  const { fetchSearch } = await import('@_api/search');
+  const axios = (await import('axios')).default;
+  api.setToken(ctx.req.session.userData.access_token);
   const query = normalizeURLParams(ctx.query);
-  const request = ctx.req as typeof ctx.req & {
-    session: { userData: IUserData };
-  };
-  const userData = request.session.userData;
-  const adsapi = new AdsApi({ token: userData.access_token });
-  const mainResult = await adsapi.search.query(getQueryParams(query.id));
-  const originalDoc = await adsapi.search.getDocument(query.id, [
-    ...abstractPageNavDefaultQueryFields,
-    ...metatagsQueryFields,
-  ]);
+  const parsedPage = parseInt(query.p, 10);
+  const page = isNaN(parsedPage) || Math.abs(parsedPage) >= 100 ? 1 : Math.abs(parsedPage);
 
-  const queryClient = new QueryClient();
-  if (!originalDoc.notFound && !originalDoc.error) {
-    const { bibcode } = originalDoc.doc;
-    void (await queryClient.prefetchQuery(['hasGraphics', bibcode], () => fetchHasGraphics(adsapi, bibcode)));
-    void (await queryClient.prefetchQuery(['hasMetrics', bibcode], () => fetchHasMetrics(adsapi, bibcode)));
-  }
+  try {
+    const queryClient = new QueryClient();
+    hydrate(queryClient, state.props?.dehydratedState as DehydratedState);
+    const {
+      response: {
+        docs: [{ bibcode }],
+      },
+    } = queryClient.getQueryData<IADSApiSearchResponse>(searchKeys.abstract(query.id));
 
-  if (originalDoc.notFound || originalDoc.error) {
-    return { notFound: true };
-  }
+    const params = getTocParams(bibcode, (page - 1) * APP_DEFAULTS.RESULT_PER_PAGE);
+    void (await queryClient.prefetchQuery({
+      queryKey: searchKeys.toc({ bibcode, start: params.start }),
+      queryFn: fetchSearch,
+      meta: { params },
+    }));
 
-  const defaultProps = {
-    docs: [],
-    originalDoc: originalDoc.doc,
-    numFound: 0,
-    dehydratedState: dehydrate(queryClient),
-  };
-
-  if (mainResult.isErr()) {
     return {
       props: {
-        ...defaultProps,
-        error: 'Unable to get results',
+        dehydratedState: dehydrate(queryClient),
+        defaultParams: {
+          start: params.start,
+        },
+      },
+    };
+  } catch (e) {
+    if (axios.isAxiosError(e) && e.response) {
+      return {
+        props: {
+          error: {
+            status: e.response.status,
+            message: e.message,
+          },
+        },
+      };
+    }
+    return {
+      props: {
+        error: {
+          status: 500,
+          message: 'Unknown server error',
+        },
       },
     };
   }
-
-  const { numFound, docs } = mainResult.value.response;
-
-  return numFound === 0
-    ? {
-        props: {
-          ...defaultProps,
-          error: 'No results found',
-        },
-      }
-    : {
-        props: {
-          ...defaultProps,
-          docs,
-          numFound,
-        },
-      };
-};
+});

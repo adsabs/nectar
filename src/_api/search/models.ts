@@ -5,7 +5,7 @@ export const defaultFields: IADSApiSearchParams['fl'] = [
   'bibcode',
   'title',
   'author',
-  '[fields author=10]',
+  `[fields author=${APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
   'author_count',
   'pubdate',
   'bibstem',
@@ -19,7 +19,7 @@ export const defaultFields: IADSApiSearchParams['fl'] = [
 
 export const defaultSort: IADSApiSearchParams['sort'] = ['date desc'];
 
-export const defaultParams: Partial<IADSApiSearchParams> = {
+export const defaultParams: IADSApiSearchParams = {
   q: '*:*',
   sort: ['date desc'],
   fl: defaultFields,
@@ -71,6 +71,43 @@ export const getTocParams = (bibcode: IDocsEntity['bibcode'], start: number): IA
 
 export const getAbstractParams = (id: string): IADSApiSearchParams => ({
   ...defaultParams,
-  fl: [...defaultFields, 'read_count', 'abstract', 'comment', 'data', 'orcid_pub', 'orcid_user', 'orcid_other'],
+  fl: [
+    ...defaultFields,
+    'read_count',
+    'abstract',
+    'comment',
+    'data',
+    `[fields orcid_pub=${APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
+    `[fields orcid_user=${APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
+    `[fields orcid_other=${APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
+    'orcid_pub',
+    'orcid_user',
+    'orcid_other',
+  ],
   q: `identifier:"${id}"`,
+});
+
+export const getAffiliationParams = (bibcode: IDocsEntity['bibcode'], start: number): IADSApiSearchParams => ({
+  ...defaultParams,
+  fl: [
+    `[fields author=${start + APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
+    `[fields aff=${start + APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
+    `[fields orcid_pub=${start + APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
+    `[fields orcid_user=${start + APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
+    `[fields orcid_other=${start + APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
+    'author',
+    'aff',
+    'orcid_pub',
+    'orcid_user',
+    'orcid_other',
+    'author_count',
+  ],
+  q: `identifier:"${bibcode}"`,
+});
+
+export const getSearchStatsParams = (params: IADSApiSearchParams, field: string): IADSApiSearchParams => ({
+  ...params,
+  fl: ['id'],
+  stats: true,
+  'stats.field': field.replace(/\s(asc|desc)$/, ''),
 });

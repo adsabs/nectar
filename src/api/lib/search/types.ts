@@ -170,9 +170,9 @@ export interface IDocsEntity {
   nedid?: string;
   nedtype?: string;
   nedtype_object_facet_hier?: string;
-  orcid_other?: string;
-  orcid_pub?: string;
-  orcid_user?: string;
+  orcid_other?: string[];
+  orcid_pub?: string[];
+  orcid_user?: string[];
   page?: string;
   page_count?: string;
   page_range?: string;

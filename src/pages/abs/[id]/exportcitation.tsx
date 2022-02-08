@@ -1,14 +1,14 @@
 import Adsapi, { IDocsEntity } from '@api';
 import { ExportApiFormat, isExportApiFormat } from '@api/lib/export';
-import { Export, metatagsQueryFields } from '@components';
+import { Alert, AlertIcon } from '@chakra-ui/alert';
+import { metatagsQueryFields } from '@components';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/queries';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { normalizeURLParams } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
-import { dehydrate, QueryClient } from 'react-query';
-import { Alert, AlertIcon } from '@chakra-ui/alert';
 import Head from 'next/head';
+import { dehydrate, QueryClient } from 'react-query';
 
 interface IExportCitationPageProps {
   bibcode: IDocsEntity['bibcode'];
@@ -29,9 +29,9 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = ({ originalDoc, b
           <AlertIcon />
           {error}
         </Alert>
-      ) : (
-        <Export initialBibcodes={[bibcode]} initialText={text} initialFormat={format} singleMode />
-      )}
+      ) : null
+      // <Export initialBibcodes={[bibcode]} initialText={text} initialFormat={format} singleMode />
+      }
     </AbsLayout>
   );
 };

@@ -1,94 +1,103 @@
-import AdsApi, { IADSApiMetricsParams, IDocsEntity, IUserData } from '@api';
-import { BasicStatsKey, CitationsStatsKey, IADSApiMetricsResponse, MetricsResponseKey } from '@api/lib/metrics/types';
-import { metatagsQueryFields } from '@components';
-import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
-import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/queries';
+import { IADSApiMetricsResponse, IADSApiSearchResponse } from '@api';
+import { Alert, AlertIcon } from '@chakra-ui/alert';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { Metrics } from '@components/Metrics';
-import { normalizeURLParams } from '@utils';
+import { withDetailsPage } from '@hocs/withDetailsPage';
+import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
+import { composeNextGSSP, normalizeURLParams } from '@utils';
+import { fetchMetrics, metricsKeys, useGetMetrics } from '@_api/metrics';
+import { searchKeys } from '@_api/search';
 import { GetServerSideProps, NextPage } from 'next';
-import { dehydrate, QueryClient } from 'react-query';
-import { Alert, AlertIcon } from '@chakra-ui/alert';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
+import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
+import { toast } from 'react-toastify';
 
 interface IMetricsPageProps {
-  originalDoc: IDocsEntity;
-  error?: string;
-  metrics: IADSApiMetricsResponse;
+  id: string;
+  error?: {
+    status?: string;
+    message?: string;
+  };
 }
 
 const MetricsPage: NextPage<IMetricsPageProps> = (props: IMetricsPageProps) => {
-  const { originalDoc, error, metrics } = props;
+  const { id } = props;
+  const router = useRouter();
 
-  const hasCitations =
-    metrics && metrics[MetricsResponseKey.CITATION_STATS][CitationsStatsKey.TOTAL_NUMBER_OF_CITATIONS] > 0;
+  const doc = useGetAbstractDoc(id);
 
-  const hasReads = metrics && metrics[MetricsResponseKey.BASIC_STATS][BasicStatsKey.TOTAL_NUMBER_OF_READS] > 0;
+  const { data: metrics, isError, isSuccess, error } = useGetMetrics(doc.bibcode, { keepPreviousData: true });
+
+  useEffect(() => {
+    if (isError) {
+      void router.replace('/abs/[id]/abstract', `/abs/${id}/abstract`);
+      toast(error, { type: 'error' });
+    }
+  }, [isError]);
 
   return (
-    <AbsLayout doc={originalDoc} titleDescription="Metrics for">
+    <AbsLayout doc={doc} titleDescription="Metrics for">
       <Head>
-        <title>NASA Science Explorer - Metrics - {originalDoc.title[0]}</title>
+        <title>NASA Science Explorer - Metrics - {doc.title[0]}</title>
       </Head>
-      {error ? (
+      {error && (
         <Alert status="error">
           <AlertIcon />
           {error}
         </Alert>
-      ) : hasCitations || hasReads ? (
-        <Metrics metrics={metrics} isAbstract={true} />
-      ) : (
-        <Alert status="error">
-          <AlertIcon />
-          No metrics data
-        </Alert>
       )}
+      {isSuccess && <Metrics metrics={metrics as IADSApiMetricsResponse} isAbstract={true} />}
     </AbsLayout>
   );
 };
 
 export default MetricsPage;
 
-export const getServerSideProps: GetServerSideProps<IMetricsPageProps> = async (ctx) => {
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage, async (ctx, state) => {
+  const api = (await import('@_api/api')).default;
+  const axios = (await import('axios')).default;
+  api.setToken(ctx.req.session.userData.access_token);
   const query = normalizeURLParams(ctx.query);
-  const request = ctx.req as typeof ctx.req & {
-    session: { userData: IUserData };
-  };
-  const userData = request.session.userData;
-  const params: IADSApiMetricsParams = {
-    bibcode: query.id,
-  };
-  const adsapi = new AdsApi({ token: userData.access_token });
 
-  const result = await adsapi.metrics.query(params);
-  const originalDoc = await adsapi.search.getDocument(query.id, [
-    ...abstractPageNavDefaultQueryFields,
-    ...metatagsQueryFields,
-  ]);
+  try {
+    const queryClient = new QueryClient();
+    hydrate(queryClient, state.props?.dehydratedState as DehydratedState);
+    const {
+      response: {
+        docs: [{ bibcode }],
+      },
+    } = queryClient.getQueryData<IADSApiSearchResponse>(searchKeys.abstract(query.id));
 
-  const queryClient = new QueryClient();
-  if (!originalDoc.notFound && !originalDoc.error) {
-    const { bibcode } = originalDoc.doc;
-    void (await queryClient.prefetchQuery(['hasGraphics', bibcode], () => fetchHasGraphics(adsapi, bibcode)));
-    void (await queryClient.prefetchQuery(['hasMetrics', bibcode], () => fetchHasMetrics(adsapi, bibcode)));
-  }
+    void (await queryClient.prefetchQuery({
+      queryKey: metricsKeys.primary(bibcode),
+      queryFn: fetchMetrics,
+    }));
 
-  return originalDoc.notFound || originalDoc.error
-    ? { notFound: true }
-    : result.isErr()
-    ? {
+    return {
+      props: {
+        dehydratedState: dehydrate(queryClient),
+      },
+    };
+  } catch (e) {
+    if (axios.isAxiosError(e) && e.response) {
+      return {
         props: {
-          originalDoc: originalDoc.doc,
-          dehydratedState: dehydrate(queryClient),
-          error: 'Unable to get results',
-          metrics: null,
-        },
-      }
-    : {
-        props: {
-          originalDoc: originalDoc.doc,
-          dehydratedState: dehydrate(queryClient),
-          metrics: result.value,
+          error: {
+            status: e.response.status,
+            message: e.message,
+          },
         },
       };
-};
+    }
+    return {
+      props: {
+        error: {
+          status: 500,
+          message: 'Unknown server error',
+        },
+      },
+    };
+  }
+});

@@ -6,6 +6,7 @@ import { TypeaheadOption } from './types';
 
 export interface ISearchInputProps extends ControllerStateAndHelpers<TypeaheadOption> {
   isLoading: boolean;
+  handleClear: () => void;
 }
 
 const defaultProps = {
@@ -16,10 +17,17 @@ const propTypes = {
 };
 
 export const SearchInput = forwardRef<HTMLInputElement, ISearchInputProps>((props, ref) => {
-  const { isLoading, reset, getInputProps, inputValue } = props;
+  const { isLoading, getInputProps, inputValue, closeMenu, handleClear } = props;
   const [showClearBtn, setShowClearBtn] = useState(typeof inputValue === 'string' ? inputValue.length > 0 : false);
-  const handleClear = () => reset({ inputValue: '' });
+
   useEffect(() => setShowClearBtn(typeof inputValue === 'string' ? inputValue.length > 0 : false), [inputValue]);
+
+  // close the menu if we happen to be loading
+  useEffect(() => {
+    if (isLoading) {
+      closeMenu();
+    }
+  }, [isLoading]);
 
   const handleInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     // by default, downshift captures home/end, prevent that here
@@ -61,7 +69,9 @@ export const SearchInput = forwardRef<HTMLInputElement, ISearchInputProps>((prop
         {isLoading ? (
           <>
             <span className="sr-only">Loading</span>
-            <RefreshIcon className="w-5 h-5 text-white transform rotate-180 animate-spin" />
+            <div className="animate-spin">
+              <RefreshIcon className="w-5 h-5 text-white" transform="scale (-1, 1)" transform-origin="center" />
+            </div>
           </>
         ) : (
           <>

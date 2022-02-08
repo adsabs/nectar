@@ -1,7 +1,7 @@
 import { FormControl, FormLabel } from '@chakra-ui/form-control';
-import { ReactElement } from 'react';
-import ReactSelect, { StylesConfig, ControlProps, OptionProps } from 'react-select';
 import { CSSObject } from '@emotion/react';
+import { ReactElement } from 'react';
+import ReactSelect, { ControlProps, OptionProps, StylesConfig } from 'react-select';
 
 export type SelectOption = {
   id: string;

@@ -1,31 +1,35 @@
 import { Box, Flex, Text } from '@chakra-ui/layout';
-import { ISearchBarProps, SearchBar, SearchExamples } from '@components';
-import { useSearchMachine } from '@machines';
-import { ISearchMachine, TransitionType } from '@machines/lib/search/types';
-import { useSelector } from '@xstate/react';
+import { SearchBar, SearchExamples } from '@components';
+import { useStore, useStoreApi } from '@store';
 import { NextPage } from 'next';
-import { useCallback, useState } from 'react';
+import { useRouter } from 'next/router';
+import { ChangeEventHandler } from 'react';
 
 const HomePage: NextPage = () => {
-  const { service: searchService } = useSearchMachine();
-  const [isLoading, setIsLoading] = useState(false);
+  const query = useStore((state) => state.query);
+  const router = useRouter();
 
-  const handleSubmit = () => {
-    setIsLoading(true);
+  /**
+   * update route and start searching
+   */
+  const handleOnSubmit: ChangeEventHandler<HTMLFormElement> = (e) => {
+    e.preventDefault();
+    const { q, sort } = query;
+    void router.push({ pathname: '/search', query: { q, sort } });
   };
 
   return (
     <Box aria-labelledby="form-title" my={8}>
-      <form method="get" action="/search" onSubmit={handleSubmit}>
+      <form method="get" action="/search" onSubmit={handleOnSubmit}>
         <Text as="h2" className="sr-only" id="form-title">
           Modern Search Form
         </Text>
         <Flex direction="column">
           <Box my={2}>
-            <SearchBarWrapper searchService={searchService} isLoading={isLoading} />
+            <SearchBar />
           </Box>
           <Box mb={2} mt={5}>
-            <SearchExamplesWrapper searchService={searchService} />
+            <SearchExamplesWrapper />
           </Box>
         </Flex>
       </form>
@@ -33,24 +37,17 @@ const HomePage: NextPage = () => {
   );
 };
 
-const SearchExamplesWrapper = ({ searchService }: { searchService: ISearchMachine }) => {
-  const query = useSelector(searchService, (state) => state.context.params.q);
-  const handleExampleClick = useCallback(
-    (text: string) => {
-      searchService.send(TransitionType.SET_PARAMS, { payload: { params: { q: `${query} ${text}` } } });
-    },
-    [query],
-  );
-  return <SearchExamples onClick={handleExampleClick} />;
-};
+const SearchExamplesWrapper = () => {
+  const updateQuery = useStore((state) => state.updateQuery);
+  const store = useStoreApi();
+  const handleExampleClick = (text: string) => {
+    const query = store.getState().query;
 
-const SearchBarWrapper = (props: Omit<ISearchBarProps, 'query' | 'onChange'> & { searchService: ISearchMachine }) => {
-  const { searchService, ...searchBarProps } = props;
-  const query = useSelector(searchService, (state) => state.context.params.q);
-  const setQuery = (query: string) => {
-    searchService.send(TransitionType.SET_PARAMS, { payload: { params: { q: query } } });
+    // Add our text to the end of the query
+    updateQuery({ q: `${query.q}${query.q.length > 0 ? ' ' : ''}${text}` });
   };
-  return <SearchBar initialQuery={query} onQueryChange={setQuery} {...searchBarProps} />;
+
+  return <SearchExamples onClick={handleExampleClick} />;
 };
 
 export default HomePage;

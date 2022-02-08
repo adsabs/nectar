@@ -1,30 +1,29 @@
+import { useStore } from '@store';
 import Downshift, { ControllerStateAndHelpers, StateChangeOptions } from 'downshift';
-import PT from 'prop-types';
-import { ReactElement, useRef, useState } from 'react';
+import { ReactElement, useEffect, useRef } from 'react';
 import { SearchInput } from './SearchInput';
 import { TypeaheadMenu } from './TypeaheadMenu';
 import { TypeaheadOption } from './types';
 
 export interface ISearchBarProps {
-  initialQuery?: string;
-  onQueryChange?: (query: string) => void;
   isLoading?: boolean;
 }
-const defaultProps = {
-  initialQuery: '',
-  isLoading: false,
-};
-
-const propTypes = {
-  initialQuery: PT.string,
-  isLoading: PT.bool,
-  onQueryChange: PT.func,
-};
 
 export const SearchBar = (props: ISearchBarProps): ReactElement => {
-  const { initialQuery, onQueryChange, isLoading } = props;
+  const { isLoading = false } = props;
   const inputRef = useRef<HTMLInputElement>(null);
-  const [query, setQuery] = useState(initialQuery);
+  const { q: query } = useStore((state) => state.query);
+  const updateStoreQuery = useStore((state) => state.updateQuery);
+  const updateQuery = (q: string) => updateStoreQuery({ q });
+
+  useEffect(() => {
+    // check for quote or paren and move cursor back one space to be inside
+    // do this on every update to query
+    if (/(\w|")["\)]$/.exec(inputRef.current.value)) {
+      const len = inputRef.current.value.length;
+      inputRef.current.setSelectionRange(len - 1, len - 1);
+    }
+  }, [query]);
 
   /**
    * State change handler
@@ -35,19 +34,20 @@ export const SearchBar = (props: ISearchBarProps): ReactElement => {
     { type, inputValue }: StateChangeOptions<TypeaheadOption>,
     { setState }: ControllerStateAndHelpers<TypeaheadOption>,
   ) => {
-    // on input change, update the query, and call our handler
     if (type === Downshift.stateChangeTypes.changeInput) {
-      if (typeof onQueryChange === 'function') {
-        onQueryChange(inputValue);
-      }
-      setQuery(inputValue);
-      setState({ inputValue });
+      updateQuery(inputValue);
     }
 
     // In the case we blur, close the menu and make sure that the query is not wiped out
     if (type === Downshift.stateChangeTypes.mouseUp || type === Downshift.stateChangeTypes.blurInput) {
       setState({ isOpen: false, inputValue: query });
     }
+  };
+
+  // on clear button press, clear query and focus
+  const handleClear = () => {
+    updateQuery('');
+    inputRef.current.focus();
   };
 
   /**
@@ -64,23 +64,20 @@ export const SearchBar = (props: ISearchBarProps): ReactElement => {
       return;
     }
 
-    // check for quote or paren and move cursor back one space to be inside
-    if (/["\)]$/.exec(selectedItem.value)) {
-      const len = inputRef.current.value.length;
-      inputRef.current.setSelectionRange(len - 1, len - 1);
-    }
-
+    inputRef.current.value = alterQuery(query, selectedItem);
+    updateQuery(inputRef.current.value);
     setState({ selectedItem: null });
   };
 
   // update query to add the new item on the end, instead of clearing
-  const itemToString = (item: TypeaheadOption) => alterQuery(query, item);
+  // const itemToString = (item: TypeaheadOption) => alterQuery(query, item);
 
   return (
     <Downshift<TypeaheadOption>
-      itemToString={itemToString}
+      itemToString={() => ''}
       onStateChange={onStateChange}
-      initialInputValue={initialQuery}
+      initialInputValue={query}
+      inputValue={query}
       onSelect={handleItemSelected}
       initialIsOpen={false}
       labelId="searchbar-label"
@@ -95,7 +92,7 @@ export const SearchBar = (props: ISearchBarProps): ReactElement => {
             <label {...getLabelProps()} className="sr-only">
               Search
             </label>
-            <SearchInput {...dsProps} ref={inputRef} isLoading={isLoading} />
+            <SearchInput {...dsProps} ref={inputRef} isLoading={isLoading} handleClear={handleClear} />
             <TypeaheadMenu {...dsProps} />
           </section>
         );
@@ -103,8 +100,6 @@ export const SearchBar = (props: ISearchBarProps): ReactElement => {
     </Downshift>
   );
 };
-SearchBar.defaultProps = defaultProps;
-SearchBar.propTypes = propTypes;
 
 /**
  * Takes in current query string an a value that will be added

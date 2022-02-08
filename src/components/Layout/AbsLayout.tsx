@@ -1,7 +1,6 @@
 import { IDocsEntity } from '@api';
-import { Stack, Heading, Text } from '@chakra-ui/layout';
-import { AbstractSideNav } from '@components';
-import { Metatags } from '@components';
+import { Heading, Stack, Text } from '@chakra-ui/layout';
+import { AbstractSideNav, Metatags } from '@components';
 import Head from 'next/head';
 import { FC } from 'react';
 
@@ -11,19 +10,25 @@ interface IAbsLayoutProps {
 }
 
 export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription }) => {
+  if (typeof doc === 'undefined') {
+    return <>{children}</>;
+  }
+
+  const title = doc.title[0] ?? '';
+
   return (
     <Stack direction={{ base: 'column', lg: 'row' }} my={{ base: '6', lg: '16' }} spacing={6}>
       <Head>
-        <title>{doc?.title ?? ''}</title>
+        <title>{title}</title>
         <Metatags doc={doc} />
       </Head>
       <AbstractSideNav doc={doc} />
       <Stack direction="column" as="section" aria-labelledby="title" spacing={1} width="full">
-        <Heading as="h2" id="title" fontSize="2xl">
+        <Heading as="h2" id="title" fontSize="2xl" variant="abstract">
           <Text as="span" fontSize="xl">
             {titleDescription}
           </Text>{' '}
-          <Text>{doc.title}</Text>
+          <Text dangerouslySetInnerHTML={{ __html: title }} />
         </Heading>
         {children}
       </Stack>

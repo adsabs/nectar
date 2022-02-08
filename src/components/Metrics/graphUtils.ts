@@ -1,5 +1,5 @@
 import { CitationsHistogramType, ReadsHistogramType } from '@api';
-import { BasicStatsKey, CitationsHistogramKey, CitationsStatsKey, ReadsHistogramKey } from '@api/lib/metrics/types';
+import { BasicStatsKey, CitationsHistogramKey, CitationsStatsKey, ReadsHistogramKey } from '@_api/metrics/types';
 import { ICitationsTableData, IReadsTableData } from './types';
 
 export interface IGraphData {
@@ -34,17 +34,17 @@ export const plotCitationsHist = (normalize: boolean, citationsHist: CitationsHi
 
   if (!normalize) {
     data = [
-      citationsHist[CitationsHistogramKey.REFEREED_TO_REFEREED],
-      citationsHist[CitationsHistogramKey.NONREFEREED_TO_NONREFEREED],
-      citationsHist[CitationsHistogramKey.NONREFEREED_TO_REFEREED],
-      citationsHist[CitationsHistogramKey.NONREFEREED_TO_NONREFEREED],
+      citationsHist[CitationsHistogramKey.RR],
+      citationsHist[CitationsHistogramKey.NN],
+      citationsHist[CitationsHistogramKey.NR],
+      citationsHist[CitationsHistogramKey.NN],
     ];
   } else {
     data = [
-      citationsHist[CitationsHistogramKey.REFEREED_TO_REFEREED_NORMALIZED],
-      citationsHist[CitationsHistogramKey.REFEREED_TO_NONREFEREED_NORMALIZED],
-      citationsHist[CitationsHistogramKey.NONREFEREED_TO_REFEREED_NORMALIZED],
-      citationsHist[CitationsHistogramKey.NONREFEREED_TO_NONREFEREED_NORMALIZED],
+      citationsHist[CitationsHistogramKey.RRN],
+      citationsHist[CitationsHistogramKey.RNN],
+      citationsHist[CitationsHistogramKey.NRN],
+      citationsHist[CitationsHistogramKey.NNN],
     ];
   }
 
@@ -57,7 +57,6 @@ export const plotCitationsHist = (normalize: boolean, citationsHist: CitationsHi
   });
 
   // now, filter to only include arrays with at least 1 non-zero val
-
   return [
     'Ref. citations to ref. papers',
     'Ref. citations to non ref. papers',
@@ -81,16 +80,13 @@ export const plotReadsHist = (normalize: boolean, readsHist: ReadsHistogramType)
 
   if (!normalize) {
     data = [
-      readsHist[ReadsHistogramKey.REFEREED_READS],
-      getNonRef(readsHist[ReadsHistogramKey.REFEREED_READS], readsHist[ReadsHistogramKey.ALL_READS]),
+      readsHist[ReadsHistogramKey.RR],
+      getNonRef(readsHist[ReadsHistogramKey.RR], readsHist[ReadsHistogramKey.AR]),
     ];
   } else {
     data = [
-      readsHist[ReadsHistogramKey.REFEREED_READS_NORMALIZED],
-      getNonRef(
-        readsHist[ReadsHistogramKey.REFEREED_READS_NORMALIZED],
-        readsHist[ReadsHistogramKey.ALL_READS_NORMALIZED],
-      ),
+      readsHist[ReadsHistogramKey.RRN],
+      getNonRef(readsHist[ReadsHistogramKey.RRN], readsHist[ReadsHistogramKey.ARN]),
     ];
   }
 
@@ -112,45 +108,24 @@ export const plotReadsHist = (normalize: boolean, readsHist: ReadsHistogramType)
 
 export const getCitationTableData = (citationData: ICitationTableInput): ICitationsTableData => {
   const data = {
-    numberOfCitingPapers: [
-      citationData.total[CitationsStatsKey.NUMBER_OF_CITING_PAPERS],
-      citationData.refereed[CitationsStatsKey.NUMBER_OF_CITING_PAPERS],
-    ],
-    totalCitations: [
-      citationData.total[CitationsStatsKey.TOTAL_NUMBER_OF_CITATIONS],
-      citationData.refereed[CitationsStatsKey.TOTAL_NUMBER_OF_CITATIONS],
-    ],
-    numberOfSelfCitations: [
-      citationData.total[CitationsStatsKey.NUMBER_OF_SELF_CITATIONS],
-      citationData.refereed[CitationsStatsKey.NUMBER_OF_SELF_CITATIONS],
-    ],
-    averageCitations: [
-      citationData.total[CitationsStatsKey.AVERAGE_NUMBER_OF_CITATIONS],
-      citationData.refereed[CitationsStatsKey.AVERAGE_NUMBER_OF_CITATIONS],
-    ],
-    medianCitations: [
-      citationData.total[CitationsStatsKey.MEDIAN_NUMBER_OF_CITATIONS],
-      citationData.refereed[CitationsStatsKey.MEDIAN_NUMBER_OF_CITATIONS],
-    ],
-    normalizedCitations: [
-      citationData.total[CitationsStatsKey.NORMALIZED_NUMBER_OF_CITATIONS],
-      citationData.refereed[CitationsStatsKey.NORMALIZED_NUMBER_OF_CITATIONS],
-    ],
-    refereedCitations: [
-      citationData.total[CitationsStatsKey.TOTAL_NUMBER_OF_REFEREED_CITATIONS],
-      citationData.refereed[CitationsStatsKey.TOTAL_NUMBER_OF_REFEREED_CITATIONS],
-    ],
+    numberOfCitingPapers: [citationData.total[CitationsStatsKey.NCP], citationData.refereed[CitationsStatsKey.NCP]],
+    totalCitations: [citationData.total[CitationsStatsKey.TNC], citationData.refereed[CitationsStatsKey.TNC]],
+    numberOfSelfCitations: [citationData.total[CitationsStatsKey.NSC], citationData.refereed[CitationsStatsKey.NSC]],
+    averageCitations: [citationData.total[CitationsStatsKey.ANC], citationData.refereed[CitationsStatsKey.ANC]],
+    medianCitations: [citationData.total[CitationsStatsKey.MNC], citationData.refereed[CitationsStatsKey.MNC]],
+    normalizedCitations: [citationData.total[CitationsStatsKey.NNC], citationData.refereed[CitationsStatsKey.NNC]],
+    refereedCitations: [citationData.total[CitationsStatsKey.TNRC], citationData.refereed[CitationsStatsKey.TNRC]],
     averageRefereedCitations: [
-      citationData.total[CitationsStatsKey.AVERAGE_NUMBER_OF_REFEREED_CITATIONS],
-      citationData.refereed[CitationsStatsKey.AVERAGE_NUMBER_OF_REFEREED_CITATIONS],
+      citationData.total[CitationsStatsKey.ANRC],
+      citationData.refereed[CitationsStatsKey.ANRC],
     ],
     medianRefereedCitations: [
-      citationData.total[CitationsStatsKey.MEDIAN_NUMBER_OF_REFEREED_CITATIONS],
-      citationData.refereed[CitationsStatsKey.MEDIAN_NUMBER_OF_REFEREED_CITATIONS],
+      citationData.total[CitationsStatsKey.MNRC],
+      citationData.refereed[CitationsStatsKey.MNRC],
     ],
     normalizedRefereedCitations: [
-      citationData.total[CitationsStatsKey.NORMALIZED_NUMBER_OF_REFEREED_CITATIONS],
-      citationData.refereed[CitationsStatsKey.NORMALIZED_NUMBER_OF_REFEREED_CITATIONS],
+      citationData.total[CitationsStatsKey.NNRC],
+      citationData.refereed[CitationsStatsKey.NNRC],
     ],
   };
 
@@ -163,30 +138,12 @@ export const getCitationTableData = (citationData: ICitationTableInput): ICitati
 
 export const getReadsTableData = (generalData: IReadTableInput): IReadsTableData => {
   const data = {
-    totalNumberOfReads: [
-      generalData.total[BasicStatsKey.TOTAL_NUMBER_OF_READS],
-      generalData.refereed[BasicStatsKey.TOTAL_NUMBER_OF_READS],
-    ],
-    averageNumberOfReads: [
-      generalData.total[BasicStatsKey.AVERAGE_NUMBER_OF_READS],
-      generalData.refereed[BasicStatsKey.AVERAGE_NUMBER_OF_READS],
-    ],
-    medianNumberOfReads: [
-      generalData.total[BasicStatsKey.MEDIAN_NUMBER_OF_READS],
-      generalData.refereed[BasicStatsKey.MEDIAN_NUMBER_OF_READS],
-    ],
-    totalNumberOfDownloads: [
-      generalData.total[BasicStatsKey.TOTAL_NUMBER_OF_DOWNLOADS],
-      generalData.refereed[BasicStatsKey.TOTAL_NUMBER_OF_DOWNLOADS],
-    ],
-    averageNumberOfDownloads: [
-      generalData.total[BasicStatsKey.AVERAGE_NUMBER_OF_DOWNLOADS],
-      generalData.refereed[BasicStatsKey.AVERAGE_NUMBER_OF_DOWNLOADS],
-    ],
-    medianNumberOfDownloads: [
-      generalData.total[BasicStatsKey.MEDIAN_NUMBER_OF_DOWNLOADS],
-      generalData.total[BasicStatsKey.MEDIAN_NUMBER_OF_DOWNLOADS],
-    ],
+    totalNumberOfReads: [generalData.total[BasicStatsKey.TNR], generalData.refereed[BasicStatsKey.TNR]],
+    averageNumberOfReads: [generalData.total[BasicStatsKey.ANR], generalData.refereed[BasicStatsKey.ANR]],
+    medianNumberOfReads: [generalData.total[BasicStatsKey.MNR], generalData.refereed[BasicStatsKey.MNR]],
+    totalNumberOfDownloads: [generalData.total[BasicStatsKey.TND], generalData.refereed[BasicStatsKey.TND]],
+    averageNumberOfDownloads: [generalData.total[BasicStatsKey.AND], generalData.refereed[BasicStatsKey.AND]],
+    medianNumberOfDownloads: [generalData.total[BasicStatsKey.MND], generalData.total[BasicStatsKey.MND]],
   };
 
   Object.entries(data).forEach(([name, arr]) => {
