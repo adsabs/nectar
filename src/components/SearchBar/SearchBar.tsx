@@ -5,11 +5,11 @@ import { SearchInput } from './SearchInput';
 import { TypeaheadMenu } from './TypeaheadMenu';
 import { TypeaheadOption } from './types';
 
-interface ISeachBarProps {
+export interface ISearchBarProps {
   isLoading?: boolean;
 }
 
-export const SearchBar = (props: ISeachBarProps): ReactElement => {
+export const SearchBar = (props: ISearchBarProps): ReactElement => {
   const { isLoading = false } = props;
   const inputRef = useRef<HTMLInputElement>(null);
   const { q: query } = useStore((state) => state.query);
