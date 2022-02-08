@@ -14,10 +14,12 @@ export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription
     return <>{children}</>;
   }
 
+  const title = doc.title[0] ?? '';
+
   return (
     <Stack direction={{ base: 'column', lg: 'row' }} my={{ base: '6', lg: '16' }} spacing={6}>
       <Head>
-        <title>{doc?.title ?? ''}</title>
+        <title>{title}</title>
         <Metatags doc={doc} />
       </Head>
       <AbstractSideNav doc={doc} />
@@ -26,7 +28,7 @@ export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription
           <Text as="span" fontSize="xl">
             {titleDescription}
           </Text>{' '}
-          <Text>{doc.title}</Text>
+          <Text dangerouslySetInnerHTML={{ __html: title }} />
         </Heading>
         {children}
       </Stack>
