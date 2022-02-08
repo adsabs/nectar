@@ -7,13 +7,13 @@ import { ReactElement } from 'react';
 interface IAbstractRefListProps {
   docs: IDocsEntity[];
   indexStart: ISimpleResultListProps['indexStart'];
-  resultsLinkHref: LinkProps['href'];
+  href: LinkProps['href'];
   totalResults: IPaginationProps['totalResults'];
   onPageChange: IPaginationProps['onPageChange'];
 }
 
 export const AbstractRefList = (props: IAbstractRefListProps): ReactElement => {
-  const { docs, resultsLinkHref: href, totalResults, onPageChange, indexStart } = props;
+  const { docs, href, totalResults, onPageChange, indexStart } = props;
 
   return (
     <Stack direction="column" spacing={1} mt={1} w="full">
