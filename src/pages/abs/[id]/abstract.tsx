@@ -9,7 +9,7 @@ import { IAllAuthorsModalProps } from '@components/AllAuthorsModal';
 import { useGetAuthors } from '@components/AllAuthorsModal/useGetAuthors';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { APP_DEFAULTS } from '@config';
-import { withDetailsPage } from '@hocs/WithDetailsPage';
+import { withDetailsPage } from '@hocs/withDetailsPage';
 import { composeNextGSSP } from '@utils';
 import { useGetAbstract } from '@_api/search';
 import { GetServerSideProps, NextPage } from 'next';
