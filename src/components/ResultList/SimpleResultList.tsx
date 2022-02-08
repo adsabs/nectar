@@ -6,7 +6,7 @@ import { Item } from './Item';
 
 export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
   docs: IDocsEntity[];
-  indexStart: number;
+  indexStart?: number;
   hideCheckboxes?: boolean;
 }
 
