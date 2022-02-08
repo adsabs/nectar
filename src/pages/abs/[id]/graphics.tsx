@@ -1,36 +1,61 @@
-import AdsApi, { IADSApiGraphicsParams, IADSApiGraphicsResponse, IDocsEntity, IUserData } from '@api';
-import { metatagsQueryFields } from '@components';
-import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
-import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/queries';
-import { AbsLayout } from '@components/Layout/AbsLayout';
-import { normalizeURLParams } from '@utils';
-import { GetServerSideProps, NextPage } from 'next';
-import NextImage from 'next/image';
-import NextLink from 'next/link';
-import { dehydrate, QueryClient } from 'react-query';
+import { IADSApiSearchResponse } from '@api';
 import { Alert, AlertIcon } from '@chakra-ui/alert';
 import { Box, Flex, Link } from '@chakra-ui/layout';
+import { AbsLayout } from '@components/Layout/AbsLayout';
+import { withDetailsPage } from '@hocs/withDetailsPage';
+import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
+import { composeNextGSSP, normalizeURLParams } from '@utils';
+import { fetchGraphics, graphicsKeys, useGetGraphics } from '@_api/graphics';
+import { searchKeys } from '@_api/search';
+import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
+import NextImage from 'next/image';
+import NextLink from 'next/link';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
+import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
+import { toast } from 'react-toastify';
 
 interface IGraphicsPageProps {
-  graphics?: IADSApiGraphicsResponse;
-  originalDoc: IDocsEntity;
-  error?: string;
+  id: string;
+  error?: {
+    status?: string;
+    message?: string;
+  };
 }
 
 const GraphicsPage: NextPage<IGraphicsPageProps> = (props: IGraphicsPageProps) => {
-  const { originalDoc, graphics, error } = props;
+  const { id } = props;
+  const router = useRouter();
+
+  const doc = useGetAbstractDoc(id);
+
+  const {
+    data: graphics,
+    isError,
+    isSuccess,
+    error,
+  } = useGetGraphics(doc.bibcode, { keepPreviousData: true, retry: false });
+
+  useEffect(() => {
+    if (isError) {
+      void router.replace('/abs/[id]/abstract', `/abs/${id}/abstract`);
+      toast(error, { type: 'error' });
+    }
+  }, [isError]);
+
   return (
-    <AbsLayout doc={originalDoc} titleDescription="Graphics from">
+    <AbsLayout doc={doc} titleDescription="Graphics from">
       <Head>
-        <title>NASA Science Explorer - Graphics - {originalDoc.title[0]}</title>
+        <title>NASA Science Explorer - Graphics - {doc.title[0]}</title>
       </Head>
-      {error ? (
+      {error && (
         <Alert status="error">
           <AlertIcon />
           {error}
         </Alert>
-      ) : (
+      )}
+      {isSuccess && (
         <>
           <Box dangerouslySetInnerHTML={{ __html: graphics.header }}></Box>
           <Flex wrap="wrap">
@@ -70,45 +95,49 @@ const GraphicsPage: NextPage<IGraphicsPageProps> = (props: IGraphicsPageProps) =
 
 export default GraphicsPage;
 
-export const getServerSideProps: GetServerSideProps<IGraphicsPageProps> = async (ctx) => {
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage, async (ctx, state) => {
+  const api = (await import('@_api/api')).default;
+  const axios = (await import('axios')).default;
+  api.setToken(ctx.req.session.userData.access_token);
   const query = normalizeURLParams(ctx.query);
-  const request = ctx.req as typeof ctx.req & {
-    session: { userData: IUserData };
-  };
-  const userData = request.session.userData;
-  const params: IADSApiGraphicsParams = {
-    bibcode: query.id,
-  };
-  const adsapi = new AdsApi({ token: userData.access_token });
-  const result = await adsapi.graphics.query(params);
-  const originalDoc = await adsapi.search.getDocument(query.id, [
-    ...abstractPageNavDefaultQueryFields,
-    ...metatagsQueryFields,
-  ]);
 
-  const queryClient = new QueryClient();
-  if (!originalDoc.notFound && !originalDoc.error) {
-    const { bibcode } = originalDoc.doc;
-    void (await queryClient.prefetchQuery(['hasGraphics', bibcode], () => fetchHasGraphics(adsapi, bibcode)));
-    void (await queryClient.prefetchQuery(['hasMetrics', bibcode], () => fetchHasMetrics(adsapi, bibcode)));
-  }
+  try {
+    const queryClient = new QueryClient();
+    hydrate(queryClient, state.props?.dehydratedState as DehydratedState);
+    const {
+      response: {
+        docs: [{ bibcode }],
+      },
+    } = queryClient.getQueryData<IADSApiSearchResponse>(searchKeys.abstract(query.id));
 
-  return originalDoc.notFound || originalDoc.error
-    ? { notFound: true }
-    : result.isErr()
-    ? {
+    void (await queryClient.prefetchQuery({
+      queryKey: graphicsKeys.primary(bibcode),
+      queryFn: fetchGraphics,
+    }));
+
+    return {
+      props: {
+        dehydratedState: dehydrate(queryClient),
+      },
+    };
+  } catch (e) {
+    if (axios.isAxiosError(e) && e.response) {
+      return {
         props: {
-          graphics: null,
-          originalDoc: originalDoc.doc,
-          dehydratedState: dehydrate(queryClient),
-          error: 'Unable to get results',
-        },
-      }
-    : {
-        props: {
-          graphics: result.value,
-          originalDoc: originalDoc.doc,
-          dehydratedState: dehydrate(queryClient),
+          error: {
+            status: e.response.status,
+            message: e.message,
+          },
         },
       };
-};
+    }
+    return {
+      props: {
+        error: {
+          status: 500,
+          message: 'Unknown server error',
+        },
+      },
+    };
+  }
+});
