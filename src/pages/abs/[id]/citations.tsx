@@ -65,7 +65,7 @@ const CitationsPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProps
           totalResults={data.numFound}
           onPageChange={handlePageChange}
           indexStart={params.start}
-          resultsLinkHref={{
+          href={{
             pathname: '/search',
             query: {
               q: citationsParams.q,
