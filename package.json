@@ -42,7 +42,7 @@
     "katex": "^0.13.11",
     "match-sorter": "^6.3.1",
     "neverthrow": "^4.2.1",
-    "next": "^11.1.3",
+    "next": "12.1.0",
     "nprogress": "^0.2.0",
     "qs": "^6.10.1",
     "ramda": "^0.27.1",
@@ -61,6 +61,7 @@
   "devDependencies": {
     "@babel/core": "^7.0.0-0",
     "@next/bundle-analyzer": "^10.0.7",
+    "@next/eslint-plugin-next": "^12.1.0",
     "@storybook/addon-actions": "^6.3.7",
     "@storybook/addon-essentials": "^6.3.7",
     "@storybook/addon-links": "^6.3.7",
@@ -118,90 +119,11 @@
     "tsconfig-paths-webpack-plugin": "^3.5.1",
     "tslib": "^2.2.0",
     "typescript": "^4.3.5",
-    "webpack": "^5.0.0"
+    "webpack": "^5.69.1"
   },
   "volta": {
     "node": "14.16.1",
     "yarn": "1.22.15"
-  },
-  "jest": {
-    "rootDir": "src",
-    "moduleNameMapper": {
-      "^@components(.*)": "<rootDir>/components$1",
-      "^@api(.*)": "<rootDir>/api$1",
-      "^@providers(.*)": "<rootDir>/providers$1",
-      "^@(store|types|utils|hooks)": "<rootDir>/$1",
-      "^@machines(.*)": "<rootDir>/machines$1",
-      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/components/__mocks__/fileMock.ts",
-      "\\.(css|less)$": "identity-obj-proxy"
-    },
-    "verbose": true
-  },
-  "eslintConfig": {
-    "extends": [
-      "plugin:@typescript-eslint/recommended",
-      "plugin:@typescript-eslint/recommended-requiring-type-checking",
-      "prettier"
-    ],
-    "plugins": [
-      "react",
-      "react-hooks",
-      "jsx-a11y",
-      "@typescript-eslint",
-      "jest"
-    ],
-    "parser": "@typescript-eslint/parser",
-    "env": {
-      "es6": true
-    },
-    "overrides": [
-      {
-        "files": [
-          "*.ts",
-          "*.tsx"
-        ],
-        "parserOptions": {
-          "project": [
-            "./tsconfig.json"
-          ]
-        }
-      }
-    ],
-    "rules": {
-      "curly": [
-        "warn",
-        "all"
-      ],
-      "react-hooks/rules-of-hooks": "error",
-      "@typescript-eslint/no-empty-function": [
-        "warn"
-      ],
-      "@typescript-eslint/no-floating-promises": [
-        "warn",
-        {
-          "ignoreIIFE": true
-        }
-      ],
-      "@typescript-eslint/no-empty-interface": [
-        "error",
-        {
-          "allowSingleExtends": false
-        }
-      ],
-      "@typescript-eslint/unbound-method": [
-        "error",
-        {
-          "ignoreStatic": true
-        }
-      ],
-      "no-unused-vars": "off",
-      "@typescript-eslint/no-unused-vars": [
-        "warn",
-        {
-          "ignoreRestSiblings": true
-        }
-      ]
-    }
   },
   "lint-staged": {
     "**/*.ts?(x)": [
