@@ -10,6 +10,7 @@ import {
   ModalFooter,
   ModalOverlay,
   Spinner,
+  Text,
   Th,
   Thead,
   useDisclosure,
@@ -76,19 +77,22 @@ export const AllAuthorsModal = ({ bibcode, label }: IAllAuthorsModalProps): Reac
     </>
   );
 };
-
 const AuthorsTable = memo(({ doc }: { doc: IDocsEntity }): ReactElement => {
   // process doc (extracts author information)
   const authors = useGetAuthors({ doc });
 
   return (
-    <Table variant="simple" size="sm">
+    <Table variant="simple" size="sm" aria-label="All Authors" className="mt-2">
+      <caption className="mb-2">
+        All authors for article:{' '}
+        <Text fontWeight={'semibold'} dangerouslySetInnerHTML={{ __html: doc.title?.[0] ?? '' }}></Text>
+      </caption>
       <Thead>
         <Tr>
           <Th>Index</Th>
           <Th>Author</Th>
           <Th>Affiliation</Th>
-          <Th>ORCiD</Th>
+          <Th aria-label="orKid">ORCiD</Th>
         </Tr>
       </Thead>
       <Tbody>
@@ -100,19 +104,34 @@ const AuthorsTable = memo(({ doc }: { doc: IDocsEntity }): ReactElement => {
                 href={{
                   pathname: '/search',
                   query: {
-                    q: typeof orcid === 'string' ? `orcid:${orcid}` : `author:${author}`,
+                    q: `author:${author}`,
                     sort: 'date desc, bibcode desc',
                   },
                 }}
                 passHref
               >
-                <Link px={1}>{author}</Link>
+                <Link px={1} aria-label={`author ${author}, search by name`}>
+                  {author}
+                </Link>
               </NextLink>
             </Td>
             <Td dangerouslySetInnerHTML={{ __html: aff }}></Td>
             <Td>
               {typeof orcid === 'string' && (
-                <Image src="/images/orcid-active.svg" width="16px" height="16px" alt="Search by ORCID" />
+                <NextLink
+                  href={{
+                    pathname: '/search',
+                    query: {
+                      q: `orcid:${orcid}`,
+                      sort: 'date desc, bibcode desc',
+                    },
+                  }}
+                  passHref
+                >
+                  <Link aria-label={`author ${author}, search by orKid`}>
+                    <Image src="/images/orcid-active.svg" width="16px" height="16px" alt="Search by orKid" />
+                  </Link>
+                </NextLink>
               )}
             </Td>
           </Tr>
