@@ -13,14 +13,13 @@ import {
   Th,
   Thead,
   useDisclosure,
+  useToast,
 } from '@chakra-ui/react';
 import { Table, Tbody, Td, Tr } from '@chakra-ui/table';
-import { APP_DEFAULTS } from '@config';
-import { searchKeys, useGetAffiliations } from '@_api/search';
+import { useGetAffiliations } from '@_api/search';
 import Image from 'next/image';
 import NextLink from 'next/link';
-import { memo, ReactElement, useMemo, useState } from 'react';
-import { useQueryClient } from 'react-query';
+import { memo, ReactElement } from 'react';
 import { useGetAuthors } from './useGetAuthors';
 
 export interface IAllAuthorsModalProps {
@@ -30,28 +29,24 @@ export interface IAllAuthorsModalProps {
 
 export const AllAuthorsModal = ({ bibcode, label }: IAllAuthorsModalProps): ReactElement => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const queryClient = useQueryClient();
-  const [page, setPage] = useState(0);
-  const handleLoadMore = () => {
-    // cleans out old query from cache
-    void queryClient.removeQueries(searchKeys.affiliations({ bibcode, start }));
-    setPage(page + 1);
-  };
-  const start = useMemo(() => page * APP_DEFAULTS.DETAILS_MAX_AUTHORS, [page]);
-
-  // on page change, calculate start
+  const toast = useToast();
 
   // get list of authors/affiliations
   const { data, isSuccess, isFetching } = useGetAffiliations(
-    { bibcode, start },
-    { enabled: isOpen, keepPreviousData: true },
+    { bibcode },
+    {
+      enabled: isOpen,
+      keepPreviousData: true,
+      onError: () => {
+        toast({
+          title: 'Error',
+          description: 'Could not fetch author information, please try again',
+          status: 'error',
+        });
+        onClose();
+      },
+    },
   );
-
-  const hasMore = useMemo(() => {
-    if (isSuccess) {
-      return start + APP_DEFAULTS.DETAILS_MAX_AUTHORS < data.docs[0].author_count;
-    }
-  }, [isSuccess, start]);
 
   return (
     <>
@@ -69,13 +64,6 @@ export const AllAuthorsModal = ({ bibcode, label }: IAllAuthorsModalProps): Reac
               </Flex>
             )}
             {isSuccess && <AuthorsTable doc={data.docs[0]} />}
-            {hasMore && (
-              <Flex justifyContent={'center'} mt={2}>
-                <Button onClick={handleLoadMore} disabled={isFetching}>
-                  {isFetching ? <Spinner size="sm" /> : 'Load More'}
-                </Button>
-              </Flex>
-            )}
           </ModalBody>
 
           <ModalFooter>
