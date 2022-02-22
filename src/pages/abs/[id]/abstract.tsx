@@ -7,6 +7,7 @@ import { AbstractSources } from '@components';
 import { createUrlByType } from '@components/AbstractSources/linkGenerator';
 import { IAllAuthorsModalProps } from '@components/AllAuthorsModal';
 import { useGetAuthors } from '@components/AllAuthorsModal/useGetAuthors';
+import { OrcidActiveIcon } from '@components/icons/Orcid';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { APP_DEFAULTS } from '@config';
 import { withDetailsPage } from '@hocs/withDetailsPage';
@@ -15,7 +16,6 @@ import { useGetAbstract } from '@_api/search';
 import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
-import NextImage from 'next/image';
 import NextLink from 'next/link';
 import { isNil } from 'ramda';
 
@@ -33,6 +33,17 @@ export interface IAbstractPageProps {
 }
 
 const MAX = APP_DEFAULTS.DETAILS_MAX_AUTHORS;
+
+const getLinkProps = (queryType: 'author' | 'orcid', value: string) => ({
+  href: {
+    pathname: '/search',
+    query: {
+      q: queryType === 'author' ? `author:"${value}"` : `orcid:"${value}"`,
+      sort: 'date desc, bibcode desc',
+    },
+  },
+  passHref: true,
+});
 
 const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) => {
   const { id, error } = props;
@@ -61,20 +72,17 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
             <Flex wrap="wrap">
               {authors.map(([, author, orcid], index) => (
                 <Box mr={1} key={`${author}${index}`}>
-                  <NextLink
-                    href={{
-                      pathname: '/search',
-                      query: {
-                        q: typeof orcid === 'string' ? `orcid:${orcid}` : `author:${author}`,
-                        sort: 'date desc, bibcode desc',
-                      },
-                    }}
-                    passHref
-                  >
-                    <Link px={1}>{author}</Link>
+                  <NextLink {...getLinkProps('author', author)}>
+                    <Link px={1} aria-label={`author "${author}", search by name`} flexShrink="0">
+                      {author}
+                    </Link>
                   </NextLink>
                   {typeof orcid === 'string' && (
-                    <NextImage src="/images/orcid-active.svg" width="16px" height="16px" alt="Search by ORCID" />
+                    <NextLink {...getLinkProps('orcid', orcid)}>
+                      <Link aria-label={`author "${author}", search by orKid`}>
+                        <OrcidActiveIcon fontSize={'large'} />
+                      </Link>
+                    </NextLink>
                   )}
                   <>{index === MAX - 1 || index === doc.author_count - 1 ? '' : ';'}</>
                 </Box>
@@ -119,7 +127,7 @@ const Details = ({ doc }: IDetailsProps) => {
   ];
 
   return (
-    <Box variant="simple" border="1px" borderColor="gray.50" borderRadius="md" shadow="sm">
+    <Box border="1px" borderColor="gray.50" borderRadius="md" shadow="sm">
       <Table colorScheme="gray" size="md">
         <Tbody>
           {entries.map(({ label, value, href }) => (

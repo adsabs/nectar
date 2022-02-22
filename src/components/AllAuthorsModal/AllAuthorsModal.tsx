@@ -166,7 +166,7 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
             <GridItem colSpan={2}>
               {typeof author === 'string' && (
                 <NextLink {...getLinkProps('author', author)}>
-                  <Link px={1} aria-label={`author ${author}, search by name`} flexShrink="0">
+                  <Link px={1} aria-label={`author "${author}", search by name`} flexShrink="0">
                     {author}
                   </Link>
                 </NextLink>
@@ -175,7 +175,7 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
             <GridItem colSpan={1}>
               {typeof orcid === 'string' && (
                 <NextLink {...getLinkProps('orcid', orcid)}>
-                  <Link aria-label={`author ${author}, search by orKid`}>
+                  <Link aria-label={`author "${author}", search by orKid`}>
                     <OrcidActiveIcon fontSize={'large'} />
                   </Link>
                 </NextLink>
@@ -191,8 +191,13 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
     );
 
     return (
-      <>
-        <Flex justifyContent={'center'} alignItems="center">
+      <section aria-describedby="author-list-description">
+        <Flex justifyContent="center" mb={4}>
+          <Text fontSize="lg" fontWeight="bold" id="author-list-description">
+            Author list for {doc.bibcode}
+          </Text>
+        </Flex>
+        <Flex justifyContent="center" alignItems="center">
           <InputGroup size="md" width="xl">
             <Input
               placeholder="Filter authors"
@@ -233,7 +238,7 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
             )}
           </AutoSizer>
         </Box>
-      </>
+      </section>
     );
   },
 );
