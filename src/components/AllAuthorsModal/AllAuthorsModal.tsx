@@ -14,11 +14,13 @@ import {
   ModalOverlay,
   Spinner,
   Text,
+  Tooltip,
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
 import { OrcidActiveIcon } from '@components/icons/Orcid';
 import { useGetAffiliations } from '@_api/search';
+import { saveAs } from 'file-saver';
 import { matchSorter } from 'match-sorter';
 import NextLink from 'next/link';
 import { ChangeEventHandler, MouseEventHandler, ReactElement, useCallback, useEffect, useState } from 'react';
@@ -105,7 +107,19 @@ const AuthorsTable = ({ doc }: { doc: IDocsEntity }): ReactElement => {
     setList(matchSorter(authors, e.currentTarget.value, { keys: ['1', '2'] }));
   };
 
-  const handleDownloadClick: MouseEventHandler = () => {};
+  // handle the download button
+  const handleDownloadClick: MouseEventHandler = () => {
+    const csvBlob = new Blob(
+      [
+        authors.reduce(
+          (acc, [a = '', b = '', c = '', d = '']) => `${acc}"${a}","${b}","${c}","${d}"\n`,
+          'position,name,affiliation,orcid\n',
+        ),
+      ],
+      { type: 'text/csv;charset=utf-8' },
+    );
+    saveAs(csvBlob, `${doc.bibcode}-authors.csv`);
+  };
 
   const RenderRow = useCallback(
     ({ index, style }: ListChildComponentProps) => {
@@ -144,13 +158,17 @@ const AuthorsTable = ({ doc }: { doc: IDocsEntity }): ReactElement => {
 
   return (
     <>
-      <Flex justifyContent={'center'}>
+      <Flex justifyContent={'center'} alignItems="center">
         <Input placeholder="Search authors" variant={'filled'} size="md" width="xl" onChange={handleInputChange} />
-        <IconButton
-          icon={<DownloadIcon />}
-          onClick={handleDownloadClick}
-          aria-label="download full author list (csv)"
-        />
+        <Tooltip label="Download list as CSV file">
+          <IconButton
+            icon={<DownloadIcon />}
+            variant={'outline'}
+            ml="4"
+            onClick={handleDownloadClick}
+            aria-label="Download list as CSV file"
+          />
+        </Tooltip>
       </Flex>
       <Box height="5xl">
         <AutoSizer>

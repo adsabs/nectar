@@ -89,7 +89,7 @@ export const getAbstractParams = (id: string): IADSApiSearchParams => ({
 
 export const getAffiliationParams = (bibcode: IDocsEntity['bibcode']): IADSApiSearchParams => ({
   ...defaultParams,
-  fl: ['title', 'author', 'aff', 'orcid_pub', 'orcid_user', 'orcid_other', 'author_count'],
+  fl: ['bibcode', 'author', 'aff', 'orcid_pub', 'orcid_user', 'orcid_other', 'author_count'],
   q: `identifier:"${bibcode}"`,
 });
 
