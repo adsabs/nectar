@@ -125,7 +125,12 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
 
     // filter list when searchval changes
     useEffect(
-      () => setList(searchVal === '' ? authors : matchSorter(authors, searchVal, { keys: ['1', '2'] })),
+      () =>
+        setList(
+          searchVal === ''
+            ? authors
+            : matchSorter(authors, searchVal, { keys: ['1', '2'], threshold: matchSorter.rankings.WORD_STARTS_WITH }),
+        ),
       [searchVal, authors],
     );
 
