@@ -59,7 +59,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
         {isSuccess && (
           <Stack direction="column" gap={2}>
             <Flex wrap="wrap">
-              {authors.map(([author, orcid], index) => (
+              {authors.map(([, author, orcid], index) => (
                 <Box mr={1} key={`${author}${index}`}>
                   <NextLink
                     href={{

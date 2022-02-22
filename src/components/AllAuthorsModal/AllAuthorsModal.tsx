@@ -1,8 +1,11 @@
 import { IDocsEntity } from '@api';
-import { Link } from '@chakra-ui/layout';
+import { DownloadIcon } from '@chakra-ui/icons';
+import { Box, Grid, GridItem, Link } from '@chakra-ui/layout';
 import {
   Button,
   Flex,
+  IconButton,
+  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -11,16 +14,16 @@ import {
   ModalOverlay,
   Spinner,
   Text,
-  Th,
-  Thead,
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
-import { Table, Tbody, Td, Tr } from '@chakra-ui/table';
+import { OrcidActiveIcon } from '@components/icons/Orcid';
 import { useGetAffiliations } from '@_api/search';
-import Image from 'next/image';
+import { matchSorter } from 'match-sorter';
 import NextLink from 'next/link';
-import { memo, ReactElement } from 'react';
+import { ChangeEventHandler, MouseEventHandler, ReactElement, useCallback, useEffect, useState } from 'react';
+import AutoSizer from 'react-virtualized-auto-sizer';
+import { FixedSizeList, ListChildComponentProps } from 'react-window';
 import { useGetAuthors } from './useGetAuthors';
 
 export interface IAllAuthorsModalProps {
@@ -77,66 +80,89 @@ export const AllAuthorsModal = ({ bibcode, label }: IAllAuthorsModalProps): Reac
     </>
   );
 };
-const AuthorsTable = memo(({ doc }: { doc: IDocsEntity }): ReactElement => {
+
+const getLinkProps = (queryType: 'author' | 'orcid', value: string) => ({
+  href: {
+    pathname: '/search',
+    query: {
+      q: queryType === 'author' ? `author:${value}` : `orcid:${value}`,
+      sort: 'date desc, bibcode desc',
+    },
+  },
+  passHref: true,
+});
+
+const AuthorsTable = ({ doc }: { doc: IDocsEntity }): ReactElement => {
   // process doc (extracts author information)
   const authors = useGetAuthors({ doc });
+  const [list, setList] = useState(authors);
 
-  return (
-    <Table variant="simple" size="sm" aria-label="All Authors" className="mt-2">
-      <caption className="mb-2">
-        All authors for article:{' '}
-        <Text fontWeight={'semibold'} dangerouslySetInnerHTML={{ __html: doc.title?.[0] ?? '' }}></Text>
-      </caption>
-      <Thead>
-        <Tr>
-          <Th>Index</Th>
-          <Th>Author</Th>
-          <Th>Affiliation</Th>
-          <Th aria-label="orKid">ORCiD</Th>
-        </Tr>
-      </Thead>
-      <Tbody>
-        {authors.map(([author, aff, orcid], index) => (
-          <Tr key={`${author}${index}`}>
-            <Td>{index + 1}</Td>
-            <Td>
-              <NextLink
-                href={{
-                  pathname: '/search',
-                  query: {
-                    q: `author:${author}`,
-                    sort: 'date desc, bibcode desc',
-                  },
-                }}
-                passHref
-              >
-                <Link px={1} aria-label={`author ${author}, search by name`}>
+  // fill list with authors when it finishes loading
+  useEffect(() => setList(authors), [authors]);
+
+  // filter the list on search value change
+  const handleInputChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setList(matchSorter(authors, e.currentTarget.value, { keys: ['1', '2'] }));
+  };
+
+  const handleDownloadClick: MouseEventHandler = () => {};
+
+  const RenderRow = useCallback(
+    ({ index, style }: ListChildComponentProps) => {
+      const [position, author, aff, orcid] = list[index];
+      return (
+        <Grid key={`${author}${index}`} style={style} gridTemplateColumns="repeat(12, 1fr)" overflow={'auto'}>
+          <GridItem colSpan={1}>
+            <Text>{position}.</Text>
+          </GridItem>
+          <GridItem colSpan={2}>
+            {typeof author === 'string' && (
+              <NextLink {...getLinkProps('author', author)}>
+                <Link px={1} aria-label={`author ${author}, search by name`} flexShrink="0">
                   {author}
                 </Link>
               </NextLink>
-            </Td>
-            <Td dangerouslySetInnerHTML={{ __html: aff }}></Td>
-            <Td>
-              {typeof orcid === 'string' && (
-                <NextLink
-                  href={{
-                    pathname: '/search',
-                    query: {
-                      q: `orcid:${orcid}`,
-                      sort: 'date desc, bibcode desc',
-                    },
-                  }}
-                  passHref
-                >
-                  <Link aria-label={`author ${author}, search by orKid`}>
-                    <Image src="/images/orcid-active.svg" width="16px" height="16px" alt="Search by orKid" />
-                  </Link>
-                </NextLink>
-              )}
-            </Td>
-          </Tr>
-        ))}
-      </Tbody>
-    </Table>
+            )}
+          </GridItem>
+          <GridItem colSpan={1}>
+            {typeof orcid === 'string' && (
+              <NextLink {...getLinkProps('orcid', orcid)}>
+                <Link aria-label={`author ${author}, search by orKid`}>
+                  <OrcidActiveIcon />
+                </Link>
+              </NextLink>
+            )}
+          </GridItem>
+          <GridItem colSpan={8}>
+            <Text>{aff}</Text>
+          </GridItem>
+        </Grid>
+      );
+    },
+    [list],
   );
-});
+
+  return (
+    <>
+      <Flex justifyContent={'center'}>
+        <Input placeholder="Search authors" variant={'filled'} size="md" width="xl" onChange={handleInputChange} />
+        <IconButton
+          icon={<DownloadIcon />}
+          onClick={handleDownloadClick}
+          aria-label="download full author list (csv)"
+        />
+      </Flex>
+      <Box height="5xl">
+        <AutoSizer>
+          {({ height, width }) => (
+            <Box mt="5">
+              <FixedSizeList height={height} width={width} itemCount={list.length} itemSize={65}>
+                {RenderRow}
+              </FixedSizeList>
+            </Box>
+          )}
+        </AutoSizer>
+      </Box>
+    </>
+  );
+};
