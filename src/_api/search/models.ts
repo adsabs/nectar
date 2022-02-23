@@ -87,21 +87,9 @@ export const getAbstractParams = (id: string): IADSApiSearchParams => ({
   q: `identifier:"${id}"`,
 });
 
-export const getAffiliationParams = (bibcode: IDocsEntity['bibcode'], start: number): IADSApiSearchParams => ({
+export const getAffiliationParams = (bibcode: IDocsEntity['bibcode']): IADSApiSearchParams => ({
   ...defaultParams,
-  fl: [
-    `[fields author=${start + APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
-    `[fields aff=${start + APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
-    `[fields orcid_pub=${start + APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
-    `[fields orcid_user=${start + APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
-    `[fields orcid_other=${start + APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
-    'author',
-    'aff',
-    'orcid_pub',
-    'orcid_user',
-    'orcid_other',
-    'author_count',
-  ],
+  fl: ['bibcode', 'author', 'aff', 'orcid_pub', 'orcid_user', 'orcid_other', 'author_count'],
   q: `identifier:"${bibcode}"`,
 });
 

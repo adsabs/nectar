@@ -1,5 +1,5 @@
 import { IDocsEntity } from '@api';
-import { adjust, compose, map, repeat, transpose, without } from 'ramda';
+import { adjust, compose, map, range, repeat, transpose, without } from 'ramda';
 import { useEffect, useState } from 'react';
 
 export interface IUseAuthorsProps {
@@ -45,13 +45,29 @@ export const useGetAuthors = (props: IUseAuthorsProps): string[][] => {
                 without(['-']),
 
                 // replace affs with an empty string, so we don't wipe it out in the next step
-                adjust(1, (v) => (v === '-' ? '' : v)),
+                adjust(2, (v) => (v === '-' ? '' : v)),
               ),
 
               // stack each array
-              transpose([author, aff ?? repeat('', len), orcid_other, orcid_pub, orcid_user]),
+              transpose([
+                map((v) => v.toLocaleString(), range(1, len + 1)),
+                author,
+                aff ?? repeat('', len),
+                orcid_other,
+                orcid_pub,
+                orcid_user,
+              ]),
             )
-          : map(without(['-']), transpose([author, orcid_other, orcid_pub, orcid_user])),
+          : map(
+              without(['-']),
+              transpose([
+                map((v) => v.toLocaleString(), range(1, len + 1)),
+                author,
+                orcid_other,
+                orcid_pub,
+                orcid_user,
+              ]),
+            ),
       );
     }
   }, [doc, includeAff]);
