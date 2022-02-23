@@ -74,7 +74,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                     <Link px={1}>{author}</Link>
                   </NextLink>
                   {typeof orcid === 'string' && (
-                    <NextImage src="/img/orcid-active.svg" width="16px" height="16px" alt="Search by ORCID" />
+                    <NextImage src="/images/orcid-active.svg" width="16px" height="16px" alt="Search by ORCID" />
                   )}
                   <>{index === MAX - 1 || index === doc.author_count - 1 ? '' : ';'}</>
                 </Box>

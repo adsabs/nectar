@@ -28,6 +28,13 @@ const config = {
   images: {
     domains: ['s3.amazonaws.com'],
   },
+  compiler: {
+    reactRemoveProperties: true,
+  },
+  swcMinify: true,
+  experimental: {
+    outputStandalone: true,
+  },
 };
 
 module.exports = withBundleAnalyzer(config);

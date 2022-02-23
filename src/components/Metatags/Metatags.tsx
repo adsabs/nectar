@@ -62,7 +62,7 @@ export const Metatags = (props: IMetatagsProps): ReactElement => {
 
   const url = `${baseUrl}/abs/${doc.bibcode}/abstract`;
 
-  const logo = `${baseUrl}/styles/img/transparent_logo.svg`;
+  const logo = `${baseUrl}/styles/images/transparent_logo.svg`;
 
   const formatted_numeric_pubdate = doc.pubdate ? getFomattedNumericPubdate(doc.pubdate) ?? '' : '';
 

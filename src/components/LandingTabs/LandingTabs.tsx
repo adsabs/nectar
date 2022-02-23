@@ -5,12 +5,12 @@ import { Theme } from '@types';
 import Image from 'next/image';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
-import starBg from 'public/img/bg-astro.jpg';
-import bioBg from 'public/img/bg-bio.jpg';
-import earthBg from 'public/img/bg-earth.jpg';
-import generalBg from 'public/img/bg-general.jpg';
-import helioBg from 'public/img/bg-helio.jpg';
-import planetBg from 'public/img/bg-planet.jpg';
+import starBg from 'public/images/bg-astro.jpg';
+import bioBg from 'public/images/bg-bio.jpg';
+import earthBg from 'public/images/bg-earth.jpg';
+import generalBg from 'public/images/bg-general.jpg';
+import helioBg from 'public/images/bg-helio.jpg';
+import planetBg from 'public/images/bg-planet.jpg';
 import { ReactElement, useEffect, useState } from 'react';
 
 const backgroundMap = new Map<Theme, StaticImageData>([

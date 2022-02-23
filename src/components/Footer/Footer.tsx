@@ -1,10 +1,10 @@
+import { Box, Flex, HStack, Link, Text } from '@chakra-ui/layout';
+import VisuallyHidden from '@chakra-ui/visually-hidden';
 import { NasaLogo, SmithsonianLogo } from '@components';
 import Image from 'next/image';
 import NextLink from 'next/link';
-import cfaLogo from 'public/img/cfa.png';
+import cfaLogo from 'public/images/cfa.png';
 import React, { FC, ReactElement } from 'react';
-import { Box, Flex, HStack, Link, Text } from '@chakra-ui/layout';
-import VisuallyHidden from '@chakra-ui/visually-hidden';
 
 const SimpleLink: FC<{ href: string; icon?: ReactElement }> = ({ children, href, icon }) => {
   const isExternal = /^http(s)/.exec(href);

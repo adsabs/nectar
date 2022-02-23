@@ -124,7 +124,7 @@ const AuthorsTable = memo(({ doc }: { doc: IDocsEntity }): ReactElement => {
             <Td dangerouslySetInnerHTML={{ __html: aff }}></Td>
             <Td>
               {typeof orcid === 'string' && (
-                <Image src="/img/orcid-active.svg" width="16px" height="16px" alt="Search by ORCID" />
+                <Image src="/images/orcid-active.svg" width="16px" height="16px" alt="Search by ORCID" />
               )}
             </Td>
           </Tr>
