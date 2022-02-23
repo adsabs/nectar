@@ -5,7 +5,7 @@
     "prettier",
     "plugin:@next/next/recommended"
   ],
-  "plugins": ["react", "react-hooks", "jsx-a11y", "@typescript-eslint", "jest"],
+  "plugins": ["react", "react-hooks", "jsx-a11y", "@typescript-eslint", "jest", "jest-dom"],
   "parser": "@typescript-eslint/parser",
   "env": {
     "es6": true

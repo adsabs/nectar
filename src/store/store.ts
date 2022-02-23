@@ -2,53 +2,49 @@ import { IUserData } from '@api';
 import { mergeDeepLeft } from 'ramda';
 import { useEffect } from 'react';
 import { unstable_batchedUpdates } from 'react-dom';
-import create, { GetState, SetState, StateCreator, StoreApi } from 'zustand';
+import create, { GetState, Mutate, SetState, StoreApi } from 'zustand';
 import createContext from 'zustand/context';
-import { devtools, persist, StoreApiWithDevtools, StoreApiWithPersist } from 'zustand/middleware';
+import { devtools, NamedSet, persist } from 'zustand/middleware';
 import { docsSlice, searchSlice, themeSlice, userSlice } from './slices';
 import { AppState } from './types';
 
 export const APP_STORAGE_KEY = 'nectar-app-state';
 
-// simple state logger, override one of these to log out for debugging state
-const log =
-  (config: StateCreator<AppState>) => (set: SetState<AppState>, get: GetState<AppState>, api: StoreApi<AppState>) =>
-    config(set, get, api);
-
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const createStore = (preloadedState: Partial<AppState> = {}) => {
+  const state = (set: NamedSet<AppState>, get: GetState<AppState>) => ({
+    ...searchSlice(set, get),
+    ...docsSlice(set, get),
+    ...userSlice(set, get),
+    ...themeSlice(set, get),
+    ...preloadedState,
+  });
+
+  // return a basic store during testing
+  if (process.env.NODE_ENV === 'test') {
+    return create<AppState>(state);
+  }
+
   const store = create<
     AppState,
     SetState<AppState>,
     GetState<AppState>,
-    StoreApiWithPersist<AppState> & StoreApiWithDevtools<AppState>
+    Mutate<StoreApi<AppState>, [['zustand/persist', Partial<AppState>], ['zustand/devtools', never]]>
   >(
-    log(
-      devtools(
-        persist(
-          // State slices which refer to their respective modules
-          (set, get) => ({
-            ...searchSlice(set, get),
-            ...docsSlice(set, get),
-            ...userSlice(set, get),
-            ...themeSlice(set, get),
-            ...preloadedState,
-          }),
-          {
-            name: APP_STORAGE_KEY,
-            partialize: (state) => ({ user: state.user, theme: state.theme }),
-            merge: (persistedState: AppState, currentState: AppState) => {
-              // for now user and theme are all that need persistence
-              return {
-                ...currentState,
-                user: persistedState.user,
-                theme: persistedState.theme,
-              };
-            },
-          },
-        ),
-        { name: APP_STORAGE_KEY },
-      ),
+    devtools(
+      persist(state, {
+        name: APP_STORAGE_KEY,
+        partialize: (state) => ({ user: state.user, theme: state.theme }),
+        merge: (persistedState: AppState, currentState: AppState) => {
+          // for now user and theme are all that need persistence
+          return {
+            ...currentState,
+            user: persistedState.user,
+            theme: persistedState.theme,
+          };
+        },
+      }),
+      { name: APP_STORAGE_KEY },
     ),
   );
   return store;

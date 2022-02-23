@@ -1,6 +1,7 @@
 import { RouterContext } from 'next/dist/shared/lib/router-context';
-import 'tailwindcss/tailwind.css';
 import * as nextImage from 'next/image';
+import { useCreateStore, StoreProvider } from '@store';
+import { theme } from '@theme';
 
 Object.defineProperty(nextImage, 'default', {
   configurable: true,
@@ -18,4 +19,18 @@ export const parameters = {
       date: /Date$/,
     },
   },
+  chakra: {
+    theme,
+  },
 };
+
+export const decorators = [
+  (Story) => {
+    const createStore = useCreateStore({});
+    return (
+      <StoreProvider createStore={createStore}>
+        <Story />
+      </StoreProvider>
+    );
+  },
+];
