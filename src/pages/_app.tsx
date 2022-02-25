@@ -2,6 +2,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { Layout } from '@components';
 import { ApiProvider } from '@providers/api';
 import { AppState, StoreProvider, useCreateStore, useStore } from '@store';
+import { theme } from '@theme';
 import { Theme } from '@types';
 import { isBrowser } from '@utils';
 import { AppProps } from 'next/app';
@@ -15,7 +16,6 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'tailwindcss/tailwind.css';
 import '../styles/styles.css';
-import theme from '../theme';
 
 const TopProgressBar = dynamic(() => import('@components/TopProgressBar').then((mod) => mod.TopProgressBar), {
   ssr: false,

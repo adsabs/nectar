@@ -253,5 +253,3 @@ export const theme = extendTheme(
     components: ['Input', 'Checkbox', 'Radio', 'Textarea', 'Button', 'IconButton', 'Table', 'Select'],
   }),
 );
-
-export default theme;
