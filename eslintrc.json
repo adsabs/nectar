@@ -12,7 +12,7 @@
   },
   "overrides": [
     {
-      "files": ["*.ts", "*.tsx"],
+      "files": ["*.ts", "*.tsx", "./jest.config.ts"],
       "parserOptions": {
         "project": ["./tsconfig.json"]
       }

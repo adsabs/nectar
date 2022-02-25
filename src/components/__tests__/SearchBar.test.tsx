@@ -1,90 +1,48 @@
 import { composeStories } from '@storybook/testing-react';
 import { render } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { wait } from '@testing-library/user-event/dist/utils';
 import * as stories from '../__stories__/SearchBar.stories';
 
 const { Primary: SearchBar } = composeStories(stories);
 
+const setup = () => {
+  const utils = render(<SearchBar />);
+  return {
+    input: utils.getByTestId('primary-search-input'),
+    ...utils,
+  };
+};
+
 test('SearchBar renders without crashing', () => {
   render(<SearchBar />);
 });
+test('SearchBar clear button works', () => {
+  const { input, getByTestId } = setup();
 
-test('SearchBar autocomplete works', () => {
-  const { getByTestId } = render(<SearchBar />);
+  // we should not find the clear button, until there is text
+  expect(() => getByTestId('primary-search-clear')).toThrowError();
 
-  const input = getByTestId('primary-search-input');
+  userEvent.type(input, 'star');
 
-  expect(input).toBeVisible();
+  const clearBtn = getByTestId('primary-search-clear');
+  expect(clearBtn).toBeVisible();
 });
 
-// test('SearchBar suggestions are correct', async () => {
-//   const EXPECTED_ITEMS = ['Author(author:"")', 'First Author(author:"^")'];
+test('SearchBar autosuggest replaces text and moves cursor properly', async () => {
+  const { input } = setup();
 
-//   const { findByTestId, findAllByTestId } = render(<SearchBar />);
-//   const inputEl = await findByTestId('searchbar-input');
+  // type a letter, pick first suggestion, check that cursor moved inside quotes
+  userEvent.type(input, 'a{arrowdown}{enter}');
+  await wait(1);
+  expect(input.getAttribute('value')).toEqual('abs:""');
+  userEvent.type(input, 'test');
+  expect(input.getAttribute('value')).toEqual('abs:"test"');
 
-//   fireEvent.change(inputEl, { target: { value: 'auth' } });
-//   const items = (await findAllByTestId('searchbar-suggestion-item')).map((el) => el.textContent);
-//   expect(EXPECTED_ITEMS).toEqual(items);
-// });
-
-// test('SearchBar suggestion selection with quotes moves cursor inside', async () => {
-//   const expectedValueAfterSelection = 'author:""';
-//   const expectedCursorPosition = 8;
-
-//   const { findByTestId, findAllByTestId } = render(<SearchBar />);
-//   const inputEl = (await findByTestId('searchbar-input')) as HTMLInputElement;
-
-//   fireEvent.change(inputEl, { target: { value: 'author' } });
-//   const [firstItem] = await findAllByTestId('searchbar-suggestion-item');
-//   fireEvent.click(firstItem);
-
-//   expect(expectedValueAfterSelection).toEqual(inputEl.value);
-//   expect(expectedCursorPosition).toEqual(inputEl.selectionStart);
-// });
-
-// test('SearchBar suggestion selection with parenthesis moves cursor inside', async () => {
-//   const expectedValueAfterSelection = 'similar()';
-//   const expectedCursorPosition = 8;
-
-//   const { findByTestId, findAllByTestId } = render(<SearchBar />);
-//   const inputEl = (await findByTestId('searchbar-input')) as HTMLInputElement;
-
-//   fireEvent.change(inputEl, { target: { value: 'similar' } });
-//   const [firstItem] = await findAllByTestId('searchbar-suggestion-item');
-//   fireEvent.click(firstItem);
-
-//   expect(expectedValueAfterSelection).toEqual(inputEl.value);
-//   expect(expectedCursorPosition).toEqual(inputEl.selectionStart);
-// });
-
-// test('SearchBar menu should stay closed until proper input', async () => {
-//   const { findByTestId } = render(<SearchBar />);
-//   const inputEl = (await findByTestId('searchbar-input')) as HTMLInputElement;
-//   const menuEl = (await findByTestId('searchbar-suggestion-menu')) as HTMLUListElement;
-
-//   const confirmMenuClosed = () => {
-//     expect(menuEl.childNodes.length).toEqual(0);
-//   };
-
-//   confirmMenuClosed();
-
-//   const stringsToTest = [
-//     'author:""a',
-//     'author:"" ',
-//     'author:"a"a',
-//     'author:"a" ',
-//     'similar()a',
-//     'similar() ',
-//     'similar(a)a',
-//     'similar(a) ',
-//   ];
-
-//   stringsToTest.forEach((value) => {
-//     fireEvent.change(inputEl, { target: { value } });
-//     confirmMenuClosed();
-//   });
-
-//   // should show menu this time, with valid input
-//   fireEvent.change(inputEl, { target: { value: 'author:"" bib' } });
-//   expect(menuEl.childNodes.length).toEqual(1);
-// });
+  // test the same for parenthesis
+  userEvent.type(input, '{arrowright} citat{arrowdown}{enter}');
+  await wait(1);
+  expect(input.getAttribute('value')).toEqual('abs:"test" citations()');
+  userEvent.type(input, 'inside');
+  expect(input.getAttribute('value')).toEqual('abs:"test" citations(inside)');
+});

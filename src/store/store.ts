@@ -58,7 +58,9 @@ export const useCreateStore = (incomingState: Partial<AppState> = {}): (() => St
     return () => createStore(incomingState);
   }
 
-  console.log('initialState', incomingState);
+  if (process.env.NODE_ENV === 'development') {
+    console.log('initialState', incomingState);
+  }
 
   // initialize the store
   store = store ?? createStore(incomingState);
