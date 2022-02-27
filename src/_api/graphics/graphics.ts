@@ -1,4 +1,4 @@
-import { IDocsEntity } from '@api';
+import { IADSApiGraphicsParams, IDocsEntity } from '@api';
 import { ApiTargets } from '@api/lib/models';
 import { ADSQuery } from '@_api/types';
 import { isNil } from 'ramda';
@@ -14,8 +14,8 @@ export const graphicsKeys = {
   primary: (bibcode: IDocsEntity['bibcode']) => ['graphics', { bibcode }] as const,
 };
 
-const retryFn = (count: number, error: Error) => {
-  if (count >= MAX_RETRIES || error.message.startsWith('No database entry')) {
+const retryFn = (count: number, error: unknown) => {
+  if (count >= MAX_RETRIES || (error instanceof Error && error.message.startsWith('No database entry'))) {
     return false;
   }
 
@@ -25,9 +25,17 @@ const retryFn = (count: number, error: Error) => {
 /**
  * Fetches graphics and returns true if the request returns successfully
  */
-export const useHasGraphics: ADSQuery<IDocsEntity['bibcode'], boolean> = (bibcode, options) => {
-  const { isSuccess } = useQuery(graphicsKeys.primary(bibcode), fetchGraphics, {
+export const useHasGraphics: ADSQuery<IDocsEntity['bibcode'], IADSApiGraphicsResponse, null, boolean> = (
+  bibcode,
+  options,
+) => {
+  const params = { bibcode };
+
+  const { isSuccess } = useQuery({
+    queryKey: graphicsKeys.primary(bibcode),
+    queryFn: fetchGraphics,
     retry: retryFn,
+    meta: { params },
     ...options,
   });
 
@@ -37,21 +45,23 @@ export const useHasGraphics: ADSQuery<IDocsEntity['bibcode'], boolean> = (bibcod
 /**
  * Get graphics based on bibcode
  */
-export const useGetGraphics: ADSQuery<IDocsEntity['bibcode'], UseGraphicsResult> = (bibcode, options) => {
-  return useQuery(graphicsKeys.primary(bibcode), fetchGraphics, {
+export const useGetGraphics: ADSQuery<IDocsEntity['bibcode'], IADSApiGraphicsResponse> = (bibcode, options) => {
+  const params = { bibcode };
+  return useQuery({
+    queryKey: graphicsKeys.primary(bibcode),
+    queryFn: fetchGraphics,
     retry: retryFn,
+    meta: { params },
     ...options,
   });
 };
 
-export const fetchGraphics: QueryFunction<
-  IADSApiGraphicsResponse,
-  Readonly<[string, { bibcode: IDocsEntity['bibcode'] }]>
-> = async ({ queryKey }) => {
-  const [, { bibcode }] = queryKey;
+export const fetchGraphics: QueryFunction<IADSApiGraphicsResponse> = async ({ meta }) => {
+  const { params } = meta as { params: IADSApiGraphicsParams };
+
   const config: ApiRequestConfig = {
     method: 'GET',
-    url: `${ApiTargets.GRAPHICS}/${bibcode}`,
+    url: `${ApiTargets.GRAPHICS}/${params.bibcode}`,
   };
 
   const { data: graphics } = await api.request<IADSApiGraphicsResponse>(config);
