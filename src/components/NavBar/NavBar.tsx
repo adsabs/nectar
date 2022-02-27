@@ -1,17 +1,17 @@
-import { Heading, HStack, Box, Link, Flex } from '@chakra-ui/layout';
+import { Box, Flex, Heading, HStack, Link } from '@chakra-ui/layout';
 import { AdsSmallLogo } from '@components/images';
 import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
 import { FC } from 'react';
 
-const ThemeDropdown = dynamic(() => import('./ThemeDropdown').then((mod) => mod.ThemeDropdown), { ssr: false });
+const ThemeDropdown = dynamic<{}>(() => import('./ThemeDropdown').then((mod) => mod.ThemeDropdown), { ssr: false });
 
-const NavMenus = dynamic(() => import('./NavMenus').then((mod) => mod.NavMenus), { ssr: false });
+const NavMenus = dynamic<{}>(() => import('./NavMenus').then((mod) => mod.NavMenus), { ssr: false });
 
 export const NavBar: FC = () => {
   return (
     <Box as="nav" backgroundColor="gray.900">
-      <Flex direction="row" alignItems="center" justifyContent="space-between" spacing={3} mx={4} my={2}>
+      <Flex direction="row" alignItems="center" justifyContent="space-between" mx={4} my={2}>
         <HStack spacing={3}>
           <NextLink href="/" passHref>
             <Link _hover={{ textDecoration: 'none' }}>

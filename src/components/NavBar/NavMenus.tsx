@@ -1,14 +1,14 @@
-import { ReactElement, useRef } from 'react';
-import { ListType } from './types';
-import { Box, Flex } from '@chakra-ui/layout';
-import { IconButton } from '@chakra-ui/button';
-import { HamburgerIcon } from '@chakra-ui/icons';
 import { Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel } from '@chakra-ui/accordion';
-import { OrcidDropdown } from './OrcidDropdown';
-import { AccountDropdown } from './AccountDropdown';
-import { AboutDropdown } from './AboutDropdown';
+import { IconButton } from '@chakra-ui/button';
 import { useDisclosure } from '@chakra-ui/hooks';
+import { HamburgerIcon } from '@chakra-ui/icons';
+import { Box, Flex } from '@chakra-ui/layout';
 import { Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerOverlay } from '@chakra-ui/modal';
+import { ReactElement, useRef } from 'react';
+import { AboutDropdown } from './AboutDropdown';
+import { AccountDropdown } from './AccountDropdown';
+import { OrcidDropdown } from './OrcidDropdown';
+import { ListType } from './types';
 
 export const NavMenus = (): ReactElement => {
   const toggleMenu = () => {
@@ -77,7 +77,7 @@ export const NavMenus = (): ReactElement => {
           </DrawerContent>
         </Drawer>
       </Box>
-      <Box display={{ base: 'none', md: 'flex' }} direction="row" mx={3}>
+      <Box display={{ base: 'none', md: 'flex' }} flexDirection="row" mx={3}>
         {/* Cannot use stack here, will produce warning with popper in menu */}
         <OrcidDropdown type={ListType.DROPDOWN} />
         <AboutDropdown type={ListType.DROPDOWN} />

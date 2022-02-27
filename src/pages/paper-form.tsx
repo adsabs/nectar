@@ -98,7 +98,7 @@ const JournalQueryForm = ({ onSubmit, isClient }: { onSubmit: SubmitHandler; isC
                   {isClient ? (
                     <BibstemPickerSingle name="bibstem" onItemUpdate={handleBibstemUpdate} />
                   ) : (
-                    <Input name="bibstem" label="Publication" />
+                    <Input name="bibstem" aria-label="Publication" />
                   )}
                 </GridItem>
                 <GridItem colSpan={2}>

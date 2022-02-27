@@ -168,6 +168,6 @@ export const createUrlByType = function (bibcode: string, type: string, identifi
   return '';
 };
 
-const enc = function (str) {
+const enc = function (str: string) {
   return encodeURIComponent(str);
 };

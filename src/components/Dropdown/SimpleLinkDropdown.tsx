@@ -1,8 +1,8 @@
-import { Link, Flex, Box } from '@chakra-ui/layout';
+import { ChevronDownIcon } from '@chakra-ui/icons';
+import { Box, Flex, Link } from '@chakra-ui/layout';
 import NextLink from 'next/link';
 import { ReactElement } from 'react';
 import { ItemType } from './types';
-import { ChevronDownIcon } from '@chakra-ui/icons';
 
 /** Non JavaScript dropdown */
 export interface ISimpleLinkDropdownProps {
@@ -55,8 +55,8 @@ export const SimpleLinkDropdown = (props: ISimpleLinkDropdownProps): ReactElemen
       >
         {items.map((item) => (
           <Box
-            direction="column"
             key={item.id}
+            flexDirection="column"
             _hover={{ backgroundColor: item.disabled ? 'transparent' : 'gray.100' }}
             p={2}
           >

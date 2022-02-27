@@ -55,7 +55,7 @@ export const getOpenUrl = (options: IGetOpenUrlOptions): string => {
       : 'article';
 
   // parse various fields to create a context object
-  const parsed = {
+  const parsed: Record<string, unknown> = {
     ...STATIC_FIELDS,
     'rft.spage': isArray(page) ? page[0].split('-')[0] : undefined,
     id: isArray(doi) ? 'doi:' + doi[0] : undefined,
@@ -109,7 +109,7 @@ export const getOpenUrl = (options: IGetOpenUrlOptions): string => {
 
   // generate array of query params from the context object
   const fields = Object.keys(context)
-    .filter((k) => context[k])
+    .filter((k) => typeof context[k] !== 'undefined')
     .map((k: keyof IContext) => {
       const val = context[k];
       if (isArray(val)) {

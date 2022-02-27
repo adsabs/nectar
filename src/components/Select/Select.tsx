@@ -1,7 +1,6 @@
 import { FormControl, FormLabel } from '@chakra-ui/form-control';
-import { CSSObject } from '@emotion/react';
 import { ReactElement } from 'react';
-import ReactSelect, { ControlProps, OptionProps, StylesConfig } from 'react-select';
+import ReactSelect, { StylesConfig } from 'react-select';
 
 export type SelectOption = {
   id: string;
@@ -9,16 +8,16 @@ export type SelectOption = {
   label: string;
   help?: string;
 };
-export interface ISelectProps {
+export interface ISelectProps<T> {
   formLabel?: string;
   options: SelectOption[];
   value: SelectOption;
-  onChange: (id: string) => void;
-  styles: StylesConfig;
+  onChange: (id: T) => void;
+  styles: StylesConfig<SelectOption>;
 }
 
 export const ThemeSelectorStyle: StylesConfig<SelectOption> = {
-  control: (provided: CSSObject, state: ControlProps) => ({
+  control: (provided, state) => ({
     ...provided,
     height: '2em',
     borderRadius: '2px',
@@ -30,23 +29,23 @@ export const ThemeSelectorStyle: StylesConfig<SelectOption> = {
   indicatorSeparator: () => ({
     isDisabled: true,
   }),
-  singleValue: (provided: CSSObject) => ({
+  singleValue: (provided) => ({
     ...provided,
     color: 'var(--chakra-colors-gray-100)',
   }),
-  container: (provided: CSSObject) => ({
+  container: (provided) => ({
     ...provided,
     zIndex: 10,
   }),
-  option: (provided: CSSObject, state: OptionProps) => ({
+  option: (provided, state) => ({
     ...provided,
     backgroundColor: state.isFocused ? 'var(--chakra-colors-gray-100)' : 'transparent',
     color: 'var(--chakra-colors-gray-700)',
   }),
 };
 
-export const SortSelectorStyle: StylesConfig = {
-  control: (provided: CSSObject) => ({
+export const SortSelectorStyle: StylesConfig<SelectOption> = {
+  control: (provided) => ({
     ...provided,
     height: '2.6em',
     borderRadius: '2px 0 0 2px',
@@ -55,15 +54,15 @@ export const SortSelectorStyle: StylesConfig = {
   indicatorSeparator: () => ({
     isDisabled: true,
   }),
-  option: (provided: CSSObject, state: OptionProps) => ({
+  option: (provided, state) => ({
     ...provided,
     backgroundColor: state.isFocused ? 'var(--chakra-colors-gray-100)' : 'transparent',
     color: 'var(--chakra-colors-gray-700)',
   }),
 };
 
-export const DefaultSelectorStyle: StylesConfig = {
-  control: (provided: CSSObject) => ({
+export const DefaultSelectorStyle: StylesConfig<SelectOption> = {
+  control: (provided) => ({
     ...provided,
     height: '2.85em',
     borderRadius: '2px',
@@ -71,22 +70,28 @@ export const DefaultSelectorStyle: StylesConfig = {
   indicatorSeparator: () => ({
     isDisabled: true,
   }),
-  option: (provided: CSSObject, state: OptionProps) => ({
+  option: (provided, state) => ({
     ...provided,
     backgroundColor: state.isFocused ? 'var(--chakra-colors-gray-100)' : 'transparent',
     color: 'var(--chakra-colors-gray-700)',
   }),
 };
 
-export const Select = ({ formLabel, options, value: selected, onChange, styles }: ISelectProps): ReactElement => {
+export const Select = <T extends string>({
+  formLabel,
+  options,
+  value: selected,
+  onChange,
+  styles,
+}: ISelectProps<T>): ReactElement => {
   const handleOnOptionSelected = (option: SelectOption) => {
-    onChange(option.id);
+    onChange(option.id as T);
   };
 
   return (
     <FormControl>
       {formLabel && <FormLabel>{formLabel}</FormLabel>}
-      <ReactSelect
+      <ReactSelect<SelectOption>
         value={selected}
         options={options}
         isSearchable={false}

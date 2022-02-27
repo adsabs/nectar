@@ -2,7 +2,7 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 import * as AxiosLogger from 'axios-logger';
 import { RequestLogConfig } from 'axios-logger/lib/common/types';
 import { PathLike } from 'fs';
-import { err, ok, Result } from 'neverthrow';
+import { ok, Result } from 'neverthrow';
 import qs from 'qs';
 import { identity, mergeDeepLeft } from 'ramda';
 import { ApiTargets } from './models';
@@ -90,7 +90,7 @@ export class Service {
       const { data } = await this.service.request<T>(config);
       return ok(data);
     } catch (e) {
-      return err(e || 'API Request Error');
+      return;
     }
   }
 }

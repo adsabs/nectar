@@ -17,7 +17,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import 'tailwindcss/tailwind.css';
 import '../styles/styles.css';
 
-const TopProgressBar = dynamic(() => import('@components/TopProgressBar').then((mod) => mod.TopProgressBar), {
+const TopProgressBar = dynamic<{}>(() => import('@components/TopProgressBar').then((mod) => mod.TopProgressBar), {
   ssr: false,
 });
 
