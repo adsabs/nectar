@@ -14,10 +14,11 @@ import {
   VisuallyHidden,
   visuallyHiddenStyle,
 } from '@chakra-ui/react';
+import { useStore } from '@store';
 import { useCombobox } from 'downshift';
 import { matchSorter } from 'match-sorter';
 import { last } from 'ramda';
-import { ReactElement, useRef, useState } from 'react';
+import { ReactElement, useEffect, useRef, useState } from 'react';
 import { typeaheadOptions } from './models';
 import { TypeaheadOption } from './types';
 
@@ -41,10 +42,9 @@ export interface ISearchBarProps {
 }
 
 export const SearchBar = (props: ISearchBarProps): ReactElement => {
-  // const store = useStoreApi();
-  // const { q: query } = useStore((state) => state.query);
-  // const updateStoreQuery = useStore((state) => state.updateQuery);
-  // const updateQuery = (q: string) => updateStoreQuery({ q });
+  const query = useStore((state) => state.query.q);
+  const updateStoreQuery = useStore((state) => state.updateQuery);
+  const updateQuery = (q: string) => updateStoreQuery({ q });
 
   const input = useRef<HTMLInputElement>(null);
 
@@ -59,14 +59,27 @@ export const SearchBar = (props: ISearchBarProps): ReactElement => {
     getItemProps,
     reset,
     inputValue,
+    setInputValue,
   } = useCombobox({
+    defaultInputValue: query,
     items: inputItems,
     stateReducer: (state, actionAndChanges) => {
       const { type, changes } = actionAndChanges;
 
       switch (type) {
+        case useCombobox.stateChangeTypes.FunctionReset: {
+          updateQuery('');
+          return changes;
+        }
+
+        case useCombobox.stateChangeTypes.InputBlur:
         case useCombobox.stateChangeTypes.InputKeyDownEnter:
         case useCombobox.stateChangeTypes.ItemClick: {
+          if (state.highlightedIndex === -1) {
+            // in the case we aren't actually on an item, do nothing
+            return changes;
+          }
+
           const updatedQuery = state.inputValue.replace(/\s*[^\s]+$/g, '');
           const newInputValue =
             updatedQuery + (updatedQuery.length > 0 ? ' ' + changes.inputValue : changes.inputValue);
@@ -89,6 +102,13 @@ export const SearchBar = (props: ISearchBarProps): ReactElement => {
       }
     },
     onInputValueChange: ({ inputValue }) => {
+      updateQuery(inputValue);
+
+      // only suggest if we're at the end of the input
+      if (input.current.selectionStart < inputValue.length || inputValue.length === 0) {
+        return setInputItems([]);
+      }
+
       setInputItems(filterOptions(inputValue));
     },
     itemToString: (item) => item?.value ?? '',
@@ -97,6 +117,8 @@ export const SearchBar = (props: ISearchBarProps): ReactElement => {
     inputId: 'primary-search-input',
     getItemId: (index) => `primary-search-menuitem-${index}`,
   });
+
+  useEffect(() => setInputValue(query), [query]);
 
   const handleReset = () => {
     reset();
@@ -161,8 +183,6 @@ export const SearchBar = (props: ISearchBarProps): ReactElement => {
           borderTopRadius="none"
           boxShadow="lg"
           zIndex="1000"
-          // border="1px"
-          // borderColor="gray.200"
           data-testid="primary-search-menu"
           {...getMenuProps({
             ref: (el: HTMLUListElement) => {
@@ -189,7 +209,9 @@ export const SearchBar = (props: ISearchBarProps): ReactElement => {
             ))}
         </List>
       </Flex>
-      <Button h="40px" borderLeftRadius="none">
+
+      {/* @TODO: fix this magic number */}
+      <Button h="40px" borderLeftRadius="none" data-testid="primary-search-submit">
         {props.isLoading ? (
           <>
             <Spinner />

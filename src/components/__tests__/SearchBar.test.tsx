@@ -17,7 +17,8 @@ const setup = () => {
 test('SearchBar renders without crashing', () => {
   render(<SearchBar />);
 });
-test('SearchBar clear button works', () => {
+
+test('SearchBar clear button works', async () => {
   const { input, getByTestId } = setup();
 
   // we should not find the clear button, until there is text
@@ -27,6 +28,28 @@ test('SearchBar clear button works', () => {
 
   const clearBtn = getByTestId('primary-search-clear');
   expect(clearBtn).toBeVisible();
+
+  userEvent.click(clearBtn);
+  await wait(1);
+  expect(input.getAttribute('value')).toEqual('');
+});
+
+test('SearchBar should not suggest while cursor is inside field', async () => {
+  const { input, getByTestId } = setup();
+  const menu = getByTestId('primary-search-menu');
+
+  userEvent.type(input, 'trend{arrowdown}{enter}');
+  await wait(1);
+  userEvent.type(input, 'a bib');
+  expect(menu).toBeEmptyDOMElement();
+});
+
+test('Searchbar suggests properly', () => {
+  const { input, getAllByRole } = setup();
+
+  userEvent.type(input, 'trend');
+  const options = getAllByRole('option');
+  expect(options[0].textContent).toContain('Trending');
 });
 
 test('SearchBar autosuggest replaces text and moves cursor properly', async () => {
@@ -45,4 +68,22 @@ test('SearchBar autosuggest replaces text and moves cursor properly', async () =
   expect(input.getAttribute('value')).toEqual('abs:"test" citations()');
   userEvent.type(input, 'inside');
   expect(input.getAttribute('value')).toEqual('abs:"test" citations(inside)');
+});
+
+test('Searchbar tabbing works', () => {
+  const { input, getByTestId } = setup();
+  const submitBtn = getByTestId('primary-search-submit');
+
+  input.focus();
+  userEvent.tab();
+  expect(submitBtn).toHaveFocus();
+
+  input.focus();
+  userEvent.type(input, 'test');
+  const clearBtn = getByTestId('primary-search-clear');
+
+  userEvent.tab();
+  expect(clearBtn).toHaveFocus();
+  userEvent.tab();
+  expect(submitBtn).toHaveFocus();
 });
