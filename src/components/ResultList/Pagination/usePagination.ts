@@ -3,7 +3,7 @@ import { noop, useBaseRouterPath } from '@utils';
 import { useRouter } from 'next/router';
 import { ParsedUrlQuery } from 'querystring';
 import { clamp, range } from 'ramda';
-import { MouseEvent, MouseEventHandler, useCallback, useMemo } from 'react';
+import { MouseEvent, MouseEventHandler, useCallback, useEffect, useMemo } from 'react';
 import { UrlObject } from 'url';
 export interface IUsePagination {
   nextHref: UrlObject;
@@ -135,6 +135,11 @@ export const usePagination = ({
     },
     [state.page, onPageChange],
   );
+
+  useEffect(() => {
+    const start = (state.page - 1) * numPerPage;
+    onPageChange(state.page, start);
+  }, [state.page]);
 
   return {
     ...state,
