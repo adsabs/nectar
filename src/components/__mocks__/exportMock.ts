@@ -48,7 +48,6 @@ export const queryBasedSearchResponse: Fixture<IADSApiSearchResponse> = [
   {
     response: {
       numFound: 4,
-      start: 0,
       docs: [
         {
           bibcode: '2020AAS...23528705A',

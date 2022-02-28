@@ -91,9 +91,9 @@ export const plotReadsHist = (normalize: boolean, readsHist: ReadsHistogramType)
   }
 
   data.forEach((a) => {
-    const transformedArray = [];
+    const transformedArray: IPair[] = [];
     Object.entries(a).forEach(([k, v]) => {
-      transformedArray.push({ x: k, y: v });
+      transformedArray.push({ x: k, y: v as number });
     });
     returnArray.push(transformedArray);
   });
@@ -130,7 +130,7 @@ export const getCitationTableData = (citationData: ICitationTableInput): ICitati
   };
 
   Object.entries(data).forEach(([name, arr]) => {
-    data[name] = [limitPlaces(arr[0]), limitPlaces(arr[1])];
+    data[name as keyof typeof data] = [limitPlaces(arr[0]), limitPlaces(arr[1])];
   });
 
   return data;
@@ -147,7 +147,7 @@ export const getReadsTableData = (generalData: IReadTableInput): IReadsTableData
   };
 
   Object.entries(data).forEach(([name, arr]) => {
-    data[name] = [limitPlaces(arr[0]), limitPlaces(arr[1])];
+    data[name as keyof typeof data] = [limitPlaces(arr[0]), limitPlaces(arr[1])];
   });
 
   return data;
@@ -162,7 +162,7 @@ const hasNonZero = (arr: IPair[]) => {
 };
 
 const getNonRef = (ref: { [key: string]: number }, all: { [key: string]: number }) => {
-  const nonRef = {};
+  const nonRef: Record<string, number> = {};
   Object.entries(all).forEach(([k, v]) => {
     if (ref[k]) {
       nonRef[k] = v - ref[k];
