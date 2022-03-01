@@ -211,7 +211,7 @@ export const SearchBar = (props: ISearchBarProps): ReactElement => {
       </Flex>
 
       {/* @TODO: fix this magic number */}
-      <Button h="40px" borderLeftRadius="none" data-testid="primary-search-submit">
+      <Button type="submit" h="40px" borderLeftRadius="none" data-testid="primary-search-submit">
         {props.isLoading ? (
           <>
             <Spinner />
