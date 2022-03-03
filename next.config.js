@@ -31,7 +31,7 @@ const config = {
   compiler: {
     reactRemoveProperties: true,
   },
-  swcMinify: true,
+  swcMinify: false,
   experimental: {
     outputStandalone: true,
   },
