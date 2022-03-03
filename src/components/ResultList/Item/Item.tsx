@@ -106,6 +106,7 @@ export const Item = (props: IItemProps): ReactElement => {
 
 const ItemCheckbox = (props: { index: number; bibcode: string; title: string[]; isChecked: boolean }) => {
   const { index, bibcode, title, isChecked } = props;
+
   const [selectDoc, unSelectDoc] = useStore((state) => [state.selectDoc, state.unSelectDoc], shallow);
 
   // on select, update the local state and appState
@@ -119,7 +120,7 @@ const ItemCheckbox = (props: { index: number; bibcode: string; title: string[]; 
       name={`result-checkbox-${index}`}
       id={`result-checkbox-${index}`}
       onChange={handleSelect}
-      checked={isChecked}
+      isChecked={isChecked}
       aria-label={`${isChecked ? 'De-select' : 'Select'} item ${title[0]}`}
       size="md"
     />
