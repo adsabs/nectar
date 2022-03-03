@@ -26,9 +26,8 @@ export const parameters = {
 
 export const decorators = [
   (Story) => {
-    const createStore = useCreateStore({});
     return (
-      <StoreProvider createStore={createStore}>
+      <StoreProvider createStore={useCreateStore({})}>
         <Story />
       </StoreProvider>
     );
