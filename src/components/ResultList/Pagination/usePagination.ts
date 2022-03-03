@@ -109,6 +109,7 @@ type NumPerPageType = typeof APP_DEFAULTS['PER_PAGE_OPTIONS'][number];
 
 export interface IUsePaginationProps {
   numFound: number;
+  updateURL?: boolean;
 }
 
 export interface IUsePaginationResult {
@@ -165,7 +166,7 @@ const initialState: IPaginationState = {
  * Basically wraps the pagination logic, also uses some memoization to reduce unnecessary renders.
  */
 export const usePagination = (props: IUsePaginationProps): IUsePaginationResult => {
-  const { numFound = 0 } = props;
+  const { numFound = 0, updateURL = true } = props;
   const [state, dispatch] = useReducer(reducer, initialState);
   const router = useRouter();
 
@@ -176,7 +177,9 @@ export const usePagination = (props: IUsePaginationProps): IUsePaginationResult 
 
   // push new params as page changes (ONLY page change)
   useEffect(() => {
-    router.push({ pathname: router.pathname, query: { ...router.query, p: result.page } }, null, { shallow: true });
+    if (updateURL) {
+      router.push({ pathname: router.pathname, query: { ...router.query, p: result.page } }, null, { shallow: true });
+    }
   }, [result.page]);
 
   return { ...result, numPerPage: state.numPerPage, dispatch };
