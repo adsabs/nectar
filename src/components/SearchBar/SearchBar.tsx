@@ -144,7 +144,7 @@ export const SearchBar = (props: ISearchBarProps): ReactElement => {
             data-testid="primary-search-input"
             variant="outline"
             placeholder="Search..."
-            type="search"
+            type="text"
             name="q"
             {...getInputProps({
               ref: (el: HTMLInputElement) => {
