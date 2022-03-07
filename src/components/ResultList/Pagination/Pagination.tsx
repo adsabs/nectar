@@ -1,100 +1,87 @@
-import { Button, IconButton } from '@chakra-ui/button';
+import { Button } from '@chakra-ui/button';
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
-import { Box, Flex, Link, Text } from '@chakra-ui/layout';
-import { VisuallyHidden } from '@chakra-ui/react';
+import { Box, Flex, Link, Stack, Text } from '@chakra-ui/layout';
+import {
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTrigger,
+  Select,
+  VisuallyHidden,
+} from '@chakra-ui/react';
+import { APP_DEFAULTS } from '@config';
 import { useIsClient } from '@hooks/useIsClient';
+import { AppState, useStore } from '@store';
 import NextLink from 'next/link';
-import { HTMLAttributes, MouseEventHandler, ReactElement } from 'react';
-import { usePagination } from './usePagination';
+import { useRouter } from 'next/router';
+import { ChangeEventHandler, KeyboardEventHandler, ReactElement, useEffect, useRef, useState } from 'react';
+import { IUsePaginationResult } from './usePagination';
 
-export interface IPaginationProps extends HTMLAttributes<HTMLDivElement> {
+export interface IPaginationProps extends IUsePaginationResult {
   totalResults: number;
-  numPerPage: number;
-  onPageChange: (page: number, start: number) => void;
+  hidePerPageSelect?: boolean;
 }
 
-const defaultProps = {
-  totalResults: 0,
-  numPerPage: 10,
-};
+const paginationStoreSelector = (state: AppState): [AppState['pagination'], AppState['setPagination']] => [
+  state.pagination,
+  state.setPagination,
+];
 
 export const Pagination = (props: IPaginationProps): ReactElement => {
-  const { totalResults, numPerPage, onPageChange, ...divProps } = props;
-  const isClient = useIsClient();
-
   const {
-    nextHref,
-    prevHref,
-    pages,
-    startIndex,
-    endIndex,
-    page,
-    noNext,
-    noPrev,
-    noPagination,
-    handleNext,
-    handlePrev,
-    handlePageChange,
-  } = usePagination({
-    totalResults,
-    numPerPage,
-    onPageChange,
-  });
+    page = 1,
+    totalResults = 0,
+    hidePerPageSelect = false,
+    endIndex = 1,
+    nextPage = 2,
+    noNext = false,
+    noPagination = true,
+    noPrev = true,
+    prevPage = 1,
+    startIndex = 1,
+    totalPages = 1,
+  } = props;
+
+  const pageOptions = APP_DEFAULTS.PER_PAGE_OPTIONS;
+  const router = useRouter();
+  const isClient = useIsClient();
+  const [pagination, setPagination] = useStore(paginationStoreSelector);
+
+  // Helper, this is necessary to make sure that the store is kept in sync with changes to page from the
+  // usePagination hook (which is stateless)
+  useEffect(() => {
+    if (page !== pagination.page) {
+      setPagination({ page });
+    }
+  }, [page, pagination.page]);
 
   if (noPagination) {
     return null;
   }
 
-  const pageChangeHandler: MouseEventHandler<HTMLButtonElement> = (e) => {
-    handlePageChange(e, parseInt(e.currentTarget.dataset['index'], 10));
+  // Need only to update the store with the page, it'll be caught upstream
+  const handlePrev = () => {
+    setPagination({ page: pagination.page - 1 });
   };
 
-  const renderControls = () => {
-    return pages.map(({ index, href }) => {
-      const key = `pagination-link${href.pathname}/${index}`;
-      // current page styling
-      if (index === page) {
-        return isClient ? (
-          <Button
-            key={key}
-            onClick={pageChangeHandler}
-            data-index={index}
-            aria-current="page"
-            data-testid="pagination-item"
-            aria-label={`Current page, page ${page}`}
-            variant="pageCurrent"
-          >
-            {index}
-          </Button>
-        ) : (
-          <NextLink key={key} href={href} passHref>
-            <Link aria-current="page" data-testid="pagination-item" aria-label={`Current page, page ${page}`}>
-              {index}
-            </Link>
-          </NextLink>
-        );
-      }
+  const handleNext = () => {
+    setPagination({ page: pagination.page + 1 });
+  };
 
-      // normal, non-current page
-      return isClient ? (
-        <Button
-          key={key}
-          onClick={pageChangeHandler}
-          data-index={index}
-          aria-label={`Goto page ${page}`}
-          data-testid="pagination-item"
-          variant="page"
-        >
-          {index}
-        </Button>
-      ) : (
-        <NextLink key={key} href={href} passHref>
-          <Link aria-label={`Goto page ${page}`} data-testid="pagination-item">
-            {index}
-          </Link>
-        </NextLink>
-      );
-    });
+  /**
+   * Update our internal state perPage, which will trigger on the pagination hook
+   */
+  const perPageChangeHandler: ChangeEventHandler<HTMLSelectElement> = (e) => {
+    const numPerPage = parseInt(e.currentTarget.value, 10) as typeof APP_DEFAULTS['PER_PAGE_OPTIONS'][number];
+    setPagination({ numPerPage });
   };
 
   const formattedTotalResults = totalResults.toLocaleString();
@@ -105,7 +92,7 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
   } of ${formattedTotalResults} results`;
 
   return (
-    <Box as="section" {...divProps} data-testid="pagination-container" aria-labelledby="pagination" mt={3}>
+    <Box as="section" data-testid="pagination-container" aria-labelledby="pagination" mt={3}>
       <VisuallyHidden as="h3" id="pagination">
         {paginationHeading}
       </VisuallyHidden>
@@ -124,14 +111,14 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
             {noPrev ? (
               <Text variant="disabledLink">Previous</Text>
             ) : (
-              <NextLink href={prevHref} passHref>
+              <NextLink href={{ query: { ...router.query, p: prevPage } }} passHref>
                 <Link data-testid="pagination-prev">Previous</Link>
               </NextLink>
             )}
             {noNext ? (
               <Text variant="disabledLink">Next</Text>
             ) : (
-              <NextLink href={nextHref} passHref>
+              <NextLink href={{ query: { ...router.query, p: nextPage } }} passHref>
                 <Link data-testid="pagination-next">Next</Link>
               </NextLink>
             )}
@@ -156,61 +143,146 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
             results
           </Text>
         </Box>
-        <Box
-          className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
-          role="navigation"
-          aria-label="Pagination"
-        >
+        {!hidePerPageSelect && (
+          <Box>
+            <Select
+              aria-label="Select number of results to show per page"
+              value={pagination.numPerPage}
+              onChange={perPageChangeHandler}
+              size="xs"
+            >
+              {pageOptions.map((num) => (
+                <option key={num} value={num}>
+                  {num} results
+                </option>
+              ))}
+            </Select>
+          </Box>
+        )}
+        <Stack direction="row" spacing={0} role="navigation" aria-label="Pagination">
           {isClient ? (
-            <IconButton
+            <Button
               aria-label="previous"
               onClick={handlePrev}
               data-testid="pagination-prev"
-              icon={<ChevronLeftIcon />}
+              leftIcon={<ChevronLeftIcon />}
               isDisabled={noPrev}
               variant="pagePrev"
-            />
+            >
+              Prev
+            </Button>
           ) : (
-            <NextLink href={prevHref} passHref>
+            <NextLink href={{ query: { ...router.query, p: prevPage } }} passHref>
               <Link>
-                <IconButton
+                <Button
                   aria-label="previous"
                   data-testid="pagination-prev"
-                  icon={<ChevronLeftIcon />}
+                  leftIcon={<ChevronLeftIcon />}
                   isDisabled={noPrev}
                   variant="pagePrev"
-                />
+                >
+                  Prev
+                </Button>
               </Link>
             </NextLink>
           )}
-
-          {isClient && renderControls()}
-
+          {isClient && (
+            <ManualPageSelect page={pagination.page} totalPages={totalPages} setPagination={setPagination} />
+          )}
           {isClient ? (
-            <IconButton
+            <Button
               aria-label="next"
               onClick={handleNext}
               data-testid="pagination-next"
-              icon={<ChevronRightIcon />}
+              rightIcon={<ChevronRightIcon />}
               isDisabled={noNext}
               variant="pageNext"
-            />
+            >
+              Next
+            </Button>
           ) : (
-            <NextLink href={nextHref} passHref>
+            <NextLink href={{ query: { ...router.query, p: nextPage } }} passHref>
               <Link>
-                <IconButton
+                <Button
                   aria-label="next"
                   data-testid="pagination-next"
-                  icon={<ChevronRightIcon />}
+                  rightIcon={<ChevronRightIcon />}
                   isDisabled={noNext}
                   variant="pageNext"
-                />
+                >
+                  Next
+                </Button>
               </Link>
             </NextLink>
           )}
-        </Box>
+        </Stack>
       </Flex>
     </Box>
   );
 };
-Pagination.defaultProps = defaultProps;
+
+/**
+ * Popover for manually selecting a page
+ */
+const ManualPageSelect = ({
+  page = 1,
+  totalPages = 1,
+  setPagination,
+}: {
+  page: number;
+  totalPages: number;
+  setPagination: AppState['setPagination'];
+}) => {
+  // hold intermediate page in local state
+  const [manualPage, setManualPage] = useState(page);
+  const handleChange = (_: string, page: number) => {
+    setManualPage(Number.isNaN(page) ? 1 : page);
+  };
+
+  // submit the change to page
+  const handleSubmit = () => {
+    setPagination({ page: manualPage });
+  };
+
+  // on enter, submit the change
+  const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (e) => {
+    if (e.key === 'Enter') {
+      setPagination({ page: manualPage });
+    }
+  };
+  const pagePickerRef = useRef(null);
+
+  return (
+    <Popover placement="top" size="sm" initialFocusRef={pagePickerRef}>
+      <PopoverTrigger>
+        <Button aria-label={`current page is ${page}, manually update`} variant="pageBetween">
+          {page.toLocaleString()} of {totalPages.toLocaleString()}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent>
+        <PopoverHeader fontWeight="semibold">Manually Select Page</PopoverHeader>
+        <PopoverArrow />
+        <PopoverCloseButton />
+        <PopoverBody>
+          <Stack spacing={2}>
+            <NumberInput
+              defaultValue={page}
+              min={1}
+              max={totalPages}
+              value={manualPage}
+              onChange={handleChange}
+              onKeyDown={handleKeyDown}
+            >
+              <NumberInputField ref={pagePickerRef} />
+              <NumberInputStepper>
+                <NumberIncrementStepper />
+                <NumberDecrementStepper />
+              </NumberInputStepper>
+            </NumberInput>
+            <Button onClick={handleSubmit}>Submit</Button>
+          </Stack>
+        </PopoverBody>
+      </PopoverContent>
+    </Popover>
+  );
+};

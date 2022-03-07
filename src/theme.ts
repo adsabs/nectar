@@ -228,6 +228,13 @@ export const theme = extendTheme(
             backgroundColor: 'transparent',
             color: 'gray.700',
           },
+          pageBetween: {
+            borderWidth: '1px',
+            borderRadius: '0 0 0 0',
+            borderColor: 'gray.200',
+            backgroundColor: 'transparent',
+            color: 'gray.700',
+          },
           pageNext: {
             borderWidth: '1px',
             borderRadius: '0 5px 5px 0',
