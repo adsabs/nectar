@@ -24,7 +24,7 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
         <Item
           doc={doc}
           key={doc.bibcode}
-          index={indexStart + 1 + index}
+          index={indexStart + index === 0 ? 1 : indexStart + index}
           hideCheckbox={hideCheckboxes}
           hideActions={false}
         />
