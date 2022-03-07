@@ -1,11 +1,13 @@
 import { IADSApiSearchParams, IADSApiSearchResponse, SolrSort } from '@api';
-import { Box, Flex } from '@chakra-ui/layout';
-import { Alert, AlertIcon } from '@chakra-ui/react';
+import { Box, Flex, Stack } from '@chakra-ui/layout';
+import { Alert, AlertIcon, Skeleton } from '@chakra-ui/react';
 import { VisuallyHidden } from '@chakra-ui/visually-hidden';
 import { NumFound, SearchBar, SimpleResultList } from '@components';
 import { Pagination } from '@components/ResultList/Pagination';
+import { usePagination } from '@components/ResultList/Pagination/usePagination';
 import { AppState, useStore, useStoreApi } from '@store';
-import { normalizeURLParams } from '@utils';
+import { initialPaginationState } from '@store/slices';
+import { normalizeURLParams, parseNumberAndClamp } from '@utils';
 import { searchKeys, useSearch } from '@_api/search';
 import { defaultParams, getSearchStatsParams } from '@_api/search/models';
 import axios from 'axios';
@@ -14,6 +16,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { dehydrate, QueryClient } from 'react-query';
+
 interface ISearchPageProps {
   searchParams: IADSApiSearchParams;
 }
@@ -21,7 +24,7 @@ interface ISearchPageProps {
 const SearchPage: NextPage<ISearchPageProps> = ({ searchParams }) => {
   const router = useRouter();
   const store = useStoreApi();
-  const page = useRef(1);
+  const storePagination = useStore((state) => state.pagination);
 
   /**
    * Flag to watch for when updating state.  Page (or start) is the one
@@ -54,21 +57,35 @@ const SearchPage: NextPage<ISearchPageProps> = ({ searchParams }) => {
     pageChangeFlag.current = false;
   };
 
+  const { data, error, isSuccess, isError, isFetching } = useSearch(params, {
+    keepPreviousData: false,
+    enabled: submitted,
+  });
+
+  // re-calculates pagination when numFound, page or numPerPage changes
+  const pagination = usePagination({ numFound: data?.numFound, ...storePagination });
+
   const updateUrl = (params: IADSApiSearchParams) => {
     // omit fl, rows, and start from url
     const { fl, rows, start, ...cleanedParams } = params;
-    void router.push({ pathname: '/search', query: { ...cleanedParams, p: page.current } }, null, {
+    void router.push({ pathname: '/search', query: { ...cleanedParams, p: pagination.page } }, null, {
       shallow: true,
     });
   };
 
   // update Url on param update
-  useEffect(() => updateUrl(searchParams), [searchParams, page.current]);
+  useEffect(() => updateUrl(searchParams), [searchParams, pagination.page]);
 
-  const { data, error, isSuccess, isError, isFetching } = useSearch(params, {
-    keepPreviousData: true,
-    enabled: submitted,
-  });
+  // When something with pagination changes, trigger a new search
+  useEffect(() => {
+    if (!submitted) {
+      updateQuery({ start: pagination.startIndex, rows: storePagination.numPerPage });
+
+      // set our page change flag (for doc selection)
+      pageChangeFlag.current = true;
+      setSubmitted(true);
+    }
+  }, [pagination.page, storePagination.numPerPage]);
 
   // call the onSuccess handler on all calls, rather than only on data fetches
   useEffect(() => {
@@ -83,14 +100,6 @@ const SearchPage: NextPage<ISearchPageProps> = ({ searchParams }) => {
       setSubmitted(false);
     }
   }, [submitted]);
-
-  // on page change, update the current query and submit
-  const handlePageChange = (currentPage: number, start: number) => {
-    page.current = currentPage;
-    pageChangeFlag.current = true;
-    updateQuery({ start });
-    setSubmitted(true);
-  };
 
   /**
    * start searching
@@ -121,11 +130,36 @@ const SearchPage: NextPage<ISearchPageProps> = ({ searchParams }) => {
               {axios.isAxiosError(error) && error.message}
             </Alert>
           )}
+          {isFetching && <LoadingList />}
           {isSuccess && <SimpleResultList docs={data.docs} indexStart={params.start} />}
-          {isSuccess && <Pagination totalResults={data.numFound} numPerPage={10} onPageChange={handlePageChange} />}
+          {isSuccess && <Pagination totalResults={data.numFound} {...pagination} />}
         </Box>
       </form>
     </Box>
+  );
+};
+
+const LoadingList = () => {
+  return (
+    <Flex direction="column" gap="1">
+      {Array.from({ length: 10 }).map((_v, index) => (
+        <Stack key={index} border="1px" borderColor="gray.50" mb={1} borderRadius="md" p="1">
+          <Skeleton height="5" />
+          <Flex gap="4">
+            <Skeleton height="3" width="24" />
+            <Skeleton height="3" width="24" />
+            <Skeleton height="3" width="24" />
+            <Skeleton height="3" width="24" />
+            <Skeleton height="3" width="24" />
+            <Skeleton height="3" width="24" />
+          </Flex>
+          <Flex gap="4">
+            <Skeleton height="3" width="16" />
+            <Skeleton height="3" width="16" />
+          </Flex>
+        </Stack>
+      ))}
+    </Flex>
   );
 };
 
@@ -133,8 +167,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const api = (await import('@_api/api')).default;
   const { fetchSearch } = await import('@_api/search');
   const query = normalizeURLParams(ctx.query);
-  const parsedPage = parseInt(query.p, 10);
-  const page = isNaN(parsedPage) || Math.abs(parsedPage) > 500 ? 1 : Math.abs(parsedPage);
+  const page = parseNumberAndClamp(query.p, 1, Number.MAX_SAFE_INTEGER);
   api.setToken(ctx.req.session.userData.access_token);
 
   const params: IADSApiSearchParams = {
@@ -167,7 +200,11 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   return {
     props: {
       dehydratedState: dehydrate(queryClient),
-      dehydratedAppState: { query: params, latestQuery: params } as AppState,
+      dehydratedAppState: {
+        query: params,
+        latestQuery: params,
+        pagination: { ...initialPaginationState, page },
+      } as AppState,
       searchParams: params,
     },
   };
