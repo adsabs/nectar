@@ -9,5 +9,5 @@ export interface IAppStateThemeSlice {
 
 export const themeSlice: StoreSlice<IAppStateThemeSlice> = (set: NamedSet<AppState>) => ({
   theme: Theme.GENERAL,
-  setTheme: (theme: Theme) => set({ theme }, false, 'theme/setTheme'),
+  setTheme: (theme) => set({ theme }, false, 'theme/setTheme'),
 });
