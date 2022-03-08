@@ -1,5 +1,6 @@
+import { AbstractSideNav, IAbstractSideNavProps } from '@components';
+import { doc } from '@components/__mocks__/data';
 import { Meta, Story } from '@storybook/react';
-import { AbstractSideNav, IAbstractSideNavProps } from '../AbstractSideNav';
 
 const meta: Meta = {
   title: 'AbstractSideNav',
@@ -22,4 +23,6 @@ const Template: Story<IAbstractSideNavProps> = (args) => <AbstractSideNav {...ar
 
 export const Default = Template.bind({}) as Story<IAbstractSideNavProps>;
 
-Default.args = {};
+Default.args = {
+  doc: doc,
+};

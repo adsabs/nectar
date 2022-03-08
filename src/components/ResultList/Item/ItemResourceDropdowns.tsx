@@ -14,7 +14,7 @@ export interface IItemResourceDropdownsProps {
   doc: IDocsEntity;
 }
 
-interface IItem {
+export interface IItem {
   id: string;
   label: ReactElement | string;
   path?: string;

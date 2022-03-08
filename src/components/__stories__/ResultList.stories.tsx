@@ -1,8 +1,8 @@
 import { Meta, Story } from '@storybook/react';
-import { ResultList } from '../ResultList';
+import { ResultList } from '@components';
 
 const meta: Meta = {
-  title: 'ResultList',
+  title: 'ResultList/ResultList',
   component: ResultList,
   argTypes: {
     children: {

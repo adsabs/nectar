@@ -3,7 +3,7 @@ import { range } from 'ramda';
 import { ReactElement } from 'react';
 import { Skeleton, SkeletonText } from '@chakra-ui/skeleton';
 
-interface ISkeletonProps {
+export interface ISkeletonProps {
   count: number;
 }
 

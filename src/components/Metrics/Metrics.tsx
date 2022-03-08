@@ -4,7 +4,7 @@ import { ReactElement } from 'react';
 import { CitationsTable } from './CitationsTable';
 import { ReadsTable } from './ReadsTable';
 import { Box, Heading } from '@chakra-ui/layout';
-interface IMetricsProps {
+export interface IMetricsProps {
   metrics: IADSApiMetricsResponse;
   isAbstract: boolean;
 }

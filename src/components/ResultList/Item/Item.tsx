@@ -15,7 +15,7 @@ const AbstractPreview = dynamic<IAbstractPreviewProps>(
   () => import('./AbstractPreview').then((mod) => mod.AbstractPreview),
   { ssr: false },
 );
-interface IItemProps {
+export interface IItemProps {
   doc: IDocsEntity;
   index: number;
   hideCheckbox: boolean;

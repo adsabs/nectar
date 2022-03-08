@@ -4,7 +4,7 @@ import { ISimpleResultListProps, SimpleResultList } from '@components';
 import { IPaginationProps, Pagination } from '@components/ResultList/Pagination';
 import NextLink, { LinkProps } from 'next/link';
 import { ReactElement } from 'react';
-interface IAbstractRefListProps {
+export interface IAbstractRefListProps {
   docs: IDocsEntity[];
   indexStart: ISimpleResultListProps['indexStart'];
   href: LinkProps['href'];

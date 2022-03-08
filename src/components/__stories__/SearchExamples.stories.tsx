@@ -1,4 +1,4 @@
-import { ISearchExamplesProps, SearchExamples } from '@components/SearchExamples';
+import { ISearchExamplesProps, SearchExamples } from '@components';
 import { Meta, Story } from '@storybook/react';
 
 const meta: Meta = {

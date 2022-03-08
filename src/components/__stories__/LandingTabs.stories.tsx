@@ -1,5 +1,5 @@
 import { Meta, Story } from '@storybook/react';
-import { LandingTabs } from '../LandingTabs';
+import { LandingTabs } from '@components';
 
 const meta: Meta = {
   title: 'LandingTabs',
