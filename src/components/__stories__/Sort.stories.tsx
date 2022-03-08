@@ -1,4 +1,4 @@
-import { ISortProps, Sort } from '@components/Sort';
+import { ISortProps, Sort } from '@components';
 import { Meta, Story } from '@storybook/react';
 
 const meta: Meta = {

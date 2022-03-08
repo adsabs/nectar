@@ -1,5 +1,6 @@
 import { Meta, Story } from '@storybook/react';
-import { AbstractSources, IAbstractSourcesProps } from '../AbstractSources';
+import { AbstractSources, IAbstractSourcesProps } from '@components';
+import { doc } from './Data';
 
 const meta: Meta = {
   title: 'AbstractSources',
@@ -22,4 +23,4 @@ const Template: Story<IAbstractSourcesProps> = (args) => <AbstractSources {...ar
 
 export const Default = Template.bind({}) as Story<IAbstractSourcesProps>;
 
-Default.args = {};
+Default.args = { doc };

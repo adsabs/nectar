@@ -1,4 +1,4 @@
-import { NavBar } from '@components/NavBar';
+import { NavBar } from '@components';
 import { Meta, Story } from '@storybook/react';
 
 const meta: Meta = {

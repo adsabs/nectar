@@ -1,4 +1,4 @@
-import { INumFoundProps, NumFound } from '@components/NumFound';
+import { INumFoundProps, NumFound } from '@components';
 import { Meta, Story } from '@storybook/react';
 
 const meta: Meta = {
