@@ -1,6 +1,6 @@
+import { ISimpleResultListProps, SimpleResultList } from '@components';
+import { docs } from '@components/__mocks__/data';
 import { Meta, Story } from '@storybook/react';
-import { SimpleResultList, ISimpleResultListProps } from '@components';
-import { docs } from './Data';
 
 const meta: Meta = {
   title: 'ResultList/SimpleResultList',

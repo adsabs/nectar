@@ -1,6 +1,6 @@
-import { Meta, Story } from '@storybook/react';
 import { AbstractRefList, IAbstractRefListProps } from '@components';
-import { docs } from './Data';
+import { docs } from '@components/__mocks__/data';
+import { Meta, Story } from '@storybook/react';
 
 const meta: Meta = {
   title: 'AbstractRefList',

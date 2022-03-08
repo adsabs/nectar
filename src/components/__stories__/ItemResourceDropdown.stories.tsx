@@ -1,6 +1,6 @@
+import { IItemResourceDropdownsProps, ItemResourceDropdowns } from '@components/ResultList/Item';
+import { doc } from '@components/__mocks__/data';
 import { Meta, Story } from '@storybook/react';
-import { ItemResourceDropdowns, IItemResourceDropdownsProps } from '@components/ResultList/Item';
-import { doc } from './Data';
 
 const meta: Meta = {
   title: 'ResultList/Item/ItemResourceDropdowns',

@@ -1,6 +1,6 @@
+import { IItemProps, Item } from '@components/ResultList/Item';
+import { doc } from '@components/__mocks__/data';
 import { Meta, Story } from '@storybook/react';
-import { Item, IItemProps } from '@components/ResultList/Item';
-import { doc } from './Data';
 
 const meta: Meta = {
   title: 'ResultList/Item',

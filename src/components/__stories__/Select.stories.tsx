@@ -1,6 +1,6 @@
+import { DefaultSelectorStyle, ISelectProps, Select, SortSelectorStyle, ThemeSelectorStyle } from '@components';
+import { states } from '@components/__mocks__/data';
 import { Meta, Story } from '@storybook/react';
-import { Select, ISelectProps, ThemeSelectorStyle, SortSelectorStyle, DefaultSelectorStyle } from '@components';
-import { states } from './Data';
 
 const meta: Meta = {
   title: 'Select',

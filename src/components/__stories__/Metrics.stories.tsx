@@ -1,6 +1,6 @@
+import { IMetricsProps, Metrics } from '@components';
+import { metrics } from '@components/__mocks__/data';
 import { Meta, Story } from '@storybook/react';
-import { Metrics, IMetricsProps } from '@components';
-import { metrics } from './Data';
 
 const meta: Meta = {
   title: 'Metrics/Metrics',

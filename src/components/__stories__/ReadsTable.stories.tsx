@@ -1,6 +1,6 @@
+import { IReadsTableProps, ReadsTable } from '@components';
+import { readsTableData } from '@components/__mocks__/data';
 import { Meta, Story } from '@storybook/react';
-import { ReadsTable, IReadsTableProps } from '@components';
-import { readsTableData } from './Data';
 
 const meta: Meta = {
   title: 'Metrics/ReadsTable',

@@ -1,6 +1,6 @@
+import { ISimpleLinkDropdownProps, SimpleLinkDropdown } from '@components/Dropdown';
+import { states } from '@components/__mocks__/data';
 import { Meta, Story } from '@storybook/react';
-import { SimpleLinkDropdown, ISimpleLinkDropdownProps } from '@components/Dropdown';
-import { states } from './Data';
 
 const meta: Meta = {
   title: 'Dropdown/SimpleLinkDropdown',

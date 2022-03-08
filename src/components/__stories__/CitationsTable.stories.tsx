@@ -1,6 +1,6 @@
-import { Meta, Story } from '@storybook/react';
 import { CitationsTable, ICitationsTableProps } from '@components';
-import { citationsTableData } from './Data';
+import { citationsTableData } from '@components/__mocks__/data';
+import { Meta, Story } from '@storybook/react';
 
 const meta: Meta = {
   title: 'Metrics/CitationsTable',
