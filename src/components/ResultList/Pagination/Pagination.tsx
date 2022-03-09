@@ -19,21 +19,16 @@ import {
 } from '@chakra-ui/react';
 import { APP_DEFAULTS } from '@config';
 import { useIsClient } from '@hooks/useIsClient';
-import { AppState, useStore } from '@store';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
-import { ChangeEventHandler, KeyboardEventHandler, ReactElement, useEffect, useRef, useState } from 'react';
-import { IUsePaginationResult } from './usePagination';
+import { ChangeEventHandler, Dispatch, KeyboardEventHandler, ReactElement, useEffect, useRef, useState } from 'react';
+import { IUsePaginationResult, PaginationAction } from './usePagination';
 
 export interface IPaginationProps extends IUsePaginationResult {
   totalResults: number;
   hidePerPageSelect?: boolean;
+  dispatch: Dispatch<PaginationAction>;
 }
-
-const paginationStoreSelector = (state: AppState): [AppState['pagination'], AppState['setPagination']] => [
-  state.pagination,
-  state.setPagination,
-];
 
 export const Pagination = (props: IPaginationProps): ReactElement => {
   const {
@@ -46,22 +41,15 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
     noPagination = true,
     noPrev = true,
     prevPage = 1,
-    startIndex = 1,
+    startIndex = 0,
     totalPages = 1,
+    numPerPage = APP_DEFAULTS.RESULT_PER_PAGE,
+    dispatch,
   } = props;
 
   const pageOptions = APP_DEFAULTS.PER_PAGE_OPTIONS;
   const router = useRouter();
   const isClient = useIsClient();
-  const [pagination, setPagination] = useStore(paginationStoreSelector);
-
-  // Helper, this is necessary to make sure that the store is kept in sync with changes to page from the
-  // usePagination hook (which is stateless)
-  useEffect(() => {
-    if (page !== pagination.page) {
-      setPagination({ page });
-    }
-  }, [page, pagination.page]);
 
   if (noPagination) {
     return null;
@@ -69,23 +57,26 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
 
   // Need only to update the store with the page, it'll be caught upstream
   const handlePrev = () => {
-    setPagination({ page: pagination.page - 1 });
+    dispatch({ type: 'PREV_PAGE' });
   };
 
   const handleNext = () => {
-    setPagination({ page: pagination.page + 1 });
+    dispatch({ type: 'NEXT_PAGE' });
   };
+
+  // make sure we keep state and result in sync for pagination
+  useEffect(() => dispatch({ type: 'SET_PAGE', payload: page }), [page]);
 
   /**
    * Update our internal state perPage, which will trigger on the pagination hook
    */
   const perPageChangeHandler: ChangeEventHandler<HTMLSelectElement> = (e) => {
     const numPerPage = parseInt(e.currentTarget.value, 10) as typeof APP_DEFAULTS['PER_PAGE_OPTIONS'][number];
-    setPagination({ numPerPage });
+    dispatch({ type: 'SET_PERPAGE', payload: numPerPage });
   };
 
   const formattedTotalResults = totalResults.toLocaleString();
-  const formattedStartIndex = startIndex.toLocaleString();
+  const formattedStartIndex = (startIndex === 0 ? 1 : startIndex).toLocaleString();
   const formattedEndIndex = endIndex.toLocaleString();
   const paginationHeading = `Pagination, showing ${formattedStartIndex} to ${
     noNext ? formattedTotalResults : formattedEndIndex
@@ -147,7 +138,7 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
           <Box>
             <Select
               aria-label="Select number of results to show per page"
-              value={pagination.numPerPage}
+              value={numPerPage}
               onChange={perPageChangeHandler}
               size="xs"
             >
@@ -186,9 +177,7 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
               </Link>
             </NextLink>
           )}
-          {isClient && (
-            <ManualPageSelect page={pagination.page} totalPages={totalPages} setPagination={setPagination} />
-          )}
+          {isClient && <ManualPageSelect page={page} totalPages={totalPages} dispatch={dispatch} />}
           {isClient ? (
             <Button
               aria-label="next"
@@ -225,51 +214,51 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
  * Popover for manually selecting a page
  */
 const ManualPageSelect = ({
-  page = 1,
+  page: currentPage = 1,
   totalPages = 1,
-  setPagination,
+  dispatch,
 }: {
   page: number;
   totalPages: number;
-  setPagination: AppState['setPagination'];
+  dispatch: IPaginationProps['dispatch'];
 }) => {
   // hold intermediate page in local state
-  const [manualPage, setManualPage] = useState(page);
+  const [page, setPage] = useState(currentPage);
   const handleChange = (_: string, page: number) => {
-    setManualPage(Number.isNaN(page) ? 1 : page);
+    setPage(Number.isNaN(page) ? 1 : page);
   };
 
   // submit the change to page
   const handleSubmit = () => {
-    setPagination({ page: manualPage });
+    dispatch({ type: 'SET_PAGE', payload: page });
   };
 
   // on enter, submit the change
   const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (e) => {
     if (e.key === 'Enter') {
-      setPagination({ page: manualPage });
+      dispatch({ type: 'SET_PAGE', payload: page });
     }
   };
   const pagePickerRef = useRef(null);
 
   return (
-    <Popover placement="top" size="sm" initialFocusRef={pagePickerRef}>
+    <Popover placement="top" size="sm" initialFocusRef={pagePickerRef} closeOnBlur>
       <PopoverTrigger>
-        <Button aria-label={`current page is ${page}, manually update`} variant="pageBetween">
-          {page.toLocaleString()} of {totalPages.toLocaleString()}
+        <Button aria-label={`current page is ${currentPage}, update page`} variant="pageBetween">
+          {currentPage.toLocaleString()} of {totalPages.toLocaleString()}
         </Button>
       </PopoverTrigger>
-      <PopoverContent>
-        <PopoverHeader fontWeight="semibold">Manually Select Page</PopoverHeader>
+      <PopoverContent maxW={150}>
+        <PopoverHeader fontWeight="semibold">Select Page</PopoverHeader>
         <PopoverArrow />
         <PopoverCloseButton />
         <PopoverBody>
           <Stack spacing={2}>
             <NumberInput
-              defaultValue={page}
+              defaultValue={currentPage}
               min={1}
               max={totalPages}
-              value={manualPage}
+              value={page}
               onChange={handleChange}
               onKeyDown={handleKeyDown}
             >
@@ -279,7 +268,7 @@ const ManualPageSelect = ({
                 <NumberDecrementStepper />
               </NumberInputStepper>
             </NumberInput>
-            <Button onClick={handleSubmit}>Submit</Button>
+            <Button onClick={handleSubmit}>Goto Page {page}</Button>
           </Stack>
         </PopoverBody>
       </PopoverContent>

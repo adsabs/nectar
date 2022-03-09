@@ -1,4 +1,4 @@
-import { IADSApiSearchParams, IADSApiSearchResponse, SolrSort } from '@api';
+import { IADSApiSearchParams, SolrSort } from '@api';
 import { Box, Flex, Stack } from '@chakra-ui/layout';
 import { Alert, AlertIcon, Skeleton } from '@chakra-ui/react';
 import { VisuallyHidden } from '@chakra-ui/visually-hidden';
@@ -6,7 +6,6 @@ import { NumFound, SearchBar, SimpleResultList } from '@components';
 import { Pagination } from '@components/ResultList/Pagination';
 import { usePagination } from '@components/ResultList/Pagination/usePagination';
 import { AppState, useStore, useStoreApi } from '@store';
-import { initialPaginationState } from '@store/slices';
 import { normalizeURLParams, parseNumberAndClamp } from '@utils';
 import { searchKeys, useSearch } from '@_api/search';
 import { defaultParams, getSearchStatsParams } from '@_api/search/models';
@@ -14,113 +13,106 @@ import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { omit } from 'ramda';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { dehydrate, QueryClient } from 'react-query';
 
 interface ISearchPageProps {
   searchParams: IADSApiSearchParams;
 }
 
-const SearchPage: NextPage<ISearchPageProps> = ({ searchParams }) => {
+const useSearchQuery = (submitted: boolean, query: IADSApiSearchParams) => {
   const router = useRouter();
-  const store = useStoreApi();
-  const storePagination = useStore((state) => state.pagination);
-
-  /**
-   * Flag to watch for when updating state.  Page (or start) is the one
-   * param we want to ignore for param change when deciding to clear docs
-   */
-  const pageChangeFlag = useRef(false);
-  const [submitted, setSubmitted] = useState(true);
-  const updateQuery = useStore((state) => state.updateQuery);
   const setLatestQuery = useStore((state) => state.setLatestQuery);
-  const setSelectedDocs = useStore((state) => state.setSelected);
-  const setDocs = useStore((state) => state.setDocs);
 
-  // memoize params (from state) to only update when we submit
-  const params = useMemo(() => store.getState().query, [submitted]);
-
-  const onResultsChange = (data: Partial<IADSApiSearchResponse['response']>) => {
-    // update the docs with the latest results
-    setDocs(data.docs.map((d) => d.bibcode));
-
-    // update the url with the search params
-    updateUrl(params);
-
-    // save our latest successful query
-    setLatestQuery(params);
-
-    if (!pageChangeFlag.current) {
-      // don't clear docs on a page change, only if the other props change
-      setSelectedDocs([]);
-    }
-    pageChangeFlag.current = false;
-  };
-
-  const { data, error, isSuccess, isError, isFetching } = useSearch(params, {
-    keepPreviousData: false,
+  const result = useSearch(query, {
+    // we are allowing data to persist, but below the page will still show loading state
+    // this is to keep stable data available for other hooks to use
+    keepPreviousData: true,
     enabled: submitted,
+    onSettled: () => {
+      // omit superfluous params
+      const params = omit(['fl', 'start', 'rows'], query);
+
+      // update router with changed params
+      router.push({ pathname: router.pathname, query: { ...router.query, ...params } }, null, {
+        shallow: true,
+      });
+
+      // update store with the latest (working) query
+      setLatestQuery(query);
+    },
   });
 
-  // re-calculates pagination when numFound, page or numPerPage changes
-  const pagination = usePagination({ numFound: data?.numFound, ...storePagination });
+  return result;
+};
 
-  const updateUrl = (params: IADSApiSearchParams) => {
-    // omit fl, rows, and start from url
-    const { fl, rows, start, ...cleanedParams } = params;
-    void router.push({ pathname: '/search', query: { ...cleanedParams, p: pagination.page } }, null, {
-      shallow: true,
-    });
+const SearchPage: NextPage<ISearchPageProps> = ({ searchParams }) => {
+  const updateQuery = useStore((state) => state.updateQuery);
+  const query = useStoreApi().getState().query;
+
+  const [submitted, setSubmitted] = useState(false);
+  const { data, isSuccess, isError, isFetching, error } = useSearchQuery(submitted, query);
+
+  // helper for submitting and updating query at the same time
+  const updateAndSubmit = (params?: Partial<IADSApiSearchParams>) => {
+    if (params) {
+      updateQuery(params);
+    }
+    setSubmitted(true);
+    setTimeout(() => setSubmitted(false), 0);
   };
 
-  // update Url on param update
-  useEffect(() => updateUrl(searchParams), [searchParams, pagination.page]);
+  // re-calculates pagination when numFound, page or numPerPage changes
+  const pagination = usePagination({ numFound: data?.numFound });
 
-  // When something with pagination changes, trigger a new search
+  // on pagination updates we want to attempt another search
   useEffect(() => {
-    if (!submitted) {
-      updateQuery({ start: pagination.startIndex, rows: storePagination.numPerPage });
+    updateAndSubmit({ start: pagination.startIndex, rows: pagination.numPerPage });
+  }, [pagination.startIndex, pagination.numPerPage]);
 
-      // set our page change flag (for doc selection)
-      pageChangeFlag.current = true;
-      setSubmitted(true);
+  // update the page and query based on the incoming route params
+  const router = useRouter();
+  const routeChangeHandler = () => {
+    const page = parseNumberAndClamp(router.query.p, 1);
+    if (page !== pagination.page) {
+      pagination.dispatch({ type: 'SET_PAGE', payload: page });
     }
-  }, [pagination.page, storePagination.numPerPage]);
+    updateAndSubmit({ ...omit(['p'], router.query) });
+  };
 
-  // call the onSuccess handler on all calls, rather than only on data fetches
+  // add/remove route change handlers
   useEffect(() => {
-    if (submitted && data) {
-      onResultsChange(data);
-    }
-  }, [submitted, data]);
+    router.events.on('routeChangeComplete', routeChangeHandler);
+    return () => router.events.off('routeChangeComplete', routeChangeHandler);
+  }, [router]);
 
-  // when submitted, shallowly update the route with the updated params (including page)
-  useEffect(() => {
-    if (submitted) {
-      setSubmitted(false);
-    }
-  }, [submitted]);
-
-  /**
-   * start searching
-   */
+  // on form submission, but not otherwise (probably need more granular control)
+  // we should clear the selected docs.  We'll probably want to not do this ordinal changes like sort
+  const clearSelectedDocs = useStore((state) => state.clearSelected);
   const handleOnSubmit = (e: ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSubmitted(true);
+
+    // resets the page to 1
+    pagination.dispatch({ type: 'RESET' });
+    clearSelectedDocs();
+    updateAndSubmit();
   };
+
+  const isLoading = isFetching || submitted;
 
   return (
     <Box aria-labelledby="search-form-title" my={16}>
       <Head>
-        <title>NASA Science Explorer - Search Results</title>
+        <title>{query.q ?? ''} | NASA Science Explorer - Search Results</title>
       </Head>
       <form method="get" action="/search" onSubmit={handleOnSubmit}>
         <VisuallyHidden as="h2" id="search-form-title">
           Search Results
         </VisuallyHidden>
         <Flex direction="column" width="full">
-          <SearchBar isLoading={isFetching} />
-          {!isFetching && <NumFound count={data?.numFound ?? 0} />}
+          <SearchBar isLoading={isLoading} />
+          {!isLoading && <NumFound count={data?.numFound ?? 0} />}
           {/* <Filters /> */}
         </Flex>
         <Box mt={5}>
@@ -130,9 +122,9 @@ const SearchPage: NextPage<ISearchPageProps> = ({ searchParams }) => {
               {axios.isAxiosError(error) && error.message}
             </Alert>
           )}
-          {isFetching && <LoadingList />}
-          {isSuccess && <SimpleResultList docs={data.docs} indexStart={params.start} />}
-          {isSuccess && <Pagination totalResults={data.numFound} {...pagination} />}
+          {isLoading && <LoadingList />}
+          {isSuccess && !isLoading && <SimpleResultList docs={data.docs} indexStart={pagination.startIndex} />}
+          {isSuccess && !isLoading && <Pagination totalResults={data.numFound} {...pagination} />}
         </Box>
       </form>
     </Box>
@@ -203,7 +195,6 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       dehydratedAppState: {
         query: params,
         latestQuery: params,
-        pagination: { ...initialPaginationState, page },
       } as AppState,
       searchParams: params,
     },
