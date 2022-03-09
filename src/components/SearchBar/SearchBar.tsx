@@ -34,7 +34,7 @@ const filterOptions = (rawValue: string): TypeaheadOption[] => {
 
   const fields = rawValue.match(/(?:[^\s"]+|"[^"]*")+/g);
   const term = fields === null ? rawValue : last(fields);
-  return matchSorter(typeaheadOptions, term, { keys: ['match'] });
+  return matchSorter(typeaheadOptions, term, { keys: ['match'], threshold: matchSorter.rankings.WORD_STARTS_WITH });
 };
 
 export interface ISearchBarProps {
