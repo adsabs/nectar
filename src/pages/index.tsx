@@ -4,12 +4,15 @@ import { useStore, useStoreApi } from '@store';
 import { noop } from '@utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { ChangeEventHandler, useRef } from 'react';
+import { ChangeEventHandler, useEffect, useRef } from 'react';
 
 const HomePage: NextPage = () => {
   const store = useStoreApi();
+  const resetQuery = useStore((state) => state.resetQuery);
   const router = useRouter();
   const input = useRef<HTMLInputElement>(null);
+
+  useEffect(() => resetQuery(), []);
 
   /**
    * update route and start searching
