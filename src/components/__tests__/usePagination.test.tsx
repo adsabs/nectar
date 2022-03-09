@@ -1,10 +1,18 @@
 import {
+  IPaginationState,
   IUsePaginationProps,
   IUsePaginationResult,
   usePagination,
 } from '@components/ResultList/Pagination/usePagination';
-import { renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react-hooks';
 import { pick } from 'ramda';
+
+const router = {
+  push: jest.fn(),
+};
+jest.mock('next/router', () => ({
+  useRouter: () => router,
+}));
 
 const setup = (props?: Partial<IUsePaginationProps>) => {
   const onNumPerPageChange = jest.fn();
@@ -12,8 +20,6 @@ const setup = (props?: Partial<IUsePaginationProps>) => {
 
   const initialProps: IUsePaginationProps = {
     numFound: 100,
-    numPerPage: 10,
-    page: 1,
     ...props,
   };
 
@@ -27,14 +33,14 @@ const setup = (props?: Partial<IUsePaginationProps>) => {
 const gen = (
   num: number,
   defaultProps?: Partial<IUsePaginationResult>,
-): [[number, IUsePaginationProps['numPerPage']], Partial<IUsePaginationResult>][] =>
+): [[number, IPaginationState['numPerPage']], Partial<IUsePaginationResult>][] =>
   [10, 25, 50, 100].map((perPage) => [
-    [num, perPage as IUsePaginationProps['numPerPage']],
+    [num, perPage as IPaginationState['numPerPage']],
     { totalPages: 1, noPagination: true, ...defaultProps },
   ]);
 
 // [page, numPerPage]
-const basicTests: [[number, IUsePaginationProps['numPerPage']], Partial<IUsePaginationResult>][] = [
+const basicTests: [[number, IPaginationState['numPerPage']], Partial<IUsePaginationResult>][] = [
   ...gen(0),
   ...gen(1),
   ...gen(-1),
@@ -81,23 +87,25 @@ const basicTests: [[number, IUsePaginationProps['numPerPage']], Partial<IUsePagi
 ];
 
 test.concurrent.each(basicTests)(`Page Test %p`, async ([numFound, numPerPage], expected) => {
-  const { result } = setup({ numFound, numPerPage });
+  const { result } = setup({ numFound });
+  act(() => result.current.dispatch({ type: 'SET_PERPAGE', payload: numPerPage }));
   expect(pick(Object.keys(expected), result.current)).toEqual(expected);
 });
 
 // [page, numFound]
 const indexTests: [[number, number], Partial<IUsePaginationResult>][] = [
-  [[1, 100], { page: 1, noNext: false, noPrev: true, startIndex: 1, endIndex: 10 }],
+  [[1, 100], { page: 1, noNext: false, noPrev: true, startIndex: 0, endIndex: 10 }],
   [[2, 100], { page: 2, noNext: false, noPrev: false, startIndex: 11, endIndex: 20 }],
   [[Number.MAX_SAFE_INTEGER, 100], { page: 10, noNext: true, noPrev: false, startIndex: 91, endIndex: 100 }],
-  [[Number.MIN_SAFE_INTEGER, 100], { page: 1, noNext: false, noPrev: true, startIndex: 1, endIndex: 10 }],
-  [[-1, 100], { page: 1, noNext: false, noPrev: true, startIndex: 1, endIndex: 10 }],
+  [[Number.MIN_SAFE_INTEGER, 100], { page: 1, noNext: false, noPrev: true, startIndex: 0, endIndex: 10 }],
+  [[-1, 100], { page: 1, noNext: false, noPrev: true, startIndex: 0, endIndex: 10 }],
   [[10, 100], { page: 10, noNext: true, noPrev: false, startIndex: 91, endIndex: 100 }],
   [[2, 11], { page: 2, noNext: true, noPrev: false, startIndex: 11, endIndex: 11 }],
   [[2, 19], { page: 2, noNext: true, noPrev: false, startIndex: 11, endIndex: 19 }],
 ];
 
 test.concurrent.each(indexTests)('Index Test %p', async ([page, numFound], expected) => {
-  const { result } = setup({ numFound, numPerPage: 10, page });
+  const { result } = setup({ numFound });
+  act(() => result.current.dispatch({ type: 'SET_PAGE', payload: page }));
   expect(pick(Object.keys(expected), result.current)).toEqual(expected);
 });

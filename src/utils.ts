@@ -104,7 +104,7 @@ export const noop = (): void => {
  * Helper utility for parsing int from string/string[]
  * It will also clamp the resulting number between min/max
  */
-export const parseNumberAndClamp = (value: string | string[], min: number, max: number) => {
+export const parseNumberAndClamp = (value: string | string[], min: number, max: number = Number.MAX_SAFE_INTEGER) => {
   try {
     const page = parseInt(Array.isArray(value) ? value[0] : value, 10);
     return clamp(min, max, Number.isNaN(page) ? min : page);
