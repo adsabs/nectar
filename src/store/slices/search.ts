@@ -28,6 +28,7 @@ export interface IAppStateSearchSlice {
   latestQuery: IADSApiSearchParams;
   updateQuery: (query: Partial<IADSApiSearchParams>) => void;
   setLatestQuery: (previousQuery: IADSApiSearchParams) => void;
+  resetQuery: () => void;
 }
 
 export const searchSlice: StoreSlice<IAppStateSearchSlice> = (set: NamedSet<AppState>) => ({
@@ -42,4 +43,5 @@ export const searchSlice: StoreSlice<IAppStateSearchSlice> = (set: NamedSet<AppS
     set((state) => ({ query: { ...state.query, ...query } }), false, 'search/updateQuery'),
 
   setLatestQuery: (latestQuery: IADSApiSearchParams) => set(() => ({ latestQuery }), false, 'search/setLatestQuery'),
+  resetQuery: () => set({ query: defaultQueryParams, latestQuery: defaultQueryParams }),
 });

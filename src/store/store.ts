@@ -6,7 +6,6 @@ import create, { GetState, Mutate, SetState, StoreApi } from 'zustand';
 import createContext from 'zustand/context';
 import { devtools, NamedSet, persist } from 'zustand/middleware';
 import { docsSlice, searchSlice, themeSlice, userSlice } from './slices';
-import { paginationSlice } from './slices/pagination';
 import { AppState } from './types';
 
 export const APP_STORAGE_KEY = 'nectar-app-state';
@@ -18,7 +17,6 @@ export const createStore = (preloadedState: Partial<AppState> = {}) => {
     ...docsSlice(set, get),
     ...userSlice(set, get),
     ...themeSlice(set, get),
-    ...paginationSlice(set, get),
     ...preloadedState,
   });
 
@@ -36,14 +34,13 @@ export const createStore = (preloadedState: Partial<AppState> = {}) => {
     devtools(
       persist(state, {
         name: APP_STORAGE_KEY,
-        partialize: (state) => ({ user: state.user, theme: state.theme, pagination: state.pagination }),
+        partialize: (state) => ({ user: state.user, theme: state.theme }),
         merge: (persistedState: AppState, currentState: AppState) => {
           // for now user and theme are all that need persistence
           return {
             ...currentState,
             user: persistedState.user,
             theme: persistedState.theme,
-            pagination: persistedState.pagination,
           };
         },
       }),
