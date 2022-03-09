@@ -148,7 +148,8 @@ const reducer: Reducer<IPaginationState, PaginationAction> = (state, action) => 
     case 'RESET':
       return { ...state, page: 1 };
     case 'SET_PERPAGE':
-      return { ...state, numPerPage: action.payload };
+      // on perPage change, we should reset back to page 1
+      return { ...state, numPerPage: action.payload, page: 1 };
     default:
       return state;
   }
