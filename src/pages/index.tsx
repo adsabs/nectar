@@ -1,21 +1,30 @@
 import { Box, Flex, Text } from '@chakra-ui/layout';
 import { SearchBar, SearchExamples } from '@components';
 import { useStore, useStoreApi } from '@store';
+import { noop } from '@utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { ChangeEventHandler } from 'react';
+import { ChangeEventHandler, useRef } from 'react';
 
 const HomePage: NextPage = () => {
-  const query = useStore((state) => state.query);
+  const store = useStoreApi();
   const router = useRouter();
+  const input = useRef<HTMLInputElement>(null);
 
   /**
    * update route and start searching
    */
   const handleOnSubmit: ChangeEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
-    const { q, sort } = query;
+    const { q, sort } = store.getState().query;
     void router.push({ pathname: '/search', query: { q, sort } });
+  };
+
+  const handleExampleSelect = () => {
+    // on example selection, move focus to input
+    if (input.current && 'focus' in input.current) {
+      input.current.focus();
+    }
   };
 
   return (
@@ -26,10 +35,10 @@ const HomePage: NextPage = () => {
         </Text>
         <Flex direction="column">
           <Box my={2}>
-            <SearchBar />
+            <SearchBar ref={input} />
           </Box>
           <Box mb={2} mt={5}>
-            <SearchExamplesWrapper />
+            <SearchExamplesWrapper onSelect={handleExampleSelect} />
           </Box>
         </Flex>
       </form>
@@ -37,7 +46,7 @@ const HomePage: NextPage = () => {
   );
 };
 
-const SearchExamplesWrapper = () => {
+const SearchExamplesWrapper = ({ onSelect = noop }: { onSelect?: () => void }) => {
   const updateQuery = useStore((state) => state.updateQuery);
   const store = useStoreApi();
   const handleExampleClick = (text: string) => {
@@ -45,6 +54,9 @@ const SearchExamplesWrapper = () => {
 
     // Add our text to the end of the query
     updateQuery({ q: `${query.q}${query.q.length > 0 ? ' ' : ''}${text}` });
+
+    // fire select callback
+    onSelect();
   };
 
   return <SearchExamples onClick={handleExampleClick} />;
