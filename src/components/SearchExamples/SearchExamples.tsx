@@ -1,23 +1,32 @@
 import { Box, Flex, Grid, GridItem, Heading, Text } from '@chakra-ui/layout';
-import { useStore } from '@store';
+import { useStore, useStoreApi } from '@store';
+import { noop } from '@utils';
 import { FC, HTMLAttributes, MouseEventHandler, useMemo } from 'react';
 import { examples } from './examples';
 
-export interface ISearchExamplesProps {
-  onClick?(text: string): void;
-  className?: HTMLAttributes<HTMLDivElement>['className'];
+export interface ISearchExamplesProps extends HTMLAttributes<HTMLDivElement> {
+  onSelect?: () => void;
 }
 
-export const SearchExamples: FC<ISearchExamplesProps> = ({ onClick }) => {
+export const SearchExamples: FC<ISearchExamplesProps> = (props) => {
+  const { onSelect = noop, ...divProps } = props;
   const theme = useStore((state) => state.theme);
+  const updateQuery = useStore((state) => state.updateQuery);
+  const store = useStoreApi();
 
   const handleClick: MouseEventHandler<HTMLButtonElement> = (e) => {
-    if (typeof onClick === 'function') {
-      onClick(e.currentTarget.dataset['text']);
-    }
+    const text = e.currentTarget.dataset['text'];
+    const query = store.getState().query;
+
+    // Add our text to the end of the query
+    updateQuery({ q: `${query.q}${query.q.length > 0 ? ' ' : ''}${text}` });
+
+    // fire select callback
+    onSelect();
     return undefined;
   };
 
+  // memoize left/right examples
   const [leftExamples, rightExamples] = useMemo(
     () => [
       examples[theme].left.map(({ label, text }) => (
@@ -31,7 +40,7 @@ export const SearchExamples: FC<ISearchExamplesProps> = ({ onClick }) => {
   );
 
   return (
-    <Flex justifyContent="center" direction="column" alignItems="center">
+    <Flex justifyContent="center" direction="column" alignItems="center" {...divProps}>
       <Heading as="h3" size="md" mt={3} mb={5}>
         Search Examples
       </Heading>
@@ -74,5 +83,28 @@ const SearchExample = (props: ISearchExampleProps) => {
         {example}
       </Box>
     </Grid>
+  );
+};
+
+// fallback component to be used as a placeholder
+export const SearchExamplesPlaceholder = () => {
+  return (
+    <Flex justifyContent="center" direction="column" alignItems="center">
+      <Heading as="h3" size="md" mt={3} mb={5}>
+        Search Examples
+      </Heading>
+      <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={5}>
+        <GridItem>
+          {examples['GENERAL'].left.map(({ label, text }) => (
+            <SearchExample label={label} example={text} key={label} data-text={text} />
+          ))}
+        </GridItem>
+        <GridItem>
+          {examples['GENERAL'].right.map(({ label, text }) => (
+            <SearchExample label={label} example={text} key={label} data-text={text} />
+          ))}
+        </GridItem>
+      </Grid>
+    </Flex>
   );
 };

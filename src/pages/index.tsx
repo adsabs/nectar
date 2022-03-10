@@ -1,10 +1,15 @@
 import { Box, Flex, Text } from '@chakra-ui/layout';
-import { SearchBar, SearchExamples } from '@components';
-import { useStore, useStoreApi } from '@store';
-import { noop } from '@utils';
+import { ISearchExamplesProps, SearchBar, SearchExamplesPlaceholder } from '@components';
+import { useStoreApi } from '@store';
 import { NextPage } from 'next';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { ChangeEventHandler, useRef } from 'react';
+
+const SearchExamples = dynamic<ISearchExamplesProps>(
+  () => import('@components/SearchExamples').then((m) => m.SearchExamples),
+  { ssr: false, loading: () => <SearchExamplesPlaceholder /> },
+);
 
 const HomePage: NextPage = () => {
   const store = useStoreApi();
@@ -38,28 +43,12 @@ const HomePage: NextPage = () => {
             <SearchBar ref={input} />
           </Box>
           <Box mb={2} mt={5}>
-            <SearchExamplesWrapper onSelect={handleExampleSelect} />
+            <SearchExamples onSelect={handleExampleSelect} />
           </Box>
         </Flex>
       </form>
     </Box>
   );
-};
-
-const SearchExamplesWrapper = ({ onSelect = noop }: { onSelect?: () => void }) => {
-  const updateQuery = useStore((state) => state.updateQuery);
-  const store = useStoreApi();
-  const handleExampleClick = (text: string) => {
-    const query = store.getState().query;
-
-    // Add our text to the end of the query
-    updateQuery({ q: `${query.q}${query.q.length > 0 ? ' ' : ''}${text}` });
-
-    // fire select callback
-    onSelect();
-  };
-
-  return <SearchExamples onClick={handleExampleClick} />;
 };
 
 export default HomePage;
