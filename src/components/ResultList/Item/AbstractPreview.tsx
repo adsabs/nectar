@@ -48,6 +48,8 @@ export const AbstractPreview = ({ bibcode }: IAbstractPreviewProps): React.React
           disabled={false}
           variant="unstyled"
           width="fit-content"
+          display="flex"
+          fontSize="md"
           isLoading={isFetching}
           icon={show ? <ChevronUpIcon /> : <ChevronDownIcon />}
         />

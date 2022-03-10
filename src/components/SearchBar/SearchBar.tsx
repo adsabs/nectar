@@ -18,7 +18,7 @@ import { useStore } from '@store';
 import { useCombobox } from 'downshift';
 import { matchSorter } from 'match-sorter';
 import { last } from 'ramda';
-import { ReactElement, useEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { typeaheadOptions } from './models';
 import { TypeaheadOption } from './types';
 
@@ -41,12 +41,16 @@ export interface ISearchBarProps {
   isLoading?: boolean;
 }
 
-export const SearchBar = (props: ISearchBarProps): ReactElement => {
+export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>((props, ref) => {
   const query = useStore((state) => state.query.q);
   const updateStoreQuery = useStore((state) => state.updateQuery);
   const updateQuery = (q: string) => updateStoreQuery({ q });
-
   const input = useRef<HTMLInputElement>(null);
+
+  // allow outside refs to fire focus
+  useImperativeHandle(ref, () => ({
+    focus: () => input.current.focus(),
+  }));
 
   const [inputItems, setInputItems] = useState(typeaheadOptions);
   const {
@@ -226,4 +230,4 @@ export const SearchBar = (props: ISearchBarProps): ReactElement => {
       </Button>
     </Flex>
   );
-};
+});

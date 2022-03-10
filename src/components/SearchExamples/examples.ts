@@ -4,7 +4,7 @@ export const examples = {
   [Theme.GENERAL]: {
     left: [
       { label: 'author', text: 'author:"penrose, roger"' },
-      { label: 'first author', text: 'author:"^penrose, roger' },
+      { label: 'first author', text: 'author:"^penrose, roger"' },
       { label: 'abstract+title', text: 'abs:"black hole"' },
       { label: 'year', text: 'year:2000' },
       { label: 'year range', text: 'year:2000-2005' },
