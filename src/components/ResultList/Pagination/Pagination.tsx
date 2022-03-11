@@ -37,7 +37,7 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
     hidePerPageSelect = false,
     endIndex = 1,
     nextPage = 2,
-    noNext = false,
+    noNext = true,
     noPagination = true,
     noPrev = true,
     prevPage = 1,
