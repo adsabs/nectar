@@ -1,8 +1,8 @@
 import { IADSApiSearchParams, SolrSort } from '@api';
-import { Box, Flex, Stack } from '@chakra-ui/layout';
-import { Alert, AlertIcon, Skeleton } from '@chakra-ui/react';
+import { Box, Flex } from '@chakra-ui/layout';
+import { Alert, AlertIcon } from '@chakra-ui/react';
 import { VisuallyHidden } from '@chakra-ui/visually-hidden';
-import { NumFound, SearchBar, SimpleResultList } from '@components';
+import { ItemsSkeleton, NumFound, SearchBar, SimpleResultList } from '@components';
 import { Pagination } from '@components/ResultList/Pagination';
 import { usePagination } from '@components/ResultList/Pagination/usePagination';
 import { AppState, useStore, useStoreApi } from '@store';
@@ -122,36 +122,12 @@ const SearchPage: NextPage<ISearchPageProps> = ({ searchParams }) => {
               {axios.isAxiosError(error) && error.message}
             </Alert>
           )}
-          {isLoading && <LoadingList />}
+          {isLoading && <ItemsSkeleton count={pagination.numPerPage} />}
           {isSuccess && !isLoading && <SimpleResultList docs={data.docs} indexStart={pagination.startIndex} />}
           {isSuccess && !isLoading && <Pagination totalResults={data.numFound} {...pagination} />}
         </Box>
       </form>
     </Box>
-  );
-};
-
-const LoadingList = () => {
-  return (
-    <Flex direction="column" gap="1">
-      {Array.from({ length: 10 }).map((_v, index) => (
-        <Stack key={index} border="1px" borderColor="gray.50" mb={1} borderRadius="md" p="1">
-          <Skeleton height="5" />
-          <Flex gap="4">
-            <Skeleton height="3" width="24" />
-            <Skeleton height="3" width="24" />
-            <Skeleton height="3" width="24" />
-            <Skeleton height="3" width="24" />
-            <Skeleton height="3" width="24" />
-            <Skeleton height="3" width="24" />
-          </Flex>
-          <Flex gap="4">
-            <Skeleton height="3" width="16" />
-            <Skeleton height="3" width="16" />
-          </Flex>
-        </Stack>
-      ))}
-    </Flex>
   );
 };
 
