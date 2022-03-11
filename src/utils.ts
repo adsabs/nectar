@@ -3,6 +3,7 @@ import { fromThrowable } from 'neverthrow';
 import { GetServerSidePropsContext, GetServerSidePropsResult, NextApiRequest, NextApiResponse } from 'next';
 import { useRouter } from 'next/router';
 import { ParsedUrlQuery } from 'querystring';
+import { clamp } from 'ramda';
 
 export const normalizeURLParams = (query: ParsedUrlQuery): Record<string, string> => {
   return Object.keys(query).reduce((acc, key) => {
@@ -97,4 +98,17 @@ export const composeNextGSSP =
 
 export const noop = (): void => {
   // do nothing
+};
+
+/**
+ * Helper utility for parsing int from string/string[]
+ * It will also clamp the resulting number between min/max
+ */
+export const parseNumberAndClamp = (value: string | string[], min: number, max: number = Number.MAX_SAFE_INTEGER) => {
+  try {
+    const page = parseInt(Array.isArray(value) ? value[0] : value, 10);
+    return clamp(min, max, Number.isNaN(page) ? min : page);
+  } catch (e) {
+    return min;
+  }
 };

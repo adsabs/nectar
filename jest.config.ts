@@ -35,6 +35,7 @@ const config: Config.InitialOptions = {
   moduleDirectories: ['node_modules', '<rootDir>/src/'],
   testEnvironment: 'jest-environment-jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest-setup.js'],
+  maxConcurrency: 99,
 };
 
 module.exports = createJestConfig(config);

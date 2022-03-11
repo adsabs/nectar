@@ -11,6 +11,7 @@ export interface IAppStateDocsSlice {
   setSelected: (selected: string[]) => void;
   setDocs: (docs: string[]) => void;
   isDocSelected: (doc: string) => boolean;
+  clearSelected: () => void;
 }
 
 export const docsSlice: StoreSlice<IAppStateDocsSlice> = (set, get) => ({
@@ -59,4 +60,6 @@ export const docsSlice: StoreSlice<IAppStateDocsSlice> = (set, get) => ({
     const selected = get().docs.selected ?? [];
     return selected.includes(doc);
   },
+
+  clearSelected: () => set((state) => ({ docs: { ...state.docs, selected: [] } })),
 });

@@ -1,11 +1,11 @@
-import { Pagination, IPaginationProps } from '@components';
+import { IPaginationProps, Pagination } from '@components/ResultList/Pagination';
 import { Meta, Story } from '@storybook/react';
 
 const meta: Meta = {
-  title: 'ResultList/Pagination',
+  title: 'Pagination',
   component: Pagination,
-  argTypes: {
-    onPageChange: { action: 'onPageChange' },
+  parameters: {
+    controls: { expanded: true },
   },
 };
 
@@ -15,4 +15,4 @@ const Template: Story<IPaginationProps> = (args) => <Pagination {...args} />;
 
 export const Default = Template.bind({}) as Story<IPaginationProps>;
 
-Default.args = { totalResults: 150, numPerPage: 25 };
+Default.args = {};
