@@ -1,9 +1,9 @@
 import { IADSApiMetricsResponse } from '@api';
+import { Box, Heading } from '@chakra-ui/layout';
 import { useMetrics } from '@hooks/useMetrics';
 import { ReactElement } from 'react';
 import { CitationsTable } from './CitationsTable';
 import { ReadsTable } from './ReadsTable';
-import { Box, Heading } from '@chakra-ui/layout';
 export interface IMetricsProps {
   metrics: IADSApiMetricsResponse;
   isAbstract: boolean;
@@ -12,7 +12,7 @@ export interface IMetricsProps {
 export const Metrics = (props: IMetricsProps): ReactElement => {
   const { metrics, isAbstract } = props;
 
-  const { citationsGraph, readsGraph, citationsTable, readsTable } = useMetrics(metrics);
+  const { citationsTable, readsTable } = useMetrics(metrics);
 
   return (
     <>

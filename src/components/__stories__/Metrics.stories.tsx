@@ -11,10 +11,10 @@ export default meta;
 
 const Template: Story<IMetricsProps> = (args) => <Metrics {...args} />;
 
-export const Default = Template.bind({}) as Story<IMetricsProps>;
+export const Default = Template.bind({}) ;
 
 Default.args = { metrics, isAbstract: false };
 
-export const Abstract = Template.bind({}) as Story<IMetricsProps>;
+export const Abstract = Template.bind({}) ;
 
 Abstract.args = { metrics, isAbstract: true };

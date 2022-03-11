@@ -11,6 +11,6 @@ export default meta;
 
 const Template: Story<ISimpleResultListProps> = (args) => <SimpleResultList {...args} />;
 
-export const Default = Template.bind({}) as Story<ISimpleResultListProps>;
+export const Default = Template.bind({}) ;
 
 Default.args = { docs, indexStart: 0, hideCheckboxes: false };

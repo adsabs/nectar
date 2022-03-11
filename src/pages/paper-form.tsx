@@ -136,7 +136,7 @@ const ReferenceQueryForm = ({ onSubmit, isClient }: { onSubmit: SubmitHandler; i
   return (
     <Formik<PaperFormState[PaperFormType.REFERENCE_QUERY]>
       initialValues={{ reference: '' }}
-      onSubmit={(values, { setSubmitting }) => {
+      onSubmit={(values) => {
         void onSubmit(values);
       }}
     >
@@ -182,7 +182,7 @@ const BibcodeQueryForm = ({ onSubmit, isClient }: { onSubmit: SubmitHandler; isC
   return (
     <Formik<PaperFormState[PaperFormType.BIBCODE_QUERY]>
       initialValues={{ bibcodes: '' }}
-      onSubmit={(values, { setSubmitting }) => {
+      onSubmit={(values) => {
         void onSubmit(values);
       }}
     >

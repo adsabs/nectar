@@ -10,7 +10,7 @@ export default meta;
 
 const Template: Story<IBibstemPickerSingleProps> = (args) => <BibstemPickerSingle {...args} />;
 
-export const Default = Template.bind({}) as Story<IBibstemPickerSingleProps>;
+export const Default = Template.bind({}) ;
 
 Default.args = {
   name: 'bibstem',

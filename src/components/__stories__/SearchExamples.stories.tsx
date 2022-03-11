@@ -20,6 +20,6 @@ export default meta;
 
 const Template: Story<ISearchExamplesProps> = (args) => <SearchExamples {...args} />;
 
-export const Default = Template.bind({}) as Story<ISearchExamplesProps>;
+export const Default = Template.bind({}) ;
 
 Default.args = {};

@@ -10,6 +10,6 @@ export default meta;
 
 const Template: Story<IBibstemPickerMultipleProps> = (args) => <BibstemPickerMultiple {...args} />;
 
-export const Default = Template.bind({}) as Story<IBibstemPickerMultipleProps>;
+export const Default = Template.bind({}) ;
 
 Default.args = {};

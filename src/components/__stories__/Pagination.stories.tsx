@@ -13,6 +13,6 @@ export default meta;
 
 const Template: Story<IPaginationProps> = (args) => <Pagination {...args} />;
 
-export const Default = Template.bind({}) as Story<IPaginationProps>;
+export const Default = Template.bind({}) ;
 
 Default.args = {};

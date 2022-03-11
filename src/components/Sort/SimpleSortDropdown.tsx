@@ -1,13 +1,9 @@
 import { SolrSort, SolrSortDirection, SolrSortField } from '@api';
-import { SimpleLinkDropdown } from '@components/Dropdown/SimpleLinkDropdown';
-import NextLink from 'next/link';
+import { Flex } from '@chakra-ui/layout';
+import { SimpleLinkList } from '@components';
 import qs from 'qs';
 import { ReactElement } from 'react';
 import { sortValues } from './model';
-import { SortAscendingIcon, SortDescendingIcon } from '@heroicons/react/outline/';
-import { Flex, Link } from '@chakra-ui/layout';
-import { IconButton } from '@chakra-ui/button';
-import { SimpleLinkList } from '@components';
 
 export interface ISimpleSortDropdownProps {
   query: string;
@@ -30,8 +26,6 @@ export const SimpleSortDropdown = (props: ISimpleSortDropdownProps): ReactElemen
     { id: 'asc', label: 'Ascending', path: `/search?${qs.stringify({ q: query, sort: `${sort} asc`, p: page })}` },
     { id: 'desc', label: 'Descending', path: `/search?${qs.stringify({ q: query, sort: `${sort} desc`, p: page })}` },
   ];
-
-  const label = sortValues.find((v) => v.id === sort).text;
 
   return (
     // <div className="flex justify-start my-5">
