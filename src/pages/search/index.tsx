@@ -98,21 +98,28 @@ const SearchPage: NextPage<ISearchPageProps> = () => {
     return () => router.events.off('routeChangeComplete', routeChangeHandler);
   }, [router]);
 
+  // TODO: pagination and updateAndSubmit compete for updating the query, figure out better solution
+
   // on form submission, but not otherwise (probably need more granular control)
   // we should clear the selected docs.  We'll probably want to not do this ordinal changes like sort
   const clearSelectedDocs = useStore((state) => state.clearSelected);
   const handleOnSubmit = (e: ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    updateAndSubmit();
+
     // resets the page to 1
     pagination.dispatch({ type: 'RESET' });
     clearSelectedDocs();
-    updateAndSubmit();
   };
 
   // trigger new search on sort change
+  // should also reset pagination, but not clear docs
   const handleSortChange = (sort: SolrSort[]) => {
     updateAndSubmit({ sort });
+
+    // resets the page to 1
+    pagination.dispatch({ type: 'RESET' });
   };
 
   const isLoading = isFetching || submitted;
