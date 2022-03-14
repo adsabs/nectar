@@ -14,7 +14,7 @@ import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { equals, omit, pick } from 'ramda';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { dehydrate, QueryClient } from 'react-query';
 
 interface ISearchPageProps {
@@ -56,6 +56,7 @@ const SearchPage: NextPage<ISearchPageProps> = () => {
   const store = useStoreApi();
   const updateQuery = useStore((state) => state.updateQuery);
   const query = useStoreApi().getState().query;
+  const notInitialRender = useRef(false);
 
   const [submitted, setSubmitted] = useState(false);
   const { data, isSuccess, isError, isFetching, error } = useSearchQuery(submitted, query);

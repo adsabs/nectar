@@ -5,6 +5,7 @@ import { AppState, StoreProvider, useCreateStore, useStore } from '@store';
 import { theme } from '@theme';
 import { Theme } from '@types';
 import { isBrowser } from '@utils';
+import '@wdyr';
 import { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
