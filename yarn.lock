@@ -4005,20 +4005,6 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react-virtualized-auto-sizer@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.npmjs.org/@types/react-virtualized-auto-sizer/-/react-virtualized-auto-sizer-1.0.1.tgz#b3187dae1dfc4c15880c9cfc5b45f2719ea6ebd4"
-  integrity sha512-GH8sAnBEM5GV9LTeiz56r4ZhMOUSrP43tAQNSRVxNexDjcNKLCEtnxusAItg1owFUFE6k0NslV26gqVClVvong==
-  dependencies:
-    "@types/react" "*"
-
-"@types/react-window@^1.8.5":
-  version "1.8.5"
-  resolved "https://registry.npmjs.org/@types/react-window/-/react-window-1.8.5.tgz#285fcc5cea703eef78d90f499e1457e9b5c02fc1"
-  integrity sha512-V9q3CvhC9Jk9bWBOysPGaWy/Z0lxYcTXLtLipkt2cnRj1JOSFNF7wqGpkScSXMgBwC+fnVRg/7shwgddBG5ICw==
-  dependencies:
-    "@types/react" "*"
-
 "@types/react@*", "@types/react@>=16.9.0", "@types/react@^17.0.15", "@types/react@^17.0.2":
   version "17.0.39"
   resolved "https://registry.npmjs.org/@types/react/-/react-17.0.39.tgz#d0f4cde092502a6db00a1cded6e6bf2abb7633ce"
@@ -10883,7 +10869,7 @@ memfs@^3.1.2, memfs@^3.2.2:
   dependencies:
     fs-monkey "1.0.3"
 
-"memoize-one@>=3.1.1 <6", memoize-one@^5.0.0:
+memoize-one@^5.0.0:
   version "5.2.1"
   resolved "https://registry.npmjs.org/memoize-one/-/memoize-one-5.2.1.tgz#8337aa3c4335581839ec01c3d594090cebe8f00e"
   integrity sha512-zYiwtZUcYyXKo/np96AGZAckk+FWWsUdJ3cHGGmld7+AhvcWmQyGCYUh1hc4Q/pkOhb65dQR/pqCyK0cOaHz4Q==
@@ -12957,19 +12943,6 @@ react-transition-group@^4.3.0:
     dom-helpers "^5.0.1"
     loose-envify "^1.4.0"
     prop-types "^15.6.2"
-
-react-virtualized-auto-sizer@^1.0.6:
-  version "1.0.6"
-  resolved "https://registry.npmjs.org/react-virtualized-auto-sizer/-/react-virtualized-auto-sizer-1.0.6.tgz#66c5b1c9278064c5ef1699ed40a29c11518f97ca"
-  integrity sha512-7tQ0BmZqfVF6YYEWcIGuoR3OdYe8I/ZFbNclFlGOC3pMqunkYF/oL30NCjSGl9sMEb17AnzixDz98Kqc3N76HQ==
-
-react-window@^1.8.6:
-  version "1.8.6"
-  resolved "https://registry.npmjs.org/react-window/-/react-window-1.8.6.tgz#d011950ac643a994118632665aad0c6382e2a112"
-  integrity sha512-8VwEEYyjz6DCnGBsd+MgkD0KJ2/OXFULyDtorIiTz+QzwoP94tBoA7CnbtyXMm+cCeAUER5KJcPtWl9cpKbOBg==
-  dependencies:
-    "@babel/runtime" "^7.0.0"
-    memoize-one ">=3.1.1 <6"
 
 react@^17.0.2:
   version "17.0.2"
