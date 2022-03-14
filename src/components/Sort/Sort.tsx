@@ -113,5 +113,3 @@ const SortSelect = ({ sort, onChange }: { sort: string; onChange: ISelectProps<s
   const selected = sortOptions.find((o) => o.id === sort) ?? sortOptions[0];
   return <Select value={selected} options={sortOptions} styles={SortSelectorStyle} onChange={onChange} />;
 };
-
-Sort.whyDidYouRender = true;

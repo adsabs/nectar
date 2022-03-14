@@ -1,4 +1,4 @@
-import { IADSApiSearchParams } from '@api';
+import { IADSApiSearchParams, SolrSort } from '@api';
 import { Box, Flex } from '@chakra-ui/layout';
 import { Alert, AlertIcon } from '@chakra-ui/react';
 import { VisuallyHidden } from '@chakra-ui/visually-hidden';
@@ -14,7 +14,7 @@ import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { equals, omit, pick } from 'ramda';
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { dehydrate, QueryClient } from 'react-query';
 
 interface ISearchPageProps {
@@ -55,7 +55,6 @@ const useSearchQuery = (submitted: boolean, query: IADSApiSearchParams) => {
 const SearchPage: NextPage<ISearchPageProps> = () => {
   const updateQuery = useStore((state) => state.updateQuery);
   const query = useStoreApi().getState().query;
-  const notInitialRender = useRef(false);
 
   const [submitted, setSubmitted] = useState(false);
   const { data, isSuccess, isError, isFetching, error } = useSearchQuery(submitted, query);
@@ -111,6 +110,11 @@ const SearchPage: NextPage<ISearchPageProps> = () => {
     updateAndSubmit();
   };
 
+  // trigger new search on sort change
+  const handleSortChange = (sort: SolrSort[]) => {
+    updateAndSubmit({ sort });
+  };
+
   const isLoading = isFetching || submitted;
 
   return (
@@ -135,7 +139,7 @@ const SearchPage: NextPage<ISearchPageProps> = () => {
             </Alert>
           )}
           {isLoading && <ItemsSkeleton count={pagination.numPerPage} />}
-          {isSuccess && !isLoading && <ListActions />}
+          {isSuccess && !isLoading && <ListActions onSortChange={handleSortChange} />}
           {isSuccess && !isLoading && <SimpleResultList docs={data.docs} indexStart={pagination.startIndex} />}
           {isSuccess && !isLoading && <Pagination totalResults={data.numFound} {...pagination} />}
         </Box>
@@ -177,8 +181,6 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   }
 
   const initialState = createStore().getState();
-
-  console.log('SSR', params);
 
   return {
     props: {
