@@ -1,4 +1,4 @@
-import { IDocsEntity, IUserData } from '@api';
+import { IADSApiSearchParams, IDocsEntity, IUserData, SolrSort } from '@api';
 import { fromThrowable } from 'neverthrow';
 import { GetServerSidePropsContext, GetServerSidePropsResult, NextApiRequest, NextApiResponse } from 'next';
 import { useRouter } from 'next/router';
@@ -111,4 +111,14 @@ export const parseNumberAndClamp = (value: string | string[], min: number, max: 
   } catch (e) {
     return min;
   }
+};
+
+export const parseQueryFromUrl = (params: ParsedUrlQuery): IADSApiSearchParams & { p: number } => {
+  const normalizedParams = normalizeURLParams(params);
+  return {
+    q: normalizedParams?.q ?? '',
+    sort: (normalizedParams?.sort.split(',') as SolrSort[]) ?? ['date desc'],
+    p: parseNumberAndClamp(normalizedParams?.p, 1),
+    ...normalizedParams,
+  };
 };

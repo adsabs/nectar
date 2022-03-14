@@ -5,11 +5,12 @@ import { AppState, StoreProvider, useCreateStore, useStore } from '@store';
 import { theme } from '@theme';
 import { Theme } from '@types';
 import { isBrowser } from '@utils';
+import '@wdyr';
 import { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import 'nprogress/nprogress.css';
-import { FC, ReactElement, useEffect, useState } from 'react';
+import { FC, memo, ReactElement, useEffect, useState } from 'react';
 import { Hydrate, QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { ToastContainer } from 'react-toastify';
@@ -30,7 +31,7 @@ const TopProgressBar = dynamic<Record<string, never>>(
 
 type AppPageProps = { dehydratedState: unknown; dehydratedAppState: AppState; [key: string]: unknown };
 
-const NectarApp = ({ Component, pageProps }: AppProps): ReactElement => {
+const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
   return (
     <Providers pageProps={pageProps as AppPageProps}>
       <ThemeRouter />
@@ -41,7 +42,7 @@ const NectarApp = ({ Component, pageProps }: AppProps): ReactElement => {
       </Layout>
     </Providers>
   );
-};
+});
 
 const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => {
   const [queryClient] = useState(
