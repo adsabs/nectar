@@ -1,6 +1,6 @@
 import { Box, Flex, Text } from '@chakra-ui/layout';
 import { ISearchExamplesProps, SearchBar, SearchExamplesPlaceholder } from '@components';
-import { useStoreApi } from '@store';
+import { useStore, useStoreApi } from '@store';
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
@@ -26,7 +26,7 @@ const HomePage: NextPage = () => {
   const handleOnSubmit: ChangeEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
     const { q, sort } = store.getState().query;
-    void router.push({ pathname: '/search', query: { q, sort } });
+    void router.push({ pathname: '/search', query: { q, sort, p: 1 } });
   };
 
   const handleExampleSelect = () => {
