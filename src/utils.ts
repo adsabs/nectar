@@ -3,7 +3,7 @@ import { fromThrowable } from 'neverthrow';
 import { GetServerSidePropsContext, GetServerSidePropsResult, NextApiRequest, NextApiResponse } from 'next';
 import { useRouter } from 'next/router';
 import { ParsedUrlQuery } from 'querystring';
-import { clamp } from 'ramda';
+import { clamp, equals, filter, last } from 'ramda';
 
 export const normalizeURLParams = (query: ParsedUrlQuery): Record<string, string> => {
   return Object.keys(query).reduce((acc, key) => {
@@ -117,8 +117,59 @@ export const parseQueryFromUrl = (params: ParsedUrlQuery): IADSApiSearchParams &
   const normalizedParams = normalizeURLParams(params);
   return {
     q: normalizedParams?.q ?? '',
-    sort: (normalizedParams?.sort.split(',') as SolrSort[]) ?? ['date desc'],
+    sort: normalizeSolrSort(params.sort),
     p: parseNumberAndClamp(normalizedParams?.p, 1),
     ...normalizedParams,
   };
+};
+
+const sortOptions = [
+  'author_count asc',
+  'author_count desc',
+  'bibcode asc',
+  'bibcode desc',
+  'citation_count asc',
+  'citation_count desc',
+  'citation_count_norm asc',
+  'citation_count_norm desc',
+  'classic_factor asc',
+  'classic_factor desc',
+  'first_author asc',
+  'first_author desc',
+  'date asc',
+  'date desc',
+  'entry_date asc',
+  'entry_date desc',
+  'read_count asc',
+  'read_count desc',
+  'score asc',
+  'score desc',
+];
+export const isSolrSort = (maybeSolrSort: string): maybeSolrSort is SolrSort => {
+  return sortOptions.includes(maybeSolrSort);
+};
+
+export const isString = (maybeString: unknown): maybeString is string => {
+  return typeof maybeString === 'string';
+};
+
+export const normalizeSolrSort = (rawSolrSort: unknown): SolrSort[] => {
+  const sort =
+    Array.isArray(rawSolrSort) && rawSolrSort.length > 0
+      ? rawSolrSort.filter(isString)
+      : isString(rawSolrSort)
+      ? [rawSolrSort]
+      : null;
+
+  if (sort === null) {
+    // default sort value
+    return ['date desc'];
+  }
+
+  const filtered = filter(isSolrSort, sort);
+
+  if (equals(last(filtered), 'date desc')) {
+    return filtered;
+  }
+  return filtered.concat('date desc');
 };
