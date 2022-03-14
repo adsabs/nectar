@@ -3,7 +3,7 @@ import { fromThrowable } from 'neverthrow';
 import { GetServerSidePropsContext, GetServerSidePropsResult, NextApiRequest, NextApiResponse } from 'next';
 import { useRouter } from 'next/router';
 import { ParsedUrlQuery } from 'querystring';
-import { clamp, equals, filter, last } from 'ramda';
+import { clamp, filter, last } from 'ramda';
 
 export const normalizeURLParams = (query: ParsedUrlQuery): Record<string, string> => {
   return Object.keys(query).reduce((acc, key) => {
@@ -113,6 +113,9 @@ export const parseNumberAndClamp = (value: string | string[], min: number, max: 
   }
 };
 
+/**
+ * Helper to parse query params into API search parameters
+ */
 export const parseQueryFromUrl = (params: ParsedUrlQuery): IADSApiSearchParams & { p: number } => {
   const normalizedParams = normalizeURLParams(params);
   return {
@@ -123,37 +126,42 @@ export const parseQueryFromUrl = (params: ParsedUrlQuery): IADSApiSearchParams &
   };
 };
 
-const sortOptions = [
-  'author_count asc',
-  'author_count desc',
-  'bibcode asc',
-  'bibcode desc',
-  'citation_count asc',
-  'citation_count desc',
-  'citation_count_norm asc',
-  'citation_count_norm desc',
-  'classic_factor asc',
-  'classic_factor desc',
-  'first_author asc',
-  'first_author desc',
-  'date asc',
-  'date desc',
-  'entry_date asc',
-  'entry_date desc',
-  'read_count asc',
-  'read_count desc',
-  'score asc',
-  'score desc',
-];
+// detects if passed in value is a valid SolrSort
 export const isSolrSort = (maybeSolrSort: string): maybeSolrSort is SolrSort => {
-  return sortOptions.includes(maybeSolrSort);
+  return [
+    'author_count asc',
+    'author_count desc',
+    'bibcode asc',
+    'bibcode desc',
+    'citation_count asc',
+    'citation_count desc',
+    'citation_count_norm asc',
+    'citation_count_norm desc',
+    'classic_factor asc',
+    'classic_factor desc',
+    'first_author asc',
+    'first_author desc',
+    'date asc',
+    'date desc',
+    'entry_date asc',
+    'entry_date desc',
+    'read_count asc',
+    'read_count desc',
+    'score asc',
+    'score desc',
+  ].includes(maybeSolrSort);
 };
 
+// checks if passed in value is valid string
 export const isString = (maybeString: unknown): maybeString is string => {
   return typeof maybeString === 'string';
 };
 
+/**
+ * Takes raw value (maybe SolrSort) and returns valid SolrSort array
+ */
 export const normalizeSolrSort = (rawSolrSort: unknown): SolrSort[] => {
+  // boil raw value down to string[]
   const sort =
     Array.isArray(rawSolrSort) && rawSolrSort.length > 0
       ? rawSolrSort.filter(isString)
@@ -161,14 +169,16 @@ export const normalizeSolrSort = (rawSolrSort: unknown): SolrSort[] => {
       ? [rawSolrSort]
       : null;
 
+  // if that fails, shortcut here with a default value
   if (sort === null) {
-    // default sort value
     return ['date desc'];
   }
 
+  // filter out non-SolrSort values
   const filtered = filter(isSolrSort, sort);
 
-  if (equals(last(filtered), 'date desc')) {
+  // append 'date desc' onto sort list, if not there already
+  if ('date desc' === last(filtered)) {
     return filtered;
   }
   return filtered.concat('date desc');
