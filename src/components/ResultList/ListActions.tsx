@@ -1,12 +1,15 @@
 import { Button, Stack } from '@chakra-ui/react';
-import { AppState, useStore } from '@store';
-import { IAppStateDocsSlice } from '@store/slices';
+import { ISortProps, Sort } from '@components/Sort';
+import { useStore } from '@store';
+import { noop } from '@utils';
 import { ReactElement, useState } from 'react';
 
-type DocSelector = (state: AppState) => [number, IAppStateDocsSlice['selectAll'], IAppStateDocsSlice['isAllSelected']];
-const docsSelector: DocSelector = (state) => [state.docs.selected.length, state.selectAll, state.isAllSelected];
+export interface IListActionsProps {
+  onSortChange: ISortProps['onChange'];
+}
 
-export const ListActions = (): ReactElement => {
+export const ListActions = (props: IListActionsProps): ReactElement => {
+  const { onSortChange = noop } = props;
   const selected = useStore((state) => state.docs.selected.length);
   const noneSelected = selected === 0;
 
@@ -14,7 +17,7 @@ export const ListActions = (): ReactElement => {
     <Stack direction="column" spacing={1} mb={1}>
       <Stack direction={{ base: 'column', sm: 'row' }} spacing={1} width="min-content">
         <HighlightsToggle />
-        {/* <SortWrapper service={searchService} /> */}
+        <SortWrapper onChange={onSortChange} />
       </Stack>
       <Stack
         direction={{ base: 'column', md: 'row' }}
@@ -50,12 +53,21 @@ export const ListActions = (): ReactElement => {
   );
 };
 
+const SortWrapper = ({ onChange }: { onChange: ISortProps['onChange'] }) => {
+  const query = useStore(
+    (state) => state.query,
+    (prev, curr) => prev.sort !== curr.sort,
+  );
+
+  return <Sort sort={query.sort} onChange={onChange} />;
+};
+
 const HighlightsToggle = () => {
   const [showHighlights, setShowHights] = useState(false);
   const toggleShowHighlights = () => setShowHights(!showHighlights);
 
   return (
-    <Button variant={showHighlights ? 'solid' : 'outline'} onClick={toggleShowHighlights} size="sm" borderRadius="2px">
+    <Button variant={showHighlights ? 'solid' : 'outline'} onClick={toggleShowHighlights} size="md" borderRadius="2px">
       Show Highlights
     </Button>
   );
