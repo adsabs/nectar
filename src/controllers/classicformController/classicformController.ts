@@ -22,8 +22,7 @@ export class ClassicformController {
       .filter((v) => !isNil(v))
       .join(' ');
 
-    const sort = this.params.sort === 'date desc' ? this.params.sort : `${this.params.sort},date desc`;
-    this.query = `q=${query}&sort=${sort}`;
+    this.query = `q=${query}&sort=${this.params.sort}`;
     return this.query;
   }
   sanitizeRawParams(): ClassicFormParams {
