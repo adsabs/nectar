@@ -1,84 +1,60 @@
-import { SolrSort, SolrSortDirection, SolrSortField } from '@api';
+import { SolrSort } from '@api';
 import { IconButton } from '@chakra-ui/button';
 import { Input } from '@chakra-ui/input';
 import { Box, HStack } from '@chakra-ui/layout';
 import { Select as ChakraSelect } from '@chakra-ui/react';
-import { Select, SortSelectorStyle } from '@components';
+import { SortSelectorStyle } from '@components';
+import { ISelectProps, Select } from '@components/Select';
 import { SortAscendingIcon, SortDescendingIcon } from '@heroicons/react/outline';
 import { useIsClient } from '@hooks/useIsClient';
-import { Fragment, ReactElement, useEffect, useMemo, useRef, useState } from 'react';
+import { normalizeSolrSort } from '@utils';
+import { Fragment, MouseEventHandler, ReactElement, useCallback, useMemo } from 'react';
 import { sortValues } from './model';
 
 export interface ISortProps {
   name?: string;
-  sort?: SolrSort[];
+  sort?: SolrSort | SolrSort[];
   hideLabel?: boolean;
   onChange?: (sort: SolrSort[]) => void;
   leftMargin?: string; // css selector
   rightMargin?: string;
 }
 
-interface SortOptionType {
-  id: string;
-  value: string;
-  label: string;
-}
-
+/**
+ * Sort Component
+ *
+ * Expects to be controlled (i.e. using sort and onChange to control value/updating)
+ */
 export const Sort = (props: ISortProps): ReactElement => {
-  const { sort: initialSort = ['date desc'], onChange, name = 'sort' } = props;
-  const [sort, ...additionalSorts] = initialSort;
-  const firstRender = useRef(true);
-  const [selected, setSelected] = useState<[SolrSortField, SolrSortDirection]>(['date', 'desc']);
+  const { sort = ['date desc'], onChange, name = 'sort' } = props;
 
-  useEffect(() => {
-    if (sort) {
-      // split the incoming sort to conform to tuple style
-      const [val, dir] = sort.split(' ') as [SolrSortField, SolrSortDirection];
-      setSelected([val, dir]);
-    }
-  }, [sort]);
+  // normalize incoming sort
+  const allSorts = useMemo(() => normalizeSolrSort(sort), [sort]);
 
-  useEffect(() => {
-    if (firstRender.current) {
-      firstRender.current = false;
-      return;
-    }
+  // split first sort, the rest are just along for the ride
+  const [selected, direction] = useMemo(() => allSorts[0].split(/\W+/), [allSorts]);
 
-    if (typeof onChange === 'function') {
-      onChange([selected.join(' ') as SolrSort, ...additionalSorts]);
-    }
-  }, [selected, onChange]);
+  // fire onChange handler for direction change
+  const handleDirectionChange: MouseEventHandler<HTMLButtonElement> = useCallback(
+    (e) => {
+      onChange([`${selected} ${e.currentTarget.dataset['direction']}` as SolrSort, ...allSorts.slice(1)]);
+    },
+    [selected, onChange],
+  );
 
+  // fire onChange handler for selection change
+  const handleSelectionChange = useCallback(
+    (value: string) => onChange([`${value} ${direction}` as SolrSort, ...allSorts.slice(1)]),
+    [direction, onChange],
+  );
+
+  // non-js initially rendered on the server, will be swapped out
+  // for the full-featured one below when it hits client
   const isClient = useIsClient();
-
-  const sortItems: SortOptionType[] = sortValues.map(({ id, text }) => ({
-    id: id,
-    value: id,
-    label: text,
-  }));
-
-  const selectedSortItem = useMemo(() => {
-    return sortItems.find((item) => item.id === selected[0]);
-  }, [selected]);
-
-  const handleSortChange = (sortItem: SolrSortField) => {
-    setSelected([sortItem, selected[1]]);
-  };
-
-  const handleSortDirectionChange = (id: string) => {
-    const val = id as SolrSortDirection;
-    setSelected([selected[0], val]);
-  };
-
-  const getSortsAsString = () => {
-    return [selected.join(' '), ...additionalSorts].join(',');
-  };
-
-  // non-js initially rendered on the server, will be swapped out for the full-featured one below when it hits client
   if (!isClient) {
     return (
-      <ChakraSelect id="sort" name="sort" defaultValue={sort}>
-        {sortItems.map((item) => (
+      <ChakraSelect id="sort" name="sort" defaultValue={selected}>
+        {sortOptions.map((item) => (
           <Fragment key={item.label}>
             <option value={`${item.id} asc`}>{item.label} - Asc</option>
             <option value={`${item.id} desc`}>{item.label} - Desc</option>
@@ -91,39 +67,51 @@ export const Sort = (props: ISortProps): ReactElement => {
   return (
     <HStack spacing={0}>
       <Box width="250px">
-        <Select
-          value={selectedSortItem}
-          options={sortItems}
-          styles={SortSelectorStyle}
-          onChange={handleSortChange}
-          ariaLabel="Sort by"
-        />
+        <SortSelect sort={selected} onChange={handleSelectionChange} />
       </Box>
-      {selected[1] === 'asc' ? (
+      {direction === 'asc' ? (
         <IconButton
           variant="outline"
-          onClick={() => handleSortDirectionChange('desc')}
+          onClick={handleDirectionChange}
+          data-direction="desc"
           icon={<SortAscendingIcon width="20px" />}
           aria-label="Sort ascending"
           borderLeftRadius="0"
           borderRightRadius="2px"
           size="md"
           colorScheme="gray"
-        ></IconButton>
+        />
       ) : (
         <IconButton
           variant="outline"
-          onClick={() => handleSortDirectionChange('asc')}
+          onClick={handleDirectionChange}
+          data-direction="asc"
           icon={<SortDescendingIcon width="20px" />}
           aria-label="Sort descending"
           borderLeftRadius="0"
           borderRightRadius="2px"
           size="md"
           colorScheme="gray"
-        ></IconButton>
+        />
       )}
 
-      <Input type="hidden" name={name} value={getSortsAsString()} />
+      <Input type="hidden" name={name} value={allSorts.join(',')} />
     </HStack>
   );
 };
+
+interface SortOptionType {
+  id: string;
+  value: string;
+  label: string;
+}
+
+const sortOptions: SortOptionType[] = sortValues.map((v) => ({ id: v.id, value: v.id, label: v.text }));
+
+// Sort Select component
+const SortSelect = ({ sort, onChange }: { sort: string; onChange: ISelectProps<string>['onChange'] }) => {
+  const selected = sortOptions.find((o) => o.id === sort) ?? sortOptions[0];
+  return <Select value={selected} options={sortOptions} styles={SortSelectorStyle} onChange={onChange} />;
+};
+
+Sort.whyDidYouRender = true;
