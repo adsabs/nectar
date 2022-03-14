@@ -1,17 +1,26 @@
 import { StoreSlice } from '@store';
+import { difference, equals, intersection, union } from 'ramda';
 
 export interface IAppStateDocsSlice {
   docs: {
     doc: string;
     current: string[];
     selected: string[];
+    isAllSelected: boolean;
   };
+  // single doc
   selectDoc: (doc: string) => void;
   unSelectDoc: (doc: string) => void;
+
+  // bulk (multiple)
+  clearSelected: () => void;
+  clearAllSelected: () => void;
   setSelected: (selected: string[]) => void;
   setDocs: (docs: string[]) => void;
+  selectAll: () => void;
+
+  // utilities
   isDocSelected: (doc: string) => boolean;
-  clearSelected: () => void;
 }
 
 export const docsSlice: StoreSlice<IAppStateDocsSlice> = (set, get) => ({
@@ -22,14 +31,26 @@ export const docsSlice: StoreSlice<IAppStateDocsSlice> = (set, get) => ({
     // current search results (bibcodes), and selection
     current: [],
     selected: [],
+    isAllSelected: false,
   },
 
   // sets the current docs
-  setDocs: (docs: string[]) => set((state) => ({ docs: { ...state.docs, current: docs } }), false, 'docs/setDocs'),
+  setDocs: (docs: string[]) =>
+    set((state) => ({ docs: { ...state.docs, current: docs, isAllSelected: false } }), false, 'docs/setDocs'),
 
   // directly sets the selected docs array with the passed in value
   setSelected: (selected: string[]) =>
-    set((state) => ({ docs: { ...state.docs, selected } }), false, 'docs/setSelected'),
+    set(
+      (state) => ({
+        docs: {
+          ...state.docs,
+          selected,
+          isAllSelected: getIsAllSelected({ ...state.docs, selected }),
+        },
+      }),
+      false,
+      'docs/setSelected',
+    ),
 
   // add a doc to the selected docs array
   selectDoc: (doc: string) =>
@@ -37,7 +58,7 @@ export const docsSlice: StoreSlice<IAppStateDocsSlice> = (set, get) => ({
       (state) => {
         const index = state.docs.selected.indexOf(doc);
         const selected = index === -1 ? [...state.docs.selected, doc] : state.docs.selected;
-        return { docs: { ...state.docs, selected } };
+        return { docs: { ...state.docs, selected, isAllSelected: getIsAllSelected({ ...state.docs, selected }) } };
       },
       false,
       'docs/selectDoc',
@@ -49,7 +70,7 @@ export const docsSlice: StoreSlice<IAppStateDocsSlice> = (set, get) => ({
       (state) => {
         const index = state.docs.selected.indexOf(doc);
         const selected = index === -1 ? state.docs.selected : state.docs.selected.filter((_v, i) => i !== index);
-        return { docs: { ...state.docs, selected } };
+        return { docs: { ...state.docs, selected, isAllSelected: false } };
       },
       false,
       'docs/unSelectDoc',
@@ -61,5 +82,30 @@ export const docsSlice: StoreSlice<IAppStateDocsSlice> = (set, get) => ({
     return selected.includes(doc);
   },
 
-  clearSelected: () => set((state) => ({ docs: { ...state.docs, selected: [] } })),
+  // fully clear the selected list
+  clearSelected: () =>
+    set((state) => ({ docs: { ...state.docs, selected: [], isAllSelected: false } }), false, 'docs/clearSelected'),
+
+  // make the new selection the union between the two lists
+  selectAll: () =>
+    set(
+      (state) => ({
+        docs: { ...state.docs, selected: union(state.docs.selected, state.docs.current), isAllSelected: true },
+      }),
+      false,
+      'docs/selectAll',
+    ),
+
+  // remove items that exist in both lists, but keep the others in `selected` intact
+  clearAllSelected: () =>
+    set(
+      (state) => ({
+        docs: { ...state.docs, selected: difference(state.docs.selected, state.docs.current), isAllSelected: false },
+      }),
+      false,
+      'docs/clearAllSelected',
+    ),
 });
+
+const getIsAllSelected = (docs: IAppStateDocsSlice['docs']) =>
+  equals(intersection(docs.current, docs.selected), docs.current);

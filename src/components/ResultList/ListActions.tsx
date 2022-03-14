@@ -1,7 +1,81 @@
-import { ReactElement } from 'react';
+import { Button, Stack } from '@chakra-ui/react';
+import { AppState, useStore } from '@store';
+import { IAppStateDocsSlice } from '@store/slices';
+import { ReactElement, useState } from 'react';
+
+type DocSelector = (state: AppState) => [number, IAppStateDocsSlice['selectAll'], IAppStateDocsSlice['isAllSelected']];
+const docsSelector: DocSelector = (state) => [state.docs.selected.length, state.selectAll, state.isAllSelected];
 
 export const ListActions = (): ReactElement => {
-  return null;
+  const selected = useStore((state) => state.docs.selected.length);
+  const noneSelected = selected === 0;
+
+  return (
+    <Stack direction="column" spacing={1} mb={1}>
+      <Stack direction={{ base: 'column', sm: 'row' }} spacing={1} width="min-content">
+        <HighlightsToggle />
+        {/* <SortWrapper service={searchService} /> */}
+      </Stack>
+      <Stack
+        direction={{ base: 'column', md: 'row' }}
+        alignItems={{ base: 'start', md: 'center' }}
+        justifyContent={{ md: 'space-between' }}
+        backgroundColor="gray.50"
+        borderRadius="2px"
+        p={2}
+      >
+        <Stack
+          direction="row"
+          spacing={{ base: '2', md: '5' }}
+          order={{ base: '2', md: '1' }}
+          mt={{ base: '2', md: '0' }}
+          wrap="wrap"
+        >
+          <SelectAllButtons />
+          <Button variant="link" fontWeight="normal" disabled={noneSelected}>
+            Limited To
+          </Button>
+          <Button variant="link" fontWeight="normal" disabled={noneSelected}>
+            Exclude
+          </Button>
+          <span className="m-2 h-5 text-sm">{selected.toLocaleString()} Selected</span>
+        </Stack>
+        <Stack direction="row" mx={5} order={{ base: '1', md: '2' }} wrap="wrap">
+          <Button>Add to Library</Button>
+          <Button>Export</Button>
+          <Button>Explore</Button>
+        </Stack>
+      </Stack>
+    </Stack>
+  );
+};
+
+const HighlightsToggle = () => {
+  const [showHighlights, setShowHights] = useState(false);
+  const toggleShowHighlights = () => setShowHights(!showHighlights);
+
+  return (
+    <Button variant={showHighlights ? 'solid' : 'outline'} onClick={toggleShowHighlights} size="sm" borderRadius="2px">
+      Show Highlights
+    </Button>
+  );
+};
+
+const SelectAllButtons = () => {
+  const selectAll = useStore((state) => state.selectAll);
+  const clearAllSelected = useStore((state) => state.clearAllSelected);
+  const isAllSelected = useStore((state) => state.docs.isAllSelected);
+
+  return (
+    <>
+      <Button variant="link" fontWeight="normal" disabled={isAllSelected} onClick={selectAll}>
+        Select All
+      </Button>
+      <Button variant="link" fontWeight="normal" disabled={!isAllSelected} onClick={clearAllSelected}>
+        Select None
+      </Button>
+    </>
+  );
 };
 
 // import { SolrSort } from '@api';
