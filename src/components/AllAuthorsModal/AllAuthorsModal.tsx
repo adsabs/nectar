@@ -1,6 +1,6 @@
 import { IDocsEntity } from '@api';
 import { CloseIcon, DownloadIcon } from '@chakra-ui/icons';
-import { Box, Grid, GridItem, Link } from '@chakra-ui/layout';
+import { Box, Link } from '@chakra-ui/layout';
 import {
   Button,
   Flex,
@@ -27,14 +27,15 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { OrcidActiveIcon } from '@components/icons/Orcid';
+import { Pagination } from '@components/ResultList/Pagination';
+import { usePagination } from '@components/ResultList/Pagination/usePagination';
+import { useDebounce } from '@hooks/useDebounce';
 import { useGetAffiliations } from '@_api/search';
 import { saveAs } from 'file-saver';
 import { matchSorter } from 'match-sorter';
 import NextLink from 'next/link';
 import { ChangeEventHandler, forwardRef, MouseEventHandler, ReactElement, useEffect, useRef, useState } from 'react';
 import { useGetAuthors } from './useGetAuthors';
-import { Pagination } from '@components/ResultList/Pagination';
-import { usePagination } from '@components/ResultList/Pagination/usePagination';
 
 export interface IAllAuthorsModalProps {
   bibcode: IDocsEntity['bibcode'];
@@ -120,6 +121,7 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
     const authors = useGetAuthors({ doc });
     const [list, setList] = useState(authors);
     const [searchVal, setSearchVal] = useState('');
+    const debSearchVal = useDebounce(searchVal, 500);
 
     // fill list with authors when it finishes loading
     useEffect(() => setList(authors), [authors]);
@@ -128,11 +130,14 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
     useEffect(
       () =>
         setList(
-          searchVal === ''
+          debSearchVal === ''
             ? authors
-            : matchSorter(authors, searchVal, { keys: ['1', '2'], threshold: matchSorter.rankings.WORD_STARTS_WITH }),
+            : matchSorter(authors, debSearchVal, {
+                keys: ['1', '2'],
+                threshold: matchSorter.rankings.WORD_STARTS_WITH,
+              }),
         ),
-      [searchVal, authors],
+      [debSearchVal, authors],
     );
 
     const pagination = usePagination({ numFound: list.length, updateURL: false });
@@ -237,7 +242,7 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
             />
           </Tooltip>
         </Flex>
-        <Box overflow="scroll" height="60vh" px={6} boxSizing="border-box">
+        <Box px={6} boxSizing="border-box">
           {list.length > 0 && (
             <>
               <Table>
