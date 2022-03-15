@@ -258,7 +258,7 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
               </Table>
             </>
           )}
-          <Pagination totalResults={list.length} {...pagination}></Pagination>
+          <Pagination totalResults={list.length} {...pagination} perPageMenuPlacement="top"></Pagination>
         </Box>
       </Box>
     );

@@ -20,7 +20,13 @@ export const ThemeDropdown = (): ReactElement => {
 
   return (
     <Box width={{ base: '200px', xs: '270px' }}>
-      <Select value={option} options={options} styles={ThemeSelectorStyle} onChange={handleThemeChange} />
+      <Select
+        value={option}
+        options={options}
+        styles={ThemeSelectorStyle}
+        onChange={handleThemeChange}
+        ariaLabel="Select theme"
+      />
     </Box>
   );
 };
