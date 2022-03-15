@@ -1,6 +1,6 @@
 import { IDocsEntity } from '@api';
 import { CloseIcon, DownloadIcon } from '@chakra-ui/icons';
-import { Box, Grid, GridItem, Link } from '@chakra-ui/layout';
+import { Box, Link } from '@chakra-ui/layout';
 import {
   Button,
   Flex,
@@ -12,31 +12,29 @@ import {
   ModalBody,
   ModalCloseButton,
   ModalContent,
-  ModalFooter,
+  ModalHeader,
   ModalOverlay,
   Spinner,
+  Table,
+  Tbody,
+  Td,
   Text,
+  Th,
+  Thead,
   Tooltip,
+  Tr,
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
 import { OrcidActiveIcon } from '@components/icons/Orcid';
+import { Pagination } from '@components/ResultList/Pagination';
+import { usePagination } from '@components/ResultList/Pagination/usePagination';
+import { useDebounce } from '@hooks/useDebounce';
 import { useGetAffiliations } from '@_api/search';
 import { saveAs } from 'file-saver';
 import { matchSorter } from 'match-sorter';
 import NextLink from 'next/link';
-import {
-  ChangeEventHandler,
-  forwardRef,
-  MouseEventHandler,
-  ReactElement,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
-import AutoSizer from 'react-virtualized-auto-sizer';
-import { FixedSizeList, ListChildComponentProps } from 'react-window';
+import { ChangeEventHandler, forwardRef, MouseEventHandler, ReactElement, useEffect, useRef, useState } from 'react';
 import { useGetAuthors } from './useGetAuthors';
 
 export interface IAllAuthorsModalProps {
@@ -78,11 +76,21 @@ export const AllAuthorsModal = ({ bibcode, label }: IAllAuthorsModalProps): Reac
       <Button variant={'link'} fontStyle="italic" onClick={onOpen}>
         {label}
       </Button>
-      <Modal isOpen={isOpen} onClose={onClose} initialFocusRef={initialRef} size="5xl">
+      <Modal isOpen={isOpen} onClose={onClose} initialFocusRef={initialRef} size="4xl" scrollBehavior="inside">
         <ModalOverlay />
         <ModalContent>
           <ModalCloseButton />
-          <ModalBody>
+          <ModalHeader>
+            {isSuccess && (
+              <Box id="author-list-description">
+                <Text size="lg">Author list for </Text>
+                <Text size="xl" fontWeight="bold">
+                  {data.docs[0].title}
+                </Text>
+              </Box>
+            )}
+          </ModalHeader>
+          <ModalBody px={0}>
             {isFetching && (
               <Flex justifyContent={'center'}>
                 <Spinner size="xl" />
@@ -90,12 +98,6 @@ export const AllAuthorsModal = ({ bibcode, label }: IAllAuthorsModalProps): Reac
             )}
             {isSuccess && <AuthorsTable doc={data.docs[0]} ref={initialRef} onSearchClear={handleSearchClear} />}
           </ModalBody>
-
-          <ModalFooter>
-            <Button mr={3} onClick={onClose}>
-              Close
-            </Button>
-          </ModalFooter>
         </ModalContent>
       </Modal>
     </>
@@ -119,6 +121,7 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
     const authors = useGetAuthors({ doc });
     const [list, setList] = useState(authors);
     const [searchVal, setSearchVal] = useState('');
+    const debSearchVal = useDebounce(searchVal, 500);
 
     // fill list with authors when it finishes loading
     useEffect(() => setList(authors), [authors]);
@@ -127,12 +130,17 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
     useEffect(
       () =>
         setList(
-          searchVal === ''
+          debSearchVal === ''
             ? authors
-            : matchSorter(authors, searchVal, { keys: ['1', '2'], threshold: matchSorter.rankings.WORD_STARTS_WITH }),
+            : matchSorter(authors, debSearchVal, {
+                keys: ['1', '2'],
+                threshold: matchSorter.rankings.WORD_STARTS_WITH,
+              }),
         ),
-      [searchVal, authors],
+      [debSearchVal, authors],
     );
+
+    const pagination = usePagination({ numFound: list.length, updateURL: false });
 
     // update search val on input change
     const handleInputChange: ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -160,61 +168,63 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
       saveAs(csvBlob, `${doc.bibcode}-authors.csv`);
     };
 
-    const RenderRow = useCallback(
-      ({ index, style }: ListChildComponentProps) => {
-        const [position, author, aff, orcid] = list[index];
-        return (
-          <Grid key={`${author}${index}`} style={style} gridTemplateColumns="repeat(12, 1fr)" overflow={'auto'}>
-            <GridItem colSpan={1}>
-              <Text>{position}.</Text>
-            </GridItem>
-            <GridItem colSpan={2}>
-              {typeof author === 'string' && (
-                <NextLink {...getLinkProps('author', author)}>
-                  <Link px={1} aria-label={`author "${author}", search by name`} flexShrink="0">
-                    {author}
-                  </Link>
-                </NextLink>
-              )}
-            </GridItem>
-            <GridItem colSpan={1}>
-              {typeof orcid === 'string' && (
-                <NextLink {...getLinkProps('orcid', orcid)}>
-                  <Link aria-label={`author "${author}", search by orKid`}>
-                    <OrcidActiveIcon fontSize={'large'} />
-                  </Link>
-                </NextLink>
-              )}
-            </GridItem>
-            <GridItem colSpan={8}>
-              <Text>{aff}</Text>
-            </GridItem>
-          </Grid>
-        );
-      },
-      [list],
-    );
+    const renderRows = () => {
+      return (
+        <>
+          {list.slice(pagination.startIndex, pagination.endIndex).map((item, index) => {
+            const [position, author, aff, orcid] = item;
+            return (
+              <Tr key={`${author}${index}`}>
+                {}
+                <Td display={{ base: 'none', sm: 'table-cell' }}>
+                  <Text>{position}.</Text>
+                </Td>
+                <Td>
+                  {typeof author === 'string' && (
+                    <NextLink {...getLinkProps('author', author)}>
+                      <Link px={1} aria-label={`author "${author}", search by name`} flexShrink="0">
+                        {author}
+                      </Link>
+                    </NextLink>
+                  )}
+                </Td>
+                <Td>
+                  {typeof orcid === 'string' && (
+                    <NextLink {...getLinkProps('orcid', orcid)}>
+                      <Link aria-label={`author "${author}", search by orKid`}>
+                        <OrcidActiveIcon fontSize={'large'} />
+                      </Link>
+                    </NextLink>
+                  )}
+                </Td>
+                <Td>
+                  <Text>{aff}</Text>
+                </Td>
+              </Tr>
+            );
+          })}
+        </>
+      );
+    };
 
     return (
-      <section aria-describedby="author-list-description">
-        <Flex justifyContent="center" mb={4}>
-          <Text fontSize="lg" fontWeight="bold" id="author-list-description">
-            Author list for {doc.bibcode}
-          </Text>
-        </Flex>
-        <Flex justifyContent="center" alignItems="center">
-          <InputGroup size="md" width="xl">
-            <Input
-              placeholder="Filter authors"
-              variant={'filled'}
-              value={searchVal}
-              onChange={handleInputChange}
-              ref={ref}
-            />
+      <Box as="section" aria-describedby="author-list-description" position="relative" pt="75px" overflow="hidden">
+        <Flex
+          justifyContent="space-between"
+          alignItems="center"
+          position="absolute"
+          top="0"
+          left="0"
+          width="100%"
+          px={6}
+          boxSizing="border-box"
+        >
+          <InputGroup size="md" width="sm">
+            <Input placeholder="Search authors" value={searchVal} onChange={handleInputChange} ref={ref} />
             <InputRightElement>
               <IconButton
                 icon={<CloseIcon />}
-                variant="outline"
+                variant="unstyled"
                 aria-label="clear"
                 size="sm"
                 hidden={searchVal.length <= 0}
@@ -225,25 +235,32 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
           <Tooltip label="Download list as CSV file">
             <IconButton
               icon={<DownloadIcon />}
-              variant={'outline'}
+              size="md"
               ml="4"
               onClick={handleDownloadClick}
               aria-label="Download list as CSV file"
             />
           </Tooltip>
         </Flex>
-        <Box height="5xl">
-          <AutoSizer>
-            {({ height, width }) => (
-              <Box mt="5">
-                <FixedSizeList height={height} width={width} itemCount={list.length} itemSize={65}>
-                  {RenderRow}
-                </FixedSizeList>
-              </Box>
-            )}
-          </AutoSizer>
+        <Box px={6} boxSizing="border-box">
+          {list.length > 0 && (
+            <>
+              <Table>
+                <Thead>
+                  <Tr>
+                    <Th display={{ base: 'none', sm: 'table-cell' }}></Th>
+                    <Th>Name</Th>
+                    <Th>ORCiD</Th>
+                    <Th>Affliation</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>{renderRows()}</Tbody>
+              </Table>
+            </>
+          )}
+          <Pagination totalResults={list.length} {...pagination}></Pagination>
         </Box>
-      </section>
+      </Box>
     );
   },
 );
