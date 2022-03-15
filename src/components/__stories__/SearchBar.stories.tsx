@@ -10,6 +10,6 @@ export default meta;
 
 const Template: Story<ISearchBarProps> = (args) => <SearchBar {...args} />;
 
-export const Primary = Template.bind({}) as Story<ISearchBarProps>;
+export const Primary = Template.bind({}) ;
 
 Primary.args = {};

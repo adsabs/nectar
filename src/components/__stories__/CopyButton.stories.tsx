@@ -10,7 +10,7 @@ export default meta;
 
 const Template: Story<ICopyButtonProps> = (args) => <CopyButton {...args} />;
 
-export const Default = Template.bind({}) as Story<ICopyButtonProps>;
+export const Default = Template.bind({}) ;
 
 Default.args = {
   text: 'copy text',

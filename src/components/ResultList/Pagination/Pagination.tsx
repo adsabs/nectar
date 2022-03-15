@@ -51,10 +51,6 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
   const router = useRouter();
   const isClient = useIsClient();
 
-  if (noPagination) {
-    return null;
-  }
-
   // Need only to update the store with the page, it'll be caught upstream
   const handlePrev = () => {
     dispatch({ type: 'PREV_PAGE' });
@@ -66,6 +62,10 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
 
   // make sure we keep state and result in sync for pagination
   useEffect(() => dispatch({ type: 'SET_PAGE', payload: page }), [page]);
+
+  if (noPagination) {
+    return null;
+  }
 
   /**
    * Update our internal state perPage, which will trigger on the pagination hook

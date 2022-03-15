@@ -18,7 +18,7 @@ const getTotalPages = (totalResults: number, numPerPage: number): number => {
 /**
  * Will convert the value from string to number and clamp the value between min and max
  */
-const cleanClamp = (value: unknown, min: number = 0, max: number = Number.MAX_SAFE_INTEGER): number => {
+const cleanClamp = (value: unknown, min = 0, max: number = Number.MAX_SAFE_INTEGER): number => {
   try {
     if (typeof value === 'number' && value >= min) {
       return clamp(min, max, value);
@@ -176,7 +176,9 @@ export const usePagination = (props: IUsePaginationProps): IUsePaginationResult 
 
   // push new params as page changes (ONLY page change)
   useEffect(() => {
-    router.push({ pathname: router.pathname, query: { ...router.query, p: result.page } }, null, { shallow: true });
+    void router.push({ pathname: router.pathname, query: { ...router.query, p: result.page } }, null, {
+      shallow: true,
+    });
   }, [result.page]);
 
   return { ...result, numPerPage: state.numPerPage, dispatch };

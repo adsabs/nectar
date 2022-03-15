@@ -19,7 +19,7 @@ const items = states.map((state) => ({
 
 const Template: Story<ISimpleLinkDropdownProps> = (args) => <SimpleLinkDropdown {...args} />;
 
-export const Default = Template.bind({}) as Story<ISimpleLinkDropdownProps>;
+export const Default = Template.bind({}) ;
 
 Default.args = {
   items,

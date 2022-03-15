@@ -35,7 +35,7 @@ const useSearchQuery = (submitted: boolean, query: IADSApiSearchParams) => {
       const params = omit(['fl', 'start', 'rows'], query);
 
       // update router with changed params
-      router.push({ pathname: router.pathname, query: { ...router.query, ...params } }, null, {
+      void router.push({ pathname: router.pathname, query: { ...router.query, ...params } }, null, {
         shallow: true,
       });
 
@@ -47,7 +47,7 @@ const useSearchQuery = (submitted: boolean, query: IADSApiSearchParams) => {
   return result;
 };
 
-const SearchPage: NextPage<ISearchPageProps> = ({ searchParams }) => {
+const SearchPage: NextPage<ISearchPageProps> = () => {
   const updateQuery = useStore((state) => state.updateQuery);
   const query = useStoreApi().getState().query;
 

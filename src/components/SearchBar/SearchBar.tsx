@@ -198,7 +198,7 @@ export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>(
           {isOpen &&
             inputItems.map((item, index) => (
               <ListItem
-                key={`${item}${index}`}
+                key={`${item.id}${index}`}
                 {...getItemProps({ item, index })}
                 backgroundColor={highlightedIndex === index ? 'blue.100' : 'auto'}
                 py="2"

@@ -10,6 +10,6 @@ export default meta;
 
 const Template: Story<IAbstractPreviewProps> = (args) => <AbstractPreview {...args} />;
 
-export const Default = Template.bind({}) as Story<IAbstractPreviewProps>;
+export const Default = Template.bind({}) ;
 
 Default.args = {};

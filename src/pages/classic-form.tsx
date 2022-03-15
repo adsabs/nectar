@@ -8,11 +8,9 @@ import { Radio, RadioGroup } from '@chakra-ui/radio';
 import { Textarea } from '@chakra-ui/textarea';
 import VisuallyHidden from '@chakra-ui/visually-hidden';
 import { BibstemPickerMultiple, Sort } from '@components';
-import { ClassicformController, RawClassicFormParams } from '@controllers/classicformController';
 import { useIsClient } from '@hooks/useIsClient';
 import { NextPage } from 'next';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
 import { ChangeEvent, ChangeEventHandler, Fragment, useCallback, useReducer, useState } from 'react';
 
 interface FormEvent {
@@ -27,8 +25,7 @@ const formReducer = (state: Record<string, string>, event: FormEvent) => {
 };
 
 const ClassicForm: NextPage = () => {
-  const Router = useRouter();
-  const [formData, setFormData] = useReducer(formReducer, {});
+  const [, setFormData] = useReducer(formReducer, {});
   const isClient = useIsClient();
   const [key, setKey] = useState(Math.random());
 
@@ -46,12 +43,6 @@ const ClassicForm: NextPage = () => {
 
   const handleFormReset = () => {
     setKey(Math.random()); // used to reset some form elements (force rerender)
-  };
-
-  const handleOnSubmit = (e: ChangeEvent<HTMLFormElement>): void => {
-    e.preventDefault();
-    const controller = new ClassicformController(formData as RawClassicFormParams);
-    void Router.push(`/search?${controller.getQuery()}`);
   };
 
   return (

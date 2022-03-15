@@ -99,6 +99,8 @@ export const BibstemPickerMultiple = ({
     </HStack>
   );
 
+  const dropdownProps = getDropdownProps({ preventKeyAction: isOpen }) as Record<string, unknown>;
+
   return (
     <FormControl>
       <FormLabel {...getLabelProps()}>Publication(s)</FormLabel>
@@ -106,7 +108,7 @@ export const BibstemPickerMultiple = ({
       {renderPills()}
 
       <Flex {...getComboboxProps()}>
-        <TextInput {...getInputProps(getDropdownProps({ preventKeyAction: isOpen }))} />
+        <TextInput {...getInputProps(dropdownProps)} />
         {hiddenInput}
       </Flex>
       <Box {...getMenuProps()} position="relative">

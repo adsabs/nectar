@@ -25,7 +25,7 @@ interface SortOptionType {
 }
 
 export const Sort = (props: ISortProps): ReactElement => {
-  const { sort: initialSort = ['date desc'], onChange, name = 'sort', hideLabel = false } = props;
+  const { sort: initialSort = ['date desc'], onChange, name = 'sort' } = props;
   const [sort, ...additionalSorts] = initialSort;
   const firstRender = useRef(true);
   const [selected, setSelected] = useState<[SolrSortField, SolrSortDirection]>(['date', 'desc']);

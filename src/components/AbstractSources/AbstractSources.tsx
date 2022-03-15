@@ -76,12 +76,6 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
     newTab: true,
   }));
 
-  const label = (
-    <Button rightIcon={<ChevronDownIcon />} isDisabled={fullSourceItems.length === 0}>
-      Full Text Sources
-    </Button>
-  );
-
   const handleSelect = (e: MouseEvent<HTMLElement>) => {
     const id = (e.target as HTMLElement).dataset['id'];
     const path = fullSourceItems.find((item) => id === item.id)?.path;
@@ -176,12 +170,6 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
     });
     items.push(...relatedWorkItems);
   }
-
-  const label = (
-    <Button rightIcon={<ChevronDownIcon />} isDisabled={items.length === 0}>
-      Other Resources
-    </Button>
-  );
 
   const handleSelect: MouseEventHandler<HTMLElement> = (e) => {
     const id = e.currentTarget.dataset['id'];
