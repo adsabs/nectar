@@ -87,37 +87,8 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
       <VisuallyHidden as="h3" id="pagination">
         {paginationHeading}
       </VisuallyHidden>
-      <Box display={{ sm: 'none' }}>
-        {isClient ? (
-          <Flex justifyContent="space-between">
-            <Button onClick={handlePrev} data-testid="pagination-prev" variant="outline" isDisabled={noPrev}>
-              Previous
-            </Button>
-            <Button onClick={handleNext} data-testid="pagination-next" variant="outline" isDisabled={noNext}>
-              Next
-            </Button>
-          </Flex>
-        ) : (
-          <Flex justifyContent="space-between">
-            {noPrev ? (
-              <Text variant="disabledLink">Previous</Text>
-            ) : (
-              <NextLink href={{ query: { ...router.query, p: prevPage } }} passHref>
-                <Link data-testid="pagination-prev">Previous</Link>
-              </NextLink>
-            )}
-            {noNext ? (
-              <Text variant="disabledLink">Next</Text>
-            ) : (
-              <NextLink href={{ query: { ...router.query, p: nextPage } }} passHref>
-                <Link data-testid="pagination-next">Next</Link>
-              </NextLink>
-            )}
-          </Flex>
-        )}
-      </Box>
-      <Flex justifyContent="space-between" display={{ base: 'none', sm: 'flex' }}>
-        <Box data-testid="pagination-label">
+      <Flex justifyContent={{ base: 'end', xs: 'space-between' }}>
+        <Box data-testid="pagination-label" display={{ base: 'none', sm: 'flex' }}>
           <Text>
             Showing{' '}
             <Text as="span" fontWeight="semibold">
@@ -135,7 +106,7 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
           </Text>
         </Box>
         {!hidePerPageSelect && (
-          <Box>
+          <Box display={{ base: 'none', xs: 'flex' }}>
             <Select
               aria-label="Select number of results to show per page"
               value={numPerPage}
