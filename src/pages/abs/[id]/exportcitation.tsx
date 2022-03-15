@@ -18,19 +18,20 @@ interface IExportCitationPageProps {
   error?: string;
 }
 
-const ExportCitationPage: NextPage<IExportCitationPageProps> = ({ originalDoc, bibcode, text, format, error }) => {
+const ExportCitationPage: NextPage<IExportCitationPageProps> = ({ originalDoc, error }) => {
   return (
     <AbsLayout doc={originalDoc} titleDescription="Export citation for">
       <Head>
         <title>NASA Science Explorer - Export Citation - {originalDoc.title[0]}</title>
       </Head>
-      {error ? (
-        <Alert status="error">
-          <AlertIcon />
-          {error}
-        </Alert>
-      ) : null
-      // <Export initialBibcodes={[bibcode]} initialText={text} initialFormat={format} singleMode />
+      {
+        error ? (
+          <Alert status="error">
+            <AlertIcon />
+            {error}
+          </Alert>
+        ) : null
+        // <Export initialBibcodes={[bibcode]} initialText={text} initialFormat={format} singleMode />
       }
     </AbsLayout>
   );

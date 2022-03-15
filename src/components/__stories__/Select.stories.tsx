@@ -17,7 +17,7 @@ const options = states.map((state, index) => ({
 
 const Template: Story<ISelectProps<string>> = (args) => <Select {...args} />;
 
-export const Default = Template.bind({}) as Story<ISelectProps<string>>;
+export const Default = Template.bind({}) ;
 
 Default.args = {
   formLabel: 'States',
@@ -26,7 +26,7 @@ Default.args = {
   styles: DefaultSelectorStyle,
 };
 
-export const ThemeSelector = Template.bind({}) as Story<ISelectProps<string>>;
+export const ThemeSelector = Template.bind({}) ;
 
 ThemeSelector.args = {
   formLabel: 'Themes',
@@ -35,7 +35,7 @@ ThemeSelector.args = {
   styles: ThemeSelectorStyle,
 };
 
-export const SortSelector = Template.bind({}) as Story<ISelectProps<string>>;
+export const SortSelector = Template.bind({}) ;
 
 SortSelector.args = {
   formLabel: 'Sort by',

@@ -138,7 +138,7 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
                   backgroundColor={item.current ? 'gray.100' : 'transparent'}
                   mb={1}
                 >
-                  <NextLink key={item.name} href={item.href}>
+                  <NextLink key={item.name} href={item.href} passHref>
                     <Box width="full">{item.label}</Box>
                   </NextLink>
                 </MenuItem>

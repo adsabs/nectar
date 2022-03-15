@@ -1,5 +1,5 @@
-import { Meta, Story } from '@storybook/react';
 import { TopProgressBar } from '@components';
+import { Meta, Story } from '@storybook/react';
 
 const meta: Meta = {
   title: 'TopProgressBar',
@@ -8,8 +8,8 @@ const meta: Meta = {
 
 export default meta;
 
-const Template: Story<{}> = (args) => <TopProgressBar {...args} />;
+const Template: Story<Record<string, never>> = (args) => <TopProgressBar {...args} />;
 
-export const Default = Template.bind({}) as Story<{}>;
+export const Default = Template.bind({});
 
 Default.args = {};

@@ -4,9 +4,11 @@ import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
 import { FC } from 'react';
 
-const ThemeDropdown = dynamic<{}>(() => import('./ThemeDropdown').then((mod) => mod.ThemeDropdown), { ssr: false });
+const ThemeDropdown = dynamic<Record<string, never>>(() => import('./ThemeDropdown').then((mod) => mod.ThemeDropdown), {
+  ssr: false,
+});
 
-const NavMenus = dynamic<{}>(() => import('./NavMenus').then((mod) => mod.NavMenus), { ssr: false });
+const NavMenus = dynamic<Record<string, never>>(() => import('./NavMenus').then((mod) => mod.NavMenus), { ssr: false });
 
 export const NavBar: FC = () => {
   return (

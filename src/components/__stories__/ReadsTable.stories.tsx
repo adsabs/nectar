@@ -11,10 +11,10 @@ export default meta;
 
 const Template: Story<IReadsTableProps> = (args) => <ReadsTable {...args} />;
 
-export const Default = Template.bind({}) as Story<IReadsTableProps>;
+export const Default = Template.bind({}) ;
 
 Default.args = { data: readsTableData, isAbstract: false };
 
-export const Abstract = Template.bind({}) as Story<IReadsTableProps>;
+export const Abstract = Template.bind({}) ;
 
 Abstract.args = { data: readsTableData, isAbstract: true };

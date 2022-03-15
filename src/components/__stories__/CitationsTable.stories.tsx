@@ -11,10 +11,10 @@ export default meta;
 
 const Template: Story<ICitationsTableProps> = (args) => <CitationsTable {...args} />;
 
-export const Default = Template.bind({}) as Story<ICitationsTableProps>;
+export const Default = Template.bind({}) ;
 
 Default.args = { data: citationsTableData, isAbstract: false };
 
-export const Abstract = Template.bind({}) as Story<ICitationsTableProps>;
+export const Abstract = Template.bind({}) ;
 
 Abstract.args = { data: citationsTableData, isAbstract: true };

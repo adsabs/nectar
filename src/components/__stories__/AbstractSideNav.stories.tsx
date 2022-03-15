@@ -21,7 +21,7 @@ export default meta;
 
 const Template: Story<IAbstractSideNavProps> = (args) => <AbstractSideNav {...args} />;
 
-export const Default = Template.bind({}) as Story<IAbstractSideNavProps>;
+export const Default = Template.bind({}) ;
 
 Default.args = {
   doc: doc,
