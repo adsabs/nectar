@@ -230,13 +230,16 @@ const ManualPageSelect = ({
 
   // submit the change to page
   const handleSubmit = () => {
-    dispatch({ type: 'SET_PAGE', payload: page });
+    if (page !== currentPage) {
+      dispatch({ type: 'SET_PAGE', payload: page });
+    }
   };
 
   // on enter, submit the change
   const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (e) => {
+    e.preventDefault();
     if (e.key === 'Enter') {
-      dispatch({ type: 'SET_PAGE', payload: page });
+      handleSubmit();
     }
   };
   const pagePickerRef = useRef(null);
