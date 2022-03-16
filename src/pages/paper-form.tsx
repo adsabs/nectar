@@ -69,7 +69,7 @@ const JournalQueryForm = ({ onSubmit, isClient }: { onSubmit: SubmitHandler; isC
         void onSubmit(values);
       }}
     >
-      {({ isSubmitting, handleReset, setFieldValue }) => {
+      {({ isSubmitting, handleReset, setFieldValue, dirty }) => {
         const handleBibstemUpdate = (bibstem: string) => setFieldValue('bibstem', bibstem, false);
 
         return (
@@ -115,7 +115,7 @@ const JournalQueryForm = ({ onSubmit, isClient }: { onSubmit: SubmitHandler; isC
                 </GridItem>
               </Grid>
               <Stack direction="row" mt={5}>
-                <Button size="sm" isDisabled={isSubmitting} type="submit" isLoading={isSubmitting}>
+                <Button size="sm" isDisabled={isSubmitting || !dirty} type="submit" isLoading={isSubmitting}>
                   Search
                 </Button>
                 {isClient && (
@@ -140,7 +140,7 @@ const ReferenceQueryForm = ({ onSubmit, isClient }: { onSubmit: SubmitHandler; i
         void onSubmit(values);
       }}
     >
-      {({ isSubmitting, handleReset }) => (
+      {({ isSubmitting, handleReset, dirty }) => (
         <Box
           aria-labelledby="form-title"
           backgroundColor="gray.50"
@@ -162,7 +162,7 @@ const ReferenceQueryForm = ({ onSubmit, isClient }: { onSubmit: SubmitHandler; i
             />
             <ErrorMessage name="reference" component="div" />
             <Stack direction="row" mt={5}>
-              <Button size="sm" isDisabled={isSubmitting} type="submit" isLoading={isSubmitting}>
+              <Button size="sm" isDisabled={isSubmitting || !dirty} type="submit" isLoading={isSubmitting}>
                 Search
               </Button>
               {isClient && (
@@ -186,7 +186,7 @@ const BibcodeQueryForm = ({ onSubmit, isClient }: { onSubmit: SubmitHandler; isC
         void onSubmit(values);
       }}
     >
-      {({ isSubmitting, handleReset }) => (
+      {({ isSubmitting, handleReset, dirty }) => (
         <Box
           aria-labelledby="form-title"
           backgroundColor="gray.50"
@@ -211,7 +211,7 @@ const BibcodeQueryForm = ({ onSubmit, isClient }: { onSubmit: SubmitHandler; isC
               )}
             </Field>
             <Stack direction="row" mt={5}>
-              <Button size="sm" isDisabled={isSubmitting} type="submit" isLoading={isSubmitting}>
+              <Button size="sm" isDisabled={isSubmitting || !dirty} type="submit" isLoading={isSubmitting}>
                 Search
               </Button>
               {isClient && (
