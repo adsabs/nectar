@@ -12,8 +12,6 @@ import 'nprogress/nprogress.css';
 import { FC, memo, ReactElement, useEffect, useState } from 'react';
 import { Hydrate, QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import 'tailwindcss/tailwind.css';
 import '../styles/styles.css';
 
@@ -31,7 +29,6 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
     <Providers pageProps={pageProps as AppPageProps}>
       <ThemeRouter />
       <TopProgressBar />
-      <ToastContainer />
       <Layout>
         <Component {...pageProps} />
       </Layout>
@@ -43,7 +40,12 @@ const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => 
   const [queryClient] = useState(
     () =>
       new QueryClient({
-        defaultOptions: { queries: { refetchOnWindowFocus: false, staleTime: Infinity } },
+        defaultOptions: {
+          queries: {
+            refetchOnWindowFocus: false,
+            staleTime: Infinity,
+          },
+        },
       }),
   );
 
