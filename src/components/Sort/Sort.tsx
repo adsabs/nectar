@@ -91,7 +91,13 @@ export const Sort = (props: ISortProps): ReactElement => {
   return (
     <HStack spacing={0}>
       <Box width="250px">
-        <Select value={selectedSortItem} options={sortItems} styles={SortSelectorStyle} onChange={handleSortChange} />
+        <Select
+          value={selectedSortItem}
+          options={sortItems}
+          styles={SortSelectorStyle}
+          onChange={handleSortChange}
+          ariaLabel="Sort by"
+        />
       </Box>
       {selected[1] === 'asc' ? (
         <IconButton

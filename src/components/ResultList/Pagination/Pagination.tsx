@@ -14,20 +14,22 @@ import {
   PopoverContent,
   PopoverHeader,
   PopoverTrigger,
-  Select,
   VisuallyHidden,
 } from '@chakra-ui/react';
+import { DefaultSelectorStyleSM, Select, SelectOption } from '@components';
 import { APP_DEFAULTS } from '@config';
 import { useIsClient } from '@hooks/useIsClient';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
-import { ChangeEventHandler, Dispatch, KeyboardEventHandler, ReactElement, useEffect, useRef, useState } from 'react';
+import { Dispatch, KeyboardEventHandler, ReactElement, useEffect, useRef, useState } from 'react';
+import { MenuPlacement } from 'react-select';
 import { IUsePaginationResult, PaginationAction } from './usePagination';
 
 export interface IPaginationProps extends IUsePaginationResult {
   totalResults: number;
   hidePerPageSelect?: boolean;
   dispatch: Dispatch<PaginationAction>;
+  perPageMenuPlacement?: MenuPlacement;
 }
 
 export const Pagination = (props: IPaginationProps): ReactElement => {
@@ -45,9 +47,15 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
     totalPages = 1,
     numPerPage = APP_DEFAULTS.RESULT_PER_PAGE,
     dispatch,
+    perPageMenuPlacement = 'auto',
   } = props;
 
-  const pageOptions = APP_DEFAULTS.PER_PAGE_OPTIONS;
+  const pageOptions: SelectOption[] = APP_DEFAULTS.PER_PAGE_OPTIONS.map((option) => ({
+    id: option.toString(),
+    label: option.toString(),
+    value: option.toString(),
+  }));
+
   const router = useRouter();
   const isClient = useIsClient();
 
@@ -70,8 +78,8 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
   /**
    * Update our internal state perPage, which will trigger on the pagination hook
    */
-  const perPageChangeHandler: ChangeEventHandler<HTMLSelectElement> = (e) => {
-    const numPerPage = parseInt(e.currentTarget.value, 10) as typeof APP_DEFAULTS['PER_PAGE_OPTIONS'][number];
+  const perPageChangeHandler = (id: string) => {
+    const numPerPage = parseInt(id, 10) as typeof APP_DEFAULTS['PER_PAGE_OPTIONS'][number];
     dispatch({ type: 'SET_PERPAGE', payload: numPerPage });
   };
 
@@ -87,37 +95,8 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
       <VisuallyHidden as="h3" id="pagination">
         {paginationHeading}
       </VisuallyHidden>
-      <Box display={{ sm: 'none' }}>
-        {isClient ? (
-          <Flex justifyContent="space-between">
-            <Button onClick={handlePrev} data-testid="pagination-prev" variant="outline" isDisabled={noPrev}>
-              Previous
-            </Button>
-            <Button onClick={handleNext} data-testid="pagination-next" variant="outline" isDisabled={noNext}>
-              Next
-            </Button>
-          </Flex>
-        ) : (
-          <Flex justifyContent="space-between">
-            {noPrev ? (
-              <Text variant="disabledLink">Previous</Text>
-            ) : (
-              <NextLink href={{ query: { ...router.query, p: prevPage } }} passHref>
-                <Link data-testid="pagination-prev">Previous</Link>
-              </NextLink>
-            )}
-            {noNext ? (
-              <Text variant="disabledLink">Next</Text>
-            ) : (
-              <NextLink href={{ query: { ...router.query, p: nextPage } }} passHref>
-                <Link data-testid="pagination-next">Next</Link>
-              </NextLink>
-            )}
-          </Flex>
-        )}
-      </Box>
-      <Flex justifyContent="space-between" display={{ base: 'none', sm: 'flex' }}>
-        <Box data-testid="pagination-label">
+      <Flex justifyContent={{ base: 'end', xs: 'space-between' }}>
+        <Box data-testid="pagination-label" display={{ base: 'none', sm: 'flex' }}>
           <Text>
             Showing{' '}
             <Text as="span" fontWeight="semibold">
@@ -134,20 +113,16 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
             results
           </Text>
         </Box>
-        {!hidePerPageSelect && (
-          <Box>
+        {!hidePerPageSelect && isClient && (
+          <Box display={{ base: 'none', xs: 'flex' }}>
             <Select
-              aria-label="Select number of results to show per page"
-              value={numPerPage}
+              ariaLabel="Select number of results to show per page"
+              options={pageOptions}
               onChange={perPageChangeHandler}
-              size="xs"
-            >
-              {pageOptions.map((num) => (
-                <option key={num} value={num}>
-                  {num} results
-                </option>
-              ))}
-            </Select>
+              value={pageOptions.find((o) => parseInt(o.value) === numPerPage)}
+              styles={DefaultSelectorStyleSM}
+              menuPlacement={perPageMenuPlacement}
+            />
           </Box>
         )}
         <Stack direction="row" spacing={0} role="navigation" aria-label="Pagination">

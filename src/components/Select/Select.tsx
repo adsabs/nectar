@@ -1,6 +1,6 @@
 import { FormControl, FormLabel } from '@chakra-ui/form-control';
 import { ReactElement } from 'react';
-import ReactSelect, { StylesConfig } from 'react-select';
+import ReactSelect, { MenuPlacement, StylesConfig } from 'react-select';
 
 export type SelectOption = {
   id: string;
@@ -10,10 +10,12 @@ export type SelectOption = {
 };
 export interface ISelectProps<T> {
   formLabel?: string;
+  ariaLabel?: string;
   options: SelectOption[];
   value: SelectOption;
   onChange: (id: T) => void;
   styles: StylesConfig<SelectOption>;
+  menuPlacement?: MenuPlacement;
 }
 
 export const ThemeSelectorStyle: StylesConfig<SelectOption> = {
@@ -77,12 +79,46 @@ export const DefaultSelectorStyle: StylesConfig<SelectOption> = {
   }),
 };
 
+export const DefaultSelectorStyleSM: StylesConfig<SelectOption> = {
+  container: (provided) => ({
+    ...provided,
+    minHeight: '28px',
+  }),
+  control: (provided) => ({
+    ...provided,
+    minHeight: '28px',
+    borderRadius: '2px',
+    fontSize: '0.8em',
+  }),
+
+  indicatorsContainer: (provided) => ({
+    ...provided,
+    height: '28px',
+  }),
+  dropdownIndicator: (provided) => ({
+    ...provided,
+    padding: '5px',
+    width: '28px',
+  }),
+  indicatorSeparator: () => ({
+    isDisabled: true,
+  }),
+  option: (provided, state) => ({
+    ...provided,
+    backgroundColor: state.isFocused ? 'var(--chakra-colors-gray-100)' : 'transparent',
+    color: 'var(--chakra-colors-gray-700)',
+    fontSize: '0.8em',
+  }),
+};
+
 export const Select = <T extends string>({
   formLabel,
+  ariaLabel,
   options,
   value: selected,
   onChange,
   styles,
+  menuPlacement = 'auto',
 }: ISelectProps<T>): ReactElement => {
   const handleOnOptionSelected = (option: SelectOption) => {
     onChange(option.id as T);
@@ -97,6 +133,8 @@ export const Select = <T extends string>({
         isSearchable={false}
         styles={styles}
         onChange={handleOnOptionSelected}
+        aria-label={ariaLabel}
+        menuPlacement={menuPlacement}
       />
     </FormControl>
   );
