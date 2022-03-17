@@ -2,6 +2,7 @@ import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity } from '@api';
 import { ApiTargets } from '@api/lib/models';
 import { ADSQuery } from '@_api/types';
 import { QueryFunction, useQuery } from 'react-query';
+import { RetryValue } from 'react-query/types/core/retryer';
 import api, { ApiRequestConfig } from '../api';
 import {
   defaultParams,
@@ -23,6 +24,15 @@ type SearchADSQuery<P = IADSApiSearchParams, R = IADSApiSearchResponse['response
 
 export const responseSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['response'] => data.response;
 export const statsSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['stats'] => data.stats;
+
+const defaultRetryer: RetryValue<Error> = (failCount: number, error): boolean => {
+  switch (error.message) {
+    case 'Request failed with status code 400':
+      return false;
+    default:
+      return true;
+  }
+};
 
 type SearchKeyProps =
   | { bibcode: IDocsEntity['bibcode']; start?: number }
@@ -52,7 +62,7 @@ export const useSearch: SearchADSQuery = (params, options) => {
     queryFn: fetchSearch,
     meta: { params },
     select: responseSelector,
-    // select: responseSelector,
+    retry: defaultRetryer,
     ...options,
   });
 };
