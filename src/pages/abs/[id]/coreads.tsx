@@ -1,24 +1,19 @@
-import { IADSApiSearchParams, IADSApiSearchResponse } from '@api';
+import { IADSApiSearchResponse } from '@api';
 import { Alert, AlertIcon } from '@chakra-ui/alert';
 import { AbstractRefList } from '@components';
 import { AbsLayout } from '@components/Layout/AbsLayout';
-import { APP_DEFAULTS } from '@config';
 import { withDetailsPage } from '@hocs/withDetailsPage';
+import { useGetAbstractParams } from '@hooks/useGetAbstractParams';
 import { composeNextGSSP } from '@utils';
 import { searchKeys, useGetAbstract, useGetCoreads } from '@_api/search';
 import { getCoreadsParams } from '@_api/search/models';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
-import { useMemo, useState } from 'react';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
 import { normalizeURLParams } from 'src/utils';
 
 export interface ICoreadsPageProps {
   id: string;
-  defaultParams: {
-    start: IADSApiSearchParams['start'];
-  };
   error?: {
     status?: string;
     message?: string;
@@ -26,29 +21,16 @@ export interface ICoreadsPageProps {
 }
 
 const CoreadsPage: NextPage<ICoreadsPageProps> = (props: ICoreadsPageProps) => {
-  const { id, error, defaultParams } = props;
+  const { id, error } = props;
   const {
     data: {
       docs: [doc],
     },
   } = useGetAbstract({ id });
 
-  const [start, setStart] = useState(defaultParams?.start ?? 0);
-  const params = useMemo(() => ({ bibcode: doc.bibcode, start }), [doc, start]);
-  const router = useRouter();
+  const { getParams, onPageChange } = useGetAbstractParams(doc.bibcode);
 
-  const handlePageChange = (page: number, start: number) => {
-    void router.push(
-      { pathname: '/abs/[id]/coreads', query: { p: page } },
-      { pathname: `/abs/${doc.bibcode}/coreads`, query: { p: page } },
-      {
-        shallow: true,
-      },
-    );
-    setStart(start);
-  };
-
-  const { data, isSuccess } = useGetCoreads(params, { keepPreviousData: true });
+  const { data, isSuccess } = useGetCoreads(getParams(), { keepPreviousData: true });
   const coreadsParams = getCoreadsParams(doc.bibcode, 0);
 
   return (
@@ -64,10 +46,10 @@ const CoreadsPage: NextPage<ICoreadsPageProps> = (props: ICoreadsPageProps) => {
       )}
       {isSuccess && (
         <AbstractRefList
+          doc={doc}
           docs={data.docs}
           totalResults={data.numFound}
-          onPageChange={handlePageChange}
-          indexStart={params.start}
+          onPageChange={onPageChange}
           href={{
             pathname: '/search',
             query: {
@@ -89,8 +71,6 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetail
   const axios = (await import('axios')).default;
   api.setToken(ctx.req.session.userData.access_token);
   const query = normalizeURLParams(ctx.query);
-  const parsedPage = parseInt(query.p, 10);
-  const page = isNaN(parsedPage) || Math.abs(parsedPage) >= 100 ? 1 : Math.abs(parsedPage);
 
   try {
     const queryClient = new QueryClient();
@@ -101,7 +81,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetail
       },
     } = queryClient.getQueryData<IADSApiSearchResponse>(searchKeys.abstract(query.id));
 
-    const params = getCoreadsParams(bibcode, (page - 1) * APP_DEFAULTS.RESULT_PER_PAGE);
+    const params = getCoreadsParams(bibcode, 0);
     void (await queryClient.prefetchQuery({
       queryKey: searchKeys.coreads({ bibcode, start: params.start }),
       queryFn: fetchSearch,
@@ -111,9 +91,6 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetail
     return {
       props: {
         dehydratedState: dehydrate(queryClient),
-        defaultParams: {
-          start: params.start,
-        },
       },
     };
   } catch (e) {
