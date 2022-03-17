@@ -104,7 +104,11 @@ export const noop = (): void => {
  * Helper utility for parsing int from string/string[]
  * It will also clamp the resulting number between min/max
  */
-export const parseNumberAndClamp = (value: string | string[], min: number, max: number = Number.MAX_SAFE_INTEGER) => {
+export const parseNumberAndClamp = (
+  value: string | string[],
+  min: number,
+  max: number = Number.MAX_SAFE_INTEGER,
+): number => {
   try {
     const page = parseInt(Array.isArray(value) ? value[0] : value, 10);
     return clamp(min, max, Number.isNaN(page) ? min : page);
@@ -162,12 +166,11 @@ export const isString = (maybeString: unknown): maybeString is string => {
  */
 export const normalizeSolrSort = (rawSolrSort: unknown): SolrSort[] => {
   // boil raw value down to string[]
-  const sort =
-    Array.isArray(rawSolrSort) && rawSolrSort.length > 0
-      ? rawSolrSort.filter(isString)
-      : isString(rawSolrSort)
-      ? [rawSolrSort]
-      : null;
+  const sort = Array.isArray(rawSolrSort)
+    ? filter(isString, rawSolrSort)
+    : isString(rawSolrSort)
+    ? rawSolrSort.split(',')
+    : null;
 
   // if that fails, shortcut here with a default value
   if (sort === null) {
@@ -175,11 +178,11 @@ export const normalizeSolrSort = (rawSolrSort: unknown): SolrSort[] => {
   }
 
   // filter out non-SolrSort values
-  const filtered = filter(isSolrSort, sort);
+  const validSort = filter(isSolrSort, sort);
 
   // append 'date desc' onto sort list, if not there already
-  if ('date desc' === last(filtered)) {
-    return filtered;
+  if ('date desc' === last(validSort)) {
+    return validSort;
   }
-  return filtered.concat('date desc');
+  return validSort.concat('date desc');
 };
