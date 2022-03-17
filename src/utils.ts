@@ -119,10 +119,10 @@ export const parseNumberAndClamp = (value: string | string[], min: number, max: 
 export const parseQueryFromUrl = (params: ParsedUrlQuery): IADSApiSearchParams & { p: number } => {
   const normalizedParams = normalizeURLParams(params);
   return {
+    ...normalizedParams,
     q: normalizedParams?.q ?? '',
     sort: normalizeSolrSort(params.sort),
     p: parseNumberAndClamp(normalizedParams?.p, 1),
-    ...normalizedParams,
   };
 };
 
