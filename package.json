@@ -55,6 +55,7 @@
     "react-select": "^5.2.1",
     "react-toastify": "^8.0.2",
     "transducist": "^2.2.0",
+    "use-debounce": "^7.0.1",
     "uuid": "^8.3.2",
     "xstate": "^4.25.0",
     "zustand": "^3.6.9"
