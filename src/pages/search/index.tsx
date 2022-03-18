@@ -1,12 +1,12 @@
 import { IADSApiSearchParams, SolrSort } from '@api';
-import { Box, Flex } from '@chakra-ui/layout';
-import { Alert, AlertIcon } from '@chakra-ui/react';
+import { Box, Flex, Stack } from '@chakra-ui/layout';
+import { Alert, AlertIcon, Code } from '@chakra-ui/react';
 import { VisuallyHidden } from '@chakra-ui/visually-hidden';
 import { ItemsSkeleton, ListActions, NumFound, SearchBar, SimpleResultList } from '@components';
 import { Pagination } from '@components/ResultList/Pagination';
 import { usePagination } from '@components/ResultList/Pagination/usePagination';
 import { AppState, createStore, useStore, useStoreApi } from '@store';
-import { parseNumberAndClamp, parseQueryFromUrl } from '@utils';
+import { isApiSearchResponse, parseNumberAndClamp, parseQueryFromUrl } from '@utils';
 import { searchKeys, useSearch } from '@_api/search';
 import { defaultParams, getSearchStatsParams } from '@_api/search/models';
 import axios from 'axios';
@@ -19,15 +19,14 @@ import { ChangeEvent, useEffect, useState } from 'react';
 import { dehydrate, QueryClient } from 'react-query';
 import { useDebouncedCallback } from 'use-debounce';
 
-interface ISearchPageProps {
-  searchParams: IADSApiSearchParams;
-}
-
 // selectors
 const updateQuerySelector = (state: AppState) => state.updateQuery;
 const setLatestQuerySelector = (state: AppState) => state.setLatestQuery;
 const setDocsSelector = (state: AppState) => state.setDocs;
 
+/**
+ * hook that wraps useSearch
+ */
 const useSearchQuery = () => {
   const store = useStoreApi();
   const setLatestQuery = useStore(setLatestQuerySelector);
@@ -52,15 +51,6 @@ const useSearchQuery = () => {
       // update store with the latest (working) query
       setLatestQuery(query);
     },
-    // onError(error) {
-    //   if (error instanceof Error) {
-    //     toast({
-    //       title: 'Problem with search',
-    //       description: error.message,
-    //       status: 'error',
-    //     });
-    //   }
-    // },
   });
 
   return { ...result, query, onSubmit };
@@ -148,19 +138,17 @@ const SearchPage: NextPage<ISearchPageProps> = () => {
         <Flex direction="column" width="full">
           <SearchBar isLoading={isLoading} />
           {!isLoading && <NumFound count={data?.numFound ?? 0} />}
-          {/* <Filters /> */}
         </Flex>
         <Box mt={5}>
-          {isError && (
-            <Alert status="error">
-              <AlertIcon />
-              {axios.isAxiosError(error) && error.message}
-            </Alert>
-          )}
+          <SearchErrorAlert error={error} show={isError} />
           {isLoading && <ItemsSkeleton count={pagination.numPerPage} />}
-          {isSuccess && !isLoading && <ListActions onSortChange={handleSortChange} />}
-          {isSuccess && !isLoading && <SimpleResultList docs={data.docs} indexStart={pagination.startIndex} />}
-          {isSuccess && !isLoading && <Pagination totalResults={data.numFound} {...pagination} />}
+          {isSuccess && !isLoading && (
+            <>
+              <ListActions onSortChange={handleSortChange} />
+              <SimpleResultList docs={data.docs} indexStart={pagination.startIndex} />
+              <Pagination totalResults={data.numFound} {...pagination} />
+            </>
+          )}
         </Box>
       </form>
     </Box>
@@ -184,22 +172,6 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const { fl, ...cleanedParams } = params;
   const queryClient = new QueryClient();
 
-  // must catch errors here if we're handling the response
-  let docs: string[];
-  try {
-    // primary query prefetch
-    const { response } = await queryClient.fetchQuery({
-      queryKey: searchKeys.primary(cleanedParams),
-      queryFn: fetchSearch,
-      meta: { params },
-    });
-
-    // map over docs to set initial store
-    docs = response.docs.map((d) => d.bibcode);
-  } catch (e) {
-    docs = [];
-  }
-
   // prefetch the citation counts for this query
   if (/^citation_count(_norm)?/.test(params.sort[0])) {
     void (await queryClient.prefetchQuery({
@@ -208,23 +180,69 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       meta: { params: getSearchStatsParams(params, params.sort[0]) },
     }));
   }
-
   const initialState = createStore().getState();
 
-  return {
-    props: {
-      dehydratedState: dehydrate(queryClient),
-      dehydratedAppState: {
-        query: params,
-        latestQuery: params,
-        docs: {
-          ...initialState.docs,
-          current: docs,
-        },
-      } as AppState,
-      searchParams: params,
-    },
-  };
+  try {
+    // primary query prefetch
+    const primaryResult = await queryClient.fetchQuery({
+      queryKey: searchKeys.primary(cleanedParams),
+      queryFn: fetchSearch,
+      meta: { params },
+    });
+
+    return {
+      props: {
+        dehydratedState: dehydrate(queryClient),
+        dehydratedAppState: {
+          query: params,
+          latestQuery: params,
+          docs: {
+            ...initialState.docs,
+            current: primaryResult.response.docs.map((d) => d.bibcode),
+          },
+        } as AppState,
+      },
+    };
+  } catch (e) {
+    return {
+      props: {
+        dehydratedState: dehydrate(queryClient),
+        dehydratedAppState: {
+          query: params,
+          latestQuery: params,
+        } as AppState,
+      },
+    };
+  }
 };
 
 export default SearchPage;
+
+const SearchErrorAlert = ({ error, show = false }: { error: unknown; show: boolean }) => {
+  if (!show || !error) {
+    return null;
+  }
+
+  // Show a message about updating query if the it's a syntax error
+  if (axios.isAxiosError(error) && error.response.status === 400 && isApiSearchResponse(error.response.data)) {
+    const query = error.response.data.responseHeader.params.q;
+
+    return (
+      <Alert status="error">
+        <AlertIcon />
+        <Stack direction="row">
+          <p>Unable to parse </p>
+          <Code>{query}</Code>
+          <p>please update, and try again</p>
+        </Stack>
+      </Alert>
+    );
+  }
+
+  return (
+    <Alert status="error">
+      <AlertIcon />
+      {axios.isAxiosError(error) && error.message}
+    </Alert>
+  );
+};
