@@ -1,9 +1,9 @@
-import { IADSApiSearchParams, IDocsEntity, IUserData, SolrSort } from '@api';
+import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, IUserData, SolrSort } from '@api';
 import { fromThrowable } from 'neverthrow';
 import { GetServerSidePropsContext, GetServerSidePropsResult, NextApiRequest, NextApiResponse } from 'next';
 import { useRouter } from 'next/router';
 import { ParsedUrlQuery } from 'querystring';
-import { clamp, filter, last } from 'ramda';
+import { clamp, filter, has, last } from 'ramda';
 
 type ParsedQueryParams = ParsedUrlQuery | qs.ParsedQs;
 
@@ -187,4 +187,12 @@ export const normalizeSolrSort = (rawSolrSort: unknown): SolrSort[] => {
     return validSort;
   }
   return validSort.concat('date desc');
+};
+
+// returns true if value passed in is a valid IADSApiSearchResponse
+export const isApiSearchResponse = (value: unknown): value is IADSApiSearchResponse => {
+  if (has('responseHeader', value) && (has('response', value) || has('error', value) || has('stats', value))) {
+    return true;
+  }
+  return false;
 };
