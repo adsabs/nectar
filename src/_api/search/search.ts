@@ -1,6 +1,7 @@
 import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity } from '@api';
 import { ApiTargets } from '@api/lib/models';
 import { ADSQuery } from '@_api/types';
+import { AxiosError } from 'axios';
 import { QueryFunction, useQuery } from 'react-query';
 import { RetryValue } from 'react-query/types/core/retryer';
 import api, { ApiRequestConfig } from '../api';
@@ -16,6 +17,8 @@ import {
   getTocParams,
 } from './models';
 
+type ErrorType = Error | AxiosError;
+
 type SearchADSQuery<P = IADSApiSearchParams, R = IADSApiSearchResponse['response']> = ADSQuery<
   P,
   IADSApiSearchResponse,
@@ -25,7 +28,7 @@ type SearchADSQuery<P = IADSApiSearchParams, R = IADSApiSearchResponse['response
 export const responseSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['response'] => data.response;
 export const statsSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['stats'] => data.stats;
 
-const defaultRetryer: RetryValue<Error> = (failCount: number, error): boolean => {
+const defaultRetryer: RetryValue<ErrorType> = (failCount: number, error): boolean => {
   switch (error.message) {
     case 'Request failed with status code 400':
       return false;
@@ -57,7 +60,7 @@ export const searchKeys = {
 export const useSearch: SearchADSQuery = (params, options) => {
   // omit fields from queryKey
   const { fl, ...cleanParams } = params;
-  return useQuery<IADSApiSearchResponse, Error, IADSApiSearchResponse['response']>({
+  return useQuery<IADSApiSearchResponse, ErrorType, IADSApiSearchResponse['response']>({
     queryKey: searchKeys.primary(cleanParams),
     queryFn: fetchSearch,
     meta: { params },
