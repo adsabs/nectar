@@ -104,6 +104,7 @@ const SearchPage: NextPage<ISearchPageProps> = () => {
         const params = parseQueryFromUrl(qs.parse(as.split('?')?.[1]));
         updateQuery(omit(['p'], params));
         pagination.dispatch({ type: 'SET_PAGE', payload: params?.p });
+        onSubmit();
       } catch (e) {
         // do nothing
       } finally {
