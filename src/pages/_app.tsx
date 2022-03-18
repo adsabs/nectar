@@ -1,5 +1,6 @@
 import { ChakraProvider } from '@chakra-ui/react';
 import { Layout } from '@components';
+import { useCreateQueryClient } from '@hooks/useCreateQueryClient';
 import { ApiProvider } from '@providers/api';
 import { AppState, StoreProvider, useCreateStore, useStore } from '@store';
 import { theme } from '@theme';
@@ -10,8 +11,8 @@ import { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import 'nprogress/nprogress.css';
-import { FC, memo, ReactElement, useEffect, useState } from 'react';
-import { Hydrate, QueryClient, QueryClientProvider } from 'react-query';
+import { FC, memo, ReactElement, useEffect } from 'react';
+import { Hydrate, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import 'tailwindcss/tailwind.css';
 import '../styles/styles.css';
@@ -42,31 +43,28 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
 });
 
 const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            refetchOnWindowFocus: false,
-            staleTime: Infinity,
-          },
-        },
-      }),
-  );
-
   const createStore = useCreateStore(pageProps.dehydratedAppState ?? {});
 
   return (
-    <StoreProvider createStore={createStore}>
-      <QueryClientProvider client={queryClient}>
-        <ApiProvider>
-          <ChakraProvider theme={theme}>
+    <ChakraProvider theme={theme}>
+      <StoreProvider createStore={createStore}>
+        <QCProvider>
+          <ApiProvider>
             <Hydrate state={pageProps.dehydratedState}>{children}</Hydrate>
             <ReactQueryDevtools />
-          </ChakraProvider>
-        </ApiProvider>
-      </QueryClientProvider>
-    </StoreProvider>
+          </ApiProvider>
+        </QCProvider>
+      </StoreProvider>
+    </ChakraProvider>
+  );
+};
+
+const QCProvider: FC = ({ children }) => {
+  const queryClient = useCreateQueryClient();
+  return (
+    <QueryClientProvider client={queryClient} contextSharing>
+      {children}
+    </QueryClientProvider>
   );
 };
 
