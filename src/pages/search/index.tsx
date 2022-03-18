@@ -1,6 +1,6 @@
 import { IADSApiSearchParams, SolrSort } from '@api';
 import { Box, Flex } from '@chakra-ui/layout';
-import { Alert, AlertIcon, useToast } from '@chakra-ui/react';
+import { Alert, AlertIcon } from '@chakra-ui/react';
 import { VisuallyHidden } from '@chakra-ui/visually-hidden';
 import { ItemsSkeleton, ListActions, NumFound, SearchBar, SimpleResultList } from '@components';
 import { Pagination } from '@components/ResultList/Pagination';
@@ -29,7 +29,6 @@ const setLatestQuerySelector = (state: AppState) => state.setLatestQuery;
 const setDocsSelector = (state: AppState) => state.setDocs;
 
 const useSearchQuery = () => {
-  const toast = useToast();
   const store = useStoreApi();
   const setLatestQuery = useStore(setLatestQuerySelector);
   const setDocs = useStore(setDocsSelector);
@@ -53,15 +52,15 @@ const useSearchQuery = () => {
       // update store with the latest (working) query
       setLatestQuery(query);
     },
-    onError(error) {
-      if (error instanceof Error) {
-        toast({
-          title: 'Problem with search',
-          description: error.message,
-          status: 'error',
-        });
-      }
-    },
+    // onError(error) {
+    //   if (error instanceof Error) {
+    //     toast({
+    //       title: 'Problem with search',
+    //       description: error.message,
+    //       status: 'error',
+    //     });
+    //   }
+    // },
   });
 
   return { ...result, query, onSubmit };
@@ -181,12 +180,21 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const { fl, ...cleanedParams } = params;
   const queryClient = new QueryClient();
 
-  // primary query prefetch
-  const primaryResult = await queryClient.fetchQuery({
-    queryKey: searchKeys.primary(cleanedParams),
-    queryFn: fetchSearch,
-    meta: { params },
-  });
+  // must catch errors here if we're handling the response
+  let docs: string[];
+  try {
+    // primary query prefetch
+    const { response } = await queryClient.fetchQuery({
+      queryKey: searchKeys.primary(cleanedParams),
+      queryFn: fetchSearch,
+      meta: { params },
+    });
+
+    // map over docs to set initial store
+    docs = response.docs.map((d) => d.bibcode);
+  } catch (e) {
+    docs = [];
+  }
 
   // prefetch the citation counts for this query
   if (/^citation_count(_norm)?/.test(params.sort[0])) {
@@ -207,7 +215,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         latestQuery: params,
         docs: {
           ...initialState.docs,
-          current: primaryResult.response.docs.map((d) => d.bibcode),
+          current: docs,
         },
       } as AppState,
       searchParams: params,
