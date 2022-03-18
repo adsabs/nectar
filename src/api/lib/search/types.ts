@@ -23,12 +23,25 @@ export interface INormalizedADSApiSearchParams {
   sort?: string;
 }
 
+interface IADSApiSearchResponseHeader {
+  status: number;
+  params: IADSApiSearchParams;
+}
+
+interface IADSApiSearchResponseError {
+  code: number;
+  metadata: string[];
+  msg: string;
+}
+
 export interface IADSApiSearchResponse {
   response: {
     numFound: number;
     docs: IDocsEntity[];
   };
   stats?: ISearchStatsFields;
+  responseHeader?: IADSApiSearchResponseHeader;
+  error?: IADSApiSearchResponseError;
 }
 
 export interface ISearchStatsFields {
