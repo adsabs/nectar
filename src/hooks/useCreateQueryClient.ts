@@ -19,7 +19,7 @@ export const useCreateQueryClient = () => {
           },
         },
         queryCache: new QueryCache({
-          onError: (error, query) => {
+          onError: (error) => {
             if (axios.isAxiosError(error) || error instanceof Error) {
               toast({
                 title: 'Error',
@@ -29,7 +29,6 @@ export const useCreateQueryClient = () => {
                 variant: 'solid',
               });
             }
-            console.log('error', error, query);
           },
         }),
       }),
