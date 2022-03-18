@@ -1,5 +1,5 @@
+import { IListActionsProps, ListActions } from '@components';
 import { Meta, Story } from '@storybook/react';
-import { ListActions } from '@components';
 
 const meta: Meta = {
   title: 'ResultList/ListActions',
@@ -8,8 +8,8 @@ const meta: Meta = {
 
 export default meta;
 
-const Template: Story = (args) => <ListActions {...args} />;
+const Template: Story<IListActionsProps> = (args) => <ListActions {...args} />;
 
-export const Default = Template.bind({}) ;
+export const Default = Template.bind({});
 
 Default.args = {};
