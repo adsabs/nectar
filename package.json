@@ -7,6 +7,7 @@
   },
   "scripts": {
     "dev": "nodemon",
+    "dev:mocks": "NEXT_PUBLIC_API_MOCKING=enabled nodemon",
     "build": "NEXT_TELEMETRY_DISABLED=1 DIST_DIR=./dist/ next build && tsc --project tsconfig.server.json --outDir ./dist/",
     "start": "NODE_ENV=production DIST_DIR=./dist/ node dist/server/index.js",
     "analyze": "NEXT_TELEMETRY_DISABLED=1 DIST_DIR=./dev/ ANALYZE=true next build",
@@ -113,6 +114,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^26.6.3",
     "lint-staged": "^11.1.2",
+    "msw": "^0.39.2",
     "nodemon": "^2.0.7",
     "pino-pretty": "^5.1.2",
     "postcss": "^8.2.6",
@@ -140,5 +142,8 @@
       "eslint --fix",
       "prettier --write"
     ]
+  },
+  "msw": {
+    "workerDirectory": "public"
   }
 }
