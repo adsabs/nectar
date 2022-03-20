@@ -5,6 +5,7 @@ import { VisuallyHidden } from '@chakra-ui/visually-hidden';
 import { ItemsSkeleton, ListActions, NumFound, SearchBar, SimpleResultList } from '@components';
 import { Pagination } from '@components/ResultList/Pagination';
 import { usePagination } from '@components/ResultList/Pagination/usePagination';
+import { useUserPreferences } from '@hooks/useUserPreferences';
 import { AppState, createStore, useStore, useStoreApi } from '@store';
 import { isApiSearchResponse, parseNumberAndClamp, parseQueryFromUrl } from '@utils';
 import { searchKeys, useSearch } from '@_api/search';
@@ -84,6 +85,18 @@ const SearchPage: NextPage = () => {
     updateQuery({ start: pagination.startIndex, rows: pagination.numPerPage });
     onSubmit();
   }, [pagination.startIndex, pagination.numPerPage]);
+
+  // on initial render, update numPerPage (this is preferrable to watching userPrefs for changes,
+  // since we only care about the numPerPage during a new search).
+  const [getUserPrefs, updateUserPrefs] = useUserPreferences();
+  useEffect(() => {
+    pagination.dispatch({ type: 'SET_PERPAGE', payload: getUserPrefs().numPerPage });
+  }, [getUserPrefs]);
+
+  // update the store with the updated numPerPage
+  useEffect(() => {
+    updateUserPrefs({ numPerPage: pagination.numPerPage });
+  }, [pagination.numPerPage]);
 
   // on popstate change, trigger a new search (back button pressed)
   const router = useRouter();
