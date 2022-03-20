@@ -17,7 +17,7 @@ import {
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { DefaultSelectorStyleSM, Select, SelectOption } from '@components';
-import { APP_DEFAULTS } from '@config';
+import { APP_DEFAULTS, NumPerPageOption } from '@config';
 import { useIsClient } from '@hooks/useIsClient';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
@@ -56,6 +56,9 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
     value: option.toString(),
   }));
 
+  // make sure we keep state and result in sync for pagination
+  useEffect(() => dispatch({ type: 'SET_PAGE', payload: page }), [page]);
+
   const router = useRouter();
   const isClient = useIsClient();
 
@@ -68,9 +71,6 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
     dispatch({ type: 'NEXT_PAGE' });
   };
 
-  // make sure we keep state and result in sync for pagination
-  useEffect(() => dispatch({ type: 'SET_PAGE', payload: page }), [page]);
-
   if (noPagination) {
     return null;
   }
@@ -79,7 +79,7 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
    * Update our internal state perPage, which will trigger on the pagination hook
    */
   const perPageChangeHandler = (id: string) => {
-    const numPerPage = parseInt(id, 10) as typeof APP_DEFAULTS['PER_PAGE_OPTIONS'][number];
+    const numPerPage = parseInt(id, 10) as NumPerPageOption;
     dispatch({ type: 'SET_PERPAGE', payload: numPerPage });
   };
 

@@ -1,4 +1,4 @@
-import { APP_DEFAULTS } from '@config';
+import { APP_DEFAULTS, NumPerPageOption } from '@config';
 import { useRouter } from 'next/router';
 import { clamp } from 'ramda';
 import { Dispatch, Reducer, useEffect, useMemo, useReducer } from 'react';
@@ -56,7 +56,7 @@ export const calculatePagination = ({
 }: {
   numFound: number;
   page: number;
-  numPerPage: NumPerPageType;
+  numPerPage: NumPerPageOption;
 }): Omit<IUsePaginationResult, 'dispatch' | 'numPerPage'> => {
   const results = cleanClamp(numFound, 0);
 
@@ -105,8 +105,6 @@ export const calculatePagination = ({
   };
 };
 
-type NumPerPageType = typeof APP_DEFAULTS['PER_PAGE_OPTIONS'][number];
-
 export interface IUsePaginationProps {
   numFound: number;
   updateURL?: boolean;
@@ -122,13 +120,13 @@ export interface IUsePaginationResult {
   noPagination: boolean;
   noNext: boolean;
   noPrev: boolean;
-  numPerPage: NumPerPageType;
+  numPerPage: NumPerPageOption;
   dispatch: Dispatch<PaginationAction>;
 }
 
 export interface IPaginationState {
   page: number;
-  numPerPage: NumPerPageType;
+  numPerPage: NumPerPageOption;
 }
 
 export type PaginationAction =
@@ -136,7 +134,7 @@ export type PaginationAction =
   | { type: 'PREV_PAGE' }
   | { type: 'RESET' }
   | { type: 'SET_PAGE'; payload: number }
-  | { type: 'SET_PERPAGE'; payload: NumPerPageType };
+  | { type: 'SET_PERPAGE'; payload: NumPerPageOption };
 
 const reducer: Reducer<IPaginationState, PaginationAction> = (state, action) => {
   switch (action.type) {
