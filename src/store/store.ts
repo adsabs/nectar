@@ -6,6 +6,7 @@ import create, { GetState, Mutate, SetState, StoreApi } from 'zustand';
 import createContext from 'zustand/context';
 import { devtools, NamedSet, persist } from 'zustand/middleware';
 import { docsSlice, searchSlice, themeSlice, userSlice } from './slices';
+import { preferencesSlice } from './slices/preferences';
 import { AppState } from './types';
 
 export const APP_STORAGE_KEY = 'nectar-app-state';
@@ -17,6 +18,7 @@ export const createStore = (preloadedState: Partial<AppState> = {}) => {
     ...docsSlice(set, get),
     ...userSlice(set, get),
     ...themeSlice(set, get),
+    ...preferencesSlice(set, get),
     ...preloadedState,
   });
 
