@@ -63,6 +63,7 @@
   "devDependencies": {
     "@babel/core": "^7.0.0-0",
     "@chakra-ui/storybook-addon": "^1.0.3",
+    "@faker-js/faker": "^6.0.0",
     "@next/bundle-analyzer": "^10.0.7",
     "@next/eslint-plugin-next": "^12.1.0",
     "@storybook/addon-actions": "^6.3.7",
