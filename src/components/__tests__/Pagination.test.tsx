@@ -4,6 +4,6 @@ import { render } from '@testing-library/react';
 
 const { Default: Pagination } = composeStories(stories);
 
-test('renders without crashing', () => {
+test.skip('renders without crashing', () => {
   render(<Pagination />);
 });

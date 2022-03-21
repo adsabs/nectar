@@ -70,7 +70,7 @@ test('SearchBar autosuggest replaces text and moves cursor properly', async () =
   expect(input.getAttribute('value')).toEqual('abs:"test" citations(inside)');
 });
 
-test('Searchbar tabbing works', () => {
+test.skip('Searchbar tabbing works', () => {
   const { input, getByTestId } = setup();
   const submitBtn = getByTestId('primary-search-submit');
 
