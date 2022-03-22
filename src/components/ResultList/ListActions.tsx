@@ -11,6 +11,7 @@ export interface IListActionsProps {
 export const ListActions = (props: IListActionsProps): ReactElement => {
   const { onSortChange = noop } = props;
   const selected = useStore((state) => state.docs.selected.length);
+  const clearSelected = useStore((state) => state.clearSelected);
   const noneSelected = selected === 0;
 
   return (
@@ -35,6 +36,9 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
           wrap="wrap"
         >
           <SelectAllButtons />
+          <Button variant="link" fontWeight="normal" disabled={noneSelected} onClick={clearSelected}>
+            Select None
+          </Button>
           <Button variant="link" fontWeight="normal" disabled={noneSelected}>
             Limited To
           </Button>
@@ -75,17 +79,20 @@ const HighlightsToggle = () => {
 
 const SelectAllButtons = () => {
   const selectAll = useStore((state) => state.selectAll);
-  const clearAllSelected = useStore((state) => state.clearAllSelected);
   const isAllSelected = useStore((state) => state.docs.isAllSelected);
+  const clearAllSelected = useStore((state) => state.clearAllSelected);
 
   return (
     <>
-      <Button variant="link" fontWeight="normal" disabled={isAllSelected} onClick={selectAll}>
-        Select All
-      </Button>
-      <Button variant="link" fontWeight="normal" disabled={!isAllSelected} onClick={clearAllSelected}>
-        Select None
-      </Button>
+      {isAllSelected ? (
+        <Button variant="link" fontWeight="normal" onClick={clearAllSelected}>
+          Deselect All
+        </Button>
+      ) : (
+        <Button variant="link" fontWeight="normal" onClick={selectAll}>
+          Select All
+        </Button>
+      )}
     </>
   );
 };
