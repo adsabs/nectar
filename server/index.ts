@@ -20,7 +20,12 @@ const port = process.env.PORT || 8000;
     server.use(session);
     server.use(api);
 
-    server.all('*', (req: Request, res: Response) => void handle(req, res));
+    server.all('*', (req: Request, res: Response) => {
+      if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled') {
+        res.setHeader('Service-Worker-Allowed', '/');
+      }
+      void handle(req, res);
+    });
 
     server.listen(port, (err?: unknown) => {
       if (err) throw err;

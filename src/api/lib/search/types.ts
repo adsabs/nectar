@@ -127,8 +127,8 @@ export interface IDocsEntity {
     num_citations?: number;
     num_references?: number;
   };
-  citation_count?: string;
-  citation_count_norm?: string;
+  citation_count?: number;
+  citation_count_norm?: number;
   cite_read_boost?: string;
   classic_factor?: string;
   comment?: string[];
@@ -181,9 +181,9 @@ export interface IDocsEntity {
   pub_raw?: string;
   pubdate?: string;
   pubnote?: string;
-  read_count?: string;
+  read_count?: number;
   reader?: string;
-  recid?: string;
+  recid?: number;
   reference?: string;
   references_count?: number;
   simbad_object_facet_hier?: string;
