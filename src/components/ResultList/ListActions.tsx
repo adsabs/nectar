@@ -5,7 +5,7 @@ import { noop } from '@utils';
 import { ReactElement, useState } from 'react';
 
 export interface IListActionsProps {
-  onSortChange: ISortProps['onChange'];
+  onSortChange?: ISortProps['onChange'];
 }
 
 export const ListActions = (props: IListActionsProps): ReactElement => {

@@ -30,7 +30,7 @@ export interface IReadTableInput {
 
 export const plotCitationsHist = (normalize: boolean, citationsHist: CitationsHistogramType): IGraphData[] => {
   const returnArray: IPair[][] = [];
-  let data: { year: number }[];
+  let data: { [year: string]: number }[];
 
   if (!normalize) {
     data = [
