@@ -54,11 +54,11 @@ export enum MetricsResponseKey {
 }
 
 export type CitationsHistogramType = {
-  [key in CitationsHistogramKey]: { year: number };
+  [key in CitationsHistogramKey]: { [year: string]: number };
 };
 
 export type ReadsHistogramType = {
-  [key in ReadsHistogramKey]: { year: number };
+  [key in ReadsHistogramKey]: { [year: string]: number };
 };
 
 export interface IADSApiMetricsParams {

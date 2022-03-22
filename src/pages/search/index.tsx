@@ -2,18 +2,18 @@ import { IADSApiSearchParams, SolrSort } from '@api';
 import { Box, Flex } from '@chakra-ui/layout';
 import { Alert, AlertIcon } from '@chakra-ui/react';
 import { VisuallyHidden } from '@chakra-ui/visually-hidden';
-import { ItemsSkeleton, NumFound, SearchBar, SimpleResultList } from '@components';
+import { ItemsSkeleton, ListActions, NumFound, SearchBar, SimpleResultList } from '@components';
 import { Pagination } from '@components/ResultList/Pagination';
 import { usePagination } from '@components/ResultList/Pagination/usePagination';
-import { AppState, useStore, useStoreApi } from '@store';
-import { normalizeURLParams, parseNumberAndClamp } from '@utils';
+import { AppState, createStore, useStore, useStoreApi } from '@store';
+import { parseNumberAndClamp, parseQueryFromUrl } from '@utils';
 import { searchKeys, useSearch } from '@_api/search';
 import { defaultParams, getSearchStatsParams } from '@_api/search/models';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { omit } from 'ramda';
+import { equals, omit, pick } from 'ramda';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { dehydrate, QueryClient } from 'react-query';
 
@@ -24,6 +24,7 @@ interface ISearchPageProps {
 const useSearchQuery = (submitted: boolean, query: IADSApiSearchParams) => {
   const router = useRouter();
   const setLatestQuery = useStore((state) => state.setLatestQuery);
+  const setDocs = useStore((state) => state.setDocs);
 
   const result = useSearch(query, {
     // we are allowing data to persist, but below the page will still show loading state
@@ -38,6 +39,10 @@ const useSearchQuery = (submitted: boolean, query: IADSApiSearchParams) => {
       void router.push({ pathname: router.pathname, query: { ...router.query, ...params } }, null, {
         shallow: true,
       });
+    },
+    onSuccess(data) {
+      // set docs on success
+      setDocs(data.docs.map((d) => d.bibcode));
 
       // update store with the latest (working) query
       setLatestQuery(query);
@@ -78,7 +83,13 @@ const SearchPage: NextPage<ISearchPageProps> = () => {
     if (page !== pagination.page) {
       pagination.dispatch({ type: 'SET_PAGE', payload: page });
     }
-    updateAndSubmit({ ...omit(['p'], router.query) });
+
+    // only do updates when something has actually changed, since this handler
+    // will call on all updates to the URL
+    const parsedQuery = parseQueryFromUrl(router.query);
+    if (!equals(pick(['q', 'sort'], parsedQuery), pick(['q', 'sort'], query))) {
+      updateAndSubmit({ ...omit(['p'], router.query) });
+    }
   };
 
   // add/remove route change handlers
@@ -87,16 +98,28 @@ const SearchPage: NextPage<ISearchPageProps> = () => {
     return () => router.events.off('routeChangeComplete', routeChangeHandler);
   }, [router]);
 
+  // TODO: pagination and updateAndSubmit compete for updating the query, figure out better solution
+
   // on form submission, but not otherwise (probably need more granular control)
   // we should clear the selected docs.  We'll probably want to not do this ordinal changes like sort
   const clearSelectedDocs = useStore((state) => state.clearSelected);
   const handleOnSubmit = (e: ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    updateAndSubmit();
+
     // resets the page to 1
     pagination.dispatch({ type: 'RESET' });
     clearSelectedDocs();
-    updateAndSubmit();
+  };
+
+  // trigger new search on sort change
+  // should also reset pagination, but not clear docs
+  const handleSortChange = (sort: SolrSort[]) => {
+    updateAndSubmit({ sort });
+
+    // resets the page to 1
+    pagination.dispatch({ type: 'RESET' });
   };
 
   const isLoading = isFetching || submitted;
@@ -123,6 +146,7 @@ const SearchPage: NextPage<ISearchPageProps> = () => {
             </Alert>
           )}
           {isLoading && <ItemsSkeleton count={pagination.numPerPage} />}
+          {isSuccess && !isLoading && <ListActions onSortChange={handleSortChange} />}
           {isSuccess && !isLoading && <SimpleResultList docs={data.docs} indexStart={pagination.startIndex} />}
           {isSuccess && !isLoading && <Pagination totalResults={data.numFound} {...pagination} />}
         </Box>
@@ -134,14 +158,12 @@ const SearchPage: NextPage<ISearchPageProps> = () => {
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const api = (await import('@_api/api')).default;
   const { fetchSearch } = await import('@_api/search');
-  const query = normalizeURLParams(ctx.query);
-  const page = parseNumberAndClamp(query.p, 1, Number.MAX_SAFE_INTEGER);
+  const { p: page, ...query } = parseQueryFromUrl(ctx.query);
   api.setToken(ctx.req.session.userData.access_token);
 
   const params: IADSApiSearchParams = {
     ...defaultParams,
-    q: query.q ?? '*:*',
-    sort: query.sort ? (query.sort.split(',') as SolrSort[]) : ['date desc'],
+    ...query,
     start: (page - 1) * defaultParams.rows,
   };
 
@@ -150,11 +172,11 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const queryClient = new QueryClient();
 
   // primary query prefetch
-  void (await queryClient.prefetchQuery({
+  const primaryResult = await queryClient.fetchQuery({
     queryKey: searchKeys.primary(cleanedParams),
     queryFn: fetchSearch,
     meta: { params },
-  }));
+  });
 
   // prefetch the citation counts for this query
   if (/^citation_count(_norm)?/.test(params.sort[0])) {
@@ -165,12 +187,18 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     }));
   }
 
+  const initialState = createStore().getState();
+
   return {
     props: {
       dehydratedState: dehydrate(queryClient),
       dehydratedAppState: {
         query: params,
         latestQuery: params,
+        docs: {
+          ...initialState.docs,
+          current: primaryResult.response.docs.map((d) => d.bibcode),
+        },
       } as AppState,
       searchParams: params,
     },

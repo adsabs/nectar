@@ -1,5 +1,4 @@
 import { ISimpleResultListProps, SimpleResultList } from '@components';
-import { docs } from '@components/__mocks__/data';
 import { Meta, Story } from '@storybook/react';
 
 const meta: Meta = {
@@ -11,6 +10,6 @@ export default meta;
 
 const Template: Story<ISimpleResultListProps> = (args) => <SimpleResultList {...args} />;
 
-export const Default = Template.bind({}) ;
+export const Default = Template.bind({});
 
-Default.args = { docs, indexStart: 0, hideCheckboxes: false };
+Default.args = { indexStart: 0, hideCheckboxes: false };

@@ -240,7 +240,7 @@ export const doc: IDocsEntity = {
     '-',
     '-',
   ],
-  read_count: '14',
+  read_count: 14,
   data: ['CDS:1', 'ESA:1', 'HEASARC:1', 'IRSA:1', 'MAST:2', 'NED:9', 'SIMBAD:424'],
   esources: [Esources.EPRINT_HTML, Esources.EPRINT_PDF, Esources.PUB_HTML, Esources.PUB_PDF],
   property: [
@@ -253,8 +253,8 @@ export const doc: IDocsEntity = {
     'PUB_OPENACCESS',
     'REFEREED',
   ],
-  citation_count: '62',
-  citation_count_norm: '1.4761904',
+  citation_count: 62,
+  citation_count_norm: 1.4761904,
   '[citations]': {
     num_references: 110,
     num_citations: 62,
@@ -538,6 +538,7 @@ export const metrics: IADSApiMetricsResponse = {
       },
     },
   },
+  Error: null,
 };
 
 export const citationsTableData = {
@@ -562,7 +563,7 @@ export const readsTableData = {
   medianNumberOfDownloads: [872, 872],
 };
 
-export const docs = [
+export const docs: Partial<IDocsEntity>[] = [
   {
     bibcode: '2022arXiv220212911Y',
     author: ['Yuan, Sihan', 'Hadzhiyska, Boryana', 'Bose, Sownak', 'Eisenstein, Daniel J.'],
@@ -572,8 +573,8 @@ export const docs = [
     title: ['Illustrating galaxy-halo connection in the DESI era with IllustrisTNG'],
     esources: [Esources.EPRINT_HTML, Esources.EPRINT_PDF],
     property: ['ARTICLE', 'EPRINT_OPENACCESS', 'ESOURCE', 'NOT REFEREED', 'OPENACCESS'],
-    citation_count: '0',
-    citation_count_norm: '0',
+    citation_count: 0,
+    citation_count_norm: 0,
     '[citations]': {
       num_references: 86,
       num_citations: 0,
@@ -588,8 +589,8 @@ export const docs = [
     title: ['The halo light-cone catalogues of ABACUSSUMMIT'],
     esources: [Esources.EPRINT_HTML, Esources.EPRINT_PDF, Esources.PUB_HTML, Esources.PUB_PDF],
     property: ['ARTICLE', 'EPRINT_OPENACCESS', 'ESOURCE', 'OPENACCESS', 'REFEREED'],
-    citation_count: '0',
-    citation_count_norm: '0',
+    citation_count: 0,
+    citation_count_norm: 0,
     '[citations]': {
       num_references: 74,
       num_citations: 0,
@@ -604,8 +605,8 @@ export const docs = [
     title: ['Differentiable Predictions for Large Scale Structure with SHAMNet'],
     esources: [Esources.EPRINT_HTML, Esources.EPRINT_PDF],
     property: ['ARTICLE', 'EPRINT_OPENACCESS', 'ESOURCE', 'NOT REFEREED', 'OPENACCESS'],
-    citation_count: '1',
-    citation_count_norm: '0.25',
+    citation_count: 1,
+    citation_count_norm: 0.25,
     '[citations]': {
       num_references: 95,
       num_citations: 1,
@@ -620,8 +621,8 @@ export const docs = [
     title: ['Priors on red galaxy stochasticity from hybrid effective field theory'],
     esources: [Esources.EPRINT_HTML, Esources.EPRINT_PDF],
     property: ['ARTICLE', 'EPRINT_OPENACCESS', 'ESOURCE', 'NOT REFEREED', 'OPENACCESS'],
-    citation_count: '1',
-    citation_count_norm: '0.2',
+    citation_count: 1,
+    citation_count_norm: 0.2,
     '[citations]': {
       num_references: 55,
       num_citations: 1,
@@ -636,8 +637,8 @@ export const docs = [
     title: ['Constructing high-fidelity halo merger trees in AbacusSummit'],
     esources: [Esources.EPRINT_HTML, Esources.EPRINT_PDF],
     property: ['ARTICLE', 'EPRINT_OPENACCESS', 'ESOURCE', 'NOT REFEREED', 'OPENACCESS'],
-    citation_count: '5',
-    citation_count_norm: '1',
+    citation_count: 5,
+    citation_count_norm: 1,
     '[citations]': {
       num_references: 75,
       num_citations: 5,

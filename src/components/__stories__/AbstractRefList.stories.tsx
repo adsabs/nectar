@@ -14,6 +14,6 @@ export default meta;
 
 const Template: Story<IAbstractRefListProps> = (args) => <AbstractRefList {...args} />;
 
-export const Default = Template.bind({}) ;
+export const Default = Template.bind({});
 
-Default.args = { docs, indexStart: 0, href: '', totalResults: docs.length };
+Default.args = { indexStart: 0, href: '', totalResults: docs.length };

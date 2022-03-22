@@ -25,7 +25,7 @@ const formReducer = (state: Record<string, string>, event: FormEvent) => {
 };
 
 const ClassicForm: NextPage = () => {
-  const [, setFormData] = useReducer(formReducer, {});
+  const [formData, setFormData] = useReducer(formReducer, {});
   const isClient = useIsClient();
   const [key, setKey] = useState(Math.random());
 
@@ -143,7 +143,7 @@ const ClassicForm: NextPage = () => {
 
           <FormControl>
             <FormLabel>Sort</FormLabel>
-            <Sort name="sort" onChange={handleSortChange} />
+            <Sort name="sort" sort={formData.sort as SolrSort} onChange={handleSortChange} />
           </FormControl>
           <Stack direction="row">
             <Button type="submit">Search</Button>
@@ -265,6 +265,6 @@ const LogicRadios = ({
  * @param {string} raw string to be normalized
  * @returns {string} normalized string
  */
-const normalizeString = (raw: string) => raw.replace(/\W+/g, '_').toLowerCase().trim();
+const normalizeString = (raw: string): string => raw.replace(/\W+/g, '_').toLowerCase().trim();
 
 export default ClassicForm;
