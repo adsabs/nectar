@@ -2,7 +2,7 @@ import { BarDatum, ResponsiveBar } from '@nivo/bar';
 import { ReactElement, useState } from 'react';
 import { Box, Radio, RadioGroup, Stack } from '@chakra-ui/react';
 
-interface IMetricsGraphProps {
+export interface IMetricsGraphProps {
   data: BarDatum[];
   indexBy: string;
   keys: string[];
