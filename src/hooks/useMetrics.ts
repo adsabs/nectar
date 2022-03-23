@@ -4,12 +4,12 @@ import {
   plotCitationsHist,
   plotReadsHist,
 } from '@components/Metrics/graphUtils';
-import { ICitationsGraphData, ICitationsTableData, IReadsGraphData, IReadsTableData } from '@components/Metrics/types';
+import { ICitationsTableData, IMetricsGraphs, IReadsTableData } from '@components/Metrics/types';
 import { BasicStatsKey, CitationsStatsKey, IADSApiMetricsResponse, MetricsResponseKey } from '@_api/metrics/types';
 
 export interface IMetricsData {
-  citationsGraph: ICitationsGraphData;
-  readsGraph: IReadsGraphData;
+  citationsGraphs: IMetricsGraphs;
+  readsGraphs: IMetricsGraphs;
   citationsTable: ICitationsTableData;
   readsTable: IReadsTableData;
 }
@@ -22,17 +22,17 @@ export const useMetrics = (metrics: IADSApiMetricsResponse): IMetricsData => {
   const hist = metrics ? metrics.histograms : null;
 
   // graph data
-  const citationsGraph = hasCitations
+  const citationsGraphs = hasCitations
     ? {
-        graphData: plotCitationsHist(false, hist.citations),
-        normalizedGraphData: plotCitationsHist(true, hist.citations),
+        totalGraph: plotCitationsHist(false, hist.citations),
+        normalizedGraph: plotCitationsHist(true, hist.citations),
       }
     : null;
 
-  const readsGraph = hasReads
+  const readsGraphs = hasReads
     ? {
-        graphData: plotReadsHist(false, hist.reads),
-        normalizedGraphData: plotReadsHist(true, hist.reads),
+        totalGraph: plotReadsHist(false, hist.reads),
+        normalizedGraph: plotReadsHist(true, hist.reads),
       }
     : null;
 
@@ -52,8 +52,8 @@ export const useMetrics = (metrics: IADSApiMetricsResponse): IMetricsData => {
     : null;
 
   return {
-    citationsGraph,
-    readsGraph,
+    citationsGraphs,
+    readsGraphs,
     citationsTable,
     readsTable,
   };

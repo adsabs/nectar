@@ -1,5 +1,6 @@
 import { IADSApiMetricsResponse, IDocsEntity } from '@api';
 import { Esources } from '@api/lib/search/types';
+import { BarDatum } from '@nivo/bar';
 
 export const states = [
   'Alabama',
@@ -644,4 +645,17 @@ export const docs: Partial<IDocsEntity>[] = [
       num_citations: 5,
     },
   },
+];
+
+export const bardatum: BarDatum[] = [
+  { year: 1990, a1: 100, a2: 230, a3: 150 },
+  { year: 1991, a1: 150, a2: 230, a3: 135 },
+  { year: 1992, a1: 102, a2: 134, a3: 392 },
+  { year: 1993, a1: 145, a2: 235, a3: 293 },
+  { year: 1994, a1: 270, a2: 176, a3: 118 },
+  { year: 1995, a1: 300, a2: 185, a3: 128 },
+  { year: 1996, a1: 220, a2: 237, a3: 395 },
+  { year: 1997, a1: 120, a2: 239, a3: 193 },
+  { year: 1998, a1: 104, a2: 339, a3: 129 },
+  { year: 1999, a1: 138, a2: 249, a3: 130 },
 ];

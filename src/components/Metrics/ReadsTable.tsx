@@ -15,7 +15,7 @@ export const ReadsTable = (props: IReadsTableProps): ReactElement => {
   const { data, isAbstract } = props;
 
   return (
-    <Table width="auto">
+    <Table width="auto" aria-label="reads table">
       <Thead>
         <Tr>
           <Th>

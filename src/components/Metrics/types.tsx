@@ -1,13 +1,13 @@
-import { IGraphData } from '@components/Metrics/graphUtils';
+import { BarDatum } from '@nivo/bar';
 
-export interface ICitationsGraphData {
-  graphData: IGraphData[];
-  normalizedGraphData: IGraphData[];
+export interface BarGraph {
+  data: BarDatum[];
+  keys: string[];
 }
 
-export interface IReadsGraphData {
-  graphData: IGraphData[];
-  normalizedGraphData: IGraphData[];
+export interface IMetricsGraphs {
+  totalGraph: BarGraph;
+  normalizedGraph: BarGraph;
 }
 
 export interface ICitationsTableData {

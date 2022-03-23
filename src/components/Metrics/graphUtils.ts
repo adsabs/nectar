@@ -1,12 +1,11 @@
 import { CitationsHistogramType, ReadsHistogramType } from '@api';
 import { BasicStatsKey, CitationsHistogramKey, CitationsStatsKey, ReadsHistogramKey } from '@_api/metrics/types';
-import { ICitationsTableData, IReadsTableData } from './types';
+import { BarGraph, ICitationsTableData, IReadsTableData } from './types';
 
 export interface IGraphData {
   key: string;
   values: IPair[];
 }
-
 export interface IPair {
   x: string;
   y: number;
@@ -28,8 +27,20 @@ export interface IReadTableInput {
   };
 }
 
-export const plotCitationsHist = (normalize: boolean, citationsHist: CitationsHistogramType): IGraphData[] => {
-  const returnArray: IPair[][] = [];
+/**
+ * Output format
+ * [
+ *  { year: 2000,
+ *      'Ref. citations to ref. papers': 0,
+ *      'Ref. citations to non ref. papers': 0,
+ *      'Non ref. citations to ref. papers': 0,
+ *      'Non ref. citations to non ref. papers': 0 } , ...
+ *  ]
+ * @param normalize
+ * @param citationsHist
+ * @returns
+ */
+export const plotCitationsHist = (normalize: boolean, citationsHist: CitationsHistogramType): BarGraph => {
   let data: { [year: string]: number }[];
 
   if (!normalize) {
@@ -48,35 +59,47 @@ export const plotCitationsHist = (normalize: boolean, citationsHist: CitationsHi
     ];
   }
 
-  data.forEach((a) => {
-    const transformedArray: IGraphData['values'] = [];
-    Object.entries(a).forEach(([k, v]) => {
-      transformedArray.push({ x: k, y: v });
-    });
-    returnArray.push(transformedArray);
-  });
+  const transformed: { [key: string]: Record<string, number> } = {};
 
-  // now, filter to only include arrays with at least 1 non-zero val
-  return [
+  [
     'Ref. citations to ref. papers',
     'Ref. citations to non ref. papers',
     'Non ref. citations to ref. papers',
     'Non ref. citations to non ref. papers',
-  ]
-    .map(function (x, i) {
-      return {
-        key: x,
-        values: returnArray[i],
-      };
-    })
-    .filter(function (x) {
-      return hasNonZero(x.values);
-    });
+  ].forEach((x, i) => {
+    if (Object.values(data[i]).filter((v) => v > 0).length > 0) {
+      // skip if all values are 0
+      transformed[x] = data[i];
+    }
+  });
+
+  const keys = Object.keys(transformed);
+  const out = Object.keys(data[0]).map((year) => {
+    const obj: Record<string, string | number> = {
+      year: year,
+    };
+    for (const key of keys) {
+      obj[key] = transformed[key][year];
+    }
+    return obj;
+  });
+
+  return { data: out, keys };
 };
 
-export const plotReadsHist = (normalize: boolean, readsHist: ReadsHistogramType): IGraphData[] => {
-  let data: { [key: string]: number | string }[];
-  const returnArray: IPair[][] = [];
+/**
+ * Output format
+ * [
+ *  { year: 2000,
+ *      'Refereed': 0,
+ *      'Non-refereed': 0 , ...
+ *  ]
+ * @param normalize
+ * @param readsHist
+ * @returns
+ */
+export const plotReadsHist = (normalize: boolean, readsHist: ReadsHistogramType): BarGraph => {
+  let data: Record<string, number>[];
 
   if (!normalize) {
     data = [
@@ -90,20 +113,27 @@ export const plotReadsHist = (normalize: boolean, readsHist: ReadsHistogramType)
     ];
   }
 
-  data.forEach((a) => {
-    const transformedArray: IPair[] = [];
-    Object.entries(a).forEach(([k, v]) => {
-      transformedArray.push({ x: k, y: v as number });
-    });
-    returnArray.push(transformedArray);
+  const transformed: Record<string, Record<string, number>> = {};
+
+  ['Refereed', 'Non-refereed'].forEach((x, i) => {
+    if (Object.values(data[i]).filter((v) => v > 0).length > 0) {
+      // skip if all values are 0
+      transformed[x] = data[i];
+    }
   });
 
-  return [
-    { key: 'Refereed', values: returnArray[0] },
-    { key: 'Non-refereed', values: returnArray[1] },
-  ].filter(function (x) {
-    return hasNonZero(x.values);
+  const keys = Object.keys(transformed);
+  const out = Object.keys(data[0]).map((year) => {
+    const obj: Record<string, string | number> = {
+      year: year,
+    };
+    for (const key of keys) {
+      obj[key] = transformed[key][year];
+    }
+    return obj;
   });
+
+  return { data: out, keys };
 };
 
 export const getCitationTableData = (citationData: ICitationTableInput): ICitationsTableData => {
@@ -151,14 +181,6 @@ export const getReadsTableData = (generalData: IReadTableInput): IReadsTableData
   });
 
   return data;
-};
-
-const hasNonZero = (arr: IPair[]) => {
-  return (
-    arr.filter((x) => {
-      return x.y > 0;
-    }).length > 0
-  );
 };
 
 const getNonRef = (ref: { [key: string]: number }, all: { [key: string]: number }) => {

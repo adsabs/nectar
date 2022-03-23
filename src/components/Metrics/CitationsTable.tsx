@@ -15,7 +15,7 @@ export const CitationsTable = (props: ICitationsTableProps): ReactElement => {
   const { data, isAbstract } = props;
 
   return (
-    <Table variant="simple" width="auto">
+    <Table variant="simple" width="auto" aria-label="citations table">
       <Thead>
         <Tr>
           <Th>
