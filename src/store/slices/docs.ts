@@ -7,6 +7,7 @@ export interface IAppStateDocsSlice {
     current: string[];
     selected: string[];
     isAllSelected: boolean;
+    isSomeSelected: boolean;
   };
   // single doc
   selectDoc: (doc: string) => void;
@@ -32,11 +33,16 @@ export const docsSlice: StoreSlice<IAppStateDocsSlice> = (set, get) => ({
     current: [],
     selected: [],
     isAllSelected: false,
+    isSomeSelected: false,
   },
 
   // sets the current docs
   setDocs: (docs: string[]) =>
-    set((state) => ({ docs: { ...state.docs, current: docs, isAllSelected: false } }), false, 'docs/setDocs'),
+    set(
+      (state) => ({ docs: { ...state.docs, current: docs, isAllSelected: false, isSomeSelected: false } }),
+      false,
+      'docs/setDocs',
+    ),
 
   // directly sets the selected docs array with the passed in value
   setSelected: (selected: string[]) =>
@@ -46,6 +52,7 @@ export const docsSlice: StoreSlice<IAppStateDocsSlice> = (set, get) => ({
           ...state.docs,
           selected,
           isAllSelected: getIsAllSelected({ ...state.docs, selected }),
+          isSomeSelected: getIsSomeSelected({ ...state.docs, selected }),
         },
       }),
       false,
@@ -58,7 +65,14 @@ export const docsSlice: StoreSlice<IAppStateDocsSlice> = (set, get) => ({
       (state) => {
         const index = state.docs.selected.indexOf(doc);
         const selected = index === -1 ? [...state.docs.selected, doc] : state.docs.selected;
-        return { docs: { ...state.docs, selected, isAllSelected: getIsAllSelected({ ...state.docs, selected }) } };
+        return {
+          docs: {
+            ...state.docs,
+            selected,
+            isAllSelected: getIsAllSelected({ ...state.docs, selected }),
+            isSomeSelected: getIsSomeSelected({ ...state.docs, selected }),
+          },
+        };
       },
       false,
       'docs/selectDoc',
@@ -70,7 +84,14 @@ export const docsSlice: StoreSlice<IAppStateDocsSlice> = (set, get) => ({
       (state) => {
         const index = state.docs.selected.indexOf(doc);
         const selected = index === -1 ? state.docs.selected : state.docs.selected.filter((_v, i) => i !== index);
-        return { docs: { ...state.docs, selected, isAllSelected: false } };
+        return {
+          docs: {
+            ...state.docs,
+            selected,
+            isAllSelected: false,
+            isSomeSelected: getIsSomeSelected({ ...state.docs, selected }),
+          },
+        };
       },
       false,
       'docs/unSelectDoc',
@@ -84,13 +105,22 @@ export const docsSlice: StoreSlice<IAppStateDocsSlice> = (set, get) => ({
 
   // fully clear the selected list
   clearSelected: () =>
-    set((state) => ({ docs: { ...state.docs, selected: [], isAllSelected: false } }), false, 'docs/clearSelected'),
+    set(
+      (state) => ({ docs: { ...state.docs, selected: [], isAllSelected: false, isSomeSelected: false } }),
+      false,
+      'docs/clearSelected',
+    ),
 
   // make the new selection the union between the two lists
   selectAll: () =>
     set(
       (state) => ({
-        docs: { ...state.docs, selected: union(state.docs.selected, state.docs.current), isAllSelected: true },
+        docs: {
+          ...state.docs,
+          selected: union(state.docs.selected, state.docs.current),
+          isAllSelected: true,
+          isSomeSelected: true,
+        },
       }),
       false,
       'docs/selectAll',
@@ -100,7 +130,12 @@ export const docsSlice: StoreSlice<IAppStateDocsSlice> = (set, get) => ({
   clearAllSelected: () =>
     set(
       (state) => ({
-        docs: { ...state.docs, selected: difference(state.docs.selected, state.docs.current), isAllSelected: false },
+        docs: {
+          ...state.docs,
+          selected: difference(state.docs.selected, state.docs.current),
+          isAllSelected: false,
+          isSomeSelected: false,
+        },
       }),
       false,
       'docs/clearAllSelected',
@@ -109,3 +144,5 @@ export const docsSlice: StoreSlice<IAppStateDocsSlice> = (set, get) => ({
 
 const getIsAllSelected = (docs: IAppStateDocsSlice['docs']) =>
   equals(intersection(docs.current, docs.selected), docs.current);
+
+const getIsSomeSelected = (docs: IAppStateDocsSlice['docs']) => intersection(docs.current, docs.selected).length > 0;

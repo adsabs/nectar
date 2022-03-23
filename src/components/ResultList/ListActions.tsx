@@ -1,4 +1,4 @@
-import { Button, Stack } from '@chakra-ui/react';
+import { Button, Checkbox, Stack } from '@chakra-ui/react';
 import { ISortProps, Sort } from '@components/Sort';
 import { useStore } from '@store';
 import { noop } from '@utils';
@@ -35,17 +35,21 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
           mt={{ base: '2', md: '0' }}
           wrap="wrap"
         >
-          <SelectAllButtons />
-          <Button variant="link" fontWeight="normal" disabled={noneSelected} onClick={clearSelected}>
-            Select None
-          </Button>
-          <Button variant="link" fontWeight="normal" disabled={noneSelected}>
-            Limited To
-          </Button>
-          <Button variant="link" fontWeight="normal" disabled={noneSelected}>
-            Exclude
-          </Button>
-          <span className="m-2 h-5 text-sm">{selected.toLocaleString()} Selected</span>
+          <SelectAllCheckbox />
+          {!noneSelected && (
+            <>
+              <span className="m-2 h-5 text-sm">{selected.toLocaleString()} Selected</span>
+              <Button variant="link" fontWeight="normal" onClick={clearSelected}>
+                Clear All
+              </Button>
+              <Button variant="link" fontWeight="normal">
+                Limited To
+              </Button>
+              <Button variant="link" fontWeight="normal">
+                Exclude
+              </Button>
+            </>
+          )}
         </Stack>
         <Stack direction="row" mx={5} order={{ base: '1', md: '2' }} wrap="wrap">
           <Button>Add to Library</Button>
@@ -77,23 +81,26 @@ const HighlightsToggle = () => {
   );
 };
 
-const SelectAllButtons = () => {
+const SelectAllCheckbox = () => {
   const selectAll = useStore((state) => state.selectAll);
   const isAllSelected = useStore((state) => state.docs.isAllSelected);
+  const isSomeSelected = useStore((state) => state.docs.isSomeSelected);
   const clearAllSelected = useStore((state) => state.clearAllSelected);
 
+  const handleClick = () => {
+    if (isAllSelected || isSomeSelected) {
+      clearAllSelected();
+    } else {
+      selectAll();
+    }
+  };
   return (
-    <>
-      {isAllSelected ? (
-        <Button variant="link" fontWeight="normal" onClick={clearAllSelected}>
-          Deselect All
-        </Button>
-      ) : (
-        <Button variant="link" fontWeight="normal" onClick={selectAll}>
-          Select All
-        </Button>
-      )}
-    </>
+    <Checkbox
+      size="md"
+      isChecked={isAllSelected}
+      isIndeterminate={!isAllSelected && isSomeSelected}
+      onChange={handleClick}
+    />
   );
 };
 
