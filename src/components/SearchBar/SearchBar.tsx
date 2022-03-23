@@ -215,13 +215,7 @@ export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>(
       </Flex>
 
       {/* @TODO: fix this magic number */}
-      <Button
-        type="submit"
-        h="40px"
-        borderLeftRadius="none"
-        data-testid="primary-search-submit"
-        isDisabled={props.isLoading || !query || query.trim() === ''}
-      >
+      <Button type="submit" h="40px" borderLeftRadius="none" data-testid="primary-search-submit">
         {props.isLoading ? (
           <>
             <Spinner />

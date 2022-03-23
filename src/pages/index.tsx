@@ -25,7 +25,9 @@ const HomePage: NextPage = () => {
   const handleOnSubmit: ChangeEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
     const { q, sort } = store.getState().query;
-    void router.push({ pathname: '/search', query: { q, sort, p: 1 } });
+    if (q && q.trim().length > 0) {
+      void router.push({ pathname: '/search', query: { q, sort, p: 1 } });
+    }
   };
 
   const handleExampleSelect = () => {
