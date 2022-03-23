@@ -21,7 +21,7 @@ const port = process.env.PORT || 8000;
     server.use(api);
 
     server.all('*', (req: Request, res: Response) => {
-      if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled') {
+      if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
         res.setHeader('Service-Worker-Allowed', '/');
       }
       void handle(req, res);
