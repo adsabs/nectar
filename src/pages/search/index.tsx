@@ -53,6 +53,7 @@ const useSearchQuery = (submitted: boolean, query: IADSApiSearchParams) => {
 };
 
 const SearchPage: NextPage<ISearchPageProps> = () => {
+  const store = useStoreApi();
   const updateQuery = useStore((state) => state.updateQuery);
   const query = useStoreApi().getState().query;
 
@@ -105,12 +106,14 @@ const SearchPage: NextPage<ISearchPageProps> = () => {
   const clearSelectedDocs = useStore((state) => state.clearSelected);
   const handleOnSubmit = (e: ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const { q } = store.getState().query;
+    if (q && q.trim().length > 0) {
+      updateAndSubmit();
 
-    updateAndSubmit();
-
-    // resets the page to 1
-    pagination.dispatch({ type: 'RESET' });
-    clearSelectedDocs();
+      // resets the page to 1
+      pagination.dispatch({ type: 'RESET' });
+      clearSelectedDocs();
+    }
   };
 
   // trigger new search on sort change

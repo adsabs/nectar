@@ -220,7 +220,7 @@ export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>(
         h="40px"
         borderLeftRadius="none"
         data-testid="primary-search-submit"
-        isDisabled={props.isLoading || !query || query.trim() === ''}
+        isDisabled={props.isLoading}
       >
         {props.isLoading ? (
           <>
