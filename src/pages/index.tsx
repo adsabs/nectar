@@ -4,7 +4,7 @@ import { useStore, useStoreApi } from '@store';
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { ChangeEventHandler, useEffect, useRef } from 'react';
+import { ChangeEventHandler, useEffect, useRef, useState } from 'react';
 
 const SearchExamples = dynamic<ISearchExamplesProps>(
   () => import('@components/SearchExamples').then((m) => m.SearchExamples),
@@ -16,6 +16,7 @@ const HomePage: NextPage = () => {
   const resetQuery = useStore((state) => state.resetQuery);
   const router = useRouter();
   const input = useRef<HTMLInputElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => resetQuery(), []);
 
@@ -26,6 +27,7 @@ const HomePage: NextPage = () => {
     e.preventDefault();
     const { q, sort } = store.getState().query;
     if (q && q.trim().length > 0) {
+      setIsLoading(true);
       void router.push({ pathname: '/search', query: { q, sort, p: 1 } });
     }
   };
@@ -45,7 +47,7 @@ const HomePage: NextPage = () => {
         </Text>
         <Flex direction="column">
           <Box my={2}>
-            <SearchBar ref={input} />
+            <SearchBar ref={input} isLoading={isLoading} />
           </Box>
           <Box mb={2} mt={5}>
             <SearchExamples onSelect={handleExampleSelect} />
