@@ -43,7 +43,6 @@ const useSearchQuery = () => {
   });
 
   const result = useSearch(query, {
-    enabled: query.q.length > 0,
     // we are allowing data to persist, but below the page will still show loading state
     // this is to keep stable data available for other hooks to use
     keepPreviousData: true,
@@ -70,6 +69,7 @@ const useSearchQuery = () => {
 
 const SearchPage: NextPage<ISearchPageProps> = () => {
   const updateQuery = useStore(updateQuerySelector);
+  const store = useStoreApi();
   const { data, isSuccess, isError, isLoading, error, query, onSubmit } = useSearchQuery();
 
   useEffect(() => {
@@ -121,9 +121,12 @@ const SearchPage: NextPage<ISearchPageProps> = () => {
   const handleOnSubmit = (e: ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    pagination.dispatch({ type: 'RESET' });
-    onSubmit();
-    clearSelectedDocs();
+    // check that query isn't empty before submitting
+    if (store.getState().query.q.trim().length > 0) {
+      pagination.dispatch({ type: 'RESET' });
+      onSubmit();
+      clearSelectedDocs();
+    }
   };
 
   // trigger new search on sort change
