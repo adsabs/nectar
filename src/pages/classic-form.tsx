@@ -143,7 +143,7 @@ const ClassicForm: NextPage = () => {
 
           <FormControl>
             <FormLabel>Sort</FormLabel>
-            <Sort name="sort" sort={formData.sort as SolrSort} onChange={handleSortChange} />
+            <Sort name="sort" sort={formData.sort as SolrSort} onChange={handleSortChange} useNativeWhenNoJs={true} />
           </FormControl>
           <Stack direction="row">
             <Button type="submit">Search</Button>

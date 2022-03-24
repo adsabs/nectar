@@ -173,7 +173,7 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
 
   const handleSelect: MouseEventHandler<HTMLElement> = (e) => {
     const id = e.currentTarget.dataset['id'];
-    const path = items.find((item) => id === item.id)?.path;
+    const path = items.find((item) => id === item.id)?.path as string;
     if (isClient && path) {
       window.open(path, '_blank', 'noopener,noreferrer');
     }
