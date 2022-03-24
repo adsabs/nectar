@@ -1,5 +1,6 @@
 import { Button, Checkbox, Stack } from '@chakra-ui/react';
 import { ISortProps, Sort } from '@components/Sort';
+import { useIsClient } from '@hooks/useIsClient';
 import { useStore } from '@store';
 import { noop } from '@utils';
 import { ReactElement, useState } from 'react';
@@ -72,12 +73,22 @@ const SortWrapper = ({ onChange }: { onChange: ISortProps['onChange'] }) => {
 
 const HighlightsToggle = () => {
   const [showHighlights, setShowHights] = useState(false);
+  const isClient = useIsClient();
   const toggleShowHighlights = () => setShowHights(!showHighlights);
 
   return (
-    <Button variant={showHighlights ? 'solid' : 'outline'} onClick={toggleShowHighlights} size="md" borderRadius="2px">
-      Show Highlights
-    </Button>
+    <>
+      {isClient ? (
+        <Button
+          variant={showHighlights ? 'solid' : 'outline'}
+          onClick={toggleShowHighlights}
+          size="md"
+          borderRadius="2px"
+        >
+          Show Highlights
+        </Button>
+      ) : null}
+    </>
   );
 };
 
