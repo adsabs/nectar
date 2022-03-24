@@ -13,6 +13,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const { onSortChange = noop } = props;
   const selected = useStore((state) => state.docs.selected.length);
   const clearSelected = useStore((state) => state.clearSelected);
+  const isClient = useIsClient();
   const noneSelected = selected === 0;
 
   return (
@@ -21,43 +22,45 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
         <HighlightsToggle />
         <SortWrapper onChange={onSortChange} />
       </Stack>
-      <Stack
-        direction={{ base: 'column', md: 'row' }}
-        alignItems={{ base: 'start', md: 'center' }}
-        justifyContent={{ md: 'space-between' }}
-        backgroundColor="gray.50"
-        borderRadius="2px"
-        p={2}
-      >
+      {isClient && (
         <Stack
-          direction="row"
-          spacing={{ base: '2', md: '5' }}
-          order={{ base: '2', md: '1' }}
-          mt={{ base: '2', md: '0' }}
-          wrap="wrap"
+          direction={{ base: 'column', md: 'row' }}
+          alignItems={{ base: 'start', md: 'center' }}
+          justifyContent={{ md: 'space-between' }}
+          backgroundColor="gray.50"
+          borderRadius="2px"
+          p={2}
         >
-          <SelectAllCheckbox />
-          {!noneSelected && (
-            <>
-              <span className="m-2 h-5 text-sm">{selected.toLocaleString()} Selected</span>
-              <Button variant="link" fontWeight="normal" onClick={clearSelected}>
-                Clear All
-              </Button>
-              <Button variant="link" fontWeight="normal">
-                Limited To
-              </Button>
-              <Button variant="link" fontWeight="normal">
-                Exclude
-              </Button>
-            </>
-          )}
+          <Stack
+            direction="row"
+            spacing={{ base: '2', md: '5' }}
+            order={{ base: '2', md: '1' }}
+            mt={{ base: '2', md: '0' }}
+            wrap="wrap"
+          >
+            <SelectAllCheckbox />
+            {!noneSelected && (
+              <>
+                <span className="m-2 h-5 text-sm">{selected.toLocaleString()} Selected</span>
+                <Button variant="link" fontWeight="normal" onClick={clearSelected}>
+                  Clear All
+                </Button>
+                <Button variant="link" fontWeight="normal">
+                  Limited To
+                </Button>
+                <Button variant="link" fontWeight="normal">
+                  Exclude
+                </Button>
+              </>
+            )}
+          </Stack>
+          <Stack direction="row" mx={5} order={{ base: '1', md: '2' }} wrap="wrap">
+            <Button>Add to Library</Button>
+            <Button>Export</Button>
+            <Button>Explore</Button>
+          </Stack>
         </Stack>
-        <Stack direction="row" mx={5} order={{ base: '1', md: '2' }} wrap="wrap">
-          <Button>Add to Library</Button>
-          <Button>Export</Button>
-          <Button>Explore</Button>
-        </Stack>
-      </Stack>
+      )}
     </Stack>
   );
 };
