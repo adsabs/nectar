@@ -5,7 +5,6 @@ import { VisuallyHidden } from '@chakra-ui/visually-hidden';
 import { ItemsSkeleton, ListActions, NumFound, SearchBar, SimpleResultList } from '@components';
 import { Pagination } from '@components/ResultList/Pagination';
 import { usePagination } from '@components/ResultList/Pagination/usePagination';
-import { useIsClient } from '@hooks/useIsClient';
 import { AppState, createStore, useStore, useStoreApi } from '@store';
 import { parseNumberAndClamp, parseQueryFromUrl } from '@utils';
 import { searchKeys, useSearch } from '@_api/search';
