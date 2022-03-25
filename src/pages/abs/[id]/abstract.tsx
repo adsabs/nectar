@@ -11,6 +11,7 @@ import { OrcidActiveIcon } from '@components/icons/Orcid';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { APP_DEFAULTS } from '@config';
 import { withDetailsPage } from '@hocs/withDetailsPage';
+import { useIsClient } from '@hooks/useIsClient';
 import { composeNextGSSP } from '@utils';
 import { useGetAbstract } from '@_api/search';
 import { GetServerSideProps, NextPage } from 'next';
@@ -48,6 +49,8 @@ const getLinkProps = (queryType: 'author' | 'orcid', value: string) => ({
 const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) => {
   const { id, error } = props;
 
+  const isClient = useIsClient();
+
   // this *should* only ever fetch from pre-filled cache
   const { data, isSuccess } = useGetAbstract({ id });
 
@@ -69,30 +72,43 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
         )}
         {isSuccess && (
           <Stack direction="column" gap={2}>
-            <Flex wrap="wrap">
-              {authors.map(([, author, orcid], index) => (
-                <Box mr={1} key={`${author}${index}`}>
-                  <NextLink {...getLinkProps('author', author)}>
+            {isClient ? (
+              <Flex wrap="wrap">
+                {authors.map(([, author, orcid], index) => (
+                  <Box mr={1} key={`${author}${index}`}>
+                    <NextLink {...getLinkProps('author', author)} passHref>
+                      <Link px={1} aria-label={`author "${author}", search by name`} flexShrink="0">
+                        {author}
+                      </Link>
+                    </NextLink>
+                    {typeof orcid === 'string' && (
+                      <NextLink {...getLinkProps('orcid', orcid)} passHref>
+                        <Link aria-label={`author "${author}", search by orKid`}>
+                          <OrcidActiveIcon fontSize={'large'} />
+                        </Link>
+                      </NextLink>
+                    )}
+                    <>{index === MAX - 1 || index === doc.author_count - 1 ? '' : ';'}</>
+                  </Box>
+                ))}
+                {doc.author_count > MAX ? (
+                  <AllAuthorsModal bibcode={doc.bibcode} label={`and ${doc.author_count - MAX} more`} />
+                ) : (
+                  <AllAuthorsModal bibcode={doc.bibcode} label={'see all'} />
+                )}
+              </Flex>
+            ) : (
+              <Flex wrap="wrap">
+                {doc.author.map((author) => (
+                  <NextLink {...getLinkProps('author', author)} key={author} passHref>
                     <Link px={1} aria-label={`author "${author}", search by name`} flexShrink="0">
                       {author}
                     </Link>
                   </NextLink>
-                  {typeof orcid === 'string' && (
-                    <NextLink {...getLinkProps('orcid', orcid)}>
-                      <Link aria-label={`author "${author}", search by orKid`}>
-                        <OrcidActiveIcon fontSize={'large'} />
-                      </Link>
-                    </NextLink>
-                  )}
-                  <>{index === MAX - 1 || index === doc.author_count - 1 ? '' : ';'}</>
-                </Box>
-              ))}
-              {doc.author_count > MAX ? (
-                <AllAuthorsModal bibcode={doc.bibcode} label={`and ${doc.author_count - MAX} more`} />
-              ) : (
-                <AllAuthorsModal bibcode={doc.bibcode} label={'see all'} />
-              )}
-            </Flex>
+                ))}
+                {doc.author_count > MAX ? <Text>{` and ${doc.author_count - MAX} more`}</Text> : null}
+              </Flex>
+            )}
 
             <AbstractSources doc={doc} />
             {isNil(doc.abstract) ? (
