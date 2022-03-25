@@ -74,6 +74,7 @@ export const Sort = (props: ISortProps): ReactElement => {
           borderRightRadius="2px"
           size="md"
           colorScheme="gray"
+          data-testid="sort-direction-toggle"
         />
       ) : (
         <IconButton
@@ -86,6 +87,7 @@ export const Sort = (props: ISortProps): ReactElement => {
           borderRightRadius="2px"
           size="md"
           colorScheme="gray"
+          data-testid="sort-direction-toggle"
         />
       )}
 
@@ -121,6 +123,7 @@ const SortSelect = ({
       options={sortOptions}
       stylesTheme="sort"
       onChange={onChange}
+      data-testid="sort-select"
     />
   );
 };

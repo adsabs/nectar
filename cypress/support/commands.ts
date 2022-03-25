@@ -22,4 +22,12 @@
 //
 //
 // -- This will overwrite an existing command --
+
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
+// import { cy, Cypress } from 'local-cypress';
+Cypress.Commands.add('getByTestId', (selector, options) => {
+  return cy.get(`[data-testid="${selector}"`, options);
+});
+
+export {};
