@@ -8,13 +8,14 @@ import { ItemType } from '@components/Dropdown/types';
 import { DocumentIcon } from '@heroicons/react/outline';
 import { useIsClient } from '@hooks/useIsClient';
 import { useBaseRouterPath } from '@utils';
+import { useHasGraphics } from '@_api/graphics';
+import { useHasMetrics } from '@_api/metrics';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import qs from 'qs';
 import { last } from 'ramda';
 import { HTMLAttributes, ReactElement } from 'react';
 import { navigation, Routes } from './model';
-import { useHasGraphics, useHasMetrics } from './queries';
 
 export interface IAbstractSideNavProps extends HTMLAttributes<HTMLDivElement> {
   doc?: IDocsEntity;
@@ -24,8 +25,8 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
   const router = useRouter();
   const { basePath } = useBaseRouterPath();
   const subPage = last(basePath.split('/'));
-  const hasGraphics = useHasGraphics(doc);
-  const hasMetrics = useHasMetrics(doc);
+  const hasGraphics = useHasGraphics(doc.bibcode);
+  const hasMetrics = useHasMetrics(doc.bibcode);
   const hasToc = doc.property ? doc.property.indexOf('TOC') > -1 : false;
   const useCount = [Routes.CITATIONS, Routes.REFERENCES];
   const isClient = useIsClient();

@@ -113,6 +113,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetail
     void (await queryClient.prefetchQuery({
       queryKey: graphicsKeys.primary(bibcode),
       queryFn: fetchGraphics,
+      meta: { params: { bibcode } },
     }));
 
     return {
