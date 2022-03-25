@@ -1,5 +1,5 @@
 import { IDocsEntity } from '@api';
-import { Flex } from '@chakra-ui/react';
+import { Flex, VisuallyHidden } from '@chakra-ui/react';
 import { useIsClient } from '@hooks/useIsClient';
 import PT from 'prop-types';
 import { HTMLAttributes, ReactElement } from 'react';
@@ -24,7 +24,10 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
   const start = indexStart === 0 ? 1 : indexStart;
 
   return (
-    <Flex as="article" direction="column" {...divProps}>
+    <Flex as="section" aria-label="Results" direction="column" aria-labelledby="results-title" {...divProps}>
+      <VisuallyHidden as="h2" id="results-title">
+        Results
+      </VisuallyHidden>
       {docs.map((doc, index) => (
         <Item
           doc={doc}

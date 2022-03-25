@@ -25,9 +25,12 @@
 
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
-// import { cy, Cypress } from 'local-cypress';
-Cypress.Commands.add('getByTestId', (selector, options) => {
-  return cy.get(`[data-testid="${selector}"`, options);
+Cypress.Commands.add('getByTestId', (selector) => {
+  return cy.get(`[data-testid="${selector}"]`);
+});
+
+Cypress.Commands.add('getByRole', (selector) => {
+  return cy.get(`[role="${selector}"]`);
 });
 
 export {};

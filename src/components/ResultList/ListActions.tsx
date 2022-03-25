@@ -1,4 +1,4 @@
-import { Button, Checkbox, Stack } from '@chakra-ui/react';
+import { Button, Checkbox, Stack, VisuallyHidden } from '@chakra-ui/react';
 import { ISortProps, Sort } from '@components/Sort';
 import { useIsClient } from '@hooks/useIsClient';
 import { AppState, useStore } from '@store';
@@ -17,7 +17,10 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const noneSelected = selected === 0;
 
   return (
-    <Stack direction="column" spacing={1} mb={1}>
+    <Stack direction="column" spacing={1} mb={1} as="section" aria-labelledby="result-actions-title">
+      <VisuallyHidden as="h2" id="result-actions-title">
+        Result Actions
+      </VisuallyHidden>
       <Stack direction={{ base: 'column', sm: 'row' }} spacing={1} width="min-content">
         <HighlightsToggle />
         <SortWrapper onChange={onSortChange} />

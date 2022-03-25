@@ -59,7 +59,7 @@ export const Sort = (props: ISortProps): ReactElement => {
   }
 
   return (
-    <HStack spacing={0}>
+    <HStack spacing={0} data-testid="sort">
       <Box width="250px">
         <SortSelect hideLabel={hideLabel} sort={selected} onChange={handleSelectionChange} />
       </Box>

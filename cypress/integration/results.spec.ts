@@ -59,9 +59,17 @@ describe('Result Page', () => {
       cy.get('@input').should('have.value', 'a');
     });
 
-    it('sort change causes new search and updates URL', () => {
+    it.only('sort change causes new search and updates URL', () => {
       search({ q: 'star' });
-      cy.getByTestId('');
+      cy.getByTestId('sort').children().first().as('sort');
+
+      cy.get('input[name="sort"]').should('have.value', 'date desc');
+      assertQueryParam({ sort: 'date desc' });
+      cy.get('@sort').should('have.text', 'Date');
+      cy.get('@sort').type('{downArrow}{downArrow}{enter}');
+      cy.get('@sort').should('have.text', 'Read Count');
+      assertQueryParam({ sort: 'read_count desc' });
+      cy.get('input[name="sort"]').should('have.value', 'read_count desc');
     });
   });
 

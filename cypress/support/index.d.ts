@@ -6,5 +6,11 @@ declare namespace Cypress {
      * @example cy.getByTestId('search-input')
      */
     getByTestId(selector: string): Chainable;
+
+    /**
+     * Custom command to select DOM element by role.
+     * @example cy.getByRole('search-input')
+     */
+    getByRole(selector: string): Chainable;
   }
 }
