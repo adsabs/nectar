@@ -56,7 +56,7 @@ const useSearchQuery = () => {
   return { ...result, query, onSubmit };
 };
 
-const SearchPage: NextPage<ISearchPageProps> = () => {
+const SearchPage: NextPage = () => {
   const store = useStoreApi();
   const updateQuery = useStore(updateQuerySelector);
   const { data, isSuccess, isError, isLoading, error, query, onSubmit } = useSearchQuery();
@@ -139,18 +139,18 @@ const SearchPage: NextPage<ISearchPageProps> = () => {
           <SearchBar isLoading={isLoading} />
           {!isLoading && <NumFound count={data?.numFound ?? 0} />}
         </Flex>
-        <Box mt={5}>
-          <SearchErrorAlert error={error} show={isError} />
-          {isLoading && <ItemsSkeleton count={pagination.numPerPage} />}
-          {isSuccess && !isLoading && (
-            <>
-              <ListActions onSortChange={handleSortChange} />
-              <SimpleResultList docs={data.docs} indexStart={pagination.startIndex} />
-              <Pagination totalResults={data.numFound} {...pagination} />
-            </>
-          )}
-        </Box>
+        <Box mt={5}>{isSuccess && !isLoading && <ListActions onSortChange={handleSortChange} />}</Box>
       </form>
+      <Box>
+        <SearchErrorAlert error={error} show={isError} />
+        {isLoading && <ItemsSkeleton count={pagination.numPerPage} />}
+        {isSuccess && !isLoading && (
+          <>
+            <SimpleResultList docs={data.docs} indexStart={pagination.startIndex} />
+            <Pagination totalResults={data.numFound} {...pagination} />
+          </>
+        )}
+      </Box>
     </Box>
   );
 };
