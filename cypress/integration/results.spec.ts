@@ -65,11 +65,14 @@ describe('Result Page', () => {
 
       cy.get('input[name="sort"]').should('have.value', 'date desc');
       assertQueryParam({ sort: 'date desc' });
-      cy.get('@sort').should('have.text', 'Date');
-      cy.get('@sort').type('{downArrow}{downArrow}{enter}');
-      cy.get('@sort').should('have.text', 'Read Count');
-      assertQueryParam({ sort: 'read_count desc' });
-      cy.get('input[name="sort"]').should('have.value', 'read_count desc');
+
+      cy.get('@sort').click().type('{downArrow}{downArrow}{enter}');
+      assertQueryParam({ sort: 'entry_date desc' });
+      cy.get('input[name="sort"]').should('have.value', 'entry_date desc');
+
+      cy.get('@sort').find('button').click();
+      assertQueryParam({ sort: 'entry_date asc' });
+      cy.get('input[name="sort"]').should('have.value', 'entry_date asc');
     });
   });
 
