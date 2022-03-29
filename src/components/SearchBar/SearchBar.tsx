@@ -147,7 +147,7 @@ export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>(
         <InputGroup size="xl" {...getComboboxProps()}>
           <Input
             disabled={props.isLoading}
-            data-testid="primary-search-input"
+            data-testid="searchbar-input"
             variant="outline"
             placeholder="Search..."
             type="text"
@@ -173,12 +173,7 @@ export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>(
 
           {isClient && inputValue.length > 0 && (
             <InputRightElement>
-              <CloseButton
-                aria-label="Clear search"
-                size="lg"
-                onClick={handleReset}
-                data-testid="primary-search-clear"
-              />
+              <CloseButton aria-label="Clear search" size="lg" onClick={handleReset} data-testid="searchbar-clear" />
             </InputRightElement>
           )}
         </InputGroup>
@@ -189,7 +184,7 @@ export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>(
           borderTopRadius="none"
           boxShadow="lg"
           zIndex="1000"
-          data-testid="primary-search-menu"
+          data-testid="searchbar-menu"
           {...getMenuProps({
             ref: (el: HTMLUListElement) => {
               popperRef(el);
@@ -221,7 +216,7 @@ export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>(
         type="submit"
         h="40px"
         borderLeftRadius="none"
-        data-testid="primary-search-submit"
+        data-testid="searchbar-submit"
         isDisabled={props.isLoading}
       >
         {props.isLoading ? (

@@ -24,7 +24,14 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
   const start = indexStart === 0 ? 1 : indexStart;
 
   return (
-    <Flex as="section" aria-label="Results" direction="column" aria-labelledby="results-title" {...divProps}>
+    <Flex
+      as="section"
+      aria-label="Results"
+      direction="column"
+      aria-labelledby="results-title"
+      id="results"
+      {...divProps}
+    >
       <VisuallyHidden as="h2" id="results-title">
         Results
       </VisuallyHidden>

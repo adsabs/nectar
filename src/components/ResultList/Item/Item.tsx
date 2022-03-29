@@ -1,5 +1,5 @@
 import { IDocsEntity } from '@api';
-import { Checkbox } from '@chakra-ui/checkbox';
+import { Checkbox, CheckboxProps } from '@chakra-ui/checkbox';
 import { Box, Flex, Link, Stack, Text } from '@chakra-ui/layout';
 import { useIsClient } from '@hooks/useIsClient';
 import { useStore } from '@store';
@@ -62,10 +62,15 @@ export const Item = (props: IItemProps): ReactElement => {
         px="2"
         borderLeftRadius="md"
       >
-        <Text color={isChecked ? 'white' : 'initial'} display={{ base: 'none', md: 'initial' }} mr={1}>
+        <Text
+          color={isChecked ? 'white' : 'initial'}
+          display={{ base: 'none', md: 'initial' }}
+          mr={1}
+          data-testid="results-index"
+        >
           {index.toLocaleString()}
         </Text>
-        {hideCheckbox ? null : <ItemCheckbox index={index} bibcode={bibcode} title={title} isChecked={isChecked} />}
+        {hideCheckbox ? null : <ItemCheckbox index={index} bibcode={bibcode} label={title} isChecked={isChecked} />}
       </Flex>
       <Stack direction="column" width="full" spacing={0} mx={3} mt={2}>
         <Flex justifyContent="space-between">
@@ -104,8 +109,15 @@ export const Item = (props: IItemProps): ReactElement => {
   );
 };
 
-const ItemCheckbox = (props: { index: number; bibcode: string; title: string[]; isChecked: boolean }) => {
-  const { index, bibcode, title, isChecked } = props;
+interface IItemCheckboxProps extends CheckboxProps {
+  index: number;
+  bibcode: string;
+  label: string[];
+  isChecked: boolean;
+}
+
+const ItemCheckbox = (props: IItemCheckboxProps) => {
+  const { index, bibcode, label, isChecked, ...checkboxProps } = props;
 
   const [selectDoc, unSelectDoc] = useStore((state) => [state.selectDoc, state.unSelectDoc], shallow);
 
@@ -121,8 +133,10 @@ const ItemCheckbox = (props: { index: number; bibcode: string; title: string[]; 
       id={`result-checkbox-${index}`}
       onChange={handleSelect}
       isChecked={isChecked}
-      aria-label={`${isChecked ? 'De-select' : 'Select'} item ${title[0]}`}
+      aria-label={`${isChecked ? 'De-select' : 'Select'} item ${label[0]}`}
       size="md"
+      data-testid="results-checkbox"
+      {...checkboxProps}
     />
   );
 };
