@@ -1,9 +1,26 @@
-import { Button, Checkbox, Stack, VisuallyHidden } from '@chakra-ui/react';
+import { ChevronDownIcon } from '@chakra-ui/icons';
+import {
+  Button,
+  Checkbox,
+  Menu,
+  MenuButton,
+  MenuDivider,
+  MenuGroup,
+  MenuItem,
+  MenuItemOption,
+  MenuList,
+  MenuOptionGroup,
+  Portal,
+  Stack,
+  VisuallyHidden,
+} from '@chakra-ui/react';
 import { ISortProps, Sort } from '@components/Sort';
+import { sections } from '@components/Visualizations';
 import { useIsClient } from '@hooks/useIsClient';
 import { AppState, useStore } from '@store';
 import { noop } from '@utils';
-import { ReactElement, useState } from 'react';
+import { useRouter } from 'next/router';
+import { ReactElement, useEffect, useState, MouseEvent } from 'react';
 
 export interface IListActionsProps {
   onSortChange?: ISortProps['onChange'];
@@ -15,6 +32,23 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const clearSelected = useStore((state) => state.clearSelected);
   const isClient = useIsClient();
   const noneSelected = selected === 0;
+  const [exploreAll, setExploreAll] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    setExploreAll(noneSelected);
+  }, [noneSelected]);
+
+  const handleExploreOption = (value: string | string[]) => {
+    if (typeof value === 'string') {
+      setExploreAll(value === 'all');
+    }
+  };
+
+  const handleExploreVizLink = (e: MouseEvent<HTMLButtonElement>) => {
+    const path = e.currentTarget.dataset.sectionPath;
+    void router.push(path); // pass query params? or list of docs?
+  };
 
   return (
     <Stack
@@ -71,6 +105,55 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
           </Stack>
         </Stack>
       )}
+      <Stack direction="row" mx={5} order={{ base: '1', md: '2' }} wrap="wrap">
+        <Menu>
+          <MenuButton as={Button} rightIcon={<ChevronDownIcon />} disabled={noneSelected}>
+            Bulk Actions
+          </MenuButton>
+          <Portal>
+            <MenuList>
+              <MenuItem>Add to Library</MenuItem>
+              <MenuDivider />
+              <MenuGroup title="EXPORT">
+                <MenuItem>Citations</MenuItem>
+                <MenuItem>Author Affiliations</MenuItem>
+              </MenuGroup>
+            </MenuList>
+          </Portal>
+        </Menu>
+        <Menu>
+          <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+            Explorer
+          </MenuButton>
+          <Portal>
+            <MenuList>
+              <MenuOptionGroup value={exploreAll ? 'all' : 'selected'} type="radio" onChange={handleExploreOption}>
+                <MenuItemOption value="all" closeOnSelect={false}>
+                  All
+                </MenuItemOption>
+                <MenuItemOption value="selected" isDisabled={selected === 0} closeOnSelect={false}>
+                  Selected
+                </MenuItemOption>
+              </MenuOptionGroup>
+              <MenuDivider />
+              <MenuGroup title="VISUALZATIONS">
+                {sections.map((section) => (
+                  <MenuItem onClick={handleExploreVizLink} data-section-path={section.path}>
+                    {section.label}
+                  </MenuItem>
+                ))}
+              </MenuGroup>
+              <MenuDivider />
+              <MenuGroup title="OPERATIONS">
+                <MenuItem>Co-reads</MenuItem>
+                <MenuItem>Reviews</MenuItem>
+                <MenuItem>Useful</MenuItem>
+                <MenuItem>Similar</MenuItem>
+              </MenuGroup>
+            </MenuList>
+          </Portal>
+        </Menu>
+      </Stack>
     </Stack>
   );
 };

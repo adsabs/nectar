@@ -21,3 +21,4 @@ export * from './Select';
 export * from './Sort';
 export * from './TextInput';
 export * from './TopProgressBar';
+export * from './Visualizations';

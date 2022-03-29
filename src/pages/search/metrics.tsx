@@ -1,14 +1,18 @@
+import { VizPageLayout } from '@components';
 import { NextPage } from 'next';
-import Head from 'next/head';
 
-const BasicPage: NextPage = () => {
+import { Url } from 'url';
+
+interface IMetricsPageProps {
+  from?: Url;
+}
+
+const MetricsPage: NextPage<IMetricsPageProps> = ({ from }) => {
   return (
     <div>
-      <Head>
-        <title>NASA Science Explorer - Metrics</title>
-      </Head>
+      <VizPageLayout from={from} vizPage="metrics"></VizPageLayout>
     </div>
   );
 };
 
-export default BasicPage;
+export default MetricsPage;
