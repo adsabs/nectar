@@ -81,7 +81,9 @@ const injectAuth = async (request: ApiRequestConfig, invalidate?: boolean): Prom
   // fetch the current userData using default axios instance
   const {
     data: { access_token, username, expire_in, anonymous },
-  } = await axios.get<IBootstrapPayload>(ApiTargets.BOOTSTRAP, { baseURL: resolveApiBaseUrl() });
+  } = await axios.get<IBootstrapPayload>(ApiTargets.BOOTSTRAP, {
+    baseURL: resolveApiBaseUrl('https://devapi.adsabs.harvard.edu/v1'),
+  });
 
   if (typeof window !== 'undefined') {
     updateAppUser({ access_token, username, expire_in, anonymous });

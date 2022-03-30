@@ -1,6 +1,6 @@
 import { Button, Checkbox, Stack } from '@chakra-ui/react';
 import { ISortProps, Sort } from '@components/Sort';
-import { useStore } from '@store';
+import { AppState, useStore } from '@store';
 import { noop } from '@utils';
 import { ReactElement, useState } from 'react';
 
@@ -61,11 +61,12 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   );
 };
 
+const sortSelector: [
+  (state: AppState) => AppState['query'],
+  (prev: AppState['query'], next: AppState['query']) => boolean,
+] = [(state) => state.query, (prev, curr) => prev.sort === curr.sort];
 const SortWrapper = ({ onChange }: { onChange: ISortProps['onChange'] }) => {
-  const query = useStore(
-    (state) => state.query,
-    (prev, curr) => prev.sort !== curr.sort,
-  );
+  const query = useStore(...sortSelector);
 
   return <Sort sort={query.sort} onChange={onChange} />;
 };
