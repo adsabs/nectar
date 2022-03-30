@@ -3,14 +3,13 @@ import { VisualizationsTabs, VizSection } from '@components';
 import Link from 'next/link';
 import Head from 'next/head';
 import { FC } from 'react';
-import { Url } from 'url';
-
+import { UrlObject } from 'url';
 interface IVizPageLayoutProps {
-  from: Url;
   vizPage: VizSection;
+  from?: UrlObject;
 }
 
-export const VizPageLayout: FC<IVizPageLayoutProps> = ({ children, from, vizPage }) => {
+export const VizPageLayout: FC<IVizPageLayoutProps> = ({ children, vizPage, from }) => {
   return (
     <div>
       <Head>

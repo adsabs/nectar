@@ -1,16 +1,27 @@
 import { VizPageLayout } from '@components';
 import { NextPage } from 'next';
+import { useRouter } from 'next/router';
 
-import { Url } from 'url';
+const MetricsPage: NextPage = () => {
+  const router = useRouter();
 
-interface IMetricsPageProps {
-  from?: Url;
-}
+  const limit = 7000;
 
-const MetricsPage: NextPage<IMetricsPageProps> = ({ from }) => {
+  const { qid, p, ...query } = router.query;
+
+  if (qid) {
+    // if qid, use qid to get
+  } else {
+    // if no qid, use query
+  }
+
+  // const { data: metrics, isError, isSuccess, error } = useGetMetrics(docs, { keepPreviousData: true });
+
   return (
     <div>
-      <VizPageLayout from={from} vizPage="metrics"></VizPageLayout>
+      <VizPageLayout vizPage="metrics" from={{ pathname: '/search', query: { ...query, p } }}>
+        {/* {isSuccess && <Metrics metrics={metrics as IADSApiMetricsResponse} isAbstract={false} />} */}
+      </VizPageLayout>
     </div>
   );
 };

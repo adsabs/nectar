@@ -1,16 +1,15 @@
 import { VizPageLayout } from '@components';
 import { NextPage } from 'next';
+import { useRouter } from 'next/router';
 
-import { Url } from 'url';
+const ResultsGraphPage: NextPage = () => {
+  const router = useRouter();
 
-interface IResultsGraphPageProps {
-  from?: Url;
-}
+  const { qid, p, ...query } = router.query;
 
-const ResultsGraphPage: NextPage<IResultsGraphPageProps> = ({ from }) => {
   return (
     <div>
-      <VizPageLayout from={from} vizPage="results_graph"></VizPageLayout>
+      <VizPageLayout vizPage="results_graph" from={{ pathname: '/search', query: { ...query, p } }}></VizPageLayout>
     </div>
   );
 };

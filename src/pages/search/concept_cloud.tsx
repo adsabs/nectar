@@ -1,16 +1,15 @@
 import { VizPageLayout } from '@components';
 import { NextPage } from 'next';
+import { useRouter } from 'next/router';
 
-import { Url } from 'url';
+const ConceptCloudPage: NextPage = () => {
+  const router = useRouter();
 
-interface IConceptCloudPageProps {
-  from?: Url;
-}
+  const { qid, p, ...query } = router.query;
 
-const ConceptCloudPage: NextPage<IConceptCloudPageProps> = ({ from }) => {
   return (
     <div>
-      <VizPageLayout from={from} vizPage="concept_cloud"></VizPageLayout>
+      <VizPageLayout vizPage="concept_cloud" from={{ pathname: '/search', query: { ...query, p } }}></VizPageLayout>
     </div>
   );
 };

@@ -1,16 +1,15 @@
 import { VizPageLayout } from '@components';
 import { NextPage } from 'next';
+import { useRouter } from 'next/router';
 
-import { Url } from 'url';
+const PaperMetworkPage: NextPage = () => {
+  const router = useRouter();
 
-interface IPaperMetworkPageProps {
-  from?: Url;
-}
+  const { qid, p, ...query } = router.query;
 
-const PaperMetworkPage: NextPage<IPaperMetworkPageProps> = ({ from }) => {
   return (
     <div>
-      <VizPageLayout from={from} vizPage="paper_network"></VizPageLayout>
+      <VizPageLayout vizPage="paper_network" from={{ pathname: '/search', query: { ...query, p } }}></VizPageLayout>
     </div>
   );
 };

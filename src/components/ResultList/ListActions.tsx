@@ -19,6 +19,7 @@ import { sections } from '@components/Visualizations';
 import { useIsClient } from '@hooks/useIsClient';
 import { AppState, useStore } from '@store';
 import { noop } from '@utils';
+import { useGetBigQuery } from '@_api/search/bigquery';
 import { useRouter } from 'next/router';
 import { ReactElement, useEffect, useState, MouseEvent } from 'react';
 
@@ -28,16 +29,27 @@ export interface IListActionsProps {
 
 export const ListActions = (props: IListActionsProps): ReactElement => {
   const { onSortChange = noop } = props;
-  const selected = useStore((state) => state.docs.selected.length);
+  const selected = useStore((state) => state.docs.selected);
   const clearSelected = useStore((state) => state.clearSelected);
   const isClient = useIsClient();
-  const noneSelected = selected === 0;
+  const noneSelected = selected.length === 0;
   const [exploreAll, setExploreAll] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     setExploreAll(noneSelected);
   }, [noneSelected]);
+
+  const { refetch } = useGetBigQuery(
+    { bibcodes: selected },
+    {
+      enabled: false,
+      keepPreviousData: true,
+      onError: () => {
+        console.log('big query error');
+      },
+    },
+  );
 
   const handleExploreOption = (value: string | string[]) => {
     if (typeof value === 'string') {
@@ -46,8 +58,22 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   };
 
   const handleExploreVizLink = (e: MouseEvent<HTMLButtonElement>) => {
-    const path = e.currentTarget.dataset.sectionPath;
-    void router.push(path); // pass query params? or list of docs?
+    const target = e.target as HTMLButtonElement;
+    const path = target.dataset.sectionPath;
+    if (noneSelected) {
+      void router.push({ pathname: path, query: router.query });
+    } else {
+      refetch().then(
+        (res) => {
+          const qid = res.data.qid;
+          void router.push({ pathname: path, query: { ...router.query, qid: qid } });
+        },
+        () => {
+          // TODO handle error
+          console.log('failed');
+        },
+      );
+    }
   };
 
   return (
@@ -85,7 +111,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
             <SelectAllCheckbox />
             {!noneSelected && (
               <>
-                <span className="m-2 h-5 text-sm">{selected.toLocaleString()} Selected</span>
+                <span className="m-2 h-5 text-sm">{selected.length.toLocaleString()} Selected</span>
                 <Button variant="link" fontWeight="normal" onClick={clearSelected} data-testid="listactions-clearall">
                   Clear All
                 </Button>
@@ -99,61 +125,56 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
             )}
           </Stack>
           <Stack direction="row" mx={5} order={{ base: '1', md: '2' }} wrap="wrap">
-            <Button>Add to Library</Button>
-            <Button>Export</Button>
-            <Button>Explore</Button>
+            <Menu>
+              <MenuButton as={Button} rightIcon={<ChevronDownIcon />} disabled={noneSelected}>
+                Bulk Actions
+              </MenuButton>
+              <Portal>
+                <MenuList>
+                  <MenuItem>Add to Library</MenuItem>
+                  <MenuDivider />
+                  <MenuGroup title="EXPORT">
+                    <MenuItem>Citations</MenuItem>
+                    <MenuItem>Author Affiliations</MenuItem>
+                  </MenuGroup>
+                </MenuList>
+              </Portal>
+            </Menu>
+            <Menu>
+              <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+                Explorer
+              </MenuButton>
+              <Portal>
+                <MenuList>
+                  <MenuOptionGroup value={exploreAll ? 'all' : 'selected'} type="radio" onChange={handleExploreOption}>
+                    <MenuItemOption value="all" closeOnSelect={false}>
+                      All
+                    </MenuItemOption>
+                    <MenuItemOption value="selected" isDisabled={selected.length === 0} closeOnSelect={false}>
+                      Selected
+                    </MenuItemOption>
+                  </MenuOptionGroup>
+                  <MenuDivider />
+                  <MenuGroup title="VISUALZATIONS">
+                    {sections.map((section) => (
+                      <MenuItem onClick={handleExploreVizLink} data-section-path={section.path}>
+                        {section.label}
+                      </MenuItem>
+                    ))}
+                  </MenuGroup>
+                  <MenuDivider />
+                  <MenuGroup title="OPERATIONS">
+                    <MenuItem>Co-reads</MenuItem>
+                    <MenuItem>Reviews</MenuItem>
+                    <MenuItem>Useful</MenuItem>
+                    <MenuItem>Similar</MenuItem>
+                  </MenuGroup>
+                </MenuList>
+              </Portal>
+            </Menu>
           </Stack>
         </Stack>
       )}
-      <Stack direction="row" mx={5} order={{ base: '1', md: '2' }} wrap="wrap">
-        <Menu>
-          <MenuButton as={Button} rightIcon={<ChevronDownIcon />} disabled={noneSelected}>
-            Bulk Actions
-          </MenuButton>
-          <Portal>
-            <MenuList>
-              <MenuItem>Add to Library</MenuItem>
-              <MenuDivider />
-              <MenuGroup title="EXPORT">
-                <MenuItem>Citations</MenuItem>
-                <MenuItem>Author Affiliations</MenuItem>
-              </MenuGroup>
-            </MenuList>
-          </Portal>
-        </Menu>
-        <Menu>
-          <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-            Explorer
-          </MenuButton>
-          <Portal>
-            <MenuList>
-              <MenuOptionGroup value={exploreAll ? 'all' : 'selected'} type="radio" onChange={handleExploreOption}>
-                <MenuItemOption value="all" closeOnSelect={false}>
-                  All
-                </MenuItemOption>
-                <MenuItemOption value="selected" isDisabled={selected === 0} closeOnSelect={false}>
-                  Selected
-                </MenuItemOption>
-              </MenuOptionGroup>
-              <MenuDivider />
-              <MenuGroup title="VISUALZATIONS">
-                {sections.map((section) => (
-                  <MenuItem onClick={handleExploreVizLink} data-section-path={section.path}>
-                    {section.label}
-                  </MenuItem>
-                ))}
-              </MenuGroup>
-              <MenuDivider />
-              <MenuGroup title="OPERATIONS">
-                <MenuItem>Co-reads</MenuItem>
-                <MenuItem>Reviews</MenuItem>
-                <MenuItem>Useful</MenuItem>
-                <MenuItem>Similar</MenuItem>
-              </MenuGroup>
-            </MenuList>
-          </Portal>
-        </Menu>
-      </Stack>
     </Stack>
   );
 };

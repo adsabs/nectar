@@ -2,45 +2,6 @@ import { TabList, Tabs, Tab } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import { ReactElement } from 'react';
 
-// const sections = {
-//   overview: {
-//     id: 'overview',
-//     index: 0,
-//     label: 'Overview',
-//     path: 'search/overview',
-//   },
-//   metrics: {
-//     id: 'metrics',
-//     index: 1,
-//     label: 'Metrics',
-//     path: 'search/metrics',
-//   },
-//   author_network: {
-//     id: 'author_network',
-//     index: 2,
-//     label: 'Author Network',
-//     path: 'search/author_network',
-//   },
-//   paper_network: {
-//     id: 'paper_network',
-//     index: 3,
-//     label: 'Paper Network',
-//     path: 'search/paper_network',
-//   },
-//   concept_cloud: {
-//     id: 'concept_cloud',
-//     index: 4,
-//     label: 'Concept Cloud',
-//     path: 'search/concept_cloud',
-//   },
-//   results_graph: {
-//     id: 'results_graph',
-//     index: 5,
-//     label: 'Results Graph',
-//     path: 'search/results_graph',
-//   },
-// };
-
 export type VizSection =
   | 'overview'
   | 'metrics'
@@ -93,7 +54,7 @@ export const VisualizationsTabs = ({ selectedSection }: { selectedSection: VizSe
   const index = sections.findIndex((section) => section.id === selectedSection);
 
   const onPageChange = (index: number) => {
-    void router.push(sections[index].path);
+    void router.push({ pathname: sections[index].path, query: router.query });
   };
 
   return (
