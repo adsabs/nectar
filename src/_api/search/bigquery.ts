@@ -40,7 +40,6 @@ export const useGetBigQuery: BigQueryQuery<{ bibcodes: IDocsEntity['bibcode'][] 
     queryKey: ['bigquery', params],
     queryFn: fetchBigQuery,
     meta: { params },
-    // select: responseSelector,
     ...options,
   });
 };

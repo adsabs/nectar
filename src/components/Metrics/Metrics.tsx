@@ -1,9 +1,9 @@
-import { IADSApiMetricsResponse } from '@api';
 import { Box, Heading } from '@chakra-ui/layout';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
 import { useIsClient } from '@hooks/useIsClient';
 import { useMetrics } from '@hooks/useMetrics';
 import { BarDatum } from '@nivo/bar';
+import { IADSApiMetricsResponse } from '@_api/metrics';
 import { ReactElement } from 'react';
 import { CitationsTable } from './CitationsTable';
 import { MetricsGraph } from './MetricsGraph';

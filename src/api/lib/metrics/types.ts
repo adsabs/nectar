@@ -61,7 +61,8 @@ export type ReadsHistogramType = {
 };
 
 export interface IADSApiMetricsParams {
-  bibcode: string;
+  bibcode?: string;
+  bibcodes?: string[];
 }
 
 export interface IADSApiMetricsResponse {

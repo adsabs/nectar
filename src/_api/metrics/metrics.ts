@@ -16,6 +16,10 @@ export const metricsKeys = {
   timeSeries: (bibcodes: Bibcode[]) => ['metrics/timeSeries', { bibcodes }] as const,
 };
 
+export const metricsMultKeys = {
+  primary: (bibcodes: IDocsEntity['bibcode'][]) => ['metricsMult', { bibcodes }] as const,
+};
+
 const retryFn = (count: number, error: unknown) => {
   if (count >= MAX_RETRIES || (error instanceof Error && error.message.startsWith('No data available'))) {
     return false;
@@ -85,6 +89,18 @@ export const useGetMetricsTimeSeries: ADSQuery<Bibcode[], IADSApiMetricsResponse
   });
 };
 
+export const useGetMetricsMult: ADSQuery<IDocsEntity['bibcode'][], IADSApiMetricsResponse> = (bibcodes, options) => {
+  const params = { bibcodes };
+
+  return useQuery({
+    queryKey: metricsMultKeys.primary(bibcodes),
+    queryFn: fetchMetricsMult,
+    retry: retryFn,
+    meta: { params },
+    ...options,
+  });
+};
+
 export const fetchMetrics: QueryFunction<IADSApiMetricsResponse> = async ({ meta }) => {
   const { params } = meta as { params: IADSApiMetricsParams };
 
@@ -95,6 +111,31 @@ export const fetchMetrics: QueryFunction<IADSApiMetricsResponse> = async ({ meta
   };
 
   const { data: metrics } = await api.request<IADSApiMetricsResponse>(config);
+
+  if (isNil(metrics)) {
+    throw new Error('No Metrics');
+  }
+
+  if (metrics[MetricsResponseKey.E]) {
+    throw new Error(metrics[MetricsResponseKey.EI] ? metrics[MetricsResponseKey.EI] : 'No Metrics');
+  }
+  return metrics;
+};
+
+export const fetchMetricsMult: QueryFunction<IADSApiMetricsResponse> = async ({ meta }) => {
+  const { params } = meta as { params: IADSApiMetricsParams };
+
+  const config: ApiRequestConfig = {
+    method: 'POST',
+    url: `${ApiTargets.SERVICE_METRICS}`,
+    data: {
+      bibcodes: params.bibcodes,
+    },
+  };
+
+  const res = await api.request<IADSApiMetricsResponse>(config);
+
+  const { data: metrics } = res;
 
   if (isNil(metrics)) {
     throw new Error('No Metrics');
