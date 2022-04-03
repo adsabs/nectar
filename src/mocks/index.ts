@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { SetupWorkerApi } from 'msw';
-import { SetupServerApi } from 'msw/lib/types/node';
 
-(function () {
+const startMsw = async () => {
   if (typeof window === 'undefined') {
-    const { server } = require('./server') as { server: SetupServerApi };
+    const server = await import('./server').then((m) => m.server);
     server.listen();
   } else {
-    const { worker } = require('./browser') as { worker: SetupWorkerApi };
-    void worker.start();
+    const worker = await import('./browser').then((m) => m.worker);
+    await worker.start();
   }
-})();
+};
+
+export default startMsw();

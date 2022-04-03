@@ -9,6 +9,16 @@ const config = {
   distDir: process.env.DIST_DIR || 'dist',
   poweredByHeader: false,
   reactStrictMode: true,
+  async rewrites() {
+    if (process.env.NODE_ENV !== 'production') {
+      return {
+        beforeFiles: [
+          { source: '/link_gateway/:path*', destination: `${process.env.BASE_CANONICAL_URL}/link_gateway/:path*` },
+        ],
+      };
+    }
+    return {};
+  },
   async redirects() {
     return [
       {
