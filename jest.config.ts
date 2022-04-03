@@ -39,6 +39,4 @@ const config: Config.InitialOptions = {
   maxConcurrency: 99,
 };
 
-console.log(config);
-
 module.exports = createJestConfig(config);
