@@ -29,7 +29,6 @@ export const SimpleLinkDropdown = (props: ISimpleLinkDropdownProps): ReactElemen
           p={2}
           justifyContent="space-between"
           borderWidth={1}
-          borderRightWidth="0"
           minW={minLabelWidth ? minLabelWidth : null}
           height="2.65em"
           cursor="pointer"

@@ -1,15 +1,17 @@
-import { SolrSort } from '@api';
+import { SolrSort, SolrSortDirection } from '@api';
 import { IconButton } from '@chakra-ui/button';
 import { Input } from '@chakra-ui/input';
-import { Box, HStack } from '@chakra-ui/layout';
-import { Select as ChakraSelect } from '@chakra-ui/react';
-import { SortSelectorStyle } from '@components';
+import { Box, HStack, Link } from '@chakra-ui/layout';
+import { SimpleLinkDropdown, SortSelectorStyle } from '@components';
+import { ItemType } from '@components/Dropdown/types';
 import { ISelectProps, Select } from '@components/Select';
 import { SortAscendingIcon, SortDescendingIcon } from '@heroicons/react/outline';
 import { useIsClient } from '@hooks/useIsClient';
 import { normalizeSolrSort } from '@utils';
+import { useRouter } from 'next/router';
 import { Fragment, MouseEventHandler, ReactElement, useCallback, useMemo } from 'react';
 import { sortValues } from './model';
+import NextLink from 'next/link';
 
 export interface ISortProps {
   name?: string;
@@ -18,6 +20,7 @@ export interface ISortProps {
   onChange?: (sort: SolrSort[]) => void;
   leftMargin?: string; // css selector
   rightMargin?: string;
+  useNativeWhenNoJs?: boolean; // true will use the native dropdown when no JavaScript, otherwise will use one with same look and feel as JS supported one
 }
 
 /**
@@ -26,7 +29,7 @@ export interface ISortProps {
  * Expects to be controlled (i.e. using sort and onChange to control value/updating)
  */
 export const Sort = (props: ISortProps): ReactElement => {
-  const { sort = ['date desc'], onChange, name = 'sort' } = props;
+  const { sort = ['date desc'], onChange, name = 'sort', useNativeWhenNoJs = false } = props;
 
   // normalize incoming sort
   const allSorts = useMemo(() => normalizeSolrSort(sort), [sort]);
@@ -52,16 +55,7 @@ export const Sort = (props: ISortProps): ReactElement => {
   // for the full-featured one below when it hits client
   const isClient = useIsClient();
   if (!isClient) {
-    return (
-      <ChakraSelect id="sort" name="sort" defaultValue={selected}>
-        {sortOptions.map((item) => (
-          <Fragment key={item.label}>
-            <option value={`${item.id} asc`}>{item.label} - Asc</option>
-            <option value={`${item.id} desc`}>{item.label} - Desc</option>
-          </Fragment>
-        ))}
-      </ChakraSelect>
-    );
+    return <>{useNativeWhenNoJs ? <NoJsNativeSort name={name} /> : <NoJsSort />}</>;
   }
 
   return (
@@ -106,10 +100,93 @@ interface SortOptionType {
   label: string;
 }
 
-const sortOptions: SortOptionType[] = sortValues.map((v) => ({ id: v.id, value: v.id, label: v.text }));
+export const sortOptions: SortOptionType[] = sortValues.map((v) => ({ id: v.id, value: v.id, label: v.text }));
 
 // Sort Select component
 const SortSelect = ({ sort, onChange }: { sort: string; onChange: ISelectProps<string>['onChange'] }) => {
   const selected = sortOptions.find((o) => o.id === sort) ?? sortOptions[0];
   return <Select value={selected} options={sortOptions} styles={SortSelectorStyle} onChange={onChange} />;
+};
+
+// non-native type, used in search results
+const NoJsSort = (): ReactElement => {
+  const router = useRouter();
+
+  const sortParam: SolrSort = router.query.sort
+    ? typeof router.query.sort === 'string'
+      ? (router.query.sort as SolrSort)
+      : (router.query.sort[0] as SolrSort)
+    : 'date desc';
+
+  const [sortby, dir] = sortParam.split(' ');
+
+  const getToggledDir = (dir: SolrSortDirection) => {
+    return dir === 'asc' ? 'desc' : 'asc';
+  };
+
+  const options: ItemType[] = [];
+  sortOptions.forEach((sort) => {
+    options.push({
+      id: `${sort.id}`,
+      label: `${sort.label}`,
+      path: { query: { ...router.query, sort: `${sort.id} ${dir}`, p: 1 } },
+    });
+  });
+
+  return (
+    <HStack spacing={0}>
+      <SimpleLinkDropdown
+        items={options}
+        label={sortby}
+        minListWidth="300px"
+        minLabelWidth="300px"
+      ></SimpleLinkDropdown>
+      <NextLink
+        href={{ query: { ...router.query, p: 1, sort: `${sortby} ${getToggledDir(dir as SolrSortDirection)}` } }}
+        passHref
+      >
+        <Link>
+          <>
+            {dir === 'desc' ? (
+              <IconButton
+                variant="outline"
+                icon={<SortDescendingIcon width="20px" />}
+                aria-label="Sort descending"
+                borderLeftRadius="0"
+                borderRightRadius="2px"
+                size="md"
+                colorScheme="gray"
+              />
+            ) : (
+              <IconButton
+                variant="outline"
+                icon={<SortAscendingIcon width="20px" />}
+                aria-label="Sort ascending"
+                borderLeftRadius="0"
+                borderRightRadius="2px"
+                size="md"
+                colorScheme="gray"
+              />
+            )}
+          </>
+        </Link>
+      </NextLink>
+    </HStack>
+  );
+};
+
+// native type, used by classic form
+const NoJsNativeSort = ({ name }: { name: string }): ReactElement => {
+  return (
+    <select id="sort" name={name}>
+      {sortOptions.map((item) => (
+        <Fragment key={item.label}>
+          <option value={`${item.id} asc`}>{item.label} - Asc</option>
+          <option value={`${item.id} desc`} selected={item.id === 'date'}>
+            {item.label} - Desc
+          </option>
+        </Fragment>
+      ))}
+    </select>
+  );
 };

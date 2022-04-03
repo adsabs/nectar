@@ -14,6 +14,7 @@ import {
   VisuallyHidden,
   visuallyHiddenStyle,
 } from '@chakra-ui/react';
+import { useIsClient } from '@hooks/useIsClient';
 import { useStore } from '@store';
 import { useCombobox } from 'downshift';
 import { matchSorter } from 'match-sorter';
@@ -46,6 +47,7 @@ export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>(
   const updateStoreQuery = useStore((state) => state.updateQuery);
   const updateQuery = (q: string) => updateStoreQuery({ q });
   const input = useRef<HTMLInputElement>(null);
+  const isClient = useIsClient();
 
   // allow outside refs to fire focus
   useImperativeHandle(ref, () => ({
@@ -169,7 +171,7 @@ export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>(
             autoComplete="off"
           />
 
-          {inputValue.length > 0 && (
+          {isClient && inputValue.length > 0 && (
             <InputRightElement>
               <CloseButton
                 aria-label="Clear search"

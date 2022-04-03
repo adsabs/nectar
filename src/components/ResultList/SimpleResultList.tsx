@@ -1,5 +1,6 @@
 import { IDocsEntity } from '@api';
 import { Flex } from '@chakra-ui/react';
+import { useIsClient } from '@hooks/useIsClient';
 import PT from 'prop-types';
 import { HTMLAttributes, ReactElement } from 'react';
 import { Item } from './Item';
@@ -18,12 +19,20 @@ const propTypes = {
 export const SimpleResultList = (props: ISimpleResultListProps): ReactElement => {
   const { docs = [], hideCheckboxes = false, indexStart = 0, ...divProps } = props;
 
+  const isClient = useIsClient();
+
   const start = indexStart === 0 ? 1 : indexStart;
 
   return (
     <Flex as="article" direction="column" {...divProps}>
       {docs.map((doc, index) => (
-        <Item doc={doc} key={doc.bibcode} index={start + index} hideCheckbox={hideCheckboxes} hideActions={false} />
+        <Item
+          doc={doc}
+          key={doc.bibcode}
+          index={start + index}
+          hideCheckbox={!isClient ? true : hideCheckboxes}
+          hideActions={false}
+        />
       ))}
     </Flex>
   );

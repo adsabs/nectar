@@ -1,6 +1,7 @@
 import { IADSApiMetricsResponse } from '@api';
 import { Box, Heading } from '@chakra-ui/layout';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
+import { useIsClient } from '@hooks/useIsClient';
 import { useMetrics } from '@hooks/useMetrics';
 import { BarDatum } from '@nivo/bar';
 import { ReactElement } from 'react';
@@ -16,6 +17,8 @@ export interface IMetricsProps {
 export const Metrics = (props: IMetricsProps): ReactElement => {
   const { metrics, isAbstract } = props;
 
+  const isClient = useIsClient();
+
   const { citationsTable, readsTable, citationsGraphs, readsGraphs } = useMetrics(metrics);
 
   return (
@@ -26,7 +29,7 @@ export const Metrics = (props: IMetricsProps): ReactElement => {
             Citations
           </Heading>
           {citationsTable && <CitationsTable data={citationsTable} isAbstract={isAbstract} />}
-          {citationsGraphs && <MetricsGraphs graphs={citationsGraphs} />}
+          {isClient && citationsGraphs && <MetricsGraphs graphs={citationsGraphs} />}
         </Box>
       ) : null}
 
@@ -36,7 +39,7 @@ export const Metrics = (props: IMetricsProps): ReactElement => {
             Reads
           </Heading>
           {readsTable && <ReadsTable data={readsTable} isAbstract={isAbstract} />}
-          {readsGraphs && <MetricsGraphs graphs={readsGraphs} />}
+          {isClient && readsGraphs && <MetricsGraphs graphs={readsGraphs} />}
         </Box>
       ) : null}
     </>

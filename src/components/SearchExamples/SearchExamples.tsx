@@ -3,6 +3,7 @@ import { useStore, useStoreApi } from '@store';
 import { noop } from '@utils';
 import { FC, HTMLAttributes, MouseEventHandler, useMemo } from 'react';
 import { examples } from './examples';
+import { useIsClient } from '@hooks/useIsClient';
 
 export interface ISearchExamplesProps extends HTMLAttributes<HTMLDivElement> {
   onSelect?: () => void;
@@ -59,6 +60,8 @@ interface ISearchExampleProps extends HTMLAttributes<HTMLElement> {
 
 export const SearchExample = (props: ISearchExampleProps) => {
   const { label, example, ...buttonProps } = props;
+  const isClient = useIsClient();
+
   return (
     <Grid templateColumns="1fr 2fr" gap={3} my={1}>
       <Text align="right" fontWeight="semibold" py={2}>
@@ -70,13 +73,13 @@ export const SearchExample = (props: ISearchExampleProps) => {
         sx={{
           borderRadius: '0',
           border: 'var(--chakra-colors-gray-200) 1px dotted',
-          _hover: { backgroundColor: 'gray.50' },
+          _hover: { backgroundColor: isClient ? 'gray.50' : 'transparent' },
           fontWeight: 'normal',
           overflowWrap: 'break-all',
           padding: '2',
           display: 'flex',
           justifyContent: 'center',
-          cursor: 'pointer',
+          cursor: isClient ? 'pointer' : 'default',
         }}
         {...buttonProps}
       >
