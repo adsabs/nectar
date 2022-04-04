@@ -8,7 +8,7 @@ import { ReactElement } from 'react';
 import { CitationsTable } from './CitationsTable';
 import { MetricsGraph } from './MetricsGraph';
 import { ReadsTable } from './ReadsTable';
-import { IMetricsGraphs } from './types';
+import { ICitationsTableData, IMetricsGraphs, IReadsTableData } from './types';
 export interface IMetricsProps {
   metrics: IADSApiMetricsResponse;
   isAbstract: boolean;
@@ -23,6 +23,46 @@ export const Metrics = (props: IMetricsProps): ReactElement => {
 
   return (
     <>
+      {isAbstract ? (
+        <>
+          <CitationsSection citationsTable={citationsTable} citationsGraphs={citationsGraphs} isAbstract={true} />
+          <ReadsSection readsTable={readsTable} readsGraphs={readsGraphs} isAbstract={true} />
+        </>
+      ) : (
+        <Tabs variant="solid-rounded" isFitted>
+          <TabList>
+            <Tab>Papers</Tab>
+            <Tab isDisabled={!citationsTable && !citationsGraphs}>Citations</Tab>
+            <Tab isDisabled={!readsTable && !readsGraphs}>Reads</Tab>
+            <Tab>Indices</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel></TabPanel>
+            <TabPanel>
+              <CitationsSection citationsTable={citationsTable} citationsGraphs={citationsGraphs} isAbstract={false} />
+            </TabPanel>
+            <TabPanel>
+              <ReadsSection readsTable={readsTable} readsGraphs={readsGraphs} isAbstract={false} />
+            </TabPanel>
+            <TabPanel></TabPanel>
+          </TabPanels>
+        </Tabs>
+      )}
+    </>
+  );
+};
+
+const CitationsSection = ({
+  citationsTable,
+  citationsGraphs,
+  isAbstract,
+}: {
+  citationsTable: ICitationsTableData;
+  citationsGraphs: IMetricsGraphs;
+  isAbstract: boolean;
+}): ReactElement => {
+  return (
+    <>
       {citationsTable || citationsGraphs ? (
         <Box as="section" aria-labelledby="citations-heading">
           <Heading as="h3" fontSize="2xl" fontWeight="light" backgroundColor="gray.50" p={3} id="citations-heading">
@@ -32,7 +72,21 @@ export const Metrics = (props: IMetricsProps): ReactElement => {
           {isClient && citationsGraphs && <MetricsGraphs graphs={citationsGraphs} />}
         </Box>
       ) : null}
+    </>
+  );
+};
 
+const ReadsSection = ({
+  readsTable,
+  readsGraphs,
+  isAbstract,
+}: {
+  readsTable: IReadsTableData;
+  readsGraphs: IMetricsGraphs;
+  isAbstract: boolean;
+}): ReactElement => {
+  return (
+    <>
       {readsTable || readsGraphs ? (
         <Box as="section" aria-labelledby="reads-heading">
           <Heading as="h3" fontSize="2xl" fontWeight="light" backgroundColor="gray.50" p={3} id="reads-heading">

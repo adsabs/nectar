@@ -58,7 +58,7 @@ export const VisualizationsTabs = ({ selectedSection }: { selectedSection: VizSe
   };
 
   return (
-    <Tabs index={index} onChange={onPageChange}>
+    <Tabs index={index} onChange={onPageChange} isFitted variant="enclosed">
       <TabList>
         {sections.map((section) => (
           <Tab key={section.id}>{section.label}</Tab>

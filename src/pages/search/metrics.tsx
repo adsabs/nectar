@@ -67,7 +67,11 @@ const MetricsPage: NextPage = () => {
             <AlertDescription>{axios.isAxiosError(errorMetrics) && errorMetrics.message}</AlertDescription>
           </Alert>
         )}
-        {metricsData && <Metrics metrics={metricsData} isAbstract={false} />}
+        {metricsData && (
+          <Box my={5}>
+            <Metrics metrics={metricsData} isAbstract={false} />
+          </Box>
+        )}
       </VizPageLayout>
     </div>
   );
