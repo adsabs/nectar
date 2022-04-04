@@ -1,79 +1,59 @@
-import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/react';
-import { Metrics, VizPageLayout } from '@components';
+import { VizPageLayout } from '@components';
+import { MetricsPageContainer } from '@components';
 import { parseQueryFromUrl } from '@utils';
-import { useGetMetricsMult } from '@_api/metrics';
 import { useSearch } from '@_api/search';
 import { getSearchParams } from '@_api/search/models';
-import axios from 'axios';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 
 const MetricsPage: NextPage = () => {
   const router = useRouter();
 
   const limit = 7000;
 
+  const [recordsToGet, setRecordsToGet] = useState(0);
+
   const { qid, p, ...query } = router.query;
 
-  // query to search all docs from original query
-  const { data: queryData, refetch: refetchByQuery } = useSearch(
-    getSearchParams({ ...parseQueryFromUrl(query), rows: limit }),
+  // query to get docs count from original query
+  const { data: countByQuery, refetch: fetchRecCountByQuery } = useSearch(
+    getSearchParams({ ...parseQueryFromUrl(query), rows: 1 }),
     {
       enabled: false,
     },
   );
 
-  // query to get docs from vault (qid)
-  const { data: vaultData, refetch: refetchByQid } = useSearch(getSearchParams({ q: `docs(${qid as string})` }), {
-    enabled: false,
-  });
-
-  const bibcodes = useMemo(
-    // prevent refetch metrics
-    () => (qid ? vaultData?.docs?.map((doc) => doc.bibcode) : queryData?.docs?.map((doc) => doc.bibcode)),
-    [vaultData, queryData],
+  // query to get docs count from vault (qid)
+  const { data: countByQid, refetch: fetchRecCountByQid } = useSearch(
+    getSearchParams({ q: `docs(${qid as string})` }),
+    {
+      enabled: false,
+    },
   );
 
-  // query to get metrics
-  const {
-    data: metricsData,
-    refetch: refetchMetrics,
-    isError: isErrorMetrics,
-    error: errorMetrics,
-  } = useGetMetricsMult(bibcodes, { enabled: false });
-
+  // new query
   useEffect(() => {
     if (qid) {
       // if has qid, use qid to get set of bibcodes
-      void refetchByQid();
+      void fetchRecCountByQid();
     } else if (query.q) {
       // if no qid, use query to get set of bibcodes
-      void refetchByQuery();
+      void fetchRecCountByQuery();
     }
   }, [router]);
 
   useEffect(() => {
-    void refetchMetrics();
-  }, [bibcodes]);
+    const numFound = qid ? countByQid?.numFound : countByQuery?.numFound;
+    if (typeof numFound === 'number') {
+      setRecordsToGet(Math.min(numFound, limit));
+    }
+  }, [countByQuery, countByQid]);
 
   return (
-    <div>
-      <VizPageLayout vizPage="metrics" from={{ pathname: '/search', query: { ...query, p } }}>
-        {isErrorMetrics && (
-          <Alert status="error" my={5}>
-            <AlertIcon />
-            <AlertTitle mr={2}>Error!</AlertTitle>
-            <AlertDescription>{axios.isAxiosError(errorMetrics) && errorMetrics.message}</AlertDescription>
-          </Alert>
-        )}
-        {metricsData && (
-          <Box my={5}>
-            <Metrics metrics={metricsData} isAbstract={false} />
-          </Box>
-        )}
-      </VizPageLayout>
-    </div>
+    <VizPageLayout vizPage="metrics" from={{ pathname: '/search', query: { ...query, p } }}>
+      <MetricsPageContainer query={query} qid={qid as string} recordsToGet={recordsToGet} />
+    </VizPageLayout>
   );
 };
 
