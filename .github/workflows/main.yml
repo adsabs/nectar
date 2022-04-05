@@ -1,5 +1,5 @@
 name: CI
-on: [push,pull_request]
+on: [push, pull_request]
 jobs:
   build:
     name: Build, lint, and test on Node
@@ -17,8 +17,8 @@ jobs:
           yarn-version: 1.22.15
       - run: yarn install
 
-      #- name: Lint
-      #  run: yarn lint
+      - name: Lint
+        run: yarn lint
 
       - name: Test
         run: yarn test

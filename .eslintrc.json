@@ -1,10 +1,5 @@
 {
-  "extends": [
-    "plugin:@typescript-eslint/recommended",
-    "plugin:@typescript-eslint/recommended-requiring-type-checking",
-    "prettier",
-    "plugin:@next/next/recommended"
-  ],
+  "extends": ["prettier", "plugin:@next/next/recommended"],
   "plugins": ["react", "react-hooks", "jsx-a11y", "@typescript-eslint", "jest", "jest-dom"],
   "parser": "@typescript-eslint/parser",
   "env": {
@@ -13,8 +8,13 @@
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "./jest.config.ts"],
+      "extends": [
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking"
+      ],
       "parserOptions": {
-        "project": ["./tsconfig.json"]
+        "sourceType": "module",
+        "project": ["tsconfig.json"]
       }
     }
   ],

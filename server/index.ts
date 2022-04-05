@@ -28,7 +28,7 @@ const port = process.env.PORT || 8000;
     });
 
     server.listen(port, (err?: unknown) => {
-      if (err) throw err;
+      if (err) {throw err;}
 
       console.log(`> Ready on http://localhost:${port} [${process.env.NODE_ENV ?? 'development'}]`);
     });
