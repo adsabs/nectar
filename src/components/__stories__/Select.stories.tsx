@@ -1,4 +1,4 @@
-import { DefaultSelectorStyle, ISelectProps, Select, SortSelectorStyle, ThemeSelectorStyle } from '@components';
+import { ISelectProps, Select } from '@components';
 import { states } from '@components/__mocks__/data';
 import { Meta, Story } from '@storybook/react';
 
@@ -15,31 +15,31 @@ const options = states.map((state, index) => ({
   label: state,
 }));
 
-const Template: Story<ISelectProps<string>> = (args) => <Select {...args} />;
+const Template: Story<ISelectProps> = (args) => <Select {...args} />;
 
-export const Default = Template.bind({}) ;
+export const Default = Template.bind({});
 
 Default.args = {
-  formLabel: 'States',
+  label: 'States',
   options: options,
   value: options[0],
-  styles: DefaultSelectorStyle,
+  stylesTheme: 'default',
 };
 
-export const ThemeSelector = Template.bind({}) ;
+export const ThemeSelector = Template.bind({});
 
 ThemeSelector.args = {
-  formLabel: 'Themes',
+  label: 'Themes',
   options: options,
   value: options[0],
-  styles: ThemeSelectorStyle,
+  stylesTheme: 'theme',
 };
 
-export const SortSelector = Template.bind({}) ;
+export const SortSelector = Template.bind({});
 
 SortSelector.args = {
-  formLabel: 'Sort by',
+  label: 'Sort by',
   options: options,
   value: options[0],
-  styles: SortSelectorStyle,
+  stylesTheme: 'sort',
 };

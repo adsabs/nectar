@@ -1,12 +1,7 @@
+import { SelectOption } from '@components/Select';
 import { Theme } from '@types';
 
-type ThemeOption = {
-  id: Theme;
-  value: string;
-  label: string;
-};
-
-export const themes: Record<Theme, ThemeOption> = {
+export const themes: Record<Theme, SelectOption<Theme>> = {
   [Theme.GENERAL]: {
     id: Theme.GENERAL,
     value: 'general',

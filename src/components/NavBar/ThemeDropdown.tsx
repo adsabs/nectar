@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/layout';
-import { Select, ThemeSelectorStyle } from '@components';
+import { Select, SelectOption } from '@components';
 import { useStore } from '@store';
 import { Theme } from '@types';
 import { ReactElement, useMemo } from 'react';
@@ -16,16 +16,14 @@ export const ThemeDropdown = (): ReactElement => {
 
   const option = useMemo(() => themes[theme], [theme]);
 
-  const handleThemeChange = (theme: string) => setTheme(theme as Theme);
-
   return (
     <Box width={{ base: '200px', xs: '270px' }}>
-      <Select
+      <Select<SelectOption<Theme>>
         value={option}
         options={options}
-        styles={ThemeSelectorStyle}
-        onChange={handleThemeChange}
-        ariaLabel="Select theme"
+        stylesTheme="theme"
+        onChange={({ id: theme }) => setTheme(theme)}
+        label="Select theme"
       />
     </Box>
   );

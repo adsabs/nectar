@@ -16,12 +16,12 @@ import {
   PopoverTrigger,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { DefaultSelectorStyleSM, Select, SelectOption } from '@components';
+import { Select, SelectOption } from '@components';
 import { APP_DEFAULTS } from '@config';
 import { useIsClient } from '@hooks/useIsClient';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
-import { Dispatch, KeyboardEventHandler, ReactElement, useEffect, useRef, useState } from 'react';
+import { Dispatch, KeyboardEventHandler, ReactElement, useEffect, useMemo, useRef, useState } from 'react';
 import { MenuPlacement } from 'react-select';
 import { IUsePaginationResult, PaginationAction } from './usePagination';
 
@@ -71,6 +71,8 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
   // make sure we keep state and result in sync for pagination
   useEffect(() => dispatch({ type: 'SET_PAGE', payload: page }), [page]);
 
+  const perPageSelectedValue = useMemo(() => pageOptions.find((o) => parseInt(o.value) === numPerPage), [numPerPage]);
+
   if (noPagination) {
     return null;
   }
@@ -78,8 +80,8 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
   /**
    * Update our internal state perPage, which will trigger on the pagination hook
    */
-  const perPageChangeHandler = (id: string) => {
-    const numPerPage = parseInt(id, 10) as typeof APP_DEFAULTS['PER_PAGE_OPTIONS'][number];
+  const perPageChangeHandler = ({ value }: SelectOption) => {
+    const numPerPage = parseInt(value, 10) as typeof APP_DEFAULTS['PER_PAGE_OPTIONS'][number];
     dispatch({ type: 'SET_PERPAGE', payload: numPerPage });
   };
 
@@ -116,11 +118,11 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
         {!hidePerPageSelect && isClient && (
           <Box display={{ base: 'none', xs: 'flex' }}>
             <Select
-              ariaLabel="Select number of results to show per page"
+              label="Select number of results to show per page"
               options={pageOptions}
               onChange={perPageChangeHandler}
-              value={pageOptions.find((o) => parseInt(o.value) === numPerPage)}
-              styles={DefaultSelectorStyleSM}
+              value={perPageSelectedValue}
+              stylesTheme="default.sm"
               menuPlacement={perPageMenuPlacement}
             />
           </Box>
