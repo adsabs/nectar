@@ -1,8 +1,13 @@
 import { BarDatum } from '@nivo/bar';
+import { Serie } from '@nivo/line';
 
 export interface BarGraph {
   data: BarDatum[];
   keys: string[];
+}
+
+export interface LineGraph {
+  data: Serie[];
 }
 
 export interface IMetricsGraphs {

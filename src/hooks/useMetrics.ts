@@ -6,6 +6,7 @@ import {
   plotCitationsHist,
   plotPapersHist,
   plotReadsHist,
+  plotTimeSeriesGraph,
 } from '@components/Metrics/graphUtils';
 import {
   ICitationsTableData,
@@ -13,6 +14,7 @@ import {
   IMetricsGraphs,
   IPapersTableData,
   IReadsTableData,
+  LineGraph,
 } from '@components/Metrics/types';
 import { BasicStatsKey, CitationsStatsKey, IADSApiMetricsResponse, MetricsResponseKey } from '@_api/metrics/types';
 
@@ -20,6 +22,7 @@ export interface IMetricsData {
   citationsGraphs: IMetricsGraphs;
   readsGraphs: IMetricsGraphs;
   papersGraphs: IMetricsGraphs;
+  indicesGraph: LineGraph;
   citationsTable: ICitationsTableData;
   readsTable: IReadsTableData;
   papersTable: IPapersTableData;
@@ -36,6 +39,8 @@ export const useMetrics = (metrics: IADSApiMetricsResponse, isSinglePaper: boole
   const hasIndicesTable = isSinglePaper
     ? false
     : metrics && metrics[MetricsResponseKey.I] && metrics[MetricsResponseKey.IR];
+
+  const hasIndicesGraph = isSinglePaper ? false : metrics && metrics[MetricsResponseKey.TS];
 
   const hist = metrics ? metrics.histograms : null;
 
@@ -60,6 +65,8 @@ export const useMetrics = (metrics: IADSApiMetricsResponse, isSinglePaper: boole
         normalizedGraph: plotPapersHist(true, hist.publications),
       }
     : null;
+
+  const indicesGraph = hasIndicesGraph ? plotTimeSeriesGraph(metrics[MetricsResponseKey.TS]) : null;
 
   // table data
   const citationsTable = hasCitations
@@ -94,6 +101,7 @@ export const useMetrics = (metrics: IADSApiMetricsResponse, isSinglePaper: boole
     citationsGraphs,
     readsGraphs,
     papersGraphs,
+    indicesGraph,
     citationsTable,
     readsTable,
     papersTable,

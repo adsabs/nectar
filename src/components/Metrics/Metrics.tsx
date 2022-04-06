@@ -1,26 +1,46 @@
+import { IDocsEntity } from '@api';
 import { Box, Heading } from '@chakra-ui/layout';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
 import { useIsClient } from '@hooks/useIsClient';
 import { useMetrics } from '@hooks/useMetrics';
 import { BarDatum } from '@nivo/bar';
-import { IADSApiMetricsResponse } from '@_api/metrics';
-import { ReactElement } from 'react';
+import { Serie } from '@nivo/line';
+import { IADSApiMetricsResponse, MetricsResponseKey, useGetTimeSeries } from '@_api/metrics';
+import { ReactElement, useEffect, useMemo } from 'react';
 import { CitationsTable } from './CitationsTable';
+import { plotTimeSeriesGraph } from './graphUtils';
+import { IndicesGraph } from './IndicesGraph';
 import { IndicesTable } from './IndicesTable';
 import { MetricsGraph } from './MetricsGraph';
 import { PapersTable } from './PapersTable';
 import { ReadsTable } from './ReadsTable';
-import { ICitationsTableData, IIndicesTableData, IMetricsGraphs, IPapersTableData, IReadsTableData } from './types';
+import {
+  ICitationsTableData,
+  IIndicesTableData,
+  IMetricsGraphs,
+  IPapersTableData,
+  IReadsTableData,
+  LineGraph,
+} from './types';
 export interface IMetricsProps {
   metrics: IADSApiMetricsResponse;
   isAbstract: boolean;
+  bibcodes?: IDocsEntity['bibcode'][];
 }
 
 export const Metrics = (props: IMetricsProps): ReactElement => {
-  const { metrics, isAbstract } = props;
+  const { metrics, isAbstract, bibcodes } = props;
 
-  const { citationsTable, readsTable, papersTable, indicesTable, citationsGraphs, readsGraphs, papersGraphs } =
-    useMetrics(metrics, isAbstract);
+  const {
+    citationsTable,
+    readsTable,
+    papersTable,
+    indicesTable,
+    citationsGraphs,
+    readsGraphs,
+    papersGraphs,
+    indicesGraph,
+  } = useMetrics(metrics, isAbstract);
 
   return (
     <>
@@ -48,7 +68,7 @@ export const Metrics = (props: IMetricsProps): ReactElement => {
               <ReadsSection readsTable={readsTable} readsGraphs={readsGraphs} isAbstract={false} />
             </TabPanel>
             <TabPanel>
-              <IndicesSection indicesTable={indicesTable} />
+              <IndicesSection indicesTable={indicesTable} indicesGraph={indicesGraph} bibcodes={bibcodes} />
             </TabPanel>
           </TabPanels>
         </Tabs>
@@ -133,7 +153,63 @@ const ReadsSection = ({
   );
 };
 
-const IndicesSection = ({ indicesTable }: { indicesTable: IIndicesTableData }): ReactElement => {
+const getBarGraphYearTicks = (data: BarDatum[]) => {
+  if (data.length <= 9) {
+    return undefined;
+  }
+  const ticks: number[] = [];
+  data.forEach((row) => {
+    if ((row.year as number) % 5 === 0) {
+      ticks.push(row.year as number);
+    }
+  });
+  return ticks;
+};
+
+const getLineGraphYearTicks = (data: Serie[]) => {
+  if (data[0].data.length <= 9) {
+    return undefined;
+  }
+  const ticks: number[] = [];
+
+  data[0].data.forEach(({ x }) => {
+    if ((x as number) % 5 === 0) {
+      ticks.push(x as number);
+    }
+  });
+
+  return ticks;
+};
+
+const IndicesSection = ({
+  indicesTable,
+  indicesGraph,
+  bibcodes,
+}: {
+  indicesTable: IIndicesTableData;
+  indicesGraph: LineGraph;
+  bibcodes?: IDocsEntity['bibcode'][];
+}): ReactElement => {
+  // query to get indices metrics if there is no indices graph
+  const {
+    data: metricsData,
+    refetch: fetchMetrics,
+    isError: isErrorMetrics,
+    error: errorMetrics,
+  } = useGetTimeSeries(bibcodes, { enabled: false });
+
+  useEffect(() => {
+    if (!indicesGraph && bibcodes && bibcodes.length > 0) {
+      void fetchMetrics();
+    }
+  }, [bibcodes]);
+
+  const computedGraph = useMemo(() => {
+    return metricsData && metricsData[MetricsResponseKey.TS]
+      ? plotTimeSeriesGraph(metricsData[MetricsResponseKey.TS])
+      : undefined;
+  }, [metricsData]);
+
   return (
     <>
       {indicesTable ? (
@@ -142,7 +218,10 @@ const IndicesSection = ({ indicesTable }: { indicesTable: IIndicesTableData }): 
             Indices
           </Heading>
           {indicesTable && <IndicesTable data={indicesTable} />}
-          {/* {readsGraphs && <MetricsGraphs graphs={readsGraphs} />} */}
+          {indicesGraph && <IndicesGraph data={indicesGraph.data} ticks={getLineGraphYearTicks(indicesGraph.data)} />}
+          {computedGraph && (
+            <IndicesGraph data={computedGraph.data} ticks={getLineGraphYearTicks(computedGraph.data)} />
+          )}
         </Box>
       ) : null}
     </>
@@ -150,19 +229,6 @@ const IndicesSection = ({ indicesTable }: { indicesTable: IIndicesTableData }): 
 };
 
 const MetricsGraphs = ({ graphs }: { graphs: IMetricsGraphs }): ReactElement => {
-  const getYearTicks = (data: BarDatum[]) => {
-    if (data.length <= 9) {
-      return undefined;
-    }
-    const ticks: number[] = [];
-    data.forEach((row) => {
-      if ((row.year as number) % 5 === 0) {
-        ticks.push(row.year as number);
-      }
-    });
-    return ticks;
-  };
-
   return (
     <Tabs mt={5} variant="soft-rounded" size="sm" align="center">
       <TabList>
@@ -175,7 +241,7 @@ const MetricsGraphs = ({ graphs }: { graphs: IMetricsGraphs }): ReactElement => 
             data={graphs.totalGraph.data}
             indexBy="year"
             keys={graphs.totalGraph.keys}
-            ticks={getYearTicks(graphs.totalGraph.data)}
+            ticks={getBarGraphYearTicks(graphs.totalGraph.data)}
           />
         </TabPanel>
         <TabPanel>
@@ -183,7 +249,7 @@ const MetricsGraphs = ({ graphs }: { graphs: IMetricsGraphs }): ReactElement => 
             data={graphs.normalizedGraph.data}
             indexBy="year"
             keys={graphs.normalizedGraph.keys}
-            ticks={getYearTicks(graphs.normalizedGraph.data)}
+            ticks={getBarGraphYearTicks(graphs.normalizedGraph.data)}
           />
         </TabPanel>
       </TabPanels>

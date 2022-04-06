@@ -92,6 +92,10 @@ export type PapersHistogramType = {
   [key in PapersHistogramKey]: { [year: string]: number };
 };
 
+export type TimeSeriesType = {
+  [key in TimeSeriesKey]: { [year: number]: number };
+};
+
 export interface IADSApiMetricsParams {
   bibcode?: string;
   bibcodes?: string[];
@@ -118,9 +122,7 @@ export interface IADSApiMetricsResponse {
   [MetricsResponseKey.IR]: {
     [key in TimeSeriesKey]: number;
   };
-  [MetricsResponseKey.TS]: {
-    [key in TimeSeriesKey]: { [key: string]: number }[];
-  };
+  [MetricsResponseKey.TS]: TimeSeriesType;
   [MetricsResponseKey.SB]?: string[];
   [MetricsResponseKey.E]?: string;
   [MetricsResponseKey.EI]?: string;

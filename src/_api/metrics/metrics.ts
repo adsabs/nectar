@@ -20,6 +20,10 @@ export const metricsMultKeys = {
   primary: (bibcodes: IDocsEntity['bibcode'][]) => ['metricsMult', { bibcodes }] as const,
 };
 
+export const timeSeriesKeys = {
+  primary: (bibcodes: IDocsEntity['bibcode'][]) => ['timeSeries', { bibcodes }] as const,
+};
+
 const retryFn = (count: number, error: unknown) => {
   if (count >= MAX_RETRIES || (error instanceof Error && error.message.startsWith('No data available'))) {
     return false;
@@ -89,14 +93,26 @@ export const useGetMetricsTimeSeries: ADSQuery<Bibcode[], IADSApiMetricsResponse
   });
 };
 
-export const useGetMetricsMult: ADSQuery<
-  { bibcodes: IDocsEntity['bibcode'][]; types?: IADSApiMetricsParams['types'] },
+export const useGetMultMetrics: ADSQuery<
+  { bibcodes: IDocsEntity['bibcode'][]; isSimple?: boolean },
   IADSApiMetricsResponse
-> = ({ bibcodes, types }, options) => {
-  const params: IADSApiMetricsParams = { bibcodes, types };
+> = ({ bibcodes, isSimple }, options) => {
+  const params: IADSApiMetricsParams = { bibcodes, types: isSimple ? ['simple'] : undefined };
 
   return useQuery({
     queryKey: metricsMultKeys.primary(bibcodes),
+    queryFn: fetchMetricsMult,
+    retry: retryFn,
+    meta: { params },
+    ...options,
+  });
+};
+
+export const useGetTimeSeries: ADSQuery<IDocsEntity['bibcode'][], IADSApiMetricsResponse> = (bibcodes, options) => {
+  const params: IADSApiMetricsParams = { bibcodes, types: ['indicators', 'timeseries'] };
+
+  return useQuery({
+    queryKey: timeSeriesKeys.primary(bibcodes),
     queryFn: fetchMetricsMult,
     retry: retryFn,
     meta: { params },

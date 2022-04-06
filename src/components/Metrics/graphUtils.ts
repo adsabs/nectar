@@ -1,13 +1,23 @@
 import { CitationsHistogramType, ReadsHistogramType } from '@api';
-import { PapersHistogramKey, PapersHistogramType } from '@api/lib/metrics/types';
 import {
   BasicStatsKey,
   CitationsHistogramKey,
   CitationsStatsKey,
+  PapersHistogramKey,
+  PapersHistogramType,
   ReadsHistogramKey,
   TimeSeriesKey,
+  TimeSeriesType,
 } from '@_api/metrics/types';
-import { BarGraph, ICitationsTableData, IIndicesTableData, IPapersTableData, IReadsTableData } from './types';
+import {
+  BarGraph,
+  ICitationsTableData,
+  IIndicesTableData,
+  IPapersTableData,
+  IReadsTableData,
+  LineGraph,
+} from './types';
+import { Serie } from '@nivo/line';
 
 export interface IGraphData {
   key: string;
@@ -197,6 +207,36 @@ export const plotPapersHist = (normalize: boolean, papersHist: PapersHistogramTy
   });
 
   return { data: out, keys };
+};
+
+export const plotTimeSeriesGraph = (timeseries: TimeSeriesType): LineGraph => {
+  const data = [
+    timeseries[TimeSeriesKey.H],
+    timeseries[TimeSeriesKey.G],
+    timeseries[TimeSeriesKey.I10],
+    timeseries[TimeSeriesKey.TORI],
+    timeseries[TimeSeriesKey.I100],
+    timeseries[TimeSeriesKey.READ10],
+  ];
+
+  const returnArray: Serie[] = [];
+
+  ['h-index', 'g-index', 'i10-index', 'tori-index', 'i100-index', 'read10-index'].map((id, index) => {
+    const d: { x: string; y: number }[] = [];
+    Object.entries(data[index]).map(([year, value]) => {
+      if (id === 'read10-index') {
+        d.push({ x: year, y: value / 10 });
+      } else {
+        d.push({ x: year, y: value });
+      }
+    });
+    returnArray.push({
+      id,
+      data: d,
+    });
+  });
+
+  return { data: returnArray };
 };
 
 export const getCitationTableData = (citationData: ICitationTableInput): ICitationsTableData => {

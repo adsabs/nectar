@@ -3,7 +3,7 @@ import { useQueries } from 'react-query';
 import { fetchSearch } from '@_api/search';
 import { parseQueryFromUrl } from '@utils';
 import { IADSApiSearchResponse } from '@api';
-import { useGetMetricsMult } from '@_api/metrics';
+import { useGetMultMetrics } from '@_api/metrics';
 import { Metrics } from '@components';
 import { Alert, AlertDescription, AlertIcon, AlertTitle, Box } from '@chakra-ui/react';
 import axios from 'axios';
@@ -53,18 +53,22 @@ export const MetricsPageContainer = ({ query, qid, recordsToGet }: IMetricsPageP
     }
   }, [fetchBibsQueries]);
 
-  return <MetricsComponent bibcodes={bibcodes} simple={recordsToGet > 6000} />;
+  return <MetricsComponent bibcodes={bibcodes} />;
 };
 
 // This layer fetches the metrics from bibcodes
-const MetricsComponent = ({ bibcodes, simple }: { bibcodes: string[]; simple: boolean }): ReactElement => {
+const MetricsComponent = ({ bibcodes }: { bibcodes: string[] }): ReactElement => {
+  const isSimple = useMemo(() => {
+    return bibcodes && bibcodes.length > 6000;
+  }, [bibcodes]);
+
   // query to get metrics
   const {
     data: metricsData,
     refetch: fetchMetrics,
     isError: isErrorMetrics,
     error: errorMetrics,
-  } = useGetMetricsMult({ bibcodes, types: simple ? ['simple'] : undefined }, { enabled: false });
+  } = useGetMultMetrics({ bibcodes, isSimple }, { enabled: false });
 
   useEffect(() => {
     if (bibcodes && bibcodes.length > 0) {
@@ -83,7 +87,7 @@ const MetricsComponent = ({ bibcodes, simple }: { bibcodes: string[]; simple: bo
       )}
       {metricsData && (
         <Box my={5}>
-          <Metrics metrics={metricsData} isAbstract={false} />
+          <Metrics metrics={metricsData} isAbstract={false} bibcodes={isSimple ? bibcodes : undefined} />
         </Box>
       )}
     </>
