@@ -1,12 +1,19 @@
 import {
   getCitationTableData,
+  getIndicesTableData,
   getPapersTableData,
   getReadsTableData,
   plotCitationsHist,
   plotPapersHist,
   plotReadsHist,
 } from '@components/Metrics/graphUtils';
-import { ICitationsTableData, IMetricsGraphs, IPapersTableData, IReadsTableData } from '@components/Metrics/types';
+import {
+  ICitationsTableData,
+  IIndicesTableData,
+  IMetricsGraphs,
+  IPapersTableData,
+  IReadsTableData,
+} from '@components/Metrics/types';
 import { BasicStatsKey, CitationsStatsKey, IADSApiMetricsResponse, MetricsResponseKey } from '@_api/metrics/types';
 
 export interface IMetricsData {
@@ -16,6 +23,7 @@ export interface IMetricsData {
   citationsTable: ICitationsTableData;
   readsTable: IReadsTableData;
   papersTable: IPapersTableData;
+  indicesTable: IIndicesTableData;
 }
 
 export const useMetrics = (metrics: IADSApiMetricsResponse, isSinglePaper: boolean): IMetricsData => {
@@ -24,6 +32,10 @@ export const useMetrics = (metrics: IADSApiMetricsResponse, isSinglePaper: boole
   const hasReads = metrics && metrics[MetricsResponseKey.BS][BasicStatsKey.TNR] > 0;
 
   const hasPapers = isSinglePaper ? false : metrics && metrics[MetricsResponseKey.BS][BasicStatsKey.NP] > 0;
+
+  const hasIndicesTable = isSinglePaper
+    ? false
+    : metrics && metrics[MetricsResponseKey.I] && metrics[MetricsResponseKey.IR];
 
   const hist = metrics ? metrics.histograms : null;
 
@@ -71,6 +83,13 @@ export const useMetrics = (metrics: IADSApiMetricsResponse, isSinglePaper: boole
       })
     : null;
 
+  const indicesTable = hasIndicesTable
+    ? getIndicesTableData({
+        refereed: metrics[MetricsResponseKey.IR],
+        total: metrics[MetricsResponseKey.I],
+      })
+    : null;
+
   return {
     citationsGraphs,
     readsGraphs,
@@ -78,5 +97,6 @@ export const useMetrics = (metrics: IADSApiMetricsResponse, isSinglePaper: boole
     citationsTable,
     readsTable,
     papersTable,
+    indicesTable,
   };
 };

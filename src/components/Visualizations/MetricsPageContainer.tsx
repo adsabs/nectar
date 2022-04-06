@@ -14,6 +14,7 @@ interface IMetricsPageProps {
   recordsToGet: number;
 }
 
+// This layer fetches the bibcodes
 export const MetricsPageContainer = ({ query, qid, recordsToGet }: IMetricsPageProps): ReactElement => {
   const starts = useMemo(() => {
     let remainsToFetch = recordsToGet;
@@ -52,17 +53,18 @@ export const MetricsPageContainer = ({ query, qid, recordsToGet }: IMetricsPageP
     }
   }, [fetchBibsQueries]);
 
-  return <MetricsComponent bibcodes={bibcodes} />;
+  return <MetricsComponent bibcodes={bibcodes} simple={recordsToGet > 6000} />;
 };
 
-const MetricsComponent = ({ bibcodes }: { bibcodes: string[] }): ReactElement => {
+// This layer fetches the metrics from bibcodes
+const MetricsComponent = ({ bibcodes, simple }: { bibcodes: string[]; simple: boolean }): ReactElement => {
   // query to get metrics
   const {
     data: metricsData,
     refetch: fetchMetrics,
     isError: isErrorMetrics,
     error: errorMetrics,
-  } = useGetMetricsMult(bibcodes, { enabled: false });
+  } = useGetMetricsMult({ bibcodes, types: simple ? ['simple'] : undefined }, { enabled: false });
 
   useEffect(() => {
     if (bibcodes && bibcodes.length > 0) {

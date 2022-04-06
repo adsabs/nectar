@@ -74,6 +74,7 @@ export type PapersHistogramType = {
 export interface IADSApiMetricsParams {
   bibcode?: string;
   bibcodes?: string[];
+  types?: ('simple' | 'indicators' | 'timeseries')[];
 }
 
 export interface IADSApiMetricsResponse {

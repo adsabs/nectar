@@ -54,7 +54,7 @@ const MetricsPage: NextPage = () => {
   return (
     <VizPageLayout vizPage="metrics" from={{ pathname: '/search', query: { ...query, p } }}>
       <Text my={5}>
-        Showing metrics for the first <b>{recordsToGet}</b> records
+        Showing metrics for <b>{recordsToGet}</b> records
       </Text>
       <MetricsPageContainer query={query} qid={qid as string} recordsToGet={recordsToGet} />
     </VizPageLayout>

@@ -89,8 +89,11 @@ export const useGetMetricsTimeSeries: ADSQuery<Bibcode[], IADSApiMetricsResponse
   });
 };
 
-export const useGetMetricsMult: ADSQuery<IDocsEntity['bibcode'][], IADSApiMetricsResponse> = (bibcodes, options) => {
-  const params = { bibcodes };
+export const useGetMetricsMult: ADSQuery<
+  { bibcodes: IDocsEntity['bibcode'][]; types?: IADSApiMetricsParams['types'] },
+  IADSApiMetricsResponse
+> = ({ bibcodes, types }, options) => {
+  const params: IADSApiMetricsParams = { bibcodes, types };
 
   return useQuery({
     queryKey: metricsMultKeys.primary(bibcodes),
@@ -130,6 +133,7 @@ export const fetchMetricsMult: QueryFunction<IADSApiMetricsResponse> = async ({ 
     url: `${ApiTargets.SERVICE_METRICS}`,
     data: {
       bibcodes: params.bibcodes,
+      types: params.types,
     },
   };
 

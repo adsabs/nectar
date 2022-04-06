@@ -1,7 +1,13 @@
 import { CitationsHistogramType, ReadsHistogramType } from '@api';
 import { PapersHistogramKey, PapersHistogramType } from '@api/lib/metrics/types';
-import { BasicStatsKey, CitationsHistogramKey, CitationsStatsKey, ReadsHistogramKey } from '@_api/metrics/types';
-import { BarGraph, ICitationsTableData, IPapersTableData, IReadsTableData } from './types';
+import {
+  BasicStatsKey,
+  CitationsHistogramKey,
+  CitationsStatsKey,
+  ReadsHistogramKey,
+  TimeSeriesKey,
+} from '@_api/metrics/types';
+import { BarGraph, ICitationsTableData, IIndicesTableData, IPapersTableData, IReadsTableData } from './types';
 
 export interface IGraphData {
   key: string;
@@ -34,6 +40,15 @@ export interface IPaperTableInput {
   };
   total: {
     [key in BasicStatsKey]: number;
+  };
+}
+
+export interface IIndicesTableInput {
+  refereed: {
+    [key in TimeSeriesKey]: number;
+  };
+  total: {
+    [key in TimeSeriesKey]: number;
   };
 }
 
@@ -235,6 +250,25 @@ export const getPapersTableData = (generalData: IPaperTableInput): IPapersTableD
   const data = {
     totalNumberOfPapers: [generalData.total[BasicStatsKey.NP], generalData.refereed[BasicStatsKey.NP]],
     totalNormalizedPaperCount: [generalData.total[BasicStatsKey.NPC], generalData.refereed[BasicStatsKey.NPC]],
+  };
+
+  Object.entries(data).forEach(([name, arr]) => {
+    data[name as keyof typeof data] = [limitPlaces(arr[0]), limitPlaces(arr[1])];
+  });
+
+  return data;
+};
+
+export const getIndicesTableData = (indicesData: IIndicesTableInput): IIndicesTableData => {
+  const data = {
+    hIndex: [indicesData.total[TimeSeriesKey.H], indicesData.refereed[TimeSeriesKey.H]],
+    mIndex: [indicesData.total[TimeSeriesKey.M], indicesData.refereed[TimeSeriesKey.M]],
+    gIndex: [indicesData.total[TimeSeriesKey.G], indicesData.refereed[TimeSeriesKey.G]],
+    i10Index: [indicesData.total[TimeSeriesKey.I10], indicesData.refereed[TimeSeriesKey.I10]],
+    i100Index: [indicesData.total[TimeSeriesKey.I100], indicesData.refereed[TimeSeriesKey.I100]],
+    toriIndex: [indicesData.total[TimeSeriesKey.TORI], indicesData.refereed[TimeSeriesKey.TORI]],
+    riqIndex: [indicesData.total[TimeSeriesKey.RIQ], indicesData.refereed[TimeSeriesKey.RIQ]],
+    read10Index: [indicesData.total[TimeSeriesKey.READ10], indicesData.refereed[TimeSeriesKey.READ10]],
   };
 
   Object.entries(data).forEach(([name, arr]) => {

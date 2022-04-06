@@ -54,10 +54,24 @@ export enum MetricsResponseKey {
   BSR = 'basic stats refereed',
   CS = 'citation stats',
   CSR = 'citation stats refereed',
+  I = 'indicators',
+  IR = 'indicators refereed',
+  TS = 'time series',
   SB = 'skipped bibcodes',
   H = 'histograms',
   E = 'Error',
   EI = 'Error Info',
+}
+
+export enum TimeSeriesKey {
+  G = 'g',
+  H = 'h',
+  M = 'm',
+  I10 = 'i10',
+  I100 = 'i100',
+  READ10 = 'read10',
+  TORI = 'tori',
+  RIQ = 'riq',
 }
 
 export type CitationsHistogramType = {
@@ -97,6 +111,15 @@ export interface IADSApiMetricsResponse {
     citations: CitationsHistogramType;
     reads: ReadsHistogramType;
     publications: PapersHistogramType;
+  };
+  [MetricsResponseKey.I]: {
+    [key in TimeSeriesKey]: number;
+  };
+  [MetricsResponseKey.IR]: {
+    [key in TimeSeriesKey]: number;
+  };
+  [MetricsResponseKey.TS]: {
+    [key in TimeSeriesKey]: { [key: string]: number }[];
   };
   [MetricsResponseKey.SB]?: string[];
   [MetricsResponseKey.E]?: string;

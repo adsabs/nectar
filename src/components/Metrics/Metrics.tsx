@@ -6,10 +6,11 @@ import { BarDatum } from '@nivo/bar';
 import { IADSApiMetricsResponse } from '@_api/metrics';
 import { ReactElement } from 'react';
 import { CitationsTable } from './CitationsTable';
+import { IndicesTable } from './IndicesTable';
 import { MetricsGraph } from './MetricsGraph';
 import { PapersTable } from './PapersTable';
 import { ReadsTable } from './ReadsTable';
-import { ICitationsTableData, IMetricsGraphs, IPapersTableData, IReadsTableData } from './types';
+import { ICitationsTableData, IIndicesTableData, IMetricsGraphs, IPapersTableData, IReadsTableData } from './types';
 export interface IMetricsProps {
   metrics: IADSApiMetricsResponse;
   isAbstract: boolean;
@@ -18,10 +19,8 @@ export interface IMetricsProps {
 export const Metrics = (props: IMetricsProps): ReactElement => {
   const { metrics, isAbstract } = props;
 
-  const { citationsTable, readsTable, papersTable, citationsGraphs, readsGraphs, papersGraphs } = useMetrics(
-    metrics,
-    isAbstract,
-  );
+  const { citationsTable, readsTable, papersTable, indicesTable, citationsGraphs, readsGraphs, papersGraphs } =
+    useMetrics(metrics, isAbstract);
 
   return (
     <>
@@ -48,7 +47,9 @@ export const Metrics = (props: IMetricsProps): ReactElement => {
             <TabPanel>
               <ReadsSection readsTable={readsTable} readsGraphs={readsGraphs} isAbstract={false} />
             </TabPanel>
-            <TabPanel></TabPanel>
+            <TabPanel>
+              <IndicesSection indicesTable={indicesTable} />
+            </TabPanel>
           </TabPanels>
         </Tabs>
       )}
@@ -126,6 +127,22 @@ const ReadsSection = ({
           </Heading>
           {readsTable && <ReadsTable data={readsTable} isAbstract={isAbstract} />}
           {isClient && readsGraphs && <MetricsGraphs graphs={readsGraphs} />}
+        </Box>
+      ) : null}
+    </>
+  );
+};
+
+const IndicesSection = ({ indicesTable }: { indicesTable: IIndicesTableData }): ReactElement => {
+  return (
+    <>
+      {indicesTable ? (
+        <Box as="section" aria-labelledby="indices-heading">
+          <Heading as="h3" fontSize="2xl" fontWeight="light" backgroundColor="gray.50" p={3} id="indices-heading">
+            Indices
+          </Heading>
+          {indicesTable && <IndicesTable data={indicesTable} />}
+          {/* {readsGraphs && <MetricsGraphs graphs={readsGraphs} />} */}
         </Box>
       ) : null}
     </>
