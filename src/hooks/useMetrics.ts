@@ -1,23 +1,29 @@
 import {
   getCitationTableData,
+  getPapersTableData,
   getReadsTableData,
   plotCitationsHist,
+  plotPapersHist,
   plotReadsHist,
 } from '@components/Metrics/graphUtils';
-import { ICitationsTableData, IMetricsGraphs, IReadsTableData } from '@components/Metrics/types';
+import { ICitationsTableData, IMetricsGraphs, IPapersTableData, IReadsTableData } from '@components/Metrics/types';
 import { BasicStatsKey, CitationsStatsKey, IADSApiMetricsResponse, MetricsResponseKey } from '@_api/metrics/types';
 
 export interface IMetricsData {
   citationsGraphs: IMetricsGraphs;
   readsGraphs: IMetricsGraphs;
+  papersGraphs: IMetricsGraphs;
   citationsTable: ICitationsTableData;
   readsTable: IReadsTableData;
+  papersTable: IPapersTableData;
 }
 
-export const useMetrics = (metrics: IADSApiMetricsResponse): IMetricsData => {
+export const useMetrics = (metrics: IADSApiMetricsResponse, isSinglePaper: boolean): IMetricsData => {
   const hasCitations = metrics && metrics[MetricsResponseKey.CS][CitationsStatsKey.TNC] > 0;
 
   const hasReads = metrics && metrics[MetricsResponseKey.BS][BasicStatsKey.TNR] > 0;
+
+  const hasPapers = isSinglePaper ? false : metrics && metrics[MetricsResponseKey.BS][BasicStatsKey.NP] > 0;
 
   const hist = metrics ? metrics.histograms : null;
 
@@ -36,6 +42,13 @@ export const useMetrics = (metrics: IADSApiMetricsResponse): IMetricsData => {
       }
     : null;
 
+  const papersGraphs = hasPapers
+    ? {
+        totalGraph: plotPapersHist(false, hist.publications),
+        normalizedGraph: plotPapersHist(true, hist.publications),
+      }
+    : null;
+
   // table data
   const citationsTable = hasCitations
     ? getCitationTableData({
@@ -51,10 +64,19 @@ export const useMetrics = (metrics: IADSApiMetricsResponse): IMetricsData => {
       })
     : null;
 
+  const papersTable = hasPapers
+    ? getPapersTableData({
+        refereed: metrics[MetricsResponseKey.BSR],
+        total: metrics[MetricsResponseKey.BS],
+      })
+    : null;
+
   return {
     citationsGraphs,
     readsGraphs,
+    papersGraphs,
     citationsTable,
     readsTable,
+    papersTable,
   };
 };

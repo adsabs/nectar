@@ -1,4 +1,5 @@
-export * from './Metrics';
 export * from './CitationsTable';
-export * from './ReadsTable';
+export * from './Metrics';
 export * from './MetricsGraph';
+export * from './PapersTable';
+export * from './ReadsTable';

@@ -1,3 +1,4 @@
+import { Text } from '@chakra-ui/react';
 import { VizPageLayout } from '@components';
 import { MetricsPageContainer } from '@components';
 import { parseQueryFromUrl } from '@utils';
@@ -52,6 +53,9 @@ const MetricsPage: NextPage = () => {
 
   return (
     <VizPageLayout vizPage="metrics" from={{ pathname: '/search', query: { ...query, p } }}>
+      <Text my={5}>
+        Showing metrics for the first <b>{recordsToGet}</b> records
+      </Text>
       <MetricsPageContainer query={query} qid={qid as string} recordsToGet={recordsToGet} />
     </VizPageLayout>
   );

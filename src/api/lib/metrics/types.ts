@@ -42,6 +42,13 @@ export enum ReadsHistogramKey {
   RRN = 'refereed reads normalized',
 }
 
+export enum PapersHistogramKey {
+  AP = 'all publications',
+  APN = 'all publications normalized',
+  RP = 'refereed publications',
+  RPN = 'refereed publications normalized',
+}
+
 export enum MetricsResponseKey {
   BS = 'basic stats',
   BSR = 'basic stats refereed',
@@ -58,6 +65,10 @@ export type CitationsHistogramType = {
 
 export type ReadsHistogramType = {
   [key in ReadsHistogramKey]: { [year: string]: number };
+};
+
+export type PapersHistogramType = {
+  [key in PapersHistogramKey]: { [year: string]: number };
 };
 
 export interface IADSApiMetricsParams {

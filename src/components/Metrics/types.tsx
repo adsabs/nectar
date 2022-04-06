@@ -31,3 +31,8 @@ export interface IReadsTableData {
   averageNumberOfDownloads: number[];
   medianNumberOfDownloads: number[];
 }
+
+export interface IPapersTableData {
+  totalNumberOfPapers: number[];
+  totalNormalizedPaperCount: number[];
+}
