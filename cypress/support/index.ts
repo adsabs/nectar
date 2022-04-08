@@ -19,6 +19,6 @@ import './commands';
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 
-Cypress.Commands.add('dataCy', (value) => {
-  return cy.get(`[data-cy=${value}]`);
-});
+// Cypress.Commands.add('dataCy', (value) => {
+//   return cy.get(`[data-cy=${value}]`);
+// });

@@ -33,6 +33,7 @@ const config: Config.InitialOptions = {
   },
   verbose: true,
   moduleDirectories: ['node_modules', '<rootDir>/src/'],
+  testPathIgnorePatterns: ['<rootDir>/cypress/.*'],
   testEnvironment: 'jest-environment-jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest-setup.ts'],
   maxConcurrency: 99,

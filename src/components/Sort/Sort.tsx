@@ -59,7 +59,7 @@ export const Sort = (props: ISortProps): ReactElement => {
   }
 
   return (
-    <HStack spacing={0}>
+    <HStack spacing={0} data-testid="sort">
       <Box width="250px">
         <SortSelect hideLabel={hideLabel} sort={selected} onChange={handleSelectionChange} />
       </Box>
@@ -74,6 +74,7 @@ export const Sort = (props: ISortProps): ReactElement => {
           borderRightRadius="2px"
           size="md"
           colorScheme="gray"
+          data-testid="sort-direction-toggle"
         />
       ) : (
         <IconButton
@@ -86,6 +87,7 @@ export const Sort = (props: ISortProps): ReactElement => {
           borderRightRadius="2px"
           size="md"
           colorScheme="gray"
+          data-testid="sort-direction-toggle"
         />
       )}
 
@@ -121,6 +123,7 @@ const SortSelect = ({
       options={sortOptions}
       stylesTheme="sort"
       onChange={onChange}
+      data-testid="sort-select"
     />
   );
 };

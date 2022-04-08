@@ -116,7 +116,7 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
           </Text>
         </Box>
         {!hidePerPageSelect && isClient && (
-          <Box display={{ base: 'none', xs: 'flex' }}>
+          <Box display={{ base: 'none', xs: 'flex' }} data-testid="pagination-numperpage">
             <Select
               label="Select number of results to show per page"
               options={pageOptions}
@@ -214,8 +214,8 @@ const ManualPageSelect = ({
 
   // on enter, submit the change
   const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (e) => {
-    e.preventDefault();
     if (e.key === 'Enter') {
+      e.preventDefault();
       handleSubmit();
     }
   };
@@ -224,7 +224,11 @@ const ManualPageSelect = ({
   return (
     <Popover placement="top" size="sm" initialFocusRef={pagePickerRef} closeOnBlur>
       <PopoverTrigger>
-        <Button aria-label={`current page is ${currentPage}, update page`} variant="pageBetween">
+        <Button
+          aria-label={`current page is ${currentPage}, update page`}
+          variant="pageBetween"
+          data-testid="pagination-select-page"
+        >
           {currentPage.toLocaleString()} of {totalPages.toLocaleString()}
         </Button>
       </PopoverTrigger>

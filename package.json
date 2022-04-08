@@ -106,7 +106,7 @@
     "autoprefixer": "^10.2.4",
     "babel-loader": "^8.0.0",
     "babel-plugin-optimize-clsx": "^2.6.2",
-    "cypress": "^6.8.0",
+    "cypress": "^9.5.2",
     "eslint": "^8.10.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-jest": "^26.1.1",

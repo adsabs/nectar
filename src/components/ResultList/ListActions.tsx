@@ -1,4 +1,4 @@
-import { Button, Checkbox, Stack } from '@chakra-ui/react';
+import { Button, Checkbox, Stack, VisuallyHidden } from '@chakra-ui/react';
 import { ISortProps, Sort } from '@components/Sort';
 import { useIsClient } from '@hooks/useIsClient';
 import { AppState, useStore } from '@store';
@@ -17,9 +17,19 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const noneSelected = selected === 0;
 
   return (
-    <Stack direction="column" spacing={1} mb={1}>
+    <Stack
+      direction="column"
+      spacing={1}
+      mb={1}
+      as="section"
+      aria-labelledby="result-actions-title"
+      data-testid="listactions"
+    >
+      <VisuallyHidden as="h2" id="result-actions-title">
+        Result Actions
+      </VisuallyHidden>
       <Stack direction={{ base: 'column', sm: 'row' }} spacing={1} width="min-content">
-        <HighlightsToggle />
+        {isClient && <HighlightsToggle />}
         <SortWrapper onChange={onSortChange} />
       </Stack>
       {isClient && (
@@ -42,7 +52,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
             {!noneSelected && (
               <>
                 <span className="m-2 h-5 text-sm">{selected.toLocaleString()} Selected</span>
-                <Button variant="link" fontWeight="normal" onClick={clearSelected}>
+                <Button variant="link" fontWeight="normal" onClick={clearSelected} data-testid="listactions-clearall">
                   Clear All
                 </Button>
                 <Button variant="link" fontWeight="normal">
@@ -77,44 +87,54 @@ const SortWrapper = ({ onChange }: { onChange: ISortProps['onChange'] }) => {
 
 const HighlightsToggle = () => {
   const [showHighlights, setShowHights] = useState(false);
-  const isClient = useIsClient();
   const toggleShowHighlights = () => setShowHights(!showHighlights);
 
   return (
-    <>
-      {isClient ? (
-        <Button
-          variant={showHighlights ? 'solid' : 'outline'}
-          onClick={toggleShowHighlights}
-          size="md"
-          borderRadius="2px"
-        >
-          Show Highlights
-        </Button>
-      ) : null}
-    </>
+    <Button
+      variant={showHighlights ? 'solid' : 'outline'}
+      onClick={toggleShowHighlights}
+      size="md"
+      borderRadius="2px"
+      data-testid="listactions-showhighlights"
+    >
+      Show Highlights
+    </Button>
   );
 };
 
-const SelectAllCheckbox = () => {
-  const selectAll = useStore((state) => state.selectAll);
-  const isAllSelected = useStore((state) => state.docs.isAllSelected);
-  const isSomeSelected = useStore((state) => state.docs.isSomeSelected);
-  const clearAllSelected = useStore((state) => state.clearAllSelected);
-
-  const handleClick = () => {
-    if (isAllSelected || isSomeSelected) {
-      clearAllSelected();
-    } else {
-      selectAll();
-    }
+const selectors = {
+  selectAll: (state: AppState) => state.selectAll,
+  isAllSelected: (state: AppState) => state.docs.isAllSelected,
+  isSomeSelected: (state: AppState) => state.docs.isSomeSelected,
+  clearAllSelected: (state: AppState) => state.clearAllSelected,
+};
+const useDocSelection = () => {
+  const selectAll = useStore(selectors.selectAll);
+  const isAllSelected = useStore(selectors.isAllSelected);
+  const isSomeSelected = useStore(selectors.isSomeSelected);
+  const clearAllSelected = useStore(selectors.clearAllSelected);
+  return {
+    selectAll,
+    isAllSelected,
+    isSomeSelected,
+    clearAllSelected,
   };
+};
+
+const SelectAllCheckbox = () => {
+  const { selectAll, isAllSelected, isSomeSelected, clearAllSelected } = useDocSelection();
+
+  const handleChange = () => {
+    isAllSelected || isSomeSelected ? clearAllSelected() : selectAll();
+  };
+
   return (
     <Checkbox
       size="md"
       isChecked={isAllSelected}
       isIndeterminate={!isAllSelected && isSomeSelected}
-      onChange={handleClick}
+      onChange={handleChange}
+      data-testid="listactions-checkbox"
     />
   );
 };

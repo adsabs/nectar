@@ -6,9 +6,10 @@ import {
   usePagination,
 } from '@components/ResultList/Pagination/usePagination';
 import { act, renderHook } from '@testing-library/react-hooks';
-import { pick } from 'ramda';
+import { keys, pick } from 'ramda';
 
 const router = {
+  pathname: '/',
   push: jest.fn(),
 };
 jest.mock('next/router', () => ({
@@ -16,19 +17,14 @@ jest.mock('next/router', () => ({
 }));
 
 const setup = (props?: Partial<IUsePaginationProps>) => {
-  const onNumPerPageChange = jest.fn();
-  const onPageChange = jest.fn();
-
   const initialProps: IUsePaginationProps = {
     numFound: 100,
     ...props,
   };
 
-  const util = renderHook<IUsePaginationProps, IUsePaginationResult>((props) => usePagination(props), {
+  return renderHook<IUsePaginationProps, IUsePaginationResult>((props) => usePagination(props), {
     initialProps,
   });
-
-  return { ...util, initialProps, onNumPerPageChange, onPageChange };
 };
 
 const gen = (
@@ -87,12 +83,6 @@ const basicTests: [[number, IPaginationState['numPerPage']], Partial<IUsePaginat
   [[384455, 100], { totalPages: 3845, noPagination: false }],
 ];
 
-test.concurrent.each(basicTests)(`Page Test %p`, async ([numFound, numPerPage], expected) => {
-  const { result } = setup({ numFound });
-  act(() => result.current.dispatch({ type: 'SET_PERPAGE', payload: numPerPage }));
-  expect(pick(Object.keys(expected), result.current)).toEqual(expected);
-});
-
 // [page, numFound]
 const indexTests: [[number, number], Partial<IUsePaginationResult>][] = [
   [[1, 100], { page: 1, noNext: false, noPrev: true, startIndex: 0, endIndex: 10 }],
@@ -105,8 +95,64 @@ const indexTests: [[number, number], Partial<IUsePaginationResult>][] = [
   [[2, 19], { page: 2, noNext: true, noPrev: false, startIndex: 11, endIndex: 19 }],
 ];
 
-test.concurrent.each(indexTests)('Index Test %p', async ([page, numFound], expected) => {
-  const { result } = setup({ numFound });
-  act(() => result.current.dispatch({ type: 'SET_PAGE', payload: page }));
-  expect(pick(Object.keys(expected), result.current)).toEqual(expected);
+describe('usePagination Hook', () => {
+  beforeEach(() => {
+    router.push.mockReset();
+  });
+
+  test.concurrent.each(basicTests)(`Page Test %p`, async ([numFound, numPerPage], expected) => {
+    const { result } = setup({ numFound });
+    act(() => result.current.dispatch({ type: 'SET_PERPAGE', payload: numPerPage }));
+    expect(pick(keys(expected), result.current)).toEqual(expected);
+  });
+
+  test.concurrent.each(indexTests)('Index Test %p', async ([page, numFound], expected) => {
+    const { result } = setup({ numFound });
+    act(() => result.current.dispatch({ type: 'SET_PAGE', payload: page }));
+    expect(pick(keys(expected), result.current)).toEqual(expected);
+  });
+
+  test('reset dispatch works properly', () => {
+    const { result } = setup();
+    act(() => result.current.dispatch({ type: 'SET_PAGE', payload: 5 }));
+    const initial = { page: 5, startIndex: 41 };
+    const after = { page: 1, startIndex: 0 };
+    expect(pick(keys(initial), result.current)).toEqual(initial);
+    act(() => result.current.dispatch({ type: 'RESET' }));
+    expect(pick(keys(after), result.current)).toEqual(after);
+  });
+
+  test('prev page dispatch works properly', () => {
+    const { result } = setup();
+    act(() => result.current.dispatch({ type: 'SET_PAGE', payload: 5 }));
+    const initial = { page: 5, startIndex: 41 };
+    const after = { page: 4, startIndex: 31 };
+    expect(pick(keys(initial), result.current)).toEqual(initial);
+    act(() => result.current.dispatch({ type: 'PREV_PAGE' }));
+    expect(pick(keys(after), result.current)).toEqual(after);
+  });
+
+  test('next page dispatch works properly', () => {
+    const { result } = setup();
+    const initial = { page: 1, startIndex: 0 };
+    const after = { page: 2, startIndex: 11 };
+    expect(pick(keys(initial), result.current)).toEqual(initial);
+    act(() => result.current.dispatch({ type: 'NEXT_PAGE' }));
+    expect(pick(keys(after), result.current)).toEqual(after);
+  });
+
+  test('updates URL param properly when page changes', () => {
+    const { result } = setup();
+    expect(router.push).toHaveBeenCalledTimes(1);
+    expect(router.push).toHaveBeenLastCalledWith({ pathname: '/', query: { p: 1 } }, null, { shallow: true });
+    act(() => result.current.dispatch({ type: 'NEXT_PAGE' }));
+    expect(router.push).toHaveBeenCalledTimes(2);
+    expect(router.push).toHaveBeenLastCalledWith({ pathname: '/', query: { p: 2 } }, null, { shallow: true });
+    act(() => result.current.dispatch({ type: 'SET_PAGE', payload: 5 }));
+    expect(router.push).toHaveBeenCalledTimes(3);
+    expect(router.push).toHaveBeenLastCalledWith({ pathname: '/', query: { p: 5 } }, null, { shallow: true });
+    act(() => result.current.dispatch({ type: 'PREV_PAGE' }));
+    expect(router.push).toHaveBeenCalledTimes(4);
+    expect(router.push).toHaveBeenLastCalledWith({ pathname: '/', query: { p: 4 } }, null, { shallow: true });
+  });
 });
