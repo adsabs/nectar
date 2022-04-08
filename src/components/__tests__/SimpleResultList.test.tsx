@@ -9,5 +9,5 @@ describe('ResultList Component', () => {
     render(<ResultList docs={[]} />);
   });
 
-  test('synchronizes correctly with URL', () => {});
+  test.todo('synchronizes correctly with URL');
 });
