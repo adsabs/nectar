@@ -1,5 +1,5 @@
+import { LinkProps } from 'next/link';
 import { ReactElement } from 'react';
-import { UrlObject } from 'url';
 
 export enum ListType {
   DROPDOWN = 'dropdown',
@@ -9,7 +9,7 @@ export enum ListType {
 export type ItemType = {
   id: string;
   label?: string | ReactElement;
-  path?: string | UrlObject;
+  linkProps: LinkProps;
   newTab?: boolean;
   disabled?: boolean;
 };
