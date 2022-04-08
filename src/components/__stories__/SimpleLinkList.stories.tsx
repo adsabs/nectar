@@ -1,4 +1,5 @@
 import { ISimpleLinkListProps, SimpleLinkList } from '@components';
+import { ItemType } from '@components/Dropdown/types';
 import { states } from '@components/__mocks__/data';
 import { Meta, Story } from '@storybook/react';
 
@@ -9,17 +10,17 @@ const meta: Meta = {
 
 export default meta;
 
-const items = states.map((state) => ({
+const items: ItemType[] = states.map((state) => ({
   id: state,
   label: state,
-  path: `http://50states.com/${state}`,
+  linkProps: { href: `http://50states.com/${state}` },
   newTab: true,
   disabled: false,
 }));
 
 const Template: Story<ISimpleLinkListProps> = (args) => <SimpleLinkList {...args} />;
 
-export const Horizontal = Template.bind({}) ;
+export const Horizontal = Template.bind({});
 
 Horizontal.args = {
   items,
@@ -29,7 +30,7 @@ Horizontal.args = {
   asRow: true,
 };
 
-export const Vertical = Template.bind({}) ;
+export const Vertical = Template.bind({});
 
 Vertical.args = {
   items,
