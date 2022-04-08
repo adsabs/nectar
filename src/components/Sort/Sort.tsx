@@ -2,16 +2,16 @@ import { SolrSort, SolrSortDirection } from '@api';
 import { IconButton } from '@chakra-ui/button';
 import { Input } from '@chakra-ui/input';
 import { Box, HStack, Link } from '@chakra-ui/layout';
-import { SimpleLinkDropdown, SortSelectorStyle } from '@components';
+import { SimpleLinkDropdown } from '@components';
 import { ItemType } from '@components/Dropdown/types';
-import { ISelectProps, Select } from '@components/Select';
+import { Select } from '@components/Select';
 import { SortAscendingIcon, SortDescendingIcon } from '@heroicons/react/outline';
 import { useIsClient } from '@hooks/useIsClient';
 import { normalizeSolrSort } from '@utils';
+import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { Fragment, MouseEventHandler, ReactElement, useCallback, useMemo } from 'react';
 import { sortValues } from './model';
-import NextLink from 'next/link';
 
 export interface ISortProps {
   name?: string;
@@ -29,7 +29,7 @@ export interface ISortProps {
  * Expects to be controlled (i.e. using sort and onChange to control value/updating)
  */
 export const Sort = (props: ISortProps): ReactElement => {
-  const { sort = ['date desc'], onChange, name = 'sort', useNativeWhenNoJs = false } = props;
+  const { sort = ['date desc'], onChange, name = 'sort', useNativeWhenNoJs = false, hideLabel = true } = props;
 
   // normalize incoming sort
   const allSorts = useMemo(() => normalizeSolrSort(sort), [sort]);
@@ -47,7 +47,7 @@ export const Sort = (props: ISortProps): ReactElement => {
 
   // fire onChange handler for selection change
   const handleSelectionChange = useCallback(
-    (value: string) => onChange([`${value} ${direction}` as SolrSort, ...allSorts.slice(1)]),
+    (selection: SortOptionType) => onChange([`${selection.value} ${direction}` as SolrSort, ...allSorts.slice(1)]),
     [direction, onChange],
   );
 
@@ -61,7 +61,7 @@ export const Sort = (props: ISortProps): ReactElement => {
   return (
     <HStack spacing={0}>
       <Box width="250px">
-        <SortSelect sort={selected} onChange={handleSelectionChange} />
+        <SortSelect hideLabel={hideLabel} sort={selected} onChange={handleSelectionChange} />
       </Box>
       {direction === 'asc' ? (
         <IconButton
@@ -103,9 +103,26 @@ interface SortOptionType {
 export const sortOptions: SortOptionType[] = sortValues.map((v) => ({ id: v.id, value: v.id, label: v.text }));
 
 // Sort Select component
-const SortSelect = ({ sort, onChange }: { sort: string; onChange: ISelectProps<string>['onChange'] }) => {
+const SortSelect = ({
+  sort,
+  onChange,
+  hideLabel,
+}: {
+  sort: string;
+  onChange: (val: SortOptionType) => void;
+  hideLabel: ISortProps['hideLabel'];
+}) => {
   const selected = sortOptions.find((o) => o.id === sort) ?? sortOptions[0];
-  return <Select value={selected} options={sortOptions} styles={SortSelectorStyle} onChange={onChange} />;
+  return (
+    <Select<SortOptionType>
+      label="Sort"
+      hideLabel={hideLabel}
+      value={selected}
+      options={sortOptions}
+      stylesTheme="sort"
+      onChange={onChange}
+    />
+  );
 };
 
 // non-native type, used in search results
@@ -135,12 +152,7 @@ const NoJsSort = (): ReactElement => {
 
   return (
     <HStack spacing={0}>
-      <SimpleLinkDropdown
-        items={options}
-        label={sortby}
-        minListWidth="300px"
-        minLabelWidth="300px"
-      ></SimpleLinkDropdown>
+      <SimpleLinkDropdown items={options} label={sortby} minListWidth="300px" minLabelWidth="300px" />
       <NextLink
         href={{ query: { ...router.query, p: 1, sort: `${sortby} ${getToggledDir(dir as SolrSortDirection)}` } }}
         passHref
