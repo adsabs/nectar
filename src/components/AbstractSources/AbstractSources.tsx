@@ -72,14 +72,14 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
         {` ${source.name}`}
       </>
     ),
-    path: source.url,
+    linkProps: { href: source.url },
     newTab: true,
   }));
 
   const handleSelect = (e: MouseEvent<HTMLElement>) => {
     const id = (e.target as HTMLElement).dataset['id'];
-    const path = fullSourceItems.find((item) => id === item.id)?.path;
-    if (isClient && path) {
+    const { href: path } = fullSourceItems.find((item) => id === item.id)?.linkProps;
+    if (isClient && typeof path === 'string') {
       window.open(path, '_blank', 'noopener,noreferrer');
     }
   };
@@ -130,7 +130,7 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
       dataProducts.map((source) => ({
         id: source.name,
         label: source.name,
-        path: source.url,
+        linkProps: { href: source.url },
         newTab: true,
       })),
     [dataProducts],
@@ -141,7 +141,7 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
       relatedWorks.map((source) => ({
         id: source.name,
         label: source.name,
-        path: source.url,
+        linkProps: { href: source.url },
         newTab: true,
       })),
     [relatedWorks],
@@ -154,7 +154,7 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
     items.push({
       id: 'data-subheading',
       label: 'Data Products:',
-      path: '',
+      linkProps: { href: '' },
       disabled: true,
     });
     items.push(...dataProductItems);
@@ -165,7 +165,7 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
     items.push({
       id: 'related-subheading',
       label: 'Related Materials:',
-      path: '',
+      linkProps: { href: '' },
       disabled: true,
     });
     items.push(...relatedWorkItems);
@@ -173,8 +173,8 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
 
   const handleSelect: MouseEventHandler<HTMLElement> = (e) => {
     const id = e.currentTarget.dataset['id'];
-    const path = items.find((item) => id === item.id)?.path as string;
-    if (isClient && path) {
+    const { href: path } = items.find((item) => id === item.id)?.linkProps;
+    if (isClient && typeof path === 'string') {
       window.open(path, '_blank', 'noopener,noreferrer');
     }
   };

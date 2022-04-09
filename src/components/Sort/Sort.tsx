@@ -17,6 +17,7 @@ export interface ISortProps {
   name?: string;
   sort?: SolrSort | SolrSort[];
   hideLabel?: boolean;
+  fullWidth?: boolean;
   onChange?: (sort: SolrSort[]) => void;
   leftMargin?: string; // css selector
   rightMargin?: string;
@@ -29,7 +30,14 @@ export interface ISortProps {
  * Expects to be controlled (i.e. using sort and onChange to control value/updating)
  */
 export const Sort = (props: ISortProps): ReactElement => {
-  const { sort = ['date desc'], onChange, name = 'sort', useNativeWhenNoJs = false, hideLabel = true } = props;
+  const {
+    sort = ['date desc'],
+    onChange,
+    name = 'sort',
+    useNativeWhenNoJs = false,
+    hideLabel = true,
+    fullWidth = false,
+  } = props;
 
   // normalize incoming sort
   const allSorts = useMemo(() => normalizeSolrSort(sort), [sort]);
@@ -58,9 +66,11 @@ export const Sort = (props: ISortProps): ReactElement => {
     return <>{useNativeWhenNoJs ? <NoJsNativeSort name={name} /> : <NoJsSort />}</>;
   }
 
+  const sortContainerWidth = fullWidth ? 'full' : '250px';
+
   return (
-    <HStack spacing={0} data-testid="sort">
-      <Box width="250px">
+    <HStack spacing={0} data-testid="sort" alignItems="flex-end">
+      <Box width={sortContainerWidth}>
         <SortSelect hideLabel={hideLabel} sort={selected} onChange={handleSelectionChange} />
       </Box>
       {direction === 'asc' ? (
@@ -149,7 +159,9 @@ const NoJsSort = (): ReactElement => {
     options.push({
       id: `${sort.id}`,
       label: `${sort.label}`,
-      path: { query: { ...router.query, sort: `${sort.id} ${dir}`, p: 1 } },
+      linkProps: {
+        href: { query: { ...router.query, sort: `${sort.id} ${dir}`, p: 1 } },
+      },
     });
   });
 

@@ -12,9 +12,8 @@ import { useHasGraphics } from '@_api/graphics';
 import { useHasMetrics } from '@_api/metrics';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
-import qs from 'qs';
 import { last } from 'ramda';
-import { HTMLAttributes, ReactElement } from 'react';
+import { HTMLAttributes, ReactElement, useMemo } from 'react';
 import { navigation, Routes } from './model';
 
 export interface IAbstractSideNavProps extends HTMLAttributes<HTMLDivElement> {
@@ -31,53 +30,56 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
   const useCount = [Routes.CITATIONS, Routes.REFERENCES];
   const isClient = useIsClient();
 
-  const items = navigation.map((item) => {
-    const MenuIcon = item.icon || DocumentIcon;
-    const current = item.href === subPage;
-    const count =
-      item.href === Routes.EXPORT ||
-      (item.href === Routes.GRAPHICS && hasGraphics) ||
-      (item.href === Routes.METRICS && hasMetrics) ||
-      (item.href === Routes.VOLUMECONTENT && hasToc)
-        ? 1
-        : getCount(item.href, doc);
-    const disabled = count === 0 && item.href !== Routes.ABSTRACT;
-    const showCount = count > 0 && useCount.includes(item.href);
-    const href = { pathname: disabled ? Routes.ABSTRACT : item.href, query: { id: router.query.id } };
+  const items = useMemo(
+    () =>
+      navigation.map((item) => {
+        const MenuIcon = item.icon || DocumentIcon;
+        const current = item.route === subPage;
+        const count =
+          item.route === Routes.EXPORT ||
+          (item.route === Routes.GRAPHICS && hasGraphics) ||
+          (item.route === Routes.METRICS && hasMetrics) ||
+          (item.route === Routes.VOLUMECONTENT && hasToc)
+            ? 1
+            : getCount(item.route, doc);
+        const disabled = count === 0 && item.route !== Routes.ABSTRACT;
+        const showCount = count > 0 && useCount.includes(item.route);
 
-    const label = (
-      <Stack direction="row" alignItems="center">
-        <MenuIcon className="mr-3 w-6 h-6" aria-hidden="true" />
-        <Text fontWeight="normal">{item.name}</Text>
-        {showCount ? (
-          <Badge
-            mx={3}
-            py={1}
-            fontSize="xs"
-            fontWeight="normal"
-            borderRadius="xl"
-            colorScheme="gray"
-            px={2}
-            backgroundColor="gray.50"
-          >
-            {count}
-          </Badge>
-        ) : null}
-      </Stack>
-    );
+        const label = (
+          <Stack direction="row" alignItems="center">
+            <MenuIcon className="mr-3 w-6 h-6" aria-hidden="true" />
+            <Text fontWeight="normal">{item.name}</Text>
+            {showCount ? (
+              <Badge
+                mx={3}
+                py={1}
+                fontSize="xs"
+                fontWeight="normal"
+                borderRadius="xl"
+                colorScheme="gray"
+                px={2}
+                backgroundColor="gray.50"
+              >
+                {count}
+              </Badge>
+            ) : null}
+          </Stack>
+        );
 
-    return {
-      id: item.name,
-      name: item.name,
-      disabled,
-      current,
-      label,
-      href,
-      count,
-      icon: MenuIcon,
-      showCount,
-    };
-  });
+        return {
+          id: item.name,
+          name: item.name,
+          disabled,
+          current,
+          label,
+          route: disabled ? Routes.ABSTRACT : item.route,
+          count,
+          icon: MenuIcon,
+          showCount,
+        };
+      }),
+    [],
+  );
 
   const getTopMenu = () => {
     const currentItem = items.find((item) => item.current) ?? items[0];
@@ -116,48 +118,44 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
       </Flex>
     );
 
-    const getSimpleItems = (): ItemType[] => {
-      const res = items.map((item) => ({
+    if (!isClient) {
+      const simpleItems: ItemType[] = items.map((item) => ({
         id: item.id,
         label: item.label,
-        path: `${item.href.pathname}?${qs.stringify(item.href.query)}`,
+        linkProps: {
+          href: `abs/[id]/${item.route}`,
+          as: `abs/${router.query.id as string}/${item.route}`,
+        },
         disabled: item.disabled,
       }));
-      return res;
-    };
+      return (
+        <SimpleLinkList items={simpleItems} minWidth="full" selected={currentItem.id} label="Abstract Navigation" />
+      );
+    }
 
     return (
-      <>
-        {isClient ? (
-          <Menu matchWidth>
-            <MenuButton width="full">{label}</MenuButton>
-            <MenuList>
-              {items.map((item) => (
-                <MenuItem
-                  key={item.id}
-                  isDisabled={item.disabled}
-                  backgroundColor={item.current ? 'gray.100' : 'transparent'}
-                  mb={1}
-                >
-                  <NextLink key={item.name} href={item.href} passHref>
-                    <Box width="full">{item.label}</Box>
-                  </NextLink>
-                </MenuItem>
-              ))}
-            </MenuList>
-          </Menu>
-        ) : (
-          <>
-            {/* <SimpleLinkDropdown items={getSimpleItems()} label={label} minLabelWidth="full" minListWidth="full" /> */}
-            <SimpleLinkList
-              items={getSimpleItems()}
-              minWidth="full"
-              selected={currentItem.id}
-              label="Abstract Navigation"
-            />
-          </>
-        )}
-      </>
+      <Menu matchWidth>
+        <MenuButton width="full">{label}</MenuButton>
+        <MenuList>
+          {items.map((item) => (
+            <MenuItem
+              key={item.id}
+              isDisabled={item.disabled}
+              backgroundColor={item.current ? 'gray.100' : 'transparent'}
+              mb={1}
+            >
+              <NextLink
+                key={item.name}
+                href={`abs/[id]/${item.route}`}
+                as={`abs/${router.query.id as string}/${item.route}`}
+                passHref
+              >
+                <Box width="full">{item.label}</Box>
+              </NextLink>
+            </MenuItem>
+          ))}
+        </MenuList>
+      </Menu>
     );
   };
 
@@ -166,7 +164,12 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
       <Box as="nav" aria-label="sidebar" display={{ base: 'none', lg: 'initial' }}>
         <Flex direction="column" alignItems="start" justifyContent="start" shadow="md" borderRadius="md" p={2}>
           {items.map((item) => (
-            <NextLink key={item.name} href={item.href} passHref>
+            <NextLink
+              key={item.name}
+              href={`abs/[id]/${item.route}`}
+              as={`abs/${router.query.id as string}/${item.route}`}
+              passHref
+            >
               <Link variant="dropdownItem" w="full" tabIndex={-1}>
                 <Button
                   variant={item.current ? 'solid' : 'ghost'}

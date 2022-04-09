@@ -4,9 +4,9 @@ import { LockIcon, UnlockIcon } from '@chakra-ui/icons';
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
 import { SimpleLinkDropdown } from '@components';
 import { processLinkData } from '@components/AbstractSources/linkGenerator';
+import { ItemType } from '@components/Dropdown/types';
 import { DatabaseIcon, DocumentTextIcon, ViewListIcon } from '@heroicons/react/outline';
 import { useIsClient } from '@hooks/useIsClient';
-import { isBrowser } from '@utils';
 import { useRouter } from 'next/router';
 import { MouseEventHandler, ReactElement } from 'react';
 
@@ -14,10 +14,9 @@ export interface IItemResourceDropdownsProps {
   doc: IDocsEntity;
 }
 
-export interface IItem {
+export interface IItem extends ItemType {
   id: string;
   label: ReactElement | string;
-  path?: string;
 }
 
 export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): ReactElement => {
@@ -48,14 +47,14 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
           {` ${source.name}`}
         </>
       ),
-      path: source.url,
+      linkProps: { href: source.url },
       id: `fullText-${source.name}`,
       newTab: true,
     }));
 
     dataProductItems = dataProducts.map((dp) => ({
       label: dp.name,
-      path: dp.url,
+      linkProps: { href: dp.url },
       id: `dataProd-${dp.name}`,
       newTab: true,
     }));
@@ -70,7 +69,10 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
     referenceItems.push({
       id: `ref-dropdown-cit-${doc.bibcode}`,
       label: `Citations (${num_citations})`,
-      path: `/abs/${doc.bibcode}/citations`,
+      linkProps: {
+        href: 'abs/[id]/citations',
+        as: `abs/${doc.bibcode}/citations`,
+      },
     });
   }
 
@@ -78,30 +80,33 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
     referenceItems.push({
       id: `ref-dropdown-ref-${doc.bibcode}`,
       label: `References (${num_references})`,
-      path: `/abs/${doc.bibcode}/references`,
+      linkProps: {
+        href: 'abs/[id]/references',
+        as: `abs/${doc.bibcode}/references`,
+      },
     });
   }
 
   const handleResourceClick: MouseEventHandler<HTMLElement> = (e) => {
     const id = e.currentTarget.dataset['id'];
-    const path = fullSourceItems.find((item) => id === item.id)?.path;
-    if (isBrowser() && path) {
+    const { as: path } = fullSourceItems.find((item) => id === item.id)?.linkProps;
+    if (isClient && typeof path === 'string') {
       window.open(path, '_blank', 'noopener,noreferrer');
     }
   };
 
   const handleReferenceClick: MouseEventHandler<HTMLElement> = (e) => {
     const id = e.currentTarget.dataset['id'];
-    const path = referenceItems.find((item) => id === item.id)?.path;
-    if (isBrowser() && path) {
+    const { as: path } = referenceItems.find((item) => id === item.id)?.linkProps;
+    if (isClient && path) {
       void router.push(path);
     }
   };
 
   const handleDataProductClick: MouseEventHandler<HTMLElement> = (e) => {
     const id = e.currentTarget.dataset['id'];
-    const path = dataProductItems.find((item) => id === item.id)?.path;
-    if (isBrowser() && path) {
+    const { as: path } = dataProductItems.find((item) => id === item.id)?.linkProps;
+    if (isClient && typeof path === 'string') {
       window.open(path, '_blank', 'noopener,noreferrer');
     }
   };
