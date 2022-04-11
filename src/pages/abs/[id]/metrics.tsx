@@ -48,7 +48,7 @@ const MetricsPage: NextPage<IMetricsPageProps> = (props: IMetricsPageProps) => {
           {error}
         </Alert>
       )}
-      {isSuccess && <Metrics metrics={metrics as IADSApiMetricsResponse} isAbstract={true} />}
+      {isSuccess && <Metrics metrics={metrics} isAbstract={true} />}
     </AbsLayout>
   );
 };

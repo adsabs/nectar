@@ -66,7 +66,7 @@ export const useMetrics = (metrics: IADSApiMetricsResponse, isSinglePaper: boole
       }
     : null;
 
-  const indicesGraph = hasIndicesGraph ? plotTimeSeriesGraph(metrics[MetricsResponseKey.TS]) : null;
+  const indicesGraph = hasIndicesGraph ? plotTimeSeriesGraph(metrics[MetricsResponseKey.TS]) : undefined;
 
   // table data
   const citationsTable = hasCitations

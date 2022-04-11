@@ -155,6 +155,12 @@ export const parseQueryFromUrl = (params: ParsedQueryParams): IADSApiSearchParam
   };
 };
 
+export const parseQueryFromUrlNoPage = (params: ParsedUrlQuery): IADSApiSearchParams => {
+  const result = parseQueryFromUrl(params);
+  delete result.p;
+  return result;
+};
+
 // detects if passed in value is a valid SolrSort
 export const isSolrSort = (maybeSolrSort: string): maybeSolrSort is SolrSort => {
   return [

@@ -1,12 +1,13 @@
 import { ReactElement, useEffect, useMemo } from 'react';
 import { useQueries } from 'react-query';
 import { fetchSearch } from '@_api/search';
-import { parseQueryFromUrl } from '@utils';
+import { parseQueryFromUrl, parseQueryFromUrlNoPage } from '@utils';
 import { IADSApiSearchResponse } from '@api';
 import { useGetMultMetrics } from '@_api/metrics';
 import { Metrics } from '@components';
-import { Alert, AlertDescription, AlertIcon, AlertTitle, Box } from '@chakra-ui/react';
+import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, CircularProgress } from '@chakra-ui/react';
 import axios from 'axios';
+import { useRouter } from 'next/router';
 
 interface IMetricsPageProps {
   query: { [key: string]: string | string[] };
@@ -35,7 +36,7 @@ export const MetricsPageContainer = ({ query, qid, recordsToGet }: IMetricsPageP
         ? { q: `docs(${qid})`, start: start, rows: 1000, fl: ['bibcode'] }
         : { ...parseQueryFromUrl(query), start: start, rows: 1000, fl: ['bibcode'] };
       return {
-        queryKey: ['search/bibcodes', start],
+        queryKey: ['search/bibcodes', params],
         queryFn: fetchSearch,
         meta: { params },
         select: (data: IADSApiSearchResponse) => data.response,
@@ -44,7 +45,11 @@ export const MetricsPageContainer = ({ query, qid, recordsToGet }: IMetricsPageP
   );
 
   const bibcodes = useMemo(() => {
-    if (fetchBibsQueries.length > 0) {
+    // update bibcodes only when all queries have finished
+    if (
+      fetchBibsQueries.length > 0 &&
+      fetchBibsQueries.filter((query) => query.isLoading === false).length === fetchBibsQueries.length
+    ) {
       const bibs: string[] = [];
       fetchBibsQueries.map(({ data }) => {
         data?.docs?.forEach((doc) => bibs.push(doc.bibcode));
@@ -58,9 +63,7 @@ export const MetricsPageContainer = ({ query, qid, recordsToGet }: IMetricsPageP
 
 // This layer fetches the metrics from bibcodes
 const MetricsComponent = ({ bibcodes }: { bibcodes: string[] }): ReactElement => {
-  const isSimple = useMemo(() => {
-    return bibcodes && bibcodes.length > 6000;
-  }, [bibcodes]);
+  const router = useRouter();
 
   // query to get metrics
   const {
@@ -68,7 +71,11 @@ const MetricsComponent = ({ bibcodes }: { bibcodes: string[] }): ReactElement =>
     refetch: fetchMetrics,
     isError: isErrorMetrics,
     error: errorMetrics,
-  } = useGetMultMetrics({ bibcodes, isSimple }, { enabled: false });
+    isLoading,
+  } = useGetMultMetrics(
+    { id: parseQueryFromUrlNoPage(router.query), bibcodes, isSimple: bibcodes && bibcodes.length > 6000 },
+    { enabled: false },
+  );
 
   useEffect(() => {
     if (bibcodes && bibcodes.length > 0) {
@@ -78,6 +85,7 @@ const MetricsComponent = ({ bibcodes }: { bibcodes: string[] }): ReactElement =>
 
   return (
     <>
+      {isLoading && <CircularProgress isIndeterminate />}
       {isErrorMetrics && (
         <Alert status="error" my={5}>
           <AlertIcon />
@@ -87,7 +95,7 @@ const MetricsComponent = ({ bibcodes }: { bibcodes: string[] }): ReactElement =>
       )}
       {metricsData && (
         <Box my={5}>
-          <Metrics metrics={metricsData} isAbstract={false} bibcodes={isSimple ? bibcodes : undefined} />
+          <Metrics metrics={metricsData} isAbstract={false} bibcodes={bibcodes} />
         </Box>
       )}
     </>

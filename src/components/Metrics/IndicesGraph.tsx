@@ -7,7 +7,6 @@ interface IIndicesGraphProps {
 }
 
 export const IndicesGraph = ({ data, ticks }: IIndicesGraphProps) => {
-  console.log(data);
   return (
     <Box width="100%" mt={5}>
       <div style={{ height: '400px', marginTop: '20px' }}>

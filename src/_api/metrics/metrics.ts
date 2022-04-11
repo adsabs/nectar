@@ -1,4 +1,4 @@
-import { IADSApiMetricsParams } from '@api';
+import { IADSApiMetricsParams, IADSApiSearchParams, IDocsEntity } from '@api';
 import { ApiTargets } from '@api/lib/models';
 import { Bibcode } from '@api/lib/search/types';
 import { BasicStatsKey, CitationsStatsKey, MetricsResponseKey } from '@_api/metrics';
@@ -17,11 +17,11 @@ export const metricsKeys = {
 };
 
 export const metricsMultKeys = {
-  primary: (bibcodes: IDocsEntity['bibcode'][]) => ['metricsMult', { bibcodes }] as const,
+  primary: (id: IADSApiSearchParams) => ['metricsMult', id] as const,
 };
 
 export const timeSeriesKeys = {
-  primary: (bibcodes: IDocsEntity['bibcode'][]) => ['timeSeries', { bibcodes }] as const,
+  primary: (id: IADSApiSearchParams) => ['timeSeries', id] as const,
 };
 
 const retryFn = (count: number, error: unknown) => {
@@ -94,13 +94,13 @@ export const useGetMetricsTimeSeries: ADSQuery<Bibcode[], IADSApiMetricsResponse
 };
 
 export const useGetMultMetrics: ADSQuery<
-  { bibcodes: IDocsEntity['bibcode'][]; isSimple?: boolean },
+  { id: IADSApiSearchParams; bibcodes: IDocsEntity['bibcode'][]; isSimple?: boolean },
   IADSApiMetricsResponse
-> = ({ bibcodes, isSimple }, options) => {
+> = ({ id, bibcodes, isSimple }, options) => {
   const params: IADSApiMetricsParams = { bibcodes, types: isSimple ? ['simple'] : undefined };
 
   return useQuery({
-    queryKey: metricsMultKeys.primary(bibcodes),
+    queryKey: metricsMultKeys.primary(id),
     queryFn: fetchMetricsMult,
     retry: retryFn,
     meta: { params },
@@ -108,11 +108,14 @@ export const useGetMultMetrics: ADSQuery<
   });
 };
 
-export const useGetTimeSeries: ADSQuery<IDocsEntity['bibcode'][], IADSApiMetricsResponse> = (bibcodes, options) => {
+export const useGetTimeSeries: ADSQuery<
+  { id: IADSApiSearchParams; bibcodes: IDocsEntity['bibcode'][] },
+  IADSApiMetricsResponse
+> = ({ id, bibcodes }, options) => {
   const params: IADSApiMetricsParams = { bibcodes, types: ['indicators', 'timeseries'] };
 
   return useQuery({
-    queryKey: timeSeriesKeys.primary(bibcodes),
+    queryKey: timeSeriesKeys.primary(id),
     queryFn: fetchMetricsMult,
     retry: retryFn,
     meta: { params },

@@ -1,11 +1,25 @@
 import { IDocsEntity } from '@api';
 import { Box, Heading } from '@chakra-ui/layout';
-import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
 import { useIsClient } from '@hooks/useIsClient';
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+  CircularProgress,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+} from '@chakra-ui/react';
 import { useMetrics } from '@hooks/useMetrics';
 import { BarDatum } from '@nivo/bar';
 import { Serie } from '@nivo/line';
+import { parseQueryFromUrlNoPage } from '@utils';
 import { IADSApiMetricsResponse, MetricsResponseKey, useGetTimeSeries } from '@_api/metrics';
+import axios from 'axios';
+import { useRouter } from 'next/router';
 import { ReactElement, useEffect, useMemo } from 'react';
 import { CitationsTable } from './CitationsTable';
 import { plotTimeSeriesGraph } from './graphUtils';
@@ -190,13 +204,16 @@ const IndicesSection = ({
   indicesGraph: LineGraph;
   bibcodes?: IDocsEntity['bibcode'][];
 }): ReactElement => {
+  const router = useRouter();
+
   // query to get indices metrics if there is no indices graph
   const {
     data: metricsData,
     refetch: fetchMetrics,
     isError: isErrorMetrics,
     error: errorMetrics,
-  } = useGetTimeSeries(bibcodes, { enabled: false });
+    isLoading,
+  } = useGetTimeSeries({ id: parseQueryFromUrlNoPage(router.query), bibcodes }, { enabled: false });
 
   useEffect(() => {
     if (!indicesGraph && bibcodes && bibcodes.length > 0) {
@@ -219,6 +236,14 @@ const IndicesSection = ({
           </Heading>
           {indicesTable && <IndicesTable data={indicesTable} />}
           {indicesGraph && <IndicesGraph data={indicesGraph.data} ticks={getLineGraphYearTicks(indicesGraph.data)} />}
+          {!indicesGraph && isLoading && <CircularProgress mt={5} isIndeterminate />}
+          {!indicesGraph && isErrorMetrics && (
+            <Alert status="error" my={5}>
+              <AlertIcon />
+              <AlertTitle mr={2}>Error fetching indices graph data!</AlertTitle>
+              <AlertDescription>{axios.isAxiosError(errorMetrics) && errorMetrics.message}</AlertDescription>
+            </Alert>
+          )}
           {computedGraph && (
             <IndicesGraph data={computedGraph.data} ticks={getLineGraphYearTicks(computedGraph.data)} />
           )}
