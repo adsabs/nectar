@@ -9,7 +9,7 @@ interface IIndicesGraphProps {
 export const IndicesGraph = ({ data, ticks }: IIndicesGraphProps) => {
   return (
     <Box width="100%" mt={5}>
-      <div style={{ height: '400px', marginTop: '20px' }}>
+      <div style={{ height: '500px', marginTop: '20px' }}>
         <ResponsiveLine
           data={data}
           margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
@@ -37,8 +37,6 @@ export const IndicesGraph = ({ data, ticks }: IIndicesGraphProps) => {
             tickSize: 5,
             tickPadding: 5,
             tickRotation: 0,
-            legend: 'value',
-            legendOffset: -40,
             legendPosition: 'middle',
           }}
           pointSize={0}

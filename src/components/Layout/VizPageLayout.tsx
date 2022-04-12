@@ -1,9 +1,10 @@
-import { Flex, Heading, HStack } from '@chakra-ui/react';
+import { Flex, Heading, HStack, Link } from '@chakra-ui/react';
 import { VisualizationsTabs, VizSection } from '@components';
-import Link from 'next/link';
+import NextLink from 'next/link';
 import Head from 'next/head';
 import { FC } from 'react';
 import { UrlObject } from 'url';
+import { ChevronLeftIcon } from '@chakra-ui/icons';
 interface IVizPageLayoutProps {
   vizPage: VizSection;
   from?: UrlObject;
@@ -11,20 +12,26 @@ interface IVizPageLayoutProps {
 
 export const VizPageLayout: FC<IVizPageLayoutProps> = ({ children, vizPage, from }) => {
   return (
-    <div>
+    <>
       <Head>
         <title>NASA Science Explorer - Metrics</title>
       </Head>
       <Flex direction="column">
-        <HStack>
-          {from && <Link href={from}>{'< '}</Link>}
-          <Heading as="h2" fontSize="xl">
+        <HStack my={10}>
+          {from && (
+            <NextLink href={from} passHref>
+              <Link aria-label="Back to search results">
+                <ChevronLeftIcon w={8} h={8} />
+              </Link>
+            </NextLink>
+          )}
+          <Heading as="h2" fontSize="2xl">
             Visualizations
           </Heading>
         </HStack>
         <VisualizationsTabs selectedSection={vizPage} />
         {children}
       </Flex>
-    </div>
+    </>
   );
 };

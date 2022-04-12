@@ -21,7 +21,7 @@ export const MetricsGraph = (props: IMetricsGraphProps): ReactElement => {
           <Radio value="grouped">Grouped</Radio>
         </Stack>
       </RadioGroup>
-      <div style={{ height: '400px', marginTop: '20px' }}>
+      <div style={{ height: '500px', marginTop: '20px' }}>
         <ResponsiveBar
           data={data}
           indexBy={indexBy}
@@ -33,11 +33,6 @@ export const MetricsGraph = (props: IMetricsGraphProps): ReactElement => {
             legendPosition: 'middle',
             legendOffset: 32,
             tickValues: ticks,
-          }}
-          axisLeft={{
-            legend: 'count',
-            legendPosition: 'middle',
-            legendOffset: -40,
           }}
           axisTop={null}
           axisRight={null}

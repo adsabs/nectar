@@ -103,8 +103,16 @@ const PapersSection = ({
   return (
     <>
       {papersTable || papersGraph ? (
-        <Box as="section" aria-labelledby="papers-heading">
-          <Heading as="h3" fontSize="2xl" fontWeight="light" backgroundColor="gray.50" p={3} id="papers-heading">
+        <Box as="section" aria-labelledby="papers-heading" mt={10}>
+          <Heading
+            as="h3"
+            fontSize="2xl"
+            fontWeight="light"
+            backgroundColor="gray.50"
+            p={3}
+            id="papers-heading"
+            display="none"
+          >
             Papers
           </Heading>
           {papersTable && <PapersTable data={papersTable} />}
@@ -129,8 +137,16 @@ const CitationsSection = ({
   return (
     <>
       {citationsTable || citationsGraphs ? (
-        <Box as="section" aria-labelledby="citations-heading">
-          <Heading as="h3" fontSize="2xl" fontWeight="light" backgroundColor="gray.50" p={3} id="citations-heading">
+        <Box as="section" aria-labelledby="citations-heading" mt={10}>
+          <Heading
+            as="h3"
+            fontSize="2xl"
+            fontWeight="light"
+            backgroundColor="gray.50"
+            p={3}
+            id="citations-heading"
+            display={isAbstract ? 'block' : 'none'}
+          >
             Citations
           </Heading>
           {citationsTable && <CitationsTable data={citationsTable} isAbstract={isAbstract} />}
@@ -155,8 +171,16 @@ const ReadsSection = ({
   return (
     <>
       {readsTable || readsGraphs ? (
-        <Box as="section" aria-labelledby="reads-heading">
-          <Heading as="h3" fontSize="2xl" fontWeight="light" backgroundColor="gray.50" p={3} id="reads-heading">
+        <Box as="section" aria-labelledby="reads-heading" mt={10}>
+          <Heading
+            as="h3"
+            fontSize="2xl"
+            fontWeight="light"
+            backgroundColor="gray.50"
+            p={3}
+            id="reads-heading"
+            display={isAbstract ? 'block' : 'none'}
+          >
             Reads
           </Heading>
           {readsTable && <ReadsTable data={readsTable} isAbstract={isAbstract} />}
@@ -230,8 +254,16 @@ const IndicesSection = ({
   return (
     <>
       {indicesTable ? (
-        <Box as="section" aria-labelledby="indices-heading">
-          <Heading as="h3" fontSize="2xl" fontWeight="light" backgroundColor="gray.50" p={3} id="indices-heading">
+        <Box as="section" aria-labelledby="indices-heading" mt={10}>
+          <Heading
+            as="h3"
+            fontSize="2xl"
+            fontWeight="light"
+            backgroundColor="gray.50"
+            p={3}
+            id="indices-heading"
+            display="none"
+          >
             Indices
           </Heading>
           {indicesTable && <IndicesTable data={indicesTable} />}

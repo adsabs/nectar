@@ -5,7 +5,7 @@ import { parseQueryFromUrl, parseQueryFromUrlNoPage } from '@utils';
 import { IADSApiSearchResponse } from '@api';
 import { useGetMultMetrics } from '@_api/metrics';
 import { Metrics } from '@components';
-import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, CircularProgress } from '@chakra-ui/react';
+import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, CircularProgress, Text } from '@chakra-ui/react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 
@@ -84,20 +84,23 @@ const MetricsComponent = ({ bibcodes }: { bibcodes: string[] }): ReactElement =>
   }, [bibcodes]);
 
   return (
-    <>
-      {isLoading && <CircularProgress isIndeterminate />}
-      {isErrorMetrics && (
-        <Alert status="error" my={5}>
-          <AlertIcon />
-          <AlertTitle mr={2}>Error!</AlertTitle>
-          <AlertDescription>{axios.isAxiosError(errorMetrics) && errorMetrics.message}</AlertDescription>
-        </Alert>
-      )}
-      {metricsData && (
-        <Box my={5}>
-          <Metrics metrics={metricsData} isAbstract={false} bibcodes={bibcodes} />
-        </Box>
-      )}
-    </>
+    <Box my={5}>
+      {bibcodes ? (
+        <>
+          <Text my={5}>
+            {isLoading ? 'Loading' : 'Showing'} metrics for <b>{bibcodes.length}</b> records
+          </Text>
+          {isLoading && <CircularProgress isIndeterminate />}
+          {isErrorMetrics && (
+            <Alert status="error" my={5}>
+              <AlertIcon />
+              <AlertTitle mr={2}>Error!</AlertTitle>
+              <AlertDescription>{axios.isAxiosError(errorMetrics) && errorMetrics.message}</AlertDescription>
+            </Alert>
+          )}
+          {metricsData && <Metrics metrics={metricsData} isAbstract={false} bibcodes={bibcodes} />}
+        </>
+      ) : null}
+    </Box>
   );
 };
