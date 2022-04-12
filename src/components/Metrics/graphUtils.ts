@@ -223,17 +223,19 @@ export const plotTimeSeriesGraph = (timeseries: TimeSeriesType): LineGraph => {
 
   ['h-index', 'g-index', 'i10-index', 'tori-index', 'i100-index', 'read10-index'].map((id, index) => {
     const d: { x: string; y: number }[] = [];
-    Object.entries(data[index]).map(([year, value]) => {
-      if (id === 'read10-index') {
-        d.push({ x: year, y: value / 10 });
-      } else {
-        d.push({ x: year, y: value });
-      }
-    });
-    returnArray.push({
-      id,
-      data: d,
-    });
+    if (data[index] !== undefined) {
+      Object.entries(data[index]).map(([year, value]) => {
+        if (id === 'read10-index') {
+          d.push({ x: year, y: value / 10 });
+        } else {
+          d.push({ x: year, y: value });
+        }
+      });
+      returnArray.push({
+        id,
+        data: d,
+      });
+    }
   });
 
   return { data: returnArray };

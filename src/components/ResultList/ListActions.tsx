@@ -12,6 +12,7 @@ import {
   MenuOptionGroup,
   Portal,
   Stack,
+  useToast,
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { ISortProps, Sort } from '@components/Sort';
@@ -35,21 +36,13 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const noneSelected = selected.length === 0;
   const [exploreAll, setExploreAll] = useState(true);
   const router = useRouter();
+  const toast = useToast();
 
   useEffect(() => {
     setExploreAll(noneSelected);
   }, [noneSelected]);
 
-  const { refetch } = useGetBigQuery(
-    { bibcodes: selected },
-    {
-      enabled: false,
-      keepPreviousData: true,
-      onError: () => {
-        console.log('big query error');
-      },
-    },
-  );
+  const { refetch: fetchBigQuery } = useGetBigQuery({ bibcodes: selected }, { enabled: false });
 
   const handleExploreOption = (value: string | string[]) => {
     if (typeof value === 'string') {
@@ -63,14 +56,17 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
     if (noneSelected) {
       void router.push({ pathname: path, query: router.query });
     } else {
-      refetch().then(
+      fetchBigQuery().then(
         (res) => {
           const qid = res.data.qid;
           void router.push({ pathname: path, query: { ...router.query, qid: qid } });
         },
         () => {
-          // TODO handle error
-          console.log('failed');
+          toast({
+            status: 'error',
+            title: 'Error!',
+            description: 'Error fetching selected papers',
+          });
         },
       );
     }
@@ -157,7 +153,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
                   <MenuDivider />
                   <MenuGroup title="VISUALZATIONS">
                     {sections.map((section) => (
-                      <MenuItem onClick={handleExploreVizLink} data-section-path={section.path}>
+                      <MenuItem onClick={handleExploreVizLink} data-section-path={section.path} key={section.id}>
                         {section.label}
                       </MenuItem>
                     ))}

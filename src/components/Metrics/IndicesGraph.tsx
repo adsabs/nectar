@@ -18,7 +18,7 @@ export const IndicesGraph = ({ data, ticks }: IIndicesGraphProps) => {
             type: 'linear',
             min: 'auto',
             max: 'auto',
-            stacked: true,
+            stacked: false,
             reverse: false,
           }}
           curve="linear"

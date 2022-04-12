@@ -67,8 +67,8 @@ export const Metrics = (props: IMetricsProps): ReactElement => {
         <Tabs variant="solid-rounded" isFitted>
           <TabList>
             <Tab>Papers</Tab>
-            <Tab isDisabled={!citationsTable && !citationsGraphs}>Citations</Tab>
-            <Tab isDisabled={!readsTable && !readsGraphs}>Reads</Tab>
+            <Tab>Citations</Tab>
+            <Tab>Reads</Tab>
             <Tab>Indices</Tab>
           </TabList>
           <TabPanels>
