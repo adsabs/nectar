@@ -11,6 +11,6 @@ export default meta;
 
 const Template: Story<IItemResourceDropdownsProps> = (args) => <ItemResourceDropdowns {...args} />;
 
-export const Default = Template.bind({}) ;
+export const Default = Template.bind({});
 
 Default.args = { doc };
