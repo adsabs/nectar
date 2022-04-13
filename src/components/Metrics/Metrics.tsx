@@ -195,10 +195,10 @@ const getBarGraphYearTicks = (data: BarDatum[]) => {
   if (data.length <= 9) {
     return undefined;
   }
-  const ticks: number[] = [];
+  const ticks: string[] = [];
   data.forEach((row) => {
-    if ((row.year as number) % 5 === 0) {
-      ticks.push(row.year as number);
+    if (+row.year % 5 === 0) {
+      ticks.push(row.year as string);
     }
   });
   return ticks;
@@ -208,11 +208,11 @@ const getLineGraphYearTicks = (data: Serie[]) => {
   if (data[0].data.length <= 9) {
     return undefined;
   }
-  const ticks: number[] = [];
+  const ticks: string[] = [];
 
   data[0].data.forEach(({ x }) => {
-    if ((x as number) % 5 === 0) {
-      ticks.push(x as number);
+    if (+x % 5 === 0) {
+      ticks.push(x as string);
     }
   });
 

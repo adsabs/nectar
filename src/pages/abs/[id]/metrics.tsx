@@ -1,4 +1,4 @@
-import { IADSApiMetricsResponse, IADSApiSearchResponse } from '@api';
+import { IADSApiSearchResponse } from '@api';
 import { Alert, AlertIcon } from '@chakra-ui/alert';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { Metrics } from '@components/Metrics';

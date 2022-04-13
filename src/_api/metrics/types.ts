@@ -49,6 +49,20 @@ export enum PapersHistogramKey {
   RPN = 'refereed publications normalized',
 }
 
+export enum PublicationsHistogramKey {
+  AP = 'all publications',
+  APN = 'all publications normalized',
+  RP = 'refereed publications',
+  RPN = 'refereed publications normalized',
+}
+
+export enum DownloadsHistogramKey {
+  AD = 'all downloads',
+  ADN = 'all downloads normalized',
+  RD = 'refereed downloads',
+  RDN = 'refereed downloads normalized',
+}
+
 export enum MetricsResponseKey {
   BS = 'basic stats',
   BSR = 'basic stats refereed',
@@ -92,8 +106,12 @@ export type PapersHistogramType = {
   [key in PapersHistogramKey]: { [year: string]: number };
 };
 
+export type DownloadsHistogramType = {
+  [key in DownloadsHistogramKey]: { [year: string]: number };
+};
+
 export type TimeSeriesType = {
-  [key in TimeSeriesKey]: { [year: number]: number };
+  [key in TimeSeriesKey]?: { [year: string]: number };
 };
 
 export interface IADSApiMetricsParams {
@@ -115,14 +133,15 @@ export interface IADSApiMetricsResponse {
     citations: CitationsHistogramType;
     reads: ReadsHistogramType;
     publications: PapersHistogramType;
+    downloads: DownloadsHistogramType;
   };
-  [MetricsResponseKey.I]: {
-    [key in TimeSeriesKey]: number;
+  [MetricsResponseKey.I]?: {
+    [key in TimeSeriesKey]?: number;
   };
-  [MetricsResponseKey.IR]: {
-    [key in TimeSeriesKey]: number;
+  [MetricsResponseKey.IR]?: {
+    [key in TimeSeriesKey]?: number;
   };
-  [MetricsResponseKey.TS]: TimeSeriesType;
+  [MetricsResponseKey.TS]?: TimeSeriesType;
   [MetricsResponseKey.SB]?: string[];
   [MetricsResponseKey.E]?: string;
   [MetricsResponseKey.EI]?: string;

@@ -55,10 +55,10 @@ export interface IPaperTableInput {
 
 export interface IIndicesTableInput {
   refereed: {
-    [key in TimeSeriesKey]: number;
+    [key in TimeSeriesKey]?: number;
   };
   total: {
-    [key in TimeSeriesKey]: number;
+    [key in TimeSeriesKey]?: number;
   };
 }
 

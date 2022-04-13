@@ -43,12 +43,12 @@ export interface IPapersTableData {
 }
 
 export interface IIndicesTableData {
-  hIndex: number[];
-  mIndex: number[];
-  gIndex: number[];
-  i10Index: number[];
-  i100Index: number[];
-  toriIndex: number[];
-  riqIndex: number[];
-  read10Index: number[];
+  hIndex?: number[];
+  mIndex?: number[];
+  gIndex?: number[];
+  i10Index?: number[];
+  i100Index?: number[];
+  toriIndex?: number[];
+  riqIndex?: number[];
+  read10Index?: number[];
 }

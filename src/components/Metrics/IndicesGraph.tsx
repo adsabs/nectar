@@ -1,9 +1,9 @@
 import { Box } from '@chakra-ui/react';
 import { ResponsiveLine, Serie } from '@nivo/line';
 
-interface IIndicesGraphProps {
+export interface IIndicesGraphProps {
   data: Serie[];
-  ticks: number[];
+  ticks: string[];
 }
 
 export const IndicesGraph = ({ data, ticks }: IIndicesGraphProps) => {
