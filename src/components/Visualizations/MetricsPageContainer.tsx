@@ -1,7 +1,7 @@
 import { ReactElement, useEffect, useMemo } from 'react';
 import { useQueries } from 'react-query';
 import { fetchSearch } from '@_api/search';
-import { parseQueryFromUrl, parseQueryFromUrlNoPage } from '@utils';
+import { parseQueryFromUrlNoPage } from '@utils';
 import { IADSApiSearchResponse } from '@api';
 import { useGetMultMetrics } from '@_api/metrics';
 import { Metrics } from '@components';
@@ -34,7 +34,7 @@ export const MetricsPageContainer = ({ query, qid, recordsToGet }: IMetricsPageP
     starts.map((start) => {
       const params = qid
         ? { q: `docs(${qid})`, start: start, rows: 1000, fl: ['bibcode'] }
-        : { ...parseQueryFromUrl(query), start: start, rows: 1000, fl: ['bibcode'] };
+        : { ...parseQueryFromUrlNoPage(query), start: start, rows: 1000, fl: ['bibcode'] };
       return {
         queryKey: ['search/bibcodes', params],
         queryFn: fetchSearch,
@@ -87,18 +87,21 @@ const MetricsComponent = ({ bibcodes }: { bibcodes: string[] }): ReactElement =>
     <Box my={5}>
       {bibcodes ? (
         <>
-          <Text my={5}>
-            {isLoading ? 'Loading' : 'Showing'} metrics for <b>{bibcodes.length}</b> records
-          </Text>
-          {isLoading && <CircularProgress isIndeterminate />}
-          {isErrorMetrics && (
+          {isErrorMetrics ? (
             <Alert status="error" my={5}>
               <AlertIcon />
-              <AlertTitle mr={2}>Error!</AlertTitle>
+              <AlertTitle mr={2}>Error fetching metrics!</AlertTitle>
               <AlertDescription>{axios.isAxiosError(errorMetrics) && errorMetrics.message}</AlertDescription>
             </Alert>
+          ) : (
+            <>
+              <Text my={5}>
+                {isLoading ? 'Loading' : 'Showing'} metrics for <b>{bibcodes.length}</b> records
+              </Text>
+              {isLoading && <CircularProgress isIndeterminate />}
+              {metricsData && <Metrics metrics={metricsData} isAbstract={false} bibcodes={bibcodes} />}
+            </>
           )}
-          {metricsData && <Metrics metrics={metricsData} isAbstract={false} bibcodes={bibcodes} />}
         </>
       ) : null}
     </Box>
