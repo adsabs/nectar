@@ -6,7 +6,7 @@ import { ItemsSkeleton, ListActions, NumFound, SearchBar, SimpleResultList } fro
 import { Pagination } from '@components/ResultList/Pagination';
 import { usePagination } from '@components/ResultList/Pagination/usePagination';
 import { AppState, createStore, useStore, useStoreApi } from '@store';
-import { isApiSearchResponse, parseNumberAndClamp, parseQueryFromUrl } from '@utils';
+import { isApiSearchResponse, parseNumberAndClamp, parseQueryFromUrl, setupApiSSR } from '@utils';
 import { searchKeys, useSearch } from '@_api/search';
 import { defaultParams, getSearchStatsParams } from '@_api/search/models';
 import axios from 'axios';
@@ -156,10 +156,9 @@ const SearchPage: NextPage = () => {
 };
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const api = (await import('@_api/api')).default;
   const { fetchSearch } = await import('@_api/search');
   const { p: page, ...query } = parseQueryFromUrl(ctx.query);
-  api.setToken(ctx.req.session.userData.access_token);
+  setupApiSSR(ctx);
 
   const params: IADSApiSearchParams = {
     ...defaultParams,

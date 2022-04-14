@@ -1,6 +1,5 @@
 import { AppState } from '@store';
-import { normalizeURLParams } from '@utils';
-import api from '@_api/api';
+import { normalizeURLParams, setupApiSSR } from '@utils';
 import { fetchSearch, searchKeys } from '@_api/search';
 import { getAbstractParams } from '@_api/search/models';
 import axios from 'axios';
@@ -11,7 +10,7 @@ export const withDetailsPage = async (
   ctx: GetServerSidePropsContext,
 ): Promise<GetServerSidePropsResult<Record<string, unknown>>> => {
   const query = normalizeURLParams(ctx.query);
-  api.setToken(ctx.req.session.userData.access_token);
+  setupApiSSR(ctx);
 
   // primary request for this page is search for the bibcode from url
   try {

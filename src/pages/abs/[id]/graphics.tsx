@@ -4,7 +4,7 @@ import { Box, Flex, Link } from '@chakra-ui/layout';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
-import { composeNextGSSP, normalizeURLParams } from '@utils';
+import { composeNextGSSP, normalizeURLParams, setupApiSSR } from '@utils';
 import { fetchGraphics, graphicsKeys, useGetGraphics } from '@_api/graphics';
 import { searchKeys } from '@_api/search';
 import { GetServerSideProps, NextPage } from 'next';
@@ -96,9 +96,8 @@ const GraphicsPage: NextPage<IGraphicsPageProps> = (props: IGraphicsPageProps) =
 export default GraphicsPage;
 
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage, async (ctx, state) => {
-  const api = (await import('@_api/api')).default;
+  setupApiSSR(ctx);
   const axios = (await import('axios')).default;
-  api.setToken(ctx.req.session.userData.access_token);
   const query = normalizeURLParams(ctx.query);
 
   try {

@@ -5,7 +5,7 @@ import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
 import { useGetAbstractParams } from '@hooks/useGetAbstractParams';
-import { composeNextGSSP } from '@utils';
+import { composeNextGSSP, setupApiSSR } from '@utils';
 import { searchKeys, useGetSimilar } from '@_api/search';
 import { getSimilarParams } from '@_api/search/models';
 import { GetServerSideProps, NextPage } from 'next';
@@ -63,10 +63,9 @@ const SimilarPage: NextPage<ISimilarPageProps> = (props: ISimilarPageProps) => {
 export default SimilarPage;
 
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage, async (ctx, state) => {
-  const api = (await import('@_api/api')).default;
+  setupApiSSR(ctx);
   const { fetchSearch } = await import('@_api/search');
   const axios = (await import('axios')).default;
-  api.setToken(ctx.req.session.userData.access_token);
   const query = normalizeURLParams(ctx.query);
 
   try {

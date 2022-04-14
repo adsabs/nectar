@@ -4,7 +4,7 @@ import { AbsLayout } from '@components/Layout/AbsLayout';
 import { Metrics } from '@components/Metrics';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
-import { composeNextGSSP, normalizeURLParams } from '@utils';
+import { composeNextGSSP, normalizeURLParams, setupApiSSR } from '@utils';
 import { fetchMetrics, metricsKeys, useGetMetrics } from '@_api/metrics';
 import { searchKeys } from '@_api/search';
 import { GetServerSideProps, NextPage } from 'next';
@@ -56,9 +56,8 @@ const MetricsPage: NextPage<IMetricsPageProps> = (props: IMetricsPageProps) => {
 export default MetricsPage;
 
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage, async (ctx, state) => {
-  const api = (await import('@_api/api')).default;
+  setupApiSSR(ctx);
   const axios = (await import('axios')).default;
-  api.setToken(ctx.req.session.userData.access_token);
   const query = normalizeURLParams(ctx.query);
 
   try {

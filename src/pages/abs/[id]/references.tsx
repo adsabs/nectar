@@ -5,7 +5,7 @@ import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
 import { useGetAbstractParams } from '@hooks/useGetAbstractParams';
-import { composeNextGSSP } from '@utils';
+import { composeNextGSSP, setupApiSSR } from '@utils';
 import { searchKeys, useGetReferences } from '@_api/search';
 import { getReferencesParams } from '@_api/search/models';
 import { GetServerSideProps, NextPage } from 'next';
@@ -61,10 +61,9 @@ const ReferencesPage: NextPage<IReferencesPageProps> = (props: IReferencesPagePr
 export default ReferencesPage;
 
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage, async (ctx, state) => {
-  const api = (await import('@_api/api')).default;
+  setupApiSSR(ctx);
   const { fetchSearch } = await import('@_api/search');
   const axios = (await import('axios')).default;
-  api.setToken(ctx.req.session.userData.access_token);
   const query = normalizeURLParams(ctx.query);
 
   try {
