@@ -1,5 +1,4 @@
 import { IADSApiSearchParams } from '@api/lib/search/types';
-// import { cy, describe, expect, it } from 'local-cypress';
 
 const search = (params: Partial<IADSApiSearchParams & { p: number }>) => {
   cy.visit('/search', {
