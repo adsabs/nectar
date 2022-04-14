@@ -14,6 +14,7 @@ export interface IADSApiSearchParams {
   fq?: string;
   stats?: boolean;
   'stats.field'?: string;
+  bigquery?: string;
 }
 
 export interface INormalizedADSApiSearchParams {
