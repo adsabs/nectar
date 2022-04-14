@@ -214,6 +214,8 @@ export interface IDocsEntity {
   arxiv?: string;
 }
 
+export type Bibcode = IDocsEntity['bibcode'];
+
 export interface IDocument {
   error?: string;
   notFound?: boolean;
