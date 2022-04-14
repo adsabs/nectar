@@ -84,6 +84,6 @@ export const useStoreApi = appContext.useStoreApi;
 // handler to be used outside react (non-hook)
 export const updateAppUser = (user: IUserData): void => {
   unstable_batchedUpdates(() => {
-    store.setState({ user });
+    store?.setState({ user });
   });
 };
