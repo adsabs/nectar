@@ -1,15 +1,14 @@
-import { IADSApiSearchResponse } from '@api';
+import { IADSApiGraphicsParams, IADSApiSearchResponse, IExportApiParams } from '@api';
 import { ApiTargets } from '@api/lib/models';
 import { Esources } from '@api/lib/search/types';
 import faker from '@faker-js/faker';
+import { IADSApiMetricsParams } from '@_api/metrics';
 import { rest } from 'msw';
 import qs from 'qs';
 import { map, range, slice } from 'ramda';
 
-const baseUrl = 'https://devapi.adsabs.harvard.edu/v1';
-
 export const handlers = [
-  rest.get(`${baseUrl}${ApiTargets.BOOTSTRAP}`, (req, res, ctx) => {
+  rest.get(`*${ApiTargets.BOOTSTRAP}`, (req, res, ctx) => {
     return res(
       ctx.status(200),
       ctx.cookie('session', 'test-session'),
@@ -29,7 +28,7 @@ export const handlers = [
     );
   }),
 
-  rest.get(`${baseUrl}${ApiTargets.SEARCH}`, (req, res, ctx) => {
+  rest.get(`*${ApiTargets.SEARCH}`, (req, res, ctx) => {
     const params = qs.parse(req.url.search.slice(1));
 
     // abstract preview
@@ -89,6 +88,299 @@ export const handlers = [
     };
 
     return res(ctx.status(200), ctx.json<IADSApiSearchResponse>(body));
+  }),
+
+  rest.post<IExportApiParams, { format: string }>(`*${ApiTargets.EXPORT}/:format`, (req, res, ctx) => {
+    const { bibcode, ...body } = req.body;
+    const { format } = req.params;
+
+    return res(
+      ctx.delay(500),
+      ctx.status(200),
+      ctx.json({
+        export: `${JSON.stringify({ numRecords: bibcode.length, format, ...body }, null, 2)}`,
+      }),
+    );
+  }),
+
+  rest.get<IADSApiMetricsParams>(`*${ApiTargets.SERVICE_METRICS}/:id`, (req, res, ctx) => {
+    return res(
+      ctx.status(200),
+      ctx.json({
+        'skipped bibcodes': [],
+        'basic stats': {
+          'number of papers': 1,
+          'normalized paper count': 1.0,
+          'total number of reads': 20,
+          'average number of reads': 20,
+          'median number of reads': 20.0,
+          'recent number of reads': 20,
+          'total number of downloads': 0,
+          'average number of downloads': 0.0,
+          'median number of downloads': 0.0,
+          'recent number of downloads': 0,
+        },
+        'basic stats refereed': {
+          'number of papers': 0,
+          'normalized paper count': 0.0,
+          'total number of reads': 0,
+          'average number of reads': 0,
+          'median number of reads': 0.0,
+          'recent number of reads': 0,
+          'total number of downloads': 0,
+          'average number of downloads': 0.0,
+          'median number of downloads': 0.0,
+          'recent number of downloads': 0,
+        },
+        'citation stats': {
+          'number of citing papers': 0,
+          'number of self-citations': 0,
+          'self-citations': [],
+          'total number of citations': 0,
+          'average number of citations': 0.0,
+          'median number of citations': 0.0,
+          'normalized number of citations': 0.0,
+          'total number of refereed citations': 0,
+          'average number of refereed citations': 0.0,
+          'median number of refereed citations': 0.0,
+          'normalized number of refereed citations': 0.0,
+        },
+        'citation stats refereed': {
+          'number of citing papers': 0,
+          'number of self-citations': 0,
+          'total number of citations': 0,
+          'average number of citations': 0.0,
+          'median number of citations': 0.0,
+          'normalized number of citations': 0.0,
+          'total number of refereed citations': 0,
+          'average number of refereed citations': 0.0,
+          'median number of refereed citations': 0.0,
+          'normalized number of refereed citations': 0.0,
+        },
+        histograms: {
+          reads: {
+            'all reads': {
+              '1996': 0,
+              '1997': 0,
+              '1998': 0,
+              '1999': 0,
+              '2000': 0,
+              '2001': 0,
+              '2002': 0,
+              '2003': 0,
+              '2004': 0,
+              '2005': 0,
+              '2006': 0,
+              '2007': 0,
+              '2008': 0,
+              '2009': 0,
+              '2010': 0,
+              '2011': 0,
+              '2012': 0,
+              '2013': 0,
+              '2014': 0,
+              '2015': 0,
+              '2016': 0,
+              '2017': 0,
+              '2018': 0,
+              '2019': 0,
+              '2020': 0,
+              '2021': 0,
+              '2022': 20,
+            },
+            'all reads normalized': {
+              '1996': 0.0,
+              '1997': 0.0,
+              '1998': 0.0,
+              '1999': 0.0,
+              '2000': 0.0,
+              '2001': 0.0,
+              '2002': 0.0,
+              '2003': 0.0,
+              '2004': 0.0,
+              '2005': 0.0,
+              '2006': 0.0,
+              '2007': 0.0,
+              '2008': 0.0,
+              '2009': 0.0,
+              '2010': 0.0,
+              '2011': 0.0,
+              '2012': 0.0,
+              '2013': 0.0,
+              '2014': 0.0,
+              '2015': 0.0,
+              '2016': 0.0,
+              '2017': 0.0,
+              '2018': 0.0,
+              '2019': 0.0,
+              '2020': 0.0,
+              '2021': 0.0,
+              '2022': 20.0,
+            },
+            'refereed reads': {
+              '1996': 0,
+              '1997': 0,
+              '1998': 0,
+              '1999': 0,
+              '2000': 0,
+              '2001': 0,
+              '2002': 0,
+              '2003': 0,
+              '2004': 0,
+              '2005': 0,
+              '2006': 0,
+              '2007': 0,
+              '2008': 0,
+              '2009': 0,
+              '2010': 0,
+              '2011': 0,
+              '2012': 0,
+              '2013': 0,
+              '2014': 0,
+              '2015': 0,
+              '2016': 0,
+              '2017': 0,
+              '2018': 0,
+              '2019': 0,
+              '2020': 0,
+              '2021': 0,
+              '2022': 0,
+            },
+            'refereed reads normalized': {
+              '1996': 0,
+              '1997': 0,
+              '1998': 0,
+              '1999': 0,
+              '2000': 0,
+              '2001': 0,
+              '2002': 0,
+              '2003': 0,
+              '2004': 0,
+              '2005': 0,
+              '2006': 0,
+              '2007': 0,
+              '2008': 0,
+              '2009': 0,
+              '2010': 0,
+              '2011': 0,
+              '2012': 0,
+              '2013': 0,
+              '2014': 0,
+              '2015': 0,
+              '2016': 0,
+              '2017': 0,
+              '2018': 0,
+              '2019': 0,
+              '2020': 0,
+              '2021': 0,
+              '2022': 0,
+            },
+          },
+          citations: {
+            'refereed to refereed': { '2021': 0, '2022': 0 },
+            'refereed to nonrefereed': { '2021': 0, '2022': 0 },
+            'nonrefereed to refereed': { '2021': 0, '2022': 0 },
+            'nonrefereed to nonrefereed': { '2021': 0, '2022': 0 },
+            'refereed to refereed normalized': { '2021': 0, '2022': 0 },
+            'refereed to nonrefereed normalized': { '2021': 0, '2022': 0 },
+            'nonrefereed to refereed normalized': { '2021': 0, '2022': 0 },
+            'nonrefereed to nonrefereed normalized': { '2021': 0, '2022': 0 },
+          },
+        },
+      }),
+    );
+  }),
+
+  rest.get<IADSApiGraphicsParams>(`*${ApiTargets.GRAPHICS}/:id`, (req, res, ctx) => {
+    return res(
+      ctx.status(200),
+      ctx.json({
+        bibcode: '2018A&A...616A...1G',
+        number: 7,
+        pick: '<a href="graphics" border=0><img src="[\'https://s3.amazonaws.com/adsabs-thumbnails/seri/A%2BA/0616/aa33051-18/aa33051-18-fig2.jpg\', \'http://dx.doi.org/10.1051/0004-6361/201833051\']"></a>',
+        figures: [
+          {
+            figure_label: 'Figure 1',
+            figure_caption: '',
+            figure_type: '',
+            images: [
+              {
+                thumbnail: 'https://s3.amazonaws.com/adsabs-thumbnails/seri/A%2BA/0616/aa33051-18/aa33051-18-fig1.jpg',
+                highres: 'http://dx.doi.org/10.1051/0004-6361/201833051',
+              },
+            ],
+          },
+          {
+            figure_label: 'Figure 2',
+            figure_caption: '',
+            figure_type: '',
+            images: [
+              {
+                thumbnail: 'https://s3.amazonaws.com/adsabs-thumbnails/seri/A%2BA/0616/aa33051-18/aa33051-18-fig2.jpg',
+                highres: 'http://dx.doi.org/10.1051/0004-6361/201833051',
+              },
+            ],
+          },
+          {
+            figure_label: 'Figure 3',
+            figure_caption: '',
+            figure_type: '',
+            images: [
+              {
+                thumbnail: 'https://s3.amazonaws.com/adsabs-thumbnails/seri/A%2BA/0616/aa33051-18/aa33051-18-fig3.jpg',
+                highres: 'http://dx.doi.org/10.1051/0004-6361/201833051',
+              },
+            ],
+          },
+          {
+            figure_label: 'Figure 4',
+            figure_caption: '',
+            figure_type: '',
+            images: [
+              {
+                thumbnail: 'https://s3.amazonaws.com/adsabs-thumbnails/seri/A%2BA/0616/aa33051-18/aa33051-18-fig4.jpg',
+                highres: 'http://dx.doi.org/10.1051/0004-6361/201833051',
+              },
+            ],
+          },
+          {
+            figure_label: 'Figure 5',
+            figure_caption: '',
+            figure_type: '',
+            images: [
+              {
+                thumbnail: 'https://s3.amazonaws.com/adsabs-thumbnails/seri/A%2BA/0616/aa33051-18/aa33051-18-fig5.jpg',
+                highres: 'http://dx.doi.org/10.1051/0004-6361/201833051',
+              },
+            ],
+          },
+          {
+            figure_label: 'Figure 6',
+            figure_caption: '',
+            figure_type: '',
+            images: [
+              {
+                thumbnail: 'https://s3.amazonaws.com/adsabs-thumbnails/seri/A%2BA/0616/aa33051-18/aa33051-18-fig6.jpg',
+                highres: 'http://dx.doi.org/10.1051/0004-6361/201833051',
+              },
+            ],
+          },
+          {
+            figure_label: 'Figure 7',
+            figure_caption: '',
+            figure_type: '',
+            images: [
+              {
+                thumbnail: 'https://s3.amazonaws.com/adsabs-thumbnails/seri/A%2BA/0616/aa33051-18/aa33051-18-fig7.jpg',
+                highres: 'http://dx.doi.org/10.1051/0004-6361/201833051',
+              },
+            ],
+          },
+        ],
+        header:
+          'Every image links to the article on <a href="http://www.aanda.org/" target="_new">Astronomy &amp; Astrophysics</a>',
+      }),
+    );
   }),
 ];
 
