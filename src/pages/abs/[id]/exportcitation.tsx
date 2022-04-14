@@ -1,5 +1,4 @@
 import { IADSApiSearchResponse } from '@api';
-import { isExportApiFormatKey } from '@api/lib/export';
 import { Alert, AlertIcon } from '@chakra-ui/alert';
 import { Box } from '@chakra-ui/react';
 import { CitationExporter } from '@components';
@@ -7,7 +6,7 @@ import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
 import { composeNextGSSP, normalizeURLParams, setupApiSSR } from '@utils';
-import { ExportApiFormatKey, exportCitationKeys } from '@_api/export';
+import { ExportApiFormatKey, exportCitationKeys, isExportApiFormat } from '@_api/export';
 import { searchKeys } from '@_api/search';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
@@ -60,7 +59,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetail
 
     const params = {
       bibcode: [bibcode],
-      format: isExportApiFormatKey(query.format) ? query.format : ExportApiFormatKey.bibtex,
+      format: isExportApiFormat(query.format) ? query.format : ExportApiFormatKey.bibtex,
     };
     void (await queryClient.prefetchQuery({
       queryKey: exportCitationKeys.primary(params),

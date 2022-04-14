@@ -3,6 +3,7 @@ export * from './AbstractSideNav';
 export * from './AbstractSources';
 export * from './AllAuthorsModal';
 export * from './BibstemPicker';
+export * from './CitationExporter';
 export * from './CopyButton';
 export * from './Dropdown';
 export * from './Footer';
