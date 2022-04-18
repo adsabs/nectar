@@ -216,13 +216,18 @@ export const useGetSearchStats: SearchADSQuery<IADSApiSearchParams, IADSApiSearc
  *
  * *This shouldn't be used directly, except during prefetching*
  */
-export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta }) => {
+export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta, pageParam }) => {
   const { params } = meta as { params: IADSApiSearchParams };
+
+  console.log('page', pageParam);
 
   const config: ApiRequestConfig = {
     method: 'GET',
     url: ApiTargets.SEARCH,
-    params,
+    params: {
+      ...params,
+      ...(typeof pageParam === 'string' ? { cursorMark: pageParam } : {}),
+    },
   };
   const { data } = await api.request<IADSApiSearchResponse>(config);
   return data;

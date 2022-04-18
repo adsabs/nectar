@@ -6,10 +6,16 @@ import { QueryFunction, useQuery } from 'react-query';
 import { getVaultBigQueryParams } from './models';
 import { IADSApiVaultResponse, IADSVaultExecuteQueryParams } from './types';
 
+export enum VaultKeys {
+  VAULT = 'vault',
+  EXECUTE_QUERY = 'vault/execute_query',
+  BIGQUERY = 'vault/bigquery',
+}
+
 export const vaultKeys = {
-  primary: (params: IADSApiSearchParams) => ['vault', { params }] as const,
-  executeQuery: (qid: IADSVaultExecuteQueryParams['qid']) => ['vault/execute_query', { qid }] as const,
-  bigquery: (bibcodes: IDocsEntity['bibcode'][]) => ['vault/bigquery', { bibcodes }] as const,
+  primary: (params: IADSApiSearchParams) => [VaultKeys.VAULT, { params }] as const,
+  executeQuery: (qid: IADSVaultExecuteQueryParams['qid']) => [VaultKeys.EXECUTE_QUERY, { qid }] as const,
+  bigquery: (bibcodes: IDocsEntity['bibcode'][]) => [VaultKeys.BIGQUERY, { bibcodes }] as const,
 };
 
 /**

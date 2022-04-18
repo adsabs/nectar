@@ -15,6 +15,7 @@ export interface IADSApiSearchParams {
   stats?: boolean;
   'stats.field'?: string;
   bigquery?: string;
+  cursorMark?: string;
 }
 
 export interface INormalizedADSApiSearchParams {
@@ -43,6 +44,7 @@ export interface IADSApiSearchResponse {
   stats?: ISearchStatsFields;
   responseHeader?: IADSApiSearchResponseHeader;
   error?: IADSApiSearchResponseError;
+  nextCursorMark?: string;
 }
 
 export interface ISearchStatsFields {
