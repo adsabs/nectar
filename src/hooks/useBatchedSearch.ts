@@ -10,17 +10,18 @@ const DELAY_BETWEEN_REQUESTS = 500;
 export interface IUseBatchedSearchProps {
   batches: number;
   transform?: (res: IADSApiSearchResponse) => unknown[];
+  intervalDelay?: number;
 }
 
 /**
  * Hook to get search results in batches (by rows)
  */
 export const useBatchedSearch = (
-  params: IADSApiSearchParams,
+  params: IADSApiSearchParams & Required<Pick<IADSApiSearchParams, 'q' | 'rows'>>,
   props: IUseBatchedSearchProps,
   options?: UseInfiniteQueryOptions<IADSApiSearchResponse & { pageParam: string }, Error | AxiosError>,
 ) => {
-  const { batches, transform = (res) => res.response.docs } = props;
+  const { batches, transform = (res) => res.response.docs, intervalDelay = DELAY_BETWEEN_REQUESTS } = props;
 
   const { data, isFetchingNextPage, fetchNextPage, fetchPreviousPage, isFetchingPreviousPage, ...rest } =
     useSearchInfinite(params, {
@@ -37,12 +38,12 @@ export const useBatchedSearch = (
 
     // internal fetch loop, delay between requests
     if (!isFetchingNextPage && count.current > 0) {
-      setTimeout(() => void fetchNextPage(), DELAY_BETWEEN_REQUESTS);
+      setTimeout(() => void fetchNextPage(), intervalDelay);
     }
   }, [isFetchingNextPage, batches]);
 
   // determine if we should notify consumers yet
-  if (count.current === 0) {
+  if (count.current <= 0) {
     // flatMap over the pages running our transformer
     const docs = chain(transform, data.pages);
     return { data: { docs, numFound: docs.length }, ...rest };
