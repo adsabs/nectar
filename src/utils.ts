@@ -3,7 +3,7 @@ import api from '@_api/api';
 import { GetServerSidePropsContext, GetServerSidePropsResult, NextApiRequest, NextApiResponse } from 'next';
 import { useRouter } from 'next/router';
 import { ParsedUrlQuery } from 'querystring';
-import { clamp, filter, has, last } from 'ramda';
+import { clamp, filter, has, last, uniq } from 'ramda';
 
 type ParsedQueryParams = ParsedUrlQuery | qs.ParsedQs;
 
@@ -188,7 +188,7 @@ export const isString = (maybeString: unknown): maybeString is string => {
 /**
  * Takes raw value (maybe SolrSort) and returns valid SolrSort array
  */
-export const normalizeSolrSort = (rawSolrSort: unknown): SolrSort[] => {
+export const normalizeSolrSort = (rawSolrSort: unknown, postfixSort?: SolrSort): SolrSort[] => {
   // boil raw value down to string[]
   const sort = Array.isArray(rawSolrSort)
     ? filter(isString, rawSolrSort)
@@ -196,19 +196,27 @@ export const normalizeSolrSort = (rawSolrSort: unknown): SolrSort[] => {
     ? rawSolrSort.split(',')
     : null;
 
+  const tieBreaker = postfixSort || 'bibcode desc';
+
   // if that fails, shortcut here with a default value
   if (sort === null) {
-    return ['date desc', 'bibcode desc'];
+    return ['date desc', tieBreaker];
   }
 
   // filter out non-SolrSort values
-  const validSort = filter(isSolrSort, sort);
+  const validSort = uniq(filter(isSolrSort, sort));
 
-  // append 'bibcode desc' onto sort list, if not there already
-  if ('bibcode desc' === last(validSort)) {
+  // append tieBreaker onto sort list, if not there already
+  if (tieBreaker === last(validSort)) {
     return validSort;
   }
-  return validSort.concat('bibcode desc');
+
+  // if all values are filtered out, return the default
+  if (validSort.length === 0) {
+    return ['date desc', tieBreaker];
+  }
+
+  return validSort.concat(tieBreaker);
 };
 
 // returns true if value passed in is a valid IADSApiSearchResponse
