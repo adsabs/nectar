@@ -40,10 +40,12 @@ describe('Landing Page', () => {
   });
 
   describe('Themes selection', () => {
-    it('All themes should be available in the dropdown', () => {
-      cy.get('#theme-selector').click();
+    it('All themes should be available and selection should make theme change', () => {
       themeOptions.forEach((themeOption, i) => {
+        cy.get('#theme-selector').click();
         cy.get(`#react-select-theme-selector-option-${i}`).should('have.text', themeOption.label);
+        cy.get(`#react-select-theme-selector-option-${i}`).click();
+        cy.get('#theme-selector').contains(themeOption.label);
       });
     });
 
