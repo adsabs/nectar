@@ -4,7 +4,7 @@ import { AbstractRefList } from '@components';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractParams } from '@hooks/useGetAbstractParams';
-import { composeNextGSSP } from '@utils';
+import { composeNextGSSP, setupApiSSR } from '@utils';
 import { searchKeys, useGetAbstract, useGetCoreads } from '@_api/search';
 import { getCoreadsParams } from '@_api/search/models';
 import { GetServerSideProps, NextPage } from 'next';
@@ -66,10 +66,9 @@ const CoreadsPage: NextPage<ICoreadsPageProps> = (props: ICoreadsPageProps) => {
 export default CoreadsPage;
 
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage, async (ctx, state) => {
-  const api = (await import('@_api/api')).default;
+  setupApiSSR(ctx);
   const { fetchSearch } = await import('@_api/search');
   const axios = (await import('axios')).default;
-  api.setToken(ctx.req.session.userData.access_token);
   const query = normalizeURLParams(ctx.query);
 
   try {
