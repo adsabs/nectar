@@ -19,7 +19,12 @@ export const useCreateQueryClient = () => {
           },
         },
         queryCache: new QueryCache({
-          onError: (error) => {
+          onError: (error, query) => {
+            // check if we should skip handling the error here
+            if (query.meta?.skipGlobalErrorHandler) {
+              return;
+            }
+
             if (axios.isAxiosError(error) || error instanceof Error) {
               toast({
                 title: 'Error',
