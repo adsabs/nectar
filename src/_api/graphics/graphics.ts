@@ -35,7 +35,7 @@ export const useHasGraphics: ADSQuery<IDocsEntity['bibcode'], IADSApiGraphicsRes
     queryKey: graphicsKeys.primary(bibcode),
     queryFn: fetchGraphics,
     retry: retryFn,
-    meta: { params },
+    meta: { params, skipGlobalErrorHandler: true },
     ...options,
   });
 

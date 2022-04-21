@@ -19,12 +19,13 @@ export const useCreateQueryClient = () => {
           },
         },
         queryCache: new QueryCache({
-          onError: (error) => {
-            if (
-              (axios.isAxiosError(error) || error instanceof Error) &&
-              !error.message.startsWith('No database entry') && // no graphics
-              !error.message.startsWith('No data available') // no metrics
-            ) {
+          onError: (error, query) => {
+            // check if we should skip handling the error here
+            if (query.meta?.skipGlobalErrorHandler) {
+              return;
+            }
+
+            if (axios.isAxiosError(error) || error instanceof Error) {
               toast({
                 title: 'Error',
                 description: error.message,

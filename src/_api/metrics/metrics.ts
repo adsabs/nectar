@@ -34,7 +34,7 @@ export const useHasMetrics: ADSQuery<IDocsEntity['bibcode'], IADSApiMetricsRespo
     queryKey: metricsKeys.primary(bibcode),
     queryFn: fetchMetrics,
     retry: retryFn,
-    meta: { params },
+    meta: { params, skipGlobalErrorHandler: true },
     ...options,
   });
 
