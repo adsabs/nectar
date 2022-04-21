@@ -1,85 +1,98 @@
-import Adsapi, { IDocsEntity } from '@api';
-import { ExportApiFormat, isExportApiFormat } from '@api/lib/export';
+import { IADSApiSearchResponse } from '@api';
 import { Alert, AlertIcon } from '@chakra-ui/alert';
-import { metatagsQueryFields } from '@components';
-import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
-import { fetchHasGraphics, fetchHasMetrics } from '@components/AbstractSideNav/queries';
+import { Box } from '@chakra-ui/react';
+import { CitationExporter } from '@components';
 import { AbsLayout } from '@components/Layout/AbsLayout';
-import { normalizeURLParams } from '@utils';
+import { withDetailsPage } from '@hocs/withDetailsPage';
+import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
+import { composeNextGSSP, normalizeURLParams, setupApiSSR } from '@utils';
+import { ExportApiFormatKey, exportCitationKeys, isExportApiFormat } from '@_api/export';
+import { searchKeys } from '@_api/search';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
-import { dehydrate, QueryClient } from 'react-query';
+import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
 
 interface IExportCitationPageProps {
-  bibcode: IDocsEntity['bibcode'];
-  text?: string;
-  format: ExportApiFormat;
-  originalDoc: IDocsEntity;
-  error?: string;
+  id: string;
+  format: ExportApiFormatKey;
+  error?: {
+    status?: string;
+    message?: string;
+  };
 }
 
-const ExportCitationPage: NextPage<IExportCitationPageProps> = ({ originalDoc, error }) => {
+const ExportCitationPage: NextPage<IExportCitationPageProps> = ({ id, format, error }) => {
+  const doc = useGetAbstractDoc(id);
   return (
-    <AbsLayout doc={originalDoc} titleDescription="Export citation for">
+    <AbsLayout doc={doc} titleDescription="Export citation for">
       <Head>
-        <title>NASA Science Explorer - Export Citation - {originalDoc.title[0]}</title>
+        <title>NASA Science Explorer - Export Citation - {doc?.title[0]}</title>
       </Head>
-      {
-        error ? (
+      <Box pt="1">
+        {error ? (
           <Alert status="error">
             <AlertIcon />
-            {error}
+            {error.message}
           </Alert>
-        ) : null
-        // <Export initialBibcodes={[bibcode]} initialText={text} initialFormat={format} singleMode />
-      }
+        ) : (
+          <CitationExporter initialFormat={format} records={[doc?.bibcode]} singleMode />
+        )}
+      </Box>
     </AbsLayout>
   );
 };
 
-export const getServerSideProps: GetServerSideProps<IExportCitationPageProps> = async (ctx) => {
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage, async (ctx, state) => {
+  setupApiSSR(ctx);
+  const { fetchExportCitation } = await import('@_api/export');
+  const axios = (await import('axios')).default;
   const query = normalizeURLParams(ctx.query);
-  const { access_token: token } = ctx.req.session.userData;
-  const format = isExportApiFormat(query.format) ? query.format : 'bibtex';
-  const adsapi = new Adsapi({ token });
-  const result = await adsapi.export.getExportText({
-    bibcode: [query.id],
-    format,
-  });
 
-  const originalDoc = await adsapi.search.getDocument(query.id, [
-    ...abstractPageNavDefaultQueryFields,
-    ...metatagsQueryFields,
-  ]);
+  try {
+    const queryClient = new QueryClient();
+    hydrate(queryClient, state.props?.dehydratedState as DehydratedState);
+    const {
+      response: {
+        docs: [{ bibcode }],
+      },
+    } = queryClient.getQueryData<IADSApiSearchResponse>(searchKeys.abstract(query.id));
 
-  const queryClient = new QueryClient();
-  if (!originalDoc.notFound && !originalDoc.error) {
-    const { bibcode } = originalDoc.doc;
-    void (await queryClient.prefetchQuery(['hasGraphics', bibcode], () => fetchHasGraphics(adsapi, bibcode)));
-    void (await queryClient.prefetchQuery(['hasMetrics', bibcode], () => fetchHasMetrics(adsapi, bibcode)));
-  }
+    const params = {
+      bibcode: [bibcode],
+      format: isExportApiFormat(query.format) ? query.format : ExportApiFormatKey.bibtex,
+    };
+    void (await queryClient.prefetchQuery({
+      queryKey: exportCitationKeys.primary(params),
+      queryFn: fetchExportCitation,
+      meta: { params },
+    }));
 
-  return originalDoc.notFound || originalDoc.error
-    ? { notFound: true }
-    : result.isErr()
-    ? {
+    return {
+      props: {
+        format: params.format,
+        dehydratedState: dehydrate(queryClient),
+      },
+    };
+  } catch (e) {
+    if (axios.isAxiosError(e) && e.response) {
+      return {
         props: {
-          bibcode: query.id,
-          format,
-          originalDoc: originalDoc.doc,
-          error: 'Unable to get results',
-          dehydratedState: dehydrate(queryClient),
-        },
-      }
-    : {
-        props: {
-          bibcode: query.id,
-          format,
-          text: result.value,
-          originalDoc: originalDoc.doc,
-          dehydratedState: dehydrate(queryClient),
+          error: {
+            status: e.response.status,
+            message: e.message,
+          },
         },
       };
-};
+    }
+    return {
+      props: {
+        error: {
+          status: 500,
+          message: 'Unknown server error',
+        },
+      },
+    };
+  }
+});
 
 export default ExportCitationPage;
