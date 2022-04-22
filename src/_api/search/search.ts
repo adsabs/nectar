@@ -220,10 +220,8 @@ export const useSearchInfinite: InfiniteADSQuery<IADSApiSearchParams, IADSApiSea
   return useInfiniteQuery({
     queryKey: searchKeys.infinite(params),
     queryFn: fetchSearchInfinite,
-    getNextPageParam: (lastPage, allPages) => {
-      return allPages.length === 1 || lastPage.nextCursorMark !== allPages[allPages.length - 2].nextCursorMark
-        ? lastPage.nextCursorMark
-        : false;
+    getNextPageParam: (lastPage) => {
+      return lastPage.nextCursorMark !== lastPage.pageParam ? lastPage.nextCursorMark : false;
     },
     meta: { params },
     ...options,
@@ -262,6 +260,6 @@ export const fetchSearchInfinite: QueryFunction<IADSApiSearchResponse & { pagePa
     } as IADSApiSearchParams,
   };
   const { data } = await api.request<IADSApiSearchResponse>(config);
-  console.log(data);
+
   return { ...data, pageParam };
 };
