@@ -1,8 +1,8 @@
 import { AxiosError, AxiosRequestConfig } from 'axios';
 import { err, ok, Result } from 'neverthrow';
-import { ApiTargets } from '../models';
+import { ApiTargets } from '../../../_api/models';
+import { IADSApiReferenceParams, IADSApiReferenceResponse } from '../../../_api/reference/types';
 import { Service } from '../service';
-import { IADSApiReferenceParams, IADSApiReferenceResponse } from './types';
 
 export class ReferenceService extends Service {
   async query({ reference }: IADSApiReferenceParams): Promise<Result<IADSApiReferenceResponse, Error | AxiosError>> {

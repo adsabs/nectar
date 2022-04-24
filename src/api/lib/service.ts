@@ -5,7 +5,7 @@ import { PathLike } from 'fs';
 import { ok, Result } from 'neverthrow';
 import qs from 'qs';
 import { identity, mergeDeepLeft } from 'ramda';
-import { ApiTargets } from './models';
+import { ApiTargets } from '../../_api/models';
 import { injectAuth, resolveApiBaseUrl } from './utils';
 
 export interface IServiceConfig extends AxiosRequestConfig {

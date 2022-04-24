@@ -1,4 +1,4 @@
-import { AccountService } from './accounts';
+import { AccountService } from '../../_api/accounts';
 import { ExportService } from './export';
 import { GraphicsService } from './graphics';
 import { LibrariesService } from './libraries/libraries';

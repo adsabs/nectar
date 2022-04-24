@@ -1,7 +1,7 @@
 import { AxiosError, AxiosRequestConfig } from 'axios';
 import { err, ok, Result } from 'neverthrow';
 import { IExportApiResponse } from '.';
-import { ApiTargets } from '../models';
+import { ApiTargets } from '../../../_api/models';
 import { Service } from '../service';
 import { IExportApiParams } from './types';
 

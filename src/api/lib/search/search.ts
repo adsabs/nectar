@@ -1,14 +1,14 @@
 import { AxiosError, AxiosRequestConfig } from 'axios';
 import { err, ok, Result } from 'neverthrow';
-import { ApiTargets } from '../models';
-import { Service } from '../service';
+import { ApiTargets } from '../../../_api/models';
 import {
   IADSApiSearchParams,
   IADSApiSearchResponse,
   IDocsEntity,
   IDocument,
   INormalizedADSApiSearchParams,
-} from './types';
+} from '../../../_api/search/types';
+import { Service } from '../service';
 
 export class SearchService extends Service {
   private normalizeParams(params: IADSApiSearchParams): INormalizedADSApiSearchParams {

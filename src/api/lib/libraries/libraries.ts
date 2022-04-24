@@ -1,6 +1,6 @@
 import { AxiosError, AxiosRequestConfig } from 'axios';
 import { err, ok, Result } from 'neverthrow';
-import { ApiTargets } from '../models';
+import { ApiTargets } from '../../../_api/models';
 import { Service } from '../service';
 import { ILibraryApiEntityResponse, ILibraryApiResponse, ILibraryEntity } from './types';
 

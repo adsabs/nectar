@@ -1,9 +1,9 @@
 import { AxiosError, AxiosRequestConfig } from 'axios';
 import { err, ok, Result } from 'neverthrow';
-import { ApiTargets } from '../models';
+import { IADSApiBootstrapResponse, IBootstrapPayload, ICSRFResponse } from '../../../_api/accounts/types';
+import { ApiTargets } from '../../../_api/models';
 import { Service } from '../service';
 import { resolveApiBaseUrl } from '../utils';
-import { IADSApiBootstrapResponse, IBootstrapPayload, ICSRFResponse } from './types';
 
 export class AccountService extends Service {
   public async login(): Promise<unknown> {
