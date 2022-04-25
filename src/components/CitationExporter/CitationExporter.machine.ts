@@ -62,8 +62,11 @@ export type CitationExporterEvent =
   | { type: 'SUBMIT' }
   | { type: 'DONE' };
 
-export const generateMachine = ({ format, records }: Pick<IUseCitationExporterProps, 'format' | 'records'>) => {
-  const context: ICitationExporterState = {
+export const getExportCitationDefaultContext = (
+  format: IUseCitationExporterProps['format'],
+  records: IUseCitationExporterProps['records'],
+): ICitationExporterState => {
+  return {
     records: records ?? [],
     range: [0, (records ?? []).length],
     isCustomFormat: false,
@@ -78,14 +81,16 @@ export const generateMachine = ({ format, records }: Pick<IUseCitationExporterPr
           ? BIBTEX_ABS_DEFAULT_AUTHORCUTOFF
           : 0,
       ],
-      customFormat: undefined,
+      customFormat: null,
       journalformat: [ExportApiJournalFormat.AASTeXMacros],
       maxauthor: [0],
     },
   };
+};
 
+export const generateMachine = ({ format, records }: Pick<IUseCitationExporterProps, 'format' | 'records'>) => {
   return createMachine<ICitationExporterState, CitationExporterEvent>({
-    context,
+    context: getExportCitationDefaultContext(format, records),
     id: 'citationExporter',
     initial: 'fetching',
     states: {

@@ -2,9 +2,11 @@ import { IADSApiSearchResponse } from '@api';
 import { Alert, AlertIcon } from '@chakra-ui/alert';
 import { Box } from '@chakra-ui/react';
 import { CitationExporter } from '@components';
+import { getExportCitationDefaultContext } from '@components/CitationExporter/CitationExporter.machine';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
+import { useIsClient } from '@hooks/useIsClient';
 import { composeNextGSSP, normalizeURLParams, setupApiSSR } from '@utils';
 import { ExportApiFormatKey, exportCitationKeys, isExportApiFormat } from '@_api/export';
 import { searchKeys } from '@_api/search';
@@ -20,9 +22,10 @@ interface IExportCitationPageProps {
     message?: string;
   };
 }
-
 const ExportCitationPage: NextPage<IExportCitationPageProps> = ({ id, format, error }) => {
   const doc = useGetAbstractDoc(id);
+  const isClient = useIsClient();
+
   return (
     <AbsLayout doc={doc} titleDescription="Export citation for">
       <Head>
@@ -34,8 +37,10 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = ({ id, format, er
             <AlertIcon />
             {error.message}
           </Alert>
-        ) : (
+        ) : isClient ? (
           <CitationExporter initialFormat={format} records={[doc?.bibcode]} singleMode />
+        ) : (
+          <CitationExporter.Static records={[doc?.bibcode]} initialFormat={format} />
         )}
       </Box>
     </AbsLayout>
@@ -46,7 +51,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetail
   setupApiSSR(ctx);
   const { fetchExportCitation } = await import('@_api/export');
   const axios = (await import('axios')).default;
-  const query = normalizeURLParams(ctx.query);
+  const query = normalizeURLParams<{ id: string; format: string }>(ctx.query);
 
   try {
     const queryClient = new QueryClient();
@@ -57,10 +62,11 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetail
       },
     } = queryClient.getQueryData<IADSApiSearchResponse>(searchKeys.abstract(query.id));
 
-    const params = {
-      bibcode: [bibcode],
-      format: isExportApiFormat(query.format) ? query.format : ExportApiFormatKey.bibtex,
-    };
+    const { params } = getExportCitationDefaultContext(
+      isExportApiFormat(query.format) ? query.format : ExportApiFormatKey.bibtex,
+      [bibcode],
+    );
+
     void (await queryClient.prefetchQuery({
       queryKey: exportCitationKeys.primary(params),
       queryFn: fetchExportCitation,

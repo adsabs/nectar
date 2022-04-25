@@ -1,7 +1,6 @@
 import { IDocsEntity } from '@api';
 import { Box, Button, Heading, Stack, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
 import { ExportApiFormatKey } from '@_api/export';
-import { useRouter } from 'next/router';
 import { ChangeEventHandler, FC, HTMLAttributes, ReactElement } from 'react';
 import { AuthorCutoffSlider } from './components/AuthorCutoffSlider';
 import { CustomFormatSelect } from './components/CustomFormatSelect';
@@ -12,6 +11,7 @@ import { MaxAuthorsSlider } from './components/MaxAuthorsSlider';
 import { RecordSlider } from './components/RecordSlider';
 import { ResultArea } from './components/ResultArea';
 import { SortSelector } from './components/SortSelector';
+import { exportFormats } from './models';
 import { useCitationExporter } from './useCitationExporter';
 export interface ICitationExporterProps extends HTMLAttributes<HTMLDivElement> {
   singleMode?: boolean;
@@ -149,34 +149,17 @@ const Container: FC<{ header: ReactElement } & HTMLAttributes<HTMLDivElement>> =
   );
 };
 
-const Static = (props: ICitationExporterProps): ReactElement => {
-  const { records, initialFormat, singleMode, ...divProps } = props;
-  const { asPath } = useRouter();
+const Static = (props: Omit<ICitationExporterProps, 'singleMode'>): ReactElement => {
+  const { records, initialFormat, ...divProps } = props;
 
-  const { data, state } = useCitationExporter({ format: initialFormat, records, singleMode });
+  const { data, state } = useCitationExporter({ format: initialFormat, records, singleMode: true });
   const ctx = state.context;
 
+  const format = exportFormats[ctx.params.format];
+
   return (
-    <Container
-      header={
-        <>
-          Exporting record{ctx.range[1] - ctx.range[0] > 1 ? 's' : ''} {ctx.range[0] + 1} of {ctx.range[1]} (total:{' '}
-          {ctx.records.length})
-        </>
-      }
-      {...divProps}
-    >
-      <form method="GET" action={asPath}>
-        <Stack direction={['column', 'row']} spacing={4}>
-          <Stack spacing="4" flexGrow={[3, 2]} maxW="lg">
-            <FormatSelect.Static format={ctx.params.format} />
-            <Button type="submit" data-testid="export-submit" size="md">
-              Submit
-            </Button>
-          </Stack>
-          <ResultArea result={data?.export} format={ctx.params.format} />
-        </Stack>
-      </form>
+    <Container header={<>Exporting record in {format.label} format</>} {...divProps}>
+      <ResultArea result={data?.export} format={ctx.params.format} />
     </Container>
   );
 };
