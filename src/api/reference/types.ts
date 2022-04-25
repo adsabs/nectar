@@ -1,5 +1,5 @@
 export interface IADSApiReferenceParams {
-  reference: string;
+  reference: string | string[];
 }
 
 export interface IADSApiReferenceResponse {
