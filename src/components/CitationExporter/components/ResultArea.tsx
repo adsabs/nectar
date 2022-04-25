@@ -1,7 +1,7 @@
+import { ExportApiFormatKey } from '@api';
 import { Button, HStack, Spinner, Stack, Textarea, useClipboard } from '@chakra-ui/react';
 import { useDownloadFile } from '@hooks/useDownloadFile';
 import { useIsClient } from '@hooks/useIsClient';
-import { ExportApiFormatKey } from '@_api/export';
 import { exportFormats } from '../models';
 
 export const ResultArea = ({

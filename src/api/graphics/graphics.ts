@@ -1,9 +1,6 @@
-import { IADSApiGraphicsParams, IDocsEntity } from '@api';
-import { ApiTargets } from '@api/lib/models';
-import { ADSQuery } from '@_api/types';
+import api, { ADSQuery, ApiRequestConfig, ApiTargets, IADSApiGraphicsParams, IDocsEntity } from '@api';
 import { isNil } from 'ramda';
 import { QueryFunction, useQuery, UseQueryResult } from 'react-query';
-import api, { ApiRequestConfig } from '../api';
 import { IADSApiGraphicsResponse } from './types';
 
 const MAX_RETRIES = 3;

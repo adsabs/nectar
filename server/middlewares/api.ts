@@ -3,7 +3,8 @@ import { isPast, parseISO } from 'date-fns';
 import { RequestHandler as Middleware } from 'express';
 import getConfig from 'next/config';
 import { isNil } from 'ramda';
-import { ApiTargets, IBootstrapPayload, IUserData } from '../../src/api';
+import { IBootstrapPayload, IUserData } from '../../src/api/accounts/types';
+import { ApiTargets } from '../../src/api/models';
 
 const isUserData = (userData?: IUserData): userData is IUserData => {
   return (

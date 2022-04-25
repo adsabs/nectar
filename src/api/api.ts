@@ -1,6 +1,4 @@
 import { IUserData } from '@api';
-import { IBootstrapPayload } from '@api/lib/accounts/types';
-import { ApiTargets } from '@api/lib/models';
 import { APP_STORAGE_KEY, updateAppUser } from '@store';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { isPast, parseISO } from 'date-fns';
@@ -8,6 +6,8 @@ import { PathLike } from 'fs';
 import getConfig from 'next/config';
 import qs from 'qs';
 import { has, isNil } from 'ramda';
+import { IBootstrapPayload } from './accounts';
+import { ApiTargets } from './models';
 
 /**
  * Figure out which config to pick, based on the current environment

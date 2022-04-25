@@ -1,14 +1,17 @@
-import { CitationsHistogramType, ReadsHistogramType } from '@api';
 import {
   BasicStatsKey,
   CitationsHistogramKey,
+  CitationsHistogramType,
   CitationsStatsKey,
   PapersHistogramKey,
   PapersHistogramType,
   ReadsHistogramKey,
+  ReadsHistogramType,
   TimeSeriesKey,
   TimeSeriesType,
-} from '@_api/metrics/types';
+} from '@api';
+import { Serie } from '@nivo/line';
+import { divide } from 'ramda';
 import {
   BarGraph,
   ICitationsTableData,
@@ -17,8 +20,6 @@ import {
   IReadsTableData,
   LineGraph,
 } from './types';
-import { Serie } from '@nivo/line';
-import { divide } from 'ramda';
 
 export interface IGraphData {
   key: string;

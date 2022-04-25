@@ -1,12 +1,12 @@
-import { IDocsEntity } from '@api';
-import { assign, createMachine } from '@xstate/fsm';
 import {
   BIBTEX_ABS_DEFAULT_AUTHORCUTOFF,
   BIBTEX_DEFAULT_AUTHORCUTOFF,
   ExportApiFormatKey,
   ExportApiJournalFormat,
+  IDocsEntity,
   IExportApiParams,
-} from '@_api/export';
+} from '@api';
+import { assign, createMachine } from '@xstate/fsm';
 import { IUseCitationExporterProps } from './useCitationExporter';
 
 export interface ICitationExporterState {

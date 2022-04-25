@@ -1,7 +1,7 @@
+import { ExportApiJournalFormat, IExportApiParams } from '@api';
 import { OrderedList } from '@chakra-ui/react';
 import { SelectOption } from '@components/Select';
 import { Sender } from '@xstate/react/lib/types';
-import { ExportApiJournalFormat, IExportApiParams } from '@_api/export';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 
 type JournalFormatOption = SelectOption<ExportApiJournalFormat>;

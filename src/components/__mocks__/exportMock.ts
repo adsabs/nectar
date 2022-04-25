@@ -1,5 +1,4 @@
-import { IADSApiSearchParams, IADSApiSearchResponse } from '@api';
-import { IExportApiResponse } from '@api/lib/export';
+import { IADSApiSearchParams, IADSApiSearchResponse, IExportApiResponse } from '@api';
 
 type Fixture<T> = [number, T];
 

@@ -1,4 +1,4 @@
-import { IADSApiSearchResponse } from '@api';
+import { getReferencesParams, IADSApiSearchResponse, searchKeys, useGetReferences } from '@api';
 import { Alert, AlertIcon } from '@chakra-ui/alert';
 import { AbstractRefList } from '@components/AbstractRefList';
 import { AbsLayout } from '@components/Layout/AbsLayout';
@@ -6,8 +6,6 @@ import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
 import { useGetAbstractParams } from '@hooks/useGetAbstractParams';
 import { composeNextGSSP, setupApiSSR } from '@utils';
-import { searchKeys, useGetReferences } from '@_api/search';
-import { getReferencesParams } from '@_api/search/models';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
@@ -62,7 +60,7 @@ export default ReferencesPage;
 
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage, async (ctx, state) => {
   setupApiSSR(ctx);
-  const { fetchSearch } = await import('@_api/search');
+  const { fetchSearch } = await import('@api');
   const axios = (await import('axios')).default;
   const query = normalizeURLParams(ctx.query);
 

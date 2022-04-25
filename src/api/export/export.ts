@@ -1,5 +1,4 @@
-import { ApiTargets } from '@api/lib/models';
-import { ADSQuery } from '@_api/types';
+import { ADSQuery, ApiTargets } from '@api';
 import { QueryFunction, useQuery, UseQueryResult } from 'react-query';
 import api, { ApiRequestConfig } from '../api';
 import { ExportApiFormatKey, IExportApiParams, IExportApiResponse } from './types';

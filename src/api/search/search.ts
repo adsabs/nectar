@@ -1,11 +1,16 @@
-import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity } from '@api';
-import { ApiTargets } from '@api/lib/models';
-import { ADSQuery, InfiniteADSQuery } from '@_api/types';
+import api, {
+  ADSQuery,
+  ApiRequestConfig,
+  ApiTargets,
+  IADSApiSearchParams,
+  IADSApiSearchResponse,
+  IDocsEntity,
+  InfiniteADSQuery,
+} from '@api';
 import { AxiosError } from 'axios';
 import type { QueryFunctionContext, QueryKey } from 'react-query';
 import { QueryFunction, useInfiniteQuery, useQuery } from 'react-query';
 import { RetryValue } from 'react-query/types/core/retryer';
-import api, { ApiRequestConfig } from '../api';
 import {
   defaultParams,
   getAbstractParams,

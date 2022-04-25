@@ -1,11 +1,15 @@
-import { IADSApiMetricsParams } from '@api';
-import { ApiTargets } from '@api/lib/models';
-import { Bibcode } from '@api/lib/search/types';
-import { BasicStatsKey, CitationsStatsKey, MetricsResponseKey } from '@_api/metrics';
-import { ADSQuery } from '@_api/types';
+import api, {
+  ADSQuery,
+  ApiRequestConfig,
+  ApiTargets,
+  BasicStatsKey,
+  Bibcode,
+  CitationsStatsKey,
+  IADSApiMetricsParams,
+  MetricsResponseKey,
+} from '@api';
 import { isNil } from 'ramda';
 import { QueryFunction, useQuery } from 'react-query';
-import api, { ApiRequestConfig } from '../api';
 import { getMetricsParams, getMetricsTimeSeriesParams } from './model';
 import { IADSApiMetricsResponse } from './types';
 

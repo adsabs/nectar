@@ -1,6 +1,5 @@
-import { IDocsEntity } from '@api';
+import { Esources, IDocsEntity } from '@api';
 import { getFomattedNumericPubdate } from '@utils';
-import { Esources } from '@_api/search/types';
 import getConfig from 'next/config';
 import { ReactElement } from 'react';
 

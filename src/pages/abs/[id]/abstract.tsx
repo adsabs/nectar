@@ -1,4 +1,4 @@
-import { IDocsEntity } from '@api';
+import { IDocsEntity, useGetAbstract } from '@api';
 import { Alert, AlertIcon } from '@chakra-ui/alert';
 import { Box, Link, Stack, Text } from '@chakra-ui/layout';
 import { Flex } from '@chakra-ui/react';
@@ -13,7 +13,6 @@ import { APP_DEFAULTS } from '@config';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useIsClient } from '@hooks/useIsClient';
 import { composeNextGSSP } from '@utils';
-import { useGetAbstract } from '@_api/search';
 import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
