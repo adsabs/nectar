@@ -4,12 +4,10 @@ import { Input } from '@chakra-ui/input';
 import { Box, Divider, Grid, GridItem, Stack, Text, VStack } from '@chakra-ui/layout';
 import { Textarea } from '@chakra-ui/textarea';
 import { BibstemPickerSingle, TextInput } from '@components';
-import { PaperFormController } from '@controllers/paperformController';
 import { PaperFormType, RawPaperFormParams } from '@controllers/paperformController/types';
-import { useAPI } from '@hooks';
 import { useIsClient } from '@hooks/useIsClient';
 import { ErrorMessage, Field, FieldProps, Form, Formik } from 'formik';
-import { NextPage } from 'next';
+import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { curry } from 'ramda';
@@ -31,19 +29,18 @@ type PaperFormState = {
 
 const PaperForm: NextPage = () => {
   const router = useRouter();
-  const { api } = useAPI();
   const isClient = useIsClient();
 
   const handleSubmit = curry(async (type: PaperFormType, params: RawPaperFormParams) => {
-    try {
-      const controller = new PaperFormController(type, params, api);
-      const query = await controller.getQuery();
-
-      // generate a search url from the query
-      void router.push(`/search?${query}`);
-    } catch (e) {
-      console.error(e);
-    }
+    // TODO: Fix
+    // try {
+    //   const controller = new PaperFormController(type, params, api);
+    //   const query = await controller.getQuery();
+    //   // generate a search url from the query
+    //   void router.push(`/search?${query}`);
+    // } catch (e) {
+    //   console.error(e);
+    // }
   });
 
   return (
@@ -225,4 +222,9 @@ const BibcodeQueryForm = ({ onSubmit, isClient }: { onSubmit: SubmitHandler; isC
       )}
     </Formik>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  console.log(ctx);
+  return Promise.resolve({ props: {} });
 };
