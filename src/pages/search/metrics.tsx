@@ -64,7 +64,7 @@ export const getServerSideProps: GetServerSideProps<IMetricsProps> = async (ctx)
         ? { q: `docs(${qid as string})`, start: start, rows: 1000, fl: ['bibcode'] }
         : { ...parseQueryFromUrlNoPage(query), start: start, rows: 1000, fl: ['bibcode'] };
       await queryClient.prefetchQuery({
-        queryKey: ['search/bibcodes', p],
+        queryKey: searchKeys.primary(p),
         queryFn: fetchSearch,
         meta: { params: p },
         retry: false,

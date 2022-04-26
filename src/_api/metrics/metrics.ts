@@ -1,4 +1,4 @@
-import { IADSApiMetricsParams, IADSApiSearchParams, IDocsEntity } from '@api';
+import { IADSApiMetricsParams, IADSApiSearchParams } from '@api';
 import { ApiTargets } from '@api/lib/models';
 import { Bibcode } from '@api/lib/search/types';
 import { BasicStatsKey, CitationsStatsKey, MetricsResponseKey } from '@_api/metrics';
@@ -36,7 +36,7 @@ const retryFn = (count: number, error: unknown) => {
  * Fetches metrics and checks if citations and reads exist
  */
 export const useHasMetrics: ADSQuery<Bibcode, IADSApiMetricsResponse, null, boolean> = (bibcode, options) => {
-  const params = { bibcode };
+  const params = getMetricsParams([bibcode]);
 
   const { data, isError } = useQuery({
     queryKey: metricsKeys.primary([bibcode]),
@@ -93,36 +93,6 @@ export const useGetMetricsTimeSeries: ADSQuery<Bibcode[], IADSApiMetricsResponse
   });
 };
 
-export const useGetMultMetrics: ADSQuery<
-  { id: IADSApiSearchParams; bibcodes: IDocsEntity['bibcode'][]; isSimple?: boolean },
-  IADSApiMetricsResponse
-> = ({ id, bibcodes, isSimple }, options) => {
-  const params: IADSApiMetricsParams = { bibcodes, types: isSimple ? ['simple'] : undefined };
-
-  return useQuery({
-    queryKey: metricsMultKeys.primary(id),
-    queryFn: fetchMetricsMult,
-    retry: retryFn,
-    meta: { params },
-    ...options,
-  });
-};
-
-export const useGetTimeSeries: ADSQuery<
-  { id: IADSApiSearchParams; bibcodes: IDocsEntity['bibcode'][] },
-  IADSApiMetricsResponse
-> = ({ id, bibcodes }, options) => {
-  const params: IADSApiMetricsParams = { bibcodes, types: ['indicators', 'timeseries'] };
-
-  return useQuery({
-    queryKey: timeSeriesKeys.primary(id),
-    queryFn: fetchMetricsMult,
-    retry: retryFn,
-    meta: { params },
-    ...options,
-  });
-};
-
 export const fetchMetrics: QueryFunction<IADSApiMetricsResponse> = async ({ meta }) => {
   const { params } = meta as { params: IADSApiMetricsParams };
 
@@ -133,32 +103,6 @@ export const fetchMetrics: QueryFunction<IADSApiMetricsResponse> = async ({ meta
   };
 
   const { data: metrics } = await api.request<IADSApiMetricsResponse>(config);
-
-  if (isNil(metrics)) {
-    throw new Error('No Metrics');
-  }
-
-  if (metrics[MetricsResponseKey.E]) {
-    throw new Error(metrics[MetricsResponseKey.EI] ? metrics[MetricsResponseKey.EI] : 'No Metrics');
-  }
-  return metrics;
-};
-
-export const fetchMetricsMult: QueryFunction<IADSApiMetricsResponse> = async ({ meta }) => {
-  const { params } = meta as { params: IADSApiMetricsParams };
-
-  const config: ApiRequestConfig = {
-    method: 'POST',
-    url: `${ApiTargets.SERVICE_METRICS}`,
-    data: {
-      bibcodes: params.bibcodes,
-      types: params.types,
-    },
-  };
-
-  const res = await api.request<IADSApiMetricsResponse>(config);
-
-  const { data: metrics } = res;
 
   if (isNil(metrics)) {
     throw new Error('No Metrics');

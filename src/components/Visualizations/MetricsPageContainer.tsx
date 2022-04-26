@@ -1,13 +1,12 @@
 import { ReactElement, useEffect, useMemo } from 'react';
 import { useQueries } from 'react-query';
-import { fetchSearch } from '@_api/search';
+import { fetchSearch, searchKeys } from '@_api/search';
 import { parseQueryFromUrlNoPage } from '@utils';
 import { IADSApiSearchResponse } from '@api';
-import { useGetMultMetrics } from '@_api/metrics';
+import { useGetMetrics } from '@_api/metrics';
 import { Metrics } from '@components';
 import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, CircularProgress, Text } from '@chakra-ui/react';
 import axios from 'axios';
-import { useRouter } from 'next/router';
 
 interface IMetricsPageProps {
   query: { [key: string]: string | string[] };
@@ -36,7 +35,7 @@ export const MetricsPageContainer = ({ query, qid, recordsToGet }: IMetricsPageP
         ? { q: `docs(${qid})`, start: start, rows: 1000, fl: ['bibcode'] }
         : { ...parseQueryFromUrlNoPage(query), start: start, rows: 1000, fl: ['bibcode'] };
       return {
-        queryKey: ['search/bibcodes', params],
+        queryKey: searchKeys.primary(params),
         queryFn: fetchSearch,
         meta: { params },
         select: (data: IADSApiSearchResponse) => data.response,
@@ -63,8 +62,6 @@ export const MetricsPageContainer = ({ query, qid, recordsToGet }: IMetricsPageP
 
 // This layer fetches the metrics from bibcodes
 const MetricsComponent = ({ bibcodes }: { bibcodes: string[] }): ReactElement => {
-  const router = useRouter();
-
   // query to get metrics
   const {
     data: metricsData,
@@ -72,10 +69,7 @@ const MetricsComponent = ({ bibcodes }: { bibcodes: string[] }): ReactElement =>
     isError: isErrorMetrics,
     error: errorMetrics,
     isLoading,
-  } = useGetMultMetrics(
-    { id: parseQueryFromUrlNoPage(router.query), bibcodes, isSimple: bibcodes && bibcodes.length > 6000 },
-    { enabled: false },
-  );
+  } = useGetMetrics(bibcodes, { enabled: false });
 
   useEffect(() => {
     if (bibcodes && bibcodes.length > 0) {

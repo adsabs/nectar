@@ -16,10 +16,8 @@ import {
 import { useMetrics } from '@hooks/useMetrics';
 import { BarDatum } from '@nivo/bar';
 import { Serie } from '@nivo/line';
-import { parseQueryFromUrlNoPage } from '@utils';
-import { IADSApiMetricsResponse, MetricsResponseKey, useGetTimeSeries } from '@_api/metrics';
+import { IADSApiMetricsResponse, MetricsResponseKey, useGetMetricsTimeSeries } from '@_api/metrics';
 import axios from 'axios';
-import { useRouter } from 'next/router';
 import { ReactElement, useEffect, useMemo } from 'react';
 import { CitationsTable } from './CitationsTable';
 import { plotTimeSeriesGraph } from './graphUtils';
@@ -228,8 +226,6 @@ const IndicesSection = ({
   indicesGraph: LineGraph;
   bibcodes?: IDocsEntity['bibcode'][];
 }): ReactElement => {
-  const router = useRouter();
-
   // query to get indices metrics if there is no indices graph
   const {
     data: metricsData,
@@ -237,7 +233,7 @@ const IndicesSection = ({
     isError: isErrorMetrics,
     error: errorMetrics,
     isLoading,
-  } = useGetTimeSeries({ id: parseQueryFromUrlNoPage(router.query), bibcodes }, { enabled: false });
+  } = useGetMetricsTimeSeries(bibcodes, { enabled: false });
 
   useEffect(() => {
     if (!indicesGraph && bibcodes && bibcodes.length > 0) {

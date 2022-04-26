@@ -21,6 +21,7 @@ import { useIsClient } from '@hooks/useIsClient';
 import { AppState, useStore } from '@store';
 import { noop } from '@utils';
 import { useGetBigQuery } from '@_api/search/bigquery';
+import { useVaultBigQuerySearch } from '@_api/vault';
 import { useRouter } from 'next/router';
 import { ReactElement, useEffect, useState, MouseEvent } from 'react';
 
@@ -42,7 +43,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
     setExploreAll(noneSelected);
   }, [noneSelected]);
 
-  const { refetch: fetchBigQuery } = useGetBigQuery({ bibcodes: selected }, { enabled: false });
+  const { refetch: fetchVaultBigQuery } = useVaultBigQuerySearch(selected, { enabled: false });
 
   const handleExploreOption = (value: string | string[]) => {
     if (typeof value === 'string') {
@@ -56,7 +57,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
     if (noneSelected) {
       void router.push({ pathname: path, query: router.query });
     } else {
-      fetchBigQuery().then(
+      fetchVaultBigQuery().then(
         (res) => {
           const qid = res.data.qid;
           void router.push({ pathname: path, query: { ...router.query, qid: qid } });

@@ -6,6 +6,7 @@ import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
 import { composeNextGSSP, normalizeURLParams, setupApiSSR } from '@utils';
 import { fetchMetrics, metricsKeys, useGetMetrics } from '@_api/metrics';
+import { getMetricsParams } from '@_api/metrics/model';
 import { searchKeys } from '@_api/search';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
@@ -69,10 +70,12 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetail
       },
     } = queryClient.getQueryData<IADSApiSearchResponse>(searchKeys.abstract(query.id));
 
+    const params = getMetricsParams([bibcode]);
+
     void (await queryClient.prefetchQuery({
       queryKey: metricsKeys.primary([bibcode]),
       queryFn: fetchMetrics,
-      meta: { params: { bibcode } },
+      meta: { params },
     }));
 
     return {
