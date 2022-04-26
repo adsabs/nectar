@@ -36,7 +36,8 @@ export const ResultArea = ({
         resize="none"
         minH={['xs', 'sm']}
         bgColor="gray.100"
-        fontWeight="bold"
+        fontFamily="monospace"
+        fontWeight="semibold"
         value={result}
         data-testid="export-output"
       />
