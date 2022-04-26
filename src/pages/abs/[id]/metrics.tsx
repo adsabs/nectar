@@ -70,7 +70,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetail
     } = queryClient.getQueryData<IADSApiSearchResponse>(searchKeys.abstract(query.id));
 
     void (await queryClient.prefetchQuery({
-      queryKey: metricsKeys.primary(bibcode),
+      queryKey: metricsKeys.primary([bibcode]),
       queryFn: fetchMetrics,
       meta: { params: { bibcode } },
     }));

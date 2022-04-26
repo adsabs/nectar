@@ -111,7 +111,8 @@ export type SolrSortField =
   | 'date'
   | 'entry_date'
   | 'read_count'
-  | 'score';
+  | 'score'
+  | 'id';
 export type SolrSort = `${SolrSortField} ${SolrSortDirection}`;
 
 export enum ApiTargets {

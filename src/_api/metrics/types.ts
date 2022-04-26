@@ -61,8 +61,16 @@ export type ReadsHistogramType = {
   [key in ReadsHistogramKey]: { [year: string]: number };
 };
 
+export enum IAdsApiMetricsTypes {
+  SIMPLE = 'simple',
+  INDICATORS = 'indicators',
+  TIMESERIES = 'timeseries',
+}
+
 export interface IADSApiMetricsParams {
-  bibcode: string;
+  bibcode?: string;
+  bibcodes?: string[];
+  types?: IAdsApiMetricsTypes[];
 }
 
 export interface IADSApiMetricsResponse {

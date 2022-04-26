@@ -31,6 +31,23 @@ export const handlers = [
   rest.get(`*${ApiTargets.SEARCH}`, (req, res, ctx) => {
     const params = qs.parse(req.url.search.slice(1));
 
+    if (typeof params.cursorMark === 'string') {
+      const rows = parseInt(params.rows as string, 10) ?? 10;
+      const numFound = faker.datatype.number({ min: 1, max: 10000 });
+      return res(
+        ctx.status(200),
+        ctx.json<IADSApiSearchResponse>({
+          nextCursorMark: faker.random.alphaNumeric(18),
+          response: {
+            numFound,
+            docs: map(() => ({
+              bibcode: api.bibcode(),
+            }))(range(0, rows)),
+          },
+        }),
+      );
+    }
+
     // abstract preview
     if (params.fl === 'abstract') {
       return res(

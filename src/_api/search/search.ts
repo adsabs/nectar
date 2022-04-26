@@ -1,8 +1,9 @@
 import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity } from '@api';
 import { ApiTargets } from '@api/lib/models';
-import { ADSQuery } from '@_api/types';
+import { ADSQuery, InfiniteADSQuery } from '@_api/types';
 import { AxiosError } from 'axios';
-import { QueryFunction, useQuery } from 'react-query';
+import type { QueryFunctionContext, QueryKey } from 'react-query';
+import { QueryFunction, useInfiniteQuery, useQuery } from 'react-query';
 import { RetryValue } from 'react-query/types/core/retryer';
 import api, { ApiRequestConfig } from '../api';
 import {
@@ -52,6 +53,7 @@ export const searchKeys = {
   similar: ({ bibcode, start }: SearchKeyProps) => ['search/similar', { bibcode, start }] as const,
   toc: ({ bibcode, start }: SearchKeyProps) => ['search/toc', { bibcode, start }] as const,
   stats: (params: IADSApiSearchParams) => ['search/stats', params] as const,
+  infinite: (params: IADSApiSearchParams) => ['search/infinite', params] as const,
 };
 
 /**
@@ -211,6 +213,21 @@ export const useGetSearchStats: SearchADSQuery<IADSApiSearchParams, IADSApiSearc
   });
 };
 
+export const useSearchInfinite: InfiniteADSQuery<IADSApiSearchParams, IADSApiSearchResponse & { pageParam: string }> = (
+  params,
+  options,
+) => {
+  return useInfiniteQuery({
+    queryKey: searchKeys.infinite(params),
+    queryFn: fetchSearchInfinite,
+    getNextPageParam: (lastPage) => {
+      return lastPage.nextCursorMark !== lastPage.pageParam ? lastPage.nextCursorMark : false;
+    },
+    meta: { params },
+    ...options,
+  });
+};
+
 /**
  * Base fetcher for search
  *
@@ -226,4 +243,23 @@ export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta }
   };
   const { data } = await api.request<IADSApiSearchResponse>(config);
   return data;
+};
+
+export const fetchSearchInfinite: QueryFunction<IADSApiSearchResponse & { pageParam: string }> = async ({
+  meta,
+  pageParam = '*',
+}: QueryFunctionContext<QueryKey, string>) => {
+  const { params } = meta as { params: IADSApiSearchParams };
+
+  const config: ApiRequestConfig = {
+    method: 'GET',
+    url: ApiTargets.SEARCH,
+    params: {
+      ...params,
+      cursorMark: pageParam,
+    } as IADSApiSearchParams,
+  };
+  const { data } = await api.request<IADSApiSearchResponse>(config);
+
+  return { ...data, pageParam };
 };

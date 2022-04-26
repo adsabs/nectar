@@ -14,6 +14,8 @@ export interface IADSApiSearchParams {
   fq?: string;
   stats?: boolean;
   'stats.field'?: string;
+  bigquery?: string;
+  cursorMark?: string;
 }
 
 export interface INormalizedADSApiSearchParams {
@@ -42,6 +44,7 @@ export interface IADSApiSearchResponse {
   stats?: ISearchStatsFields;
   responseHeader?: IADSApiSearchResponseHeader;
   error?: IADSApiSearchResponseError;
+  nextCursorMark?: string;
 }
 
 export interface ISearchStatsFields {
@@ -212,6 +215,8 @@ export interface IDocsEntity {
   all?: string;
   arxiv?: string;
 }
+
+export type Bibcode = IDocsEntity['bibcode'];
 
 export interface IDocument {
   error?: string;
