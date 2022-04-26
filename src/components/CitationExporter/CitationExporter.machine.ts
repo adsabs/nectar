@@ -88,11 +88,11 @@ export const getExportCitationDefaultContext = (
   };
 };
 
-export const generateMachine = ({ format, records }: Pick<IUseCitationExporterProps, 'format' | 'records'>) => {
+export const generateMachine = ({ format, records, singleMode }: IUseCitationExporterProps) => {
   return createMachine<ICitationExporterState, CitationExporterEvent>({
     context: getExportCitationDefaultContext(format, records),
     id: 'citationExporter',
-    initial: 'fetching',
+    initial: singleMode ? 'idle' : 'fetching',
     states: {
       idle: {
         on: {
@@ -105,6 +105,10 @@ export const generateMachine = ({ format, records }: Pick<IUseCitationExporterPr
             actions: assign<ICitationExporterState, SetFormat>({
               params: (ctx, evt) => ({ ...ctx.params, format: evt.payload }),
             }),
+            target: 'fetching',
+
+            // will transition to fetching only if singleMode is true
+            cond: () => singleMode,
           },
           SET_RANGE: {
             actions: assign<ICitationExporterState, SetRange>({

@@ -49,12 +49,10 @@ export const CitationExporter = (props: ICitationExporterProps): ReactElement =>
         }
         {...divProps}
       >
-        <form method="GET" onSubmit={handleOnSubmit}>
-          <Stack direction="column" spacing={4}>
-            <FormatSelect format={ctx.params.format} dispatch={dispatch} />
-            <ResultArea result={data?.export} format={ctx.params.format} />
-          </Stack>
-        </form>
+        <Stack direction="column" spacing={4}>
+          <FormatSelect format={ctx.params.format} dispatch={dispatch} />
+          <ResultArea result={data?.export} format={ctx.params.format} />
+        </Stack>
       </Container>
     );
   }
