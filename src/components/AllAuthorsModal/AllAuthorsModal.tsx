@@ -134,7 +134,7 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
             ? authors
             : matchSorter(authors, debSearchVal, {
                 keys: ['1', '2'],
-                threshold: matchSorter.rankings.WORD_STARTS_WITH,
+                threshold: matchSorter.rankings.CONTAINS,
               }),
         ),
       [debSearchVal, authors],
