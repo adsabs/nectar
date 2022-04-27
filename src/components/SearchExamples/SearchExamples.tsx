@@ -81,6 +81,7 @@ export const SearchExample = (props: ISearchExampleProps) => {
           justifyContent: 'center',
           cursor: isClient ? 'pointer' : 'default',
         }}
+        className="search-example"
         {...buttonProps}
       >
         {example}

@@ -17,6 +17,7 @@ export interface ISelectProps<
   label: string;
   hideLabel?: boolean;
   stylesTheme?: 'theme' | 'sort' | 'default' | 'default.sm';
+  id?: string;
 }
 
 export const Select = <
@@ -26,9 +27,9 @@ export const Select = <
 >(
   props: ISelectProps<Option, isMulti, Group>,
 ): ReactElement => {
-  const { hideLabel = true, label, stylesTheme, ...selectProps } = props;
+  const { hideLabel = true, label, stylesTheme, id, ...selectProps } = props;
 
-  const id = `select-${uuid()}`;
+  const selectId = id ?? `select-${uuid()}`;
 
   const themes: Record<string, StylesConfig<Option, isMulti, Group>> = useMemo(
     () =>
@@ -129,7 +130,13 @@ export const Select = <
   return (
     <FormControl>
       {!hideLabel && <FormLabel htmlFor={id}>{label}</FormLabel>}
-      <ReactSelect isSearchable={false} aria-label={label} id={id} {...selectProps} styles={themes[stylesTheme]} />
+      <ReactSelect
+        isSearchable={false}
+        aria-label={label}
+        id={selectId}
+        {...selectProps}
+        styles={themes[stylesTheme]}
+      />
     </FormControl>
   );
 };
