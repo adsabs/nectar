@@ -14,6 +14,8 @@ interface IMetricsPageProps {
   recordsToGet: number;
 }
 
+const batchSize = 1000;
+
 // This layer fetches the bibcodes
 export const MetricsPageContainer = ({ query, qid, recordsToGet }: IMetricsPageProps): ReactElement => {
   const starts = useMemo(() => {
@@ -22,18 +24,18 @@ export const MetricsPageContainer = ({ query, qid, recordsToGet }: IMetricsPageP
     let start = 0;
     while (remainsToFetch > 0) {
       arr.push(start);
-      start += 1000;
-      remainsToFetch -= 1000;
+      start += batchSize;
+      remainsToFetch -= batchSize;
     }
     return arr;
   }, [recordsToGet]);
 
-  // parallel queries to get bobcodes
+  // parallel queries to get bibcodes
   const fetchBibsQueries = useQueries(
     starts.map((start) => {
       const params = qid
-        ? { q: `docs(${qid})`, start: start, rows: 1000, fl: ['bibcode'] }
-        : { ...parseQueryFromUrlNoPage(query), start: start, rows: 1000, fl: ['bibcode'] };
+        ? { q: `docs(${qid})`, start: start, rows: batchSize, fl: ['bibcode'] }
+        : { ...parseQueryFromUrlNoPage(query), start: start, rows: batchSize, fl: ['bibcode'] };
       return {
         queryKey: searchKeys.primary(params),
         queryFn: fetchSearch,
