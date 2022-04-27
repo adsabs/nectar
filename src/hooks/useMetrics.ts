@@ -47,8 +47,8 @@ export const useMetrics = (metrics: IADSApiMetricsResponse, isSinglePaper: boole
   // graph data
   const citationsGraphs = hasCitations
     ? {
-        totalGraph: plotCitationsHist(false, hist.citations),
-        normalizedGraph: plotCitationsHist(true, hist.citations),
+        totalGraph: plotCitationsHist(false, hist.citations, isSinglePaper),
+        normalizedGraph: plotCitationsHist(true, hist.citations, isSinglePaper),
       }
     : null;
 

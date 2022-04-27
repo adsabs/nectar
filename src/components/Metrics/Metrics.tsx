@@ -182,7 +182,9 @@ const ReadsSection = ({
             Reads
           </Heading>
           {readsTable && <ReadsTable data={readsTable} isAbstract={isAbstract} />}
-          {isClient && readsGraphs && <MetricsGraphs graphs={readsGraphs} />}
+          {isClient && readsGraphs && (
+            <MetricsGraphs graphs={readsGraphs} showGroupOptions={!isAbstract} showLegend={!isAbstract} />
+          )}
         </Box>
       ) : null}
     </>
@@ -281,7 +283,15 @@ const IndicesSection = ({
   );
 };
 
-const MetricsGraphs = ({ graphs }: { graphs: IMetricsGraphs }): ReactElement => {
+const MetricsGraphs = ({
+  graphs,
+  showLegend = true,
+  showGroupOptions = true,
+}: {
+  graphs: IMetricsGraphs;
+  showLegend?: boolean;
+  showGroupOptions?: boolean;
+}): ReactElement => {
   return (
     <Tabs mt={5} variant="soft-rounded" size="sm" align="center">
       <TabList>
@@ -295,6 +305,8 @@ const MetricsGraphs = ({ graphs }: { graphs: IMetricsGraphs }): ReactElement => 
             indexBy="year"
             keys={graphs.totalGraph.keys}
             ticks={getBarGraphYearTicks(graphs.totalGraph.data)}
+            showLegend={showLegend}
+            showGroupOptions={showGroupOptions}
           />
         </TabPanel>
         <TabPanel>
@@ -303,6 +315,8 @@ const MetricsGraphs = ({ graphs }: { graphs: IMetricsGraphs }): ReactElement => 
             indexBy="year"
             keys={graphs.normalizedGraph.keys}
             ticks={getBarGraphYearTicks(graphs.normalizedGraph.data)}
+            showLegend={showLegend}
+            showGroupOptions={showGroupOptions}
           />
         </TabPanel>
       </TabPanels>

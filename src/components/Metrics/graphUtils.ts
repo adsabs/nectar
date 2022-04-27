@@ -75,7 +75,11 @@ export interface IIndicesTableInput {
  * @param citationsHist
  * @returns
  */
-export const plotCitationsHist = (normalize: boolean, citationsHist: CitationsHistogramType): BarGraph => {
+export const plotCitationsHist = (
+  normalize: boolean,
+  citationsHist: CitationsHistogramType,
+  isSinglePaper: boolean,
+): BarGraph => {
   let data: { [year: string]: number }[];
 
   if (!normalize) {
@@ -97,9 +101,9 @@ export const plotCitationsHist = (normalize: boolean, citationsHist: CitationsHi
   const transformed: { [key: string]: Record<string, number> } = {};
 
   [
-    'Ref. citations to ref. papers',
+    isSinglePaper ? 'Citations from ref. papers' : 'Ref. citations to ref. papers',
     'Ref. citations to non ref. papers',
-    'Non ref. citations to ref. papers',
+    isSinglePaper ? 'Citations from non ref. papers' : 'Non ref. citations to ref. papers',
     'Non ref. citations to non ref. papers',
   ].forEach((x, i) => {
     if (Object.values(data[i]).filter((v) => v > 0).length > 0) {
