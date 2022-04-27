@@ -62,10 +62,11 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetail
       },
     } = queryClient.getQueryData<IADSApiSearchResponse>(searchKeys.abstract(query.id));
 
-    const { params } = getExportCitationDefaultContext(
-      isExportApiFormat(query.format) ? query.format : ExportApiFormatKey.bibtex,
-      [bibcode],
-    );
+    const { params } = getExportCitationDefaultContext({
+      format: isExportApiFormat(query.format) ? query.format : ExportApiFormatKey.bibtex,
+      records: [bibcode],
+      singleMode: true,
+    });
 
     void (await queryClient.prefetchQuery({
       queryKey: exportCitationKeys.primary(params),

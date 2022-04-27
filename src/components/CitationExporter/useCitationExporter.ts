@@ -10,8 +10,13 @@ export interface IUseCitationExporterProps {
 }
 
 export const useCitationExporter = ({ records, format, singleMode }: IUseCitationExporterProps) => {
-  const machine = useMemo(() => generateMachine({ format, records, singleMode }), [records, format, singleMode]);
+  const machine = useMemo(() => generateMachine({ format, records, singleMode }), []);
   const [state, dispatch] = useMachine(machine);
+
+  // trigger updates to machine state if incoming props change
+  useEffect(() => dispatch({ type: 'SET_RECORDS', payload: records }), [records]);
+  useEffect(() => dispatch({ type: 'SET_FORMAT', payload: format }), [format]);
+  useEffect(() => dispatch({ type: 'SET_SINGLEMODE', payload: singleMode }), [singleMode]);
 
   const result = useGetExportCitation(state.context.params, {
     enabled: state.matches('fetching'),

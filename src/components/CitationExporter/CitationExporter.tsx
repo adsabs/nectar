@@ -1,7 +1,8 @@
 import { IDocsEntity } from '@api';
 import { Box, Button, Heading, Stack, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
-import { ExportApiFormatKey } from '@_api/export';
-import { ChangeEventHandler, FC, HTMLAttributes, ReactElement } from 'react';
+import { ExportApiFormatKey, isExportApiFormat } from '@_api/export';
+import { useRouter } from 'next/router';
+import { ChangeEventHandler, FC, HTMLAttributes, ReactElement, useEffect } from 'react';
 import { AuthorCutoffSlider } from './components/AuthorCutoffSlider';
 import { CustomFormatSelect } from './components/CustomFormatSelect';
 import { FormatSelect } from './components/FormatSelect';
@@ -22,6 +23,29 @@ export interface ICitationExporterProps extends HTMLAttributes<HTMLDivElement> {
 export const CitationExporter = (props: ICitationExporterProps): ReactElement => {
   const { singleMode = false, initialFormat = ExportApiFormatKey.bibtex, records = [], ...divProps } = props;
   const { data, isLoading, state, dispatch } = useCitationExporter({ format: initialFormat, records, singleMode });
+  const ctx = state.context;
+  const router = useRouter();
+
+  // Updates the route when format has changed
+  useEffect(() => {
+    if (state.matches('idle') && router.query.format !== ctx.params.format) {
+      void router.push({ pathname: router.pathname, query: { ...router.query, format: ctx.params.format } }, null, {
+        shallow: true,
+      });
+    }
+  }, [state.value, state.context.params.format]);
+
+  // Attempt to parse the url to grab the format, then update it, otherwise allow the server to handle the path
+  useEffect(() => {
+    router.beforePopState(({ as }) => {
+      const format = as.slice(as.lastIndexOf('/') + 1);
+      if (isExportApiFormat(format)) {
+        dispatch({ type: 'SET_FORMAT', payload: format });
+        return false;
+      }
+      return true;
+    });
+  }, []);
 
   const handleOnSubmit: ChangeEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
@@ -31,8 +55,6 @@ export const CitationExporter = (props: ICitationExporterProps): ReactElement =>
   const handleTabChange = (index: number) => {
     dispatch({ type: 'SET_IS_CUSTOM_FORMAT', payload: index === 1 });
   };
-
-  const ctx = state.context;
 
   if (ctx.records.length === 0) {
     return <Container header={<>No Records</>} />;

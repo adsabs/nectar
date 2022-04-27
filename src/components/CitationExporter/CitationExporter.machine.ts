@@ -1,4 +1,4 @@
-import { IDocsEntity, SolrSort } from '@api';
+import { IDocsEntity } from '@api';
 import { assign, createMachine } from '@xstate/fsm';
 import {
   BIBTEX_ABS_DEFAULT_AUTHORCUTOFF,
@@ -13,12 +13,22 @@ export interface ICitationExporterState {
   records: IDocsEntity['bibcode'][];
   range: [0, number];
   isCustomFormat: boolean;
+  singleMode: boolean;
   params: IExportApiParams;
+}
+
+interface SetSingleMode {
+  type: 'SET_SINGLEMODE';
+  payload: ICitationExporterState['singleMode'];
+}
+interface SetRecords {
+  type: 'SET_RECORDS';
+  payload: ICitationExporterState['records'];
 }
 
 interface SetSort {
   type: 'SET_SORT';
-  payload: SolrSort[];
+  payload: ICitationExporterState['params']['sort'];
 }
 
 interface SetFormat {
@@ -52,6 +62,8 @@ interface SetIsCustomFormat {
 }
 
 export type CitationExporterEvent =
+  | SetRecords
+  | SetSingleMode
   | SetSort
   | SetFormat
   | SetRange
@@ -62,18 +74,17 @@ export type CitationExporterEvent =
   | { type: 'SUBMIT' }
   | { type: 'DONE' };
 
-export const getExportCitationDefaultContext = (
-  format: IUseCitationExporterProps['format'],
-  records: IUseCitationExporterProps['records'],
-): ICitationExporterState => {
+export const getExportCitationDefaultContext = (props: IUseCitationExporterProps): ICitationExporterState => {
+  const { records = [], format = ExportApiFormatKey.bibtex, singleMode } = props;
   return {
-    records: records ?? [],
-    range: [0, (records ?? []).length],
+    records,
+    range: [0, records.length],
     isCustomFormat: false,
+    singleMode,
     params: {
-      bibcode: records ?? [],
+      bibcode: records,
       sort: ['date desc'],
-      format: format ?? ExportApiFormatKey.bibtex,
+      format,
       authorcutoff: [
         format === ExportApiFormatKey.bibtex
           ? BIBTEX_DEFAULT_AUTHORCUTOFF
@@ -90,12 +101,17 @@ export const getExportCitationDefaultContext = (
 
 export const generateMachine = ({ format, records, singleMode }: IUseCitationExporterProps) => {
   return createMachine<ICitationExporterState, CitationExporterEvent>({
-    context: getExportCitationDefaultContext(format, records),
+    context: getExportCitationDefaultContext({ format, records, singleMode }),
     id: 'citationExporter',
     initial: singleMode ? 'idle' : 'fetching',
     states: {
       idle: {
         on: {
+          SET_RECORDS: {
+            actions: assign<ICitationExporterState, SetRecords>({
+              records: (_ctx, evt) => evt.payload,
+            }),
+          },
           SET_SORT: {
             actions: assign<ICitationExporterState, SetSort>({
               params: (ctx, evt) => ({ ...ctx.params, sort: evt.payload }),
