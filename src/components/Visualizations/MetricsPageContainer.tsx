@@ -2,7 +2,7 @@ import { ReactElement, useEffect, useMemo } from 'react';
 import { useQueries } from 'react-query';
 import { fetchSearch, searchKeys } from '@_api/search';
 import { parseQueryFromUrlNoPage } from '@utils';
-import { IADSApiSearchResponse } from '@api';
+import { IADSApiSearchParams, IADSApiSearchResponse } from '@api';
 import { useGetMetrics } from '@_api/metrics';
 import { Metrics } from '@components';
 import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, CircularProgress, Text } from '@chakra-ui/react';
@@ -33,7 +33,7 @@ export const MetricsPageContainer = ({ query, qid, recordsToGet }: IMetricsPageP
   // parallel queries to get bibcodes
   const fetchBibsQueries = useQueries(
     starts.map((start) => {
-      const params = qid
+      const params: IADSApiSearchParams = qid
         ? { q: `docs(${qid})`, start: start, rows: batchSize, fl: ['bibcode'] }
         : { ...parseQueryFromUrlNoPage(query), start: start, rows: batchSize, fl: ['bibcode'] };
       return {
