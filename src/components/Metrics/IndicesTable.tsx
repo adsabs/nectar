@@ -91,6 +91,16 @@ export const IndicesTable = (props: IIndicesTableProps): ReactElement => {
           <Td>{data.toriIndex[1]}</Td>
         </Tr>
         <Tr>
+          <Td>riq-index</Td>
+          <Td>
+            <Tooltip label="The riq-index equals the square root of the tori-index, divided by the time between the first and last publication. A multiplication with 1000 has been applied.">
+              <QuestionIcon />
+            </Tooltip>
+          </Td>
+          <Td>{data.riqIndex[0]}</Td>
+          <Td>{data.riqIndex[1]}</Td>
+        </Tr>
+        <Tr>
           <Td>read10-index</Td>
           <Td>
             <Tooltip label="Read10 is the current readership rate for all an individual's papers published in the most recent ten years, normalized for number of authors.">

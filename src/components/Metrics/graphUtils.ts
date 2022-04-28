@@ -18,6 +18,7 @@ import {
   LineGraph,
 } from './types';
 import { Serie } from '@nivo/line';
+import { divide } from 'ramda';
 
 export interface IGraphData {
   key: string;
@@ -216,31 +217,35 @@ export const plotPapersHist = (normalize: boolean, papersHist: PapersHistogramTy
 export const plotTimeSeriesGraph = (timeseries: TimeSeriesType): LineGraph => {
   const data = [
     timeseries[TimeSeriesKey.H],
+    timeseries[TimeSeriesKey.M],
     timeseries[TimeSeriesKey.G],
     timeseries[TimeSeriesKey.I10],
-    timeseries[TimeSeriesKey.TORI],
     timeseries[TimeSeriesKey.I100],
+    timeseries[TimeSeriesKey.TORI],
+    timeseries[TimeSeriesKey.RIQ],
     timeseries[TimeSeriesKey.READ10],
   ];
 
   const returnArray: Serie[] = [];
 
-  ['h-index', 'g-index', 'i10-index', 'tori-index', 'i100-index', 'read10-index'].map((id, index) => {
-    const d: { x: string; y: number }[] = [];
-    if (data[index] !== undefined) {
-      Object.entries(data[index]).map(([year, value]) => {
-        if (id === 'read10-index') {
-          d.push({ x: year, y: value / 10 });
-        } else {
-          d.push({ x: year, y: value });
-        }
-      });
-      returnArray.push({
-        id,
-        data: d,
-      });
-    }
-  });
+  ['h-index', 'm-index', 'g-index', 'i10-index', 'i100-index', 'tori-index', 'riq-index', 'read10-index'].map(
+    (id, index) => {
+      const d: { x: string; y: number }[] = [];
+      if (data[index] !== undefined) {
+        Object.entries(data[index]).map(([year, value]) => {
+          if (id === 'read10-index') {
+            d.push({ x: year, y: divide(value, 10) });
+          } else {
+            d.push({ x: year, y: value });
+          }
+        });
+        returnArray.push({
+          id,
+          data: d,
+        });
+      }
+    },
+  );
 
   return { data: returnArray };
 };

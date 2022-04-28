@@ -20,7 +20,7 @@ import { IADSApiMetricsResponse, MetricsResponseKey, useGetMetricsTimeSeries } f
 import axios from 'axios';
 import { ReactElement, useEffect, useMemo } from 'react';
 import { CitationsTable } from './CitationsTable';
-import { plotTimeSeriesGraph } from './graphUtils';
+import { getIndicesTableData, plotTimeSeriesGraph } from './graphUtils';
 import { IndicesGraph } from './IndicesGraph';
 import { IndicesTable } from './IndicesTable';
 import { MetricsGraph } from './MetricsGraph';
@@ -249,6 +249,16 @@ const IndicesSection = ({
       : undefined;
   }, [metricsData]);
 
+  // This will be a more detailed table than the one passed in
+  const computedTable = useMemo(() => {
+    return metricsData && metricsData[MetricsResponseKey.IR]
+      ? getIndicesTableData({
+          refereed: metricsData[MetricsResponseKey.IR],
+          total: metricsData[MetricsResponseKey.I],
+        })
+      : indicesTable;
+  }, [metricsData]);
+
   return (
     <>
       {indicesTable ? (
@@ -264,7 +274,7 @@ const IndicesSection = ({
           >
             Indices
           </Heading>
-          {indicesTable && <IndicesTable data={indicesTable} />}
+          {indicesTable && <IndicesTable data={computedTable} />}
           {indicesGraph && <IndicesGraph data={indicesGraph.data} ticks={getLineGraphYearTicks(indicesGraph.data)} />}
           {!indicesGraph && isLoading && <CircularProgress mt={5} isIndeterminate />}
           {!indicesGraph && isErrorMetrics && (
