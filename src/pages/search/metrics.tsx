@@ -57,21 +57,21 @@ export const getServerSideProps: GetServerSideProps<IMetricsProps> = async (ctx)
     const numFound = Math.min(numFoundRes.response?.numFound ?? 0, limit);
 
     // prefetch the list of bibcodes for this query
-    let remainsToFetch = numFound;
-    let start = 0;
-    while (remainsToFetch > 0) {
-      const p = qid
-        ? { q: `docs(${qid as string})`, start: start, rows: 1000, fl: ['bibcode'] }
-        : { ...parseQueryFromUrlNoPage(query), start: start, rows: 1000, fl: ['bibcode'] };
-      await queryClient.prefetchQuery({
-        queryKey: searchKeys.primary(p),
-        queryFn: fetchSearch,
-        meta: { params: p },
-        retry: false,
-      });
-      start += 1000;
-      remainsToFetch -= 1000;
-    }
+    // let remainsToFetch = numFound;
+    // let start = 0;
+    // while (remainsToFetch > 0) {
+    //   const p = qid
+    //     ? { q: `docs(${qid as string})`, start: start, rows: 1000, fl: ['bibcode'] }
+    //     : { ...parseQueryFromUrlNoPage(query), start: start, rows: 1000, fl: ['bibcode'] };
+    //   await queryClient.prefetchQuery({
+    //     queryKey: searchKeys.primary(p),
+    //     queryFn: fetchSearch,
+    //     meta: { params: p },
+    //     retry: false,
+    //   });
+    //   start += 1000;
+    //   remainsToFetch -= 1000;
+    // }
 
     return {
       props: {

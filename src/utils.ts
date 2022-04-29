@@ -203,7 +203,7 @@ export const normalizeSolrSort = (rawSolrSort: unknown, postfixSort?: SolrSort):
     ? rawSolrSort.split(',')
     : null;
 
-  const tieBreaker = postfixSort || 'bibcode desc';
+  const tieBreaker = postfixSort || 'id asc';
 
   // if that fails, shortcut here with a default value
   if (sort === null) {

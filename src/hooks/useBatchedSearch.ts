@@ -2,58 +2,59 @@ import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity } from '@api';
 import { useSearchInfinite } from '@_api/search';
 import { AxiosError } from 'axios';
 import { chain } from 'ramda';
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { UseInfiniteQueryOptions } from 'react-query';
 
 const DELAY_BETWEEN_REQUESTS = 500;
 
-export interface IUseBatchedSearchProps {
+export interface IUseBatchedSearchProps<T> {
   batches: number;
-  transformPagesToDocs?: (res: IADSApiSearchResponse & { pageParam: string }) => IDocsEntity[];
+  transformResponses?: (res: IADSApiSearchResponse & { pageParam: string }) => T[];
   intervalDelay?: number;
 }
 
-const defaultTransformer: IUseBatchedSearchProps['transformPagesToDocs'] = (res) => res.response.docs;
+const defaultTransformer: IUseBatchedSearchProps<IDocsEntity>['transformResponses'] = (res) => res.response.docs;
 
 /**
  * Hook to get search results in batches (by rows)
  */
-export const useBatchedSearch = (
+export const useBatchedSearch = <T = unknown>(
   params: IADSApiSearchParams & Required<Pick<IADSApiSearchParams, 'q' | 'rows'>>,
-  props: IUseBatchedSearchProps,
+  props: IUseBatchedSearchProps<T>,
   options?: UseInfiniteQueryOptions<IADSApiSearchResponse & { pageParam: string }, Error | AxiosError>,
 ) => {
-  const { batches, transformPagesToDocs = defaultTransformer, intervalDelay = DELAY_BETWEEN_REQUESTS } = props;
+  const { batches, transformResponses = defaultTransformer, intervalDelay = DELAY_BETWEEN_REQUESTS } = props;
+  const [count, setCount] = useState(() => batches);
+  const [isPending, setIsPending] = useState(false);
 
-  const count = useRef(batches);
   const { data, isFetchingNextPage, fetchNextPage, hasNextPage, status, ...rest } = useSearchInfinite(params, {
     ...options,
-    onSuccess: (data) => {
-      // decrement count, this will trigger the next fetch
-      count.current -= 1;
-      typeof options?.onSuccess === 'function' ? options.onSuccess(data) : false;
-    },
+    enabled: count > 0,
   });
 
+  // watch data for changes, and update state
   useEffect(() => {
-    // run initial fetch on mount
-    void fetchNextPage();
-  }, []);
-
-  useEffect(() => {
-    // internal fetch loop, delay between requests
-    if (count.current > 0) {
-      setTimeout(() => void fetchNextPage(), intervalDelay);
+    if (data) {
+      setCount(count - 1);
+      setIsPending(false);
     }
-  }, [count.current]);
+  }, [data]);
+
+  // check pending and count to confirm we should fetch next page
+  useEffect(() => {
+    if (!isPending && count > 0 && hasNextPage && !isFetchingNextPage) {
+      setTimeout(() => void fetchNextPage(), intervalDelay);
+      setIsPending(true);
+    }
+  }, [count, hasNextPage, isFetchingNextPage, isPending]);
 
   // determine if we should notify consumers yet
-  if (count.current <= 0) {
+  if ((count <= 0 || !hasNextPage) && data) {
     // flatMap over the pages running our transformer
-    const docs = chain(transformPagesToDocs, data.pages);
-    return { data: { docs, numFound: docs.length }, isFetchingNextPage, fetchNextPage, ...rest };
+    const docs = chain(transformResponses, data.pages) as T[];
+    return { data: { docs, numFound: docs.length }, isFetchingNextPage, fetchNextPage, progress: 100, ...rest };
   }
 
   // if we're not ready yet, data should be undefined
-  return { data: undefined, isFetchingNextPage, fetchNextPage, ...rest };
+  return { data: undefined, isFetchingNextPage, fetchNextPage, progress: ((batches - count) / batches) * 100, ...rest };
 };
