@@ -65,8 +65,12 @@ export const MetricsPageContainer = ({ query, qid }: IMetricsPageProps): ReactEl
   const { data, progress } = useBatchedSearch<string>(
     // not prefetched
     qid
-      ? { ...parseQueryFromUrl({ q: `docs(${qid})` }, { omitPage: true }), rows: BATCH_SIZE, fl: ['bibcode'] } // requires 'start'?
-      : { ...parseQueryFromUrl(query, { omitPage: true }), rows: BATCH_SIZE, fl: ['bibcode'] },
+      ? {
+          ...parseQueryFromUrl({ q: `docs(${qid})` }, { omitPage: true, sortPostfix: 'id asc' }),
+          rows: BATCH_SIZE,
+          fl: ['bibcode'],
+        } // requires 'start'?
+      : { ...parseQueryFromUrl(query, { omitPage: true, sortPostfix: 'id asc' }), rows: BATCH_SIZE, fl: ['bibcode'] },
     { batches: BATCHES, transformResponses: (res) => res.response.docs.map((d) => d.bibcode) },
   );
 

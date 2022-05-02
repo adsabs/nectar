@@ -1,4 +1,5 @@
 import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, IUserData, SolrSort } from '@api';
+import { APP_DEFAULTS } from '@config';
 import api from '@_api/api';
 import { GetServerSidePropsContext, GetServerSidePropsResult, NextApiRequest, NextApiResponse } from 'next';
 import { useRouter } from 'next/router';
@@ -149,13 +150,13 @@ export const parseNumberAndClamp = (
  */
 export const parseQueryFromUrl = (
   params: ParsedQueryParams,
-  { omitPage }: { omitPage?: boolean } = {},
+  { omitPage, sortPostfix }: { omitPage?: boolean; sortPostfix?: SolrSort } = {},
 ): IADSApiSearchParams & { p?: number } => {
   const normalizedParams = normalizeURLParams(params);
   return {
     ...normalizedParams,
     q: normalizedParams?.q ?? '',
-    sort: normalizeSolrSort(params.sort),
+    sort: normalizeSolrSort(params.sort, sortPostfix),
     ...(omitPage ? {} : { p: parseNumberAndClamp(normalizedParams?.p, 1) }),
   };
 };
@@ -204,7 +205,7 @@ export const normalizeSolrSort = (rawSolrSort: unknown, postfixSort?: SolrSort):
     ? rawSolrSort.split(',')
     : null;
 
-  const tieBreaker = postfixSort || 'id asc';
+  const tieBreaker = postfixSort || APP_DEFAULTS.QUERY_SORT_POSTFIX;
 
   // if that fails, shortcut here with a default value
   if (sort === null) {
