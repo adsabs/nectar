@@ -182,6 +182,8 @@ export const isSolrSort = (maybeSolrSort: string): maybeSolrSort is SolrSort => 
     'date desc',
     'entry_date asc',
     'entry_date desc',
+    'id asc',
+    'id desc',
     'read_count asc',
     'read_count desc',
     'score asc',
