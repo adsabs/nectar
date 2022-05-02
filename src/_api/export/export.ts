@@ -2,7 +2,7 @@ import { ApiTargets } from '@api/lib/models';
 import { ADSQuery } from '@_api/types';
 import { QueryFunction, useQuery, UseQueryResult } from 'react-query';
 import api, { ApiRequestConfig } from '../api';
-import { IExportApiParams, IExportApiResponse } from './types';
+import { ExportApiFormatKey, IExportApiParams, IExportApiResponse } from './types';
 
 export type UseExportCitationResult = UseQueryResult<Partial<IExportApiResponse>>;
 
@@ -23,14 +23,19 @@ export const useGetExportCitation: ADSQuery<IExportApiParams, IExportApiResponse
 };
 
 export const fetchExportCitation: QueryFunction<IExportApiResponse> = async ({ meta }) => {
-  const { params } = meta as { params: IExportApiParams };
+  const {
+    params: { customFormat, format, ...params },
+  } = meta as { params: IExportApiParams };
+
+  // custom format is "format" if format === 'custom'
+  // otherwise "format" isn't passed, so we strip them here and do that logic
 
   const config: ApiRequestConfig = {
     method: 'POST',
-    url: `${ApiTargets.EXPORT}/${params.format}`,
+    url: `${ApiTargets.EXPORT}/${format}`,
     data: {
       ...params,
-      format: params.customFormat,
+      ...(format === ExportApiFormatKey.custom ? { format: customFormat } : {}),
     },
   };
 

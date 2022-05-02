@@ -90,7 +90,7 @@ const injectAuth = async (
   const isServer = typeof window === 'undefined';
 
   // check if we have persisted userData in localStorage
-  if (isServer && !invalidate && checkUserData(user)) {
+  if (!isServer && !invalidate && checkUserData(user)) {
     // add authorization header to request
     return applyTokenToRequest(request, user.access_token);
   }
@@ -191,7 +191,7 @@ class Api {
       this.setToken(undefined);
 
       // on error, check if it was a 401 (unauthorized)
-      if (error.response.status === 401) {
+      if (error?.response?.status === 401) {
         try {
           // re-inject auth header, invalidating the persisted token
           const request = await injectAuth(this.latestRequest, true, (token) => this.setToken(token));
