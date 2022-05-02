@@ -31,7 +31,7 @@ const config: Config.InitialOptions = {
       '<rootDir>/src/components/__mocks__/fileMock.ts',
     '\\.(css|less)$': 'identity-obj-proxy',
   },
-  verbose: true,
+  verbose: false,
   moduleDirectories: ['node_modules', '<rootDir>/src/'],
   testPathIgnorePatterns: ['<rootDir>/cypress/.*'],
   testEnvironment: 'jest-environment-jsdom',
