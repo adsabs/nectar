@@ -1,7 +1,7 @@
 import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, CircularProgress, Text } from '@chakra-ui/react';
 import { Metrics } from '@components';
 import { useBatchedSearch } from '@hooks/useBatchedSearch';
-import { parseQueryFromUrlNoPage } from '@utils';
+import { parseQueryFromUrl } from '@utils';
 import { useGetMetrics } from '@_api/metrics';
 import axios from 'axios';
 import { ReactElement, useEffect } from 'react';
@@ -65,8 +65,8 @@ export const MetricsPageContainer = ({ query, qid }: IMetricsPageProps): ReactEl
   const { data, progress } = useBatchedSearch<string>(
     // not prefetched
     qid
-      ? { ...parseQueryFromUrlNoPage({ q: `docs(${qid})` }), rows: BATCH_SIZE, fl: ['bibcode'] } // requires 'start'?
-      : { ...parseQueryFromUrlNoPage(query), rows: BATCH_SIZE, fl: ['bibcode'] },
+      ? { ...parseQueryFromUrl({ q: `docs(${qid})` }, { omitPage: true }), rows: BATCH_SIZE, fl: ['bibcode'] } // requires 'start'?
+      : { ...parseQueryFromUrl(query, { omitPage: true }), rows: BATCH_SIZE, fl: ['bibcode'] },
     { batches: BATCHES, transformResponses: (res) => res.response.docs.map((d) => d.bibcode) },
   );
 

@@ -1,7 +1,6 @@
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/react';
-import { VizPageLayout } from '@components';
-import { MetricsPageContainer } from '@components';
-import { parseQueryFromUrlNoPage } from '@utils';
+import { MetricsPageContainer, VizPageLayout } from '@components';
+import { parseQueryFromUrl } from '@utils';
 import { searchKeys } from '@_api/search';
 import { getSearchParams } from '@_api/search/models';
 import axios from 'axios';
@@ -46,7 +45,7 @@ export const getServerSideProps: GetServerSideProps<IMetricsProps> = async (ctx)
     // get numbers of records count for this query
     const params = qid
       ? getSearchParams({ q: `docs(${qid as string})` })
-      : getSearchParams({ ...parseQueryFromUrlNoPage(query) });
+      : getSearchParams({ ...parseQueryFromUrl(query, { omitPage: true }) });
     const numFoundRes = await queryClient.fetchQuery({
       queryKey: searchKeys.primary(params),
       queryFn: fetchSearch,

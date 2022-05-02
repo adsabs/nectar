@@ -147,20 +147,17 @@ export const parseNumberAndClamp = (
 /**
  * Helper to parse query params into API search parameters
  */
-export const parseQueryFromUrl = (params: ParsedQueryParams): IADSApiSearchParams & { p: number } => {
+export const parseQueryFromUrl = (
+  params: ParsedQueryParams,
+  { omitPage }: { omitPage?: boolean } = {},
+): IADSApiSearchParams & { p?: number } => {
   const normalizedParams = normalizeURLParams(params);
   return {
     ...normalizedParams,
     q: normalizedParams?.q ?? '',
     sort: normalizeSolrSort(params.sort),
-    p: parseNumberAndClamp(normalizedParams?.p, 1),
+    ...(omitPage ? {} : { p: parseNumberAndClamp(normalizedParams?.p, 1) }),
   };
-};
-
-export const parseQueryFromUrlNoPage = (params: ParsedUrlQuery): IADSApiSearchParams => {
-  const result = parseQueryFromUrl(params);
-  delete result.p;
-  return result;
 };
 
 // detects if passed in value is a valid SolrSort
