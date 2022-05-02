@@ -1,19 +1,22 @@
 import { IADSApiMetricsResponse, IADSApiSearchResponse } from '@api';
-import { Alert, AlertIcon } from '@chakra-ui/alert';
+import { Box } from '@chakra-ui/react';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { Metrics } from '@components/Metrics';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
 import { composeNextGSSP, normalizeURLParams, setupApiSSR } from '@utils';
-import { fetchMetrics, metricsKeys, useGetMetrics } from '@_api/metrics';
+import {
+  BasicStatsKey,
+  CitationsStatsKey,
+  fetchMetrics,
+  metricsKeys,
+  MetricsResponseKey,
+  useGetMetrics,
+} from '@_api/metrics';
 import { searchKeys } from '@_api/search';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
-import { useEffect } from 'react';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
-import { toast } from 'react-toastify';
-
 interface IMetricsPageProps {
   id: string;
   error?: {
@@ -24,31 +27,31 @@ interface IMetricsPageProps {
 
 const MetricsPage: NextPage<IMetricsPageProps> = (props: IMetricsPageProps) => {
   const { id } = props;
-  const router = useRouter();
 
   const doc = useGetAbstractDoc(id);
 
-  const { data: metrics, isError, isSuccess, error } = useGetMetrics(doc.bibcode, { keepPreviousData: true });
+  const { data: metrics, isError, isSuccess } = useGetMetrics(doc.bibcode, { keepPreviousData: true });
 
-  useEffect(() => {
-    if (isError) {
-      void router.replace('/abs/[id]/abstract', `/abs/${id}/abstract`);
-      toast(error, { type: 'error' });
-    }
-  }, [isError]);
+  const hasCitations = isSuccess && metrics && metrics[MetricsResponseKey.CS][CitationsStatsKey.TNRC] > 0;
+  const hasReads = isSuccess && metrics && metrics[MetricsResponseKey.BS][BasicStatsKey.TNR] > 0;
 
   return (
     <AbsLayout doc={doc} titleDescription="Metrics for">
       <Head>
         <title>NASA Science Explorer - Metrics - {doc.title[0]}</title>
       </Head>
-      {error && (
-        <Alert status="error">
-          <AlertIcon />
-          {error}
-        </Alert>
+      {isError && (
+        <Box mt={5} fontSize="xl">
+          Unable to fetch metrics
+        </Box>
       )}
-      {isSuccess && <Metrics metrics={metrics as IADSApiMetricsResponse} isAbstract={true} />}
+      {!isError && !hasCitations && !hasReads ? (
+        <Box mt={5} fontSize="xl">
+          No metrics data
+        </Box>
+      ) : (
+        <Metrics metrics={metrics as IADSApiMetricsResponse} isAbstract={true} />
+      )}
     </AbsLayout>
   );
 };

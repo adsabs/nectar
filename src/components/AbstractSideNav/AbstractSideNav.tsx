@@ -23,21 +23,21 @@ export interface IAbstractSideNavProps extends HTMLAttributes<HTMLDivElement> {
 
 export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement => {
   const router = useRouter();
+  const isClient = useIsClient();
   const { basePath } = useBaseRouterPath();
   const subPage = last(basePath.split('/'));
   const hasGraphics = useHasGraphics(doc.bibcode);
   const hasMetrics = useHasMetrics(doc.bibcode);
   const hasToc = doc.property ? doc.property.indexOf('TOC') > -1 : false;
   const useCount = [Routes.CITATIONS, Routes.REFERENCES];
-  const isClient = useIsClient();
 
   const items = navigation.map((item) => {
     const MenuIcon = item.icon || DocumentIcon;
     const current = item.href === subPage;
     const count =
       item.href === Routes.EXPORT ||
-      (item.href === Routes.GRAPHICS && hasGraphics) ||
-      (item.href === Routes.METRICS && hasMetrics) ||
+      (item.href === Routes.GRAPHICS && (hasGraphics || !isClient)) ||
+      (item.href === Routes.METRICS && (hasMetrics || !isClient)) ||
       (item.href === Routes.VOLUMECONTENT && hasToc)
         ? 1
         : getCount(item.href, doc);
