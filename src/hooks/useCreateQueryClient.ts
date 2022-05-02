@@ -13,9 +13,6 @@ export const useCreateQueryClient = () => {
           queries: {
             refetchOnWindowFocus: false,
             staleTime: Infinity,
-            onError: (error) => {
-              console.log('error', error);
-            },
           },
         },
         queryCache: new QueryCache({
