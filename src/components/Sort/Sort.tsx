@@ -165,7 +165,12 @@ const NoJsSort = (): ReactElement => {
 
   return (
     <HStack spacing={0}>
-      <SimpleLinkDropdown items={options} label={sortby} minListWidth="300px" minLabelWidth="300px" />
+      <SimpleLinkDropdown
+        items={options}
+        label={sortOptions.find((o) => o.id === sortby).label}
+        minListWidth="300px"
+        minLabelWidth="300px"
+      />
       <NextLink
         href={{ query: { ...router.query, p: 1, sort: `${sortby} ${getToggledDir(dir as SolrSortDirection)}` } }}
         passHref

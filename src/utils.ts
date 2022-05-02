@@ -10,7 +10,9 @@ type ParsedQueryParams = ParsedUrlQuery | qs.ParsedQs;
 /**
  * Takes in raw URL parameters and converts values into strings, returns an object
  */
-export const normalizeURLParams = (query: ParsedQueryParams): Record<string, string> => {
+export const normalizeURLParams = <T extends Record<string, string> = Record<string, string>>(
+  query: ParsedQueryParams,
+): T => {
   return Object.keys(query).reduce((acc, key) => {
     const rawValue = query[key];
     const value = typeof rawValue === 'string' ? rawValue : Array.isArray(rawValue) ? rawValue.join(',') : undefined;
@@ -23,7 +25,7 @@ export const normalizeURLParams = (query: ParsedQueryParams): Record<string, str
       ...acc,
       [key]: value,
     };
-  }, {});
+  }, {}) as T;
 };
 
 export const isBrowser = (): boolean => typeof window !== 'undefined';

@@ -1,4 +1,4 @@
-import { Button, HStack, Stack, Textarea, useClipboard } from '@chakra-ui/react';
+import { Button, HStack, Spinner, Stack, Textarea, useClipboard } from '@chakra-ui/react';
 import { useDownloadFile } from '@hooks/useDownloadFile';
 import { useIsClient } from '@hooks/useIsClient';
 import { ExportApiFormatKey } from '@_api/export';
@@ -14,7 +14,7 @@ export const ResultArea = ({
   isLoading?: boolean;
 }) => {
   const { onCopy, hasCopied } = useClipboard(result);
-  const { onDownload, hasDownloaded } = useDownloadFile(result, {
+  const { onDownload, hasDownloaded, isDownloading } = useDownloadFile(result, {
     filename: () => `export-${format}.${exportFormats[format].ext}`,
   });
   const isClient = useIsClient();
@@ -23,7 +23,7 @@ export const ResultArea = ({
       {isClient && (
         <HStack justifyContent={['center', 'start']}>
           <Button onClick={onDownload} data-testid="export-download" disabled={isLoading}>
-            {hasDownloaded ? 'Downloaded!' : 'Download to file'}
+            {hasDownloaded ? 'Downloaded!' : isDownloading ? <Spinner /> : 'Download to file'}
           </Button>
           <Button onClick={onCopy} data-testid="export-copy" disabled={isLoading}>
             {hasCopied ? 'Copied!' : 'Copy to Clipboard'}

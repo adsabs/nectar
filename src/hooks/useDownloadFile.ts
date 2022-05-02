@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 interface IuseDownloadFileOptions {
   filename?: string | (() => string);
@@ -8,6 +8,7 @@ interface IuseDownloadFileOptions {
 export const useDownloadFile = (value: string, options?: IuseDownloadFileOptions) => {
   const { timeout = 1000 } = options;
   const [hasDownloaded, setHasDownloaded] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const filename = useMemo(() => {
     if (typeof options.filename === 'function') {
@@ -17,6 +18,7 @@ export const useDownloadFile = (value: string, options?: IuseDownloadFileOptions
   }, [options.filename]);
 
   const onDownload = useCallback(() => {
+    setIsDownloading(true);
     const blob = new Blob([value], {
       type: 'text/plain;charset=utf-8',
     });
@@ -29,5 +31,9 @@ export const useDownloadFile = (value: string, options?: IuseDownloadFileOptions
     setTimeout(() => setHasDownloaded(false), timeout);
   }, [value, filename]);
 
-  return { onDownload, hasDownloaded, value };
+  useEffect(() => {
+    setIsDownloading(false);
+  }, [hasDownloaded]);
+
+  return { onDownload, hasDownloaded, isDownloading, value };
 };

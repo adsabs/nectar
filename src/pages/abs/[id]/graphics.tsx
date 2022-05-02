@@ -1,5 +1,4 @@
 import { IADSApiSearchResponse } from '@api';
-import { Alert, AlertIcon } from '@chakra-ui/alert';
 import { Box, Flex, Link } from '@chakra-ui/layout';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
@@ -11,11 +10,7 @@ import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import NextImage from 'next/image';
 import NextLink from 'next/link';
-import { useRouter } from 'next/router';
-import { useEffect } from 'react';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
-import { toast } from 'react-toastify';
-
 interface IGraphicsPageProps {
   id: string;
   error?: {
@@ -26,36 +21,26 @@ interface IGraphicsPageProps {
 
 const GraphicsPage: NextPage<IGraphicsPageProps> = (props: IGraphicsPageProps) => {
   const { id } = props;
-  const router = useRouter();
 
   const doc = useGetAbstractDoc(id);
 
-  const {
-    data: graphics,
-    isError,
-    isSuccess,
-    error,
-  } = useGetGraphics(doc.bibcode, { keepPreviousData: true, retry: false });
-
-  useEffect(() => {
-    if (isError) {
-      void router.replace('/abs/[id]/abstract', `/abs/${id}/abstract`);
-      toast(error, { type: 'error' });
-    }
-  }, [isError]);
-
+  const { data: graphics, isError, isSuccess } = useGetGraphics(doc.bibcode, { keepPreviousData: true, retry: false });
   return (
     <AbsLayout doc={doc} titleDescription="Graphics from">
       <Head>
         <title>NASA Science Explorer - Graphics - {doc.title[0]}</title>
       </Head>
-      {error && (
-        <Alert status="error">
-          <AlertIcon />
-          {error}
-        </Alert>
+      {isError && (
+        <Box mt={5} fontSize="xl">
+          Unable to fetch graphics
+        </Box>
       )}
-      {isSuccess && (
+      {!isError && !graphics && (
+        <Box mt={5} fontSize="xl">
+          No graphics
+        </Box>
+      )}
+      {isSuccess && graphics && (
         <>
           <Box dangerouslySetInnerHTML={{ __html: graphics.header }}></Box>
           <Flex wrap="wrap">

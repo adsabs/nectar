@@ -24,6 +24,8 @@ export const ThemeDropdown = (): ReactElement => {
         stylesTheme="theme"
         onChange={({ id: theme }) => setTheme(theme)}
         label="Select theme"
+        id="theme-selector"
+        instanceId="theme-selector"
       />
     </Box>
   );

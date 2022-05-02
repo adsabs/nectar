@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/require-await */
+/** @jest-environment node  */
 import {
   IPaginationState,
   IUsePaginationProps,

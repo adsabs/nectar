@@ -7,6 +7,8 @@ import { rest } from 'msw';
 import qs from 'qs';
 import { map, range, slice } from 'ramda';
 
+faker.seed(143);
+
 export const handlers = [
   rest.get(`*${ApiTargets.BOOTSTRAP}`, (req, res, ctx) => {
     return res(
@@ -63,9 +65,9 @@ export const handlers = [
 
     // default search
     let limitAuthors = -1;
-    if (Array.isArray(params.fl)) {
-      params.fl.forEach((v) => {
-        const mat = /\[fields author=(\d+)\]/.exec(v as string);
+    if (typeof params.fl === 'string') {
+      params.fl.split(',').forEach((v) => {
+        const mat = /\[fields author=(\d+)\]/.exec(v);
         if (mat !== null) {
           limitAuthors = parseInt(mat[1], 10);
         }
@@ -112,7 +114,7 @@ export const handlers = [
     const { format } = req.params;
 
     return res(
-      ctx.delay(500),
+      ctx.delay(200),
       ctx.status(200),
       ctx.json({
         export: `${JSON.stringify({ numRecords: bibcode.length, format, ...body }, null, 2)}`,
@@ -308,7 +310,7 @@ export const handlers = [
     );
   }),
 
-  rest.get<IADSApiGraphicsParams>(`*${ApiTargets.GRAPHICS}/:id`, (req, res, ctx) => {
+  rest.get<IADSApiGraphicsParams>(`${ApiTargets.GRAPHICS}/:id`, (req, res, ctx) => {
     return res(
       ctx.status(200),
       ctx.json({

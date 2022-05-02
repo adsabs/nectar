@@ -9,7 +9,7 @@ import { dehydrate, QueryClient } from 'react-query';
 export const withDetailsPage = async (
   ctx: GetServerSidePropsContext,
 ): Promise<GetServerSidePropsResult<Record<string, unknown>>> => {
-  const query = normalizeURLParams(ctx.query);
+  const query = normalizeURLParams<{ id: string }>(ctx.query);
   setupApiSSR(ctx);
 
   // primary request for this page is search for the bibcode from url
