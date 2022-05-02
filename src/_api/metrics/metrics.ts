@@ -1,4 +1,4 @@
-import { IADSApiMetricsParams, IADSApiSearchParams } from '@api';
+import { IADSApiMetricsParams } from '@api';
 import { ApiTargets } from '@api/lib/models';
 import { Bibcode } from '@api/lib/search/types';
 import { BasicStatsKey, CitationsStatsKey, MetricsResponseKey } from '@_api/metrics';
@@ -14,14 +14,6 @@ const MAX_RETRIES = 3;
 export const metricsKeys = {
   primary: (bibcodes: Bibcode[]) => ['metrics', { bibcodes }] as const,
   timeSeries: (bibcodes: Bibcode[]) => ['metrics/timeSeries', { bibcodes }] as const,
-};
-
-export const metricsMultKeys = {
-  primary: (id: IADSApiSearchParams) => ['metricsMult', id] as const,
-};
-
-export const timeSeriesKeys = {
-  primary: (id: IADSApiSearchParams) => ['timeSeries', id] as const,
 };
 
 const retryFn = (count: number, error: unknown) => {
