@@ -21,6 +21,12 @@ export const useCitationExporter = ({ records, format, singleMode }: IUseCitatio
   const result = useGetExportCitation(state.context.params, {
     enabled: state.matches('fetching'),
     keepPreviousData: true,
+
+    // will re-throw error to allow error boundary to catch
+    useErrorBoundary: true,
+
+    // do not retry on fail
+    retry: false,
   });
 
   useEffect(() => {

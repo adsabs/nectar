@@ -82,9 +82,9 @@ export const getExportCitationDefaultContext = (props: IUseCitationExporterProps
     isCustomFormat: false,
     singleMode,
     params: {
+      format,
       bibcode: records,
       sort: ['date desc'],
-      format,
       authorcutoff: [
         format === ExportApiFormatKey.bibtex
           ? BIBTEX_DEFAULT_AUTHORCUTOFF

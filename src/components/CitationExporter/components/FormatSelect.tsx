@@ -31,6 +31,7 @@ export const FormatSelect = (props: IFormatSelectProps) => {
       onChange={handleOnChange}
       data-testid="export-select"
       stylesTheme="default"
+      isDisabled={props.isLoading}
     />
   );
 };
