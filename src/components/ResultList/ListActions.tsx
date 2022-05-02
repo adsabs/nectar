@@ -22,7 +22,7 @@ import { AppState, useStore } from '@store';
 import { noop } from '@utils';
 import { useVaultBigQuerySearch } from '@_api/vault';
 import { useRouter } from 'next/router';
-import { MouseEvent, ReactElement, useEffect, useState } from 'react';
+import { MouseEventHandler, ReactElement, useEffect, useState } from 'react';
 
 export interface IListActionsProps {
   onSortChange?: ISortProps['onChange'];
@@ -42,7 +42,25 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
     setExploreAll(noneSelected);
   }, [noneSelected]);
 
-  const { refetch: fetchVaultBigQuery } = useVaultBigQuerySearch(selected, { enabled: false });
+  const [path, setPath] = useState<string>(null);
+  const { data, error } = useVaultBigQuerySearch(selected, { enabled: !!path });
+
+  useEffect(() => {
+    // if data exists, push our qid to the route and change pages
+    if (data && path) {
+      void router.push({ pathname: path, query: { ...router.query, qid: data.qid } });
+      setPath(null);
+    }
+
+    if (error) {
+      toast({
+        status: 'error',
+        title: 'Error!',
+        description: 'Error fetching selected papers',
+      });
+      setPath(null);
+    }
+  }, [data, error, path]);
 
   const handleExploreOption = (value: string | string[]) => {
     if (typeof value === 'string') {
@@ -50,25 +68,13 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
     }
   };
 
-  const handleExploreVizLink = (e: MouseEvent<HTMLButtonElement>) => {
-    const target = e.target as HTMLButtonElement;
-    const path = target.dataset.sectionPath;
-    if (noneSelected) {
+  const handleExploreVizLink: MouseEventHandler<HTMLButtonElement> = (e) => {
+    const path = e.currentTarget.dataset.sectionPath;
+    if (exploreAll) {
       void router.push({ pathname: path, query: router.query });
     } else {
-      fetchVaultBigQuery().then(
-        (res) => {
-          const qid = res.data.qid;
-          void router.push({ pathname: path, query: { ...router.query, qid: qid } });
-        },
-        () => {
-          toast({
-            status: 'error',
-            title: 'Error!',
-            description: 'Error fetching selected papers',
-          });
-        },
-      );
+      // set the path which will trigger the search
+      setPath(path);
     }
   };
 
