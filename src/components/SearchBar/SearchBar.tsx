@@ -13,6 +13,7 @@ import {
   usePopper,
   VisuallyHidden,
   visuallyHiddenStyle,
+  VStack,
 } from '@chakra-ui/react';
 import { useIsClient } from '@hooks/useIsClient';
 import { useStore } from '@store';
@@ -21,6 +22,7 @@ import { matchSorter } from 'match-sorter';
 import { last } from 'ramda';
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { typeaheadOptions } from './models';
+import { QuickFields } from './QuickFields';
 import { TypeaheadOption } from './types';
 
 /**
@@ -53,6 +55,14 @@ export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>(
   useImperativeHandle(ref, () => ({
     focus: () => input.current.focus(),
   }));
+
+  const fixCursor = (newInputValue: string) => {
+    if (/[\)"]/.test(last(newInputValue))) {
+      setTimeout(() => {
+        input.current.setSelectionRange(newInputValue.length - 1, newInputValue.length - 1);
+      }, 0);
+    }
+  };
 
   const [inputItems, setInputItems] = useState(typeaheadOptions);
   const {
@@ -91,11 +101,7 @@ export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>(
             updatedQuery + (updatedQuery.length > 0 ? ' ' + changes.inputValue : changes.inputValue);
 
           // fix cursor
-          if (/[\)"]/.test(last(newInputValue))) {
-            setTimeout(() => {
-              input.current.setSelectionRange(newInputValue.length - 1, newInputValue.length - 1);
-            }, 0);
-          }
+          fixCursor(newInputValue);
 
           return {
             ...changes,
@@ -131,6 +137,14 @@ export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>(
     input.current.focus();
   };
 
+  const handleQuickFieldSelection = (value: string) => {
+    // Add our text to the end of the query
+    const newInputValue = `${query}${query.length > 0 ? ' ' : ''}${value}`;
+    updateQuery(newInputValue);
+    fixCursor(newInputValue);
+    input.current.focus();
+  };
+
   const { popperRef, referenceRef } = usePopper({
     enabled: isOpen,
     matchWidth: true,
@@ -139,98 +153,101 @@ export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>(
   });
 
   return (
-    <Flex as="section" direction="row" alignItems="center">
-      <Flex as="section" direction="column" flexGrow="1">
-        <label style={visuallyHiddenStyle} {...getLabelProps()}>
-          Search Database
-        </label>
-        <InputGroup size="xl" {...getComboboxProps()}>
-          <Input
-            disabled={props.isLoading}
-            data-testid="searchbar-input"
-            variant="outline"
-            placeholder="Search..."
-            type="text"
-            name="q"
-            {...getInputProps({
-              ref: (el: HTMLInputElement) => {
-                referenceRef(el);
-                input.current = el;
+    <VStack as="section" direction="column" spacing={2} align="stretch">
+      {isClient && <QuickFields onSelect={handleQuickFieldSelection} />}
+      <Flex as="section" direction="row" alignItems="center">
+        <Flex as="section" direction="column" flexGrow="1">
+          <label style={visuallyHiddenStyle} {...getLabelProps()}>
+            Search Database
+          </label>
+          <InputGroup size="xl" {...getComboboxProps()}>
+            <Input
+              disabled={props.isLoading}
+              data-testid="searchbar-input"
+              variant="outline"
+              placeholder="Search..."
+              type="text"
+              name="q"
+              {...getInputProps({
+                ref: (el: HTMLInputElement) => {
+                  referenceRef(el);
+                  input.current = el;
+                  return el;
+                },
+                onKeyDown: (e) => {
+                  // by default, downshift captures home/end, prevent that here
+                  if (e.key === 'Home' || e.key === 'End') {
+                    (
+                      e.nativeEvent as typeof e.nativeEvent & { preventDownshiftDefault: boolean }
+                    ).preventDownshiftDefault = true;
+                  }
+                },
+              })}
+              spellCheck="false"
+              autoComplete="off"
+            />
+
+            {isClient && inputValue.length > 0 && (
+              <InputRightElement>
+                <CloseButton aria-label="Clear search" size="lg" onClick={handleReset} data-testid="searchbar-clear" />
+              </InputRightElement>
+            )}
+          </InputGroup>
+
+          <List
+            backgroundColor="white"
+            borderRadius="md"
+            borderTopRadius="none"
+            boxShadow="lg"
+            zIndex="1000"
+            data-testid="searchbar-menu"
+            {...getMenuProps({
+              ref: (el: HTMLUListElement) => {
+                popperRef(el);
                 return el;
               },
-              onKeyDown: (e) => {
-                // by default, downshift captures home/end, prevent that here
-                if (e.key === 'Home' || e.key === 'End') {
-                  (
-                    e.nativeEvent as typeof e.nativeEvent & { preventDownshiftDefault: boolean }
-                  ).preventDownshiftDefault = true;
-                }
-              },
             })}
-            spellCheck="false"
-            autoComplete="off"
-          />
+          >
+            {isOpen &&
+              inputItems.map((item, index) => (
+                <ListItem
+                  key={`${item.id}${index}`}
+                  {...getItemProps({ item, index })}
+                  backgroundColor={highlightedIndex === index ? 'blue.100' : 'auto'}
+                  py="2"
+                  px="2"
+                  cursor="pointer"
+                >
+                  <Text fontWeight="bold" fontSize="lg">
+                    {item.label}
+                  </Text>
+                  <Text fontSize="sm">{item.desc}</Text>
+                </ListItem>
+              ))}
+          </List>
+        </Flex>
 
-          {isClient && inputValue.length > 0 && (
-            <InputRightElement>
-              <CloseButton aria-label="Clear search" size="lg" onClick={handleReset} data-testid="searchbar-clear" />
-            </InputRightElement>
-          )}
-        </InputGroup>
-
-        <List
-          backgroundColor="white"
-          borderRadius="md"
-          borderTopRadius="none"
-          boxShadow="lg"
-          zIndex="1000"
-          data-testid="searchbar-menu"
-          {...getMenuProps({
-            ref: (el: HTMLUListElement) => {
-              popperRef(el);
-              return el;
-            },
-          })}
+        {/* @TODO: fix this magic number */}
+        <Button
+          type="submit"
+          h="40px"
+          borderLeftRadius="none"
+          data-testid="searchbar-submit"
+          isDisabled={props.isLoading}
         >
-          {isOpen &&
-            inputItems.map((item, index) => (
-              <ListItem
-                key={`${item.id}${index}`}
-                {...getItemProps({ item, index })}
-                backgroundColor={highlightedIndex === index ? 'blue.100' : 'auto'}
-                py="2"
-                px="2"
-                cursor="pointer"
-              >
-                <Text fontWeight="bold" fontSize="lg">
-                  {item.label}
-                </Text>
-                <Text fontSize="sm">{item.desc}</Text>
-              </ListItem>
-            ))}
-        </List>
+          {props.isLoading ? (
+            <>
+              <Spinner />
+              <VisuallyHidden>Loading</VisuallyHidden>
+            </>
+          ) : (
+            <>
+              <SearchIcon fontSize="xl" aria-hidden />
+              <VisuallyHidden>Search</VisuallyHidden>
+            </>
+          )}
+        </Button>
       </Flex>
-
-      {/* @TODO: fix this magic number */}
-      <Button
-        type="submit"
-        h="40px"
-        borderLeftRadius="none"
-        data-testid="searchbar-submit"
-        isDisabled={props.isLoading}
-      >
-        {props.isLoading ? (
-          <>
-            <Spinner />
-            <VisuallyHidden>Loading</VisuallyHidden>
-          </>
-        ) : (
-          <>
-            <SearchIcon fontSize="xl" aria-hidden />
-            <VisuallyHidden>Search</VisuallyHidden>
-          </>
-        )}
-      </Button>
-    </Flex>
+    </VStack>
   );
 });
