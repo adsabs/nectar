@@ -45,9 +45,9 @@ export enum ExportApiJournalFormat {
 
 export interface IExportApiParams {
   format: ExportApiFormatKey;
+  customFormat?: string;
   bibcode: IDocsEntity['bibcode'][];
   sort?: IADSApiSearchParams['sort'];
-  customFormat?: [string];
   authorcutoff?: [number];
   journalformat?: [ExportApiJournalFormat];
   maxauthor?: [number];

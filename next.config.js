@@ -21,9 +21,24 @@ const config = {
   },
   async redirects() {
     return [
+      // redirect bare abs links to /abstract by default
       {
         source: '/abs/:id',
         destination: '/abs/:id/abstract',
+        permanent: true,
+      },
+
+      // redirect base export routes to bibtex by default
+      {
+        source: '/abs/:id/exportcitation',
+        destination: '/abs/:id/exportcitation/bibtex',
+        permanent: true,
+      },
+
+      // redirect custom exports to bibtex, for now
+      {
+        source: '/abs/:id/exportcitation/custom',
+        destination: '/abs/:id/exportcitation/bibtex',
         permanent: true,
       },
     ];

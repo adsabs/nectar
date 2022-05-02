@@ -38,6 +38,7 @@ export const JournalFormatSelect = (props: {
   //   dispatch({ type: 'SET_JOURNAL_FORMAT', payload: id });
   // };
 
+  // TODO: fix, select component needs changes to make work properly
   return <div></div>;
   // <DescriptionCollapse
   //   body={description}
