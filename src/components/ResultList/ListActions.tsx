@@ -20,10 +20,9 @@ import { sections } from '@components/Visualizations';
 import { useIsClient } from '@hooks/useIsClient';
 import { AppState, useStore } from '@store';
 import { noop } from '@utils';
-import { useGetBigQuery } from '@_api/search/bigquery';
 import { useVaultBigQuerySearch } from '@_api/vault';
 import { useRouter } from 'next/router';
-import { ReactElement, useEffect, useState, MouseEvent } from 'react';
+import { MouseEvent, ReactElement, useEffect, useState } from 'react';
 
 export interface IListActionsProps {
   onSortChange?: ISortProps['onChange'];
