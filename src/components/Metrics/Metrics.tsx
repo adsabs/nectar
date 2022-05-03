@@ -1,6 +1,5 @@
 import { IDocsEntity } from '@api';
 import { Box, Heading } from '@chakra-ui/layout';
-import { useIsClient } from '@hooks/useIsClient';
 import {
   Alert,
   AlertDescription,
@@ -13,12 +12,13 @@ import {
   TabPanels,
   Tabs,
 } from '@chakra-ui/react';
+import { useIsClient } from '@hooks/useIsClient';
 import { useMetrics } from '@hooks/useMetrics';
 import { BarDatum } from '@nivo/bar';
 import { Serie } from '@nivo/line';
 import { IADSApiMetricsResponse, MetricsResponseKey, useGetMetricsTimeSeries } from '@_api/metrics';
 import axios from 'axios';
-import { ReactElement, useEffect, useMemo } from 'react';
+import { ReactElement, useMemo } from 'react';
 import { CitationsTable } from './CitationsTable';
 import { getIndicesTableData, plotTimeSeriesGraph } from './graphUtils';
 import { IndicesGraph } from './IndicesGraph';
@@ -231,17 +231,12 @@ const IndicesSection = ({
   // query to get indices metrics if there is no indices graph
   const {
     data: metricsData,
-    refetch: fetchMetrics,
     isError: isErrorMetrics,
     error: errorMetrics,
     isLoading,
-  } = useGetMetricsTimeSeries(bibcodes, { enabled: false });
-
-  useEffect(() => {
-    if (!indicesGraph && bibcodes && bibcodes.length > 0) {
-      void fetchMetrics();
-    }
-  }, [bibcodes]);
+  } = useGetMetricsTimeSeries(bibcodes, {
+    enabled: !indicesGraph && bibcodes && bibcodes.length > 0,
+  });
 
   const computedGraph = useMemo(() => {
     return metricsData && metricsData[MetricsResponseKey.TS]
