@@ -8,6 +8,7 @@ export * from './models';
 export * from './reference';
 export * from './search';
 export * from './types';
+export * from './vault';
 
 import api from './api';
 export default api;

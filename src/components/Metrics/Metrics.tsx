@@ -1,4 +1,4 @@
-import { IDocsEntity } from '@api';
+import { IADSApiMetricsResponse, IDocsEntity, MetricsResponseKey, useGetMetricsTimeSeries } from '@api';
 import { Box, Heading } from '@chakra-ui/layout';
 import {
   Alert,
@@ -16,7 +16,6 @@ import { useIsClient } from '@hooks/useIsClient';
 import { useMetrics } from '@hooks/useMetrics';
 import { BarDatum } from '@nivo/bar';
 import { Serie } from '@nivo/line';
-import { IADSApiMetricsResponse, MetricsResponseKey, useGetMetricsTimeSeries } from '@_api/metrics';
 import axios from 'axios';
 import { ReactElement, useMemo } from 'react';
 import { CitationsTable } from './CitationsTable';

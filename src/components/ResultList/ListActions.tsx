@@ -1,3 +1,4 @@
+import { useVaultBigQuerySearch } from '@api';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import {
   Button,
@@ -20,7 +21,6 @@ import { sections } from '@components/Visualizations';
 import { useIsClient } from '@hooks/useIsClient';
 import { AppState, useStore } from '@store';
 import { noop } from '@utils';
-import { useVaultBigQuerySearch } from '@_api/vault';
 import { useRouter } from 'next/router';
 import { MouseEventHandler, ReactElement, useEffect, useState } from 'react';
 

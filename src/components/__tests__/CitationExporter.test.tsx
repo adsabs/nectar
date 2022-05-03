@@ -1,8 +1,7 @@
-import { IExportApiParams } from '@api';
+import { ExportApiFormatKey, IExportApiParams } from '@api';
 import { composeStories } from '@storybook/testing-react';
 import { render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ExportApiFormatKey } from '@_api/export';
 import { FC } from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import * as stories from '../__stories__/CitationExporter.stories';
