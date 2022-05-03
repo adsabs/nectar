@@ -148,17 +148,17 @@ export const parseNumberAndClamp = (
 /**
  * Helper to parse query params into API search parameters
  */
-export const parseQueryFromUrl = (
+export const parseQueryFromUrl = <TExtra extends Record<string, string>>(
   params: ParsedQueryParams,
-  { omitPage, sortPostfix }: { omitPage?: boolean; sortPostfix?: SolrSort } = {},
-): IADSApiSearchParams & { p?: number } => {
+  { sortPostfix }: { sortPostfix?: SolrSort } = {},
+) => {
   const normalizedParams = normalizeURLParams(params);
   return {
     ...normalizedParams,
     q: normalizedParams?.q ?? '',
     sort: normalizeSolrSort(params.sort, sortPostfix),
-    ...(omitPage ? {} : { p: parseNumberAndClamp(normalizedParams?.p, 1) }),
-  };
+    p: parseNumberAndClamp(normalizedParams?.p, 1),
+  } as IADSApiSearchParams & { p?: number } & TExtra;
 };
 
 // detects if passed in value is a valid SolrSort
