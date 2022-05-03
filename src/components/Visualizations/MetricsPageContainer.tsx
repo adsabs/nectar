@@ -1,15 +1,15 @@
+import { IADSApiSearchParams } from '@api';
+import { Bibcode } from '@api/lib/search/types';
 import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, CircularProgress, Text } from '@chakra-ui/react';
 import { Metrics } from '@components';
 import { useBatchedSearch } from '@hooks/useBatchedSearch';
-import { parseQueryFromUrl } from '@utils';
 import { useGetMetrics } from '@_api/metrics';
 import axios from 'axios';
-import { ReactElement, useEffect } from 'react';
+import { ReactElement } from 'react';
 
 interface IMetricsPageProps {
-  query: { [key: string]: string | string[] };
+  query: IADSApiSearchParams;
   qid?: string;
-  recordsToGet: number;
 }
 
 const BATCH_SIZE = 1000;
@@ -62,15 +62,10 @@ export const MetricsPageContainer = ({ query, qid }: IMetricsPageProps): ReactEl
 
   // -------------------------------------------
 
+  const params: IADSApiSearchParams = qid ? { q: `docs(${qid})`, sort: ['id asc'] } : query;
+
   const { data, progress } = useBatchedSearch<string>(
-    // not prefetched
-    qid
-      ? {
-          ...parseQueryFromUrl({ q: `docs(${qid})` }, { omitPage: true, sortPostfix: 'id asc' }),
-          rows: BATCH_SIZE,
-          fl: ['bibcode'],
-        } // requires 'start'?
-      : { ...parseQueryFromUrl(query, { omitPage: true, sortPostfix: 'id asc' }), rows: BATCH_SIZE, fl: ['bibcode'] },
+    { rows: BATCH_SIZE, fl: ['bibcode'], ...params },
     { batches: BATCHES, transformResponses: (res) => res.response.docs.map((d) => d.bibcode) },
   );
 
@@ -85,25 +80,18 @@ export const MetricsPageContainer = ({ query, qid }: IMetricsPageProps): ReactEl
 };
 
 // This layer fetches the metrics from bibcodes
-const MetricsComponent = ({ bibcodes }: { bibcodes: string[] }): ReactElement => {
+const MetricsComponent = ({ bibcodes }: { bibcodes: Bibcode[] }): ReactElement => {
   // query to get metrics
   const {
     data: metricsData,
-    refetch: fetchMetrics,
     isError: isErrorMetrics,
     error: errorMetrics,
     isLoading,
-  } = useGetMetrics(bibcodes, { enabled: false });
-
-  useEffect(() => {
-    if (bibcodes && bibcodes.length > 0) {
-      void fetchMetrics();
-    }
-  }, [bibcodes]);
+  } = useGetMetrics(bibcodes, { enabled: bibcodes && bibcodes.length > 0 });
 
   return (
     <Box my={5}>
-      {bibcodes ? (
+      {bibcodes && bibcodes.length > 0 ? (
         <>
           {isErrorMetrics ? (
             <Alert status="error" my={5}>

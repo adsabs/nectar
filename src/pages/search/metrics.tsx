@@ -1,26 +1,30 @@
+import { IADSApiSearchParams } from '@api';
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/react';
 import { MetricsPageContainer, VizPageLayout } from '@components';
-import { parseQueryFromUrl } from '@utils';
-import { searchKeys } from '@_api/search';
-import { getSearchParams } from '@_api/search/models';
+import { useGetQueryFromCache } from '@hooks/useGetQueryFromCache';
+import { parseQueryFromUrl, setupApiSSR } from '@utils';
+import { fetchSearchInfinite, searchKeys } from '@_api/search';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
-import { ParsedUrlQuery } from 'querystring';
+import { useRouter } from 'next/router';
+import qs from 'qs';
+import { omit } from 'ramda';
 import { dehydrate, DehydratedState, QueryClient } from 'react-query';
-
 const limit = 7000;
 interface IMetricsProps {
-  query?: ParsedUrlQuery;
   qid?: string;
-  numFound?: number;
-  dehydratedState?: DehydratedState;
   error?: string;
 }
 
 const MetricsPage: NextPage<IMetricsProps> = (props) => {
-  const { query, qid, numFound, error } = props;
+  const { qid, error } = props;
+  const { query } = useGetQuery();
+
   return (
-    <VizPageLayout vizPage="metrics" from={{ pathname: '/search', query: query }}>
+    <VizPageLayout
+      vizPage="metrics"
+      from={{ pathname: '/search', query: qs.stringify(omit(['rows', 'fl'], query), { arrayFormat: 'comma' }) }}
+    >
       {error ? (
         <Alert status="error" my={5}>
           <AlertIcon />
@@ -28,56 +32,61 @@ const MetricsPage: NextPage<IMetricsProps> = (props) => {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : (
-        <MetricsPageContainer query={query} qid={qid} recordsToGet={numFound} />
+        <MetricsPageContainer qid={qid} query={query} />
       )}
     </VizPageLayout>
   );
 };
 
-export const getServerSideProps: GetServerSideProps<IMetricsProps> = async (ctx) => {
-  const api = (await import('@_api/api')).default;
+const useGetQuery = () => {
+  const { query: cachedQuery } = useGetQueryFromCache();
+  const router = useRouter();
+  const urlParams = parseQueryFromUrl(router.query);
+
+  return { query: cachedQuery ?? urlParams };
+};
+
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const BATCH_SIZE = 1000;
+  setupApiSSR(ctx);
   const { fetchSearch } = await import('@_api/search');
-  const { qid, ...query } = ctx.query;
-  api.setToken(ctx.req.session.userData.access_token);
+  const { qid = null, p, ...query } = parseQueryFromUrl<{ qid: string }>(ctx.query, { sortPostfix: 'id asc' });
+
   const queryClient = new QueryClient();
 
   try {
-    // get numbers of records count for this query
-    const params = qid
-      ? getSearchParams({ q: `docs(${qid as string})` })
-      : getSearchParams({ ...parseQueryFromUrl(query, { omitPage: true }) });
-    const numFoundRes = await queryClient.fetchQuery({
-      queryKey: searchKeys.primary(params),
-      queryFn: fetchSearch,
+    const params: IADSApiSearchParams = {
+      rows: BATCH_SIZE,
+      fl: ['bibcode'],
+      ...(qid ? { q: `docs(${qid})`, sort: ['id asc'] } : query),
+    };
+
+    if (!qid) {
+      // prefetch search query
+      void (await queryClient.prefetchQuery({
+        queryKey: searchKeys.primary(params),
+        queryFn: fetchSearch,
+        meta: { params },
+      }));
+    }
+
+    // prefetch metrics query
+    await queryClient.prefetchInfiniteQuery({
+      queryKey: searchKeys.infinite(params),
+      queryFn: fetchSearchInfinite,
       meta: { params },
-      retry: false,
     });
 
-    const numFound = Math.min(numFoundRes.response?.numFound ?? 0, limit);
-
-    // prefetch the list of bibcodes for this query
-    // let remainsToFetch = numFound;
-    // let start = 0;
-    // while (remainsToFetch > 0) {
-    //   const p = qid
-    //     ? { q: `docs(${qid as string})`, start: start, rows: 1000, fl: ['bibcode'] }
-    //     : { ...parseQueryFromUrlNoPage(query), start: start, rows: 1000, fl: ['bibcode'] };
-    //   await queryClient.prefetchQuery({
-    //     queryKey: searchKeys.primary(p),
-    //     queryFn: fetchSearch,
-    //     meta: { params: p },
-    //     retry: false,
-    //   });
-    //   start += 1000;
-    //   remainsToFetch -= 1000;
-    // }
+    // react-query infinite queries cannot be serialized by next, currently.
+    // see https://github.com/tannerlinsley/react-query/issues/3301#issuecomment-1041374043
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const dehydratedState: DehydratedState = JSON.parse(JSON.stringify(dehydrate(queryClient)));
 
     return {
       props: {
         query,
-        qid: qid ? (qid as string) : null,
-        numFound,
-        dehydratedState: dehydrate(queryClient),
+        qid,
+        dehydratedState,
       },
     };
   } catch (e) {

@@ -261,5 +261,6 @@ export const fetchSearchInfinite: QueryFunction<IADSApiSearchResponse & { pagePa
   };
   const { data } = await api.request<IADSApiSearchResponse>(config);
 
+  console.log('sdlkjf', { pageParam });
   return { ...data, pageParam };
 };
