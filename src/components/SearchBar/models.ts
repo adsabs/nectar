@@ -491,3 +491,11 @@ export const allSearchTerms: {
     },
   },
 };
+
+export const quickfields = [
+  allSearchTerms.fields.author,
+  allSearchTerms.fields['first-author'],
+  allSearchTerms.fields.abs,
+  allSearchTerms.fields.year,
+  allSearchTerms.fields.full,
+];

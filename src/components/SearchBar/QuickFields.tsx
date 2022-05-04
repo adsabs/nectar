@@ -15,19 +15,11 @@ import {
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { MouseEvent, ReactElement } from 'react';
-import { allSearchTerms, ISearchTermOption } from './models';
+import { allSearchTerms, ISearchTermOption, quickfields } from './models';
 
 export interface IQuickFieldsProps {
   onSelect: (value: string) => void;
 }
-
-const quickfields = [
-  allSearchTerms.fields.author,
-  allSearchTerms.fields['first-author'],
-  allSearchTerms.fields.abs,
-  allSearchTerms.fields.year,
-  allSearchTerms.fields.full,
-];
 
 export const QuickFields = ({ onSelect }: IQuickFieldsProps): ReactElement => {
   const handleQFSelect = (e: MouseEvent<HTMLElement>) => {
@@ -44,7 +36,15 @@ export const QuickFields = ({ onSelect }: IQuickFieldsProps): ReactElement => {
       <HStack spacing={5} fontSize="md" display={{ base: 'none', sm: 'flex' }}>
         <Text>QUICK FIELD: </Text>
         {quickfields.map((term) => (
-          <Button key={term.id} onClick={handleQFSelect} variant="link" tabIndex={0} data-value={term.value} size="md">
+          <Button
+            key={term.id}
+            onClick={handleQFSelect}
+            variant="link"
+            tabIndex={0}
+            data-value={term.value}
+            size="md"
+            data-testid="quickfield"
+          >
             {term.title}
           </Button>
         ))}
@@ -80,10 +80,10 @@ const AllSearchTerms = ({ onSelect }: { onSelect: (value: string) => void }): Re
   return (
     <>
       <Menu onClose={handleClose} isLazy={false}>
-        <MenuButton as={Button} variant="outline" rightIcon={<ChevronDownIcon />}>
+        <MenuButton as={Button} variant="outline" rightIcon={<ChevronDownIcon />} data-testid="allSearchTermsMenu">
           All Search Terms
         </MenuButton>
-        <MenuList h="400px" overflow="scroll" zIndex="10" ref={referenceRef}>
+        <MenuList h="400px" overflow="scroll" zIndex="10" ref={referenceRef} data-testid="allSearchTermsMenuItems">
           {Object.entries(allSearchTerms).map(([group, options]) => (
             <MenuGroup title={group} fontWeight="bold" fontSize="lg">
               {Object.values(options).map((option) => (
@@ -93,6 +93,7 @@ const AllSearchTerms = ({ onSelect }: { onSelect: (value: string) => void }): Re
                   value={option.value}
                   fontSize="md"
                   onMouseEnter={() => handleToolTip(option)}
+                  data-testid="allSearchTermsItem"
                 >
                   {option.title}
                 </MenuItem>
@@ -111,12 +112,17 @@ const AllSearchTerms = ({ onSelect }: { onSelect: (value: string) => void }): Re
           w={300}
           zIndex={10}
           m={5}
+          data-testid="allSearchTooltip"
         >
-          <Text color="gray.900" fontWeight="bold" backgroundColor="gray.100" p={2}>
+          <Text color="gray.900" fontWeight="bold" backgroundColor="gray.100" p={2} data-testid="allSearchTooltipTitle">
             {showTooltipFor.title}
           </Text>
-          <Text p={2} dangerouslySetInnerHTML={{ __html: showTooltipFor.description }} />
-          <Text p={2}>
+          <Text
+            p={2}
+            dangerouslySetInnerHTML={{ __html: showTooltipFor.description }}
+            data-testid="allSearchTooltipDesc"
+          />
+          <Text p={2} data-testid="allSearchTooltipSyntax">
             Syntax:
             {showTooltipFor.syntax.map((s) => (
               <span key={s}>
@@ -125,7 +131,7 @@ const AllSearchTerms = ({ onSelect }: { onSelect: (value: string) => void }): Re
               </span>
             ))}
           </Text>
-          <Text p={2}>
+          <Text p={2} data-testid="allSearchTooltipExample">
             Example:
             {showTooltipFor.example.map((e) => (
               <span key={e}>
