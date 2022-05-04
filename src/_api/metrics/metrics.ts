@@ -28,7 +28,7 @@ const retryFn = (count: number, error: unknown) => {
  * Fetches metrics and checks if citations and reads exist
  */
 export const useHasMetrics: ADSQuery<Bibcode, IADSApiMetricsResponse, null, boolean> = (bibcode, options) => {
-  const params = { bibcode };
+  const params = getMetricsParams([bibcode]);
 
   const { data, isError } = useQuery({
     queryKey: metricsKeys.primary([bibcode]),

@@ -1,8 +1,13 @@
 import { BarDatum } from '@nivo/bar';
+import { Serie } from '@nivo/line';
 
 export interface BarGraph {
   data: BarDatum[];
   keys: string[];
+}
+
+export interface LineGraph {
+  data: Serie[];
 }
 
 export interface IMetricsGraphs {
@@ -30,4 +35,20 @@ export interface IReadsTableData {
   totalNumberOfDownloads: number[];
   averageNumberOfDownloads: number[];
   medianNumberOfDownloads: number[];
+}
+
+export interface IPapersTableData {
+  totalNumberOfPapers: number[];
+  totalNormalizedPaperCount: number[];
+}
+
+export interface IIndicesTableData {
+  hIndex?: number[];
+  mIndex?: number[];
+  gIndex?: number[];
+  i10Index?: number[];
+  i100Index?: number[];
+  toriIndex?: number[];
+  riqIndex?: number[];
+  read10Index?: number[];
 }

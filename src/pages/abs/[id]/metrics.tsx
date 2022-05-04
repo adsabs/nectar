@@ -1,10 +1,11 @@
-import { IADSApiMetricsResponse, IADSApiSearchResponse } from '@api';
+import { IADSApiSearchResponse } from '@api';
 import { Box } from '@chakra-ui/react';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { Metrics } from '@components/Metrics';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
 import { composeNextGSSP, normalizeURLParams, setupApiSSR } from '@utils';
+import { getMetricsParams } from '@_api/metrics/model';
 import {
   BasicStatsKey,
   CitationsStatsKey,
@@ -50,7 +51,7 @@ const MetricsPage: NextPage<IMetricsPageProps> = (props: IMetricsPageProps) => {
           No metrics data
         </Box>
       ) : (
-        <Metrics metrics={metrics as IADSApiMetricsResponse} isAbstract={true} />
+        <Metrics metrics={metrics} isAbstract={true} />
       )}
     </AbsLayout>
   );
@@ -72,10 +73,12 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetail
       },
     } = queryClient.getQueryData<IADSApiSearchResponse>(searchKeys.abstract(query.id));
 
+    const params = getMetricsParams([bibcode]);
+
     void (await queryClient.prefetchQuery({
       queryKey: metricsKeys.primary([bibcode]),
       queryFn: fetchMetrics,
-      meta: { params: { bibcode } },
+      meta: { params },
     }));
 
     return {

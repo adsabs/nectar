@@ -1,6 +1,24 @@
 import { CitationsHistogramType, ReadsHistogramType } from '@api';
-import { BasicStatsKey, CitationsHistogramKey, CitationsStatsKey, ReadsHistogramKey } from '@_api/metrics/types';
-import { BarGraph, ICitationsTableData, IReadsTableData } from './types';
+import {
+  BasicStatsKey,
+  CitationsHistogramKey,
+  CitationsStatsKey,
+  PapersHistogramKey,
+  PapersHistogramType,
+  ReadsHistogramKey,
+  TimeSeriesKey,
+  TimeSeriesType,
+} from '@_api/metrics/types';
+import {
+  BarGraph,
+  ICitationsTableData,
+  IIndicesTableData,
+  IPapersTableData,
+  IReadsTableData,
+  LineGraph,
+} from './types';
+import { Serie } from '@nivo/line';
+import { divide } from 'ramda';
 
 export interface IGraphData {
   key: string;
@@ -27,6 +45,24 @@ export interface IReadTableInput {
   };
 }
 
+export interface IPaperTableInput {
+  refereed: {
+    [key in BasicStatsKey]: number;
+  };
+  total: {
+    [key in BasicStatsKey]: number;
+  };
+}
+
+export interface IIndicesTableInput {
+  refereed: {
+    [key in TimeSeriesKey]?: number;
+  };
+  total: {
+    [key in TimeSeriesKey]?: number;
+  };
+}
+
 /**
  * Output format
  * [
@@ -40,7 +76,11 @@ export interface IReadTableInput {
  * @param citationsHist
  * @returns
  */
-export const plotCitationsHist = (normalize: boolean, citationsHist: CitationsHistogramType): BarGraph => {
+export const plotCitationsHist = (
+  normalize: boolean,
+  citationsHist: CitationsHistogramType,
+  isSinglePaper: boolean,
+): BarGraph => {
   let data: { [year: string]: number }[];
 
   if (!normalize) {
@@ -62,9 +102,9 @@ export const plotCitationsHist = (normalize: boolean, citationsHist: CitationsHi
   const transformed: { [key: string]: Record<string, number> } = {};
 
   [
-    'Ref. citations to ref. papers',
+    isSinglePaper ? 'Citations from ref. papers' : 'Ref. citations to ref. papers',
     'Ref. citations to non ref. papers',
-    'Non ref. citations to ref. papers',
+    isSinglePaper ? 'Citations from non ref. papers' : 'Non ref. citations to ref. papers',
     'Non ref. citations to non ref. papers',
   ].forEach((x, i) => {
     if (Object.values(data[i]).filter((v) => v > 0).length > 0) {
@@ -136,6 +176,80 @@ export const plotReadsHist = (normalize: boolean, readsHist: ReadsHistogramType)
   return { data: out, keys };
 };
 
+export const plotPapersHist = (normalize: boolean, papersHist: PapersHistogramType): BarGraph => {
+  let data: Record<string, number>[];
+
+  if (!normalize) {
+    data = [
+      papersHist[PapersHistogramKey.RP],
+      getNonRef(papersHist[PapersHistogramKey.RP], papersHist[PapersHistogramKey.AP]),
+    ];
+  } else {
+    data = [
+      papersHist[PapersHistogramKey.RPN],
+      getNonRef(papersHist[PapersHistogramKey.RPN], papersHist[PapersHistogramKey.APN]),
+    ];
+  }
+
+  const transformed: Record<string, Record<string, number>> = {};
+
+  ['Refereed', 'Non-refereed'].forEach((x, i) => {
+    if (Object.values(data[i]).filter((v) => v > 0).length > 0) {
+      // skip if all values are 0
+      transformed[x] = data[i];
+    }
+  });
+
+  const keys = Object.keys(transformed);
+  const out = Object.keys(data[0]).map((year) => {
+    const obj: Record<string, string | number> = {
+      year: year,
+    };
+    for (const key of keys) {
+      obj[key] = transformed[key][year];
+    }
+    return obj;
+  });
+
+  return { data: out, keys };
+};
+
+export const plotTimeSeriesGraph = (timeseries: TimeSeriesType): LineGraph => {
+  const data = [
+    timeseries[TimeSeriesKey.H],
+    timeseries[TimeSeriesKey.M],
+    timeseries[TimeSeriesKey.G],
+    timeseries[TimeSeriesKey.I10],
+    timeseries[TimeSeriesKey.I100],
+    timeseries[TimeSeriesKey.TORI],
+    timeseries[TimeSeriesKey.RIQ],
+    timeseries[TimeSeriesKey.READ10],
+  ];
+
+  const returnArray: Serie[] = [];
+
+  ['h-index', 'm-index', 'g-index', 'i10-index', 'i100-index', 'tori-index', 'riq-index', 'read10-index'].map(
+    (id, index) => {
+      const d: { x: string; y: number }[] = [];
+      if (data[index] !== undefined) {
+        Object.entries(data[index]).map(([year, value]) => {
+          if (id === 'read10-index') {
+            d.push({ x: year, y: divide(value, 10) });
+          } else {
+            d.push({ x: year, y: value });
+          }
+        });
+        returnArray.push({
+          id,
+          data: d,
+        });
+      }
+    },
+  );
+
+  return { data: returnArray };
+};
+
 export const getCitationTableData = (citationData: ICitationTableInput): ICitationsTableData => {
   const data = {
     numberOfCitingPapers: [citationData.total[CitationsStatsKey.NCP], citationData.refereed[CitationsStatsKey.NCP]],
@@ -174,6 +288,38 @@ export const getReadsTableData = (generalData: IReadTableInput): IReadsTableData
     totalNumberOfDownloads: [generalData.total[BasicStatsKey.TND], generalData.refereed[BasicStatsKey.TND]],
     averageNumberOfDownloads: [generalData.total[BasicStatsKey.AND], generalData.refereed[BasicStatsKey.AND]],
     medianNumberOfDownloads: [generalData.total[BasicStatsKey.MND], generalData.total[BasicStatsKey.MND]],
+  };
+
+  Object.entries(data).forEach(([name, arr]) => {
+    data[name as keyof typeof data] = [limitPlaces(arr[0]), limitPlaces(arr[1])];
+  });
+
+  return data;
+};
+
+export const getPapersTableData = (generalData: IPaperTableInput): IPapersTableData => {
+  const data = {
+    totalNumberOfPapers: [generalData.total[BasicStatsKey.NP], generalData.refereed[BasicStatsKey.NP]],
+    totalNormalizedPaperCount: [generalData.total[BasicStatsKey.NPC], generalData.refereed[BasicStatsKey.NPC]],
+  };
+
+  Object.entries(data).forEach(([name, arr]) => {
+    data[name as keyof typeof data] = [limitPlaces(arr[0]), limitPlaces(arr[1])];
+  });
+
+  return data;
+};
+
+export const getIndicesTableData = (indicesData: IIndicesTableInput): IIndicesTableData => {
+  const data = {
+    hIndex: [indicesData.total[TimeSeriesKey.H], indicesData.refereed[TimeSeriesKey.H]],
+    mIndex: [indicesData.total[TimeSeriesKey.M], indicesData.refereed[TimeSeriesKey.M]],
+    gIndex: [indicesData.total[TimeSeriesKey.G], indicesData.refereed[TimeSeriesKey.G]],
+    i10Index: [indicesData.total[TimeSeriesKey.I10], indicesData.refereed[TimeSeriesKey.I10]],
+    i100Index: [indicesData.total[TimeSeriesKey.I100], indicesData.refereed[TimeSeriesKey.I100]],
+    toriIndex: [indicesData.total[TimeSeriesKey.TORI], indicesData.refereed[TimeSeriesKey.TORI]],
+    riqIndex: [indicesData.total[TimeSeriesKey.RIQ], indicesData.refereed[TimeSeriesKey.RIQ]],
+    read10Index: [indicesData.total[TimeSeriesKey.READ10], indicesData.refereed[TimeSeriesKey.READ10]],
   };
 
   Object.entries(data).forEach(([name, arr]) => {

@@ -1,4 +1,5 @@
 import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, IUserData, SolrSort } from '@api';
+import { APP_DEFAULTS } from '@config';
 import api from '@_api/api';
 import { GetServerSidePropsContext, GetServerSidePropsResult, NextApiRequest, NextApiResponse } from 'next';
 import { useRouter } from 'next/router';
@@ -147,14 +148,17 @@ export const parseNumberAndClamp = (
 /**
  * Helper to parse query params into API search parameters
  */
-export const parseQueryFromUrl = (params: ParsedQueryParams): IADSApiSearchParams & { p: number } => {
+export const parseQueryFromUrl = <TExtra extends Record<string, string>>(
+  params: ParsedQueryParams,
+  { sortPostfix }: { sortPostfix?: SolrSort } = {},
+) => {
   const normalizedParams = normalizeURLParams(params);
   return {
     ...normalizedParams,
     q: normalizedParams?.q ?? '',
-    sort: normalizeSolrSort(params.sort),
+    sort: normalizeSolrSort(params.sort, sortPostfix),
     p: parseNumberAndClamp(normalizedParams?.p, 1),
-  };
+  } as IADSApiSearchParams & { p?: number } & TExtra;
 };
 
 // detects if passed in value is a valid SolrSort
@@ -176,6 +180,8 @@ export const isSolrSort = (maybeSolrSort: string): maybeSolrSort is SolrSort => 
     'date desc',
     'entry_date asc',
     'entry_date desc',
+    'id asc',
+    'id desc',
     'read_count asc',
     'read_count desc',
     'score asc',
@@ -199,7 +205,7 @@ export const normalizeSolrSort = (rawSolrSort: unknown, postfixSort?: SolrSort):
     ? rawSolrSort.split(',')
     : null;
 
-  const tieBreaker = postfixSort || 'bibcode desc';
+  const tieBreaker = postfixSort || APP_DEFAULTS.QUERY_SORT_POSTFIX;
 
   // if that fails, shortcut here with a default value
   if (sort === null) {

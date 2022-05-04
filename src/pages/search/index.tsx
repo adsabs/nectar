@@ -157,7 +157,7 @@ const SearchPage: NextPage = () => {
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const { fetchSearch } = await import('@_api/search');
-  const { p: page, ...query } = parseQueryFromUrl(ctx.query);
+  const { p: page, ...query } = parseQueryFromUrl<{ p: string }>(ctx.query);
   setupApiSSR(ctx);
 
   const params: IADSApiSearchParams = {

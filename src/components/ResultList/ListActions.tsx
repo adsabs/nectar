@@ -1,9 +1,28 @@
-import { Button, Checkbox, Stack, VisuallyHidden } from '@chakra-ui/react';
+import { ChevronDownIcon } from '@chakra-ui/icons';
+import {
+  Button,
+  Checkbox,
+  Menu,
+  MenuButton,
+  MenuDivider,
+  MenuGroup,
+  MenuItem,
+  MenuItemOption,
+  MenuList,
+  MenuOptionGroup,
+  Portal,
+  Stack,
+  useToast,
+  VisuallyHidden,
+} from '@chakra-ui/react';
 import { ISortProps, Sort } from '@components/Sort';
+import { sections } from '@components/Visualizations';
 import { useIsClient } from '@hooks/useIsClient';
 import { AppState, useStore } from '@store';
 import { noop } from '@utils';
-import { ReactElement, useState } from 'react';
+import { useVaultBigQuerySearch } from '@_api/vault';
+import { useRouter } from 'next/router';
+import { MouseEventHandler, ReactElement, useEffect, useState } from 'react';
 
 export interface IListActionsProps {
   onSortChange?: ISortProps['onChange'];
@@ -11,10 +30,53 @@ export interface IListActionsProps {
 
 export const ListActions = (props: IListActionsProps): ReactElement => {
   const { onSortChange = noop } = props;
-  const selected = useStore((state) => state.docs.selected.length);
+  const selected = useStore((state) => state.docs.selected);
   const clearSelected = useStore((state) => state.clearSelected);
   const isClient = useIsClient();
-  const noneSelected = selected === 0;
+  const noneSelected = selected.length === 0;
+  const [exploreAll, setExploreAll] = useState(true);
+  const router = useRouter();
+  const toast = useToast();
+
+  useEffect(() => {
+    setExploreAll(noneSelected);
+  }, [noneSelected]);
+
+  const [path, setPath] = useState<string>(null);
+  const { data, error } = useVaultBigQuerySearch(selected, { enabled: !!path });
+
+  useEffect(() => {
+    // if data exists, push our qid to the route and change pages
+    if (data && path) {
+      void router.push({ pathname: path, query: { ...router.query, qid: data.qid } });
+      setPath(null);
+    }
+
+    if (error) {
+      toast({
+        status: 'error',
+        title: 'Error!',
+        description: 'Error fetching selected papers',
+      });
+      setPath(null);
+    }
+  }, [data, error, path]);
+
+  const handleExploreOption = (value: string | string[]) => {
+    if (typeof value === 'string') {
+      setExploreAll(value === 'all');
+    }
+  };
+
+  const handleExploreVizLink: MouseEventHandler<HTMLButtonElement> = (e) => {
+    const path = e.currentTarget.dataset.sectionPath;
+    if (exploreAll) {
+      void router.push({ pathname: path, query: router.query });
+    } else {
+      // set the path which will trigger the search
+      setPath(path);
+    }
+  };
 
   return (
     <Stack
@@ -51,7 +113,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
             <SelectAllCheckbox />
             {!noneSelected && (
               <>
-                <span className="m-2 h-5 text-sm">{selected.toLocaleString()} Selected</span>
+                <span className="m-2 h-5 text-sm">{selected.length.toLocaleString()} Selected</span>
                 <Button variant="link" fontWeight="normal" onClick={clearSelected} data-testid="listactions-clearall">
                   Clear All
                 </Button>
@@ -65,9 +127,53 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
             )}
           </Stack>
           <Stack direction="row" mx={5} order={{ base: '1', md: '2' }} wrap="wrap">
-            <Button>Add to Library</Button>
-            <Button>Export</Button>
-            <Button>Explore</Button>
+            <Menu>
+              <MenuButton as={Button} rightIcon={<ChevronDownIcon />} disabled={noneSelected}>
+                Bulk Actions
+              </MenuButton>
+              <Portal>
+                <MenuList>
+                  <MenuItem>Add to Library</MenuItem>
+                  <MenuDivider />
+                  <MenuGroup title="EXPORT">
+                    <MenuItem>Citations</MenuItem>
+                    <MenuItem>Author Affiliations</MenuItem>
+                  </MenuGroup>
+                </MenuList>
+              </Portal>
+            </Menu>
+            <Menu>
+              <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+                Explorer
+              </MenuButton>
+              <Portal>
+                <MenuList>
+                  <MenuOptionGroup value={exploreAll ? 'all' : 'selected'} type="radio" onChange={handleExploreOption}>
+                    <MenuItemOption value="all" closeOnSelect={false}>
+                      All
+                    </MenuItemOption>
+                    <MenuItemOption value="selected" isDisabled={selected.length === 0} closeOnSelect={false}>
+                      Selected
+                    </MenuItemOption>
+                  </MenuOptionGroup>
+                  <MenuDivider />
+                  <MenuGroup title="VISUALZATIONS">
+                    {sections.map((section) => (
+                      <MenuItem onClick={handleExploreVizLink} data-section-path={section.path} key={section.id}>
+                        {section.label}
+                      </MenuItem>
+                    ))}
+                  </MenuGroup>
+                  <MenuDivider />
+                  <MenuGroup title="OPERATIONS">
+                    <MenuItem>Co-reads</MenuItem>
+                    <MenuItem>Reviews</MenuItem>
+                    <MenuItem>Useful</MenuItem>
+                    <MenuItem>Similar</MenuItem>
+                  </MenuGroup>
+                </MenuList>
+              </Portal>
+            </Menu>
           </Stack>
         </Stack>
       )}

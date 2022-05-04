@@ -9,5 +9,5 @@ export const useGetQueryFromCache = () => {
     return {};
   }
 
-  return { params: query.queryKey[1] as IADSApiSearchParams, result: query.state.data };
+  return { query: query.queryKey[1] as IADSApiSearchParams, result: query.state.data };
 };
