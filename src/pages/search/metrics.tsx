@@ -1,29 +1,26 @@
 import { IADSApiSearchParams } from '@api';
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/react';
 import { MetricsPageContainer, VizPageLayout } from '@components';
-import { useGetQueryFromCache } from '@hooks/useGetQueryFromCache';
 import { parseQueryFromUrl, setupApiSSR } from '@utils';
 import { fetchSearchInfinite, searchKeys } from '@_api/search';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
-import { useRouter } from 'next/router';
 import qs from 'qs';
-import { omit } from 'ramda';
 import { dehydrate, DehydratedState, QueryClient } from 'react-query';
-const limit = 7000;
+
 interface IMetricsProps {
+  query: IADSApiSearchParams;
   qid?: string;
   error?: string;
 }
 
 const MetricsPage: NextPage<IMetricsProps> = (props) => {
-  const { qid, error } = props;
-  const { query } = useGetQuery();
+  const { qid, error, query } = props;
 
   return (
     <VizPageLayout
       vizPage="metrics"
-      from={{ pathname: '/search', query: qs.stringify(omit(['rows', 'fl'], query), { arrayFormat: 'comma' }) }}
+      from={{ pathname: '/search', query: qs.stringify(query, { arrayFormat: 'comma' }) }}
     >
       {error ? (
         <Alert status="error" my={5}>
@@ -36,14 +33,6 @@ const MetricsPage: NextPage<IMetricsProps> = (props) => {
       )}
     </VizPageLayout>
   );
-};
-
-const useGetQuery = () => {
-  const { query: cachedQuery } = useGetQueryFromCache();
-  const router = useRouter();
-  const urlParams = parseQueryFromUrl(router.query);
-
-  return { query: cachedQuery ?? urlParams };
 };
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
