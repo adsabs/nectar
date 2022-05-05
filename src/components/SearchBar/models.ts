@@ -492,7 +492,7 @@ export const allSearchTerms: {
   },
 };
 
-export const quickfields = [
+export const quickfields: ISearchTermOption[] = [
   allSearchTerms.fields.author,
   allSearchTerms.fields['first-author'],
   allSearchTerms.fields.abs,

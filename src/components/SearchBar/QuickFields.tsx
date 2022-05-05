@@ -13,7 +13,7 @@ import {
   Text,
   usePopper,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { MouseEvent, ReactElement } from 'react';
 import { allSearchTerms, ISearchTermOption, quickfields } from './models';
 
@@ -21,38 +21,43 @@ export interface IQuickFieldsProps {
   onSelect: (value: string) => void;
 }
 
-export const QuickFields = ({ onSelect }: IQuickFieldsProps): ReactElement => {
-  const handleQFSelect = (e: MouseEvent<HTMLElement>) => {
-    const target = e.currentTarget;
-    onSelect(target.dataset['value']);
-  };
+export const QuickFields = memo(
+  ({ onSelect }: IQuickFieldsProps): ReactElement => {
+    const handleQFSelect = (e: MouseEvent<HTMLElement>) => {
+      const target = e.currentTarget;
+      onSelect(target.dataset['value']);
+    };
 
-  const handleASTSelect = (value: string) => {
-    onSelect(value);
-  };
+    const handleASTSelect = (value: string) => {
+      onSelect(value);
+    };
 
-  return (
-    <Flex direction="row" justifyContent="start" fontSize="md" gap={5}>
-      <HStack spacing={5} fontSize="md" display={{ base: 'none', sm: 'flex' }}>
-        <Text>QUICK FIELD: </Text>
-        {quickfields.map((term) => (
-          <Button
-            key={term.id}
-            onClick={handleQFSelect}
-            variant="link"
-            tabIndex={0}
-            data-value={term.value}
-            size="md"
-            data-testid="quickfield"
-          >
-            {term.title}
-          </Button>
-        ))}
-      </HStack>
-      <AllSearchTerms onSelect={handleASTSelect} />
-    </Flex>
-  );
-};
+    return (
+      <Flex direction="row" justifyContent="start" fontSize="md" gap={5}>
+        <HStack spacing={5} fontSize="md" display={{ base: 'none', sm: 'flex' }}>
+          <Text>QUICK FIELD: </Text>
+          {quickfields.map((term) => (
+            <Button
+              key={term.id}
+              onClick={handleQFSelect}
+              variant="link"
+              tabIndex={0}
+              data-value={term.value}
+              size="md"
+              data-testid="quickfield"
+            >
+              {term.title}
+            </Button>
+          ))}
+        </HStack>
+        <AllSearchTerms onSelect={handleASTSelect} />
+      </Flex>
+    );
+  },
+  (prev, next) => {
+    return prev.onSelect !== next.onSelect;
+  },
+);
 
 const AllSearchTerms = ({ onSelect }: { onSelect: (value: string) => void }): ReactElement => {
   const [showTooltipFor, setShowTooltipFor] = useState<ISearchTermOption>(null);
@@ -85,7 +90,7 @@ const AllSearchTerms = ({ onSelect }: { onSelect: (value: string) => void }): Re
         </MenuButton>
         <MenuList h="400px" overflow="scroll" zIndex="10" ref={referenceRef} data-testid="allSearchTermsMenuItems">
           {Object.entries(allSearchTerms).map(([group, options]) => (
-            <MenuGroup title={group} fontWeight="bold" fontSize="lg">
+            <MenuGroup title={group} fontWeight="bold" fontSize="lg" key={group}>
               {Object.values(options).map((option) => (
                 <MenuItem
                   key={option.id}
