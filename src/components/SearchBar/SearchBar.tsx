@@ -20,7 +20,7 @@ import { useStore } from '@store';
 import { useCombobox } from 'downshift';
 import { matchSorter } from 'match-sorter';
 import { last } from 'ramda';
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { typeaheadOptions } from './models';
 import { QuickFields } from './QuickFields';
 import { TypeaheadOption } from './types';
@@ -137,13 +137,16 @@ export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>(
     input.current.focus();
   };
 
-  const handleQuickFieldSelection = (value: string) => {
-    // Add our text to the end of the query
-    const newInputValue = `${query}${query.length > 0 ? ' ' : ''}${value}`;
-    updateQuery(newInputValue);
-    fixCursor(newInputValue);
-    input.current.focus();
-  };
+  const handleQuickFieldSelection = useCallback(
+    (value: string) => {
+      // Add our text to the end of the query
+      const newInputValue = `${query}${query.length > 0 ? ' ' : ''}${value}`;
+      updateQuery(newInputValue);
+      fixCursor(newInputValue);
+      input.current.focus();
+    },
+    [query],
+  );
 
   const { popperRef, referenceRef } = usePopper({
     enabled: isOpen,
