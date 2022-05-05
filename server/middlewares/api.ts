@@ -1,7 +1,9 @@
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { isPast, parseISO } from 'date-fns';
 import { RequestHandler as Middleware } from 'express';
+import { PathLike } from 'fs';
 import getConfig from 'next/config';
+import qs from 'qs';
 import { isNil } from 'ramda';
 import { IBootstrapPayload, IUserData } from '../../src/api/accounts/types';
 import { ApiTargets } from '../../src/api/models';
@@ -16,7 +18,7 @@ const isUserData = (userData?: IUserData): userData is IUserData => {
   );
 };
 
-export const checkUserData = (userData?: IUserData): boolean => {
+const checkUserData = (userData?: IUserData): boolean => {
   return isUserData(userData) && !isPast(parseISO(userData.expire_in));
 };
 
@@ -39,6 +41,19 @@ const resolveApiBaseUrl = (defaultBaseUrl = ''): string => {
   return config[configType]?.apiHost ?? defaultBaseUrl;
 };
 
+export const defaultConfig: AxiosRequestConfig = {
+  baseURL: resolveApiBaseUrl(),
+  withCredentials: true,
+  timeout: 30000,
+  paramsSerializer: (params: PathLike) => qs.stringify(params, { indices: false, arrayFormat: 'comma' }),
+  headers: {
+    common: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Accept: 'application/json',
+    },
+  },
+};
+
 interface IADSApiBootstrapResponse extends AxiosResponse<IBootstrapPayload> {
   headers: {
     'set-cookie': string;
@@ -56,9 +71,7 @@ export const api: Middleware = (req, res, next) => {
   }
 
   axios
-    .get<IBootstrapPayload, IADSApiBootstrapResponse>(ApiTargets.BOOTSTRAP, {
-      baseURL: resolveApiBaseUrl(),
-    })
+    .get<IBootstrapPayload, IADSApiBootstrapResponse>(ApiTargets.BOOTSTRAP, defaultConfig)
     .then((response) => {
       const { data, headers } = response;
 
