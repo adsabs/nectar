@@ -249,5 +249,5 @@ export const enumKeys = <O extends object, K extends keyof O = keyof O>(obj: O):
  * For now, this just mutates the api instance, setting the token from the session
  */
 export const setupApiSSR = (ctx: GetServerSidePropsContext<ParsedUrlQuery>) => {
-  api.setToken(ctx.req.session.userData.access_token);
+  api.setUserData(ctx.req.session.userData);
 };

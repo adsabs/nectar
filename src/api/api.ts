@@ -1,11 +1,11 @@
 import { IUserData } from '@api';
 import { APP_STORAGE_KEY, updateAppUser } from '@store';
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { isPast, parseISO } from 'date-fns';
 import { PathLike } from 'fs';
 import getConfig from 'next/config';
 import qs from 'qs';
-import { has, isNil } from 'ramda';
+import { isNil, pick } from 'ramda';
 import { IBootstrapPayload } from './accounts';
 import { ApiTargets } from './models';
 
@@ -38,12 +38,8 @@ const isUserData = (userData?: IUserData): userData is IUserData => {
   );
 };
 
-const isExpired = (userData: IUserData): boolean => {
-  return isPast(parseISO(userData.expire_in));
-};
-
 const checkUserData = (userData?: IUserData): boolean => {
-  return isUserData(userData) && !isExpired(userData);
+  return isUserData(userData) && !isPast(parseISO(userData.expire_in));
 };
 
 /**
@@ -64,60 +60,23 @@ const getUserData = (): IUserData => {
 
 /**
  * Apply a bearer token string to the request's headers
+ * returns a new request config with authorization header added
  */
 const applyTokenToRequest = (request: ApiRequestConfig, token: string) => {
-  if (has('headers', request)) {
-    request.headers = { ...(request.headers = {}), authorization: `Bearer:${token}` };
-  }
-  return request;
-};
-
-/**
- * Inject authorization header with updated token value
- * Also persists userData in localStorage
- *
- * @param  {ApiRequestConfig} request - the request config to be altered
- * @param  {boolean} invalidate? - should skip checking storage, and fetch new user data
- * @returns {Promise<ApiRequestConfig>} - the augmented request
- */
-const injectAuth = async (
-  request: ApiRequestConfig,
-  invalidate?: boolean,
-  tokenCb?: (token: string) => void,
-): Promise<ApiRequestConfig> => {
-  // read directly from the storage, since we can't be sure store is loaded at the time this is run
-  const user = getUserData();
-  const isServer = typeof window === 'undefined';
-
-  // check if we have persisted userData in localStorage
-  if (!isServer && !invalidate && checkUserData(user)) {
-    // add authorization header to request
-    return applyTokenToRequest(request, user.access_token);
-  }
-
-  // fetch the current userData using default axios instance
-  const {
-    data: { access_token, username, expire_in, anonymous },
-  } = await axios.get<IBootstrapPayload>(ApiTargets.BOOTSTRAP, {
-    baseURL: resolveApiBaseUrl(),
-  });
-
-  if (isServer) {
-    updateAppUser({ access_token, username, expire_in, anonymous });
-    if (typeof tokenCb === 'function') {
-      tokenCb(access_token);
-    }
-  }
-
-  // add authorization header to request
-  return applyTokenToRequest(request, access_token);
+  return {
+    ...request,
+    headers: {
+      ...request.headers,
+      authorization: `Bearer:${token}`,
+    },
+  };
 };
 
 export interface ApiRequestConfig extends AxiosRequestConfig {
   headers?: { authorization?: string };
 }
 
-const config: AxiosRequestConfig = {
+const defaultConfig: AxiosRequestConfig = {
   baseURL: resolveApiBaseUrl(),
   withCredentials: true,
   timeout: 30000,
@@ -137,15 +96,12 @@ const config: AxiosRequestConfig = {
  */
 class Api {
   private static instance: Api;
-
-  // token property will only be used server-side
-  private token: string;
   private service: AxiosInstance;
-  private latestRequest: ApiRequestConfig;
+  private userData: IUserData;
+  private requestCache: Map<string, ApiRequestConfig>;
 
   private constructor() {
-    this.service = axios.create(config);
-    this.init();
+    this.service = axios.create(defaultConfig);
   }
 
   public static getInstance(): Api {
@@ -155,58 +111,87 @@ class Api {
     return Api.instance;
   }
 
-  setToken(token: string) {
-    this.token = token;
-  }
-
-  request<T>(config: ApiRequestConfig): Promise<AxiosResponse<T>> {
-    return this.service.request<T>(config);
+  public setUserData(userData: IUserData) {
+    this.userData = userData;
   }
 
   /**
-   * Initialize the api service
-   * Create the request/response interceptors for handling tokens
+   * Main request method
+   * Authenticate and fire the request
    */
-  private init() {
-    // inject a token into a non-auth'd request
-    const injectToken = async (request: ApiRequestConfig) => {
-      this.latestRequest = request;
+  async request<T>(config: ApiRequestConfig): Promise<AxiosResponse<T>> {
+    // we have valid token, send the request right away
+    if (checkUserData(this.userData)) {
+      return this.service.request<T>(applyTokenToRequest(config, this.userData.access_token));
+    }
 
-      // will use passed-in token, if it was done server-side
-      if (typeof this.token === 'string' && this.token.length > 0 && typeof window === 'undefined') {
-        return applyTokenToRequest(request, this.token);
+    // otherwise attempt to get the token from local storage
+    const userData = getUserData();
+    if (checkUserData(userData)) {
+      // set user data property
+      this.setUserData(userData);
+
+      return this.service.request<T>(applyTokenToRequest(config, userData.access_token));
+    }
+
+    // finally, we have to attempt a bootstrap request
+    try {
+      const freshUserData = await this.bootstrap();
+
+      // set user data property and in the app store
+      this.setUserData(freshUserData);
+      updateAppUser(freshUserData);
+      return this.service.request<T>(applyTokenToRequest(config, freshUserData.access_token));
+    } catch (e) {
+      // bootstrapping failed all attempts, let user know
+      // TODO: do something better
+      alert('Unable to contact API, or network error, please reload');
+    }
+  }
+
+  /**
+   * Fetch latest user data, retries after errors
+   */
+  async bootstrap() {
+    const { data } = await this.retry<Promise<AxiosResponse<IBootstrapPayload>>>({
+      ...defaultConfig,
+      method: 'GET',
+      url: ApiTargets.BOOTSTRAP,
+    });
+    return pick(['access_token', 'username', 'expire_in', 'anonymous'], data) as IUserData;
+  }
+
+  /**
+   * Simple retryer, will rerun request after delay
+   */
+  async retry<T extends Promise<unknown>>(
+    config: AxiosRequestConfig,
+    options: {
+      retries?: number;
+      interval?: number;
+    } = {},
+  ): Promise<T> {
+    const { retries = 3, interval = 1000 } = options;
+    try {
+      // await promise
+      return await axios.request(config);
+    } catch (error) {
+      if (retries) {
+        // delay
+        await new Promise((_) => setTimeout(_, interval));
+
+        // recursive retry
+        return this.retry(config, { ...options, retries: retries - 1 });
+      } else {
+        // out of retries, throw error
+        throw new Error(`Max retries reached.`);
       }
+    }
+  }
 
-      try {
-        // inject the request with token header
-        return await injectAuth(request);
-      } catch (e) {
-        return Promise.reject(e);
-      }
-    };
-
-    // handle 401 errors, re-fetching request after applying a new token
-    const handleResponseError = async (error: AxiosError) => {
-      // wipe out token
-      this.setToken(undefined);
-
-      // on error, check if it was a 401 (unauthorized)
-      if (error?.response?.status === 401) {
-        try {
-          // re-inject auth header, invalidating the persisted token
-          const request = await injectAuth(this.latestRequest, true, (token) => this.setToken(token));
-
-          // replay the request
-          return await this.service.request(request);
-        } catch (e) {
-          return Promise.reject(e);
-        }
-      }
-      return Promise.reject(error);
-    };
-
-    this.service.interceptors.response.use((_) => _, handleResponseError);
-    this.service.interceptors.request.use(injectToken);
+  public reset() {
+    this.service = this.service = axios.create(defaultConfig);
+    this.userData = null;
   }
 }
 
