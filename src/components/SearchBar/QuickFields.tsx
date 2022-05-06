@@ -55,7 +55,7 @@ export const QuickFields = memo(
     );
   },
   (prev, next) => {
-    return prev.onSelect !== next.onSelect;
+    return prev.onSelect === next.onSelect;
   },
 );
 
