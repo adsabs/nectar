@@ -34,7 +34,7 @@ export const CitationExporter = (props: ICitationExporterProps): ReactElement =>
   // wrap component here with error boundary to capture run-away errors
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <Exporter {...props} />;
+      <Exporter {...props} />
     </ErrorBoundary>
   );
 };
@@ -52,7 +52,10 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
 
   // Updates the route when format has changed
   useEffect(() => {
-    if (state.matches('idle') && router.query.format !== ctx.params.format) {
+    if (
+      router.query.format !== ctx.params.format &&
+      ((state.matches('idle') && singleMode) || (state.matches('fetching') && !singleMode))
+    ) {
       void router.push({ pathname: router.pathname, query: { ...router.query, format: ctx.params.format } }, null, {
         shallow: true,
       });
@@ -155,12 +158,12 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
               <Stack direction={['column', 'row']} spacing={4}>
                 <Stack spacing="4" flexGrow={[3, 2]} maxW="lg">
                   <CustomFormatSelect dispatch={dispatch} />
-                  <SortSelector sort={ctx.params.sort} dispatch={dispatch} />
+                  {/* <SortSelector sort={ctx.params.sort} dispatch={dispatch} />
                   <Button type="submit" data-testid="export-submit" size="md" isLoading={isLoading}>
                     Submit
-                  </Button>
+                  </Button> */}
                 </Stack>
-                <ResultArea result={data?.export} format={ctx.params.format} />
+                {/* <ResultArea result={data?.export} format={ctx.params.format} /> */}
               </Stack>
             </form>
           </TabPanel>

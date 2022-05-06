@@ -117,15 +117,19 @@ export const generateMachine = ({ format, records, singleMode }: IUseCitationExp
               params: (ctx, evt) => ({ ...ctx.params, sort: evt.payload }),
             }),
           },
-          SET_FORMAT: {
-            actions: assign<ICitationExporterState, SetFormat>({
-              params: (ctx, evt) => ({ ...ctx.params, format: evt.payload }),
-            }),
-            target: 'fetching',
+          SET_FORMAT: [
+            {
+              actions: assign<ICitationExporterState, SetFormat>({
+                params: (ctx, evt) => ({ ...ctx.params, format: evt.payload }),
+              }),
+            },
+            {
+              target: 'fetching',
 
-            // will transition to fetching only if singleMode is true
-            cond: () => singleMode,
-          },
+              // will transition to fetching only if singleMode is true
+              cond: () => singleMode,
+            },
+          ],
           SET_RANGE: {
             actions: assign<ICitationExporterState, SetRange>({
               range: (_ctx, evt) => [0, evt.payload],
@@ -153,9 +157,8 @@ export const generateMachine = ({ format, records, singleMode }: IUseCitationExp
           SET_IS_CUSTOM_FORMAT: {
             actions: assign<ICitationExporterState, SetIsCustomFormat>({
               isCustomFormat: (_ctx, evt) => evt.payload,
-              params: (ctx) => ({ ...ctx.params, format: ExportApiFormatKey.custom }),
+              // params: (ctx) => ({ ...ctx.params, format: ExportApiFormatKey.custom }),
             }),
-            target: 'fetching',
           },
           SUBMIT: 'fetching',
         },
