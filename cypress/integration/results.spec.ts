@@ -1,4 +1,4 @@
-import { IADSApiSearchParams } from '@api/lib/search/types';
+import { IADSApiSearchParams } from '@api';
 
 const search = (params: Partial<IADSApiSearchParams & { p: number }>) => {
   cy.visit('/search', {

@@ -1,8 +1,7 @@
-import { IADSApiSearchParams } from '@api';
+import { fetchSearchInfinite, IADSApiSearchParams, searchKeys } from '@api';
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/react';
 import { MetricsPageContainer, VizPageLayout } from '@components';
 import { parseQueryFromUrl, setupApiSSR } from '@utils';
-import { fetchSearchInfinite, searchKeys } from '@_api/search';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 import qs from 'qs';
@@ -38,7 +37,7 @@ const MetricsPage: NextPage<IMetricsProps> = (props) => {
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const BATCH_SIZE = 1000;
   setupApiSSR(ctx);
-  const { fetchSearch } = await import('@_api/search');
+  const { fetchSearch } = await import('@api');
   const { qid = null, p, ...query } = parseQueryFromUrl<{ qid: string }>(ctx.query, { sortPostfix: 'id asc' });
 
   const queryClient = new QueryClient();

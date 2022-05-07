@@ -1,7 +1,6 @@
 import { ChakraProvider } from '@chakra-ui/react';
 import { Layout } from '@components';
 import { useCreateQueryClient } from '@hooks/useCreateQueryClient';
-import { ApiProvider } from '@providers/api';
 import { AppState, StoreProvider, useCreateStore, useStore } from '@store';
 import { theme } from '@theme';
 import { Theme } from '@types';
@@ -48,10 +47,8 @@ const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => 
     <ChakraProvider theme={theme}>
       <StoreProvider createStore={createStore}>
         <QCProvider>
-          <ApiProvider>
-            <Hydrate state={pageProps.dehydratedState}>{children}</Hydrate>
-            <ReactQueryDevtools />
-          </ApiProvider>
+          <Hydrate state={pageProps.dehydratedState}>{children}</Hydrate>
+          <ReactQueryDevtools />
         </QCProvider>
       </StoreProvider>
     </ChakraProvider>

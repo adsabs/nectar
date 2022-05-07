@@ -1,11 +1,9 @@
-import { IADSApiSearchResponse } from '@api';
+import { fetchGraphics, graphicsKeys, IADSApiSearchResponse, searchKeys, useGetGraphics } from '@api';
 import { Box, Flex, Link } from '@chakra-ui/layout';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
 import { composeNextGSSP, normalizeURLParams, setupApiSSR } from '@utils';
-import { fetchGraphics, graphicsKeys, useGetGraphics } from '@_api/graphics';
-import { searchKeys } from '@_api/search';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import NextImage from 'next/image';

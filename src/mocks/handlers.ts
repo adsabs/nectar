@@ -1,8 +1,12 @@
-import { IADSApiGraphicsParams, IADSApiSearchResponse, IExportApiParams } from '@api';
-import { ApiTargets } from '@api/lib/models';
-import { Esources } from '@api/lib/search/types';
+import {
+  ApiTargets,
+  Esources,
+  IADSApiGraphicsParams,
+  IADSApiMetricsParams,
+  IADSApiSearchResponse,
+  IExportApiParams,
+} from '@api';
 import faker from '@faker-js/faker';
-import { IADSApiMetricsParams } from '@_api/metrics';
 import { rest } from 'msw';
 import qs from 'qs';
 import { map, range, slice } from 'ramda';

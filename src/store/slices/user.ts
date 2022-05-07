@@ -1,4 +1,4 @@
-import { IBootstrapPayload } from '@api/lib/accounts/types';
+import { IBootstrapPayload } from '@api';
 import { StoreSlice } from '@store';
 
 export interface IAppStateUserSlice {

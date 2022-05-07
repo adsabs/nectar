@@ -1,20 +1,14 @@
-import { Adsapi } from './lib/api';
-export default Adsapi;
+export * from './accounts';
+export * from './api';
+export * from './biblib';
+export * from './export';
+export * from './graphics';
+export * from './metrics';
+export * from './models';
+export * from './reference';
+export * from './search';
+export * from './types';
+export * from './vault';
 
-export type { IADSApiBootstrapResponse, IUserData } from './lib/accounts/types';
-export type { ExportApiFormat, IExportApiParams, IExportApiResponse, isExportApiFormat } from './lib/export/types';
-export type { IADSApiGraphicsParams, IADSApiGraphicsResponse } from './lib/graphics/types';
-export type {
-  CitationsHistogramType,
-  IADSApiMetricsParams,
-  IADSApiMetricsResponse,
-  ReadsHistogramType,
-} from './lib/metrics/types';
-export type { SolrField, SolrSort, SolrSortDirection, SolrSortField } from './lib/models';
-export type { IADSApiReferenceParams, IADSApiReferenceResponse } from './lib/reference/types';
-export type {
-  IADSApiSearchErrorResponse,
-  IADSApiSearchParams,
-  IADSApiSearchResponse,
-  IDocsEntity,
-} from './lib/search/types';
+import api from './api';
+export default api;

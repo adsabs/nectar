@@ -1,6 +1,6 @@
+import { ExportApiFormatKey, isExportApiFormat } from '@api';
 import { Select } from '@components';
 import { Sender } from '@xstate/react/lib/types';
-import { ExportApiFormatKey, isExportApiFormat } from '@_api/export';
 import { omit, values } from 'ramda';
 import { useMemo } from 'react';
 import { CitationExporterEvent } from '../CitationExporter.machine';

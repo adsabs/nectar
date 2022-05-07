@@ -1,6 +1,5 @@
-import { IDocsEntity } from '@api';
+import { ExportApiFormatKey, IDocsEntity, isExportApiFormat } from '@api';
 import { Button, Stack, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
-import { ExportApiFormatKey, isExportApiFormat } from '@_api/export';
 import { useRouter } from 'next/router';
 import { ChangeEventHandler, HTMLAttributes, ReactElement, useEffect } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';

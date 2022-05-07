@@ -1,5 +1,4 @@
-import { IDocsEntity } from '@api';
-import { Esources } from '@api/lib/search/types';
+import { Esources, IDocsEntity } from '@api';
 import { compose, descend, is, map, prop, sortBy, sortWith } from 'ramda';
 import { DEFAULT_ORDERING, GATEWAY_BASE_URL, LINK_TYPES } from './model';
 import { getOpenUrl } from './openUrlGenerator';

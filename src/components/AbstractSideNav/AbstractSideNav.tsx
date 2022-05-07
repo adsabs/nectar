@@ -1,4 +1,4 @@
-import { IDocsEntity } from '@api';
+import { IDocsEntity, useHasGraphics, useHasMetrics } from '@api';
 import { Button } from '@chakra-ui/button';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { Badge, Box, Flex, Link, Stack, Text } from '@chakra-ui/layout';
@@ -8,8 +8,6 @@ import { ItemType } from '@components/Dropdown/types';
 import { DocumentIcon } from '@heroicons/react/outline';
 import { useIsClient } from '@hooks/useIsClient';
 import { useBaseRouterPath } from '@utils';
-import { useHasGraphics } from '@_api/graphics';
-import { useHasMetrics } from '@_api/metrics';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import qs from 'qs';

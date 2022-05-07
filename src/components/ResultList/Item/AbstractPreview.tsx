@@ -1,9 +1,8 @@
-import { IDocsEntity } from '@api';
+import { IDocsEntity, useGetAbstractPreview } from '@api';
 import { IconButton } from '@chakra-ui/button';
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import { Flex, Text, VStack } from '@chakra-ui/layout';
 import { Collapse } from '@chakra-ui/transition';
-import { useGetAbstractPreview } from '@_api/search';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 

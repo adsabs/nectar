@@ -1,4 +1,4 @@
-import { IADSApiSearchParams, SolrSort } from '@api';
+import { defaultParams, getSearchStatsParams, IADSApiSearchParams, searchKeys, SolrSort, useSearch } from '@api';
 import { Box, Flex, Stack } from '@chakra-ui/layout';
 import { Alert, AlertIcon, Code } from '@chakra-ui/react';
 import { VisuallyHidden } from '@chakra-ui/visually-hidden';
@@ -7,8 +7,6 @@ import { Pagination } from '@components/ResultList/Pagination';
 import { usePagination } from '@components/ResultList/Pagination/usePagination';
 import { AppState, createStore, useStore, useStoreApi } from '@store';
 import { isApiSearchResponse, parseNumberAndClamp, parseQueryFromUrl, setupApiSSR } from '@utils';
-import { searchKeys, useSearch } from '@_api/search';
-import { defaultParams, getSearchStatsParams } from '@_api/search/models';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
@@ -156,7 +154,7 @@ const SearchPage: NextPage = () => {
 };
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const { fetchSearch } = await import('@_api/search');
+  const { fetchSearch } = await import('@api');
   const { p: page, ...query } = parseQueryFromUrl<{ p: string }>(ctx.query);
   setupApiSSR(ctx);
 

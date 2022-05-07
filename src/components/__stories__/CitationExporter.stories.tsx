@@ -1,5 +1,5 @@
+import { ExportApiFormatKey } from '@api';
 import { Meta, Story } from '@storybook/react';
-import { ExportApiFormatKey } from '@_api/export';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { CitationExporter, ICitationExporterProps } from '../CitationExporter';
 

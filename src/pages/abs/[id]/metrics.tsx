@@ -1,20 +1,20 @@
-import { IADSApiSearchResponse } from '@api';
+import {
+  BasicStatsKey,
+  CitationsStatsKey,
+  fetchMetrics,
+  getMetricsParams,
+  IADSApiSearchResponse,
+  metricsKeys,
+  MetricsResponseKey,
+  searchKeys,
+  useGetMetrics,
+} from '@api';
 import { Box } from '@chakra-ui/react';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { Metrics } from '@components/Metrics';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
 import { composeNextGSSP, normalizeURLParams, setupApiSSR } from '@utils';
-import { getMetricsParams } from '@_api/metrics/model';
-import {
-  BasicStatsKey,
-  CitationsStatsKey,
-  fetchMetrics,
-  metricsKeys,
-  MetricsResponseKey,
-  useGetMetrics,
-} from '@_api/metrics';
-import { searchKeys } from '@_api/search';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';

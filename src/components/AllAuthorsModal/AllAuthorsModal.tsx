@@ -1,4 +1,4 @@
-import { IDocsEntity } from '@api';
+import { IDocsEntity, useGetAffiliations } from '@api';
 import { CloseIcon, DownloadIcon } from '@chakra-ui/icons';
 import { Box, Link } from '@chakra-ui/layout';
 import {
@@ -30,7 +30,6 @@ import { OrcidActiveIcon } from '@components/icons/Orcid';
 import { Pagination } from '@components/ResultList/Pagination';
 import { usePagination } from '@components/ResultList/Pagination/usePagination';
 import { useDebounce } from '@hooks/useDebounce';
-import { useGetAffiliations } from '@_api/search';
 import { saveAs } from 'file-saver';
 import { matchSorter } from 'match-sorter';
 import NextLink from 'next/link';

@@ -1,5 +1,5 @@
+import { IExportApiResponse } from '@api';
 import { Alert, AlertIcon, Button, Stack } from '@chakra-ui/react';
-import { IExportApiResponse } from '@_api/export';
 import axios, { AxiosError } from 'axios';
 import { ReactElement } from 'react';
 import { ExportContainer } from './ExportContainer';

@@ -1,3 +1,4 @@
+import { BasicStatsKey, CitationsStatsKey, IADSApiMetricsResponse, MetricsResponseKey } from '@api';
 import {
   getCitationTableData,
   getIndicesTableData,
@@ -16,7 +17,6 @@ import {
   IReadsTableData,
   LineGraph,
 } from '@components/Metrics/types';
-import { BasicStatsKey, CitationsStatsKey, IADSApiMetricsResponse, MetricsResponseKey } from '@_api/metrics/types';
 
 export interface IMetricsData {
   citationsGraphs: IMetricsGraphs;

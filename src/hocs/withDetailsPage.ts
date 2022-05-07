@@ -1,7 +1,6 @@
+import { fetchSearch, getAbstractParams, searchKeys } from '@api';
 import { AppState } from '@store';
 import { normalizeURLParams, setupApiSSR } from '@utils';
-import { fetchSearch, searchKeys } from '@_api/search';
-import { getAbstractParams } from '@_api/search/models';
 import axios from 'axios';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import { dehydrate, QueryClient } from 'react-query';

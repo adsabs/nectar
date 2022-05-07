@@ -1,4 +1,4 @@
-import { IADSApiSearchResponse } from '@api';
+import { ExportApiFormatKey, exportCitationKeys, IADSApiSearchResponse, isExportApiFormat, searchKeys } from '@api';
 import { Alert, AlertIcon } from '@chakra-ui/alert';
 import { Box } from '@chakra-ui/react';
 import { CitationExporter } from '@components';
@@ -8,8 +8,6 @@ import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
 import { useIsClient } from '@hooks/useIsClient';
 import { composeNextGSSP, normalizeURLParams, setupApiSSR } from '@utils';
-import { ExportApiFormatKey, exportCitationKeys, isExportApiFormat } from '@_api/export';
-import { searchKeys } from '@_api/search';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
@@ -49,7 +47,7 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = ({ id, format, er
 
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage, async (ctx, state) => {
   setupApiSSR(ctx);
-  const { fetchExportCitation } = await import('@_api/export');
+  const { fetchExportCitation } = await import('@api');
   const axios = (await import('axios')).default;
   const query = normalizeURLParams<{ id: string; format: string }>(ctx.query);
 
