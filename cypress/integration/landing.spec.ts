@@ -1,5 +1,6 @@
 import { examples } from '@components/SearchExamples/examples';
 import { themes } from '@components/NavBar/models';
+import { quickfields, allSearchTerms } from '@components/SearchBar/models';
 import { Theme } from '@types';
 
 const baseUrl = Cypress.config().baseUrl;
@@ -7,7 +8,7 @@ const baseUrl = Cypress.config().baseUrl;
 const themeOptions = Object.values(themes);
 
 describe('Landing Page', () => {
-  it('searchbar behaviors', () => {
+  it.only('searchbar behaviors', () => {
     cy.visit('/');
     cy.get('form').find('input[type="text"]', { timeout: 10000 }).first().as('input').should('be.enabled');
 
@@ -35,6 +36,67 @@ describe('Landing Page', () => {
     cy.get('@input').type('star');
     cy.getByTestId('searchbar-submit').click();
     cy.url().should('eq', baseUrl + '/search?q=star&sort=date+desc&p=1');
+
+    // quick field
+    cy.visit('/');
+    cy.get('form').find('input[type="text"]', { timeout: 10000 }).first().as('input').should('be.enabled');
+    cy.getByTestId('quickfield').should('have.length', quickfields.length);
+    quickfields.forEach((quickfield, i) => {
+      cy.getByTestId('quickfield').eq(i).contains(quickfield.title);
+    });
+
+    // click on quick fields
+    cy.get('[data-value=\'author:""\']').click();
+    cy.get('@input').should('have.value', 'author:""');
+    cy.get('@input').type('Smith, John M.');
+    cy.get('@input').should('have.value', 'author:"Smith, John M."');
+    cy.get('[data-value=\'year:""\']').click();
+    cy.get('@input').should('have.value', 'author:"Smith, John M." year:""');
+    cy.get('@input').type('2000');
+    cy.get('@input').should('have.value', 'author:"Smith, John M." year:"2000"');
+    cy.getByTestId('searchbar-clear').click();
+
+    // select from all search terms
+    cy.getByTestId('allSearchTermsMenuItems').should('not.be.visible');
+    cy.getByTestId('allSearchTermsMenu').click();
+    cy.getByTestId('allSearchTermsMenuItems').should('be.visible');
+    cy.getByTestId('allSearchTermsMenuItems').find('[value=\'author:""\']').as('authorItem');
+    cy.get('@authorItem').should('have.text', allSearchTerms.fields.author.title);
+    cy.get('@authorItem').trigger('mouseover');
+    cy.getByTestId('allSearchTooltip').should('be.visible');
+    cy.getByTestId('allSearchTooltipTitle').should('have.text', allSearchTerms.fields.author.title);
+    cy.getByTestId('allSearchTooltipDesc').should('have.text', allSearchTerms.fields.author.description);
+    cy.getByTestId('allSearchTooltipSyntax')
+      .find('span')
+      .should('have.length', allSearchTerms.fields.author.syntax.length);
+    cy.getByTestId('allSearchTooltipSyntax')
+      .find('span')
+      .eq(0)
+      .should('contain.text', allSearchTerms.fields.author.syntax[0]);
+    cy.getByTestId('allSearchTooltipExample')
+      .find('span')
+      .should('have.length', allSearchTerms.fields.author.example.length);
+    cy.getByTestId('allSearchTooltipExample')
+      .find('span')
+      .eq(0)
+      .should('contain.text', allSearchTerms.fields.author.example[0]);
+
+    // make selection from all search terms
+    cy.get('@authorItem').click();
+    cy.getByTestId('allSearchTermsMenuItems').should('not.be.visible');
+    cy.getByTestId('allSearchTooltip').should('not.exist');
+    cy.get('@input').should('have.value', 'author:""');
+    cy.get('@input').type('Smith, John M.');
+    cy.get('@input').should('have.value', 'author:"Smith, John M."');
+    cy.getByTestId('allSearchTermsMenu').click();
+    cy.getByTestId('allSearchTermsMenuItems').find('[value=\'full:""\']').as('fullItem');
+    cy.get('@fullItem').trigger('mouseover');
+    cy.get('@fullItem').click();
+    cy.getByTestId('allSearchTermsMenuItems').should('not.be.visible');
+    cy.getByTestId('allSearchTooltip').should('not.exist');
+    cy.get('@input').should('have.value', 'author:"Smith, John M." full:""');
+    cy.get('@input').type('star');
+    cy.get('@input').should('have.value', 'author:"Smith, John M." full:"star"');
   });
 
   it('Theme selector and corresponding search examples', () => {
