@@ -1,7 +1,7 @@
 import { IDocsEntity, useHasGraphics, useHasMetrics } from '@api';
 import { Button } from '@chakra-ui/button';
 import { ChevronDownIcon } from '@chakra-ui/icons';
-import { Badge, Box, Flex, Link, Stack, Text } from '@chakra-ui/layout';
+import { Badge, Box, Flex, Stack, Text } from '@chakra-ui/layout';
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
 import { SimpleLinkList } from '@components';
 import { ItemType } from '@components/Dropdown/types';
@@ -98,6 +98,8 @@ const useGetItems = ({
       route: Routes.EXPORT,
       label: 'Export Citation',
       icon: <DownloadIcon />,
+
+      // exportcitation has a more complex route, so a custom config is passed here
       linkProps: (docId) => ({
         href: `/abs/[id]/${Routes.EXPORT}/[format]`,
         as: `/abs/${docId}/${Routes.EXPORT}/bibtex`,
@@ -107,6 +109,8 @@ const useGetItems = ({
 
   return {
     items,
+
+    // Finds the active item by comparing the current route
     activeItem: Object.keys(items).find((route) => router.asPath.indexOf(`/${route}`) > -1) as Routes,
   };
 };
@@ -161,6 +165,11 @@ interface IItemProps {
   icon: ReactElement;
   linkProps?: (id: string) => LinkProps;
 }
+
+/**
+ * Basic item
+ * Rendered as as button link
+ */
 const Item = (props: IItemProps) => {
   const { disabled = false, label, count, route, icon = <DocumentIcon />, linkProps = noop } = props;
   const router = useRouter();
@@ -175,26 +184,29 @@ const Item = (props: IItemProps) => {
 
   return (
     <NextLink href={`/abs/[id]/${route}`} as={`/abs/${docId}/${route}`} passHref {...linkProps(docId)}>
-      <Link variant="dropdownItem" w="full" tabIndex={-1}>
-        <Button
-          variant={active ? 'solid' : 'ghost'}
-          size="md"
-          aria-current={active ? 'page' : undefined}
-          isDisabled={isDisabled}
-          width="full"
-          justifyContent="start"
-          colorScheme="gray"
-          mb={1}
-          className="flex-shi"
-          leftIcon={cloneElement(icon, { className: 'w-6 h-6', ariaHidden: true })}
-        >
-          {label}
-        </Button>
-      </Link>
+      <Button
+        as="a"
+        w="full"
+        variant={active ? 'solid' : 'ghost'}
+        size="md"
+        aria-current={active ? 'page' : undefined}
+        isDisabled={isDisabled}
+        width="full"
+        justifyContent="start"
+        colorScheme="gray"
+        mb={1}
+        color="gray.700"
+        leftIcon={cloneElement(icon, { className: 'w-6 h-6', ariaHidden: true })}
+      >
+        {label}
+      </Button>
     </NextLink>
   );
 };
 
+/**
+ * Basic top menu item
+ */
 const TopMenuItem = (props: IItemProps) => {
   const { disabled = false, label, count, route, icon = <DocumentIcon />, linkProps = noop } = props;
   const router = useRouter();
@@ -222,6 +234,9 @@ const TopMenuItem = (props: IItemProps) => {
   );
 };
 
+/**
+ * Top menu trigger button
+ */
 const TopMenuButton = (props: IItemProps) => {
   const { label, count, icon } = props;
   return (
@@ -244,6 +259,9 @@ const TopMenuButton = (props: IItemProps) => {
   );
 };
 
+/**
+ * Small badge to show count value
+ */
 const CountBadge = ({ count }: { count: number }): ReactElement => {
   if (typeof count !== 'number') {
     return null;
@@ -264,6 +282,10 @@ const CountBadge = ({ count }: { count: number }): ReactElement => {
   );
 };
 
+/**
+ * Static component for non-js
+ * This component will be rendered on the server by default
+ */
 const Static = (props: IAbstractSideNavProps) => {
   const { doc } = props;
   const hasGraphics = useHasGraphics(doc.bibcode);
