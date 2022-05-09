@@ -15,6 +15,14 @@ faker.seed(143);
 
 export const handlers = [
   rest.get(`*${ApiTargets.BOOTSTRAP}`, (req, res, ctx) => {
+    const test = req.url.searchParams.get('test');
+
+    if (test === 'networkerror') {
+      return res.networkError('failure');
+    } else if (test === 'fail') {
+      return res(ctx.status(500, 'Server Error'));
+    }
+
     return res(
       ctx.status(200),
       ctx.cookie('session', 'test-session'),
