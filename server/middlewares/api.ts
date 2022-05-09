@@ -41,19 +41,6 @@ const resolveApiBaseUrl = (defaultBaseUrl = ''): string => {
   return config[configType]?.apiHost ?? defaultBaseUrl;
 };
 
-export const defaultConfig: AxiosRequestConfig = {
-  baseURL: resolveApiBaseUrl(),
-  withCredentials: true,
-  timeout: 30000,
-  paramsSerializer: (params: PathLike) => qs.stringify(params, { indices: false, arrayFormat: 'comma' }),
-  headers: {
-    common: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      Accept: 'application/json',
-    },
-  },
-};
-
 interface IADSApiBootstrapResponse extends AxiosResponse<IBootstrapPayload> {
   headers: {
     'set-cookie': string;
@@ -61,6 +48,19 @@ interface IADSApiBootstrapResponse extends AxiosResponse<IBootstrapPayload> {
 }
 
 export const api: Middleware = (req, res, next) => {
+  const defaultConfig: AxiosRequestConfig = {
+    baseURL: resolveApiBaseUrl(),
+    withCredentials: true,
+    timeout: 30000,
+    paramsSerializer: (params: PathLike) => qs.stringify(params, { indices: false, arrayFormat: 'comma' }),
+    headers: {
+      common: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: 'application/json',
+      },
+    },
+  };
+
   // grab reference to our current session from the request
   const session = req.session;
   const currentUserData = session.userData ?? null;
