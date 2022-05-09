@@ -78,7 +78,10 @@ export const api: Middleware = (req, res, next) => {
       session.userData = data;
       res.setHeader('set-cookie', headers['set-cookie']);
     })
-    .catch(() => {
+    .catch((e) => {
+      console.log('Server-side bootstrapping error\n', e);
+    })
+    .finally(() => {
       next();
     });
 };
