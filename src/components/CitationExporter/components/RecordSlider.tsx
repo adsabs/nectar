@@ -1,4 +1,4 @@
-import { FormLabel, Slider, SliderFilledTrack, SliderThumb, SliderTrack } from '@chakra-ui/react';
+import { Box, FormLabel, Slider, SliderFilledTrack, SliderThumb, SliderTrack } from '@chakra-ui/react';
 import { Sender } from '@xstate/react/lib/types';
 import { useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
@@ -21,11 +21,11 @@ export const RecordSlider = (props: {
   const handleChange = (val: number) => setValue(val);
 
   return (
-    <>
+    <Box>
       <DescriptionCollapse body={description} label="Limit Records" linkProps={{ href: '/help/actions/export' }}>
         {({ btn, content }) => (
           <>
-            <FormLabel htmlFor="records-slider">
+            <FormLabel htmlFor="records-slider" fontSize={['sm', 'md']}>
               Limit Records <span aria-hidden="true">({value})</span> {btn}
             </FormLabel>
             {content}
@@ -47,8 +47,8 @@ export const RecordSlider = (props: {
         </SliderTrack>
         <SliderThumb />
       </Slider>
-    </>
+    </Box>
   );
 };
 
-const description = <p>Limit the number of total records retrieved.</p>;
+const description = <>Limit the number of total records retrieved.</>;

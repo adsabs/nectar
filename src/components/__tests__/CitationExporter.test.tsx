@@ -38,9 +38,9 @@ const checkOutput = async (
     numRecords: 1,
     format: ExportApiFormatKey.bibtex,
     sort: ['date desc'],
-    authorcutoff: [10],
+    authorcutoff: [200],
     journalformat: [1],
-    maxauthor: [0],
+    maxauthor: [10],
   };
   await waitFor(() => expect(el).toHaveValue(JSON.stringify({ ...defaultParams, ...params }, null, 2)));
 };

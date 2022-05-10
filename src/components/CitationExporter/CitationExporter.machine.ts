@@ -1,11 +1,13 @@
 import {
-  BIBTEX_ABS_DEFAULT_AUTHORCUTOFF,
-  BIBTEX_DEFAULT_AUTHORCUTOFF,
+  BIBTEX_ABS_DEFAULT_MAX_AUTHOR,
+  BIBTEX_DEFAULT_AUTHOR_CUTOFF,
+  BIBTEX_DEFAULT_MAX_AUTHOR,
   ExportApiFormatKey,
   ExportApiJournalFormat,
   IDocsEntity,
   IExportApiParams,
 } from '@api';
+import { normalizeSolrSort } from '@utils';
 import { assign, createMachine } from '@xstate/fsm';
 import { IUseCitationExporterProps } from './useCitationExporter';
 
@@ -75,7 +77,7 @@ export type CitationExporterEvent =
   | { type: 'DONE' };
 
 export const getExportCitationDefaultContext = (props: IUseCitationExporterProps): ICitationExporterState => {
-  const { records = [], format = ExportApiFormatKey.bibtex, singleMode } = props;
+  const { records = [], format = ExportApiFormatKey.bibtex, singleMode, sort = ['date desc'] } = props;
   return {
     records,
     range: [0, records.length],
@@ -84,24 +86,24 @@ export const getExportCitationDefaultContext = (props: IUseCitationExporterProps
     params: {
       format,
       bibcode: records,
-      sort: ['date desc'],
-      authorcutoff: [
-        format === ExportApiFormatKey.bibtex
-          ? BIBTEX_DEFAULT_AUTHORCUTOFF
-          : format === ExportApiFormatKey.bibtexabs
-          ? BIBTEX_ABS_DEFAULT_AUTHORCUTOFF
-          : 0,
-      ],
+      sort,
+      authorcutoff: [BIBTEX_DEFAULT_AUTHOR_CUTOFF],
       customFormat: null,
       journalformat: [ExportApiJournalFormat.AASTeXMacros],
-      maxauthor: [0],
+      maxauthor: [
+        format === ExportApiFormatKey.bibtex
+          ? BIBTEX_DEFAULT_MAX_AUTHOR
+          : format === ExportApiFormatKey.bibtexabs
+          ? BIBTEX_ABS_DEFAULT_MAX_AUTHOR
+          : 0,
+      ],
     },
   };
 };
 
-export const generateMachine = ({ format, records, singleMode }: IUseCitationExporterProps) => {
+export const generateMachine = ({ format, records, singleMode, sort }: IUseCitationExporterProps) => {
   return createMachine<ICitationExporterState, CitationExporterEvent>({
-    context: getExportCitationDefaultContext({ format, records, singleMode }),
+    context: getExportCitationDefaultContext({ format, records, singleMode, sort }),
     id: 'citationExporter',
     initial: singleMode ? 'idle' : 'fetching',
     states: {
@@ -110,11 +112,18 @@ export const generateMachine = ({ format, records, singleMode }: IUseCitationExp
           SET_RECORDS: {
             actions: assign<ICitationExporterState, SetRecords>({
               records: (_ctx, evt) => evt.payload,
+
+              // set the new records on params, respecting the current range
+              params: (ctx, evt) => ({
+                ...ctx.params,
+                bibcode: evt.payload.slice(0, ctx.range[1]),
+              }),
             }),
+            target: 'fetching',
           },
           SET_SORT: {
             actions: assign<ICitationExporterState, SetSort>({
-              params: (ctx, evt) => ({ ...ctx.params, sort: evt.payload }),
+              params: (ctx, evt) => ({ ...ctx.params, sort: normalizeSolrSort(evt.payload) }),
             }),
           },
           SET_FORMAT: [

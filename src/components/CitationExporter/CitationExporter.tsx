@@ -1,8 +1,25 @@
-import { ExportApiFormatKey, IDocsEntity, isExportApiFormat } from '@api';
-import { Button, Stack, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
+import { ExportApiFormatKey, IDocsEntity, IExportApiParams, isExportApiFormat, SolrSort } from '@api';
+import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons';
+import {
+  Box,
+  Button,
+  Collapse,
+  Divider,
+  Stack,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  useDisclosure,
+} from '@chakra-ui/react';
+import { APP_DEFAULTS } from '@config';
+import { noop } from '@utils';
+import { Sender } from '@xstate/react/lib/types';
 import { useRouter } from 'next/router';
 import { ChangeEventHandler, HTMLAttributes, ReactElement, useEffect } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
+import { CitationExporterEvent } from './CitationExporter.machine';
 import { AuthorCutoffSlider } from './components/AuthorCutoffSlider';
 import { CustomFormatSelect } from './components/CustomFormatSelect';
 import { ErrorFallback } from './components/ErrorFallback';
@@ -13,13 +30,17 @@ import { KeyFormatInput } from './components/KeyFormatInput';
 import { MaxAuthorsSlider } from './components/MaxAuthorsSlider';
 import { RecordSlider } from './components/RecordSlider';
 import { ResultArea } from './components/ResultArea';
-import { SortSelector } from './components/SortSelector';
 import { exportFormats } from './models';
 import { useCitationExporter } from './useCitationExporter';
+
 export interface ICitationExporterProps extends HTMLAttributes<HTMLDivElement> {
   singleMode?: boolean;
   initialFormat?: ExportApiFormatKey;
   records?: IDocsEntity['bibcode'][];
+  totalRecords?: number;
+  page?: number;
+  nextPage?: () => void;
+  sort?: SolrSort[];
 }
 
 /**
@@ -40,11 +61,22 @@ export const CitationExporter = (props: ICitationExporterProps): ReactElement =>
 };
 
 const Exporter = (props: ICitationExporterProps): ReactElement => {
-  const { singleMode = false, initialFormat = ExportApiFormatKey.bibtex, records = [], ...divProps } = props;
+  const {
+    singleMode = false,
+    initialFormat = ExportApiFormatKey.bibtex,
+    records = [],
+    totalRecords = records.length,
+    page = 0,
+    nextPage = noop,
+    sort,
+    ...divProps
+  } = props;
+
   const { data, state, dispatch } = useCitationExporter({
     format: initialFormat,
     records,
     singleMode,
+    sort,
   });
   const ctx = state.context;
   const isLoading = state.matches('fetching');
@@ -90,8 +122,8 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
       <ExportContainer
         header={
           <>
-            Exporting record{ctx.range[1] - ctx.range[0] > 1 ? 's' : ''} {ctx.range[0] + 1} of {ctx.range[1]} (total:{' '}
-            {ctx.records.length})
+            Exporting {ctx.records.length} record{ctx.range[1] - ctx.range[0] > 1 ? 's' : ''} (total:{' '}
+            {totalRecords.toLocaleString()})
           </>
         }
         isLoading={isLoading}
@@ -105,15 +137,13 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
     );
   }
 
-  const isBibtexFormat =
-    ctx.params.format === ExportApiFormatKey.bibtex || ctx.params.format === ExportApiFormatKey.bibtexabs;
-
   return (
     <ExportContainer
       header={
         <>
-          Exporting record{ctx.range[1] - ctx.range[0] > 1 ? 's' : ''} {ctx.range[0] + 1} of {ctx.range[1]} (total:{' '}
-          {ctx.records.length})
+          Exporting record{ctx.range[1] - ctx.range[0] > 1 ? 's' : ''}{' '}
+          {ctx.range[0] + 1 + page * APP_DEFAULTS.EXPORT_PAGE_SIZE} to{' '}
+          {ctx.range[1] + page * APP_DEFAULTS.EXPORT_PAGE_SIZE} (total: {totalRecords.toLocaleString()})
         </>
       }
       isLoading={isLoading}
@@ -128,28 +158,29 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
         <TabPanels>
           <TabPanel>
             <form method="GET" onSubmit={handleOnSubmit}>
-              <Stack direction={['column', 'row']} spacing={4}>
-                <Stack spacing="4" flexGrow={[3, 2]} maxW="lg">
+              <Stack direction={['column', 'row']} spacing={4} align="stretch">
+                <Stack spacing="4" flex="1">
                   <FormatSelect format={ctx.params.format} dispatch={dispatch} />
-                  <SortSelector sort={ctx.params.sort} dispatch={dispatch} />
-                  {isBibtexFormat && (
-                    <>
-                      <JournalFormatSelect journalformat={ctx.params.journalformat} dispatch={dispatch} />
-                      <KeyFormatInput />
-                    </>
-                  )}
+                  <AdvancedControls dispatch={dispatch} params={ctx.params} />
                   <RecordSlider range={ctx.range} records={ctx.records} dispatch={dispatch} />
-                  {isBibtexFormat && (
-                    <>
-                      <AuthorCutoffSlider authorcutoff={ctx.params.authorcutoff} dispatch={dispatch} />
-                      <MaxAuthorsSlider maxauthor={ctx.params.maxauthor} dispatch={dispatch} />
-                    </>
-                  )}
-                  <Button type="submit" data-testid="export-submit" size="md" isLoading={isLoading}>
-                    Submit
-                  </Button>
+
+                  <Stack direction={'row'}>
+                    <Button type="submit" data-testid="export-submit" isLoading={isLoading} isFullWidth>
+                      Submit
+                    </Button>
+                    <Button
+                      variant="outline"
+                      rightIcon={<ChevronRightIcon fontSize="2xl" />}
+                      onClick={nextPage}
+                      isLoading={isLoading}
+                      isFullWidth
+                    >
+                      Next {APP_DEFAULTS.EXPORT_PAGE_SIZE}
+                    </Button>
+                  </Stack>
+                  <Divider display={['block', 'none']} />
                 </Stack>
-                <ResultArea result={data?.export} format={ctx.params.format} isLoading={isLoading} />
+                <ResultArea result={data?.export} format={ctx.params.format} isLoading={isLoading} flex="1" />
               </Stack>
             </form>
           </TabPanel>
@@ -158,10 +189,6 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
               <Stack direction={['column', 'row']} spacing={4}>
                 <Stack spacing="4" flexGrow={[3, 2]} maxW="lg">
                   <CustomFormatSelect dispatch={dispatch} />
-                  {/* <SortSelector sort={ctx.params.sort} dispatch={dispatch} />
-                  <Button type="submit" data-testid="export-submit" size="md" isLoading={isLoading}>
-                    Submit
-                  </Button> */}
                 </Stack>
                 {/* <ResultArea result={data?.export} format={ctx.params.format} /> */}
               </Stack>
@@ -173,19 +200,65 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
   );
 };
 
+const AdvancedControls = ({
+  dispatch,
+  params,
+}: {
+  dispatch: Sender<CitationExporterEvent>;
+  params: IExportApiParams;
+}) => {
+  const { onToggle, isOpen } = useDisclosure();
+
+  if (params.format === ExportApiFormatKey.bibtex || params.format === ExportApiFormatKey.bibtexabs) {
+    return (
+      <Box>
+        <Button variant="link" rightIcon={isOpen ? <ChevronDownIcon /> : <ChevronRightIcon />} onClick={onToggle}>
+          More Options
+        </Button>
+        <Collapse in={isOpen}>
+          <Stack spacing="4">
+            <Divider />
+            <JournalFormatSelect journalformat={params.journalformat} dispatch={dispatch} />
+            <KeyFormatInput />
+            <AuthorCutoffSlider authorcutoff={params.authorcutoff} dispatch={dispatch} />
+            <MaxAuthorsSlider maxauthor={params.maxauthor} dispatch={dispatch} />
+          </Stack>
+        </Collapse>
+      </Box>
+    );
+  }
+  return null;
+};
+
 /**
  * Static component for SSR
  */
-const Static = (props: Omit<ICitationExporterProps, 'singleMode'>): ReactElement => {
-  const { records, initialFormat, ...divProps } = props;
+const Static = (props: Omit<ICitationExporterProps, 'page' | 'nextPage'>): ReactElement => {
+  const { records, initialFormat, singleMode, totalRecords, sort, ...divProps } = props;
 
-  const { data, state } = useCitationExporter({ format: initialFormat, records, singleMode: true });
+  const { data, state } = useCitationExporter({ format: initialFormat, records, singleMode: true, sort });
   const ctx = state.context;
 
   const format = exportFormats[ctx.params.format];
 
+  if (singleMode) {
+    return (
+      <ExportContainer header={<>Exporting record in {format.label} format</>} {...divProps}>
+        <ResultArea result={data?.export} format={ctx.params.format} />
+      </ExportContainer>
+    );
+  }
+
   return (
-    <ExportContainer header={<>Exporting record in {format.label} format</>} {...divProps}>
+    <ExportContainer
+      header={
+        <>
+          Exporting record{ctx.range[1] - ctx.range[0] > 1 ? 's' : ''} {ctx.range[0] + 1} to {ctx.range[1]} (total:{' '}
+          {totalRecords.toLocaleString()})
+        </>
+      }
+      {...divProps}
+    >
       <ResultArea result={data?.export} format={ctx.params.format} />
     </ExportContainer>
   );
