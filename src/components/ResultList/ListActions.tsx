@@ -1,4 +1,4 @@
-import { useVaultBigQuerySearch } from '@api';
+import { Bibcode, ExportApiFormatKey, useVaultBigQuerySearch } from '@api';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import {
   Button,
@@ -7,6 +7,7 @@ import {
   MenuButton,
   MenuDivider,
   MenuGroup,
+  MenuGroupProps,
   MenuItem,
   MenuItemOption,
   MenuList,
@@ -19,9 +20,10 @@ import {
 import { ISortProps, Sort } from '@components/Sort';
 import { sections } from '@components/Visualizations';
 import { useIsClient } from '@hooks/useIsClient';
-import { AppState, useStore } from '@store';
+import { AppState, useStore, useStoreApi } from '@store';
 import { noop } from '@utils';
 import { useRouter } from 'next/router';
+import { curryN } from 'ramda';
 import { MouseEventHandler, ReactElement, useEffect, useState } from 'react';
 
 export interface IListActionsProps {
@@ -128,17 +130,23 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
           </Stack>
           <Stack direction="row" mx={5} order={{ base: '1', md: '2' }} wrap="wrap">
             <Menu>
-              <MenuButton as={Button} rightIcon={<ChevronDownIcon />} disabled={noneSelected}>
+              <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
                 Bulk Actions
               </MenuButton>
               <Portal>
                 <MenuList>
+                  <MenuOptionGroup value={exploreAll ? 'all' : 'selected'} type="radio" onChange={handleExploreOption}>
+                    <MenuItemOption value="all" closeOnSelect={false}>
+                      All
+                    </MenuItemOption>
+                    <MenuItemOption value="selected" isDisabled={selected.length === 0} closeOnSelect={false}>
+                      Selected
+                    </MenuItemOption>
+                  </MenuOptionGroup>
+                  <MenuDivider />
                   <MenuItem>Add to Library</MenuItem>
                   <MenuDivider />
-                  <MenuGroup title="EXPORT">
-                    <MenuItem>Citations</MenuItem>
-                    <MenuItem>Author Affiliations</MenuItem>
-                  </MenuGroup>
+                  <ExportMenu exploreAll={exploreAll} />
                 </MenuList>
               </Portal>
             </Menu>
@@ -157,7 +165,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
                     </MenuItemOption>
                   </MenuOptionGroup>
                   <MenuDivider />
-                  <MenuGroup title="VISUALZATIONS">
+                  <MenuGroup title="VISUALIZATIONS">
                     {sections.map((section) => (
                       <MenuItem onClick={handleExploreVizLink} data-section-path={section.path} key={section.id}>
                         {section.label}
@@ -242,5 +250,54 @@ const SelectAllCheckbox = () => {
       onChange={handleChange}
       data-testid="listactions-checkbox"
     />
+  );
+};
+
+const ExportMenu = (props: { exploreAll: boolean } & MenuGroupProps): ReactElement => {
+  const { exploreAll } = props;
+  const router = useRouter();
+  const store = useStoreApi();
+  const [selected, setSelected] = useState<Bibcode[]>([]);
+  const [format, setFormat] = useState(ExportApiFormatKey.bibtex);
+
+  const { data } = useVaultBigQuerySearch(selected, { enabled: !exploreAll && selected.length > 0 });
+
+  useEffect(() => {
+    if (data) {
+      setSelected([]);
+
+      // when vault query is done, transition to the export page passing only qid
+      void router.push(
+        { pathname: `/search/exportcitation/[format]`, query: { ...router.query, qid: data.qid } },
+        { pathname: `/search/exportcitation/${format}`, query: { ...router.query, qid: data.qid } },
+      );
+    }
+  }, [data]);
+
+  const handleItemClick = curryN(2, (format: ExportApiFormatKey) => {
+    setFormat(format);
+
+    if (exploreAll) {
+      // if explore all, then just use the current query, and do not trigger vault
+      void router.push(
+        { pathname: `/search/exportcitation/[format]`, query: router.query },
+        { pathname: `/search/exportcitation/${format}`, query: router.query },
+      );
+    } else {
+      // trigger vault query
+      setSelected(store.getState().docs.selected);
+    }
+  });
+
+  return (
+    <MenuGroup {...props} title="EXPORT">
+      <MenuItem onClick={handleItemClick(ExportApiFormatKey.bibtex)}>in BibTeX</MenuItem>
+      <MenuItem onClick={handleItemClick(ExportApiFormatKey.aastex)}>in AASTeX</MenuItem>
+      <MenuItem onClick={handleItemClick(ExportApiFormatKey.endnote)}>in EndNote</MenuItem>
+      <MenuItem onClick={handleItemClick(ExportApiFormatKey.ris)}>in RIS</MenuItem>
+      <MenuItem onClick={handleItemClick(ExportApiFormatKey.bibtex)}>Other Formats</MenuItem>
+      <MenuDivider />
+      <MenuItem>Author Affiliations</MenuItem>
+    </MenuGroup>
   );
 };
