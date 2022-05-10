@@ -64,6 +64,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetail
       format: isExportApiFormat(query.format) ? query.format : ExportApiFormatKey.bibtex,
       records: [bibcode],
       singleMode: true,
+      sort: ['id asc'],
     });
 
     void (await queryClient.prefetchQuery({

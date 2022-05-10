@@ -225,6 +225,5 @@ const BibcodeQueryForm = ({ onSubmit, isClient }: { onSubmit: SubmitHandler; isC
 };
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  console.log(ctx);
   return Promise.resolve({ props: {} });
 };
