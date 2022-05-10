@@ -34,6 +34,11 @@ const config = {
         destination: '/abs/:id/exportcitation/bibtex',
         permanent: true,
       },
+      {
+        source: '/search/exportcitation',
+        destination: '/search/exportcitation/bibtex',
+        permanent: true,
+      },
 
       // redirect custom exports to bibtex, for now
       {
