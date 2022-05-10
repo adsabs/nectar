@@ -1,12 +1,12 @@
 import { IDocsEntity, useHasGraphics, useHasMetrics } from '@api';
 import { Button } from '@chakra-ui/button';
-import { ChevronDownIcon } from '@chakra-ui/icons';
 import { Badge, Box, Flex, Stack, Text } from '@chakra-ui/layout';
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
 import { SimpleLinkList } from '@components';
 import { ItemType } from '@components/Dropdown/types';
 import {
   ChartPieIcon,
+  ChevronDownIcon,
   ClipboardListIcon,
   CollectionIcon,
   DocumentIcon,
@@ -22,7 +22,7 @@ import { noop, parseQueryFromUrl } from '@utils';
 import NextLink, { LinkProps } from 'next/link';
 import { useRouter } from 'next/router';
 import { cloneElement, HTMLAttributes, ReactElement } from 'react';
-import { Routes } from './model';
+import { Routes } from './types';
 
 const useGetItems = ({
   doc,
@@ -196,9 +196,10 @@ const Item = (props: IItemProps) => {
         colorScheme="gray"
         mb={1}
         color="gray.700"
-        leftIcon={cloneElement(icon, { className: 'w-6 h-6', ariaHidden: true })}
+        leftIcon={cloneElement(icon, { className: 'w-6 h-6', 'aria-hidden': true })}
       >
         {label}
+        <CountBadge count={count} />
       </Button>
     </NextLink>
   );
@@ -224,7 +225,7 @@ const TopMenuItem = (props: IItemProps) => {
       <NextLink href={`/abs/[id]/${route}`} as={`/abs/${docId}/${route}`} passHref {...linkProps(docId)}>
         <Box width="full">
           <Stack direction="row" alignItems="center">
-            {cloneElement(icon, { className: 'mr-3 w-6 h-6', ariaHidden: true })}
+            {cloneElement(icon, { className: 'mr-3 w-6 h-6', 'aria-hidden': true })}
             <Text fontWeight="normal">{label}</Text>
             <CountBadge count={count} />
           </Stack>
@@ -250,7 +251,7 @@ const TopMenuButton = (props: IItemProps) => {
       width="full"
     >
       <Flex direction="row" width="full">
-        {cloneElement(icon, { className: 'mr-3 w-6 h-6', ariaHidden: true })}
+        {cloneElement(icon, { className: 'mr-3 w-6 h-6', 'aria-hidden': true })}
         <Text>{label}</Text>
         <CountBadge count={count} />
       </Flex>
@@ -263,7 +264,7 @@ const TopMenuButton = (props: IItemProps) => {
  * Small badge to show count value
  */
 const CountBadge = ({ count }: { count: number }): ReactElement => {
-  if (typeof count !== 'number') {
+  if (typeof count !== 'number' || count <= 0) {
     return null;
   }
   return (
@@ -297,7 +298,7 @@ const Static = (props: IAbstractSideNavProps) => {
       label: (
         <>
           <Stack direction="row" alignItems="center">
-            {cloneElement(item.icon, { className: 'mr-3 w-6 h-6', ariaHidden: true })}
+            {cloneElement(item.icon, { className: 'mr-3 w-6 h-6', 'aria-hidden': true })}
             <Text fontWeight="normal">{item.label}</Text>
             <CountBadge count={item.count} />
           </Stack>

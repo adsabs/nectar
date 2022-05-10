@@ -1,6 +1,3 @@
-import { IDocsEntity } from '@api';
-import type {} from '@heroicons/react/outline';
-
 export enum Routes {
   ABSTRACT = 'abstract',
   CITATIONS = 'citations',
@@ -12,11 +9,3 @@ export enum Routes {
   METRICS = 'metrics',
   EXPORT = 'exportcitation',
 }
-
-export const abstractPageNavDefaultQueryFields: Partial<keyof IDocsEntity>[] = [
-  'citation_count',
-  '[citations]',
-  'read_count',
-  'abstract',
-  'property',
-];
