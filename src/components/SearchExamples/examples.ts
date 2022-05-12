@@ -13,7 +13,7 @@ export const examples = {
     ],
     right: [
       { label: 'citations', text: 'citations(abstract:JWST)' },
-      { label: 'refereed', text: 'property(refereed)' },
+      { label: 'refereed', text: 'property:refereed' },
       { label: 'collection', text: 'collection:astronomy' },
       { label: 'exact search', text: '=body:"reproducibility"' },
       { label: 'institution', text: 'inst:NASA' },
@@ -32,7 +32,7 @@ export const examples = {
     ],
     right: [
       { label: 'citations', text: 'citations(abstract:JWST)' },
-      { label: 'refereed', text: 'property(refereed)' },
+      { label: 'refereed', text: 'property:refereed' },
       { label: 'collection', text: 'collection:astronomy' },
       { label: 'exact search', text: '=body:"reproducibility"' },
       { label: 'institution', text: 'inst:NASA' },
