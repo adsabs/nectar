@@ -140,8 +140,15 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
             },
           })}
           onClick={toggleIsOpen}
+          data-testid="allSearchTermsInput"
         />
-        <IconButton icon={<ChevronDownIcon />} {...getToggleButtonProps()} borderLeftRadius={0} tabIndex={0} />
+        <IconButton
+          icon={<ChevronDownIcon />}
+          {...getToggleButtonProps()}
+          borderLeftRadius={0}
+          tabIndex={0}
+          data-testid="allSearchTermsMenuToggle"
+        />
       </Flex>
       <UnorderedList
         zIndex={10}
@@ -159,6 +166,7 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
             return el;
           },
         })}
+        data-testid="allSearchTermsMenu"
       >
         {isOpen &&
           items.map((term, index) => (
@@ -174,6 +182,7 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
               })}
               p={2}
               pl={term.type === 'group' ? 2 : 4}
+              data-testid="allSearchTermsMenuItem"
             >
               {term.title}
             </ListItem>
@@ -199,7 +208,7 @@ const SearchTermTooltip = forwardRef<HTMLDivElement, ISearchTermTooltipProps>(({
       w={300}
       zIndex={10}
       m={5}
-      data-testid="allSearchTooltip"
+      data-testid="allSearchTermsTooltip"
     >
       <Text color="gray.900" fontWeight="bold" backgroundColor="gray.100" p={2} data-testid="allSearchTooltipTitle">
         {term.title}

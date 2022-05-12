@@ -57,46 +57,25 @@ describe('Landing Page', () => {
     cy.getByTestId('searchbar-clear').click();
 
     // select from all search terms
-    cy.getByTestId('allSearchTermsMenuItems').should('not.be.visible');
-    cy.getByTestId('allSearchTermsMenu').click();
-    cy.getByTestId('allSearchTermsMenuItems').should('be.visible');
-    cy.getByTestId('allSearchTermsMenuItems').find('[value=\'author:""\']').as('authorItem');
-    cy.get('@authorItem').should('have.text', allSearchTerms.fields.author.title);
-    cy.get('@authorItem').trigger('mouseover');
-    cy.getByTestId('allSearchTooltip').should('be.visible');
-    cy.getByTestId('allSearchTooltipTitle').should('have.text', allSearchTerms.fields.author.title);
-    cy.getByTestId('allSearchTooltipDesc').should('have.text', allSearchTerms.fields.author.description);
-    cy.getByTestId('allSearchTooltipSyntax')
-      .find('span')
-      .should('have.length', allSearchTerms.fields.author.syntax.length);
-    cy.getByTestId('allSearchTooltipSyntax')
-      .find('span')
-      .eq(0)
-      .should('contain.text', allSearchTerms.fields.author.syntax[0]);
-    cy.getByTestId('allSearchTooltipExample')
-      .find('span')
-      .should('have.length', allSearchTerms.fields.author.example.length);
-    cy.getByTestId('allSearchTooltipExample')
-      .find('span')
-      .eq(0)
-      .should('contain.text', allSearchTerms.fields.author.example[0]);
-
-    // make selection from all search terms
-    cy.get('@authorItem').click();
-    cy.getByTestId('allSearchTermsMenuItems').should('not.be.visible');
-    cy.getByTestId('allSearchTooltip').should('not.exist');
-    cy.get('@input').should('have.value', 'author:""');
-    cy.get('@input').type('Smith, John M.');
-    cy.get('@input').should('have.value', 'author:"Smith, John M."');
-    cy.getByTestId('allSearchTermsMenu').click();
-    cy.getByTestId('allSearchTermsMenuItems').find('[value=\'full:""\']').as('fullItem');
-    cy.get('@fullItem').trigger('mouseover');
-    cy.get('@fullItem').click();
-    cy.getByTestId('allSearchTermsMenuItems').should('not.be.visible');
-    cy.getByTestId('allSearchTooltip').should('not.exist');
-    cy.get('@input').should('have.value', 'author:"Smith, John M." full:""');
+    cy.getByTestId('allSearchTermsMenuItem').should('not.exist');
+    cy.getByTestId('allSearchTermsMenuToggle').click();
+    cy.getByTestId('allSearchTermsMenuItem').should('have.length.above', 0);
+    cy.getByTestId('allSearchTermsMenuToggle').click();
+    cy.getByTestId('allSearchTermsTooltip').should('not.exist');
+    cy.getByTestId('allSearchTermsInput').type('abs');
+    cy.getByTestId('allSearchTermsMenuItem').should('have.length', 2);
+    cy.getByTestId('allSearchTermsTooltip').should('be.visible');
+    cy.getByTestId('allSearchTermsInput').type('{downArrow}{enter}');
+    cy.get('@input').should('have.value', 'abstract:""');
     cy.get('@input').type('star');
-    cy.get('@input').should('have.value', 'author:"Smith, John M." full:"star"');
+    cy.getByTestId('allSearchTermsInput').type('inst{enter}');
+    cy.get('@input').should('have.value', 'abstract:"star" inst:""');
+    cy.getByTestId('allSearchTermsInput').type('aaaaaaa');
+    cy.getByTestId('allSearchTermsMenuItem').should('have.length', 0);
+    cy.getByTestId('allSearchTermsInput').type('{enter}');
+    cy.getByTestId('allSearchTermsMenuItem').should('not.exist');
+    cy.getByTestId('allSearchTermsInput').should('have.value', '');
+    cy.get('@input').should('have.value', 'abstract:"star" inst:""');
   });
 
   it('Theme selector and corresponding search examples', () => {
