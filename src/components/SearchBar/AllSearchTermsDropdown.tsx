@@ -183,6 +183,7 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
               p={2}
               pl={term.type === 'group' ? 2 : 4}
               data-testid="allSearchTermsMenuItem"
+              cursor={term.type === 'group' ? 'default' : 'pointer'}
             >
               {term.title}
             </ListItem>
@@ -209,6 +210,7 @@ const SearchTermTooltip = forwardRef<HTMLDivElement, ISearchTermTooltipProps>(({
       zIndex={10}
       m={5}
       data-testid="allSearchTermsTooltip"
+      display={{ base: 'none', md: 'initial' }}
     >
       <Text color="gray.900" fontWeight="bold" backgroundColor="gray.100" p={2} data-testid="allSearchTooltipTitle">
         {term.title}
