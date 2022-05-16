@@ -105,7 +105,7 @@ export const generateMachine = ({ format, records, singleMode, sort }: IUseCitat
   return createMachine<ICitationExporterState, CitationExporterEvent>({
     context: getExportCitationDefaultContext({ format, records, singleMode, sort }),
     id: 'citationExporter',
-    initial: singleMode ? 'idle' : 'fetching',
+    initial: 'idle',
     states: {
       idle: {
         on: {
@@ -131,8 +131,6 @@ export const generateMachine = ({ format, records, singleMode, sort }: IUseCitat
               actions: assign<ICitationExporterState, SetFormat>({
                 params: (ctx, evt) => ({ ...ctx.params, format: evt.payload }),
               }),
-            },
-            {
               target: 'fetching',
 
               // will transition to fetching only if singleMode is true

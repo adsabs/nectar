@@ -38,7 +38,7 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = ({ id, format, er
         ) : isClient ? (
           <CitationExporter initialFormat={format} records={[doc?.bibcode]} singleMode />
         ) : (
-          <CitationExporter.Static records={[doc?.bibcode]} initialFormat={format} />
+          <CitationExporter.Static records={[doc?.bibcode]} initialFormat={format} totalRecords={1} />
         )}
       </Box>
     </AbsLayout>
@@ -64,7 +64,6 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetail
       format: isExportApiFormat(query.format) ? query.format : ExportApiFormatKey.bibtex,
       records: [bibcode],
       singleMode: true,
-      sort: ['id asc'],
     });
 
     void (await queryClient.prefetchQuery({

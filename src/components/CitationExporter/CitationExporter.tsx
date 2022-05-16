@@ -47,6 +47,7 @@ export interface ICitationExporterProps extends HTMLAttributes<HTMLDivElement> {
  * Citation export component
  */
 export const CitationExporter = (props: ICitationExporterProps): ReactElement => {
+  console.log('props', props);
   // early escape here, to skip extra work if nothing is passed
   if (props.records.length === 0) {
     return <ExportContainer header={<>No Records</>} />;

@@ -7,7 +7,7 @@ export interface IUseCitationExporterProps {
   records: ICitationExporterState['records'];
   format: ExportApiFormatKey;
   singleMode: boolean;
-  sort: SolrSort[];
+  sort?: SolrSort[];
 }
 
 export const useCitationExporter = ({ records, format, singleMode, sort }: IUseCitationExporterProps) => {
