@@ -3,6 +3,7 @@ import { Box, Flex, IconButton, Input, ListItem, usePopper, Text, Code, Unordere
 import { ReactElement, useMemo, useState, forwardRef } from 'react';
 import { allSearchTerms, ISearchTermOption } from './models';
 import { useCombobox } from 'downshift';
+import { matchSorter } from 'match-sorter';
 
 type ITermItem = Partial<ISearchTermOption> & {
   type: 'group' | 'item';
@@ -60,7 +61,7 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
   } = useCombobox({
     items: items,
     onIsOpenChange: ({ isOpen }) => {
-      setHighlightedIndex(-1);
+      setHighlightedIndex(1);
       setInputValue('');
       selectItem(null);
       if (!isOpen) {
@@ -82,13 +83,15 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
       }
     },
     onInputValueChange: ({ inputValue }) => {
-      if (!inputValue || inputValue.length === 0) {
+      if (!inputValue || inputValue.trim().length === 0) {
         setItems(allTermsItems);
         setHighlightedIndex(1);
       } else {
-        const filtered = allTermsItems.filter((item) => {
-          return item.type !== 'group' && item.title.toLowerCase().startsWith(inputValue.toLowerCase());
-        });
+        const filtered = matchSorter(
+          allTermsItems.filter((item) => item.type !== 'group'),
+          inputValue,
+          { keys: ['title'], threshold: matchSorter.rankings.WORD_STARTS_WITH },
+        );
         setItems(filtered);
         if (filtered.length > 0) {
           setHighlightedIndex(0);
