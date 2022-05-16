@@ -77,7 +77,7 @@ export const AllAuthorsModal = ({ bibcode, label }: IAllAuthorsModalProps): Reac
       </Button>
       <Modal isOpen={isOpen} onClose={onClose} initialFocusRef={initialRef} size="4xl" scrollBehavior="inside">
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent h="80%">
           <ModalCloseButton />
           <ModalHeader>
             {isSuccess && (
@@ -207,7 +207,14 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
     };
 
     return (
-      <Box as="section" aria-describedby="author-list-description" position="relative" pt="75px" overflow="hidden">
+      <Box
+        as="section"
+        aria-describedby="author-list-description"
+        position="relative"
+        pt="75px"
+        overflow="hidden"
+        h="100%"
+      >
         <Flex
           justifyContent="space-between"
           alignItems="center"
@@ -241,7 +248,15 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
             />
           </Tooltip>
         </Flex>
-        <Box px={6} boxSizing="border-box">
+        <Flex
+          direction="column"
+          justifyContent="space-between"
+          px={6}
+          boxSizing="border-box"
+          h="100%"
+          pb={5}
+          overflow="scroll"
+        >
           {list.length > 0 && (
             <>
               <Table>
@@ -258,7 +273,7 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
             </>
           )}
           <Pagination totalResults={list.length} {...pagination} perPageMenuPlacement="top"></Pagination>
-        </Box>
+        </Flex>
       </Box>
     );
   },

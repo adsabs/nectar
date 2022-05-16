@@ -100,7 +100,7 @@ export const theme = extendTheme(
           dropdownItem: {
             color: 'gray.700',
             _hover: { textDecoration: 'none' },
-            _focus: { textDecoration: 'none' },
+            _focus: { textDecoration: 'none', boxShadow: 'none' },
           },
         },
       },
