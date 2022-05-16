@@ -62,7 +62,15 @@ describe('Landing Page', () => {
     cy.getByTestId('allSearchTermsMenuItem').should('have.length.above', 0);
     cy.getByTestId('allSearchTermsMenuToggle').click();
     cy.getByTestId('allSearchTermsTooltip').should('not.exist');
-    cy.getByTestId('allSearchTermsInput').type('abs');
+    cy.getByTestId('allSearchTermsInput').type('count');
+    cy.getByTestId('allSearchTermsMenuItem').should('have.length', 2);
+    cy.getByTestId('allSearchTermsTooltip').should('be.visible');
+    cy.getByTestId('allSearchTooltipTitle').should('have.text', 'author count');
+    cy.getByTestId('allSearchTermsInput').type('{esc}i');
+    cy.getByTestId('allSearchTooltipTitle').should('have.text', 'identifier');
+    cy.getByTestId('allSearchTermsInput').type('n');
+    cy.getByTestId('allSearchTooltipTitle').should('have.text', 'institution');
+    cy.getByTestId('allSearchTermsInput').type('{esc}abs');
     cy.getByTestId('allSearchTermsMenuItem').should('have.length', 2);
     cy.getByTestId('allSearchTermsTooltip').should('be.visible');
     cy.getByTestId('allSearchTermsInput').type('{downArrow}{enter}');

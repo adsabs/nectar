@@ -1,6 +1,6 @@
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { Box, Flex, IconButton, Input, ListItem, usePopper, Text, Code, UnorderedList } from '@chakra-ui/react';
-import { ReactElement, useMemo, useState, forwardRef } from 'react';
+import { ReactElement, useMemo, useState, forwardRef, useEffect } from 'react';
 import { allSearchTerms, ISearchTermOption } from './models';
 import { useCombobox } from 'downshift';
 import { matchSorter } from 'match-sorter';
@@ -61,10 +61,9 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
   } = useCombobox({
     items: items,
     onIsOpenChange: ({ isOpen }) => {
-      setHighlightedIndex(1);
-      setInputValue('');
-      selectItem(null);
       if (!isOpen) {
+        setHighlightedIndex(-1);
+        selectItem(null);
         setShowTooltipFor(null);
       }
     },
@@ -85,7 +84,6 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
     onInputValueChange: ({ inputValue }) => {
       if (!inputValue || inputValue.trim().length === 0) {
         setItems(allTermsItems);
-        setHighlightedIndex(1);
       } else {
         const filtered = matchSorter(
           allTermsItems.filter((item) => item.type !== 'group'),
@@ -93,11 +91,6 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
           { keys: ['title'], threshold: matchSorter.rankings.WORD_STARTS_WITH },
         );
         setItems(filtered);
-        if (filtered.length > 0) {
-          setHighlightedIndex(0);
-        } else {
-          setShowTooltipFor(null);
-        }
       }
     },
     itemToString: (item) => item?.title ?? '',
@@ -105,6 +98,21 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
     inputId: 'allSearchTermsInput',
     getItemId: (index) => `allSearchTermsItem-${index}`,
   });
+
+  useEffect(() => {
+    if (isOpen) {
+      if (items.length === allTermsItems.length) {
+        setHighlightedIndex(1);
+        setShowTooltipFor(allTermsItems[1]);
+      } else if (items.length === 0) {
+        setHighlightedIndex(-1);
+        setShowTooltipFor(null);
+      } else {
+        setHighlightedIndex(0);
+        setShowTooltipFor(items[0]);
+      }
+    }
+  }, [items]);
 
   const toggleIsOpen = () => {
     isOpen ? closeMenu() : openMenu();
