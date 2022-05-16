@@ -1,6 +1,5 @@
 import { Button, Flex, HStack, Text } from '@chakra-ui/react';
-import { memo } from 'react';
-import { MouseEvent, ReactElement } from 'react';
+import { memo, MouseEvent, ReactElement } from 'react';
 import { AllSearchTermsDropdown } from './AllSearchTermsDropdown';
 import { quickfields } from './models';
 

@@ -1,40 +1,19 @@
 import { ChevronDownIcon } from '@chakra-ui/icons';
-import { Box, Flex, IconButton, Input, ListItem, usePopper, Text, Code, UnorderedList } from '@chakra-ui/react';
-import { ReactElement, useMemo, useState, forwardRef, useEffect } from 'react';
-import { allSearchTerms, ISearchTermOption } from './models';
+import { Box, Code, Flex, IconButton, Input, ListItem, Text, UnorderedList, usePopper } from '@chakra-ui/react';
 import { useCombobox } from 'downshift';
 import { matchSorter } from 'match-sorter';
-
-type ITermItem = Partial<ISearchTermOption> & {
-  type: 'group' | 'item';
-  title: string;
-};
-
+import { forwardRef, ReactElement, useEffect, useState } from 'react';
+import { allSearchTerms, SearchTermItem, SearchTermOption } from './models';
 export interface IAllSearchTermsDropdown {
   onSelect: (value: string) => void;
 }
 
+const isItem = (item: SearchTermOption): item is SearchTermItem => item.type === 'item';
+
 export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): ReactElement => {
-  const allTermsItems = useMemo(() => {
-    const tmp: ITermItem[] = [];
-    Object.entries(allSearchTerms).forEach(([group, terms]) => {
-      tmp.push({
-        type: 'group',
-        title: group,
-      });
-      Object.values(terms).forEach((term) => {
-        tmp.push({
-          type: 'item',
-          ...term,
-        });
-      });
-    });
-    return tmp;
-  }, [allSearchTerms]);
+  const [items, setItems] = useState(allSearchTerms);
 
-  const [items, setItems] = useState(allTermsItems);
-
-  const [showTooltipFor, setShowTooltipFor] = useState<ITermItem>(null);
+  const [showTooltipFor, setShowTooltipFor] = useState<SearchTermOption>(null);
 
   const { popperRef: dropdownPopperRef, referenceRef: dropdownReferenceRef } = usePopper({
     placement: 'bottom-start',
@@ -69,24 +48,24 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
     },
     onHighlightedIndexChange: ({ highlightedIndex }) => {
       const item = items[highlightedIndex];
-      if (isOpen && item && item.type === 'item') {
+      if (isOpen && item && isItem(item)) {
         setShowTooltipFor(item);
       }
       // keep tooltip shown when highlighted index is invalid (this means mouse moved away from menu)
       // only hide tooltip when menu is closed
     },
     onSelectedItemChange: ({ selectedItem }) => {
-      if (selectedItem) {
+      if (selectedItem && isItem(selectedItem)) {
         onSelect(selectedItem.value); // callback
         setInputValue('');
       }
     },
     onInputValueChange: ({ inputValue }) => {
       if (!inputValue || inputValue.trim().length === 0) {
-        setItems(allTermsItems);
+        setItems(allSearchTerms);
       } else {
         const filtered = matchSorter(
-          allTermsItems.filter((item) => item.type !== 'group'),
+          allSearchTerms.filter((item) => item.type !== 'group'),
           inputValue,
           { keys: ['title'], threshold: matchSorter.rankings.WORD_STARTS_WITH },
         );
@@ -101,9 +80,9 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
 
   useEffect(() => {
     if (isOpen) {
-      if (items.length === allTermsItems.length) {
+      if (items.length === allSearchTerms.length) {
         setHighlightedIndex(1);
-        setShowTooltipFor(allTermsItems[1]);
+        setShowTooltipFor(allSearchTerms[1]);
       } else if (items.length === 0) {
         setHighlightedIndex(-1);
         setShowTooltipFor(null);
@@ -183,18 +162,18 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
           items.map((term, index) => (
             <ListItem
               key={`${term.type}-${term.title}`}
-              color={term.type === 'group' ? 'gray.300' : 'gray.700'}
-              fontWeight={term.type === 'group' ? 'bold' : 'normal'}
+              color={!isItem(term) ? 'gray.300' : 'gray.700'}
+              fontWeight={!isItem(term) ? 'bold' : 'normal'}
               backgroundColor={highlightedIndex === index ? 'blue.100' : 'auto'}
               {...getItemProps({
                 item: term,
                 index,
-                disabled: term.type === 'group',
+                disabled: !isItem(term),
               })}
               p={2}
-              pl={term.type === 'group' ? 2 : 4}
+              pl={!isItem(term) ? 2 : 4}
               data-testid="allSearchTermsMenuItem"
-              cursor={term.type === 'group' ? 'default' : 'pointer'}
+              cursor={!isItem(term) ? 'default' : 'pointer'}
             >
               {term.title}
             </ListItem>
@@ -206,9 +185,12 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
 };
 
 interface ISearchTermTooltipProps {
-  term: ITermItem;
+  term: SearchTermOption;
 }
 const SearchTermTooltip = forwardRef<HTMLDivElement, ISearchTermTooltipProps>(({ term }, ref) => {
+  if (!isItem(term)) {
+    return null;
+  }
   return (
     <Box
       as="div"
