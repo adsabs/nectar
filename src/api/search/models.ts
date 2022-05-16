@@ -93,9 +93,44 @@ export const getAffiliationParams = (bibcode: IDocsEntity['bibcode']): IADSApiSe
   q: `identifier:"${bibcode}"`,
 });
 
+export const getSearchFacetParams = (params: IADSApiSearchParams): IADSApiSearchParams => ({
+  ...params,
+  fl: ['id'],
+  facet: true,
+});
+
+export const getSearchFacetYearsParams = (
+  params: IADSApiSearchParams,
+  minCount = 1,
+  limit = 2000,
+): IADSApiSearchParams => ({
+  ...params,
+  fl: ['id'],
+  'facet.pivot': 'property,year',
+  facet: true,
+  'facet.minCount': minCount,
+  'facet.limit': limit,
+});
+
 export const getSearchStatsParams = (params: IADSApiSearchParams, field: string): IADSApiSearchParams => ({
   ...params,
   fl: ['id'],
   stats: true,
   'stats.field': field.replace(/\s(asc|desc)$/, ''),
+});
+
+export const getSearchStatsCitationsParams = (params: IADSApiSearchParams): IADSApiSearchParams => ({
+  ...params,
+  fl: ['id'],
+  stats: true,
+  'stats.field': 'citation_count',
+  'json.facet': `{"citation_count":{"type":"terms","field":"citation_count","sort":{"index":"desc"},"limit":2000}}`,
+});
+
+export const getSearchStatsReadsParams = (params: IADSApiSearchParams): IADSApiSearchParams => ({
+  ...params,
+  fl: ['id'],
+  stats: true,
+  'stats.field': 'read_count',
+  'json.facet': `{"read_count":{"type":"terms","field":"read_count","sort":{"index":"desc"},"limit":2000}}`,
 });

@@ -14,6 +14,11 @@ export interface IADSApiSearchParams {
   fq?: string;
   stats?: boolean;
   'stats.field'?: string;
+  'json.facet'?: string;
+  facet?: boolean;
+  'facet.pivot'?: string;
+  'facet.minCount'?: number;
+  'facet.limit'?: number;
   bigquery?: string;
   cursorMark?: string;
 }
@@ -42,6 +47,7 @@ export interface IADSApiSearchResponse {
     docs: IDocsEntity[];
   };
   stats?: ISearchStatsFields;
+  facet_counts?: IFacetCountsFields;
   responseHeader?: IADSApiSearchResponseHeader;
   error?: IADSApiSearchResponseError;
   nextCursorMark?: string;
@@ -63,6 +69,19 @@ export interface ISearchStats {
   stddev: number;
   sum: number;
   sumOfSquares: number;
+}
+
+export interface IFacetCountsFields {
+  facet_queries: unknown;
+  facet_fields: unknown;
+  facet_ranges: unknown;
+  facet_intervals: unknown;
+  facet_heatmaps: unknown;
+  facet_pivot?: IFacetPivotFields;
+}
+
+export interface IFacetPivotFields {
+  'property,year': unknown;
 }
 
 export enum Esources {
