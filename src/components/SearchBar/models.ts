@@ -548,7 +548,7 @@ export const allSearchTerms: SearchTermOption[] = [
   },
 ];
 
-export const quickfields: SearchTermOption[] = [
+export const quickfields: SearchTermItem[] = [
   {
     type: 'item',
     id: 'author',
