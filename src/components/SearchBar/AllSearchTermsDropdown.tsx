@@ -149,7 +149,8 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
         boxShadow="lg"
         maxHeight="400px"
         w="200px"
-        overflow="scroll"
+        overflowY="scroll"
+        overflowX="hidden"
         {...getMenuProps({
           ref: (el: HTMLUListElement) => {
             dropdownPopperRef(el);
