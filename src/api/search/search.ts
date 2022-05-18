@@ -226,7 +226,10 @@ export const useSearchInfinite: InfiniteADSQuery<IADSApiSearchParams, IADSApiSea
     queryKey: searchKeys.infinite(params),
     queryFn: fetchSearchInfinite,
     getNextPageParam: (lastPage) => {
-      return lastPage.nextCursorMark !== lastPage.pageParam ? lastPage.nextCursorMark : false;
+      // check if cursormark is same as we sent and that we didn't receive all of them in the first request
+      return lastPage.response.numFound > params.rows && lastPage.nextCursorMark !== lastPage.pageParam
+        ? lastPage.nextCursorMark
+        : false;
     },
     meta: { params },
     ...options,
