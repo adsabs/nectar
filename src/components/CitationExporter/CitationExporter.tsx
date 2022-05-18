@@ -47,7 +47,6 @@ export interface ICitationExporterProps extends HTMLAttributes<HTMLDivElement> {
  * Citation export component
  */
 export const CitationExporter = (props: ICitationExporterProps): ReactElement => {
-  console.log('props', props);
   // early escape here, to skip extra work if nothing is passed
   if (props.records.length === 0) {
     return <ExportContainer header={<>No Records</>} />;
@@ -98,10 +97,16 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
   // Attempt to parse the url to grab the format, then update it, otherwise allow the server to handle the path
   useEffect(() => {
     router.beforePopState(({ as }) => {
-      const format = as.slice(as.lastIndexOf('/') + 1);
-      if (isExportApiFormat(format)) {
-        dispatch({ type: 'SET_FORMAT', payload: format });
-        return false;
+      try {
+        const format = as.split('?')[0].slice(as.lastIndexOf('/') + 1);
+        if (isExportApiFormat(format)) {
+          dispatch({ type: 'SET_FORMAT', payload: format });
+          dispatch('FORCE_SUBMIT');
+          return false;
+        }
+      } catch (e) {
+        dispatch({ type: 'SET_FORMAT', payload: ExportApiFormatKey.bibtex });
+        dispatch('FORCE_SUBMIT');
       }
       return true;
     });

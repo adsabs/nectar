@@ -16,11 +16,19 @@ export const useCitationExporter = ({ records, format, singleMode, sort }: IUseC
 
   // trigger updates to machine state if incoming props change
   useEffect(() => dispatch({ type: 'SET_SINGLEMODE', payload: singleMode }), [singleMode]);
+
   useEffect(() => {
     if (format !== state.context.params.format) {
       dispatch({ type: 'SET_FORMAT', payload: format });
     }
   }, [format]);
+
+  useEffect(() => {
+    if (singleMode) {
+      dispatch('SUBMIT');
+    }
+  }, [state.context.params.format, singleMode]);
+
   useEffect(() => {
     // naively compare only the first record, this should be enough to determine
     // there is a difference
@@ -28,6 +36,7 @@ export const useCitationExporter = ({ records, format, singleMode, sort }: IUseC
       dispatch({ type: 'SET_RECORDS', payload: records });
     }
   }, [records]);
+
   useEffect(() => {
     if (sort !== state.context.params.sort) {
       dispatch({ type: 'SET_SORT', payload: sort });
