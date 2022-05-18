@@ -1,6 +1,7 @@
 import {
   ApiTargets,
   Esources,
+  ExportApiFormatKey,
   IADSApiGraphicsParams,
   IADSApiMetricsParams,
   IADSApiSearchResponse,
@@ -30,7 +31,7 @@ export const handlers = [
         username: 'anonymous@ads',
         scopes: ['api', 'execute-query', 'store-query'],
         client_id: 'ONsfcxVTNIae5vULWlH7bLE8F6MpIZgW0Bhghzny',
-        access_token: 'yDCIgkpQjCrNWUqTfVbrrmBYImY6bJHWlHON45eq',
+        access_token: '------ mocked token ---------',
         client_name: 'BB client',
         token_type: 'Bearer',
         ratelimit: 1.0,
@@ -121,7 +122,7 @@ export const handlers = [
     return res(ctx.status(200), ctx.json<IADSApiSearchResponse>(body));
   }),
 
-  rest.post<IExportApiParams, { format: string }>(`*${ApiTargets.EXPORT}/:format`, (req, res, ctx) => {
+  rest.post<IExportApiParams, { format: ExportApiFormatKey }>(`*${ApiTargets.EXPORT}/:format`, (req, res, ctx) => {
     const { bibcode, ...body } = req.body;
     const { format } = req.params;
 

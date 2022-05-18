@@ -16,7 +16,7 @@ import 'tailwindcss/tailwind.css';
 import '../styles/styles.css';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
-  void import('@mocks');
+  require('../mocks');
 }
 
 const TopProgressBar = dynamic<Record<string, never>>(
