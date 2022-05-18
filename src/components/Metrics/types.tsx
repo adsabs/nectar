@@ -4,6 +4,7 @@ import { Serie } from '@nivo/line';
 export interface BarGraph {
   data: BarDatum[];
   keys: string[];
+  indexBy: string;
 }
 
 export interface LineGraph {

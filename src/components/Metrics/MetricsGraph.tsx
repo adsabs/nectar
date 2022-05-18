@@ -33,10 +33,8 @@ export const MetricsGraph = (props: IMetricsGraphProps): ReactElement => {
           colors={{ scheme: 'category10' }}
           groupMode={groupType as 'stacked' | 'grouped'}
           axisBottom={{
-            legend: indexBy,
-            legendPosition: 'middle',
-            legendOffset: 32,
             tickValues: ticks,
+            tickRotation: -40,
           }}
           axisTop={null}
           axisRight={null}

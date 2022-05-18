@@ -81,7 +81,12 @@ export interface IFacetCountsFields {
 }
 
 export interface IFacetPivotFields {
-  'property,year': unknown;
+  'property,year': {
+    count: number;
+    field: string;
+    value: string;
+    pivot: { field: string; value: string; count: number }[];
+  }[];
 }
 
 export enum Esources {

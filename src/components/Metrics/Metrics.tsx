@@ -306,7 +306,7 @@ const MetricsGraphs = ({
         <TabPanel>
           <MetricsGraph
             data={graphs.totalGraph.data}
-            indexBy="year"
+            indexBy={graphs.totalGraph.indexBy}
             keys={graphs.totalGraph.keys}
             ticks={getBarGraphYearTicks(graphs.totalGraph.data)}
             showLegend={showLegend}
@@ -316,7 +316,7 @@ const MetricsGraphs = ({
         <TabPanel>
           <MetricsGraph
             data={graphs.normalizedGraph.data}
-            indexBy="year"
+            indexBy={graphs.normalizedGraph.indexBy}
             keys={graphs.normalizedGraph.keys}
             ticks={getBarGraphYearTicks(graphs.normalizedGraph.data)}
             showLegend={showLegend}

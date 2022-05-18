@@ -125,7 +125,7 @@ export const plotCitationsHist = (
     return obj;
   });
 
-  return { data: out, keys };
+  return { data: out, keys, indexBy: 'year' };
 };
 
 /**
@@ -174,7 +174,7 @@ export const plotReadsHist = (normalize: boolean, readsHist: ReadsHistogramType)
     return obj;
   });
 
-  return { data: out, keys };
+  return { data: out, keys, indexBy: 'year' };
 };
 
 export const plotPapersHist = (normalize: boolean, papersHist: PapersHistogramType): BarGraph => {
@@ -212,7 +212,7 @@ export const plotPapersHist = (normalize: boolean, papersHist: PapersHistogramTy
     return obj;
   });
 
-  return { data: out, keys };
+  return { data: out, keys, indexBy: 'year' };
 };
 
 export const plotTimeSeriesGraph = (timeseries: TimeSeriesType): LineGraph => {
