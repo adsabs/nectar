@@ -36,7 +36,7 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
   const isClient = useIsClient();
   const router = useRouter();
 
-  const { data, fetchNextPage } = useSearchInfinite(query);
+  const { data, fetchNextPage, hasNextPage } = useSearchInfinite(query);
 
   // TODO: add more error handling here
   if (!data) {
@@ -79,6 +79,7 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
               records={records}
               totalRecords={numFound}
               nextPage={handleNextPage}
+              hasNextPage={hasNextPage}
               page={data.pages.length - 1}
               sort={query.sort}
             />

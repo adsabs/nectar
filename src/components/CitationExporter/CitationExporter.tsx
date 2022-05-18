@@ -40,6 +40,7 @@ export interface ICitationExporterProps extends HTMLAttributes<HTMLDivElement> {
   totalRecords?: number;
   page?: number;
   nextPage?: () => void;
+  hasNextPage?: boolean;
   sort?: SolrSort[];
 }
 
@@ -68,6 +69,7 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
     totalRecords = records.length,
     page = 0,
     nextPage = noop,
+    hasNextPage = true,
     sort,
     ...divProps
   } = props;
@@ -174,15 +176,17 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
                     <Button type="submit" data-testid="export-submit" isLoading={isLoading} isFullWidth>
                       Submit
                     </Button>
-                    <Button
-                      variant="outline"
-                      rightIcon={<ChevronRightIcon fontSize="2xl" />}
-                      onClick={nextPage}
-                      isLoading={isLoading}
-                      isFullWidth
-                    >
-                      Next {APP_DEFAULTS.EXPORT_PAGE_SIZE}
-                    </Button>
+                    {hasNextPage && (
+                      <Button
+                        variant="outline"
+                        rightIcon={<ChevronRightIcon fontSize="2xl" />}
+                        onClick={nextPage}
+                        isLoading={isLoading}
+                        isFullWidth
+                      >
+                        Next {APP_DEFAULTS.EXPORT_PAGE_SIZE}
+                      </Button>
+                    )}
                   </Stack>
                   <Divider display={['block', 'none']} />
                 </Stack>
