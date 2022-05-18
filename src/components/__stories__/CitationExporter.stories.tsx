@@ -55,6 +55,7 @@ MultiRecord.args = {
     '2014koa..prop..579G',
     '2014ATel.6110....1G',
   ],
+  totalRecords: 100,
 };
 SingleMode.args = {
   records: ['2021APS..APRA01003G'],

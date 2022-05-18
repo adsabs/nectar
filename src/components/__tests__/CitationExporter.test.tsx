@@ -30,19 +30,19 @@ const queryClient = new QueryClient({
 });
 const wrapper: FC = ({ children }) => <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 
-const checkOutput = async (
-  el: HTMLElement,
+const checkOutput = (
+  el: HTMLTextAreaElement,
   params: Partial<Omit<IExportApiParams, 'bibcode'> & { numRecords: number }> = {},
 ) => {
   const defaultParams: Omit<IExportApiParams, 'bibcode'> & { numRecords: number } = {
     numRecords: 1,
     format: ExportApiFormatKey.bibtex,
-    sort: ['date desc'],
+    sort: ['date desc', 'bibcode desc'],
     authorcutoff: [200],
     journalformat: [1],
     maxauthor: [10],
   };
-  await waitFor(() => expect(el).toHaveValue(JSON.stringify({ ...defaultParams, ...params }, null, 2)));
+  expect(el).toHaveValue(JSON.stringify({ ...defaultParams, ...params }, null, 2));
 };
 
 const setup = (component: JSX.Element) => {
@@ -58,10 +58,8 @@ describe('CitationExporter', () => {
       setup(<SingleMode />);
     });
     test('has proper output', async () => {
-      const { getByTestId } = setup(<SingleMode />);
-      const output = await waitFor(() => getByTestId('export-output'));
-
-      await checkOutput(output);
+      const { getByTestId, debug } = setup(<SingleMode />);
+      await waitFor(() => checkOutput(getByTestId('export-output') as HTMLTextAreaElement));
     });
   });
 
@@ -70,10 +68,9 @@ describe('CitationExporter', () => {
       setup(<MultiRecord />);
     });
     test('has proper output', async () => {
-      const { getAllByTestId } = setup(<MultiRecord />);
-      const output = await waitFor(() => getAllByTestId('export-output'));
+      const { getByTestId } = setup(<MultiRecord />);
 
-      await checkOutput(output[0], { numRecords: 10 });
+      await waitFor(() => checkOutput(getByTestId('export-output') as HTMLTextAreaElement, { numRecords: 10 }));
     });
   });
 
