@@ -43,22 +43,14 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const queryClient = new QueryClient();
 
   try {
+    // prefetch bibcodes from query
+
     const params: IADSApiSearchParams = {
       rows: BATCH_SIZE,
       fl: ['bibcode'],
       ...(qid ? { q: `docs(${qid})`, sort: ['id asc'] } : query),
     };
 
-    if (!qid) {
-      // prefetch search query
-      void (await queryClient.prefetchQuery({
-        queryKey: searchKeys.primary(params),
-        queryFn: fetchSearch,
-        meta: { params },
-      }));
-    }
-
-    // prefetch metrics query
     await queryClient.prefetchInfiniteQuery({
       queryKey: searchKeys.infinite(params),
       queryFn: fetchSearchInfinite,
