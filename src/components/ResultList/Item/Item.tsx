@@ -39,14 +39,22 @@ export const Item = (props: IItemProps): ReactElement => {
   // citations
   const cite = useNormCite ? (
     typeof doc.citation_count_norm === 'number' && doc.citation_count_norm > 0 ? (
-      <NextLink href={`/abs/[id]/citations`} as={`/abs/${bibcode}/citations`} passHref>
+      <NextLink
+        href={{ pathname: `/abs/[id]/citations`, search: 'p=1' }}
+        as={{ pathname: `/abs/${bibcode}/citations`, search: 'p=1' }}
+        passHref
+      >
         <Link>
           <Text>cited(n): {doc.citation_count_norm}</Text>
         </Link>
       </NextLink>
     ) : null
   ) : typeof doc.citation_count === 'number' && doc.citation_count > 0 ? (
-    <NextLink href={`/abs/[id]/citations`} as={`/abs/${bibcode}/citations`} passHref>
+    <NextLink
+      href={{ pathname: `/abs/[id]/citations`, search: 'p=1' }}
+      as={{ pathname: `/abs/${bibcode}/citations`, search: 'p=1' }}
+      passHref
+    >
       <Link>cited: {doc.citation_count}</Link>
     </NextLink>
   ) : null;
