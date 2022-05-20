@@ -1,4 +1,5 @@
-import { IUserData } from '@api';
+import { IADSApiSearchParams, IUserData } from '@api';
+import { APP_DEFAULTS } from '@config';
 
 export enum Theme {
   GENERAL = 'GENERAL',
@@ -38,3 +39,7 @@ declare module 'http' {
     session: SessionData;
   }
 }
+
+export type NumPerPageType = typeof APP_DEFAULTS['PER_PAGE_OPTIONS'][number];
+
+export type SafeSearchUrlParams = Omit<IADSApiSearchParams, 'fl' | 'start' | 'rows'> & { p?: number };

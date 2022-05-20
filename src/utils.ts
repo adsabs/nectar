@@ -1,9 +1,11 @@
 import api, { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, IUserData, SolrSort } from '@api';
 import { APP_DEFAULTS } from '@config';
+import { SafeSearchUrlParams } from '@types';
 import { GetServerSidePropsContext, GetServerSidePropsResult, NextApiRequest, NextApiResponse } from 'next';
 import { useRouter } from 'next/router';
+import qs from 'qs';
 import { ParsedUrlQuery } from 'querystring';
-import { clamp, filter, has, last, uniq } from 'ramda';
+import { clamp, filter, last, omit, propIs, uniq } from 'ramda';
 
 type ParsedQueryParams = ParsedUrlQuery | qs.ParsedQs;
 
@@ -128,17 +130,17 @@ export const noop = (..._args: unknown[]): void => {
 };
 
 /**
- * Helper utility for parsing int from string/string[]
- * It will also clamp the resulting number between min/max
+ * Helper utility for clamping the resulting number between min/max
  */
 export const parseNumberAndClamp = (
-  value: string | string[],
+  value: string | number | (number | string)[],
   min: number,
   max: number = Number.MAX_SAFE_INTEGER,
 ): number => {
   try {
-    const page = parseInt(Array.isArray(value) ? value[0] : value, 10);
-    return clamp(min, max, Number.isNaN(page) ? min : page);
+    const val = Array.isArray(value) ? value[0] : value;
+    const num = typeof val === 'number' ? val : parseInt(val, 10);
+    return clamp(min, max, Number.isNaN(num) ? min : num);
   } catch (e) {
     return min;
   }
@@ -229,10 +231,14 @@ export const normalizeSolrSort = (rawSolrSort: unknown, postfixSort?: SolrSort):
 
 // returns true if value passed in is a valid IADSApiSearchResponse
 export const isApiSearchResponse = (value: unknown): value is IADSApiSearchResponse => {
-  if (has('responseHeader', value) && (has('response', value) || has('error', value) || has('stats', value))) {
-    return true;
-  }
-  return false;
+  return (
+    propIs(Object, 'responseHeader', value) &&
+    (propIs(Object, 'response', value) || propIs(Object, 'error', value) || propIs(Object, 'stats', value))
+  );
+};
+
+export const isIADSSearchParams = (value: unknown): value is IADSApiSearchParams => {
+  return propIs(String, 'q', value);
 };
 
 /**
@@ -251,3 +257,21 @@ export const enumKeys = <O extends object, K extends keyof O = keyof O>(obj: O):
 export const setupApiSSR = (ctx: GetServerSidePropsContext<ParsedUrlQuery>) => {
   api.setUserData(ctx.req.session.userData);
 };
+
+// omit params that should not be included in any urls
+const omitSearchParams = omit(['fl', 'start', 'rows']);
+
+export const makeSearchParams = (params: SafeSearchUrlParams) => {
+  const cleanParams = omitSearchParams(params);
+  return qs.stringify(
+    {
+      ...cleanParams,
+      sort: normalizeSolrSort(cleanParams.sort),
+      p: parseNumberAndClamp(cleanParams?.p, 1),
+    },
+    { indices: false, arrayFormat: 'comma' },
+  );
+};
+
+export const stringifySearchParams = (params: Record<string, unknown>) =>
+  qs.stringify(params, { indices: false, arrayFormat: 'comma' });
