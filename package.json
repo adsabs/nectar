@@ -48,6 +48,7 @@
     "isomorphic-dompurify": "^0.15.0",
     "katex": "^0.13.11",
     "match-sorter": "^6.3.1",
+    "memoize-one": "^6.0.0",
     "neverthrow": "^4.2.1",
     "next": "12",
     "nprogress": "^0.2.0",
@@ -63,6 +64,7 @@
     "react-toastify": "^8.0.2",
     "transducist": "^2.2.0",
     "use-debounce": "^7.0.1",
+    "use-effect-reducer": "^0.7.0",
     "uuid": "^8.3.2",
     "xstate": "^4.25.0",
     "zustand": "^3.6.9"
