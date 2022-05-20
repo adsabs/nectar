@@ -1,8 +1,8 @@
 import { BarDatum } from '@nivo/bar';
 import { Serie } from '@nivo/line';
 
-export interface BarGraph {
-  data: BarDatum[];
+export interface BarGraph<T extends BarDatum> {
+  data: T[];
   keys: string[];
   indexBy: string;
 }
@@ -12,8 +12,8 @@ export interface LineGraph {
 }
 
 export interface IMetricsGraphs {
-  totalGraph: BarGraph;
-  normalizedGraph: BarGraph;
+  totalGraph: BarGraph<BarDatum>;
+  normalizedGraph: BarGraph<BarDatum>;
 }
 
 export interface ICitationsTableData {
