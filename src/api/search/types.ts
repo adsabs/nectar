@@ -1,3 +1,4 @@
+import { KnownLocale } from '@faker-js/faker/locales';
 import { SolrField, SolrSort } from '../models';
 
 export interface IADSApiSearchParams {
@@ -47,6 +48,7 @@ export interface IADSApiSearchResponse {
     docs: IDocsEntity[];
   };
   stats?: ISearchStatsFields;
+  facets?: IFacetFields;
   facet_counts?: IFacetCountsFields;
   responseHeader?: IADSApiSearchResponseHeader;
   error?: IADSApiSearchResponseError;
@@ -69,6 +71,16 @@ export interface ISearchStats {
   stddev: number;
   sum: number;
   sumOfSquares: number;
+}
+
+export interface IFacetFields {
+  count?: number;
+  citation_count?: { buckets: IBucket[] };
+}
+
+export interface IBucket {
+  val: number;
+  count: number;
 }
 
 export interface IFacetCountsFields {

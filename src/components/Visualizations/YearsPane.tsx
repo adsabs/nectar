@@ -124,6 +124,7 @@ export const YearsPanel = ({
             value={[range.min, range.max]}
             onChange={handleRangeChange}
             my={2}
+            focusThumbOnChange={false}
           >
             <RangeSliderTrack>
               <RangeSliderFilledTrack />

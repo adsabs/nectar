@@ -4,9 +4,9 @@ import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/react
 import { parseQueryFromUrl, setupApiSSR } from '@utils';
 import { dehydrate, QueryClient } from 'react-query';
 import {
+  getSearchFacetCitationsParams,
+  getSearchFacetReadsParams,
   getSearchFacetYearsParams,
-  getSearchStatsCitationsParams,
-  getSearchStatsReadsParams,
   IADSApiSearchParams,
   searchKeys,
 } from '@api';
@@ -56,9 +56,9 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
     const years_params: IADSApiSearchParams = getSearchFacetYearsParams(params);
 
-    const citations_params: IADSApiSearchParams = getSearchStatsCitationsParams(params);
+    const citations_params: IADSApiSearchParams = getSearchFacetCitationsParams(params);
 
-    const reads_params: IADSApiSearchParams = getSearchStatsReadsParams(params);
+    const reads_params: IADSApiSearchParams = getSearchFacetReadsParams(params);
 
     await queryClient.prefetchQuery({
       queryKey: searchKeys.facet(getCleanedParams(years_params)),
@@ -67,13 +67,13 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     });
 
     await queryClient.prefetchQuery({
-      queryKey: searchKeys.stats(getCleanedParams(citations_params)),
+      queryKey: searchKeys.facet(getCleanedParams(citations_params)),
       queryFn: fetchSearch,
       meta: { params: citations_params },
     });
 
     await queryClient.prefetchQuery({
-      queryKey: searchKeys.stats(getCleanedParams(reads_params)),
+      queryKey: searchKeys.facet(getCleanedParams(reads_params)),
       queryFn: fetchSearch,
       meta: { params: reads_params },
     });

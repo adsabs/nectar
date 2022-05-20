@@ -36,7 +36,8 @@ type SearchADSQuery<P = IADSApiSearchParams, R = IADSApiSearchResponse['response
 
 export const responseSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['response'] => data.response;
 export const statsSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['stats'] => data.stats;
-export const facetSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['facet_counts'] => data.facet_counts;
+export const facetCountSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['facet_counts'] =>
+  data.facet_counts;
 
 const defaultRetryer: RetryValue<ErrorType> = (failCount: number, error): boolean => {
   switch (error.message) {
@@ -234,7 +235,7 @@ export const useGetSearchStats: SearchADSQuery<IADSApiSearchParams, IADSApiSearc
   });
 };
 
-export const useGetSearchFacet: SearchADSQuery<IADSApiSearchParams, IADSApiSearchResponse['facet_counts']> = (
+export const useGetSearchFacetCounts: SearchADSQuery<IADSApiSearchParams, IADSApiSearchResponse['facet_counts']> = (
   params,
   options,
 ) => {
@@ -247,7 +248,21 @@ export const useGetSearchFacet: SearchADSQuery<IADSApiSearchParams, IADSApiSearc
     queryKey: searchKeys.facet(cleanParams),
     queryFn: fetchSearch,
     meta: { params: searchParams },
-    select: facetSelector,
+    select: facetCountSelector,
+    ...options,
+  });
+};
+
+export const useGetSearchFacet: SearchADSQuery<IADSApiSearchParams, IADSApiSearchResponse> = (params, options) => {
+  const searchParams: IADSApiSearchParams = getSearchFacetParams(params);
+
+  // omit fields from queryKey
+  const { fl, ...cleanParams } = searchParams;
+
+  return useQuery({
+    queryKey: searchKeys.facet(cleanParams),
+    queryFn: fetchSearch,
+    meta: { params: searchParams },
     ...options,
   });
 };

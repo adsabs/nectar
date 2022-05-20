@@ -1,15 +1,17 @@
 import {
-  getSearchStatsCitationsParams,
-  getSearchStatsReadsParams,
   IADSApiSearchParams,
-  useGetSearchStats,
   getSearchFacetYearsParams,
-  useGetSearchFacet,
   ISearchStatsFields,
+  getSearchFacetReadsParams,
+  getSearchFacetCitationsParams,
+  useGetSearchFacetCounts,
+  useGetSearchFacet,
+  IADSApiSearchResponse,
 } from '@api';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from '@chakra-ui/react';
 import { ReactElement } from 'react';
 import { UseQueryResult } from 'react-query';
+import { CitationsPanel } from './CitationsPane';
 import { YearsPanel } from './YearsPane';
 
 interface IOverviewPageContainerProps {
@@ -17,9 +19,9 @@ interface IOverviewPageContainerProps {
 }
 
 export const OverviewPageContainer = ({ query }: IOverviewPageContainerProps): ReactElement => {
-  const yearsResult = useGetSearchFacet(getSearchFacetYearsParams(query));
-  const citationsStatsResult = useGetSearchStats(getSearchStatsCitationsParams(query));
-  const readsStatsResult = useGetSearchStats(getSearchStatsReadsParams(query));
+  const yearsResult = useGetSearchFacetCounts(getSearchFacetYearsParams(query));
+  const citationsStatsResult = useGetSearchFacet(getSearchFacetCitationsParams(query));
+  const readsStatsResult = useGetSearchFacet(getSearchFacetReadsParams(query));
   return (
     <Tabs variant="solid-rounded" isFitted>
       <TabList>
@@ -42,14 +44,6 @@ export const OverviewPageContainer = ({ query }: IOverviewPageContainerProps): R
   );
 };
 
-const CitationsPanel = ({
-  queryResult,
-}: {
-  queryResult: UseQueryResult<ISearchStatsFields, unknown>;
-}): ReactElement => {
-  return <></>;
-};
-
-const ReadsPanel = ({ queryResult }: { queryResult: UseQueryResult<ISearchStatsFields, unknown> }): ReactElement => {
+const ReadsPanel = ({ queryResult }: { queryResult: UseQueryResult<IADSApiSearchResponse, unknown> }): ReactElement => {
   return <></>;
 };

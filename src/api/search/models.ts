@@ -112,14 +112,7 @@ export const getSearchFacetYearsParams = (
   'facet.limit': limit,
 });
 
-export const getSearchStatsParams = (params: IADSApiSearchParams, field: string): IADSApiSearchParams => ({
-  ...params,
-  fl: ['id'],
-  stats: true,
-  'stats.field': field.replace(/\s(asc|desc)$/, ''),
-});
-
-export const getSearchStatsCitationsParams = (params: IADSApiSearchParams): IADSApiSearchParams => ({
+export const getSearchFacetCitationsParams = (params: IADSApiSearchParams): IADSApiSearchParams => ({
   ...params,
   fl: ['id'],
   stats: true,
@@ -127,10 +120,17 @@ export const getSearchStatsCitationsParams = (params: IADSApiSearchParams): IADS
   'json.facet': `{"citation_count":{"type":"terms","field":"citation_count","sort":{"index":"desc"},"limit":2000}}`,
 });
 
-export const getSearchStatsReadsParams = (params: IADSApiSearchParams): IADSApiSearchParams => ({
+export const getSearchFacetReadsParams = (params: IADSApiSearchParams): IADSApiSearchParams => ({
   ...params,
   fl: ['id'],
   stats: true,
   'stats.field': 'read_count',
   'json.facet': `{"read_count":{"type":"terms","field":"read_count","sort":{"index":"desc"},"limit":2000}}`,
+});
+
+export const getSearchStatsParams = (params: IADSApiSearchParams, field: string): IADSApiSearchParams => ({
+  ...params,
+  fl: ['id'],
+  stats: true,
+  'stats.field': field.replace(/\s(asc|desc)$/, ''),
 });
