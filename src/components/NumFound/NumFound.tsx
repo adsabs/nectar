@@ -1,11 +1,13 @@
 import { useGetSearchStats } from '@api';
 import { Text } from '@chakra-ui/layout';
+import { SkeletonText } from '@chakra-ui/react';
 import { useStore } from '@store';
 import { truncateDecimal } from '@utils';
 import { ReactElement } from 'react';
 
 export interface INumFoundProps {
   count?: number;
+  isLoading?: boolean;
 }
 
 // pin lower bound to 0, so we don't get negative numbers, and convert to locale string
@@ -14,7 +16,11 @@ const sanitizeNum = (num: number): string => {
 };
 
 export const NumFound = (props: INumFoundProps): ReactElement => {
-  const { count = 0 } = props;
+  const { count = 0, isLoading } = props;
+
+  if (isLoading) {
+    return <SkeletonText noOfLines={1} w="40" mt="1" />;
+  }
 
   const countString = typeof count === 'number' ? sanitizeNum(count) : '0';
 
