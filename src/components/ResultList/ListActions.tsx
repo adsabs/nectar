@@ -32,7 +32,7 @@ export interface IListActionsProps {
 
 export const ListActions = (props: IListActionsProps): ReactElement => {
   const { onSortChange = noop } = props;
-  const selected = useStore((state) => state.docs.selected);
+  const selected = useStore((state) => state.docs.selected ?? []);
   const clearSelected = useStore((state) => state.clearSelected);
   const isClient = useIsClient();
   const noneSelected = selected.length === 0;

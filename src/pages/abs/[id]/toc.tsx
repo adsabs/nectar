@@ -43,13 +43,7 @@ const VolumePage: NextPage<IVolumePageProps> = (props: IVolumePageProps) => {
           docs={data.docs}
           totalResults={data.numFound}
           onPageChange={onPageChange}
-          href={{
-            pathname: '/search',
-            query: {
-              q: tocParams.q,
-              sort: tocParams.sort,
-            },
-          }}
+          searchLinkParams={tocParams}
         />
       )}
     </AbsLayout>

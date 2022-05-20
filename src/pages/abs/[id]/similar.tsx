@@ -45,13 +45,7 @@ const SimilarPage: NextPage<ISimilarPageProps> = (props: ISimilarPageProps) => {
           docs={data.docs}
           totalResults={data.numFound}
           onPageChange={onPageChange}
-          href={{
-            pathname: '/search',
-            query: {
-              q: similarParams.q,
-              sort: similarParams.sort,
-            },
-          }}
+          searchLinkParams={similarParams}
         />
       )}
     </AbsLayout>
