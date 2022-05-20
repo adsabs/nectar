@@ -114,7 +114,9 @@ export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>(
       }
     },
     onInputValueChange: ({ inputValue }) => {
-      updateQuery(inputValue);
+      if (inputValue !== query) {
+        updateQuery(inputValue);
+      }
 
       // only suggest if we're at the end of the input
       if (input.current.selectionStart < inputValue.length || inputValue.length === 0) {
