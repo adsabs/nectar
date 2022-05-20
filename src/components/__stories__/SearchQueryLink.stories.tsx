@@ -1,5 +1,5 @@
 import { Meta, Story } from '@storybook/react';
-import { SearchQueryLink, ISearchQueryLinkProps } from '../SearchQueryLink';
+import { ISearchQueryLinkProps, SearchQueryLink } from '../SearchQueryLink';
 
 const meta: Meta = {
   title: 'SearchQueryLink',
@@ -18,8 +18,8 @@ const meta: Meta = {
 
 export default meta;
 
-const Template: Story<ISearchQueryLinkProps> = args => <SearchQueryLink {...args} />;
+const Template: Story<ISearchQueryLinkProps> = (args) => <SearchQueryLink {...args} />;
 
-export const Default = Template.bind({}) as Story<ISearchQueryLinkProps>;
+export const Default = Template.bind({});
 
 Default.args = {};

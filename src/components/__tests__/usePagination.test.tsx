@@ -23,9 +23,15 @@ const setup = (props?: Partial<IUsePaginationProps>) => {
     ...props,
   };
 
-  return renderHook<IUsePaginationProps, IUsePaginationResult>((props) => usePagination(props), {
-    initialProps,
-  });
+  return renderHook<IUsePaginationProps, IUsePaginationResult>(
+    (props) => {
+      const { getPaginationProps } = usePagination(props);
+      return getPaginationProps();
+    },
+    {
+      initialProps,
+    },
+  );
 };
 
 const gen = (
@@ -140,20 +146,5 @@ describe('usePagination Hook', () => {
     expect(pick(keys(initial), result.current)).toEqual(initial);
     act(() => result.current.dispatch({ type: 'NEXT_PAGE' }));
     expect(pick(keys(after), result.current)).toEqual(after);
-  });
-
-  test('updates URL param properly when page changes', () => {
-    const { result } = setup();
-    expect(router.push).toHaveBeenCalledTimes(1);
-    expect(router.push).toHaveBeenLastCalledWith({ pathname: '/', query: { p: 1 } }, null, { shallow: true });
-    act(() => result.current.dispatch({ type: 'NEXT_PAGE' }));
-    expect(router.push).toHaveBeenCalledTimes(2);
-    expect(router.push).toHaveBeenLastCalledWith({ pathname: '/', query: { p: 2 } }, null, { shallow: true });
-    act(() => result.current.dispatch({ type: 'SET_PAGE', payload: 5 }));
-    expect(router.push).toHaveBeenCalledTimes(3);
-    expect(router.push).toHaveBeenLastCalledWith({ pathname: '/', query: { p: 5 } }, null, { shallow: true });
-    act(() => result.current.dispatch({ type: 'PREV_PAGE' }));
-    expect(router.push).toHaveBeenCalledTimes(4);
-    expect(router.push).toHaveBeenLastCalledWith({ pathname: '/', query: { p: 4 } }, null, { shallow: true });
   });
 });
