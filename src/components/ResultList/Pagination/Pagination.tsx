@@ -21,7 +21,7 @@ import { APP_DEFAULTS } from '@config';
 import { useIsClient } from '@hooks/useIsClient';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
-import { Dispatch, KeyboardEventHandler, ReactElement, useEffect, useMemo, useRef, useState } from 'react';
+import { Dispatch, KeyboardEventHandler, ReactElement, useMemo, useRef, useState } from 'react';
 import { MenuPlacement } from 'react-select';
 import { IUsePaginationResult, PaginationAction } from './usePagination';
 
@@ -67,9 +67,6 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
   const handleNext = () => {
     dispatch({ type: 'NEXT_PAGE' });
   };
-
-  // make sure we keep state and result in sync for pagination
-  useEffect(() => dispatch({ type: 'SET_PAGE', payload: page }), [page]);
 
   const perPageSelectedValue = useMemo(() => pageOptions.find((o) => parseInt(o.value) === numPerPage), [numPerPage]);
 
