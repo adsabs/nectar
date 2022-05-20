@@ -8,6 +8,7 @@ import api, {
   InfiniteADSQuery,
 } from '@api';
 import { AxiosError } from 'axios';
+import { omit } from 'ramda';
 import type { QueryFunctionContext, QueryKey } from 'react-query';
 import { QueryFunction, useInfiniteQuery, useQuery } from 'react-query';
 import { RetryValue } from 'react-query/types/core/retryer';
@@ -47,8 +48,13 @@ type SearchKeyProps =
   | { bibcode: IDocsEntity['bibcode']; start?: number }
   | { bibcode: IDocsEntity['bibcode']; start: number };
 
+export enum SEARCH_API_KEYS {
+  primary = 'search/primary',
+  preview = 'search/preview',
+}
+
 export const searchKeys = {
-  primary: (params: IADSApiSearchParams) => ['search', params] as const,
+  primary: (params: IADSApiSearchParams) => [SEARCH_API_KEYS.primary, params] as const,
   preview: (bibcode: IDocsEntity['bibcode']) => ['search/preview', { bibcode }] as const,
   abstract: (id: string) => ['search/abstract', { id }] as const,
   affiliations: ({ bibcode }: SearchKeyProps) => ['search/affiliations', { bibcode }] as const,
@@ -66,9 +72,10 @@ export const searchKeys = {
  */
 export const useSearch: SearchADSQuery = (params, options) => {
   // omit fields from queryKey
-  const { fl, ...cleanParams } = params;
+  const cleanParams = omit(['fl', 'p'], params);
   return useQuery<IADSApiSearchResponse, ErrorType, IADSApiSearchResponse['response']>({
-    queryKey: searchKeys.primary(cleanParams),
+    queryKey: SEARCH_API_KEYS.primary,
+    queryHash: JSON.stringify(searchKeys.primary(cleanParams)),
     queryFn: fetchSearch,
     meta: { params },
     select: responseSelector,
@@ -183,7 +190,8 @@ export const useGetAffiliations: SearchADSQuery<{ bibcode: IDocsEntity['bibcode'
 export const useGetAbstractPreview: SearchADSQuery<{ bibcode: IDocsEntity['bibcode'] }> = ({ bibcode }, options) => {
   const params = { ...defaultParams, q: `identifier:"${bibcode}"`, fl: ['abstract'] };
   return useQuery({
-    queryKey: searchKeys.preview(bibcode),
+    queryKey: SEARCH_API_KEYS.preview,
+    queryHash: JSON.stringify(searchKeys.preview(bibcode)),
     queryFn: fetchSearch,
     meta: { params },
     select: responseSelector,
