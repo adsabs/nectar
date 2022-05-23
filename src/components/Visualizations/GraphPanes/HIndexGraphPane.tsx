@@ -1,4 +1,4 @@
-import { IADSApiSearchResponse, IBucket } from '@api';
+import { IBucket, ISearchStats } from '@api';
 import {
   Button,
   CircularProgress,
@@ -17,47 +17,61 @@ import { Datum } from '@nivo/line';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { UseQueryResult } from 'react-query';
 import { useDebounce } from 'use-debounce';
-import { LineGraph as LineGraphGraph } from './LineGraph';
-import { getLineGraphYearTicks } from './utils';
+import { LineGraph as LineGraphGraph } from '@components';
+import { getLineGraphYearTicks } from '../utils';
 
+interface IHIndexGraphPaneProps {
+  buckets: IBucket[];
+  sum: ISearchStats['sum'];
+  type: 'citations' | 'reads';
+  isLoading: UseQueryResult['isLoading'];
+  isError: UseQueryResult['isError'];
+  error: UseQueryResult['error'];
+}
 const maxDataPoints = 2000;
 
-export const CitationsPanel = ({
-  queryResult,
-}: {
-  queryResult: UseQueryResult<IADSApiSearchResponse, unknown>;
-}): ReactElement => {
-  const { data, isLoading, isError, error } = queryResult;
-
-  const [limit, setLimit] = useState(maxDataPoints);
+export const HIndexGraphPane = ({
+  buckets,
+  sum,
+  type,
+  isLoading,
+  isError,
+  error,
+}: IHIndexGraphPaneProps): ReactElement => {
+  const [limits, setLimits] = useState<{ limit: number; maxLimit: number }>({
+    limit: maxDataPoints,
+    maxLimit: maxDataPoints,
+  });
 
   // prevent graph transform until user has stopped updating slider
-  const [debouncedLimit] = useDebounce(limit, 50);
+  const [debouncedLimit] = useDebounce(limits.limit, 50);
 
   const baseGraph: LineGraph = useMemo(() => {
-    if (data?.facets?.citation_count?.buckets) {
-      return getCitationsGraph(data.facets.citation_count.buckets, limit);
+    if (buckets) {
+      const data = getGraphData(buckets, limits.limit);
+      return { data: [{ id: type, data }] };
     }
-  }, [data, debouncedLimit]);
+  }, [buckets, debouncedLimit]);
 
   const statsCount = useMemo(() => {
-    if (data?.stats.stats_fields?.citation_count?.sum) {
-      return data.stats.stats_fields.citation_count.sum.toLocaleString('en-US');
+    if (sum) {
+      return sum.toLocaleString('en-US');
     }
-  }, [data]);
+  }, [sum]);
 
   useEffect(() => {
-    if (data) {
-      setLimit(baseGraph.data[0].data.length);
+    if (buckets) {
+      const max = Math.min(maxDataPoints, baseGraph.data[0]?.data.length);
+      setLimits({ limit: max, maxLimit: max });
     }
-  }, [data]);
+  }, [buckets]);
 
   const handleLimitSliderChange = (value: number) => {
-    setLimit(value);
+    setLimits({ ...limits, limit: value });
   };
 
   const handleLimitInputChange = (valueAsString: string, valueAsNumber: number) => {
-    setLimit(valueAsNumber);
+    setLimits({ ...limits, limit: valueAsNumber });
   };
 
   return (
@@ -66,14 +80,14 @@ export const CitationsPanel = ({
       {!isLoading && !isError && baseGraph && (
         <Flex direction="column">
           <Text>{`${
-            isNaN(limit) || limit > maxDataPoints ? maxDataPoints : limit
-          } top ranked citations of ${statsCount}`}</Text>
+            isNaN(limits.limit) || limits.limit > limits.maxLimit ? limits.maxLimit : limits.limit
+          } top ranked ${type} of ${statsCount}`}</Text>
           <LineGraphGraph data={baseGraph.data} ticks={getLineGraphYearTicks(baseGraph.data, 10)} />
           <Slider
             aria-label="limit slider"
             min={1}
-            max={maxDataPoints}
-            value={limit}
+            max={limits.maxLimit}
+            value={isNaN(limits.limit) ? limits.maxLimit : limits.limit}
             onChange={handleLimitSliderChange}
             my={5}
             focusThumbOnChange={false}
@@ -86,9 +100,9 @@ export const CitationsPanel = ({
           <HStack alignItems="center">
             <Text>Limit results to top </Text>
             <NumberInput
-              value={isNaN(limit) ? '' : limit}
+              value={isNaN(limits.limit) ? '' : limits.limit}
               min={1}
-              max={maxDataPoints}
+              max={limits.maxLimit}
               aria-label="limit"
               maxW={24}
               mx={2}
@@ -106,7 +120,7 @@ export const CitationsPanel = ({
   );
 };
 
-const getCitationsGraph = (counts: IBucket[], limit: number): LineGraph => {
+const getGraphData = (counts: IBucket[], limit: number): Datum[] => {
   // data: [{x, y}...]
   const fixedLimit = isNaN(limit) || limit < 1 || limit > maxDataPoints ? maxDataPoints : limit;
   const data: Datum[] = [];
@@ -123,5 +137,5 @@ const getCitationsGraph = (counts: IBucket[], limit: number): LineGraph => {
     return false;
   });
 
-  return { data: [{ id: 'citations', data }] };
+  return data;
 };

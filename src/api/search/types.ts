@@ -1,4 +1,3 @@
-import { KnownLocale } from '@faker-js/faker/locales';
 import { SolrField, SolrSort } from '../models';
 
 export interface IADSApiSearchParams {
@@ -59,6 +58,7 @@ export interface ISearchStatsFields {
   stats_fields: {
     citation_count?: ISearchStats;
     citation_count_norm?: ISearchStats;
+    read_count?: ISearchStats;
   };
 }
 
@@ -76,6 +76,7 @@ export interface ISearchStats {
 export interface IFacetFields {
   count?: number;
   citation_count?: { buckets: IBucket[] };
+  read_count?: { buckets: IBucket[] };
 }
 
 export interface IBucket {

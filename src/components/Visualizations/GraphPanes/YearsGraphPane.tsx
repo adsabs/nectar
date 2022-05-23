@@ -12,14 +12,13 @@ import {
   FormLabel,
   Button,
 } from '@chakra-ui/react';
-import { MetricsGraph } from '@components/Metrics';
-import { BarGraph } from '@components/Metrics/types';
+import { MetricsGraph, BarGraph } from '@components';
 import { BarDatum } from '@nivo/bar';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { UseQueryResult } from 'react-query';
 import { useDebounce } from 'use-debounce';
 
-export const YearsPanel = ({
+export const YearsGraphPane = ({
   queryResult,
 }: {
   queryResult: UseQueryResult<IFacetCountsFields, unknown>;
