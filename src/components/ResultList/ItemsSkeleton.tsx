@@ -1,14 +1,14 @@
-import { Stack, Box } from '@chakra-ui/layout';
+import { Box, Stack } from '@chakra-ui/layout';
+import { Skeleton, SkeletonText } from '@chakra-ui/skeleton';
 import { range } from 'ramda';
 import { ReactElement } from 'react';
-import { Skeleton, SkeletonText } from '@chakra-ui/skeleton';
 
 export interface ISkeletonProps {
   count: number;
 }
 
 export const ItemsSkeleton = (props: ISkeletonProps): ReactElement => {
-  const { count } = props;
+  const { count = 0 } = props;
 
   return (
     <>

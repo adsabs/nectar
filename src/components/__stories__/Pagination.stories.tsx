@@ -1,4 +1,4 @@
-import { IPaginationProps, Pagination } from '@components/ResultList/Pagination';
+import { Pagination, PaginationProps } from '@components/ResultList/Pagination';
 import { Meta, Story } from '@storybook/react';
 
 const meta: Meta = {
@@ -11,8 +11,8 @@ const meta: Meta = {
 
 export default meta;
 
-const Template: Story<IPaginationProps> = (args) => <Pagination {...args} />;
+const Template: Story<PaginationProps> = (args) => <Pagination {...args} />;
 
-export const Default = Template.bind({}) ;
+export const Default = Template.bind({});
 
 Default.args = {};

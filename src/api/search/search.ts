@@ -19,6 +19,7 @@ import {
   getCitationsParams,
   getCoreadsParams,
   getReferencesParams,
+  getSearchParams,
   getSearchStatsParams,
   getSimilarParams,
   getTocParams,
@@ -72,7 +73,8 @@ export const searchKeys = {
  */
 export const useSearch: SearchADSQuery = (params, options) => {
   // omit fields from queryKey
-  const cleanParams = omit(['fl', 'p'], params);
+  const cleanParams = omit(['fl', 'p'], getSearchParams(params));
+
   return useQuery<IADSApiSearchResponse, ErrorType, IADSApiSearchResponse['response']>({
     queryKey: SEARCH_API_KEYS.primary,
     queryHash: JSON.stringify(searchKeys.primary(cleanParams)),

@@ -34,13 +34,14 @@ export const createStore = (preloadedState: Partial<AppState> = {}) => {
     devtools(
       persist(state, {
         name: APP_STORAGE_KEY,
-        partialize: (state) => ({ user: state.user, theme: state.theme }),
+        partialize: (state) => ({ user: state.user, theme: state.theme, numPerPage: state.numPerPage }),
         merge: (persistedState: AppState, currentState: AppState) => {
           // for now user and theme are all that need persistence
           return {
             ...currentState,
-            user: persistedState.user,
-            theme: persistedState.theme,
+            numPerPage: persistedState.numPerPage ?? currentState.numPerPage,
+            user: persistedState.user ?? currentState.user,
+            theme: persistedState.theme ?? currentState.theme,
           };
         },
       }),
@@ -69,6 +70,8 @@ export const useCreateStore = (incomingState: Partial<AppState> = {}): (() => St
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (incomingState && store) {
+      console.log(incomingState, store.getState());
+      console.log('sldfkj', mergeDeepLeft(incomingState, store.getState()));
       store.setState(mergeDeepLeft(incomingState, store.getState()) as AppState);
     }
   }, [incomingState]);

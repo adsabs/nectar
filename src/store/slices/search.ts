@@ -1,5 +1,8 @@
 import { IADSApiSearchParams } from '@api';
+import { APP_DEFAULTS } from '@config';
 import { AppState, StoreSlice } from '@store';
+import { NumPerPageType } from '@types';
+import { isNumPerPageType } from '@utils';
 import { mergeRight } from 'ramda';
 import { NamedSet } from 'zustand/middleware';
 
@@ -20,19 +23,21 @@ export const defaultQueryParams: IADSApiSearchParams = {
     'property',
     'data',
   ],
-  sort: ['date desc', 'bibcode desc'],
+  sort: APP_DEFAULTS.SORT,
   start: 0,
-  rows: 10,
+  rows: APP_DEFAULTS.RESULT_PER_PAGE,
 };
 export interface IAppStateSearchSlice {
   query: IADSApiSearchParams;
   latestQuery: IADSApiSearchParams;
   prevQuery: IADSApiSearchParams;
+  numPerPage: NumPerPageType;
   setQuery: (query: IADSApiSearchParams) => void;
   updateQuery: (query: Partial<IADSApiSearchParams>) => void;
   swapQueries: () => void;
   submitQuery: () => void;
   resetQuery: () => void;
+  setNumPerPage: (numPerPage: NumPerPageType) => void;
 }
 
 export const searchSlice: StoreSlice<IAppStateSearchSlice> = (set: NamedSet<AppState>) => ({
@@ -43,6 +48,15 @@ export const searchSlice: StoreSlice<IAppStateSearchSlice> = (set: NamedSet<AppS
   latestQuery: defaultQueryParams,
 
   prevQuery: defaultQueryParams,
+
+  numPerPage: APP_DEFAULTS.RESULT_PER_PAGE,
+
+  setNumPerPage: (numPerPage: NumPerPageType) =>
+    set(
+      () => ({ numPerPage: isNumPerPageType(numPerPage) ? numPerPage : APP_DEFAULTS.RESULT_PER_PAGE }),
+      false,
+      'search/setNumPerPage',
+    ),
 
   setQuery: (query: IADSApiSearchParams) => set(() => ({ query })),
 

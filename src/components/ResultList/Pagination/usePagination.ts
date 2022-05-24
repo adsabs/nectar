@@ -1,5 +1,6 @@
 import { APP_DEFAULTS } from '@config';
 import { NumPerPageType } from '@types';
+import { isNumPerPageType } from '@utils';
 import memoizeOne from 'memoize-one';
 import { clamp, equals } from 'ramda';
 import { Dispatch, Reducer, useCallback, useEffect, useReducer } from 'react';
@@ -55,7 +56,22 @@ export const calculatePage = (startIndex: number, numPerPage: number) => {
 
 export const calculateStartIndex = (page: number, numPerPage: number, numFound: number = Number.MAX_SAFE_INTEGER) => {
   const results = cleanClamp(numFound, 0);
-  return cleanClamp((page - 1) * numPerPage + 1, 1, results - numPerPage + 1);
+  if (page <= 1) {
+    // on first page, always start at 0
+    return 0;
+  }
+
+  // on last page
+  if (page * numPerPage >= results - numPerPage) {
+    if (results % numPerPage === 0) {
+      return results - numPerPage;
+    } else {
+      return results - (results % numPerPage);
+    }
+  }
+
+  // otherwise do our normal calculation
+  return cleanClamp((page - 1) * numPerPage, 1, results - numPerPage + 1);
 };
 
 /**
@@ -92,14 +108,14 @@ export const calculatePagination = memoizeOne(
     } else if (page >= totalPages) {
       // for the final page, we can calculate directly from results
       if (results % numPerPage === 0) {
-        startIndex = results - numPerPage + 1;
+        startIndex = results - numPerPage;
       } else {
-        startIndex = results - (results % numPerPage) + 1;
+        startIndex = results - (results % numPerPage);
       }
       endIndex = results;
     } else {
-      startIndex = cleanClamp((page - 1) * numPerPage + 1, 1, results - numPerPage + 1);
-      endIndex = startIndex + numPerPage - 1;
+      startIndex = cleanClamp((page - 1) * numPerPage, 1, results - numPerPage + 1);
+      endIndex = startIndex + numPerPage;
     }
 
     // calculate new page based on startIndex and numPerPage
@@ -111,7 +127,7 @@ export const calculatePagination = memoizeOne(
       prevPage: cleanClamp(newPage - 1, 1, totalPages),
       noPrev: newPage === 1,
       noNext: newPage === totalPages,
-      noPagination: totalPages <= 1,
+      noPagination: numFound <= APP_DEFAULTS.RESULT_PER_PAGE,
 
       // meta
       startIndex,
@@ -125,6 +141,7 @@ export const calculatePagination = memoizeOne(
 
 export interface IUsePaginationProps {
   numFound: number;
+  numPerPage?: NumPerPageType;
   page?: number;
   onStateChange?: (pagination: PaginationResult, state: IPaginationState, dispatch: Dispatch<PaginationAction>) => void;
 }
@@ -190,8 +207,17 @@ const initialState: IPaginationState = {
  * Basically wraps the pagination logic, also uses some memoization to reduce unnecessary renders.
  */
 export const usePagination = (props: IUsePaginationProps) => {
-  const { numFound = 0, page = 1, onStateChange } = props;
+  const { numFound = 0, page = 1, numPerPage = APP_DEFAULTS.PER_PAGE_OPTIONS[0], onStateChange } = props;
   const [state, dispatch] = useReducer(reducer, { ...initialState, page });
+
+  useEffect(
+    () =>
+      dispatch({
+        type: 'SET_PERPAGE',
+        payload: isNumPerPageType(numPerPage) ? numPerPage : APP_DEFAULTS.PER_PAGE_OPTIONS[0],
+      }),
+    [numPerPage],
+  );
 
   // watch page changes, this allows consumers to force changes via props
   useEffect(() => dispatch({ type: 'SET_PAGE', payload: cleanClamp(page, 1) }), [page]);

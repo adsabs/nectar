@@ -1,6 +1,6 @@
 import api, { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, IUserData, SolrSort } from '@api';
 import { APP_DEFAULTS } from '@config';
-import { SafeSearchUrlParams } from '@types';
+import { NumPerPageType, SafeSearchUrlParams } from '@types';
 import { GetServerSidePropsContext, GetServerSidePropsResult, NextApiRequest, NextApiResponse } from 'next';
 import { useRouter } from 'next/router';
 import qs from 'qs';
@@ -146,6 +146,10 @@ export const parseNumberAndClamp = (
   }
 };
 
+export const isNumPerPageType = (value: number): value is NumPerPageType => {
+  return APP_DEFAULTS.PER_PAGE_OPTIONS.includes(value as NumPerPageType);
+};
+
 /**
  * Helper to parse query params into API search parameters
  */
@@ -154,12 +158,13 @@ export const parseQueryFromUrl = <TExtra extends Record<string, string>>(
   { sortPostfix }: { sortPostfix?: SolrSort } = {},
 ) => {
   const normalizedParams = normalizeURLParams(params);
+  const n = parseNumberAndClamp(normalizedParams?.n, APP_DEFAULTS.PER_PAGE_OPTIONS[0]);
   return {
     ...normalizedParams,
     q: normalizedParams?.q ?? '',
     sort: normalizeSolrSort(params.sort, sortPostfix),
     p: parseNumberAndClamp(normalizedParams?.p, 1),
-  } as IADSApiSearchParams & { p?: number } & TExtra;
+  } as IADSApiSearchParams & { p?: number; n?: number } & TExtra;
 };
 
 // detects if passed in value is a valid SolrSort
@@ -259,19 +264,24 @@ export const setupApiSSR = (ctx: GetServerSidePropsContext<ParsedUrlQuery>) => {
 };
 
 // omit params that should not be included in any urls
-const omitSearchParams = omit(['fl', 'start', 'rows']);
+const omitSearchParams = omit(['fl', 'start', 'rows', 'id']);
 
-export const makeSearchParams = (params: SafeSearchUrlParams) => {
+export const makeSearchParams = (params: SafeSearchUrlParams, options: { omit?: string[] } = {}) => {
   const cleanParams = omitSearchParams(params);
-  return qs.stringify(
-    {
+  return stringifySearchParams(
+    omit(options.omit ?? [], {
       ...cleanParams,
       sort: normalizeSolrSort(cleanParams.sort),
       p: parseNumberAndClamp(cleanParams?.p, 1),
-    },
-    { indices: false, arrayFormat: 'comma' },
+    }),
   );
 };
 
 export const stringifySearchParams = (params: Record<string, unknown>) =>
-  qs.stringify(params, { indices: false, arrayFormat: 'comma' });
+  qs.stringify(params, {
+    indices: false,
+    arrayFormat: 'comma',
+    format: 'RFC1738',
+    sort: (a, b) => a - b,
+    skipNulls: true,
+  });

@@ -18,72 +18,117 @@ import {
 } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components';
 import { APP_DEFAULTS } from '@config';
-import { useIsClient } from '@hooks/useIsClient';
-import NextLink from 'next/link';
+import { NumPerPageType, SafeSearchUrlParams } from '@types';
+import { makeSearchParams, stringifySearchParams } from '@utils';
+import NextLink, { LinkProps } from 'next/link';
 import { useRouter } from 'next/router';
-import { Dispatch, KeyboardEventHandler, ReactElement, useMemo, useRef, useState } from 'react';
+import { curryN } from 'ramda';
+import { KeyboardEventHandler, ReactElement, useCallback, useMemo, useRef, useState } from 'react';
 import { MenuPlacement } from 'react-select';
-import { IUsePaginationResult, PaginationAction } from './usePagination';
+import { calculatePagination } from './usePagination';
 
-export interface IPaginationProps extends IUsePaginationResult {
+type NumPerPageProp =
+  | {
+      numPerPage: NumPerPageType;
+      hidePerPageSelect?: false;
+      perPageMenuPlacement?: MenuPlacement;
+      onPerPageSelect?: (numPerPage: NumPerPageType) => void;
+    }
+  | {
+      numPerPage?: NumPerPageType;
+      hidePerPageSelect?: true;
+      perPageMenuPlacement?: MenuPlacement;
+      onPerPageSelect?: (numPerPage: NumPerPageType) => void;
+    };
+export type PaginationProps = {
+  linksExtendQuery?: boolean;
+  onNext?: (nextPage: number) => void;
+  onPageSelect?: (page: number) => void;
+  onPrevious?: (prevPage: number) => void;
+  page: number;
+  skipRouting?: boolean;
   totalResults: number;
-  hidePerPageSelect?: boolean;
-  dispatch: Dispatch<PaginationAction>;
-  perPageMenuPlacement?: MenuPlacement;
-}
+} & NumPerPageProp;
 
-export const Pagination = (props: IPaginationProps): ReactElement => {
+export const Pagination = (props: PaginationProps): ReactElement => {
   const {
-    page = 1,
-    totalResults = 0,
     hidePerPageSelect = false,
-    endIndex = 1,
-    nextPage = 2,
-    noNext = true,
-    noPagination = true,
-    noPrev = true,
-    prevPage = 1,
-    startIndex = 0,
-    totalPages = 1,
+    linksExtendQuery = false,
     numPerPage = APP_DEFAULTS.RESULT_PER_PAGE,
-    dispatch,
+    onNext,
+    onPageSelect,
+    onPerPageSelect,
+    onPrevious,
+    page = 1,
     perPageMenuPlacement = 'auto',
+    skipRouting = false,
+    totalResults = 0,
   } = props;
 
+  const router = useRouter();
   const pageOptions: SelectOption[] = APP_DEFAULTS.PER_PAGE_OPTIONS.map((option) => ({
     id: option.toString(),
     label: option.toString(),
     value: option.toString(),
   }));
 
-  const router = useRouter();
-  const isClient = useIsClient();
-
-  // Need only to update the store with the page, it'll be caught upstream
-  const handlePrev = () => {
-    dispatch({ type: 'PREV_PAGE' });
-  };
-
-  const handleNext = () => {
-    dispatch({ type: 'NEXT_PAGE' });
-  };
+  const { endIndex, startIndex, nextPage, noNext, noPagination, noPrev, prevPage, totalPages } = calculatePagination({
+    numPerPage,
+    page,
+    numFound: totalResults,
+  });
 
   const perPageSelectedValue = useMemo(() => pageOptions.find((o) => parseInt(o.value) === numPerPage), [numPerPage]);
-
-  if (noPagination) {
-    return null;
-  }
 
   /**
    * Update our internal state perPage, which will trigger on the pagination hook
    */
-  const perPageChangeHandler = ({ value }: SelectOption) => {
-    const numPerPage = parseInt(value, 10) as typeof APP_DEFAULTS['PER_PAGE_OPTIONS'][number];
-    dispatch({ type: 'SET_PERPAGE', payload: numPerPage });
-  };
+  const perPageChangeHandler = useCallback(
+    ({ value }: SelectOption) => {
+      const numPerPage = parseInt(value, 10) as typeof APP_DEFAULTS['PER_PAGE_OPTIONS'][number];
+      if (typeof onPerPageSelect === 'function') {
+        onPerPageSelect(numPerPage);
+      }
+    },
+    [onPerPageSelect],
+  );
 
+  const handleClick = useCallback(
+    curryN(2, (type: 'prev' | 'next', e: MouseEvent) => {
+      if (skipRouting) {
+        e.preventDefault();
+      }
+
+      if (typeof onPrevious === 'function' && type === 'prev') {
+        onPrevious(prevPage);
+      }
+
+      if (typeof onNext === 'function' && type === 'next') {
+        onNext(nextPage);
+      }
+    }),
+    [onPrevious, onNext],
+  );
+
+  const getLinkParams = useCallback(
+    (page: number): LinkProps => {
+      const search = linksExtendQuery
+        ? makeSearchParams({ ...router.query, p: page } as SafeSearchUrlParams)
+        : stringifySearchParams({ p: page });
+
+      return {
+        href: { pathname: router.pathname, search },
+        as: { pathname: router.asPath.split('?')[0], search },
+      };
+    },
+    [router.pathname, router.asPath, router.query],
+  );
+
+  if (noPagination) {
+    return null;
+  }
   const formattedTotalResults = totalResults.toLocaleString();
-  const formattedStartIndex = (startIndex === 0 ? 1 : startIndex).toLocaleString();
+  const formattedStartIndex = (startIndex + 1).toLocaleString();
   const formattedEndIndex = endIndex.toLocaleString();
   const paginationHeading = `Pagination, showing ${formattedStartIndex} to ${
     noNext ? formattedTotalResults : formattedEndIndex
@@ -112,7 +157,7 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
             results
           </Text>
         </Box>
-        {!hidePerPageSelect && isClient && (
+        {!hidePerPageSelect && (
           <Box display={{ base: 'none', xs: 'flex' }} data-testid="pagination-numperpage">
             <Select
               label="Select number of results to show per page"
@@ -125,59 +170,36 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
           </Box>
         )}
         <Stack direction="row" spacing={0} role="navigation" aria-label="Pagination">
-          {isClient ? (
-            <Button
-              aria-label="previous"
-              onClick={handlePrev}
-              data-testid="pagination-prev"
-              leftIcon={<ChevronLeftIcon />}
-              isDisabled={noPrev}
-              variant="pagePrev"
-            >
-              Prev
-            </Button>
-          ) : (
-            <NextLink href={{ query: { ...router.query, p: prevPage } }} passHref>
-              <Link>
-                <Button
-                  aria-label="previous"
-                  data-testid="pagination-prev"
-                  leftIcon={<ChevronLeftIcon />}
-                  isDisabled={noPrev}
-                  variant="pagePrev"
-                >
-                  Prev
-                </Button>
-              </Link>
-            </NextLink>
-          )}
-          {isClient && <ManualPageSelect page={page} totalPages={totalPages} dispatch={dispatch} />}
-          {isClient ? (
-            <Button
-              aria-label="next"
-              onClick={handleNext}
-              data-testid="pagination-next"
-              rightIcon={<ChevronRightIcon />}
-              isDisabled={noNext}
-              variant="pageNext"
-            >
-              Next
-            </Button>
-          ) : (
-            <NextLink href={{ query: { ...router.query, p: nextPage } }} passHref>
-              <Link>
-                <Button
-                  aria-label="next"
-                  data-testid="pagination-next"
-                  rightIcon={<ChevronRightIcon />}
-                  isDisabled={noNext}
-                  variant="pageNext"
-                >
-                  Next
-                </Button>
-              </Link>
-            </NextLink>
-          )}
+          <NextLink {...getLinkParams(prevPage)} passHref shallow>
+            <Link>
+              <Button
+                onClick={handleClick('prev')}
+                aria-label="previous"
+                data-testid="pagination-prev"
+                leftIcon={<ChevronLeftIcon />}
+                isDisabled={noPrev}
+                variant="pagePrev"
+              >
+                Prev
+              </Button>
+            </Link>
+          </NextLink>
+          <ManualPageSelect page={page} totalPages={totalPages} skipRouting={skipRouting} onPageSelect={onPageSelect} />
+
+          <NextLink {...getLinkParams(nextPage)} passHref shallow>
+            <Link>
+              <Button
+                onClick={handleClick('next')}
+                aria-label="next"
+                data-testid="pagination-next"
+                rightIcon={<ChevronRightIcon />}
+                isDisabled={noNext}
+                variant="pageNext"
+              >
+                Next
+              </Button>
+            </Link>
+          </NextLink>
         </Stack>
       </Flex>
     </Box>
@@ -190,12 +212,15 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
 const ManualPageSelect = ({
   page: currentPage = 1,
   totalPages = 1,
-  dispatch,
+  skipRouting,
+  onPageSelect,
 }: {
   page: number;
   totalPages: number;
-  dispatch: IPaginationProps['dispatch'];
+  onPageSelect: (page: number) => void;
+  skipRouting: boolean;
 }) => {
+  const router = useRouter();
   // hold intermediate page in local state
   const [page, setPage] = useState(currentPage);
   const handleChange = (_: string, page: number) => {
@@ -205,7 +230,15 @@ const ManualPageSelect = ({
   // submit the change to page
   const handleSubmit = () => {
     if (page !== currentPage) {
-      dispatch({ type: 'SET_PAGE', payload: page });
+      if (!skipRouting) {
+        void router.push({
+          pathname: router.pathname,
+          search: makeSearchParams({ ...router.query, p: page } as SafeSearchUrlParams),
+        });
+      }
+      if (typeof onPageSelect === 'function') {
+        onPageSelect(page);
+      }
     }
   };
 
