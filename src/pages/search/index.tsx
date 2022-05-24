@@ -6,16 +6,18 @@ import {
   searchKeys,
   SEARCH_API_KEYS,
   SolrSort,
+  useSearch,
 } from '@api';
 import { Box, Flex, Stack } from '@chakra-ui/layout';
 import { Alert, AlertIcon, Code, VisuallyHidden } from '@chakra-ui/react';
-import { ItemsSkeleton, ListActions, NumFound, Pagination, SearchBar, SimpleResultList } from '@components';
-import { useSearchController } from '@hooks/useSearchController';
-import { AppState, createStore, useStore } from '@store';
-import { isApiSearchResponse, parseQueryFromUrl, setupApiSSR } from '@utils';
+import { ListActions, NumFound, Pagination, SearchBar, SimpleResultList } from '@components';
+import { usePagination } from '@components/ResultList/Pagination/usePagination';
+import { AppState, createStore, useStore, useStoreApi } from '@store';
+import { isApiSearchResponse, makeSearchParams, parseQueryFromUrl, setupApiSSR } from '@utils';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { omit } from 'ramda';
 import { FormEventHandler } from 'react';
 import { dehydrate, QueryClient } from 'react-query';
@@ -24,35 +26,52 @@ import { dehydrate, QueryClient } from 'react-query';
 const updateQuerySelector = (state: AppState) => state.updateQuery;
 const submitQuerySelector = (state: AppState) => state.submitQuery;
 
-const SearchPage: NextPage<{ page: number }> = ({ page }) => {
+const SearchPage: NextPage<{ params: IADSApiSearchParams; page: number }> = ({ params, page }) => {
   const updateQuery = useStore(updateQuerySelector);
   const submitQuery = useStore(submitQuerySelector);
+  const router = useRouter();
+  const store = useStoreApi();
 
-  const [{ data, isFetching, error }, { getPaginationProps }] = useSearchController({ ssrPage: page });
+  const { data, error } = useSearch(params);
+
+  const { getPaginationProps } = usePagination({
+    numFound: data?.numFound,
+    page,
+    onStateChange: (pagination, { page: newPage }) => {
+      if (pagination.startIndex !== params.start && newPage !== page) {
+        updateQuery({ start: pagination.startIndex });
+        submitQuery();
+        const search = makeSearchParams({ ...params, p: newPage });
+        void router.push({ pathname: router.pathname, search }, null, { scroll: true });
+      }
+    },
+  });
+  const pagination = getPaginationProps();
 
   const handleSortChange = (sort: SolrSort[]) => {
     updateQuery({ sort });
     submitQuery();
+    const search = makeSearchParams({ ...params, ...store.getState().query, sort, p: 1 });
+    void router.push({ pathname: router.pathname, search }, null, { scroll: false });
   };
 
   const handleOnSubmit: FormEventHandler = (e) => {
     e.preventDefault();
     submitQuery();
+    const search = makeSearchParams({ ...params, ...store.getState().query, p: 1 });
+    void router.push({ pathname: router.pathname, search }, null, { scroll: false });
   };
-
-  const pagination = getPaginationProps();
 
   return (
     <Box aria-labelledby="search-form-title" my={16}>
       <Head>
-        {/* todo: add the query here in the title */}
-        <title> | NASA Science Explorer - Search Results</title>
+        <title>{params.q} | NASA Science Explorer - Search Results</title>
       </Head>
 
       <form method="get" action="/search" onSubmit={handleOnSubmit}>
         <Flex direction="column" width="full">
-          <SearchBar isLoading={isFetching} />
-          <NumFound count={data?.numFound} isLoading={isFetching} />
+          <SearchBar />
+          <NumFound count={data?.numFound} />
         </Flex>
         <Box mt={5}>
           <ListActions onSortChange={handleSortChange} />
@@ -63,10 +82,9 @@ const SearchPage: NextPage<{ page: number }> = ({ page }) => {
         Search Results
       </VisuallyHidden>
 
-      {isFetching && <ItemsSkeleton count={pagination.numPerPage} />}
       {data && (
         <>
-          <SimpleResultList docs={data.docs} indexStart={pagination.startIndex} />
+          <SimpleResultList docs={data.docs} indexStart={params.start} />
           <Pagination {...pagination} totalResults={data.numFound} />
         </>
       )}
@@ -87,7 +105,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     ...defaultParams,
     ...query,
     q: query.q.length === 0 ? '*:*' : query.q,
-    start: (page - 1) * defaultParams.rows,
+    start: (page - 1) * defaultParams.rows + 1,
   };
 
   // omit fields from queryKey
@@ -115,6 +133,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
     return {
       props: {
+        params,
         page,
         dehydratedState: dehydrate(queryClient),
         dehydratedAppState: {
@@ -130,7 +149,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   } catch (e) {
     return {
       props: {
-        page,
+        params,
         dehydratedState: dehydrate(queryClient),
         dehydratedAppState: {
           query: params,
