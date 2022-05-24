@@ -14,15 +14,16 @@ import axios from 'axios';
 import qs from 'qs';
 
 interface IOverviewProps {
-  query: IADSApiSearchParams;
+  originalQuery: IADSApiSearchParams;
+  bibsQuery: IADSApiSearchParams;
   error?: string;
 }
-const OverviewPage: NextPage<IOverviewProps> = ({ query, error }) => {
+const OverviewPage: NextPage<IOverviewProps> = ({ originalQuery, bibsQuery, error }) => {
   return (
     <div>
       <VizPageLayout
         vizPage="overview"
-        from={{ pathname: '/search', query: qs.stringify(query, { arrayFormat: 'comma' }) }}
+        from={{ pathname: '/search', query: qs.stringify(originalQuery, { arrayFormat: 'comma' }) }}
       ></VizPageLayout>
       {error ? (
         <Alert status="error" my={5}>
@@ -31,7 +32,7 @@ const OverviewPage: NextPage<IOverviewProps> = ({ query, error }) => {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : (
-        <OverviewPageContainer query={query} />
+        <OverviewPageContainer query={bibsQuery} />
       )}
     </div>
   );
@@ -46,7 +47,8 @@ const getCleanedParams = (params: IADSApiSearchParams) => {
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   setupApiSSR(ctx);
   const { fetchSearch } = await import('@api');
-  const { qid, p, ...query } = parseQueryFromUrl<{ qid: string }>(ctx.query);
+  const { qid: _qid, ...originalQuery } = ctx.query;
+  const { qid, p, ...query } = parseQueryFromUrl<{ qid: string }>(ctx.query, { sortPostfix: 'id asc' });
 
   const queryClient = new QueryClient();
 
@@ -80,7 +82,8 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
     return {
       props: {
-        query: params,
+        originalQuery,
+        bibsQuery: params,
         dehydratedState: dehydrate(queryClient),
       },
     };
