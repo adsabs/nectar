@@ -6,10 +6,13 @@ import {
   HStack,
   NumberInput,
   NumberInputField,
+  Radio,
+  RadioGroup,
   Slider,
   SliderFilledTrack,
   SliderThumb,
   SliderTrack,
+  Stack,
   Text,
 } from '@chakra-ui/react';
 import { LineGraph } from '@components/Metrics/types';
@@ -17,7 +20,7 @@ import { Datum } from '@nivo/line';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { UseQueryResult } from 'react-query';
 import { useDebounce } from 'use-debounce';
-import { LineGraph as LineGraphGraph } from '@components';
+import { LineGraph as LineGraphGraph } from '@components/Visualizations/Graphs';
 import { getLineGraphYearTicks } from '../utils';
 
 interface IHIndexGraphPaneProps {
@@ -43,13 +46,20 @@ export const HIndexGraphPane = ({
     maxLimit: maxDataPoints,
   });
 
+  const [yaxis, setYaxis] = useState('linear');
+
   // prevent graph transform until user has stopped updating slider
   const [debouncedLimit] = useDebounce(limits.limit, 50);
 
   const baseGraph: LineGraph = useMemo(() => {
     if (buckets) {
       const data = getGraphData(buckets, limits.limit);
-      return { data: [{ id: type, data }] };
+      const hi = data.findIndex((d) => d.x > d.y);
+      const hindex = hi > 0 ? (data[hi - 1].x as number) : undefined;
+      return {
+        data: [{ id: type, data }],
+        hindex,
+      };
     }
   }, [buckets, debouncedLimit]);
 
@@ -78,43 +88,56 @@ export const HIndexGraphPane = ({
     <>
       {isLoading && <CircularProgress isIndeterminate />}
       {!isLoading && !isError && baseGraph && (
-        <Flex direction="column">
-          <Text>{`${
-            isNaN(limits.limit) || limits.limit > limits.maxLimit ? limits.maxLimit : limits.limit
-          } top ranked ${type} of ${statsCount}`}</Text>
-          <LineGraphGraph data={baseGraph.data} ticks={getLineGraphYearTicks(baseGraph.data, 10)} />
-          <Slider
-            aria-label="limit slider"
-            min={1}
-            max={limits.maxLimit}
-            value={isNaN(limits.limit) ? limits.maxLimit : limits.limit}
-            onChange={handleLimitSliderChange}
-            my={5}
-            focusThumbOnChange={false}
-          >
-            <SliderTrack>
-              <SliderFilledTrack />
-            </SliderTrack>
-            <SliderThumb />
-          </Slider>
-          <HStack alignItems="center">
-            <Text>Limit results to top </Text>
-            <NumberInput
-              value={isNaN(limits.limit) ? '' : limits.limit}
-              min={1}
-              max={limits.maxLimit}
-              aria-label="limit"
-              maxW={24}
-              mx={2}
-              size="sm"
-              onChange={handleLimitInputChange}
-            >
-              <NumberInputField />
-            </NumberInput>
-            <Text> most cited</Text>
-            <Button type="submit">Search</Button>
-          </HStack>
-        </Flex>
+        <>
+          {baseGraph.data[0].length < 2 ? (
+            <Text>Not enough data to make a useful graph</Text>
+          ) : (
+            <Flex direction="column">
+              <Text>{`${
+                isNaN(limits.limit) || limits.limit > limits.maxLimit ? limits.maxLimit : limits.limit
+              } top ranked ${type} of ${statsCount}`}</Text>
+              <Text>H-Index for results: {baseGraph.hindex ? baseGraph.hindex : ''}</Text>
+              <RadioGroup value={yaxis} onChange={setYaxis}>
+                <Stack spacing={4} direction="row">
+                  <Radio value="linear">Linear</Radio>
+                  <Radio value="log">Log</Radio>
+                </Stack>
+              </RadioGroup>
+              <LineGraphGraph data={baseGraph.data} ticks={getLineGraphYearTicks(baseGraph.data, 10)} />
+              <Slider
+                aria-label="limit slider"
+                min={1}
+                max={limits.maxLimit}
+                value={isNaN(limits.limit) ? limits.maxLimit : limits.limit}
+                onChange={handleLimitSliderChange}
+                my={5}
+                focusThumbOnChange={false}
+              >
+                <SliderTrack>
+                  <SliderFilledTrack />
+                </SliderTrack>
+                <SliderThumb />
+              </Slider>
+              <HStack alignItems="center">
+                <Text>Limit results to top </Text>
+                <NumberInput
+                  value={isNaN(limits.limit) ? '' : limits.limit}
+                  min={1}
+                  max={limits.maxLimit}
+                  aria-label="limit"
+                  maxW={24}
+                  mx={2}
+                  size="sm"
+                  onChange={handleLimitInputChange}
+                >
+                  <NumberInputField />
+                </NumberInput>
+                <Text> most cited</Text>
+                <Button type="submit">Search</Button>
+              </HStack>
+            </Flex>
+          )}
+        </>
       )}
     </>
   );

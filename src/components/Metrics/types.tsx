@@ -9,6 +9,7 @@ export interface BarGraph<T extends BarDatum> {
 
 export interface LineGraph {
   data: Serie[];
+  hindex?: number;
 }
 
 export interface IMetricsGraphs {
