@@ -1,8 +1,10 @@
 import {
   defaultParams,
   fetchSearch,
+  getSearchParams,
   getSearchStatsParams,
   IADSApiSearchParams,
+  IADSApiSearchResponse,
   searchKeys,
   SEARCH_API_KEYS,
   SolrSort,
@@ -20,23 +22,27 @@ import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { omit } from 'ramda';
+import { last, omit, path } from 'ramda';
 import { FormEventHandler, useEffect } from 'react';
-import { dehydrate, QueryClient } from 'react-query';
+import { dehydrate, QueryClient, useQueryClient } from 'react-query';
 
 const SearchPage: NextPage = () => {
   const router = useRouter();
   const store = useStoreApi();
   const storeNumPerPage = useStore((state) => state.numPerPage);
+  const queryClient = useQueryClient();
+  const queries = queryClient.getQueriesData<IADSApiSearchResponse>(SEARCH_API_KEYS.primary);
+  const numFound = queries.length > 1 ? path<number>(['1', 'response', 'numFound'], last(queries)) : null;
 
   const parsedParams = parseQueryFromUrl(router.query);
   const params = {
     ...defaultParams,
     ...parsedParams,
     rows: storeNumPerPage,
-    start: calculateStartIndex(parsedParams.p, storeNumPerPage),
+    start: calculateStartIndex(parsedParams.p, storeNumPerPage, numFound),
   };
-  const { data, isLoading, error } = useSearch(omit(['p'], params), { structuralSharing: true });
+  console.log(params);
+  const { data, isLoading, error } = useSearch(omit(['p'], params));
 
   const handleSortChange = (sort: SolrSort[]) => {
     const search = makeSearchParams({ ...params, ...store.getState().query, sort, p: 1 });
@@ -104,19 +110,28 @@ const SearchPage: NextPage = () => {
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const { p: page, ...query } = parseQueryFromUrl<{ p: string }>(ctx.query);
   setupApiSSR(ctx);
+  const queryClient = new QueryClient();
 
-  const params: IADSApiSearchParams = {
-    ...defaultParams,
+  // prime the search with a small query to get the current numFound
+  let primer = null;
+  if (page > 1) {
+    const primerParams = { ...query, start: 0, rows: 1, fl: ['id'] };
+    primer = await queryClient.fetchQuery({
+      queryKey: SEARCH_API_KEYS.primary,
+      queryFn: fetchSearch,
+      queryHash: JSON.stringify(searchKeys.primary(omit(['fl'], primerParams))),
+      meta: { params: primerParams },
+    });
+  }
+
+  const params: IADSApiSearchParams = getSearchParams({
     ...query,
     q: query.q.length === 0 ? '*:*' : query.q,
-    start: calculateStartIndex(page, APP_DEFAULTS.RESULT_PER_PAGE),
-  };
-
-  console.log(params);
+    start: calculateStartIndex(page, APP_DEFAULTS.RESULT_PER_PAGE, primer?.response.numFound),
+  });
 
   // omit fields from queryKey
   const { fl, ...cleanedParams } = params;
-  const queryClient = new QueryClient();
 
   // prefetch the citation counts for this query
   if (/^citation_count(_norm)?/.test(params.sort[0])) {
