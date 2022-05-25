@@ -38,7 +38,7 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = ({ id, format, er
         ) : isClient ? (
           <CitationExporter initialFormat={format} records={[doc?.bibcode]} singleMode />
         ) : (
-          <CitationExporter.Static records={[doc?.bibcode]} initialFormat={format} />
+          <CitationExporter.Static records={[doc?.bibcode]} initialFormat={format} totalRecords={1} />
         )}
       </Box>
     </AbsLayout>

@@ -10,14 +10,13 @@ export const KeyFormatInput = () => {
         linkProps={{ href: '/help/actions/export#the-bibtex-format-configuration' }}
       >
         {({ btn, content }) => (
-          <Box py="2">
-            <FormLabel>Key Format {btn}</FormLabel>
+          <Box>
+            <FormLabel fontSize={['sm', 'md']}>Key Format {btn}</FormLabel>
             {content}
+            <Input defaultValue="%R" size="md" borderRadius="sm" />
           </Box>
         )}
       </DescriptionCollapse>
-
-      <Input defaultValue="%R" size="md" borderRadius="sm" />
     </FormControl>
   );
 };
@@ -33,7 +32,7 @@ const description = (
       <Code
         display="block"
         whiteSpace="pre"
-        children={`  @INPROCEEDINGS{2019AAS...23338108A,
+        children={`@INPROCEEDINGS{2019AAS...23338108A,
 author = {{Accomazzi}, Alberto and {Kurtz}, Michael J. and ...`}
       />
     </p>
@@ -49,7 +48,7 @@ author = {{Accomazzi}, Alberto and {Kurtz}, Michael J. and ...`}
       <Code
         display="block"
         whiteSpace="pre"
-        children={`  Accomazzi:2019              -- %1H:%Y
+        children={`Accomazzi:2019              -- %1H:%Y
 Accomazzi:2019:AAS          -- %1H:%Y:%q
 Accomazzi2019               -- %1H%Y
 Accomazzi2019AAS            -- %1H%Y%q

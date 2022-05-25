@@ -1,8 +1,11 @@
 import { ExportApiJournalFormat, IExportApiParams } from '@api';
-import { OrderedList } from '@chakra-ui/react';
-import { SelectOption } from '@components/Select';
+import { Box, FormLabel, OrderedList } from '@chakra-ui/react';
+import { Select, SelectOption } from '@components/Select';
 import { Sender } from '@xstate/react/lib/types';
+import { values } from 'ramda';
+import { useMemo } from 'react';
 import { CitationExporterEvent } from '../CitationExporter.machine';
+import { DescriptionCollapse } from './DescriptionCollapse';
 
 type JournalFormatOption = SelectOption<ExportApiJournalFormat>;
 
@@ -31,51 +34,53 @@ export const JournalFormatSelect = (props: {
   journalformat: IExportApiParams['journalformat'];
   dispatch: Sender<CitationExporterEvent>;
 }) => {
-  // const { journalformat: [journalformat] = [], dispatch } = props;
-  // const formats = useMemo(() => values(journalFormats), []);
+  const { journalformat: [journalformat] = [], dispatch } = props;
+  const formats = useMemo(() => values(journalFormats), []);
 
-  // const handleOnChange = ({ id }: JournalFormatOption) => {
-  //   dispatch({ type: 'SET_JOURNAL_FORMAT', payload: id });
-  // };
+  const handleOnChange = ({ id }: JournalFormatOption) => {
+    dispatch({ type: 'SET_JOURNAL_FORMAT', payload: id });
+  };
 
-  // TODO: fix, select component needs changes to make work properly
-  return <div></div>;
-  // <DescriptionCollapse
-  //   body={description}
-  //   label="Journal Format"
-  //   linkProps={{ href: '/help/actions/export#the-bibtex-format-configuration' }}
-  // >
-  //   {({ btn, content }) => (
-  //     <>
-  //       <Select<JournalFormatOption>
-  //         name="journalformat"
-  //         label={
-  //           <Box mb="2">
-  //             <FormLabel htmlFor="journal-format-select">Journal Format {btn}</FormLabel>
-  //             {content}
-  //           </Box>
-  //         }
-  //         aria-label="Journal Format"
-  //         hideLabel={false}
-  //         id="journal-format-select"
-  //         options={formats}
-  //         value={journalFormats[journalformat]}
-  //         onChange={handleOnChange}
-  //         data-testid="export-select"
-  //         stylesTheme="default"
-  //       />
-  //     </>
-  //   )}
-  // </DescriptionCollapse>
+  return (
+    <DescriptionCollapse
+      body={description}
+      label="Journal Format"
+      linkProps={{ href: '/help/actions/export#the-bibtex-format-configuration' }}
+    >
+      {({ btn, content }) => (
+        <>
+          <Select<JournalFormatOption>
+            name="journalformat"
+            label={
+              <Box mb="2">
+                <FormLabel htmlFor="journal-format-select" fontSize={['sm', 'md']}>
+                  Journal Format {btn}
+                </FormLabel>
+                {content}
+              </Box>
+            }
+            aria-label="Journal Format"
+            hideLabel={false}
+            id="journal-format-select"
+            options={formats}
+            value={journalFormats[journalformat]}
+            onChange={handleOnChange}
+            data-testid="export-select"
+            stylesTheme="default"
+          />
+        </>
+      )}
+    </DescriptionCollapse>
+  );
 };
 
 const description = (
-  <p>
+  <>
     Allows user to decide on the format of journal name.
     <OrderedList>
       <li>Indicates to use AASTeX macros if there are any (default), otherwise full journal name is exported. </li>
       <li>Use journal abbreviations</li>
       <li>Use full journal name</li>
     </OrderedList>
-  </p>
+  </>
 );

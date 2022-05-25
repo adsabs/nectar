@@ -14,8 +14,8 @@ import { ApiTargets } from './models';
  */
 const resolveApiBaseUrl = (defaultBaseUrl = ''): string => {
   // for mocking requests, just shortcut the baseURL here
-  if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
-    return '/';
+  if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled') {
+    return 'http://localhost';
   }
 
   const config = getConfig();

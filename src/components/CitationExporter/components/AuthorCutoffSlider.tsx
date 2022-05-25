@@ -1,5 +1,5 @@
 import { IExportApiParams, MAX_AUTHORCUTOFF } from '@api';
-import { FormLabel, Slider, SliderFilledTrack, SliderThumb, SliderTrack } from '@chakra-ui/react';
+import { Code, FormLabel, Slider, SliderFilledTrack, SliderThumb, SliderTrack } from '@chakra-ui/react';
 import { Sender } from '@xstate/react/lib/types';
 import { useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
@@ -21,43 +21,41 @@ export const AuthorCutoffSlider = (props: {
   const handleChange = (val: number) => setValue(val);
 
   return (
-    <>
-      <DescriptionCollapse
-        body={description}
-        label="Author Cut-off"
-        linkProps={{ href: '/help/actions/export#the-bibtex-format-configuration' }}
-      >
-        {({ btn, content }) => (
-          <>
-            <FormLabel htmlFor="authorcutoff-slider">
-              Author Cut-off <span aria-hidden="true">({value})</span> {btn}
-            </FormLabel>
-            {content}
-          </>
-        )}
-      </DescriptionCollapse>
-
-      <Slider
-        id="authorcutoff-slider"
-        aria-label="Author Cutoff"
-        name="authorcutoff"
-        value={value}
-        max={MAX_AUTHORCUTOFF}
-        min={1}
-        onChange={handleChange}
-      >
-        <SliderTrack bg="blue.100">
-          <SliderFilledTrack />
-        </SliderTrack>
-        <SliderThumb />
-      </Slider>
-    </>
+    <DescriptionCollapse
+      body={description}
+      label="Author Cut-off"
+      linkProps={{ href: '/help/actions/export#the-bibtex-format-configuration' }}
+    >
+      {({ btn, content }) => (
+        <>
+          <FormLabel htmlFor="authorcutoff-slider" fontSize={['sm', 'md']}>
+            Author Cut-off <span aria-hidden="true">({value})</span> {btn}
+          </FormLabel>
+          {content}
+          <Slider
+            id="authorcutoff-slider"
+            aria-label="Author Cutoff"
+            name="authorcutoff"
+            value={value}
+            max={MAX_AUTHORCUTOFF}
+            min={1}
+            onChange={handleChange}
+          >
+            <SliderTrack bg="blue.100">
+              <SliderFilledTrack />
+            </SliderTrack>
+            <SliderThumb />
+          </Slider>
+        </>
+      )}
+    </DescriptionCollapse>
   );
 };
 
 const description = (
   <p>
-    Maximum number of authors displayed if number of authors exceed 200. The default values for maxauthor for BibTeX and
-    BibTeX ABS are respectively 10 and 0, where 0 means display all authors.
+    The threshold for truncating number of authors. If the number of authors is larger than <Code>authorcutoff</Code>,
+    author list is truncated and <Code>maxauthor</Code> number of authors will be returned followed by{' '}
+    <Code>et al.</Code>. If <Code>authorcutoff</Code> is not specified, the default of 200 is used.
   </p>
 );

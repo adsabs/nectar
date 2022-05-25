@@ -1,12 +1,15 @@
 import {
-  BIBTEX_ABS_DEFAULT_AUTHORCUTOFF,
-  BIBTEX_DEFAULT_AUTHORCUTOFF,
+  BIBTEX_ABS_DEFAULT_MAX_AUTHOR,
+  BIBTEX_DEFAULT_AUTHOR_CUTOFF,
+  BIBTEX_DEFAULT_MAX_AUTHOR,
   ExportApiFormatKey,
   ExportApiJournalFormat,
   IDocsEntity,
   IExportApiParams,
 } from '@api';
+import { normalizeSolrSort } from '@utils';
 import { assign, createMachine } from '@xstate/fsm';
+import { equals } from 'ramda';
 import { IUseCitationExporterProps } from './useCitationExporter';
 
 export interface ICitationExporterState {
@@ -14,6 +17,7 @@ export interface ICitationExporterState {
   range: [0, number];
   isCustomFormat: boolean;
   singleMode: boolean;
+  prevParams: IExportApiParams;
   params: IExportApiParams;
 }
 
@@ -72,60 +76,68 @@ export type CitationExporterEvent =
   | SetJournalFormat
   | SetIsCustomFormat
   | { type: 'SUBMIT' }
+  | { type: 'FORCE_SUBMIT' }
   | { type: 'DONE' };
 
 export const getExportCitationDefaultContext = (props: IUseCitationExporterProps): ICitationExporterState => {
-  const { records = [], format = ExportApiFormatKey.bibtex, singleMode } = props;
+  const { records = [], format = ExportApiFormatKey.bibtex, singleMode, sort = ['date desc'] } = props;
+  const params: IExportApiParams = {
+    format,
+    bibcode: records,
+    sort,
+    authorcutoff: [BIBTEX_DEFAULT_AUTHOR_CUTOFF],
+    customFormat: null,
+    journalformat: [ExportApiJournalFormat.AASTeXMacros],
+    maxauthor: [
+      format === ExportApiFormatKey.bibtex
+        ? BIBTEX_DEFAULT_MAX_AUTHOR
+        : format === ExportApiFormatKey.bibtexabs
+        ? BIBTEX_ABS_DEFAULT_MAX_AUTHOR
+        : 0,
+    ],
+  };
   return {
     records,
     range: [0, records.length],
     isCustomFormat: false,
     singleMode,
-    params: {
-      format,
-      bibcode: records,
-      sort: ['date desc'],
-      authorcutoff: [
-        format === ExportApiFormatKey.bibtex
-          ? BIBTEX_DEFAULT_AUTHORCUTOFF
-          : format === ExportApiFormatKey.bibtexabs
-          ? BIBTEX_ABS_DEFAULT_AUTHORCUTOFF
-          : 0,
-      ],
-      customFormat: null,
-      journalformat: [ExportApiJournalFormat.AASTeXMacros],
-      maxauthor: [0],
-    },
+    prevParams: params,
+    params,
   };
 };
 
-export const generateMachine = ({ format, records, singleMode }: IUseCitationExporterProps) => {
+export const generateMachine = ({ format, records, singleMode, sort }: IUseCitationExporterProps) => {
   return createMachine<ICitationExporterState, CitationExporterEvent>({
-    context: getExportCitationDefaultContext({ format, records, singleMode }),
+    context: getExportCitationDefaultContext({ format, records, singleMode, sort }),
     id: 'citationExporter',
-    initial: singleMode ? 'idle' : 'fetching',
+    initial: 'idle',
     states: {
       idle: {
         on: {
           SET_RECORDS: {
             actions: assign<ICitationExporterState, SetRecords>({
               records: (_ctx, evt) => evt.payload,
+
+              // set the new records on params, respecting the current range
+              params: (ctx, evt) => ({
+                ...ctx.params,
+                bibcode: evt.payload.slice(0, ctx.range[1]),
+              }),
             }),
+            target: 'fetching',
           },
           SET_SORT: {
             actions: assign<ICitationExporterState, SetSort>({
-              params: (ctx, evt) => ({ ...ctx.params, sort: evt.payload }),
+              params: (ctx, evt) => ({ ...ctx.params, sort: normalizeSolrSort(evt.payload) }),
             }),
           },
-          SET_FORMAT: {
-            actions: assign<ICitationExporterState, SetFormat>({
-              params: (ctx, evt) => ({ ...ctx.params, format: evt.payload }),
-            }),
-            target: 'fetching',
-
-            // will transition to fetching only if singleMode is true
-            cond: () => singleMode,
-          },
+          SET_FORMAT: [
+            {
+              actions: assign<ICitationExporterState, SetFormat>({
+                params: (ctx, evt) => ({ ...ctx.params, format: evt.payload }),
+              }),
+            },
+          ],
           SET_RANGE: {
             actions: assign<ICitationExporterState, SetRange>({
               range: (_ctx, evt) => [0, evt.payload],
@@ -153,16 +165,21 @@ export const generateMachine = ({ format, records, singleMode }: IUseCitationExp
           SET_IS_CUSTOM_FORMAT: {
             actions: assign<ICitationExporterState, SetIsCustomFormat>({
               isCustomFormat: (_ctx, evt) => evt.payload,
-              params: (ctx) => ({ ...ctx.params, format: ExportApiFormatKey.custom }),
+              // params: (ctx) => ({ ...ctx.params, format: ExportApiFormatKey.custom }),
             }),
-            target: 'fetching',
           },
-          SUBMIT: 'fetching',
+          SUBMIT: { target: 'fetching', cond: (ctx) => !equals(ctx.prevParams, ctx.params) },
+          FORCE_SUBMIT: 'fetching',
         },
       },
       fetching: {
         on: {
-          DONE: 'idle',
+          DONE: {
+            target: 'idle',
+            actions: assign<ICitationExporterState>({
+              prevParams: (ctx) => ctx.params,
+            }),
+          },
         },
       },
     },

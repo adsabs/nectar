@@ -1,5 +1,5 @@
-import { ChevronDownIcon, ChevronRightIcon, QuestionOutlineIcon } from '@chakra-ui/icons';
-import { Collapse, CollapseProps, IconButton, Link as ChakraLink, useDisclosure } from '@chakra-ui/react';
+import { QuestionIcon, QuestionOutlineIcon } from '@chakra-ui/icons';
+import { Box, Collapse, CollapseProps, IconButton, Link as ChakraLink, useDisclosure } from '@chakra-ui/react';
 import Link, { LinkProps } from 'next/link';
 import { ReactElement, ReactNode } from 'react';
 
@@ -14,7 +14,7 @@ export const DescriptionCollapse = (props: IDescriptionCollapseProps): ReactElem
   const { label, body, children, ...collapseProps } = props;
   const { isOpen, onToggle } = useDisclosure();
 
-  const icon = isOpen ? <ChevronDownIcon fontSize="lg" /> : <ChevronRightIcon fontSize="lg" />;
+  const icon = isOpen ? <QuestionIcon fontSize="lg" /> : <QuestionOutlineIcon fontSize="lg" />;
 
   return (
     <>
@@ -22,7 +22,7 @@ export const DescriptionCollapse = (props: IDescriptionCollapseProps): ReactElem
         btn: <IconButton onClick={onToggle} icon={icon} variant="ghost" isRound aria-label={label} />,
         content: (
           <Collapse in={isOpen} {...collapseProps}>
-            {body}
+            <Box overflowX="scroll">{body}</Box>
           </Collapse>
         ),
       })}
