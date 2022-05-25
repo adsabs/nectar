@@ -1,7 +1,6 @@
 import { IBucket, ISearchStats } from '@api';
 import {
   Button,
-  CircularProgress,
   Flex,
   HStack,
   NumberInput,
@@ -16,7 +15,6 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
-import { UseQueryResult } from 'react-query';
 import { useDebounce } from 'use-debounce';
 import { LineGraph, ILineGraph, getLineGraphYearTicks, getHIndexGraphData } from '@components';
 
@@ -24,22 +22,11 @@ interface IHIndexGraphPaneProps {
   buckets: IBucket[];
   sum: ISearchStats['sum'];
   type: 'citations' | 'reads';
-  isLoading: UseQueryResult['isLoading'];
-  isError: UseQueryResult['isError'];
-  error: UseQueryResult['error'];
   onApplyCondition: (cond: string) => void;
 }
 const maxDataPoints = 2000;
 
-export const HIndexGraphPane = ({
-  buckets,
-  sum,
-  type,
-  isLoading,
-  isError,
-  error,
-  onApplyCondition,
-}: IHIndexGraphPaneProps): ReactElement => {
+export const HIndexGraphPane = ({ buckets, sum, type, onApplyCondition }: IHIndexGraphPaneProps): ReactElement => {
   const [limits, setLimits] = useState<{ limit: number; maxLimit: number }>({
     limit: maxDataPoints,
     maxLimit: maxDataPoints,
@@ -90,8 +77,7 @@ export const HIndexGraphPane = ({
 
   return (
     <>
-      {isLoading && <CircularProgress isIndeterminate />}
-      {!isLoading && !isError && baseGraph && (
+      {baseGraph && (
         <>
           {baseGraph.data[0].length < 2 ? (
             <Text>Not enough data to make a useful graph</Text>

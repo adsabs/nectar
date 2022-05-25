@@ -6,8 +6,20 @@ import {
   useGetSearchFacetCounts,
   useGetSearchFacet,
 } from '@api';
-import { Tabs, TabList, Tab, TabPanels, TabPanel } from '@chakra-ui/react';
+import {
+  Tabs,
+  TabList,
+  Tab,
+  TabPanels,
+  TabPanel,
+  CircularProgress,
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+} from '@chakra-ui/react';
 import { HIndexGraphPane, YearsGraphPane, FacetField } from '@components';
+import axios from 'axios';
 import { ReactElement } from 'react';
 
 interface IOverviewPageContainerProps {
@@ -16,20 +28,6 @@ interface IOverviewPageContainerProps {
 }
 
 export const OverviewPageContainer = ({ query, onApplyQueryCondition }: IOverviewPageContainerProps): ReactElement => {
-  const yearsResult = useGetSearchFacetCounts(getSearchFacetYearsParams(query));
-  const {
-    data: citationData,
-    isLoading: citationIsLoading,
-    isError: citationIsError,
-    error: citationError,
-  } = useGetSearchFacet(getSearchFacetCitationsParams(query));
-  const {
-    data: readData,
-    isLoading: readIsLoading,
-    isError: readIsError,
-    error: readError,
-  } = useGetSearchFacet(getSearchFacetReadsParams(query));
-
   const handleApplyYearCondition = (cond: string) => {
     onApplyQueryCondition('year', cond);
   };
@@ -43,7 +41,7 @@ export const OverviewPageContainer = ({ query, onApplyQueryCondition }: IOvervie
   };
 
   return (
-    <Tabs variant="solid-rounded" isFitted>
+    <Tabs variant="solid-rounded" isFitted my={10} isLazy={true} lazyBehavior="keepMounted">
       <TabList>
         <Tab>Years</Tab>
         <Tab>Citations</Tab>
@@ -51,31 +49,118 @@ export const OverviewPageContainer = ({ query, onApplyQueryCondition }: IOvervie
       </TabList>
       <TabPanels>
         <TabPanel>
-          <YearsGraphPane queryResult={yearsResult} onApplyCondition={handleApplyYearCondition} />
+          <YearsTabPane query={query} onApplyQueryCondition={handleApplyYearCondition} />
         </TabPanel>
         <TabPanel>
-          <HIndexGraphPane
-            buckets={citationData?.facets?.citation_count?.buckets}
-            sum={citationData?.stats?.stats_fields?.citation_count?.sum}
-            type="citations"
-            isLoading={citationIsLoading}
-            isError={citationIsError}
-            error={citationError}
-            onApplyCondition={handleApplyCitationCondition}
-          />
+          <CitationTabPane query={query} onApplyQueryCondition={handleApplyCitationCondition} />
         </TabPanel>
         <TabPanel>
-          <HIndexGraphPane
-            buckets={readData?.facets?.read_count?.buckets}
-            sum={readData?.stats?.stats_fields?.read_count?.sum}
-            type="reads"
-            isLoading={readIsLoading}
-            isError={readIsError}
-            error={readError}
-            onApplyCondition={handleApplyReadCondition}
-          />
+          <ReadTabPane query={query} onApplyQueryCondition={handleApplyReadCondition} />
         </TabPanel>
       </TabPanels>
     </Tabs>
+  );
+};
+
+const YearsTabPane = ({
+  query,
+  onApplyQueryCondition,
+}: {
+  query: IADSApiSearchParams;
+  onApplyQueryCondition: (cond: string) => void;
+}) => {
+  const { data, isLoading, isError, error } = useGetSearchFacetCounts(getSearchFacetYearsParams(query), {
+    enabled: !!query && query.q.trim().length > 0,
+  });
+
+  const handleApplyQueryCondition = (cond: string) => {
+    onApplyQueryCondition(cond);
+  };
+
+  return (
+    <>
+      {isError && (
+        <Alert status="error" my={5}>
+          <AlertIcon />
+          <AlertTitle mr={2}>Error fetching data!</AlertTitle>
+          <AlertDescription>{axios.isAxiosError(error) && error.message}</AlertDescription>
+        </Alert>
+      )}
+      {isLoading && <CircularProgress isIndeterminate />}
+      {!isLoading && data && <YearsGraphPane data={data} onApplyCondition={handleApplyQueryCondition} />}
+    </>
+  );
+};
+
+const CitationTabPane = ({
+  query,
+  onApplyQueryCondition,
+}: {
+  query: IADSApiSearchParams;
+  onApplyQueryCondition: (cond: string) => void;
+}) => {
+  const { data, isLoading, isError, error } = useGetSearchFacet(getSearchFacetCitationsParams(query), {
+    enabled: !!query && query.q.trim().length > 0,
+  });
+
+  const handleApplyQueryCondition = (cond: string) => {
+    onApplyQueryCondition(cond);
+  };
+
+  return (
+    <>
+      {isError && (
+        <Alert status="error" my={5}>
+          <AlertIcon />
+          <AlertTitle mr={2}>Error fetching data!</AlertTitle>
+          <AlertDescription>{axios.isAxiosError(error) && error.message}</AlertDescription>
+        </Alert>
+      )}
+      {isLoading && <CircularProgress isIndeterminate />}
+      {!isLoading && data && (
+        <HIndexGraphPane
+          buckets={data?.facets?.citation_count?.buckets}
+          sum={data?.stats?.stats_fields?.citation_count?.sum}
+          type="citations"
+          onApplyCondition={handleApplyQueryCondition}
+        />
+      )}
+    </>
+  );
+};
+
+const ReadTabPane = ({
+  query,
+  onApplyQueryCondition,
+}: {
+  query: IADSApiSearchParams;
+  onApplyQueryCondition: (cond: string) => void;
+}) => {
+  const { data, isLoading, isError, error } = useGetSearchFacet(getSearchFacetReadsParams(query), {
+    enabled: !!query && query.q.trim().length > 0,
+  });
+  const handleApplyQueryCondition = (cond: string) => {
+    onApplyQueryCondition(cond);
+  };
+
+  return (
+    <>
+      {isError && (
+        <Alert status="error" my={5}>
+          <AlertIcon />
+          <AlertTitle mr={2}>Error fetching data!</AlertTitle>
+          <AlertDescription>{axios.isAxiosError(error) && error.message}</AlertDescription>
+        </Alert>
+      )}
+      {isLoading && <CircularProgress isIndeterminate />}
+      {!isLoading && data && (
+        <HIndexGraphPane
+          buckets={data?.facets?.read_count?.buckets}
+          sum={data?.stats?.stats_fields?.read_count?.sum}
+          type="reads"
+          onApplyCondition={handleApplyQueryCondition}
+        />
+      )}
+    </>
   );
 };

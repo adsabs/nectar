@@ -54,11 +54,19 @@ export const VisualizationsTabs = ({ selectedSection }: { selectedSection: VizSe
   const index = sections.findIndex((section) => section.id === selectedSection);
 
   const onPageChange = (index: number) => {
-    void router.push({ pathname: sections[index].path, query: router.query });
+    void router.push({ pathname: sections[index].path, query: router.query }, null, { shallow: true });
   };
 
   return (
-    <Tabs index={index} onChange={onPageChange} isFitted variant="enclosed" size="md">
+    <Tabs
+      index={index}
+      onChange={onPageChange}
+      isFitted
+      variant="enclosed"
+      size="md"
+      isLazy={true}
+      lazyBehavior="keepMounted"
+    >
       <TabList>
         {sections.map((section) => (
           <Tab key={section.id}>{section.label}</Tab>

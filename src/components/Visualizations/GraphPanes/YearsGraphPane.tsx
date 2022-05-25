@@ -1,6 +1,5 @@
 import { IFacetCountsFields } from '@api';
 import {
-  CircularProgress,
   RangeSlider,
   RangeSliderFilledTrack,
   RangeSliderThumb,
@@ -15,18 +14,15 @@ import {
 import { BarGraph, getYearsGraph, IBarGraph, YearDatum } from '@components';
 import { BarDatum } from '@nivo/bar';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
-import { UseQueryResult } from 'react-query';
 import { useDebounce } from 'use-debounce';
 
 export const YearsGraphPane = ({
-  queryResult,
+  data,
   onApplyCondition,
 }: {
-  queryResult: UseQueryResult<IFacetCountsFields, unknown>;
+  data: IFacetCountsFields;
   onApplyCondition: (cond: string) => void;
 }): ReactElement => {
-  const { data, isLoading, isError, error } = queryResult;
-
   const [range, setRange] = useState<{ min: number; max: number }>(null);
 
   const baseGraph: IBarGraph<YearDatum> = useMemo(() => {
@@ -114,8 +110,7 @@ export const YearsGraphPane = ({
 
   return (
     <>
-      {isLoading && <CircularProgress isIndeterminate />}
-      {!isLoading && transformedGraph && (
+      {transformedGraph && (
         <Flex direction="column">
           <BarGraph
             data={transformedGraph.data}
