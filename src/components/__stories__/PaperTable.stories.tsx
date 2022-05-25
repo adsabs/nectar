@@ -3,7 +3,7 @@ import { papersTableData } from '@components/__mocks__/data';
 import { Meta, Story } from '@storybook/react';
 
 const meta: Meta = {
-  title: 'Metrics/PapersTable',
+  title: 'Visualizations/tables/PapersTable',
   component: PapersTable,
 };
 

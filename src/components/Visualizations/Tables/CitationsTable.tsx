@@ -4,7 +4,7 @@ import { Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/table';
 import { Tooltip } from '@chakra-ui/tooltip';
 import { VisuallyHidden } from '@chakra-ui/visually-hidden';
 import { ReactElement } from 'react';
-import { ICitationsTableData } from './types';
+import { ICitationsTableData } from '../types';
 
 export interface ICitationsTableProps {
   data: ICitationsTableData;

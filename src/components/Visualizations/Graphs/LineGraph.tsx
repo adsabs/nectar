@@ -5,9 +5,10 @@ import { memo, ReactElement } from 'react';
 export interface ILineGraphProps {
   data: Serie[];
   ticks: string[];
+  showLegend?: boolean;
 }
 
-export const LineGraph = memo(({ data, ticks }: ILineGraphProps): ReactElement => {
+export const LineGraph = memo(({ data, ticks, showLegend = true }: ILineGraphProps): ReactElement => {
   return (
     <Box width="100%" mt={5}>
       <div style={{ height: '500px', marginTop: '20px' }}>
@@ -28,7 +29,7 @@ export const LineGraph = memo(({ data, ticks }: ILineGraphProps): ReactElement =
           axisBottom={{
             tickSize: 5,
             tickPadding: 5,
-            tickRotation: 0,
+            tickRotation: -40,
             legendOffset: 36,
             legendPosition: 'middle',
             tickValues: ticks,
@@ -44,32 +45,36 @@ export const LineGraph = memo(({ data, ticks }: ILineGraphProps): ReactElement =
           enableGridX={false}
           pointLabelYOffset={-12}
           useMesh={true}
-          legends={[
-            {
-              anchor: 'bottom-right',
-              direction: 'column',
-              justify: false,
-              translateX: 100,
-              translateY: 0,
-              itemsSpacing: 0,
-              itemDirection: 'left-to-right',
-              itemWidth: 80,
-              itemHeight: 20,
-              itemOpacity: 0.75,
-              symbolSize: 12,
-              symbolShape: 'circle',
-              symbolBorderColor: 'rgba(0, 0, 0, .5)',
-              effects: [
-                {
-                  on: 'hover',
-                  style: {
-                    itemBackground: 'rgba(0, 0, 0, .03)',
-                    itemOpacity: 1,
+          legends={
+            showLegend
+              ? [
+                  {
+                    anchor: 'bottom-right',
+                    direction: 'column',
+                    justify: false,
+                    translateX: 100,
+                    translateY: 0,
+                    itemsSpacing: 0,
+                    itemDirection: 'left-to-right',
+                    itemWidth: 80,
+                    itemHeight: 20,
+                    itemOpacity: 0.75,
+                    symbolSize: 12,
+                    symbolShape: 'circle',
+                    symbolBorderColor: 'rgba(0, 0, 0, .5)',
+                    effects: [
+                      {
+                        on: 'hover',
+                        style: {
+                          itemBackground: 'rgba(0, 0, 0, .03)',
+                          itemOpacity: 1,
+                        },
+                      },
+                    ],
                   },
-                },
-              ],
-            },
-          ]}
+                ]
+              : []
+          }
         />
       </div>
     </Box>

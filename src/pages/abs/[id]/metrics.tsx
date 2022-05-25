@@ -11,7 +11,7 @@ import {
 } from '@api';
 import { Box } from '@chakra-ui/react';
 import { AbsLayout } from '@components/Layout/AbsLayout';
-import { Metrics } from '@components/Metrics';
+import { Metrics } from '@components';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
 import { composeNextGSSP, normalizeURLParams, setupApiSSR } from '@utils';

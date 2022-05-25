@@ -8,21 +8,19 @@ import {
   plotPapersHist,
   plotReadsHist,
   plotTimeSeriesGraph,
-} from '@components/Metrics/graphUtils';
-import {
   ICitationsTableData,
   IIndicesTableData,
   IMetricsGraphs,
   IPapersTableData,
   IReadsTableData,
-  LineGraph,
-} from '@components/Metrics/types';
+  ILineGraph,
+} from '@components';
 
 export interface IMetricsData {
   citationsGraphs: IMetricsGraphs;
   readsGraphs: IMetricsGraphs;
   papersGraphs: IMetricsGraphs;
-  indicesGraph: LineGraph;
+  indicesGraph: ILineGraph;
   citationsTable: ICitationsTableData;
   readsTable: IReadsTableData;
   papersTable: IPapersTableData;

@@ -12,7 +12,7 @@ import {
   FormLabel,
   Button,
 } from '@chakra-ui/react';
-import { MetricsGraph, BarGraph } from '@components';
+import { BarGraph, getYearsGraph, IBarGraph, YearDatum } from '@components';
 import { BarDatum } from '@nivo/bar';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { UseQueryResult } from 'react-query';
@@ -29,7 +29,7 @@ export const YearsGraphPane = ({
 
   const [range, setRange] = useState<{ min: number; max: number }>(null);
 
-  const baseGraph: BarGraph<YearDatum> = useMemo(() => {
+  const baseGraph: IBarGraph<YearDatum> = useMemo(() => {
     if (data) {
       return getYearsGraph(data);
     }
@@ -117,7 +117,7 @@ export const YearsGraphPane = ({
       {isLoading && <CircularProgress isIndeterminate />}
       {!isLoading && transformedGraph && (
         <Flex direction="column">
-          <MetricsGraph
+          <BarGraph
             data={transformedGraph.data}
             indexBy={transformedGraph.indexBy}
             keys={transformedGraph.keys}
@@ -175,53 +175,4 @@ export const YearsGraphPane = ({
       )}
     </>
   );
-};
-
-interface YearDatum extends BarDatum {
-  year: number;
-  refereed: number;
-  notrefereed: number;
-}
-
-const getYearsGraph = (data: IFacetCountsFields): BarGraph<YearDatum> => {
-  const facetData = data.facet_pivot['property,year'];
-
-  const yearMap = new Map<number, { refereed: number; notrefereed: number }>(); // year => {refereed: number, nonefereed: number}
-
-  const keys = ['refereed', 'notrefereed'];
-
-  facetData.forEach(({ value, pivot }) => {
-    if (keys.includes(value)) {
-      // loop through each pivot and add the years to our map
-      pivot.forEach(({ value: yearString, count = 0 }) => {
-        const year = parseInt(yearString, 10);
-        yearMap.set(year, {
-          refereed: 0,
-          notrefereed: 0,
-          ...yearMap.get(year),
-          [value]: count,
-        });
-      });
-    }
-  });
-
-  const years = Array.from(yearMap.keys());
-  const min = Math.min(...years);
-  const max = Math.max(...years);
-
-  // fill in all the years between min and max that don't have values
-  const finalData = Array.from({ length: max - min + 1 }, (_v, i) => min + i).map((year) => {
-    // if the year exists, then grab it, otherwise fill with an empty (x,y)
-    if (yearMap.has(year)) {
-      const { refereed, notrefereed } = yearMap.get(year);
-      return {
-        year,
-        refereed,
-        notrefereed,
-      };
-    }
-    return { year, refereed: 0, notrefereed: 0 };
-  });
-
-  return { data: finalData, keys, indexBy: 'year' };
 };

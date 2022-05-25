@@ -1,6 +1,6 @@
 import { IADSApiSearchParams } from '@api';
 import { Serie } from '@nivo/line';
-import { FacetField } from './types';
+import { FacetField } from '../types';
 
 export const getLineGraphYearTicks = (data: Serie[], maxTicks: number) => {
   if (data[0].data.length <= maxTicks) {

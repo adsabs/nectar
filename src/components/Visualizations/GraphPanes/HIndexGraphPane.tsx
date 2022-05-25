@@ -15,13 +15,10 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { LineGraph } from '@components/Metrics/types';
-import { Datum } from '@nivo/line';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { UseQueryResult } from 'react-query';
 import { useDebounce } from 'use-debounce';
-import { LineGraph as LineGraphGraph } from '@components/Visualizations/Graphs';
-import { getLineGraphYearTicks } from '../utils';
+import { LineGraph, ILineGraph, getLineGraphYearTicks, getHIndexGraphData } from '@components';
 
 interface IHIndexGraphPaneProps {
   buckets: IBucket[];
@@ -53,9 +50,9 @@ export const HIndexGraphPane = ({
   // prevent graph transform until user has stopped updating slider
   const [debouncedLimit] = useDebounce(limits.limit, 50);
 
-  const baseGraph: LineGraph = useMemo(() => {
+  const baseGraph: ILineGraph = useMemo(() => {
     if (buckets) {
-      const data = getGraphData(buckets, limits.limit);
+      const data = getHIndexGraphData(buckets, limits.limit, maxDataPoints);
       const hi = data.findIndex((d) => d.x > d.y);
       const hindex = hi > 0 ? (data[hi - 1].x as number) : undefined;
       return {
@@ -110,7 +107,7 @@ export const HIndexGraphPane = ({
                   <Radio value="log">Log</Radio>
                 </Stack>
               </RadioGroup>
-              <LineGraphGraph data={baseGraph.data} ticks={getLineGraphYearTicks(baseGraph.data, 10)} />
+              <LineGraph data={baseGraph.data} ticks={getLineGraphYearTicks(baseGraph.data, 10)} showLegend={false} />
               <Slider
                 aria-label="limit slider"
                 min={1}
@@ -150,24 +147,4 @@ export const HIndexGraphPane = ({
       )}
     </>
   );
-};
-
-const getGraphData = (counts: IBucket[], limit: number): Datum[] => {
-  // data: [{x, y}...]
-  const fixedLimit = isNaN(limit) || limit < 1 || limit > maxDataPoints ? maxDataPoints : limit;
-  const data: Datum[] = [];
-  let xCounter = 0;
-  counts.some((item) => {
-    xCounter += item.count;
-    // one dot per paper (this way we'll only plot the top ranked X - fraction of results)
-    while (xCounter > data.length && data.length < fixedLimit) {
-      data.push({ y: item.val, x: data.length + 1 });
-    }
-    if (data.length > fixedLimit) {
-      return true;
-    }
-    return false;
-  });
-
-  return data;
 };

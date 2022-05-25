@@ -1,15 +1,15 @@
-import { IndicesGraph, IIndicesGraphProps } from '@components';
+import { ILineGraphProps, LineGraph } from '@components';
 import { linedatum } from '@components/__mocks__/data';
 import { Meta, Story } from '@storybook/react';
 
 const meta: Meta = {
-  title: 'Metrics/IndicesGraph',
-  component: IndicesGraph,
+  title: 'Visualizations/graphs/LineGraph',
+  component: LineGraph,
 };
 
 export default meta;
 
-const Template: Story<IIndicesGraphProps> = (args) => <IndicesGraph {...args} />;
+const Template: Story<ILineGraphProps> = (args) => <LineGraph {...args} />;
 
 export const Default = Template.bind({});
 

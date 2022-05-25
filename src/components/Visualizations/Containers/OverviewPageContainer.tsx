@@ -7,9 +7,8 @@ import {
   useGetSearchFacet,
 } from '@api';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from '@chakra-ui/react';
-import { HIndexGraphPane, YearsGraphPane } from '@components';
+import { HIndexGraphPane, YearsGraphPane, FacetField } from '@components';
 import { ReactElement } from 'react';
-import { FacetField } from '../types';
 
 interface IOverviewPageContainerProps {
   query: IADSApiSearchParams;

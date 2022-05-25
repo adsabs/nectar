@@ -3,6 +3,8 @@ import {
   CitationsHistogramKey,
   CitationsHistogramType,
   CitationsStatsKey,
+  IBucket,
+  IFacetCountsFields,
   PapersHistogramKey,
   PapersHistogramType,
   ReadsHistogramKey,
@@ -10,59 +12,21 @@ import {
   TimeSeriesKey,
   TimeSeriesType,
 } from '@api';
-import { Serie } from '@nivo/line';
+import { Datum, Serie } from '@nivo/line';
 import { divide } from 'ramda';
 import {
-  BarGraph,
+  IBarGraph,
   ICitationsTableData,
   IIndicesTableData,
   IPapersTableData,
   IReadsTableData,
-  LineGraph,
-} from './types';
-
-export interface IGraphData {
-  key: string;
-  values: IPair[];
-}
-export interface IPair {
-  x: string;
-  y: number;
-}
-export interface ICitationTableInput {
-  refereed: {
-    [key in CitationsStatsKey]: number;
-  };
-  total: {
-    [key in CitationsStatsKey]: number;
-  } & { 'self-citations': string[] };
-}
-export interface IReadTableInput {
-  refereed: {
-    [key in BasicStatsKey]: number;
-  };
-  total: {
-    [key in BasicStatsKey]: number;
-  };
-}
-
-export interface IPaperTableInput {
-  refereed: {
-    [key in BasicStatsKey]: number;
-  };
-  total: {
-    [key in BasicStatsKey]: number;
-  };
-}
-
-export interface IIndicesTableInput {
-  refereed: {
-    [key in TimeSeriesKey]?: number;
-  };
-  total: {
-    [key in TimeSeriesKey]?: number;
-  };
-}
+  ILineGraph,
+  ICitationTableInput,
+  IIndicesTableInput,
+  IPaperTableInput,
+  IReadTableInput,
+  YearDatum,
+} from '@components';
 
 /**
  * Output format
@@ -81,7 +45,7 @@ export const plotCitationsHist = (
   normalize: boolean,
   citationsHist: CitationsHistogramType,
   isSinglePaper: boolean,
-): BarGraph => {
+): IBarGraph<Record<string, string | number>> => {
   let data: { [year: string]: number }[];
 
   if (!normalize) {
@@ -139,7 +103,10 @@ export const plotCitationsHist = (
  * @param readsHist
  * @returns
  */
-export const plotReadsHist = (normalize: boolean, readsHist: ReadsHistogramType): BarGraph => {
+export const plotReadsHist = (
+  normalize: boolean,
+  readsHist: ReadsHistogramType,
+): IBarGraph<Record<string, string | number>> => {
   let data: Record<string, number>[];
 
   if (!normalize) {
@@ -177,7 +144,10 @@ export const plotReadsHist = (normalize: boolean, readsHist: ReadsHistogramType)
   return { data: out, keys, indexBy: 'year' };
 };
 
-export const plotPapersHist = (normalize: boolean, papersHist: PapersHistogramType): BarGraph => {
+export const plotPapersHist = (
+  normalize: boolean,
+  papersHist: PapersHistogramType,
+): IBarGraph<Record<string, string | number>> => {
   let data: Record<string, number>[];
 
   if (!normalize) {
@@ -215,7 +185,7 @@ export const plotPapersHist = (normalize: boolean, papersHist: PapersHistogramTy
   return { data: out, keys, indexBy: 'year' };
 };
 
-export const plotTimeSeriesGraph = (timeseries: TimeSeriesType): LineGraph => {
+export const plotTimeSeriesGraph = (timeseries: TimeSeriesType): ILineGraph => {
   const data = [
     timeseries[TimeSeriesKey.H],
     timeseries[TimeSeriesKey.M],
@@ -325,6 +295,69 @@ export const getIndicesTableData = (indicesData: IIndicesTableInput): IIndicesTa
 
   Object.entries(data).forEach(([name, arr]) => {
     data[name as keyof typeof data] = [limitPlaces(arr[0]), limitPlaces(arr[1])];
+  });
+
+  return data;
+};
+
+export const getYearsGraph = (data: IFacetCountsFields): IBarGraph<YearDatum> => {
+  const facetData = data.facet_pivot['property,year'];
+
+  const yearMap = new Map<number, { refereed: number; notrefereed: number }>(); // year => {refereed: number, nonefereed: number}
+
+  const keys = ['refereed', 'notrefereed'];
+
+  facetData.forEach(({ value, pivot }) => {
+    if (keys.includes(value)) {
+      // loop through each pivot and add the years to our map
+      pivot.forEach(({ value: yearString, count = 0 }) => {
+        const year = parseInt(yearString, 10);
+        yearMap.set(year, {
+          refereed: 0,
+          notrefereed: 0,
+          ...yearMap.get(year),
+          [value]: count,
+        });
+      });
+    }
+  });
+
+  const years = Array.from(yearMap.keys());
+  const min = Math.min(...years);
+  const max = Math.max(...years);
+
+  // fill in all the years between min and max that don't have values
+  const finalData = Array.from({ length: max - min + 1 }, (_v, i) => min + i).map((year) => {
+    // if the year exists, then grab it, otherwise fill with an empty (x,y)
+    if (yearMap.has(year)) {
+      const { refereed, notrefereed } = yearMap.get(year);
+      return {
+        year,
+        refereed,
+        notrefereed,
+      };
+    }
+    return { year, refereed: 0, notrefereed: 0 };
+  });
+
+  return { data: finalData, keys, indexBy: 'year' };
+};
+
+export const getHIndexGraphData = (counts: IBucket[], limit: number, maxDataPoints: number): Datum[] => {
+  // data: [{x, y}...]
+  const fixedLimit = isNaN(limit) || limit < 1 || limit > maxDataPoints ? maxDataPoints : limit;
+  const data: Datum[] = [];
+  let xCounter = 0;
+  counts.some((item) => {
+    xCounter += item.count;
+    // one dot per paper (this way we'll only plot the top ranked X - fraction of results)
+    while (xCounter > data.length && data.length < fixedLimit) {
+      data.push({ y: item.val, x: data.length + 1 });
+    }
+    if (data.length > fixedLimit) {
+      return true;
+    }
+    return false;
   });
 
   return data;
