@@ -10,6 +10,7 @@ import {
   FormControl,
   FormLabel,
   Button,
+  Box,
 } from '@chakra-ui/react';
 import { BarGraph, getYearsGraph, IBarGraph, YearDatum } from '@components';
 import { BarDatum } from '@nivo/bar';
@@ -124,8 +125,9 @@ export const YearsGraphPane = ({
             max={lastYear}
             value={[range.min, range.max]}
             onChange={handleRangeChange}
-            my={2}
+            my={5}
             focusThumbOnChange={false}
+            size="lg"
           >
             <RangeSliderTrack>
               <RangeSliderFilledTrack />

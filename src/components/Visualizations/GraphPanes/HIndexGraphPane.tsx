@@ -1,7 +1,10 @@
 import { IBucket, ISearchStats } from '@api';
 import {
+  Box,
   Button,
   Flex,
+  FormControl,
+  FormLabel,
   HStack,
   NumberInput,
   NumberInputField,
@@ -82,17 +85,24 @@ export const HIndexGraphPane = ({ buckets, sum, type, onApplyCondition }: IHInde
           {baseGraph.data[0].length < 2 ? (
             <Text>Not enough data to make a useful graph</Text>
           ) : (
-            <Flex direction="column">
-              <Text>{`${
-                isNaN(limits.limit) || limits.limit > limits.maxLimit ? limits.maxLimit : limits.limit
-              } top ranked ${type} of ${statsCount}`}</Text>
+            <Flex direction="column" gap={2} mt={5}>
+              <Text>
+                <b>{isNaN(limits.limit) || limits.limit > limits.maxLimit ? limits.maxLimit : limits.limit}</b> top
+                ranked {type} of <b>{statsCount}</b>
+              </Text>
               <Text>H-Index for results: {baseGraph.hindex ? baseGraph.hindex : ''}</Text>
-              <RadioGroup value={yaxis} onChange={setYaxis}>
-                <Stack spacing={4} direction="row">
-                  <Radio value="linear">Linear</Radio>
-                  <Radio value="log">Log</Radio>
-                </Stack>
-              </RadioGroup>
+              <FormControl>
+                <Flex direction="row">
+                  <FormLabel>Y-Axis</FormLabel>
+                  <RadioGroup value={yaxis} onChange={setYaxis} size="md">
+                    <Stack spacing={4} direction="row">
+                      <Radio value="linear">Linear</Radio>
+                      <Radio value="log">Log</Radio>
+                    </Stack>
+                  </RadioGroup>
+                </Flex>
+              </FormControl>
+
               <LineGraph data={baseGraph.data} ticks={getLineGraphYearTicks(baseGraph.data, 10)} showLegend={false} />
               <Slider
                 aria-label="limit slider"

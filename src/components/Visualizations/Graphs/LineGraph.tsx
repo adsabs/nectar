@@ -11,10 +11,10 @@ export interface ILineGraphProps {
 export const LineGraph = memo(({ data, ticks, showLegend = true }: ILineGraphProps): ReactElement => {
   return (
     <Box width="100%" mt={5}>
-      <div style={{ height: '500px', marginTop: '20px' }}>
+      <div style={{ height: '500px' }}>
         <ResponsiveLine
           data={data}
-          margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
+          margin={{ top: 50, right: showLegend ? 110 : 50, bottom: 50, left: 60 }}
           xScale={{ type: 'point' }}
           yScale={{
             type: 'linear',
