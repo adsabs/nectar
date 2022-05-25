@@ -30,6 +30,7 @@ interface IHIndexGraphPaneProps {
   isLoading: UseQueryResult['isLoading'];
   isError: UseQueryResult['isError'];
   error: UseQueryResult['error'];
+  onApplyCondition: (cond: string) => void;
 }
 const maxDataPoints = 2000;
 
@@ -40,6 +41,7 @@ export const HIndexGraphPane = ({
   isLoading,
   isError,
   error,
+  onApplyCondition,
 }: IHIndexGraphPaneProps): ReactElement => {
   const [limits, setLimits] = useState<{ limit: number; maxLimit: number }>({
     limit: maxDataPoints,
@@ -82,6 +84,11 @@ export const HIndexGraphPane = ({
 
   const handleLimitInputChange = (valueAsString: string, valueAsNumber: number) => {
     setLimits({ ...limits, limit: valueAsNumber });
+  };
+
+  const handleApplyLimit = () => {
+    const cond = `[${baseGraph.data[0].data[limits.limit - 1].y as number} TO 9999999]`;
+    onApplyCondition(cond);
   };
 
   return (
@@ -133,7 +140,9 @@ export const HIndexGraphPane = ({
                   <NumberInputField />
                 </NumberInput>
                 <Text> most cited</Text>
-                <Button type="submit">Search</Button>
+                <Button type="submit" onClick={handleApplyLimit}>
+                  Search
+                </Button>
               </HStack>
             </Flex>
           )}

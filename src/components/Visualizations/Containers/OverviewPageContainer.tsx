@@ -9,12 +9,14 @@ import {
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from '@chakra-ui/react';
 import { HIndexGraphPane, YearsGraphPane } from '@components';
 import { ReactElement } from 'react';
+import { FacetField } from '../types';
 
 interface IOverviewPageContainerProps {
   query: IADSApiSearchParams;
+  onApplyQueryCondition: (facet: FacetField, cond: string) => void;
 }
 
-export const OverviewPageContainer = ({ query }: IOverviewPageContainerProps): ReactElement => {
+export const OverviewPageContainer = ({ query, onApplyQueryCondition }: IOverviewPageContainerProps): ReactElement => {
   const yearsResult = useGetSearchFacetCounts(getSearchFacetYearsParams(query));
   const {
     data: citationData,
@@ -28,6 +30,19 @@ export const OverviewPageContainer = ({ query }: IOverviewPageContainerProps): R
     isError: readIsError,
     error: readError,
   } = useGetSearchFacet(getSearchFacetReadsParams(query));
+
+  const handleApplyYearCondition = (cond: string) => {
+    onApplyQueryCondition('year', cond);
+  };
+
+  const handleApplyCitationCondition = (cond: string) => {
+    onApplyQueryCondition('citation_count', cond);
+  };
+
+  const handleApplyReadCondition = (cond: string) => {
+    onApplyQueryCondition('read_count', cond);
+  };
+
   return (
     <Tabs variant="solid-rounded" isFitted>
       <TabList>
@@ -37,7 +52,7 @@ export const OverviewPageContainer = ({ query }: IOverviewPageContainerProps): R
       </TabList>
       <TabPanels>
         <TabPanel>
-          <YearsGraphPane queryResult={yearsResult} />
+          <YearsGraphPane queryResult={yearsResult} onApplyCondition={handleApplyYearCondition} />
         </TabPanel>
         <TabPanel>
           <HIndexGraphPane
@@ -47,6 +62,7 @@ export const OverviewPageContainer = ({ query }: IOverviewPageContainerProps): R
             isLoading={citationIsLoading}
             isError={citationIsError}
             error={citationError}
+            onApplyCondition={handleApplyCitationCondition}
           />
         </TabPanel>
         <TabPanel>
@@ -57,6 +73,7 @@ export const OverviewPageContainer = ({ query }: IOverviewPageContainerProps): R
             isLoading={readIsLoading}
             isError={readIsError}
             error={readError}
+            onApplyCondition={handleApplyReadCondition}
           />
         </TabPanel>
       </TabPanels>

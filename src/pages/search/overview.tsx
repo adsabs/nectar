@@ -1,4 +1,4 @@
-import { OverviewPageContainer, VizPageLayout } from '@components';
+import { getQueryWithCondition, OverviewPageContainer, VizPageLayout } from '@components';
 import { GetServerSideProps, NextPage } from 'next';
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/react';
 import { parseQueryFromUrl, setupApiSSR } from '@utils';
@@ -12,6 +12,8 @@ import {
 } from '@api';
 import axios from 'axios';
 import qs from 'qs';
+import { FacetField } from '@components/Visualizations/types';
+import { useRouter } from 'next/router';
 
 interface IOverviewProps {
   originalQuery: IADSApiSearchParams;
@@ -19,6 +21,13 @@ interface IOverviewProps {
   error?: string;
 }
 const OverviewPage: NextPage<IOverviewProps> = ({ originalQuery, bibsQuery, error }) => {
+  const router = useRouter();
+  const handleApplyQueryCondition = (facet: FacetField, cond: string) => {
+    const q = getQueryWithCondition(originalQuery.q, facet, cond);
+    const newQuery = { ...originalQuery, q };
+    void router.push({ pathname: '/search', query: qs.stringify(newQuery, { arrayFormat: 'comma' }) });
+  };
+
   return (
     <div>
       <VizPageLayout
@@ -32,7 +41,7 @@ const OverviewPage: NextPage<IOverviewProps> = ({ originalQuery, bibsQuery, erro
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : (
-        <OverviewPageContainer query={bibsQuery} />
+        <OverviewPageContainer query={bibsQuery} onApplyQueryCondition={handleApplyQueryCondition} />
       )}
     </div>
   );

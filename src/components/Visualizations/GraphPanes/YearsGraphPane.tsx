@@ -20,8 +20,10 @@ import { useDebounce } from 'use-debounce';
 
 export const YearsGraphPane = ({
   queryResult,
+  onApplyCondition,
 }: {
   queryResult: UseQueryResult<IFacetCountsFields, unknown>;
+  onApplyCondition: (cond: string) => void;
 }): ReactElement => {
   const { data, isLoading, isError, error } = queryResult;
 
@@ -56,6 +58,11 @@ export const YearsGraphPane = ({
 
   const handleRangeMaxChange = (valueAsString: string, valueAsNumber: number) => {
     setRange({ ...range, max: valueAsNumber });
+  };
+
+  const handleApplyLimit = () => {
+    const cond = `${range.min}-${range.max}`;
+    onApplyCondition(cond);
   };
 
   // transformed the graph data using the range
@@ -159,7 +166,9 @@ export const YearsGraphPane = ({
               >
                 <NumberInputField />
               </NumberInput>
-              <Button type="submit">Search</Button>
+              <Button type="submit" onClick={handleApplyLimit}>
+                Search
+              </Button>
             </Flex>
           </FormControl>
         </Flex>
