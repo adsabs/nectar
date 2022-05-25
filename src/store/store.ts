@@ -70,8 +70,6 @@ export const useCreateStore = (incomingState: Partial<AppState> = {}): (() => St
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (incomingState && store) {
-      console.log(incomingState, store.getState());
-      console.log('sldfkj', mergeDeepLeft(incomingState, store.getState()));
       store.setState(mergeDeepLeft(incomingState, store.getState()) as AppState);
     }
   }, [incomingState]);

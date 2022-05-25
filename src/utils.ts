@@ -158,7 +158,6 @@ export const parseQueryFromUrl = <TExtra extends Record<string, string>>(
   { sortPostfix }: { sortPostfix?: SolrSort } = {},
 ) => {
   const normalizedParams = normalizeURLParams(params);
-  const n = parseNumberAndClamp(normalizedParams?.n, APP_DEFAULTS.PER_PAGE_OPTIONS[0]);
   return {
     ...normalizedParams,
     q: normalizedParams?.q ?? '',
@@ -264,8 +263,15 @@ export const setupApiSSR = (ctx: GetServerSidePropsContext<ParsedUrlQuery>) => {
 };
 
 // omit params that should not be included in any urls
+// `id` is typically slug used in abstract pages
 const omitSearchParams = omit(['fl', 'start', 'rows', 'id']);
 
+/**
+ * Generates a string for use in URLs, this assumes we want to include `sort` and `p` so those values
+ * are normalized or added.
+ *
+ * @returns {string} clean search string for use after `?` in URLs.
+ */
 export const makeSearchParams = (params: SafeSearchUrlParams, options: { omit?: string[] } = {}) => {
   const cleanParams = omitSearchParams(params);
   return stringifySearchParams(
@@ -277,11 +283,15 @@ export const makeSearchParams = (params: SafeSearchUrlParams, options: { omit?: 
   );
 };
 
-export const stringifySearchParams = (params: Record<string, unknown>) =>
+/**
+ * Wrapper around `qs.stringify` with defaults
+ */
+export const stringifySearchParams = (params: Record<string, unknown>, options?: qs.IStringifyOptions) =>
   qs.stringify(params, {
     indices: false,
     arrayFormat: 'comma',
     format: 'RFC1738',
     sort: (a, b) => a - b,
     skipNulls: true,
+    ...options,
   });
