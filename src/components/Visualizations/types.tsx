@@ -98,3 +98,5 @@ export interface IIndicesTableData {
 }
 
 export type FacetField = 'year' | 'citation_count' | 'read_count';
+
+export type Y_Axis = 'linear' | 'log';

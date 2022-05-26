@@ -343,18 +343,17 @@ export const getYearsGraph = (data: IFacetCountsFields): IBarGraph<YearDatum> =>
   return { data: finalData, keys, indexBy: 'year' };
 };
 
-export const getHIndexGraphData = (counts: IBucket[], limit: number, maxDataPoints: number): Datum[] => {
+export const getHIndexGraphData = (counts: IBucket[], maxDataPoints: number): Datum[] => {
   // data: [{x, y}...]
-  const fixedLimit = isNaN(limit) || limit < 1 || limit > maxDataPoints ? maxDataPoints : limit;
   const data: Datum[] = [];
   let xCounter = 0;
   counts.some((item) => {
     xCounter += item.count;
     // one dot per paper (this way we'll only plot the top ranked X - fraction of results)
-    while (xCounter > data.length && data.length < fixedLimit) {
+    while (xCounter > data.length && data.length < maxDataPoints) {
       data.push({ y: item.val, x: data.length + 1 });
     }
-    if (data.length > fixedLimit) {
+    if (data.length > maxDataPoints) {
       return true;
     }
     return false;
