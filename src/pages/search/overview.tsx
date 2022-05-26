@@ -1,10 +1,11 @@
-import { getQueryWithCondition, OverviewPageContainer, VizPageLayout } from '@components';
+import { OverviewPageContainer, VizPageLayout } from '@components';
 import { NextPage } from 'next';
 import { parseQueryFromUrl } from '@utils';
 import { IADSApiSearchParams } from '@api';
 import qs from 'qs';
 import { FacetField } from '@components/Visualizations/types';
 import { useRouter } from 'next/router';
+import { getQueryWithCondition } from '@components/Visualizations/utils';
 
 const OverviewPage: NextPage = () => {
   const router = useRouter();

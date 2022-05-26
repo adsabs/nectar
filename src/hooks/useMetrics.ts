@@ -1,20 +1,22 @@
 import { BasicStatsKey, CitationsStatsKey, IADSApiMetricsResponse, MetricsResponseKey } from '@api';
 import {
-  getCitationTableData,
-  getIndicesTableData,
-  getPapersTableData,
-  getReadsTableData,
-  plotCitationsHist,
-  plotPapersHist,
-  plotReadsHist,
-  plotTimeSeriesGraph,
-  ICitationsTableData,
-  IIndicesTableData,
   IMetricsGraphs,
-  IPapersTableData,
-  IReadsTableData,
   ILineGraph,
-} from '@components';
+  ICitationsTableData,
+  IReadsTableData,
+  IPapersTableData,
+  IIndicesTableData,
+} from '@components/Visualizations/types';
+import {
+  plotCitationsHist,
+  plotReadsHist,
+  plotPapersHist,
+  plotTimeSeriesGraph,
+  getCitationTableData,
+  getReadsTableData,
+  getPapersTableData,
+  getIndicesTableData,
+} from '@components/Visualizations/utils';
 
 export interface IMetricsData {
   citationsGraphs: IMetricsGraphs;

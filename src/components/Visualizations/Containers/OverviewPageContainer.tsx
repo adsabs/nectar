@@ -18,9 +18,10 @@ import {
   AlertIcon,
   AlertTitle,
 } from '@chakra-ui/react';
-import { HIndexGraphPane, YearsGraphPane, FacetField } from '@components';
+import { HIndexGraphPane, YearsGraphPane } from '@components';
 import axios from 'axios';
 import { ReactElement } from 'react';
+import { FacetField } from '../types';
 
 interface IOverviewPageContainerProps {
   query: IADSApiSearchParams;

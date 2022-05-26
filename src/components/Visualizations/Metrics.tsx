@@ -18,16 +18,7 @@ import { BarDatum } from '@nivo/bar';
 import { Serie } from '@nivo/line';
 import axios from 'axios';
 import { ReactElement, useMemo } from 'react';
-import {
-  LineGraph,
-  BarGraph,
-  PapersTable,
-  CitationsTable,
-  ReadsTable,
-  IndicesTable,
-  plotTimeSeriesGraph,
-  getIndicesTableData,
-} from '@components';
+import { LineGraph, BarGraph, PapersTable, CitationsTable, ReadsTable, IndicesTable } from '@components';
 
 import {
   ICitationsTableData,
@@ -37,6 +28,7 @@ import {
   IReadsTableData,
   ILineGraph,
 } from './types';
+import { getIndicesTableData, plotTimeSeriesGraph } from './utils';
 export interface IMetricsProps {
   metrics: IADSApiMetricsResponse;
   isAbstract: boolean;

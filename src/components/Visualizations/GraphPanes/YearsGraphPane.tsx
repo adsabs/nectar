@@ -10,12 +10,13 @@ import {
   FormControl,
   FormLabel,
   Button,
-  Box,
 } from '@chakra-ui/react';
-import { BarGraph, getYearsGraph, IBarGraph, YearDatum } from '@components';
+import { BarGraph } from '@components';
 import { BarDatum } from '@nivo/bar';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
+import { IBarGraph, YearDatum } from '../types';
+import { getYearsGraph } from '../utils';
 
 export const YearsGraphPane = ({
   data,

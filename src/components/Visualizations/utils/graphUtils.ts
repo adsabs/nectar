@@ -26,7 +26,7 @@ import {
   IPaperTableInput,
   IReadTableInput,
   YearDatum,
-} from '@components';
+} from '../types';
 
 /**
  * Output format

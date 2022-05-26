@@ -1,6 +1,5 @@
 import { IBucket, ISearchStats } from '@api';
 import {
-  Box,
   Button,
   Flex,
   FormControl,
@@ -19,8 +18,9 @@ import {
 } from '@chakra-ui/react';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
-import { LineGraph, ILineGraph, getLineGraphYearTicks, getHIndexGraphData } from '@components';
-import { Y_Axis } from '../types';
+import { LineGraph } from '@components';
+import { Y_Axis, ILineGraph } from '../types';
+import { getHIndexGraphData, getLineGraphYearTicks } from '../utils';
 
 interface IHIndexGraphPaneProps {
   buckets: IBucket[];
