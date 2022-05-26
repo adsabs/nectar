@@ -156,7 +156,7 @@ export const HIndexGraphPane = ({ buckets, sum, type, onApplyCondition }: IHInde
                 >
                   <NumberInputField />
                 </NumberInput>
-                <Text> most cited</Text>
+                <Text> most {type === 'citations' ? 'cited' : 'read'}</Text>
                 <Button type="submit" onClick={handleApplyLimit}>
                   Search
                 </Button>
