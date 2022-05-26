@@ -23,9 +23,9 @@ import { makeSearchParams, stringifySearchParams } from '@utils';
 import NextLink, { LinkProps } from 'next/link';
 import { useRouter } from 'next/router';
 import { curryN } from 'ramda';
-import { KeyboardEventHandler, ReactElement, useCallback, useMemo, useRef, useState } from 'react';
+import { Dispatch, KeyboardEventHandler, ReactElement, useCallback, useMemo, useRef, useState } from 'react';
 import { MenuPlacement } from 'react-select';
-import { calculatePagination } from './usePagination';
+import { calculatePagination, PaginationAction } from './usePagination';
 
 type NumPerPageProp =
   | {
@@ -48,21 +48,23 @@ export type PaginationProps = {
   page: number;
   skipRouting?: boolean;
   totalResults: number;
+  dispatch?: Dispatch<PaginationAction>;
 } & NumPerPageProp;
 
 export const Pagination = (props: PaginationProps): ReactElement => {
   const {
     hidePerPageSelect = false,
-    linksExtendQuery = false,
+    linksExtendQuery = true,
     numPerPage = APP_DEFAULTS.RESULT_PER_PAGE,
     onNext,
     onPageSelect,
     onPerPageSelect,
     onPrevious,
-    page = 1,
+    page: pageProp = 1,
     perPageMenuPlacement = 'auto',
     skipRouting = false,
     totalResults = 0,
+    dispatch,
   } = props;
 
   const router = useRouter();
@@ -72,11 +74,12 @@ export const Pagination = (props: PaginationProps): ReactElement => {
     value: option.toString(),
   }));
 
-  const { endIndex, startIndex, nextPage, noNext, noPagination, noPrev, prevPage, totalPages } = calculatePagination({
-    numPerPage,
-    page,
-    numFound: totalResults,
-  });
+  const { page, endIndex, startIndex, nextPage, noNext, noPagination, noPrev, prevPage, totalPages } =
+    calculatePagination({
+      numPerPage,
+      page: pageProp,
+      numFound: totalResults,
+    });
 
   const perPageSelectedValue = useMemo(() => pageOptions.find((o) => parseInt(o.value) === numPerPage), [numPerPage]);
 
@@ -89,6 +92,9 @@ export const Pagination = (props: PaginationProps): ReactElement => {
       if (typeof onPerPageSelect === 'function') {
         onPerPageSelect(numPerPage);
       }
+      if (typeof dispatch === 'function') {
+        dispatch({ type: 'SET_PERPAGE', payload: numPerPage });
+      }
     },
     [onPerPageSelect],
   );
@@ -99,6 +105,14 @@ export const Pagination = (props: PaginationProps): ReactElement => {
         e.preventDefault();
       }
 
+      if (typeof dispatch === 'function' && type === 'prev') {
+        dispatch({ type: 'PREV_PAGE' });
+      }
+
+      if (typeof dispatch === 'function' && type === 'next') {
+        dispatch({ type: 'NEXT_PAGE' });
+      }
+
       if (typeof onPrevious === 'function' && type === 'prev') {
         onPrevious(prevPage);
       }
@@ -107,7 +121,7 @@ export const Pagination = (props: PaginationProps): ReactElement => {
         onNext(nextPage);
       }
     }),
-    [onPrevious, onNext],
+    [onPrevious, onNext, dispatch],
   );
 
   const getLinkParams = useCallback(
@@ -184,7 +198,13 @@ export const Pagination = (props: PaginationProps): ReactElement => {
               </Button>
             </Link>
           </NextLink>
-          <ManualPageSelect page={page} totalPages={totalPages} skipRouting={skipRouting} onPageSelect={onPageSelect} />
+          <ManualPageSelect
+            page={page}
+            totalPages={totalPages}
+            skipRouting={skipRouting}
+            dispatch={dispatch}
+            onPageSelect={onPageSelect}
+          />
 
           <NextLink {...getLinkParams(nextPage)} passHref shallow>
             <Link>
@@ -213,16 +233,22 @@ const ManualPageSelect = ({
   page: currentPage = 1,
   totalPages = 1,
   skipRouting,
+  dispatch,
   onPageSelect,
 }: {
   page: number;
   totalPages: number;
   onPageSelect: (page: number) => void;
+  dispatch: Dispatch<PaginationAction>;
   skipRouting: boolean;
 }) => {
   const router = useRouter();
   // hold intermediate page in local state
   const [page, setPage] = useState(currentPage);
+  const [isOpen, setIsOpen] = useState(false);
+  const open = () => setIsOpen(!isOpen);
+  const close = () => setIsOpen(false);
+
   const handleChange = (_: string, page: number) => {
     setPage(Number.isNaN(page) ? 1 : page);
   };
@@ -236,10 +262,15 @@ const ManualPageSelect = ({
           search: makeSearchParams({ ...router.query, p: page } as SafeSearchUrlParams),
         });
       }
+      if (typeof dispatch === 'function') {
+        dispatch({ type: 'SET_PAGE', payload: page });
+      }
+
       if (typeof onPageSelect === 'function') {
         onPageSelect(page);
       }
     }
+    close();
   };
 
   // on enter, submit the change
@@ -252,7 +283,16 @@ const ManualPageSelect = ({
   const pagePickerRef = useRef(null);
 
   return (
-    <Popover placement="top" size="sm" initialFocusRef={pagePickerRef} closeOnBlur>
+    <Popover
+      placement="top"
+      size="sm"
+      isOpen={isOpen}
+      onClose={close}
+      onOpen={open}
+      initialFocusRef={pagePickerRef}
+      closeOnBlur
+      returnFocusOnClose
+    >
       <PopoverTrigger>
         <Button
           aria-label={`current page is ${currentPage}, update page`}

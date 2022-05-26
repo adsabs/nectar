@@ -132,8 +132,16 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
       [debSearchVal, authors],
     );
 
-    const { getPaginationProps } = usePagination({ numFound: list.length });
-    const pagination = getPaginationProps();
+    const [{ start, end }, setPagination] = useState({ start: 0, end: 10 });
+
+    const { getPaginationProps } = usePagination({
+      numFound: list.length,
+      onStateChange: (pagination) => {
+        if (pagination.startIndex !== start || pagination.endIndex !== end) {
+          setPagination({ start: pagination.startIndex, end: pagination.endIndex });
+        }
+      },
+    });
 
     // update search val on input change
     const handleInputChange: ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -164,11 +172,10 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
     const renderRows = () => {
       return (
         <>
-          {list.slice(pagination.startIndex, pagination.endIndex).map((item, index) => {
+          {list.slice(start, end).map((item, index) => {
             const [position, author, aff, orcid] = item;
             return (
               <Tr key={`${author}${index}`}>
-                {}
                 <Td display={{ base: 'none', sm: 'table-cell' }}>
                   <Text>{position}.</Text>
                 </Td>
@@ -270,7 +277,7 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
               </Table>
             </>
           )}
-          <Pagination totalResults={list.length} {...pagination} perPageMenuPlacement="top"></Pagination>
+          <Pagination totalResults={list.length} {...getPaginationProps()} perPageMenuPlacement="top" skipRouting />
         </Flex>
       </Box>
     );

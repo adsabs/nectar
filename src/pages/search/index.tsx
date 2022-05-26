@@ -41,7 +41,7 @@ const SearchPage: NextPage = () => {
     rows: storeNumPerPage,
     start: calculateStartIndex(parsedParams.p, storeNumPerPage, numFound),
   };
-  console.log(params);
+
   const { data, isLoading, error } = useSearch(omit(['p'], params));
 
   const handleSortChange = (sort: SolrSort[]) => {
