@@ -14,6 +14,10 @@ const propTypes = {
   children: PT.element,
 };
 
+/**
+ * Wrapper around next/link to create a simple link to the search page
+ * This generates the URL based on the params passed in
+ */
 export const SearchQueryLink = (props: ISearchQueryLinkProps): ReactElement => {
   const { params, replace = false, scroll, shallow = false, locale, ...chakraLinkProps } = props;
 

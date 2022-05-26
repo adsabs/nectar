@@ -207,14 +207,14 @@ const initialState: IPaginationState = {
  * Basically wraps the pagination logic, also uses some memoization to reduce unnecessary renders.
  */
 export const usePagination = (props: IUsePaginationProps) => {
-  const { numFound = 0, page = 1, numPerPage = APP_DEFAULTS.PER_PAGE_OPTIONS[0], onStateChange } = props;
+  const { numFound = 0, page = 1, numPerPage = APP_DEFAULTS.RESULT_PER_PAGE, onStateChange } = props;
   const [state, dispatch] = useReducer(reducer, { ...initialState, page });
 
   useEffect(
     () =>
       dispatch({
         type: 'SET_PERPAGE',
-        payload: isNumPerPageType(numPerPage) ? numPerPage : APP_DEFAULTS.PER_PAGE_OPTIONS[0],
+        payload: isNumPerPageType(numPerPage) ? numPerPage : APP_DEFAULTS.RESULT_PER_PAGE,
       }),
     [numPerPage],
   );
