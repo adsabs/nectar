@@ -15369,11 +15369,6 @@ use-debounce@^7.0.1:
   resolved "https://registry.npmjs.org/use-debounce/-/use-debounce-7.0.1.tgz#380e6191cc13ad29f8e2149a12b5c37cc2891190"
   integrity sha512-fOrzIw2wstbAJuv8PC9Vg4XgwyTLEOdq4y/Z3IhVl8DAE4svRcgyEUvrEXu+BMNgMoc3YND6qLT61kkgEKXh7Q==
 
-use-effect-reducer@^0.7.0:
-  version "0.7.0"
-  resolved "https://registry.npmjs.org/use-effect-reducer/-/use-effect-reducer-0.7.0.tgz#7e08714145a44b84c39c101e8898750b400d61de"
-  integrity sha512-TinyyjN4AdKztczq0nG0GuGPWwOLjUw29qWEOSxv/YDc954EbVNFbobQQwnzSAhM4xpE/2zt5rw0t/EZjJ0HSA==
-
 use-isomorphic-layout-effect@^1.0.0:
   version "1.1.1"
   resolved "https://registry.npmjs.org/use-isomorphic-layout-effect/-/use-isomorphic-layout-effect-1.1.1.tgz#7bb6589170cd2987a152042f9084f9effb75c225"
