@@ -1,11 +1,11 @@
 import { IUserData } from '@api';
 import { APP_STORAGE_KEY, updateAppUser } from '@store';
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { isPast, parseISO } from 'date-fns';
 import { PathLike } from 'fs';
 import getConfig from 'next/config';
 import qs from 'qs';
-import { isNil, pick } from 'ramda';
+import { identity, isNil, pick } from 'ramda';
 import { IBootstrapPayload } from './accounts';
 import { ApiTargets } from './models';
 
@@ -89,6 +89,10 @@ const defaultConfig: AxiosRequestConfig = {
   },
 };
 
+enum API_STATUS {
+  UNAUTHORIZED = 401,
+}
+
 /**
  * Api structure that wraps the axios instance
  * This allows us to manage the setting/resetting of the token
@@ -98,10 +102,29 @@ class Api {
   private static instance: Api;
   private service: AxiosInstance;
   private userData: IUserData;
-  private requestCache: Map<string, ApiRequestConfig>;
 
   private constructor() {
     this.service = axios.create(defaultConfig);
+    this.init();
+  }
+
+  private init() {
+    this.service.interceptors.response.use(identity, (error: AxiosError & { canRefresh: boolean }) => {
+      if (axios.isAxiosError(error) && error.response.status === API_STATUS.UNAUTHORIZED) {
+        this.invalidateUserData();
+        return this.bootstrap()
+          .then((res) => {
+            this.setUserData(res);
+            updateAppUser(res);
+            return this.request(error.config);
+          })
+          .catch(() => {
+            const bootstrapError = new Error('Unrecoverable Error, unable to refresh token', { cause: error });
+            return Promise.reject(bootstrapError);
+          });
+      }
+      return Promise.reject(error);
+    });
   }
 
   public static getInstance(): Api {
@@ -113,6 +136,11 @@ class Api {
 
   public setUserData(userData: IUserData) {
     this.userData = userData;
+  }
+
+  private invalidateUserData() {
+    updateAppUser(null);
+    this.setUserData(null);
   }
 
   /**
@@ -144,8 +172,8 @@ class Api {
       return this.service.request<T>(applyTokenToRequest(config, freshUserData.access_token));
     } catch (e) {
       // bootstrapping failed all attempts, let user know
-      // TODO: do something better
-      alert('Unable to contact API, or network error, please reload');
+      const bootstrapError = new Error('Unrecoverable Error, unable to refresh token', { cause: e as Error });
+      return Promise.reject(bootstrapError);
     }
   }
 
@@ -153,11 +181,16 @@ class Api {
    * Fetch latest user data, retries after errors
    */
   async bootstrap() {
-    const { data } = await this.retry<Promise<AxiosResponse<IBootstrapPayload>>>({
-      ...defaultConfig,
-      method: 'GET',
-      url: ApiTargets.BOOTSTRAP,
-    });
+    const { data } = await this.retry<Promise<AxiosResponse<IBootstrapPayload>>>(
+      {
+        ...defaultConfig,
+        method: 'GET',
+        url: ApiTargets.BOOTSTRAP,
+      },
+      {
+        interval: process.env.NODE_ENV === 'test' ? 0 : undefined,
+      },
+    );
     return pick(['access_token', 'username', 'expire_in', 'anonymous'], data) as IUserData;
   }
 
@@ -191,6 +224,7 @@ class Api {
 
   public reset() {
     this.service = this.service = axios.create(defaultConfig);
+    this.init();
     this.userData = null;
   }
 }
