@@ -18,13 +18,12 @@ import { useDebounce } from 'use-debounce';
 import { IBarGraph, YearDatum } from '../types';
 import { getYearsGraph } from '../utils';
 
-export const YearsGraphPane = ({
-  data,
-  onApplyCondition,
-}: {
+export interface IYearsGraphPaneProps {
   data: IFacetCountsFields;
   onApplyCondition: (cond: string) => void;
-}): ReactElement => {
+}
+
+export const YearsGraphPane = ({ data, onApplyCondition }: IYearsGraphPaneProps): ReactElement => {
   const [range, setRange] = useState<{ min: number; max: number }>(null);
 
   const baseGraph: IBarGraph<YearDatum> = useMemo(() => {

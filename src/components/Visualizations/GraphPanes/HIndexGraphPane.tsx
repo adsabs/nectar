@@ -22,7 +22,7 @@ import { LineGraph } from '@components';
 import { Y_Axis, ILineGraph } from '../types';
 import { getHIndexGraphData, getLineGraphYearTicks } from '../utils';
 
-interface IHIndexGraphPaneProps {
+export interface IHIndexGraphPaneProps {
   buckets: IBucket[];
   sum: ISearchStats['sum'];
   type: 'citations' | 'reads';
@@ -35,7 +35,6 @@ export const HIndexGraphPane = ({ buckets, sum, type, onApplyCondition }: IHInde
     limit: maxDataPoints,
     maxLimit: maxDataPoints,
   });
-
   const [yaxis, setYaxis] = useState<Y_Axis>('linear');
 
   // prevent graph transform until user has stopped updating slider
