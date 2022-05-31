@@ -18,6 +18,7 @@ export * from './ResultList';
 export * from './SearchBar';
 export * from './SearchExamples';
 export * from './Select';
+export * from './SimpleLink';
 export * from './Sort';
 export * from './TextInput';
 export * from './TopProgressBar';
