@@ -20,15 +20,11 @@ export const AbstractSources = ({ doc }: IAbstractSourcesProps): ReactElement =>
     if (doc && Array.isArray(doc.esources)) {
       return processLinkData(doc, null);
     }
+    return { fullTextSources: [], dataProducts: [] };
   }, [doc]);
 
   if (!doc) {
     return <></>;
-  }
-
-  const { esources } = doc;
-  if (isNil(esources)) {
-    return <Text>No Sources</Text>;
   }
 
   return (
