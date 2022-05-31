@@ -210,6 +210,7 @@ const HighlightsToggle = () => {
       size="md"
       borderRadius="2px"
       data-testid="listactions-showhighlights"
+      hidden
     >
       Show Highlights
     </Button>
