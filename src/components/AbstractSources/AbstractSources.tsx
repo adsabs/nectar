@@ -42,7 +42,7 @@ export const AbstractSources = ({ doc }: IAbstractSourcesProps): ReactElement =>
         <HStack as="section" wrap="wrap" spacing={0.5} columnGap={1} rowGap={1} alignItems="start">
           <FullTextDropdown sources={sources.fullTextSources} />
           <DataProductDropdown dataProducts={sources.dataProducts} relatedWorks={[]} />
-          <Button>Add to library</Button>
+          <Button hidden={true}>Add to library</Button>
         </HStack>
       )}
     </>

@@ -144,7 +144,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
                     </MenuItemOption>
                   </MenuOptionGroup>
                   <MenuDivider />
-                  <MenuItem>Add to Library</MenuItem>
+                  <MenuItem isDisabled={true}>Add to Library</MenuItem>
                   <MenuDivider />
                   <ExportMenu exploreAll={exploreAll} />
                 </MenuList>
