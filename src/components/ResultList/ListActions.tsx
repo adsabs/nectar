@@ -30,6 +30,8 @@ export interface IListActionsProps {
   onSortChange?: ISortProps['onChange'];
 }
 
+type Operator = 'trending' | 'reviews' | 'useful' | 'similar';
+
 export const ListActions = (props: IListActionsProps): ReactElement => {
   const { onSortChange = noop } = props;
   const selected = useStore((state) => state.docs.selected ?? []);
@@ -44,13 +46,22 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
     setExploreAll(noneSelected);
   }, [noneSelected]);
 
-  const [path, setPath] = useState<string>(null);
+  const [path, setPath] = useState<{ path?: string; operator?: Operator }>(null);
   const { data, error } = useVaultBigQuerySearch(selected, { enabled: !!path });
 
   useEffect(() => {
     // if data exists, push our qid to the route and change pages
     if (data && path) {
-      void router.push({ pathname: path, query: { ...router.query, qid: data.qid } });
+      if (path.path) {
+        // go to viz page with original query
+        void router.push({ pathname: path.path, query: { ...router.query, qid: data.qid } });
+      } else {
+        // new search with operator
+        void router.push({
+          pathname: '',
+          query: { q: `${path.operator}(docs(${data.qid}))`, sort: ['score desc', 'bibcode desc'] },
+        });
+      }
       setPath(null);
     }
 
@@ -76,8 +87,34 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
       void router.push({ pathname: path, query: router.query });
     } else {
       // set the path which will trigger the search
-      setPath(path);
+      setPath({ path });
     }
+  };
+
+  const handleOperationsLink = (operator: Operator) => {
+    if (exploreAll) {
+      // new search with operator
+      const q = `${operator}(${router.query.q as string})`;
+      void router.push({ pathname: '', query: { q, sort: ['score desc', 'bibcode desc'] } });
+    } else {
+      setPath({ operator });
+    }
+  };
+
+  const handleTrendingLink = () => {
+    handleOperationsLink('trending');
+  };
+
+  const handleReviewsLink = () => {
+    handleOperationsLink('reviews');
+  };
+
+  const handleUsefulLink = () => {
+    handleOperationsLink('useful');
+  };
+
+  const handleSimilarLink = () => {
+    handleOperationsLink('similar');
   };
 
   return (
@@ -151,7 +188,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
               </Portal>
             </Menu>
             <Menu>
-              <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+              <MenuButton as={Button} rightIcon={<ChevronDownIcon />} data-testid="explorer-menu-btn">
                 Explorer
               </MenuButton>
               <Portal>
@@ -174,10 +211,18 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
                   </MenuGroup>
                   <MenuDivider />
                   <MenuGroup title="OPERATIONS">
-                    <MenuItem>Co-reads</MenuItem>
-                    <MenuItem>Reviews</MenuItem>
-                    <MenuItem>Useful</MenuItem>
-                    <MenuItem>Similar</MenuItem>
+                    <MenuItem onClick={handleTrendingLink} data-testid="trending-operator">
+                      Co-reads
+                    </MenuItem>
+                    <MenuItem onClick={handleReviewsLink} data-testid="reviews-operator">
+                      Reviews
+                    </MenuItem>
+                    <MenuItem onClick={handleUsefulLink} data-testid="useful-operator">
+                      Useful
+                    </MenuItem>
+                    <MenuItem onClick={handleSimilarLink} data-testid="similar-operator">
+                      Similar
+                    </MenuItem>
                   </MenuGroup>
                 </MenuList>
               </Portal>
