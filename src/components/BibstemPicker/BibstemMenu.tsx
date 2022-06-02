@@ -1,10 +1,14 @@
-import { List, ListItem, Text, HStack } from '@chakra-ui/layout';
+import { HStack, List, ListItem, Text } from '@chakra-ui/layout';
 import { UseComboboxGetItemPropsOptions } from 'downshift';
 import { curry } from 'ramda';
 import { ReactElement, useEffect, useMemo } from 'react';
 import { usePopper } from 'react-popper';
 import { chainFrom } from 'transducist';
-import { bibstems, ITEM_DELIMITER } from './models';
+import { useDebounce } from 'use-debounce';
+import { bibstems } from './models';
+
+const ITEM_DELIMITER = '$$';
+
 export interface IBibstemMenuProps {
   onItemsChange: (items: string[]) => void;
   inputValue: string;
@@ -17,11 +21,13 @@ export interface IBibstemMenuProps {
 export const BibstemMenu = (props: IBibstemMenuProps): ReactElement => {
   const { highlightedIndex, getItemProps, inputValue, selectedItems, onItemsChange, maxItemsToShow } = props;
 
+  const [debouncedValue] = useDebounce(inputValue, 400);
+
   // partially apply the max items
   const searchBibs = useMemo(() => searchBibstems(maxItemsToShow), [maxItemsToShow]);
 
   // memoize the items filtering (heavy operation)
-  const items = useMemo(() => searchBibs(inputValue, selectedItems), [inputValue, selectedItems]);
+  const items = useMemo(() => searchBibs(debouncedValue, selectedItems), [debouncedValue, selectedItems]);
 
   useEffect(() => onItemsChange(items), [items]);
 
@@ -64,9 +70,11 @@ BibstemMenu.defaultProps = {
  * @return {*}  {string[]}
  */
 const searchBibstems = curry((maxItems: number, searchString: string, itemsToOmit: string[]): string[] => {
-  const formatted = searchString.toLowerCase();
+  const search = new RegExp(`${searchString}`, 'ig');
+
   const values = chainFrom(bibstems)
-    .filter((bibstem) => !itemsToOmit.includes(bibstem) && bibstem.toLowerCase().startsWith(formatted))
+    .filter((bibstem) => search.test(bibstem))
+    .filter((bibstem) => !itemsToOmit.includes(bibstem))
 
     // take any number of maxItems up to a max of 1000
     .take(maxItems <= 0 ? 1000 : maxItems)
