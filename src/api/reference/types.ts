@@ -7,6 +7,6 @@ export interface IADSApiReferenceResponse {
     score: string;
     bibcode: string;
     refstring: string;
-    comment: string;
+    comment?: string;
   };
 }
