@@ -1,5 +1,5 @@
-import { Meta, Story } from '@storybook/react';
 import { BibstemPickerSingle, IBibstemPickerSingleProps } from '@components';
+import { Meta, Story } from '@storybook/react';
 
 const meta: Meta = {
   title: 'BibstemPicker/BibstemPickerSingle',
@@ -8,9 +8,9 @@ const meta: Meta = {
 
 export default meta;
 
-const Template: Story<IBibstemPickerSingleProps> = (args) => <BibstemPickerSingle {...args} />;
+const Template: Story<Omit<IBibstemPickerSingleProps, 'ref'>> = (args) => <BibstemPickerSingle {...args} />;
 
-export const Default = Template.bind({}) ;
+export const Default = Template.bind({});
 
 Default.args = {
   name: 'bibstem',
