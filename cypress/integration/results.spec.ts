@@ -1,5 +1,7 @@
 import { IADSApiSearchParams } from '@api';
 
+const baseUrl = Cypress.config().baseUrl;
+
 const search = (params: Partial<IADSApiSearchParams & { p: number }>) => {
   cy.visit('/search', {
     qs: params,
@@ -194,6 +196,62 @@ describe('Result Page', () => {
       cy.getByTestId('results-index').first().should('have.text', '21');
       cy.get('@results-checkbox').first().should('not.be.checked').check({ force: true });
       assertRecordsSelected(3);
+    });
+  });
+
+  describe('Operators', () => {
+    it('Operators link to proper search', () => {
+      search({ q: 'star' });
+      cy.getByTestId('explorer-menu-btn').click();
+      cy.getByTestId('explorer-menu-items').should('be.visible');
+      cy.getByTestId('trending-operator').trigger('mouseover').click();
+      cy.url().should('eq', baseUrl + '/search?q=trending%28star%29&sort=score+desc&sort=bibcode+desc');
+
+      search({ q: 'star' });
+      cy.getByTestId('listactions-checkbox').find('input[type=checkbox]').check({ force: true });
+      cy.getByTestId('explorer-menu-btn').click();
+      cy.getByTestId('explorer-menu-items').should('be.visible');
+      cy.getByTestId('trending-operator').trigger('mouseover').click();
+      cy.url().should('eq', baseUrl + '/search?q=trending%28docs%28012345690%29%29&sort=score+desc&sort=bibcode+desc');
+
+      search({ q: 'star' });
+      cy.getByTestId('explorer-menu-btn').click();
+      cy.getByTestId('explorer-menu-items').should('be.visible');
+      cy.getByTestId('reviews-operator').trigger('mouseover').click();
+      cy.url().should('eq', baseUrl + '/search?q=reviews%28star%29&sort=score+desc&sort=bibcode+desc');
+
+      search({ q: 'star' });
+      cy.getByTestId('listactions-checkbox').find('input[type=checkbox]').check({ force: true });
+      cy.getByTestId('explorer-menu-btn').click();
+      cy.getByTestId('explorer-menu-items').should('be.visible');
+      cy.getByTestId('reviews-operator').trigger('mouseover').click();
+      cy.url().should('eq', baseUrl + '/search?q=reviews%28docs%28012345690%29%29&sort=score+desc&sort=bibcode+desc');
+
+      search({ q: 'star' });
+      cy.getByTestId('explorer-menu-btn').click();
+      cy.getByTestId('explorer-menu-items').should('be.visible');
+      cy.getByTestId('useful-operator').trigger('mouseover').click();
+      cy.url().should('eq', baseUrl + '/search?q=useful%28star%29&sort=score+desc&sort=bibcode+desc');
+
+      search({ q: 'star' });
+      cy.getByTestId('listactions-checkbox').find('input[type=checkbox]').check({ force: true });
+      cy.getByTestId('explorer-menu-btn').click();
+      cy.getByTestId('explorer-menu-items').should('be.visible');
+      cy.getByTestId('useful-operator').trigger('mouseover').click();
+      cy.url().should('eq', baseUrl + '/search?q=useful%28docs%28012345690%29%29&sort=score+desc&sort=bibcode+desc');
+
+      search({ q: 'star' });
+      cy.getByTestId('explorer-menu-btn').click();
+      cy.getByTestId('explorer-menu-items').should('be.visible');
+      cy.getByTestId('similar-operator').trigger('mouseover').click();
+      cy.url().should('eq', baseUrl + '/search?q=similar%28star%29&sort=score+desc&sort=bibcode+desc');
+
+      search({ q: 'star' });
+      cy.getByTestId('listactions-checkbox').find('input[type=checkbox]').check({ force: true });
+      cy.getByTestId('explorer-menu-btn').click();
+      cy.getByTestId('explorer-menu-items').should('be.visible');
+      cy.getByTestId('similar-operator').trigger('mouseover').click();
+      cy.url().should('eq', baseUrl + '/search?q=similar%28docs%28012345690%29%29&sort=score+desc&sort=bibcode+desc');
     });
   });
 });

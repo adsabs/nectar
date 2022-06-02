@@ -192,7 +192,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
                 Explorer
               </MenuButton>
               <Portal>
-                <MenuList>
+                <MenuList data-testid="explorer-menu-items">
                   <MenuOptionGroup value={exploreAll ? 'all' : 'selected'} type="radio" onChange={handleExploreOption}>
                     <MenuItemOption value="all" closeOnSelect={false}>
                       All
