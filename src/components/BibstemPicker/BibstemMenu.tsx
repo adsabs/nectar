@@ -34,7 +34,7 @@ export const BibstemMenu = (props: IBibstemMenuProps): ReactElement => {
   const { attributes, styles } = usePopper();
 
   return (
-    <List {...attributes.popper} style={styles.popper} variant="autocomplete">
+    <List {...attributes.popper} style={styles.popper} variant="autocomplete" borderRadius={0} mt={0.5}>
       {items.map((item, index) => {
         const [bibstem, description] = item.split(ITEM_DELIMITER);
         return (
@@ -43,9 +43,13 @@ export const BibstemMenu = (props: IBibstemMenuProps): ReactElement => {
             {...getItemProps({ item, index })}
             backgroundColor={highlightedIndex === index ? 'gray.100' : {}}
           >
-            <HStack alignItems="center" spacing={1}>
-              <Text fontSize="md">{bibstem}</Text>
-              <Text fontSize="sm">{description}</Text>
+            <HStack alignItems="center" spacing={2} justifyContent="space-between">
+              <Text fontSize="md" fontWeight="semibold">
+                {description}
+              </Text>
+              <Text fontSize="md" fontWeight="light">
+                {bibstem}
+              </Text>
             </HStack>
           </ListItem>
         );
