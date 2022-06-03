@@ -102,4 +102,14 @@ export const stringifiers = {
 
     return `pubdate:[${yearFrom}${monthFrom ? `-${monthFrom}` : ''} TO ${yearTo}${monthTo ? `-${monthTo}` : ''}]`;
   },
+
+  property({ property_refereed_only, property_articles_only }: ClassicFormParams): string | undefined {
+    if (!property_refereed_only && !property_articles_only) {
+      return;
+    }
+
+    return `property:(${[property_refereed_only ? 'refereed' : null, property_articles_only ? 'article' : null]
+      .filter((v) => !isNil(v))
+      .join(' AND ')})`;
+  },
 };

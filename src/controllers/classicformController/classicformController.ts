@@ -18,6 +18,7 @@ export class ClassicformController {
       stringifiers.objects(this.params),
       stringifiers.title(this.params),
       stringifiers.pubdate(this.params),
+      stringifiers.property(this.params),
     ]
       .filter((v) => !isNil(v))
       .join(' ');
@@ -30,8 +31,8 @@ export class ClassicformController {
       limit_astronomy,
       limit_general,
       limit_physics,
-      property_referreed_only,
-      property_physics,
+      property_refereed_only,
+      property_articles_only,
       logic_author = 'and',
       logic_object = 'and',
       logic_title = 'and',
@@ -50,8 +51,8 @@ export class ClassicformController {
       limit_astronomy: checks.binaryCheck(limit_astronomy),
       limit_general: checks.binaryCheck(limit_general),
       limit_physics: checks.binaryCheck(limit_physics),
-      property_physics: checks.binaryCheck(property_physics),
-      property_referreed_only: checks.binaryCheck(property_referreed_only),
+      property_articles_only: checks.binaryCheck(property_articles_only),
+      property_refereed_only: checks.binaryCheck(property_refereed_only),
       logic_author: checks.logicAndOrCheck(logic_author),
       logic_object: checks.logicAndOrCheck(logic_object),
       logic_title: checks.logicAllCheck(logic_title),

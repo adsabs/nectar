@@ -118,16 +118,16 @@ const ClassicForm: NextPage = () => {
                   <Checkbox id="refereed_only" name="property_refereed_only" onChange={handleChange} fontWeight="bold">
                     Refereed only
                   </Checkbox>
-                  <Checkbox id="physics" name="property_physics" onChange={handleChange} fontWeight="bold">
-                    Physics
+                  <Checkbox id="articles_only" name="property_articles_only" onChange={handleChange} fontWeight="bold">
+                    Articles only
                   </Checkbox>
                 </HStack>
               ) : (
                 <HStack>
                   <input type="checkbox" id="refereed_only" name="property_refereed_only" />
                   <label htmlFor="refereed_only">Refereed only</label>
-                  <input type="checkbox" id="physics" name="property_physics" />
-                  <label htmlFor="physics">Physics</label>
+                  <input type="checkbox" id="articles_only" name="property_articles_only" />
+                  <label htmlFor="articles_only">Articles only</label>
                 </HStack>
               )}
             </CheckboxGroup>

@@ -11,8 +11,8 @@ export interface ClassicFormParams {
   logic_object: LogicAndOr;
   logic_title: LogicAll;
   logic_abstract_keywords: LogicAll;
-  property_referreed_only: boolean;
-  property_physics: boolean;
+  property_refereed_only: boolean;
+  property_articles_only: boolean;
 
   pubdate_start?: [number, number];
   pubdate_end?: [number, number];
