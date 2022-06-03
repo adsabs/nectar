@@ -21,7 +21,7 @@ export const defaultSort: IADSApiSearchParams['sort'] = ['date desc'];
 
 export const defaultParams: IADSApiSearchParams = {
   q: '*:*',
-  sort: ['date desc'],
+  sort: ['date desc', 'bibcode desc'],
   fl: defaultFields,
   start: 0,
   rows: APP_DEFAULTS.RESULT_PER_PAGE,

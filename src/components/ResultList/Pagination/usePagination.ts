@@ -1,7 +1,9 @@
 import { APP_DEFAULTS } from '@config';
-import { useRouter } from 'next/router';
-import { clamp } from 'ramda';
-import { Dispatch, Reducer, useEffect, useMemo, useReducer } from 'react';
+import { NumPerPageType } from '@types';
+import { isNumPerPageType } from '@utils';
+import memoizeOne from 'memoize-one';
+import { clamp, equals } from 'ramda';
+import { Dispatch, Reducer, useCallback, useEffect, useReducer } from 'react';
 
 /**
  * Calculate the total pages based on the number of results and how many records per page
@@ -31,7 +33,7 @@ const cleanClamp = (value: unknown, min = 0, max: number = Number.MAX_SAFE_INTEG
   }
 };
 
-const defaultResult: Omit<IUsePaginationResult, 'dispatch' | 'numPerPage'> = {
+const defaultResult: PaginationResult = {
   page: 1,
   endIndex: 1,
   nextPage: 2,
@@ -44,72 +46,104 @@ const defaultResult: Omit<IUsePaginationResult, 'dispatch' | 'numPerPage'> = {
 };
 
 /**
+ * Utility for calculating the page given a start and numPerPage
+ * This makes no assumptions about number of total records, so page could
+ * be out of range.
+ */
+export const calculatePage = (startIndex: number, numPerPage: number) => {
+  return cleanClamp(Math.floor(startIndex / numPerPage) + 1, 1, Number.MAX_SAFE_INTEGER);
+};
+
+export const calculateStartIndex = (page: number, numPerPage: number, numFound: number = Number.MAX_SAFE_INTEGER) => {
+  const results = cleanClamp(numFound, 0);
+  if (page <= 1) {
+    // on first page, always start at 0
+    return 0;
+  }
+
+  // on last page
+  if (page * numPerPage >= results - numPerPage) {
+    if (results % numPerPage === 0) {
+      return results - numPerPage;
+    } else {
+      return results - (results % numPerPage);
+    }
+  }
+
+  // otherwise do our normal calculation
+  return cleanClamp((page - 1) * numPerPage, 1, results - numPerPage + 1);
+};
+
+/**
  * Main logic
  *
  * Based on numFound, page and numPerPage - calculate all the necessary metadata needed to
  * properly display the pagination controls or to calculate the next state
  */
-export const calculatePagination = ({
-  numFound,
-  page,
-  numPerPage,
-}: {
-  numFound: number;
-  page: number;
-  numPerPage: NumPerPageType;
-}): Omit<IUsePaginationResult, 'dispatch' | 'numPerPage'> => {
-  const results = cleanClamp(numFound, 0);
+export const calculatePagination = memoizeOne(
+  ({
+    numFound = Number.MAX_SAFE_INTEGER,
+    page,
+    numPerPage,
+  }: {
+    numFound?: number;
+    page: number;
+    numPerPage: NumPerPageType;
+  }): PaginationResult => {
+    const results = cleanClamp(numFound, 0);
 
-  if (results === 0) {
-    // if no results return a default state
-    return defaultResult;
-  }
-
-  const totalPages = getTotalPages(results, numPerPage);
-
-  let startIndex;
-  let endIndex;
-  // have to do some special handling for the final page
-  if (page <= 1) {
-    startIndex = 0;
-    endIndex = numPerPage;
-  } else if (page >= totalPages) {
-    // for the final page, we can calculate directly from results
-    if (results % numPerPage === 0) {
-      startIndex = results - numPerPage + 1;
-    } else {
-      startIndex = results - (results % numPerPage) + 1;
+    if (results === 0) {
+      // if no results return a default state
+      return defaultResult;
     }
-    endIndex = results;
-  } else {
-    startIndex = cleanClamp((page - 1) * numPerPage + 1, 1, results - numPerPage + 1);
-    endIndex = startIndex + numPerPage - 1;
-  }
 
-  // calculate new page based on startIndex and numPerPage
-  const newPage = cleanClamp(Math.floor(startIndex / numPerPage) + 1, 1, totalPages);
+    const totalPages = getTotalPages(results, numPerPage);
 
-  return {
-    // utility
-    nextPage: cleanClamp(newPage + 1, 1, totalPages),
-    prevPage: cleanClamp(newPage - 1, 1, totalPages),
-    noPrev: newPage === 1,
-    noNext: newPage === totalPages,
-    noPagination: totalPages <= 1,
+    let startIndex;
+    let endIndex;
+    // have to do some special handling for the final page
+    if (page <= 1) {
+      startIndex = 0;
+      endIndex = numPerPage;
+    } else if (page >= totalPages) {
+      // for the final page, we can calculate directly from results
+      if (results % numPerPage === 0) {
+        startIndex = results - numPerPage;
+      } else {
+        startIndex = results - (results % numPerPage);
+      }
+      endIndex = results;
+    } else {
+      startIndex = cleanClamp((page - 1) * numPerPage, 1, results - numPerPage + 1);
+      endIndex = startIndex + numPerPage;
+    }
 
-    // meta
-    startIndex,
-    endIndex,
-    totalPages,
-    page: newPage,
-  };
-};
+    // calculate new page based on startIndex and numPerPage
+    const newPage = cleanClamp(Math.floor(startIndex / numPerPage) + 1, 1, totalPages);
 
-type NumPerPageType = typeof APP_DEFAULTS['PER_PAGE_OPTIONS'][number];
+    return {
+      // utility
+      nextPage: cleanClamp(newPage + 1, 1, totalPages),
+      prevPage: cleanClamp(newPage - 1, 1, totalPages),
+      noPrev: newPage === 1,
+      noNext: newPage === totalPages,
+      noPagination: numFound <= APP_DEFAULTS.RESULT_PER_PAGE,
+
+      // meta
+      startIndex,
+      endIndex,
+      totalPages,
+      page: newPage,
+    };
+  },
+  equals,
+);
 
 export interface IUsePaginationProps {
   numFound: number;
-  updateURL?: boolean;
+  numPerPage?: NumPerPageType;
+  page?: number;
+  onStateChange?: (pagination: PaginationResult, state: IPaginationState, dispatch: Dispatch<PaginationAction>) => void;
 }
 
 export interface IUsePaginationResult {
@@ -126,9 +160,12 @@ export interface IUsePaginationResult {
   dispatch: Dispatch<PaginationAction>;
 }
 
+export type PaginationResult = Omit<IUsePaginationResult, 'dispatch' | 'numPerPage'>;
+
 export interface IPaginationState {
   page: number;
   numPerPage: NumPerPageType;
+  numFound: number;
 }
 
 export type PaginationAction =
@@ -136,6 +173,7 @@ export type PaginationAction =
   | { type: 'PREV_PAGE' }
   | { type: 'RESET' }
   | { type: 'SET_PAGE'; payload: number }
+  | { type: 'SET_NUMFOUND'; payload: number }
   | { type: 'SET_PERPAGE'; payload: NumPerPageType };
 
 const reducer: Reducer<IPaginationState, PaginationAction> = (state, action) => {
@@ -151,6 +189,8 @@ const reducer: Reducer<IPaginationState, PaginationAction> = (state, action) => 
     case 'SET_PERPAGE':
       // on perPage change, we should reset back to page 1
       return { ...state, numPerPage: action.payload, page: 1 };
+    case 'SET_NUMFOUND':
+      return { ...state, numFound: action.payload };
     default:
       return state;
   }
@@ -159,30 +199,47 @@ const reducer: Reducer<IPaginationState, PaginationAction> = (state, action) => 
 const initialState: IPaginationState = {
   page: 1,
   numPerPage: APP_DEFAULTS.RESULT_PER_PAGE,
+  numFound: Number.MAX_SAFE_INTEGER,
 };
 /**
  * Pagination hook
  *
  * Basically wraps the pagination logic, also uses some memoization to reduce unnecessary renders.
  */
-export const usePagination = (props: IUsePaginationProps): IUsePaginationResult => {
-  const { numFound = 0, updateURL = true } = props;
-  const [state, dispatch] = useReducer(reducer, initialState);
-  const router = useRouter();
+export const usePagination = (props: IUsePaginationProps) => {
+  const { numFound = 0, page = 1, numPerPage = APP_DEFAULTS.RESULT_PER_PAGE, onStateChange } = props;
+  const [state, dispatch] = useReducer(reducer, { ...initialState, page });
 
-  const result = useMemo(
-    () => calculatePagination({ numFound, numPerPage: state.numPerPage, page: state.page }),
-    [numFound, state],
+  useEffect(
+    () =>
+      dispatch({
+        type: 'SET_PERPAGE',
+        payload: isNumPerPageType(numPerPage) ? numPerPage : APP_DEFAULTS.RESULT_PER_PAGE,
+      }),
+    [numPerPage],
   );
 
-  // push new params as page changes (ONLY page change)
-  useEffect(() => {
-    if (updateURL) {
-      void router.push({ pathname: router.pathname, query: { ...router.query, p: result.page } }, null, {
-        shallow: true,
-      });
-    }
-  }, [result.page]);
+  // watch page changes, this allows consumers to force changes via props
+  useEffect(() => dispatch({ type: 'SET_PAGE', payload: cleanClamp(page, 1) }), [page]);
 
-  return { ...result, numPerPage: state.numPerPage, dispatch };
+  // watch changes to numFound
+  useEffect(() => dispatch({ type: 'SET_NUMFOUND', payload: cleanClamp(numFound, 0) }), [numFound]);
+
+  // trigger onStateChange handler when state changes
+  useEffect(() => {
+    if (typeof onStateChange === 'function' && state.numFound > 0) {
+      const pagination = calculatePagination({ ...state });
+      onStateChange(pagination, state, dispatch);
+    }
+  }, [state]);
+
+  const getPaginationProps = useCallback(() => {
+    return {
+      ...calculatePagination({ ...state }),
+      numPerPage: state.numPerPage,
+      dispatch,
+    };
+  }, [state]);
+
+  return { getPaginationProps, calculatePage, calculatePagination, calculateStartIndex };
 };

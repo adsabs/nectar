@@ -1,6 +1,6 @@
-import { IDocsEntity, useGetAffiliations } from '@api';
+import { IADSApiSearchParams, IDocsEntity, useGetAffiliations } from '@api';
 import { CloseIcon, DownloadIcon } from '@chakra-ui/icons';
-import { Box, Link } from '@chakra-ui/layout';
+import { Box } from '@chakra-ui/layout';
 import {
   Button,
   Flex,
@@ -29,10 +29,10 @@ import {
 import { OrcidActiveIcon } from '@components/icons/Orcid';
 import { Pagination } from '@components/ResultList/Pagination';
 import { usePagination } from '@components/ResultList/Pagination/usePagination';
+import { SearchQueryLink } from '@components/SearchQueryLink';
 import { useDebounce } from '@hooks/useDebounce';
 import { saveAs } from 'file-saver';
 import { matchSorter } from 'match-sorter';
-import NextLink from 'next/link';
 import { ChangeEventHandler, forwardRef, MouseEventHandler, ReactElement, useEffect, useRef, useState } from 'react';
 import { useGetAuthors } from './useGetAuthors';
 
@@ -103,16 +103,9 @@ export const AllAuthorsModal = ({ bibcode, label }: IAllAuthorsModalProps): Reac
   );
 };
 
-const getLinkProps = (queryType: 'author' | 'orcid', value: string) => ({
-  href: {
-    pathname: '/search',
-    query: {
-      q: queryType === 'author' ? `author:"${value}"` : `orcid:"${value}"`,
-      sort: 'date desc, bibcode desc',
-    },
-  },
-  passHref: true,
-});
+const createQuery = (type: 'author' | 'orcid', value: string): IADSApiSearchParams => {
+  return { q: `${type}:"${value}"`, sort: ['date desc'] };
+};
 
 const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchClear: () => void }>(
   ({ doc, onSearchClear }, ref) => {
@@ -139,7 +132,16 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
       [debSearchVal, authors],
     );
 
-    const pagination = usePagination({ numFound: list.length, updateURL: false });
+    const [{ start, end }, setPagination] = useState({ start: 0, end: 10 });
+
+    const { getPaginationProps } = usePagination({
+      numFound: list.length,
+      onStateChange: (pagination) => {
+        if (pagination.startIndex !== start || pagination.endIndex !== end) {
+          setPagination({ start: pagination.startIndex, end: pagination.endIndex });
+        }
+      },
+    });
 
     // update search val on input change
     const handleInputChange: ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -170,30 +172,33 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
     const renderRows = () => {
       return (
         <>
-          {list.slice(pagination.startIndex, pagination.endIndex).map((item, index) => {
+          {list.slice(start, end).map((item, index) => {
             const [position, author, aff, orcid] = item;
             return (
               <Tr key={`${author}${index}`}>
-                {}
                 <Td display={{ base: 'none', sm: 'table-cell' }}>
                   <Text>{position}.</Text>
                 </Td>
                 <Td>
                   {typeof author === 'string' && (
-                    <NextLink {...getLinkProps('author', author)}>
-                      <Link px={1} aria-label={`author "${author}", search by name`} flexShrink="0">
-                        {author}
-                      </Link>
-                    </NextLink>
+                    <SearchQueryLink
+                      params={createQuery('author', author)}
+                      px={1}
+                      aria-label={`author "${author}", search by name`}
+                      flexShrink="0"
+                    >
+                      {author}
+                    </SearchQueryLink>
                   )}
                 </Td>
                 <Td>
                   {typeof orcid === 'string' && (
-                    <NextLink {...getLinkProps('orcid', orcid)}>
-                      <Link aria-label={`author "${author}", search by orKid`}>
-                        <OrcidActiveIcon fontSize={'large'} />
-                      </Link>
-                    </NextLink>
+                    <SearchQueryLink
+                      params={createQuery('orcid', orcid)}
+                      aria-label={`author "${author}", search by orKid`}
+                    >
+                      <OrcidActiveIcon fontSize={'large'} />
+                    </SearchQueryLink>
                   )}
                 </Td>
                 <Td>
@@ -272,7 +277,7 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
               </Table>
             </>
           )}
-          <Pagination totalResults={list.length} {...pagination} perPageMenuPlacement="top"></Pagination>
+          <Pagination totalResults={list.length} {...getPaginationProps()} perPageMenuPlacement="top" skipRouting />
         </Flex>
       </Box>
     );

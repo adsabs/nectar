@@ -1,9 +1,9 @@
-import { IDocsEntity, useGetAbstract } from '@api';
+import { IADSApiSearchParams, IDocsEntity, useGetAbstract } from '@api';
 import { Alert, AlertIcon } from '@chakra-ui/alert';
 import { Box, Link, Stack, Text } from '@chakra-ui/layout';
 import { Flex } from '@chakra-ui/react';
 import { Table, Tbody, Td, Tr } from '@chakra-ui/table';
-import { AbstractSources } from '@components';
+import { AbstractSources, SearchQueryLink } from '@components';
 import { createUrlByType } from '@components/AbstractSources/linkGenerator';
 import { IAllAuthorsModalProps } from '@components/AllAuthorsModal';
 import { useGetAuthors } from '@components/AllAuthorsModal/useGetAuthors';
@@ -34,16 +34,9 @@ export interface IAbstractPageProps {
 
 const MAX = APP_DEFAULTS.DETAILS_MAX_AUTHORS;
 
-const getLinkProps = (queryType: 'author' | 'orcid', value: string) => ({
-  href: {
-    pathname: '/search',
-    query: {
-      q: queryType === 'author' ? `author:"${value}"` : `orcid:"${value}"`,
-      sort: 'date desc, bibcode desc',
-    },
-  },
-  passHref: true,
-});
+const createQuery = (type: 'author' | 'orcid', value: string): IADSApiSearchParams => {
+  return { q: `${type}:"${value}"`, sort: ['date desc'] };
+};
 
 const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) => {
   const { id, error } = props;
@@ -75,17 +68,21 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
               <Flex wrap="wrap">
                 {authors.map(([, author, orcid], index) => (
                   <Box mr={1} key={`${author}${index}`}>
-                    <NextLink {...getLinkProps('author', author)} passHref>
-                      <Link px={1} aria-label={`author "${author}", search by name`} flexShrink="0">
-                        {author}
-                      </Link>
-                    </NextLink>
+                    <SearchQueryLink
+                      params={createQuery('author', author)}
+                      px={1}
+                      aria-label={`author "${author}", search by name`}
+                      flexShrink="0"
+                    >
+                      {author}
+                    </SearchQueryLink>
                     {typeof orcid === 'string' && (
-                      <NextLink {...getLinkProps('orcid', orcid)} passHref>
-                        <Link aria-label={`author "${author}", search by orKid`}>
-                          <OrcidActiveIcon fontSize={'large'} />
-                        </Link>
-                      </NextLink>
+                      <SearchQueryLink
+                        params={createQuery('orcid', orcid)}
+                        aria-label={`author "${author}", search by orKid`}
+                      >
+                        <OrcidActiveIcon fontSize={'large'} />
+                      </SearchQueryLink>
                     )}
                     <>{index === MAX - 1 || index === doc.author_count - 1 ? '' : ';'}</>
                   </Box>
@@ -98,12 +95,16 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
               </Flex>
             ) : (
               <Flex wrap="wrap">
-                {doc.author.map((author) => (
-                  <NextLink {...getLinkProps('author', author)} key={author} passHref>
-                    <Link px={1} aria-label={`author "${author}", search by name`} flexShrink="0">
-                      {author}
-                    </Link>
-                  </NextLink>
+                {doc?.author.map((author) => (
+                  <SearchQueryLink
+                    params={createQuery('author', author)}
+                    key={author}
+                    px={1}
+                    aria-label={`author "${author}", search by name`}
+                    flexShrink="0"
+                  >
+                    {author}
+                  </SearchQueryLink>
                 ))}
                 {doc.author_count > MAX ? <Text>{` and ${doc.author_count - MAX} more`}</Text> : null}
               </Flex>

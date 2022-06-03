@@ -1,6 +1,7 @@
 import { Box, Flex, Text } from '@chakra-ui/layout';
 import { ISearchExamplesProps, SearchBar, SearchExamplesPlaceholder } from '@components';
 import { useStore, useStoreApi } from '@store';
+import { makeSearchParams } from '@utils';
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
@@ -14,10 +15,12 @@ const SearchExamples = dynamic<ISearchExamplesProps>(
 const HomePage: NextPage = () => {
   const store = useStoreApi();
   const resetQuery = useStore((state) => state.resetQuery);
+  const submitQuery = useStore((state) => state.submitQuery);
   const router = useRouter();
   const input = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  // clear search on mount
   useEffect(() => resetQuery(), []);
 
   /**
@@ -28,7 +31,8 @@ const HomePage: NextPage = () => {
     const { q, sort } = store.getState().query;
     if (q && q.trim().length > 0) {
       setIsLoading(true);
-      void router.push({ pathname: '/search', query: { q, sort, p: 1 } });
+      submitQuery();
+      void router.push({ pathname: '/search', search: makeSearchParams({ q, sort, p: 1 }) });
     }
   };
 

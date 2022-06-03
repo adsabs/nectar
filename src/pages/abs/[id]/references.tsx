@@ -43,13 +43,7 @@ const ReferencesPage: NextPage<IReferencesPageProps> = (props: IReferencesPagePr
           docs={data.docs}
           totalResults={data.numFound}
           onPageChange={onPageChange}
-          href={{
-            pathname: '/search',
-            query: {
-              q: referencesParams.q,
-              sort: referencesParams.sort,
-            },
-          }}
+          searchLinkParams={referencesParams}
         />
       )}
     </AbsLayout>

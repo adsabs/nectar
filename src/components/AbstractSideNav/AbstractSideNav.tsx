@@ -35,22 +35,12 @@ const useGetItems = ({
 }) => {
   const router = useRouter();
 
-  const items: Record<
-    Routes,
-    {
-      route: string;
-      label: string;
-      icon: ReactElement;
-      count?: number;
-      disabled?: boolean;
-      linkProps?: (id: string) => LinkProps;
-      active?: boolean;
-    }
-  > = {
+  const items: Record<Routes, IItemProps> = {
     [Routes.ABSTRACT]: {
       route: Routes.ABSTRACT,
       label: 'Abstract',
       icon: <DocumentTextIcon />,
+      noPagination: true,
     },
     [Routes.CITATIONS]: {
       route: Routes.CITATIONS,
@@ -87,12 +77,14 @@ const useGetItems = ({
       label: 'Graphics',
       icon: <PhotographIcon />,
       disabled: !hasGraphics,
+      noPagination: true,
     },
     [Routes.METRICS]: {
       route: Routes.METRICS,
       label: 'Metrics',
       icon: <ChartPieIcon />,
       disabled: !hasMetrics,
+      noPagination: true,
     },
     [Routes.EXPORT]: {
       route: Routes.EXPORT,
@@ -163,6 +155,7 @@ interface IItemProps {
   count?: number;
   route: string;
   icon: ReactElement;
+  noPagination?: boolean;
   linkProps?: (id: string) => LinkProps;
 }
 
@@ -171,7 +164,7 @@ interface IItemProps {
  * Rendered as as button link
  */
 const Item = (props: IItemProps) => {
-  const { disabled = false, label, count, route, icon = <DocumentIcon />, linkProps = noop } = props;
+  const { disabled = false, label, count, noPagination, route, icon = <DocumentIcon />, linkProps = noop } = props;
   const router = useRouter();
 
   let isDisabled = disabled;
@@ -183,7 +176,12 @@ const Item = (props: IItemProps) => {
   const active = router.asPath.indexOf(`/${route}`) > -1;
 
   return (
-    <NextLink href={`/abs/[id]/${route}`} as={`/abs/${docId}/${route}`} passHref {...linkProps(docId)}>
+    <NextLink
+      href={{ pathname: `/abs/[id]/${route}`, search: noPagination ? '' : 'p=1' }}
+      as={{ pathname: `/abs/${docId}/${route}`, search: noPagination ? '' : 'p=1' }}
+      passHref
+      {...linkProps(docId)}
+    >
       <Button
         as="a"
         w="full"

@@ -21,7 +21,7 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
 
   const isClient = useIsClient();
 
-  const start = indexStart === 0 ? 1 : indexStart;
+  const start = indexStart + 1;
 
   return (
     <Flex

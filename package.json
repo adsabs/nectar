@@ -48,6 +48,7 @@
     "isomorphic-dompurify": "^0.15.0",
     "katex": "^0.13.11",
     "match-sorter": "^6.3.1",
+    "memoize-one": "^6.0.0",
     "neverthrow": "^4.2.1",
     "next": "12",
     "nprogress": "^0.2.0",

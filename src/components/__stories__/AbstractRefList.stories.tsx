@@ -16,4 +16,4 @@ const Template: Story<IAbstractRefListProps> = (args) => <AbstractRefList {...ar
 
 export const Default = Template.bind({});
 
-Default.args = { docs, href: '', totalResults: docs.length };
+Default.args = { docs, totalResults: docs.length };

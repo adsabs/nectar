@@ -46,13 +46,7 @@ const CitationsPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProps
           docs={data.docs}
           totalResults={data.numFound}
           onPageChange={onPageChange}
-          href={{
-            pathname: '/search',
-            query: {
-              q: citationsParams.q,
-              sort: citationsParams.sort,
-            },
-          }}
+          searchLinkParams={citationsParams}
         />
       )}
     </AbsLayout>

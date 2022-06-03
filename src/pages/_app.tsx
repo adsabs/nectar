@@ -1,10 +1,10 @@
 import { ChakraProvider } from '@chakra-ui/react';
 import { Layout } from '@components';
+import { useIsClient } from '@hooks';
 import { useCreateQueryClient } from '@hooks/useCreateQueryClient';
 import { AppState, StoreProvider, useCreateStore, useStore } from '@store';
 import { theme } from '@theme';
 import { Theme } from '@types';
-import { isBrowser } from '@utils';
 import { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
@@ -67,10 +67,11 @@ const QCProvider: FC = ({ children }) => {
 const ThemeRouter = (): ReactElement => {
   const theme = useStore((state) => state.theme);
   const router = useRouter();
+  const isClient = useIsClient();
 
   useEffect(() => {
     // redirect to main form if path is not valid
-    if (isBrowser()) {
+    if (isClient) {
       if (theme !== Theme.ASTROPHYSICS && /^\/(classic|paper)-form.*$/.test(router.asPath)) {
         void router.replace('/');
       }

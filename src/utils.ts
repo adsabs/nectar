@@ -1,9 +1,11 @@
 import api, { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, IUserData, SolrSort } from '@api';
 import { APP_DEFAULTS } from '@config';
+import { NumPerPageType, SafeSearchUrlParams } from '@types';
 import { GetServerSidePropsContext, GetServerSidePropsResult, NextApiRequest, NextApiResponse } from 'next';
 import { useRouter } from 'next/router';
+import qs from 'qs';
 import { ParsedUrlQuery } from 'querystring';
-import { clamp, filter, has, last, uniq } from 'ramda';
+import { clamp, filter, last, omit, propIs, uniq } from 'ramda';
 
 type ParsedQueryParams = ParsedUrlQuery | qs.ParsedQs;
 
@@ -128,20 +130,24 @@ export const noop = (..._args: unknown[]): void => {
 };
 
 /**
- * Helper utility for parsing int from string/string[]
- * It will also clamp the resulting number between min/max
+ * Helper utility for clamping the resulting number between min/max
  */
 export const parseNumberAndClamp = (
-  value: string | string[],
+  value: string | number | (number | string)[],
   min: number,
   max: number = Number.MAX_SAFE_INTEGER,
 ): number => {
   try {
-    const page = parseInt(Array.isArray(value) ? value[0] : value, 10);
-    return clamp(min, max, Number.isNaN(page) ? min : page);
+    const val = Array.isArray(value) ? value[0] : value;
+    const num = typeof val === 'number' ? val : parseInt(val, 10);
+    return clamp(min, max, Number.isNaN(num) ? min : num);
   } catch (e) {
     return min;
   }
+};
+
+export const isNumPerPageType = (value: number): value is NumPerPageType => {
+  return APP_DEFAULTS.PER_PAGE_OPTIONS.includes(value as NumPerPageType);
 };
 
 /**
@@ -157,7 +163,7 @@ export const parseQueryFromUrl = <TExtra extends Record<string, string>>(
     q: normalizedParams?.q ?? '',
     sort: normalizeSolrSort(params.sort, sortPostfix),
     p: parseNumberAndClamp(normalizedParams?.p, 1),
-  } as IADSApiSearchParams & { p?: number } & TExtra;
+  } as IADSApiSearchParams & { p?: number; n?: number } & TExtra;
 };
 
 // detects if passed in value is a valid SolrSort
@@ -229,10 +235,14 @@ export const normalizeSolrSort = (rawSolrSort: unknown, postfixSort?: SolrSort):
 
 // returns true if value passed in is a valid IADSApiSearchResponse
 export const isApiSearchResponse = (value: unknown): value is IADSApiSearchResponse => {
-  if (has('responseHeader', value) && (has('response', value) || has('error', value) || has('stats', value))) {
-    return true;
-  }
-  return false;
+  return (
+    propIs(Object, 'responseHeader', value) &&
+    (propIs(Object, 'response', value) || propIs(Object, 'error', value) || propIs(Object, 'stats', value))
+  );
+};
+
+export const isIADSSearchParams = (value: unknown): value is IADSApiSearchParams => {
+  return propIs(String, 'q', value);
 };
 
 /**
@@ -251,3 +261,37 @@ export const enumKeys = <O extends object, K extends keyof O = keyof O>(obj: O):
 export const setupApiSSR = (ctx: GetServerSidePropsContext<ParsedUrlQuery>) => {
   api.setUserData(ctx.req.session.userData);
 };
+
+// omit params that should not be included in any urls
+// `id` is typically slug used in abstract pages
+const omitSearchParams = omit(['fl', 'start', 'rows', 'id']);
+
+/**
+ * Generates a string for use in URLs, this assumes we want to include `sort` and `p` so those values
+ * are normalized or added.
+ *
+ * @returns {string} clean search string for use after `?` in URLs.
+ */
+export const makeSearchParams = (params: SafeSearchUrlParams, options: { omit?: string[] } = {}) => {
+  const cleanParams = omitSearchParams(params);
+  return stringifySearchParams(
+    omit(options.omit ?? [], {
+      ...cleanParams,
+      sort: normalizeSolrSort(cleanParams.sort),
+      p: parseNumberAndClamp(cleanParams?.p, 1),
+    }),
+  );
+};
+
+/**
+ * Wrapper around `qs.stringify` with defaults
+ */
+export const stringifySearchParams = (params: Record<string, unknown>, options?: qs.IStringifyOptions) =>
+  qs.stringify(params, {
+    indices: false,
+    arrayFormat: 'comma',
+    format: 'RFC1738',
+    sort: (a, b) => a - b,
+    skipNulls: true,
+    ...options,
+  });

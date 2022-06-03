@@ -48,13 +48,7 @@ const CoreadsPage: NextPage<ICoreadsPageProps> = (props: ICoreadsPageProps) => {
           docs={data.docs}
           totalResults={data.numFound}
           onPageChange={onPageChange}
-          href={{
-            pathname: '/search',
-            query: {
-              q: coreadsParams.q,
-              sort: coreadsParams.sort,
-            },
-          }}
+          searchLinkParams={coreadsParams}
         />
       )}
     </AbsLayout>
