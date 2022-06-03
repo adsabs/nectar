@@ -208,13 +208,11 @@ const NoJsSort = (): ReactElement => {
 // native type, used by classic form
 const NoJsNativeSort = ({ name }: { name: string }): ReactElement => {
   return (
-    <select id="sort" name={name}>
+    <select id="sort" name={name} defaultValue="date desc">
       {sortOptions.map((item) => (
         <Fragment key={item.label}>
           <option value={`${item.id} asc`}>{item.label} - Asc</option>
-          <option value={`${item.id} desc`} selected={item.id === 'date'}>
-            {item.label} - Desc
-          </option>
+          <option value={`${item.id} desc`}>{item.label} - Desc</option>
         </Fragment>
       ))}
     </select>
