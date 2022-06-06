@@ -4,6 +4,7 @@ import {
   ExportApiFormatKey,
   IADSApiGraphicsParams,
   IADSApiMetricsParams,
+  IADSApiReferenceResponse,
   IADSApiSearchResponse,
   IExportApiParams,
 } from '@api';
@@ -411,6 +412,19 @@ export const handlers = [
         ],
         header:
           'Every image links to the article on <a href="http://www.aanda.org/" target="_new">Astronomy &amp; Astrophysics</a>',
+      }),
+    );
+  }),
+
+  rest.get<unknown, { text: string }>(`*${ApiTargets.REFERENCE}/:text`, (req, res, ctx) => {
+    return res(
+      ctx.status(200),
+      ctx.json<IADSApiReferenceResponse>({
+        resolved: {
+          refstring: req.params.text,
+          score: '1.0',
+          bibcode: '2000A&A...362..333S',
+        },
       }),
     );
   }),

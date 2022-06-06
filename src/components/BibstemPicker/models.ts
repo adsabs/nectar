@@ -1,5 +1,3 @@
-export const ITEM_DELIMITER = '$$';
-
 export const bibstems: string[] = [
   'TDM$$2D Materials',
   'TDR$$3D Research',
