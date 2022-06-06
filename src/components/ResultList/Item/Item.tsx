@@ -1,6 +1,7 @@
 import { IDocsEntity } from '@api';
 import { Checkbox, CheckboxProps } from '@chakra-ui/checkbox';
 import { Box, Flex, Link, Stack, Text } from '@chakra-ui/layout';
+import { CircularProgress } from '@chakra-ui/react';
 import { useIsClient } from '@hooks/useIsClient';
 import { useStore } from '@store';
 import { getFomattedNumericPubdate } from '@utils';
@@ -10,6 +11,7 @@ import { ChangeEvent, ReactElement, useCallback } from 'react';
 import shallow from 'zustand/shallow';
 import { IAbstractPreviewProps } from './AbstractPreview';
 import { ItemResourceDropdowns } from './ItemResourceDropdowns';
+import { decode } from 'he';
 
 const AbstractPreview = dynamic<IAbstractPreviewProps>(
   () => import('./AbstractPreview').then((mod) => mod.AbstractPreview),
@@ -25,10 +27,21 @@ export interface IItemProps {
   onSet?: (check: boolean) => void;
   useNormCite?: boolean;
   showHighlights?: boolean;
+  highlights?: string[];
+  highlightIsLoading?: boolean;
 }
 
 export const Item = (props: IItemProps): ReactElement => {
-  const { doc, index, hideCheckbox = false, hideActions = false, useNormCite, showHighlights = false } = props;
+  const {
+    doc,
+    index,
+    hideCheckbox = false,
+    hideActions = false,
+    useNormCite,
+    showHighlights = false,
+    highlightIsLoading = false,
+    highlights,
+  } = props;
   const { bibcode, pubdate, title = ['Untitled'], author = [], bibstem = [], author_count } = doc;
   const formattedPubDate = getFomattedNumericPubdate(pubdate);
   const [formattedBibstem] = bibstem;
@@ -111,11 +124,31 @@ export const Item = (props: IItemProps): ReactElement => {
             {cite && (formattedPubDate || formattedBibstem) ? <span className="px-2">·</span> : null}
             {cite}
           </Text>
-          {showHighlights && <Text>Highlight</Text>}
+          {showHighlights && <Highlights isLoading={highlightIsLoading} highlights={highlights} />}
           <AbstractPreview bibcode={bibcode} />
         </Flex>
       </Stack>
     </Flex>
+  );
+};
+
+const Highlights = ({ isLoading, highlights }: { isLoading: boolean; highlights: string[] }) => {
+  return (
+    <Box as="section" aria-label="highlights" className="search-snippets" my={2}>
+      {isLoading || !highlights ? (
+        <CircularProgress mt={5} isIndeterminate size="20px" />
+      ) : (
+        <>
+          {highlights.length > 0 ? (
+            highlights.map((hl, index) => (
+              <Text key={`hl-${index}`} dangerouslySetInnerHTML={{ __html: decode(hl) }}></Text>
+            ))
+          ) : (
+            <Text color="blackAlpha.500">No Highlights</Text>
+          )}
+        </>
+      )}
+    </Box>
   );
 };
 

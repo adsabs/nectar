@@ -15,6 +15,7 @@ export const defaultFields: IADSApiSearchParams['fl'] = [
   'esources',
   'property',
   'data',
+  'id',
 ];
 
 export const defaultSort: IADSApiSearchParams['sort'] = ['date desc'];
@@ -139,4 +140,15 @@ export const getSearchStatsParams = (params: IADSApiSearchParams, field: string)
   fl: ['id'],
   stats: true,
   'stats.field': field.replace(/\s(asc|desc)$/, ''),
+});
+
+export const getHighlightParams = (params: IADSApiSearchParams, start: number, rows: number): IADSApiSearchParams => ({
+  ...params,
+  hl: true,
+  'hl.fl': 'title,abstract,body,ack,*',
+  'hl.maxAnalyzedChars': 150000,
+  'hl.requireFieldMatch': true,
+  'hl.usePhraseHighlighter': true,
+  start,
+  rows,
 });

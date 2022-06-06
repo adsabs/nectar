@@ -8,11 +8,12 @@ import {
   searchKeys,
   SEARCH_API_KEYS,
   SolrSort,
+  useGetHighlights,
   useSearch,
 } from '@api';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import { Box, Flex, List, ListIcon, ListItem, Stack } from '@chakra-ui/layout';
-import { Alert, AlertDescription, AlertIcon, AlertTitle, Code, VisuallyHidden } from '@chakra-ui/react';
+import { Alert, AlertDescription, AlertIcon, AlertTitle, Code, useToast, VisuallyHidden } from '@chakra-ui/react';
 import { ItemsSkeleton, ListActions, NumFound, Pagination, SearchBar, SimpleLink, SimpleResultList } from '@components';
 import { calculateStartIndex } from '@components/ResultList/Pagination/usePagination';
 import { APP_DEFAULTS } from '@config';
@@ -60,6 +61,25 @@ const SearchPage: NextPage = () => {
   };
 
   const { data, isSuccess, isLoading, error } = useSearch(omit(['p'], params));
+  const toast = useToast();
+
+  const {
+    data: highlightsData,
+    isLoading: highlightsIsLoading,
+    isError: highlightsIsError,
+  } = useGetHighlights(omit(['p'], params), {
+    enabled: showHighlights,
+  });
+
+  useEffect(() => {
+    if (!highlightsIsLoading && highlightsIsError) {
+      toast({
+        status: 'error',
+        title: 'Error!',
+        description: 'Unable to fetch highlights',
+      });
+    }
+  }, [highlightsIsLoading, highlightsIsError]);
 
   const handleSortChange = (sort: SolrSort[]) => {
     const query = store.getState().query;
@@ -73,7 +93,6 @@ const SearchPage: NextPage = () => {
 
   const handleShowHighlights = (show: boolean) => {
     if (show) {
-      // get highlight data
       setShowHighlights(true);
     } else {
       setShowHighlights(false);
@@ -118,7 +137,11 @@ const SearchPage: NextPage = () => {
         </Flex>
         <Box mt={5}>
           {isSuccess && !isLoading && data?.numFound > 0 && (
-            <ListActions onSortChange={handleSortChange} onShowHighlight={handleShowHighlights} />
+            <ListActions
+              onSortChange={handleSortChange}
+              onShowHighlight={handleShowHighlights}
+              initialShowHighlight={showHighlights}
+            />
           )}
         </Box>
       </form>
@@ -170,7 +193,13 @@ const SearchPage: NextPage = () => {
       {isLoading && <ItemsSkeleton count={storeNumPerPage} />}
       {data && (
         <>
-          <SimpleResultList docs={data.docs} indexStart={params.start} showHighlights={showHighlights} />
+          <SimpleResultList
+            docs={data.docs}
+            indexStart={params.start}
+            showHighlights={showHighlights}
+            highlightsData={highlightsData}
+            highlightsIsLoading={highlightsIsLoading}
+          />
           <Pagination
             numPerPage={storeNumPerPage}
             page={params.p}

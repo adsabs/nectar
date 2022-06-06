@@ -103,4 +103,12 @@
   .table td {
     @apply px-2;
   }
+
+  .search-snippets {
+    @apply mb-5 italic;
+  }
+
+  .search-snippets em {
+    @apply p-1 font-semibold bg-blue-100;
+  }
 }
