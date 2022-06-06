@@ -58,7 +58,7 @@ const useGetItems = ({
       route: Routes.COREADS,
       label: 'Co-Reads',
       icon: <UsersIcon />,
-      count: doc?.read_count ?? 0,
+      disabled: doc?.read_count <= 0,
     },
     [Routes.SIMILAR]: {
       route: Routes.SIMILAR,
