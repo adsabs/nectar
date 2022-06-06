@@ -20,7 +20,7 @@ export const QuickFields = memo(
 
     return (
       <Flex direction="row" justifyContent="start" fontSize="md" gap={5}>
-        <HStack spacing={5} fontSize="md" display={{ base: 'none', sm: 'flex' }}>
+        <HStack spacing={5} fontSize="md">
           <Text>QUICK FIELD: </Text>
           {quickfields.map((term) => (
             <Button
@@ -31,6 +31,7 @@ export const QuickFields = memo(
               data-value={term.value}
               size="md"
               data-testid="quickfield"
+              display={{ base: 'none', sm: 'initial' }}
             >
               {term.title}
             </Button>

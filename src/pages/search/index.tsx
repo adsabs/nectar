@@ -10,9 +10,10 @@ import {
   SolrSort,
   useSearch,
 } from '@api';
-import { Box, Flex, Stack } from '@chakra-ui/layout';
-import { Alert, AlertIcon, Code, VisuallyHidden } from '@chakra-ui/react';
-import { ItemsSkeleton, ListActions, NumFound, Pagination, SearchBar, SimpleResultList } from '@components';
+import { CheckCircleIcon } from '@chakra-ui/icons';
+import { Box, Flex, HStack, List, ListIcon, ListItem, Stack } from '@chakra-ui/layout';
+import { Alert, AlertDescription, AlertIcon, AlertTitle, Code, VisuallyHidden } from '@chakra-ui/react';
+import { ItemsSkeleton, ListActions, NumFound, Pagination, SearchBar, SimpleLink, SimpleResultList } from '@components';
 import { calculateStartIndex } from '@components/ResultList/Pagination/usePagination';
 import { APP_DEFAULTS } from '@config';
 import { AppState, createStore, useStore, useStoreApi } from '@store';
@@ -42,7 +43,7 @@ const SearchPage: NextPage = () => {
     start: calculateStartIndex(parsedParams.p, storeNumPerPage, numFound),
   };
 
-  const { data, isLoading, error } = useSearch(omit(['p'], params));
+  const { data, isSuccess, isLoading, error } = useSearch(omit(['p'], params));
 
   const handleSortChange = (sort: SolrSort[]) => {
     const search = makeSearchParams({ ...params, ...store.getState().query, sort, p: 1 });
@@ -79,13 +80,54 @@ const SearchPage: NextPage = () => {
           <NumFound count={data?.numFound} isLoading={isLoading} />
         </Flex>
         <Box mt={5}>
-          <ListActions onSortChange={handleSortChange} />
+          {isSuccess && !isLoading && data.numFound > 0 && <ListActions onSortChange={handleSortChange} />}
         </Box>
       </form>
 
       <VisuallyHidden as="h2" id="search-form-title">
         Search Results
       </VisuallyHidden>
+      {!isLoading && data.numFound === 0 && (
+        <Alert
+          status="info"
+          variant="subtle"
+          flexDirection="column"
+          justifyContent="center"
+          height="200px"
+          backgroundColor="transparent"
+        >
+          <AlertIcon boxSize="40px" mr={0} />
+          <AlertTitle mt={4} mb={1} fontSize="lg">
+            Sorry no results were found for <Code children={params.q} />
+          </AlertTitle>
+          <AlertDescription>
+            <List w="100%">
+              <ListItem>
+                <ListIcon as={CheckCircleIcon} color="green.500" />
+                Try broadening your search
+              </ListItem>
+              <ListItem>
+                <ListIcon as={CheckCircleIcon} color="green.500" />
+                Disable any filters that may be applied
+              </ListItem>
+              <ListItem>
+                <Flex direction="row" alignItems="center">
+                  <ListIcon as={CheckCircleIcon} color="green.500" />
+                  <SimpleLink href="/">Check out some examples</SimpleLink>
+                </Flex>
+              </ListItem>
+              <ListItem>
+                <Flex direction="row" alignItems="center">
+                  <ListIcon as={CheckCircleIcon} color="green.500" />
+                  <SimpleLink href="/help/search/search-syntax" newTab={true}>
+                    Read our help pages
+                  </SimpleLink>
+                </Flex>
+              </ListItem>
+            </List>
+          </AlertDescription>
+        </Alert>
+      )}
       {isLoading && <ItemsSkeleton count={storeNumPerPage} />}
       {data && (
         <>

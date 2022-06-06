@@ -144,7 +144,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
                     </MenuItemOption>
                   </MenuOptionGroup>
                   <MenuDivider />
-                  <MenuItem>Add to Library</MenuItem>
+                  <MenuItem isDisabled={true}>Add to Library</MenuItem>
                   <MenuDivider />
                   <ExportMenu exploreAll={exploreAll} />
                 </MenuList>
@@ -210,6 +210,7 @@ const HighlightsToggle = () => {
       size="md"
       borderRadius="2px"
       data-testid="listactions-showhighlights"
+      hidden
     >
       Show Highlights
     </Button>
