@@ -9,15 +9,17 @@ export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
   docs: IDocsEntity[];
   indexStart?: number;
   hideCheckboxes?: boolean;
+  showHighlights?: boolean;
 }
 
 const propTypes = {
   docs: PT.arrayOf(PT.object),
   hideCheckboxes: PT.bool,
+  showHighlights: PT.bool,
 };
 
 export const SimpleResultList = (props: ISimpleResultListProps): ReactElement => {
-  const { docs = [], hideCheckboxes = false, indexStart = 0, ...divProps } = props;
+  const { docs = [], hideCheckboxes = false, showHighlights = false, indexStart = 0, ...divProps } = props;
 
   const isClient = useIsClient();
 
@@ -42,6 +44,7 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
           index={start + index}
           hideCheckbox={!isClient ? true : hideCheckboxes}
           hideActions={false}
+          showHighlights={showHighlights}
         />
       ))}
     </Flex>

@@ -24,7 +24,7 @@ import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { last, omit, path } from 'ramda';
-import { FormEventHandler, useEffect } from 'react';
+import { FormEventHandler, useEffect, useState } from 'react';
 import { dehydrate, QueryClient, useQueryClient } from 'react-query';
 
 const selectors = {
@@ -49,6 +49,7 @@ const SearchPage: NextPage = () => {
   const queryClient = useQueryClient();
   const queries = queryClient.getQueriesData<IADSApiSearchResponse>(SEARCH_API_KEYS.primary);
   const numFound = queries.length > 1 ? path<number>(['1', 'response', 'numFound'], last(queries)) : null;
+  const [showHighlights, setShowHighlights] = useState<boolean>(false);
 
   const parsedParams = parseQueryFromUrl(router.query);
   const params = {
@@ -68,6 +69,15 @@ const SearchPage: NextPage = () => {
     }
     const search = makeSearchParams({ ...params, ...query, sort, p: 1 });
     void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
+  };
+
+  const handleShowHighlights = (show: boolean) => {
+    if (show) {
+      // get highlight data
+      setShowHighlights(true);
+    } else {
+      setShowHighlights(false);
+    }
   };
 
   const handleOnSubmit: FormEventHandler = (e) => {
@@ -107,7 +117,9 @@ const SearchPage: NextPage = () => {
           <NumFound count={data?.numFound} isLoading={isLoading} />
         </Flex>
         <Box mt={5}>
-          {isSuccess && !isLoading && data?.numFound > 0 && <ListActions onSortChange={handleSortChange} />}
+          {isSuccess && !isLoading && data?.numFound > 0 && (
+            <ListActions onSortChange={handleSortChange} onShowHighlight={handleShowHighlights} />
+          )}
         </Box>
       </form>
 
@@ -158,7 +170,7 @@ const SearchPage: NextPage = () => {
       {isLoading && <ItemsSkeleton count={storeNumPerPage} />}
       {data && (
         <>
-          <SimpleResultList docs={data.docs} indexStart={params.start} />
+          <SimpleResultList docs={data.docs} indexStart={params.start} showHighlights={showHighlights} />
           <Pagination
             numPerPage={storeNumPerPage}
             page={params.p}

@@ -28,12 +28,13 @@ import { MouseEventHandler, ReactElement, useEffect, useState } from 'react';
 
 export interface IListActionsProps {
   onSortChange?: ISortProps['onChange'];
+  onShowHighlight: (show: boolean) => void;
 }
 
 type Operator = 'trending' | 'reviews' | 'useful' | 'similar';
 
 export const ListActions = (props: IListActionsProps): ReactElement => {
-  const { onSortChange = noop } = props;
+  const { onSortChange = noop, onShowHighlight } = props;
   const selected = useStore((state) => state.docs.selected ?? []);
   const clearSelected = useStore((state) => state.clearSelected);
   const isClient = useIsClient();
@@ -130,7 +131,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
         Result Actions
       </VisuallyHidden>
       <Stack direction={{ base: 'column', sm: 'row' }} spacing={1} width="min-content">
-        {isClient && <HighlightsToggle />}
+        {isClient && <HighlightsToggle onShowHighlight={onShowHighlight} />}
         <SortWrapper onChange={onSortChange} />
       </Stack>
       {isClient && (
@@ -245,9 +246,15 @@ const SortWrapper = ({ onChange }: { onChange: ISortProps['onChange'] }) => {
   return <Sort sort={query.sort} onChange={onChange} />;
 };
 
-const HighlightsToggle = () => {
+const HighlightsToggle = ({ onShowHighlight }: { onShowHighlight: (show: boolean) => void }) => {
   const [showHighlights, setShowHights] = useState(false);
-  const toggleShowHighlights = () => setShowHights(!showHighlights);
+  const toggleShowHighlights = () => {
+    setShowHights(!showHighlights);
+  };
+
+  useEffect(() => {
+    onShowHighlight(showHighlights);
+  }, [showHighlights]);
 
   return (
     <Button
@@ -256,7 +263,6 @@ const HighlightsToggle = () => {
       size="md"
       borderRadius="2px"
       data-testid="listactions-showhighlights"
-      hidden
     >
       Show Highlights
     </Button>

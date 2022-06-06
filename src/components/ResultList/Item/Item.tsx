@@ -24,10 +24,11 @@ export interface IItemProps {
   clear?: boolean;
   onSet?: (check: boolean) => void;
   useNormCite?: boolean;
+  showHighlights?: boolean;
 }
 
 export const Item = (props: IItemProps): ReactElement => {
-  const { doc, index, hideCheckbox = false, hideActions = false, useNormCite } = props;
+  const { doc, index, hideCheckbox = false, hideActions = false, useNormCite, showHighlights = false } = props;
   const { bibcode, pubdate, title = ['Untitled'], author = [], bibstem = [], author_count } = doc;
   const formattedPubDate = getFomattedNumericPubdate(pubdate);
   const [formattedBibstem] = bibstem;
@@ -110,6 +111,7 @@ export const Item = (props: IItemProps): ReactElement => {
             {cite && (formattedPubDate || formattedBibstem) ? <span className="px-2">·</span> : null}
             {cite}
           </Text>
+          {showHighlights && <Text>Highlight</Text>}
           <AbstractPreview bibcode={bibcode} />
         </Flex>
       </Stack>
