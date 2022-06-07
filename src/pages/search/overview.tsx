@@ -1,8 +1,7 @@
 import { OverviewPageContainer, VizPageLayout } from '@components';
 import { NextPage } from 'next';
-import { parseQueryFromUrl } from '@utils';
+import { makeSearchParams, parseQueryFromUrl } from '@utils';
 import { IADSApiSearchParams } from '@api';
-import qs from 'qs';
 import { FacetField } from '@components/Visualizations/types';
 import { useRouter } from 'next/router';
 import { getQueryWithCondition } from '@components/Visualizations/utils';
@@ -19,14 +18,14 @@ const OverviewPage: NextPage = () => {
   const handleApplyQueryCondition = (facet: FacetField, cond: string) => {
     const q = getQueryWithCondition(originalQuery.q, facet, cond);
     const newQuery = { ...originalQuery, q };
-    void router.push({ pathname: '/search', query: qs.stringify(newQuery, { arrayFormat: 'comma' }) });
+    void router.push({ pathname: '/search', query: makeSearchParams(newQuery) });
   };
 
   return (
     <div>
       <VizPageLayout
         vizPage="overview"
-        from={{ pathname: '/search', query: qs.stringify(originalQuery, { arrayFormat: 'comma' }) }}
+        from={{ pathname: '/search', query: makeSearchParams(originalQuery) }}
       ></VizPageLayout>
       <OverviewPageContainer query={bibsQuery} onApplyQueryCondition={handleApplyQueryCondition} />
     </div>

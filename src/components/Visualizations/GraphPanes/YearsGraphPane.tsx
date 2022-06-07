@@ -92,8 +92,8 @@ export const YearsGraphPane = ({ data, onApplyCondition }: IYearsGraphPaneProps)
             notrefereed: 0,
           };
           for (let i = 0; i < gs; i++) {
-            tmp.refereed = tmp.refereed + baseGraph.data[index + i].refereed;
-            tmp.notrefereed = tmp.notrefereed + baseGraph.data[index + i].notrefereed;
+            tmp.refereed += baseGraph.data[index + i].refereed;
+            tmp.notrefereed += baseGraph.data[index + i].notrefereed;
           }
           res.push(tmp);
           index += gs;

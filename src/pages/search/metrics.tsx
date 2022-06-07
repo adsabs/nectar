@@ -1,10 +1,9 @@
 import { fetchSearchInfinite, IADSApiSearchParams, searchKeys } from '@api';
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/react';
 import { MetricsPageContainer, VizPageLayout } from '@components';
-import { parseQueryFromUrl, setupApiSSR } from '@utils';
+import { makeSearchParams, parseQueryFromUrl, setupApiSSR } from '@utils';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
-import qs from 'qs';
 import { dehydrate, DehydratedState, QueryClient } from 'react-query';
 
 interface IMetricsProps {
@@ -17,10 +16,7 @@ const MetricsPage: NextPage<IMetricsProps> = (props) => {
   const { error, originalQuery, bibsQuery } = props;
 
   return (
-    <VizPageLayout
-      vizPage="metrics"
-      from={{ pathname: '/search', query: qs.stringify(originalQuery, { arrayFormat: 'comma' }) }}
-    >
+    <VizPageLayout vizPage="metrics" from={{ pathname: '/search', query: makeSearchParams(originalQuery) }}>
       {error ? (
         <Alert status="error" my={5}>
           <AlertIcon />
