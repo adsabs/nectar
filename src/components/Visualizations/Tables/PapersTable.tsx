@@ -4,7 +4,7 @@ import { Table, Thead, Tbody, Tr, Td, Th } from '@chakra-ui/table';
 import { ReactElement } from 'react';
 import { Tooltip } from '@chakra-ui/tooltip';
 import { QuestionIcon } from '@chakra-ui/icons';
-import { IPapersTableData } from './types';
+import { IPapersTableData } from '../types';
 
 export interface IPapersTableProps {
   data: IPapersTableData;

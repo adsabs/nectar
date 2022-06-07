@@ -1,4 +1,3 @@
-import { Box } from '@chakra-ui/react';
 import { IAllSearchTermsDropdown, AllSearchTermsDropdown } from '@components';
 import { Meta, Story } from '@storybook/react';
 

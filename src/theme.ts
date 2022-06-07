@@ -252,6 +252,15 @@ export const theme = extendTheme(
           },
         },
       },
+      Slider: {
+        parts: ['thumb'],
+        baseStyle: {
+          thumb: {
+            borderColor: 'gray.200',
+            borderRadius: '5px',
+          },
+        },
+      },
     },
   },
   withDefaultColorScheme({ colorScheme: 'blue' }),

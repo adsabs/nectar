@@ -20,6 +20,7 @@ import {
   getCoreadsParams,
   getReferencesParams,
   getSearchParams,
+  getSearchFacetParams,
   getSearchStatsParams,
   getSimilarParams,
   getTocParams,
@@ -35,6 +36,8 @@ type SearchADSQuery<P = IADSApiSearchParams, R = IADSApiSearchResponse['response
 
 export const responseSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['response'] => data.response;
 export const statsSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['stats'] => data.stats;
+export const facetCountSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['facet_counts'] =>
+  data.facet_counts;
 
 const defaultRetryer: RetryValue<ErrorType> = (failCount: number, error): boolean => {
   switch (error.message) {
@@ -65,6 +68,7 @@ export const searchKeys = {
   similar: ({ bibcode, start }: SearchKeyProps) => ['search/similar', { bibcode, start }] as const,
   toc: ({ bibcode, start }: SearchKeyProps) => ['search/toc', { bibcode, start }] as const,
   stats: (params: IADSApiSearchParams) => ['search/stats', params] as const,
+  facet: (params: IADSApiSearchParams) => ['search/facet', params] as const,
   infinite: (params: IADSApiSearchParams) => ['search/infinite', params] as const,
 };
 
@@ -213,10 +217,13 @@ export const useGetSearchStats: SearchADSQuery<IADSApiSearchParams, IADSApiSearc
   const isCitationSort =
     Array.isArray(params.sort) && params.sort.length > 0 && /^citation_count(_norm)?/.test(params.sort[0]);
 
-  const searchParams: IADSApiSearchParams = getSearchStatsParams(params, isCitationSort ? params.sort[0] : '');
+  const searchParams: IADSApiSearchParams = getSearchStatsParams(
+    params,
+    params['stats.field'] ? params['stats.field'] : isCitationSort ? params.sort[0] : '',
+  );
 
   // omit fields from queryKey
-  const { fl, ...cleanParams } = params;
+  const { fl, ...cleanParams } = searchParams;
 
   return useQuery({
     queryKey: searchKeys.stats(cleanParams),
@@ -224,6 +231,38 @@ export const useGetSearchStats: SearchADSQuery<IADSApiSearchParams, IADSApiSearc
     meta: { params: searchParams },
     enabled: isCitationSort,
     select: statsSelector,
+    ...options,
+  });
+};
+
+export const useGetSearchFacetCounts: SearchADSQuery<IADSApiSearchParams, IADSApiSearchResponse['facet_counts']> = (
+  params,
+  options,
+) => {
+  const searchParams: IADSApiSearchParams = getSearchFacetParams(params);
+
+  // omit fields from queryKey
+  const { fl, ...cleanParams } = searchParams;
+
+  return useQuery({
+    queryKey: searchKeys.facet(cleanParams),
+    queryFn: fetchSearch,
+    meta: { params: searchParams },
+    select: facetCountSelector,
+    ...options,
+  });
+};
+
+export const useGetSearchFacet: SearchADSQuery<IADSApiSearchParams, IADSApiSearchResponse> = (params, options) => {
+  const searchParams: IADSApiSearchParams = getSearchFacetParams(params);
+
+  // omit fields from queryKey
+  const { fl, ...cleanParams } = searchParams;
+
+  return useQuery({
+    queryKey: searchKeys.facet(cleanParams),
+    queryFn: fetchSearch,
+    meta: { params: searchParams },
     ...options,
   });
 };

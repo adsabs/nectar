@@ -1,15 +1,15 @@
-import { MetricsGraph, IMetricsGraphProps } from '@components';
+import { IBarGraphProps, BarGraph, Metrics } from '@components';
 import { bardatum } from '@components/__mocks__/data';
 import { Meta, Story } from '@storybook/react';
 
 const meta: Meta = {
-  title: 'Metrics/MetricsGraph',
-  component: MetricsGraph,
+  title: 'Visualizations/graphs/BarGraph',
+  component: Metrics,
 };
 
 export default meta;
 
-const Template: Story<IMetricsGraphProps> = (args) => <MetricsGraph {...args} />;
+const Template: Story<IBarGraphProps> = (args) => <BarGraph {...args} />;
 
 export const Default = Template.bind({});
 

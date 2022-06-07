@@ -2,7 +2,7 @@ import { BarDatum, ResponsiveBar } from '@nivo/bar';
 import { ReactElement, useState } from 'react';
 import { Box, Radio, RadioGroup, Stack } from '@chakra-ui/react';
 
-export interface IMetricsGraphProps {
+export interface IBarGraphProps {
   data: BarDatum[];
   indexBy: string;
   keys: string[];
@@ -11,7 +11,7 @@ export interface IMetricsGraphProps {
   showGroupOptions?: boolean;
 }
 
-export const MetricsGraph = (props: IMetricsGraphProps): ReactElement => {
+export const BarGraph = (props: IBarGraphProps): ReactElement => {
   const { data, indexBy, keys, ticks, showLegend = true, showGroupOptions = true } = props;
   const [groupType, setGroupType] = useState('stacked');
 
@@ -33,10 +33,8 @@ export const MetricsGraph = (props: IMetricsGraphProps): ReactElement => {
           colors={{ scheme: 'category10' }}
           groupMode={groupType as 'stacked' | 'grouped'}
           axisBottom={{
-            legend: indexBy,
-            legendPosition: 'middle',
-            legendOffset: 32,
             tickValues: ticks,
+            tickRotation: -40,
           }}
           axisTop={null}
           axisRight={null}

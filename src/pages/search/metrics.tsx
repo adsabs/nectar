@@ -1,26 +1,22 @@
 import { fetchSearchInfinite, IADSApiSearchParams, searchKeys } from '@api';
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/react';
 import { MetricsPageContainer, VizPageLayout } from '@components';
-import { parseQueryFromUrl, setupApiSSR } from '@utils';
+import { makeSearchParams, parseQueryFromUrl, setupApiSSR } from '@utils';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
-import qs from 'qs';
 import { dehydrate, DehydratedState, QueryClient } from 'react-query';
 
 interface IMetricsProps {
-  query: IADSApiSearchParams;
-  qid?: string;
+  originalQuery: IADSApiSearchParams;
+  bibsQuery: IADSApiSearchParams;
   error?: string;
 }
 
 const MetricsPage: NextPage<IMetricsProps> = (props) => {
-  const { qid, error, query } = props;
+  const { error, originalQuery, bibsQuery } = props;
 
   return (
-    <VizPageLayout
-      vizPage="metrics"
-      from={{ pathname: '/search', query: qs.stringify(query, { arrayFormat: 'comma' }) }}
-    >
+    <VizPageLayout vizPage="metrics" from={{ pathname: '/search', query: makeSearchParams(originalQuery) }}>
       {error ? (
         <Alert status="error" my={5}>
           <AlertIcon />
@@ -28,7 +24,7 @@ const MetricsPage: NextPage<IMetricsProps> = (props) => {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : (
-        <MetricsPageContainer qid={qid} query={query} />
+        <MetricsPageContainer query={bibsQuery} />
       )}
     </VizPageLayout>
   );
@@ -38,6 +34,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const BATCH_SIZE = 1000;
   setupApiSSR(ctx);
   const { fetchSearch } = await import('@api');
+  const { qid: _qid, ...originalQuery } = ctx.query;
   const { qid = null, p, ...query } = parseQueryFromUrl<{ qid: string }>(ctx.query, { sortPostfix: 'id asc' });
 
   const queryClient = new QueryClient();
@@ -64,8 +61,8 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
     return {
       props: {
-        query,
-        qid,
+        originalQuery,
+        bibsQuery: params,
         dehydratedState,
       },
     };

@@ -18,21 +18,17 @@ import { BarDatum } from '@nivo/bar';
 import { Serie } from '@nivo/line';
 import axios from 'axios';
 import { ReactElement, useMemo } from 'react';
-import { CitationsTable } from './CitationsTable';
-import { getIndicesTableData, plotTimeSeriesGraph } from './graphUtils';
-import { IndicesGraph } from './IndicesGraph';
-import { IndicesTable } from './IndicesTable';
-import { MetricsGraph } from './MetricsGraph';
-import { PapersTable } from './PapersTable';
-import { ReadsTable } from './ReadsTable';
+import { LineGraph, BarGraph, PapersTable, CitationsTable, ReadsTable, IndicesTable } from '@components';
+
 import {
   ICitationsTableData,
   IIndicesTableData,
   IMetricsGraphs,
   IPapersTableData,
   IReadsTableData,
-  LineGraph,
+  ILineGraph,
 } from './types';
+import { getIndicesTableData, plotTimeSeriesGraph } from './utils';
 export interface IMetricsProps {
   metrics: IADSApiMetricsResponse;
   isAbstract: boolean;
@@ -224,7 +220,7 @@ const IndicesSection = ({
   bibcodes,
 }: {
   indicesTable: IIndicesTableData;
-  indicesGraph: LineGraph;
+  indicesGraph: ILineGraph;
   bibcodes?: IDocsEntity['bibcode'][];
 }): ReactElement => {
   // query to get indices metrics if there is no indices graph
@@ -269,7 +265,7 @@ const IndicesSection = ({
             Indices
           </Heading>
           {indicesTable && <IndicesTable data={computedTable} />}
-          {indicesGraph && <IndicesGraph data={indicesGraph.data} ticks={getLineGraphYearTicks(indicesGraph.data)} />}
+          {indicesGraph && <LineGraph data={indicesGraph.data} ticks={getLineGraphYearTicks(indicesGraph.data)} />}
           {!indicesGraph && isLoading && <CircularProgress mt={5} isIndeterminate />}
           {!indicesGraph && isErrorMetrics && (
             <Alert status="error" my={5}>
@@ -278,9 +274,7 @@ const IndicesSection = ({
               <AlertDescription>{axios.isAxiosError(errorMetrics) && errorMetrics.message}</AlertDescription>
             </Alert>
           )}
-          {computedGraph && (
-            <IndicesGraph data={computedGraph.data} ticks={getLineGraphYearTicks(computedGraph.data)} />
-          )}
+          {computedGraph && <LineGraph data={computedGraph.data} ticks={getLineGraphYearTicks(computedGraph.data)} />}
         </Box>
       ) : null}
     </>
@@ -304,9 +298,9 @@ const MetricsGraphs = ({
       </TabList>
       <TabPanels>
         <TabPanel>
-          <MetricsGraph
+          <BarGraph
             data={graphs.totalGraph.data}
-            indexBy="year"
+            indexBy={graphs.totalGraph.indexBy}
             keys={graphs.totalGraph.keys}
             ticks={getBarGraphYearTicks(graphs.totalGraph.data)}
             showLegend={showLegend}
@@ -314,9 +308,9 @@ const MetricsGraphs = ({
           />
         </TabPanel>
         <TabPanel>
-          <MetricsGraph
+          <BarGraph
             data={graphs.normalizedGraph.data}
-            indexBy="year"
+            indexBy={graphs.normalizedGraph.indexBy}
             keys={graphs.normalizedGraph.keys}
             ticks={getBarGraphYearTicks(graphs.normalizedGraph.data)}
             showLegend={showLegend}

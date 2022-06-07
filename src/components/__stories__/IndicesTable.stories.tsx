@@ -3,7 +3,7 @@ import { indicesTableData } from '@components/__mocks__/data';
 import { Meta, Story } from '@storybook/react';
 
 const meta: Meta = {
-  title: 'Metrics/IndicesTable',
+  title: 'Visualizations/tables/IndicesTable',
   component: IndicesTable,
 };
 

@@ -7,14 +7,13 @@ import { ReactElement } from 'react';
 
 interface IMetricsPageProps {
   query: IADSApiSearchParams;
-  qid?: string;
 }
 
 const BATCH_SIZE = 1000;
 const BATCHES = 7;
 
 // This layer fetches the bibcodes
-export const MetricsPageContainer = ({ query, qid }: IMetricsPageProps): ReactElement => {
+export const MetricsPageContainer = ({ query }: IMetricsPageProps): ReactElement => {
   // ----------- fetch bibcodes using useQueries (with prefetching) ----------------
 
   // const starts = useMemo(() => {
@@ -60,10 +59,8 @@ export const MetricsPageContainer = ({ query, qid }: IMetricsPageProps): ReactEl
 
   // -------------------------------------------
 
-  const params: IADSApiSearchParams = qid ? { q: `docs(${qid})`, sort: ['id asc'] } : query;
-
   const { data, progress } = useBatchedSearch<string>(
-    { rows: BATCH_SIZE, fl: ['bibcode'], ...params },
+    { rows: BATCH_SIZE, fl: ['bibcode'], ...query },
     { batches: BATCHES, transformResponses: (res) => res.response.docs.map((d) => d.bibcode) },
   );
 

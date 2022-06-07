@@ -11,7 +11,6 @@ export * from './images';
 export * from './LandingTabs';
 export * from './Layout';
 export * from './Metatags';
-export * from './Metrics';
 export * from './NavBar';
 export * from './NumFound';
 export * from './ResultList';
