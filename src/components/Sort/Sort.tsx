@@ -1,4 +1,4 @@
-import { SolrSort, SolrSortDirection } from '@api';
+import { SolrSort, SolrSortDirection, SolrSortField } from '@api';
 import { IconButton } from '@chakra-ui/button';
 import { Input } from '@chakra-ui/input';
 import { Box, HStack, Link } from '@chakra-ui/layout';
@@ -7,21 +7,30 @@ import { ItemType } from '@components/Dropdown/types';
 import { Select } from '@components/Select';
 import { SortAscendingIcon, SortDescendingIcon } from '@heroicons/react/outline';
 import { useIsClient } from '@hooks/useIsClient';
-import { normalizeSolrSort } from '@utils';
+import { makeSearchParams, normalizeSolrSort, parseQueryFromUrl } from '@utils';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { Fragment, MouseEventHandler, ReactElement, useCallback, useMemo } from 'react';
 import { sortValues } from './model';
 
+/**
+ *
+ *
+ */
 export interface ISortProps {
   name?: string;
   sort?: SolrSort | SolrSort[];
   hideLabel?: boolean;
   fullWidth?: boolean;
   onChange?: (sort: SolrSort[]) => void;
-  leftMargin?: string; // css selector
+  leftMargin?: string;
   rightMargin?: string;
-  useNativeWhenNoJs?: boolean; // true will use the native dropdown when no JavaScript, otherwise will use one with same look and feel as JS supported one
+
+  /**
+   * If true will use the native dropdown when no JavaScript,
+   * otherwise will use one with same look and feel as JS supported one
+   */
+  useNativeWhenNoJs?: boolean;
 }
 
 /**
@@ -107,7 +116,7 @@ export const Sort = (props: ISortProps): ReactElement => {
 };
 
 interface SortOptionType {
-  id: string;
+  id: SolrSortField;
   value: string;
   label: string;
 }
@@ -141,14 +150,8 @@ const SortSelect = ({
 // non-native type, used in search results
 const NoJsSort = (): ReactElement => {
   const router = useRouter();
-
-  const sortParam: SolrSort = router.query.sort
-    ? typeof router.query.sort === 'string'
-      ? (router.query.sort as SolrSort)
-      : (router.query.sort[0] as SolrSort)
-    : 'date desc';
-
-  const [sortby, dir] = sortParam.split(' ');
+  const query = parseQueryFromUrl(router.query);
+  const [sortby, dir] = query.sort[0].split(' ') as [SolrSortField, SolrSortDirection];
 
   const getToggledDir = (dir: SolrSortDirection) => {
     return dir === 'asc' ? 'desc' : 'asc';
@@ -159,7 +162,7 @@ const NoJsSort = (): ReactElement => {
     options.push({
       id: `${sort.id}`,
       label: `${sort.label}`,
-      path: { query: { ...router.query, sort: `${sort.id} ${dir}`, p: 1 } },
+      path: { search: makeSearchParams({ q: '*:*', ...router.query, sort: [`${sort.id} ${dir}`], p: 1 }) },
     });
   });
 
@@ -172,7 +175,9 @@ const NoJsSort = (): ReactElement => {
         minLabelWidth="300px"
       />
       <NextLink
-        href={{ query: { ...router.query, p: 1, sort: `${sortby} ${getToggledDir(dir as SolrSortDirection)}` } }}
+        href={{
+          search: makeSearchParams({ q: '*:*', ...router.query, p: 1, sort: [`${sortby} ${getToggledDir(dir)}`] }),
+        }}
         passHref
       >
         <Link>

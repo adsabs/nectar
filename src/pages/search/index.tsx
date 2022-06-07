@@ -11,7 +11,7 @@ import {
   useSearch,
 } from '@api';
 import { CheckCircleIcon } from '@chakra-ui/icons';
-import { Box, Flex, HStack, List, ListIcon, ListItem, Stack } from '@chakra-ui/layout';
+import { Box, Flex, List, ListIcon, ListItem, Stack } from '@chakra-ui/layout';
 import { Alert, AlertDescription, AlertIcon, AlertTitle, Code, VisuallyHidden } from '@chakra-ui/react';
 import { ItemsSkeleton, ListActions, NumFound, Pagination, SearchBar, SimpleLink, SimpleResultList } from '@components';
 import { calculateStartIndex } from '@components/ResultList/Pagination/usePagination';
@@ -27,9 +27,11 @@ import { last, omit, path } from 'ramda';
 import { FormEventHandler, useEffect } from 'react';
 import { dehydrate, QueryClient, useQueryClient } from 'react-query';
 
+const updateQuerySelector = (state: AppState) => state.updateQuery;
 const SearchPage: NextPage = () => {
   const router = useRouter();
   const store = useStoreApi();
+  const updateQuery = useStore(updateQuerySelector);
   const storeNumPerPage = useStore((state) => state.numPerPage);
   const queryClient = useQueryClient();
   const queries = queryClient.getQueriesData<IADSApiSearchResponse>(SEARCH_API_KEYS.primary);
@@ -47,6 +49,7 @@ const SearchPage: NextPage = () => {
 
   const handleSortChange = (sort: SolrSort[]) => {
     const search = makeSearchParams({ ...params, ...store.getState().query, sort, p: 1 });
+    updateQuery({ sort });
     void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
   };
 
