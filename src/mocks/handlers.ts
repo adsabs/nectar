@@ -6,6 +6,7 @@ import {
   IADSApiMetricsParams,
   IADSApiReferenceResponse,
   IADSApiSearchResponse,
+  IADSApiVaultResponse,
   IExportApiParams,
 } from '@api';
 import faker from '@faker-js/faker';
@@ -425,6 +426,16 @@ export const handlers = [
           score: '1.0',
           bibcode: '2000A&A...362..333S',
         },
+      }),
+    );
+  }),
+
+  rest.post(`*${ApiTargets.MYADS_STORAGE}/query`, (req, res, ctx) => {
+    return res(
+      ctx.status(200),
+      ctx.json<IADSApiVaultResponse>({
+        qid: '012345690',
+        numfound: 10,
       }),
     );
   }),
