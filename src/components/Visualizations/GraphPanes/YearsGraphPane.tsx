@@ -16,7 +16,7 @@ import { BarDatum } from '@nivo/bar';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { IBarGraph, YearDatum } from '../types';
-import { getYearsGraph } from '../utils';
+import { getYearsGraph, groupBarDatumByYear } from '../utils';
 
 export interface IYearsGraphPaneProps {
   data: IFacetCountsFields;
@@ -67,6 +67,7 @@ export const YearsGraphPane = ({ data, onApplyCondition }: IYearsGraphPaneProps)
   const MAX_X_COUNT = 10;
   const transformedGraph = useMemo(() => {
     if (range && baseGraph) {
+      // user selected min and max year to display
       const min =
         isNaN(debouncedRange.min) || debouncedRange.min < firstYear || debouncedRange.min > debouncedRange.max
           ? firstYear
@@ -75,30 +76,14 @@ export const YearsGraphPane = ({ data, onApplyCondition }: IYearsGraphPaneProps)
         isNaN(debouncedRange.max) || debouncedRange.max > lastYear || debouncedRange.max < debouncedRange.min
           ? lastYear
           : debouncedRange.max;
+
       const totalYears = max - min + 1;
       const startIndex = min - firstYear;
-      const endIndex = startIndex + (max - min);
+      const endIndex = startIndex + (max - min) + 1;
       if (totalYears > MAX_X_COUNT) {
-        // too crowded to display, group
-        const groupSize = Math.ceil(totalYears / MAX_X_COUNT);
-        const res: BarDatum[] = [];
-        let index = startIndex;
-        while (index <= endIndex) {
-          const y = baseGraph.data[index].year;
-          const gs = y + groupSize - 1 <= max ? groupSize : max - y + 1;
-          const tmp = {
-            year: `${y} - ${y + gs - 1}`,
-            refereed: 0,
-            notrefereed: 0,
-          };
-          for (let i = 0; i < gs; i++) {
-            tmp.refereed += baseGraph.data[index + i].refereed;
-            tmp.notrefereed += baseGraph.data[index + i].notrefereed;
-          }
-          res.push(tmp);
-          index += gs;
-        }
-        return { data: res, keys: baseGraph.keys, indexBy: baseGraph.indexBy };
+        // too crowded to display, create a new bar graph by merging the years
+        const groupedDatum = groupBarDatumByYear(baseGraph.data, MAX_X_COUNT, startIndex, endIndex);
+        return { data: groupedDatum, keys: baseGraph.keys, indexBy: baseGraph.indexBy };
       } else {
         return {
           data: baseGraph.data.slice(startIndex, endIndex + 1),
