@@ -95,7 +95,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
     if (exploreAll) {
       // new search with operator
       const q = `${operator}(${router.query.q as string})`;
-      void router.push({ pathname: '', query: makeSearchParams({ q, sort: ['score desc'] }) });
+      void router.push({ pathname: '', search: makeSearchParams({ q, sort: ['score desc'] }) });
     } else {
       setPath({ operator });
     }

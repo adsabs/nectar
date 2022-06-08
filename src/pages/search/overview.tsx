@@ -19,7 +19,7 @@ const OverviewPage: NextPage = () => {
     // Run new query by appending condition to the original query or to the qid
     const tmpQuery = qid ? `docs(${qid})` : originalQuery.q;
     const q = getQueryWithCondition(tmpQuery, facet, cond);
-    void router.push({ pathname: '/search', query: makeSearchParams({ q }) });
+    void router.push({ pathname: '/search', search: makeSearchParams({ q }) });
   };
 
   return (
