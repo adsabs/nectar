@@ -134,7 +134,7 @@ export const Item = (props: IItemProps): ReactElement => {
 
 const Highlights = ({ isLoading, highlights }: { isLoading: boolean; highlights: string[] }) => {
   return (
-    <Box as="section" aria-label="highlights" className="search-snippets" my={2}>
+    <Box as="section" aria-label="highlights" className="search-snippets" my={2} data-testid="highlights-section">
       {isLoading || !highlights ? (
         <CircularProgress mt={5} isIndeterminate size="20px" />
       ) : (

@@ -126,6 +126,35 @@ describe('Result Page - list actions', () => {
   describe('Highlights', () => {
     it('Highlights toggle show and hide highlights', () => {
       search({ q: 'star' });
+      // highlights not shown initially
+      cy.getByTestId('highlights-section').should('not.exist');
+
+      // click on highlight button, highlights are shown
+      cy.getByTestId('listactions-showhighlights').click();
+      cy.getByTestId('highlights-section').should('have.length', 10);
+      cy.getByTestId('highlights-section')
+        .eq(0)
+        .should(
+          'have.text',
+          "In everyone's heart stirs a great homesickness.The wit makes fun of other persons; the satirist makes fun of the world; the humorist makes fun of himself.Everything is funny as long as it is happening to Somebody Else.",
+        );
+      cy.getByTestId('highlights-section').eq(5).should('have.text', 'No Highlights');
+
+      // click next page, highlights should be shown
+      cy.getByTestId('pagination-next').click();
+      cy.wait(5000);
+      cy.getByTestId('highlights-section').should('have.length', 10);
+      cy.getByTestId('highlights-section')
+        .eq(0)
+        .should(
+          'have.text',
+          "In everyone's heart stirs a great homesickness.The wit makes fun of other persons; the satirist makes fun of the world; the humorist makes fun of himself.Everything is funny as long as it is happening to Somebody Else.",
+        );
+      cy.getByTestId('highlights-section').eq(5).should('have.text', 'No Highlights');
+
+      // disable highlight, highlights are not shown
+      cy.getByTestId('listactions-showhighlights').click();
+      cy.getByTestId('highlights-section').should('not.exist');
     });
   });
 });

@@ -22,6 +22,7 @@ export const defaultQueryParams: IADSApiSearchParams = {
     'esources',
     'property',
     'data',
+    'id',
   ],
   sort: APP_DEFAULTS.SORT,
   start: 0,
