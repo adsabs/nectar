@@ -21,7 +21,7 @@ import { ISortProps, Sort } from '@components/Sort';
 import { sections } from '@components/Visualizations';
 import { useIsClient } from '@hooks/useIsClient';
 import { AppState, useStore, useStoreApi } from '@store';
-import { noop } from '@utils';
+import { makeSearchParams, noop } from '@utils';
 import { useRouter } from 'next/router';
 import { curryN } from 'ramda';
 import { MouseEventHandler, ReactElement, useEffect, useState } from 'react';
@@ -95,7 +95,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
     if (exploreAll) {
       // new search with operator
       const q = `${operator}(${router.query.q as string})`;
-      void router.push({ pathname: '', query: { q, sort: ['score desc', 'bibcode desc'] } });
+      void router.push({ pathname: '', query: makeSearchParams({ q, sort: ['score desc'] }) });
     } else {
       setPath({ operator });
     }
