@@ -1,4 +1,12 @@
-export const sortValues = [
+import { SolrSortField } from '@api';
+
+export interface ISortDescriptor {
+  id: SolrSortField;
+  text: string;
+  desc: string;
+}
+
+export const sortValues: ISortDescriptor[] = [
   {
     id: 'author_count',
     text: 'Author Count',

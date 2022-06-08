@@ -238,6 +238,7 @@ const sortSelector: [
   (state: AppState) => AppState['query'],
   (prev: AppState['query'], next: AppState['query']) => boolean,
 ] = [(state) => state.query, (prev, curr) => prev.sort === curr.sort];
+
 const SortWrapper = ({ onChange }: { onChange: ISortProps['onChange'] }) => {
   const query = useStore(...sortSelector);
 
