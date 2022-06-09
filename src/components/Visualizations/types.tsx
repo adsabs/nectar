@@ -13,6 +13,10 @@ export interface ILineGraph {
   hindex?: number;
 }
 
+export interface ISunburstGraph {
+  data: SunburstDatum;
+}
+
 export interface IMetricsGraphs {
   totalGraph: IBarGraph<BarDatum>;
   normalizedGraph: IBarGraph<BarDatum>;
@@ -24,6 +28,17 @@ export interface YearDatum extends BarDatum {
   notrefereed: number;
 }
 
+export type SunburstDatum =
+  | {
+      id: string | number;
+      label?: string;
+      children: SunburstDatum[];
+    }
+  | {
+      id: string | number;
+      label: string;
+      value: number;
+    };
 export interface ICitationTableInput {
   refereed: {
     [key in CitationsStatsKey]: number;
