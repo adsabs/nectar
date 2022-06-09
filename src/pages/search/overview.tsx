@@ -16,9 +16,10 @@ const OverviewPage: NextPage = () => {
   const bibsQuery: IADSApiSearchParams = qid ? { q: `docs(${qid})`, sort: ['id asc'] } : query;
 
   const handleApplyQueryCondition = (facet: FacetField, cond: string) => {
-    const q = getQueryWithCondition(originalQuery.q, facet, cond);
-    const newQuery = { ...originalQuery, q };
-    void router.push({ pathname: '/search', query: makeSearchParams(newQuery) });
+    // Run new query by appending condition to the original query or to the qid
+    const tmpQuery = qid ? `docs(${qid})` : originalQuery.q;
+    const q = getQueryWithCondition(tmpQuery, facet, cond);
+    void router.push({ pathname: '/search', search: makeSearchParams({ q }) });
   };
 
   return (
