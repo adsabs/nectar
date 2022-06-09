@@ -2,7 +2,7 @@ import { VizPageLayout } from '@components';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 
-const AuthorNetworkPage: NextPage = () => {
+export const AuthorNetworkPage: NextPage = () => {
   const router = useRouter();
 
   const { qid, p, ...query } = router.query;

@@ -17,6 +17,7 @@ export const LineGraph = memo(({ data, ticks, showLegend = true, type = 'linear'
         <ResponsiveLine
           data={data}
           margin={{ top: 50, right: showLegend ? 110 : 50, bottom: 50, left: 60 }}
+          colors={{ scheme: 'category10' }}
           xScale={{ type: 'point' }}
           yScale={
             type === 'linear'

@@ -24,11 +24,9 @@ const OverviewPage: NextPage = () => {
 
   return (
     <div>
-      <VizPageLayout
-        vizPage="overview"
-        from={{ pathname: '/search', query: makeSearchParams(originalQuery) }}
-      ></VizPageLayout>
-      <OverviewPageContainer query={bibsQuery} onApplyQueryCondition={handleApplyQueryCondition} />
+      <VizPageLayout vizPage="overview" from={{ pathname: '/search', query: makeSearchParams(originalQuery) }}>
+        <OverviewPageContainer query={bibsQuery} onApplyQueryCondition={handleApplyQueryCondition} />
+      </VizPageLayout>
     </div>
   );
 };
