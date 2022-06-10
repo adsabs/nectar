@@ -1,13 +1,13 @@
 import { Box } from '@chakra-ui/react';
 import { ComputedDatum, ResponsiveSunburst } from '@nivo/sunburst';
 import { ReactElement } from 'react';
-import { ISunburstGraph, SunburstDatum } from '../types';
+import { ISunburstGraph, SunburstNode } from '../types';
 
 export interface ISunburstGraphProps {
   graph: ISunburstGraph;
 }
 
-const getArcLabel = ({ data }: ComputedDatum<SunburstDatum>) => `${data.label}`;
+const getArcLabel = ({ data }: ComputedDatum<SunburstNode>) => (typeof data.name === 'string' ? `${data.name}` : '');
 
 export const SunburstGraph = ({ graph }: ISunburstGraphProps): ReactElement => {
   return (
@@ -15,9 +15,9 @@ export const SunburstGraph = ({ graph }: ISunburstGraphProps): ReactElement => {
       <div style={{ height: '500px' }}>
         <ResponsiveSunburst
           data={graph.data}
-          margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
-          id="id"
-          value="value"
+          margin={{ top: 50, right: 10, bottom: 50, left: 10 }}
+          id={graph.idKey}
+          value={graph.valueKey}
           valueFormat=" >-,"
           borderWidth={0.5}
           colors={{ scheme: 'set3' }}

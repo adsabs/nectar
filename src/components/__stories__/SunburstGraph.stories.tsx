@@ -1,5 +1,5 @@
 import { SunburstGraph, ISunburstGraphProps } from '@components';
-import { sunburstDatum } from '@components/__mocks__/data';
+import { sunburstNode } from '@components/__mocks__/data';
 import { Meta, Story } from '@storybook/react';
 
 const meta: Meta = {
@@ -13,4 +13,4 @@ const Template: Story<ISunburstGraphProps> = (args) => <SunburstGraph {...args} 
 
 export const Default = Template.bind({});
 
-Default.args = { graph: { data: sunburstDatum } };
+Default.args = { graph: { data: sunburstNode, idKey: 'name', valueKey: 'value' } };

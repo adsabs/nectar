@@ -1,5 +1,5 @@
 import { Esources, IADSApiMetricsResponse, IDocsEntity } from '@api';
-import { SunburstDatum } from '@components/Visualizations/types';
+import { SunburstDatum, SunburstNode } from '@components/Visualizations/types';
 import { BarDatum } from '@nivo/bar';
 import { Serie } from '@nivo/line';
 
@@ -2326,40 +2326,37 @@ export const linedatum: Serie[] = [
   },
 ];
 
-export const sunburstDatum: SunburstDatum = {
-  id: 'author groups',
+export const sunburstNode: SunburstNode = {
+  name: 'author groups',
   children: [
     {
-      id: 'Group 1',
-      label: '',
+      name: 'Group 1',
       children: [
-        { id: 'Einstein, Albert', label: 'Einstein, Albert', value: 1000 },
-        { id: 'Claus, Santa', label: 'Claus, Santa', value: 5 },
-        { id: 'Uncle, Sam', label: 'Uncle, Sam', value: 2 },
+        { name: 'Einstein, Albert', value: 1000 },
+        { name: 'Claus, Santa', value: 5 },
+        { name: 'Uncle, Sam', value: 2 },
       ],
     },
     {
-      id: 'Group 2',
-      label: '',
+      name: 'Group 2',
       children: [
-        { id: 'Smith, John', label: 'Smith, John', value: 500 },
-        { id: 'Doe, Jane', label: 'Doe, Jane', value: 34 },
-        { id: 'Jones, Jack', label: 'Jones, Jack', value: 673 },
-        { id: 'Star, Mike', label: 'Star, Mike', value: 300 },
+        { name: 'Smith, John', value: 500 },
+        { name: 'Doe, Jane', value: 34 },
+        { name: 'Jones, Jack', value: 673 },
+        { name: 'Star, Mike', value: 300 },
       ],
     },
     {
-      id: 'Group 3',
-      label: '',
+      name: 'Group 3',
       children: [
-        { id: 'Hemingway, Ernest', label: 'Hemingway, Ernest', value: 500 },
-        { id: 'Gaiman, Niel', label: 'Gaiman, Niel', value: 1500 },
-        { id: 'Joyce, James', label: 'Joyce, James', value: 90 },
-        { id: 'Twain, Mark', label: 'Twain, Mark', value: 1800 },
-        { id: 'King, Stephen', label: 'King, Stephen', value: 2000 },
-        { id: 'Rice, Ann', label: 'Rice, Ann', value: 3000 },
-        { id: 'Sparks, Nicholas', label: 'Sparks, Nicholas', value: 2000 },
-        { id: 'Sanderson, Brandon', label: 'Sanderson, Brandon', value: 2500 },
+        { name: 'Hemingway, Ernest', value: 500 },
+        { name: 'Gaiman, Niel', value: 1500 },
+        { name: 'Joyce, James', value: 90 },
+        { name: 'Twain, Mark', value: 1800 },
+        { name: 'King, Stephen', value: 2000 },
+        { name: 'Rice, Ann', value: 3000 },
+        { name: 'Sparks, Nicholas', value: 2000 },
+        { name: 'Sanderson, Brandon', value: 2500 },
       ],
     },
   ],
