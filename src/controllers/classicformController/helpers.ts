@@ -23,7 +23,7 @@ const escape = (val?: string): string => (typeof val === 'string' ? DOMPurify.sa
 const listSanitizer = (v: string): string[] =>
   v.length > 0 ? (Array.from(v.matchAll(/[^\r\n]+/g), head) as string[]) : [];
 const delimSanitizer = (v: string): string[] => (v.length > 0 ? v.split(/[^\w]+/) : []);
-const formatLogic = (logic: LogicAll | LogicAndOr): string => (logic === 'or' ? 'OR' : ' ');
+const formatLogic = (logic: LogicAll | LogicAndOr): string => (logic === 'or' ? ' OR ' : ' ');
 const emptyOrUndefined = (val?: string | string[]): val is '' | [] => {
   return typeof val === 'string' || Array.isArray(val) ? (val.length > 0 ? false : true) : true;
 };

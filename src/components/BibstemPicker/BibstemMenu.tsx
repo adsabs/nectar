@@ -15,7 +15,7 @@ export interface IBibstemMenuProps {
   selectedItems: string[];
   highlightedIndex: number;
   maxItemsToShow?: number;
-  getItemProps: (options: UseComboboxGetItemPropsOptions<string>) => unknown;
+  getItemProps: (options: UseComboboxGetItemPropsOptions<string>) => Record<string, unknown>;
 }
 
 export const BibstemMenu = (props: IBibstemMenuProps): ReactElement => {
