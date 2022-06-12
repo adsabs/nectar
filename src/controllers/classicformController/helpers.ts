@@ -23,7 +23,7 @@ const escape = (val?: string): string => (typeof val === 'string' ? DOMPurify.sa
 const listSanitizer = (v: string): string[] =>
   v.length > 0 ? (Array.from(v.matchAll(/[^\r\n]+/g), head) as string[]) : [];
 const delimSanitizer = (v: string): string[] => (v.length > 0 ? v.split(/[^\w]+/) : []);
-const formatLogic = (logic: LogicAll | LogicAndOr): string => (logic === 'or' ? 'OR' : ' ');
+const formatLogic = (logic: LogicAll | LogicAndOr): string => (logic === 'or' ? ' OR ' : ' ');
 const emptyOrUndefined = (val?: string | string[]): val is '' | [] => {
   return typeof val === 'string' || Array.isArray(val) ? (val.length > 0 ? false : true) : true;
 };
@@ -94,11 +94,8 @@ export const stringifiers = {
   },
 
   pubdate({ pubdate_start, pubdate_end }: ClassicFormParams): string | undefined {
-    if (isNil(pubdate_start) || isNil(pubdate_end)) {
-      return;
-    }
-    const [yearFrom, monthFrom] = pubdate_start;
-    const [yearTo, monthTo] = pubdate_end;
+    const [yearFrom, monthFrom] = isNil(pubdate_start) ? [0, 0] : pubdate_start;
+    const [yearTo, monthTo] = isNil(pubdate_end) ? [9999, 0] : pubdate_end;
 
     return `pubdate:[${yearFrom}${monthFrom ? `-${monthFrom}` : ''} TO ${yearTo}${monthTo ? `-${monthTo}` : ''}]`;
   },
