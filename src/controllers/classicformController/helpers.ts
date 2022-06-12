@@ -94,6 +94,12 @@ export const stringifiers = {
   },
 
   pubdate({ pubdate_start, pubdate_end }: ClassicFormParams): string | undefined {
+    // if both are undefined, we should skip
+    if (isNil(pubdate_start) && isNil(pubdate_end)) {
+      return;
+    }
+
+    // otherwise parse either one and provide a default if undefined
     const [yearFrom, monthFrom] = isNil(pubdate_start) ? [0, 0] : pubdate_start;
     const [yearTo, monthTo] = isNil(pubdate_end) ? [9999, 0] : pubdate_end;
 
