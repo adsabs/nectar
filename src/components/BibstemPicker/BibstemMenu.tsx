@@ -76,12 +76,16 @@ BibstemMenu.defaultProps = {
 const searchBibstems = curry((maxItems: number, searchString: string, itemsToOmit: string[]): string[] => {
   const search = new RegExp(`${searchString}`, 'ig');
 
-  const values = chainFrom(bibstems)
-    .filter((bibstem) => search.test(bibstem))
-    .filter((bibstem) => !itemsToOmit.includes(bibstem))
+  try {
+    const values = chainFrom(bibstems)
+      .filter((bibstem) => search.test(bibstem))
+      .filter((bibstem) => !itemsToOmit.includes(bibstem))
 
-    // take any number of maxItems up to a max of 1000
-    .take(maxItems <= 0 ? 1000 : maxItems)
-    .toArray();
-  return values;
+      // take any number of maxItems up to a max of 1000
+      .take(maxItems <= 0 ? 1000 : maxItems)
+      .toArray();
+    return values;
+  } catch (e) {
+    return [];
+  }
 });
