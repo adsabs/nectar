@@ -20,7 +20,7 @@ import { useStore } from '@store';
 import { useCombobox } from 'downshift';
 import { matchSorter } from 'match-sorter';
 import { last } from 'ramda';
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
 import { typeaheadOptions } from './models';
 import { QuickFields } from './QuickFields';
 import { TypeaheadOption } from './types';
@@ -136,7 +136,7 @@ export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>(
 
   const handleReset = () => {
     reset();
-    input.current.focus();
+    focus();
   };
 
   const handleQuickFieldSelection = useCallback(
@@ -157,6 +157,17 @@ export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>(
     offset: [0, 3],
   });
 
+  // call focus after component mounts
+  useLayoutEffect(() => focus(), []);
+
+  // focus on the search bar, and set the cursor to the end
+  const focus = useCallback(() => {
+    if (input.current) {
+      input.current.focus();
+      input.current.selectionStart = Number.MAX_SAFE_INTEGER;
+    }
+  }, [input.current]);
+
   return (
     <VStack as="section" direction="column" spacing={2} align="stretch">
       {isClient && <QuickFields onSelect={handleQuickFieldSelection} />}
@@ -172,6 +183,7 @@ export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>(
               variant="outline"
               placeholder="Search..."
               type="text"
+              autoFocus
               name="q"
               {...getInputProps({
                 ref: (el: HTMLInputElement) => {
