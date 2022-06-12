@@ -93,14 +93,14 @@ const SearchPage: NextPage = () => {
           <NumFound count={data?.numFound} isLoading={isLoading} />
         </Flex>
         <Box mt={5}>
-          {isSuccess && !isLoading && data.numFound > 0 && <ListActions onSortChange={handleSortChange} />}
+          {isSuccess && !isLoading && data?.numFound > 0 && <ListActions onSortChange={handleSortChange} />}
         </Box>
       </form>
 
       <VisuallyHidden as="h2" id="search-form-title">
         Search Results
       </VisuallyHidden>
-      {!isLoading && data.numFound === 0 && (
+      {!isLoading && data?.numFound === 0 && (
         <Alert
           status="info"
           variant="subtle"
