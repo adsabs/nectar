@@ -94,11 +94,8 @@ export const stringifiers = {
   },
 
   pubdate({ pubdate_start, pubdate_end }: ClassicFormParams): string | undefined {
-    if (isNil(pubdate_start) || isNil(pubdate_end)) {
-      return;
-    }
-    const [yearFrom, monthFrom] = pubdate_start;
-    const [yearTo, monthTo] = pubdate_end;
+    const [yearFrom, monthFrom] = isNil(pubdate_start) ? [0, 0] : pubdate_start;
+    const [yearTo, monthTo] = isNil(pubdate_end) ? [9999, 0] : pubdate_end;
 
     return `pubdate:[${yearFrom}${monthFrom ? `-${monthFrom}` : ''} TO ${yearTo}${monthTo ? `-${monthTo}` : ''}]`;
   },
