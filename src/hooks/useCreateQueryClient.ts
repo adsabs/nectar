@@ -13,13 +13,7 @@ export const useCreateQueryClient = () => {
       }
 
       if (axios.isAxiosError(error) || error instanceof Error) {
-        toast({
-          title: 'Error',
-          description: error.message,
-          position: 'bottom',
-          status: 'error',
-          variant: 'solid',
-        });
+        // TODO: global error, what should be done here?
       }
     },
   });
