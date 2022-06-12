@@ -201,7 +201,7 @@ export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>(
                   }
                   if (e.key === 'Enter') {
                     // on submit, the menu should close
-                    closeMenu();
+                    setTimeout(() => closeMenu(), 0);
                   }
                 },
               })}
