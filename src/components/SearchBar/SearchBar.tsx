@@ -76,6 +76,7 @@ export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>(
     reset,
     inputValue,
     setInputValue,
+    closeMenu,
   } = useCombobox({
     defaultInputValue: query,
     items: inputItems,
@@ -197,6 +198,10 @@ export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>(
                     (
                       e.nativeEvent as typeof e.nativeEvent & { preventDownshiftDefault: boolean }
                     ).preventDownshiftDefault = true;
+                  }
+                  if (e.key === 'Enter') {
+                    // on submit, the menu should close
+                    closeMenu();
                   }
                 },
               })}
