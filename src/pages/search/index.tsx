@@ -48,14 +48,24 @@ const SearchPage: NextPage = () => {
   const { data, isSuccess, isLoading, error } = useSearch(omit(['p'], params));
 
   const handleSortChange = (sort: SolrSort[]) => {
-    const search = makeSearchParams({ ...params, ...store.getState().query, sort, p: 1 });
+    const query = store.getState().query;
+    if (query.q.length === 0) {
+      // if query is empty, do not submit search
+      return;
+    }
+    const search = makeSearchParams({ ...params, ...query, sort, p: 1 });
     updateQuery({ sort });
     void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
   };
 
   const handleOnSubmit: FormEventHandler = (e) => {
     e.preventDefault();
-    const search = makeSearchParams({ ...params, ...store.getState().query, p: 1 });
+    const query = store.getState().query;
+    if (query.q.length === 0) {
+      // if query is empty, do not submit search
+      return;
+    }
+    const search = makeSearchParams({ ...params, ...query, p: 1 });
     void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
   };
 
