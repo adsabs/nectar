@@ -1,5 +1,4 @@
 import { Box, Radio, RadioGroup, Stack } from '@chakra-ui/react';
-import { ViewListIcon } from '@heroicons/react/solid';
 import { ReactElement, useEffect, useState } from 'react';
 import { SunburstGraph } from '../Graphs';
 import { ISunburstGraph } from '../types';

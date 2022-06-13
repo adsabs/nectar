@@ -12,7 +12,7 @@ const getArcLabel = ({ data }: ComputedDatum<SunburstNode>) => (typeof data.name
 export const SunburstGraph = ({ graph }: ISunburstGraphProps): ReactElement => {
   return (
     <Box width="100%" mt={5}>
-      <div style={{ height: '500px' }}>
+      <div style={{ height: '700px' }}>
         <ResponsiveSunburst
           data={graph.data}
           margin={{ top: 50, right: 10, bottom: 50, left: 10 }}
