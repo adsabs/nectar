@@ -3,6 +3,7 @@ import { IADSApiVisResponse } from '@api/vis/types';
 import { useGetAuthorNetwork } from '@api/vis/vis';
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/alert';
 import { Box, CircularProgress, Flex, Text } from '@chakra-ui/react';
+import axios from 'axios';
 import { ReactElement, useMemo, useState } from 'react';
 import { NetworkGraphPane } from '../GraphPanes';
 import { ISunburstGraph } from '../types';
@@ -67,6 +68,20 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
 
   return (
     <Box as="section" aria-label="Author network graph" my={10}>
+      {bibsQueryIsError && (
+        <Alert status="error" my={5}>
+          <AlertIcon />
+          <AlertTitle mr={2}>Error fetching records!</AlertTitle>
+          <AlertDescription>{axios.isAxiosError(bibsQueryError) && bibsQueryError.message}</AlertDescription>
+        </Alert>
+      )}
+      {authorNetworkIsError && (
+        <Alert status="error" my={5}>
+          <AlertIcon />
+          <AlertTitle mr={2}>Error fetching author network data!</AlertTitle>
+          <AlertDescription>{axios.isAxiosError(authorNetworkError) && authorNetworkError.message}</AlertDescription>
+        </Alert>
+      )}
       {bibsQueryIsLoading && (
         <>
           <Text>Fetching records</Text>
