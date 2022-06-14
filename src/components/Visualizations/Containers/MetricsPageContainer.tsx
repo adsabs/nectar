@@ -88,13 +88,36 @@ const MetricsComponent = ({ bibcodes }: { bibcodes: Bibcode[] }): ReactElement =
     <Box my={5}>
       {bibcodes && bibcodes.length > 0 ? (
         <>
-          {isErrorMetrics ? (
-            <Alert status="error" my={5}>
-              <AlertIcon />
-              <AlertTitle mr={2}>Error fetching metrics!</AlertTitle>
-              <AlertDescription>{axios.isAxiosError(errorMetrics) && errorMetrics.message}</AlertDescription>
-            </Alert>
-          ) : (
+          {/* No metrics warning or Fetching error */}
+          {isErrorMetrics && (
+            <>
+              {errorMetrics instanceof Error && errorMetrics.message.startsWith('No data available') ? (
+                <Alert
+                  status="info"
+                  my={5}
+                  variant="subtle"
+                  flexDirection="column"
+                  justifyContent="center"
+                  height="200px"
+                  backgroundColor="transparent"
+                >
+                  <AlertIcon boxSize="40px" />
+                  <AlertTitle mt={4} mb={1} fontSize="lg">
+                    Metrics not available
+                  </AlertTitle>
+                  <AlertDescription>{errorMetrics.message}</AlertDescription>
+                </Alert>
+              ) : (
+                <Alert status="error" my={5}>
+                  <AlertIcon />
+                  <AlertTitle mr={2}>Error fetching metrics!</AlertTitle>
+                  <AlertDescription>{axios.isAxiosError(errorMetrics) && errorMetrics.message}</AlertDescription>
+                </Alert>
+              )}
+            </>
+          )}
+          {/* Successfully fetched metrics */}
+          {!isErrorMetrics && (
             <>
               <Text my={5}>
                 {isLoading ? 'Loading' : 'Showing'} metrics for <b>{bibcodes.length}</b> records
