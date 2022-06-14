@@ -1,10 +1,9 @@
-import { fetchSearchInfinite, IADSApiSearchParams, searchKeys } from '@api';
+import { IADSApiSearchParams } from '@api';
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/react';
 import { MetricsPageContainer, VizPageLayout } from '@components';
 import { makeSearchParams, parseQueryFromUrl, setupApiSSR } from '@utils';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
-import { dehydrate, DehydratedState, QueryClient } from 'react-query';
 
 interface IMetricsProps {
   originalQuery: IADSApiSearchParams;
@@ -33,11 +32,11 @@ const MetricsPage: NextPage<IMetricsProps> = (props) => {
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const BATCH_SIZE = 1000;
   setupApiSSR(ctx);
-  const { fetchSearch } = await import('@api');
   const { qid: _qid, ...originalQuery } = ctx.query;
   const { qid = null, p, ...query } = parseQueryFromUrl<{ qid: string }>(ctx.query, { sortPostfix: 'id asc' });
 
-  const queryClient = new QueryClient();
+  // TODO: figure out why this clears the cache on transition
+  // const queryClient = new QueryClient();
 
   try {
     // prefetch bibcodes from query
@@ -48,30 +47,30 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       ...(qid ? { q: `docs(${qid})`, sort: ['id asc'] } : query),
     };
 
-    await queryClient.prefetchInfiniteQuery({
-      queryKey: searchKeys.infinite(params),
-      queryFn: fetchSearchInfinite,
-      meta: { params },
-    });
+    // await queryClient.prefetchInfiniteQuery({
+    //   queryKey: searchKeys.infinite(params),
+    //   queryFn: fetchSearchInfinite,
+    //   meta: { params },
+    // });
 
     // react-query infinite queries cannot be serialized by next, currently.
     // see https://github.com/tannerlinsley/react-query/issues/3301#issuecomment-1041374043
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const dehydratedState: DehydratedState = JSON.parse(JSON.stringify(dehydrate(queryClient)));
+    // const dehydratedState: DehydratedState = JSON.parse(JSON.stringify(dehydrate(queryClient)));
 
-    return {
+    return Promise.resolve({
       props: {
         originalQuery,
         bibsQuery: params,
-        dehydratedState,
+        // dehydratedState,
       },
-    };
+    });
   } catch (e) {
-    return {
+    return Promise.resolve({
       props: {
         error: axios.isAxiosError(e) ? e.message : 'Unable to fetch data',
       },
-    };
+    });
   }
 };
 

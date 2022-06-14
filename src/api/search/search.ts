@@ -19,8 +19,8 @@ import {
   getCitationsParams,
   getCoreadsParams,
   getReferencesParams,
-  getSearchParams,
   getSearchFacetParams,
+  getSearchParams,
   getSearchStatsParams,
   getSimilarParams,
   getTocParams,
@@ -55,6 +55,7 @@ type SearchKeyProps =
 export enum SEARCH_API_KEYS {
   primary = 'search/primary',
   preview = 'search/preview',
+  infinite = 'search/infinite',
 }
 
 export const searchKeys = {
@@ -69,7 +70,7 @@ export const searchKeys = {
   toc: ({ bibcode, start }: SearchKeyProps) => ['search/toc', { bibcode, start }] as const,
   stats: (params: IADSApiSearchParams) => ['search/stats', params] as const,
   facet: (params: IADSApiSearchParams) => ['search/facet', params] as const,
-  infinite: (params: IADSApiSearchParams) => ['search/infinite', params] as const,
+  infinite: (params: IADSApiSearchParams) => [SEARCH_API_KEYS.infinite, params] as const,
 };
 
 /**
@@ -280,7 +281,7 @@ export const useSearchInfinite: InfiniteADSQuery<IADSApiSearchParams, IADSApiSea
         ? lastPage.nextCursorMark
         : false;
     },
-    meta: { params },
+    meta: { ...options.meta, params },
     ...options,
   });
 };

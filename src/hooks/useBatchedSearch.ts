@@ -1,8 +1,8 @@
-import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, useSearchInfinite } from '@api';
+import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, searchKeys, useSearchInfinite } from '@api';
 import { AxiosError } from 'axios';
 import { chain } from 'ramda';
 import { useEffect, useState } from 'react';
-import { UseInfiniteQueryOptions } from 'react-query';
+import { InfiniteData, UseInfiniteQueryOptions, useQueryClient } from 'react-query';
 
 const DELAY_BETWEEN_REQUESTS = 500;
 
@@ -16,6 +16,8 @@ const defaultTransformer: IUseBatchedSearchProps<IDocsEntity>['transformResponse
 
 /**
  * Hook to get search results in batches (by rows)
+ *
+ * TODO: number of batches could be updated after the first request when we know the number of total records
  */
 export const useBatchedSearch = <T = unknown>(
   params: IADSApiSearchParams & Required<Pick<IADSApiSearchParams, 'q' | 'rows'>>,
@@ -23,18 +25,39 @@ export const useBatchedSearch = <T = unknown>(
   options?: UseInfiniteQueryOptions<IADSApiSearchResponse & { pageParam: string }, Error | AxiosError>,
 ) => {
   const { batches, transformResponses = defaultTransformer, intervalDelay = DELAY_BETWEEN_REQUESTS } = props;
-  const [count, setCount] = useState(() => batches);
+  const queryClient = useQueryClient();
   const [isPending, setIsPending] = useState(false);
+
+  const [count, setCount] = useState(() => {
+    // check cache on mount to see if we find any data
+    const cachedSearchTuple = queryClient.getQueryData<
+      InfiniteData<
+        IADSApiSearchResponse & {
+          pageParam: string;
+        }
+      >
+    >(searchKeys.infinite(params));
+
+    // if found then set our count with the updated value,
+    // otherwise the page will continue from where it left off
+    if (cachedSearchTuple) {
+      return batches - cachedSearchTuple.pages.length;
+    }
+
+    return batches;
+  });
 
   const { data, isFetchingNextPage, fetchNextPage, hasNextPage, status, ...rest } = useSearchInfinite(params, {
     ...options,
+    keepPreviousData: true,
     enabled: count > 0,
   });
 
   // watch data for changes, and update state
   useEffect(() => {
     if (data) {
-      setCount(count - 1);
+      // decrement count
+      setCount((count) => count - 1);
       setIsPending(false);
     }
   }, [data]);
