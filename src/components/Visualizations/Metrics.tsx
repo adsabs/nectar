@@ -237,7 +237,7 @@ const IndicesSection = ({
     error: errorMetrics,
     isLoading,
   } = useGetMetricsTimeSeries(bibcodes, {
-    enabled: !indicesGraph && bibcodes && bibcodes.length > 0,
+    enabled: !!indicesTable && !indicesGraph && bibcodes && bibcodes.length > 0,
   });
 
   const computedGraph = useMemo(() => {
