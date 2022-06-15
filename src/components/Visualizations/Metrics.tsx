@@ -11,6 +11,7 @@ import {
   TabPanel,
   TabPanels,
   Tabs,
+  Text,
 } from '@chakra-ui/react';
 import { useIsClient } from '@hooks/useIsClient';
 import { useMetrics } from '@hooks/useMetrics';
@@ -47,7 +48,7 @@ export const Metrics = (props: IMetricsProps): ReactElement => {
     readsGraphs,
     papersGraphs,
     indicesGraph,
-  } = useMetrics(metrics, isAbstract);
+  } = useMetrics(metrics, isAbstract || bibcodes.length === 1);
 
   return (
     <>
@@ -111,7 +112,9 @@ const PapersSection = ({
           {papersTable && <PapersTable data={papersTable} />}
           {isClient && papersGraph && <MetricsGraphs graphs={papersGraph} />}
         </Box>
-      ) : null}
+      ) : (
+        <Text>No data</Text>
+      )}
     </>
   );
 };
@@ -145,7 +148,9 @@ const CitationsSection = ({
           {citationsTable && <CitationsTable data={citationsTable} isAbstract={isAbstract} />}
           {isClient && citationsGraphs && <MetricsGraphs graphs={citationsGraphs} />}
         </Box>
-      ) : null}
+      ) : (
+        <>{!isAbstract && <Text>No data</Text>}</>
+      )}
     </>
   );
 };
@@ -181,7 +186,9 @@ const ReadsSection = ({
             <MetricsGraphs graphs={readsGraphs} showGroupOptions={!isAbstract} showLegend={!isAbstract} />
           )}
         </Box>
-      ) : null}
+      ) : (
+        <>{!isAbstract && <Text>No data</Text>}</>
+      )}
     </>
   );
 };
@@ -230,7 +237,7 @@ const IndicesSection = ({
     error: errorMetrics,
     isLoading,
   } = useGetMetricsTimeSeries(bibcodes, {
-    enabled: !indicesGraph && bibcodes && bibcodes.length > 0,
+    enabled: !!indicesTable && !indicesGraph && bibcodes && bibcodes.length > 0,
   });
 
   const computedGraph = useMemo(() => {
@@ -276,7 +283,9 @@ const IndicesSection = ({
           )}
           {computedGraph && <LineGraph data={computedGraph.data} ticks={getLineGraphYearTicks(computedGraph.data)} />}
         </Box>
-      ) : null}
+      ) : (
+        <Text>No data</Text>
+      )}
     </>
   );
 };
