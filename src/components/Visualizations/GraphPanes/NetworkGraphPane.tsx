@@ -1,13 +1,14 @@
 import { Box, Radio, RadioGroup, Stack } from '@chakra-ui/react';
 import { ReactElement, useEffect, useState } from 'react';
 import { SunburstGraph } from '../Graphs';
-import { ISunburstGraph } from '../types';
+import { ISunburstGraph, SunburstNode } from '../types';
 
 export interface INetworkGraphPaneProps {
   graph: ISunburstGraph;
   views: IView[];
   onChangeView: (vid: IView['id']) => void;
   defaultView: IView['id'];
+  onClickNode?: (node: SunburstNode) => void;
 }
 
 export interface IView {
@@ -19,7 +20,13 @@ export interface IView {
  *
  * @returns Network graph and its controls
  */
-export const NetworkGraphPane = ({ graph, views, onChangeView, defaultView }: INetworkGraphPaneProps): ReactElement => {
+export const NetworkGraphPane = ({
+  graph,
+  views,
+  onChangeView,
+  defaultView,
+  onClickNode,
+}: INetworkGraphPaneProps): ReactElement => {
   const [view, setView] = useState<IView['id']>(defaultView);
 
   const handleChangeView = (v: IView['id']) => setView(v);
@@ -39,7 +46,7 @@ export const NetworkGraphPane = ({ graph, views, onChangeView, defaultView }: IN
           ))}
         </Stack>
       </RadioGroup>
-      <SunburstGraph graph={graph} />
+      <SunburstGraph graph={graph} onClick={onClickNode} />
     </Box>
   );
 };

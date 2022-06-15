@@ -6,7 +6,7 @@ import { Box, CircularProgress, Flex, Text } from '@chakra-ui/react';
 import axios from 'axios';
 import { ReactElement, useMemo, useState } from 'react';
 import { NetworkGraphPane } from '../GraphPanes';
-import { ISunburstGraph } from '../types';
+import { ISunburstGraph, SunburstNode } from '../types';
 
 interface IAuthorNetworkPageContainerProps {
   query: IADSApiSearchParams;
@@ -64,6 +64,10 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
 
   const handleViewChange = (viewId: string) => {
     setCurrentViewId(viewId as View);
+  };
+
+  const handleGraphNodeClick = (node: SunburstNode) => {
+    console.log(node);
   };
 
   return (
@@ -124,6 +128,7 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
               views={views}
               onChangeView={handleViewChange}
               defaultView={views[0].id}
+              onClickNode={handleGraphNodeClick}
             />
           )}
         </>
