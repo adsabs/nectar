@@ -51,7 +51,7 @@ export const plotCitationsHist = (
   if (!normalize) {
     data = [
       citationsHist[CitationsHistogramKey.RR],
-      citationsHist[CitationsHistogramKey.NN],
+      citationsHist[CitationsHistogramKey.RN],
       citationsHist[CitationsHistogramKey.NR],
       citationsHist[CitationsHistogramKey.NN],
     ];
