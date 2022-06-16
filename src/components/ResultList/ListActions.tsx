@@ -300,8 +300,8 @@ const SelectAllCheckbox = () => {
   );
 };
 
-const ExportMenu = (props: { exploreAll: boolean } & MenuGroupProps): ReactElement => {
-  const { exploreAll } = props;
+const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean }): ReactElement => {
+  const { exploreAll, ...menuGroupProps } = props;
   const router = useRouter();
   const store = useStoreApi();
   const [selected, setSelected] = useState<Bibcode[]>([]);
@@ -337,7 +337,7 @@ const ExportMenu = (props: { exploreAll: boolean } & MenuGroupProps): ReactEleme
   });
 
   return (
-    <MenuGroup {...props} title="EXPORT">
+    <MenuGroup {...menuGroupProps} title="EXPORT">
       <MenuItem onClick={handleItemClick(ExportApiFormatKey.bibtex)}>in BibTeX</MenuItem>
       <MenuItem onClick={handleItemClick(ExportApiFormatKey.aastex)}>in AASTeX</MenuItem>
       <MenuItem onClick={handleItemClick(ExportApiFormatKey.endnote)}>in EndNote</MenuItem>
