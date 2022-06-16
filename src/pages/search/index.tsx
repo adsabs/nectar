@@ -17,6 +17,7 @@ import { Alert, AlertDescription, AlertIcon, AlertTitle, Code, useToast, Visuall
 import { ItemsSkeleton, ListActions, NumFound, Pagination, SearchBar, SimpleLink, SimpleResultList } from '@components';
 import { calculateStartIndex } from '@components/ResultList/Pagination/usePagination';
 import { APP_DEFAULTS } from '@config';
+import { useHighlights } from '@hooks/useHighlights';
 import { AppState, createStore, useStore, useStoreApi } from '@store';
 import { NumPerPageType } from '@types';
 import { isApiSearchResponse, makeSearchParams, parseQueryFromUrl, setupApiSSR } from '@utils';
@@ -25,7 +26,7 @@ import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { last, omit, path } from 'ramda';
-import { FormEventHandler, useEffect, useState } from 'react';
+import { FormEventHandler, useEffect, useMemo, useState } from 'react';
 import { dehydrate, QueryClient, useQueryClient } from 'react-query';
 
 const selectors = {
@@ -64,10 +65,10 @@ const SearchPage: NextPage = () => {
   const toast = useToast();
 
   const {
-    data: highlightsData,
+    highlights,
     isLoading: highlightsIsLoading,
     isError: highlightsIsError,
-  } = useGetHighlights(omit(['p'], params), {
+  } = useHighlights(omit(['p'], params), {
     enabled: showHighlights,
   });
 
@@ -197,7 +198,7 @@ const SearchPage: NextPage = () => {
             docs={data.docs}
             indexStart={params.start}
             showHighlights={showHighlights}
-            highlightsData={highlightsData}
+            highlights={highlights}
             highlightsIsLoading={highlightsIsLoading}
           />
           <Pagination
