@@ -42,7 +42,7 @@ export const SunburstGraph = ({ graph, onClick }: ISunburstGraphProps): ReactEle
       <Button variant="outline" onClick={handleResetGraph}>
         Reset Graph
       </Button>
-      <div style={{ height: '700px' }}>
+      <div style={{ height: '600px' }}>
         <ResponsiveSunburst
           data={graphData}
           margin={{ top: 50, right: 10, bottom: 50, left: 10 }}

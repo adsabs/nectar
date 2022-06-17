@@ -18,7 +18,7 @@ export interface IBibcodeData {
   authors: string[];
   citation_count: number;
   read_count: number;
-  title: string;
+  title: string | string[];
 }
 
 // Extend graph nodes so we can directly use these as graph data
