@@ -1,7 +1,8 @@
 import { IADSApiSearchParams, IDocsEntity, useGetAbstract } from '@api';
 import { Alert, AlertIcon } from '@chakra-ui/alert';
+import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { Box, Link, Stack, Text } from '@chakra-ui/layout';
-import { Flex } from '@chakra-ui/react';
+import { Flex, Tag } from '@chakra-ui/react';
 import { Table, Tbody, Td, Tr } from '@chakra-ui/table';
 import { AbstractSources, SearchQueryLink } from '@components';
 import { createUrlByType } from '@components/AbstractSources/linkGenerator';
@@ -18,6 +19,7 @@ import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import NextLink from 'next/link';
 import { isNil } from 'ramda';
+import { ReactElement } from 'react';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   () => import('@components/AllAuthorsModal').then((m) => m.AllAuthorsModal),
@@ -129,42 +131,71 @@ export default AbstractPage;
 interface IDetailsProps {
   doc: IDocsEntity;
 }
-const Details = ({ doc }: IDetailsProps) => {
+const Details = ({ doc }: IDetailsProps): ReactElement => {
   const arxiv = (doc.identifier ?? ([] as string[])).find((v) => /^arxiv/i.exec(v));
-
-  const entries = [
-    { label: 'Publication', value: doc.pub },
-    { label: 'Publication Date', value: doc.pubdate },
-    { label: 'DOI', value: doc.doi, href: doc.doi && createUrlByType(doc.bibcode, 'doi', doc.doi) },
-    { label: 'arXiv', value: arxiv, href: arxiv && createUrlByType(doc.bibcode, 'arxiv', arxiv.split(':')[1]) },
-    { label: 'Bibcode', value: doc.bibcode, href: `/abs/${doc.bibcode}/abstract` },
-    { label: 'Keywords', value: doc.keyword },
-    { label: 'E-Print Comments', value: doc.comment },
-  ];
 
   return (
     <Box border="1px" borderColor="gray.50" borderRadius="md" shadow="sm">
       <Table colorScheme="gray" size="md">
         <Tbody>
-          {entries.map(({ label, value, href }) => (
-            <Tr key={label}>
-              <Td>{label}</Td>
-              <Td wordBreak="break-word">
-                {href && href !== '' ? (
-                  <NextLink href={href} passHref>
-                    <Link target="_blank" rel="noreferrer">
-                      {Array.isArray(value) ? value.join('; ') : value}
-                    </Link>
-                  </NextLink>
-                ) : (
-                  <>{Array.isArray(value) ? value.join('; ') : value}</>
-                )}
-              </Td>
-            </Tr>
-          ))}
+          <Detail label="Publication" value={doc.pub_raw}>
+            {(pub_raw) => <span dangerouslySetInnerHTML={{ __html: pub_raw }}></span>}
+          </Detail>
+          <Detail label="Book Author(s)" value={doc.book_author} />
+          <Detail label="Publication Date" value={doc.pubdate} />
+          <Detail label="DOI" value={doc.doi} href={createUrlByType(doc?.bibcode, 'doi', doc?.doi)} />
+          <Detail label="arXiv" value={arxiv} href={createUrlByType(doc?.bibcode, 'arxiv', arxiv?.split(':')[1])} />
+          <Detail label="Bibcode" value={doc.bibcode} href={`/abs/${doc.bibcode}/abstract`} />
+          <Detail label="Keyword(s)" value={doc.keyword}>
+            {(keywords) => (
+              <Flex flexWrap={'wrap'}>
+                {keywords.map((keyword) => (
+                  <Tag size="sm" key={keyword} variant="solid" whiteSpace={'nowrap'} m="1">
+                    {keyword}
+                  </Tag>
+                ))}
+              </Flex>
+            )}
+          </Detail>
+          <Detail label="Comment(s)" value={doc.comment} />
+          <Detail label="E-Print Comment(s)" value={doc.pubnote} />
         </Tbody>
       </Table>
     </Box>
+  );
+};
+
+interface IDetailProps<T = string | string[]> {
+  label: string;
+  href?: string;
+  value: T;
+  children?: (value: T) => ReactElement;
+}
+
+const Detail = <T,>(props: IDetailProps<T>): ReactElement => {
+  const { label, href, value, children } = props;
+
+  // show nothing if no value
+  if (!value) {
+    return null;
+  }
+
+  const normalizedValue = Array.isArray(value) ? value.join('; ') : value;
+
+  return (
+    <Tr>
+      <Td>{label}</Td>
+      <Td wordBreak="break-word">
+        {href && (
+          <NextLink href={href} passHref>
+            <Link rel="noreferrer noopener" isExternal>
+              {normalizedValue} <ExternalLinkIcon mx="2px" />
+            </Link>
+          </NextLink>
+        )}
+        {typeof children === 'function' ? children(value) : !href && normalizedValue}
+      </Td>
+    </Tr>
   );
 };
 
