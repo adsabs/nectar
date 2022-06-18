@@ -8,16 +8,14 @@ import {
   searchKeys,
   SEARCH_API_KEYS,
   SolrSort,
-  useGetHighlights,
   useSearch,
 } from '@api';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import { Box, Flex, List, ListIcon, ListItem, Stack } from '@chakra-ui/layout';
-import { Alert, AlertDescription, AlertIcon, AlertTitle, Code, useToast, VisuallyHidden } from '@chakra-ui/react';
+import { Alert, AlertDescription, AlertIcon, AlertTitle, Code, VisuallyHidden } from '@chakra-ui/react';
 import { ItemsSkeleton, ListActions, NumFound, Pagination, SearchBar, SimpleLink, SimpleResultList } from '@components';
 import { calculateStartIndex } from '@components/ResultList/Pagination/usePagination';
 import { APP_DEFAULTS } from '@config';
-import { useHighlights } from '@hooks/useHighlights';
 import { AppState, createStore, useStore, useStoreApi } from '@store';
 import { NumPerPageType } from '@types';
 import { isApiSearchResponse, makeSearchParams, parseQueryFromUrl, setupApiSSR } from '@utils';
@@ -26,7 +24,7 @@ import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { last, omit, path } from 'ramda';
-import { FormEventHandler, useEffect, useMemo, useState } from 'react';
+import { FormEventHandler, useEffect } from 'react';
 import { dehydrate, QueryClient, useQueryClient } from 'react-query';
 
 const selectors = {
@@ -38,8 +36,11 @@ const selectors = {
   setDocs: (state: AppState) => state.setDocs,
 };
 
+const omitP = omit(['p']);
+
 const SearchPage: NextPage = () => {
   const router = useRouter();
+
   const store = useStoreApi();
   const storeNumPerPage = useStore(selectors.numPerPage);
   const setQuery = useStore(selectors.setQuery);
@@ -51,8 +52,8 @@ const SearchPage: NextPage = () => {
   const queryClient = useQueryClient();
   const queries = queryClient.getQueriesData<IADSApiSearchResponse>(SEARCH_API_KEYS.primary);
   const numFound = queries.length > 1 ? path<number>(['1', 'response', 'numFound'], last(queries)) : null;
-  const [showHighlights, setShowHighlights] = useState<boolean>(false);
 
+  // parse the query params from the URL, this should match what the server parsed
   const parsedParams = parseQueryFromUrl(router.query);
   const params = {
     ...defaultParams,
@@ -61,45 +62,22 @@ const SearchPage: NextPage = () => {
     start: calculateStartIndex(parsedParams.p, storeNumPerPage, numFound),
   };
 
-  const { data, isSuccess, isLoading, error } = useSearch(omit(['p'], params));
-  const toast = useToast();
+  const { data, isSuccess, isLoading, error } = useSearch(omitP(params));
 
-  const {
-    highlights,
-    isLoading: highlightsIsLoading,
-    isError: highlightsIsError,
-  } = useHighlights(omit(['p'], params), {
-    enabled: showHighlights,
-  });
-
-  useEffect(() => {
-    if (!highlightsIsLoading && highlightsIsError) {
-      toast({
-        status: 'error',
-        title: 'Error!',
-        description: 'Unable to fetch highlights',
-      });
-    }
-  }, [highlightsIsLoading, highlightsIsError]);
-
+  // on Sort change handler
   const handleSortChange = (sort: SolrSort[]) => {
     const query = store.getState().query;
     if (query.q.length === 0) {
       // if query is empty, do not submit search
       return;
     }
+
+    // generate search string and trigger page transition, also update store
     const search = makeSearchParams({ ...params, ...query, sort, p: 1 });
     void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
   };
 
-  const handleShowHighlights = (show: boolean) => {
-    if (show) {
-      setShowHighlights(true);
-    } else {
-      setShowHighlights(false);
-    }
-  };
-
+  // On submission handler
   const handleOnSubmit: FormEventHandler = (e) => {
     e.preventDefault();
     const query = store.getState().query;
@@ -107,18 +85,25 @@ const SearchPage: NextPage = () => {
       // if query is empty, do not submit search
       return;
     }
+
+    // generate a URL search string and trigger a page transition, and update store
     const search = makeSearchParams({ ...params, ...query, p: 1 });
     void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
   };
 
+  // Update the store when we have data
   useEffect(() => {
     if (data?.docs.length > 0) {
       setDocs(data.docs.map((d) => d.bibcode));
-      setQuery(params);
+      setQuery(omitP(params));
       submitQuery();
     }
   }, [data]);
 
+  /**
+   * When updating perPage, this updates the store with both the current
+   * numPerPage value and the current query
+   */
   const handlePerPageChange = (numPerPage: NumPerPageType) => {
     // should reset to the first page on numPerPage update
     updateQuery({ start: 0, rows: numPerPage });
@@ -137,13 +122,7 @@ const SearchPage: NextPage = () => {
           <NumFound count={data?.numFound} isLoading={isLoading} />
         </Flex>
         <Box mt={5}>
-          {isSuccess && !isLoading && data?.numFound > 0 && (
-            <ListActions
-              onSortChange={handleSortChange}
-              onShowHighlight={handleShowHighlights}
-              initialShowHighlight={showHighlights}
-            />
-          )}
+          {isSuccess && !isLoading && data?.numFound > 0 && <ListActions onSortChange={handleSortChange} />}
         </Box>
       </form>
 
@@ -194,13 +173,7 @@ const SearchPage: NextPage = () => {
       {isLoading && <ItemsSkeleton count={storeNumPerPage} />}
       {data && (
         <>
-          <SimpleResultList
-            docs={data.docs}
-            indexStart={params.start}
-            showHighlights={showHighlights}
-            highlights={highlights}
-            highlightsIsLoading={highlightsIsLoading}
-          />
+          <SimpleResultList docs={data.docs} indexStart={params.start} />
           <Pagination
             numPerPage={storeNumPerPage}
             page={params.p}

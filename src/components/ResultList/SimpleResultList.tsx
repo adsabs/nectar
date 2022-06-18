@@ -4,36 +4,27 @@ import { useIsClient } from '@hooks/useIsClient';
 import PT from 'prop-types';
 import { HTMLAttributes, ReactElement } from 'react';
 import { Item } from './Item';
+import { useHighlights } from './useHighlights';
 
 export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
   docs: IDocsEntity[];
   indexStart?: number;
   hideCheckboxes?: boolean;
-  showHighlights?: boolean;
-  highlights?: { [id: string]: string[] };
-  highlightsIsLoading?: boolean;
 }
 
 const propTypes = {
   docs: PT.arrayOf(PT.object),
+  indexStart: PT.number,
   hideCheckboxes: PT.bool,
-  showHighlights: PT.bool,
 };
 
 export const SimpleResultList = (props: ISimpleResultListProps): ReactElement => {
-  const {
-    docs = [],
-    hideCheckboxes = false,
-    showHighlights = false,
-    indexStart = 0,
-    highlights,
-    highlightsIsLoading,
-    ...divProps
-  } = props;
+  const { docs = [], hideCheckboxes = false, indexStart = 0, ...divProps } = props;
 
   const isClient = useIsClient();
-
   const start = indexStart + 1;
+
+  const { highlights, showHighlights, isFetchingHighlights } = useHighlights();
 
   return (
     <Flex
@@ -55,7 +46,8 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
           hideCheckbox={!isClient ? true : hideCheckboxes}
           hideActions={false}
           showHighlights={showHighlights}
-          highlights={highlights?.[doc.id]}
+          highlights={highlights[index]}
+          isFetchingHighlights={isFetchingHighlights}
         />
       ))}
     </Flex>

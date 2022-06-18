@@ -59,11 +59,12 @@ export enum SEARCH_API_KEYS {
   primary = 'search/primary',
   preview = 'search/preview',
   infinite = 'search/infinite',
+  highlight = 'search/highlight',
 }
 
 export const searchKeys = {
   primary: (params: IADSApiSearchParams) => [SEARCH_API_KEYS.primary, params] as const,
-  highlight: (params: IADSApiSearchParams) => ['search/highlight', params] as const,
+  highlight: (params: IADSApiSearchParams) => [SEARCH_API_KEYS.highlight, params] as const,
   preview: (bibcode: IDocsEntity['bibcode']) => ['search/preview', { bibcode }] as const,
   abstract: (id: string) => ['search/abstract', { id }] as const,
   affiliations: ({ bibcode }: SearchKeyProps) => ['search/affiliations', { bibcode }] as const,
@@ -77,12 +78,15 @@ export const searchKeys = {
   infinite: (params: IADSApiSearchParams) => [SEARCH_API_KEYS.infinite, params] as const,
 };
 
+// default params to omit to keep cache entries more concise
+const omitParams = omit(['fl', 'p']);
+
 /**
  * Generic search hook
  */
 export const useSearch: SearchADSQuery = (params, options) => {
   // omit fields from queryKey
-  const cleanParams = omit(['fl', 'p'], getSearchParams(params));
+  const cleanParams = omitParams(getSearchParams(params));
 
   return useQuery<IADSApiSearchResponse, ErrorType, IADSApiSearchResponse['response']>({
     queryKey: SEARCH_API_KEYS.primary,
@@ -101,12 +105,12 @@ type SubPageQuery = SearchADSQuery<{ bibcode: IDocsEntity['bibcode']; start?: IA
  * Get highlights based on a search query
  */
 export const useGetHighlights: SearchADSQuery<IADSApiSearchParams, IADSApiSearchResponse['highlighting']> = (
-  { start, rows, ...params },
+  params,
   options,
 ) => {
-  const highlightParams = getHighlightParams(params, start, rows);
+  const highlightParams = getHighlightParams(params);
   return useQuery({
-    queryKey: searchKeys.highlight(highlightParams),
+    queryKey: searchKeys.highlight(omitParams(highlightParams)),
     queryFn: fetchSearch,
     meta: { params: highlightParams },
     select: highlightingSelector,

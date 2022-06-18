@@ -33,12 +33,14 @@ export interface IAppStateSearchSlice {
   latestQuery: IADSApiSearchParams;
   prevQuery: IADSApiSearchParams;
   numPerPage: NumPerPageType;
+  showHighlights: boolean;
   setQuery: (query: IADSApiSearchParams) => void;
   updateQuery: (query: Partial<IADSApiSearchParams>) => void;
   swapQueries: () => void;
   submitQuery: () => void;
   resetQuery: () => void;
   setNumPerPage: (numPerPage: NumPerPageType) => void;
+  toggleShowHighlights: () => void;
 }
 
 export const searchSlice: StoreSlice<IAppStateSearchSlice> = (set: NamedSet<AppState>) => ({
@@ -51,6 +53,8 @@ export const searchSlice: StoreSlice<IAppStateSearchSlice> = (set: NamedSet<AppS
   prevQuery: defaultQueryParams,
 
   numPerPage: APP_DEFAULTS.RESULT_PER_PAGE,
+
+  showHighlights: false,
 
   setNumPerPage: (numPerPage: NumPerPageType) =>
     set(
@@ -70,4 +74,6 @@ export const searchSlice: StoreSlice<IAppStateSearchSlice> = (set: NamedSet<AppS
   swapQueries: () =>
     set((state) => ({ latestQuery: state.prevQuery, prevQuery: state.latestQuery }), false, 'search/swapQueries'),
   resetQuery: () => set({ query: defaultQueryParams, latestQuery: defaultQueryParams }, false, 'search/resetQuery'),
+  toggleShowHighlights: () =>
+    set(({ showHighlights }) => ({ showHighlights: !showHighlights }), false, 'search/toggleShowHighlights'),
 });

@@ -142,13 +142,12 @@ export const getSearchStatsParams = (params: IADSApiSearchParams, field: string)
   'stats.field': field.replace(/\s(asc|desc)$/, ''),
 });
 
-export const getHighlightParams = (params: IADSApiSearchParams, start: number, rows: number): IADSApiSearchParams => ({
+export const getHighlightParams = (params: IADSApiSearchParams): IADSApiSearchParams => ({
   ...params,
+  fl: ['id'],
   hl: true,
-  'hl.fl': 'title,abstract,body,ack,*',
+  'hl.fl': 'title,abstract,body,ack',
   'hl.maxAnalyzedChars': 150000,
   'hl.requireFieldMatch': true,
   'hl.usePhraseHighlighter': true,
-  start,
-  rows,
 });

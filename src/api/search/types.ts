@@ -52,7 +52,7 @@ export interface IADSApiSearchResponse {
   responseHeader?: IADSApiSearchResponseHeader;
   error?: IADSApiSearchResponseError;
   nextCursorMark?: string;
-  highlighting?: { [key: string]: IHighlight };
+  highlighting?: Record<number, Partial<Record<string, string>>>;
 }
 
 export interface IHighlight {
