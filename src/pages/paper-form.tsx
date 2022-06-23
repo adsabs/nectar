@@ -8,6 +8,7 @@ import { Box, Divider, Grid, GridItem, Heading, Stack, Text, VStack } from '@cha
 import { Alert, Input, Link, Textarea } from '@chakra-ui/react';
 import { BibstemPickerSingle } from '@components';
 import { PaperFormType } from '@controllers/paperformController/types';
+import { useErrorMessage } from '@hooks/useErrorMessage';
 import { useIsClient } from '@hooks/useIsClient';
 import { setupApiSSR } from '@utils';
 import DOMPurify from 'isomorphic-dompurify';
@@ -16,7 +17,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import qs from 'qs';
 import { any, head, isEmpty, join, map, not, omit, pipe, reject, toPairs, values } from 'ramda';
-import { FormEventHandler, useCallback, useEffect, useRef, useState } from 'react';
+import { FormEventHandler, useCallback } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { QueryClient, useQueryClient } from 'react-query';
 
@@ -70,18 +71,6 @@ const PaperForm: NextPage<{ error?: IPaperFormServerError }> = ({ error: ssrErro
   );
 };
 export default PaperForm;
-
-const useErrorMessage = (error: IPaperFormServerError, delay = 5000) => {
-  const id = useRef<number>(null);
-  const output = useState<IPaperFormServerError>(error);
-
-  useEffect(() => {
-    id.current = setTimeout(output[1], delay, null);
-    return () => clearTimeout(id.current);
-  }, [output[0]]);
-
-  return output;
-};
 
 const validateNotEmpty = pipe(isEmpty, not);
 
