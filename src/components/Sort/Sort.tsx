@@ -4,7 +4,7 @@ import { Input } from '@chakra-ui/input';
 import { Box, HStack, Link } from '@chakra-ui/layout';
 import { SimpleLinkDropdown } from '@components';
 import { ItemType } from '@components/Dropdown/types';
-import { Select } from '@components/Select';
+import { ISelectProps, Select } from '@components/Select';
 import { SortAscendingIcon, SortDescendingIcon } from '@heroicons/react/outline';
 import { useIsClient } from '@hooks/useIsClient';
 import { makeSearchParams, normalizeSolrSort, parseQueryFromUrl } from '@utils';
@@ -25,6 +25,7 @@ export interface ISortProps {
   onChange?: (sort: SolrSort[]) => void;
   leftMargin?: string;
   rightMargin?: string;
+  innerSelectProps?: Partial<ISelectProps<SortOptionType>>;
 
   /**
    * If true will use the native dropdown when no JavaScript,
@@ -46,6 +47,7 @@ export const Sort = (props: ISortProps): ReactElement => {
     useNativeWhenNoJs = false,
     hideLabel = true,
     fullWidth = false,
+    innerSelectProps,
   } = props;
 
   // normalize incoming sort
@@ -80,7 +82,12 @@ export const Sort = (props: ISortProps): ReactElement => {
   return (
     <HStack spacing={0} data-testid="sort" alignItems="flex-end">
       <Box width={sortContainerWidth}>
-        <SortSelect hideLabel={hideLabel} sort={selected} onChange={handleSelectionChange} />
+        <SortSelect
+          hideLabel={hideLabel}
+          sort={selected}
+          onChange={handleSelectionChange}
+          innerSelectProps={innerSelectProps}
+        />
       </Box>
       {direction === 'asc' ? (
         <IconButton
@@ -128,10 +135,12 @@ const SortSelect = ({
   sort,
   onChange,
   hideLabel,
+  innerSelectProps,
 }: {
   sort: string;
   onChange: (val: SortOptionType) => void;
   hideLabel: ISortProps['hideLabel'];
+  innerSelectProps?: Partial<ISelectProps<SortOptionType>>;
 }) => {
   const selected = sortOptions.find((o) => o.id === sort) ?? sortOptions[0];
   return (
@@ -143,6 +152,7 @@ const SortSelect = ({
       stylesTheme="sort"
       onChange={onChange}
       data-testid="sort-select"
+      {...innerSelectProps}
     />
   );
 };
