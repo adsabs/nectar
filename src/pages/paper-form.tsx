@@ -7,7 +7,6 @@ import { WarningTwoIcon } from '@chakra-ui/icons';
 import { Box, Divider, Grid, GridItem, Heading, Stack, Text, VStack } from '@chakra-ui/layout';
 import { Alert, Input, Link, Textarea } from '@chakra-ui/react';
 import { BibstemPickerSingle } from '@components';
-import { PaperFormType } from '@controllers/paperformController/types';
 import { useErrorMessage } from '@hooks/useErrorMessage';
 import { useIsClient } from '@hooks/useIsClient';
 import { setupApiSSR } from '@utils';
@@ -20,6 +19,30 @@ import { any, head, isEmpty, join, map, not, omit, pipe, reject, toPairs, values
 import { FormEventHandler, useCallback } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { QueryClient, useQueryClient } from 'react-query';
+
+export enum PaperFormType {
+  JOURNAL_QUERY = 'journal-query',
+  REFERENCE_QUERY = 'reference-query',
+  BIBCODE_QUERY = 'bibcode-query',
+}
+
+export interface PaperFormParams {
+  // journal-query
+  bibstem: string;
+  year: string;
+  volume: string;
+  page: string;
+
+  // reference-query
+  reference: string;
+
+  // bibcode-query
+  bibcodes: string[];
+}
+
+export type RawPaperFormParams = {
+  [Property in keyof PaperFormParams]: string;
+};
 
 type PaperFormState = {
   [PaperFormType.JOURNAL_QUERY]: {
