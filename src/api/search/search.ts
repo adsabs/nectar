@@ -281,7 +281,7 @@ export const useSearchInfinite: InfiniteADSQuery<IADSApiSearchParams, IADSApiSea
         ? lastPage.nextCursorMark
         : false;
     },
-    meta: { ...options.meta, params },
+    meta: { ...options?.meta, params },
     ...options,
   });
 };
