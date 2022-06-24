@@ -1,12 +1,12 @@
 import { Box, Flex, HStack, Link, Text } from '@chakra-ui/layout';
 import VisuallyHidden from '@chakra-ui/visually-hidden';
-import { NasaLogo, SimpleLink, SmithsonianLogo } from '@components';
-import Image from 'next/image';
+import { CFALogo, NasaLogo, SimpleLink, SmithsonianLogo } from '@components';
 import NextLink from 'next/link';
-import cfaLogo from 'public/images/cfa.png';
-import React, { FC } from 'react';
+import { FC } from 'react';
 
 export const Footer: FC = () => {
+  // TODO: darkmode will invert logo colors, need to swap out for high contrast instead
+
   return (
     <Box
       as="footer"
@@ -58,7 +58,7 @@ export const Footer: FC = () => {
           <NextLink href="https://www.cfa.harvard.edu/" passHref>
             <Link variant="footer" rel="noopener noreferrer">
               <VisuallyHidden>Center for Astrophysics</VisuallyHidden>
-              <Image src={cfaLogo} width="100px" height="41px" aria-hidden alt="" />
+              <CFALogo width="100px" height="41px" style={{ filter: 'invert(1)' }} aria-hidden />
             </Link>
           </NextLink>
         </HStack>
