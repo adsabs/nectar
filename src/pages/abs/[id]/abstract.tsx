@@ -150,9 +150,11 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
             {(keywords) => (
               <Flex flexWrap={'wrap'}>
                 {keywords.map((keyword) => (
-                  <Tag size="sm" key={keyword} variant="solid" whiteSpace={'nowrap'} m="1">
-                    {keyword}
-                  </Tag>
+                  <SearchQueryLink params={{ q: `keyword:"${keyword}"` }} _hover={{ textDecoration: 'none' }}>
+                    <Tag size="sm" key={keyword} variant="subtle" bgColor="gray.100" whiteSpace={'nowrap'} m="1">
+                      {keyword}
+                    </Tag>
+                  </SearchQueryLink>
                 ))}
               </Flex>
             )}
