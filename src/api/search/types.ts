@@ -174,6 +174,7 @@ export interface IDocsEntity {
   bibgroup_facet?: string;
   bibstem?: string[];
   bibstem_facet?: string;
+  book_author?: string[];
   body?: string;
   citation?: string;
   '[citations]'?: {
