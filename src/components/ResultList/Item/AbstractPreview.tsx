@@ -3,7 +3,7 @@ import { IconButton } from '@chakra-ui/button';
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import { Flex, Text, VStack } from '@chakra-ui/layout';
 import { Collapse } from '@chakra-ui/transition';
-import { useState } from 'react';
+import { ReactElement, useState } from 'react';
 import { toast } from 'react-toastify';
 
 export interface IAbstractPreviewProps {
@@ -18,7 +18,7 @@ const text = {
   seeFullAbstract: 'See full abstract' as const,
 };
 
-export const AbstractPreview = ({ bibcode }: IAbstractPreviewProps): React.ReactElement => {
+export const AbstractPreview = ({ bibcode }: IAbstractPreviewProps): ReactElement => {
   const [show, setShow] = useState(false);
   const { data, isFetching, isSuccess } = useGetAbstractPreview(
     { bibcode },
