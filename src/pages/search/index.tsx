@@ -27,12 +27,25 @@ import { last, omit, path } from 'ramda';
 import { FormEventHandler, useEffect } from 'react';
 import { dehydrate, QueryClient, useQueryClient } from 'react-query';
 
-const updateQuerySelector = (state: AppState) => state.updateQuery;
+const selectors = {
+  setQuery: (state: AppState) => state.setQuery,
+  updateQuery: (state: AppState) => state.updateQuery,
+  submitQuery: (state: AppState) => state.submitQuery,
+  setNumPerPage: (state: AppState) => state.setNumPerPage,
+  numPerPage: (state: AppState) => state.numPerPage,
+  setDocs: (state: AppState) => state.setDocs,
+};
+
 const SearchPage: NextPage = () => {
   const router = useRouter();
   const store = useStoreApi();
-  const updateQuery = useStore(updateQuerySelector);
-  const storeNumPerPage = useStore((state) => state.numPerPage);
+  const storeNumPerPage = useStore(selectors.numPerPage);
+  const setQuery = useStore(selectors.setQuery);
+  const updateQuery = useStore(selectors.updateQuery);
+  const submitQuery = useStore(selectors.submitQuery);
+  const setNumPerPage = useStore(selectors.setNumPerPage);
+  const setDocs = useStore(selectors.setDocs);
+
   const queryClient = useQueryClient();
   const queries = queryClient.getQueriesData<IADSApiSearchResponse>(SEARCH_API_KEYS.primary);
   const numFound = queries.length > 1 ? path<number>(['1', 'response', 'numFound'], last(queries)) : null;
@@ -54,7 +67,6 @@ const SearchPage: NextPage = () => {
       return;
     }
     const search = makeSearchParams({ ...params, ...query, sort, p: 1 });
-    updateQuery({ sort });
     void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
   };
 
@@ -69,15 +81,17 @@ const SearchPage: NextPage = () => {
     void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
   };
 
-  const setDocs = useStore((state) => state.setDocs);
   useEffect(() => {
     if (data?.docs.length > 0) {
       setDocs(data.docs.map((d) => d.bibcode));
+      setQuery(params);
+      submitQuery();
     }
   }, [data]);
 
-  const setNumPerPage = useStore((state) => state.setNumPerPage);
   const handlePerPageChange = (numPerPage: NumPerPageType) => {
+    // should reset to the first page on numPerPage update
+    updateQuery({ start: 0, rows: numPerPage });
     setNumPerPage(numPerPage);
   };
 
