@@ -1,5 +1,8 @@
 import { IADSApiSearchParams, IUserData } from '@api';
 import { APP_DEFAULTS } from '@config';
+import { IsomorphicResponse } from '@mswjs/interceptors';
+import { MockedRequest } from 'msw';
+import { SetupServerApi } from 'msw/lib/types/node';
 
 export enum Theme {
   GENERAL = 'GENERAL',
@@ -47,4 +50,13 @@ export type SafeSearchUrlParams = Omit<IADSApiSearchParams, 'fl' | 'start' | 'ro
 export interface IBibstemOption {
   label: string;
   value: string;
+}
+
+// used for testing
+declare global {
+  // eslint-disable-next-line no-var
+  var __mockServer__: SetupServerApi & {
+    onRequest: jest.MockedFunction<(req: MockedRequest) => void>;
+    onResponse: jest.MockedFunction<(res: IsomorphicResponse, requestId: string) => void>;
+  };
 }
