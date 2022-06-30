@@ -1,261 +1,17 @@
-import { SolrSort } from '@api';
-import { Button } from '@chakra-ui/button';
-import { Checkbox, CheckboxGroup } from '@chakra-ui/checkbox';
-import { FormControl, FormHelperText, FormLabel } from '@chakra-ui/form-control';
-import { Input } from '@chakra-ui/input';
-import { Box, Flex, HStack, Stack } from '@chakra-ui/layout';
-import { Radio, RadioGroup } from '@chakra-ui/radio';
-import { Textarea } from '@chakra-ui/textarea';
-import VisuallyHidden from '@chakra-ui/visually-hidden';
-import { BibstemPickerMultiple, Sort } from '@components';
-import { useIsClient } from '@hooks/useIsClient';
-import { NextPage } from 'next';
+import { Box } from '@chakra-ui/layout';
+import { ClassicForm, getSearchQuery, IClassicFormState } from '@components/ClassicForm';
+import { setupApiSSR } from '@utils';
+import { GetServerSideProps, GetServerSidePropsContext, NextPage } from 'next';
 import Head from 'next/head';
-import { ChangeEvent, ChangeEventHandler, Fragment, useCallback, useReducer, useState } from 'react';
 
-interface FormEvent {
-  name: string;
-  value: string;
-}
-const formReducer = (state: Record<string, string>, event: FormEvent) => {
-  return {
-    ...state,
-    [event.name]: event.value,
-  };
-};
-
-const ClassicForm: NextPage = () => {
-  const [formData, setFormData] = useReducer(formReducer, {});
-  const isClient = useIsClient();
-  const [key, setKey] = useState(Math.random());
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.currentTarget;
-    setFormData({ name, value });
-  };
-
-  const handleSortChange = useCallback(
-    (sort: SolrSort[]) => {
-      setFormData({ name: 'sort', value: sort.join(',') });
-    },
-    [setFormData],
-  );
-
-  const handleFormReset = () => {
-    setKey(Math.random()); // used to reset some form elements (force rerender)
-  };
-
+const ClassicFormPage: NextPage<{ ssrError?: string }> = ({ ssrError }) => {
   return (
     <Box as="section" aria-labelledby="form-title" my={16}>
       <Head>
         <title>NASA Science Explorer - Classic Form Search</title>
       </Head>
-      <form method="post" action="/api/classicform">
-        <Stack direction="column" spacing={5} key={key}>
-          <VisuallyHidden as="h2" id="form-title">
-            Classic Form
-          </VisuallyHidden>
-          <FormControl>
-            <FormLabel>Limit Query</FormLabel>
-            <CheckboxGroup>
-              {isClient ? (
-                <HStack>
-                  <Checkbox id="limit_astronomy" name="limit_astronomy" onChange={handleChange} defaultChecked>
-                    Astronomy
-                  </Checkbox>
-                  <Checkbox id="limit_physics" name="limit_physics" onChange={handleChange}>
-                    Physics
-                  </Checkbox>
-                  <Checkbox id="limit_general" name="limit_general" onChange={handleChange}>
-                    General
-                  </Checkbox>
-                </HStack>
-              ) : (
-                <HStack>
-                  <input type="checkbox" id="limit_astronomy" name="limit_astronomy" defaultChecked />
-                  <label htmlFor="limit_astronomy">Astronomy</label>
-                  <input type="checkbox" id="limit_physics" name="limit_physics" />
-                  <label htmlFor="limit_physics">Physics</label>
-                  <input type="checkbox" id="limit_general" name="limit_general" />
-                  <label htmlFor="limit_general">General</label>
-                </HStack>
-              )}
-            </CheckboxGroup>
-          </FormControl>
-          <Stack direction={{ base: 'column', sm: 'row' }} justifyContent="space-evenly" spacing={5}>
-            <LogicAndTextarea
-              label="Author"
-              desc="Author names, enter (Last, First M) one per line"
-              onChange={handleChange}
-              isClient={isClient}
-            />
-            <LogicAndTextarea
-              label="Object"
-              desc="SIMBAD object search (one per line)"
-              onChange={handleChange}
-              isClient={isClient}
-            />
-          </Stack>
-          <HStack justifyContent="space-evenly" spacing={5}>
-            <FormControl>
-              <FormLabel>Publication date start (YYYY/MM)</FormLabel>
-              <Input name="pubdate_start" placeholder="YYYY/MM" onChange={handleChange} />
-            </FormControl>
-            <FormControl>
-              <FormLabel>Publication date end (YYYY/MM)</FormLabel>
-              <Input name="pubdate_end" placeholder="YYYY/MM" onChange={handleChange} />
-            </FormControl>
-          </HStack>
-          <LogicAndInput label="Title" onChange={handleChange} isClient={isClient} />
-
-          <LogicAndInput label="Abstract / Keywords" onChange={handleChange} isClient={isClient} />
-
-          <FormControl>
-            <VisuallyHidden>Property</VisuallyHidden>
-            <CheckboxGroup>
-              {isClient ? (
-                <HStack>
-                  <Checkbox id="refereed_only" name="property_refereed_only" onChange={handleChange} fontWeight="bold">
-                    Refereed only
-                  </Checkbox>
-                  <Checkbox id="articles_only" name="property_articles_only" onChange={handleChange} fontWeight="bold">
-                    Articles only
-                  </Checkbox>
-                </HStack>
-              ) : (
-                <HStack>
-                  <input type="checkbox" id="refereed_only" name="property_refereed_only" />
-                  <label htmlFor="refereed_only">Refereed only</label>
-                  <input type="checkbox" id="articles_only" name="property_articles_only" />
-                  <label htmlFor="articles_only">Articles only</label>
-                </HStack>
-              )}
-            </CheckboxGroup>
-          </FormControl>
-          {isClient ? (
-            <BibstemPickerMultiple />
-          ) : (
-            <FormControl>
-              <FormLabel>Bibstems</FormLabel>
-              <Input name="bibstems" onChange={handleChange} />
-            </FormControl>
-          )}
-
-          <FormControl>
-            <FormLabel>Sort</FormLabel>
-            <Sort name="sort" sort={formData.sort as SolrSort} onChange={handleSortChange} useNativeWhenNoJs={true} />
-          </FormControl>
-          <Stack direction="row">
-            <Button type="submit">Search</Button>
-            <Button type="reset" variant="outline" onClick={handleFormReset}>
-              Reset
-            </Button>
-          </Stack>
-        </Stack>
-      </form>
+      <ClassicForm ssrError={ssrError} />
     </Box>
-  );
-};
-
-const LogicAndTextarea = ({
-  label,
-  desc,
-  onChange,
-  isClient = true,
-}: {
-  label: string;
-  desc: string;
-  onChange: ChangeEventHandler;
-  isClient: boolean;
-}) => {
-  const id = normalizeString(label);
-  return (
-    <Box width="full">
-      <FormControl>
-        <Flex direction="row" justifyContent="space-between">
-          <FormLabel htmlFor={id}>{label}</FormLabel>
-          <LogicRadios name={id} variant="andor" onChange={onChange} isClient={isClient} />
-        </Flex>
-        <Textarea as="textarea" id={id} name={id} rows={3} defaultValue={''} onChange={onChange} />
-        <FormHelperText>{desc}</FormHelperText>
-      </FormControl>
-    </Box>
-  );
-};
-
-const LogicAndInput = ({
-  label,
-  noLogic,
-  onChange,
-  isClient = true,
-}: {
-  label: string;
-  noLogic?: boolean;
-  onChange: ChangeEventHandler;
-  isClient: boolean;
-}) => {
-  const id = normalizeString(label);
-  return (
-    <Box>
-      <FormControl>
-        <Flex direction="row" justifyContent="space-between">
-          <FormLabel htmlFor={id}>{label}</FormLabel>
-          {!noLogic && (
-            <LogicRadios name={normalizeString(label)} variant="all" onChange={onChange} isClient={isClient} />
-          )}
-        </Flex>
-        <Input id={id} name={id} onChange={onChange} defaultValue={''} />
-      </FormControl>
-    </Box>
-  );
-};
-
-const LogicRadios = ({
-  name,
-  variant = 'andor',
-  onChange,
-  isClient = true,
-}: {
-  name: string;
-  variant: 'andor' | 'all';
-  onChange: ChangeEventHandler;
-  isClient?: boolean;
-}) => {
-  const values = {
-    andor: ['and', 'or'],
-    all: ['and', 'or', 'boolean'],
-  };
-  const normalizedName = normalizeString(name);
-
-  return (
-    <>
-      {isClient ? (
-        <RadioGroup defaultValue="and">
-          <Stack direction="row">
-            {values[variant].map((id) => {
-              const fullId = `logic_${normalizedName}_${id}`;
-              return (
-                <Radio id={fullId} key={fullId} value={id} name={`logic_${name}`} onChange={onChange}>
-                  {id}
-                </Radio>
-              );
-            })}
-          </Stack>
-        </RadioGroup>
-      ) : (
-        <Stack direction="row">
-          {values[variant].map((id) => {
-            const fullId = `logic_${normalizedName}_${id}`;
-            return (
-              <Fragment key={fullId}>
-                <input type="radio" id={fullId} value={id} name={`logic_${name}`} defaultChecked={id === 'and'} />
-                <label htmlFor={fullId}>{id}</label>
-              </Fragment>
-            );
-          })}
-        </Stack>
-      )}
-    </>
   );
 };
 
@@ -265,6 +21,186 @@ const LogicRadios = ({
  * @param {string} raw string to be normalized
  * @returns {string} normalized string
  */
-const normalizeString = (raw: string): string => raw.replace(/\W+/g, '_').toLowerCase().trim();
+// const normalizeString = (raw: string): string => raw.replace(/\W+/g, '_').toLowerCase().trim();
 
-export default ClassicForm;
+export default ClassicFormPage;
+
+type ReqWithBody = GetServerSidePropsContext['req'] & { body: IClassicFormState };
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  setupApiSSR(ctx);
+
+  if (ctx.req.method == 'POST') {
+    const body = (ctx.req as ReqWithBody).body;
+    try {
+      return Promise.resolve({
+        props: {},
+        redirect: {
+          destination: `/search?${getSearchQuery(body)}`,
+          permanent: false,
+        },
+      });
+    } catch (e) {
+      return Promise.resolve({
+        props: {
+          ssrError: { message: (e as Error)?.message },
+        },
+      });
+    }
+  }
+
+  return Promise.resolve({ props: {} });
+};
+
+// const escape = (val?: string): string => (typeof val === 'string' ? DOMPurify.sanitize(val) : '');
+// const listSanitizer = (v: string): string[] =>
+//   v.length > 0 ? (Array.from(v.matchAll(/[^\r\n]+/g), head) as string[]) : [];
+
+// const listCheck = pipe(escape, listSanitizer);
+// const createQuery = pipe<
+//   [PaperFormState[PaperFormType.JOURNAL_QUERY]],
+//   Omit<PaperFormState[PaperFormType.JOURNAL_QUERY], 'form'>,
+//   [string, string][],
+//   string[],
+//   string[],
+//   string
+// >(
+//   omit(['form']),
+//   toPairs,
+//   map(([k, v]) => {
+//     const clean = escape(v);
+//     return clean.length > 0 ? `${k}:${clean}` : '';
+//   }),
+//   reject(isEmpty),
+//   join(' '),
+// );
+
+// const stringifyQuery = (q: string) => {
+//   return qs.stringify(
+//     {
+//       q,
+//       sort: ['date desc', 'bibcode desc'],
+//       p: 1,
+//     },
+//     { arrayFormat: 'comma', indices: false, format: 'RFC3986' },
+//   );
+// };
+
+// const journalQueryNotEmpty = pipe<
+//   [PaperFormState[PaperFormType.JOURNAL_QUERY]],
+//   Omit<PaperFormState[PaperFormType.JOURNAL_QUERY], 'form'>,
+//   string[],
+//   boolean
+// >(
+//   omit(['form']),
+//   values,
+//   any((v) => v.length > 0),
+// );
+
+// const dateSanitizer = (value: string): [number, number] | undefined => {
+//   if (value.length === 0) {
+//     return undefined;
+//   }
+//   try {
+//     const parts = value.split('/');
+//     const year = Math.min(Math.max(parseInt(parts[0]), 0), 9999);
+//     const month = Math.min(Math.max(parseInt(parts[1]), 1), 12);
+//     if (year === 9999) {
+//       return undefined;
+//     }
+//     return [year, month];
+//   } catch (e) {
+//     return undefined;
+//   }
+// };
+
+// const sanitizeString = (value: string) => (typeof value === 'string' ? DOMPurify.sanitize(value) : value);
+
+// const isLimit = (limit: string): limit is CollectionChoice =>
+//   allPass([is(String), includes(__, ['astronomy', 'physics', 'general'])])(limit);
+// const isLogic = (logic: string): logic is LogicChoice =>
+//   allPass([is(String), includes(__, ['all', 'or', 'boolean'])])(logic);
+// const isProperty = (property: string): property is PropertyChoice =>
+//   allPass([is(String), includes(__, ['all', 'or', 'boolean'])])(property);
+
+// // const escape = (val?: string): string => (typeof val === 'string' ? DOMPurify.sanitize(val) : '');
+// // const listSanitizer = (v: string): string[] => (v.length > 0 ? Array.from(v.matchAll(/[^\r\n]+/g), head) : []);
+// // const delimSanitizer = (v: string): string[] => (v.length > 0 ? v.split(/[^\w]+/) : []);
+// // const formatLogic = (logic: LogicAll | LogicAndOr): string => (logic === 'or' ? ' OR ' : ' ');
+// // const emptyOrUndefined = (val?: string | string[]): val is '' | [] => {
+// //   return typeof val === 'string' || Array.isArray(val) ? (val.length > 0 ? false : true) : true;
+// // };
+
+// const logicJoin = (logic: LogicChoice) => join(logic === 'or' ? ' OR ' : ' ');
+// const splitList = split(/[\r\n]/g);
+// const parseStringToInt = (_: string) => Number.parseInt(_, 10);
+
+// const parseDate = ifElse(
+//   either(isNil, isEmpty),
+//   always<null>(null),
+//   pipe<[string], string[], number[], number[], number[]>(
+//     split('/'),
+//     map(parseStringToInt),
+//     over(lensIndex(0), pipe<[number], number, number>(clamp(0, 9999), defaultTo(9999))),
+//     over(lensIndex(1), pipe<[number], number, number>(clamp(1, 12), defaultTo(0))),
+//   ),
+// );
+
+// const stringifiers = {
+//   limit: pipe<[CollectionChoice[]], string[], string[], string>(
+//     filter(isLimit),
+//     when<string[], string[]>(isEmpty, always(['astronomy', 'physics', 'general'])),
+//     (limit) => `collection:(${logicJoin('or')(limit)})`,
+//   ),
+//   list: (logic: LogicChoice) =>
+//     ifElse(
+//       isNil,
+//       always(''),
+//       pipe<[string], string, string[], string[], string>(
+//         sanitizeString,
+//         splitList,
+//         map(when(test(/[\W]+/), (_) => `"${_}"`)),
+//         logicJoin(logic),
+//       ),
+//     ),
+//   date: ifElse<[string[]], string, string>(
+//     all<string>(either(isNil, isEmpty)),
+//     always(''),
+//     pipe<[string[]], [number[], string], [number[], number[]], string>(
+//       over<[number[], string], string>(lensIndex(0), pipe<[string], number[], number[]>(parseDate, defaultTo([0, 0]))),
+
+//       over(lensIndex(1), pipe(parseDate, defaultTo([9999, 0]))),
+//       ([[yearFrom, monthFrom], [yearTo, monthTo]]) =>
+//         `pubdate:[${yearFrom}${monthFrom ? `-${monthFrom}` : ''} TO ${yearTo}${monthTo ? `-${monthTo}` : ''}]`,
+//     ),
+//   ),
+
+//   // logicAndOrCheck(val: string): LogicAndOr {
+//   //   return ['and', 'or'].includes(val) ? (val as LogicAndOr) : 'and';
+//   // },
+//   // logicAllCheck(val: string): LogicAll {
+//   //   return ['and', 'or', 'boolean'].includes(val) ? (val as LogicAll) : 'and';
+//   // },
+//   // binaryCheck(val?: string): boolean {
+//   //   return typeof val === 'string';
+//   // },
+//   // listCheck: pipe(escape, listSanitizer),
+//   // dateCheck: pipe(escape, dateSanitizer),
+//   // delimCheck: pipe(escape, delimSanitizer),
+// };
+
+// // const cleanParams = (rawParams: IClassicFormState) => {
+
+// // };
+
+// const getSearchQuery = async (params: IClassicFormState, queryClient: QueryClient): Promise<string> => {
+//   const query = [
+//     stringifiers.limit(params.limit),
+//     stringifiers.list(params.logic_author)(params.author),
+//     stringifiers.list(params.logic_object)(params.object),
+//     stringifiers.date([params.pubdate_start, params.pubdate_end]),
+//   ].join(' ');
+
+//   console.log('query', query);
+
+//   return Promise.resolve(JSON.stringify(params));
+// };

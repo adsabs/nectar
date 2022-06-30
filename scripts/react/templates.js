@@ -9,8 +9,6 @@ const propTypes = {
   children: PT.element;
 }
 
-const defaultProps = {};
-
 export const ${name}: FC<I${name}Props> = ({ children }) => {
   return (
     <div>
@@ -21,7 +19,6 @@ export const ${name}: FC<I${name}Props> = ({ children }) => {
 };
 
 ${name}.propTypes = propTypes;
-${name}.defaultProps = defaultProps;
 `;
 
 exports.story = (name) => `import { Meta, Story } from '@storybook/react';
@@ -46,7 +43,7 @@ export default meta;
 
 const Template: Story<I${name}Props> = args => ${'<' + name} {...args} />;
 
-export const Default = Template.bind({}) as Story<I${name}Props>;
+export const Default = Template.bind({});
 
 Default.args = {};
 `;

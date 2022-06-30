@@ -72,7 +72,7 @@ export const BibstemPickerSingle = forwardRef<HTMLInputElement, IBibstemPickerSi
             {...getInputProps({ ref: inputRef, ...inputProps })}
           />
         </Flex>
-        {!isOpen && <FormHelperText>Start typing to search database</FormHelperText>}
+        {!isOpen && <FormHelperText>Start typing to search journal database (ex. "ApJ")</FormHelperText>}
         <Box {...getMenuProps()} position="relative">
           {isOpen && (
             <BibstemMenu
