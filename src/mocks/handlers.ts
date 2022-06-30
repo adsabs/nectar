@@ -9,7 +9,9 @@ import {
   IADSApiVaultResponse,
   IExportApiParams,
 } from '@api';
+import defaultBibstems from '@components/BibstemPicker/defaultBibstems.json';
 import faker from '@faker-js/faker';
+import { IBibstemOption } from '@types';
 import { rest } from 'msw';
 import qs from 'qs';
 import { map, range, slice } from 'ramda';
@@ -262,6 +264,19 @@ export const handlers = [
         numfound: 10,
       }),
     );
+  }),
+
+  // simple search over top 100 terms
+  rest.get<unknown, { term: string }>(`*/api/bibstems/:term`, (req, res, ctx) => {
+    const term = req.params.term.toLowerCase();
+    const values = defaultBibstems.filter(({ value, label }) => {
+      const parts: string[] = `${value} ${label}`.toLowerCase().match(/\S+\s*/g);
+      if (parts === null) {
+        return false;
+      }
+      return parts.some((v) => v.startsWith(term));
+    });
+    return res(ctx.status(200), ctx.json<IBibstemOption[]>(values));
   }),
 ];
 
