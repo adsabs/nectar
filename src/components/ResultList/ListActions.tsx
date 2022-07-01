@@ -57,10 +57,8 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
         void router.push({ pathname: path.path, query: { ...router.query, qid: data.qid } });
       } else {
         // new search with operator
-        void router.push({
-          pathname: '',
-          query: { q: `${path.operator}(docs(${data.qid}))`, sort: ['score desc', 'bibcode desc'] },
-        });
+        const q = createOperatorQuery(path.operator, `docs(${data.qid})`);
+        void router.push({ pathname: '', search: makeSearchParams({ q, sort: ['score desc'] }) });
       }
       setPath(null);
     }
@@ -94,7 +92,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const handleOperationsLink = (operator: Operator) => {
     if (exploreAll) {
       // new search with operator
-      const q = `${operator}(${router.query.q as string})`;
+      const q = createOperatorQuery(operator, router.query.q as string);
       void router.push({ pathname: '', search: makeSearchParams({ q, sort: ['score desc'] }) });
     } else {
       setPath({ operator });
@@ -347,4 +345,8 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean }): ReactEleme
       <MenuItem>Author Affiliations</MenuItem>
     </MenuGroup>
   );
+};
+
+const createOperatorQuery = (operator: Operator, originalQuery: string) => {
+  return operator === 'trending' ? `${operator}(${originalQuery})-(${originalQuery})` : `${operator}(${originalQuery})`;
 };
