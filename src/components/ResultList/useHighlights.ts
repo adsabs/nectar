@@ -15,8 +15,8 @@ import { flatten, map, pipe, reduce, values } from 'ramda';
  * }
  * ---> [["foo"], ["bar", "baz ©"]]
  */
-const decoder = pipe<[Record<string, string>], string[], string[], string[]>(values, flatten, map(decode));
-const transformHighlights = pipe<[IADSApiSearchResponse['highlighting']], Record<string, string>[], string[][]>(
+const decoder = pipe<[Record<string, string[]>], string[][], string[], string[]>(values, flatten, map(decode));
+const transformHighlights = pipe<[IADSApiSearchResponse['highlighting']], Record<string, string[]>[], string[][]>(
   values,
   reduce((acc, value) => [...acc, [...decoder(value)]], [] as string[][]),
 );
