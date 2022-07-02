@@ -1,6 +1,6 @@
 import { HStack, Text } from '@chakra-ui/react';
 import { IBibstemOption } from '@types';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import {
   always,
   any,
@@ -51,22 +51,19 @@ const hasPrefix = test(/^-/);
 const removePrefixIfPresent = when<string, string>(hasPrefix, tail);
 const getPrefixIfPresent = ifElse<[string], string, string>(hasPrefix, head, always(''));
 const cleanInput = pipe(trim, removePrefixIfPresent);
-const optionToString = (option: IBibstemOptionWithPrefix) => `${option?.prefix ?? ''}${option.value}`;
-const prefixLens = lens<IBibstemOptionWithPrefix, string>(propOr('prefix', ''), assoc('prefix'));
+const optionToString = (option: IBibstemOption) => `${option?.prefix ?? ''}${option.value}`;
+const prefixLens = lens<IBibstemOption, string>(propOr('prefix', ''), assoc('prefix'));
 
 // adds/updates `prefix` prop on object
-const applyPrefix = curry((prefix: string, option: IBibstemOptionWithPrefix) => set(prefixLens, prefix)(option));
-const formatBibstemOptions = pipe<[IBibstemOptionWithPrefix[]], string[], string>(map(optionToString), join(','));
+const applyPrefix = curry((prefix: string, option: IBibstemOption) => set(prefixLens, prefix)(option));
+const formatBibstemOptions = pipe<[IBibstemOption[]], string[], string>(map(optionToString), join(','));
 const isOptionSelected = curry((selected: IBibstemOption[], option: IBibstemOption) =>
   any(propEq('value', prop('value', option)), selected),
 );
 const removeOption = curry((selected: IBibstemOption[], option: IBibstemOption) =>
   reject(propEq('value', prop('value', option)), selected),
 );
-
-interface IBibstemOptionWithPrefix extends IBibstemOption {
-  prefix?: string;
-}
+const isOptionDisabled = (option: IBibstemOption): boolean => propOr(false, 'isDisabled', option);
 
 /**
  * Simple pill with prefix in front of data value
@@ -74,7 +71,7 @@ interface IBibstemOptionWithPrefix extends IBibstemOption {
 const getPill =
   (selected: IBibstemOption[]) =>
   ({ children, ...props }: MultiValueProps<IBibstemOption>) => {
-    const match = find<IBibstemOptionWithPrefix>(propEq('value', props.data.value), selected);
+    const match = find<IBibstemOption>(propEq('value', props.data.value), selected);
     return (
       <components.MultiValue {...props}>
         <span data-testid="pill">
@@ -88,7 +85,16 @@ const getPill =
 /**
  * Custom option style
  */
-const getOption = ({ children, ...props }: OptionProps<IBibstemOption>) => {
+const Option = ({ children, ...props }: OptionProps<IBibstemOption>) => {
+  if (props.data.type === 'error') {
+    return (
+      <components.Option {...props} innerProps={{ ...props.innerProps, style: { padding: 'none' } }}>
+        <Text fontWeight="bold" color="red.300">
+          {props.data.value}
+        </Text>
+      </components.Option>
+    );
+  }
   return (
     <components.Option {...props}>
       <HStack justifyContent="space-between" data-testid="option">
@@ -103,18 +109,16 @@ interface IBibstemPickerState {
   hiddenValue: string;
   inputValue: string;
   prefix: string;
-  selected: IBibstemOptionWithPrefix[];
+  selected: IBibstemOption[];
   isMultiple: boolean;
-  error: AxiosError;
 }
 const reducer: Reducer<
   IBibstemPickerState,
   | { type: 'update_input'; payload: string; meta: InputActionMeta }
   | { type: 'update_selected'; payload: IBibstemOption | MultiValue<IBibstemOption>; meta: ActionMeta<IBibstemOption> }
-  | { type: 'error'; payload: AxiosError }
   | { type: 'reset' }
 > = (state, action) => {
-  // for normal typing, check for prefix, otherwise just update value
+  // for normal typing, check for prefix, otherwise just update value; also clear error
   if (action.type === 'update_input' && action.meta.action === 'input-change') {
     return {
       ...state,
@@ -169,10 +173,6 @@ const reducer: Reducer<
     return { ...state, selected: [], hiddenValue: '', prefix: '', inputValue: '' };
   }
 
-  if (action.type === 'error') {
-    return { ...state, error: action.payload };
-  }
-
   return state;
 };
 
@@ -185,7 +185,6 @@ const BibstemPickerImpl = (props: IBibstemPickerProps, ref: ForwardedRef<never>)
     selected: [],
     prefix: '',
     isMultiple,
-    error: null,
   });
 
   const fetchOptions = async (value: string) => {
@@ -198,10 +197,18 @@ const BibstemPickerImpl = (props: IBibstemPickerProps, ref: ForwardedRef<never>)
       const { data } = await axios.get<IBibstemOption[]>(`api/bibstems/${valueToFetch}`);
       return data;
     } catch (e) {
-      dispatch({ type: 'error', payload: e as AxiosError });
+      // send back a single "error" item with a message
+      return [
+        {
+          value: `Cannot fetch items for search "${value}"`,
+          type: 'error',
+          isDisabled: true,
+        },
+      ];
     }
   };
 
+  // trigger a call to external `onChange` if one was passed in
   useEffect(() => {
     if (typeof onChange === 'function') {
       onChange(state.hiddenValue);
@@ -215,8 +222,6 @@ const BibstemPickerImpl = (props: IBibstemPickerProps, ref: ForwardedRef<never>)
       selectRef.current.clearValue();
     }
   }, [inputProps.value]);
-
-  // TODO: figure out how to display this error message
 
   return (
     <>
@@ -238,6 +243,7 @@ const BibstemPickerImpl = (props: IBibstemPickerProps, ref: ForwardedRef<never>)
         onInputChange={(payload, meta) => dispatch({ type: 'update_input', payload, meta })}
         // override option selected logic to check our state instead
         isOptionSelected={isOptionSelected(state.selected)}
+        isOptionDisabled={isOptionDisabled}
         inputValue={state.inputValue}
         isMulti={isMultiple}
         cacheOptions
@@ -248,7 +254,7 @@ const BibstemPickerImpl = (props: IBibstemPickerProps, ref: ForwardedRef<never>)
         formatCreateLabel={(value) => `Custom Journal? insert "${value}"`}
         components={{
           MultiValue: getPill(state.selected),
-          Option: getOption,
+          Option,
         }}
         ref={selectRef}
         {...pick(['onBlur'], inputProps)}
