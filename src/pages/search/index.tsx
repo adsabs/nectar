@@ -36,8 +36,11 @@ const selectors = {
   setDocs: (state: AppState) => state.setDocs,
 };
 
+const omitP = omit(['p']);
+
 const SearchPage: NextPage = () => {
   const router = useRouter();
+
   const store = useStoreApi();
   const storeNumPerPage = useStore(selectors.numPerPage);
   const setQuery = useStore(selectors.setQuery);
@@ -50,6 +53,7 @@ const SearchPage: NextPage = () => {
   const queries = queryClient.getQueriesData<IADSApiSearchResponse>(SEARCH_API_KEYS.primary);
   const numFound = queries.length > 1 ? path<number>(['1', 'response', 'numFound'], last(queries)) : null;
 
+  // parse the query params from the URL, this should match what the server parsed
   const parsedParams = parseQueryFromUrl(router.query);
   const params = {
     ...defaultParams,
@@ -58,18 +62,22 @@ const SearchPage: NextPage = () => {
     start: calculateStartIndex(parsedParams.p, storeNumPerPage, numFound),
   };
 
-  const { data, isSuccess, isLoading, error } = useSearch(omit(['p'], params));
+  const { data, isSuccess, isLoading, error } = useSearch(omitP(params));
 
+  // on Sort change handler
   const handleSortChange = (sort: SolrSort[]) => {
     const query = store.getState().query;
     if (query.q.length === 0) {
       // if query is empty, do not submit search
       return;
     }
+
+    // generate search string and trigger page transition, also update store
     const search = makeSearchParams({ ...params, ...query, sort, p: 1 });
     void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
   };
 
+  // On submission handler
   const handleOnSubmit: FormEventHandler = (e) => {
     e.preventDefault();
     const query = store.getState().query;
@@ -77,18 +85,25 @@ const SearchPage: NextPage = () => {
       // if query is empty, do not submit search
       return;
     }
+
+    // generate a URL search string and trigger a page transition, and update store
     const search = makeSearchParams({ ...params, ...query, p: 1 });
     void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
   };
 
+  // Update the store when we have data
   useEffect(() => {
     if (data?.docs.length > 0) {
       setDocs(data.docs.map((d) => d.bibcode));
-      setQuery(params);
+      setQuery(omitP(params));
       submitQuery();
     }
   }, [data]);
 
+  /**
+   * When updating perPage, this updates the store with both the current
+   * numPerPage value and the current query
+   */
   const handlePerPageChange = (numPerPage: NumPerPageType) => {
     // should reset to the first page on numPerPage update
     updateQuery({ start: 0, rows: numPerPage });

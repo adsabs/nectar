@@ -28,14 +28,14 @@ describe('Landing Page', () => {
 
     // normal search using keyboard enter
     cy.get('@input').type(`star{enter}`);
-    cy.url().should('eq', baseUrl + '/search?q=star&sort=date+desc&p=1');
+    cy.url().should('eq', baseUrl + '/search?q=star&sort=date+desc%2Cbibcode+desc&p=1');
 
     // normal search using submit button
     cy.visit('/');
     cy.get('form').find('input[type="text"]', { timeout: 10000 }).first().as('input').should('be.enabled');
     cy.get('@input').type('star');
     cy.getByTestId('searchbar-submit').click();
-    cy.url().should('eq', baseUrl + '/search?q=star&sort=date+desc&p=1');
+    cy.url().should('eq', baseUrl + '/search?q=star&sort=date+desc%2Cbibcode+desc&p=1');
 
     // quick field
     cy.visit('/');

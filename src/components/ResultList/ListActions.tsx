@@ -246,8 +246,8 @@ const SortWrapper = ({ onChange }: { onChange: ISortProps['onChange'] }) => {
 };
 
 const HighlightsToggle = () => {
-  const [showHighlights, setShowHights] = useState(false);
-  const toggleShowHighlights = () => setShowHights(!showHighlights);
+  const showHighlights = useStore((state) => state.showHighlights);
+  const toggleShowHighlights = useStore((state) => state.toggleShowHighlights);
 
   return (
     <Button
@@ -256,7 +256,6 @@ const HighlightsToggle = () => {
       size="md"
       borderRadius="2px"
       data-testid="listactions-showhighlights"
-      hidden
     >
       Show Highlights
     </Button>

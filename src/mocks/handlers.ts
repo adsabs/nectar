@@ -91,34 +91,38 @@ export const handlers = [
 
     const rows = parseInt(params.rows as string, 10) ?? 10;
     const numFound = faker.datatype.number({ min: 1, max: 10000 });
+    const docs = map((i) => {
+      const authorCount = ranRange(limitAuthors > 0 ? limitAuthors + 1 : 0, 1000);
+      const citationCount = faker.datatype.number({ min: 0, max: 10000 });
+      const referenceCount = faker.datatype.number({ min: 0, max: 10000 });
+      return {
+        bibcode: api.bibcode(),
+        id: ids_mocks[i as number],
+        author: map(api.author)(limitAuthors > 0 ? range(0, limitAuthors) : authorCount),
+        author_count: authorCount.length,
+        bibstem: map(api.bibstem)(ranRange(0, 10)),
+        pubdate: api.pubdate(),
+        title: [api.title()],
+        esources: api.esources(),
+        property: api.property(),
+        citation_count: citationCount,
+        citation_count_norm: Math.random(),
+        '[citations]': {
+          num_references: referenceCount,
+          num_citations: citationCount,
+        },
+        orcid_pub: map(api.orcidPub)(limitAuthors > 0 ? range(0, limitAuthors) : authorCount),
+        aff: map(api.aff)(limitAuthors > 0 ? range(0, limitAuthors) : authorCount),
+        abstract: api.abstract(),
+      };
+    })(range(0, rows));
+
     const body: IADSApiSearchResponse = {
       response: {
         numFound,
-        docs: map(() => {
-          const authorCount = ranRange(limitAuthors > 0 ? limitAuthors + 1 : 0, 1000);
-          const citationCount = faker.datatype.number({ min: 0, max: 10000 });
-          const referenceCount = faker.datatype.number({ min: 0, max: 10000 });
-          return {
-            bibcode: api.bibcode(),
-            author: map(api.author)(limitAuthors > 0 ? range(0, limitAuthors) : authorCount),
-            author_count: authorCount.length,
-            bibstem: map(api.bibstem)(ranRange(0, 10)),
-            pubdate: api.pubdate(),
-            title: [api.title()],
-            esources: api.esources(),
-            property: api.property(),
-            citation_count: citationCount,
-            citation_count_norm: Math.random(),
-            '[citations]': {
-              num_references: referenceCount,
-              num_citations: citationCount,
-            },
-            orcid_pub: map(api.orcidPub)(limitAuthors > 0 ? range(0, limitAuthors) : authorCount),
-            aff: map(api.aff)(limitAuthors > 0 ? range(0, limitAuthors) : authorCount),
-            abstract: api.abstract(),
-          };
-        })(range(0, rows)),
+        docs,
       },
+      highlighting: highlights_mocks,
     };
 
     return res(ctx.status(200), ctx.json<IADSApiSearchResponse>(body));
@@ -286,4 +290,36 @@ const api = {
 // create random sized array of number
 const ranRange = (min: number, max: number) => {
   return range(min, faker.datatype.number({ min, max }));
+};
+
+const ids_mocks = range(0, 10).map(() => faker.random.alphaNumeric(8));
+
+const highlights_mocks: IADSApiSearchResponse['highlighting'] = {
+  [ids_mocks[0]]: {
+    abstract: [
+      'The wit makes fun of other persons; the <em>satirist</em> makes fun of the world; the humorist makes fun of himself.',
+      'Everything is funny as long as it is happening to <em>Somebody</em> Else.',
+    ],
+    title: ["In everyone's <em>heart</em> stirs a great homesickness."],
+  },
+  [ids_mocks[1]]: {},
+  [ids_mocks[2]]: {
+    abstract: [
+      'The wit makes fun of other persons; the <em>satirist</em> makes fun of the world; the humorist makes fun of himself.',
+    ],
+    title: ["In everyone's <em>heart</em> stirs a great homesickness."],
+  },
+  [ids_mocks[3]]: {
+    abstract: [
+      'The wit makes fun of other persons; the <em>satirist</em> makes fun of the world; the humorist makes fun of himself.',
+    ],
+  },
+  [ids_mocks[4]]: {
+    title: ["In everyone's <em>heart</em> stirs a great homesickness."],
+  },
+  [ids_mocks[5]]: {},
+  [ids_mocks[6]]: {},
+  [ids_mocks[7]]: {},
+  [ids_mocks[8]]: {},
+  [ids_mocks[9]]: {},
 };
