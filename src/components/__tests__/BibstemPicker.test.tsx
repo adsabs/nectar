@@ -2,7 +2,7 @@ import * as stories from '@components/__stories__/BibstemPicker.stories';
 import { composeStories } from '@storybook/testing-react';
 import { act, render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { DefaultRequestBody, MockedRequest } from 'msw';
+import { DefaultRequestBody, MockedRequest, rest } from 'msw';
 import { map, path, pipe } from 'ramda';
 
 const { Default: BibstemPickerSingle, Multi: BibstemPickerMultiple } = composeStories(stories);
@@ -104,5 +104,37 @@ describe('BibstemPicker', () => {
     });
 
     expect(hiddenInput).toHaveValue('');
+  });
+
+  it('shows an error message when fetch fails', async () => {
+    __mockServer__.use(
+      rest.get(`*/api/bibstems/:term`, (req, res, ctx) => {
+        return res(ctx.status(500));
+      }),
+    );
+
+    const { container, getAllByTestId, findByRole, user } = setup('multiple');
+    const input = await findByRole('combobox');
+    await act(async () => {
+      await user.type(input, 'apj');
+    });
+
+    // wait for the menu list to appear
+    await waitFor(() => container.querySelector('#react-select-bibstem-picker-listbox'));
+
+    expect(urls(__mockServer__.onRequest)).toEqual(['/api/bibstems/a', '/api/bibstems/ap', '/api/bibstems/apj']);
+    expect(__mockServer__.onResponse.mock.calls.map((call) => call[0].status)).toEqual([500, 500, 500]);
+
+    const options = getAllByTestId('option');
+    expect(options.map((e) => e.textContent)).toEqual([
+      // error message
+      'Cannot fetch items for search "apj"',
+
+      // custom insert
+      'apjCustom Journal? insert "apj"',
+    ]);
+
+    // option container should be disabled
+    expect(options[0].parentElement).toHaveAttribute('aria-disabled', 'true');
   });
 });

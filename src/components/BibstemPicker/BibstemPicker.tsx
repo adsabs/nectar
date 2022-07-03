@@ -89,7 +89,7 @@ const Option = ({ children, ...props }: OptionProps<IBibstemOption>) => {
   if (props.data.type === 'error') {
     return (
       <components.Option {...props} innerProps={{ ...props.innerProps, style: { padding: 'none' } }}>
-        <Text fontWeight="bold" color="red.300">
+        <Text fontWeight="bold" color="red.300" data-testid="option">
           {props.data.value}
         </Text>
       </components.Option>
