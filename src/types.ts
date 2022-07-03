@@ -1,7 +1,5 @@
 import { IADSApiSearchParams, IUserData } from '@api';
 import { APP_DEFAULTS } from '@config';
-import { IsomorphicResponse } from '@mswjs/interceptors';
-import { MockedRequest } from 'msw';
 import { SetupServerApi } from 'msw/lib/types/node';
 
 export enum Theme {
@@ -59,7 +57,7 @@ export interface IBibstemOption {
 declare global {
   // eslint-disable-next-line no-var
   var __mockServer__: SetupServerApi & {
-    onRequest: jest.MockedFunction<(req: MockedRequest) => void>;
-    onResponse: jest.MockedFunction<(res: IsomorphicResponse, requestId: string) => void>;
+    onRequest: unknown;
+    onResponse: unknown;
   };
 }

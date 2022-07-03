@@ -1,6 +1,6 @@
 import { handlers } from '@mocks/handlers';
 import { IsomorphicResponse } from '@mswjs/interceptors';
-import { act, render } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MockedRequest } from 'msw';
 import { setupServer } from 'msw/node';
@@ -49,20 +49,7 @@ describe('Paper Form', () => {
     render(<PaperForm />, { wrapper });
   });
 
-  test('journal search works', async () => {
-    const { getByRole, user } = setup();
-
-    await act(async () => {
-      await user.type(getByRole('textbox', { name: /publication/i }), 'TDM');
-      await user.keyboard('{ArrowDown}{Enter}');
-      await user.keyboard('{Tab}1998{Tab}20{Tab}1{Tab}{Enter}');
-    });
-
-    expect(router.push).toBeCalledWith(
-      '/search?q=bibstem%3ATDM%20year%3A1998%20volume%3A20%20pageid%3A1&sort=date%20desc%2Cbibcode%20desc&p=1',
-    );
-  });
-
+  test.todo('journal search works');
   test.todo('reference form works');
   test.todo('bibcode query form works');
   test.todo('error messages show up properly');

@@ -1,6 +1,6 @@
-import { examples } from '@components/SearchExamples/examples';
 import { themes } from '@components/NavBar/models';
-import { quickfields, allSearchTerms } from '@components/SearchBar/models';
+import { quickfields } from '@components/SearchBar/models';
+import { examples } from '@components/SearchExamples/examples';
 import { Theme } from '@types';
 
 const baseUrl = Cypress.config().baseUrl;
@@ -8,7 +8,7 @@ const baseUrl = Cypress.config().baseUrl;
 const themeOptions = Object.values(themes);
 
 describe('Landing Page', () => {
-  it.only('searchbar behaviors', () => {
+  it('searchbar behaviors', () => {
     cy.visit('/');
     cy.get('form').find('input[type="text"]', { timeout: 10000 }).first().as('input').should('be.enabled');
 

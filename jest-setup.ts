@@ -8,18 +8,21 @@ import * as globalStorybookConfig from './.storybook/preview';
 
 setGlobalConfig(globalStorybookConfig as GlobalConfig);
 
+export type MSWOnRequestMock = jest.MockedFunction<(req: MockedRequest) => void>;
+export type MSWOnResponseMock = jest.MockedFunction<(res: IsomorphicResponse, requestId: string) => void>;
+
 // start mock server
 beforeAll(function () {
   const onRequest = jest.fn<never, Parameters<(req: MockedRequest) => void>>();
   const onResponse = jest.fn<never, Parameters<(res: IsomorphicResponse, requestId: string) => void>>();
   server.events.on('request:start', onRequest);
   server.events.on('response:mocked', onResponse);
-  globalThis.__mockServer__ = { ...server, onRequest, onResponse };
+  globalThis.__mockServer__ = { ...server, onRequest: onRequest, onResponse };
   server.listen();
 });
 afterEach(() => {
   server.resetHandlers();
-  __mockServer__.onRequest.mockReset();
-  __mockServer__.onResponse.mockReset();
+  (__mockServer__.onRequest as MSWOnRequestMock).mockReset();
+  (__mockServer__.onResponse as MSWOnResponseMock).mockReset();
 });
 afterAll(() => server.close());

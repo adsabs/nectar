@@ -2,7 +2,8 @@ import * as stories from '@components/__stories__/BibstemPicker.stories';
 import { composeStories } from '@storybook/testing-react';
 import { act, render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { DefaultRequestBody, MockedRequest, rest } from 'msw';
+import { MSWOnRequestMock, MSWOnResponseMock } from 'jest-setup';
+import { rest } from 'msw';
 import { map, path, pipe } from 'ramda';
 
 const { Default: BibstemPickerSingle, Multi: BibstemPickerMultiple } = composeStories(stories);
@@ -15,11 +16,10 @@ const setup = (which: 'single' | 'multiple') => {
   };
 };
 
-const urls = pipe<
-  [jest.MockedFunction<(req: MockedRequest<DefaultRequestBody>) => void>],
-  Record<string, unknown>[],
-  string[]
->(path(['mock', 'calls']), map(path(['0', 'url', 'pathname'])));
+const urls = pipe<[MSWOnRequestMock], Record<string, unknown>[], string[]>(
+  path(['mock', 'calls']),
+  map(path(['0', 'url', 'pathname'])),
+);
 
 describe('BibstemPicker', () => {
   it('Renders Single-version without error', () => {
@@ -50,7 +50,11 @@ describe('BibstemPicker', () => {
     const options = getAllByTestId('option');
     expect(options[0]).toHaveTextContent('ApJThe Astrophysical Journal (ApJ)');
 
-    expect(urls(__mockServer__.onRequest)).toEqual(['/api/bibstems/a', '/api/bibstems/ap', '/api/bibstems/apj']);
+    expect(urls(__mockServer__.onRequest as MSWOnRequestMock)).toEqual([
+      '/api/bibstems/a',
+      '/api/bibstems/ap',
+      '/api/bibstems/apj',
+    ]);
   });
 
   it('updates properly for multivalue', async () => {
@@ -66,7 +70,11 @@ describe('BibstemPicker', () => {
     // a pill was created with selectiojn
     expect(getAllByTestId('pill').map((v) => v.textContent)).toEqual(['ApJ']);
 
-    expect(urls(__mockServer__.onRequest)).toEqual(['/api/bibstems/a', '/api/bibstems/ap', '/api/bibstems/apj']);
+    expect(urls(__mockServer__.onRequest as MSWOnRequestMock)).toEqual([
+      '/api/bibstems/a',
+      '/api/bibstems/ap',
+      '/api/bibstems/apj',
+    ]);
 
     await act(async () => {
       await user.type(input, 'physics');
@@ -76,7 +84,7 @@ describe('BibstemPicker', () => {
 
     // 2 pills are created
     expect(getAllByTestId('pill').map((v) => v.textContent)).toEqual(['ApJ', 'JChPh']);
-    expect(urls(__mockServer__.onRequest)).toEqual([
+    expect(urls(__mockServer__.onRequest as MSWOnRequestMock)).toEqual([
       '/api/bibstems/a',
       '/api/bibstems/ap',
       '/api/bibstems/apj',
@@ -122,8 +130,14 @@ describe('BibstemPicker', () => {
     // wait for the menu list to appear
     await waitFor(() => container.querySelector('#react-select-bibstem-picker-listbox'));
 
-    expect(urls(__mockServer__.onRequest)).toEqual(['/api/bibstems/a', '/api/bibstems/ap', '/api/bibstems/apj']);
-    expect(__mockServer__.onResponse.mock.calls.map((call) => call[0].status)).toEqual([500, 500, 500]);
+    expect(urls(__mockServer__.onRequest as MSWOnRequestMock)).toEqual([
+      '/api/bibstems/a',
+      '/api/bibstems/ap',
+      '/api/bibstems/apj',
+    ]);
+    expect((__mockServer__.onResponse as MSWOnResponseMock).mock.calls.map((call) => call[0].status)).toEqual([
+      500, 500, 500,
+    ]);
 
     const options = getAllByTestId('option');
     expect(options.map((e) => e.textContent)).toEqual([
