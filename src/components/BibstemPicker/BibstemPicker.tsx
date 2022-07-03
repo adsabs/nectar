@@ -1,6 +1,6 @@
 import { HStack, Text } from '@chakra-ui/react';
 import { IBibstemOption } from '@types';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import {
   always,
   any,
@@ -105,11 +105,13 @@ interface IBibstemPickerState {
   prefix: string;
   selected: IBibstemOptionWithPrefix[];
   isMultiple: boolean;
+  error: AxiosError;
 }
 const reducer: Reducer<
   IBibstemPickerState,
   | { type: 'update_input'; payload: string; meta: InputActionMeta }
   | { type: 'update_selected'; payload: IBibstemOption | MultiValue<IBibstemOption>; meta: ActionMeta<IBibstemOption> }
+  | { type: 'error'; payload: AxiosError }
   | { type: 'reset' }
 > = (state, action) => {
   // for normal typing, check for prefix, otherwise just update value
@@ -167,6 +169,10 @@ const reducer: Reducer<
     return { ...state, selected: [], hiddenValue: '', prefix: '', inputValue: '' };
   }
 
+  if (action.type === 'error') {
+    return { ...state, error: action.payload };
+  }
+
   return state;
 };
 
@@ -179,6 +185,7 @@ const BibstemPickerImpl = (props: IBibstemPickerProps, ref: ForwardedRef<never>)
     selected: [],
     prefix: '',
     isMultiple,
+    error: null,
   });
 
   const fetchOptions = async (value: string) => {
@@ -187,8 +194,12 @@ const BibstemPickerImpl = (props: IBibstemPickerProps, ref: ForwardedRef<never>)
       return [];
     }
 
-    const { data } = await axios.get<IBibstemOption[]>(`api/bibstems/${valueToFetch}`);
-    return data;
+    try {
+      const { data } = await axios.get<IBibstemOption[]>(`api/bibstems/${valueToFetch}`);
+      return data;
+    } catch (e) {
+      dispatch({ type: 'error', payload: e as AxiosError });
+    }
   };
 
   useEffect(() => {
@@ -204,6 +215,8 @@ const BibstemPickerImpl = (props: IBibstemPickerProps, ref: ForwardedRef<never>)
       selectRef.current.clearValue();
     }
   }, [inputProps.value]);
+
+  // TODO: figure out how to display this error message
 
   return (
     <>

@@ -38,7 +38,7 @@ import {
   when,
   __,
 } from 'ramda';
-import { CollectionChoice, IClassicFormState, LogicChoice, PropertyChoice } from './types';
+import { CollectionChoice, IClassicFormState, IRawClassicFormState, LogicChoice, PropertyChoice } from './types';
 
 const isString = is(String);
 const string2Num = (v: string) => Number.parseInt(v, 10);
@@ -231,21 +231,23 @@ export const getAbs = (abs: string, logic: LogicChoice) =>
 /**
  * Generate bibstem search field
  */
-export const getBibstems = (bibstems: string[]) =>
-  ifElse(isEmpty, emptyStr, pipe(logicJoin(getLogic('or')), wrapWithField('bibstem')))(bibstems);
+export const getBibstems = (bibstems: string) =>
+  ifElse(isEmpty, emptyStr, pipe(split(/\W+/), logicJoin(getLogic('or')), wrapWithField('bibstem')))(bibstems);
 
 /**
  * Run classic form parameters through parsers and generate URL query string
  */
-export const getSearchQuery = (params: IClassicFormState): string => {
+export const getSearchQuery = (params: IRawClassicFormState): string => {
+  console.log('params', params);
+
   // sanitize strings
   const purify = (v: string) => DOMPurify.sanitize(v);
 
   // run all params through a sanitizer
-  const cleanParams = map<IClassicFormState, IClassicFormState>(
+  const cleanParams = map<IRawClassicFormState, IRawClassicFormState>(
     (v) => (typeof v === 'string' ? purify(v) : Array.isArray(v) ? map(purify, v) : v),
     params,
-  );
+  ) as IClassicFormState;
 
   // gather all strings and join them with space (excepting sort)
   const query = pipe(
@@ -264,6 +266,6 @@ export const getSearchQuery = (params: IClassicFormState): string => {
 
   return makeSearchParams({
     q: query,
-    sort: params.sort,
+    sort: cleanParams.sort,
   });
 };

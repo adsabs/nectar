@@ -101,8 +101,8 @@ describe('ClassicForm Helpers', () => {
   });
 
   it.concurrent.each<[Parameters<typeof getBibstems>, string]>([
-    [[['foo']], 'bibstem:(foo)'],
-    [[['foo', 'bar', 'baz']], 'bibstem:(foo OR bar OR baz)'],
+    [['foo'], 'bibstem:(foo)'],
+    [['foo,bar,baz'], 'bibstem:(foo OR bar OR baz)'],
   ])('bibstems %j', (props, expected) => {
     expect(getBibstems(...props)).toEqual(expected);
     return Promise.resolve();

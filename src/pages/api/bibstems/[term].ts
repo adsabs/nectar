@@ -14,7 +14,7 @@ export interface BibstemSearchRequest extends NextApiRequest {
 
 // create a fuse instance using pre-generated index
 const fuse = new Fuse<IBibstemOption>(
-  terms,
+  terms as IBibstemOption[],
   {
     keys: [
       { name: 'value', weight: 0.7 },
@@ -27,10 +27,15 @@ const fuse = new Fuse<IBibstemOption>(
 
 const formatResult = map(prop('item'));
 
-export default (req: BibstemSearchRequest, res: NextApiResponse<IBibstemOption[]>) => {
-  const value = DOMPurify.sanitize(req.query.term);
+export default (req: BibstemSearchRequest, res: NextApiResponse<IBibstemOption[] | { error: string }>) => {
+  try {
+    const value = DOMPurify.sanitize(req.query.term);
 
-  const result = fuse.search(value, { limit: 100 });
+    const result = fuse.search(value, { limit: 100 });
 
-  res.status(200).json(formatResult(result));
+    res.status(200).json(formatResult(result));
+  } catch (e) {
+    const error = e instanceof Error ? e.message : 'Unknown Server Error';
+    res.status(500).json({ error });
+  }
 };
