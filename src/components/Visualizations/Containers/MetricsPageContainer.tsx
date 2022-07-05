@@ -1,6 +1,6 @@
 import { Bibcode, IADSApiSearchParams, useGetMetrics } from '@api';
 import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, CircularProgress, Text } from '@chakra-ui/react';
-import { Metrics } from '@components';
+import { Metrics, CustomInfoMessage } from '@components';
 import { useBatchedSearch } from '@hooks/useBatchedSearch';
 import axios from 'axios';
 import { ReactElement } from 'react';
@@ -47,21 +47,7 @@ const MetricsComponent = ({ bibcodes }: { bibcodes: Bibcode[] }): ReactElement =
           {isErrorMetrics && (
             <>
               {errorMetrics instanceof Error && errorMetrics.message.startsWith('No data available') ? (
-                <Alert
-                  status="info"
-                  my={5}
-                  variant="subtle"
-                  flexDirection="column"
-                  justifyContent="center"
-                  height="200px"
-                  backgroundColor="transparent"
-                >
-                  <AlertIcon boxSize="40px" />
-                  <AlertTitle mt={4} mb={1} fontSize="lg">
-                    Metrics not available
-                  </AlertTitle>
-                  <AlertDescription>{errorMetrics.message}</AlertDescription>
-                </Alert>
+                <CustomInfoMessage status="info" title="Metrics not available" description={errorMetrics.message} />
               ) : (
                 <Alert status="error" my={5}>
                   <AlertIcon />

@@ -2,8 +2,8 @@ import { IADSApiSearchParams, useSearch } from '@api';
 import { IADSApiVisResponse, IBibcodeDict, ILeaf } from '@api/vis/types';
 import { useGetAuthorNetwork } from '@api/vis/vis';
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/alert';
-import { Box, CircularProgress, Flex, SimpleGrid, Text } from '@chakra-ui/react';
-import { INodeDetails, NetworkDetailsPane } from '@components';
+import { Box, CircularProgress, SimpleGrid, Text } from '@chakra-ui/react';
+import { INodeDetails, NetworkDetailsPane, CustomInfoMessage } from '@components';
 import { Serie } from '@nivo/line';
 import axios from 'axios';
 import { decode } from 'he';
@@ -114,27 +114,12 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
       {!authorNetworkIsLoading && authorNetworkGraph && (
         <>
           {authorNetworkGraph.error ? (
-            <Flex justifyContent="center">
-              <Alert
-                status="info"
-                variant="subtle"
-                flexDirection="column"
-                justifyContent="center"
-                height="200px"
-                backgroundColor="transparent"
-                my={5}
-                width="50%"
-              >
-                <AlertIcon boxSize="40px" mr={0} />
-                <AlertTitle mt={4} mb={1} fontSize="lg">
-                  Cannot generate network
-                </AlertTitle>
-                <AlertDescription>
-                  The network grouping algorithm could not generate group data for your network. This might be because
-                  the list of papers was too small or sparse to produce multiple meaningful groups.
-                </AlertDescription>
-              </Alert>
-            </Flex>
+            <CustomInfoMessage
+              status={'info'}
+              title="Cannot generate network"
+              description="The network grouping algorithm could not generate group data for your network. This might be because
+            the list of papers was too small or sparse to produce multiple meaningful groups."
+            />
           ) : (
             <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={10}>
               <NetworkGraphPane

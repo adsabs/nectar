@@ -1,6 +1,7 @@
 export * from './AbstractRefList';
 export * from './AbstractSideNav';
 export * from './AbstractSources';
+export * from './Alert';
 export * from './AllAuthorsModal';
 export * from './BibstemPicker';
 export * from './CitationExporter';
@@ -24,3 +25,5 @@ export * from './Sort';
 export * from './TextInput';
 export * from './TopProgressBar';
 export * from './Visualizations';
+export * from './SearchQueryLink';
+export * from './ClassicForm';

@@ -12,8 +12,17 @@ import {
 } from '@api';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import { Box, Flex, List, ListIcon, ListItem, Stack } from '@chakra-ui/layout';
-import { Alert, AlertDescription, AlertIcon, AlertTitle, Code, VisuallyHidden } from '@chakra-ui/react';
-import { ItemsSkeleton, ListActions, NumFound, Pagination, SearchBar, SimpleLink, SimpleResultList } from '@components';
+import { Alert, AlertIcon, Code, VisuallyHidden } from '@chakra-ui/react';
+import {
+  ItemsSkeleton,
+  ListActions,
+  NumFound,
+  Pagination,
+  SearchBar,
+  SimpleLink,
+  SimpleResultList,
+  CustomInfoMessage,
+} from '@components';
 import { calculateStartIndex } from '@components/ResultList/Pagination/usePagination';
 import { APP_DEFAULTS } from '@config';
 import { AppState, createStore, useStore, useStoreApi } from '@store';
@@ -130,19 +139,14 @@ const SearchPage: NextPage = () => {
         Search Results
       </VisuallyHidden>
       {!isLoading && data?.numFound === 0 && (
-        <Alert
+        <CustomInfoMessage
           status="info"
-          variant="subtle"
-          flexDirection="column"
-          justifyContent="center"
-          height="200px"
-          backgroundColor="transparent"
-        >
-          <AlertIcon boxSize="40px" mr={0} />
-          <AlertTitle mt={4} mb={1} fontSize="lg">
-            Sorry no results were found for <Code children={params.q} />
-          </AlertTitle>
-          <AlertDescription>
+          title={
+            <>
+              Sorry no results were found for <Code children={params.q} />
+            </>
+          }
+          description={
             <List w="100%">
               <ListItem>
                 <ListIcon as={CheckCircleIcon} color="green.500" />
@@ -167,8 +171,8 @@ const SearchPage: NextPage = () => {
                 </Flex>
               </ListItem>
             </List>
-          </AlertDescription>
-        </Alert>
+          }
+        />
       )}
       {isLoading && <ItemsSkeleton count={storeNumPerPage} />}
       {data && (
