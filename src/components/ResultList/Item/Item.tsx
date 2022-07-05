@@ -201,7 +201,6 @@ interface IAuthorListProps extends BoxProps {
 }
 
 const MAX_AUTHORS = APP_DEFAULTS.RESULTS_MAX_AUTHORS;
-
 /**
  * Displays author list and includes a button to open all authors modal
  */
@@ -219,7 +218,7 @@ const AuthorList = (props: IAuthorListProps): ReactElement => {
       {authorCount > MAX_AUTHORS ? (
         <AllAuthorsModal bibcode={bibcode} label={`and ${authorCount - MAX_AUTHORS} more`} />
       ) : (
-        <AllAuthorsModal bibcode={bibcode} label={'see all'} />
+        <AllAuthorsModal bibcode={bibcode} label={'show list'} />
       )}
     </Box>
   );

@@ -33,12 +33,21 @@ import { SearchQueryLink } from '@components/SearchQueryLink';
 import { useDebounce } from '@hooks/useDebounce';
 import { saveAs } from 'file-saver';
 import { matchSorter } from 'match-sorter';
-import { ChangeEventHandler, forwardRef, MouseEventHandler, ReactElement, useEffect, useRef, useState } from 'react';
+import {
+  ChangeEventHandler,
+  forwardRef,
+  MouseEventHandler,
+  ReactElement,
+  ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useGetAuthors } from './useGetAuthors';
 
 export interface IAllAuthorsModalProps {
   bibcode: IDocsEntity['bibcode'];
-  label: string;
+  label: ReactNode;
 }
 
 export const AllAuthorsModal = ({ bibcode, label }: IAllAuthorsModalProps): ReactElement => {
