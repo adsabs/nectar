@@ -33,6 +33,7 @@ import { SearchQueryLink } from '@components/SearchQueryLink';
 import { useDebounce } from '@hooks/useDebounce';
 import { saveAs } from 'file-saver';
 import { matchSorter } from 'match-sorter';
+import { useRouter } from 'next/router';
 import {
   ChangeEventHandler,
   forwardRef,
@@ -54,6 +55,15 @@ export const AllAuthorsModal = ({ bibcode, label }: IAllAuthorsModalProps): Reac
   const { isOpen, onOpen, onClose } = useDisclosure();
   const initialRef = useRef<HTMLInputElement>(null);
   const toast = useToast();
+  const router = useRouter();
+
+  // on history change (or url params), close the modal
+  useEffect(() => {
+    router.events.on('beforeHistoryChange', onClose);
+    return () => {
+      router.events.off('beforeHistoryChange', onClose);
+    };
+  }, [onClose]);
 
   // to avoid having to play with the forwarded ref, just focus here
   const handleSearchClear = () => {
@@ -196,7 +206,7 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
                       aria-label={`author "${author}", search by name`}
                       flexShrink="0"
                     >
-                      {author}
+                      <>{author}</>
                     </SearchQueryLink>
                   )}
                 </Td>
