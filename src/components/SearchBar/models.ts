@@ -198,7 +198,7 @@ export const allSearchTerms: SearchTermOption[] = [
   {
     type: 'item',
     id: 'author_count',
-    value: 'author_count:""',
+    value: 'author_count:',
     title: 'author count',
     description: 'Find records that have a specific number of authors, or a range of author counts',
     syntax: ['author_count:count', 'author_count:[min_count TO max_count]'],
@@ -216,7 +216,7 @@ export const allSearchTerms: SearchTermOption[] = [
   {
     type: 'item',
     id: 'bibcode',
-    value: 'bibcode:""',
+    value: 'bibcode:',
     title: 'bibcode',
     description: 'Find a specific record using the ADS bibcode (ADS identifier of a paper)',
     syntax: ['bibcode:adsbib'],
@@ -225,7 +225,7 @@ export const allSearchTerms: SearchTermOption[] = [
   {
     type: 'item',
     id: 'bibgroup',
-    value: 'bibgroup:""',
+    value: 'bibgroup:',
     title: 'bibliographic group',
     description: 'Limit search to papers in HST bibliography',
     syntax: ['bibgroup:name'],
@@ -234,7 +234,7 @@ export const allSearchTerms: SearchTermOption[] = [
   {
     type: 'item',
     id: 'bibstem',
-    value: 'bibstem:""',
+    value: 'bibstem:',
     title: 'bib abbrev',
     description: 'Find records that contain a specific bibstem in their bibcode',
     syntax: ['bibstem:adsbibstem'],
@@ -252,7 +252,7 @@ export const allSearchTerms: SearchTermOption[] = [
   {
     type: 'item',
     id: 'data',
-    value: 'data:""',
+    value: 'data:',
     title: 'data archive',
     description: 'Limit search to papers with data from specified',
     syntax: ['data:archive'],
@@ -261,7 +261,7 @@ export const allSearchTerms: SearchTermOption[] = [
   {
     type: 'item',
     id: 'collection',
-    value: 'collection:""',
+    value: 'collection:',
     title: 'collection',
     description: 'Search from the astronomy, physics, or general collection',
     syntax: ['collection:collection'],
@@ -270,7 +270,7 @@ export const allSearchTerms: SearchTermOption[] = [
   {
     type: 'item',
     id: 'citation_count',
-    value: 'citation_count:""',
+    value: 'citation_count:',
     title: 'citation count',
     description: 'Find records that have a specific number of citations, or a range of citation counts',
     syntax: ['citation_count:count', 'citation_count:[min_count TO max_count]'],
@@ -279,7 +279,7 @@ export const allSearchTerms: SearchTermOption[] = [
   {
     type: 'item',
     id: 'doctype',
-    value: 'doctype:""',
+    value: 'doctype:',
     title: 'doctype',
     description: 'Limit search to records corresponding to data catalogs',
     syntax: ['doctype:type'],
@@ -288,7 +288,7 @@ export const allSearchTerms: SearchTermOption[] = [
   {
     type: 'item',
     id: 'doi',
-    value: 'doi:""',
+    value: 'doi:',
     title: 'doi',
     description: 'finds a specific record using its digital object id',
     syntax: ['doi:DOI'],
@@ -297,7 +297,7 @@ export const allSearchTerms: SearchTermOption[] = [
   {
     type: 'item',
     id: 'entdate',
-    value: 'entdate:""',
+    value: 'entdate:',
     title: 'entdate',
     description: 'Creation date of ADS record in user-friendly format (YYYY-MM-DD)',
     syntax: ['entdate:YYYY-MM-DD'],
@@ -324,7 +324,7 @@ export const allSearchTerms: SearchTermOption[] = [
   {
     type: 'item',
     id: 'identifier',
-    value: 'identifier:""',
+    value: 'identifier:',
     title: 'identifier',
     description: 'Find a paper using any of its identifiers, arXiv, bibcode, doi, etc.',
     syntax: ['identifier:bibcode'],
@@ -333,7 +333,7 @@ export const allSearchTerms: SearchTermOption[] = [
   {
     type: 'item',
     id: 'inst',
-    value: 'inst:""',
+    value: 'inst:',
     title: 'institution',
     description:
       'Search by author\'s canonical affiliation. Click <a href="https://github.com/adsabs/CanonicalAffiliations/blob/master/parent_child.tsv" ref="noopener noreferrer" target="_blank">here</a> for a full list',
@@ -352,7 +352,7 @@ export const allSearchTerms: SearchTermOption[] = [
   {
     type: 'item',
     id: 'object',
-    value: 'object:""',
+    value: 'object:',
     title: 'object',
     description: 'Search for papers tagged with a specific astronomical object or at or near a set of coordinates',
     syntax: ['object:"object"'],
@@ -361,7 +361,7 @@ export const allSearchTerms: SearchTermOption[] = [
   {
     type: 'item',
     id: 'orcid',
-    value: 'orcid:""',
+    value: 'orcid:',
     title: 'orcid',
     description: 'Search for papers that are associated with a specific ORCiD iD',
     syntax: ['orcid:id'],
@@ -370,7 +370,7 @@ export const allSearchTerms: SearchTermOption[] = [
   {
     type: 'item',
     id: 'page',
-    value: 'page:""',
+    value: 'page:',
     title: 'page',
     description: 'Search for papers with a given page number',
     syntax: ['page:number'],
@@ -379,7 +379,7 @@ export const allSearchTerms: SearchTermOption[] = [
   {
     type: 'item',
     id: 'property',
-    value: 'property:""',
+    value: 'property:',
     title: 'property',
     description:
       'An array of miscellaneous flags associated with the record. Possible values include: refereed, notrefereed, article, nonarticle, ads_openaccess, eprint_openaccess, pub_openaccess, openaccess, ocrabstract',
@@ -389,7 +389,7 @@ export const allSearchTerms: SearchTermOption[] = [
   {
     type: 'item',
     id: 'pub',
-    value: 'bibstem:""',
+    value: 'bibstem:',
     title: 'publication full name',
     description: 'Limit search to a specific publication',
     syntax: ['pub:adsbibstem'],
@@ -398,7 +398,7 @@ export const allSearchTerms: SearchTermOption[] = [
   {
     type: 'item',
     id: 'pubdate',
-    value: 'pubdate:""',
+    value: 'pubdate:',
     title: 'date published',
     description: 'Use fine-grained dates for publication range',
     syntax: ['pubdate:[YYYY-MM TO YYYY-MM]'],
@@ -416,7 +416,7 @@ export const allSearchTerms: SearchTermOption[] = [
   {
     type: 'item',
     id: 'volume',
-    value: 'volume:""',
+    value: 'volume:',
     title: 'volume',
     description: 'Search for papers with a given volume',
     syntax: ['volume:volume'],
@@ -425,7 +425,7 @@ export const allSearchTerms: SearchTermOption[] = [
   {
     type: 'item',
     id: 'year',
-    value: 'year:""',
+    value: 'year:',
     title: 'year',
     description: 'Year of publication',
     syntax: ['year:YYYY', 'year:YYYY-YYYY'],
@@ -580,7 +580,7 @@ export const quickfields: SearchTermItem[] = [
   {
     type: 'item',
     id: 'year',
-    value: 'year:""',
+    value: 'year:',
     title: 'year',
     description: 'Year of publication',
     syntax: ['year:YYYY', 'year:YYYY-YYYY'],

@@ -21,7 +21,7 @@ import { ISortProps, Sort } from '@components/Sort';
 import { sections } from '@components/Visualizations';
 import { useIsClient } from '@hooks/useIsClient';
 import { AppState, useStore, useStoreApi } from '@store';
-import { makeSearchParams, noop } from '@utils';
+import { makeSearchParams, noop, parseQueryFromUrl } from '@utils';
 import { useRouter } from 'next/router';
 import { curryN } from 'ramda';
 import { MouseEventHandler, ReactElement, useEffect, useState } from 'react';
@@ -57,10 +57,8 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
         void router.push({ pathname: path.path, query: { ...router.query, qid: data.qid } });
       } else {
         // new search with operator
-        void router.push({
-          pathname: '',
-          query: { q: `${path.operator}(docs(${data.qid}))`, sort: ['score desc', 'bibcode desc'] },
-        });
+        const q = createOperatorQuery(path.operator, `docs(${data.qid})`);
+        void router.push({ pathname: '', search: makeSearchParams({ q, sort: ['score desc'] }) });
       }
       setPath(null);
     }
@@ -94,7 +92,8 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const handleOperationsLink = (operator: Operator) => {
     if (exploreAll) {
       // new search with operator
-      const q = `${operator}(${router.query.q as string})`;
+      const query = parseQueryFromUrl(router.query);
+      const q = createOperatorQuery(operator, query.q);
       void router.push({ pathname: '', search: makeSearchParams({ q, sort: ['score desc'] }) });
     } else {
       setPath({ operator });
@@ -152,7 +151,9 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
             <SelectAllCheckbox />
             {!noneSelected && (
               <>
-                <span className="m-2 h-5 text-sm">{selected.length.toLocaleString()} Selected</span>
+                <span className="m-2 h-5 text-sm" data-testid="listactions-selected">
+                  {selected.length.toLocaleString()} Selected
+                </span>
                 <Button variant="link" fontWeight="normal" onClick={clearSelected} data-testid="listactions-clearall">
                   Clear All
                 </Button>
@@ -346,4 +347,8 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean }): ReactEleme
       <MenuItem>Author Affiliations</MenuItem>
     </MenuGroup>
   );
+};
+
+const createOperatorQuery = (operator: Operator, originalQuery: string) => {
+  return operator === 'trending' ? `trending(${originalQuery})-(${originalQuery})` : `${operator}(${originalQuery})`;
 };

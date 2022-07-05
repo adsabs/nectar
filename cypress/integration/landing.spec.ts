@@ -50,10 +50,10 @@ describe('Landing Page', () => {
     cy.get('@input').should('have.value', 'author:""');
     cy.get('@input').type('Smith, John M.');
     cy.get('@input').should('have.value', 'author:"Smith, John M."');
-    cy.get('[data-value=\'year:""\']').click();
-    cy.get('@input').should('have.value', 'author:"Smith, John M." year:""');
+    cy.get('[data-value="year:"]').click();
+    cy.get('@input').should('have.value', 'author:"Smith, John M." year:');
     cy.get('@input').type('2000');
-    cy.get('@input').should('have.value', 'author:"Smith, John M." year:"2000"');
+    cy.get('@input').should('have.value', 'author:"Smith, John M." year:2000');
     cy.getByTestId('searchbar-clear').click();
 
     // select from all search terms
@@ -77,13 +77,13 @@ describe('Landing Page', () => {
     cy.get('@input').should('have.value', 'abstract:""');
     cy.get('@input').type('star');
     cy.getByTestId('allSearchTermsInput').type('inst{enter}');
-    cy.get('@input').should('have.value', 'abstract:"star" inst:""');
+    cy.get('@input').should('have.value', 'abstract:"star" inst:');
     cy.getByTestId('allSearchTermsInput').type('aaaaaaa');
     cy.getByTestId('allSearchTermsMenuItem').should('have.length', 0);
     cy.getByTestId('allSearchTermsInput').type('{enter}');
     cy.getByTestId('allSearchTermsMenuItem').should('not.exist');
     cy.getByTestId('allSearchTermsInput').should('have.value', '');
-    cy.get('@input').should('have.value', 'abstract:"star" inst:""');
+    cy.get('@input').should('have.value', 'abstract:"star" inst:');
   });
 
   it('Theme selector and corresponding search examples', () => {

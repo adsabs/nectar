@@ -60,6 +60,10 @@ export const Select = <
             backgroundColor: state.isFocused ? 'var(--chakra-colors-gray-100)' : 'transparent',
             color: 'var(--chakra-colors-gray-700)',
           }),
+          menu: (provided) => ({
+            ...provided,
+            zIndex: 10,
+          }),
         },
         sort: {
           control: (provided) => ({
@@ -76,6 +80,10 @@ export const Select = <
             backgroundColor: state.isFocused ? 'var(--chakra-colors-gray-100)' : 'transparent',
             color: 'var(--chakra-colors-gray-700)',
           }),
+          menu: (provided) => ({
+            ...provided,
+            zIndex: 10,
+          }),
         },
         default: {
           control: (provided) => ({
@@ -90,6 +98,10 @@ export const Select = <
             ...provided,
             backgroundColor: state.isFocused ? 'var(--chakra-colors-gray-100)' : 'transparent',
             color: 'var(--chakra-colors-gray-700)',
+          }),
+          menu: (provided) => ({
+            ...provided,
+            zIndex: 10,
           }),
         },
         'default.sm': {
@@ -121,6 +133,10 @@ export const Select = <
             backgroundColor: state.isFocused ? 'var(--chakra-colors-gray-100)' : 'transparent',
             color: 'var(--chakra-colors-gray-700)',
             fontSize: '0.8em',
+          }),
+          menu: (provided) => ({
+            ...provided,
+            zIndex: 10,
           }),
         },
       } as const),
