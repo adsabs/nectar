@@ -21,7 +21,7 @@ import { ISortProps, Sort } from '@components/Sort';
 import { sections } from '@components/Visualizations';
 import { useIsClient } from '@hooks/useIsClient';
 import { AppState, useStore, useStoreApi } from '@store';
-import { makeSearchParams, noop } from '@utils';
+import { makeSearchParams, noop, parseQueryFromUrl } from '@utils';
 import { useRouter } from 'next/router';
 import { curryN } from 'ramda';
 import { MouseEventHandler, ReactElement, useEffect, useState } from 'react';
@@ -92,7 +92,8 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const handleOperationsLink = (operator: Operator) => {
     if (exploreAll) {
       // new search with operator
-      const q = createOperatorQuery(operator, router.query.q as string);
+      const query = parseQueryFromUrl(router.query);
+      const q = createOperatorQuery(operator, query.q);
       void router.push({ pathname: '', search: makeSearchParams({ q, sort: ['score desc'] }) });
     } else {
       setPath({ operator });
@@ -348,5 +349,5 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean }): ReactEleme
 };
 
 const createOperatorQuery = (operator: Operator, originalQuery: string) => {
-  return operator === 'trending' ? `${operator}(${originalQuery})-(${originalQuery})` : `${operator}(${originalQuery})`;
+  return operator === 'trending' ? `trending(${originalQuery})-(${originalQuery})` : `${operator}(${originalQuery})`;
 };
