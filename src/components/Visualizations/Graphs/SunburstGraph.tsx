@@ -50,7 +50,7 @@ export const SunburstGraph = ({ graph, onClick }: ISunburstGraphProps): ReactEle
           value={graph.valueKey}
           valueFormat=" >-,"
           borderWidth={0.5}
-          colors={{ scheme: 'set3' }}
+          colors={{ scheme: 'category10' }}
           childColor={{
             from: 'color',
             modifiers: [['darker', 0.6]],

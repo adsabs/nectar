@@ -1,6 +1,24 @@
-import { Box, Flex, List, ListItem, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react';
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+  Box,
+  Flex,
+  List,
+  ListItem,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Text,
+} from '@chakra-ui/react';
 import { SimpleLink } from '@components/SimpleLink';
 import { ReactElement } from 'react';
+import { LineGraph } from '../Graphs';
+import { ILineGraph } from '../types';
+import { getLineGraphYearTicks } from '../utils';
 
 export interface INodeDetails {
   type: 'author' | 'group';
@@ -18,9 +36,12 @@ export interface INodeDetails {
 
 export interface INetworkDetailsProps {
   node: INodeDetails;
+  summaryGraph: ILineGraph;
 }
 
-export const NetworkDetailsPane = ({ node }: INetworkDetailsProps): ReactElement => {
+export const NetworkDetailsPane = ({ node, summaryGraph }: INetworkDetailsProps): ReactElement => {
+  const notEnoughData = !summaryGraph.error && summaryGraph.data.find((serie) => serie.data.length > 1) === undefined;
+
   return (
     <Tabs variant="soft-rounded">
       <TabList>
@@ -28,7 +49,33 @@ export const NetworkDetailsPane = ({ node }: INetworkDetailsProps): ReactElement
         <Tab>Detail</Tab>
       </TabList>
       <TabPanels>
-        <TabPanel></TabPanel>
+        <TabPanel>
+          {summaryGraph.error && (
+            <Flex justifyContent="center">
+              <Alert
+                status="error"
+                variant="subtle"
+                flexDirection="column"
+                justifyContent="center"
+                height="200px"
+                backgroundColor="transparent"
+                my={5}
+                width="50%"
+              >
+                <AlertIcon boxSize="40px" mr={0} />
+                <AlertTitle mt={4} mb={1} fontSize="lg">
+                  Cannot generate network
+                </AlertTitle>
+                <AlertDescription>{summaryGraph.error}</AlertDescription>
+              </Alert>
+            </Flex>
+          )}
+          {!summaryGraph.error && notEnoughData ? (
+            <>Not enough data to generate graph</>
+          ) : (
+            <LineGraph data={summaryGraph.data} ticks={getLineGraphYearTicks(summaryGraph.data, 10)} />
+          )}
+        </TabPanel>
         <TabPanel>
           <>
             {node ? (

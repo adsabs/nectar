@@ -4,12 +4,13 @@ import { useGetAuthorNetwork } from '@api/vis/vis';
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/alert';
 import { Box, CircularProgress, Flex, SimpleGrid, Text } from '@chakra-ui/react';
 import { INodeDetails, NetworkDetailsPane } from '@components';
+import { Serie } from '@nivo/line';
 import axios from 'axios';
 import { decode } from 'he';
-import { countBy, sortBy } from 'ramda';
+import { countBy, reduce, sortBy, uniq } from 'ramda';
 import { ReactElement, useMemo, useState } from 'react';
 import { NetworkGraphPane } from '../GraphPanes';
-import { ISunburstGraph, SunburstNode } from '../types';
+import { ILineGraph, ISunburstGraph, SunburstNode } from '../types';
 
 interface IAuthorNetworkPageContainerProps {
   query: IADSApiSearchParams;
@@ -66,6 +67,12 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
       return getAuthorNetworkGraph(authorNetworkData, viewIdToValueKey[currentViewId]);
     }
   }, [authorNetworkData, currentViewId]);
+
+  const authorNetworkSummaryGraph: ILineGraph = useMemo(() => {
+    if (authorNetworkData) {
+      return getAuthorNetworkSummaryGraph(authorNetworkData);
+    }
+  }, [authorNetworkData]);
 
   const handleViewChange = (viewId: string) => {
     setCurrentViewId(viewId as View);
@@ -137,7 +144,7 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
                 defaultView={views[0].id}
                 onClickNode={handleGraphNodeClick}
               />
-              <NetworkDetailsPane node={selected} />
+              <NetworkDetailsPane summaryGraph={authorNetworkSummaryGraph} node={selected} />
             </SimpleGrid>
           )}
         </>
@@ -152,6 +159,36 @@ const getAuthorNetworkGraph = (response: IADSApiVisResponse, valueKey: string): 
     return { data: undefined, error: new Error('Cannot generate network') };
   }
   return { data: response['data']['root'], idKey: 'name', valueKey: valueKey };
+};
+
+// Summary graph
+const getAuthorNetworkSummaryGraph = (response: IADSApiVisResponse): ILineGraph => {
+  if (!response.data.root) {
+    return { data: undefined, error: new Error('Cannot generate network') };
+  }
+
+  const data: Serie[] = [];
+
+  response.data.root.children.forEach((group, index) => {
+    if (index > 6) {
+      return;
+    }
+
+    // all papers in this group
+    // into year and paper count [ ... {year: count} ]
+    const yearPaperCount = countBy(
+      (bibcode) => bibcode.slice(0, 4),
+      uniq(reduce((acc, author) => [...acc, ...author.papers], [] as string[], group.children)),
+    );
+
+    // convert graph data to [ ... {x: year, y: count} ]
+    const graphData = Object.entries(yearPaperCount).map(([year, count]) => ({ x: year, y: count }));
+
+    data.push({ id: group.name, data: graphData });
+  });
+
+  console.log(data);
+  return { data };
 };
 
 // Get individual node details

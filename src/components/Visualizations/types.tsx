@@ -11,6 +11,7 @@ export interface IBarGraph<T extends BarDatum> {
 export interface ILineGraph {
   data: Serie[];
   hindex?: number;
+  error?: Error;
 }
 
 export interface ISunburstGraph {
