@@ -229,7 +229,7 @@ const AdvancedControls = ({
           <Stack spacing="4">
             <Divider />
             <JournalFormatSelect journalformat={params.journalformat} dispatch={dispatch} />
-            <KeyFormatInput />
+            <KeyFormatInput keyformat={params.keyformat} dispatch={dispatch} />
             <AuthorCutoffSlider authorcutoff={params.authorcutoff} dispatch={dispatch} />
             <MaxAuthorsSlider maxauthor={params.maxauthor} dispatch={dispatch} />
           </Stack>

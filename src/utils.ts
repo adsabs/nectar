@@ -1,11 +1,12 @@
 import api, { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, IUserData, SolrSort } from '@api';
 import { APP_DEFAULTS } from '@config';
 import { NumPerPageType, SafeSearchUrlParams } from '@types';
+import DOMPurify from 'isomorphic-dompurify';
 import { GetServerSidePropsContext, GetServerSidePropsResult, NextApiRequest, NextApiResponse } from 'next';
 import { useRouter } from 'next/router';
 import qs from 'qs';
 import { ParsedUrlQuery } from 'querystring';
-import { clamp, filter, last, omit, propIs, uniq } from 'ramda';
+import { clamp, filter, is, last, omit, propIs, uniq } from 'ramda';
 
 type ParsedQueryParams = ParsedUrlQuery | qs.ParsedQs;
 
@@ -295,3 +296,37 @@ export const stringifySearchParams = (params: Record<string, unknown>, options?:
     skipNulls: true,
     ...options,
   });
+
+export const purifyString = (value: string): string => {
+  try {
+    return DOMPurify.sanitize(value);
+  } catch (e) {
+    return value;
+  }
+};
+
+export const purify = <T extends Record<string, unknown>>(value: T): T | string | string[] => {
+  if (is(String, value)) {
+    return purifyString(value as string);
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(purifyString);
+  }
+
+  if (is(Object, value)) {
+    return Object.keys(value).reduce(
+      (acc, key) => ({
+        ...acc,
+        [key]: Array.isArray(value[key])
+          ? (value[key] as string[]).map(purifyString)
+          : is(String, value[key])
+          ? purifyString(value[key] as string)
+          : value[key],
+      }),
+      value,
+    );
+  }
+
+  return value;
+};

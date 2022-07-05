@@ -1,7 +1,22 @@
+import { IExportApiParams } from '@api';
 import { Box, Code, FormControl, FormLabel, Input } from '@chakra-ui/react';
+import { Sender } from '@xstate/react/lib/types';
+import { ChangeEventHandler, useCallback } from 'react';
+import { CitationExporterEvent } from '../CitationExporter.machine';
 import { DescriptionCollapse } from './DescriptionCollapse';
 
-export const KeyFormatInput = () => {
+interface IKeyFormatInputProps {
+  keyformat: IExportApiParams['keyformat'];
+  dispatch: Sender<CitationExporterEvent>;
+}
+
+export const KeyFormatInput = (props: IKeyFormatInputProps) => {
+  const { keyformat, dispatch } = props;
+
+  const handleOnChange: ChangeEventHandler<HTMLInputElement> = useCallback((e) => {
+    dispatch({ type: 'SET_KEY_FORMAT', payload: e.currentTarget.value });
+  }, []);
+
   return (
     <FormControl>
       <DescriptionCollapse
@@ -13,7 +28,7 @@ export const KeyFormatInput = () => {
           <Box>
             <FormLabel fontSize={['sm', 'md']}>Key Format {btn}</FormLabel>
             {content}
-            <Input defaultValue="%R" size="md" borderRadius="sm" />
+            <Input value={keyformat} size="md" borderRadius="sm" onChange={handleOnChange} />
           </Box>
         )}
       </DescriptionCollapse>
