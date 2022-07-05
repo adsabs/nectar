@@ -1,12 +1,13 @@
 import { IDocsEntity } from '@api';
 import { Checkbox, CheckboxProps } from '@chakra-ui/checkbox';
 import { Box, Flex, Link, Stack, Text } from '@chakra-ui/layout';
+import { CircularProgress, Fade, useTimeout } from '@chakra-ui/react';
 import { useIsClient } from '@hooks/useIsClient';
 import { useStore } from '@store';
 import { getFomattedNumericPubdate } from '@utils';
 import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
-import { ChangeEvent, ReactElement, useCallback } from 'react';
+import { ChangeEvent, ReactElement, useCallback, useEffect, useState } from 'react';
 import shallow from 'zustand/shallow';
 import { IAbstractPreviewProps } from './AbstractPreview';
 import { ItemResourceDropdowns } from './ItemResourceDropdowns';
@@ -24,10 +25,22 @@ export interface IItemProps {
   clear?: boolean;
   onSet?: (check: boolean) => void;
   useNormCite?: boolean;
+  showHighlights?: boolean;
+  isFetchingHighlights?: boolean;
+  highlights?: string[];
 }
 
 export const Item = (props: IItemProps): ReactElement => {
-  const { doc, index, hideCheckbox = false, hideActions = false, useNormCite } = props;
+  const {
+    doc,
+    index,
+    hideCheckbox = false,
+    hideActions = false,
+    useNormCite,
+    showHighlights,
+    isFetchingHighlights,
+    highlights,
+  } = props;
   const { bibcode, pubdate, title = ['Untitled'], author = [], bibstem = [], author_count } = doc;
   const formattedPubDate = getFomattedNumericPubdate(pubdate);
   const [formattedBibstem] = bibstem;
@@ -110,10 +123,50 @@ export const Item = (props: IItemProps): ReactElement => {
             {cite && (formattedPubDate || formattedBibstem) ? <span className="px-2">·</span> : null}
             {cite}
           </Text>
+          {showHighlights && <Highlights highlights={highlights} isFetchingHighlights={isFetchingHighlights} />}
           <AbstractPreview bibcode={bibcode} />
         </Flex>
       </Stack>
     </Flex>
+  );
+};
+/**
+ * Highlights view
+ */
+const Highlights = ({
+  highlights,
+  isFetchingHighlights,
+}: Pick<IItemProps, 'highlights' | 'isFetchingHighlights'>): ReactElement => {
+  const [showIndicator, setShowIndicator] = useState(false);
+
+  // hide indicator for a period of time, in case the server respond quickly
+  useTimeout(() => {
+    if (isFetchingHighlights) {
+      setShowIndicator(true);
+    }
+  }, 1000);
+
+  // reset indicator state
+  useEffect(() => {
+    if (highlights) {
+      setShowIndicator(false);
+    }
+  }, [highlights]);
+
+  return (
+    <Box as="section" aria-label="highlights" className="search-snippets" my={2} data-testid="highlights-section">
+      {isFetchingHighlights || !highlights ? (
+        showIndicator && <CircularProgress mt={5} isIndeterminate size="20px" />
+      ) : (
+        <Fade in={!!highlights}>
+          {highlights.length > 0 ? (
+            highlights.map((hl, index) => <Text key={`hl-${index}`} dangerouslySetInnerHTML={{ __html: hl }}></Text>)
+          ) : (
+            <Text color="blackAlpha.500">No Highlights</Text>
+          )}
+        </Fade>
+      )}
+    </Box>
   );
 };
 

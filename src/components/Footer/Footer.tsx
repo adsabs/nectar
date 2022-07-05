@@ -86,7 +86,7 @@ export const Footer: FC = () => {
           Careers@ADS
         </SimpleLink>
         <SimpleLink href="/help/accessibility" variant="footer">
-          Accessibilty
+          Accessibility
         </SimpleLink>
       </Flex>
       <Flex direction="column" mx={5} my={{ base: '3', md: '0' }}>

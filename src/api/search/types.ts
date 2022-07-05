@@ -52,8 +52,13 @@ export interface IADSApiSearchResponse {
   responseHeader?: IADSApiSearchResponseHeader;
   error?: IADSApiSearchResponseError;
   nextCursorMark?: string;
+  highlighting?: Record<number, Partial<Record<string, string[]>>>;
 }
 
+export interface IHighlight {
+  abstract?: string[];
+  title?: string[];
+}
 export interface ISearchStatsFields {
   stats_fields: {
     citation_count?: ISearchStats;

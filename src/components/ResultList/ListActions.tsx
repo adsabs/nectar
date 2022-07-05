@@ -151,7 +151,9 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
             <SelectAllCheckbox />
             {!noneSelected && (
               <>
-                <span className="m-2 h-5 text-sm">{selected.length.toLocaleString()} Selected</span>
+                <span className="m-2 h-5 text-sm" data-testid="listactions-selected">
+                  {selected.length.toLocaleString()} Selected
+                </span>
                 <Button variant="link" fontWeight="normal" onClick={clearSelected} data-testid="listactions-clearall">
                   Clear All
                 </Button>
@@ -245,8 +247,8 @@ const SortWrapper = ({ onChange }: { onChange: ISortProps['onChange'] }) => {
 };
 
 const HighlightsToggle = () => {
-  const [showHighlights, setShowHights] = useState(false);
-  const toggleShowHighlights = () => setShowHights(!showHighlights);
+  const showHighlights = useStore((state) => state.showHighlights);
+  const toggleShowHighlights = useStore((state) => state.toggleShowHighlights);
 
   return (
     <Button
@@ -255,7 +257,6 @@ const HighlightsToggle = () => {
       size="md"
       borderRadius="2px"
       data-testid="listactions-showhighlights"
-      hidden
     >
       Show Highlights
     </Button>
