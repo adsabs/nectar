@@ -3,6 +3,7 @@ import { IconButton } from '@chakra-ui/button';
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import { Flex, Text, VStack } from '@chakra-ui/layout';
 import { Collapse } from '@chakra-ui/transition';
+import { MathJax } from 'better-react-mathjax';
 import { ReactElement, useState } from 'react';
 import { toast } from 'react-toastify';
 
@@ -37,7 +38,12 @@ export const AbstractPreview = ({ bibcode }: IAbstractPreviewProps): ReactElemen
     <Flex direction="column" justifyContent="center" alignContent="center">
       {isSuccess && (
         <Collapse in={show} animateOpacity>
-          <Text fontSize="md" mt={1} dangerouslySetInnerHTML={{ __html: data.docs[0]?.abstract ?? text.noAbstract }} />
+          <Text
+            as={MathJax}
+            fontSize="md"
+            mt={1}
+            dangerouslySetInnerHTML={{ __html: data.docs[0]?.abstract ?? text.noAbstract }}
+          />
         </Collapse>
       )}
       <VStack>

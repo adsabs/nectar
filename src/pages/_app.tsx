@@ -2,6 +2,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { Layout } from '@components';
 import { useIsClient } from '@hooks';
 import { useCreateQueryClient } from '@hooks/useCreateQueryClient';
+import { MathJaxProvider } from '@mathjax';
 import { AppState, StoreProvider, useCreateStore, useStore } from '@store';
 import { theme } from '@theme';
 import { Theme } from '@types';
@@ -44,14 +45,16 @@ const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => 
   const createStore = useCreateStore(pageProps.dehydratedAppState ?? {});
 
   return (
-    <ChakraProvider theme={theme}>
-      <StoreProvider createStore={createStore}>
-        <QCProvider>
-          <Hydrate state={pageProps.dehydratedState}>{children}</Hydrate>
-          <ReactQueryDevtools />
-        </QCProvider>
-      </StoreProvider>
-    </ChakraProvider>
+    <MathJaxProvider>
+      <ChakraProvider theme={theme}>
+        <StoreProvider createStore={createStore}>
+          <QCProvider>
+            <Hydrate state={pageProps.dehydratedState}>{children}</Hydrate>
+            <ReactQueryDevtools />
+          </QCProvider>
+        </StoreProvider>
+      </ChakraProvider>
+    </MathJaxProvider>
   );
 };
 
