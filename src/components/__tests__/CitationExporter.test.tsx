@@ -38,11 +38,13 @@ const checkOutput = (
     numRecords: 1,
     format: ExportApiFormatKey.bibtex,
     sort: ['date desc', 'bibcode desc'],
+    keyformat: [''],
     authorcutoff: [200],
     journalformat: [1],
     maxauthor: [10],
   };
-  expect(el).toHaveValue(JSON.stringify({ ...defaultParams, ...params }, null, 2));
+  const expected = { ...defaultParams, ...params };
+  expect(el).toHaveValue(JSON.stringify(expected, Object.keys(expected).sort(), 2));
 };
 
 const setup = (component: JSX.Element) => {
@@ -58,7 +60,7 @@ describe('CitationExporter', () => {
       setup(<SingleMode />);
     });
     test('has proper output', async () => {
-      const { getByTestId, debug } = setup(<SingleMode />);
+      const { getByTestId } = setup(<SingleMode />);
       await waitFor(() => checkOutput(getByTestId('export-output') as HTMLTextAreaElement));
     });
   });

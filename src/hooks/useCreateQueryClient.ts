@@ -1,10 +1,8 @@
-import { useToast } from '@chakra-ui/react';
 import axios from 'axios';
 import { useState } from 'react';
 import { QueryCache, QueryClient } from 'react-query';
 
 export const useCreateQueryClient = () => {
-  const toast = useToast();
   const queryCache = new QueryCache({
     onError: (error, query) => {
       // check if we should skip handling the error here
