@@ -20,7 +20,7 @@ import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { LineGraph } from '@components';
 import { Y_Axis, ILineGraph } from '../types';
-import { getHIndexGraphData, getLineGraphYearTicks } from '../utils';
+import { getHIndexGraphData, getLineGraphXTicks } from '../utils';
 
 export interface IHIndexGraphPaneProps {
   buckets: IBucket[];
@@ -124,7 +124,7 @@ export const HIndexGraphPane = ({ buckets, sum, type, onApplyCondition }: IHInde
               </FormControl>
               <LineGraph
                 data={transformedGraph.data}
-                ticks={getLineGraphYearTicks(transformedGraph.data, 10)}
+                ticks={getLineGraphXTicks(transformedGraph.data, 10)}
                 showLegend={false}
                 type={yaxis}
               />

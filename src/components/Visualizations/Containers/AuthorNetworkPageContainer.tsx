@@ -167,7 +167,7 @@ const getAuthorNetworkSummaryGraph = (response: IADSApiVisResponse): ILineGraph 
     );
 
     // convert graph data to [ ... {x: year, y: count} ]
-    const graphData = Object.entries(yearPaperCount).map(([year, count]) => ({ x: year, y: count }));
+    const graphData = Object.entries(yearPaperCount).map(([year, count]) => ({ x: parseInt(year), y: count }));
 
     data.push({ id: group.name, data: graphData });
   });

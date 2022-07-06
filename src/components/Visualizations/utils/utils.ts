@@ -3,18 +3,42 @@ import { BarDatum } from '@nivo/bar';
 import { Serie } from '@nivo/line';
 import { FacetField, YearDatum } from '../types';
 
-export const getLineGraphYearTicks = (data: Serie[], maxTicks: number) => {
-  if (data[0].data.length <= maxTicks) {
+/**
+ * From a line graph data, return an array of X ticks with the specified max number of ticks
+ * @param data
+ * @param maxTicks
+ * @returns
+ */
+export const getLineGraphXTicks = (data: Serie[], maxTicks: number) => {
+  let min = Number.MAX_SAFE_INTEGER;
+  let max = 0;
+
+  data.forEach((serie) => {
+    serie.data.forEach((value) => {
+      const x = typeof value.x === 'number' ? value.x : parseInt(value.x as string);
+      if (x > max) {
+        max = x;
+      }
+      if (x < min) {
+        min = x;
+      }
+    });
+  });
+
+  // x values smaller than max number of ticks, return
+  if (max - min + 1 <= maxTicks) {
     return undefined;
   }
-  const ticks: string[] = [];
+  const ticks: number[] = [];
 
-  const nPerTick = Math.ceil(data[0].data.length / maxTicks);
-  data[0].data.forEach(({ x }) => {
-    if (+x % nPerTick === 0) {
-      ticks.push(x as string);
+  const nPerTick = Math.ceil((max - min + 1) / maxTicks);
+  let y = min;
+  while (y <= max) {
+    if ((y - min) % nPerTick === 0) {
+      ticks.push(y);
     }
-  });
+    y += 1;
+  }
 
   return ticks;
 };

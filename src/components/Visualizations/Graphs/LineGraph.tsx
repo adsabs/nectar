@@ -5,7 +5,7 @@ import { Y_Axis } from '../types';
 
 export interface ILineGraphProps {
   data: Serie[];
-  ticks: string[];
+  ticks: string[] | number[];
   showLegend?: boolean;
   type?: Y_Axis;
 }
@@ -18,7 +18,7 @@ export const LineGraph = memo(({ data, ticks, showLegend = true, type = 'linear'
           data={data}
           margin={{ top: 50, right: showLegend ? 110 : 50, bottom: 50, left: 60 }}
           colors={{ scheme: 'category10' }}
-          xScale={{ type: 'point' }}
+          xScale={{ type: 'linear', min: 'auto', max: 'auto' }}
           yScale={
             type === 'linear'
               ? {

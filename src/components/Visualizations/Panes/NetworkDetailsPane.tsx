@@ -4,7 +4,7 @@ import { SimpleLink } from '@components/SimpleLink';
 import { ReactElement } from 'react';
 import { LineGraph } from '../Graphs';
 import { ILineGraph } from '../types';
-import { getLineGraphYearTicks } from '../utils';
+import { getLineGraphXTicks } from '../utils';
 
 export interface INodeDetails {
   type: 'author' | 'group';
@@ -48,7 +48,7 @@ export const NetworkDetailsPane = ({ node, summaryGraph }: INetworkDetailsProps)
           ) : (
             <>
               <Text>Group Activity Over Time (measured in papers published)</Text>
-              <LineGraph data={summaryGraph.data} ticks={getLineGraphYearTicks(summaryGraph.data, 10)} />
+              <LineGraph data={summaryGraph.data} ticks={getLineGraphXTicks(summaryGraph.data, 5)} />
             </>
           )}
         </TabPanel>
