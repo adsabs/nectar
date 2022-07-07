@@ -1,7 +1,7 @@
 import { Box, Flex, List, ListItem, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react';
 import { CustomInfoMessage } from '@components/Alert';
 import { SimpleLink } from '@components/SimpleLink';
-import { ReactElement } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 import { LineGraph } from '../Graphs';
 import { ILineGraph } from '../types';
 import { getLineGraphXTicks } from '../utils';
@@ -28,8 +28,21 @@ export interface INetworkDetailsProps {
 export const NetworkDetailsPane = ({ node, summaryGraph }: INetworkDetailsProps): ReactElement => {
   const notEnoughData = !summaryGraph.error && summaryGraph.data.find((serie) => serie.data.length > 1) === undefined;
 
+  const [tabIndex, setTabIndex] = useState(0);
+
+  // when selected node changes, change tab to node details
+  useEffect(() => {
+    if (node) {
+      setTabIndex(1);
+    }
+  }, [node]);
+
+  const handleTabIndexChange = (index: number) => {
+    setTabIndex(index);
+  };
+
   return (
-    <Tabs variant="soft-rounded">
+    <Tabs variant="soft-rounded" index={tabIndex} onChange={handleTabIndexChange}>
       <TabList>
         <Tab>Summary</Tab>
         <Tab>Detail</Tab>
