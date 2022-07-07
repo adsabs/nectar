@@ -161,7 +161,7 @@ const reducer: Reducer<
       // push new entry, but don't check for prefixes on custom entries
       case 'create-option': {
         const selected = state.isMultiple
-          ? [...state.selected, state.isMultiple ? action.meta.option : (action.payload as IBibstemOption)]
+          ? [...state.selected, action.meta.option]
           : ([action.payload] as IBibstemOption[]);
 
         return { ...state, selected, hiddenValue: formatBibstemOptions(selected), prefix: '' };

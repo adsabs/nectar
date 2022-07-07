@@ -238,8 +238,6 @@ export const getBibstems = (bibstems: string) =>
  * Run classic form parameters through parsers and generate URL query string
  */
 export const getSearchQuery = (params: IRawClassicFormState): string => {
-  console.log('params', params);
-
   // sanitize strings
   const purify = (v: string) => DOMPurify.sanitize(v);
 
