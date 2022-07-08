@@ -1,5 +1,5 @@
 import { FormControl, FormLabel } from '@chakra-ui/form-control';
-import { ReactElement, ReactNode, useMemo } from 'react';
+import { ForwardedRef, forwardRef, ReactElement, ReactNode, useMemo } from 'react';
 import { default as ReactSelect, GroupBase, Props, StylesConfig } from 'react-select';
 import { v4 as uuid } from 'uuid';
 
@@ -10,7 +10,7 @@ export type SelectOption<V = unknown> = {
   help?: string;
 };
 export interface ISelectProps<
-  Option extends SelectOption = SelectOption,
+  Option = SelectOption,
   isMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>,
 > extends Props<Option, isMulti, Group> {
@@ -20,12 +20,13 @@ export interface ISelectProps<
   id?: string;
 }
 
-export const Select = <
-  Option extends SelectOption = SelectOption,
+const SelectImpl = <
+  Option = SelectOption,
   isMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>,
 >(
   props: ISelectProps<Option, isMulti, Group>,
+  ref: ForwardedRef<never>,
 ): ReactElement => {
   const { hideLabel = true, label, stylesTheme, id, ...selectProps } = props;
 
@@ -150,9 +151,18 @@ export const Select = <
         isSearchable={false}
         aria-label={typeof label === 'string' ? label : ''}
         id={selectId}
+        ref={ref}
         {...selectProps}
         styles={themes[stylesTheme]}
       />
     </FormControl>
   );
 };
+
+export const Select = forwardRef(SelectImpl) as <
+  Option = SelectOption,
+  isMulti extends boolean = false,
+  Group extends GroupBase<Option> = GroupBase<Option>,
+>(
+  props: ISelectProps<Option, isMulti, Group> & { ref?: ForwardedRef<never> },
+) => ReactElement;

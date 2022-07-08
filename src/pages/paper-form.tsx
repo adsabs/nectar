@@ -6,7 +6,7 @@ import { FormControl, FormErrorMessage, FormHelperText, FormLabel } from '@chakr
 import { WarningTwoIcon } from '@chakra-ui/icons';
 import { Box, Divider, Grid, GridItem, Heading, Stack, Text, VStack } from '@chakra-ui/layout';
 import { Alert, Input, Link, Textarea } from '@chakra-ui/react';
-import { BibstemPickerSingle } from '@components';
+import { BibstemPicker } from '@components';
 import { useErrorMessage } from '@hooks/useErrorMessage';
 import { useIsClient } from '@hooks/useIsClient';
 import { setupApiSSR } from '@utils';
@@ -20,7 +20,7 @@ import { FormEventHandler, useCallback } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { QueryClient, useQueryClient } from 'react-query';
 
-export enum PaperFormType {
+enum PaperFormType {
   JOURNAL_QUERY = 'journal-query',
   REFERENCE_QUERY = 'reference-query',
   BIBCODE_QUERY = 'bibcode-query',
@@ -117,7 +117,6 @@ const JournalQueryForm = ({ onSubmit, error }: SubFormProps) => {
 
   const formSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
-
     void handleSubmit(onSubmit)(e);
   };
 
@@ -153,7 +152,7 @@ const JournalQueryForm = ({ onSubmit, error }: SubFormProps) => {
                 name="bibstem"
                 control={control}
                 render={({ field }) => (
-                  <BibstemPickerSingle name="bibstem" onItemUpdate={(item) => field.onChange(item)} {...field} />
+                  <BibstemPicker isMultiple={false} onChange={(value) => field.onChange(value)} {...field} />
                 )}
               />
             ) : (

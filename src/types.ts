@@ -1,5 +1,6 @@
 import { IADSApiSearchParams, IUserData } from '@api';
 import { APP_DEFAULTS } from '@config';
+import { SetupServerApi } from 'msw/lib/types/node';
 
 export enum Theme {
   GENERAL = 'GENERAL',
@@ -43,3 +44,20 @@ declare module 'http' {
 export type NumPerPageType = typeof APP_DEFAULTS['PER_PAGE_OPTIONS'][number];
 
 export type SafeSearchUrlParams = Omit<IADSApiSearchParams, 'fl' | 'start' | 'rows'> & { p?: number; n?: number };
+
+export interface IBibstemOption {
+  label: string;
+  value: string;
+  prefix?: string;
+  type?: 'error';
+  isDisabled?: boolean;
+}
+
+// used for testing
+declare global {
+  // eslint-disable-next-line no-var
+  var __mockServer__: SetupServerApi & {
+    onRequest: unknown;
+    onResponse: unknown;
+  };
+}

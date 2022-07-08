@@ -17,6 +17,23 @@ export interface IClassicFormState {
   abstract_keywords: string;
   logic_abstract_keywords: LogicChoice;
   property: PropertyChoice[];
-  bibstems: string[];
+  bibstems: string;
   sort: SolrSort[];
+}
+
+export interface IRawClassicFormState {
+  limit: string[];
+  author: string;
+  logic_author: string;
+  object: string;
+  logic_object: string;
+  pubdate_start: string;
+  pubdate_end: string;
+  title: string;
+  logic_title: string;
+  abstract_keywords: string;
+  logic_abstract_keywords: string;
+  property: string[];
+  bibstems: string;
+  sort: string[];
 }

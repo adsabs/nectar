@@ -8,13 +8,12 @@ import { Radio, RadioGroup } from '@chakra-ui/radio';
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/react';
 import { Textarea } from '@chakra-ui/textarea';
 import VisuallyHidden from '@chakra-ui/visually-hidden';
-import { BibstemPickerMultiple, Sort } from '@components';
+import { BibstemPicker, Sort } from '@components';
 import { APP_DEFAULTS } from '@config';
 import { useErrorMessage } from '@hooks/useErrorMessage';
 import { useIsClient } from '@hooks/useIsClient';
 import { useRouter } from 'next/router';
 import PT from 'prop-types';
-import { omit } from 'ramda';
 import { FormEventHandler } from 'react';
 import { Controller, useForm, UseFormRegisterReturn } from 'react-hook-form';
 import { getSearchQuery } from './helpers';
@@ -37,7 +36,7 @@ export const defaultClassicFormState: IClassicFormState = {
   abstract_keywords: '',
   logic_abstract_keywords: 'and',
   property: [],
-  bibstems: [],
+  bibstems: '',
   sort: APP_DEFAULTS.SORT,
 };
 
@@ -173,11 +172,9 @@ export const ClassicForm = (props: IClassicFormProps) => {
             control={control}
             render={({ field }) => (
               <FormControl>
-                <BibstemPickerMultiple
-                  name="bibstems"
-                  onChange={(items) => field.onChange(items)}
-                  {...omit(['ref'], field)}
-                />
+                <FormLabel>Publications</FormLabel>
+                <BibstemPicker isMultiple onChange={(items) => field.onChange(items)} />
+                <FormHelperText>Ex. "A&amp;A" or "-A&amp;A"</FormHelperText>
               </FormControl>
             )}
           />

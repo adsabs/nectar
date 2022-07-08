@@ -1,2 +1,1 @@
-export * from './BibstemPickerMultiple';
-export * from './BibstemPickerSingle';
+export * from './BibstemPicker';
