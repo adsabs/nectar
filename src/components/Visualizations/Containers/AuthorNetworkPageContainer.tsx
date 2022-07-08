@@ -2,8 +2,8 @@ import { IADSApiSearchParams, useSearch } from '@api';
 import { IADSApiVisResponse, IBibcodeDict, ILeaf } from '@api/vis/types';
 import { useGetAuthorNetwork } from '@api/vis/vis';
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/alert';
-import { Box, CircularProgress, SimpleGrid, Text } from '@chakra-ui/react';
-import { INodeDetails, NetworkDetailsPane, CustomInfoMessage } from '@components';
+import { Box, CircularProgress, Flex, SimpleGrid, Text } from '@chakra-ui/react';
+import { INodeDetails, NetworkDetailsPane, CustomInfoMessage, Expandable, SimpleLink } from '@components';
 import { Serie } from '@nivo/line';
 import axios from 'axios';
 import { decode } from 'he';
@@ -121,16 +121,31 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
             the list of papers was too small or sparse to produce multiple meaningful groups."
             />
           ) : (
-            <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={10}>
-              <NetworkGraphPane
-                graph={authorNetworkGraph}
-                views={views}
-                onChangeView={handleViewChange}
-                defaultView={views[0].id}
-                onClickNode={handleGraphNodeClick}
+            <Flex direction="column">
+              <Expandable
+                title="About Author Network"
+                description={
+                  <>
+                    This network visualization finds groups of authors within your search results. You can click on the
+                    segments to view the papers connected with a group or a particular author.{' '}
+                    <SimpleLink href="/help/actions/visualize#author-network" newTab>
+                      Learn more about author network
+                    </SimpleLink>
+                  </>
+                }
+                mb={8}
               />
-              <NetworkDetailsPane summaryGraph={authorNetworkSummaryGraph} node={selected} />
-            </SimpleGrid>
+              <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={10}>
+                <NetworkGraphPane
+                  graph={authorNetworkGraph}
+                  views={views}
+                  onChangeView={handleViewChange}
+                  defaultView={views[0].id}
+                  onClickNode={handleGraphNodeClick}
+                />
+                <NetworkDetailsPane summaryGraph={authorNetworkSummaryGraph} node={selected} />
+              </SimpleGrid>
+            </Flex>
           )}
         </>
       )}

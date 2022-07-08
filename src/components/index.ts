@@ -27,3 +27,5 @@ export * from './TopProgressBar';
 export * from './Visualizations';
 export * from './SearchQueryLink';
 export * from './ClassicForm';
+export * from './Expandable';
+
