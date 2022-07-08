@@ -1,4 +1,4 @@
-import { Box, Flex, List, ListItem, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, List, ListItem, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react';
 import { CustomInfoMessage } from '@components/Alert';
 import { SimpleLink } from '@components/SimpleLink';
 import { ReactElement, useEffect, useState } from 'react';
@@ -23,9 +23,18 @@ export interface INodeDetails {
 export interface INetworkDetailsProps {
   node: INodeDetails;
   summaryGraph: ILineGraph;
+  onAddToFilter: (node: INodeDetails) => void;
+  onRemoveFromFilter: (node: INodeDetails) => void;
+  canAddAsFilter: boolean;
 }
 
-export const NetworkDetailsPane = ({ node, summaryGraph }: INetworkDetailsProps): ReactElement => {
+export const NetworkDetailsPane = ({
+  node,
+  summaryGraph,
+  onAddToFilter,
+  onRemoveFromFilter,
+  canAddAsFilter,
+}: INetworkDetailsProps): ReactElement => {
   const notEnoughData = !summaryGraph.error && summaryGraph.data.find((serie) => serie.data.length > 1) === undefined;
 
   const [tabIndex, setTabIndex] = useState(0);
@@ -39,6 +48,14 @@ export const NetworkDetailsPane = ({ node, summaryGraph }: INetworkDetailsProps)
 
   const handleTabIndexChange = (index: number) => {
     setTabIndex(index);
+  };
+
+  const handleAddToFilter = () => {
+    onAddToFilter(node);
+  };
+
+  const handleRemoveFromFilter = () => {
+    onRemoveFromFilter(node);
   };
 
   return (
@@ -69,9 +86,20 @@ export const NetworkDetailsPane = ({ node, summaryGraph }: INetworkDetailsProps)
           <>
             {node ? (
               <Flex direction="column">
-                <Text as="h3" fontSize="xl" fontWeight="bold">
-                  {node.name}
-                </Text>
+                <Flex justifyContent="space-between">
+                  <Text as="h3" fontSize="xl" fontWeight="bold">
+                    {node.name}
+                  </Text>
+                  {canAddAsFilter ? (
+                    <Button w="fit-content" ml={5} variant="outline" onClick={handleAddToFilter}>
+                      Add to filter
+                    </Button>
+                  ) : (
+                    <Button w="fit-content" ml={5} variant="outline" color="red.500" onClick={handleRemoveFromFilter}>
+                      Remove filter
+                    </Button>
+                  )}
+                </Flex>
                 <Text>
                   Total papers: {node.papers.length}, most recent: {node.mostRecentYear}
                 </Text>

@@ -1,14 +1,17 @@
-import { IADSApiSearchParams, useSearch } from '@api';
+import { IADSApiSearchParams, useSearch, useVaultBigQuerySearch } from '@api';
 import { IADSApiVisResponse, IBibcodeDict, ILeaf } from '@api/vis/types';
 import { useGetAuthorNetwork } from '@api/vis/vis';
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/alert';
-import { Box, CircularProgress, Flex, SimpleGrid, Text } from '@chakra-ui/react';
+import { Box, Button, CircularProgress, Flex, SimpleGrid, Text, useToast } from '@chakra-ui/react';
 import { INodeDetails, NetworkDetailsPane, CustomInfoMessage, Expandable, SimpleLink } from '@components';
+import { ITagItem, Tags } from '@components/Tags';
 import { Serie } from '@nivo/line';
+import { makeSearchParams } from '@utils';
 import axios from 'axios';
 import { decode } from 'he';
+import { useRouter } from 'next/router';
 import { countBy, reduce, sortBy, uniq } from 'ramda';
-import { ReactElement, useMemo, useState } from 'react';
+import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { NetworkGraphPane } from '../GraphPanes';
 import { ILineGraph, ISunburstGraph, SunburstNode } from '../types';
 
@@ -32,6 +35,9 @@ const viewIdToValueKey: { [view in View]: string } = {
 };
 
 export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContainerProps): ReactElement => {
+  const router = useRouter();
+  const toast = useToast();
+
   // fetch bibcodes of query
   const {
     data: bibsQueryResponse,
@@ -57,9 +63,14 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
     error: authorNetworkError,
   } = useGetAuthorNetwork(bibcodes, { enabled: bibcodes && bibcodes.length > 0 });
 
+  // Type of view
   const [currentViewId, setCurrentViewId] = useState<View>(views[0].id);
 
+  // User selected graph node (group, author)
   const [selected, setSelected] = useState<INodeDetails>(null);
+
+  // Selected filters (group, author)
+  const [filters, setFilters] = useState<INodeDetails[]>([]);
 
   // author network data to network graph
   const authorNetworkGraph: ISunburstGraph = useMemo(() => {
@@ -68,11 +79,45 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
     }
   }, [authorNetworkData, currentViewId]);
 
+  // author network data to summary graph
   const authorNetworkSummaryGraph: ILineGraph = useMemo(() => {
     if (authorNetworkData) {
       return getAuthorNetworkSummaryGraph(authorNetworkData);
     }
   }, [authorNetworkData]);
+
+  // convert filters to tags
+  const filterTagItems: ITagItem[] = useMemo(() => {
+    return filters.map((node) => ({
+      id: node.name,
+      label: node.name,
+    }));
+  }, [filters]);
+
+  // when filtered search is applied, trigger big query
+  const [applyingBibcodes, setApplyingBibcodes] = useState<string[]>([]);
+  const { data: bigQueryData, error: bigQueryError } = useVaultBigQuerySearch(applyingBibcodes, {
+    enabled: applyingBibcodes.length > 0,
+  });
+
+  // When big query data is fetched, redirect to the search results page
+  useEffect(() => {
+    if (bigQueryData && applyingBibcodes.length > 0) {
+      void router.push({ pathname: '/search', search: makeSearchParams({ q: `docs(${bigQueryData.qid})` }) });
+      setApplyingBibcodes([]);
+    }
+
+    if (bigQueryError) {
+      toast({
+        status: 'error',
+        title: 'Error!',
+        description: 'Error fetching filtered results',
+      });
+      setApplyingBibcodes([]);
+    }
+  }, [bigQueryData, bigQueryError, applyingBibcodes]);
+
+  // Callback Handlers
 
   const handleViewChange = (viewId: string) => {
     setCurrentViewId(viewId as View);
@@ -81,6 +126,35 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
   const handleGraphNodeClick = (node: SunburstNode) => {
     const bibcode_dict = authorNetworkData.data.bibcode_dict;
     setSelected(getNodeDetails(node, bibcode_dict));
+  };
+
+  const handleAddFilter = (node: INodeDetails) => {
+    setFilters(uniq([...filters, node]));
+  };
+
+  const handleRemoveFilter = (node: INodeDetails) => {
+    setFilters(filters.filter((f) => f.name !== node.name));
+  };
+
+  const handleRemoveFilterTag = (filterTagItem: ITagItem) => {
+    setFilters(filters.filter((filter) => filter.name !== filterTagItem.id));
+  };
+
+  const handleClearFiltersTags = () => {
+    setFilters([]);
+  };
+
+  // get all papers (bibcodes) of the filter groups and authors and trigger big query search
+  const handleApplyFilters = () => {
+    const bibcodes = uniq(
+      filters.reduce(
+        (acc, node) => [...acc, ...node.papers.reduce((acc1, paper) => [...acc1, paper.bibcode], [] as string[])],
+        [] as string[],
+      ),
+    );
+
+    // This will trigger big query and redirect
+    setApplyingBibcodes(bibcodes);
   };
 
   return (
@@ -135,6 +209,14 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
                 }
                 mb={8}
               />
+              <Text fontWeight="bold">Filter current search: </Text>
+              <Text>Narrow down your search results to papers from a certain group or author</Text>
+              <FilterSearchBar
+                tagItems={filterTagItems}
+                onRemove={handleRemoveFilterTag}
+                onClear={handleClearFiltersTags}
+                onApply={handleApplyFilters}
+              />
               <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={10}>
                 <NetworkGraphPane
                   graph={authorNetworkGraph}
@@ -143,12 +225,43 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
                   defaultView={views[0].id}
                   onClickNode={handleGraphNodeClick}
                 />
-                <NetworkDetailsPane summaryGraph={authorNetworkSummaryGraph} node={selected} />
+                <NetworkDetailsPane
+                  summaryGraph={authorNetworkSummaryGraph}
+                  node={selected}
+                  onAddToFilter={handleAddFilter}
+                  onRemoveFromFilter={handleRemoveFilter}
+                  canAddAsFilter={filters.findIndex((f) => f.name === selected.name) === -1}
+                />
               </SimpleGrid>
             </Flex>
           )}
         </>
       )}
+    </Box>
+  );
+};
+
+const FilterSearchBar = ({
+  tagItems,
+  onRemove,
+  onClear,
+  onApply,
+}: {
+  tagItems: ITagItem[];
+  onRemove: (tagItem: ITagItem) => void;
+  onClear: () => void;
+  onApply: () => void;
+}): ReactElement => {
+  return (
+    <Box mb={5}>
+      <Tags
+        tagItems={tagItems}
+        onRemove={onRemove}
+        onClear={onClear}
+        placeHolder="select an author or a group in the visualization and click the 'add to filter' button"
+        flex={1}
+      />
+      <Button onClick={onApply}>Search</Button>
     </Box>
   );
 };

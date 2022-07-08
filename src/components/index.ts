@@ -29,3 +29,5 @@ export * from './SearchQueryLink';
 export * from './ClassicForm';
 export * from './Expandable';
 
+export * from './Tags';
+
