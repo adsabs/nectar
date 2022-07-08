@@ -14,6 +14,7 @@ import { APP_DEFAULTS } from '@config';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useIsClient } from '@hooks/useIsClient';
 import { composeNextGSSP } from '@utils';
+import { MathJax } from 'better-react-mathjax';
 import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
@@ -116,7 +117,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
             {isNil(doc.abstract) ? (
               <Text>No Abstract</Text>
             ) : (
-              <Text dangerouslySetInnerHTML={{ __html: doc.abstract }}></Text>
+              <Text as={MathJax} dangerouslySetInnerHTML={{ __html: doc.abstract }} />
             )}
             <Details doc={doc} />
           </Stack>
