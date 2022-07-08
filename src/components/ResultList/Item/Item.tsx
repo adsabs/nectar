@@ -1,7 +1,9 @@
 import { IDocsEntity } from '@api';
 import { Checkbox, CheckboxProps } from '@chakra-ui/checkbox';
 import { Box, Flex, Link, Stack, Text } from '@chakra-ui/layout';
-import { CircularProgress, Fade, useTimeout } from '@chakra-ui/react';
+import { BoxProps, CircularProgress, Fade, useTimeout } from '@chakra-ui/react';
+import { AllAuthorsModal } from '@components/AllAuthorsModal';
+import { APP_DEFAULTS } from '@config';
 import { useIsClient } from '@hooks/useIsClient';
 import { useStore } from '@store';
 import { getFomattedNumericPubdate } from '@utils';
@@ -105,17 +107,7 @@ export const Item = (props: IItemProps): ReactElement => {
           </Flex>
         </Flex>
         <Flex direction="column">
-          {author.length > 0 && (
-            <Box fontSize="sm">
-              {author.slice(0, 10).join('; ')}
-              {author_count > 10 && (
-                <Text as="span" fontStyle="italic">
-                  {' '}
-                  and {author_count - 10} more
-                </Text>
-              )}
-            </Box>
-          )}
+          <AuthorList author={author} authorCount={author_count} bibcode={doc.bibcode} />
           <Text fontSize="xs" mt={0.5}>
             {formattedPubDate}
             {formattedPubDate && formattedBibstem ? <span className="px-2">·</span> : ''}
@@ -199,5 +191,35 @@ const ItemCheckbox = (props: IItemCheckboxProps) => {
       data-testid="results-checkbox"
       {...checkboxProps}
     />
+  );
+};
+
+interface IAuthorListProps extends BoxProps {
+  author: IDocsEntity['author'];
+  authorCount: IDocsEntity['author_count'];
+  bibcode: IDocsEntity['bibcode'];
+}
+
+const MAX_AUTHORS = APP_DEFAULTS.RESULTS_MAX_AUTHORS;
+/**
+ * Displays author list and includes a button to open all authors modal
+ */
+const AuthorList = (props: IAuthorListProps): ReactElement => {
+  const { author, authorCount, bibcode, ...boxProps } = props;
+
+  if (authorCount === 0) {
+    return null;
+  }
+
+  return (
+    <Box fontSize="sm" {...boxProps}>
+      {author.slice(0, MAX_AUTHORS).join('; ')}
+      {'; '}
+      {authorCount > MAX_AUTHORS ? (
+        <AllAuthorsModal bibcode={bibcode} label={`and ${authorCount - MAX_AUTHORS} more`} />
+      ) : (
+        <AllAuthorsModal bibcode={bibcode} label={'show list'} />
+      )}
+    </Box>
   );
 };

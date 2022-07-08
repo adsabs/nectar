@@ -92,7 +92,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                 {doc.author_count > MAX ? (
                   <AllAuthorsModal bibcode={doc.bibcode} label={`and ${doc.author_count - MAX} more`} />
                 ) : (
-                  <AllAuthorsModal bibcode={doc.bibcode} label={'see all'} />
+                  <AllAuthorsModal bibcode={doc.bibcode} label={'show list'} />
                 )}
               </Flex>
             ) : (
