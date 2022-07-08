@@ -73,7 +73,10 @@ export const NetworkDetailsPane = ({ node, summaryGraph }: INetworkDetailsProps)
           {!summaryGraph.error && notEnoughData ? (
             <>Not enough data to generate graph</>
           ) : (
-            <LineGraph data={summaryGraph.data} ticks={getLineGraphYearTicks(summaryGraph.data, 10)} />
+            <>
+              <Text>Group Activity Over Time (measured in papers published)</Text>
+              <LineGraph data={summaryGraph.data} ticks={getLineGraphYearTicks(summaryGraph.data, 10)} />
+            </>
           )}
         </TabPanel>
         <TabPanel>
