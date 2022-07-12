@@ -21,6 +21,10 @@ interface IAuthorNetworkPageContainerProps {
 
 type View = 'author_occurrences' | 'paper_citations' | 'paper_downloads';
 
+const DEFAULT_ROWS_TO_FETCH = 400;
+
+const MAX_ROWS_TO_FETCH = 1000;
+
 const views: { id: View; label: string }[] = [
   { id: 'author_occurrences', label: 'Author Occurrences' },
   { id: 'paper_citations', label: 'Paper Citations' },
@@ -38,13 +42,18 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
   const router = useRouter();
   const toast = useToast();
 
+  const [rowsToFetch, setRowsToFetch] = useState(DEFAULT_ROWS_TO_FETCH);
+
   // fetch bibcodes of query
   const {
     data: bibsQueryResponse,
     isLoading: bibsQueryIsLoading,
     isError: bibsQueryIsError,
     error: bibsQueryError,
-  } = useSearch({ ...query, fl: ['bibcode'], rows: 400 }, { enabled: !!query && !!query.q && query.q.length > 0 });
+  } = useSearch(
+    { ...query, fl: ['bibcode'], rows: rowsToFetch },
+    { enabled: !!query && !!query.q && query.q.length > 0 },
+  );
 
   // tranform query data to a list of bibcodes
   const bibcodes = useMemo(() => {
@@ -52,6 +61,14 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
       return bibsQueryResponse.docs.map((d) => d.bibcode);
     } else {
       return [];
+    }
+  }, [bibsQueryResponse]);
+
+  const numFound = useMemo(() => {
+    if (bibsQueryResponse) {
+      return bibsQueryResponse.numFound;
+    } else {
+      return 0;
     }
   }, [bibsQueryResponse]);
 
@@ -144,6 +161,12 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
     setFilters([]);
   };
 
+  const handleChangePaperLimit = (limit: number) => {
+    if (limit <= MAX_ROWS_TO_FETCH) {
+      setRowsToFetch(limit);
+    }
+  };
+
   // get all papers (bibcodes) of the filter groups and authors and trigger big query search
   const handleApplyFilters = () => {
     const bibcodes = uniq(
@@ -201,16 +224,14 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
                 description={
                   <>
                     This network visualization finds groups of authors within your search results. You can click on the
-                    segments to view the papers connected with a group or a particular author.{' '}
+                    segments to view the papers connected with a group or a particular author.
                     <SimpleLink href="/help/actions/visualize#author-network" newTab>
                       Learn more about author network
                     </SimpleLink>
                   </>
                 }
-                mb={8}
               />
-              <Text fontWeight="bold">Filter current search: </Text>
-              <Text>Narrow down your search results to papers from a certain group or author</Text>
+
               <FilterSearchBar
                 tagItems={filterTagItems}
                 onRemove={handleRemoveFilterTag}
@@ -224,6 +245,9 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
                   onChangeView={handleViewChange}
                   defaultView={views[0].id}
                   onClickNode={handleGraphNodeClick}
+                  onChagePaperLimit={handleChangePaperLimit}
+                  paperLimit={rowsToFetch}
+                  maxPaperLimit={Math.min(numFound, MAX_ROWS_TO_FETCH)}
                 />
                 <NetworkDetailsPane
                   summaryGraph={authorNetworkSummaryGraph}
@@ -253,7 +277,9 @@ const FilterSearchBar = ({
   onApply: () => void;
 }): ReactElement => {
   return (
-    <Box mb={5}>
+    <Box my={5}>
+      <Text fontWeight="bold">Filter current search: </Text>
+      <Text>Narrow down your search results to papers from a certain group or author</Text>
       <Tags
         tagItems={tagItems}
         onRemove={onRemove}
