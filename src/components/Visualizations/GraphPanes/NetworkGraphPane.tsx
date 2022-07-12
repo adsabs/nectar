@@ -1,4 +1,4 @@
-import { Box, Radio, RadioGroup, Stack, Text, Input, Button } from '@chakra-ui/react';
+import { Radio, RadioGroup, Stack, Text, Input, Button } from '@chakra-ui/react';
 import { ChangeEvent, ReactElement, useEffect, useState } from 'react';
 import { SunburstGraph } from '../Graphs';
 import { ISunburstGraph, SunburstNode } from '../types';

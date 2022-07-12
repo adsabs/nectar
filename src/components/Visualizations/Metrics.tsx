@@ -16,7 +16,6 @@ import {
 import { useIsClient } from '@hooks/useIsClient';
 import { useMetrics } from '@hooks/useMetrics';
 import { BarDatum } from '@nivo/bar';
-import { Serie } from '@nivo/line';
 import axios from 'axios';
 import { ReactElement, useMemo } from 'react';
 import { LineGraph, BarGraph, PapersTable, CitationsTable, ReadsTable, IndicesTable } from '@components';

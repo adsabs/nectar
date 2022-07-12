@@ -1,5 +1,5 @@
 import { Esources, IADSApiMetricsResponse, IDocsEntity } from '@api';
-import { SunburstDatum, SunburstNode } from '@components/Visualizations/types';
+import { SunburstNode } from '@components/Visualizations/types';
 import { BarDatum } from '@nivo/bar';
 import { Serie } from '@nivo/line';
 
