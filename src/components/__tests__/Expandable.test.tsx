@@ -3,6 +3,6 @@ import { Default as Expandable } from '../__stories__/Expandable.stories';
 
 describe('Expandable', () => {
   it('renders without crashing', () => {
-    render(<Expandable />);
+    render(<Expandable title="Test" description="Test" />);
   });
 });
