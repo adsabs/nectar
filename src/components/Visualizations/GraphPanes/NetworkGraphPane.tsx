@@ -46,7 +46,7 @@ export const NetworkGraphPane = ({
   }, [view]);
 
   return (
-    <Box as="section" aria-label="Author Network" width="100%" mt={5}>
+    <Stack as="section" aria-label="Author Network" width="100%" mt={5}>
       <LimitPaper initialLimit={paperLimit} max={maxPaperLimit} onApply={handleChangePaperLimit} />
       <RadioGroup defaultChecked onChange={handleChangeView} value={view}>
         <Stack direction="row">
@@ -58,7 +58,7 @@ export const NetworkGraphPane = ({
         </Stack>
       </RadioGroup>
       <SunburstGraph graph={graph} onClick={onClickNode} />
-    </Box>
+    </Stack>
   );
 };
 

@@ -2,7 +2,7 @@ import { IADSApiSearchParams, useSearch, useVaultBigQuerySearch } from '@api';
 import { IADSApiVisResponse, IBibcodeDict, ILeaf } from '@api/vis/types';
 import { useGetAuthorNetwork } from '@api/vis/vis';
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/alert';
-import { Box, Button, CircularProgress, Flex, SimpleGrid, Text, useToast } from '@chakra-ui/react';
+import { Box, Button, CircularProgress, Flex, SimpleGrid, Stack, Text, useToast } from '@chakra-ui/react';
 import { INodeDetails, NetworkDetailsPane, CustomInfoMessage, Expandable, SimpleLink } from '@components';
 import { ITagItem, Tags } from '@components/Tags';
 import { Serie } from '@nivo/line';
@@ -10,7 +10,7 @@ import { makeSearchParams } from '@utils';
 import axios from 'axios';
 import { decode } from 'he';
 import { useRouter } from 'next/router';
-import { countBy, reduce, sortBy, uniq } from 'ramda';
+import { countBy, F, reduce, sortBy, uniq } from 'ramda';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { NetworkGraphPane } from '../GraphPanes';
 import { ILineGraph, ISunburstGraph, SunburstNode } from '../types';
@@ -218,27 +218,20 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
             the list of papers was too small or sparse to produce multiple meaningful groups."
             />
           ) : (
-            <Flex direction="column">
-              <Expandable
-                title="About Author Network"
-                description={
-                  <>
-                    This network visualization finds groups of authors within your search results. You can click on the
-                    segments to view the papers connected with a group or a particular author.
-                    <SimpleLink href="/help/actions/visualize#author-network" newTab>
-                      Learn more about author network
-                    </SimpleLink>
-                  </>
-                }
-              />
-
-              <FilterSearchBar
-                tagItems={filterTagItems}
-                onRemove={handleRemoveFilterTag}
-                onClear={handleClearFiltersTags}
-                onApply={handleApplyFilters}
-              />
-              <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={10}>
+            <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={16}>
+              <Box>
+                <Expandable
+                  title="About Author Network"
+                  description={
+                    <>
+                      This network visualization finds groups of authors within your search results. You can click on
+                      the segments to view the papers connected with a group or a particular author.
+                      <SimpleLink href="/help/actions/visualize#author-network" newTab>
+                        Learn more about author network
+                      </SimpleLink>
+                    </>
+                  }
+                />
                 <NetworkGraphPane
                   graph={authorNetworkGraph}
                   views={views}
@@ -249,6 +242,14 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
                   paperLimit={rowsToFetch}
                   maxPaperLimit={Math.min(numFound, MAX_ROWS_TO_FETCH)}
                 />
+              </Box>
+              <Box>
+                <FilterSearchBar
+                  tagItems={filterTagItems}
+                  onRemove={handleRemoveFilterTag}
+                  onClear={handleClearFiltersTags}
+                  onApply={handleApplyFilters}
+                />
                 <NetworkDetailsPane
                   summaryGraph={authorNetworkSummaryGraph}
                   node={selected}
@@ -256,8 +257,8 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
                   onRemoveFromFilter={handleRemoveFilter}
                   canAddAsFilter={filters.findIndex((f) => f.name === selected.name) === -1}
                 />
-              </SimpleGrid>
-            </Flex>
+              </Box>
+            </SimpleGrid>
           )}
         </>
       )}
@@ -277,7 +278,7 @@ const FilterSearchBar = ({
   onApply: () => void;
 }): ReactElement => {
   return (
-    <Box my={5}>
+    <Stack direction="column" mb={10}>
       <Text fontWeight="bold">Filter current search: </Text>
       <Text>Narrow down your search results to papers from a certain group or author</Text>
       <Tags
@@ -288,7 +289,7 @@ const FilterSearchBar = ({
         flex={1}
       />
       <Button onClick={onApply}>Search</Button>
-    </Box>
+    </Stack>
   );
 };
 
