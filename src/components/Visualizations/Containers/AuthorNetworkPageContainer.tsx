@@ -1,19 +1,19 @@
 import { IADSApiSearchParams, useSearch, useVaultBigQuerySearch } from '@api';
-import { IADSApiVisResponse, IBibcodeDict, ILeaf } from '@api/vis/types';
+import { IBibcodeDict, ILeaf } from '@api/vis/types';
 import { useGetAuthorNetwork } from '@api/vis/vis';
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/alert';
 import { Box, Button, CircularProgress, SimpleGrid, Stack, Text, useToast } from '@chakra-ui/react';
 import { INodeDetails, NetworkDetailsPane, CustomInfoMessage, Expandable, SimpleLink } from '@components';
 import { ITagItem, Tags } from '@components/Tags';
-import { Serie } from '@nivo/line';
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
 import { decode } from 'he';
 import { useRouter } from 'next/router';
-import { countBy, reduce, sortBy, uniq } from 'ramda';
+import { countBy, reverse, sortBy, uniq } from 'ramda';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { NetworkGraphPane } from '../GraphPanes';
 import { ILineGraph, ISunburstGraph, SunburstNode } from '../types';
+import { getAuthorNetworkGraph, getAuthorNetworkSummaryGraph } from '../utils';
 
 interface IAuthorNetworkPageContainerProps {
   query: IADSApiSearchParams;
@@ -40,9 +40,19 @@ const viewIdToValueKey: { [view in View]: string } = {
 
 export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContainerProps): ReactElement => {
   const router = useRouter();
+
   const toast = useToast();
 
   const [rowsToFetch, setRowsToFetch] = useState(DEFAULT_ROWS_TO_FETCH);
+
+  // Type of view
+  const [currentViewId, setCurrentViewId] = useState<View>(views[0].id);
+
+  // User selected graph node (group, author)
+  const [selected, setSelected] = useState<INodeDetails>(null);
+
+  // Selected filters (group, author)
+  const [filters, setFilters] = useState<INodeDetails[]>([]);
 
   // fetch bibcodes of query
   const {
@@ -79,15 +89,6 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
     isError: authorNetworkIsError,
     error: authorNetworkError,
   } = useGetAuthorNetwork(bibcodes, { enabled: bibcodes && bibcodes.length > 0 });
-
-  // Type of view
-  const [currentViewId, setCurrentViewId] = useState<View>(views[0].id);
-
-  // User selected graph node (group, author)
-  const [selected, setSelected] = useState<INodeDetails>(null);
-
-  // Selected filters (group, author)
-  const [filters, setFilters] = useState<INodeDetails[]>([]);
 
   // author network data to network graph
   const authorNetworkGraph: ISunburstGraph = useMemo(() => {
@@ -173,7 +174,7 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
       filters.reduce(
         (acc, node) => [...acc, ...node.papers.reduce((acc1, paper) => [...acc1, paper.bibcode], [] as string[])],
         [] as string[],
-      ),
+      ), // filters to a list of papers
     );
 
     // This will trigger big query and redirect
@@ -293,44 +294,6 @@ const FilterSearchBar = ({
   );
 };
 
-// From author network data, create graph data
-const getAuthorNetworkGraph = (response: IADSApiVisResponse, valueKey: string): ISunburstGraph => {
-  if (!response['data']['root']) {
-    return { data: undefined, error: new Error('Cannot generate network') };
-  }
-  return { data: response['data']['root'], idKey: 'name', valueKey: valueKey };
-};
-
-// Summary graph
-const getAuthorNetworkSummaryGraph = (response: IADSApiVisResponse): ILineGraph => {
-  if (!response.data.root) {
-    return { data: undefined, error: new Error('Cannot generate network') };
-  }
-
-  const data: Serie[] = [];
-
-  response.data.root.children.forEach((group, index) => {
-    if (index > 6) {
-      return;
-    }
-
-    // all papers in this group
-    // into year and paper count [ ... {year: count} ]
-    const yearPaperCount = countBy(
-      (bibcode) => bibcode.slice(0, 4),
-      uniq(reduce((acc, author) => [...acc, ...author.papers], [] as string[], group.children)),
-    );
-
-    // convert graph data to [ ... {x: year, y: count} ]
-    const graphData = Object.entries(yearPaperCount).map(([year, count]) => ({ x: parseInt(year), y: count }));
-
-    data.push({ id: group.name, data: graphData });
-  });
-
-  console.log(data);
-  return { data };
-};
-
 // Get individual node details
 const getNodeDetails = (node: SunburstNode, bibcode_dict: IBibcodeDict): INodeDetails => {
   // if selected an author node
@@ -350,7 +313,7 @@ const getNodeDetails = (node: SunburstNode, bibcode_dict: IBibcodeDict): INodeDe
 
     // sort by citation count
     papers.sort((p1, p2) => {
-      return p1.citation_count - p2.citation_count;
+      return p2.citation_count - p1.citation_count;
     });
 
     // most recent year
@@ -412,15 +375,18 @@ const getNodeDetails = (node: SunburstNode, bibcode_dict: IBibcodeDict): INodeDe
     }));
 
     // sort paper
-    papers = sortBy(({ bibcode }) => {
-      return (
-        (((((authorCount[bibcode] - minNumAuthors) / (maxNumAuthors - minNumAuthors)) *
-          (authorCount[bibcode] / bibcode_dict[bibcode].authors.length - minPercentAuthors)) /
-          (maxPercentAuthors - minPercentAuthors)) *
-          (bibcode_dict[bibcode].citation_count / bibcode_dict[bibcode].authors.length - minNumCitations)) /
-        (maxNumCitations - minNumCitations)
-      );
-    }, papers);
+    // from https://github.com/adsabs/bumblebee/blob/752b9146a404de2cfefebf55cb0cc983907f7519/src/js/widgets/network_vis/network_widget.js#L701
+    papers = reverse(
+      sortBy(({ bibcode }) => {
+        return (
+          (((((authorCount[bibcode] - minNumAuthors) / (maxNumAuthors - minNumAuthors)) *
+            (authorCount[bibcode] / bibcode_dict[bibcode].authors.length - minPercentAuthors)) /
+            (maxPercentAuthors - minPercentAuthors)) *
+            (bibcode_dict[bibcode].citation_count / bibcode_dict[bibcode].authors.length - minNumCitations)) /
+          (maxNumCitations - minNumCitations)
+        );
+      }, papers),
+    );
 
     return { name: `Group ${node.name as string}`, type: 'group', papers, mostRecentYear };
   }

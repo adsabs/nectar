@@ -35,8 +35,6 @@ export const NetworkDetailsPane = ({
   onRemoveFromFilter,
   canAddAsFilter,
 }: INetworkDetailsProps): ReactElement => {
-  const notEnoughData = !summaryGraph.error && summaryGraph.data.find((serie) => serie.data.length > 1) === undefined;
-
   const [tabIndex, setTabIndex] = useState(0);
 
   // when selected node changes, change tab to node details
@@ -66,52 +64,81 @@ export const NetworkDetailsPane = ({
       </TabList>
       <TabPanels>
         <TabPanel>
-          {summaryGraph.error && (
-            <CustomInfoMessage
-              status={'error'}
-              title="Cannot generate network"
-              description={summaryGraph.error.message}
-            />
-          )}
-          {!summaryGraph.error && notEnoughData ? (
-            <CustomInfoMessage status={'info'} title="Not enough data to generate graph" />
-          ) : (
-            <>
-              <Text>Group Activity Over Time (measured in papers published)</Text>
-              <LineGraph data={summaryGraph.data} ticks={getLineGraphXTicks(summaryGraph.data, 5)} />
-            </>
-          )}
+          <SummaryPane summaryGraph={summaryGraph} />
         </TabPanel>
         <TabPanel>
-          <>
-            {node ? (
-              <Flex direction="column">
-                <Flex justifyContent="space-between">
-                  <Text as="h3" fontSize="xl" fontWeight="bold">
-                    {node.name}
-                  </Text>
-                  {canAddAsFilter ? (
-                    <Button w="fit-content" ml={5} variant="outline" onClick={handleAddToFilter}>
-                      Add to filter
-                    </Button>
-                  ) : (
-                    <Button w="fit-content" ml={5} variant="outline" color="red.500" onClick={handleRemoveFromFilter}>
-                      Remove filter
-                    </Button>
-                  )}
-                </Flex>
-                <Text>
-                  Total papers: {node.papers.length}, most recent: {node.mostRecentYear}
-                </Text>
-                <PapersList papers={node.papers} />
-              </Flex>
-            ) : (
-              <span>Select an item from the graph to view its details</span>
-            )}
-          </>
+          <NodeDetailPane
+            node={node}
+            canAddAsFilter={canAddAsFilter}
+            onAddToFilter={handleAddToFilter}
+            onRemoveFromFilter={handleRemoveFromFilter}
+          />
         </TabPanel>
       </TabPanels>
     </Tabs>
+  );
+};
+
+// Show summary graph
+const SummaryPane = ({ summaryGraph }: { summaryGraph: ILineGraph }) => {
+  const notEnoughData = !summaryGraph.error && summaryGraph.data.find((serie) => serie.data.length > 1) === undefined;
+
+  return (
+    <>
+      {summaryGraph.error && (
+        <CustomInfoMessage status={'error'} title="Cannot generate network" description={summaryGraph.error.message} />
+      )}
+      {!summaryGraph.error && notEnoughData ? (
+        <CustomInfoMessage status={'info'} title="Not enough data to generate graph" />
+      ) : (
+        <>
+          <Text>Group Activity Over Time (measured in papers published)</Text>
+          <LineGraph data={summaryGraph.data} ticks={getLineGraphXTicks(summaryGraph.data, 5)} />
+        </>
+      )}
+    </>
+  );
+};
+
+// Show selected node details
+const NodeDetailPane = ({
+  node,
+  canAddAsFilter,
+  onAddToFilter,
+  onRemoveFromFilter,
+}: {
+  node: INodeDetails;
+  canAddAsFilter: boolean;
+  onAddToFilter: () => void;
+  onRemoveFromFilter: () => void;
+}) => {
+  return (
+    <>
+      {node ? (
+        <Flex direction="column">
+          <Flex justifyContent="space-between">
+            <Text as="h3" fontSize="xl" fontWeight="bold">
+              {node.name}
+            </Text>
+            {canAddAsFilter ? (
+              <Button w="fit-content" ml={5} variant="outline" onClick={onAddToFilter}>
+                Add to filter
+              </Button>
+            ) : (
+              <Button w="fit-content" ml={5} variant="outline" color="red.500" onClick={onRemoveFromFilter}>
+                Remove filter
+              </Button>
+            )}
+          </Flex>
+          <Text>
+            Total papers: {node.papers.length}, most recent: {node.mostRecentYear}
+          </Text>
+          <PapersList papers={node.papers} />
+        </Flex>
+      ) : (
+        <span>Select an item from the graph to view its details</span>
+      )}
+    </>
   );
 };
 

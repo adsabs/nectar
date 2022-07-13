@@ -1,10 +1,7 @@
-import { VizPageLayout } from '@components';
-import { AuthorNetworkPageContainer } from '@components/Visualizations/Containers/AuthorNetworkPageContainer';
+import { AuthorNetworkPageContainer, VizPageLayout } from '@components';
 import { makeSearchParams, parseQueryFromUrl } from '@utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-
-// type View = 'occurrences' | 'citations' | 'downloads';
 
 export const AuthorNetworkPage: NextPage = () => {
   const router = useRouter();

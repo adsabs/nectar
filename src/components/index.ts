@@ -8,6 +8,7 @@ export * from './CitationExporter';
 export * from './ClassicForm';
 export * from './CopyButton';
 export * from './Dropdown';
+export * from './Expandable';
 export * from './Footer';
 export * from './images';
 export * from './LandingTabs';
@@ -22,12 +23,7 @@ export * from './SearchQueryLink';
 export * from './Select';
 export * from './SimpleLink';
 export * from './Sort';
+export * from './Tags';
 export * from './TextInput';
 export * from './TopProgressBar';
 export * from './Visualizations';
-export * from './SearchQueryLink';
-export * from './ClassicForm';
-export * from './Expandable';
-
-export * from './Tags';
-
