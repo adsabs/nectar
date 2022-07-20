@@ -94,7 +94,7 @@ export const getExportCitationDefaultContext = (props: IUseCitationExporterProps
     authorcutoff: [BIBTEX_DEFAULT_AUTHOR_CUTOFF],
     customFormat: null,
     journalformat: [ExportApiJournalFormat.AASTeXMacros],
-    keyformat: [''],
+    keyformat: ['%R'],
     maxauthor: [
       format === ExportApiFormatKey.bibtex
         ? BIBTEX_DEFAULT_MAX_AUTHOR

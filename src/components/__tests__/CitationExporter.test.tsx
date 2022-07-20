@@ -38,7 +38,7 @@ const checkOutput = (
     numRecords: 1,
     format: ExportApiFormatKey.bibtex,
     sort: ['date desc', 'bibcode desc'],
-    keyformat: [''],
+    keyformat: ['%R'],
     authorcutoff: [200],
     journalformat: [1],
     maxauthor: [10],
