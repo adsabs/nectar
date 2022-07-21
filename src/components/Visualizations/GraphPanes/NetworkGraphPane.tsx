@@ -1,14 +1,15 @@
-import { Radio, RadioGroup, Stack, Text, Input, Button } from '@chakra-ui/react';
+import { IADSApiVisNode } from '@api';
+import { Radio, RadioGroup, Stack, Text, Input, Button, FormControl, FormLabel, Switch } from '@chakra-ui/react';
 import { ChangeEvent, ReactElement, useEffect, useState } from 'react';
-import { SunburstGraph } from '../Graphs';
-import { ISunburstGraph, SunburstNode } from '../types';
+import { NetworkGraph } from '../Graphs/NetworkGraph';
 
 export interface INetworkGraphPaneProps {
-  graph: ISunburstGraph;
+  root: IADSApiVisNode;
+  link_data: number[][];
   views: IView[];
   onChangeView: (vid: IView['id']) => void;
   defaultView: IView['id'];
-  onClickNode?: (node: SunburstNode) => void;
+  onClickNode?: (node: IADSApiVisNode) => void;
   onChagePaperLimit: (limit: number) => void;
   maxPaperLimit: number;
   paperLimit: number;
@@ -24,7 +25,8 @@ export interface IView {
  * @returns Network graph and its controls
  */
 export const NetworkGraphPane = ({
-  graph,
+  root,
+  link_data,
   views,
   onChangeView,
   defaultView,
@@ -35,10 +37,16 @@ export const NetworkGraphPane = ({
 }: INetworkGraphPaneProps): ReactElement => {
   const [view, setView] = useState<IView['id']>(defaultView);
 
+  const [showLinkLayer, setShowLinkLayer] = useState(false);
+
   const handleChangeView = (v: IView['id']) => setView(v);
 
   const handleChangePaperLimit = (limit: number) => {
     onChagePaperLimit(limit);
+  };
+
+  const handleToggleSwitch = () => {
+    setShowLinkLayer(!showLinkLayer);
   };
 
   useEffect(() => {
@@ -57,7 +65,9 @@ export const NetworkGraphPane = ({
           ))}
         </Stack>
       </RadioGroup>
-      <SunburstGraph graph={graph} onClick={onClickNode} />
+      {/* <SunburstGraph graph={graph} onClick={onClickNode} /> */}
+      <OverlaySwitch isChecked={showLinkLayer} onChange={handleToggleSwitch} />
+      <NetworkGraph root={root} link_data={link_data} showLinkLayer={showLinkLayer} onClickNode={onClickNode} />
     </Stack>
   );
 };
@@ -94,5 +104,22 @@ const LimitPaper = ({
       <Text>{`papers (max is ${max})`}</Text>
       <Button onClick={handleApply}>Apply</Button>
     </Stack>
+  );
+};
+
+const OverlaySwitch = ({
+  isChecked,
+  onChange,
+}: {
+  isChecked: boolean;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+}): ReactElement => {
+  return (
+    <FormControl display="flex" alignItems="center">
+      <FormLabel htmlFor="overlay" mb="0">
+        Show overlay?
+      </FormLabel>
+      <Switch id="overlay" onChange={onChange} isChecked={isChecked} />
+    </FormControl>
   );
 };

@@ -1,5 +1,5 @@
 import { IADSApiSearchParams, useSearch, useVaultBigQuerySearch } from '@api';
-import { IBibcodeDict, ILeaf } from '@api/vis/types';
+import { IADSApiVisNode, IBibcodeDict, ILeaf } from '@api/vis/types';
 import { useGetAuthorNetwork } from '@api/vis/vis';
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/alert';
 import { Box, Button, CircularProgress, SimpleGrid, Stack, Text, useToast } from '@chakra-ui/react';
@@ -86,16 +86,10 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
   const {
     data: authorNetworkData,
     isLoading: authorNetworkIsLoading,
+    isSuccess: authorNetworkIsSuccess,
     isError: authorNetworkIsError,
     error: authorNetworkError,
   } = useGetAuthorNetwork(bibcodes, { enabled: bibcodes && bibcodes.length > 0 });
-
-  // author network data to network graph
-  const authorNetworkGraph: ISunburstGraph = useMemo(() => {
-    if (authorNetworkData) {
-      return getAuthorNetworkGraph(authorNetworkData, viewIdToValueKey[currentViewId]);
-    }
-  }, [authorNetworkData, currentViewId]);
 
   // author network data to summary graph
   const authorNetworkSummaryGraph: ILineGraph = useMemo(() => {
@@ -141,7 +135,7 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
     setCurrentViewId(viewId as View);
   };
 
-  const handleGraphNodeClick = (node: SunburstNode) => {
+  const handleGraphNodeClick = (node: IADSApiVisNode) => {
     const bibcode_dict = authorNetworkData.data.bibcode_dict;
     setSelected(getNodeDetails(node, bibcode_dict));
   };
@@ -209,59 +203,50 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
           <CircularProgress isIndeterminate />
         </>
       )}
-      {!authorNetworkIsLoading && authorNetworkGraph && (
-        <>
-          {authorNetworkGraph.error ? (
-            <CustomInfoMessage
-              status={'info'}
-              title="Cannot generate network"
-              description="The network grouping algorithm could not generate group data for your network. This might be because
-            the list of papers was too small or sparse to produce multiple meaningful groups."
+      {!authorNetworkIsLoading && authorNetworkIsSuccess && (
+        <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={16}>
+          <Box>
+            <Expandable
+              title="About Author Network"
+              description={
+                <>
+                  This network visualization finds groups of authors within your search results. You can click on the
+                  segments to view the papers connected with a group or a particular author.
+                  <SimpleLink href="/help/actions/visualize#author-network" newTab>
+                    Learn more about author network
+                  </SimpleLink>
+                </>
+              }
             />
-          ) : (
-            <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={16}>
-              <Box>
-                <Expandable
-                  title="About Author Network"
-                  description={
-                    <>
-                      This network visualization finds groups of authors within your search results. You can click on
-                      the segments to view the papers connected with a group or a particular author.
-                      <SimpleLink href="/help/actions/visualize#author-network" newTab>
-                        Learn more about author network
-                      </SimpleLink>
-                    </>
-                  }
-                />
-                <NetworkGraphPane
-                  graph={authorNetworkGraph}
-                  views={views}
-                  onChangeView={handleViewChange}
-                  defaultView={views[0].id}
-                  onClickNode={handleGraphNodeClick}
-                  onChagePaperLimit={handleChangePaperLimit}
-                  paperLimit={rowsToFetch}
-                  maxPaperLimit={Math.min(numFound, MAX_ROWS_TO_FETCH)}
-                />
-              </Box>
-              <Box>
-                <FilterSearchBar
-                  tagItems={filterTagItems}
-                  onRemove={handleRemoveFilterTag}
-                  onClear={handleClearFiltersTags}
-                  onApply={handleApplyFilters}
-                />
-                <NetworkDetailsPane
-                  summaryGraph={authorNetworkSummaryGraph}
-                  node={selected}
-                  onAddToFilter={handleAddFilter}
-                  onRemoveFromFilter={handleRemoveFilter}
-                  canAddAsFilter={filters.findIndex((f) => f.name === selected.name) === -1}
-                />
-              </Box>
-            </SimpleGrid>
-          )}
-        </>
+            <NetworkGraphPane
+              // graph={authorNetworkGraph}
+              root={authorNetworkData.data.root}
+              link_data={authorNetworkData.data.link_data}
+              views={views}
+              onChangeView={handleViewChange}
+              defaultView={views[0].id}
+              onClickNode={handleGraphNodeClick}
+              onChagePaperLimit={handleChangePaperLimit}
+              paperLimit={rowsToFetch}
+              maxPaperLimit={Math.min(numFound, MAX_ROWS_TO_FETCH)}
+            />
+          </Box>
+          <Box>
+            <FilterSearchBar
+              tagItems={filterTagItems}
+              onRemove={handleRemoveFilterTag}
+              onClear={handleClearFiltersTags}
+              onApply={handleApplyFilters}
+            />
+            <NetworkDetailsPane
+              summaryGraph={authorNetworkSummaryGraph}
+              node={selected}
+              onAddToFilter={handleAddFilter}
+              onRemoveFromFilter={handleRemoveFilter}
+              canAddAsFilter={filters.findIndex((f) => f.name === selected.name) === -1}
+            />
+          </Box>
+        </SimpleGrid>
       )}
     </Box>
   );
@@ -295,12 +280,10 @@ const FilterSearchBar = ({
 };
 
 // Get individual node details
-const getNodeDetails = (node: SunburstNode, bibcode_dict: IBibcodeDict): INodeDetails => {
+const getNodeDetails = (node: IADSApiVisNode, bibcode_dict: IBibcodeDict): INodeDetails => {
   // if selected an author node
   if (!('children' in node)) {
-    const authorNode = node as ILeaf;
-
-    const bibcodes = authorNode.papers;
+    const bibcodes = node.papers;
 
     // get author's papers details
     const papers = bibcodes.map((bibcode) => ({
@@ -323,15 +306,12 @@ const getNodeDetails = (node: SunburstNode, bibcode_dict: IBibcodeDict): INodeDe
       })
       [bibcodes.length - 1].slice(0, 4);
 
-    return { name: authorNode.name, type: 'author', papers, mostRecentYear };
+    return { name: node.name as string, type: 'author', papers, mostRecentYear };
   }
   // if selected a group node
   else {
     // all bibcodes in this group, has duplicates
-    const allBibcodes = node.children.reduce(
-      (prev, current) => [...prev, ...(current as ILeaf).papers],
-      [] as string[],
-    );
+    const allBibcodes = node.children.reduce((prev, current) => [...prev, ...current.papers], [] as string[]);
 
     // bibcode: author count
     const authorCount = countBy((a) => a, allBibcodes);
