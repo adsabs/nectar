@@ -50,6 +50,7 @@ export interface IExportApiParams {
   bibcode: IDocsEntity['bibcode'][];
   sort?: IADSApiSearchParams['sort'];
   authorcutoff?: [number];
+  keyformat?: [string];
   journalformat?: [ExportApiJournalFormat];
   maxauthor?: [number];
 }

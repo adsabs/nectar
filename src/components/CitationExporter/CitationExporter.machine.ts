@@ -40,6 +40,11 @@ interface SetFormat {
   payload: ExportApiFormatKey;
 }
 
+interface SetKeyFormat {
+  type: 'SET_KEY_FORMAT';
+  payload: string;
+}
+
 interface SetRange {
   type: 'SET_RANGE';
   payload: number;
@@ -75,6 +80,7 @@ export type CitationExporterEvent =
   | SetMaxAuthor
   | SetJournalFormat
   | SetIsCustomFormat
+  | SetKeyFormat
   | { type: 'SUBMIT' }
   | { type: 'FORCE_SUBMIT' }
   | { type: 'DONE' };
@@ -88,6 +94,7 @@ export const getExportCitationDefaultContext = (props: IUseCitationExporterProps
     authorcutoff: [BIBTEX_DEFAULT_AUTHOR_CUTOFF],
     customFormat: null,
     journalformat: [ExportApiJournalFormat.AASTeXMacros],
+    keyformat: ['%R'],
     maxauthor: [
       format === ExportApiFormatKey.bibtex
         ? BIBTEX_DEFAULT_MAX_AUTHOR
@@ -138,6 +145,11 @@ export const generateMachine = ({ format, records, singleMode, sort }: IUseCitat
               }),
             },
           ],
+          SET_KEY_FORMAT: {
+            actions: assign<ICitationExporterState, SetKeyFormat>({
+              params: (ctx, evt) => ({ ...ctx.params, keyformat: [evt.payload] }),
+            }),
+          },
           SET_RANGE: {
             actions: assign<ICitationExporterState, SetRange>({
               range: (_ctx, evt) => [0, evt.payload],

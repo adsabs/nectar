@@ -134,11 +134,13 @@ export const handlers = [
     const { bibcode, ...body } = req.body;
     const { format } = req.params;
 
+    const value = { numRecords: bibcode.length, format, ...body };
+
     return res(
       ctx.delay(200),
       ctx.status(200),
       ctx.json({
-        export: `${JSON.stringify({ numRecords: bibcode.length, format, ...body }, null, 2)}`,
+        export: `${JSON.stringify(value, Object.keys(value).sort(), 2)}`,
       }),
     );
   }),
