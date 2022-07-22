@@ -50,3 +50,5 @@ export interface IADSApiVisNode {
   papers?: string[];
   size?: number;
 }
+
+export type IADSApiVisNodeKey = keyof IADSApiVisNode;

@@ -1,9 +1,9 @@
 import { IADSApiSearchParams, useSearch, useVaultBigQuerySearch } from '@api';
-import { IADSApiVisNode, IBibcodeDict, ILeaf } from '@api/vis/types';
+import { IADSApiVisNode, IBibcodeDict } from '@api/vis/types';
 import { useGetAuthorNetwork } from '@api/vis/vis';
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/alert';
 import { Box, Button, CircularProgress, SimpleGrid, Stack, Text, useToast } from '@chakra-ui/react';
-import { INodeDetails, NetworkDetailsPane, CustomInfoMessage, Expandable, SimpleLink } from '@components';
+import { INodeDetails, NetworkDetailsPane, Expandable, SimpleLink } from '@components';
 import { ITagItem, Tags } from '@components/Tags';
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
@@ -11,32 +11,26 @@ import { decode } from 'he';
 import { useRouter } from 'next/router';
 import { countBy, reverse, sortBy, uniq } from 'ramda';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
-import { NetworkGraphPane } from '../GraphPanes';
-import { ILineGraph, ISunburstGraph, SunburstNode } from '../types';
-import { getAuthorNetworkGraph, getAuthorNetworkSummaryGraph } from '../utils';
+import { IView, NetworkGraphPane } from '../GraphPanes';
+import { ILineGraph } from '../types';
+import { getAuthorNetworkSummaryGraph } from '../utils';
 
 interface IAuthorNetworkPageContainerProps {
   query: IADSApiSearchParams;
 }
 
-type View = 'author_occurrences' | 'paper_citations' | 'paper_downloads';
+// type View = 'author_occurrences' | 'paper_citations' | 'paper_downloads';
 
 const DEFAULT_ROWS_TO_FETCH = 400;
 
 const MAX_ROWS_TO_FETCH = 1000;
 
-const views: { id: View; label: string }[] = [
-  { id: 'author_occurrences', label: 'Author Occurrences' },
-  { id: 'paper_citations', label: 'Paper Citations' },
-  { id: 'paper_downloads', label: 'Paper Downloads' },
+// views and corresponding graph value to use
+const views: IView[] = [
+  { id: 'author_occurrences', label: 'Author Occurrences', valueToUse: 'size' },
+  { id: 'paper_citations', label: 'Paper Citations', valueToUse: 'citation_count' },
+  { id: 'paper_downloads', label: 'Paper Downloads', valueToUse: 'read_count' },
 ];
-
-// view id corresponds to graph data's value
-const viewIdToValueKey: { [view in View]: string } = {
-  author_occurrences: 'size',
-  paper_citations: 'citation_count',
-  paper_downloads: 'read_count',
-};
 
 export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContainerProps): ReactElement => {
   const router = useRouter();
@@ -46,7 +40,7 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
   const [rowsToFetch, setRowsToFetch] = useState(DEFAULT_ROWS_TO_FETCH);
 
   // Type of view
-  const [currentViewId, setCurrentViewId] = useState<View>(views[0].id);
+  // const [currentViewId, setCurrentViewId] = useState(views[0].id);
 
   // User selected graph node (group, author)
   const [selected, setSelected] = useState<INodeDetails>(null);
@@ -131,9 +125,9 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
 
   // Callback Handlers
 
-  const handleViewChange = (viewId: string) => {
-    setCurrentViewId(viewId as View);
-  };
+  // const handleViewChange = (viewId: string) => {
+  //   setCurrentViewId(viewId as View);
+  // };
 
   const handleGraphNodeClick = (node: IADSApiVisNode) => {
     const bibcode_dict = authorNetworkData.data.bibcode_dict;
@@ -223,8 +217,8 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
               root={authorNetworkData.data.root}
               link_data={authorNetworkData.data.link_data}
               views={views}
-              onChangeView={handleViewChange}
-              defaultView={views[0].id}
+              // onChangeView={handleViewChange}
+              // defaultView={views[0].id}
               onClickNode={handleGraphNodeClick}
               onChagePaperLimit={handleChangePaperLimit}
               paperLimit={rowsToFetch}

@@ -1,14 +1,12 @@
-import { IADSApiVisNode } from '@api';
+import { IADSApiVisNode, IADSApiVisNodeKey } from '@api';
 import { Radio, RadioGroup, Stack, Text, Input, Button, FormControl, FormLabel, Switch } from '@chakra-ui/react';
-import { ChangeEvent, ReactElement, useEffect, useState } from 'react';
+import { ChangeEvent, ReactElement, useState } from 'react';
 import { NetworkGraph } from '../Graphs/NetworkGraph';
 
 export interface INetworkGraphPaneProps {
   root: IADSApiVisNode;
   link_data: number[][];
   views: IView[];
-  onChangeView: (vid: IView['id']) => void;
-  defaultView: IView['id'];
   onClickNode?: (node: IADSApiVisNode) => void;
   onChagePaperLimit: (limit: number) => void;
   maxPaperLimit: number;
@@ -18,6 +16,7 @@ export interface INetworkGraphPaneProps {
 export interface IView {
   id: string;
   label: string;
+  valueToUse: IADSApiVisNodeKey;
 }
 
 /**
@@ -28,18 +27,16 @@ export const NetworkGraphPane = ({
   root,
   link_data,
   views,
-  onChangeView,
-  defaultView,
   onClickNode,
   onChagePaperLimit,
   paperLimit,
   maxPaperLimit,
 }: INetworkGraphPaneProps): ReactElement => {
-  const [view, setView] = useState<IView['id']>(defaultView);
+  const [view, setView] = useState<IView>(views[0]);
 
   const [showLinkLayer, setShowLinkLayer] = useState(false);
 
-  const handleChangeView = (v: IView['id']) => setView(v);
+  const handleChangeView = (vid: IView['id']) => setView(views.filter((v) => v.id === vid)[0]);
 
   const handleChangePaperLimit = (limit: number) => {
     onChagePaperLimit(limit);
@@ -49,14 +46,10 @@ export const NetworkGraphPane = ({
     setShowLinkLayer(!showLinkLayer);
   };
 
-  useEffect(() => {
-    onChangeView(view);
-  }, [view]);
-
   return (
     <Stack as="section" aria-label="Author Network" width="100%" mt={5}>
       <LimitPaper initialLimit={paperLimit} max={maxPaperLimit} onApply={handleChangePaperLimit} />
-      <RadioGroup defaultChecked onChange={handleChangeView} value={view}>
+      <RadioGroup defaultChecked onChange={handleChangeView} value={view.id}>
         <Stack direction="row">
           {views.map((v) => (
             <Radio value={v.id} key={v.id}>
@@ -67,7 +60,13 @@ export const NetworkGraphPane = ({
       </RadioGroup>
       {/* <SunburstGraph graph={graph} onClick={onClickNode} /> */}
       <OverlaySwitch isChecked={showLinkLayer} onChange={handleToggleSwitch} />
-      <NetworkGraph root={root} link_data={link_data} showLinkLayer={showLinkLayer} onClickNode={onClickNode} />
+      <NetworkGraph
+        root={root}
+        link_data={link_data}
+        showLinkLayer={showLinkLayer}
+        onClickNode={onClickNode}
+        keyToUseAsValue={view.valueToUse}
+      />
     </Stack>
   );
 };

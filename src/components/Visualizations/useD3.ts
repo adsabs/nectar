@@ -9,10 +9,9 @@ export const useD3 = (
   dependencies: React.DependencyList,
 ) => {
   const ref = React.useRef<SVGSVGElement>();
-  const svg = React.useRef<Selection<SVGSVGElement, unknown, HTMLElement, any>>();
 
   React.useEffect(() => {
-    svg.current = renderFn(d3.select(ref.current));
+    renderFn(d3.select(ref.current));
   }, dependencies);
-  return { ref, svg };
+  return { ref };
 };
