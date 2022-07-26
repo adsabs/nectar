@@ -1,7 +1,7 @@
 import { useD3 } from '../useD3';
 import * as d3 from 'd3';
 import { ReactElement, useCallback, useEffect, useMemo } from 'react';
-import { Selection } from 'd3';
+import { BaseType, HierarchyRectangularNode, Selection } from 'd3';
 import { IADSApiVisNode, IADSApiVisNodeKey } from '@api';
 export interface INetworkGraphProps {
   root: IADSApiVisNode;
@@ -9,6 +9,16 @@ export interface INetworkGraphProps {
   showLinkLayer: boolean;
   onClickNode: (node: IADSApiVisNode) => void;
   keyToUseAsValue: IADSApiVisNodeKey;
+}
+
+export interface NetworkHierarchyNode<Datum> extends HierarchyRectangularNode<Datum> {
+  color: string; // cache color data
+  _lastAngle: { x0: number; x1: number }; // save last angle, used in transition
+}
+export interface ILink {
+  source: NetworkHierarchyNode<IADSApiVisNode>;
+  target: NetworkHierarchyNode<IADSApiVisNode>;
+  weight: number;
 }
 
 const width = 932;
@@ -53,8 +63,8 @@ export const NetworkGraph = ({
         .hierarchy<IADSApiVisNode>(data)
         .sum((d) => (d[keyToUseAsValue] ? (d[keyToUseAsValue] as number) : 0))
         .sort((a, b) => b.data.size - a.data.size); // in all views, always sort by size
-      const p = d3.partition().size([2 * Math.PI, +root.height + 1])(root); // add x (angle), y (distance) to tree structure
-      return p;
+      const p = d3.partition<IADSApiVisNode>().size([2 * Math.PI, +root.height + 1])(root); // add x (angle), y (distance) to tree structure
+      return p as NetworkHierarchyNode<IADSApiVisNode>;
     },
     [root, keyToUseAsValue],
   );
@@ -64,7 +74,7 @@ export const NetworkGraph = ({
   // color function returns color based on domain
   const color = useMemo(() => {
     return d3
-      .scaleOrdinal()
+      .scaleOrdinal<string>()
       .domain(['0', '1', '2', '3', '4', '5', '6'])
       .range([
         'hsla(282, 60%, 52%, 1)',
@@ -80,7 +90,7 @@ export const NetworkGraph = ({
   // arc function returns a pie data for a tree node
   const arc = useMemo(() => {
     return d3
-      .arc()
+      .arc<NetworkHierarchyNode<IADSApiVisNode>>()
       .startAngle((d) => d.x0)
       .endAngle((d) => d.x1)
       .padAngle((d) => Math.min((d.x1 - d.x0) / 2, 0.005))
@@ -119,7 +129,7 @@ export const NetworkGraph = ({
   // function that gives the data for path from node to node
   const line = useMemo(() => {
     return d3
-      .lineRadial()
+      .lineRadial<NetworkHierarchyNode<IADSApiVisNode>>()
       .curve(d3.curveBundle.beta(0.85))
       .radius(radius * 3 - 1) // one is a gap
       .angle((d) => d.x0 + (d.x1 - d.x0) / 2);
@@ -136,14 +146,14 @@ export const NetworkGraph = ({
       .range([0.5, 3.5]);
   }, [weights]);
 
-  const labelTransform = (d) => {
+  const labelTransform = (d: NetworkHierarchyNode<IADSApiVisNode>) => {
     const x = (((d.x0 + d.x1) / 2) * 180) / Math.PI;
     const y = d.y1 * radius + 2; // just outside the circle
     return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
   };
 
   // align label to the circle
-  const textAnchor = useCallback((d) => {
+  const textAnchor = useCallback((d: NetworkHierarchyNode<IADSApiVisNode>) => {
     const x = (((d.x0 + d.x1) / 2) * 180) / Math.PI;
     if (x < 180) {
       return 'start';
@@ -153,10 +163,10 @@ export const NetworkGraph = ({
   }, []);
 
   // function that does the transition of arc from one angle to new angle
-  const arcTween = useCallback((d) => {
+  const arcTween = useCallback((d: NetworkHierarchyNode<IADSApiVisNode>) => {
     console.log(d._lastAngle);
     const i = d3.interpolateObject(d._lastAngle, d);
-    return (t) => {
+    return (t: number) => {
       const b = i(t);
       // d._lastAngle =  { x0: b.x0, x1: b.x1 };
       return arc(b);
@@ -247,7 +257,7 @@ export const NetworkGraph = ({
             ? `${citationFontScale(d.value)}px`
             : `${readFontScale(d.value)}px`,
         )
-        .text((d) => (d.depth === 2 ? d.data.name : null))
+        .text((d) => (d.depth === 2 ? (d.data.name as string) : null))
         .attr('text-anchor', (d) => textAnchor(d))
         .style('cursor', 'pointer')
         .on('mouseover', (e, n) => {
@@ -257,7 +267,7 @@ export const NetworkGraph = ({
 
           // highlight links
           const highlightedLinks = g
-            .selectAll('.link')
+            .selectAll<BaseType, ILink>('.link')
             .filter((l) => l.source.data.name === n.data.name || l.target.data.name === n.data.name)
             // .classed('selected-link', true); // use this line instead of the next two
             .style('stroke', '#EE8E29');
@@ -269,7 +279,7 @@ export const NetworkGraph = ({
             highlightedLabelNames.add(hl.target.data.name);
           });
 
-          g.selectAll('.node-label')
+          g.selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-label')
             .filter((nl) => highlightedLabelNames.has(nl.data.name))
             // .classed('linked-label', true)
             .style('fill', '#EE8E29');
@@ -285,11 +295,11 @@ export const NetworkGraph = ({
       // Links
       const links = link_data.map((l) => {
         const source = g
-          .selectAll('.node-path')
+          .selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-path')
           .filter((d) => d.data.numberName === l[0])
           .data()[0];
         const target = g
-          .selectAll('.node-path')
+          .selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-path')
           .filter((d) => d.data.numberName === l[1])
           .data()[0];
 
@@ -385,11 +395,11 @@ export const NetworkGraph = ({
 
     const links = link_data.map((l) => {
       const source = d3
-        .selectAll('.node-path')
+        .selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-path')
         .filter((d) => d.data.numberName === l[0])
         .data()[0];
       const target = d3
-        .selectAll('.node-path')
+        .selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-path')
         .filter((d) => d.data.numberName === l[1])
         .data()[0];
 
@@ -398,7 +408,7 @@ export const NetworkGraph = ({
     });
 
     d3.selectAll('.link-container')
-      .selectAll('.link')
+      .selectAll<BaseType, ILink>('.link')
       .data(links)
       .join('path')
       .transition()
