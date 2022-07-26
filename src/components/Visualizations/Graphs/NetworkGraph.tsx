@@ -395,6 +395,9 @@ export const NetworkGraph = ({
           // g.selectAll('.node-label').classed('linked-label', false);
           g.selectAll('.link').style('stroke', null);
           g.selectAll('.node-label').style('fill', null);
+        })
+        .on('click', (e, p) => {
+          onClickNode(p.data);
         });
 
       const linkContainer = g
@@ -420,7 +423,39 @@ export const NetworkGraph = ({
         .attr('stroke-opacity', '40%')
         .attr('fill', 'none')
         .style('transition', 'opacity 0.6s ease, transform 0.6s ease')
-        .attr('stroke-width', (d) => strokeWidth(d, links));
+        .attr('stroke-width', (d) => strokeWidth(d, links))
+        .on('mouseover', (e, link) => {
+          if (!showLinkLayer) {
+            return;
+          }
+
+          // highlight link
+          const highlightedLinks = g
+            .selectAll<BaseType, ILink>('.link')
+            .filter((l) => l.source.data.name === link.source.data.name && l.target.data.name === link.target.data.name)
+            // .classed('selected-link', true); // use this line instead of the next two
+            .style('stroke', '#EE8E29')
+            .style('stroke-width', '3px');
+
+          // labels of the highlighted link
+          const highlightedLabelNames = new Set();
+          highlightedLinks.each((hl) => {
+            highlightedLabelNames.add(hl.source.data.name);
+            highlightedLabelNames.add(hl.target.data.name);
+          });
+
+          g.selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-label')
+            .filter((nl) => highlightedLabelNames.has(nl.data.name))
+            // .classed('linked-label', true)
+            .style('fill', '#EE8E29');
+        })
+        .on('mouseout', () => {
+          // remove highlights
+          // g.selectAll('.link').classed('selected-link', false);
+          // g.selectAll('.node-label').classed('linked-label', false);
+          g.selectAll('.link').style('stroke', null).style('stroke-width', null);
+          g.selectAll('.node-label').style('fill', null);
+        });
 
       return svg;
     },
