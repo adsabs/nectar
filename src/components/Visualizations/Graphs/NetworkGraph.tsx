@@ -13,7 +13,6 @@ export interface INetworkGraphProps {
 
 export interface NetworkHierarchyNode<Datum> extends HierarchyRectangularNode<Datum> {
   color: string; // cache color data
-  _lastAngle: { x0: number; x1: number }; // save last angle, used in transition
 }
 export interface ILink {
   source: NetworkHierarchyNode<IADSApiVisNode>;
@@ -217,22 +216,6 @@ export const NetworkGraph = ({
     }
   }, []);
 
-  // function that does the transition of arc from one angle to new angle
-  const arcTween = useCallback((d: NetworkHierarchyNode<IADSApiVisNode>) => {
-    console.log(d._lastAngle);
-    const i = d3.interpolateObject(d._lastAngle, d);
-    return (t: number) => {
-      const b = i(t);
-      // d._lastAngle =  { x0: b.x0, x1: b.x1 };
-      return arc(b);
-    };
-  }, []);
-
-  // save angle data to transformation
-  const stashAngle = (d: NetworkHierarchyNode<IADSApiVisNode>) => {
-    d._lastAngle = { x0: d.x0, x1: d.x1 };
-  };
-
   // node linking data
   const getLinks = useCallback((linkData: number[][]) => {
     return linkData.map((l) => {
@@ -257,8 +240,13 @@ export const NetworkGraph = ({
       .join('path')
       .transition()
       .duration(1500)
-      .attrTween('d', arcTween)
-      .each(stashAngle); // save this angle for use in transition interpolation
+      .attrTween('d', function (d) {
+        const i = d3.interpolateObject(this._lastAngle, d);
+        this._lastAngle = { x0: d.x0, x1: d.x1 }; // TODO, not persisted, why?
+        return (t: number) => {
+          return arc(i(t));
+        };
+      });
   }, []);
 
   // draw node labels
@@ -345,7 +333,9 @@ export const NetworkGraph = ({
         .attr('fill-opacity', 0.8)
         .attr('pointer-events', 'auto')
         .attr('d', arc) // the shape to draw
-        .each(stashAngle) // save this angle for use in transition interpolation
+        .each(function (d) {
+          this._lastAngle = { x0: d.x0, x1: d.x1 };
+        }) // save this angle for use in transition interpolation
         .style('cursor', 'pointer')
         .on('click', (e, p) => {
           onClickNode(p.data);
