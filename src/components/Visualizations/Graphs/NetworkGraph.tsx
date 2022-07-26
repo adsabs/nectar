@@ -1,7 +1,7 @@
 import { useD3 } from '../useD3';
 import * as d3 from 'd3';
 import { ReactElement, useCallback, useEffect, useMemo } from 'react';
-import { BaseType, HierarchyRectangularNode, Selection } from 'd3';
+import { BaseType, D3ZoomEvent, HierarchyRectangularNode, Selection } from 'd3';
 import { IADSApiVisNode, IADSApiVisNodeKey } from '@api';
 export interface INetworkGraphProps {
   root: IADSApiVisNode;
@@ -302,26 +302,19 @@ export const NetworkGraph = ({
 
       svg.attr('viewBox', [0, 0, width, width]).style('font', '10px sans-serif').classed('network-graph-svg', true);
 
-      const g = svg
-        .append('g')
-        .classed('network-graph-container', true)
-        .attr('transform', `translate(${width / 2},${width / 2})`);
+      const g0 = svg.append('g').attr('transform', `translate(${width / 2},${width / 2})`);
+
+      const g = g0.append('g').classed('network-graph-container', true);
 
       // zoom behavior
-      // const zoom = d3
-      //   .zoom()
-      //   .scaleExtent([0.7, 3])
-      //   .on('zoom', function (event) {
-      //     g.attr('transform', event.transform);
-      //   });
-      // svg.call(zoom);
-      // // svg.on('dblclick.zoom', null);
-
-      // const nodeContainers = g
-      //   .selectAll('g')
-      //   .data(graphRoot.descendants().slice(1))
-      //   .join('g')
-      //   .classed('node-containers', true);
+      const zoom = d3
+        .zoom<SVGGElement, unknown>()
+        .scaleExtent([0.7, 3])
+        .on('zoom', (e: D3ZoomEvent<SVGGElement, IADSApiVisNode>) => {
+          g.attr('transform', e.transform.toString());
+        });
+      g0.call(zoom);
+      g0.on('dblclick.zoom', null);
 
       // Nodes
       g.append('g')
