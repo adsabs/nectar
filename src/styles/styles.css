@@ -111,4 +111,22 @@
   .search-snippets em {
     @apply p-1 font-semibold bg-blue-100;
   }
+
+  /* network graph */
+
+  .network-graph-svg .node-path {
+    @apply cursor-pointer;
+  }
+
+  .network-graph-svg .node-label {
+    @apply cursor-pointer;
+  }
+
+  .network-graph-svg .linked-label {
+    fill: #ee8e29;
+  }
+
+  .network-graph-svg .selected-link {
+    stroke: #ee8e29;
+  }
 }

@@ -242,7 +242,7 @@ export const NetworkGraph = ({
       .duration(1500)
       .attrTween('d', function (d) {
         const i = d3.interpolateObject(this._lastAngle, d);
-        this._lastAngle = { x0: d.x0, x1: d.x1 }; // TODO, not persisted, why?
+        this._lastAngle = { x0: d.x0, x1: d.x1 };
         return (t: number) => {
           return arc(i(t));
         };
@@ -329,7 +329,6 @@ export const NetworkGraph = ({
         .each(function (d) {
           this._lastAngle = { x0: d.x0, x1: d.x1 };
         }) // save this angle for use in transition interpolation
-        .style('cursor', 'pointer')
         .on('click', (e, p) => {
           onClickNode(p.data);
         });
@@ -347,7 +346,6 @@ export const NetworkGraph = ({
         .style('display', (d) => labelDisplay(d, keyToUseAsValue))
         .text((d) => (d.depth === 2 ? (d.data.name as string) : null))
         .attr('text-anchor', textAnchor)
-        .style('cursor', 'pointer')
         .on('mouseover', (e, n) => {
           if (!showLinkLayer) {
             return;
@@ -357,8 +355,7 @@ export const NetworkGraph = ({
           const highlightedLinks = g
             .selectAll<BaseType, ILink>('.link')
             .filter((l) => l.source.data.name === n.data.name || l.target.data.name === n.data.name)
-            // .classed('selected-link', true); // use this line instead of the next two
-            .style('stroke', '#EE8E29');
+            .classed('selected-link', true);
 
           // highlight labels
           const highlightedLabelNames = new Set();
@@ -369,15 +366,12 @@ export const NetworkGraph = ({
 
           g.selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-label')
             .filter((nl) => highlightedLabelNames.has(nl.data.name))
-            // .classed('linked-label', true)
-            .style('fill', '#EE8E29');
+            .classed('linked-label', true);
         })
         .on('mouseout', () => {
           // remove highlights
-          // g.selectAll('.link').classed('selected-link', false);
-          // g.selectAll('.node-label').classed('linked-label', false);
-          g.selectAll('.link').style('stroke', null);
-          g.selectAll('.node-label').style('fill', null);
+          g.selectAll('.link').classed('selected-link', false);
+          g.selectAll('.node-label').classed('linked-label', false);
         })
         .on('click', (e, p) => {
           onClickNode(p.data);
@@ -416,9 +410,7 @@ export const NetworkGraph = ({
           const highlightedLinks = g
             .selectAll<BaseType, ILink>('.link')
             .filter((l) => l.source.data.name === link.source.data.name && l.target.data.name === link.target.data.name)
-            // .classed('selected-link', true); // use this line instead of the next two
-            .style('stroke', '#EE8E29')
-            .style('stroke-width', '3px');
+            .classed('selected-link', true);
 
           // labels of the highlighted link
           const highlightedLabelNames = new Set();
@@ -429,15 +421,12 @@ export const NetworkGraph = ({
 
           g.selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-label')
             .filter((nl) => highlightedLabelNames.has(nl.data.name))
-            // .classed('linked-label', true)
-            .style('fill', '#EE8E29');
+            .classed('linked-label', true);
         })
         .on('mouseout', () => {
           // remove highlights
-          // g.selectAll('.link').classed('selected-link', false);
-          // g.selectAll('.node-label').classed('linked-label', false);
-          g.selectAll('.link').style('stroke', null).style('stroke-width', null);
-          g.selectAll('.node-label').style('fill', null);
+          g.selectAll('.link').classed('selected-link', false);
+          g.selectAll('.node-label').classed('linked-label', false);
         });
 
       return svg;
