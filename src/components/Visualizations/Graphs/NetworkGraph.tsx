@@ -135,6 +135,49 @@ export const NetworkGraph = ({
       .angle((d) => d.x0 + (d.x1 - d.x0) / 2);
   }, []);
 
+  // get color of node
+  const nodeFill = (d: NetworkHierarchyNode<IADSApiVisNode>) => {
+    if (d.depth === 0) {
+      return 'white';
+    }
+    if (d.depth === 1) {
+      const index = d.parent.children.indexOf(d);
+      if (index < 7) {
+        d.color = color(index.toString());
+        return d.color;
+      }
+      return noGroupColor;
+    }
+    if (d.depth === 2) {
+      // child nodes
+      if (!d.parent.color) {
+        return noGroupColor;
+      }
+      return d.parent.color;
+    }
+  };
+
+  // function to get font size from node data
+  const fontSize = (d: NetworkHierarchyNode<IADSApiVisNode>, key: string) => {
+    return key === 'size'
+      ? `${occurrencesFontScale(d.value)}px`
+      : key === 'citation_count'
+      ? `${citationFontScale(d.value)}px`
+      : `${readFontScale(d.value)}px`;
+  };
+
+  const labelDisplay = (d: NetworkHierarchyNode<IADSApiVisNode>, key: string) => {
+    if (key == 'size') {
+      return 'block';
+    }
+    if (key == 'citation_count' && d.data.citation_count > citationLimit) {
+      return 'block';
+    }
+    if (key == 'read_count' && d.data.read_count > readLimit) {
+      return 'block';
+    }
+    return 'none';
+  };
   const weights = useMemo(() => link_data.map((l) => l[2]), [link_data]);
 
   // function that gives the stroke width of a link
@@ -145,6 +188,18 @@ export const NetworkGraph = ({
       .domain([d3.min(weights), d3.max(weights)])
       .range([0.5, 3.5]);
   }, [weights]);
+
+  // get link stroke width
+  const strokeWidth = (d: ILink, links: ILink[]) => {
+    // get link weight
+    const weight = links.filter((l) => {
+      return (
+        (l.source.data.name === d.source.data.name && l.target.data.name === d.target.data.name) ||
+        (l.target.data.name === d.source.data.name && l.source.data.name === d.target.data.name)
+      );
+    })[0].weight;
+    return linkScale(weight);
+  };
 
   const labelTransform = (d: NetworkHierarchyNode<IADSApiVisNode>) => {
     const x = (((d.x0 + d.x1) / 2) * 180) / Math.PI;
@@ -173,7 +228,84 @@ export const NetworkGraph = ({
     };
   }, []);
 
-  //TODO: use css to hide link layer
+  // save angle data to transformation
+  const stashAngle = (d: NetworkHierarchyNode<IADSApiVisNode>) => {
+    d._lastAngle = { x0: d.x0, x1: d.x1 };
+  };
+
+  // node linking data
+  const getLinks = useCallback((linkData: number[][]) => {
+    return linkData.map((l) => {
+      const source = d3
+        .selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-path')
+        .filter((d) => d.data.numberName === l[0])
+        .data()[0];
+      const target = d3
+        .selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-path')
+        .filter((d) => d.data.numberName === l[1])
+        .data()[0];
+
+      const weight = l[2];
+      return { source, target, weight };
+    });
+  }, []);
+
+  // draw nodes
+  const updateNodePaths = useCallback((root: NetworkHierarchyNode<IADSApiVisNode>) => {
+    d3.selectAll('.node-path')
+      .data(root.descendants().slice(1))
+      .join('path')
+      .transition()
+      .duration(1500)
+      .attrTween('d', arcTween)
+      .each(stashAngle); // save this angle for use in transition interpolation
+  }, []);
+
+  // draw node labels
+  const updateNodeLabels = useCallback((root: NetworkHierarchyNode<IADSApiVisNode>, key: IADSApiVisNodeKey) => {
+    d3.selectAll('.node-label')
+      .join('text')
+      .data(root.descendants().slice(1))
+      .attr('opacity', '0')
+      .style('display', (d) => labelDisplay(d, key))
+      .style('font-size', (d) => fontSize(d, key))
+      .attr('transform', labelTransform)
+      .attr('text-anchor', textAnchor)
+      .transition()
+      .duration(1500)
+      .attr('opacity', 1);
+  }, []);
+
+  // draw links
+  const updateLinks = useCallback((links: ILink[]) => {
+    d3.selectAll('.link-container')
+      .selectAll<BaseType, ILink>('.link')
+      .data(links)
+      .join('path')
+      .transition()
+      .duration(1500)
+      .attr('d', (d) => line(d.source.path(d.target)));
+  }, []);
+
+  // show link layer toggled, show/hide link layer
+  useEffect(() => {
+    if (showLinkLayer) {
+      // show link layer
+      d3.selectAll('.link-container').style('display', 'block');
+    } else {
+      // hide link layer
+      d3.selectAll('.link-container').style('display', 'none');
+    }
+  }, [showLinkLayer]);
+
+  // When view changes, update graph
+  useEffect(() => {
+    updateNodePaths(graphRoot);
+    updateNodeLabels(graphRoot, keyToUseAsValue);
+    const links = getLinks(link_data);
+    updateLinks(links);
+  }, [graphRoot]);
+
   const renderFunction = useCallback(
     (svg: Selection<SVGSVGElement, unknown, HTMLElement, any>) => {
       // create a tree structure of data with information for drawing
@@ -204,61 +336,34 @@ export const NetworkGraph = ({
       //   .classed('node-containers', true);
 
       // Nodes
-
-      const nodes = g
-        .append('g')
+      g.append('g')
         .selectAll('path')
         .data(graphRoot.descendants().slice(1)) // flattened nodes, exclude the root itself
         .join('path')
         .classed('node-path', (d) => d.depth !== 0)
-        .attr('fill', (d) => {
-          if (d.depth === 0) {
-            return 'white';
-          }
-          if (d.depth === 1) {
-            const index = d.parent.children.indexOf(d);
-            if (index < 7) {
-              d.color = color(index.toString());
-              return d.color;
-            }
-            return noGroupColor;
-          }
-          if (d.depth === 2) {
-            // child nodes
-            if (!d.parent.color) {
-              return noGroupColor;
-            }
-            return d.parent.color;
-          }
-        })
+        .attr('fill', nodeFill)
         .attr('fill-opacity', 0.8)
         .attr('pointer-events', 'auto')
-        .attr('d', (d) => arc(d)) // the shape to draw
-        .each((d) => (d._lastAngle = { x0: d.x0, x1: d.x1 })) // save this angle for use in transition interpolation
+        .attr('d', arc) // the shape to draw
+        .each(stashAngle) // save this angle for use in transition interpolation
         .style('cursor', 'pointer')
         .on('click', (e, p) => {
           onClickNode(p.data);
         });
 
       // node labels
-      const labels = g
-        .append('g')
+      g.append('g')
         .selectAll('text')
         .data(graphRoot.descendants().slice(1))
         .join('text')
         .classed('node-label', true)
         .attr('dy', '0.35em')
         .attr('fill-opacity', 1)
-        .attr('transform', (d) => labelTransform(d))
-        .style('font-size', (d) =>
-          keyToUseAsValue === 'size'
-            ? `${occurrencesFontScale(d.value)}px`
-            : keyToUseAsValue === 'citation_count'
-            ? `${citationFontScale(d.value)}px`
-            : `${readFontScale(d.value)}px`,
-        )
+        .attr('transform', labelTransform)
+        .style('font-size', (d) => fontSize(d, keyToUseAsValue))
+        .style('display', (d) => labelDisplay(d, keyToUseAsValue))
         .text((d) => (d.depth === 2 ? (d.data.name as string) : null))
-        .attr('text-anchor', (d) => textAnchor(d))
+        .attr('text-anchor', textAnchor)
         .style('cursor', 'pointer')
         .on('mouseover', (e, n) => {
           if (!showLinkLayer) {
@@ -292,28 +397,18 @@ export const NetworkGraph = ({
           g.selectAll('.node-label').style('fill', null);
         });
 
-      // Links
-      const links = link_data.map((l) => {
-        const source = g
-          .selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-path')
-          .filter((d) => d.data.numberName === l[0])
-          .data()[0];
-        const target = g
-          .selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-path')
-          .filter((d) => d.data.numberName === l[1])
-          .data()[0];
-
-        const weight = l[2];
-        return { source, target, weight };
-      });
-
-      const linkContainer = g.append('g').classed('link-container', true);
+      const linkContainer = g
+        .append('g')
+        .classed('link-container', true)
+        .style('display', showLinkLayer ? 'block' : 'none');
 
       // Overlay on top of circle
       linkContainer
         .append('circle')
         .attr('r', radius * 3) // depths = 3, each level has radius, so 3 * radius
         .style('fill', 'rgba(255, 255, 255, 0.5)');
+
+      const links = getLinks(link_data);
 
       linkContainer
         .selectAll('path')
@@ -325,96 +420,14 @@ export const NetworkGraph = ({
         .attr('stroke-opacity', '40%')
         .attr('fill', 'none')
         .style('transition', 'opacity 0.6s ease, transform 0.6s ease')
-        .attr('stroke-width', (d) => {
-          // get link weight
-          const weight = links.filter((l) => {
-            return (
-              (l.source.data.name === d.source.data.name && l.target.data.name === d.target.data.name) ||
-              (l.target.data.name === d.source.data.name && l.source.data.name === d.target.data.name)
-            );
-          })[0].weight;
-          return linkScale(weight);
-        });
+        .attr('stroke-width', (d) => strokeWidth(d, links));
 
       return svg;
     },
-    [root, link_data],
+    [root, link_data, showLinkLayer],
   );
 
   const { ref } = useD3(renderFunction, [renderFunction]);
-
-  // show link layer toggled, show/hide link layer
-  useEffect(() => {
-    if (showLinkLayer) {
-      // show link layer
-      d3.selectAll('.link-container').style('display', 'block');
-    } else {
-      // hide link layer
-      d3.selectAll('.link-container').style('display', 'none');
-    }
-  }, [showLinkLayer]);
-
-  // When view changes, update graph
-  useEffect(() => {
-    d3.selectAll('.node-path')
-      .data(graphRoot.descendants().slice(1)) // update data, use  name for mapping
-      .join('path')
-      .transition()
-      .duration(1500)
-      .attrTween('d', arcTween)
-      .each((d) => (d._lastAngle = { x0: d.x0, x1: d.x1 })); // save this angle for use in transition interpolation
-
-    d3.selectAll('.node-label')
-      .join('text')
-      .data(graphRoot.descendants().slice(1))
-      .attr('opacity', '0')
-      .style('display', (d) => {
-        if (keyToUseAsValue == 'size') {
-          return 'block';
-        }
-        if (keyToUseAsValue == 'citation_count' && d.data.citation_count > citationLimit) {
-          return 'block';
-        }
-        if (keyToUseAsValue == 'read_count' && d.data.read_count > readLimit) {
-          return 'block';
-        }
-        return 'none';
-      })
-      .style('font-size', (d) =>
-        keyToUseAsValue === 'size'
-          ? `${occurrencesFontScale(d.value)}px`
-          : keyToUseAsValue === 'citation_count'
-          ? `${citationFontScale(d.value)}px`
-          : `${readFontScale(d.value)}px`,
-      )
-      .attr('transform', (d) => labelTransform(d))
-      .attr('text-anchor', (d) => textAnchor(d))
-      .transition()
-      .duration(1500)
-      .attr('opacity', 1);
-
-    const links = link_data.map((l) => {
-      const source = d3
-        .selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-path')
-        .filter((d) => d.data.numberName === l[0])
-        .data()[0];
-      const target = d3
-        .selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-path')
-        .filter((d) => d.data.numberName === l[1])
-        .data()[0];
-
-      const weight = l[2];
-      return { source, target, weight };
-    });
-
-    d3.selectAll('.link-container')
-      .selectAll<BaseType, ILink>('.link')
-      .data(links)
-      .join('path')
-      .transition()
-      .duration(1500)
-      .attr('d', (d) => line(d.source.path(d.target)));
-  }, [graphRoot]);
 
   return <svg ref={ref} />;
 };
