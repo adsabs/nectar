@@ -54,7 +54,7 @@ export const NetworkGraph = ({
   // when the ring sizing is by reads, how many labels should be shown?
   const readLimit = read_counts[numberOfLabelsToShow] || read_counts[read_counts.length - 1];
 
-  // convert our tree data to hierachy tree data for graph
+  // function that converts ADDS tree node (root) to hierachical tree node for graph
   const partition = useCallback(
     (data: IADSApiVisNode) => {
       // data to node in tree structure
@@ -65,10 +65,11 @@ export const NetworkGraph = ({
       const p = d3.partition<IADSApiVisNode>().size([2 * Math.PI, +root.height + 1])(root); // add x (angle), y (distance) to tree structure
       return p as NetworkHierarchyNode<IADSApiVisNode>;
     },
-    [root, keyToUseAsValue],
+    [keyToUseAsValue],
   );
 
-  const graphRoot = useMemo(() => partition(root), [root, keyToUseAsValue]);
+  // actaul tree root data for graph
+  const graphRoot = useMemo(() => partition(root), [partition, root]);
 
   // color function returns color based on domain
   const color = useMemo(() => {
@@ -165,6 +166,7 @@ export const NetworkGraph = ({
       : `${readFontScale(d.value)}px`;
   };
 
+  // get the label's display setting based on type of view
   const labelDisplay = (d: NetworkHierarchyNode<IADSApiVisNode>, key: string) => {
     if (key == 'size') {
       return 'block';
@@ -177,6 +179,8 @@ export const NetworkGraph = ({
     }
     return 'none';
   };
+
+  // links weights
   const weights = useMemo(() => link_data.map((l) => l[2]), [link_data]);
 
   // function that gives the stroke width of a link
@@ -200,13 +204,14 @@ export const NetworkGraph = ({
     return linkScale(weight);
   };
 
-  const labelTransform = (d: NetworkHierarchyNode<IADSApiVisNode>) => {
+  // function that gives the transform of node label to its proper position
+  const labelTransform = useCallback((d: NetworkHierarchyNode<IADSApiVisNode>) => {
     const x = (((d.x0 + d.x1) / 2) * 180) / Math.PI;
     const y = d.y1 * radius + 2; // just outside the circle
     return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
-  };
+  }, []);
 
-  // align label to the circle
+  // returns the alignment for label, relative to the circle
   const textAnchor = useCallback((d: NetworkHierarchyNode<IADSApiVisNode>) => {
     const x = (((d.x0 + d.x1) / 2) * 180) / Math.PI;
     if (x < 180) {
@@ -233,7 +238,7 @@ export const NetworkGraph = ({
     });
   }, []);
 
-  // transition nodes when view changed
+  // transition nodes for view change
   const transitionNodePaths = useCallback((root: NetworkHierarchyNode<IADSApiVisNode>) => {
     d3.selectAll('.node-path')
       .data(root.descendants().slice(1))
@@ -242,14 +247,14 @@ export const NetworkGraph = ({
       .duration(1500)
       .attrTween('d', function (d) {
         const i = d3.interpolateObject(this._lastAngle, d);
-        this._lastAngle = { x0: d.x0, x1: d.x1 };
+        this._lastAngle = { x0: d.x0, x1: d.x1 }; // cache current angle
         return (t: number) => {
           return arc(i(t));
         };
       });
   }, []);
 
-  // transition node labels when view changed
+  // transition node labels for view change
   const transitionNodeLabels = useCallback((root: NetworkHierarchyNode<IADSApiVisNode>, key: IADSApiVisNodeKey) => {
     d3.selectAll('.node-label')
       .join('text')
@@ -264,7 +269,7 @@ export const NetworkGraph = ({
       .attr('opacity', 1);
   }, []);
 
-  // transition links when view changed
+  // transition links for view change
   const transitionLinks = useCallback((links: ILink[]) => {
     d3.selectAll('.link-container')
       .selectAll<BaseType, ILink>('.link')
@@ -275,7 +280,7 @@ export const NetworkGraph = ({
       .attr('d', (d) => line(d.source.path(d.target)));
   }, []);
 
-  // show link layer toggled, show/hide link layer
+  // link layer toggled, show/hide link layer
   useEffect(() => {
     if (showLinkLayer) {
       // show link layer
@@ -340,7 +345,7 @@ export const NetworkGraph = ({
     [showLinkLayer],
   );
 
-  // when mouseover callbacks are updated, update graph
+  // when mouseover callbacks are updated, update graph elements
   useEffect(() => {
     d3.selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-label').on('mouseover', handleMouseOverLabel);
   }, [handleMouseOverLabel]);
@@ -358,8 +363,6 @@ export const NetworkGraph = ({
 
   const renderFunction = useCallback(
     (svg: Selection<SVGSVGElement, unknown, HTMLElement, any>) => {
-      // create a tree structure of data with information for drawing
-
       svg.selectAll('*').remove();
 
       svg.attr('viewBox', [0, 0, width, width]).style('font', '10px sans-serif').classed('network-graph-svg', true);
@@ -418,6 +421,7 @@ export const NetworkGraph = ({
           onClickNode(p.data);
         });
 
+      // Link overlay layer
       const linkContainer = g
         .append('g')
         .classed('link-container', true)
@@ -429,8 +433,10 @@ export const NetworkGraph = ({
         .attr('r', radius * 3) // depths = 3, each level has radius, so 3 * radius
         .style('fill', 'rgba(255, 255, 255, 0.5)');
 
+      // get links data
       const links = getLinks(link_data);
 
+      // links
       linkContainer
         .selectAll('path')
         .data(links)
