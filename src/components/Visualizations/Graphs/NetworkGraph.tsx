@@ -14,6 +14,10 @@ export interface INetworkGraphProps {
 export interface NetworkHierarchyNode<Datum> extends HierarchyRectangularNode<Datum> {
   color: string; // cache color data
 }
+
+export interface ADSSVGPathElement extends SVGPathElement {
+  lastAngle: { x0: number; x1: number };
+}
 export interface ILink {
   source: NetworkHierarchyNode<IADSApiVisNode>;
   target: NetworkHierarchyNode<IADSApiVisNode>;
@@ -240,14 +244,14 @@ export const NetworkGraph = ({
 
   // transition nodes for view change
   const transitionNodePaths = useCallback((root: NetworkHierarchyNode<IADSApiVisNode>) => {
-    d3.selectAll('.node-path')
+    d3.selectAll<ADSSVGPathElement, unknown>('.node-path')
       .data(root.descendants().slice(1))
-      .join('path')
+      .join<ADSSVGPathElement>('path')
       .transition()
       .duration(1500)
       .attrTween('d', function (d) {
-        const i = d3.interpolateObject(this._lastAngle, d);
-        this._lastAngle = { x0: d.x0, x1: d.x1 }; // cache current angle
+        const i = d3.interpolateObject(this.lastAngle, d);
+        this.lastAngle = { x0: d.x0, x1: d.x1 }; // cache current angle
         return (t: number) => {
           return arc(i(t));
         };
@@ -383,16 +387,16 @@ export const NetworkGraph = ({
 
       // Nodes
       g.append('g')
-        .selectAll('path')
+        .selectAll<ADSSVGPathElement, unknown>('path')
         .data(graphRoot.descendants().slice(1)) // flattened nodes, exclude the root itself
-        .join('path')
+        .join<ADSSVGPathElement>('path')
         .classed('node-path', (d) => d.depth !== 0)
         .attr('fill', nodeFill)
         .attr('fill-opacity', 0.8)
         .attr('pointer-events', 'auto')
         .attr('d', arc) // the shape to draw
         .each(function (d) {
-          this._lastAngle = { x0: d.x0, x1: d.x1 };
+          this.lastAngle = { x0: d.x0, x1: d.x1 };
         }) // save this angle for use in transition interpolation
         .on('click', (e, p) => {
           onClickNode(p.data);
