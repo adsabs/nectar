@@ -116,7 +116,7 @@ const OverlaySwitch = ({
   return (
     <FormControl display="flex" alignItems="center">
       <FormLabel htmlFor="overlay" mb="0">
-        Show overlay?
+        View link overlay?
       </FormLabel>
       <Switch id="overlay" onChange={onChange} isChecked={isChecked} />
     </FormControl>

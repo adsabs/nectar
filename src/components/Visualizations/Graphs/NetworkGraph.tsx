@@ -233,8 +233,8 @@ export const NetworkGraph = ({
     });
   }, []);
 
-  // draw nodes
-  const updateNodePaths = useCallback((root: NetworkHierarchyNode<IADSApiVisNode>) => {
+  // transition nodes when view changed
+  const transitionNodePaths = useCallback((root: NetworkHierarchyNode<IADSApiVisNode>) => {
     d3.selectAll('.node-path')
       .data(root.descendants().slice(1))
       .join('path')
@@ -249,8 +249,8 @@ export const NetworkGraph = ({
       });
   }, []);
 
-  // draw node labels
-  const updateNodeLabels = useCallback((root: NetworkHierarchyNode<IADSApiVisNode>, key: IADSApiVisNodeKey) => {
+  // transition node labels when view changed
+  const transitionNodeLabels = useCallback((root: NetworkHierarchyNode<IADSApiVisNode>, key: IADSApiVisNodeKey) => {
     d3.selectAll('.node-label')
       .join('text')
       .data(root.descendants().slice(1))
@@ -264,8 +264,8 @@ export const NetworkGraph = ({
       .attr('opacity', 1);
   }, []);
 
-  // draw links
-  const updateLinks = useCallback((links: ILink[]) => {
+  // transition links when view changed
+  const transitionLinks = useCallback((links: ILink[]) => {
     d3.selectAll('.link-container')
       .selectAll<BaseType, ILink>('.link')
       .data(links)
@@ -286,12 +286,74 @@ export const NetworkGraph = ({
     }
   }, [showLinkLayer]);
 
-  // When view changes, update graph
+  // handle mouse over label
+  const handleMouseOverLabel = useCallback(
+    (e, n: NetworkHierarchyNode<IADSApiVisNode>) => {
+      if (!showLinkLayer) {
+        return;
+      }
+
+      // highlight links
+      const highlightedLinks = d3
+        .selectAll<BaseType, ILink>('.link')
+        .filter((l) => l.source.data.name === n.data.name || l.target.data.name === n.data.name)
+        .classed('selected-link', true);
+
+      // highlight labels
+      const highlightedLabelNames = new Set();
+      highlightedLinks.each((hl) => {
+        highlightedLabelNames.add(hl.source.data.name);
+        highlightedLabelNames.add(hl.target.data.name);
+      });
+
+      d3.selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-label')
+        .filter((nl) => highlightedLabelNames.has(nl.data.name))
+        .classed('linked-label', true);
+    },
+    [showLinkLayer],
+  );
+
+  // handle mouse over link
+  const handleMouseOverLink = useCallback(
+    (e, link: ILink) => {
+      if (!showLinkLayer) {
+        return;
+      }
+
+      // highlight link
+      const highlightedLinks = d3
+        .selectAll<BaseType, ILink>('.link')
+        .filter((l) => l.source.data.name === link.source.data.name && l.target.data.name === link.target.data.name)
+        .classed('selected-link', true);
+
+      // labels of the highlighted link
+      const highlightedLabelNames = new Set();
+      highlightedLinks.each((hl) => {
+        highlightedLabelNames.add(hl.source.data.name);
+        highlightedLabelNames.add(hl.target.data.name);
+      });
+
+      d3.selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-label')
+        .filter((nl) => highlightedLabelNames.has(nl.data.name))
+        .classed('linked-label', true);
+    },
+    [showLinkLayer],
+  );
+
+  // when mouseover callbacks are updated, update graph
   useEffect(() => {
-    updateNodePaths(graphRoot);
-    updateNodeLabels(graphRoot, keyToUseAsValue);
-    const links = getLinks(link_data);
-    updateLinks(links);
+    d3.selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-label').on('mouseover', handleMouseOverLabel);
+  }, [handleMouseOverLabel]);
+
+  useEffect(() => {
+    d3.selectAll('.link-container').selectAll<BaseType, ILink>('.link').on('mouseover', handleMouseOverLink);
+  }, [handleMouseOverLink]);
+
+  // When view changes, transition elements on graph
+  useEffect(() => {
+    transitionNodePaths(graphRoot);
+    transitionNodeLabels(graphRoot, keyToUseAsValue);
+    transitionLinks(getLinks(link_data));
   }, [graphRoot]);
 
   const renderFunction = useCallback(
@@ -346,28 +408,7 @@ export const NetworkGraph = ({
         .style('display', (d) => labelDisplay(d, keyToUseAsValue))
         .text((d) => (d.depth === 2 ? (d.data.name as string) : null))
         .attr('text-anchor', textAnchor)
-        .on('mouseover', (e, n) => {
-          if (!showLinkLayer) {
-            return;
-          }
-
-          // highlight links
-          const highlightedLinks = g
-            .selectAll<BaseType, ILink>('.link')
-            .filter((l) => l.source.data.name === n.data.name || l.target.data.name === n.data.name)
-            .classed('selected-link', true);
-
-          // highlight labels
-          const highlightedLabelNames = new Set();
-          highlightedLinks.each((hl) => {
-            highlightedLabelNames.add(hl.source.data.name);
-            highlightedLabelNames.add(hl.target.data.name);
-          });
-
-          g.selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-label')
-            .filter((nl) => highlightedLabelNames.has(nl.data.name))
-            .classed('linked-label', true);
-        })
+        .on('mouseover', handleMouseOverLabel)
         .on('mouseout', () => {
           // remove highlights
           g.selectAll('.link').classed('selected-link', false);
@@ -401,28 +442,7 @@ export const NetworkGraph = ({
         .attr('fill', 'none')
         .style('transition', 'opacity 0.6s ease, transform 0.6s ease')
         .attr('stroke-width', (d) => strokeWidth(d, links))
-        .on('mouseover', (e, link) => {
-          if (!showLinkLayer) {
-            return;
-          }
-
-          // highlight link
-          const highlightedLinks = g
-            .selectAll<BaseType, ILink>('.link')
-            .filter((l) => l.source.data.name === link.source.data.name && l.target.data.name === link.target.data.name)
-            .classed('selected-link', true);
-
-          // labels of the highlighted link
-          const highlightedLabelNames = new Set();
-          highlightedLinks.each((hl) => {
-            highlightedLabelNames.add(hl.source.data.name);
-            highlightedLabelNames.add(hl.target.data.name);
-          });
-
-          g.selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-label')
-            .filter((nl) => highlightedLabelNames.has(nl.data.name))
-            .classed('linked-label', true);
-        })
+        .on('mouseover', handleMouseOverLink)
         .on('mouseout', () => {
           // remove highlights
           g.selectAll('.link').classed('selected-link', false);
@@ -431,7 +451,7 @@ export const NetworkGraph = ({
 
       return svg;
     },
-    [root, link_data, showLinkLayer],
+    [root, link_data],
   );
 
   const { ref } = useD3(renderFunction, [renderFunction]);
