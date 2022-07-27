@@ -1,6 +1,6 @@
 import { IADSApiVisNode, IADSApiVisNodeKey } from '@api';
 import { Radio, RadioGroup, Stack, Text, Input, Button, FormControl, FormLabel, Switch } from '@chakra-ui/react';
-import { ChangeEvent, ReactElement, useState } from 'react';
+import { ChangeEvent, KeyboardEvent, ReactElement, useState } from 'react';
 import { NetworkGraph } from '../Graphs/NetworkGraph';
 
 export interface INetworkGraphPaneProps {
@@ -86,6 +86,12 @@ const LimitPaper = ({
     setLimit(value);
   };
 
+  const handleKeydown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleApply();
+    }
+  };
+
   const handleApply = () => {
     if (isNaN(limit) || limit < 1 || limit > max) {
       setLimit(initialLimit);
@@ -98,7 +104,7 @@ const LimitPaper = ({
   return (
     <Stack direction="row" alignItems="center" my={2}>
       <Text>Show the first</Text>
-      <Input w={16} type="number" value={limit} max={max} onChange={handleChange} />
+      <Input w={16} type="number" value={limit} max={max} onChange={handleChange} onKeyDown={handleKeydown} />
       <Text>{`papers (max is ${max})`}</Text>
       <Button onClick={handleApply}>Apply</Button>
     </Stack>
