@@ -1,6 +1,6 @@
 import { useD3 } from '../useD3';
 import * as d3 from 'd3';
-import { ReactElement, useCallback, useEffect, useMemo } from 'react';
+import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { BaseType, D3ZoomEvent, HierarchyRectangularNode, Selection } from 'd3';
 import { IADSApiVisNode, IADSApiVisNodeKey } from '@api';
 export interface INetworkGraphProps {
@@ -39,6 +39,8 @@ export const NetworkGraph = ({
   onClickNode,
   keyToUseAsValue,
 }: INetworkGraphProps): ReactElement => {
+  const [selectedNode, setSelectedNode] = useState<IADSApiVisNode>();
+
   const { sizes, citation_counts, read_counts } = useMemo(() => {
     const sizes: number[] = [];
     const citation_counts: number[] = [];
@@ -358,6 +360,18 @@ export const NetworkGraph = ({
     d3.selectAll('.link-container').selectAll<BaseType, ILink>('.link').on('mouseover', handleMouseOverLink);
   }, [handleMouseOverLink]);
 
+  // when selected node has changed, update node on graph
+  useEffect(() => {
+    if (selectedNode) {
+      onClickNode(selectedNode);
+      // clear previous selection & highlight current selection
+      d3.selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-path').classed(
+        'selected-node',
+        (d) => !showLinkLayer && d.data.name === selectedNode.name,
+      );
+    }
+  }, [selectedNode, showLinkLayer]);
+
   // When view changes, transition elements on graph
   useEffect(() => {
     transitionNodePaths(graphRoot);
@@ -399,7 +413,7 @@ export const NetworkGraph = ({
           this.lastAngle = { x0: d.x0, x1: d.x1 };
         }) // save this angle for use in transition interpolation
         .on('click', (e, p) => {
-          onClickNode(p.data);
+          setSelectedNode(p.data);
         });
 
       // node labels
@@ -422,7 +436,7 @@ export const NetworkGraph = ({
           g.selectAll('.node-label').classed('linked-label', false);
         })
         .on('click', (e, p) => {
-          onClickNode(p.data);
+          setSelectedNode(p.data);
         });
 
       // Link overlay layer

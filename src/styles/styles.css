@@ -129,4 +129,20 @@
   .network-graph-svg .selected-link {
     stroke: #ee8e29;
   }
+
+  .network-graph-svg .node-path:hover {
+    fill-opacity: 0.6;
+  }
+
+  .network-graph-svg .selected-node {
+    stroke-width: 2.5px;
+    stroke: #000;
+    fill-opacity: 0.6;
+  }
+
+  .network-graph-svg .hover-node {
+    stroke-width: 2.5px;
+    stroke: #000;
+    fill-opacity: 0.6;
+  }
 }
