@@ -1,5 +1,5 @@
 import { Box, Button, Flex, List, ListItem, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react';
-import { CustomInfoMessage } from '@components/Alert';
+import { CustomInfoMessage } from '@components/Feedbacks';
 import { SimpleLink } from '@components/SimpleLink';
 import { ReactElement, useEffect, useState } from 'react';
 import { LineGraph } from '../Graphs';

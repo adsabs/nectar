@@ -1,9 +1,15 @@
 import { IADSApiSearchParams, useSearch, useVaultBigQuerySearch } from '@api';
 import { IADSApiVisNode, IBibcodeDict } from '@api/vis/types';
 import { useGetAuthorNetwork } from '@api/vis/vis';
-import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/alert';
-import { Box, Button, CircularProgress, SimpleGrid, Stack, Text, useToast } from '@chakra-ui/react';
-import { INodeDetails, NetworkDetailsPane, Expandable, SimpleLink } from '@components';
+import { Box, Button, SimpleGrid, Stack, Text, useToast } from '@chakra-ui/react';
+import {
+  INodeDetails,
+  NetworkDetailsPane,
+  Expandable,
+  SimpleLink,
+  StandardAlertMessage,
+  LoadingMessage,
+} from '@components';
 import { ITagItem, Tags } from '@components/Tags';
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
@@ -162,32 +168,14 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
 
   return (
     <Box as="section" aria-label="Author network graph" my={10}>
-      {bibsQueryIsError && (
-        <Alert status="error" my={5}>
-          <AlertIcon />
-          <AlertTitle mr={2}>Error fetching records!</AlertTitle>
-          <AlertDescription>{axios.isAxiosError(bibsQueryError) && bibsQueryError.message}</AlertDescription>
-        </Alert>
-      )}
-      {authorNetworkIsError && (
-        <Alert status="error" my={5}>
-          <AlertIcon />
-          <AlertTitle mr={2}>Error fetching author network data!</AlertTitle>
-          <AlertDescription>{axios.isAxiosError(authorNetworkError) && authorNetworkError.message}</AlertDescription>
-        </Alert>
-      )}
-      {bibsQueryIsLoading && (
-        <>
-          <Text>Fetching records</Text>
-          <CircularProgress isIndeterminate />
-        </>
-      )}
-      {authorNetworkIsLoading && (
-        <>
-          <Text>Fetching author network data</Text>
-          <CircularProgress isIndeterminate />
-        </>
-      )}
+      <StatusDisplay
+        bibsQueryIsError={bibsQueryIsError}
+        authorNetworkIsError={authorNetworkIsError}
+        bibsQueryIsLoading={bibsQueryIsLoading}
+        bibsQueryError={bibsQueryError}
+        authorNetworkIsLoading={authorNetworkIsLoading}
+        authorNetworkError={authorNetworkError}
+      />
       {!authorNetworkIsLoading && authorNetworkIsSuccess && (
         <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={16}>
           <Box>
@@ -231,6 +219,43 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
         </SimpleGrid>
       )}
     </Box>
+  );
+};
+
+const StatusDisplay = ({
+  bibsQueryIsError,
+  authorNetworkIsError,
+  bibsQueryIsLoading,
+  bibsQueryError,
+  authorNetworkIsLoading,
+  authorNetworkError,
+}: {
+  bibsQueryIsError: boolean;
+  authorNetworkIsError: boolean;
+  bibsQueryIsLoading: boolean;
+  bibsQueryError: unknown;
+  authorNetworkIsLoading: boolean;
+  authorNetworkError: unknown;
+}): ReactElement => {
+  return (
+    <>
+      {bibsQueryIsError && (
+        <StandardAlertMessage
+          status="error"
+          title="Error fetching records!"
+          description={axios.isAxiosError(bibsQueryError) && bibsQueryError.message}
+        />
+      )}
+      {authorNetworkIsError && (
+        <StandardAlertMessage
+          status="error"
+          title="Error fetching author network data!"
+          description={axios.isAxiosError(authorNetworkError) && authorNetworkError.message}
+        />
+      )}
+      {bibsQueryIsLoading && <LoadingMessage message="Fetching records" />}
+      {authorNetworkIsLoading && <LoadingMessage message="Fetching author network data" />}
+    </>
   );
 };
 
