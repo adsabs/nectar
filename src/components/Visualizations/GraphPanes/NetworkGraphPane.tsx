@@ -58,7 +58,6 @@ export const NetworkGraphPane = ({
           ))}
         </Stack>
       </RadioGroup>
-      {/* <SunburstGraph graph={graph} onClick={onClickNode} /> */}
       <OverlaySwitch isChecked={showLinkLayer} onChange={handleToggleSwitch} />
       <NetworkGraph
         root={root}

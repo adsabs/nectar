@@ -14,13 +14,6 @@ export interface ILineGraph {
   error?: Error;
 }
 
-export interface ISunburstGraph {
-  data: SunburstNode;
-  idKey?: string;
-  valueKey?: string;
-  error?: Error;
-}
-
 export interface IMetricsGraphs {
   totalGraph: IBarGraph<BarDatum>;
   normalizedGraph: IBarGraph<BarDatum>;
@@ -32,11 +25,6 @@ export interface YearDatum extends BarDatum {
   notrefereed: number;
 }
 
-export type SunburstNode = {
-  name: string | number | unknown;
-  children?: SunburstNode[];
-  value?: number;
-};
 export interface ICitationTableInput {
   refereed: {
     [key in CitationsStatsKey]: number;

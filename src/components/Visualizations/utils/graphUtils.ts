@@ -27,7 +27,6 @@ import {
   IPaperTableInput,
   IReadTableInput,
   YearDatum,
-  ISunburstGraph,
 } from '../types';
 
 /**
@@ -386,16 +385,6 @@ function limitPlaces(n: number): number {
   }
   return n;
 }
-
-/**
- *  From author network data, create sunburst graph
- **/
-export const getAuthorNetworkGraph = (response: IADSApiVisResponse, valueKey: string): ISunburstGraph => {
-  if (!response['data']['root']) {
-    return { data: undefined, error: new Error('Cannot generate network') };
-  }
-  return { data: response['data']['root'], idKey: 'name', valueKey: valueKey };
-};
 
 /**
  * Create author network ummary graph from author network data

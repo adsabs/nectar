@@ -19,8 +19,6 @@ interface IAuthorNetworkPageContainerProps {
   query: IADSApiSearchParams;
 }
 
-// type View = 'author_occurrences' | 'paper_citations' | 'paper_downloads';
-
 const DEFAULT_ROWS_TO_FETCH = 400;
 
 const MAX_ROWS_TO_FETCH = 1000;
@@ -38,9 +36,6 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
   const toast = useToast();
 
   const [rowsToFetch, setRowsToFetch] = useState(DEFAULT_ROWS_TO_FETCH);
-
-  // Type of view
-  // const [currentViewId, setCurrentViewId] = useState(views[0].id);
 
   // User selected graph node (group, author)
   const [selected, setSelected] = useState<INodeDetails>(null);
@@ -124,10 +119,6 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
   }, [bigQueryData, bigQueryError, applyingBibcodes]);
 
   // Callback Handlers
-
-  // const handleViewChange = (viewId: string) => {
-  //   setCurrentViewId(viewId as View);
-  // };
 
   const handleGraphNodeClick = (node: IADSApiVisNode) => {
     const bibcode_dict = authorNetworkData.data.bibcode_dict;
@@ -213,12 +204,9 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
               }
             />
             <NetworkGraphPane
-              // graph={authorNetworkGraph}
               root={authorNetworkData.data.root}
               link_data={authorNetworkData.data.link_data}
               views={views}
-              // onChangeView={handleViewChange}
-              // defaultView={views[0].id}
               onClickNode={handleGraphNodeClick}
               onChagePaperLimit={handleChangePaperLimit}
               paperLimit={rowsToFetch}
