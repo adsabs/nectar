@@ -107,6 +107,12 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
     enabled: applyingBibcodes.length > 0,
   });
 
+  useEffect(() => {
+    if (authorNetworkData) {
+      setRowsToFetch(Math.min(numFound, DEFAULT_ROWS_TO_FETCH));
+    }
+  }, [authorNetworkData]);
+
   // When big query data is fetched, redirect to the search results page
   useEffect(() => {
     if (bigQueryData && applyingBibcodes.length > 0) {
