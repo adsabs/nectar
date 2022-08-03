@@ -9,6 +9,7 @@ import {
   SimpleLink,
   StandardAlertMessage,
   LoadingMessage,
+  CustomInfoMessage,
 } from '@components';
 import { ITagItem, Tags } from '@components/Tags';
 import { makeSearchParams } from '@utils';
@@ -20,6 +21,7 @@ import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { IView, NetworkGraphPane } from '../GraphPanes';
 import { ILineGraph } from '../types';
 import { getAuthorNetworkSummaryGraph } from '../utils';
+import { NotEnoughData } from '../NotEnoughData';
 
 interface IAuthorNetworkPageContainerProps {
   query: IADSApiSearchParams;
@@ -174,7 +176,10 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
         authorNetworkIsLoading={authorNetworkIsLoading}
         authorNetworkError={authorNetworkError}
       />
-      {!authorNetworkIsLoading && authorNetworkIsSuccess && (
+      {!authorNetworkIsLoading && authorNetworkIsSuccess && !authorNetworkData.data?.root && (
+        <CustomInfoMessage status="info" title="Could not generate" description={<NotEnoughData />} />
+      )}
+      {!authorNetworkIsLoading && authorNetworkIsSuccess && authorNetworkData.data?.root && (
         <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={16}>
           <Box>
             <Expandable
