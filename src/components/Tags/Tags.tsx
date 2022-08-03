@@ -1,5 +1,5 @@
 import { Box, BoxProps, Tag, TagCloseButton, TagLabel, Text, Flex, CloseButton } from '@chakra-ui/react';
-import { ReactElement } from 'react';
+import { ReactElement, MouseEvent } from 'react';
 
 export interface ITagItem {
   id: string;
@@ -14,7 +14,8 @@ export interface ITagsProps extends BoxProps {
 }
 
 export const Tags = ({ tagItems, onRemove, onClear, placeHolder, ...boxProps }: ITagsProps): ReactElement => {
-  const handleRemoveItem = (item: ITagItem) => {
+  const handleRemoveItem = (e: MouseEvent<HTMLButtonElement>) => {
+    const item = tagItems.find((t) => t.id === e.currentTarget.dataset.id);
     onRemove(item);
   };
 
@@ -29,7 +30,7 @@ export const Tags = ({ tagItems, onRemove, onClear, placeHolder, ...boxProps }: 
         {tagItems.map((item) => (
           <Tag key={`tag-${item.id}`} size="md" m={1}>
             <TagLabel>{item.label}</TagLabel>
-            <TagCloseButton onClick={() => handleRemoveItem(item)} />
+            <TagCloseButton onClick={handleRemoveItem} data-id={item.id} />
           </Tag>
         ))}
       </Box>
