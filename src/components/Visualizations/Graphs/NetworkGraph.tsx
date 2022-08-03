@@ -98,7 +98,7 @@ export const NetworkGraph = ({
 
   // node linking data
   const getLinks = (linkData: number[][]) => {
-    return linkData.map((l) => {
+    const links = linkData.map((l) => {
       const source = d3
         .selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-path')
         .filter((d) => d.data.numberName === l[0])
@@ -109,8 +109,12 @@ export const NetworkGraph = ({
         .data()[0];
 
       const weight = l[2];
-      return { source, target, weight };
+
+      // We get some not name not found, ignore those or the app could crash
+      return source && target ? { source, target, weight } : undefined;
     });
+
+    return links.filter((l) => l !== undefined);
   };
 
   // transition nodes for view change
@@ -132,17 +136,17 @@ export const NetworkGraph = ({
   // transition node labels for view change
   const transitionNodeLabels = useCallback(
     (root: NetworkHierarchyNode<IADSApiVisNode>, key: IADSApiVisNodeKey) => {
-    d3.selectAll('.node-label')
-      .join('text')
-      .data(root.descendants().slice(1))
-      .attr('opacity', '0')
-      .style('display', (d) => labelDisplay(d, key))
-      .style('font-size', (d) => fontSize(d, key))
-      .attr('transform', labelTransform)
-      .attr('text-anchor', textAnchor)
-      .transition()
-      .duration(1500)
-      .attr('opacity', 1);
+      d3.selectAll('.node-label')
+        .join('text')
+        .data(root.descendants().slice(1))
+        .attr('opacity', '0')
+        .style('display', (d) => labelDisplay(d, key))
+        .style('font-size', (d) => fontSize(d, key))
+        .attr('transform', labelTransform)
+        .attr('text-anchor', textAnchor)
+        .transition()
+        .duration(1500)
+        .attr('opacity', 1);
     },
     [labelTransform, textAnchor],
   );
@@ -150,12 +154,12 @@ export const NetworkGraph = ({
   // transition links for view change
   const transitionLinks = useCallback(
     (links: ILink[]) => {
-    d3.selectAll('.link-container')
-      .selectAll<BaseType, ILink>('.link')
-      .data(links)
-      .join('path')
-      .transition()
-      .duration(1500)
+      d3.selectAll('.link-container')
+        .selectAll<BaseType, ILink>('.link')
+        .data(links)
+        .join('path')
+        .transition()
+        .duration(1500)
         .attr('d', (d) => {
           return line(d.source.path(d.target));
         });
