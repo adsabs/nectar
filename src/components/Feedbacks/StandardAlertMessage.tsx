@@ -1,4 +1,4 @@
-import { Alert, AlertDescription, AlertIcon, AlertTitle, Flex } from '@chakra-ui/react';
+import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/react';
 import { ReactElement } from 'react';
 import { AlertStatus } from '@chakra-ui/alert';
 

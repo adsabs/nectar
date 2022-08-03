@@ -249,7 +249,7 @@ export const NetworkGraph = ({
   }, [graphRoot]);
 
   const renderFunction = useCallback(
-    (svg: Selection<SVGSVGElement, unknown, HTMLElement, any>) => {
+    (svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>) => {
       svg.selectAll('*').remove();
 
       svg.attr('viewBox', [0, 0, width, width]).style('font', '10px sans-serif').classed('network-graph-svg', true);

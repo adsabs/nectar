@@ -4,8 +4,8 @@ import { Selection } from 'd3';
 
 export const useD3 = (
   renderFn: (
-    svg: Selection<SVGSVGElement, unknown, HTMLElement, any>,
-  ) => Selection<SVGSVGElement, unknown, HTMLElement, any>,
+    svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
+  ) => Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
   dependencies: React.DependencyList,
 ) => {
   const ref = React.useRef<SVGSVGElement>();
