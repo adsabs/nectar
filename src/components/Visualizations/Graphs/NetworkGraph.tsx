@@ -130,7 +130,8 @@ export const NetworkGraph = ({
   };
 
   // transition node labels for view change
-  const transitionNodeLabels = (root: NetworkHierarchyNode<IADSApiVisNode>, key: IADSApiVisNodeKey) => {
+  const transitionNodeLabels = useCallback(
+    (root: NetworkHierarchyNode<IADSApiVisNode>, key: IADSApiVisNodeKey) => {
     d3.selectAll('.node-label')
       .join('text')
       .data(root.descendants().slice(1))
@@ -142,18 +143,25 @@ export const NetworkGraph = ({
       .transition()
       .duration(1500)
       .attr('opacity', 1);
-  };
+    },
+    [labelTransform, textAnchor],
+  );
 
   // transition links for view change
-  const transitionLinks = (links: ILink[]) => {
+  const transitionLinks = useCallback(
+    (links: ILink[]) => {
     d3.selectAll('.link-container')
       .selectAll<BaseType, ILink>('.link')
       .data(links)
       .join('path')
       .transition()
       .duration(1500)
-      .attr('d', (d) => line(d.source.path(d.target)));
-  };
+        .attr('d', (d) => {
+          return line(d.source.path(d.target));
+        });
+    },
+    [line],
+  );
 
   // link layer toggled, show/hide link layer
   useEffect(() => {
