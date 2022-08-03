@@ -24,7 +24,7 @@ Default.args = {
   root: response.data.root,
   link_data: response.data.link_data,
   views,
-  onChagePaperLimit: noop,
+  onChangePaperLimit: noop,
   maxPaperLimit: 200,
   paperLimit: 200,
 };

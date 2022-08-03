@@ -8,7 +8,7 @@ export interface INetworkGraphPaneProps {
   link_data: number[][];
   views: IView[];
   onClickNode?: (node: IADSApiVisNode) => void;
-  onChagePaperLimit: (limit: number) => void;
+  onChangePaperLimit: (limit: number) => void;
   maxPaperLimit: number;
   paperLimit: number;
 }
@@ -28,7 +28,7 @@ export const NetworkGraphPane = ({
   link_data,
   views,
   onClickNode,
-  onChagePaperLimit,
+  onChangePaperLimit: onChagePaperLimit,
   paperLimit,
   maxPaperLimit,
 }: INetworkGraphPaneProps): ReactElement => {

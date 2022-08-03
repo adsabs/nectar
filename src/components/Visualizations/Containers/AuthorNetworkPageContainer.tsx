@@ -62,19 +62,11 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
 
   // tranform query data to a list of bibcodes
   const bibcodes = useMemo(() => {
-    if (bibsQueryResponse) {
-      return bibsQueryResponse.docs.map((d) => d.bibcode);
-    } else {
-      return [];
-    }
+    return bibsQueryResponse ? bibsQueryResponse.docs.map((d) => d.bibcode) : [];
   }, [bibsQueryResponse]);
 
   const numFound = useMemo(() => {
-    if (bibsQueryResponse) {
-      return bibsQueryResponse.numFound;
-    } else {
-      return 0;
-    }
+    return bibsQueryResponse ? bibsQueryResponse.numFound : 0;
   }, [bibsQueryResponse]);
 
   // fetch author network data when bibcodes are available
@@ -202,7 +194,7 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
               link_data={authorNetworkData.data.link_data}
               views={views}
               onClickNode={handleGraphNodeClick}
-              onChagePaperLimit={handleChangePaperLimit}
+              onChangePaperLimit={handleChangePaperLimit}
               paperLimit={rowsToFetch}
               maxPaperLimit={Math.min(numFound, MAX_ROWS_TO_FETCH)}
             />
@@ -296,7 +288,7 @@ const FilterSearchBar = ({
 const getNodeDetails = (node: IADSApiVisNode, bibcode_dict: IBibcodeDict): INodeDetails => {
   // if selected an author node
   if (!('children' in node)) {
-    const bibcodes = node.papers;
+    const bibcodes = uniq(node.papers);
 
     // get author's papers details
     const papers = bibcodes.map((bibcode) => ({

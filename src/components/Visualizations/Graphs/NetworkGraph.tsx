@@ -97,7 +97,7 @@ export const NetworkGraph = ({
   };
 
   // node linking data
-  const getLinks = useCallback((linkData: number[][]) => {
+  const getLinks = (linkData: number[][]) => {
     return linkData.map((l) => {
       const source = d3
         .selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-path')
@@ -111,10 +111,10 @@ export const NetworkGraph = ({
       const weight = l[2];
       return { source, target, weight };
     });
-  }, []);
+  };
 
   // transition nodes for view change
-  const transitionNodePaths = useCallback((root: NetworkHierarchyNode<IADSApiVisNode>) => {
+  const transitionNodePaths = (root: NetworkHierarchyNode<IADSApiVisNode>) => {
     d3.selectAll<ADSSVGPathElement, unknown>('.node-path')
       .data(root.descendants().slice(1))
       .join<ADSSVGPathElement>('path')
@@ -127,10 +127,10 @@ export const NetworkGraph = ({
           return arc(i(t));
         };
       });
-  }, []);
+  };
 
   // transition node labels for view change
-  const transitionNodeLabels = useCallback((root: NetworkHierarchyNode<IADSApiVisNode>, key: IADSApiVisNodeKey) => {
+  const transitionNodeLabels = (root: NetworkHierarchyNode<IADSApiVisNode>, key: IADSApiVisNodeKey) => {
     d3.selectAll('.node-label')
       .join('text')
       .data(root.descendants().slice(1))
@@ -142,10 +142,10 @@ export const NetworkGraph = ({
       .transition()
       .duration(1500)
       .attr('opacity', 1);
-  }, []);
+  };
 
   // transition links for view change
-  const transitionLinks = useCallback((links: ILink[]) => {
+  const transitionLinks = (links: ILink[]) => {
     d3.selectAll('.link-container')
       .selectAll<BaseType, ILink>('.link')
       .data(links)
@@ -153,7 +153,7 @@ export const NetworkGraph = ({
       .transition()
       .duration(1500)
       .attr('d', (d) => line(d.source.path(d.target)));
-  }, []);
+  };
 
   // link layer toggled, show/hide link layer
   useEffect(() => {
