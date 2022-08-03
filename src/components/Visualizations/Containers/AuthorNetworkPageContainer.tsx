@@ -103,7 +103,7 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
 
   useEffect(() => {
     if (authorNetworkData) {
-      setRowsToFetch(Math.min(numFound, DEFAULT_ROWS_TO_FETCH));
+      setRowsToFetch(Math.min(numFound, rowsToFetch));
     }
   }, [authorNetworkData]);
 
@@ -148,7 +148,7 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
   };
 
   const handleChangePaperLimit = (limit: number) => {
-    if (limit <= MAX_ROWS_TO_FETCH) {
+    if (limit <= MAX_ROWS_TO_FETCH && limit <= numFound) {
       setRowsToFetch(limit);
     }
   };
