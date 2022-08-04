@@ -12,8 +12,9 @@ import {
   TimeSeriesKey,
   TimeSeriesType,
 } from '@api';
+import { IADSApiVisResponse } from '@api/vis/types';
 import { Datum, Serie } from '@nivo/line';
-import { divide } from 'ramda';
+import { countBy, divide, reduce, uniq } from 'ramda';
 import {
   IBarGraph,
   ICitationsTableData,
@@ -26,6 +27,7 @@ import {
   IPaperTableInput,
   IReadTableInput,
   YearDatum,
+  ISunburstGraph,
 } from '../types';
 
 /**
@@ -384,3 +386,44 @@ function limitPlaces(n: number): number {
   }
   return n;
 }
+
+/**
+ *  From author network data, create sunburst graph
+ **/
+export const getAuthorNetworkGraph = (response: IADSApiVisResponse, valueKey: string): ISunburstGraph => {
+  if (!response['data']['root']) {
+    return { data: undefined, error: new Error('Cannot generate network') };
+  }
+  return { data: response['data']['root'], idKey: 'name', valueKey: valueKey };
+};
+
+/**
+ * Create author network ummary graph from author network data
+ * */
+export const getAuthorNetworkSummaryGraph = (response: IADSApiVisResponse): ILineGraph => {
+  if (!response.data.root) {
+    return { data: undefined, error: new Error('Cannot generate network') };
+  }
+
+  const data: Serie[] = [];
+
+  response.data.root.children.forEach((group, index) => {
+    if (index > 6) {
+      return;
+    }
+
+    // all papers in this group
+    // into year and paper count [ ... {year: count} ]
+    const yearPaperCount = countBy(
+      (bibcode) => bibcode.slice(0, 4),
+      uniq(reduce((acc, author) => [...acc, ...author.papers], [] as string[], group.children)),
+    );
+
+    // convert graph data to [ ... {x: year, y: count} ]
+    const graphData = Object.entries(yearPaperCount).map(([year, count]) => ({ x: parseInt(year), y: count }));
+
+    data.push({ id: group.name, data: graphData });
+  });
+
+  return { data };
+};

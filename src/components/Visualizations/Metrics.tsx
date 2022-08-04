@@ -16,7 +16,6 @@ import {
 import { useIsClient } from '@hooks/useIsClient';
 import { useMetrics } from '@hooks/useMetrics';
 import { BarDatum } from '@nivo/bar';
-import { Serie } from '@nivo/line';
 import axios from 'axios';
 import { ReactElement, useMemo } from 'react';
 import { LineGraph, BarGraph, PapersTable, CitationsTable, ReadsTable, IndicesTable } from '@components';
@@ -29,7 +28,7 @@ import {
   IReadsTableData,
   ILineGraph,
 } from './types';
-import { getIndicesTableData, plotTimeSeriesGraph } from './utils';
+import { getIndicesTableData, getLineGraphXTicks, plotTimeSeriesGraph } from './utils';
 export interface IMetricsProps {
   metrics: IADSApiMetricsResponse;
   isAbstract: boolean;
@@ -206,21 +205,6 @@ const getBarGraphYearTicks = (data: BarDatum[]) => {
   return ticks;
 };
 
-const getLineGraphYearTicks = (data: Serie[]) => {
-  if (data[0].data.length <= 9) {
-    return undefined;
-  }
-  const ticks: string[] = [];
-
-  data[0].data.forEach(({ x }) => {
-    if (+x % 5 === 0) {
-      ticks.push(x as string);
-    }
-  });
-
-  return ticks;
-};
-
 const IndicesSection = ({
   indicesTable,
   indicesGraph,
@@ -272,7 +256,7 @@ const IndicesSection = ({
             Indices
           </Heading>
           {indicesTable && <IndicesTable data={computedTable} />}
-          {indicesGraph && <LineGraph data={indicesGraph.data} ticks={getLineGraphYearTicks(indicesGraph.data)} />}
+          {indicesGraph && <LineGraph data={indicesGraph.data} ticks={getLineGraphXTicks(indicesGraph.data, 5)} />}
           {!indicesGraph && isLoading && <CircularProgress mt={5} isIndeterminate />}
           {!indicesGraph && isErrorMetrics && (
             <Alert status="error" my={5}>
@@ -281,7 +265,7 @@ const IndicesSection = ({
               <AlertDescription>{axios.isAxiosError(errorMetrics) && errorMetrics.message}</AlertDescription>
             </Alert>
           )}
-          {computedGraph && <LineGraph data={computedGraph.data} ticks={getLineGraphYearTicks(computedGraph.data)} />}
+          {computedGraph && <LineGraph data={computedGraph.data} ticks={getLineGraphXTicks(computedGraph.data, 5)} />}
         </Box>
       ) : (
         <Text>No data</Text>

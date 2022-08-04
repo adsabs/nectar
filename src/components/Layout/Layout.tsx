@@ -17,7 +17,7 @@ export const Layout: FC = ({ children }) => {
       <NavBar />
       <main>
         {isLandingPages && <LandingTabs />}
-        <Container maxW={isLandingPages ? 'container.md' : 'container.lg'} id="main-content">
+        <Container maxW={isLandingPages ? 'container.md' : 'container.xl'} id="main-content">
           {children}
         </Container>
       </main>

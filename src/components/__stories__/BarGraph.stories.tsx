@@ -1,10 +1,10 @@
-import { IBarGraphProps, BarGraph, Metrics } from '@components';
+import { IBarGraphProps, BarGraph } from '@components';
 import { bardatum } from '@components/__mocks__/data';
 import { Meta, Story } from '@storybook/react';
 
 const meta: Meta = {
   title: 'Visualizations/graphs/BarGraph',
-  component: Metrics,
+  component: BarGraph,
 };
 
 export default meta;
