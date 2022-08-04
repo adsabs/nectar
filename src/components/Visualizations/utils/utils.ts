@@ -25,10 +25,6 @@ export const getLineGraphXTicks = (data: Serie[], maxTicks: number) => {
     });
   });
 
-  // x values smaller than max number of ticks, return
-  if (max - min + 1 <= maxTicks) {
-    return undefined;
-  }
   const ticks: number[] = [];
 
   const nPerTick = Math.ceil((max - min + 1) / maxTicks);

@@ -9,6 +9,7 @@ export * from './reference';
 export * from './search';
 export * from './types';
 export * from './vault';
+export * from './vis';
 
 import api from './api';
 export default api;

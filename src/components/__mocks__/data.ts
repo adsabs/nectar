@@ -1,5 +1,4 @@
 import { Esources, IADSApiMetricsResponse, IDocsEntity } from '@api';
-import { SunburstNode } from '@components/Visualizations/types';
 import { BarDatum } from '@nivo/bar';
 import { Serie } from '@nivo/line';
 
@@ -2325,39 +2324,3 @@ export const linedatum: Serie[] = [
     ],
   },
 ];
-
-export const sunburstNode: SunburstNode = {
-  name: 'author groups',
-  children: [
-    {
-      name: 'Group 1',
-      children: [
-        { name: 'Einstein, Albert', value: 1000 },
-        { name: 'Claus, Santa', value: 5 },
-        { name: 'Uncle, Sam', value: 2 },
-      ],
-    },
-    {
-      name: 'Group 2',
-      children: [
-        { name: 'Smith, John', value: 500 },
-        { name: 'Doe, Jane', value: 34 },
-        { name: 'Jones, Jack', value: 673 },
-        { name: 'Star, Mike', value: 300 },
-      ],
-    },
-    {
-      name: 'Group 3',
-      children: [
-        { name: 'Hemingway, Ernest', value: 500 },
-        { name: 'Gaiman, Niel', value: 1500 },
-        { name: 'Joyce, James', value: 90 },
-        { name: 'Twain, Mark', value: 1800 },
-        { name: 'King, Stephen', value: 2000 },
-        { name: 'Rice, Ann', value: 3000 },
-        { name: 'Sparks, Nicholas', value: 2000 },
-        { name: 'Sanderson, Brandon', value: 2500 },
-      ],
-    },
-  ],
-};

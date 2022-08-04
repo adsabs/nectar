@@ -1,15 +1,14 @@
-import { Radio, RadioGroup, Stack, Text, Input, Button } from '@chakra-ui/react';
-import { ChangeEvent, ReactElement, useEffect, useState } from 'react';
-import { SunburstGraph } from '../Graphs';
-import { ISunburstGraph, SunburstNode } from '../types';
+import { IADSApiVisNode, IADSApiVisNodeKey } from '@api';
+import { Radio, RadioGroup, Stack, Text, Input, Button, FormControl, FormLabel, Switch } from '@chakra-ui/react';
+import { ChangeEvent, KeyboardEvent, ReactElement, useState } from 'react';
+import { NetworkGraph } from '../Graphs/NetworkGraph';
 
 export interface INetworkGraphPaneProps {
-  graph: ISunburstGraph;
+  root: IADSApiVisNode;
+  link_data: number[][];
   views: IView[];
-  onChangeView: (vid: IView['id']) => void;
-  defaultView: IView['id'];
-  onClickNode?: (node: SunburstNode) => void;
-  onChagePaperLimit: (limit: number) => void;
+  onClickNode?: (node: IADSApiVisNode) => void;
+  onChangePaperLimit: (limit: number) => void;
   maxPaperLimit: number;
   paperLimit: number;
 }
@@ -17,6 +16,7 @@ export interface INetworkGraphPaneProps {
 export interface IView {
   id: string;
   label: string;
+  valueToUse: IADSApiVisNodeKey;
 }
 
 /**
@@ -24,31 +24,32 @@ export interface IView {
  * @returns Network graph and its controls
  */
 export const NetworkGraphPane = ({
-  graph,
+  root,
+  link_data,
   views,
-  onChangeView,
-  defaultView,
   onClickNode,
-  onChagePaperLimit,
+  onChangePaperLimit: onChagePaperLimit,
   paperLimit,
   maxPaperLimit,
 }: INetworkGraphPaneProps): ReactElement => {
-  const [view, setView] = useState<IView['id']>(defaultView);
+  const [view, setView] = useState<IView>(views[0]);
 
-  const handleChangeView = (v: IView['id']) => setView(v);
+  const [showLinkLayer, setShowLinkLayer] = useState(false);
+
+  const handleChangeView = (vid: IView['id']) => setView(views.filter((v) => v.id === vid)[0]);
 
   const handleChangePaperLimit = (limit: number) => {
     onChagePaperLimit(limit);
   };
 
-  useEffect(() => {
-    onChangeView(view);
-  }, [view]);
+  const handleToggleSwitch = () => {
+    setShowLinkLayer(!showLinkLayer);
+  };
 
   return (
     <Stack as="section" aria-label="Author Network" width="100%" mt={5}>
       <LimitPaper initialLimit={paperLimit} max={maxPaperLimit} onApply={handleChangePaperLimit} />
-      <RadioGroup defaultChecked onChange={handleChangeView} value={view}>
+      <RadioGroup defaultChecked onChange={handleChangeView} value={view.id}>
         <Stack direction="row">
           {views.map((v) => (
             <Radio value={v.id} key={v.id}>
@@ -57,7 +58,14 @@ export const NetworkGraphPane = ({
           ))}
         </Stack>
       </RadioGroup>
-      <SunburstGraph graph={graph} onClick={onClickNode} />
+      <OverlaySwitch isChecked={showLinkLayer} onChange={handleToggleSwitch} />
+      <NetworkGraph
+        root={root}
+        link_data={link_data}
+        showLinkLayer={showLinkLayer}
+        onClickNode={onClickNode}
+        keyToUseAsValue={view.valueToUse}
+      />
     </Stack>
   );
 };
@@ -78,6 +86,12 @@ const LimitPaper = ({
     setLimit(value);
   };
 
+  const handleKeydown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleApply();
+    }
+  };
+
   const handleApply = () => {
     if (isNaN(limit) || limit < 1 || limit > max) {
       setLimit(initialLimit);
@@ -90,9 +104,26 @@ const LimitPaper = ({
   return (
     <Stack direction="row" alignItems="center" my={2}>
       <Text>Show the first</Text>
-      <Input w={16} type="number" value={limit} max={max} onChange={handleChange} />
+      <Input w={16} type="number" value={limit} max={max} onChange={handleChange} onKeyDown={handleKeydown} />
       <Text>{`papers (max is ${max})`}</Text>
       <Button onClick={handleApply}>Apply</Button>
     </Stack>
+  );
+};
+
+const OverlaySwitch = ({
+  isChecked,
+  onChange,
+}: {
+  isChecked: boolean;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+}): ReactElement => {
+  return (
+    <FormControl display="flex" alignItems="center">
+      <FormLabel htmlFor="overlay" mb="0">
+        View link overlay?
+      </FormLabel>
+      <Switch id="overlay" onChange={onChange} isChecked={isChecked} />
+    </FormControl>
   );
 };

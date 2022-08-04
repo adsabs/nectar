@@ -1,9 +1,16 @@
 import { IADSApiSearchParams, useSearch, useVaultBigQuerySearch } from '@api';
-import { IBibcodeDict, ILeaf } from '@api/vis/types';
+import { IADSApiVisNode, IBibcodeDict } from '@api/vis/types';
 import { useGetAuthorNetwork } from '@api/vis/vis';
-import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/alert';
-import { Box, Button, CircularProgress, SimpleGrid, Stack, Text, useToast } from '@chakra-ui/react';
-import { INodeDetails, NetworkDetailsPane, CustomInfoMessage, Expandable, SimpleLink } from '@components';
+import { Box, Button, SimpleGrid, Stack, Text, useToast } from '@chakra-ui/react';
+import {
+  INodeDetails,
+  NetworkDetailsPane,
+  Expandable,
+  SimpleLink,
+  StandardAlertMessage,
+  LoadingMessage,
+  CustomInfoMessage,
+} from '@components';
 import { ITagItem, Tags } from '@components/Tags';
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
@@ -11,32 +18,25 @@ import { decode } from 'he';
 import { useRouter } from 'next/router';
 import { countBy, reverse, sortBy, uniq } from 'ramda';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
-import { NetworkGraphPane } from '../GraphPanes';
-import { ILineGraph, ISunburstGraph, SunburstNode } from '../types';
-import { getAuthorNetworkGraph, getAuthorNetworkSummaryGraph } from '../utils';
+import { IView, NetworkGraphPane } from '../GraphPanes';
+import { ILineGraph } from '../types';
+import { getAuthorNetworkSummaryGraph } from '../utils';
+import { NotEnoughData } from '../NotEnoughData';
 
 interface IAuthorNetworkPageContainerProps {
   query: IADSApiSearchParams;
 }
 
-type View = 'author_occurrences' | 'paper_citations' | 'paper_downloads';
-
 const DEFAULT_ROWS_TO_FETCH = 400;
 
 const MAX_ROWS_TO_FETCH = 1000;
 
-const views: { id: View; label: string }[] = [
-  { id: 'author_occurrences', label: 'Author Occurrences' },
-  { id: 'paper_citations', label: 'Paper Citations' },
-  { id: 'paper_downloads', label: 'Paper Downloads' },
+// views and corresponding graph value to use
+const views: IView[] = [
+  { id: 'author_occurrences', label: 'Author Occurrences', valueToUse: 'size' },
+  { id: 'paper_citations', label: 'Paper Citations', valueToUse: 'citation_count' },
+  { id: 'paper_downloads', label: 'Paper Downloads', valueToUse: 'read_count' },
 ];
-
-// view id corresponds to graph data's value
-const viewIdToValueKey: { [view in View]: string } = {
-  author_occurrences: 'size',
-  paper_citations: 'citation_count',
-  paper_downloads: 'read_count',
-};
 
 export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContainerProps): ReactElement => {
   const router = useRouter();
@@ -44,9 +44,6 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
   const toast = useToast();
 
   const [rowsToFetch, setRowsToFetch] = useState(DEFAULT_ROWS_TO_FETCH);
-
-  // Type of view
-  const [currentViewId, setCurrentViewId] = useState<View>(views[0].id);
 
   // User selected graph node (group, author)
   const [selected, setSelected] = useState<INodeDetails>(null);
@@ -67,35 +64,21 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
 
   // tranform query data to a list of bibcodes
   const bibcodes = useMemo(() => {
-    if (bibsQueryResponse) {
-      return bibsQueryResponse.docs.map((d) => d.bibcode);
-    } else {
-      return [];
-    }
+    return bibsQueryResponse ? bibsQueryResponse.docs.map((d) => d.bibcode) : [];
   }, [bibsQueryResponse]);
 
   const numFound = useMemo(() => {
-    if (bibsQueryResponse) {
-      return bibsQueryResponse.numFound;
-    } else {
-      return 0;
-    }
+    return bibsQueryResponse ? bibsQueryResponse.numFound : 0;
   }, [bibsQueryResponse]);
 
   // fetch author network data when bibcodes are available
   const {
     data: authorNetworkData,
     isLoading: authorNetworkIsLoading,
+    isSuccess: authorNetworkIsSuccess,
     isError: authorNetworkIsError,
     error: authorNetworkError,
   } = useGetAuthorNetwork(bibcodes, { enabled: bibcodes && bibcodes.length > 0 });
-
-  // author network data to network graph
-  const authorNetworkGraph: ISunburstGraph = useMemo(() => {
-    if (authorNetworkData) {
-      return getAuthorNetworkGraph(authorNetworkData, viewIdToValueKey[currentViewId]);
-    }
-  }, [authorNetworkData, currentViewId]);
 
   // author network data to summary graph
   const authorNetworkSummaryGraph: ILineGraph = useMemo(() => {
@@ -118,6 +101,12 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
     enabled: applyingBibcodes.length > 0,
   });
 
+  useEffect(() => {
+    if (authorNetworkData) {
+      setRowsToFetch(Math.min(numFound, rowsToFetch));
+    }
+  }, [authorNetworkData]);
+
   // When big query data is fetched, redirect to the search results page
   useEffect(() => {
     if (bigQueryData && applyingBibcodes.length > 0) {
@@ -137,11 +126,7 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
 
   // Callback Handlers
 
-  const handleViewChange = (viewId: string) => {
-    setCurrentViewId(viewId as View);
-  };
-
-  const handleGraphNodeClick = (node: SunburstNode) => {
+  const handleGraphNodeClick = (node: IADSApiVisNode) => {
     const bibcode_dict = authorNetworkData.data.bibcode_dict;
     setSelected(getNodeDetails(node, bibcode_dict));
   };
@@ -163,7 +148,7 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
   };
 
   const handleChangePaperLimit = (limit: number) => {
-    if (limit <= MAX_ROWS_TO_FETCH) {
+    if (limit <= MAX_ROWS_TO_FETCH && limit <= numFound) {
       setRowsToFetch(limit);
     }
   };
@@ -183,87 +168,97 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
 
   return (
     <Box as="section" aria-label="Author network graph" my={10}>
-      {bibsQueryIsError && (
-        <Alert status="error" my={5}>
-          <AlertIcon />
-          <AlertTitle mr={2}>Error fetching records!</AlertTitle>
-          <AlertDescription>{axios.isAxiosError(bibsQueryError) && bibsQueryError.message}</AlertDescription>
-        </Alert>
+      <StatusDisplay
+        bibsQueryIsError={bibsQueryIsError}
+        authorNetworkIsError={authorNetworkIsError}
+        bibsQueryIsLoading={bibsQueryIsLoading}
+        bibsQueryError={bibsQueryError}
+        authorNetworkIsLoading={authorNetworkIsLoading}
+        authorNetworkError={authorNetworkError}
+      />
+      {!authorNetworkIsLoading && authorNetworkIsSuccess && !authorNetworkData.data?.root && (
+        <CustomInfoMessage status="info" title="Could not generate" description={<NotEnoughData />} />
       )}
-      {authorNetworkIsError && (
-        <Alert status="error" my={5}>
-          <AlertIcon />
-          <AlertTitle mr={2}>Error fetching author network data!</AlertTitle>
-          <AlertDescription>{axios.isAxiosError(authorNetworkError) && authorNetworkError.message}</AlertDescription>
-        </Alert>
-      )}
-      {bibsQueryIsLoading && (
-        <>
-          <Text>Fetching records</Text>
-          <CircularProgress isIndeterminate />
-        </>
-      )}
-      {authorNetworkIsLoading && (
-        <>
-          <Text>Fetching author network data</Text>
-          <CircularProgress isIndeterminate />
-        </>
-      )}
-      {!authorNetworkIsLoading && authorNetworkGraph && (
-        <>
-          {authorNetworkGraph.error ? (
-            <CustomInfoMessage
-              status={'info'}
-              title="Cannot generate network"
-              description="The network grouping algorithm could not generate group data for your network. This might be because
-            the list of papers was too small or sparse to produce multiple meaningful groups."
+      {!authorNetworkIsLoading && authorNetworkIsSuccess && authorNetworkData.data?.root && (
+        <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={16}>
+          <Box>
+            <Expandable
+              title="About Author Network"
+              description={
+                <>
+                  This network visualization finds groups of authors within your search results. You can click on the
+                  segments to view the papers connected with a group or a particular author.
+                  <SimpleLink href="/help/actions/visualize#author-network" newTab>
+                    Learn more about author network
+                  </SimpleLink>
+                </>
+              }
             />
-          ) : (
-            <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={16}>
-              <Box>
-                <Expandable
-                  title="About Author Network"
-                  description={
-                    <>
-                      This network visualization finds groups of authors within your search results. You can click on
-                      the segments to view the papers connected with a group or a particular author.
-                      <SimpleLink href="/help/actions/visualize#author-network" newTab>
-                        Learn more about author network
-                      </SimpleLink>
-                    </>
-                  }
-                />
-                <NetworkGraphPane
-                  graph={authorNetworkGraph}
-                  views={views}
-                  onChangeView={handleViewChange}
-                  defaultView={views[0].id}
-                  onClickNode={handleGraphNodeClick}
-                  onChagePaperLimit={handleChangePaperLimit}
-                  paperLimit={rowsToFetch}
-                  maxPaperLimit={Math.min(numFound, MAX_ROWS_TO_FETCH)}
-                />
-              </Box>
-              <Box>
-                <FilterSearchBar
-                  tagItems={filterTagItems}
-                  onRemove={handleRemoveFilterTag}
-                  onClear={handleClearFiltersTags}
-                  onApply={handleApplyFilters}
-                />
-                <NetworkDetailsPane
-                  summaryGraph={authorNetworkSummaryGraph}
-                  node={selected}
-                  onAddToFilter={handleAddFilter}
-                  onRemoveFromFilter={handleRemoveFilter}
-                  canAddAsFilter={filters.findIndex((f) => f.name === selected.name) === -1}
-                />
-              </Box>
-            </SimpleGrid>
-          )}
-        </>
+            <NetworkGraphPane
+              root={authorNetworkData.data.root}
+              link_data={authorNetworkData.data.link_data}
+              views={views}
+              onClickNode={handleGraphNodeClick}
+              onChangePaperLimit={handleChangePaperLimit}
+              paperLimit={rowsToFetch}
+              maxPaperLimit={Math.min(numFound, MAX_ROWS_TO_FETCH)}
+            />
+          </Box>
+          <Box>
+            <FilterSearchBar
+              tagItems={filterTagItems}
+              onRemove={handleRemoveFilterTag}
+              onClear={handleClearFiltersTags}
+              onApply={handleApplyFilters}
+            />
+            <NetworkDetailsPane
+              summaryGraph={authorNetworkSummaryGraph}
+              node={selected}
+              onAddToFilter={handleAddFilter}
+              onRemoveFromFilter={handleRemoveFilter}
+              canAddAsFilter={filters.findIndex((f) => f.name === selected.name) === -1}
+            />
+          </Box>
+        </SimpleGrid>
       )}
     </Box>
+  );
+};
+
+const StatusDisplay = ({
+  bibsQueryIsError,
+  authorNetworkIsError,
+  bibsQueryIsLoading,
+  bibsQueryError,
+  authorNetworkIsLoading,
+  authorNetworkError,
+}: {
+  bibsQueryIsError: boolean;
+  authorNetworkIsError: boolean;
+  bibsQueryIsLoading: boolean;
+  bibsQueryError: unknown;
+  authorNetworkIsLoading: boolean;
+  authorNetworkError: unknown;
+}): ReactElement => {
+  return (
+    <>
+      {bibsQueryIsError && (
+        <StandardAlertMessage
+          status="error"
+          title="Error fetching records!"
+          description={axios.isAxiosError(bibsQueryError) && bibsQueryError.message}
+        />
+      )}
+      {authorNetworkIsError && (
+        <StandardAlertMessage
+          status="error"
+          title="Error fetching author network data!"
+          description={axios.isAxiosError(authorNetworkError) && authorNetworkError.message}
+        />
+      )}
+      {bibsQueryIsLoading && <LoadingMessage message="Fetching records" />}
+      {authorNetworkIsLoading && <LoadingMessage message="Fetching author network data" />}
+    </>
   );
 };
 
@@ -295,12 +290,10 @@ const FilterSearchBar = ({
 };
 
 // Get individual node details
-const getNodeDetails = (node: SunburstNode, bibcode_dict: IBibcodeDict): INodeDetails => {
+const getNodeDetails = (node: IADSApiVisNode, bibcode_dict: IBibcodeDict): INodeDetails => {
   // if selected an author node
   if (!('children' in node)) {
-    const authorNode = node as ILeaf;
-
-    const bibcodes = authorNode.papers;
+    const bibcodes = uniq(node.papers);
 
     // get author's papers details
     const papers = bibcodes.map((bibcode) => ({
@@ -323,15 +316,12 @@ const getNodeDetails = (node: SunburstNode, bibcode_dict: IBibcodeDict): INodeDe
       })
       [bibcodes.length - 1].slice(0, 4);
 
-    return { name: authorNode.name, type: 'author', papers, mostRecentYear };
+    return { name: node.name as string, type: 'author', papers, mostRecentYear };
   }
   // if selected a group node
   else {
     // all bibcodes in this group, has duplicates
-    const allBibcodes = node.children.reduce(
-      (prev, current) => [...prev, ...(current as ILeaf).papers],
-      [] as string[],
-    );
+    const allBibcodes = node.children.reduce((prev, current) => [...prev, ...current.papers], [] as string[]);
 
     // bibcode: author count
     const authorCount = countBy((a) => a, allBibcodes);

@@ -14,7 +14,8 @@ import {
 } from '@api';
 import { IADSApiVisResponse } from '@api/vis/types';
 import { Datum, Serie } from '@nivo/line';
-import { countBy, divide, reduce, uniq } from 'ramda';
+import * as d3 from 'd3';
+import { countBy, divide, range, reduce, uniq } from 'ramda';
 import {
   IBarGraph,
   ICitationsTableData,
@@ -27,7 +28,6 @@ import {
   IPaperTableInput,
   IReadTableInput,
   YearDatum,
-  ISunburstGraph,
 } from '../types';
 
 /**
@@ -388,17 +388,8 @@ function limitPlaces(n: number): number {
 }
 
 /**
- *  From author network data, create sunburst graph
- **/
-export const getAuthorNetworkGraph = (response: IADSApiVisResponse, valueKey: string): ISunburstGraph => {
-  if (!response['data']['root']) {
-    return { data: undefined, error: new Error('Cannot generate network') };
-  }
-  return { data: response['data']['root'], idKey: 'name', valueKey: valueKey };
-};
-
-/**
- * Create author network ummary graph from author network data
+ * Create author network summary graph from author network response
+ * Output: [ {x: year, y: paper count}]
  * */
 export const getAuthorNetworkSummaryGraph = (response: IADSApiVisResponse): ILineGraph => {
   if (!response.data.root) {
@@ -407,22 +398,31 @@ export const getAuthorNetworkSummaryGraph = (response: IADSApiVisResponse): ILin
 
   const data: Serie[] = [];
 
+  // for each group
   response.data.root.children.forEach((group, index) => {
     if (index > 6) {
       return;
     }
 
-    // all papers in this group
-    // into year and paper count [ ... {year: count} ]
-    const yearPaperCount = countBy(
-      (bibcode) => bibcode.slice(0, 4),
-      uniq(reduce((acc, author) => [...acc, ...author.papers], [] as string[], group.children)),
-    );
+    // all papers from the group
+    const bibcodes = uniq(reduce((acc, author) => [...acc, ...author.papers], [] as string[], group.children));
 
-    // convert graph data to [ ... {x: year, y: count} ]
-    const graphData = Object.entries(yearPaperCount).map(([year, count]) => ({ x: parseInt(year), y: count }));
+    // years range
+    const years = uniq(bibcodes.map((bibcode) => parseInt(bibcode.slice(0, 4))));
+    const yearsRange = d3.extent(years);
+    const allYears = range(yearsRange[0], yearsRange[1]); // fill in the years gap
 
-    data.push({ id: group.name, data: graphData });
+    // prefill all years with 0 count values { year: count}
+    const skeleton: { [year in string]: number } = {};
+    allYears.forEach((year) => (skeleton[year.toString()] = 0));
+
+    // into year and paper count array [ ... {year: count} ]
+    const yearPaperCount = { ...skeleton, ...countBy((bibcode) => bibcode.slice(0, 4), bibcodes) };
+
+    // convert to line graph data [ ... {x: year, y: count} ]
+    const graphData = Object.entries(yearPaperCount).map(([year, count]) => ({ x: year, y: count }));
+
+    data.push({ id: group.name as string, data: graphData });
   });
 
   return { data };
