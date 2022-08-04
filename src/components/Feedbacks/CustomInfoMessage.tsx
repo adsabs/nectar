@@ -20,7 +20,6 @@ export const CustomInfoMessage = ({
         variant="subtle"
         flexDirection="column"
         justifyContent="center"
-        height="200px"
         backgroundColor="transparent"
         my={5}
         width="50%"
