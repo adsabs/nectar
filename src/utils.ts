@@ -330,3 +330,12 @@ export const purify = <T extends Record<string, unknown>>(value: T): T | string 
 
   return value;
 };
+
+/**
+ * @see https://stackoverflow.com/a/9461657
+ */
+export const kFormatNumber = (value: number): string | number => {
+  const absV = Math.abs(value);
+  const sign = Math.sign(value);
+  return absV > 999 ? `${sign * (Math.round(absV / 100) / 10)}k` : sign * absV;
+};
