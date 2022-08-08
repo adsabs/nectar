@@ -12,8 +12,9 @@ import {
 } from '@api';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import { Box, Flex, List, ListIcon, ListItem, Stack } from '@chakra-ui/layout';
-import { Alert, AlertIcon, Code, VisuallyHidden } from '@chakra-ui/react';
+import { Alert, AlertIcon, Button, Code, Grid, GridItem, Heading, Portal, VisuallyHidden } from '@chakra-ui/react';
 import {
+  CustomInfoMessage,
   ItemsSkeleton,
   ListActions,
   NumFound,
@@ -21,7 +22,6 @@ import {
   SearchBar,
   SimpleLink,
   SimpleResultList,
-  CustomInfoMessage,
 } from '@components';
 import { calculateStartIndex } from '@components/ResultList/Pagination/usePagination';
 import { APP_DEFAULTS } from '@config';
@@ -30,11 +30,17 @@ import { NumPerPageType } from '@types';
 import { isApiSearchResponse, makeSearchParams, parseQueryFromUrl, setupApiSSR } from '@utils';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
+import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { last, omit, path } from 'ramda';
-import { FormEventHandler, useEffect } from 'react';
+import { last, not, omit, path } from 'ramda';
+import { FormEventHandler, useEffect, useState } from 'react';
 import { dehydrate, QueryClient, useQueryClient } from 'react-query';
+
+const SearchFacets = dynamic<Record<string, never>>(
+  () => import('@components/SearchFacet').then((mod) => mod.SearchFacets),
+  { ssr: false },
+);
 
 const selectors = {
   setQuery: (state: AppState) => state.setQuery,
@@ -119,79 +125,123 @@ const SearchPage: NextPage = () => {
     setNumPerPage(numPerPage);
   };
 
+  const [showFilters, setShowFilters] = useState(true);
+  const handleToggleFilters = () => setShowFilters(not);
+
   return (
-    <Box aria-labelledby="search-form-title" my={16}>
-      <Head>
-        <title>{params.q} | NASA Science Explorer - Search Results</title>
-      </Head>
+    <>
+      {/* <Box ref={showFiltersBtnRef}></Box> */}
+      <Grid
+        aria-labelledby="search-form-title"
+        my={12}
+        templateColumns={showFilters ? `200px 1fr` : `1rem 1fr`}
+        gap="2"
+      >
+        <Head>
+          <title>{params.q} | NASA Science Explorer - Search Results</title>
+        </Head>
+        {showFilters ? (
+          <GridItem as="aside" aria-labelledby="search-facets">
+            <Flex>
+              <Heading as="h2" id="search-facets" fontSize="sm" flex="1">
+                Filters
+              </Heading>
+              <Button variant="link" onClick={handleToggleFilters}>
+                Hide
+              </Button>
+            </Flex>
+            <SearchFacets />
+          </GridItem>
+        ) : (
+          <GridItem>
+            <Portal appendToParentPortal>
+              <Button
+                position="absolute"
+                transform="rotate(90deg)"
+                borderBottomRadius="none"
+                size="xs"
+                onClick={handleToggleFilters}
+                top="240px"
+                left="-28px"
+              >
+                Show Filters
+              </Button>
+            </Portal>
+          </GridItem>
+        )}
 
-      <form method="get" action="/search" onSubmit={handleOnSubmit}>
-        <Flex direction="column" width="full">
-          <SearchBar isLoading={isLoading} />
-          <NumFound count={data?.numFound} isLoading={isLoading} />
-        </Flex>
-        <Box mt={5}>
-          {isSuccess && !isLoading && data?.numFound > 0 && <ListActions onSortChange={handleSortChange} />}
-        </Box>
-      </form>
+        <GridItem>
+          <form method="get" action="/search" onSubmit={handleOnSubmit}>
+            <Flex direction="column" width="full">
+              <SearchBar isLoading={isLoading} />
+              <NumFound count={data?.numFound} isLoading={isLoading} />
+            </Flex>
+            <Box mt={5}>
+              {isSuccess && !isLoading && data?.numFound > 0 && <ListActions onSortChange={handleSortChange} />}
+            </Box>
+          </form>
 
-      <VisuallyHidden as="h2" id="search-form-title">
-        Search Results
-      </VisuallyHidden>
-      {!isLoading && data?.numFound === 0 && (
-        <CustomInfoMessage
-          status="info"
-          title={
+          <VisuallyHidden as="h2" id="search-form-title">
+            Search Results
+          </VisuallyHidden>
+
+          {!isLoading && data?.numFound === 0 && (
+            <CustomInfoMessage
+              status="info"
+              title={
+                <>
+                  Sorry no results were found for <Code children={params.q} />
+                </>
+              }
+              description={
+                <List w="100%">
+                  <ListItem>
+                    <ListIcon as={CheckCircleIcon} color="green.500" />
+                    Try broadening your search
+                  </ListItem>
+                  <ListItem>
+                    <ListIcon as={CheckCircleIcon} color="green.500" />
+                    Disable any filters that may be applied
+                  </ListItem>
+                  <ListItem>
+                    <Flex direction="row" alignItems="center">
+                      <ListIcon as={CheckCircleIcon} color="green.500" />
+                      <SimpleLink href="/">Check out some examples</SimpleLink>
+                    </Flex>
+                  </ListItem>
+                  <ListItem>
+                    <Flex direction="row" alignItems="center">
+                      <ListIcon as={CheckCircleIcon} color="green.500" />
+                      <SimpleLink href="/help/search/search-syntax" newTab={true}>
+                        Read our help pages
+                      </SimpleLink>
+                    </Flex>
+                  </ListItem>
+                </List>
+              }
+            />
+          )}
+          {isLoading && <ItemsSkeleton count={storeNumPerPage} />}
+
+          {data && (
             <>
-              Sorry no results were found for <Code children={params.q} />
+              <SimpleResultList docs={data.docs} indexStart={params.start} />
+              <Pagination
+                numPerPage={storeNumPerPage}
+                page={params.p}
+                totalResults={data.numFound}
+                onPerPageSelect={handlePerPageChange}
+              />
             </>
-          }
-          description={
-            <List w="100%">
-              <ListItem>
-                <ListIcon as={CheckCircleIcon} color="green.500" />
-                Try broadening your search
-              </ListItem>
-              <ListItem>
-                <ListIcon as={CheckCircleIcon} color="green.500" />
-                Disable any filters that may be applied
-              </ListItem>
-              <ListItem>
-                <Flex direction="row" alignItems="center">
-                  <ListIcon as={CheckCircleIcon} color="green.500" />
-                  <SimpleLink href="/">Check out some examples</SimpleLink>
-                </Flex>
-              </ListItem>
-              <ListItem>
-                <Flex direction="row" alignItems="center">
-                  <ListIcon as={CheckCircleIcon} color="green.500" />
-                  <SimpleLink href="/help/search/search-syntax" newTab={true}>
-                    Read our help pages
-                  </SimpleLink>
-                </Flex>
-              </ListItem>
-            </List>
-          }
-        />
-      )}
-      {isLoading && <ItemsSkeleton count={storeNumPerPage} />}
-      {data && (
-        <>
-          <SimpleResultList docs={data.docs} indexStart={params.start} />
-          <Pagination
-            numPerPage={storeNumPerPage}
-            page={params.p}
-            totalResults={data.numFound}
-            onPerPageSelect={handlePerPageChange}
-          />
-        </>
-      )}
-      {error && (
-        <Box aria-labelledby="search-form-title" my={16}>
-          <SearchErrorAlert error={error} />
-        </Box>
-      )}
-    </Box>
+          )}
+          {error && (
+            <Box aria-labelledby="search-form-title" my={16}>
+              <SearchErrorAlert error={error} />
+            </Box>
+          )}
+        </GridItem>
+      </Grid>
+    </>
   );
 };
 
