@@ -4,6 +4,7 @@ import { useCreateStore, StoreProvider } from '@store';
 import { theme } from '@theme';
 import { initialize, mswDecorator } from 'msw-storybook-addon';
 import { handlers } from '@mocks/handlers';
+import { QueryClient, QueryClientProvider, useQueryClient } from 'react-query';
 
 Object.defineProperty(nextImage, 'default', {
   configurable: true,
@@ -32,12 +33,15 @@ export const parameters = {
 // Initialize MSW
 initialize();
 
+const queryClient = new QueryClient({ defaultOptions: { queries: { retry: 0 } } });
 export const decorators = [
   (Story) => {
     return (
-      <StoreProvider createStore={useCreateStore({})}>
-        <Story />
-      </StoreProvider>
+      <QueryClientProvider client={queryClient}>
+        <StoreProvider createStore={useCreateStore({})}>
+          <Story />
+        </StoreProvider>
+      </QueryClientProvider>
     );
   },
   mswDecorator,
