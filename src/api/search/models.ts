@@ -115,7 +115,7 @@ export const getSearchFacetYearsParams = (
   fl: ['id'],
   'facet.pivot': 'property,year',
   facet: true,
-  'facet.minCount': minCount,
+  'facet.mincount': minCount,
   'facet.limit': limit,
 });
 

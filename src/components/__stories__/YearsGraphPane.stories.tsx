@@ -1,5 +1,4 @@
 import { IYearsGraphPaneProps, YearsGraphPane } from '@components';
-import { facetFoundFieldsData } from '@components/__mocks__/facetCountFields';
 import { Meta, Story } from '@storybook/react';
 
 const meta: Meta = {
@@ -13,4 +12,4 @@ const Template: Story<IYearsGraphPaneProps> = (args) => <YearsGraphPane {...args
 
 export const Default = Template.bind({});
 
-Default.args = { data: facetFoundFieldsData };
+Default.args = {};

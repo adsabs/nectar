@@ -71,8 +71,17 @@ export const handlers = [
       return res(
         ctx.status(200),
         ctx.json<IADSApiSearchResponse>({
+          response: { docs: [], numFound: 1 },
           facet_counts: {
+            facet_heatmaps: {},
+            facet_intervals: {},
+            facet_queries: {},
+            facet_ranges: {},
             facet_fields: {
+              author_facet: [],
+              author_facet_hier: [],
+              grant_facet_hier: [],
+              nedtype_object_facet_hier: [],
               first_author_facet_hier: [
                 '0/Kohler, S',
                 520,
