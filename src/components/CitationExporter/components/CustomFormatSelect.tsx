@@ -1,4 +1,4 @@
-import { Sender } from 'xstate';
+import { Sender } from '@xstate/react/lib/types';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 
 export interface ICustomFormatSelectProps {
