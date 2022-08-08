@@ -268,11 +268,12 @@ export const useGetSearchFacetCounts: SearchADSQuery<IADSApiSearchParams, IADSAp
   const searchParams: IADSApiSearchParams = getSearchFacetParams(params);
 
   // omit fields from queryKey
-  const { fl, ...cleanParams } = searchParams;
+  const cleanParams = omitParams(searchParams);
 
   return useQuery({
     queryKey: searchKeys.facet(cleanParams),
     queryFn: fetchSearch,
+    queryHash: JSON.stringify(cleanParams),
     meta: { params: searchParams },
     select: facetCountSelector,
     ...options,
