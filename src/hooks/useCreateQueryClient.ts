@@ -23,6 +23,7 @@ export const useCreateQueryClient = () => {
           queries: {
             refetchOnWindowFocus: false,
             staleTime: Infinity,
+            notifyOnChangeProps: 'tracked',
           },
         },
         queryCache,
