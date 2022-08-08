@@ -1,26 +1,30 @@
 import { SolrField, SolrSort } from '../models';
 
 export interface IADSApiSearchParams {
-  q: string;
+  bigquery?: string;
+  cursorMark?: string;
+  'facet.field'?: string;
+  'facet.limit'?: number;
+  'facet.mincount'?: number;
+  'facet.offset'?: number;
+  'facet.pivot'?: string;
+  'facet.prefix'?: string;
+  'facet.query'?: string;
+  facet?: boolean;
   fl?: SolrField[];
-  rows?: number;
-  start?: number;
-  sort?: SolrSort[];
-  hl?: boolean;
+  fq?: string;
   'hl.fl'?: string;
   'hl.maxAnalyzedChars'?: number;
   'hl.requireFieldMatch'?: boolean;
   'hl.usePhraseHighlighter'?: boolean;
-  fq?: string;
-  stats?: boolean;
-  'stats.field'?: string;
+  hl?: boolean;
   'json.facet'?: string;
-  facet?: boolean;
-  'facet.pivot'?: string;
-  'facet.minCount'?: number;
-  'facet.limit'?: number;
-  bigquery?: string;
-  cursorMark?: string;
+  q: string;
+  rows?: number;
+  sort?: SolrSort[];
+  start?: number;
+  'stats.field'?: string;
+  stats?: boolean;
 }
 
 export interface INormalizedADSApiSearchParams {
@@ -89,9 +93,28 @@ export interface IBucket {
   count: number;
 }
 
+export type FacetField =
+  | 'author_facet'
+  | 'bibgroup_facet'
+  | 'bibstem_facet'
+  | 'data_facet'
+  | 'keyword_facet'
+  | 'vizier_facet'
+  | 'property'
+  | 'database'
+  | 'aff_facet_hier'
+  | 'author_facet_hier'
+  | 'doctype_facet_hier'
+  | 'first_author_facet_hier'
+  | 'first_author_facet_hier'
+  | 'grant_facet_hier'
+  | 'ned_object_facet_hier'
+  | 'nedtype_object_facet_hier'
+  | 'simbad_object_facet_hier';
+
 export interface IFacetCountsFields {
   facet_queries: unknown;
-  facet_fields: unknown;
+  facet_fields: Record<FacetField, Array<string | number>>;
   facet_ranges: unknown;
   facet_intervals: unknown;
   facet_heatmaps: unknown;
@@ -162,42 +185,48 @@ export enum Esources {
 }
 
 export interface IDocsEntity {
+  /**
+   * Virtual field to search across title, keyword, abstract fields in one operation
+   */
+  abs?: string;
   abstract?: string;
   ack?: string;
-  aff?: string[];
   aff_id?: string;
+  aff?: string[];
+  all?: string;
   alternate_bibcode?: string;
   alternate_title?: string;
   arxiv_class?: string;
-  author?: string[];
+  arxiv?: string;
   author_count?: number;
-  author_facet?: string;
   author_facet_hier?: string;
+  author_facet?: string;
   author_norm?: string;
+  author?: string[];
   bibcode?: string;
-  bibgroup?: string;
   bibgroup_facet?: string;
-  bibstem?: string[];
+  bibgroup?: string;
   bibstem_facet?: string;
-  book_author?: string[];
+  bibstem?: string[];
   body?: string;
+  book_author?: string[];
+  citation_count_norm?: number;
+  citation_count?: number;
   citation?: string;
   '[citations]'?: {
     num_citations?: number;
     num_references?: number;
   };
-  citation_count?: number;
-  citation_count_norm?: number;
   cite_read_boost?: string;
   classic_factor?: string;
   comment?: string[];
   copyright?: string;
-  data?: string[];
   data_facet?: string;
+  data?: string[];
   database?: string;
   date?: string;
-  doctype?: string;
   doctype_facet_hier?: string;
+  doctype?: string;
   doi?: string;
   eid?: string;
   email?: string;
@@ -205,13 +234,13 @@ export interface IDocsEntity {
   entry_date?: string;
   esources?: Esources[];
   facility?: string;
-  first_author?: string;
   first_author_facet_hier?: string;
   first_author_norm?: string;
-  grant?: string;
+  first_author?: string;
   grant_agencies?: string;
   grant_facet_hier?: string;
   grant_id?: string;
+  grant?: string;
   id?: string;
   identifier?: string[];
   ids_data?: string;
@@ -220,24 +249,24 @@ export interface IDocsEntity {
   isbn?: string;
   issn?: string;
   issue?: string;
-  keyword?: string[];
   keyword_facet?: string;
   keyword_norm?: string;
   keyword_schema?: string;
+  keyword?: string[];
   lang?: string;
   links_data?: string[];
   nedid?: string;
-  nedtype?: string;
   nedtype_object_facet_hier?: string;
+  nedtype?: string;
   orcid_other?: string[];
   orcid_pub?: string[];
   orcid_user?: string[];
-  page?: string;
   page_count?: string;
   page_range?: string;
+  page?: string;
   property?: string[];
-  pub?: string;
   pub_raw?: string;
+  pub?: string;
   pubdate?: string;
   pubnote?: string;
   read_count?: number;
@@ -250,13 +279,10 @@ export interface IDocsEntity {
   simbtype?: string;
   thesis?: string;
   title?: string[];
-  vizier?: string;
   vizier_facet?: string;
+  vizier?: string;
   volume?: string;
   year?: string;
-  abs?: string;
-  all?: string;
-  arxiv?: string;
 }
 
 export type Bibcode = IDocsEntity['bibcode'];
