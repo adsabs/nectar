@@ -19,6 +19,7 @@ export * from './NumFound';
 export * from './ResultList';
 export * from './SearchBar';
 export * from './SearchExamples';
+export * from './SearchFacet';
 export * from './SearchQueryLink';
 export * from './Select';
 export * from './SimpleLink';
