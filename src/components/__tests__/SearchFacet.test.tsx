@@ -1,9 +1,8 @@
 import { composeStories } from '@storybook/testing-react';
 import { findAllByTestId, findByTestId, getAllByRole, render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MSWOnRequestMock } from 'jest-setup';
 import { rest } from 'msw';
-import { filter, head, map, path, pipe } from 'ramda';
+import { head } from 'ramda';
 import * as stories from '../__stories__/SearchFacet.stories';
 
 const { Tree: SearchFacetTree } = composeStories(stories);
@@ -14,20 +13,6 @@ const setup = () => {
   );
 
   return { user: userEvent.setup(), ...utils };
-};
-
-const urls = pipe<[MSWOnRequestMock], Record<string, unknown>[], string[]>(
-  path(['mock', 'calls']),
-  map(path(['0', 'url', 'pathname'])),
-);
-
-const getAllChecked = (root: HTMLElement, children: HTMLElement[]) => {
-  return filter(
-    (el) => {
-      return el;
-    },
-    [root, ...children],
-  );
 };
 
 describe('SearchFacet', () => {
