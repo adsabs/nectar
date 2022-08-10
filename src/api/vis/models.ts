@@ -4,3 +4,7 @@ import { IADSApiVisParams } from './types';
 export const getAuthorNetworkParams = (bibcodes: Bibcode[]): IADSApiVisParams => ({
   bibcodes,
 });
+
+export const getPaperNetworkParams = (bibcodes: Bibcode[]): IADSApiVisParams => ({
+  bibcodes,
+});

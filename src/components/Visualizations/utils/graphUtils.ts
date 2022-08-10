@@ -12,7 +12,7 @@ import {
   TimeSeriesKey,
   TimeSeriesType,
 } from '@api';
-import { IADSApiVisResponse } from '@api/vis/types';
+import { IADSApiAuthorNetworkResponse } from '@api/vis/types';
 import { Datum, Serie } from '@nivo/line';
 import * as d3 from 'd3';
 import { countBy, divide, range, reduce, uniq } from 'ramda';
@@ -391,7 +391,7 @@ function limitPlaces(n: number): number {
  * Create author network summary graph from author network response
  * Output: [ {x: year, y: paper count}]
  * */
-export const getAuthorNetworkSummaryGraph = (response: IADSApiVisResponse): ILineGraph => {
+export const getAuthorNetworkSummaryGraph = (response: IADSApiAuthorNetworkResponse): ILineGraph => {
   if (!response.data.root) {
     return { data: undefined, error: new Error('Cannot generate network') };
   }

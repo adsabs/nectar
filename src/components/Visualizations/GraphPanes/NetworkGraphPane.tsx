@@ -1,13 +1,13 @@
-import { IADSApiVisNode, IADSApiVisNodeKey } from '@api';
+import { IADSApiAuthorNetworkNode, IADSApiVisNodeKey } from '@api';
 import { Radio, RadioGroup, Stack, Text, Input, Button, FormControl, FormLabel, Switch } from '@chakra-ui/react';
 import { ChangeEvent, KeyboardEvent, ReactElement, useState } from 'react';
 import { NetworkGraph } from '../Graphs/NetworkGraph';
 
 export interface INetworkGraphPaneProps {
-  root: IADSApiVisNode;
+  root: IADSApiAuthorNetworkNode;
   link_data: number[][];
   views: IView[];
-  onClickNode?: (node: IADSApiVisNode) => void;
+  onClickNode?: (node: IADSApiAuthorNetworkNode) => void;
   onChangePaperLimit: (limit: number) => void;
   maxPaperLimit: number;
   paperLimit: number;

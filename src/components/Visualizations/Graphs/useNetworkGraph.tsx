@@ -1,4 +1,4 @@
-import { IADSApiVisNode, IADSApiVisNodeKey } from '@api';
+import { IADSApiAuthorNetworkNode, IADSApiVisNodeKey } from '@api';
 import * as d3 from 'd3';
 import { useCallback, useMemo } from 'react';
 import { NetworkHierarchyNode } from './NetworkGraph';
@@ -13,7 +13,7 @@ import { NetworkHierarchyNode } from './NetworkGraph';
  * @returns  functions used to render network graph elements
  */
 export const useNetworkGraph = (
-  root: IADSApiVisNode,
+  root: IADSApiAuthorNetworkNode,
   link_data: number[][],
   keyToUseAsValue: IADSApiVisNodeKey,
   radius: number,
@@ -41,14 +41,14 @@ export const useNetworkGraph = (
 
   // function that converts ADDS tree node (root) to hierachical tree node for graph
   const partition = useCallback(
-    (data: IADSApiVisNode) => {
+    (data: IADSApiAuthorNetworkNode) => {
       // data to node in tree structure
       const root = d3
-        .hierarchy<IADSApiVisNode>(data)
+        .hierarchy<IADSApiAuthorNetworkNode>(data)
         .sum((d) => (d[keyToUseAsValue] ? (d[keyToUseAsValue] as number) : 0))
         .sort((a, b) => b.data.size - a.data.size); // in all views, always sort by size
-      const p = d3.partition<IADSApiVisNode>().size([2 * Math.PI, +root.height + 1])(root); // add x (angle), y (distance) to tree structure
-      return p as NetworkHierarchyNode<IADSApiVisNode>;
+      const p = d3.partition<IADSApiAuthorNetworkNode>().size([2 * Math.PI, +root.height + 1])(root); // add x (angle), y (distance) to tree structure
+      return p as NetworkHierarchyNode<IADSApiAuthorNetworkNode>;
     },
     [keyToUseAsValue],
   );
@@ -72,7 +72,7 @@ export const useNetworkGraph = (
   // arc function returns a pie data for a tree node
   const arc = useMemo(() => {
     return d3
-      .arc<NetworkHierarchyNode<IADSApiVisNode>>()
+      .arc<NetworkHierarchyNode<IADSApiAuthorNetworkNode>>()
       .startAngle((d) => d.x0)
       .endAngle((d) => d.x1)
       .padAngle((d) => Math.min((d.x1 - d.x0) / 2, 0.005))
@@ -109,7 +109,7 @@ export const useNetworkGraph = (
   }, [read_counts]);
 
   // function to get font size from node data
-  const fontSize = (d: NetworkHierarchyNode<IADSApiVisNode>, key: string) => {
+  const fontSize = (d: NetworkHierarchyNode<IADSApiAuthorNetworkNode>, key: string) => {
     return key === 'size'
       ? `${occurrencesFontScale(d.value)}px`
       : key === 'citation_count'
@@ -120,7 +120,7 @@ export const useNetworkGraph = (
   // function that gives the data for path from node to node
   const line = useMemo(() => {
     return d3
-      .lineRadial<NetworkHierarchyNode<IADSApiVisNode>>()
+      .lineRadial<NetworkHierarchyNode<IADSApiAuthorNetworkNode>>()
       .curve(d3.curveBundle.beta(0.85))
       .radius(radius * 3 - 1) // one is a gap
       .angle((d) => d.x0 + (d.x1 - d.x0) / 2);
@@ -139,14 +139,14 @@ export const useNetworkGraph = (
   }, [weights]);
 
   // function that gives the transform of node label to its proper position
-  const labelTransform = useCallback((d: NetworkHierarchyNode<IADSApiVisNode>) => {
+  const labelTransform = useCallback((d: NetworkHierarchyNode<IADSApiAuthorNetworkNode>) => {
     const x = (((d.x0 + d.x1) / 2) * 180) / Math.PI;
     const y = d.y1 * radius + 2; // just outside the circle
     return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
   }, []);
 
   // returns the alignment for label, relative to the circle
-  const textAnchor = useCallback((d: NetworkHierarchyNode<IADSApiVisNode>) => {
+  const textAnchor = useCallback((d: NetworkHierarchyNode<IADSApiAuthorNetworkNode>) => {
     const x = (((d.x0 + d.x1) / 2) * 180) / Math.PI;
     if (x < 180) {
       return 'start';

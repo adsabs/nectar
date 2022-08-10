@@ -1,5 +1,5 @@
 import { IADSApiSearchParams, useSearch, useVaultBigQuerySearch } from '@api';
-import { IADSApiVisNode, IBibcodeDict } from '@api/vis/types';
+import { IADSApiAuthorNetworkNode, IBibcodeDict } from '@api/vis/types';
 import { useGetAuthorNetwork } from '@api/vis/vis';
 import { Box, Button, SimpleGrid, Stack, Text, useToast } from '@chakra-ui/react';
 import {
@@ -294,7 +294,7 @@ const FilterSearchBar = ({
 };
 
 // Get individual node details
-const getNodeDetails = (node: IADSApiVisNode, bibcode_dict: IBibcodeDict): INodeDetails => {
+const getNodeDetails = (node: IADSApiAuthorNetworkNode, bibcode_dict: IBibcodeDict): INodeDetails => {
   // if selected an author node
   if (!('children' in node)) {
     const bibcodes = uniq(node.papers);
