@@ -66,7 +66,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
   };
 
   return (
-    <form method="post" action={router.route} onSubmit={formSubmit} aria-describedby="form-title">
+    <form method="post" action={router.route} onFilterSubmit={formSubmit} aria-describedby="form-title">
       <Stack direction="column" spacing={5}>
         <VisuallyHidden as="h2" id="form-title">
           Classic Form
