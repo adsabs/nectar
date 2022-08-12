@@ -145,4 +145,8 @@
     stroke: #000;
     fill-opacity: 0.6;
   }
+
+  .link-background {
+    fill: hsla(0, 0%, 100%, 0.8);
+  }
 }
