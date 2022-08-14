@@ -17,7 +17,7 @@ import axios from 'axios';
 import { decode } from 'he';
 import { useRouter } from 'next/router';
 import { countBy, reverse, sortBy, uniq } from 'ramda';
-import { ReactElement, useEffect, useMemo, useState } from 'react';
+import { ReactElement, Reducer, useEffect, useMemo, useReducer, useState } from 'react';
 import { IView, NetworkGraphPane } from '../GraphPanes';
 import { ILineGraph } from '../types';
 import { getAuthorNetworkSummaryGraph } from '../utils';
@@ -38,18 +38,49 @@ const views: IView[] = [
   { id: 'paper_downloads', label: 'Paper Downloads', valueToUse: 'read_count' },
 ];
 
+interface IAuthorNetworkPageState {
+  rowsToFetch: number;
+  selected: INodeDetails; // User selected graph node (group, author)
+  filters: INodeDetails[]; // Selected filters (group, author)
+}
+
+type AuthorNetworkPageAction =
+  | { type: 'CHANGE_PAPER_LIMIT'; payload: number }
+  | { type: 'SET_SELECTED'; payload: { node: IADSApiVisNode; dict: IBibcodeDict } }
+  | { type: 'ADD_FILTER'; payload: INodeDetails }
+  | { type: 'REMOVE_FILTER'; payload: INodeDetails }
+  | { type: 'REMOVE_FILTER_TAG'; payload: ITagItem }
+  | { type: 'CLEAR_FILTERS' };
+
 export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContainerProps): ReactElement => {
   const router = useRouter();
 
   const toast = useToast();
 
-  const [rowsToFetch, setRowsToFetch] = useState(DEFAULT_ROWS_TO_FETCH);
+  const reducer: Reducer<IAuthorNetworkPageState, AuthorNetworkPageAction> = (state, action) => {
+    switch (action.type) {
+      case 'CHANGE_PAPER_LIMIT':
+        return { ...state, rowsToFetch: action.payload };
+      case 'SET_SELECTED':
+        return { ...state, selected: getNodeDetails(action.payload.node, action.payload.dict) };
+      case 'ADD_FILTER':
+        return { ...state, filters: uniq([...state.filters, action.payload]) };
+      case 'REMOVE_FILTER':
+        return { ...state, filters: state.filters.filter((f) => f.name !== action.payload.name) };
+      case 'REMOVE_FILTER_TAG':
+        return { ...state, filters: state.filters.filter((filter) => filter.name !== action.payload.id) };
+      case 'CLEAR_FILTERS':
+        return { ...state, filters: [] };
+      default:
+        return state;
+    }
+  };
 
-  // User selected graph node (group, author)
-  const [selected, setSelected] = useState<INodeDetails>(null);
-
-  // Selected filters (group, author)
-  const [filters, setFilters] = useState<INodeDetails[]>([]);
+  const [state, dispatch] = useReducer(reducer, {
+    rowsToFetch: DEFAULT_ROWS_TO_FETCH,
+    selected: null,
+    filters: [],
+  });
 
   // fetch bibcodes of query
   const {
@@ -58,7 +89,7 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
     isError: bibsQueryIsError,
     error: bibsQueryError,
   } = useSearch(
-    { ...query, fl: ['bibcode'], rows: rowsToFetch },
+    { ...query, fl: ['bibcode'], rows: state.rowsToFetch },
     { enabled: !!query && !!query.q && query.q.length > 0 },
   );
 
@@ -89,11 +120,11 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
 
   // convert filters to tags
   const filterTagItems: ITagItem[] = useMemo(() => {
-    return filters.map((node) => ({
+    return state.filters.map((node) => ({
       id: node.name,
       label: node.name,
     }));
-  }, [filters]);
+  }, [state.filters]);
 
   // when filtered search is applied, trigger big query
   const [applyingBibcodes, setApplyingBibcodes] = useState<string[]>([]);
@@ -102,10 +133,10 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
   });
 
   useEffect(() => {
-    if (authorNetworkData) {
-      setRowsToFetch(Math.min(numFound, rowsToFetch));
+    if (numFound && numFound < state.rowsToFetch) {
+      dispatch({ type: 'CHANGE_PAPER_LIMIT', payload: numFound });
     }
-  }, [authorNetworkData]);
+  }, [numFound]);
 
   // When big query data is fetched, redirect to the search results page
   useEffect(() => {
@@ -124,39 +155,10 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
     }
   }, [bigQueryData, bigQueryError, applyingBibcodes]);
 
-  // Callback Handlers
-
-  const handleGraphNodeClick = (node: IADSApiVisNode) => {
-    const bibcode_dict = authorNetworkData.data.bibcode_dict;
-    setSelected(getNodeDetails(node, bibcode_dict));
-  };
-
-  const handleAddFilter = (node: INodeDetails) => {
-    setFilters(uniq([...filters, node]));
-  };
-
-  const handleRemoveFilter = (node: INodeDetails) => {
-    setFilters(filters.filter((f) => f.name !== node.name));
-  };
-
-  const handleRemoveFilterTag = (filterTagItem: ITagItem) => {
-    setFilters(filters.filter((filter) => filter.name !== filterTagItem.id));
-  };
-
-  const handleClearFiltersTags = () => {
-    setFilters([]);
-  };
-
-  const handleChangePaperLimit = (limit: number) => {
-    if (limit <= MAX_ROWS_TO_FETCH && limit <= numFound) {
-      setRowsToFetch(limit);
-    }
-  };
-
   // get all papers (bibcodes) of the filter groups and authors and trigger big query search
   const handleApplyFilters = () => {
     const bibcodes = uniq(
-      filters.reduce(
+      state.filters.reduce(
         (acc, node) => [...acc, ...node.papers.reduce((acc1, paper) => [...acc1, paper.bibcode], [] as string[])],
         [] as string[],
       ), // filters to a list of papers
@@ -198,25 +200,27 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
               root={authorNetworkData.data.root}
               link_data={authorNetworkData.data.link_data}
               views={views}
-              onClickNode={handleGraphNodeClick}
-              onChangePaperLimit={handleChangePaperLimit}
-              paperLimit={rowsToFetch}
+              onClickNode={(node) =>
+                dispatch({ type: 'SET_SELECTED', payload: { node, dict: authorNetworkData.data.bibcode_dict } })
+              }
+              onChangePaperLimit={(limit) => dispatch({ type: 'CHANGE_PAPER_LIMIT', payload: limit })}
+              paperLimit={state.rowsToFetch}
               maxPaperLimit={Math.min(numFound, MAX_ROWS_TO_FETCH)}
             />
           </Box>
           <Box>
             <FilterSearchBar
               tagItems={filterTagItems}
-              onRemove={handleRemoveFilterTag}
-              onClear={handleClearFiltersTags}
+              onRemove={(tag) => dispatch({ type: 'REMOVE_FILTER_TAG', payload: tag })}
+              onClear={() => dispatch({ type: 'CLEAR_FILTERS' })}
               onApply={handleApplyFilters}
             />
             <NetworkDetailsPane
               summaryGraph={authorNetworkSummaryGraph}
-              node={selected}
-              onAddToFilter={handleAddFilter}
-              onRemoveFromFilter={handleRemoveFilter}
-              canAddAsFilter={filters.findIndex((f) => f.name === selected.name) === -1}
+              node={state.selected}
+              onAddToFilter={(node) => dispatch({ type: 'ADD_FILTER', payload: node })}
+              onRemoveFromFilter={(node) => dispatch({ type: 'REMOVE_FILTER', payload: node })}
+              canAddAsFilter={state.filters.findIndex((f) => f.name === state.selected.name) === -1}
             />
           </Box>
         </SimpleGrid>
