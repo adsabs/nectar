@@ -1,6 +1,25 @@
-export const facetFoundFieldsData = {
+import { IFacetCountsFields } from '@api';
+
+export const facetFoundFieldsData: IFacetCountsFields = {
   facet_queries: {},
-  facet_fields: {},
+  facet_fields: {
+    aff_facet_hier: [],
+    author_facet: [],
+    data_facet: [],
+    bibstem_facet: [],
+    author_facet_hier: [],
+    bibgroup_facet: [],
+    database: [],
+    doctype_facet_hier: [],
+    keyword_facet: [],
+    first_author_facet_hier: [],
+    grant_facet_hier: [],
+    ned_object_facet_hier: [],
+    nedtype_object_facet_hier: [],
+    vizier_facet: [],
+    property: [],
+    simbad_object_facet_hier: [],
+  },
   facet_ranges: {},
   facet_intervals: {},
   facet_heatmaps: {},
