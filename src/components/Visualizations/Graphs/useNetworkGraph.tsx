@@ -1,7 +1,7 @@
 import { IADSApiAuthorNetworkNode, IADSApiVisNodeKey } from '@api';
 import * as d3 from 'd3';
 import { useCallback, useMemo } from 'react';
-import { NetworkHierarchyNode } from './NetworkGraph';
+import { ILink, NetworkHierarchyNode } from './NetworkGraph';
 
 /**
  *
@@ -68,6 +68,8 @@ export const useNetworkGraph = (
         'hsla(250, 50%, 47%, 1)',
       ]);
   }, []);
+
+  const noGroupColor = '#a6a6a6';
 
   // arc function returns a pie data for a tree node
   const arc = useMemo(() => {
@@ -155,16 +157,63 @@ export const useNetworkGraph = (
     }
   }, []);
 
+  // get color of node
+  const nodeFill = (d: NetworkHierarchyNode<IADSApiAuthorNetworkNode>) => {
+    if (d.depth === 0) {
+      return 'white';
+    }
+    if (d.depth === 1) {
+      const index = d.parent.children.indexOf(d);
+      if (index < 7) {
+        d.color = color(index.toString());
+        return d.color;
+      }
+      return noGroupColor;
+    }
+    if (d.depth === 2) {
+      // child nodes
+      if (!d.parent.color) {
+        return noGroupColor;
+      }
+      return d.parent.color;
+    }
+  };
+
+  // get the label's display setting based on type of view
+  const labelDisplay = (d: NetworkHierarchyNode<IADSApiAuthorNetworkNode>, key: string) => {
+    if (key == 'size') {
+      return 'block';
+    }
+    if (key == 'citation_count' && d.data.citation_count > citationLimit) {
+      return 'block';
+    }
+    if (key == 'read_count' && d.data.read_count > readLimit) {
+      return 'block';
+    }
+    return 'none';
+  };
+
+  // get link stroke width
+  const strokeWidth = (d: ILink, links: ILink[]) => {
+    // get link weight
+    const weight = links.filter((l) => {
+      return (
+        (l.source.data.name === d.source.data.name && l.target.data.name === d.target.data.name) ||
+        (l.target.data.name === d.source.data.name && l.source.data.name === d.target.data.name)
+      );
+    })[0].weight;
+    return linkScale(weight);
+  };
+
   return {
     partition,
     arc,
-    color,
     fontSize,
     line,
-    citationLimit,
-    readLimit,
-    linkScale,
     labelTransform,
     textAnchor,
+    nodeFill,
+    labelDisplay,
+    strokeWidth,
   };
 };
