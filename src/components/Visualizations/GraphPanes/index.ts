@@ -1,3 +1,3 @@
 export * from './HIndexGraphPane';
-export * from './NetworkGraphPane';
+export * from './AuthorNetworkGraphPane';
 export * from './YearsGraphPane';

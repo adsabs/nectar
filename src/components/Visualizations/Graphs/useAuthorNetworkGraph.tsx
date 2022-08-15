@@ -1,7 +1,7 @@
-import { IADSApiAuthorNetworkNode, IADSApiVisNodeKey } from '@api';
+import { IADSApiAuthorNetworkNode, IADSApiAuthorNetworkNodeKey } from '@api';
 import * as d3 from 'd3';
 import { useCallback, useMemo } from 'react';
-import { ILink, NetworkHierarchyNode } from './NetworkGraph';
+import { ILink, NetworkHierarchyNode } from './AuthorNetworkGraph';
 
 /**
  *
@@ -12,10 +12,10 @@ import { ILink, NetworkHierarchyNode } from './NetworkGraph';
  * @param numberOfLabelsToShow
  * @returns  functions used to render network graph elements
  */
-export const useNetworkGraph = (
+export const useAuthorNetworkGraph = (
   root: IADSApiAuthorNetworkNode,
   link_data: number[][],
-  keyToUseAsValue: IADSApiVisNodeKey,
+  keyToUseAsValue: IADSApiAuthorNetworkNodeKey,
   radius: number,
   numberOfLabelsToShow: number,
 ) => {

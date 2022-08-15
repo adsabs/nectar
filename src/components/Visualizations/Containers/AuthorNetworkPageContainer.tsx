@@ -18,7 +18,7 @@ import { decode } from 'he';
 import { useRouter } from 'next/router';
 import { countBy, reverse, sortBy, uniq } from 'ramda';
 import { ReactElement, Reducer, useEffect, useMemo, useReducer, useState } from 'react';
-import { IView, NetworkGraphPane } from '../GraphPanes';
+import { IView, AuthorNetworkGraphPane } from '../GraphPanes';
 import { ILineGraph } from '../types';
 import { getAuthorNetworkSummaryGraph } from '../utils';
 import { NotEnoughData } from '../NotEnoughData';
@@ -46,7 +46,7 @@ interface IAuthorNetworkPageState {
 
 type AuthorNetworkPageAction =
   | { type: 'CHANGE_PAPER_LIMIT'; payload: number }
-  | { type: 'SET_SELECTED'; payload: { node: IADSApiVisNode; dict: IBibcodeDict } }
+  | { type: 'SET_SELECTED'; payload: { node: IADSApiAuthorNetworkNode; dict: IBibcodeDict } }
   | { type: 'ADD_FILTER'; payload: INodeDetails }
   | { type: 'REMOVE_FILTER'; payload: INodeDetails }
   | { type: 'REMOVE_FILTER_TAG'; payload: ITagItem }
@@ -196,7 +196,7 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
                 </>
               }
             />
-            <NetworkGraphPane
+            <AuthorNetworkGraphPane
               root={authorNetworkData.data.root}
               link_data={authorNetworkData.data.link_data}
               views={views}

@@ -1,9 +1,9 @@
-import { IADSApiAuthorNetworkNode, IADSApiVisNodeKey } from '@api';
+import { IADSApiAuthorNetworkNode, IADSApiAuthorNetworkNodeKey } from '@api';
 import { Radio, RadioGroup, Stack, Text, Input, Button, FormControl, FormLabel, Switch } from '@chakra-ui/react';
 import { ChangeEvent, KeyboardEvent, ReactElement, useState } from 'react';
-import { NetworkGraph } from '../Graphs/NetworkGraph';
+import { AuthorNetworkGraph } from '../Graphs/AuthorNetworkGraph';
 
-export interface INetworkGraphPaneProps {
+export interface IAuthorNetworkGraphPaneProps {
   root: IADSApiAuthorNetworkNode;
   link_data: number[][];
   views: IView[];
@@ -16,14 +16,14 @@ export interface INetworkGraphPaneProps {
 export interface IView {
   id: string;
   label: string;
-  valueToUse: IADSApiVisNodeKey;
+  valueToUse: IADSApiAuthorNetworkNodeKey;
 }
 
 /**
  *
  * @returns Network graph and its controls
  */
-export const NetworkGraphPane = ({
+export const AuthorNetworkGraphPane = ({
   root,
   link_data,
   views,
@@ -31,7 +31,7 @@ export const NetworkGraphPane = ({
   onChangePaperLimit: onChagePaperLimit,
   paperLimit,
   maxPaperLimit,
-}: INetworkGraphPaneProps): ReactElement => {
+}: IAuthorNetworkGraphPaneProps): ReactElement => {
   const [view, setView] = useState<IView>(views[0]);
 
   const [showLinkLayer, setShowLinkLayer] = useState(false);
@@ -59,7 +59,7 @@ export const NetworkGraphPane = ({
         </Stack>
       </RadioGroup>
       <OverlaySwitch isChecked={showLinkLayer} onChange={handleToggleSwitch} />
-      <NetworkGraph
+      <AuthorNetworkGraph
         root={root}
         link_data={link_data}
         showLinkLayer={showLinkLayer}

@@ -29,7 +29,7 @@ export interface IADSApiAuthorNetworkNode {
   size?: number;
 }
 
-export type IADSApiVisNodeKey = keyof IADSApiAuthorNetworkNode;
+export type IADSApiPaperNodeKey = keyof IADSApiPaperNetworkSummaryGraphNode;
 export type IADSApiAuthorNetworkNodeKey = keyof IADSApiAuthorNetworkNode;
 
 export interface IADSApiPaperNetworkResponse {

@@ -2,14 +2,14 @@ import { useD3 } from '../useD3';
 import * as d3 from 'd3';
 import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { BaseType, D3ZoomEvent, HierarchyRectangularNode, Selection } from 'd3';
-import { IADSApiAuthorNetworkNode, IADSApiVisNodeKey } from '@api';
-import { useNetworkGraph } from './useNetworkGraph';
-export interface INetworkGraphProps {
+import { IADSApiAuthorNetworkNode, IADSApiAuthorNetworkNodeKey } from '@api';
+import { useAuthorNetworkGraph } from './useAuthorNetworkGraph';
+export interface IAuthorNetworkGraphProps {
   root: IADSApiAuthorNetworkNode;
   link_data: number[][];
   showLinkLayer: boolean;
   onClickNode: (node: IADSApiAuthorNetworkNode) => void;
-  keyToUseAsValue: IADSApiVisNodeKey;
+  keyToUseAsValue: IADSApiAuthorNetworkNodeKey;
 }
 
 export interface NetworkHierarchyNode<Datum> extends HierarchyRectangularNode<Datum> {
@@ -31,17 +31,17 @@ const radius = width / 10;
 
 const numberOfLabelsToShow = 100;
 
-export const NetworkGraph = ({
+export const AuthorNetworkGraph = ({
   root,
   link_data,
   showLinkLayer,
   onClickNode,
   keyToUseAsValue,
-}: INetworkGraphProps): ReactElement => {
+}: IAuthorNetworkGraphProps): ReactElement => {
   const [selectedNode, setSelectedNode] = useState<IADSApiAuthorNetworkNode>();
 
   const { partition, arc, fontSize, line, labelTransform, textAnchor, nodeFill, labelDisplay, strokeWidth } =
-    useNetworkGraph(root, link_data, keyToUseAsValue, radius, numberOfLabelsToShow);
+    useAuthorNetworkGraph(root, link_data, keyToUseAsValue, radius, numberOfLabelsToShow);
 
   // actaul tree root data for graph
   const graphRoot = useMemo(() => partition(root), [partition, root]);
@@ -85,7 +85,7 @@ export const NetworkGraph = ({
 
   // transition node labels for view change
   const transitionNodeLabels = useCallback(
-    (root: NetworkHierarchyNode<IADSApiAuthorNetworkNode>, key: IADSApiVisNodeKey) => {
+    (root: NetworkHierarchyNode<IADSApiAuthorNetworkNode>, key: IADSApiAuthorNetworkNodeKey) => {
       d3.selectAll('.node-label')
         .join('text')
         .data(root.descendants().slice(1))
