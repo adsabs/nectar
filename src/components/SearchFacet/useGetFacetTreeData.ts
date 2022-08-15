@@ -105,7 +105,7 @@ export const useGetFacetTreeData = (props: UseGetFacetTreeDataProps) => {
     if (data) {
       dispatch({ type: 'DATA', payload: parseFacetDataIntoTuples(field, data, property, filter) });
     }
-  }, [data, field, property]);
+  }, [data, field, property, filter]);
 
   return { ...result, treeData: state.treeData, handleLoadMore, canLoadMore: state.canLoadMore };
 };
