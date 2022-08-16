@@ -2,13 +2,20 @@ import { useD3 } from '../useD3';
 import * as d3 from 'd3';
 import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { BaseType, D3ZoomEvent, HierarchyRectangularNode, Selection } from 'd3';
-import { IADSApiAuthorNetworkNode, IADSApiPaperNetworkSummaryGraph, IADSApiPaperNetworkSummaryGraphNode } from '@api';
+import {
+  IADSApiAuthorNetworkNode,
+  IADSApiPaperNetworkNodeKey,
+  IADSApiPaperNetworkSummaryGraph,
+  IADSApiPaperNetworkSummaryGraphNode,
+} from '@api';
 import { usePaperNetworkGraph } from './usePaperNetworkGraph';
+import { ADSSVGPathElement } from './types';
 
 export interface IPaperNetworkGraphProps {
   nodes_data: IADSApiPaperNetworkSummaryGraph['nodes'];
   links_data: IADSApiPaperNetworkSummaryGraph['links'];
   onClickNode: (node: IADSApiPaperNetworkSummaryGraphNode) => void;
+  keyToUseAsValue: IADSApiPaperNetworkNodeKey;
 }
 
 interface ILink {
@@ -23,6 +30,12 @@ interface IGroupTick {
   data: HierarchyRectangularNode<IADSApiPaperNetworkSummaryGraphNode>;
 }
 
+interface ILabel {
+  label: string;
+  value: number;
+  id: number;
+}
+
 const width = 300;
 
 // const radius = width / 1.5;
@@ -31,12 +44,18 @@ const outerRadius = width * 0.33;
 
 const innerRadius = width * 0.21;
 
-export const PaperNetworkGraph = ({ nodes_data, links_data, onClickNode }: IPaperNetworkGraphProps): ReactElement => {
+export const PaperNetworkGraph = ({
+  nodes_data,
+  links_data,
+  onClickNode,
+  keyToUseAsValue,
+}: IPaperNetworkGraphProps): ReactElement => {
   const [selectedNode, setSelectedNode] = useState<IADSApiPaperNetworkSummaryGraphNode>();
 
   const { partition, arc, line, nodeFill, fontScale, linkScale } = usePaperNetworkGraph(
     nodes_data,
     links_data,
+    keyToUseAsValue,
     innerRadius,
     outerRadius,
   );
@@ -69,7 +88,7 @@ export const PaperNetworkGraph = ({ nodes_data, links_data, onClickNode }: IPape
     [nodes_data],
   );
 
-  const graphNodesData = useMemo(() => partition(fake_root), [fake_root]);
+  const graphRoot = useMemo(() => partition(fake_root), [partition, fake_root]);
 
   // build graph links from links data
   const parseLinks = (links_data: IADSApiPaperNetworkSummaryGraph['links']): ILink[] => {
@@ -92,24 +111,96 @@ export const PaperNetworkGraph = ({ nodes_data, links_data, onClickNode }: IPape
   };
 
   const groupTicks: IGroupTick[] = useMemo(() => {
-    return graphNodesData.children.map((d) => ({
+    return graphRoot.children.map((d) => ({
       angle: (d.x0 + d.x1) / 2,
       label: d.data.node_label,
       data: d,
     }));
-  }, [graphNodesData]);
+  }, [graphRoot]);
 
-  const getlabelsList = (d: IGroupTick) => {
+  const getlabelsList = (d: IGroupTick): ILabel[] =>
     // word list
     // convert to [label, idf], sorted by highest idf, take the top 5
-    const labels = Object.entries(d.label)
+    Object.entries(d.label)
       .sort((a, b) => {
         return b[1] - a[1];
       })
-      .slice(0, 5);
+      .slice(0, 5)
+      .map((label) => ({ label: label[0], value: label[1], id: d.data.data.id }));
 
-    return labels.map((label) => ({ label: label[0], value: label[1], id: d.data.data.id }));
+  // transition nodes for view change
+  const transitionNodePaths = (root: HierarchyRectangularNode<IADSApiPaperNetworkSummaryGraphNode>) => {
+    d3.selectAll<ADSSVGPathElement, unknown>('.node-path')
+      .data(root.descendants().slice(1))
+      .join<ADSSVGPathElement>('path')
+      .transition()
+      .duration(1500)
+      .attrTween('d', function (d) {
+        const i = d3.interpolateObject(this.lastAngle, d);
+        this.lastAngle = { x0: d.x0, x1: d.x1 }; // cache current angle
+        return (t: number) => {
+          return arc(i(t));
+        };
+      });
   };
+
+  // transition node labels for view change
+  const transitionNodeLabels = useCallback(
+    (root: HierarchyRectangularNode<IADSApiPaperNetworkSummaryGraphNode>, key: IADSApiPaperNetworkNodeKey) => {
+      const labelvalues: number[] = [];
+      groupTicks.forEach((d) => labelvalues.push(d.data.value));
+      const labelSum = d3.sum(labelvalues);
+
+      // position
+      const groups = d3
+        .selectAll('.groupLabel')
+        .data(groupTicks)
+        .transition()
+        .duration(1000)
+        .attr('transform', (d) => `rotate(${(d.angle * 180) / Math.PI - 90}) translate(${(outerRadius * 1) / 1},0)`);
+
+      // angle
+      d3.selectAll<BaseType, IGroupTick>('.summary-label-container')
+        .data(groupTicks)
+        .classed('hidden', (d) => d.data.value / labelSum < 0.08)
+        .transition()
+        .duration(1000)
+        .attr('transform', (d) => `rotate(${-((d.angle * 180) / Math.PI - 90)})`);
+
+      // size
+      groups
+        .selectAll<BaseType, ILabel>('text')
+        .attr('y', function (d, i) {
+          // y position for each word
+          const size = nodes_data.find((n) => n.id === d.id)[key];
+          return i * fontScale(size) - 30;
+        })
+        .attr('font-size', (d) => {
+          const size = nodes_data.find((n) => n.id === d.id)[key];
+          return `${fontScale(size)}px`;
+        });
+    },
+    [groupTicks, fontScale],
+  );
+
+  // transition links for view change
+  const transitionLinks = useCallback(
+    (links: ILink[]) => {
+      d3.selectAll('.link')
+        .data(links)
+        .transition()
+        .duration(1000)
+        .attr('d', (d) => line(d.source.path(d.target)));
+    },
+    [line],
+  );
+
+  // When view changes, transition elements on graph
+  useEffect(() => {
+    transitionNodePaths(graphRoot);
+    transitionNodeLabels(graphRoot, keyToUseAsValue);
+    transitionLinks(parseLinks(links_data));
+  }, [graphRoot]);
 
   // ---  rendering ----
 
@@ -131,7 +222,7 @@ export const PaperNetworkGraph = ({ nodes_data, links_data, onClickNode }: IPape
   };
 
   const renderFunction = useCallback(
-    (svg: Selection<SVGSVGElement, unknown, HTMLElement, any>) => {
+    (svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>) => {
       svg.selectAll('*').remove();
 
       svg.attr('viewBox', [0, 0, width, width]).style('font', '10px sans-serif').classed('network-graph-svg', true);
@@ -152,7 +243,7 @@ export const PaperNetworkGraph = ({ nodes_data, links_data, onClickNode }: IPape
 
       // Nodes
       g.selectAll('path')
-        .data(graphNodesData.descendants().slice(1)) // exclude the fake root
+        .data(graphRoot.descendants().slice(1)) // exclude the fake root
         .join('path')
         .classed('node-path', true)
         .attr('fill', nodeFill)
@@ -167,18 +258,18 @@ export const PaperNetworkGraph = ({ nodes_data, links_data, onClickNode }: IPape
       renderLinkLayer(g);
 
       // labels
-      const labelSum: number[] = [];
+      const labeValues: number[] = [];
 
       const ticks = g
         .selectAll('.groupLabel')
         .data(groupTicks)
         .enter()
         .append('g')
-        .each((d) => labelSum.push(d.data.value))
+        .each((d) => labeValues.push(d.data.value))
         .classed('groupLabel', true)
         .attr('transform', (d) => `rotate(${(d.angle * 180) / Math.PI - 90}) translate(${(outerRadius * 1) / 1},0)`);
 
-      const sum = d3.sum(labelSum);
+      const labelSum = d3.sum(labeValues);
 
       // labels
       const text = ticks
@@ -187,7 +278,7 @@ export const PaperNetworkGraph = ({ nodes_data, links_data, onClickNode }: IPape
         .attr('dy', '.5em')
         .attr('transform', (d) => `rotate(${-((d.angle * 180) / Math.PI - 90)})`)
         .classed('summary-label-container', true)
-        .classed('hidden', (d) => d.data.value / sum < 0.08)
+        .classed('hidden', (d) => d.data.value / labelSum < 0.08)
         .selectAll('text')
         .data(getlabelsList)
         .enter()
@@ -197,11 +288,11 @@ export const PaperNetworkGraph = ({ nodes_data, links_data, onClickNode }: IPape
         .attr('text-anchor', 'middle')
         .attr('y', (d, i) => {
           // y position for each word
-          const size = nodes_data.find((n) => n.id === d.id).paper_count;
+          const size = nodes_data.find((n) => n.id === d.id)[keyToUseAsValue];
           return i * fontScale(size) - 30;
         })
         .attr('font-size', (d) => {
-          const size = nodes_data.find((n) => n.id === d.id).paper_count;
+          const size = nodes_data.find((n) => n.id === d.id)[keyToUseAsValue];
           return `${fontScale(size)}px`;
         })
         .text((d) => d.label);

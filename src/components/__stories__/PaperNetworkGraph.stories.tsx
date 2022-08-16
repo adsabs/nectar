@@ -20,4 +20,5 @@ Default.args = {
   onClickNode: (node: IADSApiPaperNetworkSummaryGraphNode) => {
     console.log(`clicked: ${node.node_name}`);
   },
+  keyToUseAsValue: 'paper_count',
 };
