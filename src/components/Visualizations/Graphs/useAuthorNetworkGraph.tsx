@@ -45,7 +45,7 @@ export const useAuthorNetworkGraph = (
       // data to node in tree structure
       const root = d3
         .hierarchy<IADSApiAuthorNetworkNode>(data)
-        .sum((d) => (d[keyToUseAsValue] ? (d[keyToUseAsValue] as number) : 0))
+        .sum((d) => (d[keyToUseAsValue] ? d[keyToUseAsValue] : 0))
         .sort((a, b) => b.data.size - a.data.size); // in all views, always sort by size
       const p = d3.partition<IADSApiAuthorNetworkNode>().size([2 * Math.PI, +root.height + 1])(root); // add x (angle), y (distance) to tree structure
       return p as NetworkHierarchyNode<IADSApiAuthorNetworkNode>;

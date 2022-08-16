@@ -29,8 +29,8 @@ export interface IADSApiAuthorNetworkNode {
   size?: number;
 }
 
-export type IADSApiPaperNodeKey = keyof IADSApiPaperNetworkSummaryGraphNode;
-export type IADSApiAuthorNetworkNodeKey = keyof IADSApiAuthorNetworkNode;
+export type IADSApiPaperNetworkNodeKey = 'paper_count' | 'total_citations' | 'total_reads';
+export type IADSApiAuthorNetworkNodeKey = 'size' | 'citation_count' | 'read_count';
 
 export interface IADSApiPaperNetworkResponse {
   data: { summaryGraph: IADSApiPaperNetworkSummaryGraph; fullGraph: IADSApiPaperNetworkFullGraph };

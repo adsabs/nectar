@@ -18,10 +18,11 @@ import { decode } from 'he';
 import { useRouter } from 'next/router';
 import { countBy, reverse, sortBy, uniq } from 'ramda';
 import { ReactElement, Reducer, useEffect, useMemo, useReducer, useState } from 'react';
-import { IView, AuthorNetworkGraphPane } from '../GraphPanes';
+import { AuthorNetworkGraphPane } from '../GraphPanes';
 import { ILineGraph } from '../types';
 import { getAuthorNetworkSummaryGraph } from '../utils';
 import { NotEnoughData } from '../NotEnoughData';
+import { IView } from '../GraphPanes/types';
 
 interface IAuthorNetworkPageContainerProps {
   query: IADSApiSearchParams;

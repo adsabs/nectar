@@ -1,4 +1,5 @@
-import { IAuthorNetworkGraphPaneProps, IView, AuthorNetworkGraphPane } from '@components';
+import { IAuthorNetworkGraphPaneProps, AuthorNetworkGraphPane } from '@components';
+import { IView } from '@components/Visualizations/GraphPanes/types';
 import { response } from '@components/__mocks__/networkResponseData';
 import { Meta, Story } from '@storybook/react';
 import { noop } from '@utils';

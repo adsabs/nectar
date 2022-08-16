@@ -2,6 +2,7 @@ import { IADSApiAuthorNetworkNode, IADSApiAuthorNetworkNodeKey } from '@api';
 import { Radio, RadioGroup, Stack, Text, Input, Button, FormControl, FormLabel, Switch } from '@chakra-ui/react';
 import { ChangeEvent, KeyboardEvent, ReactElement, useState } from 'react';
 import { AuthorNetworkGraph } from '../Graphs/AuthorNetworkGraph';
+import { IView } from './types';
 
 export interface IAuthorNetworkGraphPaneProps {
   root: IADSApiAuthorNetworkNode;
@@ -12,13 +13,6 @@ export interface IAuthorNetworkGraphPaneProps {
   maxPaperLimit: number;
   paperLimit: number;
 }
-
-export interface IView {
-  id: string;
-  label: string;
-  valueToUse: IADSApiAuthorNetworkNodeKey;
-}
-
 /**
  *
  * @returns Network graph and its controls
@@ -64,7 +58,7 @@ export const AuthorNetworkGraphPane = ({
         link_data={link_data}
         showLinkLayer={showLinkLayer}
         onClickNode={onClickNode}
-        keyToUseAsValue={view.valueToUse}
+        keyToUseAsValue={view.valueToUse as IADSApiAuthorNetworkNodeKey}
       />
     </Stack>
   );

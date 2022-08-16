@@ -4,6 +4,7 @@ import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { BaseType, D3ZoomEvent, HierarchyRectangularNode, Selection } from 'd3';
 import { IADSApiAuthorNetworkNode, IADSApiAuthorNetworkNodeKey } from '@api';
 import { useAuthorNetworkGraph } from './useAuthorNetworkGraph';
+import { ADSSVGPathElement } from './types';
 export interface IAuthorNetworkGraphProps {
   root: IADSApiAuthorNetworkNode;
   link_data: number[][];
@@ -16,9 +17,6 @@ export interface NetworkHierarchyNode<Datum> extends HierarchyRectangularNode<Da
   color: string; // cache color data
 }
 
-export interface ADSSVGPathElement extends SVGPathElement {
-  lastAngle: { x0: number; x1: number };
-}
 export interface ILink {
   source: NetworkHierarchyNode<IADSApiAuthorNetworkNode>;
   target: NetworkHierarchyNode<IADSApiAuthorNetworkNode>;
