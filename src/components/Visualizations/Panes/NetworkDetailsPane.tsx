@@ -93,7 +93,7 @@ const SummaryPane = ({ summaryGraph }: { summaryGraph: ILineGraph }) => {
       ) : (
         <>
           <Text>Group Activity Over Time (measured in papers published)</Text>
-          <LineGraph data={summaryGraph.data} ticks={getLineGraphXTicks(summaryGraph.data, 5)} />
+          <LineGraph data={summaryGraph.data} ticks={getLineGraphXTicks(summaryGraph.data, 5)} xScaleType="linear" />
         </>
       )}
     </>

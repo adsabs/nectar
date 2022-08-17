@@ -256,7 +256,9 @@ const IndicesSection = ({
             Indices
           </Heading>
           {indicesTable && <IndicesTable data={computedTable} />}
-          {indicesGraph && <LineGraph data={indicesGraph.data} ticks={getLineGraphXTicks(indicesGraph.data, 5)} />}
+          {indicesGraph && (
+            <LineGraph data={indicesGraph.data} ticks={getLineGraphXTicks(indicesGraph.data, 5)} xScaleType="point" />
+          )}
           {!indicesGraph && isLoading && <CircularProgress mt={5} isIndeterminate />}
           {!indicesGraph && isErrorMetrics && (
             <Alert status="error" my={5}>
@@ -265,7 +267,9 @@ const IndicesSection = ({
               <AlertDescription>{axios.isAxiosError(errorMetrics) && errorMetrics.message}</AlertDescription>
             </Alert>
           )}
-          {computedGraph && <LineGraph data={computedGraph.data} ticks={getLineGraphXTicks(computedGraph.data, 5)} />}
+          {computedGraph && (
+            <LineGraph data={computedGraph.data} ticks={getLineGraphXTicks(computedGraph.data, 5)} xScaleType="point" />
+          )}
         </Box>
       ) : (
         <Text>No data</Text>

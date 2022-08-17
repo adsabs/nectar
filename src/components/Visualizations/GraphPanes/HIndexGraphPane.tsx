@@ -126,7 +126,8 @@ export const HIndexGraphPane = ({ buckets, sum, type, onApplyCondition }: IHInde
                 data={transformedGraph.data}
                 ticks={getLineGraphXTicks(transformedGraph.data, 10)}
                 showLegend={false}
-                type={yaxis}
+                yScaleType={yaxis}
+                xScaleType="linear"
               />
               <Slider
                 aria-label="limit slider"
