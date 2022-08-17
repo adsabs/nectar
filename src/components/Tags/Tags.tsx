@@ -2,8 +2,8 @@ import { Box, BoxProps, Tag, TagCloseButton, TagLabel, Text, Flex, CloseButton }
 import { ReactElement, MouseEvent } from 'react';
 
 export interface ITagItem {
-  id: string;
-  label: string;
+  id: string | number;
+  label: string | number;
 }
 
 export interface ITagsProps extends BoxProps {

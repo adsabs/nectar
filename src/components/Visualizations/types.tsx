@@ -103,3 +103,5 @@ export type FacetField = 'year' | 'citation_count' | 'read_count';
 export type Y_Axis = 'linear' | 'log';
 
 export type X_Axis = 'linear' | 'point';
+
+export type NetworkType = 'author' | 'paper';

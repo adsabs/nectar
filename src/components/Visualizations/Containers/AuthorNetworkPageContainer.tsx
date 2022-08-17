@@ -3,7 +3,7 @@ import { IADSApiAuthorNetworkNode, IBibcodeDict } from '@api/vis/types';
 import { useGetAuthorNetwork } from '@api/vis/vis';
 import { Box, Button, SimpleGrid, Stack, Text, useToast } from '@chakra-ui/react';
 import {
-  INodeDetails,
+  IAuthorNetworkNodeDetails,
   NetworkDetailsPane,
   Expandable,
   SimpleLink,
@@ -41,15 +41,15 @@ const views: IView[] = [
 
 interface IAuthorNetworkPageState {
   rowsToFetch: number;
-  selected: INodeDetails; // User selected graph node (group, author)
-  filters: INodeDetails[]; // Selected filters (group, author)
+  selected: IAuthorNetworkNodeDetails; // User selected graph node (group, author)
+  filters: IAuthorNetworkNodeDetails[]; // Selected filters (group, author)
 }
 
 type AuthorNetworkPageAction =
   | { type: 'CHANGE_PAPER_LIMIT'; payload: number }
   | { type: 'SET_SELECTED'; payload: { node: IADSApiAuthorNetworkNode; dict: IBibcodeDict } }
-  | { type: 'ADD_FILTER'; payload: INodeDetails }
-  | { type: 'REMOVE_FILTER'; payload: INodeDetails }
+  | { type: 'ADD_FILTER'; payload: IAuthorNetworkNodeDetails }
+  | { type: 'REMOVE_FILTER'; payload: IAuthorNetworkNodeDetails }
   | { type: 'REMOVE_FILTER_TAG'; payload: ITagItem }
   | { type: 'CLEAR_FILTERS' };
 
@@ -295,7 +295,7 @@ const FilterSearchBar = ({
 };
 
 // Get individual node details
-const getNodeDetails = (node: IADSApiAuthorNetworkNode, bibcode_dict: IBibcodeDict): INodeDetails => {
+const getNodeDetails = (node: IADSApiAuthorNetworkNode, bibcode_dict: IBibcodeDict): IAuthorNetworkNodeDetails => {
   // if selected an author node
   if (!('children' in node)) {
     const bibcodes = uniq(node.papers);

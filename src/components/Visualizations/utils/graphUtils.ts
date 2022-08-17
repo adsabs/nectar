@@ -12,10 +12,10 @@ import {
   TimeSeriesKey,
   TimeSeriesType,
 } from '@api';
-import { IADSApiAuthorNetworkResponse } from '@api/vis/types';
+import { IADSApiAuthorNetworkResponse, IADSApiPaperNetworkResponse } from '@api/vis/types';
 import { Datum, Serie } from '@nivo/line';
 import * as d3 from 'd3';
-import { countBy, divide, range, reduce, uniq } from 'ramda';
+import { countBy, divide, pluck, range, reduce, uniq } from 'ramda';
 import {
   IBarGraph,
   ICitationsTableData,
@@ -424,6 +424,55 @@ export const getAuthorNetworkSummaryGraph = (response: IADSApiAuthorNetworkRespo
 
     data.push({ id: group.name as string, data: graphData });
   });
+
+  return { data };
+};
+
+/**
+ * Create paper network summary graph from paper network data
+ * */
+export const getPaperNetworkSummaryGraph = (response: IADSApiPaperNetworkResponse): ILineGraph => {
+  const summaryGraph = response.data.summaryGraph;
+  const fullGraph = response.data.fullGraph;
+  const data: Serie[] = [];
+  const nameMap = new Map<number, string[]>();
+
+  /* id is how you tie an entry in the summary graph with an entry in the full graph */
+
+  const ids = pluck('id', summaryGraph.nodes);
+  const names = pluck('node_name', summaryGraph.nodes);
+
+  ids.forEach((id, index) => {
+    const filteredNodes = fullGraph.nodes.filter((n) => n.group === id);
+    nameMap.set(names[index], pluck('node_name', filteredNodes));
+  });
+
+  nameMap.forEach((nodeNames, groupName) => {
+    if (groupName > 6) {
+      return;
+    }
+
+    const bibcodes = uniq(nodeNames);
+
+    // years
+    const years = uniq(bibcodes.map((bibcode) => parseInt(bibcode.slice(0, 4))));
+    const yearsRange = d3.extent(years);
+    const allYears = range(yearsRange[0], yearsRange[1]); // fill in the years gap
+
+    // prefill all years with 0 count values
+    const skeleton: { [key in string]: number } = {};
+    allYears.forEach((year) => (skeleton[year.toString()] = 0));
+
+    // all papers in this group into year and paper count [ ... {year: count} ]
+    const yearPaperCount = { ...skeleton, ...countBy((bibcode) => bibcode.slice(0, 4), bibcodes) };
+
+    // convert graph data to [ ... {x: year, y: count} ]
+    const graphData = Object.entries(yearPaperCount).map(([year, count]) => ({ x: year, y: count }));
+
+    data.push({ id: groupName, data: graphData });
+  });
+
+  data.sort((a, b) => (a.id as number) - (b.id as number));
 
   return { data };
 };
