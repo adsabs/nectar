@@ -86,7 +86,7 @@ export const useAuthorNetworkGraph = (
         return d.y0 * radius;
       })
       .outerRadius((d) => Math.max(d.y1 * radius - 1)); // - 1 for gap
-  }, []);
+  }, [radius]);
 
   // function that gives the font size for a tree node based on value
   const occurrencesFontScale = useMemo(() => {
