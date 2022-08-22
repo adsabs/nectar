@@ -91,7 +91,7 @@ export const useGetFacetTreeData = (props: UseGetFacetTreeDataProps) => {
     hasChildren,
     query: facetQuery,
   });
-  const { data, ...result } = useGetSearchFacetCounts(params, { enabled });
+  const { data, ...result } = useGetSearchFacetCounts(params, { enabled, retry: 0 });
 
   // simple handler for fetching more items, this will increment the offset
   const handleLoadMore = useCallback(() => {
