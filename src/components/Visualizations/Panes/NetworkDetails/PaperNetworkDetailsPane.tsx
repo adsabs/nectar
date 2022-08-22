@@ -1,5 +1,20 @@
 import { IADSApiPaperNetworkSummaryGraphNode, IADSApiPaperNetworkFullGraphNode } from '@api';
-import { Text, Tab, TabList, TabPanel, TabPanels, Tabs, Box, List, ListItem } from '@chakra-ui/react';
+import {
+  Text,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Box,
+  List,
+  ListItem,
+  Table,
+  Thead,
+  Tr,
+  Th,
+  Tbody,
+} from '@chakra-ui/react';
 import { SimpleLink } from '@components/SimpleLink';
 import { ReactElement, useEffect, useState } from 'react';
 import { ILineGraph } from '../../types';
@@ -16,8 +31,15 @@ export interface IPaperNetworkNodeDetails extends IADSApiPaperNetworkSummaryGrap
   }[];
 }
 
+export interface IPaperNetworkLinkDetails {
+  groupOne: { name: string; color: string };
+  groupTwo: { name: string; color: string };
+  papers: { bibcode: string; percent1: number; percent2: number }[];
+}
+
 export type PaperNetworkDetailsProps = {
-  node: IPaperNetworkNodeDetails;
+  node?: IPaperNetworkNodeDetails;
+  link?: IPaperNetworkLinkDetails;
   summaryGraph: ILineGraph;
   onAddToFilter: (node: IPaperNetworkNodeDetails) => void;
   onRemoveFromFilter: (node: IPaperNetworkNodeDetails) => void;
@@ -26,6 +48,7 @@ export type PaperNetworkDetailsProps = {
 
 export const PaperNetworkDetailsPane = ({
   node,
+  link,
   summaryGraph,
   onAddToFilter,
   onRemoveFromFilter,
@@ -35,10 +58,10 @@ export const PaperNetworkDetailsPane = ({
 
   // when selected node changes, change tab to node details
   useEffect(() => {
-    if (node) {
+    if (node || link) {
       setTabIndex(1);
     }
-  }, [node]);
+  }, [node, link]);
 
   const handleTabIndexChange = (index: number) => {
     setTabIndex(index);
@@ -72,6 +95,8 @@ export const PaperNetworkDetailsPane = ({
               onAddToFilter={handleAddToFilter}
               onRemoveFromFilter={handleRemoveFromFilter}
             />
+          ) : link ? (
+            <ReferencesList link={link} />
           ) : (
             <span>Select an item from the graph to view its details</span>
           )}
@@ -120,6 +145,39 @@ const PapersList = ({ node }: { node: IPaperNetworkNodeDetails }): ReactElement 
             </ListItem>
           ))}
       </List>
+    </Box>
+  );
+};
+
+const ReferencesList = ({ link }: { link: IPaperNetworkLinkDetails }): ReactElement => {
+  const { groupOne, groupTwo, papers } = link;
+  return (
+    <Box mt={5}>
+      <Text as="h3" fontSize="xl" fontWeight="bold">
+        References From Both <span style={{ color: groupOne.color }}>{groupOne.name}</span> and{' '}
+        <span style={{ color: groupTwo.color }}>{groupTwo.name}</span>
+      </Text>
+      <Text>The groups have {papers.length} unique references in common</Text>
+      <Table mt={5}>
+        <Thead>
+          <Tr>
+            <Th>Papers</Th>
+            <Th>{groupOne.name}</Th>
+            <Th>{groupTwo.name}</Th>
+          </Tr>
+        </Thead>
+        <Tbody>
+          {papers.map((p) => (
+            <Tr key={`ref-${p.bibcode}`}>
+              <Th>
+                <SimpleLink href={`/abs/${p.bibcode}`}>{p.bibcode}</SimpleLink>
+              </Th>
+              <Th>{`${p.percent1.toFixed(2)}%`}</Th>
+              <Th>{`${p.percent2.toFixed(2)}%`}</Th>
+            </Tr>
+          ))}
+        </Tbody>
+      </Table>
     </Box>
   );
 };

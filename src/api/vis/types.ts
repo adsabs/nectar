@@ -69,6 +69,7 @@ export interface IADSApiPaperNetworkFullGraph {
   graph: number[];
   nodes: IADSApiPaperNetworkFullGraphNode[];
   links: {
+    overlap: string[];
     source: number;
     target: number;
     weight: number;

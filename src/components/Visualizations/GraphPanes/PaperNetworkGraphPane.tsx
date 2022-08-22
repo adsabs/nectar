@@ -10,6 +10,12 @@ export interface IPaperNetworkGraphPaneProps {
   links_data: IADSApiPaperNetworkSummaryGraph['links'];
   views: IView[];
   onClickNode?: (node: IADSApiPaperNetworkSummaryGraphNode) => void;
+  onClickLink: (
+    source: IADSApiPaperNetworkSummaryGraphNode,
+    sourceColor: string,
+    target: IADSApiPaperNetworkSummaryGraphNode,
+    targetColor: string,
+  ) => void;
   onChangePaperLimit: (limit: number) => void;
   maxPaperLimit: number;
   paperLimit: number;
@@ -24,6 +30,7 @@ export const PaperNetworkGraphPane = ({
   links_data,
   views,
   onClickNode,
+  onClickLink,
   onChangePaperLimit: onChagePaperLimit,
   paperLimit,
   maxPaperLimit,
@@ -52,9 +59,7 @@ export const PaperNetworkGraphPane = ({
         nodes_data={nodes_data}
         links_data={links_data}
         onClickNode={onClickNode}
-        onClickLink={() => {
-          undefined;
-        }}
+        onClickLink={onClickLink}
         keyToUseAsValue={view.valueToUse as IADSApiPaperNetworkNodeKey}
       />
     </Stack>

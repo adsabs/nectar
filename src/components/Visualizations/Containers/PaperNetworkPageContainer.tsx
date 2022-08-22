@@ -7,14 +7,14 @@ import { ITagItem, Tags } from '@components/Tags';
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { pluck, prop, sortBy, uniq } from 'ramda';
+import { flatten, intersection, pluck, prop, sortBy, uniq } from 'ramda';
 import { ReactElement, Reducer, useEffect, useMemo, useReducer, useState } from 'react';
 import { PaperNetworkGraphPane } from '../GraphPanes';
 import { ILineGraph } from '../types';
 import { getPaperNetworkSummaryGraph } from '../utils';
 import { NotEnoughData } from '../NotEnoughData';
 import { IView } from '../GraphPanes/types';
-import { IPaperNetworkNodeDetails, PaperNetworkDetailsPane } from '../Panes/NetworkDetails';
+import { IPaperNetworkLinkDetails, IPaperNetworkNodeDetails, PaperNetworkDetailsPane } from '../Panes/NetworkDetails';
 
 interface IPaperNetworkPageContainerProps {
   query: IADSApiSearchParams;
@@ -33,15 +33,26 @@ const views: IView[] = [
 
 interface IPaperNetworkPageState {
   rowsToFetch: number;
-  selected: IPaperNetworkNodeDetails; // User selected graph node (group)
+  selectedNode: IPaperNetworkNodeDetails; // User selected graph node (group)
+  selectedLink: IPaperNetworkLinkDetails; // use selected graph link
   filters: IPaperNetworkNodeDetails[]; // Selected filters (groups)
 }
 
 type PaperNetworkPageAction =
   | { type: 'CHANGE_PAPER_LIMIT'; payload: number }
   | {
-      type: 'SET_SELECTED';
+      type: 'SET_SELECTED_NODE';
       payload: { node: IADSApiPaperNetworkSummaryGraphNode; fullGraph: IADSApiPaperNetworkFullGraph };
+    }
+  | {
+      type: 'SET_SELECTED_LINK';
+      payload: {
+        source: IADSApiPaperNetworkSummaryGraphNode;
+        sourceColor: string;
+        target: IADSApiPaperNetworkSummaryGraphNode;
+        targetColor: string;
+        fullGraph: IADSApiPaperNetworkFullGraph;
+      };
     }
   | { type: 'ADD_FILTER'; payload: IPaperNetworkNodeDetails }
   | { type: 'REMOVE_FILTER'; payload: IPaperNetworkNodeDetails }
@@ -57,8 +68,24 @@ export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerP
     switch (action.type) {
       case 'CHANGE_PAPER_LIMIT':
         return { ...state, rowsToFetch: action.payload };
-      case 'SET_SELECTED':
-        return { ...state, selected: getNodeDetails(action.payload.node, action.payload.fullGraph) };
+      case 'SET_SELECTED_NODE':
+        return {
+          ...state,
+          selectedLink: null,
+          selectedNode: getNodeDetails(action.payload.node, action.payload.fullGraph),
+        };
+      case 'SET_SELECTED_LINK':
+        return {
+          ...state,
+          selectedNode: null,
+          selectedLink: getLinkDetails(
+            action.payload.source,
+            action.payload.sourceColor,
+            action.payload.target,
+            action.payload.targetColor,
+            action.payload.fullGraph,
+          ),
+        };
       case 'ADD_FILTER':
         return { ...state, filters: uniq([...state.filters, action.payload]) };
       case 'REMOVE_FILTER':
@@ -74,7 +101,8 @@ export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerP
 
   const [state, dispatch] = useReducer(reducer, {
     rowsToFetch: DEFAULT_ROWS_TO_FETCH,
-    selected: null,
+    selectedNode: null,
+    selectedLink: null,
     filters: [],
   });
 
@@ -198,7 +226,13 @@ export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerP
               links_data={paperNetworkData.data.summaryGraph.links}
               views={views}
               onClickNode={(node) =>
-                dispatch({ type: 'SET_SELECTED', payload: { node, fullGraph: paperNetworkData.data.fullGraph } })
+                dispatch({ type: 'SET_SELECTED_NODE', payload: { node, fullGraph: paperNetworkData.data.fullGraph } })
+              }
+              onClickLink={(source, sourceColor, target, targetColor) =>
+                dispatch({
+                  type: 'SET_SELECTED_LINK',
+                  payload: { source, sourceColor, target, targetColor, fullGraph: paperNetworkData.data.fullGraph },
+                })
               }
               onChangePaperLimit={(limit) => dispatch({ type: 'CHANGE_PAPER_LIMIT', payload: limit })}
               paperLimit={state.rowsToFetch}
@@ -214,10 +248,11 @@ export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerP
             />
             <PaperNetworkDetailsPane
               summaryGraph={paperNetworkSummaryGraph}
-              node={state.selected}
+              node={state.selectedNode}
+              link={state.selectedLink}
               onAddToFilter={(node) => dispatch({ type: 'ADD_FILTER', payload: node })}
               onRemoveFromFilter={(node) => dispatch({ type: 'REMOVE_FILTER', payload: node })}
-              canAddAsFilter={state.filters.findIndex((f) => f.id === state.selected.id) === -1}
+              canAddAsFilter={state.filters.findIndex((f) => f.id === state.selectedNode.id) === -1}
             />
           </Box>
         </SimpleGrid>
@@ -295,79 +330,6 @@ const getNodeDetails = (
   node: IADSApiPaperNetworkSummaryGraphNode,
   fullGraph: IADSApiPaperNetworkFullGraph,
 ): IPaperNetworkNodeDetails => {
-  // if (_.isArray(entity)) {
-  //   var id1;
-  //   var id2;
-  //   var links1;
-  //   var links2;
-  //   var allReferences1;
-  //   var allReferences2;
-  //   var shared = [];
-  //   // find references in common
-  //   id1 = entity[0].data.id;
-  //   id2 = entity[1].data.id;
-
-  //   links1 = that.getAllLinks(id1);
-  //   links2 = that.getAllLinks(id2);
-
-  //   allReferences1 = _.flatten(_.pluck(links1, 'overlap'));
-  //   allReferences2 = _.flatten(_.pluck(links2, 'overlap'));
-
-  //   _.each(_.intersection(allReferences1, allReferences2), function(s) {
-  //     var percent1 =
-  //       _.filter(allReferences1, function(b) {
-  //         return b == s;
-  //       }).length / allReferences1.length;
-
-  //     var percent2 =
-  //       _.filter(allReferences2, function(b) {
-  //         return b == s;
-  //       }).length / allReferences2.length;
-
-  //     shared.push({
-  //       name: s,
-  //       percentOne: percent1 * 100,
-  //       percentTwo: percent2 * 100,
-  //     });
-  //   });
-
-  //   shared = _.sortBy(shared, function(s) {
-  //     return s.percentOne * s.percentTwo;
-  //   }).reverse();
-  //   data.shared = shared;
-  //   _.each(data.shared, function(s, i) {
-  //     data.shared[i].percentOne = data.shared[i].percentOne.toFixed(2);
-  //     data.shared[i].percentTwo = data.shared[i].percentTwo.toFixed(2);
-  //   });
-
-  //   data.group1 = {
-  //     name: _.findWhere(this.model.get('graphData').summaryGraph.nodes, {
-  //       id: id1,
-  //     }).node_name,
-  //   };
-  //   data.group1.color =
-  //     data.group1.name < 8
-  //       ? that.scales.fill(data.group1.name)
-  //       : that.config.noGroupColor;
-
-  //   data.group2 = {
-  //     name: _.findWhere(this.model.get('graphData').summaryGraph.nodes, {
-  //       id: id2,
-  //     }).node_name,
-  //   };
-  //   data.group2.color =
-  //     data.group1.name < 8
-  //       ? that.scales.fill(data.group2.name)
-  //       : that.config.noGroupColor;
-
-  //   data.referencesLength = data.shared.length;
-
-  //   // not actually located within this view, so slightly messy
-  //   $('.details-container #selected-item').html(LinkDataTemplate(data));
-  // }
-  // // it's a node id
-  // else {
-
   // make a copy
   const titleWords = Object.keys(node.node_label);
 
@@ -385,4 +347,54 @@ const getNodeDetails = (
   const allPapers = sortBy(prop('citation_count'), filteredNodes).reverse();
 
   return { ...node, titleWords, allPapers, topCommonReferences };
+};
+
+const getAllLinks = (id: number, fullGraph: IADSApiPaperNetworkFullGraph) => {
+  const indexes: number[] = [];
+  const links: IADSApiPaperNetworkFullGraph['links'] = [];
+
+  fullGraph.nodes.forEach((n, i) => {
+    if (n.group === id) {
+      indexes.push(i);
+    }
+  });
+  fullGraph.links.forEach((l) => {
+    if (indexes.indexOf(l.source) !== -1 || indexes.indexOf(l.target) !== -1) {
+      links.push(l);
+    }
+  });
+  return links;
+};
+
+// get link details
+const getLinkDetails = (
+  source: IADSApiPaperNetworkSummaryGraphNode,
+  sourceColor: string,
+  target: IADSApiPaperNetworkSummaryGraphNode,
+  targetColor: string,
+  fullGraph: IADSApiPaperNetworkFullGraph,
+): IPaperNetworkLinkDetails => {
+  // find references in common
+
+  const links1 = getAllLinks(source.id, fullGraph);
+  const links2 = getAllLinks(target.id, fullGraph);
+
+  const allReferences1 = flatten(pluck('overlap', links1));
+  const allReferences2 = flatten(pluck('overlap', links2));
+
+  // shared references
+  const references: IPaperNetworkLinkDetails['papers'] = [];
+  intersection(allReferences1, allReferences2).forEach((b) => {
+    const percent1 = allReferences1.filter((b1) => b1 === b).length / allReferences1.length;
+    const percent2 = allReferences2.filter((b1) => b1 === b).length / allReferences2.length;
+    references.push({ bibcode: b, percent1: percent1 * 100, percent2: percent2 * 100 });
+  });
+
+  references.sort((a, b) => b.percent1 * b.percent2 - a.percent1 * a.percent2);
+
+  return {
+    groupOne: { name: `Group ${source.node_name}`, color: sourceColor },
+    groupTwo: { name: `Group ${target.node_name}`, color: targetColor },
+    papers: references,
+  };
 };

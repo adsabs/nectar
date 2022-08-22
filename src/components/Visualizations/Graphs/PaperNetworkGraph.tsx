@@ -15,7 +15,12 @@ export interface IPaperNetworkGraphProps {
   nodes_data: IADSApiPaperNetworkSummaryGraph['nodes'];
   links_data: IADSApiPaperNetworkSummaryGraph['links'];
   onClickNode: (node: IADSApiPaperNetworkSummaryGraphNode) => void;
-  onClickLink: (source: IADSApiPaperNetworkSummaryGraphNode, target: IADSApiPaperNetworkSummaryGraphNode) => void;
+  onClickLink: (
+    source: IADSApiPaperNetworkSummaryGraphNode,
+    sourceColor: string,
+    target: IADSApiPaperNetworkSummaryGraphNode,
+    targetColor: string,
+  ) => void;
   keyToUseAsValue: IADSApiPaperNetworkNodeKey;
 }
 
@@ -78,7 +83,12 @@ export const PaperNetworkGraph = ({
         d3.selectAll<BaseType, ILink>('.link').classed('selected', false);
       } else {
         // selected link
-        onClickLink(selectedNode.source.data, selectedNode.target.data);
+        onClickLink(
+          selectedNode.source.data,
+          nodeFill(selectedNode.source),
+          selectedNode.target.data,
+          nodeFill(selectedNode.target),
+        );
 
         // clear all group highlights
         d3.selectAll<BaseType, HierarchyRectangularNode<IADSApiPaperNetworkSummaryGraphNode>>('.node-path').classed(
