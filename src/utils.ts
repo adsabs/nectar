@@ -6,7 +6,7 @@ import { GetServerSidePropsContext, GetServerSidePropsResult, NextApiRequest, Ne
 import { useRouter } from 'next/router';
 import qs from 'qs';
 import { ParsedUrlQuery } from 'querystring';
-import { clamp, filter, is, last, omit, propIs, uniq } from 'ramda';
+import { clamp, filter, is, keys, last, omit, propIs, uniq } from 'ramda';
 
 type ParsedQueryParams = ParsedUrlQuery | qs.ParsedQs;
 
@@ -45,6 +45,7 @@ export type ADSServerSideContext = GetServerSidePropsContext & {
   parsedQuery: ParsedUrlQuery;
   userData: IUserData;
 };
+
 export interface IOriginalDoc {
   error?: string;
   notFound?: boolean;
@@ -154,7 +155,7 @@ export const isNumPerPageType = (value: number): value is NumPerPageType => {
 /**
  * Helper to parse query params into API search parameters
  */
-export const parseQueryFromUrl = <TExtra extends Record<string, string>>(
+export const parseQueryFromUrl = <TExtra extends Record<string, string | string[]>>(
   params: ParsedQueryParams,
   { sortPostfix }: { sortPostfix?: SolrSort } = {},
 ) => {
@@ -338,4 +339,8 @@ export const kFormatNumber = (value: number): string | number => {
   const absV = Math.abs(value);
   const sign = Math.sign(value);
   return absV > 999 ? `${sign * (Math.round(absV / 100) / 10)}k` : sign * absV;
+};
+
+export const isEmptyObject = (value: unknown) => {
+  return is(Object) && keys(value).length === 0;
 };
