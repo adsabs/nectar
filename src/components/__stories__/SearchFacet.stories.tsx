@@ -1,7 +1,7 @@
 import { Box, List } from '@chakra-ui/react';
 import { ISearchFacetTreeProps, SearchFacetTree } from '@components/SearchFacet/SearchFacetTree';
 import { Meta, Story } from '@storybook/react';
-import { SearchFacets } from '../SearchFacet';
+import { ISearchFacetsProps, SearchFacets } from '../SearchFacet';
 
 const meta: Meta = {
   title: 'SearchFacet',
@@ -20,7 +20,7 @@ const meta: Meta = {
 
 export default meta;
 
-const Template: Story<Record<string, never>> = (args) => (
+const Template: Story<ISearchFacetsProps> = (args) => (
   <Box w="200px">
     <SearchFacets {...args} />
   </Box>
