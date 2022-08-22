@@ -165,7 +165,7 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
 
         <TabPanels>
           <TabPanel>
-            <form method="GET" onFilterSubmit={handleOnSubmit}>
+            <form method="GET" onSubmit={handleOnSubmit}>
               <Stack direction={['column', 'row']} spacing={4} align="stretch">
                 <Stack spacing="4" flex="1">
                   <FormatSelect format={ctx.params.format} dispatch={dispatch} />
@@ -195,7 +195,7 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
             </form>
           </TabPanel>
           <TabPanel>
-            <form method="GET" onFilterSubmit={handleOnSubmit}>
+            <form method="GET" onSubmit={handleOnSubmit}>
               <Stack direction={['column', 'row']} spacing={4}>
                 <Stack spacing="4" flexGrow={[3, 2]} maxW="lg">
                   <CustomFormatSelect dispatch={dispatch} />

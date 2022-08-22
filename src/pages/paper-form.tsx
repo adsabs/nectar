@@ -142,7 +142,7 @@ const JournalQueryForm = ({ onSubmit, error }: SubFormProps) => {
         "Astrophysical Journal", for instance, to find the bibstem "ApJ".
       </Text>
       <Divider mb={5} />
-      <form method="POST" action={router.route} onFilterSubmit={formSubmit} data-testid={PaperFormType.JOURNAL_QUERY}>
+      <form method="POST" action={router.route} onSubmit={formSubmit} data-testid={PaperFormType.JOURNAL_QUERY}>
         <input type="hidden" name="form" value={PaperFormType.JOURNAL_QUERY} {...register('form')} />
         {/* Bibstem picker */}
         <Grid templateColumns="repeat(5, 1fr)" gap={4}>
@@ -233,7 +233,7 @@ const ReferenceQueryForm = ({ onSubmit, error }: SubFormProps) => {
         Reference Query
       </Heading>
       <Divider mt={2} mb={4} />
-      <form method="POST" onFilterSubmit={formSubmit} action={router.route} data-testid={PaperFormType.REFERENCE_QUERY}>
+      <form method="POST" onSubmit={formSubmit} action={router.route} data-testid={PaperFormType.REFERENCE_QUERY}>
         <input type="hidden" name="form" value={PaperFormType.REFERENCE_QUERY} {...register('form')} />
         <FormControl isRequired>
           <FormLabel htmlFor="reference">Reference</FormLabel>
@@ -294,7 +294,7 @@ const BibcodeQueryForm = ({ onSubmit, error }: SubFormProps) => {
         Bibliographic Code Query
       </Heading>
       <Divider mt={2} mb={4} />
-      <form method="POST" onFilterSubmit={formSubmit} action={router.route} data-testid={PaperFormType.BIBCODE_QUERY}>
+      <form method="POST" onSubmit={formSubmit} action={router.route} data-testid={PaperFormType.BIBCODE_QUERY}>
         <input type="hidden" name="form" value={PaperFormType.BIBCODE_QUERY} {...register('form')} />
         <FormControl isRequired>
           <FormLabel htmlFor="bibcodes">List of Bibcodes</FormLabel>
