@@ -295,7 +295,6 @@ export const updateSelection = (key: string, isRoot: boolean, tree: FacetNodeTre
 export const cleanClause = curry((fqKey: string, clause: string) => {
   const terms = getTerms(clause);
   const operator = getOperator(clause);
-  const opIsNot = () => operator === 'NOT';
 
   // for authors, there is more processing to make it get the names
   if (fqKey === 'fq_author') {
@@ -303,12 +302,16 @@ export const cleanClause = curry((fqKey: string, clause: string) => {
       map(pipe(replace(/[\"\\]/g, ''), parseTitleFromKey)),
 
       // this will force an extra `NOT` is at the start of the string
-      when(opIsNot, prepend(undefined)),
+      when(isNotOperator(operator as Operator), prepend(undefined)),
       join(` ${operator} `),
     )(terms);
   }
 
-  return pipe(map(pipe(replace(/(?!")[01]\\\//g, ''), replace(/[\"\\]/g, ''))), join(` ${operator} `))(terms);
+  return pipe(
+    map(pipe(replace(/(?!")[01]\\\//g, ''), replace(/[\"\\]/g, ''))),
+    when(isNotOperator(operator as Operator), prepend(undefined)),
+    join(` ${operator} `),
+  )(terms);
 });
 
 /**
