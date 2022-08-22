@@ -119,3 +119,4 @@ dist
 dev/
 storybook-static/
 .DS_Store
+.idea
