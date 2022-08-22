@@ -15,6 +15,7 @@ import { Box, Flex, List, ListIcon, ListItem, Stack } from '@chakra-ui/layout';
 import { Alert, AlertIcon, Button, Code, Grid, GridItem, Heading, Portal, VisuallyHidden } from '@chakra-ui/react';
 import {
   CustomInfoMessage,
+  ISearchFacetsProps,
   ItemsSkeleton,
   ListActions,
   NumFound,
@@ -24,6 +25,7 @@ import {
   SimpleResultList,
 } from '@components';
 import { calculateStartIndex } from '@components/ResultList/Pagination/usePagination';
+import { FacetFilters } from '@components/SearchFacet/FacetFilters';
 import { APP_DEFAULTS } from '@config';
 import { AppState, createStore, useStore, useStoreApi } from '@store';
 import { NumPerPageType } from '@types';
@@ -37,7 +39,7 @@ import { last, not, omit, path } from 'ramda';
 import { FormEventHandler, useEffect, useState } from 'react';
 import { dehydrate, QueryClient, useQueryClient } from 'react-query';
 
-const SearchFacets = dynamic<Record<string, never>>(
+const SearchFacets = dynamic<ISearchFacetsProps>(
   () => import('@components/SearchFacet').then((mod) => mod.SearchFacets),
   { ssr: false },
 );
@@ -125,8 +127,14 @@ const SearchPage: NextPage = () => {
     setNumPerPage(numPerPage);
   };
 
+  // search facet handlers
   const [showFilters, setShowFilters] = useState(true);
   const handleToggleFilters = () => setShowFilters(not);
+  const handleSearchFacetSubmission = (queryUpdates: Partial<IADSApiSearchParams>) => {
+    console.log('submit', queryUpdates);
+    const search = makeSearchParams({ ...params, ...queryUpdates, p: 1 });
+    void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
+  };
 
   return (
     <>
@@ -150,7 +158,7 @@ const SearchPage: NextPage = () => {
                 Hide
               </Button>
             </Flex>
-            <SearchFacets />
+            <SearchFacets onQueryUpdate={handleSearchFacetSubmission} />
           </GridItem>
         ) : (
           <GridItem>
@@ -176,6 +184,7 @@ const SearchPage: NextPage = () => {
               <SearchBar isLoading={isLoading} />
               <NumFound count={data?.numFound} isLoading={isLoading} />
             </Flex>
+            <FacetFilters mt="2" />
             <Box mt={5}>
               {isSuccess && !isLoading && data?.numFound > 0 && <ListActions onSortChange={handleSortChange} />}
             </Box>
@@ -185,42 +194,7 @@ const SearchPage: NextPage = () => {
             Search Results
           </VisuallyHidden>
 
-          {!isLoading && data?.numFound === 0 && (
-            <CustomInfoMessage
-              status="info"
-              title={
-                <>
-                  Sorry no results were found for <Code children={params.q} />
-                </>
-              }
-              description={
-                <List w="100%">
-                  <ListItem>
-                    <ListIcon as={CheckCircleIcon} color="green.500" />
-                    Try broadening your search
-                  </ListItem>
-                  <ListItem>
-                    <ListIcon as={CheckCircleIcon} color="green.500" />
-                    Disable any filters that may be applied
-                  </ListItem>
-                  <ListItem>
-                    <Flex direction="row" alignItems="center">
-                      <ListIcon as={CheckCircleIcon} color="green.500" />
-                      <SimpleLink href="/">Check out some examples</SimpleLink>
-                    </Flex>
-                  </ListItem>
-                  <ListItem>
-                    <Flex direction="row" alignItems="center">
-                      <ListIcon as={CheckCircleIcon} color="green.500" />
-                      <SimpleLink href="/help/search/search-syntax" newTab={true}>
-                        Read our help pages
-                      </SimpleLink>
-                    </Flex>
-                  </ListItem>
-                </List>
-              }
-            />
-          )}
+          {!isLoading && data?.numFound === 0 && <NoResultsMsg query={params.q} />}
           {isLoading && <ItemsSkeleton count={storeNumPerPage} />}
 
           {data && (
@@ -244,6 +218,43 @@ const SearchPage: NextPage = () => {
     </>
   );
 };
+
+const NoResultsMsg = ({ query = '' }: { query: string }) => (
+  <CustomInfoMessage
+    status="info"
+    title={
+      <>
+        Sorry no results were found for <Code children={query} />
+      </>
+    }
+    description={
+      <List w="100%">
+        <ListItem>
+          <ListIcon as={CheckCircleIcon} color="green.500" />
+          Try broadening your search
+        </ListItem>
+        <ListItem>
+          <ListIcon as={CheckCircleIcon} color="green.500" />
+          Disable any filters that may be applied
+        </ListItem>
+        <ListItem>
+          <Flex direction="row" alignItems="center">
+            <ListIcon as={CheckCircleIcon} color="green.500" />
+            <SimpleLink href="/">Check out some examples</SimpleLink>
+          </Flex>
+        </ListItem>
+        <ListItem>
+          <Flex direction="row" alignItems="center">
+            <ListIcon as={CheckCircleIcon} color="green.500" />
+            <SimpleLink href="/help/search/search-syntax" newTab={true}>
+              Read our help pages
+            </SimpleLink>
+          </Flex>
+        </ListItem>
+      </List>
+    }
+  />
+);
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const { p: page, ...query } = parseQueryFromUrl<{ p: string }>(ctx.query);
