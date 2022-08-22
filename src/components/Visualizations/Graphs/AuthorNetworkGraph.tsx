@@ -23,7 +23,7 @@ export interface ILink {
   weight: number;
 }
 
-const width = 932;
+const width = 900;
 
 const radius = width / 10;
 

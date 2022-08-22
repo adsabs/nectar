@@ -33,12 +33,11 @@ interface IGroupTick {
 interface ILabel {
   label: string;
   value: number;
-  id: number;
+  // id: number;
+  node: IADSApiPaperNetworkSummaryGraphNode;
 }
 
-const width = 300;
-
-// const radius = width / 1.5;
+const width = 500;
 
 const outerRadius = width * 0.33;
 
@@ -126,7 +125,7 @@ export const PaperNetworkGraph = ({
         return b[1] - a[1];
       })
       .slice(0, 5)
-      .map((label) => ({ label: label[0], value: label[1], id: d.data.data.id }));
+      .map((label) => ({ label: label[0], value: label[1], node: d.data.data }));
 
   // transition nodes for view change
   const transitionNodePaths = (root: HierarchyRectangularNode<IADSApiPaperNetworkSummaryGraphNode>) => {
@@ -172,11 +171,11 @@ export const PaperNetworkGraph = ({
         .selectAll<BaseType, ILabel>('text')
         .attr('y', function (d, i) {
           // y position for each word
-          const size = nodes_data.find((n) => n.id === d.id)[key];
+          const size = nodes_data.find((n) => n.id === d.node.id)[key];
           return i * fontScale(size) - 30;
         })
         .attr('font-size', (d) => {
-          const size = nodes_data.find((n) => n.id === d.id)[key];
+          const size = nodes_data.find((n) => n.id === d.node.id)[key];
           return `${fontScale(size)}px`;
         });
     },
@@ -246,6 +245,7 @@ export const PaperNetworkGraph = ({
         .data(graphRoot.descendants().slice(1)) // exclude the fake root
         .join('path')
         .classed('node-path', true)
+        .attr('id', (p) => `group-id-${p.data.id}`)
         .attr('fill', nodeFill)
         .attr('fill-opacity', 0.8)
         .attr('pointer-events', 'auto')
@@ -272,7 +272,7 @@ export const PaperNetworkGraph = ({
       const labelSum = d3.sum(labeValues);
 
       // labels
-      const text = ticks
+      ticks
         .append('g')
         .attr('x', 0)
         .attr('dy', '.5em')
@@ -284,18 +284,21 @@ export const PaperNetworkGraph = ({
         .enter()
         .append('text')
         .attr('x', 0)
-        .classed('paper-network-labels', true)
+        .classed('paper-network-label', true)
         .attr('text-anchor', 'middle')
         .attr('y', (d, i) => {
           // y position for each word
-          const size = nodes_data.find((n) => n.id === d.id)[keyToUseAsValue];
+          const size = nodes_data.find((n) => n.id === d.node.id)[keyToUseAsValue];
           return i * fontScale(size) - 30;
         })
         .attr('font-size', (d) => {
-          const size = nodes_data.find((n) => n.id === d.id)[keyToUseAsValue];
+          const size = nodes_data.find((n) => n.id === d.node.id)[keyToUseAsValue];
           return `${fontScale(size)}px`;
         })
-        .text((d) => d.label);
+        .text((d) => d.label)
+        .on('click', function (e, d) {
+          setSelectedNode(d.node);
+        });
 
       return svg;
     },

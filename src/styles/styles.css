@@ -118,6 +118,10 @@
     @apply cursor-pointer;
   }
 
+  .network-graph-svg .paper-network-label {
+    @apply cursor-pointer;
+  }
+
   .network-graph-svg .node-label {
     @apply cursor-pointer;
   }
