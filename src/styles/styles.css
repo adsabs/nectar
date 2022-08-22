@@ -130,8 +130,14 @@
     fill: #ee8e29;
   }
 
+  /* author network selected link */
   .network-graph-svg .selected-link {
     stroke: #ee8e29;
+  }
+
+  /* paper network link selected */
+  .network-graph-svg .link.selected {
+    stroke-opacity: 60%;
   }
 
   .network-graph-svg .node-path:hover {

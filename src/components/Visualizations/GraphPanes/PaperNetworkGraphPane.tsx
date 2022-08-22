@@ -52,6 +52,9 @@ export const PaperNetworkGraphPane = ({
         nodes_data={nodes_data}
         links_data={links_data}
         onClickNode={onClickNode}
+        onClickLink={() => {
+          undefined;
+        }}
         keyToUseAsValue={view.valueToUse as IADSApiPaperNetworkNodeKey}
       />
     </Stack>

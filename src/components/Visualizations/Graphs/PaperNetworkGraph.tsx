@@ -15,6 +15,7 @@ export interface IPaperNetworkGraphProps {
   nodes_data: IADSApiPaperNetworkSummaryGraph['nodes'];
   links_data: IADSApiPaperNetworkSummaryGraph['links'];
   onClickNode: (node: IADSApiPaperNetworkSummaryGraphNode) => void;
+  onClickLink: (source: IADSApiPaperNetworkSummaryGraphNode, target: IADSApiPaperNetworkSummaryGraphNode) => void;
   keyToUseAsValue: IADSApiPaperNetworkNodeKey;
 }
 
@@ -47,9 +48,10 @@ export const PaperNetworkGraph = ({
   nodes_data,
   links_data,
   onClickNode,
+  onClickLink,
   keyToUseAsValue,
 }: IPaperNetworkGraphProps): ReactElement => {
-  const [selectedNode, setSelectedNode] = useState<IADSApiPaperNetworkSummaryGraphNode>();
+  const [selectedNode, setSelectedNode] = useState<IADSApiPaperNetworkSummaryGraphNode | ILink>();
 
   const { partition, arc, line, nodeFill, fontScale, linkScale } = usePaperNetworkGraph(
     nodes_data,
@@ -62,12 +64,34 @@ export const PaperNetworkGraph = ({
   // when selected node has changed, update node on graph
   useEffect(() => {
     if (selectedNode) {
-      onClickNode(selectedNode);
-      // clear previous selection & highlight current selection
-      d3.selectAll<BaseType, HierarchyRectangularNode<IADSApiPaperNetworkSummaryGraphNode>>('.node-path').classed(
-        'selected-node',
-        (d) => d.data.id === selectedNode.id,
-      );
+      if ('id' in selectedNode) {
+        // selected group
+        onClickNode(selectedNode);
+
+        // clear previous selection & highlight current selection
+        d3.selectAll<BaseType, HierarchyRectangularNode<IADSApiPaperNetworkSummaryGraphNode>>('.node-path').classed(
+          'selected-node',
+          (d) => d.data.id === selectedNode.id,
+        );
+
+        // clear all link highlights
+        d3.selectAll<BaseType, ILink>('.link').classed('selected', false);
+      } else {
+        // selected link
+        onClickLink(selectedNode.source.data, selectedNode.target.data);
+
+        // clear all group highlights
+        d3.selectAll<BaseType, HierarchyRectangularNode<IADSApiPaperNetworkSummaryGraphNode>>('.node-path').classed(
+          'selected-node',
+          false,
+        );
+
+        // clear and set link highlights
+        d3.selectAll<BaseType, ILink>('.link').classed(
+          'selected',
+          (d) => d.source.data.id === selectedNode.source.data.id && d.target.data.id === selectedNode.target.data.id,
+        );
+      }
     }
   }, [selectedNode]);
 
@@ -206,7 +230,7 @@ export const PaperNetworkGraph = ({
   const renderLinkLayer = (g: Selection<SVGGElement, unknown, HTMLElement, unknown>) => {
     const links = parseLinks(links_data);
 
-    const linkContainer = g.append('g'); //.classed('link-container', true);
+    const linkContainer = g.append('g');
 
     linkContainer
       .selectAll('path')
@@ -217,7 +241,8 @@ export const PaperNetworkGraph = ({
       .attr('stroke', '#000')
       .attr('stroke-opacity', '20%')
       .attr('fill', 'none')
-      .attr('stroke-width', (d) => linkScale(d.weight));
+      .attr('stroke-width', (d) => linkScale(d.weight))
+      .on('click', (e, p) => setSelectedNode(p));
   };
 
   const renderFunction = useCallback(
@@ -250,9 +275,7 @@ export const PaperNetworkGraph = ({
         .attr('fill-opacity', 0.8)
         .attr('pointer-events', 'auto')
         .attr('d', arc) // the shape to draw
-        .on('click', (e, p) => {
-          setSelectedNode(p.data);
-        });
+        .on('click', (e, p) => setSelectedNode(p.data));
 
       // links
       renderLinkLayer(g);
@@ -296,9 +319,7 @@ export const PaperNetworkGraph = ({
           return `${fontScale(size)}px`;
         })
         .text((d) => d.label)
-        .on('click', function (e, d) {
-          setSelectedNode(d.node);
-        });
+        .on('click', (e, d) => setSelectedNode(d.node));
 
       return svg;
     },
