@@ -5,8 +5,8 @@ const defaultLogic: ISearchFacetProps['logic'] = {
   multiple: ['and', 'or', 'exclude'],
 };
 
-export const facetConfig: ISearchFacetProps[] = [
-  { label: 'Author', field: 'first_author_facet_hier', hasChildren: true, logic: defaultLogic, defaultIsOpen: true },
+export const facetConfig: Omit<ISearchFacetProps, 'onQueryUpdate'>[] = [
+  { label: 'Author', field: 'author_facet_hier', hasChildren: true, logic: defaultLogic, defaultIsOpen: true },
   { label: 'Collections', field: 'database', logic: defaultLogic, defaultIsOpen: true },
   {
     label: 'Refereed',

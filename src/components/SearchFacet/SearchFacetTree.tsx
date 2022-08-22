@@ -1,4 +1,4 @@
-import { IFacetCountsFields } from '@api';
+import { FacetField, IFacetCountsFields } from '@api';
 import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -10,6 +10,7 @@ import {
   Collapse,
   Divider,
   Flex,
+  Icon,
   List,
   ListIcon,
   ListItem,
@@ -19,14 +20,21 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
+import { ISearchFacetProps } from '@components';
+import { ExclamationCircleIcon } from '@heroicons/react/solid';
 import { kFormatNumber } from '@utils';
 import { head, map } from 'ramda';
-import { ReactElement, ReactNode, useCallback, useEffect } from 'react';
+import { MouseEventHandler, ReactElement, ReactNode, useCallback, useEffect } from 'react';
 import { parseTitleFromKey } from './helpers';
-import { ISearchFacetProps } from './SearchFacet';
 import { FacetTreeStoreProvider, useFacetTreeStore } from './store';
-import { FacetCountTuple, IFacetParams } from './types';
+import { FacetCountTuple, FacetLogic, IFacetParams } from './types';
 import { useGetFacetTreeData } from './useGetFacetTreeData';
+
+export type OnFilterArgs = {
+  logic: FacetLogic;
+  field: FacetField;
+  values: string[];
+};
 
 export interface ISearchFacetTreeProps extends ListProps {
   field: IFacetParams['field'];
@@ -35,6 +43,8 @@ export interface ISearchFacetTreeProps extends ListProps {
   facetQuery?: string;
   logic: ISearchFacetProps['logic'];
   filter?: string[];
+  onFilter: (args: OnFilterArgs) => void;
+  onError?: () => void;
 }
 
 /**
@@ -43,9 +53,19 @@ export interface ISearchFacetTreeProps extends ListProps {
  * This is a root node of the facet tree, if the data data is hierarchical it will load children also (when expanded)
  */
 export const SearchFacetTree = (props: ISearchFacetTreeProps): ReactElement => {
-  const { field, property = 'facet_fields', hasChildren, logic, facetQuery, filter, ...listProps } = props;
+  const {
+    field,
+    onError,
+    property = 'facet_fields',
+    hasChildren,
+    logic,
+    facetQuery,
+    filter,
+    onFilter,
+    ...listProps
+  } = props;
 
-  const { treeData, handleLoadMore, canLoadMore, isFetching } = useGetFacetTreeData({
+  const { treeData, handleLoadMore, canLoadMore, isFetching, isError } = useGetFacetTreeData({
     type: 'root',
     field,
     property,
@@ -53,6 +73,16 @@ export const SearchFacetTree = (props: ISearchFacetTreeProps): ReactElement => {
     facetQuery,
     filter,
   });
+
+  useEffect(() => {
+    if (isError && typeof onError === 'function') {
+      onError();
+    }
+  }, [isError, onError]);
+
+  if (isError) {
+    return null;
+  }
 
   if (treeData.length === 0) {
     return <Spinner size="sm" />;
@@ -76,6 +106,7 @@ export const SearchFacetTree = (props: ISearchFacetTreeProps): ReactElement => {
               filter={filter}
               node={node}
               key={node[0]}
+              onFilter={onFilter}
             />
           ) : (
             // if no children, then it's simple single-level tree, load this single node
@@ -88,28 +119,41 @@ export const SearchFacetTree = (props: ISearchFacetTreeProps): ReactElement => {
         )}
       </List>
       <LoadMoreBtn
-        show={treeData.length > 0 && canLoadMore}
+        show={treeData.length > 0 && canLoadMore && !isError}
         onClick={(e) => {
           e.stopPropagation();
           handleLoadMore();
         }}
         isLoading={isFetching}
       />
-      <LogicArea logic={logic} />
+      <LogicArea logic={logic} onFilter={onFilter} field={field} />
     </FacetTreeStoreProvider>
   );
 };
 
-const LogicArea = (props: { logic: ISearchFacetProps['logic'] }) => {
-  const { logic } = props;
+const LogicArea = (props: {
+  logic: ISearchFacetProps['logic'];
+  onFilter: (args: OnFilterArgs) => void;
+  field: FacetField;
+}) => {
+  const { logic, field, onFilter } = props;
 
-  const count = useFacetTreeStore((state) => state.selectedKeys.length);
+  const selectedKeys = useFacetTreeStore((state) => state.selectedKeys);
+  const count = selectedKeys.length;
+
+  const handleSelect: MouseEventHandler<HTMLButtonElement> = useCallback(
+    (e) => {
+      const logicChoice = e.currentTarget.getAttribute('data-value') as FacetLogic;
+      onFilter({ field, logic: logicChoice, values: selectedKeys });
+    },
+    [selectedKeys],
+  );
 
   const renderBtns = useCallback(
     () =>
       map<string, ReactNode>(
         (value) => (
-          <Button key={value} data-value={value}>
+          <Button key={value} data-value={value} onClick={handleSelect}>
             {value}
           </Button>
         ),
@@ -143,7 +187,7 @@ const SearchFacetChildNode = (props: SearchFacetNodeProps) => {
   const isExpanded = useFacetTreeStore(useCallback((state) => state.tree?.[key]?.expanded, [key]));
 
   // fetches and transforms tree data for children
-  const { treeData, handleLoadMore, canLoadMore, isFetching } = useGetFacetTreeData({
+  const { treeData, handleLoadMore, canLoadMore, isFetching, isError } = useGetFacetTreeData({
     type: 'child',
     field,
     rawPrefix: key,
@@ -191,6 +235,11 @@ const SearchFacetChildNode = (props: SearchFacetNodeProps) => {
             isLoading={isFetching}
             showBottomBorder
           />
+          {isError && (
+            <Text color="red" fontSize="xs">
+              <Icon as={ExclamationCircleIcon} /> Error loading entries
+            </Text>
+          )}
         </Box>
       </Collapse>
     </ListItem>
@@ -228,7 +277,7 @@ const LoadMoreBtn = (props: { show: boolean; pullRight?: boolean; showBottomBord
       </Stack>
     );
   }
-  if (showBottomBorder) {
+  if (show && showBottomBorder) {
     return <Divider size={'sm'} />;
   }
   return null;

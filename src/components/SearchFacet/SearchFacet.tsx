@@ -1,14 +1,28 @@
-import { FacetField, IFacetCountsFields } from '@api';
+import { FacetField, IADSApiSearchParams, IFacetCountsFields } from '@api';
 import { ChevronDownIcon, ChevronRightIcon, DragHandleIcon } from '@chakra-ui/icons';
-import { AccordionItemProps, Box, Button, List, ListItem, useDisclosure } from '@chakra-ui/react';
+import {
+  AccordionItemProps,
+  Box,
+  Button,
+  HStack,
+  Icon,
+  List,
+  ListItem,
+  Text,
+  Tooltip,
+  useDisclosure,
+} from '@chakra-ui/react';
 import { DndContext, DragEndEvent, MouseSensor, useSensor } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { ExclamationCircleIcon } from '@heroicons/react/solid';
+import { useStoreApi } from '@store';
 import { findIndex, pluck, propEq } from 'ramda';
 import { CSSProperties, ReactElement, useEffect, useState } from 'react';
 import { facetConfig } from './config';
-import { SearchFacetTree } from './SearchFacetTree';
+import { applyFiltersToQuery } from './helpers';
+import { OnFilterArgs, SearchFacetTree } from './SearchFacetTree';
 import { FacetLogic } from './types';
 
 export interface ISearchFacetProps extends AccordionItemProps {
@@ -23,14 +37,34 @@ export interface ISearchFacetProps extends AccordionItemProps {
   };
   defaultIsOpen?: boolean;
   filter?: string[];
+  onQueryUpdate: (queryUpdates: Partial<IADSApiSearchParams>) => void;
 }
+
 export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
-  const { label, field, property, hasChildren, logic, facetQuery, defaultIsOpen, filter } = props;
+  const store = useStoreApi();
+  const { label, field, property, hasChildren, logic, facetQuery, defaultIsOpen, filter, onQueryUpdate } = props;
   const { listeners, attributes, setNodeRef, setActivatorNodeRef, transform, transition, isSorting } = useSortable({
     id: field,
     strategy: verticalListSortingStrategy,
   });
-  const { isOpen, onToggle, onClose } = useDisclosure({ defaultIsOpen, id: field });
+  const { isOpen, onToggle, onClose } = useDisclosure({
+    defaultIsOpen,
+    id: field,
+    onOpen: () => {
+      setHasError(false);
+    },
+  });
+  const [hasError, setHasError] = useState(false);
+
+  const handleOnFilter = (filterArgs: OnFilterArgs) => {
+    const query = store.getState().latestQuery;
+    onQueryUpdate(applyFiltersToQuery({ ...filterArgs, query }));
+  };
+
+  const handleOnError = () => {
+    setHasError(true);
+    onClose();
+  };
 
   useEffect(() => {
     if (isSorting) {
@@ -60,9 +94,14 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
           px="0.5"
         >
           <DragHandleIcon mr="1" />
-          <Box flex="1" textAlign="left">
-            {label}
-          </Box>
+          <HStack flex="1" textAlign="left">
+            <Text flex="1">{label}</Text>
+            {hasError && (
+              <Tooltip label="Error loading facet, try again later">
+                <Icon as={ExclamationCircleIcon} color="red.500" />
+              </Tooltip>
+            )}
+          </HStack>
 
           {isOpen ? <ChevronDownIcon /> : <ChevronRightIcon />}
         </Button>
@@ -85,6 +124,8 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
             logic={logic}
             facetQuery={facetQuery}
             filter={filter}
+            onFilter={handleOnFilter}
+            onError={handleOnError}
           />
         )}
       </Box>
@@ -94,7 +135,13 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
 
 const getField = pluck('field');
 const findItem = (id: FacetField) => findIndex(propEq('field', id));
-export const SearchFacets = () => {
+
+export interface ISearchFacetsProps {
+  onQueryUpdate: ISearchFacetProps['onQueryUpdate'];
+}
+
+export const SearchFacets = (props: ISearchFacetsProps) => {
+  const { onQueryUpdate } = props;
   const [facets, setFacets] = useState(facetConfig);
 
   const mouseSensor = useSensor(MouseSensor, {
@@ -122,18 +169,20 @@ export const SearchFacets = () => {
   };
 
   return (
-    <DndContext
-      modifiers={[restrictToVerticalAxis, restrictToParentElement]}
-      sensors={[mouseSensor]}
-      onDragEnd={handleDragEnd}
-    >
-      <SortableContext items={getField(facets)} strategy={verticalListSortingStrategy}>
-        <List>
-          {facets.map((facetProps) => (
-            <SearchFacet {...facetProps} key={facetProps.field} />
-          ))}
-        </List>
-      </SortableContext>
-    </DndContext>
+    <>
+      <DndContext
+        modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+        sensors={[mouseSensor]}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext items={getField(facets)} strategy={verticalListSortingStrategy}>
+          <List>
+            {facets.map((facetProps) => (
+              <SearchFacet {...facetProps} key={facetProps.field} onQueryUpdate={onQueryUpdate} />
+            ))}
+          </List>
+        </SortableContext>
+      </DndContext>
+    </>
   );
 };
