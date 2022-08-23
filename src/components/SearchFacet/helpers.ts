@@ -1,7 +1,7 @@
 import { FacetField, IADSApiSearchParams, IFacetCountsFields } from '@api';
 import { escape, getOperator, getTerms, joinQueries, Operator, removeClauseAndStringify, splitQuery } from '@query';
 import { defaultQueryParams } from '@store/slices';
-import { isIADSSearchParams } from '@utils';
+import { isIADSSearchParams, isString } from '@utils';
 import {
   all,
   always,
@@ -367,7 +367,8 @@ const logicToOperator = (logic: FacetLogic) => {
 
 const joinWithLogic = (field: FacetField, values: string[], logic: FacetLogic) => {
   const op = logicToOperator(logic) as Operator;
-  return pipe<[string[]], string[], string[], string>(
+  return pipe<[string[]], string[], string[], string[], string>(
+    filter(isString),
     map((value) => `${field}:"${escape(value)}"`),
     when<string[], string[]>(isNotOperator(op), prepend('*:*')),
     join(` ${op} `),
