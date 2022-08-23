@@ -131,7 +131,6 @@ const SearchPage: NextPage = () => {
   const [showFilters, setShowFilters] = useState(true);
   const handleToggleFilters = () => setShowFilters(not);
   const handleSearchFacetSubmission = (queryUpdates: Partial<IADSApiSearchParams>) => {
-    console.log('submit', queryUpdates);
     const search = makeSearchParams({ ...params, ...queryUpdates, p: 1 });
     void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
   };

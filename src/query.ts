@@ -47,6 +47,7 @@ export const joinQueries = curry((queryB: string, queryA: string) => {
     if (isNonEmptyString(queryB)) {
       const rightAST = parseAndNormalize(queryB);
 
+      // if the main query is empty, return the augment as a new leftOnly node
       if (isUndefinedOrEmpty(queryA)) {
         return stringify({
           left: {
@@ -58,6 +59,7 @@ export const joinQueries = curry((queryB: string, queryA: string) => {
 
       const leftAST = parseAndNormalize(queryA);
 
+      // join the two queries with the default operator
       return stringify({
         left: {
           ...leftAST,
@@ -184,7 +186,7 @@ export const getClauses = (root: lucene.AST) =>
   );
 
 /**
- * Walks over the AST and returns all terms with the excaption of `*:*`
+ * Walks over the AST and returns all terms with the exception of `*:*`
  *
  * @param {string} query
  */
