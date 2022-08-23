@@ -1,5 +1,5 @@
 import { Stack, Input, Button, Text } from '@chakra-ui/react';
-import { ChangeEvent, ReactElement, useState, KeyboardEvent } from 'react';
+import { ChangeEvent, ReactElement, useState, KeyboardEvent, useEffect } from 'react';
 
 export const PaperLimit = ({
   initialLimit,
@@ -31,6 +31,10 @@ export const PaperLimit = ({
       onApply(limit);
     }
   };
+
+  useEffect(() => {
+    setLimit(initialLimit);
+  }, [initialLimit]);
 
   return (
     <Stack direction="row" alignItems="center" my={2}>
