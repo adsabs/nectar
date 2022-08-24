@@ -137,7 +137,9 @@ export const PaperNetworkGraph = ({
         .data()[0];
 
       // ignore self links
-      return source === target ? undefined : { weight: l.weight, source, target };
+      return source === target || source === undefined || target === undefined
+        ? undefined
+        : { weight: l.weight, source, target };
     });
 
     return links.filter((l) => l !== undefined);
@@ -179,7 +181,7 @@ export const PaperNetworkGraph = ({
 
   // transition node labels for view change
   const transitionNodeLabels = useCallback(
-    (root: HierarchyRectangularNode<IADSApiPaperNetworkSummaryGraphNode>, key: IADSApiPaperNetworkNodeKey) => {
+    (groupTicks: IGroupTick[], key: IADSApiPaperNetworkNodeKey) => {
       const labelvalues: number[] = [];
       groupTicks.forEach((d) => labelvalues.push(d.data.value));
       const labelSum = d3.sum(labelvalues);
@@ -205,25 +207,29 @@ export const PaperNetworkGraph = ({
         .selectAll<BaseType, ILabel>('text')
         .attr('y', function (d, i) {
           // y position for each word
-          const size = nodes_data.find((n) => n.id === d.node.id)[key];
+          const size = d.node[key];
           return i * fontScale(size) - 30;
         })
         .attr('font-size', (d) => {
-          const size = nodes_data.find((n) => n.id === d.node.id)[key];
+          const size = d.node[key];
           return `${fontScale(size)}px`;
         });
     },
-    [groupTicks, fontScale],
+    [fontScale],
   );
 
   // transition links for view change
   const transitionLinks = useCallback(
     (links: ILink[]) => {
-      d3.selectAll('.link')
+      d3.selectAll('.link-container')
+        .selectAll('.link')
         .data(links)
+        .join('path')
         .transition()
         .duration(1000)
-        .attr('d', (d) => line(d.source.path(d.target)));
+        .attr('d', (d) => {
+          return line(d.source.path(d.target));
+        });
     },
     [line],
   );
@@ -231,29 +237,14 @@ export const PaperNetworkGraph = ({
   // When view changes, transition elements on graph
   useEffect(() => {
     transitionNodePaths(graphRoot);
-    transitionNodeLabels(graphRoot, keyToUseAsValue);
     transitionLinks(parseLinks(links_data));
   }, [graphRoot]);
 
+  useEffect(() => {
+    transitionNodeLabels(groupTicks, keyToUseAsValue);
+  }, [groupTicks]);
+
   // ---  rendering ----
-
-  const renderLinkLayer = (g: Selection<SVGGElement, unknown, HTMLElement, unknown>) => {
-    const links = parseLinks(links_data);
-
-    const linkContainer = g.append('g');
-
-    linkContainer
-      .selectAll('path')
-      .data(links)
-      .join('path')
-      .classed('link', true)
-      .attr('d', (d) => line(d.source.path(d.target)))
-      .attr('stroke', '#000')
-      .attr('stroke-opacity', '20%')
-      .attr('fill', 'none')
-      .attr('stroke-width', (d) => linkScale(d.weight))
-      .on('click', (e, p) => setSelectedNode(p));
-  };
 
   const renderFunction = useCallback(
     (svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>) => {
@@ -288,7 +279,20 @@ export const PaperNetworkGraph = ({
         .on('click', (e, p) => setSelectedNode(p.data));
 
       // links
-      renderLinkLayer(g);
+      const links = parseLinks(links_data);
+      const linkContainer = g.append('g').classed('link-container', true);
+
+      linkContainer
+        .selectAll('path')
+        .data(links)
+        .join('path')
+        .classed('link', true)
+        .attr('d', (d) => line(d.source.path(d.target)))
+        .attr('stroke', '#000')
+        .attr('stroke-opacity', '20%')
+        .attr('fill', 'none')
+        .attr('stroke-width', (d) => linkScale(d.weight))
+        .on('click', (e, p) => setSelectedNode(p));
 
       // labels
       const labeValues: number[] = [];
@@ -296,8 +300,7 @@ export const PaperNetworkGraph = ({
       const ticks = g
         .selectAll('.groupLabel')
         .data(groupTicks)
-        .enter()
-        .append('g')
+        .join('g')
         .each((d) => labeValues.push(d.data.value))
         .classed('groupLabel', true)
         .attr('transform', (d) => `rotate(${(d.angle * 180) / Math.PI - 90}) translate(${(outerRadius * 1) / 1},0)`);
@@ -314,18 +317,17 @@ export const PaperNetworkGraph = ({
         .classed('hidden', (d) => d.data.value / labelSum < 0.08)
         .selectAll('text')
         .data(getlabelsList)
-        .enter()
-        .append('text')
+        .join('text')
         .attr('x', 0)
         .classed('paper-network-label', true)
         .attr('text-anchor', 'middle')
         .attr('y', (d, i) => {
           // y position for each word
-          const size = nodes_data.find((n) => n.id === d.node.id)[keyToUseAsValue];
+          const size = d.node[keyToUseAsValue];
           return i * fontScale(size) - 30;
         })
         .attr('font-size', (d) => {
-          const size = nodes_data.find((n) => n.id === d.node.id)[keyToUseAsValue];
+          const size = d.node[keyToUseAsValue];
           return `${fontScale(size)}px`;
         })
         .text((d) => d.label)
