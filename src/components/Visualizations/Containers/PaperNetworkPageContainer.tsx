@@ -67,7 +67,7 @@ export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerP
   const reducer: Reducer<IPaperNetworkPageState, PaperNetworkPageAction> = (state, action) => {
     switch (action.type) {
       case 'CHANGE_PAPER_LIMIT':
-        return { ...state, rowsToFetch: action.payload };
+        return { ...state, selectedLink: null, selectedNode: null, filters: [], rowsToFetch: action.payload };
       case 'SET_SELECTED_NODE':
         return {
           ...state,
@@ -252,7 +252,9 @@ export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerP
               link={state.selectedLink}
               onAddToFilter={(node) => dispatch({ type: 'ADD_FILTER', payload: node })}
               onRemoveFromFilter={(node) => dispatch({ type: 'REMOVE_FILTER', payload: node })}
-              canAddAsFilter={state.filters.findIndex((f) => f.id === state.selectedNode.id) === -1}
+              canAddAsFilter={
+                state.selectedNode && state.filters.findIndex((f) => f.id === state.selectedNode.id) === -1
+              }
             />
           </Box>
         </SimpleGrid>

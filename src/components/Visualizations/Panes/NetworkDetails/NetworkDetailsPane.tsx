@@ -38,9 +38,7 @@ export const NetworkDetailsPane = ({
 
   // when selected node changes, change tab to node details
   useEffect(() => {
-    if (node) {
-      setTabIndex(1);
-    }
+    setTabIndex(node ? 1 : 0);
   }, [node]);
 
   const handleTabIndexChange = (index: number) => {

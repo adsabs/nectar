@@ -61,7 +61,7 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
   const reducer: Reducer<IAuthorNetworkPageState, AuthorNetworkPageAction> = (state, action) => {
     switch (action.type) {
       case 'CHANGE_PAPER_LIMIT':
-        return { ...state, rowsToFetch: action.payload };
+        return { ...state, selected: null, filters: [], rowsToFetch: action.payload };
       case 'SET_SELECTED':
         return { ...state, selected: getNodeDetails(action.payload.node, action.payload.dict) };
       case 'ADD_FILTER':

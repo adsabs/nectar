@@ -58,9 +58,7 @@ export const PaperNetworkDetailsPane = ({
 
   // when selected node changes, change tab to node details
   useEffect(() => {
-    if (node || link) {
-      setTabIndex(1);
-    }
+    setTabIndex(node || link ? 1 : 0);
   }, [node, link]);
 
   const handleTabIndexChange = (index: number) => {
