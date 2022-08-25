@@ -60,14 +60,14 @@ export const FacetFilters = (props: BoxProps): ReactElement => {
       </Heading>
       <Divider />
       {filterSections.map(([label, cleanClauses, rawClauses]) => (
-        <Wrap aria-labelledby={`${label} applied filters`} spacing="0.5">
+        <Wrap aria-labelledby={`${label} applied filters`} spacing="0.5" key={label}>
           <WrapItem alignItems="center">
             <Heading as="h3" fontSize="sm" id={`${label} applied filters`}>
               {label}:
             </Heading>
           </WrapItem>
           {cleanClauses.map((clause, index) => (
-            <WrapItem>
+            <WrapItem key={clause}>
               <Tag size="sm" my="0.5" fontSize="sm" maxWidth="200">
                 <TagLabel isTruncated noOfLines={1}>
                   <Tooltip label={clause}>{clause}</Tooltip>
