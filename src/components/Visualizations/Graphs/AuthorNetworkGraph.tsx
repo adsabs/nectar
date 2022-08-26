@@ -7,7 +7,7 @@ import { useAuthorNetworkGraph } from './useAuthorNetworkGraph';
 import { ADSSVGPathElement } from './types';
 export interface IAuthorNetworkGraphProps {
   root: IADSApiAuthorNetworkNode;
-  link_data: number[][];
+  linksData: number[][];
   showLinkLayer: boolean;
   onClickNode: (node: IADSApiAuthorNetworkNode) => void;
   keyToUseAsValue: IADSApiAuthorNetworkNodeKey;
@@ -31,7 +31,7 @@ const numberOfLabelsToShow = 100;
 
 export const AuthorNetworkGraph = ({
   root,
-  link_data,
+  linksData,
   showLinkLayer,
   onClickNode,
   keyToUseAsValue,
@@ -39,7 +39,7 @@ export const AuthorNetworkGraph = ({
   const [selectedNode, setSelectedNode] = useState<IADSApiAuthorNetworkNode>();
 
   const { partition, arc, fontSize, line, labelTransform, textAnchor, nodeFill, labelDisplay, strokeWidth } =
-    useAuthorNetworkGraph(root, link_data, keyToUseAsValue, radius, numberOfLabelsToShow);
+    useAuthorNetworkGraph(root, linksData, keyToUseAsValue, radius, numberOfLabelsToShow);
 
   // actaul tree root data for graph
   const graphRoot = useMemo(() => partition(root), [partition, root]);
@@ -208,7 +208,7 @@ export const AuthorNetworkGraph = ({
   useEffect(() => {
     transitionNodePaths(graphRoot);
     transitionNodeLabels(graphRoot, keyToUseAsValue);
-    transitionLinks(getLinks(link_data));
+    transitionLinks(getLinks(linksData));
   }, [graphRoot]);
 
   const renderFunction = useCallback(
@@ -284,7 +284,7 @@ export const AuthorNetworkGraph = ({
         .style('fill', 'rgba(255, 255, 255, 0.5)');
 
       // get links data
-      const links = getLinks(link_data);
+      const links = getLinks(linksData);
 
       // links
       linkContainer
@@ -307,7 +307,7 @@ export const AuthorNetworkGraph = ({
 
       return svg;
     },
-    [root, link_data],
+    [root, linksData],
   );
 
   const { ref } = useD3(renderFunction, [renderFunction]);

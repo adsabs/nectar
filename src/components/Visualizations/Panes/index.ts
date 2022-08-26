@@ -1,2 +1,2 @@
-export * from './NetworkDetails/NetworkDetailsPane';
+export * from './NetworkDetails/AuthorNetworkDetailsPane';
 export * from './PaperLimit';

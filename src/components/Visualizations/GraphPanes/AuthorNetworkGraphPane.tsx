@@ -7,7 +7,7 @@ import { IView } from './types';
 
 export interface IAuthorNetworkGraphPaneProps {
   root: IADSApiAuthorNetworkNode;
-  link_data: number[][];
+  linksData: number[][];
   views: IView[];
   onClickNode?: (node: IADSApiAuthorNetworkNode) => void;
   onChangePaperLimit: (limit: number) => void;
@@ -20,7 +20,7 @@ export interface IAuthorNetworkGraphPaneProps {
  */
 export const AuthorNetworkGraphPane = ({
   root,
-  link_data,
+  linksData,
   views,
   onClickNode,
   onChangePaperLimit: onChagePaperLimit,
@@ -56,7 +56,7 @@ export const AuthorNetworkGraphPane = ({
       <OverlaySwitch isChecked={showLinkLayer} onChange={handleToggleSwitch} />
       <AuthorNetworkGraph
         root={root}
-        link_data={link_data}
+        linksData={linksData}
         showLinkLayer={showLinkLayer}
         onClickNode={onClickNode}
         keyToUseAsValue={view.valueToUse as IADSApiAuthorNetworkNodeKey}

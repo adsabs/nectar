@@ -19,7 +19,7 @@ export interface IAuthorNetworkNodeDetails {
   mostRecentYear: string;
 }
 
-export type NetworkDetailsProps = {
+export type AuthorNetworkDetailsProps = {
   node: IAuthorNetworkNodeDetails;
   summaryGraph: ILineGraph;
   onAddToFilter: (node: IAuthorNetworkNodeDetails) => void;
@@ -27,13 +27,13 @@ export type NetworkDetailsProps = {
   canAddAsFilter: boolean;
 };
 
-export const NetworkDetailsPane = ({
+export const AuthorNetworkDetailsPane = ({
   node,
   summaryGraph,
   onAddToFilter,
   onRemoveFromFilter,
   canAddAsFilter,
-}: NetworkDetailsProps): ReactElement => {
+}: AuthorNetworkDetailsProps): ReactElement => {
   const [tabIndex, setTabIndex] = useState(0);
 
   // when selected node changes, change tab to node details

@@ -6,8 +6,8 @@ import { PaperLimit } from '../Panes';
 import { IView } from './types';
 
 export interface IPaperNetworkGraphPaneProps {
-  nodes_data: IADSApiPaperNetworkSummaryGraph['nodes'];
-  links_data: IADSApiPaperNetworkSummaryGraph['links'];
+  nodesData: IADSApiPaperNetworkSummaryGraph['nodes'];
+  linksData: IADSApiPaperNetworkSummaryGraph['links'];
   views: IView[];
   onClickNode?: (node: IADSApiPaperNetworkSummaryGraphNode) => void;
   onClickLink: (
@@ -26,8 +26,8 @@ export interface IPaperNetworkGraphPaneProps {
  * @returns Network graph and its controls
  */
 export const PaperNetworkGraphPane = ({
-  nodes_data,
-  links_data,
+  nodesData,
+  linksData,
   views,
   onClickNode,
   onClickLink,
@@ -56,8 +56,8 @@ export const PaperNetworkGraphPane = ({
         </Stack>
       </RadioGroup>
       <PaperNetworkGraph
-        nodes_data={nodes_data}
-        links_data={links_data}
+        nodesData={nodesData}
+        linksData={linksData}
         onClickNode={onClickNode}
         onClickLink={onClickLink}
         keyToUseAsValue={view.valueToUse as IADSApiPaperNetworkNodeKey}

@@ -4,7 +4,7 @@ import { useGetAuthorNetwork } from '@api/vis/vis';
 import { Box, Button, SimpleGrid, Stack, Text, useToast } from '@chakra-ui/react';
 import {
   IAuthorNetworkNodeDetails,
-  NetworkDetailsPane,
+  AuthorNetworkDetailsPane,
   Expandable,
   SimpleLink,
   StandardAlertMessage,
@@ -199,7 +199,7 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
             />
             <AuthorNetworkGraphPane
               root={authorNetworkData.data.root}
-              link_data={authorNetworkData.data.link_data}
+              linksData={authorNetworkData.data.link_data}
               views={views}
               onClickNode={(node) =>
                 dispatch({ type: 'SET_SELECTED', payload: { node, dict: authorNetworkData.data.bibcode_dict } })
@@ -216,7 +216,7 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
               onClear={() => dispatch({ type: 'CLEAR_FILTERS' })}
               onApply={handleApplyFilters}
             />
-            <NetworkDetailsPane
+            <AuthorNetworkDetailsPane
               summaryGraph={authorNetworkSummaryGraph}
               node={state.selected}
               onAddToFilter={(node) => dispatch({ type: 'ADD_FILTER', payload: node })}

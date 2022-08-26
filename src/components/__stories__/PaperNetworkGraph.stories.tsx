@@ -15,8 +15,8 @@ const Template: Story<IPaperNetworkGraphProps> = (args) => <PaperNetworkGraph {.
 export const Default = Template.bind({});
 
 Default.args = {
-  nodes_data: response.data.summaryGraph.nodes,
-  links_data: response.data.summaryGraph.links,
+  nodesData: response.data.summaryGraph.nodes,
+  linksData: response.data.summaryGraph.links,
   onClickNode: (node: IADSApiPaperNetworkSummaryGraphNode) => {
     console.log(`clicked: ${node.node_name}`);
   },

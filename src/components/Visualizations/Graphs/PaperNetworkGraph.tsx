@@ -12,8 +12,8 @@ import { usePaperNetworkGraph } from './usePaperNetworkGraph';
 import { ADSSVGPathElement } from './types';
 
 export interface IPaperNetworkGraphProps {
-  nodes_data: IADSApiPaperNetworkSummaryGraph['nodes'];
-  links_data: IADSApiPaperNetworkSummaryGraph['links'];
+  nodesData: IADSApiPaperNetworkSummaryGraph['nodes'];
+  linksData: IADSApiPaperNetworkSummaryGraph['links'];
   onClickNode: (node: IADSApiPaperNetworkSummaryGraphNode) => void;
   onClickLink: (
     source: IADSApiPaperNetworkSummaryGraphNode,
@@ -50,8 +50,8 @@ const outerRadius = width * 0.33;
 const innerRadius = width * 0.21;
 
 export const PaperNetworkGraph = ({
-  nodes_data,
-  links_data,
+  nodesData,
+  linksData,
   onClickNode,
   onClickLink,
   keyToUseAsValue,
@@ -59,8 +59,8 @@ export const PaperNetworkGraph = ({
   const [selectedNode, setSelectedNode] = useState<IADSApiPaperNetworkSummaryGraphNode | ILink>();
 
   const { partition, arc, line, nodeFill, fontScale, linkScale } = usePaperNetworkGraph(
-    nodes_data,
-    links_data,
+    nodesData,
+    linksData,
     keyToUseAsValue,
     innerRadius,
     outerRadius,
@@ -116,9 +116,9 @@ export const PaperNetworkGraph = ({
       total_reads: 0,
       stable_index: 0,
       id: 0,
-      children: nodes_data,
+      children: nodesData,
     }),
-    [nodes_data],
+    [nodesData],
   );
 
   const graphRoot = useMemo(() => partition(fake_root), [partition, fake_root]);
@@ -237,7 +237,7 @@ export const PaperNetworkGraph = ({
   // When view changes, transition elements on graph
   useEffect(() => {
     transitionNodePaths(graphRoot);
-    transitionLinks(parseLinks(links_data));
+    transitionLinks(parseLinks(linksData));
   }, [graphRoot]);
 
   useEffect(() => {
@@ -279,7 +279,7 @@ export const PaperNetworkGraph = ({
         .on('click', (e, p) => setSelectedNode(p.data));
 
       // links
-      const links = parseLinks(links_data);
+      const links = parseLinks(linksData);
       const linkContainer = g.append('g').classed('link-container', true);
 
       linkContainer
@@ -335,7 +335,7 @@ export const PaperNetworkGraph = ({
 
       return svg;
     },
-    [nodes_data],
+    [linksData],
   );
 
   const { ref } = useD3(renderFunction, [renderFunction]);

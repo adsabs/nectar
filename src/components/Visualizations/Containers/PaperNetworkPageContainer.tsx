@@ -222,8 +222,8 @@ export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerP
               }
             />
             <PaperNetworkGraphPane
-              nodes_data={paperNetworkData.data.summaryGraph.nodes}
-              links_data={paperNetworkData.data.summaryGraph.links}
+              nodesData={paperNetworkData.data.summaryGraph.nodes}
+              linksData={paperNetworkData.data.summaryGraph.links}
               views={views}
               onClickNode={(node) =>
                 dispatch({ type: 'SET_SELECTED_NODE', payload: { node, fullGraph: paperNetworkData.data.fullGraph } })

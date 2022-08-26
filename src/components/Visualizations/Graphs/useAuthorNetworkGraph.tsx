@@ -6,7 +6,7 @@ import { ILink, NetworkHierarchyNode } from './AuthorNetworkGraph';
 /**
  *
  * @param root
- * @param link_data
+ * @param linksData
  * @param keyToUseAsValue
  * @param radius
  * @param numberOfLabelsToShow
@@ -14,7 +14,7 @@ import { ILink, NetworkHierarchyNode } from './AuthorNetworkGraph';
  */
 export const useAuthorNetworkGraph = (
   root: IADSApiAuthorNetworkNode,
-  link_data: number[][],
+  linksData: number[][],
   keyToUseAsValue: IADSApiAuthorNetworkNodeKey,
   radius: number,
   numberOfLabelsToShow: number,
@@ -129,7 +129,7 @@ export const useAuthorNetworkGraph = (
   }, []);
 
   // links weights
-  const weights = useMemo(() => link_data.map((l) => l[2]), [link_data]);
+  const weights = useMemo(() => linksData.map((l) => l[2]), [linksData]);
 
   // function that gives the stroke width of a link
   const linkScale = useMemo(() => {
