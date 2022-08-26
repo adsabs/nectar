@@ -2,19 +2,27 @@ import { IADSApiSearchParams, useSearch, useVaultBigQuerySearch } from '@api';
 import { IADSApiPaperNetworkFullGraph, IADSApiPaperNetworkSummaryGraphNode } from '@api/vis/types';
 import { useGetPaperNetwork } from '@api/vis/vis';
 import { Box, Button, SimpleGrid, Stack, Text, useToast } from '@chakra-ui/react';
-import { Expandable, SimpleLink, StandardAlertMessage, LoadingMessage, CustomInfoMessage } from '@components';
-import { ITagItem, Tags } from '@components/Tags';
+import {
+  Expandable,
+  SimpleLink,
+  StandardAlertMessage,
+  LoadingMessage,
+  CustomInfoMessage,
+  IPaperNetworkLinkDetails,
+  IPaperNetworkNodeDetails,
+  PaperNetworkDetailsPane,
+  PaperNetworkGraphPane,
+} from '@components';
+import { ITagItem, Tags } from '@components';
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { flatten, intersection, pluck, prop, sortBy, uniq } from 'ramda';
 import { ReactElement, Reducer, useEffect, useMemo, useReducer, useState } from 'react';
-import { PaperNetworkGraphPane } from '../GraphPanes';
+import { IView } from '../GraphPanes/types';
 import { ILineGraph } from '../types';
 import { getPaperNetworkSummaryGraph } from '../utils';
-import { NotEnoughData } from '../NotEnoughData';
-import { IView } from '../GraphPanes/types';
-import { IPaperNetworkLinkDetails, IPaperNetworkNodeDetails, PaperNetworkDetailsPane } from '../Panes/NetworkDetails';
+import { NotEnoughData } from '../Widgets';
 
 interface IPaperNetworkPageContainerProps {
   query: IADSApiSearchParams;

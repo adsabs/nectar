@@ -9,6 +9,7 @@ export * from './ClassicForm';
 export * from './CopyButton';
 export * from './Dropdown';
 export * from './Expandable';
+export * from './Feedbacks';
 export * from './Footer';
 export * from './images';
 export * from './LandingTabs';

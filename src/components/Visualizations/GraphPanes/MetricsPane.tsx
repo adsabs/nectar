@@ -27,15 +27,15 @@ import {
   IPapersTableData,
   IReadsTableData,
   ILineGraph,
-} from './types';
-import { getIndicesTableData, getLineGraphXTicks, plotTimeSeriesGraph } from './utils';
+} from '../types';
+import { getIndicesTableData, getLineGraphXTicks, plotTimeSeriesGraph } from '../utils';
 export interface IMetricsProps {
   metrics: IADSApiMetricsResponse;
   isAbstract: boolean;
   bibcodes?: IDocsEntity['bibcode'][];
 }
 
-export const Metrics = (props: IMetricsProps): ReactElement => {
+export const MetricsPane = (props: IMetricsProps): ReactElement => {
   const { metrics, isAbstract, bibcodes } = props;
 
   const {

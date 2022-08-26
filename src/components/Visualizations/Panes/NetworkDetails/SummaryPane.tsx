@@ -1,8 +1,6 @@
-import { CustomInfoMessage } from '@components/Feedbacks';
-import { LineGraph } from '@components/Visualizations/Graphs';
-import { ILineGraph } from '@components/Visualizations/types';
-import { getLineGraphXTicks } from '@components/Visualizations/utils';
 import { Text } from '@chakra-ui/react';
+import { CustomInfoMessage, LineGraph, ILineGraph } from '@components';
+import { getLineGraphXTicks } from '@components/Visualizations/utils';
 
 // Show Summary graph of network
 export const SummaryPane = ({ summaryGraph }: { summaryGraph: ILineGraph }) => {

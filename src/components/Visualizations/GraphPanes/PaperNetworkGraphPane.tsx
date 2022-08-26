@@ -2,7 +2,7 @@ import { IADSApiPaperNetworkNodeKey, IADSApiPaperNetworkSummaryGraph, IADSApiPap
 import { Radio, RadioGroup, Stack } from '@chakra-ui/react';
 import { ReactElement, useState } from 'react';
 import { PaperNetworkGraph } from '../Graphs';
-import { PaperLimit } from '../Panes';
+import { PaperLimit } from '../Widgets';
 import { IView } from './types';
 
 export interface IPaperNetworkGraphPaneProps {

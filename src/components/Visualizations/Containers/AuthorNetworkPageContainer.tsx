@@ -10,6 +10,7 @@ import {
   StandardAlertMessage,
   LoadingMessage,
   CustomInfoMessage,
+  AuthorNetworkGraphPane,
 } from '@components';
 import { ITagItem, Tags } from '@components/Tags';
 import { makeSearchParams } from '@utils';
@@ -18,11 +19,9 @@ import { decode } from 'he';
 import { useRouter } from 'next/router';
 import { countBy, reverse, sortBy, uniq } from 'ramda';
 import { ReactElement, Reducer, useEffect, useMemo, useReducer, useState } from 'react';
-import { AuthorNetworkGraphPane } from '../GraphPanes';
 import { ILineGraph } from '../types';
 import { getAuthorNetworkSummaryGraph } from '../utils';
-import { NotEnoughData } from '../NotEnoughData';
-import { IView } from '../GraphPanes/types';
+import { NotEnoughData } from '../Widgets';
 
 interface IAuthorNetworkPageContainerProps {
   query: IADSApiSearchParams;

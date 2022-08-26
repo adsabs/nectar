@@ -1,7 +1,7 @@
 import { Box, List, ListItem, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react';
 import { SimpleLink } from '@components/SimpleLink';
+import { ILineGraph } from '@components/Visualizations/types';
 import { ReactElement, useEffect, useState } from 'react';
-import { ILineGraph } from '../../types';
 import { NodeDetailPane } from './NodeDetailsPane';
 import { SummaryPane } from './SummaryPane';
 
