@@ -15,8 +15,12 @@ type ParsedQueryParams = ParsedUrlQuery | qs.ParsedQs;
  */
 export const normalizeURLParams = <T extends Record<string, string> = Record<string, string>>(
   query: ParsedQueryParams,
+  skipKeys: string[] = [],
 ): T => {
   return Object.keys(query).reduce((acc, key) => {
+    if (skipKeys.includes(key)) {
+      return acc;
+    }
     const rawValue = query[key];
     const value = typeof rawValue === 'string' ? rawValue : Array.isArray(rawValue) ? rawValue.join(',') : undefined;
 
@@ -156,15 +160,17 @@ export const isNumPerPageType = (value: number): value is NumPerPageType => {
  * Helper to parse query params into API search parameters
  */
 export const parseQueryFromUrl = <TExtra extends Record<string, string | string[]>>(
-  params: ParsedQueryParams,
+  url: string,
   { sortPostfix }: { sortPostfix?: SolrSort } = {},
 ) => {
-  const normalizedParams = normalizeURLParams(params);
+  const params = parseSearchParams(url.split('?')[1]) as Record<string, string | string[]>;
+  const normalizedParams = normalizeURLParams(params, ['fq']);
   return {
     ...normalizedParams,
     q: normalizedParams?.q ?? '',
     sort: normalizeSolrSort(params.sort, sortPostfix),
     p: parseNumberAndClamp(normalizedParams?.p, 1),
+    ...(params.fq ? { fq: safeSplitString(params.fq) } : {}),
   } as IADSApiSearchParams & { p?: number; n?: number } & TExtra;
 };
 
@@ -197,9 +203,7 @@ export const isSolrSort = (maybeSolrSort: string): maybeSolrSort is SolrSort => 
 };
 
 // checks if passed in value is valid string
-export const isString = (maybeString: unknown): maybeString is string => {
-  return typeof maybeString === 'string';
-};
+export const isString = (maybeString: unknown): maybeString is string => typeof maybeString === 'string';
 
 /**
  * Takes raw value (maybe SolrSort) and returns valid SolrSort array
@@ -247,6 +251,20 @@ export const isIADSSearchParams = (value: unknown): value is IADSApiSearchParams
   return propIs(String, 'q', value);
 };
 
+export const safeSplitString = (value: string | string[], delimiter: string | RegExp = ','): string[] => {
+  try {
+    if (Array.isArray(value)) {
+      return value;
+    }
+
+    if (isString(value)) {
+      return value.split(delimiter);
+    }
+  } catch (e) {
+    return [];
+  }
+};
+
 /**
  * Enumerate enum keys
  *
@@ -291,12 +309,15 @@ export const makeSearchParams = (params: SafeSearchUrlParams, options: { omit?: 
 export const stringifySearchParams = (params: Record<string, unknown>, options?: qs.IStringifyOptions) =>
   qs.stringify(params, {
     indices: false,
-    arrayFormat: 'comma',
+    arrayFormat: 'repeat',
     format: 'RFC1738',
     sort: (a, b) => a - b,
     skipNulls: true,
     ...options,
   });
+
+export const parseSearchParams = (params: string, options?: qs.IParseOptions) =>
+  qs.parse(params, { parseArrays: true, ...options });
 
 export const purifyString = (value: string): string => {
   try {

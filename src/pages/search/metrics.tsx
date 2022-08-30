@@ -33,7 +33,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const BATCH_SIZE = 1000;
   setupApiSSR(ctx);
   const { qid: _qid, ...originalQuery } = ctx.query;
-  const { qid = null, p, ...query } = parseQueryFromUrl<{ qid: string }>(ctx.query, { sortPostfix: 'id asc' });
+  const { qid = null, p, ...query } = parseQueryFromUrl<{ qid: string }>(ctx.req.url, { sortPostfix: 'id asc' });
 
   // TODO: figure out why this clears the cache on transition
   // const queryClient = new QueryClient();

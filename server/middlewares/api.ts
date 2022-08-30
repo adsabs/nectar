@@ -52,7 +52,14 @@ export const api: Middleware = (req, res, next) => {
     baseURL: resolveApiBaseUrl(),
     withCredentials: true,
     timeout: 30000,
-    paramsSerializer: (params: PathLike) => qs.stringify(params, { indices: false, arrayFormat: 'comma' }),
+    paramsSerializer: (params: PathLike) =>
+      qs.stringify(params, {
+        indices: false,
+        arrayFormat: 'repeat',
+        format: 'RFC1738',
+        sort: (a, b) => a - b,
+        skipNulls: true,
+      }),
     headers: {
       common: {
         'Content-Type': 'application/x-www-form-urlencoded',

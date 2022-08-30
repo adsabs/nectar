@@ -172,7 +172,7 @@ const Item = (props: IItemProps) => {
     isDisabled = true;
   }
 
-  const { id: docId } = parseQueryFromUrl<{ id: string }>(router.query);
+  const docId = router.query.id as string;
   const active = router.asPath.indexOf(`/${route}`) > -1;
 
   return (
@@ -216,7 +216,7 @@ const TopMenuItem = (props: IItemProps) => {
   }
 
   const active = router.asPath.indexOf(`/${route}`) > -1;
-  const { id: docId } = parseQueryFromUrl<{ id: string }>(router.query);
+  const { id: docId } = parseQueryFromUrl<{ id: string }>(router.asPath);
 
   return (
     <MenuItem isDisabled={isDisabled} backgroundColor={active ? 'gray.100' : 'transparent'} mb={1}>

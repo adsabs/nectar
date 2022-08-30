@@ -1,17 +1,17 @@
-import { OverviewPageContainer, VizPageLayout } from '@components';
-import { NextPage } from 'next';
-import { makeSearchParams, parseQueryFromUrl } from '@utils';
 import { IADSApiSearchParams } from '@api';
+import { OverviewPageContainer, VizPageLayout } from '@components';
 import { FacetField } from '@components/Visualizations/types';
-import { useRouter } from 'next/router';
 import { getQueryWithCondition } from '@components/Visualizations/utils';
+import { makeSearchParams, parseQueryFromUrl } from '@utils';
+import { NextPage } from 'next';
+import { useRouter } from 'next/router';
 
 const OverviewPage: NextPage = () => {
   const router = useRouter();
 
-  const { qid: _qid, ...originalQuery } = parseQueryFromUrl<{ qid: string }>(router.query);
+  const { qid: _qid, ...originalQuery } = parseQueryFromUrl<{ qid: string }>(router.asPath);
 
-  const { qid, p, ...query } = parseQueryFromUrl<{ qid: string }>(router.query, { sortPostfix: 'id asc' });
+  const { qid, p, ...query } = parseQueryFromUrl<{ qid: string }>(router.asPath, { sortPostfix: 'id asc' });
 
   const bibsQuery: IADSApiSearchParams = qid ? { q: `docs(${qid})`, sort: ['id asc'] } : query;
 

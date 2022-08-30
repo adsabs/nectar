@@ -14,7 +14,7 @@ export const FacetFilters = (props: BoxProps): ReactElement => {
 
   useEffect(() => {
     // Get the current query from the router
-    const parsedQuery = parseQueryFromUrl(router.query);
+    const parsedQuery = parseQueryFromUrl(router.asPath);
 
     // parse and generate the filters from the query, and set our sections
     setFilterSections(getFilters(parsedQuery));
@@ -24,7 +24,7 @@ export const FacetFilters = (props: BoxProps): ReactElement => {
     curryN(4, (clause: string, key: string, rawClauses: string[]) => {
       if (typeof key === 'string') {
         // Remove the clause from the current query
-        const query = parseQueryFromUrl(router.query);
+        const query = parseQueryFromUrl(router.asPath);
         const params = removeClauseFromFQ(`${PREFIX}${key}`, clause, rawClauses, query);
 
         // Update the router with the new query
@@ -38,14 +38,12 @@ export const FacetFilters = (props: BoxProps): ReactElement => {
   );
 
   const handleRemoveAllFiltersClick = () => {
-    const query = parseQueryFromUrl(router.query);
+    const query = parseQueryFromUrl(router.asPath);
     const params = clearFilters(query);
 
     if (isIADSSearchParams(params)) {
       const search = makeSearchParams(params);
-      void router
-        .push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true })
-        .then(() => setFilterSections([]));
+      void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
     }
   };
 

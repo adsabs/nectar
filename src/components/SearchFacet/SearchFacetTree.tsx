@@ -212,6 +212,7 @@ const SearchFacetChildNode = (props: SearchFacetNodeProps) => {
       <Collapse in={isExpanded}>
         {/* Primary loading indicator */}
         {isFetching && treeData.length === 0 && <Spinner size="sm" />}
+        {!isFetching && treeData.length === 0 && <Text size="sm">No results</Text>}
 
         <Box pl="10" w="full" mb={isExpanded ? '3' : '0'}>
           {/* Render child tree */}

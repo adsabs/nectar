@@ -92,7 +92,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const handleOperationsLink = (operator: Operator) => {
     if (exploreAll) {
       // new search with operator
-      const query = parseQueryFromUrl(router.query);
+      const query = parseQueryFromUrl(router.asPath);
       const q = createOperatorQuery(operator, query.q);
       void router.push({ pathname: '', search: makeSearchParams({ q, sort: ['score desc'] }) });
     } else {
