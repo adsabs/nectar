@@ -145,7 +145,7 @@ export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerP
 
   // paper network data to summary graph
   const paperNetworkSummaryGraph: ILineGraph = useMemo(() => {
-    if (paperNetworkData) {
+    if (paperNetworkData?.data?.summaryGraph) {
       return getPaperNetworkSummaryGraph(paperNetworkData);
     }
   }, [paperNetworkData]);
