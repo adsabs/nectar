@@ -84,8 +84,10 @@ export const SearchFacetTree = (props: ISearchFacetTreeProps): ReactElement => {
     return null;
   }
 
-  if (treeData.length === 0) {
+  if (treeData.length === 0 && isFetching) {
     return <Spinner size="sm" />;
+  } else if (treeData.length === 0 && !isFetching) {
+    return <Text size="sm">No results</Text>;
   }
 
   const initialRoots = map(head, treeData) as string[];
