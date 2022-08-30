@@ -1,4 +1,4 @@
-import api, { ADSQuery, ApiRequestConfig, IADSApiSearchParams } from '@api';
+import api, { ADSQuery, ApiRequestConfig } from '@api';
 import { ApiTargets } from '@api/models';
 import { Bibcode } from '@api/search';
 import { QueryFunction, useQuery } from 'react-query';
@@ -11,7 +11,7 @@ export const visKeys = {
   authorNetwork: (params: IADSApiVisParams) => ['vis/authorNetwork', { ...params }] as const,
 };
 
-const retryFn = (count: number, error: unknown) => {
+const retryFn = (count: number) => {
   if (count >= MAX_RETRIES) {
     return false;
   }

@@ -15,8 +15,6 @@ export interface IFacetTreeState {
 }
 
 const createStore = (initialRoots: string[], name: string) => () => {
-  // console.log('init store', initialRoots, initTree(initialRoots));
-
   return create<
     IFacetTreeState,
     SetState<IFacetTreeState>,
@@ -24,7 +22,7 @@ const createStore = (initialRoots: string[], name: string) => () => {
     Mutate<StoreApi<IFacetTreeState>, [['zustand/devtools', never]]>
   >(
     devtools(
-      (set, get) => ({
+      (set) => ({
         selectedKeys: [],
         tree: initialRoots ? initTree<FacetNodeTree>(initialRoots) : {},
 
