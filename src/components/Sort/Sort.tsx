@@ -160,7 +160,7 @@ const SortSelect = ({
 // non-native type, used in search results
 const NoJsSort = (): ReactElement => {
   const router = useRouter();
-  const query = parseQueryFromUrl(router.query);
+  const query = parseQueryFromUrl(router.asPath);
   const [sortby, dir] = query.sort[0].split(' ') as [SolrSortField, SolrSortDirection];
 
   const getToggledDir = (dir: SolrSortDirection) => {

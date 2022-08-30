@@ -9,12 +9,11 @@ import { Alert, Input, Link, Textarea } from '@chakra-ui/react';
 import { BibstemPicker } from '@components';
 import { useErrorMessage } from '@hooks/useErrorMessage';
 import { useIsClient } from '@hooks/useIsClient';
-import { setupApiSSR } from '@utils';
+import { setupApiSSR, stringifySearchParams } from '@utils';
 import DOMPurify from 'isomorphic-dompurify';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import qs from 'qs';
 import { any, head, isEmpty, join, map, not, omit, pipe, reject, toPairs, values } from 'ramda';
 import { FormEventHandler, useCallback } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -383,14 +382,11 @@ const createQuery = pipe<
 );
 
 const stringifyQuery = (q: string) => {
-  return qs.stringify(
-    {
-      q,
-      sort: ['date desc', 'bibcode desc'],
-      p: 1,
-    },
-    { arrayFormat: 'comma', indices: false, format: 'RFC3986' },
-  );
+  return stringifySearchParams({
+    q,
+    sort: ['date desc', 'bibcode desc'],
+    p: 1,
+  });
 };
 
 const journalQueryNotEmpty = pipe<

@@ -103,7 +103,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     p,
     format,
     ...query
-  } = parseQueryFromUrl<{ qid: string; format: string }>(ctx.query, { sortPostfix: 'id asc' });
+  } = parseQueryFromUrl<{ qid: string; format: string }>(ctx.req.url, { sortPostfix: 'id asc' });
 
   if (!query && !qid) {
     return {

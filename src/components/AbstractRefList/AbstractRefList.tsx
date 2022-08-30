@@ -19,7 +19,7 @@ export interface IAbstractRefListProps {
 export const AbstractRefList = (props: IAbstractRefListProps): ReactElement => {
   const { docs, onPageChange = noop, totalResults, searchLinkParams } = props;
   const router = useRouter();
-  const { p: page } = parseQueryFromUrl(router.query);
+  const { p: page } = parseQueryFromUrl(router.asPath);
   const params = { ...searchLinkParams, start: calculateStartIndex(page, APP_DEFAULTS.RESULT_PER_PAGE) };
 
   const handlePageChange = (page: number) => {

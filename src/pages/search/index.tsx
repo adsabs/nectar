@@ -71,7 +71,7 @@ const SearchPage: NextPage = () => {
   const numFound = queries.length > 1 ? path<number>(['1', 'response', 'numFound'], last(queries)) : null;
 
   // parse the query params from the URL, this should match what the server parsed
-  const parsedParams = parseQueryFromUrl(router.query);
+  const parsedParams = parseQueryFromUrl(router.asPath);
   const params = {
     ...defaultParams,
     ...parsedParams,
@@ -254,9 +254,8 @@ const NoResultsMsg = ({ query = '' }: { query: string }) => (
     }
   />
 );
-
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const { p: page, ...query } = parseQueryFromUrl<{ p: string }>(ctx.query);
+  const { p: page, ...query } = parseQueryFromUrl<{ p: string }>(ctx.req.url);
   setupApiSSR(ctx);
   const queryClient = new QueryClient();
 
