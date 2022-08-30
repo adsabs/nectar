@@ -60,7 +60,7 @@
     "neverthrow": "^4.2.1",
     "next": "12",
     "nprogress": "^0.2.0",
-    "qs": "^6.10.1",
+    "qs": "^6.11.0",
     "ramda": "^0.28.0",
     "react": "^17.0.2",
     "react-copy-to-clipboard": "^5.0.4",
@@ -75,7 +75,6 @@
     "zustand": "^3.6.9"
   },
   "devDependencies": {
-    "@types/lucene": "^2.1.4",
     "@babel/core": "^7.0.0-0",
     "@chakra-ui/storybook-addon": "^1.0.3",
     "@faker-js/faker": "^6.0.0",
@@ -108,6 +107,7 @@
     "@types/he": "^1.1.2",
     "@types/jest": "^26.0.23",
     "@types/katex": "^0.11.0",
+    "@types/lucene": "^2.1.4",
     "@types/node": "^14.17.17",
     "@types/nprogress": "^0.2.0",
     "@types/qs": "^6.9.7",
