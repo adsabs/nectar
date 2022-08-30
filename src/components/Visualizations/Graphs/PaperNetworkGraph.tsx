@@ -166,7 +166,7 @@ export const PaperNetworkGraph = ({
   // transition nodes for view change
   const transitionNodePaths = (root: HierarchyRectangularNode<IADSApiPaperNetworkSummaryGraphNode>) => {
     d3.selectAll<ADSSVGPathElement, unknown>('.node-path')
-      .data(root.descendants().slice(1))
+      .data(root.descendants())
       .join<ADSSVGPathElement>('path')
       .transition()
       .duration(1500)
@@ -268,7 +268,7 @@ export const PaperNetworkGraph = ({
 
       // Nodes
       g.selectAll('path')
-        .data(graphRoot.descendants().slice(1)) // exclude the fake root
+        .data(graphRoot.descendants()) // exclude the fake root
         .join('path')
         .classed('node-path', true)
         .attr('id', (p) => `group-id-${p.data.id}`)
