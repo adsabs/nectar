@@ -257,7 +257,7 @@ const IndicesSection = ({
           </Heading>
           {indicesTable && <IndicesTable data={computedTable} />}
           {indicesGraph && (
-            <LineGraph data={indicesGraph.data} ticks={getLineGraphXTicks(indicesGraph.data, 5)} xScaleType="point" />
+            <LineGraph data={indicesGraph.data} ticks={getLineGraphXTicks(indicesGraph.data, 5)} xScaleType="linear" />
           )}
           {!indicesGraph && isLoading && <CircularProgress mt={5} isIndeterminate />}
           {!indicesGraph && isErrorMetrics && (
@@ -268,7 +268,11 @@ const IndicesSection = ({
             </Alert>
           )}
           {computedGraph && (
-            <LineGraph data={computedGraph.data} ticks={getLineGraphXTicks(computedGraph.data, 5)} xScaleType="point" />
+            <LineGraph
+              data={computedGraph.data}
+              ticks={getLineGraphXTicks(computedGraph.data, 5)}
+              xScaleType="linear"
+            />
           )}
         </Box>
       ) : (

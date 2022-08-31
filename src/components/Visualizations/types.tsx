@@ -102,6 +102,7 @@ export type FacetField = 'year' | 'citation_count' | 'read_count';
 
 export type Y_Axis = 'linear' | 'log';
 
+// linear for sequenced data like years, so that ordering is maintained even if data is not specified in order
 export type X_Axis = 'linear' | 'point';
 
 export type NetworkType = 'author' | 'paper';

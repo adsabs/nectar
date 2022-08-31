@@ -35,7 +35,7 @@ export const LineGraph = memo(
                     reverse: true,
                   }
             }
-            curve="basis"
+            curve="monotoneX"
             axisTop={null}
             axisRight={null}
             axisBottom={{
