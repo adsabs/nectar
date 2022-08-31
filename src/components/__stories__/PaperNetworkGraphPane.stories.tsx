@@ -22,8 +22,8 @@ const views: IView[] = [
 ];
 
 Default.args = {
-  nodes_data: response.data.summaryGraph.nodes,
-  links_data: response.data.summaryGraph.links,
+  nodesData: response.data.summaryGraph.nodes,
+  linksData: response.data.summaryGraph.links,
   views,
   onChangePaperLimit: noop,
   maxPaperLimit: 200,

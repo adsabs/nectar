@@ -23,7 +23,7 @@ const views: IView[] = [
 
 Default.args = {
   root: response.data.root,
-  link_data: response.data.link_data,
+  linksData: response.data.link_data,
   views,
   onChangePaperLimit: noop,
   maxPaperLimit: 200,
