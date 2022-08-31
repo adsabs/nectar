@@ -1,40 +1,27 @@
-import { handlers } from '@mocks/handlers';
-import { render } from '@testing-library/react';
-import { setupServer } from 'msw/node';
-import { FC } from 'react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { render } from '@test-utils';
+import userEvent from '@testing-library/user-event';
+import { beforeEach, describe, test, vi } from 'vitest';
 import PaperForm from '../pages/paper-form';
 
 const router = {
   pathname: '/',
-  push: jest.fn(),
+  push: vi.fn(),
   asPath: '/',
 };
-jest.mock('next/router', () => ({
+vi.mock('next/router', () => ({
   useRouter: () => router,
 }));
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-    },
-  },
-});
-const wrapper: FC = ({ children }) => <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
-
-const server = setupServer(...handlers);
+const setup = () => {
+  const user = userEvent.setup();
+  return { user, ...render(<PaperForm />) };
+};
 
 describe('Paper Form', () => {
-  beforeAll(() => server.listen());
-  beforeEach(() => {
-    router.push.mockReset();
-    server.resetHandlers();
-  });
-  afterAll(() => server.close());
+  beforeEach(() => router.push.mockReset());
 
   test('renders without error', () => {
-    render(<PaperForm />, { wrapper });
+    render(<PaperForm />);
   });
 
   test.todo('journal search works');

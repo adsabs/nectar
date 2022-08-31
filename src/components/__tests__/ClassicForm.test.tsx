@@ -8,6 +8,7 @@ import {
   getPubdate,
   getTitle,
 } from '@components/ClassicForm/helpers';
+import { describe, expect, it } from 'vitest';
 
 describe('ClassicForm', () => {
   it('renders without crashing', () => {

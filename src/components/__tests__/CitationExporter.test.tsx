@@ -1,34 +1,25 @@
 import { ExportApiFormatKey, IExportApiParams } from '@api';
 import { composeStories } from '@storybook/testing-react';
-import { render, waitFor } from '@testing-library/react';
+import { render, waitFor } from '@test-utils';
 import userEvent from '@testing-library/user-event';
-import { FC } from 'react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { ReactElement } from 'react';
+import { describe, expect, test, vi } from 'vitest';
 import * as stories from '../__stories__/CitationExporter.stories';
 
 const { NoRecords, MultiRecord, SingleMode } = composeStories(stories);
 
 const router = {
   pathname: '/',
-  push: jest.fn(),
+  push: vi.fn(),
   asPath: '/',
   query: {
     sort: '',
   },
-  beforePopState: jest.fn(),
+  beforePopState: vi.fn(),
 };
-jest.mock('next/router', () => ({
+vi.mock('next/router', () => ({
   useRouter: () => router,
 }));
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-    },
-  },
-});
-const wrapper: FC = ({ children }) => <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 
 const checkOutput = (
   el: HTMLTextAreaElement,
@@ -47,39 +38,37 @@ const checkOutput = (
   expect(el).toHaveValue(JSON.stringify(expected, Object.keys(expected).sort(), 2));
 };
 
-const setup = (component: JSX.Element) => {
+const setup = (component: ReactElement) => {
   return {
     user: userEvent.setup(),
-    ...render(component, { wrapper }),
+    ...render(component),
   };
 };
 
-describe('CitationExporter', () => {
-  describe('single mode', () => {
-    test('renders without error', () => {
-      setup(<SingleMode />);
-    });
-    test('has proper output', async () => {
-      const { getByTestId } = setup(<SingleMode />);
-      await waitFor(() => checkOutput(getByTestId('export-output') as HTMLTextAreaElement));
-    });
+describe('single mode', () => {
+  test('renders without error', () => {
+    setup(<SingleMode />);
   });
-
-  describe('multi-record mode', () => {
-    test('renders without error', () => {
-      setup(<MultiRecord />);
-    });
-    test('has proper output', async () => {
-      const { getByTestId } = setup(<MultiRecord />);
-
-      await waitFor(() => checkOutput(getByTestId('export-output') as HTMLTextAreaElement, { numRecords: 10 }));
-    });
+  test('has proper output', async () => {
+    const { getByTestId } = setup(<SingleMode />);
+    await waitFor(() => checkOutput(getByTestId('export-output') as HTMLTextAreaElement));
   });
+});
 
-  describe('no records view', () => {
-    test('renders without error', () => {
-      const { getByTestId } = setup(<NoRecords />);
-      expect(getByTestId('export-heading')).toHaveTextContent('No Records');
-    });
+describe('multi-record mode', () => {
+  test('renders without error', () => {
+    setup(<MultiRecord />);
+  });
+  test('has proper output', async () => {
+    const { getByTestId } = setup(<MultiRecord />);
+
+    await waitFor(() => checkOutput(getByTestId('export-output') as HTMLTextAreaElement, { numRecords: 10 }));
+  });
+});
+
+describe('no records view', () => {
+  test('renders without error', () => {
+    const { getByTestId } = render(<NoRecords />);
+    expect(getByTestId('export-heading')).toHaveTextContent('No Records');
   });
 });

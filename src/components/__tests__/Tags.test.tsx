@@ -1,5 +1,6 @@
 import { ITagItem } from '@components/Tags';
 import { render } from '@testing-library/react';
+import { describe, it } from 'vitest';
 import { Default as Tags } from '../__stories__/Tags.stories';
 
 const tagItems = [

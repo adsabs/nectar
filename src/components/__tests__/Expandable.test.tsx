@@ -1,4 +1,5 @@
-import { render } from '@testing-library/react';
+import { render } from '@test-utils';
+import { describe, it } from 'vitest';
 import { Default as Expandable } from '../__stories__/Expandable.stories';
 
 describe('Expandable', () => {
