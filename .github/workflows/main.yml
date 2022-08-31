@@ -10,19 +10,34 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
 
+      # Install dependencies
       - name: Use Volta with yarn
         uses: volta-cli/action@v1
         with:
-          node-version: 14.17.6
+          node-version: 14.18.0
           yarn-version: 1.22.15
       - run: yarn install
 
+      # Run linter
       - name: Lint
         run: yarn lint
 
+      # Run tests (with coverage)
       - name: Test
-        run: yarn test
+        run: yarn test:coverage
 
+      # Upload code coverage report
+      - name: Upload Coverage
+        uses: codecov/codecov-action@v3
+        with:
+          fail_ci_if_error: true
+          files: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-nectar
+          path_to_write_report: ./coverage/codecov_report.txt
+          verbose: true
+
+      # Build project
       - name: Build
         if: always()
         run: yarn build
