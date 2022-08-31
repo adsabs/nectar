@@ -1,6 +1,6 @@
 import api, { ADSQuery, ApiRequestConfig } from '@api';
 import { ApiTargets } from '@api/models';
-import { Bibcode } from '@api/search';
+import { Bibcode, IADSApiSearchParams } from '@api/search';
 import { QueryFunction, useQuery } from 'react-query';
 import { getAuthorNetworkParams, getPaperNetworkParams } from './models';
 import { IADSApiVisParams, IADSApiAuthorNetworkResponse, IADSApiPaperNetworkResponse } from './types';
@@ -20,8 +20,8 @@ const retryFn = (count: number) => {
   return true;
 };
 
-export const useGetAuthorNetwork: ADSQuery<Bibcode[], IADSApiAuthorNetworkResponse> = (bibcodes, options) => {
-  const authorNetworkParams = getAuthorNetworkParams(bibcodes);
+export const useGetAuthorNetwork: ADSQuery<IADSApiSearchParams, IADSApiAuthorNetworkResponse> = (params, options) => {
+  const authorNetworkParams = getAuthorNetworkParams(params);
 
   return useQuery({
     queryKey: visKeys.authorNetwork(authorNetworkParams),
@@ -45,8 +45,8 @@ export const fetchAuthorNetwork: QueryFunction<IADSApiAuthorNetworkResponse> = a
   return data;
 };
 
-export const useGetPaperNetwork: ADSQuery<Bibcode[], IADSApiPaperNetworkResponse> = (bibcodes, options) => {
-  const paperNetworkParams = getPaperNetworkParams(bibcodes);
+export const useGetPaperNetwork: ADSQuery<IADSApiSearchParams, IADSApiPaperNetworkResponse> = (params, options) => {
+  const paperNetworkParams = getPaperNetworkParams(params);
 
   return useQuery({
     queryKey: visKeys.paperNetwork(paperNetworkParams),

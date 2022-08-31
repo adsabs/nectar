@@ -1,4 +1,4 @@
-import { IADSApiSearchParams, useSearch, useVaultBigQuerySearch } from '@api';
+import { IADSApiSearchParams, useVaultBigQuerySearch } from '@api';
 import { IADSApiPaperNetworkFullGraph, IADSApiPaperNetworkSummaryGraphNode } from '@api/vis/types';
 import { useGetPaperNetwork } from '@api/vis/vis';
 import { Box, Button, SimpleGrid, Stack, Text, useToast } from '@chakra-ui/react';
@@ -114,34 +114,21 @@ export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerP
     filters: [],
   });
 
-  // fetch bibcodes of query
-  const {
-    data: bibsQueryResponse,
-    isLoading: bibsQueryIsLoading,
-    isError: bibsQueryIsError,
-    error: bibsQueryError,
-  } = useSearch(
-    { ...query, fl: ['bibcode'], rows: state.rowsToFetch },
-    { enabled: !!query && !!query.q && query.q.length > 0 },
-  );
-
-  // tranform query data to a list of bibcodes
-  const bibcodes = useMemo(() => {
-    return bibsQueryResponse ? bibsQueryResponse.docs.map((d) => d.bibcode) : [];
-  }, [bibsQueryResponse]);
-
-  const numFound = useMemo(() => {
-    return bibsQueryResponse ? bibsQueryResponse.numFound : 0;
-  }, [bibsQueryResponse]);
-
-  // fetch paper network data when bibcodes are available
+  // fetch paper network data
   const {
     data: paperNetworkData,
     isLoading: paperNetworkIsLoading,
     isSuccess: paperNetworkIsSuccess,
     isError: paperNetworkIsError,
     error: paperNetworkError,
-  } = useGetPaperNetwork(bibcodes, { enabled: bibcodes && bibcodes.length > 0 });
+  } = useGetPaperNetwork(
+    { ...query, rows: state.rowsToFetch },
+    { enabled: !!query && !!query.q && query.q.length > 0 },
+  );
+
+  const numFound = useMemo(() => {
+    return paperNetworkData ? paperNetworkData.msg.numFound : 0;
+  }, [paperNetworkData]);
 
   // paper network data to summary graph
   const paperNetworkSummaryGraph: ILineGraph = useMemo(() => {
@@ -203,10 +190,7 @@ export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerP
   return (
     <Box as="section" aria-label="Paper network graph" my={10}>
       <StatusDisplay
-        bibsQueryIsError={bibsQueryIsError}
         paperNetworkIsError={paperNetworkIsError}
-        bibsQueryIsLoading={bibsQueryIsLoading}
-        bibsQueryError={bibsQueryError}
         paperNetworkIsLoading={paperNetworkIsLoading}
         paperNetworkError={paperNetworkError}
       />
@@ -272,29 +256,16 @@ export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerP
 };
 
 const StatusDisplay = ({
-  bibsQueryIsError,
   paperNetworkIsError,
-  bibsQueryIsLoading,
-  bibsQueryError,
   paperNetworkIsLoading,
   paperNetworkError,
 }: {
-  bibsQueryIsError: boolean;
   paperNetworkIsError: boolean;
-  bibsQueryIsLoading: boolean;
-  bibsQueryError: unknown;
   paperNetworkIsLoading: boolean;
   paperNetworkError: unknown;
 }): ReactElement => {
   return (
     <>
-      {bibsQueryIsError && (
-        <StandardAlertMessage
-          status="error"
-          title="Error fetching records!"
-          description={axios.isAxiosError(bibsQueryError) && bibsQueryError.message}
-        />
-      )}
       {paperNetworkIsError && (
         <StandardAlertMessage
           status="error"
@@ -302,7 +273,6 @@ const StatusDisplay = ({
           description={axios.isAxiosError(paperNetworkError) && paperNetworkError.message}
         />
       )}
-      {bibsQueryIsLoading && <LoadingMessage message="Fetching records" />}
       {paperNetworkIsLoading && <LoadingMessage message="Fetching paper network data" />}
     </>
   );

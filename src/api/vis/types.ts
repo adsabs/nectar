@@ -1,6 +1,7 @@
 import { Bibcode } from '@api';
 export interface IADSApiVisParams {
-  bibcodes: Bibcode[];
+  bibcodes?: Bibcode[];
+  query?: string[];
 }
 
 export interface IADSApiAuthorNetworkResponse {

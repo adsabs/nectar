@@ -1,4 +1,4 @@
-import { IADSApiSearchParams, useSearch, useVaultBigQuerySearch } from '@api';
+import { IADSApiSearchParams, useVaultBigQuerySearch } from '@api';
 import { IADSApiAuthorNetworkNode, IBibcodeDict } from '@api/vis/types';
 import { useGetAuthorNetwork } from '@api/vis/vis';
 import { Box, Button, SimpleGrid, Stack, Text, useToast } from '@chakra-ui/react';
@@ -19,6 +19,7 @@ import { decode } from 'he';
 import { useRouter } from 'next/router';
 import { countBy, reverse, sortBy, uniq } from 'ramda';
 import { ReactElement, Reducer, useEffect, useMemo, useReducer, useState } from 'react';
+import { IView } from '../GraphPanes/types';
 import { ILineGraph } from '../types';
 import { getAuthorNetworkSummaryGraph } from '../utils';
 import { NotEnoughData } from '../Widgets';
@@ -82,34 +83,21 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
     filters: [],
   });
 
-  // fetch bibcodes of query
-  const {
-    data: bibsQueryResponse,
-    isLoading: bibsQueryIsLoading,
-    isError: bibsQueryIsError,
-    error: bibsQueryError,
-  } = useSearch(
-    { ...query, fl: ['bibcode'], rows: state.rowsToFetch },
-    { enabled: !!query && !!query.q && query.q.length > 0 },
-  );
-
-  // tranform query data to a list of bibcodes
-  const bibcodes = useMemo(() => {
-    return bibsQueryResponse ? bibsQueryResponse.docs.map((d) => d.bibcode) : [];
-  }, [bibsQueryResponse]);
-
-  const numFound = useMemo(() => {
-    return bibsQueryResponse ? bibsQueryResponse.numFound : 0;
-  }, [bibsQueryResponse]);
-
-  // fetch author network data when bibcodes are available
+  // fetch author network data
   const {
     data: authorNetworkData,
     isLoading: authorNetworkIsLoading,
     isSuccess: authorNetworkIsSuccess,
     isError: authorNetworkIsError,
     error: authorNetworkError,
-  } = useGetAuthorNetwork(bibcodes, { enabled: bibcodes && bibcodes.length > 0 });
+  } = useGetAuthorNetwork(
+    { ...query, rows: state.rowsToFetch },
+    { enabled: !!query && !!query.q && query.q.length > 0 },
+  );
+
+  const numFound = useMemo(() => {
+    return authorNetworkData ? authorNetworkData.msg.numFound : 0;
+  }, [authorNetworkData]);
 
   // author network data to summary graph
   const authorNetworkSummaryGraph: ILineGraph = useMemo(() => {
@@ -171,10 +159,7 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
   return (
     <Box as="section" aria-label="Author network graph" my={10}>
       <StatusDisplay
-        bibsQueryIsError={bibsQueryIsError}
         authorNetworkIsError={authorNetworkIsError}
-        bibsQueryIsLoading={bibsQueryIsLoading}
-        bibsQueryError={bibsQueryError}
         authorNetworkIsLoading={authorNetworkIsLoading}
         authorNetworkError={authorNetworkError}
       />
@@ -230,29 +215,16 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
 };
 
 const StatusDisplay = ({
-  bibsQueryIsError,
   authorNetworkIsError,
-  bibsQueryIsLoading,
-  bibsQueryError,
   authorNetworkIsLoading,
   authorNetworkError,
 }: {
-  bibsQueryIsError: boolean;
   authorNetworkIsError: boolean;
-  bibsQueryIsLoading: boolean;
-  bibsQueryError: unknown;
   authorNetworkIsLoading: boolean;
   authorNetworkError: unknown;
 }): ReactElement => {
   return (
     <>
-      {bibsQueryIsError && (
-        <StandardAlertMessage
-          status="error"
-          title="Error fetching records!"
-          description={axios.isAxiosError(bibsQueryError) && bibsQueryError.message}
-        />
-      )}
       {authorNetworkIsError && (
         <StandardAlertMessage
           status="error"
@@ -260,7 +232,6 @@ const StatusDisplay = ({
           description={axios.isAxiosError(authorNetworkError) && authorNetworkError.message}
         />
       )}
-      {bibsQueryIsLoading && <LoadingMessage message="Fetching records" />}
       {authorNetworkIsLoading && <LoadingMessage message="Fetching author network data" />}
     </>
   );
