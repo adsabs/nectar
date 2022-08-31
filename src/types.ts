@@ -61,3 +61,13 @@ declare global {
     onResponse: unknown;
   };
 }
+
+export interface AppRuntimeConfig {
+  publicRuntimeConfig: {
+    apiHost: string;
+  };
+  serverRuntimeConfig: {
+    apiHost: string;
+    baseCanonicalUrl: string;
+  };
+}

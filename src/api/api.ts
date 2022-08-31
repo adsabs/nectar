@@ -1,5 +1,6 @@
 import { IUserData } from '@api';
 import { APP_STORAGE_KEY, updateAppUser } from '@store';
+import { AppRuntimeConfig } from '@types';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { isPast, parseISO } from 'date-fns';
 import { PathLike } from 'fs';
@@ -18,7 +19,7 @@ const resolveApiBaseUrl = (defaultBaseUrl = ''): string => {
     return 'http://localhost';
   }
 
-  const config = getConfig();
+  const config = getConfig() as AppRuntimeConfig;
 
   if (typeof config === 'undefined') {
     return defaultBaseUrl;
