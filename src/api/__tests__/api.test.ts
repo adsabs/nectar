@@ -1,12 +1,11 @@
 import api, { ApiTargets, IBootstrapPayload } from '@api';
-import { handlers } from '@mocks/handlers';
-import { IsomorphicResponse } from '@mswjs/interceptors';
 import { APP_STORAGE_KEY } from '@store';
-import { DefaultRequestBody, MockedRequest, rest } from 'msw';
-import { setupServer } from 'msw/node';
+import { createServerListenerMocks } from '@test-utils';
+import { rest } from 'msw';
 import { map, path, pipe, repeat } from 'ramda';
+import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
 
-global.alert = jest.fn();
+global.alert = vi.fn();
 
 const mockUserData: Pick<IBootstrapPayload, 'username' | 'access_token' | 'anonymous' | 'expire_in'> = {
   username: 'anonymous@ads',
@@ -15,43 +14,29 @@ const mockUserData: Pick<IBootstrapPayload, 'username' | 'access_token' | 'anony
   expire_in: '2099-03-22T14:50:07.712037',
 };
 
-const server = setupServer(
-  ...handlers,
-  rest.get('*test', (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json({ ok: true }));
-  }),
-);
+const testHandler = rest.get('*test', (req, res, ctx) => {
+  return res(ctx.status(200), ctx.json({ ok: true }));
+});
 
-const setup = () => {
-  const onReq = jest.fn<never, Parameters<(req: MockedRequest) => void>>();
-  const onRes = jest.fn<never, Parameters<(res: IsomorphicResponse, requestId: string) => void>>();
-  server.events.on('request:start', onReq);
-  server.events.on('response:mocked', onRes);
-  const testRequest = (params?: Record<string, string>) =>
-    api.request({
-      method: 'GET',
-      params,
-      url: '/test',
-    });
+const testRequest = (params?: Record<string, string>) =>
+  api.request({
+    method: 'GET',
+    params,
+    url: '/test',
+  });
 
-  return { onReq, onRes, testRequest };
-};
-
-const urls = pipe<[jest.Mock<never, [req: MockedRequest<DefaultRequestBody>]>], Record<string, unknown>[], string[]>(
+const urls = pipe<[Mock], Record<string, unknown>[], string[]>(
   path(['mock', 'calls']),
   map(path(['0', 'url', 'pathname'])),
 );
 
 describe('api', () => {
-  beforeAll(() => server.listen());
-  beforeEach(() => {
-    api.reset();
-    server.resetHandlers();
-  });
-  afterAll(() => server.close());
+  beforeEach(() => api.reset());
 
-  test('basic request calls bootstrap and adds auth', async () => {
-    const { onReq, onRes, testRequest } = setup();
+  test('basic request calls bootstrap and adds auth', async ({ server }) => {
+    const { onRequest: onReq, onResponse: onRes } = createServerListenerMocks(server);
+    server.use(testHandler);
+
     await testRequest();
 
     expect(onReq).toBeCalledTimes(2);
@@ -65,8 +50,9 @@ describe('api', () => {
     expect(onReq.mock.calls[1][0].headers.get('cookie')).toEqual('session=test-session');
   });
 
-  test('passing token initially skips bootstrap', async () => {
-    const { onReq, testRequest } = setup();
+  test('passing token initially skips bootstrap', async ({ server }) => {
+    const { onRequest: onReq, onResponse: onRes } = createServerListenerMocks(server);
+    server.use(testHandler);
     api.setUserData(mockUserData);
     await testRequest();
 
@@ -76,8 +62,9 @@ describe('api', () => {
     expect(onReq.mock.calls[0][0].headers.get('cookie')).toEqual('session=test-session');
   });
 
-  test('expired userdata causes bootstrap', async () => {
-    const { onReq, testRequest } = setup();
+  test('expired userdata causes bootstrap', async ({ server }) => {
+    const { onRequest: onReq, onResponse: onRes } = createServerListenerMocks(server);
+    server.use(testHandler);
     api.setUserData({ ...mockUserData, expire_in: '1977-03-22T14:50:07.712037' });
     await testRequest();
 
@@ -85,9 +72,9 @@ describe('api', () => {
     expect(urls(onReq)[0]).toEqual(ApiTargets.BOOTSTRAP);
   });
 
-  test('bootstrap is retried after error', async () => {
-    const { onReq, testRequest } = setup();
-
+  test('bootstrap is retried after error', async ({ server }) => {
+    const { onRequest: onReq, onResponse: onRes } = createServerListenerMocks(server);
+    server.use(testHandler);
     server.use(
       rest.get(`*${ApiTargets.BOOTSTRAP}`, (_, res, ctx) => {
         return res(ctx.status(500, 'Server Error'));
@@ -100,8 +87,9 @@ describe('api', () => {
     expect(urls(onReq).slice(0, 2)).toEqual(repeat(ApiTargets.BOOTSTRAP, 2));
   });
 
-  test('if user data set in local storage, it is used instead of bootstrapping', async () => {
-    const { onReq, testRequest } = setup();
+  test('if user data set in local storage, it is used instead of bootstrapping', async ({ server }) => {
+    const { onRequest: onReq, onResponse: onRes } = createServerListenerMocks(server);
+    server.use(testHandler);
     global.localStorage.setItem(
       APP_STORAGE_KEY,
       JSON.stringify({ state: { user: { ...mockUserData, access_token: 'from-local-storage' } } }),
@@ -113,8 +101,9 @@ describe('api', () => {
     global.localStorage.clear();
   });
 
-  test('expired user data set in local storage causes bootstrap', async () => {
-    const { onReq, testRequest } = setup();
+  test('expired user data set in local storage causes bootstrap', async ({ server }) => {
+    const { onRequest: onReq, onResponse: onRes } = createServerListenerMocks(server);
+    server.use(testHandler);
     global.localStorage.setItem(
       APP_STORAGE_KEY,
       JSON.stringify({
@@ -130,9 +119,9 @@ describe('api', () => {
     global.localStorage.clear();
   });
 
-  test('401 response triggers bootstrap to refresh token', async () => {
-    const { onReq, testRequest } = setup();
-
+  test('401 response triggers bootstrap to refresh token', async ({ server }) => {
+    const { onRequest: onReq, onResponse: onRes } = createServerListenerMocks(server);
+    server.use(testHandler);
     server.use(
       rest.get('*test', (req, res, ctx) => {
         return res.once(ctx.status(401), ctx.json({ error: 'Not Authorized' }));
@@ -155,9 +144,9 @@ describe('api', () => {
     ]);
   });
 
-  test('401 does not cause infinite loop if refresh fails', async () => {
-    const { onReq, testRequest } = setup();
-
+  test('401 does not cause infinite loop if refresh fails', async ({ server }) => {
+    const { onRequest: onReq, onResponse: onRes } = createServerListenerMocks(server);
+    server.use(testHandler);
     server.use(
       rest.get('*test', (req, res, ctx) => {
         return res.once(ctx.status(401), ctx.json({ error: 'Not Authorized' }));
@@ -185,9 +174,9 @@ describe('api', () => {
     ]);
   });
 
-  test('401 with initial bootstrap failure works properly', async () => {
-    const { onReq, testRequest } = setup();
-
+  test('401 with initial bootstrap failure works properly', async ({ server }) => {
+    const { onRequest: onReq, onResponse: onRes } = createServerListenerMocks(server);
+    server.use(testHandler);
     server.use(
       rest.get('*test', (req, res, ctx) => {
         return res.once(ctx.status(401), ctx.json({ error: 'Not Authorized' }));

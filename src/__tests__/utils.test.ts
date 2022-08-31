@@ -1,5 +1,6 @@
 import { APP_DEFAULTS } from '@config';
 import { normalizeSolrSort } from '@utils';
+import { describe, expect, test } from 'vitest';
 
 const defaultSortPostfix = APP_DEFAULTS.QUERY_SORT_POSTFIX;
 

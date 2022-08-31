@@ -1,4 +1,5 @@
-import { render } from '@testing-library/react';
+import { render } from '@test-utils';
+import { describe, it } from 'vitest';
 import { Default as AbstractSideNav } from '../__stories__/AbstractSideNav.stories';
 
 describe.skip('AbstractSideNav', () => {

@@ -1,8 +1,10 @@
 import { composeStories } from '@storybook/testing-react';
-import { findAllByTestId, findByTestId, getAllByRole, render, waitFor } from '@testing-library/react';
+import { render } from '@test-utils';
+import { findAllByTestId, findByTestId, getAllByRole, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { head } from 'ramda';
+import { describe, expect, it } from 'vitest';
 import * as stories from '../__stories__/SearchFacet.stories';
 
 const { Tree: SearchFacetTree } = composeStories(stories);
@@ -16,13 +18,13 @@ const setup = () => {
 };
 
 describe('SearchFacet', () => {
-  it('renders without crashing', async () => {
+  it('renders without crashing', async ({ server }) => {
     const { user, getByTestId, getAllByTestId } = setup();
 
     await waitFor(() => getByTestId('search-facet-list'));
     const root = head(getAllByTestId('search-facet-item-root'));
     const expand = await findByTestId(root, 'search-facet-expand', { exact: true });
-    __mockServer__.use(
+    server.use(
       rest.get('*/search/query', (req, res, ctx) => {
         return res(
           ctx.status(200),

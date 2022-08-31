@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/require-await */
-/** @jest-environment node  */
 import {
   IUsePaginationProps,
   IUsePaginationResult,
@@ -7,12 +6,13 @@ import {
 } from '@components/ResultList/Pagination/usePagination';
 import { act, renderHook } from '@testing-library/react-hooks';
 import { keys, pick } from 'ramda';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 const router = {
   pathname: '/',
-  push: jest.fn(),
+  push: vi.fn(),
 };
-jest.mock('next/router', () => ({
+vi.mock('next/router', () => ({
   useRouter: () => router,
 }));
 

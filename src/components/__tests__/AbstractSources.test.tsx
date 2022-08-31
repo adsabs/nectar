@@ -1,4 +1,5 @@
-import { render } from '@testing-library/react';
+import { render } from '@test-utils';
+import { describe, it } from 'vitest';
 import { Default as AbstractSources } from '../__stories__/AbstractSources.stories';
 
 describe('AbstractSources', () => {
