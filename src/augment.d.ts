@@ -1,3 +1,5 @@
+import { SetupServerApi } from 'msw/lib/types/node';
+
 declare module 'next/config' {
   interface AppRuntimeConfig {
     publicRuntimeConfig: {
@@ -9,4 +11,10 @@ declare module 'next/config' {
     };
   }
   export default function getConfig(): AppRuntimeConfig;
+}
+
+declare module 'vitest' {
+  export interface TestContext {
+    server?: SetupServerApi;
+  }
 }
