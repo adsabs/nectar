@@ -7,6 +7,7 @@ import qs from 'qs';
 import { isNil } from 'ramda';
 import { IBootstrapPayload, IUserData } from '../../src/api/accounts/types';
 import { ApiTargets } from '../../src/api/models';
+import { AppRuntimeConfig } from '../../src/types';
 
 const isUserData = (userData?: IUserData): userData is IUserData => {
   return (
@@ -31,7 +32,7 @@ const resolveApiBaseUrl = (defaultBaseUrl = ''): string => {
     return 'http://localhost';
   }
 
-  const config = getConfig();
+  const config = getConfig() as AppRuntimeConfig;
 
   if (typeof config === 'undefined') {
     return defaultBaseUrl;

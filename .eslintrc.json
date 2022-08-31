@@ -1,13 +1,13 @@
 {
   "extends": ["prettier", "plugin:@next/next/recommended"],
-  "plugins": ["react", "react-hooks", "jsx-a11y", "@typescript-eslint", "jest", "jest-dom"],
+  "plugins": ["react", "react-hooks", "jsx-a11y", "@typescript-eslint"],
   "parser": "@typescript-eslint/parser",
   "env": {
     "es2022": true
   },
   "overrides": [
     {
-      "files": ["*.ts", "*.tsx", "./jest.config.ts"],
+      "files": ["*.ts", "*.tsx"],
       "extends": [
         "plugin:@typescript-eslint/recommended",
         "plugin:@typescript-eslint/recommended-requiring-type-checking"

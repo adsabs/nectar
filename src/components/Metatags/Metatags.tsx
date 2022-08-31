@@ -1,11 +1,12 @@
 import { Esources, IDocsEntity } from '@api';
+import { AppRuntimeConfig } from '@types';
 import { getFomattedNumericPubdate } from '@utils';
 import getConfig from 'next/config';
 import { ReactElement } from 'react';
 
 const getBaseUrl = () => {
   try {
-    return getConfig().serverRuntimeConfig?.baseCanonicalUrl ?? '';
+    return (getConfig() as AppRuntimeConfig).serverRuntimeConfig?.baseCanonicalUrl ?? '';
   } catch (e) {
     return '';
   }
