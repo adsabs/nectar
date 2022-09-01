@@ -18,7 +18,7 @@ import {
   UsersIcon,
 } from '@heroicons/react/solid';
 import { useIsClient } from '@hooks/useIsClient';
-import { noop, parseQueryFromUrl } from '@utils';
+import { noop } from '@utils';
 import NextLink, { LinkProps } from 'next/link';
 import { useRouter } from 'next/router';
 import { cloneElement, HTMLAttributes, ReactElement } from 'react';
@@ -216,7 +216,7 @@ const TopMenuItem = (props: IItemProps) => {
   }
 
   const active = router.asPath.indexOf(`/${route}`) > -1;
-  const { id: docId } = parseQueryFromUrl<{ id: string }>(router.asPath);
+  const docId = router.query.id as string;
 
   return (
     <MenuItem isDisabled={isDisabled} backgroundColor={active ? 'gray.100' : 'transparent'} mb={1}>
