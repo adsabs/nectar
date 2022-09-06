@@ -30,6 +30,7 @@ export interface IItemProps {
   showHighlights?: boolean;
   isFetchingHighlights?: boolean;
   highlights?: string[];
+  extraInfo?: string;
 }
 
 export const Item = (props: IItemProps): ReactElement => {
@@ -42,6 +43,7 @@ export const Item = (props: IItemProps): ReactElement => {
     showHighlights,
     isFetchingHighlights,
     highlights,
+    extraInfo,
   } = props;
   const { bibcode, pubdate, title = ['Untitled'], author = [], bibstem = [], author_count } = doc;
   const formattedPubDate = getFomattedNumericPubdate(pubdate);
@@ -114,6 +116,8 @@ export const Item = (props: IItemProps): ReactElement => {
             {formattedBibstem}
             {cite && (formattedPubDate || formattedBibstem) ? <span className="px-2">·</span> : null}
             {cite}
+            {cite && extraInfo && '; '}
+            {extraInfo}
           </Text>
           {showHighlights && <Highlights highlights={highlights} isFetchingHighlights={isFetchingHighlights} />}
           <AbstractPreview bibcode={bibcode} />
