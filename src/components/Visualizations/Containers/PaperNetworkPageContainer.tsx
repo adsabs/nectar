@@ -17,11 +17,11 @@ import { ITagItem, Tags } from '@components';
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { flatten, intersection, pluck, prop, sortBy, uniq } from 'ramda';
+import { uniq } from 'ramda';
 import { ReactElement, Reducer, useEffect, useMemo, useReducer, useState } from 'react';
 import { IView } from '../GraphPanes/types';
 import { ILineGraph } from '../types';
-import { getPaperNetworkSummaryGraph } from '../utils';
+import { getPaperNetworkLinkDetails, getPaperNetworkNodeDetails, getPaperNetworkSummaryGraph } from '../utils';
 import { NotEnoughData } from '../Widgets';
 
 interface IPaperNetworkPageContainerProps {
@@ -75,13 +75,13 @@ const reducer: Reducer<IPaperNetworkPageState, PaperNetworkPageAction> = (state,
       return {
         ...state,
         selectedLink: null,
-        selectedNode: getNodeDetails(action.payload.node, action.payload.fullGraph),
+        selectedNode: getPaperNetworkNodeDetails(action.payload.node, action.payload.fullGraph),
       };
     case 'SET_SELECTED_LINK':
       return {
         ...state,
         selectedNode: null,
-        selectedLink: getLinkDetails(
+        selectedLink: getPaperNetworkLinkDetails(
           action.payload.source,
           action.payload.sourceColor,
           action.payload.target,
@@ -303,78 +303,4 @@ const FilterSearchBar = ({
       <Button onClick={onApply}>Search</Button>
     </Stack>
   );
-};
-
-// Get individual node details
-const getNodeDetails = (
-  node: IADSApiPaperNetworkSummaryGraphNode,
-  fullGraph: IADSApiPaperNetworkFullGraph,
-): IPaperNetworkNodeDetails => {
-  // make a copy
-  const titleWords = Object.keys(node.node_label);
-
-  const filteredNodes = fullGraph.nodes.filter((n) => n.group === node.id);
-  const groupBibs = pluck('node_name', filteredNodes);
-
-  const topCommonReferences = Object.entries(node.top_common_references)
-    .map(([k, v]) => ({
-      bibcode: k,
-      percent: (v * 100).toFixed(0),
-      inGroup: groupBibs.findIndex((b) => b === k) !== -1,
-    }))
-    .sort((a, b) => parseInt(b.percent) - parseInt(a.percent));
-
-  const allPapers = sortBy(prop('citation_count'), filteredNodes).reverse();
-
-  return { ...node, titleWords, allPapers, topCommonReferences };
-};
-
-const getAllLinks = (id: number, fullGraph: IADSApiPaperNetworkFullGraph) => {
-  const indexes: number[] = [];
-  const links: IADSApiPaperNetworkFullGraph['links'] = [];
-
-  fullGraph.nodes.forEach((n, i) => {
-    if (n.group === id) {
-      indexes.push(i);
-    }
-  });
-  fullGraph.links.forEach((l) => {
-    if (indexes.indexOf(l.source) !== -1 || indexes.indexOf(l.target) !== -1) {
-      links.push(l);
-    }
-  });
-  return links;
-};
-
-// get link details
-const getLinkDetails = (
-  source: IADSApiPaperNetworkSummaryGraphNode,
-  sourceColor: string,
-  target: IADSApiPaperNetworkSummaryGraphNode,
-  targetColor: string,
-  fullGraph: IADSApiPaperNetworkFullGraph,
-): IPaperNetworkLinkDetails => {
-  // find references in common
-
-  const links1 = getAllLinks(source.id, fullGraph);
-  const links2 = getAllLinks(target.id, fullGraph);
-
-  const allReferences1 = flatten(pluck('overlap', links1));
-  const allReferences2 = flatten(pluck('overlap', links2));
-
-  // shared references
-  const references: IPaperNetworkLinkDetails['papers'] = [];
-  intersection(allReferences1, allReferences2).forEach((b) => {
-    const percent1 = allReferences1.filter((b1) => b1 === b).length / allReferences1.length;
-    const percent2 = allReferences2.filter((b1) => b1 === b).length / allReferences2.length;
-    references.push({ bibcode: b, percent1: percent1 * 100, percent2: percent2 * 100 });
-  });
-
-  references.sort((a, b) => b.percent1 * b.percent2 - a.percent1 * a.percent2);
-
-  return {
-    groupOne: { name: `Group ${source.node_name}`, color: sourceColor },
-    groupTwo: { name: `Group ${target.node_name}`, color: targetColor },
-    papers: references,
-  };
 };

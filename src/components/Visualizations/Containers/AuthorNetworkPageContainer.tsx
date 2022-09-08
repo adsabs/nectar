@@ -15,13 +15,12 @@ import {
 import { ITagItem, Tags } from '@components/Tags';
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
-import { decode } from 'he';
 import { useRouter } from 'next/router';
-import { countBy, reverse, sortBy, uniq } from 'ramda';
+import { uniq } from 'ramda';
 import { ReactElement, Reducer, useEffect, useMemo, useReducer, useState } from 'react';
 import { IView } from '../GraphPanes/types';
 import { ILineGraph } from '../types';
-import { getAuthorNetworkSummaryGraph } from '../utils';
+import { getAuthorNetworkNodeDetails, getAuthorNetworkSummaryGraph } from '../utils';
 import { NotEnoughData } from '../Widgets';
 
 interface IAuthorNetworkPageContainerProps {
@@ -58,7 +57,7 @@ const reducer: Reducer<IAuthorNetworkPageState, AuthorNetworkPageAction> = (stat
     case 'CHANGE_PAPER_LIMIT':
       return { ...state, selected: null, filters: [], rowsToFetch: action.payload };
     case 'SET_SELECTED':
-      return { ...state, selected: getNodeDetails(action.payload.node, action.payload.dict) };
+      return { ...state, selected: getAuthorNetworkNodeDetails(action.payload.node, action.payload.dict) };
     case 'ADD_FILTER':
       return { ...state, filters: uniq([...state.filters, action.payload]) };
     case 'REMOVE_FILTER':
@@ -262,97 +261,4 @@ const FilterSearchBar = ({
       <Button onClick={onApply}>Search</Button>
     </Stack>
   );
-};
-
-// Get individual node details
-const getNodeDetails = (node: IADSApiAuthorNetworkNode, bibcode_dict: IBibcodeDict): IAuthorNetworkNodeDetails => {
-  // if selected an author node
-  if (!('children' in node)) {
-    const bibcodes = uniq(node.papers);
-
-    // get author's papers details
-    const papers = bibcodes.map((bibcode) => ({
-      ...bibcode_dict[bibcode],
-      bibcode,
-      title: Array.isArray(bibcode_dict[bibcode].title)
-        ? decode(bibcode_dict[bibcode].title[0])
-        : decode(bibcode_dict[bibcode].title as string),
-    }));
-
-    // sort by citation count
-    papers.sort((p1, p2) => {
-      return p2.citation_count - p1.citation_count;
-    });
-
-    // most recent year
-    const mostRecentYear = bibcodes
-      .sort((b1, b2) => {
-        return parseInt(b1.slice(0, 4)) - parseInt(b2.slice(0, 4));
-      })
-      [bibcodes.length - 1].slice(0, 4);
-
-    return { name: node.name as string, type: 'author', papers, mostRecentYear };
-  }
-  // if selected a group node
-  else {
-    // all bibcodes in this group, has duplicates
-    const allBibcodes = node.children.reduce((prev, current) => [...prev, ...current.papers], [] as string[]);
-
-    // bibcode: author count
-    const authorCount = countBy((a) => a, allBibcodes);
-
-    // all bibcodes w/o duplicates
-    const bibcodes = Object.keys(authorCount);
-
-    // get min and max authors
-    const numAuthors = Object.values(authorCount).sort();
-    const minNumAuthors = numAuthors[0];
-    const maxNumAuthors = numAuthors[numAuthors.length - 1];
-
-    // min max percent authors in the group
-    const percentAuthors = Object.entries(authorCount)
-      .map(([bibcode, aCount]) => aCount / bibcode_dict[bibcode].authors.length)
-      .sort();
-    const minPercentAuthors = percentAuthors[0];
-    const maxPercentAuthors = percentAuthors[percentAuthors.length - 1];
-
-    // min max citations
-    const numCitations = bibcodes
-      .map((bibcode) => bibcode_dict[bibcode].citation_count / bibcode_dict[bibcode].authors.length)
-      .sort();
-    const minNumCitations = numCitations[0];
-    const maxNumCitations = numCitations[numCitations.length - 1];
-
-    // most recent year
-    const mostRecentYear = bibcodes
-      .sort((b1, b2) => {
-        return parseInt(b1.slice(0, 4)) - parseInt(b2.slice(0, 4));
-      })
-      [bibcodes.length - 1].slice(0, 4);
-
-    let papers = bibcodes.map((bibcode) => ({
-      ...bibcode_dict[bibcode],
-      bibcode,
-      title: Array.isArray(bibcode_dict[bibcode].title)
-        ? decode(bibcode_dict[bibcode].title[0])
-        : decode(bibcode_dict[bibcode].title as string),
-      groupAuthorCount: authorCount[bibcode],
-    }));
-
-    // sort paper
-    // from https://github.com/adsabs/bumblebee/blob/752b9146a404de2cfefebf55cb0cc983907f7519/src/js/widgets/network_vis/network_widget.js#L701
-    papers = reverse(
-      sortBy(({ bibcode }) => {
-        return (
-          (((((authorCount[bibcode] - minNumAuthors) / (maxNumAuthors - minNumAuthors)) *
-            (authorCount[bibcode] / bibcode_dict[bibcode].authors.length - minPercentAuthors)) /
-            (maxPercentAuthors - minPercentAuthors)) *
-            (bibcode_dict[bibcode].citation_count / bibcode_dict[bibcode].authors.length - minNumCitations)) /
-          (maxNumCitations - minNumCitations)
-        );
-      }, papers),
-    );
-
-    return { name: `Group ${node.name as string}`, type: 'group', papers, mostRecentYear };
-  }
 };

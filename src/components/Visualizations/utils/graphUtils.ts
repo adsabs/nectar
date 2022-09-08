@@ -12,10 +12,19 @@ import {
   TimeSeriesKey,
   TimeSeriesType,
 } from '@api';
-import { IADSApiAuthorNetworkResponse, IADSApiPaperNetworkResponse } from '@api/vis/types';
+import {
+  IADSApiAuthorNetworkNode,
+  IADSApiAuthorNetworkResponse,
+  IADSApiPaperNetworkFullGraph,
+  IADSApiPaperNetworkResponse,
+  IADSApiPaperNetworkSummaryGraphNode,
+  IBibcodeDict,
+} from '@api/vis/types';
+import { IAuthorNetworkNodeDetails, IPaperNetworkLinkDetails, IPaperNetworkNodeDetails } from '@components';
 import { Datum, Serie } from '@nivo/line';
 import * as d3 from 'd3';
-import { countBy, divide, pluck, range, reduce, uniq } from 'ramda';
+import { decode } from 'he';
+import { countBy, divide, flatten, intersection, pluck, prop, range, reduce, reverse, sortBy, uniq } from 'ramda';
 import {
   IBarGraph,
   ICitationsTableData,
@@ -29,6 +38,8 @@ import {
   IReadTableInput,
   YearDatum,
 } from '../types';
+
+/************ metrics helpers ************/
 
 /**
  * Output format
@@ -387,6 +398,8 @@ function limitPlaces(n: number): number {
   return n;
 }
 
+/************ author network helpers ************/
+
 /**
  * Create author network summary graph from author network response
  * Output: [ {x: year, y: paper count}]
@@ -427,6 +440,103 @@ export const getAuthorNetworkSummaryGraph = (response: IADSApiAuthorNetworkRespo
 
   return { data };
 };
+
+export const getAuthorNetworkNodeDetails = (
+  node: IADSApiAuthorNetworkNode,
+  bibcode_dict: IBibcodeDict,
+): IAuthorNetworkNodeDetails => {
+  // if selected an author node
+  if (!('children' in node)) {
+    const bibcodes = uniq(node.papers);
+
+    // get author's papers details
+    const papers = bibcodes.map((bibcode) => ({
+      ...bibcode_dict[bibcode],
+      bibcode,
+      title: Array.isArray(bibcode_dict[bibcode].title)
+        ? decode(bibcode_dict[bibcode].title[0])
+        : decode(bibcode_dict[bibcode].title as string),
+    }));
+
+    // sort by citation count
+    papers.sort((p1, p2) => {
+      return p2.citation_count - p1.citation_count;
+    });
+
+    // most recent year
+    const mostRecentYear = bibcodes
+      .sort((b1, b2) => {
+        return parseInt(b1.slice(0, 4)) - parseInt(b2.slice(0, 4));
+      })
+      [bibcodes.length - 1].slice(0, 4);
+
+    return { name: node.name as string, type: 'author', papers, mostRecentYear };
+  }
+  // if selected a group node
+  else {
+    // all bibcodes in this group, has duplicates
+    const allBibcodes = node.children.reduce((prev, current) => [...prev, ...current.papers], [] as string[]);
+
+    // bibcode: author count
+    const authorCount = countBy((a) => a, allBibcodes);
+
+    // all bibcodes w/o duplicates
+    const bibcodes = Object.keys(authorCount);
+
+    // get min and max authors
+    const numAuthors = Object.values(authorCount).sort();
+    const minNumAuthors = numAuthors[0];
+    const maxNumAuthors = numAuthors[numAuthors.length - 1];
+
+    // min max percent authors in the group
+    const percentAuthors = Object.entries(authorCount)
+      .map(([bibcode, aCount]) => aCount / bibcode_dict[bibcode].authors.length)
+      .sort();
+    const minPercentAuthors = percentAuthors[0];
+    const maxPercentAuthors = percentAuthors[percentAuthors.length - 1];
+
+    // min max citations
+    const numCitations = bibcodes
+      .map((bibcode) => bibcode_dict[bibcode].citation_count / bibcode_dict[bibcode].authors.length)
+      .sort();
+    const minNumCitations = numCitations[0];
+    const maxNumCitations = numCitations[numCitations.length - 1];
+
+    // most recent year
+    const mostRecentYear = bibcodes
+      .sort((b1, b2) => {
+        return parseInt(b1.slice(0, 4)) - parseInt(b2.slice(0, 4));
+      })
+      [bibcodes.length - 1].slice(0, 4);
+
+    let papers = bibcodes.map((bibcode) => ({
+      ...bibcode_dict[bibcode],
+      bibcode,
+      title: Array.isArray(bibcode_dict[bibcode].title)
+        ? decode(bibcode_dict[bibcode].title[0])
+        : decode(bibcode_dict[bibcode].title as string),
+      groupAuthorCount: authorCount[bibcode],
+    }));
+
+    // sort paper
+    // from https://github.com/adsabs/bumblebee/blob/752b9146a404de2cfefebf55cb0cc983907f7519/src/js/widgets/network_vis/network_widget.js#L701
+    papers = reverse(
+      sortBy(({ bibcode }) => {
+        return (
+          (((((authorCount[bibcode] - minNumAuthors) / (maxNumAuthors - minNumAuthors)) *
+            (authorCount[bibcode] / bibcode_dict[bibcode].authors.length - minPercentAuthors)) /
+            (maxPercentAuthors - minPercentAuthors)) *
+            (bibcode_dict[bibcode].citation_count / bibcode_dict[bibcode].authors.length - minNumCitations)) /
+          (maxNumCitations - minNumCitations)
+        );
+      }, papers),
+    );
+
+    return { name: `Group ${node.name as string}`, type: 'group', papers, mostRecentYear };
+  }
+};
+
+/************ paper network helpers ************/
 
 /**
  * Create paper network summary graph from paper network data
@@ -475,4 +585,77 @@ export const getPaperNetworkSummaryGraph = (response: IADSApiPaperNetworkRespons
   data.sort((a, b) => (a.id as number) - (b.id as number));
 
   return { data };
+};
+
+export const getPaperNetworkNodeDetails = (
+  node: IADSApiPaperNetworkSummaryGraphNode,
+  fullGraph: IADSApiPaperNetworkFullGraph,
+): IPaperNetworkNodeDetails => {
+  // make a copy
+  const titleWords = Object.keys(node.node_label);
+
+  const filteredNodes = fullGraph.nodes.filter((n) => n.group === node.id);
+  const groupBibs = pluck('node_name', filteredNodes);
+
+  const topCommonReferences = Object.entries(node.top_common_references)
+    .map(([k, v]) => ({
+      bibcode: k,
+      percent: (v * 100).toFixed(0),
+      inGroup: groupBibs.findIndex((b) => b === k) !== -1,
+    }))
+    .sort((a, b) => parseInt(b.percent) - parseInt(a.percent));
+
+  const allPapers = sortBy(prop('citation_count'), filteredNodes).reverse();
+
+  return { ...node, titleWords, allPapers, topCommonReferences };
+};
+
+const getPaperNetworkLinks = (id: number, fullGraph: IADSApiPaperNetworkFullGraph) => {
+  const indexes: number[] = [];
+  const links: IADSApiPaperNetworkFullGraph['links'] = [];
+
+  fullGraph.nodes.forEach((n, i) => {
+    if (n.group === id) {
+      indexes.push(i);
+    }
+  });
+  fullGraph.links.forEach((l) => {
+    if (indexes.indexOf(l.source) !== -1 || indexes.indexOf(l.target) !== -1) {
+      links.push(l);
+    }
+  });
+  return links;
+};
+
+// get link details
+export const getPaperNetworkLinkDetails = (
+  source: IADSApiPaperNetworkSummaryGraphNode,
+  sourceColor: string,
+  target: IADSApiPaperNetworkSummaryGraphNode,
+  targetColor: string,
+  fullGraph: IADSApiPaperNetworkFullGraph,
+): IPaperNetworkLinkDetails => {
+  // find references in common
+
+  const links1 = getPaperNetworkLinks(source.id, fullGraph);
+  const links2 = getPaperNetworkLinks(target.id, fullGraph);
+
+  const allReferences1 = flatten(pluck('overlap', links1));
+  const allReferences2 = flatten(pluck('overlap', links2));
+
+  // shared references
+  const references: IPaperNetworkLinkDetails['papers'] = [];
+  intersection(allReferences1, allReferences2).forEach((b) => {
+    const percent1 = allReferences1.filter((b1) => b1 === b).length / allReferences1.length;
+    const percent2 = allReferences2.filter((b1) => b1 === b).length / allReferences2.length;
+    references.push({ bibcode: b, percent1: percent1 * 100, percent2: percent2 * 100 });
+  });
+
+  references.sort((a, b) => b.percent1 * b.percent2 - a.percent1 * a.percent2);
+
+  return {
+    groupOne: { name: `Group ${source.node_name}`, color: sourceColor },
+    groupTwo: { name: `Group ${target.node_name}`, color: targetColor },
+    papers: references,
+  };
 };
