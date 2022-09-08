@@ -67,45 +67,45 @@ type PaperNetworkPageAction =
   | { type: 'REMOVE_FILTER_TAG'; payload: ITagItem }
   | { type: 'CLEAR_FILTERS' };
 
+const reducer: Reducer<IPaperNetworkPageState, PaperNetworkPageAction> = (state, action) => {
+  switch (action.type) {
+    case 'CHANGE_PAPER_LIMIT':
+      return { ...state, selectedLink: null, selectedNode: null, filters: [], rowsToFetch: action.payload };
+    case 'SET_SELECTED_NODE':
+      return {
+        ...state,
+        selectedLink: null,
+        selectedNode: getNodeDetails(action.payload.node, action.payload.fullGraph),
+      };
+    case 'SET_SELECTED_LINK':
+      return {
+        ...state,
+        selectedNode: null,
+        selectedLink: getLinkDetails(
+          action.payload.source,
+          action.payload.sourceColor,
+          action.payload.target,
+          action.payload.targetColor,
+          action.payload.fullGraph,
+        ),
+      };
+    case 'ADD_FILTER':
+      return { ...state, filters: uniq([...state.filters, action.payload]) };
+    case 'REMOVE_FILTER':
+      return { ...state, filters: state.filters.filter((f) => f.node_name !== action.payload.node_name) };
+    case 'REMOVE_FILTER_TAG':
+      return { ...state, filters: state.filters.filter((filter) => filter.id !== action.payload.id) };
+    case 'CLEAR_FILTERS':
+      return { ...state, filters: [] };
+    default:
+      return state;
+  }
+};
+
 export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerProps): ReactElement => {
   const router = useRouter();
 
   const toast = useToast();
-
-  const reducer: Reducer<IPaperNetworkPageState, PaperNetworkPageAction> = (state, action) => {
-    switch (action.type) {
-      case 'CHANGE_PAPER_LIMIT':
-        return { ...state, selectedLink: null, selectedNode: null, filters: [], rowsToFetch: action.payload };
-      case 'SET_SELECTED_NODE':
-        return {
-          ...state,
-          selectedLink: null,
-          selectedNode: getNodeDetails(action.payload.node, action.payload.fullGraph),
-        };
-      case 'SET_SELECTED_LINK':
-        return {
-          ...state,
-          selectedNode: null,
-          selectedLink: getLinkDetails(
-            action.payload.source,
-            action.payload.sourceColor,
-            action.payload.target,
-            action.payload.targetColor,
-            action.payload.fullGraph,
-          ),
-        };
-      case 'ADD_FILTER':
-        return { ...state, filters: uniq([...state.filters, action.payload]) };
-      case 'REMOVE_FILTER':
-        return { ...state, filters: state.filters.filter((f) => f.node_name !== action.payload.node_name) };
-      case 'REMOVE_FILTER_TAG':
-        return { ...state, filters: state.filters.filter((filter) => filter.id !== action.payload.id) };
-      case 'CLEAR_FILTERS':
-        return { ...state, filters: [] };
-      default:
-        return state;
-    }
-  };
 
   const [state, dispatch] = useReducer(reducer, {
     rowsToFetch: DEFAULT_ROWS_TO_FETCH,

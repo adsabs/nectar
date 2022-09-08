@@ -53,29 +53,29 @@ type AuthorNetworkPageAction =
   | { type: 'REMOVE_FILTER_TAG'; payload: ITagItem }
   | { type: 'CLEAR_FILTERS' };
 
+const reducer: Reducer<IAuthorNetworkPageState, AuthorNetworkPageAction> = (state, action) => {
+  switch (action.type) {
+    case 'CHANGE_PAPER_LIMIT':
+      return { ...state, selected: null, filters: [], rowsToFetch: action.payload };
+    case 'SET_SELECTED':
+      return { ...state, selected: getNodeDetails(action.payload.node, action.payload.dict) };
+    case 'ADD_FILTER':
+      return { ...state, filters: uniq([...state.filters, action.payload]) };
+    case 'REMOVE_FILTER':
+      return { ...state, filters: state.filters.filter((f) => f.name !== action.payload.name) };
+    case 'REMOVE_FILTER_TAG':
+      return { ...state, filters: state.filters.filter((filter) => filter.name !== action.payload.id) };
+    case 'CLEAR_FILTERS':
+      return { ...state, filters: [] };
+    default:
+      return state;
+  }
+};
+
 export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContainerProps): ReactElement => {
   const router = useRouter();
 
   const toast = useToast();
-
-  const reducer: Reducer<IAuthorNetworkPageState, AuthorNetworkPageAction> = (state, action) => {
-    switch (action.type) {
-      case 'CHANGE_PAPER_LIMIT':
-        return { ...state, selected: null, filters: [], rowsToFetch: action.payload };
-      case 'SET_SELECTED':
-        return { ...state, selected: getNodeDetails(action.payload.node, action.payload.dict) };
-      case 'ADD_FILTER':
-        return { ...state, filters: uniq([...state.filters, action.payload]) };
-      case 'REMOVE_FILTER':
-        return { ...state, filters: state.filters.filter((f) => f.name !== action.payload.name) };
-      case 'REMOVE_FILTER_TAG':
-        return { ...state, filters: state.filters.filter((filter) => filter.name !== action.payload.id) };
-      case 'CLEAR_FILTERS':
-        return { ...state, filters: [] };
-      default:
-        return state;
-    }
-  };
 
   const [state, dispatch] = useReducer(reducer, {
     rowsToFetch: DEFAULT_ROWS_TO_FETCH,
