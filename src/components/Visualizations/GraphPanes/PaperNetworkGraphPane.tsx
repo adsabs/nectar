@@ -31,7 +31,7 @@ export const PaperNetworkGraphPane = ({
   views,
   onClickNode,
   onClickLink,
-  onChangePaperLimit: onChagePaperLimit,
+  onChangePaperLimit: onChangePaperLimit,
   paperLimit,
   maxPaperLimit,
 }: IPaperNetworkGraphPaneProps): ReactElement => {
@@ -40,7 +40,7 @@ export const PaperNetworkGraphPane = ({
   const handleChangeView = (vid: IView['id']) => setView(views.filter((v) => v.id === vid)[0]);
 
   const handleChangePaperLimit = (limit: number) => {
-    onChagePaperLimit(limit);
+    onChangePaperLimit(limit);
   };
 
   return (

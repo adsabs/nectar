@@ -23,7 +23,7 @@ export const AuthorNetworkGraphPane = ({
   linksData,
   views,
   onClickNode,
-  onChangePaperLimit: onChagePaperLimit,
+  onChangePaperLimit: onChangePaperLimit,
   paperLimit,
   maxPaperLimit,
 }: IAuthorNetworkGraphPaneProps): ReactElement => {
@@ -34,7 +34,7 @@ export const AuthorNetworkGraphPane = ({
   const handleChangeView = (vid: IView['id']) => setView(views.filter((v) => v.id === vid)[0]);
 
   const handleChangePaperLimit = (limit: number) => {
-    onChagePaperLimit(limit);
+    onChangePaperLimit(limit);
   };
 
   const handleToggleSwitch = () => {
