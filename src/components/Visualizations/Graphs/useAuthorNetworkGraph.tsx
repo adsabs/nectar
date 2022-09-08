@@ -1,21 +1,21 @@
-import { IADSApiVisNode, IADSApiVisNodeKey } from '@api';
+import { IADSApiAuthorNetworkNode, IADSApiAuthorNetworkNodeKey } from '@api';
 import * as d3 from 'd3';
 import { useCallback, useMemo } from 'react';
-import { NetworkHierarchyNode } from './NetworkGraph';
+import { ILink, NetworkHierarchyNode } from './AuthorNetworkGraph';
 
 /**
  *
  * @param root
- * @param link_data
+ * @param linksData
  * @param keyToUseAsValue
  * @param radius
  * @param numberOfLabelsToShow
  * @returns  functions used to render network graph elements
  */
-export const useNetworkGraph = (
-  root: IADSApiVisNode,
-  link_data: number[][],
-  keyToUseAsValue: IADSApiVisNodeKey,
+export const useAuthorNetworkGraph = (
+  root: IADSApiAuthorNetworkNode,
+  linksData: number[][],
+  keyToUseAsValue: IADSApiAuthorNetworkNodeKey,
   radius: number,
   numberOfLabelsToShow: number,
 ) => {
@@ -41,14 +41,14 @@ export const useNetworkGraph = (
 
   // function that converts ADDS tree node (root) to hierachical tree node for graph
   const partition = useCallback(
-    (data: IADSApiVisNode) => {
+    (data: IADSApiAuthorNetworkNode) => {
       // data to node in tree structure
       const root = d3
-        .hierarchy<IADSApiVisNode>(data)
-        .sum((d) => (d[keyToUseAsValue] ? (d[keyToUseAsValue] as number) : 0))
+        .hierarchy<IADSApiAuthorNetworkNode>(data)
+        .sum((d) => (d[keyToUseAsValue] ? d[keyToUseAsValue] : 0))
         .sort((a, b) => b.data.size - a.data.size); // in all views, always sort by size
-      const p = d3.partition<IADSApiVisNode>().size([2 * Math.PI, +root.height + 1])(root); // add x (angle), y (distance) to tree structure
-      return p as NetworkHierarchyNode<IADSApiVisNode>;
+      const p = d3.partition<IADSApiAuthorNetworkNode>().size([2 * Math.PI, +root.height + 1])(root); // add x (angle), y (distance) to tree structure
+      return p as NetworkHierarchyNode<IADSApiAuthorNetworkNode>;
     },
     [keyToUseAsValue],
   );
@@ -69,10 +69,12 @@ export const useNetworkGraph = (
       ]);
   }, []);
 
+  const noGroupColor = '#a6a6a6';
+
   // arc function returns a pie data for a tree node
   const arc = useMemo(() => {
     return d3
-      .arc<NetworkHierarchyNode<IADSApiVisNode>>()
+      .arc<NetworkHierarchyNode<IADSApiAuthorNetworkNode>>()
       .startAngle((d) => d.x0)
       .endAngle((d) => d.x1)
       .padAngle((d) => Math.min((d.x1 - d.x0) / 2, 0.005))
@@ -84,7 +86,7 @@ export const useNetworkGraph = (
         return d.y0 * radius;
       })
       .outerRadius((d) => Math.max(d.y1 * radius - 1)); // - 1 for gap
-  }, []);
+  }, [radius]);
 
   // function that gives the font size for a tree node based on value
   const occurrencesFontScale = useMemo(() => {
@@ -109,7 +111,7 @@ export const useNetworkGraph = (
   }, [read_counts]);
 
   // function to get font size from node data
-  const fontSize = (d: NetworkHierarchyNode<IADSApiVisNode>, key: string) => {
+  const fontSize = (d: NetworkHierarchyNode<IADSApiAuthorNetworkNode>, key: string) => {
     return key === 'size'
       ? `${occurrencesFontScale(d.value)}px`
       : key === 'citation_count'
@@ -120,14 +122,14 @@ export const useNetworkGraph = (
   // function that gives the data for path from node to node
   const line = useMemo(() => {
     return d3
-      .lineRadial<NetworkHierarchyNode<IADSApiVisNode>>()
+      .lineRadial<NetworkHierarchyNode<IADSApiAuthorNetworkNode>>()
       .curve(d3.curveBundle.beta(0.85))
       .radius(radius * 3 - 1) // one is a gap
       .angle((d) => d.x0 + (d.x1 - d.x0) / 2);
   }, []);
 
   // links weights
-  const weights = useMemo(() => link_data.map((l) => l[2]), [link_data]);
+  const weights = useMemo(() => linksData.map((l) => l[2]), [linksData]);
 
   // function that gives the stroke width of a link
   const linkScale = useMemo(() => {
@@ -139,14 +141,14 @@ export const useNetworkGraph = (
   }, [weights]);
 
   // function that gives the transform of node label to its proper position
-  const labelTransform = useCallback((d: NetworkHierarchyNode<IADSApiVisNode>) => {
+  const labelTransform = useCallback((d: NetworkHierarchyNode<IADSApiAuthorNetworkNode>) => {
     const x = (((d.x0 + d.x1) / 2) * 180) / Math.PI;
     const y = d.y1 * radius + 2; // just outside the circle
     return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
   }, []);
 
   // returns the alignment for label, relative to the circle
-  const textAnchor = useCallback((d: NetworkHierarchyNode<IADSApiVisNode>) => {
+  const textAnchor = useCallback((d: NetworkHierarchyNode<IADSApiAuthorNetworkNode>) => {
     const x = (((d.x0 + d.x1) / 2) * 180) / Math.PI;
     if (x < 180) {
       return 'start';
@@ -155,16 +157,63 @@ export const useNetworkGraph = (
     }
   }, []);
 
+  // get color of node
+  const nodeFill = (d: NetworkHierarchyNode<IADSApiAuthorNetworkNode>) => {
+    if (d.depth === 0) {
+      return 'white';
+    }
+    if (d.depth === 1) {
+      const index = d.parent.children.indexOf(d);
+      if (index < 7) {
+        d.color = color(index.toString());
+        return d.color;
+      }
+      return noGroupColor;
+    }
+    if (d.depth === 2) {
+      // child nodes
+      if (!d.parent.color) {
+        return noGroupColor;
+      }
+      return d.parent.color;
+    }
+  };
+
+  // get the label's display setting based on type of view
+  const labelDisplay = (d: NetworkHierarchyNode<IADSApiAuthorNetworkNode>, key: string) => {
+    if (key == 'size') {
+      return 'block';
+    }
+    if (key == 'citation_count' && d.data.citation_count > citationLimit) {
+      return 'block';
+    }
+    if (key == 'read_count' && d.data.read_count > readLimit) {
+      return 'block';
+    }
+    return 'none';
+  };
+
+  // get link stroke width
+  const strokeWidth = (d: ILink, links: ILink[]) => {
+    // get link weight
+    const weight = links.filter((l) => {
+      return (
+        (l.source.data.name === d.source.data.name && l.target.data.name === d.target.data.name) ||
+        (l.target.data.name === d.source.data.name && l.source.data.name === d.target.data.name)
+      );
+    })[0].weight;
+    return linkScale(weight);
+  };
+
   return {
     partition,
     arc,
-    color,
     fontSize,
     line,
-    citationLimit,
-    readLimit,
-    linkScale,
     labelTransform,
     textAnchor,
+    nodeFill,
+    labelDisplay,
+    strokeWidth,
   };
 };

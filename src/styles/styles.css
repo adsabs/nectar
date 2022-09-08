@@ -118,6 +118,10 @@
     @apply cursor-pointer;
   }
 
+  .network-graph-svg .paper-network-label {
+    @apply cursor-pointer;
+  }
+
   .network-graph-svg .node-label {
     @apply cursor-pointer;
   }
@@ -126,8 +130,14 @@
     fill: #ee8e29;
   }
 
+  /* author network selected link */
   .network-graph-svg .selected-link {
     stroke: #ee8e29;
+  }
+
+  /* paper network link selected */
+  .network-graph-svg .link.selected {
+    stroke-opacity: 60%;
   }
 
   .network-graph-svg .node-path:hover {
@@ -144,5 +154,9 @@
     stroke-width: 2.5px;
     stroke: #000;
     fill-opacity: 0.6;
+  }
+
+  .link-background {
+    fill: hsla(0, 0%, 100%, 0.8);
   }
 }

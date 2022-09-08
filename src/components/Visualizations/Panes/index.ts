@@ -1,1 +1,1 @@
-export * from './NetworkDetailsPane';
+export * from './NetworkDetails';

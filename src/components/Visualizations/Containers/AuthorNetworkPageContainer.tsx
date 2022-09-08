@@ -1,27 +1,27 @@
-import { IADSApiSearchParams, useSearch, useVaultBigQuerySearch } from '@api';
-import { IADSApiVisNode, IBibcodeDict } from '@api/vis/types';
+import { IADSApiSearchParams, useVaultBigQuerySearch } from '@api';
+import { IADSApiAuthorNetworkNode, IBibcodeDict } from '@api/vis/types';
 import { useGetAuthorNetwork } from '@api/vis/vis';
 import { Box, Button, SimpleGrid, Stack, Text, useToast } from '@chakra-ui/react';
 import {
-  INodeDetails,
-  NetworkDetailsPane,
+  IAuthorNetworkNodeDetails,
+  AuthorNetworkDetailsPane,
   Expandable,
   SimpleLink,
   StandardAlertMessage,
   LoadingMessage,
   CustomInfoMessage,
+  AuthorNetworkGraphPane,
 } from '@components';
 import { ITagItem, Tags } from '@components/Tags';
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
-import { decode } from 'he';
 import { useRouter } from 'next/router';
-import { countBy, reverse, sortBy, uniq } from 'ramda';
+import { uniq } from 'ramda';
 import { ReactElement, Reducer, useEffect, useMemo, useReducer, useState } from 'react';
-import { IView, NetworkGraphPane } from '../GraphPanes';
+import { IView } from '../GraphPanes/types';
 import { ILineGraph } from '../types';
-import { getAuthorNetworkSummaryGraph } from '../utils';
-import { NotEnoughData } from '../NotEnoughData';
+import { getAuthorNetworkNodeDetails, getAuthorNetworkSummaryGraph } from '../utils';
+import { NotEnoughData } from '../Widgets';
 
 interface IAuthorNetworkPageContainerProps {
   query: IADSApiSearchParams;
@@ -40,41 +40,41 @@ const views: IView[] = [
 
 interface IAuthorNetworkPageState {
   rowsToFetch: number;
-  selected: INodeDetails; // User selected graph node (group, author)
-  filters: INodeDetails[]; // Selected filters (group, author)
+  selected: IAuthorNetworkNodeDetails; // User selected graph node (group, author)
+  filters: IAuthorNetworkNodeDetails[]; // Selected filters (group, author)
 }
 
 type AuthorNetworkPageAction =
   | { type: 'CHANGE_PAPER_LIMIT'; payload: number }
-  | { type: 'SET_SELECTED'; payload: { node: IADSApiVisNode; dict: IBibcodeDict } }
-  | { type: 'ADD_FILTER'; payload: INodeDetails }
-  | { type: 'REMOVE_FILTER'; payload: INodeDetails }
+  | { type: 'SET_SELECTED'; payload: { node: IADSApiAuthorNetworkNode; dict: IBibcodeDict } }
+  | { type: 'ADD_FILTER'; payload: IAuthorNetworkNodeDetails }
+  | { type: 'REMOVE_FILTER'; payload: IAuthorNetworkNodeDetails }
   | { type: 'REMOVE_FILTER_TAG'; payload: ITagItem }
   | { type: 'CLEAR_FILTERS' };
+
+const reducer: Reducer<IAuthorNetworkPageState, AuthorNetworkPageAction> = (state, action) => {
+  switch (action.type) {
+    case 'CHANGE_PAPER_LIMIT':
+      return { ...state, selected: null, filters: [], rowsToFetch: action.payload };
+    case 'SET_SELECTED':
+      return { ...state, selected: getAuthorNetworkNodeDetails(action.payload.node, action.payload.dict) };
+    case 'ADD_FILTER':
+      return { ...state, filters: uniq([...state.filters, action.payload]) };
+    case 'REMOVE_FILTER':
+      return { ...state, filters: state.filters.filter((f) => f.name !== action.payload.name) };
+    case 'REMOVE_FILTER_TAG':
+      return { ...state, filters: state.filters.filter((filter) => filter.name !== action.payload.id) };
+    case 'CLEAR_FILTERS':
+      return { ...state, filters: [] };
+    default:
+      return state;
+  }
+};
 
 export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContainerProps): ReactElement => {
   const router = useRouter();
 
   const toast = useToast();
-
-  const reducer: Reducer<IAuthorNetworkPageState, AuthorNetworkPageAction> = (state, action) => {
-    switch (action.type) {
-      case 'CHANGE_PAPER_LIMIT':
-        return { ...state, rowsToFetch: action.payload };
-      case 'SET_SELECTED':
-        return { ...state, selected: getNodeDetails(action.payload.node, action.payload.dict) };
-      case 'ADD_FILTER':
-        return { ...state, filters: uniq([...state.filters, action.payload]) };
-      case 'REMOVE_FILTER':
-        return { ...state, filters: state.filters.filter((f) => f.name !== action.payload.name) };
-      case 'REMOVE_FILTER_TAG':
-        return { ...state, filters: state.filters.filter((filter) => filter.name !== action.payload.id) };
-      case 'CLEAR_FILTERS':
-        return { ...state, filters: [] };
-      default:
-        return state;
-    }
-  };
 
   const [state, dispatch] = useReducer(reducer, {
     rowsToFetch: DEFAULT_ROWS_TO_FETCH,
@@ -82,34 +82,21 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
     filters: [],
   });
 
-  // fetch bibcodes of query
-  const {
-    data: bibsQueryResponse,
-    isLoading: bibsQueryIsLoading,
-    isError: bibsQueryIsError,
-    error: bibsQueryError,
-  } = useSearch(
-    { ...query, fl: ['bibcode'], rows: state.rowsToFetch },
-    { enabled: !!query && !!query.q && query.q.length > 0 },
-  );
-
-  // tranform query data to a list of bibcodes
-  const bibcodes = useMemo(() => {
-    return bibsQueryResponse ? bibsQueryResponse.docs.map((d) => d.bibcode) : [];
-  }, [bibsQueryResponse]);
-
-  const numFound = useMemo(() => {
-    return bibsQueryResponse ? bibsQueryResponse.numFound : 0;
-  }, [bibsQueryResponse]);
-
-  // fetch author network data when bibcodes are available
+  // fetch author network data
   const {
     data: authorNetworkData,
     isLoading: authorNetworkIsLoading,
     isSuccess: authorNetworkIsSuccess,
     isError: authorNetworkIsError,
     error: authorNetworkError,
-  } = useGetAuthorNetwork(bibcodes, { enabled: bibcodes && bibcodes.length > 0 });
+  } = useGetAuthorNetwork(
+    { ...query, rows: state.rowsToFetch },
+    { enabled: !!query && !!query.q && query.q.length > 0 },
+  );
+
+  const numFound = useMemo(() => {
+    return authorNetworkData ? authorNetworkData.msg.numFound : 0;
+  }, [authorNetworkData]);
 
   // author network data to summary graph
   const authorNetworkSummaryGraph: ILineGraph = useMemo(() => {
@@ -171,10 +158,7 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
   return (
     <Box as="section" aria-label="Author network graph" my={10}>
       <StatusDisplay
-        bibsQueryIsError={bibsQueryIsError}
         authorNetworkIsError={authorNetworkIsError}
-        bibsQueryIsLoading={bibsQueryIsLoading}
-        bibsQueryError={bibsQueryError}
         authorNetworkIsLoading={authorNetworkIsLoading}
         authorNetworkError={authorNetworkError}
       />
@@ -196,9 +180,9 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
                 </>
               }
             />
-            <NetworkGraphPane
+            <AuthorNetworkGraphPane
               root={authorNetworkData.data.root}
-              link_data={authorNetworkData.data.link_data}
+              linksData={authorNetworkData.data.link_data}
               views={views}
               onClickNode={(node) =>
                 dispatch({ type: 'SET_SELECTED', payload: { node, dict: authorNetworkData.data.bibcode_dict } })
@@ -215,7 +199,7 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
               onClear={() => dispatch({ type: 'CLEAR_FILTERS' })}
               onApply={handleApplyFilters}
             />
-            <NetworkDetailsPane
+            <AuthorNetworkDetailsPane
               summaryGraph={authorNetworkSummaryGraph}
               node={state.selected}
               onAddToFilter={(node) => dispatch({ type: 'ADD_FILTER', payload: node })}
@@ -230,29 +214,16 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
 };
 
 const StatusDisplay = ({
-  bibsQueryIsError,
   authorNetworkIsError,
-  bibsQueryIsLoading,
-  bibsQueryError,
   authorNetworkIsLoading,
   authorNetworkError,
 }: {
-  bibsQueryIsError: boolean;
   authorNetworkIsError: boolean;
-  bibsQueryIsLoading: boolean;
-  bibsQueryError: unknown;
   authorNetworkIsLoading: boolean;
   authorNetworkError: unknown;
 }): ReactElement => {
   return (
     <>
-      {bibsQueryIsError && (
-        <StandardAlertMessage
-          status="error"
-          title="Error fetching records!"
-          description={axios.isAxiosError(bibsQueryError) && bibsQueryError.message}
-        />
-      )}
       {authorNetworkIsError && (
         <StandardAlertMessage
           status="error"
@@ -260,7 +231,6 @@ const StatusDisplay = ({
           description={axios.isAxiosError(authorNetworkError) && authorNetworkError.message}
         />
       )}
-      {bibsQueryIsLoading && <LoadingMessage message="Fetching records" />}
       {authorNetworkIsLoading && <LoadingMessage message="Fetching author network data" />}
     </>
   );
@@ -291,97 +261,4 @@ const FilterSearchBar = ({
       <Button onClick={onApply}>Search</Button>
     </Stack>
   );
-};
-
-// Get individual node details
-const getNodeDetails = (node: IADSApiVisNode, bibcode_dict: IBibcodeDict): INodeDetails => {
-  // if selected an author node
-  if (!('children' in node)) {
-    const bibcodes = uniq(node.papers);
-
-    // get author's papers details
-    const papers = bibcodes.map((bibcode) => ({
-      ...bibcode_dict[bibcode],
-      bibcode,
-      title: Array.isArray(bibcode_dict[bibcode].title)
-        ? decode(bibcode_dict[bibcode].title[0])
-        : decode(bibcode_dict[bibcode].title as string),
-    }));
-
-    // sort by citation count
-    papers.sort((p1, p2) => {
-      return p2.citation_count - p1.citation_count;
-    });
-
-    // most recent year
-    const mostRecentYear = bibcodes
-      .sort((b1, b2) => {
-        return parseInt(b1.slice(0, 4)) - parseInt(b2.slice(0, 4));
-      })
-      [bibcodes.length - 1].slice(0, 4);
-
-    return { name: node.name as string, type: 'author', papers, mostRecentYear };
-  }
-  // if selected a group node
-  else {
-    // all bibcodes in this group, has duplicates
-    const allBibcodes = node.children.reduce((prev, current) => [...prev, ...current.papers], [] as string[]);
-
-    // bibcode: author count
-    const authorCount = countBy((a) => a, allBibcodes);
-
-    // all bibcodes w/o duplicates
-    const bibcodes = Object.keys(authorCount);
-
-    // get min and max authors
-    const numAuthors = Object.values(authorCount).sort();
-    const minNumAuthors = numAuthors[0];
-    const maxNumAuthors = numAuthors[numAuthors.length - 1];
-
-    // min max percent authors in the group
-    const percentAuthors = Object.entries(authorCount)
-      .map(([bibcode, aCount]) => aCount / bibcode_dict[bibcode].authors.length)
-      .sort();
-    const minPercentAuthors = percentAuthors[0];
-    const maxPercentAuthors = percentAuthors[percentAuthors.length - 1];
-
-    // min max citations
-    const numCitations = bibcodes
-      .map((bibcode) => bibcode_dict[bibcode].citation_count / bibcode_dict[bibcode].authors.length)
-      .sort();
-    const minNumCitations = numCitations[0];
-    const maxNumCitations = numCitations[numCitations.length - 1];
-
-    // most recent year
-    const mostRecentYear = bibcodes
-      .sort((b1, b2) => {
-        return parseInt(b1.slice(0, 4)) - parseInt(b2.slice(0, 4));
-      })
-      [bibcodes.length - 1].slice(0, 4);
-
-    let papers = bibcodes.map((bibcode) => ({
-      ...bibcode_dict[bibcode],
-      bibcode,
-      title: Array.isArray(bibcode_dict[bibcode].title)
-        ? decode(bibcode_dict[bibcode].title[0])
-        : decode(bibcode_dict[bibcode].title as string),
-      groupAuthorCount: authorCount[bibcode],
-    }));
-
-    // sort paper
-    // from https://github.com/adsabs/bumblebee/blob/752b9146a404de2cfefebf55cb0cc983907f7519/src/js/widgets/network_vis/network_widget.js#L701
-    papers = reverse(
-      sortBy(({ bibcode }) => {
-        return (
-          (((((authorCount[bibcode] - minNumAuthors) / (maxNumAuthors - minNumAuthors)) *
-            (authorCount[bibcode] / bibcode_dict[bibcode].authors.length - minPercentAuthors)) /
-            (maxPercentAuthors - minPercentAuthors)) *
-            (bibcode_dict[bibcode].citation_count / bibcode_dict[bibcode].authors.length - minNumCitations)) /
-          (maxNumCitations - minNumCitations)
-        );
-      }, papers),
-    );
-
-    return { name: `Group ${node.name as string}`, type: 'group', papers, mostRecentYear };
-  }
 };

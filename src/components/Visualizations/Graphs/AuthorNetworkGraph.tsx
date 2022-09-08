@@ -1,110 +1,58 @@
-import { useD3 } from '../useD3';
+import { useD3 } from './useD3';
 import * as d3 from 'd3';
 import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { BaseType, D3ZoomEvent, HierarchyRectangularNode, Selection } from 'd3';
-import { IADSApiVisNode, IADSApiVisNodeKey } from '@api';
-import { useNetworkGraph } from './useNetworkGraph';
-export interface INetworkGraphProps {
-  root: IADSApiVisNode;
-  link_data: number[][];
+import { IADSApiAuthorNetworkNode, IADSApiAuthorNetworkNodeKey } from '@api';
+import { useAuthorNetworkGraph } from './useAuthorNetworkGraph';
+import { ADSSVGPathElement } from './types';
+export interface IAuthorNetworkGraphProps {
+  root: IADSApiAuthorNetworkNode;
+  linksData: number[][];
   showLinkLayer: boolean;
-  onClickNode: (node: IADSApiVisNode) => void;
-  keyToUseAsValue: IADSApiVisNodeKey;
+  onClickNode: (node: IADSApiAuthorNetworkNode) => void;
+  keyToUseAsValue: IADSApiAuthorNetworkNodeKey;
 }
 
 export interface NetworkHierarchyNode<Datum> extends HierarchyRectangularNode<Datum> {
   color: string; // cache color data
 }
 
-export interface ADSSVGPathElement extends SVGPathElement {
-  lastAngle: { x0: number; x1: number };
-}
 export interface ILink {
-  source: NetworkHierarchyNode<IADSApiVisNode>;
-  target: NetworkHierarchyNode<IADSApiVisNode>;
+  source: NetworkHierarchyNode<IADSApiAuthorNetworkNode>;
+  target: NetworkHierarchyNode<IADSApiAuthorNetworkNode>;
   weight: number;
 }
 
-const width = 932;
+const width = 900;
 
 const radius = width / 10;
 
 const numberOfLabelsToShow = 100;
 
-const noGroupColor = '#a6a6a6';
-
-export const NetworkGraph = ({
+export const AuthorNetworkGraph = ({
   root,
-  link_data,
+  linksData,
   showLinkLayer,
   onClickNode,
   keyToUseAsValue,
-}: INetworkGraphProps): ReactElement => {
-  const [selectedNode, setSelectedNode] = useState<IADSApiVisNode>();
+}: IAuthorNetworkGraphProps): ReactElement => {
+  const [selectedNode, setSelectedNode] = useState<IADSApiAuthorNetworkNode>();
 
-  const { partition, arc, color, fontSize, line, citationLimit, readLimit, linkScale, labelTransform, textAnchor } =
-    useNetworkGraph(root, link_data, keyToUseAsValue, radius, numberOfLabelsToShow);
+  const { partition, arc, fontSize, line, labelTransform, textAnchor, nodeFill, labelDisplay, strokeWidth } =
+    useAuthorNetworkGraph(root, linksData, keyToUseAsValue, radius, numberOfLabelsToShow);
 
   // actaul tree root data for graph
   const graphRoot = useMemo(() => partition(root), [partition, root]);
-
-  // get color of node
-  const nodeFill = (d: NetworkHierarchyNode<IADSApiVisNode>) => {
-    if (d.depth === 0) {
-      return 'white';
-    }
-    if (d.depth === 1) {
-      const index = d.parent.children.indexOf(d);
-      if (index < 7) {
-        d.color = color(index.toString());
-        return d.color;
-      }
-      return noGroupColor;
-    }
-    if (d.depth === 2) {
-      // child nodes
-      if (!d.parent.color) {
-        return noGroupColor;
-      }
-      return d.parent.color;
-    }
-  };
-
-  // get the label's display setting based on type of view
-  const labelDisplay = (d: NetworkHierarchyNode<IADSApiVisNode>, key: string) => {
-    if (key == 'size') {
-      return 'block';
-    }
-    if (key == 'citation_count' && d.data.citation_count > citationLimit) {
-      return 'block';
-    }
-    if (key == 'read_count' && d.data.read_count > readLimit) {
-      return 'block';
-    }
-    return 'none';
-  };
-
-  // get link stroke width
-  const strokeWidth = (d: ILink, links: ILink[]) => {
-    // get link weight
-    const weight = links.filter((l) => {
-      return (
-        (l.source.data.name === d.source.data.name && l.target.data.name === d.target.data.name) ||
-        (l.target.data.name === d.source.data.name && l.source.data.name === d.target.data.name)
-      );
-    })[0].weight;
-    return linkScale(weight);
-  };
 
   // node linking data
   const getLinks = (linkData: number[][]) => {
     const links = linkData.map((l) => {
       const source = d3
-        .selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-path')
+        .selectAll<BaseType, NetworkHierarchyNode<IADSApiAuthorNetworkNode>>('.node-path')
         .filter((d) => d.data.numberName === l[0])
         .data()[0];
       const target = d3
-        .selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-path')
+        .selectAll<BaseType, NetworkHierarchyNode<IADSApiAuthorNetworkNode>>('.node-path')
         .filter((d) => d.data.numberName === l[1])
         .data()[0];
 
@@ -118,7 +66,7 @@ export const NetworkGraph = ({
   };
 
   // transition nodes for view change
-  const transitionNodePaths = (root: NetworkHierarchyNode<IADSApiVisNode>) => {
+  const transitionNodePaths = (root: NetworkHierarchyNode<IADSApiAuthorNetworkNode>) => {
     d3.selectAll<ADSSVGPathElement, unknown>('.node-path')
       .data(root.descendants().slice(1))
       .join<ADSSVGPathElement>('path')
@@ -135,7 +83,7 @@ export const NetworkGraph = ({
 
   // transition node labels for view change
   const transitionNodeLabels = useCallback(
-    (root: NetworkHierarchyNode<IADSApiVisNode>, key: IADSApiVisNodeKey) => {
+    (root: NetworkHierarchyNode<IADSApiAuthorNetworkNode>, key: IADSApiAuthorNetworkNodeKey) => {
       d3.selectAll('.node-label')
         .join('text')
         .data(root.descendants().slice(1))
@@ -180,7 +128,7 @@ export const NetworkGraph = ({
 
   // handle mouse over label
   const handleMouseOverLabel = useCallback(
-    (e, n: NetworkHierarchyNode<IADSApiVisNode>) => {
+    (e, n: NetworkHierarchyNode<IADSApiAuthorNetworkNode>) => {
       if (!showLinkLayer) {
         return;
       }
@@ -198,7 +146,7 @@ export const NetworkGraph = ({
         highlightedLabelNames.add(hl.target.data.name);
       });
 
-      d3.selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-label')
+      d3.selectAll<BaseType, NetworkHierarchyNode<IADSApiAuthorNetworkNode>>('.node-label')
         .filter((nl) => highlightedLabelNames.has(nl.data.name))
         .classed('linked-label', true);
     },
@@ -225,7 +173,7 @@ export const NetworkGraph = ({
         highlightedLabelNames.add(hl.target.data.name);
       });
 
-      d3.selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-label')
+      d3.selectAll<BaseType, NetworkHierarchyNode<IADSApiAuthorNetworkNode>>('.node-label')
         .filter((nl) => highlightedLabelNames.has(nl.data.name))
         .classed('linked-label', true);
     },
@@ -234,7 +182,10 @@ export const NetworkGraph = ({
 
   // when mouseover callbacks are updated, update graph elements
   useEffect(() => {
-    d3.selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-label').on('mouseover', handleMouseOverLabel);
+    d3.selectAll<BaseType, NetworkHierarchyNode<IADSApiAuthorNetworkNode>>('.node-label').on(
+      'mouseover',
+      handleMouseOverLabel,
+    );
   }, [handleMouseOverLabel]);
 
   useEffect(() => {
@@ -246,7 +197,7 @@ export const NetworkGraph = ({
     if (selectedNode) {
       onClickNode(selectedNode);
       // clear previous selection & highlight current selection
-      d3.selectAll<BaseType, NetworkHierarchyNode<IADSApiVisNode>>('.node-path').classed(
+      d3.selectAll<BaseType, NetworkHierarchyNode<IADSApiAuthorNetworkNode>>('.node-path').classed(
         'selected-node',
         (d) => !showLinkLayer && d.data.name === selectedNode.name,
       );
@@ -257,7 +208,7 @@ export const NetworkGraph = ({
   useEffect(() => {
     transitionNodePaths(graphRoot);
     transitionNodeLabels(graphRoot, keyToUseAsValue);
-    transitionLinks(getLinks(link_data));
+    transitionLinks(getLinks(linksData));
   }, [graphRoot]);
 
   const renderFunction = useCallback(
@@ -274,7 +225,7 @@ export const NetworkGraph = ({
       const zoom = d3
         .zoom<SVGGElement, unknown>()
         .scaleExtent([0.7, 3])
-        .on('zoom', (e: D3ZoomEvent<SVGGElement, IADSApiVisNode>) => {
+        .on('zoom', (e: D3ZoomEvent<SVGGElement, IADSApiAuthorNetworkNode>) => {
           g.attr('transform', e.transform.toString());
         });
       g0.call(zoom);
@@ -333,7 +284,7 @@ export const NetworkGraph = ({
         .style('fill', 'rgba(255, 255, 255, 0.5)');
 
       // get links data
-      const links = getLinks(link_data);
+      const links = getLinks(linksData);
 
       // links
       linkContainer
@@ -356,7 +307,7 @@ export const NetworkGraph = ({
 
       return svg;
     },
-    [root, link_data],
+    [root, linksData],
   );
 
   const { ref } = useD3(renderFunction, [renderFunction]);

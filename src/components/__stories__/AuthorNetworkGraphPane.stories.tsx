@@ -1,16 +1,17 @@
-import { INetworkGraphPaneProps, IView, NetworkGraphPane } from '@components';
+import { IAuthorNetworkGraphPaneProps, AuthorNetworkGraphPane } from '@components';
+import { IView } from '@components/Visualizations/GraphPanes/types';
 import { response } from '@components/__mocks__/networkResponseData';
 import { Meta, Story } from '@storybook/react';
 import { noop } from '@utils';
 
 const meta: Meta = {
-  title: 'Visualizations/GraphPanes/NetworkGraphPane',
-  component: NetworkGraphPane,
+  title: 'Visualizations/GraphPanes/AuthorNetworkGraphPane',
+  component: AuthorNetworkGraphPane,
 };
 
 export default meta;
 
-const Template: Story<INetworkGraphPaneProps> = (args) => <NetworkGraphPane {...args} />;
+const Template: Story<IAuthorNetworkGraphPaneProps> = (args) => <AuthorNetworkGraphPane {...args} />;
 
 export const Default = Template.bind({});
 
@@ -22,7 +23,7 @@ const views: IView[] = [
 
 Default.args = {
   root: response.data.root,
-  link_data: response.data.link_data,
+  linksData: response.data.link_data,
   views,
   onChangePaperLimit: noop,
   maxPaperLimit: 200,

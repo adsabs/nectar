@@ -11,7 +11,7 @@ import {
 } from '@api';
 import { Box } from '@chakra-ui/react';
 import { AbsLayout } from '@components/Layout/AbsLayout';
-import { Metrics } from '@components';
+import { MetricsPane } from '@components';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
 import { composeNextGSSP, normalizeURLParams, setupApiSSR } from '@utils';
@@ -51,7 +51,7 @@ const MetricsPage: NextPage<IMetricsPageProps> = (props: IMetricsPageProps) => {
           No metrics data
         </Box>
       ) : (
-        <Metrics metrics={metrics} isAbstract={true} />
+        <MetricsPane metrics={metrics} isAbstract={true} />
       )}
     </AbsLayout>
   );

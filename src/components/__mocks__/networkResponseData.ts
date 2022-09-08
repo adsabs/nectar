@@ -1,6 +1,6 @@
-import { IADSApiVisResponse } from '@api';
+import { IADSApiAuthorNetworkResponse } from '@api';
 
-export const response: IADSApiVisResponse = {
+export const response: IADSApiAuthorNetworkResponse = {
   msg: { numFound: 41, start: 0, rows: 400 },
   data: {
     root: {

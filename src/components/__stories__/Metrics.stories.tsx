@@ -1,15 +1,15 @@
-import { IMetricsProps, Metrics } from '@components';
+import { IMetricsProps, MetricsPane } from '@components';
 import { metrics } from '@components/__mocks__/data';
 import { Meta, Story } from '@storybook/react';
 
 const meta: Meta = {
   title: 'Visualizations/Metrics',
-  component: Metrics,
+  component: MetricsPane,
 };
 
 export default meta;
 
-const Template: Story<IMetricsProps> = (args) => <Metrics {...args} />;
+const Template: Story<IMetricsProps> = (args) => <MetricsPane {...args} />;
 
 export const Default = Template.bind({});
 
