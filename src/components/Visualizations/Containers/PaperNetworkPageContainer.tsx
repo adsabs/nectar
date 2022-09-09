@@ -178,7 +178,7 @@ export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerP
   const handleApplyFilters = () => {
     const bibcodes = uniq(
       state.filters.reduce(
-        (acc, node) => [...acc, ...node.allPapers.reduce((acc1, paper) => [...acc1, paper.node_name], [] as string[])],
+        (acc, node) => [...acc, ...node.papers.reduce((acc1, paper) => [...acc1, paper.bibcode], [] as string[])],
         [] as string[],
       ), // filters to a list of papers
     );

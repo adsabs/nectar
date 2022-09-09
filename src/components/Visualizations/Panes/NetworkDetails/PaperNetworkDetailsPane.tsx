@@ -1,4 +1,4 @@
-import { IADSApiPaperNetworkSummaryGraphNode, IADSApiPaperNetworkFullGraphNode } from '@api';
+import { IADSApiPaperNetworkSummaryGraphNode, IDocsEntity } from '@api';
 import {
   Text,
   Tab,
@@ -7,14 +7,14 @@ import {
   TabPanels,
   Tabs,
   Box,
-  List,
-  ListItem,
   Table,
   Thead,
   Tr,
   Th,
   Tbody,
+  Flex,
 } from '@chakra-ui/react';
+import { Item } from '@components/ResultList/Item';
 import { SimpleLink } from '@components/SimpleLink';
 import { ILineGraph } from '@components/Visualizations/types';
 import { ReactElement, useEffect, useState } from 'react';
@@ -22,7 +22,7 @@ import { NodeDetailPane } from './NodeDetailsPane';
 import { SummaryPane } from './SummaryPane';
 
 export interface IPaperNetworkNodeDetails extends IADSApiPaperNetworkSummaryGraphNode {
-  allPapers: IADSApiPaperNetworkFullGraphNode[];
+  papers: IDocsEntity[];
   titleWords: string[];
   topCommonReferences: {
     bibcode: string;
@@ -105,27 +105,26 @@ export const PaperNetworkDetailsPane = ({
 };
 
 const PapersList = ({ node }: { node: IPaperNetworkNodeDetails }): ReactElement => {
-  const { allPapers, topCommonReferences } = node;
+  const { papers, topCommonReferences } = node;
+  const topNPapers = 30;
   return (
     <Box mt={5}>
-      <Text fontWeight="bold">{allPapers.length > 30 ? 'Top 30 papers from this group' : 'Papers in this group'}</Text>
-      <List spacing={3} mt={5}>
-        {allPapers.slice(0, 30).map((paper) => (
-          <ListItem key={`paper-${paper.id}`}>
-            <SimpleLink href={`/abs/${paper.node_name}`} newTab={true}>
-              <Text fontWeight="bold" as="span" dangerouslySetInnerHTML={{ __html: paper.title }} />
-            </SimpleLink>
-            <Text as="span">{paper.first_author}</Text>
-            <Text as="span" fontSize="sm">
-              {paper.citation_count && paper.citation_count > 0 ? (
-                <> ({paper.citation_count} citations)</>
-              ) : (
-                <> (no citations)</>
-              )}
-            </Text>
-          </ListItem>
+      <Text fontWeight="bold">
+        {papers.length > topNPapers ? `Top ${topNPapers} papers from this group` : 'Papers in this group'}
+      </Text>
+      <Flex as="section" aria-label="Papers List" direction="column">
+        {papers.map((doc, index) => (
+          <Item
+            doc={doc}
+            key={doc.bibcode}
+            index={index + 1}
+            hideCheckbox={true}
+            hideActions={true}
+            showHighlights={false}
+          />
         ))}
-      </List>
+      </Flex>
+      {/* Probably not going to keep this, only bibcodes, not very useful 
       <Text fontWeight="bold" mt={5}>
         Papers highly referenced by papers in this group:
       </Text>
@@ -142,7 +141,7 @@ const PapersList = ({ node }: { node: IPaperNetworkNodeDetails }): ReactElement 
               <Text>cited by {r.percent}% of papers in this group</Text>
             </ListItem>
           ))}
-      </List>
+      </List> */}
     </Box>
   );
 };
