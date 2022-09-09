@@ -96,6 +96,7 @@ const PapersList = ({ papers }: { papers: IAuthorNetworkNodeDetails['papers'] })
               ? `${doc.groupAuthorCount} author${doc.groupAuthorCount > 1 ? 's' : ''} from this group`
               : null
           }
+          linkNewTab={true}
         />
       ))}
     </Flex>

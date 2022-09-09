@@ -121,6 +121,7 @@ const PapersList = ({ node }: { node: IPaperNetworkNodeDetails }): ReactElement 
             hideCheckbox={true}
             hideActions={true}
             showHighlights={false}
+            linkNewTab={true}
           />
         ))}
       </Flex>
@@ -167,7 +168,9 @@ const ReferencesList = ({ link }: { link: IPaperNetworkLinkDetails }): ReactElem
           {papers.map((p) => (
             <Tr key={`ref-${p.bibcode}`}>
               <Th>
-                <SimpleLink href={`/abs/${p.bibcode}`}>{p.bibcode}</SimpleLink>
+                <SimpleLink href={`/abs/${p.bibcode}`} newTab={true}>
+                  {p.bibcode}
+                </SimpleLink>
               </Th>
               <Th>{`${p.percent1.toFixed(2)}%`}</Th>
               <Th>{`${p.percent2.toFixed(2)}%`}</Th>
