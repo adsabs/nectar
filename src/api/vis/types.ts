@@ -4,6 +4,12 @@ export interface IADSApiVisParams {
   query?: string[];
 }
 
+export interface IADSApiWordCloudParams {
+  q: string[];
+  sort: string[];
+  rows: number[];
+}
+
 export interface IADSApiAuthorNetworkResponse {
   data: { bibcode_dict: IBibcodeDict; link_data: number[][]; root: IADSApiAuthorNetworkNode };
   msg: { numFound: number; start: number; rows: number };
@@ -87,4 +93,12 @@ export interface IADSApiPaperNetworkFullGraphNode {
   node_name: string;
   id: number;
   nodeWeight: number;
+}
+
+export interface IADSApiWordCloudResponse {
+  [word: string]: {
+    idf: number;
+    record_count: number;
+    total_occurrences: number;
+  };
 }
