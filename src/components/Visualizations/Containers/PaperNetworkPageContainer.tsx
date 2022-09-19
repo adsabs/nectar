@@ -1,7 +1,7 @@
 import { IADSApiSearchParams, useVaultBigQuerySearch } from '@api';
 import { IADSApiPaperNetworkFullGraph, IADSApiPaperNetworkSummaryGraphNode } from '@api/vis/types';
 import { useGetPaperNetwork } from '@api/vis/vis';
-import { Box, Button, Flex, SimpleGrid, Stack, Text, useToast } from '@chakra-ui/react';
+import { Box, Flex, SimpleGrid, useToast } from '@chakra-ui/react';
 import {
   CustomInfoMessage,
   DataDownloader,
@@ -14,7 +14,6 @@ import {
   PaperNetworkGraphPane,
   SimpleLink,
   StandardAlertMessage,
-  Tags,
 } from '@components';
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
@@ -24,7 +23,7 @@ import { ReactElement, Reducer, useCallback, useEffect, useMemo, useReducer, use
 import { IView } from '../GraphPanes/types';
 import { ILineGraph } from '../types';
 import { getPaperNetworkLinkDetails, getPaperNetworkNodeDetails, getPaperNetworkSummaryGraph } from '../utils';
-import { NotEnoughData } from '../Widgets';
+import { FilterSearchBar, NotEnoughData } from '../Widgets';
 
 interface IPaperNetworkPageContainerProps {
   query: IADSApiSearchParams;
@@ -265,6 +264,8 @@ export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerP
               onRemove={(tag) => dispatch({ type: 'REMOVE_FILTER_TAG', payload: tag })}
               onClear={() => dispatch({ type: 'CLEAR_FILTERS' })}
               onApply={handleApplyFilters}
+              description="Narrow down your search results to papers from a certain group"
+              placeHolder="select a group in the visualization and click the 'add to filter' button"
             />
             <PaperNetworkDetailsPane
               summaryGraph={paperNetworkSummaryGraph}
@@ -303,32 +304,5 @@ const StatusDisplay = ({
       )}
       {paperNetworkIsLoading && <LoadingMessage message="Fetching paper network data" />}
     </>
-  );
-};
-
-const FilterSearchBar = ({
-  tagItems,
-  onRemove,
-  onClear,
-  onApply,
-}: {
-  tagItems: ITagItem[];
-  onRemove: (tagItem: ITagItem) => void;
-  onClear: () => void;
-  onApply: () => void;
-}): ReactElement => {
-  return (
-    <Stack direction="column" mb={10}>
-      <Text fontWeight="bold">Filter current search: </Text>
-      <Text>Narrow down your search results to papers from a certain group</Text>
-      <Tags
-        tagItems={tagItems}
-        onRemove={onRemove}
-        onClear={onClear}
-        placeHolder="select a group in the visualization and click the 'add to filter' button"
-        flex={1}
-      />
-      <Button onClick={onApply}>Search</Button>
-    </Stack>
   );
 };
