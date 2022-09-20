@@ -1,6 +1,4 @@
 import {
-  Box,
-  Flex,
   FormControl,
   FormLabel,
   HStack,
@@ -15,9 +13,10 @@ import { WordCloud, WordDatum } from '../Graphs';
 
 export interface IWordCloudPaneProps {
   wordData: WordDatum[];
+  fill: d3.ScaleLogarithmic<string, string, never>;
 }
 
-export const WordCloudPane = ({ wordData }: IWordCloudPaneProps): ReactElement => {
+export const WordCloudPane = ({ wordData, fill }: IWordCloudPaneProps): ReactElement => {
   return (
     <>
       <FormControl m={5}>
@@ -52,7 +51,7 @@ export const WordCloudPane = ({ wordData }: IWordCloudPaneProps): ReactElement =
           </Slider>
         </HStack>
       </FormControl>
-      <WordCloud wordData={wordData}></WordCloud>
+      <WordCloud wordData={wordData} fill={fill}></WordCloud>
     </>
   );
 };

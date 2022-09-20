@@ -106,3 +106,7 @@ export type Y_Axis = 'linear' | 'log';
 export type X_Axis = 'linear' | 'point';
 
 export type NetworkType = 'author' | 'paper';
+
+export interface ISliderRange {
+  [i: number]: [number, number];
+}

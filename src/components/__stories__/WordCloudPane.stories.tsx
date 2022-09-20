@@ -1,5 +1,5 @@
 import { IWordCloudPaneProps, WordCloudPane } from '@components/Visualizations/GraphPanes/WordCloudPane';
-import { wordData } from '@components/__mocks__/wordCloudText';
+import { fill, wordData } from '@components/__mocks__/wordCloud';
 import { Meta, Story } from '@storybook/react';
 
 const meta: Meta = {
@@ -13,4 +13,4 @@ const Template: Story<IWordCloudPaneProps> = (args) => <WordCloudPane {...args} 
 
 export const Default = Template.bind({});
 
-Default.args = { wordData };
+Default.args = { wordData, fill };

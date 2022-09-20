@@ -7,16 +7,18 @@ const width = 1000;
 
 const height = 600;
 
-export interface WordDatum {
+export interface WordDatum extends d3Cloud.Word {
   text: string;
   size: number;
+  origSize: number;
 }
 
 export interface IWordCloudProps {
   wordData: WordDatum[];
+  fill: d3.ScaleLogarithmic<string, string, never>;
 }
 
-export const WordCloud = ({ wordData }: IWordCloudProps): ReactElement => {
+export const WordCloud = ({ wordData, fill }: IWordCloudProps): ReactElement => {
   const renderFunction = useCallback(
     (svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>) => {
       svg.selectAll('*').remove();
@@ -30,19 +32,20 @@ export const WordCloud = ({ wordData }: IWordCloudProps): ReactElement => {
 
       const g = svg.append('g').attr('transform', `translate(${0},${0})`);
 
-      const cloud = d3Cloud()
+      const cloud = d3Cloud<WordDatum>()
         .size([width, height])
         .words(wordData)
         .spiral('archimedean')
         .padding(0)
         .rotate(0)
         .font('sans-serif')
-        .fontSize((d) => Math.sqrt(d.size) * 15)
-        .on('word', ({ size, x, y, rotate, text }) => {
+        .fontSize((d) => d.size)
+        .on('word', ({ size, x, y, rotate, text, origSize }) => {
           g.append('text')
             .attr('font-size', size)
             .attr('transform', `translate(${x},${y}) rotate(${rotate})`)
-            .text(text);
+            .text(text)
+            .style('fill', fill(origSize));
         });
 
       cloud.start();
