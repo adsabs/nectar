@@ -159,4 +159,10 @@
   .link-background {
     fill: hsla(0, 0%, 100%, 0.8);
   }
+
+  /* concept cloud */
+
+  .word-cloud-container .word {
+    @apply cursor-pointer;
+  }
 }

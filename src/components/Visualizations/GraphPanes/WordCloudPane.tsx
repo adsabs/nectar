@@ -8,18 +8,20 @@ import {
   SliderThumb,
   SliderTrack,
 } from '@chakra-ui/react';
+import { noop } from '@utils';
 import { ReactElement } from 'react';
 import { WordCloud, WordDatum } from '../Graphs';
 
 export interface IWordCloudPaneProps {
   wordData: WordDatum[];
   fill: d3.ScaleLogarithmic<string, string, never>;
+  onSelect?: (word: string) => void;
 }
 
-export const WordCloudPane = ({ wordData, fill }: IWordCloudPaneProps): ReactElement => {
+export const WordCloudPane = ({ wordData, fill, onSelect = noop }: IWordCloudPaneProps): ReactElement => {
   return (
     <>
-      <FormControl m={5}>
+      <FormControl my={10}>
         <HStack gap={10}>
           <FormLabel>Recalculate Cloud</FormLabel>
           <Slider defaultValue={50} min={0} max={100} step={25} mt={10} w="96">
@@ -51,7 +53,7 @@ export const WordCloudPane = ({ wordData, fill }: IWordCloudPaneProps): ReactEle
           </Slider>
         </HStack>
       </FormControl>
-      <WordCloud wordData={wordData} fill={fill}></WordCloud>
+      <WordCloud wordData={wordData} fill={fill} onSelect={onSelect} />
     </>
   );
 };

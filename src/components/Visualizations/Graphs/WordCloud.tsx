@@ -2,6 +2,7 @@ import { ReactElement, useCallback } from 'react';
 import { useD3 } from './useD3';
 import d3Cloud from 'd3-cloud';
 import { Selection } from 'd3';
+import { noop } from '@utils';
 
 const width = 1000;
 
@@ -16,9 +17,10 @@ export interface WordDatum extends d3Cloud.Word {
 export interface IWordCloudProps {
   wordData: WordDatum[];
   fill: d3.ScaleLogarithmic<string, string, never>;
+  onSelect?: (word: string) => void;
 }
 
-export const WordCloud = ({ wordData, fill }: IWordCloudProps): ReactElement => {
+export const WordCloud = ({ wordData, fill, onSelect = noop }: IWordCloudProps): ReactElement => {
   const renderFunction = useCallback(
     (svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>) => {
       svg.selectAll('*').remove();
@@ -28,9 +30,10 @@ export const WordCloud = ({ wordData, fill }: IWordCloudProps): ReactElement => 
         .attr('width', width)
         .attr('font-family', 'sans-serif')
         .attr('text-anchor', 'middle')
-        .attr('style', 'max-width: 100%; height: auto; height: intrinsic;');
+        .attr('style', 'max-width: 100%; height: auto; height: intrinsic;')
+        .classed('concept-cloud-svg', true);
 
-      const g = svg.append('g').attr('transform', `translate(${0},${0})`);
+      const g = svg.append('g').attr('transform', `translate(${0},${0})`).classed('word-cloud-container', true);
 
       const cloud = d3Cloud<WordDatum>()
         .size([width, height])
@@ -45,7 +48,9 @@ export const WordCloud = ({ wordData, fill }: IWordCloudProps): ReactElement => 
             .attr('font-size', size)
             .attr('transform', `translate(${x},${y}) rotate(${rotate})`)
             .text(text)
-            .style('fill', fill(origSize));
+            .classed('word', true)
+            .style('fill', fill(origSize))
+            .on('click', () => onSelect(text));
         });
 
       cloud.start();
