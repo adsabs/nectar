@@ -2,7 +2,7 @@ import { IADSApiSearchParams, useGetWordCloud } from '@api';
 import { Box } from '@chakra-ui/react';
 import { Expandable, ITagItem, LoadingMessage, SimpleLink, StandardAlertMessage } from '@components';
 import axios from 'axios';
-import { uniq } from 'ramda';
+import { keys, uniq } from 'ramda';
 import { memo, ReactElement, Reducer, useMemo, useReducer } from 'react';
 import { WordCloudPane } from '../GraphPanes/WordCloudPane';
 import { ISliderRange } from '../types';
@@ -20,6 +20,8 @@ const sliderRange: ISliderRange = {
   4: [0.25, 0.75],
   5: [0, 1],
 };
+
+const sliderValues = Object.keys(sliderRange).map((v) => parseInt(v));
 
 interface IConceptCloudPageState {
   currentSliderValue: number;
@@ -69,7 +71,7 @@ const _ConceptCloudPageContainer = ({ query }: IConceptCloudPageContainerProps):
       return { wordList: undefined, fill: undefined };
     }
     return buildWCDict(data, sliderRange, state.currentSliderValue, colorRange);
-  }, [data]);
+  }, [data, state.currentSliderValue]);
 
   // convert filters to tags
   const filterTagItems: ITagItem[] = useMemo(() => {
@@ -86,6 +88,11 @@ const _ConceptCloudPageContainer = ({ query }: IConceptCloudPageContainerProps):
 
   // trigger search with filters
   const handleApplyFilters = () => {};
+
+  // slider value changed
+  const handleSliderValueChange = (value: number) => {
+    dispatch({ type: 'UPDATE_SLIDER_VALUE', payload: value });
+  };
 
   return (
     <Box as="section" aria-label="Concept Cloud graph" my={10}>
@@ -118,7 +125,14 @@ const _ConceptCloudPageContainer = ({ query }: IConceptCloudPageContainerProps):
             description="Narrow down your search results"
             placeHolder="Click on a term to add it to this list."
           />
-          <WordCloudPane wordData={wordList} fill={fill} onSelect={handleSelectWord} />
+          <WordCloudPane
+            wordData={wordList}
+            fill={fill}
+            onSelect={handleSelectWord}
+            onSliderValueChange={handleSliderValueChange}
+            sliderValues={sliderValues}
+            currentSliderValue={state.currentSliderValue}
+          />
         </Box>
       )}
     </Box>

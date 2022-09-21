@@ -13,4 +13,4 @@ const Template: Story<IWordCloudPaneProps> = (args) => <WordCloudPane {...args} 
 
 export const Default = Template.bind({});
 
-Default.args = { wordData, fill };
+Default.args = { wordData, fill, sliderValues: [1, 2, 3, 4, 5], currentSliderValue: 3 };

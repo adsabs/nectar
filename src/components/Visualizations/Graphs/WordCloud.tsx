@@ -14,6 +14,21 @@ export interface WordDatum extends d3Cloud.Word {
   origSize: number;
 }
 
+// random position for words coming from all directions along the 4 boundaries
+const randomStartPos = () => {
+  const r = Math.floor(Math.random() * 4);
+
+  switch (r) {
+    case 0:
+      return `translate(${0}, ${Math.random() * height})`;
+    case 1:
+      return `translate(${Math.random() * width}, ${height})`;
+    case 2:
+      return `translate(${Math.random() * width}, ${0})`;
+    default:
+      return `translate(${width}, ${Math.random() * height})`;
+  }
+};
 export interface IWordCloudProps {
   wordData: WordDatum[];
   fill: d3.ScaleLogarithmic<string, string, never>;
@@ -46,11 +61,14 @@ export const WordCloud = ({ wordData, fill, onSelect = noop }: IWordCloudProps):
         .on('word', ({ size, x, y, rotate, text, origSize }) => {
           g.append('text')
             .attr('font-size', size)
-            .attr('transform', `translate(${x},${y}) rotate(${rotate})`)
             .text(text)
             .classed('word', true)
             .style('fill', fill(origSize))
-            .on('click', () => onSelect(text));
+            .on('click', () => onSelect(text))
+            .attr('transform', randomStartPos())
+            .transition()
+            .duration(1000)
+            .attr('transform', `translate(${x},${y}) rotate(${rotate})`);
         });
 
       cloud.start();
