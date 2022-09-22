@@ -1,7 +1,9 @@
 import { IADSApiSearchParams, useGetWordCloud } from '@api';
 import { Box } from '@chakra-ui/react';
 import { Expandable, ITagItem, LoadingMessage, SimpleLink, StandardAlertMessage } from '@components';
+import { makeSearchParams } from '@utils';
 import axios from 'axios';
+import { useRouter } from 'next/router';
 import { keys, uniq } from 'ramda';
 import { memo, ReactElement, Reducer, useMemo, useReducer } from 'react';
 import { WordCloudPane } from '../GraphPanes/WordCloudPane';
@@ -55,6 +57,8 @@ interface IConceptCloudPageContainerProps {
 }
 
 const _ConceptCloudPageContainer = ({ query }: IConceptCloudPageContainerProps): ReactElement => {
+  const router = useRouter();
+
   const [state, dispatch] = useReducer(reducer, {
     currentSliderValue: 3,
     filters: [],
@@ -87,7 +91,18 @@ const _ConceptCloudPageContainer = ({ query }: IConceptCloudPageContainerProps):
   };
 
   // trigger search with filters
-  const handleApplyFilters = () => {};
+  const handleApplyFilters = () => {
+    const fq = '{!type=aqp v=$fq_wordcloud}';
+    const fqs = query.fq || [];
+    if (fqs.findIndex((f) => f === fq) === -1) {
+      fqs.push(fq);
+    }
+
+    const values = state.filters.join(' OR ');
+
+    const search = makeSearchParams({ ...query, fq: fqs, fq_wordcloud: `(${values})`, p: 1 });
+    void router.push({ pathname: '/search', search }, null, { scroll: false, shallow: true });
+  };
 
   // slider value changed
   const handleSliderValueChange = (value: number) => {
