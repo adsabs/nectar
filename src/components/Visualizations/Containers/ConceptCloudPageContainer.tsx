@@ -1,5 +1,5 @@
 import { IADSApiSearchParams, useGetWordCloud } from '@api';
-import { Box } from '@chakra-ui/react';
+import { Box, Flex, Text } from '@chakra-ui/react';
 import { Expandable, ITagItem, LoadingMessage, SimpleLink, StandardAlertMessage } from '@components';
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
@@ -122,14 +122,26 @@ const _ConceptCloudPageContainer = ({ query }: IConceptCloudPageContainerProps):
       {!isLoading && isSuccess && data && (
         <Box>
           <Expandable
-            title="About Author Network"
+            title="About Concept Cloud"
             description={
-              <>
-                This visualization shows you unique and frequent words from a set of the top 100 search results.
+              <Flex direction="column" gap={2}>
+                <Text>
+                  This word cloud allows you to view unique and frequent words from the top 100 search results
+                </Text>
+                <Text>
+                  Move the slider towards <strong> Frequent</strong> to view a word cloud that is simply composed of the
+                  words that appeared most frequently in your results. (This word cloud is likely to feature generic
+                  terms like 'observations' prominently.)
+                </Text>
+                <Text>
+                  Move the slider towards <strong>Unique</strong> to see a word cloud that shows words that appeared in
+                  your results but which appear very rarely in the rest of the ADS corpus.
+                </Text>
+                <Text>To facet your ADS search, select words from the word cloud and click the 'Search' button.</Text>
                 <SimpleLink href="/help/actions/visualize#word-cloud" newTab>
                   Learn more about concept cloud
                 </SimpleLink>
-              </>
+              </Flex>
             }
           />
           <FilterSearchBar
