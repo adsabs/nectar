@@ -20,6 +20,7 @@ export interface IWordCloudPaneProps {
   onSliderValueChange?: (value: number) => void;
   sliderValues: number[];
   currentSliderValue: number;
+  selectedWords?: string[];
 }
 
 export const WordCloudPane = ({
@@ -29,6 +30,7 @@ export const WordCloudPane = ({
   onSliderValueChange = noop,
   sliderValues,
   currentSliderValue,
+  selectedWords = [],
 }: IWordCloudPaneProps): ReactElement => {
   const handleSliderValueChange = (value: number) => {
     onSliderValueChange(value);
@@ -72,7 +74,7 @@ export const WordCloudPane = ({
         </HStack>
       </FormControl>
       <Flex justifyContent="center">
-        <WordCloud wordData={wordData} fill={fill} onSelect={onSelect} />
+        <WordCloud wordData={wordData} fill={fill} onSelect={onSelect} selectedWords={selectedWords} />
       </Flex>
     </>
   );

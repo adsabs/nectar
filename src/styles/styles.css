@@ -162,7 +162,11 @@
 
   /* concept cloud */
 
-  .word-cloud-container .word {
+  .word-cloud-container .word-cloud-word {
     @apply cursor-pointer;
+  }
+
+  .word-cloud-container .word-cloud-word.selected {
+    fill: #ee8e29 !important;
   }
 }

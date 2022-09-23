@@ -1,6 +1,7 @@
-import { ReactElement, useCallback } from 'react';
+import { ReactElement, useCallback, useEffect } from 'react';
 import { useD3 } from './useD3';
 import d3Cloud from 'd3-cloud';
+import * as d3 from 'd3';
 import { Selection } from 'd3';
 import { noop } from '@utils';
 
@@ -33,9 +34,18 @@ export interface IWordCloudProps {
   wordData: WordDatum[];
   fill: d3.ScaleLogarithmic<string, string, never>;
   onSelect?: (word: string) => void;
+  selectedWords?: string[];
 }
 
-export const WordCloud = ({ wordData, fill, onSelect = noop }: IWordCloudProps): ReactElement => {
+export const WordCloud = ({ wordData, fill, onSelect = noop, selectedWords = [] }: IWordCloudProps): ReactElement => {
+  // When selected words change, update the styles
+  useEffect(() => {
+    d3.selectAll<SVGTextElement, unknown>('.word-cloud-word').classed('selected', function () {
+      const word = this.dataset['word'];
+      return selectedWords.findIndex((w) => word === w) !== -1;
+    });
+  }, [selectedWords]);
+
   const renderFunction = useCallback(
     (svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>) => {
       svg.selectAll('*').remove();
@@ -62,7 +72,8 @@ export const WordCloud = ({ wordData, fill, onSelect = noop }: IWordCloudProps):
           g.append('text')
             .attr('font-size', size)
             .text(text)
-            .classed('word', true)
+            .classed('word-cloud-word', true)
+            .attr('data-word', text)
             .style('fill', fill(origSize))
             .on('click', () => onSelect(text))
             .attr('transform', randomStartPos())

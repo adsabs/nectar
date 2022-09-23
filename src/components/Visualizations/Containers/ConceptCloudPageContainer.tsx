@@ -159,6 +159,7 @@ const _ConceptCloudPageContainer = ({ query }: IConceptCloudPageContainerProps):
             onSliderValueChange={handleSliderValueChange}
             sliderValues={sliderValues}
             currentSliderValue={state.currentSliderValue}
+            selectedWords={state.filters}
           />
         </Box>
       )}
