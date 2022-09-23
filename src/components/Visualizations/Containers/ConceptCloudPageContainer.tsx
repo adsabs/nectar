@@ -4,7 +4,7 @@ import { Expandable, ITagItem, LoadingMessage, SimpleLink, StandardAlertMessage 
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { keys, uniq } from 'ramda';
+import { uniq } from 'ramda';
 import { memo, ReactElement, Reducer, useMemo, useReducer } from 'react';
 import { WordCloudPane } from '../GraphPanes/WordCloudPane';
 import { ISliderRange } from '../types';
@@ -144,23 +144,29 @@ const _ConceptCloudPageContainer = ({ query }: IConceptCloudPageContainerProps):
               </Flex>
             }
           />
-          <FilterSearchBar
-            tagItems={filterTagItems}
-            onRemove={(tag) => dispatch({ type: 'REMOVE_FILTER', payload: tag.id as string })}
-            onClear={() => dispatch({ type: 'CLEAR_FILTERS' })}
-            onApply={handleApplyFilters}
-            description="Narrow down your search results"
-            placeHolder="Click on a term to add it to this list."
-          />
-          <WordCloudPane
-            wordData={wordList}
-            fill={fill}
-            onSelect={handleSelectWord}
-            onSliderValueChange={handleSliderValueChange}
-            sliderValues={sliderValues}
-            currentSliderValue={state.currentSliderValue}
-            selectedWords={state.filters}
-          />
+          <Flex direction={{ base: 'column', lg: 'row' }} gap={5}>
+            <Box w={{ base: '100%', lg: '25%' }} mt={5}>
+              <FilterSearchBar
+                tagItems={filterTagItems}
+                onRemove={(tag) => dispatch({ type: 'REMOVE_FILTER', payload: tag.id as string })}
+                onClear={() => dispatch({ type: 'CLEAR_FILTERS' })}
+                onApply={handleApplyFilters}
+                description="Narrow down your search results"
+                placeHolder="Click on a term to add it to this list."
+              />
+            </Box>
+            <Box w={{ base: '100%', lg: '75%' }}>
+              <WordCloudPane
+                wordData={wordList}
+                fill={fill}
+                onSelect={handleSelectWord}
+                onSliderValueChange={handleSliderValueChange}
+                sliderValues={sliderValues}
+                currentSliderValue={state.currentSliderValue}
+                selectedWords={state.filters}
+              />
+            </Box>
+          </Flex>
         </Box>
       )}
     </Box>

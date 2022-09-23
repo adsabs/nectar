@@ -2,7 +2,6 @@ import {
   Flex,
   FormControl,
   FormLabel,
-  HStack,
   Slider,
   SliderFilledTrack,
   SliderMark,
@@ -42,9 +41,9 @@ export const WordCloudPane = ({
   );
 
   return (
-    <>
-      <FormControl my={10}>
-        <HStack gap={10}>
+    <Flex alignItems="center" direction="column">
+      <FormControl my={10} w="100%">
+        <Flex alignItems="center" direction="column">
           <FormLabel>Recalculate Cloud</FormLabel>
           <Slider
             defaultValue={currentSliderValue}
@@ -71,11 +70,10 @@ export const WordCloudPane = ({
               Frequent
             </SliderMark>
           </Slider>
-        </HStack>
+        </Flex>
       </FormControl>
-      <Flex justifyContent="center">
-        <WordCloud wordData={wordData} fill={fill} onSelect={onSelect} selectedWords={selectedWords} />
-      </Flex>
-    </>
+
+      <WordCloud wordData={wordData} fill={fill} onSelect={onSelect} selectedWords={selectedWords} />
+    </Flex>
   );
 };
