@@ -1,7 +1,7 @@
 import { IADSApiSearchParams, useVaultBigQuerySearch } from '@api';
 import { IADSApiPaperNetworkFullGraph, IADSApiPaperNetworkSummaryGraphNode } from '@api/vis/types';
 import { useGetPaperNetwork } from '@api/vis/vis';
-import { Box, Flex, SimpleGrid, useToast } from '@chakra-ui/react';
+import { Box, SimpleGrid, useBreakpointValue, useToast } from '@chakra-ui/react';
 import {
   CustomInfoMessage,
   DataDownloader,
@@ -23,7 +23,7 @@ import { ReactElement, Reducer, useCallback, useEffect, useMemo, useReducer, use
 import { IView } from '../GraphPanes/types';
 import { ILineGraph } from '../types';
 import { getPaperNetworkLinkDetails, getPaperNetworkNodeDetails, getPaperNetworkSummaryGraph } from '../utils';
-import { FilterSearchBar, NotEnoughData } from '../Widgets';
+import { FilterSearchBar, IFilterSearchBarProps, NotEnoughData } from '../Widgets';
 
 interface IPaperNetworkPageContainerProps {
   query: IADSApiSearchParams;
@@ -107,6 +107,16 @@ export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerP
   const router = useRouter();
 
   const toast = useToast();
+
+  // number of columns for the page layout
+  const columns = useBreakpointValue({ base: 1, xl: 2 });
+
+  // filter search bar layout, use column when width is small
+  const filterSearchDirection: IFilterSearchBarProps['direction'] = useBreakpointValue({
+    base: 'column',
+    md: 'row',
+    xl: 'column',
+  });
 
   const [state, dispatch] = useReducer(reducer, {
     rowsToFetch: DEFAULT_ROWS_TO_FETCH,
@@ -217,8 +227,8 @@ export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerP
         <CustomInfoMessage status="info" title="Could not generate" description={<NotEnoughData />} />
       )}
       {!paperNetworkIsLoading && paperNetworkIsSuccess && paperNetworkData.data?.summaryGraph && (
-        <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={16}>
-          <Flex direction="column" gap={2}>
+        <SimpleGrid columns={columns} spacing={16}>
+          <Box>
             <Expandable
               title="About Paper Network"
               description={
@@ -257,7 +267,7 @@ export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerP
               paperLimit={state.rowsToFetch}
               maxPaperLimit={Math.min(numFound, MAX_ROWS_TO_FETCH)}
             />
-          </Flex>
+          </Box>
           <Box>
             <FilterSearchBar
               tagItems={filterTagItems}
@@ -266,6 +276,7 @@ export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerP
               onApply={handleApplyFilters}
               description="Narrow down your search results to papers from a certain group"
               placeHolder="select a group in the visualization and click the 'add to filter' button"
+              direction={filterSearchDirection}
             />
             <PaperNetworkDetailsPane
               summaryGraph={paperNetworkSummaryGraph}

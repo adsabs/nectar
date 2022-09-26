@@ -1,6 +1,16 @@
-import { Stack, Button, Text } from '@chakra-ui/react';
+import { Stack, Button, Text, Flex } from '@chakra-ui/react';
 import { ITagItem, Tags } from '@components/Tags';
 import { ReactElement } from 'react';
+
+export interface IFilterSearchBarProps {
+  tagItems: ITagItem[];
+  onRemove: (tagItem: ITagItem) => void;
+  onClear: () => void;
+  onApply: () => void;
+  description: string;
+  placeHolder: string;
+  direction?: 'row' | 'column';
+}
 
 export const FilterSearchBar = ({
   tagItems,
@@ -9,20 +19,22 @@ export const FilterSearchBar = ({
   onApply,
   description,
   placeHolder,
-}: {
-  tagItems: ITagItem[];
-  onRemove: (tagItem: ITagItem) => void;
-  onClear: () => void;
-  onApply: () => void;
-  description: string;
-  placeHolder: string;
-}): ReactElement => {
+  direction = 'column',
+}: IFilterSearchBarProps): ReactElement => {
   return (
     <Stack direction="column" mb={10}>
       <Text fontWeight="bold">Filter current search: </Text>
       <Text>{description}</Text>
-      <Tags tagItems={tagItems} onRemove={onRemove} onClear={onClear} placeHolder={placeHolder} flex={1} />
-      <Button onClick={onApply}>Search</Button>
+      <Flex direction={direction}>
+        <Tags tagItems={tagItems} onRemove={onRemove} onClear={onClear} placeHolder={placeHolder} flex={1} />
+        <Button
+          onClick={onApply}
+          roundedLeft={direction === 'column' ? '-moz-initial' : 'none'}
+          size={direction === 'column' ? 'sm' : 'md'}
+        >
+          Search
+        </Button>
+      </Flex>
     </Stack>
   );
 };

@@ -1,5 +1,5 @@
 import { IADSApiSearchParams, useGetWordCloud } from '@api';
-import { Box, Flex, Text } from '@chakra-ui/react';
+import { Box, Flex, Text, useBreakpointValue } from '@chakra-ui/react';
 import { Expandable, ITagItem, LoadingMessage, SimpleLink, StandardAlertMessage } from '@components';
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
@@ -9,7 +9,7 @@ import { memo, ReactElement, Reducer, useMemo, useReducer } from 'react';
 import { WordCloudPane } from '../GraphPanes/WordCloudPane';
 import { ISliderRange } from '../types';
 import { buildWCDict } from '../utils';
-import { FilterSearchBar } from '../Widgets';
+import { FilterSearchBar, IFilterSearchBarProps } from '../Widgets';
 
 const MAX_ROWS_TO_FETCH = 500;
 
@@ -58,6 +58,9 @@ interface IConceptCloudPageContainerProps {
 
 const _ConceptCloudPageContainer = ({ query }: IConceptCloudPageContainerProps): ReactElement => {
   const router = useRouter();
+
+  // filter search bar layout, use column when width is small
+  const filterSearchDirection: IFilterSearchBarProps['direction'] = useBreakpointValue({ base: 'column', md: 'row' });
 
   const [state, dispatch] = useReducer(reducer, {
     currentSliderValue: 3,
@@ -144,29 +147,24 @@ const _ConceptCloudPageContainer = ({ query }: IConceptCloudPageContainerProps):
               </Flex>
             }
           />
-          <Flex direction={{ base: 'column', lg: 'row' }} gap={5}>
-            <Box w={{ base: '100%', lg: '25%' }} mt={5}>
-              <FilterSearchBar
-                tagItems={filterTagItems}
-                onRemove={(tag) => dispatch({ type: 'REMOVE_FILTER', payload: tag.id as string })}
-                onClear={() => dispatch({ type: 'CLEAR_FILTERS' })}
-                onApply={handleApplyFilters}
-                description="Narrow down your search results"
-                placeHolder="Click on a term to add it to this list."
-              />
-            </Box>
-            <Box w={{ base: '100%', lg: '75%' }}>
-              <WordCloudPane
-                wordData={wordList}
-                fill={fill}
-                onSelect={handleSelectWord}
-                onSliderValueChange={handleSliderValueChange}
-                sliderValues={sliderValues}
-                currentSliderValue={state.currentSliderValue}
-                selectedWords={state.filters}
-              />
-            </Box>
-          </Flex>
+          <FilterSearchBar
+            tagItems={filterTagItems}
+            onRemove={(tag) => dispatch({ type: 'REMOVE_FILTER', payload: tag.id as string })}
+            onClear={() => dispatch({ type: 'CLEAR_FILTERS' })}
+            onApply={handleApplyFilters}
+            description="Narrow down your search results"
+            placeHolder="Click on a term to add it to this list."
+            direction={filterSearchDirection}
+          />
+          <WordCloudPane
+            wordData={wordList}
+            fill={fill}
+            onSelect={handleSelectWord}
+            onSliderValueChange={handleSliderValueChange}
+            sliderValues={sliderValues}
+            currentSliderValue={state.currentSliderValue}
+            selectedWords={state.filters}
+          />
         </Box>
       )}
     </Box>
