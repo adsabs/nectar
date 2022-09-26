@@ -62,7 +62,7 @@ export const WordCloudPane = ({
               Unique
             </SliderMark>
             {sliderValues.map((sv) => (
-              <SliderMark value={sv} textAlign="center" mt={2} ml={-1}>
+              <SliderMark key={`slider-mark-${sv}`} value={sv} textAlign="center" mt={2} ml={-1}>
                 {sv}
               </SliderMark>
             ))}
