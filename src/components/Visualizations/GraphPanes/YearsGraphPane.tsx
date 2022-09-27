@@ -12,6 +12,7 @@ import {
   Button,
 } from '@chakra-ui/react';
 import { BarGraph } from '@components';
+import { DataDownloader } from '@components';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { IBarGraph, YearDatum } from '../types';
@@ -30,6 +31,8 @@ export const YearsGraphPane = ({ data, onApplyCondition }: IYearsGraphPaneProps)
       return getYearsGraph(data);
     }
   }, [data]);
+
+  console.log(baseGraph);
 
   // prevent graph transform until user has stopped updating slider
   const [debouncedRange] = useDebounce(range, 50);
@@ -93,10 +96,27 @@ export const YearsGraphPane = ({ data, onApplyCondition }: IYearsGraphPaneProps)
     }
   }, [baseGraph, debouncedRange]);
 
+  const getCSVDataContent = () => {
+    let content = 'Year, Article Count, Ref Count';
+
+    baseGraph.data.forEach(({ year, refereed, notrefereed }) => {
+      content += `\n${year},${refereed + notrefereed},${refereed}`;
+    });
+
+    return content;
+  };
+
   return (
     <>
       {transformedGraph && (
         <Flex direction="column">
+          <DataDownloader
+            label="Download CSV Data"
+            getFileContent={getCSVDataContent}
+            fileName="years.csv"
+            showLabel={true}
+            my={5}
+          />
           <BarGraph
             data={transformedGraph.data}
             indexBy={transformedGraph.indexBy}
