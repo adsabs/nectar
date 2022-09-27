@@ -11,7 +11,7 @@ import { ISliderRange } from '../types';
 import { buildWCDict } from '../utils';
 import { FilterSearchBar, IFilterSearchBarProps } from '../Widgets';
 
-const MAX_ROWS_TO_FETCH = 500;
+const MAX_ROWS_TO_FETCH = 100;
 
 const colorRange = ['#80E6FF', '#7575FF', '#7575FF', '#47008F'];
 
