@@ -515,7 +515,7 @@ export const getAuthorNetworkNodeDetails = (
       bibcode,
       author: bibcode_dict[bibcode].authors,
       title: Array.isArray(bibcode_dict[bibcode].title)
-        ? (bibcode_dict[bibcode].title as string[]).map((t) => decode(t))
+        ? (bibcode_dict[bibcode].title as string[]).map(decode)
         : [decode(bibcode_dict[bibcode].title as string)],
       groupAuthorCount: authorCount[bibcode],
     }));
