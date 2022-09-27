@@ -1,21 +1,19 @@
-import { Box, List, ListItem, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react';
-import { SimpleLink } from '@components/SimpleLink';
+import { IDocsEntity } from '@api';
+import { Flex, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
+import { Item } from '@components/ResultList/Item';
 import { ILineGraph } from '@components/Visualizations/types';
 import { ReactElement, useEffect, useState } from 'react';
 import { NodeDetailPane } from './NodeDetailsPane';
 import { SummaryPane } from './SummaryPane';
 
+interface Paper extends IDocsEntity {
+  groupAuthorCount?: number;
+}
+
 export interface IAuthorNetworkNodeDetails {
   type: 'author' | 'group';
   name: string;
-  papers: {
-    bibcode: string;
-    title: string;
-    authors: string[];
-    citation_count: number;
-    read_count: number;
-    groupAuthorCount?: number;
-  }[];
+  papers: Paper[];
   mostRecentYear: string;
 }
 
@@ -84,27 +82,23 @@ export const AuthorNetworkDetailsPane = ({
 
 const PapersList = ({ papers }: { papers: IAuthorNetworkNodeDetails['papers'] }): ReactElement => {
   return (
-    <Box mt={5}>
-      <List spacing={3}>
-        {papers.map((paper) => (
-          <ListItem key={paper.bibcode}>
-            <SimpleLink href={`/abs/${paper.bibcode}`} newTab={true}>
-              <Text fontWeight="bold" as="span" dangerouslySetInnerHTML={{ __html: paper.title }} />
-            </SimpleLink>{' '}
-            <Text as="span" fontSize="sm">
-              {paper.citation_count && paper.citation_count > 0 ? (
-                <>{paper.citation_count} citations</>
-              ) : (
-                <>no citations</>
-              )}
-
-              {paper.groupAuthorCount && (
-                <>{`, ${paper.groupAuthorCount} author${paper.groupAuthorCount > 1 ? 's' : ''} from this group`}</>
-              )}
-            </Text>
-          </ListItem>
-        ))}
-      </List>
-    </Box>
+    <Flex as="section" aria-label="Papers List" direction="column">
+      {papers.map((doc, index) => (
+        <Item
+          doc={doc}
+          key={doc.bibcode}
+          index={index + 1}
+          hideCheckbox={true}
+          hideActions={true}
+          showHighlights={false}
+          extraInfo={
+            doc.groupAuthorCount
+              ? `${doc.groupAuthorCount} author${doc.groupAuthorCount > 1 ? 's' : ''} from this group`
+              : null
+          }
+          linkNewTab={true}
+        />
+      ))}
+    </Flex>
   );
 };

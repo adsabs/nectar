@@ -30,6 +30,8 @@ export interface IItemProps {
   showHighlights?: boolean;
   isFetchingHighlights?: boolean;
   highlights?: string[];
+  extraInfo?: string;
+  linkNewTab?: boolean;
 }
 
 export const Item = (props: IItemProps): ReactElement => {
@@ -42,6 +44,8 @@ export const Item = (props: IItemProps): ReactElement => {
     showHighlights,
     isFetchingHighlights,
     highlights,
+    extraInfo,
+    linkNewTab = false,
   } = props;
   const { bibcode, pubdate, title = ['Untitled'], author = [], bibstem = [], author_count } = doc;
   const formattedPubDate = getFomattedNumericPubdate(pubdate);
@@ -59,7 +63,7 @@ export const Item = (props: IItemProps): ReactElement => {
         as={{ pathname: `/abs/${bibcode}/citations`, search: 'p=1' }}
         passHref
       >
-        <Link>
+        <Link target={linkNewTab ? '_blank' : '_self'} rel={linkNewTab ? 'noopener noreferrer' : ''}>
           <Text>cited(n): {doc.citation_count_norm}</Text>
         </Link>
       </NextLink>
@@ -70,7 +74,9 @@ export const Item = (props: IItemProps): ReactElement => {
       as={{ pathname: `/abs/${bibcode}/citations`, search: 'p=1' }}
       passHref
     >
-      <Link>cited: {doc.citation_count}</Link>
+      <Link target={linkNewTab ? '_blank' : '_self'} rel={linkNewTab ? 'noopener noreferrer' : ''}>
+        cited: {doc.citation_count}
+      </Link>
     </NextLink>
   ) : null;
 
@@ -98,7 +104,11 @@ export const Item = (props: IItemProps): ReactElement => {
       <Stack direction="column" width="full" spacing={0} mx={3} mt={2}>
         <Flex justifyContent="space-between">
           <NextLink href={`/abs/[id]/abstract`} as={`/abs/${bibcode}/abstract`} passHref>
-            <Link fontWeight="semibold">
+            <Link
+              fontWeight="semibold"
+              target={linkNewTab ? '_blank' : '_self'}
+              rel={linkNewTab ? 'noopener noreferrer' : ''}
+            >
               <span dangerouslySetInnerHTML={{ __html: title[0] }}></span>
             </Link>
           </NextLink>
@@ -114,6 +124,8 @@ export const Item = (props: IItemProps): ReactElement => {
             {formattedBibstem}
             {cite && (formattedPubDate || formattedBibstem) ? <span className="px-2">·</span> : null}
             {cite}
+            {cite && extraInfo && '; '}
+            {extraInfo}
           </Text>
           {showHighlights && <Highlights highlights={highlights} isFetchingHighlights={isFetchingHighlights} />}
           <AbstractPreview bibcode={bibcode} />
