@@ -1,7 +1,7 @@
 import { IADSApiSearchParams, useVaultBigQuerySearch } from '@api';
 import { IADSApiAuthorNetworkNode, IBibcodeDict } from '@api/vis/types';
 import { useGetAuthorNetwork } from '@api/vis/vis';
-import { Box, Button, SimpleGrid, Stack, Text, useToast } from '@chakra-ui/react';
+import { Box, Button, Flex, SimpleGrid, Stack, Text, useToast } from '@chakra-ui/react';
 import {
   IAuthorNetworkNodeDetails,
   AuthorNetworkDetailsPane,
@@ -11,13 +11,14 @@ import {
   LoadingMessage,
   CustomInfoMessage,
   AuthorNetworkGraphPane,
+  DataDownloader,
 } from '@components';
 import { ITagItem, Tags } from '@components/Tags';
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { uniq } from 'ramda';
-import { ReactElement, Reducer, useEffect, useMemo, useReducer, useState } from 'react';
+import { ReactElement, Reducer, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { IView } from '../GraphPanes/types';
 import { ILineGraph } from '../types';
 import { getAuthorNetworkNodeDetails, getAuthorNetworkSummaryGraph } from '../utils';
@@ -155,6 +156,20 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
     setApplyingBibcodes(bibcodes);
   };
 
+  const getCSVDataContent = useCallback(() => {
+    let output = 'group, author, papers, citation count, download count\n';
+    authorNetworkData.data.root.children.forEach((group) => {
+      const groupName = group.name as string;
+      group.children.forEach((author) => {
+        output += `${groupName},"${author.name as string}","${author.papers.join(',')}",${author.citation_count},${
+          author.read_count
+        }\n`;
+      });
+    });
+
+    return output;
+  }, [authorNetworkData?.data?.root?.children]);
+
   return (
     <Box as="section" aria-label="Author network graph" my={10}>
       <StatusDisplay
@@ -167,7 +182,7 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
       )}
       {!authorNetworkIsLoading && authorNetworkIsSuccess && authorNetworkData.data?.root && (
         <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={16}>
-          <Box>
+          <Flex direction="column" gap={2}>
             <Expandable
               title="About Author Network"
               description={
@@ -180,6 +195,14 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
                 </>
               }
             />
+            {authorNetworkData?.data?.root?.children && (
+              <DataDownloader
+                label="Download CSV Data"
+                getFileContent={() => getCSVDataContent()}
+                fileName="author-network.csv"
+                showLabel={true}
+              />
+            )}
             <AuthorNetworkGraphPane
               root={authorNetworkData.data.root}
               linksData={authorNetworkData.data.link_data}
@@ -191,7 +214,7 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
               paperLimit={state.rowsToFetch}
               maxPaperLimit={Math.min(numFound, MAX_ROWS_TO_FETCH)}
             />
-          </Box>
+          </Flex>
           <Box>
             <FilterSearchBar
               tagItems={filterTagItems}
