@@ -1,4 +1,5 @@
 export * from './BarGraph';
+export * from './BubblePlot';
 export * from './LineGraph';
 export * from './AuthorNetworkGraph';
 export * from './PaperNetworkGraph';
