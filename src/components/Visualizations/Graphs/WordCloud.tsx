@@ -33,11 +33,16 @@ const randomStartPos = () => {
 export interface IWordCloudProps {
   wordData: WordDatum[];
   fill: d3.ScaleLogarithmic<string, string, never>;
-  onSelect?: (word: string) => void;
+  onClickWord?: (word: string) => void;
   selectedWords?: string[];
 }
 
-export const WordCloud = ({ wordData, fill, onSelect = noop, selectedWords = [] }: IWordCloudProps): ReactElement => {
+export const WordCloud = ({
+  wordData,
+  fill,
+  onClickWord = noop,
+  selectedWords = [],
+}: IWordCloudProps): ReactElement => {
   // When selected words change, update the styles
   useEffect(() => {
     d3.selectAll<SVGTextElement, unknown>('.word-cloud-word').classed('selected', function () {
@@ -75,7 +80,7 @@ export const WordCloud = ({ wordData, fill, onSelect = noop, selectedWords = [] 
             .classed('word-cloud-word', true)
             .attr('data-word', text)
             .style('fill', fill(origSize))
-            .on('click', () => onSelect(text))
+            .on('click', () => onClickWord(text))
             .attr('transform', randomStartPos())
             .transition()
             .duration(1000)

@@ -73,7 +73,7 @@ export const WordCloudPane = ({
         </Flex>
       </FormControl>
 
-      <WordCloud wordData={wordData} fill={fill} onSelect={onSelect} selectedWords={selectedWords} />
+      <WordCloud wordData={wordData} fill={fill} onClickWord={onSelect} selectedWords={selectedWords} />
     </Flex>
   );
 };

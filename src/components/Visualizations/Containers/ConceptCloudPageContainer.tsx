@@ -4,8 +4,7 @@ import { Expandable, ITagItem, LoadingMessage, SimpleLink, StandardAlertMessage 
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { uniq } from 'ramda';
-import { memo, ReactElement, Reducer, useMemo, useReducer } from 'react';
+import { ReactElement, Reducer, useMemo, useReducer } from 'react';
 import { WordCloudPane } from '../GraphPanes/WordCloudPane';
 import { ISliderRange } from '../types';
 import { buildWCDict } from '../utils';
@@ -32,7 +31,7 @@ interface IConceptCloudPageState {
 
 type ConceptCloudPageAction =
   | { type: 'UPDATE_SLIDER_VALUE'; payload: number }
-  | { type: 'ADD_FILTER'; payload: string }
+  | { type: 'ADD_OR_RM_FILTER'; payload: string }
   | { type: 'REMOVE_FILTER'; payload: string }
   | { type: 'REMOVE_FILTER_TAG'; payload: ITagItem }
   | { type: 'CLEAR_FILTERS' };
@@ -41,8 +40,11 @@ const reducer: Reducer<IConceptCloudPageState, ConceptCloudPageAction> = (state,
   switch (action.type) {
     case 'UPDATE_SLIDER_VALUE':
       return { ...state, currentSliderValue: action.payload };
-    case 'ADD_FILTER':
-      return { ...state, filters: uniq([...state.filters, action.payload]) };
+    case 'ADD_OR_RM_FILTER':
+      const word = action.payload;
+      return state.filters.findIndex((w) => w === word) === -1
+        ? { ...state, filters: [...state.filters, word] }
+        : { ...state, filters: state.filters.filter((w) => w !== action.payload) };
     case 'REMOVE_FILTER':
       return { ...state, filters: state.filters.filter((w) => w !== action.payload) };
     case 'CLEAR_FILTERS':
@@ -56,7 +58,7 @@ interface IConceptCloudPageContainerProps {
   query: IADSApiSearchParams;
 }
 
-const _ConceptCloudPageContainer = ({ query }: IConceptCloudPageContainerProps): ReactElement => {
+export const ConceptCloudPageContainer = ({ query }: IConceptCloudPageContainerProps): ReactElement => {
   const router = useRouter();
 
   // filter search bar layout, use column when width is small
@@ -89,9 +91,7 @@ const _ConceptCloudPageContainer = ({ query }: IConceptCloudPageContainerProps):
   }, [state.filters]);
 
   // when a word is clicked
-  const handleSelectWord = (word: string) => {
-    dispatch({ type: 'ADD_FILTER', payload: word });
-  };
+  const handleSelectWord = (word: string) => dispatch({ type: 'ADD_OR_RM_FILTER', payload: word });
 
   // trigger search with filters
   const handleApplyFilters = () => {
@@ -170,6 +170,3 @@ const _ConceptCloudPageContainer = ({ query }: IConceptCloudPageContainerProps):
     </Box>
   );
 };
-
-// wrap with memo to prevent undesirable changes
-export const ConceptCloudPageContainer = memo(_ConceptCloudPageContainer, (prev, cur) => prev.query === cur.query);
