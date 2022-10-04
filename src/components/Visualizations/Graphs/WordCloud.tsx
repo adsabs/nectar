@@ -69,7 +69,7 @@ export const WordCloud = ({
         .size([width, height])
         .words(wordData)
         .spiral('archimedean')
-        .padding(0)
+        .padding(3)
         .rotate(0)
         .font('sans-serif')
         .fontSize((d) => d.size)
