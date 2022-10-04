@@ -1,11 +1,18 @@
 import { IADSApiSearchParams, useGetWordCloud } from '@api';
 import { Box, Flex, Text, useBreakpointValue } from '@chakra-ui/react';
-import { Expandable, ITagItem, LoadingMessage, SimpleLink, StandardAlertMessage } from '@components';
+import {
+  Expandable,
+  ITagItem,
+  IWordCloudPaneProps,
+  LoadingMessage,
+  SimpleLink,
+  StandardAlertMessage,
+  WordCloudPane,
+} from '@components';
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { ReactElement, Reducer, useMemo, useReducer } from 'react';
-import { WordCloudPane } from '../GraphPanes/WordCloudPane';
 import { ISliderRange } from '../types';
 import { buildWCDict } from '../utils';
 import { FilterSearchBar, IFilterSearchBarProps } from '../Widgets';
@@ -15,14 +22,18 @@ const MAX_ROWS_TO_FETCH = 100;
 const colorRange = ['#80E6FF', '#7575FF', '#7575FF', '#47008F'];
 
 const sliderRange: ISliderRange = {
-  1: [1, 0],
-  2: [0.75, 0.25],
-  3: [0.5, 0.5],
-  4: [0.25, 0.75],
-  5: [0, 1],
+  1: [1, 0, '2'],
+  2: [0.75, 0.25, '1'],
+  3: [0.5, 0.5, '0'],
+  4: [0.25, 0.75, '1'],
+  5: [0, 1, '2'],
 };
 
-const sliderValues = Object.keys(sliderRange).map((v) => parseInt(v));
+// [...[label, value]]
+const sliderValues: IWordCloudPaneProps['sliderValues'] = Object.keys(sliderRange).map((k) => [
+  sliderRange[parseInt(k)][2],
+  parseInt(k),
+]);
 
 interface IConceptCloudPageState {
   currentSliderValue: number;
