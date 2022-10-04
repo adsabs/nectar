@@ -51,7 +51,7 @@ export const WordCloudPane = ({
             min={min}
             max={max}
             step={1}
-            mt={10}
+            my={10}
             w="96"
           >
             <SliderTrack>
