@@ -78,6 +78,7 @@ export const WordCloud = ({
             .attr('font-size', size)
             .text(text)
             .classed('word-cloud-word', true)
+            .classed('selected', selectedWords.findIndex((w) => text === w) !== -1)
             .attr('data-word', text)
             .style('fill', fill(origSize))
             .on('click', () => onClickWord(text))
