@@ -170,3 +170,18 @@
     fill: #ee8e29 !important;
   }
 }
+
+/** results graph **/
+.bubble-plot-svg .scale-choice {
+  fill: #fff;
+  stroke: #000;
+  stroke-width: 1px;
+}
+
+.bubble-plot-svg .scale-choice:hover {
+  cursor: pointer;
+}
+
+.bubble-plot-svg .scale-choice.selected {
+  fill: gray;
+}

@@ -13,7 +13,7 @@ export const useBubblePlot = ({
   rKey,
   xScaleType,
   yScaleType,
-}: BubblePlotProps & { width: number; height: number }) => {
+}: Omit<BubblePlotProps, 'xLabel' | 'yLabel'> & { width: number; height: number }) => {
   const xExtent = d3.sum(pluck(xKey, nodes));
   const xLogPossible = !!xExtent;
   const yExtent = d3.sum(pluck(yKey, nodes));
