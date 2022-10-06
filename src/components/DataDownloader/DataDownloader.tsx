@@ -1,6 +1,7 @@
 import { FC, HTMLAttributes, useEffect, useRef, useState } from 'react';
 import { Flex, IconButton, StyleProps, Text } from '@chakra-ui/react';
 import { DownloadIcon } from '@chakra-ui/icons';
+import { useDownloadFile } from '@hooks';
 
 export interface IDataDownloaderProps extends StyleProps {
   label: string;
@@ -19,31 +20,16 @@ export const DataDownloader: FC<IDataDownloaderProps> = ({
   showLabel = false,
   ...styleProps
 }) => {
-  const [fileUrl, setFileUrl] = useState<string>(null);
-
-  const linkRef = useRef<HTMLAnchorElement>();
-
-  const handleDownloadClick = () => {
-    const fileContent = getFileContent();
-    const blob = new Blob([fileContent]);
-    setFileUrl(URL.createObjectURL(blob));
-  };
-
-  useEffect(() => {
-    if (fileUrl) {
-      // click the file link
-      linkRef.current.click();
-      // reset
-      setFileUrl(null);
-    }
-  }, [fileUrl]);
+  const { onDownload } = useDownloadFile(getFileContent, {
+    filename: fileName,
+  });
 
   return (
     <Flex
       w="fit-content"
       gap={2}
       alignItems="center"
-      onClick={handleDownloadClick}
+      onClick={onDownload}
       as="a"
       cursor="pointer"
       tabIndex={0}
@@ -51,7 +37,6 @@ export const DataDownloader: FC<IDataDownloaderProps> = ({
     >
       <IconButton aria-label={label} icon={<DownloadIcon />} variant="outline" isRound tabIndex={-1} />
       {showLabel && <Text>{label}</Text>}
-      <a ref={linkRef} href={fileUrl} download={fileName}></a>
     </Flex>
   );
 };
