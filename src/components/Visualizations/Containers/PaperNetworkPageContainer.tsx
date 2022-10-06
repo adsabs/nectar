@@ -1,7 +1,7 @@
 import { IADSApiSearchParams, useVaultBigQuerySearch } from '@api';
 import { IADSApiPaperNetworkFullGraph, IADSApiPaperNetworkSummaryGraphNode } from '@api/vis/types';
 import { useGetPaperNetwork } from '@api/vis/vis';
-import { Box, Button, SimpleGrid, Stack, Text, useToast } from '@chakra-ui/react';
+import { Box, Button, Flex, SimpleGrid, Stack, Text, useToast } from '@chakra-ui/react';
 import {
   Expandable,
   SimpleLink,
@@ -12,13 +12,14 @@ import {
   IPaperNetworkNodeDetails,
   PaperNetworkDetailsPane,
   PaperNetworkGraphPane,
+  DataDownloader,
 } from '@components';
 import { ITagItem, Tags } from '@components';
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { uniq } from 'ramda';
-import { ReactElement, Reducer, useEffect, useMemo, useReducer, useState } from 'react';
+import { F, sort, uniq } from 'ramda';
+import { ReactElement, Reducer, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { IView } from '../GraphPanes/types';
 import { ILineGraph } from '../types';
 import { getPaperNetworkLinkDetails, getPaperNetworkNodeDetails, getPaperNetworkSummaryGraph } from '../utils';
@@ -187,6 +188,24 @@ export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerP
     setApplyingBibcodes(bibcodes);
   };
 
+  const getCSVDataContent = useCallback(() => {
+    const sortedNodes = sort((e1, e2) => {
+      if (e1.node_name === e2.node_name) {
+        return 0;
+      }
+      return e1.node_name < e2.node_name ? -1 : 1;
+    }, paperNetworkData.data.summaryGraph.nodes);
+
+    let output = 'group,label,paper_count,top_references,citations,download count\n';
+    sortedNodes.forEach((row) => {
+      output += `"${row.node_name}","${Object.keys(row.node_label).join(',')}","${row.paper_count}","${Object.keys(
+        row.top_common_references,
+      ).join(',')}","${row.total_citations}","${row.total_reads}"\n`;
+    });
+
+    return output;
+  }, [paperNetworkData?.data?.summaryGraph?.nodes]);
+
   return (
     <Box as="section" aria-label="Paper network graph" my={10}>
       <StatusDisplay
@@ -199,7 +218,7 @@ export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerP
       )}
       {!paperNetworkIsLoading && paperNetworkIsSuccess && paperNetworkData.data?.summaryGraph && (
         <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={16}>
-          <Box>
+          <Flex direction="column" gap={2}>
             <Expandable
               title="About Paper Network"
               description={
@@ -213,6 +232,14 @@ export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerP
                 </>
               }
             />
+            {paperNetworkData?.data?.summaryGraph?.nodes && (
+              <DataDownloader
+                label="Download CSV Data"
+                getFileContent={() => getCSVDataContent()}
+                fileName="paper-network.csv"
+                showLabel={true}
+              />
+            )}
             <PaperNetworkGraphPane
               nodesData={paperNetworkData.data.summaryGraph.nodes}
               linksData={paperNetworkData.data.summaryGraph.links}
@@ -230,7 +257,7 @@ export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerP
               paperLimit={state.rowsToFetch}
               maxPaperLimit={Math.min(numFound, MAX_ROWS_TO_FETCH)}
             />
-          </Box>
+          </Flex>
           <Box>
             <FilterSearchBar
               tagItems={filterTagItems}

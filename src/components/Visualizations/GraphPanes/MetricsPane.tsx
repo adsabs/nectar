@@ -1,4 +1,4 @@
-import { IADSApiMetricsResponse, IDocsEntity, MetricsResponseKey, useGetMetricsTimeSeries } from '@api';
+import { IADSApiMetricsResponse, IDocsEntity, MetricsResponseKey, TimeSeriesKey, useGetMetricsTimeSeries } from '@api';
 import { Box, Heading } from '@chakra-ui/layout';
 import {
   Alert,
@@ -18,7 +18,15 @@ import { useMetrics } from '@hooks/useMetrics';
 import { BarDatum } from '@nivo/bar';
 import axios from 'axios';
 import { ReactElement, useMemo } from 'react';
-import { LineGraph, BarGraph, PapersTable, CitationsTable, ReadsTable, IndicesTable } from '@components';
+import {
+  LineGraph,
+  BarGraph,
+  PapersTable,
+  CitationsTable,
+  ReadsTable,
+  IndicesTable,
+  DataDownloader,
+} from '@components';
 
 import {
   ICitationsTableData,
@@ -27,8 +35,10 @@ import {
   IPapersTableData,
   IReadsTableData,
   ILineGraph,
+  IBarGraph,
 } from '../types';
 import { getIndicesTableData, getLineGraphXTicks, plotTimeSeriesGraph } from '../utils';
+import { keys } from 'ramda';
 export interface IMetricsProps {
   metrics: IADSApiMetricsResponse;
   isAbstract: boolean;
@@ -96,7 +106,7 @@ const PapersSection = ({
   return (
     <>
       {papersTable || papersGraph ? (
-        <Box as="section" aria-labelledby="papers-heading" mt={10}>
+        <Box as="section" aria-labelledby="papers-heading">
           <Heading
             as="h3"
             fontSize="2xl"
@@ -108,6 +118,15 @@ const PapersSection = ({
           >
             Papers
           </Heading>
+          {papersGraph && (
+            <DataDownloader
+              label="Download CSV Data"
+              getFileContent={() => getBarGraphCSVDataContent(papersGraph.totalGraph)}
+              fileName="metrics-papers.csv"
+              showLabel={true}
+              my={5}
+            />
+          )}
           {papersTable && <PapersTable data={papersTable} />}
           {isClient && papersGraph && <MetricsGraphs graphs={papersGraph} />}
         </Box>
@@ -132,7 +151,7 @@ const CitationsSection = ({
   return (
     <>
       {citationsTable || citationsGraphs ? (
-        <Box as="section" aria-labelledby="citations-heading" mt={10}>
+        <Box as="section" aria-labelledby="citations-heading">
           <Heading
             as="h3"
             fontSize="2xl"
@@ -144,6 +163,15 @@ const CitationsSection = ({
           >
             Citations
           </Heading>
+          {citationsGraphs && (
+            <DataDownloader
+              label="Download CSV Data"
+              getFileContent={() => getBarGraphCSVDataContent(citationsGraphs.totalGraph)}
+              fileName="metrics-citations.csv"
+              showLabel={true}
+              my={5}
+            />
+          )}
           {citationsTable && <CitationsTable data={citationsTable} isAbstract={isAbstract} />}
           {isClient && citationsGraphs && <MetricsGraphs graphs={citationsGraphs} />}
         </Box>
@@ -168,7 +196,7 @@ const ReadsSection = ({
   return (
     <>
       {readsTable || readsGraphs ? (
-        <Box as="section" aria-labelledby="reads-heading" mt={10}>
+        <Box as="section" aria-labelledby="reads-heading">
           <Heading
             as="h3"
             fontSize="2xl"
@@ -180,6 +208,15 @@ const ReadsSection = ({
           >
             Reads
           </Heading>
+          {readsGraphs && (
+            <DataDownloader
+              label="Download CSV Data"
+              getFileContent={() => getBarGraphCSVDataContent(readsGraphs.totalGraph)}
+              fileName="metrics-reads.csv"
+              showLabel={true}
+              my={5}
+            />
+          )}
           {readsTable && <ReadsTable data={readsTable} isAbstract={isAbstract} />}
           {isClient && readsGraphs && (
             <MetricsGraphs graphs={readsGraphs} showGroupOptions={!isAbstract} showLegend={!isAbstract} />
@@ -240,10 +277,32 @@ const IndicesSection = ({
       : indicesTable;
   }, [metricsData]);
 
+  const getCSVDataContent = () => {
+    const data = metricsData[MetricsResponseKey.TS];
+    const keys = Object.keys(data) as TimeSeriesKey[];
+    const years = Object.keys(data[keys[0]]);
+
+    // headers
+    let output = 'Year';
+    keys.forEach((key) => {
+      output += `, ${key}`;
+    });
+
+    // rows
+    years.forEach((year) => {
+      output += `\n${year}`;
+      keys.forEach((key) => {
+        output += `,${data[key][year]}`;
+      });
+    });
+
+    return output;
+  };
+
   return (
     <>
       {indicesTable ? (
-        <Box as="section" aria-labelledby="indices-heading" mt={10}>
+        <Box as="section" aria-labelledby="indices-heading">
           <Heading
             as="h3"
             fontSize="2xl"
@@ -255,6 +314,15 @@ const IndicesSection = ({
           >
             Indices
           </Heading>
+          {metricsData && metricsData[MetricsResponseKey.TS] && (
+            <DataDownloader
+              label="Download CSV Data"
+              getFileContent={() => getCSVDataContent()}
+              fileName="metrics-indices.csv"
+              showLabel={true}
+              my={5}
+            />
+          )}
           {indicesTable && <IndicesTable data={computedTable} />}
           {indicesGraph && (
             <LineGraph data={indicesGraph.data} ticks={getLineGraphXTicks(indicesGraph.data, 5)} xScaleType="linear" />
@@ -321,4 +389,27 @@ const MetricsGraphs = ({
       </TabPanels>
     </Tabs>
   );
+};
+
+const getBarGraphCSVDataContent = (graphData: IBarGraph<BarDatum>, recordTotal = true) => {
+  const data = graphData.data;
+  const keys = graphData.keys;
+
+  // headers
+  let output = 'Year';
+  keys.forEach((key) => {
+    output += `, ${key}`;
+  });
+  output += recordTotal ? ', Total\n' : '\n';
+
+  data.forEach((datum) => {
+    output += `${datum.year}`; // year
+    let total = 0;
+    keys.forEach((key) => {
+      output += `, ${datum[key]}`; // value
+      total += datum[key] as number;
+    });
+    output += recordTotal ? `, ${total}\n` : '\n';
+  });
+  return output;
 };

@@ -18,7 +18,7 @@ import {
 } from '@chakra-ui/react';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
-import { LineGraph } from '@components';
+import { DataDownloader, LineGraph } from '@components';
 import { Y_Axis, ILineGraph } from '../types';
 import { getHIndexGraphData, getLineGraphXTicks } from '../utils';
 
@@ -98,6 +98,17 @@ export const HIndexGraphPane = ({ buckets, sum, type, onApplyCondition }: IHInde
     setYaxis(value as Y_Axis);
   };
 
+  const getCSVDataContent = () => {
+    let content = `Total, ${sum}\n`;
+
+    content += `Article No., ${type}`;
+    buckets.forEach((obj, i) => {
+      content += `\n${i},${obj.val}`;
+    });
+
+    return content;
+  };
+
   return (
     <>
       {transformedGraph && (
@@ -105,7 +116,14 @@ export const HIndexGraphPane = ({ buckets, sum, type, onApplyCondition }: IHInde
           {transformedGraph.data[0].length < 2 ? (
             <Text>Not enough data to make a useful graph</Text>
           ) : (
-            <Flex direction="column" gap={2} mt={5}>
+            <Flex direction="column">
+              <DataDownloader
+                label="Download CSV Data"
+                getFileContent={getCSVDataContent}
+                fileName={`${type}.csv`}
+                showLabel={true}
+                my={5}
+              />
               <Text>
                 <b>{isNaN(limits.limit) || limits.limit > limits.maxLimit ? limits.maxLimit : limits.limit}</b> top
                 ranked {type} of <b>{statsCount}</b>

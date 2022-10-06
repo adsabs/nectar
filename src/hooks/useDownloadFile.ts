@@ -5,7 +5,7 @@ interface IuseDownloadFileOptions {
   timeout?: number;
 }
 
-export const useDownloadFile = (value: string, options?: IuseDownloadFileOptions) => {
+export const useDownloadFile = (value: string | (() => string), options?: IuseDownloadFileOptions) => {
   const { timeout = 1000 } = options;
   const [hasDownloaded, setHasDownloaded] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -19,7 +19,8 @@ export const useDownloadFile = (value: string, options?: IuseDownloadFileOptions
 
   const onDownload = useCallback(() => {
     setIsDownloading(true);
-    const blob = new Blob([value], {
+    const content = typeof value === 'function' ? value() : value;
+    const blob = new Blob([content], {
       type: 'text/plain;charset=utf-8',
     });
     const link = document.createElement('a');
