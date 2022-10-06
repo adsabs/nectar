@@ -32,8 +32,6 @@ export const YearsGraphPane = ({ data, onApplyCondition }: IYearsGraphPaneProps)
     }
   }, [data]);
 
-  console.log(baseGraph);
-
   // prevent graph transform until user has stopped updating slider
   const [debouncedRange] = useDebounce(range, 50);
 
@@ -96,15 +94,11 @@ export const YearsGraphPane = ({ data, onApplyCondition }: IYearsGraphPaneProps)
     }
   }, [baseGraph, debouncedRange]);
 
-  const getCSVDataContent = () => {
-    let content = 'Year, Article Count, Ref Count';
-
-    baseGraph.data.forEach(({ year, refereed, notrefereed }) => {
-      content += `\n${year},${refereed + notrefereed},${refereed}`;
-    });
-
-    return content;
-  };
+  const getCSVDataContent = () =>
+    baseGraph.data.reduce(
+      (content, { year, refereed, notrefereed }) => content + `\n${year},${refereed + notrefereed},${refereed}`,
+      'Year, Article Count, Ref Count',
+    );
 
   return (
     <>
