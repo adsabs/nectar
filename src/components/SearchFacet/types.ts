@@ -46,4 +46,18 @@ export const facetFields: FacetField[] = [
   'simbad_object_facet_hier',
 ];
 
+export type SearchFacetID =
+  | 'author'
+  | 'collections'
+  | 'refereed'
+  | 'institutions'
+  | 'keywords'
+  | 'publications'
+  | 'bibgroups'
+  | 'simbad'
+  | 'ned'
+  | 'data'
+  | 'vizier'
+  | 'pubtype';
+
 export type FacetCountTuple = [string, number];
