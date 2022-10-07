@@ -5,7 +5,7 @@ import { unstable_batchedUpdates } from 'react-dom';
 import create, { GetState, Mutate, SetState, StoreApi } from 'zustand';
 import createContext from 'zustand/context';
 import { devtools, NamedSet, persist } from 'zustand/middleware';
-import { docsSlice, searchSlice, themeSlice, userSlice } from './slices';
+import { docsSlice, searchSlice, settingsSlice, themeSlice, userSlice } from './slices';
 import { AppState } from './types';
 
 export const APP_STORAGE_KEY = 'nectar-app-state';
@@ -17,6 +17,7 @@ export const createStore = (preloadedState: Partial<AppState> = {}) => {
     ...docsSlice(set, get),
     ...userSlice(set, get),
     ...themeSlice(set, get),
+    ...settingsSlice(set, get),
     ...preloadedState,
   });
 
@@ -34,20 +35,29 @@ export const createStore = (preloadedState: Partial<AppState> = {}) => {
     devtools(
       persist(state, {
         name: APP_STORAGE_KEY,
-        partialize: (state) => ({ user: state.user, theme: state.theme, numPerPage: state.numPerPage }),
+        partialize: (state) => ({
+          user: state.user,
+          theme: state.theme,
+          numPerPage: state.numPerPage,
+          settings: state.settings,
+        }),
         merge: (persistedState: AppState, currentState: AppState) => {
-          // for now user and theme are all that need persistence
           return {
             ...currentState,
             numPerPage: persistedState.numPerPage ?? currentState.numPerPage,
             user: persistedState.user ?? currentState.user,
             theme: persistedState.theme ?? currentState.theme,
+            settings: persistedState.settings ?? currentState.settings,
           };
         },
       }),
       { name: APP_STORAGE_KEY },
     ),
   );
+
+  // run post-merge updates
+  store.getState().updateSearchFacetsByTheme();
+
   return store;
 };
 export type Store = ReturnType<typeof createStore>;
