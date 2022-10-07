@@ -35,8 +35,8 @@ import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { last, not, omit, path } from 'ramda';
-import { FormEventHandler, useEffect, useState } from 'react';
+import { last, omit, path } from 'ramda';
+import { FormEventHandler, useEffect } from 'react';
 import { dehydrate, QueryClient, useQueryClient } from 'react-query';
 
 const SearchFacets = dynamic<ISearchFacetsProps>(
@@ -128,8 +128,8 @@ const SearchPage: NextPage = () => {
   };
 
   // search facet handlers
-  const [showFilters, setShowFilters] = useState(true);
-  const handleToggleFilters = () => setShowFilters(not);
+  const showFilters = useStore((state) => state.settings.searchFacets.open);
+  const handleToggleFilters = useStore((state) => state.toggleSearchFacetsOpen);
   const handleSearchFacetSubmission = (queryUpdates: Partial<IADSApiSearchParams>) => {
     const search = makeSearchParams({ ...params, ...queryUpdates, p: 1 });
     void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
@@ -137,23 +137,22 @@ const SearchPage: NextPage = () => {
 
   return (
     <>
-      {/* <Box ref={showFiltersBtnRef}></Box> */}
+      <Head>
+        <title>{params.q} | NASA Science Explorer - Search Results</title>
+      </Head>
       <Grid
         aria-labelledby="search-form-title"
         my={12}
         templateColumns={showFilters ? `200px 1fr` : `1rem 1fr`}
         gap="2"
       >
-        <Head>
-          <title>{params.q} | NASA Science Explorer - Search Results</title>
-        </Head>
         {showFilters ? (
           <GridItem as="aside" aria-labelledby="search-facets">
             <Flex>
               <Heading as="h2" id="search-facets" fontSize="sm" flex="1">
                 Filters
               </Heading>
-              <Button variant="link" onClick={handleToggleFilters}>
+              <Button variant="link" onClick={() => handleToggleFilters()}>
                 Hide
               </Button>
             </Flex>
@@ -167,7 +166,7 @@ const SearchPage: NextPage = () => {
                 transform="rotate(90deg)"
                 borderBottomRadius="none"
                 size="xs"
-                onClick={handleToggleFilters}
+                onClick={() => handleToggleFilters()}
                 top="240px"
                 left="-28px"
               >
@@ -256,6 +255,7 @@ const NoResultsMsg = ({ query = '' }: { query: string }) => (
 );
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const { p: page, ...query } = parseQueryFromUrl<{ p: string }>(ctx.req.url);
+
   setupApiSSR(ctx);
   const queryClient = new QueryClient();
 
