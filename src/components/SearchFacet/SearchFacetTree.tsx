@@ -9,6 +9,12 @@ import {
   CheckboxProps,
   Collapse,
   Divider,
+  Drawer,
+  DrawerBody,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerOverlay,
   Flex,
   Icon,
   List,
@@ -19,16 +25,27 @@ import {
   Stack,
   Text,
   Tooltip,
+  useDisclosure,
 } from '@chakra-ui/react';
-import { ISearchFacetProps } from '@components';
+import { ISearchFacetProps, TextInput } from '@components';
 import { ExclamationCircleIcon } from '@heroicons/react/solid';
-import { kFormatNumber } from '@utils';
-import { head, map } from 'ramda';
-import { MouseEventHandler, ReactElement, ReactNode, useCallback, useEffect } from 'react';
+import { kFormatNumber, noop } from '@utils';
+import { head, map, path } from 'ramda';
+import {
+  ChangeEventHandler,
+  MouseEventHandler,
+  ReactElement,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { useDebouncedCallback } from 'use-debounce';
 import { parseTitleFromKey } from './helpers';
 import { FacetTreeStoreProvider, useFacetTreeStore } from './store';
 import { FacetCountTuple, FacetLogic, IFacetParams } from './types';
-import { useGetFacetTreeData } from './useGetFacetTreeData';
+import { FACET_DEFAULT_LIMIT, useGetFacetTreeData } from './useGetFacetTreeData';
 
 export type OnFilterArgs = {
   logic: FacetLogic;
@@ -37,6 +54,7 @@ export type OnFilterArgs = {
 };
 
 export interface ISearchFacetTreeProps extends ListProps {
+  label: string;
   field: IFacetParams['field'];
   property?: keyof IFacetCountsFields;
   hasChildren: boolean;
@@ -54,6 +72,7 @@ export interface ISearchFacetTreeProps extends ListProps {
  */
 export const SearchFacetTree = (props: ISearchFacetTreeProps): ReactElement => {
   const {
+    label,
     field,
     onError,
     property = 'facet_fields',
@@ -64,6 +83,8 @@ export const SearchFacetTree = (props: ISearchFacetTreeProps): ReactElement => {
     onFilter,
     ...listProps
   } = props;
+
+  const { isOpen: isMenuOpen, onOpen: onMenuOpen, onClose: onMenuClose } = useDisclosure();
 
   const { treeData, handleLoadMore, canLoadMore, isFetching, isError } = useGetFacetTreeData({
     type: 'root',
@@ -95,11 +116,79 @@ export const SearchFacetTree = (props: ISearchFacetTreeProps): ReactElement => {
   return (
     // initialize state, and provide name for logging
     <FacetTreeStoreProvider initialRoots={initialRoots} name={field}>
+      <FacetDrawer onClose={onMenuClose} isOpen={isMenuOpen} treeData={treeData}>
+        {({ onSearchChange, data: filteredTreeData, isFiltered }) => (
+          <>
+            <DrawerHeader borderBottomWidth="1px">{label}</DrawerHeader>
+            <DrawerBody>
+              <Box mb="2">
+                <TextInput label="Search filter results" onChange={onSearchChange} />
+              </Box>
+              <List {...listProps} w="full" data-testid="search-facet-list">
+                {filteredTreeData.map((node) =>
+                  // if the `hasChildren` prop was set, load child tree
+                  hasChildren ? (
+                    <SearchFacetChildNode
+                      label={label}
+                      field={field}
+                      property={property}
+                      hasChildren={hasChildren}
+                      logic={logic}
+                      facetQuery={facetQuery}
+                      filter={filter}
+                      node={node}
+                      key={node[0]}
+                      onFilter={onFilter}
+                      onLoadMore={onMenuOpen}
+                    />
+                  ) : (
+                    // if no children, then it's simple single-level tree, load this single node
+                    <ListItem
+                      w="full"
+                      _hover={{ pointer: 'cursor' }}
+                      key={node[0]}
+                      data-testid="search-facet-item-root"
+                    >
+                      <Text as="span" alignItems="center" display="inline-flex" w="full">
+                        <NodeCheckbox node={node} parent={null} />
+                      </Text>
+                    </ListItem>
+                  ),
+                )}
+              </List>
+              {/* disallow loading more when list is filtered */}
+              {!isFiltered && (
+                <Flex justifyContent="space-between">
+                  <LoadMoreBtn
+                    show={treeData.length > 0 && canLoadMore && !isError}
+                    onClick={handleLoadMore}
+                    isLoading={isFetching}
+                  />
+                  <ResetBtn />
+                </Flex>
+              )}
+            </DrawerBody>
+            <DrawerFooter backgroundColor="white" justifyContent="center">
+              <LogicArea
+                logic={logic}
+                showDivider={false}
+                onFilter={(args) => {
+                  onMenuClose();
+                  onFilter(args);
+                }}
+                field={field}
+              />
+            </DrawerFooter>
+          </>
+        )}
+      </FacetDrawer>
+
       <List {...listProps} w="full" data-testid="search-facet-list">
-        {treeData.map((node) =>
+        {treeData.slice(0, FACET_DEFAULT_LIMIT).map((node) =>
           // if the `hasChildren` prop was set, load child tree
           hasChildren ? (
             <SearchFacetChildNode
+              label={label}
               field={field}
               property={property}
               hasChildren={hasChildren}
@@ -109,6 +198,9 @@ export const SearchFacetTree = (props: ISearchFacetTreeProps): ReactElement => {
               node={node}
               key={node[0]}
               onFilter={onFilter}
+              onLoadMore={onMenuOpen}
+              // canLoadMore is an indicator we will open a menu on this section
+              limitChildrenList={canLoadMore}
             />
           ) : (
             // if no children, then it's simple single-level tree, load this single node
@@ -120,16 +212,63 @@ export const SearchFacetTree = (props: ISearchFacetTreeProps): ReactElement => {
           ),
         )}
       </List>
-      <LoadMoreBtn
-        show={treeData.length > 0 && canLoadMore && !isError}
-        onClick={(e) => {
-          e.stopPropagation();
-          handleLoadMore();
-        }}
-        isLoading={isFetching}
-      />
+      <Flex justifyContent={treeData.length > 0 && canLoadMore && !isError ? 'space-between' : 'flex-end'}>
+        <LoadMoreBtn
+          show={treeData.length > 0 && canLoadMore && !isError}
+          onClick={() => {
+            onMenuOpen();
+            handleLoadMore();
+          }}
+          isLoading={isFetching}
+        />
+        <ResetBtn />
+      </Flex>
       <LogicArea logic={logic} onFilter={onFilter} field={field} />
     </FacetTreeStoreProvider>
+  );
+};
+
+interface IFacetDrawerProps {
+  onClose: () => void;
+  isOpen: boolean;
+  treeData: FacetCountTuple[];
+  children: (childProps: {
+    data: FacetCountTuple[];
+    onSearchChange: ChangeEventHandler<HTMLInputElement>;
+    isFiltered: boolean;
+  }) => ReactElement;
+}
+
+/**
+ * Slide-out drawer menu
+ * Also encapsulates a search input for filtering results
+ */
+const FacetDrawer = (props: IFacetDrawerProps) => {
+  const { isOpen, onClose, children, treeData = [] } = props;
+  const [data, setData] = useState(treeData);
+  const [isFiltered, setIsFiltered] = useState(false);
+  const reset = useFacetTreeStore((state) => state.reset);
+
+  useEffect(() => setData(treeData), [treeData]);
+  const search = useDebouncedCallback((value: string) => {
+    setData((data) =>
+      value.length > 0 ? data.filter(([key]) => parseTitleFromKey(key).toLowerCase().includes(value)) : treeData,
+    );
+  }, 100);
+
+  const onSearchChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    const value = e.currentTarget.value.toLowerCase();
+    setIsFiltered(value.length > 0);
+    search(value);
+  };
+
+  const content = useMemo(() => children({ data, onSearchChange, isFiltered }), [data, onSearchChange, isFiltered]);
+
+  return (
+    <Drawer placement="left" onClose={onClose} isOpen={isOpen} onOverlayClick={reset} onEsc={reset}>
+      <DrawerOverlay />
+      <DrawerContent>{content}</DrawerContent>
+    </Drawer>
   );
 };
 
@@ -137,16 +276,19 @@ const LogicArea = (props: {
   logic: ISearchFacetProps['logic'];
   onFilter: (args: OnFilterArgs) => void;
   field: FacetField;
+  showDivider?: boolean;
 }) => {
-  const { logic, field, onFilter } = props;
+  const { logic, field, onFilter, showDivider = true } = props;
 
   const selectedKeys = useFacetTreeStore((state) => state.selectedKeys);
   const count = selectedKeys.length;
 
   const handleSelect: MouseEventHandler<HTMLButtonElement> = useCallback(
     (e) => {
-      const logicChoice = e.currentTarget.getAttribute('data-value') as FacetLogic;
-      onFilter({ field, logic: logicChoice, values: selectedKeys });
+      if (selectedKeys.length > 0) {
+        const logicChoice = e.currentTarget.getAttribute('data-value') as FacetLogic;
+        onFilter({ field, logic: logicChoice, values: selectedKeys });
+      }
     },
     [selectedKeys],
   );
@@ -166,7 +308,7 @@ const LogicArea = (props: {
 
   return (
     <Collapse in={count > 0}>
-      <Divider my="2" />
+      {showDivider && <Divider my="2" />}
       <Flex justifyContent="center">
         <ButtonGroup size="sm" isAttached variant="outline">
           {renderBtns()}
@@ -176,17 +318,21 @@ const LogicArea = (props: {
   );
 };
 
-type SearchFacetNodeProps = ISearchFacetTreeProps & { node: FacetCountTuple };
+type SearchFacetNodeProps = ISearchFacetTreeProps & {
+  node: FacetCountTuple;
+  onLoadMore?: () => void;
+  limitChildrenList?: boolean;
+};
 
 /**
  * Child Node
  * Renders a child tree, expects to be rendered by a root node.
  */
 const SearchFacetChildNode = (props: SearchFacetNodeProps) => {
-  const { node, field, property, hasChildren } = props;
+  const { node, field, property, hasChildren, onLoadMore = noop, limitChildrenList } = props;
   const addChildren = useFacetTreeStore((state) => state.addChildren);
   const [key] = node;
-  const isExpanded = useFacetTreeStore(useCallback((state) => state.tree?.[key]?.expanded, [key]));
+  const isExpanded = useFacetTreeStore(useCallback(path<boolean>(['tree', key, 'expanded']), [key]));
 
   // fetches and transforms tree data for children
   const { treeData, handleLoadMore, canLoadMore, isFetching, isError } = useGetFacetTreeData({
@@ -201,6 +347,8 @@ const SearchFacetChildNode = (props: SearchFacetNodeProps) => {
   // adding children to our state
   useEffect(() => addChildren(map(head, treeData) as string[]), [treeData]);
 
+  const tData = limitChildrenList ? treeData.slice(0, FACET_DEFAULT_LIMIT) : treeData;
+
   return (
     <ListItem w="full" _hover={{ pointer: 'cursor' }} data-testid="search-facet-item-root">
       {/* Render root node (data passed in as props) */}
@@ -211,13 +359,13 @@ const SearchFacetChildNode = (props: SearchFacetNodeProps) => {
 
       <Collapse in={isExpanded}>
         {/* Primary loading indicator */}
-        {isFetching && treeData.length === 0 && <Spinner size="sm" />}
-        {!isFetching && treeData.length === 0 && <Text size="sm">No results</Text>}
+        {isFetching && tData.length === 0 && <Spinner size="sm" />}
+        {!isFetching && tData.length === 0 && <Text size="sm">No results</Text>}
 
         <Box pl="10" w="full" mb={isExpanded ? '3' : '0'}>
           {/* Render child tree */}
           <List w="full">
-            {treeData.map((node) => (
+            {tData.map((node) => (
               <ListItem
                 key={node[0]}
                 w="full"
@@ -234,6 +382,7 @@ const SearchFacetChildNode = (props: SearchFacetNodeProps) => {
             onClick={(e) => {
               e.stopPropagation();
               handleLoadMore();
+              onLoadMore();
             }}
             isLoading={isFetching}
             showBottomBorder
@@ -268,20 +417,39 @@ const ExpandButton = (props: { node: FacetCountTuple; isExpanded: boolean }) => 
 /**
  * Load More Button
  */
-const LoadMoreBtn = (props: { show: boolean; pullRight?: boolean; showBottomBorder?: boolean } & ButtonProps) => {
-  const { show, pullRight, showBottomBorder, ...btnProps } = props;
+const LoadMoreBtn = (
+  props: { show: boolean; pullRight?: boolean; showBottomBorder?: boolean; label?: string } & ButtonProps,
+) => {
+  const { show, pullRight, showBottomBorder, label = 'Load more', ...btnProps } = props;
 
   if (show) {
     return (
       <Stack direction="row" justifyContent={pullRight ? 'end' : 'normal'}>
-        <Button size="xs" variant="link" {...btnProps}>
-          Load more
+        <Button size="xs" variant="link" type="button" {...btnProps}>
+          {label}
         </Button>
       </Stack>
     );
   }
   if (show && showBottomBorder) {
     return <Divider size={'sm'} />;
+  }
+  return null;
+};
+
+/**
+ * Reset button
+ */
+const ResetBtn = (props: { show?: boolean; label?: string } & Omit<ButtonProps, 'onClick'>) => {
+  const { show = true, label = 'Reset', ...btnProps } = props;
+  const reset = useFacetTreeStore((state) => state.reset);
+
+  if (show) {
+    return (
+      <Button size="xs" variant="link" type="button" {...btnProps} onClick={reset}>
+        {label}
+      </Button>
+    );
   }
   return null;
 };

@@ -57,7 +57,7 @@ const reducer: Reducer<ITreeDataGetterState, TreeDataGetterEvent> = (state, acti
       return {
         ...state,
         treeData: uniqBy(head, [...state.treeData, ...action.payload]),
-        canLoadMore: action.payload.length === DEFAULT_LIMIT,
+        canLoadMore: action.payload.length === FACET_DEFAULT_LIMIT,
       };
     case 'RESET':
       return initialState;
@@ -82,7 +82,7 @@ export const useGetFacetTreeData = (props: UseGetFacetTreeDataProps) => {
     }
   }, [query]);
 
-  const prefix = type === 'child' ? rootToChildPrefix(rawPrefix) : DEFAULT_PREFIX;
+  const prefix = type === 'child' ? rootToChildPrefix(rawPrefix) : FACET_DEFAULT_PREFIX;
   const params = getFacetParams({
     ...state.query,
     field,
@@ -110,8 +110,8 @@ export const useGetFacetTreeData = (props: UseGetFacetTreeDataProps) => {
   return { ...result, treeData: state.treeData, handleLoadMore, canLoadMore: state.canLoadMore };
 };
 
-const DEFAULT_LIMIT = 10;
-const DEFAULT_PREFIX = '0/';
+export const FACET_DEFAULT_LIMIT = 10;
+export const FACET_DEFAULT_PREFIX = '0/';
 
 /**
  * Returns a set of params updated via props
@@ -123,11 +123,13 @@ const getFacetParams = (props: IADSApiSearchParams & IFacetParams & { hasChildre
     facet: true,
     'facet.mincount': 1,
     'facet.field': field,
-    'facet.limit': limit ?? DEFAULT_LIMIT,
+    'facet.limit': limit ?? FACET_DEFAULT_LIMIT,
     'facet.offset': offset,
 
     // if prefix is not a root one `0/` then we should append a `/` on the end to restrict the search
-    ...(hasChildren ? { 'facet.prefix': (prefix ?? DEFAULT_PREFIX) === DEFAULT_PREFIX ? prefix : `${prefix}/` } : {}),
+    ...(hasChildren
+      ? { 'facet.prefix': (prefix ?? FACET_DEFAULT_PREFIX) === FACET_DEFAULT_PREFIX ? prefix : `${prefix}/` }
+      : {}),
     ...(query ? { 'facet.query': query } : {}),
     rows: 1,
     fl: ['id'],

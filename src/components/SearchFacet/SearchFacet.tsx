@@ -118,6 +118,7 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
       >
         {isOpen && (
           <SearchFacetTree
+            label={label}
             field={field}
             property={property}
             hasChildren={hasChildren}
