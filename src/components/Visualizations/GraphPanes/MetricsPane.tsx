@@ -13,32 +13,31 @@ import {
   Tabs,
   Text,
 } from '@chakra-ui/react';
+import {
+  BarGraph,
+  CitationsTable,
+  DataDownloader,
+  IndicesTable,
+  LineGraph,
+  PapersTable,
+  ReadsTable,
+} from '@components';
 import { useIsClient } from '@hooks/useIsClient';
 import { useMetrics } from '@hooks/useMetrics';
 import { BarDatum } from '@nivo/bar';
 import axios from 'axios';
 import { ReactElement, useMemo } from 'react';
-import {
-  LineGraph,
-  BarGraph,
-  PapersTable,
-  CitationsTable,
-  ReadsTable,
-  IndicesTable,
-  DataDownloader,
-} from '@components';
 
 import {
+  IBarGraph,
   ICitationsTableData,
   IIndicesTableData,
+  ILineGraph,
   IMetricsGraphs,
   IPapersTableData,
   IReadsTableData,
-  ILineGraph,
-  IBarGraph,
 } from '../types';
 import { getIndicesTableData, getLineGraphXTicks, plotTimeSeriesGraph } from '../utils';
-import { keys } from 'ramda';
 export interface IMetricsProps {
   metrics: IADSApiMetricsResponse;
   isAbstract: boolean;

@@ -3,22 +3,23 @@ import { IADSApiPaperNetworkFullGraph, IADSApiPaperNetworkSummaryGraphNode } fro
 import { useGetPaperNetwork } from '@api/vis/vis';
 import { Box, Button, Flex, SimpleGrid, Stack, Text, useToast } from '@chakra-ui/react';
 import {
-  Expandable,
-  SimpleLink,
-  StandardAlertMessage,
-  LoadingMessage,
   CustomInfoMessage,
+  DataDownloader,
+  Expandable,
   IPaperNetworkLinkDetails,
   IPaperNetworkNodeDetails,
+  ITagItem,
+  LoadingMessage,
   PaperNetworkDetailsPane,
   PaperNetworkGraphPane,
-  DataDownloader,
+  SimpleLink,
+  StandardAlertMessage,
+  Tags,
 } from '@components';
-import { ITagItem, Tags } from '@components';
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { F, sort, uniq } from 'ramda';
+import { sort, uniq } from 'ramda';
 import { ReactElement, Reducer, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { IView } from '../GraphPanes/types';
 import { ILineGraph } from '../types';

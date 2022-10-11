@@ -1,18 +1,18 @@
 import { IADSApiPaperNetworkSummaryGraphNode, IDocsEntity } from '@api';
 import {
-  Text,
+  Box,
+  Flex,
   Tab,
+  Table,
   TabList,
   TabPanel,
   TabPanels,
   Tabs,
-  Box,
-  Table,
+  Tbody,
+  Text,
+  Th,
   Thead,
   Tr,
-  Th,
-  Tbody,
-  Flex,
 } from '@chakra-ui/react';
 import { Item } from '@components/ResultList/Item';
 import { SimpleLink } from '@components/SimpleLink';
@@ -105,7 +105,7 @@ export const PaperNetworkDetailsPane = ({
 };
 
 const PapersList = ({ node }: { node: IPaperNetworkNodeDetails }): ReactElement => {
-  const { papers, topCommonReferences } = node;
+  const { papers } = node;
   const topNPapers = 30;
   return (
     <Box mt={5}>
@@ -125,24 +125,6 @@ const PapersList = ({ node }: { node: IPaperNetworkNodeDetails }): ReactElement 
           />
         ))}
       </Flex>
-      {/* Probably not going to keep this, only bibcodes, not very useful 
-      <Text fontWeight="bold" mt={5}>
-        Papers highly referenced by papers in this group:
-      </Text>
-      <List spacing={3} mt={5}>
-        {topCommonReferences
-          .filter((r) => !r.inGroup)
-          .map((r) => (
-            <ListItem key={`topref-${r.bibcode}`}>
-              <SimpleLink href={`/abs/${r.bibcode}`} newTab={true}>
-                <Text fontWeight="bold" as="span">
-                  {r.bibcode}
-                </Text>
-              </SimpleLink>
-              <Text>cited by {r.percent}% of papers in this group</Text>
-            </ListItem>
-          ))}
-      </List> */}
     </Box>
   );
 };
