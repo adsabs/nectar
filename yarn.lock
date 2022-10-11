@@ -13528,6 +13528,11 @@ raf@^3.1.0:
   dependencies:
     performance-now "^2.1.0"
 
+ramda-adjunct@^3.3.0:
+  version "3.3.0"
+  resolved "https://registry.npmjs.org/ramda-adjunct/-/ramda-adjunct-3.3.0.tgz#647c0cd4945b354cc179d583ead877fe0dce76a7"
+  integrity sha512-ycIrNN0rEsBKQ8CD0ZMhmGPTdZulQe20Aj4bZxVP2dWVnZRVe5dR4EedhIc0YxJW8pr7ljaaJ8/KR0VFHfjTLw==
+
 ramda@^0.21.0:
   version "0.21.0"
   resolved "https://registry.npmjs.org/ramda/-/ramda-0.21.0.tgz#a001abedb3ff61077d4ff1d577d44de77e8d0a35"
