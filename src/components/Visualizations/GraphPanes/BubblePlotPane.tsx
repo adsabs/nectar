@@ -1,6 +1,7 @@
-import { Radio, RadioGroup, Stack } from '@chakra-ui/react';
+import { Box, Radio, RadioGroup, Stack } from '@chakra-ui/react';
 import { ReactElement, useState } from 'react';
-import { BubblePlot, BubblePlotConfig, IBubblePlotNodeData } from '../Graphs/BubblePlot';
+import { BubblePlot, BubblePlotConfig } from '../Graphs/BubblePlot';
+import { IBubblePlot } from '../types';
 
 const defaultReadCountConfig: BubblePlotConfig = {
   xKey: 'date',
@@ -33,8 +34,7 @@ const defaultReadCitationConfig: BubblePlotConfig = {
 };
 
 export interface IBubblePlotPaneProps {
-  nodes: IBubblePlotNodeData[];
-  journalNames: string[];
+  graph: IBubblePlot;
 }
 
 type PlotType = 'readTime' | 'citationTime' | 'readCitation';
@@ -45,7 +45,7 @@ const plotTypes: { [key in PlotType]: { label: string; config: BubblePlotConfig 
   readCitation: { label: 'Read Count vs. Citation Count', config: defaultReadCitationConfig },
 };
 
-export const BubblePlotPane = ({ nodes, journalNames }: IBubblePlotPaneProps): ReactElement => {
+export const BubblePlotPane = ({ graph }: IBubblePlotPaneProps): ReactElement => {
   const [plotType, setPlotType] = useState<PlotType>('readTime');
 
   const handleChangePlotType = (type: PlotType) => {
@@ -53,7 +53,7 @@ export const BubblePlotPane = ({ nodes, journalNames }: IBubblePlotPaneProps): R
   };
 
   return (
-    <>
+    <Box mt={5}>
       <RadioGroup value={plotType} onChange={handleChangePlotType}>
         <Stack direction="row">
           {Object.entries(plotTypes).map(([k, v]) => (
@@ -64,7 +64,7 @@ export const BubblePlotPane = ({ nodes, journalNames }: IBubblePlotPaneProps): R
         </Stack>
       </RadioGroup>
 
-      <BubblePlot nodes={nodes} journalNames={journalNames} {...plotTypes[plotType].config} />
-    </>
+      <BubblePlot graph={graph} {...plotTypes[plotType].config} />
+    </Box>
   );
 };

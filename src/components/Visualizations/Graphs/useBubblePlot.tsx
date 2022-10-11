@@ -6,24 +6,24 @@ import { BubblePlotProps } from './BubblePlot';
 export const useBubblePlot = ({
   width,
   height,
-  nodes,
-  journalNames,
+  graph,
   xKey,
   yKey,
   rKey,
   xScaleType,
   yScaleType,
 }: Omit<BubblePlotProps, 'xLabel' | 'yLabel'> & { width: number; height: number }) => {
+  const { data: nodes, groups = [] } = graph;
   const xExtent = d3.sum(pluck(xKey, nodes));
   const xLogPossible = !!xExtent;
   const yExtent = d3.sum(pluck(yKey, nodes));
   const yLogPossible = !!yExtent;
 
-  const journalScale = useMemo(
+  const groupColor = useMemo(
     () =>
       d3
         .scaleOrdinal<string>()
-        .domain(journalNames)
+        .domain(groups)
         .range([
           'hsla(282, 80%, 52%, 1)',
           'hsla(1, 80%, 51%, 1)',
@@ -32,7 +32,7 @@ export const useBubblePlot = ({
           'hsla(220, 80%, 56%, 1)',
           'hsla(0, 0%, 20%, 1)',
         ]),
-    [journalNames],
+    [groups],
   );
 
   // get d3 xScale function based what's used for x-axis
@@ -63,5 +63,5 @@ export const useBubblePlot = ({
       : d3.scaleLinear().domain(extent).range([4, 26]);
   }, [nodes, rKey]);
 
-  return { journalScale, xScale, yScale, rScale, xLogPossible, yLogPossible };
+  return { groupColor, xScale, yScale, rScale, xLogPossible, yLogPossible };
 };

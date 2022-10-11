@@ -3,6 +3,7 @@ import { useD3 } from './useD3';
 import * as d3 from 'd3';
 import { BaseType, Selection } from 'd3';
 import { useBubblePlot } from './useBubblePlot';
+import { IBubblePlot, IBubblePlotNodeData } from '../types';
 
 export type Scale = 'linear' | 'log';
 
@@ -17,28 +18,15 @@ export type BubblePlotConfig = {
 };
 
 export type BubblePlotProps = BubblePlotConfig & {
-  nodes: IBubblePlotNodeData[];
-  journalNames: string[];
+  graph: IBubblePlot;
 };
-
-export interface IBubblePlotNodeData {
-  bibcode: string;
-  pubdate: string;
-  title: string;
-  read_count: number;
-  citation_count: number;
-  date: Date;
-  year: number;
-  pub: string;
-}
 
 const margin = { top: 80, right: 80, bottom: 80, left: 80 };
 const width = 1000 - margin.left - margin.right;
 const height = 500 - margin.top - margin.bottom;
 
 export const BubblePlot = ({
-  nodes,
-  journalNames,
+  graph,
   xKey,
   yKey,
   rKey,
@@ -47,9 +35,8 @@ export const BubblePlot = ({
   xLabel,
   yLabel,
 }: BubblePlotProps): ReactElement => {
-  const { journalScale, xScale, yScale, rScale, xLogPossible, yLogPossible } = useBubblePlot({
-    nodes,
-    journalNames,
+  const { groupColor, xScale, yScale, rScale, xLogPossible, yLogPossible } = useBubblePlot({
+    graph,
     xKey,
     yKey,
     rKey,
@@ -58,6 +45,8 @@ export const BubblePlot = ({
     width,
     height,
   });
+
+  const { data: nodes, groups = [] } = graph;
 
   // For time axis, show year if more than 2 years, otherwise show month
   const timeRange = useMemo(() => {
@@ -157,17 +146,21 @@ export const BubblePlot = ({
 
       renderAxisLabels(xLabelElement, yLabelElement);
 
+      // filter out 0 values if using log scale (not valid)
+      let filteredNodes = yScaleType === 'log' ? nodes.filter((n) => n[yKey] !== 0) : nodes;
+      filteredNodes = xScaleType === 'log' ? filteredNodes.filter((n) => n[xKey] !== 0) : filteredNodes;
+
       // Render nodes
       g.selectAll<BaseType, IBubblePlotNodeData>('.paper-circle')
-        .data(nodes)
+        .data(filteredNodes)
         .join('circle')
         .classed('paper-circle', true)
         .attr('r', (d) => `${rScale(d[rKey])}px`)
         .attr('cx', (d) => xScale(d[xKey]))
-        .attr('cy', (d) => yScale(d[yKey]))
+        .attr('cy', (d) => (yScaleType === 'log' && d[yKey] === 0 ? 0 : yScale(d[yKey])))
         .attr('stroke', 'black')
         .style('opacity', 0.7)
-        .style('fill', (d) => (journalNames && journalNames.includes(d.pub) ? journalScale(d.pub) : 'gray'));
+        .style('fill', (d) => (groups && groups.includes(d.pub) ? groupColor(d.pub) : 'gray'));
 
       return svg;
     },

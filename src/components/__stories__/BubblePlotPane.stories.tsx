@@ -1,5 +1,5 @@
 import { BubblePlotPane, IBubblePlotPaneProps } from '@components';
-import { data, journalNames } from '@components/__mocks__/bubblePlotData';
+import { graph } from '@components/__mocks__/bubblePlotData';
 import { Meta, Story } from '@storybook/react';
 
 const meta: Meta = {
@@ -13,4 +13,4 @@ const Template: Story<IBubblePlotPaneProps> = (args) => <BubblePlotPane {...args
 
 export const Default = Template.bind({});
 
-Default.args = { nodes: data, journalNames };
+Default.args = { graph };

@@ -1,5 +1,5 @@
 import { BubblePlot, BubblePlotProps } from '@components/Visualizations';
-import { data, journalNames } from '@components/__mocks__/bubblePlotData';
+import { graph } from '@components/__mocks__/bubblePlotData';
 import { Meta, Story } from '@storybook/react';
 
 const meta: Meta = {
@@ -16,8 +16,7 @@ export const Time_Citation = Template.bind({});
 export const Read_Citation = Template.bind({});
 
 Default.args = {
-  nodes: data,
-  journalNames: journalNames,
+  graph,
   xKey: 'date',
   yKey: 'read_count',
   rKey: 'citation_count',
@@ -26,8 +25,7 @@ Default.args = {
 };
 
 Time_Citation.args = {
-  nodes: data,
-  journalNames: journalNames,
+  graph,
   xKey: 'date',
   yKey: 'citation_count',
   rKey: 'read_count',
@@ -36,8 +34,7 @@ Time_Citation.args = {
 };
 
 Read_Citation.args = {
-  nodes: data,
-  journalNames: journalNames,
+  graph,
   xKey: 'citation_count',
   yKey: 'read_count',
   rKey: 'year',
