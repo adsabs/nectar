@@ -105,7 +105,7 @@ test('updates properly for multivalue', async ({ server }) => {
   expect(hiddenInput).toHaveValue('');
 });
 
-test('shows an error message when fetch fails', async ({ server }) => {
+test.skip('shows an error message when fetch fails', async ({ server }) => {
   const { onRequest, onResponse } = createServerListenerMocks(server);
 
   server.use(

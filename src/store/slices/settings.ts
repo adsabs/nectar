@@ -17,7 +17,7 @@ export interface IAppStateSettingsSlice {
   setSearchFacetOrder: (order: SearchFacetID[]) => void;
   hideSearchFacet: (id: SearchFacetID) => void;
   showSearchFacet: (id: SearchFacetID) => void;
-  toggleSearchFacetsOpen: (value?: boolean) => void;
+  toggleSearchFacetsOpen: (value?: boolean | unknown) => void;
   resetSearchFacets: () => void;
   updateSearchFacetsByTheme: () => void;
   getHiddenSearchFacets: () => SearchFacetID[];
@@ -134,7 +134,7 @@ export const settingsSlice: StoreSlice<IAppStateSettingsSlice> = (set, get) => (
       false,
       'settings/setSearchFacetOrder',
     ),
-  toggleSearchFacetsOpen: (value: boolean) =>
+  toggleSearchFacetsOpen: (value) =>
     set(
       (state) => ({
         settings: {
