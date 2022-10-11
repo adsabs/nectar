@@ -34,7 +34,7 @@ test('shows default list on click, and updates value on select', async () => {
 });
 
 test('properly calls api on typing', async ({ server }) => {
-  const { onRequest, onResponse } = createServerListenerMocks(server);
+  const { onRequest } = createServerListenerMocks(server);
   onRequest.mock.calls;
   const { container, getAllByTestId, findByRole, user } = setup('single');
   const input = await findByRole('combobox');
@@ -49,8 +49,8 @@ test('properly calls api on typing', async ({ server }) => {
 });
 
 test('updates properly for multivalue', async ({ server }) => {
-  const { onRequest, onResponse } = createServerListenerMocks(server);
-  const { container, getAllByTestId, findByTestId, findByRole, user } = setup('multiple');
+  const { onRequest } = createServerListenerMocks(server);
+  const { container, getAllByTestId, findByRole, user } = setup('multiple');
   const input = await findByRole('combobox');
   await act(async () => {
     await user.type(input, 'apj');
@@ -106,7 +106,7 @@ test('updates properly for multivalue', async ({ server }) => {
 });
 
 test.skip('shows an error message when fetch fails', async ({ server }) => {
-  const { onRequest, onResponse } = createServerListenerMocks(server);
+  const { onRequest } = createServerListenerMocks(server);
 
   server.use(
     rest.get(`*/api/bibstems/:term`, (req, res, ctx) => {
@@ -114,7 +114,7 @@ test.skip('shows an error message when fetch fails', async ({ server }) => {
     }),
   );
 
-  const { container, getAllByTestId, findByRole, user, debug } = setup('multiple');
+  const { container, getAllByTestId, findByRole, user } = setup('multiple');
   const input = await findByRole('combobox');
 
   await act(async () => {

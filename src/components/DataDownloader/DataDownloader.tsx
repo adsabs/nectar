@@ -1,7 +1,7 @@
-import { FC, HTMLAttributes, useEffect, useRef, useState } from 'react';
-import { Flex, IconButton, StyleProps, Text } from '@chakra-ui/react';
 import { DownloadIcon } from '@chakra-ui/icons';
+import { Flex, IconButton, StyleProps, Text } from '@chakra-ui/react';
 import { useDownloadFile } from '@hooks';
+import { FC } from 'react';
 
 export interface IDataDownloaderProps extends StyleProps {
   label: string;

@@ -1,5 +1,4 @@
 import { render } from '@test-utils';
-import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, test, vi } from 'vitest';
 import PaperForm from '../pages/paper-form';
 
@@ -11,11 +10,6 @@ const router = {
 vi.mock('next/router', () => ({
   useRouter: () => router,
 }));
-
-const setup = () => {
-  const user = userEvent.setup();
-  return { user, ...render(<PaperForm />) };
-};
 
 describe('Paper Form', () => {
   beforeEach(() => router.push.mockReset());

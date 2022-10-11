@@ -51,7 +51,7 @@ describe('api', () => {
   });
 
   test('passing token initially skips bootstrap', async ({ server }) => {
-    const { onRequest: onReq, onResponse: onRes } = createServerListenerMocks(server);
+    const { onRequest: onReq } = createServerListenerMocks(server);
     server.use(testHandler);
     api.setUserData(mockUserData);
     await testRequest();
@@ -63,7 +63,7 @@ describe('api', () => {
   });
 
   test('expired userdata causes bootstrap', async ({ server }) => {
-    const { onRequest: onReq, onResponse: onRes } = createServerListenerMocks(server);
+    const { onRequest: onReq } = createServerListenerMocks(server);
     server.use(testHandler);
     api.setUserData({ ...mockUserData, expire_in: '1977-03-22T14:50:07.712037' });
     await testRequest();
@@ -73,7 +73,7 @@ describe('api', () => {
   });
 
   test('bootstrap is retried after error', async ({ server }) => {
-    const { onRequest: onReq, onResponse: onRes } = createServerListenerMocks(server);
+    const { onRequest: onReq } = createServerListenerMocks(server);
     server.use(testHandler);
     server.use(
       rest.get(`*${ApiTargets.BOOTSTRAP}`, (_, res, ctx) => {
@@ -88,7 +88,7 @@ describe('api', () => {
   });
 
   test('if user data set in local storage, it is used instead of bootstrapping', async ({ server }) => {
-    const { onRequest: onReq, onResponse: onRes } = createServerListenerMocks(server);
+    const { onRequest: onReq } = createServerListenerMocks(server);
     server.use(testHandler);
     global.localStorage.setItem(
       APP_STORAGE_KEY,
@@ -102,7 +102,7 @@ describe('api', () => {
   });
 
   test('expired user data set in local storage causes bootstrap', async ({ server }) => {
-    const { onRequest: onReq, onResponse: onRes } = createServerListenerMocks(server);
+    const { onRequest: onReq } = createServerListenerMocks(server);
     server.use(testHandler);
     global.localStorage.setItem(
       APP_STORAGE_KEY,
@@ -120,7 +120,7 @@ describe('api', () => {
   });
 
   test('401 response triggers bootstrap to refresh token', async ({ server }) => {
-    const { onRequest: onReq, onResponse: onRes } = createServerListenerMocks(server);
+    const { onRequest: onReq } = createServerListenerMocks(server);
     server.use(testHandler);
     server.use(
       rest.get('*test', (req, res, ctx) => {
@@ -145,7 +145,7 @@ describe('api', () => {
   });
 
   test('401 does not cause infinite loop if refresh fails', async ({ server }) => {
-    const { onRequest: onReq, onResponse: onRes } = createServerListenerMocks(server);
+    const { onRequest: onReq } = createServerListenerMocks(server);
     server.use(testHandler);
     server.use(
       rest.get('*test', (req, res, ctx) => {
@@ -175,7 +175,7 @@ describe('api', () => {
   });
 
   test('401 with initial bootstrap failure works properly', async ({ server }) => {
-    const { onRequest: onReq, onResponse: onRes } = createServerListenerMocks(server);
+    const { onRequest: onReq } = createServerListenerMocks(server);
     server.use(testHandler);
     server.use(
       rest.get('*test', (req, res, ctx) => {

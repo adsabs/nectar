@@ -1,9 +1,9 @@
 import api, { ADSQuery, ApiRequestConfig } from '@api';
 import { ApiTargets } from '@api/models';
-import { Bibcode, IADSApiSearchParams } from '@api/search';
+import { IADSApiSearchParams } from '@api/search';
 import { QueryFunction, useQuery } from 'react-query';
 import { getAuthorNetworkParams, getPaperNetworkParams } from './models';
-import { IADSApiVisParams, IADSApiAuthorNetworkResponse, IADSApiPaperNetworkResponse } from './types';
+import { IADSApiAuthorNetworkResponse, IADSApiPaperNetworkResponse, IADSApiVisParams } from './types';
 
 const MAX_RETRIES = 3;
 
