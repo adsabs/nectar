@@ -152,6 +152,7 @@ const SortSelect = ({
       stylesTheme="sort"
       onChange={onChange}
       data-testid="sort-select"
+      id="sort-select"
       {...innerSelectProps}
     />
   );

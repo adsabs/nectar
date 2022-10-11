@@ -1,7 +1,6 @@
 import { FormControl, FormLabel } from '@chakra-ui/form-control';
 import { ForwardedRef, forwardRef, ReactElement, ReactNode, useMemo } from 'react';
 import { default as ReactSelect, GroupBase, Props, StylesConfig } from 'react-select';
-import { v4 as uuid } from 'uuid';
 
 export type SelectOption<V = unknown> = {
   id: V;
@@ -17,7 +16,7 @@ export interface ISelectProps<
   label: ReactNode;
   hideLabel?: boolean;
   stylesTheme?: 'theme' | 'sort' | 'default' | 'default.sm';
-  id?: string;
+  id: string;
 }
 
 const SelectImpl = <
@@ -29,8 +28,6 @@ const SelectImpl = <
   ref: ForwardedRef<never>,
 ): ReactElement => {
   const { hideLabel = true, label, stylesTheme, id, ...selectProps } = props;
-
-  const selectId = id ?? `select-${uuid()}`;
 
   const themes: Record<string, StylesConfig<Option, isMulti, Group>> = useMemo(
     () =>
@@ -149,8 +146,9 @@ const SelectImpl = <
       {!hideLabel && (typeof label === 'string' ? <FormLabel htmlFor={id}>{label}</FormLabel> : label)}
       <ReactSelect
         isSearchable={false}
-        aria-label={typeof label === 'string' ? label : ''}
-        id={selectId}
+        aria-label={typeof label === 'string' ? label : 'select'}
+        id={id}
+        instanceId={id}
         ref={ref}
         {...selectProps}
         styles={themes[stylesTheme]}

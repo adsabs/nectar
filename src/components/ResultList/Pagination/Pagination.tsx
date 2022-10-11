@@ -180,6 +180,7 @@ export const Pagination = (props: PaginationProps): ReactElement => {
               value={perPageSelectedValue}
               stylesTheme="default.sm"
               menuPlacement={perPageMenuPlacement}
+              id="pagination-select"
             />
           </Box>
         )}
