@@ -8,8 +8,7 @@ import {
   IAppStateUserSlice,
 } from './slices';
 
-export type AppState = IAppStateSettingsSlice &
-  IAppStateThemeSlice &
+export type AppState = IAppStateThemeSlice &
   IAppStateSearchSlice &
   IAppStateSettingsSlice &
   IAppStateUserSlice &
