@@ -2,7 +2,15 @@ import { FC } from 'react';
 import create, { GetState, Mutate, SetState, StoreApi } from 'zustand';
 import createContext from 'zustand/context';
 import { devtools } from 'zustand/middleware';
-import { addChildren, getAllSelectedKeys, initTree, parseRootFromKey, toggleExpand, updateSelection } from './helpers';
+import {
+  addChildren,
+  getAllSelectedKeys,
+  initTree,
+  parseRootFromKey,
+  resetTree,
+  toggleExpand,
+  updateSelection,
+} from './helpers';
 import { FacetNodeTree } from './types';
 export interface IFacetTreeState {
   selectedKeys: string[];
@@ -12,6 +20,7 @@ export interface IFacetTreeState {
   addChildren: (keys: string[]) => void;
   toggleSelect: (key: string, isRoot: boolean) => void;
   toggleExpand: (key: string) => void;
+  reset: () => void;
 }
 
 const createStore = (initialRoots: string[], name: string) => () => {
@@ -25,6 +34,7 @@ const createStore = (initialRoots: string[], name: string) => () => {
       (set) => ({
         selectedKeys: [],
         tree: initialRoots ? initTree<FacetNodeTree>(initialRoots) : {},
+        resetTree: initialRoots ? initTree<FacetNodeTree>(initialRoots) : {},
 
         toggleSelect: (key, isRoot) =>
           set(
@@ -51,11 +61,23 @@ const createStore = (initialRoots: string[], name: string) => () => {
             (state) => {
               if (keys.length > 0) {
                 const root = parseRootFromKey(keys[0], true);
-                return { tree: addChildren(root, keys, state.tree) };
+                const tree = addChildren(root, keys, state.tree);
+                return {
+                  tree,
+                };
               }
             },
             false,
             'addChildren',
+          ),
+        reset: () =>
+          set(
+            (state) => ({
+              selectedKeys: [],
+              tree: resetTree(state.tree),
+            }),
+            false,
+            'reset',
           ),
       }),
       { name: `search-facet/${name}` },
