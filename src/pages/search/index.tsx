@@ -152,7 +152,7 @@ const SearchPage: NextPage = () => {
               <Heading as="h2" id="search-facets" fontSize="sm" flex="1">
                 Filters
               </Heading>
-              <Button variant="link" onClick={() => handleToggleFilters()}>
+              <Button variant="link" type="button" onClick={handleToggleFilters}>
                 Hide
               </Button>
             </Flex>
@@ -166,7 +166,8 @@ const SearchPage: NextPage = () => {
                 transform="rotate(90deg)"
                 borderBottomRadius="none"
                 size="xs"
-                onClick={() => handleToggleFilters()}
+                type="button"
+                onClick={handleToggleFilters}
                 top="240px"
                 left="-28px"
               >
