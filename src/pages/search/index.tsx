@@ -12,7 +12,7 @@ import {
 } from '@api';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import { Box, Flex, List, ListIcon, ListItem, Stack } from '@chakra-ui/layout';
-import { Alert, AlertIcon, Button, Code, Grid, GridItem, Heading, Portal, VisuallyHidden } from '@chakra-ui/react';
+import { Alert, AlertIcon, Button, Code, Heading, Portal, VisuallyHidden } from '@chakra-ui/react';
 import {
   CustomInfoMessage,
   ISearchFacetsProps,
@@ -51,6 +51,8 @@ const selectors = {
   setNumPerPage: (state: AppState) => state.setNumPerPage,
   numPerPage: (state: AppState) => state.numPerPage,
   setDocs: (state: AppState) => state.setDocs,
+  showFilters: (state: AppState) => state.settings.searchFacets.open,
+  toggleSearchFacetsOpen: (state: AppState) => state.toggleSearchFacetsOpen,
 };
 
 const omitP = omit(['p']);
@@ -128,56 +130,15 @@ const SearchPage: NextPage = () => {
   };
 
   // search facet handlers
-  const showFilters = useStore((state) => state.settings.searchFacets.open);
-  const handleToggleFilters = useStore((state) => state.toggleSearchFacetsOpen);
-  const handleSearchFacetSubmission = (queryUpdates: Partial<IADSApiSearchParams>) => {
-    const search = makeSearchParams({ ...params, ...queryUpdates, p: 1 });
-    void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
-  };
 
   return (
     <>
       <Head>
         <title>{params.q} | NASA Science Explorer - Search Results</title>
       </Head>
-      <Grid
-        aria-labelledby="search-form-title"
-        my={12}
-        templateColumns={showFilters ? `200px 1fr` : `1rem 1fr`}
-        gap="2"
-      >
-        {showFilters ? (
-          <GridItem as="aside" aria-labelledby="search-facets">
-            <Flex>
-              <Heading as="h2" id="search-facets" fontSize="sm" flex="1">
-                Filters
-              </Heading>
-              <Button variant="link" type="button" onClick={handleToggleFilters}>
-                Hide
-              </Button>
-            </Flex>
-            <SearchFacets onQueryUpdate={handleSearchFacetSubmission} />
-          </GridItem>
-        ) : (
-          <GridItem>
-            <Portal appendToParentPortal>
-              <Button
-                position="absolute"
-                transform="rotate(90deg)"
-                borderBottomRadius="none"
-                size="xs"
-                type="button"
-                onClick={handleToggleFilters}
-                top="240px"
-                left="-28px"
-              >
-                Show Filters
-              </Button>
-            </Portal>
-          </GridItem>
-        )}
-
-        <GridItem>
+      <Stack direction="row" aria-labelledby="search-form-title" my={12} spacing="4">
+        <SearchFacetFilters params={params} />
+        <Box>
           <form method="get" action="/search" onSubmit={handleOnSubmit}>
             <Flex direction="column" width="full">
               <SearchBar isLoading={isLoading} />
@@ -212,9 +173,54 @@ const SearchPage: NextPage = () => {
               <SearchErrorAlert error={error} />
             </Box>
           )}
-        </GridItem>
-      </Grid>
+        </Box>
+      </Stack>
     </>
+  );
+};
+
+const SearchFacetFilters = (props: { params: IADSApiSearchParams }) => {
+  const { params } = props;
+  const showFilters = useStore(selectors.showFilters);
+  const router = useRouter();
+  const handleToggleFilters = useStore(selectors.toggleSearchFacetsOpen);
+  const handleSearchFacetSubmission = (queryUpdates: Partial<IADSApiSearchParams>) => {
+    const search = makeSearchParams({ ...params, ...queryUpdates, p: 1 });
+    void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
+  };
+
+  if (showFilters) {
+    return (
+      <Box as="aside" aria-labelledby="search-facets" minWidth="200px">
+        <Flex>
+          <Heading as="h2" id="search-facets" fontSize="sm" flex="1">
+            Filters
+          </Heading>
+          <Button variant="link" type="button" onClick={handleToggleFilters}>
+            Hide
+          </Button>
+        </Flex>
+        <SearchFacets onQueryUpdate={handleSearchFacetSubmission} />
+      </Box>
+    );
+  }
+  return (
+    <Box as="aside" aria-labelledby="search-facets">
+      <Portal appendToParentPortal>
+        <Button
+          position="absolute"
+          transform="rotate(90deg)"
+          borderBottomRadius="none"
+          size="xs"
+          type="button"
+          onClick={handleToggleFilters}
+          top="240px"
+          left="-28px"
+        >
+          Show Filters
+        </Button>
+      </Portal>
+    </Box>
   );
 };
 
