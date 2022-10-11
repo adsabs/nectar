@@ -61,6 +61,7 @@ import {
   when,
   __,
 } from 'ramda';
+import { isNilOrEmpty, stubNull } from 'ramda-adjunct';
 import { OnFilterArgs } from './SearchFacetTree';
 import { FacetChildNode, FacetChildNodeTree, FacetCountTuple, FacetLogic, FacetNodeTree, IFacetNode } from './types';
 
@@ -205,15 +206,17 @@ const setChildrenSelected = (value: boolean) =>
  * Find all selected nodes and extract their keys into an array
  */
 export const getAllSelectedKeys = (tree: FacetNodeTree) => {
-  const getSelected = pipe<[FacetNodeTree], IFacetNode[], IFacetNode[], string[]>(
+  const getSelected = pipe<[FacetNodeTree], IFacetNode[], IFacetNode[], string[], string[]>(
     values,
     filter(propEq('selected', true)),
     map(prop('key')),
+    reject(isNil),
   );
-  const getSelectedChildren = pipe<[FacetChildNodeTree], FacetChildNode[], FacetChildNode[], string[]>(
+  const getSelectedChildren = pipe<[FacetChildNodeTree], FacetChildNode[], FacetChildNode[], string[], string[]>(
     values,
     filter(propEq('selected', true)),
     map(prop('key')),
+    reject(isNil),
   );
 
   return concat(
@@ -288,6 +291,26 @@ export const updateSelection = (key: string, isRoot: boolean, tree: FacetNodeTre
     ),
   )(tree);
 };
+
+/**
+ * deselect && un-expand all entries and returns the updated tree
+ */
+export const resetTree = (tree: FacetNodeTree): FacetNodeTree =>
+  map(
+    pipe(
+      // set the main props all to false
+      set(lensProp('expanded'), false),
+      set(lensProp('selected'), false),
+      set(lensProp('partSelected'), false),
+
+      // run over children setting empty values to null, and otherwise setting `selected: false`
+      over(
+        lensProp('children'),
+        ifElse(isNilOrEmpty, stubNull, (node: FacetChildNodeTree) => mapObjIndexed(assoc('selected', false), node)),
+      ),
+    ),
+    tree,
+  );
 
 /**
  * Clean up clause for proper display in i.e. filters
