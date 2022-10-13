@@ -13,7 +13,7 @@ import { AbsLayout } from '@components/Layout/AbsLayout';
 import { APP_DEFAULTS } from '@config';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useIsClient } from '@hooks/useIsClient';
-import { composeNextGSSP } from '@utils';
+import { composeNextGSSP, unwrapStringValue } from '@utils';
 import { MathJax } from 'better-react-mathjax';
 import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
@@ -55,9 +55,11 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
   // process authors from doc
   const authors = useGetAuthors({ doc, includeAff: false });
 
+  const title = unwrapStringValue(doc?.title);
+
   return (
     <AbsLayout doc={doc} titleDescription={''}>
-      <Head>{isSuccess && <title>NASA Science Explorer - Abstract - {doc.title[0]}</title>}</Head>
+      <Head>{isSuccess && <title>NASA Science Explorer - Abstract - {title}</title>}</Head>
       <Box as="article" aria-labelledby="title">
         {error && (
           <Alert status="error" mt={2}>

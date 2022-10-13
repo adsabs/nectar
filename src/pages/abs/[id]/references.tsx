@@ -5,7 +5,7 @@ import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
 import { useGetAbstractParams } from '@hooks/useGetAbstractParams';
-import { composeNextGSSP, setupApiSSR } from '@utils';
+import { composeNextGSSP, setupApiSSR, unwrapStringValue } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
@@ -25,11 +25,12 @@ const ReferencesPage: NextPage<IReferencesPageProps> = (props: IReferencesPagePr
   const { getParams, onPageChange } = useGetAbstractParams(doc.bibcode);
   const { data, isSuccess } = useGetReferences(getParams(), { keepPreviousData: true });
   const referencesParams = getReferencesParams(doc.bibcode, 0);
+  const title = unwrapStringValue(doc?.title);
 
   return (
     <AbsLayout doc={doc} titleDescription="Paper referenced by">
       <Head>
-        <title>NASA Science Explorer - References - {doc.title[0]}</title>
+        <title>NASA Science Explorer - References - {title}</title>
       </Head>
       {error && (
         <Alert status="error">

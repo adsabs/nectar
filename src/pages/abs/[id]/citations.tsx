@@ -5,7 +5,7 @@ import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
 import { useGetAbstractParams } from '@hooks/useGetAbstractParams';
-import { composeNextGSSP, setupApiSSR } from '@utils';
+import { composeNextGSSP, setupApiSSR, unwrapStringValue } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
@@ -28,11 +28,12 @@ const CitationsPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProps
   // get the primary response from server (or cache)
   const { data, isSuccess } = useGetCitations(getParams(), { keepPreviousData: true });
   const citationsParams = getCitationsParams(doc.bibcode, 0);
+  const title = unwrapStringValue(doc?.title);
 
   return (
     <AbsLayout doc={doc} titleDescription="Papers that cite">
       <Head>
-        <title>NASA Science Explorer - Citations - {doc.title[0]}</title>
+        <title>NASA Science Explorer - Citations - {title}</title>
       </Head>
       {error && (
         <Alert status="error">

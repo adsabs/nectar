@@ -10,11 +10,11 @@ import {
   useGetMetrics,
 } from '@api';
 import { Box } from '@chakra-ui/react';
-import { AbsLayout } from '@components/Layout/AbsLayout';
 import { MetricsPane } from '@components';
+import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
-import { composeNextGSSP, normalizeURLParams, setupApiSSR } from '@utils';
+import { composeNextGSSP, normalizeURLParams, setupApiSSR, unwrapStringValue } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
@@ -35,11 +35,12 @@ const MetricsPage: NextPage<IMetricsPageProps> = (props: IMetricsPageProps) => {
 
   const hasCitations = isSuccess && metrics && metrics[MetricsResponseKey.CS][CitationsStatsKey.TNC] > 0;
   const hasReads = isSuccess && metrics && metrics[MetricsResponseKey.BS][BasicStatsKey.TNR] > 0;
+  const title = unwrapStringValue(doc?.title);
 
   return (
     <AbsLayout doc={doc} titleDescription="Metrics for">
       <Head>
-        <title>NASA Science Explorer - Metrics - {doc.title[0]}</title>
+        <title>NASA Science Explorer - Metrics - {title}</title>
       </Head>
       {isError && (
         <Box mt={5} fontSize="xl">

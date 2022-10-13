@@ -3,7 +3,7 @@ import { Box, Flex, Link } from '@chakra-ui/layout';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
-import { composeNextGSSP, normalizeURLParams, setupApiSSR } from '@utils';
+import { composeNextGSSP, normalizeURLParams, setupApiSSR, unwrapStringValue } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import NextImage from 'next/image';
@@ -21,12 +21,13 @@ const GraphicsPage: NextPage<IGraphicsPageProps> = (props: IGraphicsPageProps) =
   const { id } = props;
 
   const doc = useGetAbstractDoc(id);
+  const title = unwrapStringValue(doc?.title);
 
   const { data: graphics, isError, isSuccess } = useGetGraphics(doc.bibcode, { keepPreviousData: true, retry: false });
   return (
     <AbsLayout doc={doc} titleDescription="Graphics from">
       <Head>
-        <title>NASA Science Explorer - Graphics - {doc.title[0]}</title>
+        <title>NASA Science Explorer - Graphics - {title}</title>
       </Head>
       {isError && (
         <Box mt={5} fontSize="xl">

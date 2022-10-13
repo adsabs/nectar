@@ -4,7 +4,7 @@ import { AbstractRefList } from '@components';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractParams } from '@hooks/useGetAbstractParams';
-import { composeNextGSSP, setupApiSSR } from '@utils';
+import { composeNextGSSP, setupApiSSR, unwrapStringValue } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
@@ -30,11 +30,12 @@ const CoreadsPage: NextPage<ICoreadsPageProps> = (props: ICoreadsPageProps) => {
 
   const { data, isSuccess } = useGetCoreads(getParams(), { keepPreviousData: true });
   const coreadsParams = getCoreadsParams(doc.bibcode, 0);
+  const title = unwrapStringValue(doc?.title);
 
   return (
     <AbsLayout doc={doc} titleDescription="Papers also read by those who read">
       <Head>
-        <title>NASA Science Explorer - Coreads - {doc.title[0]}</title>
+        <title>NASA Science Explorer - Coreads - {title}</title>
       </Head>
       {error && (
         <Alert status="error">

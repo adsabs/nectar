@@ -5,11 +5,10 @@ import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
 import { useGetAbstractParams } from '@hooks/useGetAbstractParams';
-import { composeNextGSSP, normalizeURLParams, setupApiSSR } from '@utils';
+import { composeNextGSSP, normalizeURLParams, setupApiSSR, unwrapStringValue } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
-
 interface IVolumePageProps {
   id: string;
   error?: {
@@ -26,10 +25,12 @@ const VolumePage: NextPage<IVolumePageProps> = (props: IVolumePageProps) => {
 
   const { data, isSuccess } = useGetToc(getParams(), { keepPreviousData: true });
   const tocParams = getTocParams(doc.bibcode, 0);
+  const title = unwrapStringValue(doc?.title);
+
   return (
     <AbsLayout doc={doc} titleDescription="Papers in the same volume as">
       <Head>
-        <title>NASA Science Explorer - Volume - {doc.title[0]}</title>
+        <title>NASA Science Explorer - Volume - {title}</title>
       </Head>
       {error && (
         <Alert status="error">

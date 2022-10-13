@@ -6,7 +6,7 @@ import { AllAuthorsModal } from '@components/AllAuthorsModal';
 import { APP_DEFAULTS } from '@config';
 import { useIsClient } from '@hooks/useIsClient';
 import { useStore } from '@store';
-import { getFomattedNumericPubdate } from '@utils';
+import { getFomattedNumericPubdate, unwrapStringValue } from '@utils';
 import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
 import { ChangeEvent, ReactElement, useCallback, useEffect, useState } from 'react';
@@ -109,7 +109,7 @@ export const Item = (props: IItemProps): ReactElement => {
               target={linkNewTab ? '_blank' : '_self'}
               rel={linkNewTab ? 'noopener noreferrer' : ''}
             >
-              <span dangerouslySetInnerHTML={{ __html: title[0] }}></span>
+              <span dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }}></span>
             </Link>
           </NextLink>
           <Flex alignItems="start" ml={1}>
