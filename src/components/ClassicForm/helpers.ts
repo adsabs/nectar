@@ -31,6 +31,7 @@ import {
   split,
   splitAt,
   T,
+  tail,
   test,
   toString,
   trim,
@@ -38,6 +39,7 @@ import {
   when,
   __,
 } from 'ramda';
+import { isNotNilOrEmpty } from 'ramda-adjunct';
 import { CollectionChoice, IClassicFormState, IRawClassicFormState, LogicChoice, PropertyChoice } from './types';
 
 const isString = is(String);
@@ -45,10 +47,12 @@ const string2Num = (v: string) => Number.parseInt(v, 10);
 const emptyStr = always('');
 const logicJoin = (logic: LogicChoice) => join(logic === 'or' ? ' OR ' : ' ');
 const wrapWithField = curry((field: string, value: string) => `${field}:(${value})`);
+const notWrapWithField = curry((field: string, value: string) => `-${wrapWithField(field, value)}`);
 const quoteWrap = curry((prefix: string, v: string) => `${prefix}"${v}"`);
 const splitList = split(/[\r\n]/g);
 const joinItemsWithLogic = (logic: LogicChoice) => pipe(getLogic, logicJoin)(logic);
 const splitBySpace = split(/\s+/);
+const hasPrefix = test(/^-/);
 
 /**
  * Parse, clean and format pubdate start and end.
@@ -231,8 +235,29 @@ export const getAbs = (abs: string, logic: LogicChoice) =>
 /**
  * Generate bibstem search field
  */
-export const getBibstems = (bibstems: string) =>
-  ifElse(isEmpty, emptyStr, pipe(split(/\W+/), logicJoin(getLogic('or')), wrapWithField('bibstem')))(bibstems);
+export const getBibstems = (bibstems: string) => {
+  const negList: string[] = [];
+  const posList: string[] = [];
+
+  when(
+    isNotNilOrEmpty,
+    pipe(
+      split(','),
+      map(
+        ifElse(
+          hasPrefix,
+          (bib) => negList.push(tail(bib)),
+          (bib) => posList.push(bib),
+        ),
+      ),
+    ),
+  )(bibstems);
+
+  return [
+    posList.length > 0 ? wrapWithField('bibstem', logicJoin(getLogic('or'))(posList)) : '',
+    negList.length > 0 ? notWrapWithField('bibstem', logicJoin(getLogic('or'))(negList)) : '',
+  ].join(' ');
+};
 
 /**
  * Run classic form parameters through parsers and generate URL query string
