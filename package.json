@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "nodemon",
     "dev:mocks": "NEXT_PUBLIC_API_MOCKING=enabled nodemon",
-    "build": "NEXT_TELEMETRY_DISABLED=1 DIST_DIR=./dist/ next build && tsc --project tsconfig.server.json --outDir ./dist/",
+    "build": "NEXT_TELEMETRY_DISABLED=1 DIST_DIR=./dist/ next build && tsc --project tsconfig.server.json --outDir ./dist/ && yarn build-data",
     "start": "NODE_ENV=production DIST_DIR=./dist/ node dist/server/index.js",
     "analyze": "NEXT_TELEMETRY_DISABLED=1 DIST_DIR=./dev/ ANALYZE=true next build",
     "test": "NODE_ENV=test vitest",
@@ -17,6 +17,7 @@
     "cypress:run": "cypress run",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public",
+    "build-data": "node ./scripts/gen-bibstem-index",
     "lint": "tsc --project ./tsconfig.json && tsc --project ./cypress/tsconfig.json && eslint ."
   },
   "dependencies": {

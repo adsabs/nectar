@@ -1,0 +1,18 @@
+#! /usr/bin/env node
+
+const fs = require('fs');
+const path = require('path');
+const fuse = require('fuse.js');
+
+const bibstemIndex = require('../public/data/bibstems/bibstems.json');
+const outPath = path.join(__dirname, '../public/data/bibstems/index.json');
+
+// Create a fuse index for the bibstems
+console.log('Creating fuse index for bibstems');
+const index = fuse.createIndex(['value', 'label', 'score'], bibstemIndex);
+
+// Write the index to disk
+console.log('Writing index to disk');
+fs.writeFileSync(outPath, JSON.stringify(index.toJSON()));
+
+console.log('File written to', outPath);
