@@ -39,7 +39,7 @@ import {
   when,
   __,
 } from 'ramda';
-import { isNotNilOrEmpty } from 'ramda-adjunct';
+import { isEmptyArray, isNotEmpty, isNotNilOrEmpty } from 'ramda-adjunct';
 import { CollectionChoice, IClassicFormState, IRawClassicFormState, LogicChoice, PropertyChoice } from './types';
 
 const isString = is(String);
@@ -239,6 +239,17 @@ export const getBibstems = (bibstems: string) => {
   const negList: string[] = [];
   const posList: string[] = [];
 
+  // TODO: improve this logic
+  const getResult = (value: string[], isNegated: boolean) =>
+    ifElse(
+      isEmptyArray,
+      () => '',
+      pipe(
+        logicJoin(getLogic('or')),
+        ifElse(() => isNegated, notWrapWithField('bibstem'), wrapWithField('bibstem')),
+      ),
+    )(value);
+
   when(
     isNotNilOrEmpty,
     pipe(
@@ -253,10 +264,7 @@ export const getBibstems = (bibstems: string) => {
     ),
   )(bibstems);
 
-  return [
-    posList.length > 0 ? wrapWithField('bibstem', logicJoin(getLogic('or'))(posList)) : '',
-    negList.length > 0 ? notWrapWithField('bibstem', logicJoin(getLogic('or'))(negList)) : '',
-  ].join(' ');
+  return [getResult(posList, false), getResult(negList, true)].filter(isNotEmpty).join(' ');
 };
 
 /**
