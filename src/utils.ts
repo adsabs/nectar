@@ -6,7 +6,8 @@ import { GetServerSidePropsContext, GetServerSidePropsResult, NextApiRequest, Ne
 import { useRouter } from 'next/router';
 import qs from 'qs';
 import { ParsedUrlQuery } from 'querystring';
-import { clamp, filter, is, keys, last, omit, propIs, uniq } from 'ramda';
+import { clamp, filter, head, is, keys, last, omit, pipe, propIs, uniq, when } from 'ramda';
+import { isArray, isNotString } from 'ramda-adjunct';
 
 type ParsedQueryParams = ParsedUrlQuery | qs.ParsedQs;
 
@@ -365,3 +366,15 @@ export const kFormatNumber = (value: number): string | number => {
 export const isEmptyObject = (value: unknown) => {
   return is(Object) && keys(value).length === 0;
 };
+
+/**
+ * Takes an array or simple string
+ * @example
+ * unwrapStringValue(['a', 'b', 'c']) ==> 'a'
+ * unwrapStringValue('abc') ==> 'abc'
+ * unwrapStringValue(555) ==> ''
+ */
+export const unwrapStringValue = pipe<[string | string[]], string, string>(
+  when(isArray, head),
+  when(isNotString, () => ''),
+);
