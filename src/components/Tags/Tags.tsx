@@ -24,7 +24,7 @@ export const Tags = ({ tagItems, onRemove, onClear, placeHolder, ...boxProps }: 
   };
 
   return (
-    <Flex justifyContent="space-between" borderWidth={1} p={2} minH={12} {...boxProps}>
+    <Flex justifyContent="space-between" alignItems="center" borderWidth={1} px={2} {...boxProps}>
       <Box>
         {tagItems.length === 0 && placeHolder ? <Text color="gray.300">{placeHolder}</Text> : null}
         {tagItems.map((item) => (

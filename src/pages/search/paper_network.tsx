@@ -9,7 +9,7 @@ const PaperMetworkPage: NextPage = () => {
   // get original query q, used to 'navigate back' to the original search
   const { qid, ...originalQuery } = parseQueryFromUrl<{ qid: string }>(router.asPath);
 
-  // get the new query q that will be used to fetch author network
+  // get the new query q that will be used to fetch paper network
   // this could be the qid or the modified original query
   const { p, ...query } = originalQuery;
   const newQuery = qid ? { ...query, q: `docs(${qid})` } : query;

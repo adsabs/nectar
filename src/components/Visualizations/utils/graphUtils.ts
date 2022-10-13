@@ -18,13 +18,29 @@ import {
   IADSApiPaperNetworkFullGraph,
   IADSApiPaperNetworkResponse,
   IADSApiPaperNetworkSummaryGraphNode,
+  IADSApiWordCloudResponse,
   IBibcodeDict,
 } from '@api/vis/types';
 import { IAuthorNetworkNodeDetails, IPaperNetworkLinkDetails, IPaperNetworkNodeDetails } from '@components';
 import { Datum, Serie } from '@nivo/line';
 import * as d3 from 'd3';
 import { decode } from 'he';
-import { countBy, divide, flatten, intersection, pluck, prop, range, reduce, reverse, sortBy, uniq } from 'ramda';
+import _ from 'lodash';
+import {
+  countBy,
+  divide,
+  flatten,
+  intersection,
+  keys,
+  pluck,
+  prop,
+  range,
+  reduce,
+  reverse,
+  sortBy,
+  uniq,
+  values,
+} from 'ramda';
 import {
   IBarGraph,
   ICitationsTableData,
@@ -37,6 +53,7 @@ import {
   IPaperTableInput,
   IReadTableInput,
   YearDatum,
+  ISliderRange,
 } from '../types';
 
 /************ metrics helpers ************/
@@ -666,4 +683,59 @@ export const getPaperNetworkLinkDetails = (
     groupTwo: { name: `Group ${target.node_name}`, color: targetColor },
     papers: references,
   };
+};
+
+/************ concept cloud helpers ************/
+
+// see https://github.com/adsabs/bumblebee/blob/826c1d8893b4ca236dba42a330c1f066f65f45cb/src/js/widgets/wordcloud/widget.js#L357
+export const buildWCDict = (
+  dict: IADSApiWordCloudResponse,
+  sliderRange: ISliderRange,
+  currentSliderVal: number,
+  colorRange: string[],
+) => {
+  const numWords = keys(dict).length;
+
+  const meanTF =
+    values(dict)
+      .map((x) => x.total_occurrences)
+      .reduce((acc, c) => acc + c, 0) / numWords;
+
+  const meanIDF =
+    values(dict)
+      .map((x) => (x.idf ? x.idf : 0))
+      .reduce((acc, c) => acc + c, 0) / numWords;
+
+  // [ [word, val], ... ]
+  let wordDict: [string, number][] = Object.entries(dict).map(([word, val]) => {
+    const freq = val.total_occurrences / meanTF;
+    const idf = val.idf / meanIDF;
+
+    const modifiedVal = sliderRange[currentSliderVal][0] * idf + sliderRange[currentSliderVal][1] * freq;
+
+    // some stuff might be NaN, so do || 0
+    return [word, modifiedVal || 0];
+  });
+
+  // sort to get 50 top candidates
+  wordDict = wordDict.sort((a, b) => a[1] - b[1]).slice(-50);
+
+  const min = wordDict[0][1];
+  const max = wordDict[wordDict.length - 1][1];
+
+  const pixelScale = d3.scaleLog().domain([min, max]).range([30, 70]);
+  const wordList = wordDict.map(([word, value]) => ({
+    text: word,
+    size: pixelScale(value),
+    selected: false,
+    origSize: value,
+  }));
+
+  const fill = d3.scaleLog<string>().domain([min, max]);
+  fill
+    .domain([0, 0.25, 0.5, 0.75, 1].map((v) => fill.invert(v)))
+    .range(colorRange)
+    .clamp(true);
+
+  return { wordList, fill };
 };

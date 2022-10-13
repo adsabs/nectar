@@ -1,15 +1,24 @@
-import { VizPageLayout } from '@components';
+import { VizPageLayout, ConceptCloudPageContainer } from '@components';
+import { parseQueryFromUrl } from '@utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 
 const ConceptCloudPage: NextPage = () => {
   const router = useRouter();
 
-  const { qid, p, ...query } = router.query;
+  // get original query q, used to 'navigate back' to the original search
+  const { qid, ...originalQuery } = parseQueryFromUrl<{ qid: string }>(router.asPath);
+
+  // get the new query q that will be used to fetch word cloud
+  // this could be the qid or the modified original query
+  const { p, ...query } = originalQuery;
+  const newQuery = qid ? { ...query, q: `docs(${qid})` } : query;
 
   return (
     <div>
-      <VizPageLayout vizPage="concept_cloud" from={{ pathname: '/search', query: { ...query, p } }}></VizPageLayout>
+      <VizPageLayout vizPage="concept_cloud" from={{ pathname: '/search', query: { ...query, p } }}>
+        <ConceptCloudPageContainer query={newQuery} />
+      </VizPageLayout>
     </div>
   );
 };

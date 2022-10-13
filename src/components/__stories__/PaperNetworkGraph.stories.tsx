@@ -4,7 +4,7 @@ import { response } from '@components/__mocks__/paperNetworkResponseData';
 import { Meta, Story } from '@storybook/react';
 
 const meta: Meta = {
-  title: 'Visualizations/Graph/PaperNetworkGraph',
+  title: 'Visualizations/Graphs/PaperNetworkGraph',
   component: PaperNetworkGraph,
 };
 

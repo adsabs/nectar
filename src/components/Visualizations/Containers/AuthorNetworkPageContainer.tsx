@@ -1,7 +1,7 @@
 import { IADSApiSearchParams, useVaultBigQuerySearch } from '@api';
 import { IADSApiAuthorNetworkNode, IBibcodeDict } from '@api/vis/types';
 import { useGetAuthorNetwork } from '@api/vis/vis';
-import { Box, Button, Flex, SimpleGrid, Stack, Text, useToast } from '@chakra-ui/react';
+import { Box, SimpleGrid, useBreakpointValue, useToast } from '@chakra-ui/react';
 import {
   IAuthorNetworkNodeDetails,
   AuthorNetworkDetailsPane,
@@ -12,8 +12,8 @@ import {
   CustomInfoMessage,
   AuthorNetworkGraphPane,
   DataDownloader,
+  ITagItem,
 } from '@components';
-import { ITagItem, Tags } from '@components/Tags';
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
@@ -22,7 +22,7 @@ import { ReactElement, Reducer, useCallback, useEffect, useMemo, useReducer, use
 import { IView } from '../GraphPanes/types';
 import { ILineGraph } from '../types';
 import { getAuthorNetworkNodeDetails, getAuthorNetworkSummaryGraph } from '../utils';
-import { NotEnoughData } from '../Widgets';
+import { FilterSearchBar, IFilterSearchBarProps, NotEnoughData } from '../Widgets';
 
 interface IAuthorNetworkPageContainerProps {
   query: IADSApiSearchParams;
@@ -76,6 +76,16 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
   const router = useRouter();
 
   const toast = useToast();
+
+  // number of columns for the page layout
+  const columns = useBreakpointValue({ base: 1, xl: 2 });
+
+  // filter search bar layout, use column when width is small
+  const filterSearchDirection: IFilterSearchBarProps['direction'] = useBreakpointValue({
+    base: 'column',
+    md: 'row',
+    xl: 'column',
+  });
 
   const [state, dispatch] = useReducer(reducer, {
     rowsToFetch: DEFAULT_ROWS_TO_FETCH,
@@ -181,8 +191,8 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
         <CustomInfoMessage status="info" title="Could not generate" description={<NotEnoughData />} />
       )}
       {!authorNetworkIsLoading && authorNetworkIsSuccess && authorNetworkData.data?.root && (
-        <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={16}>
-          <Flex direction="column" gap={2}>
+        <SimpleGrid columns={columns} spacing={16}>
+          <Box>
             <Expandable
               title="About Author Network"
               description={
@@ -214,13 +224,16 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
               paperLimit={state.rowsToFetch}
               maxPaperLimit={Math.min(numFound, MAX_ROWS_TO_FETCH)}
             />
-          </Flex>
+          </Box>
           <Box>
             <FilterSearchBar
               tagItems={filterTagItems}
               onRemove={(tag) => dispatch({ type: 'REMOVE_FILTER_TAG', payload: tag })}
               onClear={() => dispatch({ type: 'CLEAR_FILTERS' })}
               onApply={handleApplyFilters}
+              description="Narrow down your search results to papers from a certain group or author"
+              placeHolder="select an author or a group in the visualization and click the 'add to filter' button"
+              direction={filterSearchDirection}
             />
             <AuthorNetworkDetailsPane
               summaryGraph={authorNetworkSummaryGraph}
@@ -256,32 +269,5 @@ const StatusDisplay = ({
       )}
       {authorNetworkIsLoading && <LoadingMessage message="Fetching author network data" />}
     </>
-  );
-};
-
-const FilterSearchBar = ({
-  tagItems,
-  onRemove,
-  onClear,
-  onApply,
-}: {
-  tagItems: ITagItem[];
-  onRemove: (tagItem: ITagItem) => void;
-  onClear: () => void;
-  onApply: () => void;
-}): ReactElement => {
-  return (
-    <Stack direction="column" mb={10}>
-      <Text fontWeight="bold">Filter current search: </Text>
-      <Text>Narrow down your search results to papers from a certain group or author</Text>
-      <Tags
-        tagItems={tagItems}
-        onRemove={onRemove}
-        onClear={onClear}
-        placeHolder="select an author or a group in the visualization and click the 'add to filter' button"
-        flex={1}
-      />
-      <Button onClick={onApply}>Search</Button>
-    </Stack>
   );
 };
