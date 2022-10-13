@@ -34,7 +34,6 @@ const createStore = (initialRoots: string[], name: string) => () => {
       (set) => ({
         selectedKeys: [],
         tree: initialRoots ? initTree<FacetNodeTree>(initialRoots) : {},
-        resetTree: initialRoots ? initTree<FacetNodeTree>(initialRoots) : {},
 
         toggleSelect: (key, isRoot) =>
           set(
@@ -61,9 +60,8 @@ const createStore = (initialRoots: string[], name: string) => () => {
             (state) => {
               if (keys.length > 0) {
                 const root = parseRootFromKey(keys[0], true);
-                const tree = addChildren(root, keys, state.tree);
                 return {
-                  tree,
+                  tree: addChildren(root, keys, state.tree),
                 };
               }
             },

@@ -250,46 +250,54 @@ const noChildrenSelected = (key: string) =>
 export const updateSelection = (key: string, isRoot: boolean, tree: FacetNodeTree) => {
   const rootKey = isRoot ? key : parseRootFromKey(key, true);
 
+  // if the node is empty (or undefined) create a new one before running updates
+  const createNodeIfNecessary = <T>(node: T): T =>
+    when<T, T, T>(isNilOrEmpty as (n: T) => n is T, (node: T) => ({ ...node, ...createNode(key, isRoot) }), node);
+
+  // ROOT -- check if it is selected
+  const updateRoot = ifElse<[FacetNodeTree], FacetNodeTree, FacetNodeTree>(
+    isSelected(key, true),
+
+    // is SELECTED
+    over(
+      keyLens(key),
+      pipe(createNodeIfNecessary, setSelected(false), setPartSelected(false), setChildrenSelected(false)),
+    ),
+
+    // is NOT selected
+    over(
+      keyLens(key),
+      pipe(createNodeIfNecessary, setSelected(true), setPartSelected(false), setChildrenSelected(true)),
+    ),
+  );
+
+  // CHILD -- check if it is selected
+  const updateChild = ifElse<[FacetNodeTree], FacetNodeTree, FacetNodeTree>(
+    isSelected(key, false),
+
+    // is SELECTED
+    pipe(
+      // unselect the root node
+      over(keyLens(rootKey), pipe(createNodeIfNecessary, setSelected(false), setPartSelected(true))),
+      // unselect the child node
+      over(childLens(key), pipe(createNodeIfNecessary, setSelected(false))),
+      // if the resultant state has no children selected, unset the indeterminate state on root
+      when(noChildrenSelected(rootKey), over(keyLens(rootKey), setPartSelected(false))),
+    ),
+
+    // is NOT selected
+    pipe(
+      // select the child node
+      over(childLens(key), pipe(createNodeIfNecessary, setSelected(true))),
+      // set the root as indeterminate
+      over(keyLens(rootKey), pipe(createNodeIfNecessary, setPartSelected(true))),
+      // if, after selecting the child, the resulting state has all children selected, then select the root
+      when(allChildrenSelected(rootKey), over(keyLens(rootKey), pipe(setSelected(true), setPartSelected(false)))),
+    ),
+  );
+
   // initial branch, check if node is a root node
-  return ifElse<[FacetNodeTree], FacetNodeTree, FacetNodeTree>(
-    always(isRoot),
-
-    // ROOT -- check if it is selected
-    ifElse<[FacetNodeTree], FacetNodeTree, FacetNodeTree>(
-      isSelected(key, true),
-
-      // is SELECTED
-      over(keyLens(key), pipe(setSelected(false), setPartSelected(false), setChildrenSelected(false))),
-
-      // is NOT selected
-      over(keyLens(key), pipe(setSelected(true), setPartSelected(false), setChildrenSelected(true))),
-    ),
-
-    // CHILD -- check if it is selected
-    ifElse<[FacetNodeTree], FacetNodeTree, FacetNodeTree>(
-      isSelected(key, false),
-
-      // is SELECTED
-      pipe(
-        // unselect the root node
-        over(keyLens(rootKey), pipe(setSelected(false), setPartSelected(true))),
-        // unselect the child node
-        over(childLens(key), setSelected(false)),
-        // if the resultant state has no children selected, unset the indeterminate state on root
-        when(noChildrenSelected(rootKey), over(keyLens(rootKey), setPartSelected(false))),
-      ),
-
-      // is NOT selected
-      pipe(
-        // select the child node
-        over(childLens(key), setSelected(true)),
-        // set the root as indeterminate
-        over(keyLens(rootKey), setPartSelected(true)),
-        // if, after selecting the child, the resulting state has all children selected, then select the root
-        when(allChildrenSelected(rootKey), over(keyLens(rootKey), pipe(setSelected(true), setPartSelected(false)))),
-      ),
-    ),
-  )(tree);
+  return ifElse<[FacetNodeTree], FacetNodeTree, FacetNodeTree>(always(isRoot), updateRoot, updateChild)(tree);
 };
 
 /**
