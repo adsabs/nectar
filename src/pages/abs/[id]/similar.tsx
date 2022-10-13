@@ -5,12 +5,11 @@ import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
 import { useGetAbstractParams } from '@hooks/useGetAbstractParams';
-import { composeNextGSSP, setupApiSSR } from '@utils';
+import { composeNextGSSP, setupApiSSR, unwrapStringValue } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
 import { normalizeURLParams } from 'src/utils';
-
 export interface ISimilarPageProps {
   id: string;
   error?: {
@@ -27,11 +26,12 @@ const SimilarPage: NextPage<ISimilarPageProps> = (props: ISimilarPageProps) => {
 
   const { data, isSuccess } = useGetSimilar(getParams(), { keepPreviousData: true });
   const similarParams = getSimilarParams(doc.bibcode, 0);
+  const title = unwrapStringValue(doc?.title);
 
   return (
     <AbsLayout doc={doc} titleDescription="Papers similar to">
       <Head>
-        <title>NASA Science Explorer - Similar - {doc.title[0]}</title>
+        <title>NASA Science Explorer - Similar - {title}</title>
       </Head>
       {error && (
         <Alert status="error">

@@ -4,6 +4,7 @@ import { Heading, Stack, Text } from '@chakra-ui/layout';
 import { Button, Link } from '@chakra-ui/react';
 import { AbstractSideNav, Metatags } from '@components';
 import { useBackToSearchResults } from '@hooks/useBackToSearchResults';
+import { unwrapStringValue } from '@utils';
 import Head from 'next/head';
 import NextLink from 'next/link';
 import { FC } from 'react';
@@ -20,7 +21,7 @@ export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription
     return <>{children}</>;
   }
 
-  const title = doc.title[0] ?? '';
+  const title = unwrapStringValue(doc?.title);
 
   return (
     <Stack direction="column" my={{ base: '6', lg: showBackLink ? '12' : '16' }}>

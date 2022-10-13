@@ -7,7 +7,7 @@ import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
 import { useIsClient } from '@hooks/useIsClient';
-import { composeNextGSSP, normalizeURLParams, setupApiSSR } from '@utils';
+import { composeNextGSSP, normalizeURLParams, setupApiSSR, unwrapStringValue } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
@@ -23,11 +23,12 @@ interface IExportCitationPageProps {
 const ExportCitationPage: NextPage<IExportCitationPageProps> = ({ id, format, error }) => {
   const doc = useGetAbstractDoc(id);
   const isClient = useIsClient();
+  const title = unwrapStringValue(doc?.title);
 
   return (
     <AbsLayout doc={doc} titleDescription="Export citation for">
       <Head>
-        <title>NASA Science Explorer - Export Citation - {doc?.title[0]}</title>
+        <title>NASA Science Explorer - Export Citation - {title}</title>
       </Head>
       <Box pt="1">
         {error ? (
