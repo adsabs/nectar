@@ -31,6 +31,8 @@ import { Pagination } from '@components/ResultList/Pagination';
 import { usePagination } from '@components/ResultList/Pagination/usePagination';
 import { SearchQueryLink } from '@components/SearchQueryLink';
 import { useDebounce } from '@hooks/useDebounce';
+import { unwrapStringValue } from '@utils';
+import { MathJax } from 'better-react-mathjax';
 import { saveAs } from 'file-saver';
 import { matchSorter } from 'match-sorter';
 import { useRouter } from 'next/router';
@@ -102,9 +104,12 @@ export const AllAuthorsModal = ({ bibcode, label }: IAllAuthorsModalProps): Reac
             {isSuccess && (
               <Box id="author-list-description">
                 <Text size="lg">Author list for </Text>
-                <Text size="xl" fontWeight="bold">
-                  {data.docs[0].title}
-                </Text>
+                <Text
+                  size="xl"
+                  fontWeight="bold"
+                  as={MathJax}
+                  dangerouslySetInnerHTML={{ __html: unwrapStringValue(data.docs[0].title) }}
+                />
               </Box>
             )}
           </ModalHeader>
