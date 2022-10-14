@@ -1,13 +1,10 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { isPast, parseISO } from 'date-fns';
 import { RequestHandler as Middleware } from 'express';
-import { PathLike } from 'fs';
-import getConfig from 'next/config';
-import qs from 'qs';
 import { isNil } from 'ramda';
 import { IBootstrapPayload, IUserData } from '../../src/api/accounts/types';
+import { defaultRequestConfig } from '../../src/api/config';
 import { ApiTargets } from '../../src/api/models';
-import { AppRuntimeConfig } from '../../src/types';
 
 const isUserData = (userData?: IUserData): userData is IUserData => {
   return (
@@ -23,25 +20,6 @@ const checkUserData = (userData?: IUserData): boolean => {
   return isUserData(userData) && !isPast(parseISO(userData.expire_in));
 };
 
-/**
- * Figure out which config to pick, based on the current environment
- */
-const resolveApiBaseUrl = (defaultBaseUrl = ''): string => {
-  // for mocking requests, just shortcut the baseURL here
-  if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled') {
-    return 'http://localhost';
-  }
-
-  const config = getConfig() as AppRuntimeConfig;
-
-  if (typeof config === 'undefined') {
-    return defaultBaseUrl;
-  }
-
-  const configType = typeof window === 'undefined' ? 'serverRuntimeConfig' : 'publicRuntimeConfig';
-  return config[configType]?.apiHost ?? defaultBaseUrl;
-};
-
 interface IADSApiBootstrapResponse extends AxiosResponse<IBootstrapPayload> {
   headers: {
     'set-cookie': string;
@@ -49,26 +27,6 @@ interface IADSApiBootstrapResponse extends AxiosResponse<IBootstrapPayload> {
 }
 
 export const api: Middleware = (req, res, next) => {
-  const defaultConfig: AxiosRequestConfig = {
-    baseURL: resolveApiBaseUrl(),
-    withCredentials: true,
-    timeout: 30000,
-    paramsSerializer: (params: PathLike) =>
-      qs.stringify(params, {
-        indices: false,
-        arrayFormat: 'repeat',
-        format: 'RFC1738',
-        sort: (a, b) => a - b,
-        skipNulls: true,
-      }),
-    headers: {
-      common: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Accept: 'application/json',
-      },
-    },
-  };
-
   // grab reference to our current session from the request
   const session = req.session;
   const currentUserData = session.userData ?? null;
@@ -79,7 +37,7 @@ export const api: Middleware = (req, res, next) => {
   }
 
   axios
-    .get<IBootstrapPayload, IADSApiBootstrapResponse>(ApiTargets.BOOTSTRAP, defaultConfig)
+    .get<IBootstrapPayload, IADSApiBootstrapResponse>(ApiTargets.BOOTSTRAP, defaultRequestConfig)
     .then((response) => {
       const { data, headers } = response;
 

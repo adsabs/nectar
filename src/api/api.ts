@@ -1,33 +1,11 @@
 import { IUserData } from '@api';
 import { APP_STORAGE_KEY, updateAppUser } from '@store';
-import { AppRuntimeConfig } from '@types';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { isPast, parseISO } from 'date-fns';
-import { PathLike } from 'fs';
-import getConfig from 'next/config';
-import qs from 'qs';
 import { identity, isNil, pick } from 'ramda';
 import { IBootstrapPayload } from './accounts';
+import { defaultRequestConfig } from './config';
 import { ApiTargets } from './models';
-
-/**
- * Figure out which config to pick, based on the current environment
- */
-const resolveApiBaseUrl = (defaultBaseUrl = ''): string => {
-  // for mocking requests, just shortcut the baseURL here
-  if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled') {
-    return 'http://localhost';
-  }
-
-  const config = getConfig() as AppRuntimeConfig;
-
-  if (typeof config === 'undefined') {
-    return defaultBaseUrl;
-  }
-
-  const configType = typeof window === 'undefined' ? 'serverRuntimeConfig' : 'publicRuntimeConfig';
-  return config[configType]?.apiHost ?? defaultBaseUrl;
-};
 
 const isUserData = (userData?: IUserData): userData is IUserData => {
   return (
@@ -77,26 +55,6 @@ export interface ApiRequestConfig extends AxiosRequestConfig {
   headers?: { authorization?: string };
 }
 
-const defaultConfig: AxiosRequestConfig = {
-  baseURL: resolveApiBaseUrl(),
-  withCredentials: true,
-  timeout: 30000,
-  paramsSerializer: (params: PathLike) =>
-    qs.stringify(params, {
-      indices: false,
-      arrayFormat: 'repeat',
-      format: 'RFC1738',
-      sort: (a, b) => a - b,
-      skipNulls: true,
-    }),
-  headers: {
-    common: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      Accept: 'application/json',
-    },
-  },
-};
-
 enum API_STATUS {
   UNAUTHORIZED = 401,
 }
@@ -112,7 +70,7 @@ class Api {
   private userData: IUserData;
 
   private constructor() {
-    this.service = axios.create(defaultConfig);
+    this.service = axios.create(defaultRequestConfig);
     this.init();
   }
 
@@ -191,7 +149,7 @@ class Api {
   async bootstrap() {
     const { data } = await this.retry<Promise<AxiosResponse<IBootstrapPayload>>>(
       {
-        ...defaultConfig,
+        ...defaultRequestConfig,
         method: 'GET',
         url: ApiTargets.BOOTSTRAP,
       },
@@ -205,7 +163,7 @@ class Api {
   /**
    * Simple retryer, will rerun request after delay
    */
-  async retry<T extends Promise<unknown>>(
+  async retry<T>(
     config: AxiosRequestConfig,
     options: {
       retries?: number;
@@ -231,7 +189,7 @@ class Api {
   }
 
   public reset() {
-    this.service = this.service = axios.create(defaultConfig);
+    this.service = this.service = axios.create(defaultRequestConfig);
     this.init();
     this.userData = null;
   }
