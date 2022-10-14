@@ -1,4 +1,4 @@
-import { ReactElement, useCallback, useMemo } from 'react';
+import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { useD3 } from './useD3';
 import * as d3 from 'd3';
 import { BaseType, Selection } from 'd3';
@@ -11,8 +11,8 @@ export type BubblePlotConfig = {
   xKey: 'date' | 'citation_count';
   yKey: 'citation_count' | 'read_count';
   rKey: 'citation_count' | 'read_count' | 'year'; // radius
-  xScaleType: Scale;
-  yScaleType: Scale;
+  xScaleTypes: Scale[];
+  yScaleTypes: Scale[];
   xLabel: string;
   yLabel: string;
 };
@@ -30,18 +30,22 @@ export const BubblePlot = ({
   xKey,
   yKey,
   rKey,
-  xScaleType,
-  yScaleType,
+  xScaleTypes,
+  yScaleTypes,
   xLabel,
   yLabel,
 }: BubblePlotProps): ReactElement => {
-  const { groupColor, xScale, yScale, rScale, xLogPossible, yLogPossible } = useBubblePlot({
+  const [currentScaleType, setCurrentScaleType] = useState({ x: xScaleTypes[0], y: yScaleTypes[0] });
+
+  useEffect(() => setCurrentScaleType({ x: xScaleTypes[0], y: yScaleTypes[0] }), [xScaleTypes, yScaleTypes]);
+
+  const { groupColor, xScale, yScale, rScale } = useBubblePlot({
     graph,
     xKey,
     yKey,
     rKey,
-    xScaleType,
-    yScaleType,
+    xScaleType: currentScaleType.x,
+    yScaleType: currentScaleType.y,
     width,
     height,
   });
@@ -56,29 +60,35 @@ export const BubblePlot = ({
 
   const renderAxisScaleOptions = (
     labelGroup: Selection<SVGGElement, unknown, HTMLElement, unknown>,
-    scaleType: Scale,
+    scaleTypes: Scale[],
+    selectedScaleType: Scale,
   ) => {
-    labelGroup
-      .append('circle')
-      .classed('scale-choice', true)
-      .classed('log', true)
-      .classed('selected', scaleType === 'log')
-      .attr('r', '6px')
-      .attr('cx', 200)
-      .attr('cy', -10);
+    if (scaleTypes.includes('log')) {
+      labelGroup
+        .append('circle')
+        .classed('scale-choice', true)
+        .classed('log', true)
+        .classed('selected', selectedScaleType === 'log')
+        .attr('r', '6px')
+        .attr('cx', 200)
+        .attr('cy', -10);
 
-    labelGroup.append('text').attr('x', 210).attr('y', -5).text('log').classed('log', true);
+      labelGroup.append('text').attr('x', 210).attr('y', -5).text('log').classed('log', true);
+    }
 
-    labelGroup
-      .append('circle')
-      .classed('scale-choice', true)
-      .classed('linear', true)
-      .classed('selected', scaleType === 'linear')
-      .attr('r', '6px')
-      .attr('cx', 250)
-      .attr('cy', -10);
+    // only need to show this if there are more than 1 scale options
+    if (scaleTypes.includes('linear') && scaleTypes.length > 1) {
+      labelGroup
+        .append('circle')
+        .classed('scale-choice', true)
+        .classed('linear', true)
+        .classed('selected', selectedScaleType === 'linear')
+        .attr('r', '6px')
+        .attr('cx', 250)
+        .attr('cy', -10);
 
-    labelGroup.append('text').attr('x', 260).attr('y', -5).text('linear');
+      labelGroup.append('text').attr('x', 260).attr('y', -5).text('linear');
+    }
   };
 
   const renderAxisLabels = (
@@ -88,17 +98,24 @@ export const BubblePlot = ({
     // x axis label
     xLabelElement.selectAll('*').remove();
     xLabelElement.append('text').text(xLabel).classed('axis-title', true);
-
-    if (xKey !== 'date') {
-      xLabelElement.call(renderAxisScaleOptions, xScaleType);
-    }
+    xLabelElement.call(renderAxisScaleOptions, xScaleTypes, currentScaleType.x);
 
     // y axis label
     yLabelElement.selectAll('*').remove();
-
     yLabelElement.append('text').text(yLabel).classed('axis-title', true);
+    yLabelElement.call(renderAxisScaleOptions, yScaleTypes, currentScaleType.y);
 
-    yLabelElement.call(renderAxisScaleOptions, yScaleType);
+    // listeners to scale changes
+    // these linsteners should be removed at element.selectAll('*').remove()
+    xLabelElement
+      .select('.scale-choice.linear')
+      .on('click', () => setCurrentScaleType({ ...currentScaleType, x: 'linear' }));
+    xLabelElement.select('.scale-choice.log').on('click', () => setCurrentScaleType({ ...currentScaleType, x: 'log' }));
+
+    yLabelElement
+      .select('.scale-choice.linear')
+      .on('click', () => setCurrentScaleType({ ...currentScaleType, y: 'linear' }));
+    yLabelElement.select('.scale-choice.log').on('click', () => setCurrentScaleType({ ...currentScaleType, y: 'log' }));
   };
 
   const renderFunction = useCallback(
@@ -147,8 +164,8 @@ export const BubblePlot = ({
       renderAxisLabels(xLabelElement, yLabelElement);
 
       // filter out 0 values if using log scale (not valid)
-      let filteredNodes = yScaleType === 'log' ? nodes.filter((n) => n[yKey] !== 0) : nodes;
-      filteredNodes = xScaleType === 'log' ? filteredNodes.filter((n) => n[xKey] !== 0) : filteredNodes;
+      let filteredNodes = currentScaleType.y === 'log' ? nodes.filter((n) => n[yKey] !== 0) : nodes;
+      filteredNodes = currentScaleType.x === 'log' ? filteredNodes.filter((n) => n[xKey] !== 0) : filteredNodes;
 
       // Render nodes
       g.selectAll<BaseType, IBubblePlotNodeData>('.paper-circle')
@@ -157,14 +174,14 @@ export const BubblePlot = ({
         .classed('paper-circle', true)
         .attr('r', (d) => `${rScale(d[rKey])}px`)
         .attr('cx', (d) => xScale(d[xKey]))
-        .attr('cy', (d) => (yScaleType === 'log' && d[yKey] === 0 ? 0 : yScale(d[yKey])))
+        .attr('cy', (d) => (currentScaleType.y === 'log' && d[yKey] === 0 ? 0 : yScale(d[yKey])))
         .attr('stroke', 'black')
         .style('opacity', 0.7)
         .style('fill', (d) => (groups && groups.includes(d.pub) ? groupColor(d.pub) : 'gray'));
 
       return svg;
     },
-    [nodes, xScale, yScale, rScale],
+    [nodes, xScale, yScale, rScale, currentScaleType],
   );
 
   const { ref } = useD3(renderFunction, [renderFunction]);

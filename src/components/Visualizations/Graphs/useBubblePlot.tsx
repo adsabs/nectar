@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { pluck } from 'ramda';
 import { useMemo } from 'react';
-import { BubblePlotProps } from './BubblePlot';
+import { BubblePlotProps, Scale } from './BubblePlot';
 
 export const useBubblePlot = ({
   width,
@@ -12,7 +12,12 @@ export const useBubblePlot = ({
   rKey,
   xScaleType,
   yScaleType,
-}: Omit<BubblePlotProps, 'xLabel' | 'yLabel'> & { width: number; height: number }) => {
+}: Omit<BubblePlotProps, 'xLabel' | 'yLabel' | 'xScaleTypes' | 'yScaleTypes'> & {
+  xScaleType: Scale;
+  yScaleType: Scale;
+  width: number;
+  height: number;
+}) => {
   const { data: nodes, groups = [] } = graph;
   const xExtent = d3.sum(pluck(xKey, nodes));
   const xLogPossible = !!xExtent;

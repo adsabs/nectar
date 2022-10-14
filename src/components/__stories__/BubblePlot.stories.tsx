@@ -20,8 +20,8 @@ Default.args = {
   xKey: 'date',
   yKey: 'read_count',
   rKey: 'citation_count',
-  xScaleType: 'linear',
-  yScaleType: 'log',
+  xScaleTypes: ['linear'],
+  yScaleTypes: ['log', 'linear'],
 };
 
 Time_Citation.args = {
@@ -29,8 +29,8 @@ Time_Citation.args = {
   xKey: 'date',
   yKey: 'citation_count',
   rKey: 'read_count',
-  xScaleType: 'linear',
-  yScaleType: 'log',
+  xScaleTypes: ['linear'],
+  yScaleTypes: ['log', 'linear'],
 };
 
 Read_Citation.args = {
@@ -38,6 +38,6 @@ Read_Citation.args = {
   xKey: 'citation_count',
   yKey: 'read_count',
   rKey: 'year',
-  xScaleType: 'log',
-  yScaleType: 'log',
+  xScaleTypes: ['log', 'linear'],
+  yScaleTypes: ['log', 'linear'],
 };

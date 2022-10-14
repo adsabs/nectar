@@ -7,8 +7,8 @@ const defaultReadCountConfig: BubblePlotConfig = {
   xKey: 'date',
   yKey: 'read_count',
   rKey: 'citation_count',
-  xScaleType: 'linear',
-  yScaleType: 'log',
+  xScaleTypes: ['linear'],
+  yScaleTypes: ['log', 'linear'],
   xLabel: 'Date',
   yLabel: '90 Day Read Count',
 };
@@ -17,8 +17,8 @@ const defaultCitationCountConfig: BubblePlotConfig = {
   xKey: 'date',
   yKey: 'citation_count',
   rKey: 'read_count',
-  xScaleType: 'linear',
-  yScaleType: 'log',
+  xScaleTypes: ['linear'],
+  yScaleTypes: ['log', 'linear'],
   xLabel: 'Date',
   yLabel: 'Citation Count',
 };
@@ -27,8 +27,8 @@ const defaultReadCitationConfig: BubblePlotConfig = {
   xKey: 'citation_count',
   yKey: 'read_count',
   rKey: 'year',
-  xScaleType: 'log',
-  yScaleType: 'log',
+  xScaleTypes: ['log', 'linear'],
+  yScaleTypes: ['log', 'linear'],
   yLabel: '90 Day Read Count',
   xLabel: 'Citation Count',
 };
