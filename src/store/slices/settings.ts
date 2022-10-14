@@ -53,9 +53,12 @@ export const defaultSettings: IAppStateSettingsSlice['settings'] = {
       ['keywords']: { hidden: false, expanded: false },
       ['publications']: { hidden: false, expanded: false },
       ['bibgroups']: { hidden: false, expanded: false },
-      ['simbad']: { hidden: false, expanded: false },
+
+      // by default `simbad` and `ned` are hidden, since they are re-shown by theme
+      ['simbad']: { hidden: true, expanded: false },
       ['ned']: { hidden: true, expanded: false },
-      ['data']: { hidden: true, expanded: false },
+
+      ['data']: { hidden: false, expanded: false },
       ['vizier']: { hidden: false, expanded: false },
       ['pubtype']: { hidden: false, expanded: false },
     },
