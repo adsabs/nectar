@@ -21,7 +21,7 @@ export type BubblePlotProps = BubblePlotConfig & {
   graph: IBubblePlot;
 };
 
-const margin = { top: 80, right: 80, bottom: 80, left: 80 };
+const margin = { top: 80, right: 200, bottom: 80, left: 80 };
 const width = 1000 - margin.left - margin.right;
 const height = 500 - margin.top - margin.bottom;
 
@@ -50,13 +50,20 @@ export const BubblePlot = ({
     height,
   });
 
-  const { data: nodes, groups = [] } = graph;
+  const { data, groups = [] } = graph;
+
+  const [selectedGroup, setSelectedGroup] = useState<string>(null);
 
   // For time axis, show year if more than 2 years, otherwise show month
   const timeRange = useMemo(() => {
-    const dateRange = d3.extent(nodes, (d) => d.date);
+    const dateRange = d3.extent(data, (d) => d.date);
     return dateRange[1].getFullYear() - dateRange[0].getFullYear() > 2 ? 'year' : 'month';
-  }, [nodes]);
+  }, [data]);
+
+  const nodes = useMemo(
+    () => (selectedGroup === null ? data : data.filter((n) => n.pub === selectedGroup)),
+    [data, selectedGroup],
+  );
 
   const renderAxisScaleOptions = (
     labelGroup: Selection<SVGGElement, unknown, HTMLElement, unknown>,
@@ -89,6 +96,53 @@ export const BubblePlot = ({
 
       labelGroup.append('text').attr('x', 260).attr('y', -5).text('linear');
     }
+  };
+
+  const renderGroupLegend = (g: Selection<SVGGElement, unknown, HTMLElement, unknown>) => {
+    g.selectAll('rect')
+      .data(groups)
+      .enter()
+      .append('rect')
+      .classed('group-legend', true)
+      .attr('width', 13)
+      .attr('height', 13)
+      .attr('y', function (d, i) {
+        return i * 22;
+      })
+      .attr('fill', function (d) {
+        if (d === 'other') {
+          return 'hsla(0, 0%, 20%, 1)';
+        }
+        return groupColor(d);
+      })
+      .on('click', (_e, group) => {
+        if (selectedGroup === group) {
+          setSelectedGroup(null);
+        } else {
+          setSelectedGroup(group);
+        }
+      });
+
+    g.selectAll('text')
+      .data(groups)
+      .enter()
+      .append('text')
+      .classed('group-legend', true)
+      .classed('selected', (d) => selectedGroup === d)
+      .attr('x', 15)
+      .attr('y', function (d, i) {
+        return i * 22 + 10;
+      })
+      .text(function (d) {
+        return d;
+      })
+      .on('click', (_e, group) => {
+        if (selectedGroup === group) {
+          setSelectedGroup(null);
+        } else {
+          setSelectedGroup(group);
+        }
+      });
   };
 
   const renderAxisLabels = (
@@ -178,6 +232,13 @@ export const BubblePlot = ({
         .attr('stroke', 'black')
         .style('opacity', 0.7)
         .style('fill', (d) => (groups && groups.includes(d.pub) ? groupColor(d.pub) : 'gray'));
+
+      // Render group legend
+      const legend = svg
+        .append('g')
+        .classed('legend-group-key', true)
+        .attr('transform', `translate(${width + margin.left + 100}, ${height / 2})`);
+      renderGroupLegend(legend);
 
       return svg;
     },

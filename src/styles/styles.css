@@ -185,3 +185,11 @@
 .bubble-plot-svg .scale-choice.selected {
   fill: gray;
 }
+
+.bubble-plot-svg .group-legend {
+  @apply cursor-pointer;
+}
+
+.bubble-plot-svg .group-legend.selected {
+  @apply font-bold;
+}

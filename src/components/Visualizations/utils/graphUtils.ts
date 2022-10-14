@@ -777,6 +777,9 @@ export const getResultsGraph = (docs: IDocsEntity[]): IBubblePlot => {
     journalNames.push('other');
   }
 
+  // update pub name to others
+  nodes.forEach((n) => (n.pub = journalNames.includes(n.pub) ? n.pub : 'other'));
+
   return { data: nodes, groups: journalNames };
 >>>>>>> 485859c3 (Results page and container)
 };
