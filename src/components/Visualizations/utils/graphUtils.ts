@@ -690,7 +690,6 @@ export const getPaperNetworkLinkDetails = (
   };
 };
 
-<<<<<<< HEAD
 /************ concept cloud helpers ************/
 
 // see https://github.com/adsabs/bumblebee/blob/826c1d8893b4ca236dba42a330c1f066f65f45cb/src/js/widgets/wordcloud/widget.js#L357
@@ -744,7 +743,8 @@ export const buildWCDict = (
     .clamp(true);
 
   return { wordList, fill };
-=======
+};
+
 /************ results graph helpers ************/
 
 export const getResultsGraph = (docs: IDocsEntity[]): IBubblePlot => {
@@ -781,5 +781,4 @@ export const getResultsGraph = (docs: IDocsEntity[]): IBubblePlot => {
   nodes.forEach((n) => (n.pub = journalNames.includes(n.pub) ? n.pub : 'other'));
 
   return { data: nodes, groups: journalNames };
->>>>>>> 485859c3 (Results page and container)
 };
