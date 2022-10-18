@@ -47,7 +47,10 @@ export const useBubblePlot = ({
       return d3.scaleTime().domain(extent).range([0, width]);
     } else {
       return xScaleType === 'log' && xLogPossible
-        ? d3.scaleLog().domain([1, extent[1]]).range([0, width]) // log scale cannot include 0
+        ? d3
+            .scaleLog()
+            .domain([extent[0] === 0 ? 1 : extent[0], extent[1]])
+            .range([0, width]) // log scale cannot include 0
         : d3.scaleLinear().domain(extent).range([0, width]);
     }
   }, [nodes, xKey, xScaleType, xLogPossible]);
@@ -56,7 +59,10 @@ export const useBubblePlot = ({
   const yScale = useMemo(() => {
     const extent = d3.extent(nodes, (d) => d[yKey]);
     return yScaleType === 'log' && yLogPossible
-      ? d3.scaleLog().domain([1, extent[1]]).range([height, 0]) // log scale cannot include 0
+      ? d3
+          .scaleLog()
+          .domain([extent[0] === 0 ? 1 : extent[0], extent[1]])
+          .range([height, 0]) // log scale cannot include 0
       : d3.scaleLinear().domain(extent).range([height, 0]);
   }, [nodes, yKey, yScaleType, yLogPossible]);
 
