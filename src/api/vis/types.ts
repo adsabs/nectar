@@ -1,13 +1,13 @@
-import { Bibcode } from '@api';
+import { Bibcode, IADSApiSearchParams } from '@api';
 export interface IADSApiVisParams {
   bibcodes?: Bibcode[];
   query?: string[];
 }
 
+type ParamValueType = IADSApiSearchParams[keyof IADSApiSearchParams];
+
 export interface IADSApiWordCloudParams {
-  q: string[];
-  sort: string[];
-  rows: number[];
+  [key: string]: ParamValueType[];
 }
 
 export interface IADSApiAuthorNetworkResponse {

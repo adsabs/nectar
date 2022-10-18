@@ -1,4 +1,5 @@
 import { IADSApiSearchParams } from '@api/search';
+import { mapObjIndexed } from 'ramda';
 import { IADSApiVisParams, IADSApiWordCloudParams } from './types';
 
 export const defaultResultsGraphParams: IADSApiSearchParams = {
@@ -9,21 +10,25 @@ export const defaultResultsGraphParams: IADSApiSearchParams = {
   rows: 1500,
 };
 
-export const getAuthorNetworkParams = ({ q, sort, rows }: IADSApiSearchParams): IADSApiVisParams => {
+type ParamValueType = IADSApiSearchParams[keyof IADSApiSearchParams];
+
+const toArray = (v: ParamValueType) => (Array.isArray(v) ? v : [v]);
+
+export const getAuthorNetworkParams = (query: IADSApiSearchParams): IADSApiVisParams => {
   // rows needs to be wrapped by array to work
-  const query = JSON.stringify({ q: q, sort: sort.join(','), rows: [rows] });
-  return { query: [query] };
+  const newQuery = mapObjIndexed(toArray, query);
+  return { query: [JSON.stringify(newQuery)] };
 };
 
-export const getPaperNetworkParams = ({ q, sort, rows }: IADSApiSearchParams): IADSApiVisParams => {
+export const getPaperNetworkParams = (query: IADSApiSearchParams): IADSApiVisParams => {
   // rows needs to be wrapped by array to work
-  const query = JSON.stringify({ q: q, sort: sort.join(','), rows: [rows] });
-  return { query: [query] };
+  const newQuery = mapObjIndexed(toArray, query);
+  return { query: [JSON.stringify(newQuery)] };
 };
 
-export const getWordCloudParams = ({ q, sort, rows }: IADSApiSearchParams): IADSApiWordCloudParams => {
+export const getWordCloudParams = (query: IADSApiSearchParams): IADSApiWordCloudParams => {
   // values are wrapped in array according to API doc
-  return { q: [q], sort: [sort.join(',')], rows: [rows] };
+  return mapObjIndexed(toArray, query);
 };
 
 export const getResultsGraphParams = (params: IADSApiSearchParams): IADSApiSearchParams => ({

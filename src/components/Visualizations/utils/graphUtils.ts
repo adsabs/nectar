@@ -751,9 +751,7 @@ export const getResultsGraph = (docs: IDocsEntity[]): IBubblePlot => {
   const nodes = docs.map((d) => {
     const node: IBubblePlotNodeData = {
       bibcode: d.bibcode,
-      pubdate: d.pubdate.replace(/(\D)00/g, function (p1, p2) {
-        return p2 + '01';
-      }), // turn 00s into 01s (ok maybe this is not the ideal solution)
+      pubdate: d.pubdate.replace(/(\D)00/g, (_m, p1) => `${p1 as string}01`), // turn 00s into 01s (ok maybe this is not the ideal solution)
       date: new Date(),
       title: d.title ? d.title[0] : '',
       read_count: d.read_count ?? 0,
