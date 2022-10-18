@@ -174,7 +174,9 @@ export const BubblePlot = ({
 
   const renderFunction = useCallback(
     (svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>) => {
+      // remove everything
       svg.selectAll('*').remove();
+      d3.selectAll('.bubble-plot-tooltip').remove();
 
       // attaching axes
       const xAxis =
@@ -221,6 +223,9 @@ export const BubblePlot = ({
       let filteredNodes = currentScaleType.y === 'log' ? nodes.filter((n) => n[yKey] !== 0) : nodes;
       filteredNodes = currentScaleType.x === 'log' ? filteredNodes.filter((n) => n[xKey] !== 0) : filteredNodes;
 
+      // tooltip, only shown when mouse over node
+      const tooltip = d3.select('body').append('div').classed('bubble-plot-tooltip', true).style('display', 'none');
+
       // Render nodes
       g.selectAll<BaseType, IBubblePlotNodeData>('.paper-circle')
         .data(filteredNodes)
@@ -231,7 +236,22 @@ export const BubblePlot = ({
         .attr('cy', (d) => (currentScaleType.y === 'log' && d[yKey] === 0 ? 0 : yScale(d[yKey])))
         .attr('stroke', 'black')
         .style('opacity', 0.7)
-        .style('fill', (d) => (groups && groups.includes(d.pub) ? groupColor(d.pub) : 'gray'));
+        .style('fill', (d) => (groups && groups.includes(d.pub) ? groupColor(d.pub) : 'gray'))
+        .on('mouseover', (e, d) => {
+          const event = e as MouseEvent;
+          tooltip.transition().duration(200);
+          tooltip
+            .html(
+              `<h5>${d.title}</h5>
+            (${d.bibcode})</br>
+            Citations: <b>${d.citation_count}</b>,
+            Reads: <b>${d.read_count}</b><br/>`,
+            )
+            .style('display', 'block')
+            .style('left', `${event.x + 20}px`)
+            .style('top', `${event.y + 20}px`);
+        })
+        .on('mouseleave', (e, d) => tooltip.style('display', 'none'));
 
       // Render group legend
       const legend = svg
