@@ -19,10 +19,6 @@ export const useBubblePlot = ({
   height: number;
 }) => {
   const { data: nodes, groups = [] } = graph;
-  const xExtent = d3.sum(pluck(xKey, nodes));
-  const xLogPossible = !!xExtent;
-  const yExtent = d3.sum(pluck(yKey, nodes));
-  const yLogPossible = !!yExtent;
 
   const groupColor = useMemo(
     () =>
@@ -46,25 +42,25 @@ export const useBubblePlot = ({
     if (xKey === 'date') {
       return d3.scaleTime().domain(extent).range([0, width]);
     } else {
-      return xScaleType === 'log' && xLogPossible
+      return xScaleType === 'log'
         ? d3
             .scaleLog()
             .domain([extent[0] === 0 ? 1 : extent[0], extent[1]])
             .range([0, width]) // log scale cannot include 0
         : d3.scaleLinear().domain(extent).range([0, width]);
     }
-  }, [nodes, xKey, xScaleType, xLogPossible]);
+  }, [nodes, xKey, xScaleType]);
 
   // get d3 yScale function based log or linear scale
   const yScale = useMemo(() => {
     const extent = d3.extent(nodes, (d) => d[yKey]);
-    return yScaleType === 'log' && yLogPossible
+    return yScaleType === 'log'
       ? d3
           .scaleLog()
           .domain([extent[0] === 0 ? 1 : extent[0], extent[1]])
           .range([height, 0]) // log scale cannot include 0
       : d3.scaleLinear().domain(extent).range([height, 0]);
-  }, [nodes, yKey, yScaleType, yLogPossible]);
+  }, [nodes, yKey, yScaleType]);
 
   // scale for bubble size
   const rScale = useMemo(() => {
@@ -74,5 +70,5 @@ export const useBubblePlot = ({
       : d3.scaleLinear().domain(extent).range([4, 26]);
   }, [nodes, rKey]);
 
-  return { groupColor, xScale, yScale, rScale, xLogPossible, yLogPossible };
+  return { groupColor, xScale, yScale, rScale };
 };

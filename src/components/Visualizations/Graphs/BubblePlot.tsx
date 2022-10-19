@@ -65,6 +65,59 @@ export const BubblePlot = ({
     [data, selectedGroup],
   );
 
+  // When changing graph or axis scale
+  useEffect(() => {
+    transitionXAxis();
+    renderXAxisLabel(d3.select('.x-label'));
+    transitionYAxis();
+    renderYAxisLabel(d3.select('.y-label'));
+  }, [xScale, yScale]);
+
+  useEffect(() => {
+    transitionNodes();
+  }, [nodes, xScale, yScale, rScale]);
+
+  /********** transitions **********/
+
+  const transitionXAxis = useCallback(() => {
+    const xAxis =
+      xKey !== 'date'
+        ? d3.axisBottom(xScale)
+        : timeRange === 'year'
+        ? d3
+            .axisBottom(xScale)
+            .ticks(10)
+            .tickFormat((domain) => d3.timeFormat('%Y')(domain as Date))
+        : d3
+            .axisBottom(xScale)
+            .ticks(10)
+            .tickFormat((domain) => d3.timeFormat('%b-%Y')(domain as Date));
+
+    d3.select<SVGGElement, unknown>('.x-axis').transition().duration(200).call(xAxis);
+  }, [xKey, xScale, timeRange]);
+
+  const transitionYAxis = useCallback(() => {
+    const yAxis = d3.axisLeft(yScale);
+    d3.select<SVGGElement, unknown>('.y-axis').transition().duration(200).call(yAxis);
+  }, [yScale]);
+
+  const transitionNodes = useCallback(() => {
+    d3.selectAll<BaseType, IBubblePlotNodeData>('.paper-circle')
+      .data(nodes, (n) => n.bibcode)
+      .transition()
+      .duration(200)
+      .attr('r', (d) => `${rScale(d[rKey])}px`)
+      .attr('cx', (d) => (currentScaleType.x === 'log' && d[xKey] === 0 ? 0 : xScale(d[xKey])))
+      .attr('cy', (d) => (currentScaleType.y === 'log' && d[yKey] === 0 ? 0 : yScale(d[yKey])))
+      .style('display', (d) =>
+        (currentScaleType.x === 'log' && d[xKey] === 0) || (currentScaleType.y === 'log' && d[yKey] === 0) // hide invalid nodes (log(0))
+          ? 'none'
+          : 'block',
+      );
+  }, [nodes, rScale, xScale, yScale]);
+
+  /********** renderings **********/
+
   const renderAxisScaleOptions = (
     labelGroup: Selection<SVGGElement, unknown, HTMLElement, unknown>,
     scaleTypes: Scale[],
@@ -145,32 +198,43 @@ export const BubblePlot = ({
       });
   };
 
-  const renderAxisLabels = (
-    xLabelElement: Selection<SVGGElement, unknown, HTMLElement, unknown>,
-    yLabelElement: Selection<SVGGElement, unknown, HTMLElement, unknown>,
-  ) => {
-    // x axis label
-    xLabelElement.selectAll('*').remove();
-    xLabelElement.append('text').text(xLabel).classed('axis-title', true);
-    xLabelElement.call(renderAxisScaleOptions, xScaleTypes, currentScaleType.x);
+  const renderXAxisLabel = useCallback(
+    (xLabelElement: Selection<SVGGElement, unknown, HTMLElement, unknown>) => {
+      // x axis label
+      xLabelElement.selectAll('*').remove();
+      xLabelElement.append('text').text(xLabel).classed('axis-title', true);
+      xLabelElement.call(renderAxisScaleOptions, xScaleTypes, currentScaleType.x);
 
-    // y axis label
-    yLabelElement.selectAll('*').remove();
-    yLabelElement.append('text').text(yLabel).classed('axis-title', true);
-    yLabelElement.call(renderAxisScaleOptions, yScaleTypes, currentScaleType.y);
+      // listeners to scale changes
+      // these linsteners should be removed at element.selectAll('*').remove()
+      xLabelElement
+        .select('.scale-choice.linear')
+        .on('click', () => setCurrentScaleType({ y: currentScaleType.y, x: 'linear' }));
+      xLabelElement
+        .select('.scale-choice.log')
+        .on('click', () => setCurrentScaleType({ y: currentScaleType.y, x: 'log' }));
+    },
+    [renderAxisScaleOptions, xLabel, xScaleTypes, currentScaleType.x],
+  );
 
-    // listeners to scale changes
-    // these linsteners should be removed at element.selectAll('*').remove()
-    xLabelElement
-      .select('.scale-choice.linear')
-      .on('click', () => setCurrentScaleType({ ...currentScaleType, x: 'linear' }));
-    xLabelElement.select('.scale-choice.log').on('click', () => setCurrentScaleType({ ...currentScaleType, x: 'log' }));
+  const renderYAxisLabel = useCallback(
+    (yLabelElement: Selection<SVGGElement, unknown, HTMLElement, unknown>) => {
+      // y axis label
+      yLabelElement.selectAll('*').remove();
+      yLabelElement.append('text').text(yLabel).classed('axis-title', true);
+      yLabelElement.call(renderAxisScaleOptions, yScaleTypes, currentScaleType.y);
 
-    yLabelElement
-      .select('.scale-choice.linear')
-      .on('click', () => setCurrentScaleType({ ...currentScaleType, y: 'linear' }));
-    yLabelElement.select('.scale-choice.log').on('click', () => setCurrentScaleType({ ...currentScaleType, y: 'log' }));
-  };
+      // listeners to scale changes
+      // these linsteners should be removed at element.selectAll('*').remove()
+      yLabelElement
+        .select('.scale-choice.linear')
+        .on('click', () => setCurrentScaleType({ x: currentScaleType.x, y: 'linear' }));
+      yLabelElement
+        .select('.scale-choice.log')
+        .on('click', () => setCurrentScaleType({ x: currentScaleType.x, y: 'log' }));
+    },
+    [renderAxisScaleOptions, yLabel, yScaleTypes, currentScaleType.y],
+  );
 
   const renderFunction = useCallback(
     (svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>) => {
@@ -217,35 +281,37 @@ export const BubblePlot = ({
         .attr('transform', `translate(${width / 2},${height + margin.top + margin.bottom / 2})`)
         .classed('x-label', true);
 
-      renderAxisLabels(xLabelElement, yLabelElement);
-
-      // filter out 0 values if using log scale (not valid)
-      let filteredNodes = currentScaleType.y === 'log' ? nodes.filter((n) => n[yKey] !== 0) : nodes;
-      filteredNodes = currentScaleType.x === 'log' ? filteredNodes.filter((n) => n[xKey] !== 0) : filteredNodes;
+      renderXAxisLabel(xLabelElement);
+      renderYAxisLabel(yLabelElement);
 
       // tooltip, only shown when mouse over node
       const tooltip = d3.select('body').append('div').classed('bubble-plot-tooltip', true).style('display', 'none');
 
       // Render nodes
       g.selectAll<BaseType, IBubblePlotNodeData>('.paper-circle')
-        .data(filteredNodes)
+        .data(nodes, (n) => n.bibcode)
         .join('circle')
         .classed('paper-circle', true)
         .attr('r', (d) => `${rScale(d[rKey])}px`)
-        .attr('cx', (d) => xScale(d[xKey]))
+        .attr('cx', (d) => (currentScaleType.x === 'log' && d[xKey] === 0 ? 0 : xScale(d[xKey])))
         .attr('cy', (d) => (currentScaleType.y === 'log' && d[yKey] === 0 ? 0 : yScale(d[yKey])))
         .attr('stroke', 'black')
         .style('opacity', 0.7)
         .style('fill', (d) => (groups && groups.includes(d.pub) ? groupColor(d.pub) : 'gray'))
+        .style('display', (d) =>
+          (currentScaleType.x === 'log' && d[xKey] === 0) || (currentScaleType.y === 'log' && d[yKey] === 0) // hide invalid nodes (log(0))
+            ? 'none'
+            : 'block',
+        )
         .on('mouseover', (e, d) => {
           const event = e as MouseEvent;
           tooltip.transition().duration(200);
           tooltip
             .html(
               `<h5>${d.title}</h5>
-            (${d.bibcode})</br>
-            Citations: <b>${d.citation_count}</b>,
-            Reads: <b>${d.read_count}</b><br/>`,
+          (${d.bibcode})</br>
+          Citations: <b>${d.citation_count}</b>,
+          Reads: <b>${d.read_count}</b><br/>`,
             )
             .style('display', 'block')
             .style('left', `${event.x + 20}px`)
@@ -262,7 +328,7 @@ export const BubblePlot = ({
 
       return svg;
     },
-    [nodes, xScale, yScale, rScale, currentScaleType],
+    [graph],
   );
 
   const { ref } = useD3(renderFunction, [renderFunction]);
