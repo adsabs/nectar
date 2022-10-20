@@ -1,10 +1,10 @@
-import { IADSApiSearchParams, useGetResultsGraph } from '@api';
+import { IADSApiSearchParams, IDocsEntity, useGetResultsGraph } from '@api';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import { Box, Flex, List, ListIcon, ListItem, Text } from '@chakra-ui/react';
 import { CustomInfoMessage, DataDownloader, LoadingMessage, StandardAlertMessage } from '@components';
 import { Expandable } from '@components/Expandable';
 import axios from 'axios';
-import { ReactElement, useMemo } from 'react';
+import { ReactElement, useCallback, useMemo } from 'react';
 import { BubblePlotPane } from '../GraphPanes';
 import { getResultsGraph } from '../utils';
 
@@ -25,10 +25,20 @@ export const ResultsGraphPageContainer = ({ query }: IResultsGraphPageContainerP
     }
   }, [data]);
 
-  // TODO
-  const getCSVDataContent = () => {
-    return 'test';
-  };
+  const getCSVDataContent = useCallback(() => {
+    type ResultDoc = Pick<IDocsEntity, 'bibcode' | 'pubdate' | 'title' | 'read_count' | 'citation_count'>;
+    const keys: (keyof ResultDoc)[] = ['bibcode', 'pubdate', 'title', 'read_count', 'citation_count'];
+    const docs = data.response.docs as ResultDoc[];
+    let output = keys.join(',') + '\n';
+    docs.forEach((doc) => {
+      keys.forEach((key) => {
+        output += key === 'title' ? `"${doc[key][0].replace(/"/g, "'")}",` : `"${doc[key]}",`;
+      });
+      output = output.slice(0, -1) + '\n';
+    });
+
+    return output;
+  }, [data?.response?.docs]);
 
   return (
     <Box as="section" aria-label="Results Graph" my={10}>
@@ -40,10 +50,10 @@ export const ResultsGraphPageContainer = ({ query }: IResultsGraphPageContainerP
         />
       )}
       {isLoading && <LoadingMessage message="Fetching results graph data" />}
-      {!isLoading && !isError && !graphData && (
+      {!isLoading && isSuccess && !graphData && (
         <CustomInfoMessage status="info" title="Could not generate" description="Could not generate results graph" />
       )}
-      {!isLoading && !isError && graphData && (
+      {!isLoading && isSuccess && graphData && (
         <Flex direction="column" gap={2}>
           <Expandable
             title="About Results Graph"
@@ -87,7 +97,7 @@ export const ResultsGraphPageContainer = ({ query }: IResultsGraphPageContainerP
             <DataDownloader
               label="Download CSV Data"
               getFileContent={() => getCSVDataContent()}
-              fileName="author-network.csv"
+              fileName="results-graph.csv"
               showLabel={true}
             />
           )}
