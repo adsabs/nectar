@@ -1,4 +1,4 @@
-import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import { MouseEvent, ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { useD3 } from './useD3';
 import * as d3 from 'd3';
 import { BaseType, Selection } from 'd3';
@@ -285,10 +285,17 @@ export const BubblePlot = ({
       renderYAxisLabel(yLabelElement);
 
       // tooltip, only shown when mouse over node
-      const tooltip = d3.select('body').append('div').classed('bubble-plot-tooltip', true).style('display', 'none');
+      const tooltip = d3
+        .select('body')
+        .append('div')
+        .classed('bubble-plot-tooltip', true)
+        .style('position', 'absolute')
+        .style('display', 'none');
 
       // Render nodes
-      g.selectAll<BaseType, IBubblePlotNodeData>('.paper-circle')
+      const papers = g
+        .append('g')
+        .selectAll<BaseType, IBubblePlotNodeData>('.paper-circle')
         .data(nodes, (n) => n.bibcode)
         .join('circle')
         .classed('paper-circle', true)
@@ -302,22 +309,43 @@ export const BubblePlot = ({
           (currentScaleType.x === 'log' && d[xKey] === 0) || (currentScaleType.y === 'log' && d[yKey] === 0) // hide invalid nodes (log(0))
             ? 'none'
             : 'block',
-        )
-        .on('mouseover', (e, d) => {
-          const event = e as MouseEvent;
-          tooltip.transition().duration(200);
-          tooltip
-            .html(
-              `<h5>${d.title}</h5>
+        );
+
+      // tooltip event
+      papers.on('mouseover', (event, node) => {
+        const e = event as MouseEvent;
+        if ((e.target as SVGAElement).classList.contains('paper-circle')) {
+          //  find top 3 nodes with the same position
+          const allData = d3
+            .selectAll<BaseType, IBubblePlotNodeData>('.paper-circle')
+            .filter(
+              (d) =>
+                (xKey === 'date' ? d[xKey].getTime() === node[xKey].getTime() : d[xKey] === node[xKey]) &&
+                d[yKey] === node[yKey],
+            )
+            .sort((a, b) => b[rKey] - a[rKey])
+            .data()
+            .slice(0, 3);
+
+          let html = '';
+          allData.forEach((d) => {
+            html += `<h5>${d.title}</h5>
           (${d.bibcode})</br>
           Citations: <b>${d.citation_count}</b>,
-          Reads: <b>${d.read_count}</b><br/>`,
-            )
+          Reads: <b>${d.read_count}</b><br/><br/>`;
+          });
+
+          tooltip
+            .html(html)
             .style('display', 'block')
-            .style('left', `${event.x + 20}px`)
-            .style('top', `${event.y + 20}px`);
-        })
-        .on('mouseleave', (e, d) => tooltip.style('display', 'none'));
+            .style('left', `${e.pageX + 20}px`)
+            .style('top', `${e.pageY - 20}px`);
+        }
+      });
+
+      papers.on('mouseleave.tooltip', () => {
+        tooltip.style('display', 'none');
+      });
 
       // Render group legend
       const legend = svg
