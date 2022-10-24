@@ -7,7 +7,7 @@ import { IBootstrapPayload } from './accounts';
 import { defaultRequestConfig } from './config';
 import { ApiTargets } from './models';
 
-const isUserData = (userData?: IUserData): userData is IUserData => {
+export const isUserData = (userData?: IUserData): userData is IUserData => {
   return (
     !isNil(userData) &&
     typeof userData.access_token === 'string' &&
@@ -16,6 +16,9 @@ const isUserData = (userData?: IUserData): userData is IUserData => {
     userData.expire_in.length > 0
   );
 };
+
+export const isAuthenticated = (user: IUserData) =>
+  isUserData(user) && (!user.anonymous || user.username !== 'anonymous@ads');
 
 const checkUserData = (userData?: IUserData): boolean => {
   return isUserData(userData) && !isPast(parseISO(userData.expire_in));
@@ -157,6 +160,7 @@ class Api {
         interval: process.env.NODE_ENV === 'test' ? 0 : undefined,
       },
     );
+
     return pick(['access_token', 'username', 'expire_in', 'anonymous'], data) as IUserData;
   }
 

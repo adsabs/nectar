@@ -16,8 +16,24 @@ export interface IRegisterParams {
   'g-recaptcha-response': string;
 }
 
+export interface IBasicAccountsResponse {
+  message: string;
+}
+
+export interface IBasicAccountsErrorResponse {
+  error: string;
+}
+
 export interface IRegisterResponse {
   message: string;
+}
+
+export interface ILoginResponse {
+  message: string;
+}
+
+export interface ILoginErrorResponse {
+  error: string;
 }
 
 export interface IRegisterErrorResponse {

@@ -42,3 +42,10 @@ export const defaultRequestConfig: AxiosRequestConfig = {
     },
   },
 };
+
+export const getDynamicConfig = () => {
+  return {
+    ...defaultRequestConfig,
+    baseURL: resolveApiBaseUrl(),
+  };
+};
