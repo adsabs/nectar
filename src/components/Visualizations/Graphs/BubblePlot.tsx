@@ -1,4 +1,4 @@
-import { MouseEvent, ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { useD3 } from './useD3';
 import * as d3 from 'd3';
 import { BaseType, Selection } from 'd3';
@@ -50,20 +50,15 @@ export const BubblePlot = ({
     height,
   });
 
-  const { data, groups = [] } = graph;
+  const { data: nodes, groups = [] } = graph;
 
   const [selectedGroup, setSelectedGroup] = useState<string>(null);
 
   // For time axis, show year if more than 2 years, otherwise show month
   const timeRange = useMemo(() => {
-    const dateRange = d3.extent(data, (d) => d.date);
+    const dateRange = d3.extent(nodes, (d) => d.date);
     return dateRange[1].getFullYear() - dateRange[0].getFullYear() > 2 ? 'year' : 'month';
-  }, [data]);
-
-  const nodes = useMemo(
-    () => (selectedGroup === null ? data : data.filter((n) => n.pub === selectedGroup)),
-    [data, selectedGroup],
-  );
+  }, [nodes]);
 
   // When changing graph or axis scale
   useEffect(() => {
@@ -76,6 +71,10 @@ export const BubblePlot = ({
   useEffect(() => {
     transitionNodes();
   }, [nodes, xScale, yScale, rScale]);
+
+  useEffect(() => {
+    transitionToGroup();
+  }, [selectedGroup]);
 
   /********** transitions **********/
 
@@ -104,17 +103,36 @@ export const BubblePlot = ({
   const transitionNodes = useCallback(() => {
     d3.selectAll<BaseType, IBubblePlotNodeData>('.paper-circle')
       .data(nodes, (n) => n.bibcode)
+      .join('circle')
       .transition()
       .duration(200)
       .attr('r', (d) => `${rScale(d[rKey])}px`)
       .attr('cx', (d) => (currentScaleType.x === 'log' && d[xKey] === 0 ? 0 : xScale(d[xKey])))
       .attr('cy', (d) => (currentScaleType.y === 'log' && d[yKey] === 0 ? 0 : yScale(d[yKey])))
       .style('display', (d) =>
-        (currentScaleType.x === 'log' && d[xKey] === 0) || (currentScaleType.y === 'log' && d[yKey] === 0) // hide invalid nodes (log(0))
+        (currentScaleType.x === 'log' && d[xKey] === 0) ||
+        (currentScaleType.y === 'log' && d[yKey] === 0) ||
+        (selectedGroup !== null && selectedGroup !== d.pub) // hide invalid nodes (log(0))
           ? 'none'
           : 'block',
       );
   }, [nodes, rScale, xScale, yScale]);
+
+  const transitionToGroup = useCallback(() => {
+    // show nodes only belonging to the selected group
+    d3.selectAll<BaseType, IBubblePlotNodeData>('.paper-circle').style('display', (d) =>
+      (currentScaleType.x === 'log' && d[xKey] === 0) ||
+      (currentScaleType.y === 'log' && d[yKey] === 0) ||
+      (selectedGroup !== null && selectedGroup !== d.pub) // hide invalid nodes (log(0))
+        ? 'none'
+        : 'block',
+    );
+
+    // highlight selected group legend
+    d3.select('.legend-group-key')
+      .selectAll('.group-legend')
+      .classed('selected', (d) => selectedGroup === d);
+  }, [currentScaleType, xKey, yKey, selectedGroup]);
 
   /********** renderings **********/
 
@@ -156,7 +174,6 @@ export const BubblePlot = ({
       .data(groups)
       .enter()
       .append('rect')
-      .classed('group-legend', true)
       .attr('width', 13)
       .attr('height', 13)
       .attr('y', function (d, i) {
@@ -167,13 +184,6 @@ export const BubblePlot = ({
           return 'hsla(0, 0%, 20%, 1)';
         }
         return groupColor(d);
-      })
-      .on('click', (_e, group) => {
-        if (selectedGroup === group) {
-          setSelectedGroup(null);
-        } else {
-          setSelectedGroup(group);
-        }
       });
 
     g.selectAll('text')
@@ -183,14 +193,10 @@ export const BubblePlot = ({
       .classed('group-legend', true)
       .classed('selected', (d) => selectedGroup === d)
       .attr('x', 15)
-      .attr('y', function (d, i) {
-        return i * 22 + 10;
-      })
-      .text(function (d) {
-        return d;
-      })
-      .on('click', (_e, group) => {
-        if (selectedGroup === group) {
+      .attr('y', (_d, i) => i * 22 + 10)
+      .text((d) => d)
+      .on('click', function (_e, group) {
+        if (this.classList.contains('selected')) {
           setSelectedGroup(null);
         } else {
           setSelectedGroup(group);
@@ -343,7 +349,7 @@ export const BubblePlot = ({
         }
       });
 
-      papers.on('mouseleave.tooltip', () => {
+      papers.on('mouseleave', () => {
         tooltip.style('display', 'none');
       });
 
