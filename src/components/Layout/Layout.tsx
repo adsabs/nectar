@@ -1,4 +1,5 @@
 import { Container, Flex } from '@chakra-ui/layout';
+import { SkipNavLink } from '@chakra-ui/skip-nav';
 import { LandingTabs } from '@components';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -14,6 +15,7 @@ export const Layout: FC = ({ children }) => {
       <Head>
         <title>NASA Science Explorer</title>
       </Head>
+      <SkipNavLink id="main-content">Skip to content</SkipNavLink>
       <NavBar />
       <main>
         {isLandingPages && <LandingTabs />}

@@ -34,9 +34,6 @@ export const NavBar: FC = () => {
           </NextLink>
           <ThemeDropdown />
         </HStack>
-        <Link href="#main-content" color="gray.50" className="focus:not-sr-only sr-only">
-          Skip to content
-        </Link>
         <NavMenus />
       </Flex>
     </Box>
