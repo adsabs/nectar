@@ -1,3 +1,5 @@
+import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
 import express, { Request, Response } from 'express';
 import next from 'next';
 import { api, logger, session } from './middlewares';
@@ -14,6 +16,8 @@ const port = process.env.PORT || 8000;
 
     server.use(express.urlencoded({ extended: true }));
     server.set('trust proxy', 1);
+    server.use(cookieParser());
+    server.use(bodyParser.json());
 
     // apply middlewares
     server.use(logger);
