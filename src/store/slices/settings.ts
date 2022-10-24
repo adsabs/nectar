@@ -11,7 +11,10 @@ export interface IAppStateSettingsSlice {
       open: boolean;
       ignored: SearchFacetID[];
     };
+    user: Record<string, unknown>;
   };
+
+  // search facets
   getSearchFacetState: (id: SearchFacetID) => SearchFacetState;
   setSearchFacetState: (id: SearchFacetID, state: Partial<SearchFacetState>) => void;
   setSearchFacetOrder: (order: SearchFacetID[]) => void;
@@ -22,6 +25,10 @@ export interface IAppStateSettingsSlice {
   updateSearchFacetsByTheme: () => void;
   getHiddenSearchFacets: () => SearchFacetID[];
   setIgnoredSearchFacets: (ignored: SearchFacetID[]) => void;
+
+  // user settings
+  setUserSettings: (userSettings: Record<string, unknown>) => void;
+  resetUserSettings: () => void;
 }
 
 type SearchFacetState = {
@@ -65,6 +72,7 @@ export const defaultSettings: IAppStateSettingsSlice['settings'] = {
     open: true,
     ignored: [],
   },
+  user: {},
 };
 
 export const settingsSlice: StoreSlice<IAppStateSettingsSlice> = (set, get) => ({
@@ -190,13 +198,21 @@ export const settingsSlice: StoreSlice<IAppStateSettingsSlice> = (set, get) => (
     )(state.settings.searchFacets.state);
   },
   setIgnoredSearchFacets: (ignored) =>
-    set((state) => ({
-      settings: {
-        ...state.settings,
-        searchFacets: {
-          ...state.settings.searchFacets,
-          ignored,
+    set(
+      (state) => ({
+        settings: {
+          ...state.settings,
+          searchFacets: {
+            ...state.settings.searchFacets,
+            ignored,
+          },
         },
-      },
-    })),
+      }),
+      false,
+      'settings/setIgnoredSearchFacets',
+    ),
+  setUserSettings: (user) =>
+    set((state) => ({ settings: { ...state.settings, user } }), false, 'settings/setUserSettings'),
+  resetUserSettings: () =>
+    set((state) => ({ settings: { ...state.settings, user: null } }), false, 'settings/resetUser'),
 });
