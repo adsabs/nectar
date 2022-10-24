@@ -33,6 +33,7 @@ export interface AppError {
 
 export interface SessionData {
   userData: IUserData;
+  isAuthenticated: boolean;
 }
 
 declare module 'http' {
