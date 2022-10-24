@@ -1,13 +1,14 @@
-import { ListType } from './types';
+import { useSession } from '@hooks/useSession';
 import { isBrowser } from '@utils';
-import { ReactElement, MouseEvent } from 'react';
 import { useRouter } from 'next/router';
+import { MouseEvent, ReactElement } from 'react';
 import { MenuDropdown } from './MenuDropdown';
+import { ListType } from './types';
 
 export const items = [
   {
     id: 'login',
-    path: '/login',
+    path: '/user/account/login',
     label: 'Login',
   },
   {
@@ -17,6 +18,12 @@ export const items = [
   },
 ];
 
+const loggedInItems = [
+  { id: 'libraries', path: '/user/libraries', label: 'ADS Libraries' },
+  { id: 'settings', path: '/user/settings', label: 'Settings' },
+  { id: 'logout', path: null, label: 'Logout' },
+];
+
 interface IAccountDropdown {
   type: ListType;
   onFinished?: () => void;
@@ -24,18 +31,26 @@ interface IAccountDropdown {
 
 export const AccountDropdown = (props: IAccountDropdown): ReactElement => {
   const { type, onFinished } = props;
+  const { isAuthenticated, logout } = useSession();
 
   const router = useRouter();
+  const itemsToShow = isAuthenticated ? loggedInItems : items;
 
   const handleSelect = (e: MouseEvent<HTMLElement>) => {
     const id = (e.target as HTMLElement).dataset['id'];
     if (isBrowser()) {
-      void router.push(items.find((item) => id === item.id).path);
-      if (onFinished) {
+      if (id === 'logout') {
+        void logout();
+      } else {
+        const item = itemsToShow.find((item) => id === item.id);
+        void router.push(item ? item.path : '/');
+      }
+
+      if (typeof onFinished === 'function') {
         onFinished();
       }
     }
   };
 
-  return <MenuDropdown id="account" type={type} label="Account" items={items} onSelect={handleSelect} />;
+  return <MenuDropdown id="account" type={type} label="Account" items={itemsToShow} onSelect={handleSelect} />;
 };
