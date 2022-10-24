@@ -1,15 +1,18 @@
-import { FC, ReactElement } from 'react';
-import NextLink from 'next/link';
 import { Link as ChakraLink } from '@chakra-ui/layout';
+import { LinkProps } from '@chakra-ui/react';
+import NextLink from 'next/link';
+import { FC, ReactElement } from 'react';
 
-export const SimpleLink: FC<{ href: string; icon?: ReactElement; newTab?: boolean; variant?: string }> = ({
-  children,
-  href,
-  icon,
-  newTab,
-  variant = 'default',
-}): ReactElement => {
-  const isExternal = newTab || /^http(s)/.test(href);
+export interface ISimpleLinkProps extends LinkProps {
+  href: string;
+  icon?: ReactElement;
+  newTab?: boolean;
+  variant?: string;
+}
+
+export const SimpleLink: FC<ISimpleLinkProps> = (props): ReactElement => {
+  const { children, href, icon, newTab, variant = 'default', ...linkProps } = props;
+  const isExternal = newTab || /^https?/.test(href);
 
   return (
     <NextLink href={href} passHref>
@@ -18,6 +21,7 @@ export const SimpleLink: FC<{ href: string; icon?: ReactElement; newTab?: boolea
         display="block"
         isExternal={isExternal}
         rel={isExternal ? 'noopener noreferrer' : undefined}
+        {...linkProps}
       >
         {icon && <>{icon}</>}
         {children}
