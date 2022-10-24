@@ -7,4 +7,5 @@ export const mockSession: IncomingMessage['session'] = {
     expire_in: '9999-01-01T00:00:00',
     username: 'anonymous',
   },
+  isAuthenticated: false,
 };
