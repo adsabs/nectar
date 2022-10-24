@@ -23,9 +23,6 @@ export const useSession = () => {
       storeApi.getState().resetUser();
       storeApi.getState().resetUserSettings();
 
-      // since we logged in successfully, set the user info into state
-      storeApi.getState().loginUser(creds.email);
-
       if (process.env.NODE_ENV !== 'production') {
         const userData = await authenticateUser(creds);
         if (isPlainObj(userData) && isUserData(userData)) {
