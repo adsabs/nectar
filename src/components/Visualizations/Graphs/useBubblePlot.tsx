@@ -1,5 +1,4 @@
 import * as d3 from 'd3';
-import { pluck } from 'ramda';
 import { useMemo } from 'react';
 import { BubblePlotProps, Scale } from './BubblePlot';
 
@@ -26,12 +25,12 @@ export const useBubblePlot = ({
         .scaleOrdinal<string>()
         .domain(groups)
         .range([
-          'hsla(282, 80%, 52%, 1)',
-          'hsla(1, 80%, 51%, 1)',
-          'hsla(152, 80%, 40%, 1)',
-          'hsla(193, 80%, 48%, 1)',
-          'hsla(220, 80%, 56%, 1)',
-          'hsla(0, 0%, 20%, 1)',
+          'hsla(282, 80%, 52%, 0.5)',
+          'hsla(1, 80%, 51%, 0.5)',
+          'hsla(152, 80%, 40%, 0.5)',
+          'hsla(193, 80%, 48%, 0.5)',
+          'hsla(220, 80%, 56%, 0.5)',
+          'hsla(0, 0%, 20%, 0.5)',
         ]),
     [groups],
   );

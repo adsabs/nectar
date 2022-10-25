@@ -308,8 +308,6 @@ export const BubblePlot = ({
         .attr('r', (d) => `${rScale(d[rKey])}px`)
         .attr('cx', (d) => (currentScaleType.x === 'log' && d[xKey] === 0 ? 0 : xScale(d[xKey])))
         .attr('cy', (d) => (currentScaleType.y === 'log' && d[yKey] === 0 ? 0 : yScale(d[yKey])))
-        .attr('stroke', 'black')
-        .style('opacity', 0.7)
         .style('fill', (d) => (groups && groups.includes(d.pub) ? groupColor(d.pub) : 'gray'))
         .style('display', (d) =>
           (currentScaleType.x === 'log' && d[xKey] === 0) || (currentScaleType.y === 'log' && d[yKey] === 0) // hide invalid nodes (log(0))
@@ -322,8 +320,7 @@ export const BubblePlot = ({
         const e = event as MouseEvent;
         if ((e.target as SVGAElement).classList.contains('paper-circle')) {
           //  find top 3 nodes with the same position
-          const allData = d3
-            .selectAll<BaseType, IBubblePlotNodeData>('.paper-circle')
+          const allData = papers
             .filter(
               (d) =>
                 (xKey === 'date' ? d[xKey].getTime() === node[xKey].getTime() : d[xKey] === node[xKey]) &&
@@ -351,6 +348,12 @@ export const BubblePlot = ({
 
       papers.on('mouseleave', () => {
         tooltip.style('display', 'none');
+      });
+
+      // click on node
+      papers.on('click', (event, node) => {
+        const element = papers.filter((d) => d.bibcode === node.bibcode);
+        element.classed('selected', !element.classed('selected'));
       });
 
       // Render group legend

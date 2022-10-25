@@ -169,31 +169,46 @@
   .word-cloud-container .word-cloud-word.selected {
     fill: #ee8e29 !important;
   }
-}
 
-/** results graph **/
-.bubble-plot-svg .scale-choice {
-  fill: #fff;
-  stroke: #000;
-  stroke-width: 1px;
-}
+  /** results graph **/
+  .bubble-plot-svg .scale-choice {
+    fill: #fff;
+    stroke: #000;
+    stroke-width: 1px;
+  }
 
-.bubble-plot-svg .scale-choice:hover {
-  cursor: pointer;
-}
+  .bubble-plot-svg .scale-choice:hover {
+    cursor: pointer;
+    @apply cursor-pointer;
+  }
 
-.bubble-plot-svg .scale-choice.selected {
-  fill: gray;
-}
+  .bubble-plot-svg .scale-choice.selected {
+    fill: gray;
+  }
 
-.bubble-plot-svg .group-legend {
-  @apply cursor-pointer;
-}
+  .bubble-plot-svg .group-legend {
+    @apply cursor-pointer;
+  }
 
-.bubble-plot-svg .group-legend.selected {
-  @apply font-bold;
-}
+  .bubble-plot-svg .group-legend.selected {
+    @apply font-bold;
+  }
 
-.bubble-plot-tooltip {
-  @apply absolute z-50 block m-0 p-5 text-gray-50 bg-gray-800 rounded;
+  .bubble-plot-tooltip {
+    @apply absolute z-50 block m-0 p-5 text-gray-50 bg-gray-800 rounded;
+  }
+
+  .bubble-plot-svg .paper-circle {
+    @apply opacity-60 cursor-pointer;
+  }
+
+  .bubble-plot-svg .paper-circle:hover {
+    @apply opacity-90;
+  }
+
+  .bubble-plot-svg .paper-circle.selected {
+    stroke: #000;
+    stroke-width: 3.5px;
+    stroke-opacity: 1;
+  }
 }
