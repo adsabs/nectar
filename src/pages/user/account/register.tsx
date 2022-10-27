@@ -28,7 +28,6 @@ const update = (cb: (value: string) => void) => (e: ChangeEvent<HTMLInputElement
 
 const Register: NextPage = () => {
   const router = useRouter();
-  const { isAuthenticated } = useSession();
 
   // form state
   const [email, setEmail] = useState('');
@@ -38,7 +37,7 @@ const Register: NextPage = () => {
   const [showPassword, setShowPassword] = useBoolean(false);
 
   // registration handling
-  const { register } = useSession();
+  const { register, isAuthenticated } = useSession();
   const [error, setError] = useState<string>(null);
 
   // refs
