@@ -20,7 +20,6 @@ import {
   propSatisfies,
   replace,
   startsWith,
-  tap,
   toPairs,
   uniq,
   when,
@@ -39,7 +38,6 @@ export const createQuery = (params: Partial<Query> = {}) => {
   } as Query;
 };
 
-const log = tap(console.log);
 const FQPrefix = 'fq_' as const;
 const pickByFQs = (query: Query) => pickBy<Query, Partial<Query>>((_, k) => startsWith(FQPrefix, k as string), query);
 const stripFQPrefix = replace(FQPrefix, '');
@@ -174,6 +172,6 @@ const QuerySchema = z
   .passthrough()
   .partial();
 
-export const parseQuery = (maybeQuery: Query): Query => {
-  return QuerySchema.parse(maybeQuery);
+export const parseQuery = (maybeQuery: Query): IADSApiSearchParams => {
+  return QuerySchema.parse(maybeQuery) as IADSApiSearchParams;
 };

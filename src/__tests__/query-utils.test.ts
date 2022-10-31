@@ -100,7 +100,6 @@ describe('removeFQClause()', () => {
 
 describe('parseQuery()', () => {
   test('works', () => {
-    console.log(query.parseQuery({}));
     expect(query.parseQuery({})).toEqual({});
   });
 });
