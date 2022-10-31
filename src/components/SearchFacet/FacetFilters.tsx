@@ -1,12 +1,11 @@
 import { Box, Heading } from '@chakra-ui/layout';
 import { BoxProps, Button, Divider, Tag, TagCloseButton, TagLabel, Tooltip, Wrap, WrapItem } from '@chakra-ui/react';
+import { clearFQs, removeFQClause } from '@query-utils';
 import { isIADSSearchParams, makeSearchParams, parseQueryFromUrl } from '@utils';
 import { useRouter } from 'next/router';
 import { curryN } from 'ramda';
 import { ReactElement, useCallback, useEffect, useState } from 'react';
-import { clearFilters, FilterTuple, getFilters, removeClauseFromFQ } from './helpers';
-
-const PREFIX = 'fq_';
+import { FilterTuple, getFilters } from './helpers';
 
 export const FacetFilters = (props: BoxProps): ReactElement => {
   const router = useRouter();
@@ -21,11 +20,11 @@ export const FacetFilters = (props: BoxProps): ReactElement => {
   }, [router.query]);
 
   const handleRemoveFilterClick = useCallback(
-    curryN(4, (clause: string, key: string, rawClauses: string[]) => {
+    curryN(3, (clause: string, key: string) => {
       if (typeof key === 'string') {
         // Remove the clause from the current query
         const query = parseQueryFromUrl(router.asPath);
-        const params = removeClauseFromFQ(`${PREFIX}${key}`, clause, rawClauses, query);
+        const params = removeFQClause(key, clause, query);
 
         // Update the router with the new query
         if (isIADSSearchParams(params)) {
@@ -39,7 +38,9 @@ export const FacetFilters = (props: BoxProps): ReactElement => {
 
   const handleRemoveAllFiltersClick = () => {
     const query = parseQueryFromUrl(router.asPath);
-    const params = clearFilters(query);
+
+    // clear all FQs from the query
+    const params = clearFQs(query);
 
     if (isIADSSearchParams(params)) {
       const search = makeSearchParams(params);
@@ -73,7 +74,7 @@ export const FacetFilters = (props: BoxProps): ReactElement => {
                 <TagCloseButton
                   data-value={clause}
                   data-section={label}
-                  onClick={handleRemoveFilterClick(rawClauses[index], label, rawClauses)}
+                  onClick={handleRemoveFilterClick(rawClauses[index], label)}
                 />
               </Tag>
             </WrapItem>
