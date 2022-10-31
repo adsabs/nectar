@@ -24,7 +24,8 @@ import { AppState, useStore, useStoreApi } from '@store';
 import { makeSearchParams, noop, parseQueryFromUrl } from '@utils';
 import { useRouter } from 'next/router';
 import { curryN } from 'ramda';
-import { MouseEventHandler, ReactElement, useEffect, useState } from 'react';
+import { MouseEventHandler, ReactElement, useCallback, useEffect, useState } from 'react';
+import { SecondOrderOpsLinks } from './SecondOrderOpsLinks';
 
 export interface IListActionsProps {
   onSortChange?: ISortProps['onChange'];
@@ -100,21 +101,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
     }
   };
 
-  const handleTrendingLink = () => {
-    handleOperationsLink('trending');
-  };
-
-  const handleReviewsLink = () => {
-    handleOperationsLink('reviews');
-  };
-
-  const handleUsefulLink = () => {
-    handleOperationsLink('useful');
-  };
-
-  const handleSimilarLink = () => {
-    handleOperationsLink('similar');
-  };
+  const handleOpsLink = useCallback((name: Operator) => () => handleOperationsLink(name), []);
 
   return (
     <Stack
@@ -157,12 +144,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
                 <Button variant="link" fontWeight="normal" onClick={clearSelected} data-testid="listactions-clearall">
                   Clear All
                 </Button>
-                <Button variant="link" fontWeight="normal">
-                  Limited To
-                </Button>
-                <Button variant="link" fontWeight="normal">
-                  Exclude
-                </Button>
+                <SecondOrderOpsLinks />
               </>
             )}
           </Stack>
@@ -212,16 +194,16 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
                   </MenuGroup>
                   <MenuDivider />
                   <MenuGroup title="OPERATIONS">
-                    <MenuItem onClick={handleTrendingLink} data-testid="trending-operator">
+                    <MenuItem onClick={handleOpsLink('trending')} data-testid="trending-operator">
                       Co-reads
                     </MenuItem>
-                    <MenuItem onClick={handleReviewsLink} data-testid="reviews-operator">
+                    <MenuItem onClick={handleOpsLink('reviews')} data-testid="reviews-operator">
                       Reviews
                     </MenuItem>
-                    <MenuItem onClick={handleUsefulLink} data-testid="useful-operator">
+                    <MenuItem onClick={handleOpsLink('useful')} data-testid="useful-operator">
                       Useful
                     </MenuItem>
-                    <MenuItem onClick={handleSimilarLink} data-testid="similar-operator">
+                    <MenuItem onClick={handleOpsLink('similar')} data-testid="similar-operator">
                       Similar
                     </MenuItem>
                   </MenuGroup>
