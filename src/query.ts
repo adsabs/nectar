@@ -4,23 +4,21 @@ import {
   always,
   curry,
   defaultTo,
-  equals,
   is,
   join,
   map,
   pathOr,
   pipe,
-  reject,
   replace,
   split,
   toUpper,
   uniq,
   when,
+  without,
 } from 'ramda';
 
 export type Operator = 'AND' | 'OR' | 'NOT';
 const DEFAULT_OPERATOR = 'AND' as const;
-// export type Mode = 'limit' | 'expand' | 'exclude' | 'replace' | 'remove';
 
 export const joinConditions = (operator: Operator, conditions: string[]) =>
   pipe(defaultTo(''), join(defaultTo(' AND ', ` ${operator} `)))(conditions);
@@ -86,7 +84,7 @@ export const joinQueries = curry((queryB: string, queryA: string) => {
 export const removeClauseAndStringify = (clause: string, clauses: string[]) =>
   pipe<[string[]], string[], string[], string, lucene.AST, string>(
     defaultTo([]),
-    reject(equals(clause)),
+    without([clause]),
     join(` ${DEFAULT_OPERATOR} `),
     parse,
     stringify,

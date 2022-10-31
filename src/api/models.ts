@@ -115,6 +115,31 @@ export type SolrSortField =
   | 'id';
 export type SolrSort = `${SolrSortField} ${SolrSortDirection}`;
 
+export const solrSorts = [
+  'author_count asc',
+  'author_count desc',
+  'bibcode asc',
+  'bibcode desc',
+  'citation_count asc',
+  'citation_count desc',
+  'citation_count_norm asc',
+  'citation_count_norm desc',
+  'classic_factor asc',
+  'classic_factor desc',
+  'first_author asc',
+  'first_author desc',
+  'date asc',
+  'date desc',
+  'entry_date asc',
+  'entry_date desc',
+  'id asc',
+  'id desc',
+  'read_count asc',
+  'read_count desc',
+  'score asc',
+  'score desc',
+] as const;
+
 export enum ApiTargets {
   BOOTSTRAP = '/accounts/bootstrap',
   SEARCH = '/search/query',
