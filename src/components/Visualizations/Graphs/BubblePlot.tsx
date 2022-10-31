@@ -1,9 +1,10 @@
-import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useD3 } from './useD3';
 import * as d3 from 'd3';
 import { BaseType, Selection } from 'd3';
 import { useBubblePlot } from './useBubblePlot';
 import { IBubblePlot, IBubblePlotNodeData } from '../types';
+import { findIndex, propEq, without } from 'ramda';
 
 export type Scale = 'linear' | 'log';
 
@@ -20,6 +21,8 @@ export type BubblePlotConfig = {
 export type BubblePlotProps = BubblePlotConfig & {
   graph: IBubblePlot;
 };
+
+type BubbleNode = IBubblePlotNodeData & { cx: number; cy: number };
 
 const margin = { top: 80, right: 200, bottom: 80, left: 80 };
 const width = 1000 - margin.left - margin.right;
@@ -50,15 +53,28 @@ export const BubblePlot = ({
     height,
   });
 
-  const { data: nodes, groups = [] } = graph;
+  const { data, groups = [] } = graph;
 
   const [selectedGroup, setSelectedGroup] = useState<string>(null);
 
+  const [selectedNodes, setSelectedNodes] = useState<BubbleNode[]>([]);
+
+  const rendered = useRef(false);
+
   // For time axis, show year if more than 2 years, otherwise show month
   const timeRange = useMemo(() => {
-    const dateRange = d3.extent(nodes, (d) => d.date);
+    const dateRange = d3.extent(data, (d) => d.date);
     return dateRange[1].getFullYear() - dateRange[0].getFullYear() > 2 ? 'year' : 'month';
-  }, [nodes]);
+  }, [data]);
+
+  const nodes: BubbleNode[] = useMemo(() => {
+    const n_copy: BubbleNode[] = [...data];
+    n_copy.forEach((n) => {
+      n.cx = currentScaleType.x === 'log' && n[xKey] === 0 ? 0 : xScale(n[xKey]);
+      n.cy = currentScaleType.y === 'log' && n[yKey] === 0 ? 0 : yScale(n[yKey]);
+    });
+    return n_copy;
+  }, [data, currentScaleType, xScale, yScale]); // xScale and yXcale are updated when xKey and yKey change
 
   // When changing graph or axis scale
   useEffect(() => {
@@ -75,6 +91,74 @@ export const BubblePlot = ({
   useEffect(() => {
     transitionToGroup();
   }, [selectedGroup]);
+
+  useEffect(() => {
+    d3.selectAll<BaseType, BubbleNode>('.paper-circle').classed(
+      'selected',
+      (n) => findIndex(propEq('bibcode', n.bibcode), selectedNodes) !== -1,
+    );
+  }, [selectedNodes]);
+
+  const attachListeners = useCallback(() => {
+    const papers = d3.selectAll<BaseType | SVGCircleElement, BubbleNode>('.paper-circle');
+
+    // click on node
+    papers.on('click', (event, node) => {
+      if (findIndex(propEq('bibcode', node.bibcode), selectedNodes) === -1) {
+        setSelectedNodes([...selectedNodes, node]);
+      } else {
+        setSelectedNodes(selectedNodes.filter((n) => n.bibcode !== node.bibcode));
+      }
+    });
+
+    // grab nodes when rectangle boundary is drawn
+    const brush = d3
+      .brush()
+      .extent([
+        [0, 0],
+        [width, height],
+      ])
+      .on('end', (event) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        const extent = event.selection;
+
+        if (event.type === 'end' && extent) {
+          const brushLayer = d3.select<SVGGElement, unknown>('.brush-layer');
+          const brushedNodes: BubbleNode[] = [];
+
+          papers.each((d) => {
+            if (isBrushed(extent, d.cx, d.cy)) {
+              brushedNodes.push(d);
+            } else {
+              without([d], brushedNodes);
+            }
+          });
+
+          brushLayer.call(brush.move, null);
+          setSelectedNodes([...brushedNodes, ...selectedNodes]);
+        }
+      });
+
+    // double click to clear all selection
+    d3.select<SVGGElement, unknown>('.brush-layer')
+      .call(brush)
+      .on('dblclick', () => {
+        setSelectedNodes([]);
+      });
+  }, [selectedNodes, setSelectedNodes]);
+
+  // when selectedNodes is changed, need to update listeners
+  useEffect(() => {
+    attachListeners();
+  }, [attachListeners]);
+
+  useEffect(() => {
+    // Just rendered
+    if (rendered.current) {
+      rendered.current = false;
+      attachListeners();
+    }
+  }, [rendered.current]);
 
   /********** transitions **********/
 
@@ -101,14 +185,14 @@ export const BubblePlot = ({
   }, [yScale]);
 
   const transitionNodes = useCallback(() => {
-    d3.selectAll<BaseType, IBubblePlotNodeData>('.paper-circle')
+    d3.selectAll<BaseType, BubbleNode>('.paper-circle')
       .data(nodes, (n) => n.bibcode)
       .join('circle')
       .transition()
       .duration(200)
       .attr('r', (d) => `${rScale(d[rKey])}px`)
-      .attr('cx', (d) => (currentScaleType.x === 'log' && d[xKey] === 0 ? 0 : xScale(d[xKey])))
-      .attr('cy', (d) => (currentScaleType.y === 'log' && d[yKey] === 0 ? 0 : yScale(d[yKey])))
+      .attr('cx', (d) => d.cx)
+      .attr('cy', (d) => d.cy)
       .style('display', (d) =>
         (currentScaleType.x === 'log' && d[xKey] === 0) ||
         (currentScaleType.y === 'log' && d[yKey] === 0) ||
@@ -120,7 +204,7 @@ export const BubblePlot = ({
 
   const transitionToGroup = useCallback(() => {
     // show nodes only belonging to the selected group
-    d3.selectAll<BaseType, IBubblePlotNodeData>('.paper-circle').style('display', (d) =>
+    d3.selectAll<BaseType, BubbleNode>('.paper-circle').style('display', (d) =>
       (currentScaleType.x === 'log' && d[xKey] === 0) ||
       (currentScaleType.y === 'log' && d[yKey] === 0) ||
       (selectedGroup !== null && selectedGroup !== d.pub) // hide invalid nodes (log(0))
@@ -135,6 +219,15 @@ export const BubblePlot = ({
   }, [currentScaleType, xKey, yKey, selectedGroup]);
 
   /********** renderings **********/
+
+  // is a dot in the selection
+  function isBrushed(brushCoords, cx, cy) {
+    const x0 = brushCoords[0][0];
+    const x1 = brushCoords[1][0];
+    const y0 = brushCoords[0][1];
+    const y1 = brushCoords[1][1];
+    return x0 <= cx && cx <= x1 && y0 <= cy && cy <= y1;
+  }
 
   const renderAxisScaleOptions = (
     labelGroup: Selection<SVGGElement, unknown, HTMLElement, unknown>,
@@ -298,16 +391,48 @@ export const BubblePlot = ({
         .style('position', 'absolute')
         .style('display', 'none');
 
+      // brush layer: used for user drawing rectangle boundary
+      // const brush = d3
+      //   .brush()
+      //   .extent([
+      //     [0, 0],
+      //     [width, height],
+      //   ])
+      //   .on('end', function (event) {
+      //     console.log('1');
+      //     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+      //     const extent = event.selection;
+      //     const papers = d3.selectAll<BaseType | SVGCircleElement, BubbleNode>('.paper-circle');
+      //     const brushLayer = d3.select<SVGGElement, unknown>('.brush-layer');
+
+      //     if (event.type === 'end' && extent) {
+      //       const brushedNodes: BubbleNode[] = [];
+      //       // papers.classed('selected', (d) => isBrushed(extent, d.cx, d.cy));
+      //       papers.each((d) => {
+      //         if (isBrushed(extent, d.cx, d.cy)) {
+      //           brushedNodes.push(d);
+      //         } else {
+      //           without([d], brushedNodes);
+      //         }
+      //       });
+
+      //       brushLayer.call(brush.move, null);
+      //       setSelectedNodes([...brushedNodes, ...selectedNodes]);
+      //     }
+      //   });
+      g.append('g').classed('brush-layer', true); //.call(brush);
+
       // Render nodes
       const papers = g
         .append('g')
-        .selectAll<BaseType, IBubblePlotNodeData>('.paper-circle')
+        .classed('all-papers-svg', true)
+        .selectAll<BaseType, BubbleNode>('.paper-circle')
         .data(nodes, (n) => n.bibcode)
         .join('circle')
         .classed('paper-circle', true)
         .attr('r', (d) => `${rScale(d[rKey])}px`)
-        .attr('cx', (d) => (currentScaleType.x === 'log' && d[xKey] === 0 ? 0 : xScale(d[xKey])))
-        .attr('cy', (d) => (currentScaleType.y === 'log' && d[yKey] === 0 ? 0 : yScale(d[yKey])))
+        .attr('cx', (d) => d.cx)
+        .attr('cy', (d) => d.cy)
         .style('fill', (d) => (groups && groups.includes(d.pub) ? groupColor(d.pub) : 'gray'))
         .style('display', (d) =>
           (currentScaleType.x === 'log' && d[xKey] === 0) || (currentScaleType.y === 'log' && d[yKey] === 0) // hide invalid nodes (log(0))
@@ -316,7 +441,7 @@ export const BubblePlot = ({
         );
 
       // tooltip event
-      papers.on('mouseover', (event, node) => {
+      papers.on('mouseover.tooltip', (event, node) => {
         const e = event as MouseEvent;
         if ((e.target as SVGAElement).classList.contains('paper-circle')) {
           //  find top 3 nodes with the same position
@@ -346,15 +471,18 @@ export const BubblePlot = ({
         }
       });
 
-      papers.on('mouseleave', () => {
+      papers.on('mouseleave.tooltip', () => {
         tooltip.style('display', 'none');
       });
 
-      // click on node
-      papers.on('click', (event, node) => {
-        const element = papers.filter((d) => d.bibcode === node.bibcode);
-        element.classed('selected', !element.classed('selected'));
-      });
+      // // click on node
+      // papers.on('click', (_e, node) => {
+      //   if (findIndex(propEq('bibcode', node.bibcode), selectedNodes) === -1) {
+      //     setSelectedNodes([...selectedNodes, node]);
+      //   } else {
+      //     setSelectedNodes(selectedNodes.filter((n) => n.bibcode !== node.bibcode));
+      //   }
+      // });
 
       // Render group legend
       const legend = svg
@@ -362,6 +490,8 @@ export const BubblePlot = ({
         .classed('legend-group-key', true)
         .attr('transform', `translate(${width + margin.left + 100}, ${height / 2})`);
       renderGroupLegend(legend);
+
+      rendered.current = true;
 
       return svg;
     },
