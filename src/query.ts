@@ -30,9 +30,28 @@ const isNonEmptyString = (v: unknown) => typeof v === 'string' && v.length > 0;
 const isUndefinedOrEmpty = (v: unknown) => typeof v === 'undefined' || (typeof v === 'string' && v.length === 0);
 const stripFieldFromClause = (clause: string) => replace(/[a-z_]+:/g, '', clause);
 const capitalizeOperators = (query: string) => query.replace(/\b(and|or|not)\b/gi, toUpper);
-const parseAndNormalize = pipe(capitalizeOperators, parse);
 const appendIfString = (list: string[], result: string) => (is(String, result) ? [...list, result] : list);
 export const getOperator = pipe<[string], lucene.AST, string>(parse, pathOr('AND', ['left', 'operator']));
+
+// convert fields that the AST cannot handle into something they can
+const transformQueryFields = (query: string) => {
+  return (
+    query
+      // docs
+      .replace(/docs\(([a-z0-9]+)\)/gi, 'docs:$1')
+  );
+};
+
+// reverse the transforms done
+const unTransformQueryFields = (query: string) => {
+  return (
+    query
+      // docs
+      .replace(/docs:([a-z0-9]+)/gi, 'docs($1)')
+  );
+};
+const parseAndNormalize = pipe(capitalizeOperators, transformQueryFields, parse);
+const stringifyQuery = pipe(stringify, unTransformQueryFields);
 
 /**
  * Join together two queries with an operator
@@ -47,7 +66,7 @@ export const joinQueries = curry((queryB: string, queryA: string) => {
 
       // if the main query is empty, return the augment as a new leftOnly node
       if (isUndefinedOrEmpty(queryA)) {
-        return stringify({
+        return stringifyQuery({
           left: {
             ...rightAST,
             parenthesized: true,
@@ -58,7 +77,7 @@ export const joinQueries = curry((queryB: string, queryA: string) => {
       const leftAST = parseAndNormalize(queryA);
 
       // join the two queries with the default operator
-      return stringify({
+      return stringifyQuery({
         left: {
           ...leftAST,
         },
@@ -86,8 +105,8 @@ export const removeClauseAndStringify = (clause: string, clauses: string[]) =>
     defaultTo([]),
     without([clause]),
     join(` ${DEFAULT_OPERATOR} `),
-    parse,
-    stringify,
+    parseAndNormalize,
+    stringifyQuery,
   )(clauses);
 
 /**
