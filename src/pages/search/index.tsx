@@ -29,7 +29,14 @@ import { FacetFilters } from '@components/SearchFacet/FacetFilters';
 import { APP_DEFAULTS } from '@config';
 import { AppState, createStore, useStore, useStoreApi } from '@store';
 import { NumPerPageType } from '@types';
-import { isApiSearchResponse, makeSearchParams, parseQueryFromUrl, setupApiSSR } from '@utils';
+import {
+  composeNextGSSP,
+  isApiSearchResponse,
+  makeSearchParams,
+  parseQueryFromUrl,
+  setupApiSSR,
+  userGSSP,
+} from '@utils';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
@@ -260,7 +267,7 @@ const NoResultsMsg = ({ query = '' }: { query: string }) => (
     }
   />
 );
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
   const { p: page, ...query } = parseQueryFromUrl<{ p: string }>(ctx.req.url);
 
   setupApiSSR(ctx);
@@ -330,7 +337,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       },
     };
   }
-};
+}, userGSSP);
 
 export default SearchPage;
 

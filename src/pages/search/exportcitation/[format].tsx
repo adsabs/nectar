@@ -15,7 +15,7 @@ import { CitationExporter } from '@components';
 import { getExportCitationDefaultContext } from '@components/CitationExporter/CitationExporter.machine';
 import { APP_DEFAULTS } from '@config';
 import { useIsClient } from '@hooks/useIsClient';
-import { parseQueryFromUrl, setupApiSSR } from '@utils';
+import { composeNextGSSP, parseQueryFromUrl, setupApiSSR, userGSSP } from '@utils';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
@@ -96,7 +96,7 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
     </>
   );
 };
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
   setupApiSSR(ctx);
   const {
     qid = null,
@@ -169,6 +169,6 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       },
     };
   }
-};
+}, userGSSP);
 
 export default ExportCitationPage;
