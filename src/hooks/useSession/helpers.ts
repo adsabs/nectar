@@ -47,6 +47,9 @@ export const authenticateUser = async (creds: IUserCredentials, res?: NextApiRes
     );
 
     if (data.message === 'success') {
+      // forward the set-cookie so that subsequent bootstraps will work client-side
+      res.setHeader('set-cookie', headers['set-cookie']);
+
       try {
         const userData = await bootstrap({ session: headers['set-cookie'] }, res);
 
@@ -109,6 +112,9 @@ export const logoutUser = async (res?: NextApiResponse) => {
     );
 
     if (data.message === 'success') {
+      // forward the set-cookie so that subsequent bootstraps will work client-side
+      res.setHeader('set-cookie', headers['set-cookie']);
+
       try {
         const userData = await bootstrap({ session: headers['set-cookie'] }, res);
 
