@@ -71,6 +71,7 @@ class Api {
   private static instance: Api;
   private service: AxiosInstance;
   private userData: IUserData;
+  private recentError: { status: number; config: AxiosRequestConfig };
 
   private constructor() {
     this.service = axios.create(defaultRequestConfig);
@@ -79,18 +80,37 @@ class Api {
 
   private init() {
     this.service.interceptors.response.use(identity, (error: AxiosError & { canRefresh: boolean }) => {
-      if (axios.isAxiosError(error) && error.response.status === API_STATUS.UNAUTHORIZED) {
-        this.invalidateUserData();
-        return this.bootstrap()
-          .then((res) => {
-            this.setUserData(res);
-            updateAppUser(res);
-            return this.request(error.config);
-          })
-          .catch(() => {
-            const bootstrapError = new Error('Unrecoverable Error, unable to refresh token', { cause: error });
-            return Promise.reject(bootstrapError);
-          });
+      if (axios.isAxiosError(error)) {
+        // check if the incoming error is the exact same status and URL as the last request
+        // if so, we should reject to keep from getting into a loop
+        if (
+          this.recentError &&
+          this.recentError.status === error.response.status &&
+          this.recentError.config.url === error.config.url
+        ) {
+          // clear the recent error
+          this.recentError = null;
+          return Promise.reject(error);
+        }
+
+        // if request is NOT bootstrap, store error config
+        if (error.config.url !== ApiTargets.BOOTSTRAP) {
+          this.recentError = { status: error.response.status, config: error.config };
+        }
+
+        if (error.response.status === API_STATUS.UNAUTHORIZED) {
+          this.invalidateUserData();
+          return this.bootstrap()
+            .then((res) => {
+              this.setUserData(res);
+              updateAppUser(res);
+              return this.request(error.config);
+            })
+            .catch((e) => {
+              const bootstrapError = new Error('Unrecoverable Error, unable to refresh token', { cause: error });
+              return Promise.reject(bootstrapError);
+            });
+        }
       }
       return Promise.reject(error);
     });
@@ -196,6 +216,7 @@ class Api {
     this.service = this.service = axios.create(defaultRequestConfig);
     this.init();
     this.userData = null;
+    this.recentError = null;
   }
 }
 
