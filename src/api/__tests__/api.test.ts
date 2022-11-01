@@ -18,6 +18,11 @@ const testHandler = rest.get('*test', (req, res, ctx) => {
   return res(ctx.status(200), ctx.json({ ok: true }));
 });
 
+const unAuthorizedHandler = rest.get('*test', (req, res, ctx) =>
+  res(ctx.status(401), ctx.json({ message: 'User unauthorized' })),
+);
+const unAuthorizedRequest = () => api.request({ method: 'GET', url: '/test' });
+
 const testRequest = (params?: Record<string, string>) =>
   api.request({
     method: 'GET',
@@ -144,7 +149,7 @@ describe('api', () => {
     ]);
   });
 
-  test('401 does not cause infinite loop if refresh fails', async ({ server }) => {
+  test('401 does not cause infinite loop if bootstrap repeatedly fails', async ({ server }) => {
     const { onRequest: onReq } = createServerListenerMocks(server);
     server.use(testHandler);
     server.use(
@@ -204,6 +209,32 @@ describe('api', () => {
       ...repeat(ApiTargets.BOOTSTRAP, 2),
 
       // authenticated request succeeds
+      '/test',
+    ]);
+  });
+
+  /**
+   * This tests the case that a request has a valid token, but for some
+   * reason is still giving a 401 after refetching the token
+   */
+  test('repeated 401s do not cause infinite loop', async ({ server }) => {
+    const { onRequest: onReq } = createServerListenerMocks(server);
+    server.use(unAuthorizedHandler);
+
+    await expect(unAuthorizedRequest).rejects.toThrowError();
+
+    expect(onReq).toBeCalledTimes(4);
+    expect(urls(onReq)).toEqual([
+      // successful
+      ApiTargets.BOOTSTRAP,
+
+      // 401
+      '/test',
+
+      // successful
+      ApiTargets.BOOTSTRAP,
+
+      // 401 again, this should throw an error and abort re-bootstrapping
       '/test',
     ]);
   });
