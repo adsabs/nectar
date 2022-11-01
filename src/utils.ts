@@ -1,12 +1,13 @@
-import api, { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, IUserData, SolrSort } from '@api';
+import api, { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, isUserData, IUserData, SolrSort } from '@api';
 import { APP_DEFAULTS } from '@config';
+import { AppState } from '@store';
 import { NumPerPageType, SafeSearchUrlParams } from '@types';
 import DOMPurify from 'isomorphic-dompurify';
 import { GetServerSidePropsContext, GetServerSidePropsResult, NextApiRequest, NextApiResponse } from 'next';
 import { useRouter } from 'next/router';
 import qs from 'qs';
 import { ParsedUrlQuery } from 'querystring';
-import { clamp, filter, head, is, keys, last, omit, pipe, propIs, uniq, when } from 'ramda';
+import { clamp, filter, head, is, keys, last, omit, pick, pipe, propIs, uniq, when } from 'ramda';
 import { isArray, isNotString } from 'ramda-adjunct';
 
 type ParsedQueryParams = ParsedUrlQuery | qs.ParsedQs;
@@ -103,6 +104,23 @@ export const useBaseRouterPath = (): { basePath: string } => {
 export const truncateDecimal = (num: number, d: number): number => {
   const regex = new RegExp(`^-?\\d+(\\.\\d{0,${d}})?`);
   return parseFloat(regex.exec(num.toString())[0]);
+};
+
+export const pickUserData = pick(['username', 'anonymous', 'access_token', 'expire_in']);
+export const userGSSP = async (
+  ctx: GetServerSidePropsContext,
+  state: { props?: { dehydratedAppState?: Partial<AppState> } },
+) => {
+  const userData = pickUserData(ctx.req.session.userData);
+
+  return Promise.resolve({
+    props: {
+      dehydratedAppState: {
+        ...(state?.props?.dehydratedAppState ?? {}),
+        user: isUserData(userData) ? userData : {},
+      } as AppState,
+    },
+  });
 };
 
 type IncomingGSSP = (
