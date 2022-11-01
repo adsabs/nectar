@@ -9,7 +9,7 @@ import { Alert, Input, Link, Textarea } from '@chakra-ui/react';
 import { BibstemPicker } from '@components';
 import { useErrorMessage } from '@hooks/useErrorMessage';
 import { useIsClient } from '@hooks/useIsClient';
-import { setupApiSSR, stringifySearchParams } from '@utils';
+import { composeNextGSSP, setupApiSSR, stringifySearchParams, userGSSP } from '@utils';
 import DOMPurify from 'isomorphic-dompurify';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
@@ -325,7 +325,7 @@ const BibcodeQueryForm = ({ onSubmit, error }: SubFormProps) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
   setupApiSSR(ctx);
 
   if (ctx.req.method == 'POST') {
@@ -356,7 +356,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   }
 
   return { props: {} };
-};
+}, userGSSP);
 
 const escape = (val?: string): string => (typeof val === 'string' ? DOMPurify.sanitize(val) : '');
 const listSanitizer = (v: string): string[] =>

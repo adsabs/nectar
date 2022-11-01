@@ -7,7 +7,7 @@ import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
 import { useIsClient } from '@hooks/useIsClient';
-import { composeNextGSSP, normalizeURLParams, setupApiSSR, unwrapStringValue } from '@utils';
+import { composeNextGSSP, normalizeURLParams, setupApiSSR, unwrapStringValue, userGSSP } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
@@ -46,59 +46,63 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = ({ id, format, er
   );
 };
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage, async (ctx, state) => {
-  setupApiSSR(ctx);
-  const { fetchExportCitation } = await import('@api');
-  const axios = (await import('axios')).default;
-  const query = normalizeURLParams<{ id: string; format: string }>(ctx.query);
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(
+  withDetailsPage,
+  async (ctx, state) => {
+    setupApiSSR(ctx);
+    const { fetchExportCitation } = await import('@api');
+    const axios = (await import('axios')).default;
+    const query = normalizeURLParams<{ id: string; format: string }>(ctx.query);
 
-  try {
-    const queryClient = new QueryClient();
-    hydrate(queryClient, state.props?.dehydratedState as DehydratedState);
-    const {
-      response: {
-        docs: [{ bibcode }],
-      },
-    } = queryClient.getQueryData<IADSApiSearchResponse>(searchKeys.abstract(query.id));
+    try {
+      const queryClient = new QueryClient();
+      hydrate(queryClient, state.props?.dehydratedState as DehydratedState);
+      const {
+        response: {
+          docs: [{ bibcode }],
+        },
+      } = queryClient.getQueryData<IADSApiSearchResponse>(searchKeys.abstract(query.id));
 
-    const { params } = getExportCitationDefaultContext({
-      format: isExportApiFormat(query.format) ? query.format : ExportApiFormatKey.bibtex,
-      records: [bibcode],
-      singleMode: true,
-    });
+      const { params } = getExportCitationDefaultContext({
+        format: isExportApiFormat(query.format) ? query.format : ExportApiFormatKey.bibtex,
+        records: [bibcode],
+        singleMode: true,
+      });
 
-    void (await queryClient.prefetchQuery({
-      queryKey: exportCitationKeys.primary(params),
-      queryFn: fetchExportCitation,
-      meta: { params },
-    }));
+      void (await queryClient.prefetchQuery({
+        queryKey: exportCitationKeys.primary(params),
+        queryFn: fetchExportCitation,
+        meta: { params },
+      }));
 
-    return {
-      props: {
-        format: params.format,
-        dehydratedState: dehydrate(queryClient),
-      },
-    };
-  } catch (e) {
-    if (axios.isAxiosError(e) && e.response) {
+      return {
+        props: {
+          format: params.format,
+          dehydratedState: dehydrate(queryClient),
+        },
+      };
+    } catch (e) {
+      if (axios.isAxiosError(e) && e.response) {
+        return {
+          props: {
+            error: {
+              status: e.response.status,
+              message: e.message,
+            },
+          },
+        };
+      }
       return {
         props: {
           error: {
-            status: e.response.status,
-            message: e.message,
+            status: 500,
+            message: 'Unknown server error',
           },
         },
       };
     }
-    return {
-      props: {
-        error: {
-          status: 500,
-          message: 'Unknown server error',
-        },
-      },
-    };
-  }
-});
+  },
+  userGSSP,
+);
 
 export default ExportCitationPage;

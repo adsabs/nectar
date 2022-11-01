@@ -21,6 +21,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { ChangeEvent, FormEvent, useCallback, useRef, useState } from 'react';
 import ReCAPTCHA from 'react-google-recaptcha';
+export { userGSSP as getServerSideProps } from '@utils';
 
 const GOOGLE_RECAPTCHA_KEY = '6Lex_aQUAAAAAMwJFbdGFeigshN7mRQdbXoGQ7-N';
 
@@ -46,8 +47,6 @@ const Register: NextPage = () => {
   const recaptchaRef = useRef();
 
   const isFormInvalid = useCallback(() => {
-    console.log({ password, confirmPassword, upper: /^[^A-Z]+$/.exec(password) });
-
     setFormError(null);
     if (password !== confirmPassword) {
       setFormError('Passwords do not match');

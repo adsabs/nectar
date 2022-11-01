@@ -1,3 +1,4 @@
+import { composeNextGSSP, userGSSP } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 
@@ -16,7 +17,7 @@ const LibrariesHome: NextPage = () => {
 
 export default LibrariesHome;
 
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
   if (!ctx.req.session.isAuthenticated) {
     return Promise.resolve({
       redirect: {
@@ -30,4 +31,4 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   return Promise.resolve({
     props: {},
   });
-};
+}, userGSSP);

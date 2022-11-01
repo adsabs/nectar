@@ -17,6 +17,7 @@ import { NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { FormEvent, useCallback, useState } from 'react';
+export { userGSSP as getServerSideProps } from '@utils';
 
 const Login: NextPage = () => {
   const router = useRouter();

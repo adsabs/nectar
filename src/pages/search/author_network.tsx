@@ -2,6 +2,7 @@ import { AuthorNetworkPageContainer, VizPageLayout } from '@components';
 import { makeSearchParams, parseQueryFromUrl } from '@utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
+export { userGSSP as getServerSideProps } from '@utils';
 
 export const AuthorNetworkPage: NextPage = () => {
   const router = useRouter();

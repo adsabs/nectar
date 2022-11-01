@@ -1,4 +1,5 @@
-import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
+import { composeNextGSSP, userGSSP } from '@utils';
+import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 
 const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   return <h2>Settings</h2>;
@@ -6,7 +7,7 @@ const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSidePro
 
 export default AppSettingsPage;
 
-export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx: GetServerSidePropsContext) => {
   if (!ctx.req.session.isAuthenticated) {
     return Promise.resolve({
       redirect: {
@@ -20,4 +21,4 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   return Promise.resolve({
     props: {},
   });
-}
+}, userGSSP);

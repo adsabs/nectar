@@ -1,7 +1,7 @@
 import { IADSApiSearchParams } from '@api';
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/react';
 import { MetricsPageContainer, VizPageLayout } from '@components';
-import { makeSearchParams, parseQueryFromUrl, setupApiSSR } from '@utils';
+import { composeNextGSSP, makeSearchParams, parseQueryFromUrl, setupApiSSR, userGSSP } from '@utils';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 
@@ -29,7 +29,7 @@ const MetricsPage: NextPage<IMetricsProps> = (props) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
   const BATCH_SIZE = 1000;
   setupApiSSR(ctx);
   const { qid: _qid, ...originalQuery } = ctx.query;
@@ -62,7 +62,6 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       props: {
         originalQuery,
         bibsQuery: params,
-        // dehydratedState,
       },
     });
   } catch (e) {
@@ -72,6 +71,6 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       },
     });
   }
-};
+}, userGSSP);
 
 export default MetricsPage;

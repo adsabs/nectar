@@ -1,6 +1,7 @@
 import { VizPageLayout } from '@components';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
+export { userGSSP as getServerSideProps } from '@utils';
 
 const ResultsGraphPage: NextPage = () => {
   const router = useRouter();

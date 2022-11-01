@@ -1,6 +1,6 @@
 import { Box } from '@chakra-ui/layout';
 import { ClassicForm, getSearchQuery, IClassicFormState } from '@components/ClassicForm';
-import { setupApiSSR } from '@utils';
+import { composeNextGSSP, setupApiSSR, userGSSP } from '@utils';
 import { GetServerSideProps, GetServerSidePropsContext, NextPage } from 'next';
 import Head from 'next/head';
 
@@ -26,7 +26,7 @@ const ClassicFormPage: NextPage<{ ssrError?: string }> = ({ ssrError }) => {
 export default ClassicFormPage;
 
 type ReqWithBody = GetServerSidePropsContext['req'] & { body: IClassicFormState };
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
   setupApiSSR(ctx);
 
   if (ctx.req.method == 'POST') {
@@ -49,4 +49,4 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   }
 
   return Promise.resolve({ props: {} });
-};
+}, userGSSP);

@@ -3,7 +3,7 @@ import { Box, Flex, Link } from '@chakra-ui/layout';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
-import { composeNextGSSP, normalizeURLParams, setupApiSSR, unwrapStringValue } from '@utils';
+import { composeNextGSSP, normalizeURLParams, setupApiSSR, unwrapStringValue, userGSSP } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import NextImage from 'next/image';
@@ -79,49 +79,53 @@ const GraphicsPage: NextPage<IGraphicsPageProps> = (props: IGraphicsPageProps) =
 
 export default GraphicsPage;
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage, async (ctx, state) => {
-  setupApiSSR(ctx);
-  const axios = (await import('axios')).default;
-  const query = normalizeURLParams(ctx.query);
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(
+  withDetailsPage,
+  async (ctx, state) => {
+    setupApiSSR(ctx);
+    const axios = (await import('axios')).default;
+    const query = normalizeURLParams(ctx.query);
 
-  try {
-    const queryClient = new QueryClient();
-    hydrate(queryClient, state.props?.dehydratedState as DehydratedState);
-    const {
-      response: {
-        docs: [{ bibcode }],
-      },
-    } = queryClient.getQueryData<IADSApiSearchResponse>(searchKeys.abstract(query.id));
+    try {
+      const queryClient = new QueryClient();
+      hydrate(queryClient, state.props?.dehydratedState as DehydratedState);
+      const {
+        response: {
+          docs: [{ bibcode }],
+        },
+      } = queryClient.getQueryData<IADSApiSearchResponse>(searchKeys.abstract(query.id));
 
-    void (await queryClient.prefetchQuery({
-      queryKey: graphicsKeys.primary(bibcode),
-      queryFn: fetchGraphics,
-      meta: { params: { bibcode } },
-    }));
+      void (await queryClient.prefetchQuery({
+        queryKey: graphicsKeys.primary(bibcode),
+        queryFn: fetchGraphics,
+        meta: { params: { bibcode } },
+      }));
 
-    return {
-      props: {
-        dehydratedState: dehydrate(queryClient),
-      },
-    };
-  } catch (e) {
-    if (axios.isAxiosError(e) && e.response) {
+      return {
+        props: {
+          dehydratedState: dehydrate(queryClient),
+        },
+      };
+    } catch (e) {
+      if (axios.isAxiosError(e) && e.response) {
+        return {
+          props: {
+            error: {
+              status: e.response.status,
+              message: e.message,
+            },
+          },
+        };
+      }
       return {
         props: {
           error: {
-            status: e.response.status,
-            message: e.message,
+            status: 500,
+            message: 'Unknown server error',
           },
         },
       };
     }
-    return {
-      props: {
-        error: {
-          status: 500,
-          message: 'Unknown server error',
-        },
-      },
-    };
-  }
-});
+  },
+  userGSSP,
+);
