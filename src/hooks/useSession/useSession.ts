@@ -1,11 +1,10 @@
-import api, { isAuthenticated, isUserData } from '@api';
+import api, { isAuthenticated, IUserData } from '@api';
 import { useToast } from '@chakra-ui/react';
 import { AppState, useStore, useStoreApi } from '@store';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { isPlainObj } from 'ramda-adjunct';
 import { useMemo } from 'react';
-import { authenticateUser, getVaultData, logoutUser, registerUser } from './helpers';
+import { getVaultData, registerUser } from './helpers';
 import { BasicMsg, IUserCredentials, IUserRegistrationCredentials } from './types';
 
 const userSelector = (store: AppState) => store.user;
@@ -17,19 +16,20 @@ export const useSession = () => {
   const authenticated = useMemo(() => isAuthenticated(user), [user]);
 
   const login = async (creds: IUserCredentials, options: { redirectUri?: string } = {}): Promise<BasicMsg<string>> => {
-    const { data } = await axios.post<{ success: boolean; error?: string }>('/api/auth/login', creds);
+    const { data } = await axios.post<{ success: boolean; user?: IUserData; error?: string }>('/api/auth/login', creds);
     if (data.success) {
-      // finally clear the store of all user data (mainly to clear token)
+      // clear the store of all user data (mainly to clear token)
       storeApi.getState().resetUser();
       storeApi.getState().resetUserSettings();
+      api.reset();
 
-      if (process.env.NODE_ENV !== 'production') {
-        const userData = await authenticateUser(creds);
-        if (isPlainObj(userData) && isUserData(userData)) {
-          storeApi.setState({ user: userData });
-        }
+      if (data.user) {
+        // should have a good logged in user to store
+        storeApi.setState({ user: data.user });
       } else {
-        api.reset();
+        // we were logged in successfully, but the bootstrap failed on the server
+        // we should fail the login, since the server will be out of sync
+        return { ok: false, error: 'Problem logging in, please try again' };
       }
 
       // push vault data into the store
@@ -43,8 +43,8 @@ export const useSession = () => {
       // TODO: serialize a redirectUri and pull it from storage
       await router.push(options.redirectUri ?? (router.query.redirectUri as string) ?? '/', null, { shallow: false });
 
-      // Why does the `user` endpoint not return user information after login
-      toast({ title: `${creds.email} Logged in successfully!` });
+      // show message to user
+      toast({ title: `${creds.email} Logged in successfully!`, position: 'top' });
       return { ok: true };
     } else if (data.error) {
       return { ok: false, error: data.error };
@@ -53,28 +53,28 @@ export const useSession = () => {
   };
 
   const logout = async (): Promise<BasicMsg<string>> => {
-    const { data } = await axios.post<{ success: boolean; error?: string }>('/api/auth/logout');
+    const { data } = await axios.post<{ success: boolean; user?: IUserData; error?: string }>('/api/auth/logout');
 
     if (data.success) {
       // clear all user data
       storeApi.getState().resetUser();
       storeApi.getState().resetUserSettings();
+      api.reset();
 
-      if (process.env.NODE_ENV !== 'production') {
-        const userData = await logoutUser();
-        if (isPlainObj(userData) && isUserData(userData)) {
-          storeApi.setState({ user: userData });
-        }
+      if (data.user) {
+        // should have a good logged in user to store
+        storeApi.setState({ user: data.user });
       } else {
-        api.reset();
+        // we were logged in successfully, but the bootstrap failed on the server
+        // we should fail the login, since the server will be out of sync
+        return { ok: false, error: 'Problem logging in, please try again' };
       }
 
       // redirect to root
       void router.push('/', null, { shallow: false });
 
-      // alert the user, we don't have a username at this point, so better to show a generic message
-      // Why does the `user` endpoint not return user information after login
-      toast({ title: `Logged out!` });
+      // show message to user
+      toast({ title: `Logged out!`, position: 'top' });
       return { ok: true };
     } else if (data.error) {
       return { error: data.error, ok: false };

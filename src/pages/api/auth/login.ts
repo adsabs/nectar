@@ -1,4 +1,4 @@
-import { isAuthenticated, isUserData } from '@api';
+import { isAuthenticated, isUserData, IUserData } from '@api';
 import { authenticateUser } from '@hooks/useSession/helpers';
 import { IUserCredentials } from '@hooks/useSession/types';
 import type { NextApiRequest, NextApiResponse } from 'next';
@@ -7,6 +7,7 @@ import { z } from 'zod';
 interface Output {
   success?: boolean;
   error?: string | z.ZodError;
+  user?: IUserData;
 }
 
 export default async function (req: NextApiRequest, res: NextApiResponse<Output>) {
@@ -30,7 +31,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse<Output>
         // success! user is logged in, and we have the new
         req.session.userData = result;
         req.session.isAuthenticated = isAuthenticated(result);
-        return res.status(200).json({ success: true });
+        return res.status(200).json({ success: true, user: result });
       }
       return res.status(500).json({ success: false, error: 'Could not login user, unknown server issue' });
     } catch (e) {
