@@ -1,9 +1,10 @@
-import { isUserData } from '@api';
+import { isUserData, IUserData } from '@api';
 import { logoutUser } from '@hooks/useSession/helpers';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 interface Output {
   success?: boolean;
+  user?: IUserData;
   error?: string;
 }
 
@@ -25,7 +26,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse<Output>
       // success! user is logged out, and we have a new anon token for the session
       req.session.userData = result;
       req.session.isAuthenticated = false;
-      return res.status(200).json({ success: true });
+      return res.status(200).json({ success: true, user: result });
     }
     return res.status(500).json({ success: false, error: 'Could not logout user, unknown server issue' });
   }
