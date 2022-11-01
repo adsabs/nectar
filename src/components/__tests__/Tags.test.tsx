@@ -1,5 +1,5 @@
-import { ITagItem } from '@components/Tags';
 import { render } from '@testing-library/react';
+import { noop } from '@utils';
 import { describe, it } from 'vitest';
 import { Default as Tags } from '../__stories__/Tags.stories';
 
@@ -22,13 +22,9 @@ const tagItems = [
   },
 ];
 
-const handleRemove = (item: ITagItem) => {
-  console.log('Remove ', item.label);
-};
+const handleRemove = noop;
 
-const handleClear = () => {
-  console.log('clear');
-};
+const handleClear = noop;
 
 describe('Tags', () => {
   it('renders without crashing', () => {

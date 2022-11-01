@@ -1,8 +1,8 @@
-import { ListType } from './types';
+import { HStack } from '@chakra-ui/layout';
+import { OrcidInactiveLogo } from '@components';
 import { MouseEvent, ReactElement } from 'react';
 import { MenuDropdown } from './MenuDropdown';
-import { OrcidInactiveLogo } from '@components';
-import { HStack } from '@chakra-ui/layout';
+import { ListType } from './types';
 
 const items = [
   {
@@ -30,7 +30,7 @@ export const OrcidDropdown = (props: IOrcidDropdownProps): ReactElement => {
   };
 
   const handleOrcidSignIn = () => {
-    console.log('orcid sign in ');
+    // console.log('orcid sign in ');
   };
 
   const orcidLabel = (
