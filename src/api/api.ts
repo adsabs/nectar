@@ -106,7 +106,7 @@ class Api {
               updateAppUser(res);
               return this.request(error.config);
             })
-            .catch((e) => {
+            .catch(() => {
               const bootstrapError = new Error('Unrecoverable Error, unable to refresh token', { cause: error });
               return Promise.reject(bootstrapError);
             });

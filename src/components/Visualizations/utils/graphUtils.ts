@@ -25,7 +25,6 @@ import { IAuthorNetworkNodeDetails, IPaperNetworkLinkDetails, IPaperNetworkNodeD
 import { Datum, Serie } from '@nivo/line';
 import * as d3 from 'd3';
 import { decode } from 'he';
-import _ from 'lodash';
 import {
   countBy,
   divide,
@@ -44,16 +43,16 @@ import {
 import {
   IBarGraph,
   ICitationsTableData,
-  IIndicesTableData,
-  IPapersTableData,
-  IReadsTableData,
-  ILineGraph,
   ICitationTableInput,
+  IIndicesTableData,
   IIndicesTableInput,
+  ILineGraph,
+  IPapersTableData,
   IPaperTableInput,
+  IReadsTableData,
   IReadTableInput,
-  YearDatum,
   ISliderRange,
+  YearDatum,
 } from '../types';
 
 /************ metrics helpers ************/
