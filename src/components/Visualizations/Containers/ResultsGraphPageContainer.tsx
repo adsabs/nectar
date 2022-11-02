@@ -1,10 +1,18 @@
-import { IADSApiSearchParams, IDocsEntity, useGetResultsGraph } from '@api';
+import { IADSApiSearchParams, IDocsEntity, useGetResultsGraph, useVaultBigQuerySearch } from '@api';
 import { CheckCircleIcon } from '@chakra-ui/icons';
-import { Box, Flex, List, ListIcon, ListItem, Text } from '@chakra-ui/react';
-import { CustomInfoMessage, DataDownloader, LoadingMessage, StandardAlertMessage } from '@components';
+import { Box, Flex, List, ListIcon, ListItem, Text, useToast } from '@chakra-ui/react';
+import {
+  CustomInfoMessage,
+  DataDownloader,
+  IBubblePlotNodeData,
+  LoadingMessage,
+  StandardAlertMessage,
+} from '@components';
 import { Expandable } from '@components/Expandable';
+import { makeSearchParams } from '@utils';
 import axios from 'axios';
-import { ReactElement, useCallback, useMemo } from 'react';
+import { useRouter } from 'next/router';
+import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { BubblePlotPane } from '../GraphPanes';
 import { getResultsGraph } from '../utils';
 
@@ -13,17 +21,51 @@ interface IResultsGraphPageContainerProps {
 }
 
 export const ResultsGraphPageContainer = ({ query }: IResultsGraphPageContainerProps): ReactElement => {
+  const router = useRouter();
+  const toast = useToast();
+
   // fetch graph data
   const { data, isLoading, isSuccess, isError, error } = useGetResultsGraph(
     { ...query },
     { enabled: !!query && !!query.q && query.q.length > 0 },
   );
 
+  // when filtered search is applied, trigger big query
+  const [applyingBibcodes, setApplyingBibcodes] = useState<string[]>([]);
+  const { data: bigQueryData, error: bigQueryError } = useVaultBigQuerySearch(applyingBibcodes, {
+    enabled: applyingBibcodes.length > 0,
+  });
+
+  // When big query data is fetched, redirect to the search results page
+  useEffect(() => {
+    if (bigQueryData && applyingBibcodes.length > 0) {
+      void router.push({ pathname: '/search', search: makeSearchParams({ q: `docs(${bigQueryData.qid})` }) });
+      setApplyingBibcodes([]);
+    }
+
+    if (bigQueryError) {
+      toast({
+        status: 'error',
+        title: 'Error!',
+        description: 'Error fetching filtered results',
+      });
+      setApplyingBibcodes([]);
+    }
+  }, [bigQueryData, bigQueryError, applyingBibcodes]);
+
   const graphData = useMemo(() => {
     if (data?.response?.docs) {
       return getResultsGraph(data.response.docs);
     }
   }, [data]);
+
+  // get all papers (bibcodes) of the selected nodes and trigger big query search
+  const handleApplyFilter = (nodes: IBubblePlotNodeData[]) => {
+    const bibcodes = nodes.map((n) => n.bibcode);
+
+    // This will trigger big query and redirect
+    setApplyingBibcodes(bibcodes);
+  };
 
   const getCSVDataContent = useCallback(() => {
     type ResultDoc = Pick<IDocsEntity, 'bibcode' | 'pubdate' | 'title' | 'read_count' | 'citation_count'>;
@@ -76,13 +118,14 @@ export const ResultsGraphPageContainer = ({ query }: IResultsGraphPageContainerP
                   <ListItem>
                     <Flex direction="row" alignItems="center">
                       <ListIcon as={CheckCircleIcon} color="green.500" />
-                      Click below to swap y axis and bubble radius
+                      Click on the different views to swap y axis and bubble radius
                     </Flex>
                   </ListItem>
                   <ListItem>
                     <Flex direction="row" alignItems="center">
                       <ListIcon as={CheckCircleIcon} color="green.500" />
-                      Click on a paper bubble to outline it for tracking purposes throughout the three graphs
+                      Click on paper nodes or draw rectangle boundary to select papers for tracking purposes throughout
+                      the three graphs, or to apply filter.
                     </Flex>
                   </ListItem>
                 </List>
@@ -101,7 +144,7 @@ export const ResultsGraphPageContainer = ({ query }: IResultsGraphPageContainerP
               showLabel={true}
             />
           )}
-          <BubblePlotPane graph={graphData} />
+          <BubblePlotPane graph={graphData} onApplyFilter={handleApplyFilter} />
         </Flex>
       )}
     </Box>

@@ -20,6 +20,7 @@ export type BubblePlotConfig = {
 
 export type BubblePlotProps = BubblePlotConfig & {
   graph: IBubblePlot;
+  onSelectNodes: (nodes: BubbleNode[]) => void;
 };
 
 type BubbleNode = IBubblePlotNodeData & { cx: number; cy: number };
@@ -37,6 +38,7 @@ export const BubblePlot = ({
   yScaleTypes,
   xLabel,
   yLabel,
+  onSelectNodes,
 }: BubblePlotProps): ReactElement => {
   const [currentScaleType, setCurrentScaleType] = useState({ x: xScaleTypes[0], y: yScaleTypes[0] });
 
@@ -97,6 +99,8 @@ export const BubblePlot = ({
       'selected',
       (n) => findIndex(propEq('bibcode', n.bibcode), selectedNodes) !== -1,
     );
+
+    onSelectNodes(selectedNodes);
   }, [selectedNodes]);
 
   const attachListeners = useCallback(() => {

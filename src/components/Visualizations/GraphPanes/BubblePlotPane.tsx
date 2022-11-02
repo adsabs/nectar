@@ -1,7 +1,7 @@
-import { Box, Radio, RadioGroup, Stack } from '@chakra-ui/react';
+import { Box, Button, Radio, RadioGroup, Stack, Text, VStack } from '@chakra-ui/react';
 import { ReactElement, useState } from 'react';
 import { BubblePlot, BubblePlotConfig } from '../Graphs/BubblePlot';
-import { IBubblePlot } from '../types';
+import { IBubblePlot, IBubblePlotNodeData } from '../types';
 
 const defaultReadCountConfig: BubblePlotConfig = {
   xKey: 'date',
@@ -35,6 +35,7 @@ const defaultReadCitationConfig: BubblePlotConfig = {
 
 export interface IBubblePlotPaneProps {
   graph: IBubblePlot;
+  onApplyFilter: (nodes: IBubblePlotNodeData[]) => void;
 }
 
 type PlotType = 'readTime' | 'citationTime' | 'readCitation';
@@ -45,15 +46,35 @@ const plotTypes: { [key in PlotType]: { label: string; config: BubblePlotConfig 
   readCitation: { label: 'Read Count vs. Citation Count', config: defaultReadCitationConfig },
 };
 
-export const BubblePlotPane = ({ graph }: IBubblePlotPaneProps): ReactElement => {
+export const BubblePlotPane = ({ graph, onApplyFilter }: IBubblePlotPaneProps): ReactElement => {
   const [plotType, setPlotType] = useState<PlotType>('readTime');
+
+  const [selectedNodes, setSelectedNodes] = useState<IBubblePlotNodeData[]>([]);
 
   const handleChangePlotType = (type: PlotType) => {
     setPlotType(type);
   };
 
+  const handleApplyFilter = () => {
+    onApplyFilter(selectedNodes);
+  };
+
+  const handleNodesSelected = (nodes: IBubblePlotNodeData[]) => {
+    setSelectedNodes(nodes);
+  };
+
   return (
     <Box mt={5}>
+      <VStack mb={5} alignItems="start">
+        <Text fontWeight="bold">Filter current search</Text>
+        <Text>
+          Select papers on the graph by clicking the nodes or draw rectangle boundary, then apply to filter current
+          search. Click the node again to deselect, or double click outside the nodes to deselect all.
+        </Text>
+        <Button onClick={handleApplyFilter} isDisabled={selectedNodes.length === 0}>
+          Apply Filter
+        </Button>
+      </VStack>
       <RadioGroup value={plotType} onChange={handleChangePlotType}>
         <Stack direction="row">
           {Object.entries(plotTypes).map(([k, v]) => (
@@ -64,7 +85,7 @@ export const BubblePlotPane = ({ graph }: IBubblePlotPaneProps): ReactElement =>
         </Stack>
       </RadioGroup>
 
-      <BubblePlot graph={graph} {...plotTypes[plotType].config} />
+      <BubblePlot graph={graph} {...plotTypes[plotType].config} onSelectNodes={handleNodesSelected} />
     </Box>
   );
 };
