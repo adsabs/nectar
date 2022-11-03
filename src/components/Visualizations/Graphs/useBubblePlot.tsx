@@ -11,7 +11,7 @@ export const useBubblePlot = ({
   rKey,
   xScaleType,
   yScaleType,
-}: Omit<BubblePlotProps, 'xLabel' | 'yLabel' | 'xScaleTypes' | 'yScaleTypes'> & {
+}: Omit<BubblePlotProps, 'xLabel' | 'yLabel' | 'xScaleTypes' | 'yScaleTypes' | 'onSelectNodes'> & {
   xScaleType: Scale;
   yScaleType: Scale;
   width: number;
@@ -36,7 +36,7 @@ export const useBubblePlot = ({
   );
 
   // get d3 xScale function based what's used for x-axis
-  const xScale = useMemo(() => {
+  const xScaleFn = useMemo(() => {
     const extent = d3.extent(nodes, (d) => d[xKey]);
     if (xKey === 'date') {
       return d3.scaleTime().domain(extent).range([0, width]);
@@ -51,7 +51,7 @@ export const useBubblePlot = ({
   }, [nodes, xKey, xScaleType]);
 
   // get d3 yScale function based log or linear scale
-  const yScale = useMemo(() => {
+  const yScaleFn = useMemo(() => {
     const extent = d3.extent(nodes, (d) => d[yKey]);
     return yScaleType === 'log'
       ? d3
@@ -62,12 +62,12 @@ export const useBubblePlot = ({
   }, [nodes, yKey, yScaleType]);
 
   // scale for bubble size
-  const rScale = useMemo(() => {
+  const rScaleFn = useMemo(() => {
     const extent = d3.extent(nodes, (n) => n[rKey]);
     return rKey === 'year'
       ? d3.scaleLinear().domain(extent).range([2, 14])
       : d3.scaleLinear().domain(extent).range([4, 26]);
   }, [nodes, rKey]);
 
-  return { groupColor, xScale, yScale, rScale };
+  return { groupColor, xScaleFn, yScaleFn, rScaleFn };
 };
