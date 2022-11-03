@@ -181,7 +181,11 @@ export const BubblePlot = ({
           const brushedNodes: IBubbleNode[] = [];
 
           papers.each((d) => {
-            if (isBrushed(extent as [[number, number], [number, number]], d.cx, d.cy)) {
+            // if showing single group, only select the nodes in the selected group
+            if (
+              (state.selectedGroup === null || state.selectedGroup === d.pub) &&
+              isBrushed(extent as [[number, number], [number, number]], d.cx, d.cy)
+            ) {
               brushedNodes.push(d);
             } else {
               without([d], brushedNodes);
@@ -201,7 +205,7 @@ export const BubblePlot = ({
       .on('dblclick', () => {
         dispatch({ type: 'CLEAR_NODES' });
       });
-  }, [state.selectedNodes]);
+  }, [state.selectedNodes, state.selectedGroup]);
 
   // when selectedNodes is changed, need to update listeners
   useEffect(() => {
