@@ -41,7 +41,7 @@ export const Footer: FC = () => {
           Cooperative Agreement 80NSSC21M0056
         </Text>
         <HStack mt={3} spacing={1} my={{ base: '3', md: '0' }}>
-          <NextLink href="https://www.nasa.gov" passHref>
+          <NextLink href="https://www.nasa.gov" passHref legacyBehavior>
             <Link variant="footer" rel="noopener noreferrer">
               <VisuallyHidden as="abbr" title="National Aeronautics and Space Administration">
                 NASA
@@ -49,13 +49,13 @@ export const Footer: FC = () => {
               <NasaLogo width="80px" height="66px" aria-hidden />
             </Link>
           </NextLink>
-          <NextLink href="http://www.si.edu/" passHref>
+          <NextLink href="http://www.si.edu/" passHref legacyBehavior>
             <Link variant="footer" rel="noopener noreferrer">
               <VisuallyHidden>Smithsonian Institution</VisuallyHidden>
               <SmithsonianLogo width="66px" height="68px" aria-hidden />
             </Link>
           </NextLink>
-          <NextLink href="https://www.cfa.harvard.edu/" passHref>
+          <NextLink href="https://www.cfa.harvard.edu/" passHref legacyBehavior>
             <Link variant="footer" rel="noopener noreferrer">
               <VisuallyHidden>Center for Astrophysics</VisuallyHidden>
               <CFALogo width="100px" height="41px" style={{ filter: 'invert(1)' }} aria-hidden />

@@ -15,7 +15,7 @@ export const SimpleLink: FC<ISimpleLinkProps> = (props): ReactElement => {
   const isExternal = newTab || /^https?/.test(href);
 
   return (
-    <NextLink href={href} passHref>
+    <NextLink href={href} passHref legacyBehavior>
       <ChakraLink
         variant={variant ? variant : 'default'}
         display="block"

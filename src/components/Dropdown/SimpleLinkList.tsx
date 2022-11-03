@@ -49,7 +49,7 @@ export const SimpleLinkList = (props: ISimpleLinkListProps): ReactElement => {
                   </Box>
                 </Box>
               ) : (
-                <NextLink href={item.path} passHref>
+                <NextLink href={item.path} passHref legacyBehavior>
                   <Link
                     rel="noreferrer noopener"
                     target={item.newTab ? '_blank' : '_self'}
@@ -80,7 +80,7 @@ export const SimpleLinkList = (props: ISimpleLinkListProps): ReactElement => {
               {item.disabled ? (
                 <Text color="gray.200">{item.label}</Text>
               ) : (
-                <NextLink href={item.path} passHref>
+                <NextLink href={item.path} passHref legacyBehavior>
                   <Link
                     rel="noreferrer noopener"
                     target={item.newTab ? '_blank' : '_self'}

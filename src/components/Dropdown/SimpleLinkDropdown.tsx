@@ -66,7 +66,7 @@ export const SimpleLinkDropdown = (props: ISimpleLinkDropdownProps): ReactElemen
                 </Box>
               </Box>
             ) : (
-              <NextLink key={item.id} href={item.path} passHref>
+              <NextLink key={item.id} href={item.path} passHref legacyBehavior>
                 <Link rel="noreferrer noopener" target={item.newTab ? '_blank' : '_self'} variant="dropdownItem">
                   <Box width="full" m={0} px={2}>
                     {item.label}

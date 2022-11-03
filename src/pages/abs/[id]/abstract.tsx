@@ -192,7 +192,7 @@ const Detail = <T,>(props: IDetailProps<T>): ReactElement => {
       <Td>{label}</Td>
       <Td wordBreak="break-word">
         {href && (
-          <NextLink href={href} passHref>
+          <NextLink href={href} passHref legacyBehavior>
             <Link rel="noreferrer noopener" isExternal>
               {normalizedValue} <ExternalLinkIcon mx="2px" />
             </Link>
