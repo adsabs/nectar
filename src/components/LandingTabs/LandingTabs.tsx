@@ -2,7 +2,8 @@ import { Box, Flex, Heading, HStack, Link, Stack, Text } from '@chakra-ui/layout
 import { AdsSmallLogo } from '@components/images';
 import { useStore } from '@store';
 import { Theme } from '@types';
-import Image from 'next/image';
+import { StaticImageData } from 'next/image';
+import Image from "next/legacy/image";
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import starBg from 'public/images/bg-astro.jpg';
