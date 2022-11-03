@@ -6,7 +6,7 @@ import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
 import { composeNextGSSP, normalizeURLParams, setupApiSSR, unwrapStringValue, userGSSP } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
-import NextImage from 'next/image';
+import NextImage from "next/legacy/image";
 import NextLink from 'next/link';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
 interface IGraphicsPageProps {
@@ -63,7 +63,7 @@ const GraphicsPage: NextPage<IGraphicsPageProps> = (props: IGraphicsPageProps) =
                         height="150"
                         className="p-5"
                         alt={figure.figure_label}
-                      ></NextImage>
+                      />
                     </Link>
                   </NextLink>
                   <Box aria-hidden="true">{figure.figure_label}</Box>
