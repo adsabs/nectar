@@ -15,7 +15,7 @@ export const NavBar: FC = () => {
     <Box as="nav" backgroundColor="gray.900">
       <Flex direction="row" alignItems="center" justifyContent="space-between" mx={4} my={2}>
         <HStack spacing={3}>
-          <NextLink href="/" passHref>
+          <NextLink href="/" passHref legacyBehavior>
             <Link _hover={{ textDecoration: 'none' }}>
               <HStack cursor="pointer" spacing={1}>
                 <AdsSmallLogo className="w-10 h-10" aria-hidden />

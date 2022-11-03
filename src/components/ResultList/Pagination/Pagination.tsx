@@ -185,7 +185,7 @@ export const Pagination = (props: PaginationProps): ReactElement => {
           </Box>
         )}
         <Stack direction="row" spacing={0} role="navigation" aria-label="Pagination">
-          <NextLink {...getLinkParams(prevPage)} passHref shallow>
+          <NextLink {...getLinkParams(prevPage)} passHref shallow legacyBehavior>
             <Link>
               <Button
                 onClick={handleClick('prev')}
@@ -207,7 +207,7 @@ export const Pagination = (props: PaginationProps): ReactElement => {
             onPageSelect={onPageSelect}
           />
 
-          <NextLink {...getLinkParams(nextPage)} passHref shallow>
+          <NextLink {...getLinkParams(nextPage)} passHref shallow legacyBehavior>
             <Link>
               <Button
                 onClick={handleClick('next')}

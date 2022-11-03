@@ -33,7 +33,7 @@ export const DescriptionCollapse = (props: IDescriptionCollapseProps): ReactElem
 const Static = (props: IDescriptionCollapseProps): ReactElement => {
   const { linkProps } = props;
   return (
-    <Link {...linkProps}>
+    <Link {...linkProps} legacyBehavior>
       <ChakraLink>
         <QuestionOutlineIcon />
       </ChakraLink>

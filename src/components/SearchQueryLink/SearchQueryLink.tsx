@@ -32,7 +32,7 @@ export const SearchQueryLink = (props: ISearchQueryLinkProps): ReactElement => {
       shallow={shallow}
       locale={locale}
       passHref
-    >
+      legacyBehavior>
       <Link {...chakraLinkProps} />
     </NextLink>
   );

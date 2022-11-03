@@ -51,50 +51,51 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
     void fetchNextPage();
   };
 
-  return (
-    <>
-      <Head>
-        <title>NASA Science Explorer - Export Citations</title>
-      </Head>
-      <Flex direction="column">
-        <HStack my={10}>
-          <NextLink href={{ pathname: '/search', query: omit(['qid', 'format'], router.query) }} passHref>
-            <Link aria-label="Back to search results">
-              <ChevronLeftIcon w={8} h={8} />
-            </Link>
-          </NextLink>
-          <Heading as="h2" fontSize="2xl">
-            Export Citations
-          </Heading>
-        </HStack>
-        <Box pt="1">
-          {error ? (
-            <Alert status="error">
-              <AlertIcon />
-              {error.message}
-            </Alert>
-          ) : isClient ? (
-            <CitationExporter
-              initialFormat={format}
-              records={records}
-              totalRecords={numFound}
-              nextPage={handleNextPage}
-              hasNextPage={hasNextPage}
-              page={data.pages.length - 1}
-              sort={query.sort}
-            />
-          ) : (
-            <CitationExporter.Static
-              initialFormat={format}
-              records={records}
-              totalRecords={numFound}
-              sort={query.sort}
-            />
-          )}
-        </Box>
-      </Flex>
-    </>
-  );
+  return <>
+    <Head>
+      <title>NASA Science Explorer - Export Citations</title>
+    </Head>
+    <Flex direction="column">
+      <HStack my={10}>
+        <NextLink
+          href={{ pathname: '/search', query: omit(['qid', 'format'], router.query) }}
+          passHref
+          legacyBehavior>
+          <Link aria-label="Back to search results">
+            <ChevronLeftIcon w={8} h={8} />
+          </Link>
+        </NextLink>
+        <Heading as="h2" fontSize="2xl">
+          Export Citations
+        </Heading>
+      </HStack>
+      <Box pt="1">
+        {error ? (
+          <Alert status="error">
+            <AlertIcon />
+            {error.message}
+          </Alert>
+        ) : isClient ? (
+          <CitationExporter
+            initialFormat={format}
+            records={records}
+            totalRecords={numFound}
+            nextPage={handleNextPage}
+            hasNextPage={hasNextPage}
+            page={data.pages.length - 1}
+            sort={query.sort}
+          />
+        ) : (
+          <CitationExporter.Static
+            initialFormat={format}
+            records={records}
+            totalRecords={numFound}
+            sort={query.sort}
+          />
+        )}
+      </Box>
+    </Flex>
+  </>;
 };
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
   setupApiSSR(ctx);

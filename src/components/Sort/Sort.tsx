@@ -190,7 +190,7 @@ const NoJsSort = (): ReactElement => {
           search: makeSearchParams({ q: '*:*', ...router.query, p: 1, sort: [`${sortby} ${getToggledDir(dir)}`] }),
         }}
         passHref
-      >
+        legacyBehavior>
         <Link>
           <>
             {dir === 'desc' ? (

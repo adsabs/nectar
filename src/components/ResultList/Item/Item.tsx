@@ -62,7 +62,7 @@ export const Item = (props: IItemProps): ReactElement => {
         href={{ pathname: `/abs/[id]/citations`, search: 'p=1' }}
         as={{ pathname: `/abs/${bibcode}/citations`, search: 'p=1' }}
         passHref
-      >
+        legacyBehavior>
         <Link target={linkNewTab ? '_blank' : '_self'} rel={linkNewTab ? 'noopener noreferrer' : ''}>
           <Text>cited(n): {doc.citation_count_norm}</Text>
         </Link>
@@ -73,7 +73,7 @@ export const Item = (props: IItemProps): ReactElement => {
       href={{ pathname: `/abs/[id]/citations`, search: 'p=1' }}
       as={{ pathname: `/abs/${bibcode}/citations`, search: 'p=1' }}
       passHref
-    >
+      legacyBehavior>
       <Link target={linkNewTab ? '_blank' : '_self'} rel={linkNewTab ? 'noopener noreferrer' : ''}>
         cited: {doc.citation_count}
       </Link>
@@ -103,7 +103,11 @@ export const Item = (props: IItemProps): ReactElement => {
       </Flex>
       <Stack direction="column" width="full" spacing={0} mx={3} mt={2}>
         <Flex justifyContent="space-between">
-          <NextLink href={`/abs/[id]/abstract`} as={`/abs/${bibcode}/abstract`} passHref>
+          <NextLink
+            href={`/abs/[id]/abstract`}
+            as={`/abs/${bibcode}/abstract`}
+            passHref
+            legacyBehavior>
             <Link
               fontWeight="semibold"
               target={linkNewTab ? '_blank' : '_self'}
