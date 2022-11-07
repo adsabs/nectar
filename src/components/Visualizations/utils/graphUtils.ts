@@ -26,7 +26,6 @@ import { IAuthorNetworkNodeDetails, IPaperNetworkLinkDetails, IPaperNetworkNodeD
 import { Datum, Serie } from '@nivo/line';
 import * as d3 from 'd3';
 import { decode } from 'he';
-import _ from 'lodash';
 import {
   countBy,
   divide,

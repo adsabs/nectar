@@ -72,7 +72,7 @@ export const BubblePlotPane = ({ graph, onApplyFilter }: IBubblePlotPaneProps): 
           search. Click the node again to deselect, or double click outside the nodes to deselect all.
         </Text>
         <Button onClick={handleApplyFilter} isDisabled={selectedNodes.length === 0}>
-          Apply Filter
+          Search
         </Button>
       </VStack>
       <RadioGroup value={plotType} onChange={handleChangePlotType}>

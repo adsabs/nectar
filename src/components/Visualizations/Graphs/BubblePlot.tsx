@@ -121,10 +121,10 @@ export const BubblePlot = ({
             cy: state.yScaleType === 'log' && n[yKey] === 0 ? 0 : yScaleFn(n[yKey]),
           } as IBubbleNode),
       ),
-    [data, state.xScaleType, state.yScaleType, xScaleFn, yScaleFn],
-  ); // xScaleFn and yXcaleFn are updated when xKey and yKey change
+    [xScaleFn, yScaleFn],
+  ); // xScaleFn and yXcaleFn are updated when keys or scale types change
 
-  // When changing graph or axis scale
+  // When changing graph or axis scale, update axis
   useEffect(() => {
     transitionXAxis();
     renderXAxisLabel(d3.select('.x-label'));
@@ -132,10 +132,12 @@ export const BubblePlot = ({
     renderYAxisLabel(d3.select('.y-label'));
   }, [xScaleFn, yScaleFn]);
 
+  // move the nodes
   useEffect(() => {
     transitionNodes();
   }, [nodes, xScaleFn, yScaleFn, rScaleFn]);
 
+  // group selected or deselected
   useEffect(() => {
     transitionToGroup();
   }, [state.selectedGroup]);
@@ -212,6 +214,7 @@ export const BubblePlot = ({
     attachListeners();
   }, [attachListeners]);
 
+  // when svg just rendered, attach listeners
   useEffect(() => {
     // Just rendered
     if (rendered.current) {
@@ -280,7 +283,7 @@ export const BubblePlot = ({
 
   /********** renderings **********/
 
-  // is a dot in the selection
+  // is a coordinate in the selection boundary
   function isBrushed(brushCoords: [[number, number], [number, number]], cx: number, cy: number) {
     const x0 = brushCoords[0][0];
     const x1 = brushCoords[1][0];
