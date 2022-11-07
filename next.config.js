@@ -67,10 +67,7 @@ const config = {
   compiler: {
     reactRemoveProperties: false,
   },
-  swcMinify: false,
-  experimental: {
-    outputStandalone: true,
-  },
+  standalone: true,
 };
 
 module.exports = withBundleAnalyzer(config);
