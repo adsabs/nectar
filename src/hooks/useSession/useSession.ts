@@ -73,7 +73,7 @@ export const useSession = () => {
         } else {
           // we were logged in successfully, but the bootstrap failed on the server
           // we should fail the login, since the server will be out of sync
-          return { ok: false, error: 'Problem logging in, please try again' };
+          return { ok: false, error: 'Problem logging out, please try again' };
         }
 
         // redirect to root
