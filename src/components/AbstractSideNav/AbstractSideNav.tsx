@@ -180,6 +180,7 @@ const Item = (props: IItemProps) => {
       href={{ pathname: `/abs/[id]/${route}`, search: noPagination ? '' : 'p=1' }}
       as={{ pathname: `/abs/${docId}/${route}`, search: noPagination ? '' : 'p=1' }}
       passHref
+      legacyBehavior
       {...linkProps(docId)}
     >
       <Button
