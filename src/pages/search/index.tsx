@@ -12,7 +12,7 @@ import {
 } from '@api';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import { Box, Flex, List, ListIcon, ListItem, Stack } from '@chakra-ui/layout';
-import { Alert, AlertIcon, Button, Code, Heading, Portal, VisuallyHidden } from '@chakra-ui/react';
+import { Alert, AlertIcon, Button, Code, Heading, Portal, useMediaQuery, VisuallyHidden } from '@chakra-ui/react';
 import {
   CustomInfoMessage,
   ISearchFacetsProps,
@@ -90,6 +90,8 @@ const SearchPage: NextPage = () => {
 
   const { data, isSuccess, isLoading, error } = useSearch(omitP(params));
 
+  const [isPrint] = useMediaQuery('print'); // use to hide elements when printing
+
   // on Sort change handler
   const handleSortChange = (sort: SolrSort[]) => {
     const query = store.getState().query;
@@ -144,18 +146,20 @@ const SearchPage: NextPage = () => {
         <title>{params.q} | NASA Science Explorer - Search Results</title>
       </Head>
       <Stack direction="row" aria-labelledby="search-form-title" my={12} spacing="4">
-        <SearchFacetFilters params={params} />
+        {isPrint || <SearchFacetFilters params={params} />}
         <Box>
-          <form method="get" action="/search" onSubmit={handleOnSubmit}>
-            <Flex direction="column" width="full">
-              <SearchBar isLoading={isLoading} />
-              <NumFound count={data?.numFound} isLoading={isLoading} />
-            </Flex>
-            <FacetFilters mt="2" />
-            <Box mt={5}>
-              {isSuccess && !isLoading && data?.numFound > 0 && <ListActions onSortChange={handleSortChange} />}
-            </Box>
-          </form>
+          {isPrint || (
+            <form method="get" action="/search" onSubmit={handleOnSubmit} className="print-hidden">
+              <Flex direction="column" width="full">
+                <SearchBar isLoading={isLoading} />
+                <NumFound count={data?.numFound} isLoading={isLoading} />
+              </Flex>
+              <FacetFilters mt="2" />
+              <Box mt={5}>
+                {isSuccess && !isLoading && data?.numFound > 0 && <ListActions onSortChange={handleSortChange} />}
+              </Box>
+            </form>
+          )}
 
           <VisuallyHidden as="h2" id="search-form-title">
             Search Results
