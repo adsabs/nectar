@@ -4,6 +4,7 @@ import {
   CitationsHistogramType,
   CitationsStatsKey,
   IBucket,
+  IDocsEntity,
   IFacetCountsFields,
   PapersHistogramKey,
   PapersHistogramType,
@@ -36,9 +37,11 @@ import {
   range,
   reduce,
   reverse,
-  sortBy,
-  uniq,
   values,
+  sort,
+  sortBy,
+  toPairs,
+  uniq,
 } from 'ramda';
 import {
   IBarGraph,
@@ -51,8 +54,10 @@ import {
   IPaperTableInput,
   IReadsTableData,
   IReadTableInput,
-  ISliderRange,
   YearDatum,
+  ISliderRange,
+  IBubblePlotNodeData,
+  IBubblePlot,
 } from '../types';
 
 /************ metrics helpers ************/
@@ -737,4 +742,40 @@ export const buildWCDict = (
     .clamp(true);
 
   return { wordList, fill };
+};
+
+/************ results graph helpers ************/
+
+export const getResultsGraph = (docs: IDocsEntity[]): IBubblePlot => {
+  const nodes = docs.map((d) => {
+    const node: IBubblePlotNodeData = {
+      bibcode: d.bibcode,
+      pubdate: d.pubdate.replace(/(\D)00/g, (_m, p1) => `${p1 as string}01`), // turn 00s into 01s (ok maybe this is not the ideal solution)
+      date: new Date(),
+      title: d.title ? d.title[0] : '',
+      read_count: d.read_count ?? 0,
+      citation_count: d.citation_count ?? 0,
+      year: parseInt(d.bibcode.slice(0, 4)),
+      pub: d.bibcode.slice(4, 9).replace(/\./g, ''),
+    };
+    node.date = new Date(node.pubdate);
+    return node;
+  });
+
+  // check if there are enough important journals to highlight circles
+  // [...[pub, count]]
+  const pubs = reverse(sort((p1, p2) => p1[1] - p2[1], toPairs(countBy((n) => n.pub, nodes))));
+
+  // top pub counts
+  const topPubsCount = pubs.slice(0, 5).reduce((acc, pair) => acc + pair[1], 0);
+
+  const journalNames = topPubsCount / nodes.length >= 0.25 ? pubs.map((pair) => pair[0]).slice(0, 5) : [];
+  if (journalNames.length > 0 && topPubsCount / nodes.length < 1) {
+    journalNames.push('other');
+  }
+
+  // update pub name to others
+  nodes.forEach((n) => (n.pub = journalNames.includes(n.pub) ? n.pub : 'other'));
+
+  return { data: nodes, groups: journalNames };
 };

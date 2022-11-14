@@ -2,6 +2,21 @@ import { CitationsStatsKey, BasicStatsKey, TimeSeriesKey } from '@api';
 import { BarDatum } from '@nivo/bar';
 import { Serie } from '@nivo/line';
 
+export interface IBubblePlotNodeData {
+  bibcode: string;
+  pubdate: string;
+  title: string;
+  read_count: number;
+  citation_count: number;
+  date: Date;
+  year: number;
+  pub: string;
+}
+export interface IBubblePlot {
+  data: IBubblePlotNodeData[];
+  groups?: string[];
+}
+
 export interface IBarGraph<T extends BarDatum> {
   data: T[];
   keys: string[];
