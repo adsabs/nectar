@@ -126,6 +126,12 @@
     @apply cursor-pointer;
   }
 
+  .network-graph-svg .connector-node {
+    text-anchor: middle;
+    font-size: 25px;
+    cursor: move;
+  }
+
   .network-graph-svg .linked-label {
     fill: #ee8e29;
   }

@@ -26,8 +26,14 @@ export interface IBibcodeData {
   title: string | string[];
 }
 
+export interface IRootName {
+  nodeName: string;
+  nodeWeight: number;
+  delete: boolean;
+}
+
 export interface IADSApiAuthorNetworkNode {
-  name: { nodeName: string; nodeWeight: number; delete: boolean }[] | string | number;
+  name: IRootName[] | string | number;
   children?: IADSApiAuthorNetworkNode[];
   numberName?: number;
   read_count?: number;
