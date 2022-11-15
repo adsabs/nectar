@@ -14,6 +14,7 @@ import {
   DataDownloader,
   ITagItem,
 } from '@components';
+import { setFQ, Query } from '@query-utils';
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
@@ -139,7 +140,9 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
   // When big query data is fetched, redirect to the search results page
   useEffect(() => {
     if (bigQueryData && applyingBibcodes.length > 0) {
-      void router.push({ pathname: '/search', search: makeSearchParams({ q: `docs(${bigQueryData.qid})` }) });
+      const q = setFQ('selection', `docs(${bigQueryData.qid})`, query as Query);
+      const search = makeSearchParams(q as IADSApiSearchParams);
+      void router.push({ pathname: '/search', search });
       setApplyingBibcodes([]);
     }
 
@@ -151,7 +154,7 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
       });
       setApplyingBibcodes([]);
     }
-  }, [bigQueryData, bigQueryError, applyingBibcodes]);
+  }, [bigQueryData, bigQueryError]);
 
   // get all papers (bibcodes) of the filter groups and authors and trigger big query search
   const handleApplyFilters = () => {
