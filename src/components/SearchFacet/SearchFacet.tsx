@@ -23,9 +23,7 @@ import {
   MouseSensor,
   useDroppable,
   useSensor,
-  useSensors,
 } from '@dnd-kit/core';
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { ExclamationCircleIcon, EyeIcon, EyeOffIcon } from '@heroicons/react/solid';
@@ -264,13 +262,19 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
     const { visible, hidden } = facetsList;
 
     // item moved into temp hidden area because hidden list is closed
-    // or item moved into hidden container when the list is empty
-    if (over.id === 'temp-hidden-container' || over.id === 'hidden-container') {
-      // move item to hidden
-      setFacetsList({
-        visible: visible.filter((id) => id !== active.id),
-        hidden: [...hidden, active.id as SearchFacetID],
-      });
+    if (over.id === 'temp-hidden-container') {
+      // show hidden list so it's clear where item is being dragged
+      setShowHiddenFacets(true);
+    }
+    // item moved into hidden container when the list is empty
+    else if (over.id === 'hidden-container') {
+      if (hiddenFacets.length === 0) {
+        // move item to hidden
+        setFacetsList({
+          visible: visible.filter((id) => id !== active.id),
+          hidden: [active.id as SearchFacetID],
+        });
+      }
     } else if (active?.id !== over.id) {
       const activeContainer = visible.findIndex((id) => id === active.id) !== -1 ? visible : hidden;
       const overContainer = hidden.findIndex((id) => id === over.id) !== -1 ? hidden : visible;
