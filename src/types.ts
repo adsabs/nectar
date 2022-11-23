@@ -54,7 +54,7 @@ export type SafeSearchUrlParams = Omit<IADSApiSearchParams, 'fl' | 'start' | 'ro
   );
 
 export interface IBibstemOption {
-  label: string;
+  label: string[];
   value: string;
   prefix?: string;
   type?: 'error';

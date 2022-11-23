@@ -36,6 +36,7 @@ import {
   MultiValue,
   MultiValueProps,
   OptionProps,
+  OptionsOrGroups,
 } from 'react-select';
 import AsyncCreatableSelect from 'react-select/async-creatable';
 import Select from 'react-select/dist/declarations/src/Select';
@@ -187,7 +188,7 @@ const BibstemPickerImpl = (props: IBibstemPickerProps, ref: ForwardedRef<never>)
     isMultiple,
   });
 
-  const fetchOptions = async (value: string) => {
+  const fetchOptions = async (value: string): Promise<OptionsOrGroups<IBibstemOption, GroupBase<IBibstemOption>>> => {
     const valueToFetch = cleanInput(value);
     if (valueToFetch.length === 0) {
       return [];
@@ -201,6 +202,7 @@ const BibstemPickerImpl = (props: IBibstemPickerProps, ref: ForwardedRef<never>)
       return [
         {
           value: `Cannot fetch items for search "${value}"`,
+          label: [],
           type: 'error',
           isDisabled: true,
         },
