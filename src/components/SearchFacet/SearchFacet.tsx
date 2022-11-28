@@ -88,11 +88,7 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
   };
 
   const handleHideClick = () => {
-    if (hidden) {
-      showFacet(storeId);
-    } else {
-      hideFacet(storeId);
-    }
+    hidden ? showFacet(storeId) : hideFacet(storeId);
   };
 
   const handleOnError = () => {
@@ -282,27 +278,27 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
       const overIndex = overContainer.indexOf(over.id as SearchFacetID);
 
       if (activeContainer === visible && overContainer === visible) {
-        setFacetsList({
-          visible: arrayMove(visible, activeIndex, overIndex),
-          hidden: hidden,
-        });
+        setFacetsList((prev) => ({
+          ...prev,
+          visible: arrayMove(prev.visible, activeIndex, overIndex),
+        }));
       } else if (activeContainer === hidden && overContainer === hidden) {
-        setFacetsList({
-          visible: visible,
-          hidden: arrayMove(hidden, activeIndex, overIndex),
-        });
+        setFacetsList((prev) => ({
+          ...prev,
+          hidden: arrayMove(prev.hidden, activeIndex, overIndex),
+        }));
       } else if (activeContainer === hidden && overContainer === visible) {
         // moved to visible
-        setFacetsList({
-          visible: [...visible.slice(0, overIndex), active.id as SearchFacetID, ...visible.slice(overIndex)],
-          hidden: hidden.filter((id) => id !== active.id),
-        });
+        setFacetsList((prev) => ({
+          visible: [...prev.visible.slice(0, overIndex), active.id as SearchFacetID, ...prev.visible.slice(overIndex)],
+          hidden: prev.hidden.filter((id) => id !== active.id),
+        }));
       } else if (activeContainer === visible && overContainer === hidden) {
         // moved to hidden
-        setFacetsList({
-          visible: visible.filter((id) => id !== active.id),
-          hidden: [...hidden.slice(0, overIndex), active.id as SearchFacetID, ...hidden.slice(overIndex)],
-        });
+        setFacetsList((prev) => ({
+          visible: prev.visible.filter((id) => id !== active.id),
+          hidden: [...prev.hidden.slice(0, overIndex), active.id as SearchFacetID, ...prev.hidden.slice(overIndex)],
+        }));
       }
     }
   };
