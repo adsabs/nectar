@@ -1,6 +1,7 @@
 import { IExportApiResponse } from '@api';
 import { Alert, AlertIcon, Button, Stack } from '@chakra-ui/react';
-import axios, { AxiosError } from 'axios';
+import { getErrorMessage } from '@utils';
+import { AxiosError } from 'axios';
 import { ReactElement } from 'react';
 import { ExportContainer } from './ExportContainer';
 
@@ -14,12 +15,7 @@ export const ErrorFallback = ({
   error: AxiosError<IExportApiResponse> | Error;
   resetErrorBoundary: () => void;
 }): ReactElement => {
-  let message = error.message;
-
-  // 400 was probably thrown from inside the service, not a network issue (should have a message)
-  if (axios.isAxiosError(error) && error.response.status === 400) {
-    message = error.response.data?.error ?? error.message;
-  }
+  const message = getErrorMessage(error);
 
   return (
     <ExportContainer
