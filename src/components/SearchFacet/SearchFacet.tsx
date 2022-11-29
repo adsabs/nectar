@@ -363,7 +363,12 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
       >
         <DroppableContainer id="visible-container" itemsID={facetsList.visible} items={visibleItems} />
 
-        <Button variant="link" onClick={toggleShowHidden} type="button">
+        <Button
+          variant="link"
+          onClick={toggleShowHidden}
+          type="button"
+          rightIcon={showHiddenFacets ? <ChevronDownIcon /> : <ChevronRightIcon />}
+        >
           {showHiddenFacets ? 'Hide hidden filters' : 'Show hidden filters'} {`(${hiddenItems.length})`}
         </Button>
 
