@@ -14,11 +14,19 @@ import {
   useBoolean,
   useDisclosure,
 } from '@chakra-ui/react';
-import { DndContext, DragEndEvent, MouseSensor, useSensor } from '@dnd-kit/core';
-import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverEvent,
+  DragOverlay,
+  DragStartEvent,
+  MouseSensor,
+  useDroppable,
+  useSensor,
+} from '@dnd-kit/core';
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { ExclamationCircleIcon, EyeOffIcon } from '@heroicons/react/solid';
+import { ExclamationCircleIcon, EyeIcon, EyeOffIcon } from '@heroicons/react/solid';
 import { AppState, useStore, useStoreApi } from '@store';
 import { CSSProperties, MouseEventHandler, ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { facetConfig } from './config';
@@ -45,12 +53,19 @@ export interface ISearchFacetProps extends AccordionItemProps {
 export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
   const store = useStoreApi();
   const setFacetState = useStore((state) => state.setSearchFacetState);
+  const facets = useStore((state) => state.settings.searchFacets.order);
+  const hiddenFacets = useStore(useCallback((state) => state.getHiddenSearchFacets(), [facets]));
   const hideFacet = useStore((state) => state.hideSearchFacet);
+  const showFacet = useStore((state) => state.showSearchFacet);
   const { label, field, storeId, property, hasChildren, logic, facetQuery, filter, onQueryUpdate } = props;
   const { listeners, attributes, setNodeRef, setActivatorNodeRef, transform, transition, isSorting } = useSortable({
     id: storeId,
     strategy: verticalListSortingStrategy,
   });
+
+  const hidden = useMemo(() => {
+    return hiddenFacets.findIndex((id) => id === storeId) !== -1;
+  }, [hiddenFacets, storeId]);
 
   const facetState = useStore(useCallback((state: AppState) => state.getSearchFacetState(storeId), [storeId]));
 
@@ -73,7 +88,7 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
   };
 
   const handleHideClick = () => {
-    hideFacet(storeId);
+    hidden ? showFacet(storeId) : hideFacet(storeId);
   };
 
   const handleOnError = () => {
@@ -141,13 +156,19 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
               onMouseLeave={setShowHideBtn.off}
               borderLeft="none"
               borderLeftRadius={0}
-              icon={<EyeOffIcon width="12" style={{ margin: 0, padding: 0, border: 'none' }} />}
+              icon={
+                hidden ? (
+                  <EyeIcon width="12" style={{ margin: 0, padding: 0, border: 'none' }} />
+                ) : (
+                  <EyeOffIcon width="12" style={{ margin: 0, padding: 0, border: 'none' }} />
+                )
+              }
               onClick={handleHideClick}
               border="solid 1px"
               borderColor="blue.100"
               size="xs"
               variant="ghost"
-              aria-label="hide facet"
+              aria-label={hidden ? 'show facet' : 'hide facet'}
               m={0}
               height={8}
               px={2}
@@ -182,7 +203,6 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
     </ListItem>
   );
 };
-
 export interface ISearchFacetsProps {
   onQueryUpdate: ISearchFacetProps['onQueryUpdate'];
 }
@@ -190,22 +210,35 @@ export interface ISearchFacetsProps {
 export const SearchFacets = (props: ISearchFacetsProps) => {
   const { onQueryUpdate } = props;
   const facets = useStore((state) => state.settings.searchFacets.order);
+  const getHiddenFacets = useStore((state) => state.getHiddenSearchFacets);
   const setFacets = useStore((state) => state.setSearchFacetOrder);
   const resetFacets = useStore((state) => state.resetSearchFacets);
-  const hidden = useStore(useCallback((state) => state.getHiddenSearchFacets(), [facets]));
+  const hideSearchFacet = useStore((state) => state.hideSearchFacet);
+  const showSearchFacet = useStore((state) => state.showSearchFacet);
   const toggleOpenAllFilters = useStore((state) => state.toggleSearchFacetsOpen);
+  const [showHiddenFacets, setShowHiddenFacets] = useState(false);
+
+  const hiddenFacets = useMemo(() => getHiddenFacets(), [facets]);
+
+  // hold temporary order of visible and hidden facets during drag and drop
+  const [facetsList, setFacetsList] = useState({
+    visible: [...facets],
+    hidden: [...hiddenFacets],
+  });
+
+  const [draggingFacetId, setDraggingFacetId] = useState<SearchFacetID>();
 
   useEffect(() => {
     if (facets.length === 0) {
       toggleOpenAllFilters(false);
       resetFacets();
     }
-  }, [facets]);
+    // reset
+    setFacetsList({ hidden: [...hiddenFacets], visible: [...facets] });
+  }, [facets, hiddenFacets]);
 
-  const handleShowAllClick: MouseEventHandler = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    resetFacets();
+  const toggleShowHidden: MouseEventHandler = () => {
+    setShowHiddenFacets(!showHiddenFacets);
   };
 
   const mouseSensor = useSensor(MouseSensor, {
@@ -215,6 +248,66 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
     },
   });
 
+  const handleDragOver = (event: DragOverEvent) => {
+    const { active, over } = event;
+
+    if (!over) {
+      return;
+    }
+
+    const { visible, hidden } = facetsList;
+
+    // item moved into temp hidden area because hidden list is closed
+    if (over.id === 'temp-hidden-container') {
+      // show hidden list so it's clear where item is being dragged
+      setShowHiddenFacets(true);
+    }
+    // item moved into hidden container when the list is empty
+    else if (over.id === 'hidden-container') {
+      if (hiddenFacets.length === 0) {
+        // move item to hidden
+        setFacetsList({
+          visible: visible.filter((id) => id !== active.id),
+          hidden: [active.id as SearchFacetID],
+        });
+      }
+    } else if (active?.id !== over.id) {
+      const activeContainer = visible.findIndex((id) => id === active.id) !== -1 ? visible : hidden;
+      const overContainer = hidden.findIndex((id) => id === over.id) !== -1 ? hidden : visible;
+      const activeIndex = activeContainer.indexOf(active.id as SearchFacetID);
+      const overIndex = overContainer.indexOf(over.id as SearchFacetID);
+
+      if (activeContainer === visible && overContainer === visible) {
+        setFacetsList((prev) => ({
+          ...prev,
+          visible: arrayMove(prev.visible, activeIndex, overIndex),
+        }));
+      } else if (activeContainer === hidden && overContainer === hidden) {
+        setFacetsList((prev) => ({
+          ...prev,
+          hidden: arrayMove(prev.hidden, activeIndex, overIndex),
+        }));
+      } else if (activeContainer === hidden && overContainer === visible) {
+        // moved to visible
+        setFacetsList((prev) => ({
+          visible: [...prev.visible.slice(0, overIndex), active.id as SearchFacetID, ...prev.visible.slice(overIndex)],
+          hidden: prev.hidden.filter((id) => id !== active.id),
+        }));
+      } else if (activeContainer === visible && overContainer === hidden) {
+        // moved to hidden
+        setFacetsList((prev) => ({
+          visible: prev.visible.filter((id) => id !== active.id),
+          hidden: [...prev.hidden.slice(0, overIndex), active.id as SearchFacetID, ...prev.hidden.slice(overIndex)],
+        }));
+      }
+    }
+  };
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setDraggingFacetId(event.active.id as SearchFacetID);
+  };
+
+  // Make the changes permanent
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
@@ -222,35 +315,101 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
       return;
     }
 
-    if (active?.id !== over?.id) {
-      const oldIndex = facets.indexOf(active?.id as SearchFacetID);
-      const newIndex = facets.indexOf(over?.id as SearchFacetID);
-      setFacets(arrayMove(facets, oldIndex, newIndex));
+    const { visible } = facetsList;
+
+    if (visible.length < facets.length) {
+      // item moved to hidden
+      hideSearchFacet(active.id as SearchFacetID);
+    } else if (visible.length > facets.length) {
+      // item moved to visible
+      showSearchFacet(
+        active.id as SearchFacetID,
+        visible.findIndex((id) => id === active.id),
+      );
+    } else {
+      // item order moved
+      setFacets([...visible]);
     }
   };
 
-  const list = useMemo(() => {
-    return facets.map((facetId) => {
+  const visibleItems = useMemo(() => {
+    return facetsList.visible.map((facetId) => {
       const facetProps = facetConfig[facetId];
-      return <SearchFacet {...facetProps} key={facetProps.storeId} onQueryUpdate={onQueryUpdate} />;
+      return <SearchFacet {...facetProps} key={facetProps.storeId} onQueryUpdate={onQueryUpdate} hidden={false} />;
     });
-  }, [facets, onQueryUpdate]);
+  }, [facetsList.visible, onQueryUpdate]);
+
+  const hiddenItems = useMemo(() => {
+    const facetProps = facetsList.hidden.map((id) => facetConfig[id]).sort((a, b) => a.label.localeCompare(b.label));
+    return facetProps.map((facetProp) => {
+      return <SearchFacet {...facetProp} key={facetProp.storeId} onQueryUpdate={onQueryUpdate} hidden={true} />;
+    });
+  }, [facetsList.hidden, onQueryUpdate]);
+
+  const activeItem = useMemo(() => {
+    if (draggingFacetId) {
+      const facetProp = facetConfig[draggingFacetId];
+      return <SearchFacet {...facetProp} key={facetProp.storeId} onQueryUpdate={onQueryUpdate} hidden={true} />; // change hidden
+    }
+  }, [draggingFacetId]);
 
   return (
     <>
       <DndContext
-        modifiers={[restrictToVerticalAxis, restrictToParentElement]}
         sensors={[mouseSensor]}
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
-        <SortableContext items={facets} strategy={verticalListSortingStrategy}>
-          <List>{list}</List>
-        </SortableContext>
-      </DndContext>
-      {hidden.length > 0 && (
-        <Button variant="link" onClick={handleShowAllClick} type="button">
-          Show all ({hidden.length} hidden)
+        <DroppableContainer id="visible-container" itemsID={facetsList.visible} items={visibleItems} />
+
+        <Button
+          variant="link"
+          onClick={toggleShowHidden}
+          type="button"
+          rightIcon={showHiddenFacets ? <ChevronDownIcon /> : <ChevronRightIcon />}
+        >
+          {showHiddenFacets ? 'Hide hidden filters' : 'Show hidden filters'} {`(${hiddenItems.length})`}
         </Button>
+
+        {/* create a droppable area when hidden facets are not open */}
+        {!showHiddenFacets && <DroppableContainer id="temp-hidden-container" />}
+
+        {showHiddenFacets && (
+          <DroppableContainer id="hidden-container" itemsID={facetsList.hidden} items={hiddenItems} />
+        )}
+        {activeItem && (
+          <DragOverlay>
+            <List>{activeItem}</List>
+          </DragOverlay>
+        )}
+      </DndContext>
+    </>
+  );
+};
+
+const DroppableContainer = ({
+  id,
+  itemsID,
+  items,
+}: {
+  id: string;
+  itemsID?: SearchFacetID[];
+  items?: JSX.Element[];
+}) => {
+  const { setNodeRef } = useDroppable({ id });
+
+  return (
+    <>
+      {items && itemsID ? (
+        <SortableContext id={id} items={itemsID} strategy={verticalListSortingStrategy}>
+          <List ref={setNodeRef} minH="10">
+            {items}
+          </List>
+        </SortableContext>
+      ) : (
+        // empty area
+        <Box id={id} ref={setNodeRef} minH="40" />
       )}
     </>
   );
