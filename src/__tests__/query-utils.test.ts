@@ -103,3 +103,15 @@ describe('parseQuery()', () => {
     expect(query.parseQuery({})).toEqual({});
   });
 });
+
+describe('removeFQ', () => {
+  test('works', () => {
+    const q = query.setFQ('foo', 'A', { q: '' });
+    expect(q).toEqual({
+      q: '',
+      fq: ['{!type=aqp v=$fq_foo}'],
+      fq_foo: '(A)'
+    })
+    expect(query.removeFQ('foo', q)).toEqual({ q: '' })
+  })
+})
