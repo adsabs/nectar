@@ -1,14 +1,16 @@
 import { Box, Stack, useToken } from '@chakra-ui/react';
 import { BarGraph, IBarGraph } from '@components/Visualizations';
 import { BarDatum } from '@nivo/bar';
-import { ReactElement, useMemo, useState } from 'react';
+import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { GetHandleProps, GetTrackProps, Handles, Rail, Slider, SliderItem, Tracks } from 'react-compound-slider';
 
 export type HistogramData = { x: number; y: number }[];
 
 export interface IHistogramSliderProps {
   data: HistogramData;
+  selectedRange?: number[];
   barGraphH?: string;
+  onValuesChanged: (values: number[]) => void;
 }
 interface IncludeExcludeBarDatum extends BarDatum {
   x: number;
@@ -16,20 +18,37 @@ interface IncludeExcludeBarDatum extends BarDatum {
   exclude: number;
 }
 
-export const HistogramSlider = ({ data, barGraphH = '500px' }: IHistogramSliderProps): ReactElement => {
-  const range = [data[0].x, data[data.length - 1].x];
-  const [values, setValues] = useState(range);
+export const HistogramSlider = ({
+  data,
+  selectedRange = [data[0].x, data[data.length - 1].x],
+  barGraphH = '500px',
+  onValuesChanged,
+}: IHistogramSliderProps): ReactElement => {
+  const range = [data[0].x, data[data.length - 1].x]; // histogram domain
+  const [values, setValues] = useState(selectedRange); // left and right slider values
+
+  useEffect(() => {
+    setValues(selectedRange);
+  }, [selectedRange]);
 
   const graph: IBarGraph<IncludeExcludeBarDatum> = useMemo(() => {
     const graphData = data.map(({ x, y }) => {
       return x < values[0] || x > values[1] ? { x, include: 0, exclude: y } : { x, exclude: 0, include: y };
     });
+
+    // if too many years, need to group them?
+
     return { data: graphData, indexBy: 'x', keys: ['include', 'exclude'] };
   }, [data, values]);
 
   const [excludeColor, includeColor, excludeTrackColor] = useToken('colors', ['gray.50', 'blue.400', 'gray.100']);
 
   const color = ({ id }) => (id === 'include' ? includeColor : excludeColor);
+
+  const handleChangeValues = (values: number[]) => {
+    setValues(values);
+    onValuesChanged(values);
+  };
 
   return (
     <Box>
@@ -43,7 +62,7 @@ export const HistogramSlider = ({ data, barGraphH = '500px' }: IHistogramSliderP
         animate={false}
         axisLeft={null}
         axisBottom={null}
-        padding={0.05}
+        padding={0}
         colors={color}
         isInteractive={false}
         enableGridY={false}
@@ -58,7 +77,7 @@ export const HistogramSlider = ({ data, barGraphH = '500px' }: IHistogramSliderP
           width: '100%',
         }}
         // onUpdate={setValues}
-        onChange={setValues}
+        onChange={handleChangeValues}
       >
         <Rail>
           {({ getRailProps }) => (
