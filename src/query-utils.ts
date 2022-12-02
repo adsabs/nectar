@@ -45,10 +45,6 @@ const applyFQPrefix = (v: string) => `${FQPrefix}${v}`;
 const makeFQHeader = (name: string) => `{!type=aqp v=$${applyFQPrefix(name)}}`;
 const fQHeaderLens = lensProp<Query>('fq') as Lens<Query, string[]>;
 const fQPrefixedLens = (key: string) => lensProp<Query>(applyFQPrefix(key)) as Lens<Query, string>;
-const removeFQ = curry((key: string, query: Query) =>
-  pipe<[Query], Query, Query>(dissoc(applyFQPrefix(key)), removeFQHeader(key))(query),
-);
-
 const setFQHeader = curry((name: string, query: Query) =>
   over(fQHeaderLens, pipe(append(makeFQHeader(name)), uniq), query),
 );
@@ -62,6 +58,13 @@ const removeFQHeader = curry(
       // if fq is now empty, remove the whole prop from the query
       when(propSatisfies(isEmptyArray, 'fq'), dissoc('fq')),
     )(query),
+);
+
+/**
+ *  Removes an FQ from the passed in query
+ */
+export const removeFQ = curry((key: string, query: Query) =>
+  pipe<[Query], Query, Query>(dissoc(applyFQPrefix(key)), removeFQHeader(key))(query),
 );
 
 /**
