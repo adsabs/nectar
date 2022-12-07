@@ -6,12 +6,13 @@ export interface I${name}Props extends HTMLAttributes<HTMLDivElement> {
 }
 
 const propTypes = {
-  children: PT.element;
+  children: PT.element,
 }
 
-export const ${name}: FC<I${name}Props> = ({ children }) => {
+export const ${name}: FC<I${name}Props> = (props) => {
+  const { children, ...divProps } = props;
   return (
-    <div>
+    <div {...divProps}>
       <p>👋 from ${name} component</p>
       <p>{ children }</p>
     </div>
@@ -49,12 +50,14 @@ Default.args = {};
 `;
 
 exports.test = (name) => `import { render } from '@testing-library/react';
-import { Default as ${name} } from '../__stories__/${name}.stories';
+import { test } from 'vitest';
+import { composeStories } from '@storybook/testing-react';
+import * as stories from '../__stories__/${name}.stories';
 
-describe('${name}', () => {
-  it('renders without crashing', () => {
-    render(${'<' + name} />);
-  });
+const { Default: ${name} } = composeStories(stories);
+
+test('renders without crashing', () => {
+  render(${'<' + name} />);
 });
 `;
 

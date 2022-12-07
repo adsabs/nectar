@@ -8,7 +8,7 @@ import { GetServerSidePropsContext, GetServerSidePropsResult, NextApiRequest, Ne
 import { useRouter } from 'next/router';
 import qs from 'qs';
 import { ParsedUrlQuery } from 'querystring';
-import { clamp, filter, head, is, keys, last, omit, pathOr, pick, pipe, propIs, uniq, when } from 'ramda';
+import { clamp, filter, find, head, is, keys, last, omit, paths, pick, pipe, propIs, uniq, when } from 'ramda';
 import { isArray, isNotString } from 'ramda-adjunct';
 
 type ParsedQueryParams = ParsedUrlQuery | qs.ParsedQs;
@@ -403,16 +403,38 @@ export const unwrapStringValue = pipe<[string | string[]], string, string>(
  * If the error is an axios specific one, then try to grab any returned error message
  *
  */
-export const getErrorMessage = (error: AxiosError<unknown> | Error | unknown) => {
+type getErrorMessageOptions = {
+  defaultMessage: string;
+};
+export const parseAPIError = (
+  error: AxiosError<unknown> | Error | unknown,
+  options: getErrorMessageOptions = {
+    defaultMessage: 'Unknown Server Error',
+  },
+): string => {
+  const pathStrings = [
+    ['response', 'data', 'message'],
+    ['response', 'data', 'error'],
+    ['response', 'statusText'],
+    ['message'],
+  ];
+
   // return generic message if error is invalid
   if (!error || !(error instanceof Error)) {
-    return 'Unknown Server Error';
+    return options.defaultMessage;
   }
 
   // if error is an axios error, check for a message
   if (axios.isAxiosError(error)) {
-    return pathOr(error.message, ['error', 'response', 'data', 'message']);
+    const message = pipe<[AxiosError], (string | undefined)[], string | undefined>(
+      paths(pathStrings),
+      find(isString),
+    )(error);
+
+    if (typeof message === 'string') {
+      return message;
+    }
   }
 
-  return error.message;
+  return options.defaultMessage;
 };
