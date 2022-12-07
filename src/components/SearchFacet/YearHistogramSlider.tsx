@@ -1,5 +1,5 @@
 import { getSearchFacetYearsParams, IADSApiSearchParams, useGetSearchFacetCounts } from '@api';
-import { Box, Button, CircularProgress } from '@chakra-ui/react';
+import { Box, CircularProgress } from '@chakra-ui/react';
 import { HistogramSlider, ISearchFacetProps } from '@components';
 import { getYearsGraph } from '@components/Visualizations/utils';
 import { getFQValue, Query, removeFQ, setFQ } from '@query-utils';
@@ -47,7 +47,7 @@ export const YearHistogramSlider = ({ onQueryUpdate }: IYearHistogramSliderProps
   // - If the query has range fq, set range to that
   // - if no range fq, us histogram min and max
   // - if no histogram data, set to 0,0
-  const [selectedRange, setSelectedRange] = useState<number[]>(
+  const [selectedRange, setSelectedRange] = useState<[number, number]>(
     fqRange
       ? /year:([0-9]{4})-([0-9]{4})/gm
           .exec(fqRange)
@@ -73,27 +73,25 @@ export const YearHistogramSlider = ({ onQueryUpdate }: IYearHistogramSliderProps
 
   // 1. this needs to be moved up to parent component?
   // 2. fetching data moved to parent?
-  const handleApply = () => {
+  const handleApply = (values: number[]) => {
     // add year range fq
-    const newQuery = setFQ(fqName, `year:${selectedRange[0]}-${selectedRange[1]}`, cleanedQuery as Query);
+    const newQuery = setFQ(fqName, `year:${values[0]}-${values[1]}`, cleanedQuery as Query);
     const search = makeSearchParams(newQuery as IADSApiSearchParams);
     void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
   };
 
   return (
-    <Box m={5}>
+    <Box>
       {isLoading && <CircularProgress isIndeterminate />}
       {histogramData && (
-        <Box h="36" position="relative">
+        <Box height="170" position="relative" mt={5}>
           <HistogramSlider
             data={histogramData}
             selectedRange={selectedRange}
-            barGraphH="100px"
-            onValuesChanged={setSelectedRange}
+            width={200}
+            height={125}
+            onValuesChanged={handleApply}
           />
-          <Button position="absolute" top="0" left="0" size="xs" variant="outline" onClick={handleApply}>
-            Apply
-          </Button>
         </Box>
       )}
     </Box>

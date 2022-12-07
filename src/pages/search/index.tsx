@@ -204,7 +204,7 @@ const SearchFacetFilters = (props: { params: IADSApiSearchParams }) => {
 
   if (showFilters) {
     return (
-      <Flex as="aside" aria-labelledby="search-facets" minWidth="200px" direction="column">
+      <Flex as="aside" aria-labelledby="search-facets" minWidth="250px" direction="column">
         <Flex>
           <Heading as="h2" id="search-facets" fontSize="sm" flex="1">
             Filters
@@ -213,7 +213,9 @@ const SearchFacetFilters = (props: { params: IADSApiSearchParams }) => {
             Hide
           </Button>
         </Flex>
-        <YearHistogramSlider onQueryUpdate={handleSearchFacetSubmission} />
+        <Flex justifyContent="center">
+          <YearHistogramSlider onQueryUpdate={handleSearchFacetSubmission} />
+        </Flex>
         <SearchFacets onQueryUpdate={handleSearchFacetSubmission} />
       </Flex>
     );
