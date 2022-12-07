@@ -81,6 +81,11 @@ class Api {
   private init() {
     this.service.interceptors.response.use(identity, (error: AxiosError & { canRefresh: boolean }) => {
       if (axios.isAxiosError(error)) {
+        // if the server never responded, there won't be a response object -- in that case, reject immediately
+        if (!error.response) {
+          return Promise.reject(error);
+        }
+
         // check if the incoming error is the exact same status and URL as the last request
         // if so, we should reject to keep from getting into a loop
         if (
@@ -104,7 +109,7 @@ class Api {
             .then((res) => {
               this.setUserData(res);
               updateAppUser(res);
-              return this.request(error.config);
+              return this.request(error.config as ApiRequestConfig);
             })
             .catch(() => {
               const bootstrapError = new Error('Unrecoverable Error, unable to refresh token', { cause: error });
