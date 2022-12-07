@@ -127,3 +127,10 @@ export type ISliderRangeRange = [number, number, string];
 export interface ISliderRange {
   [i: number]: ISliderRangeRange; // last element for label on slider UI
 }
+
+export type Margin = {
+  top: number;
+  bottom: number;
+  right: number;
+  left: number;
+};
