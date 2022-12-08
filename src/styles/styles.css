@@ -217,4 +217,9 @@
     stroke-width: 3.5px;
     stroke-opacity: 1;
   }
+
+  /** histogram **/
+  .histogram-tooltip {
+    @apply absolute z-50 block m-0 p-1 text-gray-50 bg-gray-800 rounded;
+  }
 }

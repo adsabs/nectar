@@ -42,7 +42,6 @@ export const Histogram = ({
   // histogram bin function
   const histogram = d3
     .bin()
-    .value((d) => d.y)
     .domain([data[0].x, data[data.length - 1].x])
     .thresholds(xScale.ticks(data.length));
 
@@ -61,6 +60,8 @@ export const Histogram = ({
       // remove everything
       svg.selectAll('*').remove();
 
+      svg.classed('histogram-svg', true);
+
       // append the svg object to the body of the page
       const g = svg
         .attr('width', w)
@@ -78,25 +79,49 @@ export const Histogram = ({
         g.append('g').call(d3.axisLeft(yScale));
       }
 
-      // append the bar rectangles to the svg element
-      g.selectAll('rect')
+      // tooltip, only shown when mouse over node
+      const tooltip = d3
+        .select('body')
+        .append('div')
+        .classed('histogram-tooltip', true)
+        .style('position', 'absolute')
+        .style('opacity', 0);
+
+      // histogram bins
+      g.selectAll('.histogram-bin')
         .data(bins)
         .join('rect')
         .classed('histogram-bin', true)
         .attr('x', 1)
-        .attr('transform', function (d, i) {
-          return `translate(${xScale(d.x0)} , ${yScale(data[i].y)})`;
-        })
-        .attr('width', function (d) {
-          const w = xScale(d.x1) - xScale(d.x0);
-          return w;
-        })
-        .attr('height', function (d, i) {
-          return height - yScale(data[i].y);
-        })
+        .attr('transform', (d, i) => `translate(${xScale(d.x0)} , ${yScale(data[i].y)})`)
+        .attr('width', (d) => xScale(d.x1) - xScale(d.x0))
+        .attr('height', (d, i) => height - yScale(data[i].y))
         .style('fill', (d, i) =>
           data[i].x < highlightDomain[0] || data[i].x > highlightDomain[1] ? 'gray' : '#69b3a2',
         );
+
+      // Use this transparent layer above histogram for tooltips
+      g.selectAll('.histogram-tooltip')
+        .data(bins)
+        .join('rect')
+        .attr('x', 1)
+        .attr('transform', (d, i) => `translate(${xScale(d.x0)} , 0)`)
+        .attr('width', (d) => xScale(d.x1) - xScale(d.x0))
+        .attr('height', height)
+        .style('fill', '#fff')
+        .style('opacity', 0) // make it transparent
+        .on('mouseover', (e, bin) => {
+          // find from data the matching x
+          const { x, y } = data.find((d) => d.x === bin.x0);
+          tooltip.transition().duration(100).style('opacity', 1);
+          tooltip
+            .html(`${x}: ${y}`)
+            .style('left', `${e.x + 10}px`)
+            .style('top', `${e.y + 10}px`);
+        })
+        .on('mouseleave', () => {
+          tooltip.transition().duration(100).style('opacity', 0);
+        });
 
       return svg;
     },
