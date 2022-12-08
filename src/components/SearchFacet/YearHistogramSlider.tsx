@@ -14,7 +14,6 @@ export interface IYearHistogramSliderProps {
 
 const fqName = 'range';
 
-// TODO: when too many 'years' graph doesn't show
 export const YearHistogramSlider = ({ onQueryUpdate }: IYearHistogramSliderProps) => {
   const query = useStore((state) => state.latestQuery);
 
@@ -55,7 +54,7 @@ export const YearHistogramSlider = ({ onQueryUpdate }: IYearHistogramSliderProps
           .map((y) => parseInt(y))
       : histogramData
       ? [histogramData[0].x, histogramData[histogramData.length - 1].x]
-      : [0, 0],
+      : null,
   );
 
   useEffect(() => {
@@ -67,7 +66,7 @@ export const YearHistogramSlider = ({ onQueryUpdate }: IYearHistogramSliderProps
             .map((y) => parseInt(y))
         : histogramData
         ? [histogramData[0].x, histogramData[histogramData.length - 1].x]
-        : [0, 0],
+        : null,
     );
   }, [fqRange, histogramData]);
 
@@ -83,7 +82,7 @@ export const YearHistogramSlider = ({ onQueryUpdate }: IYearHistogramSliderProps
   return (
     <Box>
       {isLoading && <CircularProgress isIndeterminate />}
-      {histogramData && (
+      {histogramData && selectedRange && (
         <Box height="170" position="relative" mt={5}>
           <HistogramSlider
             data={histogramData}
