@@ -34,6 +34,11 @@ export const HistogramSlider = ({
     onValuesChanged(values);
   };
 
+  const handleClickHistogram = (x: number) => {
+    setValues([x, x]);
+    onValuesChanged([x, x]);
+  };
+
   return (
     <Box w={width}>
       <Histogram
@@ -44,6 +49,7 @@ export const HistogramSlider = ({
         w={width}
         h={height}
         margin={{ top: 0, bottom: 0, left: 0, right: 0 }}
+        onClick={handleClickHistogram}
       />
       <Slider
         mode={2}

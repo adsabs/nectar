@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import { Selection } from 'd3';
 import { useCallback, useEffect } from 'react';
 import { Margin } from '../types';
+import { noop } from '@utils';
 
 export interface IHistogramProps {
   data: { x: number; y: number }[];
@@ -12,6 +13,7 @@ export interface IHistogramProps {
   margin?: Margin;
   w: number;
   h: number;
+  onClick?: (x: number) => void;
 }
 
 export const Histogram = ({
@@ -22,6 +24,7 @@ export const Histogram = ({
   margin = { top: 0, right: 0, bottom: showXAxis ? 40 : 0, left: showYAxis ? 40 : 0 },
   w,
   h,
+  onClick = noop,
 }: IHistogramProps) => {
   // set the dimensions and margins of the graph
   const width = w - margin.left - margin.right;
@@ -121,6 +124,10 @@ export const Histogram = ({
         })
         .on('mouseleave', () => {
           tooltip.transition().duration(100).style('opacity', 0);
+        })
+        .on('click', (e, bin) => {
+          const { x } = data.find((d) => d.x === bin.x0);
+          onClick(x);
         });
 
       return svg;
