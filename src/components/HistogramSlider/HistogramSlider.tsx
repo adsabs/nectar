@@ -5,6 +5,8 @@ import { GetHandleProps, GetTrackProps, Handles, Rail, Slider, SliderItem, Track
 
 export type HistogramData = { x: number; y: number }[];
 
+const trackHeight = 0.5;
+
 export interface IHistogramSliderProps {
   data: HistogramData;
   selectedRange?: [number, number];
@@ -61,8 +63,7 @@ export const HistogramSlider = ({
               as="div"
               position="absolute"
               width={width}
-              height="1"
-              mt={-1}
+              height={trackHeight}
               borderRadius="5"
               bgColor="gray.100"
               {...getRailProps}
@@ -104,7 +105,7 @@ const Handle = ({ handle, getHandleProps }: IHandleProps): ReactElement => {
       direction="column"
       position="absolute"
       ml={-4}
-      mt={-2.5}
+      mt={-2}
       zIndex="2"
       w={8}
       style={{
@@ -117,8 +118,10 @@ const Handle = ({ handle, getHandleProps }: IHandleProps): ReactElement => {
         height={4}
         cursor="pointer"
         borderRadius="xl"
-        bgColor="blue.600"
+        bgColor="white"
         color="gray.900"
+        borderColor="blue.600"
+        borderWidth={1}
         {...getHandleProps(handle.id)}
       />
       <Box mt={5} fontSize="md">
@@ -141,9 +144,8 @@ const Track = ({
     <Box
       h={1}
       position="absolute"
-      height={1}
+      height={trackHeight}
       zIndex="1"
-      mt={-1}
       bgColor="blue.600"
       borderRadius="lg"
       cursor="pointer"

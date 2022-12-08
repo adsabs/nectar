@@ -24,7 +24,6 @@ import {
   SimpleLink,
   SimpleResultList,
 } from '@components';
-import { HistogramSlider } from '@components/HistogramSlider';
 import { calculateStartIndex } from '@components/ResultList/Pagination/usePagination';
 import { FacetFilters } from '@components/SearchFacet/FacetFilters';
 import { YearHistogramSlider } from '@components/SearchFacet/YearHistogramSlider';

@@ -15,4 +15,7 @@ export const Default = Template.bind({});
 
 Default.args = {
   data: yearPaperCountData,
+  selectedRange: [yearPaperCountData[0].x, yearPaperCountData[yearPaperCountData.length - 1].x],
+  width: 200,
+  height: 125,
 };
