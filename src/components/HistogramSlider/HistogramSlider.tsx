@@ -1,14 +1,12 @@
 import { Box, Stack } from '@chakra-ui/react';
-import { Histogram } from '@components/Visualizations';
+import { Histogram, HistogramDatum } from '@components/Visualizations';
 import { ReactElement, useEffect, useState } from 'react';
 import { GetHandleProps, GetTrackProps, Handles, Rail, Slider, SliderItem, Tracks } from 'react-compound-slider';
-
-export type HistogramData = { x: number; y: number }[];
 
 const trackHeight = 0.5;
 
 export interface IHistogramSliderProps {
-  data: HistogramData;
+  data: HistogramDatum[];
   selectedRange?: [number, number];
   onValuesChanged: (values: number[]) => void;
   width: number;
@@ -29,9 +27,15 @@ export const HistogramSlider = ({
     setValues(selectedRange);
   }, [selectedRange]);
 
-  const handleChangeValues = (values: [number, number]) => {
-    setValues(values);
-    onValuesChanged(values);
+  // slider moving
+  const handleUpdateValues = (values: readonly number[]) => {
+    setValues([values[0], values[1]]);
+  };
+
+  // slider stopped
+  const handleChangeValues = (values: readonly number[]) => {
+    setValues([values[0], values[1]]);
+    onValuesChanged([values[0], values[1]]);
   };
 
   const handleClickHistogram = (x: number) => {
@@ -60,7 +64,7 @@ export const HistogramSlider = ({
           position: 'relative',
           width: width,
         }}
-        onUpdate={setValues}
+        onUpdate={handleUpdateValues}
         onChange={handleChangeValues}
       >
         <Rail>
@@ -159,9 +163,7 @@ const Track = ({
         left: `${source.percent}%`,
         width: `${target.percent - source.percent}%`,
       }}
-      {
-        ...getTrackProps() /* this will set up events if you want it to be clickeable (optional) */
-      }
+      {...getTrackProps()}
     />
   );
 };

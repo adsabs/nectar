@@ -134,3 +134,8 @@ export type Margin = {
   right: number;
   left: number;
 };
+
+export type HistogramDatum = {
+  x: number;
+  y: number;
+};

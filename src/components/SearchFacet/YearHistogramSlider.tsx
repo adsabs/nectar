@@ -4,9 +4,7 @@ import { HistogramSlider, ISearchFacetProps } from '@components';
 import { getYearsGraph } from '@components/Visualizations/utils';
 import { getFQValue, Query, removeFQ, setFQ } from '@query-utils';
 import { useStore } from '@store';
-import { makeSearchParams } from '@utils';
-import { useRouter } from 'next/router';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
 export interface IYearHistogramSliderProps {
   onQueryUpdate: ISearchFacetProps['onQueryUpdate'];
@@ -17,11 +15,10 @@ const fqName = 'range';
 export const YearHistogramSlider = ({ onQueryUpdate }: IYearHistogramSliderProps) => {
   const query = useStore((state) => state.latestQuery);
 
-  const router = useRouter();
-
   // query without the year range filter, to show all years on the histogram
   const cleanedQuery = useMemo(() => {
     const q = JSON.parse(JSON.stringify(query)) as IADSApiSearchParams;
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     return q.fq ? (removeFQ(fqName, q as Query) as IADSApiSearchParams) : q;
   }, [query]);
 
@@ -29,7 +26,7 @@ export const YearHistogramSlider = ({ onQueryUpdate }: IYearHistogramSliderProps
     return getFQValue(fqName, query as Query);
   }, [query]);
 
-  const { data, isLoading, isError } = useGetSearchFacetCounts(getSearchFacetYearsParams(cleanedQuery), {
+  const { data, isLoading } = useGetSearchFacetCounts(getSearchFacetYearsParams(cleanedQuery), {
     enabled: !!cleanedQuery && cleanedQuery.q.trim().length > 0,
   });
 
@@ -42,41 +39,25 @@ export const YearHistogramSlider = ({ onQueryUpdate }: IYearHistogramSliderProps
     }
   }, [data]);
 
-  // Initialize range
+  // Selected range
   // - If the query has range fq, set range to that
-  // - if no range fq, us histogram min and max
-  // - if no histogram data, set to 0,0
-  const [selectedRange, setSelectedRange] = useState<[number, number]>(
-    fqRange
-      ? /year:([0-9]{4})-([0-9]{4})/gm
-          .exec(fqRange)
-          .splice(1)
-          .map((y) => parseInt(y))
-      : histogramData
-      ? [histogramData[0].x, histogramData[histogramData.length - 1].x]
-      : null,
-  );
-
-  useEffect(() => {
-    setSelectedRange(
-      fqRange
-        ? /year:([0-9]{4})-([0-9]{4})/gm
-            .exec(fqRange)
-            .splice(1)
-            .map((y) => parseInt(y))
-        : histogramData
-        ? [histogramData[0].x, histogramData[histogramData.length - 1].x]
-        : null,
-    );
+  // - if no range fq, use histogram min and max
+  const selectedRange: [number, number] = useMemo(() => {
+    if (fqRange) {
+      const range = /year:([0-9]{4})-([0-9]{4})/gm.exec(fqRange);
+      if (range.length === 3) {
+        return [parseInt(range[1]), parseInt(range[2])];
+      }
+    } else if (histogramData) {
+      return [histogramData[0].x, histogramData[histogramData.length - 1].x];
+    }
+    return null;
   }, [fqRange, histogramData]);
 
-  // 1. this needs to be moved up to parent component?
-  // 2. fetching data moved to parent?
   const handleApply = (values: number[]) => {
     // add year range fq
     const newQuery = setFQ(fqName, `year:${values[0]}-${values[1]}`, cleanedQuery as Query);
-    const search = makeSearchParams(newQuery as IADSApiSearchParams);
-    void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
+    onQueryUpdate(newQuery);
   };
 
   return (

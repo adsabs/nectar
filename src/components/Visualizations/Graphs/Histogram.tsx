@@ -1,12 +1,13 @@
 import { useD3 } from './useD3';
 import * as d3 from 'd3';
 import { Selection } from 'd3';
-import { useCallback, useEffect } from 'react';
-import { Margin } from '../types';
+import { useCallback, useEffect, useMemo } from 'react';
+import { HistogramDatum, Margin } from '../types';
 import { noop } from '@utils';
+import { useHistogram } from './useHistogram';
 
 export interface IHistogramProps {
-  data: { x: number; y: number }[];
+  data: HistogramDatum[];
   highlightDomain?: [number, number];
   showXAxis?: boolean;
   showYAxis?: boolean;
@@ -30,26 +31,10 @@ export const Histogram = ({
   const width = w - margin.left - margin.right;
   const height = h - margin.top - margin.bottom;
 
-  // X scale function
-  const xScale = d3
-    .scaleLinear()
-    .domain([data[0].x, data[data.length - 1].x])
-    .range([0, width]);
-
-  // y scale function
-  const yScale = d3
-    .scaleLinear()
-    .domain([0, d3.max(data, (d) => d.y)])
-    .range([height, 0]);
-
-  // histogram bin function
-  const histogram = d3
-    .bin()
-    .domain([data[0].x, data[data.length - 1].x])
-    .thresholds(xScale.ticks(data.length));
+  const { xScale, yScale, histogram } = useHistogram({ histogramData: data, width, height });
 
   // And apply this function to data to get the bins
-  const bins = histogram(data);
+  const bins = useMemo(() => histogram(data.map((d) => d.x)), [histogram, data]);
 
   // selected range changed, update bin color
   useEffect(() => {
@@ -113,7 +98,8 @@ export const Histogram = ({
         .attr('height', height)
         .style('fill', '#fff')
         .style('opacity', 0) // make it transparent
-        .on('mouseover', (e, bin) => {
+        .on('mouseover', (event, bin) => {
+          const e = event as MouseEvent;
           // find from data the matching x
           const { x, y } = data.find((d) => d.x === bin.x0);
           tooltip.transition().duration(100).style('opacity', 1);
