@@ -52,6 +52,7 @@ export const Histogram = ({
     (svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>) => {
       // remove everything
       svg.selectAll('*').remove();
+      d3.selectAll('.histogram-tooltip').remove();
 
       svg.classed('histogram-svg', true);
 
