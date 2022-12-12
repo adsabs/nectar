@@ -44,7 +44,7 @@ import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { last, omit, path } from 'ramda';
-import { FormEventHandler, useEffect } from 'react';
+import { FormEventHandler, useEffect, useState } from 'react';
 import { dehydrate, QueryClient, useQueryClient } from 'react-query';
 
 const SearchFacets = dynamic<ISearchFacetsProps>(
@@ -93,6 +93,8 @@ const SearchPage: NextPage = () => {
 
   const [isPrint] = useMediaQuery('print'); // use to hide elements when printing
 
+  const [histogramExpanded, setHistogramExpanded] = useState(false);
+
   // on Sort change handler
   const handleSortChange = (sort: SolrSort[]) => {
     const query = store.getState().query;
@@ -139,6 +141,15 @@ const SearchPage: NextPage = () => {
     setNumPerPage(numPerPage);
   };
 
+  const handleSearchFacetSubmission = (queryUpdates: Partial<IADSApiSearchParams>) => {
+    const search = makeSearchParams({ ...params, ...queryUpdates, p: 1 });
+    void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
+  };
+
+  const handleToggleExpand = () => {
+    setHistogramExpanded((prev) => !prev);
+  };
+
   // search facet handlers
 
   return (
@@ -158,8 +169,28 @@ const SearchPage: NextPage = () => {
             </form>
           )}
         </Box>
+        {/* if histogram is expanded, show it below the search bar, otherwise it should be part of the facets */}
+        {!isPrint && histogramExpanded && (
+          <Flex justifyContent="center">
+            <YearHistogramSlider
+              onQueryUpdate={handleSearchFacetSubmission}
+              isExpanded={histogramExpanded}
+              onToggleExpand={handleToggleExpand}
+              width={800}
+              height={125}
+            />
+          </Flex>
+        )}
         <Flex direction="row" gap={10}>
-          <Box>{isPrint || <SearchFacetFilters params={params} />}</Box>
+          <Box>
+            {isPrint || (
+              <SearchFacetFilters
+                showHistogram={!histogramExpanded}
+                onExpandHistogram={handleToggleExpand}
+                onSearchFacetSubmission={handleSearchFacetSubmission}
+              />
+            )}
+          </Box>
           <Box>
             <Box>
               {isSuccess && !isLoading && data?.numFound > 0 && <ListActions onSortChange={handleSortChange} />}
@@ -194,15 +225,14 @@ const SearchPage: NextPage = () => {
   );
 };
 
-const SearchFacetFilters = (props: { params: IADSApiSearchParams }) => {
-  const { params } = props;
+const SearchFacetFilters = (props: {
+  showHistogram: boolean;
+  onExpandHistogram: () => void;
+  onSearchFacetSubmission: (queryUpdates: Partial<IADSApiSearchParams>) => void;
+}) => {
+  const { showHistogram, onSearchFacetSubmission, onExpandHistogram } = props;
   const showFilters = useStore(selectors.showFilters);
-  const router = useRouter();
   const handleToggleFilters = useStore(selectors.toggleSearchFacetsOpen);
-  const handleSearchFacetSubmission = (queryUpdates: Partial<IADSApiSearchParams>) => {
-    const search = makeSearchParams({ ...params, ...queryUpdates, p: 1 });
-    void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
-  };
 
   if (showFilters) {
     return (
@@ -215,10 +245,18 @@ const SearchFacetFilters = (props: { params: IADSApiSearchParams }) => {
             Hide
           </Button>
         </Flex>
-        <Flex justifyContent="center">
-          <YearHistogramSlider onQueryUpdate={handleSearchFacetSubmission} />
-        </Flex>
-        <SearchFacets onQueryUpdate={handleSearchFacetSubmission} />
+        {showHistogram && (
+          <Flex justifyContent="center">
+            <YearHistogramSlider
+              onQueryUpdate={onSearchFacetSubmission}
+              isExpanded={false}
+              onToggleExpand={onExpandHistogram}
+              width={200}
+              height={125}
+            />
+          </Flex>
+        )}
+        <SearchFacets onQueryUpdate={onSearchFacetSubmission} />
       </Flex>
     );
   }

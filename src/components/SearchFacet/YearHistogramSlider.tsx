@@ -1,6 +1,8 @@
 import { getSearchFacetYearsParams, IADSApiSearchParams, useGetSearchFacetCounts } from '@api';
-import { Box, CircularProgress } from '@chakra-ui/react';
+import { Box, CircularProgress, IconButton } from '@chakra-ui/react';
 import { HistogramSlider, ISearchFacetProps } from '@components';
+import { ArrowsInIcon } from '@components/icons/ArrowsIn';
+import { ArrowsOutIcon } from '@components/icons/ArrowsOut';
 import { getYearsGraph } from '@components/Visualizations/utils';
 import { getFQValue, Query, removeFQ, setFQ } from '@query-utils';
 import { useStore } from '@store';
@@ -8,11 +10,21 @@ import { useMemo } from 'react';
 
 export interface IYearHistogramSliderProps {
   onQueryUpdate: ISearchFacetProps['onQueryUpdate'];
+  isExpanded: boolean;
+  onToggleExpand: () => void;
+  width: number;
+  height: number;
 }
 
 const fqName = 'range';
 
-export const YearHistogramSlider = ({ onQueryUpdate }: IYearHistogramSliderProps) => {
+export const YearHistogramSlider = ({
+  onQueryUpdate,
+  isExpanded,
+  onToggleExpand,
+  width,
+  height,
+}: IYearHistogramSliderProps) => {
   const query = useStore((state) => state.latestQuery);
 
   // query without the year range filter, to show all years on the histogram
@@ -60,16 +72,30 @@ export const YearHistogramSlider = ({ onQueryUpdate }: IYearHistogramSliderProps
     onQueryUpdate(newQuery);
   };
 
+  const handleToggleExpand = () => {
+    onToggleExpand();
+  };
+
   return (
     <Box>
       {isLoading && <CircularProgress isIndeterminate />}
       {histogramData && selectedRange && (
         <Box height="170" position="relative" mt={5}>
+          <IconButton
+            aria-label="expand"
+            icon={isExpanded ? <ArrowsInIcon /> : <ArrowsOutIcon />}
+            position="absolute"
+            top={0}
+            left={0}
+            colorScheme="gray"
+            variant="outline"
+            onClick={handleToggleExpand}
+          />
           <HistogramSlider
             data={histogramData}
             selectedRange={selectedRange}
-            width={200}
-            height={125}
+            width={width}
+            height={height}
             onValuesChanged={handleApply}
           />
         </Box>
