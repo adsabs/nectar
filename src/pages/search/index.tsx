@@ -146,9 +146,8 @@ const SearchPage: NextPage = () => {
       <Head>
         <title>{params.q} | NASA Science Explorer - Search Results</title>
       </Head>
-      <Stack direction="row" aria-labelledby="search-form-title" my={12} spacing="4">
-        {isPrint || <SearchFacetFilters params={params} />}
-        <Box>
+      <Stack direction="column" aria-labelledby="search-form-title" spacing="10">
+        <Box pt={10}>
           {isPrint || (
             <form method="get" action="/search" onSubmit={handleOnSubmit} className="print-hidden">
               <Flex direction="column" width="full">
@@ -156,36 +155,40 @@ const SearchPage: NextPage = () => {
                 <NumFound count={data?.numFound} isLoading={isLoading} />
               </Flex>
               <FacetFilters mt="2" />
-              <Box mt={5}>
-                {isSuccess && !isLoading && data?.numFound > 0 && <ListActions onSortChange={handleSortChange} />}
-              </Box>
             </form>
           )}
-
-          <VisuallyHidden as="h2" id="search-form-title">
-            Search Results
-          </VisuallyHidden>
-
-          {!isLoading && data?.numFound === 0 && <NoResultsMsg query={params.q} />}
-          {isLoading && <ItemsSkeleton count={storeNumPerPage} />}
-
-          {data && (
-            <>
-              <SimpleResultList docs={data.docs} indexStart={params.start} />
-              <Pagination
-                numPerPage={storeNumPerPage}
-                page={params.p}
-                totalResults={data.numFound}
-                onPerPageSelect={handlePerPageChange}
-              />
-            </>
-          )}
-          {error && (
-            <Box aria-labelledby="search-form-title" my={16}>
-              <SearchErrorAlert error={error} />
-            </Box>
-          )}
         </Box>
+        <Flex direction="row" gap={10}>
+          <Box>{isPrint || <SearchFacetFilters params={params} />}</Box>
+          <Box>
+            <Box>
+              {isSuccess && !isLoading && data?.numFound > 0 && <ListActions onSortChange={handleSortChange} />}
+            </Box>
+            <VisuallyHidden as="h2" id="search-form-title">
+              Search Results
+            </VisuallyHidden>
+
+            {!isLoading && data?.numFound === 0 && <NoResultsMsg query={params.q} />}
+            {isLoading && <ItemsSkeleton count={storeNumPerPage} />}
+
+            {data && (
+              <>
+                <SimpleResultList docs={data.docs} indexStart={params.start} />
+                <Pagination
+                  numPerPage={storeNumPerPage}
+                  page={params.p}
+                  totalResults={data.numFound}
+                  onPerPageSelect={handlePerPageChange}
+                />
+              </>
+            )}
+            {error && (
+              <Box aria-labelledby="search-form-title" my={16}>
+                <SearchErrorAlert error={error} />
+              </Box>
+            )}
+          </Box>
+        </Flex>
       </Stack>
     </>
   );

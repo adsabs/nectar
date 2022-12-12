@@ -1,5 +1,15 @@
 import { Box, Heading } from '@chakra-ui/layout';
-import { BoxProps, Button, Divider, Tag, TagCloseButton, TagLabel, Tooltip, Wrap, WrapItem } from '@chakra-ui/react';
+import {
+  BoxProps,
+  Button,
+  Tag,
+  TagCloseButton,
+  TagLabel,
+  Tooltip,
+  VisuallyHidden,
+  Wrap,
+  WrapItem,
+} from '@chakra-ui/react';
 import { clearFQs, removeFQClause } from '@query-utils';
 import { isIADSSearchParams, makeSearchParams, parseQueryFromUrl } from '@utils';
 import { useRouter } from 'next/router';
@@ -53,11 +63,8 @@ export const FacetFilters = (props: BoxProps): ReactElement => {
   }
 
   return (
-    <Box {...props} mb="2">
-      <Heading as="h2" fontSize="sm" mb="2">
-        Applied Filters
-      </Heading>
-      <Divider />
+    <Box {...props} mb="2" borderWidth="thin" borderColor="gray.100" borderRadius={5} p={2}>
+      <VisuallyHidden as="h2">Applied Filters</VisuallyHidden>
       {filterSections.map(([label, cleanClauses, rawClauses]) => (
         <Wrap aria-labelledby={`${label} applied filters`} spacing="0.5" key={label}>
           <WrapItem alignItems="center">
