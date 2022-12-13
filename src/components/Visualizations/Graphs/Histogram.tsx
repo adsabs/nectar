@@ -34,7 +34,12 @@ export const Histogram = ({
   const { xScale, yScale, histogram } = useHistogram({ histogramData: data, width, height });
 
   // And apply this function to data to get the bins
-  const bins = useMemo(() => histogram(data.map((d) => d.x)), [histogram, data]);
+  const bins = useMemo(() => {
+    const t = histogram(data.map((d) => d.x));
+    // need to add 1 to last bin's upper bound
+    t[t.length - 1].x1 = t[t.length - 1].x0 + 1;
+    return t;
+  }, [histogram, data]);
 
   // selected range changed, update bin color
   useEffect(() => {

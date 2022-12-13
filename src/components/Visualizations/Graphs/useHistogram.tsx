@@ -11,7 +11,7 @@ export const useHistogram = ({ histogramData: data, width, height }: IUseHistogr
   // X scale function
   const xScale = d3
     .scaleLinear()
-    .domain([data[0].x, data[data.length - 1].x])
+    .domain([data[0].x, data[data.length - 1].x + 1])
     .range([0, width]);
 
   // y scale function
