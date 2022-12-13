@@ -124,7 +124,7 @@ export const Histogram = ({
 
       return svg;
     },
-    [data],
+    [histogram],
   );
 
   const { ref } = useD3(renderFunction, [renderFunction]);

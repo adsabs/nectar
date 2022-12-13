@@ -44,7 +44,7 @@ import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { last, omit, path } from 'ramda';
-import { FormEventHandler, useEffect, useState } from 'react';
+import { FormEventHandler, useEffect, useRef, useState } from 'react';
 import { dehydrate, QueryClient, useQueryClient } from 'react-query';
 
 const SearchFacets = dynamic<ISearchFacetsProps>(
@@ -94,6 +94,17 @@ const SearchPage: NextPage = () => {
   const [isPrint] = useMediaQuery('print'); // use to hide elements when printing
 
   const [histogramExpanded, setHistogramExpanded] = useState(false);
+
+  const [width, setWidth] = useState(0);
+
+  // use this to get full width, used by histogram
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (ref.current) {
+      setWidth(ref.current.offsetWidth - 20);
+    }
+  }, [ref]);
 
   // on Sort change handler
   const handleSortChange = (sort: SolrSort[]) => {
@@ -157,7 +168,7 @@ const SearchPage: NextPage = () => {
       <Head>
         <title>{params.q} | NASA Science Explorer - Search Results</title>
       </Head>
-      <Stack direction="column" aria-labelledby="search-form-title" spacing="10">
+      <Stack direction="column" aria-labelledby="search-form-title" spacing="10" ref={ref}>
         <Box pt={10}>
           {isPrint || (
             <form method="get" action="/search" onSubmit={handleOnSubmit} className="print-hidden">
@@ -176,7 +187,7 @@ const SearchPage: NextPage = () => {
               onQueryUpdate={handleSearchFacetSubmission}
               isExpanded={histogramExpanded}
               onToggleExpand={handleToggleExpand}
-              width={800}
+              width={width}
               height={125}
             />
           </Flex>
