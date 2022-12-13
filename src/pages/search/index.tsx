@@ -191,7 +191,7 @@ const SearchPage: NextPage = () => {
               />
             )}
           </Box>
-          <Box>
+          <Box flexGrow={2}>
             <Box>
               {isSuccess && !isLoading && data?.numFound > 0 && <ListActions onSortChange={handleSortChange} />}
             </Box>
