@@ -196,7 +196,8 @@ const SearchPage: NextPage = () => {
           </Flex>
         )}
         <Flex direction="row" gap={10}>
-          <Box>
+          <Box display={{ base: 'none', lg: 'block' }}>
+            {/* hide facets if screen is too small */}
             {!isPrint && isClient && (
               <SearchFacetFilters
                 showHistogram={!histogramExpanded}
