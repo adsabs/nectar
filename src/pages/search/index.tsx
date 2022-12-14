@@ -28,6 +28,7 @@ import { calculateStartIndex } from '@components/ResultList/Pagination/usePagina
 import { FacetFilters } from '@components/SearchFacet/FacetFilters';
 import { YearHistogramSlider } from '@components/SearchFacet/YearHistogramSlider';
 import { APP_DEFAULTS } from '@config';
+import { useIsClient } from '@hooks';
 import { AppState, createStore, useStore, useStoreApi } from '@store';
 import { NumPerPageType } from '@types';
 import {
@@ -106,6 +107,8 @@ const SearchPage: NextPage = () => {
     }
   }, [ref]);
 
+  const isClient = useIsClient();
+
   // on Sort change handler
   const handleSortChange = (sort: SolrSort[]) => {
     const query = store.getState().query;
@@ -181,7 +184,7 @@ const SearchPage: NextPage = () => {
           )}
         </Box>
         {/* if histogram is expanded, show it below the search bar, otherwise it should be part of the facets */}
-        {!isPrint && histogramExpanded && (
+        {!isPrint && isClient && histogramExpanded && (
           <Flex justifyContent="center">
             <YearHistogramSlider
               onQueryUpdate={handleSearchFacetSubmission}
@@ -194,7 +197,7 @@ const SearchPage: NextPage = () => {
         )}
         <Flex direction="row" gap={10}>
           <Box>
-            {isPrint || (
+            {!isPrint && isClient && (
               <SearchFacetFilters
                 showHistogram={!histogramExpanded}
                 onExpandHistogram={handleToggleExpand}
