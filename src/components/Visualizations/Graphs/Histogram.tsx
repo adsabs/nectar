@@ -15,6 +15,7 @@ export interface IHistogramProps {
   w: number;
   h: number;
   onClick?: (x: number) => void;
+  onBarWidthReady?: (w: number) => void;
 }
 
 export const Histogram = ({
@@ -26,6 +27,7 @@ export const Histogram = ({
   w,
   h,
   onClick = noop,
+  onBarWidthReady,
 }: IHistogramProps) => {
   // set the dimensions and margins of the graph
   const width = w - margin.left - margin.right;
@@ -40,6 +42,14 @@ export const Histogram = ({
     t[t.length - 1].x1 = t[t.length - 1].x0 + 1;
     return t;
   }, [histogram, data]);
+
+  const barWidth = useMemo(() => xScale(bins[0].x1) - xScale(bins[0].x0), [xScale, bins]);
+
+  useEffect(() => {
+    if (onBarWidthReady) {
+      onBarWidthReady(barWidth);
+    }
+  }, [barWidth]);
 
   // selected range changed, update bin color
   useEffect(() => {

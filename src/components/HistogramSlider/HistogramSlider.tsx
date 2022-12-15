@@ -1,4 +1,4 @@
-import { Box, Stack } from '@chakra-ui/react';
+import { Box, Flex, Stack } from '@chakra-ui/react';
 import { Histogram, HistogramDatum } from '@components/Visualizations';
 import { ReactElement, useEffect, useState } from 'react';
 import { GetHandleProps, GetTrackProps, Handles, Rail, Slider, SliderItem, Tracks } from 'react-compound-slider';
@@ -22,6 +22,7 @@ export const HistogramSlider = ({
 }: IHistogramSliderProps): ReactElement => {
   const range = [data[0].x, data[data.length - 1].x]; // histogram domain
   const [values, setValues] = useState(selectedRange); // left and right slider values
+  const [sliderWidth, setSliderWidth] = useState(width);
 
   useEffect(() => {
     setValues(selectedRange);
@@ -43,8 +44,14 @@ export const HistogramSlider = ({
     onValuesChanged([x, x]);
   };
 
+  const handleBarWidthChanged = (barWidth: number) => {
+    // slider width is slightly smaller than histogram
+    // so that each handle lands in the middle point of the histogram bar
+    setSliderWidth(width - barWidth);
+  };
+
   return (
-    <Box w={width}>
+    <Flex w={width} direction="column" alignItems="center">
       <Histogram
         data={data}
         highlightDomain={values}
@@ -54,6 +61,7 @@ export const HistogramSlider = ({
         h={height}
         margin={{ top: 0, bottom: 0, left: 0, right: 0 }}
         onClick={handleClickHistogram}
+        onBarWidthReady={handleBarWidthChanged}
       />
       <Slider
         mode={2}
@@ -62,7 +70,7 @@ export const HistogramSlider = ({
         values={values}
         rootStyle={{
           position: 'relative',
-          width: width,
+          width: sliderWidth,
         }}
         onUpdate={handleUpdateValues}
         onChange={handleChangeValues}
@@ -72,7 +80,7 @@ export const HistogramSlider = ({
             <Box
               as="div"
               position="absolute"
-              width={width}
+              width={sliderWidth}
               height={trackHeight}
               borderRadius="5"
               bgColor="gray.100"
@@ -100,7 +108,7 @@ export const HistogramSlider = ({
           )}
         </Tracks>
       </Slider>
-    </Box>
+    </Flex>
   );
 };
 
