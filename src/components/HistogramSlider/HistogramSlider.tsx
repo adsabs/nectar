@@ -90,11 +90,25 @@ export const HistogramSlider = ({
         </Rail>
 
         <Handles>
+          {/* Handle label alignment based on left or right handle */}
           {({ handles, getHandleProps }) => (
             <Box as="div" className="slider-handles">
-              {handles.map((handle) => (
-                <Handle key={handle.id} handle={handle} getHandleProps={getHandleProps} />
-              ))}
+              {handles[0].percent < handles[1].percent ? (
+                <>
+                  <Handle key={handles[0].id} handle={handles[0]} getHandleProps={getHandleProps} align="end" />
+                  <Handle key={handles[1].id} handle={handles[1]} getHandleProps={getHandleProps} align="start" />
+                </>
+              ) : handles[0].percent > handles[1].percent ? (
+                <>
+                  <Handle key={handles[0].id} handle={handles[0]} getHandleProps={getHandleProps} align="start" />
+                  <Handle key={handles[1].id} handle={handles[1]} getHandleProps={getHandleProps} align="end" />
+                </>
+              ) : (
+                <>
+                  <Handle key={handles[0].id} handle={handles[0]} getHandleProps={getHandleProps} align="center" />
+                  <Handle key={handles[1].id} handle={handles[1]} getHandleProps={getHandleProps} align="center" />
+                </>
+              )}
             </Box>
           )}
         </Handles>
@@ -115,9 +129,10 @@ export const HistogramSlider = ({
 interface IHandleProps {
   handle: SliderItem;
   getHandleProps: GetHandleProps;
+  align: 'start' | 'end' | 'center';
 }
 
-const Handle = ({ handle, getHandleProps }: IHandleProps): ReactElement => {
+const Handle = ({ handle, getHandleProps, align }: IHandleProps): ReactElement => {
   return (
     <Stack
       direction="column"
@@ -125,11 +140,16 @@ const Handle = ({ handle, getHandleProps }: IHandleProps): ReactElement => {
       ml={-4}
       mt={-2}
       zIndex="2"
-      w={8}
+      w="2em"
       style={{
-        left: `${handle.percent}%`,
+        left:
+          align === 'center'
+            ? `${handle.percent}%`
+            : align === 'start'
+            ? `calc(${handle.percent}% + 0.5em)`
+            : `calc(${handle.percent}% - 0.5em)`,
       }}
-      alignItems="center"
+      alignItems={align}
     >
       <Box
         width={4}
