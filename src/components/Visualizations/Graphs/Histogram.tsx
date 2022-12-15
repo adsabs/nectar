@@ -79,7 +79,7 @@ export const Histogram = ({
         .append('div')
         .classed('histogram-tooltip', true)
         .style('position', 'absolute')
-        .style('opacity', 0);
+        .style('display', 'none');
 
       // histogram bins
       g.selectAll('.histogram-bin')
@@ -99,7 +99,7 @@ export const Histogram = ({
         .data(bins)
         .join('rect')
         .attr('x', 1)
-        .attr('transform', (d, i) => `translate(${xScale(d.x0)} , 0)`)
+        .attr('transform', (d) => `translate(${xScale(d.x0)} , 0)`)
         .attr('width', (d) => xScale(d.x1) - xScale(d.x0))
         .attr('height', height)
         .style('fill', '#fff')
@@ -108,14 +108,14 @@ export const Histogram = ({
           const e = event as MouseEvent;
           // find from data the matching x
           const { x, y } = data.find((d) => d.x === bin.x0);
-          tooltip.transition().duration(100).style('opacity', 1);
+          tooltip.transition().duration(100).style('display', 'block');
           tooltip
             .html(`${x}: ${y}`)
             .style('left', `${e.x + 10}px`)
             .style('top', `${e.y + 10}px`);
         })
         .on('mouseleave', () => {
-          tooltip.transition().duration(100).style('opacity', 0);
+          tooltip.transition().duration(100).style('display', 'none');
         })
         .on('click', (e, bin) => {
           const { x } = data.find((d) => d.x === bin.x0);
