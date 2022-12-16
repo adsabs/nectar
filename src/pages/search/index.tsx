@@ -26,6 +26,7 @@ import {
 } from '@components';
 import { calculateStartIndex } from '@components/ResultList/Pagination/usePagination';
 import { FacetFilters } from '@components/SearchFacet/FacetFilters';
+import { YearHistogramSlider } from '@components/SearchFacet/YearHistogramSlider';
 import { APP_DEFAULTS } from '@config';
 import { AppState, createStore, useStore, useStoreApi } from '@store';
 import { NumPerPageType } from '@types';
@@ -202,7 +203,7 @@ const SearchFacetFilters = (props: { params: IADSApiSearchParams }) => {
 
   if (showFilters) {
     return (
-      <Box as="aside" aria-labelledby="search-facets" minWidth="200px">
+      <Flex as="aside" aria-labelledby="search-facets" minWidth="250px" direction="column">
         <Flex>
           <Heading as="h2" id="search-facets" fontSize="sm" flex="1">
             Filters
@@ -211,8 +212,11 @@ const SearchFacetFilters = (props: { params: IADSApiSearchParams }) => {
             Hide
           </Button>
         </Flex>
+        <Flex justifyContent="center">
+          <YearHistogramSlider onQueryUpdate={handleSearchFacetSubmission} />
+        </Flex>
         <SearchFacets onQueryUpdate={handleSearchFacetSubmission} />
-      </Box>
+      </Flex>
     );
   }
   return (

@@ -1,18 +1,28 @@
-import { BarDatum, ResponsiveBar } from '@nivo/bar';
+import { BarDatum, BarSvgProps, ResponsiveBar } from '@nivo/bar';
 import { ReactElement, useState } from 'react';
 import { Box, Radio, RadioGroup, Stack } from '@chakra-ui/react';
 
-export interface IBarGraphProps {
+export interface IBarGraphProps extends Omit<BarSvgProps<BarDatum>, 'height' | 'width'> {
   data: BarDatum[];
   indexBy: string;
   keys: string[];
   ticks?: string[] | number[] | undefined;
   showLegend?: boolean;
   showGroupOptions?: boolean;
+  height?: string;
 }
 
 export const BarGraph = (props: IBarGraphProps): ReactElement => {
-  const { data, indexBy, keys, ticks, showLegend = true, showGroupOptions = true } = props;
+  const {
+    data,
+    indexBy,
+    keys,
+    ticks,
+    showLegend = false,
+    showGroupOptions = true,
+    height = '500px',
+    ...barAttributes
+  } = props;
   const [groupType, setGroupType] = useState('stacked');
 
   return (
@@ -25,7 +35,7 @@ export const BarGraph = (props: IBarGraphProps): ReactElement => {
           </Stack>
         </RadioGroup>
       )}
-      <div style={{ height: '500px', marginTop: '20px' }}>
+      <div style={{ height: height, marginTop: '20px' }}>
         <ResponsiveBar
           data={data}
           indexBy={indexBy}
@@ -68,6 +78,7 @@ export const BarGraph = (props: IBarGraphProps): ReactElement => {
                 ]
               : undefined
           }
+          {...barAttributes}
         />
       </div>
     </Box>

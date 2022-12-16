@@ -106,17 +106,13 @@ export const getSearchFacetParams = (params: IADSApiSearchParams): IADSApiSearch
   facet: true,
 });
 
-export const getSearchFacetYearsParams = (
-  params: IADSApiSearchParams,
-  minCount = 1,
-  limit = 2000,
-): IADSApiSearchParams => ({
+export const getSearchFacetYearsParams = (params: IADSApiSearchParams): IADSApiSearchParams => ({
   ...params,
   fl: ['id'],
   'facet.pivot': 'property,year',
   facet: true,
-  'facet.mincount': minCount,
-  'facet.limit': limit,
+  'facet.mincount': 1,
+  'facet.limit': 2000,
 });
 
 export const getSearchFacetCitationsParams = (params: IADSApiSearchParams): IADSApiSearchParams => ({

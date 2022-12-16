@@ -12,6 +12,7 @@ export * from './Dropdown';
 export * from './Expandable';
 export * from './Feedbacks';
 export * from './Footer';
+export * from './HistogramSlider';
 export * from './images';
 export * from './LandingTabs';
 export * from './Layout';
