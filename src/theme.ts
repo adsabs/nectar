@@ -68,6 +68,7 @@ export const theme = extendTheme(
         'html, body': {
           color: 'gray.700',
           fontSize: 'md',
+          fontWeight: 'normal',
         },
         a: {
           color: 'blue.400',

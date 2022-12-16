@@ -253,10 +253,10 @@ const SearchFacetFilters = (props: {
     return (
       <Flex as="aside" aria-labelledby="search-facets" minWidth="250px" direction="column">
         <Flex>
-          <Heading as="h2" id="search-facets" fontSize="sm" flex="1">
+          <Heading as="h2" id="search-facets" fontSize="normal" flex="1">
             Filters
           </Heading>
-          <Button variant="link" type="button" onClick={handleToggleFilters}>
+          <Button variant="link" type="button" onClick={handleToggleFilters} fontSize="normal" fontWeight="normal">
             Hide
           </Button>
         </Flex>

@@ -138,7 +138,9 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
           >
             <DragHandleIcon mr="1" />
             <HStack flex="1" textAlign="left">
-              <Text flex="1">{label}</Text>
+              <Text flex="1" fontSize="md">
+                {label}
+              </Text>
               {hasError && (
                 <Tooltip label="Error loading facet, try again later">
                   <Icon as={ExclamationCircleIcon} color="red.500" />
@@ -368,6 +370,9 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
           onClick={toggleShowHidden}
           type="button"
           rightIcon={showHiddenFacets ? <ChevronDownIcon /> : <ChevronRightIcon />}
+          w="fit-content"
+          fontSize="md"
+          my={2}
         >
           {showHiddenFacets ? 'Hide hidden filters' : 'Show hidden filters'} {`(${hiddenItems.length})`}
         </Button>
