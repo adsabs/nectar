@@ -115,7 +115,7 @@ export const PaperNetworkGraph = ({
       top_common_references: {},
       total_reads: 0,
       stable_index: 0,
-      id: 0,
+      id: 99999,
       children: nodesData,
     }),
     [nodesData],
