@@ -173,7 +173,7 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
                   <RecordSlider range={ctx.range} records={ctx.records} dispatch={dispatch} />
 
                   <Stack direction={'row'}>
-                    <Button type="submit" data-testid="export-submit" isLoading={isLoading} isFullWidth>
+                    <Button type="submit" data-testid="export-submit" isLoading={isLoading} width="full">
                       Submit
                     </Button>
                     {hasNextPage && (
@@ -182,7 +182,7 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
                         rightIcon={<ChevronRightIcon fontSize="2xl" />}
                         onClick={nextPage}
                         isLoading={isLoading}
-                        isFullWidth
+                        width="full"
                       >
                         Next {APP_DEFAULTS.EXPORT_PAGE_SIZE}
                       </Button>

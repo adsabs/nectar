@@ -23,8 +23,10 @@ export const SimpleLink: FC<ISimpleLinkProps> = (props): ReactElement => {
         rel={isExternal ? 'noopener noreferrer' : undefined}
         {...linkProps}
       >
-        {icon && <>{icon}</>}
-        {children}
+        <>
+          {icon && <>{icon}</>}
+          {children}
+        </>
       </ChakraLink>
     </NextLink>
   );
