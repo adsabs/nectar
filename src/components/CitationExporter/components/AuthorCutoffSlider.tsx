@@ -1,5 +1,6 @@
 import { IExportApiParams, MAX_AUTHORCUTOFF } from '@api';
-import { Code, FormLabel, Slider, SliderFilledTrack, SliderThumb, SliderTrack } from '@chakra-ui/react';
+import { Code, FormLabel } from '@chakra-ui/react';
+import { Slider } from '@components/Slider';
 import { Sender } from '@xstate/react/lib/types';
 import { useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
@@ -18,7 +19,7 @@ export const AuthorCutoffSlider = (props: {
     dispatch({ type: 'SET_AUTHOR_CUTOFF', payload: debouncedValue });
   }, [debouncedValue]);
 
-  const handleChange = (val: number) => setValue(val);
+  const handleChange = (val: number[]) => setValue(val[0]);
 
   return (
     <DescriptionCollapse
@@ -35,17 +36,12 @@ export const AuthorCutoffSlider = (props: {
           <Slider
             id="authorcutoff-slider"
             aria-label="Author Cutoff"
-            name="authorcutoff"
-            value={value}
-            max={MAX_AUTHORCUTOFF}
-            min={1}
+            range={[1, MAX_AUTHORCUTOFF]}
+            values={[value]}
             onChange={handleChange}
-          >
-            <SliderTrack bg="blue.100">
-              <SliderFilledTrack />
-            </SliderTrack>
-            <SliderThumb />
-          </Slider>
+            size={1}
+            px={4}
+          />
         </>
       )}
     </DescriptionCollapse>

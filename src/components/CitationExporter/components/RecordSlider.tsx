@@ -1,4 +1,5 @@
-import { Box, FormLabel, Slider, SliderFilledTrack, SliderThumb, SliderTrack } from '@chakra-ui/react';
+import { Box, FormLabel } from '@chakra-ui/react';
+import { Slider } from '@components/Slider';
 import { Sender } from '@xstate/react/lib/types';
 import { useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
@@ -18,7 +19,7 @@ export const RecordSlider = (props: {
     dispatch({ type: 'SET_RANGE', payload: debouncedValue });
   }, [debouncedValue]);
 
-  const handleChange = (val: number) => setValue(val);
+  const handleChange = (val: number[]) => setValue(val[0]);
 
   return (
     <Box>
@@ -32,21 +33,15 @@ export const RecordSlider = (props: {
           </>
         )}
       </DescriptionCollapse>
-
       <Slider
         id="records-slider"
         aria-label="Limit Records"
-        name="records"
-        value={value}
-        max={records.length}
-        min={1}
+        range={[1, records.length]}
+        values={[value]}
         onChange={handleChange}
-      >
-        <SliderTrack bg="blue.100">
-          <SliderFilledTrack />
-        </SliderTrack>
-        <SliderThumb />
-      </Slider>
+        size={1}
+        px={4}
+      />
     </Box>
   );
 };

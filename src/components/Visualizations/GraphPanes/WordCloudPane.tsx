@@ -70,6 +70,13 @@ export const WordCloudPane = ({
               Frequent
             </SliderMark>
           </Slider>
+          {/* <Slider
+              aria-label="unique frequent slider"
+              range={[0, MAX_AUTHORCUTOFF]}
+              values={[value]}
+              onValuesChanged={handleChange}
+              px={4}
+            /> */}
         </Flex>
       </FormControl>
 
