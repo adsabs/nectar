@@ -1,13 +1,5 @@
-import {
-  Flex,
-  FormControl,
-  FormLabel,
-  Slider,
-  SliderFilledTrack,
-  SliderMark,
-  SliderThumb,
-  SliderTrack,
-} from '@chakra-ui/react';
+import { Flex, FormControl, FormLabel } from '@chakra-ui/react';
+import { Slider } from '@components/Slider';
 import { noop } from '@utils';
 import { ReactElement, useMemo } from 'react';
 import { WordCloud, WordDatum } from '../Graphs';
@@ -31,8 +23,8 @@ export const WordCloudPane = ({
   currentSliderValue,
   selectedWords = [],
 }: IWordCloudPaneProps): ReactElement => {
-  const handleSliderValueChange = (value: number) => {
-    onSliderValueChange(value);
+  const handleSliderValueChange = (value: number[]) => {
+    onSliderValueChange(value[0]);
   };
 
   const { min, max } = useMemo(
@@ -42,41 +34,19 @@ export const WordCloudPane = ({
 
   return (
     <Flex alignItems="center" direction="column">
-      <FormControl my={10} w="100%">
+      <FormControl my={10} w={400}>
         <Flex alignItems="center" direction="column">
           <FormLabel>Recalculate Cloud</FormLabel>
           <Slider
-            defaultValue={currentSliderValue}
-            onChangeEnd={handleSliderValueChange}
-            min={min}
-            max={max}
-            step={1}
-            my={10}
-            w="96"
-          >
-            <SliderTrack>
-              <SliderFilledTrack />
-            </SliderTrack>
-            <SliderThumb />
-            <SliderMark value={min} textAlign="center" mt={-10} ml={-5}>
-              Unique
-            </SliderMark>
-            {sliderValues.map((sv) => (
-              <SliderMark key={`slider-mark-${sv[1]}`} value={sv[1]} textAlign="center" mt={2} ml={-1}>
-                {sv[0]}
-              </SliderMark>
-            ))}
-            <SliderMark value={max} textAlign="center" mt={-10} ml={-5}>
-              Frequent
-            </SliderMark>
-          </Slider>
-          {/* <Slider
-              aria-label="unique frequent slider"
-              range={[0, MAX_AUTHORCUTOFF]}
-              values={[value]}
-              onValuesChanged={handleChange}
-              px={4}
-            /> */}
+            aria-label="unique frequent slider"
+            range={[min, max]}
+            values={[currentSliderValue]}
+            onChange={handleSliderValueChange}
+            px={4}
+            mt={1}
+            size={1}
+            ticks={sliderValues}
+          />
         </Flex>
       </FormControl>
 

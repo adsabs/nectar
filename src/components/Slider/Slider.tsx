@@ -1,4 +1,5 @@
 import { Stack, Box, StyleProps } from '@chakra-ui/react';
+import { keys, map, prop } from 'ramda';
 import { ReactElement } from 'react';
 import {
   GetHandleProps,
@@ -7,6 +8,7 @@ import {
   Rail,
   Slider as CompoundSlider,
   SliderItem,
+  Ticks,
   Tracks,
 } from 'react-compound-slider';
 
@@ -18,9 +20,22 @@ export interface ISliderProps extends StyleProps {
   onChange: (values: number[]) => void;
   width?: number;
   size?: 0.5 | 1;
+  step?: number;
+  ticks?: [label: string, value: number][];
 }
 
-export const Slider = ({ id, range, values, onUpdate, onChange, width, size = 0.5, ...boxProps }: ISliderProps) => {
+export const Slider = ({
+  id,
+  range,
+  values,
+  onUpdate,
+  onChange,
+  width,
+  size = 0.5,
+  step = 1,
+  ticks,
+  ...boxProps
+}: ISliderProps) => {
   // slider moved
   const handleUpdateValues = (values: readonly number[]) => {
     if (onUpdate) {
@@ -37,11 +52,13 @@ export const Slider = ({ id, range, values, onUpdate, onChange, width, size = 0.
 
   const marginTop = size === 0.5 ? -2 : -1.5;
 
+  const showLabel = !ticks;
+
   return (
-    <Box id={id} width={width || 'full'} h={34} {...boxProps}>
+    <Box id={id} width={width || 'full'} minH={34} {...boxProps}>
       <CompoundSlider
         mode={2}
-        step={1}
+        step={step}
         domain={range}
         values={values}
         rootStyle={{
@@ -73,6 +90,7 @@ export const Slider = ({ id, range, values, onUpdate, onChange, width, size = 0.
                 getHandleProps={getHandleProps}
                 align="center"
                 mt={marginTop}
+                showLabel={showLabel}
               />
             ) : (
               <Box as="div" className="slider-handles">
@@ -84,6 +102,7 @@ export const Slider = ({ id, range, values, onUpdate, onChange, width, size = 0.
                       getHandleProps={getHandleProps}
                       align="end"
                       mt={marginTop}
+                      showLabel={showLabel}
                     />
                     <Handle
                       key={handles[1].id}
@@ -91,6 +110,7 @@ export const Slider = ({ id, range, values, onUpdate, onChange, width, size = 0.
                       getHandleProps={getHandleProps}
                       align="start"
                       mt={marginTop}
+                      showLabel={showLabel}
                     />
                   </>
                 ) : handles[0].percent > handles[1].percent ? (
@@ -101,6 +121,7 @@ export const Slider = ({ id, range, values, onUpdate, onChange, width, size = 0.
                       getHandleProps={getHandleProps}
                       align="start"
                       mt={marginTop}
+                      showLabel={showLabel}
                     />
                     <Handle
                       key={handles[1].id}
@@ -108,6 +129,7 @@ export const Slider = ({ id, range, values, onUpdate, onChange, width, size = 0.
                       getHandleProps={getHandleProps}
                       align="end"
                       mt={marginTop}
+                      showLabel={showLabel}
                     />
                   </>
                 ) : (
@@ -118,6 +140,7 @@ export const Slider = ({ id, range, values, onUpdate, onChange, width, size = 0.
                       getHandleProps={getHandleProps}
                       align="center"
                       mt={marginTop}
+                      showLabel={showLabel}
                     />
                     <Handle
                       key={handles[1].id}
@@ -125,6 +148,7 @@ export const Slider = ({ id, range, values, onUpdate, onChange, width, size = 0.
                       getHandleProps={getHandleProps}
                       align="center"
                       mt={marginTop}
+                      showLabel={showLabel}
                     />
                   </>
                 )}
@@ -141,6 +165,17 @@ export const Slider = ({ id, range, values, onUpdate, onChange, width, size = 0.
             </Box>
           )}
         </Tracks>
+        {ticks && (
+          <Ticks values={ticks.map((t) => t[1])}>
+            {({ ticks: tks }) => (
+              <div className="slider-ticks">
+                {tks.map((tick, index) => (
+                  <Tick key={tick.id} tick={tick} count={tks.length} label={ticks[index][0]} />
+                ))}
+              </div>
+            )}
+          </Ticks>
+        )}
       </CompoundSlider>
     </Box>
   );
@@ -151,9 +186,10 @@ interface IHandleProps {
   getHandleProps: GetHandleProps;
   align: 'start' | 'end' | 'center';
   mt: number;
+  showLabel: boolean;
 }
 
-const Handle = ({ handle, getHandleProps, align, mt }: IHandleProps): ReactElement => {
+const Handle = ({ handle, getHandleProps, align, mt, showLabel }: IHandleProps): ReactElement => {
   return (
     <Stack
       direction="column"
@@ -183,9 +219,11 @@ const Handle = ({ handle, getHandleProps, align, mt }: IHandleProps): ReactEleme
         borderWidth={1}
         {...getHandleProps(handle.id)}
       />
-      <Box mt={5} fontSize="md">
-        {handle.value}
-      </Box>
+      {showLabel && (
+        <Box mt={5} fontSize="md">
+          {handle.value}
+        </Box>
+      )}
     </Stack>
   );
 };
@@ -218,3 +256,30 @@ const Track = ({
     />
   );
 };
+
+interface ITickProps {
+  tick: SliderItem;
+  count: number;
+  label: string;
+}
+
+const Tick = ({ tick, count, label }: ITickProps) => {
+  return (
+    <Box width="full">
+      <Box position="absolute" top={3} w={0.5} h={2} left={`calc(${tick.percent}% - 1.5px)`} bgColor="gray.500" />
+      <Box
+        position="absolute"
+        width={`${100 / count}%`}
+        top={5}
+        left={`${tick.percent}%`}
+        textAlign="center"
+        style={{
+          marginLeft: `${-(100 / count) / 2}%`,
+        }}
+      >
+        {label}
+      </Box>
+    </Box>
+  );
+};
+5;
