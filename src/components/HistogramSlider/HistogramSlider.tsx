@@ -61,15 +61,19 @@ export const HistogramSlider = ({
         onClick={handleClickHistogram}
         onBarWidthReady={handleBarWidthChanged}
       />
-      <Slider
-        aria-label="histogram slider"
-        range={range}
-        values={values}
-        onUpdate={handleUpdateValues}
-        onSlideEnd={handleChangeValues}
-        width={sliderWidth}
-        size={0.5}
-      />
+      {range[0] === range[1] ? (
+        <>{range[0]}</>
+      ) : (
+        <Slider
+          aria-label="histogram slider"
+          range={range}
+          values={values}
+          onUpdate={handleUpdateValues}
+          onSlideEnd={handleChangeValues}
+          width={sliderWidth}
+          size={0.5}
+        />
+      )}
     </Flex>
   );
 };

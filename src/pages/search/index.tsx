@@ -184,7 +184,7 @@ const SearchPage: NextPage = () => {
           )}
         </Box>
         {/* if histogram is expanded, show it below the search bar, otherwise it should be part of the facets */}
-        {!isPrint && isClient && histogramExpanded && (
+        {!isPrint && isClient && data?.docs.length > 0 && histogramExpanded && (
           <Flex justifyContent="center">
             <YearHistogramSlider
               onQueryUpdate={handleSearchFacetSubmission}
@@ -198,7 +198,7 @@ const SearchPage: NextPage = () => {
         <Flex direction="row" gap={10}>
           <Box display={{ base: 'none', lg: 'block' }}>
             {/* hide facets if screen is too small */}
-            {!isPrint && isClient && (
+            {!isPrint && isClient && data?.docs.length > 0 && (
               <SearchFacetFilters
                 showHistogram={!histogramExpanded}
                 onExpandHistogram={handleToggleExpand}
