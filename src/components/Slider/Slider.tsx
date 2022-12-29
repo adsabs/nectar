@@ -1,5 +1,4 @@
 import { Stack, Box, StyleProps } from '@chakra-ui/react';
-import { keys, map, prop } from 'ramda';
 import { ReactElement } from 'react';
 import {
   GetHandleProps,
@@ -17,7 +16,7 @@ export interface ISliderProps extends StyleProps {
   range: [number, number];
   values: number[];
   onUpdate?: (values: number[]) => void;
-  onChange: (values: number[]) => void;
+  onSlideEnd: (values: number[]) => void;
   width?: number;
   size?: 0.5 | 1;
   step?: number;
@@ -29,7 +28,7 @@ export const Slider = ({
   range,
   values,
   onUpdate,
-  onChange,
+  onSlideEnd,
   width,
   size = 0.5,
   step = 1,
@@ -45,7 +44,7 @@ export const Slider = ({
 
   // slider stopped
   const handleChangeValues = (values: readonly number[]) => {
-    onChange([...values]);
+    onSlideEnd([...values]);
   };
 
   const isSingleValue = values.length === 1;
@@ -65,7 +64,7 @@ export const Slider = ({
           position: 'relative',
         }}
         onUpdate={handleUpdateValues}
-        onChange={handleChangeValues}
+        onSlideEnd={handleChangeValues}
       >
         <Rail>
           {({ getRailProps }) => (

@@ -39,7 +39,7 @@ export const MaxAuthorsSlider = (props: {
               aria-label="Max Authors"
               range={[0, MAX_AUTHORCUTOFF]}
               values={[value]}
-              onChange={handleChange}
+              onSlideEnd={handleChange}
               size={1}
               px={4}
             />

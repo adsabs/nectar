@@ -66,7 +66,7 @@ export const HistogramSlider = ({
         range={range}
         values={values}
         onUpdate={handleUpdateValues}
-        onChange={handleChangeValues}
+        onSlideEnd={handleChangeValues}
         width={sliderWidth}
         size={0.5}
       />
