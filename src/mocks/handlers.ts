@@ -8,13 +8,14 @@ import {
   IADSApiVaultResponse,
   IExportApiParams,
 } from '@api';
+import { IAuthorAffiliationItem, IAuthorAffiliationResponse } from '@api/author-affiliation/types';
 import defaultBibstems from '@components/BibstemPicker/defaultBibstems.json';
 import faker from '@faker-js/faker';
 import { IBibstemOption } from '@types';
 import { rest } from 'msw';
 import qs from 'qs';
-import { map, range } from 'ramda';
-import { api, highlights_mocks, ids_mocks, ranRange } from './mockHelpers';
+import { flatten, map, range } from 'ramda';
+import { api, authorAffData, highlights_mocks, ids_mocks, ranRange } from './mockHelpers';
 
 export const handlers = [
   rest.get(`*${ApiTargets.BOOTSTRAP}`, (req, res, ctx) => {
@@ -43,6 +44,14 @@ export const handlers = [
         refresh_token: 'BENF2Gu2EXDXreAjzkiDoV7ReXaNisy4j9kn088u',
       }),
     );
+  }),
+
+  rest.post(`*${ApiTargets.AUTHOR_AFFILIATION_SEARCH}`, (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json<IAuthorAffiliationResponse>({
+      data: [
+        ...flatten(range(0, 10).map(() => authorAffData(faker.datatype.number({ min: 1, max: 3 }))))
+      ] 
+    }));
   }),
 
   rest.get(`*${ApiTargets.SEARCH}`, (req, res, ctx) => {
