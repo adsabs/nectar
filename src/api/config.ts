@@ -37,8 +37,15 @@ export const defaultRequestConfig: AxiosRequestConfig = {
       }),
   },
   headers: {
-    'Content-Type': 'application/x-www-form-urlencoded',
-    Accept: 'application/json, text/plain, */*',
+    common: {
+      /* @ts-ignore */
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Accept: 'application/json, text/plain, */*',
+    },
+    post: {
+      /* @ts-ignore */
+      'Content-Type': 'application/json',
+    },
   },
 };
 
