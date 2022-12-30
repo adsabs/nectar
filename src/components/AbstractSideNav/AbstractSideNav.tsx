@@ -196,6 +196,8 @@ const Item = (props: IItemProps) => {
         mb={1}
         color="gray.700"
         leftIcon={cloneElement(icon, { className: 'w-6 h-6', 'aria-hidden': true })}
+        fontSize="normal"
+        fontWeight="normal"
       >
         {label}
         <CountBadge count={count} />
@@ -222,7 +224,7 @@ const TopMenuItem = (props: IItemProps) => {
   return (
     <MenuItem isDisabled={isDisabled} backgroundColor={active ? 'gray.100' : 'transparent'} mb={1}>
       <NextLink href={`/abs/[id]/${route}`} as={`/abs/${docId}/${route}`} passHref {...linkProps(docId)}>
-        <Box width="full">
+        <Box width="full" color="gray.700">
           <Stack direction="row" alignItems="center">
             {cloneElement(icon, { className: 'mr-3 w-6 h-6', 'aria-hidden': true })}
             <Text fontWeight="normal">{label}</Text>

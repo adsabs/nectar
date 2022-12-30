@@ -163,8 +163,11 @@ export const SearchFacetTree = (props: ISearchFacetTreeProps): ReactElement => {
                     show={treeData.length > 0 && canLoadMore && !isError}
                     onClick={handleLoadMore}
                     isLoading={isFetching}
+                    my={2}
+                    fontSize="sm"
+                    fontWeight="normal"
                   />
-                  <ResetBtn />
+                  <ResetBtn fontSize="sm" fontWeight="normal" />
                 </Flex>
               )}
             </DrawerBody>
@@ -220,8 +223,11 @@ export const SearchFacetTree = (props: ISearchFacetTreeProps): ReactElement => {
             handleLoadMore();
           }}
           isLoading={isFetching}
+          my={2}
+          fontSize="sm"
+          fontWeight="normal"
         />
-        <ResetBtn />
+        <ResetBtn fontSize="sm" fontWeight="normal" />
       </Flex>
       <LogicArea logic={logic} onFilter={onFilter} field={field} />
     </FacetTreeStoreProvider>
@@ -386,6 +392,9 @@ const SearchFacetChildNode = (props: SearchFacetNodeProps) => {
             }}
             isLoading={isFetching}
             showBottomBorder
+            my={2}
+            fontSize="sm"
+            fontWeight="normal"
           />
           {isError && (
             <Text color="red" fontSize="xs">
@@ -510,10 +519,11 @@ const NodeCheckbox = (props: CheckboxProps & { node: FacetCountTuple; parent: st
       onChange={handleSelect}
       value={title}
       data-testid={`facet-checkbox-${isRoot ? 'root' : 'child'}`}
+      my={0.5}
     >
       <Text as="span" display="inline-flex" justifyContent="space-between" w="full">
         <Tooltip label={title} placement="right">
-          <Text fontWeight={'bold'} noOfLines={1} wordBreak="break-word">
+          <Text noOfLines={1} wordBreak="break-word" fontSize="md">
             {title}
           </Text>
         </Tooltip>

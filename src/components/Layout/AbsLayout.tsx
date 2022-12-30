@@ -28,7 +28,7 @@ export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription
       {showBackLink && (
         <NextLink {...getLinkProps()} legacyBehavior>
           <Link _hover={{ textDecoration: 'none' }}>
-            <Button variant={'outline'} leftIcon={<ChevronLeftIcon />}>
+            <Button variant={'outline'} leftIcon={<ChevronLeftIcon />} fontSize="sm" fontWeight="normal">
               Back to Results
             </Button>
           </Link>

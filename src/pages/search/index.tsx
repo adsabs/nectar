@@ -28,6 +28,7 @@ import { calculateStartIndex } from '@components/ResultList/Pagination/usePagina
 import { FacetFilters } from '@components/SearchFacet/FacetFilters';
 import { YearHistogramSlider } from '@components/SearchFacet/YearHistogramSlider';
 import { APP_DEFAULTS } from '@config';
+import { useIsClient } from '@hooks';
 import { AppState, createStore, useStore, useStoreApi } from '@store';
 import { NumPerPageType } from '@types';
 import {
@@ -44,7 +45,7 @@ import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { last, omit, path } from 'ramda';
-import { FormEventHandler, useEffect } from 'react';
+import { FormEventHandler, useEffect, useRef, useState } from 'react';
 import { dehydrate, QueryClient, useQueryClient } from 'react-query';
 
 const SearchFacets = dynamic<ISearchFacetsProps>(
@@ -93,6 +94,21 @@ const SearchPage: NextPage = () => {
 
   const [isPrint] = useMediaQuery('print'); // use to hide elements when printing
 
+  const [histogramExpanded, setHistogramExpanded] = useState(false);
+
+  const [width, setWidth] = useState(0);
+
+  // use this to get full width, used by histogram
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (ref.current) {
+      setWidth(ref.current.offsetWidth - 20);
+    }
+  }, [ref]);
+
+  const isClient = useIsClient();
+
   // on Sort change handler
   const handleSortChange = (sort: SolrSort[]) => {
     const query = store.getState().query;
@@ -139,6 +155,15 @@ const SearchPage: NextPage = () => {
     setNumPerPage(numPerPage);
   };
 
+  const handleSearchFacetSubmission = (queryUpdates: Partial<IADSApiSearchParams>) => {
+    const search = makeSearchParams({ ...params, ...queryUpdates, p: 1 });
+    void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
+  };
+
+  const handleToggleExpand = () => {
+    setHistogramExpanded((prev) => !prev);
+  };
+
   // search facet handlers
 
   return (
@@ -146,9 +171,8 @@ const SearchPage: NextPage = () => {
       <Head>
         <title>{params.q} | NASA Science Explorer - Search Results</title>
       </Head>
-      <Stack direction="row" aria-labelledby="search-form-title" my={12} spacing="4">
-        {isPrint || <SearchFacetFilters params={params} />}
-        <Box>
+      <Stack direction="column" aria-labelledby="search-form-title" spacing="10" ref={ref}>
+        <Box pt={10}>
           {isPrint || (
             <form method="get" action="/search" onSubmit={handleOnSubmit} className="print-hidden">
               <Flex direction="column" width="full">
@@ -156,66 +180,98 @@ const SearchPage: NextPage = () => {
                 <NumFound count={data?.numFound} isLoading={isLoading} />
               </Flex>
               <FacetFilters mt="2" />
-              <Box mt={5}>
-                {isSuccess && !isLoading && data?.numFound > 0 && <ListActions onSortChange={handleSortChange} />}
-              </Box>
             </form>
           )}
-
-          <VisuallyHidden as="h2" id="search-form-title">
-            Search Results
-          </VisuallyHidden>
-
-          {!isLoading && data?.numFound === 0 && <NoResultsMsg query={params.q} />}
-          {isLoading && <ItemsSkeleton count={storeNumPerPage} />}
-
-          {data && (
-            <>
-              <SimpleResultList docs={data.docs} indexStart={params.start} />
-              <Pagination
-                numPerPage={storeNumPerPage}
-                page={params.p}
-                totalResults={data.numFound}
-                onPerPageSelect={handlePerPageChange}
-              />
-            </>
-          )}
-          {error && (
-            <Box aria-labelledby="search-form-title" my={16}>
-              <SearchErrorAlert error={error} />
-            </Box>
-          )}
         </Box>
+        {/* if histogram is expanded, show it below the search bar, otherwise it should be part of the facets */}
+        {!isPrint && isClient && histogramExpanded && (
+          <Flex justifyContent="center">
+            <YearHistogramSlider
+              onQueryUpdate={handleSearchFacetSubmission}
+              isExpanded={histogramExpanded}
+              onToggleExpand={handleToggleExpand}
+              width={width}
+              height={125}
+            />
+          </Flex>
+        )}
+        <Flex direction="row" gap={10}>
+          <Box display={{ base: 'none', lg: 'block' }}>
+            {/* hide facets if screen is too small */}
+            {!isPrint && isClient && (
+              <SearchFacetFilters
+                showHistogram={!histogramExpanded}
+                onExpandHistogram={handleToggleExpand}
+                onSearchFacetSubmission={handleSearchFacetSubmission}
+              />
+            )}
+          </Box>
+          <Box flexGrow={2}>
+            <Box>
+              {isSuccess && !isLoading && data?.numFound > 0 && <ListActions onSortChange={handleSortChange} />}
+            </Box>
+            <VisuallyHidden as="h2" id="search-form-title">
+              Search Results
+            </VisuallyHidden>
+
+            {!isLoading && data?.numFound === 0 && <NoResultsMsg query={params.q} />}
+            {isLoading && <ItemsSkeleton count={storeNumPerPage} />}
+
+            {data && (
+              <>
+                <SimpleResultList docs={data.docs} indexStart={params.start} />
+                <Pagination
+                  numPerPage={storeNumPerPage}
+                  page={params.p}
+                  totalResults={data.numFound}
+                  onPerPageSelect={handlePerPageChange}
+                />
+              </>
+            )}
+            {error && (
+              <Box aria-labelledby="search-form-title" my={16}>
+                <SearchErrorAlert error={error} />
+              </Box>
+            )}
+          </Box>
+        </Flex>
       </Stack>
     </>
   );
 };
 
-const SearchFacetFilters = (props: { params: IADSApiSearchParams }) => {
-  const { params } = props;
+const SearchFacetFilters = (props: {
+  showHistogram: boolean;
+  onExpandHistogram: () => void;
+  onSearchFacetSubmission: (queryUpdates: Partial<IADSApiSearchParams>) => void;
+}) => {
+  const { showHistogram, onSearchFacetSubmission, onExpandHistogram } = props;
   const showFilters = useStore(selectors.showFilters);
-  const router = useRouter();
   const handleToggleFilters = useStore(selectors.toggleSearchFacetsOpen);
-  const handleSearchFacetSubmission = (queryUpdates: Partial<IADSApiSearchParams>) => {
-    const search = makeSearchParams({ ...params, ...queryUpdates, p: 1 });
-    void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
-  };
 
   if (showFilters) {
     return (
       <Flex as="aside" aria-labelledby="search-facets" minWidth="250px" direction="column">
         <Flex>
-          <Heading as="h2" id="search-facets" fontSize="sm" flex="1">
+          <Heading as="h2" id="search-facets" fontSize="normal" flex="1">
             Filters
           </Heading>
-          <Button variant="link" type="button" onClick={handleToggleFilters}>
+          <Button variant="link" type="button" onClick={handleToggleFilters} fontSize="normal" fontWeight="normal">
             Hide
           </Button>
         </Flex>
-        <Flex justifyContent="center">
-          <YearHistogramSlider onQueryUpdate={handleSearchFacetSubmission} />
-        </Flex>
-        <SearchFacets onQueryUpdate={handleSearchFacetSubmission} />
+        {showHistogram && (
+          <Flex justifyContent="center">
+            <YearHistogramSlider
+              onQueryUpdate={onSearchFacetSubmission}
+              isExpanded={false}
+              onToggleExpand={onExpandHistogram}
+              width={200}
+              height={125}
+            />
+          </Flex>
+        )}
+        <SearchFacets onQueryUpdate={onSearchFacetSubmission} />
       </Flex>
     );
   }
