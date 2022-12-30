@@ -9,7 +9,7 @@ import { useRouter } from 'next/router';
 import qs from 'qs';
 import { ParsedUrlQuery } from 'querystring';
 import { clamp, filter, find, head, is, keys, last, omit, paths, pick, pipe, propIs, uniq, when } from 'ramda';
-import { isArray, isNotString } from 'ramda-adjunct';
+import { isArray, isNotString, isPlainObject } from 'ramda-adjunct';
 
 type ParsedQueryParams = ParsedUrlQuery | qs.ParsedQs;
 
@@ -268,7 +268,7 @@ export const isApiSearchResponse = (value: unknown): value is IADSApiSearchRespo
 };
 
 export const isIADSSearchParams = (value: unknown): value is IADSApiSearchParams => {
-  return propIs(String, 'q', value);
+  return isPlainObject(value) && propIs(String, 'q', value);
 };
 
 export const safeSplitString = (value: string | string[], delimiter: string | RegExp = ','): string[] => {
