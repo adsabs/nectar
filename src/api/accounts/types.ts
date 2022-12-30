@@ -44,8 +44,6 @@ export interface ICSRFResponse {
   csrf: string;
 }
 
-import { AxiosResponse } from 'axios';
-
 export interface IBootstrapPayload {
   username: string;
   scopes: string[];
@@ -58,12 +56,6 @@ export interface IBootstrapPayload {
   client_secret: string;
   expire_in: string;
   refresh_token: string;
-}
-
-export interface IADSApiBootstrapResponse extends AxiosResponse<IBootstrapPayload> {
-  headers: {
-    'set-cookie': string;
-  };
 }
 
 export type IUserData = Pick<IBootstrapPayload, 'username' | 'anonymous' | 'access_token' | 'expire_in'>;

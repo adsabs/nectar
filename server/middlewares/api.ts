@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { isPast, parseISO } from 'date-fns';
 import { RequestHandler as Middleware } from 'express';
-import { isNil } from 'ramda';
+import { isNil, path } from 'ramda';
 import { IBootstrapPayload, IUserData } from '../../src/api/accounts/types';
 import { getDynamicConfig } from '../../src/api/config';
 import { ApiTargets } from '../../src/api/models';
@@ -23,11 +23,7 @@ const checkUserData = (userData?: IUserData): boolean => {
 export const isAuthenticated = (user: IUserData) =>
   isUserData(user) && (!user.anonymous || user.username !== 'anonymous@ads');
 
-interface IADSApiBootstrapResponse extends AxiosResponse<IBootstrapPayload> {
-  headers: {
-    'set-cookie': string;
-  };
-}
+// interface IADSApiBootstrapResponse extends AxiosResponse<IBootstrapPayload> {}
 
 export const api: Middleware = (req, res, next) => {
   // get hold of the incoming session cookie
@@ -48,7 +44,7 @@ export const api: Middleware = (req, res, next) => {
     url: ApiTargets.BOOTSTRAP,
     withCredentials: true,
     headers: {
-      Accept: 'application/json',
+      Accept: 'application/json text/plain */*',
       ...(sessionCookie ? { Cookie: [`session=${sessionCookie};`] } : {}),
     },
   };
@@ -56,9 +52,9 @@ export const api: Middleware = (req, res, next) => {
   req.log.info('[API] Bootstrapping...');
 
   axios
-    .request<IBootstrapPayload, IADSApiBootstrapResponse>(config)
+    .request<IBootstrapPayload, AxiosResponse<IBootstrapPayload>>(config)
     .then((response) => {
-      const { data, headers } = response;
+      const { data } = response;
 
       // sets the new user data on the session, this will be used in the GSSPs to get api data
       req.session.userData = data;
@@ -66,8 +62,11 @@ export const api: Middleware = (req, res, next) => {
       // set authenticated flag based on incoming user data
       req.session.isAuthenticated = isAuthenticated(data);
 
+      const setCookieValue = path(['headers', 'set-cookie'], response);
       // make sure to also send along the new cookie
-      res.setHeader('set-cookie', headers['set-cookie']);
+      if (Array.isArray(setCookieValue)) {
+        res.setHeader('set-cookie', setCookieValue);
+      }
 
       req.log.info('[API] Bootstrapped, ready for server-side API calls');
     })
