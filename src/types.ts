@@ -1,6 +1,6 @@
 import { IADSApiSearchParams, IUserData } from '@api';
 import { APP_DEFAULTS } from '@config';
-import { SetupServerApi } from 'msw/lib/types/node';
+import { SetupServerApi } from 'msw/node';
 
 export enum Theme {
   GENERAL = 'GENERAL',
