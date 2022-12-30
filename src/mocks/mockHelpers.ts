@@ -1,4 +1,5 @@
 import { Esources, IADSApiSearchResponse } from '@api';
+import { IAuthorAffiliationItem } from '@api/author-affiliation/types';
 import { faker } from '@faker-js/faker';
 import { range, slice } from 'ramda';
 
@@ -61,4 +62,19 @@ export const highlights_mocks: IADSApiSearchResponse['highlighting'] = {
   [ids_mocks[7]]: {},
   [ids_mocks[8]]: {},
   [ids_mocks[9]]: {},
+};
+
+export const authorAffData = (count = 1) => {
+
+  const authorName = api.author();
+  
+  return range(0, count).map(() => ({
+  authorName,
+  affiliations: {
+    name: faker.helpers.randomize([api.aff(), '-']),
+    years: [...range(0, faker.datatype.number({ min: 0, max: 10 })).map(() => `${faker.date.past(20).getFullYear()}`)],
+    lastActiveDate: api.pubdate(),
+  },
+} as IAuthorAffiliationItem))
+
 };
