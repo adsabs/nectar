@@ -287,7 +287,7 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean }): ReactEleme
   const router = useRouter();
   const store = useStoreApi();
   const [selected, setSelected] = useState<Bibcode[]>([]);
-  const [format, setFormat] = useState(ExportApiFormatKey.bibtex);
+  const [route, setRoute] = useState(['', '']);
 
   const { data } = useVaultBigQuerySearch(selected, { enabled: !exploreAll && selected.length > 0 });
 
@@ -297,36 +297,41 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean }): ReactEleme
 
       // when vault query is done, transition to the export page passing only qid
       void router.push(
-        { pathname: `/search/exportcitation/[format]`, query: { ...router.query, qid: data.qid } },
-        { pathname: `/search/exportcitation/${format}`, query: { ...router.query, qid: data.qid } },
+        { pathname: route[0], query: { ...router.query, qid: data.qid } },
+        { pathname: route[1], query: { ...router.query, qid: data.qid } },
       );
     }
-  }, [data]);
+  }, [data, route]);
 
-  const handleItemClick = curryN(2, (format: ExportApiFormatKey) => {
-    setFormat(format);
-
-    if (exploreAll) {
-      // if explore all, then just use the current query, and do not trigger vault
-      void router.push(
-        { pathname: `/search/exportcitation/[format]`, query: router.query },
-        { pathname: `/search/exportcitation/${format}`, query: router.query },
-      );
-    } else {
-      // trigger vault query
-      setSelected(store.getState().docs.selected);
+  const handleClick = () => {
+    if (!exploreAll) {
+      // if using a selection, update the state value (triggers a vault request)
+      return setSelected(store.getState().docs.selected);
     }
+
+    // if explore all, then just use the current query, and do not trigger vault (redirect immediately)
+    void router.push({ pathname: route[0], query: router.query }, { pathname: route[1], query: router.query });
+  };
+
+  const handleExportItemClick = curryN(2, (format: ExportApiFormatKey) => {
+    setRoute([`/search/exportcitation/[format]`, `/search/exportcitation/${format}`]);
+    handleClick();
   });
+
+  const handleOpenAuthorAffiliation = () => {
+    setRoute(['/search/authoraffiliations', '/search/authoraffiliations']);
+    handleClick();
+  };
 
   return (
     <MenuGroup {...menuGroupProps} title="EXPORT">
-      <MenuItem onClick={handleItemClick(ExportApiFormatKey.bibtex)}>in BibTeX</MenuItem>
-      <MenuItem onClick={handleItemClick(ExportApiFormatKey.aastex)}>in AASTeX</MenuItem>
-      <MenuItem onClick={handleItemClick(ExportApiFormatKey.endnote)}>in EndNote</MenuItem>
-      <MenuItem onClick={handleItemClick(ExportApiFormatKey.ris)}>in RIS</MenuItem>
-      <MenuItem onClick={handleItemClick(ExportApiFormatKey.bibtex)}>Other Formats</MenuItem>
+      <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.bibtex)}>in BibTeX</MenuItem>
+      <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.aastex)}>in AASTeX</MenuItem>
+      <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.endnote)}>in EndNote</MenuItem>
+      <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.ris)}>in RIS</MenuItem>
+      <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.bibtex)}>Other Formats</MenuItem>
       <MenuDivider />
-      <MenuItem>Author Affiliations</MenuItem>
+      <MenuItem onClick={handleOpenAuthorAffiliation}>Author Affiliations</MenuItem>
     </MenuGroup>
   );
 };
