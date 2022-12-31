@@ -28,10 +28,21 @@ export const ExportModal = (props: ButtonProps) => {
   const { ...btnProps } = props;
 
   const { isOpen, onClose, onOpen } = useDisclosure();
-  const { isLoading, format, onDone, onFetch, onFormatChange, numSelected, downloadLink, isError, error, noData } =
-    useExportModal({
-      enabled: isOpen,
-    });
+  const {
+    isLoading,
+    format,
+    onDone,
+    onFetch,
+    onFormatChange,
+    numSelected,
+    downloadLink,
+    downloadFilename,
+    isError,
+    error,
+    noData,
+  } = useExportModal({
+    enabled: isOpen,
+  });
 
   useEffect(() => {
     if (!isOpen) {
@@ -73,7 +84,10 @@ export const ExportModal = (props: ButtonProps) => {
             ) : null}
             {downloadLink ? (
               <Box mt="2">
-                Download not working? <Link href={downloadLink}>Direct Link</Link>
+                Download not working?{' '}
+                <Link href={downloadLink} download={downloadFilename}>
+                  Direct Link
+                </Link>
               </Box>
             ) : null}
             {isError ? (

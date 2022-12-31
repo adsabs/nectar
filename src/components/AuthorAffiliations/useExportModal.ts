@@ -101,7 +101,7 @@ export const useExportModal = (props: { enabled: boolean }) => {
   }, [data, error]);
 
   // hook to trigger download
-  const { onDownload, linkHref } = useDownloadFile(data, {
+  const { onDownload, linkHref, filename } = useDownloadFile(data, {
     appendDate: true,
     type: state.type,
     filename: 'authoraffiliation',
@@ -123,6 +123,7 @@ export const useExportModal = (props: { enabled: boolean }) => {
     onFetch: () => dispatch({ type: 'EXPORT' }),
     onFormatChange: (format: typeof exportTypes[number]) => dispatch({ type: 'SET_FORMAT', format }),
     downloadLink: linkHref,
+    downloadFilename: filename,
     isError,
     error,
     numSelected: state.selected.length,
