@@ -14,7 +14,7 @@ export interface IUseDownloadFileOptions {
   onDownloaded?: () => void;
 }
 
-export const useDownloadFile = (value: string | (() => string), options?: IUseDownloadFileOptions) => {
+export const useDownloadFile = (value: string | (() => string), options: IUseDownloadFileOptions = {}) => {
   const { timeout = 300, filename = 'download.txt', appendDate = false, type = 'TEXT', onDownloaded = noop } = options;
   const isClient = useIsClient();
   const [hasDownloaded, setHasDownloaded] = useState(false);
