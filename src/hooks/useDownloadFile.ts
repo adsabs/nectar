@@ -2,7 +2,7 @@ import { noop } from '@utils';
 import { formatISO } from 'date-fns';
 import { saveAs } from 'file-saver';
 import { parse } from 'path';
-import { isFunction } from 'ramda-adjunct';
+import { isFunction, isNonEmptyString } from 'ramda-adjunct';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export interface IUseDownloadFileOptions {
@@ -22,8 +22,9 @@ export const useDownloadFile = (value: string | (() => string), options: IUseDow
 
   // generate URI for the passed in value
   const href = useMemo(() => {
-    if (typeof window !== 'undefined') {
-      const blob = new window.Blob(typeof value === 'function' ? [value()] : [value], { type });
+    const content = typeof value === 'function' ? [value()] : [value];
+    if (typeof window !== 'undefined' && isNonEmptyString(content[0])) {
+      const blob = new window.Blob(content, { type });
       return window.URL.createObjectURL(blob);
     }
     return '';
