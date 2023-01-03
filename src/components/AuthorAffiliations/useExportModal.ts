@@ -34,7 +34,14 @@ const update = (change: Partial<IExportModalState>, state: IExportModalState) =>
 const reducer: Reducer<IExportModalState, Action> = (state, action) => {
   switch (action.type) {
     case 'SET_FORMAT':
-      return update({ format: action.format, type: exportTypeFileMappings[exportTypes.indexOf(action.format)] }, state);
+      return update(
+        {
+          mode: 'SELECTING',
+          format: action.format,
+          type: exportTypeFileMappings[exportTypes.indexOf(action.format)],
+        },
+        state,
+      );
     case 'SET_SELECTED':
       return update({ selected: action.selected }, state);
     case 'EXPORT':
@@ -88,17 +95,14 @@ export const useExportModal = (props: { enabled: boolean }) => {
         dispatch({ type: 'DATA' });
       }
     }
-  }, [state.selected, state.format, state.mode]);
+  }, [data, state.selected, state.format, state.mode]);
 
   // update state if we receive data, or error
   useEffect(() => {
-    if (data) {
-      dispatch({ type: 'DATA' });
-    }
     if (error) {
       dispatch({ type: 'ERROR' });
     }
-  }, [data, error]);
+  }, [error]);
 
   // hook to trigger download
   const { onDownload, linkHref, filename } = useDownloadFile(data, {

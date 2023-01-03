@@ -79,3 +79,11 @@ test('if filename has extension override type', () => {
 
   expect(result.current.filename).toEqual('test.txt');
 });
+
+test('passing an empty value does not create an href', () => {
+  const { result } = renderHook((props: Parameters<typeof useDownloadFile>) => useDownloadFile(...props), {
+    initialProps: [''],
+  });
+
+  expect(result.current.linkHref).toEqual('');
+});
