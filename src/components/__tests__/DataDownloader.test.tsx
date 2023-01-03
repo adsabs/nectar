@@ -1,6 +1,18 @@
 import { render } from '@testing-library/react';
+import { afterEach, describe, test, vi } from 'vitest';
 import { Default as DataDownloader } from '../__stories__/DataDownloader.stories';
-import { describe, test } from 'vitest';
+
+const defaultURI = 'blob:http://localhost:8000/9303db9e-5b75-4d87-9aa8-804d7e59c29b';
+
+vi.stubGlobal('URL', {
+  createObjectURL: vi.fn(() => defaultURI),
+});
+
+vi.stubGlobal('open', vi.fn());
+
+afterEach(() => {
+  vi.clearAllMocks();
+});
 
 describe('DataDownloader', () => {
   test('renders without crashing', () => {
