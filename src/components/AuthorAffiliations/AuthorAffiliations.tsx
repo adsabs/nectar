@@ -1,7 +1,10 @@
 import { IADSApiSearchParams, IDocsEntity, useSearchInfinite } from '@api';
 import { useAuthorAffiliationSearch } from '@api/author-affiliation/author-affiliation';
+import { getAuthorAffiliationSearchParams } from '@api/author-affiliation/model';
 import { IAuthorAffiliationItem, IAuthorAffiliationPayload } from '@api/author-affiliation/types';
 import {
+  Alert,
+  AlertTitle,
   Box,
   BoxProps,
   Button,
@@ -25,37 +28,41 @@ import {
   useBoolean,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import PT from 'prop-types';
+import { isIADSSearchParams } from '@utils';
 import { assoc, isNil, pathOr, range } from 'ramda';
 import { isNilOrEmpty, isNotNilOrEmpty } from 'ramda-adjunct';
 import { ChangeEventHandler, Dispatch, ReactElement, SetStateAction, useCallback, useEffect, useState } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
+import { AuthorAffiliationsErrorMessage } from './ErrorMessage';
 import { ExportModal } from './ExportModal';
-import { countOptions, defaultParams, NONESYMBOL } from './models';
+import { countOptions, NONESYMBOL } from './models';
 import { AuthorAffStoreProvider, useAuthorAffStore } from './store';
 import { IGroupedAuthorAffilationData } from './types';
 
-export interface IAuthorAffiliationsProps extends BoxProps {
-  params: IAuthorAffiliationPayload;
-  query?: IADSApiSearchParams;
-  records: number;
-}
+export type AuthorAffiliationsProps =
+  | (BoxProps & { params: IAuthorAffiliationPayload; query?: IADSApiSearchParams })
+  | { params?: IAuthorAffiliationPayload; query: IADSApiSearchParams };
 
-const propTypes = {
-  children: PT.element,
-};
+export const AuthorAffiliations = (props: AuthorAffiliationsProps): ReactElement => {
+  const { params: initialParams, query, ...boxProps } = props;
+  const [params, setParams] = useState<IAuthorAffiliationPayload>(() =>
+    getAuthorAffiliationSearchParams(initialParams),
+  );
 
-export const AuthorAffiliations = (props: IAuthorAffiliationsProps): ReactElement => {
-  const { params: initialParams, query, records = 0, ...boxProps } = props;
-  const [params, setParams] = useState<IAuthorAffiliationPayload>(() => ({ ...defaultParams, ...initialParams }));
-  const { data: queryData } = useSearchInfinite(query);
-
+  // get affiliations data, this depends on params.bibcode having items
   const {
     data: affData,
     isLoading,
     isError,
     error,
   } = useAuthorAffiliationSearch(params, {
-    enabled: params.bibcode?.length > 0,
+    enabled: !isNilOrEmpty(params.bibcode),
+    useErrorBoundary: true,
+  });
+
+  // query for bibcodes, this will only run if we weren't passed params (and we have a query)
+  const { data: queryData } = useSearchInfinite(query, {
+    enabled: isIADSSearchParams(query) && isNilOrEmpty(params.bibcode),
     useErrorBoundary: true,
   });
 
@@ -73,17 +80,19 @@ export const AuthorAffiliations = (props: IAuthorAffiliationsProps): ReactElemen
 
   return (
     <Box {...boxProps}>
-      <AuthorAffStoreProvider items={affData}>
-        <AffForm
-          params={params}
-          setParams={setParams}
-          items={affData}
-          isLoading={isLoading}
-          isError={isError}
-          error={error}
-          records={records}
-        />
-      </AuthorAffStoreProvider>
+      <ErrorBoundary FallbackComponent={AuthorAffiliationsErrorMessage}>
+        <AuthorAffStoreProvider items={affData}>
+          <AffForm
+            params={params}
+            setParams={setParams}
+            items={affData}
+            isLoading={isLoading}
+            isError={isError}
+            error={error}
+            records={pathOr<number>(0, ['pages', '0', 'response', 'docs', 'length'], queryData)}
+          />
+        </AuthorAffStoreProvider>
+      </ErrorBoundary>
     </Box>
   );
 };
@@ -103,7 +112,8 @@ const AffForm = (props: IAffFormProps) => {
   const toggleAll = useAuthorAffStore((state) => state.toggleAll);
   const { params, records, setParams, isLoading } = props;
 
-  // push any new items into store to reset state
+  // push any new items into store to reset state,
+  // this is necessary to sync incoming items with store
   useEffect(() => setItems(props.items), [props.items]);
   const items = useAuthorAffStore((state) => state.items);
 
@@ -112,6 +122,9 @@ const AffForm = (props: IAffFormProps) => {
   const handleAuthorChange: ChangeEventHandler<HTMLSelectElement> = (e) => {
     setParams(assoc('maxauthor', [parseInt(e.currentTarget.value, 10)]));
   };
+
+  // should disable controls if loading or no items
+  const isDisabled = isLoading || items.length === 0;
 
   return (
     <Box>
@@ -123,14 +136,14 @@ const AffForm = (props: IAffFormProps) => {
       <Stack spacing="2" mb="4" mt="2" alignItems={['center', 'flex-end']} flexDirection={['column-reverse', 'row']}>
         <Stack flex="1" spacing="4" direction="row" alignItems="center" mt={['2', 'auto']}>
           {/* Form toggle buttons  */}
-          <Button size="xs" variant="ghost" onClick={toggleAll} isDisabled={isLoading}>
+          <Button size="xs" variant="ghost" onClick={toggleAll} isDisabled={isDisabled}>
             Toggle All
           </Button>
-          <Button size="xs" variant="ghost" onClick={reset} isDisabled={isLoading}>
+          <Button size="xs" variant="ghost" onClick={reset} isDisabled={isDisabled}>
             Reset
           </Button>
 
-          <ExportModal isDisabled={isLoading} />
+          <ExportModal isDisabled={isDisabled} />
         </Stack>
 
         {/* main form area */}
@@ -148,7 +161,7 @@ const AffForm = (props: IAffFormProps) => {
         >
           <FormControl>
             <FormLabel>Max Authors</FormLabel>
-            <Select onChange={handleAuthorChange} isDisabled={isLoading} value={params.maxauthor[0]}>
+            <Select onChange={handleAuthorChange} isDisabled={isDisabled} value={params.maxauthor[0]}>
               {countOptions.map((count) => (
                 <option value={count} key={count}>
                   {count}
@@ -159,7 +172,7 @@ const AffForm = (props: IAffFormProps) => {
           </FormControl>
           <FormControl>
             <FormLabel>Years</FormLabel>
-            <Select onChange={handleYearChange} isDisabled={isLoading} value={params.numyears[0]}>
+            <Select onChange={handleYearChange} isDisabled={isDisabled} value={params.numyears[0]}>
               {countOptions.map((count) => (
                 <option value={count} key={count}>
                   {count}
@@ -181,9 +194,17 @@ const AffForm = (props: IAffFormProps) => {
               <Th>Last Active Date(s)</Th>
             </Tr>
           </Thead>
-          <Tbody>
+          <Tbody data-testid="author-aff-table-body">
             {isLoading ? (
               <SkeletonTableRows />
+            ) : items.length === 0 ? (
+              <Tr>
+                <Td colSpan={5}>
+                  <Alert status="warning" justifyContent="center">
+                    <AlertTitle>No affiliation data to display</AlertTitle>
+                  </Alert>
+                </Td>
+              </Tr>
             ) : (
               items.map((ctx, idx) => <Row context={ctx} key={`${ctx.authorName}_${idx}`} idx={idx + 1} />)
             )}
@@ -342,5 +363,3 @@ const getCaption = (numAuthors: number, numRecords = 0) => {
   }
   return `Showing affiliation data for ${numAuthors.toLocaleString()} authors (${numRecords} works)`;
 };
-
-AuthorAffiliations.propTypes = propTypes;
