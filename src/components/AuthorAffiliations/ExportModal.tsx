@@ -74,7 +74,7 @@ export const ExportModal = (props: ButtonProps) => {
                 ))}
               </Stack>
             </RadioGroup>
-            <Button onClick={onFetch} mt="2" isFullWidth isLoading={isLoading} isDisabled={isError || noData}>
+            <Button onClick={onFetch} mt="2" width="full" isLoading={isLoading} isDisabled={isError || noData}>
               Export to file
             </Button>
             {noData ? (

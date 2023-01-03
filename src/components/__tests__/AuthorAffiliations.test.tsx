@@ -13,7 +13,7 @@ import { lensPath, mapObjIndexed, prop, set, view } from 'ramda';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import * as stories from '../__stories__/AuthorAffiliations.stories';
 
-const { WithInitialQuery, WithIntitialParams, WithNoIntitialArgs } = composeStories(stories);
+const { WithNoIntitialArgs } = composeStories(stories);
 
 vi.mock('file-saver', () => ({
   saveAs: vi.fn(),

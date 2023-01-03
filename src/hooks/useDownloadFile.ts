@@ -4,9 +4,6 @@ import { saveAs } from 'file-saver';
 import { parse } from 'path';
 import { isFunction } from 'ramda-adjunct';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-<<<<<<< HEAD
-=======
->>>>>>> 1b24e88 (updates to useDownloadFile tests)
 
 export interface IUseDownloadFileOptions {
   filename?: string | (() => string);
