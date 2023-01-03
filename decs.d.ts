@@ -1,4 +1,4 @@
-import { SetupServerApi } from 'msw/lib/types/node';
+import { SetupServerApi } from 'msw/node';
 
 declare module 'vitest' {
   export interface TestContext {
