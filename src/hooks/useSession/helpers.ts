@@ -12,14 +12,8 @@ import { NextApiResponse } from 'next';
 import { pick } from 'ramda';
 import { IUserCredentials, IUserRegistrationCredentials } from './types';
 
-interface ResponseWithCookie<T> extends AxiosResponse<T> {
-  headers: {
-    'set-cookie': string;
-  };
-}
-
 export const getCSRF = async () => {
-  const res = await axios.get<ICSRFResponse, ResponseWithCookie<ICSRFResponse>>(ApiTargets.CSRF, defaultRequestConfig);
+  const res = await axios.get<ICSRFResponse, AxiosResponse<ICSRFResponse>>(ApiTargets.CSRF, defaultRequestConfig);
   return res;
 };
 
@@ -42,7 +36,7 @@ export const authenticateUser = async (creds: IUserCredentials, res?: NextApiRes
   };
 
   try {
-    const { data, headers } = await axios.request<IBasicAccountsResponse, ResponseWithCookie<IBasicAccountsResponse>>(
+    const { data, headers } = await axios.request<IBasicAccountsResponse, AxiosResponse<IBasicAccountsResponse>>(
       config,
     );
 
@@ -51,7 +45,7 @@ export const authenticateUser = async (creds: IUserCredentials, res?: NextApiRes
       res.setHeader('set-cookie', headers['set-cookie']);
 
       try {
-        const userData = await bootstrap({ session: headers['set-cookie'] }, res);
+        const userData = await bootstrap({ session: headers['set-cookie'][0] }, res);
 
         return userData;
       } catch (e) {
@@ -107,7 +101,7 @@ export const logoutUser = async (res?: NextApiResponse) => {
   };
 
   try {
-    const { data, headers } = await axios.request<IBasicAccountsResponse, ResponseWithCookie<IBasicAccountsResponse>>(
+    const { data, headers } = await axios.request<IBasicAccountsResponse, AxiosResponse<IBasicAccountsResponse>>(
       config,
     );
 
@@ -116,7 +110,7 @@ export const logoutUser = async (res?: NextApiResponse) => {
       res.setHeader('set-cookie', headers['set-cookie']);
 
       try {
-        const userData = await bootstrap({ session: headers['set-cookie'] }, res);
+        const userData = await bootstrap({ session: headers['set-cookie'][0] }, res);
 
         return userData;
       } catch (e) {
@@ -153,7 +147,7 @@ export const bootstrap = async ({ session }: { session: string }, res?: NextApiR
     },
   };
 
-  const { data, headers } = await axios.request<IBootstrapPayload, ResponseWithCookie<IBootstrapPayload>>(config);
+  const { data, headers } = await axios.request<IBootstrapPayload, AxiosResponse<IBootstrapPayload>>(config);
 
   // server-side this should forward the incoming set-cookie value
   if (res) {

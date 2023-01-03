@@ -46,7 +46,6 @@
       {
         "ignoreRestSiblings": true
       }
-    ],
-    "@typescript-eslint/ban-ts-comment": ["warn"]
+    ]
   }
 }

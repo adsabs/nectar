@@ -38,12 +38,14 @@ export const defaultRequestConfig: AxiosRequestConfig = {
   },
   headers: {
     common: {
-      /* @ts-ignore */
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       'Content-Type': 'application/x-www-form-urlencoded',
       Accept: 'application/json, text/plain, */*',
     },
     post: {
-      /* @ts-ignore */
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       'Content-Type': 'application/json',
     },
   },
