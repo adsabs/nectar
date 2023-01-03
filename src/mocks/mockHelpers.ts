@@ -65,16 +65,23 @@ export const highlights_mocks: IADSApiSearchResponse['highlighting'] = {
 };
 
 export const authorAffData = (count = 1) => {
-
   const authorName = api.author();
-  
-  return range(0, count).map(() => ({
-  authorName,
-  affiliations: {
-    name: faker.helpers.randomize([api.aff(), '-']),
-    years: [...range(0, faker.datatype.number({ min: 0, max: 10 })).map(() => `${faker.date.past(20).getFullYear()}`)],
-    lastActiveDate: api.pubdate(),
-  },
-} as IAuthorAffiliationItem))
 
+  return range(0, count).map(
+    () =>
+      ({
+        authorName,
+        affiliations: {
+          name: faker.helpers.randomize([api.aff(), '-']),
+          years: [
+            ...range(0, faker.datatype.number({ min: 0, max: 10 })).map(() => `${faker.date.past(20).getFullYear()}`),
+          ],
+          lastActiveDate: api.pubdate(),
+        },
+      } as IAuthorAffiliationItem),
+  );
+};
+
+export const exportAuthorAffData = (entries: string[]) => {
+  return entries.join('\n');
 };
