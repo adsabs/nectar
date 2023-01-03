@@ -8,7 +8,7 @@ import {
   IADSApiVaultResponse,
   IExportApiParams,
 } from '@api';
-import { IAuthorAffiliationItem, IAuthorAffiliationResponse } from '@api/author-affiliation/types';
+import { IAuthorAffiliationExportPayload, IAuthorAffiliationResponse } from '@api/author-affiliation/types';
 import defaultBibstems from '@components/BibstemPicker/defaultBibstems.json';
 import faker from '@faker-js/faker';
 import { IBibstemOption } from '@types';
@@ -47,11 +47,16 @@ export const handlers = [
   }),
 
   rest.post(`*${ApiTargets.AUTHOR_AFFILIATION_SEARCH}`, (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json<IAuthorAffiliationResponse>({
-      data: [
-        ...flatten(range(0, 10).map(() => authorAffData(faker.datatype.number({ min: 1, max: 3 }))))
-      ] 
-    }));
+    return res(
+      ctx.status(200),
+      ctx.json<IAuthorAffiliationResponse>({
+        data: [...flatten(range(0, 10).map(() => authorAffData(faker.datatype.number({ min: 1, max: 3 }))))],
+      }),
+    );
+  }),
+
+  rest.post<IAuthorAffiliationExportPayload>(`*${ApiTargets.AUTHOR_AFFILIATION_EXPORT}`, (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json('success'));
   }),
 
   rest.get(`*${ApiTargets.SEARCH}`, (req, res, ctx) => {
