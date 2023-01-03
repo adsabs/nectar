@@ -4,7 +4,7 @@ import { FallbackProps } from 'react-error-boundary';
 
 // hard-coded error messages from the service
 // this is fragile, but a default is provided if a match no longer works
-const errorMessages = {
+export const errorMessages = {
   noInfo: 'no information received',
   noBibcodeSubmitted: 'no bibcode submitted',
   noBibcode: 'no bibcode found in payload (parameter name is `bibcode`)',
@@ -27,7 +27,7 @@ const getMessage = (error: string) => {
   }
 };
 
-export const AuthorAffiliationsErrorMessage = (props: { title?: string } & FallbackProps) => {
+export const AuthorAffiliationsErrorMessage = (props: { title?: string } & Partial<FallbackProps>) => {
   const { title = defaultTitle, error, resetErrorBoundary } = props;
 
   return (

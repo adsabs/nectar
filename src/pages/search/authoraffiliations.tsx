@@ -10,19 +10,21 @@ import { useBackToSearchResults } from '@hooks/useBackToSearchResults';
 import { composeNextGSSP, parseAPIError, parseQueryFromUrl, setupApiSSR, userGSSP } from '@utils';
 import { NextPage } from 'next';
 import NextLink from 'next/link';
-import { ErrorBoundary } from 'react-error-boundary';
 import { dehydrate, DehydratedState, QueryClient } from 'react-query';
 
 interface IAuthorAffilationsPageProps {
   error?: string;
   query?: IADSApiSearchParams;
-  records?: number;
   params?: IAuthorAffiliationPayload;
 }
 
 const AuthorAffiliationsPage: NextPage<IAuthorAffilationsPageProps> = (props) => {
-  const { error, query, params, records } = props;
+  const { error, query, params } = props;
   const { getLinkProps, show: showBackLink } = useBackToSearchResults();
+
+  if (error) {
+    return <AuthorAffiliationsErrorMessage error={new Error(error)} />;
+  }
 
   return (
     <>
@@ -44,14 +46,7 @@ const AuthorAffiliationsPage: NextPage<IAuthorAffilationsPageProps> = (props) =>
         aria-labelledby="author-affiliation-title"
         centerContent
       >
-        <ErrorBoundary FallbackComponent={AuthorAffiliationsErrorMessage}>
-          {error
-            ? () => {
-                throw new Error(error);
-              }
-            : null}
-          <AuthorAffiliations params={params} query={query} records={records} w="full" maxW="container.lg" />
-        </ErrorBoundary>
+        <AuthorAffiliations params={params} query={query} w="full" maxW="container.lg" />
       </Box>
     </>
   );
@@ -110,7 +105,6 @@ export const getServerSideProps = composeNextGSSP(async (ctx) => {
     return {
       props: {
         params: authorAffiliationParams,
-        records: data.pages[0].response.docs.length,
         query: params,
         dehydratedState,
       },
