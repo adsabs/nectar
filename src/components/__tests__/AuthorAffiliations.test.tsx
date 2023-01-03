@@ -5,22 +5,39 @@ import {
   selectDate,
   toggle,
   toggleAff,
-  toggleAll
+  toggleAll,
 } from '@components/AuthorAffiliations/helpers';
 import { composeStories } from '@storybook/testing-react';
-import { lensPath, set, mapObjIndexed, prop, view } from 'ramda';
-import { describe, expect, test } from 'vitest';
+import { render } from '@test-utils';
+import { lensPath, mapObjIndexed, prop, set, view } from 'ramda';
+import { afterEach, describe, expect, test, vi } from 'vitest';
 import * as stories from '../__stories__/AuthorAffiliations.stories';
 
-const { Default: AuthorAffiliations } = composeStories(stories);
+const { WithInitialQuery, WithIntitialParams, WithNoIntitialArgs } = composeStories(stories);
 
-// test('renders without crashing', () => {
-//   render(<AuthorAffiliations />);
-// });
+vi.mock('file-saver', () => ({
+  saveAs: vi.fn(),
+}));
 
-// test('properly takes inputs', () => {
-//   const {} = render(<AuthorAffiliations />);
-// });
+const defaultURI = 'blob:http://localhost:8000/9303db9e-5b75-4d87-9aa8-804d7e59c29b';
+
+vi.stubGlobal('URL', {
+  createObjectURL: vi.fn(() => defaultURI),
+});
+
+vi.stubGlobal('open', vi.fn());
+
+afterEach(() => {
+  vi.clearAllMocks();
+});
+
+describe('UI', () => {
+  test('providing no args shows warning', async () => {
+    const { findByRole } = render(<WithNoIntitialArgs />);
+    const alert = await findByRole('alert');
+    expect(alert).toHaveTextContent('No affiliation data to display');
+  });
+});
 
 describe('helpers', () => {
   const data = [
@@ -133,14 +150,20 @@ describe('helpers', () => {
   });
 
   test('getFormattedSelection', () => {
-    expect(getFormattedSelection(groupAffilationData(data), selectionState)).toEqual([ 'foo|A|2022/12/01', 'foo2|D|2020/12/01', 'foo3|-|2020/04/01' ])
+    expect(getFormattedSelection(groupAffilationData(data), selectionState)).toEqual([
+      'foo|A|2022/12/01',
+      'foo2|D|2020/12/01',
+      'foo3|-|2020/04/01',
+    ]);
 
-    const state = set(lensPath(['foo', 'affSelected']), [0,1,2], selectionState);
+    const state = set(lensPath(['foo', 'affSelected']), [0, 1, 2], selectionState);
 
     expect(getFormattedSelection(groupAffilationData(data), state)).toEqual([
-      'foo|A|2022/12/01', 
-      'foo|B|2022/12/01', 
-      'foo|C|2022/12/01', 
-      'foo2|D|2020/12/01', 'foo3|-|2020/04/01' ])
-  })
+      'foo|A|2022/12/01',
+      'foo|B|2022/12/01',
+      'foo|C|2022/12/01',
+      'foo2|D|2020/12/01',
+      'foo3|-|2020/04/01',
+    ]);
+  });
 });
