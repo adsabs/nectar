@@ -4,7 +4,9 @@ import { saveAs } from 'file-saver';
 import { parse } from 'path';
 import { isFunction } from 'ramda-adjunct';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useIsClient } from './useIsClient';
+<<<<<<< HEAD
+=======
+>>>>>>> 1b24e88 (updates to useDownloadFile tests)
 
 export interface IUseDownloadFileOptions {
   filename?: string | (() => string);
@@ -15,8 +17,7 @@ export interface IUseDownloadFileOptions {
 }
 
 export const useDownloadFile = (value: string | (() => string), options: IUseDownloadFileOptions = {}) => {
-  const { timeout = 300, filename = 'download.txt', appendDate = false, type = 'TEXT', onDownloaded = noop } = options;
-  const isClient = useIsClient();
+  const { timeout = 300, filename = 'download', appendDate = false, type = 'TEXT', onDownloaded = noop } = options;
   const [hasDownloaded, setHasDownloaded] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const meta = getMetaData(type);
@@ -28,23 +29,24 @@ export const useDownloadFile = (value: string | (() => string), options: IUseDow
       const blob = new window.Blob(typeof value === 'function' ? [value()] : [value], { type });
       return window.URL.createObjectURL(blob);
     }
+    return '';
   }, [value, type]);
 
   const onDownload = useCallback(() => {
     setIsDownloading(true);
 
-    if (type === 'BROWSER' && isClient) {
+    if (type === 'BROWSER') {
       // generate a link and add it to the dom
       const link = document.createElement('a');
       link.setAttribute('href', href);
       link.setAttribute('download', file);
 
       // open the link in a new tab
-      window.open(link.href, '_blank');
+      global.open(link.href, '_blank');
       link.remove();
     } else {
       // save the file
-      saveAs(href, file, { autoBom: false });
+      saveAs(href, file);
     }
 
     // let subscribers know we finished
