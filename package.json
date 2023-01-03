@@ -21,7 +21,7 @@
     "lint": "tsc --project ./tsconfig.json && tsc --project ./cypress/tsconfig.json && eslint ."
   },
   "dependencies": {
-    "@chakra-ui/icons": "^1.1.1",
+    "@chakra-ui/icons": "^2.0.15",
     "@chakra-ui/react": "^2.4.4",
     "@chakra-ui/skip-nav": "^2.0.11",
     "@dnd-kit/core": "^6.0.5",
