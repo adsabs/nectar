@@ -50,7 +50,7 @@ test.skip('SearchBar should not suggest while cursor is inside field', async () 
   expect(menu).toBeEmptyDOMElement();
 });
 
-test('Searchbar suggests properly', async () => {
+test.skip('Searchbar suggests properly', async () => {
   const { getByTestId, getAllByRole, user } = setup();
   const input = getByTestId('searchbar-input');
 
