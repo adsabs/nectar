@@ -52,7 +52,7 @@ export const LineGraph = memo(
               tickRotation: 0,
               legendPosition: 'middle',
             }}
-            enablePoints={xScaleType !== 'linear'}
+            enablePoints
             pointSize={5}
             enableGridX={false}
             pointLabelYOffset={-12}

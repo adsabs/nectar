@@ -72,14 +72,14 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
             {isClient ? (
               <Flex wrap="wrap">
                 {authors.map(([, author, orcid], index) => (
-                  <Box mr={1} key={`${author}${index}`}>
+                  <Box mr={1} key={`${author}-${index}`}>
                     <SearchQueryLink
                       params={createQuery('author', author)}
                       px={1}
                       aria-label={`author "${author}", search by name`}
                       flexShrink="0"
                     >
-                      {author}
+                      <>{author}</>
                     </SearchQueryLink>
                     {typeof orcid === 'string' && (
                       <SearchQueryLink
@@ -100,15 +100,15 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
               </Flex>
             ) : (
               <Flex wrap="wrap">
-                {doc?.author.map((author) => (
+                {doc?.author.map((author, index) => (
                   <SearchQueryLink
                     params={createQuery('author', author)}
-                    key={author}
+                    key={`${author}-${index}`}
                     px={1}
                     aria-label={`author "${author}", search by name`}
                     flexShrink="0"
                   >
-                    {author}
+                    <>{author}</>
                   </SearchQueryLink>
                 ))}
                 {doc.author_count > MAX ? <Text>{` and ${doc.author_count - MAX} more`}</Text> : null}
@@ -153,7 +153,11 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
             {(keywords) => (
               <Flex flexWrap={'wrap'}>
                 {keywords.map((keyword) => (
-                  <SearchQueryLink params={{ q: `keyword:"${keyword}"` }} _hover={{ textDecoration: 'none' }}>
+                  <SearchQueryLink
+                    key={keyword}
+                    params={{ q: `keyword:"${keyword}"` }}
+                    _hover={{ textDecoration: 'none' }}
+                  >
                     <Tag size="sm" key={keyword} variant="subtle" bgColor="gray.100" whiteSpace={'nowrap'} m="1">
                       {keyword}
                     </Tag>

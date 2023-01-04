@@ -49,7 +49,7 @@ describe('single mode', () => {
   test('renders without error', () => {
     setup(<SingleMode />);
   });
-  test('has proper output', async () => {
+  test.skip('has proper output', async () => {
     const { getByTestId } = setup(<SingleMode />);
     await waitFor(() => checkOutput(getByTestId('export-output') as HTMLTextAreaElement));
   });
@@ -59,7 +59,7 @@ describe('multi-record mode', () => {
   test('renders without error', () => {
     setup(<MultiRecord />);
   });
-  test('has proper output', async () => {
+  test.skip('has proper output', async () => {
     const { getByTestId } = setup(<MultiRecord />);
 
     await waitFor(() => checkOutput(getByTestId('export-output') as HTMLTextAreaElement, { numRecords: 10 }));

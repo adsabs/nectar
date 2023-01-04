@@ -38,7 +38,7 @@ export const ResultArea = ({
             onClick={onDownload}
             data-testid="export-download"
             disabled={isLoading}
-            isFullWidth={isFullWidth}
+            width={isFullWidth ? 'full' : 'auto'}
             variant="outline"
             leftIcon={hasDownloaded ? <CheckIcon /> : <DownloadIcon />}
           >
@@ -48,7 +48,7 @@ export const ResultArea = ({
             onClick={onCopy}
             data-testid="export-copy"
             disabled={isLoading}
-            isFullWidth={isFullWidth}
+            width={isFullWidth ? 'full' : 'auto'}
             variant="outline"
             leftIcon={hasCopied ? <CheckIcon /> : <CopyIcon />}
           >

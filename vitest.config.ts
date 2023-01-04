@@ -13,11 +13,14 @@ export default defineConfig({
     coverage: {
       reporter: 'lcov',
     },
+    deps: {
+      fallbackCJS: true,
+    },
   },
   resolve: {
     alias: {
-      "react/jsx-dev-runtime.js": resolve(__dirname, "node_modules/react/jsx-dev-runtime.js"),
-      "react/jsx-runtime.js": resolve(__dirname, "node_modules/react/jsx-runtime.js")
-    }
-  }
+      'react/jsx-dev-runtime.js': resolve(__dirname, 'node_modules/react/jsx-dev-runtime.js'),
+      'react/jsx-runtime.js': resolve(__dirname, 'node_modules/react/jsx-runtime.js'),
+    },
+  },
 });
