@@ -19,7 +19,11 @@ import {
   AlertTitle,
 } from '@chakra-ui/react';
 import { HIndexGraphPane, YearsGraphPane } from '@components';
+import { fqNameYearRange } from '@query';
+import { Query, removeFQ, setFQ } from '@query-utils';
+import { makeSearchParams } from '@utils';
 import axios from 'axios';
+import { useRouter } from 'next/router';
 import { ReactElement } from 'react';
 import { FacetField } from '../types';
 
@@ -29,8 +33,16 @@ interface IOverviewPageContainerProps {
 }
 
 export const OverviewPageContainer = ({ query, onApplyQueryCondition }: IOverviewPageContainerProps): ReactElement => {
-  const handleApplyYearCondition = (cond: string) => {
-    onApplyQueryCondition('year', cond);
+  const router = useRouter();
+  const onApplyYearRange = (min: number, max: number) => {
+    // Apply year range fq to query
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    const cleanedQuery = query.fq ? (removeFQ(fqNameYearRange, query as Query) as IADSApiSearchParams) : query;
+    const newQuery = setFQ(fqNameYearRange, `year:${min}-${max}`, cleanedQuery as Query) as IADSApiSearchParams;
+
+    // tigger search
+    const search = makeSearchParams({ ...newQuery, p: 1 });
+    void router.push({ pathname: '/search', search }, null, { scroll: false, shallow: true });
   };
 
   const handleApplyCitationCondition = (cond: string) => {
@@ -50,7 +62,7 @@ export const OverviewPageContainer = ({ query, onApplyQueryCondition }: IOvervie
       </TabList>
       <TabPanels>
         <TabPanel>
-          <YearsTabPane query={query} onApplyQueryCondition={handleApplyYearCondition} />
+          <YearsTabPane query={query} onApplyYearRange={onApplyYearRange} />
         </TabPanel>
         <TabPanel>
           <CitationTabPane query={query} onApplyQueryCondition={handleApplyCitationCondition} />
@@ -65,18 +77,14 @@ export const OverviewPageContainer = ({ query, onApplyQueryCondition }: IOvervie
 
 const YearsTabPane = ({
   query,
-  onApplyQueryCondition,
+  onApplyYearRange,
 }: {
   query: IADSApiSearchParams;
-  onApplyQueryCondition: (cond: string) => void;
+  onApplyYearRange: (min: number, max: number) => void;
 }) => {
   const { data, isLoading, isError, error } = useGetSearchFacetCounts(getSearchFacetYearsParams(query), {
     enabled: !!query && query.q.trim().length > 0,
   });
-
-  const handleApplyQueryCondition = (cond: string) => {
-    onApplyQueryCondition(cond);
-  };
 
   return (
     <>
@@ -88,7 +96,7 @@ const YearsTabPane = ({
         </Alert>
       )}
       {isLoading && <CircularProgress isIndeterminate />}
-      {!isLoading && data && <YearsGraphPane data={data} onApplyCondition={handleApplyQueryCondition} />}
+      {!isLoading && data && <YearsGraphPane data={data} onApplyYearRange={onApplyYearRange} />}
     </>
   );
 };

@@ -20,6 +20,8 @@ import {
 export type Operator = 'AND' | 'OR' | 'NOT';
 const DEFAULT_OPERATOR = 'AND' as const;
 
+export const fqNameYearRange = 'range';
+
 export const joinConditions = (operator: Operator, conditions: string[]) =>
   pipe(defaultTo(''), join(defaultTo(' AND ', ` ${operator} `)))(conditions);
 
@@ -35,16 +37,20 @@ export const getOperator = pipe<[string], lucene.AST, string>(parse, pathOr('AND
 
 // convert fields that the AST cannot handle into something they can
 const transformQueryFields = (query: string) => {
-  return query
-    // docs
-    .replace(/docs\(([a-z0-9]+)\)/gi, 'docs:$1');
+  return (
+    query
+      // docs
+      .replace(/docs\(([a-z0-9]+)\)/gi, 'docs:$1')
+  );
 };
 
 // reverse the transforms done
 const unTransformQueryFields = (query: string) => {
-  return query
-    // docs
-    .replace(/docs:([a-z0-9]+)/gi, 'docs($1)');
+  return (
+    query
+      // docs
+      .replace(/docs:([a-z0-9]+)/gi, 'docs($1)')
+  );
 };
 const parseAndNormalize = pipe(capitalizeOperators, transformQueryFields, parse);
 const stringifyQuery = pipe(stringify, unTransformQueryFields);

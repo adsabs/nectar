@@ -20,10 +20,10 @@ import { getYearsGraph, groupBarDatumByYear } from '../utils';
 
 export interface IYearsGraphPaneProps {
   data: IFacetCountsFields;
-  onApplyCondition: (cond: string) => void;
+  onApplyYearRange: (min: number, max: number) => void;
 }
 
-export const YearsGraphPane = ({ data, onApplyCondition }: IYearsGraphPaneProps): ReactElement => {
+export const YearsGraphPane = ({ data, onApplyYearRange }: IYearsGraphPaneProps): ReactElement => {
   const [range, setRange] = useState<{ min: number; max: number }>(null);
 
   const baseGraph: IBarGraph<YearDatum> = useMemo(() => {
@@ -58,8 +58,7 @@ export const YearsGraphPane = ({ data, onApplyCondition }: IYearsGraphPaneProps)
   };
 
   const handleApplyLimit = () => {
-    const cond = `${range.min}-${range.max}`;
-    onApplyCondition(cond);
+    onApplyYearRange(range.min, range.max);
   };
 
   // transformed the graph data using the range
