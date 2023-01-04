@@ -1,26 +1,26 @@
 import {
-  IADSApiSearchParams,
-  getSearchFacetYearsParams,
-  getSearchFacetReadsParams,
   getSearchFacetCitationsParams,
-  useGetSearchFacetCounts,
+  getSearchFacetReadsParams,
+  getSearchFacetYearsParams,
+  IADSApiSearchParams,
   useGetSearchFacet,
+  useGetSearchFacetCounts,
 } from '@api';
 import {
-  Tabs,
-  TabList,
-  Tab,
-  TabPanels,
-  TabPanel,
-  CircularProgress,
   Alert,
   AlertDescription,
   AlertIcon,
   AlertTitle,
+  CircularProgress,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
 } from '@chakra-ui/react';
 import { HIndexGraphPane, YearsGraphPane } from '@components';
 import { fqNameYearRange } from '@query';
-import { Query, removeFQ, setFQ } from '@query-utils';
+import { removeFQ, setFQ } from '@query-utils';
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
@@ -37,8 +37,8 @@ export const OverviewPageContainer = ({ query, onApplyQueryCondition }: IOvervie
   const onApplyYearRange = (min: number, max: number) => {
     // Apply year range fq to query
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    const cleanedQuery = query.fq ? (removeFQ(fqNameYearRange, query as Query) as IADSApiSearchParams) : query;
-    const newQuery = setFQ(fqNameYearRange, `year:${min}-${max}`, cleanedQuery as Query) as IADSApiSearchParams;
+    const cleanedQuery = query.fq ? (removeFQ(fqNameYearRange, query) as IADSApiSearchParams) : query;
+    const newQuery = setFQ(fqNameYearRange, `year:${min}-${max}`, cleanedQuery) as IADSApiSearchParams;
 
     // tigger search
     const search = makeSearchParams({ ...newQuery, p: 1 });

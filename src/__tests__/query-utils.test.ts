@@ -1,8 +1,9 @@
+import { IADSApiSearchParams } from '@api';
 import * as query from '@query-utils';
 import { defaultQueryParams } from '@store/slices';
 import { describe, expect, test } from 'vitest';
 
-const testQuery: query.Query = {
+const testQuery: IADSApiSearchParams = {
   ...defaultQueryParams,
   q: 'star',
   fq_foo: '(A)',
@@ -11,7 +12,7 @@ const testQuery: query.Query = {
   fq: ['{!type=aqp v=$fq_foo}', '{!type=aqp v=$fq_bar}', '{!type=aqp v=$fq_baz}'],
 };
 
-const testQueryWithoutFQs: query.Query = {
+const testQueryWithoutFQs: IADSApiSearchParams = {
   ...defaultQueryParams,
   q: 'star',
 };
@@ -110,8 +111,8 @@ describe('removeFQ', () => {
     expect(q).toEqual({
       q: '',
       fq: ['{!type=aqp v=$fq_foo}'],
-      fq_foo: '(A)'
-    })
-    expect(query.removeFQ('foo', q)).toEqual({ q: '' })
-  })
-})
+      fq_foo: '(A)',
+    });
+    expect(query.removeFQ('foo', q)).toEqual({ q: '' });
+  });
+});

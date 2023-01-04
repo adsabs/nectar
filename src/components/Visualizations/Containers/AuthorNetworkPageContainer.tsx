@@ -3,18 +3,18 @@ import { IADSApiAuthorNetworkNode, IBibcodeDict } from '@api/vis/types';
 import { useGetAuthorNetwork } from '@api/vis/vis';
 import { Box, SimpleGrid, useBreakpointValue, useToast } from '@chakra-ui/react';
 import {
-  IAuthorNetworkNodeDetails,
   AuthorNetworkDetailsPane,
+  AuthorNetworkGraphPane,
+  CustomInfoMessage,
+  DataDownloader,
   Expandable,
+  IAuthorNetworkNodeDetails,
+  ITagItem,
+  LoadingMessage,
   SimpleLink,
   StandardAlertMessage,
-  LoadingMessage,
-  CustomInfoMessage,
-  AuthorNetworkGraphPane,
-  DataDownloader,
-  ITagItem,
 } from '@components';
-import { setFQ, Query } from '@query-utils';
+import { setFQ } from '@query-utils';
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
@@ -140,7 +140,7 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
   // When big query data is fetched, redirect to the search results page
   useEffect(() => {
     if (bigQueryData && applyingBibcodes.length > 0) {
-      const q = setFQ('selection', `docs(${bigQueryData.qid})`, query as Query);
+      const q = setFQ('selection', `docs(${bigQueryData.qid})`, query);
       const search = makeSearchParams(q as IADSApiSearchParams);
       void router.push({ pathname: '/search', search });
       setApplyingBibcodes([]);

@@ -5,7 +5,7 @@ import { ArrowsInIcon } from '@components/icons/ArrowsIn';
 import { ArrowsOutIcon } from '@components/icons/ArrowsOut';
 import { getYearsGraph } from '@components/Visualizations/utils';
 import { fqNameYearRange } from '@query';
-import { getFQValue, Query, removeFQ, setFQ } from '@query-utils';
+import { getFQValue, removeFQ, setFQ } from '@query-utils';
 import { useStore } from '@store';
 import { useMemo } from 'react';
 
@@ -30,11 +30,11 @@ export const YearHistogramSlider = ({
   const cleanedQuery = useMemo(() => {
     const q = JSON.parse(JSON.stringify(query)) as IADSApiSearchParams;
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    return q.fq ? (removeFQ(fqNameYearRange, q as Query) as IADSApiSearchParams) : q;
+    return q.fq ? (removeFQ(fqNameYearRange, q) as IADSApiSearchParams) : q;
   }, [query]);
 
   const fqRange = useMemo(() => {
-    return getFQValue(fqNameYearRange, query as Query);
+    return getFQValue(fqNameYearRange, query);
   }, [query]);
 
   const { data, isLoading } = useGetSearchFacetCounts(getSearchFacetYearsParams(cleanedQuery), {
@@ -67,7 +67,7 @@ export const YearHistogramSlider = ({
 
   const handleApply = (values: number[]) => {
     // add year range fq
-    const newQuery = setFQ(fqNameYearRange, `year:${values[0]}-${values[1]}`, cleanedQuery as Query);
+    const newQuery = setFQ(fqNameYearRange, `year:${values[0]}-${values[1]}`, cleanedQuery);
     onQueryUpdate(newQuery);
   };
 

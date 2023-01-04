@@ -2,6 +2,7 @@ import api, { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, isUserDat
 import { APP_DEFAULTS } from '@config';
 import { AppState } from '@store';
 import { NumPerPageType, SafeSearchUrlParams } from '@types';
+import axios, { AxiosError } from 'axios';
 import DOMPurify from 'isomorphic-dompurify';
 import { GetServerSidePropsContext, GetServerSidePropsResult, NextApiRequest, NextApiResponse } from 'next';
 import { useRouter } from 'next/router';
@@ -9,7 +10,6 @@ import qs from 'qs';
 import { ParsedUrlQuery } from 'querystring';
 import { clamp, filter, head, is, keys, last, omit, pathOr, pick, pipe, propIs, uniq, when } from 'ramda';
 import { isArray, isNotString } from 'ramda-adjunct';
-import axios, { AxiosError} from 'axios';
 
 type ParsedQueryParams = ParsedUrlQuery | qs.ParsedQs;
 
@@ -318,7 +318,7 @@ export const makeSearchParams = (params: SafeSearchUrlParams, options: { omit?: 
     omit(options.omit ?? [], {
       ...cleanParams,
       sort: normalizeSolrSort(cleanParams.sort),
-      p: parseNumberAndClamp(cleanParams?.p, 1),
+      p: parseNumberAndClamp(cleanParams?.p as string, 1),
     }),
   );
 };
@@ -399,12 +399,11 @@ export const unwrapStringValue = pipe<[string | string[]], string, string>(
 );
 
 /**
- * Unwrap and parse an error message 
+ * Unwrap and parse an error message
  * If the error is an axios specific one, then try to grab any returned error message
- * 
+ *
  */
 export const getErrorMessage = (error: AxiosError<unknown> | Error | unknown) => {
-
   // return generic message if error is invalid
   if (!error || !(error instanceof Error)) {
     return 'Unknown Server Error';
@@ -416,4 +415,4 @@ export const getErrorMessage = (error: AxiosError<unknown> | Error | unknown) =>
   }
 
   return error.message;
-}
+};

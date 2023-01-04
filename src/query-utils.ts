@@ -19,7 +19,6 @@ import {
   propOr,
   propSatisfies,
   replace,
-  startsWith,
   toPairs,
   uniq,
   when,
@@ -27,10 +26,10 @@ import {
 } from 'ramda';
 import { isEmptyArray } from 'ramda-adjunct';
 
-export type Query = Partial<IADSApiSearchParams> & { [key: string]: unknown };
+type Query = Partial<IADSApiSearchParams>;
 type Tuple<T = string> = [T, T];
 
-export const createQuery = (params: Partial<Query> = {}) => {
+export const createQuery = <T extends Query>(params: T) => {
   return {
     ...defaultQueryParams,
     sort: normalizeSolrSort(params?.sort),
@@ -39,7 +38,7 @@ export const createQuery = (params: Partial<Query> = {}) => {
 };
 
 const FQPrefix = 'fq_' as const;
-const pickByFQs = (query: Query) => pickBy<Query, Partial<Query>>((_, k) => startsWith(FQPrefix, k as string), query);
+const pickByFQs = (query: Query) => pickBy<Query, Partial<Query>>((_, k) => String(k).startsWith(FQPrefix), query);
 const stripFQPrefix = replace(FQPrefix, '');
 const applyFQPrefix = (v: string) => `${FQPrefix}${v}`;
 const makeFQHeader = (name: string) => `{!type=aqp v=$${applyFQPrefix(name)}}`;

@@ -27,7 +27,7 @@ export type UseGetFacetTreeDataProps =
       filter?: string[];
     };
 
-const querySelector = (state: AppState) => omit(['fl', 'start', 'rows'], state.latestQuery);
+const querySelector = (state: AppState) => omit(['fl', 'start', 'rows'], state.latestQuery) as IADSApiSearchParams;
 
 interface ITreeDataGetterState {
   query: IADSApiSearchParams;
