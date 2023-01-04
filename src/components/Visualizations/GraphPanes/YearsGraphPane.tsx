@@ -1,17 +1,6 @@
 import { IFacetCountsFields } from '@api';
-import {
-  RangeSlider,
-  RangeSliderFilledTrack,
-  RangeSliderThumb,
-  RangeSliderTrack,
-  NumberInput,
-  Flex,
-  NumberInputField,
-  FormControl,
-  FormLabel,
-  Button,
-} from '@chakra-ui/react';
-import { BarGraph } from '@components';
+import { NumberInput, Flex, NumberInputField, FormControl, FormLabel, Button } from '@chakra-ui/react';
+import { BarGraph, Slider } from '@components';
 import { DataDownloader } from '@components';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
@@ -116,22 +105,15 @@ export const YearsGraphPane = ({ data, onApplyYearRange }: IYearsGraphPaneProps)
             keys={transformedGraph.keys}
             showGroupOptions={false}
           />
-          <RangeSlider
-            aria-label={['min', 'max']}
-            min={firstYear}
-            max={lastYear}
-            value={[range.min, range.max]}
-            onChange={handleRangeChange}
+          <Slider
+            aria-label="Limit Slider"
+            range={[firstYear, lastYear]}
+            values={[range.min, range.max]}
+            onSlideEnd={handleRangeChange}
             my={5}
-            focusThumbOnChange={false}
-            size="lg"
-          >
-            <RangeSliderTrack>
-              <RangeSliderFilledTrack />
-            </RangeSliderTrack>
-            <RangeSliderThumb index={0} />
-            <RangeSliderThumb index={1} />
-          </RangeSlider>
+            px={4}
+            size={1}
+          />
           <FormControl my={2}>
             <FormLabel>Limit results to papers from</FormLabel>
             <Flex direction="row" alignItems="center">
