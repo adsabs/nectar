@@ -1,5 +1,6 @@
 import { IExportApiParams, MAX_AUTHORCUTOFF } from '@api';
-import { FormLabel, Slider, SliderFilledTrack, SliderThumb, SliderTrack } from '@chakra-ui/react';
+import { FormLabel } from '@chakra-ui/react';
+import { Slider } from '@components/Slider';
 import { Sender } from '@xstate/react/lib/types';
 import { useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
@@ -18,7 +19,7 @@ export const MaxAuthorsSlider = (props: {
     dispatch({ type: 'SET_MAX_AUTHOR', payload: debouncedValue });
   }, [debouncedValue]);
 
-  const handleChange = (val: number) => setValue(val);
+  const handleChange = (val: number[]) => setValue(val[0]);
 
   return (
     <>
@@ -36,34 +37,15 @@ export const MaxAuthorsSlider = (props: {
             <Slider
               id="maxauthor-slider"
               aria-label="Max Authors"
-              name="maxauthor"
-              value={value}
-              max={MAX_AUTHORCUTOFF}
-              min={0}
+              range={[0, MAX_AUTHORCUTOFF]}
+              values={[value]}
               onChange={handleChange}
-            >
-              <SliderTrack bg="blue.100">
-                <SliderFilledTrack />
-              </SliderTrack>
-              <SliderThumb />
-            </Slider>
+              size={1}
+              px={4}
+            />
           </>
         )}
       </DescriptionCollapse>
-      {/* <Slider
-        id="maxauthor-slider"
-        aria-label="Max Authors"
-        name="maxauthor"
-        value={value}
-        max={MAX_AUTHORCUTOFF}
-        min={0}
-        onChange={handleChange}
-      >
-        <SliderTrack bg="blue.100">
-          <SliderFilledTrack />
-        </SliderTrack>
-        <SliderThumb />
-      </Slider> */}
     </>
   );
 };

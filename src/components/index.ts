@@ -26,6 +26,7 @@ export * from './SearchFacet';
 export * from './SearchQueryLink';
 export * from './Select';
 export * from './SimpleLink';
+export * from './Slider';
 export * from './Sort';
 export * from './Tags';
 export * from './TextInput';

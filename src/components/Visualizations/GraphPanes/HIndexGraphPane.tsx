@@ -9,16 +9,12 @@ import {
   NumberInputField,
   Radio,
   RadioGroup,
-  Slider,
-  SliderFilledTrack,
-  SliderThumb,
-  SliderTrack,
   Stack,
   Text,
 } from '@chakra-ui/react';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
-import { DataDownloader, LineGraph } from '@components';
+import { DataDownloader, LineGraph, Slider } from '@components';
 import { Y_Axis, ILineGraph } from '../types';
 import { getHIndexGraphData, getLineGraphXTicks } from '../utils';
 
@@ -81,8 +77,8 @@ export const HIndexGraphPane = ({ buckets, sum, type, onApplyCondition }: IHInde
     }
   }, [buckets]);
 
-  const handleLimitSliderChange = (value: number) => {
-    setLimits({ ...limits, limit: value });
+  const handleLimitSliderChange = (value: number[]) => {
+    setLimits({ ...limits, limit: value[0] });
   };
 
   const handleLimitInputChange = (valueAsString: string, valueAsNumber: number) => {
@@ -148,19 +144,14 @@ export const HIndexGraphPane = ({ buckets, sum, type, onApplyCondition }: IHInde
                 xScaleType="linear"
               />
               <Slider
-                aria-label="limit slider"
-                min={1}
-                max={limits.maxLimit}
-                value={isNaN(limits.limit) ? limits.maxLimit : limits.limit}
+                aria-label="Limit Slider"
+                range={[1, limits.maxLimit]}
+                values={[isNaN(limits.limit) ? limits.maxLimit : limits.limit]}
                 onChange={handleLimitSliderChange}
                 my={5}
-                focusThumbOnChange={false}
-              >
-                <SliderTrack>
-                  <SliderFilledTrack />
-                </SliderTrack>
-                <SliderThumb />
-              </Slider>
+                px={4}
+                size={1}
+              />
               <HStack alignItems="center">
                 <Text>Limit results to top </Text>
                 <NumberInput
