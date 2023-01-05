@@ -52,7 +52,6 @@ import {
   set,
   split,
   splitEvery,
-  startsWith,
   test,
   toPairs,
   uniq,
@@ -426,7 +425,7 @@ export const applyFiltersToQuery = (
 export type FilterTuple = [string, string[], string[]];
 
 const pickByFqs = (query: IADSApiSearchParams): Partial<IADSApiSearchParams> =>
-  pickBy((_, k) => startsWith('fq_', k), query);
+  pickBy((_, k) => String(k).startsWith('fq_'), query);
 
 /**
  * Extracts the filter values from the query string.

@@ -373,7 +373,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
     const primaryResult = await queryClient.fetchQuery({
       queryKey: SEARCH_API_KEYS.primary,
       queryFn: fetchSearch,
-      queryHash: JSON.stringify(searchKeys.primary(omit(['fl'], params))),
+      queryHash: JSON.stringify(searchKeys.primary(omit(['fl'], params) as IADSApiSearchParams)),
       meta: { params },
     });
 

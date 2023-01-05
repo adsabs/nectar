@@ -44,14 +44,7 @@ declare module 'http' {
 
 export type NumPerPageType = typeof APP_DEFAULTS['PER_PAGE_OPTIONS'][number];
 
-export type SafeSearchUrlParams = Omit<IADSApiSearchParams, 'fl' | 'start' | 'rows'> &
-  (
-    | {
-        p?: number;
-        n?: number;
-      }
-    | { p?: number; n?: number; [key: `fq_${string}`]: string | string[] }
-  );
+export type SafeSearchUrlParams = Omit<IADSApiSearchParams, 'fl' | 'start' | 'rows'> & { p?: number };
 
 export interface IBibstemOption {
   label: string[];
