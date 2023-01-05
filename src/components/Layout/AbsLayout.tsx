@@ -5,6 +5,7 @@ import { Button, Link } from '@chakra-ui/react';
 import { AbstractSideNav, Metatags } from '@components';
 import { useBackToSearchResults } from '@hooks/useBackToSearchResults';
 import { unwrapStringValue } from '@utils';
+import { MathJax } from 'better-react-mathjax';
 import Head from 'next/head';
 import NextLink from 'next/link';
 import { FC } from 'react';
@@ -45,7 +46,7 @@ export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription
             <Text as="span" fontSize="xl">
               {titleDescription}
             </Text>{' '}
-            <Text dangerouslySetInnerHTML={{ __html: title }} />
+            <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
           </Heading>
           {children}
         </Stack>
