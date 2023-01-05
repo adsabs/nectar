@@ -24,6 +24,7 @@ import { AppState, useStore, useStoreApi } from '@store';
 import { makeSearchParams, noop, parseQueryFromUrl } from '@utils';
 import { useRouter } from 'next/router';
 import { curryN } from 'ramda';
+import { isNonEmptyString } from 'ramda-adjunct';
 import { MouseEventHandler, ReactElement, useCallback, useEffect, useState } from 'react';
 import { SecondOrderOpsLinks } from './SecondOrderOpsLinks';
 
@@ -303,24 +304,25 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean }): ReactEleme
     }
   }, [data, route]);
 
-  const handleClick = () => {
+  // on route change
+  useEffect(() => {
     if (!exploreAll) {
       // if using a selection, update the state value (triggers a vault request)
       return setSelected(store.getState().docs.selected);
     }
 
-    // if explore all, then just use the current query, and do not trigger vault (redirect immediately)
-    void router.push({ pathname: route[0], query: router.query }, { pathname: route[1], query: router.query });
-  };
+    if (isNonEmptyString(route[0])) {
+      // if explore all, then just use the current query, and do not trigger vault (redirect immediately)
+      void router.push({ pathname: route[0], query: router.query }, { pathname: route[1], query: router.query });
+    }
+  }, [route]);
 
   const handleExportItemClick = curryN(2, (format: ExportApiFormatKey) => {
     setRoute([`/search/exportcitation/[format]`, `/search/exportcitation/${format}`]);
-    handleClick();
   });
 
   const handleOpenAuthorAffiliation = () => {
     setRoute(['/search/authoraffiliations', '/search/authoraffiliations']);
-    handleClick();
   };
 
   return (
