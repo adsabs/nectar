@@ -1,7 +1,6 @@
 import { Box, FormLabel } from '@chakra-ui/react';
 import { Slider } from '@components/Slider';
-import { Sender } from '@xstate/react/lib/types';
-import { useEffect, useState } from 'react';
+import { Dispatch, useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { CitationExporterEvent, ICitationExporterState } from '../CitationExporter.machine';
 import { DescriptionCollapse } from './DescriptionCollapse';
@@ -9,7 +8,7 @@ import { DescriptionCollapse } from './DescriptionCollapse';
 export const RecordSlider = (props: {
   records: string[];
   range: ICitationExporterState['range'];
-  dispatch: Sender<CitationExporterEvent>;
+  dispatch: Dispatch<CitationExporterEvent>;
 }) => {
   const { range, records, dispatch } = props;
   const [value, setValue] = useState(range[1]);

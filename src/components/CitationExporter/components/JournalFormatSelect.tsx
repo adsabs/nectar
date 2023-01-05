@@ -1,9 +1,8 @@
 import { ExportApiJournalFormat, IExportApiParams } from '@api';
 import { Box, FormLabel, OrderedList } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components/Select';
-import { Sender } from '@xstate/react/lib/types';
 import { values } from 'ramda';
-import { useMemo } from 'react';
+import { Dispatch, useMemo } from 'react';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 import { DescriptionCollapse } from './DescriptionCollapse';
 
@@ -32,7 +31,7 @@ const journalFormats: Record<ExportApiJournalFormat, JournalFormatOption> = {
 
 export const JournalFormatSelect = (props: {
   journalformat: IExportApiParams['journalformat'];
-  dispatch: Sender<CitationExporterEvent>;
+  dispatch: Dispatch<CitationExporterEvent>;
 }) => {
   const { journalformat: [journalformat] = [], dispatch } = props;
   const formats = useMemo(() => values(journalFormats), []);

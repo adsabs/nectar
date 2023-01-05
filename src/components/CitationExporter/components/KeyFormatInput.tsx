@@ -1,13 +1,12 @@
 import { IExportApiParams } from '@api';
 import { Box, Code, FormControl, FormLabel, Input } from '@chakra-ui/react';
-import { Sender } from '@xstate/react/lib/types';
-import { ChangeEventHandler, useCallback } from 'react';
+import { ChangeEventHandler, Dispatch, useCallback } from 'react';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 import { DescriptionCollapse } from './DescriptionCollapse';
 
 interface IKeyFormatInputProps {
   keyformat: IExportApiParams['keyformat'];
-  dispatch: Sender<CitationExporterEvent>;
+  dispatch: Dispatch<CitationExporterEvent>;
 }
 
 export const KeyFormatInput = (props: IKeyFormatInputProps) => {

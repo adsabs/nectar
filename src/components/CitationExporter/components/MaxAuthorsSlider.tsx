@@ -1,15 +1,14 @@
 import { IExportApiParams, MAX_AUTHORCUTOFF } from '@api';
 import { FormLabel } from '@chakra-ui/react';
 import { Slider } from '@components/Slider';
-import { Sender } from '@xstate/react/lib/types';
-import { useEffect, useState } from 'react';
+import { Dispatch, useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 import { DescriptionCollapse } from './DescriptionCollapse';
 
 export const MaxAuthorsSlider = (props: {
   maxauthor: IExportApiParams['maxauthor'];
-  dispatch: Sender<CitationExporterEvent>;
+  dispatch: Dispatch<CitationExporterEvent>;
 }) => {
   const { maxauthor: [maxauthor] = [], dispatch } = props;
   const [value, setValue] = useState(maxauthor);
