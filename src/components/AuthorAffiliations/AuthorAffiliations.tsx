@@ -58,6 +58,7 @@ export const AuthorAffiliations = (props: AuthorAffiliationsProps): ReactElement
   } = useAuthorAffiliationSearch(params, {
     enabled: !isNilOrEmpty(params.bibcode),
     useErrorBoundary: true,
+    keepPreviousData: true,
   });
 
   // query for bibcodes, this will only run if we weren't passed params (and we have a query)
