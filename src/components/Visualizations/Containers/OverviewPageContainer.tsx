@@ -36,9 +36,8 @@ export const OverviewPageContainer = ({ query, onApplyQueryCondition }: IOvervie
   const router = useRouter();
   const onApplyYearRange = (min: number, max: number) => {
     // Apply year range fq to query
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    const cleanedQuery = query.fq ? (removeFQ(fqNameYearRange, query) as IADSApiSearchParams) : query;
-    const newQuery = setFQ(fqNameYearRange, `year:${min}-${max}`, cleanedQuery) as IADSApiSearchParams;
+    const cleanedQuery = query.fq ? removeFQ(fqNameYearRange, query) : query;
+    const newQuery = setFQ(fqNameYearRange, `year:${min}-${max}`, cleanedQuery);
 
     // tigger search
     const search = makeSearchParams({ ...newQuery, p: 1 });
