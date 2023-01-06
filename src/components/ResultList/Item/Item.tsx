@@ -7,6 +7,7 @@ import { APP_DEFAULTS } from '@config';
 import { useIsClient } from '@hooks/useIsClient';
 import { useStore } from '@store';
 import { getFomattedNumericPubdate, unwrapStringValue } from '@utils';
+import { MathJax } from 'better-react-mathjax';
 import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
 import { ChangeEvent, ReactElement, useCallback, useEffect, useState } from 'react';
@@ -62,7 +63,8 @@ export const Item = (props: IItemProps): ReactElement => {
         href={{ pathname: `/abs/[id]/citations`, search: 'p=1' }}
         as={{ pathname: `/abs/${bibcode}/citations`, search: 'p=1' }}
         passHref
-        legacyBehavior>
+        legacyBehavior
+      >
         <Link target={linkNewTab ? '_blank' : '_self'} rel={linkNewTab ? 'noopener noreferrer' : ''}>
           <Text>cited(n): {doc.citation_count_norm}</Text>
         </Link>
@@ -73,7 +75,8 @@ export const Item = (props: IItemProps): ReactElement => {
       href={{ pathname: `/abs/[id]/citations`, search: 'p=1' }}
       as={{ pathname: `/abs/${bibcode}/citations`, search: 'p=1' }}
       passHref
-      legacyBehavior>
+      legacyBehavior
+    >
       <Link target={linkNewTab ? '_blank' : '_self'} rel={linkNewTab ? 'noopener noreferrer' : ''}>
         cited: {doc.citation_count}
       </Link>
@@ -103,17 +106,13 @@ export const Item = (props: IItemProps): ReactElement => {
       </Flex>
       <Stack direction="column" width="full" spacing={0} mx={3} mt={2}>
         <Flex justifyContent="space-between">
-          <NextLink
-            href={`/abs/[id]/abstract`}
-            as={`/abs/${bibcode}/abstract`}
-            passHref
-            legacyBehavior>
+          <NextLink href={`/abs/[id]/abstract`} as={`/abs/${bibcode}/abstract`} passHref legacyBehavior>
             <Link
               fontWeight="semibold"
               target={linkNewTab ? '_blank' : '_self'}
               rel={linkNewTab ? 'noopener noreferrer' : ''}
             >
-              <span dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }}></span>
+              <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
             </Link>
           </NextLink>
           <Flex alignItems="start" ml={1}>
