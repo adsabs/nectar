@@ -15,9 +15,8 @@ import {
 } from '@chakra-ui/react';
 import { APP_DEFAULTS } from '@config';
 import { noop } from '@utils';
-import { Sender } from '@xstate/react/lib/types';
 import { useRouter } from 'next/router';
-import { ChangeEventHandler, HTMLAttributes, ReactElement, useEffect } from 'react';
+import { ChangeEventHandler, Dispatch, HTMLAttributes, ReactElement, useEffect } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { CitationExporterEvent } from './CitationExporter.machine';
 import { AuthorCutoffSlider } from './components/AuthorCutoffSlider';
@@ -214,7 +213,7 @@ const AdvancedControls = ({
   dispatch,
   params,
 }: {
-  dispatch: Sender<CitationExporterEvent>;
+  dispatch: Dispatch<CitationExporterEvent>;
   params: IExportApiParams;
 }) => {
   const { onToggle, isOpen } = useDisclosure();

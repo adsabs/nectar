@@ -1,14 +1,13 @@
 import { ExportApiFormatKey, isExportApiFormat } from '@api';
 import { Select } from '@components';
-import { Sender } from '@xstate/react/lib/types';
 import { omit, values } from 'ramda';
-import { useMemo } from 'react';
+import { Dispatch, useMemo } from 'react';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 import { ExportFormat, exportFormats } from '../models';
 
 export interface IFormatSelectProps {
   format: ExportApiFormatKey;
-  dispatch: Sender<CitationExporterEvent>;
+  dispatch: Dispatch<CitationExporterEvent>;
   isLoading?: boolean;
 }
 export const FormatSelect = (props: IFormatSelectProps) => {
