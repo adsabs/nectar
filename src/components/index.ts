@@ -25,6 +25,7 @@ export * from './SearchExamples';
 export * from './SearchFacet';
 export * from './SearchQueryLink';
 export * from './Select';
+export * from './Settings';
 export * from './SimpleLink';
 export * from './Slider';
 export * from './Sort';
@@ -34,4 +35,3 @@ export * from './TopProgressBar';
 export * from './Visualizations';
 export * from './DataDownloader';
 export * from './AuthorAffiliations';
-

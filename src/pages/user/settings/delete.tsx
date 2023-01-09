@@ -2,11 +2,11 @@ import { SettingsLayout } from '@components';
 import { composeNextGSSP, userGSSP } from '@utils';
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 
-const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  return <SettingsLayout title="Search Settings"></SettingsLayout>;
+const DeleteAccountPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+  return <SettingsLayout title="Delete Account"></SettingsLayout>;
 };
 
-export default AppSettingsPage;
+export default DeleteAccountPage;
 
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx: GetServerSidePropsContext) => {
   if (!ctx.req.session.isAuthenticated) {

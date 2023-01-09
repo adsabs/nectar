@@ -222,7 +222,12 @@ const TopMenuItem = (props: IItemProps) => {
   const docId = router.query.id as string;
 
   return (
-    <MenuItem isDisabled={isDisabled} backgroundColor={active ? 'gray.100' : 'transparent'} mb={1}>
+    <MenuItem
+      isDisabled={isDisabled}
+      backgroundColor={active ? 'gray.100' : 'transparent'}
+      mb={1}
+      _hover={{ backgroundColor: 'gray.100' }}
+    >
       <NextLink href={`/abs/[id]/${route}`} as={`/abs/${docId}/${route}`} passHref {...linkProps(docId)}>
         <Box width="full" color="gray.700">
           <Stack direction="row" alignItems="center">

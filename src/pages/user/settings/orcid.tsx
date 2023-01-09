@@ -2,11 +2,11 @@ import { SettingsLayout } from '@components';
 import { composeNextGSSP, userGSSP } from '@utils';
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 
-const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  return <SettingsLayout title="Search Settings"></SettingsLayout>;
+const OrcidPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+  return <SettingsLayout title="ORCiD Settings"></SettingsLayout>;
 };
 
-export default AppSettingsPage;
+export default OrcidPage;
 
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx: GetServerSidePropsContext) => {
   if (!ctx.req.session.isAuthenticated) {
