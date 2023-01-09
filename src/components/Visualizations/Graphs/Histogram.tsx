@@ -130,7 +130,8 @@ export const Histogram = ({
         .on('click', (e, bin) => {
           const { x } = data.find((d) => d.x === bin.x0);
           onClick(x);
-        });
+        })
+        .style('cursor', 'pointer');
 
       return svg;
     },
