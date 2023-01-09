@@ -37,7 +37,7 @@ export const RecordSlider = (props: {
         aria-label="Limit Records"
         range={[1, records.length]}
         values={[value]}
-        onChange={handleChange}
+        onSlideEnd={handleChange}
         size={1}
         px={4}
       />

@@ -37,7 +37,7 @@ export const AuthorCutoffSlider = (props: {
             aria-label="Author Cutoff"
             range={[1, MAX_AUTHORCUTOFF]}
             values={[value]}
-            onChange={handleChange}
+            onSlideEnd={handleChange}
             size={1}
             px={4}
           />
