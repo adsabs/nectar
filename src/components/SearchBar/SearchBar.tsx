@@ -10,6 +10,7 @@ import {
   ListItem,
   Spinner,
   Text,
+  useBoolean,
   usePopper,
   VisuallyHidden,
   visuallyHiddenStyle,
@@ -50,19 +51,13 @@ export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>(
   const updateQuery = (q: string) => updateStoreQuery({ q });
   const input = useRef<HTMLInputElement>(null);
   const isClient = useIsClient();
+  const [fixCursorFlag, setFixCursorFlag] = useBoolean();
 
   // allow outside refs to fire focus
   useImperativeHandle(ref, () => ({
     focus: () => input.current.focus(),
+    setSelectionRange: (start: number, end: number) => input.current.setSelectionRange(start, end),
   }));
-
-  const fixCursor = (newInputValue: string) => {
-    if (/[\)"]/.test(last(newInputValue))) {
-      setTimeout(() => {
-        input.current.setSelectionRange(newInputValue.length - 1, newInputValue.length - 1);
-      }, 0);
-    }
-  };
 
   const [inputItems, setInputItems] = useState(typeaheadOptions);
   const {
@@ -101,8 +96,7 @@ export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>(
           const newInputValue =
             updatedQuery + (updatedQuery.length > 0 ? ' ' + changes.inputValue : changes.inputValue);
 
-          // fix cursor
-          fixCursor(newInputValue);
+          setFixCursorFlag.on();
 
           return {
             ...changes,
@@ -143,13 +137,24 @@ export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>(
   const handleQuickFieldSelection = useCallback(
     (value: string) => {
       // Add our text to the end of the query
-      const newInputValue = `${query}${query.length > 0 ? ' ' : ''}${value}`;
-      updateQuery(newInputValue);
-      fixCursor(newInputValue);
+      setInputValue(`${query}${query.length > 0 ? ' ' : ''}${value}`);
+      setFixCursorFlag.on();
       input.current.focus();
     },
     [query],
   );
+
+  // watch for changes to the actual value, and fix the cursor (if our flag is set)
+  // should refactor at some point, since we don't want this to run on flag set, so cannot add to deps
+  useEffect(() => {
+    if (input.current && fixCursorFlag) {
+      const value = input.current.value;
+      if (/[\("]$/.test(value)) {
+        input.current.setSelectionRange(value.length - 1, value.length - 1);
+        setFixCursorFlag.off();
+      }
+    }
+  }, [input.current?.value]);
 
   const { popperRef, referenceRef } = usePopper({
     enabled: isOpen,
