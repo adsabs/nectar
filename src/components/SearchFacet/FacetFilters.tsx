@@ -1,15 +1,4 @@
-import { Box, Heading } from '@chakra-ui/layout';
-import {
-  BoxProps,
-  Button,
-  Tag,
-  TagCloseButton,
-  TagLabel,
-  Tooltip,
-  VisuallyHidden,
-  Wrap,
-  WrapItem,
-} from '@chakra-ui/react';
+import { BoxProps, Button, Flex, Tag, TagCloseButton, TagLabel, Tooltip, VisuallyHidden } from '@chakra-ui/react';
 import { clearFQs, removeFQClause } from '@query-utils';
 import { isIADSSearchParams, makeSearchParams, parseQueryFromUrl } from '@utils';
 import { useRouter } from 'next/router';
@@ -63,34 +52,27 @@ export const FacetFilters = (props: BoxProps): ReactElement => {
   }
 
   return (
-    <Box {...props} mb="2" borderWidth="thin" borderColor="gray.100" borderRadius={5} p={2}>
+    <Flex {...props} mb="2" gap={2} wrap="wrap">
       <VisuallyHidden as="h2">Applied Filters</VisuallyHidden>
       {filterSections.map(([label, cleanClauses, rawClauses]) => (
-        <Wrap aria-labelledby={`${label} applied filters`} spacing="0.5" key={label}>
-          <WrapItem alignItems="center">
-            <Heading as="h3" fontSize="sm" id={`${label} applied filters`}>
-              {label}:
-            </Heading>
-          </WrapItem>
+        <Flex key={label} gap={2} wrap="wrap">
           {cleanClauses.map((clause, index) => (
-            <WrapItem key={clause}>
-              <Tag size="sm" my="0.5" fontSize="sm" maxWidth="200">
-                <TagLabel isTruncated noOfLines={1}>
-                  <Tooltip label={clause}>{clause}</Tooltip>
-                </TagLabel>
-                <TagCloseButton
-                  data-value={clause}
-                  data-section={label}
-                  onClick={handleRemoveFilterClick(rawClauses[index], label)}
-                />
-              </Tag>
-            </WrapItem>
+            <Tag size="sm" my="0.5" fontSize="sm" maxWidth="200" key={clause}>
+              <TagLabel isTruncated noOfLines={1}>
+                <Tooltip label={`${label} - ${clause}`}>{clause}</Tooltip>
+              </TagLabel>
+              <TagCloseButton
+                data-value={clause}
+                data-section={label}
+                onClick={handleRemoveFilterClick(rawClauses[index], label)}
+              />
+            </Tag>
           ))}
-        </Wrap>
+        </Flex>
       ))}
       <Button variant="link" fontSize="xs" onClick={handleRemoveAllFiltersClick}>
         Remove all
       </Button>
-    </Box>
+    </Flex>
   );
 };
