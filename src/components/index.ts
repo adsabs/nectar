@@ -18,6 +18,7 @@ export * from './LandingTabs';
 export * from './Layout';
 export * from './Metatags';
 export * from './NavBar';
+export * from './NavigationMenu';
 export * from './NumFound';
 export * from './ResultList';
 export * from './SearchBar';

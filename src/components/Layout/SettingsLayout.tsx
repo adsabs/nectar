@@ -9,7 +9,7 @@ interface ISettingsLayoutProps {
 
 export const SettingsLayout: FC<ISettingsLayoutProps> = ({ children, title }) => {
   return (
-    <Stack direction={{ base: 'column', lg: 'row' }} spacing={6} my={10}>
+    <Stack direction={{ base: 'column', lg: 'row' }} spacing={6} my={{ base: 2, lg: 10 }}>
       <Head>
         <title>{title}</title>
       </Head>
