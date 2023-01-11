@@ -6,14 +6,13 @@ import {
   Button,
   HStack,
   Icon,
-  IconButton,
   List,
   ListItem,
   Text,
   Tooltip,
-  useBoolean,
   useDisclosure,
 } from '@chakra-ui/react';
+import { Toggler } from '@components/Toggler';
 import {
   DndContext,
   DragEndEvent,
@@ -26,7 +25,7 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { ExclamationCircleIcon, EyeIcon, EyeOffIcon } from '@heroicons/react/solid';
+import { ExclamationCircleIcon } from '@heroicons/react/solid';
 import { AppState, useStore, useStoreApi } from '@store';
 import { CSSProperties, MouseEventHandler, ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { facetConfig } from './config';
@@ -102,22 +101,13 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
     }
   }, [isSorting]);
 
-  const [showHideBtn, setShowHideBtn] = useBoolean(false);
-
   const style: CSSProperties = {
     transform: CSS.Translate.toString(transform),
     transition,
   };
 
   return (
-    <ListItem
-      ref={setNodeRef}
-      style={style}
-      my="1"
-      onMouseEnter={setShowHideBtn.on}
-      onFocus={setShowHideBtn.on}
-      onMouseLeave={setShowHideBtn.off}
-    >
+    <ListItem ref={setNodeRef} style={style} my="1">
       <h2>
         <HStack spacing={0}>
           <Button
@@ -127,18 +117,18 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
             {...listeners}
             ref={setActivatorNodeRef}
             onClick={onToggle}
-            borderColor="blue.100"
+            borderColor="gray.300"
             borderBottom={isOpen ? 'none' : 'auto'}
             borderBottomRadius={isOpen ? 0 : 'md'}
-            borderRight={showHideBtn && !isOpen ? 'none' : 'auto'}
-            borderRightRadius={showHideBtn && !isOpen ? 0 : 'md'}
-            borderBottomRightRadius={showHideBtn || isOpen ? 0 : 'md'}
+            borderRightRadius={0}
+            borderRight="none"
             mb="0"
             px="0.5"
           >
-            <DragHandleIcon mr="1" />
-            <HStack flex="1" textAlign="left">
-              <Text flex="1" fontSize="md">
+            <DragHandleIcon mr="1" color="gray.400" />
+            <Toggler isToggled={isOpen} fontSize="xl" color="gray.600" />
+            <HStack flex="1" textAlign="left" ml="1">
+              <Text flex="1" fontSize="md" color="gray.600">
                 {label}
               </Text>
               {hasError && (
@@ -147,35 +137,25 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
                 </Tooltip>
               )}
             </HStack>
-
-            {isOpen ? <ChevronDownIcon /> : <ChevronRightIcon />}
           </Button>
-          {showHideBtn && !isOpen && (
-            <IconButton
-              onMouseEnter={setShowHideBtn.on}
-              onFocus={setShowHideBtn.on}
-              onBlur={setShowHideBtn.off}
-              onMouseLeave={setShowHideBtn.off}
-              borderLeft="none"
-              borderLeftRadius={0}
-              icon={
-                hidden ? (
-                  <EyeIcon width="12" style={{ margin: 0, padding: 0, border: 'none' }} />
-                ) : (
-                  <EyeOffIcon width="12" style={{ margin: 0, padding: 0, border: 'none' }} />
-                )
-              }
-              onClick={handleHideClick}
-              border="solid 1px"
-              borderColor="blue.100"
-              size="xs"
-              variant="ghost"
-              aria-label={hidden ? 'show facet' : 'hide facet'}
-              m={0}
-              height={8}
-              px={2}
-            />
-          )}
+          <Button
+            onClick={handleHideClick}
+            border="solid 1px"
+            borderColor="gray.300"
+            borderLeft="none"
+            borderLeftRadius={0}
+            borderBottom={isOpen ? 'none' : 'auto'}
+            borderBottomRightRadius={isOpen ? 'none' : 'auto'}
+            color="blue.400"
+            size="xs"
+            variant="ghost"
+            aria-label={hidden ? 'show facet' : 'hide facet'}
+            m={0}
+            height={8}
+            px={2}
+          >
+            {hidden ? 'show' : 'hide'}
+          </Button>
         </HStack>
       </h2>
       <Box
@@ -183,7 +163,7 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
         py="1"
         pr="1"
         border={isOpen && 'solid 1px'}
-        borderColor={isOpen && 'blue.100'}
+        borderColor={isOpen && 'gray.400'}
         borderTop="none"
         borderBottomRadius="md"
         mt="0"
