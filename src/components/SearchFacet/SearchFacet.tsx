@@ -1,5 +1,5 @@
 import { FacetField, IADSApiSearchParams, IFacetCountsFields } from '@api';
-import { ChevronDownIcon, ChevronRightIcon, DragHandleIcon } from '@chakra-ui/icons';
+import { DragHandleIcon } from '@chakra-ui/icons';
 import {
   AccordionItemProps,
   Box,
@@ -107,7 +107,7 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
   };
 
   return (
-    <ListItem ref={setNodeRef} style={style} my="1">
+    <ListItem ref={setNodeRef} style={style} my={0}>
       <h2>
         <HStack spacing={0}>
           <Button
@@ -125,9 +125,9 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
             mb="0"
             px="0.5"
           >
-            <DragHandleIcon mr="1" color="gray.400" />
+            <DragHandleIcon mr="1" color="gray.400" fontSize="md" />
             <Toggler isToggled={isOpen} fontSize="xl" color="gray.600" />
-            <HStack flex="1" textAlign="left" ml="1">
+            <HStack flex="1" textAlign="left" mx="1">
               <Text flex="1" fontSize="md" color="gray.600">
                 {label}
               </Text>
@@ -158,17 +158,17 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
           </Button>
         </HStack>
       </h2>
-      <Box
-        pl="2"
-        py="1"
-        pr="1"
-        border={isOpen && 'solid 1px'}
-        borderColor={isOpen && 'gray.400'}
-        borderTop="none"
-        borderBottomRadius="md"
-        mt="0"
-      >
-        {isOpen && (
+      {isOpen && (
+        <Box
+          pl="2"
+          py="1"
+          pr="1"
+          border={isOpen && 'solid 1px'}
+          borderColor={isOpen && 'gray.400'}
+          borderTop="none"
+          borderBottomRadius="md"
+          mt="0"
+        >
           <SearchFacetTree
             label={label}
             field={field}
@@ -180,8 +180,8 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
             onFilter={handleOnFilter}
             onError={handleOnError}
           />
-        )}
-      </Box>
+        </Box>
+      )}
     </ListItem>
   );
 };
@@ -331,7 +331,8 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
   const activeItem = useMemo(() => {
     if (draggingFacetId) {
       const facetProp = facetConfig[draggingFacetId];
-      return <SearchFacet {...facetProp} key={facetProp.storeId} onQueryUpdate={onQueryUpdate} hidden={true} />; // change hidden
+      // change hidden
+      return <SearchFacet {...facetProp} key={facetProp.storeId} onQueryUpdate={onQueryUpdate} hidden={true} />;
     }
   }, [draggingFacetId]);
 
@@ -349,7 +350,7 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
           variant="link"
           onClick={toggleShowHidden}
           type="button"
-          rightIcon={showHiddenFacets ? <ChevronDownIcon /> : <ChevronRightIcon />}
+          rightIcon={<Toggler isToggled={showHiddenFacets} />}
           w="fit-content"
           fontSize="md"
           my={2}
@@ -388,7 +389,7 @@ const DroppableContainer = ({
     <>
       {items && itemsID ? (
         <SortableContext id={id} items={itemsID} strategy={verticalListSortingStrategy}>
-          <List ref={setNodeRef} minH="10">
+          <List spacing={1} ref={setNodeRef} minH="10">
             {items}
           </List>
         </SortableContext>

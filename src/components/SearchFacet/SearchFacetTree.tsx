@@ -158,7 +158,7 @@ export const SearchFacetTree = (props: ISearchFacetTreeProps): ReactElement => {
               </List>
               {/* disallow loading more when list is filtered */}
               {!isFiltered && (
-                <Flex justifyContent="space-between">
+                <Flex justifyContent="flex-end">
                   <LoadMoreBtn
                     show={treeData.length > 0 && canLoadMore && !isError}
                     onClick={handleLoadMore}
@@ -167,7 +167,6 @@ export const SearchFacetTree = (props: ISearchFacetTreeProps): ReactElement => {
                     fontSize="sm"
                     fontWeight="normal"
                   />
-                  <ResetBtn fontSize="sm" fontWeight="normal" />
                 </Flex>
               )}
             </DrawerBody>
@@ -215,7 +214,7 @@ export const SearchFacetTree = (props: ISearchFacetTreeProps): ReactElement => {
           ),
         )}
       </List>
-      <Flex justifyContent={treeData.length > 0 && canLoadMore && !isError ? 'space-between' : 'flex-end'}>
+      <Flex justifyContent="flex-end">
         <LoadMoreBtn
           show={treeData.length > 0 && canLoadMore && !isError}
           onClick={() => {
@@ -227,7 +226,6 @@ export const SearchFacetTree = (props: ISearchFacetTreeProps): ReactElement => {
           fontSize="sm"
           fontWeight="normal"
         />
-        <ResetBtn fontSize="sm" fontWeight="normal" />
       </Flex>
       <LogicArea logic={logic} onFilter={onFilter} field={field} />
     </FacetTreeStoreProvider>
@@ -429,12 +427,12 @@ const ExpandButton = (props: { node: FacetCountTuple; isExpanded: boolean }) => 
 const LoadMoreBtn = (
   props: { show: boolean; pullRight?: boolean; showBottomBorder?: boolean; label?: string } & ButtonProps,
 ) => {
-  const { show, pullRight, showBottomBorder, label = 'Load more', ...btnProps } = props;
+  const { show, pullRight, showBottomBorder, label = 'more', ...btnProps } = props;
 
   if (show) {
     return (
       <Stack direction="row" justifyContent={pullRight ? 'end' : 'normal'}>
-        <Button size="xs" variant="link" type="button" {...btnProps}>
+        <Button size="xs" variant="outline" colorScheme="gray" p="0.5" type="button" borderRadius="md" {...btnProps}>
           {label}
         </Button>
       </Stack>
