@@ -182,7 +182,29 @@ export const theme = extendTheme(
         },
       },
       Input: {
-        parts: ['field'],
+        parts: ['field', 'addon'],
+        sizes: {
+          lg: {
+            field: {
+              borderRadius: 'sm',
+            },
+          },
+          md: {
+            field: {
+              borderRadius: 'sm',
+            },
+          },
+          sm: {
+            field: {
+              borderRadius: 'sm',
+            },
+          },
+          xs: {
+            field: {
+              borderRadius: 'sm',
+            },
+          },
+        },
         variants: {
           outline: (props: ThemeComponentProps) => ({
             field: {
@@ -243,6 +265,10 @@ export const theme = extendTheme(
             backgroundColor: 'transparent',
             color: 'gray.700',
           },
+          warning: {
+            backgroundColor: 'red.500',
+            color: 'gray.50',
+          },
         },
       },
       Select: {
@@ -267,6 +293,6 @@ export const theme = extendTheme(
   withDefaultColorScheme({ colorScheme: 'blue' }),
   withDefaultSize({
     size: 'sm',
-    components: ['Input', 'Checkbox', 'Radio', 'Textarea', 'Button', 'IconButton', 'Table', 'Select'],
+    components: ['Input', 'Textarea', 'Button', 'IconButton', 'Table', 'Select'],
   }),
 );

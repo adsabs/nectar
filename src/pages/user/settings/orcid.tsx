@@ -1,9 +1,20 @@
+import { Button, Text } from '@chakra-ui/react';
 import { SettingsLayout } from '@components';
 import { composeNextGSSP, userGSSP } from '@utils';
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 
 const OrcidPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  return <SettingsLayout title="ORCiD Settings"></SettingsLayout>;
+  return (
+    <SettingsLayout title="ORCiD Settings">
+      <Button mb={2} size="md">
+        Authenticate ORCiD
+      </Button>
+      <Text fontSize="sm">
+        You will be redirected to ORCID. <br />
+        Please sign in with your ORCID credentials and click on the "authorize" button.
+      </Text>
+    </SettingsLayout>
+  );
 };
 
 export default OrcidPage;

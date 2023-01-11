@@ -8,6 +8,12 @@ const useGetMenuItems = () => {
   const menuItems = {
     'USER PREFERENCES': [
       {
+        id: 'application',
+        href: `${settingsPath}/application`,
+        hrefAs: `${settingsPath}/application`,
+        label: 'Search',
+      },
+      {
         id: 'libraryimport',
         href: `${settingsPath}/libraryimport`,
         hrefAs: `${settingsPath}/libraryimport`,
@@ -24,12 +30,6 @@ const useGetMenuItems = () => {
         href: `${settingsPath}/orcid`,
         hrefAs: `${settingsPath}/orcid`,
         label: 'ORCiD',
-      },
-      {
-        id: 'application',
-        href: `${settingsPath}/application`,
-        hrefAs: `${settingsPath}/application`,
-        label: 'Search',
       },
       {
         id: 'export',

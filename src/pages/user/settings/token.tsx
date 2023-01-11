@@ -1,9 +1,32 @@
+import { Input, InputGroup, InputRightAddon } from '@chakra-ui/react';
 import { SettingsLayout } from '@components';
 import { composeNextGSSP, userGSSP } from '@utils';
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 
 const ApiTokenPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  return <SettingsLayout title="API Token"></SettingsLayout>;
+  // TODO get token
+  const token = 'xxxxxxx';
+
+  const handleGenerateToken = () => {
+    console.log('generate new token');
+  };
+
+  return (
+    <SettingsLayout title="API Token">
+      <InputGroup size="md">
+        <Input type="text" name="token" id="token" value={token} autoFocus />
+        <InputRightAddon
+          children="Generate New Token"
+          bgColor="blue.500"
+          color="gray.50"
+          borderColor="blue.500"
+          borderRightRadius="sm"
+          cursor="pointer"
+          onClick={handleGenerateToken}
+        />
+      </InputGroup>
+    </SettingsLayout>
+  );
 };
 
 export default ApiTokenPage;

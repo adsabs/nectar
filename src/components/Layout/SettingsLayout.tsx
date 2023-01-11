@@ -1,4 +1,4 @@
-import { Stack, Heading, Text } from '@chakra-ui/react';
+import { Stack, Heading, Text, Container } from '@chakra-ui/react';
 import { SettingsSideNav } from '@components';
 import Head from 'next/head';
 import { FC } from 'react';
@@ -20,7 +20,7 @@ export const SettingsLayout: FC<ISettingsLayoutProps> = ({ children, title }) =>
             {title}
           </Text>
         </Heading>
-        {children}
+        <Container pt={5}>{children}</Container>
       </Stack>
     </Stack>
   );
