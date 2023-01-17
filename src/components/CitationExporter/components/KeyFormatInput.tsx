@@ -7,10 +7,11 @@ import { DescriptionCollapse } from './DescriptionCollapse';
 interface IKeyFormatInputProps {
   keyformat: IExportApiParams['keyformat'];
   dispatch: Dispatch<CitationExporterEvent>;
+  label?: string;
 }
 
 export const KeyFormatInput = (props: IKeyFormatInputProps) => {
-  const { keyformat, dispatch } = props;
+  const { keyformat, dispatch, label } = props;
 
   const handleOnChange: ChangeEventHandler<HTMLInputElement> = useCallback((e) => {
     dispatch({ type: 'SET_KEY_FORMAT', payload: e.currentTarget.value });
@@ -20,14 +21,14 @@ export const KeyFormatInput = (props: IKeyFormatInputProps) => {
     <FormControl>
       <DescriptionCollapse
         body={description}
-        label="Key Format"
+        label={label ?? 'Key Format'}
         linkProps={{ href: '/help/actions/export#the-bibtex-format-configuration' }}
       >
         {({ btn, content }) => (
           <Box>
             <FormLabel fontSize={['sm', 'md']}>Key Format {btn}</FormLabel>
             {content}
-            <Input value={keyformat} size="md" borderRadius="sm" onChange={handleOnChange} />
+            <Input value={keyformat} size="md" borderRadius="sm" onChange={handleOnChange} placeholder="%1H:%Y:%q" />
           </Box>
         )}
       </DescriptionCollapse>

@@ -9,6 +9,7 @@ import { DescriptionCollapse } from './DescriptionCollapse';
 export const AuthorCutoffSlider = (props: {
   authorcutoff: IExportApiParams['authorcutoff'];
   dispatch: Dispatch<CitationExporterEvent>;
+  label?: string;
 }) => {
   const { authorcutoff: [authorcutoff] = [], dispatch } = props;
   const [value, setValue] = useState(authorcutoff);
@@ -19,22 +20,23 @@ export const AuthorCutoffSlider = (props: {
   }, [debouncedValue]);
 
   const handleChange = (val: number[]) => setValue(val[0]);
+  const label = props.label ?? 'Author Cut-off';
 
   return (
     <DescriptionCollapse
       body={description}
-      label="Author Cut-off"
+      label={label}
       linkProps={{ href: '/help/actions/export#the-bibtex-format-configuration' }}
     >
       {({ btn, content }) => (
         <>
           <FormLabel htmlFor="authorcutoff-slider" fontSize={['sm', 'md']}>
-            Author Cut-off <span aria-hidden="true">({value})</span> {btn}
+            {label} <span aria-hidden="true">({value})</span> {btn}
           </FormLabel>
           {content}
           <Slider
             id="authorcutoff-slider"
-            aria-label="Author Cutoff"
+            aria-label={label}
             range={[1, MAX_AUTHORCUTOFF]}
             values={[value]}
             onSlideEnd={handleChange}

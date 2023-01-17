@@ -9,6 +9,7 @@ export interface IFormatSelectProps {
   format: ExportApiFormatKey;
   dispatch: Dispatch<CitationExporterEvent>;
   isLoading?: boolean;
+  label?: string;
 }
 export const FormatSelect = (props: IFormatSelectProps) => {
   const formats = useMemo(() => values(omit(['custom'], exportFormats)), []);
@@ -22,7 +23,7 @@ export const FormatSelect = (props: IFormatSelectProps) => {
   return (
     <Select<ExportFormat>
       name="format"
-      label="Format"
+      label={props.label ?? 'Format'}
       hideLabel={false}
       id="export-format-select"
       options={formats}

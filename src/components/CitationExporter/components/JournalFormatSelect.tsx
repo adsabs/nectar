@@ -32,6 +32,7 @@ const journalFormats: Record<ExportApiJournalFormat, JournalFormatOption> = {
 export const JournalFormatSelect = (props: {
   journalformat: IExportApiParams['journalformat'];
   dispatch: Dispatch<CitationExporterEvent>;
+  label?: string;
 }) => {
   const { journalformat: [journalformat] = [], dispatch } = props;
   const formats = useMemo(() => values(journalFormats), []);
@@ -53,7 +54,7 @@ export const JournalFormatSelect = (props: {
             label={
               <Box mb="2">
                 <FormLabel htmlFor="journal-format-select" fontSize={['sm', 'md']}>
-                  Journal Format {btn}
+                  {props.label ?? 'Journal Format'} {btn}
                 </FormLabel>
                 {content}
               </Box>
