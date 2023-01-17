@@ -94,7 +94,9 @@ const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSidePro
           <CheckboxGroup>
             <Stack direction="row">
               {DEFAULT_SETTINGS.database.value.map((o) => (
-                <Checkbox value={o.name}>{o.name}</Checkbox>
+                <Checkbox value={o.name} key={o.name}>
+                  {o.name}
+                </Checkbox>
               ))}
             </Stack>
           </CheckboxGroup>

@@ -14,7 +14,7 @@ const ApiTokenPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>
   return (
     <SettingsLayout title="API Token">
       <InputGroup size="md">
-        <Input type="text" name="token" id="token" value={token} autoFocus />
+        <Input type="text" name="token" id="token" value={token} autoFocus isReadOnly />
         <InputRightAddon
           children="Generate New Token"
           bgColor="blue.500"
