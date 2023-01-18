@@ -1,11 +1,9 @@
 import { QuestionIcon, QuestionOutlineIcon } from '@chakra-ui/icons';
-import { Box, Collapse, CollapseProps, IconButton, Link as ChakraLink, useDisclosure } from '@chakra-ui/react';
-import Link, { LinkProps } from 'next/link';
+import { Box, Collapse, CollapseProps, IconButton, useDisclosure } from '@chakra-ui/react';
 import { ReactElement, ReactNode } from 'react';
 
 export interface IDescriptionCollapseProps extends CollapseProps {
   label: string;
-  linkProps: LinkProps;
   body: ReactNode;
   children: (props: { btn: ReactNode; content: ReactNode }) => ReactNode;
 }
@@ -29,16 +27,3 @@ export const DescriptionCollapse = (props: IDescriptionCollapseProps): ReactElem
     </>
   );
 };
-
-const Static = (props: IDescriptionCollapseProps): ReactElement => {
-  const { linkProps } = props;
-  return (
-    <Link {...linkProps} legacyBehavior>
-      <ChakraLink>
-        <QuestionOutlineIcon />
-      </ChakraLink>
-    </Link>
-  );
-};
-
-DescriptionCollapse.Static = Static;

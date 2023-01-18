@@ -1,7 +1,7 @@
 import { IExportApiParams, MAX_AUTHORCUTOFF } from '@api';
 import { Code, FormLabel } from '@chakra-ui/react';
 import { Slider } from '@components/Slider';
-import { Dispatch, useEffect, useState } from 'react';
+import { Dispatch, ReactElement, useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 import { DescriptionCollapse } from './DescriptionCollapse';
@@ -10,6 +10,7 @@ export const AuthorCutoffSlider = (props: {
   authorcutoff: IExportApiParams['authorcutoff'];
   dispatch: Dispatch<CitationExporterEvent>;
   label?: string;
+  description?: ReactElement;
 }) => {
   const { authorcutoff: [authorcutoff] = [], dispatch } = props;
   const [value, setValue] = useState(authorcutoff);
@@ -23,11 +24,7 @@ export const AuthorCutoffSlider = (props: {
   const label = props.label ?? 'Author Cut-off';
 
   return (
-    <DescriptionCollapse
-      body={description}
-      label={label}
-      linkProps={{ href: '/help/actions/export#the-bibtex-format-configuration' }}
-    >
+    <DescriptionCollapse body={props.description ?? description} label={label}>
       {({ btn, content }) => (
         <>
           <FormLabel htmlFor="authorcutoff-slider" fontSize={['sm', 'md']}>

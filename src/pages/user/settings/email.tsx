@@ -75,6 +75,7 @@ const UpdateEmailPage = ({}: InferGetServerSidePropsType<typeof getServerSidePro
             />
             <FormErrorMessage>Error message</FormErrorMessage>
           </FormControl>
+          <Text>You will be logged out of your account until you click the link from the verification email.</Text>
           <Button type="submit" size="md" w={20}>
             Update
           </Button>

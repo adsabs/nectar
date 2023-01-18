@@ -1,6 +1,6 @@
 import { IExportApiParams } from '@api';
 import { Box, Code, FormControl, FormLabel, Input } from '@chakra-ui/react';
-import { ChangeEventHandler, Dispatch, useCallback } from 'react';
+import { ChangeEventHandler, Dispatch, ReactElement, useCallback } from 'react';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 import { DescriptionCollapse } from './DescriptionCollapse';
 
@@ -8,6 +8,7 @@ interface IKeyFormatInputProps {
   keyformat: IExportApiParams['keyformat'];
   dispatch: Dispatch<CitationExporterEvent>;
   label?: string;
+  description?: ReactElement;
 }
 
 export const KeyFormatInput = (props: IKeyFormatInputProps) => {
@@ -19,17 +20,17 @@ export const KeyFormatInput = (props: IKeyFormatInputProps) => {
 
   return (
     <FormControl>
-      <DescriptionCollapse
-        body={description}
-        label={label ?? 'Key Format'}
-        linkProps={{ href: '/help/actions/export#the-bibtex-format-configuration' }}
-      >
+      <DescriptionCollapse body={props.description ?? description} label={label ?? 'Key Format'}>
         {({ btn, content }) => (
-          <Box>
-            <FormLabel fontSize={['sm', 'md']}>Key Format {btn}</FormLabel>
-            {content}
+          <FormControl>
+            <Box mb="2">
+              <FormLabel fontSize={['sm', 'md']}>
+                {label ?? 'Key Format'} {btn}
+              </FormLabel>
+              {content}
+            </Box>
             <Input value={keyformat} size="md" borderRadius="sm" onChange={handleOnChange} placeholder="%1H:%Y:%q" />
-          </Box>
+          </FormControl>
         )}
       </DescriptionCollapse>
     </FormControl>

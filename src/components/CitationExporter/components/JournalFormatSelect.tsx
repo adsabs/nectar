@@ -2,7 +2,7 @@ import { ExportApiJournalFormat, IExportApiParams } from '@api';
 import { Box, FormLabel, OrderedList } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components/Select';
 import { values } from 'ramda';
-import { Dispatch, useMemo } from 'react';
+import { Dispatch, ReactElement, useMemo } from 'react';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 import { DescriptionCollapse } from './DescriptionCollapse';
 
@@ -33,6 +33,7 @@ export const JournalFormatSelect = (props: {
   journalformat: IExportApiParams['journalformat'];
   dispatch: Dispatch<CitationExporterEvent>;
   label?: string;
+  description?: ReactElement;
 }) => {
   const { journalformat: [journalformat] = [], dispatch } = props;
   const formats = useMemo(() => values(journalFormats), []);
@@ -42,11 +43,7 @@ export const JournalFormatSelect = (props: {
   };
 
   return (
-    <DescriptionCollapse
-      body={description}
-      label="Journal Format"
-      linkProps={{ href: '/help/actions/export#the-bibtex-format-configuration' }}
-    >
+    <DescriptionCollapse body={props.description ?? description} label="Journal Format">
       {({ btn, content }) => (
         <>
           <Select<JournalFormatOption>

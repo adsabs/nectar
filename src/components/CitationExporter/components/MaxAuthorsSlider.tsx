@@ -1,7 +1,7 @@
 import { IExportApiParams, MAX_AUTHORCUTOFF } from '@api';
 import { FormLabel } from '@chakra-ui/react';
 import { Slider } from '@components/Slider';
-import { Dispatch, useEffect, useState } from 'react';
+import { Dispatch, ReactElement, useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 import { DescriptionCollapse } from './DescriptionCollapse';
@@ -10,6 +10,7 @@ export const MaxAuthorsSlider = (props: {
   maxauthor: IExportApiParams['maxauthor'];
   dispatch: Dispatch<CitationExporterEvent>;
   label?: string;
+  description?: ReactElement;
 }) => {
   const { maxauthor: [maxauthor] = [], dispatch } = props;
   const [value, setValue] = useState(maxauthor);
@@ -24,11 +25,7 @@ export const MaxAuthorsSlider = (props: {
 
   return (
     <>
-      <DescriptionCollapse
-        body={description}
-        label={label}
-        linkProps={{ href: '/help/actions/export#the-bibtex-format-configuration' }}
-      >
+      <DescriptionCollapse body={props.description ?? description} label={label}>
         {({ btn, content }) => (
           <>
             <FormLabel htmlFor="maxauthor-slider" fontSize={['sm', 'md']}>
