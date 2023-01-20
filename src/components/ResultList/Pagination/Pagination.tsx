@@ -25,7 +25,7 @@ import { useRouter } from 'next/router';
 import { curryN } from 'ramda';
 import { Dispatch, KeyboardEventHandler, ReactElement, useCallback, useMemo, useRef, useState } from 'react';
 import { MenuPlacement } from 'react-select';
-import { calculatePagination, PaginationAction } from './usePagination';
+import { calculatePagination, PaginationAction, PaginationResult } from './usePagination';
 
 type NumPerPageProp =
   | {
@@ -49,6 +49,9 @@ export type PaginationProps = {
   skipRouting?: boolean;
   totalResults: number;
   dispatch?: Dispatch<PaginationAction>;
+  alwaysShow?: boolean;
+  canNext?: (ctx: PaginationResult) => boolean;
+  canPrev?: (ctx: PaginationResult) => boolean;
 } & NumPerPageProp;
 
 export const Pagination = (props: PaginationProps): ReactElement => {
@@ -65,6 +68,9 @@ export const Pagination = (props: PaginationProps): ReactElement => {
     skipRouting = false,
     totalResults = 0,
     dispatch,
+    alwaysShow,
+    canNext,
+    canPrev,
   } = props;
 
   const router = useRouter();
@@ -74,12 +80,17 @@ export const Pagination = (props: PaginationProps): ReactElement => {
     value: option.toString(),
   }));
 
-  const { page, endIndex, startIndex, nextPage, noNext, noPagination, noPrev, prevPage, totalPages } =
-    calculatePagination({
-      numPerPage,
-      page: pageProp,
-      numFound: totalResults,
-    });
+  const pagination = calculatePagination({
+    numPerPage,
+    page: pageProp,
+    numFound: totalResults,
+  });
+
+  const { page, endIndex, startIndex, nextPage, noPagination, prevPage, totalPages } = pagination;
+
+  // allow override of the normal next/prev checks
+  const noNext = typeof canNext === 'function' ? !canNext(pagination) : pagination.noNext;
+  const noPrev = typeof canPrev === 'function' ? !canPrev(pagination) : pagination.noPrev;
 
   const perPageSelectedValue = useMemo(() => pageOptions.find((o) => parseInt(o.value) === numPerPage), [numPerPage]);
 
@@ -138,7 +149,7 @@ export const Pagination = (props: PaginationProps): ReactElement => {
     [router.pathname, router.asPath, router.query],
   );
 
-  if (noPagination) {
+  if (noPagination && !alwaysShow) {
     return null;
   }
   const formattedTotalResults = totalResults.toLocaleString();
