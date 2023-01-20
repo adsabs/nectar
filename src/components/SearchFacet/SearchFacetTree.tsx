@@ -1,5 +1,4 @@
 import { FacetField, IFacetCountsFields } from '@api';
-import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
@@ -10,10 +9,7 @@ import {
   Collapse,
   Divider,
   Drawer,
-  DrawerBody,
   DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
   DrawerOverlay,
   Flex,
   Icon,
@@ -27,7 +23,7 @@ import {
   Tooltip,
   useDisclosure,
 } from '@chakra-ui/react';
-import { ISearchFacetProps, TextInput } from '@components';
+import { ISearchFacetProps, Toggler } from '@components';
 import { ExclamationCircleIcon } from '@heroicons/react/solid';
 import { kFormatNumber, noop } from '@utils';
 import { head, map, path } from 'ramda';
@@ -43,9 +39,10 @@ import {
 } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { parseTitleFromKey } from './helpers';
+import { SearchFacetModal } from './SearchFacetModal/SearchFacetModal';
 import { FacetTreeStoreProvider, useFacetTreeStore } from './store';
 import { FacetCountTuple, FacetLogic, IFacetParams } from './types';
-import { FACET_DEFAULT_LIMIT, useGetFacetTreeData } from './useGetFacetTreeData';
+import { useGetFacetTreeData } from './useGetFacetTreeData';
 
 export type OnFilterArgs = {
   logic: FacetLogic;
@@ -113,121 +110,64 @@ export const SearchFacetTree = (props: ISearchFacetTreeProps): ReactElement => {
 
   const initialRoots = map(head, treeData) as string[];
 
+  const childProps: Omit<SearchFacetNodeProps, 'node'> = {
+    label,
+    field,
+    property,
+    hasChildren,
+    logic,
+    facetQuery,
+    filter,
+    onFilter,
+    onLoadMore: onMenuOpen,
+    limitChildrenList: canLoadMore,
+  };
+
   return (
     // initialize state, and provide name for logging
     <FacetTreeStoreProvider initialRoots={initialRoots} name={field}>
-      <FacetDrawer onClose={onMenuClose} isOpen={isMenuOpen} treeData={treeData}>
-        {({ onSearchChange, data: filteredTreeData, isFiltered }) => (
-          <>
-            <DrawerHeader borderBottomWidth="1px">{label}</DrawerHeader>
-            <DrawerBody>
-              <Box mb="2">
-                <TextInput label="Search filter results" onChange={onSearchChange} />
-              </Box>
-              <List {...listProps} w="full" data-testid="search-facet-list">
-                {filteredTreeData.map((node) =>
-                  // if the `hasChildren` prop was set, load child tree
-                  hasChildren ? (
-                    <SearchFacetChildNode
-                      label={label}
-                      field={field}
-                      property={property}
-                      hasChildren={hasChildren}
-                      logic={logic}
-                      facetQuery={facetQuery}
-                      filter={filter}
-                      node={node}
-                      key={node[0]}
-                      onFilter={onFilter}
-                      onLoadMore={onMenuOpen}
-                    />
-                  ) : (
-                    // if no children, then it's simple single-level tree, load this single node
-                    <ListItem
-                      w="full"
-                      _hover={{ pointer: 'cursor' }}
-                      key={node[0]}
-                      data-testid="search-facet-item-root"
-                    >
-                      <Text as="span" alignItems="center" display="inline-flex" w="full">
-                        <NodeCheckbox node={node} parent={null} />
-                      </Text>
-                    </ListItem>
-                  ),
-                )}
-              </List>
-              {/* disallow loading more when list is filtered */}
-              {!isFiltered && (
-                <Flex justifyContent="flex-end">
-                  <LoadMoreBtn
-                    show={treeData.length > 0 && canLoadMore && !isError}
-                    onClick={handleLoadMore}
-                    isLoading={isFetching}
-                    my={2}
-                    fontSize="sm"
-                    fontWeight="normal"
-                  />
-                </Flex>
-              )}
-            </DrawerBody>
-            <DrawerFooter backgroundColor="white" justifyContent="center">
-              <LogicArea
-                logic={logic}
-                showDivider={false}
-                onFilter={(args) => {
-                  onMenuClose();
-                  onFilter(args);
-                }}
-                field={field}
-              />
-            </DrawerFooter>
-          </>
-        )}
-      </FacetDrawer>
-
-      <List {...listProps} w="full" data-testid="search-facet-list">
-        {treeData.slice(0, FACET_DEFAULT_LIMIT).map((node) =>
-          // if the `hasChildren` prop was set, load child tree
-          hasChildren ? (
-            <SearchFacetChildNode
-              label={label}
-              field={field}
-              property={property}
-              hasChildren={hasChildren}
-              logic={logic}
-              facetQuery={facetQuery}
-              filter={filter}
-              node={node}
-              key={node[0]}
-              onFilter={onFilter}
-              onLoadMore={onMenuOpen}
-              // canLoadMore is an indicator we will open a menu on this section
-              limitChildrenList={canLoadMore}
+      <SearchFacetModal
+        handleLoadMore={handleLoadMore}
+        canLoadMore={canLoadMore}
+        isFetching={isFetching}
+        isError={isError}
+        onClose={onMenuClose}
+        isOpen={isMenuOpen}
+        treeData={treeData}
+        {...childProps}
+      />
+      {!isMenuOpen ? (
+        <>
+          <List {...listProps} w="full" data-testid="search-facet-list">
+            {treeData.slice(0, 10).map((node) =>
+              // if the `hasChildren` prop was set, load child tree
+              hasChildren ? (
+                <SearchFacetChildNode {...childProps} node={node} key={node[0]} />
+              ) : (
+                // if no children, then it's simple single-level tree, load this single node
+                <ListItem w="full" _hover={{ pointer: 'cursor' }} key={node[0]} data-testid="search-facet-item-root">
+                  <Text as="span" alignItems="center" display="inline-flex" w="full">
+                    <NodeCheckbox node={node} parent={null} />
+                  </Text>
+                </ListItem>
+              ),
+            )}
+          </List>
+          <Flex justifyContent="flex-end">
+            <LoadMoreBtn
+              show={treeData.length > 0 && canLoadMore && !isError}
+              onClick={() => {
+                onMenuOpen();
+              }}
+              isLoading={isFetching}
+              my={2}
+              fontSize="sm"
+              fontWeight="normal"
             />
-          ) : (
-            // if no children, then it's simple single-level tree, load this single node
-            <ListItem w="full" _hover={{ pointer: 'cursor' }} key={node[0]} data-testid="search-facet-item-root">
-              <Text as="span" alignItems="center" display="inline-flex" w="full">
-                <NodeCheckbox node={node} parent={null} />
-              </Text>
-            </ListItem>
-          ),
-        )}
-      </List>
-      <Flex justifyContent="flex-end">
-        <LoadMoreBtn
-          show={treeData.length > 0 && canLoadMore && !isError}
-          onClick={() => {
-            onMenuOpen();
-            handleLoadMore();
-          }}
-          isLoading={isFetching}
-          my={2}
-          fontSize="sm"
-          fontWeight="normal"
-        />
-      </Flex>
-      <LogicArea logic={logic} onFilter={onFilter} field={field} />
+          </Flex>
+          <LogicArea logic={logic} onFilter={onFilter} field={field} />
+        </>
+      ) : null}
     </FacetTreeStoreProvider>
   );
 };
@@ -276,13 +216,13 @@ const FacetDrawer = (props: IFacetDrawerProps) => {
   );
 };
 
-const LogicArea = (props: {
+export const LogicArea = (props: {
   logic: ISearchFacetProps['logic'];
   onFilter: (args: OnFilterArgs) => void;
   field: FacetField;
-  showDivider?: boolean;
+  hideDivider?: boolean;
 }) => {
-  const { logic, field, onFilter, showDivider = true } = props;
+  const { logic, field, onFilter, hideDivider = false } = props;
 
   const selectedKeys = useFacetTreeStore((state) => state.selectedKeys);
   const count = selectedKeys.length;
@@ -301,7 +241,7 @@ const LogicArea = (props: {
     () =>
       map<string, ReactNode>(
         (value) => (
-          <Button key={value} data-value={value} onClick={handleSelect}>
+          <Button key={value} data-value={value} onClick={handleSelect} borderRadius="none">
             {value}
           </Button>
         ),
@@ -312,7 +252,7 @@ const LogicArea = (props: {
 
   return (
     <Collapse in={count > 0}>
-      {showDivider && <Divider my="2" />}
+      {hideDivider ? null : <Divider my="2" />}
       <Flex justifyContent="center">
         <ButtonGroup size="sm" isAttached variant="outline">
           {renderBtns()}
@@ -322,7 +262,7 @@ const LogicArea = (props: {
   );
 };
 
-type SearchFacetNodeProps = ISearchFacetTreeProps & {
+export type SearchFacetNodeProps = ISearchFacetTreeProps & {
   node: FacetCountTuple;
   onLoadMore?: () => void;
   limitChildrenList?: boolean;
@@ -332,14 +272,14 @@ type SearchFacetNodeProps = ISearchFacetTreeProps & {
  * Child Node
  * Renders a child tree, expects to be rendered by a root node.
  */
-const SearchFacetChildNode = (props: SearchFacetNodeProps) => {
-  const { node, field, property, hasChildren, onLoadMore = noop, limitChildrenList } = props;
+export const SearchFacetChildNode = (props: SearchFacetNodeProps) => {
+  const { node, field, property, hasChildren, limitChildrenList } = props;
   const addChildren = useFacetTreeStore((state) => state.addChildren);
   const [key] = node;
   const isExpanded = useFacetTreeStore(useCallback(path<boolean>(['tree', key, 'expanded']), [key]));
 
   // fetches and transforms tree data for children
-  const { treeData, handleLoadMore, canLoadMore, isFetching, isError } = useGetFacetTreeData({
+  const { treeData, isFetching, isError } = useGetFacetTreeData({
     type: 'child',
     field,
     rawPrefix: key,
@@ -351,7 +291,7 @@ const SearchFacetChildNode = (props: SearchFacetNodeProps) => {
   // adding children to our state
   useEffect(() => addChildren(map(head, treeData) as string[]), [treeData]);
 
-  const tData = limitChildrenList ? treeData.slice(0, FACET_DEFAULT_LIMIT) : treeData;
+  const tData = limitChildrenList ? treeData.slice(0, 10) : treeData;
 
   return (
     <ListItem w="full" _hover={{ pointer: 'cursor' }} data-testid="search-facet-item-root">
@@ -381,19 +321,6 @@ const SearchFacetChildNode = (props: SearchFacetNodeProps) => {
             ))}
           </List>
 
-          <LoadMoreBtn
-            show={treeData.length > 0 && canLoadMore}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleLoadMore();
-              onLoadMore();
-            }}
-            isLoading={isFetching}
-            showBottomBorder
-            my={2}
-            fontSize="sm"
-            fontWeight="normal"
-          />
           {isError && (
             <Text color="red" fontSize="xs">
               <Icon as={ExclamationCircleIcon} /> Error loading entries
@@ -405,16 +332,24 @@ const SearchFacetChildNode = (props: SearchFacetNodeProps) => {
   );
 };
 
-const ExpandButton = (props: { node: FacetCountTuple; isExpanded: boolean }) => {
+export const ExpandButton = (props: { node: FacetCountTuple; isExpanded: boolean; onToggled?: () => void }) => {
   const {
     node: [key],
     isExpanded,
+    onToggled = noop,
   } = props;
   const toggleExpand = useFacetTreeStore((state) => state.toggleExpand);
-  const handleExpand = useCallback(() => toggleExpand(key), [key, toggleExpand]);
+  const handleExpand = useCallback(() => {
+    toggleExpand(key);
+    onToggled();
+  }, [key, toggleExpand, onToggled]);
+
   return (
     <ListIcon
-      as={isExpanded ? ChevronDownIcon : ChevronRightIcon}
+      as={Toggler}
+      isToggled={isExpanded}
+      fontSize="2xl"
+      color="gray.400"
       onClick={handleExpand}
       data-testid="search-facet-expand"
     />
@@ -424,7 +359,7 @@ const ExpandButton = (props: { node: FacetCountTuple; isExpanded: boolean }) => 
 /**
  * Load More Button
  */
-const LoadMoreBtn = (
+export const LoadMoreBtn = (
   props: { show: boolean; pullRight?: boolean; showBottomBorder?: boolean; label?: string } & ButtonProps,
 ) => {
   const { show, pullRight, showBottomBorder, label = 'more', ...btnProps } = props;
@@ -444,32 +379,39 @@ const LoadMoreBtn = (
   return null;
 };
 
-/**
- * Reset button
- */
-const ResetBtn = (props: { show?: boolean; label?: string } & Omit<ButtonProps, 'onClick'>) => {
-  const { show = true, label = 'Reset', ...btnProps } = props;
-  const reset = useFacetTreeStore((state) => state.reset);
+// /**
+//  * Reset button
+//  */
+// const ResetBtn = (props: { show?: boolean; label?: string } & Omit<ButtonProps, 'onClick'>) => {
+//   const { show = true, label = 'Reset', ...btnProps } = props;
+//   const reset = useFacetTreeStore((state) => state.reset);
 
-  if (show) {
-    return (
-      <Button size="xs" variant="link" type="button" {...btnProps} onClick={reset}>
-        {label}
-      </Button>
-    );
-  }
-  return null;
-};
+//   if (show) {
+//     return (
+//       <Button size="xs" variant="link" type="button" {...btnProps} onClick={reset}>
+//         {label}
+//       </Button>
+//     );
+//   }
+//   return null;
+// };
 
 /**
  * Simple checkbox
  * Controlled by outer state, does not expose handlers.
  * For accessibility, checkboxes are removed from tab order and operated via keyboard
  */
-const NodeCheckbox = (props: CheckboxProps & { node: FacetCountTuple; parent: string | null }) => {
+export const NodeCheckbox = (
+  props: CheckboxProps & {
+    node: FacetCountTuple;
+    parent: string | null;
+    isFullWidth?: boolean;
+  },
+) => {
   const {
     node: [key, count],
     parent,
+    isFullWidth,
     ...chbxProps
   } = props;
   const isRoot = parent === null;
@@ -509,7 +451,7 @@ const NodeCheckbox = (props: CheckboxProps & { node: FacetCountTuple; parent: st
       name={`${title}_checkbox`}
       aria-label={`select ${title}`}
       sx={{
-        '.chakra-checkbox__label': { width: '100%', maxWidth: '200px' },
+        '.chakra-checkbox__label': { width: '100%', maxWidth: isFullWidth ? 'auto' : '200px' },
       }}
       w="full"
       isChecked={!!isSelected}
@@ -521,11 +463,11 @@ const NodeCheckbox = (props: CheckboxProps & { node: FacetCountTuple; parent: st
     >
       <Text as="span" display="inline-flex" justifyContent="space-between" w="full">
         <Tooltip label={title} placement="right">
-          <Text noOfLines={1} wordBreak="break-word" fontSize="md">
+          <Text noOfLines={1} wordBreak="break-word" color="gray.500" fontSize="md" fontWeight="medium">
             {title}
           </Text>
         </Tooltip>
-        <Text color="gray.800" fontSize="xs">
+        <Text color="gray.400" fontSize="sm" fontWeight="medium">
           {kFormatNumber(count)}
         </Text>
       </Text>
