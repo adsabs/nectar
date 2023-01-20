@@ -110,7 +110,7 @@ export const useGetFacetTreeData = (props: UseGetFacetTreeDataProps) => {
   return { ...result, treeData: state.treeData, handleLoadMore, canLoadMore: state.canLoadMore };
 };
 
-export const FACET_DEFAULT_LIMIT = 10;
+export const FACET_DEFAULT_LIMIT = 100;
 export const FACET_DEFAULT_PREFIX = '0/';
 
 /**
