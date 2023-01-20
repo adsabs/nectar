@@ -85,6 +85,7 @@ const createStore = (initialRoots: string[], name: string) => () => {
 
 const FacetTreeStoreCtx = createContext<IFacetTreeState>();
 export const useFacetTreeStore = FacetTreeStoreCtx.useStore;
+export const useFacetTreeStoreApi = FacetTreeStoreCtx.useStoreApi;
 
 export const FacetTreeStoreProvider: FC<{ initialRoots: string[]; name: string }> = ({
   children,
