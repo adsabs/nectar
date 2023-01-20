@@ -107,7 +107,7 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
   };
 
   return (
-    <ListItem ref={setNodeRef} style={style} my={0}>
+    <ListItem ref={setNodeRef} style={style} my={0} w="64">
       <h2>
         <HStack spacing={0}>
           <Button
@@ -126,9 +126,9 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
             px="0.5"
           >
             <DragHandleIcon mr="1" color="gray.400" fontSize="md" />
-            <Toggler isToggled={isOpen} fontSize="xl" color="gray.600" />
+            <Toggler isToggled={isOpen} fontSize="2xl" color="gray.600" />
             <HStack flex="1" textAlign="left" mx="1">
-              <Text flex="1" fontSize="md" color="gray.600">
+              <Text flex="1" fontSize="md" fontWeight="medium" color="gray.600">
                 {label}
               </Text>
               {hasError && (
@@ -160,7 +160,7 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
       </h2>
       {isOpen && (
         <Box
-          pl="2"
+          pl={10}
           py="1"
           pr="1"
           border={isOpen && 'solid 1px'}
@@ -352,7 +352,7 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
           type="button"
           rightIcon={<Toggler isToggled={showHiddenFacets} />}
           w="fit-content"
-          fontSize="md"
+          fontSize="sm"
           my={2}
         >
           {showHiddenFacets ? 'Hide hidden filters' : 'Show hidden filters'} {`(${hiddenItems.length})`}
