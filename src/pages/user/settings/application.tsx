@@ -1,46 +1,29 @@
-import { Box, Checkbox, CheckboxGroup, FormControl, FormLabel, Stack } from '@chakra-ui/react';
+import {
+  IADSApiUserDataParams,
+  UserDataKeys,
+  useSetUserData,
+  ExternalLinkActionOptions,
+  IADSApiUserDataResponse,
+  MinAuthorsPerResultOptions,
+  DEFAULT_USER_DATA,
+} from '@api';
+import { Box, Checkbox, CheckboxGroup, FormControl, FormLabel, Stack, useToast } from '@chakra-ui/react';
 import { DescriptionCollapse, Select, SelectOption, SettingsLayout } from '@components';
+import { useStore } from '@store';
 import { composeNextGSSP, userGSSP } from '@utils';
+import axios from 'axios';
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
-import { range } from 'ramda';
+import { useEffect, useMemo, useState } from 'react';
 
-const DEFAULT_SETTINGS = {
-  numAuthors: {
-    options: range(1, 11)
-      .map((n) => n.toString())
-      .concat(['all']),
-    value: '4',
-  },
-  externalLinks: {
-    options: ['Auto', 'Open new tab', 'Open in current tab'],
-    value: 'Auto',
-  },
-  database: {
-    value: [
-      {
-        name: 'Physics',
-        value: false,
-      },
-      {
-        name: 'Astronomy',
-        value: false,
-      },
-      {
-        name: 'General',
-        value: false,
-      },
-    ],
-  },
-};
-
+// generate options for select component
 const useGetOptions = () => {
   return {
-    authorsVisibleOptions: DEFAULT_SETTINGS.numAuthors.options.map((v) => ({
+    authorsVisibleOptions: MinAuthorsPerResultOptions.map((v) => ({
       id: v,
       label: v,
       value: v,
     })),
-    externalLinksOptions: DEFAULT_SETTINGS.externalLinks.options.map((v) => ({
+    externalLinksOptions: ExternalLinkActionOptions.map((v) => ({
       id: v,
       label: v,
       value: v,
@@ -69,21 +52,87 @@ const defaultCollectionsDescription = (
 );
 
 const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  // select options
+  const toast = useToast();
+
+  // options for the select dropdown
   const { authorsVisibleOptions, externalLinksOptions } = useGetOptions();
 
-  // initial values
-  // TODO get from server
-  const authorsVisibleValue = authorsVisibleOptions.find((option) => option.id === DEFAULT_SETTINGS.numAuthors.value);
-  const externalLinksValue = externalLinksOptions.find((option) => option.id === DEFAULT_SETTINGS.externalLinks.value);
+  // params used to update user data
+  const [params, setParams] = useState<IADSApiUserDataParams>(null);
+
+  // get user data from store
+  const userData = useStore((state) => state.settings.user);
+
+  // set user data and get back updated user data
+  const { data: updatedData, refetch } = useSetUserData(params, {
+    enabled: false,
+    onSuccess: () => {
+      toast({
+        title: 'Updated',
+        status: 'success',
+        duration: 3000,
+      });
+    },
+    onError: (error) => {
+      const message = axios.isAxiosError(error) ? error.message : error.message ?? 'Unknown error occurred';
+
+      toast({
+        title: 'Error',
+        status: 'error',
+        duration: 3000,
+        description: message,
+      });
+    },
+  });
+
+  // apply set user data when params updated
+  useEffect(() => {
+    if (params) {
+      void refetch();
+    }
+  }, [params]);
+
+  // selected option
+  const authorsVisibleValue = useMemo(() => {
+    const value = userData?.minAuthorsPerResult ?? DEFAULT_USER_DATA.minAuthorsPerResult;
+    return authorsVisibleOptions.find((option) => option.id === value);
+  }, [userData]);
+
+  // selected option
+  const externalLinksValue = useMemo(() => {
+    const value = userData?.externalLinkAction ?? DEFAULT_USER_DATA.externalLinkAction;
+    return externalLinksOptions.find((option) => option.id === value);
+  }, [userData]);
+
+  // selected databases
+  const databasesValue = useMemo(() => {
+    const databases = userData?.defaultDatabase ?? DEFAULT_USER_DATA.defaultDatabase;
+    const selected = databases.filter((d) => d.value === true).map((d) => d.name);
+    return { databases, selected };
+  }, [userData]);
 
   // apply changes
   const handleApplyAuthorsVisible = ({ id }: SelectOption<string>) => {
-    console.log(id);
+    setParams({ [UserDataKeys.MIN_AUTHOR_RESULT]: id });
   };
 
   const handleApplyExternalLinks = ({ id }: SelectOption<string>) => {
-    console.log(id);
+    setParams({ [UserDataKeys.EXTERNAL_LINK_ACTION]: id });
+  };
+
+  const handleApplyDatabases = (names: string[]) => {
+    const newValue = JSON.parse(
+      JSON.stringify(userData.defaultDatabase),
+    ) as IADSApiUserDataResponse[UserDataKeys.DEFAULT_DATABASE];
+    newValue.forEach((v) => {
+      if (names.findIndex((n) => n === v.name) === -1) {
+        v.value = false;
+      } else {
+        v.value = true;
+      }
+    });
+
+    setParams({ [UserDataKeys.DEFAULT_DATABASE]: newValue });
   };
 
   return (
@@ -144,9 +193,9 @@ const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSidePro
                 </FormLabel>
                 {content}
               </Box>
-              <CheckboxGroup>
+              <CheckboxGroup onChange={handleApplyDatabases} value={databasesValue.selected}>
                 <Stack direction="row" id="default-collections">
-                  {DEFAULT_SETTINGS.database.value.map((o) => (
+                  {databasesValue.databases.map((o) => (
                     <Checkbox value={o.name} key={o.name}>
                       {o.name}
                     </Checkbox>

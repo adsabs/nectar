@@ -14,6 +14,12 @@ const useGetMenuItems = () => {
         label: 'Search',
       },
       {
+        id: 'export',
+        href: `${settingsPath}/export`,
+        hrefAs: `${settingsPath}/export`,
+        label: 'Export',
+      },
+      {
         id: 'libraryimport',
         href: `${settingsPath}/libraryimport`,
         hrefAs: `${settingsPath}/libraryimport`,
@@ -30,12 +36,6 @@ const useGetMenuItems = () => {
         href: `${settingsPath}/orcid`,
         hrefAs: `${settingsPath}/orcid`,
         label: 'ORCiD',
-      },
-      {
-        id: 'export',
-        href: `${settingsPath}/export`,
-        hrefAs: `${settingsPath}/export`,
-        label: 'Export',
       },
     ],
     'ACCOUNT SETTINGS': [
