@@ -1,214 +1,271 @@
-import { ExportApiJournalFormat } from '@api';
 import {
-  Button,
+  CustomFormat,
+  DEFAULT_USER_DATA,
+  ExportApiJournalFormat,
+  IADSApiUserDataResponse,
+  UserDataKeys,
+  useSetUserData,
+} from '@api';
+import {
   FormControl,
   FormLabel,
-  Input,
   Stack,
-  Table,
-  TableCaption,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-  Text,
   Box,
+  useToast,
+  Accordion,
+  AccordionButton,
+  AccordionPanel,
+  AccordionItem,
+  AccordionIcon,
 } from '@chakra-ui/react';
 import {
-  AuthorCutoffSlider,
+  absExportFormatDescription,
+  bibtexExportFormatDescription,
+  customFormatDescription,
+  CustomFormatTable,
   DescriptionCollapse,
   ExportFormat,
+  exportFormatDescription,
   exportFormats,
+  journalFormats,
   JournalFormatSelect,
-  KeyFormatInput,
-  MaxAuthorsSlider,
+  journalNameHandlingDescription,
+  KeyFormatInputApply,
+  maxAuthorDescription,
+  NumberSlider,
   Select,
   SettingsLayout,
-  SimpleLink,
 } from '@components';
-import { composeNextGSSP, noop, userGSSP } from '@utils';
+import { useStore, useStoreApi } from '@store';
+import { composeNextGSSP, userGSSP } from '@utils';
+import axios from 'axios';
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import { values } from 'ramda';
-import { useMemo } from 'react';
+import { Reducer, useEffect, useMemo, useReducer } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
-const exportFormatDescription = (
-  <>
-    Select the default export format you would like to use when opening the Export tool. (
-    <strong>default: BibTeX</strong>)
-  </>
-);
+// partial user data params
+// used to update user data
+type UserDataSetterState = Partial<IADSApiUserDataResponse>;
 
-const customFormatDescription = (
-  <>
-    Edit your saved custom formats. Check out our{' '}
-    <SimpleLink href={'/help/actions/export'} newTab display="inline">
-      docs
-    </SimpleLink>{' '}
-    for more information.
-  </>
-);
+// TODO: is it over engineering to use reducer here?
+type UserDataSetterEvent =
+  | { type: 'SET_DEFAULT_EXPORT_FORMAT'; payload: string }
+  | { type: 'ADD_CUSTOM_FORMAT'; payload: { currentFormats: CustomFormat[]; name: string; code: string } }
+  | { type: 'EDIT_CUSTOM_FORMAT'; payload: { currentFormats: CustomFormat[]; id: string; name: string; code: string } }
+  | { type: 'DELETE_CUSTOM_FORMAT'; payload: { currentFormats: CustomFormat[]; id: string } }
+  | { type: 'SET_BIBTEX_KEY_FORMAT'; payload: string }
+  | { type: 'SET_BIBTEX_MAX_AUTHORS'; payload: string }
+  | { type: 'SET_BIBTEX_AUTHORS_CUTOFF'; payload: string }
+  | { type: 'SET_BIBTEX_ABS_KEY_FORMAT'; payload: string }
+  | { type: 'SET_BIBTEX_ABS_MAX_AUTHORS'; payload: string }
+  | { type: 'SET_BIBTEX_ABS_AUTHORS_CUTOFF'; payload: string }
+  | { type: 'SET_JOURNAL_NAME_HANDLING'; payload: string }
+  | { type: 'CLEAR' };
 
-const bibtexExportFormatDescription = (
-  <>
-    Select the default key format when exporting in BibTeX (
-    <SimpleLink href="/help/actions/export" newTab display="inline">
-      Learn More
-    </SimpleLink>
-    )
-    <Table my={2}>
-      <TableCaption>Key format codes and descriptions</TableCaption>
-      <Thead>
-        <Tr>
-          <Th>Code</Th>
-          <Th>Description</Th>
-        </Tr>
-      </Thead>
-      <Tbody>
-        <Tr>
-          <Td>
-            <code>%R</code>
-          </Td>
-          <Td>Bibcode</Td>
-        </Tr>
-        <Tr>
-          <Td>
-            <code>%nH</code>
-          </Td>
-          <Td>
-            Author, where <code>n</code> can be any number
-          </Td>
-        </Tr>
-        <Tr>
-          <Td>
-            <code>%q</code>
-          </Td>
-          <Td>Publication</Td>
-        </Tr>
-        <Tr>
-          <Td>
-            <code>%Y</code>
-          </Td>
-          <Td>Year</Td>
-        </Tr>
-        <Tr>
-          <Td>
-            <code>%zm</code>
-          </Td>
-          <Td>Enumeration</Td>
-        </Tr>
-      </Tbody>
-    </Table>
-    <Text>* Any other text will be passed as raw strings</Text>(<strong>default: None</strong>)
-  </>
-);
+const reducer: Reducer<UserDataSetterState, UserDataSetterEvent> = (state, action) => {
+  switch (action.type) {
+    case 'SET_DEFAULT_EXPORT_FORMAT':
+      return { [UserDataKeys.DEFAULT_EXPORT_FORMAT]: action.payload };
+    case 'ADD_CUSTOM_FORMAT':
+      return {
+        [UserDataKeys.CUSTOM_FORMATS]: [
+          ...action.payload.currentFormats,
+          { id: `format-${uuidv4()}`, name: action.payload.name, code: action.payload.code },
+        ],
+      };
+    case 'EDIT_CUSTOM_FORMAT':
+      const i = action.payload.currentFormats.findIndex((f) => f.id === action.payload.id);
+      return {
+        [UserDataKeys.CUSTOM_FORMATS]: [
+          ...action.payload.currentFormats.slice(0, i),
+          { id: action.payload.id, name: action.payload.name, code: action.payload.code },
+          ...action.payload.currentFormats.slice(i + 1),
+        ],
+      };
+    case 'DELETE_CUSTOM_FORMAT':
+      return {
+        [UserDataKeys.CUSTOM_FORMATS]: action.payload.currentFormats.filter((f) => f.id !== action.payload.id),
+      };
+    case 'SET_BIBTEX_KEY_FORMAT':
+      return { [UserDataKeys.BIBTEXT_FORMAT]: action.payload ?? '' };
+    case 'SET_BIBTEX_MAX_AUTHORS':
+      return { [UserDataKeys.BIBTEXT_MAX_AUTHORS]: action.payload };
+    case 'SET_BIBTEX_AUTHORS_CUTOFF':
+      return { [UserDataKeys.BIBTEX_AUTHOR_CUTOFF]: action.payload };
+    case 'SET_BIBTEX_ABS_KEY_FORMAT':
+      return { [UserDataKeys.ABS_FORMAT]: action.payload ?? '' };
+    case 'SET_BIBTEX_ABS_MAX_AUTHORS':
+      return { [UserDataKeys.ABS_MAX_AUTHORS]: action.payload };
+    case 'SET_BIBTEX_ABS_AUTHORS_CUTOFF':
+      return { [UserDataKeys.ABS_AUTHOR_CUTOFF]: action.payload };
+    case 'SET_JOURNAL_NAME_HANDLING':
+      return { [UserDataKeys.BIBTEX_JOURNAL_FORMAT]: action.payload };
+    case 'CLEAR':
+    default:
+      return {};
+  }
+};
 
-const journalNameHandlingDescription = (
-  <>
-    This setting is used to define how journal names are rendered in the output of the following TeX-based formats:
-    BibTeX, BibTeX ABS, and AASTeX. If journal macros are used (default), the following file contains the proper journal
-    definitions compatible with most Astronomy Journals:{' '}
-    <SimpleLink href={'http://adsabs.harvard.edu/abs_doc/aas_macros.html'} newTab>
-      http://adsabs.harvard.edu/abs_doc/aas_macros.html
-    </SimpleLink>
-    (<strong>default: Use AASTeX macros</strong>)
-  </>
-);
+// TODO: this needs to be better
+const JournalFormatMap: Record<string, ExportApiJournalFormat> = {
+  'Use AASTeX macros': ExportApiJournalFormat.AASTeXMacros,
+  'Use Journal Abbreviations': ExportApiJournalFormat.Abbreviations,
+  'Use Full Journal Name': ExportApiJournalFormat.FullName,
+};
 
-const bibteMaxAuthorsDescription = (
-  <>
-    Select the default max number of authors shown when exporting in BibTeX, where 0 means display all authors. (
-    <strong>default: 10</strong>)
-  </>
-);
-
-const bibteAuthorCutoffDescription = (
-  <>
-    If the number of authors in the list is larger than the cutoff, the list will be truncated to the max number
-    allowed, otherwise all will be shown. (<strong>default: 200</strong>)
-  </>
-);
-
-const absExportFormatDescription = (
-  <>
-    Select the default key format when exporting in BibTeX ABS (
-    <SimpleLink href="/help/actions/export" newTab display="inline">
-      Learn More
-    </SimpleLink>
-    )
-    <Table my={2}>
-      <TableCaption>Key format codes and descriptions</TableCaption>
-      <Thead>
-        <Tr>
-          <Th>Code</Th>
-          <Th>Description</Th>
-        </Tr>
-      </Thead>
-      <Tbody>
-        <Tr>
-          <Td>
-            <code>%R</code>
-          </Td>
-          <Td>Bibcode</Td>
-        </Tr>
-        <Tr>
-          <Td>
-            <code>%nH</code>
-          </Td>
-          <Td>
-            Author, where <code>n</code> can be any number
-          </Td>
-        </Tr>
-        <Tr>
-          <Td>
-            <code>%q</code>
-          </Td>
-          <Td>Publication</Td>
-        </Tr>
-        <Tr>
-          <Td>
-            <code>%Y</code>
-          </Td>
-          <Td>Year</Td>
-        </Tr>
-        <Tr>
-          <Td>
-            <code>%zm</code>
-          </Td>
-          <Td>Enumeration</Td>
-        </Tr>
-      </Tbody>
-    </Table>
-    <Text>* Any other text will be passed as raw strings</Text>(<strong>default: None</strong>)
-  </>
-);
-
-const absMaxAuthorstDescription = (
-  <>
-    Select the default max number of authors shown when exporting in BibTeX ABS (<strong>default: 10</strong>)
-  </>
-);
-
-const absAuthorCutoffDescription = (
-  <>
-    If the number of authors in the list is larger than the cutoff, the list will be truncated to the max number
-    allowed, otherwise all will be shown. (<strong>default: 200</strong>)
-  </>
-);
+// generate options for select component
+const useGetOptions = () => {
+  return {
+    formatOptions: values(exportFormats),
+    journalFormatOptions: values(journalFormats),
+  };
+};
 
 const ExportSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  // TODO: fetch settings
-  // TODO: Change handlers
+  const toast = useToast();
 
-  const formats = useMemo(() => values(exportFormats), []);
+  const setStoreUserData = useStoreApi().getState().setUserSettings;
 
-  const handleApplyDefaultExportFormat = ({ id }: ExportFormat) => {
-    console.log(id);
+  // params used to update user data
+  const [params, dispatch] = useReducer(reducer, {});
+
+  // get user data from store
+  const userData = useStore((state) => state.settings.user);
+
+  // set user data and get back updated user data
+  const { refetch } = useSetUserData(params, {
+    enabled: false,
+    onSuccess: (res) => {
+      setStoreUserData(res); // TODO: Is it the right place for this? Or should this be handled in one place?
+      toast({
+        title: 'Updated',
+        status: 'success',
+        duration: 3000,
+      });
+    },
+    onError: (error) => {
+      const message = axios.isAxiosError(error) ? error.message : error.message ?? 'Unknown error occurred';
+
+      toast({
+        title: 'Error',
+        status: 'error',
+        duration: 3000,
+        description: message,
+      });
+    },
+  });
+
+  const { formatOptions } = useGetOptions();
+
+  // apply set user data when params updated
+  useEffect(() => {
+    if (params && Object.keys(params).length > 0) {
+      void refetch();
+    }
+  }, [params]);
+
+  useEffect(() => dispatch({ type: 'CLEAR' }), []);
+
+  // get selected values for the form
+  const selectedValues = useMemo(() => {
+    const data = userData ?? DEFAULT_USER_DATA;
+    const defaultExportFormatOption = formatOptions.find((option) => option.label === data.defaultExportFormat);
+    const journalFormat = JournalFormatMap[data.bibtexJournalFormat];
+    const bibtexExportKeyFormat = data.bibtexKeyFormat;
+    // not allowing max author to be 'all' now
+    const bibtexMaxAuthor =
+      data.bibtexMaxAuthors === 'All' ? parseInt(DEFAULT_USER_DATA.bibtexMaxAuthors) : parseInt(data.bibtexMaxAuthors);
+    const bibtexAuthorCutoff = parseInt(data.bibtexAuthorCutoff);
+    const bibtexAbsExportKeyFormat = data.bibtexABSKeyFormat;
+    const bibtexAbsMaxAuthor =
+      data.bibtexABSMaxAuthors === 'All'
+        ? parseInt(DEFAULT_USER_DATA.bibtexABSMaxAuthors)
+        : parseInt(data.bibtexABSMaxAuthors);
+    const bibtexAbsAuthorCutoff = parseInt(data.bibtexABSAuthorCutoff);
+
+    return {
+      defaultExportFormatOption,
+      journalFormat,
+      bibtexExportKeyFormat,
+      bibtexMaxAuthor,
+      bibtexAuthorCutoff,
+      bibtexAbsExportKeyFormat,
+      bibtexAbsMaxAuthor,
+      bibtexAbsAuthorCutoff,
+    };
+  }, [userData, formatOptions]);
+
+  /** apply changes */
+
+  // default export format
+  const handleApplyDefaultExportFormat = (format: ExportFormat) => {
+    dispatch({ type: 'SET_DEFAULT_EXPORT_FORMAT', payload: format.label });
+  };
+
+  // custom formats handlers
+  const handleEditCustomFormat = (id: string, name: string, code: string) => {
+    dispatch({
+      type: 'EDIT_CUSTOM_FORMAT',
+      payload: { currentFormats: userData.customFormats, id, name, code },
+    });
+  };
+
+  // delete cutom format
+  const handleDeleteCustomFormat = (id: string) => {
+    dispatch({
+      type: 'DELETE_CUSTOM_FORMAT',
+      payload: { currentFormats: userData.customFormats, id },
+    });
+  };
+
+  // add custom format
+  const handleAddCustomFormat = (name: string, code: string) => {
+    dispatch({
+      type: 'ADD_CUSTOM_FORMAT',
+      payload: { currentFormats: userData.customFormats, name, code },
+    });
+  };
+
+  // TeX Journal Name Handling
+  const handleApplyJournalNameHandling = (format: ExportApiJournalFormat) => {
+    const formatName = Object.entries(JournalFormatMap).find(([key, value]) => value === format)[0];
+    dispatch({ type: 'SET_JOURNAL_NAME_HANDLING', payload: formatName });
+  };
+
+  // default export key format
+  const handleApplyBibtexExportKeyFormat = (format: string) => {
+    dispatch({ type: 'SET_BIBTEX_KEY_FORMAT', payload: format });
+  };
+
+  // Bibtex max authors
+  const handleApplyBibtexMaxAuthors = (value: number) => {
+    dispatch({ type: 'SET_BIBTEX_MAX_AUTHORS', payload: value.toString() });
+  };
+
+  // Bibtex author cutoff
+  const handleApplyBibtexAuthorCutoff = (value: number) => {
+    dispatch({ type: 'SET_BIBTEX_AUTHORS_CUTOFF', payload: value.toString() });
+  };
+
+  // default export key format
+  const handleApplyBibtexAbsExportKeyFormat = (format: string) => {
+    dispatch({ type: 'SET_BIBTEX_ABS_KEY_FORMAT', payload: format });
+  };
+
+  // Bibtex max authors
+  const handleApplyBibtexAbsMaxAuthors = (value: number) => {
+    dispatch({ type: 'SET_BIBTEX_ABS_MAX_AUTHORS', payload: value.toString() });
+  };
+
+  // Bibtex author cutoff
+  const handleApplyBibtexAbsAuthorCutoff = (value: number) => {
+    dispatch({ type: 'SET_BIBTEX_ABS_AUTHORS_CUTOFF', payload: value.toString() });
   };
 
   return (
     <SettingsLayout title="Export Settings">
-      <Stack direction="column" spacing={5}>
+      <Stack direction="column" spacing={5} p={5} my={5} boxShadow="md">
         <DescriptionCollapse body={exportFormatDescription} label="Default Export Format">
           {({ btn, content }) => (
             <FormControl>
@@ -224,8 +281,8 @@ const ExportSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSide
                 }
                 hideLabel={false}
                 id="default-export-format-selector"
-                options={formats}
-                value={exportFormats.bibtex}
+                options={formatOptions}
+                value={selectedValues.defaultExportFormatOption}
                 onChange={handleApplyDefaultExportFormat}
                 stylesTheme="default"
               />
@@ -241,59 +298,89 @@ const ExportSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSide
                 </FormLabel>
                 {content}
               </Box>
-              <Button size="md">Add</Button>
+              <CustomFormatTable
+                customFormats={userData?.customFormats}
+                onAdd={handleAddCustomFormat}
+                onModify={handleEditCustomFormat}
+                onDelete={handleDeleteCustomFormat}
+              />
             </FormControl>
           )}
         </DescriptionCollapse>
-        <DescriptionCollapse body={bibtexExportFormatDescription} label="BibTeX Default Export Key Format">
-          {({ btn, content }) => (
-            <FormControl>
-              <Box mb="2">
-                <FormLabel htmlFor="bibtex-export-format" fontSize={['sm', 'md']}>
-                  {'BibTeX Default Export Key Format'} {btn}
-                </FormLabel>
-                {content}
-              </Box>
-              <Input placeholder="%1H:%Y:%q" size="md" id="bibtex-export-format" />
-            </FormControl>
-          )}
-        </DescriptionCollapse>
+      </Stack>
+      <Stack direction="column" spacing={5} p={5} my={5} boxShadow="md">
         <JournalFormatSelect
-          journalformat={[ExportApiJournalFormat.AASTeXMacros]}
-          dispatch={noop}
+          journalformat={[selectedValues.journalFormat]}
+          onChange={handleApplyJournalNameHandling}
           label="TeX Journal Name Handling"
           description={journalNameHandlingDescription}
         />
-        <MaxAuthorsSlider
-          maxauthor={[10]}
-          dispatch={noop}
-          label="BibTeX Default Export Max Authors"
-          description={bibteMaxAuthorsDescription}
+        <KeyFormatInputApply
+          format={selectedValues.bibtexExportKeyFormat}
+          description={bibtexExportFormatDescription}
+          label="BibTeX Default Export Key Format"
+          onApply={handleApplyBibtexExportKeyFormat}
         />
-        <AuthorCutoffSlider
-          authorcutoff={[10]}
-          dispatch={noop}
-          label="BibTeX Default Author Cutoff"
-          description={bibteAuthorCutoffDescription}
-        />
-        <KeyFormatInput
-          keyformat={['']}
-          dispatch={noop}
+        <Accordion allowToggle>
+          <AccordionItem border="none">
+            <AccordionButton pl={0} _hover={{ backgroundColor: 'transparent' }}>
+              <Box fontWeight="bold">BibTeX Default Export Max Author (Advanced)</Box>
+              <AccordionIcon />
+            </AccordionButton>
+            <AccordionPanel>
+              {maxAuthorDescription}
+              <Stack direction="column" p={5}>
+                <NumberSlider
+                  min={1}
+                  max={500}
+                  value={selectedValues.bibtexAuthorCutoff}
+                  onChange={handleApplyBibtexAuthorCutoff}
+                  label="Author Cutoff"
+                />
+                <NumberSlider
+                  min={1}
+                  max={500}
+                  value={selectedValues.bibtexMaxAuthor}
+                  onChange={handleApplyBibtexMaxAuthors}
+                  label="Max Authors"
+                />
+              </Stack>
+            </AccordionPanel>
+          </AccordionItem>
+        </Accordion>
+        <KeyFormatInputApply
+          format={selectedValues.bibtexAbsExportKeyFormat}
           label="BibTeX ABS Default Export Key Format"
           description={absExportFormatDescription}
+          onApply={handleApplyBibtexAbsExportKeyFormat}
         />
-        <MaxAuthorsSlider
-          maxauthor={[10]}
-          dispatch={noop}
-          label="BibTeX ABS Default Export Max Authors"
-          description={absMaxAuthorstDescription}
-        />
-        <AuthorCutoffSlider
-          authorcutoff={[10]}
-          dispatch={noop}
-          label="BibTeX ABS Default Author Cutoff"
-          description={absAuthorCutoffDescription}
-        />
+        <Accordion allowToggle>
+          <AccordionItem border="none">
+            <AccordionButton pl={0} _hover={{ backgroundColor: 'transparent' }}>
+              <Box fontWeight="bold">BibTeX Default Export Max Author (Advanced)</Box>
+              <AccordionIcon />
+            </AccordionButton>
+            <AccordionPanel>
+              {maxAuthorDescription}
+              <Stack direction="column" p={5}>
+                <NumberSlider
+                  min={1}
+                  max={500}
+                  value={selectedValues.bibtexAbsAuthorCutoff}
+                  onChange={handleApplyBibtexAbsAuthorCutoff}
+                  label="Author Cutoff"
+                />
+                <NumberSlider
+                  min={1}
+                  max={500}
+                  value={selectedValues.bibtexAbsMaxAuthor}
+                  onChange={handleApplyBibtexAbsMaxAuthors}
+                  label="Max Authors"
+                />
+              </Stack>
+            </AccordionPanel>
+          </AccordionItem>
+        </Accordion>
       </Stack>
     </SettingsLayout>
   );

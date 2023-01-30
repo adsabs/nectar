@@ -1,3 +1,4 @@
+import { IADSApiUserDataResponse } from '@api';
 import { SearchFacetID } from '@components/SearchFacet/types';
 import { StoreSlice } from '@store';
 import { Theme } from '@types';
@@ -11,7 +12,8 @@ export interface IAppStateSettingsSlice {
       open: boolean;
       ignored: SearchFacetID[];
     };
-    user: Record<string, unknown>;
+    // user: Record<string, unknown>;
+    user: Partial<IADSApiUserDataResponse>;
   };
 
   // search facets
@@ -27,7 +29,7 @@ export interface IAppStateSettingsSlice {
   setIgnoredSearchFacets: (ignored: SearchFacetID[]) => void;
 
   // user settings
-  setUserSettings: (userSettings: Record<string, unknown>) => void;
+  setUserSettings: (userSettings: Partial<IADSApiUserDataResponse>) => void;
   resetUserSettings: () => void;
 }
 
@@ -222,4 +224,5 @@ export const settingsSlice: StoreSlice<IAppStateSettingsSlice> = (set, get) => (
     set((state) => ({ settings: { ...state.settings, user } }), false, 'settings/setUserSettings'),
   resetUserSettings: () =>
     set((state) => ({ settings: { ...state.settings, user: null } }), false, 'settings/resetUser'),
+  getUserSettings: () => get().settings.user,
 });

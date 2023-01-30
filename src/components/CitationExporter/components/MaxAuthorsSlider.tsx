@@ -17,7 +17,7 @@ export const MaxAuthorsSlider = (props: {
   const [debouncedValue] = useDebounce(value, 300);
 
   useEffect(() => {
-    dispatch({ type: 'SET_MAX_AUTHOR', payload: debouncedValue });
+      dispatch({ type: 'SET_MAX_AUTHOR', payload: debouncedValue });
   }, [debouncedValue]);
 
   const handleChange = (val: number[]) => setValue(val[0]);

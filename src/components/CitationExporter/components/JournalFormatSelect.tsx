@@ -8,7 +8,7 @@ import { DescriptionCollapse } from './DescriptionCollapse';
 
 type JournalFormatOption = SelectOption<ExportApiJournalFormat>;
 
-const journalFormats: Record<ExportApiJournalFormat, JournalFormatOption> = {
+export const journalFormats: Record<ExportApiJournalFormat, JournalFormatOption> = {
   [ExportApiJournalFormat.AASTeXMacros]: {
     id: ExportApiJournalFormat.AASTeXMacros,
     label: 'AASTeX Macros',
@@ -31,15 +31,21 @@ const journalFormats: Record<ExportApiJournalFormat, JournalFormatOption> = {
 
 export const JournalFormatSelect = (props: {
   journalformat: IExportApiParams['journalformat'];
-  dispatch: Dispatch<CitationExporterEvent>;
+  dispatch?: Dispatch<CitationExporterEvent>;
+  onChange?: (format: ExportApiJournalFormat) => void;
   label?: string;
   description?: ReactElement;
 }) => {
-  const { journalformat: [journalformat] = [], dispatch } = props;
+  const { journalformat: [journalformat] = [], dispatch, onChange } = props;
   const formats = useMemo(() => values(journalFormats), []);
 
   const handleOnChange = ({ id }: JournalFormatOption) => {
-    dispatch({ type: 'SET_JOURNAL_FORMAT', payload: id });
+    if (typeof dispatch === 'function') {
+      dispatch({ type: 'SET_JOURNAL_FORMAT', payload: id });
+    }
+    if (typeof onChange === 'function') {
+      onChange(id);
+    }
   };
 
   return (

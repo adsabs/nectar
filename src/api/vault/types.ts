@@ -33,11 +33,12 @@ export const MinAuthorsPerResultOptions = range(1, 11)
   .concat(['all']);
 export const ExternalLinkActionOptions = ['Auto', 'Open new tab', 'Open in current tab'];
 export const Databases = ['Physics', 'Astronomy', 'General'];
+export type CustomFormat = { id: string; code: string; name: string };
 
 export interface IADSApiUserDataResponse {
   [UserDataKeys.HOMEPAGE]: string;
   [UserDataKeys.LINK_SERVER]: string;
-  [UserDataKeys.CUSTOM_FORMATS]: [];
+  [UserDataKeys.CUSTOM_FORMATS]: CustomFormat[];
   [UserDataKeys.BIBTEXT_FORMAT]: string;
   [UserDataKeys.DEFAULT_DATABASE]: { name: typeof Databases[number]; value: boolean }[];
   [UserDataKeys.BIBTEXT_MAX_AUTHORS]: string;
