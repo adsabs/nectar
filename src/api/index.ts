@@ -4,6 +4,7 @@ export * from './export';
 export * from './graphics';
 export * from './metrics';
 export * from './models';
+export * from './recaptcha';
 export * from './reference';
 export * from './search';
 export * from './types';
