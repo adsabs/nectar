@@ -1,4 +1,4 @@
-import { useSession } from '@hooks/useSession';
+import { useSession } from '@hooks/auth';
 import { isBrowser } from '@utils';
 import { useRouter } from 'next/router';
 import { MouseEvent, ReactElement } from 'react';

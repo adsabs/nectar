@@ -3,9 +3,9 @@ import { APP_STORAGE_KEY, updateAppUser } from '@store';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { isPast, parseISO } from 'date-fns';
 import { identity, isNil, pick } from 'ramda';
-import { IBootstrapPayload } from './accounts';
 import { defaultRequestConfig } from './config';
 import { ApiTargets } from './models';
+import { IBootstrapPayload } from './user';
 
 export const isUserData = (userData?: IUserData): userData is IUserData => {
   return (
