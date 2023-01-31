@@ -1,4 +1,4 @@
-import { IUserRegistrationCredentials } from '@api';
+import { IUserChangePasswordCredentials } from '@api';
 import {
   Alert,
   AlertDescription,
@@ -16,36 +16,27 @@ import {
   useBoolean,
 } from '@chakra-ui/react';
 import { SimpleLink } from '@components';
-import { useSession } from '@hooks/auth';
 import { getDefaultReducer } from '@hooks/auth/model';
 import { IAuthForm } from '@hooks/auth/types';
-import { useRegister } from '@hooks/auth/useRegister';
-import { useRecaptcha } from '@hooks/useRecaptcha';
-import { NextPage } from 'next';
+import { useChangePassword } from '@hooks/auth/useChangePassword';
+import { composeNextGSSP, userGSSP } from '@utils';
+import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
 import { FormEventHandler, useCallback, useReducer, useRef, useState } from 'react';
-import ReCAPTCHA from 'react-google-recaptcha';
 
-export { userGSSP as getServerSideProps } from '@utils';
-
-const initialState: IAuthForm<IUserRegistrationCredentials> = {
-  params: { email: '', password: '', confirmPassword: '', recaptcha: null },
+const initialState: IAuthForm<IUserChangePasswordCredentials> = {
+  params: { currentPassword: '', password: '', confirmPassword: '' },
   status: 'idle',
   error: null,
 };
 const defaultFormReducer = getDefaultReducer(initialState);
 
-const Register: NextPage = () => {
-  const router = useRouter();
+const ChangePassword: NextPage = () => {
   const [state, dispatch] = useReducer(defaultFormReducer, initialState);
 
   // form state
   const [formError, setFormError] = useState<string>(null);
   const [showPassword, setShowPassword] = useBoolean(false);
-
-  // registration handling
-  const { isAuthenticated } = useSession();
 
   // refs
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -92,44 +83,32 @@ const Register: NextPage = () => {
     dispatch({ type: 'submit' });
   };
 
-  const { getRecaptchaProps } = useRecaptcha({
-    onExecute: (recaptcha) => dispatch({ type: 'setRecaptcha', recaptcha }),
-    onError: (error) => dispatch({ type: 'setError', error }),
-  });
-
-  useRegister(state.params, {
+  useChangePassword(state.params, {
     onError: ({ error }) => dispatch({ type: 'setError', error }),
     enabled: state.status === 'submitting',
   });
 
-  // if already authenticated, redirect immediately
-  if (isAuthenticated) {
-    void router.push('/', null, { shallow: false });
-    return null;
-  }
-
   return (
     <div>
       <Head>
-        <title>NASA Science Explorer - Register</title>
+        <title>NASA Science Explorer - Change Password</title>
       </Head>
 
       <Container display="flex" flexDirection="column" py="24">
-        <Heading alignSelf="center">Register Account</Heading>
+        <Heading alignSelf="center">Change Password</Heading>
         <form onSubmit={handleSubmit}>
-          <ReCAPTCHA {...getRecaptchaProps()} />
-          <Stack direction="column" spacing={4}>
+          <Stack direction="column" spacing={4} my={2}>
             <FormControl isRequired>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>Current Password</FormLabel>
               <Input
                 autoFocus
-                type="email"
+                type={showPassword ? 'text' : 'password'}
                 required
-                placeholder="email@example.com"
-                name="email"
-                id="email"
-                onChange={(e) => dispatch({ type: 'setEmail', email: e.currentTarget.value })}
-                value={state.params.email}
+                placeholder="********"
+                name="currentpassword"
+                id="currentpassword"
+                onChange={(e) => dispatch({ type: 'setCurrentPassword', currentPassword: e.currentTarget.value })}
+                value={state.params.currentPassword}
               />
             </FormControl>
             <FormControl isRequired>
@@ -196,4 +175,20 @@ const Register: NextPage = () => {
   );
 };
 
-export default Register;
+export default ChangePassword;
+
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
+  if (!ctx.req.session.isAuthenticated) {
+    return Promise.resolve({
+      redirect: {
+        destination: `/user/account/login?redirectUri=${encodeURIComponent(ctx.req.url)}`,
+        permanent: false,
+      },
+      props: {},
+    });
+  }
+
+  return Promise.resolve({
+    props: {},
+  });
+}, userGSSP);

@@ -1,3 +1,4 @@
+import { IUserCredentials } from '@api';
 import {
   Alert,
   AlertDescription,
@@ -9,33 +10,46 @@ import {
   FormLabel,
   Heading,
   Input,
+  InputGroup,
+  InputRightElement,
   Stack,
+  useBoolean,
 } from '@chakra-ui/react';
 import { SimpleLink } from '@components';
-import { useSession } from '@hooks/useSession';
+import { useSession } from '@hooks/auth';
+import { getDefaultReducer } from '@hooks/auth/model';
+import { IAuthForm } from '@hooks/auth/types';
+import { useLogin } from '@hooks/auth/useLogin';
 import { NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { FormEvent, useCallback, useState } from 'react';
+import { FormEventHandler, useReducer } from 'react';
+
 export { userGSSP as getServerSideProps } from '@utils';
+
+const initialState: IAuthForm<IUserCredentials> = {
+  error: null,
+  params: { email: '', password: '' },
+  status: 'idle',
+};
+
+const defaultFormReducer = getDefaultReducer(initialState);
 
 const Login: NextPage = () => {
   const router = useRouter();
-  const { login, isAuthenticated } = useSession();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string>(null);
+  const { isAuthenticated } = useSession();
+  const [showPassword, setShowPassword] = useBoolean(false);
 
-  const handleSubmit = useCallback(
-    async (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      const result = await login({ email, password });
-      if (result.error) {
-        setError(result.error);
-      }
-    },
-    [login, email, password],
-  );
+  const [state, dispatch] = useReducer(defaultFormReducer, initialState);
+  useLogin(state.params, {
+    enabled: state.status === 'submitting',
+    onError: ({ error }) => dispatch({ type: 'setError', error }),
+  });
+
+  const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
+    e.preventDefault();
+    dispatch({ type: 'submit' });
+  };
 
   // if already authenticated, redirect immediately
   if (isAuthenticated) {
@@ -44,54 +58,67 @@ const Login: NextPage = () => {
   }
 
   return (
-    <div>
+    <>
       <Head>
         <title>NASA Science Explorer - Login</title>
       </Head>
 
       <Container display="flex" flexDirection="column" py="24">
         <Heading alignSelf="center">Welcome!</Heading>
-        <form onSubmit={(e) => void handleSubmit(e)}>
+        <form onSubmit={handleSubmit}>
           <Stack direction="column" spacing={4}>
-            <FormControl>
+            <FormControl isRequired>
               <FormLabel>Email</FormLabel>
               <Input
                 type="text"
                 placeholder="email@example.com"
                 name="email"
                 id="email"
-                onChange={(e) => setEmail(e.currentTarget.value)}
-                value={email}
+                onChange={(e) => dispatch({ type: 'setEmail', email: e.currentTarget.value })}
+                value={state.params.email}
+                required
                 autoFocus
               />
               <FormErrorMessage>Error message</FormErrorMessage>
             </FormControl>
-            <FormControl>
+            <FormControl isRequired>
               <FormLabel>Password</FormLabel>
-              <Input
-                type="password"
-                placeholder="********"
-                name="password"
-                id="password"
-                onChange={(e) => setPassword(e.currentTarget.value)}
-                value={password}
-              />
+              <InputGroup>
+                <Input
+                  placeholder="********"
+                  name="password"
+                  id="password"
+                  onChange={(e) => dispatch({ type: 'setPassword', password: e.currentTarget.value })}
+                  value={state.params.password}
+                  pr="4.5rem"
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                />
+                <InputRightElement>
+                  <Button h="6" size="sm" mr="2" onClick={setShowPassword.toggle} variant="ghost">
+                    {showPassword ? 'Hide' : 'Show'}
+                  </Button>
+                </InputRightElement>
+              </InputGroup>
               <FormErrorMessage>Error message</FormErrorMessage>
             </FormControl>
-            <Button type="submit">Login with email</Button>
+            <SimpleLink href="/user/account/forgotpassword">Forgot password?</SimpleLink>
+            <Button type="submit" isLoading={state.status === 'submitting'}>
+              Login with email
+            </Button>
             <SimpleLink alignSelf="center" href="/user/account/register">
               Register
             </SimpleLink>
-            {error && (
+            {state.status === 'error' && (
               <Alert status="error">
-                <AlertTitle>Unable to login user</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
+                <AlertTitle>Unable to complete request</AlertTitle>
+                <AlertDescription>{state.error}</AlertDescription>
               </Alert>
             )}
           </Stack>
         </form>
       </Container>
-    </div>
+    </>
   );
 };
 
