@@ -3,7 +3,7 @@ import { Alert, AlertDescription, AlertTitle, Container } from '@chakra-ui/react
 import { composeNextGSSP, userGSSP } from '@utils';
 import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { isNonEmptyString } from 'ramda-adjunct';
+import { isEmptyString } from 'ramda-adjunct';
 import { useEffect } from 'react';
 
 const TIMEOUT = 3000;
@@ -26,11 +26,12 @@ const VerifyPassword: NextPage<InferGetServerSidePropsType<typeof getServerSideP
 
 export default VerifyPassword;
 
+const goHome = { redirect: { destination: '/', permanent: false }, props: {} };
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
   const { id } = ctx.params;
 
-  if (isNonEmptyString(id?.[0])) {
-    // redirect or something
+  if (isEmptyString(id?.[0])) {
+    return goHome;
   }
 
   try {
@@ -41,12 +42,6 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
       },
     };
   } catch (e) {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-      props: {},
-    };
+    return goHome;
   }
 }, userGSSP);

@@ -24,22 +24,6 @@ export interface IBasicAccountsErrorResponse {
   error: string;
 }
 
-export interface IRegisterResponse {
-  message: string;
-}
-
-export interface ILoginResponse {
-  message: string;
-}
-
-export interface ILoginErrorResponse {
-  error: string;
-}
-
-export interface IRegisterErrorResponse {
-  error: string;
-}
-
 export interface ICSRFResponse {
   csrf: string;
 }
@@ -59,3 +43,42 @@ export interface IBootstrapPayload {
 }
 
 export type IUserData = Pick<IBootstrapPayload, 'username' | 'anonymous' | 'access_token' | 'expire_in'>;
+
+export interface IUserForgotPasswordCredentials {
+  email: string;
+  recaptcha: string;
+}
+
+export interface IUserCredentials {
+  email: string;
+  password: string;
+}
+
+export interface IUserRegistrationCredentials {
+  email: string;
+  password: string;
+  confirmPassword: string;
+  recaptcha: string;
+}
+
+export interface IAuthLoginResponse {
+  success: boolean;
+  user?: IUserData;
+  error?: string;
+}
+
+export interface IUserForgotPasswordCredentials {
+  email: string;
+  recaptcha: string;
+}
+
+export interface IUserChangePasswordCredentials {
+  currentPassword: string;
+  password: string;
+  confirmPassword: string;
+}
+
+export interface IUserChangeEmailCredentials {
+  email: string;
+  password: string;
+}

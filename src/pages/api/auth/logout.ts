@@ -1,5 +1,5 @@
 import { isUserData, IUserData } from '@api';
-import { logoutUser } from '@hooks/useSession/helpers';
+import { logoutUser } from '@auth-utils';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 interface Output {
