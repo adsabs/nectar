@@ -1,6 +1,5 @@
-import { isAuthenticated, isUserData, IUserData } from '@api';
-import { authenticateUser } from '@hooks/useSession/helpers';
-import { IUserCredentials } from '@hooks/useSession/types';
+import { isAuthenticated, isUserData, IUserCredentials, IUserData } from '@api';
+import { authenticateUser } from '@auth-utils';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { z } from 'zod';
 
