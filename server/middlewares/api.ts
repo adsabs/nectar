@@ -2,9 +2,9 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { isPast, parseISO } from 'date-fns';
 import { RequestHandler as Middleware } from 'express';
 import { isNil, path } from 'ramda';
-import { IBootstrapPayload, IUserData } from '../../src/api/accounts/types';
 import { getDynamicConfig } from '../../src/api/config';
 import { ApiTargets } from '../../src/api/models';
+import { IBootstrapPayload, IUserData } from '../../src/api/user/types';
 
 const isUserData = (userData?: IUserData): userData is IUserData => {
   return (
