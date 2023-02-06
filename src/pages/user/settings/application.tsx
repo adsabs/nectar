@@ -4,7 +4,6 @@ import {
   useSetUserData,
   ExternalLinkActionOptions,
   IADSApiUserDataResponse,
-  MinAuthorsPerResultOptions,
   DEFAULT_USER_DATA,
 } from '@api';
 import { Box, Checkbox, CheckboxGroup, FormControl, FormLabel, Stack, useToast } from '@chakra-ui/react';
@@ -13,6 +12,7 @@ import {
   defaultActionExternalLinksDescription,
   defaultCollectionsDescription,
   DescriptionCollapse,
+  NumberSlider,
   Select,
   SelectOption,
   SettingsLayout,
@@ -26,11 +26,6 @@ import { useEffect, useMemo, useState } from 'react';
 // generate options for select component
 const useGetOptions = () => {
   return {
-    authorsVisibleOptions: MinAuthorsPerResultOptions.map((v) => ({
-      id: v,
-      label: v,
-      value: v,
-    })),
     externalLinksOptions: ExternalLinkActionOptions.map((v) => ({
       id: v,
       label: v,
@@ -43,10 +38,10 @@ const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSidePro
   const toast = useToast();
 
   // options for the select dropdown
-  const { authorsVisibleOptions, externalLinksOptions } = useGetOptions();
+  const { externalLinksOptions } = useGetOptions();
 
   // params used to update user data
-  const [params, setParams] = useState<IADSApiUserDataParams>(null);
+  const [params, setParams] = useState<IADSApiUserDataParams>({});
 
   // get user data from store
   const userData = useStore((state) => state.settings.user);
@@ -76,35 +71,35 @@ const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSidePro
     },
   });
 
+  // prevent an unnecessary set param initally when slider is updated to the fetched value
+  useEffect(() => setParams({}), []);
+
   // apply set user data when params updated
   useEffect(() => {
-    if (params) {
+    if (params && Object.keys(params).length > 0) {
       void refetch();
     }
   }, [params]);
 
-  // selected option
-  const authorsVisibleValue = useMemo(() => {
-    const value = userData?.minAuthorsPerResult ?? DEFAULT_USER_DATA.minAuthorsPerResult;
-    return authorsVisibleOptions.find((option) => option.id === value);
-  }, [userData]);
+  const selectedValues = useMemo(() => {
+    const data = userData ?? DEFAULT_USER_DATA;
+    const authorsVisible = parseInt(data.minAuthorsPerResult);
+    const externalLinksAction = externalLinksOptions.find((option) => option.id === data.externalLinkAction);
+    const databases = {
+      databases: data.defaultDatabase ?? [],
+      selected: data.defaultDatabase?.filter((d) => d.value === true).map((d) => d.name) ?? [],
+    };
 
-  // selected option
-  const externalLinksValue = useMemo(() => {
-    const value = userData?.externalLinkAction ?? DEFAULT_USER_DATA.externalLinkAction;
-    return externalLinksOptions.find((option) => option.id === value);
-  }, [userData]);
-
-  // selected databases
-  const databasesValue = useMemo(() => {
-    const databases = userData?.defaultDatabase ?? DEFAULT_USER_DATA.defaultDatabase;
-    const selected = databases.filter((d) => d.value === true).map((d) => d.name);
-    return { databases, selected };
-  }, [userData]);
+    return {
+      authorsVisible,
+      externalLinksAction,
+      databases,
+    };
+  }, [userData, externalLinksOptions]);
 
   // apply changes
-  const handleApplyAuthorsVisible = ({ id }: SelectOption<string>) => {
-    setParams({ [UserDataKeys.MIN_AUTHOR_RESULT]: id });
+  const handleApplyAuthorsVisible = (n: number) => {
+    setParams({ [UserDataKeys.MIN_AUTHOR_RESULT]: n.toString() });
   };
 
   const handleApplyExternalLinks = ({ id }: SelectOption<string>) => {
@@ -129,34 +124,19 @@ const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSidePro
   return (
     <SettingsLayout title="Search Settings">
       <Stack direction="column" spacing={5}>
-        <DescriptionCollapse body={authorsPerResultsDescription} label="Authors Visible per Result">
+        <NumberSlider
+          min={1}
+          max={10}
+          value={selectedValues.authorsVisible}
+          description={authorsPerResultsDescription}
+          label="Authors Visible per Result"
+          onChange={handleApplyAuthorsVisible}
+        />
+        <DescriptionCollapse body={defaultActionExternalLinksDescription} label="Default Action for External Links">
           {({ btn, content }) => (
             <FormControl>
               <Select<SelectOption<string>>
-                value={authorsVisibleValue}
-                options={authorsVisibleOptions}
-                stylesTheme="default"
-                onChange={handleApplyAuthorsVisible}
-                label={
-                  <Box mb="2">
-                    <FormLabel htmlFor="authors-per-result-selector" fontSize={['sm', 'md']}>
-                      {'Authors Visible per Result'} {btn}
-                    </FormLabel>
-                    {content}
-                  </Box>
-                }
-                id="authors-per-result-selector"
-                instanceId="authors-per-result-selector-instance"
-                hideLabel={false}
-              />
-            </FormControl>
-          )}
-        </DescriptionCollapse>
-        <DescriptionCollapse body={defaultActionExternalLinksDescription} label="Authors Visible per Result">
-          {({ btn, content }) => (
-            <FormControl>
-              <Select<SelectOption<string>>
-                value={externalLinksValue}
+                value={selectedValues.externalLinksAction}
                 options={externalLinksOptions}
                 stylesTheme="default"
                 onChange={handleApplyExternalLinks}
@@ -184,9 +164,9 @@ const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSidePro
                 </FormLabel>
                 {content}
               </Box>
-              <CheckboxGroup onChange={handleApplyDatabases} value={databasesValue.selected}>
+              <CheckboxGroup onChange={handleApplyDatabases} value={selectedValues.databases.selected}>
                 <Stack direction="row" id="default-collections">
-                  {databasesValue.databases.map((o) => (
+                  {selectedValues.databases.databases.map((o) => (
                     <Checkbox value={o.name} key={o.name}>
                       {o.name}
                     </Checkbox>

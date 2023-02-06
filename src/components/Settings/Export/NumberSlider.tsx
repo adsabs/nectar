@@ -1,6 +1,6 @@
 import { FormControl, FormLabel } from '@chakra-ui/react';
-import { Slider } from '@components';
-import { useState, useEffect } from 'react';
+import { DescriptionCollapse, Slider } from '@components';
+import { useState, useEffect, ReactElement } from 'react';
 import { useDebounce } from 'use-debounce';
 
 export const NumberSlider = (props: {
@@ -9,8 +9,9 @@ export const NumberSlider = (props: {
   value: number;
   onChange?: (value: number) => void;
   label?: string;
+  description?: ReactElement;
 }) => {
-  const { value, onChange, label, min, max } = props;
+  const { value, onChange, label, min, max, description } = props;
   const [userValue, setUserValue] = useState(value);
   const [debouncedValue] = useDebounce(userValue, 300);
 
@@ -21,19 +22,32 @@ export const NumberSlider = (props: {
   const handleChange = (val: number[]) => setUserValue(val[0]);
 
   return (
-    <FormControl>
-      <FormLabel fontSize={['sm', 'md']}>
-        {label} <span aria-hidden="true">({value})</span>
-      </FormLabel>
-      <Slider
-        id="maxauthor-slider"
-        aria-label={label}
-        range={[min, max]}
-        values={[value]}
-        onSlideEnd={handleChange}
-        size={1}
-        px={4}
-      />
-    </FormControl>
+    <>
+      {description ? (
+        <DescriptionCollapse body={description} label={label}>
+          {({ btn, content }) => (
+            <FormControl>
+              <FormLabel fontSize={['sm', 'md']}>
+                {label} <span aria-hidden="true">({value})</span> {btn}
+              </FormLabel>
+              {content}
+              <Slider
+                aria-label={label}
+                range={[min, max]}
+                values={[value]}
+                onSlideEnd={handleChange}
+                size={1}
+                pt={4}
+              />
+            </FormControl>
+          )}
+        </DescriptionCollapse>
+      ) : (
+        <FormControl>
+          <FormLabel fontSize={['sm', 'md']}>{label}</FormLabel>
+          <Slider aria-label={label} range={[min, max]} values={[value]} onSlideEnd={handleChange} size={1} />
+        </FormControl>
+      )}
+    </>
   );
 };

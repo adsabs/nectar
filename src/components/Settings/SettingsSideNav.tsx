@@ -93,6 +93,7 @@ export const SettingsSideNav = () => {
         activeItem={activeItem}
         display={{ base: 'initial', lg: 'none' }}
         mx={2}
+        zIndex={100}
       />
     </>
   );
