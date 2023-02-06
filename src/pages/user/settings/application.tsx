@@ -8,8 +8,16 @@ import {
   DEFAULT_USER_DATA,
 } from '@api';
 import { Box, Checkbox, CheckboxGroup, FormControl, FormLabel, Stack, useToast } from '@chakra-ui/react';
-import { DescriptionCollapse, Select, SelectOption, SettingsLayout } from '@components';
-import { useStore } from '@store';
+import {
+  authorsPerResultsDescription,
+  defaultActionExternalLinksDescription,
+  defaultCollectionsDescription,
+  DescriptionCollapse,
+  Select,
+  SelectOption,
+  SettingsLayout,
+} from '@components';
+import { useStore, useStoreApi } from '@store';
 import { composeNextGSSP, userGSSP } from '@utils';
 import axios from 'axios';
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
@@ -31,26 +39,6 @@ const useGetOptions = () => {
   };
 };
 
-const authorsPerResultsDescription = (
-  <>
-    Specifies the number of authors to show under each result before the list is truncated. (<strong>default: 4</strong>
-    )
-  </>
-);
-
-const defaultActionExternalLinksDescription = (
-  <>
-    Select the default action when opening an external link. (<strong>default: Auto</strong>)
-  </>
-);
-
-const defaultCollectionsDescription = (
-  <>
-    This will apply a default collection facet to each search. You can manually remove or alter it from there. (
-    <strong>default: none</strong>)
-  </>
-);
-
 const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const toast = useToast();
 
@@ -63,10 +51,13 @@ const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSidePro
   // get user data from store
   const userData = useStore((state) => state.settings.user);
 
+  const setStoreUserData = useStoreApi().getState().setUserSettings;
+
   // set user data and get back updated user data
-  const { data: updatedData, refetch } = useSetUserData(params, {
+  const { refetch } = useSetUserData(params, {
     enabled: false,
-    onSuccess: () => {
+    onSuccess: (res) => {
+      setStoreUserData(res); // remembering to update store
       toast({
         title: 'Updated',
         status: 'success',
