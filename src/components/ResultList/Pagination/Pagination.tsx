@@ -52,6 +52,7 @@ export type PaginationProps = {
   alwaysShow?: boolean;
   canNext?: (ctx: PaginationResult) => boolean;
   canPrev?: (ctx: PaginationResult) => boolean;
+  isLoading?: boolean;
 } & NumPerPageProp;
 
 export const Pagination = (props: PaginationProps): ReactElement => {
@@ -71,6 +72,7 @@ export const Pagination = (props: PaginationProps): ReactElement => {
     alwaysShow,
     canNext,
     canPrev,
+    isLoading = false,
   } = props;
 
   const router = useRouter();
@@ -196,42 +198,51 @@ export const Pagination = (props: PaginationProps): ReactElement => {
           </Box>
         )}
         <Stack direction="row" spacing={0} role="navigation" aria-label="Pagination">
-          <NextLink {...getLinkParams(prevPage)} passHref shallow legacyBehavior>
-            <Link>
-              <Button
-                onClick={handleClick('prev')}
-                aria-label="previous"
-                data-testid="pagination-prev"
-                leftIcon={<ChevronLeftIcon />}
-                isDisabled={noPrev}
-                variant="pagePrev"
-              >
-                Prev
-              </Button>
-            </Link>
-          </NextLink>
-          <ManualPageSelect
-            page={page}
-            totalPages={totalPages}
-            skipRouting={skipRouting}
-            dispatch={dispatch}
-            onPageSelect={onPageSelect}
-          />
-
-          <NextLink {...getLinkParams(nextPage)} passHref shallow legacyBehavior>
-            <Link>
-              <Button
-                onClick={handleClick('next')}
-                aria-label="next"
-                data-testid="pagination-next"
-                rightIcon={<ChevronRightIcon />}
-                isDisabled={noNext}
-                variant="pageNext"
-              >
-                Next
-              </Button>
-            </Link>
-          </NextLink>
+          {isLoading ? null : (
+            <>
+              <NextLink {...getLinkParams(prevPage)} passHref shallow legacyBehavior>
+                <Link>
+                  <Button
+                    onClick={handleClick('prev')}
+                    aria-label="previous"
+                    data-testid="pagination-prev"
+                    leftIcon={<ChevronLeftIcon />}
+                    isDisabled={noPrev}
+                    variant="pagePrev"
+                    isLoading={isLoading}
+                  >
+                    Prev
+                  </Button>
+                </Link>
+              </NextLink>
+              <ManualPageSelect
+                page={page}
+                totalPages={totalPages}
+                skipRouting={skipRouting}
+                dispatch={dispatch}
+                onPageSelect={onPageSelect}
+              />
+            </>
+          )}
+          {/* force only a button to render if we're loading */}
+          {isLoading ? (
+            <Button type="button" isLoading={isLoading} variant="pageLoading" />
+          ) : (
+            <NextLink {...getLinkParams(nextPage)} passHref shallow legacyBehavior>
+              <Link>
+                <Button
+                  onClick={handleClick('next')}
+                  aria-label="next"
+                  data-testid="pagination-next"
+                  rightIcon={<ChevronRightIcon />}
+                  isDisabled={noNext}
+                  variant="pageNext"
+                >
+                  Next
+                </Button>
+              </Link>
+            </NextLink>
+          )}
         </Stack>
       </Flex>
     </Box>

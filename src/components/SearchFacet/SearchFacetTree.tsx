@@ -8,9 +8,6 @@ import {
   CheckboxProps,
   Collapse,
   Divider,
-  Drawer,
-  DrawerContent,
-  DrawerOverlay,
   Flex,
   Icon,
   List,
@@ -24,25 +21,15 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { ISearchFacetProps, Toggler } from '@components';
+import { useGetFacetData } from '@components/SearchFacet/useGetFacetData';
 import { ExclamationCircleIcon } from '@heroicons/react/solid';
 import { kFormatNumber, noop } from '@utils';
 import { head, map, path } from 'ramda';
-import {
-  ChangeEventHandler,
-  MouseEventHandler,
-  ReactElement,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
-import { useDebouncedCallback } from 'use-debounce';
+import { MouseEventHandler, ReactElement, ReactNode, useCallback, useEffect, useState } from 'react';
 import { parseTitleFromKey } from './helpers';
 import { SearchFacetModal } from './SearchFacetModal/SearchFacetModal';
 import { FacetTreeStoreProvider, useFacetTreeStore } from './store';
 import { FacetCountTuple, FacetLogic, IFacetParams } from './types';
-import { useGetFacetTreeData } from './useGetFacetTreeData';
 
 export type OnFilterArgs = {
   logic: FacetLogic;
@@ -83,13 +70,12 @@ export const SearchFacetTree = (props: ISearchFacetTreeProps): ReactElement => {
 
   const { isOpen: isMenuOpen, onOpen: onMenuOpen, onClose: onMenuClose } = useDisclosure();
 
-  const { treeData, handleLoadMore, canLoadMore, isFetching, isError } = useGetFacetTreeData({
-    type: 'root',
+  const [focusedNode, setFocusedNode] = useState<FacetCountTuple>(null);
+
+  const { treeData, handleLoadMore, isFetching, isError, canLoadMore } = useGetFacetData({
     field,
-    property,
-    hasChildren,
-    facetQuery,
-    filter,
+    key: '',
+    level: 'root',
   });
 
   useEffect(() => {
@@ -119,7 +105,10 @@ export const SearchFacetTree = (props: ISearchFacetTreeProps): ReactElement => {
     facetQuery,
     filter,
     onFilter,
-    onLoadMore: onMenuOpen,
+    onLoadMore: (node: FacetCountTuple) => {
+      setFocusedNode(node);
+      onMenuOpen();
+    },
     limitChildrenList: canLoadMore,
   };
 
@@ -134,6 +123,7 @@ export const SearchFacetTree = (props: ISearchFacetTreeProps): ReactElement => {
         onClose={onMenuClose}
         isOpen={isMenuOpen}
         treeData={treeData}
+        initialFocusedNode={focusedNode}
         {...childProps}
       />
       {!isMenuOpen ? (
@@ -169,50 +159,6 @@ export const SearchFacetTree = (props: ISearchFacetTreeProps): ReactElement => {
         </>
       ) : null}
     </FacetTreeStoreProvider>
-  );
-};
-
-interface IFacetDrawerProps {
-  onClose: () => void;
-  isOpen: boolean;
-  treeData: FacetCountTuple[];
-  children: (childProps: {
-    data: FacetCountTuple[];
-    onSearchChange: ChangeEventHandler<HTMLInputElement>;
-    isFiltered: boolean;
-  }) => ReactElement;
-}
-
-/**
- * Slide-out drawer menu
- * Also encapsulates a search input for filtering results
- */
-const FacetDrawer = (props: IFacetDrawerProps) => {
-  const { isOpen, onClose, children, treeData = [] } = props;
-  const [data, setData] = useState(treeData);
-  const [isFiltered, setIsFiltered] = useState(false);
-  const reset = useFacetTreeStore((state) => state.reset);
-
-  useEffect(() => setData(treeData), [treeData]);
-  const search = useDebouncedCallback((value: string) => {
-    setData((data) =>
-      value.length > 0 ? data.filter(([key]) => parseTitleFromKey(key).toLowerCase().includes(value)) : treeData,
-    );
-  }, 100);
-
-  const onSearchChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    const value = e.currentTarget.value.toLowerCase();
-    setIsFiltered(value.length > 0);
-    search(value);
-  };
-
-  const content = useMemo(() => children({ data, onSearchChange, isFiltered }), [data, onSearchChange, isFiltered]);
-
-  return (
-    <Drawer placement="left" onClose={onClose} isOpen={isOpen} onOverlayClick={reset} onEsc={reset}>
-      <DrawerOverlay />
-      <DrawerContent>{content}</DrawerContent>
-    </Drawer>
   );
 };
 
@@ -264,7 +210,7 @@ export const LogicArea = (props: {
 
 export type SearchFacetNodeProps = ISearchFacetTreeProps & {
   node: FacetCountTuple;
-  onLoadMore?: () => void;
+  onLoadMore?: (node: FacetCountTuple) => void;
   limitChildrenList?: boolean;
 };
 
@@ -273,19 +219,17 @@ export type SearchFacetNodeProps = ISearchFacetTreeProps & {
  * Renders a child tree, expects to be rendered by a root node.
  */
 export const SearchFacetChildNode = (props: SearchFacetNodeProps) => {
-  const { node, field, property, hasChildren, limitChildrenList } = props;
+  const { node, field, property, hasChildren, limitChildrenList, onLoadMore } = props;
   const addChildren = useFacetTreeStore((state) => state.addChildren);
   const [key] = node;
   const isExpanded = useFacetTreeStore(useCallback(path<boolean>(['tree', key, 'expanded']), [key]));
 
   // fetches and transforms tree data for children
-  const { treeData, isFetching, isError } = useGetFacetTreeData({
-    type: 'child',
+  const { treeData, isFetching, isError, canLoadMore } = useGetFacetData({
     field,
-    rawPrefix: key,
+    key,
+    level: 'child',
     enabled: !!isExpanded,
-    property,
-    hasChildren,
   });
 
   // adding children to our state
@@ -320,6 +264,18 @@ export const SearchFacetChildNode = (props: SearchFacetNodeProps) => {
               </ListItem>
             ))}
           </List>
+          <Flex justifyContent="flex-end">
+            <LoadMoreBtn
+              show={treeData.length > 0 && canLoadMore && !isError}
+              onClick={() => {
+                onLoadMore(node);
+              }}
+              isLoading={isFetching}
+              my={2}
+              fontSize="sm"
+              fontWeight="normal"
+            />
+          </Flex>
 
           {isError && (
             <Text color="red" fontSize="xs">

@@ -1,10 +1,21 @@
-import { CloseButton, Input, InputGroup, InputGroupProps, InputRightElement } from '@chakra-ui/react';
+import {
+  CloseButton,
+  FormControl,
+  FormLabel,
+  Input,
+  InputGroup,
+  InputGroupProps,
+  InputRightElement,
+  VisuallyHidden,
+} from '@chakra-ui/react';
 import { ChangeEventHandler, FC } from 'react';
 
 interface ISearchInputProps extends InputGroupProps {
   search: string;
   onSearchChange: (search: string) => void;
 }
+
+const label = 'Search (case-sensitive)';
 
 export const SearchInput: FC<ISearchInputProps> = (props) => {
   const { search, onSearchChange, ...inputGroupProps } = props;
@@ -17,11 +28,16 @@ export const SearchInput: FC<ISearchInputProps> = (props) => {
   const handleClear = () => onSearchChange('');
 
   return (
-    <InputGroup size="sm" {...inputGroupProps}>
-      <Input value={search} pr="2.5rem" type="text" placeholder="Filter results" onChange={handleChange} />
-      <InputRightElement width="2.5rem">
-        <CloseButton h="1.75rem" size="sm" onClick={handleClear} />
-      </InputRightElement>
-    </InputGroup>
+    <FormControl>
+      <FormLabel>
+        <VisuallyHidden>{label}</VisuallyHidden>
+      </FormLabel>
+      <InputGroup size="sm" {...inputGroupProps}>
+        <Input value={search} pr="2.5rem" type="text" placeholder={label} onChange={handleChange} />
+        <InputRightElement width="2.5rem">
+          <CloseButton h="1.75rem" size="sm" onClick={handleClear} />
+        </InputRightElement>
+      </InputGroup>
+    </FormControl>
   );
 };

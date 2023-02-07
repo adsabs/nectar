@@ -185,6 +185,7 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
     </ListItem>
   );
 };
+
 export interface ISearchFacetsProps {
   onQueryUpdate: ISearchFacetProps['onQueryUpdate'];
 }
