@@ -19,7 +19,6 @@ export const SelectedList = () => {
 
   const handleDeselect: MouseEventHandler<HTMLButtonElement> = (e) => {
     const { key } = e.currentTarget.dataset;
-    console.log(key);
     toggleSelect(key, key.startsWith('0'));
   };
   const handleDeselectAll = () => reset();

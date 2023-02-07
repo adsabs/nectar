@@ -3,6 +3,7 @@ import { escape, getOperator, getTerms, joinQueries, Operator, removeClauseAndSt
 import { defaultQueryParams } from '@store/slices';
 import { isIADSSearchParams, isString } from '@utils';
 import {
+  __,
   all,
   always,
   and,
@@ -43,7 +44,6 @@ import {
   pickBy,
   pipe,
   prepend,
-  prop,
   propEq,
   propSatisfies,
   reduce,
@@ -58,7 +58,6 @@ import {
   unless,
   values,
   when,
-  __,
 } from 'ramda';
 import { isNilOrEmpty, stubNull } from 'ramda-adjunct';
 import { OnFilterArgs } from './SearchFacetTree';
@@ -145,11 +144,9 @@ export const rootToChildPrefix = (name: string) => unless<string, string>(isEmpt
  * Creates a basic FacetNode or FacetChildNode for insertion into tree
  */
 const createNode = (key: string, noChildren?: boolean) =>
-  ifElse<[string], FacetChildNode, IFacetNode>(
-    always(noChildren),
-    always({ key, selected: false }),
-    always({ selected: false, key, children: null, expanded: false, partSelected: false }),
-  )(key);
+  noChildren
+    ? ({ key, selected: false } as FacetChildNode)
+    : ({ selected: false, key, children: null, expanded: false, partSelected: false } as IFacetNode);
 
 /**
  * Initializes a FacetNodeTree or a child tree
@@ -205,24 +202,18 @@ const setChildrenSelected = (value: boolean) =>
  * Find all selected nodes and extract their keys into an array
  */
 export const getAllSelectedKeys = (tree: FacetNodeTree) => {
-  const getSelected = pipe<[FacetNodeTree], IFacetNode[], IFacetNode[], string[], string[]>(
-    values,
-    filter(propEq('selected', true)),
-    map(prop('key')),
-    reject(isNil),
-  );
-  const getSelectedChildren = pipe<[FacetChildNodeTree], FacetChildNode[], FacetChildNode[], string[], string[]>(
-    values,
-    filter(propEq('selected', true)),
-    map(prop('key')),
-    reject(isNil),
-  );
+  const isSelected = propEq('selected', true);
+  const getSelected = <T extends FacetNodeTree | FacetChildNodeTree>(tree: T) =>
+    pipe<[T], string[], string[]>(
+      keys,
+      filter<keyof T>((key) => isSelected(tree[key])),
+    )(tree);
 
   return concat(
-    getSelected(tree),
+    getSelected<FacetNodeTree>(tree),
     pipe<[FacetNodeTree], IFacetNode[], string[][], string[]>(
       values,
-      map((node) => getSelectedChildren(node.children)),
+      map((node) => getSelected<FacetChildNodeTree>(node.children)),
       flatten,
     )(tree),
   );
@@ -266,7 +257,7 @@ export const updateSelection = (key: string, isRoot: boolean, tree: FacetNodeTre
     // is NOT selected
     over(
       keyLens(key),
-      pipe(createNodeIfNecessary, setSelected(true), setPartSelected(false), setChildrenSelected(true)),
+      pipe(createNodeIfNecessary, setSelected(true), setPartSelected(false), setChildrenSelected(false)),
     ),
   );
 
@@ -291,7 +282,7 @@ export const updateSelection = (key: string, isRoot: boolean, tree: FacetNodeTre
       // set the root as indeterminate
       over(keyLens(rootKey), pipe(createNodeIfNecessary, setPartSelected(true))),
       // if, after selecting the child, the resulting state has all children selected, then select the root
-      when(allChildrenSelected(rootKey), over(keyLens(rootKey), pipe(setSelected(true), setPartSelected(false)))),
+      // when(allChildrenSelected(rootKey), over(keyLens(rootKey), pipe(setSelected(true), setPartSelected(false)))),
     ),
   );
 

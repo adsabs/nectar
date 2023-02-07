@@ -25,6 +25,7 @@ export interface IADSApiSearchParams {
   start?: number;
   'stats.field'?: string;
   stats?: boolean;
+
   [key: string]: string | number | (string | number)[] | boolean;
 }
 
@@ -52,7 +53,7 @@ export interface IADSApiSearchResponse {
     docs: IDocsEntity[];
   };
   stats?: ISearchStatsFields;
-  facets?: IFacetFields;
+  facets?: JSONFacetCounts;
   facet_counts?: IFacetCountsFields;
   responseHeader?: IADSApiSearchResponseHeader;
   error?: IADSApiSearchResponseError;
@@ -64,6 +65,7 @@ export interface IHighlight {
   abstract?: string[];
   title?: string[];
 }
+
 export interface ISearchStatsFields {
   stats_fields: {
     citation_count?: ISearchStats;
@@ -83,14 +85,18 @@ export interface ISearchStats {
   sumOfSquares: number;
 }
 
-export interface IFacetFields {
+export type JSONFacetCounts = {
   count?: number;
-  citation_count?: { buckets: IBucket[] };
-  read_count?: { buckets: IBucket[] };
-}
+} & Record<
+  string,
+  {
+    numBuckets?: number;
+    buckets: IBucket[];
+  }
+>;
 
 export interface IBucket {
-  val: number;
+  val: number | string;
   count: number;
 }
 
@@ -106,7 +112,6 @@ export type FacetField =
   | 'aff_facet_hier'
   | 'author_facet_hier'
   | 'doctype_facet_hier'
-  | 'first_author_facet_hier'
   | 'first_author_facet_hier'
   | 'grant_facet_hier'
   | 'ned_object_facet_hier'

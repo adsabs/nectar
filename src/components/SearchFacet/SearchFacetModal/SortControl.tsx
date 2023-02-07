@@ -1,7 +1,7 @@
 import { Flex, FlexProps, Icon, IconButton, Select } from '@chakra-ui/react';
 import { SortAscendingIcon, SortDescendingIcon } from '@heroicons/react/solid';
 import { ChangeEventHandler } from 'react';
-import { IModalState } from './SearchFacetModalWrapper';
+import { IModalState } from './SearchFacetModal';
 
 export const SortControl = ({
   sort,

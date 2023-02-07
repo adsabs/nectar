@@ -2,6 +2,7 @@ import api, {
   ADSQuery,
   ApiRequestConfig,
   ApiTargets,
+  getSearchFacetJSONParams,
   IADSApiSearchParams,
   IADSApiSearchResponse,
   IDocsEntity,
@@ -41,6 +42,7 @@ export const facetCountSelector = (data: IADSApiSearchResponse): IADSApiSearchRe
   data.facet_counts;
 export const highlightingSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['highlighting'] =>
   data.highlighting;
+export const facetFieldSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['facets'] => data.facets;
 
 const defaultRetryer: RetryValue<ErrorType> = (failCount: number, error): boolean => {
   switch (error.message) {
@@ -291,6 +293,24 @@ export const useGetSearchFacet: SearchADSQuery<IADSApiSearchParams, IADSApiSearc
     queryKey: searchKeys.facet(cleanParams),
     queryFn: fetchSearch,
     meta: { params: searchParams },
+    ...options,
+  });
+};
+
+export const useGetSearchFacetJSON: SearchADSQuery<IADSApiSearchParams, IADSApiSearchResponse['facets']> = (
+  params,
+  options,
+) => {
+  const searchParams: IADSApiSearchParams = getSearchFacetJSONParams(params);
+
+  // omit fields from queryKey
+  const { fl, ...cleanParams } = searchParams;
+
+  return useQuery({
+    queryKey: searchKeys.facet(cleanParams),
+    queryFn: fetchSearch,
+    meta: { params: searchParams },
+    select: facetFieldSelector,
     ...options,
   });
 };

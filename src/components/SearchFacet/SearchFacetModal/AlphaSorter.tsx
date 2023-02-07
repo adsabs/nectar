@@ -1,33 +1,24 @@
 import { Box, Flex, FlexProps, RadioProps, useRadio, useRadioGroup } from '@chakra-ui/react';
-import { head, range } from 'ramda';
-import { FC, useMemo } from 'react';
-import { parseTitleFromKey } from '../helpers';
-import { FacetCountTuple } from '../types';
+import { range } from 'ramda';
+import { FC } from 'react';
 
 interface IAlphaSorterProps extends FlexProps {
   letter: string;
   onLetterChange: (letter: string) => void;
-  treeData: FacetCountTuple[];
 }
 
 export const AlphaSorter: FC<IAlphaSorterProps> = (props) => {
-  const { letter = 'All', onLetterChange, treeData, ...flexProps } = props;
+  const { letter = 'All', onLetterChange, ...flexProps } = props;
   const { getRootProps, getRadioProps } = useRadioGroup({
     onChange: onLetterChange,
     value: letter,
   });
 
-  const lettersFound = useMemo(() => treeData.map((val) => head(parseTitleFromKey(val[0]))), [treeData]);
-
   return (
     <Flex {...getRootProps()} {...flexProps}>
       <LetterRadio {...getRadioProps({ value: 'All' })} />
       {range(65, 91).map((i) => (
-        <LetterRadio
-          key={i}
-          {...getRadioProps({ value: String.fromCharCode(i) })}
-          isDisabled={!lettersFound.includes(String.fromCharCode(i))}
-        />
+        <LetterRadio key={i} {...getRadioProps({ value: String.fromCharCode(i) })} />
       ))}
     </Flex>
   );

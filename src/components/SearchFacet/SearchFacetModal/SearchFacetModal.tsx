@@ -16,13 +16,16 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { equals, head, map } from 'ramda';
-import { FC, ReactElement, useEffect, useState } from 'react';
+import { AlphaSorter } from '@components/SearchFacet/SearchFacetModal/AlphaSorter';
+import { SearchInput } from '@components/SearchFacet/SearchFacetModal/SearchInput';
+import { SortControl } from '@components/SearchFacet/SearchFacetModal/SortControl';
+import { useDebounce } from '@hooks';
+import { assoc, equals, mergeLeft } from 'ramda';
+import { FC, ReactElement, Reducer, useEffect, useReducer, useRef, useState } from 'react';
 import { parseRootFromKey } from '../helpers';
 import { ExpandButton, LogicArea, NodeCheckbox, SearchFacetNodeProps } from '../SearchFacetTree';
-import { useFacetTreeStore, useFacetTreeStoreApi } from '../store';
+import { useFacetTreeStoreApi } from '../store';
 import { FacetCountTuple } from '../types';
-import { useGetFacetTreeData } from '../useGetFacetTreeData';
 import { SearchFacetModalWrapper } from './SearchFacetModalWrapper';
 import { SelectedList } from './SelectedList';
 
@@ -34,7 +37,38 @@ export interface ISearchFacetModalProps extends Omit<SearchFacetNodeProps, 'node
   isError: boolean;
   isOpen: boolean;
   treeData: FacetCountTuple[];
+  initialFocusedNode: FacetCountTuple;
 }
+
+export interface IModalState {
+  sort: ['count' | 'alpha', 'asc' | 'desc'];
+  letter: string;
+  search: string;
+}
+
+type Event =
+  | { type: 'setSort'; sort: IModalState['sort'] }
+  | { type: 'setLetter'; letter: IModalState['letter'] }
+  | { type: 'setSearch'; search: IModalState['search'] };
+const reducer: Reducer<IModalState, Event> = (state, action) => {
+  switch (action.type) {
+    case 'setSort':
+      return assoc('sort', action.sort, state);
+    case 'setLetter':
+      return assoc('letter', action.letter, state);
+    case 'setSearch':
+      return mergeLeft(
+        {
+          search: action.search,
+          letter: 'All',
+          sort: ['count', state.sort[1]],
+        },
+        state,
+      );
+    default:
+      return state;
+  }
+};
 
 export const SearchFacetModal = (props: ISearchFacetModalProps): ReactElement => {
   const { isOpen, onClose, ...facetTreeProps } = props;
@@ -51,9 +85,10 @@ export const SearchFacetModal = (props: ISearchFacetModalProps): ReactElement =>
 };
 
 const ModalFacetTree: FC<Omit<ISearchFacetModalProps, 'isOpen' | 'onClose'>> = (props) => {
-  const { treeData, handleLoadMore, canLoadMore, isFetching, isError, ...childProps } = props;
+  const { initialFocusedNode, ...childProps } = props;
   const { label, hasChildren, logic, onFilter, field } = childProps;
-  const [focusedNode, setFocusedNode] = useState<FacetCountTuple>(null);
+  const [focusedNode, setFocusedNode] = useState<FacetCountTuple>(initialFocusedNode);
+  const pageRef = useRef(0);
   const facetStoreApi = useFacetTreeStoreApi();
 
   const handleExpand = (node: FacetCountTuple) => {
@@ -66,6 +101,17 @@ const ModalFacetTree: FC<Omit<ISearchFacetModalProps, 'isOpen' | 'onClose'>> = (
   };
 
   const parsedRoot = parseRootFromKey(focusedNode?.[0]) ?? '';
+  const [state, dispatch] = useReducer(reducer, { sort: ['count', 'desc'], letter: 'All', search: '' });
+  const debouncedSearchTerm = useDebounce(
+    state.sort[0] === 'alpha' ? (state.letter === 'All' ? '' : state.letter) : state.search,
+    300,
+  );
+
+  useEffect(() => {
+    if (pageRef.current) {
+      pageRef.current = 0;
+    }
+  }, [state.search, state.letter]);
 
   return (
     <>
@@ -81,67 +127,86 @@ const ModalFacetTree: FC<Omit<ISearchFacetModalProps, 'isOpen' | 'onClose'>> = (
         </Stack>
       </ModalHeader>
       <ModalBody>
-        {focusedNode ? (
-          <Stack direction="column" alignItems="start" spacing="2">
-            <Button ml="-2" variant="unstyled" aria-label={`go back to ${parsedRoot}`} onClick={handleCollapse}>
-              <Flex direction="row" alignItems="center">
-                <ChevronLeftIcon fontSize="3xl" />
-                <Text fontSize="2xl">{parsedRoot}</Text>
-              </Flex>
-            </Button>
-            <Divider />
-            <ChildList {...childProps} node={focusedNode} />
+        <Flex direction="column" w="full" mb="3">
+          <Stack spacing={[1, 12]} justify="space-between" alignItems="end" direction={['column', 'row']} mb="4">
+            <SearchInput
+              flex="2"
+              search={state.search}
+              onSearchChange={(search) => dispatch({ type: 'setSearch', search })}
+            />
+            <SortControl sort={state.sort} onSortChange={(sort) => dispatch({ type: 'setSort', sort })} />
           </Stack>
-        ) : (
-          <SearchFacetModalWrapper
-            treeData={treeData}
-            canLoadMore={canLoadMore}
-            onLoadMore={() => {
-              handleLoadMore();
-            }}
-            isError={isError}
-            isFetching={isFetching}
-          >
-            {({ tree }) => (
-              <List w="full">
-                {tree.map((node, i) =>
-                  // if the `hasChildren` prop was set, load child tree
-                  hasChildren ? (
-                    <ListItem
-                      w="full"
-                      key={node[0]}
-                      borderBottom={i === tree.length - 1 ? 'none' : 'solid 1px'}
-                      borderColor="gray.100"
-                      py="0.5"
-                    >
-                      <Text as="span" alignItems="center" display="inline-flex" w="full">
-                        <NodeCheckbox isFullWidth node={node} parent={null} onClick={(e) => e.stopPropagation()} />
-                        <ExpandButton
-                          node={node}
-                          isExpanded={equals(focusedNode, node)}
-                          onToggled={() => handleExpand(node)}
-                        />
-                      </Text>
-                    </ListItem>
-                  ) : (
-                    // if no children, then it's simple single-level tree, load this single node
-                    <ListItem
-                      w="full"
-                      _hover={{ pointer: 'cursor' }}
-                      key={node[0]}
-                      data-testid="search-facet-item-root"
-                    >
-                      <Text as="span" alignItems="center" display="inline-flex" w="full">
-                        <NodeCheckbox node={node} parent={null} isFullWidth />
-                      </Text>
-                    </ListItem>
-                  ),
-                )}
-              </List>
-            )}
-          </SearchFacetModalWrapper>
-        )}
-        {hasChildren ? null : <SelectedList />}
+          {state.sort[0] === 'alpha' ? (
+            <AlphaSorter
+              justify="center"
+              w="full"
+              mb="2"
+              letter={state.letter}
+              onLetterChange={(letter) => dispatch({ type: 'setLetter', letter })}
+            />
+          ) : null}
+          {focusedNode ? (
+            <Stack direction="column" alignItems="start" spacing="2">
+              <Button ml="-2" variant="unstyled" aria-label={`go back to ${parsedRoot}`} onClick={handleCollapse}>
+                <Flex direction="row" alignItems="center">
+                  <ChevronLeftIcon fontSize="3xl" />
+                  <Text fontSize="2xl">{parsedRoot}</Text>
+                </Flex>
+              </Button>
+              <Divider />
+              <ChildList {...childProps} node={focusedNode} />
+            </Stack>
+          ) : (
+            <SearchFacetModalWrapper
+              field={field}
+              query={debouncedSearchTerm}
+              level={'root'}
+              key={debouncedSearchTerm}
+              onPageChange={(page) => (pageRef.current = page)}
+              initialPage={pageRef.current}
+              sortDir={state.sort[1]}
+            >
+              {({ tree }) => (
+                <List w="full">
+                  {tree.map((node, i) =>
+                    // if the `hasChildren` prop was set, load child tree
+                    hasChildren ? (
+                      <ListItem
+                        w="full"
+                        key={node[0]}
+                        borderBottom={i === tree.length - 1 ? 'none' : 'solid 1px'}
+                        borderColor="gray.100"
+                        py="0.5"
+                      >
+                        <Text as="span" alignItems="center" display="inline-flex" w="full">
+                          <NodeCheckbox isFullWidth node={node} parent={null} onClick={(e) => e.stopPropagation()} />
+                          <ExpandButton
+                            node={node}
+                            isExpanded={equals(focusedNode, node)}
+                            onToggled={() => handleExpand(node)}
+                          />
+                        </Text>
+                      </ListItem>
+                    ) : (
+                      // if no children, then it's simple single-level tree, load this single node
+                      <ListItem
+                        w="full"
+                        _hover={{ pointer: 'cursor' }}
+                        key={node[0]}
+                        data-testid="search-facet-item-root"
+                      >
+                        <Text as="span" alignItems="center" display="inline-flex" w="full">
+                          <NodeCheckbox node={node} parent={null} isFullWidth />
+                        </Text>
+                      </ListItem>
+                    ),
+                  )}
+                </List>
+              )}
+            </SearchFacetModalWrapper>
+          )}
+          {hasChildren ? null : <SelectedList />}
+        </Flex>
       </ModalBody>
       <ModalFooter backgroundColor="white" justifyContent="center">
         <LogicArea logic={logic} onFilter={onFilter} field={field} hideDivider />
@@ -151,31 +216,12 @@ const ModalFacetTree: FC<Omit<ISearchFacetModalProps, 'isOpen' | 'onClose'>> = (
 };
 
 const ChildList: FC<SearchFacetNodeProps> = (props) => {
-  const { node, field, property, hasChildren } = props;
-  const addChildren = useFacetTreeStore((state) => state.addChildren);
+  const { node, field } = props;
   const [key] = node;
 
-  // fetches and transforms tree data for children
-  const { treeData, handleLoadMore, canLoadMore, isFetching, isError } = useGetFacetTreeData({
-    type: 'child',
-    field,
-    rawPrefix: key,
-    property,
-    hasChildren,
-  });
-
-  // adding children to our state
-  useEffect(() => addChildren(map(head, treeData) as string[]), [treeData]);
-
   return (
-    <>
-      <SearchFacetModalWrapper
-        treeData={treeData}
-        canLoadMore={canLoadMore}
-        onLoadMore={handleLoadMore}
-        isError={isError}
-        isFetching={isFetching}
-      >
+    <Flex direction="column" w="full" mb="3">
+      <SearchFacetModalWrapper field={field} query={key} level={'child'}>
         {({ tree }) => (
           <List w="full">
             {tree.map((node, i) => (
@@ -194,6 +240,6 @@ const ChildList: FC<SearchFacetNodeProps> = (props) => {
           </List>
         )}
       </SearchFacetModalWrapper>
-    </>
+    </Flex>
   );
 };
