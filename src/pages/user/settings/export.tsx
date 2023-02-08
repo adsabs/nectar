@@ -1,16 +1,28 @@
-import { CustomFormat, DEFAULT_USER_DATA, ExportApiJournalFormat, IADSApiUserDataResponse, UserDataKeys } from '@api';
 import { getVaultData } from '@auth-utils';
 import {
-  Accordion,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
-  Box,
+  CustomFormat,
+  DEFAULT_USER_DATA,
+  ExportApiFormatKey,
+  ExportApiJournalFormat,
+  getSearchParams,
+  IADSApiUserDataResponse,
+  useGetExportCitation,
+  UserDataKeys,
+  useSearch,
+} from '@api';
+import {
   FormControl,
   FormLabel,
   Stack,
+  Box,
   useToast,
+  Accordion,
+  AccordionButton,
+  AccordionPanel,
+  AccordionItem,
+  AccordionIcon,
+  Grid,
+  Textarea,
 } from '@chakra-ui/react';
 import {
   absExportFormatDescription,
@@ -31,11 +43,11 @@ import {
   SettingsLayout,
 } from '@components';
 import { useSettings } from '@hooks/useSettings';
-import { createStore, useStoreApi } from '@store';
+import { createStore } from '@store';
 import { composeNextGSSP, userGSSP } from '@utils';
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import { values } from 'ramda';
-import { Reducer, useEffect, useMemo, useReducer } from 'react';
+import { memo, Reducer, useEffect, useMemo, useReducer } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 // partial user data params
@@ -138,6 +150,7 @@ const ExportSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSide
   const selectedValues = useMemo(() => {
     const data = userData ?? DEFAULT_USER_DATA;
     const defaultExportFormatOption = formatOptions.find((option) => option.label === data.defaultExportFormat);
+    const customFormat = data.customFormats?.[0];
     const journalFormat = JournalFormatMap[data.bibtexJournalFormat];
     const bibtexExportKeyFormat = data.bibtexKeyFormat;
     // not allowing max author to be 'all' now
@@ -153,6 +166,7 @@ const ExportSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSide
 
     return {
       defaultExportFormatOption,
+      customFormat,
       journalFormat,
       bibtexExportKeyFormat,
       bibtexMaxAuthor,
@@ -162,6 +176,28 @@ const ExportSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSide
       bibtexAbsAuthorCutoff,
     };
   }, [userData, formatOptions]);
+
+  // fetch a sample doc
+  const { data: sampleDocSearch } = useSearch(getSearchParams({ q: 'bibstem:ApJ author_count:[10 TO 20]', rows: 1 }));
+  const sampleDoc = useMemo(() => {
+    if (sampleDocSearch) {
+      return sampleDocSearch.docs[0];
+    }
+  }, [sampleDocSearch]);
+
+  // fetch sample citation
+  const { data: sampleCitation } = useGetExportCitation(
+    {
+      format: (selectedValues.defaultExportFormatOption?.value as ExportApiFormatKey) ?? ExportApiFormatKey.bibtex,
+      customFormat: selectedValues.customFormat?.code ?? '', // used if format is custom format
+      bibcode: [sampleDoc?.bibcode],
+      keyformat: [selectedValues.bibtexExportKeyFormat],
+      journalformat: [selectedValues.journalFormat],
+      authorcutoff: [selectedValues.bibtexAuthorCutoff],
+      maxauthor: [selectedValues.bibtexMaxAuthor],
+    },
+    { enabled: !!sampleDoc && !!selectedValues },
+  );
 
   /** apply changes */
 
@@ -231,127 +267,144 @@ const ExportSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSide
   };
 
   return (
-    <SettingsLayout title="Export Settings">
-      <Stack direction="column" spacing={5} p={5} my={5} boxShadow="md">
-        <DescriptionCollapse body={exportFormatDescription} label="Default Export Format">
-          {({ btn, content }) => (
-            <FormControl>
-              <Select<ExportFormat>
-                name="format"
-                label={
+    <SettingsLayout title="Export Settings" maxW={{ base: 'container.sm', lg: 'container.lg' }}>
+      <Grid templateColumns="repeat(2, 1fr)" gap={6}>
+        <Stack direction="column">
+          <Stack direction="column" spacing={5} p={5} my={5} boxShadow="md">
+            <DescriptionCollapse body={exportFormatDescription} label="Default Export Format">
+              {({ btn, content }) => (
+                <FormControl>
+                  <Select<ExportFormat>
+                    name="format"
+                    label={
+                      <Box mb="2">
+                        <FormLabel htmlFor="default-export-format-selector" fontSize={['sm', 'md']}>
+                          {'Default Export Format'} {btn}
+                        </FormLabel>
+                        {content}
+                      </Box>
+                    }
+                    hideLabel={false}
+                    id="default-export-format-selector"
+                    options={formatOptions}
+                    value={selectedValues.defaultExportFormatOption}
+                    onChange={handleApplyDefaultExportFormat}
+                    stylesTheme="default"
+                  />
+                </FormControl>
+              )}
+            </DescriptionCollapse>
+            <DescriptionCollapse body={customFormatDescription} label="Custom Formats">
+              {({ btn, content }) => (
+                <FormControl>
                   <Box mb="2">
-                    <FormLabel htmlFor="default-export-format-selector" fontSize={['sm', 'md']}>
-                      {'Default Export Format'} {btn}
+                    <FormLabel htmlFor="custom-formats" fontSize={['sm', 'md']}>
+                      {'Custom Formats'} {btn}
                     </FormLabel>
                     {content}
                   </Box>
-                }
-                hideLabel={false}
-                id="default-export-format-selector"
-                options={formatOptions}
-                value={selectedValues.defaultExportFormatOption}
-                onChange={handleApplyDefaultExportFormat}
-                stylesTheme="default"
-              />
-            </FormControl>
-          )}
-        </DescriptionCollapse>
-        <DescriptionCollapse body={customFormatDescription} label="Custom Formats">
-          {({ btn, content }) => (
-            <FormControl>
-              <Box mb="2">
-                <FormLabel htmlFor="custom-formats" fontSize={['sm', 'md']}>
-                  {'Custom Formats'} {btn}
-                </FormLabel>
-                {content}
-              </Box>
-              <CustomFormatTable
-                customFormats={userData?.customFormats}
-                onAdd={handleAddCustomFormat}
-                onModify={handleEditCustomFormat}
-                onDelete={handleDeleteCustomFormat}
-              />
-            </FormControl>
-          )}
-        </DescriptionCollapse>
-      </Stack>
-      <Stack direction="column" spacing={5} p={5} my={5} boxShadow="md">
-        <JournalFormatSelect
-          journalformat={[selectedValues.journalFormat]}
-          onChange={handleApplyJournalNameHandling}
-          label="TeX Journal Name Handling"
-          description={journalNameHandlingDescription}
-        />
-        <KeyFormatInputApply
-          format={selectedValues.bibtexExportKeyFormat}
-          description={bibtexExportFormatDescription}
-          label="BibTeX Default Export Key Format"
-          onApply={handleApplyBibtexExportKeyFormat}
-        />
-        <Accordion allowToggle>
-          <AccordionItem border="none">
-            <AccordionButton pl={0} _hover={{ backgroundColor: 'transparent' }}>
-              <Box fontWeight="bold">BibTeX Default Export Max Author (Advanced)</Box>
-              <AccordionIcon />
-            </AccordionButton>
-            <AccordionPanel>
-              {maxAuthorDescription}
-              <Stack direction="column" p={5}>
-                <NumberSlider
-                  min={1}
-                  max={500}
-                  value={selectedValues.bibtexAuthorCutoff}
-                  onChange={handleApplyBibtexAuthorCutoff}
-                  label="Author Cutoff"
-                />
-                <NumberSlider
-                  min={1}
-                  max={500}
-                  value={selectedValues.bibtexMaxAuthor}
-                  onChange={handleApplyBibtexMaxAuthors}
-                  label="Max Authors"
-                />
-              </Stack>
-            </AccordionPanel>
-          </AccordionItem>
-        </Accordion>
-        <KeyFormatInputApply
-          format={selectedValues.bibtexAbsExportKeyFormat}
-          label="BibTeX ABS Default Export Key Format"
-          description={absExportFormatDescription}
-          onApply={handleApplyBibtexAbsExportKeyFormat}
-        />
-        <Accordion allowToggle>
-          <AccordionItem border="none">
-            <AccordionButton pl={0} _hover={{ backgroundColor: 'transparent' }}>
-              <Box fontWeight="bold">BibTeX Default Export Max Author (Advanced)</Box>
-              <AccordionIcon />
-            </AccordionButton>
-            <AccordionPanel>
-              {maxAuthorDescription}
-              <Stack direction="column" p={5}>
-                <NumberSlider
-                  min={1}
-                  max={500}
-                  value={selectedValues.bibtexAbsAuthorCutoff}
-                  onChange={handleApplyBibtexAbsAuthorCutoff}
-                  label="Author Cutoff"
-                />
-                <NumberSlider
-                  min={1}
-                  max={500}
-                  value={selectedValues.bibtexAbsMaxAuthor}
-                  onChange={handleApplyBibtexAbsMaxAuthors}
-                  label="Max Authors"
-                />
-              </Stack>
-            </AccordionPanel>
-          </AccordionItem>
-        </Accordion>
-      </Stack>
+                  <CustomFormatTable
+                    customFormats={userData?.customFormats}
+                    onAdd={handleAddCustomFormat}
+                    onModify={handleEditCustomFormat}
+                    onDelete={handleDeleteCustomFormat}
+                  />
+                </FormControl>
+              )}
+            </DescriptionCollapse>
+          </Stack>
+          <Stack direction="column" spacing={5} p={5} my={5} boxShadow="md">
+            <JournalFormatSelect
+              journalformat={[selectedValues.journalFormat]}
+              onChange={handleApplyJournalNameHandling}
+              label="TeX Journal Name Handling"
+              description={journalNameHandlingDescription}
+            />
+            <KeyFormatInputApply
+              format={selectedValues.bibtexExportKeyFormat}
+              description={bibtexExportFormatDescription}
+              label="BibTeX Default Export Key Format"
+              onApply={handleApplyBibtexExportKeyFormat}
+            />
+            <Accordion allowToggle>
+              <AccordionItem border="none">
+                <AccordionButton pl={0} _hover={{ backgroundColor: 'transparent' }}>
+                  <Box fontWeight="bold">BibTeX Default Export Max Author (Advanced)</Box>
+                  <AccordionIcon />
+                </AccordionButton>
+                <AccordionPanel>
+                  {maxAuthorDescription}
+                  <Stack direction="column" p={5}>
+                    <NumberSlider
+                      min={1}
+                      max={500}
+                      value={selectedValues.bibtexAuthorCutoff}
+                      onChange={handleApplyBibtexAuthorCutoff}
+                      label="Author Cutoff"
+                    />
+                    <NumberSlider
+                      min={1}
+                      max={500}
+                      value={selectedValues.bibtexMaxAuthor}
+                      onChange={handleApplyBibtexMaxAuthors}
+                      label="Max Authors"
+                    />
+                  </Stack>
+                </AccordionPanel>
+              </AccordionItem>
+            </Accordion>
+            <KeyFormatInputApply
+              format={selectedValues.bibtexAbsExportKeyFormat}
+              label="BibTeX ABS Default Export Key Format"
+              description={absExportFormatDescription}
+              onApply={handleApplyBibtexAbsExportKeyFormat}
+            />
+            <Accordion allowToggle>
+              <AccordionItem border="none">
+                <AccordionButton pl={0} _hover={{ backgroundColor: 'transparent' }}>
+                  <Box fontWeight="bold">BibTeX Default Export Max Author (Advanced)</Box>
+                  <AccordionIcon />
+                </AccordionButton>
+                <AccordionPanel>
+                  {maxAuthorDescription}
+                  <Stack direction="column" p={5}>
+                    <NumberSlider
+                      min={1}
+                      max={500}
+                      value={selectedValues.bibtexAbsAuthorCutoff}
+                      onChange={handleApplyBibtexAbsAuthorCutoff}
+                      label="Author Cutoff"
+                    />
+                    <NumberSlider
+                      min={1}
+                      max={500}
+                      value={selectedValues.bibtexAbsMaxAuthor}
+                      onChange={handleApplyBibtexAbsMaxAuthors}
+                      label="Max Authors"
+                    />
+                  </Stack>
+                </AccordionPanel>
+              </AccordionItem>
+            </Accordion>
+          </Stack>
+        </Stack>
+        <SampleTextArea value={sampleCitation?.export ?? ''} />
+      </Grid>
     </SettingsLayout>
   );
 };
+
+const SampleTextArea = memo(
+  ({ value }: { value: string }) => {
+    return (
+      <FormControl>
+        <FormLabel>Sample Default Export</FormLabel>
+        <Textarea display={{ base: 'none', lg: 'initial' }} value={value} isReadOnly h="lg" />
+      </FormControl>
+    );
+  },
+  (prev, next) => prev.value === next.value || next.value === '',
+);
 
 export default ExportSettingsPage;
 
