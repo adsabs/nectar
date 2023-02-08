@@ -60,6 +60,7 @@ type UserDataSetterEvent =
   | { type: 'ADD_CUSTOM_FORMAT'; payload: { currentFormats: CustomFormat[]; name: string; code: string } }
   | { type: 'EDIT_CUSTOM_FORMAT'; payload: { currentFormats: CustomFormat[]; id: string; name: string; code: string } }
   | { type: 'DELETE_CUSTOM_FORMAT'; payload: { currentFormats: CustomFormat[]; id: string } }
+  | { type: 'SORT_CUSTOM_FORMAT'; payload: CustomFormat[] }
   | { type: 'SET_BIBTEX_KEY_FORMAT'; payload: string }
   | { type: 'SET_BIBTEX_MAX_AUTHORS'; payload: string }
   | { type: 'SET_BIBTEX_AUTHORS_CUTOFF'; payload: string }
@@ -92,6 +93,10 @@ const reducer: Reducer<UserDataSetterState, UserDataSetterEvent> = (state, actio
     case 'DELETE_CUSTOM_FORMAT':
       return {
         [UserDataKeys.CUSTOM_FORMATS]: action.payload.currentFormats.filter((f) => f.id !== action.payload.id),
+      };
+    case 'SORT_CUSTOM_FORMAT':
+      return {
+        [UserDataKeys.CUSTOM_FORMATS]: action.payload,
       };
     case 'SET_BIBTEX_KEY_FORMAT':
       return { [UserDataKeys.BIBTEXT_FORMAT]: action.payload ?? '' };
@@ -230,6 +235,21 @@ const ExportSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSide
     });
   };
 
+  // sort custom format, from Id over to
+  const handleShiftCustomFormat = (fromId: string, toId: string) => {
+    const customFormats = JSON.parse(JSON.stringify(userData.customFormats)) as CustomFormat[];
+    const fromPos = customFormats.findIndex((f) => f.id === fromId);
+    const fromFormat = customFormats[fromPos];
+    const toPos = customFormats.findIndex((f) => f.id === toId);
+    customFormats.splice(fromPos, 1);
+    customFormats.splice(toPos, 0, fromFormat);
+
+    dispatch({
+      type: 'SORT_CUSTOM_FORMAT',
+      payload: customFormats,
+    });
+  };
+
   // TeX Journal Name Handling
   const handleApplyJournalNameHandling = (format: ExportApiJournalFormat) => {
     const formatName = Object.entries(JournalFormatMap).find(([key, value]) => value === format)[0];
@@ -308,6 +328,7 @@ const ExportSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSide
                     onAdd={handleAddCustomFormat}
                     onModify={handleEditCustomFormat}
                     onDelete={handleDeleteCustomFormat}
+                    onShiftPosition={handleShiftCustomFormat}
                   />
                 </FormControl>
               )}
@@ -397,9 +418,9 @@ const ExportSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSide
 const SampleTextArea = memo(
   ({ value }: { value: string }) => {
     return (
-      <FormControl>
+      <FormControl display={{ base: 'none', lg: 'initial' }}>
         <FormLabel>Sample Default Export</FormLabel>
-        <Textarea display={{ base: 'none', lg: 'initial' }} value={value} isReadOnly h="lg" />
+        <Textarea value={value} isReadOnly h="lg" />
       </FormControl>
     );
   },
