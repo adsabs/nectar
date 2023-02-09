@@ -15,7 +15,6 @@ import {
   UnorderedList,
   useBoolean,
 } from '@chakra-ui/react';
-import { SimpleLink } from '@components';
 import { getDefaultReducer } from '@hooks/auth/model';
 import { IAuthForm } from '@hooks/auth/types';
 import { useChangePassword } from '@hooks/auth/useChangePassword';
@@ -152,11 +151,8 @@ const ChangePassword: NextPage = () => {
               </Button>
             </FormControl>
             <Button type="submit" isLoading={state.status === 'submitting'}>
-              Register
+              Submit
             </Button>
-            <SimpleLink alignSelf="center" href="/user/account/login">
-              Login
-            </SimpleLink>
             {state.status === 'error' && (
               <Alert status="error">
                 <AlertTitle>Unable to complete request</AlertTitle>

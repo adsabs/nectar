@@ -173,7 +173,7 @@ const Register: NextPage = () => {
               </Button>
             </FormControl>
             <Button type="submit" isLoading={state.status === 'submitting'}>
-              Register
+              Submit
             </Button>
             <SimpleLink alignSelf="center" href="/user/account/login">
               Login

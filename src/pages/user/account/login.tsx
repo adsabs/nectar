@@ -104,7 +104,7 @@ const Login: NextPage = () => {
             </FormControl>
             <SimpleLink href="/user/account/forgotpassword">Forgot password?</SimpleLink>
             <Button type="submit" isLoading={state.status === 'submitting'}>
-              Login with email
+              Submit
             </Button>
             <SimpleLink alignSelf="center" href="/user/account/register">
               Register

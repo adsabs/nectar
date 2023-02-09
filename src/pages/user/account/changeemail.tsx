@@ -12,7 +12,6 @@ import {
   Stack,
   useBoolean,
 } from '@chakra-ui/react';
-import { SimpleLink } from '@components';
 import { getDefaultReducer } from '@hooks/auth/model';
 import { IAuthForm } from '@hooks/auth/types';
 import { useChangeEmail } from '@hooks/auth/useChangeEmail';
@@ -82,11 +81,8 @@ const ChangeEmail: NextPage = () => {
               {showPassword ? 'Hide password' : 'Show password'}
             </Button>
             <Button type="submit" isLoading={state.status === 'submitting'}>
-              Register
+              Submit
             </Button>
-            <SimpleLink alignSelf="center" href="/user/account/login">
-              Login
-            </SimpleLink>
             {state.status === 'error' && (
               <Alert status="error">
                 <AlertTitle>Unable to complete request</AlertTitle>
