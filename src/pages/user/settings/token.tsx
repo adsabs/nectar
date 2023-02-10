@@ -1,14 +1,33 @@
-import { Code, Input, InputGroup, InputRightAddon, Stack, Text } from '@chakra-ui/react';
+import { useGetToken } from '@api';
+import { generateNewApiToken } from '@auth-utils';
+import { Code, Input, InputGroup, InputRightAddon, Stack, Text, useToast } from '@chakra-ui/react';
 import { SettingsLayout, SimpleLink } from '@components';
 import { composeNextGSSP, userGSSP } from '@utils';
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
+import { useEffect, useState } from 'react';
 
 const ApiTokenPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  // TODO get token
-  const token = 'xxxxxxx';
+  const toast = useToast();
+
+  // fetch token
+  const { data } = useGetToken({});
+  const [token, setToken] = useState('');
+
+  useEffect(() => {
+    if (data) {
+      setToken(data.access_token);
+    }
+  }, [data]);
 
   const handleGenerateToken = () => {
-    console.log('generate new token');
+    (async () => {
+      const res = await generateNewApiToken();
+      if (typeof res === 'string') {
+        toast({ title: Error, status: 'error', description: res });
+      } else {
+        setToken(res.access_token);
+      }
+    })();
   };
 
   return (
@@ -28,11 +47,11 @@ const ApiTokenPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>
         </InputGroup>
         <Text>
           This API token allows you to access ADS data programmatically. For instance, to fetch the first few bibcodes
-          for the query "star", make the following request: curl -H 'Authorization:{' '}
+          for the query "star", make the following request:
         </Text>
         <Code my={2}>
-          Bearer:whGLDDEhKdUDiAOsPoTKkKSBrxWMeJeHvxMEqyvQ'
-          'https://api.adsabs.harvard.edu/v1/search/query?q=star&fl=bibcode'
+          {`curl -H 'Authorization: Bearer:${token}'
+          'https://api.adsabs.harvard.edu/v1/search/query?q=star&fl=bibcode'`}
         </Code>
         <Text as="i">
           (If you've generated a token, you can copy-paste the preceding line directly into your terminal)

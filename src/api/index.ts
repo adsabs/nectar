@@ -7,6 +7,7 @@ export * from './models';
 export * from './recaptcha';
 export * from './reference';
 export * from './search';
+export * from './token';
 export * from './types';
 export * from './user';
 export * from './vault';
