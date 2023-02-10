@@ -155,7 +155,7 @@ const ExportSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSide
   const selectedValues = useMemo(() => {
     const data = userData ?? DEFAULT_USER_DATA;
     const defaultExportFormatOption = formatOptions.find((option) => option.label === data.defaultExportFormat);
-    const customFormat = data.customFormats?.[0];
+    const customFormats = data.customFormats;
     const journalFormat = JournalFormatMap[data.bibtexJournalFormat];
     const bibtexExportKeyFormat = data.bibtexKeyFormat;
     // not allowing max author to be 'all' now
@@ -171,7 +171,7 @@ const ExportSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSide
 
     return {
       defaultExportFormatOption,
-      customFormat,
+      customFormats,
       journalFormat,
       bibtexExportKeyFormat,
       bibtexMaxAuthor,
@@ -194,7 +194,7 @@ const ExportSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSide
   const { data: sampleCitation } = useGetExportCitation(
     {
       format: (selectedValues.defaultExportFormatOption?.value as ExportApiFormatKey) ?? ExportApiFormatKey.bibtex,
-      customFormat: selectedValues.customFormat?.code ?? '', // used if format is custom format
+      customFormat: selectedValues.customFormats?.[0]?.code ?? '', // used if format is custom format
       bibcode: [sampleDoc?.bibcode],
       keyformat: [selectedValues.bibtexExportKeyFormat],
       journalformat: [selectedValues.journalFormat],
@@ -215,7 +215,7 @@ const ExportSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSide
   const handleEditCustomFormat = (id: string, name: string, code: string) => {
     dispatch({
       type: 'EDIT_CUSTOM_FORMAT',
-      payload: { currentFormats: userData.customFormats, id, name, code },
+      payload: { currentFormats: selectedValues.customFormats, id, name, code },
     });
   };
 
@@ -223,7 +223,7 @@ const ExportSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSide
   const handleDeleteCustomFormat = (id: string) => {
     dispatch({
       type: 'DELETE_CUSTOM_FORMAT',
-      payload: { currentFormats: userData.customFormats, id },
+      payload: { currentFormats: selectedValues.customFormats, id },
     });
   };
 
@@ -231,13 +231,13 @@ const ExportSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSide
   const handleAddCustomFormat = (name: string, code: string) => {
     dispatch({
       type: 'ADD_CUSTOM_FORMAT',
-      payload: { currentFormats: userData.customFormats, name, code },
+      payload: { currentFormats: selectedValues.customFormats, name, code },
     });
   };
 
   // sort custom format, from Id over to
   const handleShiftCustomFormat = (fromId: string, toId: string) => {
-    const customFormats = JSON.parse(JSON.stringify(userData.customFormats)) as CustomFormat[];
+    const customFormats = JSON.parse(JSON.stringify(selectedValues.customFormats)) as CustomFormat[];
     const fromPos = customFormats.findIndex((f) => f.id === fromId);
     const fromFormat = customFormats[fromPos];
     const toPos = customFormats.findIndex((f) => f.id === toId);
@@ -324,7 +324,7 @@ const ExportSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSide
                     {content}
                   </Box>
                   <CustomFormatTable
-                    customFormats={userData?.customFormats}
+                    customFormats={selectedValues.customFormats}
                     onAdd={handleAddCustomFormat}
                     onModify={handleEditCustomFormat}
                     onDelete={handleDeleteCustomFormat}
