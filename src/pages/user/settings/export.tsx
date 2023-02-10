@@ -420,7 +420,7 @@ const SampleTextArea = memo(
     return (
       <FormControl display={{ base: 'none', lg: 'initial' }}>
         <FormLabel>Sample Default Export</FormLabel>
-        <Textarea value={value} isReadOnly h="lg" />
+        <Textarea value={value} isReadOnly h="lg" borderRadius="md" />
       </FormControl>
     );
   },
