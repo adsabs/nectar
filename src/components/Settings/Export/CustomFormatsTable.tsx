@@ -1,13 +1,66 @@
 import { CustomFormat } from '@api';
+import {
+  FormControl,
+  FormLabel,
+  Box,
+  Table,
+  Thead,
+  Tr,
+  Th,
+  Tbody,
+  Td,
+  Input,
+  Stack,
+  IconButton,
+  Code,
+  Button,
+} from '@chakra-ui/react';
+import { customFormatDescription, DescriptionCollapse } from '@components';
 import { CheckIcon, CloseIcon, EditIcon, DeleteIcon, DragHandleIcon } from '@chakra-ui/icons';
-import { Table, Thead, Tr, Th, Tbody, Td, Input, Stack, IconButton, Code, Button } from '@chakra-ui/react';
 import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useEffect } from 'react';
-import { CSSProperties, useState } from 'react';
+import { CSSProperties, useState, useEffect } from 'react';
 
-export const CustomFormatTable = ({
+export interface ICustomFormatsTableProps {
+  customFormats: CustomFormat[];
+  onModify: (id: string, name: string, code: string) => void;
+  onAdd: (name: string, code: string) => void;
+  onDelete: (id: string) => void;
+  onShiftPosition: (fromId: string, toId: string) => void;
+}
+
+export const CustomFormatsTable = ({
+  customFormats,
+  onModify,
+  onAdd,
+  onDelete,
+  onShiftPosition,
+}: ICustomFormatsTableProps) => {
+  return (
+    <DescriptionCollapse body={customFormatDescription} label="Custom Formats">
+      {({ btn, content }) => (
+        <FormControl>
+          <Box mb="2">
+            <FormLabel htmlFor="custom-formats" fontSize={['sm', 'md']}>
+              {'Custom Formats'} {btn}
+            </FormLabel>
+            {content}
+          </Box>
+          <CFTable
+            customFormats={customFormats}
+            onAdd={onAdd}
+            onModify={onModify}
+            onDelete={onDelete}
+            onShiftPosition={onShiftPosition}
+          />
+        </FormControl>
+      )}
+    </DescriptionCollapse>
+  );
+};
+
+const CFTable = ({
   customFormats,
   onModify,
   onAdd,
