@@ -1,22 +1,16 @@
+import { CustomFormat, DEFAULT_USER_DATA, ExportApiJournalFormat, IADSApiUserDataResponse, UserDataKeys } from '@api';
+import { getVaultData } from '@auth-utils';
 import {
-  CustomFormat,
-  DEFAULT_USER_DATA,
-  ExportApiJournalFormat,
-  IADSApiUserDataResponse,
-  UserDataKeys,
-  useSetUserData,
-} from '@api';
-import {
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
+  Box,
   FormControl,
   FormLabel,
   Stack,
-  Box,
   useToast,
-  Accordion,
-  AccordionButton,
-  AccordionPanel,
-  AccordionItem,
-  AccordionIcon,
 } from '@chakra-ui/react';
 import {
   absExportFormatDescription,
@@ -36,9 +30,9 @@ import {
   Select,
   SettingsLayout,
 } from '@components';
-import { useStore, useStoreApi } from '@store';
+import { useSettings } from '@hooks/useSettings';
+import { createStore, useStoreApi } from '@store';
 import { composeNextGSSP, userGSSP } from '@utils';
-import axios from 'axios';
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import { values } from 'ramda';
 import { Reducer, useEffect, useMemo, useReducer } from 'react';
@@ -125,45 +119,53 @@ const useGetOptions = () => {
 const ExportSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const toast = useToast();
 
-  const setStoreUserData = useStoreApi().getState().setUserSettings;
+  // const setStoreUserData = useStoreApi().getState().setUserSettings;
 
   // params used to update user data
   const [params, dispatch] = useReducer(reducer, {});
 
   // get user data from store
-  const userData = useStore((state) => state.settings.user);
+  // const userData = useStore((state) => state.settings.user);
+  //
+  // // set user data and get back updated user data
+  // const { refetch } = useSetUserData(params, {
+  //   enabled: false,
+  //   onSuccess: (res) => {
+  //     setStoreUserData(res); // TODO: Is it the right place for this? Or should this be handled in one place?
+  //     toast({
+  //       title: 'Updated',
+  //       status: 'success',
+  //       duration: 3000,
+  //     });
+  //   },
+  //   onError: (error) => {
+  //     const message = axios.isAxiosError(error) ? error.message : error.message ?? 'Unknown error occurred';
+  //
+  //     toast({
+  //       title: 'Error',
+  //       status: 'error',
+  //       duration: 3000,
+  //       description: message,
+  //     });
+  //   },
+  // });
 
-  // set user data and get back updated user data
-  const { refetch } = useSetUserData(params, {
-    enabled: false,
-    onSuccess: (res) => {
-      setStoreUserData(res); // TODO: Is it the right place for this? Or should this be handled in one place?
-      toast({
-        title: 'Updated',
-        status: 'success',
-        duration: 3000,
-      });
+  const { settings: userData } = useSettings({
+    params,
+    onSuccess: () => {
+      toast({ title: 'updated!' });
     },
-    onError: (error) => {
-      const message = axios.isAxiosError(error) ? error.message : error.message ?? 'Unknown error occurred';
-
-      toast({
-        title: 'Error',
-        status: 'error',
-        duration: 3000,
-        description: message,
-      });
-    },
+    onError: (error) => toast({ status: 'error', description: error }),
   });
 
   const { formatOptions } = useGetOptions();
 
   // apply set user data when params updated
-  useEffect(() => {
-    if (params && Object.keys(params).length > 0) {
-      void refetch();
-    }
-  }, [params]);
+  // useEffect(() => {
+  //   if (params && Object.keys(params).length > 0) {
+  //     void refetch();
+  //   }
+  // }, [params]);
 
   useEffect(() => dispatch({ type: 'CLEAR' }), []);
 
@@ -399,7 +401,18 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
     });
   }
 
-  return Promise.resolve({
-    props: {},
-  });
+  const userData = await getVaultData(ctx);
+  const initialState = createStore().getState();
+
+  return {
+    props: {
+      userData,
+      dehydratedAppState: {
+        settings: {
+          ...initialState.settings,
+          user: userData,
+        },
+      },
+    },
+  };
 }, userGSSP);

@@ -1,11 +1,11 @@
 import {
-  IADSApiUserDataParams,
-  UserDataKeys,
-  useSetUserData,
-  ExternalLinkActionOptions,
-  IADSApiUserDataResponse,
   DEFAULT_USER_DATA,
+  ExternalLinkActionOptions,
+  IADSApiUserDataParams,
+  IADSApiUserDataResponse,
+  UserDataKeys,
 } from '@api';
+import { getVaultData } from '@auth-utils';
 import { Box, Checkbox, CheckboxGroup, FormControl, FormLabel, Stack, useToast } from '@chakra-ui/react';
 import {
   authorsPerResultsDescription,
@@ -17,9 +17,9 @@ import {
   SelectOption,
   SettingsLayout,
 } from '@components';
-import { useStore, useStoreApi } from '@store';
+import { useSettings } from '@hooks/useSettings';
+import { createStore } from '@store';
 import { composeNextGSSP, userGSSP } from '@utils';
-import axios from 'axios';
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -35,7 +35,7 @@ const useGetOptions = () => {
 };
 
 const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const toast = useToast();
+  const toast = useToast({ duration: 3000 });
 
   // options for the select dropdown
   const { externalLinksOptions } = useGetOptions();
@@ -43,43 +43,50 @@ const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSidePro
   // params used to update user data
   const [params, setParams] = useState<IADSApiUserDataParams>({});
 
-  // get user data from store
-  const userData = useStore((state) => state.settings.user);
+  const { settings: userData } = useSettings({
+    params,
+    onSuccess: () => {
+      toast({ title: 'updated!' });
+    },
+    onError: (error) => toast({ status: 'error', description: error }),
+  });
 
-  const setStoreUserData = useStoreApi().getState().setUserSettings;
+  // get user data from store
+  // const userData = useStore((state) => state.settings.user);
+  // const setSettings = useStore((state) => state.setUserSettings);
 
   // set user data and get back updated user data
-  const { refetch } = useSetUserData(params, {
-    enabled: false,
-    onSuccess: (res) => {
-      setStoreUserData(res); // remembering to update store
-      toast({
-        title: 'Updated',
-        status: 'success',
-        duration: 3000,
-      });
-    },
-    onError: (error) => {
-      const message = axios.isAxiosError(error) ? error.message : error.message ?? 'Unknown error occurred';
-
-      toast({
-        title: 'Error',
-        status: 'error',
-        duration: 3000,
-        description: message,
-      });
-    },
-  });
+  // const { refetch } = useSetUserData(params, {
+  //   enabled: false,
+  //   onSuccess: (res) => {
+  //     setSettings(res); // remembering to update store
+  //     toast({
+  //       title: 'Updated',
+  //       status: 'success',
+  //       duration: 3000,
+  //     });
+  //   },
+  //   onError: (error) => {
+  //     const message = axios.isAxiosError(error) ? error.message : error.message ?? 'Unknown error occurred';
+  //
+  //     toast({
+  //       title: 'Error',
+  //       status: 'error',
+  //       duration: 3000,
+  //       description: message,
+  //     });
+  //   },
+  // });
 
   // prevent an unnecessary set param initally when slider is updated to the fetched value
   useEffect(() => setParams({}), []);
 
   // apply set user data when params updated
-  useEffect(() => {
-    if (params && Object.keys(params).length > 0) {
-      void refetch();
-    }
-  }, [params]);
+  // useEffect(() => {
+  //   if (params && Object.keys(params).length > 0) {
+  //     void refetch();
+  //   }
+  // }, [params]);
 
   const selectedValues = useMemo(() => {
     const data = userData ?? DEFAULT_USER_DATA;
@@ -194,7 +201,18 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
     });
   }
 
-  return Promise.resolve({
-    props: {},
-  });
+  const userData = await getVaultData(ctx);
+  const initialState = createStore().getState();
+
+  return {
+    props: {
+      userData,
+      dehydratedAppState: {
+        settings: {
+          ...initialState.settings,
+          user: userData,
+        },
+      },
+    },
+  };
 }, userGSSP);

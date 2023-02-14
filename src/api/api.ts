@@ -129,7 +129,9 @@ class Api {
   }
 
   public setUserData(userData: IUserData) {
-    this.userData = userData;
+    if (isUserData(userData)) {
+      this.userData = userData;
+    }
   }
 
   private invalidateUserData() {
