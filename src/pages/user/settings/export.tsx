@@ -1,7 +1,6 @@
 import { getVaultData } from '@auth-utils';
 import {
   CustomFormat,
-  DEFAULT_USER_DATA,
   ExportApiFormatKey,
   ExportApiJournalFormat,
   getSearchParams,
@@ -25,6 +24,7 @@ import { useSettings } from '@hooks/useSettings';
 import { createStore } from '@store';
 import { CustomFormatsTable } from '@components/Settings/Export/CustomFormatsTable';
 import { exportFormatOptions, ExportFormatSelect } from '@components/Settings/Export/ExportFormatSelect';
+import { DEFAULT_USER_DATA } from '@components/Settings/model';
 import { composeNextGSSP, userGSSP } from '@utils';
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import { memo, Reducer, useEffect, useMemo, useReducer } from 'react';

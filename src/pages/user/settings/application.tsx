@@ -1,10 +1,4 @@
-import {
-  DEFAULT_USER_DATA,
-  ExternalLinkActionOptions,
-  IADSApiUserDataParams,
-  IADSApiUserDataResponse,
-  UserDataKeys,
-} from '@api';
+import { ExternalLinkActionOptions, IADSApiUserDataParams, IADSApiUserDataResponse, UserDataKeys } from '@api';
 import { getVaultData } from '@auth-utils';
 import { Box, Checkbox, CheckboxGroup, FormControl, FormLabel, Stack, useToast } from '@chakra-ui/react';
 import {
@@ -19,6 +13,7 @@ import {
 } from '@components';
 import { useSettings } from '@hooks/useSettings';
 import { createStore } from '@store';
+import { DEFAULT_USER_DATA } from '@components/Settings/model';
 import { composeNextGSSP, userGSSP } from '@utils';
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import { useEffect, useMemo, useState } from 'react';
