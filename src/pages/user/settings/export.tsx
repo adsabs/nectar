@@ -119,36 +119,8 @@ const useGetOptions = () => {
 const ExportSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const toast = useToast();
 
-  // const setStoreUserData = useStoreApi().getState().setUserSettings;
-
   // params used to update user data
   const [params, dispatch] = useReducer(reducer, {});
-
-  // get user data from store
-  // const userData = useStore((state) => state.settings.user);
-  //
-  // // set user data and get back updated user data
-  // const { refetch } = useSetUserData(params, {
-  //   enabled: false,
-  //   onSuccess: (res) => {
-  //     setStoreUserData(res); // TODO: Is it the right place for this? Or should this be handled in one place?
-  //     toast({
-  //       title: 'Updated',
-  //       status: 'success',
-  //       duration: 3000,
-  //     });
-  //   },
-  //   onError: (error) => {
-  //     const message = axios.isAxiosError(error) ? error.message : error.message ?? 'Unknown error occurred';
-  //
-  //     toast({
-  //       title: 'Error',
-  //       status: 'error',
-  //       duration: 3000,
-  //       description: message,
-  //     });
-  //   },
-  // });
 
   const { settings: userData } = useSettings({
     params,
@@ -159,13 +131,6 @@ const ExportSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSide
   });
 
   const { formatOptions } = useGetOptions();
-
-  // apply set user data when params updated
-  // useEffect(() => {
-  //   if (params && Object.keys(params).length > 0) {
-  //     void refetch();
-  //   }
-  // }, [params]);
 
   useEffect(() => dispatch({ type: 'CLEAR' }), []);
 

@@ -51,42 +51,8 @@ const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSidePro
     onError: (error) => toast({ status: 'error', description: error }),
   });
 
-  // get user data from store
-  // const userData = useStore((state) => state.settings.user);
-  // const setSettings = useStore((state) => state.setUserSettings);
-
-  // set user data and get back updated user data
-  // const { refetch } = useSetUserData(params, {
-  //   enabled: false,
-  //   onSuccess: (res) => {
-  //     setSettings(res); // remembering to update store
-  //     toast({
-  //       title: 'Updated',
-  //       status: 'success',
-  //       duration: 3000,
-  //     });
-  //   },
-  //   onError: (error) => {
-  //     const message = axios.isAxiosError(error) ? error.message : error.message ?? 'Unknown error occurred';
-  //
-  //     toast({
-  //       title: 'Error',
-  //       status: 'error',
-  //       duration: 3000,
-  //       description: message,
-  //     });
-  //   },
-  // });
-
   // prevent an unnecessary set param initally when slider is updated to the fetched value
   useEffect(() => setParams({}), []);
-
-  // apply set user data when params updated
-  // useEffect(() => {
-  //   if (params && Object.keys(params).length > 0) {
-  //     void refetch();
-  //   }
-  // }, [params]);
 
   const selectedValues = useMemo(() => {
     const data = userData ?? DEFAULT_USER_DATA;

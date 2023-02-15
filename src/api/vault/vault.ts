@@ -20,6 +20,7 @@ export enum VaultKeys {
   EXECUTE_QUERY = 'vault/execute_query',
   BIGQUERY = 'vault/bigquery',
   SET_USERDATA = 'vault/set-user-data',
+  USERDATA = 'vault/user-data',
 }
 
 export const vaultKeys = {
@@ -27,6 +28,7 @@ export const vaultKeys = {
   executeQuery: (qid: IADSVaultExecuteQueryParams['qid']) => [VaultKeys.EXECUTE_QUERY, { qid }] as const,
   bigquery: (bibcodes: IDocsEntity['bibcode'][]) => [VaultKeys.BIGQUERY, { bibcodes }] as const,
   setUserData: (userData: IADSApiUserDataParams) => [VaultKeys.SET_USERDATA, { userData }] as const,
+  userData: () => VaultKeys.USERDATA,
 };
 
 /**
@@ -96,7 +98,7 @@ export const fetchVaultExecuteQuery: QueryFunction<IADSApiSearchResponse['respon
 /** user data request **/
 export const useGetUserData: ADSQuery<unknown, IADSApiUserDataResponse> = (_, options) => {
   return useQuery({
-    queryKey: 'user-data',
+    queryKey: vaultKeys.userData(),
     queryFn: fetchUserData,
     ...options,
   });
