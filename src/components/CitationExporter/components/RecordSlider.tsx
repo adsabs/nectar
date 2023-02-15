@@ -22,7 +22,7 @@ export const RecordSlider = (props: {
 
   return (
     <Box>
-      <DescriptionCollapse body={description} label="Limit Records" linkProps={{ href: '/help/actions/export' }}>
+      <DescriptionCollapse body={description} label="Limit Records">
         {({ btn, content }) => (
           <>
             <FormLabel htmlFor="records-slider" fontSize={['sm', 'md']}>

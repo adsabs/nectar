@@ -1,5 +1,5 @@
 import { Link as ChakraLink } from '@chakra-ui/layout';
-import { LinkProps } from '@chakra-ui/react';
+import { LayoutProps, LinkProps } from '@chakra-ui/react';
 import NextLink from 'next/link';
 import { FC, ReactElement } from 'react';
 

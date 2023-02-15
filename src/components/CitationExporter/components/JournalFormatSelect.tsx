@@ -2,13 +2,13 @@ import { ExportApiJournalFormat, IExportApiParams } from '@api';
 import { Box, FormLabel, OrderedList } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components/Select';
 import { values } from 'ramda';
-import { Dispatch, useMemo } from 'react';
+import { Dispatch, ReactElement, useMemo } from 'react';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 import { DescriptionCollapse } from './DescriptionCollapse';
 
 type JournalFormatOption = SelectOption<ExportApiJournalFormat>;
 
-const journalFormats: Record<ExportApiJournalFormat, JournalFormatOption> = {
+export const journalFormats: Record<ExportApiJournalFormat, JournalFormatOption> = {
   [ExportApiJournalFormat.AASTeXMacros]: {
     id: ExportApiJournalFormat.AASTeXMacros,
     label: 'AASTeX Macros',
@@ -31,21 +31,25 @@ const journalFormats: Record<ExportApiJournalFormat, JournalFormatOption> = {
 
 export const JournalFormatSelect = (props: {
   journalformat: IExportApiParams['journalformat'];
-  dispatch: Dispatch<CitationExporterEvent>;
+  dispatch?: Dispatch<CitationExporterEvent>;
+  onChange?: (format: ExportApiJournalFormat) => void;
+  label?: string;
+  description?: ReactElement;
 }) => {
-  const { journalformat: [journalformat] = [], dispatch } = props;
+  const { journalformat: [journalformat] = [], dispatch, onChange } = props;
   const formats = useMemo(() => values(journalFormats), []);
 
   const handleOnChange = ({ id }: JournalFormatOption) => {
-    dispatch({ type: 'SET_JOURNAL_FORMAT', payload: id });
+    if (typeof dispatch === 'function') {
+      dispatch({ type: 'SET_JOURNAL_FORMAT', payload: id });
+    }
+    if (typeof onChange === 'function') {
+      onChange(id);
+    }
   };
 
   return (
-    <DescriptionCollapse
-      body={description}
-      label="Journal Format"
-      linkProps={{ href: '/help/actions/export#the-bibtex-format-configuration' }}
-    >
+    <DescriptionCollapse body={props.description ?? description} label="Journal Format">
       {({ btn, content }) => (
         <>
           <Select<JournalFormatOption>
@@ -53,7 +57,7 @@ export const JournalFormatSelect = (props: {
             label={
               <Box mb="2">
                 <FormLabel htmlFor="journal-format-select" fontSize={['sm', 'md']}>
-                  Journal Format {btn}
+                  {props.label ?? 'Journal Format'} {btn}
                 </FormLabel>
                 {content}
               </Box>
