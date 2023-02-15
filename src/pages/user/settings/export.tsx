@@ -125,7 +125,7 @@ const ExportSettingsPage = (props: IExportProps) => {
   const { settings: userData } = useSettings({
     params,
     onSuccess: () => {
-      toast({ title: 'updated!' });
+      toast({ title: 'updated!', status: 'success' });
     },
     onError: (error) => toast({ status: 'error', description: error }),
   });
