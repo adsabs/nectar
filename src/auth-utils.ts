@@ -1,6 +1,7 @@
 import api, {
   ApiTargets,
   IADSApiTokenResponse,
+  IADSApiUserDataResponse,
   IBasicAccountsErrorResponse,
   IBasicAccountsResponse,
   IBootstrapPayload,
@@ -279,7 +280,7 @@ export const generateNewApiToken = async () => {
 export const getVaultData = async (ctx?: GetServerSidePropsContext) => {
   try {
     api.setUserData(ctx?.req?.session?.userData);
-    const { data } = await api.request<Record<string, unknown>>({ url: ApiTargets.USER_DATA });
+    const { data } = await api.request<IADSApiUserDataResponse>({ url: ApiTargets.USER_DATA });
     return data;
   } catch (e) {
     return null;

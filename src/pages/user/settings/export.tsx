@@ -3,17 +3,20 @@ import {
   CustomFormat,
   ExportApiFormatKey,
   ExportApiJournalFormat,
+  fetchSearch,
   getSearchParams,
   IADSApiUserDataResponse,
+  searchKeys,
+  SEARCH_API_KEYS,
   useGetExportCitation,
   UserDataKeys,
-  useSearch,
 } from '@api';
 import { FormControl, FormLabel, Stack, useToast, Grid, Textarea } from '@chakra-ui/react';
 import {
   absExportFormatDescription,
   bibtexExportFormatDescription,
   ExportFormat,
+  exportFormats,
   JournalFormatSelect,
   journalNameHandlingDescription,
   KeyFormatInputApply,
@@ -23,16 +26,22 @@ import {
 import { useSettings } from '@hooks/useSettings';
 import { createStore } from '@store';
 import { CustomFormatsTable } from '@components/Settings/Export/CustomFormatsTable';
-import { exportFormatOptions, ExportFormatSelect } from '@components/Settings/Export/ExportFormatSelect';
+import { ExportFormatSelect } from '@components/Settings/Export/ExportFormatSelect';
 import { DEFAULT_USER_DATA } from '@components/Settings/model';
 import { composeNextGSSP, userGSSP } from '@utils';
-import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
+import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { memo, Reducer, useEffect, useMemo, useReducer } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { QueryClient } from 'react-query';
+import { values } from 'ramda';
 
 // partial user data params
 // used to update user data
 type UserDataSetterState = Partial<IADSApiUserDataResponse>;
+
+interface IExportProps {
+  sampleBib: string;
+}
 
 // TODO: is it over engineering to use reducer here?
 type UserDataSetterEvent =
@@ -105,7 +114,9 @@ const JournalFormatMap: Record<string, ExportApiJournalFormat> = {
   'Use Full Journal Name': ExportApiJournalFormat.FullName,
 };
 
-const ExportSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+const exportFormatOptions = values(exportFormats);
+
+const ExportSettingsPage = (props: IExportProps) => {
   const toast = useToast();
 
   // params used to update user data
@@ -152,26 +163,20 @@ const ExportSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSide
     };
   }, [userData]);
 
-  // fetch a sample doc
-  const { data: sampleDocSearch } = useSearch(getSearchParams({ q: 'bibstem:ApJ author_count:[10 TO 20]', rows: 1 }));
-  const sampleDoc = useMemo(() => {
-    if (sampleDocSearch) {
-      return sampleDocSearch.docs[0];
-    }
-  }, [sampleDocSearch]);
+  const { sampleBib } = props;
 
   // fetch sample citation
   const { data: sampleCitation } = useGetExportCitation(
     {
       format: (selectedValues.defaultExportFormatOption?.value as ExportApiFormatKey) ?? ExportApiFormatKey.bibtex,
       customFormat: selectedValues.customFormats?.[0]?.code ?? '', // used if format is custom format
-      bibcode: [sampleDoc?.bibcode],
+      bibcode: [sampleBib],
       keyformat: [selectedValues.bibtexExportKeyFormat],
       journalformat: [selectedValues.journalFormat],
       authorcutoff: [selectedValues.bibtexAuthorCutoff],
       maxauthor: [selectedValues.bibtexMaxAuthor],
     },
-    { enabled: !!sampleDoc && !!selectedValues },
+    { enabled: !!sampleBib && !!selectedValues },
   );
 
   /** apply changes */
@@ -350,9 +355,21 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
   const userData = await getVaultData(ctx);
   const initialState = createStore().getState();
 
+  // get a sample doc
+  const params = getSearchParams({ q: 'bibstem:ApJ author_count:[10 TO 20]', rows: 1 });
+  const queryClient = new QueryClient();
+  const res = await queryClient.fetchQuery({
+    queryKey: SEARCH_API_KEYS.primary,
+    queryHash: JSON.stringify(searchKeys.primary(params)),
+    queryFn: fetchSearch,
+    meta: { params },
+  });
+  const sampleBib = res.response?.docs?.[0]?.bibcode ?? null;
+
   return {
     props: {
       userData,
+      sampleBib,
       dehydratedAppState: {
         settings: {
           ...initialState.settings,
