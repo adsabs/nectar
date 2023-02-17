@@ -21,9 +21,12 @@ import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { CSSProperties, useState, useEffect } from 'react';
+import { noop } from '@utils';
 
 export interface ICustomFormatsTableProps {
   customFormats: CustomFormat[];
+  selected?: CustomFormat['id'];
+  onSelect?: (id: string) => void;
   onModify: (id: string, name: string, code: string) => void;
   onAdd: (name: string, code: string) => void;
   onDelete: (id: string) => void;
@@ -32,10 +35,12 @@ export interface ICustomFormatsTableProps {
 
 export const CustomFormatsTable = ({
   customFormats,
+  selected = null,
   onModify,
   onAdd,
   onDelete,
   onShiftPosition,
+  onSelect = noop,
 }: ICustomFormatsTableProps) => {
   return (
     <DescriptionCollapse body={customFormatDescription} label="Custom Formats">
@@ -48,6 +53,8 @@ export const CustomFormatsTable = ({
             {content}
           </Box>
           <CFTable
+            selected={selected}
+            onSelect={onSelect}
             customFormats={customFormats}
             onAdd={onAdd}
             onModify={onModify}
@@ -60,19 +67,25 @@ export const CustomFormatsTable = ({
   );
 };
 
-const CFTable = ({
-  customFormats,
-  onModify,
-  onAdd,
-  onDelete,
-  onShiftPosition,
-}: {
+interface ICFTableProps {
   customFormats: CustomFormat[];
+  selected?: CustomFormat['id'];
+  onSelect?: (id: string) => void;
   onModify: (id: string, name: string, code: string) => void;
   onAdd: (name: string, code: string) => void;
   onDelete: (id: string) => void;
   onShiftPosition: (fromId: string, toId: string) => void;
-}) => {
+}
+
+const CFTable = ({
+  customFormats,
+  selected = null,
+  onSelect = noop,
+  onModify,
+  onAdd,
+  onDelete,
+  onShiftPosition,
+}: ICFTableProps) => {
   const [items, setItems] = useState(customFormats);
   const [isEditing, setIsEditing] = useState<string>(null);
   const [isAdding, setIsAdding] = useState<Omit<CustomFormat, 'id'>>(null);
@@ -154,6 +167,8 @@ const CFTable = ({
                     <SortableRow
                       key={f.id}
                       format={f}
+                      isSelected={selected && selected === f.id}
+                      onSelect={onSelect}
                       isEditable={isAdding !== null || isEditing !== null}
                       isEditing={isEditing && isEditing === f.id}
                       onEdit={handleIsEditing}
@@ -221,6 +236,8 @@ const CFTable = ({
 
 const SortableRow = ({
   format,
+  isSelected = false,
+  onSelect = noop,
   isEditable,
   isEditing,
   onEdit,
@@ -229,6 +246,8 @@ const SortableRow = ({
   onDelete,
 }: {
   format: CustomFormat;
+  isSelected?: boolean;
+  onSelect?: (id: string) => void;
   isEditable: boolean;
   isEditing: boolean;
   onEdit: (id: string) => void;
@@ -256,11 +275,23 @@ const SortableRow = ({
   };
 
   const handleCancelModify = () => {
+    setFormatValue({ ...format });
     onCancelEdit(format.id);
   };
 
+  const handleSelect = () => {
+    onSelect(format.id);
+  };
+
   return (
-    <Tr {...attributes} {...listeners} style={style} ref={setNodeRef}>
+    <Tr
+      {...attributes}
+      {...listeners}
+      style={style}
+      ref={setNodeRef}
+      backgroundColor={isSelected ? 'blue.50' : 'transparent'}
+      onClick={handleSelect}
+    >
       {isEditing ? (
         <>
           <Td>

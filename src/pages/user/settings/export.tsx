@@ -1,36 +1,21 @@
 import { getVaultData } from '@auth-utils';
 import {
   CustomFormat,
-  ExportApiFormatKey,
-  ExportApiJournalFormat,
   fetchSearch,
   getSearchParams,
   IADSApiUserDataResponse,
+  JournalFormatName,
   searchKeys,
   SEARCH_API_KEYS,
-  useGetExportCitation,
   UserDataKeys,
 } from '@api';
-import { FormControl, FormLabel, Stack, useToast, Grid, Textarea } from '@chakra-ui/react';
-import {
-  absExportFormatDescription,
-  bibtexExportFormatDescription,
-  ExportFormat,
-  exportFormats,
-  JournalFormatSelect,
-  journalNameHandlingDescription,
-  KeyFormatInputApply,
-  MaxAuthorForm,
-  SettingsLayout,
-} from '@components';
+import { useToast, Tab, TabList, Tabs, TabPanels, TabPanel } from '@chakra-ui/react';
+import { BibtexTabPanel, CustomFormatsTabPanel, exportFormats, GeneralTabPanel, SettingsLayout } from '@components';
 import { useSettings } from '@hooks/useSettings';
-import { createStore } from '@store';
-import { CustomFormatsTable } from '@components/Settings/Export/CustomFormatsTable';
-import { ExportFormatSelect } from '@components/Settings/Export/ExportFormatSelect';
-import { DEFAULT_USER_DATA } from '@components/Settings/model';
+import { createStore, useStore } from '@store';
 import { composeNextGSSP, userGSSP } from '@utils';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
-import { memo, Reducer, useEffect, useMemo, useReducer } from 'react';
+import { Reducer, useEffect, useMemo, useReducer } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { QueryClient } from 'react-query';
 import { values } from 'ramda';
@@ -43,20 +28,22 @@ interface IExportProps {
   sampleBib: string;
 }
 
-// TODO: is it over engineering to use reducer here?
-type UserDataSetterEvent =
+export type UserDataSetterEvent =
   | { type: 'SET_DEFAULT_EXPORT_FORMAT'; payload: string }
   | { type: 'ADD_CUSTOM_FORMAT'; payload: { currentFormats: CustomFormat[]; name: string; code: string } }
   | { type: 'EDIT_CUSTOM_FORMAT'; payload: { currentFormats: CustomFormat[]; id: string; name: string; code: string } }
   | { type: 'DELETE_CUSTOM_FORMAT'; payload: { currentFormats: CustomFormat[]; id: string } }
   | { type: 'SORT_CUSTOM_FORMAT'; payload: CustomFormat[] }
+  | { type: 'SET_ALL_BIBTEX_KEY_FORMAT'; payload: string }
+  | { type: 'SET_ALL_BIBTEX_MAX_AUTHORS'; payload: string }
+  | { type: 'SET_ALL_BIBTEX_SETTINGS'; payload: { keyFormat: string; maxAuthors: string; cutoff: string } }
   | { type: 'SET_BIBTEX_KEY_FORMAT'; payload: string }
   | { type: 'SET_BIBTEX_MAX_AUTHORS'; payload: string }
   | { type: 'SET_BIBTEX_AUTHORS_CUTOFF'; payload: string }
   | { type: 'SET_BIBTEX_ABS_KEY_FORMAT'; payload: string }
   | { type: 'SET_BIBTEX_ABS_MAX_AUTHORS'; payload: string }
   | { type: 'SET_BIBTEX_ABS_AUTHORS_CUTOFF'; payload: string }
-  | { type: 'SET_JOURNAL_NAME_HANDLING'; payload: string }
+  | { type: 'SET_JOURNAL_NAME_HANDLING'; payload: JournalFormatName }
   | { type: 'CLEAR' };
 
 const reducer: Reducer<UserDataSetterState, UserDataSetterEvent> = (state, action) => {
@@ -87,10 +74,28 @@ const reducer: Reducer<UserDataSetterState, UserDataSetterEvent> = (state, actio
       return {
         [UserDataKeys.CUSTOM_FORMATS]: action.payload,
       };
+    case 'SET_ALL_BIBTEX_KEY_FORMAT':
+      return { [UserDataKeys.BIBTEX_FORMAT]: action.payload ?? '', [UserDataKeys.ABS_FORMAT]: action.payload ?? '' };
+    case 'SET_ALL_BIBTEX_MAX_AUTHORS':
+      return {
+        [UserDataKeys.BIBTEX_MAX_AUTHORS]: action.payload,
+        [UserDataKeys.BIBTEX_AUTHOR_CUTOFF]: action.payload,
+        [UserDataKeys.ABS_MAX_AUTHORS]: action.payload,
+        [UserDataKeys.ABS_AUTHOR_CUTOFF]: action.payload,
+      };
+    case 'SET_ALL_BIBTEX_SETTINGS':
+      return {
+        [UserDataKeys.BIBTEX_FORMAT]: action.payload.keyFormat,
+        [UserDataKeys.BIBTEX_MAX_AUTHORS]: action.payload.maxAuthors,
+        [UserDataKeys.BIBTEX_AUTHOR_CUTOFF]: action.payload.cutoff,
+        [UserDataKeys.ABS_FORMAT]: action.payload.keyFormat,
+        [UserDataKeys.ABS_MAX_AUTHORS]: action.payload.maxAuthors,
+        [UserDataKeys.ABS_AUTHOR_CUTOFF]: action.payload.cutoff,
+      };
     case 'SET_BIBTEX_KEY_FORMAT':
-      return { [UserDataKeys.BIBTEXT_FORMAT]: action.payload ?? '' };
+      return { [UserDataKeys.BIBTEX_FORMAT]: action.payload ?? '' };
     case 'SET_BIBTEX_MAX_AUTHORS':
-      return { [UserDataKeys.BIBTEXT_MAX_AUTHORS]: action.payload };
+      return { [UserDataKeys.BIBTEX_MAX_AUTHORS]: action.payload };
     case 'SET_BIBTEX_AUTHORS_CUTOFF':
       return { [UserDataKeys.BIBTEX_AUTHOR_CUTOFF]: action.payload };
     case 'SET_BIBTEX_ABS_KEY_FORMAT':
@@ -107,22 +112,16 @@ const reducer: Reducer<UserDataSetterState, UserDataSetterEvent> = (state, actio
   }
 };
 
-// TODO: this needs to be better
-const JournalFormatMap: Record<string, ExportApiJournalFormat> = {
-  'Use AASTeX macros': ExportApiJournalFormat.AASTeXMacros,
-  'Use Journal Abbreviations': ExportApiJournalFormat.Abbreviations,
-  'Use Full Journal Name': ExportApiJournalFormat.FullName,
-};
-
 const exportFormatOptions = values(exportFormats);
 
 const ExportSettingsPage = (props: IExportProps) => {
-  const toast = useToast();
+  const toast = useToast({ duration: 2000 });
 
   // params used to update user data
   const [params, dispatch] = useReducer(reducer, {});
 
-  const { settings: userData } = useSettings({
+  // when params change, query will be called to update the user settings
+  useSettings({
     params,
     onSuccess: () => {
       toast({ title: 'updated!', status: 'success' });
@@ -130,214 +129,46 @@ const ExportSettingsPage = (props: IExportProps) => {
     onError: (error) => toast({ status: 'error', description: error }),
   });
 
+  const userSettings = useStore((state) => state.settings.user);
+
   useEffect(() => dispatch({ type: 'CLEAR' }), []);
 
   // get selected values for the form
-  const selectedValues = useMemo(() => {
-    const data = userData ?? DEFAULT_USER_DATA;
-    const defaultExportFormatOption = exportFormatOptions.find((option) => option.label === data.defaultExportFormat);
-    const customFormats = data.customFormats;
-    const journalFormat = JournalFormatMap[data.bibtexJournalFormat];
-    const bibtexExportKeyFormat = data.bibtexKeyFormat;
-    // not allowing max author to be 'all' now
-    const bibtexMaxAuthor =
-      data.bibtexMaxAuthors === 'All' ? parseInt(DEFAULT_USER_DATA.bibtexMaxAuthors) : parseInt(data.bibtexMaxAuthors);
-    const bibtexAuthorCutoff = parseInt(data.bibtexAuthorCutoff);
-    const bibtexAbsExportKeyFormat = data.bibtexABSKeyFormat;
-    const bibtexAbsMaxAuthor =
-      data.bibtexABSMaxAuthors === 'All'
-        ? parseInt(DEFAULT_USER_DATA.bibtexABSMaxAuthors)
-        : parseInt(data.bibtexABSMaxAuthors);
-    const bibtexAbsAuthorCutoff = parseInt(data.bibtexABSAuthorCutoff);
-
-    return {
-      defaultExportFormatOption,
-      customFormats,
-      journalFormat,
-      bibtexExportKeyFormat,
-      bibtexMaxAuthor,
-      bibtexAuthorCutoff,
-      bibtexAbsExportKeyFormat,
-      bibtexAbsMaxAuthor,
-      bibtexAbsAuthorCutoff,
-    };
-  }, [userData]);
+  const defaultExportFormatOption = useMemo(
+    () => exportFormatOptions.find((option) => option.label === userSettings.defaultExportFormat),
+    [userSettings],
+  );
 
   const { sampleBib } = props;
 
-  // fetch sample citation
-  const { data: sampleCitation } = useGetExportCitation(
-    {
-      format: (selectedValues.defaultExportFormatOption?.value as ExportApiFormatKey) ?? ExportApiFormatKey.bibtex,
-      customFormat: selectedValues.customFormats?.[0]?.code ?? '', // used if format is custom format
-      bibcode: [sampleBib],
-      keyformat: [selectedValues.bibtexExportKeyFormat],
-      journalformat: [selectedValues.journalFormat],
-      authorcutoff: [selectedValues.bibtexAuthorCutoff],
-      maxauthor: [selectedValues.bibtexMaxAuthor],
-    },
-    { enabled: !!sampleBib && !!selectedValues },
-  );
-
-  /** apply changes */
-
-  // default export format
-  const handleApplyDefaultExportFormat = (format: ExportFormat) => {
-    dispatch({ type: 'SET_DEFAULT_EXPORT_FORMAT', payload: format.label });
-  };
-
-  // custom formats handlers
-  const handleEditCustomFormat = (id: string, name: string, code: string) => {
-    dispatch({
-      type: 'EDIT_CUSTOM_FORMAT',
-      payload: { currentFormats: selectedValues.customFormats, id, name, code },
-    });
-  };
-
-  // delete cutom format
-  const handleDeleteCustomFormat = (id: string) => {
-    dispatch({
-      type: 'DELETE_CUSTOM_FORMAT',
-      payload: { currentFormats: selectedValues.customFormats, id },
-    });
-  };
-
-  // add custom format
-  const handleAddCustomFormat = (name: string, code: string) => {
-    dispatch({
-      type: 'ADD_CUSTOM_FORMAT',
-      payload: { currentFormats: selectedValues.customFormats, name, code },
-    });
-  };
-
-  // sort custom format, from Id over to
-  const handleShiftCustomFormat = (fromId: string, toId: string) => {
-    const customFormats = JSON.parse(JSON.stringify(selectedValues.customFormats)) as CustomFormat[];
-    const fromPos = customFormats.findIndex((f) => f.id === fromId);
-    const fromFormat = customFormats[fromPos];
-    const toPos = customFormats.findIndex((f) => f.id === toId);
-    customFormats.splice(fromPos, 1);
-    customFormats.splice(toPos, 0, fromFormat);
-
-    dispatch({
-      type: 'SORT_CUSTOM_FORMAT',
-      payload: customFormats,
-    });
-  };
-
-  // TeX Journal Name Handling
-  const handleApplyJournalNameHandling = (format: ExportApiJournalFormat) => {
-    const formatName = Object.entries(JournalFormatMap).find(([key, value]) => value === format)[0];
-    dispatch({ type: 'SET_JOURNAL_NAME_HANDLING', payload: formatName });
-  };
-
-  // default export key format
-  const handleApplyBibtexExportKeyFormat = (format: string) => {
-    dispatch({ type: 'SET_BIBTEX_KEY_FORMAT', payload: format });
-  };
-
-  // Bibtex max authors
-  const handleApplyBibtexMaxAuthors = (value: number) => {
-    dispatch({ type: 'SET_BIBTEX_MAX_AUTHORS', payload: value.toString() });
-  };
-
-  // Bibtex author cutoff
-  const handleApplyBibtexAuthorCutoff = (value: number) => {
-    dispatch({ type: 'SET_BIBTEX_AUTHORS_CUTOFF', payload: value.toString() });
-  };
-
-  // default export key format
-  const handleApplyBibtexAbsExportKeyFormat = (format: string) => {
-    dispatch({ type: 'SET_BIBTEX_ABS_KEY_FORMAT', payload: format });
-  };
-
-  // Bibtex max authors
-  const handleApplyBibtexAbsMaxAuthors = (value: number) => {
-    dispatch({ type: 'SET_BIBTEX_ABS_MAX_AUTHORS', payload: value.toString() });
-  };
-
-  // Bibtex author cutoff
-  const handleApplyBibtexAbsAuthorCutoff = (value: number) => {
-    dispatch({ type: 'SET_BIBTEX_ABS_AUTHORS_CUTOFF', payload: value.toString() });
-  };
-
   return (
     <SettingsLayout title="Export Settings" maxW={{ base: 'container.sm', lg: 'container.lg' }}>
-      <Grid templateColumns="repeat(2, 1fr)" gap={6}>
-        <Stack direction="column">
-          <Stack direction="column" spacing={5} p={5} my={5} boxShadow="md">
-            <ExportFormatSelect
-              selectedOption={selectedValues.defaultExportFormatOption}
-              onChange={handleApplyDefaultExportFormat}
+      <Tabs variant="enclosed">
+        <TabList>
+          <Tab>General</Tab>
+          <Tab>Custom Formats</Tab>
+          <Tab>BibTeX</Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel>
+            <GeneralTabPanel
+              sampleBib={sampleBib}
+              selectedOption={defaultExportFormatOption}
+              dispatch={dispatch}
+              // onChange={handleApplyDefaultExportFormat}
             />
-            <CustomFormatsTable
-              customFormats={selectedValues.customFormats}
-              onAdd={handleAddCustomFormat}
-              onModify={handleEditCustomFormat}
-              onDelete={handleDeleteCustomFormat}
-              onShiftPosition={handleShiftCustomFormat}
-            />
-          </Stack>
-          <Stack direction="column" spacing={5} p={5} my={5} boxShadow="md">
-            <JournalFormatSelect
-              journalformat={[selectedValues.journalFormat]}
-              onChange={handleApplyJournalNameHandling}
-              label="TeX Journal Name Handling"
-              description={journalNameHandlingDescription}
-            />
-            <KeyFormatInputApply
-              format={selectedValues.bibtexExportKeyFormat}
-              description={bibtexExportFormatDescription}
-              label="BibTeX Default Export Key Format"
-              onApply={handleApplyBibtexExportKeyFormat}
-            />
-            <MaxAuthorForm
-              label="BibTeX Default Export Max Author (Advanced)"
-              maxAuthorMin={1}
-              maxAuthorMax={500}
-              maxAuthorValue={selectedValues.bibtexMaxAuthor}
-              cutoffMin={1}
-              cutoffMax={500}
-              cutoffValue={selectedValues.bibtexAuthorCutoff}
-              onChangeCutoff={handleApplyBibtexAuthorCutoff}
-              onChangeMaxAuthor={handleApplyBibtexMaxAuthors}
-            />
-            <KeyFormatInputApply
-              format={selectedValues.bibtexAbsExportKeyFormat}
-              label="BibTeX ABS Default Export Key Format"
-              description={absExportFormatDescription}
-              onApply={handleApplyBibtexAbsExportKeyFormat}
-            />
-            <MaxAuthorForm
-              label="BibTeX ABS Default Export Max Author (Advanced)"
-              maxAuthorMin={1}
-              maxAuthorMax={500}
-              maxAuthorValue={selectedValues.bibtexAbsMaxAuthor}
-              cutoffMin={1}
-              cutoffMax={500}
-              cutoffValue={selectedValues.bibtexAbsAuthorCutoff}
-              onChangeCutoff={handleApplyBibtexAbsAuthorCutoff}
-              onChangeMaxAuthor={handleApplyBibtexAbsMaxAuthors}
-            />
-          </Stack>
-        </Stack>
-        <SampleTextArea value={sampleCitation?.export ?? ''} />
-      </Grid>
+          </TabPanel>
+          <TabPanel>
+            <CustomFormatsTabPanel sampleBib={sampleBib} dispatch={dispatch} />
+          </TabPanel>
+          <TabPanel>
+            <BibtexTabPanel sampleBib={sampleBib} dispatch={dispatch} />
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
     </SettingsLayout>
   );
 };
-
-const SampleTextArea = memo(
-  ({ value }: { value: string }) => {
-    return (
-      <FormControl display={{ base: 'none', lg: 'initial' }}>
-        <FormLabel>Sample Default Export</FormLabel>
-        <Textarea value={value} isReadOnly h="lg" borderRadius="md" />
-      </FormControl>
-    );
-  },
-  (prev, next) => prev.value === next.value || next.value === '',
-);
 
 export default ExportSettingsPage;
 

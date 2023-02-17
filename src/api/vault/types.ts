@@ -13,9 +13,9 @@ export enum UserDataKeys {
   HOMEPAGE = 'homePage',
   LINK_SERVER = 'link_server',
   CUSTOM_FORMATS = 'customFormats',
-  BIBTEXT_FORMAT = 'bibtexKeyFormat',
+  BIBTEX_FORMAT = 'bibtexKeyFormat',
   DEFAULT_DATABASE = 'defaultDatabase',
-  BIBTEXT_MAX_AUTHORS = 'bibtexMaxAuthors',
+  BIBTEX_MAX_AUTHORS = 'bibtexMaxAuthors',
   LAST_MESSAGE = 'last_seen_message',
   ABS_FORMAT = 'bibtexABSKeyFormat',
   BIBTEX_AUTHOR_CUTOFF = 'bibtexAuthorCutoff',
@@ -31,23 +31,40 @@ export enum UserDataKeys {
 export const MinAuthorsPerResultOptions = range(1, 11)
   .map((n) => n.toString())
   .concat(['all']);
-export const ExternalLinkActionOptions = ['Auto', 'Open new tab', 'Open in current tab'];
-export const Databases = ['Physics', 'Astronomy', 'General'];
+
 export type CustomFormat = { id: string; code: string; name: string };
+
+export enum Database {
+  Physics = 'Physics',
+  Astronomy = 'Astronomy',
+  General = 'General',
+}
+
+export enum ExternalLinkAction {
+  Auto = 'Auto',
+  OpenNewTab = 'Open new tab',
+  OpenCurrentTab = 'Open in current tab',
+}
+
+export enum JournalFormatName {
+  AASTeXMacros = 'Use AASTeX macros',
+  Abbreviations = 'Use Journal Abbreviations',
+  FullName = 'Use Full Journal Name',
+}
 
 export interface IADSApiUserDataResponse {
   [UserDataKeys.HOMEPAGE]: string;
   [UserDataKeys.LINK_SERVER]: string;
   [UserDataKeys.CUSTOM_FORMATS]: CustomFormat[];
-  [UserDataKeys.BIBTEXT_FORMAT]: string;
-  [UserDataKeys.DEFAULT_DATABASE]: { name: typeof Databases[number]; value: boolean }[];
-  [UserDataKeys.BIBTEXT_MAX_AUTHORS]: string;
+  [UserDataKeys.BIBTEX_FORMAT]: string;
+  [UserDataKeys.DEFAULT_DATABASE]: { name: Database; value: boolean }[];
+  [UserDataKeys.BIBTEX_MAX_AUTHORS]: string;
   [UserDataKeys.LAST_MESSAGE]: string;
   [UserDataKeys.ABS_FORMAT]: string;
   [UserDataKeys.BIBTEX_AUTHOR_CUTOFF]: string;
-  [UserDataKeys.EXTERNAL_LINK_ACTION]: typeof ExternalLinkActionOptions[number];
+  [UserDataKeys.EXTERNAL_LINK_ACTION]: ExternalLinkAction;
   [UserDataKeys.ABS_MAX_AUTHORS]: string;
-  [UserDataKeys.BIBTEX_JOURNAL_FORMAT]: string;
+  [UserDataKeys.BIBTEX_JOURNAL_FORMAT]: JournalFormatName;
   [UserDataKeys.DEFAULT_EXPORT_FORMAT]: string;
   [UserDataKeys.DEFAULT_HIDE_SIDEBARS]: string;
   [UserDataKeys.MIN_AUTHOR_RESULT]: typeof MinAuthorsPerResultOptions[number];
