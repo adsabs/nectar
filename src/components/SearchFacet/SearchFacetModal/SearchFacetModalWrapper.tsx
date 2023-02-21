@@ -17,11 +17,12 @@ interface ISearchFacetModalWrapperProps {
 
   initialPage?: number;
   onPageChange?: (page: number) => void;
+  hasChildren?: boolean;
   children: (props: { tree: FacetCountTuple[] }) => ReactChild;
 }
 
 export const SearchFacetModalWrapper: FC<ISearchFacetModalWrapperProps> = (props) => {
-  const { field, sortDir, query, level, initialPage, onPageChange, children } = props;
+  const { field, sortDir, query, level, initialPage, onPageChange, children, hasChildren } = props;
   const addChildren = useFacetTreeStore((state) => state.addChildren);
 
   const { treeData, pagination, handleLoadMore, handlePrevious, handlePageChange, totalResults, isFetching, isError } =
@@ -31,6 +32,7 @@ export const SearchFacetModalWrapper: FC<ISearchFacetModalWrapperProps> = (props
       level,
       sortDir,
       initialPage,
+      hasChildren,
     });
 
   useEffect(() => {
