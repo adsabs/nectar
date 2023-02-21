@@ -165,6 +165,7 @@ const ModalFacetTree: FC<Omit<ISearchFacetModalProps, 'isOpen' | 'onClose'>> = (
               onPageChange={(page) => (pageRef.current = page)}
               initialPage={pageRef.current}
               sortDir={state.sort[1]}
+              hasChildren={hasChildren}
             >
               {({ tree }) => (
                 <List w="full">

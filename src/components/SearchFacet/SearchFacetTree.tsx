@@ -76,7 +76,11 @@ export const SearchFacetTree = (props: ISearchFacetTreeProps): ReactElement => {
     field,
     key: '',
     level: 'root',
+    query: facetQuery,
+    hasChildren,
   });
+
+  // console.log({ treeData, handleLoadMore, isFetching, isError, canLoadMore });
 
   useEffect(() => {
     if (isError && typeof onError === 'function') {
@@ -104,7 +108,10 @@ export const SearchFacetTree = (props: ISearchFacetTreeProps): ReactElement => {
     logic,
     facetQuery,
     filter,
-    onFilter,
+    onFilter: (props) => {
+      onMenuClose();
+      onFilter(props);
+    },
     onLoadMore: (node: FacetCountTuple) => {
       setFocusedNode(node);
       onMenuOpen();
@@ -170,6 +177,7 @@ export const LogicArea = (props: {
 }) => {
   const { logic, field, onFilter, hideDivider = false } = props;
 
+  const reset = useFacetTreeStore((state) => state.reset);
   const selectedKeys = useFacetTreeStore((state) => state.selectedKeys);
   const count = selectedKeys.length;
 
@@ -178,6 +186,7 @@ export const LogicArea = (props: {
       if (selectedKeys.length > 0) {
         const logicChoice = e.currentTarget.getAttribute('data-value') as FacetLogic;
         onFilter({ field, logic: logicChoice, values: selectedKeys });
+        reset();
       }
     },
     [selectedKeys],
@@ -219,7 +228,7 @@ export type SearchFacetNodeProps = ISearchFacetTreeProps & {
  * Renders a child tree, expects to be rendered by a root node.
  */
 export const SearchFacetChildNode = (props: SearchFacetNodeProps) => {
-  const { node, field, property, hasChildren, limitChildrenList, onLoadMore } = props;
+  const { node, field, hasChildren, limitChildrenList, onLoadMore } = props;
   const addChildren = useFacetTreeStore((state) => state.addChildren);
   const [key] = node;
   const isExpanded = useFacetTreeStore(useCallback(path<boolean>(['tree', key, 'expanded']), [key]));
@@ -230,6 +239,7 @@ export const SearchFacetChildNode = (props: SearchFacetNodeProps) => {
     key,
     level: 'child',
     enabled: !!isExpanded,
+    hasChildren,
   });
 
   // adding children to our state

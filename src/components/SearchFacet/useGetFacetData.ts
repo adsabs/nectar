@@ -5,7 +5,7 @@ import { FacetCountTuple } from '@components/SearchFacet/types';
 import { useDebounce } from '@hooks';
 import { AppState, useStore } from '@store';
 import { omit } from 'ramda';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 interface IUseGetFacetDataProps {
   field: FacetField;
@@ -15,6 +15,7 @@ interface IUseGetFacetDataProps {
   sortDir?: 'asc' | 'desc';
   initialPage?: number;
   enabled?: boolean;
+  hasChildren?: boolean;
 }
 
 export const FACET_DEFAULT_LIMIT = 10;
@@ -25,20 +26,36 @@ const querySelector = (state: AppState) => omit(['fl', 'start', 'rows'], state.l
 
 export const useGetFacetData = (props: IUseGetFacetDataProps) => {
   const searchQuery = useStore(querySelector);
-  const { field, query = '', sortDir = 'desc', level = 'root', key, initialPage = 0, enabled = true } = props;
+  const {
+    field,
+    query = '',
+    sortDir = 'desc',
+    level = 'root',
+    key,
+    initialPage = 0,
+    enabled = true,
+    hasChildren = false,
+  } = props;
+
   const [pagination, setPagination] = useState(() =>
     calculatePagination({ page: initialPage, numPerPage: FACET_DEFAULT_LIMIT }),
   );
 
-  useEffect(() => console.log(pagination), [pagination]);
-
   const params = useDebounce(
     useMemo(
       () => ({
-        'json.facet': getSearchFacetParams({ field, key, query, level, sortDir, offset: pagination.startIndex }),
+        'json.facet': getSearchFacetParams({
+          field,
+          key,
+          query,
+          level,
+          sortDir,
+          offset: pagination.startIndex,
+          hasChildren,
+        }),
         ...searchQuery,
       }),
-      [searchQuery, field, key, query, level, sortDir, pagination.startIndex],
+      [searchQuery, field, key, query, level, sortDir, pagination.startIndex, hasChildren],
     ),
     300,
   );
@@ -97,10 +114,15 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
     handlePrevious,
     handleLoadMore,
     handlePageChange,
-    canLoadMore: !pagination.noNext,
+    canLoadMore: res?.numBuckets !== treeData?.length,
     ...result,
   };
 };
+
+const getPrefix = (level: IUseGetFacetDataProps['level'], key: string) =>
+  `${level === 'root' ? FACET_DEFAULT_PREFIX : FACET_DEFAULT_CHILD_PREFIX}${parseRootFromKey(key) ?? ''}${
+    level === 'child' ? '/' : ''
+  }`;
 
 const getSearchFacetParams = (props: IUseGetFacetDataProps & { offset: number }) => {
   if (!props || !props.field) {
@@ -115,9 +137,9 @@ const getSearchFacetParams = (props: IUseGetFacetDataProps & { offset: number })
       offset: props.offset,
       sort: { count: props.sortDir },
       numBuckets: true,
-      prefix: `${props.level === 'root' ? FACET_DEFAULT_PREFIX : FACET_DEFAULT_CHILD_PREFIX}${
-        parseRootFromKey(props.key) ?? ''
-      }`,
+      ...(props.query ? { query: props.query } : {}),
+      // prefix should append a '/' to child to restrict the search
+      ...(props.hasChildren ? { prefix: getPrefix(props.level, props.key) } : {}),
     },
   });
 };
