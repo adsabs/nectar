@@ -52,7 +52,7 @@ export interface ISearchFacetTreeProps extends ListProps {
 /**
  * Facet Tree
  *
- * This is a root node of the facet tree, if the data data is hierarchical it will load children also (when expanded)
+ * This is a root node of the facet tree, if the data is hierarchical it will load children also (when expanded)
  */
 export const SearchFacetTree = (props: ISearchFacetTreeProps): ReactElement => {
   const {
