@@ -5,8 +5,8 @@ import {
   getSearchStatsParams,
   IADSApiSearchParams,
   IADSApiSearchResponse,
-  searchKeys,
   SEARCH_API_KEYS,
+  searchKeys,
   SolrSort,
   useSearch,
 } from '@api';
@@ -26,7 +26,7 @@ import {
 } from '@components';
 import { calculateStartIndex } from '@components/ResultList/Pagination/usePagination';
 import { FacetFilters } from '@components/SearchFacet/FacetFilters';
-import { YearHistogramSlider } from '@components/SearchFacet/YearHistogramSlider';
+import { IYearHistogramSliderProps } from '@components/SearchFacet/YearHistogramSlider';
 import { APP_DEFAULTS } from '@config';
 import { useIsClient } from '@hooks';
 import { AppState, createStore, useStore, useStoreApi } from '@store';
@@ -47,6 +47,11 @@ import { useRouter } from 'next/router';
 import { last, omit, path } from 'ramda';
 import { FormEventHandler, useEffect, useRef, useState } from 'react';
 import { dehydrate, QueryClient, useQueryClient } from 'react-query';
+
+const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
+  () => import('@components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),
+  { ssr: false },
+);
 
 const SearchFacets = dynamic<ISearchFacetsProps>(
   () => import('@components/SearchFacet').then((mod) => mod.SearchFacets),
@@ -163,8 +168,6 @@ const SearchPage: NextPage = () => {
   const handleToggleExpand = () => {
     setHistogramExpanded((prev) => !prev);
   };
-
-  // search facet handlers
 
   return (
     <>
