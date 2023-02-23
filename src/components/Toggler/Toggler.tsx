@@ -1,16 +1,17 @@
 import { ChevronRightIcon, IconProps } from '@chakra-ui/icons';
-import { Center, forwardRef, IconButton, IconButtonProps } from '@chakra-ui/react';
+import { Box, BoxProps, Button, Center, forwardRef } from '@chakra-ui/react';
 import { ReactElement } from 'react';
 
 type Dir = 'left' | 'right' | 'up' | 'down';
 
-export interface ITogglerProps extends Partial<IconButtonProps> {
+export interface ITogglerProps extends BoxProps {
   isToggled?: boolean;
   onDirection?: Dir;
   offDirection?: Dir;
   renderIcon?: (props: IconProps) => ReactElement;
   offLabel?: string;
   onLabel?: string;
+  isButton?: boolean;
 }
 
 const dirs = {
@@ -20,15 +21,16 @@ const dirs = {
   up: 270,
 };
 
-export const Toggler = forwardRef<ITogglerProps, 'svg'>((props, ref) => {
+export const Toggler = forwardRef<ITogglerProps, 'div'>((props, ref) => {
   const {
     isToggled = false,
     onDirection = 'down',
     offDirection = 'right',
+    isButton = false,
     renderIcon = (props) => <ChevronRightIcon {...props} />,
     onLabel = 'Toggle Off',
     offLabel = 'Toggle On',
-    ...iconBtnProps
+    ...boxProps
   } = props;
 
   const transform = isToggled
@@ -36,20 +38,20 @@ export const Toggler = forwardRef<ITogglerProps, 'svg'>((props, ref) => {
     : getTransform(dirs[onDirection], dirs[offDirection]);
 
   return (
-    <IconButton
-      variant="unstyled"
-      {...iconBtnProps}
+    <Box
+      as={isButton ? Button : 'div'}
       aria-label={isToggled ? onLabel : offLabel}
-      icon={
-        <Center>
-          {renderIcon({
-            transform,
-            transition: 'transform .3s linear',
-          })}
-        </Center>
-      }
+      variant="unstyled"
       ref={ref}
-    />
+      {...boxProps}
+    >
+      <Center>
+        {renderIcon({
+          transform,
+          transition: 'transform .3s linear',
+        })}
+      </Center>
+    </Box>
   );
 });
 

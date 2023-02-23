@@ -80,8 +80,6 @@ export const SearchFacetTree = (props: ISearchFacetTreeProps): ReactElement => {
     hasChildren,
   });
 
-  // console.log({ treeData, handleLoadMore, isFetching, isError, canLoadMore });
-
   useEffect(() => {
     if (isError && typeof onError === 'function') {
       onError();
@@ -313,6 +311,7 @@ export const ExpandButton = (props: { node: FacetCountTuple; isExpanded: boolean
   return (
     <ListIcon
       as={Toggler}
+      isButton
       isToggled={isExpanded}
       fontSize="2xl"
       color="gray.400"
