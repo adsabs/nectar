@@ -5,6 +5,7 @@ import { isIADSSearchParams, isString } from '@utils';
 import {
   __,
   all,
+  allPass,
   always,
   and,
   append,
@@ -20,6 +21,7 @@ import {
   equals,
   filter,
   flatten,
+  has,
   head,
   ifElse,
   includes,
@@ -45,6 +47,7 @@ import {
   pipe,
   prepend,
   propEq,
+  propIs,
   propSatisfies,
   reduce,
   reject,
@@ -231,6 +234,19 @@ const allChildrenSelected = (key: string) =>
 const noChildrenSelected = (key: string) =>
   pipe<[FacetNodeTree], FacetChildNode[], boolean>(getChildrenNodes(key), none(propEq('selected', true)));
 
+const isFacetChildNode = (node: unknown): node is FacetChildNode => {
+  return allPass([propIs(String, 'key'), propIs(Boolean, 'selected')])(node);
+};
+
+const isIFacetNode = (node: unknown): node is IFacetNode => {
+  return allPass([
+    propIs(String, 'key'),
+    propIs(Boolean, 'selected'),
+    propIs(Boolean, 'partSelected'),
+    propIs(Boolean, 'expanded'),
+    has('children'),
+  ])(node);
+};
 /**
  * Main selection logic
  *
@@ -241,8 +257,13 @@ export const updateSelection = (key: string, isRoot: boolean, tree: FacetNodeTre
   const rootKey = isRoot ? key : parseRootFromKey(key, true);
 
   // if the node is empty (or undefined) create a new one before running updates
-  const createNodeIfNecessary = <T>(node: T): T =>
-    when<T, T, T>(isNilOrEmpty as (n: T) => n is T, (node: T) => ({ ...node, ...createNode(key, isRoot) }), node);
+  const createNodeIfNecessary = <T extends IFacetNode | FacetChildNode>(node: T): T => {
+    if ((isRoot && isIFacetNode(node)) || isFacetChildNode(node)) {
+      return node;
+    }
+
+    return createNode(key, isRoot) as T;
+  };
 
   // ROOT -- check if it is selected
   const updateRoot = ifElse<[FacetNodeTree], FacetNodeTree, FacetNodeTree>(

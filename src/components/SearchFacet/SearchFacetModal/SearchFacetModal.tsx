@@ -180,7 +180,7 @@ const ModalFacetTree: FC<Omit<ISearchFacetModalProps, 'isOpen' | 'onClose'>> = (
                         py="0.5"
                       >
                         <Text as="span" alignItems="center" display="inline-flex" w="full">
-                          <NodeCheckbox isFullWidth node={node} parent={null} onClick={(e) => e.stopPropagation()} />
+                          <NodeCheckbox isFullWidth node={node} onClick={(e) => e.stopPropagation()} />
                           <ExpandButton
                             node={node}
                             isExpanded={equals(focusedNode, node)}
@@ -197,7 +197,7 @@ const ModalFacetTree: FC<Omit<ISearchFacetModalProps, 'isOpen' | 'onClose'>> = (
                         data-testid="search-facet-item-root"
                       >
                         <Text as="span" alignItems="center" display="inline-flex" w="full">
-                          <NodeCheckbox node={node} parent={null} isFullWidth />
+                          <NodeCheckbox node={node} isFullWidth />
                         </Text>
                       </ListItem>
                     ),
@@ -217,12 +217,12 @@ const ModalFacetTree: FC<Omit<ISearchFacetModalProps, 'isOpen' | 'onClose'>> = (
 };
 
 const ChildList: FC<SearchFacetNodeProps> = (props) => {
-  const { node, field } = props;
+  const { node, field, hasChildren } = props;
   const [key] = node;
 
   return (
     <Flex direction="column" w="full" mb="3">
-      <SearchFacetModalWrapper field={field} query={key} level={'child'}>
+      <SearchFacetModalWrapper field={field} query={key} level={'child'} hasChildren={hasChildren}>
         {({ tree }) => (
           <List w="full">
             {tree.map((node, i) => (
@@ -235,7 +235,7 @@ const ChildList: FC<SearchFacetNodeProps> = (props) => {
                 onClick={(e) => e.stopPropagation()}
                 data-testid="search-facet-item-child"
               >
-                <NodeCheckbox isFullWidth node={node} parent={key} />
+                <NodeCheckbox isFullWidth node={node} isRoot={false} />
               </ListItem>
             ))}
           </List>

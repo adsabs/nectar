@@ -26,7 +26,7 @@ import { ExclamationCircleIcon } from '@heroicons/react/solid';
 import { kFormatNumber, noop } from '@utils';
 import { head, map, path } from 'ramda';
 import { MouseEventHandler, ReactElement, ReactNode, useCallback, useEffect, useState } from 'react';
-import { parseTitleFromKey } from './helpers';
+import { parseRootFromKey, parseTitleFromKey } from './helpers';
 import { SearchFacetModal } from './SearchFacetModal/SearchFacetModal';
 import { FacetTreeStoreProvider, useFacetTreeStore } from './store';
 import { FacetCountTuple, FacetLogic, IFacetParams } from './types';
@@ -142,7 +142,7 @@ export const SearchFacetTree = (props: ISearchFacetTreeProps): ReactElement => {
                 // if no children, then it's simple single-level tree, load this single node
                 <ListItem w="full" _hover={{ pointer: 'cursor' }} key={node[0]} data-testid="search-facet-item-root">
                   <Text as="span" alignItems="center" display="inline-flex" w="full">
-                    <NodeCheckbox node={node} parent={null} />
+                    <NodeCheckbox node={node} />
                   </Text>
                 </ListItem>
               ),
@@ -250,7 +250,7 @@ export const SearchFacetChildNode = (props: SearchFacetNodeProps) => {
       {/* Render root node (data passed in as props) */}
       <Text as="span" alignItems="center" display="inline-flex" w="full">
         <ExpandButton node={node} isExpanded={isExpanded} />
-        <NodeCheckbox node={node} parent={null} onClick={(e) => e.stopPropagation()} />
+        <NodeCheckbox node={node} onClick={(e) => e.stopPropagation()} />
       </Text>
 
       <Collapse in={isExpanded}>
@@ -268,7 +268,7 @@ export const SearchFacetChildNode = (props: SearchFacetNodeProps) => {
                 onClick={(e) => e.stopPropagation()}
                 data-testid="search-facet-item-child"
               >
-                <NodeCheckbox node={node} parent={key} />
+                <NodeCheckbox node={node} isRoot={false} />
               </ListItem>
             ))}
           </List>
@@ -369,29 +369,30 @@ export const LoadMoreBtn = (
 export const NodeCheckbox = (
   props: CheckboxProps & {
     node: FacetCountTuple;
-    parent: string | null;
+    isRoot?: boolean;
     isFullWidth?: boolean;
   },
 ) => {
   const {
     node: [key, count],
-    parent,
+    isRoot = true,
     isFullWidth,
     ...chbxProps
   } = props;
-  const isRoot = parent === null;
+
   const title = parseTitleFromKey(key);
 
   const toggle = useFacetTreeStore((state) => state.toggleSelect);
   const isSelected = useFacetTreeStore(
     useCallback(
       (state) => {
-        if (parent === null) {
+        if (isRoot) {
           return state.tree?.[key]?.selected;
         }
+        const parent = parseRootFromKey(key, true);
         return state.tree?.[parent]?.children?.[key]?.selected;
       },
-      [key, parent],
+      [key],
     ),
   );
 
