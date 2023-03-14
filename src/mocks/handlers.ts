@@ -1,3 +1,4 @@
+/* eslint-disable */
 import {
   ApiTargets,
   ExportApiFormatKey,
@@ -8,14 +9,14 @@ import {
   IADSApiVaultResponse,
   IExportApiParams,
 } from '@api';
-import { IAuthorAffiliationExportPayload, IAuthorAffiliationResponse } from '@api/author-affiliation/types';
+import {IAuthorAffiliationExportPayload, IAuthorAffiliationResponse} from '@api/author-affiliation/types';
 import defaultBibstems from '@components/BibstemPicker/defaultBibstems.json';
 import faker from '@faker-js/faker';
-import { IBibstemOption } from '@types';
-import { rest } from 'msw';
+import {IBibstemOption} from '@types';
+import {rest} from 'msw';
 import qs from 'qs';
-import { flatten, map, range } from 'ramda';
-import { api, authorAffData, highlights_mocks, ids_mocks, ranRange } from './mockHelpers';
+import {flatten, map, range} from 'ramda';
+import {api, authorAffData, highlights_mocks, ids_mocks, ranRange} from './mockHelpers';
 
 export const handlers = [
   rest.get(`*${ApiTargets.BOOTSTRAP}`, (req, res, ctx) => {
@@ -79,7 +80,63 @@ export const handlers = [
       );
     }
 
-    if (params.facet) {
+    if (params['json.facet']) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+      if (JSON.parse(params['json.facet'] as string)?.author_facet_hier?.prefix?.startsWith('1')) {
+        return res(
+          ctx.status(200),
+          ctx.json<IADSApiSearchResponse>({
+            response: { docs: [], numFound: 1 },
+            facets: {
+              author_facet_heir: {
+                numBuckets: 999,
+                buckets: [
+                  {
+                    val: '1/Wang, Y/Wang, Y',
+                    count: 603,
+                  },
+                  {
+                    val: '1/Wang, Y/Wang, Yan',
+                    count: 283,
+                  },
+                  {
+                    val: '1/Wang, Y/Wang, Yu',
+                    count: 274,
+                  },
+                  {
+                    val: '1/Wang, Y/Wang, Yi',
+                    count: 231,
+                  },
+                  {
+                    val: '1/Wang, Y/Wang, Yang',
+                    count: 228,
+                  },
+                  {
+                    val: '1/Wang, Y/Wang, Yong',
+                    count: 188,
+                  },
+                  {
+                    val: '1/Wang, Y/Wang, Ying',
+                    count: 144,
+                  },
+                  {
+                    val: '1/Wang, Y/Wang, Yue',
+                    count: 124,
+                  },
+                  {
+                    val: '1/Wang, Y/Wang, Y  F',
+                    count: 117,
+                  },
+                  {
+                    val: '1/Wang, Y/Wang, Yun',
+                    count: 107,
+                  },
+                ],
+              },
+            },
+          }),
+        );
+      }
       return res(
         ctx.status(200),
         ctx.json<IADSApiSearchResponse>({
@@ -727,7 +784,7 @@ export const handlers = [
     let limitAuthors = -1;
     if (typeof params.fl === 'string') {
       params.fl.split(',').forEach((v) => {
-        const mat = /\[fields author=(\d+)\]/.exec(v);
+        const mat = /\[fields author=(\d+)]/.exec(v);
         if (mat !== null) {
           limitAuthors = parseInt(mat[1], 10);
         }
@@ -802,7 +859,7 @@ export const handlers = [
       ctx.json({
         bibcode: '2018A&A...616A...1G',
         number: 7,
-        pick: '<a href="graphics" border=0><img src="[\'https://s3.amazonaws.com/adsabs-thumbnails/seri/A%2BA/0616/aa33051-18/aa33051-18-fig2.jpg\', \'http://dx.doi.org/10.1051/0004-6361/201833051\']"></a>',
+        pick: '<a href="/graphics" border=0><img alt="alt" src="[\'https://s3.amazonaws.com/adsabs-thumbnails/seri/A%2BA/0616/aa33051-18/aa33051-18-fig2.jpg\', \'http://dx.doi.org/10.1051/0004-6361/201833051\']"></a>',
         figures: [
           {
             figure_label: 'Figure 1',
