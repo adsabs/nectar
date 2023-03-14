@@ -1,32 +1,29 @@
-import { getVaultData } from '@auth-utils';
+import {getVaultData} from '@auth-utils';
 import {
   CustomFormat,
   fetchSearch,
   getSearchParams,
+  IADSApiSearchParams,
   IADSApiUserDataResponse,
   JournalFormatName,
   searchKeys,
-  SEARCH_API_KEYS,
   UserDataKeys,
+  useSearch,
 } from '@api';
-import { useToast, Tab, TabList, Tabs, TabPanels, TabPanel } from '@chakra-ui/react';
-import { BibtexTabPanel, CustomFormatsTabPanel, exportFormats, GeneralTabPanel, SettingsLayout } from '@components';
-import { useSettings } from '@hooks/useSettings';
-import { createStore, useStore } from '@store';
-import { composeNextGSSP, userGSSP } from '@utils';
-import { GetServerSideProps, GetServerSidePropsContext } from 'next';
-import { Reducer, useEffect, useMemo, useReducer } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import { QueryClient } from 'react-query';
-import { values } from 'ramda';
+import {Tab, TabList, TabPanel, TabPanels, Tabs, useToast} from '@chakra-ui/react';
+import {BibtexTabPanel, CustomFormatsTabPanel, exportFormats, GeneralTabPanel, SettingsLayout} from '@components';
+import {useSettings} from '@hooks/useSettings';
+import {useStore} from '@store';
+import {composeNextGSSP, userGSSP} from '@utils';
+import {GetServerSideProps, GetServerSidePropsContext, NextPage} from 'next';
+import {Reducer, useEffect, useMemo, useReducer} from 'react';
+import {v4 as uuidv4} from 'uuid';
+import {dehydrate, QueryClient} from 'react-query';
+import {omit, pathOr, values} from 'ramda';
 
 // partial user data params
 // used to update user data
 type UserDataSetterState = Partial<IADSApiUserDataResponse>;
-
-interface IExportProps {
-  sampleBib: string;
-}
 
 export type UserDataSetterEvent =
   | { type: 'SET_DEFAULT_EXPORT_FORMAT'; payload: string }
@@ -114,7 +111,7 @@ const reducer: Reducer<UserDataSetterState, UserDataSetterEvent> = (state, actio
 
 const exportFormatOptions = values(exportFormats);
 
-const ExportSettingsPage = (props: IExportProps) => {
+const ExportSettingsPage: NextPage = () => {
   const toast = useToast({ duration: 2000 });
 
   // params used to update user data
@@ -139,7 +136,10 @@ const ExportSettingsPage = (props: IExportProps) => {
     [userSettings],
   );
 
-  const { sampleBib } = props;
+  // fetch the sample bibcode
+  const sampleBibParams = getSearchParams({ q: 'bibstem:ApJ author_count:[10 TO 20]', rows: 1 });
+  const { data } = useSearch(sampleBibParams);
+  const sampleBib = pathOr<string>(null, ['docs', '0', 'bibcode'], data);
 
   return (
     <SettingsLayout title="Export Settings" maxW={{ base: 'container.sm', lg: 'container.lg' }}>
@@ -184,26 +184,22 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
   }
 
   const userData = await getVaultData(ctx);
-  const initialState = createStore().getState();
 
   // get a sample doc
   const params = getSearchParams({ q: 'bibstem:ApJ author_count:[10 TO 20]', rows: 1 });
   const queryClient = new QueryClient();
-  const res = await queryClient.fetchQuery({
-    queryKey: SEARCH_API_KEYS.primary,
-    queryHash: JSON.stringify(searchKeys.primary(params)),
+  await queryClient.prefetchQuery({
+    queryKey: searchKeys.primary(params),
+    queryHash: JSON.stringify(searchKeys.primary(omit(['fl'], params) as IADSApiSearchParams)),
     queryFn: fetchSearch,
     meta: { params },
   });
-  const sampleBib = res.response?.docs?.[0]?.bibcode ?? null;
 
   return {
     props: {
-      userData,
-      sampleBib,
+      dehydratedState: dehydrate(queryClient),
       dehydratedAppState: {
         settings: {
-          ...initialState.settings,
           user: userData,
         },
       },

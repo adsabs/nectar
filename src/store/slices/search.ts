@@ -1,10 +1,9 @@
 import { IADSApiSearchParams } from '@api';
 import { APP_DEFAULTS } from '@config';
-import { AppState, StoreSlice } from '@store';
+import { StoreSlice } from '@store';
 import { NumPerPageType } from '@types';
 import { isNumPerPageType } from '@utils';
 import { mergeRight } from 'ramda';
-import { NamedSet } from 'zustand/middleware';
 
 export const defaultQueryParams: IADSApiSearchParams = {
   q: '',
@@ -28,12 +27,16 @@ export const defaultQueryParams: IADSApiSearchParams = {
   start: 0,
   rows: APP_DEFAULTS.RESULT_PER_PAGE,
 };
-export interface IAppStateSearchSlice {
+
+export interface ISearchState {
   query: IADSApiSearchParams;
   latestQuery: IADSApiSearchParams;
   prevQuery: IADSApiSearchParams;
   numPerPage: NumPerPageType;
   showHighlights: boolean;
+}
+
+export interface ISearchAction {
   setQuery: (query: IADSApiSearchParams) => void;
   updateQuery: (query: Partial<IADSApiSearchParams>) => void;
   swapQueries: () => void;
@@ -43,7 +46,7 @@ export interface IAppStateSearchSlice {
   toggleShowHighlights: () => void;
 }
 
-export const searchSlice: StoreSlice<IAppStateSearchSlice> = (set: NamedSet<AppState>) => ({
+export const searchSlice: StoreSlice<ISearchState & ISearchAction> = (set) => ({
   // intermediate query, this one will be changing frequently
   query: defaultQueryParams,
 

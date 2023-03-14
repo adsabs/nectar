@@ -1,6 +1,6 @@
 import api, { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, isUserData, IUserData, SolrSort } from '@api';
 import { APP_DEFAULTS } from '@config';
-import { AppState } from '@store';
+import { AppSerializableState, getSerializableDefaultStore } from '@store';
 import { NumPerPageType, SafeSearchUrlParams } from '@types';
 import axios, { AxiosError } from 'axios';
 import DOMPurify from 'isomorphic-dompurify';
@@ -8,7 +8,24 @@ import { GetServerSidePropsContext, GetServerSidePropsResult, NextApiRequest, Ne
 import { useRouter } from 'next/router';
 import qs from 'qs';
 import { ParsedUrlQuery } from 'querystring';
-import { clamp, filter, find, head, is, keys, last, omit, paths, pick, pipe, propIs, uniq, when } from 'ramda';
+import {
+  clamp,
+  filter,
+  find,
+  head,
+  is,
+  keys,
+  last,
+  mergeDeepLeft,
+  omit,
+  pathOr,
+  paths,
+  pick,
+  pipe,
+  propIs,
+  uniq,
+  when,
+} from 'ramda';
 import { isArray, isNotString, isPlainObject } from 'ramda-adjunct';
 
 type ParsedQueryParams = ParsedUrlQuery | qs.ParsedQs;
@@ -110,16 +127,16 @@ export const truncateDecimal = (num: number, d: number): number => {
 export const pickUserData = pick(['username', 'anonymous', 'access_token', 'expire_in']);
 export const userGSSP = async (
   ctx: GetServerSidePropsContext,
-  state: { props?: { dehydratedAppState?: Partial<AppState> } },
+  state: { props?: { dehydratedAppState?: Partial<AppSerializableState> } },
 ) => {
   const userData = pickUserData(ctx.req.session.userData);
-
+  console.log('default', getSerializableDefaultStore(), state);
   return Promise.resolve({
     props: {
       dehydratedAppState: {
-        ...(state?.props?.dehydratedAppState ?? {}),
+        ...mergeDeepLeft(pathOr({}, ['props', 'dehydratedAppState'], state), getSerializableDefaultStore()),
         user: isUserData(userData) ? userData : {},
-      } as AppState,
+      } as AppSerializableState,
     },
   });
 };
