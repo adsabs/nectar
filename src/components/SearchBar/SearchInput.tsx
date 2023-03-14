@@ -1,4 +1,4 @@
-import { RefreshIcon, SearchIcon, XIcon } from '@heroicons/react/solid';
+import { ArrowPathIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { ControllerStateAndHelpers } from 'downshift';
 import PT from 'prop-types';
 import { forwardRef, KeyboardEvent, useEffect, useState } from 'react';
@@ -58,7 +58,7 @@ export const SearchInput = forwardRef<HTMLInputElement, ISearchInputProps>((prop
             className="flex-end px-2 py-2 text-lg border-b border-t border-gray-300"
           >
             <span className="sr-only">clear input</span>
-            <XIcon className="w-5 h-5" aria-hidden="true" />
+            <XMarkIcon className="w-5 h-5" aria-hidden="true" />
           </button>
         )}
       </div>
@@ -70,13 +70,13 @@ export const SearchInput = forwardRef<HTMLInputElement, ISearchInputProps>((prop
           <>
             <span className="sr-only">Loading</span>
             <div className="animate-spin">
-              <RefreshIcon className="w-5 h-5 text-white" transform="scale (-1, 1)" transform-origin="center" />
+              <ArrowPathIcon className="w-5 h-5 text-white" transform="scale (-1, 1)" transform-origin="center" />
             </div>
           </>
         ) : (
           <>
             <span className="sr-only">Search</span>
-            <SearchIcon className="w-5 h-5 text-white" aria-hidden="true" />
+            <MagnifyingGlassIcon className="w-5 h-5 text-white" aria-hidden="true" />
           </>
         )}
       </button>

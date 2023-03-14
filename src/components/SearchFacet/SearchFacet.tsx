@@ -6,6 +6,7 @@ import {
   Button,
   HStack,
   Icon,
+  IconButton,
   List,
   ListItem,
   Text,
@@ -25,7 +26,8 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { ExclamationCircleIcon } from '@heroicons/react/solid';
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/20/solid';
+import { ExclamationCircleIcon } from '@heroicons/react/24/solid';
 import { AppState, useStore, useStoreApi } from '@store';
 import { CSSProperties, MouseEventHandler, ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { facetConfig } from './config';
@@ -138,24 +140,25 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
               )}
             </HStack>
           </Button>
-          <Button
-            onClick={handleHideClick}
-            border="solid 1px"
-            borderColor="gray.300"
-            borderLeft="none"
-            borderLeftRadius={0}
-            borderBottom={isOpen ? 'none' : 'auto'}
-            borderBottomRightRadius={isOpen ? 'none' : 'auto'}
-            color="blue.400"
-            size="xs"
-            variant="ghost"
-            aria-label={hidden ? 'show facet' : 'hide facet'}
-            m={0}
-            height={8}
-            px={2}
-          >
-            {hidden ? 'show' : 'hide'}
-          </Button>
+          <Tooltip label={hidden ? `Show ${label.toLowerCase()} filter` : `Hide ${label.toLowerCase()} filter`}>
+            <IconButton
+              onClick={handleHideClick}
+              border="solid 1px"
+              borderColor="gray.300"
+              borderLeft="none"
+              borderLeftRadius={0}
+              borderBottom={isOpen ? 'none' : 'auto'}
+              borderBottomRightRadius={isOpen ? 'none' : 'auto'}
+              color="gray.200"
+              size="sm"
+              fontSize="sm"
+              variant="ghost"
+              aria-label={hidden ? `Show ${label} filter` : `Hide ${label} filter`}
+              m={0}
+              height={8}
+              icon={<Center>{hidden ? <Icon as={EyeSlashIcon} /> : <Icon as={EyeIcon} />}</Center>}
+            />
+          </Tooltip>
         </HStack>
       </h2>
       {isOpen && (

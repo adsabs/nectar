@@ -1,17 +1,22 @@
 import { Flex, FlexProps, Icon, IconButton, Select } from '@chakra-ui/react';
-import { SortAscendingIcon, SortDescendingIcon } from '@heroicons/react/solid';
+import { IFacetStoreState } from '@components/SearchFacet/store/FacetStore';
+import { BarsArrowDownIcon, BarsArrowUpIcon } from '@heroicons/react/24/solid';
 import { ChangeEventHandler } from 'react';
-import { IModalState } from './SearchFacetModal';
 
 export const SortControl = ({
   sort,
   onSortChange,
+  onlyCount,
   ...flexProps
-}: FlexProps & { sort: IModalState['sort']; onSortChange: (sort: IModalState['sort']) => void }) => {
+}: FlexProps & {
+  sort: IFacetStoreState['sort'];
+  onSortChange: (sort: IFacetStoreState['sort']) => void;
+  onlyCount?: boolean;
+}) => {
   const [value, dir] = sort;
 
   const handleSortChange: ChangeEventHandler<HTMLSelectElement> = (ev) => {
-    const sortVal = ev.currentTarget.value as 'count' | 'alpha';
+    const sortVal = ev.currentTarget.value as 'count' | 'index';
     return onSortChange([sortVal, dir]);
   };
 
@@ -21,13 +26,13 @@ export const SortControl = ({
 
   return (
     <Flex direction="row" {...flexProps}>
-      <Select value={value} onChange={handleSortChange}>
+      <Select value={value} onChange={handleSortChange} borderRightRadius="none">
         <option value="count">Count</option>
-        <option value="alpha">Alphabetical</option>
+        {onlyCount ? null : <option value="index">A-Z</option>}
       </Select>
       <IconButton
         onClick={toggleDir}
-        icon={<Icon as={dir === 'desc' ? SortAscendingIcon : SortDescendingIcon} fontSize="lg" />}
+        icon={<Icon as={dir === 'desc' ? BarsArrowDownIcon : BarsArrowUpIcon} fontSize="xl" />}
         colorScheme="gray"
         borderLeftRadius="none"
         aria-label="sort asc"
