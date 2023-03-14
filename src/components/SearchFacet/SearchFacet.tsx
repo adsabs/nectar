@@ -4,6 +4,7 @@ import {
   AccordionItemProps,
   Box,
   Button,
+  Center,
   HStack,
   Icon,
   IconButton,
@@ -13,6 +14,8 @@ import {
   Tooltip,
   useDisclosure,
 } from '@chakra-ui/react';
+import { FacetList } from '@components/SearchFacet/FacetList';
+import { FacetStoreProvider } from '@components/SearchFacet/store/FacetStore';
 import { Toggler } from '@components/Toggler';
 import {
   DndContext,
@@ -29,11 +32,11 @@ import { CSS } from '@dnd-kit/utilities';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/20/solid';
 import { ExclamationCircleIcon } from '@heroicons/react/24/solid';
 import { AppState, useStore, useStoreApi } from '@store';
+import { omit } from 'ramda';
 import { CSSProperties, MouseEventHandler, ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { facetConfig } from './config';
 import { applyFiltersToQuery } from './helpers';
-import { OnFilterArgs, SearchFacetTree } from './SearchFacetTree';
-import { FacetLogic, SearchFacetID } from './types';
+import { FacetLogic, OnFilterArgs, SearchFacetID } from './types';
 
 export interface ISearchFacetProps extends AccordionItemProps {
   field: FacetField;
@@ -42,6 +45,9 @@ export interface ISearchFacetProps extends AccordionItemProps {
   facetQuery?: string;
   label: string;
   storeId: SearchFacetID;
+  /** Disallow loading more, regardless of result */
+  noLoadMore?: boolean;
+  forceUppercaseInitial?: boolean;
   logic: {
     single: FacetLogic[];
     multiple: FacetLogic[];
@@ -51,6 +57,8 @@ export interface ISearchFacetProps extends AccordionItemProps {
   onQueryUpdate: (queryUpdates: Partial<IADSApiSearchParams>) => void;
 }
 
+const querySelector = (state: AppState) => omit(['fl', 'start', 'rows'], state.latestQuery) as IADSApiSearchParams;
+
 export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
   const store = useStoreApi();
   const setFacetState = useStore((state) => state.setSearchFacetState);
@@ -58,8 +66,9 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
   const hiddenFacets = useStore(useCallback((state) => state.getHiddenSearchFacets(), [facets]));
   const hideFacet = useStore((state) => state.hideSearchFacet);
   const showFacet = useStore((state) => state.showSearchFacet);
-  const { label, field, storeId, property, hasChildren, logic, facetQuery, filter, onQueryUpdate } = props;
-  const { listeners, attributes, setNodeRef, setActivatorNodeRef, transform, transition, isSorting } = useSortable({
+  const searchQuery = useStore(querySelector);
+  const { label, field, storeId, onQueryUpdate, noLoadMore } = props;
+  const { listeners, attributes, setNodeRef, setActivatorNodeRef, transform, transition } = useSortable({
     id: storeId,
     strategy: verticalListSortingStrategy,
   });
@@ -96,12 +105,6 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
     setHasError(true);
     onClose();
   };
-
-  useEffect(() => {
-    if (isSorting) {
-      onClose();
-    }
-  }, [isSorting]);
 
   const style: CSSProperties = {
     transform: CSS.Translate.toString(transform),
@@ -171,18 +174,11 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
           borderTop="none"
           borderBottomRadius="md"
           mt="0"
+          backgroundColor="white"
         >
-          <SearchFacetTree
-            label={label}
-            field={field}
-            property={property}
-            hasChildren={hasChildren}
-            logic={logic}
-            facetQuery={facetQuery}
-            filter={filter}
-            onFilter={handleOnFilter}
-            onError={handleOnError}
-          />
+          <FacetStoreProvider facetId={storeId} key={JSON.stringify(searchQuery)}>
+            <FacetList noLoadMore={noLoadMore} onFilter={handleOnFilter} onError={handleOnError} />
+          </FacetStoreProvider>
         </Box>
       )}
     </ListItem>

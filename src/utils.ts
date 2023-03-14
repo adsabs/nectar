@@ -9,7 +9,7 @@ import { useRouter } from 'next/router';
 import qs from 'qs';
 import { ParsedUrlQuery } from 'querystring';
 import { clamp, filter, find, head, is, keys, last, omit, paths, pick, pipe, propIs, uniq, when } from 'ramda';
-import { isArray, isNotString, isPlainObject } from 'ramda-adjunct';
+import { isArray, isNonEmptyString, isNotString, isPlainObject } from 'ramda-adjunct';
 
 type ParsedQueryParams = ParsedUrlQuery | qs.ParsedQs;
 
@@ -438,3 +438,10 @@ export const parseAPIError = (
 
   return options.defaultMessage;
 };
+
+/**
+ * Capitalizes first letter of the string
+ * @param str
+ */
+export const capitalizeString = (str: string) =>
+  isNonEmptyString(str) ? `${str.slice(0, 1).toUpperCase()}${str.slice(1)}` : str;

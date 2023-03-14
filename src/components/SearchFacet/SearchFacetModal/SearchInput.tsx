@@ -8,24 +8,33 @@ import {
   InputRightElement,
   VisuallyHidden,
 } from '@chakra-ui/react';
+import { useFacetStore } from '@components/SearchFacet/store/FacetStore';
+import { capitalizeString } from '@utils';
 import { ChangeEventHandler, FC } from 'react';
 
-interface ISearchInputProps extends InputGroupProps {
+export interface ISearchInputProps extends InputGroupProps {
   search: string;
   onSearchChange: (search: string) => void;
+  isDisabled?: boolean;
 }
 
-const label = 'Search (case-sensitive)';
-
 export const SearchInput: FC<ISearchInputProps> = (props) => {
-  const { search, onSearchChange, ...inputGroupProps } = props;
+  const { search, onSearchChange, isDisabled, ...inputGroupProps } = props;
 
+  const forceUppercaseInitial = useFacetStore((state) => state.params.forceUppercaseInitial);
+
+  const label = forceUppercaseInitial ? 'Search' : 'Search (case-sensitive)';
   const handleChange: ChangeEventHandler<HTMLInputElement> = (ev) => {
-    const value = ev.currentTarget.value;
-    onSearchChange(value);
+    // disallow forward slashes
+    const value = ev.currentTarget.value.replaceAll('/', '');
+
+    // if flag is set, this captialize the search term
+    onSearchChange(forceUppercaseInitial ? capitalizeString(value) : value);
   };
 
-  const handleClear = () => onSearchChange('');
+  const handleClear = () => {
+    onSearchChange('');
+  };
 
   return (
     <FormControl>
@@ -33,9 +42,16 @@ export const SearchInput: FC<ISearchInputProps> = (props) => {
         <VisuallyHidden>{label}</VisuallyHidden>
       </FormLabel>
       <InputGroup size="sm" {...inputGroupProps}>
-        <Input value={search} pr="2.5rem" type="text" placeholder={label} onChange={handleChange} />
+        <Input
+          value={search}
+          pr="2.5rem"
+          type="text"
+          placeholder={label}
+          onChange={handleChange}
+          isDisabled={isDisabled}
+        />
         <InputRightElement width="2.5rem">
-          <CloseButton h="1.75rem" size="sm" onClick={handleClear} />
+          <CloseButton h="1.75rem" size="sm" onClick={handleClear} isDisabled={isDisabled} aria-label="clear search" />
         </InputRightElement>
       </InputGroup>
     </FormControl>
