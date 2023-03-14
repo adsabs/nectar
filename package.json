@@ -30,7 +30,7 @@
     "@emotion/react": "11.8.2",
     "@emotion/styled": "^11.6.0",
     "@headlessui/react": "^1.1.1",
-    "@heroicons/react": "^1.0.1",
+    "@heroicons/react": "^2.0.16",
     "@nivo/bar": "^0.80.0",
     "@nivo/core": "^0.80.0",
     "@nivo/line": "^0.80.0",

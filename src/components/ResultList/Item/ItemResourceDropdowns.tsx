@@ -4,7 +4,7 @@ import { LockIcon, UnlockIcon } from '@chakra-ui/icons';
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
 import { SimpleLinkDropdown } from '@components';
 import { processLinkData } from '@components/AbstractSources/linkGenerator';
-import { DatabaseIcon, DocumentTextIcon, ViewListIcon } from '@heroicons/react/outline';
+import { Bars4Icon, CircleStackIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import { useIsClient } from '@hooks/useIsClient';
 import { isBrowser } from '@utils';
 import { useRouter } from 'next/router';
@@ -119,7 +119,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
   const simpleRefItemsLabel = (
     <IconButton
       aria-label={referenceItems.length > 0 ? 'References and citations' : 'No references and citations'}
-      icon={<ViewListIcon className="default-icon" />}
+      icon={<Bars4Icon className="default-icon" />}
       isDisabled={referenceItems.length === 0}
       variant="link"
       size="xs"
@@ -129,7 +129,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
   const simpleDataItemsLabel = (
     <IconButton
       aria-label={dataProductItems.length > 0 ? 'Data products' : 'No data products'}
-      icon={<DatabaseIcon className="default-icon" />}
+      icon={<CircleStackIcon className="default-icon" />}
       isDisabled={dataProductItems.length === 0}
       variant="link"
       size="xs"
@@ -180,7 +180,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
           <MenuButton
             as={IconButton}
             aria-label={referenceItems.length > 0 ? 'References and citations' : 'No references and citations'}
-            icon={<ViewListIcon className="default-icon" />}
+            icon={<Bars4Icon className="default-icon" />}
             isDisabled={referenceItems.length === 0}
             variant="link"
             size="xs"
@@ -216,7 +216,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
           <MenuButton
             as={IconButton}
             aria-label={dataProductItems.length > 0 ? 'Data products' : 'No data products'}
-            icon={<DatabaseIcon className="default-icon" />}
+            icon={<CircleStackIcon className="default-icon" />}
             isDisabled={dataProductItems.length === 0}
             variant="link"
             size="xs"
