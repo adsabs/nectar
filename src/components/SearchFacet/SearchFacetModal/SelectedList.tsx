@@ -1,17 +1,15 @@
-import { CloseButton, Flex, Tag, TagCloseButton, TagLabel, Wrap } from '@chakra-ui/react';
+import { BoxProps, CloseButton, Flex, Tag, TagCloseButton, TagLabel, Wrap } from '@chakra-ui/react';
+import { useFacetStore } from '@components/SearchFacet/store/FacetStore';
 import { isEmpty } from 'ramda';
 import { MouseEventHandler } from 'react';
 import { parseRootFromKey, parseTitleFromKey } from '../helpers';
-import { IFacetTreeState, useFacetTreeStore } from '../store';
 
-const selectedKeysSelector = (state: IFacetTreeState) => state.selectedKeys;
-const resetSelector = (state: IFacetTreeState) => state.reset;
-const toggleSelectSelector = (state: IFacetTreeState) => state.toggleSelect;
 const formatKeyToName = (key: string) => (key.startsWith('0') ? parseRootFromKey(key) : parseTitleFromKey(key));
-export const SelectedList = () => {
-  const selected = useFacetTreeStore(selectedKeysSelector);
-  const reset = useFacetTreeStore(resetSelector);
-  const toggleSelect = useFacetTreeStore(toggleSelectSelector);
+
+export const SelectedList = (props: BoxProps) => {
+  const selected = useFacetStore((state) => state.selected);
+  const select = useFacetStore((state) => state.select);
+  const clearSelection = useFacetStore((state) => state.clearSelection);
 
   if (isEmpty(selected)) {
     return null;
@@ -19,9 +17,8 @@ export const SelectedList = () => {
 
   const handleDeselect: MouseEventHandler<HTMLButtonElement> = (e) => {
     const { key } = e.currentTarget.dataset;
-    toggleSelect(key, key.startsWith('0'));
+    select(key);
   };
-  const handleDeselectAll = () => reset();
 
   return (
     <Flex
@@ -34,16 +31,22 @@ export const SelectedList = () => {
       borderRadius="md"
       maxHeight="64"
       overflowY="scroll"
+      w="full"
+      {...props}
     >
       <Wrap flex="1" spacing="1">
         {selected.map((key) => (
           <Tag key={key} size="sm" variant="subtle">
             <TagLabel>{formatKeyToName(key)}</TagLabel>
-            <TagCloseButton onClick={handleDeselect} data-key={key} />
+            <TagCloseButton
+              onClick={handleDeselect}
+              data-key={key}
+              aria-label={`remove ${formatKeyToName(key)} from selection`}
+            />
           </Tag>
         ))}
       </Wrap>
-      <CloseButton onClick={handleDeselectAll} />
+      <CloseButton onClick={clearSelection} aria-label="clear all selection" />
     </Flex>
   );
 };
