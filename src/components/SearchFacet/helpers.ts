@@ -1,10 +1,9 @@
-import { FacetField, IADSApiSearchParams, IFacetCountsFields } from '@api';
-import { escape, getOperator, getTerms, joinQueries, Operator, removeClauseAndStringify, splitQuery } from '@query';
-import { defaultQueryParams } from '@store/slices';
-import { isIADSSearchParams, isString } from '@utils';
+import {FacetField, IADSApiSearchParams, IFacetCountsFields} from '@api';
+import {escape, getOperator, getTerms, joinQueries, Operator, removeClauseAndStringify, splitQuery} from '@query';
+import {defaultQueryParams} from '@store/slices';
+import {isIADSSearchParams, isString} from '@utils';
 import {
   __,
-  all,
   allPass,
   always,
   and,
@@ -62,15 +61,26 @@ import {
   values,
   when,
 } from 'ramda';
-import { isNilOrEmpty, stubNull } from 'ramda-adjunct';
-import { OnFilterArgs } from './SearchFacetTree';
-import { FacetChildNode, FacetChildNodeTree, FacetCountTuple, FacetLogic, FacetNodeTree, IFacetNode } from './types';
+import {isNilOrEmpty, stubNull} from 'ramda-adjunct';
+import {
+  FacetChildNode,
+  FacetChildNodeTree,
+  FacetCountTuple,
+  FacetLogic,
+  FacetNodeTree,
+  IFacetNode,
+  OnFilterArgs,
+} from './types';
 
 // helpers
 const isNotOperator = (op: Operator) => always(op === 'NOT');
 const nonEmptyString = both(is(String), complement(isEmpty));
 const isEmptyOrNil = either(isNil, isEmpty);
 const safeGetArray = (val: string | string[]) => (Array.isArray(val) ? val : typeof val === 'string' ? of(val) : []);
+
+export const isRootNode = (node: string) => /^(?![1-9]\/)/.test(node);
+
+export const getParentId = (node: string): string | null => (isRootNode(node) ? null : parseRootFromKey(node, true));
 
 /**
  * Parse leaf value from id
@@ -88,6 +98,7 @@ export const parseTitleFromKey = when(nonEmptyString, pipe<[string], string[], s
  * `0/Smith, A` -> `Smith, A`
  * `1/Smith, A/Smith, Anthony` -> `Smith, A`
  *
+ * @param {string} key
  * @param {boolean} includePrefix will include the `0/` part in the result
  */
 export const parseRootFromKey = (key: string, includePrefix?: boolean) =>
@@ -226,10 +237,6 @@ export const getAllSelectedKeys = (tree: FacetNodeTree) => {
 const getChildrenNodes = (key: string) =>
   pipe<[FacetNodeTree], FacetChildNodeTree, FacetChildNode[]>(path([parseRootFromKey(key, true), 'children']), values);
 
-/** Returns true if all children are selected */
-const allChildrenSelected = (key: string) =>
-  pipe<[FacetNodeTree], FacetChildNode[], boolean>(getChildrenNodes(key), all(propEq('selected', true)));
-
 /** Returns true if no children are selected */
 const noChildrenSelected = (key: string) =>
   pipe<[FacetNodeTree], FacetChildNode[], boolean>(getChildrenNodes(key), none(propEq('selected', true)));
@@ -341,7 +348,7 @@ export const cleanClause = curry((fqKey: string, clause: string) => {
   // for authors, there is more processing to make it get the names
   if (fqKey === 'fq_author') {
     return pipe(
-      map(pipe(replace(/[\"\\]/g, ''), parseTitleFromKey)),
+      map(pipe(replace(/["\\]/g, ''), parseTitleFromKey)),
 
       // this will force an extra `NOT` is at the start of the string
       when(isNotOperator(operator as Operator), prepend(undefined)),
@@ -350,7 +357,7 @@ export const cleanClause = curry((fqKey: string, clause: string) => {
   }
 
   return pipe(
-    map(pipe(replace(/(?!")[01]\\\//g, ''), replace(/[\"\\]/g, ''))),
+    map(pipe(replace(/(?!")[01]\\\//g, ''), replace(/["\\]/g, ''))),
     when(isNotOperator(operator as Operator), prepend(undefined)),
     join(` ${operator} `),
   )(terms);

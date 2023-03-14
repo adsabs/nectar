@@ -1,19 +1,24 @@
 import { FacetField, IADSApiSearchParams, useGetSearchFacetJSON } from '@api';
 import { calculatePagination } from '@components/ResultList/Pagination/usePagination';
-import { parseRootFromKey } from '@components/SearchFacet/helpers';
-import { FacetCountTuple } from '@components/SearchFacet/types';
+import { getParentId, parseRootFromKey } from '@components/SearchFacet/helpers';
+import { useFacetStore } from '@components/SearchFacet/store/FacetStore';
+import { FacetItem } from '@components/SearchFacet/types';
 import { useDebounce } from '@hooks';
 import { AppState, useStore } from '@store';
+import { sanitize } from 'dompurify';
 import { omit } from 'ramda';
-import { useCallback, useMemo, useState } from 'react';
+import { isNonEmptyArray } from 'ramda-adjunct';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-interface IUseGetFacetDataProps {
+export interface IUseGetFacetDataProps {
   field: FacetField;
   query?: string;
-  key: string;
+  prefix: string;
   level: 'root' | 'child';
   sortDir?: 'asc' | 'desc';
+  sortField?: 'index' | 'count';
   initialPage?: number;
+  filter?: string[];
   enabled?: boolean;
   hasChildren?: boolean;
 }
@@ -30,32 +35,37 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
     field,
     query = '',
     sortDir = 'desc',
+    sortField = 'count',
     level = 'root',
-    key,
-    initialPage = 0,
+    prefix,
     enabled = true,
     hasChildren = false,
+    filter = [],
   } = props;
 
-  const [pagination, setPagination] = useState(() =>
-    calculatePagination({ page: initialPage, numPerPage: FACET_DEFAULT_LIMIT }),
-  );
+  const [pagination, setPagination] = useState(() => calculatePagination({ page: 0, numPerPage: FACET_DEFAULT_LIMIT }));
+
+  // on prefix change (search, letter, sort) reset back to page 0
+  useEffect(() => {
+    setPagination(calculatePagination({ page: 0, numPerPage: FACET_DEFAULT_LIMIT }));
+  }, [prefix]);
 
   const params = useDebounce(
     useMemo(
       () => ({
         'json.facet': getSearchFacetParams({
           field,
-          key,
+          prefix,
           query,
           level,
+          sortField,
           sortDir,
           offset: pagination.startIndex,
           hasChildren,
         }),
         ...searchQuery,
       }),
-      [searchQuery, field, key, query, level, sortDir, pagination.startIndex, hasChildren],
+      [searchQuery, field, prefix, query, level, sortDir, sortField, pagination.startIndex, hasChildren],
     ),
     300,
   );
@@ -67,8 +77,23 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
   });
 
   const res = data?.[field];
+  const treeData = res?.buckets?.reduce<FacetItem[]>((acc, entry) => {
+    // filter out entries, if necessary
+    if (isNonEmptyArray(filter) && !filter.includes(entry.val as string)) {
+      return acc;
+    }
 
-  const treeData = (res?.buckets?.map((entry) => [entry.val, entry.count]) ?? []) as FacetCountTuple[];
+    // generate a new entry for the bucket
+    const parentId = getParentId(entry.val as string);
+    return [
+      ...acc,
+      {
+        ...entry,
+        id: entry.val,
+        parentId: parentId !== null ? parentId : null,
+      } as FacetItem,
+    ];
+  }, []);
 
   const handleLoadMore = useCallback(() => {
     if (!pagination.noNext) {
@@ -107,10 +132,18 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
     [res?.numBuckets],
   );
 
+  // After creation, add the nodes to the state to optimize rendering
+  const addNodes = useFacetStore((state) => state.addNodes);
+  useEffect(() => {
+    if (treeData?.length > 0) {
+      addNodes(treeData);
+    }
+  }, [treeData]);
+
   return {
     treeData,
     totalResults: res?.numBuckets ?? 0,
-    pagination,
+    pagination: pagination,
     handlePrevious,
     handleLoadMore,
     handlePageChange,
@@ -119,6 +152,12 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
   };
 };
 
+/**
+ * Generate the proper prefix given the level of the incoming key
+ * Appends a '/' to child prefixes to restrict results
+ * @param level
+ * @param key
+ */
 const getPrefix = (level: IUseGetFacetDataProps['level'], key: string) =>
   `${level === 'root' ? FACET_DEFAULT_PREFIX : FACET_DEFAULT_CHILD_PREFIX}${parseRootFromKey(key) ?? ''}${
     level === 'child' ? '/' : ''
@@ -128,6 +167,7 @@ const getSearchFacetParams = (props: IUseGetFacetDataProps & { offset: number })
   if (!props || !props.field) {
     return '';
   }
+
   return JSON.stringify({
     [props.field]: {
       type: 'terms',
@@ -135,11 +175,13 @@ const getSearchFacetParams = (props: IUseGetFacetDataProps & { offset: number })
       limit: FACET_DEFAULT_LIMIT,
       mincount: 1,
       offset: props.offset,
-      sort: { count: props.sortDir },
       numBuckets: true,
+      // sort: `${props.sortField} ${props.sortDir}`,
+      sort: `count ${props.sortDir}`,
       ...(props.query ? { query: props.query } : {}),
-      // prefix should append a '/' to child to restrict the search
-      ...(props.hasChildren ? { prefix: getPrefix(props.level, props.key) } : {}),
+      ...(props.hasChildren
+        ? { prefix: getPrefix(props.level, sanitize(props.prefix)) }
+        : { prefix: sanitize(props.prefix) }),
     },
   });
 };
