@@ -23,7 +23,7 @@ import { makeSearchParams, stringifySearchParams } from '@utils';
 import NextLink, { LinkProps } from 'next/link';
 import { useRouter } from 'next/router';
 import { curryN } from 'ramda';
-import { Dispatch, KeyboardEventHandler, ReactElement, useCallback, useMemo, useRef, useState } from 'react';
+import { Dispatch, FC, KeyboardEventHandler, ReactElement, useCallback, useMemo, useRef, useState } from 'react';
 import { MenuPlacement } from 'react-select';
 import { calculatePagination, PaginationAction, PaginationResult } from './usePagination';
 
@@ -41,7 +41,8 @@ type NumPerPageProp =
       onPerPageSelect?: (numPerPage: NumPerPageType) => void;
     };
 export type PaginationProps = {
-  linksExtendQuery?: boolean;
+  /** only render buttons for the controls */
+  noLinks?: boolean;
   onNext?: (nextPage: number) => void;
   onPageSelect?: (page: number) => void;
   onPrevious?: (prevPage: number) => void;
@@ -53,12 +54,14 @@ export type PaginationProps = {
   canNext?: (ctx: PaginationResult) => boolean;
   canPrev?: (ctx: PaginationResult) => boolean;
   isLoading?: boolean;
+  /** only updates page param, removes other params */
+  onlyUpdatePageParam?: boolean;
 } & NumPerPageProp;
 
 export const Pagination = (props: PaginationProps): ReactElement => {
   const {
     hidePerPageSelect = false,
-    linksExtendQuery = true,
+    noLinks = false,
     numPerPage = APP_DEFAULTS.RESULT_PER_PAGE,
     onNext,
     onPageSelect,
@@ -73,9 +76,9 @@ export const Pagination = (props: PaginationProps): ReactElement => {
     canNext,
     canPrev,
     isLoading = false,
+    onlyUpdatePageParam = false,
   } = props;
 
-  const router = useRouter();
   const pageOptions: SelectOption[] = APP_DEFAULTS.PER_PAGE_OPTIONS.map((option) => ({
     id: option.toString(),
     label: option.toString(),
@@ -137,20 +140,6 @@ export const Pagination = (props: PaginationProps): ReactElement => {
     [onPrevious, onNext, dispatch],
   );
 
-  const getLinkParams = useCallback(
-    (page: number): LinkProps => {
-      const search = linksExtendQuery
-        ? makeSearchParams({ ...router.query, p: page } as SafeSearchUrlParams)
-        : stringifySearchParams({ p: page });
-
-      return {
-        href: { pathname: router.pathname, search },
-        as: { pathname: router.asPath.split('?')[0], search },
-      };
-    },
-    [router.pathname, router.asPath, router.query],
-  );
-
   if (noPagination && !alwaysShow) {
     return null;
   }
@@ -166,23 +155,25 @@ export const Pagination = (props: PaginationProps): ReactElement => {
       <VisuallyHidden as="h3" id="pagination">
         {paginationHeading}
       </VisuallyHidden>
-      <Flex justifyContent={{ base: 'end', xs: 'space-between' }}>
+      <Flex justifyContent={{ base: 'end', xs: 'space-between' }} alignItems="center">
         <Box data-testid="pagination-label" display={{ base: 'none', sm: 'flex' }}>
-          <Text>
-            Showing{' '}
-            <Text as="span" fontWeight="semibold">
-              {formattedStartIndex}
-            </Text>{' '}
-            to{' '}
-            <Text as="span" fontWeight="semibold">
-              {noNext ? formattedTotalResults : formattedEndIndex}
-            </Text>{' '}
-            of{' '}
-            <Text as="span" fontWeight="semibold">
-              {formattedTotalResults}
-            </Text>{' '}
-            results
-          </Text>
+          {totalResults === 0 ? null : (
+            <Text>
+              Showing{' '}
+              <Text as="span" fontWeight="semibold">
+                {formattedStartIndex}
+              </Text>{' '}
+              to{' '}
+              <Text as="span" fontWeight="semibold">
+                {noNext ? formattedTotalResults : formattedEndIndex}
+              </Text>{' '}
+              of{' '}
+              <Text as="span" fontWeight="semibold">
+                {formattedTotalResults}
+              </Text>{' '}
+              results
+            </Text>
+          )}
         </Box>
         {!hidePerPageSelect && (
           <Box display={{ base: 'none', xs: 'flex' }} data-testid="pagination-numperpage">
@@ -200,21 +191,19 @@ export const Pagination = (props: PaginationProps): ReactElement => {
         <Stack direction="row" spacing={0} role="navigation" aria-label="Pagination">
           {isLoading ? null : (
             <>
-              <NextLink {...getLinkParams(prevPage)} passHref shallow legacyBehavior>
-                <Link>
-                  <Button
-                    onClick={handleClick('prev')}
-                    aria-label="previous"
-                    data-testid="pagination-prev"
-                    leftIcon={<ChevronLeftIcon />}
-                    isDisabled={noPrev}
-                    variant="pagePrev"
-                    isLoading={isLoading}
-                  >
-                    Prev
-                  </Button>
-                </Link>
-              </NextLink>
+              <PaginationButton page={prevPage} noLinks={noLinks} onlyUpdatePageParam={onlyUpdatePageParam}>
+                <Button
+                  onClick={handleClick('prev')}
+                  aria-label="previous"
+                  data-testid="pagination-prev"
+                  leftIcon={<ChevronLeftIcon />}
+                  isDisabled={noPrev}
+                  variant="pagePrev"
+                  isLoading={isLoading}
+                >
+                  Prev
+                </Button>
+              </PaginationButton>
               <ManualPageSelect
                 page={page}
                 totalPages={totalPages}
@@ -228,24 +217,51 @@ export const Pagination = (props: PaginationProps): ReactElement => {
           {isLoading ? (
             <Button type="button" isLoading={isLoading} variant="pageLoading" />
           ) : (
-            <NextLink {...getLinkParams(nextPage)} passHref shallow legacyBehavior>
-              <Link>
-                <Button
-                  onClick={handleClick('next')}
-                  aria-label="next"
-                  data-testid="pagination-next"
-                  rightIcon={<ChevronRightIcon />}
-                  isDisabled={noNext}
-                  variant="pageNext"
-                >
-                  Next
-                </Button>
-              </Link>
-            </NextLink>
+            <PaginationButton page={nextPage} noLinks={noLinks} onlyUpdatePageParam={onlyUpdatePageParam}>
+              <Button
+                onClick={handleClick('next')}
+                aria-label="next"
+                data-testid="pagination-next"
+                rightIcon={<ChevronRightIcon />}
+                isDisabled={noNext}
+                variant="pageNext"
+              >
+                Next
+              </Button>
+            </PaginationButton>
           )}
         </Stack>
       </Flex>
     </Box>
+  );
+};
+
+const PaginationButton: FC<{ page: number; noLinks: boolean; onlyUpdatePageParam: boolean }> = (props) => {
+  const { children, page, noLinks, onlyUpdatePageParam } = props;
+  const router = useRouter();
+  const getLinkParams = useCallback(
+    (page: number): LinkProps => {
+      const search = onlyUpdatePageParam
+        ? stringifySearchParams({ ...router.query, p: page })
+        : makeSearchParams({
+            ...router.query,
+            p: page,
+          } as SafeSearchUrlParams);
+
+      return {
+        href: { pathname: router.pathname, search },
+        as: { pathname: router.asPath.split('?')[0], search },
+      };
+    },
+    [router.pathname, router.asPath, router.query],
+  );
+
+  return noLinks ? (
+    <>{children}</>
+  ) : (
+    <NextLink {...getLinkParams(page)} passHref shallow legacyBehavior>
+      <Link>{children}</Link>
+    </NextLink>
   );
 };
 
