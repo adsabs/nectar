@@ -40,7 +40,7 @@ export const AbstractRefList = (props: IAbstractRefListProps): ReactElement => {
         onNext={handlePageChange}
         onPrevious={handlePageChange}
         onPageSelect={handlePageChange}
-        linksExtendQuery={false}
+        onlyUpdatePageParam
         skipRouting
       />
     </Stack>
