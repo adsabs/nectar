@@ -6,7 +6,8 @@ import create, { GetState, Mutate, SetState, StoreApi } from 'zustand';
 import createContext from 'zustand/context';
 import { devtools, NamedSet, persist } from 'zustand/middleware';
 import { docsSlice, searchSlice, settingsSlice, themeSlice, userSlice } from './slices';
-import { AppState } from './types';
+import { AppSerializableState, AppState } from './types';
+import { isPlainObject, isPrimitive } from 'ramda-adjunct';
 
 export const APP_STORAGE_KEY = 'nectar-app-state';
 
@@ -41,15 +42,7 @@ export const createStore = (preloadedState: Partial<AppState> = {}) => {
           numPerPage: state.numPerPage,
           settings: state.settings,
         }),
-        merge: (persistedState: AppState, currentState: AppState) => {
-          return {
-            ...currentState,
-            numPerPage: persistedState.numPerPage ?? currentState.numPerPage,
-            user: persistedState.user ?? currentState.user,
-            theme: persistedState.theme ?? currentState.theme,
-            settings: persistedState.settings ?? currentState.settings,
-          };
-        },
+        merge: mergeDeepLeft,
       }),
       { name: APP_STORAGE_KEY },
     ),
@@ -97,4 +90,15 @@ export const updateAppUser = (user: IUserData): void => {
   unstable_batchedUpdates(() => {
     store?.setState({ user });
   });
+};
+
+export const getSerializableDefaultStore = () => {
+  const state = createStore().getState();
+  return Object.keys(state).reduce((acc, key) => {
+    const value = state[key as keyof AppState];
+    if (isPlainObject(value) || isPrimitive(value)) {
+      return { ...acc, [key]: value };
+    }
+    return acc;
+  }, {}) as AppSerializableState;
 };

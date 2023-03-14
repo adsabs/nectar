@@ -1,18 +1,23 @@
 import { GetState } from 'zustand';
 import { NamedSet } from 'zustand/middleware';
 import {
-  IAppStateDocsSlice,
-  IAppStateSearchSlice,
-  IAppStateSettingsSlice,
-  IAppStateThemeSlice,
-  IAppStateUserSlice,
+  IDocsAction,
+  IDocsState,
+  ISearchAction,
+  ISearchState,
+  ISettingsAction,
+  ISettingsState,
+  IThemeAction,
+  IThemeState,
+  IUserAction,
+  IUserState,
 } from './slices';
 
-export type AppState = IAppStateThemeSlice &
-  IAppStateSearchSlice &
-  IAppStateSettingsSlice &
-  IAppStateUserSlice &
-  IAppStateDocsSlice;
+export type AppSerializableState = IDocsState & ISearchState & ISettingsState & IThemeState & IUserState;
+export type AppActions = IDocsAction & ISearchAction & ISettingsAction & IThemeAction & IUserAction;
+
+export type AppState = AppSerializableState & AppActions;
+
 export interface IPersistedAppState {
   state: AppState;
   version: number;

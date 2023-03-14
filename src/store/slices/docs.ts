@@ -1,7 +1,7 @@
 import { StoreSlice } from '@store';
 import { difference, equals, intersection, union } from 'ramda';
 
-export interface IAppStateDocsSlice {
+export interface IDocsState {
   docs: {
     doc: string;
     current: string[];
@@ -9,6 +9,9 @@ export interface IAppStateDocsSlice {
     isAllSelected: boolean;
     isSomeSelected: boolean;
   };
+}
+
+export interface IDocsAction {
   // single doc
   selectDoc: (doc: string) => void;
   unSelectDoc: (doc: string) => void;
@@ -24,7 +27,7 @@ export interface IAppStateDocsSlice {
   isDocSelected: (doc: string) => boolean;
 }
 
-export const docsSlice: StoreSlice<IAppStateDocsSlice> = (set, get) => ({
+export const docsSlice: StoreSlice<IDocsState & IDocsAction> = (set, get) => ({
   docs: {
     // bibcode of the primary abstract (viewing details)
     doc: null,
@@ -142,7 +145,6 @@ export const docsSlice: StoreSlice<IAppStateDocsSlice> = (set, get) => ({
     ),
 });
 
-const getIsAllSelected = (docs: IAppStateDocsSlice['docs']) =>
-  equals(intersection(docs.current, docs.selected), docs.current);
+const getIsAllSelected = (docs: IDocsState['docs']) => equals(intersection(docs.current, docs.selected), docs.current);
 
-const getIsSomeSelected = (docs: IAppStateDocsSlice['docs']) => intersection(docs.current, docs.selected).length > 0;
+const getIsSomeSelected = (docs: IDocsState['docs']) => intersection(docs.current, docs.selected).length > 0;

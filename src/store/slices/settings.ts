@@ -4,7 +4,7 @@ import { StoreSlice } from '@store';
 import { Theme } from '@types';
 import { filter, is, pipe, propEq, uniq, without } from 'ramda';
 
-export interface IAppStateSettingsSlice {
+export interface ISettingsState {
   settings: {
     searchFacets: {
       order: SearchFacetID[];
@@ -15,7 +15,9 @@ export interface IAppStateSettingsSlice {
     // user: Record<string, unknown>;
     user: Partial<IADSApiUserDataResponse>;
   };
+}
 
+export interface ISettingsAction {
   // search facets
   getSearchFacetState: (id: SearchFacetID) => SearchFacetState;
   setSearchFacetState: (id: SearchFacetID, state: Partial<SearchFacetState>) => void;
@@ -38,7 +40,7 @@ type SearchFacetState = {
   expanded: boolean;
 };
 
-export const defaultSettings: IAppStateSettingsSlice['settings'] = {
+export const defaultSettings: ISettingsState['settings'] = {
   searchFacets: {
     order: [
       'author',
@@ -77,7 +79,7 @@ export const defaultSettings: IAppStateSettingsSlice['settings'] = {
   user: {},
 };
 
-export const settingsSlice: StoreSlice<IAppStateSettingsSlice> = (set, get) => ({
+export const settingsSlice: StoreSlice<ISettingsState & ISettingsAction> = (set, get) => ({
   settings: defaultSettings,
   hideSearchFacet: (id) =>
     set(
