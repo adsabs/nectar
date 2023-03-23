@@ -1,47 +1,52 @@
-FROM node:14.16.1-buster-slim
+FROM node:18-alpine AS base
 
-ENV LC_ALL C
-ENV DEBIAN_FRONTEND noninteractive
-# Cypress dependencies: https://docs.cypress.io/guides/continuous-integration/introduction#Dependencies
-RUN apt-get update && \
-    apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb -y
-
+# Install dependencies only when needed
+FROM base AS deps
+# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Copy application files (excluding unnecessary things such as node_modules)
-COPY *.js /app/
-COPY *.ts /app/
-COPY *.json /app/
-COPY .env* /app/
-COPY yarn.lock /app/
-COPY cypress/ /app/cypress/
-COPY src/ /app/src/
-COPY server/ /app/server/
+# Install dependencies based on the preferred package manager
+COPY package.json yarn.lock* ./
+RUN yarn global add sharp@0.29.0
+RUN yarn --frozen-lockfile
 
-# Install all required dependencies (prod & dev)
-RUN yarn install --pure-lockfile
+# Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
-# Uncomment the following line in case you want to disable telemetry.
-ENV NEXT_TELEMETRY_DISABLED=1
+# Uncomment the following line in case you want to disable telemetry during the build.
+ENV NEXT_TELEMETRY_DISABLED 1
 
-ENV API_HOST=http://devapi.adsabs.harvard.edu/v1
-ENV COOKIE_SECRET=G7Kfbufs9QkrnLRFPPGnciaLY3JLH3r9BL6nAKNdRPEzLAA5wcpmT6gF8hMVjY9n
-
-# Port where express will listen
-ENV PORT=8000
-
-# Build production
 RUN yarn build
 
-# The next/image component's default loader uses squoosh because it is quick to install 
-# and suitable for a development environment. For a production environment using next 
-# start, it is strongly recommended you install sharp by running yarn add sharp in your 
-# project directory.
-# Source: https://nextjs.org/docs/messages/sharp-missing-in-production
-RUN yarn add sharp@0.29.0
+# Production image, copy all the files and run next
+FROM base AS runner
+WORKDIR /app
 
-EXPOSE $PORT
+ENV NODE_ENV production
+# Uncomment the following line in case you want to disable telemetry during runtime.
+ENV NEXT_TELEMETRY_DISABLED 1
 
-CMD [ "yarn", "start" ]
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+COPY --from=builder /app/public ./public
+
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
+COPY --from=builder --chown=nextjs:nodejs /app/dist/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/dist/static ./dist/static
+
+USER nextjs
+
+EXPOSE 8000
+
+ENV PORT 8000
+
+CMD ["node", "server.js"]
+
