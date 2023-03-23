@@ -129,7 +129,7 @@ export const userGSSP = async (
   ctx: GetServerSidePropsContext,
   state: { props?: { dehydratedAppState?: Partial<AppSerializableState> } },
 ) => {
-  const userData = pickUserData(ctx.req.session.userData);
+  const userData = pickUserData(ctx.req.session?.userData ?? {}) as IUserData;
   console.log('default', getSerializableDefaultStore(), state);
   return Promise.resolve({
     props: {
@@ -316,7 +316,7 @@ export const enumKeys = <O extends object, K extends keyof O = keyof O>(obj: O):
  * For now, this just mutates the api instance, setting the token from the session
  */
 export const setupApiSSR = (ctx: GetServerSidePropsContext<ParsedUrlQuery>) => {
-  api.setUserData(ctx.req.session.userData);
+  api.setUserData(ctx.req.session?.userData ?? {} as IUserData);
 };
 
 // omit params that should not be included in any urls

@@ -121,3 +121,5 @@ dev/
 storybook-static/
 .DS_Store
 .idea
+.env.development
+.env.production
