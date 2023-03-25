@@ -3,13 +3,13 @@
   "private": true,
   "version": "0.0.1",
   "engines": {
-    "node": ">=14"
+    "node": ">=18"
   },
   "scripts": {
-    "dev": "nodemon",
-    "dev:mocks": "NEXT_PUBLIC_API_MOCKING=enabled nodemon",
-    "build": "NEXT_TELEMETRY_DISABLED=1 DIST_DIR=./dist/ next build && tsc --project tsconfig.server.json --outDir ./dist/ && yarn build-data",
-    "start": "NODE_ENV=production DIST_DIR=./dist/ node dist/server/index.js",
+    "dev": "PORT=8000 next dev",
+    "dev:mocks": "NEXT_PUBLIC_API_MOCKING=enabled PORT=8000 next dev",
+    "build": "NEXT_TELEMETRY_DISABLED=1 DIST_DIR=./dist/ next build && yarn build-bibstems-index",
+    "start": "NODE_ENV=production PORT=8000 DIST_DIR=./dist/ node dist/standalone/dist/index.js",
     "analyze": "NEXT_TELEMETRY_DISABLED=1 DIST_DIR=./dev/ ANALYZE=true next build",
     "test": "NODE_ENV=test vitest",
     "test:coverage": "NODE_ENV=test vitest --run --coverage",
@@ -17,7 +17,7 @@
     "cypress:run": "cypress run",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public",
-    "build-data": "node ./scripts/gen-bibstem-index",
+    "build-bibstem-index": "node ./scripts/gen-bibstem-index",
     "lint": "tsc --project ./tsconfig.json && tsc --project ./cypress/tsconfig.json && eslint ."
   },
   "dependencies": {
@@ -90,6 +90,7 @@
     "@mswjs/interceptors": "^0.19.0",
     "@next/bundle-analyzer": "^10.0.7",
     "@next/eslint-plugin-next": "^12.1.0",
+    "@next/swc-darwin-x64": "^13.2.4",
     "@storybook/addon-actions": "^6.3.7",
     "@storybook/addon-essentials": "^6.3.7",
     "@storybook/addon-links": "^6.3.7",
@@ -144,6 +145,7 @@
     "happy-dom": "^6.0.4",
     "husky": "^7.0.1",
     "identity-obj-proxy": "^3.0.0",
+    "iron-session": "^6.3.1",
     "lint-staged": "^11.1.2",
     "msw": "^0.49.2",
     "msw-storybook-addon": "^1.6.3",
@@ -169,7 +171,7 @@
     "webpack": "^5.76.0"
   },
   "volta": {
-    "node": "14.18.0",
+    "node": "18.15.0",
     "yarn": "1.22.19"
   },
   "lint-staged": {
