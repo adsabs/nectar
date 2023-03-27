@@ -2,10 +2,10 @@ import { ExportApiFormatKey, ExportApiJournalFormat, IDocsEntity, JournalFormatN
 import { Button, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Tooltip, VStack } from '@chakra-ui/react';
 import { MaxAuthorSlider, SampleTextArea } from '@components';
 import { JournalFormatSelect } from '@components/CitationExporter';
-import { JournalFormatMap } from '@components/Settings/model';
+import { DEFAULT_USER_DATA, JournalFormatMap } from '@components/Settings/model';
 import { UserDataSetterEvent } from '@pages/user/settings/export';
 import { useStore } from '@store';
-import { Dispatch, useMemo, useState } from 'react';
+import { Dispatch, useState } from 'react';
 import { journalNameHandlingDescription, bibtexExportFormatDescription, maxAuthorDescription } from '../Description';
 import { KeyFormatInputApply } from '../KeyFormatInputApply';
 import { MaxAuthorCutoffSlider } from '../MaxAuthorCutoffSlider';
@@ -24,48 +24,31 @@ export const BibtexTabPanel = ({ sampleBib, dispatch }: IBibtexTabPanelProps) =>
     bibtexABSKeyFormat,
     bibtexABSAuthorCutoff: bibtexABSAuthorCutoffStr,
     bibtexABSMaxAuthors: bibtexABSMaxAuthorsStr,
-  } = useStore((state) => state.settings.user);
+  } = useStore((state) => state.settings.user) ?? DEFAULT_USER_DATA;
 
-  const bibtexAuthorCutoff = useMemo(() => parseInt(bibtexAuthorCutoffStr), [bibtexAuthorCutoffStr]);
-  const bibtexMaxAuthors = useMemo(() => parseInt(bibtexMaxAuthorsStr), [bibtexMaxAuthorsStr]);
-  const bibtexABSAuthorCutoff = useMemo(() => parseInt(bibtexABSAuthorCutoffStr), [bibtexABSAuthorCutoffStr]);
-  const bibtexABSMaxAuthors = useMemo(() => parseInt(bibtexABSMaxAuthorsStr), [bibtexABSMaxAuthorsStr]);
+  const bibtexAuthorCutoff = parseInt(bibtexAuthorCutoffStr);
+  const bibtexMaxAuthors = parseInt(bibtexMaxAuthorsStr);
+  const bibtexABSAuthorCutoff = parseInt(bibtexABSAuthorCutoffStr);
+  const bibtexABSMaxAuthors = parseInt(bibtexABSMaxAuthorsStr);
 
   // If bibtex settings and bibtex Abs settings are the same
   // we can use basic view
-  const canUseBasicMode = useMemo(
-    () =>
-      bibtexKeyFormat === bibtexABSKeyFormat &&
-      bibtexAuthorCutoff === bibtexABSAuthorCutoff &&
-      bibtexMaxAuthors === bibtexABSMaxAuthors &&
-      bibtexAuthorCutoff === bibtexMaxAuthors, // basic settings cutoff and max authors are the same
-    [],
-  );
+  const canUseBasicMode =
+    bibtexKeyFormat === bibtexABSKeyFormat &&
+    bibtexAuthorCutoff === bibtexABSAuthorCutoff &&
+    bibtexMaxAuthors === bibtexABSMaxAuthors &&
+    bibtexAuthorCutoff === bibtexMaxAuthors; // basic settings cutoff and max authors are the same
 
   const [isBasicMode, setIsBasicMode] = useState(canUseBasicMode);
 
   const tabs = ['bibtex', 'bibtex abs'];
   const [selectedTab, setSelectedTab] = useState<string>(tabs[0]);
 
-  // these params are used to query sample citation
-  const { journalFormat, keyFormat, authorcutoff, maxauthor } = useMemo(() => {
-    const journalFormat = JournalFormatMap[bibtexJournalFormat];
-    const keyFormat = isBasicMode || (!isBasicMode && selectedTab === 'bibtex') ? bibtexKeyFormat : bibtexABSKeyFormat;
-    const authorcutoff =
-      isBasicMode || (!isBasicMode && selectedTab === 'bibtex') ? bibtexAuthorCutoff : bibtexABSAuthorCutoff;
-    const maxauthor =
-      isBasicMode || (!isBasicMode && selectedTab === 'bibtex') ? bibtexMaxAuthors : bibtexABSMaxAuthors;
-    return { journalFormat, keyFormat, authorcutoff, maxauthor };
-  }, [
-    bibtexJournalFormat,
-    bibtexKeyFormat,
-    bibtexAuthorCutoff,
-    bibtexMaxAuthors,
-    bibtexABSKeyFormat,
-    bibtexABSAuthorCutoff,
-    bibtexABSMaxAuthors,
-    selectedTab,
-  ]);
+  const journalFormat = JournalFormatMap[bibtexJournalFormat];
+  const keyFormat = isBasicMode || (!isBasicMode && selectedTab === 'bibtex') ? bibtexKeyFormat : bibtexABSKeyFormat;
+  const authorcutoff =
+    isBasicMode || (!isBasicMode && selectedTab === 'bibtex') ? bibtexAuthorCutoff : bibtexABSAuthorCutoff;
+  const maxauthor = isBasicMode || (!isBasicMode && selectedTab === 'bibtex') ? bibtexMaxAuthors : bibtexABSMaxAuthors;
 
   const { data: sampleCitation } = useGetExportCitation(
     {

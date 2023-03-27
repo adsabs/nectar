@@ -1,4 +1,4 @@
-import {getVaultData} from '@auth-utils';
+import { getVaultData } from '@auth-utils';
 import {
   CustomFormat,
   fetchSearch,
@@ -10,16 +10,17 @@ import {
   UserDataKeys,
   useSearch,
 } from '@api';
-import {Tab, TabList, TabPanel, TabPanels, Tabs, useToast} from '@chakra-ui/react';
-import {BibtexTabPanel, CustomFormatsTabPanel, exportFormats, GeneralTabPanel, SettingsLayout} from '@components';
-import {useSettings} from '@hooks/useSettings';
-import {useStore} from '@store';
-import {composeNextGSSP, userGSSP} from '@utils';
-import {GetServerSideProps, GetServerSidePropsContext, NextPage} from 'next';
-import {Reducer, useEffect, useMemo, useReducer} from 'react';
-import {v4 as uuidv4} from 'uuid';
-import {dehydrate, QueryClient} from 'react-query';
-import {omit, pathOr, values} from 'ramda';
+import { Tab, TabList, TabPanel, TabPanels, Tabs, useToast } from '@chakra-ui/react';
+import { BibtexTabPanel, CustomFormatsTabPanel, exportFormats, GeneralTabPanel, SettingsLayout } from '@components';
+import { useSettings } from '@hooks/useSettings';
+import { useStore } from '@store';
+import { composeNextGSSP, userGSSP } from '@utils';
+import { GetServerSideProps, GetServerSidePropsContext, NextPage } from 'next';
+import { Reducer, useEffect, useMemo, useReducer } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import { dehydrate, QueryClient } from 'react-query';
+import { omit, pathOr, values } from 'ramda';
+import { DEFAULT_USER_DATA } from '@components/Settings/model';
 
 // partial user data params
 // used to update user data
@@ -126,7 +127,7 @@ const ExportSettingsPage: NextPage = () => {
     onError: (error) => toast({ status: 'error', description: error }),
   });
 
-  const userSettings = useStore((state) => state.settings.user);
+  const userSettings = useStore((state) => state.settings.user) ?? DEFAULT_USER_DATA;
 
   useEffect(() => dispatch({ type: 'CLEAR' }), []);
 

@@ -1,6 +1,7 @@
 import { CustomFormat, ExportApiFormatKey, IDocsEntity, useGetExportCitation } from '@api';
 import { Flex } from '@chakra-ui/react';
 import { SampleTextArea } from '@components';
+import { DEFAULT_USER_DATA } from '@components/Settings/model';
 import { UserDataSetterEvent } from '@pages/user/settings/export';
 import { useStore } from '@store';
 import { Dispatch, useEffect, useMemo, useState } from 'react';
@@ -12,7 +13,7 @@ export type ICustomFormatsTabPanelProps = {
 };
 
 export const CustomFormatsTabPanel = ({ sampleBib, dispatch }: ICustomFormatsTabPanelProps) => {
-  const customFormats = useStore((state) => state.settings.user.customFormats);
+  const customFormats = useStore((state) => state.settings.user?.customFormats ?? DEFAULT_USER_DATA.customFormats);
   const [selectedFormat, setSelectedFormat] = useState<CustomFormat>(null);
 
   // custom formats handlers
