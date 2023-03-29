@@ -22,6 +22,7 @@ import {
   Icon,
   IconButton,
   Portal,
+  Skeleton,
   Tooltip,
   useMediaQuery,
   VisuallyHidden,
@@ -60,7 +61,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { last, omit, path } from 'ramda';
 import { FormEventHandler, useEffect, useRef, useState } from 'react';
-import { dehydrate, QueryClient, useQueryClient } from 'react-query';
+import { dehydrate, isError, QueryClient, useQueryClient } from 'react-query';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
   () => import('@components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),
@@ -225,9 +226,13 @@ const SearchPage: NextPage = () => {
             )}
           </Box>
           <Box flexGrow={2}>
-            <Box>
-              {isSuccess && !isLoading && data?.numFound > 0 && <ListActions onSortChange={handleSortChange} />}
-            </Box>
+            {isLoading || (isSuccess && data?.numFound > 0) ? (
+              <form>
+                <fieldset disabled={isLoading}>
+                  <ListActions onSortChange={handleSortChange} />
+                </fieldset>
+              </form>
+            ) : null}
             <VisuallyHidden as="h2" id="search-form-title">
               Search Results
             </VisuallyHidden>

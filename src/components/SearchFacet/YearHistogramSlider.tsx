@@ -1,5 +1,5 @@
 import { getSearchFacetYearsParams, IADSApiSearchParams, useGetSearchFacetCounts } from '@api';
-import { Box, CircularProgress, IconButton } from '@chakra-ui/react';
+import { Box, CircularProgress, Flex, IconButton } from '@chakra-ui/react';
 import { HistogramSlider, ISearchFacetProps } from '@components';
 import { ArrowsInIcon } from '@components/icons/ArrowsIn';
 import { ArrowsOutIcon } from '@components/icons/ArrowsOut';
@@ -72,7 +72,11 @@ export const YearHistogramSlider = memo(
 
     return (
       <Box>
-        {isLoading && <CircularProgress isIndeterminate />}
+        {isLoading && (
+          <Flex direction="column" justifyContent="center" alignItems="center" height="170" position="relative" mt={5}>
+            <CircularProgress isIndeterminate />
+          </Flex>
+        )}
         {histogramData && selectedRange && (
           <Box height="170" position="relative" mt={5}>
             <IconButton
