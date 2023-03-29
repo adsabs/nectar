@@ -1,4 +1,4 @@
-import { Box, Heading } from '@chakra-ui/layout';
+import { Box, Flex, Text } from '@chakra-ui/layout';
 import {
   BoxProps,
   Button,
@@ -63,20 +63,14 @@ export const FacetFilters = (props: BoxProps): ReactElement => {
   }
 
   return (
-    <Box {...props} mb="2" borderWidth="thin" borderColor="gray.100" borderRadius={5} p={2}>
-      <VisuallyHidden as="h2">Applied Filters</VisuallyHidden>
-      {filterSections.map(([label, cleanClauses, rawClauses]) => (
-        <Wrap aria-labelledby={`${label} applied filters`} spacing="0.5" key={label}>
-          <WrapItem alignItems="center">
-            <Heading as="h3" fontSize="sm" id={`${label} applied filters`}>
-              {label}:
-            </Heading>
-          </WrapItem>
-          {cleanClauses.map((clause, index) => (
-            <WrapItem key={clause}>
-              <Tag size="sm" my="0.5" fontSize="sm" maxWidth="200">
+    <Box {...props} my="3">
+      <Flex {...props} mb="1" gap={2} wrap="wrap">
+        {filterSections.map(([label, cleanClauses, rawClauses]) => (
+          <span key={label}>
+            {cleanClauses.map((clause, index) => (
+              <Tag key={clause} size="sm" my="0.5" fontSize="sm" maxWidth="200">
                 <TagLabel isTruncated noOfLines={1}>
-                  <Tooltip label={clause}>{clause}</Tooltip>
+                  <Tooltip label={`${label}: ${clause}`}>{`${label}: ${clause}`}</Tooltip>
                 </TagLabel>
                 <TagCloseButton
                   data-value={clause}
@@ -84,12 +78,12 @@ export const FacetFilters = (props: BoxProps): ReactElement => {
                   onClick={handleRemoveFilterClick(rawClauses[index], label)}
                 />
               </Tag>
-            </WrapItem>
-          ))}
-        </Wrap>
-      ))}
+            ))}
+          </span>
+        ))}
+      </Flex>
       <Button variant="link" fontSize="xs" onClick={handleRemoveAllFiltersClick}>
-        Remove all
+        Remove all filters
       </Button>
     </Box>
   );
