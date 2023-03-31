@@ -5,7 +5,6 @@ node_modules
 .vscode
 .storybook
 dist
-scripts
 stories
 .editorconfig
 .prettier*

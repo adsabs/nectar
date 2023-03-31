@@ -14,8 +14,8 @@ jobs:
       - name: Use Volta with yarn
         uses: volta-cli/action@v1
         with:
-          node-version: 14.18.0
-          yarn-version: 1.22.15
+          node-version: 18.5.0
+          yarn-version: 1.22.19
       - run: yarn install
 
       # Run linter
