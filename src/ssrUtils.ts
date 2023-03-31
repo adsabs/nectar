@@ -1,19 +1,20 @@
 import { isUserData } from '@api';
-import { AppState } from '@store';
+import { AppSerializableState, getSerializableDefaultStore } from '@store';
 import { withIronSessionSsr } from 'iron-session/next';
 import { sessionConfig } from '@config';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import api from '@api/api';
+import { mergeDeepLeft, pathOr } from 'ramda';
 
 const updateUserStateSSR: IncomingGSSP = (ctx, prevResult) => {
   const userData = ctx.req.session.token;
-
+  console.log('default', getSerializableDefaultStore(), prevResult);
   return Promise.resolve({
     props: {
       dehydratedAppState: {
-        ...(prevResult?.props?.dehydratedAppState ?? {}),
+        ...mergeDeepLeft(pathOr({}, ['props', 'dehydratedAppState'], prevResult), getSerializableDefaultStore()),
         user: isUserData(userData) ? userData : {},
-      } as AppState,
+      } as AppSerializableState,
     },
   });
 };
@@ -22,7 +23,10 @@ export const injectSessionGSSP = withIronSessionSsr((ctx) => updateUserStateSSR(
 
 type IncomingGSSP = (
   ctx: GetServerSidePropsContext,
-  props: { props: { dehydratedAppState?: AppState } & Record<string, unknown>; [key: string]: unknown },
+  props: {
+    props: { dehydratedAppState?: Partial<AppSerializableState> } & Record<string, unknown>;
+    [key: string]: unknown;
+  },
 ) => Promise<GetServerSidePropsResult<Record<string, unknown>>>;
 
 /**
