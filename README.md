@@ -77,20 +77,6 @@ yarn cypress:run
 
 #### Production build
 
-Build the application:
-
-```bash
-yarn build
-```
-
-And start production server:
-
-```bash
-yarn start
-```
-
-### Usage with Docker
-
 Build the docker image:
 
 ```bash
@@ -102,7 +88,7 @@ docker build -t nectar .
 Start the production server inside a container:
 
 ```bash
-docker run -it --rm --name nectar -p 8000:8000 -p 6006:6006 nectar yarn start
+docker run -it --rm --name nectar -p 8000:8000 -p 6006:6006 nectar 
 ```
 
 #### Development
