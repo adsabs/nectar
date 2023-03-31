@@ -18,10 +18,10 @@ import {
 import { getDefaultReducer } from '@hooks/auth/model';
 import { IAuthForm } from '@hooks/auth/types';
 import { useChangePassword } from '@hooks/auth/useChangePassword';
-import { composeNextGSSP, userGSSP } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { FormEventHandler, useCallback, useReducer, useRef, useState } from 'react';
+import { composeNextGSSP } from '@ssrUtils';
 
 const initialState: IAuthForm<IUserChangePasswordCredentials> = {
   params: { currentPassword: '', password: '', confirmPassword: '' },
@@ -187,4 +187,4 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
   return Promise.resolve({
     props: {},
   });
-}, userGSSP);
+});

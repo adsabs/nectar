@@ -1,7 +1,7 @@
 import { Expandable, Select, SelectOption, SettingsLayout } from '@components';
 import { Text } from '@chakra-ui/react';
-import { composeNextGSSP, userGSSP } from '@utils';
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
+import { composeNextGSSP } from '@ssrUtils';
 
 const LibraryLinkServerPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const useGetOptions = (options: string[]) =>
@@ -75,4 +75,4 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
   return Promise.resolve({
     props: {},
   });
-}, userGSSP);
+});

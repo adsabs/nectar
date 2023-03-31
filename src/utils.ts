@@ -1,10 +1,10 @@
-import api, { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, isUserData, IUserData, SolrSort } from '@api';
+import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, IUserData, SolrSort } from '@api';
 import { APP_DEFAULTS } from '@config';
 import { AppSerializableState, getSerializableDefaultStore } from '@store';
 import { NumPerPageType, SafeSearchUrlParams } from '@types';
 import axios, { AxiosError } from 'axios';
 import DOMPurify from 'isomorphic-dompurify';
-import { GetServerSidePropsContext, GetServerSidePropsResult, NextApiRequest, NextApiResponse } from 'next';
+import { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from 'next';
 import { useRouter } from 'next/router';
 import qs from 'qs';
 import { ParsedUrlQuery } from 'querystring';
@@ -18,9 +18,7 @@ import {
   last,
   mergeDeepLeft,
   omit,
-  pathOr,
-  paths,
-  pick,
+  pathOr, paths,
   pipe,
   propIs,
   uniq,
@@ -141,31 +139,6 @@ export const userGSSP = async (
   });
 };
 
-type IncomingGSSP = (
-  ctx: GetServerSidePropsContext,
-  props: { props: Record<string, unknown>; [key: string]: unknown },
-) => Promise<GetServerSidePropsResult<Record<string, unknown>>>;
-
-/**
- * Composes multiple GetServerSideProps functions
- * invoking left to right
- * Props are merged, other properties will overwrite
- */
-export const composeNextGSSP =
-  (...fns: IncomingGSSP[]) =>
-  async (ctx: GetServerSidePropsContext): Promise<GetServerSidePropsResult<Record<string, unknown>>> => {
-    let ssrProps = { props: {} };
-    for (const fn of fns) {
-      const result = await fn(ctx, ssrProps);
-      let props = {};
-      if ('props' in result) {
-        props = { ...ssrProps.props, ...result.props };
-      }
-      ssrProps = { ...ssrProps, ...result, props };
-    }
-
-    return ssrProps;
-  };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const noop = (..._args: unknown[]): void => {
@@ -311,13 +284,6 @@ export const enumKeys = <O extends object, K extends keyof O = keyof O>(obj: O):
   return Object.keys(obj).filter((k) => Number.isNaN(+k)) as K[];
 };
 
-/**
- * Server-side API setup
- * For now, this just mutates the api instance, setting the token from the session
- */
-export const setupApiSSR = (ctx: GetServerSidePropsContext<ParsedUrlQuery>) => {
-  api.setUserData(ctx.req.session?.userData ?? {} as IUserData);
-};
 
 // omit params that should not be included in any urls
 // `id` is typically slug used in abstract pages

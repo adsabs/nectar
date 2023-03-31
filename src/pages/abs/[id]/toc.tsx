@@ -5,10 +5,12 @@ import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
 import { useGetAbstractParams } from '@hooks/useGetAbstractParams';
-import { composeNextGSSP, normalizeURLParams, setupApiSSR, unwrapStringValue, userGSSP } from '@utils';
+import { normalizeURLParams, unwrapStringValue } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
+import { composeNextGSSP } from '@ssrUtils';
+
 interface IVolumePageProps {
   id: string;
   error?: {
@@ -56,7 +58,6 @@ export default VolumePage;
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(
   withDetailsPage,
   async (ctx, state) => {
-    setupApiSSR(ctx);
     const { fetchSearch } = await import('@api');
     const axios = (await import('axios')).default;
     const query = normalizeURLParams(ctx.query);
@@ -103,5 +104,4 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(
       };
     }
   },
-  userGSSP,
 );

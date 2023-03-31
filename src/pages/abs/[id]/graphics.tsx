@@ -3,12 +3,14 @@ import { Box, Flex, Link } from '@chakra-ui/layout';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
-import { composeNextGSSP, normalizeURLParams, setupApiSSR, unwrapStringValue, userGSSP } from '@utils';
+import { composeNextGSSP } from '@ssrUtils';
+import { normalizeURLParams, unwrapStringValue } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
-import NextImage from "next/legacy/image";
+import NextImage from 'next/legacy/image';
 import NextLink from 'next/link';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
+
 interface IGraphicsPageProps {
   id: string;
   error?: {
@@ -82,7 +84,6 @@ export default GraphicsPage;
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(
   withDetailsPage,
   async (ctx, state) => {
-    setupApiSSR(ctx);
     const axios = (await import('axios')).default;
     const query = normalizeURLParams(ctx.query);
 
@@ -127,5 +128,4 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(
       };
     }
   },
-  userGSSP,
 );

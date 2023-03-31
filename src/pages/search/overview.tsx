@@ -5,7 +5,8 @@ import { getQueryWithCondition } from '@components/Visualizations/utils';
 import { makeSearchParams, parseQueryFromUrl } from '@utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-export { userGSSP as getServerSideProps } from '@utils';
+
+export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
 
 const OverviewPage: NextPage = () => {
   const router = useRouter();

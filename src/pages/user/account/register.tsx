@@ -27,7 +27,7 @@ import { useRouter } from 'next/router';
 import { FormEventHandler, useCallback, useReducer, useRef, useState } from 'react';
 import ReCAPTCHA from 'react-google-recaptcha';
 
-export { userGSSP as getServerSideProps } from '@utils';
+export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
 
 const initialState: IAuthForm<IUserRegistrationCredentials> = {
   params: { email: '', password: '', confirmPassword: '', recaptcha: null },

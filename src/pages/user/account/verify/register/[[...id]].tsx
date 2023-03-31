@@ -1,6 +1,6 @@
 import { verifyAccount } from '@auth-utils';
 import { Alert, AlertDescription, AlertTitle, Container } from '@chakra-ui/react';
-import { composeNextGSSP, userGSSP } from '@utils';
+import { composeNextGSSP } from '@ssrUtils';
 import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { isEmptyString, isPlainObject } from 'ramda-adjunct';
@@ -41,7 +41,8 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
     if (isPlainObject(result)) {
       // we are authenticated, so we need to set that on the session
       ctx.req.session.isAuthenticated = true;
-      ctx.req.session.userData = result;
+      ctx.req.session.token = result;
+      await ctx.req.session.save();
       return { props: {} };
     } else if (typeof result === 'boolean' && result) {
       return { props: {} };
@@ -50,4 +51,4 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
   } catch (e) {
     return goHome;
   }
-}, userGSSP);
+});

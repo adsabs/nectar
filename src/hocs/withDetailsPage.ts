@@ -1,6 +1,6 @@
 import { fetchSearch, getAbstractParams, searchKeys } from '@api';
 import { AppState } from '@store';
-import { normalizeURLParams, setupApiSSR } from '@utils';
+import { normalizeURLParams } from '@utils';
 import axios from 'axios';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import { dehydrate, QueryClient } from 'react-query';
@@ -9,7 +9,6 @@ export const withDetailsPage = async (
   ctx: GetServerSidePropsContext,
 ): Promise<GetServerSidePropsResult<Record<string, unknown>>> => {
   const query = normalizeURLParams<{ id: string }>(ctx.query);
-  setupApiSSR(ctx);
 
   // primary request for this page is search for the bibcode from url
   try {

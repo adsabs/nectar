@@ -5,11 +5,12 @@ import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
 import { useGetAbstractParams } from '@hooks/useGetAbstractParams';
-import { composeNextGSSP, setupApiSSR, unwrapStringValue, userGSSP } from '@utils';
-import { GetServerSideProps, NextPage } from 'next';
+import { unwrapStringValue } from '@utils';
+import { NextPage } from 'next';
 import Head from 'next/head';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
 import { normalizeURLParams } from 'src/utils';
+import { composeNextGSSP } from '@ssrUtils';
 
 export interface ICitationsPageProps {
   id: string;
@@ -56,55 +57,50 @@ const CitationsPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProps
 
 export default CitationsPage;
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(
-  withDetailsPage,
-  async (ctx, state) => {
-    setupApiSSR(ctx);
-    const { fetchSearch } = await import('@api');
-    const axios = (await import('axios')).default;
-    const query = normalizeURLParams(ctx.query);
+export const getServerSideProps = composeNextGSSP(withDetailsPage, async (ctx, state) => {
+  const { fetchSearch } = await import('@api');
+  const axios = (await import('axios')).default;
+  const query = normalizeURLParams(ctx.query);
 
-    try {
-      const queryClient = new QueryClient();
-      hydrate(queryClient, state.props?.dehydratedState as DehydratedState);
-      const {
-        response: {
-          docs: [{ bibcode }],
-        },
-      } = queryClient.getQueryData<IADSApiSearchResponse>(searchKeys.abstract(query.id));
+  try {
+    const queryClient = new QueryClient();
+    hydrate(queryClient, state.props?.dehydratedState as DehydratedState);
+    const {
+      response: {
+        docs: [{ bibcode }],
+      },
+    } = queryClient.getQueryData<IADSApiSearchResponse>(searchKeys.abstract(query.id));
 
-      const params = getCitationsParams(bibcode, 0);
-      void (await queryClient.prefetchQuery({
-        queryKey: searchKeys.citations({ bibcode, start: params.start }),
-        queryFn: fetchSearch,
-        meta: { params },
-      }));
+    const params = getCitationsParams(bibcode, 0);
+    void (await queryClient.prefetchQuery({
+      queryKey: searchKeys.citations({ bibcode, start: params.start }),
+      queryFn: fetchSearch,
+      meta: { params },
+    }));
 
-      return {
-        props: {
-          dehydratedState: dehydrate(queryClient),
-        },
-      };
-    } catch (e) {
-      if (axios.isAxiosError(e) && e.response) {
-        return {
-          props: {
-            error: {
-              status: e.response.status,
-              message: e.message,
-            },
-          },
-        };
-      }
+    return {
+      props: {
+        dehydratedState: dehydrate(queryClient),
+      },
+    };
+  } catch (e) {
+    if (axios.isAxiosError(e) && e.response) {
       return {
         props: {
           error: {
-            status: 500,
-            message: 'Unknown server error',
+            status: e.response.status,
+            message: e.message,
           },
         },
       };
     }
-  },
-  userGSSP,
-);
+    return {
+      props: {
+        error: {
+          status: 500,
+          message: 'Unknown server error',
+        },
+      },
+    };
+  }
+});
