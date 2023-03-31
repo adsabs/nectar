@@ -68,7 +68,7 @@ const bootstrap = async (cookie?: string) => {
       headers: res.headers,
     };
   } catch (e) {
-    return null;
+    return {};
   }
 };
 
