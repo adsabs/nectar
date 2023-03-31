@@ -1,5 +1,6 @@
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import {
+  Box,
   Button,
   Divider,
   Flex,
@@ -73,7 +74,11 @@ const ModalFacet = (props: ISearchFacetModalProps) => {
           {focused ? null : (
             <>
               <Stack spacing={[1, 12]} justify="space-between" alignItems="end" direction={['column', 'row']} mb="4">
-                <SearchInput flex="2" search={search} onSearchChange={setSearch} isDisabled={sort[0] === 'index'} />
+                {sort[0] === 'index' ? (
+                  <Box flex="1" />
+                ) : (
+                  <SearchInput flex="2" search={search} onSearchChange={setSearch} />
+                )}
                 <SortControl sort={sort} onSortChange={setSort} minW="150px" />
               </Stack>
               {sort[0] === 'index' ? (
