@@ -1,10 +1,10 @@
 import { getResetPasswordVerifyEmail } from '@auth-utils';
 import { Alert, AlertDescription, AlertTitle, Container } from '@chakra-ui/react';
-import { composeNextGSSP, userGSSP } from '@utils';
 import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { isEmptyString } from 'ramda-adjunct';
 import { useEffect } from 'react';
+import { composeNextGSSP } from '@ssrUtils';
 
 const TIMEOUT = 3000;
 const VerifyPassword: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>> = ({ email }) => {
@@ -44,4 +44,4 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
   } catch (e) {
     return goHome;
   }
-}, userGSSP);
+});

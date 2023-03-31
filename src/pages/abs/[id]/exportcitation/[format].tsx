@@ -7,10 +7,11 @@ import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
 import { useIsClient } from '@hooks/useIsClient';
-import { composeNextGSSP, normalizeURLParams, setupApiSSR, unwrapStringValue, userGSSP } from '@utils';
+import { normalizeURLParams, unwrapStringValue } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
+import { composeNextGSSP } from '@ssrUtils';
 
 interface IExportCitationPageProps {
   id: string;
@@ -49,7 +50,6 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = ({ id, format, er
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(
   withDetailsPage,
   async (ctx, state) => {
-    setupApiSSR(ctx);
     const { fetchExportCitation } = await import('@api');
     const axios = (await import('axios')).default;
     const query = normalizeURLParams<{ id: string; format: string }>(ctx.query);
@@ -102,7 +102,6 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(
       };
     }
   },
-  userGSSP,
 );
 
 export default ExportCitationPage;

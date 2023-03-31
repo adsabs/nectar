@@ -45,16 +45,10 @@ import { ArrowsOutIcon } from '@components/icons/ArrowsOut';
 import { APP_DEFAULTS } from '@config';
 import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { useIsClient } from '@hooks';
+import { composeNextGSSP } from '@ssrUtils';
 import { AppState, createStore, useStore, useStoreApi } from '@store';
 import { NumPerPageType } from '@types';
-import {
-  composeNextGSSP,
-  isApiSearchResponse,
-  makeSearchParams,
-  parseQueryFromUrl,
-  setupApiSSR,
-  userGSSP,
-} from '@utils';
+import { isApiSearchResponse, makeSearchParams, parseQueryFromUrl } from '@utils';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
@@ -409,7 +403,6 @@ const NoResultsMsg = ({ query = '' }: { query: string }) => (
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
   const { p: page, ...query } = parseQueryFromUrl<{ p: string }>(ctx.req.url);
 
-  setupApiSSR(ctx);
   const queryClient = new QueryClient();
 
   // prime the search with a small query to get the current numFound
@@ -476,7 +469,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
       },
     };
   }
-}, userGSSP);
+});
 
 export default SearchPage;
 

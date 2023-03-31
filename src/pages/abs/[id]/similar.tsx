@@ -5,11 +5,13 @@ import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
 import { useGetAbstractParams } from '@hooks/useGetAbstractParams';
-import { composeNextGSSP, setupApiSSR, unwrapStringValue, userGSSP } from '@utils';
+import { unwrapStringValue } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
 import { normalizeURLParams } from 'src/utils';
+import { composeNextGSSP } from '@ssrUtils';
+
 export interface ISimilarPageProps {
   id: string;
   error?: {
@@ -57,7 +59,6 @@ export default SimilarPage;
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(
   withDetailsPage,
   async (ctx, state) => {
-    setupApiSSR(ctx);
     const { fetchSearch } = await import('@api');
     const axios = (await import('axios')).default;
     const query = normalizeURLParams(ctx.query);
@@ -104,5 +105,4 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(
       };
     }
   },
-  userGSSP,
 );

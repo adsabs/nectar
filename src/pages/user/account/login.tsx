@@ -25,7 +25,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { FormEventHandler, useReducer } from 'react';
 
-export { userGSSP as getServerSideProps } from '@utils';
+export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
 
 const initialState: IAuthForm<IUserCredentials> = {
   error: null,

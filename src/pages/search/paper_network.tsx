@@ -2,7 +2,8 @@ import { PaperNetworkPageContainer, VizPageLayout } from '@components';
 import { makeSearchParams, parseQueryFromUrl } from '@utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-export { userGSSP as getServerSideProps } from '@utils';
+
+export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
 
 const PaperMetworkPage: NextPage = () => {
   const router = useRouter();

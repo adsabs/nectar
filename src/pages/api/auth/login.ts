@@ -2,6 +2,8 @@ import { isAuthenticated, isUserData, IUserCredentials, IUserData } from '@api';
 import { authenticateUser } from '@auth-utils';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { z } from 'zod';
+import { getIronSession } from 'iron-session';
+import { sessionConfig } from '@config';
 
 interface Output {
   success?: boolean;
@@ -10,6 +12,7 @@ interface Output {
 }
 
 export default async function (req: NextApiRequest, res: NextApiResponse<Output>) {
+  const session = await getIronSession(req, res, sessionConfig);
   if (req.method === 'POST') {
     try {
       const creds = parseCredentials(req.body);
@@ -18,8 +21,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse<Output>
       if (result === true) {
         // logged in successfully, but bootstrap failed
         // clear the session values, we should be able to sync later on
-        req.session.userData = null;
-        req.session.isAuthenticated = null;
+        session.destroy();
 
         return res.status(200).json({ success: true });
       } else if (typeof result === 'string') {
@@ -27,8 +29,10 @@ export default async function (req: NextApiRequest, res: NextApiResponse<Output>
         return res.status(200).json({ success: false, error: result });
       } else if (result && isUserData(result)) {
         // success! user is logged in, and we have the new
-        req.session.userData = result;
-        req.session.isAuthenticated = isAuthenticated(result);
+        session.token = result;
+        session.isAuthenticated = isAuthenticated(result);
+        await session.save();
+
         return res.status(200).json({ success: true, user: result });
       }
       return res.status(200).json({ success: false, error: 'Could not login user, unknown server issue' });

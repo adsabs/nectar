@@ -13,7 +13,7 @@ import api, {
 import { defaultRequestConfig } from '@api/config';
 import { IUserCredentials, IUserForgotPasswordCredentials, IUserRegistrationCredentials } from '@api/user';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { GetServerSidePropsContext, NextApiResponse } from 'next';
+import { NextApiResponse } from 'next';
 import { ServerResponse } from 'node:http';
 import { pick } from 'ramda';
 
@@ -277,9 +277,8 @@ export const generateNewApiToken = async () => {
   }
 };
 
-export const getVaultData = async (ctx?: GetServerSidePropsContext) => {
+export const getVaultData = async () => {
   try {
-    api.setUserData(ctx?.req?.session?.userData);
     const { data } = await api.request<IADSApiUserDataResponse>({ url: ApiTargets.USER_DATA });
     return data;
   } catch (e) {
