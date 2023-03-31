@@ -90,7 +90,6 @@
     "@mswjs/interceptors": "^0.19.0",
     "@next/bundle-analyzer": "^10.0.7",
     "@next/eslint-plugin-next": "^12.1.0",
-    "@next/swc-darwin-x64": "^13.2.4",
     "@storybook/addon-actions": "^6.3.7",
     "@storybook/addon-essentials": "^6.3.7",
     "@storybook/addon-links": "^6.3.7",
