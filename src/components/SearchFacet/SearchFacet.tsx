@@ -18,6 +18,7 @@ import { FacetList } from '@components/SearchFacet/FacetList';
 import { FacetStoreProvider } from '@components/SearchFacet/store/FacetStore';
 import { Toggler } from '@components/Toggler';
 import {
+  closestCenter,
   DndContext,
   DragEndEvent,
   DragOverEvent,
@@ -68,7 +69,7 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
   const showFacet = useStore((state) => state.showSearchFacet);
   const searchQuery = useStore(querySelector);
   const { label, field, storeId, onQueryUpdate, noLoadMore } = props;
-  const { listeners, attributes, setNodeRef, setActivatorNodeRef, transform, transition } = useSortable({
+  const { listeners, attributes, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
     id: storeId,
     strategy: verticalListSortingStrategy,
   });
@@ -109,6 +110,9 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
   const style: CSSProperties = {
     transform: CSS.Translate.toString(transform),
     transition,
+    opacity: isDragging ? 0.5 : undefined,
+    border: isDragging ? 'dashed blue 3px' : undefined,
+    padding: isDragging ? '4px' : undefined,
   };
 
   return (
@@ -127,6 +131,7 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
             borderBottomRadius={isOpen ? 0 : 'md'}
             borderRightRadius={0}
             borderRight="none"
+            backgroundColor="white"
             mb="0"
             px="0.5"
           >
@@ -159,6 +164,7 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
               aria-label={hidden ? `Show ${label} filter` : `Hide ${label} filter`}
               m={0}
               height={8}
+              backgroundColor="white"
               icon={<Center>{hidden ? <Icon as={EyeSlashIcon} /> : <Icon as={EyeIcon} />}</Center>}
             />
           </Tooltip>
@@ -340,6 +346,7 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
     <>
       <DndContext
         sensors={[mouseSensor]}
+        collisionDetection={closestCenter}
         onDragStart={handleDragStart}
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
