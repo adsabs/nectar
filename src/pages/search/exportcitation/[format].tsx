@@ -15,7 +15,7 @@ import { CitationExporter } from '@components';
 import { getExportCitationDefaultContext } from '@components/CitationExporter/CitationExporter.machine';
 import { APP_DEFAULTS } from '@config';
 import { useIsClient } from '@hooks/useIsClient';
-import { composeNextGSSP, parseQueryFromUrl, setupApiSSR, userGSSP } from '@utils';
+import { parseQueryFromUrl } from '@utils';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
@@ -23,6 +23,8 @@ import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { last, omit } from 'ramda';
 import { dehydrate, DehydratedState, QueryClient } from 'react-query';
+import { composeNextGSSP } from '@ssrUtils';
+
 interface IExportCitationPageProps {
   format: ExportApiFormatKey;
   query: IADSApiSearchParams;
@@ -31,6 +33,7 @@ interface IExportCitationPageProps {
     message?: string;
   };
 }
+
 const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
   const { format, query, error } = props;
   const isClient = useIsClient();
@@ -51,54 +54,56 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
     void fetchNextPage();
   };
 
-  return <>
-    <Head>
-      <title>NASA Science Explorer - Export Citations</title>
-    </Head>
-    <Flex direction="column">
-      <HStack my={10}>
-        <NextLink
-          href={{ pathname: '/search', query: omit(['qid', 'format'], router.query) }}
-          passHref
-          legacyBehavior>
-          <Link aria-label="Back to search results">
-            <ChevronLeftIcon w={8} h={8} />
-          </Link>
-        </NextLink>
-        <Heading as="h2" fontSize="2xl">
-          Export Citations
-        </Heading>
-      </HStack>
-      <Box pt="1">
-        {error ? (
-          <Alert status="error">
-            <AlertIcon />
-            {error.message}
-          </Alert>
-        ) : isClient ? (
-          <CitationExporter
-            initialFormat={format}
-            records={records}
-            totalRecords={numFound}
-            nextPage={handleNextPage}
-            hasNextPage={hasNextPage}
-            page={data.pages.length - 1}
-            sort={query.sort}
-          />
-        ) : (
-          <CitationExporter.Static
-            initialFormat={format}
-            records={records}
-            totalRecords={numFound}
-            sort={query.sort}
-          />
-        )}
-      </Box>
-    </Flex>
-  </>;
+  return (
+    <>
+      <Head>
+        <title>NASA Science Explorer - Export Citations</title>
+      </Head>
+      <Flex direction="column">
+        <HStack my={10}>
+          <NextLink
+            href={{ pathname: '/search', query: omit(['qid', 'format'], router.query) }}
+            passHref
+            legacyBehavior
+          >
+            <Link aria-label="Back to search results">
+              <ChevronLeftIcon w={8} h={8} />
+            </Link>
+          </NextLink>
+          <Heading as="h2" fontSize="2xl">
+            Export Citations
+          </Heading>
+        </HStack>
+        <Box pt="1">
+          {error ? (
+            <Alert status="error">
+              <AlertIcon />
+              {error.message}
+            </Alert>
+          ) : isClient ? (
+            <CitationExporter
+              initialFormat={format}
+              records={records}
+              totalRecords={numFound}
+              nextPage={handleNextPage}
+              hasNextPage={hasNextPage}
+              page={data.pages.length - 1}
+              sort={query.sort}
+            />
+          ) : (
+            <CitationExporter.Static
+              initialFormat={format}
+              records={records}
+              totalRecords={numFound}
+              sort={query.sort}
+            />
+          )}
+        </Box>
+      </Flex>
+    </>
+  );
 };
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-  setupApiSSR(ctx);
   const {
     qid = null,
     p,
@@ -170,6 +175,6 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
       },
     };
   }
-}, userGSSP);
+});
 
 export default ExportCitationPage;

@@ -1,7 +1,7 @@
-import { IncomingMessage } from 'http';
+import { IronSessionData } from 'iron-session';
 
-export const mockSession: IncomingMessage['session'] = {
-  userData: {
+export const mockSession: IronSessionData = {
+  token: {
     access_token: '',
     anonymous: true,
     expire_in: '9999-01-01T00:00:00',

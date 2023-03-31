@@ -13,7 +13,8 @@ import { AbsLayout } from '@components/Layout/AbsLayout';
 import { APP_DEFAULTS } from '@config';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useIsClient } from '@hooks/useIsClient';
-import { composeNextGSSP, unwrapStringValue, userGSSP } from '@utils';
+import { composeNextGSSP } from '@ssrUtils';
+import { unwrapStringValue } from '@utils';
 import { MathJax } from 'better-react-mathjax';
 import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
@@ -208,4 +209,4 @@ const Detail = <T,>(props: IDetailProps<T>): ReactElement => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage, userGSSP);
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage);

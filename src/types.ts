@@ -36,12 +36,6 @@ export interface SessionData {
   isAuthenticated: boolean;
 }
 
-declare module 'http' {
-  interface IncomingMessage {
-    session: SessionData;
-  }
-}
-
 export type NumPerPageType = typeof APP_DEFAULTS['PER_PAGE_OPTIONS'][number];
 
 export type SafeSearchUrlParams = Omit<IADSApiSearchParams, 'fl' | 'start' | 'rows'> & { p?: number };

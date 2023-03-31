@@ -1,7 +1,7 @@
 import { Code, Input, InputGroup, InputRightAddon, Stack, Text } from '@chakra-ui/react';
 import { SettingsLayout, SimpleLink } from '@components';
-import { composeNextGSSP, userGSSP } from '@utils';
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
+import { composeNextGSSP } from '@ssrUtils';
 
 const ApiTokenPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   // TODO get token
@@ -68,4 +68,4 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
   return Promise.resolve({
     props: {},
   });
-}, userGSSP);
+});

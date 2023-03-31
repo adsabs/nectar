@@ -3,16 +3,14 @@ import {
   AlertDescription,
   AlertTitle,
   Button,
-  Container,
   FormControl,
   FormErrorMessage,
   FormLabel,
   Input,
   Stack,
-  VStack,
 } from '@chakra-ui/react';
 import { Select, SelectOption, SettingsLayout } from '@components';
-import { composeNextGSSP, userGSSP } from '@utils';
+import { composeNextGSSP } from '@ssrUtils';
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import { FormEvent, useState } from 'react';
 
@@ -110,4 +108,4 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
   return Promise.resolve({
     props: {},
   });
-}, userGSSP);
+});

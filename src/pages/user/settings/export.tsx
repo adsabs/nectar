@@ -31,8 +31,8 @@ import {
   SettingsLayout,
 } from '@components';
 import { useSettings } from '@hooks/useSettings';
-import { createStore, useStoreApi } from '@store';
-import { composeNextGSSP, userGSSP } from '@utils';
+import { createStore } from '@store';
+import { composeNextGSSP } from '@ssrUtils';
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import { values } from 'ramda';
 import { Reducer, useEffect, useMemo, useReducer } from 'react';
@@ -196,7 +196,7 @@ const ExportSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSide
 
   // TeX Journal Name Handling
   const handleApplyJournalNameHandling = (format: ExportApiJournalFormat) => {
-    const formatName = Object.entries(JournalFormatMap).find(([key, value]) => value === format)[0];
+    const formatName = Object.entries(JournalFormatMap).find(([, value]) => value === format)[0];
     dispatch({ type: 'SET_JOURNAL_NAME_HANDLING', payload: formatName });
   };
 
@@ -366,7 +366,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
     });
   }
 
-  const userData = await getVaultData(ctx);
+  const userData = await getVaultData();
   const initialState = createStore().getState();
 
   return {
@@ -380,4 +380,4 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
       },
     },
   };
-}, userGSSP);
+});

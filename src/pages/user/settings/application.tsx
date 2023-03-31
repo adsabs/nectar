@@ -19,9 +19,9 @@ import {
 } from '@components';
 import { useSettings } from '@hooks/useSettings';
 import { createStore } from '@store';
-import { composeNextGSSP, userGSSP } from '@utils';
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import { useEffect, useMemo, useState } from 'react';
+import { composeNextGSSP } from '@ssrUtils';
 
 // generate options for select component
 const useGetOptions = () => {
@@ -84,11 +84,7 @@ const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSidePro
       JSON.stringify(userData.defaultDatabase),
     ) as IADSApiUserDataResponse[UserDataKeys.DEFAULT_DATABASE];
     newValue.forEach((v) => {
-      if (names.findIndex((n) => n === v.name) === -1) {
-        v.value = false;
-      } else {
-        v.value = true;
-      }
+      v.value = names.findIndex((n) => n === v.name) !== -1;
     });
 
     setParams({ [UserDataKeys.DEFAULT_DATABASE]: newValue });
@@ -167,7 +163,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
     });
   }
 
-  const userData = await getVaultData(ctx);
+  const userData = await getVaultData();
   const initialState = createStore().getState();
 
   return {
@@ -181,4 +177,4 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
       },
     },
   };
-}, userGSSP);
+});

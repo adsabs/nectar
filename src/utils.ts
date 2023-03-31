@@ -1,14 +1,13 @@
-import api, { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, isUserData, IUserData, SolrSort } from '@api';
+import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, IUserData, SolrSort } from '@api';
 import { APP_DEFAULTS } from '@config';
-import { AppState } from '@store';
 import { NumPerPageType, SafeSearchUrlParams } from '@types';
 import axios, { AxiosError } from 'axios';
 import DOMPurify from 'isomorphic-dompurify';
-import { GetServerSidePropsContext, GetServerSidePropsResult, NextApiRequest, NextApiResponse } from 'next';
+import { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from 'next';
 import { useRouter } from 'next/router';
 import qs from 'qs';
 import { ParsedUrlQuery } from 'querystring';
-import { clamp, filter, find, head, is, keys, last, omit, paths, pick, pipe, propIs, uniq, when } from 'ramda';
+import { clamp, filter, find, head, is, keys, last, omit, paths, pipe, propIs, uniq, when } from 'ramda';
 import { isArray, isNonEmptyString, isNotString, isPlainObject } from 'ramda-adjunct';
 
 type ParsedQueryParams = ParsedUrlQuery | qs.ParsedQs;
@@ -107,48 +106,7 @@ export const truncateDecimal = (num: number, d: number): number => {
   return parseFloat(regex.exec(num.toString())[0]);
 };
 
-export const pickUserData = pick(['username', 'anonymous', 'access_token', 'expire_in']);
-export const userGSSP = async (
-  ctx: GetServerSidePropsContext,
-  state: { props?: { dehydratedAppState?: Partial<AppState> } },
-) => {
-  const userData = pickUserData(ctx.req.session?.userData ?? {}) as IUserData;
 
-  return Promise.resolve({
-    props: {
-      dehydratedAppState: {
-        ...(state?.props?.dehydratedAppState ?? {}),
-        user: isUserData(userData) ? userData : {},
-      } as AppState,
-    },
-  });
-};
-
-type IncomingGSSP = (
-  ctx: GetServerSidePropsContext,
-  props: { props: Record<string, unknown>; [key: string]: unknown },
-) => Promise<GetServerSidePropsResult<Record<string, unknown>>>;
-
-/**
- * Composes multiple GetServerSideProps functions
- * invoking left to right
- * Props are merged, other properties will overwrite
- */
-export const composeNextGSSP =
-  (...fns: IncomingGSSP[]) =>
-  async (ctx: GetServerSidePropsContext): Promise<GetServerSidePropsResult<Record<string, unknown>>> => {
-    let ssrProps = { props: {} };
-    for (const fn of fns) {
-      const result = await fn(ctx, ssrProps);
-      let props = {};
-      if ('props' in result) {
-        props = { ...ssrProps.props, ...result.props };
-      }
-      ssrProps = { ...ssrProps, ...result, props };
-    }
-
-    return ssrProps;
-  };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const noop = (..._args: unknown[]): void => {
@@ -294,13 +252,6 @@ export const enumKeys = <O extends object, K extends keyof O = keyof O>(obj: O):
   return Object.keys(obj).filter((k) => Number.isNaN(+k)) as K[];
 };
 
-/**
- * Server-side API setup
- * For now, this just mutates the api instance, setting the token from the session
- */
-export const setupApiSSR = (ctx: GetServerSidePropsContext<ParsedUrlQuery>) => {
-  api.setUserData(ctx.req.session?.userData ?? {} as IUserData);
-};
 
 // omit params that should not be included in any urls
 // `id` is typically slug used in abstract pages

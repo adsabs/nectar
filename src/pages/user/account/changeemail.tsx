@@ -15,7 +15,7 @@ import {
 import { getDefaultReducer } from '@hooks/auth/model';
 import { IAuthForm } from '@hooks/auth/types';
 import { useChangeEmail } from '@hooks/auth/useChangeEmail';
-import { composeNextGSSP, userGSSP } from '@utils';
+import { composeNextGSSP } from '@ssrUtils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { FormEventHandler, useReducer } from 'react';
@@ -112,4 +112,4 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
   return Promise.resolve({
     props: {},
   });
-}, userGSSP);
+});

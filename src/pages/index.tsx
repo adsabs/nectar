@@ -6,7 +6,8 @@ import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { ChangeEventHandler, useEffect, useRef, useState } from 'react';
-export { userGSSP as getServerSideProps } from '@utils';
+
+export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
 
 const SearchExamples = dynamic<ISearchExamplesProps>(
   () => import('@components/SearchExamples').then((m) => m.SearchExamples),

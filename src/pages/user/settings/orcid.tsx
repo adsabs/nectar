@@ -1,12 +1,13 @@
 import { AddIcon } from '@chakra-ui/icons';
 import { Button, Checkbox, FormControl, FormLabel, Input, Stack, Text } from '@chakra-ui/react';
 import { SettingsLayout } from '@components';
-import { composeNextGSSP, noop, userGSSP } from '@utils';
+import { composeNextGSSP } from '@ssrUtils';
+import { noop } from '@utils';
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import { useState } from 'react';
 
 const OrcidPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn] = useState(false);
 
   const handleSubmit = noop;
   if (!isLoggedIn) {
@@ -82,4 +83,4 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
   return Promise.resolve({
     props: {},
   });
-}, userGSSP);
+});

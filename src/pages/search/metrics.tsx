@@ -1,9 +1,10 @@
 import { IADSApiSearchParams } from '@api';
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/react';
 import { MetricsPageContainer, VizPageLayout } from '@components';
-import { composeNextGSSP, makeSearchParams, parseQueryFromUrl, setupApiSSR, userGSSP } from '@utils';
+import { makeSearchParams, parseQueryFromUrl } from '@utils';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
+import { composeNextGSSP } from '@ssrUtils';
 
 interface IMetricsProps {
   originalQuery: IADSApiSearchParams;
@@ -31,7 +32,6 @@ const MetricsPage: NextPage<IMetricsProps> = (props) => {
 
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
   const BATCH_SIZE = 1000;
-  setupApiSSR(ctx);
   const { qid: _qid, ...originalQuery } = ctx.query;
   const { qid = null, p, ...query } = parseQueryFromUrl<{ qid: string }>(ctx.req.url, { sortPostfix: 'id asc' });
 
@@ -71,6 +71,6 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
       },
     });
   }
-}, userGSSP);
+});
 
 export default MetricsPage;
