@@ -15,8 +15,6 @@ export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
   const session = await getIronSession(req, res, sessionConfig);
 
-  console.log('session', session);
-
   // check if the token held in the session is valid, and the request has a session
   if (isValidToken(session.token) && req.cookies.has(process.env.ADS_SESSION_COOKIE_NAME)) {
     // if the user is authenticated, confirm route is available, if not redirect
@@ -44,10 +42,7 @@ export async function middleware(req: NextRequest) {
       : NextResponse.redirect(new URL(`/user/account/login?redirectUri=${encodeURIComponent(req.url)}`, req.url));
   }
 
-  // If bootstrapping failed for some reason, fail here for now
-  return new NextResponse('Unknown Server Issue, Please Reload', {
-    status: 500,
-  });
+  // TODO: what happens if bootstrap fails?
 }
 
 export const config = {

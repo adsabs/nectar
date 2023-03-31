@@ -8,8 +8,8 @@
   "scripts": {
     "dev": "PORT=8000 next dev",
     "dev:mocks": "NEXT_PUBLIC_API_MOCKING=enabled PORT=8000 next dev",
-    "build": "NEXT_TELEMETRY_DISABLED=1 DIST_DIR=./dist/ next build && yarn build-bibstems-index",
-    "start": "NODE_ENV=production PORT=8000 DIST_DIR=./dist/ node dist/standalone/dist/index.js",
+    "build": "NEXT_TELEMETRY_DISABLED=1 DIST_DIR=./dist/ yarn build-bibstem-index && next build",
+    "start": "NODE_ENV=production PORT=8000 DIST_DIR=./dist/ node dist/standalone/server.js",
     "analyze": "NEXT_TELEMETRY_DISABLED=1 DIST_DIR=./dev/ ANALYZE=true next build",
     "test": "NODE_ENV=test vitest",
     "test:coverage": "NODE_ENV=test vitest --run --coverage",
