@@ -2,16 +2,16 @@ import { IDocsEntity, useHasGraphics, useHasMetrics } from '@api';
 import { Badge } from '@chakra-ui/react';
 import { IMenuItem, SideNavigationMenu, TopNavigationMenu } from '@components';
 import {
+  ArrowDownIcon as DownloadIcon,
   ChartPieIcon,
-  ClipboardListIcon,
-  CollectionIcon,
+  ClipboardDocumentListIcon as ClipboardListIcon,
+  DocumentDuplicateIcon as DuplicateIcon,
   DocumentTextIcon,
-  DownloadIcon,
-  DuplicateIcon,
-  PhotographIcon,
-  TableIcon,
+  InboxStackIcon as CollectionIcon,
+  PhotoIcon as PhotographIcon,
+  TableCellsIcon as TableIcon,
   UsersIcon,
-} from '@heroicons/react/solid';
+} from '@heroicons/react/24/solid';
 import { useRouter } from 'next/router';
 import { HTMLAttributes, ReactElement } from 'react';
 import { Routes } from './types';
@@ -111,6 +111,7 @@ const useGetItems = ({
     activeItem: Object.entries(items).find(([route]) => router.asPath.indexOf(`/${route}`) > -1)[1],
   };
 };
+
 export interface IAbstractSideNavProps extends HTMLAttributes<HTMLDivElement> {
   doc?: IDocsEntity;
 }

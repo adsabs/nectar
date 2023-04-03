@@ -8,7 +8,7 @@ import { Dispatch, Reducer, useCallback, useEffect, useReducer } from 'react';
 /**
  * Calculate the total pages based on the number of results and how many records per page
  */
-const getTotalPages = (totalResults: number, numPerPage: number): number => {
+export const getTotalPages = (totalResults: number, numPerPage: number): number => {
   try {
     const pages = Math.ceil(totalResults / numPerPage);
     return pages <= 0 ? 1 : pages;
@@ -20,7 +20,7 @@ const getTotalPages = (totalResults: number, numPerPage: number): number => {
 /**
  * Will convert the value from string to number and clamp the value between min and max
  */
-const cleanClamp = (value: unknown, min = 0, max: number = Number.MAX_SAFE_INTEGER): number => {
+export const cleanClamp = (value: unknown, min = 0, max: number = Number.MAX_SAFE_INTEGER): number => {
   try {
     if (typeof value === 'number' && value >= min) {
       return clamp(min, max, value);
@@ -33,7 +33,7 @@ const cleanClamp = (value: unknown, min = 0, max: number = Number.MAX_SAFE_INTEG
   }
 };
 
-const defaultResult: PaginationResult = {
+export const defaultPaginationResult: PaginationResult = {
   page: 1,
   endIndex: 1,
   nextPage: 2,
@@ -94,7 +94,7 @@ export const calculatePagination = memoizeOne(
 
     if (results === 0) {
       // if no results return a default state
-      return defaultResult;
+      return defaultPaginationResult;
     }
 
     const totalPages = getTotalPages(results, numPerPage);

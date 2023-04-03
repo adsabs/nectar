@@ -106,6 +106,11 @@ export const getSearchFacetParams = (params: IADSApiSearchParams): IADSApiSearch
   facet: true,
 });
 
+export const getSearchFacetJSONParams = (params: IADSApiSearchParams): IADSApiSearchParams => ({
+  ...params,
+  fl: ['id'],
+});
+
 export const getSearchFacetYearsParams = (params: IADSApiSearchParams): IADSApiSearchParams => ({
   ...params,
   fl: ['id'],

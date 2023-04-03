@@ -5,7 +5,7 @@ import { Box, HStack, Link } from '@chakra-ui/layout';
 import { SimpleLinkDropdown } from '@components';
 import { ItemType } from '@components/Dropdown/types';
 import { ISelectProps, Select } from '@components/Select';
-import { SortAscendingIcon, SortDescendingIcon } from '@heroicons/react/outline';
+import { BarsArrowDownIcon, BarsArrowUpIcon } from '@heroicons/react/24/outline';
 import { useIsClient } from '@hooks/useIsClient';
 import { makeSearchParams, normalizeSolrSort, parseQueryFromUrl } from '@utils';
 import NextLink from 'next/link';
@@ -94,7 +94,7 @@ export const Sort = (props: ISortProps): ReactElement => {
           variant="outline"
           onClick={handleDirectionChange}
           data-direction="desc"
-          icon={<SortAscendingIcon width="20px" />}
+          icon={<BarsArrowUpIcon width="20px" />}
           aria-label="Sort ascending"
           borderLeftRadius="0"
           borderRightRadius="2px"
@@ -107,7 +107,7 @@ export const Sort = (props: ISortProps): ReactElement => {
           variant="outline"
           onClick={handleDirectionChange}
           data-direction="asc"
-          icon={<SortDescendingIcon width="20px" />}
+          icon={<BarsArrowDownIcon width="20px" />}
           aria-label="Sort descending"
           borderLeftRadius="0"
           borderRightRadius="2px"
@@ -190,13 +190,14 @@ const NoJsSort = (): ReactElement => {
           search: makeSearchParams({ q: '*:*', ...router.query, p: 1, sort: [`${sortby} ${getToggledDir(dir)}`] }),
         }}
         passHref
-        legacyBehavior>
+        legacyBehavior
+      >
         <Link>
           <>
             {dir === 'desc' ? (
               <IconButton
                 variant="outline"
-                icon={<SortDescendingIcon width="20px" />}
+                icon={<BarsArrowDownIcon width="20px" />}
                 aria-label="Sort descending"
                 borderLeftRadius="0"
                 borderRightRadius="2px"
@@ -206,7 +207,7 @@ const NoJsSort = (): ReactElement => {
             ) : (
               <IconButton
                 variant="outline"
-                icon={<SortAscendingIcon width="20px" />}
+                icon={<BarsArrowUpIcon width="20px" />}
                 aria-label="Sort ascending"
                 borderLeftRadius="0"
                 borderRightRadius="2px"

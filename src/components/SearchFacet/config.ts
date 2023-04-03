@@ -1,5 +1,5 @@
 import { FacetField } from '@api';
-import { ISearchFacetProps } from './SearchFacet';
+import { ISearchFacetProps } from '@components';
 import { SearchFacetID } from './types';
 
 const defaultLogic: ISearchFacetProps['logic'] = {
@@ -14,6 +14,7 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
     hasChildren: true,
     logic: defaultLogic,
     storeId: 'author',
+    forceUppercaseInitial: true,
   },
   collections: {
     label: 'Collections',
@@ -28,6 +29,7 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
     logic: defaultLogic,
     filter: ['refereed', 'notrefereed'],
     storeId: 'refereed',
+    noLoadMore: true,
   },
   institutions: {
     label: 'Institutions',

@@ -172,16 +172,12 @@ export const settingsSlice: StoreSlice<ISettingsState & ISettingsAction> = (set,
     ),
   resetSearchFacets: () => {
     set(
-      (state) => {
-        const hidden = filter(propEq('hidden', true), state.settings.searchFacets.state);
-        Object.keys(hidden).forEach((key) => state.showSearchFacet(key as SearchFacetID));
-
-        return {};
-      },
+      { settings: { ...get().settings, searchFacets: defaultSettings.searchFacets } },
       false,
       'settings/resetSearchFacets',
     );
 
+    // update based on the theme
     get().updateSearchFacetsByTheme();
   },
   updateSearchFacetsByTheme: () =>

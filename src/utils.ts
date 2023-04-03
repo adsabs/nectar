@@ -26,7 +26,7 @@ import {
   uniq,
   when,
 } from 'ramda';
-import { isArray, isNotString, isPlainObject } from 'ramda-adjunct';
+import { isArray, isNonEmptyString, isNotString, isPlainObject } from 'ramda-adjunct';
 
 type ParsedQueryParams = ParsedUrlQuery | qs.ParsedQs;
 
@@ -455,3 +455,10 @@ export const parseAPIError = (
 
   return options.defaultMessage;
 };
+
+/**
+ * Capitalizes first letter of the string
+ * @param str
+ */
+export const capitalizeString = (str: string) =>
+  isNonEmptyString(str) ? `${str.slice(0, 1).toUpperCase()}${str.slice(1)}` : str;

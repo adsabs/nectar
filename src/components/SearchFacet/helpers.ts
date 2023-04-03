@@ -1,9 +1,10 @@
-import { FacetField, IADSApiSearchParams, IFacetCountsFields } from '@api';
-import { escape, getOperator, getTerms, joinQueries, Operator, removeClauseAndStringify, splitQuery } from '@query';
-import { defaultQueryParams } from '@store/slices';
-import { isIADSSearchParams, isString } from '@utils';
+import {FacetField, IADSApiSearchParams, IFacetCountsFields} from '@api';
+import {escape, getOperator, getTerms, joinQueries, Operator, removeClauseAndStringify, splitQuery} from '@query';
+import {defaultQueryParams} from '@store/slices';
+import {isIADSSearchParams, isString} from '@utils';
 import {
-  all,
+  __,
+  allPass,
   always,
   and,
   append,
@@ -19,6 +20,7 @@ import {
   equals,
   filter,
   flatten,
+  has,
   head,
   ifElse,
   includes,
@@ -43,8 +45,8 @@ import {
   pickBy,
   pipe,
   prepend,
-  prop,
   propEq,
+  propIs,
   propSatisfies,
   reduce,
   reject,
@@ -58,17 +60,27 @@ import {
   unless,
   values,
   when,
-  __,
 } from 'ramda';
-import { isNilOrEmpty, stubNull } from 'ramda-adjunct';
-import { OnFilterArgs } from './SearchFacetTree';
-import { FacetChildNode, FacetChildNodeTree, FacetCountTuple, FacetLogic, FacetNodeTree, IFacetNode } from './types';
+import {isNilOrEmpty, stubNull} from 'ramda-adjunct';
+import {
+  FacetChildNode,
+  FacetChildNodeTree,
+  FacetCountTuple,
+  FacetLogic,
+  FacetNodeTree,
+  IFacetNode,
+  OnFilterArgs,
+} from './types';
 
 // helpers
 const isNotOperator = (op: Operator) => always(op === 'NOT');
 const nonEmptyString = both(is(String), complement(isEmpty));
 const isEmptyOrNil = either(isNil, isEmpty);
 const safeGetArray = (val: string | string[]) => (Array.isArray(val) ? val : typeof val === 'string' ? of(val) : []);
+
+export const isRootNode = (node: string) => /^(?![1-9]\/)/.test(node);
+
+export const getParentId = (node: string): string | null => (isRootNode(node) ? null : parseRootFromKey(node, true));
 
 /**
  * Parse leaf value from id
@@ -86,6 +98,7 @@ export const parseTitleFromKey = when(nonEmptyString, pipe<[string], string[], s
  * `0/Smith, A` -> `Smith, A`
  * `1/Smith, A/Smith, Anthony` -> `Smith, A`
  *
+ * @param {string} key
  * @param {boolean} includePrefix will include the `0/` part in the result
  */
 export const parseRootFromKey = (key: string, includePrefix?: boolean) =>
@@ -145,11 +158,9 @@ export const rootToChildPrefix = (name: string) => unless<string, string>(isEmpt
  * Creates a basic FacetNode or FacetChildNode for insertion into tree
  */
 const createNode = (key: string, noChildren?: boolean) =>
-  ifElse<[string], FacetChildNode, IFacetNode>(
-    always(noChildren),
-    always({ key, selected: false }),
-    always({ selected: false, key, children: null, expanded: false, partSelected: false }),
-  )(key);
+  noChildren
+    ? ({ key, selected: false } as FacetChildNode)
+    : ({ selected: false, key, children: null, expanded: false, partSelected: false } as IFacetNode);
 
 /**
  * Initializes a FacetNodeTree or a child tree
@@ -205,24 +216,18 @@ const setChildrenSelected = (value: boolean) =>
  * Find all selected nodes and extract their keys into an array
  */
 export const getAllSelectedKeys = (tree: FacetNodeTree) => {
-  const getSelected = pipe<[FacetNodeTree], IFacetNode[], IFacetNode[], string[], string[]>(
-    values,
-    filter(propEq('selected', true)),
-    map(prop('key')),
-    reject(isNil),
-  );
-  const getSelectedChildren = pipe<[FacetChildNodeTree], FacetChildNode[], FacetChildNode[], string[], string[]>(
-    values,
-    filter(propEq('selected', true)),
-    map(prop('key')),
-    reject(isNil),
-  );
+  const isSelected = propEq('selected', true);
+  const getSelected = <T extends FacetNodeTree | FacetChildNodeTree>(tree: T) =>
+    pipe<[T], string[], string[]>(
+      keys,
+      filter<keyof T>((key) => isSelected(tree[key])),
+    )(tree);
 
   return concat(
-    getSelected(tree),
+    getSelected<FacetNodeTree>(tree),
     pipe<[FacetNodeTree], IFacetNode[], string[][], string[]>(
       values,
-      map((node) => getSelectedChildren(node.children)),
+      map((node) => getSelected<FacetChildNodeTree>(node.children)),
       flatten,
     )(tree),
   );
@@ -232,14 +237,23 @@ export const getAllSelectedKeys = (tree: FacetNodeTree) => {
 const getChildrenNodes = (key: string) =>
   pipe<[FacetNodeTree], FacetChildNodeTree, FacetChildNode[]>(path([parseRootFromKey(key, true), 'children']), values);
 
-/** Returns true if all children are selected */
-const allChildrenSelected = (key: string) =>
-  pipe<[FacetNodeTree], FacetChildNode[], boolean>(getChildrenNodes(key), all(propEq('selected', true)));
-
 /** Returns true if no children are selected */
 const noChildrenSelected = (key: string) =>
   pipe<[FacetNodeTree], FacetChildNode[], boolean>(getChildrenNodes(key), none(propEq('selected', true)));
 
+const isFacetChildNode = (node: unknown): node is FacetChildNode => {
+  return allPass([propIs(String, 'key'), propIs(Boolean, 'selected')])(node);
+};
+
+const isIFacetNode = (node: unknown): node is IFacetNode => {
+  return allPass([
+    propIs(String, 'key'),
+    propIs(Boolean, 'selected'),
+    propIs(Boolean, 'partSelected'),
+    propIs(Boolean, 'expanded'),
+    has('children'),
+  ])(node);
+};
 /**
  * Main selection logic
  *
@@ -250,8 +264,13 @@ export const updateSelection = (key: string, isRoot: boolean, tree: FacetNodeTre
   const rootKey = isRoot ? key : parseRootFromKey(key, true);
 
   // if the node is empty (or undefined) create a new one before running updates
-  const createNodeIfNecessary = <T>(node: T): T =>
-    when<T, T, T>(isNilOrEmpty as (n: T) => n is T, (node: T) => ({ ...node, ...createNode(key, isRoot) }), node);
+  const createNodeIfNecessary = <T extends IFacetNode | FacetChildNode>(node: T): T => {
+    if ((isRoot && isIFacetNode(node)) || isFacetChildNode(node)) {
+      return node;
+    }
+
+    return createNode(key, isRoot) as T;
+  };
 
   // ROOT -- check if it is selected
   const updateRoot = ifElse<[FacetNodeTree], FacetNodeTree, FacetNodeTree>(
@@ -266,7 +285,7 @@ export const updateSelection = (key: string, isRoot: boolean, tree: FacetNodeTre
     // is NOT selected
     over(
       keyLens(key),
-      pipe(createNodeIfNecessary, setSelected(true), setPartSelected(false), setChildrenSelected(true)),
+      pipe(createNodeIfNecessary, setSelected(true), setPartSelected(false), setChildrenSelected(false)),
     ),
   );
 
@@ -291,7 +310,7 @@ export const updateSelection = (key: string, isRoot: boolean, tree: FacetNodeTre
       // set the root as indeterminate
       over(keyLens(rootKey), pipe(createNodeIfNecessary, setPartSelected(true))),
       // if, after selecting the child, the resulting state has all children selected, then select the root
-      when(allChildrenSelected(rootKey), over(keyLens(rootKey), pipe(setSelected(true), setPartSelected(false)))),
+      // when(allChildrenSelected(rootKey), over(keyLens(rootKey), pipe(setSelected(true), setPartSelected(false)))),
     ),
   );
 
@@ -329,7 +348,7 @@ export const cleanClause = curry((fqKey: string, clause: string) => {
   // for authors, there is more processing to make it get the names
   if (fqKey === 'fq_author') {
     return pipe(
-      map(pipe(replace(/[\"\\]/g, ''), parseTitleFromKey)),
+      map(pipe(replace(/["\\]/g, ''), parseTitleFromKey)),
 
       // this will force an extra `NOT` is at the start of the string
       when(isNotOperator(operator as Operator), prepend(undefined)),
@@ -338,7 +357,7 @@ export const cleanClause = curry((fqKey: string, clause: string) => {
   }
 
   return pipe(
-    map(pipe(replace(/(?!")[01]\\\//g, ''), replace(/[\"\\]/g, ''))),
+    map(pipe(replace(/(?!")[01]\\\//g, ''), replace(/["\\]/g, ''))),
     when(isNotOperator(operator as Operator), prepend(undefined)),
     join(` ${operator} `),
   )(terms);

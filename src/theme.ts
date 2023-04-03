@@ -269,6 +269,12 @@ export const theme = extendTheme(
             backgroundColor: 'red.500',
             color: 'gray.50',
           },
+          pageLoading: {
+            borderWidth: '1px',
+            borderColor: 'gray.200',
+            backgroundColor: 'transparent',
+            color: 'gray.700',
+          },
         },
       },
       Select: {

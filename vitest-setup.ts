@@ -1,7 +1,12 @@
-import { cleanup } from '@test-utils';
+import {cleanup} from '@test-utils';
 import matchers from '@testing-library/jest-dom/matchers';
-import { afterAll, afterEach, beforeAll, beforeEach, expect } from 'vitest';
-import { server } from './src/mocks/server';
+import {afterAll, afterEach, beforeAll, beforeEach, expect} from 'vitest';
+import {server} from '@mocks/server';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import replaceAllInserter from 'string.prototype.replaceall';
+// eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+replaceAllInserter.shim();
 
 expect.extend(matchers);
 

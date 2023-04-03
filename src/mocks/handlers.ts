@@ -1,3 +1,4 @@
+/* eslint-disable */
 import {
   ApiTargets,
   ExportApiFormatKey,
@@ -8,14 +9,14 @@ import {
   IADSApiVaultResponse,
   IExportApiParams,
 } from '@api';
-import { IAuthorAffiliationExportPayload, IAuthorAffiliationResponse } from '@api/author-affiliation/types';
+import {IAuthorAffiliationExportPayload, IAuthorAffiliationResponse} from '@api/author-affiliation/types';
 import defaultBibstems from '@components/BibstemPicker/defaultBibstems.json';
 import faker from '@faker-js/faker';
-import { IBibstemOption } from '@types';
-import { rest } from 'msw';
+import {IBibstemOption} from '@types';
+import {rest} from 'msw';
 import qs from 'qs';
-import { flatten, map, range } from 'ramda';
-import { api, authorAffData, highlights_mocks, ids_mocks, ranRange } from './mockHelpers';
+import {flatten, map, range} from 'ramda';
+import {api, authorAffData, highlights_mocks, ids_mocks, ranRange} from './mockHelpers';
 
 export const handlers = [
   rest.get(`*${ApiTargets.BOOTSTRAP}`, (req, res, ctx) => {
@@ -79,11 +80,459 @@ export const handlers = [
       );
     }
 
-    if (params.facet) {
+    if (params['json.facet']) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+      if (JSON.parse(params['json.facet'] as string)?.author_facet_hier?.prefix?.startsWith('1')) {
+        return res(
+          ctx.status(200),
+          ctx.json<IADSApiSearchResponse>({
+            response: { docs: [], numFound: 1 },
+            facets: {
+              author_facet_heir: {
+                numBuckets: 999,
+                buckets: [
+                  {
+                    val: '1/Wang, Y/Wang, Y',
+                    count: 603,
+                  },
+                  {
+                    val: '1/Wang, Y/Wang, Yan',
+                    count: 283,
+                  },
+                  {
+                    val: '1/Wang, Y/Wang, Yu',
+                    count: 274,
+                  },
+                  {
+                    val: '1/Wang, Y/Wang, Yi',
+                    count: 231,
+                  },
+                  {
+                    val: '1/Wang, Y/Wang, Yang',
+                    count: 228,
+                  },
+                  {
+                    val: '1/Wang, Y/Wang, Yong',
+                    count: 188,
+                  },
+                  {
+                    val: '1/Wang, Y/Wang, Ying',
+                    count: 144,
+                  },
+                  {
+                    val: '1/Wang, Y/Wang, Yue',
+                    count: 124,
+                  },
+                  {
+                    val: '1/Wang, Y/Wang, Y  F',
+                    count: 117,
+                  },
+                  {
+                    val: '1/Wang, Y/Wang, Yun',
+                    count: 107,
+                  },
+                ],
+              },
+            },
+          }),
+        );
+      }
       return res(
         ctx.status(200),
         ctx.json<IADSApiSearchResponse>({
           response: { docs: [], numFound: 1 },
+          facets: {
+            database: {
+              numBuckets: 3,
+              buckets: [
+                {
+                  val: 'physics',
+                  count: 766836,
+                },
+                {
+                  val: 'astronomy',
+                  count: 144621,
+                },
+                {
+                  val: 'general',
+                  count: 144156,
+                },
+              ],
+            },
+            author_facet_hier: {
+              numBuckets: 939072,
+              buckets: [
+                {
+                  val: '0/Wang, Y',
+                  count: 7088,
+                },
+                {
+                  val: '0/Zhang, Y',
+                  count: 6351,
+                },
+                {
+                  val: '0/Wang, J',
+                  count: 5766,
+                },
+                {
+                  val: '0/Li, Y',
+                  count: 5566,
+                },
+                {
+                  val: '0/Liu, Y',
+                  count: 5394,
+                },
+                {
+                  val: '0/Wang, X',
+                  count: 5327,
+                },
+                {
+                  val: '0/Li, J',
+                  count: 4861,
+                },
+                {
+                  val: '0/Zhang, J',
+                  count: 4797,
+                },
+                {
+                  val: '0/Li, X',
+                  count: 4771,
+                },
+                {
+                  val: '0/Zhang, X',
+                  count: 4704,
+                },
+              ],
+            },
+            property: {
+              numBuckets: 19,
+              buckets: [
+                {
+                  val: 'esource',
+                  count: 812635,
+                },
+                {
+                  val: 'article',
+                  count: 790169,
+                },
+                {
+                  val: 'refereed',
+                  count: 509682,
+                },
+                {
+                  val: 'notrefereed',
+                  count: 472391,
+                },
+                {
+                  val: 'openaccess',
+                  count: 304280,
+                },
+                {
+                  val: 'nonarticle',
+                  count: 191904,
+                },
+                {
+                  val: 'pubopenaccess',
+                  count: 164685,
+                },
+                {
+                  val: 'eprintopenaccess',
+                  count: 150900,
+                },
+                {
+                  val: 'toc',
+                  count: 129379,
+                },
+                {
+                  val: 'data',
+                  count: 24789,
+                },
+              ],
+            },
+            keyword_facet: {
+              numBuckets: 1950,
+              buckets: [
+                {
+                  val: 'methods numerical',
+                  count: 74533,
+                },
+                {
+                  val: 'thermodynamics',
+                  count: 20648,
+                },
+                {
+                  val: 'hydrodynamics',
+                  count: 20042,
+                },
+                {
+                  val: 'methods data analysis',
+                  count: 17501,
+                },
+                {
+                  val: 'atmosphere',
+                  count: 12626,
+                },
+                {
+                  val: 'astrochemistry',
+                  count: 12505,
+                },
+                {
+                  val: 'site testing',
+                  count: 11987,
+                },
+                {
+                  val: 'electrodynamics',
+                  count: 10484,
+                },
+                {
+                  val: 'methods analytical',
+                  count: 10236,
+                },
+                {
+                  val: 'astrophysics',
+                  count: 10164,
+                },
+              ],
+            },
+            aff_facet_hier: {
+              numBuckets: 4392,
+              buckets: [
+                {
+                  val: '0/CalTech',
+                  count: 12691,
+                },
+                {
+                  val: '0/Helmholtz Res Ctrs',
+                  count: 11853,
+                },
+                {
+                  val: '0/Max Planck',
+                  count: 11064,
+                },
+                {
+                  val: '0/CAS Beijing',
+                  count: 8688,
+                },
+                {
+                  val: '0/INFN',
+                  count: 8155,
+                },
+                {
+                  val: '0/UCB',
+                  count: 7805,
+                },
+                {
+                  val: '0/MIT',
+                  count: 7773,
+                },
+                {
+                  val: '0/Stanford U',
+                  count: 7367,
+                },
+                {
+                  val: '0/GSFC',
+                  count: 7322,
+                },
+                {
+                  val: '0/Harvard U',
+                  count: 7135,
+                },
+              ],
+            },
+            bibgroup_facet: {
+              numBuckets: 29,
+              buckets: [
+                {
+                  val: 'PhysEd',
+                  count: 7070,
+                },
+                {
+                  val: 'CfA',
+                  count: 4117,
+                },
+                {
+                  val: 'ESO/Telescopes',
+                  count: 1549,
+                },
+                {
+                  val: 'HST',
+                  count: 1536,
+                },
+                {
+                  val: 'Chandra',
+                  count: 978,
+                },
+                {
+                  val: 'NOIRLab',
+                  count: 827,
+                },
+                {
+                  val: 'NOAO',
+                  count: 702,
+                },
+                {
+                  val: 'Leiden Observatory',
+                  count: 578,
+                },
+                {
+                  val: 'XMM',
+                  count: 553,
+                },
+                {
+                  val: 'Keck',
+                  count: 528,
+                },
+              ],
+            },
+            bibstem_facet: {
+              numBuckets: 16235,
+              buckets: [
+                {
+                  val: 'arXiv',
+                  count: 85421,
+                },
+                {
+                  val: 'SPIE',
+                  count: 74368,
+                },
+                {
+                  val: 'AIPC',
+                  count: 29337,
+                },
+                {
+                  val: 'EGUGA',
+                  count: 28693,
+                },
+                {
+                  val: 'PhDT',
+                  count: 27825,
+                },
+                {
+                  val: 'JPhCS',
+                  count: 25918,
+                },
+                {
+                  val: 'NatSR',
+                  count: 21087,
+                },
+                {
+                  val: 'MS&E',
+                  count: 18308,
+                },
+                {
+                  val: 'E&ES',
+                  count: 14189,
+                },
+                {
+                  val: 'STIN',
+                  count: 11419,
+                },
+              ],
+            },
+            vizier_facet: {
+              numBuckets: 85,
+              buckets: [
+                {
+                  val: 'Optical',
+                  count: 733,
+                },
+                {
+                  val: 'Galaxies',
+                  count: 205,
+                },
+                {
+                  val: 'Infrared',
+                  count: 182,
+                },
+                {
+                  val: 'Stars',
+                  count: 179,
+                },
+                {
+                  val: 'Photometry',
+                  count: 161,
+                },
+                {
+                  val: 'Redshifts',
+                  count: 129,
+                },
+                {
+                  val: 'Photometry: wide-band',
+                  count: 125,
+                },
+                {
+                  val: 'Spectroscopy',
+                  count: 122,
+                },
+                {
+                  val: 'Stars: variable',
+                  count: 109,
+                },
+                {
+                  val: 'Radio',
+                  count: 108,
+                },
+              ],
+            },
+            doctype_facet_hier: {
+              numBuckets: 2,
+              buckets: [
+                {
+                  val: '0/Article',
+                  count: 785675,
+                },
+                {
+                  val: '0/Non-Article',
+                  count: 196401,
+                },
+              ],
+            },
+            data_facet: {
+              numBuckets: 69,
+              buckets: [
+                {
+                  val: 'SIMBAD',
+                  count: 16870,
+                },
+                {
+                  val: 'MAST',
+                  count: 5680,
+                },
+                {
+                  val: 'NED',
+                  count: 5430,
+                },
+                {
+                  val: 'CDS',
+                  count: 2427,
+                },
+                {
+                  val: 'IRSA',
+                  count: 2066,
+                },
+                {
+                  val: 'ESA',
+                  count: 1541,
+                },
+                {
+                  val: 'ESO',
+                  count: 1400,
+                },
+                {
+                  val: 'Chandra',
+                  count: 1271,
+                },
+                {
+                  val: 'HEASARC',
+                  count: 925,
+                },
+                {
+                  val: 'Spitzer',
+                  count: 512,
+                },
+              ],
+            },
+          },
           facet_counts: {
             facet_heatmaps: {},
             facet_intervals: {},
@@ -335,7 +784,7 @@ export const handlers = [
     let limitAuthors = -1;
     if (typeof params.fl === 'string') {
       params.fl.split(',').forEach((v) => {
-        const mat = /\[fields author=(\d+)\]/.exec(v);
+        const mat = /\[fields author=(\d+)]/.exec(v);
         if (mat !== null) {
           limitAuthors = parseInt(mat[1], 10);
         }
@@ -410,7 +859,7 @@ export const handlers = [
       ctx.json({
         bibcode: '2018A&A...616A...1G',
         number: 7,
-        pick: '<a href="graphics" border=0><img src="[\'https://s3.amazonaws.com/adsabs-thumbnails/seri/A%2BA/0616/aa33051-18/aa33051-18-fig2.jpg\', \'http://dx.doi.org/10.1051/0004-6361/201833051\']"></a>',
+        pick: '<a href="/graphics" border=0><img alt="alt" src="[\'https://s3.amazonaws.com/adsabs-thumbnails/seri/A%2BA/0616/aa33051-18/aa33051-18-fig2.jpg\', \'http://dx.doi.org/10.1051/0004-6361/201833051\']"></a>',
         figures: [
           {
             figure_label: 'Figure 1',

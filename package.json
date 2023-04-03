@@ -30,7 +30,7 @@
     "@emotion/react": "11.8.2",
     "@emotion/styled": "^11.6.0",
     "@headlessui/react": "^1.1.1",
-    "@heroicons/react": "^1.0.1",
+    "@heroicons/react": "^2.0.16",
     "@nivo/bar": "^0.80.0",
     "@nivo/core": "^0.80.0",
     "@nivo/line": "^0.80.0",
@@ -84,7 +84,7 @@
     "zustand": "^3.6.9"
   },
   "devDependencies": {
-    "@babel/core": "^7.0.0-0",
+    "@babel/core": "^7.21.3",
     "@chakra-ui/storybook-addon": "^1.0.3",
     "@faker-js/faker": "^6.0.0",
     "@mswjs/interceptors": "^0.19.0",
@@ -129,11 +129,12 @@
     "@typescript-eslint/parser": "^5.14.0",
     "@vitejs/plugin-react": "^2.0.1",
     "@vitest/coverage-c8": "^0.22.1",
+    "@vitest/ui": "^0.29.2",
     "autoprefixer": "^10.2.4",
     "babel-loader": "^8.0.0",
     "babel-plugin-optimize-clsx": "^2.6.2",
     "c8": "^7.12.0",
-    "cypress": "^9.5.2",
+    "cypress": "^12.8.0",
     "eslint": "^8.10.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-jsx-a11y": "^6.5.1",
@@ -158,13 +159,14 @@
     "sharp": "^0.30.5",
     "storybook": "^6.2.9",
     "storybook-addon-next-router": "^3.0.8",
+    "string.prototype.replaceall": "^1.0.7",
     "tailwindcss": "^2.0.3",
     "tsconfig-paths-webpack-plugin": "^3.5.1",
     "tslib": "^2.2.0",
     "typescript": "^4.3.5",
     "vite-tsconfig-paths": "^3.5.0",
     "vitest": "^0.22.1",
-    "webpack": "^5.69.1"
+    "webpack": "^5.76.0"
   },
   "volta": {
     "node": "14.18.0",

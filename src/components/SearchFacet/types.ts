@@ -61,3 +61,11 @@ export type SearchFacetID =
   | 'pubtype';
 
 export type FacetCountTuple = [string, number];
+
+export type FacetItem = { id: string; val: string; count: number; parentId: string };
+
+export type OnFilterArgs = {
+  logic: FacetLogic;
+  field: FacetField;
+  values: string[];
+};

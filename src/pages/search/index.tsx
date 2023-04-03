@@ -5,14 +5,27 @@ import {
   getSearchStatsParams,
   IADSApiSearchParams,
   IADSApiSearchResponse,
-  searchKeys,
   SEARCH_API_KEYS,
+  searchKeys,
   SolrSort,
   useSearch,
 } from '@api';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import { Box, Flex, List, ListIcon, ListItem, Stack } from '@chakra-ui/layout';
-import { Alert, AlertIcon, Button, Code, Heading, Portal, useMediaQuery, VisuallyHidden } from '@chakra-ui/react';
+import {
+  Alert,
+  AlertIcon,
+  Button,
+  Center,
+  Code,
+  Heading,
+  Icon,
+  IconButton,
+  Portal,
+  Tooltip,
+  useMediaQuery,
+  VisuallyHidden,
+} from '@chakra-ui/react';
 import {
   CustomInfoMessage,
   ISearchFacetsProps,
@@ -26,8 +39,9 @@ import {
 } from '@components';
 import { calculateStartIndex } from '@components/ResultList/Pagination/usePagination';
 import { FacetFilters } from '@components/SearchFacet/FacetFilters';
-import { YearHistogramSlider } from '@components/SearchFacet/YearHistogramSlider';
+import { IYearHistogramSliderProps } from '@components/SearchFacet/YearHistogramSlider';
 import { APP_DEFAULTS } from '@config';
+import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { useIsClient } from '@hooks';
 import { AppState, createStore, useStore, useStoreApi } from '@store';
 import { NumPerPageType } from '@types';
@@ -48,6 +62,11 @@ import { last, omit, path } from 'ramda';
 import { FormEventHandler, useEffect, useRef, useState } from 'react';
 import { dehydrate, QueryClient, useQueryClient } from 'react-query';
 
+const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
+  () => import('@components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),
+  { ssr: false },
+);
+
 const SearchFacets = dynamic<ISearchFacetsProps>(
   () => import('@components/SearchFacet').then((mod) => mod.SearchFacets),
   { ssr: false },
@@ -62,6 +81,7 @@ const selectors = {
   setDocs: (state: AppState) => state.setDocs,
   showFilters: (state: AppState) => state.settings.searchFacets.open,
   toggleSearchFacetsOpen: (state: AppState) => state.toggleSearchFacetsOpen,
+  resetSearchFacets: (state: AppState) => state.resetSearchFacets,
 };
 
 const omitP = omit(['p']);
@@ -164,8 +184,6 @@ const SearchPage: NextPage = () => {
     setHistogramExpanded((prev) => !prev);
   };
 
-  // search facet handlers
-
   return (
     <>
       <Head>
@@ -248,6 +266,7 @@ const SearchFacetFilters = (props: {
   const { showHistogram, onSearchFacetSubmission, onExpandHistogram } = props;
   const showFilters = useStore(selectors.showFilters);
   const handleToggleFilters = useStore(selectors.toggleSearchFacetsOpen);
+  const handleResetFilters = useStore(selectors.resetSearchFacets);
 
   if (showFilters) {
     return (
@@ -256,9 +275,45 @@ const SearchFacetFilters = (props: {
           <Heading as="h2" id="search-facets" fontSize="normal" flex="1">
             Filters
           </Heading>
-          <Button variant="link" type="button" onClick={handleToggleFilters} fontSize="normal" fontWeight="normal">
-            Hide
-          </Button>
+          <Tooltip label="Reset filters">
+            <IconButton
+              variant="unstyled"
+              icon={
+                <Center>
+                  <Icon as={ArrowPathIcon} />
+                </Center>
+              }
+              size="xs"
+              fontSize="xl"
+              aria-label="reset filters"
+              type="button"
+              onClick={handleResetFilters}
+              _hover={{
+                backgroundColor: 'blue.50',
+                border: 'solid 1px gray.400',
+              }}
+            />
+          </Tooltip>
+          <Tooltip label="Hide filters">
+            <IconButton
+              variant="unstyled"
+              icon={
+                <Center>
+                  <Icon as={XMarkIcon} />
+                </Center>
+              }
+              size="xs"
+              fontSize="2xl"
+              aria-label="hide filters"
+              type="button"
+              onClick={handleToggleFilters}
+              fontWeight="normal"
+              _hover={{
+                backgroundColor: 'blue.50',
+                border: 'solid 1px gray.400',
+              }}
+            />
+          </Tooltip>
         </Flex>
         {showHistogram && (
           <Flex justifyContent="center">

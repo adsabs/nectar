@@ -1,9 +1,10 @@
 import { FacetField, IADSApiSearchParams, IFacetCountsFields } from '@api';
-import { ChevronDownIcon, ChevronRightIcon, DragHandleIcon } from '@chakra-ui/icons';
+import { DragHandleIcon } from '@chakra-ui/icons';
 import {
   AccordionItemProps,
   Box,
   Button,
+  Center,
   HStack,
   Icon,
   IconButton,
@@ -11,9 +12,11 @@ import {
   ListItem,
   Text,
   Tooltip,
-  useBoolean,
   useDisclosure,
 } from '@chakra-ui/react';
+import { FacetList } from '@components/SearchFacet/FacetList';
+import { FacetStoreProvider } from '@components/SearchFacet/store/FacetStore';
+import { Toggler } from '@components/Toggler';
 import {
   DndContext,
   DragEndEvent,
@@ -26,13 +29,14 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { ExclamationCircleIcon, EyeIcon, EyeOffIcon } from '@heroicons/react/solid';
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/20/solid';
+import { ExclamationCircleIcon } from '@heroicons/react/24/solid';
 import { AppState, useStore, useStoreApi } from '@store';
+import { omit } from 'ramda';
 import { CSSProperties, MouseEventHandler, ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { facetConfig } from './config';
 import { applyFiltersToQuery } from './helpers';
-import { OnFilterArgs, SearchFacetTree } from './SearchFacetTree';
-import { FacetLogic, SearchFacetID } from './types';
+import { FacetLogic, OnFilterArgs, SearchFacetID } from './types';
 
 export interface ISearchFacetProps extends AccordionItemProps {
   field: FacetField;
@@ -41,6 +45,9 @@ export interface ISearchFacetProps extends AccordionItemProps {
   facetQuery?: string;
   label: string;
   storeId: SearchFacetID;
+  /** Disallow loading more, regardless of result */
+  noLoadMore?: boolean;
+  forceUppercaseInitial?: boolean;
   logic: {
     single: FacetLogic[];
     multiple: FacetLogic[];
@@ -50,6 +57,8 @@ export interface ISearchFacetProps extends AccordionItemProps {
   onQueryUpdate: (queryUpdates: Partial<IADSApiSearchParams>) => void;
 }
 
+const querySelector = (state: AppState) => omit(['fl', 'start', 'rows'], state.latestQuery) as IADSApiSearchParams;
+
 export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
   const store = useStoreApi();
   const setFacetState = useStore((state) => state.setSearchFacetState);
@@ -57,8 +66,9 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
   const hiddenFacets = useStore(useCallback((state) => state.getHiddenSearchFacets(), [facets]));
   const hideFacet = useStore((state) => state.hideSearchFacet);
   const showFacet = useStore((state) => state.showSearchFacet);
-  const { label, field, storeId, property, hasChildren, logic, facetQuery, filter, onQueryUpdate } = props;
-  const { listeners, attributes, setNodeRef, setActivatorNodeRef, transform, transition, isSorting } = useSortable({
+  const searchQuery = useStore(querySelector);
+  const { label, field, storeId, onQueryUpdate, noLoadMore } = props;
+  const { listeners, attributes, setNodeRef, setActivatorNodeRef, transform, transition } = useSortable({
     id: storeId,
     strategy: verticalListSortingStrategy,
   });
@@ -96,28 +106,13 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
     onClose();
   };
 
-  useEffect(() => {
-    if (isSorting) {
-      onClose();
-    }
-  }, [isSorting]);
-
-  const [showHideBtn, setShowHideBtn] = useBoolean(false);
-
   const style: CSSProperties = {
     transform: CSS.Translate.toString(transform),
     transition,
   };
 
   return (
-    <ListItem
-      ref={setNodeRef}
-      style={style}
-      my="1"
-      onMouseEnter={setShowHideBtn.on}
-      onFocus={setShowHideBtn.on}
-      onMouseLeave={setShowHideBtn.off}
-    >
+    <ListItem ref={setNodeRef} style={style} my={0} w="64">
       <h2>
         <HStack spacing={0}>
           <Button
@@ -127,18 +122,18 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
             {...listeners}
             ref={setActivatorNodeRef}
             onClick={onToggle}
-            borderColor="blue.100"
+            borderColor="gray.300"
             borderBottom={isOpen ? 'none' : 'auto'}
             borderBottomRadius={isOpen ? 0 : 'md'}
-            borderRight={showHideBtn && !isOpen ? 'none' : 'auto'}
-            borderRightRadius={showHideBtn && !isOpen ? 0 : 'md'}
-            borderBottomRightRadius={showHideBtn || isOpen ? 0 : 'md'}
+            borderRightRadius={0}
+            borderRight="none"
             mb="0"
             px="0.5"
           >
-            <DragHandleIcon mr="1" />
-            <HStack flex="1" textAlign="left">
-              <Text flex="1" fontSize="md">
+            <DragHandleIcon mr="1" color="gray.400" fontSize="md" />
+            <Toggler isToggled={isOpen} fontSize="2xl" color="gray.600" />
+            <HStack flex="1" textAlign="left" mx="1">
+              <Text flex="1" fontSize="md" fontWeight="medium" color="gray.600">
                 {label}
               </Text>
               {hasError && (
@@ -147,64 +142,49 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
                 </Tooltip>
               )}
             </HStack>
-
-            {isOpen ? <ChevronDownIcon /> : <ChevronRightIcon />}
           </Button>
-          {showHideBtn && !isOpen && (
+          <Tooltip label={hidden ? `Show ${label.toLowerCase()} filter` : `Hide ${label.toLowerCase()} filter`}>
             <IconButton
-              onMouseEnter={setShowHideBtn.on}
-              onFocus={setShowHideBtn.on}
-              onBlur={setShowHideBtn.off}
-              onMouseLeave={setShowHideBtn.off}
-              borderLeft="none"
-              borderLeftRadius={0}
-              icon={
-                hidden ? (
-                  <EyeIcon width="12" style={{ margin: 0, padding: 0, border: 'none' }} />
-                ) : (
-                  <EyeOffIcon width="12" style={{ margin: 0, padding: 0, border: 'none' }} />
-                )
-              }
               onClick={handleHideClick}
               border="solid 1px"
-              borderColor="blue.100"
-              size="xs"
+              borderColor="gray.300"
+              borderLeft="none"
+              borderLeftRadius={0}
+              borderBottom={isOpen ? 'none' : 'auto'}
+              borderBottomRightRadius={isOpen ? 'none' : 'auto'}
+              color="gray.200"
+              size="sm"
+              fontSize="sm"
               variant="ghost"
-              aria-label={hidden ? 'show facet' : 'hide facet'}
+              aria-label={hidden ? `Show ${label} filter` : `Hide ${label} filter`}
               m={0}
               height={8}
-              px={2}
+              icon={<Center>{hidden ? <Icon as={EyeSlashIcon} /> : <Icon as={EyeIcon} />}</Center>}
             />
-          )}
+          </Tooltip>
         </HStack>
       </h2>
-      <Box
-        pl="2"
-        py="1"
-        pr="1"
-        border={isOpen && 'solid 1px'}
-        borderColor={isOpen && 'blue.100'}
-        borderTop="none"
-        borderBottomRadius="md"
-        mt="0"
-      >
-        {isOpen && (
-          <SearchFacetTree
-            label={label}
-            field={field}
-            property={property}
-            hasChildren={hasChildren}
-            logic={logic}
-            facetQuery={facetQuery}
-            filter={filter}
-            onFilter={handleOnFilter}
-            onError={handleOnError}
-          />
-        )}
-      </Box>
+      {isOpen && (
+        <Box
+          pl={10}
+          py="1"
+          pr="1"
+          border={isOpen && 'solid 1px'}
+          borderColor={isOpen && 'gray.400'}
+          borderTop="none"
+          borderBottomRadius="md"
+          mt="0"
+          backgroundColor="white"
+        >
+          <FacetStoreProvider facetId={storeId} key={JSON.stringify(searchQuery)}>
+            <FacetList noLoadMore={noLoadMore} onFilter={handleOnFilter} onError={handleOnError} />
+          </FacetStoreProvider>
+        </Box>
+      )}
     </ListItem>
   );
 };
+
 export interface ISearchFacetsProps {
   onQueryUpdate: ISearchFacetProps['onQueryUpdate'];
 }
@@ -351,7 +331,8 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
   const activeItem = useMemo(() => {
     if (draggingFacetId) {
       const facetProp = facetConfig[draggingFacetId];
-      return <SearchFacet {...facetProp} key={facetProp.storeId} onQueryUpdate={onQueryUpdate} hidden={true} />; // change hidden
+      // change hidden
+      return <SearchFacet {...facetProp} key={facetProp.storeId} onQueryUpdate={onQueryUpdate} hidden={true} />;
     }
   }, [draggingFacetId]);
 
@@ -369,9 +350,9 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
           variant="link"
           onClick={toggleShowHidden}
           type="button"
-          rightIcon={showHiddenFacets ? <ChevronDownIcon /> : <ChevronRightIcon />}
+          rightIcon={<Toggler isToggled={showHiddenFacets} />}
           w="fit-content"
-          fontSize="md"
+          fontSize="sm"
           my={2}
         >
           {showHiddenFacets ? 'Hide hidden filters' : 'Show hidden filters'} {`(${hiddenItems.length})`}
@@ -408,7 +389,7 @@ const DroppableContainer = ({
     <>
       {items && itemsID ? (
         <SortableContext id={id} items={itemsID} strategy={verticalListSortingStrategy}>
-          <List ref={setNodeRef} minH="10">
+          <List spacing={1} ref={setNodeRef} minH="10">
             {items}
           </List>
         </SortableContext>
