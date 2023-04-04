@@ -22,7 +22,6 @@ import {
   Icon,
   IconButton,
   Portal,
-  Skeleton,
   Tooltip,
   useMediaQuery,
   VisuallyHidden,
@@ -41,6 +40,8 @@ import {
 import { calculateStartIndex } from '@components/ResultList/Pagination/usePagination';
 import { FacetFilters } from '@components/SearchFacet/FacetFilters';
 import { IYearHistogramSliderProps } from '@components/SearchFacet/YearHistogramSlider';
+import { ArrowsInIcon } from '@components/icons/ArrowsIn';
+import { ArrowsOutIcon } from '@components/icons/ArrowsOut';
 import { APP_DEFAULTS } from '@config';
 import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { useIsClient } from '@hooks';
@@ -61,7 +62,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { last, omit, path } from 'ramda';
 import { FormEventHandler, useEffect, useRef, useState } from 'react';
-import { dehydrate, isError, QueryClient, useQueryClient } from 'react-query';
+import { dehydrate, QueryClient, useQueryClient } from 'react-query';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
   () => import('@components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),
@@ -204,15 +205,21 @@ const SearchPage: NextPage = () => {
         </Box>
         {/* if histogram is expanded, show it below the search bar, otherwise it should be part of the facets */}
         {!isPrint && isClient && (!data || data.docs.length > 0) && histogramExpanded && (
-          <Flex justifyContent="center">
-            <YearHistogramSlider
-              onQueryUpdate={handleSearchFacetSubmission}
-              isExpanded={histogramExpanded}
-              onToggleExpand={handleToggleExpand}
-              width={width}
-              height={125}
+          <Box position="relative" aria-label="Year Histogram">
+            <IconButton
+              aria-label="expand"
+              icon={<ArrowsInIcon />}
+              position="absolute"
+              top={0}
+              left={0}
+              colorScheme="gray"
+              variant="outline"
+              onClick={handleToggleExpand}
             />
-          </Flex>
+            <Flex justifyContent="center">
+              <YearHistogramSlider onQueryUpdate={handleSearchFacetSubmission} width={width} height={125} />
+            </Flex>
+          </Box>
         )}
         <Flex direction="row" gap={10}>
           <Box display={{ base: 'none', lg: 'block' }}>
@@ -276,7 +283,7 @@ const SearchFacetFilters = (props: {
   if (showFilters) {
     return (
       <Flex as="aside" aria-labelledby="search-facets" minWidth="250px" direction="column">
-        <Flex>
+        <Flex mb={5}>
           <Heading as="h2" id="search-facets" fontSize="normal" flex="1">
             Filters
           </Heading>
@@ -321,15 +328,23 @@ const SearchFacetFilters = (props: {
           </Tooltip>
         </Flex>
         {showHistogram && (
-          <Flex justifyContent="center">
-            <YearHistogramSlider
-              onQueryUpdate={onSearchFacetSubmission}
-              isExpanded={false}
-              onToggleExpand={onExpandHistogram}
-              width={200}
-              height={125}
-            />
-          </Flex>
+          <Box aria-label="Year Histogram">
+            <Box position="relative">
+              <IconButton
+                aria-label="expand"
+                position="absolute"
+                icon={<ArrowsOutIcon />}
+                top={0}
+                left={0}
+                colorScheme="gray"
+                variant="outline"
+                onClick={onExpandHistogram}
+              />
+              <Flex justifyContent="center">
+                <YearHistogramSlider onQueryUpdate={onSearchFacetSubmission} width={200} height={125} />
+              </Flex>
+            </Box>
+          </Box>
         )}
         <SearchFacets onQueryUpdate={onSearchFacetSubmission} />
       </Flex>
