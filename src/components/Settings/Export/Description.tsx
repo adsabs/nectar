@@ -102,6 +102,6 @@ export const absExportFormatDescription = (
 export const maxAuthorDescription = (
   <>
     If the number of authors in the list is larger than the cutoff, the list will be truncated to the max number
-    allowed, otherwise all will be shown. (<strong>default cutoff: 200, default max authors: 10</strong>)
+    allowed, otherwise all will be shown.
   </>
 );

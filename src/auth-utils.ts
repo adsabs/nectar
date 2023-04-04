@@ -1,5 +1,7 @@
 import api, {
   ApiTargets,
+  IADSApiTokenResponse,
+  IADSApiUserDataResponse,
   IBasicAccountsErrorResponse,
   IBasicAccountsResponse,
   IBootstrapPayload,
@@ -252,10 +254,33 @@ export const verifyAccount = async (token: string, res?: ServerResponse) => {
   }
 };
 
+export const generateNewApiToken = async () => {
+  const csrfRes = await getCSRF();
+
+  const config: AxiosRequestConfig = {
+    ...defaultRequestConfig,
+    method: 'PUT',
+    url: `${ApiTargets.TOKEN}`,
+    headers: {
+      'X-CSRFToken': csrfRes.data.csrf,
+      Cookie: csrfRes.headers['set-cookie'],
+    },
+  };
+  try {
+    const { data } = await axios.request<IADSApiTokenResponse>(config);
+    return data;
+  } catch (e) {
+    if (axios.isAxiosError(e)) {
+      return (e.response.data as IBasicAccountsErrorResponse).error;
+    }
+    return 'Unknown server error';
+  }
+};
+
 export const getVaultData = async (ctx?: GetServerSidePropsContext) => {
   try {
     api.setUserData(ctx?.req?.session?.userData);
-    const { data } = await api.request<Record<string, unknown>>({ url: ApiTargets.USER_DATA });
+    const { data } = await api.request<IADSApiUserDataResponse>({ url: ApiTargets.USER_DATA });
     return data;
   } catch (e) {
     return null;

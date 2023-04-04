@@ -1,7 +1,6 @@
 import { FormControl, FormLabel } from '@chakra-ui/react';
 import { DescriptionCollapse, Slider } from '@components';
-import { useState, useEffect, ReactElement } from 'react';
-import { useDebounce } from 'use-debounce';
+import { ReactElement } from 'react';
 
 export const NumberSlider = (props: {
   min: number;
@@ -12,14 +11,9 @@ export const NumberSlider = (props: {
   description?: ReactElement;
 }) => {
   const { value, onChange, label, min, max, description } = props;
-  const [userValue, setUserValue] = useState(value);
-  const [debouncedValue] = useDebounce(userValue, 300);
 
-  useEffect(() => {
-    onChange(debouncedValue);
-  }, [debouncedValue]);
-
-  const handleChange = (val: number[]) => setUserValue(val[0]);
+  // Debounce is not needed since we only updating when sliderEnd
+  const handleChange = (val: number[]) => onChange(val[0]);
 
   return (
     <>

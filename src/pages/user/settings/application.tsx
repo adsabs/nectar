@@ -1,10 +1,4 @@
-import {
-  DEFAULT_USER_DATA,
-  ExternalLinkActionOptions,
-  IADSApiUserDataParams,
-  IADSApiUserDataResponse,
-  UserDataKeys,
-} from '@api';
+import { ExternalLinkAction, IADSApiUserDataParams, IADSApiUserDataResponse, UserDataKeys } from '@api';
 import { getVaultData } from '@auth-utils';
 import { Box, Checkbox, CheckboxGroup, FormControl, FormLabel, Stack, useToast } from '@chakra-ui/react';
 import {
@@ -19,6 +13,7 @@ import {
 } from '@components';
 import { useSettings } from '@hooks/useSettings';
 import { createStore } from '@store';
+import { DEFAULT_USER_DATA } from '@components/Settings/model';
 import { composeNextGSSP, userGSSP } from '@utils';
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import { useEffect, useMemo, useState } from 'react';
@@ -26,7 +21,7 @@ import { useEffect, useMemo, useState } from 'react';
 // generate options for select component
 const useGetOptions = () => {
   return {
-    externalLinksOptions: ExternalLinkActionOptions.map((v) => ({
+    externalLinksOptions: Object.values(ExternalLinkAction).map((v) => ({
       id: v,
       label: v,
       value: v,
@@ -35,7 +30,7 @@ const useGetOptions = () => {
 };
 
 const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const toast = useToast({ duration: 3000 });
+  const toast = useToast({ duration: 2000 });
 
   // options for the select dropdown
   const { externalLinksOptions } = useGetOptions();
@@ -46,7 +41,7 @@ const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSidePro
   const { settings: userData } = useSettings({
     params,
     onSuccess: () => {
-      toast({ title: 'updated!' });
+      toast({ title: 'updated!', status: 'success' });
     },
     onError: (error) => toast({ status: 'error', description: error }),
   });
@@ -75,7 +70,7 @@ const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSidePro
     setParams({ [UserDataKeys.MIN_AUTHOR_RESULT]: n.toString() });
   };
 
-  const handleApplyExternalLinks = ({ id }: SelectOption<string>) => {
+  const handleApplyExternalLinks = ({ id }: SelectOption<ExternalLinkAction>) => {
     setParams({ [UserDataKeys.EXTERNAL_LINK_ACTION]: id });
   };
 
@@ -108,7 +103,7 @@ const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSidePro
         <DescriptionCollapse body={defaultActionExternalLinksDescription} label="Default Action for External Links">
           {({ btn, content }) => (
             <FormControl>
-              <Select<SelectOption<string>>
+              <Select<SelectOption<ExternalLinkAction>>
                 value={selectedValues.externalLinksAction}
                 options={externalLinksOptions}
                 stylesTheme="default"
