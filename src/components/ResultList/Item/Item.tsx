@@ -93,6 +93,7 @@ export const Item = (props: IItemProps): ReactElement => {
         mr="2"
         px="2"
         borderLeftRadius="md"
+        className="print-hidden"
       >
         <Text
           color={isChecked ? 'white' : 'initial'}

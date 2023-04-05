@@ -16,6 +16,12 @@
     @apply text-xl;
   }
 
+  @media print {
+    .print-hidden {
+      display: none;
+    }
+  }
+
   .default-text-color {
     @apply text-gray-600;
   }

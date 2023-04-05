@@ -193,15 +193,13 @@ const SearchPage: NextPage = () => {
       </Head>
       <Stack direction="column" aria-labelledby="search-form-title" spacing="10" ref={ref}>
         <Box pt={10}>
-          {isPrint || (
-            <form method="get" action="/search" onSubmit={handleOnSubmit} className="print-hidden">
-              <Flex direction="column" width="full">
-                <SearchBar isLoading={isLoading} />
-                <NumFound count={data?.numFound} isLoading={isLoading} />
-              </Flex>
-              <FacetFilters mt="2" />
-            </form>
-          )}
+          <form method="get" action="/search" onSubmit={handleOnSubmit} className="print-hidden">
+            <Flex direction="column" width="full">
+              <SearchBar isLoading={isLoading} />
+              <NumFound count={data?.numFound} isLoading={isLoading} />
+            </Flex>
+            <FacetFilters mt="2" />
+          </form>
         </Box>
         {/* if histogram is expanded, show it below the search bar, otherwise it should be part of the facets */}
         {!isPrint && isClient && (!data || data.docs.length > 0) && histogramExpanded && (
@@ -233,7 +231,7 @@ const SearchPage: NextPage = () => {
             )}
           </Box>
           <Box flexGrow={2}>
-            {isLoading || (isSuccess && data?.numFound > 0) ? (
+            {!isPrint && (isLoading || (isSuccess && data?.numFound > 0)) ? (
               <form>
                 <fieldset disabled={isLoading}>
                   <ListActions onSortChange={handleSortChange} />
@@ -250,12 +248,14 @@ const SearchPage: NextPage = () => {
             {data && (
               <>
                 <SimpleResultList docs={data.docs} indexStart={params.start} />
-                <Pagination
-                  numPerPage={storeNumPerPage}
-                  page={params.p}
-                  totalResults={data.numFound}
-                  onPerPageSelect={handlePerPageChange}
-                />
+                {!isPrint && (
+                  <Pagination
+                    numPerPage={storeNumPerPage}
+                    page={params.p}
+                    totalResults={data.numFound}
+                    onPerPageSelect={handlePerPageChange}
+                  />
+                )}
               </>
             )}
             {error && (
