@@ -147,7 +147,7 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
             data-testid="allSearchTermsInput"
           />
           <InputRightElement
-            children={<ChevronDownIcon />}
+            children={<ChevronDownIcon boxSize={6} color="gray.200" />}
             data-testid="allSearchTermsMenuToggle"
             {...getToggleButtonProps()}
           />
