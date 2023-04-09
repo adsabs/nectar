@@ -15,5 +15,5 @@ export const SampleTextArea = memo(
       </FormControl>
     );
   },
-  (prev, next) => prev.value === next.value || next.value === '',
+  (prev, next) => prev.value === next.value,
 );

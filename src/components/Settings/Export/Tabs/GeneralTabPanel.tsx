@@ -58,7 +58,10 @@ export const GeneralTabPanel = ({ sampleBib, selectedOption, dispatch }: IGenera
   return (
     <Stack direction="column">
       <ExportFormatSelect selectedOption={selectedOption} onChange={handleApplyDefaultExportFormat} />
-      <SampleTextArea value={sampleCitation?.export ?? ''} label="Default Export Sample" />
+      <SampleTextArea
+        value={sampleCitation?.export ?? 'No custom format. Go to the Custom Formats tab to create a custom format.'}
+        label="Default Export Sample"
+      />
     </Stack>
   );
 };
