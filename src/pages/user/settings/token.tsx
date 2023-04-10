@@ -2,9 +2,9 @@ import { useGetToken } from '@api';
 import { generateNewApiToken } from '@auth-utils';
 import { Code, Input, InputGroup, InputRightAddon, Stack, Text, useToast } from '@chakra-ui/react';
 import { SettingsLayout, SimpleLink } from '@components';
-import { composeNextGSSP, userGSSP } from '@utils';
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import { useEffect, useState } from 'react';
+import { composeNextGSSP } from '@ssrUtils';
 
 const ApiTokenPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const toast = useToast();
@@ -87,4 +87,4 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
   return Promise.resolve({
     props: {},
   });
-}, userGSSP);
+});

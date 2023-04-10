@@ -14,7 +14,7 @@ import {
 import { useSettings } from '@hooks/useSettings';
 import { createStore } from '@store';
 import { DEFAULT_USER_DATA } from '@components/Settings/model';
-import { composeNextGSSP, userGSSP } from '@utils';
+import { composeNextGSSP } from '@ssrUtils';
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -162,7 +162,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
     });
   }
 
-  const userData = await getVaultData(ctx);
+  const userData = await getVaultData();
   const initialState = createStore().getState();
 
   return {
@@ -176,4 +176,4 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
       },
     },
   };
-}, userGSSP);
+});
