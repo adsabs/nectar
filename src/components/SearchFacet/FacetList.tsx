@@ -13,6 +13,7 @@ import {
   Checkbox,
   Collapse,
   Divider,
+  Flex,
   Heading,
   IconButton,
   IconButtonProps,
@@ -125,7 +126,7 @@ export const NodeList = (props: INodeListProps) => {
 
   return (
     <>
-      <List w="full" data-testid={`search-facet-${level}-list`} pl={level === 'child' ? 10 : 0}>
+      <List w="full" data-testid={`search-facet-${level}-list`} pl={level === 'child' ? 4 : 0}>
         {treeData?.map((node) => (
           <Item node={node} key={node.id} onError={onError} expandable={params.hasChildren && level === 'root'} />
         ))}

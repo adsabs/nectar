@@ -172,7 +172,7 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
       </h2>
       {isOpen && (
         <Box
-          pl={10}
+          pl={7}
           py="1"
           pr="1"
           border={isOpen && 'solid 1px'}
