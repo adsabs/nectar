@@ -1,13 +1,34 @@
 import { useGetToken } from '@api';
 import { generateNewApiToken } from '@auth-utils';
-import { Code, Input, InputGroup, InputRightAddon, Stack, Text, useToast } from '@chakra-ui/react';
-import { SettingsLayout, SimpleLink } from '@components';
+
+import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogCloseButton,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
+  Button,
+  Code,
+  Input,
+  InputGroup,
+  InputLeftAddon,
+  InputRightAddon,
+  Stack,
+  Text,
+  useDisclosure,
+  useToast,
+} from '@chakra-ui/react';
+import { CopyButton, SettingsLayout, SimpleLink } from '@components';
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { composeNextGSSP } from '@ssrUtils';
 
 const ApiTokenPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const toast = useToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const cancelRef = useRef();
 
   // fetch token
   const { data } = useGetToken({});
@@ -20,6 +41,7 @@ const ApiTokenPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>
   }, [data]);
 
   const handleGenerateToken = () => {
+    onClose();
     (async () => {
       const res = await generateNewApiToken();
       if (typeof res === 'string') {
@@ -32,8 +54,28 @@ const ApiTokenPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>
 
   return (
     <SettingsLayout title="API Token">
+      <AlertDialog isOpen={isOpen} onClose={onClose} leastDestructiveRef={cancelRef}>
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader>Generate New Token</AlertDialogHeader>
+            <AlertDialogCloseButton />
+            <AlertDialogBody>
+              Generating a new token will invalidate the existing token. This action cannot be undone. Continue?
+            </AlertDialogBody>
+            <AlertDialogFooter backgroundColor="transparent">
+              <Button ref={cancelRef} onClick={onClose} colorScheme="gray" mx={2} color="gray.700">
+                Cancel
+              </Button>
+              <Button onClick={handleGenerateToken} my={2}>
+                Confirm
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
       <Stack direction="column" gap={2}>
         <InputGroup size="md">
+          <InputLeftAddon children={<CopyButton text={token} />} />
           <Input type="text" name="token" id="token" value={token} autoFocus isReadOnly />
           <InputRightAddon
             children="Generate New Token"
@@ -42,7 +84,7 @@ const ApiTokenPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>
             borderColor="blue.500"
             borderRightRadius="sm"
             cursor="pointer"
-            onClick={handleGenerateToken}
+            onClick={onOpen}
           />
         </InputGroup>
         <Text>
