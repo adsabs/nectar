@@ -64,11 +64,11 @@ export const FacetFilters = (props: BoxProps): ReactElement => {
 
   return (
     <Box {...props} my="3">
-      <Flex {...props} mb="1" gap={2} wrap="wrap">
+      <Flex {...props} mb="1" wrap="wrap">
         {filterSections.map(([label, cleanClauses, rawClauses]) => (
           <span key={label}>
             {cleanClauses.map((clause, index) => (
-              <Tag key={clause} size="sm" my="0.5" fontSize="sm" maxWidth="200">
+              <Tag key={clause} size="sm" my="0.5" fontSize="sm" maxWidth="200" mr={2}>
                 <TagLabel isTruncated noOfLines={1}>
                   <Tooltip label={`${label}: ${clause}`}>{`${label}: ${clause}`}</Tooltip>
                 </TagLabel>
