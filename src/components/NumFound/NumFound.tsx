@@ -1,6 +1,6 @@
 import { useGetSearchStats } from '@api';
 import { Text } from '@chakra-ui/layout';
-import { SkeletonText } from '@chakra-ui/react';
+import { Box, SkeletonText } from '@chakra-ui/react';
 import { useStore } from '@store';
 import { truncateDecimal } from '@utils';
 import { ReactElement } from 'react';
@@ -19,19 +19,25 @@ export const NumFound = (props: INumFoundProps): ReactElement => {
   const { count = 0, isLoading } = props;
 
   if (isLoading) {
-    return <SkeletonText noOfLines={1} w="40" mt="1" />;
+    return (
+      <Box h={5}>
+        <SkeletonText noOfLines={1} w="40" mt="1" skeletonHeight={2} />
+      </Box>
+    );
   }
 
   const countString = typeof count === 'number' ? sanitizeNum(count) : '0';
 
   return (
-    <Text role="status" fontSize="xs">
-      Your search returned{' '}
-      <Text as="span" fontWeight="bold">
-        {countString}
-      </Text>{' '}
-      results <SortStats />
-    </Text>
+    <Box h={5}>
+      <Text role="status" fontSize="xs">
+        Your search returned{' '}
+        <Text as="span" fontWeight="bold">
+          {countString}
+        </Text>{' '}
+        results <SortStats />
+      </Text>
+    </Box>
   );
 };
 

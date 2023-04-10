@@ -1,5 +1,17 @@
 import { ChevronDownIcon } from '@chakra-ui/icons';
-import { Box, Code, Flex, IconButton, Input, ListItem, Text, UnorderedList, usePopper } from '@chakra-ui/react';
+import {
+  Box,
+  Code,
+  Flex,
+  IconButton,
+  Input,
+  InputGroup,
+  InputRightElement,
+  ListItem,
+  Text,
+  UnorderedList,
+  usePopper,
+} from '@chakra-ui/react';
 import { useCombobox } from 'downshift';
 import { matchSorter } from 'match-sorter';
 import { forwardRef, ReactElement, useEffect, useState } from 'react';
@@ -21,7 +33,7 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
 
   const { popperRef: tooltipPopperRef, referenceRef: tooltipReferenceRef } = usePopper({
     placement: 'right-start',
-    offset: [40, 20],
+    offset: [40, 5],
   });
 
   const {
@@ -106,39 +118,40 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
           return el;
         },
       })}
-      w="fit-content"
+      w="200px"
     >
       <Flex>
-        <Input
-          placeholder="all search terms"
-          {...getInputProps({
-            ref: (el: HTMLInputElement) => {
-              dropdownReferenceRef(el);
-              return el;
-            },
-            onKeyDown: (event) => {
-              if (event.key === 'Enter') {
-                if (items.length === 0 || !isOpen) {
-                  // Prevent Downshift's default 'Enter' behavior if invalid input or no input
-                  (
-                    event.nativeEvent as typeof event.nativeEvent & { preventDownshiftDefault: boolean }
-                  ).preventDownshiftDefault = true;
-                  event.preventDefault(); // this will prevent entering for search
-                  closeMenu();
+        <InputGroup>
+          <Input
+            placeholder="all search terms"
+            fontSize="md"
+            {...getInputProps({
+              ref: (el: HTMLInputElement) => {
+                dropdownReferenceRef(el);
+                return el;
+              },
+              onKeyDown: (event) => {
+                if (event.key === 'Enter') {
+                  if (items.length === 0 || !isOpen) {
+                    // Prevent Downshift's default 'Enter' behavior if invalid input or no input
+                    (
+                      event.nativeEvent as typeof event.nativeEvent & { preventDownshiftDefault: boolean }
+                    ).preventDownshiftDefault = true;
+                    event.preventDefault(); // this will prevent entering for search
+                    closeMenu();
+                  }
                 }
-              }
-            },
-          })}
-          onClick={toggleIsOpen}
-          data-testid="allSearchTermsInput"
-        />
-        <IconButton
-          icon={<ChevronDownIcon />}
-          {...getToggleButtonProps()}
-          borderLeftRadius={0}
-          tabIndex={0}
-          data-testid="allSearchTermsMenuToggle"
-        />
+              },
+            })}
+            onClick={toggleIsOpen}
+            data-testid="allSearchTermsInput"
+          />
+          <InputRightElement
+            children={<ChevronDownIcon boxSize={6} color="gray.200" />}
+            data-testid="allSearchTermsMenuToggle"
+            {...getToggleButtonProps()}
+          />
+        </InputGroup>
       </Flex>
       <UnorderedList
         zIndex={10}
