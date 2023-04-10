@@ -14,13 +14,13 @@ import { Tab, TabList, TabPanel, TabPanels, Tabs, useToast } from '@chakra-ui/re
 import { BibtexTabPanel, CustomFormatsTabPanel, exportFormats, GeneralTabPanel, SettingsLayout } from '@components';
 import { useSettings } from '@hooks/useSettings';
 import { useStore } from '@store';
-import { composeNextGSSP, userGSSP } from '@utils';
 import { GetServerSideProps, GetServerSidePropsContext, NextPage } from 'next';
 import { Reducer, useEffect, useMemo, useReducer } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { dehydrate, QueryClient } from 'react-query';
 import { omit, pathOr, values } from 'ramda';
 import { DEFAULT_USER_DATA } from '@components/Settings/model';
+import { composeNextGSSP } from '@ssrUtils';
 
 // partial user data params
 // used to update user data
@@ -184,7 +184,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
     });
   }
 
-  const userData = await getVaultData(ctx);
+  const userData = await getVaultData();
 
   // get a sample doc
   const params = getSearchParams({ q: 'bibstem:ApJ author_count:[10 TO 20]', rows: 1 });
@@ -206,4 +206,4 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
       },
     },
   };
-}, userGSSP);
+});
