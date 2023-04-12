@@ -1,4 +1,11 @@
-import { ExportApiFormatKey, IDocsEntity, IExportApiParams, isExportApiFormat, SolrSort } from '@api';
+import {
+  ExportApiFormatKey,
+  ExportApiJournalFormat,
+  IDocsEntity,
+  IExportApiParams,
+  isExportApiFormat,
+  SolrSort,
+} from '@api';
 import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -35,6 +42,10 @@ import { useCitationExporter } from './useCitationExporter';
 export interface ICitationExporterProps extends HTMLAttributes<HTMLDivElement> {
   singleMode?: boolean;
   initialFormat?: ExportApiFormatKey;
+  authorcutoff?: number;
+  keyformat?: string;
+  journalformat?: ExportApiJournalFormat;
+  maxauthor?: number;
   records?: IDocsEntity['bibcode'][];
   totalRecords?: number;
   page?: number;
@@ -64,6 +75,10 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
   const {
     singleMode = false,
     initialFormat = ExportApiFormatKey.bibtex,
+    authorcutoff,
+    keyformat,
+    journalformat,
+    maxauthor,
     records = [],
     totalRecords = records.length,
     page = 0,
@@ -75,6 +90,10 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
 
   const { data, state, dispatch } = useCitationExporter({
     format: initialFormat,
+    authorcutoff,
+    keyformat,
+    journalformat,
+    maxauthor,
     records,
     singleMode,
     sort,

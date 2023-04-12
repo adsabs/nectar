@@ -86,22 +86,29 @@ export type CitationExporterEvent =
   | { type: 'DONE' };
 
 export const getExportCitationDefaultContext = (props: IUseCitationExporterProps): ICitationExporterState => {
-  const { records = [], format = ExportApiFormatKey.bibtex, singleMode, sort = ['date desc'] } = props;
+  const {
+    records = [],
+    format = ExportApiFormatKey.bibtex,
+    singleMode,
+    sort = ['date desc'],
+    keyformat = '%R',
+    journalformat = ExportApiJournalFormat.AASTeXMacros,
+    authorcutoff = BIBTEX_DEFAULT_AUTHOR_CUTOFF,
+    maxauthor = format === ExportApiFormatKey.bibtex
+      ? BIBTEX_DEFAULT_MAX_AUTHOR
+      : format === ExportApiFormatKey.bibtexabs
+      ? BIBTEX_ABS_DEFAULT_MAX_AUTHOR
+      : 0,
+  } = props;
   const params: IExportApiParams = {
     format,
     bibcode: records,
     sort,
-    authorcutoff: [BIBTEX_DEFAULT_AUTHOR_CUTOFF],
+    authorcutoff: [authorcutoff],
     customFormat: null,
-    journalformat: [ExportApiJournalFormat.AASTeXMacros],
-    keyformat: ['%R'],
-    maxauthor: [
-      format === ExportApiFormatKey.bibtex
-        ? BIBTEX_DEFAULT_MAX_AUTHOR
-        : format === ExportApiFormatKey.bibtexabs
-        ? BIBTEX_ABS_DEFAULT_MAX_AUTHOR
-        : 0,
-    ],
+    journalformat: [journalformat],
+    keyformat: [keyformat],
+    maxauthor: [maxauthor],
   };
   return {
     records,
@@ -113,9 +120,27 @@ export const getExportCitationDefaultContext = (props: IUseCitationExporterProps
   };
 };
 
-export const generateMachine = ({ format, records, singleMode, sort }: IUseCitationExporterProps) => {
+export const generateMachine = ({
+  format,
+  keyformat,
+  journalformat,
+  authorcutoff,
+  maxauthor,
+  records,
+  singleMode,
+  sort,
+}: IUseCitationExporterProps) => {
   return createMachine<ICitationExporterState, CitationExporterEvent>({
-    context: getExportCitationDefaultContext({ format, records, singleMode, sort }),
+    context: getExportCitationDefaultContext({
+      format,
+      keyformat,
+      journalformat,
+      authorcutoff,
+      maxauthor,
+      records,
+      singleMode,
+      sort,
+    }),
     id: 'citationExporter',
     initial: 'idle',
     states: {
