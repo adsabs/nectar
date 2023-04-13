@@ -12,6 +12,7 @@ import {
   Button,
   Collapse,
   Divider,
+  Flex,
   Stack,
   Tab,
   TabList,
@@ -23,7 +24,7 @@ import {
 import { APP_DEFAULTS } from '@config';
 import { noop } from '@utils';
 import { useRouter } from 'next/router';
-import { ChangeEventHandler, Dispatch, HTMLAttributes, ReactElement, useEffect } from 'react';
+import { ChangeEventHandler, Dispatch, HTMLAttributes, ReactElement, useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { CitationExporterEvent } from './CitationExporter.machine';
 import { AuthorCutoffSlider } from './components/AuthorCutoffSlider';
@@ -112,7 +113,7 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
         shallow: true,
       });
     }
-  }, [state.value, state.context.params.format]);
+  }, [state.value, state.context.params]);
 
   // Attempt to parse the url to grab the format, then update it, otherwise allow the server to handle the path
   useEffect(() => {
@@ -139,29 +140,8 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
   };
 
   const handleTabChange = (index: number) => {
-    dispatch({ type: 'SET_IS_CUSTOM_FORMAT', payload: index === 1 });
+    dispatch({ type: 'SET_IS_CUSTOM_FORMAT', payload: { isCustomFormat: index === 1 } });
   };
-
-  // single mode, this is used for simple displays (like a single abstract)
-  if (singleMode) {
-    return (
-      <ExportContainer
-        header={
-          <>
-            Exporting {ctx.records.length} record{ctx.range[1] - ctx.range[0] > 1 ? 's' : ''} (total:{' '}
-            {totalRecords.toLocaleString()})
-          </>
-        }
-        isLoading={isLoading}
-        {...divProps}
-      >
-        <Stack direction="column" spacing={4}>
-          <FormatSelect format={ctx.params.format} dispatch={dispatch} />
-          <ResultArea result={data?.export} format={ctx.params.format} isLoading={isLoading} />
-        </Stack>
-      </ExportContainer>
-    );
-  }
 
   return (
     <ExportContainer
@@ -175,55 +155,56 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
       isLoading={isLoading}
       {...divProps}
     >
-      <Tabs onChange={handleTabChange}>
-        <TabList>
-          <Tab>Built-in Formats</Tab>
-          <Tab>Custom Formats</Tab>
-        </TabList>
+      <Flex direction={{ base: 'column', md: 'row' }} gap={5}>
+        <Tabs onChange={handleTabChange} flexGrow={2}>
+          <TabList>
+            <Tab>Built-in Formats</Tab>
+            <Tab>Custom Formats</Tab>
+          </TabList>
 
-        <TabPanels>
-          <TabPanel>
-            <form method="GET" onSubmit={handleOnSubmit}>
-              <Stack direction={['column', 'row']} spacing={4} align="stretch">
-                <Stack spacing="4" flex="1">
-                  <FormatSelect format={ctx.params.format} dispatch={dispatch} />
-                  <AdvancedControls dispatch={dispatch} params={ctx.params} />
-                  <RecordSlider range={ctx.range} records={ctx.records} dispatch={dispatch} />
+          <TabPanels>
+            <TabPanel>
+              <form method="GET" onSubmit={handleOnSubmit}>
+                <Stack direction={['column', 'row']} spacing={4} align="stretch">
+                  <Stack spacing="4" flex="1">
+                    <FormatSelect format={ctx.params.format} dispatch={dispatch} />
+                    <AdvancedControls dispatch={dispatch} params={ctx.params} />
+                    <RecordSlider range={ctx.range} records={ctx.records} dispatch={dispatch} />
 
-                  <Stack direction={'row'}>
-                    <Button type="submit" data-testid="export-submit" isLoading={isLoading} width="full">
-                      Submit
-                    </Button>
-                    {hasNextPage && (
-                      <Button
-                        variant="outline"
-                        rightIcon={<ChevronRightIcon fontSize="2xl" />}
-                        onClick={nextPage}
-                        isLoading={isLoading}
-                        width="full"
-                      >
-                        Next {APP_DEFAULTS.EXPORT_PAGE_SIZE}
+                    <Stack direction={'row'}>
+                      <Button type="submit" data-testid="export-submit" isLoading={isLoading} width="full">
+                        Submit
                       </Button>
-                    )}
+                      {hasNextPage && (
+                        <Button
+                          variant="outline"
+                          rightIcon={<ChevronRightIcon fontSize="2xl" />}
+                          onClick={nextPage}
+                          isLoading={isLoading}
+                          width="full"
+                        >
+                          Next {APP_DEFAULTS.EXPORT_PAGE_SIZE}
+                        </Button>
+                      )}
+                    </Stack>
+                    <Divider display={['block', 'none']} />
                   </Stack>
-                  <Divider display={['block', 'none']} />
+                  {/* <ResultArea result={data?.export} format={ctx.params.format} isLoading={isLoading} flex="1" /> */}
                 </Stack>
-                <ResultArea result={data?.export} format={ctx.params.format} isLoading={isLoading} flex="1" />
-              </Stack>
-            </form>
-          </TabPanel>
-          <TabPanel>
-            <form method="GET" onSubmit={handleOnSubmit}>
+              </form>
+            </TabPanel>
+            <TabPanel>
               <Stack direction={['column', 'row']} spacing={4}>
                 <Stack spacing="4" flexGrow={[3, 2]} maxW="lg">
                   <CustomFormatSelect dispatch={dispatch} />
                 </Stack>
                 {/* <ResultArea result={data?.export} format={ctx.params.format} /> */}
               </Stack>
-            </form>
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+        <ResultArea result={data?.export} format={ctx.params.format} isLoading={isLoading} flexGrow={5} />
+      </Flex>
     </ExportContainer>
   );
 };

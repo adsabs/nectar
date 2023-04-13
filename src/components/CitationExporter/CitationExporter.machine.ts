@@ -67,7 +67,12 @@ interface SetJournalFormat {
 
 interface SetIsCustomFormat {
   type: 'SET_IS_CUSTOM_FORMAT';
-  payload: boolean;
+  payload: { isCustomFormat: boolean };
+}
+
+interface SetCustomFormat {
+  type: 'SET_CUSTOM_FORMAT';
+  payload: string;
 }
 
 export type CitationExporterEvent =
@@ -80,6 +85,7 @@ export type CitationExporterEvent =
   | SetMaxAuthor
   | SetJournalFormat
   | SetIsCustomFormat
+  | SetCustomFormat
   | SetKeyFormat
   | { type: 'SUBMIT' }
   | { type: 'FORCE_SUBMIT' }
@@ -89,6 +95,7 @@ export const getExportCitationDefaultContext = (props: IUseCitationExporterProps
   const {
     records = [],
     format = ExportApiFormatKey.bibtex,
+    customFormat = 'custom-format',
     singleMode,
     sort = ['date desc'],
     keyformat = '%R',
@@ -102,10 +109,10 @@ export const getExportCitationDefaultContext = (props: IUseCitationExporterProps
   } = props;
   const params: IExportApiParams = {
     format,
+    customFormat,
     bibcode: records,
     sort,
     authorcutoff: [authorcutoff],
-    customFormat: null,
     journalformat: [journalformat],
     keyformat: [keyformat],
     maxauthor: [maxauthor],
@@ -122,6 +129,7 @@ export const getExportCitationDefaultContext = (props: IUseCitationExporterProps
 
 export const generateMachine = ({
   format,
+  customFormat,
   keyformat,
   journalformat,
   authorcutoff,
@@ -134,6 +142,7 @@ export const generateMachine = ({
     context: getExportCitationDefaultContext({
       format,
       keyformat,
+      customFormat,
       journalformat,
       authorcutoff,
       maxauthor,
@@ -201,8 +210,16 @@ export const generateMachine = ({
           },
           SET_IS_CUSTOM_FORMAT: {
             actions: assign<ICitationExporterState, SetIsCustomFormat>({
-              isCustomFormat: (_ctx, evt) => evt.payload,
-              // params: (ctx) => ({ ...ctx.params, format: ExportApiFormatKey.custom }),
+              isCustomFormat: (_ctx, evt) => evt.payload.isCustomFormat,
+              params: (ctx, evt) => ({
+                ...ctx.params,
+                format: evt.payload.isCustomFormat ? ExportApiFormatKey.custom : ExportApiFormatKey.bibtex,
+              }),
+            }),
+          },
+          SET_CUSTOM_FORMAT: {
+            actions: assign<ICitationExporterState, SetCustomFormat>({
+              params: (ctx, evt) => ({ ...ctx.params, customFormat: evt.payload }),
             }),
           },
           SUBMIT: { target: 'fetching', cond: (ctx) => !equals(ctx.prevParams, ctx.params) },

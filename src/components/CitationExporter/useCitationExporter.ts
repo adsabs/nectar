@@ -16,6 +16,7 @@ import { generateMachine, ICitationExporterState } from './CitationExporter.mach
 export interface IUseCitationExporterProps {
   records: ICitationExporterState['records'];
   format: ExportApiFormatKey;
+  customFormat?: string;
   keyformat?: string;
   journalformat?: ExportApiJournalFormat;
   authorcutoff?: number;
@@ -27,6 +28,7 @@ export interface IUseCitationExporterProps {
 export const useCitationExporter = ({
   records,
   format,
+  customFormat,
   keyformat,
   journalformat,
   authorcutoff,
@@ -40,6 +42,7 @@ export const useCitationExporter = ({
       generateMachine({
         format,
         keyformat,
+        customFormat,
         journalformat,
         authorcutoff,
         maxauthor,
