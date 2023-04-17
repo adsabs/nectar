@@ -17,13 +17,12 @@ import {
   useToast,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { ISortProps, Sort } from '@components/Sort';
-import { sections } from '@components/Visualizations';
+import { ISortProps, Sort, exportFormats, sections, DEFAULT_USER_DATA } from '@components';
 import { useIsClient } from '@hooks/useIsClient';
 import { AppState, useStore, useStoreApi } from '@store';
 import { makeSearchParams, noop, parseQueryFromUrl } from '@utils';
 import { useRouter } from 'next/router';
-import { curryN } from 'ramda';
+import { curryN, values } from 'ramda';
 import { isNonEmptyString } from 'ramda-adjunct';
 import { MouseEventHandler, ReactElement, useCallback, useEffect, useState } from 'react';
 import { SecondOrderOpsLinks } from './SecondOrderOpsLinks';
@@ -292,6 +291,12 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean }): ReactEleme
 
   const { data } = useVaultBigQuerySearch(selected, { enabled: !exploreAll && selected.length > 0 });
 
+  const defaultExportFormat = useStore(
+    (store) => store.settings?.user.defaultExportFormat ?? DEFAULT_USER_DATA.defaultExportFormat,
+  );
+
+  const defaultExportFormatValue = values(exportFormats).find((f) => f.label === defaultExportFormat).value;
+
   useEffect(() => {
     if (data) {
       setSelected([]);
@@ -331,7 +336,7 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean }): ReactEleme
       <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.aastex)}>in AASTeX</MenuItem>
       <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.endnote)}>in EndNote</MenuItem>
       <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.ris)}>in RIS</MenuItem>
-      <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.bibtex)}>Other Formats</MenuItem>
+      <MenuItem onClick={handleExportItemClick(defaultExportFormatValue)}>Other Formats</MenuItem>
       <MenuDivider />
       <MenuItem onClick={handleOpenAuthorAffiliation}>Author Affiliations</MenuItem>
     </MenuGroup>
