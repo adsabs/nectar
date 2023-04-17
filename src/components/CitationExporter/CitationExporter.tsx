@@ -156,7 +156,11 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
       {...divProps}
     >
       <Flex direction={{ base: 'column', md: 'row' }} gap={5}>
-        <Tabs onChange={handleTabChange} flexGrow={2}>
+        <Tabs
+          onChange={handleTabChange}
+          flexGrow={2}
+          defaultIndex={initialFormat === ExportApiFormatKey.custom ? 1 : 0}
+        >
           <TabList>
             <Tab>Built-in Formats</Tab>
             <Tab>Custom Formats</Tab>
