@@ -68,9 +68,10 @@ const useGetMenuItems = () => {
 
   return {
     menuItems,
-    activeItem: Object.values(menuItems)
-      .flat()
-      .find((item) => router.asPath.indexOf(`${item.href}`) > -1),
+    activeItem:
+      Object.values(menuItems)
+        .flat()
+        .find((item) => router.asPath.indexOf(`${item.href}`) > -1) ?? menuItems['USER PREFERENCES'][0], // if no match (redirected), use the first item
   };
 };
 
