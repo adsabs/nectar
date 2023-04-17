@@ -173,7 +173,9 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
                   <Stack spacing="4" flex="1">
                     <FormatSelect format={ctx.params.format} dispatch={dispatch} />
                     <AdvancedControls dispatch={dispatch} params={ctx.params} />
-                    <RecordSlider range={ctx.range} records={ctx.records} dispatch={dispatch} />
+                    {ctx.records.length > 1 && (
+                      <RecordSlider range={ctx.range} records={ctx.records} dispatch={dispatch} />
+                    )}
 
                     <Stack direction={'row'}>
                       <Button type="submit" data-testid="export-submit" isLoading={isLoading} width="full">
