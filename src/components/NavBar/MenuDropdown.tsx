@@ -45,7 +45,7 @@ export const MenuDropdown = (props: IMenuDropdownProps): ReactElement => {
           <>{label}</> <ChevronDownIcon />
         </HStack>
       </MenuButton>
-      <MenuList>
+      <MenuList zIndex={500}>
         {items.map((item) => (
           <MenuItem key={item.id} onClick={onSelect} data-id={item.id}>
             {item.label}
