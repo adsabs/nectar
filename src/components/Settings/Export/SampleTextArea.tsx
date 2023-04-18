@@ -11,7 +11,15 @@ export const SampleTextArea = memo(
     return (
       <FormControl {...formControlProps}>
         <FormLabel>{label}</FormLabel>
-        <Textarea value={value} isReadOnly h="lg" borderRadius="md" backgroundColor="gray.50" />
+        <Textarea
+          value={value}
+          isReadOnly
+          h="lg"
+          borderRadius="md"
+          backgroundColor="gray.50"
+          fontFamily="monospace"
+          fontWeight="semibold"
+        />
       </FormControl>
     );
   },
