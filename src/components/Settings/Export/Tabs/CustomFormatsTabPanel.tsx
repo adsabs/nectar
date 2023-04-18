@@ -40,21 +40,6 @@ export const CustomFormatsTabPanel = ({ sampleBib, dispatch }: ICustomFormatsTab
     });
   };
 
-  // sort custom format, from Id over to
-  const handleShiftCustomFormat = (fromId: string, toId: string) => {
-    const cf = JSON.parse(JSON.stringify(customFormats)) as CustomFormat[];
-    const fromPos = cf.findIndex((f) => f.id === fromId);
-    const fromFormat = cf[fromPos];
-    const toPos = cf.findIndex((f) => f.id === toId);
-    cf.splice(fromPos, 1);
-    cf.splice(toPos, 0, fromFormat);
-
-    dispatch({
-      type: 'SORT_CUSTOM_FORMAT',
-      payload: cf,
-    });
-  };
-
   // fetch sample export citation
   const { data: sampleCitation, isLoading } = useGetExportCitation(
     {
@@ -102,7 +87,6 @@ export const CustomFormatsTabPanel = ({ sampleBib, dispatch }: ICustomFormatsTab
         onAdd={handleAddCustomFormat}
         onModify={handleEditCustomFormat}
         onDelete={handleDeleteCustomFormat}
-        onShiftPosition={handleShiftCustomFormat}
         selected={selectedFormat?.id ?? null}
         onSelect={handleOnSelect}
       />

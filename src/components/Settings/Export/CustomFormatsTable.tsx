@@ -16,12 +16,11 @@ import {
   Button,
 } from '@chakra-ui/react';
 import { customFormatDescription, DescriptionCollapse } from '@components';
-import { CheckIcon, CloseIcon, EditIcon, DeleteIcon, DragHandleIcon } from '@chakra-ui/icons';
-import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CheckIcon, CloseIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons';
 import { CSS } from '@dnd-kit/utilities';
 import { CSSProperties, useState, useEffect } from 'react';
 import { noop } from '@utils';
+import { sort } from 'ramda';
 
 export interface ICustomFormatsTableProps {
   customFormats: CustomFormat[];
@@ -30,7 +29,6 @@ export interface ICustomFormatsTableProps {
   onModify: (id: string, name: string, code: string) => void;
   onAdd: (name: string, code: string) => void;
   onDelete: (id: string) => void;
-  onShiftPosition: (fromId: string, toId: string) => void;
 }
 
 export const CustomFormatsTable = ({
@@ -39,7 +37,6 @@ export const CustomFormatsTable = ({
   onModify,
   onAdd,
   onDelete,
-  onShiftPosition,
   onSelect = noop,
 }: ICustomFormatsTableProps) => {
   return (
@@ -59,7 +56,6 @@ export const CustomFormatsTable = ({
             onAdd={onAdd}
             onModify={onModify}
             onDelete={onDelete}
-            onShiftPosition={onShiftPosition}
           />
         </FormControl>
       )}
@@ -74,33 +70,14 @@ interface ICFTableProps {
   onModify: (id: string, name: string, code: string) => void;
   onAdd: (name: string, code: string) => void;
   onDelete: (id: string) => void;
-  onShiftPosition: (fromId: string, toId: string) => void;
 }
 
-const CFTable = ({
-  customFormats,
-  selected = null,
-  onSelect = noop,
-  onModify,
-  onAdd,
-  onDelete,
-  onShiftPosition,
-}: ICFTableProps) => {
-  const [items, setItems] = useState(customFormats);
+const CFTable = ({ customFormats, selected = null, onSelect = noop, onModify, onAdd, onDelete }: ICFTableProps) => {
+  const [items, setItems] = useState(sort((a, b) => (a.name < b.name ? -1 : 1), customFormats));
   const [isEditing, setIsEditing] = useState<string>(null);
   const [isAdding, setIsAdding] = useState<Omit<CustomFormat, 'id'>>(null);
 
-  useEffect(() => setItems(customFormats), [customFormats]);
-
-  // click and drag need to move certain distance before activating
-  // this avoid collision with clicking on edit/delete buttons on draggable row
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
-  );
+  useEffect(() => setItems(sort((a, b) => (a.name < b.name ? -1 : 1), customFormats)), [customFormats]);
 
   const handleIsEditing = (id: string) => {
     setIsEditing(id);
@@ -129,24 +106,6 @@ const CFTable = ({
     setIsAdding(null);
   };
 
-  const handleOnDragEnd = ({ active, over }: DragEndEvent) => {
-    // change the ordering of items locally
-    if (active && over && active.id !== over.id) {
-      setItems((prevItems) => {
-        const newItems = JSON.parse(JSON.stringify(prevItems)) as CustomFormat[];
-        const fromPos = items.findIndex((f) => f.id === active.id);
-        const fromFormat = items[fromPos];
-        const toPos = items.findIndex((f) => f.id === over.id);
-        newItems.splice(fromPos, 1);
-        newItems.splice(toPos, 0, fromFormat);
-        return newItems;
-      });
-
-      // callback
-      onShiftPosition(active.id as string, over.id as string);
-    }
-  };
-
   return (
     <>
       {items ? (
@@ -154,35 +113,28 @@ const CFTable = ({
           <Table>
             <Thead>
               <Tr>
-                <Th></Th>
-                <Th w="40%">Name</Th>
-                <Th w="40%">Format</Th>
+                <Th w="35%">Name</Th>
+                <Th w="50%">Format</Th>
                 <Th w="15%">Actions</Th>
               </Tr>
             </Thead>
             <Tbody>
-              <DndContext onDragEnd={handleOnDragEnd} sensors={sensors}>
-                <SortableContext items={items} strategy={verticalListSortingStrategy}>
-                  {items?.map((f) => (
-                    <SortableRow
-                      key={f.id}
-                      format={f}
-                      isSelected={selected && selected === f.id}
-                      onSelect={onSelect}
-                      isEditable={isAdding !== null || isEditing !== null}
-                      isEditing={isEditing && isEditing === f.id}
-                      onEdit={handleIsEditing}
-                      onCancelEdit={handleCancelEdit}
-                      onModify={handleModify}
-                      onDelete={onDelete}
-                      isDraggable={isAdding === null || isEditing === null}
-                    />
-                  ))}
-                </SortableContext>
-              </DndContext>
+              {items?.map((f) => (
+                <SortableRow
+                  key={f.id}
+                  format={f}
+                  isSelected={selected && selected === f.id}
+                  onSelect={onSelect}
+                  isEditable={isAdding !== null || isEditing !== null}
+                  isEditing={isEditing && isEditing === f.id}
+                  onEdit={handleIsEditing}
+                  onCancelEdit={handleCancelEdit}
+                  onModify={handleModify}
+                  onDelete={onDelete}
+                />
+              ))}
               {isAdding && (
                 <Tr>
-                  <Td></Td>
                   <Td>
                     <Input
                       value={isAdding.name}
@@ -254,19 +206,8 @@ const SortableRow = ({
   onCancelEdit: (id: string) => void;
   onModify: (id: string, name: string, code: string) => void;
   onDelete: (id: string) => void;
-  isDraggable: boolean;
 }) => {
-  const { listeners, attributes, setNodeRef, transform, transition } = useSortable({
-    id: format.id,
-    strategy: verticalListSortingStrategy,
-  });
-
   const [formatValue, setFormatValue] = useState(format);
-
-  const style: CSSProperties = {
-    transform: CSS.Translate.toString(transform),
-    transition,
-  };
 
   const handleApplyModify = () => {
     if (formatValue.name.length > 0 && formatValue.code.length > 0) {
@@ -284,19 +225,9 @@ const SortableRow = ({
   };
 
   return (
-    <Tr
-      {...attributes}
-      {...listeners}
-      style={style}
-      ref={setNodeRef}
-      backgroundColor={isSelected ? 'blue.50' : 'transparent'}
-      onClick={handleSelect}
-    >
+    <Tr backgroundColor={isSelected ? 'blue.50' : 'transparent'} onClick={handleSelect}>
       {isEditing ? (
         <>
-          <Td>
-            <DragHandleIcon mr="1" />
-          </Td>
           <Td>
             <Input
               value={formatValue.name}
@@ -332,9 +263,6 @@ const SortableRow = ({
         </>
       ) : (
         <>
-          <Td>
-            <DragHandleIcon mr="1" />
-          </Td>
           <Td>{formatValue.name}</Td>
           <Td>
             <Code>{formatValue.code}</Code>

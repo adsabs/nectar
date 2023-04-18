@@ -64,15 +64,15 @@ export const CustomFormatSelect = ({ dispatch }: ICustomFormatSelectProps) => {
     <>
       <FormControl>
         <FormLabel>Select Custom Format</FormLabel>
+        <Select
+          label="Custom Formats"
+          id="custom-format-select"
+          options={customFormatOptions}
+          stylesTheme="default"
+          value={selectedFormatOption}
+          onChange={setSelectedFormatOption}
+        ></Select>
       </FormControl>
-      <Select
-        label="Custom Formats"
-        id="custom-format-select"
-        options={customFormatOptions}
-        stylesTheme="default"
-        value={selectedFormatOption}
-        onChange={setSelectedFormatOption}
-      ></Select>
       <Input
         placeholder="Enter a custom format"
         size="md"
