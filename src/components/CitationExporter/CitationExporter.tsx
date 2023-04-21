@@ -178,10 +178,15 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
                     )}
 
                     <Stack direction={'row'}>
-                      <Button type="submit" data-testid="export-submit" isLoading={isLoading} width="full">
-                        Submit
-                      </Button>
-                      {hasNextPage && (
+                      {(!singleMode ||
+                        (singleMode &&
+                          (ctx.params.format === ExportApiFormatKey.bibtex ||
+                            ctx.params.format === ExportApiFormatKey.bibtexabs))) && (
+                        <Button type="submit" data-testid="export-submit" isLoading={isLoading} width="full">
+                          Submit
+                        </Button>
+                      )}
+                      {!singleMode && hasNextPage && (
                         <Button
                           variant="outline"
                           rightIcon={<ChevronRightIcon fontSize="2xl" />}
