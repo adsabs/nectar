@@ -88,10 +88,10 @@ export const settingsSlice: StoreSlice<ISettingsState & ISettingsAction> = (set,
           ...state.settings,
           searchFacets: {
             ...state.settings.searchFacets,
-            order: without([id], state.settings.searchFacets.order),
+            order: without([id], state.settings.searchFacets?.order ?? []),
             state: {
-              ...state.settings.searchFacets.state,
-              [id]: { ...state.settings.searchFacets.state[id], hidden: true },
+              ...state.settings.searchFacets?.state,
+              [id]: { ...state.settings.searchFacets?.state[id], hidden: true },
             },
           },
         },
