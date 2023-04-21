@@ -20,12 +20,6 @@ const useGetMenuItems = () => {
         label: 'Export',
       },
       {
-        id: 'libraryimport',
-        href: `${settingsPath}/libraryimport`,
-        hrefAs: `${settingsPath}/libraryimport`,
-        label: 'Import Libraries',
-      },
-      {
         id: 'librarylink',
         href: `${settingsPath}/librarylink`,
         hrefAs: `${settingsPath}/librarylink`,

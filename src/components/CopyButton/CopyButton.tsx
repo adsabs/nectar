@@ -1,6 +1,6 @@
 import { CopyIcon } from '@chakra-ui/icons';
 import { IconButton, Text, useClipboard, UseClipboardOptions } from '@chakra-ui/react';
-import { HTMLAttributes, ReactElement } from 'react';
+import { HTMLAttributes, ReactElement, useEffect } from 'react';
 
 export interface ICopyButtonProps extends HTMLAttributes<HTMLButtonElement> {
   text: string;
@@ -9,7 +9,11 @@ export interface ICopyButtonProps extends HTMLAttributes<HTMLButtonElement> {
 
 export const CopyButton = (props: ICopyButtonProps): ReactElement => {
   const { text, options, ...rest } = props;
-  const { hasCopied, onCopy } = useClipboard(text, options);
+  const { hasCopied, onCopy, setValue } = useClipboard(text, options);
+
+  useEffect(() => {
+    setValue(text);
+  }, [text]);
 
   return (
     <>
