@@ -1,5 +1,0 @@
-{
-  "watch": ["server"],
-  "exec": "rm -rf ./dev && tsc --project tsconfig.server.json --outDir ./dev/ && NEXT_TELEMETRY_DISABLED=1 DIST_DIR=./dev/ node ./dev/server/index.js",
-  "ext": "js ts"
-}

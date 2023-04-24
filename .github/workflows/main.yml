@@ -3,28 +3,36 @@ on: [push, pull_request]
 jobs:
   build:
     name: Build, lint, and test on Node
-
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 18 ]
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
 
-      # Install dependencies
-      - name: Use Volta with yarn
-        uses: volta-cli/action@v1
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
         with:
-          node-version: 18.5.0
-          yarn-version: 1.22.19
-      - run: yarn install
+          version: 8
+      - name: Use Node.js ${{ matrix.node-version }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+
+      # Install Deps
+      - name: Install dependencies
+        run: pnpm install
 
       # Run linter
       - name: Lint
-        run: yarn lint
+        run: pnpm lint
 
       # Run tests (with coverage)
       - name: Test
-        run: yarn test:coverage
+        run: pnpm test:coverage
 
       # Upload code coverage report
       - name: Upload Coverage
@@ -40,4 +48,4 @@ jobs:
       # Build project
       - name: Build
         if: always()
-        run: yarn build
+        run: pnpm build

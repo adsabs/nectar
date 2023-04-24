@@ -6,10 +6,14 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Install dependencies based on the preferred package manager
-COPY package.json yarn.lock* ./
-RUN yarn global add sharp@0.29.0
-RUN yarn --frozen-lockfile
+RUN npm install -g pnpm
+
+# Files required by pnpm install
+COPY .npmrc.* package.json pnpm-lock.yaml .pnpmfile.cjs.* ./
+
+# install deps
+RUN pnpm install sharp
+RUN pnpm install --frozen-lockfile --shamefully-hoist --ignore-scripts
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -22,7 +26,10 @@ COPY . .
 # Uncomment the following line in case you want to disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED 1
 
-RUN yarn build
+# ensure pnpm is available in the builder
+RUN npm install -g pnpm
+
+RUN pnpm build
 
 # Production image, copy all the files and run next
 FROM base AS runner
