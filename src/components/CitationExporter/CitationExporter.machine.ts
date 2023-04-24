@@ -95,7 +95,7 @@ export const getExportCitationDefaultContext = (props: IUseCitationExporterProps
   const {
     records = [],
     format = ExportApiFormatKey.bibtex,
-    customFormat = 'custom-format',
+    customFormat = '%1H:%Y:%q',
     singleMode,
     sort = ['date desc'],
     keyformat = '%R',
@@ -120,7 +120,7 @@ export const getExportCitationDefaultContext = (props: IUseCitationExporterProps
   return {
     records,
     range: [0, records.length],
-    isCustomFormat: false,
+    isCustomFormat: format === ExportApiFormatKey.custom,
     singleMode,
     prevParams: params,
     params,

@@ -46,13 +46,6 @@ const config = {
         destination: '/user/settings/application',
         permanent: true,
       },
-
-      // redirect custom exports to bibtex, for now
-      {
-        source: '/abs/:id/exportcitation/custom',
-        destination: '/abs/:id/exportcitation/bibtex',
-        permanent: true,
-      },
     ];
   },
   publicRuntimeConfig: {

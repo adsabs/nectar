@@ -65,11 +65,15 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = ({ id, format, er
             journalformat={JournalFormatMap[journalformat]}
             maxauthor={maxauthor}
             authorcutoff={authorcutoff}
-            records={[doc?.bibcode]}
+            records={doc?.bibcode ? [doc.bibcode] : []}
             singleMode
           />
         ) : (
-          <CitationExporter.Static records={[doc?.bibcode]} initialFormat={format} totalRecords={1} />
+          <CitationExporter.Static
+            records={doc?.bibcode ? [doc.bibcode] : []}
+            initialFormat={format}
+            totalRecords={1}
+          />
         )}
       </Box>
     </AbsLayout>
