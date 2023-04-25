@@ -20,6 +20,7 @@ import {
   TabPanels,
   Tabs,
   useDisclosure,
+  VStack,
 } from '@chakra-ui/react';
 import { APP_DEFAULTS } from '@config';
 import { noop } from '@utils';
@@ -229,6 +230,14 @@ const AdvancedControls = ({
 }) => {
   const { onToggle, isOpen } = useDisclosure();
 
+  // if default cutoff and max authors are equal, show basic mode, otherwise use advance mode
+
+  const [isBasicMode, setIsBasicMode] = useState(params.authorcutoff[0] === params.maxauthor[0]);
+
+  const toggleMode = () => {
+    setIsBasicMode((prev) => !prev);
+  };
+
   if (params.format === ExportApiFormatKey.bibtex || params.format === ExportApiFormatKey.bibtexabs) {
     return (
       <Box>
@@ -240,8 +249,21 @@ const AdvancedControls = ({
             <Divider />
             <JournalFormatSelect journalformat={params.journalformat} dispatch={dispatch} />
             <KeyFormatInput keyformat={params.keyformat} dispatch={dispatch} />
-            <AuthorCutoffSlider authorcutoff={params.authorcutoff} dispatch={dispatch} />
-            <MaxAuthorsSlider maxauthor={params.maxauthor} dispatch={dispatch} />
+            {isBasicMode ? (
+              <VStack alignItems="end">
+                <Button variant="link" onClick={toggleMode}>
+                  advanced mode
+                </Button>
+              </VStack>
+            ) : (
+              <VStack alignItems="end">
+                <Button variant="link" onClick={toggleMode}>
+                  basic mode
+                </Button>
+              </VStack>
+            )}
+            {!isBasicMode && <AuthorCutoffSlider authorcutoff={params.authorcutoff} dispatch={dispatch} />}
+            <MaxAuthorsSlider maxauthor={params.maxauthor} dispatch={dispatch} isBasicMode={isBasicMode} />
           </Stack>
         </Collapse>
       </Box>

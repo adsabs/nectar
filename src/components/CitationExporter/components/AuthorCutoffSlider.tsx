@@ -17,7 +17,7 @@ export const AuthorCutoffSlider = (props: {
   const [debouncedValue] = useDebounce(value, 300);
 
   useEffect(() => {
-      dispatch({ type: 'SET_AUTHOR_CUTOFF', payload: debouncedValue });
+    dispatch({ type: 'SET_AUTHOR_CUTOFF', payload: debouncedValue });
   }, [debouncedValue]);
 
   const handleChange = (val: number[]) => setValue(val[0]);

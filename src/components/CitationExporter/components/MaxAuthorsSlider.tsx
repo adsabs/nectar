@@ -9,15 +9,20 @@ import { DescriptionCollapse } from './DescriptionCollapse';
 export const MaxAuthorsSlider = (props: {
   maxauthor: IExportApiParams['maxauthor'];
   dispatch: Dispatch<CitationExporterEvent>;
+  isBasicMode: boolean;
   label?: string;
   description?: ReactElement;
 }) => {
-  const { maxauthor: [maxauthor] = [], dispatch } = props;
+  const { maxauthor: [maxauthor] = [], isBasicMode, dispatch } = props;
   const [value, setValue] = useState(maxauthor);
   const [debouncedValue] = useDebounce(value, 300);
 
+  // in basic mode, max author and author cutoff are always the same
   useEffect(() => {
-      dispatch({ type: 'SET_MAX_AUTHOR', payload: debouncedValue });
+    dispatch({ type: 'SET_MAX_AUTHOR', payload: debouncedValue });
+    if (isBasicMode) {
+      dispatch({ type: 'SET_AUTHOR_CUTOFF', payload: debouncedValue });
+    }
   }, [debouncedValue]);
 
   const handleChange = (val: number[]) => setValue(val[0]);
