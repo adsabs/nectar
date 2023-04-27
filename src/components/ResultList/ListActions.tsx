@@ -336,7 +336,7 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean }): ReactEleme
       <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.aastex)}>in AASTeX</MenuItem>
       <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.endnote)}>in EndNote</MenuItem>
       <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.ris)}>in RIS</MenuItem>
-      <MenuItem onClick={handleExportItemClick(defaultExportFormatValue)}>Other Formats</MenuItem>
+      <MenuItem onClick={handleExportItemClick(defaultExportFormatValue as ExportApiFormatKey)}>Other Formats</MenuItem>
       <MenuDivider />
       <MenuItem onClick={handleOpenAuthorAffiliation}>Author Affiliations</MenuItem>
     </MenuGroup>

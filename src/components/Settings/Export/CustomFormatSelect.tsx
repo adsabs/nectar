@@ -31,7 +31,6 @@ export const CustomFormatSelect = ({ onChange }: { onChange: (id: string) => voi
           options={customFormatOptions}
           stylesTheme="default"
           value={defaultCustomFormat}
-          size="md"
           onChange={handleSelectFormat}
         />
       </FormControl>
