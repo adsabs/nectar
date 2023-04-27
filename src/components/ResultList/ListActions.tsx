@@ -292,7 +292,7 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean }): ReactEleme
   const { data } = useVaultBigQuerySearch(selected, { enabled: !exploreAll && selected.length > 0 });
 
   const defaultExportFormat = useStore(
-    (store) => store.settings?.user.defaultExportFormat ?? DEFAULT_USER_DATA.defaultExportFormat,
+    (store) => store.settings?.user?.defaultExportFormat ?? DEFAULT_USER_DATA.defaultExportFormat,
   );
 
   const defaultExportFormatValue = values(exportFormats).find((f) => f.label === defaultExportFormat).value;
