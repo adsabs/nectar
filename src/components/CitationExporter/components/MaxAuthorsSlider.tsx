@@ -1,5 +1,5 @@
-import { IExportApiParams, MAX_AUTHORCUTOFF } from '@api';
-import { FormLabel } from '@chakra-ui/react';
+import { BIBTEX_ABS_DEFAULT_MAX_AUTHOR, BIBTEX_DEFAULT_AUTHOR_CUTOFF, IExportApiParams, MAX_AUTHORCUTOFF } from '@api';
+import { Code, FormLabel } from '@chakra-ui/react';
 import { Slider } from '@components/Slider';
 import { Dispatch, ReactElement, useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
@@ -55,7 +55,7 @@ export const MaxAuthorsSlider = (props: {
 
 const description = (
   <p>
-    Maximum number of authors displayed if number of authors exceed 200. The default values for maxauthor for BibTeX and
-    BibTeX ABS are respectively 10 and 0, where 0 means display all authors.
+    Maximum number of authors displayed. In advanced mode, this only applies if the number of authors exceed{' '}
+    <Code>authorcutoff</Code>.
   </p>
 );

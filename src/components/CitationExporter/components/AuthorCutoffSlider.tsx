@@ -1,4 +1,4 @@
-import { IExportApiParams, MAX_AUTHORCUTOFF } from '@api';
+import { BIBTEX_DEFAULT_AUTHOR_CUTOFF, IExportApiParams, MAX_AUTHORCUTOFF } from '@api';
 import { Code, FormLabel } from '@chakra-ui/react';
 import { Slider } from '@components/Slider';
 import { Dispatch, ReactElement, useEffect, useState } from 'react';
@@ -50,6 +50,6 @@ const description = (
   <p>
     The threshold for truncating number of authors. If the number of authors is larger than <Code>authorcutoff</Code>,
     author list is truncated and <Code>maxauthor</Code> number of authors will be returned followed by{' '}
-    <Code>et al.</Code>. If <Code>authorcutoff</Code> is not specified, the default of 200 is used.
+    <Code>et al.</Code>.
   </p>
 );

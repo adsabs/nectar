@@ -1,4 +1,7 @@
 import {
+  BIBTEX_ABS_DEFAULT_MAX_AUTHOR,
+  BIBTEX_DEFAULT_AUTHOR_CUTOFF,
+  BIBTEX_DEFAULT_MAX_AUTHOR,
   Database,
   ExportApiJournalFormat,
   ExternalLinkAction,
@@ -17,17 +20,17 @@ export const DEFAULT_USER_DATA: IADSApiUserDataResponse = {
     { name: Database.Astronomy, value: false },
     { name: Database.General, value: false },
   ],
-  [UserDataKeys.BIBTEX_MAX_AUTHORS]: '10',
+  [UserDataKeys.BIBTEX_MAX_AUTHORS]: BIBTEX_DEFAULT_MAX_AUTHOR.toString(),
   [UserDataKeys.LAST_MESSAGE]: '',
   [UserDataKeys.ABS_FORMAT]: '',
-  [UserDataKeys.BIBTEX_AUTHOR_CUTOFF]: '200',
+  [UserDataKeys.BIBTEX_AUTHOR_CUTOFF]: BIBTEX_DEFAULT_AUTHOR_CUTOFF.toString(),
   [UserDataKeys.EXTERNAL_LINK_ACTION]: ExternalLinkAction.Auto,
-  [UserDataKeys.ABS_MAX_AUTHORS]: '10',
+  [UserDataKeys.ABS_MAX_AUTHORS]: BIBTEX_ABS_DEFAULT_MAX_AUTHOR.toString(),
   [UserDataKeys.BIBTEX_JOURNAL_FORMAT]: JournalFormatName.AASTeXMacros,
   [UserDataKeys.DEFAULT_EXPORT_FORMAT]: 'BibTeX',
   [UserDataKeys.DEFAULT_HIDE_SIDEBARS]: 'Show',
   [UserDataKeys.MIN_AUTHOR_RESULT]: '4',
-  [UserDataKeys.ABS_AUTHOR_CUTOFF]: '200',
+  [UserDataKeys.ABS_AUTHOR_CUTOFF]: BIBTEX_DEFAULT_AUTHOR_CUTOFF.toString(),
 };
 
 // JournalFormatName is the values of bibtex journal format values from user data settings

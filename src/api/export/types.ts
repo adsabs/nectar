@@ -6,8 +6,8 @@ import { IADSApiSearchParams, IDocsEntity } from '@api';
 
 export const MAX_AUTHORCUTOFF = 500 as const;
 export const BIBTEX_DEFAULT_MAX_AUTHOR = 10 as const;
-export const BIBTEX_ABS_DEFAULT_MAX_AUTHOR = 0 as const;
-export const BIBTEX_DEFAULT_AUTHOR_CUTOFF = 200 as const;
+export const BIBTEX_ABS_DEFAULT_MAX_AUTHOR = 10 as const;
+export const BIBTEX_DEFAULT_AUTHOR_CUTOFF = 10 as const;
 
 export enum ExportApiFormatKey {
   bibtex = 'bibtex',
