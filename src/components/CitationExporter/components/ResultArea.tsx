@@ -1,18 +1,10 @@
 import { ExportApiFormatKey } from '@api';
-import { CheckIcon, CopyIcon, DownloadIcon } from '@chakra-ui/icons';
-import {
-  Button,
-  HStack,
-  Spinner,
-  Stack,
-  StackProps,
-  Textarea,
-  useBreakpointValue,
-  useClipboard,
-} from '@chakra-ui/react';
+import { CheckIcon, DownloadIcon } from '@chakra-ui/icons';
+import { Button, HStack, Spinner, Stack, StackProps, Textarea, useBreakpointValue } from '@chakra-ui/react';
 import { useDownloadFile } from '@hooks/useDownloadFile';
 import { useIsClient } from '@hooks/useIsClient';
 import { exportFormats } from '../models';
+import { LabeledCopyButton } from '@components/CopyButton';
 
 export const ResultArea = ({
   result = '',
@@ -24,7 +16,6 @@ export const ResultArea = ({
   format: ExportApiFormatKey;
   isLoading?: boolean;
 } & StackProps) => {
-  const { onCopy, hasCopied } = useClipboard(result);
   const { onDownload, hasDownloaded, isDownloading } = useDownloadFile(result, {
     filename: () => `export-${format}.${exportFormats[format].ext}`,
   });
@@ -37,23 +28,21 @@ export const ResultArea = ({
           <Button
             onClick={onDownload}
             data-testid="export-download"
-            disabled={isLoading}
+            isDisabled={isLoading}
             width={isFullWidth ? 'full' : 'auto'}
             variant="outline"
             leftIcon={hasDownloaded ? <CheckIcon /> : <DownloadIcon />}
           >
             {hasDownloaded ? 'Downloaded!' : isDownloading ? <Spinner /> : 'Download to file'}
           </Button>
-          <Button
-            onClick={onCopy}
+          <LabeledCopyButton
+            label={'Copy to Clipboard'}
+            text={result}
             data-testid="export-copy"
-            disabled={isLoading}
+            isDisabled={isLoading}
             width={isFullWidth ? 'full' : 'auto'}
             variant="outline"
-            leftIcon={hasCopied ? <CheckIcon /> : <CopyIcon />}
-          >
-            {hasCopied ? 'Copied!' : 'Copy to Clipboard'}
-          </Button>
+          />
         </HStack>
       )}
       <Textarea
