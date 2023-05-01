@@ -172,7 +172,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
             </Menu>
             <Menu>
               <MenuButton as={Button} rightIcon={<ChevronDownIcon />} data-testid="explorer-menu-btn">
-                Explorer
+                Explore
               </MenuButton>
               <Portal>
                 <MenuList data-testid="explorer-menu-items">

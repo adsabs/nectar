@@ -126,6 +126,12 @@ export const BibtexTabPanel = ({ sampleBib, dispatch }: IBibtexTabPanelProps) =>
 
   return (
     <Stack direction="column" gap={5}>
+      <JournalFormatSelect
+        journalformat={[journalFormat]}
+        onChange={handleChangeJournalFormat}
+        label="TeX Journal Name Handling"
+        description={journalNameHandlingDescription}
+      />
       {isBasicMode ? (
         <VStack alignItems="end">
           <Tooltip label="You will get different settings for BibTeX and BibTeX Abs in Advanced Mode">
@@ -143,12 +149,6 @@ export const BibtexTabPanel = ({ sampleBib, dispatch }: IBibtexTabPanelProps) =>
           </Tooltip>
         </VStack>
       )}
-      <JournalFormatSelect
-        journalformat={[journalFormat]}
-        onChange={handleChangeJournalFormat}
-        label="TeX Journal Name Handling"
-        description={journalNameHandlingDescription}
-      />
       {isBasicMode ? (
         <>
           <KeyFormatInputApply

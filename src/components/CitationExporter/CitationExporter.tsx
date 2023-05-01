@@ -252,13 +252,13 @@ const AdvancedControls = ({
             {isBasicMode ? (
               <VStack alignItems="end">
                 <Button variant="link" onClick={toggleMode}>
-                  advanced mode
+                  switch to advanced mode
                 </Button>
               </VStack>
             ) : (
               <VStack alignItems="end">
                 <Button variant="link" onClick={toggleMode}>
-                  basic mode
+                  switch to basic mode
                 </Button>
               </VStack>
             )}
