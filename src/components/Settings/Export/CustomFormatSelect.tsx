@@ -15,7 +15,7 @@ export const CustomFormatSelect = ({ onChange }: { onChange: (id: string) => voi
     }))
     .sort((a, b) => (a.label < b.label ? -1 : 1));
 
-  const defaultCustomFormat = customFormatOptions.find((f) => f.id === customFormats[0].id);
+  const defaultCustomFormat = customFormatOptions.find((f) => f.id === customFormats[0].id) ?? null;
 
   const handleSelectFormat = (option: typeof customFormatOptions[0]) => {
     onChange(option.id);
