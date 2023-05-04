@@ -2,45 +2,12 @@
 
 ### Getting started
 
-#### NodeJS
-
-Install the JavaScript Tool Manager [Volta](https://volta.sh/):
-
-```bash
-curl https://get.volta.sh | bash
-```
-
-Volta gets installed in `$HOME/.volta/`, and it adds to `$HOME/.bashrc` the following lines:
-
-```bash
-export VOLTA_HOME="$HOME/.volta"
-export PATH="$VOLTA_HOME/bin:$PATH"
-```
-
-Therefore, it will be necessary to close and open again the terminal or run:
-
-```bash
-source $HOME/.bashrc
-```
-
-Once this is done, anytime that we run `node` or `yarn` within nectar's directory, volta will kick in and read the `package.json` file, which can contain this definition:
-
-```
-"volta": {
-  "node": "14.16.1",
-  "yarn": "1.22.10"
-}
-```
-
-Therefore, volta will automatically download/enable the node and yarn version specified in `package.json`.
-
-
 #### Dependencies
 
 Install the project dependencies:
 
 ```bash
-yarn install --pure-lockfile
+pnpm install 
 ```
 
 #### Development
@@ -48,31 +15,31 @@ yarn install --pure-lockfile
 Start the development server:
 
 ```bash
-yarn dev
+pnpm dev
 ```
 
 Run tests:
 
 ```bash
-yarn test
+pnpm test
 ```
 
 Run storybook:
 
 ```bash
-yarn storybook
+pnpm storybook
 ```
 
 To run cypress, start the production server in one terminal:
 
 ```bash
-yarn start
+pnpm start
 ```
 
 And without closing it, open a new terminal and run cypress:
 
 ```bash
-yarn cypress:run
+pnpm cypress:run
 ```
 
 #### Production build
