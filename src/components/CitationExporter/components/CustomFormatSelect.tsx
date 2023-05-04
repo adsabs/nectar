@@ -1,9 +1,11 @@
 import { Dispatch, useEffect, useState } from 'react';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 import { useStore } from '@store';
-import { Button, FormControl, FormLabel, Input } from '@chakra-ui/react';
+import { Button, FormControl, FormLabel, Input, Text } from '@chakra-ui/react';
 import { Select } from '@components/Select';
 import { ChangeEvent } from 'react';
+import { useSession } from '@hooks/auth';
+import { SimpleLink } from '@components/SimpleLink';
 
 export interface ICustomFormatSelectProps {
   dispatch: Dispatch<CitationExporterEvent>;
@@ -11,6 +13,7 @@ export interface ICustomFormatSelectProps {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const CustomFormatSelect = ({ dispatch }: ICustomFormatSelectProps) => {
   const customFormats = useStore((store) => store.settings.user?.customFormats ?? []);
+  const { isAuthenticated } = useSession();
 
   // custom formats to options
   const customFormatOptions = customFormats
@@ -21,7 +24,7 @@ export const CustomFormatSelect = ({ dispatch }: ICustomFormatSelectProps) => {
       code: f.code,
     }))
     .sort((a, b) => (a.label < b.label ? -1 : 1));
-  customFormatOptions.splice(0, 0, { id: 'new', label: 'Enter New Format', value: 'new', code: '%1H:%Y:%q' });
+  customFormatOptions.unshift({ id: 'new', label: 'Enter Custom Format', value: 'new', code: '%1H:%Y:%q' });
 
   // init to user's default
   const defaultCustomFormat =
@@ -64,6 +67,14 @@ export const CustomFormatSelect = ({ dispatch }: ICustomFormatSelectProps) => {
     <>
       <FormControl>
         <FormLabel>Select Custom Format</FormLabel>
+        {isAuthenticated && (
+          <Text fontSize="sm">
+            To add custom formats to the list, go to{' '}
+            <SimpleLink href="/user/settings/export" display="inline" newTab>
+              Export Settings
+            </SimpleLink>
+          </Text>
+        )}
         <Select
           label="Custom Formats"
           id="custom-format-select"

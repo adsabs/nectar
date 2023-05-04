@@ -1,6 +1,7 @@
-import { BIBTEX_ABS_DEFAULT_MAX_AUTHOR, BIBTEX_DEFAULT_AUTHOR_CUTOFF, IExportApiParams, MAX_AUTHORCUTOFF } from '@api';
+import { IExportApiParams } from '@api';
 import { Code, FormLabel } from '@chakra-ui/react';
 import { Slider } from '@components/Slider';
+import { APP_DEFAULTS } from '@config';
 import { Dispatch, ReactElement, useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { CitationExporterEvent } from '../CitationExporter.machine';
@@ -40,7 +41,7 @@ export const MaxAuthorsSlider = (props: {
             <Slider
               id="maxauthor-slider"
               aria-label={label}
-              range={[0, MAX_AUTHORCUTOFF]}
+              range={[0, APP_DEFAULTS.MAX_AUTHORCUTOFF]}
               values={[value]}
               onSlideEnd={handleChange}
               size={1}

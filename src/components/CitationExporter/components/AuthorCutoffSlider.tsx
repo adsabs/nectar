@@ -1,10 +1,11 @@
-import { BIBTEX_DEFAULT_AUTHOR_CUTOFF, IExportApiParams, MAX_AUTHORCUTOFF } from '@api';
+import { IExportApiParams } from '@api';
 import { Code, FormLabel } from '@chakra-ui/react';
 import { Slider } from '@components/Slider';
 import { Dispatch, ReactElement, useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 import { DescriptionCollapse } from './DescriptionCollapse';
+import { APP_DEFAULTS } from '@config';
 
 export const AuthorCutoffSlider = (props: {
   authorcutoff: IExportApiParams['authorcutoff'];
@@ -34,7 +35,7 @@ export const AuthorCutoffSlider = (props: {
           <Slider
             id="authorcutoff-slider"
             aria-label={label}
-            range={[1, MAX_AUTHORCUTOFF]}
+            range={[1, APP_DEFAULTS.MAX_AUTHORCUTOFF]}
             values={[value]}
             onSlideEnd={handleChange}
             size={1}

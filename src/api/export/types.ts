@@ -4,11 +4,6 @@ import { IADSApiSearchParams, IDocsEntity } from '@api';
  * @see https://github.com/adsabs/export_service#readme
  */
 
-export const MAX_AUTHORCUTOFF = 500 as const;
-export const BIBTEX_DEFAULT_MAX_AUTHOR = 10 as const;
-export const BIBTEX_ABS_DEFAULT_MAX_AUTHOR = 10 as const;
-export const BIBTEX_DEFAULT_AUTHOR_CUTOFF = 10 as const;
-
 export enum ExportApiFormatKey {
   bibtex = 'bibtex',
   ads = 'ads',

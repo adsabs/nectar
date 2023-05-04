@@ -1,12 +1,5 @@
-import {
-  BIBTEX_ABS_DEFAULT_MAX_AUTHOR,
-  BIBTEX_DEFAULT_AUTHOR_CUTOFF,
-  BIBTEX_DEFAULT_MAX_AUTHOR,
-  ExportApiFormatKey,
-  ExportApiJournalFormat,
-  IDocsEntity,
-  IExportApiParams,
-} from '@api';
+import { ExportApiFormatKey, ExportApiJournalFormat, IDocsEntity, IExportApiParams } from '@api';
+import { APP_DEFAULTS } from '@config';
 import { normalizeSolrSort } from '@utils';
 import { assign, createMachine } from '@xstate/fsm';
 import { equals } from 'ramda';
@@ -100,11 +93,11 @@ export const getExportCitationDefaultContext = (props: IUseCitationExporterProps
     sort = ['date desc'],
     keyformat = '%R',
     journalformat = ExportApiJournalFormat.AASTeXMacros,
-    authorcutoff = BIBTEX_DEFAULT_AUTHOR_CUTOFF,
+    authorcutoff = APP_DEFAULTS.BIBTEX_DEFAULT_AUTHOR_CUTOFF,
     maxauthor = format === ExportApiFormatKey.bibtex
-      ? BIBTEX_DEFAULT_MAX_AUTHOR
+      ? APP_DEFAULTS.BIBTEX_DEFAULT_MAX_AUTHOR
       : format === ExportApiFormatKey.bibtexabs
-      ? BIBTEX_ABS_DEFAULT_MAX_AUTHOR
+      ? APP_DEFAULTS.BIBTEX_ABS_DEFAULT_MAX_AUTHOR
       : 0,
   } = props;
   const params: IExportApiParams = {
