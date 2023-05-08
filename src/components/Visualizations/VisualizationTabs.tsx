@@ -1,4 +1,4 @@
-import { TabList, Tabs, Tab } from '@chakra-ui/react';
+import { Tab, TabList, Tabs } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import { ReactElement } from 'react';
 

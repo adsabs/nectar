@@ -1,6 +1,6 @@
 import { VisuallyHidden } from '@chakra-ui/visually-hidden';
 import { Box } from '@chakra-ui/layout';
-import { Table, Thead, Tbody, Tr, Td, Th } from '@chakra-ui/table';
+import { Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/table';
 import { ReactElement } from 'react';
 import { Tooltip } from '@chakra-ui/tooltip';
 import { QuestionIcon } from '@chakra-ui/icons';

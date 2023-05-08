@@ -1,15 +1,5 @@
-import { Box, Flex, Text } from '@chakra-ui/layout';
-import {
-  BoxProps,
-  Button,
-  Tag,
-  TagCloseButton,
-  TagLabel,
-  Tooltip,
-  VisuallyHidden,
-  Wrap,
-  WrapItem,
-} from '@chakra-ui/react';
+import { Box, Flex } from '@chakra-ui/layout';
+import { BoxProps, Button, Tag, TagCloseButton, TagLabel, Tooltip } from '@chakra-ui/react';
 import { clearFQs, removeFQClause } from '@query-utils';
 import { isIADSSearchParams, makeSearchParams, parseQueryFromUrl } from '@utils';
 import { useRouter } from 'next/router';

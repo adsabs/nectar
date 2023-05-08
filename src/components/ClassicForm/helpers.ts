@@ -1,6 +1,7 @@
 import { makeSearchParams } from '@utils';
 import DOMPurify from 'isomorphic-dompurify';
 import {
+  __,
   adjust,
   all,
   allPass,
@@ -37,7 +38,6 @@ import {
   trim,
   unless,
   when,
-  __,
 } from 'ramda';
 import { isEmptyArray, isNotEmpty, isNotNilOrEmpty } from 'ramda-adjunct';
 import { CollectionChoice, IClassicFormState, IRawClassicFormState, LogicChoice, PropertyChoice } from './types';

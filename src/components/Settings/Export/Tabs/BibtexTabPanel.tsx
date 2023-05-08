@@ -6,7 +6,7 @@ import { DEFAULT_USER_DATA, JournalFormatMap } from '@components/Settings/model'
 import { UserDataSetterEvent } from '@pages/user/settings/export';
 import { useStore } from '@store';
 import { Dispatch, useState } from 'react';
-import { journalNameHandlingDescription, bibtexExportFormatDescription, maxAuthorDescription } from '../Description';
+import { bibtexExportFormatDescription, journalNameHandlingDescription, maxAuthorDescription } from '../Description';
 import { KeyFormatInputApply } from '../KeyFormatInputApply';
 import { MaxAuthorCutoffSlider } from '../MaxAuthorCutoffSlider';
 
@@ -67,7 +67,7 @@ export const BibtexTabPanel = ({ sampleBib, dispatch }: IBibtexTabPanelProps) =>
   };
 
   const handleChangeJournalFormat = (format: ExportApiJournalFormat) => {
-    const formatName = Object.entries(JournalFormatMap).find(([formatName, formatValue]) => formatValue === format)[0];
+    const formatName = Object.entries(JournalFormatMap).find(([, formatValue]) => formatValue === format)[0];
     dispatch({ type: 'SET_JOURNAL_NAME_HANDLING', payload: formatName as JournalFormatName });
   };
 

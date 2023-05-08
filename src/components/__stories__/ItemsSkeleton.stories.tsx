@@ -1,5 +1,5 @@
 import { Meta, Story } from '@storybook/react';
-import { ItemsSkeleton, ISkeletonProps } from '@components';
+import { ISkeletonProps, ItemsSkeleton } from '@components';
 
 const meta: Meta = {
   title: 'ResultList/ItemsSkeleton',

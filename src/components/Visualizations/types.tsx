@@ -1,4 +1,4 @@
-import { CitationsStatsKey, BasicStatsKey, TimeSeriesKey } from '@api';
+import { BasicStatsKey, CitationsStatsKey, TimeSeriesKey } from '@api';
 import { BarDatum } from '@nivo/bar';
 import { Serie } from '@nivo/line';
 

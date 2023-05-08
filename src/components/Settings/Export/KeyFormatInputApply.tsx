@@ -1,6 +1,6 @@
-import { FormControl, FormLabel, Flex, Input, Button, Box } from '@chakra-ui/react';
+import { Box, Button, Flex, FormControl, FormLabel, Input } from '@chakra-ui/react';
 import { DescriptionCollapse } from '@components/CitationExporter';
-import { ReactElement, useState, useEffect, ChangeEvent } from 'react';
+import { ChangeEvent, ReactElement, useEffect, useState } from 'react';
 
 export const KeyFormatInputApply = ({
   format,

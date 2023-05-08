@@ -25,6 +25,7 @@ import {
   without,
 } from 'ramda';
 import { isEmptyArray } from 'ramda-adjunct';
+import { z } from 'zod';
 
 type Query = Partial<IADSApiSearchParams>;
 type Tuple<T = string> = [T, T];
@@ -143,7 +144,6 @@ export const removeFQClause = (name: string, clause: string, query: Query) => {
   return assoc(applyFQPrefix(name), newFQValue, query) as Query;
 };
 
-import { z } from 'zod';
 const QuerySchema = z
   .object({
     q: z.string(),

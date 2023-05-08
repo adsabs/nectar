@@ -27,15 +27,22 @@ const getMessage = (error: string) => {
   }
 };
 
-export const AuthorAffiliationsErrorMessage = (props: { title?: string } & Partial<FallbackProps>) => {
-  const { title = defaultTitle, error, resetErrorBoundary } = props;
+export const AuthorAffiliationsErrorMessage = (
+  props: Partial<FallbackProps> & {
+    title?: string;
+    error?: unknown;
+  },
+) => {
+  const { title = defaultTitle, resetErrorBoundary } = props;
+
+  const error = typeof props.error === 'string' ? props.error : parseAPIError(props.error);
 
   return (
     <Alert status="error" maxW="container.sm" flexWrap="wrap" justifyContent="center">
       <AlertIcon />
       <AlertTitle>{title}</AlertTitle>
       <AlertDescription>
-        {getMessage(typeof error === 'string' ? error : parseAPIError(error))}.
+        {getMessage(error)}.
         {resetErrorBoundary ? (
           <Button variant="link" onClick={resetErrorBoundary}>
             Or try again

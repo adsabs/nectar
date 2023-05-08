@@ -1,4 +1,5 @@
 import { Bibcode, IADSApiSearchParams } from '@api';
+
 export interface IADSApiVisParams {
   bibcodes?: Bibcode[];
   query?: string[];

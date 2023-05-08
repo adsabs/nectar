@@ -1,7 +1,7 @@
 import api from '@api';
 import { APP_DEFAULTS } from '@config';
-import { parseAPIError, normalizeSolrSort } from '@utils';
-import { describe, expect, test, beforeEach } from 'vitest';
+import { normalizeSolrSort, parseAPIError } from '@utils';
+import { beforeEach, describe, expect, test, TestContext } from 'vitest';
 import { rest } from 'msw';
 
 const defaultSortPostfix = APP_DEFAULTS.QUERY_SORT_POSTFIX;
@@ -48,22 +48,37 @@ describe('parseAPIError', () => {
   const testReq = () => api.request({ method: 'GET', url: '/test' });
 
   beforeEach(() => api.reset());
-  test('works', async ({ server }) => {
-
+  test('works', async ({ server }: TestContext) => {
     server.use(
       rest.get('*test', (_req, res, ctx) => res.once(ctx.status(400), ctx.json({ message: 'Message' }))),
       rest.get('*test', (_req, res, ctx) => res.once(ctx.status(400), ctx.json({ error: 'Error' }))),
-      rest.get('*test', (_req, res, ctx) => res(ctx.status(500), ctx.json({})))
+      rest.get('*test', (_req, res, ctx) => res(ctx.status(500), ctx.json({}))),
     );
 
-    // response/data/message 
-    try { await testReq() } catch (e) { expect(parseAPIError(e)).toEqual('Message'); }
+    // response/data/message
+    try {
+      await testReq();
+    } catch (e) {
+      expect(parseAPIError(e)).toEqual('Message');
+    }
     // response/data/error
-    try { await testReq() } catch (e) { expect(parseAPIError(e)).toEqual('Error'); }
+    try {
+      await testReq();
+    } catch (e) {
+      expect(parseAPIError(e)).toEqual('Error');
+    }
     // response/statusText
-    try { await testReq() } catch (e) { expect(parseAPIError(e)).toEqual('Internal Server Error'); }
+    try {
+      await testReq();
+    } catch (e) {
+      expect(parseAPIError(e)).toEqual('Internal Server Error');
+    }
     // message
-    try { throw new Error('foo') } catch (e) { expect(parseAPIError(e)).toEqual(defaultMessage) }
+    try {
+      throw new Error('foo');
+    } catch (e) {
+      expect(parseAPIError(e)).toEqual(defaultMessage);
+    }
   });
 
   // check I/O to make sure default response is given

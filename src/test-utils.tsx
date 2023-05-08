@@ -11,7 +11,8 @@ import { Mock, vi } from 'vitest';
  * Attach listeners and return the mocks
  */
 export const createServerListenerMocks = (server: SetupServerApi) => {
-  type EventMockParams<T extends keyof ServerLifecycleEventsMap> = 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  type EventMockParams<T extends keyof ServerLifecycleEventsMap> =
     Parameters<Parameters<typeof server.events.on<T>>[1]>;
 
   const onRequest = vi.fn<EventMockParams<'request:start'>, void>();

@@ -1,5 +1,5 @@
 import { Meta, Story } from '@storybook/react';
-import { Toggler, ITogglerProps } from '../Toggler';
+import { ITogglerProps, Toggler } from '../Toggler';
 
 const meta: Meta = {
   title: 'Toggler',

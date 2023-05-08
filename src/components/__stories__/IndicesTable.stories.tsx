@@ -1,4 +1,4 @@
-import { IndicesTable, IIndicesTableProps } from '@components';
+import { IIndicesTableProps, IndicesTable } from '@components';
 import { indicesTableData } from '@components/__mocks__/data';
 import { Meta, Story } from '@storybook/react';
 

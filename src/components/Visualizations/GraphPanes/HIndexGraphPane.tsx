@@ -15,7 +15,7 @@ import {
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { DataDownloader, LineGraph, Slider } from '@components';
-import { Y_Axis, ILineGraph } from '../types';
+import { ILineGraph, Y_Axis } from '../types';
 import { getHIndexGraphData, getLineGraphXTicks } from '../utils';
 
 export interface IHIndexGraphPaneProps {

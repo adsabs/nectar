@@ -1,5 +1,5 @@
-import { Box, BoxProps, Tag, TagCloseButton, TagLabel, Text, Flex, CloseButton } from '@chakra-ui/react';
-import { ReactElement, MouseEvent } from 'react';
+import { Box, BoxProps, CloseButton, Flex, Tag, TagCloseButton, TagLabel, Text } from '@chakra-ui/react';
+import { MouseEvent, ReactElement } from 'react';
 
 export interface ITagItem {
   id: string | number;

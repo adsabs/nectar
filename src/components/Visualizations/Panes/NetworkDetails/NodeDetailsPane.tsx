@@ -1,4 +1,4 @@
-import { Flex, Button, Text } from '@chakra-ui/react';
+import { Button, Flex, Text } from '@chakra-ui/react';
 import { ReactElement } from 'react';
 
 // Show selected node details

@@ -1,4 +1,4 @@
-import { Stack, Button, Text, Flex } from '@chakra-ui/react';
+import { Button, Flex, Stack, Text } from '@chakra-ui/react';
 import { ITagItem, Tags } from '@components/Tags';
 import { ReactElement } from 'react';
 

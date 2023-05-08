@@ -1,4 +1,4 @@
-import { IBarGraphProps, BarGraph } from '@components';
+import { BarGraph, IBarGraphProps } from '@components';
 import { bardatum } from '@components/__mocks__/data';
 import { Meta, Story } from '@storybook/react';
 

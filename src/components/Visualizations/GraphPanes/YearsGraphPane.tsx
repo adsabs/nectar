@@ -1,7 +1,6 @@
 import { IFacetCountsFields } from '@api';
-import { NumberInput, Flex, NumberInputField, FormControl, FormLabel, Button } from '@chakra-ui/react';
-import { BarGraph, Slider } from '@components';
-import { DataDownloader } from '@components';
+import { Button, Flex, FormControl, FormLabel, NumberInput, NumberInputField } from '@chakra-ui/react';
+import { BarGraph, DataDownloader, Slider } from '@components';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { IBarGraph, YearDatum } from '../types';

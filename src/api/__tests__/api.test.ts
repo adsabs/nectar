@@ -2,10 +2,9 @@ import api, { ApiTargets, IBootstrapPayload } from '@api';
 import { ApiRequestConfig } from '@api/api';
 import { APP_STORAGE_KEY } from '@store';
 import { createServerListenerMocks } from '@test-utils';
-import axios from 'axios';
 import { rest } from 'msw';
 import { map, path, pipe, repeat } from 'ramda';
-import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
+import { beforeEach, expect, Mock, test, TestContext, vi } from 'vitest';
 
 global.alert = vi.fn();
 
@@ -41,7 +40,7 @@ const urls = pipe<[Mock], Record<string, unknown>[], string[]>(
 
 beforeEach(() => api.reset());
 
-test('basic request calls bootstrap and adds auth', async ({ server }) => {
+test('basic request calls bootstrap and adds auth', async ({ server }: TestContext) => {
   const { onRequest: onReq, onResponse: onRes } = createServerListenerMocks(server);
   server.use(testHandler);
 
@@ -58,7 +57,7 @@ test('basic request calls bootstrap and adds auth', async ({ server }) => {
   expect(onReq.mock.calls[1][0].headers.get('cookie')).toEqual('session=test-session');
 });
 
-test('passing token initially skips bootstrap', async ({ server }) => {
+test('passing token initially skips bootstrap', async ({ server }: TestContext) => {
   const { onRequest: onReq } = createServerListenerMocks(server);
   server.use(testHandler);
   api.setUserData(mockUserData);
@@ -70,7 +69,7 @@ test('passing token initially skips bootstrap', async ({ server }) => {
   expect(onReq.mock.calls[0][0].headers.get('cookie')).toEqual('session=test-session');
 });
 
-test('expired userdata causes bootstrap', async ({ server }) => {
+test('expired userdata causes bootstrap', async ({ server }: TestContext) => {
   const { onRequest: onReq } = createServerListenerMocks(server);
   server.use(testHandler);
   api.setUserData({ ...mockUserData, expire_in: '1977-03-22T14:50:07.712037' });
@@ -80,7 +79,7 @@ test('expired userdata causes bootstrap', async ({ server }) => {
   expect(urls(onReq)[0]).toEqual(ApiTargets.BOOTSTRAP);
 });
 
-test('bootstrap is retried after error', async ({ server }) => {
+test('bootstrap is retried after error', async ({ server }: TestContext) => {
   const { onRequest: onReq } = createServerListenerMocks(server);
   server.use(testHandler);
   server.use(
@@ -95,7 +94,7 @@ test('bootstrap is retried after error', async ({ server }) => {
   expect(urls(onReq).slice(0, 2)).toEqual(repeat(ApiTargets.BOOTSTRAP, 2));
 });
 
-test('if user data set in local storage, it is used instead of bootstrapping', async ({ server }) => {
+test('if user data set in local storage, it is used instead of bootstrapping', async ({ server }: TestContext) => {
   const { onRequest: onReq } = createServerListenerMocks(server);
   server.use(testHandler);
   global.localStorage.setItem(
@@ -109,7 +108,7 @@ test('if user data set in local storage, it is used instead of bootstrapping', a
   global.localStorage.clear();
 });
 
-test('expired user data set in local storage causes bootstrap', async ({ server }) => {
+test('expired user data set in local storage causes bootstrap', async ({ server }: TestContext) => {
   const { onRequest: onReq } = createServerListenerMocks(server);
   server.use(testHandler);
   global.localStorage.setItem(
@@ -127,7 +126,7 @@ test('expired user data set in local storage causes bootstrap', async ({ server 
   global.localStorage.clear();
 });
 
-test('401 response triggers bootstrap to refresh token', async ({ server }) => {
+test('401 response triggers bootstrap to refresh token', async ({ server }: TestContext) => {
   const { onRequest: onReq } = createServerListenerMocks(server);
   server.use(testHandler);
   server.use(
@@ -152,7 +151,7 @@ test('401 response triggers bootstrap to refresh token', async ({ server }) => {
   ]);
 });
 
-test('401 does not cause infinite loop if bootstrap repeatedly fails', async ({ server }) => {
+test('401 does not cause infinite loop if bootstrap repeatedly fails', async ({ server }: TestContext) => {
   const { onRequest: onReq } = createServerListenerMocks(server);
   server.use(testHandler);
   server.use(
@@ -182,7 +181,7 @@ test('401 does not cause infinite loop if bootstrap repeatedly fails', async ({ 
   ]);
 });
 
-test('401 with initial bootstrap failure works properly', async ({ server }) => {
+test('401 with initial bootstrap failure works properly', async ({ server }: TestContext) => {
   const { onRequest: onReq } = createServerListenerMocks(server);
   server.use(testHandler);
   server.use(
@@ -220,7 +219,7 @@ test('401 with initial bootstrap failure works properly', async ({ server }) => 
  * This tests the case that a request has a valid token, but for some
  * reason is still giving a 401 after refetching the token
  */
-test('repeated 401s do not cause infinite loop', async ({ server }) => {
+test('repeated 401s do not cause infinite loop', async ({ server }: TestContext) => {
   const { onRequest: onReq } = createServerListenerMocks(server);
   server.use(unAuthorizedHandler);
 
@@ -242,7 +241,7 @@ test('repeated 401s do not cause infinite loop', async ({ server }) => {
   ]);
 });
 
-test('request fails without a response body are rejected', async ({ server }) => {
+test('request fails without a response body are rejected', async ({ server }: TestContext) => {
   server.use(rest.get('*test', (_req, res, ctx) => res(ctx.delay('infinite'), ctx.status(400, 'error'))));
 
   // simulates a timeout, by aborting the request after a timeout

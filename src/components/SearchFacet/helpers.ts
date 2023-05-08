@@ -1,7 +1,7 @@
-import {FacetField, IADSApiSearchParams, IFacetCountsFields} from '@api';
-import {escape, getOperator, getTerms, joinQueries, Operator, removeClauseAndStringify, splitQuery} from '@query';
-import {defaultQueryParams} from '@store/slices';
-import {isIADSSearchParams, isString} from '@utils';
+import { FacetField, IADSApiSearchParams, IFacetCountsFields } from '@api';
+import { escape, getOperator, getTerms, joinQueries, Operator, removeClauseAndStringify, splitQuery } from '@query';
+import { defaultQueryParams } from '@store/slices';
+import { isIADSSearchParams, isString } from '@utils';
 import {
   __,
   allPass,
@@ -61,7 +61,7 @@ import {
   values,
   when,
 } from 'ramda';
-import {isNilOrEmpty, stubNull} from 'ramda-adjunct';
+import { isNilOrEmpty, stubNull } from 'ramda-adjunct';
 import {
   FacetChildNode,
   FacetChildNodeTree,
