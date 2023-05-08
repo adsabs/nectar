@@ -5,6 +5,7 @@ import Head from 'next/head';
 import { FC } from 'react';
 import { UrlObject } from 'url';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
+
 interface IVizPageLayoutProps {
   vizPage: VizSection;
   from?: UrlObject;

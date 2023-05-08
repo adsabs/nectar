@@ -11,6 +11,7 @@ export default defineConfig({
     isolate: true,
     threads: true,
     coverage: {
+      provider: 'c8',
       reporter: 'lcov',
     },
     deps: {

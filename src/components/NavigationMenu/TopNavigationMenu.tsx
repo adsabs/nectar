@@ -1,5 +1,5 @@
 import { ChevronDownIcon } from '@chakra-ui/icons';
-import { Box, MenuItem, Flex, Menu, MenuButton, MenuList, Text, BoxProps, Stack } from '@chakra-ui/react';
+import { Box, BoxProps, Flex, Menu, MenuButton, MenuItem, MenuList, Stack, Text } from '@chakra-ui/react';
 import { CatMenuItems, IMenuItem, IMenuItemProps, SingleMenuItems } from './types';
 import NextLink from 'next/link';
 import { cloneElement } from 'react';

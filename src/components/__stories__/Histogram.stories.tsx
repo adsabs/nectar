@@ -1,4 +1,4 @@
-import { IHistogramProps, Histogram } from '@components';
+import { Histogram, IHistogramProps } from '@components';
 import { yearPaperCountData } from '@components/__mocks__/yearPaperCountData';
 import { Meta, Story } from '@storybook/react';
 

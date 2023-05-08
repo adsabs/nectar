@@ -9,14 +9,14 @@ import {
   IADSApiVaultResponse,
   IExportApiParams,
 } from '@api';
-import {IAuthorAffiliationExportPayload, IAuthorAffiliationResponse} from '@api/author-affiliation/types';
+import { IAuthorAffiliationExportPayload, IAuthorAffiliationResponse } from '@api/author-affiliation/types';
 import defaultBibstems from '@components/BibstemPicker/defaultBibstems.json';
 import faker from '@faker-js/faker';
-import {IBibstemOption} from '@types';
-import {rest} from 'msw';
+import { IBibstemOption } from '@types';
+import { rest } from 'msw';
 import qs from 'qs';
-import {flatten, map, range} from 'ramda';
-import {api, authorAffData, highlights_mocks, ids_mocks, ranRange} from './mockHelpers';
+import { flatten, map, range } from 'ramda';
+import { api, authorAffData, highlights_mocks, ids_mocks, ranRange } from './mockHelpers';
 
 export const handlers = [
   rest.get(`*${ApiTargets.BOOTSTRAP}`, (req, res, ctx) => {

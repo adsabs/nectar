@@ -3,7 +3,6 @@ import {
   Box,
   Code,
   Flex,
-  IconButton,
   Input,
   InputGroup,
   InputRightElement,
@@ -16,6 +15,7 @@ import { useCombobox } from 'downshift';
 import { matchSorter } from 'match-sorter';
 import { forwardRef, ReactElement, useEffect, useState } from 'react';
 import { allSearchTerms, SearchTermItem, SearchTermOption } from './models';
+
 export interface IAllSearchTermsDropdown {
   onSelect: (value: string) => void;
 }

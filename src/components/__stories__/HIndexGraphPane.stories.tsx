@@ -1,4 +1,4 @@
-import { IHIndexGraphPaneProps, HIndexGraphPane } from '@components';
+import { HIndexGraphPane, IHIndexGraphPaneProps } from '@components';
 import { buckets, sum } from '@components/__mocks__/hIndexGraphData';
 import { Meta, Story } from '@storybook/react';
 

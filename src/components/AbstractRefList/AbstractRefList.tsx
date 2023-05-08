@@ -8,6 +8,7 @@ import { APP_DEFAULTS } from '@config';
 import { noop, parseQueryFromUrl, stringifySearchParams } from '@utils';
 import { useRouter } from 'next/router';
 import { ReactElement } from 'react';
+
 export interface IAbstractRefListProps {
   doc: IDocsEntity;
   docs: IDocsEntity[];

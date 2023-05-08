@@ -1,24 +1,23 @@
 import { CustomFormat } from '@api';
 import {
+  Box,
+  Button,
+  Code,
   FormControl,
   FormLabel,
-  Box,
-  Table,
-  Thead,
-  Tr,
-  Th,
-  Tbody,
-  Td,
+  IconButton,
   Input,
   Stack,
-  IconButton,
-  Code,
-  Button,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
 } from '@chakra-ui/react';
 import { customFormatDescription, DescriptionCollapse } from '@components';
-import { CheckIcon, CloseIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons';
-import { CSS } from '@dnd-kit/utilities';
-import { CSSProperties, useState, useEffect } from 'react';
+import { CheckIcon, CloseIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
+import { useEffect, useState } from 'react';
 import { noop } from '@utils';
 import { sort } from 'ramda';
 

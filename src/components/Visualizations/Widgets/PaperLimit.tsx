@@ -1,5 +1,5 @@
-import { Stack, Input, Button, Text } from '@chakra-ui/react';
-import { ChangeEvent, ReactElement, useState, KeyboardEvent, useEffect } from 'react';
+import { Button, Input, Stack, Text } from '@chakra-ui/react';
+import { ChangeEvent, KeyboardEvent, ReactElement, useEffect, useState } from 'react';
 
 export const PaperLimit = ({
   initialLimit,

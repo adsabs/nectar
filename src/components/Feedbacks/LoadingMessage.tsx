@@ -1,4 +1,4 @@
-import { Box, Text, CircularProgress } from '@chakra-ui/react';
+import { Box, CircularProgress, Text } from '@chakra-ui/react';
 import { ReactElement } from 'react';
 
 export interface ILoadingMessageProps {

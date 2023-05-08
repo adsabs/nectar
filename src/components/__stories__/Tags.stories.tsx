@@ -1,5 +1,5 @@
 import { Meta, Story } from '@storybook/react';
-import { Tags, ITagsProps } from '../Tags';
+import { ITagsProps, Tags } from '../Tags';
 
 const meta: Meta = {
   title: 'Tags',

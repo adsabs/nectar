@@ -1,4 +1,4 @@
-import { Accordion, AccordionItem, AccordionButton, AccordionIcon, AccordionPanel, Stack, Box } from '@chakra-ui/react';
+import { Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Box, Stack } from '@chakra-ui/react';
 import { maxAuthorDescription } from './Description';
 import { NumberSlider } from './NumberSlider';
 

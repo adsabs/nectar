@@ -1,7 +1,9 @@
-import {cleanup} from '@test-utils';
+import { cleanup } from '@test-utils';
+import type { TestContext } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, expect } from 'vitest';
+import { server } from '@mocks/server';
 import matchers from '@testing-library/jest-dom/matchers';
-import {afterAll, afterEach, beforeAll, beforeEach, expect} from 'vitest';
-import {server} from '@mocks/server';
+
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import replaceAllInserter from 'string.prototype.replaceall';
@@ -11,7 +13,7 @@ replaceAllInserter.shim();
 expect.extend(matchers);
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
-beforeEach((context) => {
+beforeEach((context: TestContext) => {
   // add the server to the context
   context.server = server;
 });

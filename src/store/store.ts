@@ -1,7 +1,6 @@
 import { IUserData } from '@api';
 import { mergeDeepLeft } from 'ramda';
 import { useEffect } from 'react';
-import { unstable_batchedUpdates } from 'react-dom';
 import create, { GetState, Mutate, SetState, StoreApi } from 'zustand';
 import createContext from 'zustand/context';
 import { devtools, NamedSet, persist } from 'zustand/middleware';
@@ -87,9 +86,7 @@ export const useStoreApi = appContext.useStoreApi;
 
 // handler to be used outside react (non-hook)
 export const updateAppUser = (user: IUserData): void => {
-  unstable_batchedUpdates(() => {
-    store?.setState({ user });
-  });
+  store?.setState({ user });
 };
 
 export const getSerializableDefaultStore = () => {

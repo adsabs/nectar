@@ -37,14 +37,16 @@ import {
   range,
   reduce,
   reverse,
-  values,
   sort,
   sortBy,
   toPairs,
   uniq,
+  values,
 } from 'ramda';
 import {
   IBarGraph,
+  IBubblePlot,
+  IBubblePlotNodeData,
   ICitationsTableData,
   ICitationTableInput,
   IIndicesTableData,
@@ -54,10 +56,8 @@ import {
   IPaperTableInput,
   IReadsTableData,
   IReadTableInput,
-  YearDatum,
   ISliderRange,
-  IBubblePlotNodeData,
-  IBubblePlot,
+  YearDatum,
 } from '../types';
 
 /************ metrics helpers ************/

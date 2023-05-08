@@ -13,7 +13,7 @@ COPY .npmrc.* package.json pnpm-lock.yaml .pnpmfile.cjs.* ./
 
 # install deps
 RUN pnpm install sharp
-RUN pnpm install --frozen-lockfile --shamefully-hoist --ignore-scripts
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -25,6 +25,7 @@ COPY . .
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV production
 
 # ensure pnpm is available in the builder
 RUN npm install -g pnpm

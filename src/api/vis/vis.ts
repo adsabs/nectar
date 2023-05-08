@@ -1,11 +1,11 @@
 import api, { ADSQuery, ApiRequestConfig } from '@api';
 import { ApiTargets } from '@api/models';
 import {
-  IADSApiVisParams,
   IADSApiAuthorNetworkResponse,
   IADSApiPaperNetworkResponse,
-  IADSApiWordCloudResponse,
+  IADSApiVisParams,
   IADSApiWordCloudParams,
+  IADSApiWordCloudResponse,
 } from './types';
 import { IADSApiSearchParams, IADSApiSearchResponse } from '@api/search';
 import { QueryFunction, useQuery } from 'react-query';

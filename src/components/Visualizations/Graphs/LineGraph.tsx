@@ -1,7 +1,7 @@
 import { Box } from '@chakra-ui/react';
 import { ResponsiveLine, Serie } from '@nivo/line';
 import { memo, ReactElement } from 'react';
-import { Y_Axis, X_Axis } from '../types';
+import { X_Axis, Y_Axis } from '../types';
 
 export interface ILineGraphProps {
   data: Serie[];

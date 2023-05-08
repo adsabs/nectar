@@ -16,10 +16,23 @@
     "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
-      "@*": ["./src/*"]
+      "@*": [
+        "./src/*"
+      ]
     },
     "incremental": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "decs.d.ts"],
-  "exclude": ["node_modules", "cypress", "dist", "dev"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "decs.d.ts",
+    "vitest-setup.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "cypress",
+    "dist",
+    "dev"
+  ]
 }

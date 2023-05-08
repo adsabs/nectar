@@ -1,4 +1,4 @@
-import { SVGProps, Ref, forwardRef } from 'react';
+import { forwardRef, Ref, SVGProps } from 'react';
 
 const arrowsOut = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
   <svg

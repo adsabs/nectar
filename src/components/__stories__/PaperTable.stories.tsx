@@ -1,4 +1,4 @@
-import { PapersTable, IPapersTableProps } from '@components';
+import { IPapersTableProps, PapersTable } from '@components';
 import { papersTableData } from '@components/__mocks__/data';
 import { Meta, Story } from '@storybook/react';
 

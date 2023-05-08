@@ -1,4 +1,4 @@
-import { Stack, Heading, Text, Container, LayoutProps } from '@chakra-ui/react';
+import { Container, Heading, LayoutProps, Stack, Text } from '@chakra-ui/react';
 import { SettingsSideNav } from '@components';
 import Head from 'next/head';
 import { FC } from 'react';

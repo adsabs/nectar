@@ -1,4 +1,4 @@
-import { Stack, Box, StyleProps } from '@chakra-ui/react';
+import { Box, Stack, StyleProps } from '@chakra-ui/react';
 import { ReactElement } from 'react';
 import {
   GetHandleProps,

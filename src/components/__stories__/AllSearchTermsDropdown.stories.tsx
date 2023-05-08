@@ -1,4 +1,4 @@
-import { IAllSearchTermsDropdown, AllSearchTermsDropdown } from '@components';
+import { AllSearchTermsDropdown, IAllSearchTermsDropdown } from '@components';
 import { Meta, Story } from '@storybook/react';
 
 const meta: Meta = {

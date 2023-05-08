@@ -1,4 +1,4 @@
-import { FormControl, FormLabel, Box } from '@chakra-ui/react';
+import { Box, FormControl, FormLabel } from '@chakra-ui/react';
 import { DescriptionCollapse, ExportFormat, exportFormatDescription, exportFormats, Select } from '@components';
 import { values } from 'ramda';
 
