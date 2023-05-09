@@ -1,10 +1,18 @@
-import { ExportApiFormatKey, IDocsEntity, IExportApiParams, isExportApiFormat, SolrSort } from '@api';
+import {
+  ExportApiFormatKey,
+  ExportApiJournalFormat,
+  IDocsEntity,
+  IExportApiParams,
+  isExportApiFormat,
+  SolrSort,
+} from '@api';
 import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
   Collapse,
   Divider,
+  Flex,
   Stack,
   Tab,
   TabList,
@@ -12,11 +20,12 @@ import {
   TabPanels,
   Tabs,
   useDisclosure,
+  VStack,
 } from '@chakra-ui/react';
 import { APP_DEFAULTS } from '@config';
 import { noop } from '@utils';
 import { useRouter } from 'next/router';
-import { ChangeEventHandler, Dispatch, HTMLAttributes, ReactElement, useEffect } from 'react';
+import { ChangeEventHandler, Dispatch, HTMLAttributes, ReactElement, useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { CitationExporterEvent } from './CitationExporter.machine';
 import { AuthorCutoffSlider } from './components/AuthorCutoffSlider';
@@ -35,6 +44,10 @@ import { useCitationExporter } from './useCitationExporter';
 export interface ICitationExporterProps extends HTMLAttributes<HTMLDivElement> {
   singleMode?: boolean;
   initialFormat?: ExportApiFormatKey;
+  authorcutoff?: number;
+  keyformat?: string;
+  journalformat?: ExportApiJournalFormat;
+  maxauthor?: number;
   records?: IDocsEntity['bibcode'][];
   totalRecords?: number;
   page?: number;
@@ -48,7 +61,7 @@ export interface ICitationExporterProps extends HTMLAttributes<HTMLDivElement> {
  */
 export const CitationExporter = (props: ICitationExporterProps): ReactElement => {
   // early escape here, to skip extra work if nothing is passed
-  if (props.records.length === 0) {
+  if (props.records.length === 0 || typeof props.records[0] !== 'string') {
     return <ExportContainer header={<>No Records</>} />;
   }
 
@@ -64,6 +77,10 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
   const {
     singleMode = false,
     initialFormat = ExportApiFormatKey.bibtex,
+    authorcutoff,
+    keyformat,
+    journalformat,
+    maxauthor,
     records = [],
     totalRecords = records.length,
     page = 0,
@@ -75,6 +92,10 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
 
   const { data, state, dispatch } = useCitationExporter({
     format: initialFormat,
+    authorcutoff,
+    keyformat,
+    journalformat,
+    maxauthor,
     records,
     singleMode,
     sort,
@@ -93,7 +114,7 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
         shallow: true,
       });
     }
-  }, [state.value, state.context.params.format]);
+  }, [state.value, state.context.params]);
 
   // Attempt to parse the url to grab the format, then update it, otherwise allow the server to handle the path
   useEffect(() => {
@@ -120,29 +141,8 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
   };
 
   const handleTabChange = (index: number) => {
-    dispatch({ type: 'SET_IS_CUSTOM_FORMAT', payload: index === 1 });
+    dispatch({ type: 'SET_IS_CUSTOM_FORMAT', payload: { isCustomFormat: index === 1 } });
   };
-
-  // single mode, this is used for simple displays (like a single abstract)
-  if (singleMode) {
-    return (
-      <ExportContainer
-        header={
-          <>
-            Exporting {ctx.records.length} record{ctx.range[1] - ctx.range[0] > 1 ? 's' : ''} (total:{' '}
-            {totalRecords.toLocaleString()})
-          </>
-        }
-        isLoading={isLoading}
-        {...divProps}
-      >
-        <Stack direction="column" spacing={4}>
-          <FormatSelect format={ctx.params.format} dispatch={dispatch} />
-          <ResultArea result={data?.export} format={ctx.params.format} isLoading={isLoading} />
-        </Stack>
-      </ExportContainer>
-    );
-  }
 
   return (
     <ExportContainer
@@ -156,55 +156,67 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
       isLoading={isLoading}
       {...divProps}
     >
-      <Tabs onChange={handleTabChange}>
-        <TabList>
-          <Tab>Built-in Formats</Tab>
-          <Tab>Custom Formats</Tab>
-        </TabList>
+      <Flex direction={{ base: 'column', md: 'row' }} gap={5}>
+        <Tabs
+          onChange={handleTabChange}
+          flexGrow={2}
+          defaultIndex={initialFormat === ExportApiFormatKey.custom ? 1 : 0}
+        >
+          <TabList>
+            <Tab>Built-in Formats</Tab>
+            <Tab>Custom Formats</Tab>
+          </TabList>
 
-        <TabPanels>
-          <TabPanel>
-            <form method="GET" onSubmit={handleOnSubmit}>
-              <Stack direction={['column', 'row']} spacing={4} align="stretch">
-                <Stack spacing="4" flex="1">
-                  <FormatSelect format={ctx.params.format} dispatch={dispatch} />
-                  <AdvancedControls dispatch={dispatch} params={ctx.params} />
-                  <RecordSlider range={ctx.range} records={ctx.records} dispatch={dispatch} />
-
-                  <Stack direction={'row'}>
-                    <Button type="submit" data-testid="export-submit" isLoading={isLoading} width="full">
-                      Submit
-                    </Button>
-                    {hasNextPage && (
-                      <Button
-                        variant="outline"
-                        rightIcon={<ChevronRightIcon fontSize="2xl" />}
-                        onClick={nextPage}
-                        isLoading={isLoading}
-                        width="full"
-                      >
-                        Next {APP_DEFAULTS.EXPORT_PAGE_SIZE}
-                      </Button>
+          <TabPanels>
+            <TabPanel>
+              <form method="GET" onSubmit={handleOnSubmit}>
+                <Stack direction={['column', 'row']} spacing={4} align="stretch">
+                  <Stack spacing="4" flex="1">
+                    <FormatSelect format={ctx.params.format} dispatch={dispatch} />
+                    <AdvancedControls dispatch={dispatch} params={ctx.params} />
+                    {ctx.records.length > 1 && (
+                      <RecordSlider range={ctx.range} records={ctx.records} dispatch={dispatch} />
                     )}
+
+                    <Stack direction={'row'}>
+                      {(!singleMode ||
+                        (singleMode &&
+                          (ctx.params.format === ExportApiFormatKey.bibtex ||
+                            ctx.params.format === ExportApiFormatKey.bibtexabs))) && (
+                        <Button type="submit" data-testid="export-submit" isLoading={isLoading} width="full">
+                          Submit
+                        </Button>
+                      )}
+                      {!singleMode && hasNextPage && (
+                        <Button
+                          variant="outline"
+                          rightIcon={<ChevronRightIcon fontSize="2xl" />}
+                          onClick={nextPage}
+                          isLoading={isLoading}
+                          width="full"
+                        >
+                          Next {APP_DEFAULTS.EXPORT_PAGE_SIZE}
+                        </Button>
+                      )}
+                    </Stack>
+                    <Divider display={['block', 'none']} />
                   </Stack>
-                  <Divider display={['block', 'none']} />
+                  {/* <ResultArea result={data?.export} format={ctx.params.format} isLoading={isLoading} flex="1" /> */}
                 </Stack>
-                <ResultArea result={data?.export} format={ctx.params.format} isLoading={isLoading} flex="1" />
-              </Stack>
-            </form>
-          </TabPanel>
-          <TabPanel>
-            <form method="GET" onSubmit={handleOnSubmit}>
+              </form>
+            </TabPanel>
+            <TabPanel>
               <Stack direction={['column', 'row']} spacing={4}>
                 <Stack spacing="4" flexGrow={[3, 2]} maxW="lg">
                   <CustomFormatSelect dispatch={dispatch} />
                 </Stack>
                 {/* <ResultArea result={data?.export} format={ctx.params.format} /> */}
               </Stack>
-            </form>
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+        <ResultArea result={data?.export} format={ctx.params.format} isLoading={isLoading} flexGrow={5} />
+      </Flex>
     </ExportContainer>
   );
 };
@@ -218,6 +230,14 @@ const AdvancedControls = ({
 }) => {
   const { onToggle, isOpen } = useDisclosure();
 
+  // if default cutoff and max authors are equal, show basic mode, otherwise use advance mode
+
+  const [isBasicMode, setIsBasicMode] = useState(params.authorcutoff[0] === params.maxauthor[0]);
+
+  const toggleMode = () => {
+    setIsBasicMode((prev) => !prev);
+  };
+
   if (params.format === ExportApiFormatKey.bibtex || params.format === ExportApiFormatKey.bibtexabs) {
     return (
       <Box>
@@ -229,8 +249,21 @@ const AdvancedControls = ({
             <Divider />
             <JournalFormatSelect journalformat={params.journalformat} dispatch={dispatch} />
             <KeyFormatInput keyformat={params.keyformat} dispatch={dispatch} />
-            <AuthorCutoffSlider authorcutoff={params.authorcutoff} dispatch={dispatch} />
-            <MaxAuthorsSlider maxauthor={params.maxauthor} dispatch={dispatch} />
+            {isBasicMode ? (
+              <VStack alignItems="end">
+                <Button variant="link" onClick={toggleMode}>
+                  switch to advanced mode
+                </Button>
+              </VStack>
+            ) : (
+              <VStack alignItems="end">
+                <Button variant="link" onClick={toggleMode}>
+                  switch to basic mode
+                </Button>
+              </VStack>
+            )}
+            {!isBasicMode && <AuthorCutoffSlider authorcutoff={params.authorcutoff} dispatch={dispatch} />}
+            <MaxAuthorsSlider maxauthor={params.maxauthor} dispatch={dispatch} isBasicMode={isBasicMode} />
           </Stack>
         </Collapse>
       </Box>

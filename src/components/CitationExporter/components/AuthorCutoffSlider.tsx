@@ -1,10 +1,11 @@
-import { IExportApiParams, MAX_AUTHORCUTOFF } from '@api';
+import { IExportApiParams } from '@api';
 import { Code, FormLabel } from '@chakra-ui/react';
 import { Slider } from '@components/Slider';
 import { Dispatch, ReactElement, useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 import { DescriptionCollapse } from './DescriptionCollapse';
+import { APP_DEFAULTS } from '@config';
 
 export const AuthorCutoffSlider = (props: {
   authorcutoff: IExportApiParams['authorcutoff'];
@@ -17,7 +18,7 @@ export const AuthorCutoffSlider = (props: {
   const [debouncedValue] = useDebounce(value, 300);
 
   useEffect(() => {
-      dispatch({ type: 'SET_AUTHOR_CUTOFF', payload: debouncedValue });
+    dispatch({ type: 'SET_AUTHOR_CUTOFF', payload: debouncedValue });
   }, [debouncedValue]);
 
   const handleChange = (val: number[]) => setValue(val[0]);
@@ -34,7 +35,7 @@ export const AuthorCutoffSlider = (props: {
           <Slider
             id="authorcutoff-slider"
             aria-label={label}
-            range={[1, MAX_AUTHORCUTOFF]}
+            range={[1, APP_DEFAULTS.MAX_AUTHORCUTOFF]}
             values={[value]}
             onSlideEnd={handleChange}
             size={1}
@@ -50,6 +51,6 @@ const description = (
   <p>
     The threshold for truncating number of authors. If the number of authors is larger than <Code>authorcutoff</Code>,
     author list is truncated and <Code>maxauthor</Code> number of authors will be returned followed by{' '}
-    <Code>et al.</Code>. If <Code>authorcutoff</Code> is not specified, the default of 200 is used.
+    <Code>et al.</Code>.
   </p>
 );

@@ -11,17 +11,18 @@ import {
 import { Alert, AlertIcon } from '@chakra-ui/alert';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
 import { Box, Flex, Heading, HStack, Link } from '@chakra-ui/react';
-import { CitationExporter } from '@components';
+import { CitationExporter, DEFAULT_USER_DATA, JournalFormatMap } from '@components';
 import { getExportCitationDefaultContext } from '@components/CitationExporter/CitationExporter.machine';
 import { APP_DEFAULTS } from '@config';
 import { useIsClient } from '@hooks/useIsClient';
 import { parseQueryFromUrl } from '@utils';
+import { useStore } from '@store';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
-import { last, omit } from 'ramda';
+import { isEmpty, last, omit } from 'ramda';
 import { dehydrate, DehydratedState, QueryClient } from 'react-query';
 import { composeNextGSSP } from '@ssrUtils';
 
@@ -38,6 +39,25 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
   const { format, query, error } = props;
   const isClient = useIsClient();
   const router = useRouter();
+
+  // get export related user settings
+  const settings = useStore((state) =>
+    state.settings.user && !isEmpty(state.settings.user) ? state.settings.user : DEFAULT_USER_DATA,
+  );
+  const { keyformat, journalformat, authorcutoff, maxauthor } =
+    format === ExportApiFormatKey.bibtexabs
+      ? {
+          keyformat: settings.bibtexABSKeyFormat,
+          journalformat: settings.bibtexJournalFormat,
+          authorcutoff: parseInt(settings.bibtexABSAuthorCutoff),
+          maxauthor: parseInt(settings.bibtexABSMaxAuthors),
+        }
+      : {
+          keyformat: settings.bibtexKeyFormat,
+          journalformat: settings.bibtexJournalFormat,
+          authorcutoff: parseInt(settings.bibtexAuthorCutoff),
+          maxauthor: parseInt(settings.bibtexMaxAuthors),
+        };
 
   const { data, fetchNextPage, hasNextPage } = useSearchInfinite(query);
 
@@ -83,6 +103,10 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
           ) : isClient ? (
             <CitationExporter
               initialFormat={format}
+              keyformat={keyformat}
+              journalformat={JournalFormatMap[journalformat]}
+              maxauthor={maxauthor}
+              authorcutoff={authorcutoff}
               records={records}
               totalRecords={numFound}
               nextPage={handleNextPage}

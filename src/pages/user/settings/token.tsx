@@ -20,7 +20,7 @@ import {
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
-import { CopyButton, SettingsLayout, SimpleLink } from '@components';
+import { SimpleCopyButton, SettingsLayout, SimpleLink } from '@components';
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import { useEffect, useRef, useState } from 'react';
 import { composeNextGSSP } from '@ssrUtils';
@@ -31,7 +31,7 @@ const ApiTokenPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>
   const cancelRef = useRef();
 
   // fetch token
-  const { data } = useGetToken({});
+  const { data, isLoading } = useGetToken({});
   const [token, setToken] = useState('');
 
   useEffect(() => {
@@ -75,7 +75,7 @@ const ApiTokenPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>
       </AlertDialog>
       <Stack direction="column" gap={2}>
         <InputGroup size="md">
-          <InputLeftAddon children={<CopyButton text={token} />} />
+          <InputLeftAddon children={<SimpleCopyButton text={token} isDisabled={isLoading} />} />
           <Input type="text" name="token" id="token" value={token} autoFocus isReadOnly />
           <InputRightAddon
             children="Generate New Token"

@@ -1,6 +1,6 @@
 import { IDocsEntity, useHasGraphics, useHasMetrics } from '@api';
 import { Badge } from '@chakra-ui/react';
-import { IMenuItem, SideNavigationMenu, TopNavigationMenu } from '@components';
+import { IMenuItem, SideNavigationMenu, TopNavigationMenu, exportFormats } from '@components';
 import {
   ArrowDownIcon as DownloadIcon,
   ChartPieIcon,
@@ -15,6 +15,8 @@ import {
 import { useRouter } from 'next/router';
 import { HTMLAttributes, ReactElement } from 'react';
 import { Routes } from './types';
+import { useStore } from '@store';
+import { values } from 'ramda';
 
 const abstractPath = '/abs';
 
@@ -29,6 +31,14 @@ const useGetItems = ({
 }) => {
   const router = useRouter();
   const docId = router.query.id as string;
+
+  // for export citation menu link, it needs to go to user's default setting if logged in
+  // otherwise go to bibtex
+  const defaultExportFormat = useStore((state) => state.settings.user?.defaultExportFormat);
+  const defaultExportFormatPath =
+    typeof defaultExportFormat === 'string'
+      ? values(exportFormats).find((f) => f.label === defaultExportFormat).value
+      : 'bibtex';
 
   const items: Record<Routes, IMenuItem> = {
     [Routes.ABSTRACT]: {
@@ -99,7 +109,7 @@ const useGetItems = ({
     [Routes.EXPORT]: {
       id: Routes.EXPORT,
       href: { pathname: `${abstractPath}/[id]/${Routes.EXPORT}/[format]` },
-      hrefAs: { pathname: `${abstractPath}/${docId}/${Routes.EXPORT}/bibtex` },
+      hrefAs: { pathname: `${abstractPath}/${docId}/${Routes.EXPORT}/${defaultExportFormatPath}` },
       label: 'Export Citation',
       icon: <DownloadIcon />,
     },

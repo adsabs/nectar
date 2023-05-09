@@ -1,5 +1,6 @@
 import {
   ExportApiFormatKey,
+  ExportApiJournalFormat,
   exportCitationKeys,
   fetchExportCitation,
   IExportApiParams,
@@ -15,12 +16,43 @@ import { generateMachine, ICitationExporterState } from './CitationExporter.mach
 export interface IUseCitationExporterProps {
   records: ICitationExporterState['records'];
   format: ExportApiFormatKey;
+  customFormat?: string;
+  keyformat?: string;
+  journalformat?: ExportApiJournalFormat;
+  authorcutoff?: number;
+  maxauthor?: number;
   singleMode: boolean;
   sort?: SolrSort[];
 }
 
-export const useCitationExporter = ({ records, format, singleMode, sort }: IUseCitationExporterProps) => {
-  const machine = useMemo(() => generateMachine({ format, records, singleMode, sort }), []);
+export const useCitationExporter = ({
+  records,
+  format,
+  customFormat,
+  keyformat,
+  journalformat,
+  authorcutoff,
+  maxauthor,
+  singleMode,
+  sort,
+  ...rest
+}: IUseCitationExporterProps) => {
+  const machine = useMemo(
+    () =>
+      generateMachine({
+        format,
+        keyformat,
+        customFormat,
+        journalformat,
+        authorcutoff,
+        maxauthor,
+        records,
+        singleMode,
+        sort,
+        ...rest,
+      }),
+    [],
+  );
   const [state, dispatch] = useMachine(machine);
   const queryClient = useQueryClient();
 

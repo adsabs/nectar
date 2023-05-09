@@ -1,4 +1,4 @@
-import { ExportApiFormatKey, IDocsEntity, useGetExportCitation } from '@api';
+import { CustomFormat, ExportApiFormatKey, IDocsEntity, useGetExportCitation } from '@api';
 import { Stack } from '@chakra-ui/react';
 import { SampleTextArea } from '@components';
 import { ExportFormat, exportFormats } from '@components/CitationExporter';
@@ -8,6 +8,7 @@ import { useStore } from '@store';
 import { values } from 'ramda';
 import { Dispatch, useMemo } from 'react';
 import { ExportFormatSelect } from '../ExportFormatSelect';
+import { CustomFormatSelect } from '../CustomFormatSelect';
 
 export interface IGeneralTabPanelProps {
   sampleBib: IDocsEntity['bibcode'];
@@ -21,7 +22,7 @@ export const GeneralTabPanel = ({ sampleBib, selectedOption, dispatch }: IGenera
   // fetch sample citation
   const userSettings = useStore((state) => state.settings.user) ?? DEFAULT_USER_DATA;
 
-  // default export format
+  // default export format changed
   const handleApplyDefaultExportFormat = (format: ExportFormat) => {
     dispatch({ type: 'SET_DEFAULT_EXPORT_FORMAT', payload: format.label });
   };
@@ -55,9 +56,26 @@ export const GeneralTabPanel = ({ sampleBib, selectedOption, dispatch }: IGenera
     maxauthor: [parseInt(maxauthor)],
   });
 
+  const customFormats = userSettings.customFormats;
+
+  // default custom format changed, reorder it to the top
+  const handleChangeCustomDefault = (id: string) => {
+    const cf = JSON.parse(JSON.stringify(customFormats)) as CustomFormat[];
+    const fromIndex = cf.findIndex((f) => f.id === id);
+    const fromFormat = cf[fromIndex];
+    cf.splice(fromIndex, 1); // remove
+    cf.splice(0, 0, fromFormat); // insert to top
+
+    dispatch({
+      type: 'SORT_CUSTOM_FORMAT',
+      payload: cf,
+    });
+  };
+
   return (
     <Stack direction="column">
       <ExportFormatSelect selectedOption={selectedOption} onChange={handleApplyDefaultExportFormat} />
+      {selectedOption.id === ExportApiFormatKey.custom && <CustomFormatSelect onChange={handleChangeCustomDefault} />}
       <SampleTextArea
         value={sampleCitation?.export ?? 'No custom format. Go to the Custom Formats tab to create a custom format.'}
         label="Default Export Sample"

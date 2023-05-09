@@ -146,18 +146,13 @@ const ExportSettingsPage: NextPage = () => {
     <SettingsLayout title="Export Settings" maxW={{ base: 'container.sm', lg: 'container.lg' }}>
       <Tabs variant="enclosed">
         <TabList>
-          <Tab>General</Tab>
+          <Tab>Default Format</Tab>
           <Tab>Custom Formats</Tab>
           <Tab>BibTeX</Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
-            <GeneralTabPanel
-              sampleBib={sampleBib}
-              selectedOption={defaultExportFormatOption}
-              dispatch={dispatch}
-              // onChange={handleApplyDefaultExportFormat}
-            />
+            <GeneralTabPanel sampleBib={sampleBib} selectedOption={defaultExportFormatOption} dispatch={dispatch} />
           </TabPanel>
           <TabPanel>
             <CustomFormatsTabPanel sampleBib={sampleBib} dispatch={dispatch} />
