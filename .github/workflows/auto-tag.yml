@@ -1,13 +1,14 @@
 name: Create tag on PR merge
 on:
-  pull_request:
+  pull_request_target:
     types:
       - closed
     branches:
       - master
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Bump version and push tag
