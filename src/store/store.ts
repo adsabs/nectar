@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import create, { GetState, Mutate, SetState, StoreApi } from 'zustand';
 import createContext from 'zustand/context';
 import { devtools, NamedSet, persist } from 'zustand/middleware';
-import { docsSlice, searchSlice, settingsSlice, themeSlice, userSlice } from './slices';
+import { docsSlice, orcidSlice, searchSlice, settingsSlice, themeSlice, userSlice } from './slices';
 import { AppSerializableState, AppState } from './types';
 import { isPlainObject, isPrimitive } from 'ramda-adjunct';
 
@@ -18,6 +18,7 @@ export const createStore = (preloadedState: Partial<AppState> = {}) => {
     ...userSlice(set, get),
     ...themeSlice(set, get),
     ...settingsSlice(set, get),
+    ...orcidSlice(set, get),
     ...preloadedState,
   });
 

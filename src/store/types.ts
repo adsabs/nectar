@@ -3,6 +3,8 @@ import { NamedSet } from 'zustand/middleware';
 import {
   IDocsAction,
   IDocsState,
+  IORCIDAction,
+  IORCIDState,
   ISearchAction,
   ISearchState,
   ISettingsAction,
@@ -13,8 +15,8 @@ import {
   IUserState,
 } from './slices';
 
-export type AppSerializableState = IDocsState & ISearchState & ISettingsState & IThemeState & IUserState;
-export type AppActions = IDocsAction & ISearchAction & ISettingsAction & IThemeAction & IUserAction;
+export type AppSerializableState = IDocsState & ISearchState & ISettingsState & IThemeState & IUserState & IORCIDState;
+export type AppActions = IDocsAction & ISearchAction & ISettingsAction & IThemeAction & IUserAction & IORCIDAction;
 
 export type AppState = AppSerializableState & AppActions;
 
