@@ -27,7 +27,7 @@ export async function middleware(req: NextRequest) {
   const adsSessionCookie = req.cookies.get(process.env.ADS_SESSION_COOKIE_NAME)?.value;
 
   // bootstrap a new token, passing in the current session cookie value
-  const { token, headers } = await bootstrap(adsSessionCookie);
+  const { token, headers } = (await bootstrap(adsSessionCookie)) ?? {};
 
   // validate token, update session, forward cookies
   if (isValidToken(token)) {
