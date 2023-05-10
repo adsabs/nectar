@@ -1,0 +1,110 @@
+{
+  "2023AAS...24117743J": {
+    "identifier": "2023AAS...24117743J",
+    "status": "pending",
+    "title": "Software Citation and Discoverability in ADS with the Citation Capture Pipeline",
+    "pubyear": "2023",
+    "pubmonth": "01",
+    "updated": "2023-05-10T01:53:22.549000+00:00",
+    "putcode": 134698450,
+    "source": [
+      "NASA Astrophysics Data System"
+    ]
+  },
+  "2023AAS...24117737A": {
+    "identifier": "2023AAS...24117737A",
+    "status": "pending",
+    "title": "ADS Machine Learning and Deep Learning Efforts",
+    "pubyear": "2023",
+    "pubmonth": "01",
+    "updated": "2023-05-10T01:53:26.476000+00:00",
+    "putcode": 134698451,
+    "source": [
+      "NASA Astrophysics Data System"
+    ]
+  },
+  "2022arXiv221200744G": {
+    "identifier": "2022arXiv221200744G",
+    "status": "pending",
+    "title": "Improving astroBERT using Semantic Textual Similarity",
+    "pubyear": "2022",
+    "pubmonth": "11",
+    "updated": "2023-05-10T01:53:31.179000+00:00",
+    "putcode": 134698452,
+    "source": [
+      "NASA Astrophysics Data System"
+    ]
+  },
+  "2022BAAS...54b.022A": {
+    "identifier": "2022BAAS...54b.022A",
+    "status": "pending",
+    "title": "Content of the Future in the ADS",
+    "pubyear": "2022",
+    "pubmonth": "04",
+    "updated": "2023-05-10T01:53:35.270000+00:00",
+    "putcode": 134698455,
+    "source": [
+      "NASA Astrophysics Data System"
+    ]
+  },
+  "2022AAS...24030217L": {
+    "identifier": "2022AAS...24030217L",
+    "status": "pending",
+    "title": "Introducing the New ADS OpenAPI Exploration Tool: Making API Access More User-Friendly",
+    "pubyear": "2022",
+    "pubmonth": "06",
+    "updated": "2023-05-10T01:53:40.189000+00:00",
+    "putcode": 134698457,
+    "source": [
+      "NASA Astrophysics Data System"
+    ]
+  },
+  "2022arXiv220200777H": {
+    "identifier": "2022arXiv220200777H",
+    "status": "pending",
+    "title": "Web accessibility trends and implementation in dynamic web applications",
+    "pubyear": "2022",
+    "pubmonth": "02",
+    "updated": "2023-05-10T01:53:43.952000+00:00",
+    "putcode": 134698459,
+    "source": [
+      "NASA Astrophysics Data System"
+    ]
+  },
+  "2021arXiv211200590G": {
+    "identifier": "2021arXiv211200590G",
+    "status": "pending",
+    "title": "Building astroBERT, a language model for Astronomy &amp; Astrophysics",
+    "pubyear": "2021",
+    "pubmonth": "12",
+    "updated": "2023-05-10T01:58:53.969000+00:00",
+    "putcode": 134698592,
+    "source": [
+      "NASA Astrophysics Data System"
+    ]
+  },
+  "2020ASPC..527..505B": {
+    "identifier": "2020ASPC..527..505B",
+    "status": "pending",
+    "title": "Agile Methodologies in Teams with Highly Creative and Autonomous Members",
+    "pubyear": "2020",
+    "pubmonth": null,
+    "updated": "2023-05-10T01:58:53.973000+00:00",
+    "putcode": 134698593,
+    "source": [
+      "NASA Astrophysics Data System"
+    ]
+  },
+  "2020AAS...23528705A": {
+    "identifier": "2020AAS...23528705A",
+    "status": "pending",
+    "title": "Life after Classic: An Astronomer's Guide to the new ADS",
+    "pubyear": "2020",
+    "pubmonth": "01",
+    "updated": "2023-05-10T01:58:53.975000+00:00",
+    "putcode": 134698594,
+    "source": [
+      "NASA Astrophysics Data System"
+    ]
+  }
+}

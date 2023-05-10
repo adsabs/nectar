@@ -1,0 +1,205 @@
+{
+  "created-date": {
+    "value": 1683683933975
+  },
+  "last-modified-date": {
+    "value": 1683683933975
+  },
+  "source": {
+    "source-orcid": null,
+    "source-client-id": {
+      "uri": "http://orcid.org/client/APP-BA5POB6F5D7CTHX2",
+      "path": "APP-BA5POB6F5D7CTHX2",
+      "host": "orcid.org"
+    },
+    "source-name": {
+      "value": "NASA Astrophysics Data System"
+    }
+  },
+  "put-code": 134698594,
+  "path": null,
+  "title": {
+    "title": {
+      "value": "Life after Classic: An Astronomer's Guide to the new ADS"
+    },
+    "subtitle": null,
+    "translated-title": null
+  },
+  "journal-title": {
+    "value": "American Astronomical Society Meeting Abstracts #235"
+  },
+  "short-description": "The NASA Astrophysics Data System has now completed the transition from its 25-year-old legacy interface (\"ADS Classic\") to a new cloud-based platform (\"the new ADS\"). This transition has represented a significant change in the user experience as well as in the technology underpinning its search engine. Taken together, these changes represent a major challenge for its users but also provide an opportunity for them to discover capabilities previously unavailable or unexplored. The original paradigm of iterative searches championed by ADS Classic has now been expanded to allow workflows which include search, refine, and explore. In this poster we will provide a quick overview of the typical uses of ADS: finding a paper, looking up an author, and exploring a topic. In addition to showing how each one of these activities can be carried out with ease in the new system, we will highlight the additional exploration features available to the curious user who is willing to further explore the literature....",
+  "citation": null,
+  "type": "CONFERENCE_ABSTRACT",
+  "publication-date": {
+    "year": {
+      "value": "2020"
+    },
+    "month": {
+      "value": "01"
+    },
+    "day": null,
+    "media-type": null
+  },
+  "external-ids": {
+    "external-id": [
+      {
+        "external-id-type": "bibcode",
+        "external-id-value": "2020AAS...23528705A",
+        "external-id-url": null,
+        "external-id-relationship": "SELF"
+      }
+    ]
+  },
+  "url": null,
+  "contributors": {
+    "contributor": [
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Accomazzi, A."
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Kurtz, M."
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Henneken, E."
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Grant, C."
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Thompson, D."
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Chyla, R."
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "McDonald, S."
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Blanco-Cuaresma, S."
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Shapurian, G."
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Hostetler, T."
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Templeton, M."
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Lockhart, K."
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Bukovi, K."
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      }
+    ]
+  },
+  "language-code": null,
+  "country": null,
+  "visibility": "PUBLIC"
+}

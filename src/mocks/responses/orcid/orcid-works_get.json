@@ -1,0 +1,249 @@
+{
+  "created-date": {
+    "value": 1683683620189
+  },
+  "last-modified-date": {
+    "value": 1683683620189
+  },
+  "source": {
+    "source-orcid": null,
+    "source-client-id": {
+      "uri": "http://orcid.org/client/APP-BA5POB6F5D7CTHX2",
+      "path": "APP-BA5POB6F5D7CTHX2",
+      "host": "orcid.org"
+    },
+    "source-name": {
+      "value": "NASA Astrophysics Data System"
+    }
+  },
+  "put-code": 134698457,
+  "path": "/0000-0001-9238-3667/work/134698457",
+  "title": {
+    "title": {
+      "value": "Introducing the New ADS OpenAPI Exploration Tool: Making API Access More User-Friendly"
+    },
+    "subtitle": null,
+    "translated-title": null
+  },
+  "journal-title": {
+    "value": "American Astronomical Society Meeting #240"
+  },
+  "short-description": "The NASA Astrophysics Data System's API, or application programming interface, is designed to be easily accessible, allowing users to create their own tools and scripts. However, while our documentation for the API covered the most widely used features, there were a number of useful components that we had not properly documented. We have now remedied this shortcoming by using the OpenAPI specification, a language-agnostic, widely adopted industry standard for documenting APIs in a machine-readable way. This OpenAPI document underlies our new beautiful, easy to use documentation, powered by RapiDoc. In addition to providing a listing of all available API endpoints, the new documentation defines all available inputs and possible API responses, offers examples, and provides further description and explanation as necessary. The most unique feature of the new documentation is the built-in try-me functionality, which allows you to run API queries directly from your browser. This poster spotlights the capabilities of the new documentation and highlights other recent and forthcoming changes to our API documentation....",
+  "citation": null,
+  "type": "CONFERENCE_ABSTRACT",
+  "publication-date": {
+    "year": {
+      "value": "2022"
+    },
+    "month": {
+      "value": "06"
+    },
+    "day": null,
+    "media-type": null
+  },
+  "external-ids": {
+    "external-id": [
+      {
+        "external-id-type": "bibcode",
+        "external-id-value": "2022AAS...24030217L",
+        "external-id-url": null,
+        "external-id-relationship": "SELF"
+      }
+    ]
+  },
+  "url": null,
+  "contributors": {
+    "contributor": [
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Lockhart, Kelly"
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Accomazzi, Alberto"
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Kurtz, Michael"
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Grant, Carolyn"
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Henneken, Edwin"
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Thompson, Donna"
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Chyla, Roman"
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Hostetler, Timothy"
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Shapurian, Golnaz"
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Blanco-Cuaresma, Sergi"
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Templeton, Matthew"
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Martinovic, Nemanja"
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Chen, Shinyi"
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Grezes, Felix"
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Koch, Jennifer"
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Allen, Thomas"
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Jacovich, Taylor"
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "AUTHOR"
+        }
+      }
+    ]
+  },
+  "language-code": null,
+  "country": null,
+  "visibility": "PUBLIC"
+}
