@@ -17,6 +17,7 @@ import { rest } from 'msw';
 import qs from 'qs';
 import { flatten, map, range } from 'ramda';
 import { api, authorAffData, highlights_mocks, ids_mocks, ranRange } from './mockHelpers';
+import { orcidHandlers } from '@mocks/handlers/orcid';
 
 export const handlers = [
   rest.get(`*${ApiTargets.BOOTSTRAP}`, (req, res, ctx) => {
@@ -980,4 +981,5 @@ export const handlers = [
     });
     return res(ctx.status(200), ctx.json<IBibstemOption[]>(values));
   }),
+  ...orcidHandlers,
 ];

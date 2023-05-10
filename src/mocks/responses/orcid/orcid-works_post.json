@@ -1,0 +1,234 @@
+{
+  "bulk": [
+    {
+      "work": {
+        "created-date": {
+          "value": 1683684283115
+        },
+        "last-modified-date": {
+          "value": 1683684283115
+        },
+        "source": {
+          "source-orcid": null,
+          "source-client-id": {
+            "uri": "http://orcid.org/client/APP-BA5POB6F5D7CTHX2",
+            "path": "APP-BA5POB6F5D7CTHX2",
+            "host": "orcid.org"
+          },
+          "source-name": {
+            "value": "NASA Astrophysics Data System"
+          }
+        },
+        "put-code": 134698880,
+        "path": null,
+        "title": {
+          "title": {
+            "value": "Fundamentals of Effective Cloud Management for the New NASA Astrophysics Data System"
+          },
+          "subtitle": null,
+          "translated-title": null
+        },
+        "journal-title": {
+          "value": "Astronomical Data Analysis Software and Systems XXVII"
+        },
+        "short-description": "The new NASA Astrophysics Data System (ADS) is designed with a service-oriented architecture (SOA) that consists of multiple customized Apache Solr search engine instances plus a collection of microservices, containerized using Docker, and deployed in Amazon Web Services (AWS). For complex systems, like the ADS, this loosely coupled architecture can lead to a more scalable, reliable and resilient system if some fundamental questions are addressed. After having experimented with different AWS environments and deployment methods, we decided in December 2017 to go with Kubernetes as our container orchestration. Defining the best strategy to properly setup Kubernetes has shown to be challenging: automatic scaling services and load balancing traffic can lead to errors whose origin is difficult to identify, monitoring and logging the activity that happens across multiple layers for a single request needs to be carefully addressed, and the best workflow for a Continuous Integration and Delivery (CI/CD) system is not self-evident. We present here how we tackle these challenges and our plans for the future....",
+        "citation": null,
+        "type": "CONFERENCE_PAPER",
+        "publication-date": {
+          "year": {
+            "value": "2019"
+          },
+          "month": {
+            "value": "10"
+          },
+          "day": null,
+          "media-type": null
+        },
+        "external-ids": {
+          "external-id": [
+            {
+              "external-id-type": "bibcode",
+              "external-id-value": "2019ASPC..523..353B",
+              "external-id-url": null,
+              "external-id-relationship": "SELF"
+            },
+            {
+              "external-id-type": "doi",
+              "external-id-value": "10.48550/arXiv.1901.05463",
+              "external-id-url": null,
+              "external-id-relationship": "SELF"
+            },
+            {
+              "external-id-type": "arxiv",
+              "external-id-value": "1901.05463",
+              "external-id-url": null,
+              "external-id-relationship": "SELF"
+            }
+          ]
+        },
+        "url": null,
+        "contributors": {
+          "contributor": [
+            {
+              "contributor-orcid": null,
+              "credit-name": {
+                "value": "Blanco-Cuaresma, Sergi"
+              },
+              "contributor-email": null,
+              "contributor-attributes": {
+                "contributor-sequence": null,
+                "contributor-role": "AUTHOR"
+              }
+            },
+            {
+              "contributor-orcid": null,
+              "credit-name": {
+                "value": "Accomazzi, Alberto"
+              },
+              "contributor-email": null,
+              "contributor-attributes": {
+                "contributor-sequence": null,
+                "contributor-role": "AUTHOR"
+              }
+            },
+            {
+              "contributor-orcid": null,
+              "credit-name": {
+                "value": "Kurtz, Michael J."
+              },
+              "contributor-email": null,
+              "contributor-attributes": {
+                "contributor-sequence": null,
+                "contributor-role": "AUTHOR"
+              }
+            },
+            {
+              "contributor-orcid": null,
+              "credit-name": {
+                "value": "Henneken, Edwin A."
+              },
+              "contributor-email": null,
+              "contributor-attributes": {
+                "contributor-sequence": null,
+                "contributor-role": "AUTHOR"
+              }
+            },
+            {
+              "contributor-orcid": null,
+              "credit-name": {
+                "value": "Grant, Carolyn S."
+              },
+              "contributor-email": null,
+              "contributor-attributes": {
+                "contributor-sequence": null,
+                "contributor-role": "AUTHOR"
+              }
+            },
+            {
+              "contributor-orcid": null,
+              "credit-name": {
+                "value": "Thompson, Donna M."
+              },
+              "contributor-email": null,
+              "contributor-attributes": {
+                "contributor-sequence": null,
+                "contributor-role": "AUTHOR"
+              }
+            },
+            {
+              "contributor-orcid": null,
+              "credit-name": {
+                "value": "Chyla, Roman"
+              },
+              "contributor-email": null,
+              "contributor-attributes": {
+                "contributor-sequence": null,
+                "contributor-role": "AUTHOR"
+              }
+            },
+            {
+              "contributor-orcid": null,
+              "credit-name": {
+                "value": "McDonald, Stephen"
+              },
+              "contributor-email": null,
+              "contributor-attributes": {
+                "contributor-sequence": null,
+                "contributor-role": "AUTHOR"
+              }
+            },
+            {
+              "contributor-orcid": null,
+              "credit-name": {
+                "value": "Shapurian, Golnaz"
+              },
+              "contributor-email": null,
+              "contributor-attributes": {
+                "contributor-sequence": null,
+                "contributor-role": "AUTHOR"
+              }
+            },
+            {
+              "contributor-orcid": null,
+              "credit-name": {
+                "value": "Hostetler, Timothy W."
+              },
+              "contributor-email": null,
+              "contributor-attributes": {
+                "contributor-sequence": null,
+                "contributor-role": "AUTHOR"
+              }
+            },
+            {
+              "contributor-orcid": null,
+              "credit-name": {
+                "value": "Templeton, Matthew R."
+              },
+              "contributor-email": null,
+              "contributor-attributes": {
+                "contributor-sequence": null,
+                "contributor-role": "AUTHOR"
+              }
+            },
+            {
+              "contributor-orcid": null,
+              "credit-name": {
+                "value": "Lockhart, Kelly E."
+              },
+              "contributor-email": null,
+              "contributor-attributes": {
+                "contributor-sequence": null,
+                "contributor-role": "AUTHOR"
+              }
+            },
+            {
+              "contributor-orcid": null,
+              "credit-name": {
+                "value": "Bukovi, Kris"
+              },
+              "contributor-email": null,
+              "contributor-attributes": {
+                "contributor-sequence": null,
+                "contributor-role": "AUTHOR"
+              }
+            },
+            {
+              "contributor-orcid": null,
+              "credit-name": {
+                "value": "Rapport, Nathan"
+              },
+              "contributor-email": null,
+              "contributor-attributes": {
+                "contributor-sequence": null,
+                "contributor-role": "AUTHOR"
+              }
+            }
+          ]
+        },
+        "language-code": null,
+        "country": null,
+        "visibility": "PUBLIC"
+      }
+    }
+  ]
+}

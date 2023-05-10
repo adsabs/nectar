@@ -1,0 +1,9 @@
+{
+  "access_token": "888888-77777-666666-55555-44444",
+  "token_type": "bearer",
+  "refresh_token": "888888-77777-666666-55555-44444",
+  "expires_in": 631138518,
+  "scope": "/orcid-profile/read-limited /orcid-works/create /orcid-works/update",
+  "name": "Tim Hostetler",
+  "orcid": "0009-0001-9552-8355"
+}
