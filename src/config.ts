@@ -28,3 +28,11 @@ export const sessionConfig: IronSessionOptions = {
 };
 
 export const ADMIN_ROUTE_PREFIXES = ['/user/libraries', '/user/settings'];
+const search = new URLSearchParams({
+  client_id: process.env.NEXT_PUBLIC_ORCID_CLIENT_ID,
+  response_type: 'code',
+  access_type: 'offline',
+  scope: '/orcid-profile/read-limited /orcid-works/create /orcid-works/update',
+  redirect_uri: process.env.NEXT_PUBLIC_ORCID_REDIRECT_URI,
+});
+export const ORCID_LOGIN_URL = `${process.env.NEXT_PUBLIC_ORCID_API_URL}/oauth/authorize?${search.toString()}`;
