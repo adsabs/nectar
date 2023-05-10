@@ -3,11 +3,35 @@ import { OrcidInactiveLogo } from '@components';
 import { MouseEvent, ReactElement } from 'react';
 import { MenuDropdown } from './MenuDropdown';
 import { ListType } from './types';
+import { useOrcid } from '@hooks/useOrcid';
+import { FormControl, FormLabel, Switch } from '@chakra-ui/react';
 
 const items = [
   {
     id: 'login',
     label: 'Sign into Orcid to claim papers in ADS',
+  },
+  {
+    id: 'toggle-mode-active',
+    label: (
+      <FormControl display="flex" alignItems="center">
+        <FormLabel htmlFor="orcid-mode" mb="0">
+          ORCiD Mode Active
+        </FormLabel>
+        <Switch id="orcid-mode" checked />
+      </FormControl>
+    ),
+  },
+  {
+    id: 'toggle-mode-inactive',
+    label: (
+      <FormControl display="flex" alignItems="center">
+        <FormLabel htmlFor="orcid-mode" mb="0">
+          ORCiD Mode Inactive
+        </FormLabel>
+        <Switch id="orcid-mode" checked={false} />
+      </FormControl>
+    ),
   },
 ];
 
@@ -18,19 +42,19 @@ interface IOrcidDropdownProps {
 
 export const OrcidDropdown = (props: IOrcidDropdownProps): ReactElement => {
   const { type, onFinished } = props;
+  const { active, login, isAuthenticated, toggleOrcidMode } = useOrcid();
 
   const handleSelect = (e: MouseEvent<HTMLElement>) => {
     const id = (e.target as HTMLElement).dataset['id'];
     if (id === 'login') {
-      handleOrcidSignIn();
+      login();
+    }
+    if (id === 'toggle-mode-active' || id === 'toggle-mode-inactive') {
+      toggleOrcidMode();
     }
     if (onFinished) {
       onFinished();
     }
-  };
-
-  const handleOrcidSignIn = () => {
-    // console.log('orcid sign in ');
   };
 
   const orcidLabel = (
@@ -40,5 +64,25 @@ export const OrcidDropdown = (props: IOrcidDropdownProps): ReactElement => {
     </HStack>
   );
 
-  return <MenuDropdown id="orcid" type={type} label={orcidLabel} items={items} onSelect={handleSelect} />;
+  if (active) {
+    return (
+      <MenuDropdown
+        id="orcid"
+        type={type}
+        label={orcidLabel}
+        items={isAuthenticated ? [items[1]] : [items[0]]}
+        onSelect={handleSelect}
+      />
+    );
+  } else {
+    return (
+      <MenuDropdown
+        id="orcid"
+        type={type}
+        label={orcidLabel}
+        items={isAuthenticated ? [items[2]] : [items[0]]}
+        onSelect={handleSelect}
+      />
+    );
+  }
 };
