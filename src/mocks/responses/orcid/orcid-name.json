@@ -1,0 +1,28 @@
+{
+  "last-modified-date": {
+    "value": 1683305586418
+  },
+  "name": {
+    "created-date": {
+      "value": 1527878984816
+    },
+    "last-modified-date": {
+      "value": 1683305586418
+    },
+    "given-names": {
+      "value": "Timothy"
+    },
+    "family-name": null,
+    "credit-name": null,
+    "source": null,
+    "visibility": "PUBLIC",
+    "path": "0000-0001-9238-3667"
+  },
+  "other-names": {
+    "last-modified-date": null,
+    "other-name": [],
+    "path": "/0000-0001-9238-3667/other-names"
+  },
+  "biography": null,
+  "path": "/0000-0001-9238-3667/personal-details"
+}
