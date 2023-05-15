@@ -55,7 +55,7 @@ const applyTokenToRequest = (request: ApiRequestConfig, token: string) => {
 };
 
 export interface ApiRequestConfig extends AxiosRequestConfig {
-  headers?: { authorization?: string };
+  headers?: { authorization?: string; 'orcid-authorization'?: string };
 }
 
 enum API_STATUS {
