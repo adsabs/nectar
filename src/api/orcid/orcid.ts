@@ -89,12 +89,13 @@ const fetchExchangeToken: QueryFunction<IOrcidUser> = async ({ meta }) => {
   return data;
 };
 
+
 const fetchProfile: QueryFunction<IOrcidResponse['profile']> = async ({ meta }) => {
   const { params } = meta as { params: IOrcidParams['profile'] };
 
   const config: ApiRequestConfig = {
     method: 'GET',
-    url: `${ApiTargets.ORCID_PROFILE}/${params.orcid}${params.full ?? true ? '/full' : ''}${
+    url: `${ApiTargets.ORCID}/${params.orcid}/${ApiTargets.ORCID_PROFILE}${params.full ?? true ? '/full' : ''}${
       params.update ?? true ? '?update=true' : ''
     }`,
   };
@@ -109,7 +110,7 @@ const removeWorks: QueryFunction<IOrcidResponse['removeWorks']> = async ({ meta 
   const config: ApiRequestConfig = {
     method: 'DELETE',
     // TODO handle bulk deletions
-    url: `${ApiTargets.ORCID_WORKS}/${params.orcid}/${params.works[0]}`,
+    url: `${ApiTargets.ORCID}/${params.orcid}/${ApiTargets.ORCID_WORKS}/${params.works[0]}`,
   };
 
   const { data } = await api.request<null>(config);
@@ -121,7 +122,7 @@ const addWorks: QueryFunction<IOrcidResponse['addWorks']> = async ({ meta }) => 
 
   const config: ApiRequestConfig = {
     method: 'POST',
-    url: `${ApiTargets.ORCID_WORKS}/${params.orcid}`,
+    url: `${ApiTargets.ORCID}/${params.orcid}/${ApiTargets.ORCID_WORKS}`,
     data: {
       bulk: params.works,
     },
@@ -134,7 +135,7 @@ const addWorks: QueryFunction<IOrcidResponse['addWorks']> = async ({ meta }) => 
 const updateWork: QueryFunction<IOrcidResponse['updateWork']> = async ({ meta }) => {
   const { params } = meta as { params: IOrcidParams['updateWork'] };
 
-  const url = `${ApiTargets.ORCID_WORKS}/${params.orcid}/${params.work['put-code']}`;
+  const url = `${ApiTargets.ORCID}/${params.orcid}/${ApiTargets.ORCID_WORKS}/${params.work['put-code']}`;
 
   const getConfig: ApiRequestConfig = { method: 'GET', url };
   const putConfig: ApiRequestConfig = {
