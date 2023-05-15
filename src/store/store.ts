@@ -41,6 +41,7 @@ export const createStore = (preloadedState: Partial<AppState> = {}) => {
           theme: state.theme,
           numPerPage: state.numPerPage,
           settings: state.settings,
+          orcid: state.orcid,
         }),
         merge: mergeDeepLeft,
       }),
