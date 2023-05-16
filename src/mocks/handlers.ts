@@ -82,7 +82,7 @@ export const handlers = [
     }
 
     if (params['json.facet']) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+      // eslint-disable-next-line
       if (JSON.parse(params['json.facet'] as string)?.author_facet_hier?.prefix?.startsWith('1')) {
         return res(
           ctx.status(200),
