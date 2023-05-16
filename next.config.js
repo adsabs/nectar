@@ -62,6 +62,8 @@ const config = {
     reactRemoveProperties: false,
   },
   output: 'standalone',
+  // Don't bother linting during CI builds
+  eslint: !process.env.CI,
 };
 
 module.exports = withBundleAnalyzer(config);
