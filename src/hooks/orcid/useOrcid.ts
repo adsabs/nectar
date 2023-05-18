@@ -2,7 +2,7 @@ import { AppState, useStore } from '@store';
 import { useIsClient } from '@hooks/useIsClient';
 import { ORCID_LOGIN_URL } from '@config';
 import { useRouter } from 'next/router';
-import { useOrcidGetName, useOrcidPreferences } from '@api/orcid';
+import { useOrcidGetName, useOrcidGetProfile, useOrcidPreferences } from '@api/orcid';
 import { isValidIOrcidUser } from '@api/orcid/models';
 
 const setOrcidModeSelector = (state: AppState) => state.setOrcidMode;
@@ -34,6 +34,13 @@ export const useOrcid = () => {
     },
   );
 
+  const { data: profile } = useOrcidGetProfile(
+    { user },
+    {
+      enabled: isAuthenticated && isValidIOrcidUser(user),
+    },
+  );
+
   const login = () => {
     if (isClient) {
       location.replace(ORCID_LOGIN_URL);
@@ -56,5 +63,6 @@ export const useOrcid = () => {
     user,
     names,
     preferences,
+    profile,
   };
 };
