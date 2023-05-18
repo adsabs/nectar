@@ -1,7 +1,7 @@
 import api, { ADSQuery, ApiRequestConfig, ApiTargets } from '@api';
 import { QueryFunction, useQuery } from 'react-query';
 import { IOrcidParams, IOrcidResponse, IOrcidUser } from '@api/orcid/types';
-import { AppState, useStore } from '@store';
+import { AppState } from '@store';
 import { isValidIOrcidUser } from '@api/orcid/models';
 
 export enum OrcidKeys {
@@ -11,6 +11,7 @@ export enum OrcidKeys {
   UPDATE_WORK = 'orcid/update-work',
   ADD_WORKS = 'orcid/add-works',
   REMOVE_WORKS = 'orcid/remove-works',
+  PREFERENCES = 'orcid/preferences',
 }
 
 export const orcidKeys = {
@@ -20,6 +21,7 @@ export const orcidKeys = {
   updateWork: (params: IOrcidParams['updateWork']) => [OrcidKeys.UPDATE_WORK, params] as const,
   addWorks: (params: IOrcidParams['addWorks']) => [OrcidKeys.ADD_WORKS, params] as const,
   removeWorks: (params: IOrcidParams['removeWorks']) => [OrcidKeys.REMOVE_WORKS, params] as const,
+  preferences: (params: IOrcidParams['preferences']) => [OrcidKeys.PREFERENCES, params] as const,
 };
 
 type OrcidQuery<K extends keyof typeof orcidKeys> = ADSQuery<IOrcidParams[K], IOrcidResponse[K]>;
@@ -37,12 +39,10 @@ export const useOrcidExchangeToken: OrcidQuery<'exchangeToken'> = (params, optio
 
 const orcidUserSelector = (store: AppState) => store.orcid.user;
 export const useOrcidGetProfile: OrcidQuery<'profile'> = (params, options) => {
-  const user = useStore(orcidUserSelector);
-
   return useQuery({
     queryKey: orcidKeys.profile(params),
     queryFn: fetchProfile,
-    meta: { params, user },
+    meta: { params },
     ...options,
   });
 };
@@ -81,6 +81,16 @@ export const useOrcidGetName: OrcidQuery<'name'> = (params, options) => {
     ...options,
   });
 };
+
+export const useOrcidPreferences: OrcidQuery<'preferences'> = (params, options) => {
+  return useQuery({
+    queryKey: orcidKeys.preferences(params),
+    queryFn: getPreferences,
+    meta: { params },
+    ...options,
+  });
+};
+
 const fetchExchangeToken: QueryFunction<IOrcidUser> = async ({ meta }) => {
   const { params } = meta as { params: IOrcidParams['exchangeToken'] };
 
@@ -94,21 +104,39 @@ const fetchExchangeToken: QueryFunction<IOrcidUser> = async ({ meta }) => {
   return data;
 };
 
+const getPreferences: QueryFunction<IOrcidResponse['preferences']> = async ({ meta }) => {
+  const { params } = meta as { params: IOrcidParams['preferences'] };
 
-const fetchProfile: QueryFunction<IOrcidResponse['profile']> = async ({ meta }) => {
-  const { params, user } = meta as { params: IOrcidParams['profile']; user: IOrcidUser };
-
-  if (!isValidIOrcidUser(user)) {
+  if (!isValidIOrcidUser(params.user)) {
     throw new Error('Invalid ORCiD User');
   }
 
   const config: ApiRequestConfig = {
     method: 'GET',
-    url: `${ApiTargets.ORCID}/${params.orcid}/${ApiTargets.ORCID_PROFILE}${params.full ?? true ? '/full' : ''}${
+    url: `${ApiTargets.ORCID_PREFERENCES}/${params.user.orcid}`,
+    headers: {
+      'orcid-authorization': `Bearer ${params.user.access_token}`,
+    },
+  };
+
+  const { data } = await api.request<IOrcidResponse['preferences']>(config);
+  return data;
+};
+
+const fetchProfile: QueryFunction<IOrcidResponse['profile']> = async ({ meta }) => {
+  const { params } = meta as { params: IOrcidParams['profile'] };
+
+  if (!isValidIOrcidUser(params.user)) {
+    throw new Error('Invalid ORCiD User');
+  }
+
+  const config: ApiRequestConfig = {
+    method: 'GET',
+    url: `${ApiTargets.ORCID}/${params.user.orcid}/${ApiTargets.ORCID_PROFILE}${params.full ?? true ? '/full' : ''}${
       params.update ?? true ? '?update=true' : ''
     }`,
     headers: {
-      'orcid-authorization': `Bearer ${user.access_token}`,
+      'orcid-authorization': `Bearer ${params.user.access_token}`,
     },
   };
 
@@ -117,16 +145,16 @@ const fetchProfile: QueryFunction<IOrcidResponse['profile']> = async ({ meta }) 
 };
 
 const removeWorks: QueryFunction<IOrcidResponse['removeWorks']> = async ({ meta }) => {
-  const { params, user } = meta as { params: IOrcidParams['removeWorks']; user: IOrcidUser };
+  const { params } = meta as { params: IOrcidParams['removeWorks'] };
 
-  if (!isValidIOrcidUser(user)) {
+  if (!isValidIOrcidUser(params.user)) {
     throw new Error('Invalid ORCiD User');
   }
 
   const config: ApiRequestConfig = {
     method: 'DELETE',
     // TODO handle bulk deletions
-    url: `${ApiTargets.ORCID}/${params.orcid}/${ApiTargets.ORCID_WORKS}/${params.works[0]}`,
+    url: `${ApiTargets.ORCID}/${params.user.orcid}/${ApiTargets.ORCID_WORKS}/${params.works[0]}`,
     headers: {
       'orcid-authorization': `Bearer ${user.access_token}`,
     },
@@ -137,20 +165,20 @@ const removeWorks: QueryFunction<IOrcidResponse['removeWorks']> = async ({ meta 
 };
 
 const addWorks: QueryFunction<IOrcidResponse['addWorks']> = async ({ meta }) => {
-  const { params, user } = meta as { params: IOrcidParams['addWorks']; user: IOrcidUser };
+  const { params } = meta as { params: IOrcidParams['addWorks'] };
 
-  if (!isValidIOrcidUser(user)) {
+  if (!isValidIOrcidUser(params.user)) {
     throw new Error('Invalid ORCiD User');
   }
 
   const config: ApiRequestConfig = {
     method: 'POST',
-    url: `${ApiTargets.ORCID}/${params.orcid}/${ApiTargets.ORCID_WORKS}`,
+    url: `${ApiTargets.ORCID}/${params.user.orcid}/${ApiTargets.ORCID_WORKS}`,
     data: {
       bulk: params.works,
     },
     headers: {
-      'orcid-authorization': `Bearer ${user.access_token}`,
+      'orcid-authorization': `Bearer ${params.user.access_token}`,
     },
   };
 
@@ -159,19 +187,19 @@ const addWorks: QueryFunction<IOrcidResponse['addWorks']> = async ({ meta }) => 
 };
 
 const updateWork: QueryFunction<IOrcidResponse['updateWork']> = async ({ meta }) => {
-  const { params, user } = meta as { params: IOrcidParams['updateWork']; user: IOrcidUser };
+  const { params } = meta as { params: IOrcidParams['updateWork'] };
 
-  if (!isValidIOrcidUser(user)) {
+  if (!isValidIOrcidUser(params.user)) {
     throw new Error('Invalid ORCiD User');
   }
 
-  const url = `${ApiTargets.ORCID}/${params.orcid}/${ApiTargets.ORCID_WORKS}/${params.work['put-code']}`;
+  const url = `${ApiTargets.ORCID}/${params.user.orcid}/${ApiTargets.ORCID_WORKS}/${params.user.work['put-code']}`;
 
   const getConfig: ApiRequestConfig = {
     method: 'GET',
     url,
     headers: {
-      'orcid-authorization': `Bearer ${user.access_token}`,
+      'orcid-authorization': `Bearer ${params.user.access_token}`,
     },
   };
   const putConfig: ApiRequestConfig = {
@@ -179,7 +207,7 @@ const updateWork: QueryFunction<IOrcidResponse['updateWork']> = async ({ meta })
     url,
     data: params.work,
     headers: {
-      'orcid-authorization': `Bearer ${user.access_token}`,
+      'orcid-authorization': `Bearer ${params.user.access_token}`,
     },
   };
 
@@ -190,17 +218,17 @@ const updateWork: QueryFunction<IOrcidResponse['updateWork']> = async ({ meta })
   return res[1].data;
 };
 const getName: QueryFunction<IOrcidResponse['name']> = async ({ meta }) => {
-  const { params, user } = meta as { params: IOrcidParams['name']; user: IOrcidUser };
+  const { params } = meta as { params: IOrcidParams['name'] };
 
-  if (!isValidIOrcidUser(user)) {
+  if (!isValidIOrcidUser(params.user)) {
     throw new Error('Invalid ORCiD User');
   }
 
   const config: ApiRequestConfig = {
     method: 'GET',
-    url: `${ApiTargets.ORCID_NAME}/${params.orcid}`,
+    url: `${ApiTargets.ORCID_NAME}/${params.user.orcid}`,
     headers: {
-      'orcid-authorization': `Bearer ${user.access_token}`,
+      'orcid-authorization': `Bearer ${params.user.access_token}`,
     },
   };
 

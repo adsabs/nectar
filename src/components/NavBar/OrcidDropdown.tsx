@@ -3,7 +3,7 @@ import { OrcidInactiveLogo } from '@components';
 import { MouseEvent, ReactElement } from 'react';
 import { MenuDropdown } from './MenuDropdown';
 import { ListType } from './types';
-import { useOrcid } from '@hooks/useOrcid';
+import { useOrcid } from '@hooks/orcid/useOrcid';
 import { FormControl, FormLabel, Switch } from '@chakra-ui/react';
 
 const items = [
