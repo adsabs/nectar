@@ -296,32 +296,6 @@ export const purifyString = (value: string): string => {
   }
 };
 
-export const purify = <T extends Record<string, unknown>>(value: T): T | string | string[] => {
-  if (is(String, value)) {
-    return purifyString(value as string);
-  }
-
-  if (Array.isArray(value)) {
-    return value.map(purifyString);
-  }
-
-  if (is(Object, value)) {
-    return Object.keys(value).reduce(
-      (acc, key) => ({
-        ...acc,
-        [key]: Array.isArray(value[key])
-          ? (value[key] as string[]).map(purifyString)
-          : is(String, value[key])
-          ? purifyString(value[key] as string)
-          : value[key],
-      }),
-      value,
-    );
-  }
-
-  return value;
-};
-
 /**
  * @see https://stackoverflow.com/a/9461657
  */
