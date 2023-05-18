@@ -82,8 +82,15 @@ export const handlers = [
     }
 
     if (params['json.facet']) {
-      // eslint-disable-next-line
-      if (JSON.parse(params['json.facet'] as string)?.author_facet_hier?.prefix?.startsWith('1')) {
+      if (
+        (
+          JSON.parse(params['json.facet'] as string) as {
+            author_facet_hier: {
+              prefix: string;
+            };
+          }
+        )?.author_facet_hier?.prefix?.startsWith('1')
+      ) {
         return res(
           ctx.status(200),
           ctx.json<IADSApiSearchResponse>({

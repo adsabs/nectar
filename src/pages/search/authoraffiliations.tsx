@@ -11,7 +11,7 @@ import { composeNextGSSP } from '@ssrUtils';
 import { parseAPIError, parseQueryFromUrl } from '@utils';
 import { NextPage } from 'next';
 import NextLink from 'next/link';
-import { dehydrate, DehydratedState, QueryClient } from 'react-query';
+import { dehydrate, QueryClient } from 'react-query';
 
 interface IAuthorAffilationsPageProps {
   error?: string;
@@ -99,7 +99,7 @@ export const getServerSideProps = composeNextGSSP(async (ctx) => {
     // react-query infinite queries cannot be serialized by next, currently.
     // see https://github.com/tannerlinsley/react-query/issues/3301#issuecomment-1041374043
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const dehydratedState: DehydratedState = JSON.parse(JSON.stringify(dehydrate(queryClient)));
+    const dehydratedState = JSON.parse(JSON.stringify(dehydrate(queryClient)));
 
     return {
       props: {
