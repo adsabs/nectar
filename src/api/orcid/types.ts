@@ -22,15 +22,17 @@ export interface IOrcidResponse {
   removeWorks: null;
   addWorks: Record<string, unknown>;
   name: Record<string, unknown>;
+  preferences: Record<string, unknown>;
 }
 
 export interface IOrcidParams {
   exchangeToken: { code: string };
-  profile: { orcid: string; full?: boolean; update?: boolean };
-  updateWork: { orcid: string; work: IOrcidWork };
-  removeWorks: { orcid: string; works: string[] };
-  addWorks: { orcid: string; works: string[] };
-  name: { orcid: string };
+  profile: { user: IOrcidUser; full?: boolean; update?: boolean };
+  updateWork: { user: IOrcidUser; work: IOrcidWork };
+  removeWorks: { user: IOrcidUser; works: string[] };
+  addWorks: { user: IOrcidUser; works: string[] };
+  preferences: { user: IOrcidUser };
+  name: { user: IOrcidUser };
 }
 
 export interface IOrcidUser {

@@ -2,6 +2,8 @@ import { AppState, useStore } from '@store';
 import { useIsClient } from '@hooks/useIsClient';
 import { ORCID_LOGIN_URL } from '@config';
 import { useRouter } from 'next/router';
+import { useOrcidGetName, useOrcidPreferences } from '@api/orcid';
+import { isValidIOrcidUser } from '@api/orcid/models';
 
 const setOrcidModeSelector = (state: AppState) => state.setOrcidMode;
 const activeSelector = (state: AppState) => state.orcid.active;
@@ -17,6 +19,20 @@ export const useOrcid = () => {
   const isAuthenticated = useStore(isAuthenticatedSelector);
   const reset = useStore(resetSelector);
   const user = useStore(orcidUserSelector);
+
+  const { data: names } = useOrcidGetName(
+    { user },
+    {
+      enabled: isAuthenticated && isValidIOrcidUser(user),
+    },
+  );
+
+  const { data: preferences } = useOrcidPreferences(
+    { user },
+    {
+      enabled: isAuthenticated && isValidIOrcidUser(user),
+    },
+  );
 
   const login = () => {
     if (isClient) {
@@ -38,5 +54,7 @@ export const useOrcid = () => {
     isAuthenticated,
     toggleOrcidMode: () => setOrcidMode(!active),
     user,
+    names,
+    preferences,
   };
 };

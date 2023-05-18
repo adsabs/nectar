@@ -1,7 +1,7 @@
 import { NextPage } from 'next';
 import { Heading } from '@chakra-ui/layout';
 import { useOrcidGetProfile } from '@api/orcid/orcid';
-import { useOrcid } from '@hooks/useOrcid';
+import { useOrcid } from '@hooks/orcid/useOrcid';
 import { Code, List, ListItem } from '@chakra-ui/react';
 
 const OrcidPage: NextPage = () => {
