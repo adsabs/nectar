@@ -156,7 +156,7 @@ const removeWorks: QueryFunction<IOrcidResponse['removeWorks']> = async ({ meta 
     // TODO handle bulk deletions
     url: `${ApiTargets.ORCID}/${params.user.orcid}/${ApiTargets.ORCID_WORKS}/${params.works[0]}`,
     headers: {
-      'orcid-authorization': `Bearer ${user.access_token}`,
+      'orcid-authorization': `Bearer ${params.user.access_token}`,
     },
   };
 
@@ -193,7 +193,7 @@ const updateWork: QueryFunction<IOrcidResponse['updateWork']> = async ({ meta })
     throw new Error('Invalid ORCiD User');
   }
 
-  const url = `${ApiTargets.ORCID}/${params.user.orcid}/${ApiTargets.ORCID_WORKS}/${params.user.work['put-code']}`;
+  const url = `${ApiTargets.ORCID}/${params.user.orcid}/${ApiTargets.ORCID_WORKS}/${params.work['put-code']}`;
 
   const getConfig: ApiRequestConfig = {
     method: 'GET',
