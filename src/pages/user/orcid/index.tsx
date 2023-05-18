@@ -3,10 +3,16 @@ import { Heading } from '@chakra-ui/layout';
 import { useOrcidGetProfile } from '@api/orcid/orcid';
 import { useOrcid } from '@hooks/orcid/useOrcid';
 import { Code, List, ListItem } from '@chakra-ui/react';
+import { isValidIOrcidUser } from '@api/orcid/models';
 
 const OrcidPage: NextPage = () => {
   const { user } = useOrcid();
-  const { data } = useOrcidGetProfile({ orcid: user?.orcid }, { enabled: typeof user?.orcid === 'string' });
+  const { data } = useOrcidGetProfile(
+    { user },
+    {
+      enabled: isValidIOrcidUser(user),
+    },
+  );
   return (
     <>
       <Heading as="h2">ORCiD</Heading>
