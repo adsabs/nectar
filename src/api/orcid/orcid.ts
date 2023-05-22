@@ -28,9 +28,7 @@ export const orcidKeys = {
   preferences: (params: IOrcidParams['preferences']) => [OrcidKeys.PREFERENCES, omitUser(params)] as const,
 };
 
-type OrcidQuery<
-  K extends keyof IOrcidParams & keyof IOrcidResponse
-> = ADSQuery<IOrcidParams[K], IOrcidResponse[K]>;
+type OrcidQuery<K extends keyof IOrcidParams & keyof IOrcidResponse> = ADSQuery<IOrcidParams[K], IOrcidResponse[K]>;
 
 type OrcidMutation<K extends keyof IOrcidMutationParams & keyof IOrcidResponse> = ADSMutation<
   IOrcidResponse[K],
@@ -107,6 +105,15 @@ export const useOrcidGetWork: OrcidQuery<'getWork'> = (params, options) => {
   return useQuery({
     queryKey: orcidKeys.getWork(params),
     queryFn: getWork,
+    meta: { params },
+    ...options,
+  });
+};
+
+export const useOrcidSetPreferences: OrcidQuery<'preferences'> = (params, options) => {
+  return useQuery({
+    queryKey: orcidKeys.preferences(params),
+    queryFn: setPreferences,
     meta: { params },
     ...options,
   });
@@ -296,6 +303,26 @@ const getWork: QueryFunction<IOrcidResponse['getWork']> = async ({ meta }) => {
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.ORCID}/${params.user.orcid}/${ApiTargets.ORCID_WORKS}/${params.putcode}`,
+    headers: {
+      'orcid-authorization': `Bearer ${params.user.access_token}`,
+    },
+  };
+
+  const { data } = await api.request<null>(config);
+  return data;
+};
+
+const setPreferences: QueryFunction<IOrcidResponse['preferences']> = async ({ meta }) => {
+  const { params } = meta as { params: IOrcidParams['preferences'] };
+
+  if (!isValidIOrcidUser(params.user)) {
+    throw new Error('Invalid ORCiD User');
+  }
+
+  const config: ApiRequestConfig = {
+    method: 'POST',
+    url: `${ApiTargets.ORCID_PREFERENCES}/${params.user.orcid}`,
+    data: params.preferences,
     headers: {
       'orcid-authorization': `Bearer ${params.user.access_token}`,
     },
