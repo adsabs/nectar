@@ -2,6 +2,7 @@ import type { IOrcidUser } from '@api/orcid/types/orcid-user';
 import type { IOrcidProfile } from '@api/orcid/types/orcid-profile';
 import type { IOrcidName } from '@api/orcid/types/orcid-name';
 import type { IOrcidWork } from '@api/orcid/types/orcid-work';
+import { IOrcidPreferences } from '@api/orcid/types/orcid-preferences';
 
 export type { IOrcidWork } from './orcid-work';
 export type { IOrcidProfile } from './orcid-profile';
@@ -17,7 +18,7 @@ export interface IOrcidResponse {
   removeWorks: Record<string, PromiseSettledResult<void>>;
   addWorks: Record<string, unknown>;
   name: IOrcidName;
-  preferences: Record<string, unknown>;
+  preferences: IOrcidPreferences;
   getWork: IOrcidWork;
 }
 
@@ -27,7 +28,7 @@ export interface IOrcidParams {
   removeWorks: { putcodes: IOrcidWork['put-code'][] };
   addWorks: { works: unknown[] };
   getWork: { user: IOrcidUser; putcode: IOrcidWork['put-code'] };
-  preferences: { user: IOrcidUser };
+  preferences: { user: IOrcidUser; preferences?: IOrcidPreferences };
   name: { user: IOrcidUser };
 }
 
