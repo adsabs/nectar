@@ -5,11 +5,12 @@ import { MenuDropdown } from './MenuDropdown';
 import { ListType } from './types';
 import { useOrcid } from '@lib/orcid/useOrcid';
 import { FormControl, FormLabel, Switch } from '@chakra-ui/react';
+import { useRouter } from 'next/router';
 
 const items = [
   {
     id: 'login',
-    label: 'Sign into Orcid to claim papers in ADS',
+    label: 'Sign into ORCiD to claim papers in ADS',
   },
   {
     id: 'toggle-mode-active',
@@ -33,6 +34,14 @@ const items = [
       </FormControl>
     ),
   },
+  {
+    id: 'my-orcid-page',
+    label: 'My ORCiD Page',
+  },
+  {
+    id: 'logout',
+    label: 'Logout from ORCiD',
+  },
 ];
 
 interface IOrcidDropdownProps {
@@ -41,16 +50,23 @@ interface IOrcidDropdownProps {
 }
 
 export const OrcidDropdown = (props: IOrcidDropdownProps): ReactElement => {
+  const router = useRouter();
   const { type, onFinished } = props;
-  const { active, login, isAuthenticated, toggleOrcidMode } = useOrcid();
+  const { active, login, logout, isAuthenticated, toggleOrcidMode } = useOrcid();
 
   const handleSelect = (e: MouseEvent<HTMLElement>) => {
     const id = (e.target as HTMLElement).dataset['id'];
     if (id === 'login') {
       login();
     }
+    if (id === 'logout') {
+      logout();
+    }
     if (id === 'toggle-mode-active' || id === 'toggle-mode-inactive') {
       toggleOrcidMode();
+    }
+    if (id === 'my-orcid-page') {
+      void router.replace('/user/orcid');
     }
     if (onFinished) {
       onFinished();
@@ -70,7 +86,7 @@ export const OrcidDropdown = (props: IOrcidDropdownProps): ReactElement => {
         id="orcid"
         type={type}
         label={orcidLabel}
-        items={isAuthenticated ? [items[1]] : [items[0]]}
+        items={isAuthenticated ? [items[1], items[3], items[4]] : [items[0]]}
         onSelect={handleSelect}
       />
     );
@@ -80,7 +96,7 @@ export const OrcidDropdown = (props: IOrcidDropdownProps): ReactElement => {
         id="orcid"
         type={type}
         label={orcidLabel}
-        items={isAuthenticated ? [items[2]] : [items[0]]}
+        items={isAuthenticated ? [items[2], items[3], items[4]] : [items[0]]}
         onSelect={handleSelect}
       />
     );
