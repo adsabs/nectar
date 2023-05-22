@@ -88,6 +88,9 @@ export const theme = extendTheme(
           abstract: {
             fontSize: '2xl',
           },
+          pageTitle: {
+            fontSize: '2xl',
+          },
         },
       },
       Link: {
