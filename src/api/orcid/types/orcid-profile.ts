@@ -13,4 +13,4 @@ export interface IOrcidProfileEntry {
   source: string[];
 }
 
-type Status = 'verified' | 'not in ADS' | 'pending';
+type Status = 'verified' | 'not in ADS' | 'pending' | 'rejected' | null;

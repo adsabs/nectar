@@ -123,7 +123,7 @@ export const UserSettings = () => {
   };
 
   return (
-    <Card w={{ base: 'full', lg: '450px' }} h="fit-content">
+    <Card h="fit-content">
       <CardBody>
         <Text fontWeight="bold">{user?.name ?? ''}</Text>
         <Text>{user?.orcid ?? ''}</Text>
