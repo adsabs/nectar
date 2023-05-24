@@ -1,13 +1,28 @@
 import { NextPage } from 'next';
-import { Stack } from '@chakra-ui/react';
 import { UserSettings, WorksTable } from '@components/Orcid';
+import { Grid, GridItem, useBreakpointValue } from '@chakra-ui/react';
 
 const OrcidPage: NextPage = () => {
+  const mobile = useBreakpointValue({ base: true, lg: false }, { ssr: false });
+
   return (
-    <Stack direction={{ base: 'column', lg: 'row' }} spacing={6} my={{ base: 2, lg: 10 }}>
-      <UserSettings />
-      <WorksTable />
-    </Stack>
+    <>
+      {mobile ? (
+        <>
+          <UserSettings />
+          <WorksTable />
+        </>
+      ) : (
+        <Grid templateColumns="repeat(4, 1fr)" gap={6} my={{ base: 2, lg: 10 }}>
+          <GridItem colSpan={1}>
+            <UserSettings />
+          </GridItem>
+          <GridItem colSpan={3}>
+            <WorksTable />
+          </GridItem>
+        </Grid>
+      )}
+    </>
   );
 };
 
