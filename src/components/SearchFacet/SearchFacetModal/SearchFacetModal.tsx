@@ -20,7 +20,7 @@ import { AlphaSorter } from '@components/SearchFacet/SearchFacetModal/AlphaSorte
 import { SearchInput } from '@components/SearchFacet/SearchFacetModal/SearchInput';
 import { SortControl } from '@components/SearchFacet/SearchFacetModal/SortControl';
 import { useFacetStore } from '@components/SearchFacet/store/FacetStore';
-import { useDebounce } from '@hooks';
+import { useDebounce } from 'src/lib';
 import { ReactElement, ReactNode, useMemo } from 'react';
 import { parseRootFromKey } from '../helpers';
 import { SelectedList } from './SelectedList';

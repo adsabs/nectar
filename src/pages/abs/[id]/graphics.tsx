@@ -2,7 +2,7 @@ import { fetchGraphics, graphicsKeys, IADSApiSearchResponse, searchKeys, useGetG
 import { Box, Flex, Link } from '@chakra-ui/layout';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
-import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
+import { useGetAbstractDoc } from '@lib/useGetAbstractDoc';
 import { composeNextGSSP } from '@ssrUtils';
 import { normalizeURLParams, unwrapStringValue } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';

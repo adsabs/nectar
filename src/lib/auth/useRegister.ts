@@ -1,7 +1,7 @@
 import { IUserRegistrationCredentials } from '@api';
 import { registerUser } from '@auth-utils';
 import { useToast } from '@chakra-ui/react';
-import { BasicMsg, IAuthHooksOptions } from '@hooks/auth/types';
+import { BasicMsg, IAuthHooksOptions } from '@lib/auth/types';
 import { useRouter } from 'next/router';
 import { isNonEmptyString, isPlainObj, notEqual } from 'ramda-adjunct';
 import { useEffect, useState } from 'react';

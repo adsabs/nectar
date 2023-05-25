@@ -22,8 +22,8 @@ import {
   PapersTable,
   ReadsTable,
 } from '@components';
-import { useIsClient } from '@hooks/useIsClient';
-import { useMetrics } from '@hooks/useMetrics';
+import { useIsClient } from '@lib/useIsClient';
+import { useMetrics } from '@lib/useMetrics';
 import { BarDatum } from '@nivo/bar';
 import axios from 'axios';
 import { ReactElement, useMemo } from 'react';

@@ -44,7 +44,7 @@ import { ArrowsInIcon } from '@components/icons/ArrowsIn';
 import { ArrowsOutIcon } from '@components/icons/ArrowsOut';
 import { APP_DEFAULTS } from '@config';
 import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/20/solid';
-import { useIsClient } from '@hooks';
+import { useIsClient } from 'src/lib';
 import { composeNextGSSP } from '@ssrUtils';
 import { AppState, createStore, useStore, useStoreApi } from '@store';
 import { NumPerPageType } from '@types';

@@ -1,7 +1,7 @@
 import api, { IAuthLoginResponse, IUserCredentials } from '@api';
 import { getVaultData } from '@auth-utils';
 import { useToast } from '@chakra-ui/react';
-import { BasicMsg, IAuthHooksOptions } from '@hooks/auth/types';
+import { BasicMsg, IAuthHooksOptions } from '@lib/auth/types';
 import { useStoreApi } from '@store';
 import axios from 'axios';
 import { useRouter } from 'next/router';

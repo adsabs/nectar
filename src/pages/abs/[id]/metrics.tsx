@@ -13,7 +13,7 @@ import { Box } from '@chakra-ui/react';
 import { MetricsPane } from '@components';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
-import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
+import { useGetAbstractDoc } from '@lib/useGetAbstractDoc';
 import { normalizeURLParams, unwrapStringValue } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';

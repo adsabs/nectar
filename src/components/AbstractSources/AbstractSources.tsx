@@ -5,7 +5,7 @@ import { HStack, VStack } from '@chakra-ui/layout';
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
 import { SimpleLinkList } from '@components';
 import { ItemType } from '@components/Dropdown/types';
-import { useIsClient } from '@hooks/useIsClient';
+import { useIsClient } from '@lib/useIsClient';
 import { HTMLAttributes, MouseEvent, MouseEventHandler, ReactElement, useMemo } from 'react';
 import { IDataProductSource, IFullTextSource, IRelatedWorks, processLinkData } from './linkGenerator';
 

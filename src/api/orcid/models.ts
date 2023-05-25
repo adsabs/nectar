@@ -3,6 +3,7 @@ import { isNumber, isObject } from 'ramda-adjunct';
 import { IOrcidUser } from '@api/orcid/types';
 import { allPass, has } from 'ramda';
 import { addSeconds, isValid } from 'date-fns';
+import { IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
 
 const orcidRegex = /^\d{4}-\d{4}-\d{4}-\d{3}[0-9X]$/;
 
@@ -45,3 +46,25 @@ export const isValidIOrcidUser = (obj: unknown): obj is IOrcidUser => {
 
   return isValid(expiresAt);
 };
+
+export const isOrcidProfileEntry = (entry: unknown): entry is IOrcidProfileEntry => {
+  if (typeof entry !== 'object' || entry === null) {
+    return false;
+  }
+
+  const { identifier, status, title, pubyear, pubmonth, updated, putcode, source } = entry as IOrcidProfileEntry;
+
+  return (
+    typeof identifier === 'string' &&
+    typeof status === 'string' &&
+    (status === 'verified' || status === 'not in ADS' || status === 'pending') &&
+    typeof title === 'string' &&
+    typeof pubyear === 'string' &&
+    typeof pubmonth === 'string' &&
+    typeof updated === 'string' &&
+    (typeof putcode === 'string' || typeof putcode === 'number') &&
+    Array.isArray(source) &&
+    source.every((item) => typeof item === 'string')
+  );
+};
+

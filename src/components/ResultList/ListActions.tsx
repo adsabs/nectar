@@ -17,8 +17,8 @@ import {
   useToast,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { ISortProps, Sort, exportFormats, sections, DEFAULT_USER_DATA } from '@components';
-import { useIsClient } from '@hooks/useIsClient';
+import { DEFAULT_USER_DATA, exportFormats, ISortProps, sections, Sort } from '@components';
+import { useIsClient } from '@lib/useIsClient';
 import { AppState, useStore, useStoreApi } from '@store';
 import { makeSearchParams, noop, parseQueryFromUrl } from '@utils';
 import { useRouter } from 'next/router';
@@ -216,6 +216,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
     </Stack>
   );
 };
+
 
 const sortSelector: [
   (state: AppState) => AppState['query'],

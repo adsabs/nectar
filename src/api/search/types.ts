@@ -233,7 +233,7 @@ export interface IDocsEntity {
   date?: string;
   doctype_facet_hier?: string;
   doctype?: string;
-  doi?: string;
+  doi?: string[];
   eid?: string;
   email?: string;
   entdate?: string;
@@ -302,6 +302,7 @@ export interface IDocument {
 export interface IADSApiSearchErrorResponse {
   error: string;
 }
+
 
 export type QueryOperator =
   | 'citations'

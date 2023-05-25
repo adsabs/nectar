@@ -1,8 +1,8 @@
 import { ExportApiFormatKey } from '@api';
 import { CheckIcon, DownloadIcon } from '@chakra-ui/icons';
 import { Button, HStack, Spinner, Stack, StackProps, Textarea, useBreakpointValue } from '@chakra-ui/react';
-import { useDownloadFile } from '@hooks/useDownloadFile';
-import { useIsClient } from '@hooks/useIsClient';
+import { useDownloadFile } from '@lib/useDownloadFile';
+import { useIsClient } from '@lib/useIsClient';
 import { exportFormats } from '../models';
 import { LabeledCopyButton } from '@components/CopyButton';
 

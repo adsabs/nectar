@@ -1,7 +1,7 @@
 import { ChakraProvider } from '@chakra-ui/react';
 import { Layout } from '@components';
-import { useIsClient } from '@hooks';
-import { useCreateQueryClient } from '@hooks/useCreateQueryClient';
+import { useIsClient } from 'src/lib';
+import { useCreateQueryClient } from '@lib/useCreateQueryClient';
 import { MathJaxProvider } from '@mathjax';
 import { AppState, StoreProvider, useCreateStore, useStore } from '@store';
 import { theme } from '@theme';

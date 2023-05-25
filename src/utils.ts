@@ -70,6 +70,16 @@ export const getFomattedNumericPubdate = (pubdate: string): string | null => {
   return `${year}/${month}`;
 };
 
+export const parsePublicationDate = (pubdate: string) => {
+  if (typeof pubdate !== 'string') {
+    return null;
+  }
+
+  const regex = /^(?<year>\d{4})-(?<month>\d{2}|00)-(?<day>\d{2}|00)$/;
+  const match = pubdate.match(regex);
+  return match ? (match.groups as { year: string; month: string; day: string }) : null;
+};
+
 /**
  * Parse a JSON string
  * Returns a default value on failure

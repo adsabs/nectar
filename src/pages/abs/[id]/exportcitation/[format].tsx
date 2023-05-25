@@ -6,8 +6,8 @@ import { getExportCitationDefaultContext } from '@components/CitationExporter/Ci
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { DEFAULT_USER_DATA } from '@components/Settings/model';
 import { withDetailsPage } from '@hocs/withDetailsPage';
-import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
-import { useIsClient } from '@hooks/useIsClient';
+import { useGetAbstractDoc } from '@lib/useGetAbstractDoc';
+import { useIsClient } from '@lib/useIsClient';
 import { normalizeURLParams, unwrapStringValue } from '@utils';
 import { useStore } from '@store';
 import { GetServerSideProps, NextPage } from 'next';

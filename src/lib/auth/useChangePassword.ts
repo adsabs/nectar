@@ -1,13 +1,13 @@
-import { IUserChangeEmailCredentials } from '@api';
-import { changeEmailUser } from '@auth-utils';
+import { IUserChangePasswordCredentials } from '@api';
+import { changePasswordUser } from '@auth-utils';
 import { useToast } from '@chakra-ui/react';
-import { BasicMsg, IAuthHooksOptions } from '@hooks/auth/types';
+import { BasicMsg, IAuthHooksOptions } from '@lib/auth/types';
 import { useRouter } from 'next/router';
 import { isNonEmptyString, isPlainObj, notEqual } from 'ramda-adjunct';
 import { useEffect, useState } from 'react';
 
-export const useChangeEmail = (
-  creds: IUserChangeEmailCredentials,
+export const useChangePassword = (
+  creds: IUserChangePasswordCredentials,
   options: IAuthHooksOptions<BasicMsg<string>> = {},
 ) => {
   const toast = useToast({ position: 'top' });
@@ -26,9 +26,9 @@ export const useChangeEmail = (
     }
   }, [creds]);
 
-  const changeEmail = async () => {
+  const changePassword = async () => {
     try {
-      const result = await changeEmailUser(creds);
+      const result = await changePasswordUser(creds);
 
       if (result === true) {
         if (!options.noRedirect) {
@@ -37,7 +37,7 @@ export const useChangeEmail = (
         toast({
           status: 'success',
           title: 'Success!',
-          description: `Email updated`,
+          description: `Password has been reset`,
           ...(options.successToastOptions ? options.successToastOptions : {}),
         });
         const msg = { ok: true };
@@ -62,8 +62,8 @@ export const useChangeEmail = (
   };
 
   useEffect(() => {
-    if (options.enabled && isIUserChangeEmailCredentials(creds)) {
-      void changeEmail();
+    if (options.enabled && isIUserChangePasswordCredentials(creds)) {
+      void changePassword();
     }
   }, [options.enabled, creds]);
 
@@ -72,6 +72,13 @@ export const useChangeEmail = (
   };
 };
 
-const isIUserChangeEmailCredentials = (val: IUserChangeEmailCredentials): val is IUserChangeEmailCredentials => {
-  return isPlainObj(val) && isNonEmptyString(val.password) && isNonEmptyString(val.email);
+const isIUserChangePasswordCredentials = (
+  val: IUserChangePasswordCredentials,
+): val is IUserChangePasswordCredentials => {
+  return (
+    isPlainObj(val) &&
+    isNonEmptyString(val.password) &&
+    isNonEmptyString(val.currentPassword) &&
+    isNonEmptyString(val.confirmPassword)
+  );
 };

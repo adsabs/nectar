@@ -6,7 +6,7 @@ import { ChevronLeftIcon } from '@chakra-ui/icons';
 import { Button, Container as Box, Link } from '@chakra-ui/react';
 import { AuthorAffiliations, AuthorAffiliationsErrorMessage } from '@components';
 import { APP_DEFAULTS } from '@config';
-import { useBackToSearchResults } from '@hooks/useBackToSearchResults';
+import { useBackToSearchResults } from '@lib/useBackToSearchResults';
 import { composeNextGSSP } from '@ssrUtils';
 import { parseAPIError, parseQueryFromUrl } from '@utils';
 import { NextPage } from 'next';

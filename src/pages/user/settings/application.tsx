@@ -11,7 +11,7 @@ import {
   SelectOption,
   SettingsLayout,
 } from '@components';
-import { useSettings } from '@hooks/useSettings';
+import { useSettings } from '@lib/useSettings';
 import { createStore } from '@store';
 import { DEFAULT_USER_DATA } from '@components/Settings/model';
 import { composeNextGSSP } from '@ssrUtils';
