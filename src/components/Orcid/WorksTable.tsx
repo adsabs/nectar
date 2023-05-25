@@ -1,7 +1,8 @@
 import { getSearchParams, useSearch } from '@api';
 import { IOrcidProfile } from '@api/orcid/types';
 import { IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
-import { Stack, Heading, Table, Thead, Tr, Th, Tbody, Td, Text, Box, useToast } from '@chakra-ui/react';
+import { ChevronDownIcon, ChevronUpIcon, UpDownIcon } from '@chakra-ui/icons';
+import { Stack, Heading, Table, Thead, Tr, Th, Tbody, Td, Text, Box, useToast, IconButton } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components/Select';
 import { SimpleLink } from '@components/SimpleLink';
 import { useOrcid } from '@lib/orcid/useOrcid';
@@ -19,10 +20,17 @@ const filterOptions: SelectOption[] = [
   { id: 'not-scix', value: 'all', label: 'Not in SciX' },
 ];
 
+enum Direction {
+  ASC = 'ascending',
+  DESC = 'descending',
+}
+
+type SortField = 'title' | 'updated' | 'status';
+
 // get sort function
-const compareFn = (sortByField: 'title' | 'updated' | 'status', direction: 'asc' | 'desc') => {
+const compareFn = (sortByField: SortField, direction: Direction) => {
   return (w1: IOrcidProfileEntry, w2: IOrcidProfileEntry) => {
-    if (direction === 'asc') {
+    if (direction === Direction.ASC) {
       return w1[sortByField] < w2[sortByField] ? -1 : 1;
     } else {
       return w1[sortByField] < w2[sortByField] ? 1 : -1;
@@ -67,23 +75,26 @@ export const WorksTable = () => {
 
   const [selectedFilter, setSelectedFilter] = useState(filterOptions[0]);
 
-  // TODO: sorting
-  const [sortBy, setSortBy] = useState<'title' | 'updated' | 'status'>('title');
+  // sorting
+  const [sortBy, setSortBy] = useState<{ field: SortField; dir: Direction }>({
+    field: 'title',
+    dir: Direction.ASC,
+  });
 
   // displayed works after filter and sorting applied
   const displayedWorks = useMemo(() => {
-    const allWorsList = allWorks ? Object.values(allWorks) : [];
+    const allWorksList = allWorks ? Object.values(allWorks) : [];
     switch (selectedFilter.id) {
       case 'all':
-        return allWorsList.sort(compareFn(sortBy, 'asc'));
+        return allWorksList.sort(compareFn(sortBy.field, sortBy.dir));
       case 'orcid':
-        return allWorsList.filter((w) => w.status !== null).sort(compareFn(sortBy, 'asc'));
+        return allWorksList.filter((w) => w.status !== null).sort(compareFn(sortBy.field, sortBy.dir));
       case 'not-orcid':
-        return allWorsList.filter((w) => w.status === null).sort(compareFn(sortBy, 'asc'));
+        return allWorksList.filter((w) => w.status === null).sort(compareFn(sortBy.field, sortBy.dir));
       case 'not-scix':
-        return allWorsList
+        return allWorksList
           .filter((w) => w.source.indexOf('NASA Astrophysics Data System') === -1)
-          .sort(compareFn(sortBy, 'asc'));
+          .sort(compareFn(sortBy.field, sortBy.dir));
     }
   }, [allWorks, selectedFilter, sortBy]);
 
@@ -129,6 +140,11 @@ export const WorksTable = () => {
     removeWorks([typeof putcode === 'number' ? putcode.toString() : putcode]);
   };
 
+  // sort change handler
+  const handleSortChange = (field: SortField, dir: Direction) => {
+    setSortBy({ field, dir });
+  };
+
   return (
     <Stack flexGrow={{ base: 0, lg: 6 }}>
       <Heading as="h2" variant="pageTitle">
@@ -154,13 +170,61 @@ export const WorksTable = () => {
           <Text>No papers found</Text>
         ) : (
           <>
-            <Table>
+            <Table aria-label={`Works sorted by ${sortBy.field} ${sortBy.dir}`}>
               <Thead>
                 <Tr>
-                  <Th w="30%">Title</Th>
-                  <Th>Claimed By</Th>
-                  <Th w="10%">Date Updated</Th>
-                  <Th>Status</Th>
+                  <Th w="30%">
+                    Title
+                    <IconButton
+                      aria-label="sort by title"
+                      icon={
+                        sortBy.field !== 'title' ? (
+                          <UpDownIcon onClick={() => handleSortChange('title', Direction.ASC)} />
+                        ) : sortBy.dir === Direction.ASC ? (
+                          <ChevronUpIcon onClick={() => handleSortChange('title', Direction.DESC)} />
+                        ) : (
+                          <ChevronDownIcon onClick={() => handleSortChange('title', Direction.ASC)} />
+                        )
+                      }
+                      size="xs"
+                      ml={5}
+                    />
+                  </Th>
+                  <Th w="25%">Claimed By</Th>
+                  <Th w="15%">
+                    Updated
+                    <IconButton
+                      aria-label="sort by date"
+                      icon={
+                        sortBy.field !== 'updated' ? (
+                          <UpDownIcon onClick={() => handleSortChange('updated', Direction.ASC)} />
+                        ) : sortBy.dir === Direction.ASC ? (
+                          <ChevronUpIcon onClick={() => handleSortChange('updated', Direction.DESC)} />
+                        ) : (
+                          <ChevronDownIcon onClick={() => handleSortChange('updated', Direction.ASC)} />
+                        )
+                      }
+                      size="xs"
+                      ml={5}
+                    />
+                  </Th>
+                  <Th>
+                    Status
+                    <IconButton
+                      aria-label="sort by status"
+                      icon={
+                        sortBy.field !== 'status' ? (
+                          <UpDownIcon onClick={() => handleSortChange('status', Direction.ASC)} />
+                        ) : sortBy.dir === Direction.ASC ? (
+                          <ChevronUpIcon onClick={() => handleSortChange('status', Direction.DESC)} />
+                        ) : (
+                          <ChevronDownIcon onClick={() => handleSortChange('status', Direction.ASC)} />
+                        )
+                      }
+                      size="xs"
+                      ml={5}
+                    />
+                  </Th>
                   <Th>Actions</Th>
                 </Tr>
               </Thead>
