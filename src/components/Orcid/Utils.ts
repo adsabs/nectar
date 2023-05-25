@@ -1,9 +1,9 @@
-import { IOrcidProfile } from '@api/orcid/types';
+import { IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
 
-export const isClaimedBySciX = (profile: IOrcidProfile) => {
+export const isClaimedBySciX = (profile: IOrcidProfileEntry) => {
   return profile.source.indexOf('NASA Astrophysics Data System') !== -1;
 };
 
-export const isInSciX = (profile: IOrcidProfile) => {
+export const isInSciX = (profile: IOrcidProfileEntry) => {
   return profile.status !== 'not in ADS';
 };
