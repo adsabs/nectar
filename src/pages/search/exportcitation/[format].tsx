@@ -14,7 +14,7 @@ import { Box, Flex, Heading, HStack, Link } from '@chakra-ui/react';
 import { CitationExporter, DEFAULT_USER_DATA, JournalFormatMap } from '@components';
 import { getExportCitationDefaultContext } from '@components/CitationExporter/CitationExporter.machine';
 import { APP_DEFAULTS } from '@config';
-import { useIsClient } from '@hooks/useIsClient';
+import { useIsClient } from '@lib/useIsClient';
 import { parseQueryFromUrl } from '@utils';
 import { useStore } from '@store';
 import axios from 'axios';

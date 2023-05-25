@@ -12,7 +12,7 @@ import {
 } from '@api';
 import { Tab, TabList, TabPanel, TabPanels, Tabs, useToast } from '@chakra-ui/react';
 import { BibtexTabPanel, CustomFormatsTabPanel, exportFormats, GeneralTabPanel, SettingsLayout } from '@components';
-import { useSettings } from '@hooks/useSettings';
+import { useSettings } from '@lib/useSettings';
 import { useStore } from '@store';
 import { GetServerSideProps, GetServerSidePropsContext, NextPage } from 'next';
 import { Reducer, useEffect, useMemo, useReducer } from 'react';

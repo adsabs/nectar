@@ -3,7 +3,7 @@ import { calculatePagination } from '@components/ResultList/Pagination/usePagina
 import { getParentId, parseRootFromKey } from '@components/SearchFacet/helpers';
 import { useFacetStore } from '@components/SearchFacet/store/FacetStore';
 import { FacetItem } from '@components/SearchFacet/types';
-import { useDebounce } from '@hooks';
+import { useDebounce } from 'src/lib';
 import { AppState, useStore } from '@store';
 import { sanitize } from 'dompurify';
 import { omit } from 'ramda';

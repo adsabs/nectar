@@ -12,7 +12,7 @@ import { OrcidActiveIcon } from '@components/icons/Orcid';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { APP_DEFAULTS } from '@config';
 import { withDetailsPage } from '@hocs/withDetailsPage';
-import { useIsClient } from '@hooks/useIsClient';
+import { useIsClient } from '@lib/useIsClient';
 import { composeNextGSSP } from '@ssrUtils';
 import { unwrapStringValue } from '@utils';
 import { MathJax } from 'better-react-mathjax';

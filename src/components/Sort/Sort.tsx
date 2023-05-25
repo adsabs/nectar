@@ -6,7 +6,7 @@ import { SimpleLinkDropdown } from '@components';
 import { ItemType } from '@components/Dropdown/types';
 import { ISelectProps, Select } from '@components/Select';
 import { BarsArrowDownIcon, BarsArrowUpIcon } from '@heroicons/react/24/outline';
-import { useIsClient } from '@hooks/useIsClient';
+import { useIsClient } from '@lib/useIsClient';
 import { makeSearchParams, normalizeSolrSort, parseQueryFromUrl } from '@utils';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';

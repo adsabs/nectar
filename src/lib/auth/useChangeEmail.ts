@@ -1,13 +1,13 @@
-import { IUserChangePasswordCredentials } from '@api';
-import { changePasswordUser } from '@auth-utils';
+import { IUserChangeEmailCredentials } from '@api';
+import { changeEmailUser } from '@auth-utils';
 import { useToast } from '@chakra-ui/react';
-import { BasicMsg, IAuthHooksOptions } from '@hooks/auth/types';
+import { BasicMsg, IAuthHooksOptions } from '@lib/auth/types';
 import { useRouter } from 'next/router';
 import { isNonEmptyString, isPlainObj, notEqual } from 'ramda-adjunct';
 import { useEffect, useState } from 'react';
 
-export const useChangePassword = (
-  creds: IUserChangePasswordCredentials,
+export const useChangeEmail = (
+  creds: IUserChangeEmailCredentials,
   options: IAuthHooksOptions<BasicMsg<string>> = {},
 ) => {
   const toast = useToast({ position: 'top' });
@@ -26,9 +26,9 @@ export const useChangePassword = (
     }
   }, [creds]);
 
-  const changePassword = async () => {
+  const changeEmail = async () => {
     try {
-      const result = await changePasswordUser(creds);
+      const result = await changeEmailUser(creds);
 
       if (result === true) {
         if (!options.noRedirect) {
@@ -37,7 +37,7 @@ export const useChangePassword = (
         toast({
           status: 'success',
           title: 'Success!',
-          description: `Password has been reset`,
+          description: `Email updated`,
           ...(options.successToastOptions ? options.successToastOptions : {}),
         });
         const msg = { ok: true };
@@ -62,8 +62,8 @@ export const useChangePassword = (
   };
 
   useEffect(() => {
-    if (options.enabled && isIUserChangePasswordCredentials(creds)) {
-      void changePassword();
+    if (options.enabled && isIUserChangeEmailCredentials(creds)) {
+      void changeEmail();
     }
   }, [options.enabled, creds]);
 
@@ -72,13 +72,6 @@ export const useChangePassword = (
   };
 };
 
-const isIUserChangePasswordCredentials = (
-  val: IUserChangePasswordCredentials,
-): val is IUserChangePasswordCredentials => {
-  return (
-    isPlainObj(val) &&
-    isNonEmptyString(val.password) &&
-    isNonEmptyString(val.currentPassword) &&
-    isNonEmptyString(val.confirmPassword)
-  );
+const isIUserChangeEmailCredentials = (val: IUserChangeEmailCredentials): val is IUserChangeEmailCredentials => {
+  return isPlainObj(val) && isNonEmptyString(val.password) && isNonEmptyString(val.email);
 };

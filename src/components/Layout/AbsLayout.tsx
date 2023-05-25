@@ -3,7 +3,7 @@ import { ChevronLeftIcon } from '@chakra-ui/icons';
 import { Heading, Stack, Text } from '@chakra-ui/layout';
 import { Button, Link } from '@chakra-ui/react';
 import { AbstractSideNav, Metatags } from '@components';
-import { useBackToSearchResults } from '@hooks/useBackToSearchResults';
+import { useBackToSearchResults } from '@lib/useBackToSearchResults';
 import { unwrapStringValue } from '@utils';
 import { MathJax } from 'better-react-mathjax';
 import Head from 'next/head';

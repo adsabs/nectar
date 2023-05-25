@@ -16,11 +16,11 @@ import {
   useBoolean,
 } from '@chakra-ui/react';
 import { SimpleLink } from '@components';
-import { useSession } from '@hooks/auth';
-import { getDefaultReducer } from '@hooks/auth/model';
-import { IAuthForm } from '@hooks/auth/types';
-import { useRegister } from '@hooks/auth/useRegister';
-import { useRecaptcha } from '@hooks/useRecaptcha';
+import { useSession } from '@lib/auth';
+import { getDefaultReducer } from '@lib/auth/model';
+import { IAuthForm } from '@lib/auth/types';
+import { useRegister } from '@lib/auth/useRegister';
+import { useRecaptcha } from '@lib/useRecaptcha';
 import { NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';

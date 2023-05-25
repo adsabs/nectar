@@ -1,4 +1,4 @@
-import { IAuthForm, IAuthFormEvent } from '@hooks/auth/types';
+import { IAuthForm, IAuthFormEvent } from '@lib/auth/types';
 import { Reducer } from 'react';
 
 export const getDefaultReducer = <T>(initialState: IAuthForm<T>): Reducer<IAuthForm<T>, IAuthFormEvent<T>> => {

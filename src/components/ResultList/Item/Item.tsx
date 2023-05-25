@@ -4,7 +4,7 @@ import { Box, Flex, Link, Stack, Text } from '@chakra-ui/layout';
 import { BoxProps, CircularProgress, Fade, useTimeout } from '@chakra-ui/react';
 import { AllAuthorsModal } from '@components/AllAuthorsModal';
 import { APP_DEFAULTS } from '@config';
-import { useIsClient } from '@hooks/useIsClient';
+import { useIsClient } from '@lib/useIsClient';
 import { useStore } from '@store';
 import { getFomattedNumericPubdate, unwrapStringValue } from '@utils';
 import { MathJax } from 'better-react-mathjax';
@@ -138,6 +138,7 @@ export const Item = (props: IItemProps): ReactElement => {
     </Flex>
   );
 };
+
 /**
  * Highlights view
  */

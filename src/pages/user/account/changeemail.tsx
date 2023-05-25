@@ -12,9 +12,9 @@ import {
   Stack,
   useBoolean,
 } from '@chakra-ui/react';
-import { getDefaultReducer } from '@hooks/auth/model';
-import { IAuthForm } from '@hooks/auth/types';
-import { useChangeEmail } from '@hooks/auth/useChangeEmail';
+import { getDefaultReducer } from '@lib/auth/model';
+import { IAuthForm } from '@lib/auth/types';
+import { useChangeEmail } from '@lib/auth/useChangeEmail';
 import { composeNextGSSP } from '@ssrUtils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';

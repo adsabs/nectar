@@ -314,6 +314,9 @@ importers:
       '@types/he':
         specifier: ^1.1.2
         version: 1.1.2
+      '@types/jsonpath':
+        specifier: ^0.2.0
+        version: 0.2.0
       '@types/katex':
         specifier: ^0.11.0
         version: 0.11.1
@@ -8916,6 +8919,10 @@ packages:
 
   /@types/json5@0.0.29:
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
+    dev: true
+
+  /@types/jsonpath@0.2.0:
+    resolution: {integrity: sha512-v7qlPA0VpKUlEdhghbDqRoKMxFB3h3Ch688TApBJ6v+XLDdvWCGLJIYiPKGZnS6MAOie+IorCfNYVHOPIHSWwQ==}
     dev: true
 
   /@types/katex@0.11.1:

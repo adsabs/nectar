@@ -30,7 +30,7 @@ import { OrcidActiveIcon } from '@components/icons/Orcid';
 import { Pagination } from '@components/ResultList/Pagination';
 import { usePagination } from '@components/ResultList/Pagination/usePagination';
 import { SearchQueryLink } from '@components/SearchQueryLink';
-import { useDebounce } from '@hooks/useDebounce';
+import { useDebounce } from '@lib/useDebounce';
 import { unwrapStringValue } from '@utils';
 import { MathJax } from 'better-react-mathjax';
 import { saveAs } from 'file-saver';

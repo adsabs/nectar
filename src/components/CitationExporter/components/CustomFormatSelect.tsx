@@ -1,10 +1,9 @@
-import { Dispatch, useEffect, useState } from 'react';
+import { ChangeEvent, Dispatch, useEffect, useState } from 'react';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 import { useStore } from '@store';
 import { Button, FormControl, FormLabel, Input, Text } from '@chakra-ui/react';
 import { Select } from '@components/Select';
-import { ChangeEvent } from 'react';
-import { useSession } from '@hooks/auth';
+import { useSession } from '@lib/auth';
 import { SimpleLink } from '@components/SimpleLink';
 
 export interface ICustomFormatSelectProps {

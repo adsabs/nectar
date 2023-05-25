@@ -3,7 +3,7 @@ import { Alert, AlertIcon } from '@chakra-ui/alert';
 import { AbstractRefList } from '@components';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
-import { useGetAbstractParams } from '@hooks/useGetAbstractParams';
+import { useGetAbstractParams } from '@lib/useGetAbstractParams';
 import { unwrapStringValue } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';

@@ -1,4 +1,4 @@
-import { useBatchedSearch } from '@hooks/useBatchedSearch';
+import { useBatchedSearch } from '@lib/useBatchedSearch';
 import { DefaultProviders } from '@test-utils';
 import { renderHook } from '@testing-library/react-hooks';
 import { expect, test } from 'vitest';

@@ -5,7 +5,7 @@ import NextLink from 'next/link';
 import { cloneElement } from 'react';
 import { SimpleLinkDropdown } from '@components/Dropdown';
 import { ItemType } from '@components/Dropdown/types';
-import { useIsClient } from '@hooks';
+import { useIsClient } from 'src/lib';
 
 export interface ITopNavigationMenuProps extends BoxProps {
   menuItems: CatMenuItems | SingleMenuItems;

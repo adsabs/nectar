@@ -15,9 +15,9 @@ import {
   UnorderedList,
   useBoolean,
 } from '@chakra-ui/react';
-import { getDefaultReducer } from '@hooks/auth/model';
-import { IAuthForm } from '@hooks/auth/types';
-import { useChangePassword } from '@hooks/auth/useChangePassword';
+import { getDefaultReducer } from '@lib/auth/model';
+import { IAuthForm } from '@lib/auth/types';
+import { useChangePassword } from '@lib/auth/useChangePassword';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { FormEventHandler, useCallback, useReducer, useRef, useState } from 'react';

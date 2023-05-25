@@ -16,7 +16,7 @@ import {
   visuallyHiddenStyle,
   VStack,
 } from '@chakra-ui/react';
-import { useIsClient } from '@hooks/useIsClient';
+import { useIsClient } from '@lib/useIsClient';
 import { useStore } from '@store';
 import { useCombobox } from 'downshift';
 import { matchSorter } from 'match-sorter';
