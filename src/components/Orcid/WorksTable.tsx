@@ -118,7 +118,17 @@ export const WorksTable = () => {
               <Tbody>
                 {displayedWorks.map((work) => (
                   <Tr key={work.identifier}>
-                    <Td>{work.title}</Td>
+                    <Td>
+                      <>
+                        {isInSciX(work) ? (
+                          <SimpleLink href={`/abs/${encodeURIComponent(work.identifier)}`} newTab>
+                            {work.title}
+                          </SimpleLink>
+                        ) : (
+                          `${work.title}`
+                        )}
+                      </>
+                    </Td>
                     <Td>{work.source.join(',')}</Td>
                     <Td>{new Date(work.updated).toLocaleDateString('en-US')}</Td>
                     <Td>{work.status ?? 'unclaimed'}</Td>
