@@ -1,19 +1,21 @@
 import { useOrcidSetPreferences } from '@api/orcid';
-import { DeleteIcon, AddIcon } from '@chakra-ui/icons';
+import { DeleteIcon, AddIcon, EditIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons';
 import {
   Card,
   CardBody,
   FormControl,
   FormLabel,
-  InputGroup,
   Input,
-  InputRightAddon,
   Text,
   useToast,
   Flex,
   Button,
+  HStack,
+  IconButton,
+  Box,
 } from '@chakra-ui/react';
 import { useOrcid } from '@lib/orcid/useOrcid';
+import { OrcidLogo } from '@components/images';
 import { useState, useEffect, ChangeEvent } from 'react';
 
 export const UserSettings = () => {
@@ -28,6 +30,9 @@ export const UserSettings = () => {
   const [newAliasInput, setNewAliasInput] = useState('');
 
   const [aliasInputs, setAliasInputs] = useState(preferences?.nameVariations ?? []);
+
+  // index of alias that is being edited
+  const [editAlias, setEditAlias] = useState<{ index: number; value: string }>({ index: -1, value: null });
 
   // update settings when preference is changed
   useEffect(() => {
@@ -110,6 +115,37 @@ export const UserSettings = () => {
     setNewAliasInput(''); // clear input field
   };
 
+  // turn alias input to edit mode
+  const handleEditAlias = (index: number) => {
+    setEditAlias({ index, value: aliasInputs[index] });
+  };
+
+  // editing alias value is changed
+  const handleEditingAliasChanged = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEditAlias((prev) => ({ ...prev, value }));
+  };
+
+  const handleCancelEditAlias = () => {
+    setEditAlias({ index: -1, value: null });
+  };
+
+  // submit edited alias
+  const handleSubmitEditAlias = () => {
+    setEditAlias({ index: -1, value: null });
+    const nameVariations = [...settings.preferences.nameVariations];
+    nameVariations[editAlias.index] = editAlias.value;
+    setSettings((prev) => {
+      return {
+        submitChange: true,
+        preferences: {
+          ...prev.preferences,
+          nameVariations,
+        },
+      };
+    });
+  };
+
   const handleDeleteAlias = (alias: string) => {
     setSettings((prev) => {
       return {
@@ -126,41 +162,84 @@ export const UserSettings = () => {
     <Card h="fit-content">
       <CardBody>
         <Text fontWeight="bold">{user?.name ?? ''}</Text>
-        <Text>{user?.orcid ?? ''}</Text>
-        <FormControl mt={2}>
+        <HStack spacing={1}>
+          <OrcidLogo className="flex-shrink-0 w-4 h-4" aria-hidden />
+          <Text>{user?.orcid ?? ''}</Text>
+        </HStack>
+        <FormControl mt={4}>
           <FormLabel>Academic Affiliation</FormLabel>
-          <InputGroup>
+          <HStack spacing={1}>
             <Input onChange={handleChangeAcademicAffiliationInput} value={academicAffiliationInput} />
-            <InputRightAddon
-              children="submit"
+            <IconButton
+              aria-label="submit update"
+              icon={<CheckIcon />}
               onClick={handleSubmitAffiliation}
-              bgColor={academicAffiliationInput !== settings.preferences?.currentAffiliation ? 'blue.500' : 'gray.50'}
-              color={academicAffiliationInput !== settings.preferences?.currentAffiliation ? 'white' : 'gray.200'}
-              cursor={academicAffiliationInput !== settings.preferences?.currentAffiliation ? 'pointer' : 'cursor'}
+              variant="outline"
+              borderRadius={0}
+              color="green.500"
+              isDisabled={academicAffiliationInput === settings.preferences?.currentAffiliation}
             />
-          </InputGroup>
+          </HStack>
         </FormControl>
-        <FormControl mt={2}>
+        <FormControl mt={4}>
           <FormLabel>Aliases</FormLabel>
-          {aliasInputs?.map((alias) => (
-            <InputGroup key={`alise-${alias}`}>
-              <Input defaultValue={alias} />
-              <InputRightAddon onClick={() => handleDeleteAlias(alias)}>
-                <DeleteIcon />
-              </InputRightAddon>
-            </InputGroup>
+          {aliasInputs?.map((alias, index) => (
+            <Box key={`alias-${alias}`} my={2}>
+              {index === editAlias.index ? (
+                <HStack spacing={1}>
+                  <Input value={editAlias.value} onChange={handleEditingAliasChanged} />
+                  <IconButton
+                    aria-label="submit"
+                    icon={<CheckIcon />}
+                    onClick={handleSubmitEditAlias}
+                    isDisabled={editAlias.value.length === 0}
+                    variant="outline"
+                    borderRadius={0}
+                    color="green.500"
+                  />
+                  <IconButton
+                    aria-label="cancel"
+                    icon={<CloseIcon />}
+                    onClick={handleCancelEditAlias}
+                    variant="outline"
+                    borderRadius={0}
+                    color="red.500"
+                  />
+                </HStack>
+              ) : (
+                <HStack spacing={1}>
+                  <Input value={alias} isReadOnly />
+                  <IconButton
+                    aria-label="edit"
+                    icon={<EditIcon />}
+                    onClick={() => handleEditAlias(index)}
+                    variant="outline"
+                    borderRadius={0}
+                  />
+                  <IconButton
+                    aria-label="delete"
+                    icon={<DeleteIcon />}
+                    onClick={() => handleDeleteAlias(alias)}
+                    variant="outline"
+                    borderRadius={0}
+                    color="red.500"
+                  />
+                </HStack>
+              )}
+            </Box>
           ))}
-          <InputGroup>
+          <HStack spacing={1}>
             <Input value={newAliasInput} onChange={handleChangeNewAliasInput} placeholder="Add new alias" />
-            <InputRightAddon
+            <IconButton
+              aria-label="submit new alias"
+              icon={<AddIcon />}
               onClick={handleSubmitNewAlias}
-              bgColor={newAliasInput !== '' ? 'blue.500' : 'gray.50'}
-              color={newAliasInput !== '' ? 'white' : 'gray.200'}
-              cursor={newAliasInput !== '' ? 'pointer' : 'cursor'}
-            >
-              <AddIcon />
-            </InputRightAddon>
-          </InputGroup>
+              variant="outline"
+              borderRadius={0}
+              color="green.500"
+              isDisabled={newAliasInput.length === 0}
+            />
+          </HStack>
         </FormControl>
         <Flex fontSize="sm" mt={10} justifyContent="end">
           <Button variant="link" onClick={logout}>
