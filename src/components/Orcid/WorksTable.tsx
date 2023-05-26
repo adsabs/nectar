@@ -188,6 +188,7 @@ export const WorksTable = () => {
                       }
                       size="xs"
                       ml={5}
+                      variant="ghost"
                     />
                   </Th>
                   <Th w="25%">Claimed By</Th>
@@ -206,6 +207,7 @@ export const WorksTable = () => {
                       }
                       size="xs"
                       ml={5}
+                      variant="ghost"
                     />
                   </Th>
                   <Th>
@@ -223,6 +225,7 @@ export const WorksTable = () => {
                       }
                       size="xs"
                       ml={5}
+                      variant="ghost"
                     />
                   </Th>
                   <Th>Actions</Th>
