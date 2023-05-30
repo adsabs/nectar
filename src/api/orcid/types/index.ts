@@ -12,7 +12,9 @@ export interface IOrcidResponse {
   exchangeToken: IOrcidUser;
   profile: IOrcidProfile;
   updateWork: IOrcidWork;
-  removeWorks: null;
+
+  /** orcid does not return a response on delete, so return the status */
+  removeWorks: Record<string, PromiseSettledResult<void>>;
   addWorks: Record<string, unknown>;
   name: IOrcidName;
   preferences: Record<string, unknown>;
@@ -37,5 +39,9 @@ export interface IOrcidMutationParams {
   addWorks: {
     params: { user: IOrcidUser };
     variables: { works: IOrcidWork[] };
+  };
+  removeWorks: {
+    params: { user: IOrcidUser };
+    variables: { putcodes: IOrcidWork['put-code'][] };
   };
 }
