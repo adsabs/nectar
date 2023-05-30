@@ -1,6 +1,6 @@
 import api, { ADSMutation, ADSQuery, ApiRequestConfig, ApiTargets } from '@api';
 import { MutationFunction, QueryFunction, useMutation, useQuery } from 'react-query';
-import { IOrcidMutationParams, IOrcidParams, IOrcidResponse, IOrcidUser } from '@api/orcid/types';
+import { IOrcidMutationParams, IOrcidParams, IOrcidResponse, IOrcidUser, IOrcidWork } from '@api/orcid/types';
 import { AppState } from '@store';
 import { isValidIOrcidUser } from '@api/orcid/models';
 import { omit } from 'ramda';
@@ -23,8 +23,8 @@ export const orcidKeys = {
   profile: (params: IOrcidParams['profile']) => [OrcidKeys.PROFILE, omitUser(params)] as const,
   name: (params: IOrcidParams['name']) => [OrcidKeys.NAME, omitUser(params)] as const,
   getWork: (params: IOrcidParams['getWork']) => [OrcidKeys.GET_WORK, omitUser(params)] as const,
-  addWorks: (params: IOrcidParams['addWorks']) => [OrcidKeys.ADD_WORKS, omitUser(params)] as const,
-  removeWorks: (params: IOrcidParams['removeWorks']) => [OrcidKeys.REMOVE_WORKS, omitUser(params)] as const,
+  addWorks: () => [OrcidKeys.ADD_WORKS] as const,
+  removeWorks: () => [OrcidKeys.REMOVE_WORKS] as const,
   preferences: (params: IOrcidParams['preferences']) => [OrcidKeys.PREFERENCES, omitUser(params)] as const,
 };
 
@@ -72,6 +72,7 @@ export const useOrcidUpdateWork: OrcidMutation<'updateWork'> = (params, options)
 
 export const useOrcidAddWorks: OrcidMutation<'addWorks'> = (params, options) => {
   return useMutation({
+    mutationKey: orcidKeys.addWorks(),
     mutationFn: ({ works }) =>
       addWorks({
         params,
@@ -80,14 +81,18 @@ export const useOrcidAddWorks: OrcidMutation<'addWorks'> = (params, options) => 
     ...options,
   });
 };
-// export const useOrcidRemoveWorks: OrcidQuery<'removeWorks'> = (params, options) => {
-//   return useQuery({
-//     queryKey: orcidKeys.removeWorks(params),
-//     queryFn: removeWorks,
-//     meta: { params },
-//     ...options,
-//   });
-// };
+
+export const useOrcidRemoveWorks: OrcidMutation<'removeWorks'> = (params, options) => {
+  return useMutation({
+    mutationKey: orcidKeys.removeWorks(),
+    mutationFn: ({ putcodes }) =>
+      removeWorks({
+        params,
+        variables: { putcodes },
+      }),
+    ...options,
+  });
+};
 
 export const useOrcidGetName: OrcidQuery<'name'> = (params, options) => {
   return useQuery({
@@ -169,25 +174,36 @@ const fetchProfile: QueryFunction<IOrcidResponse['profile']> = async ({ meta }) 
   return data;
 };
 
-// const removeWorks: QueryFunction<IOrcidResponse['removeWorks']> = async ({ meta }) => {
-//   const { params } = meta as { params: IOrcidParams['removeWorks'] };
-//
-//   if (!isValidIOrcidUser(params.user)) {
-//     throw new Error('Invalid ORCiD User');
-//   }
-//
-//   const config: ApiRequestConfig = {
-//     method: 'DELETE',
-//     // TODO handle bulk deletions
-//     url: `${ApiTargets.ORCID}/${params.user.orcid}/${ApiTargets.ORCID_WORKS}/${params.works[0]}`,
-//     headers: {
-//       'orcid-authorization': `Bearer ${params.user.access_token}`,
-//     },
-//   };
-//
-//   const { data } = await api.request<null>(config);
-//   return data;
-// };
+const removeWorks: MutationFunction<IOrcidResponse['removeWorks'], IOrcidMutationParams['removeWorks']> = async ({
+  params,
+  variables,
+}) => {
+  const { user } = params;
+  const { putcodes } = variables;
+
+  if (!isValidIOrcidUser(user)) {
+    throw new Error('Invalid ORCiD User');
+  }
+
+  const config: ApiRequestConfig = {
+    url: `${ApiTargets.ORCID}/${user.orcid}/${ApiTargets.ORCID_WORKS}`,
+    method: 'DELETE',
+    headers: {
+      'orcid-authorization': `Bearer ${user.access_token}`,
+    },
+  };
+
+  const makeRequest = async (putcode: IOrcidWork['put-code']) => {
+    await api.request({
+      ...config,
+      url: `${config.url}/${putcode}`,
+    });
+  };
+
+  const result = await Promise.allSettled(putcodes.map(makeRequest));
+
+  return Object.fromEntries(putcodes.map((putcode, index) => [putcode, result[index]]));
+};
 
 // url: `${ApiTargets.ORCID}/${params.user.orcid}/${ApiTargets.ORCID_WORKS}`,
 const addWorks: MutationFunction<IOrcidResponse['addWorks'], IOrcidMutationParams['addWorks']> = async ({
@@ -228,7 +244,7 @@ const updateWork: MutationFunction<IOrcidResponse['updateWork'], IOrcidMutationP
   }
 
   const config: ApiRequestConfig = {
-    url: `${ApiTargets.ORCID}/${user.orcid}/${ApiTargets.ORCID_WORKS}/${variables.putcode}`,
+    url: `${ApiTargets.ORCID}/${user.orcid}/${ApiTargets.ORCID_WORKS}/${putcode}`,
     headers: {
       'orcid-authorization': `Bearer ${user.access_token}`,
     },
