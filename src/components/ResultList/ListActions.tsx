@@ -18,6 +18,7 @@ import {
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { DEFAULT_USER_DATA, exportFormats, ISortProps, sections, Sort } from '@components';
+import { useOrcid } from '@lib/orcid/useOrcid';
 import { useIsClient } from '@lib/useIsClient';
 import { AppState, useStore, useStoreApi } from '@store';
 import { makeSearchParams, noop, parseQueryFromUrl } from '@utils';
@@ -42,6 +43,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const [exploreAll, setExploreAll] = useState(true);
   const router = useRouter();
   const toast = useToast();
+  const { active: orcidActive } = useOrcid();
 
   useEffect(() => {
     setExploreAll(noneSelected);
@@ -102,6 +104,14 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   };
 
   const handleOpsLink = useCallback((name: Operator) => () => handleOperationsLink(name), []);
+
+  const handleAddClaims = () => {
+    return;
+  };
+
+  const handleDeleteClaims = () => {
+    return;
+  };
 
   return (
     <Stack
@@ -167,6 +177,19 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
                   <MenuItem isDisabled={true}>Add to Library</MenuItem>
                   <MenuDivider />
                   <ExportMenu exploreAll={exploreAll} />
+                  {orcidActive ? (
+                    <>
+                      <MenuDivider />
+                      <MenuGroup title="ORCID">
+                        <MenuItem isDisabled={selected.length === 0} onClick={handleAddClaims}>
+                          Claim from SciX
+                        </MenuItem>
+                        <MenuItem isDisabled={selected.length === 0} onClick={handleDeleteClaims}>
+                          Delete claim from SciX
+                        </MenuItem>
+                      </MenuGroup>
+                    </>
+                  ) : null}
                 </MenuList>
               </Portal>
             </Menu>
@@ -216,7 +239,6 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
     </Stack>
   );
 };
-
 
 const sortSelector: [
   (state: AppState) => AppState['query'],
