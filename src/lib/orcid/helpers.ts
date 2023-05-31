@@ -1,7 +1,10 @@
-import { IOrcidWork } from '@api/orcid/types';
+import { IOrcidProfile, IOrcidWork } from '@api/orcid/types';
 import { lensPath } from 'ramda';
 import { Contributor, ExternalID } from '@api/orcid/types/orcid-work';
 import { IDocsEntity } from '@api/search/types';
+import { isArray } from 'ramda-adjunct';
+import { isOrcidProfileEntry } from '@api/orcid/models';
+import { IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
 
 export const orcidLenses = {
   createdDate: lensPath<IOrcidWork, string>(['created-date', 'value']),
@@ -107,4 +110,19 @@ export const convertDocType = (docType: string) => {
     default:
       return 'JOURNAL_ARTICLE';
   }
+};
+
+export const findWorkInProfile = (identifier: string | string[], profile: IOrcidProfile): IOrcidProfileEntry | null => {
+  if (isArray(identifier)) {
+    let work = null;
+
+    for (const id in identifier) {
+      if (isOrcidProfileEntry(profile[id])) {
+        work = profile[id];
+        break;
+      }
+    }
+    return work;
+  }
+  return isOrcidProfileEntry(profile[identifier]) ? profile[identifier] : null;
 };
