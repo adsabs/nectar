@@ -177,7 +177,6 @@ export const UserSettings = () => {
               icon={<CheckIcon />}
               onClick={handleSubmitAffiliation}
               variant="outline"
-              borderRadius={0}
               color="green.500"
               isDisabled={academicAffiliationInput === settings.preferences?.currentAffiliation}
             />
@@ -196,7 +195,6 @@ export const UserSettings = () => {
                     onClick={handleSubmitEditAlias}
                     isDisabled={editAlias.value.length === 0}
                     variant="outline"
-                    borderRadius={0}
                     color="green.500"
                   />
                   <IconButton
@@ -204,7 +202,6 @@ export const UserSettings = () => {
                     icon={<CloseIcon />}
                     onClick={handleCancelEditAlias}
                     variant="outline"
-                    borderRadius={0}
                     color="red.500"
                   />
                 </HStack>
@@ -216,14 +213,12 @@ export const UserSettings = () => {
                     icon={<EditIcon />}
                     onClick={() => handleEditAlias(index)}
                     variant="outline"
-                    borderRadius={0}
                   />
                   <IconButton
                     aria-label="delete"
                     icon={<DeleteIcon />}
                     onClick={() => handleDeleteAlias(alias)}
                     variant="outline"
-                    borderRadius={0}
                     color="red.500"
                   />
                 </HStack>
@@ -237,7 +232,6 @@ export const UserSettings = () => {
               icon={<AddIcon />}
               onClick={handleSubmitNewAlias}
               variant="outline"
-              borderRadius={0}
               color="green.500"
               isDisabled={newAliasInput.length === 0}
             />
