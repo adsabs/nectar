@@ -1,22 +1,22 @@
-import { useOrcidSetPreferences } from '@api/orcid';
-import { DeleteIcon, AddIcon, EditIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons';
+import { AddIcon, CheckIcon, CloseIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import {
+  Box,
+  Button,
   Card,
   CardBody,
+  Flex,
   FormControl,
   FormLabel,
+  HStack,
+  IconButton,
   Input,
   Text,
   useToast,
-  Flex,
-  Button,
-  HStack,
-  IconButton,
-  Box,
 } from '@chakra-ui/react';
 import { useOrcid } from '@lib/orcid/useOrcid';
 import { OrcidLogo } from '@components/images';
-import { useState, useEffect, ChangeEvent } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
+import { useOrcidPrefs } from '@lib/orcid/useOrcidPrefs';
 
 export const UserSettings = () => {
   const { user, preferences, logout } = useOrcid();
@@ -42,31 +42,33 @@ export const UserSettings = () => {
     }
   }, [settings]);
 
-  useOrcidSetPreferences(
-    {
-      user,
-      preferences: settings.preferences,
-    },
-    {
-      enabled: settings.submitChange,
-      onSuccess: (data) => {
-        toast({
-          status: 'success',
-          title: 'Update Successful',
-        });
-        setSettings({ submitChange: false, preferences: data });
-      },
-      onError: (error) => {
-        toast({
-          status: 'error',
-          title: error.message,
-        });
-        setSettings((prev) => {
-          return { submitChange: false, preferences: prev.preferences };
-        });
-      },
-    },
-  );
+  const { setPreferences } = useOrcidPrefs();
+
+  // useOrcidSetPreferences(
+  //   {
+  //     user,
+  //     preferences: settings.preferences,
+  //   },
+  //   {
+  //     enabled: settings.submitChange,
+  //     onSuccess: (data) => {
+  //       toast({
+  //         status: 'success',
+  //         title: 'Update Successful',
+  //       });
+  //       setSettings({ submitChange: false, preferences: data });
+  //     },
+  //     onError: (error) => {
+  //       toast({
+  //         status: 'error',
+  //         title: error.message,
+  //       });
+  //       setSettings((prev) => {
+  //         return { submitChange: false, preferences: prev.preferences };
+  //       });
+  //     },
+  //   },
+  // );
 
   const handleChangeAcademicAffiliationInput = (e: ChangeEvent<HTMLInputElement>) => {
     setAcademicAffiliationInput(e.target.value);

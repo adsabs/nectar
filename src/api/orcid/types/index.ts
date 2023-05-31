@@ -18,7 +18,8 @@ export interface IOrcidResponse {
   removeWorks: Record<string, PromiseSettledResult<void>>;
   addWorks: Record<string, unknown>;
   name: IOrcidName;
-  preferences: IOrcidPreferences;
+  getPreferences: IOrcidPreferences;
+  setPreferences: IOrcidPreferences;
   getWork: IOrcidWork;
 }
 
@@ -28,7 +29,7 @@ export interface IOrcidParams {
   removeWorks: { putcodes: IOrcidWork['put-code'][] };
   addWorks: { works: unknown[] };
   getWork: { user: IOrcidUser; putcode: IOrcidWork['put-code'] };
-  preferences: { user: IOrcidUser; preferences?: IOrcidPreferences };
+  getPreferences: { user: IOrcidUser };
   name: { user: IOrcidUser };
 }
 
@@ -44,5 +45,9 @@ export interface IOrcidMutationParams {
   removeWorks: {
     params: { user: IOrcidUser };
     variables: { putcodes: IOrcidWork['put-code'][] };
+  };
+  setPreferences: {
+    params: { user: IOrcidUser };
+    variables: { preferences: IOrcidPreferences };
   };
 }

@@ -13,7 +13,8 @@ export enum OrcidKeys {
   UPDATE_WORK = 'orcid/update-work',
   ADD_WORKS = 'orcid/add-works',
   REMOVE_WORKS = 'orcid/remove-works',
-  PREFERENCES = 'orcid/preferences',
+  GET_PREFERENCES = 'orcid/get-preferences',
+  SET_PREFERENCES = 'orcid/set-preferences',
 }
 
 const omitUser = omit(['user']);
@@ -25,7 +26,8 @@ export const orcidKeys = {
   getWork: (params: IOrcidParams['getWork']) => [OrcidKeys.GET_WORK, omitUser(params)] as const,
   addWorks: () => [OrcidKeys.ADD_WORKS] as const,
   removeWorks: () => [OrcidKeys.REMOVE_WORKS] as const,
-  preferences: (params: IOrcidParams['preferences']) => [OrcidKeys.PREFERENCES, omitUser(params)] as const,
+  getPreferences: (params: IOrcidParams['getPreferences']) => [OrcidKeys.GET_PREFERENCES, omitUser(params)] as const,
+  setPreferences: () => [OrcidKeys.SET_PREFERENCES],
 };
 
 type OrcidQuery<K extends keyof IOrcidParams & keyof IOrcidResponse> = ADSQuery<IOrcidParams[K], IOrcidResponse[K]>;
@@ -110,18 +112,21 @@ export const useOrcidGetWork: OrcidQuery<'getWork'> = (params, options) => {
   });
 };
 
-export const useOrcidSetPreferences: OrcidQuery<'preferences'> = (params, options) => {
-  return useQuery({
-    queryKey: orcidKeys.preferences(params),
-    queryFn: setPreferences,
-    meta: { params },
+export const useOrcidSetPreferences: OrcidMutation<'setPreferences'> = (params, options) => {
+  return useMutation({
+    mutationKey: orcidKeys.setPreferences(),
+    mutationFn: ({ preferences }) =>
+      setPreferences({
+        params,
+        variables: { preferences },
+      }),
     ...options,
   });
 };
 
-export const useOrcidPreferences: OrcidQuery<'preferences'> = (params, options) => {
+export const useOrcidPreferences: OrcidQuery<'getPreferences'> = (params, options) => {
   return useQuery({
-    queryKey: orcidKeys.preferences(params),
+    queryKey: orcidKeys.getPreferences(params),
     queryFn: getPreferences,
     meta: { params },
     ...options,
@@ -141,8 +146,8 @@ const fetchExchangeToken: QueryFunction<IOrcidUser> = async ({ meta }) => {
   return data;
 };
 
-const getPreferences: QueryFunction<IOrcidResponse['preferences']> = async ({ meta }) => {
-  const { params } = meta as { params: IOrcidParams['preferences'] };
+const getPreferences: QueryFunction<IOrcidResponse['getPreferences']> = async ({ meta }) => {
+  const { params } = meta as { params: IOrcidParams['getPreferences'] };
 
   if (!isValidIOrcidUser(params.user)) {
     throw new Error('Invalid ORCiD User');
@@ -156,7 +161,7 @@ const getPreferences: QueryFunction<IOrcidResponse['preferences']> = async ({ me
     },
   };
 
-  const { data } = await api.request<IOrcidResponse['preferences']>(config);
+  const { data } = await api.request<IOrcidResponse['getPreferences']>(config);
   return data;
 };
 
@@ -212,7 +217,6 @@ const removeWorks: MutationFunction<IOrcidResponse['removeWorks'], IOrcidMutatio
   return Object.fromEntries(putcodes.map((putcode, index) => [putcode, result[index]]));
 };
 
-// url: `${ApiTargets.ORCID}/${params.user.orcid}/${ApiTargets.ORCID_WORKS}`,
 const addWorks: MutationFunction<IOrcidResponse['addWorks'], IOrcidMutationParams['addWorks']> = async ({
   params,
   variables,
@@ -312,22 +316,24 @@ const getWork: QueryFunction<IOrcidResponse['getWork']> = async ({ meta }) => {
   return data;
 };
 
-const setPreferences: QueryFunction<IOrcidResponse['preferences']> = async ({ meta }) => {
-  const { params } = meta as { params: IOrcidParams['preferences'] };
+const setPreferences: MutationFunction<IOrcidResponse['setPreferences'], IOrcidMutationParams['setPreferences']> =
+  async ({ params, variables }) => {
+    const { user } = params;
+    const { preferences } = variables;
 
-  if (!isValidIOrcidUser(params.user)) {
-    throw new Error('Invalid ORCiD User');
-  }
+    if (!isValidIOrcidUser(user)) {
+      throw new Error('Invalid ORCiD User');
+    }
 
-  const config: ApiRequestConfig = {
-    method: 'POST',
-    url: `${ApiTargets.ORCID_PREFERENCES}/${params.user.orcid}`,
-    data: params.preferences,
-    headers: {
-      'orcid-authorization': `Bearer ${params.user.access_token}`,
-    },
+    const config: ApiRequestConfig = {
+      method: 'POST',
+      url: `${ApiTargets.ORCID_PREFERENCES}/${user.orcid}`,
+      data: preferences,
+      headers: {
+        'orcid-authorization': `Bearer ${user.access_token}`,
+      },
+    };
+
+    const { data } = await api.request<IOrcidResponse['setPreferences']>(config);
+    return data;
   };
-
-  const { data } = await api.request<null>(config);
-  return data;
-};
