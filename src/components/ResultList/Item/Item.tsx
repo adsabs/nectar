@@ -6,7 +6,7 @@ import { AllAuthorsModal } from '@components/AllAuthorsModal';
 import { APP_DEFAULTS } from '@config';
 import { useIsClient } from '@lib/useIsClient';
 import { useStore } from '@store';
-import { getFomattedNumericPubdate, unwrapStringValue } from '@utils';
+import { getFomattedNumericPubdate, noop, unwrapStringValue } from '@utils';
 import { MathJax } from 'better-react-mathjax';
 import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
@@ -33,6 +33,10 @@ export interface IItemProps {
   highlights?: string[];
   extraInfo?: string;
   linkNewTab?: boolean;
+  showOrcidAction?: boolean;
+  orcidClaimed?: boolean;
+  onAddClaim?: (identifier: string) => void;
+  onDeleteClaim?: (identifier: string) => void;
 }
 
 export const Item = (props: IItemProps): ReactElement => {
@@ -47,6 +51,10 @@ export const Item = (props: IItemProps): ReactElement => {
     highlights,
     extraInfo,
     linkNewTab = false,
+    showOrcidAction = false,
+    orcidClaimed = false,
+    onAddClaim = noop,
+    onDeleteClaim = noop,
   } = props;
   const { bibcode, pubdate, title = ['Untitled'], author = [], bibstem = [], author_count } = doc;
   const formattedPubDate = getFomattedNumericPubdate(pubdate);
@@ -83,6 +91,14 @@ export const Item = (props: IItemProps): ReactElement => {
     </NextLink>
   ) : null;
 
+  const handleAddClaim = () => {
+    onAddClaim(doc.identifier[0]);
+  };
+
+  const handleDeleteClaim = () => {
+    onDeleteClaim(doc.identifier[0]);
+  };
+
   return (
     <Flex direction="row" as="article" border="1px" borderColor="gray.50" mb={1} borderRadius="md">
       <Flex
@@ -117,7 +133,15 @@ export const Item = (props: IItemProps): ReactElement => {
             </Link>
           </NextLink>
           <Flex alignItems="start" ml={1}>
-            {!isClient || hideActions ? null : <ItemResourceDropdowns doc={doc} />}
+            {!isClient || hideActions ? null : (
+              <ItemResourceDropdowns
+                doc={doc}
+                orcidClaimed={orcidClaimed}
+                showOrcidAction={showOrcidAction}
+                onAddClaim={handleAddClaim}
+                onDeleteClaim={handleDeleteClaim}
+              />
+            )}
           </Flex>
         </Flex>
         <Flex direction="column">

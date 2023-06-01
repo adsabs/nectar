@@ -18,7 +18,9 @@ import {
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { DEFAULT_USER_DATA, exportFormats, ISortProps, sections, Sort } from '@components';
+import { useAddWorks } from '@lib/orcid/useAddWorks';
 import { useOrcid } from '@lib/orcid/useOrcid';
+import { useRemoveWorks } from '@lib/orcid/useRemoveWorks';
 import { useIsClient } from '@lib/useIsClient';
 import { AppState, useStore, useStoreApi } from '@store';
 import { makeSearchParams, noop, parseQueryFromUrl } from '@utils';
@@ -105,12 +107,57 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
 
   const handleOpsLink = useCallback((name: Operator) => () => handleOperationsLink(name), []);
 
+  // add claim
+  const { addWorks, isSuccess: addWorksSuccessful, error: addWorksError, data: addWorksData } = useAddWorks();
+
+  // add claim successful or failed
+  useEffect(() => {
+    if (addWorksSuccessful) {
+      toast({
+        status: 'success',
+        title: 'Successfully submitted add claim request',
+      });
+      clearSelected();
+    }
+    if (addWorksError) {
+      toast({
+        status: 'error',
+        title: addWorksError.message,
+      });
+    }
+  }, [addWorksSuccessful, addWorksError, addWorksData]);
+
   const handleAddClaims = () => {
-    return;
+    addWorks({ bibcodes: selected });
   };
 
+  //  delete claim
+  const {
+    removeWorks,
+    isSuccess: removeWorksSuccessful,
+    error: removeWorksError,
+    data: removeWorksData,
+  } = useRemoveWorks();
+
+  // delete claim successful or failed
+  useEffect(() => {
+    if (removeWorksSuccessful) {
+      toast({
+        status: 'success',
+        title: 'Successfully submitted remove claim request',
+      });
+      clearSelected();
+    }
+    if (removeWorksError) {
+      toast({
+        status: 'error',
+        title: removeWorksError.message,
+      });
+    }
+  }, [removeWorksSuccessful, removeWorksError, removeWorksData]);
+
   const handleDeleteClaims = () => {
-    return;
+    removeWorks(selected);
   };
 
   return (

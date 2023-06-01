@@ -24,6 +24,7 @@ import {
   Portal,
   Tooltip,
   useMediaQuery,
+  useToast,
   VisuallyHidden,
 } from '@chakra-ui/react';
 import {
@@ -57,6 +58,9 @@ import { useRouter } from 'next/router';
 import { last, omit, path } from 'ramda';
 import { FormEventHandler, useEffect, useRef, useState } from 'react';
 import { dehydrate, QueryClient, useQueryClient } from 'react-query';
+import { useAddWorks } from '@lib/orcid/useAddWorks';
+import { useRemoveWorks } from '@lib/orcid/useRemoveWorks';
+import { useOrcid } from '@lib/orcid/useOrcid';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
   () => import('@components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),
@@ -107,6 +111,10 @@ const SearchPage: NextPage = () => {
   };
 
   const { data, isSuccess, isLoading, error } = useSearch(omitP(params));
+
+  const { active: orcidActive } = useOrcid();
+
+  const toast = useToast({ duration: 2000 });
 
   const [isPrint] = useMediaQuery('print'); // use to hide elements when printing
 
@@ -180,6 +188,59 @@ const SearchPage: NextPage = () => {
     setHistogramExpanded((prev) => !prev);
   };
 
+  // add claim
+  const { addWorks, isSuccess: addWorksSuccessful, error: addWorksError, data: addWorksData } = useAddWorks();
+
+  // add claim successful or failed
+  useEffect(() => {
+    if (addWorksSuccessful) {
+      toast({
+        status: 'success',
+        title: 'Successfully submitted add claim request',
+      });
+    }
+    if (addWorksError) {
+      toast({
+        status: 'error',
+        title: addWorksError.message,
+      });
+    }
+  }, [addWorksSuccessful, addWorksError, addWorksData]);
+
+  // add claim handler
+  const handleAddClaim = (identifier: string) => {
+    addWorks({ bibcodes: [identifier] });
+  };
+
+  //  delete claim
+  const {
+    removeWorks,
+    isSuccess: removeWorksSuccessful,
+    error: removeWorksError,
+    data: removeWorksData,
+  } = useRemoveWorks();
+
+  // delete claim successful or failed
+  useEffect(() => {
+    if (removeWorksSuccessful) {
+      toast({
+        status: 'success',
+        title: 'Successfully submitted remove claim request',
+      });
+    }
+    if (removeWorksError) {
+      toast({
+        status: 'error',
+        title: removeWorksError.message,
+      });
+    }
+  }, [removeWorksSuccessful, removeWorksError, removeWorksData]);
+
+  // Delete claim handler
+  const handleDeleteClaim = (identifier: string) => {
+    removeWorks([identifier]);
+  };
+
   return (
     <>
       <Head>
@@ -241,7 +302,13 @@ const SearchPage: NextPage = () => {
 
             {data && (
               <>
-                <SimpleResultList docs={data.docs} indexStart={params.start} />
+                <SimpleResultList
+                  docs={data.docs}
+                  indexStart={params.start}
+                  showOrcidAction={orcidActive}
+                  onAddClaim={handleAddClaim}
+                  onDeleteClaim={handleDeleteClaim}
+                />
                 {!isPrint && (
                   <Pagination
                     numPerPage={storeNumPerPage}
