@@ -1,12 +1,13 @@
 import { getSearchParams, useSearch } from '@api';
-import { IOrcidProfile } from '@api/orcid/types';
-import { IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
+import { IOrcidProfile, IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
 import { ChevronDownIcon, ChevronUpIcon, UpDownIcon } from '@chakra-ui/icons';
 import { Stack, Heading, Table, Thead, Tr, Th, Tbody, Td, Text, Box, useToast, IconButton } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components/Select';
 import { SimpleLink } from '@components/SimpleLink';
+import { useAddWorks } from '@lib/orcid/useAddWorks';
 import { useOrcid } from '@lib/orcid/useOrcid';
 import { useRemoveWorks } from '@lib/orcid/useRemoveWorks';
+import { useUpdateWork } from '@lib/orcid/useUpdateWork';
 import { useEffect, useMemo, useState } from 'react';
 import { Actions } from './Actions';
 import { isInSciX } from './Utils';
@@ -45,7 +46,7 @@ export const WorksTable = () => {
 
   const { user, profile } = useOrcid();
 
-  const allWorks: IOrcidProfile = profile;
+  const allWorks: IOrcidProfile = profile ?? {};
 
   // All papers with matching orcid
   const { data } = useSearch(
@@ -57,21 +58,23 @@ export const WorksTable = () => {
 
   const allPapers = data ? data.docs : [];
 
-  allPapers.forEach((doc) => {
-    // if none of its identifiers is in claimed, add it to all works
-    if (doc.identifier.filter((identifier) => identifier in allWorks)) {
-      allWorks[doc.identifier[0]] = {
-        identifier: doc.identifier[0],
-        status: null,
-        title: doc.title[0],
-        pubyear: null,
-        pubmonth: null,
-        updated: null,
-        putcode: null,
-        source: ['publisher'],
-      };
-    }
-  });
+  if (allWorks) {
+    allPapers.forEach((doc) => {
+      // if none of its identifiers is in claimed, add it to all works
+      if (doc.identifier.filter((identifier) => identifier in allWorks).length === 0) {
+        allWorks[doc.identifier[0]] = {
+          identifier: doc.identifier[0],
+          status: null,
+          title: doc.title[0],
+          pubyear: null,
+          pubmonth: null,
+          updated: null,
+          putcode: null,
+          source: [],
+        };
+      }
+    });
+  }
 
   const [selectedFilter, setSelectedFilter] = useState(filterOptions[0]);
 
@@ -98,19 +101,65 @@ export const WorksTable = () => {
     }
   }, [allWorks, selectedFilter, sortBy]);
 
-  // TODO: enable add claim
-  // TODO: enable sync
-  // enable delete claim
-  const { removeWorks, isSuccess: removeWorksSuccessful, error: removeWorksError } = useRemoveWorks();
+  // add claim
+  const { addWorks, isSuccess: addWorksSuccessful, error: addWorksError, data: addWorksData } = useAddWorks();
 
-  // TODO: adding claim from scix
-  // TODO: sync to orcid
-  // removing claim from scix
+  // add claim successful or failed
+  useEffect(() => {
+    if (addWorksSuccessful) {
+      if (addWorksData.bulk[0]?.error) {
+        toast({
+          status: 'error',
+          title: addWorksData.bulk[0]?.error['user-message'],
+        });
+      } else {
+        toast({
+          status: 'success',
+          title: 'Successfully submitted add claim request',
+        });
+      }
+    }
+    if (addWorksError) {
+      toast({
+        status: 'error',
+        title: addWorksError.message,
+      });
+    }
+  }, [addWorksSuccessful, addWorksError, addWorksData]);
+
+  // sync work
+  const { updateWork, isSuccess: updateWorkSuccessful, error: updateWorkError } = useUpdateWork();
+
+  // sync work successful or failed
+  useEffect(() => {
+    if (updateWorkSuccessful) {
+      toast({
+        status: 'success',
+        title: 'Successfully submitted sync request',
+      });
+    }
+    if (updateWorkError) {
+      toast({
+        status: 'error',
+        title: updateWorkError.message,
+      });
+    }
+  }, [updateWorkSuccessful, updateWorkError]);
+
+  //  delete claim
+  const {
+    removeWorks,
+    isSuccess: removeWorksSuccessful,
+    error: removeWorksError,
+    data: removeWorksData,
+  } = useRemoveWorks();
+
+  // delete claim successful or failed
   useEffect(() => {
     if (removeWorksSuccessful) {
       toast({
         status: 'success',
-        title: 'Successfully submitted claim request',
+        title: 'Successfully submitted remove claim request',
       });
     }
     if (removeWorksError) {
@@ -119,25 +168,25 @@ export const WorksTable = () => {
         title: removeWorksError.message,
       });
     }
-  }, [removeWorksSuccessful, removeWorksError]);
+  }, [removeWorksSuccessful, removeWorksError, removeWorksData]);
 
   const handleFilterOptionsSelected = (option: SelectOption) => {
     setSelectedFilter(option);
   };
 
-  // TODO: add claim handler
-  const handleAddClaim = () => {
-    return;
+  // add claim handler
+  const handleAddClaim = (identifier: string) => {
+    addWorks({ bibcodes: [identifier] });
   };
 
-  // TODO: sync to orcid handler
-  const handleSyncToOrcid = () => {
-    return;
+  // sync to orcid handler
+  const handleSyncToOrcid = (identifier: string) => {
+    updateWork(identifier);
   };
 
   // Delete claim handler
-  const handleDeleteClaim = (putcode: IOrcidProfileEntry['putcode']) => {
-    removeWorks([typeof putcode === 'number' ? putcode.toString() : putcode]);
+  const handleDeleteClaim = (identifier: string) => {
+    removeWorks([identifier]);
   };
 
   // sort change handler
@@ -154,7 +203,7 @@ export const WorksTable = () => {
         Learn about using ORCiD with NASA SciX
       </SimpleLink>
       <Text>Claims take up to 24 hours to be indexed in SciX</Text>
-      {!user && !profile && <>Loading...</>}
+      {!user && !allWorks && <>Loading...</>}
       <Box w="350px">
         <Select
           options={filterOptions}
@@ -165,7 +214,7 @@ export const WorksTable = () => {
           onChange={handleFilterOptionsSelected}
         />
       </Box>
-      {user && profile ? (
+      {user && allWorks ? (
         displayedWorks.length === 0 ? (
           <Text>No papers found</Text>
         ) : (
@@ -245,7 +294,7 @@ export const WorksTable = () => {
                         )}
                       </>
                     </Td>
-                    <Td>{work.source.join(',')}</Td>
+                    <Td>{work.source.length > 0 ? work.source.join(',') : 'Provided by publisher'}</Td>
                     <Td>{new Date(work.updated).toLocaleDateString('en-US')}</Td>
                     <Td>{work.status ?? 'unclaimed'}</Td>
                     <Td>
