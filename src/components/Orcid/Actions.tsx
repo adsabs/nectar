@@ -2,31 +2,32 @@ import { IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { Button, HStack, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import { OrcidInactiveLogo, OrcidLogo } from '@components';
-import { isClaimedBySciX } from './Utils';
+import { isClaimedBySciX, isInSciX } from './Utils';
 
 export interface IActionProps {
   profile: IOrcidProfileEntry;
-  onAddClaim: () => void;
-  onDeleteClaim: (putcode: IOrcidProfileEntry['putcode']) => void;
-  onSyncToOrcid: () => void;
+  onAddClaim: (identifier: string) => void;
+  onDeleteClaim: (identifier: string) => void;
+  onSyncToOrcid: (identifier: string) => void;
 }
 
 export const Actions = ({ profile, onAddClaim, onDeleteClaim, onSyncToOrcid }: IActionProps) => {
   const handleAddClaim = () => {
-    onAddClaim();
+    onAddClaim(profile.identifier);
   };
 
   const handleDeleteClaim = () => {
-    onDeleteClaim(profile.putcode);
+    onDeleteClaim(profile.identifier);
   };
 
   const handleSyncToOrcid = () => {
-    onSyncToOrcid();
+    onSyncToOrcid(profile.identifier);
   };
 
   const claimedBySciX = isClaimedBySciX(profile);
 
-  // TODO: is 'rejected' claimed by scix or not? should delete claim from scix be enabled?
+  const inSciX = isInSciX(profile);
+
   return (
     <>
       {profile.status ? (
@@ -38,13 +39,13 @@ export const Actions = ({ profile, onAddClaim, onDeleteClaim, onSyncToOrcid }: I
             </HStack>
           </MenuButton>
           <MenuList>
-            <MenuItem isDisabled={!claimedBySciX} onClick={handleSyncToOrcid}>
+            <MenuItem isDisabled={!inSciX || !claimedBySciX} onClick={handleSyncToOrcid}>
               Sync to ORCiD
             </MenuItem>
-            <MenuItem isDisabled={claimedBySciX || profile.status === 'rejected'} onClick={handleAddClaim}>
+            <MenuItem isDisabled={!inSciX || claimedBySciX} onClick={handleAddClaim}>
               Claim from SciX
             </MenuItem>
-            <MenuItem isDisabled={!claimedBySciX} onClick={handleDeleteClaim}>
+            <MenuItem isDisabled={!inSciX || !claimedBySciX} onClick={handleDeleteClaim}>
               Delete claim from SciX
             </MenuItem>
           </MenuList>

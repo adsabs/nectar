@@ -1,4 +1,4 @@
-import { Button, HStack, IconButton, Menu, MenuButton, MenuItem, MenuList, Text, Tooltip } from '@chakra-ui/react';
+import { Button, HStack, Text, Tooltip } from '@chakra-ui/react';
 import { OrcidInactiveLogo, OrcidLogo } from '@components/images';
 
 export interface ISimpleActionProps {

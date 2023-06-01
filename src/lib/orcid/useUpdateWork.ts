@@ -17,7 +17,7 @@ export const useUpdateWork = () => {
     },
   );
 
-  if (Object.hasOwn(profile, id) && isOrcidProfileEntry(profile[id])) {
+  if (profile && Object.hasOwn(profile, id) && isOrcidProfileEntry(profile[id])) {
     setProfileEntry(profile[id]);
   }
 
@@ -27,7 +27,7 @@ export const useUpdateWork = () => {
       putcode: profileEntry?.putcode,
     },
     {
-      enabled: isOrcidProfileEntry(profile[id]),
+      enabled: isOrcidProfileEntry(profile?.[id]),
     },
   );
 

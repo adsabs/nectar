@@ -23,8 +23,6 @@ export const UserSettings = () => {
 
   const toast = useToast({ duration: 2000 });
 
-  const [settings, setSettings] = useState({ submitChange: false, preferences: preferences });
-
   const [academicAffiliationInput, setAcademicAffiliationInput] = useState(preferences?.currentAffiliation ?? '');
 
   const [newAliasInput, setNewAliasInput] = useState('');
@@ -34,53 +32,43 @@ export const UserSettings = () => {
   // index of alias that is being edited
   const [editAlias, setEditAlias] = useState<{ index: number; value: string }>({ index: -1, value: null });
 
-  // update settings when preference is changed
+  // update fields when preference is changed
   useEffect(() => {
-    if (settings?.preferences?.currentAffiliation) {
-      setAcademicAffiliationInput(settings.preferences.currentAffiliation);
-      setAliasInputs(settings.preferences.nameVariations);
+    if (preferences?.currentAffiliation) {
+      setAcademicAffiliationInput(preferences.currentAffiliation);
     }
-  }, [settings]);
+    if (preferences?.nameVariations) {
+      setAliasInputs(preferences.nameVariations);
+    }
+  }, [preferences]);
 
-  const { setPreferences } = useOrcidPrefs();
+  const { setPreferences, setPreferencesState } = useOrcidPrefs();
 
-  // useOrcidSetPreferences(
-  //   {
-  //     user,
-  //     preferences: settings.preferences,
-  //   },
-  //   {
-  //     enabled: settings.submitChange,
-  //     onSuccess: (data) => {
-  //       toast({
-  //         status: 'success',
-  //         title: 'Update Successful',
-  //       });
-  //       setSettings({ submitChange: false, preferences: data });
-  //     },
-  //     onError: (error) => {
-  //       toast({
-  //         status: 'error',
-  //         title: error.message,
-  //       });
-  //       setSettings((prev) => {
-  //         return { submitChange: false, preferences: prev.preferences };
-  //       });
-  //     },
-  //   },
-  // );
+  // set preference successful or failed
+  useEffect(() => {
+    if (setPreferencesState.isSuccess) {
+      toast({
+        status: 'success',
+        title: 'Successfully updated',
+      });
+    }
+    if (setPreferencesState.isError) {
+      toast({
+        status: 'error',
+        title: 'Update failed',
+      });
+    }
+  }, [setPreferencesState.isSuccess, setPreferencesState.error, setPreferencesState.data]);
 
   const handleChangeAcademicAffiliationInput = (e: ChangeEvent<HTMLInputElement>) => {
     setAcademicAffiliationInput(e.target.value);
   };
 
   const handleSubmitAffiliation = () => {
-    if (academicAffiliationInput === settings.preferences?.currentAffiliation) {
+    if (academicAffiliationInput === preferences?.currentAffiliation) {
       return;
     }
-    setSettings((prev) => {
-      return { submitChange: true, preferences: { ...prev.preferences, currentAffiliation: academicAffiliationInput } };
-    });
+    setPreferences({ preferences: { ...preferences, currentAffiliation: academicAffiliationInput } });
   };
 
   const handleChangeNewAliasInput = (e: ChangeEvent<HTMLInputElement>) => {
@@ -92,10 +80,8 @@ export const UserSettings = () => {
       return;
     }
 
-    if (
-      settings.preferences.nameVariations &&
-      settings.preferences.nameVariations.find((name) => name === newAliasInput) !== undefined
-    ) {
+    // return if alias already exists
+    if (preferences.nameVariations && preferences.nameVariations.find((name) => name === newAliasInput) !== undefined) {
       toast({
         status: 'info',
         title: 'Alias already exists',
@@ -103,16 +89,11 @@ export const UserSettings = () => {
       return;
     }
 
-    setSettings((prev) => {
-      return {
-        submitChange: true,
-        preferences: {
-          ...prev.preferences,
-          nameVariations: prev.preferences.nameVariations
-            ? [...prev.preferences.nameVariations, newAliasInput]
-            : [newAliasInput],
-        },
-      };
+    setPreferences({
+      preferences: {
+        ...preferences,
+        nameVariations: preferences.nameVariations ? [...preferences.nameVariations, newAliasInput] : [newAliasInput],
+      },
     });
     setNewAliasInput(''); // clear input field
   };
@@ -135,28 +116,22 @@ export const UserSettings = () => {
   // submit edited alias
   const handleSubmitEditAlias = () => {
     setEditAlias({ index: -1, value: null });
-    const nameVariations = [...settings.preferences.nameVariations];
+    const nameVariations = [...preferences.nameVariations];
     nameVariations[editAlias.index] = editAlias.value;
-    setSettings((prev) => {
-      return {
-        submitChange: true,
-        preferences: {
-          ...prev.preferences,
-          nameVariations,
-        },
-      };
+    setPreferences({
+      preferences: {
+        ...preferences,
+        nameVariations,
+      },
     });
   };
 
   const handleDeleteAlias = (alias: string) => {
-    setSettings((prev) => {
-      return {
-        submitChange: true,
-        preferences: {
-          ...prev.preferences,
-          nameVariations: prev.preferences.nameVariations.filter((n) => n !== alias),
-        },
-      };
+    setPreferences({
+      preferences: {
+        ...preferences,
+        nameVariations: preferences.nameVariations.filter((n) => n !== alias),
+      },
     });
   };
 
@@ -178,7 +153,7 @@ export const UserSettings = () => {
               onClick={handleSubmitAffiliation}
               variant="outline"
               color="green.500"
-              isDisabled={academicAffiliationInput === settings.preferences?.currentAffiliation}
+              isDisabled={academicAffiliationInput === preferences?.currentAffiliation}
             />
           </HStack>
         </FormControl>
