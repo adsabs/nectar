@@ -16,6 +16,7 @@ export const defaultFields: IADSApiSearchParams['fl'] = [
   'property',
   'data',
   'id',
+  'identifier',
 ];
 
 export const defaultSort: IADSApiSearchParams['sort'] = ['date desc'];

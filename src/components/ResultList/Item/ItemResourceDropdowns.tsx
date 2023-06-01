@@ -4,14 +4,19 @@ import { LockIcon, UnlockIcon } from '@chakra-ui/icons';
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
 import { SimpleLinkDropdown } from '@components';
 import { processLinkData } from '@components/AbstractSources/linkGenerator';
+import { SimpleAction } from '@components/Orcid/SimpleAction';
 import { Bars4Icon, CircleStackIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import { useIsClient } from '@lib/useIsClient';
-import { isBrowser } from '@utils';
+import { isBrowser, noop } from '@utils';
 import { useRouter } from 'next/router';
 import { MouseEventHandler, ReactElement } from 'react';
 
 export interface IItemResourceDropdownsProps {
   doc: IDocsEntity;
+  orcidClaimed?: boolean;
+  showOrcidAction?: boolean;
+  onAddClaim?: () => void;
+  onDeleteClaim?: () => void;
 }
 
 export interface IItem {
@@ -20,7 +25,13 @@ export interface IItem {
   path?: string;
 }
 
-export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): ReactElement => {
+export const ItemResourceDropdowns = ({
+  doc,
+  showOrcidAction = false,
+  orcidClaimed = false,
+  onAddClaim = noop,
+  onDeleteClaim = noop,
+}: IItemResourceDropdownsProps): ReactElement => {
   const router = useRouter();
   const isClient = useIsClient();
 
@@ -136,8 +147,20 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
     />
   );
 
+  const handleAddClaim = () => {
+    onAddClaim();
+  };
+
+  const handleDeleteClaim = () => {
+    onDeleteClaim();
+  };
+
   return (
     <>
+      {/* orcid menu */}
+      {showOrcidAction && (
+        <SimpleAction isClaimed={orcidClaimed} onAddClaim={handleAddClaim} onDeleteClaim={handleDeleteClaim} />
+      )}
       {/* full resources menu */}
       {isClient ? (
         <Menu variant="compact">

@@ -11,7 +11,7 @@ export interface ISimpleActionProps {
 export const SimpleAction = ({ isClaimed, onAddClaim, onDeleteClaim }: ISimpleActionProps) => {
   return (
     <>
-      {isClaimed ? (
+      {!isClaimed ? (
         <Tooltip label="Claim from SciX">
           <Button variant="outline" size="xs" color="gray.500" onClick={onAddClaim} mr={1}>
             <HStack spacing={1}>
