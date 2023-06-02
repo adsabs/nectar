@@ -10,6 +10,7 @@ interface IUseWorkProps {
 }
 
 const userSelector = (state: AppState) => state.orcid.user;
+const isAuthenticatedSelector = (state: AppState) => state.orcid.isAuthenticated;
 
 /**
  * Given an identifier, attempt to match it with the orcid profile.
@@ -19,10 +20,12 @@ const userSelector = (state: AppState) => state.orcid.user;
 export const useWork = (props: IUseWorkProps) => {
   const [work, setWork] = useState<IOrcidProfileEntry | null>(null);
   const user = useStore(userSelector);
+  const isAuthenticated = useStore(isAuthenticatedSelector);
+
   const { data: profile } = useOrcidGetProfile(
     { user, full: false, update: false },
     {
-      enabled: isValidIOrcidUser(user),
+      enabled: isAuthenticated && isValidIOrcidUser(user),
     },
   );
 

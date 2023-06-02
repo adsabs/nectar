@@ -36,7 +36,7 @@ export interface IOrcidParams {
 export interface IOrcidMutationParams {
   updateWork: {
     params: { user: IOrcidUser };
-    variables: { putcode: IOrcidWork['put-code'] };
+    variables: { work: IOrcidWork };
   };
   addWorks: {
     params: { user: IOrcidUser };

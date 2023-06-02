@@ -4,23 +4,38 @@ import { useSearch } from '@api';
 import { useEffect, useState } from 'react';
 import { transformADStoOrcid } from '@lib/orcid/workTransformer';
 import { useQueryClient } from 'react-query';
+import { isValidIOrcidUser } from '@api/orcid/models';
+import { OrcidHookOptions, OrcidMutationOptions } from '@lib/orcid/types';
 
 const orcidUserSelector = (state: AppState) => state.orcid.user;
+const isAuthenticatedSelector = (state: AppState) => state.orcid.isAuthenticated;
 
-export const useAddWorks = () => {
+export const useAddWorks = (
+  options?: OrcidHookOptions<'addWorks'>,
+  mutationOptions?: OrcidMutationOptions<'addWorks'>,
+) => {
   const qc = useQueryClient();
   const user = useStore(orcidUserSelector);
+  const isAuthenticated = useStore(isAuthenticatedSelector);
   const [bibcodesToAdd, setBibcodesToAdd] = useState<string[]>([]);
 
   const result = useOrcidAddWorks(
     { user },
     {
-      onSettled: () => {
+      ...options,
+      onSettled: async (...args) => {
+        if (typeof options?.onSettled === 'function') {
+          await options?.onSettled(...args);
+        }
+
         setBibcodesToAdd([]);
       },
-      onSuccess: () => {
+      onSuccess: async (...args) => {
+        if (typeof options?.onSuccess === 'function') {
+          await options?.onSuccess(...args);
+        }
         // invalidate cached profile, since it should have been updated
-        void qc.invalidateQueries({
+        await qc.invalidateQueries({
           queryKey: orcidKeys.profile({ user }),
           exact: false,
           refetchActive: true,
@@ -47,7 +62,7 @@ export const useAddWorks = () => {
       ],
     },
     {
-      enabled: bibcodesToAdd.length > 0,
+      enabled: isAuthenticated && isValidIOrcidUser(user) && bibcodesToAdd.length > 0,
     },
   );
 
@@ -58,16 +73,12 @@ export const useAddWorks = () => {
       const works = searchResult.docs.map(transformADStoOrcid);
 
       // finally sync the works with orcid
-      result.mutate({ works });
+      result.mutate({ works }, mutationOptions);
     }
   }, [searchResult]);
 
-  const addWorks = ({ bibcodes }: { bibcodes: string[] }) => {
-    setBibcodesToAdd(bibcodes);
-  };
-
   return {
-    addWorks,
+    addWorks: setBibcodesToAdd,
     ...result,
   };
 };

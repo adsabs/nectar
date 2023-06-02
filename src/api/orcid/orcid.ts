@@ -61,10 +61,10 @@ export const useOrcidGetProfile: OrcidQuery<'profile'> = (params, options) => {
 
 export const useOrcidUpdateWork: OrcidMutation<'updateWork'> = (params, options) => {
   return useMutation({
-    mutationFn: ({ putcode }) =>
+    mutationFn: ({ work }) =>
       updateWork({
         params,
-        variables: { putcode },
+        variables: { work },
       }),
     ...options,
   });
@@ -249,32 +249,22 @@ const updateWork: MutationFunction<IOrcidResponse['updateWork'], IOrcidMutationP
   variables,
 }) => {
   const { user } = params;
-  const { putcode } = variables;
+  const { work } = variables;
+
   if (!isValidIOrcidUser(user)) {
     throw new Error('Invalid ORCiD User');
   }
 
   const config: ApiRequestConfig = {
-    url: `${ApiTargets.ORCID}/${user.orcid}/${ApiTargets.ORCID_WORKS}/${putcode}`,
+    method: 'PUT',
+    url: `${ApiTargets.ORCID}/${user.orcid}/${ApiTargets.ORCID_WORKS}/${work['put-code']}`,
     headers: {
       'orcid-authorization': `Bearer ${user.access_token}`,
     },
-  };
-
-  const getWorkConfig: ApiRequestConfig = {
-    method: 'GET',
-    ...config,
-  };
-
-  const { data: work } = await api.request<IOrcidResponse['updateWork']>(getWorkConfig);
-
-  const updateWorkConfig: ApiRequestConfig = {
-    method: 'PUT',
     data: work,
-    ...config,
   };
 
-  const { data } = await api.request<IOrcidResponse['updateWork']>(updateWorkConfig);
+  const { data } = await api.request<IOrcidResponse['updateWork']>(config);
 
   return data;
 };
