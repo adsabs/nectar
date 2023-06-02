@@ -19,7 +19,8 @@ import { ChangeEvent, useEffect, useState } from 'react';
 import { useOrcidPrefs } from '@lib/orcid/useOrcidPrefs';
 
 export const UserSettings = () => {
-  const { user, preferences, logout } = useOrcid();
+  const { user, logout } = useOrcid();
+  const { preferences, setPreferences, setPreferencesState } = useOrcidPrefs();
 
   const toast = useToast({ duration: 2000 });
 
@@ -41,8 +42,6 @@ export const UserSettings = () => {
       setAliasInputs(preferences.nameVariations);
     }
   }, [preferences]);
-
-  const { setPreferences, setPreferencesState } = useOrcidPrefs();
 
   // set preference successful or failed
   useEffect(() => {
@@ -81,7 +80,7 @@ export const UserSettings = () => {
     }
 
     // return if alias already exists
-    if (preferences.nameVariations && preferences.nameVariations.find((name) => name === newAliasInput) !== undefined) {
+    if (preferences?.nameVariations.find((name) => name === newAliasInput) !== undefined) {
       toast({
         status: 'info',
         title: 'Alias already exists',

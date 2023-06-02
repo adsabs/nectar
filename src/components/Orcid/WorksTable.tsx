@@ -1,14 +1,11 @@
 import { getSearchParams, useSearch } from '@api';
 import { IOrcidProfile, IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
 import { ChevronDownIcon, ChevronUpIcon, UpDownIcon } from '@chakra-ui/icons';
-import { Stack, Heading, Table, Thead, Tr, Th, Tbody, Td, Text, Box, useToast, IconButton } from '@chakra-ui/react';
+import { Box, Heading, IconButton, Stack, Table, Tbody, Td, Text, Th, Thead, Tr } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components/Select';
 import { SimpleLink } from '@components/SimpleLink';
-import { useAddWorks } from '@lib/orcid/useAddWorks';
 import { useOrcid } from '@lib/orcid/useOrcid';
-import { useRemoveWorks } from '@lib/orcid/useRemoveWorks';
-import { useUpdateWork } from '@lib/orcid/useUpdateWork';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Actions } from './Actions';
 import { isInSciX } from './Utils';
 
@@ -40,9 +37,6 @@ const compareFn = (sortByField: SortField, direction: Direction) => {
 };
 
 export const WorksTable = () => {
-  const toast = useToast({
-    duration: 2000,
-  });
 
   const { user, profile } = useOrcid();
 
@@ -101,92 +95,8 @@ export const WorksTable = () => {
     }
   }, [allWorks, selectedFilter, sortBy]);
 
-  // add claim
-  const { addWorks, isSuccess: addWorksSuccessful, error: addWorksError, data: addWorksData } = useAddWorks();
-
-  // add claim successful or failed
-  useEffect(() => {
-    if (addWorksSuccessful) {
-      if (addWorksData.bulk[0]?.error) {
-        toast({
-          status: 'error',
-          title: addWorksData.bulk[0]?.error['user-message'],
-        });
-      } else {
-        toast({
-          status: 'success',
-          title: 'Successfully submitted add claim request',
-        });
-      }
-    }
-    if (addWorksError) {
-      toast({
-        status: 'error',
-        title: addWorksError.message,
-      });
-    }
-  }, [addWorksSuccessful, addWorksError, addWorksData]);
-
-  // sync work
-  const { updateWork, isSuccess: updateWorkSuccessful, error: updateWorkError } = useUpdateWork();
-
-  // sync work successful or failed
-  useEffect(() => {
-    if (updateWorkSuccessful) {
-      toast({
-        status: 'success',
-        title: 'Successfully submitted sync request',
-      });
-    }
-    if (updateWorkError) {
-      toast({
-        status: 'error',
-        title: updateWorkError.message,
-      });
-    }
-  }, [updateWorkSuccessful, updateWorkError]);
-
-  //  delete claim
-  const {
-    removeWorks,
-    isSuccess: removeWorksSuccessful,
-    error: removeWorksError,
-    data: removeWorksData,
-  } = useRemoveWorks();
-
-  // delete claim successful or failed
-  useEffect(() => {
-    if (removeWorksSuccessful) {
-      toast({
-        status: 'success',
-        title: 'Successfully submitted remove claim request',
-      });
-    }
-    if (removeWorksError) {
-      toast({
-        status: 'error',
-        title: removeWorksError.message,
-      });
-    }
-  }, [removeWorksSuccessful, removeWorksError, removeWorksData]);
-
   const handleFilterOptionsSelected = (option: SelectOption) => {
     setSelectedFilter(option);
-  };
-
-  // add claim handler
-  const handleAddClaim = (identifier: string) => {
-    addWorks({ bibcodes: [identifier] });
-  };
-
-  // sync to orcid handler
-  const handleSyncToOrcid = (identifier: string) => {
-    updateWork(identifier);
-  };
-
-  // Delete claim handler
-  const handleDeleteClaim = (identifier: string) => {
-    removeWorks([identifier]);
   };
 
   // sort change handler
@@ -298,12 +208,7 @@ export const WorksTable = () => {
                     <Td>{new Date(work.updated).toLocaleDateString('en-US')}</Td>
                     <Td>{work.status ?? 'unclaimed'}</Td>
                     <Td>
-                      <Actions
-                        profile={work}
-                        onAddClaim={handleAddClaim}
-                        onDeleteClaim={handleDeleteClaim}
-                        onSyncToOrcid={handleSyncToOrcid}
-                      />
+                      <Actions work={work} />
                     </Td>
                   </Tr>
                 ))}
