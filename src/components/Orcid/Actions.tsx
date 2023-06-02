@@ -32,7 +32,7 @@ export const Actions = ({ profile, onAddClaim, onDeleteClaim, onSyncToOrcid }: I
     <>
       {profile.status ? (
         <Menu>
-          <MenuButton as={Button} variant="outline" rightIcon={<ChevronDownIcon />} color="gray.500">
+          <MenuButton as={Button} variant="outline" rightIcon={<ChevronDownIcon />} color="gray.500" w={28}>
             <HStack spacing={1}>
               <OrcidLogo className="flex-shrink-0 w-4 h-4" aria-hidden />
               <span>Actions</span>
@@ -51,7 +51,7 @@ export const Actions = ({ profile, onAddClaim, onDeleteClaim, onSyncToOrcid }: I
           </MenuList>
         </Menu>
       ) : (
-        <Button variant="outline" color="gray.500" onClick={handleAddClaim}>
+        <Button variant="outline" color="gray.500" onClick={handleAddClaim} w={28}>
           <HStack spacing={1}>
             <OrcidInactiveLogo className="flex-shrink-0 w-4 h-4" aria-hidden />
             <span>Claim</span>

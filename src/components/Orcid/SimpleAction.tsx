@@ -13,7 +13,7 @@ export const SimpleAction = ({ isClaimed, onAddClaim, onDeleteClaim }: ISimpleAc
     <>
       {!isClaimed ? (
         <Tooltip label="Claim from SciX">
-          <Button variant="outline" size="xs" color="gray.500" onClick={onAddClaim} mr={1}>
+          <Button variant="outline" size="xs" color="gray.500" onClick={onAddClaim} mr={1} w={28}>
             <HStack spacing={1}>
               <OrcidInactiveLogo className="flex-shrink-0 w-4 h-4" aria-hidden />
               <Text fontSize="xs">Claim</Text>
@@ -22,7 +22,7 @@ export const SimpleAction = ({ isClaimed, onAddClaim, onDeleteClaim }: ISimpleAc
         </Tooltip>
       ) : (
         <Tooltip label="Delete claim from SciX">
-          <Button variant="outline" size="xs" color="gray.500" onClick={onDeleteClaim} mr={1}>
+          <Button variant="outline" size="xs" color="gray.500" onClick={onDeleteClaim} mr={1} w={28}>
             <HStack spacing={1}>
               <OrcidLogo className="flex-shrink-0 w-4 h-4" aria-hidden />
               <Text fontSize="xs">Delete Claim</Text>
