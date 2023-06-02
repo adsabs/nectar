@@ -5,24 +5,36 @@ import { useEffect, useState } from 'react';
 import { isValidIOrcidUser } from '@api/orcid/models';
 import { filter, map, path, pipe } from 'ramda';
 import { IOrcidProfile } from '@api/orcid/types';
+import { OrcidHookOptions, OrcidMutationOptions } from '@lib/orcid/types';
 
 const orcidUserSelector = (state: AppState) => state.orcid.user;
-export const useRemoveWorks = () => {
+const isAuthenticatedSelector = (state: AppState) => state.orcid.isAuthenticated;
+
+export const useRemoveWorks = (
+  options?: OrcidHookOptions<'removeWorks'>,
+  mutationOptions?: OrcidMutationOptions<'removeWorks'>,
+) => {
   const qc = useQueryClient();
   const user = useStore(orcidUserSelector);
+  const isAuthenticated = useStore(isAuthenticatedSelector);
   const [idsToRemove, setIdsToRemove] = useState<string[]>([]);
 
   const { data: profile } = useOrcidGetProfile(
     { user },
-    { enabled: isValidIOrcidUser(user) && idsToRemove.length > 0 },
+    { enabled: isAuthenticated && isValidIOrcidUser(user) && idsToRemove.length > 0 },
   );
 
   const { mutate, ...result } = useOrcidRemoveWorks(
     { user },
     {
-      onSettled() {
+      ...options,
+      onSettled: async (...args) => {
+        if (typeof options?.onSettled === 'function') {
+          await options?.onSettled(...args);
+        }
+
         // invalidate cached profile, since it should have been updated
-        void qc.invalidateQueries({
+        await qc.invalidateQueries({
           queryKey: orcidKeys.profile({ user }),
           exact: false,
           refetchActive: true,
@@ -35,7 +47,7 @@ export const useRemoveWorks = () => {
 
   useEffect(() => {
     if (idsToRemove.length > 0 && profile) {
-      mutate({ putcodes: getPutcodesFromProfile(idsToRemove, profile) });
+      mutate({ putcodes: getPutcodesFromProfile(idsToRemove, profile) }, mutationOptions);
     }
   }, [idsToRemove, profile]);
 

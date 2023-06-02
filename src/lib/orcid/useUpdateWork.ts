@@ -1,7 +1,7 @@
 import { AppState, useStore } from '@store';
 import { useOrcidGetProfile, useOrcidGetWork, useOrcidUpdateWork } from '@api/orcid';
 import { useEffect, useState } from 'react';
-import { isObject, isString } from 'ramda-adjunct';
+import { isString } from 'ramda-adjunct';
 import { isOrcidProfileEntry, isValidIOrcidUser } from '@api/orcid/models';
 import { IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
 
@@ -37,16 +37,15 @@ export const useUpdateWork = () => {
   const result = useOrcidUpdateWork({ user });
 
   useEffect(() => {
-    if (isObject(work)) {
-    }
+    console.log('work', work);
   }, [work]);
 
-  const updateWork = (id: string) => {
-    setId(id);
-  };
+  useEffect(() => {
+    console.log('result', result.data);
+  }, [result]);
 
   return {
-    updateWork,
+    updateWork: setId,
     ...result,
   };
 };
