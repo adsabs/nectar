@@ -147,19 +147,11 @@ export const ItemResourceDropdowns = ({
     />
   );
 
-  const handleAddClaim = () => {
-    onAddClaim();
-  };
-
-  const handleDeleteClaim = () => {
-    onDeleteClaim();
-  };
-
   return (
     <>
       {/* orcid menu */}
       {showOrcidAction && (
-        <SimpleAction isClaimed={orcidClaimed} onAddClaim={handleAddClaim} onDeleteClaim={handleDeleteClaim} />
+        <SimpleAction isClaimed={orcidClaimed} onAddClaim={onAddClaim} onDeleteClaim={onDeleteClaim} />
       )}
       {/* full resources menu */}
       {isClient ? (

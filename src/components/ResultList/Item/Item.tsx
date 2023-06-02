@@ -35,6 +35,7 @@ export interface IItemProps {
   linkNewTab?: boolean;
   showOrcidAction?: boolean;
   orcidClaimed?: boolean;
+  claimedIdentifier?: string;
   onAddClaim?: (identifier: string) => void;
   onDeleteClaim?: (identifier: string) => void;
 }
@@ -53,6 +54,7 @@ export const Item = (props: IItemProps): ReactElement => {
     linkNewTab = false,
     showOrcidAction = false,
     orcidClaimed = false,
+    claimedIdentifier,
     onAddClaim = noop,
     onDeleteClaim = noop,
   } = props;
@@ -96,7 +98,7 @@ export const Item = (props: IItemProps): ReactElement => {
   };
 
   const handleDeleteClaim = () => {
-    onDeleteClaim(doc.identifier[0]);
+    onDeleteClaim(claimedIdentifier);
   };
 
   return (

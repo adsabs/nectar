@@ -75,6 +75,7 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
           isFetchingHighlights={isFetchingHighlights}
           showOrcidAction={showOrcidAction}
           orcidClaimed={doc.identifier.filter((id) => orcidClaimed.has(id)).length > 0}
+          claimedIdentifier={doc.identifier.filter((id) => orcidClaimed.has(id))[0] ?? null}
           onAddClaim={handleAddClaim}
           onDeleteClaim={handleDeleteClaim}
         />
