@@ -36,7 +36,7 @@ export const Actions = ({ work }: IActionProps) => {
         <Menu>
           <MenuButton
             as={Button}
-            isDisabled={!inSciX || !claimedBySciX}
+            isDisabled={!inSciX}
             variant="outline"
             rightIcon={<ChevronDownIcon />}
             color="gray.500"
@@ -49,8 +49,8 @@ export const Actions = ({ work }: IActionProps) => {
           </MenuButton>
           <MenuList>
             <SyncToOrcidMenuItem identifier={work.identifier} isDisabled />
-            <AddClaimMenuItem identifier={work.identifier} />
-            <DeleteClaimMenuItem identifier={work.identifier} />
+            <AddClaimMenuItem identifier={work.identifier} isDisabled={claimedBySciX} />
+            <DeleteClaimMenuItem identifier={work.identifier} isDisabled={!claimedBySciX} />
           </MenuList>
         </Menu>
       ) : (
@@ -71,10 +71,10 @@ const AddToOrcidButton = (props: ButtonProps & { identifier: string }) => {
     {},
     {
       onSuccess: () => {
-        toast({ status: 'success', title: 'Successfully submitted sync request' });
+        toast({ status: 'success', title: 'Successfully submitted claim request' });
       },
       onError: (error) => {
-        toast({ status: 'error', title: 'Unable to submit request', description: error });
+        toast({ status: 'error', title: 'Unable to submit request', description: error.message });
       },
     },
   );
@@ -107,10 +107,10 @@ const AddClaimMenuItem = (props: IOrcidActionProps) => {
     {},
     {
       onSuccess: () => {
-        toast({ status: 'success', title: 'Successfully submitted sync request' });
+        toast({ status: 'success', title: 'Successfully submitted claim request' });
       },
       onError: (error) => {
-        toast({ status: 'error', title: 'Unable to submit request', description: error });
+        toast({ status: 'error', title: 'Unable to submit request', description: error.message });
       },
     },
   );
@@ -131,7 +131,7 @@ const DeleteClaimMenuItem = (props: IOrcidActionProps) => {
         toast({ status: 'success', title: 'Successfully submitted remove claim request' });
       },
       onError: (error) => {
-        toast({ status: 'error', title: 'Unable to submit request', description: error });
+        toast({ status: 'error', title: 'Unable to submit request', description: error.message });
       },
     },
   );
