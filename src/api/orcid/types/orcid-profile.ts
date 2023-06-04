@@ -2,6 +2,10 @@ export interface IOrcidProfile {
   [key: string]: IOrcidProfileEntry;
 }
 
+export interface IOrcidProfileSimple {
+  [key: string]: IOrcidProfileEntry['status'];
+}
+
 export interface IOrcidProfileEntry {
   identifier: string;
   status: Status;
