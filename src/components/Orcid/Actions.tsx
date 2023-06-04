@@ -3,11 +3,13 @@ import { ChevronDownIcon } from '@chakra-ui/icons';
 import {
   Button,
   ButtonProps,
+  forwardRef,
   HStack,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
+  Text,
   useToast,
   UseToastOptions,
 } from '@chakra-ui/react';
@@ -64,10 +66,14 @@ interface IOrcidActionProps extends MenuItemProps {
   identifier: string;
 }
 
-const AddToOrcidButton = (props: ButtonProps & { identifier: string }) => {
+interface IOrcidActionBtnProps extends ButtonProps {
+  identifier: string;
+}
+
+export const AddToOrcidButton = forwardRef<IOrcidActionBtnProps, 'button'>((props, ref) => {
   const { identifier, ...buttonProps } = props;
   const toast = useToast(TOAST_DEFAULTS);
-  const { addWorks } = useAddWorks(
+  const { addWorks, isLoading } = useAddWorks(
     {},
     {
       onSuccess: () => {
@@ -80,14 +86,55 @@ const AddToOrcidButton = (props: ButtonProps & { identifier: string }) => {
   );
 
   return (
-    <Button variant="outline" color="gray.500" onClick={() => addWorks([identifier])} w={28} {...buttonProps}>
+    <Button
+      variant="outline"
+      color="gray.500"
+      isLoading={isLoading}
+      onClick={() => addWorks([identifier])}
+      w={28}
+      ref={ref}
+      {...buttonProps}
+    >
       <HStack spacing={1}>
         <OrcidInactiveLogo className="flex-shrink-0 w-4 h-4" aria-hidden />
-        <span>Claim</span>
+        <Text fontSize="xs">Claim</Text>
       </HStack>
     </Button>
   );
-};
+});
+
+export const DeleteFromOrcidButton = forwardRef<IOrcidActionBtnProps, 'button'>((props, ref) => {
+  const { identifier, ...buttonProps } = props;
+  const toast = useToast(TOAST_DEFAULTS);
+  const { removeWorks, isLoading } = useRemoveWorks(
+    {},
+    {
+      onSuccess: () => {
+        toast({ status: 'success', title: 'Successfully submitted remove claim request' });
+      },
+      onError: (error) => {
+        toast({ status: 'error', title: 'Unable to submit request', description: error.message });
+      },
+    },
+  );
+
+  return (
+    <Button
+      variant="outline"
+      color="gray.500"
+      onClick={() => removeWorks([identifier])}
+      isLoading={isLoading}
+      ref={ref}
+      w={28}
+      {...buttonProps}
+    >
+      <HStack spacing={1}>
+        <OrcidLogo className="flex-shrink-0 w-4 h-4" aria-hidden />
+        <Text fontSize="xs">Delete Claim</Text>
+      </HStack>
+    </Button>
+  );
+});
 
 const SyncToOrcidMenuItem = (props: IOrcidActionProps) => {
   const { identifier, ...menuItemProps } = props;

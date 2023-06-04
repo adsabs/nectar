@@ -1,11 +1,11 @@
 import { HStack } from '@chakra-ui/layout';
-import { OrcidInactiveLogo } from '@components';
 import { MouseEvent, ReactElement } from 'react';
-import { MenuDropdown } from './MenuDropdown';
 import { ListType } from './types';
 import { useOrcid } from '@lib/orcid/useOrcid';
-import { FormControl, FormLabel, Switch } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
+import { MenuDropdown } from '@components/NavBar/MenuDropdown';
+import { OrcidInactiveLogo, OrcidLogo } from '@components';
+import { isBrowser } from '@utils';
 
 const items = [
   {
@@ -13,26 +13,8 @@ const items = [
     label: 'Sign into ORCiD to claim papers in ADS',
   },
   {
-    id: 'toggle-mode-active',
-    label: (
-      <FormControl display="flex" alignItems="center">
-        <FormLabel htmlFor="orcid-mode" mb="0">
-          ORCiD Mode Active
-        </FormLabel>
-        <Switch id="orcid-mode" checked />
-      </FormControl>
-    ),
-  },
-  {
-    id: 'toggle-mode-inactive',
-    label: (
-      <FormControl display="flex" alignItems="center">
-        <FormLabel htmlFor="orcid-mode" mb="0">
-          ORCiD Mode Inactive
-        </FormLabel>
-        <Switch id="orcid-mode" checked={false} />
-      </FormControl>
-    ),
+    id: 'orcid-toggle',
+    label: 'Toggle ORCiD mode',
   },
   {
     id: 'my-orcid-page',
@@ -43,6 +25,7 @@ const items = [
     label: 'Logout from ORCiD',
   },
 ];
+
 
 interface IOrcidDropdownProps {
   type: ListType;
@@ -62,7 +45,7 @@ export const OrcidDropdown = (props: IOrcidDropdownProps): ReactElement => {
     if (id === 'logout') {
       logout();
     }
-    if (id === 'toggle-mode-active' || id === 'toggle-mode-inactive') {
+    if (id === 'orcid-toggle') {
       toggleOrcidMode();
     }
     if (id === 'my-orcid-page') {
@@ -75,7 +58,11 @@ export const OrcidDropdown = (props: IOrcidDropdownProps): ReactElement => {
 
   const orcidLabel = (
     <HStack spacing={1}>
-      <OrcidInactiveLogo className="flex-shrink-0 w-4 h-4" aria-hidden />
+      {isBrowser() && active ? (
+        <OrcidLogo className="flex-shrink-0 w-4 h-4" aria-hidden />
+      ) : (
+        <OrcidInactiveLogo className="flex-shrink-0 w-4 h-4" aria-hidden />
+      )}
       <span>ORCiD</span>
     </HStack>
   );
@@ -86,7 +73,7 @@ export const OrcidDropdown = (props: IOrcidDropdownProps): ReactElement => {
         id="orcid"
         type={type}
         label={orcidLabel}
-        items={isAuthenticated ? [items[1], items[3], items[4]] : [items[0]]}
+        items={isAuthenticated ? [items[1], items[2], items[3]] : [items[0]]}
         onSelect={handleSelect}
       />
     );
@@ -96,9 +83,10 @@ export const OrcidDropdown = (props: IOrcidDropdownProps): ReactElement => {
         id="orcid"
         type={type}
         label={orcidLabel}
-        items={isAuthenticated ? [items[2], items[3], items[4]] : [items[0]]}
+        items={isAuthenticated ? [items[1], items[2], items[3]] : [items[0]]}
         onSelect={handleSelect}
       />
     );
   }
 };
+
