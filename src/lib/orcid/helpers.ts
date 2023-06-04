@@ -3,7 +3,6 @@ import { lensPath } from 'ramda';
 import { Contributor, ExternalID } from '@api/orcid/types/orcid-work';
 import { IDocsEntity } from '@api/search/types';
 import { isArray } from 'ramda-adjunct';
-import { isOrcidProfileEntry } from '@api/orcid/models';
 import { IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
 
 export const orcidLenses = {
@@ -112,17 +111,21 @@ export const convertDocType = (docType: string) => {
   }
 };
 
-export const findWorkInProfile = (identifier: string | string[], profile: IOrcidProfile): IOrcidProfileEntry | null => {
+export const findWorkInProfile = (
+  identifier: string | string[],
+  profile: IOrcidProfile,
+): IOrcidProfileEntry | IOrcidProfileEntry['status'] | null => {
   if (isArray(identifier)) {
     let work = null;
 
-    for (const id in identifier) {
-      if (isOrcidProfileEntry(profile[id])) {
+    for (const id of identifier) {
+      if (Object.hasOwn(profile, id)) {
         work = profile[id];
         break;
       }
     }
     return work;
   }
-  return isOrcidProfileEntry(profile[identifier]) ? profile[identifier] : null;
+
+  return Object.hasOwn(profile, identifier) ? profile[identifier] : null;
 };

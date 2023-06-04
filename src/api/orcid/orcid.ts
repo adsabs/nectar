@@ -3,7 +3,7 @@ import { MutationFunction, QueryFunction, useMutation, useQuery } from 'react-qu
 import { IOrcidMutationParams, IOrcidParams, IOrcidResponse, IOrcidUser, IOrcidWork } from '@api/orcid/types';
 import { AppState } from '@store';
 import { isValidIOrcidUser } from '@api/orcid/models';
-import { omit } from 'ramda';
+import { omit, path } from 'ramda';
 
 export enum OrcidKeys {
   EXCHANGE_TOKEN = 'orcid/exchange-token',
@@ -174,9 +174,9 @@ const fetchProfile: QueryFunction<IOrcidResponse['profile']> = async ({ meta }) 
 
   const config: ApiRequestConfig = {
     method: 'GET',
-    url: `${ApiTargets.ORCID}/${params.user.orcid}/${ApiTargets.ORCID_PROFILE}${params.full ?? true ? '/full' : ''}${
-      params.update ?? true ? '?update=true' : ''
-    }`,
+    url: `${ApiTargets.ORCID}/${params.user.orcid}/${ApiTargets.ORCID_PROFILE}${
+      params.full ?? true ? '/full' : '/simple'
+    }${params.update ?? true ? '?update=true' : ''}`,
     headers: {
       'orcid-authorization': `Bearer ${params.user.access_token}`,
     },
@@ -239,7 +239,13 @@ const addWorks: MutationFunction<IOrcidResponse['addWorks'], IOrcidMutationParam
     },
   };
 
-  const { data } = await api.request<IOrcidResponse['addWorks']>(addWorksConfig);
+  const { data, status } = await api.request<IOrcidResponse['addWorks']>(addWorksConfig);
+
+  // possible we received an error message back in the response
+  const errorMsg = path(['bulk', '0', 'error', 'user-message'], data);
+  if (status === 200 && typeof errorMsg === 'string') {
+    throw new Error(errorMsg);
+  }
 
   return data;
 };

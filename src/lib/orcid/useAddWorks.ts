@@ -30,27 +30,55 @@ export const useAddWorks = (
 
         setBibcodesToAdd([]);
       },
-      onSuccess: async (...args) => {
+      onSuccess: async (data, ...args) => {
         if (typeof options?.onSuccess === 'function') {
-          await options?.onSuccess(...args);
+          await options?.onSuccess(data, ...args);
         }
+        console.log(qc.getQueryCache());
         // invalidate cached profile, since it should have been updated
         await qc.invalidateQueries({
-          queryKey: orcidKeys.profile({ user }),
-          exact: false,
+          queryKey: orcidKeys.profile({ user, full: true, update: true }),
           refetchActive: true,
         });
+
+        // TODO: be able to push on a new record to use instead of refetching (this isn't working)
+        // qc.setQueryData<IOrcidProfile>(orcidKeys.profile({ user, full: true, update: true }), (profile) => {
+        //   const newProfile: IOrcidProfile = {};
+        //   if (data?.bulk) {
+        //     data.bulk.forEach((entry) => {
+        //       const ids = view(orcidLenses.externalId, entry?.work);
+        //       const id = view(orcidLenses.externalIdValue, ids?.[0]);
+        //
+        //       if (typeof id === 'string' && !Object.hasOwn(profile, id)) {
+        //         newProfile[id] = {
+        //           status: 'pending',
+        //           identifier: id,
+        //           source: [ORCID_ADS_SOURCE_NAME],
+        //           putcode: view(orcidLenses.putCode, entry?.work),
+        //           pubmonth: view(orcidLenses.publicationDateMonth, entry?.work),
+        //           pubyear: view(orcidLenses.publicationDateYear, entry?.work),
+        //           title: view(orcidLenses.title, entry?.work),
+        //           updated: formatISO(new Date(), { format: 'extended' }),
+        //         };
+        //       }
+        //     });
+        //   }
+        //   console.log({ profile, newProfile });
+        //
+        //   return { ...profile, ...newProfile };
+        // });
       },
     },
   );
 
-  const { data: searchResult } = useSearch(
+  const { data: searchResult, isLoading: isSearchLoading } = useSearch(
     {
       q: `identifier:(${bibcodesToAdd.join(' OR ')})`,
       fl: [
         'pubdate',
         'abstract',
         'bibcode',
+        'alternate_bibcode',
         'pub',
         'doi',
         '[fields doi=1]',
@@ -79,6 +107,7 @@ export const useAddWorks = (
 
   return {
     addWorks: setBibcodesToAdd,
+    isLoading: isSearchLoading && result.isLoading,
     ...result,
   };
 };

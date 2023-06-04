@@ -36,3 +36,5 @@ const search = new URLSearchParams({
   redirect_uri: process.env.NEXT_PUBLIC_ORCID_REDIRECT_URI,
 });
 export const ORCID_LOGIN_URL = `${process.env.NEXT_PUBLIC_ORCID_API_URL}/oauth/authorize?${search.toString()}`;
+
+export const ORCID_ADS_SOURCE_NAME = 'NASA Astrophysics Data System';
