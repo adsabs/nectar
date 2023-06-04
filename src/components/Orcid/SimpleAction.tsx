@@ -1,35 +1,25 @@
-import { Button, HStack, Text, Tooltip } from '@chakra-ui/react';
-import { OrcidInactiveLogo, OrcidLogo } from '@components/images';
-
-export interface ISimpleActionProps {
-  isClaimed: boolean;
-  onAddClaim: () => void;
-  onDeleteClaim: () => void;
-}
+import { useOrcid } from '@lib/orcid/useOrcid';
+import { useWork } from '@lib/orcid/useWork';
+import { IDocsEntity } from '@api';
+import { AddToOrcidButton, DeleteFromOrcidButton } from '@components/Orcid/Actions';
+import { reconcileDocIdentifier } from '@utils';
+import { ReactElement } from 'react';
+import { isOrcidProfileEntry } from '@api/orcid/models';
 
 // if status is null,
-export const SimpleAction = ({ isClaimed, onAddClaim, onDeleteClaim }: ISimpleActionProps) => {
-  return (
-    <>
-      {!isClaimed ? (
-        <Tooltip label="Claim from SciX">
-          <Button variant="outline" size="xs" color="gray.500" onClick={onAddClaim} mr={1} w={28}>
-            <HStack spacing={1}>
-              <OrcidInactiveLogo className="flex-shrink-0 w-4 h-4" aria-hidden />
-              <Text fontSize="xs">Claim</Text>
-            </HStack>
-          </Button>
-        </Tooltip>
-      ) : (
-        <Tooltip label="Delete claim from SciX">
-          <Button variant="outline" size="xs" color="gray.500" onClick={onDeleteClaim} mr={1} w={28}>
-            <HStack spacing={1}>
-              <OrcidLogo className="flex-shrink-0 w-4 h-4" aria-hidden />
-              <Text fontSize="xs">Delete Claim</Text>
-            </HStack>
-          </Button>
-        </Tooltip>
-      )}
-    </>
-  );
+export const SimpleAction = (props: { doc: IDocsEntity }): ReactElement => {
+  const { doc } = props;
+  const { active } = useOrcid();
+  const { work } = useWork({ identifier: doc.identifier, full: true });
+
+  // hide if orcid mode is off
+  if (!active) {
+    return null;
+  }
+
+  if (isOrcidProfileEntry(work)) {
+    return <DeleteFromOrcidButton identifier={work.identifier} size="xs" mr={1} w={28} />;
+  }
+
+  return <AddToOrcidButton identifier={reconcileDocIdentifier(doc)} size="xs" mr={1} w={28} />;
 };
