@@ -403,3 +403,5 @@ export const reconcileDocIdentifier = (doc: IDocsEntity) => {
 
   return null;
 };
+
+export const asyncDelay = (delay = 1000) => new Promise((resolve) => setTimeout(resolve, delay));
