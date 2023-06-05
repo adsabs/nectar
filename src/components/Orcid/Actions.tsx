@@ -19,6 +19,8 @@ import { MenuItemProps } from '@chakra-ui/menu';
 import { useUpdateWork } from '@lib/orcid/useUpdateWork';
 import { useAddWorks } from '@lib/orcid/useAddWorks';
 import { useRemoveWorks } from '@lib/orcid/useRemoveWorks';
+import { AppState, useStore } from '@store';
+import { useCallback } from 'react';
 
 export interface IActionProps {
   work: IOrcidProfileEntry;
@@ -185,6 +187,58 @@ const DeleteClaimMenuItem = (props: IOrcidActionProps) => {
 
   return (
     <MenuItem onClick={() => removeWorks([identifier])} {...menuItemProps}>
+      Delete claim from SciX
+    </MenuItem>
+  );
+};
+
+const selectedDocsSelector = (state: AppState) => state.docs.selected;
+export const BulkClaimMenuItem = (props: MenuItemProps) => {
+  const toast = useToast(TOAST_DEFAULTS);
+  const { addWorks } = useAddWorks(
+    {},
+    {
+      onSuccess: () => {
+        toast({ status: 'success', title: 'Successfully submitted claim request' });
+      },
+      onError: (error) => {
+        toast({ status: 'error', title: 'Unable to submit request', description: error.message });
+      },
+    },
+  );
+  const selected = useStore(selectedDocsSelector);
+  const handleClick = useCallback(() => {
+    addWorks(selected);
+  }, [addWorks, selected]);
+
+  return (
+    <MenuItem onClick={handleClick} isDisabled={selected.length === 0} {...props}>
+      Claim from SciX
+    </MenuItem>
+  );
+};
+
+export const BulkDeleteMenuItem = (props: MenuItemProps) => {
+  const toast = useToast(TOAST_DEFAULTS);
+  const { removeWorks } = useRemoveWorks(
+    {},
+    {
+      onSuccess: () => {
+        toast({ status: 'success', title: 'Successfully submitted remove claim request' });
+      },
+      onError: (error) => {
+        toast({ status: 'error', title: 'Unable to submit request', description: error.message });
+      },
+    },
+  );
+
+  const selected = useStore(selectedDocsSelector);
+  const handleClick = useCallback(() => {
+    removeWorks(selected);
+  }, [removeWorks, selected]);
+
+  return (
+    <MenuItem onClick={handleClick} isDisabled={selected.length === 0} {...props}>
       Delete claim from SciX
     </MenuItem>
   );

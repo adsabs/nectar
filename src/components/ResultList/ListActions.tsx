@@ -18,9 +18,6 @@ import {
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { DEFAULT_USER_DATA, exportFormats, ISortProps, sections, Sort } from '@components';
-import { useAddWorks } from '@lib/orcid/useAddWorks';
-import { useOrcid } from '@lib/orcid/useOrcid';
-import { useRemoveWorks } from '@lib/orcid/useRemoveWorks';
 import { useIsClient } from '@lib/useIsClient';
 import { AppState, useStore, useStoreApi } from '@store';
 import { makeSearchParams, noop, parseQueryFromUrl } from '@utils';
@@ -29,6 +26,8 @@ import { curryN, values } from 'ramda';
 import { isNonEmptyString } from 'ramda-adjunct';
 import { MouseEventHandler, ReactElement, useCallback, useEffect, useState } from 'react';
 import { SecondOrderOpsLinks } from './SecondOrderOpsLinks';
+import { BulkClaimMenuItem, BulkDeleteMenuItem } from '@components/Orcid';
+import { useOrcid } from '@lib/orcid/useOrcid';
 
 export interface IListActionsProps {
   onSortChange?: ISortProps['onChange'];
@@ -45,7 +44,6 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const [exploreAll, setExploreAll] = useState(true);
   const router = useRouter();
   const toast = useToast();
-  const { active: orcidActive } = useOrcid();
 
   useEffect(() => {
     setExploreAll(noneSelected);
@@ -106,59 +104,6 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   };
 
   const handleOpsLink = useCallback((name: Operator) => () => handleOperationsLink(name), []);
-
-  // add claim
-  const { addWorks, isSuccess: addWorksSuccessful, error: addWorksError, data: addWorksData } = useAddWorks();
-
-  // add claim successful or failed
-  useEffect(() => {
-    if (addWorksSuccessful) {
-      toast({
-        status: 'success',
-        title: 'Successfully submitted add claim request',
-      });
-      clearSelected();
-    }
-    if (addWorksError) {
-      toast({
-        status: 'error',
-        title: addWorksError.message,
-      });
-    }
-  }, [addWorksSuccessful, addWorksError, addWorksData]);
-
-  const handleAddClaims = () => {
-    addWorks({ bibcodes: selected });
-  };
-
-  //  delete claim
-  const {
-    removeWorks,
-    isSuccess: removeWorksSuccessful,
-    error: removeWorksError,
-    data: removeWorksData,
-  } = useRemoveWorks();
-
-  // delete claim successful or failed
-  useEffect(() => {
-    if (removeWorksSuccessful) {
-      toast({
-        status: 'success',
-        title: 'Successfully submitted remove claim request',
-      });
-      clearSelected();
-    }
-    if (removeWorksError) {
-      toast({
-        status: 'error',
-        title: removeWorksError.message,
-      });
-    }
-  }, [removeWorksSuccessful, removeWorksError, removeWorksData]);
-
-  const handleDeleteClaims = () => {
-    removeWorks(selected);
-  };
 
   return (
     <Stack
@@ -224,19 +169,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
                   <MenuItem isDisabled={true}>Add to Library</MenuItem>
                   <MenuDivider />
                   <ExportMenu exploreAll={exploreAll} />
-                  {orcidActive ? (
-                    <>
-                      <MenuDivider />
-                      <MenuGroup title="ORCID">
-                        <MenuItem isDisabled={selected.length === 0} onClick={handleAddClaims}>
-                          Claim from SciX
-                        </MenuItem>
-                        <MenuItem isDisabled={selected.length === 0} onClick={handleDeleteClaims}>
-                          Delete claim from SciX
-                        </MenuItem>
-                      </MenuGroup>
-                    </>
-                  ) : null}
+                  <OrcidBulkMenu />
                 </MenuList>
               </Portal>
             </Menu>
@@ -415,4 +348,22 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean }): ReactEleme
 
 const createOperatorQuery = (operator: Operator, originalQuery: string) => {
   return operator === 'trending' ? `trending(${originalQuery})-(${originalQuery})` : `${operator}(${originalQuery})`;
+};
+
+const OrcidBulkMenu = () => {
+  const { active } = useOrcid();
+
+  if (!active) {
+    return null;
+  }
+
+  return (
+    <>
+      <MenuDivider />
+      <MenuGroup title="ORCID">
+        <BulkClaimMenuItem />
+        <BulkDeleteMenuItem />
+      </MenuGroup>
+    </>
+  );
 };
