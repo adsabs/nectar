@@ -34,7 +34,6 @@ export const useAddWorks = (
         if (typeof options?.onSuccess === 'function') {
           await options?.onSuccess(data, ...args);
         }
-        console.log(qc.getQueryCache());
         // invalidate cached profile, since it should have been updated
         await qc.invalidateQueries({
           queryKey: orcidKeys.profile({ user, full: true, update: true }),
@@ -73,7 +72,7 @@ export const useAddWorks = (
 
   const { data: searchResult, isLoading: isSearchLoading } = useSearch(
     {
-      q: `identifier:(${bibcodesToAdd.join(' OR ')})`,
+      q: `identifier:(${bibcodesToAdd?.join(' OR ')})`,
       fl: [
         'pubdate',
         'abstract',
@@ -88,9 +87,10 @@ export const useAddWorks = (
         'doctype',
         'identifier',
       ],
+      rows: 99999,
     },
     {
-      enabled: isAuthenticated && isValidIOrcidUser(user) && bibcodesToAdd.length > 0,
+      enabled: isAuthenticated && isValidIOrcidUser(user) && bibcodesToAdd?.length > 0,
     },
   );
 
@@ -99,6 +99,8 @@ export const useAddWorks = (
     if (searchResult && searchResult.numFound > 0) {
       // transform all the ads records into orcid works
       const works = searchResult.docs.map(transformADStoOrcid);
+
+      console.log('works', works);
 
       // finally sync the works with orcid
       result.mutate({ works }, mutationOptions);

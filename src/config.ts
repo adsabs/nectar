@@ -38,3 +38,5 @@ const search = new URLSearchParams({
 export const ORCID_LOGIN_URL = `${process.env.NEXT_PUBLIC_ORCID_API_URL}/oauth/authorize?${search.toString()}`;
 
 export const ORCID_ADS_SOURCE_NAME = 'NASA Astrophysics Data System';
+export const ORCID_BULK_DELETE_CHUNK_SIZE = 4;
+export const ORCID_BULK_DELETE_DELAY = 1000;

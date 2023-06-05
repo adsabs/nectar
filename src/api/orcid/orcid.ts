@@ -4,6 +4,8 @@ import { IOrcidMutationParams, IOrcidParams, IOrcidResponse, IOrcidUser, IOrcidW
 import { AppState } from '@store';
 import { isValidIOrcidUser } from '@api/orcid/models';
 import { omit, path } from 'ramda';
+import { ORCID_BULK_DELETE_CHUNK_SIZE, ORCID_BULK_DELETE_DELAY } from '@config';
+import { asyncDelay } from '@utils';
 
 export enum OrcidKeys {
   EXCHANGE_TOKEN = 'orcid/exchange-token',
@@ -212,9 +214,22 @@ const removeWorks: MutationFunction<IOrcidResponse['removeWorks'], IOrcidMutatio
     });
   };
 
-  const result = await Promise.allSettled(putcodes.map(makeRequest));
+  // Chunkify the incoming putcodes into groups
+  const chunks = [];
+  for (let i = 0; i < putcodes.length; i += ORCID_BULK_DELETE_CHUNK_SIZE) {
+    chunks.push(putcodes.slice(i, i + ORCID_BULK_DELETE_CHUNK_SIZE));
+  }
 
-  return Object.fromEntries(putcodes.map((putcode, index) => [putcode, result[index]]));
+  // settle all chunks (not acting on any one result) bundling everything up as we go
+  // a delay is added between requests to allow for some cooldown period
+  const result: [IOrcidWork['put-code'], PromiseSettledResult<void>][] = [];
+  for (const chunk of chunks) {
+    const chunkResult = await Promise.allSettled(chunk.map(makeRequest));
+    result.concat(chunk.map((putcode, index) => [putcode, chunkResult[index]]));
+    await asyncDelay(ORCID_BULK_DELETE_DELAY);
+  }
+
+  return Object.fromEntries(result);
 };
 
 const addWorks: MutationFunction<IOrcidResponse['addWorks'], IOrcidMutationParams['addWorks']> = async ({
