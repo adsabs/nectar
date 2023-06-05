@@ -27,7 +27,7 @@ export const orcidSlice: StoreSlice<IORCIDState & IORCIDAction> = (set, get) => 
   setOrcidUser: (user) => {
     if (isValidIOrcidUser(user)) {
       return set((state) => ({
-        orcid: { ...state.orcid, user, isAuthenticated: true },
+        orcid: { ...state.orcid, user, isAuthenticated: true, active: true },
       }));
     }
     return set((state) => ({
@@ -35,11 +35,9 @@ export const orcidSlice: StoreSlice<IORCIDState & IORCIDAction> = (set, get) => 
     }));
   },
   setOrcidMode: (active) => {
-    if (get().orcid.isAuthenticated) {
-      set((state) => ({
-        orcid: { ...state.orcid, active },
-      }));
-    }
+    return set((state) => ({
+      orcid: { ...state.orcid, active },
+    }));
   },
   resetOrcid: () => set({ orcid: initialState }),
 });

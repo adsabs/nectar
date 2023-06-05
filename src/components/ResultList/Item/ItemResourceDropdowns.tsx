@@ -7,16 +7,12 @@ import { processLinkData } from '@components/AbstractSources/linkGenerator';
 import { SimpleAction } from '@components/Orcid/SimpleAction';
 import { Bars4Icon, CircleStackIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import { useIsClient } from '@lib/useIsClient';
-import { isBrowser, noop } from '@utils';
+import { isBrowser } from '@utils';
 import { useRouter } from 'next/router';
 import { MouseEventHandler, ReactElement } from 'react';
 
 export interface IItemResourceDropdownsProps {
   doc: IDocsEntity;
-  orcidClaimed?: boolean;
-  showOrcidAction?: boolean;
-  onAddClaim?: () => void;
-  onDeleteClaim?: () => void;
 }
 
 export interface IItem {
@@ -27,10 +23,6 @@ export interface IItem {
 
 export const ItemResourceDropdowns = ({
   doc,
-  showOrcidAction = false,
-  orcidClaimed = false,
-  onAddClaim = noop,
-  onDeleteClaim = noop,
 }: IItemResourceDropdownsProps): ReactElement => {
   const router = useRouter();
   const isClient = useIsClient();
@@ -150,9 +142,7 @@ export const ItemResourceDropdowns = ({
   return (
     <>
       {/* orcid menu */}
-      {showOrcidAction && (
-        <SimpleAction isClaimed={orcidClaimed} onAddClaim={onAddClaim} onDeleteClaim={onDeleteClaim} />
-      )}
+      <SimpleAction doc={doc} />
       {/* full resources menu */}
       {isClient ? (
         <Menu variant="compact">

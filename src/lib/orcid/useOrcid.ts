@@ -28,7 +28,7 @@ export const useOrcid = () => {
   );
 
   const { data: profile } = useOrcidGetProfile(
-    { user },
+    { user, full: true, update: true },
     {
       enabled: isAuthenticated && isValidIOrcidUser(user),
     },
@@ -47,12 +47,16 @@ export const useOrcid = () => {
     }
   };
 
+  const toggleOrcidMode = () => {
+    setOrcidMode(!active);
+  };
+
   return {
     active,
     login,
     logout,
     isAuthenticated,
-    toggleOrcidMode: () => setOrcidMode(!active),
+    toggleOrcidMode,
     user,
     name,
     profile,

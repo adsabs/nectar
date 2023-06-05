@@ -378,3 +378,30 @@ export const parseAPIError = (
  */
 export const capitalizeString = (str: string) =>
   isNonEmptyString(str) ? `${str.slice(0, 1).toUpperCase()}${str.slice(1)}` : str;
+
+/**
+ * Helper utility that retrieves the first entry of the identifier field
+ * or the single string if no array, or picks the bibcode (if available)
+ * @param doc
+ */
+export const reconcileDocIdentifier = (doc: IDocsEntity) => {
+  if (Object.hasOwn(doc, 'bibcode')) {
+    return doc.bibcode;
+  }
+
+  if (Object.hasOwn(doc, 'alternate_bibcode')) {
+    return doc.alternate_bibcode;
+  }
+
+  if (Object.hasOwn(doc, 'identifier')) {
+    if (Array.isArray(doc.identifier) && typeof doc.identifier[0] === 'string') {
+      return doc.identifier[0];
+    } else if (typeof doc.identifier === 'string') {
+      return doc.identifier;
+    }
+  }
+
+  return null;
+};
+
+export const asyncDelay = (delay = 1000) => new Promise((resolve) => setTimeout(resolve, delay));

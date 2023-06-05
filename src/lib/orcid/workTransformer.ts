@@ -101,3 +101,4 @@ const parseOrcidWork = (work: IOrcidWork) => {
     assoc('pubdate', pubdate),
   )({} as IDocsEntity);
 };
+

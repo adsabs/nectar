@@ -27,7 +27,6 @@ const OrcidPage: NextPage = () => {
   useEffect(() => {
     if (data) {
       setOrcidUser(data);
-      toggleOrcidMode();
       void router.replace('/user/orcid');
     }
   }, [data]);

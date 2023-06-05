@@ -20,7 +20,7 @@ export const useRemoveWorks = (
   const [idsToRemove, setIdsToRemove] = useState<string[]>([]);
 
   const { data: profile } = useOrcidGetProfile(
-    { user },
+    { user, full: true, update: true },
     { enabled: isAuthenticated && isValidIOrcidUser(user) && idsToRemove.length > 0 },
   );
 
@@ -35,8 +35,7 @@ export const useRemoveWorks = (
 
         // invalidate cached profile, since it should have been updated
         await qc.invalidateQueries({
-          queryKey: orcidKeys.profile({ user }),
-          exact: false,
+          queryKey: orcidKeys.profile({ user, full: true, update: true }),
           refetchActive: true,
         });
 

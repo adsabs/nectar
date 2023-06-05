@@ -16,7 +16,7 @@ export interface IOrcidResponse {
 
   /** orcid does not return a response on delete, so return the status */
   removeWorks: Record<string, PromiseSettledResult<void>>;
-  addWorks: { bulk?: { work: IOrcidWork; error?: { 'developer-message': string; 'user-message': string } }[] };
+  addWorks: { bulk?: { work?: IOrcidWork; error?: { 'developer-message': string; 'user-message': string } }[] };
   name: IOrcidName;
   getPreferences: IOrcidPreferences;
   setPreferences: IOrcidPreferences;

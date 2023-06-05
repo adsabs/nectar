@@ -67,4 +67,3 @@ export const isOrcidProfileEntry = (entry: unknown): entry is IOrcidProfileEntry
     source.every((item) => typeof item === 'string')
   );
 };
-

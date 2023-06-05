@@ -6,7 +6,7 @@ import { AllAuthorsModal } from '@components/AllAuthorsModal';
 import { APP_DEFAULTS } from '@config';
 import { useIsClient } from '@lib/useIsClient';
 import { useStore } from '@store';
-import { getFomattedNumericPubdate, noop, unwrapStringValue } from '@utils';
+import { getFomattedNumericPubdate, unwrapStringValue } from '@utils';
 import { MathJax } from 'better-react-mathjax';
 import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
@@ -35,7 +35,6 @@ export interface IItemProps {
   linkNewTab?: boolean;
   showOrcidAction?: boolean;
   orcidClaimed?: boolean;
-  claimedIdentifier?: string;
   onAddClaim?: (identifier: string) => void;
   onDeleteClaim?: (identifier: string) => void;
 }
@@ -52,11 +51,6 @@ export const Item = (props: IItemProps): ReactElement => {
     highlights,
     extraInfo,
     linkNewTab = false,
-    showOrcidAction = false,
-    orcidClaimed = false,
-    claimedIdentifier,
-    onAddClaim = noop,
-    onDeleteClaim = noop,
   } = props;
   const { bibcode, pubdate, title = ['Untitled'], author = [], bibstem = [], author_count } = doc;
   const formattedPubDate = getFomattedNumericPubdate(pubdate);
@@ -92,14 +86,6 @@ export const Item = (props: IItemProps): ReactElement => {
       </Link>
     </NextLink>
   ) : null;
-
-  const handleAddClaim = () => {
-    onAddClaim(doc.identifier[0]);
-  };
-
-  const handleDeleteClaim = () => {
-    onDeleteClaim(claimedIdentifier);
-  };
 
   return (
     <Flex direction="row" as="article" border="1px" borderColor="gray.50" mb={1} borderRadius="md">
@@ -138,10 +124,6 @@ export const Item = (props: IItemProps): ReactElement => {
             {!isClient || hideActions ? null : (
               <ItemResourceDropdowns
                 doc={doc}
-                orcidClaimed={orcidClaimed}
-                showOrcidAction={showOrcidAction}
-                onAddClaim={handleAddClaim}
-                onDeleteClaim={handleDeleteClaim}
               />
             )}
           </Flex>
