@@ -7,7 +7,7 @@ const items = [
   {
     id: 'about',
     path: '/about',
-    label: 'About ADS',
+    label: 'About SciX',
   },
   {
     id: 'new',
@@ -17,22 +17,22 @@ const items = [
   {
     id: 'blog',
     path: '/blog',
-    label: 'ADS Blog',
+    label: 'SciX Blog',
   },
   {
     id: 'help',
     path: '/help/',
-    label: 'ADS Help Pages',
+    label: 'SciX Help Pages',
   },
   {
     id: 'legacy',
     path: '/help/legacy',
-    label: 'ADS Legacy Services',
+    label: 'SciX Legacy Services',
   },
   {
     id: 'careers',
     path: '/about/careers',
-    label: 'Careers@ADS',
+    label: 'Careers@SciX',
   },
 ];
 
