@@ -7,6 +7,7 @@ import { Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, Dra
 import { ReactElement, useRef } from 'react';
 import { AboutDropdown } from './AboutDropdown';
 import { AccountDropdown } from './AccountDropdown';
+import { FeedbackDropdown } from './FeedbackDropdown';
 import { OrcidDropdown } from './OrcidDropdown';
 import { ListType } from './types';
 
@@ -39,6 +40,17 @@ export const NavMenus = (): ReactElement => {
             <DrawerHeader></DrawerHeader>
             <DrawerBody>
               <Accordion allowMultiple defaultIndex={[0, 1, 2]}>
+                <AccordionItem>
+                  <AccordionButton>
+                    <Box flex="1" textAlign="left" fontWeight="medium">
+                      Feedback
+                    </Box>
+                    <AccordionIcon />
+                  </AccordionButton>
+                  <AccordionPanel>
+                    <FeedbackDropdown type={ListType.ACCORDION} onFinished={onClose} />
+                  </AccordionPanel>
+                </AccordionItem>
                 <AccordionItem>
                   <AccordionButton>
                     <Box flex="1" textAlign="left" fontWeight="medium">
@@ -79,6 +91,7 @@ export const NavMenus = (): ReactElement => {
       </Box>
       <Box display={{ base: 'none', md: 'flex' }} flexDirection="row" mx={3}>
         {/* Cannot use stack here, will produce warning with popper in menu */}
+        <FeedbackDropdown type={ListType.DROPDOWN} />
         <OrcidDropdown type={ListType.DROPDOWN} />
         <AboutDropdown type={ListType.DROPDOWN} />
         <AccountDropdown type={ListType.DROPDOWN} />
