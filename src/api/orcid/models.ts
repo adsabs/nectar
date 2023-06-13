@@ -1,5 +1,5 @@
 import { isString } from '@utils';
-import { isNumber, isObject } from 'ramda-adjunct';
+import { isNilOrEmpty, isNumber, isObject } from 'ramda-adjunct';
 import { IOrcidUser } from '@api/orcid/types';
 import { allPass, has } from 'ramda';
 import { addSeconds, isValid } from 'date-fns';
@@ -48,7 +48,7 @@ export const isValidIOrcidUser = (obj: unknown): obj is IOrcidUser => {
 };
 
 export const isOrcidProfileEntry = (entry: unknown): entry is IOrcidProfileEntry => {
-  if (typeof entry !== 'object' || entry === null) {
+  if (isNilOrEmpty(entry)) {
     return false;
   }
 
@@ -59,8 +59,8 @@ export const isOrcidProfileEntry = (entry: unknown): entry is IOrcidProfileEntry
     typeof status === 'string' &&
     (status === 'verified' || status === 'not in ADS' || status === 'pending') &&
     typeof title === 'string' &&
-    typeof pubyear === 'string' &&
-    typeof pubmonth === 'string' &&
+    (typeof pubyear === 'string' || pubyear === null) &&
+    (typeof pubmonth === 'string' || pubmonth === null) &&
     typeof updated === 'string' &&
     (typeof putcode === 'string' || typeof putcode === 'number') &&
     Array.isArray(source) &&

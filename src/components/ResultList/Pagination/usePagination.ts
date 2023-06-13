@@ -88,7 +88,7 @@ export const calculatePagination = memoizeOne(
   }: {
     numFound?: number;
     page: number;
-    numPerPage: NumPerPageType;
+    numPerPage: NumPerPageType | number;
   }): PaginationResult => {
     const results = cleanClamp(numFound, 0);
 

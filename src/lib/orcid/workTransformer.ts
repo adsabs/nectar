@@ -20,12 +20,13 @@ import { isNilOrEmpty, isString } from 'ramda-adjunct';
 import { parsePublicationDate } from '@utils';
 import { adsDocLenses, convertDocType, orcidLenses } from '@lib/orcid/helpers';
 import { Contributor, ExternalID } from '@api/orcid/types/orcid-work';
+import { IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
 
 const MAX_ABSTRACT_LENGTH = 4997;
 
 const doIfExists = (value: unknown, cb: (doc: IOrcidWork) => IOrcidWork) => unless(() => isNilOrEmpty(value), cb);
 
-export const transformADStoOrcid = (adsRecord: IDocsEntity) => {
+export const transformADStoOrcid = (adsRecord: IDocsEntity, putcode?: IOrcidProfileEntry['putcode']) => {
   const pubdate = view(adsDocLenses.pubdate, adsRecord) ?? '';
   const abstract = view(adsDocLenses.abstract, adsRecord) ?? '';
   const bibcode = view(adsDocLenses.bibcode, adsRecord) ?? '';
@@ -44,6 +45,7 @@ export const transformADStoOrcid = (adsRecord: IDocsEntity) => {
     doIfExists(bibcode, addExternalId('bibcode', bibcode)),
     doIfExists(doi, addExternalId('doi', head(doi))),
     doIfExists(arxivId, addExternalId('arxiv', arxivId)),
+    doIfExists(putcode, set(orcidLenses.putCode, `${putcode}`)),
 
     // PUBLICATION DATE
     doIfExists(

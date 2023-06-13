@@ -1,43 +1,95 @@
 import { AppState, useStore } from '@store';
-import { useOrcidGetProfile, useOrcidGetWork, useOrcidUpdateWork } from '@api/orcid';
-import { useState } from 'react';
-import { isString } from 'ramda-adjunct';
-import { isOrcidProfileEntry, isValidIOrcidUser } from '@api/orcid/models';
+import { useOrcidUpdateWork } from '@api/orcid';
+import { useEffect, useState } from 'react';
+import { useSearch } from '@api';
+import { transformADStoOrcid } from '@lib/orcid/workTransformer';
+import { OrcidHookOptions, OrcidMutationOptions } from '@lib/orcid/types';
+import { parseAPIError } from '@utils';
 import { IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
+import { isOrcidProfileEntry } from '@api/orcid/models';
 
 const orcidUserSelector = (state: AppState) => state.orcid.user;
-export const useUpdateWork = () => {
+export const useUpdateWork = (
+  options?: OrcidHookOptions<'updateWork'>,
+  mutationOptions?: OrcidMutationOptions<'updateWork'>,
+) => {
   const user = useStore(orcidUserSelector);
-  const [id, setId] = useState<string | null>(null);
-  const [profileEntry, setProfileEntry] = useState<IOrcidProfileEntry | null>(null);
-  const { data: profile } = useOrcidGetProfile(
-    { user, full: true, update: true },
+  const [work, setWork] = useState<IOrcidProfileEntry | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch ADS record
+  const { data: searchResult, ...searchQueryState } = useSearch(
     {
-      enabled: isValidIOrcidUser(user) && isString(id),
+      q: `identifier:${work?.identifier}`,
+      fl: [
+        'pubdate',
+        'abstract',
+        'bibcode',
+        'alternate_bibcode',
+        'pub',
+        'doi',
+        '[fields doi=1]',
+        'author',
+        'title',
+        '[fields title=1]',
+        'doctype',
+        'identifier',
+      ],
+      rows: 1,
+    },
+    {
+      enabled: !!work,
+      onError: (error) => setError(parseAPIError(error)),
     },
   );
 
-  if (profile && Object.hasOwn(profile, id) && isOrcidProfileEntry(profile[id])) {
-    setProfileEntry(profile[id]);
-  }
-
-  const { data: work } = useOrcidGetWork(
+  // setup mutation
+  const { mutate: updateWork, ...updateQueryState } = useOrcidUpdateWork(
+    { user },
     {
-      user,
-      putcode: profileEntry?.putcode,
-    },
-    {
-      enabled: isOrcidProfileEntry(profile?.[id]),
+      ...options,
+      onSettled: async (...args) => {
+        if (typeof options.onSettled === 'function') {
+          await options.onSettled(...args);
+        }
+        setWork(null);
+      },
     },
   );
 
-  // TODO: merge the work with the ADS record
-  // have to fetch ADS record via search identifier:xxx
+  // update loading state
+  useEffect(
+    () => setIsLoading(searchQueryState.isLoading || updateQueryState.isLoading),
+    [searchQueryState.isLoading, updateQueryState.isLoading],
+  );
 
-  const result = useOrcidUpdateWork({ user });
+  // update error state
+  useEffect(() => {
+    if (searchQueryState.error) {
+      return setError(parseAPIError(searchQueryState.error));
+    }
+    if (updateQueryState.error) {
+      return setError(parseAPIError(updateQueryState.error));
+    }
+    return setError(null);
+  }, [searchQueryState.error, updateQueryState.error]);
+
+  // run mutation
+  useEffect(() => {
+    if (searchResult && isOrcidProfileEntry(work)) {
+      const doc = searchResult?.docs?.[0];
+      if (doc) {
+        return updateWork({ work: transformADStoOrcid(doc, work.putcode) }, mutationOptions);
+      }
+    }
+  }, [searchResult, work, transformADStoOrcid]);
 
   return {
-    updateWork: setId,
-    ...result,
+    updateWork: setWork,
+    searchQueryState,
+    updateQueryState,
+    error,
+    isLoading,
   };
 };

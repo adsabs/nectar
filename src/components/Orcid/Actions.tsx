@@ -20,7 +20,8 @@ import { useUpdateWork } from '@lib/orcid/useUpdateWork';
 import { useAddWorks } from '@lib/orcid/useAddWorks';
 import { useRemoveWorks } from '@lib/orcid/useRemoveWorks';
 import { AppState, useStore } from '@store';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { isOrcidProfileEntry } from '@api/orcid/models';
 
 export interface IActionProps {
   work: IOrcidProfileEntry;
@@ -29,10 +30,14 @@ export interface IActionProps {
 const TOAST_DEFAULTS: UseToastOptions = {
   duration: 2000,
 };
-
 export const Actions = ({ work }: IActionProps) => {
+  const [isLoading, setIsLoading] = useState(false);
   const claimedBySciX = isClaimedBySciX(work);
   const inSciX = isInSciX(work);
+
+  if (!isOrcidProfileEntry(work)) {
+    return null;
+  }
 
   return (
     <>
@@ -45,6 +50,7 @@ export const Actions = ({ work }: IActionProps) => {
             rightIcon={<ChevronDownIcon />}
             color="gray.500"
             w={28}
+            isLoading={isLoading}
           >
             <HStack spacing={1}>
               <OrcidLogo className="flex-shrink-0 w-4 h-4" aria-hidden />
@@ -52,9 +58,9 @@ export const Actions = ({ work }: IActionProps) => {
             </HStack>
           </MenuButton>
           <MenuList>
-            <SyncToOrcidMenuItem identifier={work.identifier} isDisabled />
-            <AddClaimMenuItem identifier={work.identifier} isDisabled={claimedBySciX} />
-            <DeleteClaimMenuItem identifier={work.identifier} isDisabled={!claimedBySciX} />
+            <SyncToOrcidMenuItem work={work} isDisabled={!claimedBySciX} onIsLoading={setIsLoading} />
+            <AddClaimMenuItem identifier={work.identifier} isDisabled={claimedBySciX} onIsLoading={setIsLoading} />
+            <DeleteClaimMenuItem identifier={work.identifier} isDisabled={!claimedBySciX} onIsLoading={setIsLoading} />
           </MenuList>
         </Menu>
       ) : (
@@ -65,7 +71,9 @@ export const Actions = ({ work }: IActionProps) => {
 };
 
 interface IOrcidActionProps extends MenuItemProps {
-  identifier: string;
+  work?: IOrcidProfileEntry;
+  identifier?: string;
+  onIsLoading: (isLoading: boolean) => void;
 }
 
 interface IOrcidActionBtnProps extends ButtonProps {
@@ -139,11 +147,29 @@ export const DeleteFromOrcidButton = forwardRef<IOrcidActionBtnProps, 'button'>(
 });
 
 const SyncToOrcidMenuItem = (props: IOrcidActionProps) => {
-  const { identifier, ...menuItemProps } = props;
-  const { updateWork } = useUpdateWork();
+  const { work, onIsLoading, ...menuItemProps } = props;
+  const toast = useToast(TOAST_DEFAULTS);
+  const { updateWork, error, isLoading } = useUpdateWork(
+    {},
+    {
+      onSuccess: () => {
+        toast({ status: 'success', title: 'Successfully submitted sync request' });
+      },
+    },
+  );
+
+  useEffect(() => {
+    if (error) {
+      toast({ status: 'error', title: 'Unable to submit request', description: error });
+    }
+  }, [error]);
+
+  useEffect(() => {
+    onIsLoading(isLoading);
+  }, [isLoading]);
 
   return (
-    <MenuItem onClick={() => updateWork(identifier)} {...menuItemProps}>
+    <MenuItem onClick={() => updateWork(work)} {...menuItemProps}>
       Sync to ORCiD
     </MenuItem>
   );

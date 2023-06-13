@@ -13,7 +13,7 @@ export interface ISelectProps<
   Option = SelectOption,
   isMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>,
-> extends Props<Option, isMulti, Group> {
+> extends Partial<Props<Option, isMulti, Group>> {
   label: ReactNode;
   hideLabel?: boolean;
   stylesTheme?: 'theme' | 'sort' | 'default' | 'default.sm';
