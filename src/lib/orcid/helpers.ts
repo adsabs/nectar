@@ -2,7 +2,7 @@ import { IOrcidProfile, IOrcidWork } from '@api/orcid/types';
 import { lensPath } from 'ramda';
 import { Contributor, ExternalID } from '@api/orcid/types/orcid-work';
 import { IDocsEntity } from '@api/search/types';
-import { isArray } from 'ramda-adjunct';
+import { isArray, isNilOrEmpty } from 'ramda-adjunct';
 import { IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
 
 export const orcidLenses = {
@@ -115,6 +115,10 @@ export const findWorkInProfile = (
   identifier: string | string[],
   profile: IOrcidProfile,
 ): IOrcidProfileEntry | IOrcidProfileEntry['status'] | null => {
+  if (isNilOrEmpty(profile) || isNilOrEmpty(identifier)) {
+    return null;
+  }
+
   if (isArray(identifier)) {
     let work = null;
 

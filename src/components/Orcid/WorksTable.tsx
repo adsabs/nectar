@@ -1,108 +1,55 @@
-import { getSearchParams, useSearch } from '@api';
-import { IOrcidProfile, IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
-import { ChevronDownIcon, ChevronUpIcon, UpDownIcon } from '@chakra-ui/icons';
-import { Box, Heading, IconButton, Stack, Table, Tbody, Td, Text, Th, Thead, Tr } from '@chakra-ui/react';
+import { IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
+import {
+  Center,
+  chakra,
+  Heading,
+  HStack,
+  Icon,
+  IconButton,
+  Select as SimpleSelect,
+  Skeleton,
+  Stack,
+  Table,
+  Tag,
+  Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tooltip,
+  Tr,
+} from '@chakra-ui/react';
 import { Select, SelectOption } from '@components/Select';
 import { SimpleLink } from '@components/SimpleLink';
 import { useOrcid } from '@lib/orcid/useOrcid';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Actions } from './Actions';
-import { isInSciX } from './Utils';
-
-// TODO: pagination
-
-const filterOptions: SelectOption[] = [
-  { id: 'all', value: 'all', label: 'All my papers' },
-  { id: 'orcid', value: 'all', label: 'In my ORCiD' },
-  { id: 'not-orcid', value: 'all', label: 'Not in my ORCiD' },
-  { id: 'not-scix', value: 'all', label: 'Not in SciX' },
-];
-
-enum Direction {
-  ASC = 'ascending',
-  DESC = 'descending',
-}
-
-type SortField = 'title' | 'updated' | 'status';
-
-// get sort function
-const compareFn = (sortByField: SortField, direction: Direction) => {
-  return (w1: IOrcidProfileEntry, w2: IOrcidProfileEntry) => {
-    if (direction === Direction.ASC) {
-      return w1[sortByField] < w2[sortByField] ? -1 : 1;
-    } else {
-      return w1[sortByField] < w2[sortByField] ? 1 : -1;
-    }
-  };
-};
+import {
+  createColumnHelper,
+  flexRender,
+  getCoreRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  SortingState,
+  Table as TableType,
+  useReactTable,
+} from '@tanstack/react-table';
+import { ChevronLeftIcon, ChevronRightIcon, TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
+import { formatDistanceToNow, intlFormat } from 'date-fns';
+import { isNilOrEmpty, isObject } from 'ramda-adjunct';
+import { Flex } from '@chakra-ui/layout';
+import { ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from '@heroicons/react/24/solid';
+import { ORCID_ADS_SOURCE_NAME } from '@config';
 
 export const WorksTable = () => {
+  const { user, profile, isLoading } = useOrcid();
 
-  const { user, profile } = useOrcid();
-
-  const allWorks: IOrcidProfile = profile ?? {};
-
-  // All papers with matching orcid
-  const { data } = useSearch(
-    getSearchParams({ q: `orcid:${user?.orcid}`, rows: 500, fl: ['title', 'identifier', 'pubdate'] }),
-    {
-      enabled: typeof user?.orcid === 'string',
-    },
-  );
-
-  const allPapers = data ? data.docs : [];
-
-  if (allWorks) {
-    allPapers.forEach((doc) => {
-      // if none of its identifiers is in claimed, add it to all works
-      if (doc.identifier.filter((identifier) => identifier in allWorks).length === 0) {
-        allWorks[doc.identifier[0]] = {
-          identifier: doc.identifier[0],
-          status: null,
-          title: doc.title[0],
-          pubyear: null,
-          pubmonth: null,
-          updated: null,
-          putcode: null,
-          source: [],
-        };
-      }
-    });
-  }
-
-  const [selectedFilter, setSelectedFilter] = useState(filterOptions[0]);
-
-  // sorting
-  const [sortBy, setSortBy] = useState<{ field: SortField; dir: Direction }>({
-    field: 'title',
-    dir: Direction.ASC,
-  });
-
-  // displayed works after filter and sorting applied
-  const displayedWorks = useMemo(() => {
-    const allWorksList = allWorks ? Object.values(allWorks) : [];
-    switch (selectedFilter.id) {
-      case 'all':
-        return allWorksList.sort(compareFn(sortBy.field, sortBy.dir));
-      case 'orcid':
-        return allWorksList.filter((w) => w.status !== null).sort(compareFn(sortBy.field, sortBy.dir));
-      case 'not-orcid':
-        return allWorksList.filter((w) => w.status === null).sort(compareFn(sortBy.field, sortBy.dir));
-      case 'not-scix':
-        return allWorksList
-          .filter((w) => w.source.indexOf('NASA Astrophysics Data System') === -1)
-          .sort(compareFn(sortBy.field, sortBy.dir));
+  const entries = useMemo<IOrcidProfileEntry[]>(() => {
+    if (isObject(profile)) {
+      return Object.values(profile);
     }
-  }, [allWorks, selectedFilter, sortBy]);
-
-  const handleFilterOptionsSelected = (option: SelectOption) => {
-    setSelectedFilter(option);
-  };
-
-  // sort change handler
-  const handleSortChange = (field: SortField, dir: Direction) => {
-    setSortBy({ field, dir });
-  };
+    return [];
+  }, [profile]);
 
   return (
     <Stack flexGrow={{ base: 0, lg: 6 }}>
@@ -113,110 +60,282 @@ export const WorksTable = () => {
         Learn about using ORCiD with NASA SciX
       </SimpleLink>
       <Text>Claims take up to 24 hours to be indexed in SciX</Text>
-      {!user && !allWorks && <>Loading...</>}
-      <Box w="350px">
-        <Select
-          options={filterOptions}
-          value={selectedFilter}
-          label="Filter"
-          id="orcid-filter-options"
-          stylesTheme="default"
-          onChange={handleFilterOptionsSelected}
-        />
-      </Box>
-      {user && allWorks ? (
-        displayedWorks.length === 0 ? (
-          <Text>No papers found</Text>
-        ) : (
-          <>
-            <Table aria-label={`Works sorted by ${sortBy.field} ${sortBy.dir}`}>
-              <Thead>
-                <Tr>
-                  <Th w="30%">
-                    Title
-                    <IconButton
-                      aria-label="sort by title"
-                      icon={
-                        sortBy.field !== 'title' ? (
-                          <UpDownIcon onClick={() => handleSortChange('title', Direction.ASC)} />
-                        ) : sortBy.dir === Direction.ASC ? (
-                          <ChevronUpIcon onClick={() => handleSortChange('title', Direction.DESC)} />
-                        ) : (
-                          <ChevronDownIcon onClick={() => handleSortChange('title', Direction.ASC)} />
-                        )
-                      }
-                      size="xs"
-                      ml={5}
-                      variant="ghost"
-                    />
-                  </Th>
-                  <Th w="25%">Claimed By</Th>
-                  <Th w="15%">
-                    Updated
-                    <IconButton
-                      aria-label="sort by date"
-                      icon={
-                        sortBy.field !== 'updated' ? (
-                          <UpDownIcon onClick={() => handleSortChange('updated', Direction.ASC)} />
-                        ) : sortBy.dir === Direction.ASC ? (
-                          <ChevronUpIcon onClick={() => handleSortChange('updated', Direction.DESC)} />
-                        ) : (
-                          <ChevronDownIcon onClick={() => handleSortChange('updated', Direction.ASC)} />
-                        )
-                      }
-                      size="xs"
-                      ml={5}
-                      variant="ghost"
-                    />
-                  </Th>
-                  <Th>
-                    Status
-                    <IconButton
-                      aria-label="sort by status"
-                      icon={
-                        sortBy.field !== 'status' ? (
-                          <UpDownIcon onClick={() => handleSortChange('status', Direction.ASC)} />
-                        ) : sortBy.dir === Direction.ASC ? (
-                          <ChevronUpIcon onClick={() => handleSortChange('status', Direction.DESC)} />
-                        ) : (
-                          <ChevronDownIcon onClick={() => handleSortChange('status', Direction.ASC)} />
-                        )
-                      }
-                      size="xs"
-                      ml={5}
-                      variant="ghost"
-                    />
-                  </Th>
-                  <Th>Actions</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {displayedWorks.map((work) => (
-                  <Tr key={work.identifier}>
-                    <Td>
-                      <>
-                        {isInSciX(work) ? (
-                          <SimpleLink href={`/abs/${encodeURIComponent(work.identifier)}`} newTab>
-                            {work.title}
-                          </SimpleLink>
-                        ) : (
-                          `${work.title}`
-                        )}
-                      </>
-                    </Td>
-                    <Td>{work.source.length > 0 ? work.source.join(',') : 'Provided by publisher'}</Td>
-                    <Td>{new Date(work.updated).toLocaleDateString('en-US')}</Td>
-                    <Td>{work.status ?? 'unclaimed'}</Td>
-                    <Td>
-                      <Actions work={work} />
-                    </Td>
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
-          </>
-        )
-      ) : null}
+      {!isLoading && entries ? <DTable entries={entries} /> : null}
+      {isLoading ? <TableSkeleton /> : null}
     </Stack>
+  );
+};
+
+const TableSkeleton = () => {
+  return (
+    <Stack>
+      {Array(10)
+        .fill(0)
+        .map((_, i) => (
+          <Skeleton key={i} h="30px" />
+        ))}
+    </Stack>
+  );
+};
+
+const filterOptions: SelectOption[] = [
+  { id: 'all_works', value: 'all', label: 'All my papers' },
+  { id: 'in_orcid', value: 'in_orcid', label: 'In my ORCiD' },
+  { id: 'not_in_orcid', value: 'not_in_orcid', label: 'NOT in ORCiD' },
+  { id: 'not_in_scix', value: 'not_in_scix', label: 'NOT in SciX' },
+  { id: 'pending', value: 'pending', label: 'Status: Pending' },
+  { id: 'verified', value: 'verified', label: 'Status: Verified' },
+];
+
+const filterEntries = (filter: SelectOption, entries: IOrcidProfileEntry[]) => {
+  switch (filter.id) {
+    case 'all_works':
+      return entries;
+    case 'in_orcid':
+      return entries.filter(({ status }) => status !== null);
+    case 'not_in_orcid':
+      return entries.filter(({ status }) => status === null);
+    case 'not_in_scix':
+      return entries.filter(({ source }) => !source.includes(ORCID_ADS_SOURCE_NAME));
+    case 'pending':
+      return entries.filter(({ status }) => status === 'pending');
+    case 'verified':
+      return entries.filter(({ status }) => status === 'verified');
+    default:
+      return entries;
+  }
+};
+
+const DTable = (props: { entries: IOrcidProfileEntry[] }) => {
+  const { entries } = props;
+  const columnHelper = createColumnHelper<IOrcidProfileEntry>();
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor('title', {
+        cell: (info) => getTitle(info.row.original),
+        header: 'Title',
+      }),
+      columnHelper.accessor('source', {
+        cell: (info) => getSource(info.getValue()),
+        header: 'Source',
+      }),
+      columnHelper.accessor('updated', {
+        cell: (info) => getUpdated(info.getValue()),
+        header: 'Updated',
+      }),
+      columnHelper.accessor('status', {
+        cell: (info) => getStatusTag(info.getValue()),
+        header: 'Status',
+        enableSorting: false,
+      }),
+      columnHelper.display({
+        cell: (info) => <Actions work={info.row.original} />,
+        header: 'Actions',
+        enableSorting: false,
+      }),
+    ],
+    [columnHelper],
+  );
+
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'updated', desc: true }]);
+  const [filter, setFilter] = useState<SelectOption>(filterOptions[0]);
+  const filteredEntries = useMemo(() => filterEntries(filter, entries), [filter, entries]);
+
+  const table = useReactTable({
+    columns,
+    data: filteredEntries,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onSortingChange: setSorting,
+    state: { sorting },
+  });
+
+  return (
+    <>
+      <Flex w={['full', '50%']}>
+        <Select
+          label="Filter"
+          id="orcid-works-table-filter"
+          options={filterOptions}
+          value={filter}
+          onChange={setFilter}
+        />
+      </Flex>
+      {filteredEntries.length > 0 ? (
+        <>
+          <Table>
+            <Thead>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <Tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <Th
+                      key={header.id}
+                      onClick={header.column.getToggleSortingHandler()}
+                      cursor={header.column.getCanSort() ? 'pointer' : 'auto'}
+                    >
+                      <Flex wrap="nowrap">
+                        {flexRender(header.column.columnDef.header, header.getContext())}
+                        <chakra.span pl="4">{getSortIcon(header.column.getIsSorted())}</chakra.span>
+                      </Flex>
+                    </Th>
+                  ))}
+                </Tr>
+              ))}
+            </Thead>
+            <Tbody>
+              {table.getRowModel().rows.map((row) => (
+                <Tr key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <Td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</Td>
+                  ))}
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+          <PaginationControls table={table} entries={filteredEntries} />
+        </>
+      ) : (
+        <Center>
+          <Heading as="h3" size="sm">
+            No Results
+          </Heading>
+        </Center>
+      )}
+    </>
+  );
+};
+
+const PaginationControls = (props: { table: TableType<IOrcidProfileEntry>; entries: IOrcidProfileEntry[] }) => {
+  const { table, entries } = props;
+
+  const { pageIndex, pageSize } = table.getState().pagination;
+  const getPaginationString = useCallback(() => {
+    const endIdx = pageIndex * pageSize + pageSize > entries.length ? entries.length : pageIndex * pageSize + pageSize;
+    return `Showing ${pageIndex * pageSize + 1} to ${endIdx} of ${entries.length} results`;
+  }, [entries.length, pageSize, pageIndex]);
+
+  return (
+    <Flex>
+      <Flex flex="1">{getPaginationString()}</Flex>
+      <Flex justifyContent="center">
+        <SimpleSelect
+          defaultValue={10}
+          onChange={(e) => table.setPageSize(e.target.value ? Number(e.target.value) : 10)}
+        >
+          <option value={10}>10</option>
+          <option value={25}>25</option>
+          <option value={50}>50</option>
+          <option value={100}>100</option>
+        </SimpleSelect>
+      </Flex>
+      <HStack spacing="1" flex="1" justifyContent="flex-end">
+        <IconButton
+          aria-label="go to first page"
+          variant="outline"
+          colorScheme="gray"
+          icon={<Icon as={ChevronDoubleLeftIcon} />}
+          isDisabled={!table.getCanPreviousPage()}
+          onClick={() => table.setPageIndex(0)}
+        />
+        <IconButton
+          aria-label="go to previous page"
+          variant="outline"
+          colorScheme="gray"
+          icon={<Icon as={ChevronLeftIcon} />}
+          isDisabled={!table.getCanPreviousPage()}
+          onClick={() => table.previousPage()}
+        />
+        <IconButton
+          aria-label="go to next page"
+          variant="outline"
+          colorScheme="gray"
+          icon={<Icon as={ChevronRightIcon} />}
+          isDisabled={!table.getCanNextPage()}
+          onClick={() => table.nextPage()}
+        />
+
+        <IconButton
+          aria-label="go to last page"
+          variant="outline"
+          colorScheme="gray"
+          icon={<Icon as={ChevronDoubleRightIcon} />}
+          isDisabled={!table.getCanNextPage()}
+          onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+        />
+      </HStack>
+    </Flex>
+  );
+};
+
+const getSortIcon = (direction: false | 'asc' | 'desc') => {
+  if (!direction) {
+    return null;
+  }
+  return direction === 'desc' ? (
+    <TriangleDownIcon aria-label="sorted descending" />
+  ) : (
+    <TriangleUpIcon aria-label="sorted ascending" />
+  );
+};
+
+const getStatusTag = (status: IOrcidProfileEntry['status']) => {
+  switch (status) {
+    case 'not in ADS':
+      return (
+        <Tag size="sm" colorScheme="blue" whiteSpace="nowrap">
+          Not in SciX
+        </Tag>
+      );
+    case 'rejected':
+      return (
+        <Tag size="sm" colorScheme="red">
+          Rejected
+        </Tag>
+      );
+    case 'verified':
+      return (
+        <Tag size="sm" colorScheme="green">
+          Verified
+        </Tag>
+      );
+    case 'pending':
+      return (
+        <Tag size="sm" colorScheme="orange">
+          Pending
+        </Tag>
+      );
+    default:
+      return (
+        <Tag size="sm" colorScheme="teal">
+          Unclaimed
+        </Tag>
+      );
+  }
+};
+
+const getTitle = (work: IOrcidProfileEntry) => {
+  if (work.status !== 'not in ADS') {
+    return <SimpleLink href={`/abs/${encodeURIComponent(work.identifier)}`}>{work.title}</SimpleLink>;
+  }
+  return work.title;
+};
+
+const getUpdated = (date: string) => {
+  const dateStr = new Date(date);
+  const formatted = formatDistanceToNow(dateStr);
+  return <Tooltip label={intlFormat(dateStr)}>{formatted}</Tooltip>;
+};
+
+const getSource = (sources: IOrcidProfileEntry['source']) => {
+  if (isNilOrEmpty(sources)) {
+    return null;
+  }
+  return (
+    <>
+      {sources.map((source) => (
+        <p key={source}>{source}</p>
+      ))}
+    </>
   );
 };

@@ -99,9 +99,6 @@ export const useAddWorks = (
     if (searchResult && searchResult.numFound > 0) {
       // transform all the ads records into orcid works
       const works = searchResult.docs.map(transformADStoOrcid);
-
-      console.log('works', works);
-
       // finally sync the works with orcid
       result.mutate({ works }, mutationOptions);
     }

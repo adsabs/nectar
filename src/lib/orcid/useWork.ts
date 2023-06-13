@@ -13,31 +13,33 @@ interface IUseWorkProps {
 const userSelector = (state: AppState) => state.orcid.user;
 const isAuthenticatedSelector = (state: AppState) => state.orcid.isAuthenticated;
 
+type UseWorkReturns<T extends IUseWorkProps> = T['full'] extends true
+  ? { work: IOrcidProfileEntry }
+  : { work: IOrcidProfileEntry['status'] };
+
 /**
  * Given an identifier, attempt to match it with the orcid profile.
  *
  * If no match given this will return a null for the `work` param
  */
-export const useWork = (props: IUseWorkProps) => {
+export const useWork = <T extends IUseWorkProps>(props: T): UseWorkReturns<T> => {
   const { identifier, full } = props;
   const [work, setWork] = useState<IOrcidProfileEntry | IOrcidProfileEntry['status'] | null>(null);
   const user = useStore(userSelector);
   const isAuthenticated = useStore(isAuthenticatedSelector);
 
   const { data: profile } = useOrcidGetProfile(
-    { user, full: true, update: true },
+    { user, full, update: true },
     {
       enabled: isAuthenticated && isValidIOrcidUser(user),
     },
   );
 
   useEffect(() => {
-    if (profile && identifier) {
-      setWork(findWorkInProfile(identifier, profile));
-    }
-  }, [profile, identifier]);
+    setWork(findWorkInProfile(identifier, profile));
+  }, [profile, identifier, findWorkInProfile]);
 
   return {
     work,
-  };
+  } as UseWorkReturns<T>;
 };

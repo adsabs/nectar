@@ -10,8 +10,8 @@ export interface IOrcidProfileEntry {
   identifier: string;
   status: Status;
   title: string;
-  pubyear: string;
-  pubmonth: string;
+  pubyear: string | null;
+  pubmonth: string | null;
   updated: string;
   putcode: string | number;
   source: string[];

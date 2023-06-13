@@ -1,7 +1,6 @@
 import api, { ADSMutation, ADSQuery, ApiRequestConfig, ApiTargets } from '@api';
 import { MutationFunction, QueryFunction, useMutation, useQuery } from 'react-query';
 import { IOrcidMutationParams, IOrcidParams, IOrcidResponse, IOrcidUser, IOrcidWork } from '@api/orcid/types';
-import { AppState } from '@store';
 import { isValidIOrcidUser } from '@api/orcid/models';
 import { omit, path } from 'ramda';
 import { ORCID_BULK_DELETE_CHUNK_SIZE, ORCID_BULK_DELETE_DELAY } from '@config';
@@ -51,7 +50,6 @@ export const useOrcidExchangeToken: OrcidQuery<'exchangeToken'> = (params, optio
   });
 };
 
-const orcidUserSelector = (store: AppState) => store.orcid.user;
 export const useOrcidGetProfile: OrcidQuery<'profile'> = (params, options) => {
   return useQuery({
     queryKey: orcidKeys.profile(params),

@@ -4,6 +4,8 @@ import { ORCID_LOGIN_URL } from '@config';
 import { useRouter } from 'next/router';
 import { useOrcidGetName, useOrcidGetProfile } from '@api/orcid';
 import { isValidIOrcidUser } from '@api/orcid/models';
+import { useEffect, useState } from 'react';
+import { parseAPIError } from '@utils';
 
 const setOrcidModeSelector = (state: AppState) => state.setOrcidMode;
 const activeSelector = (state: AppState) => state.orcid.active;
@@ -19,20 +21,37 @@ export const useOrcid = () => {
   const isAuthenticated = useStore(isAuthenticatedSelector);
   const reset = useStore(resetSelector);
   const user = useStore(orcidUserSelector);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const { data: name } = useOrcidGetName(
+  const { data: name, ...profileState } = useOrcidGetName(
     { user },
     {
       enabled: isAuthenticated && isValidIOrcidUser(user),
+      onSettled: () => setError(null),
     },
   );
 
-  const { data: profile } = useOrcidGetProfile(
+  const { data: profile, ...nameState } = useOrcidGetProfile(
     { user, full: true, update: true },
     {
       enabled: isAuthenticated && isValidIOrcidUser(user),
+      onSettled: () => setError(null),
     },
   );
+
+  useEffect(() => {
+    setIsLoading(nameState.isLoading || profileState.isLoading);
+  }, [nameState.isLoading, profileState.isLoading]);
+
+  useEffect(() => {
+    if (nameState.error) {
+      setError(parseAPIError(nameState.error));
+    }
+    if (profileState.error) {
+      setError(parseAPIError(profileState.error));
+    }
+  }, [nameState.error, profileState.error]);
 
   const login = () => {
     if (isClient) {
@@ -60,5 +79,7 @@ export const useOrcid = () => {
     user,
     name,
     profile,
+    isLoading,
+    error,
   };
 };
