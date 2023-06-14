@@ -1,4 +1,4 @@
-import { Button, Flex, FormControl, FormLabel, Input, Textarea, Text, HStack, Box } from '@chakra-ui/react';
+import { Button, Flex, FormControl, FormLabel, Input, Textarea, Text, HStack } from '@chakra-ui/react';
 import { FeedbackLayout } from '@components';
 import { NextPage } from 'next';
 

@@ -162,7 +162,7 @@ export const theme = extendTheme(
               width: 'full',
               maxHeight: '64',
               backgroundColor: 'white',
-              borderRadius: 'md',
+              borderRadius: 'sm',
               shadow: 'md',
               overflowY: 'scroll',
               ring: '1',
@@ -302,6 +302,10 @@ export const theme = extendTheme(
   withDefaultColorScheme({ colorScheme: 'blue' }),
   withDefaultSize({
     size: 'sm',
-    components: ['Input', 'Textarea', 'Button', 'IconButton', 'Table', 'Select'],
+    components: ['Button', 'IconButton', 'Table'],
+  }),
+  withDefaultSize({
+    size: 'md',
+    components: ['Input', 'Textarea', 'Select'],
   }),
 );
