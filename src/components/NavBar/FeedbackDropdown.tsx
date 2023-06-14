@@ -4,28 +4,28 @@ import { MouseEvent, ReactElement } from 'react';
 import { MenuDropdown } from './MenuDropdown';
 import { ListType } from './types';
 
-const items = [
-  {
+export const feedbackItems = {
+  record: {
     id: 'record',
     path: '/feedback/record',
     label: 'Missing/Incorrect Record',
   },
-  {
-    id: 'references',
-    path: '/feedback/references',
+  missingreferences: {
+    id: 'missingreferences',
+    path: '/feedback/missingreferences',
     label: 'Missing References',
   },
-  {
-    id: 'associated-articles',
-    path: '/feedback/associated-articles',
+  associatedarticles: {
+    id: 'associatedarticles',
+    path: '/feedback/associatedarticles',
     label: 'Associated Articles',
   },
-  {
+  general: {
     id: 'general',
     path: '/feedback/general',
     label: 'General Feedback',
   },
-];
+};
 
 interface IFeedbackDropdownProps {
   type: ListType;
@@ -34,6 +34,8 @@ interface IFeedbackDropdownProps {
 
 export const FeedbackDropdown = (props: IFeedbackDropdownProps): ReactElement => {
   const { type, onFinished } = props;
+
+  const items = Object.values(feedbackItems);
 
   const router = useRouter();
 
