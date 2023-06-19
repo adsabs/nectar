@@ -1,21 +1,6 @@
 import { IDocsEntity } from '@api';
 import { IOrcidWork } from '@api/orcid/types';
-import {
-  append,
-  assoc,
-  defaultTo,
-  equals,
-  find,
-  head,
-  map,
-  over,
-  pipe,
-  set,
-  startsWith,
-  unless,
-  view,
-  when,
-} from 'ramda';
+import { append, equals, find, head, map, over, pipe, set, startsWith, unless, view, when } from 'ramda';
 import { isNilOrEmpty, isString } from 'ramda-adjunct';
 import { parsePublicationDate } from '@utils';
 import { adsDocLenses, convertDocType, orcidLenses } from '@lib/orcid/helpers';
@@ -89,18 +74,3 @@ const addExternalId = (type: string, value?: string) => {
 
   return when<IOrcidWork, IOrcidWork>(() => isString(value), over(orcidLenses.externalId, append(entry)));
 };
-
-const parseOrcidWork = (work: IOrcidWork) => {
-  const pubdate = `${defaultTo('????', view(orcidLenses.publicationDateYear, work))}/${defaultTo(
-    '??',
-    view(orcidLenses.publicationDateMonth, work),
-  )}`;
-  return pipe(
-    assoc('title', view(orcidLenses.title, work)),
-    assoc('source', view(orcidLenses.sourceName, work)),
-    assoc('identifier', view(orcidLenses.identifier, work)),
-    assoc('ids', view(orcidLenses.externalId)),
-    assoc('pubdate', pubdate),
-  )({} as IDocsEntity);
-};
-

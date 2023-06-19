@@ -1,5 +1,5 @@
 export interface IValue {
-  errors?: any[];
+  errors?: unknown[];
   value: string;
   required?: boolean;
   getRequiredMessage?: unknown;
