@@ -5,7 +5,6 @@ import { isString } from '@utils';
 import { useOrcidExchangeToken } from '@api/orcid/orcid';
 import { isArray } from 'ramda-adjunct';
 import { Box } from '@chakra-ui/layout';
-import { useOrcid } from '@lib/orcid/useOrcid';
 import { useEffect } from 'react';
 import { AppState, useStore } from '@store';
 
@@ -13,7 +12,6 @@ const setOrcidUserSelector = (state: AppState) => state.setOrcidUser;
 
 const OrcidPage: NextPage = () => {
   const router = useRouter();
-  const { toggleOrcidMode } = useOrcid();
   const setOrcidUser = useStore(setOrcidUserSelector);
   const code = isArray(router.query.code) ? router.query.code[0] : router.query.code;
 

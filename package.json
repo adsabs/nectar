@@ -178,7 +178,7 @@
     "tslib": "^2.2.0",
     "typescript": "^4.8.4",
     "vite-tsconfig-paths": "^4.2.0",
-    "vitest": "^0.31.0",
+    "vitest": "^0.31.4",
     "webpack": "^5.76.0"
   },
   "volta": {

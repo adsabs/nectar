@@ -42,7 +42,7 @@ import { ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from '@heroicons/react/
 import { ORCID_ADS_SOURCE_NAME } from '@config';
 
 export const WorksTable = () => {
-  const { user, profile, isLoading } = useOrcid();
+  const { profile, isLoading } = useOrcid();
 
   const entries = useMemo<IOrcidProfileEntry[]>(() => {
     if (isObject(profile)) {

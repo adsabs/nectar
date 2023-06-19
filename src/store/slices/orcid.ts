@@ -22,7 +22,7 @@ const initialState: IORCIDState['orcid'] = {
   active: false,
 };
 
-export const orcidSlice: StoreSlice<IORCIDState & IORCIDAction> = (set, get) => ({
+export const orcidSlice: StoreSlice<IORCIDState & IORCIDAction> = (set) => ({
   orcid: initialState,
   setOrcidUser: (user) => {
     if (isValidIOrcidUser(user)) {
