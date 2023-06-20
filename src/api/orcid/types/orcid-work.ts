@@ -1,81 +1,97 @@
+// @see: https://github.com/ORCID/orcid-model/blob/f3d98ba117c2b7ef88f30664bc0a8e4b8a533d6f/src/main/resources/record_3.0/samples/write_samples/work-full-3.0.xml
+
 export interface IOrcidWork {
-  'created-date': EdDate;
-  'last-modified-date': EdDate;
-  source: Source;
-  'put-code': number | string;
-  path: string;
-  title: Title;
-  'journal-title': JournalTitle;
-  'short-description': string;
-  citation: null;
-  type: string;
-  'publication-date': PublicationDate;
-  'external-ids': ExternalIDS;
-  url: null;
-  contributors: Contributors;
-  'language-code': null;
-  country: null;
-  visibility: string;
+  'put-code'?: string;
+  path?: string;
+  createdDate?: string;
+  lastModifiedDate?: string;
+  source?: {
+    'source-orcid'?: {
+      uri?: string;
+      path?: string;
+      host?: string;
+    };
+    'source-client-id'?: {
+      uri?: string;
+      path?: string;
+      host?: string;
+    };
+    'source-name'?: {
+      value?: string;
+    };
+  };
+  title?: {
+    title?: {
+      value?: string;
+    };
+    subtitle?: {
+      value?: string;
+    };
+    'translated-title'?: {
+      value?: string;
+      'language-code'?: string;
+    };
+  };
+  'journal-title'?: {
+    value?: string;
+  };
+  'short-description'?: string;
+  citation?: {
+    'citation-type'?: string;
+    'citation-value'?: string;
+  };
+  type?: string;
+  'publication-date'?: {
+    year?: {
+      value?: string;
+    };
+    month?: {
+      value?: string;
+    };
+    day?: {
+      value?: string;
+    };
+    'media-type'?: string;
+  };
+  url?: {
+    value?: string;
+  };
+  contributors?: {
+    contributor?: Contributor[];
+  };
+  'external-ids'?: {
+    'external-id'?: ExternalID[];
+  };
+  country?: {
+    value?: string;
+  };
+  visibility?: {
+    value?: string;
+  };
+  identifier?: string[];
 }
 
-export interface Contributors {
-  contributor: Contributor[];
-}
+export type Contributor = {
+  'contributor-orcid'?: {
+    uri?: string;
+    path?: string;
+    host?: string;
+  };
+  'credit-name'?: {
+    value?: string;
+  };
+  'contributor-email'?: {
+    value?: string;
+  };
+  'contributor-attributes'?: {
+    'contributor-sequence'?: string;
+    'contributor-role'?: string;
+  };
+};
 
-export interface Contributor {
-  'contributor-orcid': null;
-  'credit-name': JournalTitle;
-  'contributor-email': null;
-  'contributor-attributes': ContributorAttributes;
-}
-
-export interface ContributorAttributes {
-  'contributor-sequence': null;
-  'contributor-role': ContributorRole;
-}
-
-export type ContributorRole = 'AUTHOR';
-
-export interface JournalTitle {
-  value: string;
-}
-
-export interface EdDate {
-  value: number;
-}
-
-export interface ExternalIDS {
-  'external-id': ExternalID[];
-}
-
-export interface ExternalID {
-  'external-id-type': string;
-  'external-id-value': string;
-  'external-id-url': null;
-  'external-id-relationship': string;
-}
-
-export interface PublicationDate {
-  year: JournalTitle;
-  month: JournalTitle;
-  day: null;
-  'media-type': null;
-}
-
-export interface Source {
-  'source-orcid': null;
-  'source-client-id': SourceClientID;
-  'source-name': JournalTitle;
-}
-
-export interface SourceClientID {
-  uri: string;
-  path: string;
-  host: string;
-}
-
-export interface Title {
-  title: JournalTitle;
-  subtitle: null;
-  'translated-title': null;
-}
+export type ExternalID = {
+  'external-id-value'?: string;
+  'external-id-type'?: string;
+  'external-id-url'?: string;
+  'external-id-relationship'?: string;
+};
