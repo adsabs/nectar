@@ -40,15 +40,16 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { ChevronLeftIcon, ChevronRightIcon, TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
-import { formatDistanceToNow, intlFormat } from 'date-fns';
+import { intlFormat, intlFormatDistance } from 'date-fns';
 import { isNilOrEmpty, isObject } from 'ramda-adjunct';
 import { Flex } from '@chakra-ui/layout';
 import { ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from '@heroicons/react/20/solid';
-import { ORCID_ADS_SOURCE_NAME } from '@config';
+import { ORCID_ADS_SOURCE_NAME, ORCID_ADS_SOURCE_NAME_SHORT } from '@config';
 import { QueryErrorResetBoundary } from 'react-query';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 import { parseAPIError } from '@utils';
 import { useOrcidProfile } from '@lib/orcid/useOrcidProfile';
+import { AxiosError } from 'axios';
 
 export const WorksTable = () => {
   return (
@@ -73,7 +74,10 @@ export const WorksTable = () => {
   );
 };
 
-const ErrorAlert = (props: FallbackProps) => {
+interface IErrorAlertProps extends FallbackProps {
+  error: AxiosError | Error | unknown;
+}
+const ErrorAlert = (props: IErrorAlertProps) => {
   const { error, resetErrorBoundary } = props;
   const { isOpen, onToggle } = useDisclosure();
 
@@ -360,19 +364,44 @@ const getTitle = (work: IOrcidProfileEntry) => {
 
 const getUpdated = (date: string) => {
   const dateStr = new Date(date);
-  const formatted = formatDistanceToNow(dateStr);
-  return <Tooltip label={intlFormat(dateStr)}>{formatted}</Tooltip>;
+  const formatted = intlFormatDistance(dateStr, new Date());
+  return (
+    <Tooltip
+      label={intlFormat(dateStr, {
+        hour12: false,
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      })}
+    >
+      {formatted}
+    </Tooltip>
+  );
 };
 
 const getSource = (sources: IOrcidProfileEntry['source']) => {
   if (isNilOrEmpty(sources)) {
-    return null;
+    return 'Provided by publisher';
   }
   return (
     <>
-      {sources.map((source) => (
-        <p key={source}>{source}</p>
-      ))}
+      {sources.map((rawSource) => {
+        // shorten the ADS source name if possible
+        const source =
+          rawSource === ORCID_ADS_SOURCE_NAME ? (
+            <Tooltip label={rawSource}>{ORCID_ADS_SOURCE_NAME_SHORT}</Tooltip>
+          ) : (
+            rawSource
+          );
+        return (
+          <p key={rawSource} style={{ whiteSpace: 'nowrap' }}>
+            {source}
+          </p>
+        );
+      })}
     </>
   );
 };
