@@ -1,7 +1,7 @@
 import { IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
 
 export const isClaimedBySciX = (profile: IOrcidProfileEntry) => {
-  return profile.source.indexOf('NASA Astrophysics Data System') !== -1;
+  return profile?.source?.indexOf('NASA Astrophysics Data System') !== -1;
 };
 
 export const isInSciX = (profile: IOrcidProfileEntry) => {
