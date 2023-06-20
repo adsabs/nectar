@@ -56,7 +56,6 @@ export const adsDocLenses = {
   bibcode: lensPath<IDocsEntity, string>(['bibcode']),
   pub: lensPath<IDocsEntity, string>(['pub']),
   doi: lensPath<IDocsEntity, string[]>(['doi']),
-  author: lensPath<IDocsEntity, string[]>(['author']),
   title: lensPath<IDocsEntity, string[]>(['title']),
   doctype: lensPath<IDocsEntity, string>(['doctype']),
   identifier: lensPath<IDocsEntity, string[]>(['identifier']),

@@ -12,7 +12,7 @@ export const useOrcidProfile = (options?: Parameters<typeof useOrcidGetProfile>[
   const { data: profile, ...result } = useOrcidGetProfile(
     { user, full: true, update: true },
     {
-      enabled: !!options.enabled || (isAuthenticated && isValidIOrcidUser(user)),
+      enabled: isAuthenticated && isValidIOrcidUser(user),
       ...options,
     },
   );
