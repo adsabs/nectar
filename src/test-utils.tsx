@@ -1,11 +1,14 @@
-import { StoreProvider, useCreateStore } from '@store';
+import { AppState, StoreProvider, useCreateStore } from '@store';
 import { render, RenderOptions } from '@testing-library/react';
 import { MockedRequest } from 'msw';
 import { ServerLifecycleEventsMap, SetupServerApi } from 'msw/node';
 import { map, path, pipe } from 'ramda';
-import { FC, ReactElement } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactElement } from 'react';
 import { Mock, vi } from 'vitest';
+import { Container, ThemeProvider } from '@chakra-ui/react';
+import { theme } from '@theme';
+import { isObject } from 'ramda-adjunct';
+import mockOrcidUser from '@mocks/responses/orcid/exchangeOAuthCode.json';
 
 /**
  * Attach listeners and return the mocks
@@ -26,7 +29,7 @@ export const createServerListenerMocks = (server: SetupServerApi) => {
   server.events.on('request:start', onRequest);
   server.events.on('response:mocked', onResponse);
   server.events.on('request:match', onMatch);
-  server.events.on('request:unhandled', onUnhandled)
+  server.events.on('request:unhandled', onUnhandled);
   server.events.on('request:end', onRequestEnd);
   server.events.on('response:bypass', onResponseBypass);
   server.events.on('unhandledException', onUnhandleException);
@@ -39,19 +42,46 @@ export const urls = pipe<[Mock], MockedRequest[], string[]>(
   map(path(['0', 'url', 'pathname'])),
 );
 
-export const DefaultProviders: FC = ({ children }) => {
+interface IProviderOptions {
+  initialStore?: Partial<AppState>;
+  storePreset?: 'orcid-authenticated';
+}
+
+export const getDefaultProviders = ({ children, options }: { children: ReactElement, options: IProviderOptions }) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 
+  const store = isObject(options?.initialStore) ?
+    options.initialStore :
+    options?.storePreset ? getStateFromPreset(options.storePreset) : {};
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <StoreProvider createStore={useCreateStore({})}>{children}</StoreProvider>
-    </QueryClientProvider>
+    <ThemeProvider theme={theme}>
+      <QueryClientProvider client={queryClient}>
+        <StoreProvider createStore={useCreateStore(store)}>
+          <Container maxW='container.lg'>
+            {children}
+          </Container>
+        </StoreProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 };
 
-const renderComponent = (ui: ReactElement, options?: Omit<RenderOptions, 'wrapper'>) =>
-  render(ui, { wrapper: DefaultProviders, ...options });
+const getStateFromPreset = (preset: IProviderOptions['storePreset']): Partial<AppState> => {
+  switch (preset) {
+    case 'orcid-authenticated':
+      return {
+        orcid: {
+          active: true,
+          isAuthenticated: true,
+          user: mockOrcidUser,
+        },
+      };
+  }
+};
+
+const renderComponent = (ui: ReactElement, providerOptions?: IProviderOptions, options?: Omit<RenderOptions, 'wrapper'>) =>
+  render(ui, { wrapper: ({ children }) => getDefaultProviders({ children, options: providerOptions }), ...options });
 
 export * from '@testing-library/react';
 export { renderComponent as render };
-
