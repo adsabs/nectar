@@ -6,8 +6,8 @@ import { ListType } from './types';
 
 export const feedbackItems = {
   record: {
-    id: 'record',
-    path: '/feedback/record',
+    id: 'missingrecord',
+    path: '/feedback/missingrecord',
     label: 'Missing/Incorrect Record',
   },
   missingreferences: {
