@@ -90,7 +90,7 @@ const ErrorAlert = (props: IErrorAlertProps) => {
             See error message
           </Button>
           <Collapse in={isOpen}>
-            <Code style={{ whiteSpace: 'normal' }}>{parseAPIError(error)}</Code>
+            <Code>{parseAPIError(error)}</Code>
           </Collapse>
           <Button onClick={() => resetErrorBoundary()}>Try again</Button>
         </Stack>
