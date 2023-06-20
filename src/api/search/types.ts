@@ -200,7 +200,7 @@ export interface IDocsEntity {
   aff_id?: string;
   aff?: string[];
   all?: string;
-  alternate_bibcode?: string;
+  alternate_bibcode?: string[];
   alternate_title?: string;
   arxiv_class?: string;
   arxiv?: string;
@@ -302,7 +302,6 @@ export interface IDocument {
 export interface IADSApiSearchErrorResponse {
   error: string;
 }
-
 
 export type QueryOperator =
   | 'citations'
