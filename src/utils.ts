@@ -7,8 +7,29 @@ import { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from 'next
 import { useRouter } from 'next/router';
 import qs from 'qs';
 import { ParsedUrlQuery } from 'querystring';
-import { clamp, filter, find, head, is, keys, last, omit, paths, pipe, propIs, uniq, when } from 'ramda';
-import { isArray, isNonEmptyString, isNotString, isPlainObject } from 'ramda-adjunct';
+import {
+  adjust,
+  clamp,
+  compose,
+  filter,
+  find,
+  head,
+  is,
+  keys,
+  last,
+  map,
+  omit,
+  paths,
+  pipe,
+  propIs,
+  range,
+  repeat,
+  transpose,
+  uniq,
+  when,
+  without,
+} from 'ramda';
+import { isArray, isNilOrEmpty, isNonEmptyString, isNotString, isPlainObject } from 'ramda-adjunct';
 
 type ParsedQueryParams = ParsedUrlQuery | qs.ParsedQs;
 
@@ -71,13 +92,17 @@ export const getFomattedNumericPubdate = (pubdate: string): string | null => {
 };
 
 export const parsePublicationDate = (pubdate: string) => {
-  if (typeof pubdate !== 'string') {
+  if (isNilOrEmpty(pubdate)) {
     return null;
   }
 
-  const regex = /^(?<year>\d{4})-(?<month>\d{2}|00)-(?<day>\d{2}|00)$/;
+  const regex = /^(?<year>\d{4})-(?<month>\d{2}|\d{1}|00)-(?<day>\d{2}|\d{1}|00)$/;
   const match = pubdate.match(regex);
-  return match ? (match.groups as { year: string; month: string; day: string }) : null;
+
+  // if bad match, at least grab the year which should always be first 4 characters
+  return match
+    ? (match.groups as { year: string; month: string; day: string })
+    : { year: pubdate.slice(0, 4), month: '00', day: '00' };
 };
 
 /**
@@ -260,7 +285,6 @@ export const enumKeys = <O extends object, K extends keyof O = keyof O>(obj: O):
   return Object.keys(obj).filter((k) => Number.isNaN(+k)) as K[];
 };
 
-
 // omit params that should not be included in any urls
 // `id` is typically slug used in abstract pages
 const omitSearchParams = omit(['fl', 'start', 'rows', 'id']);
@@ -405,3 +429,48 @@ export const reconcileDocIdentifier = (doc: IDocsEntity) => {
 };
 
 export const asyncDelay = (delay = 1000) => new Promise((resolve) => setTimeout(resolve, delay));
+
+/**
+ * Takes in a doc and tries to gather all author information into a data structure like below:
+ * ```
+ * [
+ *    ['1', 'Zhang, Dali', 'INFN, Sezione di Pisa, I-56127 Pisa, Italy', '0000-0003-4311-5804'],
+ *    ['2', 'Li, Xinqiao', '']
+ * ]
+ * ```
+ * @param doc
+ */
+export const coalesceAuthorsFromDoc = (doc: IDocsEntity, includeAff?: boolean) => {
+  const { author = [], aff = [], orcid_other = [], orcid_pub = [], orcid_user = [] } = doc;
+
+  if (isNilOrEmpty(author)) {
+    return [];
+  }
+
+  const len = author.length;
+
+  return includeAff
+    ? map(
+        compose(
+          // remove extra '-', essentially coalescing orcid value
+          without(['-']),
+
+          // replace affs with an empty string, so we don't wipe it out in the next step
+          adjust(2, (v) => (v === '-' ? '' : v)),
+        ),
+
+        // stack each array
+        transpose([
+          map((v) => v.toLocaleString(), range(1, len + 1)),
+          author,
+          aff ?? repeat('', len),
+          orcid_other,
+          orcid_pub,
+          orcid_user,
+        ]),
+      )
+    : map(
+        without(['-']),
+        transpose([map((v) => v.toLocaleString(), range(1, len + 1)), author, orcid_other, orcid_pub, orcid_user]),
+      );
+};

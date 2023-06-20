@@ -8,6 +8,7 @@
     "updated": "2023-05-10T01:53:22.549000+00:00",
     "putcode": 134698450,
     "source": [
+      "Tim Hostetler",
       "NASA Astrophysics Data System"
     ]
   },
@@ -19,13 +20,11 @@
     "pubmonth": "01",
     "updated": "2023-05-10T01:53:26.476000+00:00",
     "putcode": 134698451,
-    "source": [
-      "NASA Astrophysics Data System"
-    ]
+    "source": null
   },
   "2022arXiv221200744G": {
     "identifier": "2022arXiv221200744G",
-    "status": "pending",
+    "status": "not in ads",
     "title": "Improving astroBERT using Semantic Textual Similarity",
     "pubyear": "2022",
     "pubmonth": "11",
@@ -37,7 +36,7 @@
   },
   "2022BAAS...54b.022A": {
     "identifier": "2022BAAS...54b.022A",
-    "status": "pending",
+    "status": "verified",
     "title": "Content of the Future in the ADS",
     "pubyear": "2022",
     "pubmonth": "04",
@@ -49,7 +48,7 @@
   },
   "2022AAS...24030217L": {
     "identifier": "2022AAS...24030217L",
-    "status": "pending",
+    "status": "rejected",
     "title": "Introducing the New ADS OpenAPI Exploration Tool: Making API Access More User-Friendly",
     "pubyear": "2022",
     "pubmonth": "06",
@@ -61,13 +60,15 @@
   },
   "2022arXiv220200777H": {
     "identifier": "2022arXiv220200777H",
-    "status": "pending",
+    "status": null,
     "title": "Web accessibility trends and implementation in dynamic web applications",
     "pubyear": "2022",
     "pubmonth": "02",
     "updated": "2023-05-10T01:53:43.952000+00:00",
     "putcode": 134698459,
     "source": [
+      "foo",
+      "bar",
       "NASA Astrophysics Data System"
     ]
   },
