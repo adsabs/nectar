@@ -29,6 +29,8 @@ export const AuthorsTable = ({
 
   const newAuthorIsValid = !!newAuthor && isValidAuthor(newAuthor);
 
+  const editAuthorIsValid = !!editAuthor.author && isValidAuthor(editAuthor.author);
+
   // Changes to fields for adding new author
 
   const handleNewLastNameChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -128,7 +130,7 @@ export const AuthorsTable = ({
           <Th>First Name</Th>
           <Th>Affiliation</Th>
           <Th>ORCiD</Th>
-          <Th>Actions</Th>
+          <Th w="10%">Actions</Th>
         </Thead>
         <Tbody>
           {authors.map((a, index) =>
@@ -156,6 +158,7 @@ export const AuthorsTable = ({
                       colorScheme="green"
                       data-index={index}
                       onClick={handleApplyEditAuthor}
+                      isDisabled={!editAuthorIsValid}
                     />
                     <IconButton
                       aria-label="cancel"

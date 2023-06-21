@@ -42,15 +42,15 @@ const Record: NextPage = () => {
             </TabList>
             <TabPanels>
               <TabPanel>
-                <RecordPanel />
+                <RecordPanel isNew />
               </TabPanel>
               <TabPanel>
-                <RecordPanel />
+                <RecordPanel isNew={false} />
               </TabPanel>
             </TabPanels>
           </Tabs>
           <HStack mt={2}>
-            <Button type="submit">Submit</Button>
+            <Button>Preview</Button>
             <Button type="reset" variant="outline">
               Reset
             </Button>

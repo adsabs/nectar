@@ -220,6 +220,7 @@ export const theme = extendTheme(
         variants: {
           outline: (props: ThemeComponentProps) => ({
             backgroundColor: props.colorMode === 'light' ? 'white' : 'black',
+            borderRadius: '2px',
           }),
         },
       },
