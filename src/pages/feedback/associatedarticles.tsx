@@ -1,14 +1,6 @@
 import { Flex, FormControl, FormLabel, HStack, Input, Button, Text, Box } from '@chakra-ui/react';
-import { FeedbackLayout, Select, SelectOption } from '@components';
+import { FeedbackLayout, RelationTypeDropdown } from '@components';
 import { NextPage } from 'next';
-
-const relationOptions: SelectOption<string>[] = [
-  { id: 'errata', value: 'errata', label: 'Main paper/Errata' },
-  { id: 'addenda', value: 'addenda', label: 'Main paper/Addenda' },
-  { id: 'series', value: 'series', label: 'Series of Articles' },
-  { id: 'arxiv', value: 'arxiv', label: 'arXiv/Published' },
-  { id: 'other', value: 'other', label: 'Other' },
-];
 
 const AssociatedArticles: NextPage = () => {
   return (
@@ -46,13 +38,7 @@ const AssociatedArticles: NextPage = () => {
           </HStack>
           <FormControl>
             <FormLabel>Relation Type</FormLabel>
-            <Select
-              options={relationOptions}
-              name="relation-type"
-              label="Relation Type"
-              id="relation-options"
-              stylesTheme="default"
-            />
+            <RelationTypeDropdown />
           </FormControl>
           <HStack mt={2}>
             <Button type="submit">Submit</Button>
