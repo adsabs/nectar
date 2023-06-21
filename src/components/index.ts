@@ -11,6 +11,7 @@ export * from './DataDownloader';
 export * from './Dropdown';
 export * from './Expandable';
 export * from './Feedbacks';
+export * from './FeedbackForms';
 export * from './Footer';
 export * from './HistogramSlider';
 export * from './images';
