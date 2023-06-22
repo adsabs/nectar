@@ -15,7 +15,7 @@ import { SingleDatepicker } from 'chakra-dayzed-datepicker';
 import { ChangeEvent, useState } from 'react';
 import { KeywordList, ReferencesTable } from '.';
 import { AuthorsTable } from './AuthorsTable';
-import { IAuthor, IReference, IUrl } from './types';
+import { IAuthor, IFormData, IReference, IUrl } from './types';
 import { URLTable } from './URLTable';
 
 const collections = [
@@ -46,17 +46,40 @@ const datePropConfig = {
   },
 };
 
-export const RecordPanel = ({ isNew }: { isNew: boolean }) => {
-  const [record, setRecord] = useState<string>(null);
-  const [recordLoaded, setRecordLoaded] = useState(false);
-  const [authors, setAuthors] = useState<IAuthor[]>([]);
-  const [pubDate, setPubDate] = useState(new Date());
-  const [urls, setUrls] = useState<IUrl[]>([]);
-  const [keywords, setKeywords] = useState<string[]>([]);
-  const [references, setReferences] = useState<IReference[]>([]);
+export const RecordPanel = ({
+  isNew,
+  formData,
+  onPreview,
+}: {
+  isNew: boolean;
+  formData?: IFormData;
+  onPreview: (data: IFormData) => void;
+}) => {
+  const [record, setRecord] = useState<string>(formData?.record ?? null);
+  const [recordLoaded, setRecordLoaded] = useState(formData ? true : false);
+  const { value: selectedCollections, getCheckboxProps } = useCheckboxGroup({
+    defaultValue: formData?.collections ?? [],
+  });
+  const [title, setTitle] = useState(formData?.title ?? '');
+  const [authors, setAuthors] = useState<IAuthor[]>(formData?.authors ?? []);
+  const [publication, setPublication] = useState(formData?.publication ?? '');
+  const [pubDate, setPubDate] = useState(formData?.publicationDate ?? new Date());
+  const [urls, setUrls] = useState<IUrl[]>(formData?.urls ?? []);
+  const [abstract, setAbstract] = useState(formData?.abstract ?? '');
+  const [keywords, setKeywords] = useState<string[]>(formData?.keywords ?? []);
+  const [references, setReferences] = useState<IReference[]>(formData?.references ?? []);
+  const [comment, setComment] = useState(formData?.comment ?? '');
+
+  // record
 
   const handleRecordFieldChange = (e: ChangeEvent<HTMLInputElement>) => {
     setRecord(e.target.value);
+  };
+
+  // title
+
+  const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setTitle(e.target.value);
   };
 
   // authors
@@ -77,6 +100,12 @@ export const RecordPanel = ({ isNew }: { isNew: boolean }) => {
     });
   };
 
+  // publication
+
+  const handlePublicationChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setPublication(e.target.value);
+  };
+
   // urls
 
   const handleAddUrl = (url: IUrl) => {
@@ -93,6 +122,12 @@ export const RecordPanel = ({ isNew }: { isNew: boolean }) => {
       ret[index] = url;
       return ret;
     });
+  };
+
+  // abstract
+
+  const handleAbstractChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setAbstract(e.target.value);
   };
 
   // keywords
@@ -123,6 +158,28 @@ export const RecordPanel = ({ isNew }: { isNew: boolean }) => {
     });
   };
 
+  // comment
+
+  const handleCommentChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setComment(e.target.value);
+  };
+
+  const handlePreview = () => {
+    onPreview({
+      record,
+      collections: selectedCollections as string[],
+      title,
+      authors,
+      publication,
+      publicationDate: pubDate,
+      urls,
+      abstract,
+      keywords,
+      references,
+      comment,
+    });
+  };
+
   return (
     <Stack direction="column" gap={2} m={0}>
       <FormControl isRequired>
@@ -143,7 +200,7 @@ export const RecordPanel = ({ isNew }: { isNew: boolean }) => {
             <CheckboxGroup>
               <Stack direction="row">
                 {collections.map((c) => (
-                  <Checkbox key={`collection-${c.value}`} value={c.value}>
+                  <Checkbox key={`collection-${c.value}`} {...getCheckboxProps({ value: c.value })}>
                     {c.label}
                   </Checkbox>
                 ))}
@@ -152,7 +209,7 @@ export const RecordPanel = ({ isNew }: { isNew: boolean }) => {
           </FormControl>
           <FormControl isRequired>
             <FormLabel>Title</FormLabel>
-            <Input />
+            <Input value={title} onChange={handleTitleChange} />
           </FormControl>
           <FormControl isRequired>
             <FormLabel>Authors</FormLabel>
@@ -161,12 +218,13 @@ export const RecordPanel = ({ isNew }: { isNew: boolean }) => {
               onAddAuthor={handleAddAuthor}
               onDeleteAuthor={handleDeleteAuthor}
               onUpdateAuthor={handleUpdateAuthor}
+              editable={true}
             />
           </FormControl>
           <HStack gap={2}>
             <FormControl isRequired>
               <FormLabel>Publications</FormLabel>
-              <Input />
+              <Input value={publication} onChange={handlePublicationChange} />
             </FormControl>
             <FormControl isRequired>
               <FormLabel>Publication Date</FormLabel>
@@ -175,11 +233,17 @@ export const RecordPanel = ({ isNew }: { isNew: boolean }) => {
           </HStack>
           <FormControl>
             <FormLabel>URLs</FormLabel>
-            <URLTable urls={urls} onAddUrl={handleAddUrl} onDeleteUrl={handleDeleteUrl} onUpdateUrl={handleUpdateUrl} />
+            <URLTable
+              urls={urls}
+              onAddUrl={handleAddUrl}
+              onDeleteUrl={handleDeleteUrl}
+              onUpdateUrl={handleUpdateUrl}
+              editable
+            />
           </FormControl>
           <FormControl isRequired>
             <FormLabel>Abstract</FormLabel>
-            <Textarea />
+            <Textarea value={abstract} onChange={handleAbstractChange} />
           </FormControl>
           <FormControl>
             <FormLabel>Keywords</FormLabel>
@@ -192,12 +256,19 @@ export const RecordPanel = ({ isNew }: { isNew: boolean }) => {
               onAddReference={handleAddReference}
               onDeleteReference={handleDeleteReference}
               onUpdateReference={handleUpdateReference}
+              editable
             />
           </FormControl>
           <FormControl>
             <FormLabel>User Comments</FormLabel>
-            <Textarea />
+            <Textarea value={comment} onChange={handleCommentChange} />
           </FormControl>
+          <HStack mt={2}>
+            <Button onClick={handlePreview}>Preview</Button>
+            <Button type="reset" variant="outline">
+              Reset
+            </Button>
+          </HStack>
         </>
       )}
     </Stack>

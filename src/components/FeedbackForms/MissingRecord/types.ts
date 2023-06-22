@@ -22,3 +22,17 @@ export interface IReference {
   type: ReferenceType;
   reference: string;
 }
+
+export interface IFormData {
+  record: string;
+  collections: string[];
+  title: string;
+  authors: IAuthor[];
+  publication: string;
+  publicationDate: Date;
+  urls: IUrl[];
+  abstract: string;
+  keywords: string[];
+  references: IReference[];
+  comment: string;
+}

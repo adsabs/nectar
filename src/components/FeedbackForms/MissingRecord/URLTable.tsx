@@ -2,6 +2,7 @@ import { CheckIcon, CloseIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons';
 import { Tr, Td, Input, IconButton, TableContainer, Table, Thead, Th, Tbody, HStack } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components/Select';
 import { useIsClient } from '@hooks';
+import { noop } from '@utils';
 import { useState, ChangeEvent, MouseEvent } from 'react';
 import { IUrl, UrlType, urlTypes } from './types';
 
@@ -13,14 +14,16 @@ const typeOptions: SelectOption<UrlType>[] = urlTypes.map((t) => ({
 
 export const URLTable = ({
   urls,
-  onAddUrl,
-  onDeleteUrl,
-  onUpdateUrl,
+  onAddUrl = noop,
+  onDeleteUrl = noop,
+  onUpdateUrl = noop,
+  editable,
 }: {
   urls: IUrl[];
-  onAddUrl: (author: IUrl) => void;
-  onDeleteUrl: (index: number) => void;
-  onUpdateUrl: (index: number, url: IUrl) => void;
+  onAddUrl?: (author: IUrl) => void;
+  onDeleteUrl?: (index: number) => void;
+  onUpdateUrl?: (index: number, url: IUrl) => void;
+  editable: boolean;
 }) => {
   const isClient = useIsClient();
 
@@ -138,7 +141,7 @@ export const URLTable = ({
           <Th aria-label="index" w="4%"></Th>
           <Th w="30%">Type</Th>
           <Th>URL</Th>
-          <Th w="10%">Actions</Th>
+          {editable && <Th w="10%">Actions</Th>}
         </Thead>
         <Tbody>
           {urls.map((a, index) =>
@@ -160,6 +163,7 @@ export const URLTable = ({
                 <Td>
                   <Input size="sm" onChange={handleEditUrlChange} value={editUrl.url.url} />
                 </Td>
+
                 <Td>
                   <HStack>
                     <IconButton
@@ -187,30 +191,32 @@ export const URLTable = ({
                 <Td>{index + 1}</Td>
                 <Td>{a.type}</Td>
                 <Td>{a.url}</Td>
-                <Td>
-                  <HStack>
-                    <IconButton
-                      aria-label="edit"
-                      icon={<EditIcon />}
-                      variant="outline"
-                      colorScheme="blue"
-                      data-index={index}
-                      onClick={handleEditUrl}
-                    />
-                    <IconButton
-                      aria-label="delete"
-                      icon={<DeleteIcon />}
-                      variant="outline"
-                      colorScheme="red"
-                      data-index={index}
-                      onClick={handleDeleteUrl}
-                    />
-                  </HStack>
-                </Td>
+                {editable && (
+                  <Td>
+                    <HStack>
+                      <IconButton
+                        aria-label="edit"
+                        icon={<EditIcon />}
+                        variant="outline"
+                        colorScheme="blue"
+                        data-index={index}
+                        onClick={handleEditUrl}
+                      />
+                      <IconButton
+                        aria-label="delete"
+                        icon={<DeleteIcon />}
+                        variant="outline"
+                        colorScheme="red"
+                        data-index={index}
+                        onClick={handleDeleteUrl}
+                      />
+                    </HStack>
+                  </Td>
+                )}
               </Tr>
             ),
           )}
-          {newUrlTableRow}
+          {editable && newUrlTableRow}
         </Tbody>
       </Table>
     </TableContainer>

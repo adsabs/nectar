@@ -1,18 +1,21 @@
 import { CheckIcon, CloseIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons';
 import { Tr, Td, Input, IconButton, TableContainer, Table, Thead, Th, Tbody, HStack } from '@chakra-ui/react';
+import { noop } from '@utils';
 import { useState, ChangeEvent, MouseEvent } from 'react';
 import { IAuthor } from './types';
 
 export const AuthorsTable = ({
   authors,
-  onAddAuthor,
-  onDeleteAuthor,
-  onUpdateAuthor,
+  onAddAuthor = noop,
+  onDeleteAuthor = noop,
+  onUpdateAuthor = noop,
+  editable,
 }: {
   authors: IAuthor[];
-  onAddAuthor: (author: IAuthor) => void;
-  onDeleteAuthor: (index: number) => void;
-  onUpdateAuthor: (index: number, author: IAuthor) => void;
+  onAddAuthor?: (author: IAuthor) => void;
+  onDeleteAuthor?: (index: number) => void;
+  onUpdateAuthor?: (index: number, author: IAuthor) => void;
+  editable: boolean;
 }) => {
   // New author row being added
   const [newAuthor, setNewAuthor] = useState<IAuthor>(null);
@@ -123,14 +126,14 @@ export const AuthorsTable = ({
   );
   return (
     <TableContainer>
-      <Table size="sm">
+      <Table size="sm" variant="simple">
         <Thead>
           <Th aria-label="index" w="4%"></Th>
           <Th>Last Name</Th>
           <Th>First Name</Th>
           <Th>Affiliation</Th>
           <Th>ORCiD</Th>
-          <Th w="10%">Actions</Th>
+          {editable && <Th w="10%">Actions</Th>}
         </Thead>
         <Tbody>
           {authors.map((a, index) =>
@@ -178,30 +181,32 @@ export const AuthorsTable = ({
                 <Td>{a.first}</Td>
                 <Td>{a.aff}</Td>
                 <Td>{a.orcid}</Td>
-                <Td>
-                  <HStack>
-                    <IconButton
-                      aria-label="edit"
-                      icon={<EditIcon />}
-                      variant="outline"
-                      colorScheme="blue"
-                      data-index={index}
-                      onClick={handleEditAuthor}
-                    />
-                    <IconButton
-                      aria-label="delete"
-                      icon={<DeleteIcon />}
-                      variant="outline"
-                      colorScheme="red"
-                      data-index={index}
-                      onClick={handleDeleteAuthor}
-                    />
-                  </HStack>
-                </Td>
+                {editable && (
+                  <Td>
+                    <HStack>
+                      <IconButton
+                        aria-label="edit"
+                        icon={<EditIcon />}
+                        variant="outline"
+                        colorScheme="blue"
+                        data-index={index}
+                        onClick={handleEditAuthor}
+                      />
+                      <IconButton
+                        aria-label="delete"
+                        icon={<DeleteIcon />}
+                        variant="outline"
+                        colorScheme="red"
+                        data-index={index}
+                        onClick={handleDeleteAuthor}
+                      />
+                    </HStack>
+                  </Td>
+                )}
               </Tr>
             ),
           )}
-          {newAuthorTableRow}
+          {editable && newAuthorTableRow}
         </Tbody>
       </Table>
     </TableContainer>

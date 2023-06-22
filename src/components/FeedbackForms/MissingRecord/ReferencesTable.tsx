@@ -2,6 +2,7 @@ import { CheckIcon, CloseIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons';
 import { Tr, Td, Input, IconButton, TableContainer, Table, Thead, Th, Tbody, HStack } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components/Select';
 import { useIsClient } from '@hooks';
+import { noop } from '@utils';
 import { useState, ChangeEvent, MouseEvent } from 'react';
 import { IReference, ReferenceType, referenceTypes } from './types';
 
@@ -13,14 +14,16 @@ const typeOptions: SelectOption<ReferenceType>[] = referenceTypes.map((r) => ({
 
 export const ReferencesTable = ({
   references,
-  onAddReference,
-  onDeleteReference,
-  onUpdateReference,
+  onAddReference = noop,
+  onDeleteReference = noop,
+  onUpdateReference = noop,
+  editable,
 }: {
   references: IReference[];
-  onAddReference: (author: IReference) => void;
-  onDeleteReference: (index: number) => void;
-  onUpdateReference: (index: number, reference: IReference) => void;
+  onAddReference?: (author: IReference) => void;
+  onDeleteReference?: (index: number) => void;
+  onUpdateReference?: (index: number, reference: IReference) => void;
+  editable: boolean;
 }) => {
   const isClient = useIsClient();
 
@@ -128,7 +131,7 @@ export const ReferencesTable = ({
           <Th aria-label="index" w="4%"></Th>
           <Th w="30%">Type</Th>
           <Th>Reference</Th>
-          <Th w="10%">Actions</Th>
+          {editable && <Th w="10%">Actions</Th>}
         </Thead>
         <Tbody>
           {references.map((a, index) =>
@@ -181,30 +184,32 @@ export const ReferencesTable = ({
                 <Td>{index + 1}</Td>
                 <Td>{a.type}</Td>
                 <Td>{a.reference}</Td>
-                <Td>
-                  <HStack>
-                    <IconButton
-                      aria-label="edit"
-                      icon={<EditIcon />}
-                      variant="outline"
-                      colorScheme="blue"
-                      data-index={index}
-                      onClick={handleEditReference}
-                    />
-                    <IconButton
-                      aria-label="delete"
-                      icon={<DeleteIcon />}
-                      variant="outline"
-                      colorScheme="red"
-                      data-index={index}
-                      onClick={handleDeleteReference}
-                    />
-                  </HStack>
-                </Td>
+                {editable && (
+                  <Td>
+                    <HStack>
+                      <IconButton
+                        aria-label="edit"
+                        icon={<EditIcon />}
+                        variant="outline"
+                        colorScheme="blue"
+                        data-index={index}
+                        onClick={handleEditReference}
+                      />
+                      <IconButton
+                        aria-label="delete"
+                        icon={<DeleteIcon />}
+                        variant="outline"
+                        colorScheme="red"
+                        data-index={index}
+                        onClick={handleDeleteReference}
+                      />
+                    </HStack>
+                  </Td>
+                )}
               </Tr>
             ),
           )}
-          {newReferenceTableRow}
+          {editable && newReferenceTableRow}
         </Tbody>
       </Table>
     </TableContainer>
