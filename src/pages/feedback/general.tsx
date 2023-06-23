@@ -1,8 +1,17 @@
 import { Button, Flex, FormControl, FormLabel, Input, Textarea, Text, HStack } from '@chakra-ui/react';
 import { FeedbackLayout } from '@components';
+import { useStore } from '@store';
 import { NextPage } from 'next';
+import { useState, ChangeEvent } from 'react';
 
 const General: NextPage = () => {
+  const username = useStore((state) => state.getUsername());
+  const [email, setEmail] = useState<string>(username ?? '');
+
+  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+  };
+
   return (
     <FeedbackLayout title="General Feedback">
       <Text my={2}>
@@ -17,7 +26,7 @@ const General: NextPage = () => {
             </FormControl>
             <FormControl isRequired>
               <FormLabel>Email</FormLabel>
-              <Input type="email"></Input>
+              <Input type="email" value={email} onChange={handleEmailChange}></Input>
             </FormControl>
           </HStack>
           <FormControl>

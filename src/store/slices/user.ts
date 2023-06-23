@@ -7,6 +7,7 @@ export interface IUserState {
 
 export interface IUserAction {
   resetUser: () => void;
+  getUsername: () => string;
 }
 
 const defaultUserData: IUserState['user'] = {
@@ -16,8 +17,10 @@ const defaultUserData: IUserState['user'] = {
   expire_in: undefined,
 };
 
-export const userSlice: StoreSlice<IUserState & IUserAction> = (set) => ({
+export const userSlice: StoreSlice<IUserState & IUserAction> = (set, get) => ({
   user: defaultUserData,
 
   resetUser: () => set({ user: defaultUserData }, false, 'user/resetUser'),
+
+  getUsername: () => get().user.username,
 });

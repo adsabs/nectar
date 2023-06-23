@@ -1,8 +1,18 @@
 import { Flex, FormControl, FormLabel, HStack, Input, Button, Text, Box } from '@chakra-ui/react';
-import { feedbackItems, FeedbackLayout, ReferencesTable, SimpleLink } from '@components';
+import { feedbackItems, FeedbackLayout, SimpleLink } from '@components';
+import { ReferencesTable } from '@components/FeedbackForms/MissingReferences';
+import { useStore } from '@store';
 import { NextPage } from 'next';
+import { ChangeEvent, useState } from 'react';
 
 const MissingReferences: NextPage = () => {
+  const username = useStore((state) => state.getUsername());
+  const [email, setEmail] = useState<string>(username ?? '');
+
+  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+  };
+
   return (
     <FeedbackLayout title="Submit missing references for the ADS Abstract Service">
       <Text my={2}>Please use this form to submit one or more citations currently missing from our databases.</Text>
@@ -27,7 +37,7 @@ const MissingReferences: NextPage = () => {
             </FormControl>
             <FormControl isRequired>
               <FormLabel>Email</FormLabel>
-              <Input type="email"></Input>
+              <Input type="email" value={email} onChange={handleEmailChange}></Input>
             </FormControl>
           </HStack>
           <ReferencesTable />

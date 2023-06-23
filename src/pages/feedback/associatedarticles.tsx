@@ -1,8 +1,17 @@
 import { Flex, FormControl, FormLabel, HStack, Input, Button, Text, Box } from '@chakra-ui/react';
 import { FeedbackLayout, RelationTypeDropdown } from '@components';
+import { useStore } from '@store';
 import { NextPage } from 'next';
+import { ChangeEvent, useState } from 'react';
 
 const AssociatedArticles: NextPage = () => {
+  const username = useStore((state) => state.getUsername());
+  const [email, setEmail] = useState<string>(username ?? '');
+
+  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+  };
+
   return (
     <FeedbackLayout title="Submit Associated Articles for the ADS Abstract Service">
       <Text my={2}>
@@ -33,7 +42,7 @@ const AssociatedArticles: NextPage = () => {
             </FormControl>
             <FormControl isRequired>
               <FormLabel>Email</FormLabel>
-              <Input type="email"></Input>
+              <Input type="email" value={email} onChange={handleEmailChange}></Input>
             </FormControl>
           </HStack>
           <FormControl>

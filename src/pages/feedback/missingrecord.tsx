@@ -16,12 +16,14 @@ import {
 } from '@chakra-ui/react';
 import { FeedbackLayout } from '@components';
 import { IFormData, JsonPreviewModal, PreviewPanel, RecordPanel } from '@components/FeedbackForms';
+import { useStore } from '@store';
 import { NextPage } from 'next';
 import { ChangeEvent, useState } from 'react';
 
 const Record: NextPage = () => {
+  const username = useStore((state) => state.getUsername());
   const [name, setName] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
+  const [email, setEmail] = useState<string>(username ?? '');
   const [formData, setFormData] = useState<IFormData>(null);
   const [preview, setPreview] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure(); // for opening json view
