@@ -10,7 +10,7 @@ import {
 import { purifyString } from '@utils';
 import { useMachine } from '@xstate/react/fsm';
 import { useEffect, useMemo } from 'react';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { generateMachine, ICitationExporterState } from './CitationExporter.machine';
 
 export interface IUseCitationExporterProps {

@@ -1,7 +1,7 @@
 import { AppState, useStore } from '@store';
 import { orcidKeys, useOrcidPreferences, useOrcidSetPreferences } from '@api/orcid';
 import { isValidIOrcidUser } from '@api/orcid/models';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { OrcidHookOptions } from '@lib/orcid/types';
 
 const orcidUserSelector = (state: AppState) => state.orcid.user;

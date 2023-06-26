@@ -3,7 +3,7 @@ import { AppState } from '@store';
 import { normalizeURLParams } from '@utils';
 import axios from 'axios';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
-import { dehydrate, QueryClient } from 'react-query';
+import { dehydrate, QueryClient } from '@tanstack/react-query';
 
 export const withDetailsPage = async (
   ctx: GetServerSidePropsContext,

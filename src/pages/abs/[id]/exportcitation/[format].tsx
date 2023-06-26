@@ -13,7 +13,7 @@ import { useStore } from '@store';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { isEmpty } from 'ramda';
-import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
+import { dehydrate, DehydratedState, hydrate, QueryClient } from '@tanstack/react-query';
 import { composeNextGSSP } from '@ssrUtils';
 
 interface IExportCitationPageProps {

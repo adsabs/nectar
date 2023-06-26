@@ -11,8 +11,8 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import 'nprogress/nprogress.css';
 import { FC, memo, ReactElement, useEffect } from 'react';
-import { Hydrate, QueryClientProvider } from 'react-query';
-import { ReactQueryDevtools } from 'react-query/devtools';
+import { Hydrate, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import 'tailwindcss/tailwind.css';
 import '../styles/styles.css';
 

@@ -9,7 +9,7 @@ import api, {
   MetricsResponseKey,
 } from '@api';
 import { isNil } from 'ramda';
-import { QueryFunction, useQuery } from 'react-query';
+import { QueryFunction, useQuery } from '@tanstack/react-query';
 import { getMetricsParams, getMetricsTimeSeriesParams } from './model';
 import { IADSApiMetricsResponse } from './types';
 

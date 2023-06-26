@@ -4,7 +4,7 @@ import { MockedRequest } from 'msw';
 import { ServerLifecycleEventsMap, SetupServerApi } from 'msw/node';
 import { map, path, pipe } from 'ramda';
 import { FC, ReactElement } from 'react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Mock, vi } from 'vitest';
 
 /**

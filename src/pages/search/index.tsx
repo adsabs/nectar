@@ -56,7 +56,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { last, omit, path } from 'ramda';
 import { FormEventHandler, useEffect, useRef, useState } from 'react';
-import { dehydrate, QueryClient, useQueryClient } from 'react-query';
+import { dehydrate, QueryClient, useQueryClient } from '@tanstack/react-query';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
   () => import('@components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),
@@ -241,10 +241,7 @@ const SearchPage: NextPage = () => {
 
             {data && (
               <>
-                <SimpleResultList
-                  docs={data.docs}
-                  indexStart={params.start}
-                />
+                <SimpleResultList docs={data.docs} indexStart={params.start} />
                 {!isPrint && (
                   <Pagination
                     numPerPage={storeNumPerPage}

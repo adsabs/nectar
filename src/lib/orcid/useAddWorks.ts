@@ -3,7 +3,7 @@ import { orcidKeys, useOrcidAddWorks } from '@api/orcid';
 import { useSearch } from '@api';
 import { useEffect, useState } from 'react';
 import { transformADStoOrcid } from '@lib/orcid/workTransformer';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { isValidIOrcidUser } from '@api/orcid/models';
 import { OrcidHookOptions, OrcidMutationOptions } from '@lib/orcid/types';
 

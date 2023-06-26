@@ -8,7 +8,7 @@ import {
   IADSApiWordCloudResponse,
 } from './types';
 import { IADSApiSearchParams, IADSApiSearchResponse } from '@api/search';
-import { QueryFunction, useQuery } from 'react-query';
+import { QueryFunction, useQuery } from '@tanstack/react-query';
 import { getAuthorNetworkParams, getPaperNetworkParams, getResultsGraphParams, getWordCloudParams } from './models';
 
 const MAX_RETRIES = 3;

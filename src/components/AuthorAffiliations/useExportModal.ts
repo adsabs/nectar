@@ -2,7 +2,7 @@ import { authorAffiliationsKeys, useAuthorAffiliationExport } from '@api/author-
 import { FileType, useDownloadFile } from 'src/lib';
 import { mergeLeft } from 'ramda';
 import { Reducer, useEffect, useReducer } from 'react';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { exportTypeFileMappings, exportTypes } from './models';
 import { IAuthorAffState, useAuthorAffStore } from './store';
 

@@ -1,6 +1,6 @@
 import { ADSQuery } from '@api/types';
 import ReCAPTCHA from 'react-google-recaptcha';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 
 export const recaptchaKeys = {
   execute: (recaptcha: ReCAPTCHA) => ['recaptcha/execute', recaptcha?.getWidgetId()],

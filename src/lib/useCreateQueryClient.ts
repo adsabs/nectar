@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useState } from 'react';
-import { QueryCache, QueryClient } from 'react-query';
+import { QueryCache, QueryClient } from '@tanstack/react-query';
 
 export const useCreateQueryClient = () => {
   const queryCache = new QueryCache({
