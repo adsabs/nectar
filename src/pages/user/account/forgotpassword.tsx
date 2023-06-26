@@ -24,7 +24,7 @@ import { FormEvent, useReducer } from 'react';
 import ReCAPTCHA from 'react-google-recaptcha';
 
 export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
-export { useQuery } from 'react-query';
+export { useQuery } from '@tanstack/react-query';
 
 const initialState: IAuthForm<IUserForgotPasswordCredentials> = {
   params: { email: '', recaptcha: null },

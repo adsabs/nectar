@@ -1,9 +1,8 @@
 import { AppState, useStore } from '@store';
-import { orcidKeys, useOrcidAddWorks } from '@api/orcid';
+import { useOrcidAddWorks } from '@api/orcid';
 import { useSearch } from '@api';
 import { useEffect, useState } from 'react';
 import { transformADStoOrcid } from '@lib/orcid/workTransformer';
-import { useQueryClient } from '@tanstack/react-query';
 import { isValidIOrcidUser } from '@api/orcid/models';
 import { OrcidHookOptions, OrcidMutationOptions } from '@lib/orcid/types';
 
@@ -14,7 +13,6 @@ export const useAddWorks = (
   options?: OrcidHookOptions<'addWorks'>,
   mutationOptions?: OrcidMutationOptions<'addWorks'>,
 ) => {
-  const qc = useQueryClient();
   const user = useStore(orcidUserSelector);
   const isAuthenticated = useStore(isAuthenticatedSelector);
   const [bibcodesToAdd, setBibcodesToAdd] = useState<string[]>([]);
@@ -35,10 +33,10 @@ export const useAddWorks = (
           await options?.onSuccess(data, ...args);
         }
         // invalidate cached profile, since it should have been updated
-        await qc.invalidateQueries({
-          queryKey: orcidKeys.profile({ user, full: true, update: true }),
-          refetchActive: true,
-        });
+        // await qc.invalidateQueries({
+        //   queryKey: orcidKeys.profile({ user, full: true, update: true }),
+        //   refetchActive: true,
+        // });
 
         // TODO: be able to push on a new record to use instead of refetching (this isn't working)
         // qc.setQueryData<IOrcidProfile>(orcidKeys.profile({ user, full: true, update: true }), (profile) => {

@@ -94,7 +94,7 @@ const SearchPage: NextPage = () => {
   const setDocs = useStore(selectors.setDocs);
 
   const queryClient = useQueryClient();
-  const queries = queryClient.getQueriesData<IADSApiSearchResponse>(SEARCH_API_KEYS.primary);
+  const queries = queryClient.getQueriesData<IADSApiSearchResponse>([SEARCH_API_KEYS.primary]);
   const numFound = queries.length > 1 ? path<number>(['1', 'response', 'numFound'], last(queries)) : null;
 
   // parse the query params from the URL, this should match what the server parsed
@@ -408,11 +408,10 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
   // prime the search with a small query to get the current numFound
   let primer = null;
   if (page > 1) {
-    const primerParams = { ...query, start: 0, rows: 1, fl: ['id'] };
+    const primerParams = getSearchParams({ ...query, start: 0, rows: 1, fl: ['id'] });
     primer = await queryClient.fetchQuery({
-      queryKey: SEARCH_API_KEYS.primary,
+      queryKey: searchKeys.primary(primerParams),
       queryFn: fetchSearch,
-      queryHash: JSON.stringify(searchKeys.primary(omit(['fl'], primerParams))),
       meta: { params: primerParams },
     });
   }
@@ -439,7 +438,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
   try {
     // primary query prefetch
     const primaryResult = await queryClient.fetchQuery({
-      queryKey: SEARCH_API_KEYS.primary,
+      queryKey: [SEARCH_API_KEYS.primary],
       queryFn: fetchSearch,
       queryHash: JSON.stringify(searchKeys.primary(omit(['fl'], params) as IADSApiSearchParams)),
       meta: { params },

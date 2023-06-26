@@ -12,7 +12,6 @@ import { AxiosError } from 'axios';
 import { omit } from 'ramda';
 import type { QueryFunctionContext, QueryKey } from '@tanstack/react-query';
 import { QueryFunction, useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import { RetryValue } from 'react-query/types/core/retryer';
 import {
   defaultParams,
   getAbstractParams,
@@ -27,6 +26,7 @@ import {
   getSimilarParams,
   getTocParams,
 } from './models';
+import { parseAPIError } from '@utils';
 
 type ErrorType = Error | AxiosError;
 
@@ -43,15 +43,6 @@ export const facetCountSelector = (data: IADSApiSearchResponse): IADSApiSearchRe
 export const highlightingSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['highlighting'] =>
   data.highlighting;
 export const facetFieldSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['facets'] => data.facets;
-
-const defaultRetryer: RetryValue<ErrorType> = (failCount: number, error): boolean => {
-  switch (error.message) {
-    case 'Request failed with status code 400':
-      return false;
-    default:
-      return true;
-  }
-};
 
 type SearchKeyProps =
   | { bibcode: IDocsEntity['bibcode']; start?: number }
@@ -92,12 +83,14 @@ export const useSearch: SearchADSQuery = (params, options) => {
   const cleanParams = omitParams(getSearchParams(params));
 
   return useQuery<IADSApiSearchResponse, ErrorType, IADSApiSearchResponse['response']>({
-    queryKey: SEARCH_API_KEYS.primary,
+    queryKey: searchKeys.primary(cleanParams),
     queryHash: JSON.stringify(searchKeys.primary(cleanParams)),
     queryFn: fetchSearch,
     meta: { params },
     select: responseSelector,
-    retry: defaultRetryer,
+    retry: (failCount, error): boolean => {
+      return parseAPIError(error) !== 'Request failed with status code 400';
+    },
     ...options,
   });
 };
@@ -225,7 +218,7 @@ export const useGetAffiliations: SearchADSQuery<{ bibcode: IDocsEntity['bibcode'
 export const useGetAbstractPreview: SearchADSQuery<{ bibcode: IDocsEntity['bibcode'] }> = ({ bibcode }, options) => {
   const params = { ...defaultParams, q: `identifier:"${bibcode}"`, fl: ['abstract'] };
   return useQuery({
-    queryKey: SEARCH_API_KEYS.preview,
+    queryKey: searchKeys.preview(bibcode),
     queryHash: JSON.stringify(searchKeys.preview(bibcode)),
     queryFn: fetchSearch,
     meta: { params },

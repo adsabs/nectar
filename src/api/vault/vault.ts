@@ -28,7 +28,7 @@ export const vaultKeys = {
   executeQuery: (qid: IADSVaultExecuteQueryParams['qid']) => [VaultKeys.EXECUTE_QUERY, { qid }] as const,
   bigquery: (bibcodes: IDocsEntity['bibcode'][]) => [VaultKeys.BIGQUERY, { bibcodes }] as const,
   setUserData: (userData: IADSApiUserDataParams) => [VaultKeys.SET_USERDATA, { userData }] as const,
-  userData: () => VaultKeys.USERDATA,
+  userData: () => [VaultKeys.USERDATA] as const,
 };
 
 /**
