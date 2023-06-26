@@ -7,7 +7,7 @@ export enum TokenKeys {
 }
 
 export const tokenKeys = {
-  token: () => TokenKeys.TOKEN,
+  token: () => [TokenKeys.TOKEN],
 };
 
 export const useGetToken: ADSQuery<unknown, IADSApiTokenResponse> = (_, options) => {

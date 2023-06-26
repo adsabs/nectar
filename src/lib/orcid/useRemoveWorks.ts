@@ -36,7 +36,6 @@ export const useRemoveWorks = (
         // invalidate cached profile, since it should have been updated
         await qc.invalidateQueries({
           queryKey: orcidKeys.profile({ user, full: true, update: true }),
-          refetchActive: true,
         });
 
         setIdsToRemove([]);
