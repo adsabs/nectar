@@ -1,6 +1,6 @@
 import { AppState, useStore } from '@store';
 import { orcidKeys, useOrcidGetProfile, useOrcidRemoveWorks } from '@api/orcid';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { isValidIOrcidUser } from '@api/orcid/models';
 import { filter, map, path, pipe } from 'ramda';

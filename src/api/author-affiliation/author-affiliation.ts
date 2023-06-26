@@ -1,7 +1,7 @@
 import api, { ApiRequestConfig } from '@api/api';
 import { ApiTargets } from '@api/models';
 import { ADSQuery } from '@api/types';
-import { QueryFunction, useQuery } from 'react-query';
+import { QueryFunction, useQuery } from '@tanstack/react-query';
 import { getAuthorAffiliationSearchParams } from './model';
 import { IAuthorAffiliationExportPayload, IAuthorAffiliationPayload, IAuthorAffiliationResponse } from './types';
 

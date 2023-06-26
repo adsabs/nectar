@@ -10,8 +10,8 @@ import api, {
 } from '@api';
 import { AxiosError } from 'axios';
 import { omit } from 'ramda';
-import type { QueryFunctionContext, QueryKey } from 'react-query';
-import { QueryFunction, useInfiniteQuery, useQuery } from 'react-query';
+import type { QueryFunctionContext, QueryKey } from '@tanstack/react-query';
+import { QueryFunction, useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { RetryValue } from 'react-query/types/core/retryer';
 import {
   defaultParams,

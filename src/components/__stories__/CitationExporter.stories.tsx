@@ -1,6 +1,6 @@
 import { ExportApiFormatKey } from '@api';
 import { Meta, Story } from '@storybook/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CitationExporter, ICitationExporterProps } from '../CitationExporter';
 
 const meta: Meta = {

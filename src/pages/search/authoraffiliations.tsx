@@ -11,7 +11,7 @@ import { composeNextGSSP } from '@ssrUtils';
 import { parseAPIError, parseQueryFromUrl } from '@utils';
 import { NextPage } from 'next';
 import NextLink from 'next/link';
-import { dehydrate, QueryClient } from 'react-query';
+import { dehydrate, QueryClient } from '@tanstack/react-query';
 
 interface IAuthorAffilationsPageProps {
   error?: string;

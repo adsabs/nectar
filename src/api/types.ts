@@ -6,7 +6,7 @@ import {
   UseMutationResult,
   UseQueryOptions,
   UseQueryResult,
-} from 'react-query';
+} from '@tanstack/react-query';
 
 export type ADSQuery<P, T, R = T, A = UseQueryResult<R>> = (
   props: P,

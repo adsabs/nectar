@@ -17,7 +17,7 @@ import { useStore } from '@store';
 import { GetServerSideProps, GetServerSidePropsContext, NextPage } from 'next';
 import { Reducer, useEffect, useMemo, useReducer } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { dehydrate, QueryClient } from 'react-query';
+import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { omit, pathOr, values } from 'ramda';
 import { DEFAULT_USER_DATA } from '@components/Settings/model';
 import { composeNextGSSP } from '@ssrUtils';

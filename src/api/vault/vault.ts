@@ -6,7 +6,7 @@ import api, {
   IADSApiSearchResponse,
   IDocsEntity,
 } from '@api';
-import { QueryFunction, useQuery } from 'react-query';
+import { QueryFunction, useQuery } from '@tanstack/react-query';
 import { getVaultBigQueryParams } from './models';
 import {
   IADSApiUserDataParams,

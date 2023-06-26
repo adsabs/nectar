@@ -8,7 +8,7 @@ import { useGetAbstractParams } from '@lib/useGetAbstractParams';
 import { unwrapStringValue } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
-import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
+import { dehydrate, DehydratedState, hydrate, QueryClient } from '@tanstack/react-query';
 import { normalizeURLParams } from 'src/utils';
 import { composeNextGSSP } from '@ssrUtils';
 
@@ -56,53 +56,50 @@ const SimilarPage: NextPage<ISimilarPageProps> = (props: ISimilarPageProps) => {
 
 export default SimilarPage;
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(
-  withDetailsPage,
-  async (ctx, state) => {
-    const { fetchSearch } = await import('@api');
-    const axios = (await import('axios')).default;
-    const query = normalizeURLParams(ctx.query);
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage, async (ctx, state) => {
+  const { fetchSearch } = await import('@api');
+  const axios = (await import('axios')).default;
+  const query = normalizeURLParams(ctx.query);
 
-    try {
-      const queryClient = new QueryClient();
-      hydrate(queryClient, state.props?.dehydratedState as DehydratedState);
-      const {
-        response: {
-          docs: [{ bibcode }],
-        },
-      } = queryClient.getQueryData<IADSApiSearchResponse>(searchKeys.abstract(query.id));
+  try {
+    const queryClient = new QueryClient();
+    hydrate(queryClient, state.props?.dehydratedState as DehydratedState);
+    const {
+      response: {
+        docs: [{ bibcode }],
+      },
+    } = queryClient.getQueryData<IADSApiSearchResponse>(searchKeys.abstract(query.id));
 
-      const params = getSimilarParams(bibcode, 0);
-      void (await queryClient.prefetchQuery({
-        queryKey: searchKeys.similar({ bibcode, start: params.start }),
-        queryFn: fetchSearch,
-        meta: { params },
-      }));
+    const params = getSimilarParams(bibcode, 0);
+    void (await queryClient.prefetchQuery({
+      queryKey: searchKeys.similar({ bibcode, start: params.start }),
+      queryFn: fetchSearch,
+      meta: { params },
+    }));
 
-      return {
-        props: {
-          dehydratedState: dehydrate(queryClient),
-        },
-      };
-    } catch (e) {
-      if (axios.isAxiosError(e) && e.response) {
-        return {
-          props: {
-            error: {
-              status: e.response.status,
-              message: e.message,
-            },
-          },
-        };
-      }
+    return {
+      props: {
+        dehydratedState: dehydrate(queryClient),
+      },
+    };
+  } catch (e) {
+    if (axios.isAxiosError(e) && e.response) {
       return {
         props: {
           error: {
-            status: 500,
-            message: 'Unknown server error',
+            status: e.response.status,
+            message: e.message,
           },
         },
       };
     }
-  },
-);
+    return {
+      props: {
+        error: {
+          status: 500,
+          message: 'Unknown server error',
+        },
+      },
+    };
+  }
+});

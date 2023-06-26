@@ -17,7 +17,7 @@ import { useGetAbstractDoc } from '@lib/useGetAbstractDoc';
 import { normalizeURLParams, unwrapStringValue } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
-import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
+import { dehydrate, DehydratedState, hydrate, QueryClient } from '@tanstack/react-query';
 import { composeNextGSSP } from '@ssrUtils';
 
 interface IMetricsPageProps {
@@ -62,53 +62,50 @@ const MetricsPage: NextPage<IMetricsPageProps> = (props: IMetricsPageProps) => {
 
 export default MetricsPage;
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(
-  withDetailsPage,
-  async (ctx, state) => {
-    const axios = (await import('axios')).default;
-    const query = normalizeURLParams(ctx.query);
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage, async (ctx, state) => {
+  const axios = (await import('axios')).default;
+  const query = normalizeURLParams(ctx.query);
 
-    try {
-      const queryClient = new QueryClient();
-      hydrate(queryClient, state.props?.dehydratedState as DehydratedState);
-      const {
-        response: {
-          docs: [{ bibcode }],
-        },
-      } = queryClient.getQueryData<IADSApiSearchResponse>(searchKeys.abstract(query.id));
+  try {
+    const queryClient = new QueryClient();
+    hydrate(queryClient, state.props?.dehydratedState as DehydratedState);
+    const {
+      response: {
+        docs: [{ bibcode }],
+      },
+    } = queryClient.getQueryData<IADSApiSearchResponse>(searchKeys.abstract(query.id));
 
-      const params = getMetricsParams([bibcode]);
+    const params = getMetricsParams([bibcode]);
 
-      void (await queryClient.prefetchQuery({
-        queryKey: metricsKeys.primary([bibcode]),
-        queryFn: fetchMetrics,
-        meta: { params },
-      }));
+    void (await queryClient.prefetchQuery({
+      queryKey: metricsKeys.primary([bibcode]),
+      queryFn: fetchMetrics,
+      meta: { params },
+    }));
 
-      return {
-        props: {
-          dehydratedState: dehydrate(queryClient),
-        },
-      };
-    } catch (e) {
-      if (axios.isAxiosError(e) && e.response) {
-        return {
-          props: {
-            error: {
-              status: e.response.status,
-              message: e.message,
-            },
-          },
-        };
-      }
+    return {
+      props: {
+        dehydratedState: dehydrate(queryClient),
+      },
+    };
+  } catch (e) {
+    if (axios.isAxiosError(e) && e.response) {
       return {
         props: {
           error: {
-            status: 500,
-            message: 'Unknown server error',
+            status: e.response.status,
+            message: e.message,
           },
         },
       };
     }
-  },
-);
+    return {
+      props: {
+        error: {
+          status: 500,
+          message: 'Unknown server error',
+        },
+      },
+    };
+  }
+});

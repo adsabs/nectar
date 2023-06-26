@@ -1,5 +1,5 @@
 import api, { ADSMutation, ADSQuery, ApiRequestConfig, ApiTargets } from '@api';
-import { MutationFunction, QueryFunction, useMutation, useQuery } from 'react-query';
+import { MutationFunction, QueryFunction, useMutation, useQuery } from '@tanstack/react-query';
 import { IOrcidMutationParams, IOrcidParams, IOrcidResponse, IOrcidUser, IOrcidWork } from '@api/orcid/types';
 import { isValidIOrcidUser } from '@api/orcid/models';
 import { omit, path } from 'ramda';

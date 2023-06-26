@@ -1,5 +1,5 @@
 import api, { ADSQuery, ApiRequestConfig, ApiTargets } from '@api';
-import { QueryFunction, useQuery } from 'react-query';
+import { QueryFunction, useQuery } from '@tanstack/react-query';
 import { IADSApiTokenResponse } from './types';
 
 export enum TokenKeys {

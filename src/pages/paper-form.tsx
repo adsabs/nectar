@@ -18,7 +18,7 @@ import { useRouter } from 'next/router';
 import { any, head, isEmpty, join, map, not, omit, pipe, reject, toPairs, values } from 'ramda';
 import { FormEventHandler, useCallback } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { QueryClient, useQueryClient } from 'react-query';
+import { QueryClient, useQueryClient } from '@tanstack/react-query';
 
 enum PaperFormType {
   JOURNAL_QUERY = 'journal-query',
