@@ -1,5 +1,5 @@
 import { Flex, FormControl, FormLabel, HStack, Input, Button, Text, Box } from '@chakra-ui/react';
-import { FeedbackLayout, RelationTypeDropdown } from '@components';
+import { AssociatedTable, FeedbackLayout } from '@components';
 import { useStore } from '@store';
 import { NextPage } from 'next';
 import { ChangeEvent, useState } from 'react';
@@ -13,10 +13,10 @@ const AssociatedArticles: NextPage = () => {
   };
 
   return (
-    <FeedbackLayout title="Submit Associated Articles for the ADS Abstract Service">
+    <FeedbackLayout title="Submit Associated Articles for the SciX Abstract Service">
       <Text my={2}>
         Use this form to submit correlated articles (errata, multiple part articles, etc) with other articles in the
-        ADS. For instance:
+        SciX. For instance:
       </Text>
       <Text my={2}>
         <strong>1999ApJ...511L..65Y</strong>: Erratum: An X-Ray Microlensing Test of AU-Scale Accretion Disk Structure
@@ -28,7 +28,7 @@ const AssociatedArticles: NextPage = () => {
         Q2237+0305
       </Text>
       <Text my={2}>
-        Such associated references are connected with links in the ADS database. If you know of any correlated
+        Such associated references are connected with links in the Scix database. If you know of any correlated
         references (errata, multiple part articles, etc) that do not have such links, please let us know about them by
         filling in the codes for these correlated articles in this form. The form accepts one bibcode for the main paper
         and one or more bibcodes for the associated articles. Use the "Add a Record" button to enter multiple records.
@@ -45,10 +45,7 @@ const AssociatedArticles: NextPage = () => {
               <Input type="email" value={email} onChange={handleEmailChange}></Input>
             </FormControl>
           </HStack>
-          <FormControl>
-            <FormLabel>Relation Type</FormLabel>
-            <RelationTypeDropdown />
-          </FormControl>
+          <AssociatedTable />
           <HStack mt={2}>
             <Button type="submit">Submit</Button>
             <Button type="reset" variant="outline">
