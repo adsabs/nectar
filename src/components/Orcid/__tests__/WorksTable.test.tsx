@@ -12,7 +12,7 @@ test('triggers call to profile on mount', async ({ server }: TestContext) => {
   expect(urls(onRequest)).toEqual(['/accounts/bootstrap', '/orcid/0009-0001-9552-8355/orcid-profile/full']);
 });
 
-test('renders without issue', async ({ server }: TestContext) => {
+test('renders without issue', async () => {
   const { user, findByTestId, findByRole, findAllByRole } = render(<WorksTable />, {
     storePreset: 'orcid-authenticated',
   });
@@ -62,7 +62,7 @@ test('renders without issue', async ({ server }: TestContext) => {
 });
 
 test('checks', async ({ server }: TestContext) => {
-  const { onRequest, onResponse } = createServerListenerMocks(server);
+  const { onRequest } = createServerListenerMocks(server);
   server.use(
     rest.get<IADSApiSearchResponse>(`*${ApiTargets.SEARCH}`, (req, res, ctx) =>
       res(

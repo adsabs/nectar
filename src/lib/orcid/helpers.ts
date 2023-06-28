@@ -164,7 +164,7 @@ export const mergeWorksIntoProfile = (works: IOrcidWork[], currentProfile: IOrci
     return null;
   }
 
-  let profile: IOrcidProfile = {
+  const profile: IOrcidProfile = {
     ...currentProfile,
   };
   for (const work of works) {
