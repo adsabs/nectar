@@ -25,7 +25,7 @@ export const orcidHandlers = [
       return [id, { ...knownEntry, putcode: api.putcode(), identifier: id }];
     });
 
-    profile = { ...profile, ...Object.fromEntries(entries) };
+    profile = { ...profile, ...Object.fromEntries(entries) } as IOrcidProfile;
 
     return res(ctx.json(orcidWorksPostResponse));
   }),

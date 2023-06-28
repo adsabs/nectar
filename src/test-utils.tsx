@@ -48,7 +48,7 @@ interface IProviderOptions {
   storePreset?: 'orcid-authenticated';
 }
 
-export const getDefaultProviders = ({ children, options }: { children: ReactElement | ReactNode, options: IProviderOptions }) => {
+export const DefaultProviders = ({ children, options }: { children: ReactElement | ReactNode, options: IProviderOptions }) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 
   const store = isObject(options?.initialStore) ?
@@ -81,10 +81,8 @@ const getStateFromPreset = (preset: IProviderOptions['storePreset']): Partial<Ap
 
 const renderComponent = (ui: ReactElement, providerOptions?: IProviderOptions, options?: Omit<RenderOptions, 'wrapper'>) => {
   const result = render(ui, {
-    wrapper: ({ children }) => getDefaultProviders({
-      children,
-      options: providerOptions,
-    }), ...options,
+    wrapper: ({ children }) => <DefaultProviders options={providerOptions}>{children}</DefaultProviders>,
+    ...options,
   });
   const user = userEvent.setup();
   return { user, ...result };
@@ -92,7 +90,7 @@ const renderComponent = (ui: ReactElement, providerOptions?: IProviderOptions, o
 
 const renderHookComponent = <T extends AnyFunction, TResult = ReturnType<T>, TProps = Parameters<T>>(hook: Parameters<typeof renderHook<TResult, TProps>>[0], providerOptions?: IProviderOptions, options?: Omit<Parameters<typeof renderHook<TResult, TProps>>[1] , 'wrapper'>) => {
   return renderHook<TResult, TProps>(hook, {
-   wrapper: ({ children }) => getDefaultProviders({ children, options:providerOptions }),
+   wrapper: ({ children }) => <DefaultProviders options={providerOptions}>{children}</DefaultProviders>,
    ...options
  })
 }

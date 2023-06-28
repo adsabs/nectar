@@ -29,7 +29,7 @@ export const useAddWorks = (
       ...options,
       onError: async (error, ...args) => {
         if (typeof options?.onError === 'function') {
-          options?.onError(error, ...args);
+          await options?.onError(error, ...args);
         }
 
         // any errors, invalidate the profile cache
@@ -39,14 +39,14 @@ export const useAddWorks = (
       },
       onSettled: async (...args) => {
         if (typeof options?.onSettled === 'function') {
-          options?.onSettled(...args);
+          await options?.onSettled(...args);
         }
 
         setBibcodesToAdd([]);
       },
       onSuccess: async (data, ...args) => {
         if (typeof options?.onSuccess === 'function') {
-          options?.onSuccess(data, ...args);
+          await options?.onSuccess(data, ...args);
         }
 
         if (isValidIOrcidUser(user)) {
