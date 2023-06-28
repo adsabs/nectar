@@ -63,7 +63,7 @@ const config = {
   },
   output: 'standalone',
   // Don't bother linting during CI builds
-  eslint: !process.env.CI,
+  ...(!process.env.CI ? {} : { eslint: { ignoreDuringBuilds: true } }),
 };
 
 module.exports = withBundleAnalyzer(config);

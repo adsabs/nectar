@@ -10,7 +10,12 @@ export default defineConfig({
     setupFiles: ['./vitest-setup.ts'],
     isolate: true,
     threads: true,
+    minThreads: 8,
+    maxConcurrency: 16,
     globals: false,
+    cache: {
+      dir: '.vitest',
+    },
     coverage: {
       provider: 'c8',
       reporter: 'lcov',
