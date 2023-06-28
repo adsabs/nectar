@@ -4,7 +4,7 @@ import { IOrcidWork } from '@api/orcid/types';
 import { append, find, head, identity, map, over, pipe, set, startsWith, unless, view, when } from 'ramda';
 import { isNilOrEmpty, isString } from 'ramda-adjunct';
 import { coalesceAuthorsFromDoc, parsePublicationDate } from '@utils';
-import { adsDocLenses, orcidLenses } from '@lib/orcid/helpers';
+import { adsDocLenses, convertDocType, orcidLenses } from '@lib/orcid/helpers';
 import { Contributor, ExternalID } from '@api/orcid/types/orcid-work';
 import { IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
 
@@ -37,8 +37,8 @@ export const transformADStoOrcid = (adsRecord: IDocsEntity, putcode?: IOrcidProf
       date,
       pipe(
         doIfExists(date?.year, set(orcidLenses.publicationDateYear, date?.year)),
-        doIfExists(date?.month, set(orcidLenses.publicationDateMonth, date?.month === '00' ? null : date?.month)),
-        doIfExists(date?.day, set(orcidLenses.publicationDateDay, date?.day === '00' ? null : date?.day)),
+        unless(() => date?.month === '00', set(orcidLenses.publicationDateMonth, date?.month)),
+        unless(() => date?.day === '00', set(orcidLenses.publicationDateDay, date?.day)),
       ),
     ),
 
@@ -52,14 +52,14 @@ export const transformADStoOrcid = (adsRecord: IDocsEntity, putcode?: IOrcidProf
           map(([position, name, orcid]) =>
             pipe(
               set(orcidLenses.contributorName, check(name, identity)),
-              set(orcidLenses.contributorRole, 'author'),
-              set(orcidLenses.contributorSequence, position === '1' ? 'first' : 'additional'),
+              set(orcidLenses.contributorRole, 'AUTHOR'),
+              set(orcidLenses.contributorSequence, position === '1' ? 'FIRST' : 'ADDITIONAL'),
               doIfExists(
                 orcid,
                 pipe(
                   set(orcidLenses.contributorOrcidPath, isString(orcid) ? orcid : null),
                   set(orcidLenses.contributorOrcidHost, 'orcid.org'),
-                  set(orcidLenses.contributorOrcidUri, isString(orcid) ? `https://orcid.org/${orcid}` : null),
+                  set(orcidLenses.contributorOrcidUri, isString(orcid) ? `http://orcid.org/${orcid}` : null),
                 ),
               ),
             )({} as Contributor),
@@ -72,7 +72,7 @@ export const transformADStoOrcid = (adsRecord: IDocsEntity, putcode?: IOrcidProf
     doIfExists(putcode, set(orcidLenses.putCode, `${putcode}`)),
     doIfExists(abstract, set(orcidLenses.shortDescription, abstract.slice(0, MAX_ABSTRACT_LENGTH))),
     doIfExists(pub, set(orcidLenses.journalTitle, pub)),
-    doIfExists(doctype, set(orcidLenses.type, doctype)),
+    doIfExists(doctype, set(orcidLenses.type, convertDocType(doctype))),
     doIfExists(title, set(orcidLenses.title, head(title))),
   )({} as IOrcidWork);
 };

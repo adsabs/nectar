@@ -370,6 +370,7 @@ export const parseAPIError = (
   },
 ): string => {
   const pathStrings = [
+    ['response', 'data', 'user-message'],
     ['response', 'data', 'message'],
     ['response', 'data', 'error'],
     ['response', 'statusText'],
@@ -393,6 +394,10 @@ export const parseAPIError = (
     }
   }
 
+  if (error instanceof Error) {
+    return error.message;
+  }
+
   return options.defaultMessage;
 };
 
@@ -408,13 +413,17 @@ export const capitalizeString = (str: string) =>
  * or the single string if no array, or picks the bibcode (if available)
  * @param doc
  */
-export const reconcileDocIdentifier = (doc: IDocsEntity) => {
+export const reconcileDocIdentifier = (doc: IDocsEntity): string => {
   if (Object.hasOwn(doc, 'bibcode')) {
     return doc.bibcode;
   }
 
   if (Object.hasOwn(doc, 'alternate_bibcode')) {
-    return doc.alternate_bibcode;
+    if (Array.isArray(doc.alternate_bibcode) && typeof doc.alternate_bibcode[0] === 'string') {
+      return doc.alternate_bibcode[0];
+    } else if (typeof doc.alternate_bibcode === 'string') {
+      return doc.alternate_bibcode;
+    }
   }
 
   if (Object.hasOwn(doc, 'identifier')) {

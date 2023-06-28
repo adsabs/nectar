@@ -15,6 +15,7 @@ import {
   Skeleton,
   Stack,
   Table,
+  TableCaption,
   Tag,
   Tbody,
   Td,
@@ -24,6 +25,7 @@ import {
   Tooltip,
   Tr,
   useDisclosure,
+  VisuallyHidden,
 } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components/Select';
 import { SimpleLink } from '@components/SimpleLink';
@@ -140,14 +142,16 @@ const filterEntries = (filter: SelectOption, entries: IOrcidProfileEntry[]) => {
 };
 
 const DTable = () => {
-  const { profile } = useOrcidProfile({ suspense: true });
+  const { profile } = useOrcidProfile(
+    {},
+    {
+      searchOptions: { suspense: true },
+      profileOptions: { suspense: true },
+    },
+  );
 
-  const entries = useMemo<IOrcidProfileEntry[]>(() => {
-    if (isObject(profile)) {
-      return Object.values(profile);
-    }
-    return [];
-  }, [profile]);
+  // extract only the values
+  const entries = useMemo<IOrcidProfileEntry[]>(() => (isObject(profile) ? Object.values(profile) : []), [profile]);
 
   const columnHelper = createColumnHelper<IOrcidProfileEntry>();
   const columns = useMemo(
@@ -201,11 +205,15 @@ const DTable = () => {
           options={filterOptions}
           value={filter}
           onChange={setFilter}
+          data-testid="orcid-works-filter"
         />
       </Flex>
       {filteredEntries.length > 0 ? (
         <>
           <Table>
+            <TableCaption>
+              <VisuallyHidden>My ORCiD Works Table</VisuallyHidden>
+            </TableCaption>
             <Thead>
               {table.getHeaderGroups().map((headerGroup) => (
                 <Tr key={headerGroup.id}>
@@ -238,7 +246,7 @@ const DTable = () => {
         </>
       ) : (
         <Center>
-          <Heading as="h3" size="sm">
+          <Heading as="h3" size="sm" py="4" data-testid="orcid-works-table-no-results">
             No Results
           </Heading>
         </Center>
@@ -324,33 +332,43 @@ const getStatusTag = (status: IOrcidProfileEntry['status']) => {
   switch (status) {
     case 'not in ADS':
       return (
-        <Tag size="sm" colorScheme="blue" whiteSpace="nowrap">
-          Not in SciX
-        </Tag>
+        <Tooltip label="This claim is not currently in SciX">
+          <Tag size="sm" colorScheme="blue" whiteSpace="nowrap">
+            Not in SciX
+          </Tag>
+        </Tooltip>
       );
     case 'rejected':
       return (
-        <Tag size="sm" colorScheme="red">
-          Rejected
-        </Tag>
+        <Tooltip label="This claim was rejected, please contact us to find out why">
+          <Tag size="sm" colorScheme="red">
+            Rejected
+          </Tag>
+        </Tooltip>
       );
     case 'verified':
       return (
-        <Tag size="sm" colorScheme="green">
-          Verified
-        </Tag>
+        <Tooltip label="This claim has been verified">
+          <Tag size="sm" colorScheme="green">
+            Verified
+          </Tag>
+        </Tooltip>
       );
     case 'pending':
       return (
-        <Tag size="sm" colorScheme="orange">
-          Pending
-        </Tag>
+        <Tooltip label="This claim has been queued and will be processed within 24-48 hours">
+          <Tag size="sm" colorScheme="orange">
+            Pending
+          </Tag>
+        </Tooltip>
       );
     default:
       return (
-        <Tag size="sm" colorScheme="teal">
-          Unclaimed
-        </Tag>
+        <Tooltip label="This record was found but is currently unclaimed">
+          <Tag size="sm" colorScheme="teal">
+            Unclaimed
+          </Tag>
+        </Tooltip>
       );
   }
 };

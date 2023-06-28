@@ -15,9 +15,10 @@ import faker from '@faker-js/faker';
 import { IBibstemOption } from '@types';
 import { rest } from 'msw';
 import qs from 'qs';
-import { flatten, map, range } from 'ramda';
+import { clamp, flatten, map, range } from 'ramda';
 import { api, authorAffData, highlights_mocks, ids_mocks, ranRange } from './mockHelpers';
 import { orcidHandlers } from '@mocks/handlers/orcid';
+import { passthroughs } from '@mocks/handlers/passthroughs';
 
 export const handlers = [
   rest.get(`*${ApiTargets.BOOTSTRAP}`, (req, res, ctx) => {
@@ -75,7 +76,7 @@ export const handlers = [
             numFound,
             docs: map(() => ({
               bibcode: api.bibcode(),
-            }))(range(0, rows)),
+            }))(range(0, clamp(1, 100, rows))),
           },
         }),
       );
@@ -801,12 +802,19 @@ export const handlers = [
 
     const rows = parseInt(params.rows as string, 10) ?? 10;
     const numFound = faker.datatype.number({ min: 1, max: 10000 });
+
+    const match = (params.q as string).includes('identifier:(')
+      ? /identifier:\((.*?)\)/g.exec(params.q as string)
+      : null;
+    const ids = match ? match[1].split(' OR ') : [];
+
     const docs = map((i) => {
       const authorCount = ranRange(limitAuthors > 0 ? limitAuthors + 1 : 0, 1000);
       const citationCount = faker.datatype.number({ min: 0, max: 10000 });
       const referenceCount = faker.datatype.number({ min: 0, max: 10000 });
+      const bibcode = ids.length > 0 ? ids.pop() : api.bibcode();
       return {
-        bibcode: api.bibcode(),
+        bibcode,
         id: ids_mocks[i as number],
         author: map(api.author)(limitAuthors > 0 ? range(0, limitAuthors) : authorCount),
         author_count: authorCount.length,
@@ -824,8 +832,9 @@ export const handlers = [
         orcid_pub: map(api.orcidPub)(limitAuthors > 0 ? range(0, limitAuthors) : authorCount),
         aff: map(api.aff)(limitAuthors > 0 ? range(0, limitAuthors) : authorCount),
         abstract: api.abstract(),
+        identifier: [bibcode],
       };
-    })(range(0, rows));
+    })(range(0, clamp(1, 100, rows)));
 
     const body: IADSApiSearchResponse = {
       response: {
@@ -989,4 +998,5 @@ export const handlers = [
     return res(ctx.status(200), ctx.json<IBibstemOption[]>(values));
   }),
   ...orcidHandlers,
+  ...passthroughs,
 ];

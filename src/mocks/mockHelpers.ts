@@ -25,6 +25,7 @@ export const api = {
   aff: () =>
     `${faker.company.companyName()}, ${faker.address.zipCode()}, ${faker.address.city()}, ${faker.address.country()}`,
   abstract: () => faker.lorem.paragraphs(faker.datatype.number({ min: 1, max: 5 })),
+  putcode: () => faker.datatype.number({ min: 100000, max: 999999 }),
 };
 
 // create random sized array of number

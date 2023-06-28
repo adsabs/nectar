@@ -1,14 +1,15 @@
 import { AppState, StoreProvider, useCreateStore } from '@store';
-import { render, RenderOptions } from '@testing-library/react';
+import { render, renderHook, RenderOptions } from '@testing-library/react';
 import { MockedRequest } from 'msw';
 import { ServerLifecycleEventsMap, SetupServerApi } from 'msw/node';
-import { map, path, pipe } from 'ramda';
-import { ReactElement } from 'react';
+import { AnyFunction, map, path, pipe } from 'ramda';
+import { ReactElement, ReactNode } from 'react';
 import { Mock, vi } from 'vitest';
-import { Container, ThemeProvider } from '@chakra-ui/react';
-import { theme } from '@theme';
+import { Container } from '@chakra-ui/react';
 import { isObject } from 'ramda-adjunct';
 import mockOrcidUser from '@mocks/responses/orcid/exchangeOAuthCode.json';
+import userEvent from '@testing-library/user-event';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 /**
  * Attach listeners and return the mocks
@@ -47,7 +48,7 @@ interface IProviderOptions {
   storePreset?: 'orcid-authenticated';
 }
 
-export const getDefaultProviders = ({ children, options }: { children: ReactElement, options: IProviderOptions }) => {
+export const getDefaultProviders = ({ children, options }: { children: ReactElement | ReactNode, options: IProviderOptions }) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 
   const store = isObject(options?.initialStore) ?
@@ -55,7 +56,6 @@ export const getDefaultProviders = ({ children, options }: { children: ReactElem
     options?.storePreset ? getStateFromPreset(options.storePreset) : {};
 
   return (
-    <ThemeProvider theme={theme}>
       <QueryClientProvider client={queryClient}>
         <StoreProvider createStore={useCreateStore(store)}>
           <Container maxW='container.lg'>
@@ -63,7 +63,6 @@ export const getDefaultProviders = ({ children, options }: { children: ReactElem
           </Container>
         </StoreProvider>
       </QueryClientProvider>
-    </ThemeProvider>
   );
 };
 
@@ -80,8 +79,24 @@ const getStateFromPreset = (preset: IProviderOptions['storePreset']): Partial<Ap
   }
 };
 
-const renderComponent = (ui: ReactElement, providerOptions?: IProviderOptions, options?: Omit<RenderOptions, 'wrapper'>) =>
-  render(ui, { wrapper: ({ children }) => getDefaultProviders({ children, options: providerOptions }), ...options });
+const renderComponent = (ui: ReactElement, providerOptions?: IProviderOptions, options?: Omit<RenderOptions, 'wrapper'>) => {
+  const result = render(ui, {
+    wrapper: ({ children }) => getDefaultProviders({
+      children,
+      options: providerOptions,
+    }), ...options,
+  });
+  const user = userEvent.setup();
+  return { user, ...result };
+};
+
+const renderHookComponent = <T extends AnyFunction, TResult = ReturnType<T>, TProps = Parameters<T>>(hook: Parameters<typeof renderHook<TResult, TProps>>[0], providerOptions?: IProviderOptions, options?: Omit<Parameters<typeof renderHook<TResult, TProps>>[1] , 'wrapper'>) => {
+  return renderHook<TResult, TProps>(hook, {
+   wrapper: ({ children }) => getDefaultProviders({ children, options:providerOptions }),
+   ...options
+ })
+}
 
 export * from '@testing-library/react';
 export { renderComponent as render };
+export { renderHookComponent as renderHook}

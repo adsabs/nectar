@@ -1,24 +1,62 @@
 import { AppState, useStore } from '@store';
 import { useOrcidGetProfile } from '@api/orcid';
+import { getSearchParams, useSearch } from '@api';
+import { useEffect, useState } from 'react';
+import { IOrcidProfile } from '@api/orcid/types';
 import { isValidIOrcidUser } from '@api/orcid/models';
+import { mergeOrcidMissingRecords } from '@lib/orcid/helpers';
 
 const isAuthenticatedSelector = (state: AppState) => state.orcid.isAuthenticated;
 const orcidUserSelector = (state: AppState) => state.orcid.user;
 
-export const useOrcidProfile = (options?: Parameters<typeof useOrcidGetProfile>[1]) => {
+interface IUseOrcidProfileProps {
+  profileOnly?: boolean;
+}
+
+export const useOrcidProfile = (
+  props?: IUseOrcidProfileProps,
+  options?: {
+    searchOptions: Parameters<typeof useSearch>[1];
+    profileOptions: Parameters<typeof useOrcidGetProfile>[1];
+  },
+) => {
   const isAuthenticated = useStore(isAuthenticatedSelector);
   const user = useStore(orcidUserSelector);
+  const { profileOnly = false } = props;
+  const [profile, setProfile] = useState<IOrcidProfile>({});
 
-  const { data: profile, ...result } = useOrcidGetProfile(
-    { user, full: true, update: true },
+  const profileResponse = useOrcidGetProfile(
+    {
+      user,
+      full: true,
+      update: true,
+    },
     {
       enabled: isAuthenticated && isValidIOrcidUser(user),
-      ...options,
+      ...options?.profileOptions,
     },
   );
 
+  const searchParams = getSearchParams({
+    q: `orcid_pub:${user?.orcid} -orcid_user:${user?.orcid} -orcid_other:${user?.orcid}`,
+    fl: ['identifier', 'title', 'pubdate'],
+    rows: 99999,
+  });
+  const searchResponse = useSearch(searchParams, {
+    enabled: !profileOnly && isAuthenticated && isValidIOrcidUser(user),
+    ...options?.searchOptions,
+  });
+
+  useEffect(() => {
+    if (profileOnly && profileResponse.data) {
+      setProfile(profileResponse.data);
+    } else if (profileResponse.data && searchResponse.data) {
+      setProfile(mergeOrcidMissingRecords(searchResponse.data?.docs, profileResponse.data));
+    }
+  }, [profileOnly, profileResponse.data, searchResponse.data]);
+
   return {
     profile,
-    ...result,
+    isLoading: profileResponse.isLoading || searchResponse.isLoading,
   };
 };

@@ -33,10 +33,6 @@ export interface IItemProps {
   highlights?: string[];
   extraInfo?: string;
   linkNewTab?: boolean;
-  showOrcidAction?: boolean;
-  orcidClaimed?: boolean;
-  onAddClaim?: (identifier: string) => void;
-  onDeleteClaim?: (identifier: string) => void;
 }
 
 export const Item = (props: IItemProps): ReactElement => {
@@ -121,11 +117,7 @@ export const Item = (props: IItemProps): ReactElement => {
             </Link>
           </NextLink>
           <Flex alignItems="start" ml={1}>
-            {!isClient || hideActions ? null : (
-              <ItemResourceDropdowns
-                doc={doc}
-              />
-            )}
+            {!isClient || hideActions ? null : <ItemResourceDropdowns doc={doc} />}
           </Flex>
         </Flex>
         <Flex direction="column">

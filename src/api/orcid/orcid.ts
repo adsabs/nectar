@@ -5,6 +5,7 @@ import { isValidIOrcidUser } from '@api/orcid/models';
 import { omit, path } from 'ramda';
 import { ORCID_BULK_DELETE_CHUNK_SIZE, ORCID_BULK_DELETE_DELAY } from '@config';
 import { asyncDelay } from '@utils';
+import { OrcidErrorResponse } from '@api/orcid/types/common';
 
 export enum OrcidKeys {
   EXCHANGE_TOKEN = 'orcid/exchange-token',
@@ -165,7 +166,7 @@ const getPreferences: QueryFunction<IOrcidResponse['getPreferences']> = async ({
   return data;
 };
 
-const fetchProfile: QueryFunction<IOrcidResponse['profile']> = async ({ meta }) => {
+export const fetchProfile: QueryFunction<IOrcidResponse['profile']> = async ({ meta }) => {
   const { params } = meta as { params: IOrcidParams['profile'] };
 
   if (!isValidIOrcidUser(params.user)) {
@@ -220,10 +221,10 @@ const removeWorks: MutationFunction<IOrcidResponse['removeWorks'], IOrcidMutatio
 
   // settle all chunks (not acting on any one result) bundling everything up as we go
   // a delay is added between requests to allow for some cooldown period
-  const result: [IOrcidWork['put-code'], PromiseSettledResult<void>][] = [];
+  let result: [IOrcidWork['put-code'], PromiseSettledResult<void>][] = [];
   for (const chunk of chunks) {
     const chunkResult = await Promise.allSettled(chunk.map(makeRequest));
-    result.concat(chunk.map((putcode, index) => [putcode, chunkResult[index]]));
+    result = result.concat(chunk.map((putcode, index) => [putcode, chunkResult[index]]));
     await asyncDelay(ORCID_BULK_DELETE_DELAY);
   }
 
@@ -255,9 +256,10 @@ const addWorks: MutationFunction<IOrcidResponse['addWorks'], IOrcidMutationParam
   const { data, status } = await api.request<IOrcidResponse['addWorks']>(addWorksConfig);
 
   // possible we received an error message back in the response
-  const errorMsg = path(['bulk', '0', 'error', 'user-message'], data);
-  if (status === 200 && typeof errorMsg === 'string') {
-    throw new Error(errorMsg);
+  const error = path<OrcidErrorResponse>(['bulk', '0', 'error'], data);
+
+  if (status === 200 && error) {
+    throw new Error(error['user-message'], { cause: error });
   }
 
   return data;

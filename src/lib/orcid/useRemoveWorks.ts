@@ -3,7 +3,7 @@ import { orcidKeys, useOrcidGetProfile, useOrcidRemoveWorks } from '@api/orcid';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { isValidIOrcidUser } from '@api/orcid/models';
-import { filter, map, path, pipe } from 'ramda';
+import { filter, keys, map, path, pipe, propEq } from 'ramda';
 import { IOrcidProfile } from '@api/orcid/types';
 import { OrcidHookOptions, OrcidMutationOptions } from '@lib/orcid/types';
 
@@ -28,15 +28,41 @@ export const useRemoveWorks = (
     { user },
     {
       ...options,
-      onSettled: async (...args) => {
+      retry: false,
+      onSettled: async (data, ...args) => {
         if (typeof options?.onSettled === 'function') {
-          await options?.onSettled(...args);
+          options?.onSettled(data, ...args);
         }
 
-        // invalidate cached profile, since it should have been updated
-        await qc.invalidateQueries({
-          queryKey: orcidKeys.profile({ user, full: true, update: true }),
-        });
+        const deleted = getFulfilled(data);
+
+        if (deleted.length > 0 && isValidIOrcidUser(user)) {
+          const queryKey = orcidKeys.profile({ user, full: true, update: true });
+          const match = qc.getQueryCache().find(queryKey, { type: 'active' });
+          let invalidate = false;
+          if (match) {
+            qc.setQueryData<IOrcidProfile>(queryKey, (currentProfile) => {
+              const profile = { ...currentProfile };
+              for (const putcode of deleted) {
+                // find the entry in the profile and delete it
+                const id = findPutcodeInProfile(putcode, profile);
+                if (id) {
+                  delete profile[id];
+                } else {
+                  // if we can't find the work in the profile, invalidate the cache
+                  invalidate = true;
+                }
+              }
+              return profile;
+            });
+          }
+          if (!match || invalidate) {
+            // invalidate cached profile, since it should have been updated
+            await qc.invalidateQueries({
+              queryKey,
+            });
+          }
+        }
 
         setIdsToRemove([]);
       },
@@ -60,4 +86,24 @@ const getPutcodesFromProfile = (ids: string[], profile: IOrcidProfile) => {
     filter<string>((id) => Object.hasOwn(profile, id)),
     map((id) => path([id, 'putcode'], profile)),
   )(ids);
+};
+
+export const findPutcodeInProfile = (putcode: string, profile: IOrcidProfile) => {
+  return keys(filter((entry) => Number(entry.putcode) === Number(putcode), profile))[0];
+};
+
+type OrcidDeleteResponse = Record<string, PromiseSettledResult<void>>;
+
+export const getFulfilled = (entries: OrcidDeleteResponse) => {
+  return pipe<[OrcidDeleteResponse], OrcidDeleteResponse, string[]>(
+    filter(propEq('status', 'fulfilled')),
+    keys,
+  )(entries);
+};
+
+export const getRejected = (entries: OrcidDeleteResponse) => {
+  return pipe<[OrcidDeleteResponse], OrcidDeleteResponse, string[]>(
+    filter(propEq('status', 'rejected')),
+    keys,
+  )(entries);
 };
