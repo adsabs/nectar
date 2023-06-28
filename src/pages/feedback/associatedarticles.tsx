@@ -1,17 +1,8 @@
-import { Flex, FormControl, FormLabel, HStack, Input, Button, Text, Box } from '@chakra-ui/react';
-import { AssociatedTable, FeedbackLayout } from '@components';
-import { useStore } from '@store';
+import { Text } from '@chakra-ui/react';
+import { AssociatedArticlesForm, FeedbackLayout } from '@components';
 import { NextPage } from 'next';
-import { ChangeEvent, useState } from 'react';
 
 const AssociatedArticles: NextPage = () => {
-  const username = useStore((state) => state.getUsername());
-  const [email, setEmail] = useState<string>(username ?? '');
-
-  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  };
-
   return (
     <FeedbackLayout title="Submit Associated Articles for the SciX Abstract Service">
       <Text my={2}>
@@ -33,27 +24,7 @@ const AssociatedArticles: NextPage = () => {
         filling in the codes for these correlated articles in this form. The form accepts one bibcode for the main paper
         and one or more bibcodes for the associated articles. Use the "Add a Record" button to enter multiple records.
       </Text>
-      <Box as="form" my={2}>
-        <Flex direction="column" gap={2}>
-          <HStack gap={2}>
-            <FormControl isRequired>
-              <FormLabel>Name</FormLabel>
-              <Input></Input>
-            </FormControl>
-            <FormControl isRequired>
-              <FormLabel>Email</FormLabel>
-              <Input type="email" value={email} onChange={handleEmailChange}></Input>
-            </FormControl>
-          </HStack>
-          <AssociatedTable />
-          <HStack mt={2}>
-            <Button type="submit">Submit</Button>
-            <Button type="reset" variant="outline">
-              Reset
-            </Button>
-          </HStack>
-        </Flex>
-      </Box>
+      <AssociatedArticlesForm />
     </FeedbackLayout>
   );
 };

@@ -1,1 +1,1 @@
-export * from './AssociatedTable';
+export * from './AssociatedArticlesForm';
