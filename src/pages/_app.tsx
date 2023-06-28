@@ -64,11 +64,7 @@ const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => 
 
 const QCProvider: FC = ({ children }) => {
   const queryClient = useCreateQueryClient();
-  return (
-    <QueryClientProvider client={queryClient} contextSharing>
-      {children}
-    </QueryClientProvider>
-  );
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 };
 
 const ThemeRouter = (): ReactElement => {

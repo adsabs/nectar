@@ -1,9 +1,12 @@
 import { IOrcidProfile, IOrcidWork } from '@api/orcid/types';
-import { lensPath } from 'ramda';
+import { lensPath, map, view } from 'ramda';
 import { Contributor, ExternalID } from '@api/orcid/types/orcid-work';
 import { IDocsEntity } from '@api/search/types';
 import { isArray, isNilOrEmpty } from 'ramda-adjunct';
 import { IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
+import { parsePublicationDate } from '@utils';
+import { ORCID_ADS_SOURCE_NAME } from '@config';
+import { formatISO } from 'date-fns';
 
 export const orcidLenses = {
   createdDate: lensPath<IOrcidWork, string>(['created-date', 'value']),
@@ -131,4 +134,57 @@ export const findWorkInProfile = (
   }
 
   return Object.hasOwn(profile, identifier) ? profile[identifier] : null;
+};
+
+export const mergeOrcidMissingRecords = (missing: IDocsEntity[], profile: IOrcidProfile) => {
+  const fullProfile = { ...profile };
+  for (const doc of missing) {
+    // add record if it doesn't already exist on profile
+    if (!doc.identifier.some((id) => id in profile)) {
+      const pubdate = parsePublicationDate(doc.pubdate);
+      fullProfile[doc.identifier[0]] = {
+        pubmonth: pubdate.month,
+        pubyear: pubdate.year,
+        putcode: null,
+        source: [],
+        status: null,
+        title: doc.title[0],
+        updated: null,
+        identifier: doc.identifier[0],
+      };
+    }
+  }
+  return fullProfile;
+};
+
+const getIds = (work: IOrcidWork) => map(view(orcidLenses.externalIdValue), view(orcidLenses.externalId, work));
+
+export const mergeWorksIntoProfile = (works: IOrcidWork[], currentProfile: IOrcidProfile) => {
+  if (isNilOrEmpty(works)) {
+    return null;
+  }
+
+  let profile: IOrcidProfile = {
+    ...currentProfile,
+  };
+  for (const work of works) {
+    const ids = getIds(work);
+
+    // return null if no ids or any of the ids are already in the profile for some reason
+    if (isNilOrEmpty(ids) && ids.some((id) => Object.hasOwn(profile, id))) {
+      return null;
+    }
+
+    profile[ids[0]] = {
+      status: 'pending',
+      identifier: ids[0],
+      source: [ORCID_ADS_SOURCE_NAME],
+      putcode: view(orcidLenses.putCode, work),
+      pubmonth: view(orcidLenses.publicationDateMonth, work),
+      pubyear: view(orcidLenses.publicationDateYear, work),
+      title: view(orcidLenses.title, work),
+      updated: formatISO(new Date(), { format: 'extended' }),
+    };
+  }
+  return profile;
 };

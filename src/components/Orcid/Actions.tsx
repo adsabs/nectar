@@ -20,18 +20,18 @@ import { useUpdateWork } from '@lib/orcid/useUpdateWork';
 import { useAddWorks } from '@lib/orcid/useAddWorks';
 import { useRemoveWorks } from '@lib/orcid/useRemoveWorks';
 import { AppState, useStore } from '@store';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import { isOrcidProfileEntry } from '@api/orcid/models';
+import { parseAPIError } from '@utils';
 
 export interface IActionProps {
   work: IOrcidProfileEntry;
 }
 
 const TOAST_DEFAULTS: UseToastOptions = {
-  duration: 2000,
+  duration: 5000,
 };
 export const Actions = ({ work }: IActionProps) => {
-  const [isLoading, setIsLoading] = useState(false);
   const claimedBySciX = isClaimedBySciX(work);
   const inSciX = isInSciX(work);
 
@@ -50,7 +50,6 @@ export const Actions = ({ work }: IActionProps) => {
             rightIcon={<ChevronDownIcon />}
             color="gray.500"
             w={28}
-            isLoading={isLoading}
           >
             <HStack spacing={1}>
               <OrcidLogo className="flex-shrink-0 w-4 h-4" aria-hidden />
@@ -58,9 +57,9 @@ export const Actions = ({ work }: IActionProps) => {
             </HStack>
           </MenuButton>
           <MenuList>
-            <SyncToOrcidMenuItem work={work} isDisabled={!claimedBySciX} onIsLoading={setIsLoading} />
-            <AddClaimMenuItem identifier={work.identifier} isDisabled={claimedBySciX} onIsLoading={setIsLoading} />
-            <DeleteClaimMenuItem identifier={work.identifier} isDisabled={!claimedBySciX} onIsLoading={setIsLoading} />
+            <SyncToOrcidMenuItem work={work} isDisabled={!claimedBySciX} />
+            <AddClaimMenuItem identifier={work.identifier} isDisabled={claimedBySciX} />
+            <DeleteClaimMenuItem identifier={work.identifier} isDisabled={!claimedBySciX} />
           </MenuList>
         </Menu>
       ) : (
@@ -73,7 +72,6 @@ export const Actions = ({ work }: IActionProps) => {
 interface IOrcidActionProps extends MenuItemProps {
   work?: IOrcidProfileEntry;
   identifier?: string;
-  onIsLoading: (isLoading: boolean) => void;
 }
 
 interface IOrcidActionBtnProps extends ButtonProps {
@@ -90,7 +88,7 @@ export const AddToOrcidButton = forwardRef<IOrcidActionBtnProps, 'button'>((prop
         toast({ status: 'success', title: 'Successfully submitted claim request' });
       },
       onError: (error) => {
-        toast({ status: 'error', title: 'Unable to submit request', description: error.message });
+        toast({ status: 'error', title: 'Unable to submit request', description: parseAPIError(error) });
       },
     },
   );
@@ -119,11 +117,17 @@ export const DeleteFromOrcidButton = forwardRef<IOrcidActionBtnProps, 'button'>(
   const { removeWorks, isLoading } = useRemoveWorks(
     {},
     {
-      onSuccess: () => {
-        toast({ status: 'success', title: 'Successfully submitted remove claim request' });
-      },
-      onError: (error) => {
-        toast({ status: 'error', title: 'Unable to submit request', description: error.message });
+      onSettled: (data) => {
+        // should only be a single entry
+        const result = Object.values(data)[0];
+
+        if (result?.status === 'rejected') {
+          toast({ status: 'error', title: 'Unable to submit request', description: parseAPIError(result?.reason) });
+        }
+
+        if (result?.status === 'fulfilled') {
+          toast({ status: 'success', title: 'Successfully submitted delete request' });
+        }
       },
     },
   );
@@ -147,9 +151,9 @@ export const DeleteFromOrcidButton = forwardRef<IOrcidActionBtnProps, 'button'>(
 });
 
 const SyncToOrcidMenuItem = (props: IOrcidActionProps) => {
-  const { work, onIsLoading, ...menuItemProps } = props;
+  const { work, ...menuItemProps } = props;
   const toast = useToast(TOAST_DEFAULTS);
-  const { updateWork, error, isLoading } = useUpdateWork(
+  const { updateWork, error } = useUpdateWork(
     {},
     {
       onSuccess: () => {
@@ -163,10 +167,6 @@ const SyncToOrcidMenuItem = (props: IOrcidActionProps) => {
       toast({ status: 'error', title: 'Unable to submit request', description: error });
     }
   }, [error]);
-
-  useEffect(() => {
-    onIsLoading(isLoading);
-  }, [isLoading]);
 
   return (
     <MenuItem onClick={() => updateWork(work)} {...menuItemProps}>

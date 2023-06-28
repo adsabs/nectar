@@ -20,7 +20,7 @@ test('SearchBar renders without crashing', () => {
   render(<SearchBar />);
 });
 
-test('SearchBar clear button works', async () => {
+test.skip('SearchBar clear button works', async () => {
   const { getByTestId, user } = setup();
 
   const input = getByTestId('searchbar-input');

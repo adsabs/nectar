@@ -6,7 +6,10 @@ import { OrcidHookOptions } from '@lib/orcid/types';
 
 const orcidUserSelector = (state: AppState) => state.orcid.user;
 const isAuthenticatedSelector = (state: AppState) => state.orcid.isAuthenticated;
-export const useOrcidPrefs = (options?: OrcidHookOptions<'setPreferences'>) => {
+export const useOrcidPrefs = (options?: {
+  setPrefsOptions?: OrcidHookOptions<'setPreferences'>;
+  getPrefsOptions?: Parameters<typeof useOrcidPreferences>[1];
+}) => {
   const qc = useQueryClient();
   const user = useStore(orcidUserSelector);
   const isAuthenticated = useStore(isAuthenticatedSelector);
@@ -19,16 +22,17 @@ export const useOrcidPrefs = (options?: OrcidHookOptions<'setPreferences'>) => {
     { user },
     {
       enabled: isAuthenticated && isValidIOrcidUser(user),
+      ...options?.getPrefsOptions,
     },
   );
 
   const { mutate: setPreferences, ...setPreferencesState } = useOrcidSetPreferences(
     { user },
     {
-      ...options,
-      onSuccess: async (preferences, ...args) => {
-        if (typeof options?.onSuccess === 'function') {
-          await options?.onSuccess(preferences, ...args);
+      ...options?.setPrefsOptions,
+      onSuccess: (preferences, ...args) => {
+        if (typeof options?.setPrefsOptions?.onSuccess === 'function') {
+          options?.setPrefsOptions?.onSuccess(preferences, ...args);
         }
 
         const match = qc.getQueryCache().find(orcidKeys.getPreferences({ user }), { exact: false });
@@ -46,6 +50,7 @@ export const useOrcidPrefs = (options?: OrcidHookOptions<'setPreferences'>) => {
   return {
     preferences,
     setPreferences,
+    isLoading: setPreferencesState.isLoading || getPreferencesState.isLoading,
     setPreferencesState,
     getPreferencesState,
   };

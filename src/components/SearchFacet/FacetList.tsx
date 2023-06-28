@@ -106,7 +106,7 @@ export const NodeList = (props: INodeListProps) => {
         <Spinner size="sm" />
       </Center>
     );
-  } else if (treeData.length === 0) {
+  } else if (treeData?.length === 0) {
     return (
       <Center data-testid="search-facet-no-results">
         <Heading as="h2" size="xs">

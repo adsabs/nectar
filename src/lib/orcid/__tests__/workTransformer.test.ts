@@ -32,13 +32,11 @@ const expected: IOrcidWork = {
         'external-id-type': 'bibcode',
         'external-id-value': '2023RvMPP...7...17M',
         'external-id-relationship': 'SELF',
-        'external-id-url': null,
       },
       {
         'external-id-type': 'doi',
         'external-id-value': '10.1007/s41614-023-00118-3',
         'external-id-relationship': 'SELF',
-        'external-id-url': null,
       },
     ],
   },
@@ -66,7 +64,6 @@ const expected: IOrcidWork = {
       {
         'credit-name': { value: 'Tajfirouze, E.' },
         'contributor-attributes': { 'contributor-role': 'author', 'contributor-sequence': 'additional' },
-        'contributor-orcid': { path: null, host: 'orcid.org', uri: null },
       },
       {
         'credit-name': { value: 'Miriyala, H.' },
