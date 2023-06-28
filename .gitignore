@@ -123,3 +123,5 @@ storybook-static/
 .idea
 .env.development
 .env.production
+/.vitest/
+/.vitest-preview/
