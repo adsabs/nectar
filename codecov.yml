@@ -1,0 +1,14 @@
+coverage:
+  status:
+    patch: false
+
+  range: 40..60
+  round: down
+  precision: 2
+
+ignore:
+  - src/**/*.test.*
+  - src/mocks/**/*
+
+comment:
+  layout: diff, files
