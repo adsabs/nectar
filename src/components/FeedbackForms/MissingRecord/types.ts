@@ -23,16 +23,24 @@ export interface IReference {
   reference: string;
 }
 
-export interface IFormData {
-  record: string;
-  collections: string[];
+export type FormValues = {
+  name: string;
+  email: string;
+  bibcode: string;
+  collection: Collection[];
   title: string;
   authors: IAuthor[];
-  publication: string;
-  publicationDate: Date;
+  publications: string;
+  pubDate: Date;
   urls: IUrl[];
   abstract: string;
   keywords: string[];
   references: IReference[];
-  comment: string;
+  comments: string;
+};
+
+export enum Collection {
+  astronomy = 'astronomy',
+  physics = 'physics',
+  general = 'general',
 }

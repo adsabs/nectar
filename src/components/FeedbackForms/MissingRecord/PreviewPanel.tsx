@@ -1,34 +1,24 @@
-import { Button, HStack, Table, Tbody, Td, Text, Tr } from '@chakra-ui/react';
+import { Table, Tbody, Td, Text, Tr } from '@chakra-ui/react';
 import { AuthorsTable } from './AuthorsTable';
 import { ReferencesTable } from './ReferencesTable';
-import { IFormData } from './types';
+import { FormValues } from './types';
 import { URLTable } from './URLTable';
 
-export const PreviewPanel = ({
-  name,
-  email,
-  data,
-  onBack,
-  onSubmit,
-}: {
-  name: string;
-  email: string;
-  data: IFormData;
-  onBack: () => void;
-  onSubmit: () => void;
-}) => {
+export const PreviewPanel = ({ data }: { data: FormValues }) => {
   const {
-    record,
-    collections,
+    name,
+    email,
+    bibcode,
+    collection,
     title,
     authors,
-    publication,
-    publicationDate,
+    publications,
+    pubDate,
     urls,
     abstract,
     keywords,
     references,
-    comment,
+    comments,
   } = data;
 
   return (
@@ -44,11 +34,11 @@ export const PreviewPanel = ({
           </Tr>
           <Tr>
             <Td fontWeight="bold">Bibcode</Td>
-            <Td>{record}</Td>
+            <Td>{bibcode}</Td>
           </Tr>
           <Tr>
             <Td fontWeight="bold">Collections</Td>
-            <Td>{collections && collections.join(', ')}</Td>
+            <Td>{collection && collection.join(', ')}</Td>
           </Tr>
           <Tr>
             <Td fontWeight="bold">Title</Td>
@@ -60,11 +50,11 @@ export const PreviewPanel = ({
           </Tr>
           <Tr>
             <Td fontWeight="bold">Publication</Td>
-            <Td>{publication}</Td>
+            <Td>{publications}</Td>
           </Tr>
           <Tr>
             <Td fontWeight="bold">Publication Date</Td>
-            <Td>{publicationDate.toDateString()}</Td>
+            <Td>{pubDate.toDateString()}</Td>
           </Tr>
           <Tr>
             <Td fontWeight="bold">URLs</Td>
@@ -86,16 +76,10 @@ export const PreviewPanel = ({
           </Tr>
           <Tr>
             <Td fontWeight="bold">User Comments</Td>
-            <Td>{comment}</Td>
+            <Td>{comments}</Td>
           </Tr>
         </Tbody>
       </Table>
-      <HStack mt={2}>
-        <Button onClick={onSubmit}>Submit</Button>
-        <Button variant="outline" onClick={onBack}>
-          Back
-        </Button>
-      </HStack>
     </>
   );
 };

@@ -8,20 +8,16 @@ import {
   Box,
   Text,
 } from '@chakra-ui/react';
-import { IFormData } from '@components';
+import { FormValues } from '@components';
 
 export const JsonPreviewModal = ({
   isOpen,
   onClose,
-  name,
-  email,
   data,
 }: {
   isOpen: boolean;
   onClose: () => void;
-  name: string;
-  email: string;
-  data: IFormData;
+  data: FormValues;
 }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="3xl">
@@ -33,8 +29,8 @@ export const JsonPreviewModal = ({
           <Text fontWeight="bold" mb={2}>
             Submitter:
           </Text>
-          <Text>{name}</Text>
-          <Text>{email}</Text>
+          <Text>{data.name}</Text>
+          <Text>{data.email}</Text>
           <Box mt={5}>
             <Text fontWeight="bold" mb={2}>
               Record:

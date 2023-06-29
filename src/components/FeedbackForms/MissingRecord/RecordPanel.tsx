@@ -9,19 +9,21 @@ import {
   Textarea,
   Button,
   Flex,
-  useCheckboxGroup,
+  FormErrorMessage,
 } from '@chakra-ui/react';
+import { noop } from '@utils';
 import { SingleDatepicker } from 'chakra-dayzed-datepicker';
-import { ChangeEvent, useState } from 'react';
+import { Field, FieldArray, FieldArrayRenderProps, FieldProps, useField } from 'formik';
+import { useState } from 'react';
 import { KeywordList, ReferencesTable } from '.';
 import { AuthorsTable } from './AuthorsTable';
-import { IAuthor, IFormData, IReference, IUrl } from './types';
+import { Collection, IAuthor, FormValues, IReference, IUrl } from './types';
 import { URLTable } from './URLTable';
 
-const collections = [
-  { value: 'astronomy', label: 'Astronomy and Astrophysics' },
-  { value: 'physics', label: 'Physics and Geophysics' },
-  { value: 'general', label: 'General' },
+const collections: { value: Collection; label: string }[] = [
+  { value: Collection.astronomy, label: 'Astronomy and Astrophysics' },
+  { value: Collection.physics, label: 'Physics and Geophysics' },
+  { value: Collection.general, label: 'General' },
 ];
 
 const datePropConfig = {
@@ -49,226 +51,172 @@ const datePropConfig = {
 export const RecordPanel = ({
   isNew,
   formData,
-  onPreview,
+  onRecordLoaded = noop,
 }: {
   isNew: boolean;
-  formData?: IFormData;
-  onPreview: (data: IFormData) => void;
+  formData?: FormValues;
+  onRecordLoaded?: () => void;
 }) => {
-  const [record, setRecord] = useState<string>(formData?.record ?? null);
   const [recordLoaded, setRecordLoaded] = useState(formData ? true : false);
-  const { value: selectedCollections, getCheckboxProps } = useCheckboxGroup({
-    defaultValue: formData?.collections ?? [],
+
+  const [{ value: authors }] = useField<IAuthor[]>({
+    name: 'authors',
+    validate: (value: IAuthor[]) => {
+      if (!value || value.length === 0) {
+        return 'Authors are required';
+      }
+    },
   });
-  const [title, setTitle] = useState(formData?.title ?? '');
-  const [authors, setAuthors] = useState<IAuthor[]>(formData?.authors ?? []);
-  const [publication, setPublication] = useState(formData?.publication ?? '');
-  const [pubDate, setPubDate] = useState(formData?.publicationDate ?? new Date());
-  const [urls, setUrls] = useState<IUrl[]>(formData?.urls ?? []);
-  const [abstract, setAbstract] = useState(formData?.abstract ?? '');
-  const [keywords, setKeywords] = useState<string[]>(formData?.keywords ?? []);
-  const [references, setReferences] = useState<IReference[]>(formData?.references ?? []);
-  const [comment, setComment] = useState(formData?.comment ?? '');
 
-  // record
+  const [, , { setValue: setPubDateValue }] = useField<Date>('pubDate');
 
-  const handleRecordFieldChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setRecord(e.target.value);
-  };
+  const [{ value: urls }] = useField<IUrl[]>('urls');
 
-  // title
+  const [{ value: keywords }] = useField<string[]>({
+    name: 'keywords',
+  });
 
-  const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setTitle(e.target.value);
-  };
-
-  // authors
-
-  const handleAddAuthor = (author: IAuthor) => {
-    setAuthors((prev) => [...prev, author]);
-  };
-
-  const handleDeleteAuthor = (index: number) => {
-    setAuthors((prev) => prev.slice(0, index).concat(prev.slice(index + 1)));
-  };
-
-  const handleUpdateAuthor = (index: number, author: IAuthor) => {
-    setAuthors((prev) => {
-      const ret = [...prev];
-      ret[index] = author;
-      return ret;
-    });
-  };
-
-  // publication
-
-  const handlePublicationChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setPublication(e.target.value);
-  };
-
-  // urls
-
-  const handleAddUrl = (url: IUrl) => {
-    setUrls((prev) => [...prev, url]);
-  };
-
-  const handleDeleteUrl = (index: number) => {
-    setUrls((prev) => prev.slice(0, index).concat(prev.slice(index + 1)));
-  };
-
-  const handleUpdateUrl = (index: number, url: IUrl) => {
-    setUrls((prev) => {
-      const ret = [...prev];
-      ret[index] = url;
-      return ret;
-    });
-  };
-
-  // abstract
-
-  const handleAbstractChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    setAbstract(e.target.value);
-  };
-
-  // keywords
-
-  const handleAddKeyword = (keyword: string) => {
-    setKeywords((prev) => [...prev, keyword]);
-  };
-
-  const handleDeleteKeyword = (keyword: string) => {
-    setKeywords((prev) => prev.filter((kw) => kw !== keyword));
-  };
-
-  // references
-
-  const handleAddReference = (reference: IReference) => {
-    setReferences((prev) => [...prev, reference]);
-  };
-
-  const handleDeleteReference = (index: number) => {
-    setReferences((prev) => prev.slice(0, index).concat(prev.slice(index + 1)));
-  };
-
-  const handleUpdateReference = (index: number, reference: IReference) => {
-    setReferences((prev) => {
-      const ret = [...prev];
-      ret[index] = reference;
-      return ret;
-    });
-  };
-
-  // comment
-
-  const handleCommentChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    setComment(e.target.value);
-  };
-
-  const handlePreview = () => {
-    onPreview({
-      record,
-      collections: selectedCollections as string[],
-      title,
-      authors,
-      publication,
-      publicationDate: pubDate,
-      urls,
-      abstract,
-      keywords,
-      references,
-      comment,
-    });
-  };
+  const [{ value: references }] = useField<IReference[]>({
+    name: 'references',
+  });
 
   return (
     <Stack direction="column" gap={2} m={0}>
-      <FormControl isRequired>
-        <FormLabel>Bibcode</FormLabel>
-        <Flex direction="row">
-          <Input value={record} onChange={handleRecordFieldChange} />
-          {!isNew && (
-            <Button size="md" borderStartRadius={0} borderEndRadius={2} isDisabled={!record || record.length === 0}>
-              Load
-            </Button>
-          )}
-        </Flex>
-      </FormControl>
+      <Field name="bibcode">
+        {({ field }: FieldProps<FormValues['bibcode']>) => (
+          <FormControl isRequired>
+            <FormLabel>Bibcode</FormLabel>
+            <Flex direction="row">
+              <Input {...field} />
+              {!isNew && (
+                <Button
+                  size="md"
+                  borderStartRadius={0}
+                  borderEndRadius={2}
+                  isDisabled={!field.value || field.value.length === 0}
+                >
+                  Load
+                </Button>
+              )}
+            </Flex>
+          </FormControl>
+        )}
+      </Field>
+
       {(isNew || (!isNew && recordLoaded)) && (
         <>
           <FormControl>
             <FormLabel>Collection</FormLabel>
             <CheckboxGroup>
-              <Stack direction="row">
-                {collections.map((c) => (
-                  <Checkbox key={`collection-${c.value}`} {...getCheckboxProps({ value: c.value })}>
-                    {c.label}
-                  </Checkbox>
-                ))}
-              </Stack>
+              <Field name="collection">
+                {({ field }: FieldProps) => (
+                  <Stack direction="row">
+                    {collections.map((c) => (
+                      <Checkbox key={`collection-${c.value}`} {...field} value={c.value}>
+                        {c.label}
+                      </Checkbox>
+                    ))}
+                  </Stack>
+                )}
+              </Field>
             </CheckboxGroup>
           </FormControl>
-          <FormControl isRequired>
-            <FormLabel>Title</FormLabel>
-            <Input value={title} onChange={handleTitleChange} />
-          </FormControl>
-          <FormControl isRequired>
-            <FormLabel>Authors</FormLabel>
-            <AuthorsTable
-              authors={authors}
-              onAddAuthor={handleAddAuthor}
-              onDeleteAuthor={handleDeleteAuthor}
-              onUpdateAuthor={handleUpdateAuthor}
-              editable={true}
-            />
-          </FormControl>
+
+          <Field name="title">
+            {({ field }: FieldProps) => (
+              <FormControl isRequired>
+                <FormLabel>Title</FormLabel>
+                <Input {...field} />
+              </FormControl>
+            )}
+          </Field>
+
+          <FieldArray name="authors">
+            {({ remove, push, form, replace }: FieldArrayRenderProps) => (
+              <FormControl isInvalid={!!form.errors.authors && !!form.touched.authors}>
+                <FormLabel>Authors</FormLabel>
+                <FormErrorMessage>{form.errors.authors}</FormErrorMessage>
+                <AuthorsTable
+                  authors={authors}
+                  onAddAuthor={push}
+                  onDeleteAuthor={remove}
+                  onUpdateAuthor={replace}
+                  editable={true}
+                />
+              </FormControl>
+            )}
+          </FieldArray>
+
           <HStack gap={2}>
-            <FormControl isRequired>
-              <FormLabel>Publications</FormLabel>
-              <Input value={publication} onChange={handlePublicationChange} />
-            </FormControl>
-            <FormControl isRequired>
-              <FormLabel>Publication Date</FormLabel>
-              <SingleDatepicker date={pubDate} onDateChange={setPubDate} propsConfigs={datePropConfig} />
-            </FormControl>
+            <Field name="publication">
+              {({ field }: FieldProps) => (
+                <FormControl isRequired>
+                  <FormLabel>Publications</FormLabel>
+                  <Input {...field} />
+                </FormControl>
+              )}
+            </Field>
+
+            <Field name="pubDate">
+              {({ field }: FieldProps<FormValues['pubDate']>) => (
+                <FormControl isRequired>
+                  <FormLabel>Publication Date</FormLabel>
+                  <SingleDatepicker date={field.value} onDateChange={setPubDateValue} propsConfigs={datePropConfig} />
+                </FormControl>
+              )}
+            </Field>
           </HStack>
-          <FormControl>
-            <FormLabel>URLs</FormLabel>
-            <URLTable
-              urls={urls}
-              onAddUrl={handleAddUrl}
-              onDeleteUrl={handleDeleteUrl}
-              onUpdateUrl={handleUpdateUrl}
-              editable
-            />
-          </FormControl>
-          <FormControl isRequired>
-            <FormLabel>Abstract</FormLabel>
-            <Textarea value={abstract} onChange={handleAbstractChange} />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Keywords</FormLabel>
-            <KeywordList keywords={keywords} onAddKeyword={handleAddKeyword} onDeleteKeyword={handleDeleteKeyword} />
-          </FormControl>
-          <FormControl>
-            <FormLabel>References</FormLabel>
-            <ReferencesTable
-              references={references}
-              onAddReference={handleAddReference}
-              onDeleteReference={handleDeleteReference}
-              onUpdateReference={handleUpdateReference}
-              editable
-            />
-          </FormControl>
-          <FormControl>
-            <FormLabel>User Comments</FormLabel>
-            <Textarea value={comment} onChange={handleCommentChange} />
-          </FormControl>
-          <HStack mt={2}>
-            <Button onClick={handlePreview}>Preview</Button>
-            <Button type="reset" variant="outline">
-              Reset
-            </Button>
-          </HStack>
+
+          <FieldArray name="urls">
+            {({ remove, push, replace }: FieldArrayRenderProps) => (
+              <FormControl>
+                <FormLabel>URLs</FormLabel>
+                <URLTable urls={urls} onAddUrl={push} onDeleteUrl={remove} onUpdateUrl={replace} editable />
+              </FormControl>
+            )}
+          </FieldArray>
+
+          <Field name="abstract">
+            {({ field }: FieldProps) => (
+              <FormControl isRequired>
+                <FormLabel>Abstract</FormLabel>
+                <Textarea {...field} />
+              </FormControl>
+            )}
+          </Field>
+
+          <FieldArray name="keywords">
+            {({ remove, push }: FieldArrayRenderProps) => (
+              <FormControl>
+                <FormLabel>Keywords</FormLabel>
+                <KeywordList keywords={keywords} onAddKeyword={push} onDeleteKeyword={remove} />
+              </FormControl>
+            )}
+          </FieldArray>
+
+          <FieldArray name="references">
+            {({ remove, push, replace }: FieldArrayRenderProps) => (
+              <FormControl>
+                <FormLabel>References</FormLabel>
+                <ReferencesTable
+                  references={references}
+                  onAddReference={push}
+                  onDeleteReference={remove}
+                  onUpdateReference={replace}
+                  editable
+                />
+              </FormControl>
+            )}
+          </FieldArray>
+
+          <Field name="comment">
+            {({ field }: FieldProps) => (
+              <FormControl>
+                <FormLabel>User Comments</FormLabel>
+                <Textarea {...field} />
+              </FormControl>
+            )}
+          </Field>
         </>
       )}
     </Stack>

@@ -9,7 +9,7 @@ export const KeywordList = ({
 }: {
   keywords: string[];
   onAddKeyword: (kw: string) => void;
-  onDeleteKeyword: (kw: string) => void;
+  onDeleteKeyword: (index: number) => void;
 }) => {
   const [newKeyword, setNewKeyword] = useState('');
 
@@ -28,10 +28,10 @@ export const KeywordList = ({
   return (
     <Stack direction="column">
       <HStack>
-        {keywords.map((kw) => (
+        {keywords.map((kw, index) => (
           <Tag key={`keyword-${kw}`}>
             <TagLabel>{kw}</TagLabel>
-            <TagRightIcon as={SmallCloseIcon} onClick={() => onDeleteKeyword(kw)} cursor="pointer" />
+            <TagRightIcon as={SmallCloseIcon} onClick={() => onDeleteKeyword(index)} cursor="pointer" />
           </Tag>
         ))}
       </HStack>
