@@ -34,7 +34,7 @@ const General: NextPage = () => {
       <Formik initialValues={initialFormValues} onSubmit={handleSubmitForm}>
         {(props) => (
           <Form>
-            <Flex direction="column" gap={2}>
+            <Flex direction="column" gap={4}>
               <HStack gap={2}>
                 <Field name="name">
                   {({ field }: FieldProps) => (

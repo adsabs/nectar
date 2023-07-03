@@ -81,7 +81,7 @@ export const RecordPanel = ({
   });
 
   return (
-    <Stack direction="column" gap={2} m={0}>
+    <Stack direction="column" gap={4} m={0}>
       <Field name="bibcode">
         {({ field }: FieldProps<FormValues['bibcode']>) => (
           <FormControl isRequired>

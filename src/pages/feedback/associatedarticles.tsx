@@ -19,7 +19,7 @@ const AssociatedArticles: NextPage = () => {
         Q2237+0305
       </Text>
       <Text my={2}>
-        Such associated references are connected with links in the Scix database. If you know of any correlated
+        Such associated references are connected with links in the SciX database. If you know of any correlated
         references (errata, multiple part articles, etc) that do not have such links, please let us know about them by
         filling in the codes for these correlated articles in this form. The form accepts one bibcode for the main paper
         and one or more bibcodes for the associated articles. Use the "Add a Record" button to enter multiple records.

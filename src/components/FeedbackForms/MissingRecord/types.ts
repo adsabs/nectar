@@ -14,7 +14,7 @@ export interface IUrl {
   url: string;
 }
 
-export const referenceTypes = ['Raw Text'] as const;
+export const referenceTypes = ['Raw Text', 'DOI', 'Bibcode'] as const;
 
 export type ReferenceType = typeof referenceTypes[number];
 

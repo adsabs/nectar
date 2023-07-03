@@ -110,16 +110,16 @@ const Record: NextPage = () => {
                       )}
                     </Field>
                   </HStack>
-                  <Tabs variant="soft-rounded" onChange={handleTabChange}>
+                  <Tabs variant="enclosed-colored" onChange={handleTabChange} mt={5} size="lg">
                     <TabList>
                       <Tab>New Record</Tab>
                       <Tab>Edit Record</Tab>
                     </TabList>
                     <TabPanels>
-                      <TabPanel>
+                      <TabPanel p={5} pt={8}>
                         <RecordPanel isNew />
                       </TabPanel>
-                      <TabPanel>
+                      <TabPanel p={5} pt={8}>
                         <RecordPanel isNew={false} onRecordLoaded={handleRecordLoaded} />
                       </TabPanel>
                     </TabPanels>

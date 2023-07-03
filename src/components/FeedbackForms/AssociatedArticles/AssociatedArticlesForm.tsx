@@ -48,7 +48,7 @@ export const AssociatedArticlesForm = () => {
     <Formik initialValues={initialFormValues} onSubmit={handleSubmitForm}>
       {(props) => (
         <Form>
-          <Flex direction="column" gap={2} my={2}>
+          <Flex direction="column" gap={4} my={2}>
             <HStack gap={2}>
               <Field name="name">
                 {({ field }: FieldProps) => (
@@ -84,8 +84,8 @@ export const AssociatedArticlesForm = () => {
 };
 
 const relationOptions: SelectOption<string>[] = [
-  { id: 'errata', value: 'errata', label: 'Main paper/Errata' },
-  { id: 'addenda', value: 'addenda', label: 'Main paper/Addenda' },
+  { id: 'errata', value: 'errata', label: 'Main Paper/Errata' },
+  { id: 'addenda', value: 'addenda', label: 'Main Paper/Addenda' },
   { id: 'series', value: 'series', label: 'Series of Articles' },
   { id: 'arxiv', value: 'arxiv', label: 'arXiv/Published' },
   { id: 'other', value: 'other', label: 'Other' },
@@ -109,7 +109,7 @@ export const AssociatedTable = () => {
     name: 'associatedBibcodes',
     validate: (value: FormValues['associatedBibcodes']) => {
       if (!value || value.length === 0) {
-        return 'This field is required';
+        return 'This field requires at least one entry';
       }
     },
   });
@@ -155,7 +155,7 @@ export const AssociatedTable = () => {
             {({ field }: FieldProps) => (
               <FormControl isRequired>
                 <FormLabel>{`${
-                  relationType === 'arxiv' ? 'arXiv ' : relationType === 'other' ? '' : 'Main paper '
+                  relationType === 'arxiv' ? 'arXiv ' : relationType === 'other' ? '' : 'Main Paper '
                 }Bibcode`}</FormLabel>
                 <Input {...field} />
               </FormControl>
@@ -176,7 +176,7 @@ export const AssociatedTable = () => {
                     : relationType === 'arxiv'
                     ? 'Main paper '
                     : 'Related '
-                }bibcode(s)`}</FormLabel>
+                }Bibcode(s)`}</FormLabel>
                 <Flex direction="column" gap={2}>
                   {associatedBibcodes.map((b, index) => (
                     <HStack key={`asso-bib-${index}`}>

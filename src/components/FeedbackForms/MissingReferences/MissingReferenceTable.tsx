@@ -62,7 +62,7 @@ export const MissingReferenceTable = () => {
     name: 'references',
     validate: (value: Reference[]) => {
       if (!value || value.length === 0) {
-        return 'This field is requred';
+        return 'This field requires at least one entry';
       }
     },
   });
@@ -72,7 +72,7 @@ export const MissingReferenceTable = () => {
   return (
     <FieldArray name="references">
       {({ remove, push, form, replace }: FieldArrayRenderProps) => (
-        <FormControl>
+        <FormControl isInvalid={form.touched.references && !!form.errors.references}>
           <FormLabel>Missing References</FormLabel>
           <TableContainer>
             <Table size="sm">
