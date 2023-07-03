@@ -1,8 +1,20 @@
-import { Button, Flex, FormControl, FormLabel, Input, Textarea, Text, HStack, useToast } from '@chakra-ui/react';
-import { FeedbackLayout } from '@components';
+import {
+  Button,
+  Flex,
+  FormControl,
+  FormLabel,
+  Input,
+  Textarea,
+  Text,
+  HStack,
+  useDisclosure,
+  AlertStatus,
+} from '@chakra-ui/react';
+import { FeedbackLayout, FeedbackAlert } from '@components';
 import { useStore } from '@store';
 import { Field, FieldProps, Form, Formik, FormikHelpers } from 'formik';
 import { NextPage } from 'next';
+import { useState } from 'react';
 
 type FormValues = {
   name: string;
@@ -11,8 +23,14 @@ type FormValues = {
 };
 
 const General: NextPage = () => {
-  const toast = useToast({ duration: 3000 });
   const username = useStore((state) => state.getUsername());
+
+  const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({
+    status: 'success',
+    title: '',
+  });
+
+  const { isOpen: isAlertOpen, onClose: onAlertClose, onOpen: onAlertOpen } = useDisclosure();
 
   const initialFormValues: FormValues = {
     name: '',
@@ -21,13 +39,28 @@ const General: NextPage = () => {
   };
 
   const handleSubmitForm = (values: FormValues, { setSubmitting, resetForm }: FormikHelpers<FormValues>) => {
-    toast({ status: 'success', title: 'Successfully submitted' });
+    setAlertDetails({
+      status: 'success',
+      title: 'Feedback successfully submitted',
+    });
+    onAlertOpen();
     setSubmitting(false);
     resetForm();
   };
 
+  const alert = (
+    <FeedbackAlert
+      isOpen={isAlertOpen}
+      onClose={onAlertClose}
+      status={alertDetails.status}
+      title={alertDetails.title}
+      description={alertDetails.description}
+      my={4}
+    />
+  );
+
   return (
-    <FeedbackLayout title="General Feedback">
+    <FeedbackLayout title="General Feedback" alert={alert}>
       <Text my={2}>
         You can also reach us at <strong>adshelp [at] cfa.harvard.edu</strong>
       </Text>

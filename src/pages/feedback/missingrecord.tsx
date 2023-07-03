@@ -12,11 +12,12 @@ import {
   TabPanel,
   Button,
   useDisclosure,
-  useToast,
+  AlertStatus,
 } from '@chakra-ui/react';
 import { FeedbackLayout } from '@components';
 import {
   Collection,
+  FeedbackAlert,
   FormValues,
   IAuthor,
   IReference,
@@ -31,8 +32,14 @@ import { NextPage } from 'next';
 import { useState } from 'react';
 
 const Record: NextPage = () => {
-  const toast = useToast({ duration: 3000 });
   const username = useStore((state) => state.getUsername());
+
+  const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({
+    status: 'success',
+    title: '',
+  });
+
+  const { isOpen: isAlertOpen, onClose: onAlertClose, onOpen: onAlertOpen } = useDisclosure();
 
   const initialFormValues: FormValues = {
     name: '',
@@ -73,19 +80,32 @@ const Record: NextPage = () => {
   };
 
   const handleSubmit = (values: FormValues, resetForm: (nextState?: Partial<FormikState<FormValues>>) => void) => {
-    // TODO:
-    console.log(values);
-    toast({ status: 'success', title: 'Successfully submitted' });
+    setAlertDetails({
+      status: 'success',
+      title: 'Feedback successfully submitted',
+    });
+    onAlertOpen();
     setPreview(false);
     resetForm();
   };
+
+  const alert = (
+    <FeedbackAlert
+      isOpen={isAlertOpen}
+      onClose={onAlertClose}
+      status={alertDetails.status}
+      title={alertDetails.title}
+      description={alertDetails.description}
+      my={4}
+    />
+  );
 
   return (
     <Formik initialValues={initialFormValues} onSubmit={handlePreview}>
       {({ values, isSubmitting, resetForm }) => (
         <>
           {!preview ? (
-            <FeedbackLayout title="Submit or Correct an Abstract for the SciX Abstract Service">
+            <FeedbackLayout title="Submit or Correct an Abstract for the SciX Abstract Service" alert={alert}>
               <Text my={2}>
                 Please use the following form to submit a new bibliographic record to ADS or correct an existing record.
               </Text>

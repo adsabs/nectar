@@ -1,10 +1,50 @@
-import { Text } from '@chakra-ui/react';
+import { AlertStatus, Text, useDisclosure } from '@chakra-ui/react';
 import { AssociatedArticlesForm, FeedbackLayout } from '@components';
+import { FeedbackAlert } from '@components/FeedbackForms';
 import { NextPage } from 'next';
+import { useMemo, useState } from 'react';
 
 const AssociatedArticles: NextPage = () => {
+  const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({
+    status: 'success',
+    title: '',
+  });
+
+  const { isOpen: isAlertOpen, onClose: onAlertClose, onOpen: onAlertOpen } = useDisclosure();
+
+  const alert = useMemo(
+    () => (
+      <FeedbackAlert
+        isOpen={isAlertOpen}
+        onClose={onAlertClose}
+        status={alertDetails.status}
+        title={alertDetails.title}
+        description={alertDetails.description}
+        my={4}
+      />
+    ),
+    [alertDetails, isAlertOpen, onAlertClose, onAlertOpen],
+  );
+
+  const handleOnOpenAlert = ({
+    status,
+    title,
+    description,
+  }: {
+    status: AlertStatus;
+    title: string;
+    description?: string;
+  }) => {
+    setAlertDetails({
+      status,
+      title,
+      description,
+    });
+    onAlertOpen();
+  };
+
   return (
-    <FeedbackLayout title="Submit Associated Articles for the SciX Abstract Service">
+    <FeedbackLayout title="Submit Associated Articles for the SciX Abstract Service" alert={alert}>
       <Text my={2}>
         Use this form to submit correlated articles (errata, multiple part articles, etc) with other articles in the
         SciX. For instance:
@@ -24,7 +64,7 @@ const AssociatedArticles: NextPage = () => {
         filling in the codes for these correlated articles in this form. The form accepts one bibcode for the main paper
         and one or more bibcodes for the associated articles. Use the "Add a Record" button to enter multiple records.
       </Text>
-      <AssociatedArticlesForm />
+      <AssociatedArticlesForm onOpenAlert={handleOnOpenAlert} />
     </FeedbackLayout>
   );
 };

@@ -1,4 +1,4 @@
-import { Flex, HStack, FormControl, FormLabel, Input, Button, useToast } from '@chakra-ui/react';
+import { Flex, HStack, FormControl, FormLabel, Input, Button, AlertStatus } from '@chakra-ui/react';
 import { useStore } from '@store';
 import { Field, FieldProps, Form, Formik, FormikHelpers } from 'formik';
 import { MissingReferenceTable } from './MissingReferenceTable';
@@ -9,8 +9,11 @@ type FormValues = {
   references: [string, string][];
 };
 
-export const MissingReferenceForm = () => {
-  const toast = useToast({ duration: 3000 });
+export const MissingReferenceForm = ({
+  onOpenAlert,
+}: {
+  onOpenAlert: (params: { status: AlertStatus; title: string; description?: string }) => void;
+}) => {
   const username = useStore((state) => state.getUsername());
 
   const initialFormValues: FormValues = {
@@ -21,7 +24,10 @@ export const MissingReferenceForm = () => {
 
   const handleSubmitForm = (values: FormValues, { setSubmitting, resetForm }: FormikHelpers<FormValues>) => {
     console.log(values);
-    toast({ status: 'success', title: 'Successfully submitted' });
+    onOpenAlert({
+      status: 'success',
+      title: 'Feedback successfully submitted',
+    });
     setSubmitting(false);
     resetForm();
   };

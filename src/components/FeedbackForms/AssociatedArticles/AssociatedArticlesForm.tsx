@@ -6,9 +6,9 @@ import {
   FormLabel,
   Input,
   Button,
-  useToast,
   FormErrorMessage,
   IconButton,
+  AlertStatus,
 } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components';
 import { useStore } from '@store';
@@ -24,8 +24,11 @@ type FormValues = {
   associatedBibcodes: string[];
 };
 
-export const AssociatedArticlesForm = () => {
-  const toast = useToast({ duration: 3000 });
+export const AssociatedArticlesForm = ({
+  onOpenAlert,
+}: {
+  onOpenAlert: (params: { status: AlertStatus; title: string; description?: string }) => void;
+}) => {
   const username = useStore((state) => state.getUsername());
 
   const initialFormValues: FormValues = {
@@ -39,7 +42,10 @@ export const AssociatedArticlesForm = () => {
 
   const handleSubmitForm = (values: FormValues, { setSubmitting, resetForm }: FormikHelpers<FormValues>) => {
     console.log(values);
-    toast({ status: 'success', title: 'Successfully submitted' });
+    onOpenAlert({
+      status: 'success',
+      title: 'Feedback successfully submitted',
+    });
     setSubmitting(false);
     resetForm();
   };
