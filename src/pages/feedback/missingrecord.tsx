@@ -47,8 +47,9 @@ const Record: NextPage = () => {
     bibcode: '',
     collection: [] as Collection[],
     title: '',
+    noAuthors: false,
     authors: [] as IAuthor[],
-    publications: '',
+    publication: '',
     pubDate: new Date(),
     urls: [] as IUrl[],
     abstract: '',
@@ -71,6 +72,7 @@ const Record: NextPage = () => {
   };
 
   const handlePreview = (values: FormValues, { setSubmitting }: FormikHelpers<FormValues>) => {
+    console.log(values);
     setPreview(true);
     setSubmitting(false);
   };

@@ -13,11 +13,11 @@ import {
 } from '@chakra-ui/react';
 import { noop } from '@utils';
 import { SingleDatepicker } from 'chakra-dayzed-datepicker';
-import { Field, FieldArray, FieldArrayRenderProps, FieldProps, useField } from 'formik';
+import { Field, FieldArray, FieldArrayRenderProps, FieldProps, useField, useFormikContext } from 'formik';
 import { useState } from 'react';
 import { KeywordList, ReferencesTable } from '.';
 import { AuthorsTable } from './AuthorsTable';
-import { Collection, IAuthor, FormValues, IReference, IUrl } from './types';
+import { Collection, IAuthor, FormValues } from './types';
 import { URLTable } from './URLTable';
 
 const collections: { value: Collection; label: string }[] = [
@@ -59,26 +59,20 @@ export const RecordPanel = ({
 }) => {
   const [recordLoaded, setRecordLoaded] = useState(formData ? true : false);
 
-  const [{ value: authors }] = useField<IAuthor[]>({
+  const {
+    values: { noAuthors, authors, urls, keywords, references },
+  } = useFormikContext<FormValues>();
+
+  const [] = useField<IAuthor[]>({
     name: 'authors',
     validate: (value: IAuthor[]) => {
-      if (!value || value.length === 0) {
-        return 'Authors are required';
+      if (!noAuthors && (!value || value.length === 0)) {
+        return 'Authors are required. Check "Abstract has no authors" box if no authors.';
       }
     },
   });
 
   const [, , { setValue: setPubDateValue }] = useField<Date>('pubDate');
-
-  const [{ value: urls }] = useField<IUrl[]>('urls');
-
-  const [{ value: keywords }] = useField<string[]>({
-    name: 'keywords',
-  });
-
-  const [{ value: references }] = useField<IReference[]>({
-    name: 'references',
-  });
 
   return (
     <Stack direction="column" gap={4} m={0}>
@@ -135,23 +129,37 @@ export const RecordPanel = ({
             {({ remove, push, form, replace }: FieldArrayRenderProps) => (
               <FormControl isInvalid={!!form.errors.authors && !!form.touched.authors}>
                 <FormLabel>Authors</FormLabel>
-                <FormErrorMessage>{form.errors.authors}</FormErrorMessage>
-                <AuthorsTable
-                  authors={authors}
-                  onAddAuthor={push}
-                  onDeleteAuthor={remove}
-                  onUpdateAuthor={replace}
-                  editable={true}
-                />
+                {!noAuthors && (
+                  <>
+                    <FormErrorMessage>{form.errors.authors}</FormErrorMessage>
+                    <AuthorsTable
+                      authors={authors}
+                      onAddAuthor={push}
+                      onDeleteAuthor={remove}
+                      onUpdateAuthor={replace}
+                      editable={true}
+                    />
+                  </>
+                )}
               </FormControl>
             )}
           </FieldArray>
+
+          <Field name="noAuthors" type="checkbox">
+            {({ field }: FieldProps) => (
+              <FormControl>
+                <Checkbox {...field} isChecked={field.checked}>
+                  Abstract has no author(s)
+                </Checkbox>
+              </FormControl>
+            )}
+          </Field>
 
           <HStack gap={2}>
             <Field name="publication">
               {({ field }: FieldProps) => (
                 <FormControl isRequired>
-                  <FormLabel>Publications</FormLabel>
+                  <FormLabel>Publication</FormLabel>
                   <Input {...field} />
                 </FormControl>
               )}

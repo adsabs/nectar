@@ -29,8 +29,9 @@ export type FormValues = {
   bibcode: string;
   collection: Collection[];
   title: string;
+  noAuthors: boolean;
   authors: IAuthor[];
-  publications: string;
+  publication: string;
   pubDate: Date;
   urls: IUrl[];
   abstract: string;
