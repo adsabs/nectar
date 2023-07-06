@@ -3,14 +3,14 @@ import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
 import { HStack, List, ListItem } from '@chakra-ui/layout';
 import { ItemType, ListType } from './types';
 import { isBrowser } from '@utils';
-import { KeyboardEvent, MouseEvent, ReactElement } from 'react';
+import { KeyboardEvent, MouseEventHandler, ReactElement } from 'react';
 
 interface IMenuDropdownProps {
   id: string;
   type: ListType;
   label: ReactElement | string;
   items: ItemType[];
-  onSelect: (e: MouseEvent<HTMLElement>) => void;
+  onSelect: MouseEventHandler<HTMLButtonElement | HTMLLIElement>;
 }
 
 export const MenuDropdown = (props: IMenuDropdownProps): ReactElement => {
@@ -47,7 +47,7 @@ export const MenuDropdown = (props: IMenuDropdownProps): ReactElement => {
       </MenuButton>
       <MenuList zIndex={500}>
         {items.map((item) => (
-          <MenuItem key={item.id} onClick={onSelect} data-id={item.id}>
+          <MenuItem key={item.id} onClick={onSelect} data-id={item.id} {...item?.menuItemProps}>
             {item.label}
           </MenuItem>
         ))}

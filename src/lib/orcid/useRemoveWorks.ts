@@ -5,33 +5,37 @@ import { useEffect, useState } from 'react';
 import { isValidIOrcidUser } from '@api/orcid/models';
 import { filter, keys, map, path, pipe, propEq } from 'ramda';
 import { IOrcidProfile } from '@api/orcid/types';
-import { OrcidHookOptions, OrcidMutationOptions } from '@lib/orcid/types';
+import { OrcidMutationOptions } from '@lib/orcid/types';
 
 const orcidUserSelector = (state: AppState) => state.orcid.user;
 const isAuthenticatedSelector = (state: AppState) => state.orcid.isAuthenticated;
 
 export const useRemoveWorks = (
-  options?: OrcidHookOptions<'removeWorks'>,
-  mutationOptions?: OrcidMutationOptions<'removeWorks'>,
+  mutationOptions: OrcidMutationOptions<'removeWorks'>,
+  props?: {
+    getProfileOptions?: Parameters<typeof useOrcidGetProfile>[1];
+    removeWorksOptions?: Parameters<typeof useOrcidRemoveWorks>[1];
+  },
 ) => {
   const qc = useQueryClient();
   const user = useStore(orcidUserSelector);
   const isAuthenticated = useStore(isAuthenticatedSelector);
   const [idsToRemove, setIdsToRemove] = useState<string[]>([]);
+  const { getProfileOptions, removeWorksOptions } = props;
 
   const { data: profile } = useOrcidGetProfile(
     { user, full: true, update: true },
-    { enabled: isAuthenticated && isValidIOrcidUser(user) && idsToRemove.length > 0 },
+    { enabled: isAuthenticated && isValidIOrcidUser(user) && idsToRemove.length > 0, ...getProfileOptions },
   );
 
   const { mutate, ...result } = useOrcidRemoveWorks(
     { user },
     {
-      ...options,
+      ...removeWorksOptions,
       retry: false,
       onSettled: async (data, ...args) => {
-        if (typeof options?.onSettled === 'function') {
-          options?.onSettled(data, ...args);
+        if (typeof removeWorksOptions?.onSettled === 'function') {
+          removeWorksOptions?.onSettled(data, ...args);
         }
 
         const deleted = getFulfilled(data);

@@ -115,7 +115,6 @@ export const DeleteFromOrcidButton = forwardRef<IOrcidActionBtnProps, 'button'>(
   const { identifier, ...buttonProps } = props;
   const toast = useToast(TOAST_DEFAULTS);
   const { removeWorks, isLoading } = useRemoveWorks(
-    {},
     {
       onSettled: (data) => {
         // should only be a single entry
@@ -129,6 +128,9 @@ export const DeleteFromOrcidButton = forwardRef<IOrcidActionBtnProps, 'button'>(
           toast({ status: 'success', title: 'Successfully submitted delete request' });
         }
       },
+    },
+    {
+      getProfileOptions: { suspense: true },
     },
   );
 
@@ -199,17 +201,14 @@ const AddClaimMenuItem = (props: IOrcidActionProps) => {
 const DeleteClaimMenuItem = (props: IOrcidActionProps) => {
   const { identifier, ...menuItemProps } = props;
   const toast = useToast(TOAST_DEFAULTS);
-  const { removeWorks } = useRemoveWorks(
-    {},
-    {
-      onSuccess: () => {
-        toast({ status: 'success', title: 'Successfully submitted remove claim request' });
-      },
-      onError: (error) => {
-        toast({ status: 'error', title: 'Unable to submit request', description: error.message });
-      },
+  const { removeWorks } = useRemoveWorks({
+    onSuccess: () => {
+      toast({ status: 'success', title: 'Successfully submitted remove claim request' });
     },
-  );
+    onError: (error) => {
+      toast({ status: 'error', title: 'Unable to submit request', description: error.message });
+    },
+  });
 
   return (
     <MenuItem onClick={() => removeWorks([identifier])} {...menuItemProps}>
@@ -246,17 +245,14 @@ export const BulkClaimMenuItem = (props: MenuItemProps) => {
 
 export const BulkDeleteMenuItem = (props: MenuItemProps) => {
   const toast = useToast(TOAST_DEFAULTS);
-  const { removeWorks } = useRemoveWorks(
-    {},
-    {
-      onSuccess: () => {
-        toast({ status: 'success', title: 'Successfully submitted remove claim request' });
-      },
-      onError: (error) => {
-        toast({ status: 'error', title: 'Unable to submit request', description: error.message });
-      },
+  const { removeWorks } = useRemoveWorks({
+    onSuccess: () => {
+      toast({ status: 'success', title: 'Successfully submitted remove claim request' });
     },
-  );
+    onError: (error) => {
+      toast({ status: 'error', title: 'Unable to submit request', description: error.message });
+    },
+  });
 
   const selected = useStore(selectedDocsSelector);
   const handleClick = useCallback(() => {

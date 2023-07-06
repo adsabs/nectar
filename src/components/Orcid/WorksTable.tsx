@@ -1,12 +1,8 @@
 import { IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
 import {
-  Alert,
-  AlertDescription,
-  Button,
+  Box,
   Center,
   chakra,
-  Code,
-  Collapse,
   Heading,
   HStack,
   Icon,
@@ -24,7 +20,6 @@ import {
   Thead,
   Tooltip,
   Tr,
-  useDisclosure,
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components/Select';
@@ -46,26 +41,33 @@ import { intlFormat, intlFormatDistance } from 'date-fns';
 import { isNilOrEmpty, isObject } from 'ramda-adjunct';
 import { Flex } from '@chakra-ui/layout';
 import { ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from '@heroicons/react/20/solid';
-import { ORCID_ADS_SOURCE_NAME, ORCID_ADS_SOURCE_NAME_SHORT } from '@config';
+import { NASA_SCIX_BRAND_NAME, NASA_SCIX_BRAND_NAME_SHORT, ORCID_ADS_SOURCE_NAME } from '@config';
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
-import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
-import { parseAPIError } from '@utils';
+import { ErrorBoundary } from 'react-error-boundary';
 import { useOrcidProfile } from '@lib/orcid/useOrcidProfile';
-import { AxiosError } from 'axios';
+import { MathJax } from 'better-react-mathjax';
+import { getFallBackAlert } from '@components/Feedbacks/SuspendedAlert';
 
 export const WorksTable = () => {
   return (
-    <Stack flexGrow={{ base: 0, lg: 6 }}>
+    <Stack flexGrow={{ base: 0, lg: 6 }} my="2">
       <Heading as="h2" variant="pageTitle">
         My ORCiD Page
       </Heading>
-      <SimpleLink href="/orcid-instructions" newTab>
-        Learn about using ORCiD with NASA SciX
-      </SimpleLink>
+      <Text>
+        <SimpleLink href="/orcid-instructions" newTab display="inline">
+          Learn about using ORCiD with NASA SciX
+        </SimpleLink>
+      </Text>
       <Text>Claims take up to 24 hours to be indexed in SciX</Text>
       <QueryErrorResetBoundary>
         {({ reset }) => (
-          <ErrorBoundary fallbackRender={(props) => <ErrorAlert {...props} />} onReset={reset}>
+          <ErrorBoundary
+            fallbackRender={getFallBackAlert({
+              label: 'There was an issue fetching your ORCiD profile, please try again.',
+            })}
+            onReset={reset}
+          >
             <Suspense fallback={<TableSkeleton />}>
               <DTable />
             </Suspense>
@@ -73,31 +75,6 @@ export const WorksTable = () => {
         )}
       </QueryErrorResetBoundary>
     </Stack>
-  );
-};
-
-interface IErrorAlertProps extends FallbackProps {
-  error: AxiosError | Error | unknown;
-}
-const ErrorAlert = (props: IErrorAlertProps) => {
-  const { error, resetErrorBoundary } = props;
-  const { isOpen, onToggle } = useDisclosure();
-
-  return (
-    <Alert status="error">
-      <AlertDescription>
-        <Stack spacing="4" alignItems="flex-start">
-          <Text>There was an issue fetching your ORCiD profile, please try again.</Text>
-          <Button variant="link" onClick={onToggle}>
-            See error message
-          </Button>
-          <Collapse in={isOpen}>
-            <Code>{parseAPIError(error)}</Code>
-          </Collapse>
-          <Button onClick={() => resetErrorBoundary()}>Try again</Button>
-        </Stack>
-      </AlertDescription>
-    </Alert>
   );
 };
 
@@ -209,7 +186,7 @@ const DTable = () => {
         />
       </Flex>
       {filteredEntries.length > 0 ? (
-        <>
+        <Box overflowX="scroll">
           <Table>
             <TableCaption>
               <VisuallyHidden>My ORCiD Works Table</VisuallyHidden>
@@ -243,7 +220,7 @@ const DTable = () => {
             </Tbody>
           </Table>
           <PaginationControls table={table} entries={filteredEntries} />
-        </>
+        </Box>
       ) : (
         <Center>
           <Heading as="h3" size="sm" py="4" data-testid="orcid-works-table-no-results">
@@ -375,7 +352,11 @@ const getStatusTag = (status: IOrcidProfileEntry['status']) => {
 
 const getTitle = (work: IOrcidProfileEntry) => {
   if (work.status !== 'not in ADS') {
-    return <SimpleLink href={`/abs/${encodeURIComponent(work.identifier)}`}>{work.title}</SimpleLink>;
+    return (
+      <SimpleLink href={`/abs/${encodeURIComponent(work.identifier)}`}>
+        <Text as={MathJax} dangerouslySetInnerHTML={{ __html: work.title }} />
+      </SimpleLink>
+    );
   }
   return work.title;
 };
@@ -407,10 +388,10 @@ const getSource = (sources: IOrcidProfileEntry['source']) => {
   return (
     <>
       {sources.map((rawSource) => {
-        // shorten the ADS source name if possible
+        // shorten the source name if possible
         const source =
           rawSource === ORCID_ADS_SOURCE_NAME ? (
-            <Tooltip label={rawSource}>{ORCID_ADS_SOURCE_NAME_SHORT}</Tooltip>
+            <Tooltip label={NASA_SCIX_BRAND_NAME}>{NASA_SCIX_BRAND_NAME_SHORT}</Tooltip>
           ) : (
             rawSource
           );
