@@ -1,7 +1,12 @@
 import { IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
 import {
+  Alert,
+  AlertDescription,
+  Button,
   Center,
   chakra,
+  Code,
+  Collapse,
   Heading,
   HStack,
   Icon,
@@ -18,11 +23,11 @@ import {
   Thead,
   Tooltip,
   Tr,
+  useDisclosure,
 } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components/Select';
 import { SimpleLink } from '@components/SimpleLink';
-import { useOrcid } from '@lib/orcid/useOrcid';
-import { useCallback, useMemo, useState } from 'react';
+import { Suspense, useCallback, useMemo, useState } from 'react';
 import { Actions } from './Actions';
 import {
   createColumnHelper,
@@ -35,22 +40,18 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { ChevronLeftIcon, ChevronRightIcon, TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
-import { formatDistanceToNow, intlFormat } from 'date-fns';
+import { intlFormat, intlFormatDistance } from 'date-fns';
 import { isNilOrEmpty, isObject } from 'ramda-adjunct';
 import { Flex } from '@chakra-ui/layout';
-import { ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from '@heroicons/react/24/solid';
-import { ORCID_ADS_SOURCE_NAME } from '@config';
+import { ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from '@heroicons/react/20/solid';
+import { ORCID_ADS_SOURCE_NAME, ORCID_ADS_SOURCE_NAME_SHORT } from '@config';
+import { QueryErrorResetBoundary } from 'react-query';
+import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
+import { parseAPIError } from '@utils';
+import { useOrcidProfile } from '@lib/orcid/useOrcidProfile';
+import { AxiosError } from 'axios';
 
 export const WorksTable = () => {
-  const { profile, isLoading } = useOrcid();
-
-  const entries = useMemo<IOrcidProfileEntry[]>(() => {
-    if (isObject(profile)) {
-      return Object.values(profile);
-    }
-    return [];
-  }, [profile]);
-
   return (
     <Stack flexGrow={{ base: 0, lg: 6 }}>
       <Heading as="h2" variant="pageTitle">
@@ -60,9 +61,41 @@ export const WorksTable = () => {
         Learn about using ORCiD with NASA SciX
       </SimpleLink>
       <Text>Claims take up to 24 hours to be indexed in SciX</Text>
-      {!isLoading && entries ? <DTable entries={entries} /> : null}
-      {isLoading ? <TableSkeleton /> : null}
+      <QueryErrorResetBoundary>
+        {({ reset }) => (
+          <ErrorBoundary fallbackRender={(props) => <ErrorAlert {...props} />} onReset={reset}>
+            <Suspense fallback={<TableSkeleton />}>
+              <DTable />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+      </QueryErrorResetBoundary>
     </Stack>
+  );
+};
+
+interface IErrorAlertProps extends FallbackProps {
+  error: AxiosError | Error | unknown;
+}
+const ErrorAlert = (props: IErrorAlertProps) => {
+  const { error, resetErrorBoundary } = props;
+  const { isOpen, onToggle } = useDisclosure();
+
+  return (
+    <Alert status="error">
+      <AlertDescription>
+        <Stack spacing="4" alignItems="flex-start">
+          <Text>There was an issue fetching your ORCiD profile, please try again.</Text>
+          <Button variant="link" onClick={onToggle}>
+            See error message
+          </Button>
+          <Collapse in={isOpen}>
+            <Code style={{ whiteSpace: 'normal' }}>{parseAPIError(error)}</Code>
+          </Collapse>
+          <Button onClick={() => resetErrorBoundary()}>Try again</Button>
+        </Stack>
+      </AlertDescription>
+    </Alert>
   );
 };
 
@@ -106,8 +139,16 @@ const filterEntries = (filter: SelectOption, entries: IOrcidProfileEntry[]) => {
   }
 };
 
-const DTable = (props: { entries: IOrcidProfileEntry[] }) => {
-  const { entries } = props;
+const DTable = () => {
+  const { profile } = useOrcidProfile({ suspense: true });
+
+  const entries = useMemo<IOrcidProfileEntry[]>(() => {
+    if (isObject(profile)) {
+      return Object.values(profile);
+    }
+    return [];
+  }, [profile]);
+
   const columnHelper = createColumnHelper<IOrcidProfileEntry>();
   const columns = useMemo(
     () => [
@@ -323,19 +364,44 @@ const getTitle = (work: IOrcidProfileEntry) => {
 
 const getUpdated = (date: string) => {
   const dateStr = new Date(date);
-  const formatted = formatDistanceToNow(dateStr);
-  return <Tooltip label={intlFormat(dateStr)}>{formatted}</Tooltip>;
+  const formatted = intlFormatDistance(dateStr, new Date());
+  return (
+    <Tooltip
+      label={intlFormat(dateStr, {
+        hour12: false,
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      })}
+    >
+      {formatted}
+    </Tooltip>
+  );
 };
 
 const getSource = (sources: IOrcidProfileEntry['source']) => {
   if (isNilOrEmpty(sources)) {
-    return null;
+    return 'Provided by publisher';
   }
   return (
     <>
-      {sources.map((source) => (
-        <p key={source}>{source}</p>
-      ))}
+      {sources.map((rawSource) => {
+        // shorten the ADS source name if possible
+        const source =
+          rawSource === ORCID_ADS_SOURCE_NAME ? (
+            <Tooltip label={rawSource}>{ORCID_ADS_SOURCE_NAME_SHORT}</Tooltip>
+          ) : (
+            rawSource
+          );
+        return (
+          <p key={rawSource} style={{ whiteSpace: 'nowrap' }}>
+            {source}
+          </p>
+        );
+      })}
     </>
   );
 };
