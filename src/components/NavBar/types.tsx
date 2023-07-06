@@ -1,4 +1,5 @@
 import { ReactElement } from 'react';
+import { MenuItemProps } from '@chakra-ui/menu';
 
 export enum ListType {
   ACCORDION = 'accordion',
@@ -10,4 +11,5 @@ export type ItemType = {
   label?: string | ReactElement;
   path?: string;
   disabled?: boolean;
+  menuItemProps?: Omit<MenuItemProps, 'onClick'>;
 };

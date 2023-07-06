@@ -1,9 +1,10 @@
 import { IADSApiSearchParams } from '@api';
-import { Link, LinkProps as ChackraLinkProps } from '@chakra-ui/react';
+import { Button, ButtonProps, Link, LinkProps as ChackraLinkProps } from '@chakra-ui/react';
 import { makeSearchParams } from '@utils';
 import NextLink, { LinkProps as NextLinkProps } from 'next/link';
 import PT from 'prop-types';
-import { ReactElement } from 'react';
+import { MouseEventHandler, ReactElement } from 'react';
+import { useRouter } from 'next/router';
 
 type LinkProps = ChackraLinkProps & Omit<NextLinkProps, 'as' | 'href' | 'passHref' | 'prefetch'>;
 export interface ISearchQueryLinkProps extends LinkProps {
@@ -14,28 +15,42 @@ const propTypes = {
   children: PT.element,
 };
 
+const getSearchUrl = (params: IADSApiSearchParams) => `/search?${makeSearchParams(params)}`;
+
 /**
  * Wrapper around next/link to create a simple link to the search page
  * This generates the URL based on the params passed in
  */
 export const SearchQueryLink = (props: ISearchQueryLinkProps): ReactElement => {
-  const { params, replace = false, scroll, shallow = false, locale, ...chakraLinkProps } = props;
-
+  const { params, replace = false, scroll, shallow = false, locale, ...linkProps } = props;
   return (
-    <NextLink
-      href={{
-        pathname: '/search',
-        search: makeSearchParams(params),
-      }}
+    <Link
+      as={NextLink}
+      href={getSearchUrl(params)}
       replace={replace}
       scroll={scroll}
       shallow={shallow}
       locale={locale}
       passHref
-      legacyBehavior>
-      <Link {...chakraLinkProps} />
-    </NextLink>
+      legacyBehavior
+      {...linkProps}
+    />
   );
+};
+
+export interface ISearchQueryLinkButtonProps extends Omit<ButtonProps, 'onClick'> {
+  params: IADSApiSearchParams;
+}
+export const SearchQueryLinkButton = (props: ISearchQueryLinkButtonProps) => {
+  const { params, ...buttonProps } = props;
+  const router = useRouter();
+
+  const handleClick: MouseEventHandler<HTMLButtonElement> = (e) => {
+    e.preventDefault();
+    void router.push(getSearchUrl(params));
+  };
+
+  return <Button type="button" onClick={handleClick} {...buttonProps} />;
 };
 
 SearchQueryLink.propTypes = propTypes;

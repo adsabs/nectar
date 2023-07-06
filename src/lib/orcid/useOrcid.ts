@@ -28,7 +28,6 @@ export const useOrcid = () => {
     { user },
     {
       enabled: isAuthenticated && isValidIOrcidUser(user),
-      onSettled: () => setError(null),
     },
   );
 
@@ -36,7 +35,6 @@ export const useOrcid = () => {
     { user, full: true, update: true },
     {
       enabled: isAuthenticated && isValidIOrcidUser(user),
-      onSettled: () => setError(null),
     },
   );
 
@@ -51,6 +49,9 @@ export const useOrcid = () => {
     if (profileState.error) {
       setError(parseAPIError(profileState.error));
     }
+    if (!nameState.error && !profileState.error) {
+      setError(null);
+    }
   }, [nameState.error, profileState.error]);
 
   const login = () => {
@@ -60,9 +61,10 @@ export const useOrcid = () => {
   };
 
   const logout = () => {
-    reset();
     if (router.pathname === '/user/orcid') {
-      void router.replace('/');
+      void router.replace('/').then(() => {
+        reset();
+      });
     }
   };
 

@@ -22,44 +22,88 @@ import {
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
-  Skeleton,
+  SkeletonText,
+  Stack,
   Text,
+  useBreakpointValue,
   useDisclosure,
   useEditableControls,
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { useOrcid } from '@lib/orcid/useOrcid';
 import { OrcidLogo } from '@components/images';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useOrcidPrefs } from '@lib/orcid/useOrcidPrefs';
-import { SearchQueryLink } from '@components';
+import { SearchQueryLink, SearchQueryLinkButton } from '@components';
 import { isValidIOrcidUser } from '@api/orcid/models';
 import { MagnifyingGlassIcon, PlusIcon, TrashIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { remove, update } from 'ramda';
 import { isNotNilOrEmpty } from 'ramda-adjunct';
 import { noop } from '@utils';
 import escapeHtml from 'escape-html';
+import { QueryErrorResetBoundary } from '@tanstack/react-query';
+import { ErrorBoundary } from 'react-error-boundary';
+import { getFallBackAlert } from '@components/Feedbacks/SuspendedAlert';
 
 export const UserSettings = () => {
+  const isMobile = useBreakpointValue({ base: true, lg: false });
+
+  const body = (
+    <>
+      <OrcidHeader />
+      <QueryErrorResetBoundary>
+        {({ reset }) => (
+          <ErrorBoundary
+            fallbackRender={getFallBackAlert({
+              status: 'warning',
+              label: 'Unable to load settings',
+            })}
+            onReset={reset}
+          >
+            <Suspense fallback={<UserSettingSkeleton />}>
+              <form onSubmit={noop}>
+                <FormControl mt={4}>
+                  <FormLabel>Academic Affiliation</FormLabel>
+                  <AffiliationEditor />
+                </FormControl>
+                <FormControl mt={4}>
+                  <FormLabel>Aliases</FormLabel>
+                  <AliasList />
+                </FormControl>
+              </form>
+            </Suspense>
+          </ErrorBoundary>
+        )}
+      </QueryErrorResetBoundary>
+      <Flex fontSize="sm" mt={10} justifyContent="end">
+        <LogoutButton />
+      </Flex>
+    </>
+  );
+
+  if (isMobile) {
+    return body;
+  }
+
   return (
     <Card h="fit-content">
-      <CardBody>
-        <OrcidHeader />
-        <form onSubmit={noop}>
-          <FormControl mt={4}>
-            <FormLabel>Academic Affiliation</FormLabel>
-            <AffiliationEditor />
-          </FormControl>
-          <FormControl mt={4}>
-            <FormLabel>Aliases</FormLabel>
-            <AliasList />
-          </FormControl>
-        </form>
-        <Flex fontSize="sm" mt={10} justifyContent="end">
-          <LogoutButton />
-        </Flex>
-      </CardBody>
+      <CardBody>{body}</CardBody>
     </Card>
+  );
+};
+
+const UserSettingSkeleton = () => {
+  return (
+    <>
+      <FormControl mt={4}>
+        <FormLabel>Academic Affiliation</FormLabel>
+        <SkeletonText />
+      </FormControl>
+      <FormControl mt={4}>
+        <FormLabel>Aliases</FormLabel>
+        <SkeletonText />
+      </FormControl>
+    </>
   );
 };
 
@@ -69,7 +113,7 @@ const MAX_AFF_INPUT_LENGTH = 100;
 const AliasEditableControls = (props: { name: string; index: number }) => {
   const { name, index } = props;
   const { getEditButtonProps, getSubmitButtonProps, getCancelButtonProps, isEditing } = useEditableControls();
-  const { preferences, setPreferences } = useOrcidPrefs();
+  const { preferences, setPreferences } = useOrcidPrefs({ getPrefsOptions: { suspense: true } });
   const { onOpen, onClose, isOpen } = useDisclosure();
   const initRef = useRef<HTMLButtonElement>(null);
 
@@ -187,7 +231,7 @@ const AffEditableControls = () => {
 };
 
 const AffiliationEditor = () => {
-  const { preferences, setPreferences, getPreferencesState } = useOrcidPrefs();
+  const { preferences, setPreferences } = useOrcidPrefs({ getPrefsOptions: { suspense: true } });
 
   const handleOnChange = useCallback(
     (affiliation: string) => {
@@ -205,28 +249,26 @@ const AffiliationEditor = () => {
   );
 
   return (
-    <Skeleton isLoaded={!getPreferencesState.isLoading}>
-      <Editable
-        defaultValue={preferences?.currentAffiliation}
-        isPreviewFocusable={false}
-        onSubmit={handleOnChange}
-        submitOnBlur
-      >
-        <Flex gap={4} alignItems="center">
-          <EditablePreview flex={1} />
-          <EditableInput maxLength={MAX_AFF_INPUT_LENGTH} />
-          <AffEditableControls />
-        </Flex>
-      </Editable>
-    </Skeleton>
+    <Editable
+      defaultValue={preferences?.currentAffiliation}
+      isPreviewFocusable={false}
+      onSubmit={handleOnChange}
+      submitOnBlur
+    >
+      <Flex gap={4} alignItems="center">
+        <EditablePreview flex={1} />
+        <EditableInput maxLength={MAX_AFF_INPUT_LENGTH} />
+        <AffEditableControls />
+      </Flex>
+    </Editable>
   );
 };
 
 const AliasList = () => {
-  const { preferences, getPreferencesState } = useOrcidPrefs();
+  const { preferences } = useOrcidPrefs({ getPrefsOptions: { suspense: true } });
 
   return (
-    <Skeleton isLoaded={!getPreferencesState.isLoading}>
+    <>
       {preferences?.nameVariations.length === 0 ? (
         <Box my={1}>
           <Text>No aliases found</Text>
@@ -237,14 +279,13 @@ const AliasList = () => {
           <AliasEditor name={name} index={index} />
         </Box>
       ))}
-
       <AddNewAliasButton />
-    </Skeleton>
+    </>
   );
 };
 
 const AddNewAliasButton = () => {
-  const { preferences, setPreferences } = useOrcidPrefs();
+  const { preferences, setPreferences } = useOrcidPrefs({ getPrefsOptions: { suspense: true } });
   const [name, setName] = useState('');
   const [addingNew, setAddingNew] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -324,7 +365,7 @@ const AddNewAliasButton = () => {
   const wrapName = (name: string) => `"${name}"`;
 
   return (
-    <ButtonGroup>
+    <Stack mt="2">
       <Button
         size="sm"
         onClick={() => setAddingNew(true)}
@@ -332,21 +373,26 @@ const AddNewAliasButton = () => {
         colorScheme="green"
         rightIcon={<Icon fontWeight="bold" fontSize="18" as={PlusIcon} />}
         aria-label="Add new alias"
+        w={['full', 'auto']}
       >
-        Add alias
+        Add new alias
       </Button>
-      <SearchQueryLink params={{ q: `author:(${preferences?.nameVariations.map(wrapName).join(' OR ')})` }}>
-        <Button size="sm" variant="outline" rightIcon={<Icon fontSize="14" as={MagnifyingGlassIcon} />}>
-          {preferences?.nameVariations.length > 1 ? 'Search by aliases' : 'Search by alias'}
-        </Button>
-      </SearchQueryLink>
-    </ButtonGroup>
+      <SearchQueryLinkButton
+        size="sm"
+        variant="outline"
+        w={['full', 'auto']}
+        rightIcon={<Icon fontSize="14" as={MagnifyingGlassIcon} />}
+        params={{ q: `author:(${preferences?.nameVariations.map(wrapName).join(' OR ')})` }}
+      >
+        {preferences?.nameVariations.length > 1 ? 'Search by aliases' : 'Search by alias'}
+      </SearchQueryLinkButton>
+    </Stack>
   );
 };
 
 const AliasEditor = (props: { name: string; index: number }) => {
   const { name, index } = props;
-  const { preferences, setPreferences } = useOrcidPrefs();
+  const { preferences, setPreferences } = useOrcidPrefs({ getPrefsOptions: { suspense: true } });
 
   const handleOnChange = useCallback(
     (name: string) => {
@@ -390,11 +436,9 @@ const OrcidHeader = () => {
   return (
     <>
       <Text fontWeight="bold">{user?.name}</Text>
-      <HStack spacing={1}>
-        <OrcidLogo className="flex-shrink-0 w-4 h-4" aria-hidden />
-        <SearchQueryLink params={{ q: `orcid:${user?.orcid}` }}>
-          <>{user?.orcid}</>
-        </SearchQueryLink>
+      <HStack spacing={2}>
+        <OrcidLogo fontSize="18px" aria-hidden />
+        <SearchQueryLink params={{ q: `orcid:${user?.orcid}` }}>{user?.orcid}</SearchQueryLink>
       </HStack>
     </>
   );
@@ -402,9 +446,10 @@ const OrcidHeader = () => {
 
 const LogoutButton = (props: ButtonProps) => {
   const { logout } = useOrcid();
+  const variant = useBreakpointValue({ base: 'solid', lg: 'link' });
 
   return (
-    <Button variant="link" onClick={logout} {...props}>
+    <Button variant={variant} w={['full', 'auto']} onClick={logout} {...props}>
       Logout from ORCiD
     </Button>
   );

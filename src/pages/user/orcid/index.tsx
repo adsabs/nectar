@@ -1,8 +1,23 @@
 import { NextPage } from 'next';
-import { Grid, GridItem, Spinner, useBreakpointValue } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerHeader,
+  Grid,
+  GridItem,
+  Spinner,
+  useBreakpointValue,
+  useDisclosure,
+} from '@chakra-ui/react';
 import { AppState, useStore } from '@store';
 import { useEffect } from 'react';
 import dynamic from 'next/dynamic';
+
+export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
 
 const UserSettings = dynamic(() => import('@components/Orcid/UserSettings').then((m) => m.UserSettings), {
   ssr: false,
@@ -18,8 +33,11 @@ const orcidModeActiveSelector = (state: AppState) => state.orcid.active;
 const OrcidPage: NextPage = () => {
   const setOrcidMode = useStore(setOrcidModeSelector);
   const orcidModeActive = useStore(orcidModeActiveSelector);
-
-  const mobile = useBreakpointValue({ base: true, lg: false });
+  const { isOpen, onClose, getButtonProps } = useDisclosure({
+    defaultIsOpen: false,
+    id: 'orcid-settings-sidebar',
+  });
+  const isMobile = useBreakpointValue({ base: true, lg: false });
 
   // if navigating to this page, turn on orcid mode
   useEffect(() => {
@@ -30,11 +48,32 @@ const OrcidPage: NextPage = () => {
 
   return (
     <>
-      {mobile ? (
-        <>
-          <UserSettings />
+      {isMobile ? (
+        <Box py="4">
+          <Drawer
+            isOpen={isOpen}
+            onClose={onClose}
+            autoFocus
+            placement="left"
+            returnFocusOnClose
+            trapFocus
+            onOverlayClick={onClose}
+            size="full"
+          >
+            <DrawerContent>
+              <DrawerHeader>
+                <DrawerCloseButton />
+              </DrawerHeader>
+              <DrawerBody>
+                <UserSettings />
+              </DrawerBody>
+            </DrawerContent>
+          </Drawer>
+          <Button display="inline" variant="outline" {...getButtonProps()}>
+            Show settings
+          </Button>
           <WorksTable />
-        </>
+        </Box>
       ) : (
         <Grid templateColumns="repeat(4, 1fr)" gap={6} my={{ base: 2, lg: 10 }}>
           <GridItem colSpan={1}>

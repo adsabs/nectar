@@ -8,6 +8,7 @@ import { Box } from '@chakra-ui/layout';
 import { useEffect } from 'react';
 import { AppState, useStore } from '@store';
 
+export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
 const setOrcidUserSelector = (state: AppState) => state.setOrcidUser;
 
 const OrcidPage: NextPage = () => {
