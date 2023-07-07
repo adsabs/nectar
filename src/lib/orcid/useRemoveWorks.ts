@@ -12,7 +12,7 @@ const isAuthenticatedSelector = (state: AppState) => state.orcid.isAuthenticated
 
 export const useRemoveWorks = (
   mutationOptions: OrcidMutationOptions<'removeWorks'>,
-  props?: {
+  options?: {
     getProfileOptions?: Parameters<typeof useOrcidGetProfile>[1];
     removeWorksOptions?: Parameters<typeof useOrcidRemoveWorks>[1];
   },
@@ -21,21 +21,23 @@ export const useRemoveWorks = (
   const user = useStore(orcidUserSelector);
   const isAuthenticated = useStore(isAuthenticatedSelector);
   const [idsToRemove, setIdsToRemove] = useState<string[]>([]);
-  const { getProfileOptions, removeWorksOptions } = props;
 
   const { data: profile } = useOrcidGetProfile(
     { user, full: true, update: true },
-    { enabled: isAuthenticated && isValidIOrcidUser(user) && idsToRemove.length > 0, ...getProfileOptions },
+    {
+      enabled: isAuthenticated && isValidIOrcidUser(user) && idsToRemove.length > 0,
+      ...options?.getProfileOptions,
+    },
   );
 
   const { mutate, ...result } = useOrcidRemoveWorks(
     { user },
     {
-      ...removeWorksOptions,
+      ...options?.removeWorksOptions,
       retry: false,
       onSettled: async (data, ...args) => {
-        if (typeof removeWorksOptions?.onSettled === 'function') {
-          removeWorksOptions?.onSettled(data, ...args);
+        if (typeof options?.removeWorksOptions?.onSettled === 'function') {
+          options?.removeWorksOptions?.onSettled(data, ...args);
         }
 
         const deleted = getFulfilled(data);
