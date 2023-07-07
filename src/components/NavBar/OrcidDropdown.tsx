@@ -4,9 +4,10 @@ import { MenuDropdown } from '@components/NavBar/MenuDropdown';
 import { useOrcid } from '@lib/orcid/useOrcid';
 import { isBrowser } from '@utils';
 import { OrcidInactiveLogo, OrcidLogo } from '@components';
-import { Flex, HStack, Switch, Text } from '@chakra-ui/react';
+import { Flex, HStack, Text } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import { AppState, useStore } from '@store';
+import { ToggleOffIcon, ToggleOnIcon } from '@components/icons/Toggle';
 
 interface IOrcidDropdownProps {
   type: ListType;
@@ -88,10 +89,14 @@ const OrcidLabel = (): ReactElement => {
 const OrcidToggle = () => {
   const active = useStore(orcidActiveSelector);
 
+  const handleClick: MouseEventHandler<HTMLLabelElement> = (e) => {
+    e.bubbles = true;
+  };
+
   return (
     <Flex w="full" justifyContent="space-between">
       <Text>Toggle ORCiD mode</Text>
-      <Switch isChecked={active} />
+      {active ? <ToggleOnIcon /> : <ToggleOffIcon />}
     </Flex>
   );
 };
