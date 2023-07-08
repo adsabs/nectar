@@ -108,7 +108,7 @@ const filterEntries = (filter: SelectOption, entries: IOrcidProfileEntry[]) => {
     case 'not_in_orcid':
       return entries.filter(({ status }) => status === null);
     case 'not_in_scix':
-      return entries.filter(({ source }) => !source.includes(ORCID_ADS_SOURCE_NAME));
+      return entries.filter(({ source }) => !source?.includes(ORCID_ADS_SOURCE_NAME));
     case 'pending':
       return entries.filter(({ status }) => status === 'pending');
     case 'verified':
@@ -186,7 +186,7 @@ const DTable = () => {
         />
       </Flex>
       {filteredEntries.length > 0 ? (
-        <Box overflowX="scroll">
+        <Box overflowX={['scroll', 'auto']}>
           <Table>
             <TableCaption>
               <VisuallyHidden>My ORCiD Works Table</VisuallyHidden>

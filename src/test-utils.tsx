@@ -10,6 +10,8 @@ import { isObject } from 'ramda-adjunct';
 import mockOrcidUser from '@mocks/responses/orcid/exchangeOAuthCode.json';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MathJaxProvider } from '@mathjax';
+import { ApiTargets } from '@api';
 
 /**
  * Attach listeners and return the mocks
@@ -38,6 +40,8 @@ export const createServerListenerMocks = (server: SetupServerApi) => {
   return { onRequest, onResponse, onMatch, onUnhandled, onRequestEnd, onResponseBypass, onUnhandleException };
 };
 
+export const apiHandlerRoute = (key: ApiTargets, path?: string) => `*${key}${typeof path === 'string' ? path : '*'}`;
+
 export const urls = pipe<[Mock], MockedRequest[], string[]>(
   path(['mock', 'calls']),
   map(path(['0', 'url', 'pathname'])),
@@ -49,13 +53,14 @@ interface IProviderOptions {
 }
 
 export const DefaultProviders = ({ children, options }: { children: ReactElement | ReactNode, options: IProviderOptions }) => {
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, cacheTime: 0, staleTime: 0 },  } });
 
   const store = isObject(options?.initialStore) ?
     options.initialStore :
     options?.storePreset ? getStateFromPreset(options.storePreset) : {};
 
   return (
+    <MathJaxProvider>
       <QueryClientProvider client={queryClient}>
         <StoreProvider createStore={useCreateStore(store)}>
           <Container maxW='container.lg'>
@@ -63,6 +68,7 @@ export const DefaultProviders = ({ children, options }: { children: ReactElement
           </Container>
         </StoreProvider>
       </QueryClientProvider>
+      </MathJaxProvider>
   );
 };
 

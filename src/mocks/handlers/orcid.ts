@@ -11,13 +11,13 @@ import { IOrcidProfile, IOrcidResponse } from '@api/orcid/types';
 import { path } from 'ramda';
 import { api } from '@mocks/mockHelpers';
 
-const route = (key: ApiTargets, path?: string) => `*${key}${typeof path === 'string' ? path : '*'}`;
 let profile: IOrcidProfile = orcidProfileResponse as IOrcidProfile;
 const getId = path(['external-ids', 'external-id', '0', 'external-id-value']);
 const knownEntry = profile['2022BAAS...54b.022A'];
+const apiHandlerRoute = (key: ApiTargets, path?: string) => `*${key}${typeof path === 'string' ? path : '*'}`;
 
 export const orcidHandlers = [
-  rest.post(route(ApiTargets.ORCID_WORKS), async (req, res, ctx) => {
+  rest.post(apiHandlerRoute(ApiTargets.ORCID_WORKS), async (req, res, ctx) => {
     const { bulk: works } = await req.json<IOrcidResponse['addWorks']>();
 
     const entries = works.map(({ work }) => {
@@ -29,7 +29,7 @@ export const orcidHandlers = [
 
     return res(ctx.json(orcidWorksPostResponse));
   }),
-  rest.delete<null, { putcode: string }>(route(ApiTargets.ORCID_WORKS, '/:putcode'), (req, res, ctx) => {
+  rest.delete<null, { putcode: string }>(apiHandlerRoute(ApiTargets.ORCID_WORKS, '/:putcode'), (req, res, ctx) => {
     const putcode = Number(req.params.putcode);
 
     let found = null;
@@ -45,13 +45,15 @@ export const orcidHandlers = [
 
     return res(ctx.json({}));
   }),
-  rest.put(route(ApiTargets.ORCID_WORKS), (req, res, ctx) => res(ctx.json(orcidWorksPutResponse))),
-  rest.get(route(ApiTargets.ORCID_WORKS), (req, res, ctx) => res(ctx.json(orcidWorksGetResponse))),
-  rest.get(route(ApiTargets.ORCID_PROFILE), (req, res, ctx) => res(ctx.json(profile))),
-  rest.get(route(ApiTargets.ORCID_NAME), (req, res, ctx) => res(ctx.json(orcidNameResponse))),
-  rest.get(route(ApiTargets.ORCID_EXCHANGE_TOKEN), (req, res, ctx) => res(ctx.json(orcidExchangeTokenResponse))),
-  rest.get(route(ApiTargets.ORCID_PREFERENCES), (req, res, ctx) => res(ctx.json(orcidPreferencesResponse))),
+  rest.put(apiHandlerRoute(ApiTargets.ORCID_WORKS), (req, res, ctx) => res(ctx.json(orcidWorksPutResponse))),
+  rest.get(apiHandlerRoute(ApiTargets.ORCID_WORKS), (req, res, ctx) => res(ctx.json(orcidWorksGetResponse))),
+  rest.get(apiHandlerRoute(ApiTargets.ORCID_PROFILE), (req, res, ctx) => res(ctx.json(profile))),
+  rest.get(apiHandlerRoute(ApiTargets.ORCID_NAME), (req, res, ctx) => res(ctx.json(orcidNameResponse))),
+  rest.get(apiHandlerRoute(ApiTargets.ORCID_EXCHANGE_TOKEN), (req, res, ctx) =>
+    res(ctx.json(orcidExchangeTokenResponse)),
+  ),
+  rest.get(apiHandlerRoute(ApiTargets.ORCID_PREFERENCES), (req, res, ctx) => res(ctx.json(orcidPreferencesResponse))),
 
   // passes incoming preferences as response
-  rest.post(route(ApiTargets.ORCID_PREFERENCES), async (req, res, ctx) => res(ctx.json(await req.json()))),
+  rest.post(apiHandlerRoute(ApiTargets.ORCID_PREFERENCES), async (req, res, ctx) => res(ctx.json(await req.json()))),
 ];

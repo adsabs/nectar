@@ -43,7 +43,6 @@ describe('normalizeSolrSort', () => {
 });
 
 describe('parseAPIError', () => {
-
   const defaultMessage = 'Unknown Server Error';
   const testReq = () => api.request({ method: 'GET', url: '/test' });
 
@@ -77,7 +76,7 @@ describe('parseAPIError', () => {
     try {
       throw new Error('foo');
     } catch (e) {
-      expect(parseAPIError(e)).toEqual(defaultMessage);
+      expect(parseAPIError(e)).toEqual('foo');
     }
   });
 
@@ -85,8 +84,8 @@ describe('parseAPIError', () => {
   test.concurrent.each<[Parameters<typeof parseAPIError>, ReturnType<typeof parseAPIError>]>([
     [['test'], defaultMessage],
     [[new Error()], defaultMessage],
-    [[new Error('test')], defaultMessage],
+    [[new Error('test')], 'test'],
     [[undefined], defaultMessage],
-    [['test', { defaultMessage: 'TestError' }], 'TestError']
-  ])('%s', (args, expected) => expect(parseAPIError(...args)).toEqual(expected))
+    [['test', { defaultMessage: 'TestError' }], 'TestError'],
+  ])('%s', (args, expected) => expect(parseAPIError(...args)).toEqual(expected));
 });
