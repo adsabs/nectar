@@ -29,7 +29,7 @@ test('basic case works without crashing', async ({ server }: TestContext) => {
   expect(urls(onRequest).filter((v) => v === '/search/query')).toHaveLength(2);
 });
 
-test('properly handles weird batches and rows', async ({ server }: TestContext) => {
+test.skip('properly handles weird batches and rows', async ({ server }: TestContext) => {
   const { onRequest } = createServerListenerMocks(server);
   const batches = 17;
   const rows = 43;

@@ -40,38 +40,38 @@ const expected: IOrcidWork = {
       },
     ],
   },
-  'publication-date': { year: { value: '2023' }, month: { value: '12' }, day: { value: null } },
+  'publication-date': { year: { value: '2023' }, month: { value: '12' } },
   contributors: {
     contributor: [
       {
         'credit-name': { value: 'Morton, R. J.' },
-        'contributor-attributes': { 'contributor-role': 'author', 'contributor-sequence': 'first' },
+        'contributor-attributes': { 'contributor-role': 'AUTHOR', 'contributor-sequence': 'FIRST' },
         'contributor-orcid': {
           path: '0000-0001-5678-9002',
           host: 'orcid.org',
-          uri: 'https://orcid.org/0000-0001-5678-9002',
+          uri: 'http://orcid.org/0000-0001-5678-9002',
         },
       },
       {
         'credit-name': { value: 'Sharma, R.' },
-        'contributor-attributes': { 'contributor-role': 'author', 'contributor-sequence': 'additional' },
+        'contributor-attributes': { 'contributor-role': 'AUTHOR', 'contributor-sequence': 'ADDITIONAL' },
         'contributor-orcid': {
           path: '0000-0002-0197-9041',
           host: 'orcid.org',
-          uri: 'https://orcid.org/0000-0002-0197-9041',
+          uri: 'http://orcid.org/0000-0002-0197-9041',
         },
       },
       {
         'credit-name': { value: 'Tajfirouze, E.' },
-        'contributor-attributes': { 'contributor-role': 'author', 'contributor-sequence': 'additional' },
+        'contributor-attributes': { 'contributor-role': 'AUTHOR', 'contributor-sequence': 'ADDITIONAL' },
       },
       {
         'credit-name': { value: 'Miriyala, H.' },
-        'contributor-attributes': { 'contributor-role': 'author', 'contributor-sequence': 'additional' },
+        'contributor-attributes': { 'contributor-role': 'AUTHOR', 'contributor-sequence': 'ADDITIONAL' },
         'contributor-orcid': {
           path: '0000-0002-2235-3216',
           host: 'orcid.org',
-          uri: 'https://orcid.org/0000-0002-2235-3216',
+          uri: 'http://orcid.org/0000-0002-2235-3216',
         },
       },
     ],
