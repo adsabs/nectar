@@ -89,10 +89,6 @@ const OrcidLabel = (): ReactElement => {
 const OrcidToggle = () => {
   const active = useStore(orcidActiveSelector);
 
-  const handleClick: MouseEventHandler<HTMLLabelElement> = (e) => {
-    e.bubbles = true;
-  };
-
   return (
     <Flex w="full" justifyContent="space-between">
       <Text>Toggle ORCiD mode</Text>
