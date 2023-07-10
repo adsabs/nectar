@@ -2,7 +2,6 @@ import { IADSApiSearchParams } from '@api';
 import { Button, ButtonProps, Link, LinkProps as ChackraLinkProps } from '@chakra-ui/react';
 import { makeSearchParams } from '@utils';
 import NextLink, { LinkProps as NextLinkProps } from 'next/link';
-import PT from 'prop-types';
 import { MouseEventHandler, ReactElement } from 'react';
 import { useRouter } from 'next/router';
 
@@ -10,10 +9,6 @@ type LinkProps = ChackraLinkProps & Omit<NextLinkProps, 'as' | 'href' | 'passHre
 export interface ISearchQueryLinkProps extends LinkProps {
   params: IADSApiSearchParams;
 }
-
-const propTypes = {
-  children: PT.element,
-};
 
 const getSearchUrl = (params: IADSApiSearchParams) => `/search?${makeSearchParams(params)}`;
 
@@ -52,5 +47,3 @@ export const SearchQueryLinkButton = (props: ISearchQueryLinkButtonProps) => {
 
   return <Button type="button" onClick={handleClick} {...buttonProps} />;
 };
-
-SearchQueryLink.propTypes = propTypes;

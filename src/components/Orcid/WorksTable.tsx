@@ -24,7 +24,7 @@ import {
 } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components/Select';
 import { SimpleLink } from '@components/SimpleLink';
-import { Suspense, useCallback, useMemo, useState } from 'react';
+import { ReactElement, Suspense, useCallback, useMemo, useState } from 'react';
 import { Actions } from './Actions';
 import {
   createColumnHelper,
@@ -45,8 +45,8 @@ import { NASA_SCIX_BRAND_NAME, NASA_SCIX_BRAND_NAME_SHORT, ORCID_ADS_SOURCE_NAME
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useOrcidProfile } from '@lib/orcid/useOrcidProfile';
-import { MathJax } from 'better-react-mathjax';
 import { getFallBackAlert } from '@components/Feedbacks/SuspendedAlert';
+import DOMPurify from 'dompurify';
 
 export const WorksTable = () => {
   return (
@@ -81,11 +81,16 @@ export const WorksTable = () => {
 const TableSkeleton = () => {
   return (
     <Stack>
-      {Array(10)
-        .fill(0)
-        .map((_, i) => (
-          <Skeleton key={i} h="30px" />
-        ))}
+      <Skeleton h="30px" />
+      <Skeleton h="30px" />
+      <Skeleton h="30px" />
+      <Skeleton h="30px" />
+      <Skeleton h="30px" />
+      <Skeleton h="30px" />
+      <Skeleton h="30px" />
+      <Skeleton h="30px" />
+      <Skeleton h="30px" />
+      <Skeleton h="30px" />
     </Stack>
   );
 };
@@ -108,7 +113,7 @@ const filterEntries = (filter: SelectOption, entries: IOrcidProfileEntry[]) => {
     case 'not_in_orcid':
       return entries.filter(({ status }) => status === null);
     case 'not_in_scix':
-      return entries.filter(({ source }) => !source?.includes(ORCID_ADS_SOURCE_NAME));
+      return entries.filter(({ status }) => status === 'not in ADS');
     case 'pending':
       return entries.filter(({ status }) => status === 'pending');
     case 'verified':
@@ -131,8 +136,8 @@ const DTable = () => {
   const entries = useMemo<IOrcidProfileEntry[]>(() => (isObject(profile) ? Object.values(profile) : []), [profile]);
 
   const columnHelper = createColumnHelper<IOrcidProfileEntry>();
-  const columns = useMemo(
-    () => [
+  const columns = useMemo(() => {
+    return [
       columnHelper.accessor('title', {
         cell: (info) => getTitle(info.row.original),
         header: 'Title',
@@ -155,9 +160,8 @@ const DTable = () => {
         header: 'Actions',
         enableSorting: false,
       }),
-    ],
-    [columnHelper],
-  );
+    ];
+  }, [columnHelper]);
 
   const [sorting, setSorting] = useState<SortingState>([{ id: 'updated', desc: true }]);
   const [filter, setFilter] = useState<SelectOption>(filterOptions[0]);
@@ -350,15 +354,15 @@ const getStatusTag = (status: IOrcidProfileEntry['status']) => {
   }
 };
 
-const getTitle = (work: IOrcidProfileEntry) => {
+const getTitle = (work: IOrcidProfileEntry): ReactElement => {
   if (work.status !== 'not in ADS') {
     return (
       <SimpleLink href={`/abs/${encodeURIComponent(work.identifier)}`}>
-        <Text as={MathJax} dangerouslySetInnerHTML={{ __html: work.title }} />
+        <Text dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(work.title) }} />
       </SimpleLink>
     );
   }
-  return work.title;
+  return <Text>{work.title}</Text>;
 };
 
 const getUpdated = (date: string) => {

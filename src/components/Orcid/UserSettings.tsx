@@ -384,7 +384,7 @@ const AddNewAliasButton = () => {
         rightIcon={<Icon fontSize="14" as={MagnifyingGlassIcon} />}
         params={{ q: `author:(${preferences?.nameVariations.map(wrapName).join(' OR ')})` }}
       >
-        {preferences?.nameVariations.length > 1 ? 'Search by aliases' : 'Search by alias'}
+        <>{preferences?.nameVariations.length > 1 ? 'Search by aliases' : 'Search by alias'}</>
       </SearchQueryLinkButton>
     </Stack>
   );
