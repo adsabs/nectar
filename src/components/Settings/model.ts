@@ -1,11 +1,11 @@
 import {
-  Database,
   ExportApiJournalFormat,
   ExternalLinkAction,
   IADSApiUserDataResponse,
   JournalFormatName,
   UserDataKeys,
 } from '@api';
+import { Database } from '@api/vault';
 import { APP_DEFAULTS } from '@config';
 
 export const DEFAULT_USER_DATA: IADSApiUserDataResponse = {

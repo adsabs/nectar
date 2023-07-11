@@ -1,6 +1,7 @@
+import { Database } from '@api/search';
+
 export interface IAuthor {
-  last: string;
-  first: string;
+  name: string;
   aff: string;
   orcid: string;
 }
@@ -27,7 +28,7 @@ export type FormValues = {
   name: string;
   email: string;
   bibcode: string;
-  collection: Collection[];
+  collection: Database[];
   title: string;
   noAuthors: boolean;
   authors: IAuthor[];
@@ -39,9 +40,3 @@ export type FormValues = {
   references: IReference[];
   comments: string;
 };
-
-export enum Collection {
-  astronomy = 'astronomy',
-  physics = 'physics',
-  general = 'general',
-}

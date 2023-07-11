@@ -5,3 +5,4 @@ export * from './useGetAbstractDoc';
 export * from './useGetAbstractParams';
 export * from './useIsClient';
 export * from './useMetrics';
+export * from './useGetResourceLinks';

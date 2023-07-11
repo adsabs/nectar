@@ -20,25 +20,29 @@ export const JsonPreviewModal = ({
   data: FormValues;
 }) => {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="3xl">
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>JSON Preview</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <Text fontWeight="bold" mb={2}>
-            Submitter:
-          </Text>
-          <Text>{data.name}</Text>
-          <Text>{data.email}</Text>
-          <Box mt={5}>
-            <Text fontWeight="bold" mb={2}>
-              Record:
-            </Text>
-            <pre className="whitespace-pre-wrap">{JSON.stringify(data, null, 2)}</pre>
-          </Box>
-        </ModalBody>
-      </ModalContent>
-    </Modal>
+    <>
+      {data && (
+        <Modal isOpen={isOpen} onClose={onClose} size="3xl">
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>JSON Preview</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <Text fontWeight="bold" mb={2}>
+                Submitter:
+              </Text>
+              <Text>{data.name}</Text>
+              <Text>{data.email}</Text>
+              <Box mt={5}>
+                <Text fontWeight="bold" mb={2}>
+                  Record:
+                </Text>
+                <pre className="whitespace-pre-wrap">{JSON.stringify(data, null, 2)}</pre>
+              </Box>
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+      )}
+    </>
   );
 };

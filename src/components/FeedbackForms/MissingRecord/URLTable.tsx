@@ -1,9 +1,10 @@
 import { CheckIcon, CloseIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons';
-import { Tr, Td, Input, IconButton, TableContainer, Table, Thead, Th, Tbody, HStack } from '@chakra-ui/react';
+import { Tr, Td, Input, IconButton, Table, Thead, Th, Tbody, HStack } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components/Select';
 import { useIsClient } from '@lib';
 import { noop } from '@utils';
-import { useState, ChangeEvent, MouseEvent } from 'react';
+import { useState, ChangeEvent, MouseEvent, useRef } from 'react';
+import { SelectInstance } from 'react-select';
 import { IUrl, UrlType, urlTypes } from './types';
 
 const typeOptions: SelectOption<UrlType>[] = urlTypes.map((t) => ({
@@ -35,6 +36,8 @@ export const URLTable = ({
     index: -1,
     url: null,
   });
+
+  const newURLTypeInputRef = useRef<never>();
 
   const isValidUrl = ({ url, type }: IUrl) => {
     if (!url || !type) {
@@ -69,6 +72,7 @@ export const URLTable = ({
     onAddUrl(newUrl);
     // clear input fields
     setNewUrl(null);
+    (newURLTypeInputRef.current as SelectInstance).focus();
   };
 
   // Changes to fields for existing url
@@ -116,6 +120,7 @@ export const URLTable = ({
             stylesTheme="default.sm"
             onChange={handleNewTypeChange}
             menuPortalTarget={document.body}
+            ref={newURLTypeInputRef}
           />
         )}
       </Td>
@@ -135,90 +140,89 @@ export const URLTable = ({
     </Tr>
   );
   return (
-    <TableContainer>
-      <Table size="sm">
-        <Thead>
-          <Th aria-label="index" w="4%"></Th>
-          <Th w="30%">Type</Th>
-          <Th>URL</Th>
-          {editable && <Th w="10%">Actions</Th>}
-        </Thead>
-        <Tbody>
-          {urls.map((a, index) =>
-            editUrl.index === index ? (
-              <Tr key={`url-${index}`}>
-                <Td>{index + 1}</Td>
-                <Td>
-                  <Select<SelectOption<UrlType>>
-                    options={typeOptions}
-                    value={editUrl?.url?.type ? typeOptions.find((o) => o.id === editUrl.url.type) : null}
-                    label="url type"
-                    hideLabel
-                    id="url-type-edit"
-                    stylesTheme="default.sm"
-                    onChange={handleEditTypeChange}
-                    menuPortalTarget={document.body}
-                  />
-                </Td>
-                <Td>
-                  <Input size="sm" onChange={handleEditUrlChange} value={editUrl.url.url} />
-                </Td>
+    <Table size="sm">
+      <Thead>
+        <Th aria-label="index" w="4%"></Th>
+        <Th w="30%">Type</Th>
+        <Th>URL</Th>
+        {editable && <Th w="10%">Actions</Th>}
+      </Thead>
+      <Tbody>
+        {urls.map((a, index) =>
+          editUrl.index === index ? (
+            <Tr key={`url-${index}`}>
+              <Td>{index + 1}</Td>
+              <Td>
+                <Select<SelectOption<UrlType>>
+                  options={typeOptions}
+                  value={editUrl?.url?.type ? typeOptions.find((o) => o.id === editUrl.url.type) : null}
+                  label="url type"
+                  hideLabel
+                  id="url-type-edit"
+                  stylesTheme="default.sm"
+                  onChange={handleEditTypeChange}
+                  menuPortalTarget={document.body}
+                  autoFocus
+                />
+              </Td>
+              <Td>
+                <Input size="sm" onChange={handleEditUrlChange} value={editUrl.url.url} />
+              </Td>
 
+              <Td>
+                <HStack>
+                  <IconButton
+                    aria-label="apply"
+                    icon={<CheckIcon />}
+                    variant="outline"
+                    colorScheme="green"
+                    data-index={index}
+                    onClick={handleApplyEditUrl}
+                    isDisabled={!editUrlisValid}
+                  />
+                  <IconButton
+                    aria-label="cancel"
+                    icon={<CloseIcon />}
+                    variant="outline"
+                    colorScheme="red"
+                    data-index={index}
+                    onClick={handleCancelEditUrl}
+                  />
+                </HStack>
+              </Td>
+            </Tr>
+          ) : (
+            <Tr key={`url-${index}`}>
+              <Td>{index + 1}</Td>
+              <Td>{a.type}</Td>
+              <Td>{a.url}</Td>
+              {editable && (
                 <Td>
                   <HStack>
                     <IconButton
-                      aria-label="apply"
-                      icon={<CheckIcon />}
+                      aria-label="edit"
+                      icon={<EditIcon />}
                       variant="outline"
-                      colorScheme="green"
+                      colorScheme="blue"
                       data-index={index}
-                      onClick={handleApplyEditUrl}
-                      isDisabled={!editUrlisValid}
+                      onClick={handleEditUrl}
                     />
                     <IconButton
-                      aria-label="cancel"
-                      icon={<CloseIcon />}
+                      aria-label="delete"
+                      icon={<DeleteIcon />}
                       variant="outline"
                       colorScheme="red"
                       data-index={index}
-                      onClick={handleCancelEditUrl}
+                      onClick={handleDeleteUrl}
                     />
                   </HStack>
                 </Td>
-              </Tr>
-            ) : (
-              <Tr key={`url-${index}`}>
-                <Td>{index + 1}</Td>
-                <Td>{a.type}</Td>
-                <Td>{a.url}</Td>
-                {editable && (
-                  <Td>
-                    <HStack>
-                      <IconButton
-                        aria-label="edit"
-                        icon={<EditIcon />}
-                        variant="outline"
-                        colorScheme="blue"
-                        data-index={index}
-                        onClick={handleEditUrl}
-                      />
-                      <IconButton
-                        aria-label="delete"
-                        icon={<DeleteIcon />}
-                        variant="outline"
-                        colorScheme="red"
-                        data-index={index}
-                        onClick={handleDeleteUrl}
-                      />
-                    </HStack>
-                  </Td>
-                )}
-              </Tr>
-            ),
-          )}
-          {editable && newUrlTableRow}
-        </Tbody>
-      </Table>
-    </TableContainer>
+              )}
+            </Tr>
+          ),
+        )}
+        {editable && newUrlTableRow}
+      </Tbody>
+    </Table>
   );
 };

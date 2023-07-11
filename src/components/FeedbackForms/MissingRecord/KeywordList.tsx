@@ -1,5 +1,5 @@
 import { SmallCloseIcon } from '@chakra-ui/icons';
-import { Button, Flex, HStack, Input, Stack, Tag, TagLabel, TagRightIcon } from '@chakra-ui/react';
+import { Button, Flex, Input, Stack, Tag, TagLabel, TagRightIcon } from '@chakra-ui/react';
 import { ChangeEvent, useState } from 'react';
 
 export const KeywordList = ({
@@ -27,14 +27,14 @@ export const KeywordList = ({
 
   return (
     <Stack direction="column">
-      <HStack>
+      <Flex direction="row" wrap="wrap" justifyContent="start" rowGap={2}>
         {keywords.map((kw, index) => (
-          <Tag key={`keyword-${kw}`}>
+          <Tag key={`keyword-${kw}`} mr={2}>
             <TagLabel>{kw}</TagLabel>
             <TagRightIcon as={SmallCloseIcon} onClick={() => onDeleteKeyword(index)} cursor="pointer" />
           </Tag>
         ))}
-      </HStack>
+      </Flex>
       <Flex direction="row">
         <Input value={newKeyword} onChange={handleNewKeywordChange} />
         <Button

@@ -1,7 +1,7 @@
 import { CheckIcon, CloseIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons';
-import { Tr, Td, Input, IconButton, TableContainer, Table, Thead, Th, Tbody, HStack } from '@chakra-ui/react';
+import { Tr, Td, Input, IconButton, Table, Thead, Th, Tbody, HStack } from '@chakra-ui/react';
 import { noop } from '@utils';
-import { useState, ChangeEvent, MouseEvent } from 'react';
+import { useState, ChangeEvent, MouseEvent, useRef } from 'react';
 import { IAuthor } from './types';
 
 export const AuthorsTable = ({
@@ -26,22 +26,20 @@ export const AuthorsTable = ({
     author: null,
   });
 
-  const isValidAuthor = ({ last, first }: IAuthor) => {
-    return typeof last === 'string' && last.length > 1 && typeof first === 'string' && first.length > 1;
+  const newAuthorNameRef = useRef<HTMLInputElement>();
+
+  const isValidAuthor = (author: IAuthor) => {
+    return author && typeof author.name === 'string' && author.name.length > 1;
   };
 
-  const newAuthorIsValid = !!newAuthor && isValidAuthor(newAuthor);
+  const newAuthorIsValid = isValidAuthor(newAuthor);
 
-  const editAuthorIsValid = !!editAuthor.author && isValidAuthor(editAuthor.author);
+  const editAuthorIsValid = isValidAuthor(editAuthor.author);
 
   // Changes to fields for adding new author
 
-  const handleNewLastNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setNewAuthor((prev) => ({ ...prev, last: e.target.value }));
-  };
-
-  const handleNewFirstNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setNewAuthor((prev) => ({ ...prev, first: e.target.value }));
+  const handleNewNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setNewAuthor((prev) => ({ ...prev, name: e.target.value }));
   };
 
   const handleNewAffChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -56,6 +54,7 @@ export const AuthorsTable = ({
     onAddAuthor(newAuthor);
     // clear input fields
     setNewAuthor(null);
+    newAuthorNameRef.current.focus();
   };
 
   // Changes to fields for existing authors
@@ -65,12 +64,8 @@ export const AuthorsTable = ({
     setEditAuthor({ index, author: authors[index] });
   };
 
-  const handleEditLastNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEditAuthor((prev) => ({ index: prev.index, author: { ...prev.author, last: e.target.value } }));
-  };
-
-  const handleEditFirstNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEditAuthor((prev) => ({ index: prev.index, author: { ...prev.author, first: e.target.value } }));
+  const handleEditNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setEditAuthor((prev) => ({ index: prev.index, author: { ...prev.author, name: e.target.value } }));
   };
 
   const handleEditAffChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -101,10 +96,7 @@ export const AuthorsTable = ({
     <Tr>
       <Td color="gray.200">{authors.length + 1}</Td>
       <Td>
-        <Input size="sm" onChange={handleNewLastNameChange} value={newAuthor?.last ?? ''} />
-      </Td>
-      <Td>
-        <Input size="sm" onChange={handleNewFirstNameChange} value={newAuthor?.first ?? ''} />
+        <Input size="sm" onChange={handleNewNameChange} value={newAuthor?.name ?? ''} ref={newAuthorNameRef} />
       </Td>
       <Td>
         <Input size="sm" onChange={handleNewAffChange} value={newAuthor?.aff ?? ''} />
@@ -125,90 +117,83 @@ export const AuthorsTable = ({
     </Tr>
   );
   return (
-    <TableContainer>
-      <Table size="sm" variant="simple">
-        <Thead>
-          <Th aria-label="index" w="4%"></Th>
-          <Th>Last Name</Th>
-          <Th>First Name</Th>
-          <Th>Affiliation</Th>
-          <Th>ORCiD</Th>
-          {editable && <Th w="10%">Actions</Th>}
-        </Thead>
-        <Tbody>
-          {authors.map((a, index) =>
-            editAuthor.index === index ? (
-              <Tr key={`author-${index}`}>
-                <Td>{index + 1}</Td>
-                <Td>
-                  <Input size="sm" onChange={handleEditLastNameChange} value={editAuthor.author.last} />
-                </Td>
-                <Td>
-                  <Input size="sm" onChange={handleEditFirstNameChange} value={editAuthor.author.first} />
-                </Td>
-                <Td>
-                  <Input size="sm" onChange={handleEditAffChange} value={editAuthor.author.aff} />
-                </Td>
-                <Td>
-                  <Input size="sm" onChange={handleEditOrcidChange} value={editAuthor.author.orcid} />
-                </Td>
+    <Table size="sm" variant="simple">
+      <Thead>
+        <Th aria-label="index" w="4%"></Th>
+        <Th>Name</Th>
+        <Th>Affiliation</Th>
+        <Th>ORCiD</Th>
+        {editable && <Th w="10%">Actions</Th>}
+      </Thead>
+      <Tbody>
+        {authors.map((a, index) =>
+          editAuthor.index === index ? (
+            <Tr key={`author-${index}`}>
+              <Td>{index + 1}</Td>
+              <Td>
+                <Input size="sm" onChange={handleEditNameChange} value={editAuthor.author.name} autoFocus />
+              </Td>
+              <Td>
+                <Input size="sm" onChange={handleEditAffChange} value={editAuthor.author.aff} />
+              </Td>
+              <Td>
+                <Input size="sm" onChange={handleEditOrcidChange} value={editAuthor.author.orcid} />
+              </Td>
+              <Td>
+                <HStack>
+                  <IconButton
+                    aria-label="apply"
+                    icon={<CheckIcon />}
+                    variant="outline"
+                    colorScheme="green"
+                    data-index={index}
+                    onClick={handleApplyEditAuthor}
+                    isDisabled={!editAuthorIsValid}
+                  />
+                  <IconButton
+                    aria-label="cancel"
+                    icon={<CloseIcon />}
+                    variant="outline"
+                    colorScheme="red"
+                    data-index={index}
+                    onClick={handleCancelEditAuthor}
+                  />
+                </HStack>
+              </Td>
+            </Tr>
+          ) : (
+            <Tr key={`author-${index}`}>
+              <Td>{index + 1}</Td>
+              <Td>{a.name}</Td>
+              <Td>{a.aff}</Td>
+              <Td>{a.orcid}</Td>
+              {editable && (
                 <Td>
                   <HStack>
                     <IconButton
-                      aria-label="apply"
-                      icon={<CheckIcon />}
+                      aria-label="edit"
+                      icon={<EditIcon />}
                       variant="outline"
-                      colorScheme="green"
+                      colorScheme="blue"
                       data-index={index}
-                      onClick={handleApplyEditAuthor}
-                      isDisabled={!editAuthorIsValid}
+                      onClick={handleEditAuthor}
                     />
                     <IconButton
-                      aria-label="cancel"
-                      icon={<CloseIcon />}
+                      aria-label="delete"
+                      icon={<DeleteIcon />}
                       variant="outline"
                       colorScheme="red"
                       data-index={index}
-                      onClick={handleCancelEditAuthor}
+                      onClick={handleDeleteAuthor}
                     />
                   </HStack>
                 </Td>
-              </Tr>
-            ) : (
-              <Tr key={`author-${index}`}>
-                <Td>{index + 1}</Td>
-                <Td>{a.last}</Td>
-                <Td>{a.first}</Td>
-                <Td>{a.aff}</Td>
-                <Td>{a.orcid}</Td>
-                {editable && (
-                  <Td>
-                    <HStack>
-                      <IconButton
-                        aria-label="edit"
-                        icon={<EditIcon />}
-                        variant="outline"
-                        colorScheme="blue"
-                        data-index={index}
-                        onClick={handleEditAuthor}
-                      />
-                      <IconButton
-                        aria-label="delete"
-                        icon={<DeleteIcon />}
-                        variant="outline"
-                        colorScheme="red"
-                        data-index={index}
-                        onClick={handleDeleteAuthor}
-                      />
-                    </HStack>
-                  </Td>
-                )}
-              </Tr>
-            ),
-          )}
-          {editable && newAuthorTableRow}
-        </Tbody>
-      </Table>
-    </TableContainer>
+              )}
+            </Tr>
+          ),
+        )}
+        {editable && newAuthorTableRow}
+      </Tbody>
+    </Table>
   );
 };
