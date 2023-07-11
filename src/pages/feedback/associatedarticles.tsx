@@ -4,6 +4,8 @@ import { FeedbackAlert } from '@components/FeedbackForms';
 import { NextPage } from 'next';
 import { useMemo, useState } from 'react';
 
+export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
+
 const AssociatedArticles: NextPage = () => {
   const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({
     status: 'success',

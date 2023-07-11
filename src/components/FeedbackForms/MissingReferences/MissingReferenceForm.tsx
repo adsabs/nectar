@@ -14,7 +14,7 @@ export const MissingReferenceForm = ({
 }: {
   onOpenAlert: (params: { status: AlertStatus; title: string; description?: string }) => void;
 }) => {
-  const username = useStore((state) => state.getUsername());
+  const username = useStore((state) => state.user.username);
 
   const initialFormValues: FormValues = {
     name: '',
@@ -42,7 +42,7 @@ export const MissingReferenceForm = ({
                 {({ field }: FieldProps) => (
                   <FormControl isRequired>
                     <FormLabel>Name</FormLabel>
-                    <Input {...field} />
+                    <Input {...field} autoFocus />
                   </FormControl>
                 )}
               </Field>

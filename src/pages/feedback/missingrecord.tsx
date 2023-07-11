@@ -31,8 +31,10 @@ import { Field, FieldProps, Form, Formik, FormikHelpers, FormikState } from 'for
 import { NextPage } from 'next';
 import { useState } from 'react';
 
+export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
+
 const Record: NextPage = () => {
-  const username = useStore((state) => state.getUsername());
+  const username = useStore((state) => state.user.username);
 
   const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({
     status: 'success',
@@ -119,7 +121,7 @@ const Record: NextPage = () => {
                       {({ field }: FieldProps) => (
                         <FormControl isRequired>
                           <FormLabel>Name</FormLabel>
-                          <Input {...field} />
+                          <Input {...field} autoFocus />
                         </FormControl>
                       )}
                     </Field>

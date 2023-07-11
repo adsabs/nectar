@@ -16,6 +16,8 @@ import { Field, FieldProps, Form, Formik, FormikHelpers } from 'formik';
 import { NextPage } from 'next';
 import { useState } from 'react';
 
+export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
+
 type FormValues = {
   name: string;
   email: string;
@@ -23,7 +25,7 @@ type FormValues = {
 };
 
 const General: NextPage = () => {
-  const username = useStore((state) => state.getUsername());
+  const username = useStore((state) => state.user.username);
 
   const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({
     status: 'success',
@@ -73,7 +75,7 @@ const General: NextPage = () => {
                   {({ field }: FieldProps) => (
                     <FormControl isRequired>
                       <FormLabel>Name</FormLabel>
-                      <Input {...field} />
+                      <Input {...field} autoFocus />
                     </FormControl>
                   )}
                 </Field>

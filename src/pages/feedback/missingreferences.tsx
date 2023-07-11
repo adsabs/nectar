@@ -4,6 +4,8 @@ import { FeedbackAlert } from '@components/FeedbackForms';
 import { NextPage } from 'next';
 import { useState, useMemo } from 'react';
 
+export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
+
 const MissingReferences: NextPage = () => {
   const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({
     status: 'success',

@@ -13,7 +13,7 @@ import {
 import { Select, SelectOption } from '@components';
 import { useStore } from '@store';
 import { Formik, Form, Field, FormikHelpers, useField, FieldArray, FieldProps, FieldArrayRenderProps } from 'formik';
-import { useState, ChangeEvent } from 'react';
+import { useState, ChangeEvent, useRef } from 'react';
 
 type FormValues = {
   name: string;
@@ -29,14 +29,14 @@ export const AssociatedArticlesForm = ({
 }: {
   onOpenAlert: (params: { status: AlertStatus; title: string; description?: string }) => void;
 }) => {
-  const username = useStore((state) => state.getUsername());
+  const username = useStore((state) => state.user.username);
 
   const initialFormValues: FormValues = {
     name: '',
     email: username ?? '',
     relationship: null,
     otherRelationship: null,
-    mainBibcode: null,
+    mainBibcode: '',
     associatedBibcodes: [],
   };
 
@@ -60,7 +60,7 @@ export const AssociatedArticlesForm = ({
                 {({ field }: FieldProps) => (
                   <FormControl isRequired>
                     <FormLabel>Name</FormLabel>
-                    <Input {...field} />
+                    <Input {...field} autoFocus />
                   </FormControl>
                 )}
               </Field>
@@ -100,6 +100,8 @@ const relationOptions: SelectOption<string>[] = [
 export const AssociatedTable = () => {
   const [newAssociatedBibcode, setNewAssociatedBibcode] = useState('');
 
+  const newAssociatedBibcodeRef = useRef<HTMLInputElement>();
+
   const [relationshipField, , relationshipHelpers] = useField<string>({
     name: 'relationship',
     validate: (value: FormValues['relationship']) => {
@@ -126,6 +128,10 @@ export const AssociatedTable = () => {
     setNewAssociatedBibcode(e.target.value);
   };
 
+  const handleRelationshipChange = (option: SelectOption<string>) => {
+    relationshipHelpers.setValue(option.value);
+  };
+
   return (
     <>
       <Field name="relationship">
@@ -139,7 +145,7 @@ export const AssociatedTable = () => {
               label="Relation Type"
               id="relation-options"
               stylesTheme="default"
-              onChange={(option) => relationshipHelpers.setValue(option.value)}
+              onChange={handleRelationshipChange}
             />
             <FormErrorMessage>{form.errors.relationship}</FormErrorMessage>
           </FormControl>
@@ -163,7 +169,7 @@ export const AssociatedTable = () => {
                 <FormLabel>{`${
                   relationType === 'arxiv' ? 'arXiv ' : relationType === 'other' ? '' : 'Main Paper '
                 }Bibcode`}</FormLabel>
-                <Input {...field} />
+                <Input {...field} autoFocus />
               </FormControl>
             )}
           </Field>
@@ -201,7 +207,11 @@ export const AssociatedTable = () => {
                   ))}
                   <FormErrorMessage>{form.errors.associatedBibcodes}</FormErrorMessage>
                   <HStack>
-                    <Input onChange={handleNewAssociatedBibcodeChange} value={newAssociatedBibcode} />
+                    <Input
+                      onChange={handleNewAssociatedBibcodeChange}
+                      value={newAssociatedBibcode}
+                      ref={newAssociatedBibcodeRef}
+                    />
                     <IconButton
                       aria-label="Add"
                       variant="outline"
@@ -210,6 +220,7 @@ export const AssociatedTable = () => {
                       onClick={() => {
                         push(newAssociatedBibcode);
                         setNewAssociatedBibcode('');
+                        newAssociatedBibcodeRef.current.focus();
                       }}
                       isDisabled={!newAssociatedBibcode}
                     >

@@ -15,13 +15,15 @@ import {
   FormErrorMessage,
 } from '@chakra-ui/react';
 import { FieldArray, FieldArrayRenderProps, useField } from 'formik';
-import { useState, ChangeEvent, MouseEvent } from 'react';
+import { useState, ChangeEvent, MouseEvent, useRef } from 'react';
 
 type Reference = [string, string];
 
 export const MissingReferenceTable = () => {
   // the input fields for adding a new reference
   const [newReference, setNewReference] = useState<Reference>(['', '']);
+
+  const newReferenceRef = useRef<HTMLInputElement>();
 
   // editing reference input values
   const [editingReference, setEditingReference] = useState<{ index: number; reference: Reference }>({
@@ -88,7 +90,12 @@ export const MissingReferenceTable = () => {
                     <Tr key={`ref-${r[1]}+${r[1]}`}>
                       <Td>{index + 1}</Td>
                       <Td>
-                        <Input size="sm" onChange={handleEditCitingInputChange} value={editingReference.reference[0]} />
+                        <Input
+                          size="sm"
+                          onChange={handleEditCitingInputChange}
+                          value={editingReference.reference[0]}
+                          autoFocus
+                        />
                       </Td>
                       <Td>
                         <Input size="sm" onChange={handleEditCitedInputChange} value={editingReference.reference[1]} />
@@ -152,6 +159,7 @@ export const MissingReferenceTable = () => {
                       placeholder="1998ApJ...501L..41Y"
                       onChange={handleCitingInputChange}
                       value={newReference[0]}
+                      ref={newReferenceRef}
                     />
                   </Td>
                   <Td>
@@ -172,6 +180,7 @@ export const MissingReferenceTable = () => {
                       onClick={() => {
                         push(newReference);
                         setNewReference(['', '']);
+                        newReferenceRef.current.focus();
                       }}
                     />
                   </Td>
