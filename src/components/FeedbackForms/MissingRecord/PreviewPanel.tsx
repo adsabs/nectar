@@ -12,7 +12,7 @@ export const PreviewPanel = ({ data }: { data: FormValues }) => {
     collection,
     title,
     authors,
-    publications,
+    publication,
     pubDate,
     urls,
     abstract,
@@ -50,7 +50,7 @@ export const PreviewPanel = ({ data }: { data: FormValues }) => {
           </Tr>
           <Tr>
             <Td fontWeight="bold">Publication</Td>
-            <Td>{publications}</Td>
+            <Td>{publication}</Td>
           </Tr>
           <Tr>
             <Td fontWeight="bold">Publication Date</Td>

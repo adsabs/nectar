@@ -1,7 +1,7 @@
 import { CheckIcon, CloseIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons';
 import { Tr, Td, Input, IconButton, TableContainer, Table, Thead, Th, Tbody, HStack } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components/Select';
-import { useIsClient } from '@hooks';
+import { useIsClient } from '@lib';
 import { noop } from '@utils';
 import { useState, ChangeEvent, MouseEvent } from 'react';
 import { IUrl, UrlType, urlTypes } from './types';

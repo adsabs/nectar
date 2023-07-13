@@ -45,7 +45,7 @@ import { isNilOrEmpty, isObject } from 'ramda-adjunct';
 import { Flex } from '@chakra-ui/layout';
 import { ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from '@heroicons/react/20/solid';
 import { ORCID_ADS_SOURCE_NAME, ORCID_ADS_SOURCE_NAME_SHORT } from '@config';
-import { QueryErrorResetBoundary } from 'react-query';
+import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 import { parseAPIError } from '@utils';
 import { useOrcidProfile } from '@lib/orcid/useOrcidProfile';
