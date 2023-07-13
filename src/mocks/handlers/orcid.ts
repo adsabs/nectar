@@ -7,7 +7,7 @@ import orcidWorksPutResponse from '../responses/orcid/orcid-works_put.json';
 import orcidProfileResponse from '../responses/orcid/orcid-profile_full.json';
 import orcidExchangeTokenResponse from '../responses/orcid/exchangeOAuthCode.json';
 import orcidPreferencesResponse from '../responses/orcid/orcid-preferences.json';
-import { IOrcidProfile, IOrcidResponse } from '@api/orcid/types';
+import { IOrcidProfile, IOrcidWork } from '@api/orcid/types';
 import { path } from 'ramda';
 import { api } from '@mocks/mockHelpers';
 
@@ -18,7 +18,7 @@ const apiHandlerRoute = (key: ApiTargets, path?: string) => `*${key}${typeof pat
 
 export const orcidHandlers = [
   rest.post(apiHandlerRoute(ApiTargets.ORCID_WORKS), async (req, res, ctx) => {
-    const { bulk: works } = await req.json<IOrcidResponse['addWorks']>();
+    const { bulk: works } = await req.json<{ bulk: { work: IOrcidWork }[] }>();
 
     const entries = works.map(({ work }) => {
       const id = getId(work);

@@ -19,7 +19,7 @@ test.skip('renders without issue', async ({ server }: TestContext) => {
   server.use(
     rest.get(apiHandlerRoute(ApiTargets.ORCID_PROFILE), (req, res, ctx) => res(ctx.json(orcidProfileResponse))),
   );
-  const { user, findByTestId, findByRole, findAllByRole, debug } = render(<WorksTable />, {
+  const { user, findByTestId, findByRole, findAllByRole } = render(<WorksTable />, {
     storePreset: 'orcid-authenticated',
   });
 

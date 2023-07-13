@@ -17,7 +17,7 @@ export const AddToOrcidButton = forwardRef<IOrcidActionBtnProps, 'button'>((prop
       onError: (error) => {
         toast({ status: 'error', title: 'Unable to claim work', description: parseAPIError(error) });
       },
-      onSettled: (data, error) => {
+      onSettled: (data) => {
         // should only be a single entry
         const result = Object.values(data)[0];
 
