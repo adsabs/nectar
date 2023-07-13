@@ -1,10 +1,11 @@
 import { useOrcid } from '@lib/orcid/useOrcid';
 import { useWork } from '@lib/orcid/useWork';
 import { IDocsEntity } from '@api';
-import { AddToOrcidButton, DeleteFromOrcidButton } from '@components/Orcid/Actions';
 import { reconcileDocIdentifier } from '@utils';
 import { ReactElement } from 'react';
 import { isOrcidProfileEntry } from '@api/orcid/models';
+import { AddToOrcidButton } from '@components/Orcid/AddToOrcidButton';
+import { DeleteFromOrcidButton } from '@components/Orcid/DeleteFromOrcidButton';
 
 // if status is null,
 export const SimpleAction = (props: { doc: IDocsEntity }): ReactElement => {

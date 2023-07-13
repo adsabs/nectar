@@ -157,7 +157,8 @@ export const mergeOrcidMissingRecords = (missing: IDocsEntity[], profile: IOrcid
   return fullProfile;
 };
 
-const getIds = (work: IOrcidWork) => map(view(orcidLenses.externalIdValue), view(orcidLenses.externalId, work));
+export const getExIds = (work: IOrcidWork) =>
+  map(view(orcidLenses.externalIdValue), view(orcidLenses.externalId, work));
 
 export const mergeWorksIntoProfile = (works: IOrcidWork[], currentProfile: IOrcidProfile) => {
   if (isNilOrEmpty(works)) {
@@ -168,7 +169,7 @@ export const mergeWorksIntoProfile = (works: IOrcidWork[], currentProfile: IOrci
     ...currentProfile,
   };
   for (const work of works) {
-    const ids = getIds(work);
+    const ids = getExIds(work);
 
     // return null if no ids or any of the ids are already in the profile for some reason
     if (isNilOrEmpty(ids) && ids.some((id) => Object.hasOwn(profile, id))) {

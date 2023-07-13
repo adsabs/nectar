@@ -2,9 +2,10 @@ import api, { ADSMutation, ADSQuery, ApiRequestConfig, ApiTargets } from '@api';
 import { MutationFunction, QueryFunction, useMutation, useQuery } from '@tanstack/react-query';
 import { IOrcidMutationParams, IOrcidParams, IOrcidResponse, IOrcidUser, IOrcidWork } from '@api/orcid/types';
 import { isValidIOrcidUser } from '@api/orcid/models';
-import { omit, path } from 'ramda';
+import { omit } from 'ramda';
 import { ORCID_BULK_DELETE_CHUNK_SIZE, ORCID_BULK_DELETE_DELAY } from '@config';
 import { asyncDelay } from '@utils';
+import { getExIds } from '@lib/orcid/helpers';
 import { OrcidErrorResponse } from '@api/orcid/types/common';
 
 export enum OrcidKeys {
@@ -210,6 +211,7 @@ const removeWorks: MutationFunction<IOrcidResponse['removeWorks'], IOrcidMutatio
     await api.request({
       ...config,
       url: `${config.url}/${putcode}`,
+      validateStatus: (status) => status === 204 || status === 404,
     });
   };
 
@@ -253,16 +255,20 @@ const addWorks: MutationFunction<IOrcidResponse['addWorks'], IOrcidMutationParam
     },
   };
 
-  const { data, status } = await api.request<IOrcidResponse['addWorks']>(addWorksConfig);
+  const { data } = await api.request<{
+    bulk?: { work?: IOrcidWork; error?: OrcidErrorResponse }[];
+  }>(addWorksConfig);
 
-  // possible we received an error message back in the response
-  const error = path<OrcidErrorResponse>(['bulk', '0', 'error'], data);
-
-  if (status === 200 && error) {
-    throw new Error(error['user-message'], { cause: error });
-  }
-
-  return data;
+  // it's possible we received multiple success/fails in a response, reformat to match the shape of PromiseSettledResult
+  return Object.fromEntries(
+    // result maintains order of the original works
+    data.bulk.map((result, index) => {
+      const id = getExIds(works[index])?.[0] ?? index;
+      return result.error
+        ? [id, { status: 'rejected', reason: result.error }]
+        : [id, { status: 'fulfilled', value: result.work }];
+    }),
+  );
 };
 
 const updateWork: MutationFunction<IOrcidResponse['updateWork'], IOrcidMutationParams['updateWork']> = async ({

@@ -3,6 +3,7 @@ import type { IOrcidProfile } from '@api/orcid/types/orcid-profile';
 import type { IOrcidName } from '@api/orcid/types/orcid-name';
 import type { IOrcidWork } from '@api/orcid/types/orcid-work';
 import { IOrcidPreferences } from '@api/orcid/types/orcid-preferences';
+import { OrcidErrorResponse } from '@api/orcid/types/common';
 
 export type { IOrcidWork } from './orcid-work';
 export type { IOrcidProfile } from './orcid-profile';
@@ -16,7 +17,10 @@ export interface IOrcidResponse {
 
   /** orcid does not return a response on delete, so return the status */
   removeWorks: Record<string, PromiseSettledResult<void>>;
-  addWorks: { bulk?: { work?: IOrcidWork; error?: { 'developer-message': string; 'user-message': string } }[] };
+  addWorks: Record<
+    string,
+    { status: 'fulfilled'; value: IOrcidWork } | { status: 'rejected'; reason: OrcidErrorResponse }
+  >;
   name: IOrcidName;
   getPreferences: IOrcidPreferences;
   setPreferences: IOrcidPreferences;
