@@ -19,7 +19,7 @@ export const items = [
 ];
 
 const loggedInItems = [
-  { id: 'libraries', path: '/user/libraries', label: 'ADS Libraries' },
+  { id: 'libraries', path: '/user/libraries', label: 'SciX Libraries' },
   { id: 'settings', path: '/user/settings', label: 'Settings' },
   { id: 'logout', path: null, label: 'Logout' },
 ];
