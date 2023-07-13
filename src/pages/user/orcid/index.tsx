@@ -16,6 +16,8 @@ import {
 import { AppState, useStore } from '@store';
 import { useEffect } from 'react';
 import dynamic from 'next/dynamic';
+import Head from 'next/head';
+import { NASA_SCIX_BRAND_NAME } from '@config';
 
 export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
 
@@ -48,6 +50,9 @@ const OrcidPage: NextPage = () => {
 
   return (
     <>
+      <Head>
+        <title>{NASA_SCIX_BRAND_NAME} - My ORCiD Page</title>
+      </Head>
       {isMobile ? (
         <Box py="4">
           <Drawer
