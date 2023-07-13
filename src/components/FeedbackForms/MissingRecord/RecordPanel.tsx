@@ -1,23 +1,22 @@
 import {
-  Stack,
-  FormControl,
-  FormLabel,
-  Input,
-  CheckboxGroup,
-  Checkbox,
-  HStack,
-  Textarea,
   Button,
+  Checkbox,
+  CheckboxGroup,
   Flex,
+  FormControl,
   FormErrorMessage,
+  FormLabel,
+  HStack,
+  Input,
+  Stack,
+  Textarea,
 } from '@chakra-ui/react';
-import { noop } from '@utils';
 import { SingleDatepicker } from 'chakra-dayzed-datepicker';
 import { Field, FieldArray, FieldArrayRenderProps, FieldProps, useField, useFormikContext } from 'formik';
 import { useState } from 'react';
 import { KeywordList, ReferencesTable } from '.';
 import { AuthorsTable } from './AuthorsTable';
-import { Collection, IAuthor, FormValues } from './types';
+import { Collection, FormValues, IAuthor } from './types';
 import { URLTable } from './URLTable';
 
 const collections: { value: Collection; label: string }[] = [
@@ -51,19 +50,18 @@ const datePropConfig = {
 export const RecordPanel = ({
   isNew,
   formData,
-  onRecordLoaded = noop,
 }: {
   isNew: boolean;
   formData?: FormValues;
   onRecordLoaded?: () => void;
 }) => {
-  const [recordLoaded, setRecordLoaded] = useState(formData ? true : false);
+  const [recordLoaded] = useState(!!formData);
 
   const {
     values: { noAuthors, authors, urls, keywords, references },
   } = useFormikContext<FormValues>();
 
-  const [] = useField<IAuthor[]>({
+  useField<IAuthor[]>({
     name: 'authors',
     validate: (value: IAuthor[]) => {
       if (!noAuthors && (!value || value.length === 0)) {

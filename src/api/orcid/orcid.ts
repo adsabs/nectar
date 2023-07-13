@@ -268,7 +268,7 @@ const addWorks: MutationFunction<IOrcidResponse['addWorks'], IOrcidMutationParam
         ? [id, { status: 'rejected', reason: result.error }]
         : [id, { status: 'fulfilled', value: result.work }];
     }),
-  );
+  ) as IOrcidResponse['addWorks'];
 };
 
 const updateWork: MutationFunction<IOrcidResponse['updateWork'], IOrcidMutationParams['updateWork']> = async ({

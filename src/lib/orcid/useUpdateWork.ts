@@ -47,7 +47,7 @@ export const useUpdateWork = (
     { user },
     {
       ...options,
-      onSettled: async (...args) => {
+      onSettled: (...args) => {
         if (typeof options.onSettled === 'function') {
           options.onSettled(...args);
         }

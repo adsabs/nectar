@@ -126,7 +126,7 @@ const AddClaimMenuItem = (props: IOrcidActionProps) => {
           description: parseAPIError(error),
         });
       },
-      onSettled: (data, error) => {
+      onSettled: (data) => {
         // should only be a single entry
         const result = Object.values(data)[0];
 
