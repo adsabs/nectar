@@ -370,6 +370,7 @@ export const parseAPIError = (
   },
 ): string => {
   const pathStrings = [
+    ['user-message'],
     ['response', 'data', 'user-message'],
     ['response', 'data', 'message'],
     ['response', 'data', 'error'],
@@ -482,4 +483,8 @@ export const coalesceAuthorsFromDoc = (doc: IDocsEntity, includeAff?: boolean) =
         without(['-']),
         transpose([map((v) => v.toLocaleString(), range(1, len + 1)), author, orcid_other, orcid_pub, orcid_user]),
       );
+};
+
+export const pluralize = (str: string, count: number) => {
+  return count === 1 ? str : `${str}s`;
 };

@@ -1,36 +1,33 @@
 import { IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
-import { ChevronDownIcon } from '@chakra-ui/icons';
 import {
-  Button,
-  ButtonProps,
-  forwardRef,
-  HStack,
+  Center,
+  Flex,
+  Icon,
+  IconButton,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
-  Text,
+  Spinner,
+  ToastId,
   useToast,
-  UseToastOptions,
 } from '@chakra-ui/react';
-import { OrcidInactiveLogo, OrcidLogo } from '@components';
-import { isClaimedBySciX, isInSciX } from './Utils';
+import { isClaimedBySciX, isInSciX } from './helpers';
 import { MenuItemProps } from '@chakra-ui/menu';
 import { useUpdateWork } from '@lib/orcid/useUpdateWork';
 import { useAddWorks } from '@lib/orcid/useAddWorks';
 import { useRemoveWorks } from '@lib/orcid/useRemoveWorks';
-import { AppState, useStore } from '@store';
-import { useCallback, useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { isOrcidProfileEntry } from '@api/orcid/models';
+import { TOAST_DEFAULTS } from '@components/Orcid/helpers';
+import { AddToOrcidButton } from '@components/Orcid/AddToOrcidButton';
 import { parseAPIError } from '@utils';
+import { Cog8ToothIcon } from '@heroicons/react/20/solid';
 
 export interface IActionProps {
   work: IOrcidProfileEntry;
 }
 
-const TOAST_DEFAULTS: UseToastOptions = {
-  duration: 5000,
-};
 export const Actions = ({ work }: IActionProps) => {
   const claimedBySciX = isClaimedBySciX(work);
   const inSciX = isInSciX(work);
@@ -42,26 +39,21 @@ export const Actions = ({ work }: IActionProps) => {
   return (
     <>
       {work.status ? (
-        <Menu>
-          <MenuButton
-            as={Button}
-            isDisabled={!inSciX}
-            variant="outline"
-            rightIcon={<ChevronDownIcon />}
-            color="gray.500"
-            w={28}
-          >
-            <HStack spacing={1}>
-              <OrcidLogo className="flex-shrink-0 w-4 h-4" aria-hidden />
-              <span>Actions</span>
-            </HStack>
-          </MenuButton>
-          <MenuList>
-            <SyncToOrcidMenuItem work={work} isDisabled={!claimedBySciX} />
-            <AddClaimMenuItem identifier={work.identifier} isDisabled={claimedBySciX} />
-            <DeleteClaimMenuItem identifier={work.identifier} isDisabled={!claimedBySciX} />
-          </MenuList>
-        </Menu>
+        <Center>
+          <Menu>
+            <MenuButton
+              as={IconButton}
+              isDisabled={!inSciX}
+              variant="ghost"
+              icon={<Icon as={Cog8ToothIcon} color="gray.500" fontSize="18px" aria-hidden />}
+            />
+            <MenuList>
+              <SyncToOrcidMenuItem work={work} isDisabled={!claimedBySciX} />
+              <AddClaimMenuItem identifier={work.identifier} isDisabled={claimedBySciX} />
+              <DeleteClaimMenuItem identifier={work.identifier} isDisabled={!claimedBySciX} />
+            </MenuList>
+          </Menu>
+        </Center>
       ) : (
         <AddToOrcidButton identifier={work.identifier} />
       )}
@@ -74,104 +66,47 @@ interface IOrcidActionProps extends MenuItemProps {
   identifier?: string;
 }
 
-interface IOrcidActionBtnProps extends ButtonProps {
-  identifier: string;
-}
-
-export const AddToOrcidButton = forwardRef<IOrcidActionBtnProps, 'button'>((props, ref) => {
-  const { identifier, ...buttonProps } = props;
-  const toast = useToast(TOAST_DEFAULTS);
-  const { addWorks, isLoading } = useAddWorks(
-    {},
-    {
-      onSuccess: () => {
-        toast({ status: 'success', title: 'Successfully submitted claim request' });
-      },
-      onError: (error) => {
-        toast({ status: 'error', title: 'Unable to submit request', description: parseAPIError(error) });
-      },
-    },
-  );
-
-  return (
-    <Button
-      variant="outline"
-      color="gray.500"
-      isLoading={isLoading}
-      onClick={() => addWorks([identifier])}
-      w={28}
-      ref={ref}
-      {...buttonProps}
-    >
-      <HStack spacing={1}>
-        <OrcidInactiveLogo className="flex-shrink-0 w-4 h-4" aria-hidden />
-        <Text fontSize="xs">Claim</Text>
-      </HStack>
-    </Button>
-  );
-});
-
-export const DeleteFromOrcidButton = forwardRef<IOrcidActionBtnProps, 'button'>((props, ref) => {
-  const { identifier, ...buttonProps } = props;
-  const toast = useToast(TOAST_DEFAULTS);
-  const { removeWorks, isLoading } = useRemoveWorks(
-    {
-      onSettled: (data) => {
-        // should only be a single entry
-        const result = Object.values(data)[0];
-
-        if (result?.status === 'rejected') {
-          toast({ status: 'error', title: 'Unable to submit request', description: parseAPIError(result?.reason) });
-        }
-
-        if (result?.status === 'fulfilled') {
-          toast({ status: 'success', title: 'Successfully submitted delete request' });
-        }
-      },
-    },
-    {
-      getProfileOptions: { suspense: true },
-    },
-  );
-
-  return (
-    <Button
-      variant="outline"
-      color="gray.500"
-      onClick={() => removeWorks([identifier])}
-      isLoading={isLoading}
-      ref={ref}
-      w={28}
-      {...buttonProps}
-    >
-      <HStack spacing={1}>
-        <OrcidLogo className="flex-shrink-0 w-4 h-4" aria-hidden />
-        <Text fontSize="xs">Delete Claim</Text>
-      </HStack>
-    </Button>
-  );
-});
-
 const SyncToOrcidMenuItem = (props: IOrcidActionProps) => {
   const { work, ...menuItemProps } = props;
   const toast = useToast(TOAST_DEFAULTS);
+  const toastId = useRef<ToastId>();
   const { updateWork, error } = useUpdateWork(
     {},
     {
       onSuccess: () => {
-        toast({ status: 'success', title: 'Successfully submitted sync request' });
+        toast.update(toastId.current, { status: 'success', title: 'Claimed synced' });
       },
     },
   );
 
   useEffect(() => {
     if (error) {
-      toast({ status: 'error', title: 'Unable to submit request', description: error });
+      toast.update(toastId.current, {
+        status: 'error',
+        title: 'Unable to sync claim',
+        description: parseAPIError(error),
+      });
     }
   }, [error]);
 
+  const handleSyncToOrcid = () => {
+    toastId.current = toast({
+      status: 'info',
+      title: <SimpleLoadingTitle title="Syncing claim" />,
+      isClosable: true,
+      duration: 30 * 1000, // 30 seconds
+    });
+    if (work) {
+      try {
+        updateWork(work);
+      } catch (error) {
+        toast.update(toastId.current, { status: 'error', title: 'Unable to sync claim' });
+      }
+    }
+  };
+
   return (
-    <MenuItem onClick={() => updateWork(work)} {...menuItemProps}>
+    <MenuItem onClick={handleSyncToOrcid} {...menuItemProps}>
       Sync to ORCiD
     </MenuItem>
   );
@@ -180,20 +115,47 @@ const SyncToOrcidMenuItem = (props: IOrcidActionProps) => {
 const AddClaimMenuItem = (props: IOrcidActionProps) => {
   const { identifier, ...menuItemProps } = props;
   const toast = useToast(TOAST_DEFAULTS);
+  const toastId = useRef<ToastId>();
   const { addWorks } = useAddWorks(
     {},
     {
-      onSuccess: () => {
-        toast({ status: 'success', title: 'Successfully submitted claim request' });
-      },
       onError: (error) => {
-        toast({ status: 'error', title: 'Unable to submit request', description: error.message });
+        toast.update(toastId.current, {
+          status: 'error',
+          title: 'Unable to claim work',
+          description: parseAPIError(error),
+        });
+      },
+      onSettled: (data, error) => {
+        // should only be a single entry
+        const result = Object.values(data)[0];
+
+        if (result?.status === 'rejected') {
+          toast.update(toastId.current, {
+            status: 'error',
+            title: 'Unable to claim work',
+            description: parseAPIError(result?.reason),
+          });
+        } else {
+          toast.update(toastId.current, { status: 'success', title: 'Claim added' });
+        }
       },
     },
   );
 
+  const handleAddClaim = () => {
+    toastId.current = toast({
+      status: 'info',
+      title: <SimpleLoadingTitle title="Adding claim" />,
+      isClosable: true,
+      duration: 30 * 1000, // 30 seconds
+    });
+
+    addWorks([identifier]);
+  };
+
   return (
-    <MenuItem onClick={() => addWorks([identifier])} {...menuItemProps}>
+    <MenuItem onClick={handleAddClaim} {...menuItemProps}>
       Claim from SciX
     </MenuItem>
   );
@@ -201,67 +163,53 @@ const AddClaimMenuItem = (props: IOrcidActionProps) => {
 const DeleteClaimMenuItem = (props: IOrcidActionProps) => {
   const { identifier, ...menuItemProps } = props;
   const toast = useToast(TOAST_DEFAULTS);
+  const toastId = useRef<ToastId>();
   const { removeWorks } = useRemoveWorks({
-    onSuccess: () => {
-      toast({ status: 'success', title: 'Successfully submitted remove claim request' });
-    },
     onError: (error) => {
-      toast({ status: 'error', title: 'Unable to submit request', description: error.message });
+      toast.update(toastId.current, {
+        status: 'error',
+        title: 'Unable to delete claim',
+        description: parseAPIError(error),
+      });
+    },
+    onSettled: (data) => {
+      // should only be a single entry
+      const result = Object.values(data)[0];
+
+      if (result?.status === 'rejected') {
+        toast.update(toastId.current, {
+          status: 'error',
+          title: 'Unable to delete claim',
+          description: parseAPIError(result?.reason),
+        });
+      } else {
+        toast.update(toastId.current, { status: 'success', title: 'Claim deleted' });
+      }
     },
   });
 
+  const handleDeleteClaim = () => {
+    toastId.current = toast({
+      status: 'info',
+      title: <SimpleLoadingTitle title="Deleting claim" />,
+      isClosable: true,
+      duration: 30 * 1000, // 30 seconds
+    });
+    removeWorks([identifier]);
+  };
+
   return (
-    <MenuItem onClick={() => removeWorks([identifier])} {...menuItemProps}>
+    <MenuItem onClick={handleDeleteClaim} {...menuItemProps}>
       Delete claim from SciX
     </MenuItem>
   );
 };
 
-const selectedDocsSelector = (state: AppState) => state.docs.selected;
-export const BulkClaimMenuItem = (props: MenuItemProps) => {
-  const toast = useToast(TOAST_DEFAULTS);
-  const { addWorks } = useAddWorks(
-    {},
-    {
-      onSuccess: () => {
-        toast({ status: 'success', title: 'Successfully submitted claim request' });
-      },
-      onError: (error) => {
-        toast({ status: 'error', title: 'Unable to submit request', description: error.message });
-      },
-    },
-  );
-  const selected = useStore(selectedDocsSelector);
-  const handleClick = useCallback(() => {
-    addWorks(selected);
-  }, [addWorks, selected]);
-
+const SimpleLoadingTitle = (props: { title: string }) => {
   return (
-    <MenuItem onClick={handleClick} isDisabled={selected.length === 0} {...props}>
-      Claim from SciX
-    </MenuItem>
-  );
-};
-
-export const BulkDeleteMenuItem = (props: MenuItemProps) => {
-  const toast = useToast(TOAST_DEFAULTS);
-  const { removeWorks } = useRemoveWorks({
-    onSuccess: () => {
-      toast({ status: 'success', title: 'Successfully submitted remove claim request' });
-    },
-    onError: (error) => {
-      toast({ status: 'error', title: 'Unable to submit request', description: error.message });
-    },
-  });
-
-  const selected = useStore(selectedDocsSelector);
-  const handleClick = useCallback(() => {
-    removeWorks(selected);
-  }, [removeWorks, selected]);
-
-  return (
-    <MenuItem onClick={handleClick} isDisabled={selected.length === 0} {...props}>
-      Delete claim from SciX
-    </MenuItem>
+    <Flex justifyContent="space-between">
+      <>{props.title}</>
+      <Spinner />
+    </Flex>
   );
 };

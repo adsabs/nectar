@@ -6,9 +6,6 @@ import { transformADStoOrcid } from '@lib/orcid/workTransformer';
 import { isValidIOrcidUser } from '@api/orcid/models';
 import { OrcidHookOptions, OrcidMutationOptions } from '@lib/orcid/types';
 import { useQueryClient } from '@tanstack/react-query';
-import { IOrcidProfile, IOrcidWork } from '@api/orcid/types';
-import { mergeWorksIntoProfile } from '@lib/orcid/helpers';
-import { isNilOrEmpty } from 'ramda-adjunct';
 
 const orcidUserSelector = (state: AppState) => state.orcid.user;
 const isAuthenticatedSelector = (state: AppState) => state.orcid.isAuthenticated;
@@ -27,53 +24,18 @@ export const useAddWorks = (
     { user },
     {
       ...options,
-      onError: async (error, ...args) => {
-        if (typeof options?.onError === 'function') {
-          await options?.onError(error, ...args);
+      onSettled: async (...args) => {
+        if (typeof options?.onSettled === 'function') {
+          options?.onSettled(...args);
         }
 
-        // any errors, invalidate the profile cache
+        // clear the bibcodes to remove
+        setBibcodesToAdd([]);
+
+        // invalidate the profile cache
         await qc.invalidateQueries({
           queryKey,
         });
-      },
-      onSettled: async (...args) => {
-        if (typeof options?.onSettled === 'function') {
-          await options?.onSettled(...args);
-        }
-
-        setBibcodesToAdd([]);
-      },
-      onSuccess: async (data, ...args) => {
-        if (typeof options?.onSuccess === 'function') {
-          await options?.onSuccess(data, ...args);
-        }
-
-        if (isValidIOrcidUser(user)) {
-          const match = qc.getQueryCache().find(queryKey, { type: 'active' });
-          let invalidate = false;
-          if (match) {
-            qc.setQueryData<IOrcidProfile>(queryKey, (currentProfile) => {
-              if (data?.bulk) {
-                const works: IOrcidWork[] = [];
-                data.bulk.forEach((value) => isNilOrEmpty(value.error) && works.push(value?.work));
-                const result = mergeWorksIntoProfile(works, currentProfile);
-                if (result) {
-                  return result;
-                }
-              }
-              invalidate = true;
-
-              return currentProfile;
-            });
-          }
-          if (!match || invalidate) {
-            // invalidate cached profile, since it should have been updated
-            await qc.invalidateQueries({
-              queryKey,
-            });
-          }
-        }
       },
     },
   );

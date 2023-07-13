@@ -15,7 +15,6 @@ export const useUpdateWork = (
 ) => {
   const user = useStore(orcidUserSelector);
   const [work, setWork] = useState<IOrcidProfileEntry | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Fetch ADS record
@@ -39,8 +38,7 @@ export const useUpdateWork = (
       rows: 1,
     },
     {
-      enabled: !!work,
-      onError: (error) => setError(parseAPIError(error)),
+      enabled: isOrcidProfileEntry(work),
     },
   );
 
@@ -51,17 +49,11 @@ export const useUpdateWork = (
       ...options,
       onSettled: async (...args) => {
         if (typeof options.onSettled === 'function') {
-          await options.onSettled(...args);
+          options.onSettled(...args);
         }
         setWork(null);
       },
     },
-  );
-
-  // update loading state
-  useEffect(
-    () => setIsLoading(searchQueryState.isLoading || updateQueryState.isLoading),
-    [searchQueryState.isLoading, updateQueryState.isLoading],
   );
 
   // update error state
@@ -75,21 +67,28 @@ export const useUpdateWork = (
     return setError(null);
   }, [searchQueryState.error, updateQueryState.error]);
 
-  // run mutation
+  const onSetWork = (work: IOrcidProfileEntry) => {
+    if (isOrcidProfileEntry(work)) {
+      return setWork(work);
+    }
+    throw new Error('Invalid work');
+  };
+
   useEffect(() => {
     if (searchResult && isOrcidProfileEntry(work)) {
       const doc = searchResult?.docs?.[0];
       if (doc) {
         return updateWork({ work: transformADStoOrcid(doc, work.putcode) }, mutationOptions);
       }
+      setError('No work found in SCiX');
     }
   }, [searchResult, work, transformADStoOrcid]);
 
   return {
-    updateWork: setWork,
+    updateWork: onSetWork,
     searchQueryState,
     updateQueryState,
     error,
-    isLoading,
+    isLoading: searchQueryState.isLoading || updateQueryState.isLoading,
   };
 };

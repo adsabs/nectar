@@ -1,7 +1,7 @@
 import { AppState, useStore } from '@store';
 import { orcidKeys, useOrcidGetProfile, useOrcidRemoveWorks } from '@api/orcid';
 import { useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { isValidIOrcidUser } from '@api/orcid/models';
 import { filter, keys, map, path, pipe, propEq } from 'ramda';
 import { IOrcidProfile } from '@api/orcid/types';
@@ -20,16 +20,17 @@ export const useRemoveWorks = (
   const qc = useQueryClient();
   const user = useStore(orcidUserSelector);
   const isAuthenticated = useStore(isAuthenticatedSelector);
-  const [idsToRemove, setIdsToRemove] = useState<string[]>([]);
+  const [putcodesToRemove, setPutcodesToRemove] = useState<string[]>([]);
 
   const { data: profile } = useOrcidGetProfile(
     { user, full: true, update: true },
     {
-      enabled: isAuthenticated && isValidIOrcidUser(user) && idsToRemove.length > 0,
+      enabled: isAuthenticated && isValidIOrcidUser(user) && putcodesToRemove.length > 0,
       ...options?.getProfileOptions,
     },
   );
 
+  const queryKey = orcidKeys.profile({ user, full: true, update: true });
   const { mutate, ...result } = useOrcidRemoveWorks(
     { user },
     {
@@ -40,10 +41,12 @@ export const useRemoveWorks = (
           options?.removeWorksOptions?.onSettled(data, ...args);
         }
 
+        // clear the putcodes to remove
+        setPutcodesToRemove([]);
+
         const deleted = getFulfilled(data);
 
         if (deleted.length > 0 && isValidIOrcidUser(user)) {
-          const queryKey = orcidKeys.profile({ user, full: true, update: true });
           const match = qc.getQueryCache().find(queryKey, { type: 'active' });
           let invalidate = false;
           if (match) {
@@ -69,20 +72,30 @@ export const useRemoveWorks = (
             });
           }
         }
-
-        setIdsToRemove([]);
       },
     },
   );
 
+  const removeWorks = useCallback(
+    (ids: string[]) => {
+      const putcodes = getPutcodesFromProfile(ids, profile);
+
+      if (putcodes.length === 0) {
+        throw new Error('Selected works were already unclaimed.');
+      }
+      setPutcodesToRemove(putcodes);
+    },
+    [profile],
+  );
+
   useEffect(() => {
-    if (idsToRemove.length > 0 && profile) {
-      mutate({ putcodes: getPutcodesFromProfile(idsToRemove, profile) }, mutationOptions);
+    if (putcodesToRemove.length > 0 && !result.isLoading) {
+      mutate({ putcodes: putcodesToRemove }, mutationOptions);
     }
-  }, [idsToRemove, profile]);
+  }, [putcodesToRemove, mutate, mutationOptions, result.isLoading]);
 
   return {
-    removeWorks: setIdsToRemove,
+    removeWorks,
     ...result,
   };
 };
