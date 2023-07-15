@@ -238,7 +238,7 @@ export interface IDocsEntity {
   email?: string;
   entdate?: string;
   entry_date?: string;
-  esources?: Esources[];
+  esources?: (keyof typeof Esources)[];
   facility?: string;
   first_author_facet_hier?: string;
   first_author_norm?: string;
