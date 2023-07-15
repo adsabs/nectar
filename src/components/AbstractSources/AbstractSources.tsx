@@ -8,6 +8,7 @@ import { ItemType } from '@components/Dropdown/types';
 import { useIsClient } from '@lib/useIsClient';
 import { HTMLAttributes, MouseEvent, MouseEventHandler, ReactElement, useMemo } from 'react';
 import { IDataProductSource, IFullTextSource, IRelatedWorks, processLinkData } from './linkGenerator';
+import { useStore } from '@store';
 
 export interface IAbstractSourcesProps extends HTMLAttributes<HTMLDivElement> {
   doc?: IDocsEntity;
@@ -15,12 +16,14 @@ export interface IAbstractSourcesProps extends HTMLAttributes<HTMLDivElement> {
 
 export const AbstractSources = ({ doc }: IAbstractSourcesProps): ReactElement => {
   const isClient = useIsClient();
+  const linkServer = useStore((state) => state.settings.user.link_server);
   const sources = useMemo(() => {
-    if (doc && Array.isArray(doc.esources)) {
-      return processLinkData(doc, null);
+    // linkServer is not available on the server, so we need to check for it
+    if (isClient && linkServer) {
+      return processLinkData(doc, linkServer);
     }
-    return { fullTextSources: [], dataProducts: [] };
-  }, [doc]);
+    return processLinkData(doc);
+  }, [doc, linkServer, isClient, processLinkData]);
 
   if (!doc) {
     return <></>;
@@ -83,11 +86,6 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
     <>
       {!isClient ? (
         <span>
-          {/* {fullSourceItems.length === 0 ? (
-            label
-          ) : (
-            <SimpleLinkDropdown items={fullSourceItems} label={label} minListWidth="180px" />
-          )} */}
           <SimpleLinkList items={fullSourceItems} minWidth="180px" label="Full text sources" showLabel={true} asRow />
         </span>
       ) : null}
@@ -178,7 +176,6 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
     <>
       {!isClient ? (
         <span>
-          {/* {items.length === 0 ? label : <SimpleLinkDropdown items={items} label={label} minListWidth="150px" />} */}
           <SimpleLinkList items={items} minWidth="150px" label="Other Resources" showLabel={true} asRow />
         </span>
       ) : null}

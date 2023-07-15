@@ -1,7 +1,8 @@
 import { Esources, IDocsEntity } from '@api';
-import { compose, descend, is, map, prop, sortBy, sortWith } from 'ramda';
-import { DEFAULT_ORDERING, GATEWAY_BASE_URL, LINK_TYPES } from './model';
+import { compose, descend, is, map, prop, sort, sortWith } from 'ramda';
+import { DEFAULT_ORDERING, GATEWAY_BASE_URL, LINK_TYPES, MAYBE_OPEN_SOURCES } from './model';
 import { getOpenUrl } from './openUrlGenerator';
+import { isNilOrEmpty } from 'ramda-adjunct';
 
 /**
  * Create the resolver url
@@ -24,6 +25,7 @@ export interface IFullTextSource {
   type?: string;
   description: string;
   openUrl?: boolean;
+  rawType?: keyof typeof Esources;
 }
 
 export interface IDataProductSource {
@@ -39,6 +41,11 @@ export interface IRelatedWorks {
   description: string;
 }
 
+type ProcessLinkDataReturns = {
+  fullTextSources: IFullTextSource[];
+  dataProducts: IDataProductSource[];
+};
+
 /**
  * process the link data
  *
@@ -51,18 +58,17 @@ export interface IRelatedWorks {
  *  3.3. If electr field is present, check if a linkServer is provided among some other things
  *
  * @param {IDocsEntity} doc - the data object to process
- * @returns {object} - the fulltext and data sources
+ * @param {string} linkServer - the link server
+ * @returns {ProcessLinkDataReturns} - the fulltext and data sources
  */
-export const processLinkData = (doc: IDocsEntity, linkServer: string) => {
+export const processLinkData = (doc: IDocsEntity, linkServer?: string): ProcessLinkDataReturns => {
   let countOpenUrls = 0;
 
-  // reorder the full text sources based on our default ordering
-  const sortByDefaultOrdering = sortBy<IFullTextSource>(({ name }) => {
-    const rank = DEFAULT_ORDERING.indexOf(name as Esources);
-    return rank > -1 ? rank : 9999;
-  });
+  if (isNilOrEmpty(doc)) {
+    return { fullTextSources: [], dataProducts: [] };
+  }
 
-  const mapOverSources = map<Esources, IFullTextSource>((el): IFullTextSource => {
+  const mapOverSources = map<keyof typeof Esources, IFullTextSource>((el): IFullTextSource => {
     const linkInfo = LINK_TYPES[el];
     const identifier = doc.doi || doc.issn || doc.isbn;
 
@@ -77,59 +83,48 @@ export const processLinkData = (doc: IDocsEntity, linkServer: string) => {
         url: getOpenUrl({ metadata: doc, linkServer }),
         openUrl: true,
         ...LINK_TYPES.INSTITUTION,
+        rawType: Esources.INSTITUTION,
       };
     }
 
-    const maybeOpenSources = [
-      Esources.ADS_PDF,
-      Esources.ADS_SCAN,
-      Esources.AUTHOR_HTML,
-      Esources.AUTHOR_PDF,
-      Esources.EPRINT_HTML,
-      Esources.EPRINT_PDF,
-      Esources.PUB_HTML,
-      Esources.PUB_PDF,
-    ];
-
     const [prefix] = el.split('_');
-    const open = maybeOpenSources.includes(el) && doc.property.includes(`${prefix}_OPENACCESS`);
+    const open = MAYBE_OPEN_SOURCES.includes(el) && doc.property.includes(`${prefix}_OPENACCESS`);
 
     return {
       url: createGatewayUrl(doc.bibcode, el),
       open,
-      shortName: (linkInfo && linkInfo.shortName) || el,
-      name: (linkInfo && linkInfo.name) || el,
-      type: (linkInfo && linkInfo.type) || 'HTML',
-      description: linkInfo && linkInfo.description,
+      shortName: linkInfo?.shortName || el,
+      name: linkInfo?.name || el,
+      type: linkInfo?.type || 'HTML',
+      description: linkInfo?.description,
+      rawType: el,
     };
   });
-
-  const processEsources = compose(sortByDefaultOrdering, mapOverSources);
-  const fullTextSources = processEsources(doc.esources);
 
   interface IEprintLink {
     type: string;
     url: string;
   }
 
-  // if no arxiv link is present, check links_data as well to make sure
-  const hasEprint = fullTextSources.some(({ name }) => name === LINK_TYPES.EPRINT_PDF.name);
-  if (!hasEprint && Array.isArray(doc.links_data)) {
-    doc.links_data.forEach((linkData) => {
-      const link = JSON.parse(linkData) as IEprintLink;
-      if (/preprint/i.test(link.type)) {
-        const info = LINK_TYPES.EPRINT_PDF;
-        fullTextSources.push({
-          url: link.url,
-          open: true,
-          shortName: info && info.shortName ? info.shortName : link.type,
-          name: info && info.name ? info.name : link.type,
-          type: info && info.type ? info.type : 'HTML',
-          description: info && info.description ? info.description : undefined,
-        });
-      }
-    });
-  }
+  // TODO: Verify this is still needed
+  // // if no arxiv link is present, check links_data as well to make sure
+  // const hasEprint = fullTextSources.some(({ name }) => name === LINK_TYPES.EPRINT_PDF.name);
+  // if (!hasEprint && Array.isArray(doc.links_data)) {
+  //   doc.links_data.forEach((linkData) => {
+  //     const link = JSON.parse(linkData) as IEprintLink;
+  //     if (/preprint/i.test(link.type)) {
+  //       const info = LINK_TYPES.EPRINT_PDF;
+  //       fullTextSources.push({
+  //         url: link.url,
+  //         open: true,
+  //         shortName: info?.shortName ?? link.type,
+  //         name: info?.name ?? link.type,
+  //         type: info?.type ?? 'HTML',
+  //         description: info?.description,
+  //       });
+  //     }
+  //   });
+  // }
 
   const mapOverDataProducts = map((product: string): IDataProductSource => {
     const [source, count = '1'] = product.split(':');
@@ -143,11 +138,12 @@ export const processLinkData = (doc: IDocsEntity, linkServer: string) => {
     };
   });
 
+  const processEsources = compose(sortByDefaultOrdering, mapOverSources);
   const processDataProducts = compose(sortWith([descend(prop('count'))]), mapOverDataProducts);
 
   return {
-    fullTextSources,
-    dataProducts: doc.data ? processDataProducts(doc.data) : [],
+    fullTextSources: Array.isArray(doc.esources) ? processEsources(doc.esources) : [],
+    dataProducts: Array.isArray(doc.data) ? processDataProducts(doc.data) : [],
   };
 };
 
@@ -170,3 +166,35 @@ export const createUrlByType = function (bibcode: string, type: string, identifi
 const enc = function (str: string) {
   return encodeURIComponent(str);
 };
+
+// reorder the full text sources based on our default ordering
+const sortByDefaultOrdering = compose(
+  // after the list is sorted, we have to push any sources that aren't in our default ordering to the end
+  (list: IFullTextSource[]) => {
+    const sourcesNotInDefaultOrdering = list.filter(({ rawType }) => !DEFAULT_ORDERING.includes(rawType));
+    return [...list.filter(({ rawType }) => DEFAULT_ORDERING.includes(rawType)), ...sourcesNotInDefaultOrdering];
+  },
+
+  sort<IFullTextSource>((a, b) => {
+    const aIndex = DEFAULT_ORDERING.indexOf(a.rawType);
+    const bIndex = DEFAULT_ORDERING.indexOf(b.rawType);
+
+    // If both elements are in the DEFAULT_ORDERING array, sort based on their indices
+    if (aIndex !== -1 && bIndex !== -1) {
+      return aIndex - bIndex;
+    }
+
+    // If only 'a' is in DEFAULT_ORDERING, move it before 'b'
+    if (aIndex !== -1) {
+      return -1;
+    }
+
+    // If only 'b' is in DEFAULT_ORDERING, move it before 'a'
+    if (bIndex !== -1) {
+      return 1;
+    }
+
+    // If both elements are not in DEFAULT_ORDERING, maintain their relative order
+    return 0;
+  }),
+);

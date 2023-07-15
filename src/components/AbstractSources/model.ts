@@ -9,6 +9,9 @@ export const DEFAULT_ORDERING = [
   Esources.PUB_HTML,
   Esources.PUB_PDF,
   Esources.EPRINT_PDF,
+  Esources.EPRINT_HTML,
+  Esources.AUTHOR_PDF,
+  Esources.AUTHOR_HTML,
 ];
 
 export interface ILinkType {
@@ -18,8 +21,19 @@ export interface ILinkType {
   type?: string;
 }
 
+export const MAYBE_OPEN_SOURCES = [
+  Esources.ADS_PDF,
+  Esources.ADS_SCAN,
+  Esources.AUTHOR_HTML,
+  Esources.AUTHOR_PDF,
+  Esources.EPRINT_HTML,
+  Esources.EPRINT_PDF,
+  Esources.PUB_HTML,
+  Esources.PUB_PDF,
+];
+
 // set of link types and descriptions
-export const LINK_TYPES: Record<Esources, ILinkType> = {
+export const LINK_TYPES: Record<keyof typeof Esources, ILinkType> = {
   INSTITUTION: {
     type: 'INSTITUTION',
     shortName: 'My Institution',
