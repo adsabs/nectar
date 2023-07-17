@@ -1,5 +1,6 @@
 import { Database, useGetSingleRecord } from '@api';
 import {
+  AlertStatus,
   Button,
   Checkbox,
   CheckboxGroup,
@@ -11,8 +12,10 @@ import {
   Input,
   Stack,
   Textarea,
+  useDisclosure,
   useToast,
 } from '@chakra-ui/react';
+import { PreviewModal } from '@components';
 import { useGetResourceLinks } from '@lib';
 import { useStore } from '@store';
 import { SingleDatepicker } from 'chakra-dayzed-datepicker';
@@ -27,6 +30,7 @@ import {
   FormikProps,
   useField,
 } from 'formik';
+import { omit } from 'ramda';
 import { useEffect, useRef, useState } from 'react';
 import { KeywordList, ReferencesTable } from '.';
 import { AuthorsTable } from './AuthorsTable';
@@ -69,12 +73,12 @@ const datePropConfig = {
 
 export const RecordPanel = ({
   isNew,
-  onPreview,
   initialFormValues,
+  onOpenAlert,
 }: {
   isNew: boolean;
   initialFormValues?: FormValues;
-  onPreview: (values: FormValues) => void;
+  onOpenAlert: (params: { status: AlertStatus; title: string; description?: string }) => void;
 }) => {
   const toast = useToast({ duration: 4000 });
 
@@ -98,6 +102,10 @@ export const RecordPanel = ({
   };
 
   const formikRef = useRef<FormikProps<FormValues>>();
+
+  const [formValues, setFormValues] = useState<FormValues>(null);
+
+  const { isOpen: isPreviewOpen, onOpen: openPreview, onClose: closePreview } = useDisclosure();
 
   const [loadedFormValues, setLoadedFormValues] = useState<FormValues>(initialFormValues ?? defaultIntialFormValues);
 
@@ -194,11 +202,6 @@ export const RecordPanel = ({
     }
   }, [urlsData, urlsIsSuccess, urlsIsError]);
 
-  const handlePreview = (values: FormValues, { setSubmitting }: FormikHelpers<FormValues>) => {
-    onPreview(values);
-    setSubmitting(false);
-  };
-
   const handleReset = (values: FormValues, helpers: FormikHelpers<FormValues>) => {
     // if creating new record, empty the form
     if (isNew) {
@@ -213,6 +216,21 @@ export const RecordPanel = ({
     }
   };
 
+  const handlePreview = (values: FormValues) => {
+    setFormValues(values);
+    openPreview();
+  };
+
+  const handleSubmitForm = (setSubmitting: (s: boolean) => void, resetForm: () => void) => {
+    console.log(formValues);
+    closePreview();
+    onOpenAlert({
+      status: 'success',
+      title: 'Feedback successfully submitted',
+    });
+    resetForm();
+  };
+
   return (
     <Formik
       initialValues={loadedFormValues}
@@ -221,175 +239,184 @@ export const RecordPanel = ({
       onReset={handleReset}
       innerRef={formikRef}
     >
-      {({ values, isSubmitting }) => (
-        <Form>
-          <Stack direction="column" gap={4} m={0}>
-            <Flex direction="row" gap={2} alignItems="start">
-              <Field name="name">
-                {({ field }: FieldProps) => (
-                  <FormControl isRequired>
-                    <FormLabel>Name</FormLabel>
-                    <Input {...field} autoFocus />
-                  </FormControl>
-                )}
-              </Field>
-
-              <Field name="email">
-                {({ field }: FieldProps) => (
-                  <FormControl isRequired>
-                    <FormLabel>Email</FormLabel>
-                    <Input {...field} type="email" />
-                  </FormControl>
-                )}
-              </Field>
-            </Flex>
-
-            <Field name="bibcode">
-              {({ field }: FieldProps<FormValues['bibcode']>) => (
-                <FormControl isRequired>
-                  <FormLabel>{isNew ? `Bibcode` : `SciX-ID / DOI / Bibcode`}</FormLabel>
-                  <Flex direction="row">
-                    <Input {...field} />
-                    {!isNew && (
-                      <Button
-                        size="md"
-                        borderStartRadius={0}
-                        borderEndRadius={2}
-                        isDisabled={!field.value || field.value.length === 0}
-                        onClick={() => setLoadById(values.bibcode)}
-                        isLoading={loadById !== null && isLoading && urlsIsLoading}
-                      >
-                        Load
-                      </Button>
-                    )}
-                  </Flex>
-                </FormControl>
-              )}
-            </Field>
-
-            {(isNew || (!isNew && ((isSuccess && data.numFound > 0) || values.title?.length > 0))) && (
-              <>
-                <FormControl>
-                  <FormLabel>Collection</FormLabel>
-                  <CheckboxGroup value={values.collection}>
-                    <Field name="collection">
-                      {({ field }: FieldProps) => (
-                        <Stack direction="row">
-                          {collections.map((c) => (
-                            <Checkbox key={`collection-${c.value}`} {...field} value={c.value}>
-                              {c.label}
-                            </Checkbox>
-                          ))}
-                        </Stack>
-                      )}
-                    </Field>
-                  </CheckboxGroup>
-                </FormControl>
-
-                <Field name="title">
+      {({ values, setSubmitting, resetForm }) => (
+        <>
+          <Form>
+            <Stack direction="column" gap={4} m={0}>
+              <Flex direction="row" gap={2} alignItems="start">
+                <Field name="name">
                   {({ field }: FieldProps) => (
                     <FormControl isRequired>
-                      <FormLabel>Title</FormLabel>
-                      <Input {...field} />
+                      <FormLabel>Name</FormLabel>
+                      <Input {...field} autoFocus />
                     </FormControl>
                   )}
                 </Field>
 
-                <Authors />
+                <Field name="email">
+                  {({ field }: FieldProps) => (
+                    <FormControl isRequired>
+                      <FormLabel>Email</FormLabel>
+                      <Input {...field} type="email" />
+                    </FormControl>
+                  )}
+                </Field>
+              </Flex>
 
-                <HStack gap={2}>
-                  <Field name="publication">
+              <Field name="bibcode">
+                {({ field }: FieldProps<FormValues['bibcode']>) => (
+                  <FormControl isRequired>
+                    <FormLabel>{isNew ? `Bibcode` : `SciX-ID / DOI / Bibcode`}</FormLabel>
+                    <Flex direction="row">
+                      <Input {...field} />
+                      {!isNew && (
+                        <Button
+                          size="md"
+                          borderStartRadius={0}
+                          borderEndRadius={2}
+                          isDisabled={!field.value || field.value.length === 0}
+                          onClick={() => setLoadById(values.bibcode)}
+                          isLoading={loadById !== null && isLoading && urlsIsLoading}
+                        >
+                          Load
+                        </Button>
+                      )}
+                    </Flex>
+                  </FormControl>
+                )}
+              </Field>
+
+              {(isNew || (!isNew && ((isSuccess && data.numFound > 0) || values.title?.length > 0))) && (
+                <>
+                  <FormControl>
+                    <FormLabel>Collection</FormLabel>
+                    <CheckboxGroup value={values.collection}>
+                      <Field name="collection">
+                        {({ field }: FieldProps) => (
+                          <Stack direction="row">
+                            {collections.map((c) => (
+                              <Checkbox key={`collection-${c.value}`} {...field} value={c.value}>
+                                {c.label}
+                              </Checkbox>
+                            ))}
+                          </Stack>
+                        )}
+                      </Field>
+                    </CheckboxGroup>
+                  </FormControl>
+
+                  <Field name="title">
                     {({ field }: FieldProps) => (
                       <FormControl isRequired>
-                        <FormLabel>Publication</FormLabel>
+                        <FormLabel>Title</FormLabel>
                         <Input {...field} />
                       </FormControl>
                     )}
                   </Field>
 
-                  <Field name="pubDate">
-                    {({ field }: FieldProps<FormValues['pubDate']>) => (
-                      <FormControl isRequired>
-                        <FormLabel>Publication Date</FormLabel>
-                        <SingleDatepicker
-                          date={values.pubDate}
-                          onDateChange={field.onChange}
-                          propsConfigs={datePropConfig}
+                  <Authors />
+
+                  <HStack gap={2}>
+                    <Field name="publication">
+                      {({ field }: FieldProps) => (
+                        <FormControl isRequired>
+                          <FormLabel>Publication</FormLabel>
+                          <Input {...field} />
+                        </FormControl>
+                      )}
+                    </Field>
+
+                    <Field name="pubDate">
+                      {({ field }: FieldProps<FormValues['pubDate']>) => (
+                        <FormControl isRequired>
+                          <FormLabel>Publication Date</FormLabel>
+                          <SingleDatepicker
+                            date={values.pubDate}
+                            onDateChange={field.onChange}
+                            propsConfigs={datePropConfig}
+                          />
+                        </FormControl>
+                      )}
+                    </Field>
+                  </HStack>
+
+                  <FieldArray name="urls">
+                    {({ remove, push, replace }: FieldArrayRenderProps) => (
+                      <FormControl>
+                        <FormLabel>URLs</FormLabel>
+                        <URLTable
+                          urls={values.urls}
+                          onAddUrl={push}
+                          onDeleteUrl={remove}
+                          onUpdateUrl={replace}
+                          editable
                         />
                       </FormControl>
                     )}
+                  </FieldArray>
+
+                  <Field name="abstract">
+                    {({ field }: FieldProps) => (
+                      <FormControl isRequired>
+                        <FormLabel>Abstract</FormLabel>
+                        <Textarea {...field} rows={10} />
+                      </FormControl>
+                    )}
                   </Field>
-                </HStack>
 
-                <FieldArray name="urls">
-                  {({ remove, push, replace }: FieldArrayRenderProps) => (
-                    <FormControl>
-                      <FormLabel>URLs</FormLabel>
-                      <URLTable
-                        urls={values.urls}
-                        onAddUrl={push}
-                        onDeleteUrl={remove}
-                        onUpdateUrl={replace}
-                        editable
-                      />
-                    </FormControl>
-                  )}
-                </FieldArray>
+                  <FieldArray name="keywords">
+                    {({ remove, push }: FieldArrayRenderProps) => (
+                      <FormControl>
+                        <FormLabel>Keywords</FormLabel>
+                        <KeywordList keywords={values.keywords} onAddKeyword={push} onDeleteKeyword={remove} />
+                      </FormControl>
+                    )}
+                  </FieldArray>
 
-                <Field name="abstract">
-                  {({ field }: FieldProps) => (
-                    <FormControl isRequired>
-                      <FormLabel>Abstract</FormLabel>
-                      <Textarea {...field} rows={10} />
-                    </FormControl>
-                  )}
-                </Field>
+                  <FieldArray name="references">
+                    {({ remove, push, replace }: FieldArrayRenderProps) => (
+                      <FormControl>
+                        <FormLabel>References</FormLabel>
+                        <ReferencesTable
+                          references={values.references}
+                          onAddReference={push}
+                          onDeleteReference={remove}
+                          onUpdateReference={replace}
+                          editable
+                        />
+                      </FormControl>
+                    )}
+                  </FieldArray>
 
-                <FieldArray name="keywords">
-                  {({ remove, push }: FieldArrayRenderProps) => (
-                    <FormControl>
-                      <FormLabel>Keywords</FormLabel>
-                      <KeywordList keywords={values.keywords} onAddKeyword={push} onDeleteKeyword={remove} />
-                    </FormControl>
-                  )}
-                </FieldArray>
+                  <Field name="comment">
+                    {({ field }: FieldProps) => (
+                      <FormControl>
+                        <FormLabel>User Comments</FormLabel>
+                        <Textarea {...field} />
+                      </FormControl>
+                    )}
+                  </Field>
 
-                <FieldArray name="references">
-                  {({ remove, push, replace }: FieldArrayRenderProps) => (
-                    <FormControl>
-                      <FormLabel>References</FormLabel>
-                      <ReferencesTable
-                        references={values.references}
-                        onAddReference={push}
-                        onDeleteReference={remove}
-                        onUpdateReference={replace}
-                        editable
-                      />
-                    </FormControl>
-                  )}
-                </FieldArray>
-
-                <Field name="comment">
-                  {({ field }: FieldProps) => (
-                    <FormControl>
-                      <FormLabel>User Comments</FormLabel>
-                      <Textarea {...field} />
-                    </FormControl>
-                  )}
-                </Field>
-
-                <HStack mt={2}>
-                  <Button type="submit" isLoading={isSubmitting}>
-                    Preview
-                  </Button>
-                  <Button type="reset" variant="outline">
-                    Reset
-                  </Button>
-                </HStack>
-              </>
-            )}
-          </Stack>
-        </Form>
+                  <HStack mt={2}>
+                    <Button type="submit">Preview</Button>
+                    <Button type="reset" variant="outline">
+                      Reset
+                    </Button>
+                  </HStack>
+                </>
+              )}
+            </Stack>
+          </Form>
+          <PreviewModal
+            isOpen={isPreviewOpen}
+            title={isNew ? 'Preview New Record Request' : 'Preview Record Correction Request'}
+            submitterInfo={JSON.stringify({ name: values.name, email: values.email }, null, 2)}
+            mainContentTitle={isNew ? 'New Record' : 'Record updates'}
+            mainContent={JSON.stringify(omit(['name', 'email'], values), null, 2)}
+            onSubmit={() => handleSubmitForm(setSubmitting, resetForm)}
+            onClose={closePreview}
+          />
+        </>
       )}
     </Formik>
   );

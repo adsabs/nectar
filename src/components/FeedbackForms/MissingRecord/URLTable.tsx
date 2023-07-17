@@ -113,7 +113,7 @@ export const URLTable = ({
         {isClient && (
           <Select<SelectOption<UrlType>>
             options={typeOptions}
-            value={newUrl?.type ? typeOptions.find((o) => o.id === newUrl.type) : null}
+            value={newUrl?.type ? typeOptions.find((o) => o.id === newUrl.type) : typeOptions[0]}
             label="new url type"
             hideLabel
             id="url-type-new"

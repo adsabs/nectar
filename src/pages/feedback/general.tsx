@@ -41,6 +41,8 @@ const General: NextPage = () => {
   };
 
   const handleSubmitForm = (values: FormValues, { setSubmitting, resetForm }: FormikHelpers<FormValues>) => {
+    console.log(values);
+    window.scrollTo(0, 0);
     setAlertDetails({
       status: 'success',
       title: 'Feedback successfully submitted',

@@ -9,11 +9,14 @@ import {
   FormErrorMessage,
   IconButton,
   AlertStatus,
+  useDisclosure,
 } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components';
 import { useStore } from '@store';
-import { Formik, Form, Field, FormikHelpers, useField, FieldArray, FieldProps, FieldArrayRenderProps } from 'formik';
+import { Formik, Form, Field, useField, FieldArray, FieldProps, FieldArrayRenderProps } from 'formik';
+import { omit } from 'ramda';
 import { useState, ChangeEvent, useRef } from 'react';
+import { PreviewModal } from '../PreviewModal';
 
 type FormValues = {
   name: string;
@@ -31,59 +34,77 @@ export const AssociatedArticlesForm = ({
 }) => {
   const username = useStore((state) => state.user.username);
 
+  const [formValues, setFormValues] = useState<FormValues>(null);
+
+  const { isOpen: isPreviewOpen, onOpen: openPreview, onClose: closePreview } = useDisclosure();
+
   const initialFormValues: FormValues = {
     name: '',
     email: username ?? '',
-    relationship: null,
+    relationship: 'errata',
     otherRelationship: null,
     mainBibcode: '',
     associatedBibcodes: [],
   };
 
-  const handleSubmitForm = (values: FormValues, { setSubmitting, resetForm }: FormikHelpers<FormValues>) => {
-    console.log(values);
+  const handlePreview = (values: FormValues) => {
+    setFormValues(values);
+    openPreview();
+  };
+
+  const handleSubmitForm = (setSubmitting: (s: boolean) => void, resetForm: () => void) => {
+    console.log(formValues);
+    closePreview();
     onOpenAlert({
       status: 'success',
       title: 'Feedback successfully submitted',
     });
-    setSubmitting(false);
     resetForm();
   };
 
   return (
-    <Formik initialValues={initialFormValues} onSubmit={handleSubmitForm}>
-      {(props) => (
-        <Form>
-          <Flex direction="column" gap={4} my={2}>
-            <HStack gap={2}>
-              <Field name="name">
-                {({ field }: FieldProps) => (
-                  <FormControl isRequired>
-                    <FormLabel>Name</FormLabel>
-                    <Input {...field} autoFocus />
-                  </FormControl>
-                )}
-              </Field>
-              <Field name="email">
-                {({ field }: FieldProps) => (
-                  <FormControl isRequired>
-                    <FormLabel>Email</FormLabel>
-                    <Input {...field} type="email" />
-                  </FormControl>
-                )}
-              </Field>
-            </HStack>
-            <AssociatedTable />
-            <HStack mt={2}>
-              <Button type="submit" isLoading={props.isSubmitting}>
-                Submit
-              </Button>
-              <Button type="reset" variant="outline">
-                Reset
-              </Button>
-            </HStack>
-          </Flex>
-        </Form>
+    <Formik initialValues={initialFormValues} onSubmit={handlePreview}>
+      {({ values, setSubmitting, resetForm }) => (
+        <>
+          <Form>
+            <Flex direction="column" gap={4} my={2}>
+              <HStack gap={2}>
+                <Field name="name">
+                  {({ field }: FieldProps) => (
+                    <FormControl isRequired>
+                      <FormLabel>Name</FormLabel>
+                      <Input {...field} autoFocus />
+                    </FormControl>
+                  )}
+                </Field>
+                <Field name="email">
+                  {({ field }: FieldProps) => (
+                    <FormControl isRequired>
+                      <FormLabel>Email</FormLabel>
+                      <Input {...field} type="email" />
+                    </FormControl>
+                  )}
+                </Field>
+              </HStack>
+              <AssociatedTable />
+              <HStack mt={2}>
+                <Button type="submit">Preview</Button>
+                <Button type="reset" variant="outline">
+                  Reset
+                </Button>
+              </HStack>
+            </Flex>
+          </Form>
+          <PreviewModal
+            isOpen={isPreviewOpen}
+            title="Preview Associated Articles Request"
+            submitterInfo={JSON.stringify({ name: values.name, email: values.email }, null, 2)}
+            mainContentTitle="Correlated Articles"
+            mainContent={JSON.stringify(omit(['name', 'email'], values), null, 2)}
+            onSubmit={() => handleSubmitForm(setSubmitting, resetForm)}
+            onClose={closePreview}
+          />
+        </>
       )}
     </Formik>
   );
@@ -138,9 +159,9 @@ export const AssociatedTable = () => {
         {({ field, form }: FieldProps) => (
           <FormControl isRequired isInvalid={!!form.errors.relationship && !!form.touched.relationship}>
             <FormLabel>Relation Type</FormLabel>
-            <Select
+            <Select<SelectOption<string>>
               options={relationOptions}
-              value={relationOptions.find((o) => o.value === field.value) ?? null}
+              value={relationOptions.find((o) => o.value === field.value)}
               name="relation-type"
               label="Relation Type"
               id="relation-options"
