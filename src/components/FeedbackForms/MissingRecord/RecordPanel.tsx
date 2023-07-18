@@ -33,7 +33,8 @@ import { omit } from 'ramda';
 import { useEffect, useRef, useState } from 'react';
 import { KeywordList, ReferencesTable } from '.';
 import { AuthorsTable } from './AuthorsTable';
-import { IAuthor, FormValues, IUrl, IReference } from './types';
+import { getDiffSections } from './DiffUtil';
+import { IAuthor, FormValues, IUrl, IReference, DiffSection } from './types';
 import { URLTable } from './URLTable';
 
 const collections: { value: Database; label: string }[] = [
@@ -42,28 +43,24 @@ const collections: { value: Database; label: string }[] = [
   { value: 'general', label: 'General' },
 ];
 
-// TODO: pub date
-// TODO: pagination authors and other tables
-// TODO: set autofocus in each tables
 // TODO: speed problem
 // TODO: validate email on all forms
 // TODO: scroll to top after submission
 // TODO: scroll to invalid field at onpreview
+// TODO: pagination authors and other tables
 
 export const RecordPanel = ({
   isNew,
-  initialFormValues,
   onOpenAlert,
 }: {
   isNew: boolean;
-  initialFormValues?: FormValues;
   onOpenAlert: (params: { status: AlertStatus; title: string; description?: string }) => void;
 }) => {
   const toast = useToast({ duration: 4000 });
 
   const username = useStore((state) => state.user.username);
 
-  const defaultIntialFormValues = {
+  const intialFormValues = {
     name: '',
     email: username ?? '',
     bibcode: '',
@@ -82,11 +79,17 @@ export const RecordPanel = ({
 
   const formikRef = useRef<FormikProps<FormValues>>();
 
+  // active form values
   const [formValues, setFormValues] = useState<FormValues>(null);
 
   const { isOpen: isPreviewOpen, onOpen: openPreview, onClose: closePreview } = useDisclosure();
 
-  const [loadedFormValues, setLoadedFormValues] = useState<FormValues>(initialFormValues ?? defaultIntialFormValues);
+  // preview diff when editing existing record
+  const [diffSections, setDiffSections] = useState<DiffSection[]>([]);
+
+  // original form values from existing record
+  // used for diff view
+  const [recordOriginalFormValues, setRecordOriginalFormValues] = useState<FormValues>(intialFormValues);
 
   const [loadById, setLoadById] = useState<string>(null);
 
@@ -136,7 +139,7 @@ export const RecordPanel = ({
     // TODO: support other types: Type is not implemented internally. Here we are saying type is always bibcode
     const references: IReference[] = reference.map((r) => ({ type: 'Bibcode', reference: r }));
 
-    setLoadedFormValues({
+    setRecordOriginalFormValues({
       name: formikRef.current.values.name,
       email: formikRef.current.values.email,
       bibcode: loadById,
@@ -155,7 +158,7 @@ export const RecordPanel = ({
   };
 
   const loadFormValuesWithUrlsData = () => {
-    setLoadedFormValues((prev) => ({
+    setRecordOriginalFormValues((prev) => ({
       ...prev,
       urls: urlsData,
     }));
@@ -184,7 +187,7 @@ export const RecordPanel = ({
   const handleReset = (values: FormValues, helpers: FormikHelpers<FormValues>) => {
     // if creating new record, empty the form
     if (isNew) {
-      helpers.setValues(defaultIntialFormValues);
+      helpers.setValues(intialFormValues);
     } else if (data && isSuccess) {
       // if editing existing record and a valid record has been loaded
       // reset to original record values
@@ -196,6 +199,10 @@ export const RecordPanel = ({
   };
 
   const handlePreview = (values: FormValues) => {
+    if (!isNew) {
+      setDiffSections(getDiffSections(recordOriginalFormValues, values));
+    }
+    // save values for submission
     setFormValues(values);
     openPreview();
   };
@@ -212,7 +219,7 @@ export const RecordPanel = ({
 
   return (
     <Formik
-      initialValues={loadedFormValues}
+      initialValues={recordOriginalFormValues}
       enableReinitialize
       onSubmit={handlePreview}
       onReset={handleReset}
@@ -380,7 +387,7 @@ export const RecordPanel = ({
             title={isNew ? 'Preview New Record Request' : 'Preview Record Correction Request'}
             submitterInfo={JSON.stringify({ name: values.name, email: values.email }, null, 2)}
             mainContentTitle={isNew ? 'New Record' : 'Record updates'}
-            mainContent={JSON.stringify(omit(['name', 'email'], values), null, 2)}
+            mainContent={isNew ? JSON.stringify(omit(['name', 'email'], values), null, 2) : diffSections}
             onSubmit={() => handleSubmitForm(setSubmitting, resetForm)}
             onClose={closePreview}
           />

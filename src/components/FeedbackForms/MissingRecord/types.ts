@@ -1,4 +1,5 @@
 import { Database } from '@api/search';
+import { ArrayChange, Change } from 'diff';
 
 export interface IAuthor {
   name: string;
@@ -39,4 +40,11 @@ export type FormValues = {
   keywords: string[];
   references: IReference[];
   comments: string;
+};
+
+export type DiffSection = {
+  label: string;
+  changes: (ArrayChange<string> | Change)[];
+  type: 'array' | 'text';
+  newValue: string;
 };

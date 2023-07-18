@@ -12,8 +12,6 @@ const Record: NextPage = () => {
     title: '',
   });
 
-  // TODO: diff view
-
   const [isNew, setIsNew] = useState(true);
 
   const handleTabChange = (i: number) => {
