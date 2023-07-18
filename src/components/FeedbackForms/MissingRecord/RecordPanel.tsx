@@ -18,7 +18,6 @@ import {
 import { PreviewModal } from '@components';
 import { useGetResourceLinks } from '@lib';
 import { useStore } from '@store';
-import { SingleDatepicker } from 'chakra-dayzed-datepicker';
 import {
   Field,
   FieldArray,
@@ -43,33 +42,13 @@ const collections: { value: Database; label: string }[] = [
   { value: 'general', label: 'General' },
 ];
 
-const datePropConfig = {
-  dateNavBtnProps: {
-    variant: 'outline',
-  },
-  dayOfMonthBtnProps: {
-    defaultBtnProps: {
-      borderColor: 'red.300',
-      _hover: {
-        background: 'blue.400',
-      },
-    },
-    selectedBtnProps: {
-      background: 'blue.200',
-      borderColor: 'blue.300',
-      color: 'blue.600',
-    },
-    todayBtnProps: {
-      variant: 'outline',
-    },
-  },
-};
-
 // TODO: pub date
 // TODO: pagination authors and other tables
 // TODO: set autofocus in each tables
 // TODO: speed problem
 // TODO: validate email on all forms
+// TODO: scroll to top after submission
+// TODO: scroll to invalid field at onpreview
 
 export const RecordPanel = ({
   isNew,
@@ -93,7 +72,7 @@ export const RecordPanel = ({
     noAuthors: false,
     authors: [] as IAuthor[],
     publication: '',
-    pubDate: new Date(),
+    pubDate: '',
     urls: [] as IUrl[],
     abstract: '',
     keywords: [] as string[],
@@ -164,7 +143,7 @@ export const RecordPanel = ({
       abstract,
       title: title[0],
       publication: pub_raw,
-      pubDate: new Date(pubdate.replace('00', '01')),
+      pubDate: pubdate,
       noAuthors: !author || authors.length === 0,
       authors,
       keywords: keyword,
@@ -316,7 +295,7 @@ export const RecordPanel = ({
 
                   <Authors />
 
-                  <HStack gap={2}>
+                  <HStack gap={2} alignItems="start">
                     <Field name="publication">
                       {({ field }: FieldProps) => (
                         <FormControl isRequired>
@@ -326,18 +305,7 @@ export const RecordPanel = ({
                       )}
                     </Field>
 
-                    <Field name="pubDate">
-                      {({ field }: FieldProps<FormValues['pubDate']>) => (
-                        <FormControl isRequired>
-                          <FormLabel>Publication Date</FormLabel>
-                          <SingleDatepicker
-                            date={values.pubDate}
-                            onDateChange={field.onChange}
-                            propsConfigs={datePropConfig}
-                          />
-                        </FormControl>
-                      )}
-                    </Field>
+                    <PubDate />
                   </HStack>
 
                   <FieldArray name="urls">
@@ -419,6 +387,28 @@ export const RecordPanel = ({
         </>
       )}
     </Formik>
+  );
+};
+
+const PubDate = () => {
+  useField<string>({
+    name: 'pubDate',
+    validate: (value: string) => {
+      if (!/[\d]{4}-(((0[1-9]|1[012])(-(0[0-9]|1[0-9]|2[0-9]|3[0-1])){0,1})|(00)|(00-00))$/.test(value)) {
+        return 'Not a valid date. Valid formats are YYYY-MM, YYYY-MM-DD, YYYY-00, YYYY-00-00, YYYY-MM-00';
+      }
+    },
+  });
+  return (
+    <Field name="pubDate">
+      {({ field, form }: FieldProps<FormValues['pubDate']>) => (
+        <FormControl isRequired isInvalid={!!form.errors.pubDate && !!form.touched.pubDate}>
+          <FormLabel>Publication Date</FormLabel>
+          <Input {...field} placeholder="yyyy-mm-dd" />
+          <FormErrorMessage>{form.errors.pubDate}</FormErrorMessage>
+        </FormControl>
+      )}
+    </Field>
   );
 };
 

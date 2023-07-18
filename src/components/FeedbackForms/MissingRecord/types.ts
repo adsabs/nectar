@@ -33,7 +33,7 @@ export type FormValues = {
   noAuthors: boolean;
   authors: IAuthor[];
   publication: string;
-  pubDate: Date;
+  pubDate: string;
   urls: IUrl[];
   abstract: string;
   keywords: string[];

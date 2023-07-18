@@ -55,7 +55,7 @@ export const PreviewPanel = ({ data }: { data: FormValues }) => {
             </Tr>
             <Tr>
               <Td fontWeight="bold">Publication Date</Td>
-              <Td>{pubDate.toDateString()}</Td>
+              <Td>{pubDate}</Td>
             </Tr>
             <Tr>
               <Td fontWeight="bold">URLs</Td>
