@@ -102,7 +102,7 @@ export const ReferencesTable = ({
         {isClient && (
           <Select<SelectOption<ReferenceType>>
             options={typeOptions}
-            value={newReference?.type ? typeOptions.find((o) => o.id === newReference.type) : typeOptions[0]}
+            value={newReference?.type ? typeOptions.find((o) => o.id === newReference.type) : null}
             label="new Reference type"
             hideLabel
             id="Reference-type-new"

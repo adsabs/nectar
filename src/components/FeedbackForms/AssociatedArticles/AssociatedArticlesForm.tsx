@@ -41,7 +41,7 @@ export const AssociatedArticlesForm = ({
   const initialFormValues: FormValues = {
     name: '',
     email: username ?? '',
-    relationship: 'errata',
+    relationship: null,
     otherRelationship: null,
     mainBibcode: '',
     associatedBibcodes: [],
@@ -161,7 +161,7 @@ export const AssociatedTable = () => {
             <FormLabel>Relation Type</FormLabel>
             <Select<SelectOption<string>>
               options={relationOptions}
-              value={relationOptions.find((o) => o.value === field.value)}
+              value={relationOptions.find((o) => o.value === field.value) ?? null}
               name="relation-type"
               label="Relation Type"
               id="relation-options"
