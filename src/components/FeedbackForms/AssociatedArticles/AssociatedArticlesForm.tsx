@@ -1,3 +1,4 @@
+import { IFeedbackParams, Relationship } from '@api/feedback';
 import { DeleteIcon, AddIcon } from '@chakra-ui/icons';
 import {
   Flex,
@@ -13,16 +14,16 @@ import {
 } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components';
 import { useStore } from '@store';
-import { Formik, Form, Field, useField, FieldArray, FieldProps, FieldArrayRenderProps } from 'formik';
+import { Formik, Form, Field, useField, FieldArray, FieldProps, FieldArrayRenderProps, FormikProps } from 'formik';
 import { omit } from 'ramda';
-import { useState, ChangeEvent, useRef } from 'react';
+import { useState, ChangeEvent, useRef, useEffect } from 'react';
 import { PreviewModal } from '../PreviewModal';
 
 type FormValues = {
   name: string;
   email: string;
   relationship: string;
-  otherRelationship: string;
+  otherRelationship: Relationship;
   mainBibcode: string;
   associatedBibcodes: string[];
 };
@@ -33,8 +34,6 @@ export const AssociatedArticlesForm = ({
   onOpenAlert: (params: { status: AlertStatus; title: string; description?: string }) => void;
 }) => {
   const username = useStore((state) => state.user.username);
-
-  const [formValues, setFormValues] = useState<FormValues>(null);
 
   const { isOpen: isPreviewOpen, onOpen: openPreview, onClose: closePreview } = useDisclosure();
 
@@ -47,24 +46,55 @@ export const AssociatedArticlesForm = ({
     associatedBibcodes: [],
   };
 
-  const handlePreview = (values: FormValues) => {
-    setFormValues(values);
-    openPreview();
+  const formikRef = useRef<FormikProps<FormValues>>();
+
+  const [params, setParams] = useState<IFeedbackParams>(null);
+
+  // open preview when params set
+  useEffect(() => {
+    if (params !== null) {
+      openPreview();
+    }
+  }, [params]);
+
+  // clear params when preview closed
+  useEffect(() => {
+    if (!isPreviewOpen) {
+      setParams(null);
+    }
+  }, [isPreviewOpen]);
+
+  const handlePreview = () => {
+    const { email, name, relationship, otherRelationship, mainBibcode, associatedBibcodes } = formikRef.current.values;
+
+    // set params will trigger opening preview
+    setParams({
+      origin: 'user_submission',
+      _subject: 'Associated Articles',
+      name,
+      email,
+      'g-recaptcha-response': null,
+      source: mainBibcode,
+      target: associatedBibcodes,
+      relationship: relationship as Relationship,
+      custom_name: otherRelationship ?? undefined,
+    });
   };
 
-  const handleSubmitForm = (setSubmitting: (s: boolean) => void, resetForm: () => void) => {
-    console.log(formValues);
-    closePreview();
-    onOpenAlert({
-      status: 'success',
-      title: 'Feedback successfully submitted',
-    });
-    resetForm();
+  // submitted
+  const handleOnSuccess = () => {
+    onOpenAlert({ status: 'success', title: 'Feedback submitted successfully' });
+    formikRef.current.resetForm();
+  };
+
+  // submission error
+  const handleError = (error: string) => {
+    onOpenAlert({ status: 'error', title: error });
   };
 
   return (
-    <Formik initialValues={initialFormValues} onSubmit={handlePreview}>
-      {({ values, setSubmitting, resetForm }) => (
+    <Formik initialValues={initialFormValues} onSubmit={handlePreview} innerRef={formikRef}>
+      {({ values }) => (
         <>
           <Form>
             <Flex direction="column" gap={4} my={2}>
@@ -95,22 +125,27 @@ export const AssociatedArticlesForm = ({
               </HStack>
             </Flex>
           </Form>
-          <PreviewModal
-            isOpen={isPreviewOpen}
-            title="Preview Associated Articles Request"
-            submitterInfo={JSON.stringify({ name: values.name, email: values.email }, null, 2)}
-            mainContentTitle="Correlated Articles"
-            mainContent={JSON.stringify(omit(['name', 'email'], values), null, 2)}
-            onSubmit={() => handleSubmitForm(setSubmitting, resetForm)}
-            onClose={closePreview}
-          />
+          {/* intentionally make this remount each time so that recaptcha is regenerated */}
+          {isPreviewOpen && (
+            <PreviewModal
+              params={params}
+              isOpen={true}
+              title="Preview Associated Articles Request"
+              submitterInfo={JSON.stringify({ name: values.name, email: values.email }, null, 2)}
+              mainContentTitle="Correlated Articles"
+              mainContent={JSON.stringify(omit(['name', 'email'], values), null, 2)}
+              onClose={closePreview}
+              onSuccess={handleOnSuccess}
+              onError={handleError}
+            />
+          )}
         </>
       )}
     </Formik>
   );
 };
 
-const relationOptions: SelectOption<string>[] = [
+const relationOptions: SelectOption<Relationship>[] = [
   { id: 'errata', value: 'errata', label: 'Main Paper/Errata' },
   { id: 'addenda', value: 'addenda', label: 'Main Paper/Addenda' },
   { id: 'series', value: 'series', label: 'Series of Articles' },

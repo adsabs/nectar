@@ -16,29 +16,28 @@ import {
 } from '@chakra-ui/react';
 import { FieldArray, FieldArrayRenderProps, useField } from 'formik';
 import { useState, ChangeEvent, MouseEvent, useRef } from 'react';
-
-type Reference = [string, string];
+import { Reference } from './types';
 
 export const MissingReferenceTable = () => {
   // the input fields for adding a new reference
-  const [newReference, setNewReference] = useState<Reference>(['', '']);
+  const [newReference, setNewReference] = useState<Reference>({ citing: '', cited: '' });
 
   const newReferenceRef = useRef<HTMLInputElement>();
 
   // editing reference input values
   const [editingReference, setEditingReference] = useState<{ index: number; reference: Reference }>({
     index: -1,
-    reference: ['', ''],
+    reference: { citing: '', cited: '' },
   });
 
   // Fields for adding new reference
 
   const handleCitingInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setNewReference((prev) => [e.target.value, prev[1]]);
+    setNewReference((prev) => ({ ...prev, citing: e.target.value }));
   };
 
   const handleCitedInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setNewReference((prev) => [prev[0], e.target.value]);
+    setNewReference((prev) => ({ ...prev, cited: e.target.value }));
   };
 
   // Editing existing reference
@@ -49,15 +48,15 @@ export const MissingReferenceTable = () => {
   };
 
   const handleEditCitingInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEditingReference((prev) => ({ index: prev.index, reference: [e.target.value, prev.reference[1]] }));
+    setEditingReference((prev) => ({ index: prev.index, reference: { ...prev.reference, citing: e.target.value } }));
   };
 
   const handleEditCitedInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEditingReference((prev) => ({ index: prev.index, reference: [prev.reference[0], e.target.value] }));
+    setEditingReference((prev) => ({ index: prev.index, reference: { ...prev.reference, cited: e.target.value } }));
   };
 
   const handleCancelEditReference = () => {
-    setEditingReference({ index: -1, reference: ['', ''] });
+    setEditingReference({ index: -1, reference: { citing: '', cited: '' } });
   };
 
   const [referencesField] = useField<Reference[]>({
@@ -87,18 +86,22 @@ export const MissingReferenceTable = () => {
               <Tbody>
                 {references.map((r, index) =>
                   editingReference.index === index ? (
-                    <Tr key={`ref-${r[1]}+${r[1]}`}>
+                    <Tr key={`ref-${r.citing}+${r.cited}`}>
                       <Td>{index + 1}</Td>
                       <Td>
                         <Input
                           size="sm"
                           onChange={handleEditCitingInputChange}
-                          value={editingReference.reference[0]}
+                          value={editingReference.reference.citing}
                           autoFocus
                         />
                       </Td>
                       <Td>
-                        <Input size="sm" onChange={handleEditCitedInputChange} value={editingReference.reference[1]} />
+                        <Input
+                          size="sm"
+                          onChange={handleEditCitedInputChange}
+                          value={editingReference.reference.cited}
+                        />
                       </Td>
                       <Td>
                         <HStack>
@@ -110,7 +113,7 @@ export const MissingReferenceTable = () => {
                             data-index={index}
                             onClick={() => {
                               replace(index, editingReference.reference);
-                              setEditingReference({ index: -1, reference: ['', ''] });
+                              setEditingReference({ index: -1, reference: { citing: '', cited: '' } });
                             }}
                           />
                           <IconButton
@@ -125,10 +128,10 @@ export const MissingReferenceTable = () => {
                       </Td>
                     </Tr>
                   ) : (
-                    <Tr key={`ref-${r[1]}+${r[1]}`}>
+                    <Tr key={`ref-${r.citing}+${r.cited}`}>
                       <Td>{index + 1}</Td>
-                      <Td>{r[0]}</Td>
-                      <Td>{r[1]}</Td>
+                      <Td>{r.citing}</Td>
+                      <Td>{r.cited}</Td>
                       <Td>
                         <HStack>
                           <IconButton
@@ -158,7 +161,7 @@ export const MissingReferenceTable = () => {
                       size="sm"
                       placeholder="1998ApJ...501L..41Y"
                       onChange={handleCitingInputChange}
-                      value={newReference[0]}
+                      value={newReference.citing}
                       ref={newReferenceRef}
                     />
                   </Td>
@@ -167,7 +170,7 @@ export const MissingReferenceTable = () => {
                       size="sm"
                       placeholder="1998ApJ...501L..41Y"
                       onChange={handleCitedInputChange}
-                      value={newReference[1]}
+                      value={newReference.cited}
                     />
                   </Td>
                   <Td>
@@ -176,10 +179,10 @@ export const MissingReferenceTable = () => {
                       icon={<CheckIcon />}
                       variant="outline"
                       colorScheme="green"
-                      isDisabled={newReference[0].length === 0 || newReference[1].length === 0}
+                      isDisabled={newReference.citing.length === 0 || newReference.cited.length === 0}
                       onClick={() => {
                         push(newReference);
-                        setNewReference(['', '']);
+                        setNewReference({ citing: '', cited: '' });
                         newReferenceRef.current.focus();
                       }}
                     />

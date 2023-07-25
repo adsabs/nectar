@@ -1,4 +1,5 @@
 import { Database, useGetSingleRecord } from '@api';
+import { IFeedbackParams } from '@api/feedback';
 import {
   AlertStatus,
   Button,
@@ -33,7 +34,7 @@ import { omit } from 'ramda';
 import { useEffect, useRef, useState } from 'react';
 import { KeywordList, ReferencesTable } from '.';
 import { AuthorsTable } from './AuthorsTable';
-import { getDiffSections } from './DiffUtil';
+import { getDiffSections, getDiffString, processFormValues } from './DiffUtil';
 import { IAuthor, FormValues, IUrl, IReference, DiffSection } from './types';
 import { URLTable } from './URLTable';
 
@@ -48,6 +49,7 @@ const collections: { value: Database; label: string }[] = [
 // TODO: scroll to top after submission
 // TODO: scroll to invalid field at onpreview
 // TODO: pagination authors and other tables
+// TODO: reorder authors
 
 export const RecordPanel = ({
   isNew,
@@ -79,9 +81,6 @@ export const RecordPanel = ({
 
   const formikRef = useRef<FormikProps<FormValues>>();
 
-  // active form values
-  const [formValues, setFormValues] = useState<FormValues>(null);
-
   const { isOpen: isPreviewOpen, onOpen: openPreview, onClose: closePreview } = useDisclosure();
 
   // preview diff when editing existing record
@@ -92,6 +91,15 @@ export const RecordPanel = ({
   const [recordOriginalFormValues, setRecordOriginalFormValues] = useState<FormValues>(intialFormValues);
 
   const [loadById, setLoadById] = useState<string>(null);
+
+  const [params, setParams] = useState<IFeedbackParams>(null);
+
+  // open preview when params set
+  useEffect(() => {
+    if (params !== null) {
+      openPreview();
+    }
+  }, [params]);
 
   // fetch record
   const { data, isLoading, isSuccess, error } = useGetSingleRecord(
@@ -184,6 +192,20 @@ export const RecordPanel = ({
     }
   }, [urlsData, urlsIsSuccess, urlsIsError]);
 
+  // open preview when params set
+  useEffect(() => {
+    if (params !== null) {
+      openPreview();
+    }
+  }, [params]);
+
+  // clear params when preview closed
+  useEffect(() => {
+    if (!isPreviewOpen) {
+      setParams(null);
+    }
+  }, [isPreviewOpen]);
+
   const handleReset = (values: FormValues, helpers: FormikHelpers<FormValues>) => {
     // if creating new record, empty the form
     if (isNew) {
@@ -202,19 +224,38 @@ export const RecordPanel = ({
     if (!isNew) {
       setDiffSections(getDiffSections(recordOriginalFormValues, values));
     }
-    // save values for submission
-    setFormValues(values);
-    openPreview();
+
+    const { email, name } = values;
+    const diffString = isNew ? '' : getDiffString(recordOriginalFormValues, values);
+
+    setParams({
+      origin: 'user_submission',
+      'g-recaptcha-response': null,
+      _subject: `${isNew ? 'New' : 'Updated'} Record`,
+      original: processFormValues(recordOriginalFormValues),
+      new: processFormValues(values),
+      name,
+      email,
+      diff: diffString,
+    });
   };
 
-  const handleSubmitForm = (setSubmitting: (s: boolean) => void, resetForm: () => void) => {
-    console.log(formValues);
-    closePreview();
-    onOpenAlert({
-      status: 'success',
-      title: 'Feedback successfully submitted',
-    });
-    resetForm();
+  // submitted
+  const handleOnSuccess = () => {
+    onOpenAlert({ status: 'success', title: 'Feedback submitted successfully' });
+    if (isNew) {
+      formikRef.current.resetForm();
+    } else {
+      // reset will clear the form, but still show all fields just emptied
+      // for existing record, reset the values will hide all fields expcet bibcode
+      formikRef.current.setValues(intialFormValues);
+    }
+    setLoadById(null);
+  };
+
+  // submission error
+  const handleError = (error: string) => {
+    onOpenAlert({ status: 'error', title: error });
   };
 
   return (
@@ -225,7 +266,7 @@ export const RecordPanel = ({
       onReset={handleReset}
       innerRef={formikRef}
     >
-      {({ values, setSubmitting, resetForm }) => (
+      {({ values }) => (
         <>
           <Form>
             <Stack direction="column" gap={4} m={0}>
@@ -382,15 +423,20 @@ export const RecordPanel = ({
               )}
             </Stack>
           </Form>
-          <PreviewModal
-            isOpen={isPreviewOpen}
-            title={isNew ? 'Preview New Record Request' : 'Preview Record Correction Request'}
-            submitterInfo={JSON.stringify({ name: values.name, email: values.email }, null, 2)}
-            mainContentTitle={isNew ? 'New Record' : 'Record updates'}
-            mainContent={isNew ? JSON.stringify(omit(['name', 'email'], values), null, 2) : diffSections}
-            onSubmit={() => handleSubmitForm(setSubmitting, resetForm)}
-            onClose={closePreview}
-          />
+          {/* intentionally make this remount each time so that recaptcha is regenerated */}
+          {isPreviewOpen && (
+            <PreviewModal
+              isOpen={isPreviewOpen}
+              title={isNew ? 'Preview New Record Request' : 'Preview Record Correction Request'}
+              submitterInfo={JSON.stringify({ name: values.name, email: values.email }, null, 2)}
+              mainContentTitle={isNew ? 'New Record' : 'Record updates'}
+              mainContent={isNew ? JSON.stringify(omit(['name', 'email'], values), null, 2) : diffSections}
+              onClose={closePreview}
+              onSuccess={handleOnSuccess}
+              onError={handleError}
+              params={params}
+            />
+          )}
         </>
       )}
     </Formik>

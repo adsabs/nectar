@@ -1,3 +1,4 @@
+import { IFeedbackParams, useFeedback } from '@api/feedback';
 import {
   Button,
   Flex,
@@ -11,10 +12,14 @@ import {
   AlertStatus,
 } from '@chakra-ui/react';
 import { FeedbackLayout, FeedbackAlert } from '@components';
+import { useRecaptcha } from '@lib/useRecaptcha';
 import { useStore } from '@store';
-import { Field, FieldProps, Form, Formik, FormikHelpers } from 'formik';
+import { parseAPIError } from '@utils';
+import { Field, FieldProps, Form, Formik, FormikProps } from 'formik';
 import { NextPage } from 'next';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import ReCAPTCHA from 'react-google-recaptcha';
+import { v4 } from 'uuid';
 
 export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
 
@@ -26,6 +31,12 @@ type FormValues = {
 
 const General: NextPage = () => {
   const username = useStore((state) => state.user.username);
+
+  const [params, setParams] = useState<IFeedbackParams>(null);
+
+  const [recaptcha, setRecaptcha] = useState<string>(null);
+
+  const [uuid, setUuid] = useState(v4()); // use this to force remount MyRecaptcha to generate new value
 
   const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({
     status: 'success',
@@ -40,16 +51,65 @@ const General: NextPage = () => {
     feedback: '',
   };
 
-  const handleSubmitForm = (values: FormValues, { setSubmitting, resetForm }: FormikHelpers<FormValues>) => {
-    console.log(values);
-    window.scrollTo(0, 0);
-    setAlertDetails({
-      status: 'success',
-      title: 'Feedback successfully submitted',
+  const formikRef = useRef<FormikProps<FormValues>>();
+
+  // trigger when recaptcha is generated
+  const { isLoading, isSuccess, error } = useFeedback(
+    { ...params, 'g-recaptcha-response': recaptcha } as IFeedbackParams,
+    {
+      enabled: !!params && !!recaptcha,
+    },
+  );
+
+  useEffect(() => {
+    if (!isLoading) {
+      formikRef.current.setSubmitting(false);
+
+      if (isSuccess) {
+        setAlertDetails({
+          status: 'success',
+          title: 'Feedback submitted successfully',
+        });
+
+        formikRef.current.resetForm();
+      } else {
+        setAlertDetails({
+          status: 'error',
+          title: parseAPIError(error),
+        });
+      }
+      onAlertOpen();
+
+      // reset
+      setRecaptcha(null);
+      setParams(null);
+      setUuid(v4());
+    }
+  }, [isLoading, isSuccess]);
+
+  const handleSubmitForm = (values: FormValues) => {
+    // set params to enable sending query
+    setParams({
+      name: values.name,
+      _replyto: values.email,
+      _subject: 'Nectar Feedback',
+      'feedback-type': 'feedback',
+      'user-agent-string': navigator.userAgent,
+      origin: 'bbb_feedback', // indicate general feedback
+      'g-recaptcha-response': null,
+      comments: values.feedback,
     });
-    onAlertOpen();
-    setSubmitting(false);
-    resetForm();
+  };
+
+  const handleRecaptcha = (r: string) => {
+    setRecaptcha(r);
+  };
+
+  const handleRecaptchaError = (e: string) => {
+    setAlertDetails({
+      status: 'error',
+      title: e,
+    });
   };
 
   const alert = (
@@ -68,9 +128,10 @@ const General: NextPage = () => {
       <Text my={2}>
         You can also reach us at <strong>adshelp [at] cfa.harvard.edu</strong>
       </Text>
-      <Formik initialValues={initialFormValues} onSubmit={handleSubmitForm}>
+      <Formik initialValues={initialFormValues} onSubmit={handleSubmitForm} innerRef={formikRef}>
         {(props) => (
           <Form>
+            <Recaptcha onRecaptcha={handleRecaptcha} onError={handleRecaptchaError} key={uuid} />
             <Flex direction="column" gap={4}>
               <HStack gap={2}>
                 <Field name="name">
@@ -102,7 +163,7 @@ const General: NextPage = () => {
                 <Button type="submit" isLoading={props.isSubmitting}>
                   Submit
                 </Button>
-                <Button type="reset" variant="outline">
+                <Button type="reset" variant="outline" isDisabled={props.isSubmitting}>
                   Reset
                 </Button>
               </HStack>
@@ -115,3 +176,22 @@ const General: NextPage = () => {
 };
 
 export default General;
+
+const Recaptcha = ({
+  onRecaptcha,
+  onError,
+}: {
+  onRecaptcha: (recaptcha: string) => void;
+  onError: (error: string) => void;
+}) => {
+  const { getRecaptchaProps } = useRecaptcha({
+    onExecute: (r) => {
+      onRecaptcha(r);
+    },
+    onError: (error) => {
+      onError(parseAPIError(error));
+    },
+    enabled: true,
+  });
+  return <ReCAPTCHA {...getRecaptchaProps()} />;
+};
