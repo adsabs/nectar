@@ -18,7 +18,7 @@ export const DiffSectionPanel = ({ section }: IDiffSectionPanelProps) => {
         </Box>
         <Box p={2}>
           {type === 'array' ? (
-            <ArrayChanges key={label} changes={changes as ArrayChange<string>[]} />
+            <ArrayChanges label={label} changes={changes as ArrayChange<string>[]} />
           ) : (
             <TextChanges changes={changes as Change[]} newValue={newValue} />
           )}
@@ -28,7 +28,7 @@ export const DiffSectionPanel = ({ section }: IDiffSectionPanelProps) => {
   );
 };
 
-const ArrayChanges = ({ key, changes }: { key: string; changes: ArrayChange<string>[] }) => {
+const ArrayChanges = ({ label, changes }: { label: string; changes: ArrayChange<string>[] }) => {
   let i = 0;
   return (
     <>
@@ -39,31 +39,32 @@ const ArrayChanges = ({ key, changes }: { key: string; changes: ArrayChange<stri
           return [
             ...val,
             ...change.value.map((v, idx) => (
-              <Add key={`${key}-${idx + currentCount}`} value={`+ ${idx + currentCount + 1} ${v}`} />
+              <Add key={`add-${label}-${idx + currentCount}`} value={`+ ${idx + currentCount + 1} ${v}`} />
             )),
           ];
         } else if (change.removed) {
           return [
             ...val,
-            ...change.value.map((v, idx) => <Remove key={`${key}-${i + idx}`} value={`- ${i + idx + 1} ${v}`} />),
+            ...change.value.map((v, idx) => <Remove key={`rm-${label}-${i + idx}`} value={`- ${i + idx + 1} ${v}`} />),
           ];
         }
         i += change.count || 0;
-        return [...val, <Text key={`${key}-${i}`}>...</Text>];
+        return [...val, <Text key={`text-${label}-${i}`}>...</Text>];
       }, [])}
     </>
   );
 };
 
 const TextChanges = ({ changes, newValue }: { changes: Change[]; newValue: string }) => {
+  let i = 0;
   return (
     <>
       <Text fontWeight="bold">Diff:</Text>
       {changes.reduce<ReactJSXElement[]>((list, change) => {
         if (change.added) {
-          return [...list, <Add value={change.value} display="inline" />];
+          return [...list, <Add value={change.value} display="inline" key={`textadd-${i++}`} />];
         } else if (change.removed) {
-          return [...list, <Remove value={change.value} display="inline" />];
+          return [...list, <Remove value={change.value} display="inline" key={`textrm-${i++}`} />];
         }
         return [...list, <Text display="inline">{change.value}</Text>];
       }, [])}

@@ -50,6 +50,8 @@ const collections: { value: Database; label: string }[] = [
 // TODO: scroll to invalid field at onpreview
 // TODO: pagination authors and other tables
 // TODO: reorder authors
+// TODO: validate bibcodes
+// TODO: wrap preview in error boundary (diff might throw error)
 
 export const RecordPanel = ({
   isNew,
