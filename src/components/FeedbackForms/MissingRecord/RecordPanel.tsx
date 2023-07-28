@@ -54,9 +54,11 @@ const collections: { value: Database; label: string }[] = [
 export const RecordPanel = ({
   isNew,
   onOpenAlert,
+  isFocused,
 }: {
   isNew: boolean;
   onOpenAlert: (params: { status: AlertStatus; title: string; description?: string }) => void;
+  isFocused: boolean;
 }) => {
   const toast = useToast({ duration: 4000 });
 
@@ -93,6 +95,15 @@ export const RecordPanel = ({
   const [loadById, setLoadById] = useState<string>(null);
 
   const [params, setParams] = useState<IFeedbackParams>(null);
+
+  const nameFieldRef = useRef<HTMLInputElement>();
+
+  // when this tab is focused, set focus on name field
+  useEffect(() => {
+    if (isFocused) {
+      nameFieldRef.current.focus();
+    }
+  }, [isFocused]);
 
   // open preview when params set
   useEffect(() => {
@@ -275,7 +286,7 @@ export const RecordPanel = ({
                   {({ field }: FieldProps) => (
                     <FormControl isRequired>
                       <FormLabel>Name</FormLabel>
-                      <Input {...field} autoFocus />
+                      <Input {...field} ref={nameFieldRef} />
                     </FormControl>
                   )}
                 </Field>

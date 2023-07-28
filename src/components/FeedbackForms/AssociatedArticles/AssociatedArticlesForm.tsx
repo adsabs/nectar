@@ -156,6 +156,8 @@ const relationOptions: SelectOption<Relationship>[] = [
 export const AssociatedTable = () => {
   const [newAssociatedBibcode, setNewAssociatedBibcode] = useState('');
 
+  const mainBibcodeRef = useRef<HTMLInputElement>();
+
   const newAssociatedBibcodeRef = useRef<HTMLInputElement>();
 
   const [relationshipField, , relationshipHelpers] = useField<string>({
@@ -186,6 +188,7 @@ export const AssociatedTable = () => {
 
   const handleRelationshipChange = (option: SelectOption<string>) => {
     relationshipHelpers.setValue(option.value);
+    mainBibcodeRef.current.focus();
   };
 
   return (
@@ -225,7 +228,7 @@ export const AssociatedTable = () => {
                 <FormLabel>{`${
                   relationType === 'arxiv' ? 'arXiv ' : relationType === 'other' ? '' : 'Main Paper '
                 }Bibcode`}</FormLabel>
-                <Input {...field} autoFocus />
+                <Input {...field} ref={mainBibcodeRef} />
               </FormControl>
             )}
           </Field>

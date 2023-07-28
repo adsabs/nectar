@@ -69,10 +69,10 @@ const Record: NextPage = () => {
           </TabList>
           <TabPanels>
             <TabPanel p={5} pt={8} role="tabpanel">
-              <RecordPanel isNew onOpenAlert={handleOnOpenAlert} />
+              <RecordPanel isNew onOpenAlert={handleOnOpenAlert} isFocused={isNew} />
             </TabPanel>
             <TabPanel p={5} pt={8} role="tabpanel">
-              <RecordPanel isNew={false} onOpenAlert={handleOnOpenAlert} />
+              <RecordPanel isNew={false} onOpenAlert={handleOnOpenAlert} isFocused={!isNew} />
             </TabPanel>
           </TabPanels>
         </Tabs>
