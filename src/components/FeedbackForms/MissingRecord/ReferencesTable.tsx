@@ -29,7 +29,7 @@ export const ReferencesTable = ({
   const isClient = useIsClient();
 
   // New row being added
-  const [newReference, setNewReference] = useState<IReference>(null);
+  const [newReference, setNewReference] = useState<IReference>({ type: 'Bibcode', reference: '' });
 
   // Existing row being edited
   const [editReference, setEditReference] = useState<{ index: number; reference: IReference }>({
@@ -60,7 +60,7 @@ export const ReferencesTable = ({
   const handleAddReference = () => {
     onAddReference(newReference);
     // clear input fields
-    setNewReference(null);
+    setNewReference({ type: 'Bibcode', reference: '' });
     (newReferenceInputRef.current as SelectInstance).focus();
   };
 
@@ -132,10 +132,12 @@ export const ReferencesTable = ({
   return (
     <Table size="sm">
       <Thead>
-        <Th aria-label="index" w="4%"></Th>
-        <Th w="30%">Type</Th>
-        <Th>Reference</Th>
-        {editable && <Th w="10%">Actions</Th>}
+        <Tr>
+          <Th aria-label="index" w="4%"></Th>
+          <Th w="30%">Type</Th>
+          <Th>Reference</Th>
+          {editable && <Th w="10%">Actions</Th>}
+        </Tr>
       </Thead>
       <Tbody>
         {references.map((a, index) =>

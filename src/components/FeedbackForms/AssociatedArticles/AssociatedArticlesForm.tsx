@@ -22,8 +22,8 @@ import { PreviewModal } from '../PreviewModal';
 type FormValues = {
   name: string;
   email: string;
-  relationship: string;
-  otherRelationship: Relationship;
+  relationship: Relationship;
+  otherRelationship: string;
   mainBibcode: string;
   associatedBibcodes: string[];
 };
@@ -40,8 +40,8 @@ export const AssociatedArticlesForm = ({
   const initialFormValues: FormValues = {
     name: '',
     email: username ?? '',
-    relationship: null,
-    otherRelationship: null,
+    relationship: 'errata',
+    otherRelationship: '',
     mainBibcode: '',
     associatedBibcodes: [],
   };
@@ -76,8 +76,8 @@ export const AssociatedArticlesForm = ({
       'g-recaptcha-response': null,
       source: mainBibcode,
       target: associatedBibcodes,
-      relationship: relationship as Relationship,
-      custom_name: otherRelationship ?? undefined,
+      relationship: relationship,
+      custom_name: otherRelationship.length === 0 ? undefined : otherRelationship,
     });
   };
 

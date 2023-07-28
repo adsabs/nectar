@@ -29,7 +29,7 @@ export const URLTable = ({
   const isClient = useIsClient();
 
   // New row being added
-  const [newUrl, setNewUrl] = useState<IUrl>(null);
+  const [newUrl, setNewUrl] = useState<IUrl>({ type: 'arXiv', url: '' });
 
   // Existing row being edited
   const [editUrl, setEditUrl] = useState<{ index: number; url: IUrl }>({
@@ -71,7 +71,7 @@ export const URLTable = ({
   const handleAddUrl = () => {
     onAddUrl(newUrl);
     // clear input fields
-    setNewUrl(null);
+    setNewUrl({ type: 'arXiv', url: '' });
     (newURLTypeInputRef.current as SelectInstance).focus();
   };
 
@@ -142,10 +142,12 @@ export const URLTable = ({
   return (
     <Table size="sm">
       <Thead>
-        <Th aria-label="index" w="4%"></Th>
-        <Th w="30%">Type</Th>
-        <Th>URL</Th>
-        {editable && <Th w="10%">Actions</Th>}
+        <Tr>
+          <Th aria-label="index" w="4%"></Th>
+          <Th w="30%">Type</Th>
+          <Th>URL</Th>
+          {editable && <Th w="10%">Actions</Th>}
+        </Tr>
       </Thead>
       <Tbody>
         {urls.map((a, index) =>

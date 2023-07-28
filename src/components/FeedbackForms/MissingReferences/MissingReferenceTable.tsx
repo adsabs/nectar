@@ -78,10 +78,12 @@ export const MissingReferenceTable = () => {
           <TableContainer>
             <Table size="sm">
               <Thead>
-                <Th aria-label="index" w="4%"></Th>
-                <Th>Citing Bibcode</Th>
-                <Th>Cited Bibcode</Th>
-                <Th>Actions</Th>
+                <Tr>
+                  <Th aria-label="index" w="4%"></Th>
+                  <Th>Citing Bibcode</Th>
+                  <Th>Cited Bibcode</Th>
+                  <Th>Actions</Th>
+                </Tr>
               </Thead>
               <Tbody>
                 {references.map((r, index) =>

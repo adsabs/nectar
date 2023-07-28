@@ -119,11 +119,13 @@ export const AuthorsTable = ({
   return (
     <Table size="sm" variant="simple">
       <Thead>
-        <Th aria-label="index" w="4%"></Th>
-        <Th>Name</Th>
-        <Th>Affiliation</Th>
-        <Th>ORCiD</Th>
-        {editable && <Th w="10%">Actions</Th>}
+        <Tr>
+          <Th aria-label="index" w="4%"></Th>
+          <Th>Name</Th>
+          <Th>Affiliation</Th>
+          <Th>ORCiD</Th>
+          {editable && <Th w="10%">Actions</Th>}
+        </Tr>
       </Thead>
       <Tbody>
         {authors.map((a, index) =>
