@@ -1,27 +1,46 @@
 {
-  "extends": ["prettier", "plugin:@next/next/recommended"],
-  "plugins": ["react", "react-hooks", "jsx-a11y", "@typescript-eslint"],
+  "extends": [
+    "prettier",
+    "plugin:@next/next/recommended",
+    "plugin:storybook/recommended"
+  ],
+  "plugins": [
+    "react",
+    "react-hooks",
+    "jsx-a11y",
+    "@typescript-eslint"
+  ],
   "parser": "@typescript-eslint/parser",
   "env": {
     "es2022": true
   },
   "overrides": [
     {
-      "files": ["*.ts", "*.tsx"],
+      "files": [
+        "*.ts",
+        "*.tsx"
+      ],
       "extends": [
         "plugin:@typescript-eslint/recommended",
         "plugin:@typescript-eslint/recommended-requiring-type-checking"
       ],
       "parserOptions": {
         "sourceType": "module",
-        "project": ["tsconfig.json"]
+        "project": [
+          "tsconfig.json"
+        ]
       }
     }
   ],
   "rules": {
-    "curly": ["warn", "all"],
+    "curly": [
+      "warn",
+      "all"
+    ],
     "react-hooks/rules-of-hooks": "error",
-    "@typescript-eslint/no-empty-function": ["warn"],
+    "@typescript-eslint/no-empty-function": [
+      "warn"
+    ],
     "@typescript-eslint/no-floating-promises": [
       "warn",
       {
