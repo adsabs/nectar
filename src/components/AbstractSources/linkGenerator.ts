@@ -101,11 +101,6 @@ export const processLinkData = (doc: IDocsEntity, linkServer?: string): ProcessL
     };
   });
 
-  interface IEprintLink {
-    type: string;
-    url: string;
-  }
-
   // TODO: Verify this is still needed
   // // if no arxiv link is present, check links_data as well to make sure
   // const hasEprint = fullTextSources.some(({ name }) => name === LINK_TYPES.EPRINT_PDF.name);
