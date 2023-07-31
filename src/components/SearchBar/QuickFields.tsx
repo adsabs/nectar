@@ -1,47 +1,56 @@
 import { Button, Flex, HStack, Text } from '@chakra-ui/react';
-import { memo, MouseEvent, ReactElement } from 'react';
-import { AllSearchTermsDropdown } from './AllSearchTermsDropdown';
+import { MouseEvent, ReactElement, useCallback } from 'react';
+import { AllSearchTermsDropdown } from '@components';
 import { quickfields } from './models';
+import { useIntermediateQuery } from '@lib/useIntermediateQuery';
 
 export interface IQuickFieldsProps {
-  onSelect: (value: string) => void;
+  isLoading?: boolean;
 }
 
-export const QuickFields = memo(
-  ({ onSelect }: IQuickFieldsProps): ReactElement => {
-    const handleQFSelect = (e: MouseEvent<HTMLElement>) => {
-      const target = e.currentTarget;
-      onSelect(target.dataset['value']);
-    };
+export const QuickFields = (props: IQuickFieldsProps): ReactElement => {
+  const { isLoading } = props;
+  const { appendToQuery } = useIntermediateQuery();
 
-    const handleASTSelect = (value: string) => {
-      onSelect(value);
-    };
+  const handleQFSelect = useCallback(
+    (e: MouseEvent<HTMLElement>) => {
+      if (!isLoading) {
+        const target = e.currentTarget;
+        appendToQuery(target.dataset['value']);
+      }
+    },
+    [isLoading],
+  );
 
-    return (
-      <Flex direction="row" justifyContent="start" fontSize="md" gap={5}>
-        <HStack spacing={5} fontSize="md">
-          <Text>QUICK FIELD: </Text>
-          {quickfields.map((term) => (
-            <Button
-              key={term.id}
-              onClick={handleQFSelect}
-              variant="link"
-              tabIndex={0}
-              data-value={term.value}
-              size="md"
-              data-testid="quickfield"
-              display={{ base: 'none', sm: 'initial' }}
-            >
-              {term.title}
-            </Button>
-          ))}
-        </HStack>
-        <AllSearchTermsDropdown onSelect={handleASTSelect} />
-      </Flex>
-    );
-  },
-  (prev, next) => {
-    return prev.onSelect === next.onSelect;
-  },
-);
+  const handleASTSelect = useCallback(
+    (value: string) => {
+      if (!isLoading) {
+        appendToQuery(value);
+      }
+    },
+    [isLoading],
+  );
+
+  return (
+    <Flex direction="row" justifyContent="start" fontSize="md" gap={5}>
+      <HStack spacing={5} fontSize="md">
+        <Text>QUICK FIELD: </Text>
+        {quickfields.map((term) => (
+          <Button
+            key={term.id}
+            onClick={handleQFSelect}
+            variant="link"
+            tabIndex={0}
+            data-value={term.value}
+            size="md"
+            data-testid="quickfield"
+            display={{ base: 'none', sm: 'initial' }}
+          >
+            {term.title}
+          </Button>
+        ))}
+      </HStack>
+      <AllSearchTermsDropdown onSelect={handleASTSelect} />
+    </Flex>
+  );
+};
