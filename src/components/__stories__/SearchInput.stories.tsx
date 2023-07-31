@@ -9,7 +9,7 @@ const meta: Meta<typeof SearchInput> = {
 type Story = StoryObj<typeof SearchInput>;
 export default meta;
 
-export const Basic: Story = {};
+export const Default: Story = {};
 export const Loading: Story = {
   args: { isLoading: true },
 };

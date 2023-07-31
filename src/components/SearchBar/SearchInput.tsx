@@ -2,6 +2,7 @@ import { SearchIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
+  ButtonProps,
   CloseButton,
   Flex,
   Input,
@@ -29,8 +30,8 @@ export interface ISearchInputProps {
   isLoading?: boolean;
 }
 
-const ClearInputButton = (props: { onClear: () => void }) => {
-  const { onClear } = props;
+const ClearInputButton = (props: { onClear: () => void } & ButtonProps) => {
+  const { onClear, ...buttonProps } = props;
   const { clearQuery, query } = useIntermediateQuery();
 
   const handleClear = useCallback(() => {
@@ -41,7 +42,13 @@ const ClearInputButton = (props: { onClear: () => void }) => {
   }, [clearQuery, onClear]);
 
   return isNilOrEmpty(query) ? null : (
-    <CloseButton aria-label="Clear search" size="lg" onClick={handleClear} data-testid="searchbar-clear" />
+    <CloseButton
+      aria-label="Clear search"
+      size="lg"
+      onClick={handleClear}
+      data-testid="searchbar-clear"
+      {...buttonProps}
+    />
   );
 };
 
@@ -185,7 +192,7 @@ export const SearchInput = forwardRef<Partial<HTMLInputElement>, ISearchInputPro
           />
 
           <InputRightElement>
-            <ClearInputButton onClear={focus} />
+            <ClearInputButton onClear={focus} isDisabled={props.isLoading} />
           </InputRightElement>
         </InputGroup>
 
