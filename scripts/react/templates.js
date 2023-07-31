@@ -37,7 +37,7 @@ export default meta;
 export const Default: Story = {};
 `;
 
-exports.test = (name) => `import { render } from '@testing-library/react';
+exports.test = (name) => `import { render } from '@test-utils';
 import { test } from 'vitest';
 import { composeStories } from '@storybook/testing-react';
 import * as stories from '../__stories__/${name}.stories';
