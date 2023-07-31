@@ -1,7 +1,8 @@
-import { Button } from '@chakra-ui/button';
-import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
-import { Box, Flex, Link, Stack, Text } from '@chakra-ui/layout';
 import {
+  Box,
+  Button,
+  Flex,
+  Link,
   NumberDecrementStepper,
   NumberIncrementStepper,
   NumberInput,
@@ -14,8 +15,11 @@ import {
   PopoverContent,
   PopoverHeader,
   PopoverTrigger,
+  Stack,
+  Text,
   VisuallyHidden,
 } from '@chakra-ui/react';
+import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { Select, SelectOption } from '@components';
 import { APP_DEFAULTS } from '@config';
 import { NumPerPageType, SafeSearchUrlParams } from '@types';

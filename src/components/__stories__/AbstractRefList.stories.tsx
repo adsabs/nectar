@@ -1,6 +1,6 @@
-import { AbstractRefList, IAbstractRefListProps } from '@components';
+import { AbstractRefList } from '@components';
 import { docs } from '@components/__mocks__/data';
-import { Meta, Story } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {
   title: 'AbstractRefList',
@@ -10,10 +10,10 @@ const meta: Meta = {
   },
 };
 
+type Story = StoryObj<typeof AbstractRefList>;
+
 export default meta;
 
-const Template: Story<IAbstractRefListProps> = (args) => <AbstractRefList {...args} />;
-
-export const Default = Template.bind({});
-
-Default.args = { docs, totalResults: docs.length };
+export const Default: Story = {
+  args: { docs, totalResults: docs.length },
+};

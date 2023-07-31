@@ -1,6 +1,5 @@
 import { ChevronDownIcon } from '@chakra-ui/icons';
-import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
-import { HStack, List, ListItem } from '@chakra-ui/layout';
+import { HStack, List, ListItem, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import { ItemType, ListType } from './types';
 import { isBrowser } from '@utils';
 import { KeyboardEvent, MouseEventHandler, ReactElement } from 'react';

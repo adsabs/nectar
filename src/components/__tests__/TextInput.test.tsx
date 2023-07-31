@@ -1,9 +1,10 @@
 import { render } from '@test-utils';
-import { describe, it } from 'vitest';
-import { Default as TextInput } from '../__stories__/TextInput.stories';
+import { test } from 'vitest';
+import * as stories from '../__stories__/TextInput.stories';
+import { composeStories } from '@storybook/testing-react';
 
-describe('TextInput', () => {
-  it('renders without crashing', () => {
-    render(<TextInput />);
-  });
+const { Default: TextInput } = composeStories(stories);
+
+test('renders without crashing', () => {
+  render(<TextInput />);
 });

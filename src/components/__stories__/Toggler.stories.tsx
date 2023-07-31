@@ -1,5 +1,5 @@
-import { Meta, Story } from '@storybook/react';
-import { ITogglerProps, Toggler } from '../Toggler';
+import { Meta, StoryObj } from '@storybook/react';
+import { Toggler } from '../Toggler';
 
 const meta: Meta = {
   title: 'Toggler',
@@ -16,10 +16,9 @@ const meta: Meta = {
   },
 };
 
+type Story = StoryObj<typeof Toggler>;
 export default meta;
 
-const Template: Story<ITogglerProps> = args => <Toggler {...args} />;
-
-export const Default = Template.bind({});
-
-Default.args = {};
+export const Default: Story = {
+  args: {},
+};

@@ -1,13 +1,26 @@
-import { Button } from '@chakra-ui/button';
-import { Checkbox, CheckboxGroup } from '@chakra-ui/checkbox';
-import { FormControl, FormHelperText, FormLabel } from '@chakra-ui/form-control';
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+  Button,
+  Checkbox,
+  CheckboxGroup,
+  Flex,
+  FormControl,
+  FormHelperText,
+  FormLabel,
+  HStack,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  Radio,
+  RadioGroup,
+  Stack,
+  Textarea,
+  VisuallyHidden,
+} from '@chakra-ui/react';
 import { CalendarIcon } from '@chakra-ui/icons';
-import { Input, InputGroup, InputLeftElement } from '@chakra-ui/input';
-import { Flex, HStack, Stack } from '@chakra-ui/layout';
-import { Radio, RadioGroup } from '@chakra-ui/radio';
-import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/react';
-import { Textarea } from '@chakra-ui/textarea';
-import VisuallyHidden from '@chakra-ui/visually-hidden';
 import { BibstemPicker, Sort } from '@components';
 import { APP_DEFAULTS } from '@config';
 import { useErrorMessage } from '@lib/useErrorMessage';

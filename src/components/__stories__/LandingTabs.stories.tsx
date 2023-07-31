@@ -1,4 +1,4 @@
-import { Meta, Story } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 import { LandingTabs } from '@components';
 
 const meta: Meta = {
@@ -16,10 +16,10 @@ const meta: Meta = {
   },
 };
 
+type Story = StoryObj<typeof LandingTabs>;
+
 export default meta;
 
-const Template: Story = (args) => <LandingTabs {...args} />;
-
-export const Default = Template.bind({}) ;
-
-Default.args = {};
+export const Default: Story = {
+  args: {},
+};

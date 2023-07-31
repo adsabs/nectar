@@ -1,7 +1,17 @@
 import { IDocsEntity } from '@api';
-import { Checkbox, CheckboxProps } from '@chakra-ui/checkbox';
-import { Box, Flex, Link, Stack, Text } from '@chakra-ui/layout';
-import { BoxProps, CircularProgress, Fade, useTimeout } from '@chakra-ui/react';
+import {
+  Box,
+  BoxProps,
+  Checkbox,
+  CheckboxProps,
+  CircularProgress,
+  Fade,
+  Flex,
+  Link,
+  Stack,
+  Text,
+  useTimeout,
+} from '@chakra-ui/react';
 import { AllAuthorsModal } from '@components/AllAuthorsModal';
 import { APP_DEFAULTS } from '@config';
 import { useIsClient } from '@lib/useIsClient';

@@ -1,16 +1,16 @@
-import { IIndicesTableProps, IndicesTable } from '@components';
+import { IndicesTable } from '@components';
 import { indicesTableData } from '@components/__mocks__/data';
-import { Meta, Story } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {
   title: 'Visualizations/tables/IndicesTable',
   component: IndicesTable,
 };
 
+type Story = StoryObj<typeof IndicesTable>;
+
 export default meta;
 
-const Template: Story<IIndicesTableProps> = (args) => <IndicesTable {...args} />;
-
-export const Default = Template.bind({});
-
-Default.args = { data: indicesTableData };
+export const Default: Story = {
+  args: { data: indicesTableData },
+};

@@ -1,16 +1,15 @@
-import { ILineGraphProps, LineGraph } from '@components';
+import { LineGraph } from '@components';
 import { linedatum } from '@components/__mocks__/data';
-import { Meta, Story } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {
   title: 'Visualizations/graphs/LineGraph',
   component: LineGraph,
 };
 
+type Story = StoryObj<typeof LineGraph>;
 export default meta;
 
-const Template: Story<ILineGraphProps> = (args) => <LineGraph {...args} />;
-
-export const Default = Template.bind({});
-
-Default.args = { data: linedatum };
+export const Default: Story = {
+  args: { data: linedatum },
+};

@@ -1,5 +1,5 @@
 import { NavBar } from '@components';
-import { Meta, Story } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {
   title: 'NavBar',
@@ -16,10 +16,10 @@ const meta: Meta = {
   },
 };
 
+type Story = StoryObj<typeof NavBar>;
+
 export default meta;
 
-const Template: Story = (args) => <NavBar {...args} />;
-
-export const Default = Template.bind({}) ;
-
-Default.args = {};
+export const Default: Story = {
+  args: {},
+};

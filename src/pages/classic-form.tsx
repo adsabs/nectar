@@ -1,4 +1,4 @@
-import { Box } from '@chakra-ui/layout';
+import { Box } from '@chakra-ui/react';
 import { ClassicForm, getSearchQuery, IClassicFormState } from '@components/ClassicForm';
 import { GetServerSideProps, GetServerSidePropsContext, NextPage } from 'next';
 import Head from 'next/head';

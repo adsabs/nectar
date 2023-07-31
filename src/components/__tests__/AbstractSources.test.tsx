@@ -1,9 +1,8 @@
 import { render } from '@test-utils';
-import { describe, it } from 'vitest';
-import { Default as AbstractSources } from '../__stories__/AbstractSources.stories';
+import Meta, { Default } from '../__stories__/AbstractSources.stories';
+import { composeStory } from '@storybook/react';
 
-describe('AbstractSources', () => {
-  it('renders without crashing', () => {
-    render(<AbstractSources />);
-  });
+const AbstractSources = composeStory(Default, Meta);
+test('renders without crashing', () => {
+  render(<AbstractSources />);
 });

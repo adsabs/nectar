@@ -12,25 +12,27 @@ interface IVizPageLayoutProps {
 }
 
 export const VizPageLayout: FC<IVizPageLayoutProps> = ({ children, vizPage, from }) => {
-  return <>
-    <Head>
-      <title>NASA Science Explorer - Metrics</title>
-    </Head>
-    <Flex direction="column">
-      <HStack my={10}>
-        {from && (
-          <NextLink href={from} passHref legacyBehavior>
-            <Link aria-label="Back to search results">
-              <ChevronLeftIcon w={8} h={8} />
-            </Link>
-          </NextLink>
-        )}
-        <Heading as="h2" fontSize="2xl">
-          Visualizations
-        </Heading>
-      </HStack>
-      <VisualizationsTabs selectedSection={vizPage} />
-      {children}
-    </Flex>
-  </>;
+  return (
+    <>
+      <Head>
+        <title>NASA Science Explorer - Metrics</title>
+      </Head>
+      <Flex direction="column">
+        <HStack my={10}>
+          {from && (
+            <NextLink href={from} passHref legacyBehavior>
+              <Link aria-label="Back to search results">
+                <ChevronLeftIcon w={8} h={8} />
+              </Link>
+            </NextLink>
+          )}
+          <Heading as="h2" fontSize="2xl">
+            Visualizations
+          </Heading>
+        </HStack>
+        <VisualizationsTabs selectedSection={vizPage} />
+        {children}
+      </Flex>
+    </>
+  );
 };

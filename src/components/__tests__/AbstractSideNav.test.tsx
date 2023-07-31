@@ -1,9 +1,9 @@
 import { render } from '@test-utils';
-import { describe, it } from 'vitest';
-import { Default as AbstractSideNav } from '../__stories__/AbstractSideNav.stories';
+import Meta, { Default } from '@components/__stories__/AbstractSideNav.stories';
+import { composeStory } from '@storybook/react';
 
-describe.skip('AbstractSideNav', () => {
-  it('renders without crashing', () => {
-    render(<AbstractSideNav />);
-  });
+const AbstractSideNav = composeStory(Default, Meta);
+
+test.skip('renders without crashing', () => {
+  render(<AbstractSideNav />);
 });

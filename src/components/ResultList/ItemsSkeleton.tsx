@@ -1,5 +1,4 @@
-import { Box, Stack } from '@chakra-ui/layout';
-import { Skeleton, SkeletonText } from '@chakra-ui/skeleton';
+import { Box, Skeleton, SkeletonText, Stack } from '@chakra-ui/react';
 import { range } from 'ramda';
 import { ReactElement } from 'react';
 

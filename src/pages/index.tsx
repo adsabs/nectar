@@ -1,4 +1,4 @@
-import { Box, Flex, Text } from '@chakra-ui/layout';
+import { Box, Flex, Text } from '@chakra-ui/react';
 import { ISearchExamplesProps, SearchBar, SearchExamplesPlaceholder } from '@components';
 import { useStore, useStoreApi } from '@store';
 import { makeSearchParams } from '@utils';

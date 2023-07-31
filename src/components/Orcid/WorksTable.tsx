@@ -3,6 +3,7 @@ import {
   Box,
   Center,
   chakra,
+  Flex,
   Heading,
   HStack,
   Icon,
@@ -39,7 +40,6 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon, TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import { intlFormat, intlFormatDistance } from 'date-fns';
 import { isNilOrEmpty, isObject } from 'ramda-adjunct';
-import { Flex } from '@chakra-ui/layout';
 import { ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from '@heroicons/react/20/solid';
 import { NASA_SCIX_BRAND_NAME, NASA_SCIX_BRAND_NAME_SHORT, ORCID_ADS_SOURCE_NAME } from '@config';
 import { QueryErrorResetBoundary } from '@tanstack/react-query';

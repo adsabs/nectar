@@ -1,5 +1,4 @@
-import { Box, Flex } from '@chakra-ui/layout';
-import { BoxProps, Button, Tag, TagCloseButton, TagLabel, Tooltip } from '@chakra-ui/react';
+import { Box, BoxProps, Button, Flex, Tag, TagCloseButton, TagLabel, Tooltip } from '@chakra-ui/react';
 import { clearFQs, removeFQClause } from '@query-utils';
 import { isIADSSearchParams, makeSearchParams, parseQueryFromUrl } from '@utils';
 import { useRouter } from 'next/router';

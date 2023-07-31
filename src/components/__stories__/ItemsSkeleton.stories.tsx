@@ -1,17 +1,17 @@
-import { Meta, Story } from '@storybook/react';
-import { ISkeletonProps, ItemsSkeleton } from '@components';
+import { Meta, StoryObj } from '@storybook/react';
+import { ItemsSkeleton } from '@components';
 
 const meta: Meta = {
   title: 'ResultList/ItemsSkeleton',
   component: ItemsSkeleton,
 };
 
+type Story = StoryObj<typeof ItemsSkeleton>;
+
 export default meta;
 
-const Template: Story<ISkeletonProps> = (args) => <ItemsSkeleton {...args} />;
-
-export const Default = Template.bind({}) ;
-
-Default.args = {
-  count: 5,
+export const Default: Story = {
+  args: {
+    count: 5,
+  },
 };

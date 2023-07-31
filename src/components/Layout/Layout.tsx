@@ -1,6 +1,5 @@
-import { Container, Flex } from '@chakra-ui/layout';
+import { Container, Flex, useMediaQuery } from '@chakra-ui/react';
 import { SkipNavLink } from '@chakra-ui/skip-nav';
-import { useMediaQuery } from '@chakra-ui/react';
 import { LandingTabs } from '@components';
 import Head from 'next/head';
 import { useRouter } from 'next/router';

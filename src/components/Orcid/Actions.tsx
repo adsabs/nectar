@@ -7,13 +7,13 @@ import {
   Menu,
   MenuButton,
   MenuItem,
+  MenuItemProps,
   MenuList,
   Spinner,
   ToastId,
   useToast,
 } from '@chakra-ui/react';
 import { isClaimedBySciX, isInSciX } from './helpers';
-import { MenuItemProps } from '@chakra-ui/menu';
 import { useUpdateWork } from '@lib/orcid/useUpdateWork';
 import { useAddWorks } from '@lib/orcid/useAddWorks';
 import { useRemoveWorks } from '@lib/orcid/useRemoveWorks';

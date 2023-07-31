@@ -1,5 +1,5 @@
 import { getCoreadsParams, IADSApiSearchResponse, searchKeys, useGetAbstract, useGetCoreads } from '@api';
-import { Alert, AlertIcon } from '@chakra-ui/alert';
+import { Alert, AlertIcon } from '@chakra-ui/react';
 import { AbstractRefList } from '@components';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';

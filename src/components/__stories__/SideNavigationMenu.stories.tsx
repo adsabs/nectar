@@ -1,10 +1,12 @@
-import { ISideNavigationMenuProps, SideNavigationMenu } from '@components';
-import { Meta, Story } from '@storybook/react';
+import { SideNavigationMenu } from '@components';
+import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {
   title: 'NavigationMenu/SideNavigationMenu',
   component: SideNavigationMenu,
 };
+
+type Story = StoryObj<typeof SideNavigationMenu>;
 
 const menuItems1 = {
   'USER PREFERENCES': [
@@ -101,18 +103,16 @@ const menuItems2 = [
 ];
 export default meta;
 
-const Template: Story<ISideNavigationMenuProps> = (args) => <SideNavigationMenu {...args} />;
-
-export const Primary = Template.bind({});
-
-Primary.args = {
-  menuItems: menuItems1,
-  activeItem: menuItems1['ACCOUNT SETTINGS'][0],
+export const Primary: Story = {
+  args: {
+    menuItems: menuItems1,
+    activeItem: menuItems1['ACCOUNT SETTINGS'][0],
+  },
 };
 
-export const SingleList = Template.bind({});
-
-SingleList.args = {
-  menuItems: menuItems2,
-  activeItem: menuItems2[0],
+export const SingleList: Story = {
+  args: {
+    menuItems: menuItems2,
+    activeItem: menuItems2[0],
+  },
 };

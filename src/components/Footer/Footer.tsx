@@ -1,5 +1,4 @@
-import { Box, Flex, HStack, Link, Text } from '@chakra-ui/layout';
-import VisuallyHidden from '@chakra-ui/visually-hidden';
+import { Box, Flex, HStack, Link, Text, VisuallyHidden } from '@chakra-ui/react';
 import { CFALogo, NasaLogo, SimpleLink, SmithsonianLogo } from '@components';
 import NextLink from 'next/link';
 import { FC } from 'react';

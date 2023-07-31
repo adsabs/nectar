@@ -1,5 +1,6 @@
-import { Meta, Story } from '@storybook/react';
-import { ITagsProps, Tags } from '../Tags';
+import { Meta, StoryObj } from '@storybook/react';
+import { Tags } from '../Tags';
+import { noop } from '@utils';
 
 const meta: Meta = {
   title: 'Tags',
@@ -15,6 +16,8 @@ const meta: Meta = {
     controls: { expanded: true },
   },
 };
+
+type Story = StoryObj<typeof meta.component>;
 
 const tagItems = [
   {
@@ -37,8 +40,6 @@ const tagItems = [
 
 export default meta;
 
-const Template: Story<ITagsProps> = (args) => <Tags {...args} />;
-
-export const Default = Template.bind({});
-
-Default.args = { tagItems };
+export const Default: Story = {
+  args: { tagItems, onClear: noop, onRemove: noop },
+};

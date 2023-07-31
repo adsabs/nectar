@@ -1,20 +1,20 @@
-import { HIndexGraphPane, IHIndexGraphPaneProps } from '@components';
+import { HIndexGraphPane } from '@components';
 import { buckets, sum } from '@components/__mocks__/hIndexGraphData';
-import { Meta, Story } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {
   title: 'Visualizations/HIndexGraphPane',
   component: HIndexGraphPane,
 };
 
+type Story = StoryObj<typeof HIndexGraphPane>;
+
 export default meta;
 
-const Template: Story<IHIndexGraphPaneProps> = (args) => <HIndexGraphPane {...args} />;
-
-export const Default = Template.bind({});
-
-Default.args = {
-  buckets: buckets,
-  sum: sum,
-  type: 'citations',
+export const Default: Story = {
+  args: {
+    buckets: buckets,
+    sum: sum,
+    type: 'citations',
+  },
 };

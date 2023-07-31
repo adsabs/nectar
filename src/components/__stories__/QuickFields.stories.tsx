@@ -1,13 +1,12 @@
-import { IQuickFieldsProps, QuickFields } from '@components';
-import { Meta, Story } from '@storybook/react';
+import { QuickFields } from '@components';
+import { Meta, StoryObj } from '@storybook/react';
 
-const meta: Meta = {
+const meta: Meta<typeof QuickFields> = {
   title: 'SearchBar/QuickFields',
   component: QuickFields,
 };
 
+type Story = StoryObj<typeof QuickFields>;
 export default meta;
 
-const Template: Story<IQuickFieldsProps> = (args) => <QuickFields {...args} />;
-
-export const Default = Template.bind({});
+export const Default: Story = {};

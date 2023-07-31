@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { expect, test } from 'vitest';
 import * as stories from '../__stories__/SearchBar.stories';
 
-const { Primary: SearchBar } = composeStories(stories);
+const { Basic: SearchBar } = composeStories(stories);
 
 const setup = () => {
   const utils = render(<SearchBar />);

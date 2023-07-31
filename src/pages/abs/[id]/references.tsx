@@ -1,5 +1,5 @@
 import { getReferencesParams, IADSApiSearchResponse, searchKeys, useGetReferences } from '@api';
-import { Alert, AlertIcon } from '@chakra-ui/alert';
+import { Alert, AlertIcon } from '@chakra-ui/react';
 import { AbstractRefList } from '@components/AbstractRefList';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';

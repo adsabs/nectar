@@ -1,9 +1,6 @@
 import { IADSApiSearchParams, IDocsEntity, useGetAbstract } from '@api';
-import { Alert, AlertIcon } from '@chakra-ui/alert';
+import { Alert, AlertIcon, Box, Flex, Link, Stack, Table, Tag, Tbody, Td, Text, Tr } from '@chakra-ui/react';
 import { ExternalLinkIcon } from '@chakra-ui/icons';
-import { Box, Link, Stack, Text } from '@chakra-ui/layout';
-import { Flex, Tag } from '@chakra-ui/react';
-import { Table, Tbody, Td, Tr } from '@chakra-ui/table';
 import { AbstractSources, SearchQueryLink } from '@components';
 import { createUrlByType } from '@components/AbstractSources/linkGenerator';
 import { IAllAuthorsModalProps } from '@components/AllAuthorsModal';

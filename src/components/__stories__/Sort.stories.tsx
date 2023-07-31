@@ -1,5 +1,5 @@
-import { ISortProps, Sort } from '@components';
-import { Meta, Story } from '@storybook/react';
+import { Sort } from '@components';
+import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {
   title: 'Sort',
@@ -16,10 +16,9 @@ const meta: Meta = {
   },
 };
 
+type Story = StoryObj<typeof Sort>;
 export default meta;
 
-const Template: Story<ISortProps> = (args) => <Sort {...args} />;
-
-export const Default = Template.bind({}) ;
-
-Default.args = {};
+export const Default: Story = {
+  args: {},
+};

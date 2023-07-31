@@ -1,8 +1,5 @@
 import { QuestionIcon } from '@chakra-ui/icons';
-import { Box } from '@chakra-ui/layout';
-import { Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/table';
-import { Tooltip } from '@chakra-ui/tooltip';
-import { VisuallyHidden } from '@chakra-ui/visually-hidden';
+import { Box, Table, Tbody, Td, Th, Thead, Tooltip, Tr, VisuallyHidden } from '@chakra-ui/react';
 import { ReactElement } from 'react';
 import { ICitationsTableData } from '../types';
 

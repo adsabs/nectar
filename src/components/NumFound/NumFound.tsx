@@ -1,6 +1,5 @@
 import { useGetSearchStats } from '@api';
-import { Text } from '@chakra-ui/layout';
-import { Box, SkeletonText } from '@chakra-ui/react';
+import { Box, SkeletonText, Text } from '@chakra-ui/react';
 import { useStore } from '@store';
 import { truncateDecimal } from '@utils';
 import { ReactElement } from 'react';

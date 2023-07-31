@@ -11,17 +11,22 @@ import {
   useSearch,
 } from '@api';
 import { CheckCircleIcon } from '@chakra-ui/icons';
-import { Box, Flex, List, ListIcon, ListItem, Stack } from '@chakra-ui/layout';
 import {
   Alert,
   AlertIcon,
+  Box,
   Button,
   Center,
   Code,
+  Flex,
   Heading,
   Icon,
   IconButton,
+  List,
+  ListIcon,
+  ListItem,
   Portal,
+  Stack,
   Tooltip,
   useMediaQuery,
   VisuallyHidden,

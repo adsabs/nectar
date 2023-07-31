@@ -1,5 +1,5 @@
-import { Meta, Story } from '@storybook/react';
-import { DataDownloader, IDataDownloaderProps } from '../DataDownloader';
+import { Meta, StoryObj } from '@storybook/react';
+import { DataDownloader } from '../DataDownloader';
 
 const meta: Meta = {
   title: 'DataDownloader',
@@ -16,6 +16,8 @@ const meta: Meta = {
   },
 };
 
+type Story = StoryObj<typeof DataDownloader>;
+
 export default meta;
 
 const csvdata =
@@ -29,8 +31,10 @@ const csvdata =
 
 const getFileContent = () => csvdata;
 
-const Template: Story<IDataDownloaderProps> = (args) => <DataDownloader {...args} />;
-
-export const Default = Template.bind({});
-
-Default.args = { label: 'click to download', getFileContent, fileName: 'addresses.csv' };
+export const Default: Story = {
+  args: {
+    label: 'click to download',
+    getFileContent,
+    fileName: 'addresses.csv',
+  },
+};

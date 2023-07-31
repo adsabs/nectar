@@ -1,5 +1,5 @@
-import { Meta, Story } from '@storybook/react';
-import { AuthorAffiliations, AuthorAffiliationsProps } from '../AuthorAffiliations';
+import { Meta, StoryObj } from '@storybook/react';
+import { AuthorAffiliations } from '../AuthorAffiliations';
 
 const meta: Meta = {
   title: 'AuthorAffiliations',
@@ -10,22 +10,24 @@ const meta: Meta = {
   },
 };
 
+type Story = StoryObj<typeof AuthorAffiliations>;
+
 export default meta;
 
-const Template: Story<AuthorAffiliationsProps> = (args) => <AuthorAffiliations {...args} />;
-
-export const WithInitialQuery = Template.bind({});
-
-WithInitialQuery.args = {
-  query: { q: 'star', rows: 10 },
+export const WithInitialQuery: Story = {
+  args: {
+    query: { q: 'star', rows: 10 },
+  },
 };
 
-export const WithIntitialParams = Template.bind({});
-
-WithIntitialParams.args = {
-  params: { bibcode: ['foo', 'bar', 'baz', 'bim', 'boo', 'bip', 'bop', 'bee', 'biz', 'bot'] },
+export const WithIntitialParams: Story = {
+  args: {
+    params: {
+      bibcode: ['foo', 'bar', 'baz', 'bim', 'boo', 'bip', 'bop', 'bee', 'biz', 'bot'],
+    },
+  },
 };
 
-export const WithNoIntitialArgs = Template.bind({});
-
-WithNoIntitialArgs.args = {};
+export const WithNoIntitialArgs: Story = {
+  args: {},
+};

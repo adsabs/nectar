@@ -1,6 +1,6 @@
-import { AbstractSources, IAbstractSourcesProps } from '@components';
+import { AbstractSources } from '@components';
 import { doc } from '@components/__mocks__/data';
-import { Meta, Story } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {
   title: 'AbstractSources',
@@ -17,10 +17,10 @@ const meta: Meta = {
   },
 };
 
+type Story = StoryObj<typeof AbstractSources>;
+
 export default meta;
 
-const Template: Story<IAbstractSourcesProps> = (args) => <AbstractSources {...args} />;
-
-export const Default = Template.bind({}) ;
-
-Default.args = { doc };
+export const Default: Story = {
+  args: { doc },
+};

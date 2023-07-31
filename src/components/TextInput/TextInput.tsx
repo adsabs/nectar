@@ -1,7 +1,6 @@
-import { FormControl, FormHelperText, FormLabel } from '@chakra-ui/form-control';
+import { FormControl, FormHelperText, FormLabel, Input } from '@chakra-ui/react';
 import { DetailedHTMLProps, forwardRef, InputHTMLAttributes, ReactElement } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Input } from '@chakra-ui/input';
 
 export interface ITextInputProps
   extends Omit<DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>, 'ref'> {

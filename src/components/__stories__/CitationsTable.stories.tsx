@@ -1,20 +1,20 @@
-import { CitationsTable, ICitationsTableProps } from '@components';
+import { CitationsTable } from '@components';
 import { citationsTableData } from '@components/__mocks__/data';
-import { Meta, Story } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {
   title: 'Visualizations/tables/CitationsTable',
   component: CitationsTable,
 };
 
+type Story = StoryObj<typeof CitationsTable>;
+
 export default meta;
 
-const Template: Story<ICitationsTableProps> = (args) => <CitationsTable {...args} />;
+export const Default: Story = {
+  args: { data: citationsTableData, isAbstract: false },
+};
 
-export const Default = Template.bind({});
-
-Default.args = { data: citationsTableData, isAbstract: false };
-
-export const Abstract = Template.bind({});
-
-Abstract.args = { data: citationsTableData, isAbstract: true };
+export const Abstract: Story = {
+  args: { data: citationsTableData, isAbstract: true },
+};

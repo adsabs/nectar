@@ -1,4 +1,4 @@
-import { Box } from '@chakra-ui/layout';
+import { Box } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components';
 import { useStore } from '@store';
 import { Theme } from '@types';

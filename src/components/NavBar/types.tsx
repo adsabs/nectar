@@ -1,5 +1,5 @@
 import { ReactElement } from 'react';
-import { MenuItemProps } from '@chakra-ui/menu';
+import { MenuItemProps } from '@chakra-ui/react';
 
 export enum ListType {
   ACCORDION = 'accordion',

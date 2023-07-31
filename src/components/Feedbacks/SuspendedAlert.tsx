@@ -1,10 +1,10 @@
 import { FallbackProps } from 'react-error-boundary';
 import { AxiosError } from 'axios';
-import { AlertStatus } from '@chakra-ui/alert';
 import {
   Alert,
   AlertDescription,
   AlertIcon,
+  AlertStatus,
   Button,
   Code,
   Collapse,

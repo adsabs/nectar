@@ -1,9 +1,21 @@
-import { Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel } from '@chakra-ui/accordion';
-import { IconButton } from '@chakra-ui/button';
-import { useDisclosure } from '@chakra-ui/hooks';
+import {
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
+  Box,
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerHeader,
+  DrawerOverlay,
+  Flex,
+  IconButton,
+  useDisclosure,
+} from '@chakra-ui/react';
 import { HamburgerIcon } from '@chakra-ui/icons';
-import { Box, Flex } from '@chakra-ui/layout';
-import { Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerOverlay } from '@chakra-ui/modal';
 import { ReactElement, useRef } from 'react';
 import { AboutDropdown } from './AboutDropdown';
 import { AccountDropdown } from './AccountDropdown';
