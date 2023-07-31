@@ -34,6 +34,8 @@ export interface ISearchState {
   prevQuery: IADSApiSearchParams;
   numPerPage: NumPerPageType;
   showHighlights: boolean;
+  queryAddition: string;
+  clearQueryFlag: boolean;
 }
 
 export interface ISearchAction {
@@ -44,6 +46,8 @@ export interface ISearchAction {
   resetQuery: () => void;
   setNumPerPage: (numPerPage: NumPerPageType) => void;
   toggleShowHighlights: () => void;
+  setQueryAddition: (queryAddition: string) => void;
+  setClearQueryFlag: (clearQueryFlag: boolean) => void;
 }
 
 export const searchSlice: StoreSlice<ISearchState & ISearchAction> = (set) => ({
@@ -58,6 +62,9 @@ export const searchSlice: StoreSlice<ISearchState & ISearchAction> = (set) => ({
   numPerPage: APP_DEFAULTS.RESULT_PER_PAGE,
 
   showHighlights: false,
+
+  queryAddition: null,
+  clearQueryFlag: false,
 
   setNumPerPage: (numPerPage: NumPerPageType) =>
     set(
@@ -79,4 +86,6 @@ export const searchSlice: StoreSlice<ISearchState & ISearchAction> = (set) => ({
   resetQuery: () => set({ query: defaultQueryParams, latestQuery: defaultQueryParams }, false, 'search/resetQuery'),
   toggleShowHighlights: () =>
     set(({ showHighlights }) => ({ showHighlights: !showHighlights }), false, 'search/toggleShowHighlights'),
+  setQueryAddition: (queryAddition: string) => set(() => ({ queryAddition }), false, 'search/setQueryAddition'),
+  setClearQueryFlag: (clearQueryFlag: boolean) => set(() => ({ clearQueryFlag }), false, 'search/setClearQueryFlag'),
 });

@@ -101,3 +101,7 @@ export const getSerializableDefaultStore = () => {
     return acc;
   }, {}) as AppSerializableState;
 };
+
+export const createSelector = <T>(selector: (state: AppState) => T) => {
+  return (state: AppState) => selector(state);
+};
