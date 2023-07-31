@@ -1,10 +1,9 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { Alert, Container, Spinner } from '@chakra-ui/react';
+import { Alert, Box, Container, Spinner } from '@chakra-ui/react';
 import { isString } from '@utils';
 import { useOrcidExchangeToken } from '@api/orcid/orcid';
 import { isArray } from 'ramda-adjunct';
-import { Box } from '@chakra-ui/layout';
 import { useEffect } from 'react';
 import { AppState, useStore } from '@store';
 

@@ -1,4 +1,4 @@
-import { FormControl, FormLabel } from '@chakra-ui/form-control';
+import { FormControl, FormLabel } from '@chakra-ui/react';
 import { ForwardedRef, forwardRef, ReactElement, ReactNode, useMemo } from 'react';
 import { default as ReactSelect, GroupBase, Props, StylesConfig } from 'react-select';
 

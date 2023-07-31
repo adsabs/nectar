@@ -1,4 +1,4 @@
-import { Box, Flex, Heading, HStack, Link } from '@chakra-ui/layout';
+import { Box, Flex, Heading, HStack, Link } from '@chakra-ui/react';
 import { AdsSmallLogo } from '@components/images';
 import dynamic from 'next/dynamic';
 import NextLink from 'next/link';

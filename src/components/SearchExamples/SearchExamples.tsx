@@ -1,4 +1,4 @@
-import { Box, Flex, Grid, GridItem, Heading, Text } from '@chakra-ui/layout';
+import { Box, Flex, Grid, GridItem, Heading, Text } from '@chakra-ui/react';
 import { useStore, useStoreApi } from '@store';
 import { noop } from '@utils';
 import { FC, HTMLAttributes, MouseEventHandler, useMemo } from 'react';

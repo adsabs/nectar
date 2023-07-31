@@ -1,5 +1,5 @@
-import { Meta, Story } from '@storybook/react';
-import { Expandable, IExpandableProps } from '../Expandable';
+import { Meta, StoryObj } from '@storybook/react';
+import { Expandable } from '../Expandable';
 
 const meta: Meta = {
   title: 'Expandable',
@@ -16,14 +16,14 @@ const meta: Meta = {
   },
 };
 
+type Story = StoryObj<typeof Expandable>;
+
 export default meta;
 
-const Template: Story<IExpandableProps> = (args) => <Expandable {...args} />;
-
-export const Default = Template.bind({});
-
-Default.args = {
-  title: 'Click me for description',
-  description:
-    'Sweet are the uses of adversity which, like the toad, ugly and venomous, wears yet a precious jewel in his head',
+export const Default: Story = {
+  args: {
+    title: 'Click me for description',
+    description:
+      'Sweet are the uses of adversity which, like the toad, ugly and venomous, wears yet a precious jewel in his head',
+  },
 };

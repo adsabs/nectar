@@ -8,9 +8,8 @@ import {
   searchKeys,
   useSearchInfinite,
 } from '@api';
-import { Alert, AlertIcon } from '@chakra-ui/alert';
+import { Alert, AlertIcon, Box, Flex, Heading, HStack, Link } from '@chakra-ui/react';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
-import { Box, Flex, Heading, HStack, Link } from '@chakra-ui/react';
 import { CitationExporter, DEFAULT_USER_DATA, JournalFormatMap } from '@components';
 import { getExportCitationDefaultContext } from '@components/CitationExporter/CitationExporter.machine';
 import { APP_DEFAULTS } from '@config';

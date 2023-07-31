@@ -1,20 +1,20 @@
-import { IReadsTableProps, ReadsTable } from '@components';
+import { ReadsTable } from '@components';
 import { readsTableData } from '@components/__mocks__/data';
-import { Meta, Story } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {
   title: 'Visualizations/tables/ReadsTable',
   component: ReadsTable,
 };
 
+type Story = StoryObj<typeof ReadsTable>;
+
 export default meta;
 
-const Template: Story<IReadsTableProps> = (args) => <ReadsTable {...args} />;
+export const Default: Story = {
+  args: { data: readsTableData, isAbstract: false },
+};
 
-export const Default = Template.bind({});
-
-Default.args = { data: readsTableData, isAbstract: false };
-
-export const Abstract = Template.bind({});
-
-Abstract.args = { data: readsTableData, isAbstract: true };
+export const Abstract: Story = {
+  args: { data: readsTableData, isAbstract: true },
+};

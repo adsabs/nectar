@@ -1,5 +1,4 @@
-import { MenuItemProps } from '@chakra-ui/menu';
-import { Center, MenuItem, Spinner, ToastId, useToast } from '@chakra-ui/react';
+import { Center, MenuItem, MenuItemProps, Spinner, ToastId, useToast } from '@chakra-ui/react';
 import { useAddWorks } from '@lib/orcid/useAddWorks';
 import { AppState, useStore } from '@store';
 import React, { useCallback, useRef } from 'react';

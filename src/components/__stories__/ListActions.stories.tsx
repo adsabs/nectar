@@ -1,5 +1,5 @@
-import { IListActionsProps, ListActions } from '@components';
-import { Meta, Story } from '@storybook/react';
+import { ListActions } from '@components';
+import { Meta, StoryObj } from '@storybook/react';
 import { noop } from '@utils';
 
 const meta: Meta = {
@@ -7,12 +7,11 @@ const meta: Meta = {
   component: ListActions,
 };
 
+type Story = StoryObj<typeof ListActions>;
 export default meta;
 
-const Template: Story<IListActionsProps> = (args) => <ListActions {...args} />;
-
-export const Default = Template.bind({});
-
-Default.args = {
-  onSortChange: noop,
+export const Default: Story = {
+  args: {
+    onSortChange: noop,
+  },
 };

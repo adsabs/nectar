@@ -1,6 +1,6 @@
-import { IPaperNetworkGraphProps, PaperNetworkGraph } from '@components';
+import { PaperNetworkGraph } from '@components';
 import { response } from '@components/__mocks__/paperNetworkResponseData';
-import { Meta, Story } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 import { noop } from '@utils';
 
 const meta: Meta = {
@@ -8,15 +8,15 @@ const meta: Meta = {
   component: PaperNetworkGraph,
 };
 
+type Story = StoryObj<typeof PaperNetworkGraph>;
+
 export default meta;
 
-const Template: Story<IPaperNetworkGraphProps> = (args) => <PaperNetworkGraph {...args} />;
-
-export const Default = Template.bind({});
-
-Default.args = {
-  nodesData: response.data.summaryGraph.nodes,
-  linksData: response.data.summaryGraph.links,
-  onClickNode: noop,
-  keyToUseAsValue: 'paper_count',
+export const Default: Story = {
+  args: {
+    nodesData: response.data.summaryGraph.nodes,
+    linksData: response.data.summaryGraph.links,
+    onClickNode: noop,
+    keyToUseAsValue: 'paper_count',
+  },
 };

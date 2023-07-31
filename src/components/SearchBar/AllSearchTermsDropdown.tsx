@@ -1,4 +1,3 @@
-import { ChevronDownIcon } from '@chakra-ui/icons';
 import {
   Box,
   Code,
@@ -11,6 +10,7 @@ import {
   UnorderedList,
   usePopper,
 } from '@chakra-ui/react';
+import { ChevronDownIcon } from '@chakra-ui/icons';
 import { useCombobox } from 'downshift';
 import { matchSorter } from 'match-sorter';
 import { forwardRef, ReactElement, useEffect, useState } from 'react';

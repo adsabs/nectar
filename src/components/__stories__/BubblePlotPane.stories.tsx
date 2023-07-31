@@ -1,16 +1,16 @@
-import { BubblePlotPane, IBubblePlotPaneProps } from '@components';
+import { BubblePlotPane } from '@components';
 import { graph } from '@components/__mocks__/bubblePlotData';
-import { Meta, Story } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {
   title: 'Visualizations/GraphPanes/BubblePlotPane',
   component: BubblePlotPane,
 };
 
+type Story = StoryObj<typeof BubblePlotPane>;
+
 export default meta;
 
-const Template: Story<IBubblePlotPaneProps> = (args) => <BubblePlotPane {...args} />;
-
-export const Default = Template.bind({});
-
-Default.args = { graph };
+export const Default: Story = {
+  args: { graph },
+};

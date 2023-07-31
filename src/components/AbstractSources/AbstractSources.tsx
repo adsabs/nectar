@@ -1,8 +1,6 @@
 import { IDocsEntity } from '@api';
-import { Button } from '@chakra-ui/button';
+import { Button, HStack, Menu, MenuButton, MenuItem, MenuList, VStack } from '@chakra-ui/react';
 import { ChevronDownIcon, LockIcon, UnlockIcon } from '@chakra-ui/icons';
-import { HStack, VStack } from '@chakra-ui/layout';
-import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
 import { SimpleLinkList } from '@components';
 import { ItemType } from '@components/Dropdown/types';
 import { useIsClient } from '@lib/useIsClient';

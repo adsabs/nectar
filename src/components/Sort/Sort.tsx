@@ -1,7 +1,5 @@
 import { SolrSort, SolrSortDirection, SolrSortField } from '@api';
-import { IconButton } from '@chakra-ui/button';
-import { Input } from '@chakra-ui/input';
-import { Box, HStack, Link } from '@chakra-ui/layout';
+import { Box, HStack, IconButton, Input, Link } from '@chakra-ui/react';
 import { SimpleLinkDropdown } from '@components';
 import { ItemType } from '@components/Dropdown/types';
 import { ISelectProps, Select } from '@components/Select';

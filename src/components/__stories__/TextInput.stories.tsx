@@ -1,5 +1,5 @@
-import { Meta, Story } from '@storybook/react';
-import { ITextInputProps, TextInput } from '@components';
+import { Meta, StoryObj } from '@storybook/react';
+import { TextInput } from '@components';
 
 const meta: Meta = {
   title: 'TextInput',
@@ -16,10 +16,10 @@ const meta: Meta = {
   },
 };
 
+type Story = StoryObj<typeof meta.component>;
+
 export default meta;
 
-const Template: Story<ITextInputProps> = (args) => <TextInput {...args} />;
-
-export const Default = Template.bind({}) ;
-
-Default.args = {};
+export const Default: Story = {
+  args: {},
+};

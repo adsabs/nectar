@@ -1,4 +1,4 @@
-import { Flex, Grid, GridItem, Heading } from '@chakra-ui/layout';
+import { Flex, Grid, GridItem, Heading } from '@chakra-ui/react';
 import { examples } from './examples';
 import { SearchExample } from './SearchExamples';
 

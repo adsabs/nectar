@@ -1,15 +1,14 @@
 import { TopProgressBar } from '@components';
-import { Meta, Story } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {
   title: 'TopProgressBar',
   component: TopProgressBar,
 };
 
+type Story = StoryObj<typeof TopProgressBar>;
 export default meta;
 
-const Template: Story<Record<string, never>> = (args) => <TopProgressBar {...args} />;
-
-export const Default = Template.bind({});
-
-Default.args = {};
+export const Default: Story = {
+  args: {},
+};

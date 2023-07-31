@@ -1,4 +1,4 @@
-import { Heading, Stack, Text } from '@chakra-ui/layout';
+import { Heading, Stack, Text } from '@chakra-ui/react';
 import { FC } from 'react';
 
 interface IAbsRefLayoutProps {

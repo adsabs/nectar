@@ -1,5 +1,5 @@
 import { fetchGraphics, graphicsKeys, IADSApiSearchResponse, searchKeys, useGetGraphics } from '@api';
-import { Box, Flex, Link } from '@chakra-ui/layout';
+import { Box, Flex, Link } from '@chakra-ui/react';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@lib/useGetAbstractDoc';

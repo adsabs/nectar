@@ -1,7 +1,6 @@
 import { IDocsEntity } from '@api';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
-import { Heading, Stack, Text } from '@chakra-ui/layout';
-import { Button, Link } from '@chakra-ui/react';
+import { Button, Heading, Link, Stack, Text } from '@chakra-ui/react';
 import { AbstractSideNav, Metatags } from '@components';
 import { useBackToSearchResults } from '@lib/useBackToSearchResults';
 import { unwrapStringValue } from '@utils';

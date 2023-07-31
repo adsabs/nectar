@@ -1,11 +1,12 @@
 import { IADSApiMetricsResponse, IDocsEntity, MetricsResponseKey, TimeSeriesKey, useGetMetricsTimeSeries } from '@api';
-import { Box, Heading } from '@chakra-ui/layout';
 import {
   Alert,
   AlertDescription,
   AlertIcon,
   AlertTitle,
+  Box,
   CircularProgress,
+  Heading,
   Tab,
   TabList,
   TabPanel,

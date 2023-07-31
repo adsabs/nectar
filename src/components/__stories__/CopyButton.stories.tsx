@@ -1,17 +1,17 @@
-import { Meta, Story } from '@storybook/react';
-import { SimpleCopyButton, ICopyButtonProps } from '@components';
+import { Meta, StoryObj } from '@storybook/react';
+import { SimpleCopyButton } from '@components';
 
 const meta: Meta = {
   title: 'SimpleCopyButton',
   component: SimpleCopyButton,
 };
 
+type Story = StoryObj<typeof SimpleCopyButton>;
+
 export default meta;
 
-const Template: Story<ICopyButtonProps> = (args) => <SimpleCopyButton {...args} />;
-
-export const Default = Template.bind({});
-
-Default.args = {
-  text: 'copy text',
+export const Default: Story = {
+  args: {
+    text: 'copy text',
+  },
 };

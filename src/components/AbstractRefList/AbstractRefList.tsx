@@ -1,5 +1,5 @@
 import { IADSApiSearchParams, IDocsEntity } from '@api';
-import { Stack } from '@chakra-ui/layout';
+import { Stack } from '@chakra-ui/react';
 import { SimpleResultList } from '@components';
 import { Pagination, PaginationProps } from '@components/ResultList/Pagination';
 import { calculateStartIndex } from '@components/ResultList/Pagination/usePagination';

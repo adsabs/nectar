@@ -1,7 +1,6 @@
 import { IDocsEntity } from '@api';
-import { IconButton } from '@chakra-ui/button';
+import { IconButton, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import { LockIcon, UnlockIcon } from '@chakra-ui/icons';
-import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
 import { SimpleLinkDropdown } from '@components';
 import { processLinkData } from '@components/AbstractSources/linkGenerator';
 import { SimpleAction } from '@components/Orcid/SimpleAction';
@@ -21,9 +20,7 @@ export interface IItem {
   path?: string;
 }
 
-export const ItemResourceDropdowns = ({
-  doc,
-}: IItemResourceDropdownsProps): ReactElement => {
+export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): ReactElement => {
   const router = useRouter();
   const isClient = useIsClient();
 

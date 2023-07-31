@@ -1,15 +1,16 @@
-import { ISearchBarProps, SearchBar } from '@components';
-import { Meta, Story } from '@storybook/react';
+import { SearchBar } from '@components';
+import { Meta, StoryObj } from '@storybook/react';
 
-const meta: Meta = {
-  title: 'SearchBar',
+const meta: Meta<typeof SearchBar> = {
+  title: 'SearchBar/SearchBar',
   component: SearchBar,
 };
 
+type Story = StoryObj<typeof SearchBar>;
+
 export default meta;
 
-const Template: Story<ISearchBarProps> = (args) => <SearchBar {...args} />;
-
-export const Primary = Template.bind({});
-
-Primary.args = {};
+export const Basic: Story = {};
+export const Loading: Story = {
+  args: { isLoading: true },
+};

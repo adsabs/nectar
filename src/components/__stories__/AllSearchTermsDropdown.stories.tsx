@@ -1,13 +1,18 @@
-import { AllSearchTermsDropdown, IAllSearchTermsDropdown } from '@components';
-import { Meta, Story } from '@storybook/react';
+import { AllSearchTermsDropdown } from '@components';
+import { Meta, StoryObj } from '@storybook/react';
+import { noop } from '@utils';
 
-const meta: Meta = {
+const meta: Meta<typeof AllSearchTermsDropdown> = {
   title: 'SearchBar/AllSearchTermsDropdown',
   component: AllSearchTermsDropdown,
 };
 
+type Story = StoryObj<typeof AllSearchTermsDropdown>;
+
 export default meta;
 
-const Template: Story<IAllSearchTermsDropdown> = (args) => <AllSearchTermsDropdown {...args} />;
-
-export const Default = Template.bind({});
+export const Default: Story = {
+  args: {
+    onSelect: noop,
+  },
+};

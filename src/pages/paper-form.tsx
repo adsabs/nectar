@@ -1,11 +1,26 @@
 import { fetchVaultSearch, vaultKeys } from '@api';
 import { fetchReferenceText, referenceKeys } from '@api/reference/reference';
 import { getVaultBigQueryParams } from '@api/vault/models';
-import { Button } from '@chakra-ui/button';
-import { FormControl, FormErrorMessage, FormHelperText, FormLabel } from '@chakra-ui/form-control';
+import {
+  Alert,
+  Box,
+  Button,
+  Divider,
+  FormControl,
+  FormErrorMessage,
+  FormHelperText,
+  FormLabel,
+  Grid,
+  GridItem,
+  Heading,
+  Input,
+  Link,
+  Stack,
+  Text,
+  Textarea,
+  VStack,
+} from '@chakra-ui/react';
 import { WarningTwoIcon } from '@chakra-ui/icons';
-import { Box, Divider, Grid, GridItem, Heading, Stack, Text, VStack } from '@chakra-ui/layout';
-import { Alert, Input, Link, Textarea } from '@chakra-ui/react';
 import { BibstemPicker } from '@components';
 import { useErrorMessage } from '@lib/useErrorMessage';
 import { useIsClient } from '@lib/useIsClient';

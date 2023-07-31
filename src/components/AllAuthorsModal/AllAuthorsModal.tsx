@@ -1,7 +1,7 @@
 import { IADSApiSearchParams, IDocsEntity, useGetAffiliations } from '@api';
 import { CloseIcon, DownloadIcon } from '@chakra-ui/icons';
-import { Box } from '@chakra-ui/layout';
 import {
+  Box,
   Button,
   Flex,
   IconButton,

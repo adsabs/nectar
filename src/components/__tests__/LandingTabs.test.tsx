@@ -1,9 +1,9 @@
 import { render } from '@test-utils';
-import { describe, it } from 'vitest';
-import { Default as LandingTabs } from '../__stories__/LandingTabs.stories';
+import * as stories from '../__stories__/LandingTabs.stories';
+import { composeStories } from '@storybook/testing-react';
 
-describe.skip('LandingTabs', () => {
-  it('renders without crashing', () => {
-    render(<LandingTabs />);
-  });
+const { Default: LandingTabs } = composeStories(stories);
+
+test.skip('renders without crashing', () => {
+  render(<LandingTabs />);
 });

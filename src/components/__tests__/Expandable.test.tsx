@@ -1,9 +1,9 @@
 import { render } from '@test-utils';
-import { describe, it } from 'vitest';
-import { Default as Expandable } from '../__stories__/Expandable.stories';
+import * as stories from '../__stories__/Expandable.stories';
+import { composeStories } from '@storybook/testing-react';
 
-describe('Expandable', () => {
-  it('renders without crashing', () => {
-    render(<Expandable title="Test" description="Test" />);
-  });
+const { Default: Expandable } = composeStories(stories);
+
+test('renders without crashing', () => {
+  render(<Expandable title="Test" description="Test" />);
 });

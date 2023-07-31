@@ -1,6 +1,3 @@
-import { CheckboxProps } from '@chakra-ui/checkbox';
-import { ChevronRightIcon } from '@chakra-ui/icons';
-import { List, ListIcon, Stack } from '@chakra-ui/layout';
 import {
   Alert,
   AlertDescription,
@@ -11,21 +8,26 @@ import {
   ButtonGroup,
   Center,
   Checkbox,
+  CheckboxProps,
   Collapse,
   Divider,
   Heading,
   IconButton,
   IconButtonProps,
+  List,
+  ListIcon,
   ListItem,
   ListItemProps,
   ListProps,
+  Skeleton,
   Spinner,
+  Stack,
   Text,
   TextProps,
   Tooltip,
   useBoolean,
 } from '@chakra-ui/react';
-import { Skeleton } from '@chakra-ui/skeleton';
+import { ChevronRightIcon } from '@chakra-ui/icons';
 import { Pagination, Toggler } from '@components';
 import { isRootNode, parseRootFromKey, parseTitleFromKey } from '@components/SearchFacet/helpers';
 import { useFacetStore } from '@components/SearchFacet/store/FacetStore';

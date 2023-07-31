@@ -1,6 +1,9 @@
 import { render } from '@testing-library/react';
 import { afterEach, describe, test, vi } from 'vitest';
-import { Default as DataDownloader } from '../__stories__/DataDownloader.stories';
+import { composeStories } from '@storybook/testing-react';
+import * as stories from '../__stories__/DataDownloader.stories';
+
+const { Default: DataDownloader } = composeStories(stories);
 
 const defaultURI = 'blob:http://localhost:8000/9303db9e-5b75-4d87-9aa8-804d7e59c29b';
 

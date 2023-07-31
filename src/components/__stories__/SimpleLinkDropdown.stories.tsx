@@ -1,11 +1,13 @@
-import { ISimpleLinkDropdownProps, SimpleLinkDropdown } from '@components/Dropdown';
+import { SimpleLinkDropdown } from '@components/Dropdown';
 import { states } from '@components/__mocks__/data';
-import { Meta, Story } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {
   title: 'Dropdown/SimpleLinkDropdown',
   component: SimpleLinkDropdown,
 };
+
+type Story = StoryObj<typeof SimpleLinkDropdown>;
 
 export default meta;
 
@@ -17,11 +19,9 @@ const items = states.map((state) => ({
   disabled: false,
 }));
 
-const Template: Story<ISimpleLinkDropdownProps> = (args) => <SimpleLinkDropdown {...args} />;
-
-export const Default = Template.bind({}) ;
-
-Default.args = {
-  items,
-  label: '50 States',
+export const Default: Story = {
+  args: {
+    items,
+    label: '50 States',
+  },
 };
