@@ -22,31 +22,19 @@ export const ${name}: FC<I${name}Props> = (props) => {
 ${name}.propTypes = propTypes;
 `;
 
-exports.story = (name) => `import { Meta, Story } from '@storybook/react';
-import { ${name}, I${name}Props } from '../${name}';
+exports.story = (name) => `import { Meta, StoryObj } from '@storybook/react';
+import { ${name} } from '../${name}';
 
 const meta: Meta = {
   title: '${name}',
   component: ${name},
-  argTypes: {
-    children: {
-      control: {
-        type: 'text',
-      },
-    },
-  },
-  parameters: {
-    controls: { expanded: true },
-  },
 };
+
+type Story = StoryObj<typeof ${name}>;
 
 export default meta;
 
-const Template: Story<I${name}Props> = args => ${'<' + name} {...args} />;
-
-export const Default = Template.bind({});
-
-Default.args = {};
+export const Default: Story = {};
 `;
 
 exports.test = (name) => `import { render } from '@testing-library/react';

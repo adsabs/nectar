@@ -4,11 +4,29 @@ const fs = require('fs');
 const path = require('path');
 const { component, story, test, barrel } = require('./templates.js');
 
+const help = () => {
+  console.log(`
+  Usage: create-component <name> [options]
+
+  example: create-component MyComponent component,story,test
+
+  options: component,story,test or any combination of the three
+`);
+};
+
 // grab component name from terminal argument
-const [name] = process.argv.slice(2);
-if (!name) throw new Error('You must include a component name.');
+const [name, options] = process.argv.slice(2);
+
+if (name === 'help') {
+  return help();
+}
+
+const type = options?.split(',') ?? ['component', 'story', 'test'];
+
+if (!name) {
+  throw new Error('You must include a component name.');
+}
 const base = path.resolve(__dirname, `../..`);
-const dir = path.join(base, 'src/components/', name);
 const testDir = path.join(base, 'src/components/__tests__');
 const storyDir = path.join(base, 'src/components/__stories__');
 
@@ -18,26 +36,61 @@ const writeFileErrorHandler = (err) => {
   }
 };
 
-// if compnonent exists, do everything except create the component
-const componentExists = fs.existsSync(dir);
+const makeComponent = (name) => {
+  const componentPath = path.join(base, 'src/components/', name);
 
-if (!componentExists) {
-  // create the folder
-  fs.mkdirSync(dir, { recursive: true }, writeFileErrorHandler);
-  // component.tsx
-  fs.writeFile(path.join(dir, `${name}.tsx`), component(name), writeFileErrorHandler);
-  // component barrel
-  fs.writeFile(path.join(dir, `index.ts`), barrel(name), writeFileErrorHandler);
+  if (!fs.existsSync(componentPath)) {
+    // create the folder
+    fs.mkdirSync(dir, { recursive: true }, writeFileErrorHandler);
+
+    // component.tsx
+    fs.writeFile(path.join(dir, `${name}.tsx`), component(name), writeFileErrorHandler);
+
+    // sub-component barrel
+    fs.writeFile(path.join(dir, `index.ts`), barrel(name), writeFileErrorHandler);
+
+    // update the components barrel
+    fs.appendFile(path.join(base, 'src/components', 'index.ts'), `${barrel(name)}\n`, writeFileErrorHandler);
+    console.log('component created');
+  } else {
+    console.log('component already exists, doing nothing');
+  }
+};
+
+
+const makeStory = (name) => {
+  const storyPath = path.join(storyDir, `${name}.stories.tsx`);
+  if (!fs.existsSync(storyPath)) {
+    fs.writeFile(storyPath, story(name), writeFileErrorHandler);
+    console.log('story created');
+  } else {
+    console.log('story already exists, doing nothing');
+  }
+};
+
+
+const makeTest = (name) => {
+  const testPath = path.join(testDir, `${name}.test.tsx`);
+  if (!fs.existsSync(testPath)) {
+    fs.writeFile(testPath, test(name), writeFileErrorHandler);
+    console.log('test created');
+  } else {
+    console.log('test already exists, doing nothing');
+  }
+};
+
+if (type.length === 0) {
+  makeComponent(name);
+  makeStory(name);
+  makeTest(name);
 }
-// storybook.jsx
-fs.writeFile(path.join(storyDir, `${name}.stories.tsx`), story(name), writeFileErrorHandler);
-// test.tsx
-fs.writeFile(path.join(testDir, `${name}.test.tsx`), test(name), writeFileErrorHandler);
-
-////////////////
-/// Optional ///
-////////////////
-
-if (!componentExists) {
-  fs.appendFile(path.join(base, 'src/components', 'index.ts'), `${barrel(name)}\n`, writeFileErrorHandler);
+if (type.includes('component')) {
+  makeComponent(name);
 }
+if (type.includes('story')) {
+  makeStory(name);
+}
+if (type.includes('test')) {
+  makeTest(name);
+}
+
