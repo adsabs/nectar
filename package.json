@@ -31,6 +31,7 @@
     "@emotion/react": "11.8.2",
     "@emotion/styled": "^11.6.0",
     "@heroicons/react": "^2.0.16",
+    "@hookform/resolvers": "^3.1.1",
     "@next/bundle-analyzer": "^10.0.7",
     "@nivo/bar": "^0.80.0",
     "@nivo/core": "^0.80.0",
@@ -66,6 +67,7 @@
     "lucene": "^2.1.1",
     "match-sorter": "^6.3.1",
     "memoize-one": "^6.0.0",
+    "moment": "^2.29.4",
     "next": "13.0.1",
     "nprogress": "^0.2.0",
     "prop-types": "^15.8.1",
@@ -80,6 +82,7 @@
     "react-select": "^5.7.3",
     "use-debounce": "^7.0.1",
     "uuid": "^8.3.2",
+    "yup": "^1.2.0",
     "zod": "^3.19.1",
     "zustand": "^3.6.9"
   },

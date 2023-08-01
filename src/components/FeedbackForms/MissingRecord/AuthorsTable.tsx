@@ -1,22 +1,19 @@
 import { CheckIcon, CloseIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons';
 import { Tr, Td, Input, IconButton, Table, Thead, Th, Tbody, HStack } from '@chakra-ui/react';
-import { noop } from '@utils';
 import { useState, ChangeEvent, MouseEvent, useRef } from 'react';
-import { IAuthor } from './types';
+import { useFieldArray } from 'react-hook-form';
+import { FormValues, IAuthor } from './types';
 
-export const AuthorsTable = ({
-  authors,
-  onAddAuthor = noop,
-  onDeleteAuthor = noop,
-  onUpdateAuthor = noop,
-  editable,
-}: {
-  authors: IAuthor[];
-  onAddAuthor?: (author: IAuthor) => void;
-  onDeleteAuthor?: (index: number) => void;
-  onUpdateAuthor?: (index: number, author: IAuthor) => void;
-  editable: boolean;
-}) => {
+export const AuthorsTable = ({ editable }: { editable: boolean }) => {
+  const {
+    fields: authors,
+    append,
+    remove,
+    update,
+  } = useFieldArray<FormValues, 'authors'>({
+    name: 'authors',
+  });
+
   // New author row being added
   const [newAuthor, setNewAuthor] = useState<IAuthor>(null);
 
@@ -51,7 +48,7 @@ export const AuthorsTable = ({
   };
 
   const handleAddAuthor = () => {
-    onAddAuthor(newAuthor);
+    append(newAuthor);
     // clear input fields
     setNewAuthor(null);
     newAuthorNameRef.current.focus();
@@ -78,12 +75,12 @@ export const AuthorsTable = ({
 
   const handleDeleteAuthor = (e: MouseEvent<HTMLButtonElement>) => {
     const index = parseInt(e.currentTarget.dataset['index']);
-    onDeleteAuthor(index);
+    remove(index);
   };
 
   const handleApplyEditAuthor = (e: MouseEvent<HTMLButtonElement>) => {
     const index = parseInt(e.currentTarget.dataset['index']);
-    onUpdateAuthor(index, editAuthor.author);
+    update(index, editAuthor.author);
     setEditAuthor({ index: -1, author: null });
   };
 

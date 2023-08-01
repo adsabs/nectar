@@ -1,11 +1,20 @@
 import { CheckIcon, CloseIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons';
-import { Tr, Td, Input, IconButton, Table, Thead, Th, Tbody, HStack } from '@chakra-ui/react';
+import { FormControl, FormLabel, Tr, Td, Input, IconButton, Table, Thead, Th, Tbody, HStack } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components/Select';
 import { useIsClient } from '@lib';
-import { noop } from '@utils';
 import { useState, ChangeEvent, MouseEvent, useRef } from 'react';
-import { IReference, ReferenceType, referenceTypes } from './types';
+import { FormValues, IReference, ReferenceType, referenceTypes } from './types';
 import { SelectInstance } from 'react-select';
+import { useFieldArray } from 'react-hook-form';
+
+export const ReferencesField = () => {
+  return (
+    <FormControl>
+      <FormLabel>References</FormLabel>
+      <ReferencesTable editable />
+    </FormControl>
+  );
+};
 
 const typeOptions: SelectOption<ReferenceType>[] = referenceTypes.map((r) => ({
   id: r,
@@ -13,20 +22,14 @@ const typeOptions: SelectOption<ReferenceType>[] = referenceTypes.map((r) => ({
   value: r as string,
 }));
 
-export const ReferencesTable = ({
-  references,
-  onAddReference = noop,
-  onDeleteReference = noop,
-  onUpdateReference = noop,
-  editable,
-}: {
-  references: IReference[];
-  onAddReference?: (author: IReference) => void;
-  onDeleteReference?: (index: number) => void;
-  onUpdateReference?: (index: number, reference: IReference) => void;
-  editable: boolean;
-}) => {
+export const ReferencesTable = ({ editable }: { editable: boolean }) => {
   const isClient = useIsClient();
+
+  const { fields, append, remove, update } = useFieldArray<FormValues, 'references'>({
+    name: 'references',
+  });
+
+  const references = fields as IReference[];
 
   // New row being added
   const [newReference, setNewReference] = useState<IReference>({ type: 'Bibcode', reference: '' });
@@ -58,7 +61,7 @@ export const ReferencesTable = ({
   };
 
   const handleAddReference = () => {
-    onAddReference(newReference);
+    append(newReference);
     // clear input fields
     setNewReference({ type: 'Bibcode', reference: '' });
     (newReferenceInputRef.current as SelectInstance).focus();
@@ -81,12 +84,12 @@ export const ReferencesTable = ({
 
   const handleDeleteReference = (e: MouseEvent<HTMLButtonElement>) => {
     const index = parseInt(e.currentTarget.dataset['index']);
-    onDeleteReference(index);
+    remove(index);
   };
 
   const handleApplyEditReference = (e: MouseEvent<HTMLButtonElement>) => {
     const index = parseInt(e.currentTarget.dataset['index']);
-    onUpdateReference(index, editReference.reference);
+    update(index, editReference.reference);
     setEditReference({ index: -1, reference: null });
   };
 

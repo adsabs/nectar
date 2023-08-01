@@ -1,9 +1,15 @@
-import { IUrl } from '@components';
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 
+export const resourceUrlTypes = ['arXiv', 'PDF', 'DOI', 'HTML', 'Other'] as const;
+
+export type ResourceUrlType = typeof resourceUrlTypes[number];
+export interface IResourceUrl {
+  type: ResourceUrlType;
+  url: string;
+}
 interface IUseResourceLinksProps {
   identifier: string;
-  options?: UseQueryOptions<IUrl[]>;
+  options?: UseQueryOptions<IResourceUrl[]>;
 }
 
 const SKIP_URLS = [
@@ -19,7 +25,7 @@ export const useGetResourceLinks = ({ identifier, options }: IUseResourceLinksPr
   // url regex, skip internal links
   const reg = /href="(https?:\/\/[^"]*)"/gi;
 
-  const data = useQuery<IUrl[]>(
+  const data = useQuery<IResourceUrl[]>(
     ['resourceLink', identifier],
     async () => {
       const res = await fetch(url);
@@ -31,14 +37,14 @@ export const useGetResourceLinks = ({ identifier, options }: IUseResourceLinksPr
             (e) =>
               ({
                 type: e[1].includes('arxiv')
-                  ? ('arXiv' as IUrl['type'])
+                  ? ('arXiv' as IResourceUrl['type'])
                   : e[1].includes('pdf')
-                  ? ('PDF' as IUrl['type'])
+                  ? ('PDF' as IResourceUrl['type'])
                   : e[1].includes('doi')
-                  ? ('DOI' as IUrl['type'])
-                  : ('HTML' as IUrl['type']),
+                  ? ('DOI' as IResourceUrl['type'])
+                  : ('HTML' as IResourceUrl['type']),
                 url: e[1],
-              } as IUrl),
+              } as IResourceUrl),
           )
             .slice(1)
 
@@ -46,7 +52,7 @@ export const useGetResourceLinks = ({ identifier, options }: IUseResourceLinksPr
             .filter((u) => !SKIP_URLS.includes(u.url))
         );
       }
-      return [] as IUrl[];
+      return [] as IResourceUrl[];
     },
     options,
   );

@@ -66,7 +66,12 @@ const TextChanges = ({ changes, newValue }: { changes: Change[]; newValue: strin
         } else if (change.removed) {
           return [...list, <Remove value={change.value} display="inline" key={`textrm-${i++}`} />];
         }
-        return [...list, <Text display="inline">{change.value}</Text>];
+        return [
+          ...list,
+          <Text display="inline" key={`text-${i}`}>
+            {change.value}
+          </Text>,
+        ];
       }, [])}
       <br />
       <br />

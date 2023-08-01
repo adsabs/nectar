@@ -1,19 +1,11 @@
 import { Database } from '@api/search';
+import { IResourceUrl } from '@lib';
 import { ArrayChange, Change } from 'diff';
 
 export interface IAuthor {
   name: string;
   aff: string;
   orcid: string;
-}
-
-export const urlTypes = ['arXiv', 'PDF', 'DOI', 'HTML', 'Other'] as const;
-
-export type UrlType = typeof urlTypes[number];
-
-export interface IUrl {
-  type: UrlType;
-  url: string;
 }
 
 export const referenceTypes = ['Raw Text', 'DOI', 'Bibcode'] as const;
@@ -23,6 +15,10 @@ export type ReferenceType = typeof referenceTypes[number];
 export interface IReference {
   type: ReferenceType;
   reference: string;
+}
+
+export interface IKeyword {
+  value: string;
 }
 
 export type FormValues = {
@@ -35,9 +31,9 @@ export type FormValues = {
   authors: IAuthor[];
   publication: string;
   pubDate: string;
-  urls: IUrl[];
+  urls: IResourceUrl[];
   abstract: string;
-  keywords: string[];
+  keywords: IKeyword[];
   references: IReference[];
   comments: string;
 };

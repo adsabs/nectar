@@ -14,9 +14,8 @@ import {
 } from '@chakra-ui/react';
 import { useRecaptcha } from '@lib/useRecaptcha';
 import { parseAPIError } from '@utils';
-import { useEffect, useMemo, useState } from 'react';
+import { ReactElement, useEffect, useMemo, useState } from 'react';
 import ReCAPTCHA from 'react-google-recaptcha';
-import { DiffSectionPanel } from './MissingRecord';
 import { DiffSection } from './MissingRecord/types';
 
 export interface IPreviewProps {
@@ -25,7 +24,7 @@ export interface IPreviewProps {
   title: string;
   submitterInfo: string;
   mainContentTitle: string;
-  mainContent: string | DiffSection[];
+  mainContent: string | ReactElement;
   onClose: () => void;
   onSuccess: () => void;
   onError: (error: string) => void;
@@ -63,22 +62,6 @@ export const PreviewModal = (props: IPreviewProps) => {
     }
   }, [isLoading, isSuccess, error]);
 
-  const diffSectionPanels = useMemo(
-    () =>
-      typeof mainContent !== 'string' ? (
-        !mainContent || mainContent.length === 0 ? (
-          <strong>No Updates Detected</strong>
-        ) : (
-          <>
-            {mainContent.map((section) => (
-              <DiffSectionPanel key={section.label} section={section} />
-            ))}
-          </>
-        )
-      ) : null,
-    [mainContent],
-  );
-
   const handleSubmit = () => {
     setIsSubmitting(true);
   };
@@ -101,7 +84,7 @@ export const PreviewModal = (props: IPreviewProps) => {
                 <pre className="whitespace-pre-wrap">{mainContent}</pre>
               </Box>
             ) : (
-              <>{diffSectionPanels}</>
+              <>{mainContent}</>
             )}
           </Flex>
           <ReCAPTCHA {...getRecaptchaProps()} />

@@ -31,7 +31,7 @@ export const processFormValues = (formValues: FormValues): IRecordParams => {
     pubDate,
     title,
     abstract,
-    keywords,
+    keywords: keywords.map((keyword) => keyword.value),
     authors: authors.map((author) => author.name),
     affiliation: authors.map(({ aff }) => aff),
     orcid: authors.map(({ orcid }) => orcid),
