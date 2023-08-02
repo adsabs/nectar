@@ -6,8 +6,8 @@ export const DEFAULT_ORDERING = [
   Esources.ADS_PDF,
   Esources.ADS_SCAN,
   Esources.INSTITUTION,
-  Esources.PUB_HTML,
   Esources.PUB_PDF,
+  Esources.PUB_HTML,
   Esources.EPRINT_PDF,
   Esources.EPRINT_HTML,
   Esources.AUTHOR_PDF,
@@ -24,12 +24,12 @@ export interface ILinkType {
 export const MAYBE_OPEN_SOURCES = [
   Esources.ADS_PDF,
   Esources.ADS_SCAN,
-  Esources.AUTHOR_HTML,
   Esources.AUTHOR_PDF,
-  Esources.EPRINT_HTML,
+  Esources.AUTHOR_HTML,
   Esources.EPRINT_PDF,
-  Esources.PUB_HTML,
+  Esources.EPRINT_HTML,
   Esources.PUB_PDF,
+  Esources.PUB_HTML,
 ];
 
 // set of link types and descriptions
