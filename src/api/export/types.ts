@@ -1,29 +1,31 @@
 import { IADSApiSearchParams, IDocsEntity } from '@api';
+import { enumKeys } from '@utils';
 
 /**
  * @see https://github.com/adsabs/export_service#readme
  */
 
 export enum ExportApiFormatKey {
-  bibtex = 'bibtex',
-  ads = 'ads',
-  bibtexabs = 'bibtexabs',
-  endnote = 'endnote',
-  procite = 'procite',
-  ris = 'ris',
-  refworks = 'refworks',
-  rss = 'rss',
-  medlars = 'medlars',
-  dcxml = 'dcxml',
-  refxml = 'refxml',
-  refabsxml = 'refabsxml',
   aastex = 'aastex',
-  ieee = 'ieee',
+  ads = 'ads',
+  bibtex = 'bibtex',
+  bibtexabs = 'bibtexabs',
+  custom = 'custom',
+  dcxml = 'dcxml',
+  endnote = 'endnote',
   icarus = 'icarus',
+  ieee = 'ieee',
+  jatsxml = 'jatsxml',
+  medlars = 'medlars',
   mnras = 'mnras',
+  procite = 'procite',
+  refabsxml = 'refabsxml',
+  refworks = 'refworks',
+  refxml = 'refxml',
+  ris = 'ris',
+  rss = 'rss',
   soph = 'soph',
   votable = 'votable',
-  custom = 'custom',
 }
 
 export enum ExportApiErrorKey {
@@ -57,28 +59,5 @@ export interface IExportApiResponse {
 }
 
 export const isExportApiFormat = (format: unknown): format is ExportApiFormatKey => {
-  return (
-    typeof format === 'string' &&
-    [
-      'bibtex',
-      'ads',
-      'bibtexabs',
-      'endnote',
-      'procite',
-      'ris',
-      'refworks',
-      'rss',
-      'medlars',
-      'dcxml',
-      'refxml',
-      'refabsxml',
-      'aastex',
-      'ieee',
-      'icarus',
-      'mnras',
-      'soph',
-      'votable',
-      'custom',
-    ].includes(format)
-  );
+  return typeof format === 'string' && enumKeys(ExportApiFormatKey).includes(format);
 };
