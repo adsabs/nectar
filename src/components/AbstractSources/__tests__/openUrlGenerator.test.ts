@@ -52,15 +52,6 @@ test('processLinkData produces correct output', () => {
         rawType: 'INSTITUTION',
       },
       {
-        url: '/link_gateway/2023MNRAS.518.3386T/PUB_HTML',
-        open: false,
-        shortName: 'Publisher',
-        name: 'Publisher Article',
-        type: 'HTML',
-        description: 'Electronic on-line publisher article (HTML)',
-        rawType: 'PUB_HTML',
-      },
-      {
         url: '/link_gateway/2023MNRAS.518.3386T/PUB_PDF',
         open: false,
         shortName: 'Publisher',
@@ -68,6 +59,15 @@ test('processLinkData produces correct output', () => {
         type: 'PDF',
         description: 'Publisher PDF',
         rawType: 'PUB_PDF',
+      },
+      {
+        url: '/link_gateway/2023MNRAS.518.3386T/PUB_HTML',
+        open: false,
+        shortName: 'Publisher',
+        name: 'Publisher Article',
+        type: 'HTML',
+        description: 'Electronic on-line publisher article (HTML)',
+        rawType: 'PUB_HTML',
       },
       {
         url: '/link_gateway/2023MNRAS.518.3386T/EPRINT_PDF',
