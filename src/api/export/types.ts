@@ -59,5 +59,5 @@ export interface IExportApiResponse {
 }
 
 export const isExportApiFormat = (format: unknown): format is ExportApiFormatKey => {
-  return typeof format === 'string' && enumKeys(ExportApiFormatKey).includes(format);
+  return typeof format === 'string' && enumKeys(ExportApiFormatKey).includes(format as ExportApiFormatKey);
 };
