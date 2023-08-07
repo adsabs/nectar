@@ -28,7 +28,7 @@ afterEach(() => {
 // @see https://github.com/vitest-dev/vitest/issues/821#issuecomment-1046954558
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation((query) => ({
+  value: vi.fn().mockImplementation((query: unknown) => ({
     matches: false,
     media: query,
     onchange: null,

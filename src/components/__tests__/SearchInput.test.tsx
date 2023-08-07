@@ -28,7 +28,7 @@ test('input is cleared when clear button is clicked', async () => {
   expect(input).toHaveValue('');
 });
 
-test('input is focused on mount', async () => {
+test('input is focused on mount', () => {
   const { getByRole } = render(<SearchInput />);
 
   const input = getByRole('textbox');
