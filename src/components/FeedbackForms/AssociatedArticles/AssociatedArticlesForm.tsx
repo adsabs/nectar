@@ -1,4 +1,5 @@
-import { IFeedbackParams, Relationship } from '@api/feedback';
+import { useSearch } from '@api';
+import { AssociatedBibcode, IFeedbackParams, Relationship } from '@api/feedback';
 import { DeleteIcon, AddIcon } from '@chakra-ui/icons';
 import {
   Flex,
@@ -13,11 +14,13 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components';
+import { yupResolver } from '@hookform/resolvers/yup';
 import { useStore } from '@store';
-import { Formik, Form, Field, useField, FieldArray, FieldProps, FieldArrayRenderProps, FormikProps } from 'formik';
 import { omit } from 'ramda';
-import { useState, ChangeEvent, useRef, useEffect } from 'react';
+import { useState, ChangeEvent, useRef, useEffect, MouseEvent, FormEvent } from 'react';
+import { FormProvider, useFieldArray, useForm, useFormContext, useWatch } from 'react-hook-form';
 import { PreviewModal } from '../PreviewModal';
+import * as Yup from 'yup';
 
 type FormValues = {
   name: string;
@@ -25,8 +28,24 @@ type FormValues = {
   relationship: Relationship;
   otherRelationship: string;
   mainBibcode: string;
-  associatedBibcodes: string[];
+  associatedBibcodes: AssociatedBibcode[];
 };
+
+type State = 'idle' | 'submitting' | 'validate-bibcodes' | 'preview';
+
+const validationSchema: Yup.ObjectSchema<FormValues> = Yup.object({
+  name: Yup.string().required(),
+  email: Yup.string().email().required(),
+  relationship: Yup.mixed<Relationship>().required(),
+  otherRelationship: Yup.string().test('otherRelationship', 'Other relationship name required', (value, context) => {
+    return (context?.parent?.relationship === 'other' && !!value) || context?.parent?.relationship !== 'other';
+  }),
+  mainBibcode: Yup.string().required(),
+  associatedBibcodes: Yup.array()
+    .of(Yup.mixed<AssociatedBibcode>())
+    .required()
+    .min(1, 'At least one associated bibcode is required'),
+});
 
 export const AssociatedArticlesForm = ({
   onOpenAlert,
@@ -37,6 +56,8 @@ export const AssociatedArticlesForm = ({
 
   const { isOpen: isPreviewOpen, onOpen: openPreview, onClose: closePreview } = useDisclosure();
 
+  const [state, setState] = useState<State>('idle');
+
   const initialFormValues: FormValues = {
     name: '',
     email: username ?? '',
@@ -46,7 +67,104 @@ export const AssociatedArticlesForm = ({
     associatedBibcodes: [],
   };
 
-  const formikRef = useRef<FormikProps<FormValues>>();
+  const formMethods = useForm<FormValues>({
+    defaultValues: initialFormValues,
+    resolver: yupResolver(validationSchema),
+    mode: 'onSubmit',
+    reValidateMode: 'onSubmit',
+    shouldFocusError: true,
+  });
+
+  const {
+    register,
+    setError,
+    getValues,
+    formState: { errors },
+    reset,
+  } = formMethods;
+
+  // list of bibcodes for validation
+  const [allBibcodes, setAllBibcodes] = useState<string[]>(null);
+
+  // validate bibcodes exist
+  const {
+    data: bibcodesData,
+    isFetching: bibcodesIsFetching,
+    isLoading: bibcodesIsLoading,
+    isSuccess: bibcodesIsSuccess,
+    error: bibcodesError,
+    refetch: bibcodesRefetch,
+  } = useSearch(
+    {
+      fl: ['bibcode'],
+      q: `identifier:(${allBibcodes?.join(' OR ')})`,
+      rows: allBibcodes?.length,
+    },
+    { enabled: false },
+  );
+
+  useEffect(() => {
+    if (state === 'idle') {
+      setAllBibcodes(null);
+      setParams(null);
+      closePreview();
+    } else if (state === 'validate-bibcodes' && allBibcodes) {
+      void bibcodesRefetch();
+    } else if (state === 'preview') {
+      openPreview();
+    }
+  }, [state, allBibcodes]);
+
+  // bibcodes fetched
+  useEffect(() => {
+    if (state === 'validate-bibcodes' && !bibcodesIsLoading && !bibcodesIsFetching) {
+      const { email, name, relationship, otherRelationship, mainBibcode, associatedBibcodes } = getValues();
+
+      if (bibcodesIsSuccess && bibcodesData) {
+        // check if all bibcodes valid, tigger preview
+        // otherwise set form error
+        if (bibcodesData.numFound === allBibcodes.length) {
+          // set params will trigger opening preview
+          setParams({
+            origin: 'user_submission',
+            _subject: 'Associated Articles',
+            name,
+            email,
+            'g-recaptcha-response': null,
+            source: mainBibcode,
+            target: associatedBibcodes.map((b) => b.value),
+            relationship: relationship,
+            custom_name: otherRelationship.length === 0 ? undefined : otherRelationship,
+          });
+
+          setState('preview');
+        } else {
+          // form has invalid bibcode(s)
+          // set error(s)
+          const foundBibs = bibcodesData.docs.map((d) => d.bibcode);
+          const invalidBibs = allBibcodes.filter((b) => !foundBibs.includes(b));
+
+          if (invalidBibs.includes(mainBibcode)) {
+            setError('mainBibcode', { message: 'Bibcode not found' });
+          }
+
+          associatedBibcodes.forEach((b, i) => {
+            if (invalidBibs.includes(b.value)) {
+              setError(`associatedBibcodes.${i}`, {
+                type: 'validate',
+                message: 'Bibcode not found',
+              });
+            }
+          });
+
+          setState('idle');
+        }
+      } else if (bibcodesError) {
+        onOpenAlert({ status: 'error', title: 'Unable to verify bibcode, try again later' });
+        setState('idle');
+      }
+    }
+  }, [bibcodesData, bibcodesIsFetching, bibcodesIsSuccess, bibcodesError, bibcodesIsLoading]);
 
   const [params, setParams] = useState<IFeedbackParams>(null);
 
@@ -64,84 +182,82 @@ export const AssociatedArticlesForm = ({
     }
   }, [isPreviewOpen]);
 
-  const handlePreview = () => {
-    const { email, name, relationship, otherRelationship, mainBibcode, associatedBibcodes } = formikRef.current.values;
+  const handlePreview = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setState('submitting');
+    const { mainBibcode, associatedBibcodes } = getValues();
 
-    // set params will trigger opening preview
-    setParams({
-      origin: 'user_submission',
-      _subject: 'Associated Articles',
-      name,
-      email,
-      'g-recaptcha-response': null,
-      source: mainBibcode,
-      target: associatedBibcodes,
-      relationship: relationship,
-      custom_name: otherRelationship.length === 0 ? undefined : otherRelationship,
-    });
+    // validate bibcodes
+    const bibsSet = new Set([mainBibcode, ...associatedBibcodes.map((b) => b.value)]);
+    setAllBibcodes(Array.from(bibsSet));
+    setState('validate-bibcodes');
   };
 
   // submitted
   const handleOnSuccess = () => {
     onOpenAlert({ status: 'success', title: 'Feedback submitted successfully' });
-    formikRef.current.resetForm();
+    reset(initialFormValues);
+    setState('idle');
   };
 
   // submission error
   const handleError = (error: string) => {
     onOpenAlert({ status: 'error', title: error });
+    setState('idle');
+  };
+
+  const handleReset = (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    reset(initialFormValues);
+  };
+
+  const handleClosePreview = () => {
+    setState('idle');
   };
 
   return (
-    <Formik initialValues={initialFormValues} onSubmit={handlePreview} innerRef={formikRef}>
-      {({ values }) => (
-        <>
-          <Form>
-            <Flex direction="column" gap={4} my={2}>
-              <HStack gap={2}>
-                <Field name="name">
-                  {({ field }: FieldProps) => (
-                    <FormControl isRequired>
-                      <FormLabel>Name</FormLabel>
-                      <Input {...field} autoFocus />
-                    </FormControl>
-                  )}
-                </Field>
-                <Field name="email">
-                  {({ field }: FieldProps) => (
-                    <FormControl isRequired>
-                      <FormLabel>Email</FormLabel>
-                      <Input {...field} type="email" />
-                    </FormControl>
-                  )}
-                </Field>
-              </HStack>
-              <AssociatedTable />
-              <HStack mt={2}>
-                <Button type="submit">Preview</Button>
-                <Button type="reset" variant="outline">
-                  Reset
-                </Button>
-              </HStack>
-            </Flex>
-          </Form>
-          {/* intentionally make this remount each time so that recaptcha is regenerated */}
-          {isPreviewOpen && (
-            <PreviewModal
-              params={params}
-              isOpen={true}
-              title="Preview Associated Articles Request"
-              submitterInfo={JSON.stringify({ name: values.name, email: values.email }, null, 2)}
-              mainContentTitle="Correlated Articles"
-              mainContent={JSON.stringify(omit(['name', 'email'], values), null, 2)}
-              onClose={closePreview}
-              onSuccess={handleOnSuccess}
-              onError={handleError}
-            />
-          )}
-        </>
+    <FormProvider {...formMethods}>
+      <form onSubmit={handlePreview}>
+        <Flex direction="column" gap={4} my={2}>
+          <HStack gap={2}>
+            <FormControl isRequired isInvalid={!!errors.name}>
+              <FormLabel>Name</FormLabel>
+              <Input {...register('name', { required: true })} autoFocus />
+              <FormErrorMessage>{errors.name && errors.name.message}</FormErrorMessage>
+            </FormControl>
+            <FormControl isRequired isInvalid={!!errors.email}>
+              <FormLabel>Email</FormLabel>
+              <Input {...register('email', { required: true })} type="email" />
+              <FormErrorMessage>{errors.email && errors.email.message}</FormErrorMessage>
+            </FormControl>
+          </HStack>
+          <AssociatedTable />
+          <HStack mt={2}>
+            <Button type="submit" isLoading={state !== 'idle'}>
+              Preview
+            </Button>
+            <Button type="reset" variant="outline" onClick={handleReset} isDisabled={state !== 'idle'}>
+              Reset
+            </Button>
+          </HStack>
+        </Flex>
+      </form>
+
+      {/* intentionally make this remount each time so that recaptcha is regenerated */}
+      {isPreviewOpen && (
+        <PreviewModal
+          params={params}
+          isOpen={true}
+          title="Preview Associated Articles Request"
+          submitterInfo={JSON.stringify({ name: getValues('name'), email: getValues('email') }, null, 2)}
+          mainContentTitle="Correlated Articles"
+          mainContent={JSON.stringify(omit(['name', 'email'], getValues()), null, 2)}
+          onClose={handleClosePreview}
+          onSuccess={handleOnSuccess}
+          onError={handleError}
+        />
       )}
-    </Formik>
+    </FormProvider>
   );
 };
 
@@ -154,104 +270,99 @@ const relationOptions: SelectOption<Relationship>[] = [
 ];
 
 export const AssociatedTable = () => {
+  const {
+    register,
+    setValue,
+    formState: { errors, touchedFields },
+  } = useFormContext<FormValues>();
+
   const [newAssociatedBibcode, setNewAssociatedBibcode] = useState('');
 
   const mainBibcodeRef = useRef<HTMLInputElement>();
 
   const newAssociatedBibcodeRef = useRef<HTMLInputElement>();
 
-  const [relationshipField, , relationshipHelpers] = useField<string>({
-    name: 'relationship',
-    validate: (value: FormValues['relationship']) => {
-      if (!value) {
-        return 'This field is required';
-      }
-    },
-  });
+  const relationship = useWatch<FormValues, 'relationship'>({ name: 'relationship' });
 
-  const relationType = relationshipField.value;
-
-  const [assoBibcodesField] = useField<string[]>({
+  const {
+    fields: associatedBibcodes,
+    remove,
+    append,
+  } = useFieldArray<FormValues, 'associatedBibcodes'>({
     name: 'associatedBibcodes',
-    validate: (value: FormValues['associatedBibcodes']) => {
-      if (!value || value.length === 0) {
-        return 'This field requires at least one entry';
-      }
-    },
   });
-
-  const associatedBibcodes = assoBibcodesField.value;
 
   const handleNewAssociatedBibcodeChange = (e: ChangeEvent<HTMLInputElement>) => {
     setNewAssociatedBibcode(e.target.value);
   };
 
-  const handleRelationshipChange = (option: SelectOption<string>) => {
-    relationshipHelpers.setValue(option.value);
+  const handleRelationshipChange = (option: SelectOption<Relationship>) => {
+    setValue('relationship', option.id);
     mainBibcodeRef.current.focus();
+  };
+
+  const handleAddAssociatedBibcode = () => {
+    append({ value: newAssociatedBibcode });
+    setNewAssociatedBibcode('');
+    newAssociatedBibcodeRef.current.focus();
   };
 
   return (
     <>
-      <Field name="relationship">
-        {({ field, form }: FieldProps) => (
-          <FormControl isRequired isInvalid={!!form.errors.relationship && !!form.touched.relationship}>
-            <FormLabel>Relation Type</FormLabel>
-            <Select<SelectOption<string>>
-              options={relationOptions}
-              value={relationOptions.find((o) => o.value === field.value) ?? null}
-              name="relation-type"
-              label="Relation Type"
-              id="relation-options"
-              stylesTheme="default"
-              onChange={handleRelationshipChange}
-            />
-            <FormErrorMessage>{form.errors.relationship}</FormErrorMessage>
-          </FormControl>
-        )}
-      </Field>
-      {relationType !== null && (
+      <FormControl isRequired isInvalid={!!errors.relationship}>
+        <FormLabel>Relation Type</FormLabel>
+        <Select<SelectOption<Relationship>>
+          options={relationOptions}
+          value={relationOptions.find((o) => o.id === relationship) ?? null}
+          name="relation-type"
+          label="Relation Type"
+          id="relation-options"
+          stylesTheme="default"
+          onChange={handleRelationshipChange}
+        />
+        <FormErrorMessage>{!!errors.relationship && errors.relationship}</FormErrorMessage>
+      </FormControl>
+
+      {relationship !== null && (
         <>
-          {relationType === 'other' && (
-            <Field name="otherRelationship">
-              {({ field }: FieldProps) => (
-                <FormControl isRequired>
-                  <FormLabel>Custom Relation Type</FormLabel>
-                  <Input {...field} />
-                </FormControl>
-              )}
-            </Field>
+          {relationship === 'other' && (
+            <FormControl isRequired>
+              <FormLabel>Custom Relation Type</FormLabel>
+              <Input {...register('otherRelationship')} />
+            </FormControl>
           )}
-          <Field name="mainBibcode">
-            {({ field }: FieldProps) => (
-              <FormControl isRequired>
-                <FormLabel>{`${
-                  relationType === 'arxiv' ? 'arXiv ' : relationType === 'other' ? '' : 'Main Paper '
-                }Bibcode`}</FormLabel>
-                <Input {...field} ref={mainBibcodeRef} />
-              </FormControl>
-            )}
-          </Field>
-          <FieldArray name="associatedBibcodes">
-            {({ remove, push, form }: FieldArrayRenderProps) => (
-              <FormControl
-                isInvalid={typeof form.errors.associatedBibcodes === 'string' && !!form.touched.associatedBibcodes}
-              >
-                <FormLabel>{`${
-                  relationType === 'errata'
-                    ? 'Errata '
-                    : relationType === 'addenda'
-                    ? 'Addenda '
-                    : relationType === 'series'
-                    ? 'Series of articles '
-                    : relationType === 'arxiv'
-                    ? 'Main paper '
-                    : 'Related '
-                }Bibcode(s)`}</FormLabel>
-                <Flex direction="column" gap={2}>
-                  {associatedBibcodes.map((b, index) => (
-                    <HStack key={`asso-bib-${index}`}>
-                      <Input defaultValue={b} />
+          <FormControl isRequired isInvalid={!!errors.mainBibcode}>
+            <FormLabel>{`${
+              relationship === 'arxiv' ? 'arXiv ' : relationship === 'other' ? '' : 'Main Paper '
+            }Bibcode`}</FormLabel>
+            <Input
+              {...register('mainBibcode')}
+              ref={(e) => {
+                register('mainBibcode').ref(e);
+                mainBibcodeRef.current = e;
+              }}
+            />
+            <FormErrorMessage>{!!errors.mainBibcode && errors.mainBibcode.message}</FormErrorMessage>
+          </FormControl>
+
+          <Flex direction="column" gap={2}>
+            <FormControl>
+              <FormLabel>{`${
+                relationship === 'errata'
+                  ? 'Errata '
+                  : relationship === 'addenda'
+                  ? 'Addenda '
+                  : relationship === 'series'
+                  ? 'Series of articles '
+                  : relationship === 'arxiv'
+                  ? 'Main paper '
+                  : 'Related '
+              }Bibcode(s)`}</FormLabel>
+              <Flex direction="column" gap={2}>
+                {associatedBibcodes.map((b, index) => (
+                  <FormControl isInvalid={!!errors.associatedBibcodes?.[index]} key={`asso-bib-${b.value}`}>
+                    <HStack>
+                      <Input {...register(`associatedBibcodes.${index}.value`)} />
                       <IconButton
                         data-index={index}
                         aria-label="Delete"
@@ -263,33 +374,37 @@ export const AssociatedTable = () => {
                         <DeleteIcon />
                       </IconButton>
                     </HStack>
-                  ))}
-                  <FormErrorMessage>{form.errors.associatedBibcodes}</FormErrorMessage>
-                  <HStack>
-                    <Input
-                      onChange={handleNewAssociatedBibcodeChange}
-                      value={newAssociatedBibcode}
-                      ref={newAssociatedBibcodeRef}
-                    />
-                    <IconButton
-                      aria-label="Add"
-                      variant="outline"
-                      size="md"
-                      colorScheme="green"
-                      onClick={() => {
-                        push(newAssociatedBibcode);
-                        setNewAssociatedBibcode('');
-                        newAssociatedBibcodeRef.current.focus();
-                      }}
-                      isDisabled={!newAssociatedBibcode}
-                    >
-                      <AddIcon />
-                    </IconButton>
-                  </HStack>
-                </Flex>
-              </FormControl>
-            )}
-          </FieldArray>
+                    <FormErrorMessage>
+                      {!!errors.associatedBibcodes?.[index] && errors.associatedBibcodes[index].message}
+                    </FormErrorMessage>
+                  </FormControl>
+                ))}
+              </Flex>
+            </FormControl>
+
+            <FormControl isInvalid={!!errors.associatedBibcodes?.message && !!touchedFields.associatedBibcodes}>
+              <HStack>
+                <Input
+                  onChange={handleNewAssociatedBibcodeChange}
+                  value={newAssociatedBibcode}
+                  ref={newAssociatedBibcodeRef}
+                />
+                <IconButton
+                  aria-label="Add"
+                  variant="outline"
+                  size="md"
+                  colorScheme="green"
+                  onClick={handleAddAssociatedBibcode}
+                  isDisabled={!newAssociatedBibcode}
+                >
+                  <AddIcon />
+                </IconButton>
+              </HStack>
+              <FormErrorMessage>
+                {!!errors.associatedBibcodes?.message && errors.associatedBibcodes.message}
+              </FormErrorMessage>
+            </FormControl>
+          </Flex>
         </>
       )}
     </>

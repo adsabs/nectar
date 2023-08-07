@@ -14,9 +14,8 @@ import {
 } from '@chakra-ui/react';
 import { useRecaptcha } from '@lib/useRecaptcha';
 import { parseAPIError } from '@utils';
-import { ReactElement, useEffect, useMemo, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 import ReCAPTCHA from 'react-google-recaptcha';
-import { DiffSection } from './MissingRecord/types';
 
 export interface IPreviewProps {
   params: IFeedbackParams;
@@ -90,7 +89,7 @@ export const PreviewModal = (props: IPreviewProps) => {
           <ReCAPTCHA {...getRecaptchaProps()} />
         </ModalBody>
         <ModalFooter backgroundColor="transparent" justifyContent="start" gap={1}>
-          <Button onClick={handleSubmit} isLoading={isSubmitting}>
+          <Button onClick={handleSubmit} isLoading={isSubmitting} isDisabled={!!recaptcha}>
             Submit
           </Button>
           <Button onClick={onClose} variant="outline" isDisabled={isSubmitting}>

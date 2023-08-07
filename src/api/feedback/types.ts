@@ -17,6 +17,10 @@ export interface IGeneralFeedbackParams {
 
 export type Relationship = 'errata' | 'addenda' | 'series' | 'arxiv' | 'other';
 
+export type AssociatedBibcode = {
+  value: string;
+};
+
 export interface IAssociatedFeedbackParams {
   source: string;
   target: string[];
