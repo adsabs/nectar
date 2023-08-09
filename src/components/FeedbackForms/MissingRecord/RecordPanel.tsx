@@ -267,7 +267,7 @@ export const RecordPanel = ({
     }
   };
 
-  // submission error
+  // submission error or bibcode fetch error
   const handleError = (error: string) => {
     onOpenAlert({ status: 'error', title: error });
   };
@@ -301,7 +301,12 @@ export const RecordPanel = ({
             </FormControl>
           </Flex>
 
-          <BibcodeField showLoadBtn={!isNew} onDataLoaded={handleRecordLoaded} onUrlsLoaded={handleUrlsLoaded} />
+          <BibcodeField
+            showLoadBtn={!isNew}
+            onDataLoaded={handleRecordLoaded}
+            onUrlsLoaded={handleUrlsLoaded}
+            onFetchError={handleError}
+          />
 
           {(isNew || (!isNew && !!recordOriginalFormValues.bibcode)) && (
             <>

@@ -10,10 +10,12 @@ export const BibcodeField = ({
   showLoadBtn,
   onDataLoaded,
   onUrlsLoaded,
+  onFetchError,
 }: {
   showLoadBtn: boolean;
   onDataLoaded: (data: IDocsEntity) => void;
   onUrlsLoaded: (urls: IResourceUrl[]) => void;
+  onFetchError: (message: string) => void;
 }) => {
   const {
     register,
@@ -51,7 +53,7 @@ export const BibcodeField = ({
     } else if (isSuccess && data.numFound === 0) {
       setError('bibcode', { message: 'Bibcode not found' });
     } else if (error) {
-      setError('bibcode', { message: error instanceof AxiosError ? error.message : 'Error fetching bibcode' });
+      onFetchError(error instanceof AxiosError ? error.message : 'Error fetching bibcode');
     }
   }, [data, isLoading, isSuccess, error]);
 
