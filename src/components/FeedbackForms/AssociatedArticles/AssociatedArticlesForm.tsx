@@ -38,7 +38,10 @@ const validationSchema: Yup.ObjectSchema<FormValues> = Yup.object({
   email: Yup.string().email().required(),
   relationship: Yup.mixed<Relationship>().required(),
   otherRelationship: Yup.string().test('otherRelationship', 'Other relationship name required', (value, context) => {
-    return (context?.parent?.relationship === 'other' && !!value) || context?.parent?.relationship !== 'other';
+    return (
+      ((context?.parent as FormValues)?.relationship === 'other' && !!value) ||
+      (context?.parent as FormValues)?.relationship !== 'other'
+    );
   }),
   mainBibcode: Yup.string().required(),
   associatedBibcodes: Yup.array()

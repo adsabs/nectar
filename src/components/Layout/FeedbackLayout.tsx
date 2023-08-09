@@ -10,7 +10,7 @@ interface IFeedbackLayoutProps {
 export const FeedbackLayout: FC<IFeedbackLayoutProps> = ({ children, title, alert }) => {
   const alertRef = useRef<HTMLDivElement>();
 
-  // TODO: scroll to alert does not work
+  // scroll to alert does not work
   useEffect(() => {
     if (alert) {
       alertRef.current.scrollIntoView();

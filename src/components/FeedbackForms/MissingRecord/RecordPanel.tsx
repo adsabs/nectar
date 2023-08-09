@@ -21,7 +21,7 @@ import { IResourceUrl, useGetResourceLinks } from '@lib';
 import { useStore } from '@store';
 import { omit } from 'ramda';
 import { FormEvent, MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
-import { Controller, FormProvider, SubmitHandler, useForm } from 'react-hook-form';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { AuthorsField } from './AuthorsField';
 import { BibcodeField } from './BibcodeField';
 import { getDiffSections, getDiffString, processFormValues } from './DiffUtil';
@@ -51,10 +51,14 @@ const validationSchema: Yup.ObjectSchema<FormValues> = Yup.object({
   bibcode: Yup.string().required(),
   title: Yup.string().required(),
   authors: Yup.array().of(Yup.mixed<IAuthor>()),
-  noAuthors: Yup.boolean().test('noAuthors', 'Please confirm, this abstract has no author(s)', (value, context) => {
-    const hasAuthors = context?.parent?.authors?.length > 0;
-    return (value && !hasAuthors) || (!value && hasAuthors);
-  }),
+  noAuthors: Yup.boolean<boolean, FormValues>().test(
+    'noAuthors',
+    'Please confirm, this abstract has no author(s)',
+    (value, context) => {
+      const hasAuthors = (context?.parent as FormValues)?.authors?.length > 0;
+      return (value && !hasAuthors) || (!value && hasAuthors);
+    },
+  ),
   publication: Yup.string().required(),
   pubDate: Yup.string()
     .test('valid date', 'Invalid date (should be in YYYY-MM format)', (value: string) =>
