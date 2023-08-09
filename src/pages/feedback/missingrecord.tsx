@@ -51,6 +51,10 @@ const Record: NextPage = () => {
     onAlertOpen();
   };
 
+  const handleOnCloseAlert = () => {
+    onAlertClose();
+  };
+
   return (
     <FeedbackLayout title="Submit or Correct an Abstract for the SciX Abstract Service" alert={alert}>
       <Text my={2}>
@@ -69,10 +73,15 @@ const Record: NextPage = () => {
           </TabList>
           <TabPanels>
             <TabPanel p={5} pt={8} role="tabpanel">
-              <RecordPanel isNew onOpenAlert={handleOnOpenAlert} isFocused={isNew} />
+              <RecordPanel isNew onOpenAlert={handleOnOpenAlert} isFocused={isNew} onCloseAlert={handleOnCloseAlert} />
             </TabPanel>
             <TabPanel p={5} pt={8} role="tabpanel">
-              <RecordPanel isNew={false} onOpenAlert={handleOnOpenAlert} isFocused={!isNew} />
+              <RecordPanel
+                isNew={false}
+                onOpenAlert={handleOnOpenAlert}
+                isFocused={!isNew}
+                onCloseAlert={handleOnCloseAlert}
+              />
             </TabPanel>
           </TabPanels>
         </Tabs>

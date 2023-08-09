@@ -1,4 +1,4 @@
-import { Database, IDocsEntity } from '@api';
+import { Database, IDocsEntity, useGetSingleRecord } from '@api';
 import { IFeedbackParams } from '@api/feedback';
 import {
   AlertStatus,
@@ -17,10 +17,10 @@ import {
   CheckboxGroup,
 } from '@chakra-ui/react';
 import { PreviewModal, SimpleLink } from '@components';
-import { IResourceUrl } from '@lib';
+import { IResourceUrl, useGetResourceLinks } from '@lib';
 import { useStore } from '@store';
 import { omit } from 'ramda';
-import { MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { FormEvent, MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { Controller, FormProvider, SubmitHandler, useForm } from 'react-hook-form';
 import { AuthorsField } from './AuthorsField';
 import { BibcodeField } from './BibcodeField';
@@ -34,12 +34,15 @@ import * as Yup from 'yup';
 import moment from 'moment';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { DiffSectionPanel } from './DiffSectionPanel';
+import { AxiosError } from 'axios';
 
 const collections: { value: Database; label: string }[] = [
   { value: 'astronomy', label: 'Astronomy and Astrophysics' },
   { value: 'physics', label: 'Physics and Geophysics' },
   { value: 'general', label: 'General' },
 ];
+
+type State = 'idle' | 'loading-record' | 'loading-urls' | 'submitting' | 'preview';
 
 const validationSchema: Yup.ObjectSchema<FormValues> = Yup.object({
   name: Yup.string().required(),
@@ -65,19 +68,19 @@ const validationSchema: Yup.ObjectSchema<FormValues> = Yup.object({
   comments: Yup.string().ensure(),
 });
 
-// TODO: scroll to top after submission
 // TODO: pagination authors and other tables
 // TODO: reorder authors
-// TODO: validate bibcodes
 // TODO: wrap preview in error boundary (diff might throw error)
 
 export const RecordPanel = ({
   isNew,
   onOpenAlert,
+  onCloseAlert,
   isFocused,
 }: {
   isNew: boolean;
   onOpenAlert: (params: { status: AlertStatus; title: string; description?: string }) => void;
+  onCloseAlert: () => void;
   isFocused: boolean;
 }) => {
   const username = useStore((state) => state.user.username);
@@ -115,12 +118,15 @@ export const RecordPanel = ({
     register,
     control,
     getValues,
-    handleSubmit: handlePreview,
     formState: { errors },
     reset,
   } = formMethods;
 
   const { isOpen: isPreviewOpen, onOpen: openPreview, onClose: closePreview } = useDisclosure();
+
+  const [state, setState] = useState<State>('idle');
+
+  const isLoading = state === 'loading-record' || state === 'loading-urls' || state === 'submitting';
 
   // preview diff when editing existing record
   const [diffSections, setDiffSections] = useState<DiffSection[]>([]);
@@ -130,6 +136,32 @@ export const RecordPanel = ({
 
   const nameFieldRef = useRef<HTMLInputElement>();
 
+  // fetch record from bibcode
+  const {
+    data: recordData,
+    isFetching: recordIsFetching,
+    isSuccess: recordIsSuccess,
+    error: recordError,
+    refetch: recordRefetch,
+  } = useGetSingleRecord(
+    { id: getValues('bibcode') },
+    {
+      enabled: false,
+      // cacheTime: 0,
+    },
+  );
+
+  // fetch record's urls
+  const {
+    data: urlsData,
+    isSuccess: urlsIsSuccess,
+    isFetching: urlsIsFetching,
+    refetch: urlsRefetch,
+  } = useGetResourceLinks({
+    identifier: getValues('bibcode'),
+    options: { enabled: false },
+  });
+
   // when this tab is focused, set focus on name field
   useEffect(() => {
     if (isFocused) {
@@ -137,10 +169,77 @@ export const RecordPanel = ({
     }
   }, [isFocused]);
 
+  console.log(state);
+
+  useEffect(() => {
+    if (state === 'idle') {
+      // reset
+      setParams(null);
+      closePreview();
+    } else if (state === 'loading-record') {
+      setRecordOriginalFormValues({ ...intialFormValues, bibcode: getValues('bibcode') });
+      void recordRefetch();
+    } else if (state === 'loading-urls') {
+      void urlsRefetch();
+    } else if (state === 'submitting') {
+      // prepare to open preview
+      const values = getValues();
+
+      if (!isNew) {
+        setDiffSections(getDiffSections(recordOriginalFormValues, values));
+      }
+
+      const { email, name } = values;
+      const diffString = isNew ? '' : getDiffString(recordOriginalFormValues, values);
+
+      setParams({
+        origin: 'user_submission',
+        'g-recaptcha-response': null,
+        _subject: `${isNew ? 'New' : 'Updated'} Record`,
+        original: processFormValues(recordOriginalFormValues),
+        new: processFormValues(values),
+        name,
+        email,
+        diff: diffString,
+      });
+    } else if (state === 'preview') {
+      openPreview();
+    }
+  }, [state]);
+
+  // record fetched
+  useEffect(() => {
+    if (!recordIsFetching) {
+      if (recordIsSuccess && recordData.numFound > 0) {
+        handleRecordLoaded(recordData.docs[0]);
+        setState('loading-urls');
+      } else if (recordIsSuccess && recordData.numFound === 0) {
+        onOpenAlert({ status: 'error', title: 'Bibcode not found' });
+        setState('idle');
+      } else if (recordError) {
+        onOpenAlert({
+          status: 'error',
+          title: recordError instanceof AxiosError ? recordError.message : 'Error fetching bibcode',
+        });
+        setState('idle');
+      }
+    }
+  }, [recordData, recordIsFetching, recordIsSuccess, recordError]);
+
+  // urls fetched
+  useEffect(() => {
+    if (!urlsIsFetching) {
+      if (urlsIsSuccess) {
+        handleUrlsLoaded(urlsData);
+      }
+      setState('idle');
+    }
+  }, [urlsIsFetching, urlsIsSuccess, urlsData]);
+
   // open preview when params set
   useEffect(() => {
     if (params !== null) {
-      openPreview();
+      setState('preview');
     }
   }, [params]);
 
@@ -148,20 +247,6 @@ export const RecordPanel = ({
   useEffect(() => {
     reset(recordOriginalFormValues);
   }, [recordOriginalFormValues]);
-
-  // open preview when params set
-  useEffect(() => {
-    if (params !== null) {
-      openPreview();
-    }
-  }, [params]);
-
-  // clear params when preview closed
-  useEffect(() => {
-    if (!isPreviewOpen) {
-      setParams(null);
-    }
-  }, [isPreviewOpen]);
 
   // react element of diff to be passed to preview
   const diffSectionPanels = useMemo(
@@ -178,8 +263,15 @@ export const RecordPanel = ({
     [diffSections],
   );
 
+  const handleOnLoadingRecord = () => {
+    setState('loading-record');
+  };
+
   // when record is fetched, process and set form values
   const handleRecordLoaded = (data: IDocsEntity) => {
+    // clear any previous error messages
+    onCloseAlert();
+
     if (!isNew) {
       const {
         abstract = '',
@@ -237,24 +329,9 @@ export const RecordPanel = ({
     }
   };
 
-  const onPreview: SubmitHandler<FormValues> = (values) => {
-    if (!isNew) {
-      setDiffSections(getDiffSections(recordOriginalFormValues, values));
-    }
-
-    const { email, name } = values;
-    const diffString = isNew ? '' : getDiffString(recordOriginalFormValues, values);
-
-    setParams({
-      origin: 'user_submission',
-      'g-recaptcha-response': null,
-      _subject: `${isNew ? 'New' : 'Updated'} Record`,
-      original: processFormValues(recordOriginalFormValues),
-      new: processFormValues(values),
-      name,
-      email,
-      diff: diffString,
-    });
+  const handlePreview = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setState('submitting');
   };
 
   // submitted
@@ -265,22 +342,29 @@ export const RecordPanel = ({
     } else {
       setRecordOriginalFormValues(intialFormValues);
     }
+    setState('idle');
   };
 
   // submission error or bibcode fetch error
   const handleError = (error: string) => {
     onOpenAlert({ status: 'error', title: error });
+    setState('idle');
   };
 
   // to reset, clear original record values
   const handleReset = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setRecordOriginalFormValues(intialFormValues);
+    onCloseAlert();
+  };
+
+  const handleClosePreview = () => {
+    setState('idle');
   };
 
   return (
     <FormProvider {...formMethods}>
-      <form onSubmit={handlePreview(onPreview)}>
+      <form onSubmit={handlePreview}>
         <Stack direction="column" gap={4} m={0}>
           <Flex direction="row" gap={2} alignItems="start">
             <FormControl isRequired isInvalid={!!errors.name}>
@@ -301,14 +385,9 @@ export const RecordPanel = ({
             </FormControl>
           </Flex>
 
-          <BibcodeField
-            showLoadBtn={!isNew}
-            onDataLoaded={handleRecordLoaded}
-            onUrlsLoaded={handleUrlsLoaded}
-            onFetchError={handleError}
-          />
+          <BibcodeField showLoadBtn={!isNew} onLoad={handleOnLoadingRecord} isLoading={isLoading} />
 
-          {(isNew || (!isNew && !!recordOriginalFormValues.bibcode)) && (
+          {(isNew || (!isNew && !!recordOriginalFormValues.title)) && (
             <>
               <FormControl>
                 <FormLabel>Collection</FormLabel>
@@ -379,8 +458,10 @@ export const RecordPanel = ({
               </FormControl>
 
               <HStack mt={2}>
-                <Button type="submit">Preview</Button>
-                <Button type="reset" variant="outline" onClick={handleReset}>
+                <Button type="submit" isLoading={isLoading}>
+                  Preview
+                </Button>
+                <Button type="reset" variant="outline" onClick={handleReset} isDisabled={isLoading}>
                   Reset
                 </Button>
               </HStack>
@@ -397,7 +478,7 @@ export const RecordPanel = ({
           submitterInfo={JSON.stringify({ name: getValues('name'), email: getValues('email') }, null, 2)}
           mainContentTitle={isNew ? 'New Record' : 'Record updates'}
           mainContent={isNew ? JSON.stringify(omit(['name', 'email'], getValues()), null, 2) : diffSectionPanels}
-          onClose={closePreview}
+          onClose={handleClosePreview}
           onSuccess={handleOnSuccess}
           onError={handleError}
           params={params}

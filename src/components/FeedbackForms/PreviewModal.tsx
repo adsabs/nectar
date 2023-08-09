@@ -42,15 +42,21 @@ export const PreviewModal = (props: IPreviewProps) => {
     enabled: isSubmitting,
   });
 
-  const { isLoading, isSuccess, error } = useFeedback(
+  const { isLoading, isFetching, isSuccess, error, refetch } = useFeedback(
     { ...params, 'g-recaptcha-response': recaptcha } as IFeedbackParams,
     {
-      enabled: isSubmitting && !!recaptcha,
+      enabled: false,
     },
   );
 
   useEffect(() => {
-    if (!isLoading) {
+    if (isSubmitting && !!recaptcha) {
+      void refetch();
+    }
+  }, [isSubmitting, recaptcha]);
+
+  useEffect(() => {
+    if (!isFetching && !isLoading) {
       setIsSubmitting(false);
       if (isSuccess) {
         onSuccess();
@@ -59,7 +65,7 @@ export const PreviewModal = (props: IPreviewProps) => {
       }
       onClose();
     }
-  }, [isLoading, isSuccess, error]);
+  }, [isFetching, isSuccess, error, isLoading]);
 
   const handleSubmit = () => {
     setIsSubmitting(true);

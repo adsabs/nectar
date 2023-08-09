@@ -123,11 +123,10 @@ const stringifyArrayChanges = (changes: ArrayChange<string>[]) => {
     },
     [],
   );
-
   const out = [];
   let index = 1;
   for (let i = 0, j = 1; i < entries.length; i += 1, j = i + 1) {
-    const count = entries[i].count || 1;
+    const count = entries[i].count ?? 1;
     if (count > 1 && entries[i].removed && entries[i + count].count > 1 && entries[i + count].added) {
       // actual change made to multiple entries in a row, they are matched by index, not sequential
 
