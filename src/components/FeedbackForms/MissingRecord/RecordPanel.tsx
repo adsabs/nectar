@@ -89,7 +89,7 @@ export const RecordPanel = ({
 }) => {
   const username = useStore((state) => state.user.username);
 
-  const intialFormValues = {
+  const initialFormValues = {
     name: '',
     email: username ?? '',
     bibcode: '',
@@ -108,7 +108,7 @@ export const RecordPanel = ({
 
   // original form values from existing record
   // used for diff view
-  const [recordOriginalFormValues, setRecordOriginalFormValues] = useState<FormValues>(intialFormValues);
+  const [recordOriginalFormValues, setRecordOriginalFormValues] = useState<FormValues>(initialFormValues);
 
   const formMethods = useForm<FormValues>({
     defaultValues: recordOriginalFormValues,
@@ -180,7 +180,7 @@ export const RecordPanel = ({
       closePreview();
     } else if (state === 'loading-record') {
       setRecordOriginalFormValues({
-        ...intialFormValues,
+        ...initialFormValues,
         name: getValues('name'),
         email: getValues('email'),
         bibcode: getValues('bibcode'),
@@ -352,7 +352,7 @@ export const RecordPanel = ({
     if (isNew) {
       reset();
     } else {
-      setRecordOriginalFormValues(intialFormValues);
+      setRecordOriginalFormValues(initialFormValues);
     }
     setState('idle');
   };
@@ -366,7 +366,7 @@ export const RecordPanel = ({
   // to reset, clear original record values
   const handleReset = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    setRecordOriginalFormValues(intialFormValues);
+    setRecordOriginalFormValues(initialFormValues);
     onCloseAlert();
   };
 
