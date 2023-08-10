@@ -173,39 +173,47 @@ export const RecordPanel = ({
     }
   }, [isFocused]);
 
-  console.log(state);
-
   useEffect(() => {
     if (state === 'idle') {
       // reset
       setParams(null);
       closePreview();
     } else if (state === 'loading-record') {
-      setRecordOriginalFormValues({ ...intialFormValues, bibcode: getValues('bibcode') });
+      setRecordOriginalFormValues({
+        ...intialFormValues,
+        name: getValues('name'),
+        email: getValues('email'),
+        bibcode: getValues('bibcode'),
+      });
       void recordRefetch();
     } else if (state === 'loading-urls') {
       void urlsRefetch();
     } else if (state === 'submitting') {
-      // prepare to open preview
-      const values = getValues();
+      try {
+        // prepare to open preview
+        const values = getValues();
 
-      if (!isNew) {
-        setDiffSections(getDiffSections(recordOriginalFormValues, values));
+        if (!isNew) {
+          setDiffSections(getDiffSections(recordOriginalFormValues, values));
+        }
+
+        const { email, name } = values;
+        const diffString = isNew ? '' : getDiffString(recordOriginalFormValues, values);
+
+        setParams({
+          origin: 'user_submission',
+          'g-recaptcha-response': null,
+          _subject: `${isNew ? 'New' : 'Updated'} Record`,
+          original: processFormValues(recordOriginalFormValues),
+          new: processFormValues(values),
+          name,
+          email,
+          diff: diffString,
+        });
+      } catch {
+        onOpenAlert({ status: 'error', title: 'There was a problem processing diff. Plesae try again.' });
+        setState('idle');
       }
-
-      const { email, name } = values;
-      const diffString = isNew ? '' : getDiffString(recordOriginalFormValues, values);
-
-      setParams({
-        origin: 'user_submission',
-        'g-recaptcha-response': null,
-        _subject: `${isNew ? 'New' : 'Updated'} Record`,
-        original: processFormValues(recordOriginalFormValues),
-        new: processFormValues(values),
-        name,
-        email,
-        diff: diffString,
-      });
     } else if (state === 'preview') {
       openPreview();
     }
