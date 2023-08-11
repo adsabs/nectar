@@ -5,7 +5,7 @@ import {
   JournalFormatName,
   UserDataKeys,
 } from '@api';
-import { Database } from '@api/vault';
+import { DatabaseEnum } from '@api/vault';
 import { APP_DEFAULTS } from '@config';
 
 export const DEFAULT_USER_DATA: IADSApiUserDataResponse = {
@@ -14,9 +14,9 @@ export const DEFAULT_USER_DATA: IADSApiUserDataResponse = {
   [UserDataKeys.CUSTOM_FORMATS]: [],
   [UserDataKeys.BIBTEX_FORMAT]: '',
   [UserDataKeys.DEFAULT_DATABASE]: [
-    { name: Database.Physics, value: false },
-    { name: Database.Astronomy, value: false },
-    { name: Database.General, value: false },
+    { name: DatabaseEnum.Physics, value: false },
+    { name: DatabaseEnum.Astronomy, value: false },
+    { name: DatabaseEnum.General, value: false },
   ],
   [UserDataKeys.BIBTEX_MAX_AUTHORS]: APP_DEFAULTS.BIBTEX_DEFAULT_MAX_AUTHOR.toString(),
   [UserDataKeys.LAST_MESSAGE]: '',

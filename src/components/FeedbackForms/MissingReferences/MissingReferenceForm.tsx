@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { ExportApiFormatKey, useGetExportCitation, useSearch } from '@api';
 import { IFeedbackParams } from '@api/feedback';
 import {
@@ -13,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { useStore } from '@store';
 import { omit } from 'ramda';
-import { FormEvent, MouseEvent, useEffect, useState } from 'react';
+import { MouseEvent, useEffect, useState } from 'react';
 import { PreviewModal } from '../PreviewModal';
 import { MissingReferenceTable } from './MissingReferenceTable';
 import { FormValues, Reference } from './types';
@@ -55,7 +56,7 @@ export const MissingReferenceForm = ({
     defaultValues: initialFormValues,
     resolver: yupResolver(validationSchema),
     mode: 'onSubmit',
-    reValidateMode: 'onSubmit',
+    reValidateMode: 'onBlur',
     shouldFocusError: true,
   });
 

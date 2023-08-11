@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { Database, IDocsEntity, useGetSingleRecord } from '@api';
 import { IFeedbackParams } from '@api/feedback';
 import {
@@ -74,7 +75,6 @@ const validationSchema: Yup.ObjectSchema<FormValues> = Yup.object({
 
 // TODO: pagination authors and other tables
 // TODO: reorder authors
-// TODO: wrap preview in error boundary (diff might throw error)
 
 export const RecordPanel = ({
   isNew,
@@ -114,7 +114,7 @@ export const RecordPanel = ({
     defaultValues: recordOriginalFormValues,
     resolver: yupResolver(validationSchema),
     mode: 'onSubmit',
-    reValidateMode: 'onChange',
+    reValidateMode: 'onBlur',
     shouldFocusError: true,
   });
 

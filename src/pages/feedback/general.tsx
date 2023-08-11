@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { IFeedbackParams, useFeedback } from '@api/feedback';
 import {
   Button,
@@ -18,13 +19,16 @@ import { useRecaptcha } from '@lib/useRecaptcha';
 import { useStore } from '@store';
 import { parseAPIError } from '@utils';
 import { NextPage } from 'next';
-import { FormEvent, MouseEvent, useEffect, useState } from 'react';
+import { MouseEvent, useEffect, useState } from 'react';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { useForm } from 'react-hook-form';
 import { v4 } from 'uuid';
 import * as Yup from 'yup';
 
 export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
+
+// TODO: include these information in the feedback
+// platform, url, browser, current query, current user, browser
 
 type FormValues = {
   name: string;
@@ -68,7 +72,7 @@ const General: NextPage = () => {
     defaultValues: initialFormValues,
     resolver: yupResolver(validationSchema),
     mode: 'onSubmit',
-    reValidateMode: 'onChange',
+    reValidateMode: 'onBlur',
     shouldFocusError: true,
   });
 
@@ -176,7 +180,6 @@ const General: NextPage = () => {
           You can also reach us at <strong>adshelp [at] cfa.harvard.edu</strong>
         </Text>
         <Recaptcha onRecaptcha={handleRecaptcha} onError={handleRecaptchaError} key={uuid} />
-        {/* <ReCAPTCHA {...getRecaptchaProps()} key={uuid} /> */}
         <Flex direction="column" gap={4}>
           <HStack gap={2}>
             <FormControl isRequired isInvalid={!!errors.name}>

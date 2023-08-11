@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { useSearch } from '@api';
 import { AssociatedBibcode, IFeedbackParams, Relationship } from '@api/feedback';
 import { DeleteIcon, AddIcon } from '@chakra-ui/icons';
@@ -74,7 +75,7 @@ export const AssociatedArticlesForm = ({
     defaultValues: initialFormValues,
     resolver: yupResolver(validationSchema),
     mode: 'onSubmit',
-    reValidateMode: 'onChange',
+    reValidateMode: 'onBlur',
     shouldFocusError: true,
   });
 
