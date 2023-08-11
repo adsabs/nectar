@@ -31,7 +31,7 @@ export const MissingReferenceTable = () => {
   });
 
   const {
-    formState: { errors, touchedFields },
+    formState: { errors },
   } = useFormContext<FormValues>();
 
   const {
@@ -184,7 +184,7 @@ export const MissingReferenceTable = () => {
             <Tr>
               <Td color="gray.200">{references.length + 1}</Td>
               <Td>
-                <FormControl isInvalid={!!errors.references?.message && !!touchedFields.references}>
+                <FormControl isInvalid={!!errors.references?.message}>
                   <Input
                     size="sm"
                     placeholder="1998ApJ...501L..41Y"

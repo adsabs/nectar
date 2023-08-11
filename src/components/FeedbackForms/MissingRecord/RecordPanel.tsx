@@ -20,7 +20,7 @@ import { PreviewModal, SimpleLink } from '@components';
 import { IResourceUrl, useGetResourceLinks } from '@lib';
 import { useStore } from '@store';
 import { omit } from 'ramda';
-import { FormEvent, MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { AuthorsField } from './AuthorsField';
 import { BibcodeField } from './BibcodeField';
@@ -124,6 +124,7 @@ export const RecordPanel = ({
     getValues,
     formState: { errors },
     reset,
+    handleSubmit,
   } = formMethods;
 
   const { isOpen: isPreviewOpen, onOpen: openPreview, onClose: closePreview } = useDisclosure();
@@ -341,8 +342,7 @@ export const RecordPanel = ({
     }
   };
 
-  const handlePreview = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handlePreview = () => {
     setState('submitting');
   };
 
@@ -376,7 +376,7 @@ export const RecordPanel = ({
 
   return (
     <FormProvider {...formMethods}>
-      <form onSubmit={handlePreview}>
+      <form onSubmit={handleSubmit(handlePreview)}>
         <Stack direction="column" gap={4} m={0}>
           <Flex direction="row" gap={2} alignItems="start">
             <FormControl isRequired isInvalid={!!errors.name}>

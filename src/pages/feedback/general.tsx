@@ -77,6 +77,7 @@ const General: NextPage = () => {
     getValues,
     formState: { errors },
     reset,
+    handleSubmit,
   } = formMethods;
 
   // submit feedback
@@ -148,8 +149,7 @@ const General: NextPage = () => {
     setState('idle');
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onSubmit = () => {
     setState('submitting');
   };
 
@@ -171,7 +171,7 @@ const General: NextPage = () => {
 
   return (
     <FeedbackLayout title="General Feedback" alert={alert}>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <Text my={2}>
           You can also reach us at <strong>adshelp [at] cfa.harvard.edu</strong>
         </Text>

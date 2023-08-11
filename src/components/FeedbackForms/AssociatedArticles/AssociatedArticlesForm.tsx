@@ -17,7 +17,7 @@ import { Select, SelectOption } from '@components';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useStore } from '@store';
 import { omit } from 'ramda';
-import { useState, ChangeEvent, useRef, useEffect, MouseEvent, FormEvent } from 'react';
+import { useState, ChangeEvent, useRef, useEffect, MouseEvent } from 'react';
 import { FormProvider, useFieldArray, useForm, useFormContext, useWatch } from 'react-hook-form';
 import { PreviewModal } from '../PreviewModal';
 import * as Yup from 'yup';
@@ -74,7 +74,7 @@ export const AssociatedArticlesForm = ({
     defaultValues: initialFormValues,
     resolver: yupResolver(validationSchema),
     mode: 'onSubmit',
-    reValidateMode: 'onSubmit',
+    reValidateMode: 'onChange',
     shouldFocusError: true,
   });
 
@@ -84,6 +84,7 @@ export const AssociatedArticlesForm = ({
     getValues,
     formState: { errors },
     reset,
+    handleSubmit,
   } = formMethods;
 
   // list of bibcodes for validation
@@ -111,12 +112,24 @@ export const AssociatedArticlesForm = ({
       setAllBibcodes(null);
       setParams(null);
       closePreview();
+    } else if (state === 'submitting') {
+      const { mainBibcode, associatedBibcodes } = getValues();
+
+      // validate bibcodes
+      const bibsSet = new Set([mainBibcode, ...associatedBibcodes.map((b) => b.value)]);
+      setAllBibcodes(Array.from(bibsSet));
     } else if (state === 'validate-bibcodes' && allBibcodes) {
       void bibcodesRefetch();
     } else if (state === 'preview') {
       openPreview();
     }
-  }, [state, allBibcodes]);
+  }, [state]);
+
+  useEffect(() => {
+    if (!!allBibcodes) {
+      setState('validate-bibcodes');
+    }
+  }, [allBibcodes]);
 
   // bibcodes fetched
   useEffect(() => {
@@ -185,15 +198,8 @@ export const AssociatedArticlesForm = ({
     }
   }, [isPreviewOpen]);
 
-  const handlePreview = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handlePreview = () => {
     setState('submitting');
-    const { mainBibcode, associatedBibcodes } = getValues();
-
-    // validate bibcodes
-    const bibsSet = new Set([mainBibcode, ...associatedBibcodes.map((b) => b.value)]);
-    setAllBibcodes(Array.from(bibsSet));
-    setState('validate-bibcodes');
   };
 
   // submitted
@@ -220,7 +226,7 @@ export const AssociatedArticlesForm = ({
 
   return (
     <FormProvider {...formMethods}>
-      <form onSubmit={handlePreview}>
+      <form onSubmit={handleSubmit(handlePreview)}>
         <Flex direction="column" gap={4} my={2}>
           <HStack gap={2}>
             <FormControl isRequired isInvalid={!!errors.name}>
@@ -276,7 +282,7 @@ export const AssociatedTable = () => {
   const {
     register,
     setValue,
-    formState: { errors, touchedFields },
+    formState: { errors },
   } = useFormContext<FormValues>();
 
   const [newAssociatedBibcode, setNewAssociatedBibcode] = useState('');
@@ -385,7 +391,7 @@ export const AssociatedTable = () => {
               </Flex>
             </FormControl>
 
-            <FormControl isInvalid={!!errors.associatedBibcodes?.message && !!touchedFields.associatedBibcodes}>
+            <FormControl isInvalid={!!errors.associatedBibcodes?.message}>
               <HStack>
                 <Input
                   onChange={handleNewAssociatedBibcodeChange}

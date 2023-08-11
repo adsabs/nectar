@@ -66,6 +66,7 @@ export const MissingReferenceForm = ({
     control,
     formState: { errors },
     reset,
+    handleSubmit,
   } = formMethods;
 
   const references = useWatch<FormValues, 'references'>({ name: 'references', control });
@@ -107,6 +108,13 @@ export const MissingReferenceForm = ({
       setAllBibcodes(null);
       setParams(null);
       closePreview();
+    } else if (state === 'submitting') {
+      // validate bibcodes
+      const allBibs = references.reduce<string[]>((prev, curr) => {
+        return [...prev, curr.cited, curr.citing];
+      }, []);
+      const bibsSet = new Set(allBibs);
+      setAllBibcodes(Array.from(bibsSet));
     } else if (state === 'validate-bibcodes' && allBibcodes) {
       void bibcodesRefetch();
     } else if (state === 'fetch-refstring') {
@@ -114,7 +122,13 @@ export const MissingReferenceForm = ({
     } else if (state === 'preview') {
       openPreview();
     }
-  }, [state, allBibcodes]);
+  }, [state]);
+
+  useEffect(() => {
+    if (!!allBibcodes) {
+      setState('validate-bibcodes');
+    }
+  }, [allBibcodes]);
 
   // bibcodes fetched
   useEffect(() => {
@@ -185,18 +199,8 @@ export const MissingReferenceForm = ({
     }
   }, [refStringsData, refStringsError, refIsRefetching, refIsLoading]);
 
-  const handlePreview = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handlePreview = () => {
     setState('submitting');
-
-    // validate bibcodes
-    const allBibs = references.reduce<string[]>((prev, curr) => {
-      return [...prev, curr.cited, curr.citing];
-    }, []);
-    const bibsSet = new Set(allBibs);
-    setAllBibcodes(Array.from(bibsSet));
-
-    setState('validate-bibcodes');
   };
 
   // submitted
@@ -223,7 +227,7 @@ export const MissingReferenceForm = ({
 
   return (
     <FormProvider {...formMethods}>
-      <form onSubmit={handlePreview}>
+      <form onSubmit={handleSubmit(handlePreview)}>
         <Flex direction="column" gap={4} my={2}>
           <HStack gap={2}>
             <FormControl isRequired isInvalid={!!errors.name}>
