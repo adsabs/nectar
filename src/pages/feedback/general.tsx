@@ -14,15 +14,14 @@ import {
   FormErrorMessage,
 } from '@chakra-ui/react';
 import { FeedbackLayout, FeedbackAlert } from '@components';
+import { GOOGLE_RECAPTCHA_KEY } from '@config';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useRecaptcha } from '@lib/useRecaptcha';
 import { useStore } from '@store';
 import { parseAPIError } from '@utils';
 import { NextPage } from 'next';
-import { MouseEvent, useEffect, useState } from 'react';
+import { MouseEvent, useEffect, useRef, useState } from 'react';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { useForm } from 'react-hook-form';
-import { v4 } from 'uuid';
 import * as Yup from 'yup';
 
 export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
@@ -49,11 +48,9 @@ const General: NextPage = () => {
 
   const [params, setParams] = useState<IFeedbackParams>(null);
 
-  const [uuid, setUuid] = useState(v4()); // use this to force remount MyRecaptcha to generate new value
+  const [token, setToken] = useState<string>(null);
 
   const [state, setState] = useState<State>('idle');
-
-  const [recaptcha, setRecaptcha] = useState<string>(null);
 
   const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({
     status: 'success',
@@ -85,20 +82,22 @@ const General: NextPage = () => {
   } = formMethods;
 
   // submit feedback
-  const { isFetching, isSuccess, error, refetch } = useFeedback(
-    { ...params, 'g-recaptcha-response': recaptcha } as IFeedbackParams,
-    {
-      enabled: false,
-    },
-  );
+  const { isFetching, isSuccess, error, refetch } = useFeedback(params, {
+    enabled: false,
+  });
+
+  const recaptchaRef = useRef<ReCAPTCHA>();
 
   useEffect(() => {
     if (state === 'idle') {
       // reset
       setParams(null);
-      setUuid(v4());
+      setToken(null);
+      recaptchaRef.current.reset();
     } else if (state === 'submitting') {
+      const token = recaptchaRef.current.getValue();
       const { name, email, comments } = getValues();
+
       setParams({
         name,
         _replyto: email,
@@ -106,17 +105,17 @@ const General: NextPage = () => {
         'feedback-type': 'feedback',
         'user-agent-string': navigator.userAgent,
         origin: 'bbb_feedback', // indicate general feedback
-        'g-recaptcha-response': null,
+        'g-recaptcha-response': token,
         comments,
       });
     }
   }, [state]);
 
   useEffect(() => {
-    if (params !== null && !!recaptcha) {
+    if (params !== null && state === 'submitting') {
       void refetch();
     }
-  }, [params, recaptcha]);
+  }, [params, state]);
 
   useEffect(() => {
     if (!isFetching) {
@@ -127,7 +126,6 @@ const General: NextPage = () => {
         });
         reset(initialFormValues);
         onAlertOpen();
-        setState('idle');
       } else if (error) {
         setAlertDetails({
           status: 'error',
@@ -138,20 +136,6 @@ const General: NextPage = () => {
       setState('idle');
     }
   }, [isFetching, isSuccess, error]);
-
-  const handleRecaptcha = (r: string) => {
-    setRecaptcha(r);
-  };
-
-  const handleRecaptchaError = (error: string) => {
-    setAlertDetails({
-      status: 'error',
-      title: error,
-    });
-    setRecaptcha(null);
-    onAlertOpen();
-    setState('idle');
-  };
 
   const onSubmit = () => {
     setState('submitting');
@@ -179,7 +163,6 @@ const General: NextPage = () => {
         <Text my={2}>
           You can also reach us at <strong>adshelp [at] cfa.harvard.edu</strong>
         </Text>
-        <Recaptcha onRecaptcha={handleRecaptcha} onError={handleRecaptchaError} key={uuid} />
         <Flex direction="column" gap={4}>
           <HStack gap={2}>
             <FormControl isRequired isInvalid={!!errors.name}>
@@ -199,8 +182,11 @@ const General: NextPage = () => {
             <Textarea {...register('comments', { required: true })} />
             <FormErrorMessage>{errors.comments && errors.comments.message}</FormErrorMessage>
           </FormControl>
+
+          <ReCAPTCHA ref={recaptchaRef} sitekey={GOOGLE_RECAPTCHA_KEY} onChange={setToken} />
+
           <HStack mt={2}>
-            <Button type="submit" isLoading={state !== 'idle'}>
+            <Button type="submit" isLoading={state !== 'idle'} isDisabled={token === null}>
               Submit
             </Button>
             <Button type="reset" variant="outline" isDisabled={state !== 'idle'} onClick={handleReset}>
@@ -214,22 +200,3 @@ const General: NextPage = () => {
 };
 
 export default General;
-
-const Recaptcha = ({
-  onRecaptcha,
-  onError,
-}: {
-  onRecaptcha: (recaptcha: string) => void;
-  onError: (error: string) => void;
-}) => {
-  const { getRecaptchaProps } = useRecaptcha({
-    onExecute: (r) => {
-      onRecaptcha(r);
-    },
-    onError: (error) => {
-      onError(parseAPIError(error));
-    },
-    enabled: true,
-  });
-  return <ReCAPTCHA {...getRecaptchaProps()} />;
-};

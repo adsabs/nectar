@@ -12,9 +12,9 @@ import {
   ModalOverlay,
   Text,
 } from '@chakra-ui/react';
-import { useRecaptcha } from '@lib/useRecaptcha';
+import { GOOGLE_RECAPTCHA_KEY } from '@config';
 import { parseAPIError } from '@utils';
-import { ReactElement, useEffect, useState } from 'react';
+import { ReactElement, useEffect, useRef, useState } from 'react';
 import ReCAPTCHA from 'react-google-recaptcha';
 
 export interface IPreviewProps {
@@ -34,26 +34,32 @@ export const PreviewModal = (props: IPreviewProps) => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { getRecaptchaProps, recaptcha } = useRecaptcha({
-    onError: (error) => {
-      onError(error);
-      onClose();
-    },
-    enabled: isSubmitting,
+  const [paramsWithToken, setParamsWithToken] = useState<IFeedbackParams>(null);
+
+  const [token, setToken] = useState<string>(null);
+
+  const { isLoading, isFetching, isSuccess, error, refetch } = useFeedback(paramsWithToken, {
+    enabled: false,
   });
 
-  const { isLoading, isFetching, isSuccess, error, refetch } = useFeedback(
-    { ...params, 'g-recaptcha-response': recaptcha } as IFeedbackParams,
-    {
-      enabled: false,
-    },
-  );
+  const recaptchaRef = useRef<ReCAPTCHA>();
 
   useEffect(() => {
-    if (isSubmitting && !!recaptcha) {
+    if (isSubmitting) {
+      const token = recaptchaRef.current.getValue();
+      setParamsWithToken({ ...params, 'g-recaptcha-response': token });
+    } else {
+      recaptchaRef?.current?.reset();
+      setToken(null);
+      setParamsWithToken(null);
+    }
+  }, [isSubmitting]);
+
+  useEffect(() => {
+    if (paramsWithToken) {
       void refetch();
     }
-  }, [isSubmitting, recaptcha]);
+  }, [paramsWithToken]);
 
   useEffect(() => {
     if (!isFetching && !isLoading) {
@@ -91,11 +97,11 @@ export const PreviewModal = (props: IPreviewProps) => {
             ) : (
               <>{mainContent}</>
             )}
+            <ReCAPTCHA ref={recaptchaRef} sitekey={GOOGLE_RECAPTCHA_KEY} onChange={setToken} />
           </Flex>
-          <ReCAPTCHA {...getRecaptchaProps()} />
         </ModalBody>
         <ModalFooter backgroundColor="transparent" justifyContent="start" gap={1}>
-          <Button onClick={handleSubmit} isLoading={isSubmitting} isDisabled={!!recaptcha}>
+          <Button onClick={handleSubmit} isLoading={isSubmitting} isDisabled={token === null}>
             Submit
           </Button>
           <Button onClick={onClose} variant="outline" isDisabled={isSubmitting}>
