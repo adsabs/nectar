@@ -1,310 +1,94 @@
-import api, {
-  ApiTargets,
-  IADSApiTokenResponse,
-  IADSApiUserDataResponse,
-  IBasicAccountsErrorResponse,
-  IBasicAccountsResponse,
-  IBootstrapPayload,
-  ICSRFResponse,
-  IUserChangeEmailCredentials,
-  IUserChangePasswordCredentials,
-  IUserData,
-} from '@api';
-import { defaultRequestConfig } from '@api/config';
-import { IUserCredentials, IUserForgotPasswordCredentials, IUserRegistrationCredentials } from '@api/user';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { NextApiResponse } from 'next';
-import { ServerResponse } from 'node:http';
-import { pick } from 'ramda';
+import { ApiRequestConfig, ApiTargets, IBootstrapPayload, ICSRFResponse, IUserData } from '@api';
+import { defaultRequestConfig } from '@api/config';
+import { isNil } from 'ramda';
+import { isPast, parseISO } from 'date-fns';
 
-export const authenticateUser = async (creds: IUserCredentials, res?: NextApiResponse) => {
-  const csrfRes = await getCSRF();
+const fetchCSRF = async () =>
+  await axios.get<ICSRFResponse, AxiosResponse<ICSRFResponse>>(ApiTargets.CSRF, defaultRequestConfig);
 
-  const config: AxiosRequestConfig = {
-    ...defaultRequestConfig,
-    method: 'POST',
-    url: ApiTargets.USER,
+export const configWithCSRF = async (config: ApiRequestConfig): Promise<ApiRequestConfig> => {
+  const csrfRes = await fetchCSRF();
+  return {
+    ...config,
     xsrfHeaderName: 'X-CSRFToken',
     headers: {
-      'X-CSRFToken': csrfRes.data.csrf,
-      Cookie: csrfRes.headers['set-cookie'],
-    },
-    data: {
-      username: creds.email,
-      password: creds.password,
-    },
-  };
-
-  try {
-    const { data, headers } = await axios.request<IBasicAccountsResponse, AxiosResponse<IBasicAccountsResponse>>(
-      config,
-    );
-
-    if (data.message === 'success') {
-      // forward the set-cookie so that subsequent bootstraps will work client-side
-      res.setHeader('set-cookie', headers['set-cookie']);
-
-      try {
-        return await bootstrap({ session: headers['set-cookie'][0] }, res);
-      } catch (e) {
-        // if bootstrap fails here, we can recover later in a subsequent request
-        return true;
-      }
-    }
-
-    return false;
-  } catch (e) {
-    if (axios.isAxiosError(e)) {
-      return (e.response.data as IBasicAccountsErrorResponse).error;
-    }
-    return 'Unknown server error';
-  }
-};
-
-export const logoutUser = async (res?: NextApiResponse) => {
-  const csrfRef = await getCSRF();
-
-  const config: AxiosRequestConfig = {
-    ...defaultRequestConfig,
-    method: 'POST',
-    url: ApiTargets.LOGOUT,
-    xsrfHeaderName: 'X-CSRFToken',
-    headers: {
-      'X-CSRFToken': csrfRef.data.csrf,
-      Cookie: csrfRef.headers['set-cookie'],
-    },
-  };
-
-  try {
-    const { data, headers } = await axios.request<IBasicAccountsResponse, AxiosResponse<IBasicAccountsResponse>>(
-      config,
-    );
-
-    if (data.message === 'success') {
-      // forward the set-cookie so that subsequent bootstraps will work client-side
-      res.setHeader('set-cookie', headers['set-cookie']);
-
-      try {
-        return await bootstrap({ session: headers['set-cookie'][0] }, res);
-      } catch (e) {
-        // if bootstrap fails here, we can recover later in a subsequent request
-        return true;
-      }
-    }
-
-    return false;
-  } catch (e) {
-    if (axios.isAxiosError(e)) {
-      return (e.response.data as IBasicAccountsErrorResponse).error;
-    }
-    return 'Unknown server error';
-  }
-};
-
-export const registerUser = async (creds: IUserRegistrationCredentials) => {
-  const csrfRes = await getCSRF();
-
-  const config: AxiosRequestConfig = {
-    ...defaultRequestConfig,
-    method: 'POST',
-    url: ApiTargets.REGISTER,
-    headers: {
-      'X-CSRFToken': csrfRes.data.csrf,
-      Cookie: csrfRes.headers['set-cookie'],
-    },
-    data: {
-      email: creds.email,
-      password1: creds.password,
-      password2: creds.confirmPassword,
-      'g-recaptcha-response': creds.recaptcha,
-    },
-  };
-  try {
-    const { data } = await axios.request<IBasicAccountsResponse>(config);
-    return data.message === 'success';
-  } catch (e) {
-    if (axios.isAxiosError(e)) {
-      return (e.response.data as IBasicAccountsErrorResponse).error;
-    }
-    return 'Unknown server error';
-  }
-};
-
-export const forgotPasswordUser = async (creds: IUserForgotPasswordCredentials) => {
-  const csrfRes = await getCSRF();
-
-  const config: AxiosRequestConfig = {
-    ...defaultRequestConfig,
-    method: 'POST',
-    url: `${ApiTargets.RESET_PASSWORD}/${creds.email}`,
-    headers: {
-      'X-CSRFToken': csrfRes.data.csrf,
-      Cookie: csrfRes.headers['set-cookie'],
-    },
-    data: {
-      'g-recaptcha-response': creds.recaptcha,
-    },
-  };
-  try {
-    const { data } = await axios.request<IBasicAccountsResponse>(config);
-    return data.message === 'success';
-  } catch (e) {
-    if (axios.isAxiosError(e)) {
-      return (e.response.data as IBasicAccountsErrorResponse).error;
-    }
-    return 'Unknown server error';
-  }
-};
-
-export const changePasswordUser = async (creds: IUserChangePasswordCredentials) => {
-  const csrfRes = await getCSRF();
-
-  const config: AxiosRequestConfig = {
-    ...defaultRequestConfig,
-    method: 'POST',
-    url: `${ApiTargets.CHANGE_PASSWORD}`,
-    headers: {
-      'X-CSRFToken': csrfRes.data.csrf,
-      Cookie: csrfRes.headers['set-cookie'],
-    },
-    data: {
-      old_password: creds.currentPassword,
-      new_password1: creds.password,
-      new_password2: creds.confirmPassword,
-    },
-  };
-  try {
-    const { data } = await axios.request<IBasicAccountsResponse>(config);
-    return data.message === 'success';
-  } catch (e) {
-    if (axios.isAxiosError(e)) {
-      return (e.response.data as IBasicAccountsErrorResponse).error;
-    }
-    return 'Unknown server error';
-  }
-};
-
-export const changeEmailUser = async (creds: IUserChangeEmailCredentials) => {
-  const csrfRes = await getCSRF();
-
-  const config: AxiosRequestConfig = {
-    ...defaultRequestConfig,
-    headers: {
-      'X-CSRFToken': csrfRes.data.csrf,
-      Cookie: csrfRes.headers['set-cookie'],
-    },
-    method: 'POST',
-    url: `${ApiTargets.CHANGE_EMAIL}`,
-    data: creds,
-  };
-  try {
-    const { data } = await axios.request<IBasicAccountsResponse>(config);
-    return data.message === 'success';
-  } catch (e) {
-    if (axios.isAxiosError(e)) {
-      return (e.response.data as IBasicAccountsErrorResponse).error;
-    }
-    return 'Unknown server error';
-  }
-};
-
-export const getResetPasswordVerifyEmail = async (token: string) => {
-  const config: AxiosRequestConfig = {
-    ...defaultRequestConfig,
-    method: 'GET',
-    url: `${ApiTargets.RESET_PASSWORD}/${token}`,
-  };
-  try {
-    const { data } = await axios.request<{ email: string }>(config);
-    return data.email;
-  } catch (e) {
-    if (axios.isAxiosError(e)) {
-      return (e.response.data as IBasicAccountsErrorResponse).error;
-    }
-    return 'Unknown server error';
-  }
-};
-
-export const verifyAccount = async (token: string, res?: ServerResponse) => {
-  const config: AxiosRequestConfig = {
-    ...defaultRequestConfig,
-    method: 'GET',
-    url: `${ApiTargets.VERIFY}/${token}`,
-  };
-  try {
-    const { data, headers } = await axios.request<IBasicAccountsResponse & { email: string }>(config);
-
-    if (data.message === 'success') {
-      // forward the set-cookie so that subsequent bootstraps will work client-side
-      res.setHeader('set-cookie', headers['set-cookie']);
-
-      try {
-        return await bootstrap({ session: headers['set-cookie'][0] }, res);
-      } catch (e) {
-        // if bootstrap fails here, we can recover later in a subsequent request
-        return true;
-      }
-    }
-    return false;
-  } catch (e) {
-    if (axios.isAxiosError(e)) {
-      return (e.response.data as IBasicAccountsErrorResponse).error;
-    }
-    return 'Unknown server error';
-  }
-};
-
-export const generateNewApiToken = async () => {
-  const csrfRes = await getCSRF();
-
-  const config: AxiosRequestConfig = {
-    ...defaultRequestConfig,
-    method: 'PUT',
-    url: `${ApiTargets.TOKEN}`,
-    headers: {
+      ...config.headers,
       'X-CSRFToken': csrfRes.data.csrf,
       Cookie: csrfRes.headers['set-cookie'],
     },
   };
-  try {
-    const { data } = await axios.request<IADSApiTokenResponse>(config);
-    return data;
-  } catch (e) {
-    if (axios.isAxiosError(e)) {
-      return (e.response.data as IBasicAccountsErrorResponse).error;
-    }
-    return 'Unknown server error';
-  }
 };
 
-export const getVaultData = async () => {
-  try {
-    const { data } = await api.request<IADSApiUserDataResponse>({ url: ApiTargets.USER_DATA });
-    return data;
-  } catch (e) {
-    return null;
-  }
-};
-
-export const bootstrap = async ({ session }: { session: string }, res?: NextApiResponse | ServerResponse) => {
+/**
+ * Fetches the user data from the server
+ *
+ * i.e. Bootstrap
+ */
+export const fetchUserData = async (additionalConfig?: AxiosRequestConfig) => {
   const config: AxiosRequestConfig = {
     ...defaultRequestConfig,
+    ...additionalConfig,
     method: 'GET',
     url: ApiTargets.BOOTSTRAP,
-    headers: {
-      Cookie: session,
-    },
   };
 
-  const { data, headers } = await axios.request<IBootstrapPayload, AxiosResponse<IBootstrapPayload>>(config);
-
-  // server-side this should forward the incoming set-cookie value
-  if (res) {
-    res.setHeader('set-cookie', headers['set-cookie']);
-  }
-
-  return pick(['access_token', 'username', 'anonymous', 'expire_in'], data) as IUserData;
+  return await axios.request<IBootstrapPayload, AxiosResponse<IBootstrapPayload>>(config);
 };
 
-export const getCSRF = async () =>
-  await axios.get<ICSRFResponse, AxiosResponse<ICSRFResponse>>(ApiTargets.CSRF, defaultRequestConfig);
+/**
+ * Hashes a string using SHA-1
+ * @param str
+ */
+export const hash = async (str?: string) => {
+  if (!str) {
+    return null;
+  }
+  const buffer = await crypto.subtle.digest('SHA-1', Buffer.from(str, 'utf-8'));
+  return Array.from(new Uint8Array(buffer));
+};
+
+/**
+ * Checks if the user data is valid
+ * @param userData
+ */
+export const isUserData = (userData?: IUserData): userData is IUserData => {
+  return (
+    !isNil(userData) &&
+    typeof userData.access_token === 'string' &&
+    typeof userData.expire_in === 'string' &&
+    userData.access_token.length > 0 &&
+    userData.expire_in.length > 0
+  );
+};
+
+/**
+ * Checks if the user data is valid and the token is not expired
+ * @param userData
+ */
+export const isValidToken = (userData?: IUserData): boolean => {
+  return isUserData(userData) && !isPast(parseISO(userData.expire_in));
+};
+
+/**
+ * Checks if the user is authenticated
+ * @param user
+ */
+export const isAuthenticated = (user: IUserData) =>
+  isUserData(user) && (!user.anonymous || user.username !== 'anonymous@ads');
+
+/**
+ * Picks the user data from the bootstrap payload
+ * @param userData
+ */
+export const pickUserData = (userData?: IUserData) => {
+  if (!isUserData(userData)) {
+    return null;
+  }
+  return {
+    access_token: userData.access_token,
+    expire_in: userData.expire_in,
+    username: userData.username,
+    anonymous: userData.anonymous,
+  };
+};
