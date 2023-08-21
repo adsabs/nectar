@@ -4,7 +4,7 @@ import { MetricsPageContainer, VizPageLayout } from '@components';
 import { makeSearchParams, parseQueryFromUrl } from '@utils';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
-import { composeNextGSSP } from '@ssrUtils';
+import { composeNextGSSP } from '@ssr-utils';
 
 interface IMetricsProps {
   originalQuery: IADSApiSearchParams;

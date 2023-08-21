@@ -10,7 +10,7 @@ import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from '@tanstack/react-query';
 import { normalizeURLParams } from 'src/utils';
-import { composeNextGSSP } from '@ssrUtils';
+import { composeNextGSSP } from '@ssr-utils';
 
 export interface IReferencesPageProps {
   id: string;

@@ -23,7 +23,7 @@ import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { isEmpty, last, omit } from 'ramda';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
-import { composeNextGSSP } from '@ssrUtils';
+import { composeNextGSSP } from '@ssr-utils';
 
 interface IExportCitationPageProps {
   format: ExportApiFormatKey;

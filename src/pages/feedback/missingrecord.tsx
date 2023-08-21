@@ -1,12 +1,12 @@
 import { fetchSearch, getSingleRecordParams, searchKeys } from '@api';
-import { Flex, Text, Tab, Tabs, TabList, TabPanels, TabPanel, useDisclosure, AlertStatus } from '@chakra-ui/react';
+import { AlertStatus, Flex, Tab, TabList, TabPanel, TabPanels, Tabs, Text, useDisclosure } from '@chakra-ui/react';
 import { FeedbackLayout } from '@components';
 import { FeedbackAlert, RecordPanel } from '@components/FeedbackForms';
-import { composeNextGSSP } from '@ssrUtils';
-import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { GetServerSideProps, NextPage } from 'next';
-import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
+import { composeNextGSSP } from '@ssr-utils';
+import { dehydrate, QueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 
 const Record: NextPage = () => {
   const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({
@@ -102,6 +102,7 @@ const Record: NextPage = () => {
 };
 
 export default Record;
+export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';
 
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
   const { bibcode } = ctx.query;

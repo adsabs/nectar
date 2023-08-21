@@ -123,3 +123,5 @@ const Login: NextPage = () => {
 };
 
 export default Login;
+
+export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';
