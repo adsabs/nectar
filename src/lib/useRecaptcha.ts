@@ -1,8 +1,8 @@
-import { useExecuteRecaptcha } from '@api';
 import { GOOGLE_RECAPTCHA_KEY } from '@config';
 import { parseAPIError } from '@utils';
 import { useEffect, useRef, useState } from 'react';
 import ReCAPTCHA, { ReCAPTCHAProps } from 'react-google-recaptcha';
+import { useQuery } from '@tanstack/react-query';
 
 interface IUseRecaptchaProps {
   onExecute?: (recaptcha: string) => void;
@@ -10,34 +10,28 @@ interface IUseRecaptchaProps {
   enabled?: boolean;
 }
 
-export const useRecaptcha = (props: IUseRecaptchaProps) => {
+export const useRecaptcha = (props?: IUseRecaptchaProps) => {
   const recaptchaRef = useRef<ReCAPTCHA>();
   const [recaptcha, setRecaptcha] = useState<string>(null);
   const [error, setError] = useState<string>(null);
+  const enabled = typeof props?.enabled === 'boolean' ? props.enabled : true;
 
-  const result = useExecuteRecaptcha(recaptchaRef?.current, {
-    enabled:
-      typeof props.enabled === 'boolean'
-        ? props.enabled && recaptchaRef.current !== null
-        : recaptchaRef.current !== null,
-    notifyOnChangeProps: ['data', 'error'],
+  const { data, isError, ...result } = useQuery(['recaptcha/execute', recaptchaRef.current?.getWidgetId()], {
+    queryFn: async () => await recaptchaRef.current?.executeAsync(),
+    enabled: !!recaptchaRef.current && enabled,
   });
 
   useEffect(() => {
-    if (result.data) {
-      setRecaptcha(result.data);
-      if (typeof props.onExecute === 'function') {
-        props.onExecute(result.data);
-      }
+    if (data) {
+      setRecaptcha(data);
+      props?.onExecute?.(data);
     }
-    if (result.error) {
+    if (isError) {
       const error = parseAPIError(result.error);
-      if (typeof props.onError === 'function') {
-        props.onError(error);
-      }
+      props?.onError?.(error);
       setError(error);
     }
-  }, [result.data, result.error]);
+  }, [data, isError]);
 
   return {
     recaptcha,
