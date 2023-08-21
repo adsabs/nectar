@@ -3,7 +3,7 @@ import { Box, Flex, Link } from '@chakra-ui/react';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@lib/useGetAbstractDoc';
-import { composeNextGSSP } from '@ssrUtils';
+import { composeNextGSSP } from '@ssr-utils';
 import { normalizeURLParams, unwrapStringValue } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';

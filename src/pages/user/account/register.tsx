@@ -197,3 +197,4 @@ const Register: NextPage = () => {
 };
 
 export default Register;
+export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';

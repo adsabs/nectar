@@ -2,7 +2,7 @@ import { Box } from '@chakra-ui/react';
 import { ClassicForm, getSearchQuery, IClassicFormState } from '@components/ClassicForm';
 import { GetServerSideProps, GetServerSidePropsContext, NextPage } from 'next';
 import Head from 'next/head';
-import { composeNextGSSP } from '@ssrUtils';
+import { composeNextGSSP } from '@ssr-utils';
 
 const ClassicFormPage: NextPage<{ ssrError?: string }> = ({ ssrError }) => {
   return (
@@ -14,14 +14,6 @@ const ClassicFormPage: NextPage<{ ssrError?: string }> = ({ ssrError }) => {
     </Box>
   );
 };
-
-/**
- * Takes in raw string and replaces non-word characters with underscores
- * and lowercases entire string
- * @param {string} raw string to be normalized
- * @returns {string} normalized string
- */
-// const normalizeString = (raw: string): string => raw.replace(/\W+/g, '_').toLowerCase().trim();
 
 export default ClassicFormPage;
 

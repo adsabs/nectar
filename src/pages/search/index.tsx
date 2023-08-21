@@ -50,7 +50,7 @@ import { ArrowsOutIcon } from '@components/icons/ArrowsOut';
 import { APP_DEFAULTS } from '@config';
 import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { useIsClient } from 'src/lib';
-import { composeNextGSSP } from '@ssrUtils';
+import { composeNextGSSP } from '@ssr-utils';
 import { AppState, createStore, useStore, useStoreApi } from '@store';
 import { NumPerPageType } from '@types';
 import { isApiSearchResponse, makeSearchParams, parseQueryFromUrl } from '@utils';

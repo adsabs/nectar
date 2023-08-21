@@ -1,19 +1,19 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { IFeedbackParams, useFeedback } from '@api/feedback';
 import {
+  AlertStatus,
   Button,
   Flex,
   FormControl,
-  FormLabel,
-  Input,
-  Textarea,
-  Text,
-  HStack,
-  useDisclosure,
-  AlertStatus,
   FormErrorMessage,
+  FormLabel,
+  HStack,
+  Input,
+  Text,
+  Textarea,
+  useDisclosure,
 } from '@chakra-ui/react';
-import { FeedbackLayout, FeedbackAlert } from '@components';
+import { FeedbackAlert, FeedbackLayout } from '@components';
 import { GOOGLE_RECAPTCHA_KEY } from '@config';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useStore } from '@store';
@@ -34,8 +34,6 @@ import {
 import ReCAPTCHA from 'react-google-recaptcha';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-
-export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
 
 type FormValues = {
   name: string;
@@ -216,3 +214,4 @@ const General: NextPage = () => {
 };
 
 export default General;
+export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';

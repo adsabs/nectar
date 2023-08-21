@@ -19,8 +19,6 @@ import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { NASA_SCIX_BRAND_NAME } from '@config';
 
-export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
-
 const UserSettings = dynamic(() => import('@components/Orcid/UserSettings').then((m) => m.UserSettings), {
   ssr: false,
   loading: () => <Spinner />,
@@ -94,3 +92,5 @@ const OrcidPage: NextPage = () => {
 };
 
 export default OrcidPage;
+
+export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';

@@ -87,16 +87,7 @@ const ChangePasswordPage = ({}: InferGetServerSidePropsType<typeof getServerSide
 
 export default ChangePasswordPage;
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx: GetServerSidePropsContext) => {
-  if (!ctx.req.session.isAuthenticated) {
-    return Promise.resolve({
-      redirect: {
-        destination: `/user/account/login?redirectUri=${encodeURIComponent(ctx.req.url)}`,
-        permanent: false,
-      },
-      props: {},
-    });
-  }
+export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';
 
   return Promise.resolve({
     props: {},

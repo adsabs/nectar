@@ -103,3 +103,4 @@ const ForgotPassword: NextPage = () => {
 };
 
 export default ForgotPassword;
+export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';

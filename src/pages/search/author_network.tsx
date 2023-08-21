@@ -3,8 +3,6 @@ import { makeSearchParams, parseQueryFromUrl } from '@utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 
-export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
-
 export const AuthorNetworkPage: NextPage = () => {
   const router = useRouter();
 
@@ -26,3 +24,4 @@ export const AuthorNetworkPage: NextPage = () => {
 };
 
 export default AuthorNetworkPage;
+export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';

@@ -40,3 +40,5 @@ const OrcidPage: NextPage = () => {
 };
 
 export default OrcidPage;
+
+export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';

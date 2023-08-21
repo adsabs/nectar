@@ -7,7 +7,7 @@ import { Button, Container as Box, Link } from '@chakra-ui/react';
 import { AuthorAffiliations, AuthorAffiliationsErrorMessage } from '@components';
 import { APP_DEFAULTS } from '@config';
 import { useBackToSearchResults } from '@lib/useBackToSearchResults';
-import { composeNextGSSP } from '@ssrUtils';
+import { composeNextGSSP } from '@ssr-utils';
 import { parseAPIError, parseQueryFromUrl } from '@utils';
 import { NextPage } from 'next';
 import NextLink from 'next/link';

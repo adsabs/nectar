@@ -6,8 +6,6 @@ import { makeSearchParams, parseQueryFromUrl } from '@utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 
-export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
-
 const OverviewPage: NextPage = () => {
   const router = useRouter();
 
@@ -34,3 +32,4 @@ const OverviewPage: NextPage = () => {
 };
 
 export default OverviewPage;
+export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';
