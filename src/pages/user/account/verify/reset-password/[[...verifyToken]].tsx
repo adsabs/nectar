@@ -9,7 +9,7 @@ import {
 } from '@components';
 import { useRouter } from 'next/router';
 import { useFocus } from '@lib/useFocus';
-import { Control, useForm, useWatch } from 'react-hook-form';
+import { Control, SubmitHandler, useForm, useWatch } from 'react-hook-form';
 import { IUserResetPasswordCredentials, useResetPassword } from '@api';
 import { parseAPIError } from '@utils';
 import { useEffect } from 'react';
@@ -44,19 +44,17 @@ const ResetPasswordPage: NextPage = () => {
     }
   }, [redirect, data]);
 
+  const onFormSubmit: SubmitHandler<IUserResetPasswordCredentials> = (params) => {
+    submit(params);
+  };
+
   return (
     <Container display="flex" flexDirection="column" py="24">
       <Heading as="h2" id="form-label" alignSelf="center" my="6">
         Reset Password
       </Heading>
 
-      <form
-        onSubmit={handleSubmit((params, e) => {
-          e.preventDefault();
-          submit(params);
-        })}
-        aria-labelledby="form-label"
-      >
+      <form onSubmit={handleSubmit(onFormSubmit)} aria-labelledby="form-label">
         <VStack spacing="4">
           <FormControl isInvalid={!!errors.password} isRequired>
             <FormLabel>New Password</FormLabel>

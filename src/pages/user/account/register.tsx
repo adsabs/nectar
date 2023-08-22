@@ -19,7 +19,7 @@ import {
 } from '@components';
 import { NextPage } from 'next';
 import Head from 'next/head';
-import { Control, useForm, useWatch } from 'react-hook-form';
+import { Control, SubmitHandler, useForm, useWatch } from 'react-hook-form';
 import { useFocus } from '@lib/useFocus';
 import { useEffect } from 'react';
 import { useRedirectWithNotification } from '@components/Notification';
@@ -51,6 +51,10 @@ const Register: NextPage = () => {
     }
   }, [data, redirect]);
 
+  const onFormSubmit: SubmitHandler<IUserRegistrationCredentials> = (params) => {
+    submit(params);
+  };
+
   return (
     <div>
       <Head>
@@ -61,7 +65,7 @@ const Register: NextPage = () => {
         <Heading alignSelf="center" my="6" id="form-label" as="h2">
           Register
         </Heading>
-        <form onSubmit={void handleSubmit((params) => submit(params))} aria-labelledby="form-label">
+        <form onSubmit={handleSubmit(onFormSubmit)} aria-labelledby="form-label">
           <Recaptcha onChange={(value) => setValue('recaptcha', value)} />
           <Stack direction="column" spacing={4}>
             <FormControl isRequired isInvalid={!!errors.email}>

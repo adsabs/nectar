@@ -13,7 +13,7 @@ export const useRedirectWithNotification = () => {
 
   return (id: NotificationId, options?: IRedirectWithNotificationProps) => {
     setNotification(id);
-    return router[options.replace ? 'replace' : 'push']({
+    return router[options?.replace ? 'replace' : 'push']({
       pathname: options?.path ?? '/',
       query: { notify: id },
     });

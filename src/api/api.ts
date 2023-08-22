@@ -2,7 +2,7 @@ import { IUserData } from '@api';
 import { APP_STORAGE_KEY, updateAppUser } from '@store';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { isPast, parseISO } from 'date-fns';
-import { identity, isNil, pick } from 'ramda';
+import { identity, isNil } from 'ramda';
 import { defaultRequestConfig } from './config';
 import { IApiUserResponse } from '@pages/api/user';
 
@@ -191,7 +191,7 @@ class Api {
         'x-RefreshToken': 1,
       },
     });
-    return pick(['access_token', 'username', 'expire_in', 'anonymous'], data.user) as IUserData;
+    return data.user;
   }
 
   public reset() {

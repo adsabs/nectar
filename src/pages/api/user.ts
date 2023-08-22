@@ -1,18 +1,19 @@
-import { getIronSession } from 'iron-session';
-import { sessionConfig } from '@config';
+/// <reference types="../../../global" />
+import { withIronSessionApiRoute } from 'iron-session/next';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { IUserData } from '@api';
+import { sessionConfig } from '@config';
+import { IronSession } from 'iron-session';
 
 export interface IApiUserResponse {
   isAuthenticated: boolean;
-  user: IUserData;
+  user: IronSession['token'];
 }
 
-export default async function (req: NextApiRequest, res: NextApiResponse) {
-  const session = await getIronSession(req, res, sessionConfig);
-
+const user = (req: NextApiRequest, res: NextApiResponse) => {
   return res.json({
-    isAuthenticated: session.isAuthenticated,
-    user: session.token,
+    isAuthenticated: req.session.isAuthenticated,
+    user: req.session.token,
   });
-}
+};
+
+export default withIronSessionApiRoute(user, sessionConfig);

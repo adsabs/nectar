@@ -24,6 +24,7 @@ import { dehydrate, QueryClient, QueryErrorResetBoundary } from '@tanstack/react
 import { ErrorBoundary } from 'react-error-boundary';
 import { getFallBackAlert } from '@components/Feedbacks/SuspendedAlert';
 import { useSettings } from '@lib/useSettings';
+import { isNotEmpty } from 'ramda-adjunct';
 
 // generate options for select component
 const useGetOptions = () => {
@@ -68,7 +69,7 @@ const AppSettingsPage = () => {
   const [params, setParams] = useState<IADSApiUserDataParams>({});
 
   useEffect(() => {
-    if (params) {
+    if (isNotEmpty(params)) {
       updateSettings(params);
     }
   }, [params, updateSettings]);
@@ -113,7 +114,7 @@ const AppSettingsPage = () => {
   };
 
   return (
-    <SettingsLayout title="Search Settings">
+    <>
       <Stack direction="column" spacing={5}>
         <NumberSlider
           min={1}
@@ -168,11 +169,11 @@ const AppSettingsPage = () => {
           )}
         </DescriptionCollapse>
       </Stack>
-    </SettingsLayout>
+    </>
   );
 };
 
-export default AppSettingsPage;
+export default Page;
 
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx: GetServerSidePropsContext) => {
   const queryClient = new QueryClient();
