@@ -1,19 +1,15 @@
-import { AddIcon } from '@chakra-ui/icons';
-import { Button, Checkbox, FormControl, FormLabel, Input, Stack, Text } from '@chakra-ui/react';
+import { Button, Text } from '@chakra-ui/react';
 import { SettingsLayout } from '@components';
-import { composeNextGSSP } from '@ssrUtils';
-import { noop } from '@utils';
-import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
-import { useState } from 'react';
+import { useOrcid } from '@lib/orcid/useOrcid';
+import { UserSettings } from '@components/Orcid';
 
-const OrcidPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const [isLoggedIn] = useState(false);
+const OrcidPage = () => {
+  const { login, isAuthenticated } = useOrcid();
 
-  const handleSubmit = noop;
-  if (!isLoggedIn) {
+  if (!isAuthenticated) {
     return (
       <SettingsLayout title="ORCiD Settings">
-        <Button mb={2} size="md">
+        <Button mb={2} size="md" onClick={login}>
           Authenticate ORCiD
         </Button>
         <Text fontSize="sm">
@@ -27,42 +23,7 @@ const OrcidPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) =
   // If logged into ORCiD
   return (
     <SettingsLayout title="ORCiD Settings">
-      <form onSubmit={handleSubmit}>
-        <Stack direction="column" spacing="5">
-          <Text>
-            You are signed into ORCiD as
-            <br /> Not you?{' '}
-            <Button mb={2} size="md" variant="link">
-              Sign into ORCiD as a different user
-            </Button>
-          </Text>
-          <FormControl>
-            <FormLabel>Your Current Academy Affliation</FormLabel>
-            <Input type="text" size="md" />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Names Under Which You Have Published</FormLabel>
-            <Text>
-              If you have published under a different surname, for example, or using a middle name, please add those
-              name variations here.
-            </Text>
-            <Button my={2} leftIcon={<AddIcon />}>
-              Add a name
-            </Button>
-          </FormControl>
-          <FormControl>
-            <FormLabel>Permission for ADS to Record and Publish Claims</FormLabel>
-            <Checkbox alignItems="start">
-              {' '}
-              I allow the ADS to record my claims and to make them available publically for auditing and indexing. This
-              makes me an "ADS Verified User" and allows ADS to validate my name(s) against author lists in papers.
-            </Checkbox>
-          </FormControl>
-          <Button type="submit" size="md" w={20}>
-            Submit
-          </Button>
-        </Stack>
-      </form>
+      <UserSettings />
     </SettingsLayout>
   );
 };

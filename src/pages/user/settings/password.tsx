@@ -1,86 +1,86 @@
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-  Button,
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
-  Input,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
-import { SettingsLayout } from '@components';
-import { composeNextGSSP } from '@ssrUtils';
-import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
-import { FormEvent, useState } from 'react';
+import { Button, FormControl, FormErrorMessage, FormLabel, Stack } from '@chakra-ui/react';
+import { PasswordRequirements, PasswordTextInput, SettingsLayout, StandardAlertMessage } from '@components';
+import { Control, useForm, useWatch } from 'react-hook-form';
+import { useFocus } from '@lib/useFocus';
+import { parseAPIError } from '@utils';
+import { IUserChangePasswordCredentials, useChangeUserPassword } from '@api';
 
-const ChangePasswordPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const [password, setPassword] = useState('');
-  const [, setNewPassword] = useState('');
-  const [error, setError] = useState<string>(null);
+const initialParams: IUserChangePasswordCredentials = { currentPassword: '', password: '', confirmPassword: '' };
+const passwordValidators = {
+  uppercase: (password: string) => /[A-Z]/.test(password),
+  lowercase: (password: string) => /[a-z]/.test(password),
+  digit: (password: string) => /\d/.test(password),
+};
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError(null);
-  };
+const ChangePasswordPage = () => {
+  const {
+    register,
+    handleSubmit,
+    getValues,
+    formState: { errors },
+    control,
+  } = useForm({
+    defaultValues: initialParams,
+  });
+  const { mutate: submit, isLoading, isError, error, data } = useChangeUserPassword();
+  const { ref, ...registerProps } = register('currentPassword', { required: true });
+  const [currentPasswordRef] = useFocus();
+
   return (
     <SettingsLayout title="Change Password">
-      <form onSubmit={handleSubmit}>
-        <Stack direction="column" spacing={5}>
-          <FormControl>
+      <form onSubmit={void handleSubmit((params) => submit(params))} aria-labelledby="settings-section-title">
+        <Stack direction="column" spacing={4}>
+          <FormControl isRequired isInvalid={!!errors.currentPassword}>
             <FormLabel>Current Password</FormLabel>
-            <Input
-              type="password"
-              placeholder="********"
+            <PasswordTextInput
+              autoFocus
+              name="currentPassword"
+              id="currentPassword"
+              ref={(value) => {
+                currentPasswordRef.current = value;
+                ref(value);
+              }}
+              {...registerProps}
+            />
+          </FormControl>
+          <FormControl isRequired isInvalid={!!errors.password}>
+            <FormLabel>Password</FormLabel>
+            <PasswordTextInput
               name="password"
               id="password"
-              onChange={(e) => setPassword(e.currentTarget.value)}
-              value={password}
-              size="md"
+              {...register('password', {
+                required: true,
+                minLength: 4,
+                validate: passwordValidators,
+              })}
             />
-            <FormErrorMessage>Error message</FormErrorMessage>
+            <RequirementsController control={control} />
           </FormControl>
-          <FormControl>
-            <FormLabel>New Password</FormLabel>
-            <Text fontSize="sm">
-              Passwords should be at least five characters and include at least one number and one letter.
-            </Text>
-            <Input
-              type="password"
-              placeholder="********"
-              name="password"
-              id="password"
-              onChange={(e) => setNewPassword(e.currentTarget.value)}
-              value={password}
-              size="md"
+          <FormControl isRequired isInvalid={!!errors.confirmPassword}>
+            <FormLabel>Confirm password</FormLabel>
+            <PasswordTextInput
+              name="confirmPassword"
+              id="confirmPassword"
+              {...register('confirmPassword', {
+                required: true,
+                validate: (value) => value === getValues('password'),
+              })}
             />
-            <FormErrorMessage>Error message</FormErrorMessage>
+            {!!errors.confirmPassword && <FormErrorMessage>Passwords do not match</FormErrorMessage>}
           </FormControl>
-          <FormControl>
-            <FormLabel>Retype New Password</FormLabel>
-            <Input
-              type="password"
-              placeholder="********"
-              name="password"
-              id="password"
-              onChange={(e) => setNewPassword(e.currentTarget.value)}
-              value={password}
-              size="md"
-            />
-            <FormErrorMessage>Error message</FormErrorMessage>
-          </FormControl>
-          <Button type="submit" size="md" w={20}>
-            Update
+          <Button type="submit" isLoading={isLoading}>
+            Submit
           </Button>
-          {error && (
-            <Alert status="error">
-              <AlertTitle>Unable to update</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
         </Stack>
       </form>
+      {!!data && <StandardAlertMessage status="success" title="Password Changed" />}
+      {isError && (
+        <StandardAlertMessage
+          status="error"
+          title="Unable to register, please try again"
+          description={parseAPIError(error)}
+        />
+      )}
     </SettingsLayout>
   );
 };
@@ -89,7 +89,7 @@ export default ChangePasswordPage;
 
 export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';
 
-  return Promise.resolve({
-    props: {},
-  });
-});
+const RequirementsController = ({ control }: { control: Control<IUserChangePasswordCredentials> }) => {
+  const password = useWatch({ control, name: 'password' });
+  return <PasswordRequirements password={password} />;
+};
