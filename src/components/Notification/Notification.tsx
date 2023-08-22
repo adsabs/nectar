@@ -27,7 +27,7 @@ export const Notification = () => {
 
   const reset = () => {
     const { notify, ...query } = router.query;
-    router.replace(router.pathname, { query }, { shallow: true }).then(() => {
+    router.replace(router.pathname, { query }, { shallow: true }).finally(() => {
       resetNotification();
     });
   };

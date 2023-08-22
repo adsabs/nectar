@@ -2,13 +2,13 @@ import { ExportApiFormatKey, ExportApiJournalFormat, IDocsEntity, JournalFormatN
 import { Button, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Tooltip, VStack } from '@chakra-ui/react';
 import { MaxAuthorSlider, SampleTextArea } from '@components';
 import { JournalFormatSelect } from '@components/CitationExporter';
-import { DEFAULT_USER_DATA, JournalFormatMap } from '@components/Settings/model';
+import { JournalFormatMap } from '@components/Settings/model';
 import { UserDataSetterEvent } from '@pages/user/settings/export';
-import { useStore } from '@store';
 import { Dispatch, useState } from 'react';
 import { bibtexExportFormatDescription, journalNameHandlingDescription, maxAuthorDescription } from '../Description';
 import { KeyFormatInputApply } from '../KeyFormatInputApply';
 import { MaxAuthorCutoffSlider } from '../MaxAuthorCutoffSlider';
+import { useSettings } from '@lib/useSettings';
 
 export type IBibtexTabPanelProps = {
   sampleBib: IDocsEntity['bibcode'];
@@ -16,20 +16,12 @@ export type IBibtexTabPanelProps = {
 };
 
 export const BibtexTabPanel = ({ sampleBib, dispatch }: IBibtexTabPanelProps) => {
-  const {
-    bibtexJournalFormat,
-    bibtexKeyFormat,
-    bibtexAuthorCutoff: bibtexAuthorCutoffStr,
-    bibtexMaxAuthors: bibtexMaxAuthorsStr,
-    bibtexABSKeyFormat,
-    bibtexABSAuthorCutoff: bibtexABSAuthorCutoffStr,
-    bibtexABSMaxAuthors: bibtexABSMaxAuthorsStr,
-  } = useStore((state) => state.settings.user) ?? DEFAULT_USER_DATA;
-
-  const bibtexAuthorCutoff = parseInt(bibtexAuthorCutoffStr);
-  const bibtexMaxAuthors = parseInt(bibtexMaxAuthorsStr);
-  const bibtexABSAuthorCutoff = parseInt(bibtexABSAuthorCutoffStr);
-  const bibtexABSMaxAuthors = parseInt(bibtexABSMaxAuthorsStr);
+  const { settings } = useSettings();
+  const { bibtexKeyFormat, bibtexABSKeyFormat, bibtexJournalFormat } = settings;
+  const bibtexAuthorCutoff = parseInt(settings.bibtexAuthorCutoff, 10);
+  const bibtexABSAuthorCutoff = parseInt(settings.bibtexABSAuthorCutoff, 10);
+  const bibtexMaxAuthors = parseInt(settings.bibtexMaxAuthors, 10);
+  const bibtexABSMaxAuthors = parseInt(settings.bibtexABSMaxAuthors, 10);
 
   // If bibtex settings and bibtex Abs settings are the same
   // we can use basic view

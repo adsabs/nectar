@@ -17,7 +17,7 @@ interface IAbsLayoutProps {
 export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription }) => {
   const { getLinkProps, show: showBackLink } = useBackToSearchResults();
 
-  if (typeof doc === 'undefined') {
+  if (!doc) {
     return <>{children}</>;
   }
 

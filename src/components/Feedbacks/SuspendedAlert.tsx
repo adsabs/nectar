@@ -20,12 +20,20 @@ interface ISuspendedAlertProps extends FallbackProps {
   resetButtonText?: string;
   error: AxiosError | Error | unknown;
   status?: AlertStatus;
+  mapErrorMessages?: Record<string, string>;
 }
 
 export const SuspendedAlert = (props: ISuspendedAlertProps) => {
-  const { error, status = 'error', resetErrorBoundary, label, resetButtonText = 'Try again' } = props;
+  const {
+    error,
+    status = 'error',
+    resetErrorBoundary,
+    label,
+    resetButtonText = 'Try again',
+    mapErrorMessages = {},
+  } = props;
   const { isOpen, onToggle } = useDisclosure();
-  const message = parseAPIError(error);
+  const message = mapErrorMessages?.[parseAPIError(error)] ?? parseAPIError(error);
 
   return (
     <Alert status={status} my="2" borderRadius="md">

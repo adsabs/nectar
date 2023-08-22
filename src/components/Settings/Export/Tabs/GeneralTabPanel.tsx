@@ -2,13 +2,13 @@ import { CustomFormat, ExportApiFormatKey, IDocsEntity, useGetExportCitation } f
 import { Stack } from '@chakra-ui/react';
 import { SampleTextArea } from '@components';
 import { ExportFormat, exportFormats } from '@components/CitationExporter';
-import { DEFAULT_USER_DATA, JournalFormatMap } from '@components/Settings/model';
+import { JournalFormatMap } from '@components/Settings/model';
 import { UserDataSetterEvent } from '@pages/user/settings/export';
-import { useStore } from '@store';
 import { values } from 'ramda';
 import { Dispatch, useMemo } from 'react';
 import { ExportFormatSelect } from '../ExportFormatSelect';
 import { CustomFormatSelect } from '../CustomFormatSelect';
+import { useSettings } from '@lib/useSettings';
 
 export interface IGeneralTabPanelProps {
   sampleBib: IDocsEntity['bibcode'];
@@ -19,8 +19,7 @@ export interface IGeneralTabPanelProps {
 const exportFormatOptions = values(exportFormats);
 
 export const GeneralTabPanel = ({ sampleBib, selectedOption, dispatch }: IGeneralTabPanelProps) => {
-  // fetch sample citation
-  const userSettings = useStore((state) => state.settings.user) ?? DEFAULT_USER_DATA;
+  const { settings: userSettings } = useSettings();
 
   // default export format changed
   const handleApplyDefaultExportFormat = (format: ExportFormat) => {

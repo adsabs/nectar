@@ -4,6 +4,7 @@ import { useStore } from '@store';
 
 interface IRedirectWithNotificationProps {
   path: string;
+  replace?: boolean;
 }
 
 export const useRedirectWithNotification = () => {
@@ -12,7 +13,7 @@ export const useRedirectWithNotification = () => {
 
   return (id: NotificationId, options?: IRedirectWithNotificationProps) => {
     setNotification(id);
-    return router.push({
+    return router[options.replace ? 'replace' : 'push']({
       pathname: options?.path ?? '/',
       query: { notify: id },
     });
