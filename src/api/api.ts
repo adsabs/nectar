@@ -4,8 +4,7 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } f
 import { isPast, parseISO } from 'date-fns';
 import { identity, isNil, pick } from 'ramda';
 import { defaultRequestConfig } from './config';
-import { ApiTargets } from './models';
-import { IBootstrapPayload } from './user';
+import { IronSession } from 'iron-session';
 
 export const isUserData = (userData?: IUserData): userData is IUserData => {
   return (
@@ -20,7 +19,7 @@ export const isUserData = (userData?: IUserData): userData is IUserData => {
 export const isAuthenticated = (user: IUserData) =>
   isUserData(user) && (!user.anonymous || user.username !== 'anonymous@ads');
 
-const checkUserData = (userData?: IUserData): boolean => {
+export const checkUserData = (userData?: IUserData): boolean => {
   return isUserData(userData) && !isPast(parseISO(userData.expire_in));
 };
 
@@ -29,7 +28,8 @@ const checkUserData = (userData?: IUserData): boolean => {
  *
  * @returns IUserData
  */
-const getUserData = (): IUserData => {
+const checkLocalStorageForUserData = (): IUserData => {
+  // attempt to read the user data from localStorage
   try {
     const {
       state: { user },
@@ -44,7 +44,7 @@ const getUserData = (): IUserData => {
  * Apply a bearer token string to the request's headers
  * returns a new request config with authorization header added
  */
-const applyTokenToRequest = (request: ApiRequestConfig, token: string) => {
+const applyTokenToRequest = (request: ApiRequestConfig, token: string): ApiRequestConfig => {
   return {
     ...request,
     headers: {
@@ -54,9 +54,7 @@ const applyTokenToRequest = (request: ApiRequestConfig, token: string) => {
   };
 };
 
-export interface ApiRequestConfig extends AxiosRequestConfig {
-  headers?: { authorization?: string; 'orcid-authorization'?: string };
-}
+export type ApiRequestConfig = AxiosRequestConfig;
 
 enum API_STATUS {
   UNAUTHORIZED = 401,
@@ -82,7 +80,8 @@ class Api {
     this.service.interceptors.response.use(identity, (error: AxiosError & { canRefresh: boolean }) => {
       if (axios.isAxiosError(error)) {
         // if the server never responded, there won't be a response object -- in that case, reject immediately
-        if (!error.response) {
+        // this is important for SSR, just fail fast
+        if (!error.response || typeof window === 'undefined') {
           return Promise.reject(error);
         }
 
@@ -99,22 +98,15 @@ class Api {
         }
 
         // if request is NOT bootstrap, store error config
-        if (error.config.url !== ApiTargets.BOOTSTRAP) {
+        if (error.config.url !== '/api/user') {
           this.recentError = { status: error.response.status, config: error.config };
         }
 
         if (error.response.status === API_STATUS.UNAUTHORIZED) {
           this.invalidateUserData();
-          return this.bootstrap()
-            .then((res) => {
-              this.setUserData(res);
-              updateAppUser(res);
-              return this.request(error.config as ApiRequestConfig);
-            })
-            .catch(() => {
-              const bootstrapError = new Error('Unrecoverable Error, unable to refresh token', { cause: error });
-              return Promise.reject(bootstrapError);
-            });
+
+          // retry the request
+          return this.request(error.config as ApiRequestConfig);
         }
       }
       return Promise.reject(error);
@@ -136,7 +128,7 @@ class Api {
 
   private invalidateUserData() {
     updateAppUser(null);
-    this.setUserData(null);
+    this.userData = null;
   }
 
   /**
@@ -144,14 +136,28 @@ class Api {
    * Authenticate and fire the request
    */
   async request<T>(config: ApiRequestConfig): Promise<AxiosResponse<T>> {
+    if (process.env.NODE_ENV === 'development') {
+      console.groupCollapsed('[request]', config.url);
+      console.log('config', config);
+      console.log('api', this);
+      console.groupEnd();
+    }
+    // serverside, we can just send the request
+    if (typeof window === 'undefined') {
+      return this.service.request<T>(applyTokenToRequest(config, this.userData?.access_token));
+    }
+
+    // in the case we have an unauthorized response, we should skip right to refreshing the token
+    const unauthorized = this.recentError?.status === API_STATUS.UNAUTHORIZED;
+
     // we have valid token, send the request right away
-    if (checkUserData(this.userData)) {
+    if (!unauthorized && checkUserData(this.userData)) {
       return this.service.request<T>(applyTokenToRequest(config, this.userData.access_token));
     }
 
     // otherwise attempt to get the token from local storage
-    const userData = getUserData();
-    if (checkUserData(userData)) {
+    const userData = checkLocalStorageForUserData();
+    if (!unauthorized && checkUserData(userData)) {
       // set user data property
       this.setUserData(userData);
 
@@ -160,7 +166,7 @@ class Api {
 
     // finally, we have to attempt a bootstrap request
     try {
-      const freshUserData = await this.bootstrap();
+      const freshUserData = await this.fetchUserData();
 
       // set user data property and in the app store
       this.setUserData(freshUserData);
@@ -173,50 +179,13 @@ class Api {
     }
   }
 
-  /**
-   * Fetch latest user data, retries after errors
-   */
-  async bootstrap() {
-    const { data } = await this.retry<Promise<AxiosResponse<IBootstrapPayload>>>(
-      {
-        ...defaultRequestConfig,
-        method: 'GET',
-        url: ApiTargets.BOOTSTRAP,
+  async fetchUserData() {
+    const { data } = await axios.get<{ user: IronSession['token']; isAuthenticated: boolean }>('/api/user', {
+      headers: {
+        'x-RefreshToken': 1,
       },
-      {
-        interval: process.env.NODE_ENV === 'test' ? 0 : undefined,
-      },
-    );
-
-    return pick(['access_token', 'username', 'expire_in', 'anonymous'], data) as IUserData;
-  }
-
-  /**
-   * Simple retryer, will rerun request after delay
-   */
-  async retry<T>(
-    config: AxiosRequestConfig,
-    options: {
-      retries?: number;
-      interval?: number;
-    } = {},
-  ): Promise<T> {
-    const { retries = 3, interval = 1000 } = options;
-    try {
-      // await promise
-      return await axios.request(config);
-    } catch (error) {
-      if (retries) {
-        // delay
-        await new Promise((_) => setTimeout(_, interval));
-
-        // recursive retry
-        return this.retry(config, { ...options, retries: retries - 1 });
-      } else {
-        // out of retries, throw error
-        throw new Error(`Max retries reached.`);
-      }
-    }
+    });
+    return pick(['access_token', 'username', 'expire_in', 'anonymous'], data.user) as IUserData;
   }
 
   public reset() {
