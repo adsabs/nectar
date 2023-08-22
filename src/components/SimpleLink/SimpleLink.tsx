@@ -16,7 +16,7 @@ export const SimpleLink: FC<ISimpleLinkProps> = (props): ReactElement => {
   return (
     <NextLink href={href} passHref legacyBehavior>
       <ChakraLink
-        variant={variant ? variant : 'default'}
+        variant={variant || 'default'}
         display="block"
         isExternal={isExternal}
         rel={isExternal ? 'noopener noreferrer' : undefined}

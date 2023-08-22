@@ -1,11 +1,10 @@
 import { CustomFormat, ExportApiFormatKey, IDocsEntity, useGetExportCitation } from '@api';
 import { Flex } from '@chakra-ui/react';
 import { SampleTextArea } from '@components';
-import { DEFAULT_USER_DATA } from '@components/Settings/model';
 import { UserDataSetterEvent } from '@pages/user/settings/export';
-import { useStore } from '@store';
 import { Dispatch, useEffect, useMemo, useState } from 'react';
 import { CustomFormatsTable } from '../CustomFormatsTable';
+import { useSettings } from '@lib/useSettings';
 
 export type ICustomFormatsTabPanelProps = {
   sampleBib: IDocsEntity['bibcode'];
@@ -13,7 +12,9 @@ export type ICustomFormatsTabPanelProps = {
 };
 
 export const CustomFormatsTabPanel = ({ sampleBib, dispatch }: ICustomFormatsTabPanelProps) => {
-  const customFormats = useStore((state) => state.settings.user?.customFormats ?? DEFAULT_USER_DATA.customFormats);
+  const {
+    settings: { customFormats },
+  } = useSettings();
   const [selectedFormat, setSelectedFormat] = useState<CustomFormat>(null);
 
   // custom formats handlers
@@ -24,7 +25,7 @@ export const CustomFormatsTabPanel = ({ sampleBib, dispatch }: ICustomFormatsTab
     });
   };
 
-  // delete cutom format
+  // delete custom format
   const handleDeleteCustomFormat = (id: string) => {
     dispatch({
       type: 'DELETE_CUSTOM_FORMAT',

@@ -56,15 +56,15 @@ export const LandingTabsStatic = () => {
 };
 
 const Tabs = ({ show }: { show: boolean }) => {
-  const { asPath } = useRouter();
+  const { pathname } = useRouter();
   if (!show) {
     return null;
   }
   return (
     <HStack justifyContent="center" spacing={2} zIndex={5} color="white" fontSize={{ base: 'md', sm: 'xl' }}>
-      <Tab href="/classic-form" label="Classic Form" active={asPath === '/classic-form'} />
-      <Tab href="/" label="Modern Form" active={asPath === '/'} />
-      <Tab href="/paper-form" label="Paper Form" active={asPath === '/paper-form'} />
+      <Tab href="/classic-form" label="Classic Form" active={pathname === '/classic-form'} />
+      <Tab href="/" label="Modern Form" active={pathname === '/'} />
+      <Tab href="/paper-form" label="Paper Form" active={pathname === '/paper-form'} />
     </HStack>
   );
 };

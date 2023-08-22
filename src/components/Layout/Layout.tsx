@@ -7,16 +7,19 @@ import { Footer } from '../Footer';
 import { NavBar } from '../NavBar';
 import dynamic from 'next/dynamic';
 import { LandingTabsStatic } from '@components';
+import { Notification } from '@components/Notification';
 
 const LandingTabs = dynamic(() => import('@components/LandingTabs/LandingTabs').then((mod) => mod.LandingTabs), {
   ssr: false,
   loading: () => <LandingTabsStatic />,
 });
 
+const LANDING_PAGES = ['/', '/classic-form', '/paper-form'];
+
 export const Layout: FC = ({ children }) => {
   const router = useRouter();
-  const isLandingPages = /^(\/|\/(classic|paper)-form.*)$/.exec(router.asPath);
-  const [isPrint] = useMediaQuery('print'); // use to hide elements when printing
+  const isLandingPage = LANDING_PAGES.includes(router.pathname);
+  const [isPrint] = useMediaQuery('print');
 
   return (
     <Flex direction="column">
@@ -24,14 +27,15 @@ export const Layout: FC = ({ children }) => {
         <title>NASA Science Explorer</title>
       </Head>
       <SkipNavLink id="main-content">Skip to content</SkipNavLink>
-      {isPrint || <NavBar />}
+      {isPrint ? null : <NavBar />}
+      {isPrint ? null : <Notification />}
       <main>
-        {isLandingPages && <LandingTabs />}
-        <Container maxW={isLandingPages ? 'container.md' : 'container.xl'} id="main-content">
+        {isLandingPage && <LandingTabs />}
+        <Container maxW={isLandingPage ? 'container.md' : 'container.xl'} id="main-content">
           {children}
         </Container>
       </main>
-      {isPrint || <Footer />}
+      {isPrint ? null : <Footer />}
     </Flex>
   );
 };

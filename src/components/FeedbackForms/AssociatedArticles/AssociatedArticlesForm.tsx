@@ -1,27 +1,26 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { useSearch } from '@api';
 import { AssociatedBibcode, IFeedbackParams, Relationship } from '@api/feedback';
-import { DeleteIcon, AddIcon } from '@chakra-ui/icons';
+import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
 import {
-  Flex,
-  HStack,
-  FormControl,
-  FormLabel,
-  Input,
-  Button,
-  FormErrorMessage,
-  IconButton,
   AlertStatus,
+  Button,
+  Flex,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  HStack,
+  IconButton,
+  Input,
   useDisclosure,
 } from '@chakra-ui/react';
-import { Select, SelectOption } from '@components';
+import { PreviewModal, Select, SelectOption } from '@components';
+import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useStore } from '@store';
-import { omit } from 'ramda';
-import { useState, ChangeEvent, useRef, useEffect, MouseEvent } from 'react';
+import { ChangeEvent, MouseEventHandler, useEffect, useRef, useState } from 'react';
 import { FormProvider, useFieldArray, useForm, useFormContext, useWatch } from 'react-hook-form';
-import { PreviewModal } from '../PreviewModal';
-import { z } from 'zod';
+import { omit } from 'ramda';
 
 type FormValues = {
   name: string;
@@ -219,7 +218,7 @@ export const AssociatedArticlesForm = ({
     setState('idle');
   };
 
-  const handleReset = (e: MouseEvent<HTMLButtonElement>) => {
+  const handleReset: MouseEventHandler<HTMLButtonElement> = (e) => {
     e.preventDefault();
     reset(initialFormValues);
   };
@@ -383,14 +382,14 @@ export const AssociatedTable = () => {
                       </IconButton>
                     </HStack>
                     <FormErrorMessage>
-                      {!!errors.associatedBibcodes?.[index] && errors.associatedBibcodes[index].message}
+                      {!!errors.associatedBibcodes?.[index] && errors.associatedBibcodes[index].value.message}
                     </FormErrorMessage>
                   </FormControl>
                 ))}
               </Flex>
             </FormControl>
 
-            <FormControl isInvalid={!!errors.associatedBibcodes?.message}>
+            <FormControl isInvalid={errors.associatedBibcodes.length > 0}>
               <HStack>
                 <Input
                   onChange={handleNewAssociatedBibcodeChange}

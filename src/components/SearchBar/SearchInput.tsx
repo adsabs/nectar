@@ -18,7 +18,7 @@ import {
   visuallyHiddenStyle,
 } from '@chakra-ui/react';
 import { useCombobox, UseComboboxStateChange } from 'downshift';
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { typeaheadOptions } from './models';
 import { useIntermediateQuery } from '@lib/useIntermediateQuery';
 import { isNilOrEmpty } from 'ramda-adjunct';
@@ -138,9 +138,6 @@ export const SearchInput = forwardRef<Partial<HTMLInputElement>, ISearchInputPro
     offset: [0, 3],
   });
 
-  // call focus after component mounts
-  useLayoutEffect(() => focus(), []);
-
   // focus on the search bar, and set the cursor to the end
   const focus = useCallback(() => {
     if (input.current) {
@@ -148,6 +145,13 @@ export const SearchInput = forwardRef<Partial<HTMLInputElement>, ISearchInputPro
       input.current.selectionStart = Number.MAX_SAFE_INTEGER;
     }
   }, [input.current]);
+
+  // call focus after component mounts
+  useEffect(() => {
+    if (input?.current?.focus) {
+      focus();
+    }
+  }, [input, focus]);
 
   return (
     <Flex as="section" direction="row" alignItems="center">

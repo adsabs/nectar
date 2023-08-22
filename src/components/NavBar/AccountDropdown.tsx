@@ -1,9 +1,9 @@
-import { useSession } from '@lib/auth';
 import { isBrowser } from '@utils';
 import { useRouter } from 'next/router';
 import { MouseEvent, ReactElement } from 'react';
 import { MenuDropdown } from './MenuDropdown';
 import { ListType } from './types';
+import { useSession } from '@lib/useSession';
 
 export const items = [
   {
@@ -40,7 +40,7 @@ export const AccountDropdown = (props: IAccountDropdown): ReactElement => {
     const id = (e.target as HTMLElement).dataset['id'];
     if (isBrowser()) {
       if (id === 'logout') {
-        void logout();
+        logout();
       } else {
         const item = itemsToShow.find((item) => id === item.id);
         void router.push(item ? item.path : '/');

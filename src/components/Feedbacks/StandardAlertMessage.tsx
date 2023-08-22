@@ -1,5 +1,5 @@
-import { Alert, AlertDescription, AlertIcon, AlertStatus, AlertTitle } from '@chakra-ui/react';
-import { ReactElement } from 'react';
+import { Alert, AlertDescription, AlertIcon, AlertStatus, AlertTitle, Box } from '@chakra-ui/react';
+import React, { ReactElement } from 'react';
 
 export interface IStandardAlertProps {
   status: AlertStatus;
@@ -15,8 +15,10 @@ export const StandardAlertMessage = ({
   return (
     <Alert status={status} my={5}>
       <AlertIcon />
-      <AlertTitle mr={2}>{alertTitle}</AlertTitle>
-      {typeof alertDescription !== 'undefined' && <AlertDescription>{alertDescription}</AlertDescription>}
+      <Box>
+        <AlertTitle mr={2}>{alertTitle}</AlertTitle>
+        {typeof alertDescription !== 'undefined' && <AlertDescription>{alertDescription}</AlertDescription>}
+      </Box>
     </Alert>
   );
 };
