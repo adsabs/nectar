@@ -2,33 +2,27 @@ import api, {
   ADSQuery,
   ApiRequestConfig,
   ApiTargets,
+  IADSApiLibraryLinkServersResponse,
   IADSApiSearchParams,
   IADSApiSearchResponse,
   IDocsEntity,
 } from '@api';
-import { QueryFunction, useQuery } from '@tanstack/react-query';
+import { QueryFunction, useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { getVaultBigQueryParams } from './models';
-import {
-  IADSApiUserDataParams,
-  IADSApiUserDataResponse,
-  IADSApiVaultResponse,
-  IADSVaultExecuteQueryParams,
-} from './types';
+import { IADSApiVaultResponse, IADSVaultExecuteQueryParams } from './types';
 
 export enum VaultKeys {
   VAULT = 'vault',
   EXECUTE_QUERY = 'vault/execute_query',
   BIGQUERY = 'vault/bigquery',
-  SET_USERDATA = 'vault/set-user-data',
-  USERDATA = 'vault/user-data',
+  LIBRARY_LINK_SERVERS = 'vault/library_link_servers',
 }
 
 export const vaultKeys = {
   primary: (params: IADSApiSearchParams) => [VaultKeys.VAULT, { params }] as const,
   executeQuery: (qid: IADSVaultExecuteQueryParams['qid']) => [VaultKeys.EXECUTE_QUERY, { qid }] as const,
   bigquery: (bibcodes: IDocsEntity['bibcode'][]) => [VaultKeys.BIGQUERY, { bibcodes }] as const,
-  setUserData: (userData: IADSApiUserDataParams) => [VaultKeys.SET_USERDATA, { userData }] as const,
-  userData: () => [VaultKeys.USERDATA] as const,
+  libraryLinkServers: () => [VaultKeys.LIBRARY_LINK_SERVERS] as const,
 };
 
 /**
@@ -95,42 +89,20 @@ export const fetchVaultExecuteQuery: QueryFunction<IADSApiSearchResponse['respon
   return data;
 };
 
-/** user data request **/
-export const useGetUserData: ADSQuery<unknown, IADSApiUserDataResponse> = (_, options) => {
-  return useQuery({
-    queryKey: vaultKeys.userData(),
-    queryFn: fetchUserData,
-    ...options,
-  });
-};
-
-export const fetchUserData: QueryFunction<IADSApiUserDataResponse> = async () => {
+export const fetchLibraryLinkServers: QueryFunction<IADSApiLibraryLinkServersResponse> = async () => {
   const config: ApiRequestConfig = {
     method: 'GET',
-    url: ApiTargets.USER_DATA,
+    url: ApiTargets.LINK_SERVERS,
   };
 
-  const { data } = await api.request<IADSApiUserDataResponse>(config);
+  const { data } = await api.request<IADSApiLibraryLinkServersResponse>(config);
   return data;
 };
 
-export const useSetUserData: ADSQuery<IADSApiUserDataParams, IADSApiUserDataResponse> = (params, options) => {
+export const useLibraryLinkServers = (options?: UseQueryOptions<IADSApiLibraryLinkServersResponse>) => {
   return useQuery({
-    queryKey: vaultKeys.setUserData(params),
-    queryFn: setUserData,
-    meta: { params },
+    queryKey: vaultKeys.libraryLinkServers(),
+    queryFn: fetchLibraryLinkServers,
     ...options,
   });
-};
-
-export const setUserData: QueryFunction<IADSApiUserDataResponse> = async ({ meta }) => {
-  const { params } = meta as { params: Partial<IADSApiUserDataParams> };
-  const config: ApiRequestConfig = {
-    method: 'POST',
-    url: ApiTargets.USER_DATA,
-    data: params,
-  };
-
-  const { data } = await api.request<IADSApiUserDataResponse>(config);
-  return data;
 };

@@ -40,6 +40,7 @@ export interface IBootstrapPayload {
   client_secret: string;
   expire_in: string;
   refresh_token: string;
+  message?: string;
 }
 
 export type IUserData = Pick<IBootstrapPayload, 'username' | 'anonymous' | 'access_token' | 'expire_in'>;
@@ -82,3 +83,18 @@ export interface IUserChangeEmailCredentials {
   email: string;
   password: string;
 }
+
+export interface IUserResetPasswordCredentials {
+  password: string;
+  confirmPassword: string;
+  verifyToken: string;
+}
+
+// VERIFY typings
+export interface IVerifyAccountResponse {
+  message?: 'success';
+  email?: string;
+  error?: string;
+}
+
+export type VerifyRoutes = 'change-email' | 'reset-password' | 'register';

@@ -1,6 +1,12 @@
-import { ExternalLinkAction, IADSApiUserDataParams, IADSApiUserDataResponse, UserDataKeys } from '@api';
-import { getVaultData } from '@auth-utils';
-import { Box, Checkbox, CheckboxGroup, FormControl, FormLabel, Stack, useToast } from '@chakra-ui/react';
+import {
+  ExternalLinkAction,
+  fetchUserSettings,
+  IADSApiUserDataParams,
+  IADSApiUserDataResponse,
+  UserDataKeys,
+  userKeys,
+} from '@api';
+import { Box, Checkbox, CheckboxGroup, FormControl, FormLabel, Spinner, Stack } from '@chakra-ui/react';
 import {
   authorsPerResultsDescription,
   defaultActionExternalLinksDescription,
@@ -11,12 +17,13 @@ import {
   SelectOption,
   SettingsLayout,
 } from '@components';
+import { composeNextGSSP } from '@ssr-utils';
+import { GetServerSideProps, GetServerSidePropsContext } from 'next';
+import { Suspense, useEffect, useMemo, useState } from 'react';
+import { dehydrate, QueryClient, QueryErrorResetBoundary } from '@tanstack/react-query';
+import { ErrorBoundary } from 'react-error-boundary';
+import { getFallBackAlert } from '@components/Feedbacks/SuspendedAlert';
 import { useSettings } from '@lib/useSettings';
-import { createStore } from '@store';
-import { DEFAULT_USER_DATA } from '@components/Settings/model';
-import { composeNextGSSP } from '@ssrUtils';
-import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
-import { useEffect, useMemo, useState } from 'react';
 
 // generate options for select component
 const useGetOptions = () => {
@@ -29,8 +36,30 @@ const useGetOptions = () => {
   };
 };
 
-const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const toast = useToast({ duration: 2000 });
+const Page = () => {
+  return (
+    <SettingsLayout title="Search Settings" maxW={{ base: 'container.sm', lg: 'container.lg' }}>
+      <QueryErrorResetBoundary>
+        {({ reset }) => (
+          <ErrorBoundary
+            onReset={reset}
+            fallbackRender={getFallBackAlert({
+              status: 'error',
+              label: 'Unable to load user settings',
+            })}
+          >
+            <Suspense fallback={<Spinner />}>
+              <AppSettingsPage />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+      </QueryErrorResetBoundary>
+    </SettingsLayout>
+  );
+};
+
+const AppSettingsPage = () => {
+  const { settings, updateSettings } = useSettings();
 
   // options for the select dropdown
   const { externalLinksOptions } = useGetOptions();
@@ -38,24 +67,18 @@ const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSidePro
   // params used to update user data
   const [params, setParams] = useState<IADSApiUserDataParams>({});
 
-  const { settings: userData } = useSettings({
-    params,
-    onSuccess: () => {
-      toast({ title: 'updated!', status: 'success' });
-    },
-    onError: (error) => toast({ status: 'error', description: error }),
-  });
-
-  // prevent an unnecessary set param initally when slider is updated to the fetched value
-  useEffect(() => setParams({}), []);
+  useEffect(() => {
+    if (params) {
+      updateSettings(params);
+    }
+  }, [params, updateSettings]);
 
   const selectedValues = useMemo(() => {
-    const data = userData ?? DEFAULT_USER_DATA;
-    const authorsVisible = parseInt(data.minAuthorsPerResult);
-    const externalLinksAction = externalLinksOptions.find((option) => option.id === data.externalLinkAction);
+    const authorsVisible = parseInt(settings.minAuthorsPerResult);
+    const externalLinksAction = externalLinksOptions.find((option) => option.id === settings.externalLinkAction);
     const databases = {
-      databases: data.defaultDatabase ?? [],
-      selected: data.defaultDatabase?.filter((d) => d.value === true).map((d) => d.name) ?? [],
+      databases: settings.defaultDatabase ?? [],
+      selected: settings.defaultDatabase?.filter((d) => d.value === true).map((d) => d.name) ?? [],
     };
 
     return {
@@ -63,7 +86,7 @@ const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSidePro
       externalLinksAction,
       databases,
     };
-  }, [userData, externalLinksOptions]);
+  }, [settings, externalLinksOptions]);
 
   // apply changes
   const handleApplyAuthorsVisible = (n: number) => {
@@ -76,7 +99,7 @@ const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSidePro
 
   const handleApplyDatabases = (names: string[]) => {
     const newValue = JSON.parse(
-      JSON.stringify(userData.defaultDatabase),
+      JSON.stringify(settings.defaultDatabase),
     ) as IADSApiUserDataResponse[UserDataKeys.DEFAULT_DATABASE];
     newValue.forEach((v) => {
       if (names.findIndex((n) => n === v.name) === -1) {
@@ -152,28 +175,15 @@ const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSidePro
 export default AppSettingsPage;
 
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx: GetServerSidePropsContext) => {
-  if (!ctx.req.session.isAuthenticated) {
-    return Promise.resolve({
-      redirect: {
-        destination: `/user/account/login?redirectUri=${encodeURIComponent(ctx.req.url)}`,
-        permanent: false,
-      },
-      props: {},
-    });
-  }
-
-  const userData = await getVaultData();
-  const initialState = createStore().getState();
+  const queryClient = new QueryClient();
+  await queryClient.prefetchQuery({
+    queryKey: userKeys.getUserSettings(),
+    queryFn: fetchUserSettings,
+  });
 
   return {
     props: {
-      userData,
-      dehydratedAppState: {
-        settings: {
-          ...initialState.settings,
-          user: userData,
-        },
-      },
+      dehydratedState: dehydrate(queryClient),
     },
   };
 });

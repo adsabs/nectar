@@ -1,26 +1,27 @@
-import { getVaultData } from '@auth-utils';
 import {
   CustomFormat,
   fetchSearch,
+  fetchUserSettings,
   getSearchParams,
   IADSApiSearchParams,
   IADSApiUserDataResponse,
   JournalFormatName,
   searchKeys,
   UserDataKeys,
+  userKeys,
   useSearch,
 } from '@api';
-import { Tab, TabList, TabPanel, TabPanels, Tabs, useToast } from '@chakra-ui/react';
+import { Spinner, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
 import { BibtexTabPanel, CustomFormatsTabPanel, exportFormats, GeneralTabPanel, SettingsLayout } from '@components';
 import { useSettings } from '@lib/useSettings';
-import { useStore } from '@store';
 import { GetServerSideProps, GetServerSidePropsContext, NextPage } from 'next';
-import { Reducer, useEffect, useMemo, useReducer } from 'react';
+import { Reducer, Suspense, useEffect, useMemo, useReducer } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { dehydrate, QueryClient } from '@tanstack/react-query';
+import { dehydrate, QueryClient, QueryErrorResetBoundary } from '@tanstack/react-query';
 import { omit, pathOr, values } from 'ramda';
-import { DEFAULT_USER_DATA } from '@components/Settings/model';
-import { composeNextGSSP } from '@ssrUtils';
+import { composeNextGSSP } from '@ssr-utils';
+import { ErrorBoundary } from 'react-error-boundary';
+import { getFallBackAlert } from '@components/Feedbacks/SuspendedAlert';
 
 // partial user data params
 // used to update user data
@@ -112,22 +113,40 @@ const reducer: Reducer<UserDataSetterState, UserDataSetterEvent> = (state, actio
 
 const exportFormatOptions = values(exportFormats);
 
-const ExportSettingsPage: NextPage = () => {
-  const toast = useToast({ duration: 2000 });
+export const Page: NextPage = () => {
+  return (
+    <SettingsLayout title="Export Settings" maxW={{ base: 'container.sm', lg: 'container.lg' }}>
+      <QueryErrorResetBoundary>
+        {({ reset }) => (
+          <ErrorBoundary
+            onReset={reset}
+            fallbackRender={getFallBackAlert({
+              status: 'error',
+              label: 'Unable to load user settings',
+            })}
+          >
+            <Suspense fallback={<Spinner />}>
+              <ExportSettings />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+      </QueryErrorResetBoundary>
+    </SettingsLayout>
+  );
+};
 
+const ExportSettings = () => {
   // params used to update user data
   const [params, dispatch] = useReducer(reducer, {});
 
   // when params change, query will be called to update the user settings
-  useSettings({
-    params,
-    onSuccess: () => {
-      toast({ title: 'updated!', status: 'success' });
-    },
-    onError: (error) => toast({ status: 'error', description: error }),
-  });
+  const { updateSettings, settings: userSettings } = useSettings();
 
-  const userSettings = useStore((state) => state.settings.user) ?? DEFAULT_USER_DATA;
+  useEffect(() => {
+    if (params) {
+      updateSettings(params);
+    }
+  }, [params, updateSettings]);
 
   useEffect(() => dispatch({ type: 'CLEAR' }), []);
 
@@ -139,48 +158,33 @@ const ExportSettingsPage: NextPage = () => {
 
   // fetch the sample bibcode
   const sampleBibParams = getSearchParams({ q: 'bibstem:ApJ author_count:[10 TO 20]', rows: 1 });
-  const { data } = useSearch(sampleBibParams);
+  const { data } = useSearch(sampleBibParams, { suspense: true });
   const sampleBib = pathOr<string>(null, ['docs', '0', 'bibcode'], data);
 
   return (
-    <SettingsLayout title="Export Settings" maxW={{ base: 'container.sm', lg: 'container.lg' }}>
-      <Tabs variant="enclosed">
-        <TabList>
-          <Tab>Default Format</Tab>
-          <Tab>Custom Formats</Tab>
-          <Tab>BibTeX</Tab>
-        </TabList>
-        <TabPanels>
-          <TabPanel>
-            <GeneralTabPanel sampleBib={sampleBib} selectedOption={defaultExportFormatOption} dispatch={dispatch} />
-          </TabPanel>
-          <TabPanel>
-            <CustomFormatsTabPanel sampleBib={sampleBib} dispatch={dispatch} />
-          </TabPanel>
-          <TabPanel>
-            <BibtexTabPanel sampleBib={sampleBib} dispatch={dispatch} />
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
-    </SettingsLayout>
+    <Tabs variant="enclosed">
+      <TabList>
+        <Tab>Default Format</Tab>
+        <Tab>Custom Formats</Tab>
+        <Tab>BibTeX</Tab>
+      </TabList>
+      <TabPanels>
+        <TabPanel>
+          <GeneralTabPanel sampleBib={sampleBib} selectedOption={defaultExportFormatOption} dispatch={dispatch} />
+        </TabPanel>
+        <TabPanel>
+          <CustomFormatsTabPanel sampleBib={sampleBib} dispatch={dispatch} />
+        </TabPanel>
+        <TabPanel>
+          <BibtexTabPanel sampleBib={sampleBib} dispatch={dispatch} />
+        </TabPanel>
+      </TabPanels>
+    </Tabs>
   );
 };
 
-export default ExportSettingsPage;
-
+export default Page;
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx: GetServerSidePropsContext) => {
-  if (!ctx.req.session.isAuthenticated) {
-    return Promise.resolve({
-      redirect: {
-        destination: `/user/account/login?redirectUri=${encodeURIComponent(ctx.req.url)}`,
-        permanent: false,
-      },
-      props: {},
-    });
-  }
-
-  const userData = await getVaultData();
-
   // get a sample doc
   const params = getSearchParams({ q: 'bibstem:ApJ author_count:[10 TO 20]', rows: 1 });
   const queryClient = new QueryClient();
@@ -191,14 +195,14 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
     meta: { params },
   });
 
+  await queryClient.prefetchQuery({
+    queryKey: userKeys.getUserSettings(),
+    queryFn: fetchUserSettings,
+  });
+
   return {
     props: {
       dehydratedState: dehydrate(queryClient),
-      dehydratedAppState: {
-        settings: {
-          user: userData,
-        },
-      },
     },
   };
 });

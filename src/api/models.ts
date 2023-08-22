@@ -156,6 +156,7 @@ export enum ApiTargets {
   SERVICE_AUTHOR_AFFILIATION_EXPORT = '/authoraff',
   MYADS_STORAGE = '/vault',
   MYADS_NOTIFICATIONS = '/vault/_notifications',
+  LINK_SERVERS = '/vault/configuration/link_servers',
   AUTHOR_AFFILIATION_SEARCH = '/author-affiliation/search',
   AUTHOR_AFFILIATION_EXPORT = '/author-affiliation/export',
   RESOLVER = '/resolver',

@@ -72,3 +72,10 @@ export interface IADSApiUserDataResponse {
 }
 
 export type IADSApiUserDataParams = Partial<IADSApiUserDataResponse>;
+
+export type LibraryLinkServer = {
+  gif: string;
+  name: string;
+  link: string;
+};
+export type IADSApiLibraryLinkServersResponse = LibraryLinkServer[];
