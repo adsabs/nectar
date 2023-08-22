@@ -1,9 +1,10 @@
 import { Box, Flex, Grid, GridItem, Heading, Text } from '@chakra-ui/react';
-import { useStore, useStoreApi } from '@store';
+import { useStore } from '@store';
 import { noop } from '@utils';
 import { FC, HTMLAttributes, MouseEventHandler, useMemo } from 'react';
 import { examples } from './examples';
 import { useIsClient } from '@lib/useIsClient';
+import { useIntermediateQuery } from '@lib/useIntermediateQuery';
 
 export interface ISearchExamplesProps extends HTMLAttributes<HTMLDivElement> {
   onSelect?: () => void;
@@ -12,15 +13,13 @@ export interface ISearchExamplesProps extends HTMLAttributes<HTMLDivElement> {
 export const SearchExamples: FC<ISearchExamplesProps> = (props) => {
   const { onSelect = noop, ...divProps } = props;
   const theme = useStore((state) => state.theme);
-  const updateQuery = useStore((state) => state.updateQuery);
-  const store = useStoreApi();
+  const { appendToQuery } = useIntermediateQuery();
 
   const handleClick: MouseEventHandler<HTMLButtonElement> = (e) => {
     const text = e.currentTarget.dataset['text'];
-    const query = store.getState().query;
 
     // Add our text to the end of the query
-    updateQuery({ q: `${query.q}${query.q.length > 0 ? ' ' : ''}${text}` });
+    appendToQuery(text);
 
     // fire select callback
     onSelect();

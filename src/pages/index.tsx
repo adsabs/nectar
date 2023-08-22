@@ -6,6 +6,7 @@ import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { ChangeEventHandler, useEffect, useRef, useState } from 'react';
+import { useIntermediateQuery } from '@lib/useIntermediateQuery';
 
 export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
 
@@ -16,25 +17,25 @@ const SearchExamples = dynamic<ISearchExamplesProps>(
 
 const HomePage: NextPage = () => {
   const store = useStoreApi();
-  const resetQuery = useStore((state) => state.resetQuery);
   const submitQuery = useStore((state) => state.submitQuery);
   const router = useRouter();
   const input = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const { clearQuery, query } = useIntermediateQuery();
 
   // clear search on mount
-  useEffect(() => resetQuery(), []);
+  useEffect(() => clearQuery(), []);
 
   /**
    * update route and start searching
    */
   const handleOnSubmit: ChangeEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
-    const { q, sort } = store.getState().query;
-    if (q && q.trim().length > 0) {
+    const { sort } = store.getState().query;
+    if (query && query.trim().length > 0) {
       setIsLoading(true);
       submitQuery();
-      void router.push({ pathname: '/search', search: makeSearchParams({ q, sort, p: 1 }) });
+      void router.push({ pathname: '/search', search: makeSearchParams({ q: query, sort, p: 1 }) });
     }
   };
 
