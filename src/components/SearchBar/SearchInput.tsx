@@ -183,6 +183,10 @@ export const SearchInput = forwardRef<Partial<HTMLInputElement>, ISearchInputPro
                 if (e.key === 'Enter') {
                   // on submit, the menu should close
                   setTimeout(() => closeMenu(), 0);
+
+                  (
+                    e.nativeEvent as typeof e.nativeEvent & { preventDownshiftDefault: boolean }
+                  ).preventDownshiftDefault = true;
                 }
               },
             })}
@@ -236,7 +240,6 @@ export const SearchInput = forwardRef<Partial<HTMLInputElement>, ISearchInputPro
         </List>
       </Flex>
 
-      {/* @TODO: fix this magic number */}
       <Button
         type="submit"
         h="40px"
