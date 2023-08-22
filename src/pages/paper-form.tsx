@@ -30,9 +30,10 @@ import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { any, head, isEmpty, join, map, not, omit, pipe, reject, toPairs, values } from 'ramda';
-import { FormEventHandler, useCallback, useEffect, useRef, useState } from 'react';
+import { FormEventHandler, useCallback } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
+import { useErrorMessage } from '@lib/useErrorMessage';
 
 enum PaperFormType {
   JOURNAL_QUERY = 'journal-query',

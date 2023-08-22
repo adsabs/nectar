@@ -87,8 +87,8 @@ export const useOrcid = () => {
 
   const logout = () => {
     // if we're on the orcid page, we need to redirect to the home page
-    if (router.pathname === '/user/orcid') {
-      void router.replace('/').then(() => {
+    if (router.pathname === '/user/orcid' || router.pathname === '/user/orcid/OAuth') {
+      router.replace('/').finally(() => {
         reset();
       });
     } else {

@@ -5,10 +5,7 @@ import { IDocsEntity, useGetAbstract } from '@api';
  */
 export const useGetAbstractDoc = (id: string): IDocsEntity => {
   // this *should* only ever fetch from pre-filled cache
-  const { data, isSuccess } = useGetAbstract({ id });
+  const { data } = useGetAbstract({ id });
 
-  // should be able to access docs here directly
-  const doc = isSuccess ? data.docs?.[0] : undefined;
-
-  return doc;
+  return data?.docs?.[0];
 };
