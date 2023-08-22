@@ -18,7 +18,7 @@ export const FeedbackLayout: FC<IFeedbackLayoutProps> = ({ children, title, aler
   }, [alert]);
 
   return (
-    <Container maxW="container.md" my={{ base: 2, lg: 10 }}>
+    <Container maxW="container.lg" my={{ base: 2, lg: 10 }}>
       <Head>
         <title>{title}</title>
       </Head>

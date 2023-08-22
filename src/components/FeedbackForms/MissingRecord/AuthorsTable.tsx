@@ -1,6 +1,14 @@
 import { CheckIcon, CloseIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons';
 import { Tr, Td, Input, IconButton, Table, Thead, Th, Tbody, HStack } from '@chakra-ui/react';
-import { useState, ChangeEvent, MouseEvent, useRef } from 'react';
+import { PaginationControls } from '@components';
+import {
+  createColumnHelper,
+  flexRender,
+  getCoreRowModel,
+  getPaginationRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
+import { useState, ChangeEvent, MouseEvent, useRef, useMemo } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import { FormValues, IAuthor } from './types';
 
@@ -10,6 +18,7 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
     append,
     remove,
     update,
+    move,
   } = useFieldArray<FormValues, 'authors'>({
     name: 'authors',
   });
@@ -18,9 +27,10 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
   const [newAuthor, setNewAuthor] = useState<IAuthor>(null);
 
   // Existing row being edited
-  const [editAuthor, setEditAuthor] = useState<{ index: number; author: IAuthor }>({
+  const [editAuthor, setEditAuthor] = useState<{ index: number; author: IAuthor; position: string }>({
     index: -1,
     author: null,
+    position: null,
   });
 
   const newAuthorNameRef = useRef<HTMLInputElement>();
@@ -32,6 +42,35 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
   const newAuthorIsValid = isValidAuthor(newAuthor);
 
   const editAuthorIsValid = isValidAuthor(editAuthor.author);
+
+  const columnHelper = createColumnHelper<IAuthor>();
+  const columns = useMemo(() => {
+    return [
+      columnHelper.display({
+        cell: (info) => info.row.index + 1,
+        header: 'Position',
+      }),
+      columnHelper.accessor('name', {
+        cell: (info) => info.getValue(),
+        header: 'Name',
+      }),
+      columnHelper.accessor('aff', {
+        cell: (info) => info.getValue(),
+        header: 'Affilication',
+      }),
+      columnHelper.accessor('orcid', {
+        cell: (info) => info.getValue(),
+        header: 'ORCiD',
+      }),
+    ];
+  }, [columnHelper]);
+
+  const table = useReactTable({
+    columns,
+    data: authors,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  });
 
   // Changes to fields for adding new author
 
@@ -58,19 +97,35 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
 
   const handleEditAuthor = (e: MouseEvent<HTMLButtonElement>) => {
     const index = parseInt(e.currentTarget.dataset['index']);
-    setEditAuthor({ index, author: authors[index] });
+    setEditAuthor({ index, author: authors[index], position: (index + 1).toString() });
+  };
+
+  const handleEditPositionChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setEditAuthor((prev) => ({
+      ...prev,
+      position: e.target.value,
+    }));
   };
 
   const handleEditNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEditAuthor((prev) => ({ index: prev.index, author: { ...prev.author, name: e.target.value } }));
+    setEditAuthor((prev) => ({
+      ...prev,
+      author: { ...prev.author, name: e.target.value },
+    }));
   };
 
   const handleEditAffChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEditAuthor((prev) => ({ index: prev.index, author: { ...prev.author, aff: e.target.value } }));
+    setEditAuthor((prev) => ({
+      ...prev,
+      author: { ...prev.author, aff: e.target.value },
+    }));
   };
 
   const handleEditOrcidChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEditAuthor((prev) => ({ index: prev.index, author: { ...prev.author, orcid: e.target.value } }));
+    setEditAuthor((prev) => ({
+      ...prev,
+      author: { ...prev.author, orcid: e.target.value },
+    }));
   };
 
   const handleDeleteAuthor = (e: MouseEvent<HTMLButtonElement>) => {
@@ -81,11 +136,15 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
   const handleApplyEditAuthor = (e: MouseEvent<HTMLButtonElement>) => {
     const index = parseInt(e.currentTarget.dataset['index']);
     update(index, editAuthor.author);
-    setEditAuthor({ index: -1, author: null });
+    const newPosition = parseInt(editAuthor.position);
+    if (typeof newPosition === 'number' && newPosition > 0 && newPosition <= authors.length) {
+      move(index, parseInt(editAuthor.position) - 1);
+    }
+    setEditAuthor({ index: -1, author: null, position: null });
   };
 
   const handleCancelEditAuthor = () => {
-    setEditAuthor({ index: -1, author: null });
+    setEditAuthor({ index: -1, author: null, position: null });
   };
 
   // Row for adding new author
@@ -114,85 +173,91 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
     </Tr>
   );
   return (
-    <Table size="sm" variant="simple">
-      <Thead>
-        <Tr>
-          <Th aria-label="index" w="4%"></Th>
-          <Th>Name</Th>
-          <Th>Affiliation</Th>
-          <Th>ORCiD</Th>
-          {editable && <Th w="10%">Actions</Th>}
-        </Tr>
-      </Thead>
-      <Tbody>
-        {authors.map((a, index) =>
-          editAuthor.index === index ? (
-            <Tr key={`author-${index}`}>
-              <Td>{index + 1}</Td>
-              <Td>
-                <Input size="sm" onChange={handleEditNameChange} value={editAuthor.author.name} autoFocus />
-              </Td>
-              <Td>
-                <Input size="sm" onChange={handleEditAffChange} value={editAuthor.author.aff} />
-              </Td>
-              <Td>
-                <Input size="sm" onChange={handleEditOrcidChange} value={editAuthor.author.orcid} />
-              </Td>
-              <Td>
-                <HStack>
-                  <IconButton
-                    aria-label="apply"
-                    icon={<CheckIcon />}
-                    variant="outline"
-                    colorScheme="green"
-                    data-index={index}
-                    onClick={handleApplyEditAuthor}
-                    isDisabled={!editAuthorIsValid}
-                  />
-                  <IconButton
-                    aria-label="cancel"
-                    icon={<CloseIcon />}
-                    variant="outline"
-                    colorScheme="red"
-                    data-index={index}
-                    onClick={handleCancelEditAuthor}
-                  />
-                </HStack>
-              </Td>
-            </Tr>
-          ) : (
-            <Tr key={`author-${index}`}>
-              <Td>{index + 1}</Td>
-              <Td>{a.name}</Td>
-              <Td>{a.aff}</Td>
-              <Td>{a.orcid}</Td>
-              {editable && (
+    <>
+      <Table size="sm" variant="simple">
+        <Thead>
+          <Tr>
+            <Th aria-label="index" w="4%">
+              Position
+            </Th>
+            <Th>Name</Th>
+            <Th>Affiliation</Th>
+            <Th w="20%">ORCiD</Th>
+            {editable && <Th w="10%">Actions</Th>}
+          </Tr>
+        </Thead>
+        <Tbody>
+          {table.getRowModel().rows.map((row, index) =>
+            editAuthor.index === index ? (
+              <Tr key={`author-${index}`}>
+                <Td>
+                  <Input size="sm" onChange={handleEditPositionChange} value={editAuthor.position} type="number" />
+                </Td>
+                <Td>
+                  <Input size="sm" onChange={handleEditNameChange} value={editAuthor.author.name} autoFocus />
+                </Td>
+                <Td>
+                  <Input size="sm" onChange={handleEditAffChange} value={editAuthor.author.aff} />
+                </Td>
+                <Td>
+                  <Input size="sm" onChange={handleEditOrcidChange} value={editAuthor.author.orcid} />
+                </Td>
                 <Td>
                   <HStack>
                     <IconButton
-                      aria-label="edit"
-                      icon={<EditIcon />}
+                      aria-label="apply"
+                      icon={<CheckIcon />}
                       variant="outline"
-                      colorScheme="blue"
+                      colorScheme="green"
                       data-index={index}
-                      onClick={handleEditAuthor}
+                      onClick={handleApplyEditAuthor}
+                      isDisabled={!editAuthorIsValid}
                     />
                     <IconButton
-                      aria-label="delete"
-                      icon={<DeleteIcon />}
+                      aria-label="cancel"
+                      icon={<CloseIcon />}
                       variant="outline"
                       colorScheme="red"
                       data-index={index}
-                      onClick={handleDeleteAuthor}
+                      onClick={handleCancelEditAuthor}
                     />
                   </HStack>
                 </Td>
-              )}
-            </Tr>
-          ),
-        )}
-        {editable && newAuthorTableRow}
-      </Tbody>
-    </Table>
+              </Tr>
+            ) : (
+              <Tr key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <Td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</Td>
+                ))}
+                {editable && (
+                  <Td>
+                    <HStack>
+                      <IconButton
+                        aria-label="edit"
+                        icon={<EditIcon />}
+                        variant="outline"
+                        colorScheme="blue"
+                        data-index={index}
+                        onClick={handleEditAuthor}
+                      />
+                      <IconButton
+                        aria-label="delete"
+                        icon={<DeleteIcon />}
+                        variant="outline"
+                        colorScheme="red"
+                        data-index={index}
+                        onClick={handleDeleteAuthor}
+                      />
+                    </HStack>
+                  </Td>
+                )}
+              </Tr>
+            ),
+          )}
+          {editable && newAuthorTableRow}
+        </Tbody>
+      </Table>
+      <PaginationControls table={table} entries={authors} my={5} />
+    </>
   );
 };
