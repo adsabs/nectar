@@ -4,7 +4,7 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } f
 import { isPast, parseISO } from 'date-fns';
 import { identity, isNil, pick } from 'ramda';
 import { defaultRequestConfig } from './config';
-import { IronSession } from 'iron-session';
+import { IApiUserResponse } from '@pages/api/user';
 
 export const isUserData = (userData?: IUserData): userData is IUserData => {
   return (
@@ -69,6 +69,7 @@ class Api {
   private static instance: Api;
   private service: AxiosInstance;
   private userData: IUserData;
+  private bootstrapRetries = 2;
   private recentError: { status: number; config: AxiosRequestConfig };
 
   private constructor() {
@@ -171,8 +172,13 @@ class Api {
       // set user data property and in the app store
       this.setUserData(freshUserData);
       updateAppUser(freshUserData);
+
       return this.service.request<T>(applyTokenToRequest(config, freshUserData.access_token));
     } catch (e) {
+      if (this.bootstrapRetries > 0) {
+        this.bootstrapRetries -= 1;
+        return this.request(config);
+      }
       // bootstrapping failed all attempts, let user know
       const bootstrapError = new Error('Unrecoverable Error, unable to refresh token', { cause: e as Error });
       return Promise.reject(bootstrapError);
@@ -180,7 +186,7 @@ class Api {
   }
 
   async fetchUserData() {
-    const { data } = await axios.get<{ user: IronSession['token']; isAuthenticated: boolean }>('/api/user', {
+    const { data } = await axios.get<IApiUserResponse>('/api/user', {
       headers: {
         'x-RefreshToken': 1,
       },
@@ -193,6 +199,7 @@ class Api {
     this.init();
     this.userData = null;
     this.recentError = null;
+    this.bootstrapRetries = 2;
   }
 }
 

@@ -1,12 +1,15 @@
-import api, { ApiTargets, IBootstrapPayload } from '@api';
+import api, { IBootstrapPayload } from '@api';
 import { ApiRequestConfig } from '@api/api';
 import { APP_STORAGE_KEY } from '@store';
 import { createServerListenerMocks } from '@test-utils';
 import { rest } from 'msw';
 import { map, path, pipe, repeat } from 'ramda';
 import { beforeEach, expect, Mock, test, TestContext, vi } from 'vitest';
+import { IApiUserResponse } from '@pages/api/user';
 
 global.alert = vi.fn();
+
+const API_USER = '/api/user';
 
 const mockUserData: Pick<IBootstrapPayload, 'username' | 'access_token' | 'anonymous' | 'expire_in'> = {
   username: 'anonymous@ads',
@@ -49,9 +52,11 @@ test('basic request calls bootstrap and adds auth', async ({ server }: TestConte
   expect(onReq).toBeCalledTimes(2);
 
   // first request was intercepted and bootstrapped
-  expect(urls(onReq)[0]).toEqual(ApiTargets.BOOTSTRAP);
+  expect(urls(onReq)[0]).toEqual(API_USER);
+  // the refresh header was added to force a new session
+  expect(onReq.mock.calls[0][0].headers.get('X-RefreshToken')).toEqual('1');
 
-  const expectedToken = (JSON.parse(onRes.mock.calls[0][0].body) as IBootstrapPayload).access_token;
+  const expectedToken = (JSON.parse(onRes.mock.calls[0][0].body) as IApiUserResponse).user.access_token;
 
   expect(onReq.mock.calls[1][0].headers.get('authorization')).toEqual(`Bearer:${expectedToken}`);
   expect(onReq.mock.calls[1][0].headers.get('cookie')).toEqual('session=test-session');
@@ -76,22 +81,22 @@ test('expired userdata causes bootstrap', async ({ server }: TestContext) => {
   await testRequest();
 
   expect(onReq).toBeCalledTimes(2);
-  expect(urls(onReq)[0]).toEqual(ApiTargets.BOOTSTRAP);
+  expect(urls(onReq)[0]).toEqual(API_USER);
 });
 
-test('bootstrap is retried after error', async ({ server }: TestContext) => {
+test('bootstrap is not retried after a single failure', async ({ server }: TestContext) => {
   const { onRequest: onReq } = createServerListenerMocks(server);
   server.use(testHandler);
   server.use(
-    rest.get(`*${ApiTargets.BOOTSTRAP}`, (_, res, ctx) => {
+    rest.get(`*${API_USER}`, (_, res, ctx) => {
       return res(ctx.status(500, 'Server Error'));
     }),
   );
 
   await expect(testRequest).rejects.toThrowError('Unrecoverable Error, unable to refresh token');
 
-  expect(onReq).toBeCalledTimes(4);
-  expect(urls(onReq).slice(0, 2)).toEqual(repeat(ApiTargets.BOOTSTRAP, 2));
+  expect(onReq).toBeCalledTimes(3);
+  expect(urls(onReq)).toEqual(repeat(API_USER, 3));
 });
 
 test('if user data set in local storage, it is used instead of bootstrapping', async ({ server }: TestContext) => {
@@ -122,7 +127,7 @@ test('expired user data set in local storage causes bootstrap', async ({ server 
 
   await testRequest();
   expect(onReq).toBeCalledTimes(2);
-  expect(urls(onReq)[0]).toEqual(ApiTargets.BOOTSTRAP);
+  expect(urls(onReq)[0]).toEqual(API_USER);
   global.localStorage.clear();
 });
 
@@ -140,13 +145,13 @@ test('401 response triggers bootstrap to refresh token', async ({ server }: Test
   expect(onReq).toBeCalledTimes(4);
   expect(urls(onReq)).toEqual([
     // initial bootstrap because we don't have any userData stored
-    ApiTargets.BOOTSTRAP,
+    API_USER,
 
     // this request will fail, triggering a refresh
     '/test',
 
     // refresh and retry original request
-    ApiTargets.BOOTSTRAP,
+    API_USER,
     '/test',
   ]);
 });
@@ -158,26 +163,26 @@ test('401 does not cause infinite loop if bootstrap repeatedly fails', async ({ 
     rest.get('*test', (req, res, ctx) => {
       return res.once(ctx.status(401), ctx.json({ error: 'Not Authorized' }));
     }),
-    rest.get(`*${ApiTargets.BOOTSTRAP}`, (_, res, ctx) => {
-      return res.once(ctx.status(200), ctx.json(mockUserData));
+    rest.get(`*${API_USER}`, (_, res, ctx) => {
+      return res.once(ctx.status(200), ctx.json({ user: mockUserData, isAuthenticated: false }));
     }),
-    rest.get(`*${ApiTargets.BOOTSTRAP}`, (_, res, ctx) => {
+    rest.get(`*${API_USER}`, (_, res, ctx) => {
       return res(ctx.status(500, 'Server Error'));
     }),
   );
 
   await expect(testRequest).rejects.toThrowError('Unrecoverable Error, unable to refresh token');
 
-  expect(onReq).toBeCalledTimes(6);
+  expect(onReq).toBeCalledTimes(5);
   expect(urls(onReq)).toEqual([
     // initial bootstrap since we don't have userData
-    ApiTargets.BOOTSTRAP,
+    API_USER,
 
     // this request will fail
     '/test',
 
-    // all bootstrap calls will repeat since the rest fail, initial + 3 retries
-    ...repeat(ApiTargets.BOOTSTRAP, 4),
+    // all bootstrap calls will repeat since the rest fail, initial + 2 retries
+    ...repeat(API_USER, 3),
   ]);
 });
 
@@ -188,10 +193,10 @@ test('401 with initial bootstrap failure works properly', async ({ server }: Tes
     rest.get('*test', (req, res, ctx) => {
       return res.once(ctx.status(401), ctx.json({ error: 'Not Authorized' }));
     }),
-    rest.get(`*${ApiTargets.BOOTSTRAP}`, (_, res, ctx) => {
-      return res.once(ctx.status(200), ctx.json(mockUserData));
+    rest.get(`*${API_USER}`, (_, res, ctx) => {
+      return res.once(ctx.status(200), ctx.json({ user: mockUserData, isAuthenticated: false }));
     }),
-    rest.get(`*${ApiTargets.BOOTSTRAP}`, (_, res, ctx) => {
+    rest.get(`*${API_USER}`, (_, res, ctx) => {
       return res.once(ctx.status(500, 'Server Error'));
     }),
   );
@@ -202,13 +207,13 @@ test('401 with initial bootstrap failure works properly', async ({ server }: Tes
   expect(onReq).toBeCalledTimes(5);
   expect(urls(onReq)).toEqual([
     // initial bootstrap, this one succeeds
-    ApiTargets.BOOTSTRAP,
+    API_USER,
 
     // 401 response
     '/test',
 
     // this bootstrap will fail, second succeeds
-    ...repeat(ApiTargets.BOOTSTRAP, 2),
+    ...repeat(API_USER, 2),
 
     // authenticated request succeeds
     '/test',
@@ -228,13 +233,13 @@ test('repeated 401s do not cause infinite loop', async ({ server }: TestContext)
   expect(onReq).toBeCalledTimes(4);
   expect(urls(onReq)).toEqual([
     // successful
-    ApiTargets.BOOTSTRAP,
+    API_USER,
 
     // 401
     '/test',
 
     // successful
-    ApiTargets.BOOTSTRAP,
+    API_USER,
 
     // 401 again, this should throw an error and abort re-bootstrapping
     '/test',
