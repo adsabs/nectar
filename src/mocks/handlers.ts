@@ -19,8 +19,10 @@ import { clamp, flatten, map, range } from 'ramda';
 import { api, authorAffData, highlights_mocks, ids_mocks, ranRange } from './mockHelpers';
 import { orcidHandlers } from '@mocks/handlers/orcid';
 import { passthroughs } from '@mocks/handlers/passthroughs';
+import { userHandlers } from '@mocks/responses/user/user';
 
 export const handlers = [
+  ...userHandlers,
   rest.get(`*${ApiTargets.BOOTSTRAP}`, (req, res, ctx) => {
     const test = req.url.searchParams.get('test');
 
