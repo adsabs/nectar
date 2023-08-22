@@ -8,9 +8,10 @@ import {
   IUsePaginationResult,
   usePagination,
 } from '@components/ResultList/Pagination/usePagination';
-import { act, renderHook } from '@testing-library/react-hooks';
+
 import { keys, pick } from 'ramda';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { act, renderHook } from '@testing-library/react';
 
 const router = {
   pathname: '/',
@@ -26,7 +27,7 @@ const setup = (props?: Partial<IUsePaginationProps>) => {
     ...props,
   };
 
-  return renderHook<IUsePaginationProps, IUsePaginationResult>(
+  return renderHook(
     (props) => {
       const { getPaginationProps } = usePagination(props);
       return getPaginationProps();
@@ -54,7 +55,7 @@ describe('usePagination Hook', () => {
     router.push.mockReset();
   });
 
-  test.concurrent.each(indexTests)('Index Test %p', async ([page, numFound], expected) => {
+  test.concurrent.each(indexTests)('Index Test %p', ([page, numFound], expected) => {
     const { result } = setup({ numFound });
     act(() => result.current.dispatch({ type: 'SET_PAGE', payload: page }));
     expect(pick(keys(expected), result.current)).toEqual(expected);
