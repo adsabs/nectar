@@ -1,112 +1,55 @@
-import { IUserRegistrationCredentials } from '@api';
+import { IUserRegistrationCredentials, useRegisterUser } from '@api';
 import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
   Button,
   Container,
   FormControl,
-  FormHelperText,
+  FormErrorMessage,
   FormLabel,
   Heading,
   Input,
-  ListItem,
   Stack,
-  UnorderedList,
-  useBoolean,
+  Text,
 } from '@chakra-ui/react';
-import { SimpleLink } from '@components';
-import { useSession } from '@lib/auth';
-import { getDefaultReducer } from '@lib/auth/model';
-import { IAuthForm } from '@lib/auth/types';
-import { useRegister } from '@lib/auth/useRegister';
-import { useRecaptcha } from '@lib/useRecaptcha';
+import {
+  PasswordRequirements,
+  PasswordTextInput,
+  passwordValidators,
+  SimpleLink,
+  StandardAlertMessage,
+} from '@components';
 import { NextPage } from 'next';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
-import { FormEventHandler, useCallback, useReducer, useRef, useState } from 'react';
-import ReCAPTCHA from 'react-google-recaptcha';
+import { Control, useForm, useWatch } from 'react-hook-form';
+import { useFocus } from '@lib/useFocus';
+import { useEffect } from 'react';
+import { useRedirectWithNotification } from '@components/Notification';
+import { parseAPIError } from '@utils';
+import { Recaptcha } from '@components/Recaptcha/Recaptcha';
 
-export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
-
-const initialState: IAuthForm<IUserRegistrationCredentials> = {
-  params: { email: '', password: '', confirmPassword: '', recaptcha: null },
-  status: 'idle',
-  error: null,
-};
-const defaultFormReducer = getDefaultReducer(initialState);
+const initialParams: IUserRegistrationCredentials = { email: '', password: '', confirmPassword: '', recaptcha: '' };
 
 const Register: NextPage = () => {
-  const router = useRouter();
-  const [state, dispatch] = useReducer(defaultFormReducer, initialState);
-
-  // form state
-  const [formError, setFormError] = useState<string>(null);
-  const [showPassword, setShowPassword] = useBoolean(false);
-
-  // registration handling
-  const { isAuthenticated } = useSession();
-
-  // refs
-  const passwordRef = useRef<HTMLInputElement>(null);
-  const confirmPasswordRef = useRef<HTMLInputElement>(null);
-
-  const isFormInvalid = useCallback(() => {
-    setFormError(null);
-    if (state.params.password !== state.params.confirmPassword) {
-      setFormError('Passwords do not match');
-      confirmPasswordRef.current.select();
-      confirmPasswordRef.current.focus();
-      return true;
-    } else if (state.params.password.length < 4) {
-      setFormError('Passwords must be at least 4 characters long');
-      passwordRef.current.select();
-      passwordRef.current.focus();
-      return true;
-    } else if (/^[^A-Z]+$/.exec(state.params.password) !== null) {
-      setFormError('Passwords must contain at least 1 uppercase letter');
-      passwordRef.current.select();
-      passwordRef.current.focus();
-      return true;
-    } else if (/^[^a-z]+$/.exec(state.params.password) !== null) {
-      setFormError('Passwords must contain at least 1 lowercase letter');
-      passwordRef.current.select();
-      passwordRef.current.focus();
-      return true;
-    } else if (/^[^0-9]+$/.exec(state.params.password) !== null) {
-      setFormError('Passwords must contain at least 1 digit');
-      passwordRef.current.select();
-      passwordRef.current.focus();
-      return true;
-    }
-  }, [state.params.password, state.params.confirmPassword, passwordRef, confirmPasswordRef]);
-
-  const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
-    e.preventDefault();
-
-    // check form for errors, this will alert user
-    if (isFormInvalid()) {
-      return;
-    }
-
-    dispatch({ type: 'submit' });
-  };
-
-  const { getRecaptchaProps } = useRecaptcha({
-    onExecute: (recaptcha) => dispatch({ type: 'setRecaptcha', recaptcha }),
-    onError: (error) => dispatch({ type: 'setError', error }),
+  const redirect = useRedirectWithNotification();
+  const { mutate: submit, data, isError, isLoading, error } = useRegisterUser();
+  const {
+    register,
+    handleSubmit,
+    getValues,
+    setValue,
+    formState: { errors },
+    control,
+  } = useForm({
+    defaultValues: initialParams,
   });
+  register('recaptcha');
+  const { ref, ...registerProps } = register('email', { required: true });
+  const [emailRef] = useFocus();
 
-  useRegister(state.params, {
-    onError: ({ error }) => dispatch({ type: 'setError', error }),
-    enabled: state.status === 'submitting',
-  });
-
-  // if already authenticated, redirect immediately
-  if (isAuthenticated) {
-    void router.push('/', null, { shallow: false });
-    return null;
-  }
+  useEffect(() => {
+    if (data) {
+      void redirect('account-register-success', { path: '/user/account/login' });
+    }
+  }, [data, redirect]);
 
   return (
     <div>
@@ -115,82 +58,72 @@ const Register: NextPage = () => {
       </Head>
 
       <Container display="flex" flexDirection="column" py="24">
-        <Heading alignSelf="center">Register Account</Heading>
-        <form onSubmit={handleSubmit}>
-          <ReCAPTCHA {...getRecaptchaProps()} />
+        <Heading alignSelf="center" my="6" id="form-label" as="h2">
+          Register
+        </Heading>
+        <form onSubmit={void handleSubmit((params) => submit(params))} aria-labelledby="form-label">
+          <Recaptcha onChange={(value) => setValue('recaptcha', value)} />
           <Stack direction="column" spacing={4}>
-            <FormControl isRequired>
+            <FormControl isRequired isInvalid={!!errors.email}>
               <FormLabel>Email</FormLabel>
               <Input
                 autoFocus
                 type="email"
-                required
                 placeholder="email@example.com"
                 name="email"
                 id="email"
-                onChange={(e) => dispatch({ type: 'setEmail', email: e.currentTarget.value })}
-                value={state.params.email}
+                autoComplete="email"
+                ref={(value) => {
+                  emailRef.current = value;
+                  ref(value);
+                }}
+                {...registerProps}
               />
+              {!!errors.email && <FormErrorMessage>{errors.email.message}</FormErrorMessage>}
             </FormControl>
-            <FormControl isRequired>
+            <FormControl isRequired isInvalid={!!errors.password}>
               <FormLabel>Password</FormLabel>
-              <Input
-                type={showPassword ? 'text' : 'password'}
-                placeholder="********"
-                required
+              <PasswordTextInput
                 name="password"
                 id="password"
-                onChange={(e) => dispatch({ type: 'setPassword', password: e.currentTarget.value })}
-                value={state.params.password}
-                ref={passwordRef}
+                {...register('password', {
+                  required: true,
+                  minLength: 4,
+                  validate: passwordValidators,
+                })}
               />
-              <FormHelperText>
-                <Heading size="xs" id="password-reqs">
-                  Password requirements:
-                </Heading>
-                <UnorderedList aria-labelledby="password-reqs">
-                  <ListItem>1 lowercase letter</ListItem>
-                  <ListItem>1 uppercase letter</ListItem>
-                  <ListItem>1 numerical digit</ListItem>
-                  <ListItem>At least 4 characters long</ListItem>
-                </UnorderedList>
-              </FormHelperText>
+              <RequirementsController control={control} />
             </FormControl>
-            <FormControl isRequired>
-              <FormLabel>Confirm Password</FormLabel>
-              <Input
-                type={showPassword ? 'text' : 'password'}
-                placeholder="********"
-                required
-                name="confirmpassword"
-                id="confirmpassword"
-                onChange={(e) => dispatch({ type: 'setPasswordConfirm', confirmPassword: e.currentTarget.value })}
-                value={state.params.confirmPassword}
-                ref={confirmPasswordRef}
+            <FormControl isRequired isInvalid={!!errors.confirmPassword}>
+              <FormLabel>Confirm password</FormLabel>
+              <PasswordTextInput
+                name="confirmPassword"
+                id="confirmPassword"
+                {...register('confirmPassword', {
+                  required: true,
+                  validate: (value) => value === getValues('password'),
+                })}
               />
-              <Button type="button" variant="link" onClick={setShowPassword.toggle}>
-                {showPassword ? 'Hide password' : 'Show password'}
-              </Button>
+              {!!errors.confirmPassword && <FormErrorMessage>Passwords do not match</FormErrorMessage>}
             </FormControl>
-            <Button type="submit" isLoading={state.status === 'submitting'}>
+            <Button type="submit" isLoading={isLoading}>
               Submit
             </Button>
-            <SimpleLink alignSelf="center" href="/user/account/login">
-              Login
-            </SimpleLink>
-            {state.status === 'error' && (
-              <Alert status="error">
-                <AlertTitle>Unable to complete request</AlertTitle>
-                <AlertDescription>{state.error}</AlertDescription>
-              </Alert>
-            )}
-            {formError && (
-              <Alert status="error">
-                <AlertDescription>{formError}</AlertDescription>
-              </Alert>
-            )}
+            <Text alignSelf="center">
+              Already have an account?{' '}
+              <SimpleLink href="/user/account/login" display="inline">
+                Login
+              </SimpleLink>
+            </Text>
           </Stack>
         </form>
+        {isError && (
+          <StandardAlertMessage
+            status="error"
+            title="Unable to register, please try again"
+            description={parseAPIError(error)}
+          />
+        )}
       </Container>
     </div>
   );
@@ -198,3 +131,8 @@ const Register: NextPage = () => {
 
 export default Register;
 export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';
+
+const RequirementsController = ({ control }: { control: Control<typeof initialParams> }) => {
+  const password = useWatch({ control, name: 'password' });
+  return <PasswordRequirements password={password} />;
+};

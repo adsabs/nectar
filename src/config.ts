@@ -27,7 +27,12 @@ export const sessionConfig: IronSessionOptions = {
   },
 };
 
-export const ADMIN_ROUTE_PREFIXES = ['/user/libraries', '/user/settings'];
+// Route prefixes that require authentication
+export const PROTECTED_ROUTES = ['/user/libraries', '/user/settings'];
+
+// Route prefixes that are not accessible when authenticated
+export const AUTH_EXCEPTIONS = ['/user/account'];
+
 const search = new URLSearchParams({
   client_id: process.env.NEXT_PUBLIC_ORCID_CLIENT_ID,
   response_type: 'code',

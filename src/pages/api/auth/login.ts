@@ -1,48 +1,32 @@
-import { isAuthenticated, isUserData, IUserCredentials, IUserData } from '@api';
-import { authenticateUser } from '@auth-utils';
+import { ApiTargets, IBasicAccountsResponse, IUserCredentials } from '@api';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { z } from 'zod';
-import { getIronSession } from 'iron-session';
+import { IronSession } from 'iron-session';
+import { withIronSessionApiRoute } from 'iron-session/next';
 import { sessionConfig } from '@config';
+import { configWithCSRF, fetchUserData, hash, isValidToken, pickUserData } from '@auth-utils';
+import { defaultRequestConfig } from '@api/config';
+import axios, { AxiosResponse } from 'axios';
+import setCookie from 'set-cookie-parser';
 
-interface Output {
+export interface ILoginResponse {
   success?: boolean;
-  error?: string | z.ZodError;
-  user?: IUserData;
+  error?: 'invalid-credentials' | 'login-failed' | 'failed-userdata-request' | 'invalid-token' | 'method-not-allowed';
 }
 
-export default async function (req: NextApiRequest, res: NextApiResponse<Output>) {
-  const session = await getIronSession(req, res, sessionConfig);
-  if (req.method === 'POST') {
-    try {
-      const creds = parseCredentials(req.body);
-      const result = await authenticateUser(creds, res);
+export default withIronSessionApiRoute(login, sessionConfig);
 
-      if (result === true) {
-        // logged in successfully, but bootstrap failed
-        // clear the session values, we should be able to sync later on
-        session.destroy();
-
-        return res.status(200).json({ success: true });
-      } else if (typeof result === 'string') {
-        // login request failed with an error code
-        return res.status(200).json({ success: false, error: result });
-      } else if (result && isUserData(result)) {
-        // success! user is logged in, and we have the new
-        session.token = result;
-        session.isAuthenticated = isAuthenticated(result);
-        await session.save();
-
-        return res.status(200).json({ success: true, user: result });
-      }
-      return res.status(200).json({ success: false, error: 'Could not login user, unknown server issue' });
-    } catch (e) {
-      // parsing the incoming body failed
-      return res.status(200).json({ success: false, error: e as z.ZodError });
-    }
+async function login(req: NextApiRequest, res: NextApiResponse<ILoginResponse>) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ success: false, error: 'method-not-allowed' });
   }
 
-  return res.status(405).json({ error: 'Method not allowed' });
+  const session = req.session;
+  const creds = schema.safeParse(req.body);
+  if (creds.success) {
+    return await handleAuthentication(creds.data, res, session);
+  }
+  return res.status(401).json({ success: false, error: 'invalid-credentials' });
 }
 
 const schema = z
@@ -50,8 +34,65 @@ const schema = z
     email: z.string().email(),
     password: z.string().min(4),
   })
-  .required();
+  .required() as z.ZodSchema<IUserCredentials>;
 
-const parseCredentials = (creds: unknown) => {
-  return schema.parse(creds) as IUserCredentials;
+export const handleAuthentication = async (
+  credentials: IUserCredentials,
+  res: NextApiResponse,
+  session: IronSession,
+) => {
+  const config = await configWithCSRF({
+    ...defaultRequestConfig,
+    method: 'POST',
+    url: ApiTargets.USER,
+    data: {
+      username: credentials.email,
+      password: credentials.password,
+    },
+  });
+
+  try {
+    const { data, headers } = await axios.request<IBasicAccountsResponse, AxiosResponse<IBasicAccountsResponse>>(
+      config,
+    );
+    const apiSessionCookie = setCookie
+      .parse(headers['set-cookie'])
+      .find((c) => c.name === process.env.ADS_SESSION_COOKIE_NAME);
+
+    if (data.message === 'success') {
+      // user has been authenticated
+      session.destroy();
+
+      // apply the session cookie to the response
+      res.setHeader('set-cookie', headers['set-cookie']);
+
+      try {
+        // fetch the authenticated user data
+        const { data: userData } = await fetchUserData({
+          headers: {
+            // set the returned session cookie
+            Cookie: `${process.env.ADS_SESSION_COOKIE_NAME}=${apiSessionCookie?.value}`,
+          },
+        });
+
+        if (isValidToken(userData)) {
+          // token is valid, we can save the session
+          session.token = pickUserData(userData);
+          session.isAuthenticated = true;
+          session.apiCookieHash = await hash(apiSessionCookie?.value);
+          await session.save();
+          return res.status(200).json({ success: true });
+        } else {
+          // in the case the token is invalid, redirect to root
+          return res.status(200).json({ success: false, error: 'invalid-token' });
+        }
+      } catch (e) {
+        // if there is an error fetching the user data, we can recover later in a subsequent request
+        return res.status(200).json({ success: false, error: 'failed-userdata-request' });
+      }
+    }
+    return res.status(401).json({ success: false, error: 'login-failed' });
+  } catch (e) {
+    return res.status(401).json({ success: false, error: 'login-failed' });
+  }
 };
