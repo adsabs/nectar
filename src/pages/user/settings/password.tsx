@@ -1,6 +1,6 @@
 import { Button, FormControl, FormErrorMessage, FormLabel, Stack } from '@chakra-ui/react';
 import { PasswordRequirements, PasswordTextInput, SettingsLayout, StandardAlertMessage } from '@components';
-import { Control, useForm, useWatch } from 'react-hook-form';
+import { Control, SubmitHandler, useForm, useWatch } from 'react-hook-form';
 import { useFocus } from '@lib/useFocus';
 import { parseAPIError } from '@utils';
 import { IUserChangePasswordCredentials, useChangeUserPassword } from '@api';
@@ -26,9 +26,13 @@ const ChangePasswordPage = () => {
   const { ref, ...registerProps } = register('currentPassword', { required: true });
   const [currentPasswordRef] = useFocus();
 
+  const onFormSubmit: SubmitHandler<IUserChangePasswordCredentials> = (params, e) => {
+    submit(params);
+  };
+
   return (
     <SettingsLayout title="Change Password">
-      <form onSubmit={void handleSubmit((params) => submit(params))} aria-labelledby="settings-section-title">
+      <form onSubmit={handleSubmit(onFormSubmit)} aria-labelledby="settings-section-title">
         <Stack direction="column" spacing={4}>
           <FormControl isRequired isInvalid={!!errors.currentPassword}>
             <FormLabel>Current Password</FormLabel>

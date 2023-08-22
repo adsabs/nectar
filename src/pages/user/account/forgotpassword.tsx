@@ -2,7 +2,7 @@ import { IUserForgotPasswordCredentials, useForgotPassword } from '@api';
 import { Button, Container, FormControl, FormLabel, Heading, Input, Stack } from '@chakra-ui/react';
 import { NextPage } from 'next';
 import Head from 'next/head';
-import { useForm } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { useFocus } from '@lib/useFocus';
 import { Recaptcha } from '@components/Recaptcha/Recaptcha';
 import { parseAPIError } from '@utils';
@@ -20,6 +20,10 @@ const ForgotPassword: NextPage = () => {
 
   const { mutate: submit, data, isError, isLoading, error } = useForgotPassword();
 
+  const onFormSubmit: SubmitHandler<IUserForgotPasswordCredentials> = (params) => {
+    submit(params);
+  };
+
   return (
     <>
       <Head>
@@ -30,7 +34,7 @@ const ForgotPassword: NextPage = () => {
         <Heading as="h2" alignSelf="center" my="6" id="form-label">
           Forgot Password
         </Heading>
-        <form onSubmit={void handleSubmit((params) => submit(params))} aria-labelledby="form-label">
+        <form onSubmit={handleSubmit(onFormSubmit)} aria-labelledby="form-label">
           <Recaptcha onChange={(value) => setValue('recaptcha', value)} />
           <Stack direction="column" spacing={4}>
             <FormControl isRequired>

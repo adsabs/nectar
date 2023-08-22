@@ -3,7 +3,7 @@ import { Button, chakra, FormControl, FormLabel, Input, Stack, Text } from '@cha
 import { SettingsLayout, StandardAlertMessage } from '@components';
 import { PasswordTextInput } from '@components/TextInput/PasswordTextInput';
 import { useStore } from '@store';
-import { useForm } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { parseAPIError } from '@utils';
 import { useFocus } from '@lib/useFocus';
 
@@ -16,9 +16,13 @@ const UpdateEmailPage = () => {
   const { mutate: submit, error, isError, isLoading, data } = useChangeUserEmail();
   const [mainInputRef] = useFocus();
 
+  const onFormSubmit: SubmitHandler<IUserChangeEmailCredentials> = (params, e) => {
+    submit(params);
+  };
+
   return (
     <SettingsLayout title="Update Email">
-      <form onSubmit={void handleSubmit((params) => submit(params))} aria-labelledby="settings-section-title">
+      <form onSubmit={handleSubmit(onFormSubmit)} aria-labelledby="settings-section-title">
         <Stack direction="column" spacing={4} my={2}>
           <Text>
             Your current email is: <chakra.span fontWeight="bold">{email}</chakra.span>
@@ -32,7 +36,7 @@ const UpdateEmailPage = () => {
               name="email"
               id="email"
               ref={(value) => {
-                void emailRef(value);
+                emailRef(value);
                 mainInputRef.current = value;
               }}
               {...emailRegisterProps}
