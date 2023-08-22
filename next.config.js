@@ -48,6 +48,7 @@ const config = {
       },
     ];
   },
+  trailingSlash: false,
   publicRuntimeConfig: {
     apiHost: process.env.API_HOST_CLIENT,
   },
