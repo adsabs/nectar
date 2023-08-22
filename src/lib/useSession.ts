@@ -28,7 +28,7 @@ export const useSession = (props: IUseSessionProps = { redirectWithMessage: null
   useEffect(() => {
     if (result.data?.success) {
       api.reset();
-      reset().finally(() => redirectToRoot(redirectWithMessage ?? 'account-logout-success'));
+      reset().finally(() => void redirectToRoot(redirectWithMessage ?? 'account-logout-success'));
     }
   }, [result.data?.success, redirectWithMessage]);
 
