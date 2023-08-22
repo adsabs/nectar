@@ -1,7 +1,6 @@
-import { fetchSearch, getAbstractParams, searchKeys } from '@api';
+import api, { fetchSearch, getAbstractParams, searchKeys } from '@api';
 import { AppState } from '@store';
 import { normalizeURLParams } from '@utils';
-import axios from 'axios';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 
@@ -9,6 +8,7 @@ export const withDetailsPage = async (
   ctx: GetServerSidePropsContext,
 ): Promise<GetServerSidePropsResult<Record<string, unknown>>> => {
   const query = normalizeURLParams<{ id: string }>(ctx.query);
+  api.setUserData(ctx.req.session.token);
 
   // primary request for this page is search for the bibcode from url
   try {
@@ -33,22 +33,9 @@ export const withDetailsPage = async (
       },
     };
   } catch (e) {
-    if (axios.isAxiosError(e) && e.response) {
-      return {
-        props: {
-          error: {
-            status: e.response.status,
-            message: e.message,
-          },
-        },
-      };
-    }
     return {
       props: {
-        error: {
-          status: 500,
-          message: 'Unknown server error',
-        },
+        id: query.id,
       },
     };
   }
