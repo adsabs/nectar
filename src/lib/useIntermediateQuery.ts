@@ -11,7 +11,7 @@ export const useIntermediateQuery = () => {
 
   const updateQ = useDebouncedCallback((q: string) => {
     updateQuery({ q });
-  }, 200);
+  }, 60);
 
   return {
     query,
