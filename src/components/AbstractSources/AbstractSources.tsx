@@ -14,7 +14,7 @@ export interface IAbstractSourcesProps extends HTMLAttributes<HTMLDivElement> {
 
 export const AbstractSources = ({ doc }: IAbstractSourcesProps): ReactElement => {
   const isClient = useIsClient();
-  const linkServer = useStore((state) => state.settings.user.link_server);
+  const linkServer = useStore((state) => state.settings?.user?.link_server);
   const sources = useMemo(() => {
     // linkServer is not available on the server, so we need to check for it
     if (isClient && linkServer) {
