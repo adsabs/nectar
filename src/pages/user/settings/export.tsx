@@ -22,6 +22,7 @@ import { omit, pathOr, values } from 'ramda';
 import { composeNextGSSP } from '@ssr-utils';
 import { ErrorBoundary } from 'react-error-boundary';
 import { getFallBackAlert } from '@components/Feedbacks/SuspendedAlert';
+import { isNotEmpty } from 'ramda-adjunct';
 
 // partial user data params
 // used to update user data
@@ -143,7 +144,7 @@ const ExportSettings = () => {
   const { updateSettings, settings: userSettings } = useSettings();
 
   useEffect(() => {
-    if (params) {
+    if (isNotEmpty(params)) {
       updateSettings(params);
     }
   }, [params, updateSettings]);

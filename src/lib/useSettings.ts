@@ -1,10 +1,17 @@
-import { IADSApiUserDataResponse, useGetUserSettings, userKeys, useUpdateUserSettings } from '@api';
+import {
+  IADSApiUserDataParams,
+  IADSApiUserDataResponse,
+  useGetUserSettings,
+  userKeys,
+  useUpdateUserSettings,
+} from '@api';
 import { DEFAULT_USER_DATA } from '@components';
 import { mergeLeft } from 'ramda';
 import { useDebouncedCallback } from 'use-debounce';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@chakra-ui/react';
 import { useEffect } from 'react';
+import { isNotEmpty } from 'ramda-adjunct';
 
 export const useSettings = () => {
   const toast = useToast({
@@ -49,8 +56,14 @@ export const useSettings = () => {
     }
   }, [updateSettingsState.isSuccess, updateSettingsState.isError]);
 
+  const updateSettings = useDebouncedCallback((params: IADSApiUserDataParams) => {
+    if (isNotEmpty(params)) {
+      mutate(params);
+    }
+  }, 100);
+
   return {
-    updateSettings: useDebouncedCallback(mutate, 100),
+    updateSettings,
     settings: mergeLeft<IADSApiUserDataResponse, IADSApiUserDataResponse>(settings, DEFAULT_USER_DATA),
     updateSettingsState,
     getSettingsState,
