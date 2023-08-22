@@ -7,6 +7,7 @@ import matchers from '@testing-library/jest-dom/matchers';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import replaceAllInserter from 'string.prototype.replaceall';
+import { SetupServerApi } from 'msw/node';
 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
 replaceAllInserter.shim();
 
@@ -15,7 +16,7 @@ expect.extend(matchers);
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 beforeEach((context: TestContext) => {
   // add the server to the context
-  context.server = server;
+  context.server = server as SetupServerApi;
 });
 afterAll(() => server.close());
 afterEach(() => {

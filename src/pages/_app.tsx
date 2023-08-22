@@ -32,7 +32,7 @@ const TopProgressBar = dynamic<Record<string, never>>(
   },
 );
 
-type AppPageProps = { dehydratedState: unknown; dehydratedAppState: AppState; [key: string]: unknown };
+export type AppPageProps = { dehydratedState: DehydratedState; dehydratedAppState: AppState; [key: string]: unknown };
 
 const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
   if (process.env.NODE_ENV === 'development') {
