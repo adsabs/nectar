@@ -147,12 +147,14 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
             data-testid="allSearchTermsInput"
           />
           <InputRightElement
+            cursor="pointer"
             children={<ChevronDownIcon boxSize={6} color="gray.200" />}
             data-testid="allSearchTermsMenuToggle"
             {...getToggleButtonProps()}
           />
         </InputGroup>
       </Flex>
+
       <UnorderedList
         zIndex={10}
         bgColor="white"
@@ -171,6 +173,7 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
           },
         })}
         data-testid="allSearchTermsMenu"
+        marginInlineStart="0"
       >
         {isOpen &&
           items.map((term, index) => (
@@ -215,7 +218,6 @@ const SearchTermTooltip = forwardRef<HTMLDivElement, ISearchTermTooltipProps>(({
       borderRadius={5}
       w={300}
       zIndex={10}
-      m={5}
       data-testid="allSearchTermsTooltip"
       display={{ base: 'none', md: 'initial' }}
     >
