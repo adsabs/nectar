@@ -1,11 +1,17 @@
 import { Container, Flex, useMediaQuery } from '@chakra-ui/react';
 import { SkipNavLink } from '@chakra-ui/skip-nav';
-import { LandingTabs } from '@components';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { FC } from 'react';
 import { Footer } from '../Footer';
 import { NavBar } from '../NavBar';
+import dynamic from 'next/dynamic';
+import { LandingTabsStatic } from '@components';
+
+const LandingTabs = dynamic(() => import('@components/LandingTabs/LandingTabs').then((mod) => mod.LandingTabs), {
+  ssr: false,
+  loading: () => <LandingTabsStatic />,
+});
 
 export const Layout: FC = ({ children }) => {
   const router = useRouter();

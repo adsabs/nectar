@@ -12,8 +12,8 @@ export const themes: Record<Theme, SelectOption<Theme>> = {
     value: 'astrophysics',
     label: 'Astrophysics',
   },
-  [Theme.HELIOPHYISCS]: {
-    id: Theme.HELIOPHYISCS,
+  [Theme.HELIOPHYSICS]: {
+    id: Theme.HELIOPHYSICS,
     value: 'heliophysics',
     label: 'Heliophysics',
   },
