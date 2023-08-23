@@ -15,13 +15,13 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components';
-import { yupResolver } from '@hookform/resolvers/yup';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useStore } from '@store';
 import { omit } from 'ramda';
 import { useState, ChangeEvent, useRef, useEffect, MouseEvent } from 'react';
 import { FormProvider, useFieldArray, useForm, useFormContext, useWatch } from 'react-hook-form';
 import { PreviewModal } from '../PreviewModal';
-import * as Yup from 'yup';
+import { z } from 'zod';
 
 type FormValues = {
   name: string;
@@ -34,22 +34,25 @@ type FormValues = {
 
 type State = 'idle' | 'submitting' | 'validate-bibcodes' | 'preview';
 
-const validationSchema: Yup.ObjectSchema<FormValues> = Yup.object({
-  name: Yup.string().required(),
-  email: Yup.string().email().required(),
-  relationship: Yup.mixed<Relationship>().required(),
-  otherRelationship: Yup.string().test('otherRelationship', 'Other relationship name required', (value, context) => {
-    return (
-      ((context?.parent as FormValues)?.relationship === 'other' && !!value) ||
-      (context?.parent as FormValues)?.relationship !== 'other'
-    );
-  }),
-  mainBibcode: Yup.string().required(),
-  associatedBibcodes: Yup.array()
-    .of(Yup.mixed<AssociatedBibcode>())
-    .required()
-    .min(1, 'At least one associated bibcode is required'),
-});
+const validationSchema = z
+  .object({
+    name: z.string().min(1, 'Name is required'),
+    email: z.string().email('Invalid email').min(1, 'Email is required'),
+    relationship: z.custom<Relationship>(),
+    otherRelationship: z.string(),
+    mainBibcode: z.string().min(1, 'Required'),
+    associatedBibcodes: z.custom<AssociatedBibcode>().array().min(1, 'At least one associated bibcode is required'),
+  })
+  .superRefine((schema, context) => {
+    if (schema.relationship === 'other' && schema.otherRelationship.length < 1) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['otherRelationship'],
+        message: 'Relationship name required',
+      });
+    }
+    return z.NEVER;
+  });
 
 export const AssociatedArticlesForm = ({
   onOpenAlert,
@@ -73,7 +76,7 @@ export const AssociatedArticlesForm = ({
 
   const formMethods = useForm<FormValues>({
     defaultValues: initialFormValues,
-    resolver: yupResolver(validationSchema),
+    resolver: zodResolver(validationSchema),
     mode: 'onSubmit',
     reValidateMode: 'onBlur',
     shouldFocusError: true,

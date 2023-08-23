@@ -31,11 +31,11 @@ import { PubDateField } from './PubDateField';
 import { ReferencesField } from './ReferencesField';
 import { IAuthor, FormValues, IReference, DiffSection, IKeyword } from './types';
 import { UrlsField } from './UrlsField';
-import * as Yup from 'yup';
 import moment from 'moment';
-import { yupResolver } from '@hookform/resolvers/yup';
 import { DiffSectionPanel } from './DiffSectionPanel';
 import { AxiosError } from 'axios';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 const collections: { value: Database; label: string }[] = [
   { value: 'astronomy', label: 'Astronomy and Astrophysics' },
@@ -45,33 +45,41 @@ const collections: { value: Database; label: string }[] = [
 
 type State = 'idle' | 'loading-record' | 'loading-urls' | 'submitting' | 'preview';
 
-const validationSchema: Yup.ObjectSchema<FormValues> = Yup.object({
-  name: Yup.string().required(),
-  email: Yup.string().email().required(),
-  collection: Yup.array().of(Yup.mixed<Database>()),
-  bibcode: Yup.string().required(),
-  title: Yup.string().required(),
-  authors: Yup.array().of(Yup.mixed<IAuthor>()),
-  noAuthors: Yup.boolean<boolean, FormValues>().test(
-    'noAuthors',
-    'Please confirm, this abstract has no author(s)',
-    (value, context) => {
-      const hasAuthors = (context?.parent as FormValues)?.authors?.length > 0;
-      return (value && !hasAuthors) || (!value && hasAuthors);
-    },
-  ),
-  publication: Yup.string().required(),
-  pubDate: Yup.string()
-    .test('valid date', 'Invalid date (should be in YYYY-MM format)', (value: string) =>
-      moment(value, ['YYYY-MM', 'YYYY-MM-DD', 'YYYY-00', 'YYYY-00-00', 'YYYY-MM-00'], true).isValid(),
-    )
-    .required(),
-  urls: Yup.array().of(Yup.mixed<IResourceUrl>()),
-  abstract: Yup.string().required(),
-  keywords: Yup.array().of(Yup.mixed<IKeyword>()),
-  references: Yup.array().of(Yup.mixed<IReference>()),
-  comments: Yup.string().ensure(),
-});
+const validationSchema = z
+  .object({
+    name: z.string().min(1, 'Name is required'),
+    email: z.string().email('Invalid email').min(1, 'Email is required'),
+    collection: z.custom<Database>().array(),
+    bibcode: z.string().min(1, 'Bibcode is required'),
+    title: z.string().min(1, 'Title is required'),
+    authors: z.custom<IAuthor>().array(),
+    noAuthors: z.boolean(),
+    publication: z.string().min(1, 'Publication is required'),
+    pubDate: z.string().min(1, 'Publication date is required'),
+    urls: z.custom<IResourceUrl>().array(),
+    abstract: z.string().min(1, 'Abstract is required'),
+    keywords: z.custom<IKeyword>().array(),
+    references: z.custom<IReference>().array(),
+    comments: z.string(),
+  })
+  .superRefine((schema, context) => {
+    if (!schema.noAuthors && schema.authors.length === 0) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['noAuthors'],
+        message: 'Please confirm, this abstract has no author(s)',
+      });
+    }
+
+    if (!moment(schema.pubDate, ['YYYY-MM', 'YYYY-MM-DD', 'YYYY-00', 'YYYY-00-00', 'YYYY-MM-00'], true).isValid()) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['pubDate'],
+        message: 'Invalid date (should be in YYYY-MM format)',
+      });
+    }
+    return z.NEVER;
+  });
 
 // TODO: pagination authors and other tables
 // TODO: reorder authors
@@ -112,7 +120,7 @@ export const RecordPanel = ({
 
   const formMethods = useForm<FormValues>({
     defaultValues: recordOriginalFormValues,
-    resolver: yupResolver(validationSchema),
+    resolver: zodResolver(validationSchema),
     mode: 'onSubmit',
     reValidateMode: 'onBlur',
     shouldFocusError: true,

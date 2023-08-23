@@ -15,14 +15,14 @@ import {
 } from '@chakra-ui/react';
 import { FeedbackLayout, FeedbackAlert } from '@components';
 import { GOOGLE_RECAPTCHA_KEY } from '@config';
-import { yupResolver } from '@hookform/resolvers/yup';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useStore } from '@store';
 import { parseAPIError } from '@utils';
 import { NextPage } from 'next';
 import { MouseEvent, useEffect, useRef, useState } from 'react';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { useForm } from 'react-hook-form';
-import * as Yup from 'yup';
+import { z } from 'zod';
 
 export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
 
@@ -37,10 +37,10 @@ type FormValues = {
 
 type State = 'idle' | 'submitting';
 
-const validationSchema: Yup.ObjectSchema<FormValues> = Yup.object({
-  name: Yup.string().required(),
-  email: Yup.string().email().required(),
-  comments: Yup.string().required(),
+const validationSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email').min(1, 'Email is required'),
+  comments: z.string().min(1, 'Feedback is required'),
 });
 
 const General: NextPage = () => {
@@ -67,7 +67,7 @@ const General: NextPage = () => {
 
   const formMethods = useForm<FormValues>({
     defaultValues: initialFormValues,
-    resolver: yupResolver(validationSchema),
+    resolver: zodResolver(validationSchema),
     mode: 'onSubmit',
     reValidateMode: 'onBlur',
     shouldFocusError: true,

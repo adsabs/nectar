@@ -18,14 +18,14 @@ import { MouseEvent, useEffect, useState } from 'react';
 import { PreviewModal } from '../PreviewModal';
 import { MissingReferenceTable } from './MissingReferenceTable';
 import { FormValues, Reference } from './types';
-import * as Yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-const validationSchema: Yup.ObjectSchema<FormValues> = Yup.object({
-  name: Yup.string().required(),
-  email: Yup.string().email().required(),
-  references: Yup.array().of(Yup.mixed<Reference>()).required().min(1, 'At least one reference entry is required'),
+const validationSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email').min(1, 'Email is required'),
+  references: z.custom<Reference>().array().min(1, 'At least one reference entry is required'),
 });
 
 type State = 'idle' | 'submitting' | 'validate-bibcodes' | 'fetch-refstring' | 'preview';
@@ -54,7 +54,7 @@ export const MissingReferenceForm = ({
 
   const formMethods = useForm<FormValues>({
     defaultValues: initialFormValues,
-    resolver: yupResolver(validationSchema),
+    resolver: zodResolver(validationSchema),
     mode: 'onSubmit',
     reValidateMode: 'onBlur',
     shouldFocusError: true,
