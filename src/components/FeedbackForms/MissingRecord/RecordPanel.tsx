@@ -21,7 +21,7 @@ import { PreviewModal, SimpleLink } from '@components';
 import { IResourceUrl, useGetResourceLinks } from '@lib';
 import { useStore } from '@store';
 import { omit } from 'ramda';
-import { MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { MouseEvent, useEffect, useMemo, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { AuthorsField } from './AuthorsField';
 import { BibcodeField } from './BibcodeField';
@@ -133,6 +133,7 @@ export const RecordPanel = ({
     formState: { errors },
     reset,
     handleSubmit,
+    setFocus,
   } = formMethods;
 
   const { isOpen: isPreviewOpen, onOpen: openPreview, onClose: closePreview } = useDisclosure();
@@ -146,8 +147,6 @@ export const RecordPanel = ({
 
   // params for the submission query
   const [params, setParams] = useState<IFeedbackParams>(null);
-
-  const nameFieldRef = useRef<HTMLInputElement>();
 
   // fetch record from bibcode
   const {
@@ -178,7 +177,7 @@ export const RecordPanel = ({
   // when this tab is focused, set focus on name field
   useEffect(() => {
     if (isFocused) {
-      nameFieldRef.current.focus();
+      setFocus('name');
     }
   }, [isFocused]);
 
@@ -389,13 +388,7 @@ export const RecordPanel = ({
           <Flex direction="row" gap={2} alignItems="start">
             <FormControl isRequired isInvalid={!!errors.name}>
               <FormLabel>Name</FormLabel>
-              <Input
-                {...register('name', { required: true })}
-                ref={(e) => {
-                  register('name').ref(e);
-                  nameFieldRef.current = e;
-                }}
-              />
+              <Input {...register('name', { required: true })} />
               <FormErrorMessage>{errors.name && errors.name.message}</FormErrorMessage>
             </FormControl>
             <FormControl isRequired isInvalid={!!errors.email}>

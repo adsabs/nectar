@@ -287,11 +287,10 @@ export const AssociatedTable = () => {
     register,
     setValue,
     formState: { errors },
+    setFocus,
   } = useFormContext<FormValues>();
 
   const [newAssociatedBibcode, setNewAssociatedBibcode] = useState('');
-
-  const mainBibcodeRef = useRef<HTMLInputElement>();
 
   const newAssociatedBibcodeRef = useRef<HTMLInputElement>();
 
@@ -310,14 +309,16 @@ export const AssociatedTable = () => {
   };
 
   const handleRelationshipChange = (option: SelectOption<Relationship>) => {
+    if (option.id !== 'other') {
+      setFocus('mainBibcode');
+    }
     setValue('relationship', option.id);
-    mainBibcodeRef.current.focus();
   };
 
   const handleAddAssociatedBibcode = () => {
+    newAssociatedBibcodeRef.current.focus();
     append({ value: newAssociatedBibcode });
     setNewAssociatedBibcode('');
-    newAssociatedBibcodeRef.current.focus();
   };
 
   return (
@@ -341,20 +342,14 @@ export const AssociatedTable = () => {
           {relationship === 'other' && (
             <FormControl isRequired>
               <FormLabel>Custom Relation Type</FormLabel>
-              <Input {...register('otherRelationship')} />
+              <Input {...register('otherRelationship')} autoFocus />
             </FormControl>
           )}
           <FormControl isRequired isInvalid={!!errors.mainBibcode}>
             <FormLabel>{`${
               relationship === 'arxiv' ? 'arXiv ' : relationship === 'other' ? '' : 'Main Paper '
             }Bibcode`}</FormLabel>
-            <Input
-              {...register('mainBibcode')}
-              ref={(e) => {
-                register('mainBibcode').ref(e);
-                mainBibcodeRef.current = e;
-              }}
-            />
+            <Input {...register('mainBibcode')} />
             <FormErrorMessage>{!!errors.mainBibcode && errors.mainBibcode.message}</FormErrorMessage>
           </FormControl>
 

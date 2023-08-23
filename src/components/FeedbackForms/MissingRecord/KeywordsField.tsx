@@ -1,6 +1,6 @@
 import { SmallCloseIcon } from '@chakra-ui/icons';
 import { Button, Flex, FormControl, FormLabel, Input, Stack, Tag, TagLabel, TagRightIcon } from '@chakra-ui/react';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useRef, useState } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import { FormValues } from './types';
 
@@ -15,6 +15,8 @@ export const KeywordsField = () => {
 
   const [newKeyword, setNewKeyword] = useState('');
 
+  const inputRef = useRef<HTMLInputElement>();
+
   // enable add keyword if new keyword is valid
   const isNewKeywordValid = newKeyword.length > 0 && keywords.findIndex((kw) => kw.value === newKeyword) === -1;
 
@@ -25,6 +27,7 @@ export const KeywordsField = () => {
   const handleAddKeyword = () => {
     append({ value: newKeyword });
     setNewKeyword('');
+    inputRef.current.focus();
   };
 
   return (
@@ -41,7 +44,7 @@ export const KeywordsField = () => {
           ))}
         </Flex>
         <Flex direction="row">
-          <Input value={newKeyword} onChange={handleNewKeywordChange} />
+          <Input value={newKeyword} onChange={handleNewKeywordChange} ref={inputRef} />
           <Button
             isDisabled={!isNewKeywordValid}
             onClick={handleAddKeyword}
