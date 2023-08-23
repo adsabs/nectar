@@ -1,62 +1,56 @@
-import { Box, Flex, Heading, HStack, Link, Stack, Text } from '@chakra-ui/react';
+import { Box, Center, Flex, Heading, HStack, Icon, Link, Show, Text } from '@chakra-ui/react';
 import { AdsSmallLogo } from '@components/images';
 import { useStore } from '@store';
 import { Theme } from '@types';
-import Image, { StaticImageData } from 'next/image';
+import Image from 'next/image';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
-import starBg from 'public/images/bg-astro.jpg';
-import bioBg from 'public/images/bg-bio.jpg';
-import earthBg from 'public/images/bg-earth.jpg';
-import generalBg from 'public/images/bg-general.jpg';
-import helioBg from 'public/images/bg-helio.jpg';
-import planetBg from 'public/images/bg-planet.jpg';
-import { ReactElement, useEffect, useState } from 'react';
+import { CSSProperties, ReactElement } from 'react';
 
-const backgroundMap = new Map<Theme, StaticImageData>([
-  [Theme.GENERAL, generalBg],
-  [Theme.ASTROPHYSICS, starBg],
-  [Theme.HELIOPHYISCS, helioBg],
-  [Theme.PLANET_SCIENCE, planetBg],
-  [Theme.EARTH_SCIENCE, earthBg],
-  [Theme.BIO_PHYSICAL, bioBg],
-]);
-
+const imageStyle: CSSProperties = { objectFit: 'cover', opacity: '50%', zIndex: 0 };
 export const LandingTabs = (): ReactElement => {
   const theme = useStore((state) => state.theme);
-  const [showTabs, setShowTabs] = useState(false);
-  const [img, setImg] = useState<StaticImageData>(null);
-
-  useEffect(() => {
-    setShowTabs(theme === Theme.ASTROPHYSICS);
-    setImg(backgroundMap.get(theme));
-  }, [theme]);
 
   return (
-    <Flex
-      direction="column"
-      justifyContent="center"
-      alignItems="center"
-      position="relative"
-      backgroundColor="black"
-      suppressHydrationWarning
-    >
-      {img !== null && (
+    <Flex direction="column" justifyContent="center" alignItems="center" position="relative" backgroundColor="black">
+      {theme === Theme.ASTROPHYSICS && (
+        <Image src="/images/bg-astro.webp" alt="Starry sky" fill style={imageStyle} priority />
+      )}
+      {theme === Theme.GENERAL && (
         <Image
-          className="z-0 opacity-50 object-cover"
-          src={img}
-          aria-hidden="true"
-          layout="fill"
-          quality={30}
+          src="/images/bg-general.webp"
+          alt="Hand touching colorful plasma globe"
+          fill
+          style={imageStyle}
           priority
-          alt=""
         />
       )}
-
+      {theme === Theme.BIO_PHYSICAL && (
+        <Image src="/images/bg-bio.webp" alt="Microscopic lifeform" fill style={imageStyle} priority />
+      )}
+      {theme === Theme.EARTH_SCIENCE && (
+        <Image src="/images/bg-earth.webp" alt="Zoomed out Earth" fill style={imageStyle} priority />
+      )}
+      {theme === Theme.HELIOPHYSICS && (
+        <Image src="/images/bg-helio.webp" alt="Up-close sun" fill style={imageStyle} priority />
+      )}
+      {theme === Theme.PLANET_SCIENCE && (
+        <Image src="/images/bg-planet.webp" alt="Jupiter in relief" fill style={imageStyle} priority />
+      )}
       <Box padding={6} zIndex={5}>
         <TitleLogo />
       </Box>
-      <Tabs show={showTabs} />
+      <Tabs show={theme === Theme.ASTROPHYSICS} />
+    </Flex>
+  );
+};
+
+export const LandingTabsStatic = () => {
+  return (
+    <Flex direction="column" justifyContent="center" alignItems="center" position="relative" backgroundColor="black">
+      <Box padding={6} zIndex={5}>
+        <TitleLogo />
+      </Box>
     </Flex>
   );
 };
@@ -77,9 +71,11 @@ const Tabs = ({ show }: { show: boolean }) => {
 
 const TitleLogo = () => {
   return (
-    <Stack direction="row" justifyContent="center" alignItems="center" spacing={3}>
-      <AdsSmallLogo className="w-16 h-16" aria-hidden />
-      <Heading as="h2" color="white">
+    <Center>
+      <Show above="sm">
+        <Icon as={AdsSmallLogo} fontSize="60" aria-hidden />
+      </Show>
+      <Heading as="h2" color="white" fontSize={['23', '36']} ml={2}>
         <Text as="span" fontWeight="bold">
           NASA
         </Text>{' '}
@@ -87,7 +83,7 @@ const TitleLogo = () => {
           Science Explorer
         </Text>
       </Heading>
-    </Stack>
+    </Center>
   );
 };
 

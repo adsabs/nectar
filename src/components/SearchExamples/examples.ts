@@ -39,7 +39,7 @@ export const examples = {
       { label: 'record type', text: 'doctype:software' },
     ],
   },
-  [Theme.HELIOPHYISCS]: {
+  [Theme.HELIOPHYSICS]: {
     left: [
       { label: 'author', text: 'author:"pollock, craig"' },
       { label: 'first author', text: 'author:"^pollock, craig"' },
