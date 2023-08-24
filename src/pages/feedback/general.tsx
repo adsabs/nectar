@@ -17,17 +17,25 @@ import { FeedbackLayout, FeedbackAlert } from '@components';
 import { GOOGLE_RECAPTCHA_KEY } from '@config';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useStore } from '@store';
-import { parseAPIError } from '@utils';
+import { makeSearchParams, parseAPIError } from '@utils';
 import { NextPage } from 'next';
+import { useRouter } from 'next/router';
 import { MouseEvent, useEffect, useRef, useState } from 'react';
+import {
+  browserName,
+  browserVersion,
+  engineName,
+  engineVersion,
+  isDesktop,
+  isMobile,
+  osName,
+  osVersion,
+} from 'react-device-detect';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
-
-// TODO: include these information in the feedback
-// platform, url, browser, current query, current user, browser
 
 type FormValues = {
   name: string;
@@ -51,6 +59,8 @@ const General: NextPage = () => {
   const [token, setToken] = useState<string>(null);
 
   const [state, setState] = useState<State>('idle');
+
+  const currentQuery = useStore((state) => state.latestQuery);
 
   const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({
     status: 'success',
@@ -86,6 +96,8 @@ const General: NextPage = () => {
 
   const recaptchaRef = useRef<ReCAPTCHA>();
 
+  const router = useRouter();
+
   useEffect(() => {
     if (state === 'idle') {
       // reset
@@ -104,6 +116,15 @@ const General: NextPage = () => {
         'user-agent-string': navigator.userAgent,
         origin: 'bbb_feedback', // indicate general feedback
         'g-recaptcha-response': token,
+        currentuser: username ?? 'anonymous',
+        'browser.name': browserName,
+        'browser.version': browserVersion,
+        engine: `${engineName} ${engineVersion}`,
+        platform: isDesktop ? 'desktop' : isMobile ? 'mobile' : 'others',
+        os: `${osName} ${osVersion}`,
+        current_page: router.query.from ? (router.query.from as string) : undefined,
+        current_query: makeSearchParams(currentQuery),
+        url: router.asPath,
         comments,
       });
     }

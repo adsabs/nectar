@@ -11,8 +11,16 @@ export type FeedbackBaseParams = {
   'user-agent-string'?: string;
 };
 export interface IGeneralFeedbackParams {
-  'user-agent-string': string;
   comments: unknown;
+  currentuser: string;
+  'browser.name'?: string;
+  'browser.version'?: string;
+  engine?: string;
+  platform?: string;
+  os?: string;
+  current_page?: string;
+  current_query?: string;
+  url?: string;
 }
 
 export type Relationship = 'errata' | 'addenda' | 'series' | 'arxiv' | 'other';
