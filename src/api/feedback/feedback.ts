@@ -1,27 +1,23 @@
-import api, { ApiRequestConfig, ApiTargets } from '@api';
-import { QueryFunction, useQuery } from '@tanstack/react-query';
-import { IFeedbackParams, FeedbackADSQuery, IADSApiFeedbackResponse } from './types';
+import api, { ADSMutation, ApiRequestConfig, ApiTargets } from '@api';
+import { MutationFunction, useMutation } from '@tanstack/react-query';
+import { IFeedbackParams, IADSApiFeedbackResponse } from './types';
 
 const feedbackKeys = {
-  general: (params: IFeedbackParams) => ['feedback/general', { params }] as const,
+  general: () => ['feedback/general'] as const,
 };
 
-export const useFeedback: FeedbackADSQuery = (params, options) => {
-  return useQuery({
-    queryKey: feedbackKeys.general(params),
-    queryFn: feedbackQueryFn,
-    meta: { params },
-    ...options,
+export const useFeedback: ADSMutation<IADSApiFeedbackResponse, undefined, Partial<IFeedbackParams>> = () => {
+  return useMutation({
+    mutationKey: feedbackKeys.general(),
+    mutationFn: feedbackQueryFn,
     cacheTime: 0,
   });
 };
 
-const feedbackQueryFn: QueryFunction<IADSApiFeedbackResponse> = async ({ meta }) => {
-  const { params } = meta as { params: Partial<IFeedbackParams> };
-
+const feedbackQueryFn: MutationFunction<IADSApiFeedbackResponse, Partial<IFeedbackParams>> = async (params) => {
   const config: ApiRequestConfig = {
     method: 'POST',
-    url: `${ApiTargets.FEEDBACK}`,
+    url: ApiTargets.FEEDBACK,
     data: params,
   };
 

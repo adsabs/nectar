@@ -38,9 +38,7 @@ export const PreviewModal = (props: IPreviewProps) => {
 
   const [token, setToken] = useState<string>(null);
 
-  const { isLoading, isFetching, isSuccess, error, refetch } = useFeedback(paramsWithToken, {
-    enabled: false,
-  });
+  const { mutate } = useFeedback();
 
   const recaptchaRef = useRef<ReCAPTCHA>();
 
@@ -57,21 +55,19 @@ export const PreviewModal = (props: IPreviewProps) => {
 
   useEffect(() => {
     if (paramsWithToken) {
-      void refetch();
+      void mutate(paramsWithToken, {
+        onSettled: (_data, error) => {
+          setIsSubmitting(false);
+          if (error) {
+            onError(parseAPIError(error));
+          } else {
+            onSuccess();
+          }
+          onClose();
+        },
+      });
     }
   }, [paramsWithToken]);
-
-  useEffect(() => {
-    if (!isFetching && !isLoading) {
-      setIsSubmitting(false);
-      if (isSuccess) {
-        onSuccess();
-      } else {
-        onError(parseAPIError(error));
-      }
-      onClose();
-    }
-  }, [isFetching, isSuccess, error, isLoading]);
 
   const handleSubmit = () => {
     setIsSubmitting(true);

@@ -82,9 +82,7 @@ const General: NextPage = () => {
   } = formMethods;
 
   // submit feedback
-  const { isFetching, isSuccess, error, refetch } = useFeedback(params, {
-    enabled: false,
-  });
+  const { mutate } = useFeedback();
 
   const recaptchaRef = useRef<ReCAPTCHA>();
 
@@ -113,29 +111,26 @@ const General: NextPage = () => {
 
   useEffect(() => {
     if (params !== null && state === 'submitting') {
-      void refetch();
+      void mutate(params, {
+        onSettled: (_data, error) => {
+          if (error) {
+            setAlertDetails({
+              status: 'error',
+              title: parseAPIError(error),
+            });
+          } else {
+            setAlertDetails({
+              status: 'success',
+              title: 'Feedback submitted successfully',
+            });
+            reset(initialFormValues);
+          }
+          onAlertOpen();
+          setState('idle');
+        },
+      });
     }
   }, [params, state]);
-
-  useEffect(() => {
-    if (!isFetching) {
-      if (isSuccess) {
-        setAlertDetails({
-          status: 'success',
-          title: 'Feedback submitted successfully',
-        });
-        reset(initialFormValues);
-        onAlertOpen();
-      } else if (error) {
-        setAlertDetails({
-          status: 'error',
-          title: parseAPIError(error),
-        });
-        onAlertOpen();
-      }
-      setState('idle');
-    }
-  }, [isFetching, isSuccess, error]);
 
   const onSubmit = () => {
     setState('submitting');
