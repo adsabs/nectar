@@ -58,10 +58,14 @@ const DeleteAccountPage = () => {
             />
             {formError?.param === 'email' ? <FormErrorMessage>{formError.msg}</FormErrorMessage> : null}
           </FormControl>
+          <StandardAlertMessage
+            status="warning"
+            title="This action cannot be reversed"
+            description="You will lose access to saved libraries"
+          />
           <Button variant="warning" size="md" type="submit" isLoading={isLoading}>
             Delete My Account
           </Button>
-          <StandardAlertMessage status="warning" title="This action cannot be reversed" />
           {isError ? (
             <StandardAlertMessage
               status="error"
