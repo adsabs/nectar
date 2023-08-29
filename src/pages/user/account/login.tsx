@@ -7,7 +7,7 @@ import { FormEventHandler, useCallback, useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 import { ILoginResponse } from '@pages/api/auth/login';
-import { useRedirectWithNotification } from '@components/Notification';
+import { useReloadWithNotification } from '@components/Notification';
 import { useFocus } from '@lib/useFocus';
 import { useUser } from '@lib/useUser';
 import { parseAPIError } from '@utils';
@@ -17,7 +17,7 @@ const initialParams: IUserCredentials = { email: '', password: '' };
 const Login: NextPage = () => {
   const [params, setParams] = useState<IUserCredentials>(initialParams);
   const [mainInputRef, focus] = useFocus<HTMLInputElement>();
-  const redirectToRoot = useRedirectWithNotification();
+  const reload = useReloadWithNotification();
   const { reset: resetUser } = useUser();
 
   const {
@@ -44,9 +44,9 @@ const Login: NextPage = () => {
   // redirect on successful login
   useEffect(() => {
     if (data?.success) {
-      resetUser().finally(() => void redirectToRoot('account-login-success'));
+      resetUser().finally(() => void reload('account-login-success'));
     }
-  }, [data?.success, redirectToRoot, resetUser]);
+  }, [data?.success, reload, resetUser]);
 
   const handleChange: FormEventHandler<HTMLInputElement> = (event) => {
     const { name, value } = event.currentTarget;

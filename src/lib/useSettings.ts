@@ -23,7 +23,6 @@ export const useSettings = () => {
   const queryClient = useQueryClient();
   const { data: settings, ...getSettingsState } = useGetUserSettings({
     suspense: true,
-    initialData: DEFAULT_USER_DATA,
   });
   const { mutate, ...updateSettingsState } = useUpdateUserSettings({
     onSuccess: (data) => {
