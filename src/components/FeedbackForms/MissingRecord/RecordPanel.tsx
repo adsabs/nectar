@@ -81,9 +81,6 @@ const validationSchema = z
     return z.NEVER;
   });
 
-// TODO: pagination authors and other tables
-// TODO: reorder authors
-
 export const RecordPanel = ({
   isNew,
   onOpenAlert,

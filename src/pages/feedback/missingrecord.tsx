@@ -1,11 +1,12 @@
+import { fetchSearch, getSingleRecordParams, searchKeys } from '@api';
 import { Flex, Text, Tab, Tabs, TabList, TabPanels, TabPanel, useDisclosure, AlertStatus } from '@chakra-ui/react';
 import { FeedbackLayout } from '@components';
 import { FeedbackAlert, RecordPanel } from '@components/FeedbackForms';
-import { NextPage } from 'next';
+import { composeNextGSSP } from '@ssrUtils';
+import { dehydrate, QueryClient } from '@tanstack/react-query';
+import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
-
-export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
 
 const Record: NextPage = () => {
   const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({
@@ -101,3 +102,25 @@ const Record: NextPage = () => {
 };
 
 export default Record;
+
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
+  const { bibcode } = ctx.query;
+  if (typeof bibcode === 'string') {
+    const queryClient = new QueryClient();
+    const params = getSingleRecordParams(bibcode);
+
+    void (await queryClient.prefetchQuery({
+      queryKey: searchKeys.record(bibcode),
+      queryFn: fetchSearch,
+      meta: { params },
+    }));
+
+    return {
+      props: {
+        dehydratedState: dehydrate(queryClient),
+      },
+    };
+  }
+
+  return { props: {} };
+});
