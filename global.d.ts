@@ -16,5 +16,6 @@ declare module 'iron-session' {
     };
     isAuthenticated?: boolean;
     apiCookieHash?: number[];
+    bot?: boolean;
   }
 }

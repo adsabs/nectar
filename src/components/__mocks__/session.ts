@@ -8,4 +8,5 @@ export const mockSession: IronSessionData = {
     username: 'anonymous',
   },
   isAuthenticated: false,
+  bot: false,
 };
