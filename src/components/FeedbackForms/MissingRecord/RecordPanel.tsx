@@ -89,18 +89,20 @@ export const RecordPanel = ({
   onOpenAlert,
   onCloseAlert,
   isFocused,
+  bibcode,
 }: {
   isNew: boolean;
   onOpenAlert: (params: { status: AlertStatus; title: string; description?: string }) => void;
   onCloseAlert: () => void;
   isFocused: boolean;
+  bibcode?: string;
 }) => {
   const username = useStore((state) => state.user.username);
 
   const initialFormValues = {
     name: '',
     email: username ?? '',
-    bibcode: '',
+    bibcode: bibcode ?? '',
     collection: [] as Database[],
     title: '',
     noAuthors: false,
@@ -138,7 +140,7 @@ export const RecordPanel = ({
 
   const { isOpen: isPreviewOpen, onOpen: openPreview, onClose: closePreview } = useDisclosure();
 
-  const [state, setState] = useState<State>('idle');
+  const [state, setState] = useState<State>(bibcode ? 'loading-record' : 'idle');
 
   const isLoading = state === 'loading-record' || state === 'loading-urls' || state === 'submitting';
 
@@ -159,7 +161,6 @@ export const RecordPanel = ({
     { id: getValues('bibcode') },
     {
       enabled: false,
-      // cacheTime: 0,
     },
   );
 

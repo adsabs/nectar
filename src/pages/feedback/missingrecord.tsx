@@ -2,7 +2,8 @@ import { Flex, Text, Tab, Tabs, TabList, TabPanels, TabPanel, useDisclosure, Ale
 import { FeedbackLayout } from '@components';
 import { FeedbackAlert, RecordPanel } from '@components/FeedbackForms';
 import { NextPage } from 'next';
-import { useMemo, useState } from 'react';
+import { useRouter } from 'next/router';
+import { useEffect, useMemo, useState } from 'react';
 
 export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
 
@@ -13,6 +14,14 @@ const Record: NextPage = () => {
   });
 
   const [isNew, setIsNew] = useState(true);
+
+  const router = useRouter();
+
+  const { bibcode } = router.query;
+
+  useEffect(() => {
+    setIsNew(bibcode && typeof bibcode === 'string' ? false : true);
+  }, [bibcode]);
 
   const handleTabChange = (i: number) => {
     setIsNew(i === 0);
@@ -81,6 +90,7 @@ const Record: NextPage = () => {
                 onOpenAlert={handleOnOpenAlert}
                 isFocused={!isNew}
                 onCloseAlert={handleOnCloseAlert}
+                bibcode={bibcode as string}
               />
             </TabPanel>
           </TabPanels>
