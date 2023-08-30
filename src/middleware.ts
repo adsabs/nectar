@@ -1,7 +1,7 @@
 // eslint-disable-next-line @next/next/no-server-import-in-page
 import type { NextRequest } from 'next/server';
 // eslint-disable-next-line @next/next/no-server-import-in-page
-import { NextResponse } from 'next/server';
+import { NextResponse, userAgent } from 'next/server';
 import { getIronSession } from 'iron-session/edge';
 import { ApiTargets } from '../src/api/models';
 import { equals, isNil, pick } from 'ramda';
@@ -9,24 +9,28 @@ import { IBootstrapPayload, IUserData, IVerifyAccountResponse } from '@api';
 import { isPast, parseISO } from 'date-fns';
 import { AUTH_EXCEPTIONS, PROTECTED_ROUTES, sessionConfig } from '@config';
 import { IronSession } from 'iron-session';
+import { logger } from '../logger/logger';
+
+const log = logger.child({ module: 'middleware' });
 
 // This function can be marked `async` if using `await` inside
 export async function middleware(req: NextRequest) {
   // get the current session
   const res = NextResponse.next();
+
   const session = await getIronSession(req, res, sessionConfig);
   const adsSessionCookie = req.cookies.get(process.env.ADS_SESSION_COOKIE_NAME)?.value;
   const apiCookieHash = await hash(adsSessionCookie);
   const refresh = req.headers.has('x-RefreshToken');
 
-  if (process.env.NODE_ENV === 'development') {
-    console.log('[MIDDLEWARE]', req.nextUrl.href);
-    console.log('session', session);
-    console.log('incomingSessionCookie', adsSessionCookie);
-    console.log('apiCookieHash', apiCookieHash);
-    console.log('refresh', refresh);
-    console.log('hasAccessToRoute', hasAccessToRoute(req.nextUrl.pathname, session.isAuthenticated));
-  }
+  log.debug({
+    url: req.nextUrl.toString(),
+    session,
+    adsSessionCookie,
+    apiCookieHash,
+    refresh,
+    hasAccessToRoute: hasAccessToRoute(req.nextUrl.pathname, session.isAuthenticated),
+  });
 
   // verify requests need to be handled separately
   if (req.nextUrl.pathname.startsWith('/user/account/verify')) {
@@ -35,21 +39,25 @@ export async function middleware(req: NextRequest) {
 
   // check if the token held in the session is valid, and the request has a session
   if (
+    !session.bot &&
     !refresh &&
     isValidToken(session.token) &&
     // check if the cookie hash matches the one in the session
     apiCookieHash !== null &&
     equals(apiCookieHash, session.apiCookieHash)
   ) {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[VALID]: reusing session');
-    }
+    log.debug('session is valid, continuing');
     return handleResponse(req, res, session);
   }
 
-  if (process.env.NODE_ENV === 'development') {
-    console.log('[INVALID]: bootstrapping');
+  log.debug('session is invalid, bootstrapping', { refresh });
+
+  const crawlerResult = await crawlerCheck(req);
+  if (crawlerResult !== CRAWLER_RESULT.HUMAN) {
+    log.debug('request is from a crawler, continuing');
+    return handleBotResponse({ req, res, session, crawlerResult });
   }
+  log.debug('request is from a human, bootstrapping');
 
   // bootstrap a new token, passing in the current session cookie value
   const { token, headers } = (await bootstrap(adsSessionCookie)) ?? {};
@@ -163,6 +171,68 @@ const hasAccessToRoute = (route: string, isAuthenticated: boolean) => {
   return isAuthenticated ? AUTH_EXCEPTIONS.every(checkPrefix(route)) : PROTECTED_ROUTES.every(checkPrefix(route));
 };
 
+enum CRAWLER_RESULT {
+  BOT,
+  HUMAN,
+  POTENTIAL_MALICIOUS_BOT,
+  UNVERIFIABLE,
+}
+
+const crawlerCheck = async (req: NextRequest) => {
+  const res = await fetch(new URL('/api/isBot', req.nextUrl), {
+    method: 'POST',
+    body: JSON.stringify({
+      ua: userAgent(req).ua,
+      ip: req.ip,
+    }),
+  });
+  return (await res.json()) as CRAWLER_RESULT;
+};
+
+const handleBotResponse = async ({
+  req,
+  res,
+  session,
+  crawlerResult,
+}: {
+  req: NextRequest;
+  res: NextResponse;
+  session: IronSession;
+  crawlerResult: CRAWLER_RESULT;
+}) => {
+  if (crawlerResult === CRAWLER_RESULT.BOT) {
+    log.debug('request is from a verified bot, applying token');
+    session.token = {
+      access_token: process.env.VERIFIED_BOTS_ACCESS_TOKEN,
+      anonymous: true,
+      expire_in: '9999-01-01T00:00:00',
+      username: 'anonymous',
+    };
+  } else if (crawlerResult === CRAWLER_RESULT.UNVERIFIABLE) {
+    log.debug('request is from an unverified bot, applying token');
+    session.token = {
+      access_token: process.env.UNVERIFIABLE_BOTS_ACCESS_TOKEN,
+      anonymous: true,
+      expire_in: '9999-01-01T00:00:00',
+      username: 'anonymous',
+    };
+  } else if (crawlerResult === CRAWLER_RESULT.POTENTIAL_MALICIOUS_BOT) {
+    log.debug('request is from a potential malicious bot, applying token');
+    session.token = {
+      access_token: process.env.MALICIOUS_BOTS_ACCESS_TOKEN,
+      anonymous: true,
+      expire_in: '9999-01-01T00:00:00',
+      username: 'anonymous',
+    };
+  }
+  session.isAuthenticated = false;
+  session.apiCookieHash = [];
+  session.bot = true;
+  await session.save();
+
+  return handleResponse(req, res, session);
+};
+
 const handleResponse = (req: NextRequest, res: NextResponse, session: IronSession) => {
   const pathname = req.nextUrl.pathname;
   const authenticated = isAuthenticated(session.token);
@@ -176,13 +246,13 @@ const handleResponse = (req: NextRequest, res: NextResponse, session: IronSessio
   // if on any of the account pages, redirect to root
   if (pathname.startsWith('/user/account') || pathname.startsWith('/user/settings')) {
     url.pathname = '/';
-    return NextResponse.redirect(url, { status: 307, ...res });
+    return redirect(url, res);
   }
 
   // otherwise redirect to login
   url.pathname = '/user/account/login';
   url.searchParams.set('redirectUri', encodeURIComponent(pathname));
-  return NextResponse.redirect(url, { status: 307, ...res });
+  return redirect(url, res);
 };
 
 const handleVerifyResponse = async (req: NextRequest, res: NextResponse, session: IronSession) => {
@@ -199,7 +269,7 @@ const handleVerifyResponse = async (req: NextRequest, res: NextResponse, session
       return res;
     }
   } catch (e) {
-    return NextResponse.redirect(new URL('/', req.url), res);
+    return redirect(new URL('/', req.url), res);
   }
 };
 
@@ -226,26 +296,28 @@ const verify = async (options: { token: string; req: NextRequest; res: NextRespo
     if (json.message === 'success') {
       // apply the session cookie to the response
       res.headers.set('set-cookie', result.headers.get('set-cookie'));
-
-      newUrl.searchParams.set('notify', 'verify-account-success');
-      return NextResponse.redirect(newUrl, { status: 307, ...res });
+      return redirect(newUrl, res, 'verify-account-success');
     }
 
     // known error messages
     if (json?.error.indexOf('unknown verification token') > -1) {
-      newUrl.searchParams.set('notify', 'verify-account-failed');
-      return NextResponse.redirect(newUrl, { status: 307, ...res });
+      return redirect(newUrl, res, 'verify-account-failed');
     }
 
     if (json?.error.indexOf('already been validated') > -1) {
-      newUrl.searchParams.set('notify', 'verify-account-was-valid');
-      return NextResponse.redirect(newUrl, { status: 307, ...res });
+      return redirect(newUrl, res, 'verify-account-was-valid');
     }
 
     // unknown error
     return NextResponse.redirect(newUrl, { status: 307, ...res });
   } catch (e) {
-    newUrl.searchParams.set('notify', 'verify-account-was-valid');
-    return NextResponse.redirect(newUrl, { status: 307, ...res });
+    return redirect(newUrl, res, 'verify-account-failed');
   }
+};
+
+const redirect = (url: URL, res: NextResponse, message?: string) => {
+  if (message) {
+    url.searchParams.set('notify', message);
+  }
+  return NextResponse.redirect(url, { status: 307, ...res });
 };
