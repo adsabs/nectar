@@ -1,47 +1,81 @@
 import { CheckIcon, CloseIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons';
-import { Tr, Td, Input, IconButton, TableContainer, Table, Thead, Th, Tbody, HStack } from '@chakra-ui/react';
-import { noop } from '@utils';
-import { useState, ChangeEvent, MouseEvent } from 'react';
-import { IAuthor } from './types';
+import { Tr, Td, Input, IconButton, Table, Thead, Th, Tbody, HStack } from '@chakra-ui/react';
+import { PaginationControls } from '@components';
+import {
+  createColumnHelper,
+  flexRender,
+  getCoreRowModel,
+  getPaginationRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
+import { useState, ChangeEvent, MouseEvent, useRef, useMemo } from 'react';
+import { useFieldArray } from 'react-hook-form';
+import { FormValues, IAuthor } from './types';
 
-export const AuthorsTable = ({
-  authors,
-  onAddAuthor = noop,
-  onDeleteAuthor = noop,
-  onUpdateAuthor = noop,
-  editable,
-}: {
-  authors: IAuthor[];
-  onAddAuthor?: (author: IAuthor) => void;
-  onDeleteAuthor?: (index: number) => void;
-  onUpdateAuthor?: (index: number, author: IAuthor) => void;
-  editable: boolean;
-}) => {
+export const AuthorsTable = ({ editable }: { editable: boolean }) => {
+  const {
+    fields: authors,
+    append,
+    remove,
+    update,
+    move,
+  } = useFieldArray<FormValues, 'authors'>({
+    name: 'authors',
+  });
+
   // New author row being added
   const [newAuthor, setNewAuthor] = useState<IAuthor>(null);
 
   // Existing row being edited
-  const [editAuthor, setEditAuthor] = useState<{ index: number; author: IAuthor }>({
+  const [editAuthor, setEditAuthor] = useState<{ index: number; author: IAuthor; position: string }>({
     index: -1,
     author: null,
+    position: null,
   });
 
-  const isValidAuthor = ({ last, first }: IAuthor) => {
-    return typeof last === 'string' && last.length > 1 && typeof first === 'string' && first.length > 1;
+  const newAuthorNameRef = useRef<HTMLInputElement>();
+
+  const isValidAuthor = (author: IAuthor) => {
+    return author && typeof author.name === 'string' && author.name.length > 1;
   };
 
-  const newAuthorIsValid = !!newAuthor && isValidAuthor(newAuthor);
+  const newAuthorIsValid = isValidAuthor(newAuthor);
 
-  const editAuthorIsValid = !!editAuthor.author && isValidAuthor(editAuthor.author);
+  const editAuthorIsValid = isValidAuthor(editAuthor.author);
+
+  const columnHelper = createColumnHelper<IAuthor>();
+  const columns = useMemo(() => {
+    return [
+      columnHelper.display({
+        cell: (info) => info.row.index + 1,
+        header: 'Position',
+      }),
+      columnHelper.accessor('name', {
+        cell: (info) => info.getValue(),
+        header: 'Name',
+      }),
+      columnHelper.accessor('aff', {
+        cell: (info) => info.getValue(),
+        header: 'Affilication',
+      }),
+      columnHelper.accessor('orcid', {
+        cell: (info) => info.getValue(),
+        header: 'ORCiD',
+      }),
+    ];
+  }, [columnHelper]);
+
+  const table = useReactTable({
+    columns,
+    data: authors,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  });
 
   // Changes to fields for adding new author
 
-  const handleNewLastNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setNewAuthor((prev) => ({ ...prev, last: e.target.value }));
-  };
-
-  const handleNewFirstNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setNewAuthor((prev) => ({ ...prev, first: e.target.value }));
+  const handleNewNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setNewAuthor((prev) => ({ ...prev, name: e.target.value }));
   };
 
   const handleNewAffChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -53,47 +87,64 @@ export const AuthorsTable = ({
   };
 
   const handleAddAuthor = () => {
-    onAddAuthor(newAuthor);
+    append(newAuthor);
     // clear input fields
     setNewAuthor(null);
+    newAuthorNameRef.current.focus();
   };
 
   // Changes to fields for existing authors
 
   const handleEditAuthor = (e: MouseEvent<HTMLButtonElement>) => {
     const index = parseInt(e.currentTarget.dataset['index']);
-    setEditAuthor({ index, author: authors[index] });
+    setEditAuthor({ index, author: authors[index], position: (index + 1).toString() });
   };
 
-  const handleEditLastNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEditAuthor((prev) => ({ index: prev.index, author: { ...prev.author, last: e.target.value } }));
+  const handleEditPositionChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setEditAuthor((prev) => ({
+      ...prev,
+      position: e.target.value,
+    }));
   };
 
-  const handleEditFirstNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEditAuthor((prev) => ({ index: prev.index, author: { ...prev.author, first: e.target.value } }));
+  const handleEditNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setEditAuthor((prev) => ({
+      ...prev,
+      author: { ...prev.author, name: e.target.value },
+    }));
   };
 
   const handleEditAffChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEditAuthor((prev) => ({ index: prev.index, author: { ...prev.author, aff: e.target.value } }));
+    setEditAuthor((prev) => ({
+      ...prev,
+      author: { ...prev.author, aff: e.target.value },
+    }));
   };
 
   const handleEditOrcidChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEditAuthor((prev) => ({ index: prev.index, author: { ...prev.author, orcid: e.target.value } }));
+    setEditAuthor((prev) => ({
+      ...prev,
+      author: { ...prev.author, orcid: e.target.value },
+    }));
   };
 
   const handleDeleteAuthor = (e: MouseEvent<HTMLButtonElement>) => {
     const index = parseInt(e.currentTarget.dataset['index']);
-    onDeleteAuthor(index);
+    remove(index);
   };
 
   const handleApplyEditAuthor = (e: MouseEvent<HTMLButtonElement>) => {
     const index = parseInt(e.currentTarget.dataset['index']);
-    onUpdateAuthor(index, editAuthor.author);
-    setEditAuthor({ index: -1, author: null });
+    update(index, editAuthor.author);
+    const newPosition = parseInt(editAuthor.position);
+    if (typeof newPosition === 'number' && newPosition > 0 && newPosition <= authors.length) {
+      move(index, parseInt(editAuthor.position) - 1);
+    }
+    setEditAuthor({ index: -1, author: null, position: null });
   };
 
   const handleCancelEditAuthor = () => {
-    setEditAuthor({ index: -1, author: null });
+    setEditAuthor({ index: -1, author: null, position: null });
   };
 
   // Row for adding new author
@@ -101,10 +152,7 @@ export const AuthorsTable = ({
     <Tr>
       <Td color="gray.200">{authors.length + 1}</Td>
       <Td>
-        <Input size="sm" onChange={handleNewLastNameChange} value={newAuthor?.last ?? ''} />
-      </Td>
-      <Td>
-        <Input size="sm" onChange={handleNewFirstNameChange} value={newAuthor?.first ?? ''} />
+        <Input size="sm" onChange={handleNewNameChange} value={newAuthor?.name ?? ''} ref={newAuthorNameRef} />
       </Td>
       <Td>
         <Input size="sm" onChange={handleNewAffChange} value={newAuthor?.aff ?? ''} />
@@ -125,26 +173,28 @@ export const AuthorsTable = ({
     </Tr>
   );
   return (
-    <TableContainer>
+    <>
       <Table size="sm" variant="simple">
         <Thead>
-          <Th aria-label="index" w="4%"></Th>
-          <Th>Last Name</Th>
-          <Th>First Name</Th>
-          <Th>Affiliation</Th>
-          <Th>ORCiD</Th>
-          {editable && <Th w="10%">Actions</Th>}
+          <Tr>
+            <Th aria-label="index" w="4%">
+              Position
+            </Th>
+            <Th>Name</Th>
+            <Th>Affiliation</Th>
+            <Th w="20%">ORCiD</Th>
+            {editable && <Th w="10%">Actions</Th>}
+          </Tr>
         </Thead>
         <Tbody>
-          {authors.map((a, index) =>
+          {table.getRowModel().rows.map((row, index) =>
             editAuthor.index === index ? (
               <Tr key={`author-${index}`}>
-                <Td>{index + 1}</Td>
                 <Td>
-                  <Input size="sm" onChange={handleEditLastNameChange} value={editAuthor.author.last} />
+                  <Input size="sm" onChange={handleEditPositionChange} value={editAuthor.position} type="number" />
                 </Td>
                 <Td>
-                  <Input size="sm" onChange={handleEditFirstNameChange} value={editAuthor.author.first} />
+                  <Input size="sm" onChange={handleEditNameChange} value={editAuthor.author.name} autoFocus />
                 </Td>
                 <Td>
                   <Input size="sm" onChange={handleEditAffChange} value={editAuthor.author.aff} />
@@ -175,12 +225,10 @@ export const AuthorsTable = ({
                 </Td>
               </Tr>
             ) : (
-              <Tr key={`author-${index}`}>
-                <Td>{index + 1}</Td>
-                <Td>{a.last}</Td>
-                <Td>{a.first}</Td>
-                <Td>{a.aff}</Td>
-                <Td>{a.orcid}</Td>
+              <Tr key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <Td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</Td>
+                ))}
                 {editable && (
                   <Td>
                     <HStack>
@@ -209,6 +257,7 @@ export const AuthorsTable = ({
           {editable && newAuthorTableRow}
         </Tbody>
       </Table>
-    </TableContainer>
+      <PaginationControls table={table} entries={authors} my={5} />
+    </>
   );
 };

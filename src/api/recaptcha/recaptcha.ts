@@ -16,6 +16,10 @@ export const useExecuteRecaptcha: RecaptchaQuery<'execute'> = (recaptcha, option
   return useQuery({
     queryKey: recaptchaKeys.execute(recaptcha),
     queryFn: async () => {
+      // prevent returning null data (error)
+      if (!recaptcha) {
+        return Promise.resolve('');
+      }
       return await recaptcha?.executeAsync();
     },
     staleTime: 0,

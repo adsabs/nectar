@@ -190,6 +190,8 @@ export enum Esources {
   Zenodo = 'Zenodo',
 }
 
+export type Database = 'astronomy' | 'physics' | 'general';
+
 export interface IDocsEntity {
   /**
    * Virtual field to search across title, keyword, abstract fields in one operation
@@ -229,7 +231,7 @@ export interface IDocsEntity {
   copyright?: string;
   data_facet?: string;
   data?: string[];
-  database?: string;
+  database?: Database[];
   date?: string;
   doctype_facet_hier?: string;
   doctype?: string;
@@ -278,7 +280,7 @@ export interface IDocsEntity {
   read_count?: number;
   reader?: string;
   recid?: number;
-  reference?: string;
+  reference?: string[];
   references_count?: number;
   simbad_object_facet_hier?: string;
   simbid?: string;

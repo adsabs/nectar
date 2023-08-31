@@ -1,17 +1,11 @@
+import { Database } from '@api/search';
+import { IResourceUrl } from '@lib';
+import { ArrayChange, Change } from 'diff';
+
 export interface IAuthor {
-  last: string;
-  first: string;
+  name: string;
   aff: string;
   orcid: string;
-}
-
-export const urlTypes = ['arXiv', 'PDF', 'DOI', 'HTML', 'Other'] as const;
-
-export type UrlType = typeof urlTypes[number];
-
-export interface IUrl {
-  type: UrlType;
-  url: string;
 }
 
 export const referenceTypes = ['Raw Text', 'DOI', 'Bibcode'] as const;
@@ -23,25 +17,30 @@ export interface IReference {
   reference: string;
 }
 
+export interface IKeyword {
+  value: string;
+}
+
 export type FormValues = {
   name: string;
   email: string;
   bibcode: string;
-  collection: Collection[];
+  collection: Database[];
   title: string;
   noAuthors: boolean;
   authors: IAuthor[];
   publication: string;
-  pubDate: Date;
-  urls: IUrl[];
+  pubDate: string;
+  urls: IResourceUrl[];
   abstract: string;
-  keywords: string[];
+  keywords: IKeyword[];
   references: IReference[];
   comments: string;
 };
 
-export enum Collection {
-  astronomy = 'astronomy',
-  physics = 'physics',
-  general = 'general',
-}
+export type DiffSection = {
+  label: string;
+  changes: (ArrayChange<string> | Change)[];
+  type: 'array' | 'text';
+  newValue: string;
+};

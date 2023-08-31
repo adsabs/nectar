@@ -1,6 +1,6 @@
 import { Container, Box, Stack, Heading, Text } from '@chakra-ui/react';
 import Head from 'next/head';
-import { FC, ReactNode } from 'react';
+import { FC, ReactNode, useEffect, useRef } from 'react';
 
 interface IFeedbackLayoutProps {
   title: string;
@@ -8,12 +8,21 @@ interface IFeedbackLayoutProps {
 }
 
 export const FeedbackLayout: FC<IFeedbackLayoutProps> = ({ children, title, alert }) => {
+  const alertRef = useRef<HTMLDivElement>();
+
+  // scroll to alert does not work
+  useEffect(() => {
+    if (alert) {
+      alertRef.current.scrollIntoView();
+    }
+  }, [alert]);
+
   return (
-    <Container maxW="container.md" my={{ base: 2, lg: 10 }}>
+    <Container maxW="container.lg" my={{ base: 2, lg: 10 }}>
       <Head>
         <title>{title}</title>
       </Head>
-      {!!alert && alert}
+      <Box ref={alertRef}>{!!alert && alert}</Box>
       <Stack direction="column" as="section" aria-labelledby="title" spacing={1} width="full">
         <Heading as="h2" id="title" fontSize="2xl" variant="abstract">
           <Text as="span" fontSize="xl">

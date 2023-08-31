@@ -24,4 +24,4 @@ export type ADSMutation<
   TVariables,
   TError = Error | AxiosError,
   TResult = UseMutationResult<TData, TError, TVariables>,
-> = (params: TParams, options?: UseMutationOptions<TData, TError, TVariables>) => TResult;
+> = (params?: TParams, options?: UseMutationOptions<TData, TError, TVariables>) => TResult;

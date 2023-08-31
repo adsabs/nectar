@@ -1,7 +1,7 @@
 import { IADSApiSearchParams, IDocsEntity, useGetAbstract } from '@api';
-import { Alert, AlertIcon, Box, Flex, Link, Stack, Table, Tag, Tbody, Td, Text, Tr } from '@chakra-ui/react';
-import { ExternalLinkIcon } from '@chakra-ui/icons';
-import { AbstractSources, SearchQueryLink } from '@components';
+import { Alert, AlertIcon, Box, Button, Flex, Link, Stack, Table, Tag, Tbody, Td, Text, Tr } from '@chakra-ui/react';
+import { ChatIcon, ExternalLinkIcon } from '@chakra-ui/icons';
+import { AbstractSources, feedbackItems, SearchQueryLink } from '@components';
 import { createUrlByType } from '@components/AbstractSources/linkGenerator';
 import { IAllAuthorsModalProps } from '@components/AllAuthorsModal';
 import { useGetAuthors } from '@components/AllAuthorsModal/useGetAuthors';
@@ -19,6 +19,7 @@ import Head from 'next/head';
 import NextLink from 'next/link';
 import { isNil } from 'ramda';
 import { ReactElement } from 'react';
+import { useRouter } from 'next/router';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   () => import('@components/AllAuthorsModal').then((m) => m.AllAuthorsModal),
@@ -44,6 +45,8 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
 
   const isClient = useIsClient();
 
+  const router = useRouter();
+
   // this *should* only ever fetch from pre-filled cache
   const { data, isSuccess } = useGetAbstract({ id });
 
@@ -54,6 +57,10 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
   const authors = useGetAuthors({ doc, includeAff: false });
 
   const title = unwrapStringValue(doc?.title);
+
+  const handleFeedback = () => {
+    void router.push({ pathname: feedbackItems.record.path, query: { bibcode: doc.bibcode } });
+  };
 
   return (
     <AbsLayout doc={doc} titleDescription={''}>
@@ -120,6 +127,11 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
               <Text as={MathJax} dangerouslySetInnerHTML={{ __html: doc.abstract }} />
             )}
             <Details doc={doc} />
+            <Flex justifyContent="end">
+              <Button variant="link" onClick={handleFeedback}>
+                <ChatIcon mr={2} /> Feedback/Corrections?
+              </Button>
+            </Flex>
           </Stack>
         )}
       </Box>

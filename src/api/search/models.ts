@@ -95,6 +95,25 @@ export const getAbstractParams = (id: string): IADSApiSearchParams => ({
   q: `identifier:"${id}"`,
 });
 
+// for getting single record in feedback form
+export const getSingleRecordParams = (id: string): IADSApiSearchParams => ({
+  fl: [
+    'title',
+    'author',
+    'aff',
+    'pub_raw',
+    'pubdate',
+    'abstract',
+    'bibcode',
+    'keyword',
+    'orcid_pub',
+    'database',
+    'reference',
+  ],
+  q: `identifier:"${id}"`,
+  rows: 1,
+});
+
 export const getAffiliationParams = (bibcode: IDocsEntity['bibcode']): IADSApiSearchParams => ({
   ...defaultParams,
   fl: ['bibcode', 'title', 'author', 'aff', 'orcid_pub', 'orcid_user', 'orcid_other', 'author_count'],

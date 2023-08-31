@@ -5,10 +5,6 @@ import {
   chakra,
   Flex,
   Heading,
-  HStack,
-  Icon,
-  IconButton,
-  Select as SimpleSelect,
   Skeleton,
   Stack,
   Table,
@@ -25,7 +21,7 @@ import {
 } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components/Select';
 import { SimpleLink } from '@components/SimpleLink';
-import { ReactElement, Suspense, useCallback, useMemo, useState } from 'react';
+import { ReactElement, Suspense, useMemo, useState } from 'react';
 import { Actions } from './Actions';
 import {
   createColumnHelper,
@@ -34,19 +30,18 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   SortingState,
-  Table as TableType,
   useReactTable,
 } from '@tanstack/react-table';
-import { ChevronLeftIcon, ChevronRightIcon, TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
+import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import { intlFormat, intlFormatDistance } from 'date-fns';
 import { isNilOrEmpty, isObject } from 'ramda-adjunct';
-import { ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from '@heroicons/react/20/solid';
 import { NASA_SCIX_BRAND_NAME, NASA_SCIX_BRAND_NAME_SHORT, ORCID_ADS_SOURCE_NAME } from '@config';
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useOrcidProfile } from '@lib/orcid/useOrcidProfile';
 import { getFallBackAlert } from '@components/Feedbacks/SuspendedAlert';
 import DOMPurify from 'dompurify';
+import { PaginationControls } from '@components';
 
 export const WorksTable = () => {
   return (
@@ -233,68 +228,6 @@ const DTable = () => {
         </Center>
       )}
     </>
-  );
-};
-
-const PaginationControls = (props: { table: TableType<IOrcidProfileEntry>; entries: IOrcidProfileEntry[] }) => {
-  const { table, entries } = props;
-
-  const { pageIndex, pageSize } = table.getState().pagination;
-  const getPaginationString = useCallback(() => {
-    const endIdx = pageIndex * pageSize + pageSize > entries.length ? entries.length : pageIndex * pageSize + pageSize;
-    return `Showing ${pageIndex * pageSize + 1} to ${endIdx} of ${entries.length} results`;
-  }, [entries.length, pageSize, pageIndex]);
-
-  return (
-    <Flex>
-      <Flex flex="1">{getPaginationString()}</Flex>
-      <Flex justifyContent="center">
-        <SimpleSelect
-          defaultValue={10}
-          onChange={(e) => table.setPageSize(e.target.value ? Number(e.target.value) : 10)}
-        >
-          <option value={10}>10</option>
-          <option value={25}>25</option>
-          <option value={50}>50</option>
-          <option value={100}>100</option>
-        </SimpleSelect>
-      </Flex>
-      <HStack spacing="1" flex="1" justifyContent="flex-end">
-        <IconButton
-          aria-label="go to first page"
-          variant="outline"
-          colorScheme="gray"
-          icon={<Icon as={ChevronDoubleLeftIcon} />}
-          isDisabled={!table.getCanPreviousPage()}
-          onClick={() => table.setPageIndex(0)}
-        />
-        <IconButton
-          aria-label="go to previous page"
-          variant="outline"
-          colorScheme="gray"
-          icon={<Icon as={ChevronLeftIcon} />}
-          isDisabled={!table.getCanPreviousPage()}
-          onClick={() => table.previousPage()}
-        />
-        <IconButton
-          aria-label="go to next page"
-          variant="outline"
-          colorScheme="gray"
-          icon={<Icon as={ChevronRightIcon} />}
-          isDisabled={!table.getCanNextPage()}
-          onClick={() => table.nextPage()}
-        />
-
-        <IconButton
-          aria-label="go to last page"
-          variant="outline"
-          colorScheme="gray"
-          icon={<Icon as={ChevronDoubleRightIcon} />}
-          isDisabled={!table.getCanNextPage()}
-          onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-        />
-      </HStack>
-    </Flex>
   );
 };
 

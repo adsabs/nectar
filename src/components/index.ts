@@ -21,6 +21,7 @@ export * from './Metatags';
 export * from './NavBar';
 export * from './NavigationMenu';
 export * from './NumFound';
+export * from './Pagination';
 export * from './ResultList';
 export * from './SearchBar';
 export * from './SearchExamples';

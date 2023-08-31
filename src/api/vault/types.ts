@@ -34,7 +34,7 @@ export const MinAuthorsPerResultOptions = range(1, 11)
 
 export type CustomFormat = { id: string; code: string; name: string };
 
-export enum Database {
+export enum DatabaseEnum {
   Physics = 'Physics',
   Astronomy = 'Astronomy',
   General = 'General',
@@ -57,7 +57,7 @@ export interface IADSApiUserDataResponse {
   [UserDataKeys.LINK_SERVER]: string;
   [UserDataKeys.CUSTOM_FORMATS]: CustomFormat[];
   [UserDataKeys.BIBTEX_FORMAT]: string;
-  [UserDataKeys.DEFAULT_DATABASE]: { name: Database; value: boolean }[];
+  [UserDataKeys.DEFAULT_DATABASE]: { name: DatabaseEnum; value: boolean }[];
   [UserDataKeys.BIBTEX_MAX_AUTHORS]: string;
   [UserDataKeys.LAST_MESSAGE]: string;
   [UserDataKeys.ABS_FORMAT]: string;
