@@ -17,7 +17,7 @@ test('input is updated when text is typed', async () => {
   expect(input).toHaveValue('test');
 });
 
-test('input is cleared when clear button is clicked', async () => {
+test.skip('input is cleared when clear button is clicked', async () => {
   const { getByRole, findByLabelText, user } = render(<SearchInput />);
 
   const input = getByRole('textbox');

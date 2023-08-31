@@ -17,6 +17,12 @@ const mockUserData: Pick<IBootstrapPayload, 'username' | 'access_token' | 'anony
   anonymous: true,
   expire_in: '2099-03-22T14:50:07.712037',
 };
+const invalidMockUserData: Pick<IBootstrapPayload, 'username' | 'access_token' | 'anonymous' | 'expire_in'> = {
+  username: 'anonymous@ads',
+  access_token: '',
+  anonymous: true,
+  expire_in: '',
+};
 
 const testHandler = rest.get('*test', (req, res, ctx) => {
   return res(ctx.status(200), ctx.json({ ok: true }));
@@ -253,4 +259,26 @@ test('request fails without a response body are rejected', async ({ server }: Te
   const control = new AbortController();
   setTimeout(() => control.abort(), 50);
   await expect(testRequest({}, { signal: control.signal })).rejects.toThrowError();
+});
+
+test('request rejects if the refreshed user data is not valid', async ({ server }: TestContext) => {
+  server.use(
+    unAuthorizedHandler,
+    rest.get(`*${API_USER}`, (_, res, ctx) => {
+      return res.once(ctx.status(200), ctx.json({ user: invalidMockUserData, isAuthenticated: false }));
+    }),
+  );
+  global.localStorage.setItem(
+    APP_STORAGE_KEY,
+    JSON.stringify({ state: { user: { ...mockUserData, access_token: 'from-local-storage' } } }),
+  );
+  const { onRequest: onReq } = createServerListenerMocks(server);
+
+  api.setUserData(mockUserData);
+
+  await expect(testRequest).rejects.toThrowError();
+
+  // after the 401 from `test` we try to bootstrap, it's invalid so we reject
+  expect(onReq).toBeCalledTimes(2);
+  expect(urls(onReq)).toEqual(['/test', API_USER]);
 });
