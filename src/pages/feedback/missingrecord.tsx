@@ -102,7 +102,6 @@ const Record: NextPage = () => {
 };
 
 export default Record;
-export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';
 
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
   const { bibcode } = ctx.query;
