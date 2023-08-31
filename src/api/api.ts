@@ -169,6 +169,11 @@ class Api {
     try {
       const freshUserData = await this.fetchUserData();
 
+      // if we don't have valid user data, throw an error
+      if (!checkUserData(freshUserData)) {
+        return Promise.reject(new Error('Unable to refresh token'));
+      }
+
       // set user data property and in the app store
       this.setUserData(freshUserData);
       updateAppUser(freshUserData);
