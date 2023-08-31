@@ -117,15 +117,15 @@ export const LINK_TYPES: Record<keyof typeof Esources, ILinkType> = {
     description: 'International Repository of Research Data',
   },
   EPRINT_HTML: {
-    name: 'arXiv Article',
-    shortName: 'arXiv',
-    description: 'Arxiv article',
+    name: 'Preprint Article',
+    shortName: 'Preprint',
+    description: 'Preprint article',
     type: 'HTML',
   },
   EPRINT_PDF: {
-    name: 'arXiv PDF',
-    shortName: 'arXiv',
-    description: 'ArXiv eprint',
+    name: 'Preprint PDF',
+    shortName: 'Preprint',
+    description: 'Preprint PDF',
     type: 'PDF',
   },
   ESA: {

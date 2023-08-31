@@ -26,11 +26,15 @@ export const useRecaptcha = (props: IUseRecaptchaProps) => {
   useEffect(() => {
     if (result.data) {
       setRecaptcha(result.data);
-      props.onExecute(result.data);
+      if (typeof props.onExecute === 'function') {
+        props.onExecute(result.data);
+      }
     }
     if (result.error) {
       const error = parseAPIError(result.error);
-      props.onError(error);
+      if (typeof props.onError === 'function') {
+        props.onError(error);
+      }
       setError(error);
     }
   }, [result.data, result.error]);
@@ -38,6 +42,7 @@ export const useRecaptcha = (props: IUseRecaptchaProps) => {
   return {
     recaptcha,
     error,
+    refetch: result.refetch,
     getRecaptchaProps: () =>
       ({
         ref: recaptchaRef,

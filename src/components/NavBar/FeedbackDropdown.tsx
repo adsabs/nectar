@@ -42,7 +42,7 @@ export const FeedbackDropdown = (props: IFeedbackDropdownProps): ReactElement =>
   const handleSelect = (e: MouseEvent<HTMLElement>) => {
     const id = (e.target as HTMLElement).dataset['id'];
     if (isBrowser()) {
-      void router.push(items.find((item) => id === item.id).path);
+      void router.push({ pathname: items.find((item) => id === item.id).path, query: { from: router.asPath } });
 
       if (typeof onFinished === 'function') {
         onFinished();

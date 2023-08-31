@@ -24,6 +24,7 @@ import {
   getSearchParams,
   getSearchStatsParams,
   getSimilarParams,
+  getSingleRecordParams,
   getTocParams,
 } from './models';
 import { parseAPIError } from '@utils';
@@ -69,6 +70,7 @@ export const searchKeys = {
   stats: (params: IADSApiSearchParams) => ['search/stats', params] as const,
   facet: (params: IADSApiSearchParams) => ['search/facet', params] as const,
   infinite: (params: IADSApiSearchParams) => [SEARCH_API_KEYS.infinite, params] as const,
+  record: (id: string) => ['search/record', { id }] as const,
 };
 
 // default params to omit to keep cache entries more concise
@@ -220,6 +222,20 @@ export const useGetAbstractPreview: SearchADSQuery<{ bibcode: IDocsEntity['bibco
   return useQuery({
     queryKey: searchKeys.preview(bibcode),
     queryHash: JSON.stringify(searchKeys.preview(bibcode)),
+    queryFn: fetchSearch,
+    meta: { params },
+    select: responseSelector,
+    ...options,
+  });
+};
+
+/**
+ * Get a single record using identifier for feedack form
+ */
+export const useGetSingleRecord: SearchADSQuery<{ id: string }> = ({ id }, options) => {
+  const params = getSingleRecordParams(id);
+  return useQuery({
+    queryKey: searchKeys.record(id),
     queryFn: fetchSearch,
     meta: { params },
     select: responseSelector,

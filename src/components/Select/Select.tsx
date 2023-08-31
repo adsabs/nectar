@@ -155,7 +155,7 @@ const SelectImpl = <
         {...selectProps}
         styles={themes[stylesTheme]}
       />
-      <input type="hidden" value={(selectProps?.value as SelectOption).value} data-testid={selectProps['data-testid']} />
+      <input type="hidden" value={(selectProps?.value as SelectOption)?.value} data-testid={selectProps['data-testid']} />
     </FormControl>
   );
 };
