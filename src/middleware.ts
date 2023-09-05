@@ -97,8 +97,12 @@ const hash = async (str?: string) => {
   if (!str) {
     return null;
   }
-  const buffer = await crypto.subtle.digest('SHA-1', Buffer.from(str, 'utf-8'));
-  return Array.from(new Uint8Array(buffer));
+  try {
+    const buffer = await globalThis.crypto.subtle.digest('SHA-1', Buffer.from(str, 'utf-8'));
+    return Array.from(new Uint8Array(buffer));
+  } catch (e) {
+    return null;
+  }
 };
 
 const bootstrap = async (cookie?: string) => {
