@@ -57,18 +57,24 @@ async function logout(req: NextApiRequest, res: NextApiResponse<ILogoutResponse>
           session.isAuthenticated = false;
           session.apiCookieHash = await hash(apiSessionCookie?.value);
           await session.save();
+          console.log('session updated, success');
           return res.status(200).json({ success: true });
         } else {
           // in the case the token is invalid, redirect to root
+          console.log('invalid user-data, not updating session');
           return res.status(200).json({ success: false, error: 'invalid-token' });
         }
       } catch (e) {
+        console.error('failed during bootstrapping step', e);
+
         // if there is an error fetching the user data, we can recover later in a subsequent request
         return res.status(200).json({ success: false, error: 'failed-userdata-request' });
       }
     }
+    console.error('logout failed');
     return res.status(401).json({ success: false, error: 'logout-failed' });
   } catch (e) {
-    return res.status(500).json({ success: false, error: 'logout-failed' });
+    console.error('failed during logout', e);
+    return res.status(401).json({ success: false, error: 'logout-failed' });
   }
 }
