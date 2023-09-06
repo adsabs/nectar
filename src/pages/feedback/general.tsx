@@ -20,19 +20,11 @@ import { makeSearchParams, parseAPIError } from '@utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { MouseEvent, useCallback, useState } from 'react';
-import {
-  browserName,
-  browserVersion,
-  engineName,
-  engineVersion,
-  isDesktop,
-  isMobile,
-  osName,
-  osVersion,
-} from 'react-device-detect';
+import { useDeviceSelectors } from 'react-device-detect';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
+import { composeNextGSSP } from '@ssr-utils';
 
 type FormValues = {
   name: string;
@@ -46,7 +38,8 @@ const validationSchema = z.object({
   comments: z.string().min(1, 'Feedback is required'),
 });
 
-const General: NextPage = () => {
+const General: NextPage<{ userAgent: string }> = (props) => {
+  const [deviceSelectors, device] = useDeviceSelectors(props?.userAgent);
   const username = useStore((state) => state.user.username);
   const currentQuery = useStore((state) => state.latestQuery);
 
@@ -91,7 +84,8 @@ const General: NextPage = () => {
       const { name, email, comments } = params;
 
       const recaptchaToken = await executeRecaptcha('feedback');
-      const platform = isDesktop ? 'desktop' : isMobile ? 'mobile' : 'others';
+
+      const platform = deviceSelectors.isDesktop ? 'desktop' : deviceSelectors.isMobile ? 'mobile' : 'others';
 
       mutate(
         {
@@ -99,15 +93,15 @@ const General: NextPage = () => {
           _replyto: email,
           _subject: 'Nectar Feedback',
           'feedback-type': 'feedback',
-          'user-agent-string': navigator.userAgent,
+          'user-agent-string': globalThis?.navigator?.userAgent ?? '',
           origin: 'bbb_feedback', // indicate general feedback
           'g-recaptcha-response': recaptchaToken,
           currentuser: username ?? 'anonymous',
-          'browser.name': browserName,
-          'browser.version': browserVersion,
-          engine: `${engineName} ${engineVersion}`,
+          'browser.name': device.browser.name,
+          'browser.version': device.browser.version,
+          engine: `${device.engine.name} ${device.engine.version}`,
           platform,
-          os: `${osName} ${osVersion}`,
+          os: `${device.os.name} ${device.os.version}`,
           current_page: router.query.from ? (router.query.from as string) : undefined,
           current_query: makeSearchParams(currentQuery),
           url: router.asPath,
@@ -142,15 +136,9 @@ const General: NextPage = () => {
       router.query.from,
       router.asPath,
       username,
-      engineName,
-      engineVersion,
-      osName,
-      osVersion,
-      browserName,
-      browserVersion,
-      isDesktop,
-      isMobile,
-      navigator.userAgent,
+      device,
+      deviceSelectors,
+      globalThis?.navigator?.userAgent,
     ],
   );
 
@@ -212,4 +200,10 @@ const General: NextPage = () => {
 };
 
 export default General;
-export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';
+export const getServerSideProps = composeNextGSSP(async (ctx) => {
+  return Promise.resolve({
+    props: {
+      userAgent: ctx.req.headers['user-agent'] ?? '',
+    },
+  });
+});
