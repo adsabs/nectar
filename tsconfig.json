@@ -23,7 +23,8 @@
     "paths": {
       "@*": [
         "./src/*"
-      ]
+      ],
+      "@logger": ["./src/logger/logger"],
     },
     "incremental": true
   },

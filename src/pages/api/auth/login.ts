@@ -8,6 +8,9 @@ import { configWithCSRF, fetchUserData, hash, isValidToken, pickUserData } from 
 import { defaultRequestConfig } from '@api/config';
 import axios, { AxiosResponse } from 'axios';
 import setCookie from 'set-cookie-parser';
+import { logger } from '../../../../logger/logger';
+
+const log = logger.child({ module: 'api/login' });
 
 export interface ILoginResponse {
   success?: boolean;
@@ -81,24 +84,24 @@ export const handleAuthentication = async (
           session.isAuthenticated = true;
           session.apiCookieHash = await hash(apiSessionCookie?.value);
           await session.save();
-          console.log('session updated, success');
+          log.info({}, 'session updated, success');
           return res.status(200).json({ success: true });
         } else {
           // in the case the token is invalid, redirect to root
-          console.log('invalid user-data, not updating session');
+          log.debug({ userData, session }, 'invalid user-data, not updating session');
           return res.status(200).json({ success: false, error: 'invalid-token' });
         }
       } catch (e) {
-        console.error('failed during bootstrapping step', e);
+        log.trace({ error: e }, 'login failed during bootstrapping step');
 
         // if there is an error fetching the user data, we can recover later in a subsequent request
         return res.status(200).json({ success: false, error: 'failed-userdata-request' });
       }
     }
-    console.error('login failed');
+    log.debug({ data }, 'login failed');
     return res.status(401).json({ success: false, error: 'login-failed' });
   } catch (e) {
-    console.error('failed during login', e);
+    log.trace({ error: e }, 'login failed');
     return res.status(401).json({ success: false, error: 'login-failed' });
   }
 };

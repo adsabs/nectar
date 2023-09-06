@@ -133,6 +133,7 @@ enum BOTS {
   YandexRu = 'yandex.ru',
   YandexNet = 'yandex.net',
   AlexaCom = 'alexa.com',
+  openai = 'openai.com',
 }
 
 type UAEntry = { type: 'DNS'; DNS: BOTS[] } | { type: 'IPS'; IPS: string[] } | { type: 'UNVERIFIABLE' };
