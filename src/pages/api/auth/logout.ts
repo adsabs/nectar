@@ -6,11 +6,14 @@ import { defaultRequestConfig } from '@api/config';
 import axios, { AxiosResponse } from 'axios';
 import setCookie from 'set-cookie-parser';
 import { withIronSessionApiRoute } from 'iron-session/next';
+import { logger } from '../../../../logger/logger';
 
 export interface ILogoutResponse {
   success?: boolean;
   error?: 'logout-failed' | 'failed-userdata-request' | 'invalid-token' | 'method-not-allowed';
 }
+
+const log = logger.child({ module: 'api/logout' });
 
 export default withIronSessionApiRoute(logout, sessionConfig);
 
@@ -57,24 +60,24 @@ async function logout(req: NextApiRequest, res: NextApiResponse<ILogoutResponse>
           session.isAuthenticated = false;
           session.apiCookieHash = await hash(apiSessionCookie?.value);
           await session.save();
-          console.log('session updated, success');
+          log.info({}, 'logout successful');
           return res.status(200).json({ success: true });
         } else {
           // in the case the token is invalid, redirect to root
-          console.log('invalid user-data, not updating session');
+          log.debug({ userData, session }, 'invalid user-data, not updating session');
           return res.status(200).json({ success: false, error: 'invalid-token' });
         }
       } catch (e) {
-        console.error('failed during bootstrapping step', e);
+        log.trace({ error: e }, 'logout failed during bootstrapping step');
 
         // if there is an error fetching the user data, we can recover later in a subsequent request
         return res.status(200).json({ success: false, error: 'failed-userdata-request' });
       }
     }
-    console.error('logout failed');
+    log.debug({ data }, 'logout failed');
     return res.status(401).json({ success: false, error: 'logout-failed' });
   } catch (e) {
-    console.error('failed during logout', e);
+    log.trace({ error: e }, 'logout failed');
     return res.status(401).json({ success: false, error: 'logout-failed' });
   }
 }

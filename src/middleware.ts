@@ -256,7 +256,7 @@ const handleResponse = (req: NextRequest, res: NextResponse, session: IronSessio
 };
 
 const handleVerifyResponse = async (req: NextRequest, res: NextResponse, session: IronSession) => {
-  // verify requests have an token we need to send to the API
+  // verify requests have a token we need to send to the API
   try {
     const [, , , , route, token] = req.nextUrl.pathname.split('/');
 
