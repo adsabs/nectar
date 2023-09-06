@@ -229,3 +229,5 @@
     @apply absolute z-50 block m-0 p-1 text-gray-50 bg-gray-800 rounded;
   }
 }
+
+.grecaptcha-badge { visibility: hidden; }

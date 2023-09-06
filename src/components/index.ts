@@ -39,3 +39,4 @@ export * from './Visualizations';
 export * from './DataDownloader';
 export * from './AuthorAffiliations';
 export * from './Toggler';
+export * from './RecaptchaMessage/RecaptchaMessage';

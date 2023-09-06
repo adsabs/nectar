@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { IFeedbackParams, useFeedback } from '@api/feedback';
+import { useFeedback } from '@api/feedback';
 import {
   AlertStatus,
   Button,
@@ -13,14 +13,13 @@ import {
   Textarea,
   useDisclosure,
 } from '@chakra-ui/react';
-import { FeedbackAlert, FeedbackLayout } from '@components';
-import { GOOGLE_RECAPTCHA_KEY } from '@config';
+import { FeedbackAlert, FeedbackLayout, RecaptchaMessage } from '@components';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useStore } from '@store';
 import { makeSearchParams, parseAPIError } from '@utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { MouseEvent, useEffect, useRef, useState } from 'react';
+import { MouseEvent, useCallback, useState } from 'react';
 import {
   browserName,
   browserVersion,
@@ -31,17 +30,15 @@ import {
   osName,
   osVersion,
 } from 'react-device-detect';
-import ReCAPTCHA from 'react-google-recaptcha';
-import { useForm } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
 type FormValues = {
   name: string;
   email: string;
   comments: string;
 };
-
-type State = 'idle' | 'submitting';
 
 const validationSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -51,13 +48,6 @@ const validationSchema = z.object({
 
 const General: NextPage = () => {
   const username = useStore((state) => state.user.username);
-
-  const [params, setParams] = useState<IFeedbackParams>(null);
-
-  const [token, setToken] = useState<string>(null);
-
-  const [state, setState] = useState<State>('idle');
-
   const currentQuery = useStore((state) => state.latestQuery);
 
   const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({
@@ -65,6 +55,7 @@ const General: NextPage = () => {
     title: '',
   });
 
+  const { executeRecaptcha } = useGoogleReCaptcha();
   const { isOpen: isAlertOpen, onClose: onAlertClose, onOpen: onAlertOpen } = useDisclosure();
 
   const initialFormValues: FormValues = {
@@ -83,77 +74,85 @@ const General: NextPage = () => {
 
   const {
     register,
-    getValues,
     formState: { errors },
     reset,
     handleSubmit,
   } = formMethods;
 
-  // submit feedback
-  const { mutate } = useFeedback();
-
-  const recaptchaRef = useRef<ReCAPTCHA>();
+  const { mutate, isLoading } = useFeedback();
 
   const router = useRouter();
 
-  useEffect(() => {
-    if (state === 'idle') {
-      // reset
-      setParams(null);
-      setToken(null);
-      recaptchaRef.current.reset();
-    } else if (state === 'submitting') {
-      const token = recaptchaRef.current.getValue();
-      const { name, email, comments } = getValues();
+  const onSubmit = useCallback<SubmitHandler<FormValues>>(
+    async (params) => {
+      if (params === null || executeRecaptcha === null) {
+        return;
+      }
+      const { name, email, comments } = params;
 
-      setParams({
-        name,
-        _replyto: email,
-        _subject: 'Nectar Feedback',
-        'feedback-type': 'feedback',
-        'user-agent-string': navigator.userAgent,
-        origin: 'bbb_feedback', // indicate general feedback
-        'g-recaptcha-response': token,
-        currentuser: username ?? 'anonymous',
-        'browser.name': browserName,
-        'browser.version': browserVersion,
-        engine: `${engineName} ${engineVersion}`,
-        platform: isDesktop ? 'desktop' : isMobile ? 'mobile' : 'others',
-        os: `${osName} ${osVersion}`,
-        current_page: router.query.from ? (router.query.from as string) : undefined,
-        current_query: makeSearchParams(currentQuery),
-        url: router.asPath,
-        comments,
-      });
-    }
-  }, [state]);
+      const recaptchaToken = await executeRecaptcha('feedback');
+      const platform = isDesktop ? 'desktop' : isMobile ? 'mobile' : 'others';
 
-  useEffect(() => {
-    if (params !== null && state === 'submitting') {
-      void mutate(params, {
-        onSettled: (_data, error) => {
-          if (error) {
-            setAlertDetails({
-              status: 'error',
-              title: parseAPIError(error),
-            });
-          } else {
-            setAlertDetails({
-              status: 'success',
-              title: 'Feedback submitted successfully',
-            });
-            reset(initialFormValues);
-          }
-          onAlertOpen();
-          setState('idle');
+      mutate(
+        {
+          name,
+          _replyto: email,
+          _subject: 'Nectar Feedback',
+          'feedback-type': 'feedback',
+          'user-agent-string': navigator.userAgent,
+          origin: 'bbb_feedback', // indicate general feedback
+          'g-recaptcha-response': recaptchaToken,
+          currentuser: username ?? 'anonymous',
+          'browser.name': browserName,
+          'browser.version': browserVersion,
+          engine: `${engineName} ${engineVersion}`,
+          platform,
+          os: `${osName} ${osVersion}`,
+          current_page: router.query.from ? (router.query.from as string) : undefined,
+          current_query: makeSearchParams(currentQuery),
+          url: router.asPath,
+          comments,
         },
-      });
-    }
-  }, [params, state]);
-
-  const onSubmit = () => {
-    setState('submitting');
-  };
+        {
+          onSettled: (_data, error) => {
+            if (error) {
+              setAlertDetails({
+                status: 'error',
+                title: parseAPIError(error),
+              });
+            } else {
+              setAlertDetails({
+                status: 'success',
+                title: 'Feedback submitted successfully',
+              });
+              reset(initialFormValues);
+            }
+            onAlertOpen();
+          },
+        },
+      );
+    },
+    [
+      executeRecaptcha,
+      mutate,
+      onAlertOpen,
+      reset,
+      makeSearchParams,
+      currentQuery,
+      router.query.from,
+      router.asPath,
+      username,
+      engineName,
+      engineVersion,
+      osName,
+      osVersion,
+      browserName,
+      browserVersion,
+      isDesktop,
+      isMobile,
+      navigator.userAgent,
+    ],
+  );
 
   const handleReset = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -197,16 +196,15 @@ const General: NextPage = () => {
             <FormErrorMessage>{errors.comments && errors.comments.message}</FormErrorMessage>
           </FormControl>
 
-          <ReCAPTCHA ref={recaptchaRef} sitekey={GOOGLE_RECAPTCHA_KEY} onChange={setToken} />
-
           <HStack mt={2}>
-            <Button type="submit" isLoading={state !== 'idle'} isDisabled={token === null}>
+            <Button type="submit" isLoading={isLoading}>
               Submit
             </Button>
-            <Button type="reset" variant="outline" isDisabled={state !== 'idle'} onClick={handleReset}>
+            <Button type="reset" variant="outline" isDisabled={isLoading} onClick={handleReset}>
               Reset
             </Button>
           </HStack>
+          <RecaptchaMessage />
         </Flex>
       </form>
     </FeedbackLayout>
