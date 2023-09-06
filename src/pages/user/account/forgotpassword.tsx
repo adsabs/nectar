@@ -4,25 +4,34 @@ import { NextPage } from 'next';
 import Head from 'next/head';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useFocus } from '@lib/useFocus';
-import { Recaptcha } from '@components/Recaptcha/Recaptcha';
 import { parseAPIError } from '@utils';
-import { StandardAlertMessage } from '@components';
+import { RecaptchaMessage, StandardAlertMessage } from '@components';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
+import { useCallback } from 'react';
 
 export { useQuery } from '@tanstack/react-query';
 
 const ForgotPassword: NextPage = () => {
-  const { register, handleSubmit, setValue } = useForm<IUserForgotPasswordCredentials>({
+  const { executeRecaptcha } = useGoogleReCaptcha();
+  const { register, handleSubmit } = useForm<IUserForgotPasswordCredentials>({
     defaultValues: { email: '' },
   });
-  register('recaptcha');
   const { ref, ...registerEmail } = register('email', { required: true });
   const [emailRef] = useFocus();
 
   const { mutate: submit, data, isError, isLoading, error } = useForgotPassword();
 
-  const onFormSubmit: SubmitHandler<IUserForgotPasswordCredentials> = (params) => {
-    submit(params);
-  };
+  const onFormSubmit: SubmitHandler<IUserForgotPasswordCredentials> = useCallback(
+    async (params) => {
+      if (!executeRecaptcha) {
+        return;
+      }
+
+      params.recaptcha = await executeRecaptcha('forgot_password');
+      submit(params);
+    },
+    [executeRecaptcha, submit],
+  );
 
   return (
     <>
@@ -35,7 +44,6 @@ const ForgotPassword: NextPage = () => {
           Forgot Password
         </Heading>
         <form onSubmit={handleSubmit(onFormSubmit)} aria-labelledby="form-label">
-          <Recaptcha onChange={(value) => setValue('recaptcha', value)} />
           <Stack direction="column" spacing={4}>
             <FormControl isRequired>
               <FormLabel>Email</FormLabel>
@@ -70,6 +78,7 @@ const ForgotPassword: NextPage = () => {
             )}
           </Stack>
         </form>
+        <RecaptchaMessage />
       </Container>
     </>
   );

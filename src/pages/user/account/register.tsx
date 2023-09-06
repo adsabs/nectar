@@ -21,27 +21,27 @@ import { NextPage } from 'next';
 import Head from 'next/head';
 import { Control, SubmitHandler, useForm, useWatch } from 'react-hook-form';
 import { useFocus } from '@lib/useFocus';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useRedirectWithNotification } from '@components/Notification';
 import { parseAPIError } from '@utils';
-import { Recaptcha } from '@components/Recaptcha/Recaptcha';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
+import { RecaptchaMessage } from '@components/RecaptchaMessage/RecaptchaMessage';
 
 const initialParams: IUserRegistrationCredentials = { email: '', password: '', confirmPassword: '', recaptcha: '' };
 
 const Register: NextPage = () => {
+  const { executeRecaptcha } = useGoogleReCaptcha();
   const redirect = useRedirectWithNotification();
   const { mutate: submit, data, isError, isLoading, error } = useRegisterUser();
   const {
     register,
     handleSubmit,
     getValues,
-    setValue,
     formState: { errors },
     control,
   } = useForm({
     defaultValues: initialParams,
   });
-  register('recaptcha');
   const { ref, ...registerProps } = register('email', { required: true });
   const [emailRef] = useFocus();
 
@@ -51,9 +51,19 @@ const Register: NextPage = () => {
     }
   }, [data, redirect]);
 
-  const onFormSubmit: SubmitHandler<IUserRegistrationCredentials> = (params) => {
-    submit(params);
-  };
+  const onFormSubmit: SubmitHandler<IUserRegistrationCredentials> = useCallback(
+    async (params) => {
+      if (!executeRecaptcha) {
+        return;
+      }
+
+      submit({
+        ...params,
+        recaptcha: await executeRecaptcha('register'),
+      });
+    },
+    [executeRecaptcha],
+  );
 
   return (
     <div>
@@ -66,7 +76,6 @@ const Register: NextPage = () => {
           Register
         </Heading>
         <form onSubmit={handleSubmit(onFormSubmit)} aria-labelledby="form-label">
-          <Recaptcha onChange={(value) => setValue('recaptcha', value)} />
           <Stack direction="column" spacing={4}>
             <FormControl isRequired isInvalid={!!errors.email}>
               <FormLabel>Email</FormLabel>
@@ -128,6 +137,7 @@ const Register: NextPage = () => {
             description={parseAPIError(error)}
           />
         )}
+        <RecaptchaMessage />
       </Container>
     </div>
   );
