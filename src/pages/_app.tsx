@@ -20,6 +20,7 @@ import axios from 'axios';
 import api, { checkUserData } from '@api';
 import { isNilOrEmpty, notEqual } from 'ramda-adjunct';
 import { useUser } from '@lib/useUser';
+import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
   require('../mocks');
@@ -55,16 +56,18 @@ const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => 
   const createStore = useCreateStore(pageProps.dehydratedAppState ?? {});
 
   return (
-    <MathJaxProvider>
-      <ChakraProvider theme={theme}>
-        <StoreProvider createStore={createStore}>
-          <QCProvider>
-            <Hydrate state={pageProps.dehydratedState}>{children}</Hydrate>
-            <ReactQueryDevtools />
-          </QCProvider>
-        </StoreProvider>
-      </ChakraProvider>
-    </MathJaxProvider>
+    <GoogleReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? ''}>
+      <MathJaxProvider>
+        <ChakraProvider theme={theme}>
+          <StoreProvider createStore={createStore}>
+            <QCProvider>
+              <Hydrate state={pageProps.dehydratedState}>{children}</Hydrate>
+              <ReactQueryDevtools />
+            </QCProvider>
+          </StoreProvider>
+        </ChakraProvider>
+      </MathJaxProvider>
+    </GoogleReCaptchaProvider>
   );
 };
 

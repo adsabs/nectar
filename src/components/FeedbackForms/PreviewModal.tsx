@@ -10,12 +10,13 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Spacer,
   Text,
 } from '@chakra-ui/react';
-import { GOOGLE_RECAPTCHA_KEY } from '@config';
 import { parseAPIError } from '@utils';
-import { ReactElement, useEffect, useRef, useState } from 'react';
-import ReCAPTCHA from 'react-google-recaptcha';
+import { ReactElement, useCallback } from 'react';
+import { RecaptchaMessage } from '@components';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
 export interface IPreviewProps {
   params: IFeedbackParams;
@@ -31,54 +32,35 @@ export interface IPreviewProps {
 
 export const PreviewModal = (props: IPreviewProps) => {
   const { params, isOpen, title, submitterInfo, mainContentTitle, mainContent, onClose, onSuccess, onError } = props;
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { mutate, isLoading } = useFeedback();
 
-  const [paramsWithToken, setParamsWithToken] = useState<IFeedbackParams>(null);
-
-  const [token, setToken] = useState<string>(null);
-
-  const { mutate } = useFeedback();
-
-  const recaptchaRef = useRef<ReCAPTCHA>();
-
-  useEffect(() => {
-    if (isSubmitting) {
-      const token = recaptchaRef.current.getValue();
-      setParamsWithToken({ ...params, 'g-recaptcha-response': token });
-    } else {
-      recaptchaRef?.current?.reset();
-      setToken(null);
-      setParamsWithToken(null);
+  const handleSubmit = useCallback(async () => {
+    if (!executeRecaptcha) {
+      return;
     }
-  }, [isSubmitting]);
 
-  useEffect(() => {
-    if (paramsWithToken) {
-      void mutate(paramsWithToken, {
+    mutate(
+      {
+        ...params,
+        'g-recaptcha-response': await executeRecaptcha('feedback'),
+      },
+      {
         onSettled: (_data, error) => {
-          setIsSubmitting(false);
-          if (error) {
-            onError(parseAPIError(error));
-          } else {
-            onSuccess();
-          }
+          error ? onError(parseAPIError(error)) : onSuccess();
           onClose();
         },
-      });
-    }
-  }, [paramsWithToken]);
-
-  const handleSubmit = () => {
-    setIsSubmitting(true);
-  };
+      },
+    );
+  }, [executeRecaptcha, mutate, onClose, onError, onSuccess, params]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="5xl" closeOnOverlayClick={false}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>{title}</ModalHeader>
-        <ModalCloseButton isDisabled={isSubmitting} />
+        <ModalCloseButton isDisabled={isLoading} />
         <ModalBody>
           <Flex direction="column" gap={4}>
             <Text fontWeight="semibold">Submitter:</Text>
@@ -93,16 +75,17 @@ export const PreviewModal = (props: IPreviewProps) => {
             ) : (
               <>{mainContent}</>
             )}
-            <ReCAPTCHA ref={recaptchaRef} sitekey={GOOGLE_RECAPTCHA_KEY} onChange={setToken} />
           </Flex>
         </ModalBody>
         <ModalFooter backgroundColor="transparent" justifyContent="start" gap={1}>
-          <Button onClick={handleSubmit} isLoading={isSubmitting} isDisabled={token === null}>
+          <Button onClick={handleSubmit} isLoading={isLoading}>
             Submit
           </Button>
-          <Button onClick={onClose} variant="outline" isDisabled={isSubmitting}>
+          <Button onClick={onClose} variant="outline" isDisabled={isLoading}>
             Back
           </Button>
+          <Spacer />
+          <RecaptchaMessage />
         </ModalFooter>
       </ModalContent>
     </Modal>
