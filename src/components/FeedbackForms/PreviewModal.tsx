@@ -14,9 +14,10 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { parseAPIError } from '@utils';
-import { ReactElement, useCallback } from 'react';
+import { ReactElement, useCallback, useState } from 'react';
 import { RecaptchaMessage } from '@components';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
+import { FormMessage } from '@components/Feedbacks/FormMessage';
 
 export interface IPreviewProps {
   params: IFeedbackParams;
@@ -33,26 +34,32 @@ export interface IPreviewProps {
 export const PreviewModal = (props: IPreviewProps) => {
   const { params, isOpen, title, submitterInfo, mainContentTitle, mainContent, onClose, onSuccess, onError } = props;
   const { executeRecaptcha } = useGoogleReCaptcha();
+  const [formError, setFormError] = useState<Error | string | null>(null);
 
   const { mutate, isLoading } = useFeedback();
 
   const handleSubmit = useCallback(async () => {
     if (!executeRecaptcha) {
+      setFormError('ReCAPTCHA not loaded properly. Please refresh the page and try again.');
       return;
     }
 
-    mutate(
-      {
-        ...params,
-        'g-recaptcha-response': await executeRecaptcha('feedback'),
-      },
-      {
-        onSettled: (_data, error) => {
-          error ? onError(parseAPIError(error)) : onSuccess();
-          onClose();
+    try {
+      mutate(
+        {
+          ...params,
+          'g-recaptcha-response': await executeRecaptcha('feedback'),
         },
-      },
-    );
+        {
+          onSettled: (_data, error) => {
+            error ? onError(parseAPIError(error)) : onSuccess();
+            onClose();
+          },
+        },
+      );
+    } catch (e) {
+      setFormError(e as Error);
+    }
   }, [executeRecaptcha, mutate, onClose, onError, onSuccess, params]);
 
   return (
@@ -86,6 +93,7 @@ export const PreviewModal = (props: IPreviewProps) => {
           </Button>
           <Spacer />
           <RecaptchaMessage />
+          <FormMessage show={!!formError} title="Unable to submit form" error={formError} />
         </ModalFooter>
       </ModalContent>
     </Modal>
