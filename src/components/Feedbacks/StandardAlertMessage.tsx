@@ -1,19 +1,15 @@
-import { Alert, AlertDescription, AlertIcon, AlertStatus, AlertTitle, Box } from '@chakra-ui/react';
+import { Alert, AlertDescription, AlertIcon, AlertProps, AlertTitle, Box } from '@chakra-ui/react';
 import React, { ReactElement } from 'react';
 
-export interface IStandardAlertProps {
-  status: AlertStatus;
+export interface IStandardAlertProps extends Omit<AlertProps, 'title'> {
   title: string | ReactElement;
   description?: string | ReactElement;
 }
 
-export const StandardAlertMessage = ({
-  status,
-  title: alertTitle,
-  description: alertDescription,
-}: IStandardAlertProps): ReactElement => {
+export const StandardAlertMessage = (props: IStandardAlertProps): ReactElement => {
+  const { title: alertTitle, description: alertDescription, ...alertProps } = props;
   return (
-    <Alert status={status} my={5}>
+    <Alert my={5} {...alertProps}>
       <AlertIcon />
       <Box>
         <AlertTitle mr={2}>{alertTitle}</AlertTitle>

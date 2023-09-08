@@ -378,6 +378,11 @@ export const parseAPIError = (
     ['message'],
   ];
 
+  // if it's a simple string, return it as is
+  if (typeof error === 'string') {
+    return error;
+  }
+
   // return generic message if error is invalid
   if (!error || !(error instanceof Error)) {
     return options.defaultMessage;

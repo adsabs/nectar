@@ -21,11 +21,12 @@ import { NextPage } from 'next';
 import Head from 'next/head';
 import { Control, SubmitHandler, useForm, useWatch } from 'react-hook-form';
 import { useFocus } from '@lib/useFocus';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRedirectWithNotification } from '@components/Notification';
 import { parseAPIError } from '@utils';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { RecaptchaMessage } from '@components/RecaptchaMessage/RecaptchaMessage';
+import { FormMessage } from '@components/Feedbacks/FormMessage';
 
 const initialParams: IUserRegistrationCredentials = { email: '', password: '', confirmPassword: '', recaptcha: '' };
 
@@ -44,7 +45,7 @@ const Register: NextPage = () => {
   });
   const { ref, ...registerProps } = register('email', { required: true });
   const [emailRef] = useFocus();
-
+  const [formError, setFormError] = useState<Error | string | null>(null);
   useEffect(() => {
     if (data) {
       void redirect('account-register-success', { path: '/user/account/login' });
@@ -54,13 +55,18 @@ const Register: NextPage = () => {
   const onFormSubmit: SubmitHandler<IUserRegistrationCredentials> = useCallback(
     async (params) => {
       if (!executeRecaptcha) {
+        setFormError('ReCAPTCHA not loaded properly. Please refresh the page and try again.');
         return;
       }
 
-      submit({
-        ...params,
-        recaptcha: await executeRecaptcha('register'),
-      });
+      try {
+        submit({
+          ...params,
+          recaptcha: await executeRecaptcha('register'),
+        });
+      } catch (e) {
+        setFormError(e as Error);
+      }
     },
     [executeRecaptcha],
   );
@@ -138,6 +144,7 @@ const Register: NextPage = () => {
           />
         )}
         <RecaptchaMessage />
+        <FormMessage show={!!formError} title="Unable to submit form" error={formError} />
       </Container>
     </div>
   );

@@ -7,12 +7,14 @@ import { useFocus } from '@lib/useFocus';
 import { parseAPIError } from '@utils';
 import { RecaptchaMessage, StandardAlertMessage } from '@components';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
+import { FormMessage } from '@components/Feedbacks/FormMessage';
 
 export { useQuery } from '@tanstack/react-query';
 
 const ForgotPassword: NextPage = () => {
   const { executeRecaptcha } = useGoogleReCaptcha();
+  const [formError, setFormError] = useState<Error | string | null>(null);
   const { register, handleSubmit } = useForm<IUserForgotPasswordCredentials>({
     defaultValues: { email: '' },
   });
@@ -24,11 +26,16 @@ const ForgotPassword: NextPage = () => {
   const onFormSubmit: SubmitHandler<IUserForgotPasswordCredentials> = useCallback(
     async (params) => {
       if (!executeRecaptcha) {
+        setFormError('ReCAPTCHA not loaded properly. Please refresh the page and try again.');
         return;
       }
 
-      params.recaptcha = await executeRecaptcha('forgot_password');
-      submit(params);
+      try {
+        params.recaptcha = await executeRecaptcha('forgot_password');
+        submit(params);
+      } catch (e) {
+        setFormError(e as Error);
+      }
     },
     [executeRecaptcha, submit],
   );
@@ -79,6 +86,7 @@ const ForgotPassword: NextPage = () => {
           </Stack>
         </form>
         <RecaptchaMessage />
+        <FormMessage show={!!formError} title="Unable to submit form" error={formError} />
       </Container>
     </>
   );

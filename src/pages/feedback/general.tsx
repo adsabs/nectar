@@ -33,6 +33,7 @@ import {
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
+import { FormMessage } from '@components/Feedbacks/FormMessage';
 
 type FormValues = {
   name: string;
@@ -49,6 +50,7 @@ const validationSchema = z.object({
 const General: NextPage = () => {
   const username = useStore((state) => state.user.username);
   const currentQuery = useStore((state) => state.latestQuery);
+  const [formError, setFormError] = useState<Error | string | null>(null);
 
   const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({
     status: 'success',
@@ -85,52 +87,63 @@ const General: NextPage = () => {
 
   const onSubmit = useCallback<SubmitHandler<FormValues>>(
     async (params) => {
-      if (params === null || !executeRecaptcha) {
+      if (params === null) {
+        setFormError('Form is invalid');
         return;
       }
+
+      if (!executeRecaptcha) {
+        setFormError('ReCAPTCHA was not loaded properly, please refresh the page and try again.');
+        return;
+      }
+
       const { name, email, comments } = params;
+      try {
+        const recaptchaToken = await executeRecaptcha('feedback');
 
-      const recaptchaToken = await executeRecaptcha('feedback');
-      const platform = isDesktop ? 'desktop' : isMobile ? 'mobile' : 'others';
+        const platform = isDesktop ? 'desktop' : isMobile ? 'mobile' : 'others';
 
-      mutate(
-        {
-          name,
-          _replyto: email,
-          _subject: 'Nectar Feedback',
-          'feedback-type': 'feedback',
-          'user-agent-string': globalThis?.navigator?.userAgent,
-          origin: 'bbb_feedback', // indicate general feedback
-          'g-recaptcha-response': recaptchaToken,
-          currentuser: username ?? 'anonymous',
-          'browser.name': browserName,
-          'browser.version': browserVersion,
-          engine: `${engineName} ${engineVersion}`,
-          platform,
-          os: `${osName} ${osVersion}`,
-          current_page: router.query.from ? (router.query.from as string) : undefined,
-          current_query: makeSearchParams(currentQuery),
-          url: router.asPath,
-          comments,
-        },
-        {
-          onSettled: (_data, error) => {
-            if (error) {
-              setAlertDetails({
-                status: 'error',
-                title: parseAPIError(error),
-              });
-            } else {
-              setAlertDetails({
-                status: 'success',
-                title: 'Feedback submitted successfully',
-              });
-              reset(initialFormValues);
-            }
-            onAlertOpen();
+        mutate(
+          {
+            name,
+            _replyto: email,
+            _subject: 'Nectar Feedback',
+            'feedback-type': 'feedback',
+            'user-agent-string': globalThis?.navigator?.userAgent,
+            origin: 'bbb_feedback', // indicate general feedback
+            'g-recaptcha-response': recaptchaToken,
+            currentuser: username ?? 'anonymous',
+            'browser.name': browserName,
+            'browser.version': browserVersion,
+            engine: `${engineName} ${engineVersion}`,
+            platform,
+            os: `${osName} ${osVersion}`,
+            current_page: router.query.from ? (router.query.from as string) : undefined,
+            current_query: makeSearchParams(currentQuery),
+            url: router.asPath,
+            comments,
           },
-        },
-      );
+          {
+            onSettled: (_data, error) => {
+              if (error) {
+                setAlertDetails({
+                  status: 'error',
+                  title: parseAPIError(error),
+                });
+              } else {
+                setAlertDetails({
+                  status: 'success',
+                  title: 'Feedback submitted successfully',
+                });
+                reset(initialFormValues);
+              }
+              onAlertOpen();
+            },
+          },
+        );
+      } catch (e) {
+        setFormError(e as Error);
+      }
     },
     [
       executeRecaptcha,
@@ -206,6 +219,7 @@ const General: NextPage = () => {
           </HStack>
           <RecaptchaMessage />
         </Flex>
+        <FormMessage show={!!formError} title="Unable to submit form" error={formError} />
       </form>
     </FeedbackLayout>
   );
