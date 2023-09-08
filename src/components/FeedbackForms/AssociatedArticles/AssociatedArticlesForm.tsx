@@ -389,7 +389,7 @@ export const AssociatedTable = () => {
               </Flex>
             </FormControl>
 
-            <FormControl isInvalid={errors.associatedBibcodes.length > 0}>
+            <FormControl isInvalid={errors.associatedBibcodes?.length > 0}>
               <HStack>
                 <Input
                   onChange={handleNewAssociatedBibcodeChange}
