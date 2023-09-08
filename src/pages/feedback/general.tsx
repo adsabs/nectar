@@ -99,7 +99,7 @@ const General: NextPage = () => {
           _replyto: email,
           _subject: 'Nectar Feedback',
           'feedback-type': 'feedback',
-          'user-agent-string': navigator.userAgent,
+          'user-agent-string': globalThis?.navigator?.userAgent,
           origin: 'bbb_feedback', // indicate general feedback
           'g-recaptcha-response': recaptchaToken,
           currentuser: username ?? 'anonymous',
@@ -150,7 +150,7 @@ const General: NextPage = () => {
       browserVersion,
       isDesktop,
       isMobile,
-      navigator.userAgent,
+      globalThis?.navigator?.userAgent,
     ],
   );
 
