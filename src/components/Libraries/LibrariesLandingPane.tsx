@@ -1,16 +1,43 @@
-import { useGetLibraries } from '@api';
+import { useAddLibrary, useGetLibraries } from '@api';
 import { AddIcon, DeleteIcon, Icon } from '@chakra-ui/icons';
-import { Box, Button, Flex, Heading, Skeleton, Stack } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Checkbox,
+  Flex,
+  FormControl,
+  FormLabel,
+  Heading,
+  HStack,
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Skeleton,
+  Stack,
+  Textarea,
+  useDisclosure,
+  useToast,
+} from '@chakra-ui/react';
 import { WrenchIcon } from '@heroicons/react/24/solid';
+import { parseAPIError } from '@utils';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useMemo, useState } from 'react';
+import { ChangeEvent, useMemo, useState } from 'react';
 import { ILibraryListTableSort, LibraryListTable } from './LibraryListTable';
 import { LibraryTypeSelector } from './LibraryTypeSelector';
 import { LibraryMeta, LibraryType } from './types';
 
 export const LibrariesLandingPane = () => {
   const router = useRouter();
+
+  const toast = useToast({
+    duration: 2000,
+  });
 
   const [pageSize, setPageSize] = useState(10);
 
@@ -26,9 +53,13 @@ export const LibrariesLandingPane = () => {
   );
 
   // TODO: temp query to get all libraries so we can get count
-  const { data: all } = useGetLibraries({}, { cacheTime: 0 });
+  const { data: all, refetch: recount } = useGetLibraries({}, { cacheTime: 0 });
+
+  const { mutate: addLibrary } = useAddLibrary();
 
   const [libraryType, setLibraryType] = useState<LibraryType>('owner');
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const metadata: LibraryMeta[] = useMemo(
     () =>
@@ -36,7 +67,7 @@ export const LibrariesLandingPane = () => {
         ? libraries.libraries.map((l) => ({
             id: l.id,
             visibility: l.public ? 'public' : 'private',
-            collaborators: l.num_users,
+            collaborators: l.num_users, // TODO: does this inculde owner?
             name: l.name,
             description: l.description,
             papers: l.num_documents,
@@ -55,6 +86,18 @@ export const LibrariesLandingPane = () => {
   const [sort, setSort] = useState<ILibraryListTableSort>({ col: 'name', dir: 'asc' });
 
   const [selected, setSelected] = useState<string[]>([]);
+
+  // this will cause a refresh as well
+  const reset = () => {
+    setPageIndex(0);
+    setSelected([]);
+  };
+
+  const refresh = () => {
+    // refetch libraries and reset lib count
+    void refetch();
+    void recount();
+  };
 
   const handleSortChange = (sort: ILibraryListTableSort) => {
     // TODO: refetch libraries with new sort
@@ -84,8 +127,22 @@ export const LibrariesLandingPane = () => {
     setLibraryType(type);
   };
 
-  const handleAddLibrary = () => {
-    // TODO:
+  const handleAddLibrary = (name: string, description: string, isPublic: boolean) => {
+    addLibrary(
+      { name, description, public: isPublic },
+      {
+        onSettled: (data, error) => {
+          if (error) {
+            toast({ status: 'error', title: parseAPIError(error) });
+          } else {
+            toast({ status: 'success', title: `Successfully added "${name}"` });
+
+            // refetch libraries and reset lib count
+            refresh();
+          }
+        },
+      },
+    );
   };
 
   const handleOperations = () => {
@@ -117,7 +174,7 @@ export const LibrariesLandingPane = () => {
                 Delete
               </Button>
             ) : null}
-            <Button variant="outline" leftIcon={<AddIcon />} onClick={handleAddLibrary}>
+            <Button variant="outline" leftIcon={<AddIcon />} onClick={onOpen}>
               Add New Library
             </Button>
             <Button leftIcon={<Icon as={WrenchIcon} onClick={handleOperations} />}>Operations</Button>
@@ -126,19 +183,22 @@ export const LibrariesLandingPane = () => {
         {isLoading ? (
           <TableSkeleton />
         ) : (
-          <LibraryListTable
-            libraries={metadata}
-            selected={selected}
-            entries={entries}
-            sort={sort}
-            pageSize={pageSize}
-            pageIndex={pageIndex}
-            onChangeSort={handleSortChange}
-            onChangePageIndex={handlePageIndexChange}
-            onChangePageSize={handlePageSizeChange}
-            onLibrarySelect={handleOpenLibrary}
-            onSetSelected={setSelected}
-          />
+          <>
+            <LibraryListTable
+              libraries={metadata}
+              selected={selected}
+              entries={entries}
+              sort={sort}
+              pageSize={pageSize}
+              pageIndex={pageIndex}
+              onChangeSort={handleSortChange}
+              onChangePageIndex={handlePageIndexChange}
+              onChangePageSize={handlePageSizeChange}
+              onLibrarySelect={handleOpenLibrary}
+              onSetSelected={setSelected}
+            />
+            <NewLibModal isOpen={isOpen} onClose={onClose} onAddLibrary={handleAddLibrary} />
+          </>
         )}
       </Box>
     </div>
@@ -159,3 +219,73 @@ const TableSkeleton = () => (
     <Skeleton h="30px" />
   </Stack>
 );
+
+const NewLibModal = ({
+  isOpen,
+  onClose,
+  onAddLibrary,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onAddLibrary: (name: string, desc: string, isPublic: boolean) => void;
+}) => {
+  const [name, setName] = useState('');
+
+  const [desc, setDesc] = useState('');
+
+  const [isPublic, setIsPublic] = useState(false);
+
+  const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value);
+  };
+
+  const handleDescChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setDesc(e.target.value);
+  };
+
+  const handleCheckPublic = (e: ChangeEvent<HTMLInputElement>) => {
+    setIsPublic(e.target.checked);
+  };
+
+  const handleAddLibrary = () => {
+    onAddLibrary(name, desc, isPublic);
+    setName('');
+    setDesc('');
+    setIsPublic(false);
+    onClose();
+  };
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Add A New Library</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>
+          <Flex direction="column" gap={2}>
+            <FormControl>
+              <FormLabel>Enter a name for the new library: </FormLabel>
+              <Input onChange={handleNameChange} value={name} />
+            </FormControl>
+            <FormControl>
+              <FormLabel>Description: </FormLabel>
+              <Textarea onChange={handleDescChange} value={desc} />
+            </FormControl>
+            <Checkbox isChecked={isPublic} onChange={handleCheckPublic}>
+              Make library public
+            </Checkbox>
+          </Flex>
+        </ModalBody>
+
+        <ModalFooter backgroundColor="transparent" gap={1}>
+          <Button onClick={handleAddLibrary} isDisabled={name.length < 2}>
+            Add
+          </Button>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+};

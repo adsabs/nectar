@@ -15,6 +15,7 @@ import api, {
   IADSApiLibraryEntityResponse,
   IADSApiLibraryOperationParams,
   IADSApiLibraryOperationResponse,
+  IADSApiLibraryParams,
   IADSApiLibraryPermissionParams,
   IADSApiLibraryPermissionResponse,
   IADSApiLibraryPermissionUpdateParams,
@@ -46,7 +47,7 @@ export enum LIBRARY_API_KEYS {
 }
 
 export const librariesKeys = {
-  libraries: () => [LIBRARY_API_KEYS.LIBRARIES] as const,
+  libraries: (params: IADSApiLibraryParams) => [LIBRARY_API_KEYS.LIBRARIES, params] as const,
   library: (params: IADSApiLibraryEntityParams) => [LIBRARY_API_KEYS.LIBRARY, params],
   add: () => [LIBRARY_API_KEYS.ADD] as const,
   delete: () => [LIBRARY_API_KEYS.DELETE] as const,
@@ -62,17 +63,21 @@ export const librariesKeys = {
 
 // libraries
 
-export const useGetLibraries: ADSQuery<unknown, IADSApiLibraryResponse> = () => {
+export const useGetLibraries: ADSQuery<IADSApiLibraryParams, IADSApiLibraryResponse> = (params, options) => {
   return useQuery({
-    queryKey: librariesKeys.libraries(),
+    queryKey: librariesKeys.libraries(params),
     queryFn: fetchLibraries,
+    meta: { params },
+    ...options,
   });
 };
 
-export const fetchLibraries: QueryFunction<IADSApiLibraryResponse> = async () => {
+export const fetchLibraries: QueryFunction<IADSApiLibraryResponse> = async ({ meta }) => {
+  const { params } = meta as { params: IADSApiLibraryParams };
   const config: ApiRequestConfig = {
     method: 'GET',
     url: ApiTargets.LIBRARIES,
+    params,
   };
 
   const { data } = await api.request<IADSApiLibraryResponse>(config);
