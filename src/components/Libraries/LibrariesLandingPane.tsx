@@ -1,5 +1,5 @@
 import { useGetLibraries } from '@api';
-import { AddIcon, Icon } from '@chakra-ui/icons';
+import { AddIcon, DeleteIcon, Icon } from '@chakra-ui/icons';
 import { Box, Button, Flex, Heading, Skeleton, Stack } from '@chakra-ui/react';
 import { WrenchIcon } from '@heroicons/react/24/solid';
 import Head from 'next/head';
@@ -44,6 +44,8 @@ export const LibrariesLandingPane = () => {
 
   const [sort, setSort] = useState<ILibraryListTableSort>({ col: 'name', dir: 'asc' });
 
+  const [selected, setSelected] = useState<string[]>([]);
+
   const handleSortChange = (sort: ILibraryListTableSort) => {
     // TODO: refetch libraries with new sort
     // if successful
@@ -74,6 +76,20 @@ export const LibrariesLandingPane = () => {
     setLibraryType(type);
   };
 
+  const handleAddLibrary = () => {
+    // TODO:
+  };
+
+  const handleOperations = () => {
+    // TODO:
+  };
+
+  const handleDeleteSelected = () => {
+    // TODO:
+    // if successful, reload libs
+    setSelected([]);
+  };
+
   return (
     <div>
       <Head>
@@ -88,10 +104,15 @@ export const LibrariesLandingPane = () => {
             <LibraryTypeSelector type={libraryType} onChange={handleLibraryTypeChange} />
           </Stack>
           <Flex justifyContent="end" gap={1} my={2}>
-            <Button variant="outline" leftIcon={<AddIcon />}>
+            {selected.length > 0 ? (
+              <Button variant="outline" leftIcon={<DeleteIcon />} colorScheme="red" onClick={handleDeleteSelected}>
+                Delete
+              </Button>
+            ) : null}
+            <Button variant="outline" leftIcon={<AddIcon />} onClick={handleAddLibrary}>
               Add New Library
             </Button>
-            <Button leftIcon={<Icon as={WrenchIcon} />}>Operations</Button>
+            <Button leftIcon={<Icon as={WrenchIcon} onClick={handleOperations} />}>Operations</Button>
           </Flex>
         </Flex>
         {isLoading ? (
@@ -99,6 +120,7 @@ export const LibrariesLandingPane = () => {
         ) : (
           <LibraryListTable
             libraries={metadata}
+            selected={selected}
             entries={entries}
             sort={sort}
             pageSize={pageSize}
@@ -107,6 +129,7 @@ export const LibrariesLandingPane = () => {
             onChangePageIndex={handlePageIndexChange}
             onChangePageSize={handlePageSizeChange}
             onLibrarySelect={handleOpenLibrary}
+            onSetSelected={setSelected}
           />
         )}
       </Box>
