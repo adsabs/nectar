@@ -12,11 +12,21 @@ import { LibraryMeta, LibraryType } from './types';
 export const LibrariesLandingPane = () => {
   const router = useRouter();
 
-  const { data: libraries, isLoading } = useGetLibraries({}, { cacheTime: 0 });
-
   const [pageSize, setPageSize] = useState(10);
 
   const [pageIndex, setPageIndex] = useState(0);
+
+  const {
+    data: libraries,
+    isLoading,
+    refetch,
+  } = useGetLibraries(
+    { start: pageIndex * pageSize, rows: pageSize, sort_col: 'date_last_modified', sort_dir: 'desc' },
+    { cacheTime: 0 },
+  );
+
+  // TODO: temp query to get all libraries so we can get count
+  const { data: all } = useGetLibraries({}, { cacheTime: 0 });
 
   const [libraryType, setLibraryType] = useState<LibraryType>('owner');
 
@@ -39,8 +49,8 @@ export const LibrariesLandingPane = () => {
   );
 
   const entries = useMemo(() => {
-    return libraries?.libraries ? libraries.libraries.length : 0;
-  }, [libraries]); // TODO: get this using API (waiting for implementation)
+    return all?.libraries ? all.libraries.length : 0;
+  }, [all]); // TODO: get this using API (waiting for implementation)
 
   const [sort, setSort] = useState<ILibraryListTableSort>({ col: 'name', dir: 'asc' });
 
@@ -60,8 +70,6 @@ export const LibrariesLandingPane = () => {
   };
 
   const handlePageSizeChange = (size: number) => {
-    // TODO: fetch libs
-    // if successful
     setPageSize(size);
     setPageIndex(0);
   };

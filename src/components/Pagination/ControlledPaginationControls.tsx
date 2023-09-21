@@ -35,7 +35,7 @@ export const ControlledPaginationControls = <T extends object>(props: IPaginatio
       <Flex flex="1">{getPaginationString()}</Flex>
       <Flex justifyContent="center">
         <Select
-          defaultValue={10}
+          value={pageSize}
           onChange={(e) => onChangePageSize(e.target.value ? Number(e.target.value) : 10)}
           size="sm"
         >

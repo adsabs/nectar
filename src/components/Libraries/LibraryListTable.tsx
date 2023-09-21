@@ -3,7 +3,7 @@ import { Icon, Table, TableProps, Tbody, Td, Th, Thead, Tr, Flex, Text, Tooltip,
 import { ControlledPaginationControls } from '@components';
 import { CustomInfoMessage } from '@components/Feedbacks';
 import { UserGroupIcon, UserIcon } from '@heroicons/react/24/solid';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent } from 'react';
 import { LibraryMeta } from './types';
 
 type Column = keyof LibraryMeta | 'index';
