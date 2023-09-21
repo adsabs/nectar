@@ -1,0 +1,182 @@
+import { LockIcon, TriangleDownIcon, TriangleUpIcon, UnlockIcon, UpDownIcon } from '@chakra-ui/icons';
+import { Icon, Table, TableProps, Tbody, Td, Th, Thead, Tr, Flex, Text, Tooltip } from '@chakra-ui/react';
+import { ControlledPaginationControls } from '@components';
+import { CustomInfoMessage } from '@components/Feedbacks';
+import { UserGroupIcon, UserIcon } from '@heroicons/react/24/solid';
+import { LibraryMeta } from './types';
+
+type Column = keyof LibraryMeta | 'index';
+type SortDirection = 'asc' | 'desc';
+
+const columns: { id: Column | 'index'; heading: string; sortable: boolean }[] = [
+  {
+    id: 'index',
+    heading: '',
+    sortable: false,
+  },
+  {
+    id: 'visibility',
+    heading: '',
+    sortable: false,
+  },
+  {
+    id: 'collaborators',
+    heading: '',
+    sortable: false,
+  },
+  {
+    id: 'name',
+    heading: 'Library',
+    sortable: true,
+  },
+  {
+    id: 'papers',
+    heading: 'Papers',
+    sortable: true,
+  },
+  {
+    id: 'owner',
+    heading: 'Owner',
+    sortable: true,
+  },
+  {
+    id: 'permission',
+    heading: 'Permission',
+    sortable: true,
+  },
+  {
+    id: 'lastModified',
+    heading: 'Last Modified',
+    sortable: true,
+  },
+];
+
+export interface ILibraryListTableSort {
+  col: Column;
+  dir: SortDirection;
+}
+
+export interface ILibraryListTableProps extends TableProps {
+  libraries: LibraryMeta[];
+  entries: number;
+  sort: ILibraryListTableSort;
+  pageSize: number;
+  pageIndex: number;
+  onChangeSort: (sort: ILibraryListTableSort) => void;
+  onChangePageIndex: (index: number) => void;
+  onChangePageSize: (size: number) => void;
+  onLibrarySelect: (id: string) => void;
+}
+
+export const LibraryListTable = (props: ILibraryListTableProps) => {
+  const {
+    libraries,
+    entries,
+    sort,
+    pageSize,
+    pageIndex,
+    onChangeSort,
+    onChangePageIndex,
+    onChangePageSize,
+    onLibrarySelect,
+    ...tableProps
+  } = props;
+
+  return (
+    <>
+      {libraries.length === 0 ? (
+        <CustomInfoMessage status="info" title="No libraries found" />
+      ) : (
+        <Table variant="simple" {...tableProps}>
+          <Thead>
+            <Tr>
+              {columns.map((column) => (
+                <Th key={column.id} aria-label={column.heading} cursor={column.sortable ? 'pointer' : 'default'}>
+                  {sort.col !== column.id ? (
+                    column.sortable ? (
+                      <Flex alignItems="center" onClick={() => onChangeSort({ col: column.id, dir: 'asc' })}>
+                        {column.heading}
+                        <UpDownIcon m={2} />
+                      </Flex>
+                    ) : (
+                      <>{column.heading}</>
+                    )
+                  ) : (
+                    <>
+                      {sort.dir === 'desc' ? (
+                        <Flex alignItems="center" onClick={() => onChangeSort({ col: column.id, dir: 'asc' })}>
+                          {column.heading}
+                          <TriangleDownIcon m={2} />
+                        </Flex>
+                      ) : (
+                        <Flex alignItems="center" onClick={() => onChangeSort({ col: column.id, dir: 'desc' })}>
+                          {column.heading}
+                          <TriangleUpIcon m={2} />
+                        </Flex>
+                      )}
+                    </>
+                  )}
+                </Th>
+              ))}
+            </Tr>
+          </Thead>
+          <Tbody>
+            {libraries.map(
+              (
+                { id, visibility, collaborators, name, description, papers, owner, permission, lastModified },
+                index,
+              ) => (
+                <Tr
+                  key={id}
+                  cursor="pointer"
+                  _hover={{ backgroundColor: 'blue.50' }}
+                  onClick={() => onLibrarySelect(id)}
+                >
+                  <Td>{index + 1}</Td>
+                  <Td>
+                    {visibility === 'public' ? (
+                      <Tooltip label="Public">
+                        <UnlockIcon color="green.500" aria-label="public" />
+                      </Tooltip>
+                    ) : (
+                      <Tooltip label="Private">
+                        <LockIcon aria-label="private" />
+                      </Tooltip>
+                    )}
+                  </Td>
+                  <Td>
+                    {collaborators === 0 ? (
+                      <Tooltip label="No collaborators">
+                        <Icon as={UserIcon} aria-label="no collaborators" w={4} h={4} />
+                      </Tooltip>
+                    ) : (
+                      <Tooltip label={`${collaborators} collaborators`}>
+                        <Icon as={UserGroupIcon} aria-label="has collaborators" color="green.500" w={4} h={4} />
+                      </Tooltip>
+                    )}
+                  </Td>
+                  <Td>
+                    <Text fontWeight="bold">{name}</Text>
+                    <Text>{description}</Text>
+                  </Td>
+                  <Td>{papers}</Td>
+                  <Td>{owner}</Td>
+                  <Td>{permission}</Td>
+                  <Td>{lastModified}</Td>
+                </Tr>
+              ),
+            )}
+          </Tbody>
+        </Table>
+      )}
+      <ControlledPaginationControls
+        entries={entries}
+        pageIndex={pageIndex}
+        pageSize={pageSize}
+        onChangePageSize={onChangePageSize}
+        onChangePageIndex={onChangePageIndex}
+        mt={2}
+      />
+    </>
+  );
+};
