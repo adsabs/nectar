@@ -1,9 +1,8 @@
 import { LockIcon, TriangleDownIcon, TriangleUpIcon, UnlockIcon, UpDownIcon } from '@chakra-ui/icons';
-import { Icon, Table, TableProps, Tbody, Td, Th, Thead, Tr, Flex, Text, Tooltip, Checkbox } from '@chakra-ui/react';
+import { Icon, Table, TableProps, Tbody, Td, Th, Thead, Tr, Flex, Text, Tooltip } from '@chakra-ui/react';
 import { ControlledPaginationControls } from '@components';
 import { CustomInfoMessage } from '@components/Feedbacks';
 import { UserGroupIcon, UserIcon } from '@heroicons/react/24/solid';
-import { ChangeEvent } from 'react';
 import { LibraryMeta } from './types';
 
 type Column = keyof LibraryMeta | 'index';
@@ -60,7 +59,6 @@ export interface ILibraryListTableSort {
 export interface ILibraryListTableProps extends TableProps {
   libraries: LibraryMeta[];
   entries: number;
-  selected: string[];
   sort: ILibraryListTableSort;
   pageSize: number;
   pageIndex: number;
@@ -68,14 +66,12 @@ export interface ILibraryListTableProps extends TableProps {
   onChangePageIndex: (index: number) => void;
   onChangePageSize: (size: number) => void;
   onLibrarySelect: (id: string) => void;
-  onSetSelected: (ids: string[]) => void;
 }
 
 export const LibraryListTable = (props: ILibraryListTableProps) => {
   const {
     libraries,
     entries,
-    selected,
     sort,
     pageSize,
     pageIndex,
@@ -83,25 +79,8 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
     onChangePageIndex,
     onChangePageSize,
     onLibrarySelect,
-    onSetSelected,
     ...tableProps
   } = props;
-
-  const handleSelectAll = (e: ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.checked) {
-      onSetSelected([]);
-    } else {
-      onSetSelected(libraries.map((l) => l.id));
-    }
-  };
-
-  const handleSelecbLib = (id: string, checked: boolean) => {
-    if (!checked) {
-      onSetSelected(selected.filter((l) => l !== id));
-    } else {
-      onSetSelected([...selected, id]);
-    }
-  };
 
   return (
     <>
@@ -111,16 +90,6 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
         <Table variant="simple" {...tableProps}>
           <Thead>
             <Tr>
-              <Th>
-                {
-                  <Checkbox
-                    aria-label="Select/Deselect all libraries"
-                    onChange={handleSelectAll}
-                    isChecked={selected.length === entries}
-                    isIndeterminate={selected.length > 0 && selected.length < entries}
-                  />
-                }
-              </Th>
               {columns.map((column) => (
                 <Th key={column.id} aria-label={column.heading} cursor={column.sortable ? 'pointer' : 'default'}>
                   {sort.col !== column.id ? (
@@ -163,14 +132,6 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                   _hover={{ backgroundColor: 'blue.50' }}
                   onClick={() => onLibrarySelect(id)}
                 >
-                  <Td onClick={(e) => e.stopPropagation()}>
-                    <Checkbox
-                      aria-label={`Select/Deselect library "${name}"`}
-                      data-lid={id}
-                      onChange={(e) => handleSelecbLib(id, e.target.checked)}
-                      isChecked={selected.includes(id)}
-                    />
-                  </Td>
                   <Td>{index + 1}</Td>
                   <Td>
                     {visibility === 'public' ? (

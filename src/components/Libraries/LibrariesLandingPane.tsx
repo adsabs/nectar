@@ -1,5 +1,5 @@
 import { useAddLibrary, useGetLibraries } from '@api';
-import { AddIcon, DeleteIcon, Icon } from '@chakra-ui/icons';
+import { AddIcon, Icon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
@@ -8,7 +8,6 @@ import {
   FormControl,
   FormLabel,
   Heading,
-  HStack,
   Input,
   Modal,
   ModalBody,
@@ -43,18 +42,20 @@ export const LibrariesLandingPane = () => {
 
   const [pageIndex, setPageIndex] = useState(0);
 
+  // query all libraries
   const {
     data: libraries,
     isLoading,
     refetch,
   } = useGetLibraries(
     { start: pageIndex * pageSize, rows: pageSize, sort_col: 'date_last_modified', sort_dir: 'desc' },
-    { cacheTime: 0 },
+    { cacheTime: 0, staleTime: 0 },
   );
 
   // TODO: temp query to get all libraries so we can get count
-  const { data: all, refetch: recount } = useGetLibraries({}, { cacheTime: 0 });
+  const { data: all, refetch: recount } = useGetLibraries({}, { cacheTime: 0, staleTime: 0 });
 
+  // add library
   const { mutate: addLibrary } = useAddLibrary();
 
   const [libraryType, setLibraryType] = useState<LibraryType>('owner');
@@ -85,12 +86,9 @@ export const LibrariesLandingPane = () => {
 
   const [sort, setSort] = useState<ILibraryListTableSort>({ col: 'name', dir: 'asc' });
 
-  const [selected, setSelected] = useState<string[]>([]);
-
   // this will cause a refresh as well
   const reset = () => {
     setPageIndex(0);
-    setSelected([]);
   };
 
   const refresh = () => {
@@ -149,12 +147,6 @@ export const LibrariesLandingPane = () => {
     // TODO:
   };
 
-  const handleDeleteSelected = () => {
-    // TODO:
-    // if successful, reload libs
-    setSelected([]);
-  };
-
   return (
     <div>
       <Head>
@@ -169,11 +161,6 @@ export const LibrariesLandingPane = () => {
             <LibraryTypeSelector type={libraryType} onChange={handleLibraryTypeChange} />
           </Stack>
           <Flex justifyContent="end" gap={1} my={2}>
-            {selected.length > 0 ? (
-              <Button variant="outline" leftIcon={<DeleteIcon />} colorScheme="red" onClick={handleDeleteSelected}>
-                Delete
-              </Button>
-            ) : null}
             <Button variant="outline" leftIcon={<AddIcon />} onClick={onOpen}>
               Add New Library
             </Button>
@@ -186,7 +173,6 @@ export const LibrariesLandingPane = () => {
           <>
             <LibraryListTable
               libraries={metadata}
-              selected={selected}
               entries={entries}
               sort={sort}
               pageSize={pageSize}
@@ -195,7 +181,6 @@ export const LibrariesLandingPane = () => {
               onChangePageIndex={handlePageIndexChange}
               onChangePageSize={handlePageSizeChange}
               onLibrarySelect={handleOpenLibrary}
-              onSetSelected={setSelected}
             />
             <NewLibModal isOpen={isOpen} onClose={onClose} onAddLibrary={handleAddLibrary} />
           </>

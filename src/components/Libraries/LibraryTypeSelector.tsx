@@ -40,7 +40,6 @@ export const LibraryTypeSelector = ({
       value={option}
       onChange={handleOnChange}
       stylesTheme="default"
-      // isDisabled={props.isLoading}
     />
   );
 };
