@@ -22,22 +22,22 @@ const columns: { id: Column; heading: string; sortable: boolean }[] = [
   {
     id: 'name',
     heading: 'Library',
-    sortable: true,
+    sortable: false, // TODO: true
   },
   {
     id: 'num_documents',
     heading: 'Papers',
-    sortable: true,
+    sortable: false, // TODO: true
   },
   {
     id: 'owner',
     heading: 'Owner',
-    sortable: true,
+    sortable: false, // TODO: true
   },
   {
     id: 'permission',
     heading: 'Permission',
-    sortable: true,
+    sortable: false, // TODO: true
   },
   {
     id: 'date_last_modified',
