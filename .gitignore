@@ -125,3 +125,6 @@ storybook-static/
 .env.production
 /.vitest/
 /.vitest-preview/
+/test-results/
+/playwright-report/
+/playwright/.cache/
