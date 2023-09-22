@@ -49,10 +49,8 @@ export const LibrariesLandingPane = () => {
     data: librariesData,
     isLoading,
     refetch,
-  } = useGetLibraries(
-    { start: pageIndex * pageSize, rows: pageSize, sort_col: sort.col, sort_dir: sort.dir },
-    { cacheTime: 0, staleTime: 0 },
-  );
+    remove: clearCache,
+  } = useGetLibraries({ start: pageIndex * pageSize, rows: pageSize, sort: sort.col, order: sort.dir });
 
   const libraries = useMemo(() => {
     if (librariesData) {
@@ -81,6 +79,7 @@ export const LibrariesLandingPane = () => {
 
   const refresh = () => {
     // refetch libraries and reset lib count
+    clearCache();
     void refetch();
     void recount();
   };
