@@ -4,10 +4,15 @@ import { afterAll, afterEach, beforeAll, beforeEach, expect, vi } from 'vitest';
 import { server } from '@mocks/server';
 import matchers from '@testing-library/jest-dom/matchers';
 
+import { TextDecoder, TextEncoder } from 'util';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import replaceAllInserter from 'string.prototype.replaceall';
 import { SetupServerApi } from 'msw/node';
+
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
 replaceAllInserter.shim();
 
