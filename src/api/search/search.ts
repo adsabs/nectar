@@ -27,7 +27,8 @@ import {
   getSingleRecordParams,
   getTocParams,
 } from './models';
-import { parseAPIError } from '@utils';
+import { isString, parseAPIError } from '@utils';
+import { resolveObjectQuery } from '@api/objects/objects';
 
 type ErrorType = Error | AxiosError;
 
@@ -354,10 +355,16 @@ export const useSearchInfinite: InfiniteADSQuery<IADSApiSearchParams, IADSApiSea
 export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta }) => {
   const { params } = meta as { params: IADSApiSearchParams };
 
+  const finalParams = { ...params };
+  if (isString(params.q) && params.q.includes('object:')) {
+    const { query } = await resolveObjectQuery({ query: params.q });
+    finalParams.q = query;
+  }
+
   const config: ApiRequestConfig = {
     method: 'GET',
     url: ApiTargets.SEARCH,
-    params,
+    params: finalParams,
   };
   const { data } = await api.request<IADSApiSearchResponse>(config);
   return data;
@@ -369,11 +376,17 @@ export const fetchSearchInfinite: QueryFunction<IADSApiSearchResponse & { pagePa
 }: QueryFunctionContext<QueryKey, string>) => {
   const { params } = meta as { params: IADSApiSearchParams };
 
+  const finalParams = { ...params };
+  if (isString(params.q) && params.q.includes('object:')) {
+    const { query } = await resolveObjectQuery({ query: params.q });
+    finalParams.q = query;
+  }
+
   const config: ApiRequestConfig = {
     method: 'GET',
     url: ApiTargets.SEARCH,
     params: {
-      ...params,
+      ...finalParams,
       cursorMark: pageParam,
     } as IADSApiSearchParams,
   };
