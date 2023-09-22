@@ -205,12 +205,30 @@ export const getClauses = (root: lucene.AST) =>
   );
 
 /**
- * Walks over the AST and returns all terms with the exception of `*:*`
+ * Walks over the AST and returns all terms except `*:*`
  *
  * @param {string} query
  */
 export const getTerms = (query: string) =>
-  walker((node) => ('term' in node && node.term !== '*' ? node.term : null), appendIfString, [], parse(query));
+  walker(
+    (node) => {
+      // quote and apply prefix
+      if ('term' in node && node.term !== '*' && node.term !== 'AND' && node.term !== 'OR' && node.term !== 'NOT') {
+        let term = node.term;
+        if (node.quoted) {
+          term = `"${node.term}"`;
+        }
+        if (node.prefix) {
+          term = `${node.prefix}${term}`;
+        }
+        return term;
+      }
+      return null;
+    },
+    appendIfString,
+    [],
+    parse(query),
+  );
 
 const LUCENE_ESCAPES = '+-!():^[]"{}~*?|&/' as const;
 
