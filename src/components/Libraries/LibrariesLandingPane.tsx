@@ -29,7 +29,7 @@ import { useRouter } from 'next/router';
 import { ChangeEvent, useMemo, useState } from 'react';
 import { ILibraryListTableSort, LibraryListTable } from './LibraryListTable';
 import { LibraryTypeSelector } from './LibraryTypeSelector';
-import { LibraryMeta, LibraryType } from './types';
+import { LibraryType } from './types';
 
 export const LibrariesLandingPane = () => {
   const router = useRouter();
@@ -42,15 +42,23 @@ export const LibrariesLandingPane = () => {
 
   const [pageIndex, setPageIndex] = useState(0);
 
+  const [sort, setSort] = useState<ILibraryListTableSort>({ col: 'date_last_modified', dir: 'desc' });
+
   // query all libraries
   const {
-    data: libraries,
+    data: librariesData,
     isLoading,
     refetch,
   } = useGetLibraries(
-    { start: pageIndex * pageSize, rows: pageSize, sort_col: 'date_last_modified', sort_dir: 'desc' },
+    { start: pageIndex * pageSize, rows: pageSize, sort_col: sort.col, sort_dir: sort.dir },
     { cacheTime: 0, staleTime: 0 },
   );
+
+  const libraries = useMemo(() => {
+    if (librariesData) {
+      return librariesData.libraries;
+    }
+  }, [librariesData]);
 
   // TODO: temp query to get all libraries so we can get count
   const { data: all, refetch: recount } = useGetLibraries({}, { cacheTime: 0, staleTime: 0 });
@@ -62,29 +70,9 @@ export const LibrariesLandingPane = () => {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const metadata: LibraryMeta[] = useMemo(
-    () =>
-      libraries?.libraries
-        ? libraries.libraries.map((l) => ({
-            id: l.id,
-            visibility: l.public ? 'public' : 'private',
-            collaborators: l.num_users, // TODO: does this inculde owner?
-            name: l.name,
-            description: l.description,
-            papers: l.num_documents,
-            owner: l.owner,
-            permission: l.permission,
-            lastModified: l.date_last_modified,
-          }))
-        : [],
-    [libraries],
-  );
-
   const entries = useMemo(() => {
     return all?.libraries ? all.libraries.length : 0;
   }, [all]); // TODO: get this using API (waiting for implementation)
-
-  const [sort, setSort] = useState<ILibraryListTableSort>({ col: 'name', dir: 'asc' });
 
   // this will cause a refresh as well
   const reset = () => {
@@ -172,7 +160,7 @@ export const LibrariesLandingPane = () => {
         ) : (
           <>
             <LibraryListTable
-              libraries={metadata}
+              libraries={libraries}
               entries={entries}
               sort={sort}
               pageSize={pageSize}

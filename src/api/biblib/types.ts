@@ -24,8 +24,8 @@ export interface ILibraryMetadata {
 export interface IADSApiLibraryParams {
   start?: number;
   rows?: number;
-  sort_col?: 'date_created' | 'date_last_modified'; // no sort by name?
-  sort_dir?: 'asc' | 'desc';
+  sort?: keyof ILibraryMetadata;
+  order?: 'asc' | 'desc';
 }
 
 export interface IADSApiLibraryResponse {

@@ -1,26 +1,21 @@
+import { ILibraryMetadata } from '@api';
 import { LockIcon, TriangleDownIcon, TriangleUpIcon, UnlockIcon, UpDownIcon } from '@chakra-ui/icons';
 import { Icon, Table, TableProps, Tbody, Td, Th, Thead, Tr, Flex, Text, Tooltip } from '@chakra-ui/react';
 import { ControlledPaginationControls } from '@components';
 import { CustomInfoMessage } from '@components/Feedbacks';
 import { UserGroupIcon, UserIcon } from '@heroicons/react/24/solid';
-import { LibraryMeta } from './types';
 
-type Column = keyof LibraryMeta | 'index';
+type Column = keyof ILibraryMetadata;
 type SortDirection = 'asc' | 'desc';
 
-const columns: { id: Column | 'index'; heading: string; sortable: boolean }[] = [
+const columns: { id: Column; heading: string; sortable: boolean }[] = [
   {
-    id: 'index',
+    id: 'public',
     heading: '',
     sortable: false,
   },
   {
-    id: 'visibility',
-    heading: '',
-    sortable: false,
-  },
-  {
-    id: 'collaborators',
+    id: 'num_users',
     heading: '',
     sortable: false,
   },
@@ -30,7 +25,7 @@ const columns: { id: Column | 'index'; heading: string; sortable: boolean }[] = 
     sortable: true,
   },
   {
-    id: 'papers',
+    id: 'num_documents',
     heading: 'Papers',
     sortable: true,
   },
@@ -45,19 +40,19 @@ const columns: { id: Column | 'index'; heading: string; sortable: boolean }[] = 
     sortable: true,
   },
   {
-    id: 'lastModified',
+    id: 'date_last_modified',
     heading: 'Last Modified',
     sortable: true,
   },
 ];
 
 export interface ILibraryListTableSort {
-  col: Column;
+  col: keyof ILibraryMetadata;
   dir: SortDirection;
 }
 
 export interface ILibraryListTableProps extends TableProps {
-  libraries: LibraryMeta[];
+  libraries: ILibraryMetadata[];
   entries: number;
   sort: ILibraryListTableSort;
   pageSize: number;
@@ -90,6 +85,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
         <Table variant="simple" {...tableProps}>
           <Thead>
             <Tr>
+              <Th aria-label="index"></Th>
               {columns.map((column) => (
                 <Th key={column.id} aria-label={column.heading} cursor={column.sortable ? 'pointer' : 'default'}>
                   {sort.col !== column.id ? (
@@ -123,7 +119,17 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
           <Tbody>
             {libraries.map(
               (
-                { id, visibility, collaborators, name, description, papers, owner, permission, lastModified },
+                {
+                  id,
+                  public: isPublic,
+                  num_users,
+                  name,
+                  description,
+                  num_documents,
+                  owner,
+                  permission,
+                  date_last_modified,
+                },
                 index,
               ) => (
                 <Tr
@@ -132,9 +138,9 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                   _hover={{ backgroundColor: 'blue.50' }}
                   onClick={() => onLibrarySelect(id)}
                 >
-                  <Td>{index + 1}</Td>
+                  <Td>{pageSize * pageIndex + index + 1}</Td>
                   <Td>
-                    {visibility === 'public' ? (
+                    {isPublic ? (
                       <Tooltip label="Public">
                         <UnlockIcon color="green.500" aria-label="public" />
                       </Tooltip>
@@ -145,12 +151,12 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                     )}
                   </Td>
                   <Td>
-                    {collaborators === 0 ? (
+                    {num_users === 1 ? (
                       <Tooltip label="No collaborators">
                         <Icon as={UserIcon} aria-label="no collaborators" w={4} h={4} />
                       </Tooltip>
                     ) : (
-                      <Tooltip label={`${collaborators} collaborators`}>
+                      <Tooltip label={`${num_users} collaborators`}>
                         <Icon as={UserGroupIcon} aria-label="has collaborators" color="green.500" w={4} h={4} />
                       </Tooltip>
                     )}
@@ -159,10 +165,10 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                     <Text fontWeight="bold">{name}</Text>
                     <Text>{description}</Text>
                   </Td>
-                  <Td>{papers}</Td>
+                  <Td>{num_documents}</Td>
                   <Td>{owner}</Td>
                   <Td>{permission}</Td>
-                  <Td>{lastModified}</Td>
+                  <Td>{date_last_modified}</Td>
                 </Tr>
               ),
             )}
