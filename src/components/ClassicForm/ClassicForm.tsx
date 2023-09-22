@@ -6,6 +6,7 @@ import {
   Button,
   Checkbox,
   CheckboxGroup,
+  Code,
   Flex,
   FormControl,
   FormHelperText,
@@ -17,20 +18,22 @@ import {
   Radio,
   RadioGroup,
   Stack,
+  Text,
   Textarea,
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { CalendarIcon } from '@chakra-ui/icons';
-import { BibstemPicker, Sort } from '@components';
+import { BibstemPicker, Expandable, IRawClassicFormState, SimpleCopyButton, SimpleLink, Sort } from '@components';
 import { APP_DEFAULTS } from '@config';
 import { useErrorMessage } from '@lib/useErrorMessage';
 import { useIsClient } from '@lib/useIsClient';
 import { useRouter } from 'next/router';
 import PT from 'prop-types';
-import { FormEventHandler } from 'react';
-import { Controller, useForm, UseFormRegisterReturn } from 'react-hook-form';
+import { FormEventHandler, useMemo } from 'react';
+import { Control, Controller, useForm, UseFormRegisterReturn, useWatch } from 'react-hook-form';
 import { getSearchQuery } from './helpers';
 import { IClassicFormState } from './types';
+import { URLSearchParams } from 'next/dist/compiled/@edge-runtime/primitives/url';
 
 const propTypes = {
   ssrError: PT.string,
@@ -86,7 +89,8 @@ export const ClassicForm = (props: IClassicFormProps) => {
         </VisuallyHidden>
 
         {/* Collection selection */}
-        <FormControl>
+        <FormControl aria-labelledby="collection-group">
+          <VisuallyHidden id="collection-group">Collection</VisuallyHidden>
           <FormLabel>Limit Query</FormLabel>
           <CheckboxGroup defaultValue={['astronomy']}>
             <HStack>
@@ -104,37 +108,76 @@ export const ClassicForm = (props: IClassicFormProps) => {
         </FormControl>
 
         {/* Author text area */}
-        <FormControl>
+        <FormControl aria-labelledby="author-group">
+          <VisuallyHidden id="author-group">Author</VisuallyHidden>
           <Flex direction="row" justifyContent="space-between">
             <FormLabel htmlFor={'author'}>Author</FormLabel>
             <LogicRadios variant="andor" radioProps={register('logic_author')} />
           </Flex>
-          <Textarea {...register('author')} as="textarea" id="author" rows={3} />
-          <FormHelperText>Author names, enter (Last, First M) one per line</FormHelperText>
+          <Textarea
+            {...register('author')}
+            as="textarea"
+            id="author"
+            rows={3}
+            placeholder={`Smith, John A\nSmith, Jane B`}
+          />
+          <FormHelperText>
+            <Text>Author names, enter (Last, First M) one per line.</Text>
+            <Text>
+              Prefix with <Code>-</Code> to negate. (Ex: <Code>-Smith, Jim</Code>)
+            </Text>
+            <Text>
+              Prefix with <Code>=</Code> to restrict expansion. (Ex: <Code>=Smith, James</Code>)
+            </Text>
+            <Text>
+              Prefix with <Code>^</Code> to limit to first-author papers. (Ex: <Code>^Smith, J</Code>)
+            </Text>
+            <Text>
+              Append a <Code>$</Code> to limit to single-author papers. (Ex: <Code>Smith, J$</Code>).
+            </Text>
+            <Text>
+              <SimpleLink href="https://ui.adsabs.harvard.edu/help/search/search-syntax#author">Learn More</SimpleLink>
+            </Text>
+          </FormHelperText>
         </FormControl>
 
         {/* Object text area */}
-        <FormControl>
+        <FormControl aria-labelledby="object-group">
+          <VisuallyHidden id="object-group">Object</VisuallyHidden>
           <Flex direction="row" justifyContent="space-between">
-            <FormLabel htmlFor={'object'}>Object</FormLabel>
+            <FormLabel htmlFor="object">Object</FormLabel>
             <LogicRadios variant="andor" radioProps={register('logic_object')} />
           </Flex>
-          <Textarea {...register('object')} as="textarea" id="object" rows={3} />
-          <FormHelperText>SIMBAD object search (one per line)</FormHelperText>
+          <Textarea
+            {...register('object')}
+            as="textarea"
+            id="object"
+            rows={3}
+            placeholder={`M 31\nHD 187642\nSgr A*`}
+          />
+          <FormHelperText>SIMBAD object search, one per line.</FormHelperText>
         </FormControl>
 
         {/* Publication dates */}
-        <Stack direction={['column', 'row']} justifyContent="space-evenly" spacing={5}>
+        <Stack
+          direction={['column', 'row']}
+          justifyContent="space-evenly"
+          spacing={5}
+          role="group"
+          aria-labelledby="publication-group"
+          data-testid="publication-dates"
+        >
           <FormControl>
-            <FormLabel>Publication Date Start</FormLabel>
+            <VisuallyHidden id="publication-group">Publication</VisuallyHidden>
+            <FormLabel htmlFor="pubdate_start">Publication Date Start</FormLabel>
             <InputGroup>
               <InputLeftElement pointerEvents="none" children={<CalendarIcon color="gray.300" />} />
-              <Input placeholder="YYYY/MM" {...register('pubdate_start')} />
+              <Input placeholder="YYYY/MM" type="text" {...register('pubdate_start')} />
             </InputGroup>
             <FormHelperText>Ex: "2011/04"</FormHelperText>
           </FormControl>
           <FormControl>
-            <FormLabel>Publication Date End</FormLabel>
+            <FormLabel htmlFor="pubdate_end">Publication Date End</FormLabel>
             <InputGroup>
               <InputLeftElement pointerEvents="none" children={<CalendarIcon color="gray.300" />} />
               <Input placeholder="YYYY/MM" {...register('pubdate_end')} />
@@ -144,7 +187,8 @@ export const ClassicForm = (props: IClassicFormProps) => {
         </Stack>
 
         {/* Title */}
-        <FormControl>
+        <FormControl aria-labelledby="title-group">
+          <VisuallyHidden id="title-group">Title</VisuallyHidden>
           <Flex direction="row" justifyContent="space-between">
             <FormLabel htmlFor="title">Title</FormLabel>
             <LogicRadios variant="all" radioProps={register('logic_title')} />
@@ -154,7 +198,8 @@ export const ClassicForm = (props: IClassicFormProps) => {
         </FormControl>
 
         {/* Abstract / Keywords */}
-        <FormControl>
+        <FormControl aria-labelledby="abstract-keywords-group">
+          <VisuallyHidden id="abstract-keywords-group">Abstract / Keywords</VisuallyHidden>
           <Flex direction="row" justifyContent="space-between">
             <FormLabel htmlFor="abstract_keywords">Abstract / Keywords</FormLabel>
             <LogicRadios variant="all" radioProps={register('logic_abstract_keywords')} />
@@ -164,7 +209,8 @@ export const ClassicForm = (props: IClassicFormProps) => {
         </FormControl>
 
         {/* Property */}
-        <FormControl>
+        <FormControl aria-labelledby="property-group">
+          <VisuallyHidden id="property-group">Property</VisuallyHidden>
           <FormLabel htmlFor="property">Property</FormLabel>
           <CheckboxGroup>
             <HStack spacing={4}>
@@ -184,7 +230,8 @@ export const ClassicForm = (props: IClassicFormProps) => {
             name="bibstems"
             control={control}
             render={({ field }) => (
-              <FormControl>
+              <FormControl aria-labelledby="bibstem">
+                <VisuallyHidden id="bibstem">Publications</VisuallyHidden>
                 <FormLabel>Publications</FormLabel>
                 <BibstemPicker isMultiple onChange={(items) => field.onChange(items)} />
                 <FormHelperText>Ex. "A&amp;A" or "-A&amp;A"</FormHelperText>
@@ -192,7 +239,8 @@ export const ClassicForm = (props: IClassicFormProps) => {
             )}
           />
         ) : (
-          <FormControl>
+          <FormControl aria-labelledby="bibstem">
+            <VisuallyHidden id="bibstem">Publications</VisuallyHidden>
             <FormLabel htmlFor="bibstem">Publication</FormLabel>
             <Input placeholder="Publication" {...register('bibstems')} />
             <FormHelperText>Start typing to search journal database (ex. "ApJ")</FormHelperText>
@@ -200,8 +248,9 @@ export const ClassicForm = (props: IClassicFormProps) => {
         )}
 
         {/* Sort */}
-        <FormControl>
-          <FormLabel>Sort</FormLabel>
+        <FormControl aria-labelledby="sort">
+          <VisuallyHidden id="sort">Sort</VisuallyHidden>
+          <FormLabel htmlFor="sort">Sort</FormLabel>
           <Controller
             name="sort"
             control={control}
@@ -232,6 +281,8 @@ export const ClassicForm = (props: IClassicFormProps) => {
         <FormControl>
           <Button type="submit">Search</Button>
         </FormControl>
+
+        <CurrentQuery control={control} />
       </Stack>
     </form>
   );
@@ -257,5 +308,29 @@ const LogicRadios = (props: { variant: 'andor' | 'all'; radioProps: UseFormRegis
         )}
       </Stack>
     </RadioGroup>
+  );
+};
+
+const CurrentQuery = (props: { control: Control<IClassicFormState> }) => {
+  const { control } = props;
+  const values = useWatch<IClassicFormState>({ control });
+  const query = useMemo(() => {
+    try {
+      return new URLSearchParams(getSearchQuery(values as IRawClassicFormState)).get('q');
+    } catch (e) {
+      return <Text color="red.500">{(e as Error)?.message}</Text>;
+    }
+  }, [values]);
+
+  return (
+    <Expandable
+      title="Generated Query"
+      description={
+        <HStack>
+          <Code>{query}</Code>
+          {typeof query === 'string' ? <SimpleCopyButton text={query} /> : null}
+        </HStack>
+      }
+    ></Expandable>
   );
 };
