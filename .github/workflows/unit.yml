@@ -1,8 +1,7 @@
-name: CI
+name: Unit Tests
 on: [push, pull_request]
 jobs:
-  build:
-    name: Install deps, build project on Node.js
+  test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
