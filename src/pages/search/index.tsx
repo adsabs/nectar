@@ -144,16 +144,18 @@ const SearchPage: NextPage = () => {
   };
 
   // On submission handler
-  const handleOnSubmit: FormEventHandler = (e) => {
+  const handleOnSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
+    const q = new FormData(e.currentTarget).get('q') as string;
+
     const query = store.getState().query;
-    if (query.q.length === 0) {
+    if (q.length === 0) {
       // if query is empty, do not submit search
       return;
     }
 
     // generate a URL search string and trigger a page transition, and update store
-    const search = makeSearchParams({ ...params, ...query, p: 1 });
+    const search = makeSearchParams({ ...params, ...query, q, p: 1 });
     void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
   };
 
