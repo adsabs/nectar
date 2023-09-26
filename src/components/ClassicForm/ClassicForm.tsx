@@ -83,7 +83,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
 
   return (
     <form method="post" action={router.route} onSubmit={formSubmit} aria-describedby="form-title">
-      <Stack direction="column" spacing={5}>
+      <Stack direction="column" spacing={5} aria-describedby="form-title">
         <VisuallyHidden as="h2" id="form-title">
           Classic Form
         </VisuallyHidden>
@@ -121,19 +121,19 @@ export const ClassicForm = (props: IClassicFormProps) => {
             rows={3}
             placeholder={`Smith, John A\nSmith, Jane B`}
           />
-          <FormHelperText>
+          <FormHelperText lineHeight="5">
             <Text>Author names, enter (Last, First M) one per line.</Text>
+            <Text fontWeight="bold">Example Operators:</Text>
             <Text>
-              Prefix with <Code>-</Code> to negate. (Ex: <Code>-Smith, Jim</Code>)
+              Use <Code>-</Code> to filter out an author. (Ex: <Code>-Smith, John</Code>)
             </Text>
             <Text>
-              Prefix with <Code>=</Code> to restrict expansion. (Ex: <Code>=Smith, James</Code>)
+              Use <Code>=</Code> to restrict name expansion. For example <Code>=Smith, Jim</Code> will match "Smith,
+              Jim" but not "Smith, James".
             </Text>
             <Text>
-              Prefix with <Code>^</Code> to limit to first-author papers. (Ex: <Code>^Smith, J</Code>)
-            </Text>
-            <Text>
-              Append a <Code>$</Code> to limit to single-author papers. (Ex: <Code>Smith, J$</Code>).
+              Surround name with <Code>^ $</Code> to match papers with only one particular author. (Ex:{' '}
+              <Code>^Smith, J$</Code>)
             </Text>
             <Text>
               <SimpleLink href="https://ui.adsabs.harvard.edu/help/search/search-syntax#author">Learn More</SimpleLink>
@@ -232,8 +232,8 @@ export const ClassicForm = (props: IClassicFormProps) => {
             render={({ field }) => (
               <FormControl aria-labelledby="bibstem">
                 <VisuallyHidden id="bibstem">Publications</VisuallyHidden>
-                <FormLabel>Publications</FormLabel>
-                <BibstemPicker isMultiple onChange={(items) => field.onChange(items)} />
+                <FormLabel htmlFor="bibstem-picker">Publications</FormLabel>
+                <BibstemPicker isMultiple onChange={(items) => field.onChange(items)} id="bibstem-picker" />
                 <FormHelperText>Ex. "A&amp;A" or "-A&amp;A"</FormHelperText>
               </FormControl>
             )}

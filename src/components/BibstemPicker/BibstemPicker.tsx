@@ -1,4 +1,4 @@
-import { HStack, Text } from '@chakra-ui/react';
+import { HStack, Text, VisuallyHidden } from '@chakra-ui/react';
 import { IBibstemOption } from '@types';
 import axios from 'axios';
 import {
@@ -228,14 +228,18 @@ const BibstemPickerImpl = (props: IBibstemPickerProps, ref: ForwardedRef<never>)
   return (
     <>
       {/* hidden input to make sure value is seen on form properly */}
-      <input
-        data-testid="hidden-input"
-        type="hidden"
-        name="bibstems"
-        value={state.hiddenValue}
-        {...omit(['value'], inputProps)}
-        ref={ref}
-      />
+      <VisuallyHidden>
+        <input
+          aria-hidden
+          data-testid="hidden-input"
+          type="text"
+          name="bibstems"
+          value={state.hiddenValue}
+          {...omit(['value'], inputProps)}
+          onFocus={() => selectRef.current.focus()}
+          ref={ref}
+        />
+      </VisuallyHidden>
       <AsyncCreatableSelect<IBibstemOption, typeof isMultiple>
         instanceId="bibstem-picker"
         // eslint-disable-next-line @typescript-eslint/no-misused-promises

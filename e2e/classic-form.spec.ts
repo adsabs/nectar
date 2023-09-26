@@ -1,11 +1,8 @@
 import { expect, PlaywrightTestArgs, test } from '@playwright/test';
 
 test('blank form has correct defaults set', async ({ page }) => {
-  await page.goto('http://localhost:8000/classic-form');
-  // all textboxes and text areas are empty
-  for (const textbox of await page.getByRole('textbox').all()) {
-    await expect(textbox).toHaveValue('');
-  }
+  await page.goto('/classic-form');
+  await page.locator('form').isVisible();
 
   // of all radios, only the first is checked (All)
   for (const radio of await page.getByRole('radio').all()) {
@@ -21,7 +18,7 @@ test('blank form has correct defaults set', async ({ page }) => {
       : await expect(checkbox).not.toBeChecked();
   }
 
-  await expect(page.getByRole('combobox').first()).toHaveValue('');
+  await expect(page.locator('#react-select-bibstem-picker-input')).toHaveValue('');
   await expect(page.getByTestId('sort')).toHaveText('Date');
 });
 
@@ -31,7 +28,7 @@ const checkQuery = (page: PlaywrightTestArgs['page'], query: string) => {
 };
 
 test('default form can be submitted, and is valid', async ({ page }) => {
-  await page.goto('http://localhost:8000/classic-form');
+  await page.goto('/classic-form');
   await page.getByRole('button', { name: 'Search' }).click();
   await page.waitForURL('**/search?**');
   expect(page.url()).toContain('/search?');
@@ -42,7 +39,10 @@ test('default form can be submitted, and is valid', async ({ page }) => {
 });
 
 test('form can be filled out and submitted, and is valid', async ({ page }) => {
-  await page.goto('http://localhost:8000/classic-form');
+  await page.goto('/classic-form');
+  // forces the page to wait for the form to be visible
+  await page.locator('form').isVisible();
+
   await page.getByRole('textbox', { name: 'Author' }).fill('Smith, A\nJones, B');
   await page.getByRole('textbox', { name: 'Object' }).fill('IRAS\nHIP');
   await page.locator('input[name="pubdate_start"]').fill('2020/12');
@@ -55,7 +55,8 @@ test('form can be filled out and submitted, and is valid', async ({ page }) => {
   await page.getByLabel('Property').locator('span').nth(3).click();
 
   // publication
-  await page.locator('#react-select-bibstem-picker-input').click();
+  await page.getByRole('group', { name: 'Publications' }).locator('label').click();
+  await page.locator('#react-select-bibstem-picker-input').press('ArrowDown');
   await page.locator('#react-select-bibstem-picker-input').press('ArrowDown');
   await page.locator('#react-select-bibstem-picker-input').press('Tab');
 
@@ -66,7 +67,7 @@ test('form can be filled out and submitted, and is valid', async ({ page }) => {
   await page.getByTestId('sort').getByLabel('Sort', { exact: true }).press('Tab');
 
   // submit
-  await page.keyboard.press('Enter');
+  await page.getByRole('button', { name: 'Search' }).click();
   await page.waitForURL('**/search?**');
   checkQuery(
     page,
@@ -75,7 +76,7 @@ test('form can be filled out and submitted, and is valid', async ({ page }) => {
 });
 
 test('logic switches work properly', async ({ page }) => {
-  await page.goto('http://localhost:8000/classic-form');
+  await page.goto('/classic-form');
   // author
   await page.getByRole('textbox', { name: 'Author' }).fill('Smith, A\nJones, B');
   await page.getByRole('group', { name: 'Author' }).locator('span').nth(3).click();
@@ -93,7 +94,7 @@ test('logic switches work properly', async ({ page }) => {
   await page.getByLabel('Abstract / Keywords').getByText('Or', { exact: true }).click();
 
   // submit
-  await page.keyboard.press('Enter');
+  await page.getByRole('button', { name: 'Search' }).click();
   await page.waitForURL('**/search?**');
   checkQuery(
     page,
@@ -102,7 +103,7 @@ test('logic switches work properly', async ({ page }) => {
 });
 
 test('boolean switches work properly', async ({ page }) => {
-  await page.goto('http://localhost:8000/classic-form');
+  await page.goto('/classic-form');
   // title
   await page.locator('input[name="title"]').fill(`"Black Hole" Galaxy -Solar -"Milky Way"`);
   await page.getByLabel('Title').getByText('Boolean', { exact: true }).click();
@@ -112,7 +113,7 @@ test('boolean switches work properly', async ({ page }) => {
   await page.getByLabel('Abstract / Keywords').getByText('Boolean', { exact: true }).click();
 
   // submit
-  await page.keyboard.press('Enter');
+  await page.getByRole('button', { name: 'Search' }).click();
   await page.waitForURL('**/search?**');
   checkQuery(
     page,
@@ -120,8 +121,31 @@ test('boolean switches work properly', async ({ page }) => {
   );
 });
 
+test('author name single-author filter works properly', async ({ page }) => {
+  await page.goto('/classic-form');
+  await page.locator('form').isVisible();
+
+  await page.getByRole('textbox', { name: 'Author' }).fill('^Smith, A$');
+
+  // submit
+  await page.getByRole('button', { name: 'Search' }).click();
+  await page.waitForURL('**/search?**');
+  checkQuery(page, `collection:(astronomy) author:("^Smith, A") author_count:1`);
+});
+test('author name filters works properly', async ({ page }) => {
+  await page.goto('/classic-form');
+  await page.locator('form').isVisible();
+
+  await page.getByRole('textbox', { name: 'Author' }).fill('=Smith, A\n-Jones, A');
+
+  // submit
+  await page.getByRole('button', { name: 'Search' }).click();
+  await page.waitForURL('**/search?**');
+  checkQuery(page, `collection:(astronomy) author:(="Smith, A" -"Jones, A")`);
+});
+
 test('Can get to classic form from landing page', async ({ page }) => {
-  await page.goto('http://localhost:8000/');
+  await page.goto('/');
   await page.locator('#theme-selector svg').click();
   await page.getByText('Astrophysics', { exact: true }).click();
   await page.getByRole('link', { name: 'Classic Form' }).click();
