@@ -1,22 +1,26 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import { IADSApiSearchParams } from '@api/search';
 
-export type Permission = 'owner' | 'admin' | 'read' | 'write';
+export type LibraryPermission = 'owner' | 'admin' | 'read' | 'write';
+
+export type LibraryIdentifier = string;
 
 export type UserPermission = {
-  [user in string]: Permission[];
+  [user in string]: LibraryPermission[];
 };
+
+export type LibraryOperationAction = 'union' | 'intersection' | 'difference' | 'copy' | 'empty';
 
 export interface ILibraryMetadata {
   num_documents: number;
   date_last_modified: string;
-  permission: Permission;
+  permission: LibraryPermission;
   description: string;
   public: boolean;
   num_users: number;
   owner: string;
   date_created: string;
-  id: string;
+  id: LibraryIdentifier;
   name: string;
 }
 
@@ -34,7 +38,7 @@ export interface IADSApiLibraryResponse {
 
 // Get library Entity
 export interface IADSApiLibraryEntityParams {
-  id: string;
+  id: LibraryIdentifier;
 }
 export interface IADSApiLibraryEntityResponse {
   documents: string[];
@@ -57,21 +61,21 @@ export interface IADSApiLibraryAddParams {
 
 export interface IADSApiLibraryAddResponse {
   name: string;
-  id: string;
+  id: LibraryIdentifier;
   description: string;
 }
 
 // Delete library
 
 export interface IADSApiLibraryDeleteParams {
-  id: string;
+  id: LibraryIdentifier;
 }
 
 export interface IADSApiLibraryDeleteResponse {}
 
 // Modify library metadata
 export interface IADSApiLibraryEditMetaParams {
-  id: string;
+  id: LibraryIdentifier;
   name?: string;
   description?: string;
   public?: boolean;
@@ -85,9 +89,9 @@ export interface IADSApiLibraryEditMetaResponse {
 
 // Library operation
 export interface IADSApiLibraryOperationParams {
-  id: string;
-  libraries?: string[]; // List of secondary libraries to include in the action (optional, based on action)
-  action: 'union' | 'intersection' | 'difference' | 'copy' | 'empty';
+  id: LibraryIdentifier;
+  libraries?: LibraryIdentifier[]; // List of secondary libraries to include in the action (optional, based on action)
+  action: LibraryOperationAction;
   name?: string; // name of the new library (must be unique for that user); used only for actions in [union, intersection, difference]
   description?: string; // description of the new library; used only for actions in [union, intersection, difference]
   public?: boolean; // is the new library public to view; used only for actions in [union, intersection, difference]
@@ -95,14 +99,14 @@ export interface IADSApiLibraryOperationParams {
 
 export interface IADSApiLibraryOperationResponse {
   name: string;
-  id: string;
+  id: LibraryIdentifier;
   description: string;
 }
 
 // Add, remove document to/from library using bibcodes
 
 export interface IADSApiLibraryDocumentParams {
-  id: string;
+  id: LibraryIdentifier;
   bibcode: string[]; // List of bibcodes
   action: 'add' | 'remove';
 }
@@ -115,7 +119,7 @@ export interface IADSApiLibraryDocumentResponse {
 // Add documents to library using search query
 
 export interface IADSApiLibraryQueryParams extends IADSApiSearchParams {
-  id: string;
+  id: LibraryIdentifier;
 }
 
 export interface IADSApiLibraryQueryResponse {
@@ -126,7 +130,7 @@ export interface IADSApiLibraryQueryResponse {
 // Add/remove documents to library using search query
 
 export interface IADSApiLibraryQueryUpdateParams {
-  id: string;
+  id: LibraryIdentifier;
   query: IADSApiSearchParams;
   action: 'add' | 'remove';
 }
@@ -140,15 +144,15 @@ export interface IADSApiLibraryQueryUpdateResponse {
 // permission
 
 export interface IADSApiLibraryPermissionParams {
-  id: string;
+  id: LibraryIdentifier;
 }
 
 export interface IADSApiLibraryPermissionResponse extends Array<UserPermission> {}
 
 export interface IADSApiLibraryPermissionUpdateParams {
-  id: string;
+  id: LibraryIdentifier;
   email: string; // which user
-  permissions: Omit<Permission, 'owner'>; //specifies which permission to change
+  permissions: Omit<LibraryPermission, 'owner'>; //specifies which permission to change
   value: boolean; // whether the user has this permission
 }
 
@@ -157,7 +161,7 @@ export interface IADSApiLibraryPermissionUpdateResponse {}
 // Transfer
 
 export interface IADSApiLibraryTransferParams {
-  id: string;
+  id: LibraryIdentifier;
   transfer_user: string; //  e-mail of the user the account should be transfered to
 }
 

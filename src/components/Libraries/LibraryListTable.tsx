@@ -1,9 +1,10 @@
-import { ILibraryMetadata } from '@api';
+import { ILibraryMetadata, LibraryIdentifier } from '@api';
 import { LockIcon, TriangleDownIcon, TriangleUpIcon, UnlockIcon, UpDownIcon } from '@chakra-ui/icons';
 import { Icon, Table, TableProps, Tbody, Td, Th, Thead, Tr, Flex, Text, Tooltip } from '@chakra-ui/react';
 import { ControlledPaginationControls } from '@components';
 import { CustomInfoMessage } from '@components/Feedbacks';
 import { UserGroupIcon, UserIcon } from '@heroicons/react/24/solid';
+import { Fragment } from 'react';
 
 type Column = keyof ILibraryMetadata;
 type SortDirection = 'asc' | 'desc';
@@ -57,10 +58,13 @@ export interface ILibraryListTableProps extends TableProps {
   sort: ILibraryListTableSort;
   pageSize: number;
   pageIndex: number;
+  showIndex?: boolean;
+  hideCols?: Column[];
+  showDescription?: boolean;
   onChangeSort: (sort: ILibraryListTableSort) => void;
   onChangePageIndex: (index: number) => void;
   onChangePageSize: (size: number) => void;
-  onLibrarySelect: (id: string) => void;
+  onLibrarySelect: (id: LibraryIdentifier) => void;
 }
 
 export const LibraryListTable = (props: ILibraryListTableProps) => {
@@ -70,6 +74,9 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
     sort,
     pageSize,
     pageIndex,
+    showIndex = true,
+    hideCols = [],
+    showDescription = true,
     onChangeSort,
     onChangePageIndex,
     onChangePageSize,
@@ -79,40 +86,44 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
 
   return (
     <>
-      {libraries.length === 0 ? (
+      {libraries?.length === 0 ? (
         <CustomInfoMessage status="info" title="No libraries found" />
       ) : (
         <Table variant="simple" {...tableProps}>
           <Thead>
             <Tr>
-              <Th aria-label="index"></Th>
+              {showIndex && <Th aria-label="index"></Th>}
               {columns.map((column) => (
-                <Th key={column.id} aria-label={column.heading} cursor={column.sortable ? 'pointer' : 'default'}>
-                  {sort.col !== column.id ? (
-                    column.sortable ? (
-                      <Flex alignItems="center" onClick={() => onChangeSort({ col: column.id, dir: 'asc' })}>
-                        {column.heading}
-                        <UpDownIcon m={2} />
-                      </Flex>
-                    ) : (
-                      <>{column.heading}</>
-                    )
-                  ) : (
-                    <>
-                      {sort.dir === 'desc' ? (
-                        <Flex alignItems="center" onClick={() => onChangeSort({ col: column.id, dir: 'asc' })}>
-                          {column.heading}
-                          <TriangleDownIcon m={2} />
-                        </Flex>
+                <Fragment key={`col-${column.id}`}>
+                  {hideCols.indexOf(column.id) === -1 && (
+                    <Th aria-label={column.heading} cursor={column.sortable ? 'pointer' : 'default'}>
+                      {sort.col !== column.id ? (
+                        column.sortable ? (
+                          <Flex alignItems="center" onClick={() => onChangeSort({ col: column.id, dir: 'asc' })}>
+                            {column.heading}
+                            <UpDownIcon m={2} />
+                          </Flex>
+                        ) : (
+                          <>{column.heading}</>
+                        )
                       ) : (
-                        <Flex alignItems="center" onClick={() => onChangeSort({ col: column.id, dir: 'desc' })}>
-                          {column.heading}
-                          <TriangleUpIcon m={2} />
-                        </Flex>
+                        <>
+                          {sort.dir === 'desc' ? (
+                            <Flex alignItems="center" onClick={() => onChangeSort({ col: column.id, dir: 'asc' })}>
+                              {column.heading}
+                              <TriangleDownIcon m={2} />
+                            </Flex>
+                          ) : (
+                            <Flex alignItems="center" onClick={() => onChangeSort({ col: column.id, dir: 'desc' })}>
+                              {column.heading}
+                              <TriangleUpIcon m={2} />
+                            </Flex>
+                          )}
+                        </>
                       )}
-                    </>
+                    </Th>
                   )}
-                </Th>
+                </Fragment>
               ))}
             </Tr>
           </Thead>
@@ -138,37 +149,43 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                   _hover={{ backgroundColor: 'blue.50' }}
                   onClick={() => onLibrarySelect(id)}
                 >
-                  <Td>{pageSize * pageIndex + index + 1}</Td>
-                  <Td>
-                    {isPublic ? (
-                      <Tooltip label="Public">
-                        <UnlockIcon color="green.500" aria-label="public" />
-                      </Tooltip>
-                    ) : (
-                      <Tooltip label="Private">
-                        <LockIcon aria-label="private" />
-                      </Tooltip>
-                    )}
-                  </Td>
-                  <Td>
-                    {num_users === 1 ? (
-                      <Tooltip label="No collaborators">
-                        <Icon as={UserIcon} aria-label="no collaborators" w={4} h={4} />
-                      </Tooltip>
-                    ) : (
-                      <Tooltip label={`${num_users} collaborators`}>
-                        <Icon as={UserGroupIcon} aria-label="has collaborators" color="green.500" w={4} h={4} />
-                      </Tooltip>
-                    )}
-                  </Td>
-                  <Td>
-                    <Text fontWeight="bold">{name}</Text>
-                    <Text>{description}</Text>
-                  </Td>
-                  <Td>{num_documents}</Td>
-                  <Td>{owner}</Td>
-                  <Td>{permission}</Td>
-                  <Td>{date_last_modified}</Td>
+                  {showIndex && <Td>{pageSize * pageIndex + index + 1}</Td>}
+                  {hideCols.indexOf('public') === -1 && (
+                    <Td>
+                      {isPublic ? (
+                        <Tooltip label="Public">
+                          <UnlockIcon color="green.500" aria-label="public" />
+                        </Tooltip>
+                      ) : (
+                        <Tooltip label="Private">
+                          <LockIcon aria-label="private" />
+                        </Tooltip>
+                      )}
+                    </Td>
+                  )}
+                  {hideCols.indexOf('num_users') === -1 && (
+                    <Td>
+                      {num_users === 1 ? (
+                        <Tooltip label="No collaborators">
+                          <Icon as={UserIcon} aria-label="no collaborators" w={4} h={4} />
+                        </Tooltip>
+                      ) : (
+                        <Tooltip label={`${num_users} collaborators`}>
+                          <Icon as={UserGroupIcon} aria-label="has collaborators" color="green.500" w={4} h={4} />
+                        </Tooltip>
+                      )}
+                    </Td>
+                  )}
+                  {hideCols.indexOf('name') === -1 && (
+                    <Td>
+                      <Text fontWeight="bold">{name}</Text>
+                      {showDescription && <Text>{description}</Text>}
+                    </Td>
+                  )}
+                  {hideCols.indexOf('num_documents') === -1 && <Td>{num_documents}</Td>}
+                  {hideCols.indexOf('owner') === -1 && <Td>{owner}</Td>}
+                  {hideCols.indexOf('permission') === -1 && <Td>{permission}</Td>}
+                  {hideCols.indexOf('date_last_modified') === -1 && <Td>{date_last_modified}</Td>}
                 </Tr>
               ),
             )}

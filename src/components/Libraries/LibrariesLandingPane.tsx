@@ -1,34 +1,23 @@
-import { useAddLibrary, useGetLibraries } from '@api';
-import { AddIcon, Icon } from '@chakra-ui/icons';
 import {
-  Box,
-  Button,
-  Checkbox,
-  Flex,
-  FormControl,
-  FormLabel,
-  Heading,
-  Input,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  Skeleton,
-  Stack,
-  Textarea,
-  useDisclosure,
-  useToast,
-} from '@chakra-ui/react';
+  IADSApiLibraryOperationParams,
+  LibraryIdentifier,
+  LibraryOperationAction,
+  useAddLibrary,
+  useGetLibraries,
+  useLibraryOperation,
+} from '@api';
+import { AddIcon, Icon } from '@chakra-ui/icons';
+import { Box, Button, Flex, Heading, Skeleton, Stack, useDisclosure, useToast } from '@chakra-ui/react';
 import { WrenchIcon } from '@heroicons/react/24/solid';
 import { parseAPIError } from '@utils';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { ChangeEvent, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
+import { AddLibraryModal } from './AddLibraryModal';
 import { ILibraryListTableSort, LibraryListTable } from './LibraryListTable';
 import { LibraryTypeSelector } from './LibraryTypeSelector';
+import { OperationModal } from './OperationModal';
+import { TableSkeleton } from './TableSkeleton';
 import { LibraryType } from './types';
 
 export const LibrariesLandingPane = () => {
@@ -43,6 +32,12 @@ export const LibrariesLandingPane = () => {
   const [pageIndex, setPageIndex] = useState(0);
 
   const [sort, setSort] = useState<ILibraryListTableSort>({ col: 'date_last_modified', dir: 'desc' });
+
+  const [libraryType, setLibraryType] = useState<LibraryType>('owner');
+
+  const { isOpen: isAddOpen, onOpen: onAddOpen, onClose: onAddClose } = useDisclosure();
+
+  const { isOpen: isOperationOpen, onOpen: onOperationOpen, onClose: onOperationClose } = useDisclosure();
 
   // query all libraries
   const {
@@ -61,16 +56,15 @@ export const LibrariesLandingPane = () => {
   // TODO: temp query to get all libraries so we can get count
   const { data: all, refetch: recount } = useGetLibraries({}, { cacheTime: 0, staleTime: 0 });
 
-  // add library
-  const { mutate: addLibrary } = useAddLibrary();
-
-  const [libraryType, setLibraryType] = useState<LibraryType>('owner');
-
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
   const entries = useMemo(() => {
     return all?.libraries ? all.libraries.length : 0;
   }, [all]); // TODO: get this using API (waiting for implementation)
+
+  // add library
+  const { mutate: addLibrary } = useAddLibrary();
+
+  // library operation
+  const { mutate: operateLibrary } = useLibraryOperation();
 
   // this will cause a refresh as well
   const reset = () => {
@@ -85,15 +79,11 @@ export const LibrariesLandingPane = () => {
   };
 
   const handleSortChange = (sort: ILibraryListTableSort) => {
-    // TODO: refetch libraries with new sort
-    // if successful
     setSort(sort);
     setPageIndex(0);
   };
 
   const handlePageIndexChange = (index: number) => {
-    // TODO: fetch libs
-    // if successful
     setPageIndex(index);
   };
 
@@ -102,7 +92,7 @@ export const LibrariesLandingPane = () => {
     setPageIndex(0);
   };
 
-  const handleOpenLibrary = (id: string) => {
+  const handleOpenLibrary = (id: LibraryIdentifier) => {
     void router.push(`/user/libraries/${id}`);
   };
 
@@ -130,8 +120,19 @@ export const LibrariesLandingPane = () => {
     );
   };
 
-  const handleOperations = () => {
-    // TODO:
+  const handleOperation = (params: IADSApiLibraryOperationParams) => {
+    operateLibrary(params, {
+      onSettled: (data, error) => {
+        if (error) {
+          toast({ status: 'error', title: parseAPIError(error) });
+        } else {
+          toast({ status: 'success', title: `Action Successful` });
+
+          // refetch libraries and reset lib count
+          refresh();
+        }
+      },
+    });
   };
 
   return (
@@ -148,14 +149,16 @@ export const LibrariesLandingPane = () => {
             <LibraryTypeSelector type={libraryType} onChange={handleLibraryTypeChange} />
           </Stack>
           <Flex justifyContent="end" gap={1} my={2}>
-            <Button variant="outline" leftIcon={<AddIcon />} onClick={onOpen}>
+            <Button variant="outline" leftIcon={<AddIcon />} onClick={onAddOpen}>
               Add New Library
             </Button>
-            <Button leftIcon={<Icon as={WrenchIcon} onClick={handleOperations} />}>Operations</Button>
+            <Button leftIcon={<Icon as={WrenchIcon} />} onClick={onOperationOpen}>
+              Operations
+            </Button>
           </Flex>
         </Flex>
         {isLoading ? (
-          <TableSkeleton />
+          <TableSkeleton r={10} h="30px" />
         ) : (
           <>
             <LibraryListTable
@@ -169,95 +172,11 @@ export const LibrariesLandingPane = () => {
               onChangePageSize={handlePageSizeChange}
               onLibrarySelect={handleOpenLibrary}
             />
-            <NewLibModal isOpen={isOpen} onClose={onClose} onAddLibrary={handleAddLibrary} />
+            <AddLibraryModal isOpen={isAddOpen} onClose={onAddClose} onAddLibrary={handleAddLibrary} />
+            <OperationModal isOpen={isOperationOpen} onClose={onOperationClose} onOperate={handleOperation} />
           </>
         )}
       </Box>
     </div>
-  );
-};
-
-const TableSkeleton = () => (
-  <Stack m={5}>
-    <Skeleton h="30px" />
-    <Skeleton h="30px" />
-    <Skeleton h="30px" />
-    <Skeleton h="30px" />
-    <Skeleton h="30px" />
-    <Skeleton h="30px" />
-    <Skeleton h="30px" />
-    <Skeleton h="30px" />
-    <Skeleton h="30px" />
-    <Skeleton h="30px" />
-  </Stack>
-);
-
-const NewLibModal = ({
-  isOpen,
-  onClose,
-  onAddLibrary,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  onAddLibrary: (name: string, desc: string, isPublic: boolean) => void;
-}) => {
-  const [name, setName] = useState('');
-
-  const [desc, setDesc] = useState('');
-
-  const [isPublic, setIsPublic] = useState(false);
-
-  const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setName(e.target.value);
-  };
-
-  const handleDescChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    setDesc(e.target.value);
-  };
-
-  const handleCheckPublic = (e: ChangeEvent<HTMLInputElement>) => {
-    setIsPublic(e.target.checked);
-  };
-
-  const handleAddLibrary = () => {
-    onAddLibrary(name, desc, isPublic);
-    setName('');
-    setDesc('');
-    setIsPublic(false);
-    onClose();
-  };
-
-  return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Add A New Library</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <Flex direction="column" gap={2}>
-            <FormControl>
-              <FormLabel>Enter a name for the new library: </FormLabel>
-              <Input onChange={handleNameChange} value={name} />
-            </FormControl>
-            <FormControl>
-              <FormLabel>Description: </FormLabel>
-              <Textarea onChange={handleDescChange} value={desc} />
-            </FormControl>
-            <Checkbox isChecked={isPublic} onChange={handleCheckPublic}>
-              Make library public
-            </Checkbox>
-          </Flex>
-        </ModalBody>
-
-        <ModalFooter backgroundColor="transparent" gap={1}>
-          <Button onClick={handleAddLibrary} isDisabled={name.length < 2}>
-            Add
-          </Button>
-          <Button variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
   );
 };
