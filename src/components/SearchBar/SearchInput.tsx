@@ -78,7 +78,7 @@ export const SearchInput = forwardRef<Partial<HTMLInputElement>, ISearchInputPro
     closeMenu,
     setInputValue,
   } = useCombobox({
-    defaultInputValue: latestQuery,
+    defaultInputValue: query,
     items: inputItems,
     itemToString: useCallback<(item: TypeaheadOption) => string>(
       (item) => {
@@ -103,6 +103,12 @@ export const SearchInput = forwardRef<Partial<HTMLInputElement>, ISearchInputPro
     ),
     circularNavigation: false,
   });
+
+  useEffect(() => {
+    if (query) {
+      setInputValue(query);
+    }
+  }, [query]);
 
   // filter items, but only when the cursor is at the end of the input
   useEffect(() => {

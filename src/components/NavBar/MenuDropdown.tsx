@@ -9,11 +9,12 @@ interface IMenuDropdownProps {
   type: ListType;
   label: ReactElement | string;
   items: ItemType[];
+  hideChevron?: boolean;
   onSelect: MouseEventHandler<HTMLButtonElement | HTMLLIElement>;
 }
 
 export const MenuDropdown = (props: IMenuDropdownProps): ReactElement => {
-  const { id, type, label, items, onSelect } = props;
+  const { id, type, label, items, onSelect, hideChevron } = props;
 
   const handleKeydown = (e: KeyboardEvent, index: number) => {
     switch (e.key) {
@@ -41,7 +42,7 @@ export const MenuDropdown = (props: IMenuDropdownProps): ReactElement => {
     <Menu variant="navbar">
       <MenuButton>
         <HStack>
-          <>{label}</> <ChevronDownIcon />
+          <>{label}</> {hideChevron ? null : <ChevronDownIcon />}
         </HStack>
       </MenuButton>
       <MenuList zIndex={500}>

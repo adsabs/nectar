@@ -178,7 +178,7 @@ export const parseQueryFromUrl = <TExtra extends Record<string, string | string[
   const normalizedParams = normalizeURLParams(params, ['fq']);
   return {
     ...normalizedParams,
-    q: normalizedParams?.q ?? '',
+    q: decodeURIComponent(normalizedParams?.q ?? ''),
     sort: normalizeSolrSort(params.sort, sortPostfix),
     p: parseNumberAndClamp(normalizedParams?.p, 1),
     ...(params.fq ? { fq: safeSplitString(params.fq) } : {}),
