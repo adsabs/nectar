@@ -1,10 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// require('dotenv').config();
+dotenv.config();
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -12,7 +9,7 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './e2e',
   /* Run tests in files in parallel */
-  fullyParallel: true,
+  fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
@@ -48,32 +45,22 @@ export default defineConfig({
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
     },
-
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
   ],
-
-  /* Run your local dev server before starting the tests */
   webServer: {
+    env: {
+      BASE_CANONICAL_URL: process.env.BASE_CANONICAL_URL || 'https://ui.adsabs.harvard.edu',
+      API_HOST_CLIENT: process.env.API_HOST_CLIENT || 'https://devapi.adsabs.harvard.edu/v1',
+      API_HOST_SERVER: process.env.API_HOST_SERVER || 'https://devapi.adsabs.harvard.edu/v1',
+      COOKIE_SECRET: process.env.COOKIE_SECRET || 'secret_secret_secret_secret_secret',
+      ADS_SESSION_COOKIE_NAME: process.env.ADS_SESSION_COOKIE_NAME || 'ads_session',
+      SCIX_SESSION_COOKIE_NAME: process.env.SCIX_SESSION_COOKIE_NAME || 'scix_session',
+    },
     command: 'pnpm run dev:mocks',
-    url: 'http://localhost:8000',
+    port: 8000,
+    // 5 minute timeout
+    timeout: 300000,
     reuseExistingServer: !process.env.CI,
+    stdout: 'ignore',
+    stderr: 'pipe',
   },
 });
