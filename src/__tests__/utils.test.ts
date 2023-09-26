@@ -82,10 +82,10 @@ describe('parseAPIError', () => {
 
   // check I/O to make sure default response is given
   test.concurrent.each<[Parameters<typeof parseAPIError>, ReturnType<typeof parseAPIError>]>([
-    [['test'], defaultMessage],
+    [['test'], 'test'],
+    [['test', { defaultMessage: 'TestError' }], 'test'],
     [[new Error()], defaultMessage],
     [[new Error('test')], 'test'],
     [[undefined], defaultMessage],
-    [['test', { defaultMessage: 'TestError' }], 'TestError'],
-  ])('%s', (args, expected) => expect(parseAPIError(...args)).toEqual(expected));
+  ])('parseAPIError(%s) -> "%s"', (args, expected) => expect(parseAPIError(...args)).toEqual(expected));
 });
