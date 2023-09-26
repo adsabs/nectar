@@ -14,12 +14,11 @@
     "analyze": "NEXT_TELEMETRY_DISABLED=1 DIST_DIR=./dev/ ANALYZE=true next build",
     "test": "NODE_ENV=test vitest",
     "test:coverage": "NODE_ENV=test vitest --run --coverage",
-    "cypress:open": "cypress open",
-    "cypress:run": "cypress run",
+    "integration": "playwright test --config=./playwright.config.ts",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "build-bibstem-index": "node ./scripts/gen-bibstem-index",
-    "lint": "tsc --project ./tsconfig.json && tsc --project ./cypress/tsconfig.json && eslint ."
+    "lint": "tsc --project ./tsconfig.json && eslint ."
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.0",
@@ -144,7 +143,6 @@
     "babel-loader": "^8.0.0",
     "babel-plugin-optimize-clsx": "^2.6.2",
     "c8": "^7.13.0",
-    "cypress": "^12.8.0",
     "eslint": "^8.10.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-jsx-a11y": "^6.5.1",
