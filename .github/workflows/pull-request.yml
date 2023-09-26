@@ -2,14 +2,6 @@ name: End-to-end
 
 on: [push, pull_request]
 
-env:
-  BASE_CANONICAL_URL: ${{ vars.BASE_CANONICAL_URL }}
-  API_HOST_CLIENT: ${{ vars.API_HOST_CLIENT }}
-  API_HOST_SERVER: ${{ vars.API_HOST_SERVER }}
-  COOKIE_SECRET: ${{ secrets.COOKIE_SECRET }}
-  ADS_SESSION_COOKIE_NAME: ${{ vars.ADS_SESSION_COOKIE_NAME }}
-  SCIX_SESSION_COOKIE_NAME: ${{ vars.SCIX_SESSION_COOKIE_NAME }}
-
 jobs:
   unit-tests:
     timeout-minutes: 60
@@ -54,6 +46,12 @@ jobs:
   e2e-tests:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    env:
+      CI: true
+      BASE_CANONICAL_URL: ${{ vars.BASE_CANONICAL_URL }}
+      API_HOST_CLIENT: ${{ vars.API_HOST_CLIENT }}
+      API_HOST_SERVER: ${{ vars.API_HOST_SERVER }}
+      COOKIE_SECRET: ${{ vars.COOKIE_SECRET }}
     strategy:
       matrix:
         node-version: [ 18 ]
@@ -77,6 +75,15 @@ jobs:
 
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
+
+      - name: setup environment variables
+        run: |
+          touch .env.local
+          echo "CI=${{ env.CI }}" >> .env.local
+          echo "BASE_CANONICAL_URL=${{ env.BASE_CANONICAL_URL }}" >> .env.local
+          echo "API_HOST_CLIENT=${{ env.API_HOST_CLIENT }}" >> .env.local
+          echo "API_HOST_SERVER=${{ env.API_HOST_SERVER }}" >> .env.local
+          echo "COOKIE_SECRET=${{ env.COOKIE_SECRET }}" >> .env.local
 
       - name: Run integration tests
         run: pnpm integration

@@ -1,7 +1,7 @@
 import { expect, PlaywrightTestArgs, test } from '@playwright/test';
 
 test('blank form has correct defaults set', async ({ page }) => {
-  await page.goto('/classic-form');
+  await page.goto('/classic-form', { timeout: 60000 });
   await page.locator('form').isVisible();
 
   // of all radios, only the first is checked (All)
