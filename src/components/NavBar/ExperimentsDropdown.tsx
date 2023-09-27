@@ -1,7 +1,7 @@
 import { ListType } from './types';
 import { MouseEvent, ReactElement, useState } from 'react';
 import { MenuDropdown } from './MenuDropdown';
-import { Icon, IconButton, Modal, ModalCloseButton, ModalContent, ModalOverlay, useDisclosure } from '@chakra-ui/react';
+import { Icon, Modal, ModalCloseButton, ModalContent, ModalOverlay, useDisclosure } from '@chakra-ui/react';
 import { BeakerIcon } from '@heroicons/react/24/outline';
 import { PlanetaryFeatures } from '@components/Experiments/PlanetaryFeatures';
 
@@ -10,6 +10,7 @@ const items = [
     id: 'planetary_features',
     path: '',
     label: 'Search Planetary Features',
+    enabled: process.env.NEXT_PUBLIC_ENABLE_EXPERIMENTS.includes('planetary_search'),
   },
 ];
 
@@ -26,6 +27,9 @@ export const ExperimentsDropdown = (props: IAboutDropdownProps): ReactElement =>
 
   const handleSelect = (e: MouseEvent<HTMLElement>) => {
     const id = e.currentTarget.dataset['id'];
+    if (id === 'no-experiments') {
+      return;
+    }
     setSelected(id);
     onOpen();
     if (typeof onFinished === 'function') {
@@ -33,20 +37,24 @@ export const ExperimentsDropdown = (props: IAboutDropdownProps): ReactElement =>
     }
   };
 
+  const list = items.filter((item) => item.enabled);
+  if (list.length === 0) {
+    list.push({
+      id: 'no-experiments',
+      path: '',
+      label: 'No Experiments',
+      enabled: true,
+    });
+  }
+
   return (
     <>
       <MenuDropdown
         id="experiments"
         type={ListType.DROPDOWN}
         hideChevron
-        label={
-          <IconButton
-            aria-label="open experiments menu"
-            icon={<Icon as={BeakerIcon} fontSize="18" />}
-            colorScheme="black"
-          />
-        }
-        items={items}
+        label={<Icon aria-label="open experiments menu" as={BeakerIcon} fontSize="18" />}
+        items={list}
         onSelect={handleSelect}
       />
       <Modal isOpen={isOpen} onClose={onClose}>
