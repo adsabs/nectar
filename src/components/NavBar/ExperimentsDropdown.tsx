@@ -10,7 +10,7 @@ const items = [
     id: 'planetary_features',
     path: '',
     label: 'Search Planetary Features',
-    enabled: process.env.NEXT_PUBLIC_ENABLE_EXPERIMENTS.includes('planetary_search'),
+    enabled: process.env.NEXT_PUBLIC_ENABLE_EXPERIMENTS?.includes('planetary_search'),
   },
 ];
 
