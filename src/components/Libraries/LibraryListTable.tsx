@@ -89,7 +89,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
       {libraries?.length === 0 ? (
         <CustomInfoMessage status="info" title="No libraries found" />
       ) : (
-        <Table variant="simple" {...tableProps}>
+        <Table variant="simple" {...tableProps} data-testid="libraries-table">
           <Thead>
             <Tr>
               {showIndex && <Th aria-label="index"></Th>}

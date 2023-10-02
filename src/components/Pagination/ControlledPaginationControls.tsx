@@ -32,12 +32,15 @@ export const ControlledPaginationControls = <T extends object>(props: IPaginatio
 
   return (
     <Flex {...flexProps}>
-      <Flex flex="1">{getPaginationString()}</Flex>
+      <Flex flex="1" data-testid="pagination-string">
+        {getPaginationString()}
+      </Flex>
       <Flex justifyContent="center">
         <Select
           value={pageSize}
           onChange={(e) => onChangePageSize(e.target.value ? Number(e.target.value) : 10)}
           size="sm"
+          data-testid="page-size-selector"
         >
           <option value={10}>10</option>
           <option value={25}>25</option>
