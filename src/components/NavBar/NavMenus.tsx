@@ -104,7 +104,7 @@ export const NavMenus = (): ReactElement => {
       </Box>
       <Box display={{ base: 'none', md: 'flex' }} flexDirection="row" mx={3}>
         {/* Cannot use stack here, will produce warning with popper in menu */}
-        {process.env.NEXT_PUBLIC_ENABLE_EXPERIMENTS ? <ExperimentsDropdown /> : null}
+        <ExperimentsDropdown />
         <FeedbackDropdown type={ListType.DROPDOWN} />
         <OrcidDropdown type={ListType.DROPDOWN} />
         <AboutDropdown type={ListType.DROPDOWN} />

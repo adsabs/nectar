@@ -51,6 +51,7 @@ const config = {
   trailingSlash: false,
   publicRuntimeConfig: {
     apiHost: process.env.API_HOST_CLIENT,
+    experiments: process.env.NEXT_PUBLIC_ENABLE_EXPERIMENTS?.split(',') || [],
   },
   serverRuntimeConfig: {
     apiHost: process.env.API_HOST_SERVER,
