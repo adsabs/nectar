@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
+import { SolrSort } from '@api/models';
 import { IADSApiSearchParams, IDocsEntity } from '@api/search';
 
 export type LibraryPermission = 'owner' | 'admin' | 'read' | 'write';
@@ -39,6 +40,9 @@ export interface IADSApiLibraryResponse {
 // Get library Entity
 export interface IADSApiLibraryEntityParams {
   id: LibraryIdentifier;
+  start?: number;
+  rows?: number;
+  sort?: SolrSort[];
 }
 export interface IADSApiLibraryEntityResponse {
   documents: IDocsEntity['bibcode'][];
@@ -48,6 +52,13 @@ export interface IADSApiLibraryEntityResponse {
     duplicates_removed: 0;
   };
   metadata: ILibraryMetadata;
+  solr: {
+    response: {
+      numFound: number;
+      start: number;
+      docs: { bibcode: string; alternate_bibcode: string[] };
+    };
+  };
 }
 
 // Add library

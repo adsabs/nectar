@@ -360,7 +360,7 @@ export const useBigQuerySearch: ADSMutation<
   const params = getBigQueryParams();
   return useMutation({
     mutationKey: searchKeys.bigquery(),
-    mutationFn: ({ bibcodes }) => fetchBigQuerySearch({ params, variables: { bibcodes } }),
+    mutationFn: ({ bibcodes, rows }) => fetchBigQuerySearch({ params, variables: { bibcodes, rows } }),
     ...options,
   });
 };
@@ -370,7 +370,7 @@ export const fetchBigQuerySearch: MutationFunction<IADSApiSearchResponse['respon
     const config: ApiRequestConfig = {
       method: 'POST',
       url: `${ApiTargets.BIGQUERY}`,
-      params: params,
+      params: {...params, rows: variables.rows},
       data: `bibcode\n${variables.bibcodes.join('\n')}`,
       headers: { 'Content-Type': 'bigquery/csv' },
     };

@@ -123,6 +123,7 @@ export const fetchLibraryEntity: QueryFunction<IADSApiLibraryEntityResponse> = a
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.LIBRARIES}/${params.id}`,
+    params: omit(['id'], params),
   };
 
   const { data } = await api.request<IADSApiLibraryEntityResponse>(config);

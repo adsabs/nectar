@@ -7,10 +7,9 @@ import {
   useLibraryOperation,
 } from '@api';
 import { AddIcon, Icon } from '@chakra-ui/icons';
-import { Box, Button, Flex, Heading, Skeleton, Stack, useDisclosure, useToast } from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, Stack, useDisclosure, useToast } from '@chakra-ui/react';
 import { WrenchIcon } from '@heroicons/react/24/solid';
 import { parseAPIError } from '@utils';
-import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useMemo, useState } from 'react';
 import { AddLibraryModal } from './AddLibraryModal';
@@ -137,9 +136,6 @@ export const LibrariesLandingPane = () => {
 
   return (
     <div>
-      <Head>
-        <title>NASA Science Explorer - My Libraries</title>
-      </Head>
       <Box>
         <Heading variant="pageTitle" my={4}>
           My Libraries
