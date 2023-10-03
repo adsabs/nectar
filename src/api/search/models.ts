@@ -173,3 +173,9 @@ export const getHighlightParams = (params: IADSApiSearchParams): IADSApiSearchPa
   'hl.requireFieldMatch': true,
   'hl.usePhraseHighlighter': true,
 });
+
+export const getBigQueryParams = (): IADSApiSearchParams => ({
+  q: '*:*',
+  sort: ['date desc'],
+  fl: defaultFields,
+});

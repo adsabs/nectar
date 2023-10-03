@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
-import { IADSApiSearchParams } from '@api/search';
+import { IADSApiSearchParams, IDocsEntity } from '@api/search';
 
 export type LibraryPermission = 'owner' | 'admin' | 'read' | 'write';
 
@@ -41,7 +41,7 @@ export interface IADSApiLibraryEntityParams {
   id: LibraryIdentifier;
 }
 export interface IADSApiLibraryEntityResponse {
-  documents: string[];
+  documents: IDocsEntity['bibcode'][];
   updates: {
     update_list: unknown[];
     num_updated: 0;
