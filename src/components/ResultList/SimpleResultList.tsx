@@ -20,12 +20,7 @@ const propTypes = {
 };
 
 export const SimpleResultList = (props: ISimpleResultListProps): ReactElement => {
-  const {
-    docs = [],
-    hideCheckboxes = false,
-    indexStart = 0,
-    ...divProps
-  } = props;
+  const { docs = [], hideCheckboxes = false, indexStart = 0, ...divProps } = props;
 
   const isClient = useIsClient();
   const start = indexStart + 1;
@@ -52,7 +47,7 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
           hideCheckbox={!isClient ? true : hideCheckboxes}
           hideActions={false}
           showHighlights={showHighlights}
-          highlights={highlights[index]}
+          highlights={highlights?.[index] ?? []}
           isFetchingHighlights={isFetchingHighlights}
         />
       ))}
