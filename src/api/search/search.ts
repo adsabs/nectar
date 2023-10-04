@@ -41,8 +41,12 @@ export const responseSelector = (data: IADSApiSearchResponse): IADSApiSearchResp
 export const statsSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['stats'] => data.stats;
 export const facetCountSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['facet_counts'] =>
   data.facet_counts;
-export const highlightingSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['highlighting'] =>
-  data.highlighting;
+export const highlightingSelector = (
+  data: IADSApiSearchResponse,
+): { docs: IADSApiSearchResponse['response']['docs']; highlighting: IADSApiSearchResponse['highlighting'] } => ({
+  docs: data.response.docs,
+  highlighting: data.highlighting,
+});
 export const facetFieldSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['facets'] => data.facets;
 
 type SearchKeyProps =
@@ -102,10 +106,10 @@ type SubPageQuery = SearchADSQuery<{ bibcode: IDocsEntity['bibcode']; start?: IA
 /**
  * Get highlights based on a search query
  */
-export const useGetHighlights: SearchADSQuery<IADSApiSearchParams, IADSApiSearchResponse['highlighting']> = (
-  params,
-  options,
-) => {
+export const useGetHighlights: SearchADSQuery<
+  IADSApiSearchParams,
+  { docs: IADSApiSearchResponse['response']['docs']; highlighting: IADSApiSearchResponse['highlighting'] }
+> = (params, options) => {
   const highlightParams = getHighlightParams(params);
   return useQuery({
     queryKey: searchKeys.highlight(omitParams(highlightParams)),
