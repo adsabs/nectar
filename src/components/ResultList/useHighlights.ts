@@ -16,8 +16,7 @@ import { flatten, map, pipe, reduce, values } from 'ramda';
  * ---> [["foo"], ["bar", "baz ©"]]
  */
 const decoder = pipe<[Record<string, string[]>], string[][], string[], string[]>(values, flatten, map(decode));
-const transformHighlights = pipe<[IADSApiSearchResponse['highlighting']], Record<string, string[]>[], string[][]>(
-  values,
+const transformHighlights = pipe<[Record<string, string[]>[]], string[][]>(
   reduce((acc, value) => [...acc, [...decoder(value)]], [] as string[][]),
 );
 
@@ -52,5 +51,8 @@ export const useHighlights = () => {
     });
   }
 
-  return { showHighlights, highlights: transformHighlights(data), isFetchingHighlights: isFetching };
+  // Do this first to maintain results ordering
+  const highlights = data?.docs.map(({ id }) => data.highlighting[id]) ?? [];
+
+  return { showHighlights, highlights: transformHighlights(highlights), isFetchingHighlights: isFetching };
 };
