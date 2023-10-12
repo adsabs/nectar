@@ -1,10 +1,25 @@
 import { ILibraryMetadata, LibraryIdentifier } from '@api';
-import { LockIcon, TriangleDownIcon, TriangleUpIcon, UnlockIcon, UpDownIcon } from '@chakra-ui/icons';
-import { Icon, Table, TableProps, Tbody, Td, Th, Thead, Tr, Flex, Text, Tooltip } from '@chakra-ui/react';
+import { LockIcon, SettingsIcon, TriangleDownIcon, TriangleUpIcon, UnlockIcon, UpDownIcon } from '@chakra-ui/icons';
+import {
+  Icon,
+  Table,
+  TableProps,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+  Flex,
+  Text,
+  Tooltip,
+  IconButton,
+  Center,
+} from '@chakra-ui/react';
 import { ControlledPaginationControls } from '@components';
 import { CustomInfoMessage } from '@components/Feedbacks';
-import { UserGroupIcon, UserIcon } from '@heroicons/react/24/solid';
-import { Fragment } from 'react';
+import { Cog8ToothIcon, UserGroupIcon, UserIcon } from '@heroicons/react/24/solid';
+import { useRouter } from 'next/router';
+import { Fragment, MouseEvent } from 'react';
 
 type Column = keyof ILibraryMetadata;
 type SortDirection = 'asc' | 'desc';
@@ -59,6 +74,7 @@ export interface ILibraryListTableProps extends TableProps {
   pageSize: number;
   pageIndex: number;
   showIndex?: boolean;
+  showSettings?: boolean;
   hideCols?: Column[];
   showDescription?: boolean;
   onChangeSort: (sort: ILibraryListTableSort) => void;
@@ -75,6 +91,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
     pageSize,
     pageIndex,
     showIndex = true,
+    showSettings = true,
     hideCols = [],
     showDescription = true,
     onChangeSort,
@@ -83,6 +100,13 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
     onLibrarySelect,
     ...tableProps
   } = props;
+
+  const router = useRouter();
+
+  const handleSettings = (e: MouseEvent<HTMLButtonElement>, id: LibraryIdentifier) => {
+    e.stopPropagation();
+    void router.push({ pathname: `/user/libraries/${id}/settings` });
+  };
 
   return (
     <>
@@ -125,6 +149,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                   )}
                 </Fragment>
               ))}
+              <Th>Settings</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -186,6 +211,20 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                   {hideCols.indexOf('owner') === -1 && <Td>{owner}</Td>}
                   {hideCols.indexOf('permission') === -1 && <Td>{permission}</Td>}
                   {hideCols.indexOf('date_last_modified') === -1 && <Td>{date_last_modified}</Td>}
+                  {showSettings && (
+                    <Td>
+                      <Center>
+                        <IconButton
+                          icon={<SettingsIcon />}
+                          variant="ghost"
+                          colorScheme="gray"
+                          fontSize="18px"
+                          aria-label={'Settings'}
+                          onClick={(e) => handleSettings(e, id)}
+                        />
+                      </Center>
+                    </Td>
+                  )}
                 </Tr>
               ),
             )}

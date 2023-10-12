@@ -1,8 +1,11 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import { SolrSort } from '@api/models';
 import { IADSApiSearchParams, IDocsEntity } from '@api/search';
+import { omit } from 'ramda';
 
-export type LibraryPermission = 'owner' | 'admin' | 'read' | 'write';
+export const permissions = ['owner', 'admin', 'write', 'read'];
+
+export type LibraryPermission = typeof permissions[number];
 
 export type LibraryIdentifier = string;
 
@@ -163,8 +166,7 @@ export interface IADSApiLibraryPermissionResponse extends Array<UserPermission> 
 export interface IADSApiLibraryPermissionUpdateParams {
   id: LibraryIdentifier;
   email: string; // which user
-  permissions: Omit<LibraryPermission, 'owner'>; //specifies which permission to change
-  value: boolean; // whether the user has this permission
+  permission: { [key in 'read' | 'write' | 'admin']?: boolean };
 }
 
 export interface IADSApiLibraryPermissionUpdateResponse {}
@@ -173,7 +175,7 @@ export interface IADSApiLibraryPermissionUpdateResponse {}
 
 export interface IADSApiLibraryTransferParams {
   id: LibraryIdentifier;
-  transfer_user: string; //  e-mail of the user the account should be transfered to
+  email: string; //  e-mail of the user the account should be transfered to
 }
 
 export interface IADSApiLibraryTransferResponse {}

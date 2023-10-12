@@ -496,3 +496,10 @@ export const coalesceAuthorsFromDoc = (doc: IDocsEntity, includeAff?: boolean) =
 export const pluralize = (str: string, count: number) => {
   return count === 1 ? str : `${str}s`;
 };
+
+export const isValidEmail = (email: string) =>
+  email
+    .toLowerCase()
+    .match(
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+    );

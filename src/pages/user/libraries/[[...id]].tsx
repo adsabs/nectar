@@ -1,6 +1,12 @@
 import { useGetLibraryEntity } from '@api';
 import { Flex, Spinner, Text } from '@chakra-ui/react';
-import { CustomInfoMessage, LibrariesLandingPane, LibraryEntityPane, SimpleLink } from '@components';
+import {
+  CustomInfoMessage,
+  LibrariesLandingPane,
+  LibraryEntityPane,
+  LibrarySettingsPane,
+  SimpleLink,
+} from '@components';
 import { LibrariesLayout } from '@components/Layout/LibrariesLayout';
 import { composeNextGSSP } from '@ssr-utils';
 import { GetServerSideProps, NextPage } from 'next';
@@ -45,7 +51,7 @@ const LibrariesHome: NextPage = () => {
         />
       )}
       {!!id && !!library && !subpage && <LibraryEntityPane library={library} />}
-      {!!id && !!library && subpage === 'settings' && <>Settings</>}
+      {!!id && !!library && subpage === 'settings' && <LibrarySettingsPane id={id} />}
       {!id && <LibrariesLandingPane />}
     </LibrariesLayout>
   );

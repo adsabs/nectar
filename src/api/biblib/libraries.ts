@@ -349,8 +349,8 @@ export const transfer: MutationFunction<IADSApiLibraryTransferResponse, IADSApiL
 ) => {
   const config: ApiRequestConfig = {
     method: 'POST',
-    url: `${ApiTargets.PERMISSIONS}/${params.id}`,
-    data: omit(['library'], params),
+    url: `${ApiTargets.LIBRARY_TRANSFER}/${params.id}`,
+    data: omit(['id'], params),
   };
 
   const { data } = await api.request<IADSApiLibraryTransferResponse>(config);
