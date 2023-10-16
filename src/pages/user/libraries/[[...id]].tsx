@@ -1,10 +1,11 @@
 import { useGetLibraryEntity } from '@api';
-import { Flex, Spinner, Text } from '@chakra-ui/react';
+import { Center, Text } from '@chakra-ui/react';
 import {
   CustomInfoMessage,
   LibrariesLandingPane,
   LibraryEntityPane,
   LibrarySettingsPane,
+  LoadingMessage,
   SimpleLink,
 } from '@components';
 import { LibrariesLayout } from '@components/Layout/LibrariesLayout';
@@ -32,9 +33,9 @@ const LibrariesHome: NextPage = () => {
   return (
     <LibrariesLayout title="NASA Science Explorer - My Libraries">
       {!!id && isLoadingLib && (
-        <Flex justifyContent="center">
-          <Spinner />
-        </Flex>
+        <Center>
+          <LoadingMessage message="Loading library" />
+        </Center>
       )}
       {!!id && error && (
         <CustomInfoMessage

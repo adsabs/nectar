@@ -174,6 +174,7 @@ export const CollabTable = ({ id }: { id: LibraryIdentifier }) => {
 
   return (
     <>
+      {isLoading && <TableSkeleton r={5} />}
       {!isLoading && error && <CustomInfoMessage status="error" title="Unable to load collaborators" />}
       {!isLoading && !error ? (
         <>

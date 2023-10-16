@@ -6,8 +6,8 @@ import {
   useBigQuerySearch,
   useGetLibraryEntity,
 } from '@api';
-import { ChevronRightIcon, SettingsIcon } from '@chakra-ui/icons';
-import { Box, Container, Flex, Heading, IconButton, Text } from '@chakra-ui/react';
+import { ChevronLeftIcon, ChevronRightIcon, SettingsIcon } from '@chakra-ui/icons';
+import { Box, Button, Container, Flex, Heading, IconButton, Text } from '@chakra-ui/react';
 import {
   CustomInfoMessage,
   ItemsSkeleton,
@@ -82,18 +82,21 @@ export const LibraryEntityPane = memo(({ library }: ILibraryEntityPaneProps) => 
   return (
     <Container maxW="container.lg" mt={4}>
       <Box>
-        <Flex justifyContent="space-between" mt={4}>
-          <Heading variant="pageTitle" as="h1">
-            <SimpleLink href={'/user/libraries'} display="inline">
-              My Libraries
-            </SimpleLink>
-            <ChevronRightIcon mx={2} />
-            {name}
-          </Heading>
+        <Flex justifyContent="space-between" my={4}>
+          <SimpleLink href="/user/libraries">
+            <Button variant="outline" leftIcon={<ChevronLeftIcon />}>
+              Back to libraries
+            </Button>
+          </SimpleLink>
           <SimpleLink href={`/user/libraries/${id}/settings`}>
             <IconButton aria-label="settings" icon={<SettingsIcon />} variant="outline" />
           </SimpleLink>
         </Flex>
+
+        <Heading variant="pageTitle" as="h1">
+          {name}
+        </Heading>
+
         <Text fontSize="sm" color="gray.400">
           Found {numFound} of {num_documents} articles in the library
         </Text>

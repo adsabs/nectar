@@ -1,13 +1,12 @@
 import {
   IADSApiLibraryOperationParams,
   LibraryIdentifier,
-  LibraryOperationAction,
   useAddLibrary,
   useGetLibraries,
   useLibraryOperation,
 } from '@api';
-import { AddIcon, Icon } from '@chakra-ui/icons';
-import { Box, Button, Flex, Heading, Stack, useDisclosure, useToast } from '@chakra-ui/react';
+import { AddIcon, Icon, RepeatIcon } from '@chakra-ui/icons';
+import { Box, Button, Flex, Heading, IconButton, Stack, useDisclosure, useToast } from '@chakra-ui/react';
 import { WrenchIcon } from '@heroicons/react/24/solid';
 import { parseAPIError } from '@utils';
 import { useRouter } from 'next/router';
@@ -64,11 +63,6 @@ export const LibrariesLandingPane = () => {
 
   // library operation
   const { mutate: operateLibrary } = useLibraryOperation();
-
-  // this will cause a refresh as well
-  const reset = () => {
-    setPageIndex(0);
-  };
 
   const refresh = () => {
     // refetch libraries and reset lib count
@@ -134,6 +128,10 @@ export const LibrariesLandingPane = () => {
     });
   };
 
+  const handleReload = () => {
+    void refetch();
+  };
+
   return (
     <div>
       <Box>
@@ -141,10 +139,9 @@ export const LibrariesLandingPane = () => {
           My Libraries
         </Heading>
         <Flex justifyContent="space-between">
-          <Stack w="300px">
-            <LibraryTypeSelector type={libraryType} onChange={handleLibraryTypeChange} />
-          </Stack>
+          <Stack w="300px">{/* <LibraryTypeSelector type={libraryType} onChange={handleLibraryTypeChange} /> */}</Stack>
           <Flex justifyContent="end" gap={1} my={2}>
+            <IconButton aria-label="Reload table" icon={<RepeatIcon />} variant="outline" onClick={handleReload} />
             <Button variant="outline" leftIcon={<AddIcon />} onClick={onAddOpen}>
               Add New Library
             </Button>
@@ -167,6 +164,7 @@ export const LibrariesLandingPane = () => {
               onChangePageIndex={handlePageIndexChange}
               onChangePageSize={handlePageSizeChange}
               onLibrarySelect={handleOpenLibrary}
+              onUpdate={handleReload}
             />
             <AddLibraryModal isOpen={isAddOpen} onClose={onAddClose} onAddLibrary={handleAddLibrary} />
             <OperationModal isOpen={isOperationOpen} onClose={onOperationClose} onOperate={handleOperation} />

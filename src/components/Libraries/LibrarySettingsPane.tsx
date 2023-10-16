@@ -1,5 +1,5 @@
 import { LibraryIdentifier, useDeleteLibrary, useEditLibraryMeta, useGetLibraryEntity, useTransfer } from '@api';
-import { ChevronRightIcon } from '@chakra-ui/icons';
+import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
@@ -13,13 +13,7 @@ import {
   Flex,
   useToast,
   Switch,
-  AlertDialog,
   useDisclosure,
-  AlertDialogOverlay,
-  AlertDialogContent,
-  AlertDialogBody,
-  AlertDialogFooter,
-  AlertDialogHeader,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -31,8 +25,9 @@ import {
 import { SimpleLink } from '@components/SimpleLink';
 import { isValidEmail, parseAPIError } from '@utils';
 import { useRouter } from 'next/router';
-import { ChangeEvent, useMemo, useRef, useState } from 'react';
+import { ChangeEvent, useMemo, useState } from 'react';
 import { CollabTable } from './CollabTable';
+import { DeleteLibrary } from './DeleteLibrary';
 
 export interface ISettingsPaneProps {
   id: LibraryIdentifier;
@@ -166,14 +161,9 @@ export const LibrarySettingsPane = ({ id }: ISettingsPaneProps) => {
     <Container maxW="container.lg" mt={4}>
       <Box>
         <Heading variant="pageTitle" as="h1" my={4}>
-          <SimpleLink href={'/user/libraries'} display="inline">
-            My Libraries
-          </SimpleLink>
-          <ChevronRightIcon mx={2} />
           <SimpleLink href={`/user/libraries/${id}`} display="inline">
-            {name}
+            <ChevronLeftIcon mr={2} />
           </SimpleLink>
-          <ChevronRightIcon mx={2} />
           Settings
         </Heading>
       </Box>
@@ -224,42 +214,6 @@ export const LibrarySettingsPane = ({ id }: ISettingsPaneProps) => {
         {permission === 'owner' && <DeleteLibrary onDelete={handleDeleteLibrary} />}
       </Flex>
     </Container>
-  );
-};
-
-const DeleteLibrary = ({ onDelete }: { onDelete: () => void }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const cancelRef = useRef();
-
-  const handleDelete = () => {
-    onDelete();
-    onClose();
-  };
-
-  return (
-    <>
-      <Button onClick={onOpen} colorScheme="red" mt={4}>
-        Delete Library
-      </Button>
-      <AlertDialog isOpen={isOpen} onClose={onClose} leastDestructiveRef={cancelRef}>
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Delete Library
-            </AlertDialogHeader>
-            <AlertDialogBody>Are you sure? You can't undo this action.</AlertDialogBody>
-            <AlertDialogFooter backgroundColor="transparent">
-              <Button ref={cancelRef} onClick={onClose} variant="outline">
-                Cancel
-              </Button>
-              <Button colorScheme="red" onClick={handleDelete} ml={3}>
-                Delete
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
-    </>
   );
 };
 

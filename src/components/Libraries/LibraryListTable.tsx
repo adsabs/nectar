@@ -1,5 +1,13 @@
-import { ILibraryMetadata, LibraryIdentifier } from '@api';
-import { LockIcon, SettingsIcon, TriangleDownIcon, TriangleUpIcon, UnlockIcon, UpDownIcon } from '@chakra-ui/icons';
+import { ILibraryMetadata, LibraryIdentifier, useDeleteLibrary } from '@api';
+import {
+  ChevronDownIcon,
+  LockIcon,
+  SettingsIcon,
+  TriangleDownIcon,
+  TriangleUpIcon,
+  UnlockIcon,
+  UpDownIcon,
+} from '@chakra-ui/icons';
 import {
   Icon,
   Table,
@@ -12,14 +20,21 @@ import {
   Flex,
   Text,
   Tooltip,
-  IconButton,
   Center,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  useToast,
+  Button,
 } from '@chakra-ui/react';
 import { ControlledPaginationControls } from '@components';
 import { CustomInfoMessage } from '@components/Feedbacks';
-import { Cog8ToothIcon, UserGroupIcon, UserIcon } from '@heroicons/react/24/solid';
+import { UserGroupIcon, UserIcon } from '@heroicons/react/24/solid';
+import { parseAPIError } from '@utils';
 import { useRouter } from 'next/router';
 import { Fragment, MouseEvent } from 'react';
+import { DeleteLibrary } from './DeleteLibrary';
 
 type Column = keyof ILibraryMetadata;
 type SortDirection = 'asc' | 'desc';
@@ -81,6 +96,7 @@ export interface ILibraryListTableProps extends TableProps {
   onChangePageIndex: (index: number) => void;
   onChangePageSize: (size: number) => void;
   onLibrarySelect: (id: LibraryIdentifier) => void;
+  onUpdate: () => void;
 }
 
 export const LibraryListTable = (props: ILibraryListTableProps) => {
@@ -98,14 +114,43 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
     onChangePageIndex,
     onChangePageSize,
     onLibrarySelect,
+    onUpdate,
     ...tableProps
   } = props;
 
   const router = useRouter();
 
-  const handleSettings = (e: MouseEvent<HTMLButtonElement>, id: LibraryIdentifier) => {
-    e.stopPropagation();
+  const { mutate: deleteLibrary } = useDeleteLibrary();
+
+  const toast = useToast({
+    duration: 2000,
+  });
+
+  const handleSettings = (id: LibraryIdentifier) => {
     void router.push({ pathname: `/user/libraries/${id}/settings` });
+  };
+
+  const handleDeleteLibrary = (id: LibraryIdentifier) => {
+    deleteLibrary(
+      { id },
+      {
+        onSettled(data, error) {
+          if (error) {
+            toast({
+              status: 'error',
+              title: 'Error deleting library',
+              description: parseAPIError(error),
+            });
+          } else {
+            toast({
+              status: 'success',
+              title: 'Library deleted',
+            });
+            onUpdate();
+          }
+        },
+      },
+    );
   };
 
   return (
@@ -149,7 +194,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                   )}
                 </Fragment>
               ))}
-              <Th>Settings</Th>
+              <Th>Actions</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -214,14 +259,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                   {showSettings && (
                     <Td>
                       <Center>
-                        <IconButton
-                          icon={<SettingsIcon />}
-                          variant="ghost"
-                          colorScheme="gray"
-                          fontSize="18px"
-                          aria-label={'Settings'}
-                          onClick={(e) => handleSettings(e, id)}
-                        />
+                        <Action onDelete={() => handleDeleteLibrary(id)} onSetting={() => handleSettings(id)} />
                       </Center>
                     </Td>
                   )}
@@ -240,5 +278,30 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
         mt={2}
       />
     </>
+  );
+};
+
+const Action = ({ onDelete, onSetting }: { onDelete: () => void; onSetting: () => void }) => {
+  const handleSettings = (e: MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    onSetting();
+  };
+
+  return (
+    <Center>
+      <Menu>
+        <MenuButton
+          as={Button}
+          variant="outline"
+          rightIcon={<ChevronDownIcon />}
+          onClick={(e) => e.stopPropagation()}
+          children={<SettingsIcon />}
+        />
+        <MenuList>
+          <MenuItem onClick={handleSettings}>Settings</MenuItem>
+          <DeleteLibrary onDelete={onDelete} format="menuitem" />
+        </MenuList>
+      </Menu>
+    </Center>
   );
 };
