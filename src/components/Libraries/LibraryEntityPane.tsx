@@ -7,7 +7,22 @@ import {
   useGetLibraryEntity,
 } from '@api';
 import { ChevronLeftIcon, LockIcon, SettingsIcon, UnlockIcon } from '@chakra-ui/icons';
-import { Box, Button, Container, Flex, Heading, HStack, IconButton, Text, Tooltip } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Container,
+  Flex,
+  Heading,
+  IconButton,
+  Table,
+  Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tooltip,
+  Tr,
+} from '@chakra-ui/react';
 import {
   CustomInfoMessage,
   ItemsSkeleton,
@@ -39,7 +54,16 @@ export const LibraryEntityPane = memo(({ library, publicView }: ILibraryEntityPa
 
   const [sort, setSort] = useState<SolrSort[]>(['date desc']);
 
-  const { id, name, description, num_documents, public: isPublic } = library.metadata;
+  const {
+    id,
+    name,
+    description,
+    num_documents,
+    public: isPublic,
+    date_created,
+    date_last_modified,
+    owner,
+  } = library.metadata;
 
   const { numFound } = library.solr.response;
 
@@ -102,7 +126,7 @@ export const LibraryEntityPane = memo(({ library, publicView }: ILibraryEntityPa
           </Flex>
         )}
 
-        <HStack>
+        <Flex alignItems="center" gap={2}>
           {publicView ? (
             <IconButton
               icon={<BuildingLibraryIcon color="white" />}
@@ -127,12 +151,28 @@ export const LibraryEntityPane = memo(({ library, publicView }: ILibraryEntityPa
           <Heading variant="pageTitle" as="h1">
             {name}
           </Heading>
-        </HStack>
-
-        <Text fontSize="sm" color="gray.400">
-          Found {numFound} of {num_documents} articles in the library
-        </Text>
+        </Flex>
         <Text my={2}>{description}</Text>
+        <Table variant="unstyled" my={4} backgroundColor="gray.50">
+          <Thead>
+            <Tr>
+              <Th>Papers</Th>
+              {!publicView && <Th>Owner</Th>}
+              <Th>Date Created</Th>
+              <Th>Last Modified</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            <Tr>
+              <Td>
+                Found {numFound} of {num_documents}
+              </Td>
+              {!publicView && <Td>{owner}</Td>}
+              <Td>{new Date(date_created).toLocaleString()}</Td>
+              <Td>{new Date(date_last_modified).toLocaleString()}</Td>
+            </Tr>
+          </Tbody>
+        </Table>
 
         {num_documents === 0 && <CustomInfoMessage status="info" title="Library is empty" />}
 

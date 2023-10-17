@@ -1,5 +1,5 @@
 import { LibraryIdentifier, useDeleteLibrary, useEditLibraryMeta, useGetLibraryEntity, useTransfer } from '@api';
-import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
+import { ChevronLeftIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
@@ -54,7 +54,7 @@ export const LibrarySettingsPane = ({ id }: ISettingsPaneProps) => {
 
   const { mutate: updateMeta } = useEditLibraryMeta();
 
-  const { name, description, permission, owner, public: isPublic } = library.metadata;
+  const { name, description, permission, owner, public: isPublic, date_created, date_last_modified } = library.metadata;
 
   const { mutate: transfer } = useTransfer();
 
@@ -187,8 +187,15 @@ export const LibrarySettingsPane = ({ id }: ISettingsPaneProps) => {
             <Switch isChecked={isChecked} onChange={handleCheckboxChange} isDisabled={!canEdit} />
           </Flex>
           <Text>
-            Public libraries are available for all to read. Private libraries are visible to only you and any
-            collaborators. <SimpleLink href={`/public-libraries/${id}`}>View as public library</SimpleLink>
+            <Text display="inline" fontStyle="italic">
+              Public libraries
+            </Text>{' '}
+            are available for all to read.{' '}
+            <Text display="inline" fontStyle="italic">
+              Private libraries
+            </Text>{' '}
+            are visible to only you and any collaborators.{' '}
+            <SimpleLink href={`/public-libraries/${id}`}>View as public library</SimpleLink>
           </Text>
         </FormControl>
         {canEdit && (
@@ -204,6 +211,14 @@ export const LibrarySettingsPane = ({ id }: ISettingsPaneProps) => {
           <FormLabel>Owner</FormLabel>
           {owner}
           {permission === 'owner' && <TransferLibrary onTransfer={handleTransfer} />}
+        </FormControl>
+        <FormControl>
+          <FormLabel>Date Created</FormLabel>
+          {new Date(date_created).toLocaleString()}
+        </FormControl>
+        <FormControl>
+          <FormLabel>Last Modified</FormLabel>
+          {new Date(date_last_modified).toLocaleString()}
         </FormControl>
         {canEdit && (
           <>
