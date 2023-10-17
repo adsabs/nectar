@@ -6,7 +6,7 @@ import {
   useBigQuerySearch,
   useGetLibraryEntity,
 } from '@api';
-import { ChevronLeftIcon, ChevronRightIcon, SettingsIcon } from '@chakra-ui/icons';
+import { ChevronLeftIcon, SettingsIcon } from '@chakra-ui/icons';
 import { Box, Button, Container, Flex, Heading, IconButton, Text } from '@chakra-ui/react';
 import {
   CustomInfoMessage,
@@ -17,6 +17,7 @@ import {
   SimpleResultList,
   Sort,
 } from '@components';
+import { AppState, useStore } from '@store';
 import { NumPerPageType } from '@types';
 import { parseAPIError } from '@utils';
 import { memo, useEffect, useState } from 'react';
@@ -25,11 +26,13 @@ export interface ILibraryEntityPaneProps {
   library: IADSApiLibraryEntityResponse;
 }
 export const LibraryEntityPane = memo(({ library }: ILibraryEntityPaneProps) => {
+  const pageSize = useStore((state: AppState) => state.numPerPage);
+
+  const setPageSize = useStore((state: AppState) => state.setNumPerPage);
+
   const [docs, setDocs] = useState<IDocsEntity[]>([]);
 
   const [onPage, setOnPage] = useState(0);
-
-  const [pageSize, setPageSize] = useState<NumPerPageType>(10);
 
   const [sort, setSort] = useState<SolrSort[]>(['date desc']);
 
@@ -76,6 +79,7 @@ export const LibraryEntityPane = memo(({ library }: ILibraryEntityPaneProps) => 
   };
 
   const handlePerPageSelect = (perPage: NumPerPageType) => {
+    setOnPage(0);
     setPageSize(perPage);
   };
 
@@ -134,7 +138,7 @@ export const LibraryEntityPane = memo(({ library }: ILibraryEntityPaneProps) => 
                 />
               </>
             ) : (
-              <ItemsSkeleton count={10} />
+              <ItemsSkeleton count={pageSize} />
             )}
           </Flex>
         )}

@@ -31,6 +31,7 @@ import {
 import { ControlledPaginationControls } from '@components';
 import { CustomInfoMessage } from '@components/Feedbacks';
 import { UserGroupIcon, UserIcon } from '@heroicons/react/24/solid';
+import { NumPerPageType } from '@types';
 import { parseAPIError } from '@utils';
 import { useRouter } from 'next/router';
 import { Fragment, MouseEvent } from 'react';
@@ -86,7 +87,7 @@ export interface ILibraryListTableProps extends TableProps {
   libraries: ILibraryMetadata[];
   entries: number;
   sort: ILibraryListTableSort;
-  pageSize: number;
+  pageSize: NumPerPageType;
   pageIndex: number;
   showIndex?: boolean;
   showSettings?: boolean;
@@ -94,7 +95,7 @@ export interface ILibraryListTableProps extends TableProps {
   showDescription?: boolean;
   onChangeSort: (sort: ILibraryListTableSort) => void;
   onChangePageIndex: (index: number) => void;
-  onChangePageSize: (size: number) => void;
+  onChangePageSize: (size: NumPerPageType) => void;
   onLibrarySelect: (id: LibraryIdentifier) => void;
   onUpdate: () => void;
 }

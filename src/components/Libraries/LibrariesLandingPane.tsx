@@ -8,6 +8,8 @@ import {
 import { AddIcon, Icon, RepeatIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex, Heading, IconButton, Stack, useDisclosure, useToast } from '@chakra-ui/react';
 import { WrenchIcon } from '@heroicons/react/24/solid';
+import { AppState, useStore } from '@store';
+import { NumPerPageType } from '@types';
 import { parseAPIError } from '@utils';
 import { useRouter } from 'next/router';
 import { useMemo, useState } from 'react';
@@ -21,11 +23,13 @@ import { LibraryType } from './types';
 export const LibrariesLandingPane = () => {
   const router = useRouter();
 
+  const pageSize = useStore((state: AppState) => state.numPerPage);
+
+  const setPageSize = useStore((state: AppState) => state.setNumPerPage);
+
   const toast = useToast({
     duration: 2000,
   });
-
-  const [pageSize, setPageSize] = useState(10);
 
   const [pageIndex, setPageIndex] = useState(0);
 
@@ -80,7 +84,7 @@ export const LibrariesLandingPane = () => {
     setPageIndex(index);
   };
 
-  const handlePageSizeChange = (size: number) => {
+  const handlePageSizeChange = (size: NumPerPageType) => {
     setPageSize(size);
     setPageIndex(0);
   };
@@ -151,7 +155,7 @@ export const LibrariesLandingPane = () => {
           </Flex>
         </Flex>
         {isLoading ? (
-          <TableSkeleton r={10} h="30px" />
+          <TableSkeleton r={pageSize} h="30px" />
         ) : (
           <>
             <LibraryListTable

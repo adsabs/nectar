@@ -1,13 +1,14 @@
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { Flex, FlexProps, HStack, Icon, IconButton, Select } from '@chakra-ui/react';
 import { ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from '@heroicons/react/24/solid';
+import { NumPerPageType } from '@types';
 import { useCallback } from 'react';
 
 export interface IPaginationControlsProps extends FlexProps {
   entries: number;
   pageIndex: number;
-  pageSize: number;
-  onChangePageSize: (size: number) => void;
+  pageSize: NumPerPageType;
+  onChangePageSize: (size: NumPerPageType) => void;
   onChangePageIndex: (index: number) => void;
 }
 
@@ -38,7 +39,7 @@ export const ControlledPaginationControls = <T extends object>(props: IPaginatio
       <Flex justifyContent="center">
         <Select
           value={pageSize}
-          onChange={(e) => onChangePageSize(e.target.value ? Number(e.target.value) : 10)}
+          onChange={(e) => onChangePageSize(e.target.value ? (Number(e.target.value) as NumPerPageType) : 10)}
           size="sm"
           data-testid="page-size-selector"
         >
