@@ -188,7 +188,7 @@ export const LibrarySettingsPane = ({ id }: ISettingsPaneProps) => {
           </Flex>
           <Text>
             Public libraries are available for all to read. Private libraries are visible to only you and any
-            collaborators. The public address of this library is {/* TODO: public library */}
+            collaborators. <SimpleLink href={`/public-libraries/${id}`}>View as public library</SimpleLink>
           </Text>
         </FormControl>
         {canEdit && (

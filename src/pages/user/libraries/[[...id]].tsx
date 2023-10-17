@@ -51,7 +51,7 @@ const LibrariesHome: NextPage = () => {
           }
         />
       )}
-      {!!id && !!library && !subpage && <LibraryEntityPane library={library} />}
+      {!!id && !!library && !subpage && <LibraryEntityPane library={library} publicView={false} />}
       {!!id && !!library && subpage === 'settings' && <LibrarySettingsPane id={id} />}
       {!id && <LibrariesLandingPane />}
     </LibrariesLayout>

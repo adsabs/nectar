@@ -6,8 +6,8 @@ import {
   useBigQuerySearch,
   useGetLibraryEntity,
 } from '@api';
-import { ChevronLeftIcon, SettingsIcon } from '@chakra-ui/icons';
-import { Box, Button, Container, Flex, Heading, IconButton, Text } from '@chakra-ui/react';
+import { ChevronLeftIcon, LockIcon, SettingsIcon, UnlockIcon } from '@chakra-ui/icons';
+import { Box, Button, Container, Flex, Heading, HStack, IconButton, Text, Tooltip } from '@chakra-ui/react';
 import {
   CustomInfoMessage,
   ItemsSkeleton,
@@ -17,6 +17,7 @@ import {
   SimpleResultList,
   Sort,
 } from '@components';
+import { BuildingLibraryIcon } from '@heroicons/react/24/solid';
 import { AppState, useStore } from '@store';
 import { NumPerPageType } from '@types';
 import { parseAPIError } from '@utils';
@@ -24,8 +25,10 @@ import { memo, useEffect, useState } from 'react';
 
 export interface ILibraryEntityPaneProps {
   library: IADSApiLibraryEntityResponse;
+  publicView: boolean;
 }
-export const LibraryEntityPane = memo(({ library }: ILibraryEntityPaneProps) => {
+
+export const LibraryEntityPane = memo(({ library, publicView }: ILibraryEntityPaneProps) => {
   const pageSize = useStore((state: AppState) => state.numPerPage);
 
   const setPageSize = useStore((state: AppState) => state.setNumPerPage);
@@ -36,7 +39,7 @@ export const LibraryEntityPane = memo(({ library }: ILibraryEntityPaneProps) => 
 
   const [sort, setSort] = useState<SolrSort[]>(['date desc']);
 
-  const { id, name, description, num_documents } = library.metadata;
+  const { id, name, description, num_documents, public: isPublic } = library.metadata;
 
   const { numFound } = library.solr.response;
 
@@ -86,20 +89,45 @@ export const LibraryEntityPane = memo(({ library }: ILibraryEntityPaneProps) => 
   return (
     <Container maxW="container.lg" mt={4}>
       <Box>
-        <Flex justifyContent="space-between" my={4}>
-          <SimpleLink href="/user/libraries">
-            <Button variant="outline" leftIcon={<ChevronLeftIcon />}>
-              Back to libraries
-            </Button>
-          </SimpleLink>
-          <SimpleLink href={`/user/libraries/${id}/settings`}>
-            <IconButton aria-label="settings" icon={<SettingsIcon />} variant="outline" />
-          </SimpleLink>
-        </Flex>
+        {!publicView && (
+          <Flex justifyContent="space-between" my={4}>
+            <SimpleLink href="/user/libraries">
+              <Button variant="outline" leftIcon={<ChevronLeftIcon />}>
+                Back to libraries
+              </Button>
+            </SimpleLink>
+            <SimpleLink href={`/user/libraries/${id}/settings`}>
+              <IconButton aria-label="settings" icon={<SettingsIcon />} variant="outline" />
+            </SimpleLink>
+          </Flex>
+        )}
 
-        <Heading variant="pageTitle" as="h1">
-          {name}
-        </Heading>
+        <HStack>
+          {publicView ? (
+            <IconButton
+              icon={<BuildingLibraryIcon color="white" />}
+              aria-label="SciX Public Library"
+              isRound={true}
+              colorScheme="gray"
+              backgroundColor="gray.800"
+              size="md"
+              p={2}
+              cursor="default"
+              _hover={{ backgroundColor: 'gray.800' }}
+            />
+          ) : isPublic ? (
+            <Tooltip label="This library is public">
+              <UnlockIcon color="green.500" aria-label="public" />
+            </Tooltip>
+          ) : (
+            <Tooltip label="This library is private">
+              <LockIcon aria-label="private" />
+            </Tooltip>
+          )}
+          <Heading variant="pageTitle" as="h1">
+            {name}
+          </Heading>
+        </HStack>
 
         <Text fontSize="sm" color="gray.400">
           Found {numFound} of {num_documents} articles in the library
