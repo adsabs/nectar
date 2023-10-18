@@ -158,7 +158,7 @@ export const LibrarySettingsPane = ({ id }: ISettingsPaneProps) => {
   };
 
   return (
-    <Container maxW="container.lg" mt={4}>
+    <>
       <Box>
         <Heading variant="pageTitle" as="h1" my={4}>
           <SimpleLink href={`/user/libraries/${id}`} display="inline">
@@ -228,7 +228,7 @@ export const LibrarySettingsPane = ({ id }: ISettingsPaneProps) => {
         )}
         {permission === 'owner' && <DeleteLibrary onDelete={handleDeleteLibrary} />}
       </Flex>
-    </Container>
+    </>
   );
 };
 

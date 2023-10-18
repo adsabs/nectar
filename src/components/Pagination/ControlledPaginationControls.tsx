@@ -33,7 +33,7 @@ export const ControlledPaginationControls = <T extends object>(props: IPaginatio
 
   return (
     <Flex {...flexProps}>
-      <Flex flex="1" data-testid="pagination-string">
+      <Flex flex="1" data-testid="pagination-string" display={{ base: 'none', sm: 'initial' }}>
         {getPaginationString()}
       </Flex>
       <Flex justifyContent="center">

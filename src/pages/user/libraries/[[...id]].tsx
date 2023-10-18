@@ -8,9 +8,9 @@ import {
   LoadingMessage,
   SimpleLink,
 } from '@components';
-import { LibrariesLayout } from '@components/Layout/LibrariesLayout';
 import { composeNextGSSP } from '@ssr-utils';
 import { GetServerSideProps, NextPage } from 'next';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 
 const LibrariesHome: NextPage = () => {
@@ -31,7 +31,10 @@ const LibrariesHome: NextPage = () => {
   );
 
   return (
-    <LibrariesLayout title="NASA Science Explorer - My Libraries">
+    <>
+      <Head>
+        <title>NASA Science Explorer - Libraries - {!!id ? library?.metadata.name ?? '' : ''}</title>
+      </Head>
       {!!id && isLoadingLib && (
         <Center>
           <LoadingMessage message="Loading library" />
@@ -54,7 +57,7 @@ const LibrariesHome: NextPage = () => {
       {!!id && !!library && !subpage && <LibraryEntityPane library={library} publicView={false} />}
       {!!id && !!library && subpage === 'settings' && <LibrarySettingsPane id={id} />}
       {!id && <LibrariesLandingPane />}
-    </LibrariesLayout>
+    </>
   );
 };
 

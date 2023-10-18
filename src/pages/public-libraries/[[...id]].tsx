@@ -1,9 +1,9 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { LibrariesLayout } from '@components/Layout/LibrariesLayout';
 import { CustomInfoMessage, LibraryEntityPane, LoadingMessage } from '@components';
 import { useGetLibraryEntity } from '@api';
 import { parseAPIError } from '@utils';
+import Head from 'next/head';
 
 const PublicLibraries: NextPage = () => {
   const router = useRouter();
@@ -15,11 +15,14 @@ const PublicLibraries: NextPage = () => {
   });
 
   return (
-    <LibrariesLayout title="NASA Science Explorer - Public Library">
+    <>
+      <Head>
+        <title>NASA Science Explorer - Public Library - {data?.metadata?.name ?? ''}</title>
+      </Head>
       {id && isLoading && <LoadingMessage message="Loading" />}
       {id && error && <CustomInfoMessage status="error" title="Error" description={parseAPIError(error)} />}
       {id && data && <LibraryEntityPane library={data} publicView />}
-    </LibrariesLayout>
+    </>
   );
 };
 

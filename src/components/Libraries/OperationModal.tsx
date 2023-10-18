@@ -37,6 +37,7 @@ import { ILibraryListTableSort, LibraryListTable } from './LibraryListTable';
 import { TableSkeleton } from './TableSkeleton';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { NumPerPageType } from '@types';
 
 type LibraryIdentifierValue = {
   value: LibraryIdentifier;
@@ -215,7 +216,7 @@ export const OperationModal = ({
                     control={control}
                     render={({ field: { ref, ...rest } }) => (
                       <RadioGroup {...rest}>
-                        <Stack direction="row">
+                        <Stack direction={{ base: 'column', sm: 'row' }}>
                           <Radio value="union" autoFocus>
                             Union
                           </Radio>
@@ -293,7 +294,7 @@ const LibrarySelector = ({
   onSelect: (id: LibraryIdentifier) => void;
   onDeselect: (id: LibraryIdentifier) => void;
 }) => {
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState<NumPerPageType>(10);
 
   const [pageIndex, setPageIndex] = useState(0);
 
@@ -332,7 +333,7 @@ const LibrarySelector = ({
     setPageIndex(index);
   };
 
-  const handlePageSizeChange = (size: number) => {
+  const handlePageSizeChange = (size: NumPerPageType) => {
     setPageSize(size);
     setPageIndex(0);
   };
@@ -385,6 +386,7 @@ const LibrarySelector = ({
               pageSize={pageSize}
               pageIndex={pageIndex}
               showIndex={false}
+              showSettings={false}
               showDescription={false}
               hideCols={['public', 'num_users', 'permission', 'date_created']}
               onChangeSort={handleSortChange}

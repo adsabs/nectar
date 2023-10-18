@@ -1,16 +1,17 @@
 import { LibraryType, Select, SelectOption } from '@components';
 
 const libraryTypes: SelectOption<LibraryType>[] = [
-  {
-    id: 'owner',
-    label: 'Owner',
-    value: 'owner',
-  },
-  {
-    id: 'collab',
-    label: 'Collaborator',
-    value: 'collab',
-  },
+  { id: 'all', label: 'All', value: 'all' },
+  // {
+  //   id: 'owner',
+  //   label: 'Owner',
+  //   value: 'owner',
+  // },
+  // {
+  //   id: 'collab',
+  //   label: 'Collaborator',
+  //   value: 'collab',
+  // },
   // {
   //   id: 'follow',
   //   label: 'Following',

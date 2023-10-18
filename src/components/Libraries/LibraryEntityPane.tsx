@@ -10,7 +10,6 @@ import { ChevronLeftIcon, LockIcon, SettingsIcon, UnlockIcon } from '@chakra-ui/
 import {
   Box,
   Button,
-  Container,
   Flex,
   Heading,
   IconButton,
@@ -22,6 +21,7 @@ import {
   Thead,
   Tooltip,
   Tr,
+  useBreakpoint,
 } from '@chakra-ui/react';
 import {
   CustomInfoMessage,
@@ -53,6 +53,10 @@ export const LibraryEntityPane = memo(({ library, publicView }: ILibraryEntityPa
   const [onPage, setOnPage] = useState(0);
 
   const [sort, setSort] = useState<SolrSort[]>(['date desc']);
+
+  const breakpoint = useBreakpoint();
+
+  const isMobile = ['base', 'xs', 'sm'].includes(breakpoint, 0);
 
   // This was added to prevent the table double repaint flashing between loading lib entity and fetching documents
   const [isLoadingDocs, setIsLoadingDocs] = useState(true);
@@ -125,114 +129,119 @@ export const LibraryEntityPane = memo(({ library, publicView }: ILibraryEntityPa
   };
 
   return (
-    <Container maxW="container.lg" mt={4}>
-      <Box>
-        {!publicView && (
-          <Flex justifyContent="space-between" my={4}>
-            <SimpleLink href="/user/libraries">
-              <Button variant="outline" leftIcon={<ChevronLeftIcon />}>
-                Back to libraries
-              </Button>
-            </SimpleLink>
-            <SimpleLink href={`/user/libraries/${id}/settings`}>
-              <IconButton aria-label="settings" icon={<SettingsIcon />} variant="outline" />
-            </SimpleLink>
-          </Flex>
-        )}
-
-        <Flex alignItems="center" gap={2}>
-          {publicView ? (
-            <IconButton
-              icon={<BuildingLibraryIcon color="white" />}
-              aria-label="SciX Public Library"
-              isRound={true}
-              colorScheme="gray"
-              backgroundColor="gray.800"
-              size="md"
-              p={2}
-              cursor="default"
-              _hover={{ backgroundColor: 'gray.800' }}
-            />
-          ) : isPublic ? (
-            <Tooltip label="This library is public">
-              <UnlockIcon color="green.500" aria-label="public" />
-            </Tooltip>
-          ) : (
-            <Tooltip label="This library is private">
-              <LockIcon aria-label="private" />
-            </Tooltip>
-          )}
-          <Heading variant="pageTitle" as="h1">
-            {name}
-          </Heading>
+    <Box mt={4}>
+      {!publicView && (
+        <Flex justifyContent="space-between" my={4}>
+          <SimpleLink href="/user/libraries">
+            <Button variant="outline" leftIcon={<ChevronLeftIcon />}>
+              Back to libraries
+            </Button>
+          </SimpleLink>
+          <SimpleLink href={`/user/libraries/${id}/settings`}>
+            <IconButton aria-label="settings" icon={<SettingsIcon />} variant="outline" />
+          </SimpleLink>
         </Flex>
-        <Text my={2}>{description}</Text>
-        <Table variant="unstyled" my={4} backgroundColor="gray.50">
-          <Thead>
-            <Tr>
-              <Th>Papers</Th>
-              {!publicView && <Th>Owner</Th>}
-              <Th>Date Created</Th>
-              <Th>Last Modified</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            <Tr>
-              <Td>
-                Found {numFound} of {num_documents}
-              </Td>
-              {!publicView && <Td>{owner}</Td>}
-              <Td>{new Date(date_created).toLocaleString()}</Td>
-              <Td>{new Date(date_last_modified).toLocaleString()}</Td>
-            </Tr>
-          </Tbody>
-        </Table>
+      )}
 
-        {num_documents === 0 && <CustomInfoMessage status="info" title="Library is empty" />}
-
-        {num_documents > 0 && numFound === 0 && <CustomInfoMessage status="info" title="Found 0 articles" />}
-
-        {errorFetchingDocs && (
-          <CustomInfoMessage
-            status="error"
-            title="Error loading documents"
-            description={parseAPIError(errorFetchingDocs)}
+      <Flex alignItems="center" gap={2}>
+        {publicView ? (
+          <IconButton
+            icon={<BuildingLibraryIcon color="white" />}
+            aria-label="SciX Public Library"
+            isRound={true}
+            colorScheme="gray"
+            backgroundColor="gray.800"
+            size="md"
+            p={2}
+            cursor="default"
+            _hover={{ backgroundColor: 'gray.800' }}
           />
+        ) : isPublic ? (
+          <Tooltip label="This library is public">
+            <UnlockIcon color="green.500" aria-label="public" />
+          </Tooltip>
+        ) : (
+          <Tooltip label="This library is private">
+            <LockIcon aria-label="private" />
+          </Tooltip>
         )}
+        <Heading variant="pageTitle" as="h1">
+          {name}
+        </Heading>
+      </Flex>
+      <Text my={2}>{description}</Text>
+      <Table variant="unstyled" my={4} backgroundColor="gray.50" display={{ base: 'none', sm: 'block' }}>
+        <Thead>
+          <Tr>
+            <Th>Papers</Th>
+            {!publicView && <Th>Owner</Th>}
+            <Th>Date Created</Th>
+            <Th>Last Modified</Th>
+          </Tr>
+        </Thead>
+        <Tbody>
+          <Tr>
+            <Td>
+              Found {numFound} of {num_documents}
+            </Td>
+            {!publicView && <Td>{owner}</Td>}
+            <Td>{new Date(date_created).toLocaleString()}</Td>
+            <Td>{new Date(date_last_modified).toLocaleString()}</Td>
+          </Tr>
+        </Tbody>
+      </Table>
 
-        {library.solr.response.numFound > 0 && !errorFetchingDocs && (
-          <Flex direction="column" gap={2}>
-            <Flex
-              justifyContent="space-between"
-              alignItems="end"
-              style={isLoadingDocs ? { pointerEvents: 'none' } : { pointerEvents: 'auto' }}
-            >
-              <Sort sort={sort} onChange={handleChangeSort} />
-              <SearchQueryLink params={{ ...getSearchParams, q: `docs(library/${id})` }}>
-                View as search results
-              </SearchQueryLink>
-            </Flex>
+      {num_documents === 0 && <CustomInfoMessage status="info" title="Library is empty" />}
 
-            {!isLoadingDocs ? (
-              <>
-                <SimpleResultList docs={docs} hideCheckboxes indexStart={onPage * pageSize} />
-                <Pagination
-                  totalResults={numFound}
-                  page={onPage + 1}
-                  numPerPage={pageSize}
-                  onNext={handleNextPage}
-                  onPrevious={handlePrevPage}
-                  onPageSelect={handlePageSelect}
-                  onPerPageSelect={handlePerPageSelect}
-                  skipRouting
-                />
-              </>
-            ) : (
-              <ItemsSkeleton count={pageSize} />
-            )}
+      {num_documents > 0 && numFound === 0 && <CustomInfoMessage status="info" title="Found 0 articles" />}
+
+      {errorFetchingDocs && (
+        <CustomInfoMessage
+          status="error"
+          title="Error loading documents"
+          description={parseAPIError(errorFetchingDocs)}
+        />
+      )}
+
+      {library.solr.response.numFound > 0 && !errorFetchingDocs && (
+        <Flex direction="column" gap={2}>
+          <Flex
+            direction={{ base: 'column', sm: 'row' }}
+            justifyContent={{ base: 'start', sm: 'space-between' }}
+            alignItems={{ base: 'start', sm: 'end' }}
+            style={isLoadingDocs ? { pointerEvents: 'none' } : { pointerEvents: 'auto' }}
+          >
+            <Sort sort={sort} onChange={handleChangeSort} />
+            <SearchQueryLink params={{ ...getSearchParams, q: `docs(library/${id})` }}>
+              View as search results
+            </SearchQueryLink>
           </Flex>
-        )}
-      </Box>
-    </Container>
+
+          {!isLoadingDocs ? (
+            <>
+              <SimpleResultList
+                docs={docs}
+                hideCheckboxes
+                indexStart={onPage * pageSize}
+                showOrcidAction={false}
+                hideActions={isMobile}
+              />
+              <Pagination
+                totalResults={numFound}
+                page={onPage + 1}
+                numPerPage={pageSize}
+                onNext={handleNextPage}
+                onPrevious={handlePrevPage}
+                onPageSelect={handlePageSelect}
+                onPerPageSelect={handlePerPageSelect}
+                skipRouting
+              />
+            </>
+          ) : (
+            <ItemsSkeleton count={pageSize} />
+          )}
+        </Flex>
+      )}
+    </Box>
   );
 });

@@ -27,14 +27,16 @@ import {
   MenuList,
   useToast,
   Button,
+  useBreakpoint,
 } from '@chakra-ui/react';
 import { ControlledPaginationControls } from '@components';
 import { CustomInfoMessage } from '@components/Feedbacks';
 import { UserGroupIcon, UserIcon } from '@heroicons/react/24/solid';
 import { NumPerPageType } from '@types';
-import { parseAPIError } from '@utils';
+import { noop, parseAPIError } from '@utils';
 import { useRouter } from 'next/router';
-import { Fragment, MouseEvent } from 'react';
+import { uniq } from 'ramda';
+import { Fragment, MouseEvent, useMemo } from 'react';
 import { DeleteLibrary } from './DeleteLibrary';
 
 type Column = keyof ILibraryMetadata;
@@ -78,6 +80,9 @@ const columns: { id: Column; heading: string; sortable: boolean }[] = [
   },
 ];
 
+// hide columns for small display
+const hideColsSmallDisplay: Column[] = ['public', 'num_users', 'permission', 'date_last_modified'];
+
 export interface ILibraryListTableSort {
   col: keyof ILibraryMetadata;
   dir: SortDirection;
@@ -97,7 +102,7 @@ export interface ILibraryListTableProps extends TableProps {
   onChangePageIndex: (index: number) => void;
   onChangePageSize: (size: NumPerPageType) => void;
   onLibrarySelect: (id: LibraryIdentifier) => void;
-  onUpdate: () => void;
+  onUpdate?: () => void;
 }
 
 export const LibraryListTable = (props: ILibraryListTableProps) => {
@@ -115,11 +120,19 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
     onChangePageIndex,
     onChangePageSize,
     onLibrarySelect,
-    onUpdate,
+    onUpdate = noop,
     ...tableProps
   } = props;
 
   const router = useRouter();
+
+  const breakpoint = useBreakpoint();
+
+  const isMobile = ['base', 'xs', 'sm'].includes(breakpoint, 0);
+
+  const allHiddenCols = useMemo(() => {
+    return isMobile ? uniq([...hideColsSmallDisplay, ...hideCols]) : [...hideCols];
+  }, [isMobile]);
 
   const { mutate: deleteLibrary } = useDeleteLibrary();
 
@@ -162,10 +175,10 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
         <Table variant="simple" {...tableProps} data-testid="libraries-table">
           <Thead>
             <Tr>
-              {showIndex && <Th aria-label="index"></Th>}
+              {showIndex && !isMobile && <Th aria-label="index"></Th>}
               {columns.map((column) => (
                 <Fragment key={`col-${column.id}`}>
-                  {hideCols.indexOf(column.id) === -1 && (
+                  {allHiddenCols.indexOf(column.id) === -1 && (
                     <Th aria-label={column.heading} cursor={column.sortable ? 'pointer' : 'default'}>
                       {sort.col !== column.id ? (
                         column.sortable ? (
@@ -195,7 +208,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                   )}
                 </Fragment>
               ))}
-              <Th>Actions</Th>
+              {showSettings && !isMobile && <Th>Actions</Th>}
             </Tr>
           </Thead>
           <Tbody>
@@ -220,8 +233,8 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                   _hover={{ backgroundColor: 'blue.50' }}
                   onClick={() => onLibrarySelect(id)}
                 >
-                  {showIndex && <Td>{pageSize * pageIndex + index + 1}</Td>}
-                  {hideCols.indexOf('public') === -1 && (
+                  {showIndex && !isMobile && <Td>{pageSize * pageIndex + index + 1}</Td>}
+                  {allHiddenCols.indexOf('public') === -1 && (
                     <Td>
                       {isPublic ? (
                         <Tooltip label="Public">
@@ -234,7 +247,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                       )}
                     </Td>
                   )}
-                  {hideCols.indexOf('num_users') === -1 && (
+                  {allHiddenCols.indexOf('num_users') === -1 && (
                     <Td>
                       {num_users === 1 ? (
                         <Tooltip label="No collaborators">
@@ -247,17 +260,17 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                       )}
                     </Td>
                   )}
-                  {hideCols.indexOf('name') === -1 && (
+                  {allHiddenCols.indexOf('name') === -1 && (
                     <Td>
                       <Text fontWeight="bold">{name}</Text>
                       {showDescription && <Text>{description}</Text>}
                     </Td>
                   )}
-                  {hideCols.indexOf('num_documents') === -1 && <Td>{num_documents}</Td>}
-                  {hideCols.indexOf('owner') === -1 && <Td>{owner}</Td>}
-                  {hideCols.indexOf('permission') === -1 && <Td>{permission}</Td>}
-                  {hideCols.indexOf('date_last_modified') === -1 && <Td>{date_last_modified}</Td>}
-                  {showSettings && (
+                  {allHiddenCols.indexOf('num_documents') === -1 && <Td>{num_documents}</Td>}
+                  {allHiddenCols.indexOf('owner') === -1 && <Td>{owner}</Td>}
+                  {allHiddenCols.indexOf('permission') === -1 && <Td>{permission}</Td>}
+                  {allHiddenCols.indexOf('date_last_modified') === -1 && <Td>{date_last_modified}</Td>}
+                  {showSettings && !isMobile && (
                     <Td>
                       <Center>
                         <Action onDelete={() => handleDeleteLibrary(id)} onSetting={() => handleSettings(id)} />

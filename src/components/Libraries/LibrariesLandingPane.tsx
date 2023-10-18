@@ -35,7 +35,7 @@ export const LibrariesLandingPane = () => {
 
   const [sort, setSort] = useState<ILibraryListTableSort>({ col: 'date_last_modified', dir: 'desc' });
 
-  const [libraryType, setLibraryType] = useState<LibraryType>('owner');
+  const [libraryType, setLibraryType] = useState<LibraryType>('all');
 
   const { isOpen: isAddOpen, onOpen: onAddOpen, onClose: onAddClose } = useDisclosure();
 
@@ -142,9 +142,11 @@ export const LibrariesLandingPane = () => {
         <Heading variant="pageTitle" my={4}>
           My Libraries
         </Heading>
-        <Flex justifyContent="space-between">
-          <Stack w="300px">{/* <LibraryTypeSelector type={libraryType} onChange={handleLibraryTypeChange} /> */}</Stack>
-          <Flex justifyContent="end" gap={1} my={2}>
+        <Flex direction={{ base: 'column', md: 'row' }} justifyContent={{ base: 'start', md: 'space-between' }}>
+          <Stack w="300px">
+            <LibraryTypeSelector type={libraryType} onChange={handleLibraryTypeChange} />
+          </Stack>
+          <Flex justifyContent={{ base: 'start', md: 'end' }} gap={1} my={2}>
             <IconButton aria-label="Reload table" icon={<RepeatIcon />} variant="outline" onClick={handleReload} />
             <Button variant="outline" leftIcon={<AddIcon />} onClick={onAddOpen}>
               Add New Library

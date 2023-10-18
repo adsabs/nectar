@@ -11,6 +11,7 @@ export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
   indexStart?: number;
   hideCheckboxes?: boolean;
   showOrcidAction?: boolean;
+  hideActions?: boolean;
 }
 
 const propTypes = {
@@ -20,7 +21,7 @@ const propTypes = {
 };
 
 export const SimpleResultList = (props: ISimpleResultListProps): ReactElement => {
-  const { docs = [], hideCheckboxes = false, indexStart = 0, ...divProps } = props;
+  const { docs = [], hideCheckboxes = false, indexStart = 0, hideActions = false, ...divProps } = props;
 
   const isClient = useIsClient();
   const start = indexStart + 1;
@@ -45,7 +46,7 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
           key={doc.bibcode}
           index={start + index}
           hideCheckbox={!isClient ? true : hideCheckboxes}
-          hideActions={false}
+          hideActions={hideActions}
           showHighlights={showHighlights}
           highlights={highlights?.[index] ?? []}
           isFetchingHighlights={isFetchingHighlights}
