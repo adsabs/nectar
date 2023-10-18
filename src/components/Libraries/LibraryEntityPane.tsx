@@ -54,6 +54,9 @@ export const LibraryEntityPane = memo(({ library, publicView }: ILibraryEntityPa
 
   const [sort, setSort] = useState<SolrSort[]>(['date desc']);
 
+  // This was added to prevent the table double repaint flashing between loading lib entity and fetching documents
+  const [isLoadingDocs, setIsLoadingDocs] = useState(true);
+
   const {
     id,
     name,
@@ -67,26 +70,28 @@ export const LibraryEntityPane = memo(({ library, publicView }: ILibraryEntityPa
 
   const { numFound } = library.solr.response;
 
-  const { data: documents, isLoading: isLoadingDocs } = useGetLibraryEntity({
-    id,
-    start: onPage * pageSize,
-    rows: pageSize,
-    sort: sort,
-  });
+  const { data: documents } = useGetLibraryEntity(
+    {
+      id,
+      start: onPage * pageSize,
+      rows: pageSize,
+      sort: sort,
+    },
+    { enabled: isLoadingDocs },
+  );
 
-  const { mutate: fetchDocuments, isLoading: isFetchingDocs } = useBigQuerySearch();
+  const { mutate: fetchDocuments, error: errorFetchingDocs } = useBigQuerySearch();
 
   useEffect(() => {
     if (documents?.documents) {
       fetchDocuments(
         { bibcodes: documents.documents, rows: pageSize },
         {
-          onSettled(data, error) {
+          onSettled(data) {
             if (data) {
               setDocs(data.docs);
-            } else if (error) {
-              console.log(parseAPIError(error));
             }
+            setIsLoadingDocs(false);
           },
         },
       );
@@ -95,19 +100,28 @@ export const LibraryEntityPane = memo(({ library, publicView }: ILibraryEntityPa
 
   const handleNextPage = () => {
     setOnPage((prev) => prev + 1);
+    setIsLoadingDocs(true);
   };
 
   const handlePrevPage = () => {
     setOnPage((prev) => prev - 1);
+    setIsLoadingDocs(true);
   };
 
   const handlePageSelect = (page: number) => {
     setOnPage(page);
+    setIsLoadingDocs(true);
   };
 
   const handlePerPageSelect = (perPage: NumPerPageType) => {
     setOnPage(0);
     setPageSize(perPage);
+    setIsLoadingDocs(true);
+  };
+
+  const handleChangeSort = (sort: SolrSort[]) => {
+    setSort(sort);
+    setIsLoadingDocs(true);
   };
 
   return (
@@ -178,20 +192,28 @@ export const LibraryEntityPane = memo(({ library, publicView }: ILibraryEntityPa
 
         {num_documents > 0 && numFound === 0 && <CustomInfoMessage status="info" title="Found 0 articles" />}
 
-        {library.solr.response.numFound > 0 && (
+        {errorFetchingDocs && (
+          <CustomInfoMessage
+            status="error"
+            title="Error loading documents"
+            description={parseAPIError(errorFetchingDocs)}
+          />
+        )}
+
+        {library.solr.response.numFound > 0 && !errorFetchingDocs && (
           <Flex direction="column" gap={2}>
             <Flex
               justifyContent="space-between"
               alignItems="end"
-              style={isLoadingDocs || isFetchingDocs ? { pointerEvents: 'none' } : { pointerEvents: 'auto' }}
+              style={isLoadingDocs ? { pointerEvents: 'none' } : { pointerEvents: 'auto' }}
             >
-              <Sort sort={sort} onChange={setSort} />
+              <Sort sort={sort} onChange={handleChangeSort} />
               <SearchQueryLink params={{ ...getSearchParams, q: `docs(library/${id})` }}>
                 View as search results
               </SearchQueryLink>
             </Flex>
 
-            {!isLoadingDocs && !isFetchingDocs ? (
+            {!isLoadingDocs ? (
               <>
                 <SimpleResultList docs={docs} hideCheckboxes indexStart={onPage * pageSize} />
                 <Pagination
