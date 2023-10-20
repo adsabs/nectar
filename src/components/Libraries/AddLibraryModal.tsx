@@ -15,6 +15,7 @@ import {
   Button,
   FormErrorMessage,
   HStack,
+  Text,
 } from '@chakra-ui/react';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -95,6 +96,10 @@ export const AddLibraryModal = ({
                   <FormErrorMessage>{errors?.desc && errors.desc.message}</FormErrorMessage>
                 </FormControl>
                 <Checkbox {...register('isPublic')}>Make library public</Checkbox>
+                <Text fontSize="sm" fontStyle="italic">
+                  Public libraries are available for all to read. Private libraries are visible to only you and any
+                  collaborators.
+                </Text>
               </Flex>
               <HStack mt={4} justifyContent="end">
                 <Button type="submit">Submit</Button>

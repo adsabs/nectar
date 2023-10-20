@@ -1,7 +1,24 @@
 import { IADSApiSearchParams, IDocsEntity } from '@api';
-import { Alert, AlertIcon, Box, Button, Flex, Link, Stack, Table, Tag, Tbody, Td, Text, Tr } from '@chakra-ui/react';
+import {
+  Alert,
+  AlertIcon,
+  Box,
+  Button,
+  Flex,
+  IconButton,
+  Link,
+  Stack,
+  Table,
+  Tag,
+  Tbody,
+  Td,
+  Text,
+  Tooltip,
+  Tr,
+  useDisclosure,
+} from '@chakra-ui/react';
 import { ChatIcon, ExternalLinkIcon } from '@chakra-ui/icons';
-import { AbstractSources, feedbackItems, SearchQueryLink } from '@components';
+import { AbstractSources, AddToLibraryModal, feedbackItems, SearchQueryLink } from '@components';
 import { createUrlByType } from '@components/AbstractSources/linkGenerator';
 import { IAllAuthorsModalProps } from '@components/AllAuthorsModal';
 import { useGetAuthors } from '@components/AllAuthorsModal/useGetAuthors';
@@ -21,6 +38,7 @@ import { isNil } from 'ramda';
 import { ReactElement } from 'react';
 import { useGetAbstractDoc } from '@lib';
 import { useRouter } from 'next/router';
+import { FolderPlusIcon } from '@heroicons/react/24/solid';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   () => import('@components/AllAuthorsModal').then((m) => m.AllAuthorsModal),
@@ -53,6 +71,8 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
   const authors = useGetAuthors({ doc, includeAff: false });
 
   const title = unwrapStringValue(doc?.title);
+
+  const { isOpen: isAddToLibraryOpen, onClose: onCloseAddToLibrary, onOpen: onOpenAddToLibrary } = useDisclosure();
 
   const handleFeedback = () => {
     void router.push({ pathname: feedbackItems.record.path, query: { bibcode: doc.bibcode } });
@@ -116,7 +136,17 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
               </Flex>
             )}
 
-            <AbstractSources doc={doc} />
+            <Flex justifyContent="space-between">
+              <AbstractSources doc={doc} />
+              <Tooltip label="add to library">
+                <IconButton
+                  aria-label="Add to library"
+                  icon={<FolderPlusIcon />}
+                  variant="ghost"
+                  onClick={onOpenAddToLibrary}
+                />
+              </Tooltip>
+            </Flex>
             {isNil(doc.abstract) ? (
               <Text>No Abstract</Text>
             ) : (
@@ -131,6 +161,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
           </Stack>
         )}
       </Box>
+      <AddToLibraryModal isOpen={isAddToLibraryOpen} onClose={onCloseAddToLibrary} bibcodes={[doc?.bibcode]} />
     </AbsLayout>
   );
 };

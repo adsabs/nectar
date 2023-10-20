@@ -29,18 +29,21 @@ import { MouseEventHandler, ReactElement, useCallback, useEffect, useState } fro
 import { SecondOrderOpsLinks } from './SecondOrderOpsLinks';
 import { BulkClaimMenuItem, BulkDeleteMenuItem } from '@components/Orcid';
 import { useOrcid } from '@lib/orcid/useOrcid';
+import { useSession } from '@lib/useSession';
 
 export interface IListActionsProps {
   onSortChange?: ISortProps['onChange'];
+  onOpenAddToLibrary: () => void;
 }
 
 type Operator = 'trending' | 'reviews' | 'useful' | 'similar';
 
 export const ListActions = (props: IListActionsProps): ReactElement => {
-  const { onSortChange = noop } = props;
+  const { onSortChange = noop, onOpenAddToLibrary } = props;
   const selected = useStore((state) => state.docs.selected ?? []);
   const clearSelected = useStore((state) => state.clearSelected);
   const isClient = useIsClient();
+  const { isAuthenticated } = useSession();
   const noneSelected = selected.length === 0;
   const [exploreAll, setExploreAll] = useState(true);
   const router = useRouter();
@@ -165,8 +168,12 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
                     </MenuItemOption>
                   </MenuOptionGroup>
                   <MenuDivider />
-                  <MenuItem isDisabled={true}>Add to Library</MenuItem>
-                  <MenuDivider />
+                  {isAuthenticated && (
+                    <>
+                      <MenuItem onClick={onOpenAddToLibrary}>Add to Library</MenuItem>
+                      <MenuDivider />
+                    </>
+                  )}
                   <ExportMenu exploreAll={exploreAll} />
                   <OrcidBulkMenu />
                 </MenuList>

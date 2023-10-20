@@ -230,24 +230,24 @@ export const operation: MutationFunction<IADSApiLibraryOperationResponse, IADSAp
 
 // query
 
-export const useAddDocumentsByQuery: ADSQuery<IADSApiLibraryQueryParams, IADSApiLibraryQueryResponse> = (
-  params,
+export const useAddDocumentsByQuery: ADSMutation<IADSApiLibraryQueryResponse, undefined, IADSApiLibraryQueryParams> = (
+  _,
   options,
 ) => {
-  return useQuery({
-    queryKey: librariesKeys.query(),
-    queryFn: addDocumentsByQuery,
-    meta: { params },
+  return useMutation({
+    mutationKey: librariesKeys.query(),
+    mutationFn: addDocumentsByQuery,
     ...options,
   });
 };
 
-export const addDocumentsByQuery: QueryFunction<IADSApiLibraryQueryResponse> = async ({ meta }) => {
-  const { params } = meta as { params: IADSApiLibraryQueryParams };
+export const addDocumentsByQuery: MutationFunction<IADSApiLibraryQueryResponse, IADSApiLibraryQueryParams> = async (
+  params,
+) => {
   const config: ApiRequestConfig = {
-    method: 'GET',
+    method: 'POST',
     url: `${ApiTargets.LIBRARY_QUERY}/${params.id}`,
-    params: omit(['id'], params),
+    data: params,
   };
 
   const { data } = await api.request<IADSApiLibraryQueryResponse>(config);

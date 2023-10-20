@@ -131,10 +131,11 @@ export interface IADSApiLibraryDocumentResponse {
 
 // Add documents to library using search query
 
-export interface IADSApiLibraryQueryParams extends IADSApiSearchParams {
+export interface IADSApiLibraryQueryParams {
   id: LibraryIdentifier;
+  params: IADSApiSearchParams;
+  action: 'add' | 'remove';
 }
-
 export interface IADSApiLibraryQueryResponse {
   number_added: number; // number of documents added
   valid_bibcode: string[]; // the list of valid bibcodes

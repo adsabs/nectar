@@ -4,7 +4,7 @@ import { ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from '@heroicons/react/
 import { NumPerPageType } from '@types';
 import { useCallback } from 'react';
 
-export interface IPaginationControlsProps extends FlexProps {
+export interface IControlledPaginationControlsProps extends FlexProps {
   entries: number;
   pageIndex: number;
   pageSize: NumPerPageType;
@@ -12,7 +12,7 @@ export interface IPaginationControlsProps extends FlexProps {
   onChangePageIndex: (index: number) => void;
 }
 
-export const ControlledPaginationControls = <T extends object>(props: IPaginationControlsProps) => {
+export const ControlledPaginationControls = <T extends object>(props: IControlledPaginationControlsProps) => {
   const { entries, pageSize, pageIndex, onChangePageIndex, onChangePageSize, ...flexProps } = props;
 
   const pageCount = Math.ceil(entries / pageSize);
