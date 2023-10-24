@@ -10,6 +10,7 @@ import {
   Link,
   Stack,
   Text,
+  Tooltip,
   useTimeout,
 } from '@chakra-ui/react';
 import { AllAuthorsModal } from '@components/AllAuthorsModal';
@@ -58,10 +59,11 @@ export const Item = (props: IItemProps): ReactElement => {
     extraInfo,
     linkNewTab = false,
   } = props;
-  const { bibcode, pubdate, title = ['Untitled'], author = [], bibstem = [], author_count } = doc;
+  const { bibcode, pubdate, title = ['Untitled'], author = [], author_count, pub } = doc;
   const formattedPubDate = getFomattedNumericPubdate(pubdate);
-  const [formattedBibstem] = bibstem;
   const isClient = useIsClient();
+  const truncatedPub =
+    pub.length > APP_DEFAULTS.RESULT_ITEM_PUB_CUTOFF ? pub.slice(0, APP_DEFAULTS.RESULT_ITEM_PUB_CUTOFF) + '...' : pub;
 
   // memoize the isSelected callback on bibcode
   const isChecked = useStore(useCallback((state) => state.isDocSelected(bibcode), [bibcode]));
@@ -134,9 +136,11 @@ export const Item = (props: IItemProps): ReactElement => {
           <AuthorList author={author} authorCount={author_count} bibcode={doc.bibcode} />
           <Text fontSize="xs" mt={0.5}>
             {formattedPubDate}
-            {formattedPubDate && formattedBibstem ? <span className="px-2">·</span> : ''}
-            {formattedBibstem}
-            {cite && (formattedPubDate || formattedBibstem) ? <span className="px-2">·</span> : null}
+            {formattedPubDate && pub ? <span className="px-2">·</span> : ''}
+            <Tooltip label={pub} aria-label="publication tooltip" placement="top">
+              <span>{truncatedPub}</span>
+            </Tooltip>
+            {cite && (formattedPubDate || pub) ? <span className="px-2">·</span> : null}
             {cite}
             {cite && extraInfo && '; '}
             {extraInfo}
