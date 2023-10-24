@@ -14,9 +14,11 @@ import { MouseEvent, useRef } from 'react';
 export const DeleteLibrary = ({
   format = 'button',
   onDelete,
+  isDisabled = false,
 }: {
   format?: 'button' | 'menuitem';
   onDelete: () => void;
+  isDisabled?: boolean;
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef();
@@ -34,11 +36,13 @@ export const DeleteLibrary = ({
   return (
     <>
       {format === 'button' ? (
-        <Button onClick={handleOpen} colorScheme="red" mt={4}>
+        <Button onClick={handleOpen} colorScheme="red" mt={4} isDisabled={isDisabled}>
           Delete Library
         </Button>
       ) : (
-        <MenuItem onClick={handleOpen}>Delete Library</MenuItem>
+        <MenuItem onClick={handleOpen} isDisabled={isDisabled}>
+          Delete Library
+        </MenuItem>
       )}
       <AlertDialog isOpen={isOpen} onClose={onClose} leastDestructiveRef={cancelRef}>
         <AlertDialogOverlay>

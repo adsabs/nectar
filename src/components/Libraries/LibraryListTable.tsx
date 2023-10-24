@@ -273,7 +273,11 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                   {showSettings && !isMobile && (
                     <Td>
                       <Center>
-                        <Action onDelete={() => handleDeleteLibrary(id)} onSetting={() => handleSettings(id)} />
+                        <Action
+                          onDelete={() => handleDeleteLibrary(id)}
+                          onSetting={() => handleSettings(id)}
+                          disableDelete={permission !== 'owner'}
+                        />
                       </Center>
                     </Td>
                   )}
@@ -295,7 +299,15 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
   );
 };
 
-const Action = ({ onDelete, onSetting }: { onDelete: () => void; onSetting: () => void }) => {
+const Action = ({
+  onDelete,
+  onSetting,
+  disableDelete = false,
+}: {
+  onDelete: () => void;
+  onSetting: () => void;
+  disableDelete?: boolean;
+}) => {
   const handleSettings = (e: MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     onSetting();
@@ -313,7 +325,7 @@ const Action = ({ onDelete, onSetting }: { onDelete: () => void; onSetting: () =
         />
         <MenuList>
           <MenuItem onClick={handleSettings}>Settings</MenuItem>
-          <DeleteLibrary onDelete={onDelete} format="menuitem" />
+          <DeleteLibrary onDelete={onDelete} format="menuitem" isDisabled={disableDelete} />
         </MenuList>
       </Menu>
     </Center>
