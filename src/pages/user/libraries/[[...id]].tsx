@@ -23,6 +23,7 @@ const LibrariesHome: NextPage = () => {
     data: library,
     isLoading: isLoadingLib,
     error,
+    refetch,
   } = useGetLibraryEntity(
     {
       id,
@@ -54,7 +55,7 @@ const LibrariesHome: NextPage = () => {
           }
         />
       )}
-      {!!id && !!library && !subpage && <LibraryEntityPane library={library} publicView={false} />}
+      {!!id && !!library && !subpage && <LibraryEntityPane library={library} publicView={false} onRefetch={refetch} />}
       {!!id && !!library && subpage === 'settings' && <LibrarySettingsPane id={id} />}
       {!id && <LibrariesLandingPane />}
     </>

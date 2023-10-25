@@ -4,14 +4,17 @@ import {
   IDocsEntity,
   SolrSort,
   useBigQuerySearch,
+  useEditLibraryDocuments,
   useGetLibraryEntity,
 } from '@api';
 import { ChevronLeftIcon, LockIcon, SettingsIcon, UnlockIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
+  Checkbox,
   Flex,
   Heading,
+  HStack,
   IconButton,
   Table,
   Tbody,
@@ -22,28 +25,24 @@ import {
   Tooltip,
   Tr,
   useBreakpoint,
+  useToast,
 } from '@chakra-ui/react';
-import {
-  CustomInfoMessage,
-  ItemsSkeleton,
-  Pagination,
-  SearchQueryLink,
-  SimpleLink,
-  SimpleResultList,
-  Sort,
-} from '@components';
+import { CustomInfoMessage, ItemsSkeleton, Pagination, SearchQueryLink, SimpleLink, Sort } from '@components';
 import { BuildingLibraryIcon } from '@heroicons/react/24/solid';
 import { AppState, useStore } from '@store';
 import { NumPerPageType } from '@types';
-import { parseAPIError } from '@utils';
-import { memo, useEffect, useState } from 'react';
+import { noop, parseAPIError } from '@utils';
+import { uniq } from 'ramda';
+import { memo, useEffect, useMemo, useState } from 'react';
+import { DocumentList } from './DocumentList/DocumentList';
 
 export interface ILibraryEntityPaneProps {
   library: IADSApiLibraryEntityResponse;
   publicView: boolean;
+  onRefetch?: () => void;
 }
 
-export const LibraryEntityPane = memo(({ library, publicView }: ILibraryEntityPaneProps) => {
+export const LibraryEntityPane = memo(({ library, publicView, onRefetch = noop }: ILibraryEntityPaneProps) => {
   const pageSize = useStore((state: AppState) => state.numPerPage);
 
   const setPageSize = useStore((state: AppState) => state.setNumPerPage);
@@ -53,6 +52,21 @@ export const LibraryEntityPane = memo(({ library, publicView }: ILibraryEntityPa
   const [onPage, setOnPage] = useState(0);
 
   const [sort, setSort] = useState<SolrSort[]>(['date desc']);
+
+  const [selected, setSelected] = useState<string[]>([]);
+
+  // bibcodes on current page
+  const currentBibcodes = useMemo(() => docs.map((d) => d.bibcode), [docs]);
+
+  const isAllSelected = useMemo(
+    () => (currentBibcodes.length === 0 ? false : currentBibcodes.every((b) => selected.includes(b))),
+    [currentBibcodes, selected],
+  );
+
+  const isSomeSelected = useMemo(
+    () => (currentBibcodes.length === 0 ? false : currentBibcodes.some((b) => selected.includes(b))),
+    [currentBibcodes, selected],
+  );
 
   const breakpoint = useBreakpoint();
 
@@ -72,8 +86,6 @@ export const LibraryEntityPane = memo(({ library, publicView }: ILibraryEntityPa
     owner,
   } = library.metadata;
 
-  const { numFound } = library.solr.response;
-
   const { data: documents } = useGetLibraryEntity(
     {
       id,
@@ -81,8 +93,12 @@ export const LibraryEntityPane = memo(({ library, publicView }: ILibraryEntityPa
       rows: pageSize,
       sort: sort,
     },
-    { enabled: isLoadingDocs },
+    { enabled: isLoadingDocs, cacheTime: 0, staleTime: 0 },
   );
+
+  const { numFound } = library.solr.response;
+
+  const canWrite = ['owner', 'admin', 'write'].includes(library?.metadata.permission);
 
   const { mutate: fetchDocuments, error: errorFetchingDocs } = useBigQuerySearch();
 
@@ -101,6 +117,12 @@ export const LibraryEntityPane = memo(({ library, publicView }: ILibraryEntityPa
       );
     }
   }, [documents?.documents]);
+
+  const { mutate: editLibraryDocuments } = useEditLibraryDocuments();
+
+  const toast = useToast({
+    duration: 2000,
+  });
 
   const handleNextPage = () => {
     setOnPage((prev) => prev + 1);
@@ -126,6 +148,54 @@ export const LibraryEntityPane = memo(({ library, publicView }: ILibraryEntityPa
   const handleChangeSort = (sort: SolrSort[]) => {
     setSort(sort);
     setIsLoadingDocs(true);
+  };
+
+  const handleSelectDoc = (bibcode: string, checked: boolean) => {
+    if (checked && !selected.includes(bibcode)) {
+      setSelected((prev) => [...prev, bibcode]);
+    } else if (!checked) {
+      setSelected((prev) => prev.filter((b) => b !== bibcode));
+    }
+  };
+
+  const handleSelectAllCurrent = () => {
+    setSelected((prev) => uniq([...prev, ...currentBibcodes]));
+  };
+
+  const handleClearAllCurrent = () => {
+    setSelected((prev) => prev.filter((b) => !currentBibcodes.includes(b)));
+  };
+
+  const handleClearAll = () => {
+    setSelected([]);
+  };
+
+  const handleDeleteFromLibrary = () => {
+    editLibraryDocuments(
+      { id, bibcode: selected, action: 'remove' },
+      {
+        onSettled(data, error) {
+          if (error) {
+            toast({
+              status: 'error',
+              title: 'Error removing papers from library',
+              description: parseAPIError(error),
+            });
+          } else {
+            toast({
+              status: 'success',
+              title: `${data.number_removed} papers removed from library`,
+            });
+
+            // reset
+            setOnPage(0);
+            setSelected([]);
+            setIsLoadingDocs(true);
+            onRefetch();
+          }
+        },
+      },
+    );
   };
 
   return (
@@ -203,7 +273,7 @@ export const LibraryEntityPane = memo(({ library, publicView }: ILibraryEntityPa
         />
       )}
 
-      {library.solr.response.numFound > 0 && !errorFetchingDocs && (
+      {numFound > 0 && !errorFetchingDocs && (
         <Flex direction="column" gap={2}>
           <Flex
             direction={{ base: 'column', sm: 'row' }}
@@ -217,14 +287,27 @@ export const LibraryEntityPane = memo(({ library, publicView }: ILibraryEntityPa
             </SearchQueryLink>
           </Flex>
 
+          {canWrite && !publicView && !isLoadingDocs && (
+            <BulkAction
+              isAllSelected={isAllSelected}
+              isSomeSelected={isSomeSelected}
+              onSelectAllCurrent={handleSelectAllCurrent}
+              onClearAllCurrent={handleClearAllCurrent}
+              onClearAll={handleClearAll}
+              selectedCount={selected.length}
+              onDeleteSelected={handleDeleteFromLibrary}
+            />
+          )}
+
           {!isLoadingDocs ? (
             <>
-              <SimpleResultList
+              <DocumentList
                 docs={docs}
-                hideCheckboxes
                 indexStart={onPage * pageSize}
-                showOrcidAction={false}
-                hideActions={isMobile}
+                onSet={handleSelectDoc}
+                hideCheckbox={!canWrite || publicView}
+                selectedBibcodes={selected}
+                hideResources={isMobile}
               />
               <Pagination
                 totalResults={numFound}
@@ -245,3 +328,50 @@ export const LibraryEntityPane = memo(({ library, publicView }: ILibraryEntityPa
     </Box>
   );
 });
+
+const BulkAction = ({
+  isAllSelected,
+  isSomeSelected,
+  onSelectAllCurrent,
+  onClearAllCurrent,
+  onClearAll,
+  selectedCount,
+  onDeleteSelected,
+}: {
+  isAllSelected: boolean;
+  isSomeSelected: boolean;
+  selectedCount: number;
+  onSelectAllCurrent: () => void;
+  onClearAllCurrent: () => void;
+  onClearAll: () => void;
+  onDeleteSelected: () => void;
+}) => {
+  const handleChange = () => {
+    isAllSelected || isSomeSelected ? onClearAllCurrent() : onSelectAllCurrent();
+  };
+
+  return (
+    <Flex justifyContent="space-between" backgroundColor="gray.50" p={4}>
+      <HStack gap={2}>
+        <Checkbox
+          size="md"
+          isChecked={isAllSelected}
+          isIndeterminate={!isAllSelected && isSomeSelected}
+          onChange={handleChange}
+          mr={2}
+        />
+        {selectedCount > 0 && (
+          <>
+            <>{selectedCount} selected</>
+            <Button variant="link" onClick={onClearAll}>
+              Clear All
+            </Button>
+          </>
+        )}
+      </HStack>
+      <Button isDisabled={selectedCount === 0} colorScheme="red" onClick={onDeleteSelected}>
+        Delete
+      </Button>
+    </Flex>
+  );
+};
