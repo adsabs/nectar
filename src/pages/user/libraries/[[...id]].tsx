@@ -55,9 +55,18 @@ const LibrariesHome: NextPage<ILibrariesHomeProps> = ({ id, subpage }) => {
           }
         />
       )}
-      {!!id && !!library && !subpage && <LibraryEntityPane library={library} publicView={false} onRefetch={refetch} />}
-      {!!id && !!library && subpage === 'settings' && <LibrarySettingsPane library={library} onRefetch={refetch} />}
-      {!id && <LibrariesLandingPane />}
+
+      {!!id && !!library ? (
+        <>
+          {subpage === 'settings' ? (
+            <LibrarySettingsPane library={library} onRefetch={refetch} />
+          ) : (
+            <LibraryEntityPane library={library} publicView={false} onRefetch={refetch} />
+          )}
+        </>
+      ) : (
+        <>{!id ? <LibrariesLandingPane /> : null}</>
+      )}
     </>
   );
 };

@@ -353,13 +353,19 @@ const BulkAction = ({
   return (
     <Flex justifyContent="space-between" backgroundColor="gray.50" p={4}>
       <HStack gap={2}>
-        <Checkbox
-          size="md"
-          isChecked={isAllSelected}
-          isIndeterminate={!isAllSelected && isSomeSelected}
-          onChange={handleChange}
-          mr={2}
-        />
+        <Tooltip
+          label={
+            isAllSelected || isSomeSelected ? 'clear selected papers on this page' : 'select all papers on this page'
+          }
+        >
+          <Checkbox
+            size="md"
+            isChecked={isAllSelected}
+            isIndeterminate={!isAllSelected && isSomeSelected}
+            onChange={handleChange}
+            mr={2}
+          />
+        </Tooltip>
         {selectedCount > 0 && (
           <>
             <>{selectedCount} selected</>
