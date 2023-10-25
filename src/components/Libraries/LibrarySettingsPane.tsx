@@ -1,4 +1,4 @@
-import { LibraryIdentifier, useDeleteLibrary, useEditLibraryMeta, useGetLibraryEntity, useTransfer } from '@api';
+import { IADSApiLibraryEntityResponse, useDeleteLibrary, useEditLibraryMeta, useTransfer } from '@api';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -29,21 +29,14 @@ import { CollabTable } from './CollabTable';
 import { DeleteLibrary } from './DeleteLibrary';
 
 export interface ISettingsPaneProps {
-  id: LibraryIdentifier;
+  library: IADSApiLibraryEntityResponse;
+  onRefetch?: () => void;
 }
 
-export const LibrarySettingsPane = ({ id }: ISettingsPaneProps) => {
+export const LibrarySettingsPane = ({ library, onRefetch }: ISettingsPaneProps) => {
   const router = useRouter();
-  const {
-    data: library,
-    isLoading,
-    refetch,
-  } = useGetLibraryEntity(
-    {
-      id,
-    },
-    { enabled: !!id },
-  );
+
+  const { id } = library.metadata;
 
   const { mutate: deleteLibrary } = useDeleteLibrary();
 
@@ -62,6 +55,8 @@ export const LibrarySettingsPane = ({ id }: ISettingsPaneProps) => {
   const [descValue, setDescValue] = useState(description);
 
   const [isChecked, setIsChecked] = useState(isPublic);
+
+  const [isSaving, setIsSaving] = useState(false);
 
   const modified = useMemo(
     () => name !== nameValue || description !== descValue || isPublic !== isChecked,
@@ -83,6 +78,7 @@ export const LibrarySettingsPane = ({ id }: ISettingsPaneProps) => {
   };
 
   const handleSave = () => {
+    setIsSaving(true);
     updateMeta(
       {
         id,
@@ -103,8 +99,9 @@ export const LibrarySettingsPane = ({ id }: ISettingsPaneProps) => {
               status: 'success',
               title: 'Updated',
             });
-            void refetch();
+            onRefetch();
           }
+          setIsSaving(false);
         },
       },
     );
@@ -198,7 +195,7 @@ export const LibrarySettingsPane = ({ id }: ISettingsPaneProps) => {
           </Text>
         </FormControl>
         {canEdit && (
-          <Button onClick={handleSave} isDisabled={nameValue.length < 1 || !modified} isLoading={isLoading}>
+          <Button onClick={handleSave} isDisabled={nameValue.length < 1 || !modified || isSaving}>
             Save
           </Button>
         )}

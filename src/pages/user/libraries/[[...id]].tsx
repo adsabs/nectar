@@ -1,4 +1,4 @@
-import { useGetLibraryEntity } from '@api';
+import { fetchLibraries, fetchLibraryEntity, librariesKeys, useGetLibraryEntity } from '@api';
 import { Center, Text } from '@chakra-ui/react';
 import {
   CustomInfoMessage,
@@ -9,16 +9,16 @@ import {
   SimpleLink,
 } from '@components';
 import { composeNextGSSP } from '@ssr-utils';
+import { QueryClient } from '@tanstack/react-query';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
 
-const LibrariesHome: NextPage = () => {
-  const router = useRouter();
+interface ILibrariesHomeProps {
+  id?: string;
+  subpage?: string;
+}
 
-  const id = router.query.id?.[0] ?? null;
-  const subpage = router.query.id?.[1] ?? null;
-
+const LibrariesHome: NextPage<ILibrariesHomeProps> = ({ id, subpage }) => {
   const {
     data: library,
     isLoading: isLoadingLib,
@@ -56,7 +56,7 @@ const LibrariesHome: NextPage = () => {
         />
       )}
       {!!id && !!library && !subpage && <LibraryEntityPane library={library} publicView={false} onRefetch={refetch} />}
-      {!!id && !!library && subpage === 'settings' && <LibrarySettingsPane id={id} />}
+      {!!id && !!library && subpage === 'settings' && <LibrarySettingsPane library={library} onRefetch={refetch} />}
       {!id && <LibrariesLandingPane />}
     </>
   );
@@ -75,7 +75,35 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
     });
   }
 
+  const { id = null } = ctx.params;
+
+  const queryClient = new QueryClient();
+
+  if (!id) {
+    void (await queryClient.prefetchQuery({
+      queryKey: librariesKeys.libraries({}),
+      queryFn: fetchLibraries,
+      meta: { params: {} },
+    }));
+
+    return Promise.resolve({
+      props: {},
+    });
+  }
+
+  const lid = id[0];
+  const subpage = id[1] ?? null;
+
+  void (await queryClient.prefetchQuery({
+    queryKey: librariesKeys.library({ id: lid }),
+    queryFn: fetchLibraryEntity,
+    meta: { params: { id: lid } },
+  }));
+
   return Promise.resolve({
-    props: {},
+    props: {
+      id: lid,
+      subpage: subpage,
+    },
   });
 });
