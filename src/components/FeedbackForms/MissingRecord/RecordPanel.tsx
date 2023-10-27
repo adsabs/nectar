@@ -5,6 +5,7 @@ import {
   AlertStatus,
   Button,
   Checkbox,
+  CheckboxGroup,
   Flex,
   FormControl,
   FormErrorMessage,
@@ -12,10 +13,9 @@ import {
   HStack,
   Input,
   Stack,
-  Textarea,
   Text,
+  Textarea,
   useDisclosure,
-  CheckboxGroup,
 } from '@chakra-ui/react';
 import { PreviewModal, SimpleLink } from '@components';
 import { IResourceUrl, useGetResourceLinks } from '@lib';
@@ -29,13 +29,13 @@ import { getDiffSections, getDiffString, processFormValues } from './DiffUtil';
 import { KeywordsField } from './KeywordsField';
 import { PubDateField } from './PubDateField';
 import { ReferencesField } from './ReferencesField';
-import { IAuthor, FormValues, IReference, DiffSection, IKeyword } from './types';
+import { DiffSection, FormValues, IAuthor, IKeyword, IReference } from './types';
 import { UrlsField } from './UrlsField';
-import moment from 'moment';
 import { DiffSectionPanel } from './DiffSectionPanel';
 import { AxiosError } from 'axios';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { parsePublicationDate } from '@utils';
 
 const collections: { value: Database; label: string }[] = [
   { value: 'astronomy', label: 'Astronomy and Astrophysics' },
@@ -44,6 +44,8 @@ const collections: { value: Database; label: string }[] = [
 ];
 
 type State = 'idle' | 'loading-record' | 'loading-urls' | 'submitting' | 'preview';
+
+const isInvalidPubDate = (pubdate: string) => parsePublicationDate(pubdate) === null;
 
 const validationSchema = z
   .object({
@@ -71,7 +73,7 @@ const validationSchema = z
       });
     }
 
-    if (!moment(schema.pubDate, ['YYYY-MM', 'YYYY-MM-DD', 'YYYY-00', 'YYYY-00-00', 'YYYY-MM-00'], true).isValid()) {
+    if (isInvalidPubDate(schema.pubDate)) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['pubDate'],

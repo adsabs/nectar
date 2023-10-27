@@ -96,12 +96,12 @@ export const parsePublicationDate = (pubdate: string) => {
     return null;
   }
 
-  const regex = /^(?<year>\d{4})-(?<month>\d{2}|\d{1}|00)-(?<day>\d{2}|\d{1}|00)$/;
-  const match = pubdate.match(regex);
+  const regex = /^(\d{4})-(\d{2}|\d|00)-(\d{2}|\d|00)$/;
+  const match = RegExp(regex).exec(pubdate);
 
   // if bad match, at least grab the year which should always be first 4 characters
-  return match
-    ? (match.groups as { year: string; month: string; day: string })
+  return match && match.length === 4
+    ? { year: match[1], month: match[2], day: match[3] }
     : { year: pubdate.slice(0, 4), month: '00', day: '00' };
 };
 

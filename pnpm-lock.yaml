@@ -140,9 +140,6 @@ importers:
       memoize-one:
         specifier: ^6.0.0
         version: 6.0.0
-      moment:
-        specifier: ^2.29.4
-        version: 2.29.4
       next:
         specifier: 13.0.1
         version: 13.0.1(@babel/core@7.22.10)(react-dom@18.2.0)(react@18.2.0)
@@ -12076,10 +12073,6 @@ packages:
       pkg-types: 1.0.3
       ufo: 1.1.2
     dev: true
-
-  /moment@2.29.4:
-    resolution: {integrity: sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==}
-    dev: false
 
   /mri@1.1.4:
     resolution: {integrity: sha512-6y7IjGPm8AzlvoUrwAaw1tLnUBudaS3752vcd8JtrpGGQn+rXIe63LFVHm/YMwtqAuh+LJPCFdlLYPWM1nYn6w==}
