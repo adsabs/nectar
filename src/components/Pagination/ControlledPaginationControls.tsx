@@ -12,7 +12,7 @@ export interface IControlledPaginationControlsProps extends FlexProps {
   onChangePageIndex: (index: number) => void;
 }
 
-export const ControlledPaginationControls = <T extends object>(props: IControlledPaginationControlsProps) => {
+export const ControlledPaginationControls = (props: IControlledPaginationControlsProps) => {
   const { entries, pageSize, pageIndex, onChangePageIndex, onChangePageSize, ...flexProps } = props;
 
   const pageCount = Math.ceil(entries / pageSize);

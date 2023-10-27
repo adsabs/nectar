@@ -1,68 +1,8 @@
 {
   "libraries": [
     {
-      "name": "Test_Admin",
-      "id": "RpZcWt0SRRmDT7q29U6AUw",
-      "description": "Union of 6f7d1571-c427-4a6a-942b-326d72369c1c with []",
-      "num_documents": 4,
-      "date_created": "2019-04-15T19:03:15.345389",
-      "date_last_modified": "2021-04-01T15:11:10.995740",
-      "permission": "admin",
-      "public": false,
-      "num_users": 2,
-      "owner": "misc+scix"
-    },
-    {
-      "name": "Test_Write/Read",
-      "id": "PWk7fXxbSS2U6jo_lWHawQ",
-      "description": "Union of 6f7d1571-c427-4a6a-942b-326d72369c1c with []",
-      "num_documents": 5,
-      "date_created": "2019-04-15T19:03:56.246891",
-      "date_last_modified": "2021-08-28T05:03:27.780969",
-      "permission": "write",
-      "public": true,
-      "num_users": 2,
-      "owner": "misc+scix"
-    },
-    {
-      "name": "Test_Read",
-      "id": "eWf42mSBSdigxtGhmKe3Mg",
-      "description": "Union of libraries Untitled 2019-04-15T19:03:15.312809+00:00., pooooo (IDs: RpZcWt0SRRmDT7q29U6AUw, ZsqgYsCdRB-mL-aIa4Mylg)",
-      "num_documents": 4,
-      "date_created": "2019-04-30T17:37:54.052677",
-      "date_last_modified": "2021-04-01T15:08:25.317810",
-      "permission": "read",
-      "public": false,
-      "num_users": 0,
-      "owner": "misc+scix"
-    },
-    {
-      "name": "test1",
-      "id": "G4MOEjynQFCRK_QRWlK0EQ",
-      "description": "My ADS library",
-      "num_documents": 1998,
-      "date_created": "2022-02-23T21:25:13.500854",
-      "date_last_modified": "2022-03-31T20:27:22.080563",
-      "permission": "owner",
-      "public": false,
-      "num_users": 1,
-      "owner": "ads"
-    },
-    {
-      "name": "test2",
-      "id": "sdlUxwk8T6SNlw0NOXelxQ",
-      "description": "My ADS library",
-      "num_documents": 503,
-      "date_created": "2022-02-23T21:44:10.593087",
-      "date_last_modified": "2022-03-31T20:27:27.948129",
-      "permission": "owner",
-      "public": true,
-      "num_users": 1,
-      "owner": "ads"
-    },
-    {
-      "name": "test - jennifer",
-      "id": "0alXsBucQRa1mygeHfp2KA",
+      "name": "lib-1",
+      "id": "111",
       "description": "My ADS library",
       "num_documents": 0,
       "date_created": "2023-09-05T22:12:05.511383",
@@ -73,8 +13,8 @@
       "owner": "ads"
     },
     {
-      "name": "Untitled Library 1",
-      "id": "t3zVuueCRfu0Q1vg_1iKrw",
+      "name": "lib-2",
+      "id": "222",
       "description": "My ADS library",
       "num_documents": 0,
       "date_created": "2023-09-05T22:12:29.460672",
@@ -85,100 +25,40 @@
       "owner": "ads"
     },
     {
-      "name": "silly library",
-      "id": "YCLtN1U1SGOHW4EgSbhDIg",
+      "name": "lib-3",
+      "id": "333",
       "description": "silly library",
       "num_documents": 3,
       "date_created": "2023-09-18T17:46:02.068300",
       "date_last_modified": "2023-09-18T18:16:33.668957",
-      "permission": "owner",
+      "permission": "read",
       "public": true,
-      "num_users": 1,
-      "owner": "ads"
+      "num_users": 2,
+      "owner": "johnny"
     },
     {
-      "name": "silly 2",
-      "id": "XTkEXFtiTLug4mfelLGtOQ",
+      "name": "lib-4",
+      "id": "444",
       "description": "another silly library",
-      "num_documents": 506,
+      "num_documents": 505,
       "date_created": "2023-09-18T18:24:06.510578",
-      "date_last_modified": "2023-09-18T18:24:06.510585",
-      "permission": "owner",
+      "date_last_modified": "2023-10-25T16:59:44.352260",
+      "permission": "write",
       "public": true,
-      "num_users": 1,
-      "owner": "ads"
+      "num_users": 2,
+      "owner": "tracy"
     },
     {
-      "name": "10",
-      "id": "4b4LpubeTLinpCYguezg6A",
-      "description": "My ADS library",
+      "name": "lib-5",
+      "id": "555",
+      "description": "An ADS library",
       "num_documents": 0,
       "date_created": "2023-09-22T14:05:34.650827",
       "date_last_modified": "2023-09-22T14:05:34.650837",
-      "permission": "owner",
+      "permission": "admin",
       "public": false,
-      "num_users": 1,
-      "owner": "ads"
-    },
-    {
-      "name": "11",
-      "id": "7DLp9zRxRCmS-zWQAPGCkg",
-      "description": "My ADS library",
-      "num_documents": 0,
-      "date_created": "2023-09-22T14:05:43.462906",
-      "date_last_modified": "2023-09-22T14:05:43.462912",
-      "permission": "owner",
-      "public": false,
-      "num_users": 1,
-      "owner": "ads"
-    },
-    {
-      "name": "2rqefe",
-      "id": "2HHuLDJ1SWmbZ8JMOlESaw",
-      "description": "sadasdf",
-      "num_documents": 0,
-      "date_created": "2023-09-22T14:18:43.694109",
-      "date_last_modified": "2023-09-22T14:18:43.694115",
-      "permission": "owner",
-      "public": false,
-      "num_users": 1,
-      "owner": "ads"
-    },
-    {
-      "name": "34234",
-      "id": "hPpr-05VRW2wT7cXCEisUA",
-      "description": "My ADS library",
-      "num_documents": 0,
-      "date_created": "2023-09-22T14:19:00.722135",
-      "date_last_modified": "2023-09-22T14:19:00.722140",
-      "permission": "owner",
-      "public": false,
-      "num_users": 1,
-      "owner": "ads"
-    },
-    {
-      "name": "abc",
-      "id": "JlzmnuucSLO-OjPn9IhOvw",
-      "description": "My ADS library",
-      "num_documents": 0,
-      "date_created": "2023-09-22T14:23:30.150520",
-      "date_last_modified": "2023-09-22T14:23:30.150528",
-      "permission": "owner",
-      "public": false,
-      "num_users": 1,
-      "owner": "ads"
-    },
-    {
-      "name": "wewae",
-      "id": "fJWfjchhS7ipKRdjw2JGXA",
-      "description": "My ADS library",
-      "num_documents": 0,
-      "date_created": "2023-09-22T14:24:17.783704",
-      "date_last_modified": "2023-09-22T14:24:17.783711",
-      "permission": "owner",
-      "public": false,
-      "num_users": 1,
-      "owner": "ads"
+      "num_users": 2,
+      "owner": "amy"
     }
   ]
 }

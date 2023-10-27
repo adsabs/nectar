@@ -5,7 +5,6 @@ import { LoadingMessage } from '@components';
 import { NumPerPageType } from '@types';
 import { useState, useMemo } from 'react';
 import { ILibraryListTableSort, LibraryListTable } from './LibraryListTable';
-import { TableSkeleton } from './TableSkeleton';
 
 export const LibrarySelector = ({
   isMultiple,

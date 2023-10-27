@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { useSettings } from '@lib/useSettings';
 import { chakra, Heading, Icon, Text, VStack } from '@chakra-ui/react';
 import { AcademicCapIcon } from '@heroicons/react/20/solid';
-import { GetServerSideProps, GetServerSidePropsContext } from 'next';
+import { GetServerSideProps } from 'next';
 import { composeNextGSSP } from '@ssr-utils';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 
@@ -93,7 +93,7 @@ const MyInstitution = () => {
 
 export default LibraryLinkServerPage;
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx: GetServerSidePropsContext) => {
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(async () => {
   const queryClient = new QueryClient();
 
   // prefetch link servers

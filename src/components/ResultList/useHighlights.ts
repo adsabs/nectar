@@ -1,4 +1,4 @@
-import { IADSApiSearchResponse, useGetHighlights } from '@api';
+import { useGetHighlights } from '@api';
 import { useToast } from '@chakra-ui/react';
 import { AppState, useStore } from '@store';
 import { decode } from 'he';

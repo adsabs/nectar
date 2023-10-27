@@ -18,7 +18,7 @@ import {
   SettingsLayout,
 } from '@components';
 import { composeNextGSSP } from '@ssr-utils';
-import { GetServerSideProps, GetServerSidePropsContext } from 'next';
+import { GetServerSideProps } from 'next';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { dehydrate, QueryClient, QueryErrorResetBoundary } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -175,7 +175,7 @@ const AppSettingsPage = () => {
 
 export default Page;
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx: GetServerSidePropsContext) => {
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(async () => {
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
     queryKey: userKeys.getUserSettings(),
