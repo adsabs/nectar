@@ -1,8 +1,9 @@
-import { BoxProps, CloseButton, Flex, Tag, TagCloseButton, TagLabel, Wrap } from '@chakra-ui/react';
+import { BoxProps, Flex, IconButton, Tag, TagCloseButton, TagLabel, Wrap } from '@chakra-ui/react';
 import { useFacetStore } from '@components/SearchFacet/store/FacetStore';
 import { isEmpty } from 'ramda';
 import { MouseEventHandler } from 'react';
 import { parseRootFromKey, parseTitleFromKey } from '../helpers';
+import { XMarkIcon } from '@heroicons/react/20/solid';
 
 const formatKeyToName = (key: string) => (key.startsWith('0') ? parseRootFromKey(key) : parseTitleFromKey(key));
 
@@ -46,7 +47,14 @@ export const SelectedList = (props: BoxProps) => {
           </Tag>
         ))}
       </Wrap>
-      <CloseButton onClick={clearSelection} aria-label="clear all selection" />
+      <IconButton
+        aria-label={`clear all selection`}
+        onClick={clearSelection}
+        variant="ghost"
+        size="xs"
+        colorScheme="blackAlpha"
+        icon={<XMarkIcon />}
+      />
     </Flex>
   );
 };
