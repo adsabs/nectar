@@ -19,6 +19,7 @@ import api, { checkUserData } from '@api';
 import { isNilOrEmpty, notEqual } from 'ramda-adjunct';
 import { useUser } from '@lib/useUser';
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
+import '../styles/styles.css';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
   require('../mocks');
