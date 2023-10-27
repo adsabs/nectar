@@ -21,6 +21,7 @@ export interface IUseGetFacetDataProps {
   filter?: string[];
   enabled?: boolean;
   hasChildren?: boolean;
+  searchTerm?: string;
 }
 
 export const FACET_DEFAULT_LIMIT = 10;
@@ -41,6 +42,7 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
     enabled = true,
     hasChildren = false,
     filter = [],
+    searchTerm,
   } = props;
 
   const [pagination, setPagination] = useState(() => calculatePagination({ page: 0, numPerPage: FACET_DEFAULT_LIMIT }));
@@ -62,10 +64,11 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
           sortDir,
           offset: pagination.startIndex,
           hasChildren,
+          searchTerm,
         }),
         ...searchQuery,
       }),
-      [searchQuery, field, prefix, query, level, sortDir, sortField, pagination.startIndex, hasChildren],
+      [searchQuery, searchTerm, field, prefix, query, level, sortDir, sortField, pagination.startIndex, hasChildren],
     ),
     300,
   );
@@ -158,10 +161,11 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
  * @param level
  * @param key
  */
-const getPrefix = (level: IUseGetFacetDataProps['level'], key: string) =>
-  `${level === 'root' ? FACET_DEFAULT_PREFIX : FACET_DEFAULT_CHILD_PREFIX}${parseRootFromKey(key) ?? ''}${
-    level === 'child' ? '/' : ''
+const getPrefix = (level: IUseGetFacetDataProps['level'], key: string, searchTerm: string) => {
+  return `${level === 'root' ? FACET_DEFAULT_PREFIX : FACET_DEFAULT_CHILD_PREFIX}${parseRootFromKey(key) ?? ''}${
+    level === 'child' ? `/${searchTerm}` : searchTerm
   }`;
+};
 
 const getSearchFacetParams = (props: IUseGetFacetDataProps & { offset: number }) => {
   if (!props || !props.field) {
@@ -180,8 +184,8 @@ const getSearchFacetParams = (props: IUseGetFacetDataProps & { offset: number })
       sort: `count ${props.sortDir}`,
       ...(props.query ? { query: props.query } : {}),
       ...(props.hasChildren
-        ? { prefix: getPrefix(props.level, sanitize(props.prefix)) }
-        : { prefix: sanitize(props.prefix) }),
+        ? { prefix: getPrefix(props.level, props.prefix, sanitize(props.searchTerm)) }
+        : { prefix: sanitize(props.searchTerm) }),
     },
   });
 };
