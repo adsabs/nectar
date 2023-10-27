@@ -25,13 +25,23 @@ export const SortControl = ({
   };
 
   return (
-    <Flex direction="row" {...flexProps}>
-      <Select value={value} onChange={handleSortChange} borderRightRadius="none">
+    <Flex
+      direction="row"
+      sx={{
+        '&:has(select:focus)': {
+          boxShadow: '0 0 0 3px rgba(66, 153, 225, 0.6)',
+        },
+      }}
+      {...flexProps}
+    >
+      <Select size="sm" value={value} onChange={handleSortChange} borderRightRadius="none" _focus={{ boxShadow: '' }}>
         <option value="count">Count</option>
         {onlyCount ? null : <option value="index">A-Z</option>}
       </Select>
       <IconButton
         onClick={toggleDir}
+        size="sm"
+        p="2"
         icon={<Icon as={dir === 'desc' ? BarsArrowDownIcon : BarsArrowUpIcon} fontSize="xl" />}
         colorScheme="gray"
         borderLeftRadius="none"
