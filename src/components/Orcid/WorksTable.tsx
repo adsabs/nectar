@@ -97,6 +97,7 @@ const filterOptions: SelectOption[] = [
   { id: 'not_in_scix', value: 'not_in_scix', label: 'NOT in SciX' },
   { id: 'pending', value: 'pending', label: 'Status: Pending' },
   { id: 'verified', value: 'verified', label: 'Status: Verified' },
+  { id: 'rejected', value: 'rejected', label: 'Status: Rejected' },
 ];
 
 const filterEntries = (filter: SelectOption, entries: IOrcidProfileEntry[]) => {
@@ -113,6 +114,8 @@ const filterEntries = (filter: SelectOption, entries: IOrcidProfileEntry[]) => {
       return entries.filter(({ status }) => status === 'pending');
     case 'verified':
       return entries.filter(({ status }) => status === 'verified');
+    case 'rejected':
+      return entries.filter(({ status }) => status === 'rejected');
     default:
       return entries;
   }
