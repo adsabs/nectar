@@ -87,7 +87,7 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    '/((?!api|_next/static|_next/image|favicon|android|site.webmanifest).*)',
+    '/((?!api|_next/static|_next/image|favicon|android|images|mockServiceWorker|site.webmanifest).*)',
     '/api/user',
     '/',
   ],
@@ -106,6 +106,20 @@ const hash = async (str?: string) => {
 };
 
 const bootstrap = async (cookie?: string) => {
+  if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled') {
+    return {
+      token: {
+        access_token: 'mocked',
+        username: 'mocked',
+        anonymous: false,
+        expire_in: 'mocked',
+      },
+      headers: new Headers({
+        'set-cookie': `${process.env.ADS_SESSION_COOKIE_NAME}=mocked`,
+      }),
+    };
+  }
+
   const url = `${process.env.API_HOST_SERVER}${ApiTargets.BOOTSTRAP}`;
   const headers = new Headers();
 

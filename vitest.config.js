@@ -1,12 +1,13 @@
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 import tsconfigPaths from 'vite-tsconfig-paths';
-import { defineConfig } from 'vitest/config';
+import { defaultExclude, defineConfig } from 'vitest/config';
 
 export default defineConfig({
   plugins: [...react(), tsconfigPaths()],
   test: {
     environment: 'jsdom',
+    exclude: [...defaultExclude, '**/e2e/**'],
     setupFiles: ['./vitest-setup.ts'],
     isolate: true,
     threads: true,
@@ -16,9 +17,11 @@ export default defineConfig({
       dir: '.vitest',
     },
     coverage: {
-      provider: 'c8',
+      provider: 'v8',
       reporter: 'lcov',
     },
+  },
+  server: {
     deps: {
       fallbackCJS: true,
     },

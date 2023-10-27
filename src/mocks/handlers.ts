@@ -20,9 +20,11 @@ import { api, authorAffData, highlights_mocks, ids_mocks, ranRange } from './moc
 import { orcidHandlers } from '@mocks/handlers/orcid';
 import { passthroughs } from '@mocks/handlers/passthroughs';
 import { userHandlers } from '@mocks/responses/user/user';
+import { objectsHandlers } from '@mocks/handlers/objects';
 
 export const handlers = [
   ...userHandlers,
+  ...objectsHandlers,
   rest.get(`*${ApiTargets.BOOTSTRAP}`, (req, res, ctx) => {
     const test = req.url.searchParams.get('test');
 

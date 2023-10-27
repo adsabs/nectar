@@ -24,22 +24,16 @@ Run tests:
 pnpm test
 ```
 
+Run integration tests
+
+```bash
+pnpm integration
+```
+
 Run storybook:
 
 ```bash
 pnpm storybook
-```
-
-To run cypress, start the production server in one terminal:
-
-```bash
-pnpm start
-```
-
-And without closing it, open a new terminal and run cypress:
-
-```bash
-pnpm cypress:run
 ```
 
 #### Production build

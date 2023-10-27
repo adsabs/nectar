@@ -1,5 +1,6 @@
 import { AxiosError } from 'axios';
 import {
+  QueryKey,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
   UseMutationOptions,
@@ -8,15 +9,25 @@ import {
   UseQueryResult,
 } from '@tanstack/react-query';
 
-export type ADSQuery<P, T, R = T, A = UseQueryResult<R>> = (
-  props: P,
-  options?: UseQueryOptions<T, Error | AxiosError, R>,
-) => A;
+export type ADSQuery<
+  TProps,
+  TQueryFnData = unknown,
+  TData = TQueryFnData,
+  TResult = UseQueryResult<TData, Error | AxiosError>,
+  TQueryKey extends QueryKey = QueryKey,
+> = (props: TProps, options?: UseQueryOptions<TQueryFnData, Error | AxiosError, TData, TQueryKey>) => TResult;
 
-export type InfiniteADSQuery<P, T, R = T, A = UseInfiniteQueryResult<R>> = (
-  props: P,
-  options?: UseInfiniteQueryOptions<T, Error | AxiosError, R>,
-) => A;
+export type InfiniteADSQuery<
+  TProps,
+  TQueryFnData = unknown,
+  TData = TQueryFnData,
+  TQueryData = TQueryFnData,
+  TResult = UseInfiniteQueryResult<TData, Error | AxiosError>,
+  TQueryKey extends QueryKey = QueryKey,
+> = (
+  props: TProps,
+  options?: UseInfiniteQueryOptions<TQueryFnData, Error | AxiosError, TData, TQueryData, TQueryKey>,
+) => TResult;
 
 export type ADSMutation<
   TData,
