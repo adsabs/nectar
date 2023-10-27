@@ -41,13 +41,13 @@ const makeComponent = (name) => {
 
   if (!fs.existsSync(componentPath)) {
     // create the folder
-    fs.mkdirSync(dir, { recursive: true }, writeFileErrorHandler);
+    fs.mkdirSync(componentPath, { recursive: true }, writeFileErrorHandler);
 
     // component.tsx
-    fs.writeFile(path.join(dir, `${name}.tsx`), component(name), writeFileErrorHandler);
+    fs.writeFile(path.join(componentPath, `${name}.tsx`), component(name), writeFileErrorHandler);
 
     // sub-component barrel
-    fs.writeFile(path.join(dir, `index.ts`), barrel(name), writeFileErrorHandler);
+    fs.writeFile(path.join(componentPath, `index.ts`), barrel(name), writeFileErrorHandler);
 
     // update the components barrel
     fs.appendFile(path.join(base, 'src/components', 'index.ts'), `${barrel(name)}\n`, writeFileErrorHandler);
