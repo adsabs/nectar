@@ -160,7 +160,16 @@ export const SearchInput = forwardRef<Partial<HTMLInputElement>, ISearchInputPro
   }, [input, focus]);
 
   return (
-    <Flex as="section" direction="row" alignItems="center">
+    <Flex
+      as="section"
+      direction="row"
+      alignItems="center"
+      sx={{
+        '&:has(input:focus)': {
+          boxShadow: '0 0 0 3px rgba(66, 153, 225, 0.6)',
+        },
+      }}
+    >
       <Flex as="section" direction="column" flexGrow="1">
         <label style={visuallyHiddenStyle} {...getLabelProps()}>
           Search Database
@@ -203,6 +212,9 @@ export const SearchInput = forwardRef<Partial<HTMLInputElement>, ISearchInputPro
             spellCheck="off"
             autoComplete="off"
             id="primary-search-input"
+            _focus={{
+              boxShadow: '',
+            }}
           />
 
           <InputRightElement>
@@ -255,6 +267,9 @@ export const SearchInput = forwardRef<Partial<HTMLInputElement>, ISearchInputPro
         h="40px"
         borderLeftRadius="none"
         data-testid="searchbar-submit"
+        _focus={{
+          boxShadow: '',
+        }}
         isDisabled={props.isLoading}
       >
         {props.isLoading ? (

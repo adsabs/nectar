@@ -118,7 +118,14 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
   return (
     <ListItem ref={setNodeRef} style={style} my={0} w="64">
       <h2>
-        <HStack spacing={0}>
+        <HStack
+          spacing={0}
+          sx={{
+            '&:has(button:focus)': {
+              border: '3px solid rgba(66, 153, 225, 0.6)',
+            },
+          }}
+        >
           <Button
             w="full"
             variant="outline"
@@ -134,6 +141,9 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
             backgroundColor="white"
             mb="0"
             px="0.5"
+            _focus={{
+              boxShadow: '',
+            }}
           >
             <DragHandleIcon mr="1" color="gray.400" fontSize="md" />
             <Toggler isToggled={isOpen} fontSize="2xl" color="gray.600" />
