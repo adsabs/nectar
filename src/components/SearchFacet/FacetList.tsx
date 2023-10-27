@@ -56,13 +56,13 @@ export const FacetList = (props: IFacetListProps) => {
       <SearchFacetModal onFilter={onFilter}>
         {({ searchTerm }) =>
           focused ? (
-            <NodeListModal onError={onError} level="child" prefix={focused.id} />
+            <NodeListModal onError={onError} level="child" prefix={focused.id} searchTerm={searchTerm} />
           ) : (
-            <NodeListModal onError={onError} level="root" prefix={searchTerm} />
+            <NodeListModal onError={onError} level="root" prefix="" searchTerm={searchTerm} />
           )
         }
       </SearchFacetModal>
-      <NodeList level="root" prefix="" onError={onError} noLoadMore={noLoadMore} />
+      <NodeList level="root" prefix="" onError={onError} noLoadMore={noLoadMore} searchTerm="" />
       <LogicSelect mt="2" onFilter={onFilter} />
     </>
   );
@@ -72,6 +72,7 @@ export interface INodeListProps extends Pick<IUseGetFacetDataProps, 'prefix' | '
   noLoadMore?: boolean;
   onLoadMore?: () => void;
   onError: () => void;
+  searchTerm: string;
 }
 
 export const NodeList = (props: INodeListProps) => {
@@ -138,7 +139,7 @@ export const NodeList = (props: INodeListProps) => {
 };
 
 export const NodeListModal = (props: INodeListProps) => {
-  const { prefix, level, onError } = props;
+  const { prefix, searchTerm, level, onError } = props;
 
   const params = useFacetStore((state) => state.params);
   const sortDir = useFacetStore((state) => state.sort[1]);
@@ -146,6 +147,7 @@ export const NodeListModal = (props: INodeListProps) => {
   const { treeData, isFetching, isError, pagination, handleLoadMore, handlePrevious, handlePageChange, totalResults } =
     useGetFacetData({
       ...params,
+      searchTerm,
       prefix,
       level,
       sortDir,
@@ -284,7 +286,7 @@ export const Item = (props: IItemProps) => {
         </Text>
       </ListItem>
       {expandable && expanded ? (
-        <NodeList prefix={node.val} level="child" onError={onError} onLoadMore={() => setFocused(node)} />
+        <NodeList prefix={node.val} level="child" onError={onError} onLoadMore={() => setFocused(node)} searchTerm="" />
       ) : null}
     </>
   );
@@ -339,10 +341,8 @@ export const NodeCheckbox = forwardRef<HTMLInputElement, INodeCheckboxProps>((pr
     <Checkbox
       {...checkboxProps}
       ref={ref}
-      name={`${label}
-    _checkbox`}
-      aria-label={`
-    select ${label}`}
+      name={`${label}_checkbox`}
+      aria-label={`select ${label}`}
       sx={{
         '.chakra-checkbox__label': { width: '100%', maxWidth: 'auto' },
       }}
@@ -351,8 +351,7 @@ export const NodeCheckbox = forwardRef<HTMLInputElement, INodeCheckboxProps>((pr
       isIndeterminate={isPartSelected}
       onChange={() => select(node)}
       value={node.id}
-      data-testid={`
-    search - facet -${isRoot ? 'root' : 'child'} -checkbox`}
+      data-testid={`search-facet-${isRoot ? 'root' : 'child'}-checkbox`}
       my={0.5}
     >
       <Text as="span" display="inline-flex" justifyContent="space-between" w="full">

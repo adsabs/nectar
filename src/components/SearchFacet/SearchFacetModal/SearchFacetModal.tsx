@@ -71,29 +71,27 @@ const ModalFacet = (props: ISearchFacetModalProps) => {
       </ModalHeader>
       <ModalBody>
         <Flex direction="column" w="full" mb="3">
-          {focused ? null : (
-            <>
-              <Stack spacing={[1, 12]} justify="space-between" alignItems="end" direction={['column', 'row']} mb="4">
-                {sort[0] === 'index' ? (
-                  <Box flex="1" />
-                ) : (
-                  <SearchInput flex="2" search={search} onSearchChange={setSearch} />
-                )}
-                <SortControl sort={sort} onSortChange={setSort} minW="150px" />
-              </Stack>
+          <>
+            <Stack spacing={[1, 12]} justify="space-between" alignItems="end" direction={['column', 'row']} mb="4">
               {sort[0] === 'index' ? (
-                <AlphaSorter
-                  justify="center"
-                  w="full"
-                  mb="2"
-                  px="2"
-                  flexWrap="wrap"
-                  letter={letter}
-                  onLetterChange={setLetter}
-                />
-              ) : null}
-            </>
-          )}
+                <Box flex="1" />
+              ) : (
+                <SearchInput flex="2" search={search} onSearchChange={setSearch} />
+              )}
+              <SortControl sort={sort} onSortChange={setSort} minW="150px" />
+            </Stack>
+            {sort[0] === 'index' ? (
+              <AlphaSorter
+                justify="center"
+                w="full"
+                mb="2"
+                px="2"
+                flexWrap="wrap"
+                letter={letter}
+                onLetterChange={setLetter}
+              />
+            ) : null}
+          </>
           <UnExpandButton />
           {children({ searchTerm })}
         </Flex>
