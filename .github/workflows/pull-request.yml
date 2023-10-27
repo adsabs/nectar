@@ -1,9 +1,9 @@
-name: End-to-end
+name: Pull Request
 
 on: [push, pull_request]
 
 jobs:
-  unit-tests:
+  build-and-lint:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     strategy:
@@ -29,6 +29,33 @@ jobs:
 
       - name: Lint
         run: pnpm lint
+
+      - name: Build
+        run: pnpm build
+
+  unit-tests:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 18 ]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 8
+          run_install: false
+      - uses: actions/cache@v3
+        name: restore/setup pnpm cache
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+      - name: Install dependencies
+        if: steps.pnpm-cache.outputs.cache-hit != 'true'
+        run: pnpm install
 
       - name: Test
         run: pnpm test:coverage
