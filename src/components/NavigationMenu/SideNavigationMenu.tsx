@@ -9,7 +9,7 @@ export interface ISideNavigationMenuProps extends BoxProps {
 }
 
 /**
- * Menu item rendered as as button link
+ * Menu item rendered as button link
  */
 const SideMenuItem = ({ href, hrefAs, label, icon, active = false, disabled = false }: IMenuItemProps) => {
   return (
@@ -28,7 +28,8 @@ const SideMenuItem = ({ href, hrefAs, label, icon, active = false, disabled = fa
         fontSize="normal"
         fontWeight="normal"
         isDisabled={disabled}
-        leftIcon={icon ? cloneElement(icon, { className: 'w-6 h-6', 'aria-hidden': true }) : null}
+        // TODO: do something better here for this ico
+        leftIcon={icon ? cloneElement(icon, { width: '18px', 'aria-hidden': true }) : null}
       >
         {label}
       </Button>
@@ -37,7 +38,7 @@ const SideMenuItem = ({ href, hrefAs, label, icon, active = false, disabled = fa
 };
 
 export const SideNavigationMenu = ({ menuItems, activeItem, ...boxProps }: ISideNavigationMenuProps) => {
-  // categoried menu
+  // categorized menu
   if (!Array.isArray(menuItems)) {
     const catMenuItems = menuItems as unknown as CatMenuItems;
     return (

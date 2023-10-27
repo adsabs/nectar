@@ -12,8 +12,6 @@ import { useRouter } from 'next/router';
 import 'nprogress/nprogress.css';
 import { FC, memo, ReactElement, useEffect } from 'react';
 import { DehydratedState, Hydrate, QueryClientProvider, useQuery } from '@tanstack/react-query';
-import 'tailwindcss/tailwind.css';
-import '../styles/styles.css';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { IronSession } from 'iron-session';
 import axios from 'axios';

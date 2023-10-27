@@ -1,10 +1,13 @@
 import { NextPage } from 'next';
+import { Center, Heading } from '@chakra-ui/react';
 
 const NotImplemented: NextPage = () => {
   return (
-    <section className="bg-grey-lighter flex flex-row items-center justify-center min-h-screen">
-      <h2 className="text-center text-xl">This page is not yet implemented</h2>
-    </section>
+    <Center my="40">
+      <Heading as="h1" size="xl">
+        This page is not yet implemented
+      </Heading>
+    </Center>
   );
 };
 

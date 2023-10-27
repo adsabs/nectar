@@ -77,7 +77,7 @@ const TextChanges = ({ changes, newValue }: { changes: Change[]; newValue: strin
       <br />
       <Text fontWeight="bold">Updated:</Text>
       <Box backgroundColor="gray.50" p={4} mt={2}>
-        <pre className="whitespace-pre-wrap">{newValue}</pre>
+        <pre style={{ whiteSpace: 'pre-wrap' }}>{newValue}</pre>
       </Box>
     </>
   );

@@ -4,7 +4,7 @@ import { MenuDropdown } from '@components/NavBar/MenuDropdown';
 import { useOrcid } from '@lib/orcid/useOrcid';
 import { isBrowser } from '@utils';
 import { OrcidInactiveLogo, OrcidLogo } from '@components';
-import { Flex, HStack, Text } from '@chakra-ui/react';
+import { Flex, HStack, Icon, Text } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import { AppState, useStore } from '@store';
 import { ToggleOffIcon, ToggleOnIcon } from '@components/icons/Toggle';
@@ -77,9 +77,9 @@ const OrcidLabel = (): ReactElement => {
   return (
     <HStack spacing={1} mr={-2}>
       {isBrowser() && active ? (
-        <OrcidLogo className="flex-shrink-0 w-4 h-4" aria-hidden />
+        <Icon as={OrcidLogo} boxSize="4" aria-hidden />
       ) : (
-        <OrcidInactiveLogo className="flex-shrink-0 w-4 h-4" aria-hidden />
+        <Icon as={OrcidInactiveLogo} boxSize="4" aria-hidden />
       )}
       <Text>ORCiD</Text>
     </HStack>

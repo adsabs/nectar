@@ -25,6 +25,7 @@ import { ChangeEvent, ReactElement, useCallback, useEffect, useState } from 'rea
 import shallow from 'zustand/shallow';
 import { IAbstractPreviewProps } from './AbstractPreview';
 import { ItemResourceDropdowns } from './ItemResourceDropdowns';
+import { HideOnPrint } from '@components';
 
 const AbstractPreview = dynamic<IAbstractPreviewProps>(
   () => import('./AbstractPreview').then((mod) => mod.AbstractPreview),
@@ -98,6 +99,7 @@ export const Item = (props: IItemProps): ReactElement => {
   return (
     <Flex direction="row" as="article" border="1px" borderColor="gray.50" mb={1} borderRadius="md">
       <Flex
+        as={HideOnPrint}
         direction="row"
         backgroundColor={isChecked ? 'blue.500' : 'gray.50'}
         justifyContent="center"
@@ -105,7 +107,7 @@ export const Item = (props: IItemProps): ReactElement => {
         mr="2"
         px="2"
         borderLeftRadius="md"
-        className="print-hidden"
+        w="64px"
       >
         <Text
           color={isChecked ? 'white' : 'initial'}
@@ -134,17 +136,17 @@ export const Item = (props: IItemProps): ReactElement => {
         </Flex>
         <Flex direction="column">
           <AuthorList author={author} authorCount={author_count} bibcode={doc.bibcode} />
-          <Text fontSize="xs" mt={0.5}>
+          <Flex fontSize="xs" mt={0.5}>
             {formattedPubDate}
-            {formattedPubDate && pub ? <span className="px-2">·</span> : ''}
+            {formattedPubDate && pub ? <Text px="2">·</Text> : ''}
             <Tooltip label={pub} aria-label="publication tooltip" placement="top">
               <span>{truncatedPub}</span>
             </Tooltip>
-            {cite && (formattedPubDate || pub) ? <span className="px-2">·</span> : null}
+            {cite && (formattedPubDate || pub) ? <Text px="2">·</Text> : null}
             {cite}
             {cite && extraInfo && '; '}
             {extraInfo}
-          </Text>
+          </Flex>
           {showHighlights && <Highlights highlights={highlights} isFetchingHighlights={isFetchingHighlights} />}
           <AbstractPreview bibcode={bibcode} />
         </Flex>
@@ -177,13 +179,13 @@ const Highlights = ({
   }, [highlights]);
 
   return (
-    <Box as="section" aria-label="highlights" className="search-snippets" my={2} data-testid="highlights-section">
+    <Box as="section" aria-label="highlights" fontStyle="italics" my={2} data-testid="highlights-section">
       {isFetchingHighlights || !highlights ? (
         showIndicator && <CircularProgress mt={5} isIndeterminate size="20px" />
       ) : (
         <Fade in={!!highlights}>
           {highlights.length > 0 ? (
-            highlights.map((hl, index) => <Text key={`hl-${index}`} dangerouslySetInnerHTML={{ __html: hl }}></Text>)
+            highlights.map((hl) => <Text key={hl} dangerouslySetInnerHTML={{ __html: hl }}></Text>)
           ) : (
             <Text color="blackAlpha.500">No Highlights</Text>
           )}
