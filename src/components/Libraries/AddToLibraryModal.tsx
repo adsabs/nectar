@@ -117,7 +117,8 @@ export const AddToLibraryModal = ({
         <ModalHeader>
           Add{' '}
           <Text color="green.500" display="inline" fontWeight="bold">
-            {bibcodes ? bibcodes.length : selectedDocs.length !== 0 ? selectedDocs.length : 'all'} paper(s)
+            {bibcodes && selectedDocs ? bibcodes.length : selectedDocs.length !== 0 ? selectedDocs.length : 'all'}{' '}
+            paper(s)
           </Text>{' '}
           to Library
         </ModalHeader>

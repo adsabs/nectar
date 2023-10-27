@@ -39,6 +39,7 @@ import { ReactElement } from 'react';
 import { useGetAbstractDoc } from '@lib';
 import { useRouter } from 'next/router';
 import { FolderPlusIcon } from '@heroicons/react/24/solid';
+import { useSession } from '@lib/useSession';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   () => import('@components/AllAuthorsModal').then((m) => m.AllAuthorsModal),
@@ -64,6 +65,8 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
   const router = useRouter();
 
   const isClient = useIsClient();
+
+  const { isAuthenticated } = useSession();
 
   const doc = useGetAbstractDoc(id);
 
@@ -138,14 +141,16 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
 
             <Flex justifyContent="space-between">
               <AbstractSources doc={doc} />
-              <Tooltip label="add to library">
-                <IconButton
-                  aria-label="Add to library"
-                  icon={<FolderPlusIcon />}
-                  variant="ghost"
-                  onClick={onOpenAddToLibrary}
-                />
-              </Tooltip>
+              {isAuthenticated && (
+                <Tooltip label="add to library">
+                  <IconButton
+                    aria-label="Add to library"
+                    icon={<FolderPlusIcon />}
+                    variant="ghost"
+                    onClick={onOpenAddToLibrary}
+                  />
+                </Tooltip>
+              )}
             </Flex>
             {isNil(doc.abstract) ? (
               <Text>No Abstract</Text>
