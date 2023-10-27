@@ -101,13 +101,21 @@ export interface IADSApiLibraryEditMetaResponse {
 }
 
 // Library operation
+
+/**
+ * @param {LibraryIdentifier[]} libraries - List of secondary libraries to include in the action (optional, based on action)
+ * @param {LibraryOperationAction} action
+ * @param {string} name - name of the new library (must be unique for that user); used only for actions in [union, intersection, difference]
+ * @param {string} description - description of the new library; used only for actions in [union, intersection, difference]
+ * @param {boolean} public -  is the new library public to view; used only for actions in [union, intersection, difference]
+ */
 export interface IADSApiLibraryOperationParams {
   id: LibraryIdentifier;
-  libraries?: LibraryIdentifier[]; // List of secondary libraries to include in the action (optional, based on action)
+  libraries?: LibraryIdentifier[];
   action: LibraryOperationAction;
-  name?: string; // name of the new library (must be unique for that user); used only for actions in [union, intersection, difference]
-  description?: string; // description of the new library; used only for actions in [union, intersection, difference]
-  public?: boolean; // is the new library public to view; used only for actions in [union, intersection, difference]
+  name?: string;
+  description?: string;
+  public?: boolean;
 }
 
 export interface IADSApiLibraryOperationResponse {
@@ -120,7 +128,7 @@ export interface IADSApiLibraryOperationResponse {
 
 export interface IADSApiLibraryDocumentParams {
   id: LibraryIdentifier;
-  bibcode: string[]; // List of bibcodes
+  bibcode: string[];
   action: 'add' | 'remove';
 }
 
@@ -137,8 +145,8 @@ export interface IADSApiLibraryQueryParams {
   action: 'add' | 'remove';
 }
 export interface IADSApiLibraryQueryResponse {
-  number_added: number; // number of documents added
-  valid_bibcode: string[]; // the list of valid bibcodes
+  number_added: number;
+  valid_bibcode: string[];
 }
 
 // Add/remove documents to library using search query
@@ -150,9 +158,9 @@ export interface IADSApiLibraryQueryUpdateParams {
 }
 
 export interface IADSApiLibraryQueryUpdateResponse {
-  number_added: number; // number of documents added (if 'add' is used)
-  number_removed: number; // number of documents removed (if 'remove' is used)
-  valid_bibcode: string[]; // the list of valid bibcodes
+  number_added: number;
+  number_removed: number;
+  valid_bibcode: string[];
 }
 
 // permission
@@ -165,7 +173,7 @@ export interface IADSApiLibraryPermissionResponse extends Array<UserPermission> 
 
 export interface IADSApiLibraryPermissionUpdateParams {
   id: LibraryIdentifier;
-  email: string; // which user
+  email: string;
   permission: { [key in 'read' | 'write' | 'admin']?: boolean };
 }
 
@@ -175,7 +183,7 @@ export interface IADSApiLibraryPermissionUpdateResponse {}
 
 export interface IADSApiLibraryTransferParams {
   id: LibraryIdentifier;
-  email: string; //  e-mail of the user the account should be transfered to
+  email: string;
 }
 
 export interface IADSApiLibraryTransferResponse {}
