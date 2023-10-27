@@ -1,4 +1,4 @@
-import { Button, ButtonProps, forwardRef, HStack, Text, useToast } from '@chakra-ui/react';
+import { Button, ButtonProps, forwardRef, HStack, Icon, Text, useToast } from '@chakra-ui/react';
 import { TOAST_DEFAULTS } from '@components/Orcid/helpers';
 import { useAddWorks } from '@lib/orcid/useAddWorks';
 import { parseAPIError } from '@utils';
@@ -39,7 +39,7 @@ export const AddToOrcidButton = forwardRef<IOrcidActionBtnProps, 'button'>((prop
       {...buttonProps}
     >
       <HStack spacing={1}>
-        <OrcidInactiveLogo className="flex-shrink-0 w-4 h-4" aria-hidden />
+        <Icon as={OrcidInactiveLogo} boxSize={4} aria-hidden />
         <Text fontSize="xs">Claim</Text>
       </HStack>
     </Button>

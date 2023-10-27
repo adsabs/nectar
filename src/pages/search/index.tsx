@@ -33,6 +33,7 @@ import {
 } from '@chakra-ui/react';
 import {
   CustomInfoMessage,
+  HideOnPrint,
   ISearchFacetsProps,
   ItemsSkeleton,
   ListActions,
@@ -46,7 +47,6 @@ import { calculateStartIndex } from '@components/ResultList/Pagination/usePagina
 import { FacetFilters } from '@components/SearchFacet/FacetFilters';
 import { IYearHistogramSliderProps } from '@components/SearchFacet/YearHistogramSlider';
 import { ArrowsInIcon } from '@components/icons/ArrowsIn';
-import { ArrowsOutIcon } from '@components/icons/ArrowsOut';
 import { APP_DEFAULTS } from '@config';
 import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { useIsClient } from 'src/lib';
@@ -62,6 +62,7 @@ import { useRouter } from 'next/router';
 import { last, omit, path } from 'ramda';
 import { FormEventHandler, useEffect, useRef, useState } from 'react';
 import { dehydrate, QueryClient, useQueryClient } from '@tanstack/react-query';
+import { ArrowsOutIcon } from '@components/icons/ArrowsOut';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
   () => import('@components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),
@@ -190,24 +191,25 @@ const SearchPage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>{params.q} | NASA Science Explorer - Search Results</title>
+        <title>{`${params.q} | NASA Science Explorer - Search Results`}</title>
       </Head>
       <Stack direction="column" aria-labelledby="search-form-title" spacing="10" ref={ref}>
-        <Box pt={10}>
-          <form method="get" action="/search" onSubmit={handleOnSubmit} className="print-hidden">
+        <HideOnPrint pt={10}>
+          <form method="get" action="/search" onSubmit={handleOnSubmit}>
             <Flex direction="column" width="full">
               <SearchBar isLoading={isLoading} />
               <NumFound count={data?.numFound} isLoading={isLoading} />
             </Flex>
             <FacetFilters mt="2" />
           </form>
-        </Box>
+        </HideOnPrint>
         {/* if histogram is expanded, show it below the search bar, otherwise it should be part of the facets */}
         {!isPrint && isClient && (!data || data.docs.length > 0) && histogramExpanded && (
           <Box position="relative" aria-label="Year Histogram">
             <IconButton
               aria-label="expand"
-              icon={<ArrowsInIcon />}
+              size="xs"
+              icon={<Icon as={ArrowsInIcon} fontSize="xl" />}
               position="absolute"
               top={0}
               left={0}
@@ -334,7 +336,8 @@ const SearchFacetFilters = (props: {
               <IconButton
                 aria-label="expand"
                 position="absolute"
-                icon={<ArrowsOutIcon />}
+                size="xs"
+                icon={<Icon as={ArrowsOutIcon} fontSize="xl" />}
                 top={0}
                 left={0}
                 colorScheme="gray"

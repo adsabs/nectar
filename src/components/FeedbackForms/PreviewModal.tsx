@@ -72,12 +72,12 @@ export const PreviewModal = (props: IPreviewProps) => {
           <Flex direction="column" gap={4}>
             <Text fontWeight="semibold">Submitter:</Text>
             <Box border="1px" borderColor="gray.100" backgroundColor="gray.50" p={4}>
-              <pre className="whitespace-pre-wrap">{submitterInfo}</pre>
+              <pre style={{ whiteSpace: 'pre-wrap' }}>{submitterInfo}</pre>
             </Box>
             <Text fontWeight="semibold">{mainContentTitle}:</Text>
             {typeof mainContent === 'string' ? (
               <Box border="1px" borderColor="gray.100" backgroundColor="gray.50" p={4}>
-                <pre className="whitespace-pre-wrap">{mainContent}</pre>
+                <pre style={{ whiteSpace: 'pre-wrap' }}>{mainContent}</pre>
               </Box>
             ) : (
               <>{mainContent}</>

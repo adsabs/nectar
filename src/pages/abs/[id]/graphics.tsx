@@ -59,13 +59,7 @@ const GraphicsPage: NextPage<IGraphicsPageProps> = (props: IGraphicsPageProps) =
                 >
                   <NextLink href={figure.images[0].highres} passHref legacyBehavior>
                     <Link target="_blank" rel="noreferrer noopener">
-                      <NextImage
-                        src={figure.images[0].thumbnail}
-                        width="150"
-                        height="150"
-                        className="p-5"
-                        alt={figure.figure_label}
-                      />
+                      <NextImage src={figure.images[0].thumbnail} width="150" height="150" alt={figure.figure_label} />
                     </Link>
                   </NextLink>
                   <Box aria-hidden="true">{figure.figure_label}</Box>

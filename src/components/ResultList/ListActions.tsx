@@ -14,6 +14,7 @@ import {
   MenuOptionGroup,
   Portal,
   Stack,
+  Text,
   useToast,
   VisuallyHidden,
 } from '@chakra-ui/react';
@@ -140,9 +141,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
             <SelectAllCheckbox />
             {!noneSelected && (
               <>
-                <span className="m-2 h-5 text-sm" data-testid="listactions-selected">
-                  {selected.length.toLocaleString()} Selected
-                </span>
+                <Text data-testid="listactions-selected">{selected.length.toLocaleString()} Selected</Text>
                 <Button variant="link" fontWeight="normal" onClick={clearSelected} data-testid="listactions-clearall">
                   Clear All
                 </Button>

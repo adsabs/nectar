@@ -1,4 +1,4 @@
-import { Box, Flex, Text } from '@chakra-ui/react';
+import { Box, Flex, VisuallyHidden } from '@chakra-ui/react';
 import { ISearchExamplesProps, SearchBar, SearchExamplesPlaceholder } from '@components';
 import { useStore, useStoreApi } from '@store';
 import { makeSearchParams } from '@utils';
@@ -47,9 +47,9 @@ const HomePage: NextPage = () => {
   return (
     <Box aria-labelledby="form-title" my={8}>
       <form method="get" action="/search" onSubmit={handleOnSubmit}>
-        <Text as="h2" className="sr-only" id="form-title">
+        <VisuallyHidden as="h2" id="form-title">
           Modern Search Form
-        </Text>
+        </VisuallyHidden>
         <Flex direction="column">
           <Box my={2}>
             <SearchBar ref={input} isLoading={isLoading} />

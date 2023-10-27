@@ -109,7 +109,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
   const simpleFullSourceItemsLabel = (
     <IconButton
       aria-label={fullSourceItems.length > 0 ? 'Full text sources' : 'No full text sources'}
-      icon={<DocumentTextIcon className="default-icon" />}
+      icon={<DocumentTextIcon />}
       isDisabled={fullSourceItems.length === 0}
       variant="link"
       size="xs"
@@ -119,7 +119,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
   const simpleRefItemsLabel = (
     <IconButton
       aria-label={referenceItems.length > 0 ? 'References and citations' : 'No references and citations'}
-      icon={<Bars4Icon className="default-icon" />}
+      icon={<Bars4Icon />}
       isDisabled={referenceItems.length === 0}
       variant="link"
       size="xs"
@@ -129,7 +129,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
   const simpleDataItemsLabel = (
     <IconButton
       aria-label={dataProductItems.length > 0 ? 'Data products' : 'No data products'}
-      icon={<CircleStackIcon className="default-icon" />}
+      icon={<CircleStackIcon />}
       isDisabled={dataProductItems.length === 0}
       variant="link"
       size="xs"
@@ -146,7 +146,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
           <MenuButton
             as={IconButton}
             aria-label={fullSourceItems.length > 0 ? 'Full text sources' : 'No full text sources'}
-            icon={<DocumentTextIcon className="default-icon" />}
+            icon={<DocumentTextIcon />}
             isDisabled={fullSourceItems.length === 0}
             variant="link"
             size="xs"
@@ -182,7 +182,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
           <MenuButton
             as={IconButton}
             aria-label={referenceItems.length > 0 ? 'References and citations' : 'No references and citations'}
-            icon={<Bars4Icon className="default-icon" />}
+            icon={<Bars4Icon />}
             isDisabled={referenceItems.length === 0}
             variant="link"
             size="xs"
@@ -218,7 +218,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
           <MenuButton
             as={IconButton}
             aria-label={dataProductItems.length > 0 ? 'Data products' : 'No data products'}
-            icon={<CircleStackIcon className="default-icon" />}
+            icon={<CircleStackIcon />}
             isDisabled={dataProductItems.length === 0}
             variant="link"
             size="xs"

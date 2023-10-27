@@ -1,4 +1,4 @@
-import { Box, Flex, Heading, HStack, Link } from '@chakra-ui/react';
+import { Box, Flex, Heading, HStack, Icon, Link } from '@chakra-ui/react';
 import { AdsSmallLogo } from '@components/images';
 import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
@@ -18,7 +18,7 @@ export const NavBar: FC = () => {
           <NextLink href="/" passHref legacyBehavior>
             <Link _hover={{ textDecoration: 'none' }}>
               <HStack cursor="pointer" spacing={1}>
-                <AdsSmallLogo className="w-10 h-10" aria-hidden />
+                <Icon as={AdsSmallLogo} boxSize={10} color="gray.50" />
                 <Heading
                   as="h1"
                   size="lg"

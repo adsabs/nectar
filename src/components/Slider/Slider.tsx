@@ -155,7 +155,7 @@ export const Slider = ({
             )
           }
         </Handles>
-        <Tracks right={false} left={isSingleValue ? true : false}>
+        <Tracks right={false} left={isSingleValue}>
           {({ tracks, getTrackProps }) => (
             <Box as="div" className="slider-tracks">
               {tracks.map(({ id, source, target }) => (

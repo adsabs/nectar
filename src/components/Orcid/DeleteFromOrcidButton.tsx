@@ -1,4 +1,4 @@
-import { Button, ButtonProps, forwardRef, HStack, Text, useToast } from '@chakra-ui/react';
+import { Button, ButtonProps, forwardRef, HStack, Icon, Text, useToast } from '@chakra-ui/react';
 import { TOAST_DEFAULTS } from '@components/Orcid/helpers';
 import { useRemoveWorks } from '@lib/orcid/useRemoveWorks';
 import { parseAPIError } from '@utils';
@@ -42,7 +42,7 @@ export const DeleteFromOrcidButton = forwardRef<IOrcidActionBtnProps, 'button'>(
       {...buttonProps}
     >
       <HStack spacing={1}>
-        <OrcidLogo className="flex-shrink-0 w-4 h-4" aria-hidden />
+        <Icon as={OrcidLogo} boxSize="4" aria-hidden />
         <Text fontSize="xs">Delete Claim</Text>
       </HStack>
     </Button>
