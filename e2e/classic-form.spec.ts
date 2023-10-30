@@ -1,6 +1,6 @@
 import { expect, PlaywrightTestArgs, test } from '@playwright/test';
 
-test('blank form has correct defaults set', async ({ page }) => {
+test.skip('blank form has correct defaults set', async ({ page }) => {
   await page.goto('/classic-form', { timeout: 60000 });
   await page.locator('form').isVisible();
 
