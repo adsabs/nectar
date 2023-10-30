@@ -185,7 +185,20 @@ const Highlights = ({
       ) : (
         <Fade in={!!highlights}>
           {highlights.length > 0 ? (
-            highlights.map((hl) => <Text key={hl} dangerouslySetInnerHTML={{ __html: hl }}></Text>)
+            highlights.map((hl) => (
+              <Text
+                sx={{
+                  // Apply a style to the <em> tag, which is included in the highlight string
+                  '& em': {
+                    backgroundColor: 'rgba(219, 234, 254)',
+                    padding: 'var(--chakra-space-1)',
+                    fontWeight: 'bold',
+                  },
+                }}
+                key={hl}
+                dangerouslySetInnerHTML={{ __html: hl }}
+              ></Text>
+            ))
           ) : (
             <Text color="blackAlpha.500">No Highlights</Text>
           )}
