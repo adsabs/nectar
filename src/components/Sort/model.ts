@@ -7,7 +7,7 @@ export interface ISortDescriptor {
 }
 
 export const sortValues: ISortDescriptor[] = [
-  { id: 'score', text: 'Score', desc: 'sort by the relative score' },
+  { id: 'score', text: 'Relevance', desc: 'sort by the relative score' },
   { id: 'date', text: 'Date', desc: 'sort by publication date' },
   {
     id: 'author_count',
