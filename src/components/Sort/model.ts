@@ -14,16 +14,10 @@ export const sortValues: ISortDescriptor[] = [
     text: 'Author Count',
     desc: 'sort by number of authors',
   },
-  { id: 'bibcode', text: 'Bibcode', desc: 'sort by bibcode' },
   {
     id: 'citation_count',
     text: 'Citation Count',
     desc: 'sort by number of citations',
-  },
-  {
-    id: 'classic_factor',
-    text: 'Classic Factor',
-    desc: 'sort using classical score',
   },
   {
     id: 'entry_date',

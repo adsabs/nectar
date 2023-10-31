@@ -130,12 +130,12 @@ describe('Classic Form Query Handling', () => {
       logic_abstract_keywords: 'and',
       property: ['refereed-only', 'articles-only'],
       bibstems: 'PhRvL,-Apj',
-      sort: ['date desc', 'bibcode desc'],
+      sort: ['score desc', 'date desc'],
     };
     const result = new URLSearchParams(getSearchQuery(state));
     expect(result.get('q')).toBe(
       `collection:(astronomy physics) pubdate:[2020-12 TO 2022-01] author:("Smith, A" "Jones, B" ="Jones, Bob") object:(IRAS HIP) property:(refereed article) title:("Black Hole" -"Milky Way" -star) abs:("Event Horizon" Singularity) bibstem:(PhRvL) -bibstem:(Apj)`,
     );
-    expect(result.getAll('sort')).toStrictEqual(['date desc', 'bibcode desc']);
+    expect(result.getAll('sort')).toStrictEqual(['score desc', 'date desc']);
   });
 });

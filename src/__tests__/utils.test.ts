@@ -27,8 +27,8 @@ describe('normalizeSolrSort', () => {
     ['empty array', [[]], defaultReturn],
     [
       'valid string',
-      ['citation_count desc,classic_factor asc'],
-      ['citation_count desc', 'classic_factor asc', defaultSortPostfix],
+      ['citation_count desc,read_count asc'],
+      ['citation_count desc', 'read_count asc', defaultSortPostfix],
     ],
     ['garbage string', [['lksjdf;sldjfk;,sldfj,jksdlf,kd']], defaultReturn],
     [
