@@ -3,6 +3,9 @@ import { ChevronDownIcon } from '@chakra-ui/icons';
 import {
   Button,
   Checkbox,
+  Flex,
+  FormControl,
+  FormLabel,
   Menu,
   MenuButton,
   MenuDivider,
@@ -14,6 +17,7 @@ import {
   MenuOptionGroup,
   Portal,
   Stack,
+  Switch,
   Text,
   useToast,
   VisuallyHidden,
@@ -25,7 +29,7 @@ import { makeSearchParams, noop, parseQueryFromUrl } from '@utils';
 import { useRouter } from 'next/router';
 import { curryN, values } from 'ramda';
 import { isNonEmptyString } from 'ramda-adjunct';
-import { MouseEventHandler, ReactElement, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, MouseEventHandler, ReactElement, useCallback, useEffect, useState } from 'react';
 import { SecondOrderOpsLinks } from './SecondOrderOpsLinks';
 import { BulkClaimMenuItem, BulkDeleteMenuItem } from '@components/Orcid';
 import { useOrcid } from '@lib/orcid/useOrcid';
@@ -110,9 +114,9 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const handleOpsLink = useCallback((name: Operator) => () => handleOperationsLink(name), []);
 
   return (
-    <Stack
+    <Flex
       direction="column"
-      spacing={1}
+      gap={1}
       mb={1}
       as="section"
       aria-labelledby="result-actions-title"
@@ -121,10 +125,15 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
       <VisuallyHidden as="h2" id="result-actions-title">
         Result Actions
       </VisuallyHidden>
-      <Stack direction={{ base: 'column', sm: 'row' }} spacing={1} width="min-content">
-        {isClient && <HighlightsToggle />}
+      <Flex
+        direction={{ base: 'column', sm: 'row' }}
+        justifyContent={{ base: 'start', sm: 'space-between' }}
+        width="full"
+        gap={1}
+      >
         <SortWrapper onChange={onSortChange} />
-      </Stack>
+        {isClient && <HighlightsToggle />}
+      </Flex>
       {isClient && (
         <Stack
           direction={{ base: 'column', md: 'row' }}
@@ -222,7 +231,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
           </Stack>
         </Stack>
       )}
-    </Stack>
+    </Flex>
   );
 };
 
@@ -242,15 +251,12 @@ const HighlightsToggle = () => {
   const toggleShowHighlights = useStore((state) => state.toggleShowHighlights);
 
   return (
-    <Button
-      variant={showHighlights ? 'solid' : 'outline'}
-      onClick={toggleShowHighlights}
-      size="md"
-      borderRadius="2px"
-      data-testid="listactions-showhighlights"
-    >
-      Show Highlights
-    </Button>
+    <FormControl display="flex" alignItems="center" width="fit-content">
+      <FormLabel htmlFor="show-highlights" mb="0">
+        Show Highlights?
+      </FormLabel>
+      <Switch id="show-highlights" isChecked={showHighlights} onChange={toggleShowHighlights} />
+    </FormControl>
   );
 };
 
