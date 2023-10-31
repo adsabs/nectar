@@ -4,6 +4,8 @@
 
 #### Dependencies
 
+Install `pnpm` and [the current long term support version of nodejs](https://github.com/nodejs/Release). If you want `pnpm` to manage `node` versions for you, use the standalone installer script.
+
 Install the project dependencies:
 
 ```bash
@@ -12,7 +14,18 @@ pnpm install
 
 #### Development
 
-Start the development server:
+Be sure to set the following environment variables prior to starting the development server:
+- `COOKIE_SECRET`, should be at least 32 characters long
+- `ADS_SESSION_COOKIE_NAME`
+- `SCIX_SESSION_COOKIE_NAME`
+
+Then you can start the development server with mock API endpoints:
+
+```bash
+pnpm dev:mocks
+```
+
+Or, run the development server against live APIs:
 
 ```bash
 pnpm dev
