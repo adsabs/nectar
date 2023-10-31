@@ -7,6 +7,8 @@ export interface ISortDescriptor {
 }
 
 export const sortValues: ISortDescriptor[] = [
+  { id: 'score', text: 'Score', desc: 'sort by the relative score' },
+  { id: 'date', text: 'Date', desc: 'sort by publication date' },
   {
     id: 'author_count',
     text: 'Author Count',
@@ -19,26 +21,24 @@ export const sortValues: ISortDescriptor[] = [
     desc: 'sort by number of citations',
   },
   {
-    id: 'citation_count_norm',
-    text: 'Normalized Citation Count',
-    desc: 'sort by number of normalized citations',
-  },
-  {
     id: 'classic_factor',
     text: 'Classic Factor',
     desc: 'sort using classical score',
+  },
+  {
+    id: 'entry_date',
+    text: 'Entry Date',
+    desc: 'sort by date work entered the database',
   },
   {
     id: 'first_author',
     text: 'First Author',
     desc: 'sort by first author',
   },
-  { id: 'date', text: 'Date', desc: 'sort by publication date' },
   {
-    id: 'entry_date',
-    text: 'Entry Date',
-    desc: 'sort by date work entered the database',
+    id: 'citation_count_norm',
+    text: 'Normalized Citation Count',
+    desc: 'sort by number of normalized citations',
   },
   { id: 'read_count', text: 'Read Count', desc: 'sort by number of reads' },
-  { id: 'score', text: 'Score', desc: 'sort by the relative score' },
 ];
