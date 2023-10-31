@@ -1,4 +1,5 @@
 import { ExportApiFormatKey, IExportApiParams } from '@api';
+import { APP_DEFAULTS } from '@config';
 import { composeStories } from '@storybook/testing-react';
 import { render, waitFor } from '@test-utils';
 import userEvent from '@testing-library/user-event';
@@ -28,7 +29,7 @@ const checkOutput = (
   const defaultParams: Omit<IExportApiParams, 'bibcode'> & { numRecords: number } = {
     numRecords: 1,
     format: ExportApiFormatKey.bibtex,
-    sort: ['date desc', 'bibcode desc'],
+    sort: APP_DEFAULTS.SORT,
     keyformat: ['%R'],
     authorcutoff: [200],
     journalformat: [1],

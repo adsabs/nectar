@@ -128,7 +128,7 @@ export const AllAuthorsModal = ({ bibcode, label }: IAllAuthorsModalProps): Reac
 };
 
 const createQuery = (type: 'author' | 'orcid', value: string): IADSApiSearchParams => {
-  return { q: `${type}:"${value}"`, sort: ['date desc'] };
+  return { q: `${type}:"${value}"`, sort: ['score desc'] };
 };
 
 const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchClear: () => void }>(

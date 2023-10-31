@@ -34,6 +34,7 @@ import { FormEventHandler, useCallback } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { useErrorMessage } from '@lib/useErrorMessage';
+import { APP_DEFAULTS } from '@config';
 
 enum PaperFormType {
   JOURNAL_QUERY = 'journal-query',
@@ -398,7 +399,7 @@ const createQuery = pipe<
 const stringifyQuery = (q: string) => {
   return stringifySearchParams({
     q,
-    sort: ['date desc', 'bibcode desc'],
+    sort: APP_DEFAULTS.SORT,
     p: 1,
   });
 };
