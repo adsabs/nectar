@@ -1,8 +1,10 @@
 import { IDocsEntity } from '@api';
 import { Flex, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
+import { IAuthor } from '@components/FeedbackForms';
 import { Item } from '@components/ResultList/Item';
 import { ILineGraph } from '@components/Visualizations/types';
-import { ReactElement, useEffect, useState } from 'react';
+import { equals } from 'ramda';
+import { memo, ReactElement, useEffect, useRef, useState } from 'react';
 import { NodeDetailPane } from './NodeDetailsPane';
 import { SummaryPane } from './SummaryPane';
 
@@ -34,9 +36,15 @@ export const AuthorNetworkDetailsPane = ({
 }: AuthorNetworkDetailsProps): ReactElement => {
   const [tabIndex, setTabIndex] = useState(0);
 
+  // prevent tab switching during re-render
+  const prevNode = useRef<IAuthorNetworkNodeDetails>(null);
+
   // when selected node changes, change tab to node details
   useEffect(() => {
-    setTabIndex(node ? 1 : 0);
+    if (!equals(node, prevNode.current)) {
+      setTabIndex(node ? 1 : 0);
+      prevNode.current = node;
+    }
   }, [node]);
 
   const handleTabIndexChange = (index: number) => {
