@@ -24,11 +24,11 @@ const CitationsPage: NextPage<ICitationsPageProps> = (props: ICitationsPageProps
   const { id, error } = props;
 
   const doc = useGetAbstractDoc(id);
-  const { getParams, onPageChange } = useGetAbstractParams(doc.bibcode);
+  const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode);
 
   // get the primary response from server (or cache)
   const { data, isSuccess } = useGetCitations(getParams(), { keepPreviousData: true });
-  const citationsParams = getCitationsParams(doc.bibcode, 0);
+  const citationsParams = getCitationsParams(doc?.bibcode, 0);
   const title = unwrapStringValue(doc?.title);
 
   return (
