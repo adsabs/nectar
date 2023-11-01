@@ -28,6 +28,7 @@
     "@dnd-kit/core": "^6.0.5",
     "@dnd-kit/sortable": "^7.0.1",
     "@dnd-kit/utilities": "^3.2.1",
+    "@elgorditosalsero/react-gtm-hook": "^2.7.2",
     "@emotion/react": "11.8.2",
     "@emotion/styled": "^11.6.0",
     "@heroicons/react": "^2.0.16",
