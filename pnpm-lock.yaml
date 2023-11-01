@@ -26,6 +26,9 @@ importers:
       '@dnd-kit/utilities':
         specifier: ^3.2.1
         version: 3.2.1(react@18.2.0)
+      '@elgorditosalsero/react-gtm-hook':
+        specifier: ^2.7.2
+        version: 2.7.2(react@18.2.0)
       '@emotion/react':
         specifier: 11.8.2
         version: 11.8.2(@babel/core@7.22.10)(@types/react@17.0.43)(react@18.2.0)
@@ -3202,6 +3205,15 @@ packages:
     dependencies:
       react: 18.2.0
       tslib: 2.5.0
+    dev: false
+
+  /@elgorditosalsero/react-gtm-hook@2.7.2(react@18.2.0):
+    resolution: {integrity: sha512-5lGZOk7BcWTdz2pqu2sa/IyAtuTItCCZuEGUthnlJgpWKvVGrzVyhIOVj1/ed575jusaMIr+yIfeZ11WzH2QqQ==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      react: ^16.13.1 || ^17.0.0 || 18
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /@emotion/babel-plugin@11.10.5(@babel/core@7.22.10):

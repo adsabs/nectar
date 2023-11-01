@@ -20,6 +20,7 @@ import { isNilOrEmpty, notEqual } from 'ramda-adjunct';
 import { useUser } from '@lib/useUser';
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import '../styles/styles.css';
+import { GTMProvider } from '@elgorditosalsero/react-gtm-hook';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
   require('../mocks');
@@ -55,18 +56,20 @@ const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => 
   const createStore = useCreateStore(pageProps.dehydratedAppState ?? {});
 
   return (
-    <GoogleReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? ''}>
-      <MathJaxProvider>
-        <ChakraProvider theme={theme}>
-          <StoreProvider createStore={createStore}>
-            <QCProvider>
-              <Hydrate state={pageProps.dehydratedState}>{children}</Hydrate>
-              <ReactQueryDevtools />
-            </QCProvider>
-          </StoreProvider>
-        </ChakraProvider>
-      </MathJaxProvider>
-    </GoogleReCaptchaProvider>
+    <GTMProvider state={{ id: process.env.NEXT_PUBLIC_GTM_ID }}>
+      <GoogleReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? ''}>
+        <MathJaxProvider>
+          <ChakraProvider theme={theme}>
+            <StoreProvider createStore={createStore}>
+              <QCProvider>
+                <Hydrate state={pageProps.dehydratedState}>{children}</Hydrate>
+                <ReactQueryDevtools />
+              </QCProvider>
+            </StoreProvider>
+          </ChakraProvider>
+        </MathJaxProvider>
+      </GoogleReCaptchaProvider>
+    </GTMProvider>
   );
 };
 
