@@ -4,16 +4,23 @@ import { ReactElement, useEffect } from 'react';
 
 export interface ICopyButtonProps extends ButtonProps {
   text: string;
+  onCopyComplete?: () => void;
   options?: UseClipboardOptions;
 }
 
 export const SimpleCopyButton = (props: ICopyButtonProps): ReactElement => {
-  const { text, options, ...rest } = props;
+  const { text, options, onCopyComplete, ...rest } = props;
   const { hasCopied, onCopy, setValue } = useClipboard(text, options);
 
   useEffect(() => {
     setValue(text);
   }, [text]);
+
+  useEffect(() => {
+    if (hasCopied) {
+      onCopyComplete?.();
+    }
+  }, [hasCopied]);
 
   return (
     <>
@@ -29,12 +36,18 @@ export const SimpleCopyButton = (props: ICopyButtonProps): ReactElement => {
 };
 
 export const LabeledCopyButton = (props: ICopyButtonProps & { label: string }): ReactElement => {
-  const { label, text, options, ...rest } = props;
+  const { label, text, options, onCopyComplete, ...rest } = props;
   const { hasCopied, onCopy, setValue } = useClipboard(text, options);
 
   useEffect(() => {
     setValue(text);
   }, [text]);
+
+  useEffect(() => {
+    if (hasCopied) {
+      onCopyComplete?.();
+    }
+  }, [hasCopied]);
 
   return (
     <>
