@@ -250,7 +250,7 @@ const AddToNewLibraryPane = ({
         <Flex direction="column" gap={2}>
           <FormControl isRequired isInvalid={!!errors?.name}>
             <FormLabel>Enter a name for the new library: </FormLabel>
-            <Input {...register('name')} />
+            <Input {...register('name')} autoFocus />
             <FormErrorMessage>{errors?.name && errors.name.message}</FormErrorMessage>
           </FormControl>
           <FormControl>
