@@ -29,6 +29,7 @@ import {
   Button,
   useBreakpoint,
   Box,
+  IconButton,
 } from '@chakra-ui/react';
 import { ControlledPaginationControls } from '@components';
 import { CustomInfoMessage } from '@components/Feedbacks';
@@ -240,11 +241,25 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                       <Td>
                         {isPublic ? (
                           <Tooltip label="Public">
-                            <UnlockIcon color="green.500" aria-label="public" />
+                            <IconButton
+                              icon={<LockIcon />}
+                              color="green.500"
+                              aria-label="public"
+                              variant="ghost"
+                              w={3}
+                              h={3}
+                            />
                           </Tooltip>
                         ) : (
                           <Tooltip label="Private">
-                            <LockIcon aria-label="private" />
+                            <IconButton
+                              icon={<UnlockIcon />}
+                              color="gray.600"
+                              aria-label="private"
+                              variant="ghost"
+                              w={3}
+                              h={3}
+                            />
                           </Tooltip>
                         )}
                       </Td>
@@ -253,11 +268,25 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                       <Td>
                         {num_users === 1 ? (
                           <Tooltip label="No collaborators">
-                            <Icon as={UserIcon} aria-label="no collaborators" w={4} h={4} />
+                            <IconButton
+                              as={UserIcon}
+                              aria-label="no collaborators"
+                              color="gray.600"
+                              w={4}
+                              h={4}
+                              variant="ghost"
+                            />
                           </Tooltip>
                         ) : (
                           <Tooltip label={`${num_users} collaborators`}>
-                            <Icon as={UserGroupIcon} aria-label="has collaborators" color="green.500" w={4} h={4} />
+                            <IconButton
+                              as={UserGroupIcon}
+                              aria-label="has collaborators"
+                              color="green.500"
+                              w={4}
+                              h={4}
+                              variant="ghost"
+                            />
                           </Tooltip>
                         )}
                       </Td>
