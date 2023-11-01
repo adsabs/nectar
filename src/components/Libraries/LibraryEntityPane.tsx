@@ -42,7 +42,7 @@ export interface ILibraryEntityPaneProps {
   onRefetch?: () => void;
 }
 
-export const LibraryEntityPane = memo(({ library, publicView, onRefetch = noop }: ILibraryEntityPaneProps) => {
+export const LibraryEntityPane = ({ library, publicView, onRefetch = noop }: ILibraryEntityPaneProps) => {
   const pageSize = useStore((state: AppState) => state.numPerPage);
 
   const setPageSize = useStore((state: AppState) => state.setNumPerPage);
@@ -72,9 +72,6 @@ export const LibraryEntityPane = memo(({ library, publicView, onRefetch = noop }
 
   const isMobile = ['base', 'xs', 'sm'].includes(breakpoint, 0);
 
-  // This was added to prevent the table double repaint flashing between loading lib entity and fetching documents
-  const [isLoadingDocs, setIsLoadingDocs] = useState(true);
-
   const {
     id,
     name,
@@ -93,14 +90,14 @@ export const LibraryEntityPane = memo(({ library, publicView, onRefetch = noop }
       rows: pageSize,
       sort: sort,
     },
-    { enabled: isLoadingDocs, cacheTime: 0, staleTime: 0 },
+    { cacheTime: 0, staleTime: 0 },
   );
 
   const { numFound } = library.solr.response;
 
   const canWrite = ['owner', 'admin', 'write'].includes(library?.metadata.permission);
 
-  const { mutate: fetchDocuments, error: errorFetchingDocs } = useBigQuerySearch();
+  const { mutate: fetchDocuments, isLoading: isLoadingDocs, error: errorFetchingDocs } = useBigQuerySearch();
 
   useEffect(() => {
     if (documents?.documents) {
@@ -111,7 +108,6 @@ export const LibraryEntityPane = memo(({ library, publicView, onRefetch = noop }
             if (data) {
               setDocs(data.docs);
             }
-            setIsLoadingDocs(false);
           },
         },
       );
@@ -126,28 +122,23 @@ export const LibraryEntityPane = memo(({ library, publicView, onRefetch = noop }
 
   const handleNextPage = () => {
     setOnPage((prev) => prev + 1);
-    setIsLoadingDocs(true);
   };
 
   const handlePrevPage = () => {
     setOnPage((prev) => prev - 1);
-    setIsLoadingDocs(true);
   };
 
   const handlePageSelect = (page: number) => {
     setOnPage(page);
-    setIsLoadingDocs(true);
   };
 
   const handlePerPageSelect = (perPage: NumPerPageType) => {
     setOnPage(0);
     setPageSize(perPage);
-    setIsLoadingDocs(true);
   };
 
   const handleChangeSort = (sort: SolrSort[]) => {
     setSort(sort);
-    setIsLoadingDocs(true);
   };
 
   const handleSelectDoc = (bibcode: string, checked: boolean) => {
@@ -190,7 +181,6 @@ export const LibraryEntityPane = memo(({ library, publicView, onRefetch = noop }
             // reset
             setOnPage(0);
             setSelected([]);
-            setIsLoadingDocs(true);
             onRefetch();
           }
         },
@@ -287,16 +277,18 @@ export const LibraryEntityPane = memo(({ library, publicView, onRefetch = noop }
             </SearchQueryLink>
           </Flex>
 
-          {canWrite && !publicView && !isLoadingDocs && (
-            <BulkAction
-              isAllSelected={isAllSelected}
-              isSomeSelected={isSomeSelected}
-              onSelectAllCurrent={handleSelectAllCurrent}
-              onClearAllCurrent={handleClearAllCurrent}
-              onClearAll={handleClearAll}
-              selectedCount={selected.length}
-              onDeleteSelected={handleDeleteFromLibrary}
-            />
+          {canWrite && !publicView && (
+            <Box style={isLoadingDocs ? { pointerEvents: 'none' } : { pointerEvents: 'auto' }} w="full">
+              <BulkAction
+                isAllSelected={isAllSelected}
+                isSomeSelected={isSomeSelected}
+                onSelectAllCurrent={handleSelectAllCurrent}
+                onClearAllCurrent={handleClearAllCurrent}
+                onClearAll={handleClearAll}
+                selectedCount={selected.length}
+                onDeleteSelected={handleDeleteFromLibrary}
+              />
+            </Box>
           )}
 
           {!isLoadingDocs ? (
@@ -327,7 +319,7 @@ export const LibraryEntityPane = memo(({ library, publicView, onRefetch = noop }
       )}
     </Box>
   );
-});
+};
 
 const BulkAction = ({
   isAllSelected,

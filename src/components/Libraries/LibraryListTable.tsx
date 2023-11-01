@@ -171,7 +171,9 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
 
   return (
     <>
-      {libraries?.length === 0 ? (
+      {!libraries ? (
+        <CustomInfoMessage status="error" title="Unable to load libraries" />
+      ) : libraries.length === 0 ? (
         <CustomInfoMessage status="info" title="No libraries found" />
       ) : (
         <Box my={4}>
@@ -215,7 +217,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
               </Tr>
             </Thead>
             <Tbody>
-              {libraries.map(
+              {libraries?.map(
                 (
                   {
                     id,
