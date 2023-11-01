@@ -5,8 +5,8 @@ import {
   useGetLibraries,
   useLibraryOperation,
 } from '@api';
-import { AddIcon, Icon, RepeatIcon } from '@chakra-ui/icons';
-import { Box, Button, Flex, Heading, IconButton, Stack, useDisclosure, useToast } from '@chakra-ui/react';
+import { AddIcon, Icon } from '@chakra-ui/icons';
+import { Box, Button, Flex, Heading, Stack, useDisclosure, useToast } from '@chakra-ui/react';
 import { WrenchIcon } from '@heroicons/react/24/solid';
 import { AppState, useStore } from '@store';
 import { NumPerPageType } from '@types';

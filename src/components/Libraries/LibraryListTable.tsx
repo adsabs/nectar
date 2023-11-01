@@ -9,7 +9,6 @@ import {
   UpDownIcon,
 } from '@chakra-ui/icons';
 import {
-  Icon,
   Table,
   TableProps,
   Tbody,
@@ -36,6 +35,7 @@ import { CustomInfoMessage } from '@components/Feedbacks';
 import { UserGroupIcon, UserIcon } from '@heroicons/react/24/solid';
 import { NumPerPageType } from '@types';
 import { noop, parseAPIError } from '@utils';
+import { intlFormat, intlFormatDistance } from 'date-fns';
 import { useRouter } from 'next/router';
 import { uniq } from 'ramda';
 import { Fragment, MouseEvent, useMemo } from 'react';
@@ -300,7 +300,11 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                     {allHiddenCols.indexOf('num_documents') === -1 && <Td>{num_documents}</Td>}
                     {allHiddenCols.indexOf('owner') === -1 && <Td>{owner}</Td>}
                     {allHiddenCols.indexOf('permission') === -1 && <Td>{permission}</Td>}
-                    {allHiddenCols.indexOf('date_last_modified') === -1 && <Td>{date_last_modified}</Td>}
+                    {allHiddenCols.indexOf('date_last_modified') === -1 && (
+                      <Td>
+                        <LastModified date={date_last_modified} />
+                      </Td>
+                    )}
                     {showSettings && !isMobile && (
                       <Td>
                         <Center>
@@ -328,6 +332,26 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
         </Box>
       )}
     </>
+  );
+};
+
+const LastModified = ({ date }: { date: string }) => {
+  const dateStr = new Date(date);
+  const formatted = intlFormatDistance(new Date(date), new Date());
+  return (
+    <Tooltip
+      label={intlFormat(dateStr, {
+        hour12: false,
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      })}
+    >
+      {formatted}
+    </Tooltip>
   );
 };
 
