@@ -46,8 +46,10 @@ export const LibrariesLandingPane = () => {
     data: librariesData,
     isLoading,
     refetch,
-    remove: clearCache,
-  } = useGetLibraries({ start: pageIndex * pageSize, rows: pageSize, sort: sort.col, order: sort.dir });
+  } = useGetLibraries(
+    { start: pageIndex * pageSize, rows: pageSize, sort: sort.col, order: sort.dir },
+    { cacheTime: 0 },
+  );
 
   const libraries = useMemo(() => {
     if (librariesData) {
@@ -70,7 +72,6 @@ export const LibrariesLandingPane = () => {
 
   const refresh = () => {
     // refetch libraries and reset lib count
-    clearCache();
     void refetch();
     void recount();
   };
@@ -152,7 +153,6 @@ export const LibrariesLandingPane = () => {
             <LibraryTypeSelector type={libraryType} onChange={handleLibraryTypeChange} />
           </Stack>
           <Flex justifyContent={{ base: 'start', md: 'end' }} gap={1} my={2}>
-            <IconButton aria-label="Reload table" icon={<RepeatIcon />} variant="outline" onClick={handleReload} />
             <Button variant="outline" leftIcon={<AddIcon />} onClick={onAddOpen}>
               Add New Library
             </Button>
