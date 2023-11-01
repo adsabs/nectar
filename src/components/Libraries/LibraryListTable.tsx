@@ -172,129 +172,131 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
       {libraries?.length === 0 ? (
         <CustomInfoMessage status="info" title="No libraries found" />
       ) : (
-        <Table variant="simple" {...tableProps} data-testid="libraries-table">
-          <Thead>
-            <Tr>
-              {showIndex && !isMobile && <Th aria-label="index"></Th>}
-              {columns.map((column) => (
-                <Fragment key={`col-${column.id}`}>
-                  {allHiddenCols.indexOf(column.id) === -1 && (
-                    <Th aria-label={column.heading} cursor={column.sortable ? 'pointer' : 'default'}>
-                      {sort.col !== column.id ? (
-                        column.sortable ? (
-                          <Flex alignItems="center" onClick={() => onChangeSort({ col: column.id, dir: 'asc' })}>
-                            {column.heading}
-                            <UpDownIcon m={2} />
-                          </Flex>
-                        ) : (
-                          <>{column.heading}</>
-                        )
-                      ) : (
-                        <>
-                          {sort.dir === 'desc' ? (
+        <>
+          <Table variant="simple" {...tableProps} data-testid="libraries-table">
+            <Thead>
+              <Tr>
+                {showIndex && !isMobile && <Th aria-label="index"></Th>}
+                {columns.map((column) => (
+                  <Fragment key={`col-${column.id}`}>
+                    {allHiddenCols.indexOf(column.id) === -1 && (
+                      <Th aria-label={column.heading} cursor={column.sortable ? 'pointer' : 'default'}>
+                        {sort.col !== column.id ? (
+                          column.sortable ? (
                             <Flex alignItems="center" onClick={() => onChangeSort({ col: column.id, dir: 'asc' })}>
                               {column.heading}
-                              <TriangleDownIcon m={2} />
+                              <UpDownIcon m={2} />
                             </Flex>
                           ) : (
-                            <Flex alignItems="center" onClick={() => onChangeSort({ col: column.id, dir: 'desc' })}>
-                              {column.heading}
-                              <TriangleUpIcon m={2} />
-                            </Flex>
-                          )}
-                        </>
-                      )}
-                    </Th>
-                  )}
-                </Fragment>
-              ))}
-              {showSettings && !isMobile && <Th>Actions</Th>}
-            </Tr>
-          </Thead>
-          <Tbody>
-            {libraries.map(
-              (
-                {
-                  id,
-                  public: isPublic,
-                  num_users,
-                  name,
-                  description,
-                  num_documents,
-                  owner,
-                  permission,
-                  date_last_modified,
-                },
-                index,
-              ) => (
-                <Tr
-                  key={id}
-                  cursor="pointer"
-                  _hover={{ backgroundColor: 'blue.50' }}
-                  onClick={() => onLibrarySelect(id)}
-                >
-                  {showIndex && !isMobile && <Td>{pageSize * pageIndex + index + 1}</Td>}
-                  {allHiddenCols.indexOf('public') === -1 && (
-                    <Td>
-                      {isPublic ? (
-                        <Tooltip label="Public">
-                          <UnlockIcon color="green.500" aria-label="public" />
-                        </Tooltip>
-                      ) : (
-                        <Tooltip label="Private">
-                          <LockIcon aria-label="private" />
-                        </Tooltip>
-                      )}
-                    </Td>
-                  )}
-                  {allHiddenCols.indexOf('num_users') === -1 && (
-                    <Td>
-                      {num_users === 1 ? (
-                        <Tooltip label="No collaborators">
-                          <Icon as={UserIcon} aria-label="no collaborators" w={4} h={4} />
-                        </Tooltip>
-                      ) : (
-                        <Tooltip label={`${num_users} collaborators`}>
-                          <Icon as={UserGroupIcon} aria-label="has collaborators" color="green.500" w={4} h={4} />
-                        </Tooltip>
-                      )}
-                    </Td>
-                  )}
-                  {allHiddenCols.indexOf('name') === -1 && (
-                    <Td>
-                      <Text fontWeight="bold">{name}</Text>
-                      {showDescription && <Text>{description}</Text>}
-                    </Td>
-                  )}
-                  {allHiddenCols.indexOf('num_documents') === -1 && <Td>{num_documents}</Td>}
-                  {allHiddenCols.indexOf('owner') === -1 && <Td>{owner}</Td>}
-                  {allHiddenCols.indexOf('permission') === -1 && <Td>{permission}</Td>}
-                  {allHiddenCols.indexOf('date_last_modified') === -1 && <Td>{date_last_modified}</Td>}
-                  {showSettings && !isMobile && (
-                    <Td>
-                      <Center>
-                        <Action
-                          onDelete={() => handleDeleteLibrary(id)}
-                          onSetting={() => handleSettings(id)}
-                          disableDelete={permission !== 'owner'}
-                        />
-                      </Center>
-                    </Td>
-                  )}
-                </Tr>
-              ),
-            )}
-          </Tbody>
-        </Table>
+                            <>{column.heading}</>
+                          )
+                        ) : (
+                          <>
+                            {sort.dir === 'desc' ? (
+                              <Flex alignItems="center" onClick={() => onChangeSort({ col: column.id, dir: 'asc' })}>
+                                {column.heading}
+                                <TriangleDownIcon m={2} />
+                              </Flex>
+                            ) : (
+                              <Flex alignItems="center" onClick={() => onChangeSort({ col: column.id, dir: 'desc' })}>
+                                {column.heading}
+                                <TriangleUpIcon m={2} />
+                              </Flex>
+                            )}
+                          </>
+                        )}
+                      </Th>
+                    )}
+                  </Fragment>
+                ))}
+                {showSettings && !isMobile && <Th>Actions</Th>}
+              </Tr>
+            </Thead>
+            <Tbody>
+              {libraries.map(
+                (
+                  {
+                    id,
+                    public: isPublic,
+                    num_users,
+                    name,
+                    description,
+                    num_documents,
+                    owner,
+                    permission,
+                    date_last_modified,
+                  },
+                  index,
+                ) => (
+                  <Tr
+                    key={id}
+                    cursor="pointer"
+                    _hover={{ backgroundColor: 'blue.50' }}
+                    onClick={() => onLibrarySelect(id)}
+                  >
+                    {showIndex && !isMobile && <Td>{pageSize * pageIndex + index + 1}</Td>}
+                    {allHiddenCols.indexOf('public') === -1 && (
+                      <Td>
+                        {isPublic ? (
+                          <Tooltip label="Public">
+                            <UnlockIcon color="green.500" aria-label="public" />
+                          </Tooltip>
+                        ) : (
+                          <Tooltip label="Private">
+                            <LockIcon aria-label="private" />
+                          </Tooltip>
+                        )}
+                      </Td>
+                    )}
+                    {allHiddenCols.indexOf('num_users') === -1 && (
+                      <Td>
+                        {num_users === 1 ? (
+                          <Tooltip label="No collaborators">
+                            <Icon as={UserIcon} aria-label="no collaborators" w={4} h={4} />
+                          </Tooltip>
+                        ) : (
+                          <Tooltip label={`${num_users} collaborators`}>
+                            <Icon as={UserGroupIcon} aria-label="has collaborators" color="green.500" w={4} h={4} />
+                          </Tooltip>
+                        )}
+                      </Td>
+                    )}
+                    {allHiddenCols.indexOf('name') === -1 && (
+                      <Td>
+                        <Text fontWeight="bold">{name}</Text>
+                        {showDescription && <Text>{description}</Text>}
+                      </Td>
+                    )}
+                    {allHiddenCols.indexOf('num_documents') === -1 && <Td>{num_documents}</Td>}
+                    {allHiddenCols.indexOf('owner') === -1 && <Td>{owner}</Td>}
+                    {allHiddenCols.indexOf('permission') === -1 && <Td>{permission}</Td>}
+                    {allHiddenCols.indexOf('date_last_modified') === -1 && <Td>{date_last_modified}</Td>}
+                    {showSettings && !isMobile && (
+                      <Td>
+                        <Center>
+                          <Action
+                            onDelete={() => handleDeleteLibrary(id)}
+                            onSetting={() => handleSettings(id)}
+                            disableDelete={permission !== 'owner'}
+                          />
+                        </Center>
+                      </Td>
+                    )}
+                  </Tr>
+                ),
+              )}
+            </Tbody>
+          </Table>
+          <ControlledPaginationControls
+            entries={entries}
+            pageIndex={pageIndex}
+            pageSize={pageSize}
+            onChangePageSize={onChangePageSize}
+            onChangePageIndex={onChangePageIndex}
+            mt={2}
+          />
+        </>
       )}
-      <ControlledPaginationControls
-        entries={entries}
-        pageIndex={pageIndex}
-        pageSize={pageSize}
-        onChangePageSize={onChangePageSize}
-        onChangePageIndex={onChangePageIndex}
-        mt={2}
-      />
     </>
   );
 };
