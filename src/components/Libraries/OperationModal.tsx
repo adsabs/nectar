@@ -101,10 +101,12 @@ export const OperationModal = ({
   isOpen,
   onClose,
   onOperate,
+  isLoading,
 }: {
   isOpen: boolean;
   onClose: () => void;
   onOperate: (params: IADSApiLibraryOperationParams) => void;
+  isLoading: boolean;
 }) => {
   const formMethods = useForm<FormValues>({
     defaultValues: initialFormValues,
@@ -157,7 +159,6 @@ export const OperationModal = ({
           description: desc,
           public: isPublic,
         });
-        handleOnClose();
         return;
       case 'copy':
         onOperate({
@@ -168,14 +169,11 @@ export const OperationModal = ({
           description: desc,
           public: false,
         });
-        handleOnClose();
         return;
       case 'empty':
         onOperate({ action: action, id: source });
-        handleOnClose();
         return;
       default:
-        handleOnClose();
         return;
     }
   };
@@ -258,7 +256,9 @@ export const OperationModal = ({
                 )}
               </Flex>
               <HStack mt={4} justifyContent="end">
-                <Button type="submit">Submit</Button>
+                <Button type="submit" isLoading={isLoading}>
+                  Submit
+                </Button>
                 <Button variant="outline" onClick={handleOnClose}>
                   Cancel
                 </Button>

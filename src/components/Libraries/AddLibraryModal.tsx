@@ -43,10 +43,12 @@ export const AddLibraryModal = ({
   isOpen,
   onClose,
   onAddLibrary,
+  isLoading,
 }: {
   isOpen: boolean;
   onClose: () => void;
   onAddLibrary: (name: string, desc: string, isPublic: boolean) => void;
+  isLoading: boolean;
 }) => {
   const formMethods = useForm<FormValues>({
     defaultValues: initialFormValues,
@@ -67,7 +69,6 @@ export const AddLibraryModal = ({
   const handleAddLibrary = () => {
     const { name, desc, isPublic } = getValues();
     onAddLibrary(name, desc, isPublic);
-    handleOnClose();
   };
 
   const handleOnClose = () => {
@@ -79,7 +80,7 @@ export const AddLibraryModal = ({
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Add A New Library</ModalHeader>
+        <ModalHeader>Add a New Library</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <FormProvider {...formMethods}>
@@ -102,7 +103,9 @@ export const AddLibraryModal = ({
                 </Text>
               </Flex>
               <HStack mt={4} justifyContent="end">
-                <Button type="submit">Submit</Button>
+                <Button type="submit" isLoading={isLoading}>
+                  Submit
+                </Button>
                 <Button variant="outline" onClick={handleOnClose}>
                   Cancel
                 </Button>

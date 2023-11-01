@@ -48,7 +48,7 @@ export const LibrarySettingsPane = ({ library, onRefetch }: ISettingsPaneProps) 
 
   const { name, description, permission, owner, public: isPublic, date_created, date_last_modified } = library.metadata;
 
-  const { mutate: transfer } = useTransfer();
+  const { mutate: transfer, isLoading: isTranfering } = useTransfer();
 
   const [nameValue, setNameValue] = useState(name);
 
@@ -206,7 +206,7 @@ export const LibrarySettingsPane = ({ library, onRefetch }: ISettingsPaneProps) 
         <FormControl>
           <FormLabel>Owner</FormLabel>
           {owner}
-          {permission === 'owner' && <TransferLibrary onTransfer={handleTransfer} />}
+          {permission === 'owner' && <TransferLibrary onTransfer={handleTransfer} isLoading={isTranfering} />}
         </FormControl>
         <FormControl>
           <FormLabel>Date Created</FormLabel>
@@ -228,7 +228,7 @@ export const LibrarySettingsPane = ({ library, onRefetch }: ISettingsPaneProps) 
   );
 };
 
-const TransferLibrary = ({ onTransfer }: { onTransfer: (user: string) => void }) => {
+const TransferLibrary = ({ onTransfer, isLoading }: { onTransfer: (user: string) => void; isLoading: boolean }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [email, setEmail] = useState('');
@@ -238,8 +238,6 @@ const TransferLibrary = ({ onTransfer }: { onTransfer: (user: string) => void })
   const handleTransfer = () => {
     if (isValid) {
       onTransfer(email);
-      setEmail('');
-      onClose();
     }
   };
 
@@ -270,7 +268,7 @@ const TransferLibrary = ({ onTransfer }: { onTransfer: (user: string) => void })
             <Button variant="outline" mr={3} onClick={handleCancel}>
               Cancel
             </Button>
-            <Button onClick={handleTransfer} isDisabled={!isValid}>
+            <Button onClick={handleTransfer} isDisabled={!isValid} isLoading={isLoading}>
               Transfer
             </Button>
           </ModalFooter>

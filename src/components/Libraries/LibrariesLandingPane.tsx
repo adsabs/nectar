@@ -63,10 +63,10 @@ export const LibrariesLandingPane = () => {
   }, [all]); // TODO: get this using API (waiting for implementation)
 
   // add library
-  const { mutate: addLibrary } = useAddLibrary();
+  const { mutate: addLibrary, isLoading: isAddingLibrary } = useAddLibrary();
 
   // library operation
-  const { mutate: operateLibrary } = useLibraryOperation();
+  const { mutate: operateLibrary, isLoading: isOperatingLibrary } = useLibraryOperation();
 
   const refresh = () => {
     // refetch libraries and reset lib count
@@ -109,6 +109,9 @@ export const LibrariesLandingPane = () => {
           } else {
             toast({ status: 'success', title: `Successfully added "${name}"` });
 
+            // close modal
+            onAddClose();
+
             // refetch libraries and reset lib count
             refresh();
           }
@@ -124,6 +127,8 @@ export const LibrariesLandingPane = () => {
           toast({ status: 'error', title: parseAPIError(error) });
         } else {
           toast({ status: 'success', title: `Action Successful` });
+
+          onOperationClose();
 
           // refetch libraries and reset lib count
           refresh();
@@ -172,8 +177,18 @@ export const LibrariesLandingPane = () => {
               onLibrarySelect={handleOpenLibrary}
               onUpdate={handleReload}
             />
-            <AddLibraryModal isOpen={isAddOpen} onClose={onAddClose} onAddLibrary={handleAddLibrary} />
-            <OperationModal isOpen={isOperationOpen} onClose={onOperationClose} onOperate={handleOperation} />
+            <AddLibraryModal
+              isOpen={isAddOpen}
+              onClose={onAddClose}
+              onAddLibrary={handleAddLibrary}
+              isLoading={isAddingLibrary}
+            />
+            <OperationModal
+              isOpen={isOperationOpen}
+              onClose={onOperationClose}
+              onOperate={handleOperation}
+              isLoading={isOperatingLibrary}
+            />
           </>
         )}
       </Box>

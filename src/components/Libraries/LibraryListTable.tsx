@@ -28,6 +28,7 @@ import {
   useToast,
   Button,
   useBreakpoint,
+  Box,
 } from '@chakra-ui/react';
 import { ControlledPaginationControls } from '@components';
 import { CustomInfoMessage } from '@components/Feedbacks';
@@ -172,7 +173,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
       {libraries?.length === 0 ? (
         <CustomInfoMessage status="info" title="No libraries found" />
       ) : (
-        <>
+        <Box my={4}>
           <Table variant="simple" {...tableProps} data-testid="libraries-table">
             <Thead>
               <Tr>
@@ -293,9 +294,9 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
             pageSize={pageSize}
             onChangePageSize={onChangePageSize}
             onChangePageIndex={onChangePageIndex}
-            mt={2}
+            my={4}
           />
-        </>
+        </Box>
       )}
     </>
   );
