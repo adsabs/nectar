@@ -31,9 +31,10 @@ import { DeleteLibrary } from './DeleteLibrary';
 export interface ISettingsPaneProps {
   library: IADSApiLibraryEntityResponse;
   onRefetch?: () => void;
+  isFromLanding?: boolean;
 }
 
-export const LibrarySettingsPane = ({ library, onRefetch }: ISettingsPaneProps) => {
+export const LibrarySettingsPane = ({ library, onRefetch, isFromLanding = false }: ISettingsPaneProps) => {
   const router = useRouter();
 
   const { id } = library.metadata;
@@ -157,7 +158,7 @@ export const LibrarySettingsPane = ({ library, onRefetch }: ISettingsPaneProps) 
     <>
       <Box>
         <Heading variant="pageTitle" as="h1" my={4}>
-          <SimpleLink href={`/user/libraries/${id}`} display="inline">
+          <SimpleLink href={isFromLanding ? '/user/libraries' : `/user/libraries/${id}`} display="inline">
             <ChevronLeftIcon mr={2} />
           </SimpleLink>
           Settings

@@ -16,9 +16,10 @@ import Head from 'next/head';
 interface ILibrariesHomeProps {
   id?: string;
   subpage?: string;
+  from?: string;
 }
 
-const LibrariesHome: NextPage<ILibrariesHomeProps> = ({ id, subpage }) => {
+const LibrariesHome: NextPage<ILibrariesHomeProps> = ({ id, subpage, from }) => {
   const {
     data: library,
     isLoading: isLoadingLib,
@@ -59,7 +60,7 @@ const LibrariesHome: NextPage<ILibrariesHomeProps> = ({ id, subpage }) => {
       {!!id && !!library ? (
         <>
           {subpage === 'settings' ? (
-            <LibrarySettingsPane library={library} onRefetch={refetch} />
+            <LibrarySettingsPane library={library} onRefetch={refetch} isFromLanding={from === 'landing'} />
           ) : (
             <LibraryEntityPane library={library} publicView={false} onRefetch={refetch} />
           )}
@@ -75,6 +76,7 @@ export default LibrariesHome;
 
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
   const { id = null } = ctx.params;
+  const { from = null } = ctx.query;
 
   const queryClient = new QueryClient();
 
@@ -103,6 +105,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
     props: {
       id: lid,
       subpage: subpage,
+      from,
     },
   });
 });

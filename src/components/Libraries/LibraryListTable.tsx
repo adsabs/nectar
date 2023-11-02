@@ -143,7 +143,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
   });
 
   const handleSettings = (id: LibraryIdentifier) => {
-    void router.push({ pathname: `/user/libraries/${id}/settings` });
+    void router.push({ pathname: `/user/libraries/${id}/settings`, query: { from: 'landing' } });
   };
 
   const handleDeleteLibrary = (id: LibraryIdentifier) => {
