@@ -30,6 +30,7 @@ import {
   without,
 } from 'ramda';
 import { isArray, isNilOrEmpty, isNonEmptyString, isNotString, isPlainObject } from 'ramda-adjunct';
+import z from 'zod';
 
 type ParsedQueryParams = ParsedUrlQuery | qs.ParsedQs;
 
@@ -497,9 +498,12 @@ export const pluralize = (str: string, count: number) => {
   return count === 1 ? str : `${str}s`;
 };
 
-export const isValidEmail = (email: string) =>
-  email
-    .toLowerCase()
-    .match(
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-    );
+export const isValidEmail = (email: string) => {
+  const emailSchema = z.string().email();
+  try {
+    emailSchema.parse(email);
+    return true;
+  } catch {
+    return false;
+  }
+};

@@ -91,7 +91,7 @@ export const LibrarySelector = ({
                     icon={<CloseIcon />}
                     aria-label="Remove"
                     colorScheme="gray"
-                    variant="ghosted"
+                    variant="ghost"
                     size="xs"
                     onClick={() => handleRemoveSelect(l.id)}
                   />

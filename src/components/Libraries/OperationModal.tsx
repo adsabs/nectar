@@ -119,7 +119,6 @@ export const OperationModal = ({
   const {
     register,
     control,
-    getValues,
     setValue,
     formState: { errors },
     reset,
@@ -144,8 +143,8 @@ export const OperationModal = ({
     remove(libs.findIndex((l) => l.value === id));
   };
 
-  const handleOperate = () => {
-    const { action, libs, source, target, name, desc, isPublic } = getValues();
+  const handleOperate = (data: FormValues) => {
+    const { action, libs, source, target, name, desc, isPublic } = data;
 
     switch (action) {
       case 'union':

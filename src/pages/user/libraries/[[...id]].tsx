@@ -34,7 +34,7 @@ const LibrariesHome: NextPage<ILibrariesHomeProps> = ({ id, subpage }) => {
   return (
     <>
       <Head>
-        <title>NASA Science Explorer - Libraries - {!!id ? library?.metadata.name ?? '' : ''}</title>
+        <title>{`NASA Science Explorer - Libraries - ${!!id ? library?.metadata.name ?? '' : ''}`}</title>
       </Head>
       {!!id && isLoadingLib && (
         <Center>
@@ -74,16 +74,6 @@ const LibrariesHome: NextPage<ILibrariesHomeProps> = ({ id, subpage }) => {
 export default LibrariesHome;
 
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-  if (!ctx.req.session.isAuthenticated) {
-    return Promise.resolve({
-      redirect: {
-        destination: `/user/account/login?redirectUri=${encodeURIComponent(ctx.req.url)}`,
-        permanent: false,
-      },
-      props: {},
-    });
-  }
-
   const { id = null } = ctx.params;
 
   const queryClient = new QueryClient();

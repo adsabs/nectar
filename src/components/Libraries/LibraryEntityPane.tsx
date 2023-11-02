@@ -33,7 +33,7 @@ import { AppState, useStore } from '@store';
 import { NumPerPageType } from '@types';
 import { noop, parseAPIError } from '@utils';
 import { uniq } from 'ramda';
-import { memo, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { DocumentList } from './DocumentList/DocumentList';
 
 export interface ILibraryEntityPaneProps {
