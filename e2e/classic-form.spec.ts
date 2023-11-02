@@ -33,7 +33,7 @@ test('default form can be submitted, and is valid', async ({ page }) => {
   await page.waitForURL('**/search?**');
   expect(page.url()).toContain('/search?');
   const search = new URL(page.url()).searchParams;
-  expect(search.getAll('sort')).toStrictEqual(['date desc']);
+  expect(search.getAll('sort')).toStrictEqual(['score desc', 'date desc']);
   expect(search.get('p')).toBe('1');
   checkQuery(page, 'collection:(astronomy)');
 });
