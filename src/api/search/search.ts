@@ -1,21 +1,24 @@
 import api, {
+  ADSMutation,
   ADSQuery,
   ApiRequestConfig,
   ApiTargets,
   getSearchFacetJSONParams,
   IADSApiSearchParams,
   IADSApiSearchResponse,
+  IBigQueryMutationParams,
   IDocsEntity,
   InfiniteADSQuery,
 } from '@api';
 import { AxiosError } from 'axios';
 import { omit } from 'ramda';
-import type { QueryFunctionContext, QueryKey } from '@tanstack/react-query';
+import { MutationFunction, QueryFunctionContext, QueryKey, useMutation } from '@tanstack/react-query';
 import { QueryFunction, useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import {
   defaultParams,
   getAbstractParams,
   getAffiliationParams,
+  getBigQueryParams,
   getCitationsParams,
   getCoreadsParams,
   getHighlightParams,
@@ -59,6 +62,7 @@ export enum SEARCH_API_KEYS {
   preview = 'search/preview',
   infinite = 'search/infinite',
   highlight = 'search/highlight',
+  bigquery = 'search/bigquery',
 }
 
 export const searchKeys = {
@@ -76,6 +80,7 @@ export const searchKeys = {
   facet: (params: IADSApiSearchParams) => ['search/facet', params] as const,
   infinite: (params: IADSApiSearchParams) => [SEARCH_API_KEYS.infinite, params] as const,
   record: (id: string) => ['search/record', { id }] as const,
+  bigquery: () => [SEARCH_API_KEYS.bigquery] as const,
 };
 
 // default params to omit to keep cache entries more concise
@@ -346,6 +351,33 @@ export const useSearchInfinite: InfiniteADSQuery<IADSApiSearchParams, IADSApiSea
     ...options,
   });
 };
+
+export const useBigQuerySearch: ADSMutation<
+  IADSApiSearchResponse['response'],
+  IADSApiSearchParams,
+  IBigQueryMutationParams['variables']
+> = (options) => {
+  const params = getBigQueryParams();
+  return useMutation({
+    mutationKey: searchKeys.bigquery(),
+    mutationFn: ({ bibcodes, rows }) => fetchBigQuerySearch({ params, variables: { bibcodes, rows } }),
+    ...options,
+  });
+};
+
+export const fetchBigQuerySearch: MutationFunction<IADSApiSearchResponse['response'], IBigQueryMutationParams> =
+  async ({ params, variables }: IBigQueryMutationParams) => {
+    const config: ApiRequestConfig = {
+      method: 'POST',
+      url: `${ApiTargets.BIGQUERY}`,
+      params: {...params, rows: variables.rows},
+      data: `bibcode\n${variables.bibcodes.join('\n')}`,
+      headers: { 'Content-Type': 'bigquery/csv' },
+    };
+
+    const { data } = await api.request<IADSApiSearchResponse>(config);
+    return data.response;
+  };
 
 /**
  * Base fetcher for search

@@ -14,7 +14,7 @@ import {
 import { Spinner, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
 import { BibtexTabPanel, CustomFormatsTabPanel, exportFormats, GeneralTabPanel, SettingsLayout } from '@components';
 import { useSettings } from '@lib/useSettings';
-import { GetServerSideProps, GetServerSidePropsContext, NextPage } from 'next';
+import { GetServerSideProps, NextPage } from 'next';
 import { Reducer, Suspense, useEffect, useMemo, useReducer } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { dehydrate, QueryClient, QueryErrorResetBoundary } from '@tanstack/react-query';
@@ -185,7 +185,7 @@ const ExportSettings = () => {
 };
 
 export default Page;
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx: GetServerSidePropsContext) => {
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(async () => {
   // get a sample doc
   const params = getSearchParams({ q: 'bibstem:ApJ author_count:[10 TO 20]', rows: 1 });
   const queryClient = new QueryClient();

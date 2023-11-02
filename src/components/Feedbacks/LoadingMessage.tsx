@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Text } from '@chakra-ui/react';
+import { CircularProgress, Flex, Text } from '@chakra-ui/react';
 import { ReactElement } from 'react';
 
 export interface ILoadingMessageProps {
@@ -7,9 +7,9 @@ export interface ILoadingMessageProps {
 
 export const LoadingMessage = ({ message }: ILoadingMessageProps): ReactElement => {
   return (
-    <Box my={5}>
-      <Text>{message}</Text>
+    <Flex direction="column" alignItems="center" gap={2} m={2}>
       <CircularProgress isIndeterminate />
-    </Box>
+      <Text>{message}</Text>
+    </Flex>
   );
 };

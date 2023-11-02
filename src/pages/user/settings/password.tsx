@@ -26,7 +26,7 @@ const ChangePasswordPage = () => {
   const { ref, ...registerProps } = register('currentPassword', { required: true });
   const [currentPasswordRef] = useFocus();
 
-  const onFormSubmit: SubmitHandler<IUserChangePasswordCredentials> = (params, e) => {
+  const onFormSubmit: SubmitHandler<IUserChangePasswordCredentials> = (params) => {
     submit(params);
   };
 

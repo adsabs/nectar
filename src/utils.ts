@@ -30,6 +30,7 @@ import {
   without,
 } from 'ramda';
 import { isArray, isNilOrEmpty, isNonEmptyString, isNotString, isPlainObject } from 'ramda-adjunct';
+import z from 'zod';
 
 type ParsedQueryParams = ParsedUrlQuery | qs.ParsedQs;
 
@@ -495,4 +496,14 @@ export const coalesceAuthorsFromDoc = (doc: IDocsEntity, includeAff?: boolean) =
 
 export const pluralize = (str: string, count: number) => {
   return count === 1 ? str : `${str}s`;
+};
+
+export const isValidEmail = (email: string) => {
+  const emailSchema = z.string().email();
+  try {
+    emailSchema.parse(email);
+    return true;
+  } catch {
+    return false;
+  }
 };

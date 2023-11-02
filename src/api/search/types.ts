@@ -522,3 +522,8 @@ export const queryFields = [
   'volume',
   'year',
 ] as const;
+
+export interface IBigQueryMutationParams {
+  params: IADSApiSearchParams;
+  variables: { bibcodes: IDocsEntity['bibcode'][]; rows: number};
+}

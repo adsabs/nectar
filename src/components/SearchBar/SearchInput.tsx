@@ -24,7 +24,6 @@ import { useIntermediateQuery } from '@lib/useIntermediateQuery';
 import { isNilOrEmpty } from 'ramda-adjunct';
 import { filterItems } from '@components/SearchBar/helpers';
 import { TypeaheadOption } from '@components/SearchBar/types';
-import { useStore } from '@store';
 
 export interface ISearchInputProps {
   isLoading?: boolean;
@@ -55,7 +54,6 @@ const ClearInputButton = (props: { onClear: () => void } & ButtonProps) => {
 export const SearchInput = forwardRef<Partial<HTMLInputElement>, ISearchInputProps>((props, ref) => {
   const { query, updateQuery, isClearingQuery, onDoneClearingQuery, queryAddition, onDoneAppendingToQuery } =
     useIntermediateQuery();
-  const latestQuery = useStore((state) => state.latestQuery.q);
   const input = useRef<HTMLInputElement>(null);
 
   // allow outside refs to fire focus
