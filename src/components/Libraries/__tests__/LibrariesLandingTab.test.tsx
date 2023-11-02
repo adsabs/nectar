@@ -5,18 +5,15 @@ import { rest } from 'msw';
 import { ApiTargets } from '@api';
 import { LibrariesLandingPane } from '../LibrariesLandingPane';
 import { ChakraProvider } from '@chakra-ui/react';
-import { MathJaxProvider } from '@mathjax';
 
 test('renders without issue', async ({ server }: TestContext) => {
   const { onRequest } = createServerListenerMocks(server);
   server.use(rest.get(apiHandlerRoute(ApiTargets.LIBRARIES), (req, res, ctx) => res(ctx.json(allLibsResponse))));
 
   const { user, findByTestId, findByRole, findAllByRole } = render(
-    <MathJaxProvider>
-      <ChakraProvider>
-        <LibrariesLandingPane />
-      </ChakraProvider>
-    </MathJaxProvider>,
+    <ChakraProvider>
+      <LibrariesLandingPane />
+    </ChakraProvider>,
   );
   const table = await findByTestId('libraries-table');
   expect(table.querySelectorAll('tr').length).toBe(6); // incl. header
