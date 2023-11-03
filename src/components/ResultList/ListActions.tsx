@@ -1,11 +1,12 @@
 import { Bibcode, ExportApiFormatKey, useVaultBigQuerySearch } from '@api';
-import { ChevronDownIcon } from '@chakra-ui/icons';
+import { ChevronDownIcon, SettingsIcon } from '@chakra-ui/icons';
 import {
   Button,
   Checkbox,
   Flex,
   FormControl,
   FormLabel,
+  IconButton,
   Menu,
   MenuButton,
   MenuDivider,
@@ -29,7 +30,7 @@ import { makeSearchParams, noop, parseQueryFromUrl } from '@utils';
 import { useRouter } from 'next/router';
 import { curryN, values } from 'ramda';
 import { isNonEmptyString } from 'ramda-adjunct';
-import { ChangeEvent, MouseEventHandler, ReactElement, useCallback, useEffect, useState } from 'react';
+import { MouseEventHandler, ReactElement, useCallback, useEffect, useState } from 'react';
 import { SecondOrderOpsLinks } from './SecondOrderOpsLinks';
 import { BulkClaimMenuItem, BulkDeleteMenuItem } from '@components/Orcid';
 import { useOrcid } from '@lib/orcid/useOrcid';
@@ -132,7 +133,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
         gap={1}
       >
         <SortWrapper onChange={onSortChange} />
-        {isClient && <HighlightsToggle />}
+        {isClient && <SettingsMenu />}
       </Flex>
       {isClient && (
         <Stack
@@ -244,6 +245,19 @@ const SortWrapper = ({ onChange }: { onChange: ISortProps['onChange'] }) => {
   const query = useStore(...sortSelector);
 
   return <Sort sort={query.sort} onChange={onChange} />;
+};
+
+const SettingsMenu = () => {
+  return (
+    <Menu>
+      <MenuButton as={IconButton} aria-label="Result list settings" variant="outline" icon={<SettingsIcon />} />
+      <MenuList>
+        <MenuItem>
+          <HighlightsToggle />
+        </MenuItem>
+      </MenuList>
+    </Menu>
+  );
 };
 
 const HighlightsToggle = () => {
