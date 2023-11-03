@@ -12,6 +12,7 @@ export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
   hideCheckboxes?: boolean;
   showOrcidAction?: boolean;
   hideActions?: boolean;
+  allowHighlight?: boolean;
 }
 
 const propTypes = {
@@ -21,7 +22,14 @@ const propTypes = {
 };
 
 export const SimpleResultList = (props: ISimpleResultListProps): ReactElement => {
-  const { docs = [], hideCheckboxes = false, indexStart = 0, hideActions = false, ...divProps } = props;
+  const {
+    docs = [],
+    hideCheckboxes = false,
+    indexStart = 0,
+    hideActions = false,
+    allowHighlight = true,
+    ...divProps
+  } = props;
 
   const isClient = useIsClient();
   const start = indexStart + 1;
@@ -47,9 +55,9 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
           index={start + index}
           hideCheckbox={!isClient ? true : hideCheckboxes}
           hideActions={hideActions}
-          showHighlights={showHighlights}
+          showHighlights={allowHighlight && showHighlights}
           highlights={highlights?.[index] ?? []}
-          isFetchingHighlights={isFetchingHighlights}
+          isFetchingHighlights={allowHighlight && isFetchingHighlights}
         />
       ))}
     </Flex>
