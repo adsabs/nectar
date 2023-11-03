@@ -61,7 +61,7 @@ test('form can be filled out and submitted, and is valid', async ({ page }) => {
   await page.locator('#react-select-bibstem-picker-input').press('Tab');
 
   // sort
-  await page.getByTestId('sort').getByText('Date').click();
+  await page.getByTestId('sort').getByText('Relevance').click();
   await page.getByTestId('sort').getByLabel('Sort', { exact: true }).press('ArrowDown');
   await page.getByTestId('sort').getByLabel('Sort', { exact: true }).press('ArrowDown');
   await page.getByTestId('sort').getByLabel('Sort', { exact: true }).press('Tab');
