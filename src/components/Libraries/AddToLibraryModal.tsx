@@ -48,9 +48,9 @@ export const AddToLibraryModal = ({
 
   const clearSelections = useStore((state) => state.clearSelected);
 
-  const { mutate: editDocs } = useEditLibraryDocuments();
+  const { mutate: editDocs, isLoading: isEditingDocs } = useEditLibraryDocuments();
 
-  const { mutate: addDocsByQuery } = useAddDocumentsByQuery();
+  const { mutate: addDocsByQuery, isLoading: isAddingDocs } = useAddDocumentsByQuery();
 
   const toast = useToast({
     duration: 2000,
@@ -131,10 +131,18 @@ export const AddToLibraryModal = ({
             </TabList>
             <TabPanels>
               <TabPanel>
-                <AddToExistingLibraryPane onClose={onClose} onSubmit={handleAddToLibrary} />
+                <AddToExistingLibraryPane
+                  onClose={onClose}
+                  onSubmit={handleAddToLibrary}
+                  isLoading={isEditingDocs || isAddingDocs}
+                />
               </TabPanel>
               <TabPanel>
-                <AddToNewLibraryPane onClose={onClose} onSubmit={handleAddToLibrary} />
+                <AddToNewLibraryPane
+                  onClose={onClose}
+                  onSubmit={handleAddToLibrary}
+                  isLoading={isEditingDocs || isAddingDocs}
+                />
               </TabPanel>
             </TabPanels>
           </Tabs>
@@ -147,9 +155,11 @@ export const AddToLibraryModal = ({
 const AddToExistingLibraryPane = ({
   onClose,
   onSubmit,
+  isLoading,
 }: {
   onClose: () => void;
   onSubmit: (id: LibraryIdentifier) => void;
+  isLoading: boolean;
 }) => {
   const [library, setLibrary] = useState<LibraryIdentifier>(null);
 
@@ -165,7 +175,7 @@ const AddToExistingLibraryPane = ({
     <>
       <LibrarySelector isMultiple={false} onSelect={setLibrary} onDeselect={() => setLibrary(null)} />
       <HStack mt={4} justifyContent="end">
-        <Button onClick={handleOnSubmit} isDisabled={!library}>
+        <Button onClick={handleOnSubmit} isDisabled={!library} isLoading={isLoading}>
           Submit
         </Button>
         <Button variant="outline" onClick={handleOnClose}>
@@ -179,9 +189,11 @@ const AddToExistingLibraryPane = ({
 const AddToNewLibraryPane = ({
   onClose,
   onSubmit,
+  isLoading,
 }: {
   onClose: () => void;
   onSubmit: (id: LibraryIdentifier) => void;
+  isLoading: boolean;
 }) => {
   interface FormValues {
     name: string;
@@ -217,7 +229,7 @@ const AddToNewLibraryPane = ({
     handleSubmit,
   } = formMethods;
 
-  const { mutate: addLibrary } = useAddLibrary();
+  const { mutate: addLibrary, isLoading: isAddingLib } = useAddLibrary();
 
   const toast = useToast({
     duration: 2000,
@@ -264,7 +276,9 @@ const AddToNewLibraryPane = ({
           </Text>
         </Flex>
         <HStack mt={4} justifyContent="end">
-          <Button type="submit">Submit</Button>
+          <Button type="submit" isLoading={isAddingLib || isLoading}>
+            Submit
+          </Button>
           <Button variant="outline" onClick={handleOnClose}>
             Cancel
           </Button>
