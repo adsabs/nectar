@@ -49,6 +49,7 @@ interface IAuthorNetworkPageState {
 type AuthorNetworkPageAction =
   | { type: 'CHANGE_PAPER_LIMIT'; payload: number }
   | { type: 'SET_SELECTED'; payload: { node: IADSApiAuthorNetworkNode; dict: IBibcodeDict } }
+  | { type: 'DESELECT' }
   | { type: 'ADD_FILTER'; payload: IAuthorNetworkNodeDetails }
   | { type: 'REMOVE_FILTER'; payload: IAuthorNetworkNodeDetails }
   | { type: 'REMOVE_FILTER_TAG'; payload: ITagItem }
@@ -60,6 +61,8 @@ const reducer: Reducer<IAuthorNetworkPageState, AuthorNetworkPageAction> = (stat
       return { ...state, selected: null, filters: [], rowsToFetch: action.payload };
     case 'SET_SELECTED':
       return { ...state, selected: getAuthorNetworkNodeDetails(action.payload.node, action.payload.dict) };
+    case 'DESELECT':
+      return { ...state, selected: null };
     case 'ADD_FILTER':
       return { ...state, filters: uniq([...state.filters, action.payload]) };
     case 'REMOVE_FILTER':
