@@ -34,6 +34,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { FormMessage } from '@components/Feedbacks/FormMessage';
+import { useGetUserEmail } from '@lib';
 
 type FormValues = {
   name: string;
@@ -48,7 +49,7 @@ const validationSchema = z.object({
 });
 
 const General: NextPage = () => {
-  const username = useStore((state) => state.user.username);
+  const userEmail = useGetUserEmail();
   const currentQuery = useStore((state) => state.latestQuery);
   const [formError, setFormError] = useState<Error | string | null>(null);
 
@@ -62,7 +63,7 @@ const General: NextPage = () => {
 
   const initialFormValues: FormValues = {
     name: '',
-    email: username ?? '',
+    email: userEmail ?? '',
     comments: '',
   };
 
@@ -112,7 +113,7 @@ const General: NextPage = () => {
             'user-agent-string': globalThis?.navigator?.userAgent,
             origin: 'bbb_feedback', // indicate general feedback
             'g-recaptcha-response': recaptchaToken,
-            currentuser: username ?? 'anonymous',
+            currentuser: userEmail ?? 'anonymous',
             'browser.name': browserName,
             'browser.version': browserVersion,
             engine: `${engineName} ${engineVersion}`,
@@ -154,7 +155,7 @@ const General: NextPage = () => {
       currentQuery,
       router.query.from,
       router.asPath,
-      username,
+      userEmail,
       engineName,
       engineVersion,
       osName,

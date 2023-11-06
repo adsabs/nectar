@@ -18,7 +18,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { PreviewModal, SimpleLink } from '@components';
-import { IResourceUrl, useGetResourceLinks } from '@lib';
+import { IResourceUrl, useGetResourceLinks, useGetUserEmail } from '@lib';
 import { useStore } from '@store';
 import { omit } from 'ramda';
 import { MouseEvent, useEffect, useMemo, useState } from 'react';
@@ -96,11 +96,11 @@ export const RecordPanel = ({
   isFocused: boolean;
   bibcode?: string;
 }) => {
-  const username = useStore((state) => state.user.username);
+  const userEmail = useGetUserEmail();
 
   const initialFormValues = {
     name: '',
-    email: username ?? '',
+    email: userEmail ?? '',
     bibcode: bibcode ?? '',
     collection: [] as Database[],
     title: '',
