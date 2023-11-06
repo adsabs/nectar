@@ -1,8 +1,12 @@
 import { Bibcode, ExportApiFormatKey, useVaultBigQuerySearch } from '@api';
-import { ChevronDownIcon } from '@chakra-ui/icons';
+import { ChevronDownIcon, SettingsIcon } from '@chakra-ui/icons';
 import {
   Button,
   Checkbox,
+  Flex,
+  FormControl,
+  FormLabel,
+  IconButton,
   Menu,
   MenuButton,
   MenuDivider,
@@ -14,6 +18,7 @@ import {
   MenuOptionGroup,
   Portal,
   Stack,
+  Switch,
   Text,
   useToast,
   VisuallyHidden,
@@ -110,9 +115,9 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const handleOpsLink = useCallback((name: Operator) => () => handleOperationsLink(name), []);
 
   return (
-    <Stack
+    <Flex
       direction="column"
-      spacing={1}
+      gap={1}
       mb={1}
       as="section"
       aria-labelledby="result-actions-title"
@@ -121,10 +126,15 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
       <VisuallyHidden as="h2" id="result-actions-title">
         Result Actions
       </VisuallyHidden>
-      <Stack direction={{ base: 'column', sm: 'row' }} spacing={1} width="min-content">
-        {isClient && <HighlightsToggle />}
+      <Flex
+        direction={{ base: 'column', sm: 'row' }}
+        justifyContent={{ base: 'start', sm: 'space-between' }}
+        width="full"
+        gap={1}
+      >
         <SortWrapper onChange={onSortChange} />
-      </Stack>
+        {isClient && <SettingsMenu />}
+      </Flex>
       {isClient && (
         <Stack
           direction={{ base: 'column', md: 'row' }}
@@ -222,7 +232,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
           </Stack>
         </Stack>
       )}
-    </Stack>
+    </Flex>
   );
 };
 
@@ -237,20 +247,30 @@ const SortWrapper = ({ onChange }: { onChange: ISortProps['onChange'] }) => {
   return <Sort sort={query.sort} onChange={onChange} />;
 };
 
+const SettingsMenu = () => {
+  return (
+    <Menu>
+      <MenuButton as={IconButton} aria-label="Result list settings" variant="outline" icon={<SettingsIcon />} />
+      <MenuList>
+        <MenuItem>
+          <HighlightsToggle />
+        </MenuItem>
+      </MenuList>
+    </Menu>
+  );
+};
+
 const HighlightsToggle = () => {
   const showHighlights = useStore((state) => state.showHighlights);
   const toggleShowHighlights = useStore((state) => state.toggleShowHighlights);
 
   return (
-    <Button
-      variant={showHighlights ? 'solid' : 'outline'}
-      onClick={toggleShowHighlights}
-      size="md"
-      borderRadius="2px"
-      data-testid="listactions-showhighlights"
-    >
-      Show Highlights
-    </Button>
+    <FormControl display="flex" alignItems="center" width="fit-content">
+      <FormLabel htmlFor="show-highlights" mb="0">
+        Show Highlights?
+      </FormLabel>
+      <Switch id="show-highlights" isChecked={showHighlights} onChange={toggleShowHighlights} />
+    </FormControl>
   );
 };
 

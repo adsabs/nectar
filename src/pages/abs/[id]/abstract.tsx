@@ -57,7 +57,7 @@ export interface IAbstractPageProps {
 const MAX = APP_DEFAULTS.DETAILS_MAX_AUTHORS;
 
 const createQuery = (type: 'author' | 'orcid', value: string): IADSApiSearchParams => {
-  return { q: `${type}:"${value}"`, sort: ['date desc'] };
+  return { q: `${type}:"${value}"`, sort: ['score desc'] };
 };
 
 const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) => {

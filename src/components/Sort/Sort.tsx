@@ -3,6 +3,7 @@ import { Box, HStack, IconButton, Input, Link } from '@chakra-ui/react';
 import { SimpleLinkDropdown } from '@components';
 import { ItemType } from '@components/Dropdown/types';
 import { ISelectProps, Select } from '@components/Select';
+import { APP_DEFAULTS } from '@config';
 import { BarsArrowDownIcon, BarsArrowUpIcon } from '@heroicons/react/24/outline';
 import { useIsClient } from '@lib/useIsClient';
 import { makeSearchParams, normalizeSolrSort, parseQueryFromUrl } from '@utils';
@@ -39,7 +40,7 @@ export interface ISortProps {
  */
 export const Sort = (props: ISortProps): ReactElement => {
   const {
-    sort = ['date desc', 'bibcode desc'],
+    sort = APP_DEFAULTS.SORT,
     onChange,
     name = 'sort',
     useNativeWhenNoJs = false,
@@ -223,7 +224,7 @@ const NoJsSort = (): ReactElement => {
 // native type, used by classic form
 const NoJsNativeSort = ({ name }: { name: string }): ReactElement => {
   return (
-    <select id="sort" name={name} defaultValue="date desc">
+    <select id="sort" name={name} defaultValue="score desc">
       {sortOptions.map((item) => (
         <Fragment key={item.label}>
           <option value={`${item.id} asc`}>{item.label} - Asc</option>
