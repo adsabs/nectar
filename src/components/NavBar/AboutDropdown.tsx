@@ -24,16 +24,6 @@ const items = [
     path: '/help/',
     label: 'SciX Help Pages',
   },
-  {
-    id: 'legacy',
-    path: '/help/legacy',
-    label: 'SciX Legacy Services',
-  },
-  {
-    id: 'careers',
-    path: '/about/careers',
-    label: 'Careers@SciX',
-  },
 ];
 
 interface IAboutDropdownProps {
