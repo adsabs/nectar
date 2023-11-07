@@ -24,10 +24,10 @@ const SimilarPage: NextPage<ISimilarPageProps> = (props: ISimilarPageProps) => {
   const { id, error } = props;
   const doc = useGetAbstractDoc(id);
 
-  const { getParams, onPageChange } = useGetAbstractParams(doc.bibcode);
+  const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode);
 
   const { data, isSuccess } = useGetSimilar(getParams(), { keepPreviousData: true });
-  const similarParams = getSimilarParams(doc.bibcode, 0);
+  const similarParams = getSimilarParams(doc?.bibcode, 0);
   const title = unwrapStringValue(doc?.title);
 
   return (

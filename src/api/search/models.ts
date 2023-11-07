@@ -63,7 +63,7 @@ export const getSimilarParams = (bibcode: IDocsEntity['bibcode'], start: number)
 });
 
 export const getTocParams = (bibcode: IDocsEntity['bibcode'], start: number): IADSApiSearchParams => {
-  const volumeId = bibcode[13] === 'E' ? `${bibcode.substring(0, 14)}*` : `${bibcode.substring(0, 13)}*`;
+  const volumeId = bibcode?.[13] === 'E' ? `${bibcode?.substring(0, 14)}*` : `${bibcode?.substring(0, 13)}*`;
 
   return {
     ...defaultParams,

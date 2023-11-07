@@ -21,16 +21,12 @@ export interface ICoreadsPageProps {
 
 const CoreadsPage: NextPage<ICoreadsPageProps> = (props: ICoreadsPageProps) => {
   const { id, error } = props;
-  const {
-    data: {
-      docs: [doc],
-    },
-  } = useGetAbstract({ id });
+  const { data: { docs: [doc] } = { docs: [] } } = useGetAbstract({ id });
 
-  const { getParams, onPageChange } = useGetAbstractParams(doc.bibcode);
+  const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode);
 
   const { data, isSuccess } = useGetCoreads(getParams(), { keepPreviousData: true });
-  const coreadsParams = getCoreadsParams(doc.bibcode, 0);
+  const coreadsParams = getCoreadsParams(doc?.bibcode, 0);
   const title = unwrapStringValue(doc?.title);
 
   return (
