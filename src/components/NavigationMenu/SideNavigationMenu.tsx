@@ -13,27 +13,48 @@ export interface ISideNavigationMenuProps extends BoxProps {
  */
 const SideMenuItem = ({ href, hrefAs, label, icon, active = false, disabled = false }: IMenuItemProps) => {
   return (
-    <NextLink href={href} as={hrefAs} passHref legacyBehavior>
-      <Button
-        as="a"
-        w="full"
-        variant={active ? 'solid' : 'ghost'}
-        size="md"
-        aria-current={active ? 'page' : undefined}
-        width="full"
-        justifyContent="start"
-        colorScheme="gray"
-        mb={1}
-        color="gray.700"
-        fontSize="normal"
-        fontWeight="normal"
-        isDisabled={disabled}
-        // TODO: do something better here for this ico
-        leftIcon={icon ? cloneElement(icon, { width: '18px', 'aria-hidden': true }) : null}
-      >
-        {label}
-      </Button>
-    </NextLink>
+    <>
+      {disabled ? (
+        <Button
+          as="a"
+          w="full"
+          variant={active ? 'solid' : 'ghost'}
+          size="md"
+          aria-current={active ? 'page' : undefined}
+          width="full"
+          justifyContent="start"
+          colorScheme="gray"
+          mb={1}
+          color="gray.700"
+          fontSize="normal"
+          fontWeight="normal"
+          isDisabled
+          leftIcon={icon ? cloneElement(icon, { width: '18px', 'aria-hidden': true }) : null}
+        >
+          {label}
+        </Button>
+      ) : (
+        <NextLink href={href} as={hrefAs} passHref legacyBehavior>
+          <Button
+            as="a"
+            w="full"
+            variant={active ? 'solid' : 'ghost'}
+            size="md"
+            aria-current={active ? 'page' : undefined}
+            width="full"
+            justifyContent="start"
+            colorScheme="gray"
+            mb={1}
+            color="gray.700"
+            fontSize="normal"
+            fontWeight="normal"
+            leftIcon={icon ? cloneElement(icon, { width: '18px', 'aria-hidden': true }) : null}
+          >
+            {label}
+          </Button>
+        </NextLink>
+      )}
+    </>
   );
 };
 
