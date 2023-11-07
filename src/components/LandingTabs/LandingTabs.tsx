@@ -1,5 +1,5 @@
-import { Box, Center, Flex, Heading, HStack, Icon, Link, Show, Text } from '@chakra-ui/react';
-import { AdsSmallLogo } from '@components/images';
+import { Box, Center, Flex, Heading, HStack, Icon, Link, Show, VisuallyHidden } from '@chakra-ui/react';
+import { ScixAndNasaLogo_H } from '@components/images';
 import { useStore } from '@store';
 import { Theme } from '@types';
 import Image from 'next/image';
@@ -73,16 +73,11 @@ const TitleLogo = () => {
   return (
     <Center>
       <Show above="sm">
-        <Icon as={AdsSmallLogo} fontSize="60" aria-hidden />
+        <Icon as={ScixAndNasaLogo_H} height="4em" width="25em" aria-hidden />
       </Show>
-      <Heading as="h2" color="white" fontSize={['23', '36']} ml={2}>
-        <Text as="span" fontWeight="bold">
-          NASA
-        </Text>{' '}
-        <Text as="span" fontWeight="normal">
-          Science Explorer
-        </Text>
-      </Heading>
+      <VisuallyHidden>
+        <Heading as="h1">NASA Science Explorer</Heading>
+      </VisuallyHidden>
     </Center>
   );
 };
