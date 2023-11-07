@@ -128,8 +128,8 @@ export interface IAbstractSideNavProps extends HTMLAttributes<HTMLDivElement> {
 
 export const AbstractSideNav = (props: IAbstractSideNavProps): ReactElement => {
   const { doc } = props;
-  const hasGraphics = useHasGraphics(doc.bibcode);
-  const hasMetrics = useHasMetrics(doc.bibcode);
+  const hasGraphics = useHasGraphics(doc?.bibcode);
+  const hasMetrics = useHasMetrics(doc?.bibcode);
   const { menuItems, activeItem } = useGetItems({ doc, hasGraphics, hasMetrics });
 
   return (

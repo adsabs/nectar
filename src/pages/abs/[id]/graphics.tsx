@@ -10,6 +10,7 @@ import Head from 'next/head';
 import NextImage from 'next/legacy/image';
 import NextLink from 'next/link';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from '@tanstack/react-query';
+import { LoadingMessage } from '@components';
 
 interface IGraphicsPageProps {
   id: string;
@@ -25,7 +26,12 @@ const GraphicsPage: NextPage<IGraphicsPageProps> = (props: IGraphicsPageProps) =
   const doc = useGetAbstractDoc(id);
   const title = unwrapStringValue(doc?.title);
 
-  const { data: graphics, isError, isSuccess } = useGetGraphics(doc.bibcode, { keepPreviousData: true, retry: false });
+  const {
+    data: graphics,
+    isLoading,
+    isError,
+    isSuccess,
+  } = useGetGraphics(doc?.bibcode, { enabled: !!doc?.bibcode, keepPreviousData: true, retry: false });
   return (
     <AbsLayout doc={doc} titleDescription="Graphics from">
       <Head>
@@ -36,11 +42,12 @@ const GraphicsPage: NextPage<IGraphicsPageProps> = (props: IGraphicsPageProps) =
           Unable to fetch graphics
         </Box>
       )}
-      {!isError && !graphics && (
+      {!isError && !isLoading && !graphics && (
         <Box mt={5} fontSize="xl">
           No graphics
         </Box>
       )}
+      {isLoading && <LoadingMessage message="Loading" />}
       {isSuccess && graphics && (
         <>
           <Box dangerouslySetInnerHTML={{ __html: graphics.header }}></Box>

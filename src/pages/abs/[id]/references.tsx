@@ -24,9 +24,9 @@ const ReferencesPage: NextPage<IReferencesPageProps> = (props: IReferencesPagePr
   const { id, error } = props;
   const doc = useGetAbstractDoc(id);
 
-  const { getParams, onPageChange } = useGetAbstractParams(doc.bibcode);
+  const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode);
   const { data, isSuccess } = useGetReferences(getParams(), { keepPreviousData: true });
-  const referencesParams = getReferencesParams(doc.bibcode, 0);
+  const referencesParams = getReferencesParams(doc?.bibcode, 0);
   const title = unwrapStringValue(doc?.title);
 
   return (
