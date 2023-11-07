@@ -46,6 +46,19 @@ const config = {
         destination: '/user/settings/application',
         permanent: true,
       },
+      {
+        has: [
+          {
+            type: 'host',
+            key: 'page',
+            value: 'localhost',
+          },
+        ],
+        source: '/help/:slug*',
+        destination: 'http://adsabs.github.io/help/:slug*',
+        permanent: false,
+        basePath: false,
+      },
     ];
   },
   trailingSlash: false,
