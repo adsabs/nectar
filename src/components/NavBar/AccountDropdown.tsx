@@ -4,6 +4,8 @@ import { MouseEvent, ReactElement } from 'react';
 import { MenuDropdown } from './MenuDropdown';
 import { ItemType, ListType, ItemItem } from './types';
 import { useSession } from '@lib/useSession';
+import { HStack, Icon, Text } from '@chakra-ui/react';
+import { UserIcon } from '@heroicons/react/24/solid';
 
 export const items: ItemType[] = [
   {
@@ -53,5 +55,18 @@ export const AccountDropdown = (props: IAccountDropdown): ReactElement => {
     }
   };
 
-  return <MenuDropdown id="account" type={type} label="Account" items={itemsToShow} onSelect={handleSelect} />;
+  return (
+    <MenuDropdown
+      id="account"
+      type={type}
+      label={
+        <HStack>
+          <Icon as={UserIcon} color={isAuthenticated ? 'blue.400' : 'gray.50'} />
+          <Text display="inline">Account</Text>
+        </HStack>
+      }
+      items={itemsToShow}
+      onSelect={handleSelect}
+    />
+  );
 };
