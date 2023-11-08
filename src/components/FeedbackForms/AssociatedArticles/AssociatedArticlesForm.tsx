@@ -21,6 +21,7 @@ import { useStore } from '@store';
 import { ChangeEvent, MouseEventHandler, useEffect, useRef, useState } from 'react';
 import { FormProvider, useFieldArray, useForm, useFormContext, useWatch } from 'react-hook-form';
 import { omit } from 'ramda';
+import { useGetUserEmail } from '@lib';
 
 type FormValues = {
   name: string;
@@ -58,7 +59,7 @@ export const AssociatedArticlesForm = ({
 }: {
   onOpenAlert: (params: { status: AlertStatus; title: string; description?: string }) => void;
 }) => {
-  const username = useStore((state) => state.user.username);
+  const userEmail = useGetUserEmail();
 
   const { isOpen: isPreviewOpen, onOpen: openPreview, onClose: closePreview } = useDisclosure();
 
@@ -66,7 +67,7 @@ export const AssociatedArticlesForm = ({
 
   const initialFormValues: FormValues = {
     name: '',
-    email: username ?? '',
+    email: userEmail ?? '',
     relationship: 'errata',
     otherRelationship: '',
     mainBibcode: '',

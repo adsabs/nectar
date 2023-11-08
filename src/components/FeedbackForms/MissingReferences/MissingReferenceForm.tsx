@@ -21,6 +21,7 @@ import { FormValues, Reference } from './types';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useGetUserEmail } from '@lib';
 
 const validationSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -35,7 +36,7 @@ export const MissingReferenceForm = ({
 }: {
   onOpenAlert: (params: { status: AlertStatus; title: string; description?: string }) => void;
 }) => {
-  const username = useStore((state) => state.user.username);
+  const userEmail = useGetUserEmail();
 
   const { isOpen: isPreviewOpen, onOpen: openPreview, onClose: closePreview } = useDisclosure();
 
@@ -48,7 +49,7 @@ export const MissingReferenceForm = ({
 
   const initialFormValues: FormValues = {
     name: '',
-    email: username ?? '',
+    email: userEmail ?? '',
     references: [],
   };
 
