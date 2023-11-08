@@ -1,13 +1,12 @@
 import { MouseEventHandler, ReactElement } from 'react';
-import { ListType } from './types';
+import { ItemType, ListType } from './types';
 import { MenuDropdown } from '@components/NavBar/MenuDropdown';
 import { useOrcid } from '@lib/orcid/useOrcid';
 import { isBrowser } from '@utils';
 import { OrcidInactiveLogo, OrcidLogo } from '@components';
-import { Flex, HStack, Icon, Text } from '@chakra-ui/react';
+import { Flex, HStack, Icon, Switch, Text } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import { AppState, useStore } from '@store';
-import { ToggleOffIcon, ToggleOnIcon } from '@components/icons/Toggle';
 
 interface IOrcidDropdownProps {
   type: ListType;
@@ -32,10 +31,10 @@ export const OrcidDropdown = ({ onFinished }: IOrcidDropdownProps): ReactElement
     }
   };
 
-  const items = isAuthenticated
+  const items: ItemType[] = isAuthenticated
     ? [
         // on the orcid home page route, we don't want to show the toggle
-        ...(router.pathname === '/user/orcid'
+        ...((router.pathname === '/user/orcid'
           ? []
           : [
               {
@@ -46,16 +45,11 @@ export const OrcidDropdown = ({ onFinished }: IOrcidDropdownProps): ReactElement
                 id: 'my-orcid-page',
                 label: 'My ORCiD Page',
               },
-            ]),
+              'divider',
+            ]) as ItemType[]),
         {
           id: 'logout',
           label: <OrcidLogout />,
-          menuItemProps: {
-            _focus: {
-              backgroundColor: 'red.600',
-            },
-            backgroundColor: 'red.400',
-          },
         },
       ]
     : [
@@ -90,9 +84,9 @@ const OrcidToggle = () => {
   const active = useStore(orcidActiveSelector);
 
   return (
-    <Flex w="full" justifyContent="space-between">
-      <Text>Toggle ORCiD mode</Text>
-      {active ? <ToggleOnIcon /> : <ToggleOffIcon />}
+    <Flex w="full" justifyContent="space-between" style={{ pointerEvents: 'none' }}>
+      <Text>{active ? 'Turn off' : 'Turn on'} ORCiD mode</Text>
+      <Switch isChecked={active} isFocusable={false} isReadOnly aria-hidden />
     </Flex>
   );
 };
@@ -106,9 +100,5 @@ const OrcidLogin = () => {
 const OrcidLogout = () => {
   const { logout } = useOrcid();
 
-  return (
-    <Text color="white" onClick={logout}>
-      Logout from ORCiD
-    </Text>
-  );
+  return <Text onClick={logout}>Logout from ORCiD</Text>;
 };

@@ -6,10 +6,14 @@ export enum ListType {
   DROPDOWN = 'dropdown',
 }
 
-export type ItemType = {
+export type ItemItem = {
   id: string;
   label?: string | ReactElement;
   path?: string;
   disabled?: boolean;
   menuItemProps?: Omit<MenuItemProps, 'onClick'>;
 };
+
+export type DividerItem = 'divider';
+
+export type ItemType = ItemItem | DividerItem;
