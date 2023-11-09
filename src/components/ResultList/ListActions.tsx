@@ -1,4 +1,4 @@
-import { Bibcode, ExportApiFormatKey, useVaultBigQuerySearch } from '@api';
+import { Bibcode, ExportApiFormatKey, useGetUserSettings, useVaultBigQuerySearch } from '@api';
 import { ChevronDownIcon, SettingsIcon } from '@chakra-ui/icons';
 import {
   Button,
@@ -53,6 +53,10 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const [exploreAll, setExploreAll] = useState(true);
   const router = useRouter();
   const toast = useToast();
+
+  const { data: settings } = useGetUserSettings({
+    enabled: isAuthenticated,
+  });
 
   useEffect(() => {
     setExploreAll(noneSelected);
@@ -184,7 +188,10 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
                       <MenuDivider />
                     </>
                   )}
-                  <ExportMenu exploreAll={exploreAll} />
+                  <ExportMenu
+                    exploreAll={exploreAll}
+                    defaultExportFormat={settings?.defaultExportFormat ?? DEFAULT_USER_DATA.defaultExportFormat}
+                  />
                   <OrcidBulkMenu />
                 </MenuList>
               </Portal>
@@ -311,7 +318,7 @@ const SelectAllCheckbox = () => {
   );
 };
 
-const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean }): ReactElement => {
+const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean; defaultExportFormat: string }): ReactElement => {
   const { exploreAll, ...menuGroupProps } = props;
   const router = useRouter();
   const store = useStoreApi();
@@ -320,11 +327,7 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean }): ReactEleme
 
   const { data } = useVaultBigQuerySearch(selected, { enabled: !exploreAll && selected.length > 0 });
 
-  const defaultExportFormat = useStore(
-    (store) => store.settings?.user?.defaultExportFormat ?? DEFAULT_USER_DATA.defaultExportFormat,
-  );
-
-  const defaultExportFormatValue = values(exportFormats).find((f) => f.label === defaultExportFormat).value;
+  const defaultExportFormatValue = values(exportFormats).find((f) => f.label === props.defaultExportFormat).value;
 
   useEffect(() => {
     if (data) {

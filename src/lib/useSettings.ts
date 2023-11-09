@@ -8,12 +8,12 @@ import {
 import { DEFAULT_USER_DATA } from '@components';
 import { mergeLeft } from 'ramda';
 import { useDebouncedCallback } from 'use-debounce';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { useToast } from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { isNotEmpty } from 'ramda-adjunct';
 
-export const useSettings = () => {
+export const useSettings = (options?: UseQueryOptions<IADSApiUserDataResponse>) => {
   const toast = useToast({
     position: 'bottom',
     isClosable: true,
@@ -23,6 +23,7 @@ export const useSettings = () => {
   const queryClient = useQueryClient();
   const { data: settings, ...getSettingsState } = useGetUserSettings({
     suspense: true,
+    ...options,
   });
   const { mutate, ...updateSettingsState } = useUpdateUserSettings({
     onSuccess: (data) => {
