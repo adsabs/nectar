@@ -110,7 +110,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                         params={createQuery('orcid', orcid)}
                         aria-label={`author "${author}", search by orKid`}
                       >
-                        <OrcidActiveIcon fontSize={'large'} />
+                        <OrcidActiveIcon fontSize={'large'} mx={1} />
                       </SearchQueryLink>
                     )}
                     <>{index === MAX - 1 || index === doc.author_count - 1 ? '' : ';'}</>
