@@ -1,287 +1,250 @@
-import { SearchIcon } from '@chakra-ui/icons';
 import {
-  Box,
-  Button,
   ButtonProps,
   CloseButton,
+  Code,
   Flex,
+  forwardRef,
+  Icon,
+  IconButton,
   Input,
   InputGroup,
+  InputProps,
   InputRightElement,
   List,
   ListItem,
-  Show,
-  Spinner,
+  Popover,
+  PopoverAnchor,
+  PopoverBody,
+  PopoverContent,
   Text,
-  usePopper,
+  useMergeRefs,
   VisuallyHidden,
-  visuallyHiddenStyle,
 } from '@chakra-ui/react';
-import { useCombobox, UseComboboxStateChange } from 'downshift';
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { typeaheadOptions } from './models';
+import { ChangeEventHandler, Dispatch, KeyboardEventHandler, useCallback, useEffect, useReducer, useRef } from 'react';
 import { useIntermediateQuery } from '@lib/useIntermediateQuery';
-import { isNilOrEmpty } from 'ramda-adjunct';
-import { filterItems } from '@components/SearchBar/helpers';
+import { isNonEmptyString } from 'ramda-adjunct';
 import { TypeaheadOption } from '@components/SearchBar/types';
+import { initialState, reducer, SearchInputAction } from '@components/SearchBar/searchInputReducer';
+import { getFocusedItemValue, getPreview } from '@components/SearchBar/helpers';
+import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
+import { useFocus } from '@lib/useFocus';
 
-export interface ISearchInputProps {
+export interface ISearchInputProps extends InputProps {
   isLoading?: boolean;
 }
 
-const ClearInputButton = (props: { onClear: () => void } & ButtonProps) => {
-  const { onClear, ...buttonProps } = props;
-  const { clearQuery, query } = useIntermediateQuery();
-
-  const handleClear = useCallback(() => {
-    clearQuery();
-    if (typeof onClear === 'function') {
-      onClear();
-    }
-  }, [clearQuery, onClear]);
-
-  return isNilOrEmpty(query) ? null : (
-    <CloseButton
-      aria-label="Clear search"
-      size="lg"
-      onClick={handleClear}
-      data-testid="searchbar-clear"
-      {...buttonProps}
-    />
-  );
+const ClearInputButton = (props: ButtonProps) => {
+  return <CloseButton aria-label="Clear search" size="lg" data-testid="searchbar-clear" {...props} />;
 };
 
-export const SearchInput = forwardRef<Partial<HTMLInputElement>, ISearchInputProps>((props, ref) => {
-  const { query, updateQuery, isClearingQuery, onDoneClearingQuery, queryAddition, onDoneAppendingToQuery } =
-    useIntermediateQuery();
-  const input = useRef<HTMLInputElement>(null);
+export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const { isLoading, ...inputProps } = props;
+  const [input, focus] = useFocus();
+  const refs = useMergeRefs(ref, input);
+  const { query, queryAddition, onDoneAppendingToQuery, isClearingQuery, onDoneClearingQuery } = useIntermediateQuery();
 
-  // allow outside refs to fire focus
-  useImperativeHandle(ref, () => ({
-    focus: () => input.current.focus(),
-    setSelectionRange: (start: number, end: number) => input.current.setSelectionRange(start, end),
-  }));
-
-  const [inputItems, setInputItems] = useState(typeaheadOptions);
-  const [selectedItem, setSelectedItem] = useState<TypeaheadOption>(null);
-  const {
-    isOpen,
-    getLabelProps,
-    getMenuProps,
-    getInputProps,
-    getComboboxProps,
-    highlightedIndex,
-    getItemProps,
-    inputValue,
-    closeMenu,
-    setInputValue,
-  } = useCombobox({
-    defaultInputValue: query,
-    items: inputItems,
-    itemToString: useCallback<(item: TypeaheadOption) => string>(
-      (item) => {
-        return item ? `${query.replace(/\S+$/, '')}${item.value}` : query;
-      },
-      [query],
-    ),
-    labelId: 'primary-search-label',
-    menuId: 'primary-search-menu',
-    inputId: 'primary-search-input',
-    getItemId: (index) => `primary-search-menuitem-${index}`,
-    selectedItem,
-    onSelectedItemChange: ({ selectedItem }) => setSelectedItem(selectedItem),
-    onInputValueChange: useCallback<(changes: UseComboboxStateChange<TypeaheadOption>) => void>(
-      ({ inputValue }) => {
-        // update store query, with input value
-        if (inputValue !== query) {
-          updateQuery(inputValue);
-        }
-      },
-      [updateQuery, query],
-    ),
-    circularNavigation: false,
-  });
-
+  // on mount, set the search term
   useEffect(() => {
-    if (query) {
-      setInputValue(query);
+    if (isNonEmptyString(query)) {
+      dispatch({ type: 'SET_SEARCH_TERM', payload: query });
+      setTimeout(() => focus(), 10);
     }
   }, [query]);
 
-  // filter items, but only when the cursor is at the end of the input
+  // handle query additions
   useEffect(() => {
-    if (input.current.selectionStart < inputValue.length || inputValue.length === 0) {
-      setInputItems([]);
-    } else {
-      setInputItems(filterItems(inputValue));
-    }
-  }, [setInputItems, inputValue, filterItems, input.current?.selectionStart]);
-
-  // watch for query addition changes and update the input value
-  useEffect(() => {
-    if (queryAddition) {
-      setInputValue(inputValue.length === 0 ? queryAddition : `${inputValue} ${queryAddition}`);
-      onDoneAppendingToQuery();
+    if (isNonEmptyString(queryAddition)) {
       focus();
+      dispatch({ type: 'SET_SEARCH_TERM_ADDITION', payload: queryAddition });
+      onDoneAppendingToQuery();
     }
-  }, [queryAddition, inputValue, onDoneAppendingToQuery]);
+  }, [queryAddition]);
 
-  // watch for query clear flag and clear the input value
+  // run the handlers based on the keydown event
+  const handleOnKeyDown: KeyboardEventHandler<HTMLInputElement> = useCallback(
+    (e) => {
+      // if any modifier keys, ignore
+      if (e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) {
+        return;
+      }
+
+      if (e.key === 'Enter' && state.isOpen) {
+        e.preventDefault();
+        dispatch({ type: 'KEYDOWN_ENTER' });
+      } else if (e.key === 'Escape' && state.isOpen) {
+        e.preventDefault();
+        dispatch({ type: 'KEYDOWN_ESCAPE' });
+      } else if (e.key === 'ArrowUp' && state.isOpen) {
+        e.preventDefault();
+        dispatch({ type: 'KEYDOWN_ARROW_UP' });
+      } else if (e.key === 'Tab' && state.isOpen) {
+        e.preventDefault();
+        dispatch({ type: 'KEYDOWN_TAB' });
+      }
+
+      if (e.key === 'ArrowDown' && e.currentTarget.selectionStart === e.currentTarget.value.length) {
+        e.preventDefault();
+        dispatch({ type: 'KEYDOWN_ARROW_DOWN' });
+      }
+
+      // if a normal key, then the user is editing, we should close the menu
+      if (state.isOpen && !['ArrowUp', 'ArrowDown', 'Enter', 'Escape', 'Tab'].includes(e.key)) {
+        dispatch({ type: 'SOFT_RESET' });
+      }
+    },
+    [state.isOpen],
+  );
+
+  // handle updates to the cursor position, usually just to move inside "" or ()
+  useEffect(() => {
+    // set cursor position
+    if (input.current) {
+      input.current.setSelectionRange(state.cursorPosition, state.cursorPosition);
+    }
+  }, [input.current, state.cursorPosition]);
+
+  // handle updates to the search term
+  const handleInputChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    dispatch({ type: 'SET_SEARCH_TERM', payload: e.target.value });
+  };
+
+  // clear input
+  const handleClearInput = () => {
+    focus();
+    dispatch({ type: 'HARD_RESET' });
+  };
+
   useEffect(() => {
     if (isClearingQuery) {
-      setInputValue('');
+      handleClearInput();
       onDoneClearingQuery();
-      focus();
     }
-  }, [isClearingQuery, onDoneClearingQuery]);
+  }, [isClearingQuery, onDoneClearingQuery, handleClearInput]);
 
-  const { popperRef, referenceRef } = usePopper({
-    enabled: isOpen,
-    matchWidth: true,
-    placement: 'bottom-start',
-    offset: [0, 3],
-  });
-
-  // focus on the search bar, and set the cursor to the end
-  const focus = useCallback(() => {
-    if (input.current) {
-      input.current.focus();
-      input.current.selectionStart = Number.MAX_SAFE_INTEGER;
-    }
-  }, [input.current]);
-
-  // call focus after component mounts
-  useEffect(() => {
-    if (input?.current?.focus) {
-      focus();
-    }
-  }, [input, focus]);
+  const handleItemClick = useCallback(() => {
+    focus({ moveCursorToEnd: false });
+  }, [focus]);
 
   return (
-    <Flex
-      as="section"
-      direction="row"
-      alignItems="center"
-      sx={{
-        '&:has(input:focus)': {
-          boxShadow: '0 0 0 3px rgba(66, 153, 225, 0.6)',
-        },
-      }}
-    >
-      <Flex as="section" direction="column" flexGrow="1">
-        <label style={visuallyHiddenStyle} {...getLabelProps()}>
-          Search Database
-        </label>
-        <InputGroup size="xl" {...getComboboxProps()}>
-          <Input
-            disabled={props.isLoading}
-            data-testid="searchbar-input"
-            variant="outline"
-            placeholder="Search..."
-            type="text"
-            autoFocus
-            height="40px"
-            pl="2"
-            pr="10"
-            name="q"
-            {...getInputProps({
-              ref: (el: HTMLInputElement) => {
-                referenceRef(el);
-                input.current = el;
-                return el;
-              },
-              onKeyDown: (e) => {
-                // by default, downshift captures home/end, prevent that here
-                if (e.key === 'Home' || e.key === 'End') {
-                  (
-                    e.nativeEvent as typeof e.nativeEvent & { preventDownshiftDefault: boolean }
-                  ).preventDownshiftDefault = true;
-                }
-                if (e.key === 'Enter') {
-                  // on submit, the menu should close
-                  setTimeout(() => closeMenu(), 0);
-
-                  (
-                    e.nativeEvent as typeof e.nativeEvent & { preventDownshiftDefault: boolean }
-                  ).preventDownshiftDefault = true;
-                }
-              },
-            })}
-            spellCheck="off"
-            autoComplete="off"
-            id="primary-search-input"
-            _focus={{
-              boxShadow: '',
-            }}
-          />
-
-          <InputRightElement>
-            <ClearInputButton onClear={focus} isDisabled={props.isLoading} />
-          </InputRightElement>
-        </InputGroup>
-
-        <List
-          backgroundColor="white"
-          borderRadius="md"
-          borderTopRadius="none"
-          boxShadow="lg"
-          zIndex="1000"
-          data-testid="searchbar-menu"
-          {...getMenuProps({
-            ref: (el: HTMLUListElement) => {
-              popperRef(el);
-              return el;
+    <Popover isOpen={state.isOpen} placement="bottom" gutter={0} matchWidth autoFocus={false}>
+      <PopoverAnchor>
+        <InputGroup
+          display="flex"
+          aria-labelledby="search-box-label"
+          sx={{
+            '&:has(input:focus)': {
+              boxShadow: '0 0 0 3px rgba(66, 153, 225, 0.6)',
+              borderRadius: 'md',
             },
-          })}
+          }}
         >
-          {isOpen &&
-            inputItems.map((item, index) => (
-              <ListItem
-                key={`${item.id}${index}`}
-                {...getItemProps({ item, index })}
-                backgroundColor={highlightedIndex === index ? 'blue.100' : 'auto'}
-                py="2"
-                px="2"
-                cursor="pointer"
-                display="flex"
-                alignItems="center"
-              >
-                <Box flex="1">
-                  <Text fontWeight="bold" fontSize={['sm', 'lg']}>
-                    {item.label}
-                  </Text>
-                  <Text fontSize={['xs', 'sm']}>{item.desc}</Text>
-                </Box>
-                <Show above="sm">
-                  <Box as="pre">{item.value}</Box>
-                </Show>
-              </ListItem>
-            ))}
-        </List>
-      </Flex>
-
-      <Button
-        type="submit"
-        h="40px"
-        borderLeftRadius="none"
-        data-testid="searchbar-submit"
-        _focus={{
-          boxShadow: '',
-        }}
-        isDisabled={props.isLoading}
-      >
-        {props.isLoading ? (
-          <>
-            <Spinner />
-            <VisuallyHidden>Loading</VisuallyHidden>
-          </>
-        ) : (
-          <>
-            <SearchIcon fontSize="xl" aria-hidden />
-            <VisuallyHidden>Search</VisuallyHidden>
-          </>
-        )}
-      </Button>
-    </Flex>
+          <VisuallyHidden id="search-box-label">Search Database</VisuallyHidden>
+          <InputGroup>
+            <Input
+              ref={refs}
+              type="text"
+              placeholder="Search..."
+              value={getPreview(state.searchTerm, getFocusedItemValue(state.items, state.focused))}
+              aria-owns="search-listbox"
+              aria-haspopup="listbox"
+              aria-expanded={state.isOpen}
+              aria-autocomplete="list"
+              aria-activedescendant={state.focused > -1 ? `search-item-${state.focused}` : undefined}
+              autoFocus
+              onKeyDown={handleOnKeyDown}
+              borderLeftRadius="md"
+              onChange={handleInputChange}
+              name="q"
+              _focus={{ boxShadow: 'none' }}
+              data-testid="search-input"
+              {...inputProps}
+            />
+            {isNonEmptyString(state.searchTerm) && (
+              <InputRightElement>
+                <ClearInputButton onClick={handleClearInput} isDisabled={isLoading} data-testid="search-clearbtn" />
+              </InputRightElement>
+            )}
+          </InputGroup>
+          <IconButton
+            type="submit"
+            aria-label="search"
+            isLoading={isLoading}
+            data-testid="search-submit"
+            icon={<Icon as={MagnifyingGlassIcon} fontSize="24px" transform="rotate(90deg)" />}
+            size="md"
+            borderLeftRadius="none"
+          />
+        </InputGroup>
+      </PopoverAnchor>
+      <PopoverContent borderRadius={0} borderTop={0} width="full">
+        <PopoverBody>
+          <List
+            maxH="md"
+            overflowY="auto"
+            role="listbox"
+            id="search-listbox"
+            aria-labelledby="search-box-label"
+            data-testid="search-autocomplete-menu"
+          >
+            {state.items.length > 0 &&
+              state.items.map((item, index) => (
+                <TypeaheadItem
+                  key={item.id}
+                  item={item}
+                  dispatch={dispatch}
+                  index={index}
+                  onClick={handleItemClick}
+                  focused={state.focused === index}
+                  data-testid={`search-autocomplete-item-${index}`}
+                />
+              ))}
+          </List>
+        </PopoverBody>
+      </PopoverContent>
+    </Popover>
   );
 });
+
+const TypeaheadItem = (props: {
+  item: TypeaheadOption;
+  index: number;
+  focused: boolean;
+  dispatch: Dispatch<SearchInputAction>;
+  onClick?: () => void;
+}) => {
+  const { focused, item, dispatch, index, onClick } = props;
+  const liRef = useRef<HTMLLIElement>(null);
+
+  const handleClick = useCallback(() => {
+    dispatch({ type: 'FOCUS_ITEM', index });
+    dispatch({ type: 'CLICK_ITEM' });
+    if (typeof onClick === 'function') {
+      onClick();
+    }
+  }, [onClick]);
+
+  // scroll element into view when focused
+  useEffect(() => {
+    if (typeof liRef.current?.scrollIntoView === 'function' && focused) {
+      liRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
+    }
+  }, [liRef.current, focused]);
+
+  return (
+    <ListItem
+      ref={liRef}
+      backgroundColor={focused ? 'blue.100' : 'auto'}
+      _hover={{ cursor: 'pointer', backgroundColor: 'blue.100' }}
+      px="2"
+      py="1"
+      aria-selected={focused}
+      onClick={handleClick}
+    >
+      <Flex>
+        <Text flex="1">{item.label}</Text>
+        <Code>{item.value}</Code>
+      </Flex>
+    </ListItem>
+  );
+};
