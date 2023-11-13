@@ -53,6 +53,15 @@ importers:
       '@nivo/line':
         specifier: ^0.80.0
         version: 0.80.0(@nivo/core@0.80.0)(prop-types@15.8.1)(react-dom@18.2.0)(react@18.2.0)
+      '@playwright/browser-chromium':
+        specifier: ^1.39.0
+        version: 1.39.0
+      '@playwright/browser-firefox':
+        specifier: ^1.39.0
+        version: 1.39.0
+      '@playwright/browser-webkit':
+        specifier: ^1.39.0
+        version: 1.39.0
       '@tanstack/react-query':
         specifier: ^4.29.17
         version: 4.29.17(react-dom@18.2.0)(react@18.2.0)
@@ -4218,6 +4227,30 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /@playwright/browser-chromium@1.39.0:
+    resolution: {integrity: sha512-s1WPO0qOE7PIZcdcJEd4CHQgXf9rOwy00Den8DsXTI26n/Eqa2HzFSbLRE1Eh2nIJZFSGyKLbopHR0HkT8ClZw==}
+    engines: {node: '>=16'}
+    requiresBuild: true
+    dependencies:
+      playwright-core: 1.39.0
+    dev: false
+
+  /@playwright/browser-firefox@1.39.0:
+    resolution: {integrity: sha512-QwtxRw63W8hAxAkqY5qCZl1yxs7Skin2tBpv1GhXrjVcZmrZdfGie/c9BbFkU1pZq8n0z+sPzu4kanMTR8F9qQ==}
+    engines: {node: '>=16'}
+    requiresBuild: true
+    dependencies:
+      playwright-core: 1.39.0
+    dev: false
+
+  /@playwright/browser-webkit@1.39.0:
+    resolution: {integrity: sha512-hqGFV0wNo+Z05W/ySyikdPsw+C3/xwZ7Q6rxhHdP8BJBqaA4vmGMTlyF5hOHVUQpd1QuGMq7vkiFgEKNNjzZSg==}
+    engines: {node: '>=16'}
+    requiresBuild: true
+    dependencies:
+      playwright-core: 1.39.0
+    dev: false
 
   /@playwright/test@1.39.0:
     resolution: {integrity: sha512-3u1iFqgzl7zr004bGPYiN/5EZpRUSFddQBra8Rqll5N0/vfpqlP9I9EXqAoGacuAbX6c9Ulg/Cjqglp5VkK6UQ==}
@@ -12188,7 +12221,6 @@ packages:
     resolution: {integrity: sha512-+k4pdZgs1qiM+OUkSjx96YiKsXsmb59evFoqv8SKO067qBA+Z2s/dCzJij/ZhdQcs2zlTAgRKfeiiLm8PQ2qvw==}
     engines: {node: '>=16'}
     hasBin: true
-    dev: true
 
   /playwright@1.39.0:
     resolution: {integrity: sha512-naE5QT11uC/Oiq0BwZ50gDmy8c8WLPRTEWuSSFVG2egBka/1qMoSqYQcROMT9zLwJ86oPofcTH2jBY/5wWOgIw==}
