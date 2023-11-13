@@ -7,12 +7,11 @@ import {
   FormLabel,
   HStack,
   Input,
+  Stack,
   useDisclosure,
 } from '@chakra-ui/react';
-/* eslint-disable @typescript-eslint/no-misused-promises */
 import { ExportApiFormatKey, useGetExportCitation, useSearch } from '@api';
 import { IFeedbackParams } from '@api/feedback';
-import { useStore } from '@store';
 import { omit } from 'ramda';
 import { MouseEvent, useEffect, useState } from 'react';
 import { PreviewModal } from '../PreviewModal';
@@ -231,7 +230,7 @@ export const MissingReferenceForm = ({
     <FormProvider {...formMethods}>
       <form onSubmit={handleSubmit(handlePreview)}>
         <Flex direction="column" gap={4} my={2}>
-          <HStack gap={2}>
+          <Stack direction={{ base: 'column', sm: 'row' }} gap={2}>
             <FormControl isRequired isInvalid={!!errors.name}>
               <FormLabel>Name</FormLabel>
               <Input {...register('name', { required: true })} autoFocus />
@@ -242,7 +241,7 @@ export const MissingReferenceForm = ({
               <Input {...register('email', { required: true })} type="email" />
               <FormErrorMessage>{errors.email && errors.email.message}</FormErrorMessage>
             </FormControl>
-          </HStack>
+          </Stack>
           <MissingReferenceTable />
           <HStack mt={2}>
             <Button type="submit" isLoading={state !== 'idle'}>

@@ -12,12 +12,12 @@ import {
   HStack,
   IconButton,
   Input,
+  Stack,
   useDisclosure,
 } from '@chakra-ui/react';
 import { PreviewModal, Select, SelectOption } from '@components';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useStore } from '@store';
 import { ChangeEvent, MouseEventHandler, useEffect, useRef, useState } from 'react';
 import { FormProvider, useFieldArray, useForm, useFormContext, useWatch } from 'react-hook-form';
 import { omit } from 'ramda';
@@ -232,7 +232,7 @@ export const AssociatedArticlesForm = ({
     <FormProvider {...formMethods}>
       <form onSubmit={handleSubmit(handlePreview)}>
         <Flex direction="column" gap={4} my={2}>
-          <HStack gap={2}>
+          <Stack direction={{ base: 'column', sm: 'row' }} gap={2}>
             <FormControl isRequired isInvalid={!!errors.name}>
               <FormLabel>Name</FormLabel>
               <Input {...register('name', { required: true })} autoFocus />
@@ -243,7 +243,7 @@ export const AssociatedArticlesForm = ({
               <Input {...register('email', { required: true })} type="email" />
               <FormErrorMessage>{errors.email && errors.email.message}</FormErrorMessage>
             </FormControl>
-          </HStack>
+          </Stack>
           <AssociatedTable />
           <HStack mt={2}>
             <Button type="submit" isLoading={state !== 'idle'}>

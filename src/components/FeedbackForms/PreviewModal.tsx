@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Flex,
+  HStack,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -10,7 +11,6 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Spacer,
   Text,
 } from '@chakra-ui/react';
 import { parseAPIError } from '@utils';
@@ -85,15 +85,18 @@ export const PreviewModal = (props: IPreviewProps) => {
           </Flex>
         </ModalBody>
         <ModalFooter backgroundColor="transparent" justifyContent="start" gap={1}>
-          <Button onClick={handleSubmit} isLoading={isLoading}>
-            Submit
-          </Button>
-          <Button onClick={onClose} variant="outline" isDisabled={isLoading}>
-            Back
-          </Button>
-          <Spacer />
-          <RecaptchaMessage />
-          <FormMessage show={!!formError} title="Unable to submit form" error={formError} />
+          <Flex direction={{ base: 'column' }}>
+            <HStack>
+              <Button onClick={handleSubmit} isLoading={isLoading}>
+                Submit
+              </Button>
+              <Button onClick={onClose} variant="outline" isDisabled={isLoading}>
+                Back
+              </Button>
+            </HStack>
+            <FormMessage show={!!formError} title="Unable to submit form" error={formError} />
+            <RecaptchaMessage />
+          </Flex>
         </ModalFooter>
       </ModalContent>
     </Modal>

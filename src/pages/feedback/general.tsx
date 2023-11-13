@@ -9,6 +9,7 @@ import {
   FormLabel,
   HStack,
   Input,
+  Stack,
   Text,
   Textarea,
   useDisclosure,
@@ -191,7 +192,7 @@ const General: NextPage = () => {
           You can also reach us at <strong>adshelp [at] cfa.harvard.edu</strong>
         </Text>
         <Flex direction="column" gap={4}>
-          <HStack gap={2}>
+          <Stack direction={{ base: 'column', sm: 'row' }} gap={2}>
             <FormControl isRequired isInvalid={!!errors.name}>
               <FormLabel>Name</FormLabel>
               <Input {...register('name', { required: true })} autoFocus />
@@ -202,7 +203,7 @@ const General: NextPage = () => {
               <Input {...register('email', { required: true })} type="email" />
               <FormErrorMessage>{errors.email && errors.email.message}</FormErrorMessage>
             </FormControl>
-          </HStack>
+          </Stack>
 
           <FormControl isRequired isInvalid={!!errors.comments}>
             <FormLabel>Feedback</FormLabel>
