@@ -293,7 +293,7 @@ const getStatusTag = (status: IOrcidProfileEntry['status']) => {
 const getTitle = (work: IOrcidProfileEntry): ReactElement => {
   if (work.status !== 'not in ADS') {
     return (
-      <SimpleLink href={`/abs/${encodeURIComponent(work.identifier)}`}>
+      <SimpleLink href={`/abs/${encodeURIComponent(work.identifier)}/abstract`}>
         <Text dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(work.title) }} />
       </SimpleLink>
     );
