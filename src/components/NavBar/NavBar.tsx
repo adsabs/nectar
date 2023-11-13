@@ -1,5 +1,5 @@
 import { Box, Flex, HStack, Icon, Link } from '@chakra-ui/react';
-import { ScixAndTextLogo_H } from '@components/images';
+import { ScixAndTextLogo_H_beta } from '@components/images/ScixAndTextLogo-H_beta';
 import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
 import { FC } from 'react';
@@ -18,7 +18,7 @@ export const NavBar: FC = () => {
           <NextLink href="/" passHref legacyBehavior>
             <Link _hover={{ textDecoration: 'none' }}>
               <HStack cursor="pointer" spacing={1}>
-                <Icon as={ScixAndTextLogo_H} width="6em" height="3em" color="gray.50" aria-label="Scix Home" />
+                <Icon as={ScixAndTextLogo_H_beta} width="6em" height="3em" color="gray.50" aria-label="Scix Home" />
               </HStack>
             </Link>
           </NextLink>
