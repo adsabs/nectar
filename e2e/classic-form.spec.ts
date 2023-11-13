@@ -1,4 +1,5 @@
-import { expect, PlaywrightTestArgs, test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
+import { checkQuery } from './helpers';
 
 test.skip('blank form has correct defaults set', async ({ page }) => {
   await page.goto('/classic-form', { timeout: 60000 });
@@ -21,11 +22,6 @@ test.skip('blank form has correct defaults set', async ({ page }) => {
   await expect(page.locator('#react-select-bibstem-picker-input')).toHaveValue('');
   await expect(page.getByTestId('sort')).toHaveText('Date');
 });
-
-const checkQuery = (page: PlaywrightTestArgs['page'], query: string) => {
-  const search = new URL(page.url()).searchParams;
-  expect(search.get('q')).toBe(query);
-};
 
 test('default form can be submitted, and is valid', async ({ page }) => {
   await page.goto('/classic-form');
