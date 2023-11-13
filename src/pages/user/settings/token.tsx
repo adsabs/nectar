@@ -9,7 +9,6 @@ import {
   Button,
   Code,
   Heading,
-  HStack,
   InputGroup,
   InputLeftAddon,
   InputRightAddon,
@@ -124,7 +123,7 @@ const TokenArea = (props: { onGenerate: () => void; isLoading: boolean }) => {
           bgColor="blue.500"
           color="gray.50"
           borderColor="blue.500"
-          borderRightRadius="sm"
+          borderRightRadius="md"
           cursor="pointer"
           onClick={onGenerate}
         >
@@ -140,7 +139,7 @@ const TokenArea = (props: { onGenerate: () => void; isLoading: boolean }) => {
           <Heading size="sm" as="h2">
             API Usage
           </Heading>
-          <HStack>
+          <Stack direction={{ base: 'column', xs: 'row' }}>
             <Code>
               {
                 "curl -H 'Authorization: Bearer:*************************' https://api.adsabs.harvard.edu/v1/search/query?q=star&fl=bibcode"
@@ -152,7 +151,7 @@ const TokenArea = (props: { onGenerate: () => void; isLoading: boolean }) => {
                 data?.access_token ?? ''
               }' https://api.adsabs.harvard.edu/v1/search/query?q=star&fl=bibcode`}
             />
-          </HStack>
+          </Stack>
           <Text fontStyle="italic" color="gray700">
             (copy/paste directly into your terminal)
           </Text>

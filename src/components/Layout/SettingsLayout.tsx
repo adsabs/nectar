@@ -1,4 +1,4 @@
-import { Container, Heading, LayoutProps, Stack, Text } from '@chakra-ui/react';
+import { Heading, LayoutProps, Stack, Text } from '@chakra-ui/react';
 import { SettingsSideNav } from '@components';
 import Head from 'next/head';
 import { FC } from 'react';
@@ -10,26 +10,22 @@ interface ISettingsLayoutProps {
   maxW?: LayoutProps['maxW'];
 }
 
-export const SettingsLayout: FC<ISettingsLayoutProps> = ({ children, title, maxW = 'container.sm' }) => {
+export const SettingsLayout: FC<ISettingsLayoutProps> = ({ children, title }) => {
   return (
-    <Container maxW="container.lg">
-      <Stack direction={{ base: 'column', lg: 'row' }} spacing={6} my={{ base: 2, lg: 10 }}>
-        <Head>
-          <title>{title}</title>
-        </Head>
-        <SettingsSideNav />
-        <Stack direction="column" as="section" aria-labelledby="title" spacing={1} width="full">
-          <Heading as="h2" fontSize="2xl" variant="abstract" id="settings-section-title">
-            <Text as="span" fontSize="xl">
-              {title}
-            </Text>
-          </Heading>
-          <Container pt={5} maxW={maxW}>
-            <ErrorBoundary fallbackRender={Fallback}>{children}</ErrorBoundary>
-          </Container>
-        </Stack>
+    <Stack direction={{ base: 'column', lg: 'row' }} spacing={6} my={{ base: 2, lg: 10 }}>
+      <Head>
+        <title>{title}</title>
+      </Head>
+      <SettingsSideNav />
+      <Stack direction="column" as="section" aria-labelledby="title" spacing={1} width="full">
+        <Heading as="h2" fontSize="2xl" variant="abstract" id="settings-section-title">
+          <Text as="span" fontSize="xl">
+            {title}
+          </Text>
+        </Heading>
+        <ErrorBoundary fallbackRender={Fallback}>{children}</ErrorBoundary>
       </Stack>
-    </Container>
+    </Stack>
   );
 };
 

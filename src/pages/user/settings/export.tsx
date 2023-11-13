@@ -170,13 +170,13 @@ const ExportSettings = () => {
         <Tab>BibTeX</Tab>
       </TabList>
       <TabPanels>
-        <TabPanel>
+        <TabPanel px={{ base: 0, sm: '2' }}>
           <GeneralTabPanel sampleBib={sampleBib} selectedOption={defaultExportFormatOption} dispatch={dispatch} />
         </TabPanel>
-        <TabPanel>
+        <TabPanel px={{ base: 0, sm: '2' }}>
           <CustomFormatsTabPanel sampleBib={sampleBib} dispatch={dispatch} />
         </TabPanel>
-        <TabPanel>
+        <TabPanel px={{ base: 0, sm: '2' }}>
           <BibtexTabPanel sampleBib={sampleBib} dispatch={dispatch} />
         </TabPanel>
       </TabPanels>
