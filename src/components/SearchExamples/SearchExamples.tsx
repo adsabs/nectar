@@ -31,7 +31,6 @@ export const SearchExamples: FC<ISearchExamplesProps> = (props) => {
 
     // fire select callback
     onSelect();
-    return undefined;
   };
 
   // memoize left/right examples

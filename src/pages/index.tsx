@@ -5,7 +5,7 @@ import { makeSearchParams } from '@utils';
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { ChangeEventHandler, useEffect, useRef, useState } from 'react';
+import { ChangeEventHandler, useCallback, useEffect, useState } from 'react';
 import { useIntermediateQuery } from '@lib/useIntermediateQuery';
 
 const SearchExamples = dynamic<ISearchExamplesProps>(
@@ -17,9 +17,8 @@ const HomePage: NextPage = () => {
   const store = useStoreApi();
   const submitQuery = useStore((state) => state.submitQuery);
   const router = useRouter();
-  const input = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { clearQuery, query } = useIntermediateQuery();
+  const { clearQuery, updateQuery } = useIntermediateQuery();
 
   // clear search on mount
   useEffect(() => clearQuery(), []);
@@ -27,22 +26,21 @@ const HomePage: NextPage = () => {
   /**
    * update route and start searching
    */
-  const handleOnSubmit: ChangeEventHandler<HTMLFormElement> = (e) => {
-    e.preventDefault();
-    const { sort } = store.getState().query;
-    if (query && query.trim().length > 0) {
-      setIsLoading(true);
-      submitQuery();
-      void router.push({ pathname: '/search', search: makeSearchParams({ q: query, sort, p: 1 }) });
-    }
-  };
+  const handleOnSubmit: ChangeEventHandler<HTMLFormElement> = useCallback(
+    (e) => {
+      e.preventDefault();
+      const { sort } = store.getState().query;
+      const query = new FormData(e.currentTarget).get('q') as string;
 
-  const handleExampleSelect = () => {
-    // on example selection, move focus to input
-    if (input.current && 'focus' in input.current) {
-      input.current.focus();
-    }
-  };
+      if (query && query.trim().length > 0) {
+        updateQuery(query);
+        setIsLoading(true);
+        submitQuery();
+        void router.push({ pathname: '/search', search: makeSearchParams({ q: query, sort, p: 1 }) });
+      }
+    },
+    [router, store, submitQuery, updateQuery],
+  );
 
   return (
     <Box aria-labelledby="form-title" my={8}>
@@ -52,10 +50,10 @@ const HomePage: NextPage = () => {
         </VisuallyHidden>
         <Flex direction="column">
           <Box my={2}>
-            <SearchBar ref={input} isLoading={isLoading} />
+            <SearchBar isLoading={isLoading} />
           </Box>
           <Box mb={2} mt={5}>
-            <SearchExamples onSelect={handleExampleSelect} />
+            <SearchExamples />
           </Box>
         </Flex>
       </form>
