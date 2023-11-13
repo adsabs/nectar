@@ -1,9 +1,10 @@
 import { FormControl, FormLabel } from '@chakra-ui/react';
 import { Select } from '@components';
-import { useStore } from '@store';
+import { useSettings } from '@lib/useSettings';
 
 export const CustomFormatSelect = ({ onChange }: { onChange: (id: string) => void }) => {
-  const customFormats = useStore((store) => store.settings.user?.customFormats ?? []);
+  const { settings } = useSettings({ cacheTime: 0 });
+  const customFormats = settings.customFormats;
 
   // custom formats to options
   const customFormatOptions = customFormats

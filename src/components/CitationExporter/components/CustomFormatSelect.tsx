@@ -1,17 +1,18 @@
 import { ChangeEvent, Dispatch, useEffect, useState } from 'react';
 import { CitationExporterEvent } from '../CitationExporter.machine';
-import { useStore } from '@store';
 import { Button, FormControl, FormLabel, Input, Text } from '@chakra-ui/react';
 import { Select } from '@components/Select';
 import { useSession } from '@lib/useSession';
 import { SimpleLink } from '@components/SimpleLink';
+import { useSettings } from '@lib/useSettings';
 
 export interface ICustomFormatSelectProps {
   dispatch: Dispatch<CitationExporterEvent>;
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const CustomFormatSelect = ({ dispatch }: ICustomFormatSelectProps) => {
-  const customFormats = useStore((store) => store.settings.user?.customFormats ?? []);
+  const { settings } = useSettings();
+  const customFormats = settings.customFormats;
   const { isAuthenticated } = useSession();
 
   // custom formats to options
