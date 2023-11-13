@@ -50,7 +50,7 @@ export const NavMenus = (): ReactElement => {
           <DrawerOverlay />
           <DrawerContent>
             <DrawerCloseButton />
-            <DrawerHeader></DrawerHeader>
+            <DrawerHeader />
             <DrawerBody>
               <Accordion allowMultiple defaultIndex={[0, 1, 2]}>
                 <AccordionItem>
