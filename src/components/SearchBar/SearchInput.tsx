@@ -29,6 +29,8 @@ import { getFocusedItemValue, getPreview } from '@components/SearchBar/helpers';
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { useFocus } from '@lib/useFocus';
 
+const SEARCHBAR_MAX_LENGTH = 2048 as const;
+
 export interface ISearchInputProps extends InputProps {
   isLoading?: boolean;
 }
@@ -143,8 +145,12 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
           <InputGroup>
             <Input
               ref={refs}
-              type="text"
+              type="search"
+              role="combobox"
               placeholder="Search..."
+              aria-label="Search"
+              title="Search"
+              maxlength={SEARCHBAR_MAX_LENGTH}
               value={getPreview(state.searchTerm, getFocusedItemValue(state.items, state.focused))}
               aria-owns="search-listbox"
               aria-haspopup="listbox"
@@ -155,6 +161,9 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
               onKeyDown={handleOnKeyDown}
               borderLeftRadius="md"
               onChange={handleInputChange}
+              spellCheck="false"
+              autoComplete="off"
+              autocalpitalize="off"
               name="q"
               _focus={{ boxShadow: 'none' }}
               data-testid="search-input"
@@ -177,8 +186,8 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
           />
         </InputGroup>
       </PopoverAnchor>
-      <PopoverContent borderRadius={0} borderTop={0} width="full">
-        <PopoverBody>
+      <PopoverContent borderRadius={0} borderTop={0} width="full" role="presentation">
+        <PopoverBody role="presentation">
           <List
             maxH="md"
             overflowY="auto"
@@ -238,11 +247,13 @@ const TypeaheadItem = (props: {
       _hover={{ cursor: 'pointer', backgroundColor: 'blue.100' }}
       px="2"
       py="1"
-      aria-selected={focused}
       onClick={handleClick}
+      role="presentation"
     >
-      <Flex>
-        <Text flex="1">{item.label}</Text>
+      <Flex role="option" aria-label={item.label} aria-atomic="true">
+        <Text flex="1" role="presentation">
+          {item.label}
+        </Text>
         <Code>{item.value}</Code>
       </Flex>
     </ListItem>
