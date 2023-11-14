@@ -1,11 +1,11 @@
 import { Box, Center, Flex, Heading, HStack, Icon, Link, Show, VisuallyHidden } from '@chakra-ui/react';
-import { ScixAndNasaLogo_H } from '@components/images';
 import { useStore } from '@store';
 import { Theme } from '@types';
 import Image from 'next/image';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { CSSProperties, ReactElement } from 'react';
+import { ScixAndNasaLogo_H_beta } from '@components/images/ScixAndNasaLogo-H_beta';
 
 const imageStyle: CSSProperties = { objectFit: 'cover', opacity: '50%', zIndex: 0 };
 export const LandingTabs = (): ReactElement => {
@@ -73,7 +73,7 @@ const TitleLogo = () => {
   return (
     <Center>
       <Show above="sm">
-        <Icon as={ScixAndNasaLogo_H} height="4em" width="25em" aria-hidden />
+        <Icon as={ScixAndNasaLogo_H_beta} height="4em" width="25em" aria-hidden />
       </Show>
       <VisuallyHidden>
         <Heading as="h1">NASA Science Explorer</Heading>
