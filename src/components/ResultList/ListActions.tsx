@@ -130,12 +130,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
       <VisuallyHidden as="h2" id="result-actions-title">
         Result Actions
       </VisuallyHidden>
-      <Flex
-        direction={{ base: 'column', sm: 'row' }}
-        justifyContent={{ base: 'start', sm: 'space-between' }}
-        width="full"
-        gap={1}
-      >
+      <Flex justifyContent="space-between" width="full" gap={1}>
         <SortWrapper onChange={onSortChange} />
         {isClient && <SettingsMenu />}
       </Flex>
