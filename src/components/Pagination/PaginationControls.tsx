@@ -26,6 +26,7 @@ export const PaginationControls = <T extends object>(props: IPaginationControlsP
           defaultValue={10}
           onChange={(e) => table.setPageSize(e.target.value ? Number(e.target.value) : 10)}
           size="sm"
+          display={{ base: 'none', sm: 'block' }}
         >
           <option value={10}>10</option>
           <option value={25}>25</option>

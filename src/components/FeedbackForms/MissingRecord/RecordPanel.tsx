@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
 import { Database, IDocsEntity, useGetSingleRecord } from '@api';
 import { IFeedbackParams } from '@api/feedback';
 import {
@@ -19,7 +18,6 @@ import {
 } from '@chakra-ui/react';
 import { PreviewModal, SimpleLink } from '@components';
 import { IResourceUrl, useGetResourceLinks, useGetUserEmail } from '@lib';
-import { useStore } from '@store';
 import { omit } from 'ramda';
 import { MouseEvent, useEffect, useMemo, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
@@ -385,7 +383,7 @@ export const RecordPanel = ({
     <FormProvider {...formMethods}>
       <form onSubmit={handleSubmit(handlePreview)}>
         <Stack direction="column" gap={4} m={0}>
-          <Flex direction="row" gap={2} alignItems="start">
+          <Flex direction={{ base: 'column', sm: 'row' }} gap={2} alignItems="start">
             <FormControl isRequired isInvalid={!!errors.name}>
               <FormLabel>Name</FormLabel>
               <Input {...register('name', { required: true })} />
@@ -409,7 +407,7 @@ export const RecordPanel = ({
                   control={control}
                   render={({ field: { ref, ...rest } }) => (
                     <CheckboxGroup {...rest}>
-                      <Stack direction="row">
+                      <Stack direction={{ base: 'column', sm: 'row' }}>
                         {collections.map((c) => (
                           <Checkbox key={`collection-${c.value}`} value={c.value}>
                             {c.label}
@@ -428,14 +426,14 @@ export const RecordPanel = ({
 
               <AuthorsField />
 
-              <HStack gap={2} alignItems="start">
+              <Stack direction={{ base: 'column', sm: 'row' }} gap={2} alignItems="start">
                 <FormControl isRequired>
                   <FormLabel>Publication</FormLabel>
                   <Input {...register('publication', { required: true })} />
                 </FormControl>
 
                 <PubDateField />
-              </HStack>
+              </Stack>
 
               <UrlsField />
 

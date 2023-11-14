@@ -159,7 +159,7 @@ export const BibtexTabPanel = ({ sampleBib, dispatch }: IBibtexTabPanelProps) =>
               <Tab>BibTeX Abs</Tab>
             </TabList>
             <TabPanels>
-              <TabPanel>
+              <TabPanel px={{ base: 0, sm: '2' }}>
                 <AdvancedTab
                   keyFormat={bibtexKeyFormat}
                   onApplyKeyFormat={handleApplyBibtexExportKeyFormat}
@@ -169,7 +169,7 @@ export const BibtexTabPanel = ({ sampleBib, dispatch }: IBibtexTabPanelProps) =>
                   onChangeMaxAuthor={handleApplyBibtexMaxAuthors}
                 />
               </TabPanel>
-              <TabPanel>
+              <TabPanel px={{ base: 0, sm: '2' }}>
                 <AdvancedTab
                   keyFormat={bibtexABSKeyFormat}
                   onApplyKeyFormat={handleApplyBibtexAbsExportKeyFormat}

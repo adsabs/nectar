@@ -13,7 +13,7 @@ interface IOrcidDropdownProps {
   onFinished?: () => void;
 }
 
-export const OrcidDropdown = ({ onFinished }: IOrcidDropdownProps): ReactElement => {
+export const OrcidDropdown = ({ type, onFinished }: IOrcidDropdownProps): ReactElement => {
   const { toggleOrcidMode, login, logout, isAuthenticated } = useOrcid();
   const router = useRouter();
   const handleSelect: MouseEventHandler<HTMLButtonElement> = (e) => {
@@ -59,9 +59,7 @@ export const OrcidDropdown = ({ onFinished }: IOrcidDropdownProps): ReactElement
         },
       ];
 
-  return (
-    <MenuDropdown id="orcid" type={ListType.DROPDOWN} label={<OrcidLabel />} items={items} onSelect={handleSelect} />
-  );
+  return <MenuDropdown id="orcid" type={type} label={<OrcidLabel />} items={items} onSelect={handleSelect} />;
 };
 
 const orcidActiveSelector = (state: AppState) => state.orcid.active;

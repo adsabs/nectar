@@ -21,6 +21,7 @@ import { useUser } from '@lib/useUser';
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import '../styles/styles.css';
 import { GTMProvider, sendToGTM } from '@elgorditosalsero/react-gtm-hook';
+import Head from 'next/head';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
   require('../mocks');
@@ -46,6 +47,9 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
       <TopProgressBar />
       <UserSync />
       <Layout>
+        <Head>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        </Head>
         <Component {...pageProps} />
       </Layout>
     </Providers>

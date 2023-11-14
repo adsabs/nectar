@@ -177,9 +177,7 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
       <Table size="sm" variant="simple">
         <Thead>
           <Tr>
-            <Th aria-label="index" w="4%">
-              Position
-            </Th>
+            <Th aria-label="index" w="4%"></Th>
             <Th>Name</Th>
             <Th>Affiliation</Th>
             <Th w="20%">ORCiD</Th>
