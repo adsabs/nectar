@@ -48,7 +48,7 @@ export const LibrariesLandingPane = () => {
     refetch,
   } = useGetLibraries(
     { start: pageIndex * pageSize, rows: pageSize, sort: sort.col, order: sort.dir },
-    { cacheTime: 0 },
+    { staleTime: 0 },
   );
 
   const libraries = useMemo(() => {

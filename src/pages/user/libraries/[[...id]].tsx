@@ -99,6 +99,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
     queryKey: librariesKeys.library({ id: lid }),
     queryFn: fetchLibraryEntity,
     meta: { params: { id: lid } },
+    staleTime: 0,
   }));
 
   return Promise.resolve({
