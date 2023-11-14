@@ -20,11 +20,11 @@ export const defaultFields: IADSApiSearchParams['fl'] = [
   'identifier',
 ];
 
-export const defaultSort: IADSApiSearchParams['sort'] = ['date desc'];
+export const defaultSort: IADSApiSearchParams['sort'] = ['score desc'];
 
 export const defaultParams: IADSApiSearchParams = {
   q: '*:*',
-  sort: ['date desc', 'bibcode desc'],
+  sort: APP_DEFAULTS.SORT,
   fl: defaultFields,
   start: 0,
   rows: APP_DEFAULTS.RESULT_PER_PAGE,
@@ -63,7 +63,7 @@ export const getSimilarParams = (bibcode: IDocsEntity['bibcode'], start: number)
 });
 
 export const getTocParams = (bibcode: IDocsEntity['bibcode'], start: number): IADSApiSearchParams => {
-  const volumeId = bibcode[13] === 'E' ? `${bibcode.substring(0, 14)}*` : `${bibcode.substring(0, 13)}*`;
+  const volumeId = bibcode?.[13] === 'E' ? `${bibcode?.substring(0, 14)}*` : `${bibcode?.substring(0, 13)}*`;
 
   return {
     ...defaultParams,
@@ -172,4 +172,10 @@ export const getHighlightParams = (params: IADSApiSearchParams): IADSApiSearchPa
   'hl.maxAnalyzedChars': 150000,
   'hl.requireFieldMatch': true,
   'hl.usePhraseHighlighter': true,
+});
+
+export const getBigQueryParams = (): IADSApiSearchParams => ({
+  q: '*:*',
+  sort: ['date desc'],
+  fl: defaultFields,
 });

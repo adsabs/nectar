@@ -28,7 +28,7 @@ export const SearchInput: FC<ISearchInputProps> = (props) => {
     // disallow forward slashes
     const value = ev.currentTarget.value.replaceAll('/', '');
 
-    // if flag is set, this captialize the search term
+    // if flag is set, this capitalizes the search term
     onSearchChange(forceUppercaseInitial ? capitalizeString(value) : value);
   };
 

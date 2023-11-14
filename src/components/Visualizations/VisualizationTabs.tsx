@@ -54,7 +54,7 @@ export const VisualizationsTabs = ({ selectedSection }: { selectedSection: VizSe
   const index = sections.findIndex((section) => section.id === selectedSection);
 
   const onPageChange = (index: number) => {
-    void router.push({ pathname: sections[index].path, query: router.query }, null, { shallow: true });
+    void router.push({ pathname: sections[index].path, query: router.query }, null);
   };
 
   return (

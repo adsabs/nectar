@@ -30,6 +30,7 @@ import {
   without,
 } from 'ramda';
 import { isArray, isNilOrEmpty, isNonEmptyString, isNotString, isPlainObject } from 'ramda-adjunct';
+import z from 'zod';
 
 type ParsedQueryParams = ParsedUrlQuery | qs.ParsedQs;
 
@@ -231,7 +232,7 @@ export const normalizeSolrSort = (rawSolrSort: unknown, postfixSort?: SolrSort):
 
   // if that fails, shortcut here with a default value
   if (sort === null) {
-    return ['date desc', tieBreaker];
+    return ['score desc', tieBreaker];
   }
 
   // filter out non-SolrSort values
@@ -244,10 +245,10 @@ export const normalizeSolrSort = (rawSolrSort: unknown, postfixSort?: SolrSort):
 
   // if all values are filtered out, return the default
   if (validSort.length === 0) {
-    return ['date desc', tieBreaker];
+    return ['score desc', tieBreaker];
   }
 
-  return validSort.concat(tieBreaker);
+  return uniq(validSort.concat(tieBreaker));
 };
 
 // returns true if value passed in is a valid IADSApiSearchResponse
@@ -495,4 +496,14 @@ export const coalesceAuthorsFromDoc = (doc: IDocsEntity, includeAff?: boolean) =
 
 export const pluralize = (str: string, count: number) => {
   return count === 1 ? str : `${str}s`;
+};
+
+export const isValidEmail = (email: string) => {
+  const emailSchema = z.string().email();
+  try {
+    emailSchema.parse(email);
+    return true;
+  } catch {
+    return false;
+  }
 };

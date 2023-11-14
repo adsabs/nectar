@@ -10,6 +10,7 @@ import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from '@tanstack/react-query';
 import { composeNextGSSP } from '@ssr-utils';
+import { useMemo } from 'react';
 
 interface IVolumePageProps {
   id: string;
@@ -23,10 +24,19 @@ const VolumePage: NextPage<IVolumePageProps> = (props: IVolumePageProps) => {
   const { id, error } = props;
   const doc = useGetAbstractDoc(id);
 
-  const { getParams, onPageChange } = useGetAbstractParams(doc.bibcode);
+  const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode);
 
-  const { data, isSuccess } = useGetToc(getParams(), { keepPreviousData: true });
-  const tocParams = getTocParams(doc.bibcode, 0);
+  const { data, isSuccess } = useGetToc(getParams(), {
+    enabled: !!getParams && !!doc?.bibcode,
+    keepPreviousData: true,
+  });
+
+  const tocParams = useMemo(() => {
+    if (doc?.bibcode) {
+      return getTocParams(doc.bibcode, 0);
+    }
+  }, [doc]);
+
   const title = unwrapStringValue(doc?.title);
 
   return (

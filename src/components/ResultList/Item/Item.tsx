@@ -64,7 +64,7 @@ export const Item = (props: IItemProps): ReactElement => {
   const formattedPubDate = getFomattedNumericPubdate(pubdate);
   const isClient = useIsClient();
   const truncatedPub =
-    pub.length > APP_DEFAULTS.RESULT_ITEM_PUB_CUTOFF ? pub.slice(0, APP_DEFAULTS.RESULT_ITEM_PUB_CUTOFF) + '...' : pub;
+    pub?.length > APP_DEFAULTS.RESULT_ITEM_PUB_CUTOFF ? pub.slice(0, APP_DEFAULTS.RESULT_ITEM_PUB_CUTOFF) + '...' : pub;
 
   // memoize the isSelected callback on bibcode
   const isChecked = useStore(useCallback((state) => state.isDocSelected(bibcode), [bibcode]));

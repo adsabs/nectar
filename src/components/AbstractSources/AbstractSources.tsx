@@ -1,5 +1,16 @@
 import { IDocsEntity } from '@api';
-import { Button, HStack, Menu, MenuButton, MenuItem, MenuList, VStack } from '@chakra-ui/react';
+import {
+  Button,
+  HStack,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  VStack,
+  Text,
+  MenuGroup,
+  MenuDivider,
+} from '@chakra-ui/react';
 import { ChevronDownIcon, LockIcon, UnlockIcon } from '@chakra-ui/icons';
 import { SimpleLinkList } from '@components';
 import { ItemType } from '@components/Dropdown/types';
@@ -7,6 +18,7 @@ import { useIsClient } from '@lib/useIsClient';
 import { HTMLAttributes, MouseEvent, MouseEventHandler, ReactElement, useMemo } from 'react';
 import { IDataProductSource, IFullTextSource, IRelatedWorks, processLinkData } from './linkGenerator';
 import { useStore } from '@store';
+import { useResolverQuery } from '@api/resolver';
 
 export interface IAbstractSourcesProps extends HTMLAttributes<HTMLDivElement> {
   doc?: IDocsEntity;
@@ -23,6 +35,21 @@ export const AbstractSources = ({ doc }: IAbstractSourcesProps): ReactElement =>
     return processLinkData(doc);
   }, [doc, linkServer, isClient, processLinkData]);
 
+  const { data: relatedWorksResp } = useResolverQuery(
+    { bibcode: doc.bibcode, link_type: 'associated' },
+    { enabled: !!doc?.bibcode },
+  );
+
+  const relatedWorks = useMemo(() => {
+    const res = [] as IRelatedWorks[];
+    if (relatedWorksResp && relatedWorksResp.links.count > 0) {
+      for (const link of relatedWorksResp.links.records) {
+        res.push({ url: link.url, name: link.title, description: link.type });
+      }
+    }
+    return res;
+  }, [relatedWorksResp]);
+
   if (!doc) {
     return <></>;
   }
@@ -37,7 +64,7 @@ export const AbstractSources = ({ doc }: IAbstractSourcesProps): ReactElement =>
       ) : (
         <HStack as="section" wrap="wrap" spacing={0.5} columnGap={1} rowGap={1} alignItems="start">
           <FullTextDropdown sources={sources.fullTextSources} />
-          <DataProductDropdown dataProducts={sources.dataProducts} relatedWorks={[]} />
+          <DataProductDropdown dataProducts={sources.dataProducts} relatedWorks={relatedWorks} />
           <Button hidden={true}>Add to library</Button>
         </HStack>
       )}
@@ -82,11 +109,11 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
 
   return (
     <>
-      {!isClient ? (
+      {!isClient && (
         <span>
           <SimpleLinkList items={fullSourceItems} minWidth="180px" label="Full text sources" showLabel={true} asRow />
         </span>
-      ) : null}
+      )}
       {isClient ? (
         <Menu>
           <MenuButton as={Button} rightIcon={<ChevronDownIcon />} isDisabled={fullSourceItems.length === 0}>
@@ -177,22 +204,40 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
           <SimpleLinkList items={items} minWidth="150px" label="Other Resources" showLabel={true} asRow />
         </span>
       ) : null}
-      {isClient ? (
+      {isClient && (
         <Menu>
-          <MenuButton as={Button} rightIcon={<ChevronDownIcon />} isDisabled={items.length === 0}>
+          <MenuButton
+            as={Button}
+            rightIcon={<ChevronDownIcon />}
+            isDisabled={dataProducts.length === 0 && relatedWorks.length === 0}
+          >
             Other Resources
           </MenuButton>
-          {items.length > 0 && (
-            <MenuList>
-              {items.map((item) => (
-                <MenuItem key={item.id} data-id={item.id} onClick={handleSelect} isDisabled={item.disabled}>
-                  {item.label}
-                </MenuItem>
-              ))}
-            </MenuList>
-          )}
+          <MenuList>
+            {dataProductItems.length > 0 && (
+              <MenuGroup title="Data Products">
+                {dataProductItems.map((item) => (
+                  <MenuItem key={item.id} data-id={item.id} onClick={handleSelect}>
+                    <Text ml={2}>{item.label}</Text>
+                  </MenuItem>
+                ))}
+              </MenuGroup>
+            )}
+            {relatedWorkItems.length > 0 && (
+              <>
+                {dataProductItems.length > 0 && <MenuDivider />}
+                <MenuGroup title="Related Materials">
+                  {relatedWorkItems.map((item) => (
+                    <MenuItem key={item.id} data-id={item.id} onClick={handleSelect}>
+                      <Text ml={2}>{item.label}</Text>
+                    </MenuItem>
+                  ))}
+                </MenuGroup>
+              </>
+            )}
+          </MenuList>
         </Menu>
-      ) : null}
+      )}
     </>
   );
 };

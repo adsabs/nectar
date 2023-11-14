@@ -7,11 +7,11 @@ import { rest } from 'msw';
 const defaultSortPostfix = APP_DEFAULTS.QUERY_SORT_POSTFIX;
 
 describe('normalizeSolrSort', () => {
-  const defaultReturn: ReturnType<typeof normalizeSolrSort> = ['date desc', defaultSortPostfix];
+  const defaultReturn: ReturnType<typeof normalizeSolrSort> = ['score desc', defaultSortPostfix];
   test.concurrent.each<[string, Parameters<typeof normalizeSolrSort>, ReturnType<typeof normalizeSolrSort>]>([
-    ['simple case', [['date asc']], ['date asc', defaultSortPostfix]],
-    ['garbage with postfix specified', ['lsdjkf', 'citation_count asc'], ['date desc', 'citation_count asc']],
-    ['duplicate sort w/ garbage', [['date asc', 'sdljkf', 'date asc']], ['date asc', defaultSortPostfix]],
+    ['simple case', [['score asc']], ['score asc', defaultSortPostfix]],
+    ['garbage with postfix specified', ['lsdjkf', 'citation_count asc'], ['score desc', 'citation_count asc']],
+    ['duplicate sort w/ garbage', [['score asc', 'sdljkf', 'score asc']], ['score asc', defaultSortPostfix]],
     [
       'simple sort with postfix specified',
       ['citation_count desc', 'author_count asc'],
@@ -27,8 +27,8 @@ describe('normalizeSolrSort', () => {
     ['empty array', [[]], defaultReturn],
     [
       'valid string',
-      ['citation_count desc,classic_factor asc'],
-      ['citation_count desc', 'classic_factor asc', defaultSortPostfix],
+      ['citation_count desc,read_count asc'],
+      ['citation_count desc', 'read_count asc', defaultSortPostfix],
     ],
     ['garbage string', [['lksjdf;sldjfk;,sldfj,jksdlf,kd']], defaultReturn],
     [

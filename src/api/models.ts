@@ -192,6 +192,8 @@ export enum ApiTargets {
   ORCID_EXCHANGE_TOKEN = '/orcid/exchangeOAuthCode',
   LIBRARIES = '/biblib/libraries',
   LIBRARY_TRANSFER = '/biblib/transfer',
+  LIBRARY_OPERATION = 'biblib/libraries/operations',
+  LIBRARY_QUERY = 'biblib/query',
   DOCUMENTS = '/biblib/documents',
   PERMISSIONS = '/biblib/permissions',
   REFERENCE = '/reference/text',

@@ -10,7 +10,7 @@ import {
   useGetMetrics,
 } from '@api';
 import { Box } from '@chakra-ui/react';
-import { MetricsPane } from '@components';
+import { LoadingMessage, MetricsPane } from '@components';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@lib/useGetAbstractDoc';
@@ -33,7 +33,12 @@ const MetricsPage: NextPage<IMetricsPageProps> = (props: IMetricsPageProps) => {
 
   const doc = useGetAbstractDoc(id);
 
-  const { data: metrics, isError, isSuccess } = useGetMetrics(doc.bibcode, { keepPreviousData: true });
+  const {
+    data: metrics,
+    isError,
+    isLoading,
+    isSuccess,
+  } = useGetMetrics(doc?.bibcode, { enabled: !!doc?.bibcode, keepPreviousData: true });
 
   const hasCitations = isSuccess && metrics && metrics[MetricsResponseKey.CS][CitationsStatsKey.TNC] > 0;
   const hasReads = isSuccess && metrics && metrics[MetricsResponseKey.BS][BasicStatsKey.TNR] > 0;
@@ -49,12 +54,12 @@ const MetricsPage: NextPage<IMetricsPageProps> = (props: IMetricsPageProps) => {
           Unable to fetch metrics
         </Box>
       )}
-      {!isError && !hasCitations && !hasReads ? (
+      {!isError && !isLoading && !hasCitations && !hasReads ? (
         <Box mt={5} fontSize="xl">
           No metrics data
         </Box>
       ) : (
-        <MetricsPane metrics={metrics} isAbstract={true} />
+        <>{isLoading ? <LoadingMessage message="Loading" /> : <MetricsPane metrics={metrics} isAbstract={true} />} </>
       )}
     </AbsLayout>
   );

@@ -38,6 +38,7 @@ import { CSSProperties, MouseEventHandler, ReactElement, useCallback, useEffect,
 import { facetConfig } from './config';
 import { applyFiltersToQuery } from './helpers';
 import { FacetLogic, OnFilterArgs, SearchFacetID } from './types';
+import { useGTMDispatch } from '@elgorditosalsero/react-gtm-hook';
 
 export interface ISearchFacetProps extends AccordionItemProps {
   field: FacetField;
@@ -62,6 +63,7 @@ const querySelector = (state: AppState) => omit(['fl', 'start', 'rows'], state.l
 
 export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
   const store = useStoreApi();
+  const sendDataToGTM = useGTMDispatch();
   const setFacetState = useStore((state) => state.setSearchFacetState);
   const facets = useStore((state) => state.settings.searchFacets.order);
   const hiddenFacets = useStore(useCallback((state) => state.getHiddenSearchFacets(), [facets]));
@@ -96,6 +98,11 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
   const handleOnFilter = (filterArgs: OnFilterArgs) => {
     const query = store.getState().latestQuery;
     onQueryUpdate(applyFiltersToQuery({ ...filterArgs, query }));
+    sendDataToGTM({
+      event: 'facet_applied',
+      facet_field: filterArgs.field,
+      facet_logic: filterArgs.logic,
+    });
   };
 
   const handleHideClick = () => {

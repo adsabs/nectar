@@ -28,10 +28,12 @@ import {
   Portal,
   Stack,
   Tooltip,
+  useDisclosure,
   useMediaQuery,
   VisuallyHidden,
 } from '@chakra-ui/react';
 import {
+  AddToLibraryModal,
   CustomInfoMessage,
   HideOnPrint,
   ISearchFacetsProps,
@@ -130,6 +132,8 @@ const SearchPage: NextPage = () => {
   }, [ref]);
 
   const isClient = useIsClient();
+
+  const { isOpen: isAddToLibraryOpen, onClose: onCloseAddToLibrary, onOpen: onOpenAddToLibrary } = useDisclosure();
 
   // on Sort change handler
   const handleSortChange = (sort: SolrSort[]) => {
@@ -237,7 +241,7 @@ const SearchPage: NextPage = () => {
             {!isPrint && (isLoading || (isSuccess && data?.numFound > 0)) ? (
               <form>
                 <fieldset disabled={isLoading}>
-                  <ListActions onSortChange={handleSortChange} />
+                  <ListActions onSortChange={handleSortChange} onOpenAddToLibrary={onOpenAddToLibrary} />
                 </fieldset>
               </form>
             ) : null}
@@ -269,6 +273,7 @@ const SearchPage: NextPage = () => {
           </Box>
         </Flex>
       </Stack>
+      <AddToLibraryModal isOpen={isAddToLibraryOpen} onClose={onCloseAddToLibrary} />
     </>
   );
 };

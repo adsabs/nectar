@@ -1,6 +1,6 @@
-import { IDocsEntity, useHasGraphics, useHasMetrics } from '@api';
+import { IDocsEntity, useGetUserSettings, useHasGraphics, useHasMetrics } from '@api';
 import { Badge } from '@chakra-ui/react';
-import { IMenuItem, SideNavigationMenu, TopNavigationMenu, exportFormats } from '@components';
+import { IMenuItem, SideNavigationMenu, TopNavigationMenu, exportFormats, DEFAULT_USER_DATA } from '@components';
 import {
   ArrowDownIcon as DownloadIcon,
   ChartPieIcon,
@@ -15,8 +15,8 @@ import {
 import { useRouter } from 'next/router';
 import { HTMLAttributes, ReactElement } from 'react';
 import { Routes } from './types';
-import { useStore } from '@store';
 import { values } from 'ramda';
+import { useSession } from '@lib/useSession';
 
 const abstractPath = '/abs';
 
@@ -32,9 +32,15 @@ const useGetItems = ({
   const router = useRouter();
   const docId = router.query.id as string;
 
+  const { isAuthenticated } = useSession();
+
+  const { data: settings } = useGetUserSettings({
+    enabled: isAuthenticated,
+  });
+
   // for export citation menu link, it needs to go to user's default setting if logged in
   // otherwise go to bibtex
-  const defaultExportFormat = useStore((state) => state.settings.user?.defaultExportFormat);
+  const defaultExportFormat = settings?.defaultExportFormat ?? DEFAULT_USER_DATA.defaultExportFormat;
   const defaultExportFormatPath =
     typeof defaultExportFormat === 'string'
       ? values(exportFormats).find((f) => f.label === defaultExportFormat).value
@@ -128,8 +134,8 @@ export interface IAbstractSideNavProps extends HTMLAttributes<HTMLDivElement> {
 
 export const AbstractSideNav = (props: IAbstractSideNavProps): ReactElement => {
   const { doc } = props;
-  const hasGraphics = useHasGraphics(doc.bibcode);
-  const hasMetrics = useHasMetrics(doc.bibcode);
+  const hasGraphics = useHasGraphics(doc?.bibcode);
+  const hasMetrics = useHasMetrics(doc?.bibcode);
   const { menuItems, activeItem } = useGetItems({ doc, hasGraphics, hasMetrics });
 
   return (

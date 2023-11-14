@@ -1,8 +1,12 @@
-import { Bibcode, ExportApiFormatKey, useVaultBigQuerySearch } from '@api';
-import { ChevronDownIcon } from '@chakra-ui/icons';
+import { Bibcode, ExportApiFormatKey, useGetUserSettings, useVaultBigQuerySearch } from '@api';
+import { ChevronDownIcon, SettingsIcon } from '@chakra-ui/icons';
 import {
   Button,
   Checkbox,
+  Flex,
+  FormControl,
+  FormLabel,
+  IconButton,
   Menu,
   MenuButton,
   MenuDivider,
@@ -14,6 +18,7 @@ import {
   MenuOptionGroup,
   Portal,
   Stack,
+  Switch,
   Text,
   useToast,
   VisuallyHidden,
@@ -29,22 +34,29 @@ import { MouseEventHandler, ReactElement, useCallback, useEffect, useState } fro
 import { SecondOrderOpsLinks } from './SecondOrderOpsLinks';
 import { BulkClaimMenuItem, BulkDeleteMenuItem } from '@components/Orcid';
 import { useOrcid } from '@lib/orcid/useOrcid';
+import { useSession } from '@lib/useSession';
 
 export interface IListActionsProps {
   onSortChange?: ISortProps['onChange'];
+  onOpenAddToLibrary: () => void;
 }
 
 type Operator = 'trending' | 'reviews' | 'useful' | 'similar';
 
 export const ListActions = (props: IListActionsProps): ReactElement => {
-  const { onSortChange = noop } = props;
+  const { onSortChange = noop, onOpenAddToLibrary } = props;
   const selected = useStore((state) => state.docs.selected ?? []);
   const clearSelected = useStore((state) => state.clearSelected);
   const isClient = useIsClient();
+  const { isAuthenticated } = useSession();
   const noneSelected = selected.length === 0;
   const [exploreAll, setExploreAll] = useState(true);
   const router = useRouter();
   const toast = useToast();
+
+  const { data: settings } = useGetUserSettings({
+    enabled: isAuthenticated,
+  });
 
   useEffect(() => {
     setExploreAll(noneSelected);
@@ -107,9 +119,9 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const handleOpsLink = useCallback((name: Operator) => () => handleOperationsLink(name), []);
 
   return (
-    <Stack
+    <Flex
       direction="column"
-      spacing={1}
+      gap={1}
       mb={1}
       as="section"
       aria-labelledby="result-actions-title"
@@ -118,10 +130,15 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
       <VisuallyHidden as="h2" id="result-actions-title">
         Result Actions
       </VisuallyHidden>
-      <Stack direction={{ base: 'column', sm: 'row' }} spacing={1} width="min-content">
-        {isClient && <HighlightsToggle />}
+      <Flex
+        direction={{ base: 'column', sm: 'row' }}
+        justifyContent={{ base: 'start', sm: 'space-between' }}
+        width="full"
+        gap={1}
+      >
         <SortWrapper onChange={onSortChange} />
-      </Stack>
+        {isClient && <SettingsMenu />}
+      </Flex>
       {isClient && (
         <Stack
           direction={{ base: 'column', md: 'row' }}
@@ -165,9 +182,16 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
                     </MenuItemOption>
                   </MenuOptionGroup>
                   <MenuDivider />
-                  <MenuItem isDisabled={true}>Add to Library</MenuItem>
-                  <MenuDivider />
-                  <ExportMenu exploreAll={exploreAll} />
+                  {isAuthenticated && (
+                    <>
+                      <MenuItem onClick={onOpenAddToLibrary}>Add to Library</MenuItem>
+                      <MenuDivider />
+                    </>
+                  )}
+                  <ExportMenu
+                    exploreAll={exploreAll}
+                    defaultExportFormat={settings?.defaultExportFormat ?? DEFAULT_USER_DATA.defaultExportFormat}
+                  />
                   <OrcidBulkMenu />
                 </MenuList>
               </Portal>
@@ -215,7 +239,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
           </Stack>
         </Stack>
       )}
-    </Stack>
+    </Flex>
   );
 };
 
@@ -230,20 +254,30 @@ const SortWrapper = ({ onChange }: { onChange: ISortProps['onChange'] }) => {
   return <Sort sort={query.sort} onChange={onChange} />;
 };
 
+const SettingsMenu = () => {
+  return (
+    <Menu>
+      <MenuButton as={IconButton} aria-label="Result list settings" variant="outline" icon={<SettingsIcon />} />
+      <MenuList>
+        <MenuItem>
+          <HighlightsToggle />
+        </MenuItem>
+      </MenuList>
+    </Menu>
+  );
+};
+
 const HighlightsToggle = () => {
   const showHighlights = useStore((state) => state.showHighlights);
   const toggleShowHighlights = useStore((state) => state.toggleShowHighlights);
 
   return (
-    <Button
-      variant={showHighlights ? 'solid' : 'outline'}
-      onClick={toggleShowHighlights}
-      size="md"
-      borderRadius="2px"
-      data-testid="listactions-showhighlights"
-    >
-      Show Highlights
-    </Button>
+    <FormControl display="flex" alignItems="center" width="fit-content">
+      <FormLabel htmlFor="show-highlights" mb="0">
+        Show Highlights?
+      </FormLabel>
+      <Switch id="show-highlights" isChecked={showHighlights} onChange={toggleShowHighlights} />
+    </FormControl>
   );
 };
 
@@ -284,7 +318,7 @@ const SelectAllCheckbox = () => {
   );
 };
 
-const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean }): ReactElement => {
+const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean; defaultExportFormat: string }): ReactElement => {
   const { exploreAll, ...menuGroupProps } = props;
   const router = useRouter();
   const store = useStoreApi();
@@ -293,11 +327,7 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean }): ReactEleme
 
   const { data } = useVaultBigQuerySearch(selected, { enabled: !exploreAll && selected.length > 0 });
 
-  const defaultExportFormat = useStore(
-    (store) => store.settings?.user?.defaultExportFormat ?? DEFAULT_USER_DATA.defaultExportFormat,
-  );
-
-  const defaultExportFormatValue = values(exportFormats).find((f) => f.label === defaultExportFormat).value;
+  const defaultExportFormatValue = values(exportFormats).find((f) => f.label === props.defaultExportFormat).value;
 
   useEffect(() => {
     if (data) {

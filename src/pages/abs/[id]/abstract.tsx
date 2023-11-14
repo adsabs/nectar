@@ -1,7 +1,24 @@
 import { IADSApiSearchParams, IDocsEntity } from '@api';
-import { Alert, AlertIcon, Box, Button, Flex, Link, Stack, Table, Tag, Tbody, Td, Text, Tr } from '@chakra-ui/react';
+import {
+  Alert,
+  AlertIcon,
+  Box,
+  Button,
+  Flex,
+  IconButton,
+  Link,
+  Stack,
+  Table,
+  Tag,
+  Tbody,
+  Td,
+  Text,
+  Tooltip,
+  Tr,
+  useDisclosure,
+} from '@chakra-ui/react';
 import { ChatIcon, ExternalLinkIcon } from '@chakra-ui/icons';
-import { AbstractSources, feedbackItems, SearchQueryLink } from '@components';
+import { AbstractSources, AddToLibraryModal, feedbackItems, SearchQueryLink } from '@components';
 import { createUrlByType } from '@components/AbstractSources/linkGenerator';
 import { IAllAuthorsModalProps } from '@components/AllAuthorsModal';
 import { useGetAuthors } from '@components/AllAuthorsModal/useGetAuthors';
@@ -21,6 +38,8 @@ import { isNil } from 'ramda';
 import { ReactElement } from 'react';
 import { useGetAbstractDoc } from '@lib';
 import { useRouter } from 'next/router';
+import { FolderPlusIcon } from '@heroicons/react/24/solid';
+import { useSession } from '@lib/useSession';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   () => import('@components/AllAuthorsModal').then((m) => m.AllAuthorsModal),
@@ -38,7 +57,7 @@ export interface IAbstractPageProps {
 const MAX = APP_DEFAULTS.DETAILS_MAX_AUTHORS;
 
 const createQuery = (type: 'author' | 'orcid', value: string): IADSApiSearchParams => {
-  return { q: `${type}:"${value}"`, sort: ['date desc'] };
+  return { q: `${type}:"${value}"`, sort: ['score desc'] };
 };
 
 const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) => {
@@ -47,12 +66,16 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
 
   const isClient = useIsClient();
 
+  const { isAuthenticated } = useSession();
+
   const doc = useGetAbstractDoc(id);
 
   // process authors from doc
   const authors = useGetAuthors({ doc, includeAff: false });
 
   const title = unwrapStringValue(doc?.title);
+
+  const { isOpen: isAddToLibraryOpen, onClose: onCloseAddToLibrary, onOpen: onOpenAddToLibrary } = useDisclosure();
 
   const handleFeedback = () => {
     void router.push({ pathname: feedbackItems.record.path, query: { bibcode: doc.bibcode } });
@@ -87,7 +110,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                         params={createQuery('orcid', orcid)}
                         aria-label={`author "${author}", search by orKid`}
                       >
-                        <OrcidActiveIcon fontSize={'large'} />
+                        <OrcidActiveIcon fontSize={'large'} mx={1} />
                       </SearchQueryLink>
                     )}
                     <>{index === MAX - 1 || index === doc.author_count - 1 ? '' : ';'}</>
@@ -116,7 +139,19 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
               </Flex>
             )}
 
-            <AbstractSources doc={doc} />
+            <Flex justifyContent="space-between">
+              <AbstractSources doc={doc} />
+              {isAuthenticated && (
+                <Tooltip label="add to library">
+                  <IconButton
+                    aria-label="Add to library"
+                    icon={<FolderPlusIcon />}
+                    variant="ghost"
+                    onClick={onOpenAddToLibrary}
+                  />
+                </Tooltip>
+              )}
+            </Flex>
             {isNil(doc.abstract) ? (
               <Text>No Abstract</Text>
             ) : (
@@ -131,6 +166,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
           </Stack>
         )}
       </Box>
+      <AddToLibraryModal isOpen={isAddToLibraryOpen} onClose={onCloseAddToLibrary} bibcodes={[doc?.bibcode]} />
     </AbsLayout>
   );
 };

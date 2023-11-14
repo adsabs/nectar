@@ -2,10 +2,12 @@ import { isBrowser } from '@utils';
 import { useRouter } from 'next/router';
 import { MouseEvent, ReactElement } from 'react';
 import { MenuDropdown } from './MenuDropdown';
-import { ListType } from './types';
+import { ItemType, ListType, ItemItem } from './types';
 import { useSession } from '@lib/useSession';
+import { HStack, Icon, Text } from '@chakra-ui/react';
+import { UserIcon } from '@heroicons/react/24/solid';
 
-export const items = [
+export const items: ItemType[] = [
   {
     id: 'login',
     path: '/user/account/login',
@@ -18,9 +20,10 @@ export const items = [
   },
 ];
 
-const loggedInItems = [
+const loggedInItems: ItemType[] = [
   { id: 'libraries', path: '/user/libraries', label: 'SciX Libraries' },
   { id: 'settings', path: '/user/settings', label: 'Settings' },
+  'divider',
   { id: 'logout', path: null, label: 'Logout' },
 ];
 
@@ -42,8 +45,8 @@ export const AccountDropdown = (props: IAccountDropdown): ReactElement => {
       if (id === 'logout') {
         logout();
       } else {
-        const item = itemsToShow.find((item) => id === item.id);
-        void router.push(item ? item.path : '/');
+        const item = itemsToShow.find((item) => item !== 'divider' && id === item.id);
+        void router.push(item ? (item as ItemItem).path : '/');
       }
 
       if (typeof onFinished === 'function') {
@@ -52,5 +55,18 @@ export const AccountDropdown = (props: IAccountDropdown): ReactElement => {
     }
   };
 
-  return <MenuDropdown id="account" type={type} label="Account" items={itemsToShow} onSelect={handleSelect} />;
+  return (
+    <MenuDropdown
+      id="account"
+      type={type}
+      label={
+        <HStack>
+          <Icon as={UserIcon} color={isAuthenticated ? 'blue.400' : 'gray.50'} />
+          <Text display="inline">Account</Text>
+        </HStack>
+      }
+      items={itemsToShow}
+      onSelect={handleSelect}
+    />
+  );
 };

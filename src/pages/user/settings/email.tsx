@@ -16,7 +16,7 @@ const UpdateEmailPage = () => {
   const { mutate: submit, error, isError, isLoading, data } = useChangeUserEmail();
   const [mainInputRef] = useFocus();
 
-  const onFormSubmit: SubmitHandler<IUserChangeEmailCredentials> = (params, e) => {
+  const onFormSubmit: SubmitHandler<IUserChangeEmailCredentials> = (params) => {
     submit(params);
   };
 
