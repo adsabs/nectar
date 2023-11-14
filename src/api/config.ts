@@ -36,19 +36,6 @@ export const defaultRequestConfig: AxiosRequestConfig = {
         skipNulls: true,
       }),
   },
-  headers: {
-    common: {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      'Content-Type': 'application/x-www-form-urlencoded',
-      Accept: 'application/json, text/plain, */*',
-    },
-    post: {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      'Content-Type': 'application/json',
-    },
-  },
 };
 
 export const getDynamicConfig = () => {
