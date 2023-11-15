@@ -34,41 +34,43 @@ export const useGetAuthors = (props: IUseAuthorsProps): string[][] => {
   useEffect(() => {
     if (doc) {
       const { author, aff, orcid_other = [], orcid_pub = [], orcid_user = [] } = doc;
-      const len = author.length;
+      const len = author?.length ?? 0;
 
       // creates a table out of the arrays, then removes any '-', leaving sub-arrays with our author, aff, and orcid
-      setAuthors(
-        includeAff
-          ? map(
-              compose(
-                // remove extra '-', essentially coalescing orcid value
+      if (len > 0) {
+        setAuthors(
+          includeAff
+            ? map(
+                compose(
+                  // remove extra '-', essentially coalescing orcid value
+                  without(['-']),
+
+                  // replace affs with an empty string, so we don't wipe it out in the next step
+                  adjust(2, (v) => (v === '-' ? '' : v)),
+                ),
+
+                // stack each array
+                transpose([
+                  map((v) => v.toLocaleString(), range(1, len + 1)),
+                  author,
+                  aff ?? repeat('', len),
+                  orcid_other,
+                  orcid_pub,
+                  orcid_user,
+                ]),
+              )
+            : map(
                 without(['-']),
-
-                // replace affs with an empty string, so we don't wipe it out in the next step
-                adjust(2, (v) => (v === '-' ? '' : v)),
+                transpose([
+                  map((v) => v.toLocaleString(), range(1, len + 1)),
+                  author,
+                  orcid_other,
+                  orcid_pub,
+                  orcid_user,
+                ]),
               ),
-
-              // stack each array
-              transpose([
-                map((v) => v.toLocaleString(), range(1, len + 1)),
-                author,
-                aff ?? repeat('', len),
-                orcid_other,
-                orcid_pub,
-                orcid_user,
-              ]),
-            )
-          : map(
-              without(['-']),
-              transpose([
-                map((v) => v.toLocaleString(), range(1, len + 1)),
-                author,
-                orcid_other,
-                orcid_pub,
-                orcid_user,
-              ]),
-            ),
-      );
+        );
+      }
     }
   }, [doc, includeAff]);
 

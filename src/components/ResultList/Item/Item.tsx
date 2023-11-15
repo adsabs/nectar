@@ -135,7 +135,7 @@ export const Item = (props: IItemProps): ReactElement => {
           </Flex>
         </Flex>
         <Flex direction="column">
-          <AuthorList author={author} authorCount={author_count} bibcode={doc.bibcode} />
+          {author_count > 0 && <AuthorList author={author} authorCount={author_count} bibcode={doc.bibcode} />}
           <Flex fontSize="xs" mt={0.5}>
             {formattedPubDate}
             {formattedPubDate && pub ? <Text px="2">·</Text> : ''}

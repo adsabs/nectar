@@ -119,12 +119,12 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                 {doc.author_count > MAX ? (
                   <AllAuthorsModal bibcode={doc.bibcode} label={`and ${doc.author_count - MAX} more`} />
                 ) : (
-                  <AllAuthorsModal bibcode={doc.bibcode} label={'show list'} />
+                  <>{doc.author_count > 0 && <AllAuthorsModal bibcode={doc.bibcode} label={'show list'} />}</>
                 )}
               </Flex>
             ) : (
               <Flex wrap="wrap">
-                {doc?.author.map((author, index) => (
+                {doc?.author?.map((author, index) => (
                   <SearchQueryLink
                     params={createQuery('author', author)}
                     key={`${author}-${index}`}
