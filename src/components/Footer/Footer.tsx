@@ -87,6 +87,9 @@ export const Footer: FC = () => {
         <SimpleLink href="/help/accessibility" variant="footer">
           Accessibility
         </SimpleLink>
+        <SimpleLink href="https://sciencediscoveryengine.nasa.gov/app/nasa-sba-smd/#/home" variant="footer" isExternal>
+          NASA Science Discovery Engine
+        </SimpleLink>
       </Flex>
       <Flex direction="column" mx={5} my={{ base: '3', md: '0' }}>
         <Text fontWeight="bold" pb={1}>
