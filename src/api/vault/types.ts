@@ -38,6 +38,7 @@ export enum DatabaseEnum {
   Physics = 'Physics',
   Astronomy = 'Astronomy',
   General = 'General',
+  EarthScience = 'Earth Science',
 }
 
 export enum ExternalLinkAction {

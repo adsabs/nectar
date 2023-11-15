@@ -1,7 +1,7 @@
 import { SolrSort } from '@api';
 
 export type LogicChoice = 'and' | 'or' | 'boolean';
-export type CollectionChoice = 'astronomy' | 'physics' | 'general';
+export type CollectionChoice = 'astronomy' | 'physics' | 'general' | 'earthscience';
 export type PropertyChoice = 'refereed-only' | 'articles-only';
 
 export interface IClassicFormState {
