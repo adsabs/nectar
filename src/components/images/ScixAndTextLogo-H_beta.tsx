@@ -116,10 +116,7 @@ const logo = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
         fontSize="30"
         fontWeight="700"
       >
-        BET
-        <tspan x="140.819" y="59.495">
-          A
-        </tspan>
+        BETA
       </text>
     </g>
   </svg>
