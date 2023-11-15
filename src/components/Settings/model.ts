@@ -1,11 +1,11 @@
 import {
+  DatabaseEnum,
   ExportApiJournalFormat,
   ExternalLinkAction,
   IADSApiUserDataResponse,
   JournalFormatName,
   UserDataKeys,
 } from '@api';
-import { DatabaseEnum } from '@api/vault';
 import { APP_DEFAULTS } from '@config';
 
 export const DEFAULT_USER_DATA: IADSApiUserDataResponse = {
@@ -17,6 +17,7 @@ export const DEFAULT_USER_DATA: IADSApiUserDataResponse = {
     { name: DatabaseEnum.Physics, value: false },
     { name: DatabaseEnum.Astronomy, value: false },
     { name: DatabaseEnum.General, value: false },
+    { name: DatabaseEnum.EarthScience, value: false },
   ],
   [UserDataKeys.BIBTEX_MAX_AUTHORS]: `${APP_DEFAULTS.BIBTEX_DEFAULT_MAX_AUTHOR}`,
   [UserDataKeys.LAST_MESSAGE]: '',

@@ -157,7 +157,7 @@ const AppSettingsPage = () => {
                 {content}
               </Box>
               <CheckboxGroup onChange={handleApplyDatabases} value={selectedValues.databases.selected}>
-                <Stack direction="row" id="default-collections">
+                <Stack direction="row" id="default-collections" spacing="6">
                   {selectedValues.databases.databases.map((o) => (
                     <Checkbox value={o.name} key={o.name}>
                       {o.name}

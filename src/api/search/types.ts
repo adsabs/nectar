@@ -190,7 +190,7 @@ export enum Esources {
   Zenodo = 'Zenodo',
 }
 
-export type Database = 'astronomy' | 'physics' | 'general';
+export type Database = 'astronomy' | 'physics' | 'general' | 'earthscience';
 
 export interface IDocsEntity {
   /**
@@ -525,5 +525,5 @@ export const queryFields = [
 
 export interface IBigQueryMutationParams {
   params: IADSApiSearchParams;
-  variables: { bibcodes: IDocsEntity['bibcode'][]; rows: number};
+  variables: { bibcodes: IDocsEntity['bibcode'][]; rows: number };
 }
