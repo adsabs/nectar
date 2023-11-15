@@ -35,7 +35,7 @@ export const useFocus = <TElement extends HTMLElement = HTMLInputElement>(
       ref.current?.focus();
 
       // if the element is an input, move the cursor to the end
-      if (shouldMoveCursorToEnd && ref.current instanceof HTMLInputElement) {
+      if (shouldMoveCursorToEnd && ref.current instanceof HTMLInputElement && ref.current.selectionStart) {
         ref.current.selectionStart = ref.current.value.length;
       }
     }
