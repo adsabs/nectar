@@ -263,7 +263,7 @@ export const allSearchTerms: SearchTermOption[] = [
     id: 'collection',
     value: 'collection:',
     title: 'collection',
-    description: 'Search from the astronomy, physics, or general collection',
+    description: 'Search from the astronomy, physics, earth science, or general collection',
     syntax: ['collection:collection'],
     example: ['collection:general'],
   },
