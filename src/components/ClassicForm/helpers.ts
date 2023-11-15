@@ -126,7 +126,7 @@ export const getPubdate = (startDate: string, endDate: string) => {
  * getLimit(['astronomy', 'physics']); // collection:(astronomy OR physics)
  */
 export const getLimit = (limit: CollectionChoice[]) => {
-  const limits = ['astronomy', 'physics', 'general'];
+  const limits = ['astronomy', 'physics', 'general', 'earthscience'];
   const isLimit = (limit: string): limit is CollectionChoice => allPass([isString, includes(__, limits)])(limit);
   const limitIsValid = both(isNotEmpty, all(isLimit));
 
