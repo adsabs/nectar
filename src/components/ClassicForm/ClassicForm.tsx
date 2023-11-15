@@ -93,7 +93,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
           <VisuallyHidden id="collection-group">Collection</VisuallyHidden>
           <FormLabel>Limit Query</FormLabel>
           <CheckboxGroup defaultValue={['astronomy']}>
-            <HStack>
+            <HStack spacing="6">
               <Checkbox value="astronomy" {...register('limit')}>
                 Astronomy
               </Checkbox>
@@ -102,6 +102,9 @@ export const ClassicForm = (props: IClassicFormProps) => {
               </Checkbox>
               <Checkbox value="general" {...register('limit')}>
                 General
+              </Checkbox>
+              <Checkbox value="earthscience" {...register('limit')}>
+                Earth Science
               </Checkbox>
             </HStack>
           </CheckboxGroup>
