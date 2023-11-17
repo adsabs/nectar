@@ -52,7 +52,7 @@ export const examples = {
     right: [
       { label: 'citations', text: 'citations(abstract:JWST)' },
       { label: 'refereed', text: 'property:refereed' },
-      { label: 'collection', text: 'collection:heliophysics' },
+      { label: 'collection', text: 'collection:physics' },
       { label: 'exact search', text: '=body:"reproducibility"' },
       { label: 'institution', text: 'inst:NASA' },
       { label: 'record type', text: 'doctype:software' },
@@ -71,7 +71,7 @@ export const examples = {
     right: [
       { label: 'citations', text: 'citations(abstract:JWST)' },
       { label: 'refereed', text: 'property:refereed' },
-      { label: 'collection', text: 'collection:earth' },
+      { label: 'collection', text: 'collection:earthscience' },
       { label: 'exact search', text: '=body:"reproducibility"' },
       { label: 'institution', text: 'inst:NASA' },
       { label: 'record type', text: 'doctype:software' },
@@ -90,7 +90,7 @@ export const examples = {
     right: [
       { label: 'citations', text: 'citations(abstract:JWST)' },
       { label: 'refereed', text: 'property:refereed' },
-      { label: 'collection', text: 'collection:planet' },
+      { label: 'collection', text: 'collection:earthscience' },
       { label: 'exact search', text: '=body:"reproducibility"' },
       { label: 'institution', text: 'inst:NASA' },
       { label: 'record type', text: 'doctype:software' },
@@ -109,7 +109,7 @@ export const examples = {
     right: [
       { label: 'citations', text: 'citations(abstract:JWST)' },
       { label: 'refereed', text: 'property:refereed' },
-      { label: 'collection', text: 'collection:biophysical' },
+      { label: 'collection', text: 'collection:physics' },
       { label: 'exact search', text: '=body:"reproducibility"' },
       { label: 'institution', text: 'inst:NASA' },
       { label: 'record type', text: 'doctype:software' },
