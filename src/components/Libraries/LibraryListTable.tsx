@@ -338,7 +338,8 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
 };
 
 const LastModified = ({ date }: { date: string }) => {
-  const dateStr = new Date(`${date.match(/[+]([0-9]){2}:([0-9]){2}$/) ? date : `${date}+00:00`}`); // date string here is missing the timezone, add it or the time is wrong
+  // date string here is missing the timezone, add it or the time is wrong
+  const dateStr = new Date(`${date.match(/\+\d{2}:\d{2}$/) ? date : `${date}+00:00`}`); 
   const formatted = intlFormatDistance(dateStr, new Date());
   return (
     <Tooltip
