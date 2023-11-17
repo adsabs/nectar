@@ -126,6 +126,13 @@ export const typeaheadOptions: TypeaheadOption[] = [
     match: ['similar('],
     id: 28,
   },
+  {
+    value: 'collection:earthscience',
+    label: 'Limit to papers in the earth science collection',
+    match: ['earth science', 'collection:earthscience'],
+    desc: '',
+    id: 29,
+  },
 ];
 
 export type SearchTermItem = {
