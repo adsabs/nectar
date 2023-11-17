@@ -46,10 +46,11 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
   const refs = useMergeRefs(ref, input);
   const { query, queryAddition, onDoneAppendingToQuery, isClearingQuery, onDoneClearingQuery } = useIntermediateQuery();
 
-  // on mount, set the search term
+  // on mount, set the search term, focus and force reset to clear the menu
   useEffect(() => {
     if (isNonEmptyString(query)) {
       dispatch({ type: 'SET_SEARCH_TERM', payload: query });
+      dispatch({ type: 'SOFT_RESET' });
       setTimeout(() => focus(), 10);
     }
   }, [query]);
