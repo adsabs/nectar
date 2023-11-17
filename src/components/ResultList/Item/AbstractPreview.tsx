@@ -41,6 +41,7 @@ export const AbstractPreview = ({ bibcode }: IAbstractPreviewProps): ReactElemen
             fontSize="md"
             mt={1}
             dangerouslySetInnerHTML={{ __html: data.docs[0]?.abstract ?? text.noAbstract }}
+            wordBreak="break-word"
           />
         </Collapse>
       )}
