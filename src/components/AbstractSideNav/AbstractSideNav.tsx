@@ -162,16 +162,7 @@ const CountBadge = ({ count }: { count: number }): ReactElement => {
     return null;
   }
   return (
-    <Badge
-      mx={3}
-      py={1}
-      fontSize="xs"
-      fontWeight="normal"
-      borderRadius="xl"
-      colorScheme="gray"
-      px={2}
-      backgroundColor="gray.150"
-    >
+    <Badge mx={3} py={1} fontSize="xs" fontWeight="normal" borderRadius="xl" px={2} backgroundColor="gray.50">
       {count}
     </Badge>
   );

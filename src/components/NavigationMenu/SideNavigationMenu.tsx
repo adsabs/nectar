@@ -1,6 +1,6 @@
 import { cloneElement } from 'react';
 import NextLink from 'next/link';
-import { Box, BoxProps, Button, Flex, Text } from '@chakra-ui/react';
+import { Box, BoxProps, Button, Flex, Stack, Text } from '@chakra-ui/react';
 import { CatMenuItems, IMenuItem, IMenuItemProps, SingleMenuItems } from './types';
 
 export interface ISideNavigationMenuProps extends BoxProps {
@@ -11,7 +11,15 @@ export interface ISideNavigationMenuProps extends BoxProps {
 /**
  * Menu item rendered as button link
  */
-const SideMenuItem = ({ href, hrefAs, label, icon, active = false, disabled = false }: IMenuItemProps) => {
+const SideMenuItem = ({
+  href,
+  hrefAs,
+  label,
+  icon,
+  active = false,
+  disabled = false,
+  rightElement = null,
+}: IMenuItemProps) => {
   return (
     <>
       {disabled ? (
@@ -31,7 +39,10 @@ const SideMenuItem = ({ href, hrefAs, label, icon, active = false, disabled = fa
           isDisabled
           leftIcon={icon ? cloneElement(icon, { width: '18px', 'aria-hidden': true }) : null}
         >
-          {label}
+          <Stack direction="row" alignItems="center">
+            <>{label}</>
+            <>{rightElement}</>
+          </Stack>
         </Button>
       ) : (
         <NextLink href={href} as={hrefAs} passHref legacyBehavior>
@@ -50,7 +61,10 @@ const SideMenuItem = ({ href, hrefAs, label, icon, active = false, disabled = fa
             fontWeight="normal"
             leftIcon={icon ? cloneElement(icon, { width: '18px', 'aria-hidden': true }) : null}
           >
-            {label}
+            <Stack direction="row" alignItems="center">
+              <>{label}</>
+              <>{rightElement}</>
+            </Stack>
           </Button>
         </NextLink>
       )}
