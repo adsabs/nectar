@@ -115,7 +115,7 @@ export const ConceptCloudPageContainer = ({ query }: IConceptCloudPageContainerP
     const values = state.filters.join(' OR ');
 
     const search = makeSearchParams({ ...query, fq: fqs, fq_wordcloud: `(${values})`, p: 1 });
-    void router.push({ pathname: '/search', search }, null, { scroll: false, shallow: true });
+    void router.push({ pathname: '/search', search }, null, { scroll: false });
   };
 
   // slider value changed
