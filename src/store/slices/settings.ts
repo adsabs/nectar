@@ -1,7 +1,7 @@
 import { IADSApiUserDataResponse } from '@api';
 import { SearchFacetID } from '@components/SearchFacet/types';
 import { StoreSlice } from '@store';
-import { Theme } from '@types';
+import { AppMode } from '@types';
 import { filter, is, pipe, propEq, uniq, without } from 'ramda';
 
 export interface ISettingsState {
@@ -26,9 +26,7 @@ export interface ISettingsAction {
   showSearchFacet: (id: SearchFacetID, index?: number) => void;
   toggleSearchFacetsOpen: (value?: boolean | unknown) => void;
   resetSearchFacets: () => void;
-  updateSearchFacetsByTheme: () => void;
   getHiddenSearchFacets: () => SearchFacetID[];
-  setIgnoredSearchFacets: (ignored: SearchFacetID[]) => void;
 
   // user settings
   setUserSettings: (userSettings: Partial<IADSApiUserDataResponse>) => void;
@@ -64,11 +62,8 @@ export const defaultSettings: ISettingsState['settings'] = {
       ['keywords']: { hidden: false, expanded: false },
       ['publications']: { hidden: false, expanded: false },
       ['bibgroups']: { hidden: false, expanded: false },
-
-      // by default `simbad` and `ned` are hidden, since they are re-shown by theme
-      ['simbad']: { hidden: true, expanded: false },
-      ['ned']: { hidden: true, expanded: false },
-
+      ['simbad']: { hidden: false, expanded: false },
+      ['ned']: { hidden: false, expanded: false },
       ['data']: { hidden: false, expanded: false },
       ['vizier']: { hidden: false, expanded: false },
       ['pubtype']: { hidden: false, expanded: false },
@@ -172,55 +167,38 @@ export const settingsSlice: StoreSlice<ISettingsState & ISettingsAction> = (set,
     ),
   resetSearchFacets: () => {
     set(
-      { settings: { ...get().settings, searchFacets: defaultSettings.searchFacets } },
+      {
+        settings: {
+          ...get().settings,
+          searchFacets: {
+            ...defaultSettings.searchFacets,
+            ignored: getIgnoredSearchFacets(get().mode),
+          },
+        },
+      },
       false,
       'settings/resetSearchFacets',
     );
-
-    // update based on the theme
-    get().updateSearchFacetsByTheme();
   },
-  updateSearchFacetsByTheme: () =>
-    set(
-      (state) => {
-        if (state.theme === Theme.ASTROPHYSICS) {
-          state.showSearchFacet('ned');
-          state.showSearchFacet('simbad');
-          state.setIgnoredSearchFacets([]);
-        } else {
-          state.hideSearchFacet('ned');
-          state.hideSearchFacet('simbad');
-          state.setIgnoredSearchFacets(['ned', 'simbad']);
-        }
-      },
-      false,
-      'settings/updateSearchFacetsByTheme',
-    ),
   getHiddenSearchFacets: () => {
     const state = get();
     return pipe(
       filter(propEq('hidden', true)),
       (v) => Object.keys(v) as SearchFacetID[],
-      without(state.settings.searchFacets.ignored),
     )(state.settings.searchFacets.state);
   },
-  setIgnoredSearchFacets: (ignored) =>
-    set(
-      (state) => ({
-        settings: {
-          ...state.settings,
-          searchFacets: {
-            ...state.settings.searchFacets,
-            ignored,
-          },
-        },
-      }),
-      false,
-      'settings/setIgnoredSearchFacets',
-    ),
   setUserSettings: (user) =>
     set((state) => ({ settings: { ...state.settings, user } }), false, 'settings/setUserSettings'),
   resetUserSettings: () =>
     set((state) => ({ settings: { ...state.settings, user: null } }), false, 'settings/resetUser'),
-  getUserSettings: () => get().settings.user,
 });
+
+const getIgnoredSearchFacets = (mode: AppMode): SearchFacetID[] => {
+  switch (mode) {
+    case AppMode.EARTH_SCIENCE:
+      return ['simbad', 'ned', 'vizier'];
+
+    default:
+      return [];
+  }
+};
