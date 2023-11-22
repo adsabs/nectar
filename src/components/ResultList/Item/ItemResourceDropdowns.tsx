@@ -146,11 +146,11 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
           <MenuButton
             as={IconButton}
             aria-label={fullSourceItems.length > 0 ? 'Full text sources' : 'No full text sources'}
-            icon={<DocumentTextIcon />}
+            icon={<DocumentTextIcon width="18px" height="18px" />}
             isDisabled={fullSourceItems.length === 0}
             variant="link"
             size="xs"
-          ></MenuButton>
+          />
           {fullSourceItems.length > 0 && (
             <MenuList>
               {fullSourceItems.map((item) => (
@@ -182,11 +182,11 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
           <MenuButton
             as={IconButton}
             aria-label={referenceItems.length > 0 ? 'References and citations' : 'No references and citations'}
-            icon={<Bars4Icon />}
+            icon={<Bars4Icon width="18px" height="18px" />}
             isDisabled={referenceItems.length === 0}
             variant="link"
             size="xs"
-          ></MenuButton>
+          />
           {referenceItems.length > 0 && (
             <MenuList>
               {referenceItems.map((item) => (
@@ -218,11 +218,11 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
           <MenuButton
             as={IconButton}
             aria-label={dataProductItems.length > 0 ? 'Data products' : 'No data products'}
-            icon={<CircleStackIcon />}
+            icon={<CircleStackIcon width="18px" height="18px" />}
             isDisabled={dataProductItems.length === 0}
             variant="link"
             size="xs"
-          ></MenuButton>
+          />
           {dataProductItems.length > 0 && (
             <MenuList>
               {dataProductItems.map((item) => (
