@@ -1,34 +1,31 @@
 import { Box } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components';
 import { useStore } from '@store';
-import { Theme } from '@types';
+import { AppMode } from '@types';
 import { ReactElement, useMemo } from 'react';
 import shallow from 'zustand/shallow';
-import { themes } from './models';
+import { modes } from './models';
 import { useGTMDispatch } from '@elgorditosalsero/react-gtm-hook';
 
-const options = Object.values(themes);
+const options = Object.values(modes);
 
-export const ThemeDropdown = (): ReactElement => {
+export const AppModeDropdown = (): ReactElement => {
   const sendDataToGTM = useGTMDispatch();
-  const [theme, setTheme]: [Theme, (theme: Theme) => void] = useStore(
-    (state) => [state.theme, state.setTheme],
-    shallow,
-  );
+  const [mode, setMode]: [AppMode, (mode: AppMode) => void] = useStore((state) => [state.mode, state.setMode], shallow);
 
-  const option = useMemo(() => themes[theme], [theme]);
+  const option = useMemo(() => modes[mode], [mode]);
 
-  const handleThemeChange = ({ id: theme }: SelectOption<Theme>) => {
-    setTheme(theme);
+  const handleThemeChange = ({ id: mode }: SelectOption<AppMode>) => {
+    setMode(mode);
     sendDataToGTM({
-      event: 'theme_change',
-      theme: theme,
+      event: 'app_mode_change',
+      mode,
     });
   };
 
   return (
     <Box width={{ base: '200px', xs: '270px' }}>
-      <Select<SelectOption<Theme>>
+      <Select<SelectOption<AppMode>>
         value={option}
         options={options}
         stylesTheme="theme"

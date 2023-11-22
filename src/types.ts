@@ -2,7 +2,7 @@ import { IADSApiSearchParams, IUserData } from '@api';
 import { APP_DEFAULTS } from '@config';
 import { SetupServerApi } from 'msw/node';
 
-export enum Theme {
+export enum AppMode {
   GENERAL = 'GENERAL',
   ASTROPHYSICS = 'ASTROPHYSICS',
   HELIOPHYSICS = 'HELIOPHYSICS',

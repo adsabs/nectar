@@ -1,34 +1,34 @@
 import { SelectOption } from '@components/Select';
-import { Theme } from '@types';
+import { AppMode } from '@types';
 
-export const themes: Record<Theme, SelectOption<Theme>> = {
-  [Theme.GENERAL]: {
-    id: Theme.GENERAL,
+export const modes: Record<AppMode, SelectOption<AppMode>> = {
+  [AppMode.GENERAL]: {
+    id: AppMode.GENERAL,
     value: 'general',
     label: 'General Science',
   },
-  [Theme.ASTROPHYSICS]: {
-    id: Theme.ASTROPHYSICS,
+  [AppMode.ASTROPHYSICS]: {
+    id: AppMode.ASTROPHYSICS,
     value: 'astrophysics',
     label: 'Astrophysics',
   },
-  [Theme.HELIOPHYSICS]: {
-    id: Theme.HELIOPHYSICS,
+  [AppMode.HELIOPHYSICS]: {
+    id: AppMode.HELIOPHYSICS,
     value: 'heliophysics',
     label: 'Heliophysics',
   },
-  [Theme.PLANET_SCIENCE]: {
-    id: Theme.PLANET_SCIENCE,
+  [AppMode.PLANET_SCIENCE]: {
+    id: AppMode.PLANET_SCIENCE,
     value: 'planetary',
     label: 'Planetary Science',
   },
-  [Theme.EARTH_SCIENCE]: {
-    id: Theme.EARTH_SCIENCE,
+  [AppMode.EARTH_SCIENCE]: {
+    id: AppMode.EARTH_SCIENCE,
     value: 'earth',
     label: 'Earth Science',
   },
-  [Theme.BIO_PHYSICAL]: {
-    id: Theme.BIO_PHYSICAL,
+  [AppMode.BIO_PHYSICAL]: {
+    id: AppMode.BIO_PHYSICAL,
     value: 'biophysical',
     label: 'Biological & Physical Science',
   },
