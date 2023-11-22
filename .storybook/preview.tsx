@@ -5,6 +5,7 @@ import { initialize, mswLoader } from 'msw-storybook-addon';
 import { handlers } from '../src/mocks/handlers';
 import { theme } from '../src/theme';
 import { MathJaxProvider } from '../src/mathjax';
+import { GTMProvider } from '@elgorditosalsero/react-gtm-hook';
 
 export const parameters = {
   chakra: { theme },
@@ -17,15 +18,19 @@ initialize();
 const queryClient = new QueryClient({ defaultOptions: { queries: { retry: 0 } } });
 const preview: Preview = {
   decorators: [
-    (Story) => (
-      <MathJaxProvider>
-        <QueryClientProvider client={queryClient}>
-          <StoreProvider createStore={useCreateStore({})}>
-            <Story />
-          </StoreProvider>
-        </QueryClientProvider>
-      </MathJaxProvider>
-    ),
+    (Story) => {
+      return (
+        <GTMProvider>
+          <MathJaxProvider>
+            <QueryClientProvider client={queryClient}>
+              <StoreProvider createStore={useCreateStore({})}>
+                <Story />
+              </StoreProvider>
+            </QueryClientProvider>
+          </MathJaxProvider>
+        </GTMProvider>
+      );
+    },
   ],
   loaders: [mswLoader],
 };
