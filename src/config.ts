@@ -23,7 +23,7 @@ export const GOOGLE_RECAPTCHA_KEY = '6Lex_aQUAAAAAMwJFbdGFeigshN7mRQdbXoGQ7-N';
 export const sessionConfig: IronSessionOptions = {
   password: process.env.COOKIE_SECRET,
   cookieName: process.env.SCIX_SESSION_COOKIE_NAME,
-  // secure: true should be used in production (HTTPS) but can't be used in development (HTTP)
+  // secure: true should be used in production () but can't be used in development (HTTP)
   cookieOptions: {
     secure: process.env.NODE_ENV === 'production',
   },

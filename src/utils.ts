@@ -510,3 +510,11 @@ export const isValidEmail = (email: string) => {
     return false;
   }
 };
+
+export const immutableInsert = <T>(arr: T[], index: number, newItem: T): T[] => [
+  ...arr.slice(0, index),
+  newItem,
+  ...arr.slice(index),
+];
+
+export const immutableRemove = <T>(arr: T[], index: number): T[] => [...arr.slice(0, index), ...arr.slice(index + 1)];
