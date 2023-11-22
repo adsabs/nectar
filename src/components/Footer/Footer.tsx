@@ -28,18 +28,15 @@ export const Footer: FC = () => {
           Data System
         </Text>
         <Text color="gray.300">adshelp[at]cfa.harvard.edu</Text>
-        <Text color="gray.300">
-          The{' '}
-          <Text as="abbr" title="Astrophysics Data System">
-            ADS
-          </Text>{' '}
-          is operated by the Smithsonian Astrophysical Observatory under{' '}
+        <Text color="gray.300" mt={3}>
+          SciX is a project created by the Astrophysics Data System (ADS), which is operated by the Smithsonian
+          Astrophysical Observatory under{' '}
           <Text as="abbr" title="National Aeronautics and Space Administration">
             NASA
           </Text>{' '}
-          Cooperative Agreement 80NSSC21M0056
+          Cooperative Agreement 80NSSC21M0056.
         </Text>
-        <HStack mt={3} spacing={1} my={{ base: '3', md: '0' }}>
+        <HStack my={3} spacing={1}>
           <NextLink href="https://www.nasa.gov" passHref legacyBehavior>
             <Link variant="footer" rel="noopener noreferrer">
               <VisuallyHidden as="abbr" title="National Aeronautics and Space Administration">
@@ -67,16 +64,10 @@ export const Footer: FC = () => {
           RESOURCES
         </Text>
         <SimpleLink href="/about" variant="footer">
-          About{' '}
-          <Text as="abbr" title="Astrophysics Data System">
-            ADS
-          </Text>
+          About SciX
         </SimpleLink>
         <SimpleLink href="/help" variant="footer">
-          <Text as="abbr" title="Astrophysics Data System">
-            ADS
-          </Text>{' '}
-          Help
+          SciX Help
         </SimpleLink>
         <SimpleLink href="/help/whats_new" variant="footer">
           What's New
@@ -95,14 +86,11 @@ export const Footer: FC = () => {
         <Text fontWeight="bold" pb={1}>
           SOCIAL
         </Text>
-        <SimpleLink href="https://twitter.com/adsabs" variant="footer">
-          @adsabs
+        <SimpleLink href="https://twitter.com/scixcommunity" variant="footer">
+          @scixcommunity
         </SimpleLink>
         <SimpleLink href="/blog" variant="footer">
-          <Text as="abbr" title="Astrophysics Data System">
-            ADS
-          </Text>{' '}
-          Blog
+          SciX Blog
         </SimpleLink>
       </Flex>
       <Flex direction="column" mx={5} my={{ base: '3', md: '0' }}>
