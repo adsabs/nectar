@@ -1,7 +1,7 @@
-import { Theme } from '@types';
+import { AppMode } from '@types';
 
 export const examples = {
-  [Theme.GENERAL]: {
+  [AppMode.GENERAL]: {
     left: [
       { label: 'author', text: 'author:"penrose, roger"' },
       { label: 'first author', text: 'author:"^penrose, roger"' },
@@ -20,7 +20,7 @@ export const examples = {
       { label: 'record type', text: 'doctype:software' },
     ],
   },
-  [Theme.ASTROPHYSICS]: {
+  [AppMode.ASTROPHYSICS]: {
     left: [
       { label: 'author', text: 'author:"huchra, john"' },
       { label: 'first author', text: 'author:"^huchra, john"' },
@@ -39,7 +39,7 @@ export const examples = {
       { label: 'record type', text: 'doctype:software' },
     ],
   },
-  [Theme.HELIOPHYSICS]: {
+  [AppMode.HELIOPHYSICS]: {
     left: [
       { label: 'author', text: 'author:"pollock, craig"' },
       { label: 'first author', text: 'author:"^pollock, craig"' },
@@ -58,7 +58,7 @@ export const examples = {
       { label: 'record type', text: 'doctype:software' },
     ],
   },
-  [Theme.EARTH_SCIENCE]: {
+  [AppMode.EARTH_SCIENCE]: {
     left: [
       { label: 'author', text: 'author:"oreskes, naomi"' },
       { label: 'first author', text: 'author:"^oreskes, naomi"' },
@@ -77,7 +77,7 @@ export const examples = {
       { label: 'record type', text: 'doctype:software' },
     ],
   },
-  [Theme.PLANET_SCIENCE]: {
+  [AppMode.PLANET_SCIENCE]: {
     left: [
       { label: 'author', text: 'author:"sagan, carl"' },
       { label: 'first author', text: 'author:"^sagan, carl"' },
@@ -96,7 +96,7 @@ export const examples = {
       { label: 'record type', text: 'doctype:software' },
     ],
   },
-  [Theme.BIO_PHYSICAL]: {
+  [AppMode.BIO_PHYSICAL]: {
     left: [
       { label: 'author', text: 'author:"houghton, michael"' },
       { label: 'first author', text: 'author:"^houghton, michael"' },

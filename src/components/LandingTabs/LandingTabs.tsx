@@ -1,6 +1,6 @@
 import { Box, Center, Flex, Heading, HStack, Icon, Link, Show, VisuallyHidden } from '@chakra-ui/react';
 import { useStore } from '@store';
-import { Theme } from '@types';
+import { AppMode } from '@types';
 import Image from 'next/image';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
@@ -9,14 +9,14 @@ import { ScixAndNasaLogo_H_beta } from '@components/images/ScixAndNasaLogo-H_bet
 
 const imageStyle: CSSProperties = { objectFit: 'cover', opacity: '50%', zIndex: 0 };
 export const LandingTabs = (): ReactElement => {
-  const theme = useStore((state) => state.theme);
+  const mode = useStore((state) => state.mode);
 
   return (
     <Flex direction="column" justifyContent="center" alignItems="center" position="relative" backgroundColor="black">
-      {theme === Theme.ASTROPHYSICS && (
+      {mode === AppMode.ASTROPHYSICS && (
         <Image src="/images/bg-astro.webp" alt="Starry sky" fill style={imageStyle} priority />
       )}
-      {theme === Theme.GENERAL && (
+      {mode === AppMode.GENERAL && (
         <Image
           src="/images/bg-general.webp"
           alt="Hand touching colorful plasma globe"
@@ -25,22 +25,22 @@ export const LandingTabs = (): ReactElement => {
           priority
         />
       )}
-      {theme === Theme.BIO_PHYSICAL && (
+      {mode === AppMode.BIO_PHYSICAL && (
         <Image src="/images/bg-bio.webp" alt="Microscopic lifeform" fill style={imageStyle} priority />
       )}
-      {theme === Theme.EARTH_SCIENCE && (
+      {mode === AppMode.EARTH_SCIENCE && (
         <Image src="/images/bg-earth.webp" alt="Zoomed out Earth" fill style={imageStyle} priority />
       )}
-      {theme === Theme.HELIOPHYSICS && (
+      {mode === AppMode.HELIOPHYSICS && (
         <Image src="/images/bg-helio.webp" alt="Up-close sun" fill style={imageStyle} priority />
       )}
-      {theme === Theme.PLANET_SCIENCE && (
+      {mode === AppMode.PLANET_SCIENCE && (
         <Image src="/images/bg-planet.webp" alt="Jupiter in relief" fill style={imageStyle} priority />
       )}
       <Box padding={6} zIndex={5}>
         <TitleLogo />
       </Box>
-      <Tabs show={theme === Theme.ASTROPHYSICS} />
+      <Tabs show={mode === AppMode.ASTROPHYSICS} />
     </Flex>
   );
 };

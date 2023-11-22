@@ -1,6 +1,8 @@
 import { GetState } from 'zustand';
 import { NamedSet } from 'zustand/middleware';
 import {
+  IAppModeAction,
+  IAppModeState,
   IDocsAction,
   IDocsState,
   INotificationAction,
@@ -11,8 +13,6 @@ import {
   ISearchState,
   ISettingsAction,
   ISettingsState,
-  IThemeAction,
-  IThemeState,
   IUserAction,
   IUserState,
 } from './slices';
@@ -20,7 +20,7 @@ import {
 export type AppSerializableState = IDocsState &
   ISearchState &
   ISettingsState &
-  IThemeState &
+  IAppModeState &
   IUserState &
   IORCIDState &
   INotificationState;
@@ -28,7 +28,7 @@ export type AppSerializableState = IDocsState &
 export type AppActions = IDocsAction &
   ISearchAction &
   ISettingsAction &
-  IThemeAction &
+  IAppModeAction &
   IUserAction &
   IORCIDAction &
   INotificationAction;

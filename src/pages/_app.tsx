@@ -5,7 +5,7 @@ import { useCreateQueryClient } from '@lib/useCreateQueryClient';
 import { MathJaxProvider } from '@mathjax';
 import { AppState, StoreProvider, useCreateStore, useStore, useStoreApi } from '@store';
 import { theme } from '@theme';
-import { Theme } from '@types';
+import { AppMode } from '@types';
 import { AppProps, NextWebVitalsMetric } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
@@ -43,7 +43,7 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
 
   return (
     <Providers pageProps={pageProps as AppPageProps}>
-      <ThemeRouter />
+      <AppModeRouter />
       <TopProgressBar />
       <UserSync />
       <Layout>
@@ -82,19 +82,19 @@ const QCProvider: FC = ({ children }) => {
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 };
 
-const ThemeRouter = (): ReactElement => {
-  const theme = useStore((state) => state.theme);
+const AppModeRouter = (): ReactElement => {
+  const mode = useStore((state) => state.mode);
   const router = useRouter();
   const isClient = useIsClient();
 
   useEffect(() => {
     // redirect to main form if path is not valid
     if (isClient) {
-      if (theme !== Theme.ASTROPHYSICS && /^\/(classic|paper)-form.*$/.test(router.asPath)) {
+      if (mode !== AppMode.ASTROPHYSICS && /^\/(classic|paper)-form.*$/.test(router.asPath)) {
         void router.replace('/');
       }
     }
-  }, [theme, router.asPath]);
+  }, [mode, router.asPath]);
 
   return <></>;
 };
