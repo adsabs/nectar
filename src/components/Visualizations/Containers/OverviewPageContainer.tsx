@@ -41,7 +41,7 @@ export const OverviewPageContainer = ({ query, onApplyQueryCondition }: IOvervie
 
     // tigger search
     const search = makeSearchParams({ ...newQuery, p: 1 });
-    void router.push({ pathname: '/search', search }, null, { scroll: false, shallow: true });
+    void router.push({ pathname: '/search', search }, null, { scroll: false });
   };
 
   const handleApplyCitationCondition = (cond: string) => {
