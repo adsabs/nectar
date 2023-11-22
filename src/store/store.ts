@@ -3,8 +3,16 @@ import { mergeDeepLeft } from 'ramda';
 import { useEffect } from 'react';
 import create, { GetState, Mutate, SetState, StoreApi } from 'zustand';
 import createContext from 'zustand/context';
-import { devtools, NamedSet, persist } from 'zustand/middleware';
-import { docsSlice, notificationSlice, orcidSlice, searchSlice, settingsSlice, themeSlice, userSlice } from './slices';
+import { devtools, NamedSet, persist, subscribeWithSelector } from 'zustand/middleware';
+import {
+  appModeSlice,
+  docsSlice,
+  notificationSlice,
+  orcidSlice,
+  searchSlice,
+  settingsSlice,
+  userSlice,
+} from './slices';
 import { AppSerializableState, AppState } from './types';
 import { isPlainObject, isPrimitive } from 'ramda-adjunct';
 
@@ -16,7 +24,7 @@ export const createStore = (preloadedState: Partial<AppState> = {}) => {
     ...searchSlice(set, get),
     ...docsSlice(set, get),
     ...userSlice(set, get),
-    ...themeSlice(set, get),
+    ...appModeSlice(set, get),
     ...settingsSlice(set, get),
     ...orcidSlice(set, get),
     ...notificationSlice(set, get),
@@ -25,35 +33,35 @@ export const createStore = (preloadedState: Partial<AppState> = {}) => {
 
   // return a basic store during testing
   if (process.env.NODE_ENV === 'test') {
-    return create<AppState>(state);
+    return create<AppState>(subscribeWithSelector(state));
   }
 
-  const store = create<
+  return create<
     AppState,
     SetState<AppState>,
     GetState<AppState>,
-    Mutate<StoreApi<AppState>, [['zustand/persist', Partial<AppState>], ['zustand/devtools', never]]>
+    Mutate<
+      StoreApi<AppState>,
+      [['zustand/subscribeWithSelector', never], ['zustand/devtools', never], ['zustand/persist', Partial<AppState>]]
+    >
   >(
-    devtools(
-      persist(state, {
-        name: APP_STORAGE_KEY,
-        partialize: (state) => ({
-          user: state.user,
-          theme: state.theme,
-          numPerPage: state.numPerPage,
-          settings: state.settings,
-          orcid: state.orcid,
+    subscribeWithSelector(
+      devtools(
+        persist(state, {
+          name: APP_STORAGE_KEY,
+          partialize: (state) => ({
+            user: state.user,
+            mode: state.mode,
+            numPerPage: state.numPerPage,
+            settings: state.settings,
+            orcid: state.orcid,
+          }),
+          merge: mergeDeepLeft,
         }),
-        merge: mergeDeepLeft,
-      }),
-      { name: APP_STORAGE_KEY },
+        { name: APP_STORAGE_KEY },
+      ),
     ),
   );
-
-  // run post-merge updates
-  store.getState().updateSearchFacetsByTheme();
-
-  return store;
 };
 export type Store = ReturnType<typeof createStore>;
 
@@ -70,6 +78,9 @@ export const useCreateStore = (incomingState: Partial<AppState> = {}): (() => St
 
   // initialize the store
   store = store ?? createStore(incomingState);
+
+  // force reset of the search facets
+  store.getState().resetSearchFacets();
 
   // in the case that initialState changes, merge the changes in
   // eslint-disable-next-line react-hooks/rules-of-hooks

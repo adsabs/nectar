@@ -4,9 +4,12 @@ import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
 import { FC } from 'react';
 
-const ThemeDropdown = dynamic<Record<string, never>>(() => import('./ThemeDropdown').then((mod) => mod.ThemeDropdown), {
-  ssr: false,
-});
+const AppModeDropdown = dynamic<Record<string, never>>(
+  () => import('./AppModeDropdown').then((mod) => mod.AppModeDropdown),
+  {
+    ssr: false,
+  },
+);
 
 const NavMenus = dynamic<Record<string, never>>(() => import('./NavMenus').then((mod) => mod.NavMenus), { ssr: false });
 
@@ -22,7 +25,7 @@ export const NavBar: FC = () => {
               </HStack>
             </Link>
           </NextLink>
-          <ThemeDropdown />
+          <AppModeDropdown />
         </HStack>
         <NavMenus />
       </Flex>

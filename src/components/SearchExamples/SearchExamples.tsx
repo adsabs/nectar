@@ -15,7 +15,7 @@ export const SearchExamples: FC<ISearchExamplesProps> = (props) => {
   const { onSelect = noop, ...divProps } = props;
 
   const sendDataToGTM = useGTMDispatch();
-  const theme = useStore((state) => state.theme);
+  const mode = useStore((state) => state.mode);
   const { appendToQuery } = useIntermediateQuery();
 
   const handleClick: MouseEventHandler<HTMLButtonElement> = (e) => {
@@ -36,14 +36,14 @@ export const SearchExamples: FC<ISearchExamplesProps> = (props) => {
   // memoize left/right examples
   const [leftExamples, rightExamples] = useMemo(
     () => [
-      examples[theme].left.map(({ label, text }) => (
+      examples[mode].left.map(({ label, text }) => (
         <SearchExample label={label} example={text} key={label} data-text={text} onClick={handleClick} />
       )),
-      examples[theme].right.map(({ label, text }) => (
+      examples[mode].right.map(({ label, text }) => (
         <SearchExample label={label} example={text} key={label} data-text={text} onClick={handleClick} />
       )),
     ],
-    [theme],
+    [mode],
   );
 
   return (
