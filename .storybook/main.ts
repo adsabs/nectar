@@ -1,5 +1,8 @@
 const config = {
-  framework: '@storybook/nextjs',
+  framework: {
+    name: '@storybook/nextjs',
+    options: {},
+  },
   stories: ['../src/components/**/__stories__/*.stories.@(ts|tsx)'],
   addons: ['@chakra-ui/storybook-addon', '@storybook/addon-essentials'],
   docs: {
