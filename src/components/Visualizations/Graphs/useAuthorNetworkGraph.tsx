@@ -53,21 +53,8 @@ export const useAuthorNetworkGraph = (
     [keyToUseAsValue],
   );
 
-  // color function returns color based on domain
-  const color = useMemo(() => {
-    return d3
-      .scaleOrdinal<string>()
-      .domain(['0', '1', '2', '3', '4', '5', '6'])
-      .range([
-        'hsla(282, 60%, 52%, 1)',
-        'hsla(349, 61%, 47%, 1)',
-        'hsla(26, 95%, 67%, 1)',
-        'hsla(152, 60%, 40%, 1)',
-        'hsla(193, 64%, 61%, 1)',
-        'hsla(220, 70%, 56%, 1)',
-        'hsla(250, 50%, 47%, 1)',
-      ]);
-  }, []);
+  // use the same color scheme (category10) as Nivo graphs so they will match the corresponding line graph
+  const color = d3.scaleOrdinal(d3.schemeCategory10);
 
   const noGroupColor = '#a6a6a6';
 
