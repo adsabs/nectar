@@ -19,11 +19,6 @@ const items = [
     path: '/blog',
     label: 'SciX Blog',
   },
-  {
-    id: 'help',
-    path: '/help/',
-    label: 'SciX Help Pages',
-  },
 ];
 
 interface IAboutDropdownProps {

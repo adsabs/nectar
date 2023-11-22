@@ -13,6 +13,8 @@ import {
   DrawerOverlay,
   Flex,
   IconButton,
+  Menu,
+  MenuButton,
   useDisclosure,
 } from '@chakra-ui/react';
 import { HamburgerIcon } from '@chakra-ui/icons';
@@ -22,7 +24,7 @@ import { AccountDropdown } from './AccountDropdown';
 import { FeedbackDropdown } from './FeedbackDropdown';
 import { OrcidDropdown } from './OrcidDropdown';
 import { ListType } from './types';
-import { ExperimentsDropdown } from '@components/NavBar/ExperimentsDropdown';
+import { isBrowser } from '@utils';
 
 export const NavMenus = (): ReactElement => {
   const toggleMenu = () => {
@@ -35,9 +37,16 @@ export const NavMenus = (): ReactElement => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const hamburgerRef = useRef();
 
+  const handleHelp = () => {
+    if (isBrowser()) {
+      window.open('/help/', '_blank', 'noopener,noreferrer');
+      onClose();
+    }
+  };
+
   return (
     <Flex justifyContent="end">
-      <Box display={{ md: 'none' }} justifyContent="end">
+      <Box display={{ lg: 'none' }} justifyContent="end">
         <IconButton
           aria-label="menu"
           icon={<HamburgerIcon />}
@@ -87,6 +96,13 @@ export const NavMenus = (): ReactElement => {
                   </AccordionPanel>
                 </AccordionItem>
                 <AccordionItem>
+                  <AccordionButton onClick={handleHelp}>
+                    <Box flex="1" textAlign="left" fontWeight="medium">
+                      Help
+                    </Box>
+                  </AccordionButton>
+                </AccordionItem>
+                <AccordionItem>
                   <AccordionButton>
                     <Box flex="1" textAlign="left" fontWeight="medium">
                       Account
@@ -102,12 +118,14 @@ export const NavMenus = (): ReactElement => {
           </DrawerContent>
         </Drawer>
       </Box>
-      <Box display={{ base: 'none', md: 'flex' }} flexDirection="row" mx={3}>
+      <Box display={{ base: 'none', lg: 'flex' }} flexDirection="row" mx={3}>
         {/* Cannot use stack here, will produce warning with popper in menu */}
-        <ExperimentsDropdown />
         <FeedbackDropdown type={ListType.DROPDOWN} />
         <OrcidDropdown type={ListType.DROPDOWN} />
         <AboutDropdown type={ListType.DROPDOWN} />
+        <Menu variant="navbar">
+          <MenuButton onClick={handleHelp}>Help</MenuButton>
+        </Menu>
         <AccountDropdown type={ListType.DROPDOWN} />
       </Box>
     </Flex>

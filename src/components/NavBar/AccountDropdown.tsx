@@ -60,9 +60,9 @@ export const AccountDropdown = (props: IAccountDropdown): ReactElement => {
       id="account"
       type={type}
       label={
-        <HStack>
-          <Icon as={UserIcon} color={isAuthenticated ? 'blue.400' : 'gray.50'} />
-          <Text display="inline">Account</Text>
+        <HStack spacing={1} mr={-2}>
+          <Icon as={UserIcon} color={isAuthenticated ? 'blue.400' : 'gray.50'} aria-hidden />
+          <Text>Account</Text>
         </HStack>
       }
       items={itemsToShow}
