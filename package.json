@@ -43,6 +43,7 @@
     "@playwright/browser-webkit": "^1.39.0",
     "@storybook/addon-controls": "^7.5.3",
     "@storybook/client-api": "^7.5.3",
+    "@storybook/testing-react": "^2.0.1",
     "@tanstack/react-query": "^4.29.17",
     "@tanstack/react-table": "^8.9.2",
     "@testing-library/jest-dom": "^5.16.5",
