@@ -60,8 +60,8 @@ export const examples = {
   },
   [Theme.EARTH_SCIENCE]: {
     left: [
-      { label: 'author', text: 'author:"oreskes, naomi"' },
-      { label: 'first author', text: 'author:"^oreskes, naomi"' },
+      { label: 'author', text: 'author:"Crutzen, Paul"' },
+      { label: 'first author', text: 'author:"^Crutzen, Paul"' },
       { label: 'abstract+title', text: 'abs:"plate tectonics"' },
       { label: 'year', text: 'year:2000' },
       { label: 'year range', text: 'year:2000-2005' },
