@@ -581,7 +581,7 @@ export const getPaperNetworkSummaryGraph = (response: IADSApiPaperNetworkRespons
   });
 
   nameMap.forEach((nodeNames, groupName) => {
-    if (groupName > 6) {
+    if (groupName > 6 || groupName < 1) {
       return;
     }
 
