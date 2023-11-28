@@ -1,4 +1,4 @@
-import { Box, Flex, Grid, GridItem, Heading, Text } from '@chakra-ui/react';
+import { Box, Flex, Grid, GridItem, Text } from '@chakra-ui/react';
 import { useStore } from '@store';
 import { noop } from '@utils';
 import { FC, HTMLAttributes, MouseEventHandler, useMemo } from 'react';
@@ -48,9 +48,6 @@ export const SearchExamples: FC<ISearchExamplesProps> = (props) => {
 
   return (
     <Flex justifyContent="center" direction="column" alignItems="center" {...divProps}>
-      <Heading as="h3" size="md" mt={3} mb={5}>
-        Search Examples
-      </Heading>
       <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={5}>
         <GridItem>{leftExamples}</GridItem>
         <GridItem>{rightExamples}</GridItem>
