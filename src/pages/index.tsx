@@ -1,5 +1,5 @@
-import { Box, Flex, VisuallyHidden } from '@chakra-ui/react';
-import { ISearchExamplesProps, SearchBar, SearchExamplesPlaceholder } from '@components';
+import { Box, Flex, Heading, Stack, Text, VisuallyHidden } from '@chakra-ui/react';
+import { ISearchExamplesProps, Pager, SearchBar, SearchExamplesPlaceholder, SimpleLink } from '@components';
 import { useStore, useStoreApi } from '@store';
 import { makeSearchParams } from '@utils';
 import { NextPage } from 'next';
@@ -52,8 +52,8 @@ const HomePage: NextPage = () => {
           <Box my={2}>
             <SearchBar isLoading={isLoading} />
           </Box>
-          <Box mb={2} mt={5}>
-            <SearchExamples />
+          <Box mb={2} mt={5} minW="md">
+            <Carousel />
           </Box>
         </Flex>
       </form>
@@ -63,3 +63,85 @@ const HomePage: NextPage = () => {
 
 export default HomePage;
 export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';
+
+const Carousel = () => {
+  return (
+    <Pager
+      pages={[
+        {
+          uniqueId: 'welcome',
+          content: (
+            <Stack flexDirection="column" textAlign="left" spacing="4">
+              <Heading as="h3">
+                <Text fontWeight="thin">WELCOME TO THE</Text>
+                <Text fontWeight="bold">SciX Digital Library</Text>
+              </Heading>
+              <img src="https://placehold.co/640x385" alt={'dog'} width={640} height={400} />
+              <Text fontSize="xl">
+                Learn more about the SciX digital library and how it can support your scientific research in this
+                welcome video and brief user tutorial from Dr. Stephanie Jarmak.
+              </Text>
+            </Stack>
+          ),
+        },
+        {
+          uniqueId: 'explore',
+          content: (
+            <Stack flexDirection="column" textAlign="left" spacing="4">
+              <Heading as="h3">
+                <Text fontWeight="thin">EXPLORE ACROSS</Text>
+                <Text fontWeight="bold">Science Focus Areas</Text>
+              </Heading>
+              <img src="https://placehold.co/760x200" alt={'dog'} width={760} height={200} />
+              <Text fontSize="xl">
+                NASA SciX covers and unifies the fields of Earth Science, Planetary Science, Astrophysics, and
+                Heliophysics. It will also cover NASA funded research in Biological and Physical Sciences.
+              </Text>
+            </Stack>
+          ),
+        },
+        {
+          uniqueId: 'discover',
+          content: (
+            <Stack flexDirection="column" textAlign="left" spacing="4">
+              <Heading as="h3">
+                <Text fontWeight="thin">DISCOVER</Text>
+                <Text fontWeight="bold">Open Science</Text>
+              </Heading>
+              <Flex>
+                <Text fontSize="xl" py="4" pr="4">
+                  SciX is part of the NASA Open Source Science Initiative. SciX supports open science principles,
+                  expanding access & accelerating scientific discovery for societal benefit.
+                </Text>
+                <img src="https://placehold.co/300x300" alt={'dog'} width={300} height={300} />
+              </Flex>
+            </Stack>
+          ),
+        },
+        {
+          uniqueId: 'new-user',
+          content: (
+            <Stack flexDirection="column" textAlign="left" spacing="8">
+              <Heading as="h3">
+                <Text fontWeight="thin">NEW USER</Text>
+                <Text fontWeight="bold">Quick Start Guide</Text>
+              </Heading>
+              <Text fontSize="xl">
+                SciX has a user-friendly search interface. New users will have no trouble jumping in to explore.
+              </Text>
+              <Text fontSize="xl">
+                Use the{' '}
+                <SimpleLink href="/" display="inline">
+                  quick start guide
+                </SimpleLink>{' '}
+                to start your search of the portal and find out where to go with any questions about advanced tools and
+                features.
+              </Text>
+            </Stack>
+          ),
+        },
+        { uniqueId: 'search-examples', title: 'Search Examples', content: <SearchExamples /> },
+      ]}
+    />
+  );
+};
