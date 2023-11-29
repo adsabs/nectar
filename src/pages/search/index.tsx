@@ -27,6 +27,7 @@ import {
   ListItem,
   Portal,
   Stack,
+  Text,
   Tooltip,
   useDisclosure,
   useMediaQuery,
@@ -221,6 +222,11 @@ const SearchPage: NextPage = () => {
               variant="outline"
               onClick={handleToggleExpand}
             />
+            <Center>
+              <Text fontWeight="semibold" fontSize="sm">
+                Year(s)
+              </Text>
+            </Center>
             <Flex justifyContent="center">
               <YearHistogramSlider onQueryUpdate={handleSearchFacetSubmission} width={width} height={125} />
             </Flex>
@@ -349,6 +355,11 @@ const SearchFacetFilters = (props: {
                 variant="outline"
                 onClick={onExpandHistogram}
               />
+              <Center>
+                <Text fontWeight="semibold" fontSize="sm">
+                  Year(s)
+                </Text>
+              </Center>
               <Flex justifyContent="center">
                 <YearHistogramSlider onQueryUpdate={onSearchFacetSubmission} width={200} height={125} />
               </Flex>
