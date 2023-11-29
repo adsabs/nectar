@@ -11,7 +11,15 @@ export interface ISideNavigationMenuProps extends BoxProps {
 /**
  * Menu item rendered as button link
  */
-const SideMenuItem = ({ href, hrefAs, label, icon, active = false, disabled = false }: IMenuItemProps) => {
+const SideMenuItem = ({
+  href,
+  hrefAs,
+  label,
+  icon,
+  active = false,
+  disabled = false,
+  rightElement = null,
+}: IMenuItemProps) => {
   return (
     <>
       {disabled ? (
@@ -21,7 +29,6 @@ const SideMenuItem = ({ href, hrefAs, label, icon, active = false, disabled = fa
           variant={active ? 'solid' : 'ghost'}
           size="md"
           aria-current={active ? 'page' : undefined}
-          width="full"
           justifyContent="start"
           colorScheme="gray"
           mb={1}
@@ -31,7 +38,10 @@ const SideMenuItem = ({ href, hrefAs, label, icon, active = false, disabled = fa
           isDisabled
           leftIcon={icon ? cloneElement(icon, { width: '18px', 'aria-hidden': true }) : null}
         >
-          {label}
+          <Flex direction="row" alignItems="center" justifyContent="space-between" w="full">
+            <>{label}</>
+            <>{rightElement}</>
+          </Flex>
         </Button>
       ) : (
         <NextLink href={href} as={hrefAs} passHref legacyBehavior>
@@ -41,7 +51,6 @@ const SideMenuItem = ({ href, hrefAs, label, icon, active = false, disabled = fa
             variant={active ? 'solid' : 'ghost'}
             size="md"
             aria-current={active ? 'page' : undefined}
-            width="full"
             justifyContent="start"
             colorScheme="gray"
             mb={1}
@@ -50,7 +59,10 @@ const SideMenuItem = ({ href, hrefAs, label, icon, active = false, disabled = fa
             fontWeight="normal"
             leftIcon={icon ? cloneElement(icon, { width: '18px', 'aria-hidden': true }) : null}
           >
-            {label}
+            <Flex direction="row" alignItems="center" justifyContent="space-between" w="full">
+              <>{label}</>
+              <>{rightElement}</>
+            </Flex>
           </Button>
         </NextLink>
       )}
@@ -65,7 +77,7 @@ export const SideNavigationMenu = ({ menuItems, activeItem, ...boxProps }: ISide
     return (
       <Box as="nav" aria-label="sidebar" shadow="md" borderRadius="md" {...boxProps}>
         {Object.entries(catMenuItems).map(([category, items]) => (
-          <Flex direction="column" alignItems="start" justifyContent="start" px={2} key={category}>
+          <Flex direction="column" alignItems="start" justifyContent="start" px={2} key={category} w="full">
             <Text fontSize="xs" fontWeight="bold" py={2}>
               {category}
             </Text>
@@ -80,7 +92,7 @@ export const SideNavigationMenu = ({ menuItems, activeItem, ...boxProps }: ISide
   // Single list menu
   return (
     <Box as="nav" aria-label="sidebar" {...boxProps}>
-      <Flex direction="column" alignItems="start" justifyContent="start" shadow="md" borderRadius="md" p={2}>
+      <Flex direction="column" alignItems="start" justifyContent="start" shadow="md" borderRadius="md" p={2} w="full">
         {Object.values(menuItems).map((item) => (
           <SideMenuItem key={item.id} {...item} active={item.id === activeItem.id} />
         ))}
