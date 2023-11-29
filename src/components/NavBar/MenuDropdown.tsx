@@ -2,7 +2,7 @@ import { ChevronDownIcon } from '@chakra-ui/icons';
 import { HStack, List, ListItem, Menu, MenuButton, MenuDivider, MenuItem, MenuList } from '@chakra-ui/react';
 import { ItemType, ListType } from './types';
 import { isBrowser } from '@utils';
-import { KeyboardEvent, MouseEventHandler, ReactElement } from 'react';
+import { Fragment, KeyboardEvent, MouseEventHandler, ReactElement } from 'react';
 
 interface IMenuDropdownProps {
   id: string;
@@ -46,23 +46,23 @@ export const MenuDropdown = (props: IMenuDropdownProps): ReactElement => {
         </HStack>
       </MenuButton>
       <MenuList zIndex={500}>
-        {items.map((item) => (
-          <>
+        {items.map((item, index) => (
+          <Fragment key={`${id}-${index}`}>
             {item === 'divider' ? (
               <MenuDivider />
             ) : (
-              <MenuItem key={item.id} onClick={onSelect} data-id={item.id} {...item?.menuItemProps}>
+              <MenuItem onClick={onSelect} data-id={item.id} {...item?.menuItemProps}>
                 {item.label}
               </MenuItem>
             )}
-          </>
+          </Fragment>
         ))}
       </MenuList>
     </Menu>
   ) : (
     <List variant="navbar" role="menu">
       {items.map((item, index) => (
-        <>
+        <Fragment key={`${id}-${index}`}>
           {item !== 'divider' && (
             <ListItem
               key={item.id}
@@ -76,7 +76,7 @@ export const MenuDropdown = (props: IMenuDropdownProps): ReactElement => {
               {item.label}
             </ListItem>
           )}
-        </>
+        </Fragment>
       ))}
     </List>
   );
