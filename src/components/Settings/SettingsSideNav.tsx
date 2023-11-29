@@ -80,6 +80,7 @@ export const SettingsSideNav = () => {
         activeItem={activeItem}
         my={2}
         display={{ base: 'none', lg: 'initial' }}
+        w="72"
       />
 
       {/* Small viewports */}
