@@ -135,7 +135,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                     <>{author}</>
                   </SearchQueryLink>
                 ))}
-                {doc.author_count > MAX ? <Text>{` and ${doc.author_count - MAX} more`}</Text> : null}
+                {doc?.author_count > MAX ? <Text>{` and ${doc?.author_count - MAX} more`}</Text> : null}
               </Flex>
             )}
 
@@ -152,11 +152,13 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                 </Tooltip>
               )}
             </Flex>
-            {isNil(doc.abstract) ? (
-              <Text>No Abstract</Text>
-            ) : (
-              <Text as={MathJax} dangerouslySetInnerHTML={{ __html: doc.abstract }} />
-            )}
+            <Box py="2">
+              {isNil(doc?.abstract) ? (
+                <Text>No Abstract</Text>
+              ) : (
+                <Text as={MathJax} dangerouslySetInnerHTML={{ __html: doc.abstract }} />
+              )}
+            </Box>
             <Details doc={doc} />
             <Flex justifyContent="end">
               <Button variant="link" onClick={handleFeedback}>
