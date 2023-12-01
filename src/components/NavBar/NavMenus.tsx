@@ -13,6 +13,7 @@ import {
   DrawerOverlay,
   Flex,
   IconButton,
+  LightMode,
   Menu,
   MenuButton,
   useDisclosure,
@@ -47,14 +48,16 @@ export const NavMenus = (): ReactElement => {
   return (
     <Flex justifyContent="end">
       <Box display={{ lg: 'none' }} justifyContent="end">
-        <IconButton
-          aria-label="menu"
-          icon={<HamburgerIcon />}
-          colorScheme="black"
-          size="lg"
-          onClick={toggleMenu}
-          ref={hamburgerRef}
-        />
+        <LightMode>
+          <IconButton
+            aria-label="menu"
+            icon={<HamburgerIcon />}
+            colorScheme="black"
+            size="lg"
+            onClick={toggleMenu}
+            ref={hamburgerRef}
+          />
+        </LightMode>
         <Drawer variant="navbar" isOpen={isOpen} placement="right" onClose={onClose} finalFocusRef={hamburgerRef}>
           <DrawerOverlay />
           <DrawerContent>

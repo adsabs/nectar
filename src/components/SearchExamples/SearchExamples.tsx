@@ -6,6 +6,7 @@ import { examples } from './examples';
 import { useIsClient } from '@lib/useIsClient';
 import { useIntermediateQuery } from '@lib/useIntermediateQuery';
 import { useGTMDispatch } from '@elgorditosalsero/react-gtm-hook';
+import { useColorModeColors } from '@lib';
 
 export interface ISearchExamplesProps extends HTMLAttributes<HTMLDivElement> {
   onSelect?: () => void;
@@ -64,6 +65,7 @@ interface ISearchExampleProps extends HTMLAttributes<HTMLElement> {
 export const SearchExample = (props: ISearchExampleProps) => {
   const { label, example, ...buttonProps } = props;
   const isClient = useIsClient();
+  const colors = useColorModeColors();
 
   return (
     <Grid templateColumns="1fr 2fr" gap={3} my={1}>
@@ -76,7 +78,7 @@ export const SearchExample = (props: ISearchExampleProps) => {
         sx={{
           borderRadius: '0',
           border: 'var(--chakra-colors-gray-200) 1px dotted',
-          _hover: { backgroundColor: isClient ? 'gray.50' : 'transparent' },
+          _hover: { backgroundColor: isClient ? colors.highlightBackground : 'transparent' },
           fontWeight: 'normal',
           overflowWrap: 'break-all',
           padding: '2',
