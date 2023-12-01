@@ -35,6 +35,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { useErrorMessage } from '@lib/useErrorMessage';
 import { APP_DEFAULTS } from '@config';
+import { useColorModeColors } from '@lib';
 
 enum PaperFormType {
   JOURNAL_QUERY = 'journal-query',
@@ -129,6 +130,8 @@ const JournalQueryForm = ({ onSubmit, error }: SubFormProps) => {
     control,
   } = useForm<PaperFormState['journal-query']>();
 
+  const colors = useColorModeColors();
+
   const handleReset = () => reset();
 
   const formSubmit: FormEventHandler<HTMLFormElement> = (e) => {
@@ -139,7 +142,7 @@ const JournalQueryForm = ({ onSubmit, error }: SubFormProps) => {
   return (
     <VStack
       aria-labelledby="journal-search-form"
-      backgroundColor="gray.50"
+      backgroundColor={colors.panel}
       borderRadius={5}
       shadow="base"
       padding={5}
@@ -229,6 +232,8 @@ const ReferenceQueryForm = ({ onSubmit, error }: SubFormProps) => {
     formState: { errors, isSubmitting },
   } = useForm<PaperFormState['reference-query']>();
 
+  const colors = useColorModeColors();
+
   const handleReset = () => reset();
   const formSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
@@ -239,7 +244,7 @@ const ReferenceQueryForm = ({ onSubmit, error }: SubFormProps) => {
   return (
     <Box
       aria-labelledby="reference-query-form"
-      backgroundColor="gray.50"
+      backgroundColor={colors.panel}
       borderRadius={5}
       shadow="base"
       padding={5}
@@ -290,6 +295,8 @@ const BibcodeQueryForm = ({ onSubmit, error }: SubFormProps) => {
     formState: { errors, isSubmitting },
   } = useForm<PaperFormState['bibcode-query']>();
 
+  const colors = useColorModeColors();
+
   const handleReset = () => reset();
   const formSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
@@ -300,7 +307,7 @@ const BibcodeQueryForm = ({ onSubmit, error }: SubFormProps) => {
   return (
     <Box
       aria-labelledby="bibstem-query-form"
-      backgroundColor="gray.50"
+      backgroundColor={colors.panel}
       borderRadius={5}
       shadow="base"
       padding={5}

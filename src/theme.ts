@@ -203,17 +203,21 @@ export const theme = extendTheme(
             },
           },
         },
-        variants: {
-          outline: (props: ThemeComponentProps) => ({
-            field: {
-              backgroundColor: props.colorMode === 'light' ? 'white' : 'gray.800',
-            },
-          }),
-        },
       },
       Textarea: {
-        variants: {
-          borderRadius: '2px',
+        sizes: {
+          lg: {
+            borderRadius: 'sm',
+          },
+          md: {
+            borderRadius: 'sm',
+          },
+          sm: {
+            borderRadius: 'sm',
+          },
+          xs: {
+            borderRadius: 'sm',
+          },
         },
       },
       Text: {
