@@ -18,4 +18,5 @@ export interface IADSApiResolverResponse {
       },
     ];
   };
+  error?: string;
 }

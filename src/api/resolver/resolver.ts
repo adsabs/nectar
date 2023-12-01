@@ -9,7 +9,7 @@ export enum ResolverKeys {
 }
 
 export const resolverKeys = {
-  links: (params: IADSApiResolverParams) => [params] as const,
+  links: (params: IADSApiResolverParams) => [ResolverKeys.LINKS, params] as const,
 };
 
 export const useResolverQuery: ADSQuery<IADSApiResolverParams, IADSApiResolverResponse> = (params, options) => {
@@ -27,8 +27,10 @@ export const fetchLinks: QueryFunction<IADSApiResolverResponse> = async ({ meta 
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.RESOLVER}/${params.bibcode}/${params.link_type}`,
+    validateStatus: (status) => status === 200 || status === 404,
   };
 
   const { data } = await api.request<IADSApiResolverResponse>(config);
+
   return data;
 };
