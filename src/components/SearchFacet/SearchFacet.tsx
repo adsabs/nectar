@@ -40,6 +40,7 @@ import { applyFiltersToQuery } from './helpers';
 import { FacetLogic, OnFilterArgs, SearchFacetID } from './types';
 import { useGTMDispatch } from '@elgorditosalsero/react-gtm-hook';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { useColorModeColors } from '@lib';
 
 export interface ISearchFacetProps extends AccordionItemProps {
   field: FacetField;
@@ -101,6 +102,8 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
   });
   const [hasError, setHasError] = useState(false);
 
+  const colors = useColorModeColors();
+
   const handleOnFilter = (filterArgs: OnFilterArgs) => {
     const query = store.getState().latestQuery;
     onQueryUpdate(applyFiltersToQuery({ ...filterArgs, query }));
@@ -157,7 +160,6 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
             borderBottomRadius={isOpen ? 0 : 'md'}
             borderRightRadius={0}
             borderRight="none"
-            backgroundColor="white"
             mb="0"
             px="0.5"
             _focus={{
@@ -165,9 +167,9 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
             }}
           >
             <DragHandleIcon mr="1" color="gray.400" fontSize="md" />
-            <Toggler isToggled={isOpen} fontSize="2xl" color="gray.600" />
+            <Toggler isToggled={isOpen} fontSize="2xl" />
             <HStack flex="1" textAlign="left" mx="1">
-              <Text flex="1" fontSize="md" fontWeight="medium" color="gray.600">
+              <Text flex="1" fontSize="md" fontWeight="medium">
                 {label}
               </Text>
               {hasError && (
@@ -195,7 +197,6 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
               aria-label={facetState.hidden ? `Show ${label} filter` : `Hide ${label} filter`}
               m={0}
               height={8}
-              backgroundColor="white"
               icon={<Center>{facetState.hidden ? <Icon as={EyeSlashIcon} /> : <Icon as={EyeIcon} />}</Center>}
             />
           </Tooltip>
@@ -211,7 +212,6 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
           borderTop="none"
           borderBottomRadius="md"
           mt="0"
-          backgroundColor="white"
         >
           <FacetStoreProvider facetId={storeId} key={JSON.stringify(searchQuery)}>
             <FacetList noLoadMore={noLoadMore} onFilter={handleOnFilter} onError={handleOnError} />

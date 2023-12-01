@@ -134,8 +134,13 @@ function SelectImpl<
             minHeight: '28px',
             borderRadius: '2px',
             fontSize: '0.8em',
+            borderColor: colors.border,
+            backgroundColor: colors.background,
           }),
-
+          singleValue: (provided) => ({
+            ...provided,
+            color: colors.text,
+          }),
           indicatorsContainer: (provided) => ({
             ...provided,
             height: '28px',
@@ -150,12 +155,14 @@ function SelectImpl<
           }),
           option: (provided, state) => ({
             ...provided,
-            backgroundColor: state.isFocused ? 'var(--chakra-colors-gray-100)' : 'transparent',
-            color: 'var(--chakra-colors-gray-700)',
+            backgroundColor: state.isFocused ? colors.highlightBackground : 'transparent',
+            color: state.isFocused ? colors.highlightForeground : colors.text,
             fontSize: '0.8em',
           }),
           menu: (provided) => ({
             ...provided,
+            backgroundColor: colors.background,
+            boxShadow: `0 0 0 1px ${colors.border}`,
             zIndex: 10,
           }),
         },

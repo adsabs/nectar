@@ -33,6 +33,7 @@ import {
 import { ControlledPaginationControls } from '@components';
 import { CustomInfoMessage } from '@components/Feedbacks';
 import { UserGroupIcon, UserIcon } from '@heroicons/react/24/solid';
+import { useColorModeColors } from '@lib';
 import { NumPerPageType } from '@types';
 import { noop, parseAPIError } from '@utils';
 import { intlFormat, intlFormatDistance } from 'date-fns';
@@ -138,6 +139,8 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
 
   const { mutate: deleteLibrary } = useDeleteLibrary();
 
+  const colors = useColorModeColors();
+
   const toast = useToast({
     duration: 2000,
   });
@@ -235,7 +238,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                   <Tr
                     key={id}
                     cursor="pointer"
-                    _hover={{ backgroundColor: 'blue.50' }}
+                    _hover={{ backgroundColor: colors.highlightBackground, color: colors.highlightForeground }}
                     onClick={() => onLibrarySelect(id)}
                   >
                     {showIndex && !isMobile && <Td>{pageSize * pageIndex + index + 1}</Td>}
@@ -339,7 +342,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
 
 const LastModified = ({ date }: { date: string }) => {
   // date string here is missing the timezone, add it or the time is wrong
-  const dateStr = new Date(`${date.match(/\+\d{2}:\d{2}$/) ? date : `${date}+00:00`}`); 
+  const dateStr = new Date(`${date.match(/\+\d{2}:\d{2}$/) ? date : `${date}+00:00`}`);
   const formatted = intlFormatDistance(dateStr, new Date());
   return (
     <Tooltip

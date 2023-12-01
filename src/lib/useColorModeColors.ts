@@ -11,6 +11,9 @@ export const useColorModeColors = () => {
         highlightBackground: 'blue.100',
         highlightForeground: 'gray.800',
         border: 'gray.100',
+        panel: 'gray.50',
+        panelHighlight: 'blue.500',
+        lightText: 'gray.500',
       }
     : {
         background: 'gray.800',
@@ -18,7 +21,10 @@ export const useColorModeColors = () => {
         link: 'blue.200',
         highlightBackground: 'blue.200',
         highlightForeground: 'white',
-        border: 'gray.100',
+        border: 'gray.400',
+        panel: 'gray.700',
+        panelHighlight: 'blue.200',
+        lightText: 'gray.200',
       };
 };
 
@@ -40,6 +46,6 @@ export const useColorModeColorVars = () => {
         link: 'var(--chakra-colors-blue-200)',
         highlightBackground: 'var(--chakra-colors-blue-200)',
         highlightForeground: 'var(--chakra-colors-white)',
-        border: 'var(--chakra-colors-gray-100)',
+        border: 'var(--chakra-colors-gray-400)',
       };
 };

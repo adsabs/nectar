@@ -5,8 +5,6 @@ import { FC } from 'react';
 import { EXTERNAL_URLS } from '@config';
 
 export const Footer: FC = () => {
-  // TODO: darkmode will invert logo colors, need to swap out for high contrast instead
-
   return (
     <Box
       as="footer"
@@ -15,6 +13,9 @@ export const Footer: FC = () => {
       display="flex"
       flexDirection={{ base: 'column', md: 'row' }}
       justifyContent="space-between"
+      backgroundColor="gray.900"
+      color="gray.50"
+      sx={{ a: { color: 'gray.50' } }}
     >
       <Flex direction="column" width={80} mx={5}>
         <Text fontWeight="semibold">

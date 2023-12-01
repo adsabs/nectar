@@ -68,19 +68,12 @@ export const theme = extendTheme(
     styles: {
       global: (props: StyleFunctionProps) => ({
         'html, body': {
-          color: mode('gray.700', 'whiteAlpha.900')(props),
+          color: mode('gray.600', 'whiteAlpha.900')(props),
           fontSize: 'md',
           fontWeight: 'normal',
         },
         a: {
           color: mode('blue.400', 'blue.200')(props),
-        },
-        footer: {
-          backgroundColor: 'gray.900',
-          color: 'gray.50',
-        },
-        'footer a': {
-          color: 'gray.50',
         },
       }),
     },
@@ -240,14 +233,12 @@ export const theme = extendTheme(
             borderRadius: '0',
             borderColor: 'gray.200',
             backgroundColor: 'transparent',
-            color: 'gray.700',
           },
           pageCurrent: {
             borderWidth: '1px',
             borderRadius: '0',
             borderColor: 'blue.500',
             backgroundColor: 'blue.50',
-            color: 'gray.700',
             zIndex: '5',
           },
           pagePrev: {
@@ -255,21 +246,18 @@ export const theme = extendTheme(
             borderRadius: '5px 0 0 5px',
             borderColor: 'gray.200',
             backgroundColor: 'transparent',
-            color: 'gray.700',
           },
           pageBetween: {
             borderWidth: '1px',
             borderRadius: '0 0 0 0',
             borderColor: 'gray.200',
             backgroundColor: 'transparent',
-            color: 'gray.700',
           },
           pageNext: {
             borderWidth: '1px',
             borderRadius: '0 5px 5px 0',
             borderColor: 'gray.200',
             backgroundColor: 'transparent',
-            color: 'gray.700',
           },
           warning: {
             backgroundColor: 'red.500',

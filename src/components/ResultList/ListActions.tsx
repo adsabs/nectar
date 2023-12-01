@@ -1,4 +1,4 @@
-import { Bibcode, DEFAULT_USER_DATA, ExportApiFormatKey, useGetUserSettings, useVaultBigQuerySearch } from '@api';
+import { Bibcode, DEFAULT_USER_DATA, ExportApiFormatKey, useVaultBigQuerySearch } from '@api';
 import { ChevronDownIcon, SettingsIcon } from '@chakra-ui/icons';
 import {
   Button,
@@ -36,6 +36,7 @@ import { BulkClaimMenuItem, BulkDeleteMenuItem } from '@components/Orcid';
 import { useOrcid } from '@lib/orcid/useOrcid';
 import { useSession } from '@lib/useSession';
 import { useSettings } from '@lib/useSettings';
+import { useColorModeColors } from '@lib';
 
 export interface IListActionsProps {
   onSortChange?: ISortProps['onChange'];
@@ -119,6 +120,8 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
 
   const handleOpsLink = useCallback((name: Operator) => () => handleOperationsLink(name), []);
 
+  const colors = useColorModeColors();
+
   return (
     <Flex
       direction="column"
@@ -140,7 +143,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
           direction={{ base: 'column', md: 'row' }}
           alignItems={{ base: 'start', md: 'center' }}
           justifyContent={{ md: 'space-between' }}
-          backgroundColor="gray.50"
+          backgroundColor={colors.panel}
           borderRadius="2px"
           p={2}
         >

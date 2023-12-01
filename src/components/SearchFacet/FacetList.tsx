@@ -38,6 +38,7 @@ import { kFormatNumber } from '@utils';
 import { equals, isEmpty } from 'ramda';
 import { forwardRef, memo, MouseEventHandler, useCallback, useEffect } from 'react';
 import { SearchFacetModal } from './SearchFacetModal';
+import { useColorModeColors } from '@lib';
 
 export interface IFacetListProps extends ListProps {
   noLoadMore?: boolean;
@@ -333,6 +334,8 @@ export const NodeCheckbox = forwardRef<HTMLInputElement, INodeCheckboxProps>((pr
   );
   const select = useFacetStore(selectors.select);
 
+  const colors = useColorModeColors();
+
   return (
     <Checkbox
       {...checkboxProps}
@@ -352,7 +355,7 @@ export const NodeCheckbox = forwardRef<HTMLInputElement, INodeCheckboxProps>((pr
     >
       <Text as="span" display="inline-flex" justifyContent="space-between" w="full">
         <Tooltip label={label} placement="right">
-          <Text noOfLines={1} wordBreak="break-word" color="gray.500" fontSize="md" fontWeight="medium">
+          <Text noOfLines={1} wordBreak="break-word" color={colors.lightText} fontSize="md" fontWeight="medium">
             {label}
           </Text>
         </Tooltip>
