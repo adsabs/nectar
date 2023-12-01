@@ -1,30 +1,21 @@
-import { fetchGraphics, graphicsKeys, IADSApiSearchResponse, searchKeys, useGetGraphics } from '@api';
+import { IDocsEntity, useGetAbstract, useGetGraphics } from '@api';
 import { Box, Flex, Link } from '@chakra-ui/react';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
-import { useGetAbstractDoc } from '@lib/useGetAbstractDoc';
 import { composeNextGSSP } from '@ssr-utils';
-import { normalizeURLParams, unwrapStringValue } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import NextImage from 'next/legacy/image';
 import NextLink from 'next/link';
-import { dehydrate, DehydratedState, hydrate, QueryClient } from '@tanstack/react-query';
 import { LoadingMessage } from '@components';
+import { useRouter } from 'next/router';
+import { path } from 'ramda';
+import { getDetailsPageTitle } from '@pages/abs/[id]/abstract';
 
-interface IGraphicsPageProps {
-  id: string;
-  error?: {
-    status?: string;
-    message?: string;
-  };
-}
-
-const GraphicsPage: NextPage<IGraphicsPageProps> = (props: IGraphicsPageProps) => {
-  const { id } = props;
-
-  const doc = useGetAbstractDoc(id);
-  const title = unwrapStringValue(doc?.title);
+const GraphicsPage: NextPage = () => {
+  const router = useRouter();
+  const { data } = useGetAbstract({ id: router.query.id as string });
+  const doc = path<IDocsEntity>(['docs', 0], data);
 
   const {
     data: graphics,
@@ -35,7 +26,7 @@ const GraphicsPage: NextPage<IGraphicsPageProps> = (props: IGraphicsPageProps) =
   return (
     <AbsLayout doc={doc} titleDescription="Graphics from">
       <Head>
-        <title>NASA Science Explorer - Graphics - {title}</title>
+        <title>{getDetailsPageTitle(doc, 'Graphics')}</title>
       </Head>
       {isError && (
         <Box mt={5} fontSize="xl">
@@ -52,10 +43,10 @@ const GraphicsPage: NextPage<IGraphicsPageProps> = (props: IGraphicsPageProps) =
         <>
           <Box dangerouslySetInnerHTML={{ __html: graphics.header }}></Box>
           <Flex wrap="wrap">
-            {graphics.figures.map((figure, index) => {
+            {graphics.figures.map((figure) => {
               return (
                 <Flex
-                  key={index}
+                  key={figure.figure_label}
                   direction="column"
                   alignItems="center"
                   borderWidth={1}
@@ -82,48 +73,4 @@ const GraphicsPage: NextPage<IGraphicsPageProps> = (props: IGraphicsPageProps) =
 
 export default GraphicsPage;
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage, async (ctx, state) => {
-  const axios = (await import('axios')).default;
-  const query = normalizeURLParams(ctx.query);
-
-  try {
-    const queryClient = new QueryClient();
-    hydrate(queryClient, state.props?.dehydratedState as DehydratedState);
-    const {
-      response: {
-        docs: [{ bibcode }],
-      },
-    } = queryClient.getQueryData<IADSApiSearchResponse>(searchKeys.abstract(query.id));
-
-    void (await queryClient.prefetchQuery({
-      queryKey: graphicsKeys.primary(bibcode),
-      queryFn: fetchGraphics,
-      meta: { params: { bibcode } },
-    }));
-
-    return {
-      props: {
-        dehydratedState: dehydrate(queryClient),
-      },
-    };
-  } catch (e) {
-    if (axios.isAxiosError(e) && e.response) {
-      return {
-        props: {
-          error: {
-            status: e.response.status,
-            message: e.message,
-          },
-        },
-      };
-    }
-    return {
-      props: {
-        error: {
-          status: 500,
-          message: 'Unknown server error',
-        },
-      },
-    };
-  }
-});
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage);

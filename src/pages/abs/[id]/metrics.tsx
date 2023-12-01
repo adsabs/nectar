@@ -1,37 +1,20 @@
-import {
-  BasicStatsKey,
-  CitationsStatsKey,
-  fetchMetrics,
-  getMetricsParams,
-  IADSApiSearchResponse,
-  metricsKeys,
-  MetricsResponseKey,
-  searchKeys,
-  useGetMetrics,
-} from '@api';
+import { BasicStatsKey, CitationsStatsKey, IDocsEntity, MetricsResponseKey, useGetAbstract, useGetMetrics } from '@api';
 import { Box } from '@chakra-ui/react';
 import { LoadingMessage, MetricsPane } from '@components';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
-import { useGetAbstractDoc } from '@lib/useGetAbstractDoc';
-import { normalizeURLParams, unwrapStringValue } from '@utils';
+import { unwrapStringValue } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
-import { dehydrate, DehydratedState, hydrate, QueryClient } from '@tanstack/react-query';
 import { composeNextGSSP } from '@ssr-utils';
+import { path } from 'ramda';
+import { useRouter } from 'next/router';
+import { getDetailsPageTitle } from '@pages/abs/[id]/abstract';
 
-interface IMetricsPageProps {
-  id: string;
-  error?: {
-    status?: string;
-    message?: string;
-  };
-}
-
-const MetricsPage: NextPage<IMetricsPageProps> = (props: IMetricsPageProps) => {
-  const { id } = props;
-
-  const doc = useGetAbstractDoc(id);
+const MetricsPage: NextPage = () => {
+  const router = useRouter();
+  const { data } = useGetAbstract({ id: router.query.id as string });
+  const doc = path<IDocsEntity>(['docs', 0], data);
 
   const {
     data: metrics,
@@ -47,7 +30,7 @@ const MetricsPage: NextPage<IMetricsPageProps> = (props: IMetricsPageProps) => {
   return (
     <AbsLayout doc={doc} titleDescription="Metrics for">
       <Head>
-        <title>NASA Science Explorer - Metrics - {title}</title>
+        <title>{getDetailsPageTitle(doc, 'Metrics')}</title>
       </Head>
       {isError && (
         <Box mt={5} fontSize="xl">
@@ -67,50 +50,4 @@ const MetricsPage: NextPage<IMetricsPageProps> = (props: IMetricsPageProps) => {
 
 export default MetricsPage;
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage, async (ctx, state) => {
-  const axios = (await import('axios')).default;
-  const query = normalizeURLParams(ctx.query);
-
-  try {
-    const queryClient = new QueryClient();
-    hydrate(queryClient, state.props?.dehydratedState as DehydratedState);
-    const {
-      response: {
-        docs: [{ bibcode }],
-      },
-    } = queryClient.getQueryData<IADSApiSearchResponse>(searchKeys.abstract(query.id));
-
-    const params = getMetricsParams([bibcode]);
-
-    void (await queryClient.prefetchQuery({
-      queryKey: metricsKeys.primary([bibcode]),
-      queryFn: fetchMetrics,
-      meta: { params },
-    }));
-
-    return {
-      props: {
-        dehydratedState: dehydrate(queryClient),
-      },
-    };
-  } catch (e) {
-    if (axios.isAxiosError(e) && e.response) {
-      return {
-        props: {
-          error: {
-            status: e.response.status,
-            message: e.message,
-          },
-        },
-      };
-    }
-    return {
-      props: {
-        error: {
-          status: 500,
-          message: 'Unknown server error',
-        },
-      },
-    };
-  }
-});
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage);

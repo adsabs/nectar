@@ -1,45 +1,29 @@
-import { getCoreadsParams, IADSApiSearchResponse, searchKeys, useGetAbstract, useGetCoreads } from '@api';
-import { Alert, AlertIcon } from '@chakra-ui/react';
+import { getCoreadsParams, useGetAbstract, useGetCoreads } from '@api';
 import { AbstractRefList } from '@components';
 import { AbsLayout } from '@components/Layout/AbsLayout';
-import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractParams } from '@lib/useGetAbstractParams';
-import { unwrapStringValue } from '@utils';
-import { GetServerSideProps, NextPage } from 'next';
+import { NextPage } from 'next';
 import Head from 'next/head';
-import { dehydrate, DehydratedState, hydrate, QueryClient } from '@tanstack/react-query';
-import { normalizeURLParams } from 'src/utils';
+import { getDetailsPageTitle } from '@pages/abs/[id]/abstract';
+import { useRouter } from 'next/router';
 import { composeNextGSSP } from '@ssr-utils';
+import { withDetailsPage } from '@hocs/withDetailsPage';
 
-export interface ICoreadsPageProps {
-  id: string;
-  error?: {
-    status?: string;
-    message?: string;
-  };
-}
-
-const CoreadsPage: NextPage<ICoreadsPageProps> = (props: ICoreadsPageProps) => {
-  const { id, error } = props;
-  const { data: { docs: [doc] } = { docs: [] } } = useGetAbstract({ id });
+const CoreadsPage: NextPage = () => {
+  const router = useRouter();
+  const { data: abstractDoc } = useGetAbstract({ id: router.query.id as string });
+  const doc = abstractDoc?.docs?.[0];
 
   const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode);
 
   const { data, isSuccess } = useGetCoreads(getParams(), { keepPreviousData: true });
   const coreadsParams = getCoreadsParams(doc?.bibcode, 0);
-  const title = unwrapStringValue(doc?.title);
 
   return (
     <AbsLayout doc={doc} titleDescription="Papers also read by those who read">
       <Head>
-        <title>NASA Science Explorer - Coreads - {title}</title>
+        <title>{getDetailsPageTitle(doc, 'Coreads')}</title>
       </Head>
-      {error && (
-        <Alert status="error">
-          <AlertIcon />
-          {error}
-        </Alert>
-      )}
       {isSuccess && (
         <AbstractRefList
           doc={doc}
@@ -55,50 +39,4 @@ const CoreadsPage: NextPage<ICoreadsPageProps> = (props: ICoreadsPageProps) => {
 
 export default CoreadsPage;
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage, async (ctx, state) => {
-  const { fetchSearch } = await import('@api');
-  const axios = (await import('axios')).default;
-  const query = normalizeURLParams(ctx.query);
-
-  try {
-    const queryClient = new QueryClient();
-    hydrate(queryClient, state.props?.dehydratedState as DehydratedState);
-    const {
-      response: {
-        docs: [{ bibcode }],
-      },
-    } = queryClient.getQueryData<IADSApiSearchResponse>(searchKeys.abstract(query.id));
-
-    const params = getCoreadsParams(bibcode, 0);
-    void (await queryClient.prefetchQuery({
-      queryKey: searchKeys.coreads({ bibcode, start: params.start }),
-      queryFn: fetchSearch,
-      meta: { params },
-    }));
-
-    return {
-      props: {
-        dehydratedState: dehydrate(queryClient),
-      },
-    };
-  } catch (e) {
-    if (axios.isAxiosError(e) && e.response) {
-      return {
-        props: {
-          error: {
-            status: e.response.status,
-            message: e.message,
-          },
-        },
-      };
-    }
-    return {
-      props: {
-        error: {
-          status: 500,
-          message: 'Unknown server error',
-        },
-      },
-    };
-  }
-});
+export const getServerSideProps = composeNextGSSP(withDetailsPage);

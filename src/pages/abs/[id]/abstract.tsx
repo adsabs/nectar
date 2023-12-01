@@ -1,7 +1,5 @@
-import { IADSApiSearchParams, IDocsEntity } from '@api';
+import { IADSApiSearchParams, IDocsEntity, useGetAbstract } from '@api';
 import {
-  Alert,
-  AlertIcon,
   Box,
   Button,
   Flex,
@@ -24,7 +22,7 @@ import { IAllAuthorsModalProps } from '@components/AllAuthorsModal';
 import { useGetAuthors } from '@components/AllAuthorsModal/useGetAuthors';
 import { OrcidActiveIcon } from '@components/icons/Orcid';
 import { AbsLayout } from '@components/Layout/AbsLayout';
-import { APP_DEFAULTS } from '@config';
+import { APP_DEFAULTS, NASA_SCIX_BRAND_NAME } from '@config';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useIsClient } from '@lib/useIsClient';
 import { composeNextGSSP } from '@ssr-utils';
@@ -34,9 +32,8 @@ import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import NextLink from 'next/link';
-import { isNil } from 'ramda';
+import { isNil, path } from 'ramda';
 import { ReactElement } from 'react';
-import { useGetAbstractDoc } from '@lib';
 import { useRouter } from 'next/router';
 import { FolderPlusIcon } from '@heroicons/react/24/solid';
 import { useSession } from '@lib/useSession';
@@ -46,35 +43,21 @@ const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   { ssr: false },
 );
 
-export interface IAbstractPageProps {
-  id: string;
-  error?: {
-    status?: string;
-    message?: string;
-  };
-}
-
 const MAX = APP_DEFAULTS.DETAILS_MAX_AUTHORS;
 
 const createQuery = (type: 'author' | 'orcid', value: string): IADSApiSearchParams => {
   return { q: `${type}:"${value}"`, sort: ['score desc'] };
 };
 
-const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) => {
-  const { id, error } = props;
+const AbstractPage: NextPage = () => {
   const router = useRouter();
-
   const isClient = useIsClient();
-
   const { isAuthenticated } = useSession();
-
-  const doc = useGetAbstractDoc(id);
+  const { data } = useGetAbstract({ id: router.query.id as string });
+  const doc = path<IDocsEntity>(['docs', 0], data);
 
   // process authors from doc
   const authors = useGetAuthors({ doc, includeAff: false });
-
-  const title = unwrapStringValue(doc?.title);
-
   const { isOpen: isAddToLibraryOpen, onClose: onCloseAddToLibrary, onOpen: onOpenAddToLibrary } = useDisclosure();
 
   const handleFeedback = () => {
@@ -83,14 +66,10 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
 
   return (
     <AbsLayout doc={doc} titleDescription={''}>
-      <Head>{doc && <title>NASA Science Explorer - Abstract - {title}</title>}</Head>
+      <Head>
+        <title>{getDetailsPageTitle(doc, 'Abstract')}</title>
+      </Head>
       <Box as="article" aria-labelledby="title">
-        {error && (
-          <Alert status="error" mt={2}>
-            <AlertIcon />
-            {error.status}: {error.message}
-          </Alert>
-        )}
         {doc && (
           <Stack direction="column" gap={2}>
             {isClient ? (
@@ -253,3 +232,9 @@ const Detail = <T,>(props: IDetailProps<T>): ReactElement => {
 };
 
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage);
+
+export const getDetailsPageTitle = (doc: IDocsEntity, name: string): string => {
+  const title = unwrapStringValue(doc?.title);
+  const subTitle = `${name} - ${title}`;
+  return `${isNil(title) ? name : subTitle} - ${NASA_SCIX_BRAND_NAME}`;
+};
