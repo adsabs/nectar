@@ -84,22 +84,32 @@ export type CitationExporterEvent =
   | { type: 'FORCE_SUBMIT' }
   | { type: 'DONE' };
 
+export const getMaxAuthor = (format: ExportApiFormatKey) => {
+  switch (format) {
+    case ExportApiFormatKey.bibtex:
+      return APP_DEFAULTS.BIBTEX_DEFAULT_MAX_AUTHOR;
+    case ExportApiFormatKey.bibtexabs:
+      return APP_DEFAULTS.BIBTEX_ABS_DEFAULT_MAX_AUTHOR;
+    default:
+      return 0;
+  }
+};
+
 export const getExportCitationDefaultContext = (props: IUseCitationExporterProps): ICitationExporterState => {
   const {
     records = [],
     format = ExportApiFormatKey.bibtex,
     customFormat = '%1H:%Y:%q',
-    singleMode,
     sort = ['date desc'],
     keyformat = '%R',
     journalformat = ExportApiJournalFormat.AASTeXMacros,
     authorcutoff = APP_DEFAULTS.BIBTEX_DEFAULT_AUTHOR_CUTOFF,
-    maxauthor = format === ExportApiFormatKey.bibtex
-      ? APP_DEFAULTS.BIBTEX_DEFAULT_MAX_AUTHOR
-      : format === ExportApiFormatKey.bibtexabs
-      ? APP_DEFAULTS.BIBTEX_ABS_DEFAULT_MAX_AUTHOR
-      : 0,
+    singleMode = false,
   } = props;
+
+  // maxauthor is different for bibtex and bibtexabs, unless it's set explicitly
+  const maxauthor = props.maxauthor ?? getMaxAuthor(format);
+
   const params: IExportApiParams = {
     format,
     customFormat,

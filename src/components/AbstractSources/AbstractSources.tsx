@@ -4,12 +4,12 @@ import {
   HStack,
   Menu,
   MenuButton,
+  MenuDivider,
+  MenuGroup,
   MenuItem,
   MenuList,
-  VStack,
   Text,
-  MenuGroup,
-  MenuDivider,
+  VStack,
 } from '@chakra-ui/react';
 import { ChevronDownIcon, LockIcon, UnlockIcon } from '@chakra-ui/icons';
 import { SimpleLinkList } from '@components';
@@ -42,7 +42,7 @@ export const AbstractSources = ({ doc }: IAbstractSourcesProps): ReactElement =>
 
   const relatedWorks = useMemo(() => {
     const res = [] as IRelatedWorks[];
-    if (relatedWorksResp && relatedWorksResp.links.count > 0) {
+    if (relatedWorksResp && !relatedWorksResp.error && relatedWorksResp.links.count > 0) {
       for (const link of relatedWorksResp.links.records) {
         res.push({ url: link.url, name: link.title, description: link.type });
       }

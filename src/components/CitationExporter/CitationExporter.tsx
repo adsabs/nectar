@@ -201,7 +201,6 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
                     </Stack>
                     <Divider display={['block', 'none']} />
                   </Stack>
-                  {/* <ResultArea result={data?.export} format={ctx.params.format} isLoading={isLoading} flex="1" /> */}
                 </Stack>
               </form>
             </TabPanel>
@@ -210,7 +209,6 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
                 <Stack spacing="4" flexGrow={[3, 2]} maxW="lg">
                   <CustomFormatSelect dispatch={dispatch} />
                 </Stack>
-                {/* <ResultArea result={data?.export} format={ctx.params.format} /> */}
               </Stack>
             </TabPanel>
           </TabPanels>
