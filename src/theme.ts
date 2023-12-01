@@ -1,13 +1,15 @@
 import {
   extendTheme,
+  StyleFunctionProps,
   ThemeComponentProps,
   ThemeConfig,
   withDefaultColorScheme,
   withDefaultSize,
 } from '@chakra-ui/react';
+import { mode } from '@chakra-ui/theme-tools';
 
 const config: ThemeConfig = {
-  initialColorMode: 'light', // use 'system' when we have dark mode switch
+  initialColorMode: 'light',
   useSystemColorMode: false,
 };
 
@@ -64,14 +66,14 @@ export const theme = extendTheme(
       '2xl': '1536px',
     },
     styles: {
-      global: {
+      global: (props: StyleFunctionProps) => ({
         'html, body': {
-          color: 'gray.700',
+          color: mode('gray.700', 'whiteAlpha.900')(props),
           fontSize: 'md',
           fontWeight: 'normal',
         },
         a: {
-          color: 'blue.400',
+          color: mode('blue.400', 'blue.200')(props),
         },
         footer: {
           backgroundColor: 'gray.900',
@@ -80,7 +82,7 @@ export const theme = extendTheme(
         'footer a': {
           color: 'gray.50',
         },
-      },
+      }),
     },
     components: {
       Heading: {
@@ -93,21 +95,21 @@ export const theme = extendTheme(
           },
         },
       },
-      Link: {
+      Link: (props: StyleFunctionProps) => ({
         baseStyle: {
-          color: 'blue.500',
+          color: mode('blue.400', 'blue.200')(props),
         },
         variants: {
           footer: {
             color: 'gray.50',
           },
           dropdownItem: {
-            color: 'gray.700',
+            color: mode('gray.700', 'whiteAlpha.900')(props),
             _hover: { textDecoration: 'none' },
             _focus: { textDecoration: 'none', boxShadow: 'none' },
           },
         },
-      },
+      }),
       Menu: {
         parts: ['button', 'list', 'item'],
         variants: {
@@ -211,7 +213,7 @@ export const theme = extendTheme(
         variants: {
           outline: (props: ThemeComponentProps) => ({
             field: {
-              backgroundColor: props.colorMode === 'light' ? 'white' : 'black',
+              backgroundColor: props.colorMode === 'light' ? 'white' : 'gray.800',
             },
           }),
         },
