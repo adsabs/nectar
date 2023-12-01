@@ -44,7 +44,7 @@ export const useHasMetrics: ADSQuery<Bibcode, IADSApiMetricsResponse, null, bool
 
   const metrics = data as IADSApiMetricsResponse;
 
-  if (isError) {
+  if (isError || isNil(data)) {
     return false;
   }
 
@@ -100,12 +100,9 @@ export const fetchMetrics: QueryFunction<IADSApiMetricsResponse> = async ({ meta
 
   const { data: metrics } = await api.request<IADSApiMetricsResponse>(config);
 
-  if (isNil(metrics)) {
-    throw new Error('No Metrics');
+  if (isNil(metrics) || metrics[MetricsResponseKey.E]) {
+    return null;
   }
 
-  if (metrics[MetricsResponseKey.E]) {
-    throw new Error(metrics[MetricsResponseKey.EI] ? metrics[MetricsResponseKey.EI] : 'No Metrics');
-  }
   return metrics;
 };

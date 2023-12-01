@@ -28,7 +28,7 @@ export const useHasGraphics: ADSQuery<IDocsEntity['bibcode'], IADSApiGraphicsRes
 ) => {
   const params = { bibcode };
 
-  const { isSuccess } = useQuery({
+  const { data } = useQuery({
     queryKey: graphicsKeys.primary(bibcode),
     queryFn: fetchGraphics,
     retry: retryFn,
@@ -36,7 +36,7 @@ export const useHasGraphics: ADSQuery<IDocsEntity['bibcode'], IADSApiGraphicsRes
     ...options,
   });
 
-  return isSuccess;
+  return !isNil(data);
 };
 
 /**
@@ -63,12 +63,8 @@ export const fetchGraphics: QueryFunction<IADSApiGraphicsResponse> = async ({ me
 
   const { data: graphics } = await api.request<IADSApiGraphicsResponse>(config);
 
-  if (isNil(graphics)) {
-    throw new Error('No Graphics');
-  }
-
-  if (graphics.Error) {
-    throw new Error(graphics['Error Info'] ? graphics['Error Info'] : 'No Graphics');
+  if (isNil(graphics) || graphics.Error) {
+    return null;
   }
 
   return graphics;
