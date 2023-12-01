@@ -39,6 +39,8 @@ export const useColorModeColorVars = () => {
         highlightBackground: 'var(--chakra-colors-blue-100)',
         highlightForeground: 'var(--chakra-colors-gray-800)',
         border: 'var(--chakra-colors-gray-100)',
+        pill: 'var(--chakra-colors-blue-100)',
+        pillText: 'var(--chakra-colors-gray-800)',
       }
     : {
         background: 'var(--chakra-colors-gray-800)',
@@ -47,5 +49,7 @@ export const useColorModeColorVars = () => {
         highlightBackground: 'var(--chakra-colors-blue-200)',
         highlightForeground: 'var(--chakra-colors-white)',
         border: 'var(--chakra-colors-gray-400)',
+        pill: 'var(--chakra-colors-blue-200)',
+        pillText: 'var(--chakra-colors-white)',
       };
 };
