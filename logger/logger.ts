@@ -1,14 +1,10 @@
 import pino, { Logger } from 'pino';
 
 export const logger: Logger = pino({
-  transport: {
-    target: 'pino-pretty',
-    options: {
-      colorize: true,
-    },
+  browser: {
+    asObject: true,
   },
-  browser: {},
-  level: 'debug',
+  level: process.env.NODE_ENV === 'development' ? 'debug' : 'info',
   base: {
     env: process.env.NODE_ENV || 'development',
   },
