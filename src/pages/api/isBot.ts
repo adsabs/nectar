@@ -35,19 +35,19 @@ const classify = async (ua: string, remoteIP: string) => {
 
   if (bot) {
     if (bot.type === 'UNVERIFIABLE') {
-      log.debug({ bot }, 'Bot is unverifiable, but found in known bots');
+      log.debug({ msg: 'bot is known, but unverifiable', bot });
       return RESULT.UNVERIFIABLE;
     }
 
     if (await verifyBot(bot, remoteIP)) {
-      log.debug({ bot }, 'Bot is verified');
+      log.debug({ msg: 'bot is known and verified', bot });
       return RESULT.BOT;
     }
 
-    log.debug({ bot }, 'Bot is unverifiable, but NOT in known bots');
+    log.debug({ msg: 'bot is unknown and unverifiable, potentially malicious', bot });
     return RESULT.POTENTIAL_MALICIOUS_BOT;
   }
-  log.debug('Not a bot');
+  log.debug('not a bot');
   return RESULT.HUMAN;
 };
 
@@ -84,7 +84,7 @@ const resolve4 = util.promisify(dns.resolve4);
 const resolve = async (remoteIp: string, searchEngineBotDomains: string[]) => {
   try {
     const ptrRecords = await reverseDns(remoteIp);
-    log.debug({ ptrRecords }, 'PTR records');
+    log.debug({ msg: 'PTR records', ptrRecords });
     const resolvedDomains = new Set();
 
     for (const ptrRecord of ptrRecords) {
@@ -101,7 +101,7 @@ const resolve = async (remoteIp: string, searchEngineBotDomains: string[]) => {
             resolvedDomains.add(ptrDomain);
 
             const ipAddresses = await resolve4(ptrDomain);
-            log.debug({ ipAddresses }, 'IP addresses');
+            log.debug({ msg: 'IP addresses', ipAddresses });
             if (ipAddresses.includes(remoteIp)) {
               return true;
             } else if (resolvedDomains.size === ptrRecords.length) {
@@ -114,7 +114,7 @@ const resolve = async (remoteIp: string, searchEngineBotDomains: string[]) => {
 
     return ptrRecords.length !== 0;
   } catch (error) {
-    log.error({ error }, 'Error resolving PTR record');
+    log.error({ msg: 'error resolving PTR record', error });
     return false;
   }
 };

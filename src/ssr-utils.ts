@@ -6,16 +6,19 @@ import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import api from '@api/api';
 import { dehydrate, hydrate, QueryClient } from '@tanstack/react-query';
 import { getNotification, NotificationId } from '@store/slices';
+import { logger } from '../logger/logger';
+
+const log = logger.child({ module: 'ssr-inject' });
 
 const updateUserStateSSR: IncomingGSSP = (ctx, prevResult) => {
   const userData = ctx.req.session.token;
 
-  if (process.env.NODE_ENV === 'development') {
-    console.groupCollapsed('SSR');
-    console.log('session', ctx.req.session);
-    console.log('user', userData);
-    console.groupEnd();
-  }
+  log.debug({
+    msg: 'Injecting session data into SSR',
+    session: ctx.req.session,
+    isValidUserData: isUserData(userData),
+    token: isUserData(userData) ? userData.access_token : null,
+  });
 
   const qc = new QueryClient();
   // found an incoming dehydrated state, hydrate it
