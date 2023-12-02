@@ -1,8 +1,8 @@
 import { NextApiHandler } from 'next';
 // eslint-disable-next-line @next/next/no-server-import-in-page
 import { logger } from '../../../logger/logger';
-import * as dns from 'dns';
-import * as util from 'util';
+import { resolve as dnsResolve, resolve4 as dnsResolve4 } from 'dns';
+import { promisify } from 'util';
 
 enum RESULT {
   BOT,
@@ -71,8 +71,8 @@ const verifyBot = async (bot: UAEntry, remoteIP: string): Promise<boolean> => {
   return false;
 };
 
-const reverseDns = util.promisify(dns.reverse);
-const resolve4 = util.promisify(dns.resolve4);
+const reverseDns = promisify(dnsResolve);
+const resolve4 = promisify(dnsResolve4);
 
 /**
  * Resolves the PTR record for the given IP address and checks if it resolves to a domain
@@ -133,7 +133,7 @@ enum BOTS {
   YandexRu = 'yandex.ru',
   YandexNet = 'yandex.net',
   AlexaCom = 'alexa.com',
-  openai = 'openai.com',
+  OpenAI = 'openai.com',
 }
 
 type UAEntry = { type: 'DNS'; DNS: BOTS[] } | { type: 'IPS'; IPS: string[] } | { type: 'UNVERIFIABLE' };
@@ -153,6 +153,8 @@ const UA = new Map<string, UAEntry>(
     baiduspider: { type: 'DNS', DNS: [BOTS.CrawlBaiduCom, BOTS.CrawlBaiduJp] },
     yandexbot: { type: 'DNS', DNS: [BOTS.YandexCom, BOTS.YandexRu, BOTS.YandexNet] },
     alexa: { type: 'DNS', DNS: [BOTS.AlexaCom] },
+    openai: { type: 'DNS', DNS: [BOTS.OpenAI] },
+    gptbot: { type: 'IPS', IPS: ['52.230.152.0', '52.233.106.0'] },
     duckduckbot: {
       type: 'IPS',
       IPS: [
