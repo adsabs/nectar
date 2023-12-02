@@ -65,6 +65,7 @@ import { FormEventHandler, useCallback, useEffect, useRef, useState } from 'reac
 import { dehydrate, QueryClient, useQueryClient } from '@tanstack/react-query';
 import { SOLR_ERROR, useSolrError } from '@lib/useSolrError';
 import { AxiosError } from 'axios';
+import { logger } from '../../../logger/logger';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(() =>
   import('@components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),
@@ -452,6 +453,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
       },
     };
   } catch (e) {
+    logger.error({ msg: 'error fetching search results', error: e });
     return {
       props: {
         dehydratedState: dehydrate(queryClient),

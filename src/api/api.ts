@@ -5,6 +5,7 @@ import { isPast, parseISO } from 'date-fns';
 import { identity, isNil } from 'ramda';
 import { defaultRequestConfig } from './config';
 import { IApiUserResponse } from '@pages/api/user';
+import { logger } from '../../logger/logger';
 
 export const isUserData = (userData?: IUserData): userData is IUserData => {
   return (
@@ -60,6 +61,8 @@ enum API_STATUS {
   UNAUTHORIZED = 401,
 }
 
+const log = logger.child({ module: 'api' });
+
 /**
  * Api structure that wraps the axios instance
  * This allows us to manage the setting/resetting of the token
@@ -79,6 +82,7 @@ class Api {
 
   private init() {
     this.service.interceptors.response.use(identity, (error: AxiosError & { canRefresh: boolean }) => {
+      log.error(error);
       if (axios.isAxiosError(error)) {
         // if the server never responded, there won't be a response object -- in that case, reject immediately
         // this is important for SSR, just fail fast
@@ -95,6 +99,7 @@ class Api {
         ) {
           // clear the recent error
           this.recentError = null;
+          log.debug({ msg: 'rejecting request due to recent error', err: error });
           return Promise.reject(error);
         }
 
@@ -105,6 +110,8 @@ class Api {
 
         if (error.response.status === API_STATUS.UNAUTHORIZED) {
           this.invalidateUserData();
+
+          log.debug({ msg: 'unauthorized request, refreshing token and retrying', err: error });
 
           // retry the request
           return this.request(error.config as ApiRequestConfig);
@@ -138,10 +145,11 @@ class Api {
    */
   async request<T>(config: ApiRequestConfig): Promise<AxiosResponse<T>> {
     if (process.env.NODE_ENV === 'development') {
-      console.groupCollapsed('[request]', config.url);
-      console.log('config', config);
-      console.log('api', this);
-      console.groupEnd();
+      log.info({
+        msg: 'request',
+        config,
+        userData: this.userData,
+      });
     }
     // serverside, we can just send the request
     if (typeof window === 'undefined') {
@@ -196,6 +204,7 @@ class Api {
         'x-RefreshToken': 1,
       },
     });
+    log.debug({ msg: 'fetching user data', data });
     return data.user;
   }
 

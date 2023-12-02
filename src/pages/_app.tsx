@@ -22,6 +22,7 @@ import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import '../styles/styles.css';
 import { GTMProvider, sendToGTM } from '@elgorditosalsero/react-gtm-hook';
 import Head from 'next/head';
+import { logger } from '../../logger/logger';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
   require('../mocks');
@@ -37,9 +38,7 @@ const TopProgressBar = dynamic<Record<string, never>>(
 export type AppPageProps = { dehydratedState: DehydratedState; dehydratedAppState: AppState; [key: string]: unknown };
 
 const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
-  if (process.env.NODE_ENV === 'development') {
-    console.log('pageProps', pageProps);
-  }
+  logger.debug({ msg: 'app page props', ...pageProps });
 
   return (
     <Providers pageProps={pageProps as AppPageProps}>
@@ -127,6 +126,8 @@ const UserSync = (): ReactElement => {
   // Comparing the incoming user data with the current user data, and update the store if they are different
   useEffect(() => {
     if (data?.user && checkUserData(data?.user) && notEqual(data.user, user)) {
+      logger.debug({ msg: 'user data synced', data: data.user });
+
       store.setState({ user: data.user });
 
       // apply the user data to the api instance
@@ -145,9 +146,7 @@ const UserSync = (): ReactElement => {
 };
 
 export const reportWebVitals = (metric: NextWebVitalsMetric) => {
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`Web Vitals: ${metric.name} [${metric.value} ms]`);
-  }
+  logger.debug({ msg: 'web vitals', ...metric });
 
   sendToGTM({
     dataLayerName: 'nectar_gtm_datalayer',

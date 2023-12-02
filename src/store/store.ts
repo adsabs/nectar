@@ -15,6 +15,7 @@ import {
 } from './slices';
 import { AppSerializableState, AppState } from './types';
 import { isPlainObject, isPrimitive } from 'ramda-adjunct';
+import { logger } from '../../logger/logger';
 
 export const APP_STORAGE_KEY = 'nectar-app-state';
 
@@ -73,7 +74,7 @@ export const useCreateStore = (incomingState: Partial<AppState> = {}): (() => St
   }
 
   if (process.env.NODE_ENV === 'development') {
-    console.log('initialState', incomingState);
+    logger.debug({ msg: 'useCreateStore', incomingState });
   }
 
   // initialize the store
