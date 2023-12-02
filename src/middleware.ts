@@ -13,17 +13,29 @@ import { logger } from '../logger/logger';
 
 const log = logger.child({ module: 'middleware' });
 
+const logRequest = (req: NextRequest) => {
+  log.info({
+    method: req.method,
+    url: req.nextUrl.toString(),
+    headers: req.headers,
+    cookies: req.cookies,
+    body: req.body,
+  });
+};
+
 // This function can be marked `async` if using `await` inside
 export async function middleware(req: NextRequest) {
+  logRequest(req);
+  log.info({ msg: 'IP address', ip: req.ip });
+
   // get the current session
   const res = NextResponse.next();
-
   const session = await getIronSession(req, res, sessionConfig);
   const adsSessionCookie = req.cookies.get(process.env.ADS_SESSION_COOKIE_NAME)?.value;
   const apiCookieHash = await hash(adsSessionCookie);
   const refresh = req.headers.has('x-RefreshToken');
 
-  log.debug({
+  log.info({
     url: req.nextUrl.toString(),
     session,
     adsSessionCookie,
@@ -46,21 +58,38 @@ export async function middleware(req: NextRequest) {
     apiCookieHash !== null &&
     equals(apiCookieHash, session.apiCookieHash)
   ) {
-    log.debug('session is valid, continuing');
+    log.info({
+      msg: 'session is valid, continuing',
+    });
     return handleResponse(req, res, session);
   }
 
-  log.debug('session is invalid, bootstrapping', { refresh });
-
-  const crawlerResult = await crawlerCheck(req);
-  if (crawlerResult !== CRAWLER_RESULT.HUMAN) {
-    log.debug('request is from a crawler, continuing');
-    return handleBotResponse({ req, res, session, crawlerResult });
+  // if the request is from a bot, we need to handle it differently
+  if (req.ip) {
+    log.info({
+      msg: 'session is invalid, checking if request is from a crawler',
+      session,
+      refresh,
+      hasAccessToRoute: hasAccessToRoute(req.nextUrl.pathname, session.isAuthenticated),
+    });
+    const crawlerResult = await crawlerCheck(req);
+    if (crawlerResult !== CRAWLER_RESULT.HUMAN) {
+      return handleBotResponse({ req, res, session, crawlerResult });
+    }
+  } else if (userAgent(req).isBot) {
+    log.info({ msg: 'request has a known bot useragent string, but no IP, so unable to verify' });
+    return handleBotResponse({ req, res, session, crawlerResult: CRAWLER_RESULT.UNVERIFIABLE });
   }
-  log.debug('request is from a human, bootstrapping');
+  log.info({ msg: 'request is from a human' });
 
   // bootstrap a new token, passing in the current session cookie value
   const { token, headers } = (await bootstrap(adsSessionCookie)) ?? {};
+
+  log.info({
+    msg: 'bootstrap result',
+    token,
+    headers,
+  });
 
   // validate token, update session, forward cookies
   if (isValidToken(token)) {
@@ -200,8 +229,14 @@ const handleBotResponse = async ({
   session: IronSession;
   crawlerResult: CRAWLER_RESULT;
 }) => {
+  const ua = userAgent(req).ua;
   if (crawlerResult === CRAWLER_RESULT.BOT) {
-    log.debug('request is from a verified bot, applying token');
+    log.info({
+      msg: 'request is from a bot, applying token',
+      result: crawlerResult,
+      ua,
+      ip: req.ip,
+    });
     session.token = {
       access_token: process.env.VERIFIED_BOTS_ACCESS_TOKEN,
       anonymous: true,
@@ -209,7 +244,12 @@ const handleBotResponse = async ({
       username: 'anonymous',
     };
   } else if (crawlerResult === CRAWLER_RESULT.UNVERIFIABLE) {
-    log.debug('request is from an unverified bot, applying token');
+    log.info({
+      msg: 'request is from an unverifiable bot, applying token',
+      result: crawlerResult,
+      ua,
+      ip: req.ip,
+    });
     session.token = {
       access_token: process.env.UNVERIFIABLE_BOTS_ACCESS_TOKEN,
       anonymous: true,
@@ -217,7 +257,12 @@ const handleBotResponse = async ({
       username: 'anonymous',
     };
   } else if (crawlerResult === CRAWLER_RESULT.POTENTIAL_MALICIOUS_BOT) {
-    log.debug('request is from a potential malicious bot, applying token');
+    log.info({
+      msg: 'request is from a potential malicious bot, applying token',
+      result: crawlerResult,
+      ua,
+      ip: req.ip,
+    });
     session.token = {
       access_token: process.env.MALICIOUS_BOTS_ACCESS_TOKEN,
       anonymous: true,
