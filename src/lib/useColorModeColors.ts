@@ -7,6 +7,7 @@ export const useColorModeColors = () => {
     ? {
         background: 'white',
         text: 'gray.700',
+        disalbedText: 'gray.600',
         link: 'blue.400',
         highlightBackground: 'blue.100',
         highlightForeground: 'gray.800',
@@ -18,6 +19,7 @@ export const useColorModeColors = () => {
     : {
         background: 'gray.800',
         text: 'gray.50',
+        disalbedText: 'gray.100',
         link: 'blue.200',
         highlightBackground: 'blue.200',
         highlightForeground: 'white',

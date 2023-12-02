@@ -2,6 +2,7 @@ import { cloneElement } from 'react';
 import NextLink from 'next/link';
 import { Box, BoxProps, Button, Flex, Text } from '@chakra-ui/react';
 import { CatMenuItems, IMenuItem, IMenuItemProps, SingleMenuItems } from './types';
+import { useColorModeColors } from '@lib';
 
 export interface ISideNavigationMenuProps extends BoxProps {
   menuItems: CatMenuItems | SingleMenuItems;
@@ -20,6 +21,8 @@ const SideMenuItem = ({
   disabled = false,
   rightElement = null,
 }: IMenuItemProps) => {
+  const colors = useColorModeColors();
+
   return (
     <>
       {disabled ? (
@@ -32,7 +35,7 @@ const SideMenuItem = ({
           justifyContent="start"
           colorScheme="gray"
           mb={1}
-          color="gray.700"
+          color={colors.disalbedText}
           fontSize="normal"
           fontWeight="normal"
           isDisabled
@@ -54,7 +57,7 @@ const SideMenuItem = ({
             justifyContent="start"
             colorScheme="gray"
             mb={1}
-            color="gray.700"
+            color={colors.text}
             fontSize="normal"
             fontWeight="normal"
             leftIcon={icon ? cloneElement(icon, { width: '18px', 'aria-hidden': true }) : null}
