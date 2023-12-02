@@ -7,8 +7,8 @@
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "dev": "PORT=8000 next dev",
-    "dev:mocks": "NEXT_PUBLIC_API_MOCKING=enabled PORT=8000 next dev",
+    "dev": "PORT=8000 next dev | pino-pretty -ctC",
+    "dev:mocks": "NEXT_PUBLIC_API_MOCKING=enabled PORT=8000 next dev | pino-pretty -ctC",
     "build": "NEXT_TELEMETRY_DISABLED=1 DIST_DIR=./dist/ pnpm build-bibstem-index && next build",
     "start": "NODE_ENV=production PORT=8000 DIST_DIR=./dist/ node dist/standalone/server.js",
     "analyze": "NEXT_TELEMETRY_DISABLED=1 DIST_DIR=./dev/ ANALYZE=true next build",
@@ -54,7 +54,6 @@
     "@xstate/inspect": "^0.7.1",
     "@xstate/react": "^3.2.2",
     "axios": "^1.6.0",
-    "axios-logger": "^2.6.0",
     "better-react-mathjax": "^2.0.1",
     "chakra-dayzed-datepicker": "^0.2.9",
     "clsx": "^1.1.1",
