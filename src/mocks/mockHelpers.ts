@@ -1,4 +1,4 @@
-import { Esources, IADSApiSearchResponse } from '@api';
+import { ApiTargets, Esources, IADSApiSearchResponse } from '@api';
 import { IAuthorAffiliationItem } from '@api/author-affiliation/types';
 import { faker } from '@faker-js/faker';
 import { range, slice } from 'ramda';
@@ -86,3 +86,5 @@ export const authorAffData = (count = 1) => {
 export const exportAuthorAffData = (entries: string[]) => {
   return entries.join('\n');
 };
+
+export const apiHandlerRoute = (key: ApiTargets, path?: string) => `*${key}${typeof path === 'string' ? path : '*'}`;

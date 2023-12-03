@@ -1,10 +1,11 @@
-import { apiHandlerRoute, createServerListenerMocks, fireEvent, render } from '@test-utils';
+import { createServerListenerMocks, fireEvent, render } from '@test-utils';
 import { expect, test, TestContext } from 'vitest';
 import allLibsResponse from '@mocks/responses/library/all-libraries.json';
 import { rest } from 'msw';
 import { ApiTargets } from '@api';
 import { LibrariesLandingPane } from '../LibrariesLandingPane';
 import { ChakraProvider } from '@chakra-ui/react';
+import { apiHandlerRoute } from '@mocks/mockHelpers';
 
 test('renders without issue', async ({ server }: TestContext) => {
   const { onRequest } = createServerListenerMocks(server);

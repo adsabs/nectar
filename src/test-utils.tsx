@@ -11,12 +11,12 @@ import mockOrcidUser from '@mocks/responses/orcid/exchangeOAuthCode.json';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MathJaxProvider } from '@mathjax';
-import { ApiTargets } from '@api';
 
 /**
  * Attach listeners and return the mocks
  */
 export const createServerListenerMocks = (server: SetupServerApi) => {
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   type EventMockParams<T extends keyof ServerLifecycleEventsMap> =
     Parameters<Parameters<typeof server.events.on<T>>[1]>;
@@ -39,8 +39,6 @@ export const createServerListenerMocks = (server: SetupServerApi) => {
 
   return { onRequest, onResponse, onMatch, onUnhandled, onRequestEnd, onResponseBypass, onUnhandleException };
 };
-
-export const apiHandlerRoute = (key: ApiTargets, path?: string) => `*${key}${typeof path === 'string' ? path : '*'}`;
 
 export const urls = pipe<[Mock], MockedRequest[], string[]>(
   path(['mock', 'calls']),
