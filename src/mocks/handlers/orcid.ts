@@ -9,12 +9,11 @@ import orcidExchangeTokenResponse from '../responses/orcid/exchangeOAuthCode.jso
 import orcidPreferencesResponse from '../responses/orcid/orcid-preferences.json';
 import { IOrcidProfile, IOrcidWork } from '@api/orcid/types';
 import { path } from 'ramda';
-import { api } from '@mocks/mockHelpers';
+import { api, apiHandlerRoute } from '@mocks/mockHelpers';
 
 let profile: IOrcidProfile = orcidProfileResponse as IOrcidProfile;
 const getId = path(['external-ids', 'external-id', '0', 'external-id-value']);
 const knownEntry = profile['2022BAAS...54b.022A'];
-const apiHandlerRoute = (key: ApiTargets, path?: string) => `*${key}${typeof path === 'string' ? path : '*'}`;
 
 export const orcidHandlers = [
   rest.post(apiHandlerRoute(ApiTargets.ORCID_WORKS), async (req, res, ctx) => {
