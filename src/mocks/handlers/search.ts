@@ -1,9 +1,11 @@
 import { rest } from 'msw';
-import { ApiTargets, IADSApiSearchResponse } from '@api';
+import { ApiTargets, FacetField, IADSApiSearchResponse } from '@api';
 import qs from 'qs';
 import faker from '@faker-js/faker';
+import { generateFacetResponse } from '@mocks/generators/facets';
 import { clamp, map, range } from 'ramda';
 import { api, apiHandlerRoute, highlights_mocks, ids_mocks, ranRange } from '@mocks/mockHelpers';
+import { generateSearchResponse } from '@mocks/generators/search';
 
 export const searchHandlers = [
   rest.get(apiHandlerRoute(ApiTargets.SEARCH), async (req, res, ctx) => {
@@ -27,70 +29,17 @@ export const searchHandlers = [
     }
 
     if (params['json.facet']) {
-      if (
-        (
-          JSON.parse(params['json.facet'] as string) as {
-            author_facet_hier: {
-              prefix: string;
-            };
-          }
-        )?.author_facet_hier?.prefix?.startsWith('1')
-      ) {
-        return res(
-          ctx.status(200),
-          ctx.json<IADSApiSearchResponse>({
-            response: { docs: [], numFound: 1 },
-            facets: {
-              author_facet_heir: {
-                numBuckets: 999,
-                buckets: [
-                  {
-                    val: '1/Wang, Y/Wang, Y',
-                    count: 603,
-                  },
-                  {
-                    val: '1/Wang, Y/Wang, Yan',
-                    count: 283,
-                  },
-                  {
-                    val: '1/Wang, Y/Wang, Yu',
-                    count: 274,
-                  },
-                  {
-                    val: '1/Wang, Y/Wang, Yi',
-                    count: 231,
-                  },
-                  {
-                    val: '1/Wang, Y/Wang, Yang',
-                    count: 228,
-                  },
-                  {
-                    val: '1/Wang, Y/Wang, Yong',
-                    count: 188,
-                  },
-                  {
-                    val: '1/Wang, Y/Wang, Ying',
-                    count: 144,
-                  },
-                  {
-                    val: '1/Wang, Y/Wang, Yue',
-                    count: 124,
-                  },
-                  {
-                    val: '1/Wang, Y/Wang, Y  F',
-                    count: 117,
-                  },
-                  {
-                    val: '1/Wang, Y/Wang, Yun',
-                    count: 107,
-                  },
-                ],
-              },
-            },
-          }),
-        );
-      }
-      return res(ctx.status(200), ctx.json<IADSApiSearchResponse>(await import('../responses/facets/all-facets.json')));
+      const parsed = JSON.parse(params['json.facet'] as string) as Record<string, { prefix: string }>;
+      const id = Object.keys(parsed)[0] as FacetField;
+      const response = generateFacetResponse({
+        id,
+        prefix: parsed[id].prefix,
+      });
+
+      return res(
+        ctx.status(200),
+        ctx.json<IADSApiSearchResponse>(generateSearchResponse({ facets: { [id]: response } })),
+      );
     }
 
     // abstract preview

@@ -89,4 +89,11 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
     logic: defaultLogic,
     storeId: 'pubtype',
   },
+  planetary: {
+    label: 'Planetary',
+    field: 'planetary_facet_hier' as FacetField,
+    hasChildren: true,
+    logic: defaultLogic,
+    storeId: 'planetary',
+  },
 };

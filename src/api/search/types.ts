@@ -116,7 +116,8 @@ export type FacetField =
   | 'grant_facet_hier'
   | 'ned_object_facet_hier'
   | 'nedtype_object_facet_hier'
-  | 'simbad_object_facet_hier';
+  | 'simbad_object_facet_hier'
+  | 'planetary_facet_hier';
 
 export interface IFacetCountsFields {
   facet_queries: unknown;
