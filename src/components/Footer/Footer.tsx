@@ -27,7 +27,7 @@ export const Footer: FC = () => {
           </Text>{' '}
           Data System
         </Text>
-        <Text color="gray.300">adshelp[at]cfa.harvard.edu</Text>
+        <Text color="gray.300">help[at]scixplorer.org</Text>
         <Text color="gray.300" mt={3}>
           SciX is a project created by the Astrophysics Data System (ADS), which is operated by the Smithsonian
           Astrophysical Observatory under{' '}
