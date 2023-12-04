@@ -29,11 +29,9 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
   let dataProductItems: IItem[] = [];
 
   // full text resources and data products
-  if (doc.esources) {
-    const sources = processLinkData(doc, null);
-
+  const sources = processLinkData(doc, null);
+  if (sources) {
     const fullTextSources = sources.fullTextSources;
-
     const dataProducts = sources.dataProducts;
 
     fullSourceItems = fullTextSources.map((source) => ({
