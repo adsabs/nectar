@@ -272,7 +272,7 @@ const BibstemPickerImpl = (props: IBibstemPickerProps, ref: ForwardedRef<never>)
             height: '2.85em',
             borderRadius: '2px',
             borderColor: colors.border,
-            backgroundColor: colors.background,
+            backgroundColor: 'transparent',
           }),
           singleValue: (provided) => ({
             ...provided,

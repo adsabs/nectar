@@ -103,7 +103,7 @@ function SelectImpl<
             height: '2.85em',
             borderRadius: '2px',
             borderColor: colors.border,
-            backgroundColor: colors.background,
+            backgroundColor: 'transparent',
           }),
           singleValue: (provided) => ({
             ...provided,
@@ -135,7 +135,7 @@ function SelectImpl<
             borderRadius: '2px',
             fontSize: '0.8em',
             borderColor: colors.border,
-            backgroundColor: colors.background,
+            backgroundColor: 'transparent',
           }),
           singleValue: (provided) => ({
             ...provided,
