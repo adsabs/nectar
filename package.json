@@ -15,7 +15,7 @@
     "test": "NODE_ENV=test vitest",
     "test:coverage": "NODE_ENV=test vitest --run --coverage",
     "integration": "playwright test --config=./playwright.config.ts",
-    "storybook": "storybook dev -p 6006",
+    "storybook": "storybook dev -p 8001 --no-open --disable-telemetry",
     "build-storybook": "storybook build",
     "build-bibstem-index": "node ./scripts/gen-bibstem-index",
     "lint": "tsc --project ./tsconfig.json && eslint .",
