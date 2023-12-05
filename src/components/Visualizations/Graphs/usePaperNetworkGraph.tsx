@@ -31,9 +31,6 @@ export const usePaperNetworkGraph = (
     .innerRadius(innerRadius)
     .outerRadius(outerRadius);
 
-  // use the same color scheme (category10) as Nivo graphs so they will match the corresponding line graph
-  const color = d3.scaleOrdinal(d3.schemeCategory10);
-
   const noGroupColor = '#a6a6a6';
 
   const line = d3
@@ -42,8 +39,9 @@ export const usePaperNetworkGraph = (
     .radius(innerRadius + 10)
     .angle((d) => (d.x0 + d.x1) / 2);
 
+  // use the same color scheme (category10) as Nivo graphs so they will match the corresponding line graph
   const nodeFill = (d: HierarchyRectangularNode<IADSApiPaperNetworkSummaryGraphNode>): string =>
-    d.depth === 0 ? 'white' : d.data.node_name > 7 ? noGroupColor : color(d.data.node_name.toString());
+    d.depth === 0 ? 'white' : d.data.node_name > 7 ? noGroupColor : d3.schemeCategory10[d.data.node_name - 1];
 
   const values = useMemo(() => pluck(keyToUseAsValue, nodes_data), [nodes_data, keyToUseAsValue]);
 
