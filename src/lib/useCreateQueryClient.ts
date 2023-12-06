@@ -22,6 +22,8 @@ export const useCreateQueryClient = () => {
         defaultOptions: {
           queries: {
             refetchOnWindowFocus: false,
+            refetchOnMount: false,
+            refetchOnReconnect: false,
             staleTime: Infinity,
           },
         },
