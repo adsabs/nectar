@@ -48,6 +48,7 @@ export interface ISearchFacetProps extends AccordionItemProps {
   facetQuery?: string;
   label: string;
   storeId: SearchFacetID;
+  maxDepth?: number;
   /** Disallow loading more, regardless of result */
   noLoadMore?: boolean;
   forceUppercaseInitial?: boolean;

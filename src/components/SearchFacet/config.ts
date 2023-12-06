@@ -15,6 +15,7 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
     logic: defaultLogic,
     storeId: 'author',
     forceUppercaseInitial: true,
+    maxDepth: 1,
   },
   collections: {
     label: 'Collections',
@@ -37,6 +38,7 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
     hasChildren: true,
     logic: defaultLogic,
     storeId: 'institutions',
+    maxDepth: 1,
   },
   keywords: {
     label: 'Keywords',
@@ -62,6 +64,7 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
     hasChildren: true,
     logic: defaultLogic,
     storeId: 'simbad',
+    maxDepth: 1,
   },
   ned: {
     label: 'NED Objects',
@@ -69,6 +72,7 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
     hasChildren: true,
     logic: defaultLogic,
     storeId: 'ned',
+    maxDepth: 1,
   },
   data: {
     label: 'Data',
@@ -88,6 +92,7 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
     hasChildren: true,
     logic: defaultLogic,
     storeId: 'pubtype',
+    maxDepth: 1,
   },
   planetary: {
     label: 'Planetary',
@@ -95,5 +100,6 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
     hasChildren: true,
     logic: defaultLogic,
     storeId: 'planetary',
+    maxDepth: 2,
   },
 };
