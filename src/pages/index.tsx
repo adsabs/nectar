@@ -7,6 +7,7 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { ChangeEventHandler, useCallback, useEffect, useState } from 'react';
 import { useIntermediateQuery } from '@lib/useIntermediateQuery';
+import Image from 'next/image';
 
 const SearchExamples = dynamic<ISearchExamplesProps>(
   () => import('@components/SearchExamples').then((m) => m.SearchExamples),
@@ -92,7 +93,7 @@ const Carousel = () => {
                 <Text fontWeight="thin">EXPLORE ACROSS</Text>
                 <Text fontWeight="bold">Science Focus Areas</Text>
               </Heading>
-              <img src="https://placehold.co/760x200" alt={'dog'} width={760} height={200} />
+              <Image src="/images/carousel/discipline_banner.jpg" alt="all scix focus areas" width={760} height={200} />
               <Text fontSize="xl">
                 NASA SciX covers and unifies the fields of Earth Science, Planetary Science, Astrophysics, and
                 Heliophysics. It will also cover NASA funded research in Biological and Physical Sciences.
@@ -113,7 +114,12 @@ const Carousel = () => {
                   SciX is part of the NASA Open Source Science Initiative. SciX supports open science principles,
                   expanding access & accelerating scientific discovery for societal benefit.
                 </Text>
-                <img src="https://placehold.co/300x300" alt={'dog'} width={300} height={300} />
+                <Image
+                  src="/images/carousel/lightbulb_science.jpg"
+                  alt="lightbulb and open padlock unlocking scientific ideas"
+                  width={300}
+                  height={300}
+                />
               </Flex>
             </Stack>
           ),
