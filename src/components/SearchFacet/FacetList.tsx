@@ -29,15 +29,14 @@ import {
 } from '@chakra-ui/react';
 import { ChevronRightIcon } from '@chakra-ui/icons';
 import { Pagination, Toggler } from '@components';
-import { isRootNode, parseRootFromKey, parseTitleFromKey } from '@components/SearchFacet/helpers';
-import { useFacetStore } from '@components/SearchFacet/store/FacetStore';
+import { getLevelFromKey, isRootNode, parseRootFromKey, parseTitleFromKey } from '@components/SearchFacet/helpers';
+import { selectors, useFacetStore } from '@components/SearchFacet/store/FacetStore';
 import { FacetItem, FacetLogic, OnFilterArgs } from '@components/SearchFacet/types';
 import { IUseGetFacetDataProps, useGetFacetData } from '@components/SearchFacet/useGetFacetData';
-import { EllipsisHorizontalIcon } from '@heroicons/react/20/solid';
-import { ExclamationTriangleIcon, InformationCircleIcon } from '@heroicons/react/24/solid';
+import { EllipsisHorizontalIcon, ExclamationTriangleIcon, InformationCircleIcon } from '@heroicons/react/24/solid';
 import { kFormatNumber } from '@utils';
-import { isEmpty } from 'ramda';
-import { forwardRef, MouseEventHandler, useCallback, useEffect } from 'react';
+import { equals, isEmpty } from 'ramda';
+import { forwardRef, memo, MouseEventHandler, useCallback, useEffect } from 'react';
 import { SearchFacetModal } from './SearchFacetModal';
 
 export interface IFacetListProps extends ListProps {
@@ -49,7 +48,7 @@ export interface IFacetListProps extends ListProps {
 export const FacetList = (props: IFacetListProps) => {
   const { noLoadMore, onFilter, onError } = props;
 
-  const focused = useFacetStore((state) => state.focused);
+  const focused = useFacetStore(selectors.focused);
 
   return (
     <>
@@ -75,12 +74,14 @@ export interface INodeListProps extends Pick<IUseGetFacetDataProps, 'prefix' | '
   searchTerm: string;
 }
 
-export const NodeList = (props: INodeListProps) => {
+export const NodeList = memo((props: INodeListProps) => {
   const { prefix, level, noLoadMore, onError, onLoadMore } = props;
 
-  const params = useFacetStore((state) => state.params);
-  const [sortField, sortDir] = useFacetStore((state) => state.sort);
-  const updateModal = useFacetStore((state) => state.updateModal);
+  const params = useFacetStore(selectors.params);
+  const [sortField, sortDir] = useFacetStore(selectors.sort);
+  const updateModal = useFacetStore(selectors.updateModal);
+  const depth = getLevelFromKey(prefix) + 1;
+  const expandable = params.hasChildren && (level === 'root' || params.maxDepth > depth);
   const { treeData, isFetching, isError, canLoadMore } = useGetFacetData({
     ...params,
     prefix,
@@ -130,19 +131,21 @@ export const NodeList = (props: INodeListProps) => {
     <>
       <List w="full" data-testid={`search-facet-${level}-list`} pl={level === 'child' ? 4 : 0}>
         {treeData?.map((node) => (
-          <Item node={node} key={node.id} onError={onError} expandable={params.hasChildren && level === 'root'} />
+          <Item node={node} key={node.id} onError={onError} expandable={expandable} />
         ))}
       </List>
       <LoadMoreBtn mt={level === 'root' ? 2 : 0} show={!noLoadMore && canLoadMore} onClick={handleLoadMore} pullRight />
     </>
   );
-};
+}, equals);
 
 export const NodeListModal = (props: INodeListProps) => {
   const { prefix, searchTerm, level, onError } = props;
 
-  const params = useFacetStore((state) => state.params);
-  const sortDir = useFacetStore((state) => state.sort[1]);
+  const params = useFacetStore(selectors.params);
+  const depth = getLevelFromKey(prefix) + 1;
+  const expandable = params.hasChildren && (level === 'root' || params.maxDepth > depth);
+  const [, sortDir] = useFacetStore(selectors.sort);
 
   const { treeData, isFetching, isError, pagination, handleLoadMore, handlePrevious, handlePageChange, totalResults } =
     useGetFacetData({
@@ -198,13 +201,7 @@ export const NodeListModal = (props: INodeListProps) => {
       ) : (
         <List w="full" data-testid={`search-facet-${level}-list`}>
           {treeData?.map((node) => (
-            <Item
-              node={node}
-              key={node.id}
-              onError={onError}
-              expandable={params.hasChildren && level === 'root'}
-              variant="modal"
-            />
+            <Item node={node} key={node.id} onError={onError} expandable={expandable} variant="modal" />
           ))}
         </List>
       )}
@@ -235,8 +232,7 @@ interface IItemProps {
 export const Item = (props: IItemProps) => {
   const { node, variant = 'basic', expandable, onError } = props;
   const [expanded, setExpanded] = useBoolean(false);
-
-  const setFocused = useFacetStore((state) => state.setFocused);
+  const setFocused = useFacetStore(selectors.setFocused);
 
   const handleExpand = () => {
     variant === 'basic' ? setExpanded.toggle() : setFocused(node);
@@ -335,7 +331,7 @@ export const NodeCheckbox = forwardRef<HTMLInputElement, INodeCheckboxProps>((pr
   const isPartSelected = useFacetStore(
     useCallback((state) => state.selection?.[node.id]?.partSelected ?? false, [node.id]),
   );
-  const select = useFacetStore((state) => state.select);
+  const select = useFacetStore(selectors.select);
 
   return (
     <Checkbox
