@@ -19,7 +19,7 @@ export const facetFoundFieldsData: IFacetCountsFields = {
     vizier_facet: [],
     property: [],
     simbad_object_facet_hier: [],
-    planetary_facet_hier: [],
+    gpn_facet_hier_3level: [],
   },
   facet_ranges: {},
   facet_intervals: {},
