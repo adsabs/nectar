@@ -95,8 +95,8 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
     maxDepth: 1,
   },
   planetary: {
-    label: 'Planetary',
-    field: 'planetary_facet_hier' as FacetField,
+    label: 'Planetary Features',
+    field: 'gpn_facet_hier_3level' as FacetField,
     hasChildren: true,
     logic: defaultLogic,
     storeId: 'planetary',
