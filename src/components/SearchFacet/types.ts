@@ -22,6 +22,10 @@ export interface IFacetParams {
   offset?: number;
   prefix?: string;
   query?: string;
+  filter?: string[];
+  logic?: FacetLogic;
+  sort?: 'count' | 'index';
+  sortDir?: 'asc' | 'desc';
 }
 
 export type FacetLogic = 'limit to' | 'exclude' | 'or' | 'and';

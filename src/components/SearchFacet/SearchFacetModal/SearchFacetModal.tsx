@@ -21,8 +21,8 @@ import { SearchInput } from '@components/SearchFacet/SearchFacetModal/SearchInpu
 import { SortControl } from '@components/SearchFacet/SearchFacetModal/SortControl';
 import { useFacetStore } from '@components/SearchFacet/store/FacetStore';
 import { useDebounce } from 'src/lib';
-import { ReactElement, ReactNode, useMemo } from 'react';
-import { parseRootFromKey } from '../helpers';
+import { ReactElement, ReactNode, useCallback, useMemo } from 'react';
+import { keyToPath, parseTitleFromKey } from '../helpers';
 import { SelectedList } from './SelectedList';
 
 interface ISearchFacetModalProps extends Omit<IFacetListProps, 'onError'> {
@@ -46,6 +46,20 @@ export const SearchFacetModal = (props: ISearchFacetModalProps): ReactElement =>
   );
 };
 
+const createBreadcrumbs = (key: string) => {
+  const parts = keyToPath(key);
+  const crumbs: Array<ReactElement> = [];
+  parts.forEach((part) => {
+    crumbs.push(
+      <Flex key={part} direction="row">
+        <ChevronRightIcon fontSize="4xl" />
+        <Heading size="lg">{part}</Heading>
+      </Flex>,
+    );
+  });
+  return crumbs;
+};
+
 const ModalFacet = (props: ISearchFacetModalProps) => {
   const { onFilter, children } = props;
 
@@ -61,12 +75,7 @@ const ModalFacet = (props: ISearchFacetModalProps) => {
       <ModalHeader backgroundColor="gray.100">
         <Stack direction="row" alignItems="center">
           <Heading size="lg">{params.label}</Heading>
-          {focused ? (
-            <>
-              <ChevronRightIcon fontSize="4xl" />
-              <Heading size="lg">{parseRootFromKey(focused.id)}</Heading>
-            </>
-          ) : null}
+          {focused ? createBreadcrumbs(focused.id) : null}
         </Stack>
       </ModalHeader>
       <ModalBody>
@@ -129,18 +138,24 @@ const UnExpandButton = () => {
   const focused = useFacetStore((state) => state.focused);
   const setFocused = useFacetStore((state) => state.setFocused);
 
+  const handleUnExpand = useCallback(() => {
+    if (focused) {
+      setFocused(focused.parentId);
+    }
+  }, [focused]);
+
   if (!focused) {
     return null;
   }
 
-  const parsedRoot = parseRootFromKey(focused?.id);
+  const prevKey = parseTitleFromKey(focused.id);
 
   return (
     <Stack spacing="2">
-      <Button ml="-2" variant="unstyled" aria-label={`go back to ${parsedRoot}`} onClick={() => setFocused(null)}>
+      <Button ml="-2" variant="unstyled" aria-label={`go back to ${prevKey}`} onClick={handleUnExpand}>
         <Flex direction="row" alignItems="center">
           <ChevronLeftIcon fontSize="3xl" />
-          <Text fontSize="2xl">{parsedRoot}</Text>
+          <Text fontSize="2xl">{prevKey}</Text>
         </Flex>
       </Button>
       <Divider />

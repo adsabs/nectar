@@ -26,6 +26,7 @@ type SelectionState = {
 export interface IFacetStoreState {
   // parameters
   params: FacetParams;
+  nodes: Map<string, FacetItem>;
 
   // selection
   selection: Record<string, SelectionState>;
@@ -42,7 +43,7 @@ export interface IFacetStoreState {
 export type FacetStoreEvents = {
   select: (node: FacetItem | string) => void;
   reset: () => void;
-  setFocused: (node: FacetItem) => void;
+  setFocused: (node: FacetItem | string) => void;
   setSearch: (search: string) => void;
   setLetter: (letter: string) => void;
   setSort: (sort: IFacetStoreState['sort']) => void;
@@ -53,6 +54,7 @@ export type FacetStoreEvents = {
 
 const initialState: IFacetStoreState = {
   params: null,
+  nodes: new Map(),
   selection: {},
   selected: [],
   focused: null,
@@ -81,10 +83,23 @@ const createStore = (preloadedState: Partial<IFacetStoreState>) => () =>
         selection: !isOpen ? initialState.selection : get().selection,
         selected: !isOpen ? initialState.selected : get().selected,
       }),
-    setFocused: (focused) => set({ focused, search: '', letter: 'All' }),
+    setFocused: (node) =>
+      set({
+        focused: typeof node === 'string' ? get().nodes.get(node) : node,
+        search: '',
+        letter: 'All',
+      }),
     setSearch: (search) => set({ search }),
     setLetter: (letter) => set({ letter }),
-    addNodes: (nodes) => set({ selection: createNodes(nodes, get().selection) }),
+    addNodes: (nodes) => {
+      const nodeMap = new Map(get().nodes);
+      nodes.forEach((node) => nodeMap.set(node.id, node));
+
+      set({
+        nodes: nodeMap,
+        selection: createNodes(nodes, get().selection),
+      });
+    },
     setSort: (sort) => set({ sort }),
     reset: () => set(omit(['params'], initialState)),
     clearSelection: () => set(pick(['selection', 'selected'], initialState)),
@@ -99,4 +114,28 @@ export const FacetStoreProvider: FC<{ facetId: SearchFacetID }> = ({ children, f
     facetConfig[facetId],
   ) as FacetParams;
   return createElement(FacetStoreContext.Provider, { createStore: createStore({ params }), children });
+};
+
+type CombinedState = IFacetStoreState & FacetStoreEvents;
+export const selectors = {
+  // state
+  params: (state: CombinedState) => state.params,
+  selection: (state: CombinedState) => state.selection,
+  selected: (state: CombinedState) => state.selected,
+  focused: (state: CombinedState) => state.focused,
+  sort: (state: CombinedState) => state.sort,
+  letter: (state: CombinedState) => state.letter,
+  search: (state: CombinedState) => state.search,
+  isOpen: (state: CombinedState) => state.isOpen,
+
+  // actions
+  select: (state: CombinedState) => state.select,
+  reset: (state: CombinedState) => state.reset,
+  setFocused: (state: CombinedState) => state.setFocused,
+  setSearch: (state: CombinedState) => state.setSearch,
+  setLetter: (state: CombinedState) => state.setLetter,
+  setSort: (state: CombinedState) => state.setSort,
+  addNodes: (state: CombinedState) => state.addNodes,
+  updateModal: (state: CombinedState) => state.updateModal,
+  clearSelection: (state: CombinedState) => state.clearSelection,
 };

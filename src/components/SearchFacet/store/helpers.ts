@@ -1,4 +1,4 @@
-import { getParentId } from '@components/SearchFacet/helpers';
+import { getPrevKey } from '@components/SearchFacet/helpers';
 import { IFacetStoreState } from '@components/SearchFacet/store/FacetStore';
 import { FacetItem } from '@components/SearchFacet/types';
 import { assoc, curry, flip, has, ifElse, lensPath, pipe, prop, reduce, set, unless, view } from 'ramda';
@@ -6,9 +6,7 @@ import { assoc, curry, flip, has, ifElse, lensPath, pipe, prop, reduce, set, unl
 type Selection = IFacetStoreState['selection'];
 export const computeNextSelectionState = curry((node: FacetItem | string, selection: Selection) => {
   const id = typeof node === 'string' ? node : node.id;
-  const parentId = typeof node === 'string' ? getParentId(id) : node.parentId;
 
-  // Update child
   const child = ifElse<[Selection], Selection, Selection>(
     isSelected(id),
 
@@ -18,31 +16,6 @@ export const computeNextSelectionState = curry((node: FacetItem | string, select
       select(id, false),
 
       // determine part-selection of the root
-      updateRootPartSelection(parentId),
-    ),
-
-    // NOT SELECTED
-    pipe<[Selection], Selection, Selection, Selection>(
-      // select
-      select(id, true),
-
-      // since we can guarantee at least one child is selected
-      // we can just check for selected state on the parent
-      // make parent only part-selected
-      select(parentId, false),
-      partSelect(parentId, true),
-    ),
-  );
-
-  // Update root
-  const root = ifElse<[Selection], Selection, Selection>(
-    isSelected(id),
-
-    // SELECTED
-    pipe(
-      // unselect
-      select(id, false),
-      // check state of the children to determine part-selection
       updateRootPartSelection(id),
     ),
 
@@ -55,54 +28,66 @@ export const computeNextSelectionState = curry((node: FacetItem | string, select
         // unselect all children
         unSelectAllChildren(id),
 
-        // un-partselect
+        // part-select all the parents
+        partSelectParents(id, true),
+
+        // select the node
         partSelect(id, false),
+        select(id, true),
+
+        // since we're selecting, we need to update the root part-selection
+        updateRootPartSelection(id),
       ),
 
       // NOT PART-SELECTED
       pipe(
-        // select and un-partselect
+        // select the node
         select(id, true),
-        partSelect(id, false),
+
+        // deselect the parents
+        selectParents(id, false),
+
+        // part-select the parents
+        partSelectParents(id, true),
       ),
     ),
   );
-
-  return pipe(
-    ifElse<[Selection], Selection, Selection>(
-      // check if root
-      () => parentId === null,
-      pipe(create(id), root),
-      pipe(create(id), create(parentId), child),
-    ),
-  )(selection);
+  return pipe(create(id), child)(selection);
 });
 
 /**
  * Checks if any children of the node are currently selected
  */
 const anyChildrenSelected = (id: string, selection: Selection) => {
-  const childrenPrefix = `1${id.slice(1)}`;
-  return Object.keys(selection).some((key) => key.startsWith(childrenPrefix) && selection[key].selected);
+  const idWithoutLevel = id.slice(1);
+
+  return Object.keys(selection).some(
+    (key) => key.slice(1).startsWith(idWithoutLevel) && key !== id && selection[key].selected,
+  );
 };
 
 /**
  * Un-selects all children of a given root id
  */
 const unSelectAllChildren = curry((id: string, selection: Selection) => {
-  const childrenPrefix = `1${id.slice(1)}`;
-  return Object.keys(selection).reduce(
-    (state, key) => (key.startsWith(childrenPrefix) ? select(key, false, state) : state),
-    selection,
-  );
+  const idWithoutLevel = id.slice(1);
+  return Object.keys(selection).reduce((state, key) => {
+    if (key.slice(1).startsWith(idWithoutLevel) && key !== id) {
+      return pipe<[Selection], Selection, Selection>(select(key, false), partSelect(key, false))(state);
+    }
+    return state;
+  }, selection);
 });
 
 /**
  * Does a part-selected if any children are selected
  */
-const updateRootPartSelection = curry((id: string, selection: Selection) =>
-  partSelect(id, !isSelected(id, selection) && anyChildrenSelected(id, selection), selection),
-);
+const updateRootPartSelection = curry((id: string, selection: Selection) => {
+  return getParentIds(id).reduce((state, parentId) => {
+    const change = !isSelected(parentId, state) && anyChildrenSelected(parentId, state);
+    return partSelect(parentId, change, state);
+  }, selection);
+});
 
 // lenses
 const selectionLens = (id: string) => lensPath<Selection, boolean>([id, 'selected']);
@@ -115,6 +100,16 @@ const select = curry((id: string, value: boolean, selection: Selection) => set(s
 const partSelect = curry((id: string, value: boolean, selection: Selection) =>
   set(partSelectionLens(id), value, selection),
 );
+
+const partSelectParents = curry((id: string, value: boolean, selection: Selection) => {
+  const parentIds = getParentIds(id);
+  return parentIds.reduce((state, parentId) => partSelect(parentId, value, state), selection);
+});
+
+const selectParents = curry((id: string, value: boolean, selection: Selection) => {
+  const parentIds = getParentIds(id);
+  return parentIds.reduce((state, parentId) => select(parentId, value, state), selection);
+});
 
 // checks if id is selected
 const isSelected = curry((id: string, selection: Selection) => view(selectionLens(id), selection));
@@ -134,3 +129,13 @@ export const createNodes = curry((nodes: FacetItem[], selection: Selection) =>
  * Get array of selected keys
  */
 export const getSelected = (selection: Selection) => Object.keys(selection).filter((key) => selection[key].selected);
+
+export const getParentIds = (id: string) => {
+  const parents = [];
+  let prevKey = getPrevKey(id, true);
+  while (prevKey !== null) {
+    parents.push(prevKey);
+    prevKey = getPrevKey(prevKey, true);
+  }
+  return parents;
+};
