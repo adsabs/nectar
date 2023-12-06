@@ -30,16 +30,15 @@ export const searchHandlers = [
 
     if (params['json.facet']) {
       const parsed = JSON.parse(params['json.facet'] as string) as Record<string, { prefix: string }>;
-      const id = Object.keys(parsed)[0] as FacetField;
-      const response = generateFacetResponse({
-        id,
-        prefix: parsed[id].prefix,
+      const facets: Record<string, ReturnType<typeof generateFacetResponse>> = {};
+      Object.keys(parsed).forEach((id) => {
+        facets[id] = generateFacetResponse({
+          id: id as FacetField,
+          prefix: parsed[id].prefix,
+        });
       });
 
-      return res(
-        ctx.status(200),
-        ctx.json<IADSApiSearchResponse>(generateSearchResponse({ facets: { [id]: response } })),
-      );
+      return res(ctx.status(200), ctx.json<IADSApiSearchResponse>(generateSearchResponse({ facets })));
     }
 
     // abstract preview
