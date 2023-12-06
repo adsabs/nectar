@@ -15,6 +15,7 @@ type FacetParams = {
   logic: ISearchFacetProps['logic'];
   label: string;
   forceUppercaseInitial?: boolean;
+  maxDepth?: number;
 };
 
 type SelectionState = {
@@ -94,7 +95,7 @@ export const useFacetStore = FacetStoreContext.useStore;
 
 export const FacetStoreProvider: FC<{ facetId: SearchFacetID }> = ({ children, facetId }) => {
   const params = pick(
-    ['label', 'field', 'hasChildren', 'logic', 'facetQuery', 'filter', 'forceUppercaseInitial'],
+    ['label', 'field', 'hasChildren', 'logic', 'facetQuery', 'filter', 'forceUppercaseInitial', 'maxDepth'],
     facetConfig[facetId],
   ) as FacetParams;
   return createElement(FacetStoreContext.Provider, { createStore: createStore({ params }), children });
