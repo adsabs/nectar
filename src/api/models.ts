@@ -39,6 +39,8 @@ export type SolrField =
   | 'first_author'
   | 'first_author_facet_hier'
   | 'first_author_norm'
+  | 'gpn'
+  | 'gpn_id'
   | 'grant'
   | 'grant_agencies'
   | 'grant_facet_hier'

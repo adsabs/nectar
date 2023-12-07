@@ -92,6 +92,8 @@ export const getAbstractParams = (id: string): IADSApiSearchParams => ({
     'comment',
     'pubnote',
     'book_author',
+    'gpn',
+    'gpn_id',
   ],
   q: `identifier:"${id}"`,
 });
