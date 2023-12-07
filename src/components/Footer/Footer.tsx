@@ -2,6 +2,7 @@ import { Box, Flex, HStack, Link, Text, VisuallyHidden } from '@chakra-ui/react'
 import { CFALogo, NasaLogo, SimpleLink, SmithsonianLogo } from '@components';
 import NextLink from 'next/link';
 import { FC } from 'react';
+import { EXTERNAL_URLS } from '@config';
 
 export const Footer: FC = () => {
   // TODO: darkmode will invert logo colors, need to swap out for high contrast instead
@@ -37,7 +38,7 @@ export const Footer: FC = () => {
           Cooperative Agreement 80NSSC21M0056.
         </Text>
         <HStack my={3} spacing={1}>
-          <NextLink href="https://www.nasa.gov" passHref legacyBehavior>
+          <NextLink href={EXTERNAL_URLS.NASA_HOME_PAGE} passHref legacyBehavior>
             <Link variant="footer" rel="noopener noreferrer">
               <VisuallyHidden as="abbr" title="National Aeronautics and Space Administration">
                 NASA
@@ -45,13 +46,13 @@ export const Footer: FC = () => {
               <NasaLogo width="80px" height="66px" aria-hidden />
             </Link>
           </NextLink>
-          <NextLink href="http://www.si.edu/" passHref legacyBehavior>
+          <NextLink href={EXTERNAL_URLS.SMITHSONIAN_HOME_PAGE} passHref legacyBehavior>
             <Link variant="footer" rel="noopener noreferrer">
               <VisuallyHidden>Smithsonian Institution</VisuallyHidden>
               <SmithsonianLogo width="66px" height="68px" aria-hidden />
             </Link>
           </NextLink>
-          <NextLink href="https://www.cfa.harvard.edu/" passHref legacyBehavior>
+          <NextLink href={EXTERNAL_URLS.CFA_HOME_PAGE} passHref legacyBehavior>
             <Link variant="footer" rel="noopener noreferrer">
               <VisuallyHidden>Center for Astrophysics</VisuallyHidden>
               <CFALogo width="100px" height="41px" style={{ filter: 'invert(1)' }} aria-hidden />
@@ -66,6 +67,9 @@ export const Footer: FC = () => {
         <SimpleLink href="/about" variant="footer">
           About SciX
         </SimpleLink>
+        <SimpleLink href="/feedback/general" variant="footer">
+          Give Feedback
+        </SimpleLink>
         <SimpleLink href="/help" variant="footer">
           SciX Help
         </SimpleLink>
@@ -78,7 +82,7 @@ export const Footer: FC = () => {
         <SimpleLink href="/help/accessibility" variant="footer">
           Accessibility
         </SimpleLink>
-        <SimpleLink href="https://sciencediscoveryengine.nasa.gov/app/nasa-sba-smd/#/home" variant="footer" isExternal>
+        <SimpleLink href={EXTERNAL_URLS.NASA_SDE_HOME_PAGE} variant="footer" isExternal>
           NASA Science Discovery Engine
         </SimpleLink>
       </Flex>
@@ -86,7 +90,7 @@ export const Footer: FC = () => {
         <Text fontWeight="bold" pb={1}>
           SOCIAL
         </Text>
-        <SimpleLink href="https://twitter.com/scixcommunity" variant="footer">
+        <SimpleLink href={EXTERNAL_URLS.TWITTER_SCIX} variant="footer">
           @scixcommunity
         </SimpleLink>
         <SimpleLink href="/blog" variant="footer">
@@ -97,19 +101,19 @@ export const Footer: FC = () => {
         <Text fontWeight="bold" pb={1}>
           PROJECT
         </Text>
-        <SimpleLink href="https://ui.adsabs.harvard.edu/help/privacy/" variant="footer">
+        <SimpleLink href="/help/privacy/" variant="footer">
           Privacy Policy
         </SimpleLink>
-        <SimpleLink href="https://ui.adsabs.harvard.edu/help/terms" variant="footer">
+        <SimpleLink href="/help/terms" variant="footer">
           Terms of Use
         </SimpleLink>
-        <SimpleLink href="http://www.cfa.harvard.edu/sao" variant="footer">
+        <SimpleLink href={EXTERNAL_URLS.CFA_SAO_HOME_PAGE} variant="footer">
           Smithsonian Astrophysical Observatory
         </SimpleLink>
-        <SimpleLink href="http://www.si.edu/" variant="footer">
+        <SimpleLink href={EXTERNAL_URLS.SMITHSONIAN_HOME_PAGE} variant="footer">
           Smithsonian Institution
         </SimpleLink>
-        <SimpleLink href="http://www.nasa.gov/" variant="footer">
+        <SimpleLink href={EXTERNAL_URLS.NASA_HOME_PAGE} variant="footer">
           <Text as="abbr" title="National Aeronautics and Space Administration">
             NASA
           </Text>
