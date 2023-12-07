@@ -33,7 +33,7 @@ import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import NextLink from 'next/link';
 import { isNil, path } from 'ramda';
-import { ReactElement } from 'react';
+import { ReactElement, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { FolderPlusIcon } from '@heroicons/react/24/solid';
 import { useSession } from '@lib/useSession';
@@ -169,7 +169,24 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
           </Detail>
           <Detail label="Book Author(s)" value={doc.book_author} />
           <Detail label="Publication Date" value={doc.pubdate} />
-          <Detail label="DOI" value={doc.doi} href={createUrlByType(doc?.bibcode, 'doi', doc?.doi)} />
+          <Detail label="DOI" value={doc.doi}>
+            {(doi) => (
+              <>
+                {doi.map((v) => {
+                  const href = createUrlByType(doc?.bibcode, 'doi', v);
+                  return (
+                    <p>
+                      <NextLink href={href} passHref legacyBehavior>
+                        <Link rel="noreferrer noopener" isExternal>
+                          {v} <ExternalLinkIcon mx="2px" />
+                        </Link>
+                      </NextLink>
+                    </p>
+                  );
+                })}
+              </>
+            )}
+          </Detail>
           <Detail label="arXiv" value={arxiv} href={createUrlByType(doc?.bibcode, 'arxiv', arxiv?.split(':')[1])} />
           <Detail label="Bibcode" value={doc.bibcode} href={`/abs/${doc.bibcode}/abstract`} />
           <Detail label="Keyword(s)" value={doc.keyword}>
