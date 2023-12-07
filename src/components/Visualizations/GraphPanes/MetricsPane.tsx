@@ -23,6 +23,7 @@ import {
   PapersTable,
   ReadsTable,
 } from '@components';
+import { useColorModeColors } from '@lib';
 import { useIsClient } from '@lib/useIsClient';
 import { useMetrics } from '@lib/useMetrics';
 import { BarDatum } from '@nivo/bar';
@@ -104,6 +105,8 @@ const PapersSection = ({
 }): ReactElement => {
   const isClient = useIsClient();
 
+  const colors = useColorModeColors();
+
   return (
     <>
       {papersTable || papersGraph ? (
@@ -112,7 +115,7 @@ const PapersSection = ({
             as="h3"
             fontSize="2xl"
             fontWeight="light"
-            backgroundColor="gray.50"
+            backgroundColor={colors.panel}
             p={3}
             id="papers-heading"
             display="none"
@@ -149,6 +152,8 @@ const CitationsSection = ({
 }): ReactElement => {
   const isClient = useIsClient();
 
+  const colors = useColorModeColors();
+
   return (
     <>
       {citationsTable || citationsGraphs ? (
@@ -157,7 +162,7 @@ const CitationsSection = ({
             as="h3"
             fontSize="2xl"
             fontWeight="light"
-            backgroundColor="gray.50"
+            backgroundColor={colors.panel}
             p={3}
             id="citations-heading"
             display={isAbstract ? 'block' : 'none'}
@@ -194,6 +199,8 @@ const ReadsSection = ({
 }): ReactElement => {
   const isClient = useIsClient();
 
+  const colors = useColorModeColors();
+
   return (
     <>
       {readsTable || readsGraphs ? (
@@ -202,7 +209,7 @@ const ReadsSection = ({
             as="h3"
             fontSize="2xl"
             fontWeight="light"
-            backgroundColor="gray.50"
+            backgroundColor={colors.panel}
             p={3}
             id="reads-heading"
             display={isAbstract ? 'block' : 'none'}
@@ -252,6 +259,8 @@ const IndicesSection = ({
   indicesGraph: ILineGraph;
   bibcodes?: IDocsEntity['bibcode'][];
 }): ReactElement => {
+  const colors = useColorModeColors();
+
   // query to get indices metrics if there is no indices graph
   const {
     data: metricsData,
@@ -308,7 +317,7 @@ const IndicesSection = ({
             as="h3"
             fontSize="2xl"
             fontWeight="light"
-            backgroundColor="gray.50"
+            backgroundColor={colors.panel}
             p={3}
             id="indices-heading"
             display="none"

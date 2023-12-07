@@ -12,10 +12,8 @@ import {
   Button,
   Collapse,
   Divider,
-  Flex,
   Grid,
   GridItem,
-  Spacer,
   Stack,
   Tab,
   TabList,
@@ -166,7 +164,6 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
               <Tab>Built-in Formats</Tab>
               <Tab>Custom Formats</Tab>
             </TabList>
-
             <TabPanels>
               <TabPanel>
                 <form method="GET" onSubmit={handleOnSubmit}>

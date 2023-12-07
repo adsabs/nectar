@@ -86,12 +86,12 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
     id: source.name,
     label: source.open ? (
       <>
-        <UnlockIcon color="green.600" mr={1} />
+        <UnlockIcon color="green.500" mr={1} />
         {` ${source.name}`}
       </>
     ) : (
       <>
-        <LockIcon color="gray.700" mr={1} />
+        <LockIcon mr={1} />
         {` ${source.name}`}
       </>
     ),
