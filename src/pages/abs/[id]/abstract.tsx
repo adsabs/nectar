@@ -16,7 +16,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { ChatIcon, ExternalLinkIcon } from '@chakra-ui/icons';
-import { AbstractSources, AddToLibraryModal, feedbackItems, SearchQueryLink } from '@components';
+import { AbstractSources, AddToLibraryModal, feedbackItems, LabeledCopyButton, SearchQueryLink } from '@components';
 import { createUrlByType } from '@components/AbstractSources/linkGenerator';
 import { IAllAuthorsModalProps } from '@components/AllAuthorsModal';
 import { useGetAuthors } from '@components/AllAuthorsModal/useGetAuthors';
@@ -169,9 +169,28 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
           </Detail>
           <Detail label="Book Author(s)" value={doc.book_author} />
           <Detail label="Publication Date" value={doc.pubdate} />
-          <Detail label="DOI" value={doc.doi} href={createUrlByType(doc?.bibcode, 'doi', doc?.doi)} />
+          <Detail label="DOI" value={doc.doi}>
+            {(doi) => (
+              <>
+                {doi.map((v) => {
+                  const href = createUrlByType(doc?.bibcode, 'doi', v);
+                  return (
+                    <p>
+                      <NextLink href={href} passHref legacyBehavior>
+                        <Link rel="noreferrer noopener" isExternal>
+                          {v} <ExternalLinkIcon mx="2px" />
+                        </Link>
+                      </NextLink>
+                    </p>
+                  );
+                })}
+              </>
+            )}
+          </Detail>
           <Detail label="arXiv" value={arxiv} href={createUrlByType(doc?.bibcode, 'arxiv', arxiv?.split(':')[1])} />
-          <Detail label="Bibcode" value={doc.bibcode} href={`/abs/${doc.bibcode}/abstract`} />
+          <Detail label="Bibcode" value={doc.bibcode}>
+            {(bibcode) => <LabeledCopyButton text={doc.bibcode} label={bibcode} />}
+          </Detail>
           <Detail label="Keyword(s)" value={doc.keyword}>
             {(keywords) => (
               <Flex flexWrap={'wrap'}>

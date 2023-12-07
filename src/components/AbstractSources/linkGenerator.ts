@@ -149,11 +149,9 @@ export const processLinkData = (doc: IDocsEntity, linkServer?: string): ProcessL
  * @param {string|array} identifier - the identifier to use to build the url
  * @returns {string}
  */
-export const createUrlByType = function (bibcode: string, type: string, identifier: string | string[]): string {
-  const id = Array.isArray(identifier) ? identifier[0] : identifier;
-
-  if (typeof bibcode === 'string' && typeof type === 'string' && typeof id === 'string') {
-    return GATEWAY_BASE_URL + bibcode + '/' + type + ':' + id;
+export const createUrlByType = function (bibcode: string, type: string, identifier: string): string {
+  if (typeof bibcode === 'string' && typeof type === 'string' && typeof identifier === 'string') {
+    return GATEWAY_BASE_URL + bibcode + '/' + type + ':' + identifier;
   }
   return '';
 };
