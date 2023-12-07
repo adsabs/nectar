@@ -185,6 +185,7 @@ const DTable = () => {
           value={filter}
           onChange={setFilter}
           data-testid="orcid-works-filter"
+          stylesTheme="default"
         />
       </Flex>
       {filteredEntries.length > 0 ? (
