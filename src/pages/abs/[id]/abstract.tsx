@@ -2,7 +2,10 @@ import { IADSApiSearchParams, IDocsEntity, useGetAbstract } from '@api';
 import {
   Box,
   Button,
+  Center,
   Flex,
+  HStack,
+  Icon,
   IconButton,
   Link,
   Stack,
@@ -16,27 +19,35 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { ChatIcon, ExternalLinkIcon } from '@chakra-ui/icons';
-import { AbstractSources, AddToLibraryModal, feedbackItems, LabeledCopyButton, SearchQueryLink } from '@components';
+import {
+  AbstractSources,
+  AddToLibraryModal,
+  feedbackItems,
+  LabeledCopyButton,
+  SearchQueryLink,
+  SimpleLink,
+} from '@components';
 import { createUrlByType } from '@components/AbstractSources/linkGenerator';
 import { IAllAuthorsModalProps } from '@components/AllAuthorsModal';
 import { useGetAuthors } from '@components/AllAuthorsModal/useGetAuthors';
 import { OrcidActiveIcon } from '@components/icons/Orcid';
 import { AbsLayout } from '@components/Layout/AbsLayout';
-import { APP_DEFAULTS, NASA_SCIX_BRAND_NAME } from '@config';
+import { APP_DEFAULTS, EXTERNAL_URLS, NASA_SCIX_BRAND_NAME } from '@config';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useIsClient } from '@lib/useIsClient';
 import { composeNextGSSP } from '@ssr-utils';
-import { unwrapStringValue } from '@utils';
+import { pluralize, unwrapStringValue } from '@utils';
 import { MathJax } from 'better-react-mathjax';
 import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import NextLink from 'next/link';
-import { isNil, path } from 'ramda';
-import { ReactElement } from 'react';
+import { equals, isNil, path } from 'ramda';
+import { memo, ReactElement } from 'react';
 import { useRouter } from 'next/router';
-import { FolderPlusIcon } from '@heroicons/react/24/solid';
+import { FolderPlusIcon, GlobeAltIcon } from '@heroicons/react/24/solid';
 import { useSession } from '@lib/useSession';
+import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   () => import('@components/AllAuthorsModal').then((m) => m.AllAuthorsModal),
@@ -191,28 +202,98 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
           <Detail label="Bibcode" value={doc.bibcode}>
             {(bibcode) => <LabeledCopyButton text={doc.bibcode} label={bibcode} />}
           </Detail>
-          <Detail label="Keyword(s)" value={doc.keyword}>
-            {(keywords) => (
-              <Flex flexWrap={'wrap'}>
-                {keywords.map((keyword) => (
-                  <SearchQueryLink
-                    key={keyword}
-                    params={{ q: `keyword:"${keyword}"` }}
-                    _hover={{ textDecoration: 'none' }}
-                  >
-                    <Tag size="sm" key={keyword} variant="subtle" bgColor="gray.100" whiteSpace={'nowrap'} m="1">
-                      {keyword}
-                    </Tag>
-                  </SearchQueryLink>
-                ))}
-              </Flex>
-            )}
-          </Detail>
+          <Keywords keywords={doc.keyword} />
+          <PlanetaryFeatures features={doc.gpn} ids={doc.gpn_id} />
           <Detail label="Comment(s)" value={doc.comment} />
           <Detail label="E-Print Comment(s)" value={doc.pubnote} />
         </Tbody>
       </Table>
     </Box>
+  );
+};
+
+const Keywords = memo(({ keywords }: { keywords: string[] }) => {
+  return (
+    <Detail label={pluralize('Keyword', keywords.length)} value={keywords}>
+      {(keywords) => (
+        <Flex flexWrap={'wrap'}>
+          {keywords.map((keyword) => (
+            <SearchQueryLink key={keyword} params={{ q: `keyword:"${keyword}"` }} _hover={{ textDecoration: 'none' }}>
+              <Tooltip label={`Search for papers that mention this keyword`} key={keyword}>
+                <Tag size="sm" variant="subtle" bgColor="gray.100" whiteSpace={'nowrap'} m="1">
+                  <HStack spacing="1">
+                    <Text>{keyword}</Text>
+                    <Icon as={MagnifyingGlassIcon} transform="rotate(90deg)" />
+                  </HStack>
+                </Tag>
+              </Tooltip>
+            </SearchQueryLink>
+          ))}
+        </Flex>
+      )}
+    </Detail>
+  );
+}, equals);
+
+const PlanetaryFeatures = memo(({ features, ids }: { features: Array<string>; ids: Array<string> }) => {
+  return (
+    <Detail label={pluralize('Planetary Feature', features.length)} value={features}>
+      {(features) => (
+        <Flex flexWrap={'wrap'}>
+          {features.map((feature, index) => (
+            <PlanetaryFeatureTag name={feature} id={ids?.[index] ?? ''} key={feature} />
+          ))}
+        </Flex>
+      )}
+    </Detail>
+  );
+}, equals);
+
+const PlanetaryFeatureTag = ({ name, id }: { name: string; id: string }) => {
+  const label = `Search for papers that mention this feature`;
+  const usgsLabel = `Go to the USGS page for this feature`;
+  return (
+    <Flex direction="row" alignItems="center">
+      <SearchQueryLink params={{ q: `gpn:"${name}"` }} textDecoration="none">
+        <Tooltip label={label}>
+          <Tag
+            size="sm"
+            variant="subtle"
+            bgColor="gray.100"
+            whiteSpace="nowrap"
+            m="1"
+            _hover={{
+              color: 'black',
+            }}
+          >
+            <HStack spacing="1">
+              <Text>{name}</Text>
+              <Icon as={MagnifyingGlassIcon} transform="rotate(90deg)" />
+            </HStack>
+          </Tag>
+        </Tooltip>
+      </SearchQueryLink>
+
+      <Box px="1">
+        <SimpleLink
+          variant="subtle"
+          href={`${EXTERNAL_URLS.USGS_PLANETARY_FEATURES}${id}`}
+          isExternal
+          textDecoration="none"
+          color="gray.500"
+          _hover={{
+            color: 'gray.700',
+          }}
+          aria-label={usgsLabel}
+        >
+          <Tooltip label={usgsLabel}>
+            <Center>
+              <Icon as={GlobeAltIcon} /> <ExternalLinkIcon mx="2px" />
+            </Center>
+          </Tooltip>
+        </SimpleLink>
+      </Box>
+    </Flex>
   );
 };
 
