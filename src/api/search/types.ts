@@ -246,6 +246,8 @@ export interface IDocsEntity {
   first_author_facet_hier?: string;
   first_author_norm?: string;
   first_author?: string;
+  gpn?: string[];
+  gpn_id?: string[];
   grant_agencies?: string;
   grant_facet_hier?: string;
   grant_id?: string;
