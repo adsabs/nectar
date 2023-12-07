@@ -50,3 +50,13 @@ export const NASA_SCIX_BRAND_NAME = 'NASA Science Explorer';
 export const NASA_SCIX_BRAND_NAME_SHORT = 'NASA SciX';
 export const ORCID_BULK_DELETE_CHUNK_SIZE = 4;
 export const ORCID_BULK_DELETE_DELAY = 1000;
+
+export const EXTERNAL_URLS = {
+  USGS_PLANETARY_FEATURES: 'https://planetarynames.wr.usgs.gov/Feature/' as const,
+  NASA_HOME_PAGE: 'https://www.nasa.gov/' as const,
+  SMITHSONIAN_HOME_PAGE: 'https://www.si.edu/' as const,
+  CFA_HOME_PAGE: 'https://www.cfa.harvard.edu/' as const,
+  NASA_SDE_HOME_PAGE: 'https://sciencediscoveryengine.nasa.gov/app/nasa-sba-smd/#/home',
+  TWITTER_SCIX: 'https://twitter.com/scixcommunity' as const,
+  CFA_SAO_HOME_PAGE: 'https://www.cfa.harvard.edu/sao' as const,
+};
