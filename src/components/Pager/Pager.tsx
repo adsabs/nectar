@@ -75,6 +75,8 @@ export const Pager = (props: IPagerProps) => {
         onMouseDown={() => setInteracted(true)}
         onMouseEnter={() => setShouldWiggle(true)}
         onMouseLeave={() => setShouldWiggle(false)}
+        onFocus={() => setShouldWiggle(true)}
+        onBlur={() => setShouldWiggle(false)}
       >
         {title}
         <Flex alignItems="center">
@@ -134,6 +136,7 @@ const ChangePageButton = (props: ButtonProps & { direction: 'next' | 'previous';
       variant="ghost"
       colorScheme="black"
       _hover={{ animation: 'none' }}
+      _focus={{ animation: 'none' }}
       animation={props.wiggle ? `${wiggle} 2s cubic-bezier(0.455, 0.030, 0.515, 0.955) infinite` : undefined}
       animationDelay={props.wiggle ? '2s' : undefined}
     />

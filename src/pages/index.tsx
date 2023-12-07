@@ -1,4 +1,4 @@
-import { Box, Flex, Heading, Stack, Text, VisuallyHidden } from '@chakra-ui/react';
+import { Box, Center, Flex, Heading, Stack, Text, VisuallyHidden } from '@chakra-ui/react';
 import { ISearchExamplesProps, Pager, SearchBar, SearchExamplesPlaceholder, SimpleLink } from '@components';
 import { useStore, useStoreApi } from '@store';
 import { makeSearchParams } from '@utils';
@@ -77,7 +77,17 @@ const Carousel = () => {
                 <Text fontWeight="thin">WELCOME TO THE</Text>
                 <Text fontWeight="bold">SciX Digital Library</Text>
               </Heading>
-              <img src="https://placehold.co/640x385" alt={'dog'} width={640} height={400} />
+              <Center>
+                <iframe
+                  width="560"
+                  height="315"
+                  src="https://www.youtube-nocookie.com/embed/LeTFmhmPjs0?si=RtpASLVZtKqbxOOr"
+                  title="YouTube video player"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                ></iframe>
+              </Center>
               <Text fontSize="xl">
                 Learn more about the SciX digital library and how it can support your scientific research in this
                 welcome video and brief user tutorial from Dr. Stephanie Jarmak.
@@ -93,7 +103,12 @@ const Carousel = () => {
                 <Text fontWeight="thin">EXPLORE ACROSS</Text>
                 <Text fontWeight="bold">Science Focus Areas</Text>
               </Heading>
-              <Image src="/images/carousel/discipline_banner.jpg" alt="all scix focus areas" width={760} height={200} />
+              <Image
+                src="/images/carousel/banner_sciencetopics.jpg"
+                alt="all scix focus areas"
+                width={760}
+                height={200}
+              />
               <Text fontSize="xl">
                 NASA SciX covers and unifies the fields of Earth Science, Planetary Science, Astrophysics, and
                 Heliophysics. It will also cover NASA funded research in Biological and Physical Sciences.
@@ -137,7 +152,7 @@ const Carousel = () => {
               </Text>
               <Text fontSize="xl">
                 Use the{' '}
-                <SimpleLink href="/" display="inline">
+                <SimpleLink href="/help/quickstart/guide" display="inline">
                   quick start guide
                 </SimpleLink>{' '}
                 to start your search of the portal and find out where to go with any questions about advanced tools and
