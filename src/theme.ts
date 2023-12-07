@@ -1,7 +1,6 @@
 import {
   extendTheme,
   StyleFunctionProps,
-  ThemeComponentProps,
   ThemeConfig,
   withDefaultColorScheme,
   withDefaultSize,
@@ -271,6 +270,9 @@ export const theme = extendTheme(
             color: 'gray.700',
           },
         },
+        defaultProps: {
+          colorScheme: 'blue',
+        },
       },
       Select: {
         parts: ['field'],
@@ -291,7 +293,7 @@ export const theme = extendTheme(
       },
     },
   },
-  withDefaultColorScheme({ colorScheme: 'blue' }),
+  // withDefaultColorScheme({ colorScheme: 'blue' }),
   withDefaultSize({
     size: 'sm',
     components: ['Button', 'IconButton', 'Table'],

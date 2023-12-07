@@ -18,6 +18,7 @@ import { ReactElement, useCallback, useState } from 'react';
 import { RecaptchaMessage } from '@components';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { FormMessage } from '@components/Feedbacks/FormMessage';
+import { useColorModeColors } from '@lib';
 
 export interface IPreviewProps {
   params: IFeedbackParams;
@@ -37,6 +38,8 @@ export const PreviewModal = (props: IPreviewProps) => {
   const [formError, setFormError] = useState<Error | string | null>(null);
 
   const { mutate, isLoading } = useFeedback();
+
+  const colors = useColorModeColors();
 
   const handleSubmit = useCallback(async () => {
     if (!executeRecaptcha) {
@@ -71,12 +74,12 @@ export const PreviewModal = (props: IPreviewProps) => {
         <ModalBody>
           <Flex direction="column" gap={4}>
             <Text fontWeight="semibold">Submitter:</Text>
-            <Box border="1px" borderColor="gray.100" backgroundColor="gray.50" p={4}>
+            <Box border="1px" borderColor={colors.border} backgroundColor={colors.panel} p={4}>
               <pre style={{ whiteSpace: 'pre-wrap' }}>{submitterInfo}</pre>
             </Box>
             <Text fontWeight="semibold">{mainContentTitle}:</Text>
             {typeof mainContent === 'string' ? (
-              <Box border="1px" borderColor="gray.100" backgroundColor="gray.50" p={4}>
+              <Box border="1px" borderColor={colors.border} backgroundColor={colors.panel} p={4}>
                 <pre style={{ whiteSpace: 'pre-wrap' }}>{mainContent}</pre>
               </Box>
             ) : (
