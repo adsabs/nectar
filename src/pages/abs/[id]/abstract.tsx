@@ -16,7 +16,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { ChatIcon, ExternalLinkIcon } from '@chakra-ui/icons';
-import { AbstractSources, AddToLibraryModal, feedbackItems, SearchQueryLink } from '@components';
+import { AbstractSources, AddToLibraryModal, feedbackItems, LabeledCopyButton, SearchQueryLink } from '@components';
 import { createUrlByType } from '@components/AbstractSources/linkGenerator';
 import { IAllAuthorsModalProps } from '@components/AllAuthorsModal';
 import { useGetAuthors } from '@components/AllAuthorsModal/useGetAuthors';
@@ -33,7 +33,7 @@ import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import NextLink from 'next/link';
 import { isNil, path } from 'ramda';
-import { ReactElement, useMemo } from 'react';
+import { ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import { FolderPlusIcon } from '@heroicons/react/24/solid';
 import { useSession } from '@lib/useSession';
@@ -188,7 +188,9 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
             )}
           </Detail>
           <Detail label="arXiv" value={arxiv} href={createUrlByType(doc?.bibcode, 'arxiv', arxiv?.split(':')[1])} />
-          <Detail label="Bibcode" value={doc.bibcode} href={`/abs/${doc.bibcode}/abstract`} />
+          <Detail label="Bibcode" value={doc.bibcode}>
+            {(bibcode) => <LabeledCopyButton text={doc.bibcode} label={bibcode} />}
+          </Detail>
           <Detail label="Keyword(s)" value={doc.keyword}>
             {(keywords) => (
               <Flex flexWrap={'wrap'}>
