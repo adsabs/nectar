@@ -22,6 +22,7 @@ import api, {
 } from '@api';
 import { configWithCSRF, isValidToken } from '@auth-utils';
 import { defaultRequestConfig } from '@api/config';
+import { DEFAULT_USER_DATA } from '@components';
 
 export enum UserKeys {
   USER_API_TOKEN = 'user-api-token',
@@ -267,6 +268,7 @@ export const useGetUserSettings = (options?: UseQueryOptions<IADSApiUserDataResp
   return useQuery({
     queryKey: userKeys.getUserSettings(),
     queryFn: fetchUserSettings,
+    initialData: DEFAULT_USER_DATA,
     ...options,
   });
 };

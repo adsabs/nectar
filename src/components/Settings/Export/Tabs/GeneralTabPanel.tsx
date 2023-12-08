@@ -16,7 +16,7 @@ export interface IGeneralTabPanelProps {
 }
 
 export const GeneralTabPanel = ({ sampleBib, selectedOption, dispatch }: IGeneralTabPanelProps) => {
-  const { data } = useGetUserSettings({ initialData: DEFAULT_USER_DATA });
+  const { data } = useGetUserSettings();
 
   // fill any missing user data with default
   const userSettings = useMemo(
