@@ -1,16 +1,17 @@
-import { ExportApiFormatKey, IDocsEntity, isExportApiFormat, useGetAbstract } from '@api';
+import { ExportApiFormatKey, IDocsEntity, isExportApiFormat, useGetAbstract, useGetUserSettings } from '@api';
 import { Box } from '@chakra-ui/react';
 import { CitationExporter, JournalFormatMap } from '@components';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { DEFAULT_USER_DATA } from '@components/Settings/model';
 import { withDetailsPage } from '@hocs/withDetailsPage';
-import { useStore } from '@store';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
-import { isEmpty, path } from 'ramda';
+import { path } from 'ramda';
 import { composeNextGSSP } from '@ssr-utils';
 import { useRouter } from 'next/router';
 import { getDetailsPageTitle } from '@pages/abs/[id]/abstract';
+import { useSession } from '@lib/useSession';
+import { useMemo } from 'react';
 
 const ExportCitationPage: NextPage = () => {
   const router = useRouter();
@@ -18,10 +19,20 @@ const ExportCitationPage: NextPage = () => {
   const { data } = useGetAbstract({ id: router.query.id as string });
   const doc = path<IDocsEntity>(['docs', 0], data);
 
+  const { isAuthenticated } = useSession();
+
   // get export related user settings
-  const settings = useStore((state) =>
-    state.settings.user && !isEmpty(state.settings.user) ? state.settings.user : DEFAULT_USER_DATA,
+  const { data: settingsData } = useGetUserSettings({
+    enabled: isAuthenticated,
+  });
+
+  // fill any missing user data with default
+  const settings = useMemo(
+    () =>
+      settingsData ? { ...DEFAULT_USER_DATA, ...Object.entries(settingsData).filter((s) => !!s) } : DEFAULT_USER_DATA,
+    [settingsData],
   );
+
   const { keyformat, journalformat, authorcutoff, maxauthor } =
     format === ExportApiFormatKey.bibtexabs
       ? {

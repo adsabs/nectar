@@ -1,4 +1,4 @@
-import { ChangeEvent, Dispatch, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, Dispatch, useEffect, useState } from 'react';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 import { Button, FormControl, FormLabel, Input, Text } from '@chakra-ui/react';
 import { Select } from '@components/Select';
@@ -14,11 +14,9 @@ export interface ICustomFormatSelectProps {
 export const CustomFormatSelect = ({ dispatch }: ICustomFormatSelectProps) => {
   const { isAuthenticated } = useSession();
 
-  const { data: settingsData } = useGetUserSettings({ enabled: isAuthenticated });
+  const { data: settingsData } = useGetUserSettings({ enabled: isAuthenticated, initialData: DEFAULT_USER_DATA });
 
-  const settings = useMemo(() => settingsData ?? DEFAULT_USER_DATA, [settingsData]);
-
-  const customFormats = settings.customFormats;
+  const customFormats = settingsData?.customFormats ?? DEFAULT_USER_DATA.customFormats;
 
   // custom formats to options
   const customFormatOptions = customFormats

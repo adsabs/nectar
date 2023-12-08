@@ -16,13 +16,12 @@ import { getExportCitationDefaultContext } from '@components/CitationExporter/Ci
 import { APP_DEFAULTS } from '@config';
 import { useIsClient } from '@lib/useIsClient';
 import { parseQueryFromUrl } from '@utils';
-import { useStore } from '@store';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
-import { isEmpty, last, omit } from 'ramda';
+import { last, omit } from 'ramda';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { composeNextGSSP } from '@ssr-utils';
 import { useSession } from '@lib/useSession';
@@ -48,7 +47,12 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
     enabled: isAuthenticated,
   });
 
-  const settings = useMemo(() => settingsData ?? DEFAULT_USER_DATA, [settingsData]);
+  // fill any missing user data with default
+  const settings = useMemo(
+    () =>
+      settingsData ? { ...DEFAULT_USER_DATA, ...Object.entries(settingsData).filter((s) => !!s) } : DEFAULT_USER_DATA,
+    [settingsData],
+  );
 
   const { keyformat, journalformat, authorcutoff, maxauthor } =
     format === ExportApiFormatKey.bibtexabs
