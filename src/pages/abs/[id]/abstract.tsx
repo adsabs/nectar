@@ -17,6 +17,7 @@ import {
   Tooltip,
   Tr,
   useDisclosure,
+  VisuallyHidden,
 } from '@chakra-ui/react';
 import { ChatIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import {
@@ -45,9 +46,10 @@ import NextLink from 'next/link';
 import { equals, isNil, path } from 'ramda';
 import { memo, ReactElement } from 'react';
 import { useRouter } from 'next/router';
-import { FolderPlusIcon, GlobeAltIcon } from '@heroicons/react/24/solid';
+import { FolderPlusIcon } from '@heroicons/react/24/solid';
 import { useSession } from '@lib/useSession';
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
+import { isNilOrEmpty } from 'ramda-adjunct';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   () => import('@components/AllAuthorsModal').then((m) => m.AllAuthorsModal),
@@ -84,7 +86,10 @@ const AbstractPage: NextPage = () => {
         {doc && (
           <Stack direction="column" gap={2}>
             {isClient ? (
-              <Flex wrap="wrap">
+              <Flex wrap="wrap" as="section" aria-labelledby="author-list">
+                <VisuallyHidden as="h2" id="author-list">
+                  Authors
+                </VisuallyHidden>
                 {authors.map(([, author, orcid], index) => (
                   <Box mr={1} key={`${author}-${index}`}>
                     <SearchQueryLink
@@ -142,7 +147,10 @@ const AbstractPage: NextPage = () => {
                 </Tooltip>
               )}
             </Flex>
-            <Box py="2">
+            <Box as="section" py="2" aria-labelledby="abstract">
+              <VisuallyHidden as="h2" id="abstract">
+                Abstract
+              </VisuallyHidden>
               {isNil(doc?.abstract) ? (
                 <Text>No Abstract</Text>
               ) : (
@@ -172,8 +180,11 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
   const arxiv = (doc.identifier ?? ([] as string[])).find((v) => /^arxiv/i.exec(v));
 
   return (
-    <Box border="1px" borderColor="gray.50" borderRadius="md" shadow="sm">
-      <Table colorScheme="gray" size="md">
+    <Box as="section" border="1px" borderColor="gray.50" borderRadius="md" shadow="sm" aria-labelledby="details">
+      <VisuallyHidden as="h2" id="details">
+        Details
+      </VisuallyHidden>
+      <Table colorScheme="gray" size="md" role="presentation">
         <Tbody>
           <Detail label="Publication" value={doc.pub_raw}>
             {(pub_raw) => <span dangerouslySetInnerHTML={{ __html: pub_raw }}></span>}
@@ -181,26 +192,13 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
           <Detail label="Book Author(s)" value={doc.book_author} />
           <Detail label="Publication Date" value={doc.pubdate} />
           <Detail label="DOI" value={doc.doi}>
-            {(doi) => (
-              <>
-                {doi.map((v) => {
-                  const href = createUrlByType(doc?.bibcode, 'doi', v);
-                  return (
-                    <p>
-                      <NextLink href={href} passHref legacyBehavior>
-                        <Link rel="noreferrer noopener" isExternal>
-                          {v} <ExternalLinkIcon mx="2px" />
-                        </Link>
-                      </NextLink>
-                    </p>
-                  );
-                })}
-              </>
-            )}
+            {(doi) => <Doi doiIDs={doi} bibcode={doc.bibcode} />}
           </Detail>
           <Detail label="arXiv" value={arxiv} href={createUrlByType(doc?.bibcode, 'arxiv', arxiv?.split(':')[1])} />
           <Detail label="Bibcode" value={doc.bibcode}>
-            {(bibcode) => <LabeledCopyButton text={doc.bibcode} label={bibcode} />}
+            {(bibcode) => (
+              <LabeledCopyButton text={doc.bibcode} label={bibcode} size="md" fontWeight="normal" iconPos="right" />
+            )}
           </Detail>
           <Keywords keywords={doc.keyword} />
           <PlanetaryFeatures features={doc.gpn} ids={doc.gpn_id} />
@@ -212,22 +210,46 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
   );
 };
 
-const Keywords = memo(({ keywords }: { keywords: string[] }) => {
+const Doi = memo(({ doiIDs, bibcode }: { doiIDs: Array<string>; bibcode: string }) => {
+  return (
+    <>
+      {doiIDs.map((id) => (
+        <SimpleLink href={createUrlByType(bibcode, 'doi', id)} isExternal key={id}>
+          {id} <ExternalLinkIcon mx="2px" />
+        </SimpleLink>
+      ))}
+    </>
+  );
+}, equals);
+
+const Keywords = memo(({ keywords }: { keywords: Array<string> }) => {
+  const label = `Search for papers that mention this keyword`;
   return (
     <Detail label={pluralize('Keyword', keywords.length)} value={keywords}>
       {(keywords) => (
         <Flex flexWrap={'wrap'}>
           {keywords.map((keyword) => (
-            <SearchQueryLink key={keyword} params={{ q: `keyword:"${keyword}"` }} _hover={{ textDecoration: 'none' }}>
-              <Tooltip label={`Search for papers that mention this keyword`} key={keyword}>
-                <Tag size="sm" variant="subtle" bgColor="gray.100" whiteSpace={'nowrap'} m="1">
-                  <HStack spacing="1">
-                    <Text>{keyword}</Text>
-                    <Icon as={MagnifyingGlassIcon} transform="rotate(90deg)" />
-                  </HStack>
-                </Tag>
-              </Tooltip>
-            </SearchQueryLink>
+            <Tag size="md" variant="subtle" bgColor="gray.100" whiteSpace={'nowrap'} m="1" key={keyword}>
+              <HStack spacing="2">
+                <Text>{keyword}</Text>
+                <SearchQueryLink
+                  params={{ q: `keyword:"${keyword}"` }}
+                  color="gray.700"
+                  textDecoration="none"
+                  _hover={{
+                    color: 'gray.900',
+                  }}
+                  aria-label={label}
+                  fontSize="md"
+                >
+                  <Tooltip label={label}>
+                    <Center>
+                      <Icon as={MagnifyingGlassIcon} transform="rotate(90deg)" />
+                    </Center>
+                  </Tooltip>
+                </SearchQueryLink>
+              </HStack>
+            </Tag>
           ))}
         </Flex>
       )}
@@ -236,12 +258,66 @@ const Keywords = memo(({ keywords }: { keywords: string[] }) => {
 }, equals);
 
 const PlanetaryFeatures = memo(({ features, ids }: { features: Array<string>; ids: Array<string> }) => {
+  const label = `Search for papers that mention this feature`;
+  const usgsLabel = `Go to the USGS page for this feature`;
   return (
     <Detail label={pluralize('Planetary Feature', features.length)} value={features}>
       {(features) => (
         <Flex flexWrap={'wrap'}>
           {features.map((feature, index) => (
-            <PlanetaryFeatureTag name={feature} id={ids?.[index] ?? ''} key={feature} />
+            <Flex direction="row" alignItems="center" key={feature}>
+              <Tag
+                size="md"
+                variant="subtle"
+                bgColor="gray.100"
+                whiteSpace="nowrap"
+                m="1"
+                _hover={{
+                  color: 'black',
+                }}
+              >
+                <HStack spacing="2">
+                  <Text>{feature}</Text>
+                  <HStack spacing="1">
+                    <SearchQueryLink
+                      params={{ q: `gpn:"${feature}"` }}
+                      textDecoration="none"
+                      color="gray.700"
+                      _hover={{
+                        color: 'gray.900',
+                        textDecoration: 'none',
+                      }}
+                      aria-label={label}
+                      fontSize="md"
+                    >
+                      <Tooltip label={label}>
+                        <Center>
+                          <Icon as={MagnifyingGlassIcon} transform="rotate(90deg)" />
+                        </Center>
+                      </Tooltip>
+                    </SearchQueryLink>
+                    <SimpleLink
+                      variant="subtle"
+                      href={`${EXTERNAL_URLS.USGS_PLANETARY_FEATURES}${ids[index]}`}
+                      isExternal
+                      textDecoration="none"
+                      color="gray.700"
+                      _hover={{
+                        color: 'gray.900',
+                      }}
+                      aria-label={usgsLabel}
+                      fontSize="md"
+                    >
+                      <Tooltip label={usgsLabel}>
+                        <Center>
+                          <ExternalLinkIcon mx="2px" />
+                        </Center>
+                      </Tooltip>
+                    </SimpleLink>
+                  </HStack>
+                </HStack>
+              </Tag>
+            </Flex>
           ))}
         </Flex>
       )}
@@ -249,66 +325,19 @@ const PlanetaryFeatures = memo(({ features, ids }: { features: Array<string>; id
   );
 }, equals);
 
-const PlanetaryFeatureTag = ({ name, id }: { name: string; id: string }) => {
-  const label = `Search for papers that mention this feature`;
-  const usgsLabel = `Go to the USGS page for this feature`;
-  return (
-    <Flex direction="row" alignItems="center">
-      <SearchQueryLink params={{ q: `gpn:"${name}"` }} textDecoration="none">
-        <Tooltip label={label}>
-          <Tag
-            size="sm"
-            variant="subtle"
-            bgColor="gray.100"
-            whiteSpace="nowrap"
-            m="1"
-            _hover={{
-              color: 'black',
-            }}
-          >
-            <HStack spacing="1">
-              <Text>{name}</Text>
-              <Icon as={MagnifyingGlassIcon} transform="rotate(90deg)" />
-            </HStack>
-          </Tag>
-        </Tooltip>
-      </SearchQueryLink>
-
-      <Box px="1">
-        <SimpleLink
-          variant="subtle"
-          href={`${EXTERNAL_URLS.USGS_PLANETARY_FEATURES}${id}`}
-          isExternal
-          textDecoration="none"
-          color="gray.500"
-          _hover={{
-            color: 'gray.700',
-          }}
-          aria-label={usgsLabel}
-        >
-          <Tooltip label={usgsLabel}>
-            <Center>
-              <Icon as={GlobeAltIcon} /> <ExternalLinkIcon mx="2px" />
-            </Center>
-          </Tooltip>
-        </SimpleLink>
-      </Box>
-    </Flex>
-  );
-};
-
-interface IDetailProps<T = string | string[]> {
+interface IDetailProps<T = string | Array<string>> {
   label: string;
   href?: string;
   value: T;
   children?: (value: T) => ReactElement;
 }
 
+// TODO: this should take in a list of deps or the whole doc and show/hide based on that
 const Detail = <T,>(props: IDetailProps<T>): ReactElement => {
   const { label, href, value, children } = props;
 
   // show nothing if no value
-  if (!value) {
+  if (isNilOrEmpty(value)) {
     return null;
   }
 
