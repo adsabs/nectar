@@ -1,4 +1,4 @@
-import { Bibcode, ExportApiFormatKey, useGetUserSettings, useVaultBigQuerySearch } from '@api';
+import { Bibcode, DEFAULT_USER_DATA, ExportApiFormatKey, useGetUserSettings, useVaultBigQuerySearch } from '@api';
 import { ChevronDownIcon, SettingsIcon } from '@chakra-ui/icons';
 import {
   Button,
@@ -23,7 +23,7 @@ import {
   useToast,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { DEFAULT_USER_DATA, exportFormats, ISortProps, sections, Sort } from '@components';
+import { exportFormats, ISortProps, sections, Sort } from '@components';
 import { useIsClient } from '@lib/useIsClient';
 import { AppState, useStore, useStoreApi } from '@store';
 import { makeSearchParams, noop, parseQueryFromUrl } from '@utils';

@@ -4,8 +4,7 @@ import { Button, FormControl, FormLabel, Input, Text } from '@chakra-ui/react';
 import { Select } from '@components/Select';
 import { useSession } from '@lib/useSession';
 import { SimpleLink } from '@components/SimpleLink';
-import { useGetUserSettings } from '@api';
-import { DEFAULT_USER_DATA } from '@components/Settings';
+import { DEFAULT_USER_DATA, useGetUserSettings } from '@api';
 
 export interface ICustomFormatSelectProps {
   dispatch: Dispatch<CitationExporterEvent>;

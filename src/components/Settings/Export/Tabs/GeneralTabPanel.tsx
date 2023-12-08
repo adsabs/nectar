@@ -1,8 +1,15 @@
-import { CustomFormat, ExportApiFormatKey, IDocsEntity, useGetExportCitation, useGetUserSettings } from '@api';
+import {
+  CustomFormat,
+  DEFAULT_USER_DATA,
+  ExportApiFormatKey,
+  IDocsEntity,
+  useGetExportCitation,
+  useGetUserSettings,
+} from '@api';
 import { Stack } from '@chakra-ui/react';
 import { SampleTextArea } from '@components';
 import { ExportFormat, exportFormats } from '@components/CitationExporter';
-import { DEFAULT_USER_DATA, JournalFormatMap } from '@components/Settings/model';
+import { JournalFormatMap } from '@components/Settings/model';
 import { UserDataSetterEvent } from '@pages/user/settings/export';
 import { values } from 'ramda';
 import { Dispatch, useMemo } from 'react';

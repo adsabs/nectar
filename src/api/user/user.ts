@@ -10,6 +10,7 @@ import {
 import api, {
   ApiRequestConfig,
   ApiTargets,
+  DEFAULT_USER_DATA,
   IADSApiUserDataParams,
   IADSApiUserDataResponse,
   IBasicAccountsResponse,
@@ -22,7 +23,6 @@ import api, {
 } from '@api';
 import { configWithCSRF, isValidToken } from '@auth-utils';
 import { defaultRequestConfig } from '@api/config';
-import { DEFAULT_USER_DATA } from '@components';
 
 export enum UserKeys {
   USER_API_TOKEN = 'user-api-token',

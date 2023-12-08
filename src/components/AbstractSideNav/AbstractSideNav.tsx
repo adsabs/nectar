@@ -1,6 +1,6 @@
-import { IDocsEntity, useGetUserSettings, useHasGraphics, useHasMetrics } from '@api';
+import { DEFAULT_USER_DATA, IDocsEntity, useGetUserSettings, useHasGraphics, useHasMetrics } from '@api';
 import { Badge } from '@chakra-ui/react';
-import { IMenuItem, SideNavigationMenu, TopNavigationMenu, exportFormats, DEFAULT_USER_DATA } from '@components';
+import { IMenuItem, SideNavigationMenu, TopNavigationMenu, exportFormats } from '@components';
 import {
   ArrowDownIcon as DownloadIcon,
   ChartPieIcon,

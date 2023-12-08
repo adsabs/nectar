@@ -1,8 +1,14 @@
-import { ExportApiFormatKey, IDocsEntity, isExportApiFormat, useGetAbstract, useGetUserSettings } from '@api';
+import {
+  DEFAULT_USER_DATA,
+  ExportApiFormatKey,
+  IDocsEntity,
+  isExportApiFormat,
+  useGetAbstract,
+  useGetUserSettings,
+} from '@api';
 import { Box } from '@chakra-ui/react';
 import { CitationExporter, JournalFormatMap } from '@components';
 import { AbsLayout } from '@components/Layout/AbsLayout';
-import { DEFAULT_USER_DATA } from '@components/Settings/model';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
