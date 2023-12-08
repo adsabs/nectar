@@ -49,7 +49,8 @@ const description = (
         display="block"
         whiteSpace="pre"
         children={`@INPROCEEDINGS{2019AAS...23338108A,
-author = {{Accomazzi}, Alberto and {Kurtz}, Michael J. and ...`}
+author = {{Accomazzi}, Alberto and {Kurtz}, 
+Michael J. and ...`}
       />
     </p>
 
