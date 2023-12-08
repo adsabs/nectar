@@ -211,6 +211,9 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
 };
 
 const Doi = memo(({ doiIDs, bibcode }: { doiIDs: Array<string>; bibcode: string }) => {
+  if (isNilOrEmpty(bibcode)) {
+    return null;
+  }
   return (
     <>
       {doiIDs.map((id) => (
@@ -225,7 +228,7 @@ const Doi = memo(({ doiIDs, bibcode }: { doiIDs: Array<string>; bibcode: string 
 const Keywords = memo(({ keywords }: { keywords: Array<string> }) => {
   const label = `Search for papers that mention this keyword`;
   return (
-    <Detail label={pluralize('Keyword', keywords.length)} value={keywords}>
+    <Detail label={pluralize('Keyword', keywords?.length ?? 0)} value={keywords}>
       {(keywords) => (
         <Flex flexWrap={'wrap'}>
           {keywords.map((keyword) => (
@@ -260,8 +263,11 @@ const Keywords = memo(({ keywords }: { keywords: Array<string> }) => {
 const PlanetaryFeatures = memo(({ features, ids }: { features: Array<string>; ids: Array<string> }) => {
   const label = `Search for papers that mention this feature`;
   const usgsLabel = `Go to the USGS page for this feature`;
+  if (isNilOrEmpty(features) || isNilOrEmpty(ids)) {
+    return null;
+  }
   return (
-    <Detail label={pluralize('Planetary Feature', features.length)} value={features}>
+    <Detail label={pluralize('Planetary Feature', features?.length ?? 0)} value={features}>
       {(features) => (
         <Flex flexWrap={'wrap'}>
           {features.map((feature, index) => (
