@@ -152,7 +152,7 @@ const Carousel = () => {
               </Text>
               <Text fontSize="xl">
                 Use the{' '}
-                <SimpleLink href="/help/quickstart/guide" display="inline">
+                <SimpleLink href="/scixhelp/quickstart-scix/searching-for-paper" display="inline">
                   quick start guide
                 </SimpleLink>{' '}
                 to start your search of the portal and find out where to go with any questions about advanced tools and
