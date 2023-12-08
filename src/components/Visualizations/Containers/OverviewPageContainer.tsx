@@ -11,6 +11,7 @@ import {
   AlertDescription,
   AlertIcon,
   AlertTitle,
+  Center,
   CircularProgress,
   Tab,
   TabList,
@@ -94,7 +95,7 @@ const YearsTabPane = ({
           <AlertDescription>{axios.isAxiosError(error) && error.message}</AlertDescription>
         </Alert>
       )}
-      {isLoading && <CircularProgress isIndeterminate />}
+      <Center>{isLoading && <CircularProgress isIndeterminate />}</Center>
       {!isLoading && data && <YearsGraphPane data={data} onApplyYearRange={onApplyYearRange} />}
     </>
   );
@@ -124,7 +125,11 @@ const CitationTabPane = ({
           <AlertDescription>{axios.isAxiosError(error) && error.message}</AlertDescription>
         </Alert>
       )}
-      {isLoading && <CircularProgress isIndeterminate />}
+      {isLoading && (
+        <Center>
+          <CircularProgress isIndeterminate />
+        </Center>
+      )}
       {!isLoading && data && (
         <HIndexGraphPane
           buckets={data?.facets?.citation_count?.buckets}
@@ -160,7 +165,11 @@ const ReadTabPane = ({
           <AlertDescription>{axios.isAxiosError(error) && error.message}</AlertDescription>
         </Alert>
       )}
-      {isLoading && <CircularProgress isIndeterminate />}
+      {isLoading && (
+        <Center>
+          <CircularProgress isIndeterminate />
+        </Center>
+      )}
       {!isLoading && data && (
         <HIndexGraphPane
           buckets={data?.facets?.read_count?.buckets}

@@ -1,10 +1,4 @@
-import {
-  extendTheme,
-  StyleFunctionProps,
-  ThemeConfig,
-  withDefaultColorScheme,
-  withDefaultSize,
-} from '@chakra-ui/react';
+import { extendTheme, StyleFunctionProps, ThemeConfig, withDefaultSize } from '@chakra-ui/react';
 import { mode } from '@chakra-ui/theme-tools';
 
 const config: ThemeConfig = {
