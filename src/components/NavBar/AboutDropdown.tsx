@@ -6,17 +6,12 @@ import { MenuDropdown } from './MenuDropdown';
 const items = [
   {
     id: 'about',
-    path: '/about',
+    path: '/scixabout',
     label: 'About SciX',
   },
   {
-    id: 'new',
-    path: '/help/whats_new',
-    label: "What's New",
-  },
-  {
     id: 'blog',
-    path: '/blog',
+    path: '/scixblog',
     label: 'SciX Blog',
   },
 ];

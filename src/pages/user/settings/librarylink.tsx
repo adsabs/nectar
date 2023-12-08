@@ -64,7 +64,7 @@ const LibraryLinkServerPage = () => {
           </Text>
           <Text>
             For more information, please visit our{' '}
-            <SimpleLink href="/help" display="inline">
+            <SimpleLink href="/scixhelp" display="inline">
               help docs
             </SimpleLink>
             .

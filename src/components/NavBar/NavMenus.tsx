@@ -39,7 +39,7 @@ export const NavMenus = (): ReactElement => {
 
   const handleHelp = () => {
     if (isBrowser()) {
-      window.open('/help/', '_blank', 'noopener,noreferrer');
+      window.open('/scixhelp', '_blank', 'noopener,noreferrer');
       onClose();
     }
   };

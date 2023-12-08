@@ -64,17 +64,14 @@ export const Footer: FC = () => {
         <Text fontWeight="bold" pb={1}>
           RESOURCES
         </Text>
-        <SimpleLink href="/about" variant="footer">
+        <SimpleLink href="/scixabout" variant="footer">
           About SciX
         </SimpleLink>
         <SimpleLink href="/feedback/general" variant="footer">
           Give Feedback
         </SimpleLink>
-        <SimpleLink href="/help" variant="footer">
+        <SimpleLink href="/scixhelp" variant="footer">
           SciX Help
-        </SimpleLink>
-        <SimpleLink href="/help/whats_new" variant="footer">
-          What's New
         </SimpleLink>
         <SimpleLink href="/about/careers" variant="footer">
           Careers@ADS
@@ -93,7 +90,7 @@ export const Footer: FC = () => {
         <SimpleLink href={EXTERNAL_URLS.TWITTER_SCIX} variant="footer">
           @scixcommunity
         </SimpleLink>
-        <SimpleLink href="/blog" variant="footer">
+        <SimpleLink href="/scixblog" variant="footer">
           SciX Blog
         </SimpleLink>
       </Flex>
