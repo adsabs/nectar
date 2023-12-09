@@ -1,11 +1,4 @@
-import {
-  DEFAULT_USER_DATA,
-  ExportApiFormatKey,
-  IDocsEntity,
-  isExportApiFormat,
-  useGetAbstract,
-  useGetUserSettings,
-} from '@api';
+import { ExportApiFormatKey, IDocsEntity, isExportApiFormat, useGetAbstract } from '@api';
 import { Box } from '@chakra-ui/react';
 import { CitationExporter, JournalFormatMap } from '@components';
 import { AbsLayout } from '@components/Layout/AbsLayout';
@@ -17,7 +10,7 @@ import { composeNextGSSP } from '@ssr-utils';
 import { useRouter } from 'next/router';
 import { getDetailsPageTitle } from '@pages/abs/[id]/abstract';
 import { useSession } from '@lib/useSession';
-import { useMemo } from 'react';
+import { useSettings } from '@lib/useSettings';
 
 const ExportCitationPage: NextPage = () => {
   const router = useRouter();
@@ -28,16 +21,10 @@ const ExportCitationPage: NextPage = () => {
   const { isAuthenticated } = useSession();
 
   // get export related user settings
-  const { data: settingsData } = useGetUserSettings({
+  const { settings } = useSettings({
     enabled: isAuthenticated,
+    suspense: false,
   });
-
-  // fill any missing user data with default
-  const settings = useMemo(
-    () =>
-      settingsData ? { ...DEFAULT_USER_DATA, ...Object.entries(settingsData).filter((s) => !!s) } : DEFAULT_USER_DATA,
-    [settingsData],
-  );
 
   const { keyformat, journalformat, authorcutoff, maxauthor } =
     format === ExportApiFormatKey.bibtexabs

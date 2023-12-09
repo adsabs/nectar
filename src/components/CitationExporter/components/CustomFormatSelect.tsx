@@ -4,7 +4,8 @@ import { Button, FormControl, FormLabel, Input, Text } from '@chakra-ui/react';
 import { Select } from '@components/Select';
 import { useSession } from '@lib/useSession';
 import { SimpleLink } from '@components/SimpleLink';
-import { DEFAULT_USER_DATA, useGetUserSettings } from '@api';
+import { DEFAULT_USER_DATA } from '@api';
+import { useSettings } from '@lib/useSettings';
 
 export interface ICustomFormatSelectProps {
   dispatch: Dispatch<CitationExporterEvent>;
@@ -13,7 +14,7 @@ export interface ICustomFormatSelectProps {
 export const CustomFormatSelect = ({ dispatch }: ICustomFormatSelectProps) => {
   const { isAuthenticated } = useSession();
 
-  const { data: settingsData } = useGetUserSettings({ enabled: isAuthenticated });
+  const { settings: settingsData } = useSettings({ enabled: isAuthenticated, suspense: false });
 
   const customFormats = settingsData?.customFormats ?? DEFAULT_USER_DATA.customFormats;
 

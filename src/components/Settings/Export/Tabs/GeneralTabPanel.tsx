@@ -1,11 +1,4 @@
-import {
-  CustomFormat,
-  DEFAULT_USER_DATA,
-  ExportApiFormatKey,
-  IDocsEntity,
-  useGetExportCitation,
-  useGetUserSettings,
-} from '@api';
+import { CustomFormat, ExportApiFormatKey, IDocsEntity, useGetExportCitation } from '@api';
 import { Stack } from '@chakra-ui/react';
 import { SampleTextArea } from '@components';
 import { ExportFormat, exportFormats } from '@components/CitationExporter';
@@ -15,6 +8,7 @@ import { values } from 'ramda';
 import { Dispatch, useMemo } from 'react';
 import { ExportFormatSelect } from '../ExportFormatSelect';
 import { CustomFormatSelect } from '../CustomFormatSelect';
+import { useSettings } from '@lib/useSettings';
 
 export interface IGeneralTabPanelProps {
   sampleBib: IDocsEntity['bibcode'];
@@ -23,13 +17,7 @@ export interface IGeneralTabPanelProps {
 }
 
 export const GeneralTabPanel = ({ sampleBib, selectedOption, dispatch }: IGeneralTabPanelProps) => {
-  const { data } = useGetUserSettings();
-
-  // fill any missing user data with default
-  const userSettings = useMemo(
-    () => (data ? { ...DEFAULT_USER_DATA, ...Object.entries(data).filter((s) => !!s) } : DEFAULT_USER_DATA),
-    [data],
-  );
+  const { settings: userSettings } = useSettings({ suspense: false });
 
   const exportFormatOptions = values(exportFormats);
 
@@ -67,7 +55,7 @@ export const GeneralTabPanel = ({ sampleBib, selectedOption, dispatch }: IGenera
     const maxauthor =
       defaultExportFormatOpt.id === exportFormats[ExportApiFormatKey.bibtex].id ? bibtexMaxAuthors : bibtexAuthorCutoff;
     return { defaultExportFormatOpt, customFormat, journalFormat, keyFormat, authorcutoff, maxauthor };
-  }, [data]);
+  }, [userSettings]);
 
   const { data: sampleCitation } = useGetExportCitation({
     format: defaultExportFormatOpt.id,

@@ -1,5 +1,4 @@
 import {
-  DEFAULT_USER_DATA,
   ExportApiFormatKey,
   exportCitationKeys,
   fetchExportCitation,
@@ -7,7 +6,6 @@ import {
   IADSApiSearchParams,
   isExportApiFormat,
   searchKeys,
-  useGetUserSettings,
   useSearchInfinite,
 } from '@api';
 import { Alert, AlertIcon, Box, Flex, Heading, HStack, Link } from '@chakra-ui/react';
@@ -26,7 +24,7 @@ import { last, omit } from 'ramda';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { composeNextGSSP } from '@ssr-utils';
 import { useSession } from '@lib/useSession';
-import { useMemo } from 'react';
+import { useSettings } from '@lib/useSettings';
 
 interface IExportCitationPageProps {
   format: ExportApiFormatKey;
@@ -44,16 +42,10 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
   const { isAuthenticated } = useSession();
 
   // get export related user settings
-  const { data: settingsData } = useGetUserSettings({
+  const { settings } = useSettings({
     enabled: isAuthenticated,
+    suspense: false,
   });
-
-  // fill any missing user data with default
-  const settings = useMemo(
-    () =>
-      settingsData ? { ...DEFAULT_USER_DATA, ...Object.entries(settingsData).filter((s) => !!s) } : DEFAULT_USER_DATA,
-    [settingsData],
-  );
 
   const { keyformat, journalformat, authorcutoff, maxauthor } =
     format === ExportApiFormatKey.bibtexabs
