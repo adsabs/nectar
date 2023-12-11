@@ -15,6 +15,8 @@ export const useColorModeColors = () => {
         panel: 'gray.50',
         panelHighlight: 'blue.500',
         lightText: 'gray.500',
+        brand: 'blue.600',
+        tableHighlightBackgroud: 'blue.50',
       }
     : {
         background: 'gray.800',
@@ -22,11 +24,13 @@ export const useColorModeColors = () => {
         disalbedText: 'gray.100',
         link: 'blue.200',
         highlightBackground: 'blue.200',
-        highlightForeground: 'white',
+        highlightForeground: 'gray.800',
         border: 'gray.400',
         panel: 'gray.700',
         panelHighlight: 'blue.200',
         lightText: 'gray.200',
+        brand: 'blue.300',
+        tableHighlightBackgroud: 'gray.700',
       };
 };
 
@@ -49,7 +53,7 @@ export const useColorModeColorVars = () => {
         text: 'var(--chakra-colors-gray-50)',
         link: 'var(--chakra-colors-blue-200)',
         highlightBackground: 'var(--chakra-colors-blue-200)',
-        highlightForeground: 'var(--chakra-colors-white)',
+        highlightForeground: 'var(--chakra-colors-gray-800)',
         border: 'var(--chakra-colors-gray-400)',
         pill: 'var(--chakra-colors-blue-200)',
         pillText: 'var(--chakra-colors-white)',

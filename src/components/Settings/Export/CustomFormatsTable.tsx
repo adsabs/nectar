@@ -20,6 +20,7 @@ import { CheckIcon, CloseIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { useEffect, useState } from 'react';
 import { noop } from '@utils';
 import { sort } from 'ramda';
+import { useColorModeColors } from '@lib';
 
 export interface ICustomFormatsTableProps {
   customFormats: CustomFormat[];
@@ -208,6 +209,8 @@ const SortableRow = ({
 }) => {
   const [formatValue, setFormatValue] = useState(format);
 
+  const { tableHighlightBackgroud } = useColorModeColors();
+
   const handleApplyModify = () => {
     if (formatValue.name.length > 0 && formatValue.code.length > 0) {
       onModify(format.id, formatValue.name, formatValue.code);
@@ -224,7 +227,7 @@ const SortableRow = ({
   };
 
   return (
-    <Tr backgroundColor={isSelected ? 'blue.50' : 'transparent'} onClick={handleSelect}>
+    <Tr backgroundColor={isSelected ? tableHighlightBackgroud : 'transparent'} onClick={handleSelect}>
       {isEditing ? (
         <>
           <Td>

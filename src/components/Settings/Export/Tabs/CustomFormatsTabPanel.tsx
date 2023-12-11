@@ -5,6 +5,7 @@ import { UserDataSetterEvent } from '@pages/user/settings/export';
 import { Dispatch, useEffect, useMemo, useState } from 'react';
 import { CustomFormatsTable } from '../CustomFormatsTable';
 import { useSettings } from '@lib/useSettings';
+import { useColorModeColors } from '@lib';
 
 export type ICustomFormatsTabPanelProps = {
   sampleBib: IDocsEntity['bibcode'];
@@ -16,6 +17,8 @@ export const CustomFormatsTabPanel = ({ sampleBib, dispatch }: ICustomFormatsTab
     settings: { customFormats },
   } = useSettings();
   const [selectedFormat, setSelectedFormat] = useState<CustomFormat>(null);
+
+  const colors = useColorModeColors();
 
   // custom formats handlers
   const handleEditCustomFormat = (id: string, name: string, code: string) => {
@@ -95,7 +98,7 @@ export const CustomFormatsTabPanel = ({ sampleBib, dispatch }: ICustomFormatsTab
         value={sampleText}
         label="Sample Citation"
         p={{ base: 0, lg: 5 }}
-        backgroundColor={{ base: 'transparent', lg: 'blue.50' }}
+        backgroundColor={{ base: 'transparent', lg: colors.tableHighlightBackgroud }}
         borderRadius="md"
       />
     </Flex>

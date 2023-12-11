@@ -40,7 +40,7 @@ function SelectImpl<
             height: '2em',
             borderRadius: '2px',
             borderColor: colors.border,
-            backgroundColor: colors.background,
+            backgroundColor: 'var(--chakra-colors-gray-900)',
             outline: 'none',
             boxShadow: state.isFocused ? 'var(--chakra-shadows-outline)' : 'none',
           }),
@@ -49,7 +49,7 @@ function SelectImpl<
           }),
           singleValue: (provided) => ({
             ...provided,
-            color: colors.text,
+            color: 'var(--chakra-colors-gray-100)',
           }),
           container: (provided) => ({
             ...provided,

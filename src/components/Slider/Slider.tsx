@@ -1,4 +1,5 @@
 import { Box, Stack, StyleProps } from '@chakra-ui/react';
+import { useColorModeColors } from '@lib';
 import { ReactElement } from 'react';
 import {
   GetHandleProps,
@@ -238,13 +239,14 @@ const Track = ({
   height: number;
   getTrackProps: GetTrackProps;
 }): ReactElement => {
+  const { brand } = useColorModeColors();
   return (
     <Box
       h={1}
       position="absolute"
       height={height}
       zIndex="1"
-      bgColor="blue.600"
+      bgColor={brand}
       borderRadius="lg"
       cursor="pointer"
       style={{
