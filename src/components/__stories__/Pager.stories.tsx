@@ -9,7 +9,7 @@ const meta: Meta<IPagerProps> = {
 type Story = StoryObj<IPagerProps>;
 export default meta;
 
-const template: Story = {
+export const Default: Story = {
   render: () => (
     <Pager
       pages={[
@@ -22,10 +22,6 @@ const template: Story = {
       ]}
     />
   ),
-};
-
-export const Default: Story = {
-  ...template,
 };
 
 export const WithDynamicContent: Story = {

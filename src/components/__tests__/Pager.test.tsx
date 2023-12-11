@@ -1,6 +1,6 @@
 import { render } from '@test-utils';
 import { test } from 'vitest';
-import { composeStories } from '@storybook/testing-react';
+import { composeStories } from '@storybook/react';
 import * as stories from '../__stories__/Pager.stories';
 
 const { Default: Pager } = composeStories(stories);
