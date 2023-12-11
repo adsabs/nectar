@@ -2,7 +2,6 @@ import {
   Box,
   Button,
   Flex,
-  Link,
   NumberDecrementStepper,
   NumberIncrementStepper,
   NumberInput,
@@ -20,14 +19,22 @@ import {
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
-import { Select, SelectOption } from '@components';
+import { Select, SelectOption, SimpleLink, SimpleLinkProps } from '@components';
 import { APP_DEFAULTS } from '@config';
 import { NumPerPageType, SafeSearchUrlParams } from '@types';
 import { makeSearchParams, stringifySearchParams } from '@utils';
-import NextLink, { LinkProps } from 'next/link';
 import { useRouter } from 'next/router';
 import { curryN } from 'ramda';
-import { Dispatch, FC, KeyboardEventHandler, ReactElement, useCallback, useMemo, useRef, useState } from 'react';
+import {
+  Dispatch,
+  KeyboardEventHandler,
+  PropsWithChildren,
+  ReactElement,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { MenuPlacement } from 'react-select';
 import { calculatePagination, PaginationAction, PaginationResult } from './usePagination';
 
@@ -240,11 +247,13 @@ export const Pagination = (props: PaginationProps): ReactElement => {
   );
 };
 
-const PaginationButton: FC<{ page: number; noLinks: boolean; onlyUpdatePageParam: boolean }> = (props) => {
+const PaginationButton = (
+  props: PropsWithChildren<{ page: number; noLinks: boolean; onlyUpdatePageParam: boolean }>,
+) => {
   const { children, page, noLinks, onlyUpdatePageParam } = props;
   const router = useRouter();
   const getLinkParams = useCallback(
-    (page: number): LinkProps => {
+    (page: number): SimpleLinkProps => {
       const search = onlyUpdatePageParam
         ? stringifySearchParams({ ...router.query, p: page })
         : makeSearchParams({
@@ -263,9 +272,9 @@ const PaginationButton: FC<{ page: number; noLinks: boolean; onlyUpdatePageParam
   return noLinks ? (
     <>{children}</>
   ) : (
-    <NextLink {...getLinkParams(page)} passHref shallow legacyBehavior>
-      <Link>{children}</Link>
-    </NextLink>
+    <SimpleLink {...getLinkParams(page)} shallow>
+      {children}
+    </SimpleLink>
   );
 };
 

@@ -1,7 +1,7 @@
 import { Heading, LayoutProps, Stack, Text } from '@chakra-ui/react';
 import { SettingsSideNav } from '@components';
 import Head from 'next/head';
-import { FC } from 'react';
+import { PropsWithChildren } from 'react';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 import { SuspendedAlert } from '@components/Feedbacks/SuspendedAlert';
 
@@ -10,7 +10,7 @@ interface ISettingsLayoutProps {
   maxW?: LayoutProps['maxW'];
 }
 
-export const SettingsLayout: FC<ISettingsLayoutProps> = ({ children, title }) => {
+export const SettingsLayout = ({ children, title }: PropsWithChildren<ISettingsLayoutProps>) => {
   return (
     <Stack direction={{ base: 'column', lg: 'row' }} spacing={6} my={{ base: 2, lg: 10 }}>
       <Head>
@@ -29,4 +29,6 @@ export const SettingsLayout: FC<ISettingsLayoutProps> = ({ children, title }) =>
   );
 };
 
-const Fallback = (props: FallbackProps) => <SuspendedAlert label="Error loading settings" {...props} />;
+const Fallback = (props: PropsWithChildren<FallbackProps>) => (
+  <SuspendedAlert label="Error loading settings" {...props} />
+);

@@ -1,11 +1,11 @@
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { Box, BoxProps, Flex, Menu, MenuButton, MenuItem, MenuList, Stack, Text } from '@chakra-ui/react';
 import { CatMenuItems, IMenuItem, IMenuItemProps, SingleMenuItems } from './types';
-import NextLink from 'next/link';
 import { cloneElement } from 'react';
 import { SimpleLinkDropdown } from '@components/Dropdown';
 import { ItemType } from '@components/Dropdown/types';
 import { useIsClient } from 'src/lib';
+import { SimpleLink } from '@components';
 
 export interface ITopNavigationMenuProps extends BoxProps {
   menuItems: CatMenuItems | SingleMenuItems;
@@ -20,7 +20,7 @@ const TopMenuItem = ({ href, hrefAs, label, icon, rightElement, disabled = false
       mb={1}
       _hover={{ backgroundColor: 'gray.100' }}
     >
-      <NextLink href={href} as={hrefAs} passHref>
+      <SimpleLink href={href} as={hrefAs}>
         <Box width="full" color="gray.700">
           <Stack direction="row" alignItems="center">
             {icon && cloneElement(icon, { marginRight: '16px', width: '18px', 'aria-hidden': true })}
@@ -28,7 +28,7 @@ const TopMenuItem = ({ href, hrefAs, label, icon, rightElement, disabled = false
             {rightElement}
           </Stack>
         </Box>
-      </NextLink>
+      </SimpleLink>
     </MenuItem>
   );
 };

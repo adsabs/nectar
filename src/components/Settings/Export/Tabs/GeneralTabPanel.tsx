@@ -19,8 +19,6 @@ export interface IGeneralTabPanelProps {
 export const GeneralTabPanel = ({ sampleBib, selectedOption, dispatch }: IGeneralTabPanelProps) => {
   const { settings: userSettings } = useSettings();
 
-  const exportFormatOptions = values(exportFormats);
-
   // default export format changed
   const handleApplyDefaultExportFormat = (format: ExportFormat) => {
     dispatch({ type: 'SET_DEFAULT_EXPORT_FORMAT', payload: format.label });

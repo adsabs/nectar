@@ -7,7 +7,6 @@ import {
   CircularProgress,
   Fade,
   Flex,
-  Link,
   Stack,
   Text,
   Tooltip,
@@ -20,12 +19,11 @@ import { useStore } from '@store';
 import { getFomattedNumericPubdate, unwrapStringValue } from '@utils';
 import { MathJax } from 'better-react-mathjax';
 import dynamic from 'next/dynamic';
-import NextLink from 'next/link';
 import { ChangeEvent, ReactElement, useCallback, useEffect, useState } from 'react';
 import shallow from 'zustand/shallow';
 import { IAbstractPreviewProps } from './AbstractPreview';
 import { ItemResourceDropdowns } from './ItemResourceDropdowns';
-import { HideOnPrint } from '@components';
+import { HideOnPrint, SimpleLink } from '@components';
 
 const AbstractPreview = dynamic<IAbstractPreviewProps>(
   () => import('./AbstractPreview').then((mod) => mod.AbstractPreview),
@@ -72,28 +70,22 @@ export const Item = (props: IItemProps): ReactElement => {
   // citations
   const cite = useNormCite ? (
     typeof doc.citation_count_norm === 'number' && doc.citation_count_norm > 0 ? (
-      <NextLink
+      <SimpleLink
         href={{ pathname: `/abs/[id]/citations`, search: 'p=1' }}
         as={{ pathname: `/abs/${bibcode}/citations`, search: 'p=1' }}
-        passHref
-        legacyBehavior
+        newTab={linkNewTab}
       >
-        <Link target={linkNewTab ? '_blank' : '_self'} rel={linkNewTab ? 'noopener noreferrer' : ''}>
-          <Text>cited(n): {doc.citation_count_norm}</Text>
-        </Link>
-      </NextLink>
+        <Text>cited(n): {doc.citation_count_norm}</Text>
+      </SimpleLink>
     ) : null
   ) : typeof doc.citation_count === 'number' && doc.citation_count > 0 ? (
-    <NextLink
+    <SimpleLink
       href={{ pathname: `/abs/[id]/citations`, search: 'p=1' }}
       as={{ pathname: `/abs/${bibcode}/citations`, search: 'p=1' }}
-      passHref
-      legacyBehavior
+      newTab={linkNewTab}
     >
-      <Link target={linkNewTab ? '_blank' : '_self'} rel={linkNewTab ? 'noopener noreferrer' : ''}>
-        cited: {doc.citation_count}
-      </Link>
-    </NextLink>
+      cited: {doc.citation_count}
+    </SimpleLink>
   ) : null;
 
   return (
@@ -121,15 +113,14 @@ export const Item = (props: IItemProps): ReactElement => {
       </Flex>
       <Stack direction="column" width="full" spacing={0} mx={3} mt={2}>
         <Flex justifyContent="space-between">
-          <NextLink href={`/abs/[id]/abstract`} as={`/abs/${bibcode}/abstract`} passHref legacyBehavior>
-            <Link
-              fontWeight="semibold"
-              target={linkNewTab ? '_blank' : '_self'}
-              rel={linkNewTab ? 'noopener noreferrer' : ''}
-            >
-              <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
-            </Link>
-          </NextLink>
+          <SimpleLink
+            href={`/abs/[id]/abstract`}
+            as={`/abs/${bibcode}/abstract`}
+            fontWeight="semibold"
+            newTab={linkNewTab}
+          >
+            <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
+          </SimpleLink>
           <Flex alignItems="start" ml={1}>
             {!isClient || hideActions ? null : <ItemResourceDropdowns doc={doc} />}
           </Flex>
@@ -197,7 +188,7 @@ const Highlights = ({
                 }}
                 key={hl}
                 dangerouslySetInnerHTML={{ __html: hl }}
-              ></Text>
+              />
             ))
           ) : (
             <Text color="blackAlpha.500">No Highlights</Text>

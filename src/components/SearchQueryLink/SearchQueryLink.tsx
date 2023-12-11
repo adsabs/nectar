@@ -1,12 +1,11 @@
 import { IADSApiSearchParams } from '@api';
-import { Button, ButtonProps, Link, LinkProps as ChackraLinkProps } from '@chakra-ui/react';
+import { Button, ButtonProps } from '@chakra-ui/react';
 import { makeSearchParams } from '@utils';
-import NextLink, { LinkProps as NextLinkProps } from 'next/link';
-import { MouseEventHandler, ReactElement } from 'react';
+import { MouseEventHandler } from 'react';
 import { useRouter } from 'next/router';
+import { SimpleLink, SimpleLinkProps } from '@components';
 
-type LinkProps = ChackraLinkProps & Omit<NextLinkProps, 'as' | 'href' | 'passHref' | 'prefetch'>;
-export interface ISearchQueryLinkProps extends LinkProps {
+export interface ISearchQueryLinkProps extends Omit<SimpleLinkProps, 'href'> {
   params: IADSApiSearchParams;
 }
 
@@ -16,12 +15,17 @@ const getSearchUrl = (params: IADSApiSearchParams) => `/search?${makeSearchParam
  * Wrapper around next/link to create a simple link to the search page
  * This generates the URL based on the params passed in
  */
-export const SearchQueryLink = (props: ISearchQueryLinkProps): ReactElement => {
+export const SearchQueryLink = (props: ISearchQueryLinkProps) => {
   const { params, replace = false, scroll, shallow = false, locale, ...linkProps } = props;
   return (
-    <NextLink href={getSearchUrl(params)} passHref legacyBehavior>
-      <Link replace={replace} scroll={scroll} shallow={shallow} locale={locale} {...linkProps} />
-    </NextLink>
+    <SimpleLink
+      href={getSearchUrl(params)}
+      replace={replace}
+      scroll={scroll}
+      shallow={shallow}
+      locale={locale}
+      {...linkProps}
+    />
   );
 };
 

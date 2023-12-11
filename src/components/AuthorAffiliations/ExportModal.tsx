@@ -7,7 +7,6 @@ import {
   ButtonProps,
   Code,
   FormLabel,
-  Link,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -23,6 +22,7 @@ import { parseAPIError } from '@utils';
 import { useEffect } from 'react';
 import { exportTypes } from './models';
 import { useExportModal } from './useExportModal';
+import { SimpleLink } from '@components';
 
 export const ExportModal = (props: ButtonProps) => {
   const { ...btnProps } = props;
@@ -85,9 +85,9 @@ export const ExportModal = (props: ButtonProps) => {
             {downloadLink ? (
               <Box mt="2">
                 Download not working?{' '}
-                <Link href={downloadLink} download={downloadFilename}>
+                <SimpleLink href={downloadLink} download={downloadFilename}>
                   Direct Link
-                </Link>
+                </SimpleLink>
               </Box>
             ) : null}
             {isError ? (

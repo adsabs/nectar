@@ -129,7 +129,7 @@ export const AuthorNetworkGraph = ({
 
   // handle mouse over label
   const handleMouseOverLabel = useCallback(
-    (e, n: NetworkHierarchyNode<IADSApiAuthorNetworkNode>) => {
+    (e: MouseEvent, n: NetworkHierarchyNode<IADSApiAuthorNetworkNode>) => {
       if (!showLinkLayer) {
         return;
       }
@@ -156,7 +156,7 @@ export const AuthorNetworkGraph = ({
 
   // handle mouse over link
   const handleMouseOverLink = useCallback(
-    (e, link: ILink) => {
+    (e: MouseEvent, link: ILink) => {
       if (!showLinkLayer) {
         return;
       }

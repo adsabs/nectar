@@ -10,7 +10,7 @@ import { AppProps, NextWebVitalsMetric } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import 'nprogress/nprogress.css';
-import { FC, memo, ReactElement, useEffect } from 'react';
+import { Fragment, memo, PropsWithChildren, ReactElement, ReactNode, useEffect } from 'react';
 import { DehydratedState, Hydrate, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { IronSession } from 'iron-session';
@@ -36,7 +36,7 @@ const TopProgressBar = dynamic<Record<string, never>>(
 
 export type AppPageProps = { dehydratedState: DehydratedState; dehydratedAppState: AppState; [key: string]: unknown };
 
-const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
+const NectarApp = memo(({ Component, pageProps }: AppProps) => {
   if (process.env.NODE_ENV === 'development') {
     console.log('pageProps', pageProps);
   }
@@ -56,7 +56,7 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
   );
 });
 
-const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => {
+const Providers = ({ children, pageProps }: PropsWithChildren<{ pageProps: AppPageProps }>) => {
   const createStore = useCreateStore(pageProps.dehydratedAppState ?? {});
 
   return (
@@ -77,7 +77,7 @@ const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => 
   );
 };
 
-const QCProvider: FC = ({ children }) => {
+const QCProvider = ({ children }: { children: ReactNode }) => {
   const queryClient = useCreateQueryClient();
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 };
@@ -103,7 +103,7 @@ const AppModeRouter = (): ReactElement => {
  * Syncs the user data from the server to the client
  * work in progress, not sure if this is the best way to do this
  */
-const UserSync = (): ReactElement => {
+const UserSync = () => {
   const router = useRouter();
   const store = useStoreApi();
   const { user } = useUser();

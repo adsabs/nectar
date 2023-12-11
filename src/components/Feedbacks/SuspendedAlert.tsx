@@ -13,7 +13,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { parseAPIError } from '@utils';
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 
 interface ISuspendedAlertProps extends FallbackProps {
   label: string;
@@ -23,7 +23,7 @@ interface ISuspendedAlertProps extends FallbackProps {
   mapErrorMessages?: Record<string, string>;
 }
 
-export const SuspendedAlert = (props: ISuspendedAlertProps) => {
+export const SuspendedAlert = (props: PropsWithChildren<ISuspendedAlertProps>) => {
   const {
     error,
     status = 'error',

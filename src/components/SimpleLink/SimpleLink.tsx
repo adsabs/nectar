@@ -1,32 +1,39 @@
-import { Link as ChakraLink, LinkProps } from '@chakra-ui/react';
-import NextLink from 'next/link';
-import { FC, ReactElement } from 'react';
+import { Link, LinkProps } from '@chakra-ui/react';
+import NextLink, { LinkProps as NextLinkProps } from 'next/link';
+import { ReactNode } from 'react';
+import { isPlainObject } from 'ramda-adjunct';
 
-export interface ISimpleLinkProps extends LinkProps {
-  href: string;
-  icon?: ReactElement;
-  newTab?: boolean;
-  variant?: string;
+interface INextLinkAsOverrideProps extends Omit<NextLinkProps, 'as'> {
+  nextAs: NextLinkProps['as'];
 }
+const NextLinkAsOverride = (props: INextLinkAsOverrideProps) => <NextLink {...props} as={props.nextAs} />;
 
-export const SimpleLink: FC<ISimpleLinkProps> = (props): ReactElement => {
-  const { children, href, icon, newTab, variant = 'default', ...linkProps } = props;
-  const isExternal = newTab || /^https?/.test(href);
+export type SimpleLinkProps = Omit<LinkProps, 'href' | 'as'> & NextLinkProps & { icon?: ReactNode; newTab?: boolean };
+
+export const SimpleLink = (props: SimpleLinkProps) => {
+  const { children, as, href, icon, newTab, variant = 'default', ...linkProps } = props;
+
+  const hrefStr = isPlainObject(href) ? href.href : href;
+  const isExternal = newTab || hrefStr.startsWith('http');
 
   return (
-    <NextLink href={href} passHref legacyBehavior>
-      <ChakraLink
-        variant={variant || 'default'}
-        display="block"
-        isExternal={isExternal}
-        rel={isExternal ? 'noopener noreferrer' : undefined}
-        {...linkProps}
-      >
+    <Link
+      as={NextLinkAsOverride}
+      nextAs={as}
+      href={hrefStr}
+      variant={variant}
+      target={isExternal ? '_blank' : undefined}
+      rel={isExternal ? 'noopener noreferrer' : undefined}
+      {...linkProps}
+    >
+      {icon ? (
         <>
-          {icon && <>{icon}</>}
+          {icon}
           {children}
         </>
-      </ChakraLink>
-    </NextLink>
+      ) : (
+        children
+      )}
+    </Link>
   );
 };

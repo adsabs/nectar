@@ -1,6 +1,6 @@
 import { IAuthorAffiliationItem } from '@api/author-affiliation/types';
 import { isNotNilOrEmpty } from 'ramda-adjunct';
-import { FC } from 'react';
+import { PropsWithChildren } from 'react';
 import create, { GetState, Mutate, SetState, StoreApi } from 'zustand';
 import createContext from 'zustand/context';
 import { devtools } from 'zustand/middleware';
@@ -82,7 +82,7 @@ const createStore = (items: IAuthorAffiliationItem[]) => () => {
 const AuthorAffStoreCtx = createContext<IAuthorAffState>();
 export const useAuthorAffStore = AuthorAffStoreCtx.useStore;
 
-export const AuthorAffStoreProvider: FC<IStoreOpts> = (props) => {
+export const AuthorAffStoreProvider = (props: PropsWithChildren<IStoreOpts>) => {
   const { children, items } = props;
   return <AuthorAffStoreCtx.Provider createStore={createStore(items)}>{children}</AuthorAffStoreCtx.Provider>;
 };

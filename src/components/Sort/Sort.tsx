@@ -1,13 +1,12 @@
 import { SolrSort, SolrSortDirection, SolrSortField } from '@api';
 import { Box, HStack, IconButton, Input, Link } from '@chakra-ui/react';
-import { SimpleLinkDropdown } from '@components';
+import { SimpleLink, SimpleLinkDropdown } from '@components';
 import { ItemType } from '@components/Dropdown/types';
 import { ISelectProps, Select } from '@components/Select';
 import { APP_DEFAULTS } from '@config';
 import { BarsArrowDownIcon, BarsArrowUpIcon } from '@heroicons/react/24/outline';
 import { useIsClient } from '@lib/useIsClient';
 import { makeSearchParams, normalizeSolrSort, parseQueryFromUrl } from '@utils';
-import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { Fragment, MouseEventHandler, ReactElement, useCallback, useMemo } from 'react';
 import { sortValues } from './model';
@@ -184,12 +183,10 @@ const NoJsSort = (): ReactElement => {
         minListWidth="300px"
         minLabelWidth="300px"
       />
-      <NextLink
+      <SimpleLink
         href={{
           search: makeSearchParams({ q: '*:*', ...router.query, p: 1, sort: [`${sortby} ${getToggledDir(dir)}`] }),
         }}
-        passHref
-        legacyBehavior
       >
         <Link>
           <>
@@ -216,7 +213,7 @@ const NoJsSort = (): ReactElement => {
             )}
           </>
         </Link>
-      </NextLink>
+      </SimpleLink>
     </HStack>
   );
 };

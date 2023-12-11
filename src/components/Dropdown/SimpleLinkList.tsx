@@ -1,7 +1,7 @@
-import { Box, Flex, Link, Text } from '@chakra-ui/react';
-import NextLink from 'next/link';
+import { Box, Flex, Text } from '@chakra-ui/react';
 import { ReactElement } from 'react';
 import { ItemType } from './types';
+import { SimpleLink } from '@components';
 
 /** Non JavaScript dropdown */
 export interface ISimpleLinkListProps {
@@ -49,20 +49,18 @@ export const SimpleLinkList = (props: ISimpleLinkListProps): ReactElement => {
                   </Box>
                 </Box>
               ) : (
-                <NextLink href={item.path} passHref legacyBehavior>
-                  <Link
-                    rel="noreferrer noopener"
-                    target={item.newTab ? '_blank' : '_self'}
-                    variant="dropdownItem"
-                    display="inline-block"
-                    _focus={{ backgroundColor: item.disabled ? 'transparent' : 'gray.100' }}
-                    w="full"
-                  >
-                    <Box width="full" m={0} px={4} py={2}>
-                      {item.label}
-                    </Box>
-                  </Link>
-                </NextLink>
+                <SimpleLink
+                  href={item.path}
+                  variant="dropdownItem"
+                  display="inline-block"
+                  _focus={{ backgroundColor: item.disabled ? 'transparent' : 'gray.100' }}
+                  w="full"
+                  newTab={item.newTab}
+                >
+                  <Box width="full" m={0} px={4} py={2}>
+                    {item.label}
+                  </Box>
+                </SimpleLink>
               )}
             </Box>
           ))}
@@ -80,15 +78,9 @@ export const SimpleLinkList = (props: ISimpleLinkListProps): ReactElement => {
               {item.disabled ? (
                 <Text color="gray.200">{item.label}</Text>
               ) : (
-                <NextLink href={item.path} passHref legacyBehavior>
-                  <Link
-                    rel="noreferrer noopener"
-                    target={item.newTab ? '_blank' : '_self'}
-                    fontWeight={selected === item.id ? 'bold' : 'normal'}
-                  >
-                    {item.label}
-                  </Link>
-                </NextLink>
+                <SimpleLink href={item.path} newTab={item.newTab} fontWeight={selected === item.id ? 'bold' : 'normal'}>
+                  {item.label}
+                </SimpleLink>
               )}
             </Box>
           ))}

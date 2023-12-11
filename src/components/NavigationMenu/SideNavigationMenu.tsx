@@ -1,7 +1,7 @@
 import { cloneElement } from 'react';
-import NextLink from 'next/link';
 import { Box, BoxProps, Button, Flex, Text } from '@chakra-ui/react';
 import { CatMenuItems, IMenuItem, IMenuItemProps, SingleMenuItems } from './types';
+import { SimpleLink } from '@components';
 
 export interface ISideNavigationMenuProps extends BoxProps {
   menuItems: CatMenuItems | SingleMenuItems;
@@ -44,9 +44,8 @@ const SideMenuItem = ({
           </Flex>
         </Button>
       ) : (
-        <NextLink href={href} as={hrefAs} passHref legacyBehavior>
+        <SimpleLink href={href} as={hrefAs}>
           <Button
-            as="a"
             w="full"
             variant={active ? 'solid' : 'ghost'}
             size="md"
@@ -64,7 +63,7 @@ const SideMenuItem = ({
               <>{rightElement}</>
             </Flex>
           </Button>
-        </NextLink>
+        </SimpleLink>
       )}
     </>
   );

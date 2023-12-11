@@ -334,7 +334,7 @@ export const AssociatedTable = () => {
           stylesTheme="default"
           onChange={handleRelationshipChange}
         />
-        <FormErrorMessage>{!!errors.relationship && errors.relationship}</FormErrorMessage>
+        <FormErrorMessage>{!!errors.relationship && errors.relationship.message}</FormErrorMessage>
       </FormControl>
 
       {relationship !== null && (

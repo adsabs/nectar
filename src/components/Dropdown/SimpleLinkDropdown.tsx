@@ -1,8 +1,8 @@
 import { ChevronDownIcon } from '@chakra-ui/icons';
-import { Box, Flex, Link } from '@chakra-ui/react';
-import NextLink from 'next/link';
+import { Box, Flex } from '@chakra-ui/react';
 import { ReactElement } from 'react';
 import { ItemType } from './types';
+import { SimpleLink } from '@components';
 
 /** Non JavaScript dropdown */
 export interface ISimpleLinkDropdownProps {
@@ -66,13 +66,11 @@ export const SimpleLinkDropdown = (props: ISimpleLinkDropdownProps): ReactElemen
                 </Box>
               </Box>
             ) : (
-              <NextLink key={item.id} href={item.path} passHref legacyBehavior>
-                <Link rel="noreferrer noopener" target={item.newTab ? '_blank' : '_self'} variant="dropdownItem">
-                  <Box width="full" m={0} px={2}>
-                    {item.label}
-                  </Box>
-                </Link>
-              </NextLink>
+              <SimpleLink key={item.id} href={item.path} variant="dropdownItem">
+                <Box width="full" m={0} px={2}>
+                  {item.label}
+                </Box>
+              </SimpleLink>
             )}
           </Box>
         ))}

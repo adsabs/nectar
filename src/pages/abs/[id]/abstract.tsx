@@ -7,7 +7,6 @@ import {
   HStack,
   Icon,
   IconButton,
-  Link,
   Stack,
   Table,
   Tag,
@@ -42,9 +41,8 @@ import { MathJax } from 'better-react-mathjax';
 import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
-import NextLink from 'next/link';
 import { equals, isNil, path } from 'ramda';
-import { memo, ReactElement } from 'react';
+import { memo, ReactElement, ReactNode } from 'react';
 import { useRouter } from 'next/router';
 import { FolderPlusIcon } from '@heroicons/react/24/solid';
 import { useSession } from '@lib/useSession';
@@ -127,7 +125,7 @@ const AbstractPage: NextPage = () => {
                     aria-label={`author "${author}", search by name`}
                     flexShrink="0"
                   >
-                    <>{author}</>
+                    {author}
                   </SearchQueryLink>
                 ))}
                 {doc?.author_count > MAX ? <Text>{` and ${doc?.author_count - MAX} more`}</Text> : null}
@@ -217,7 +215,7 @@ const Doi = memo(({ doiIDs, bibcode }: { doiIDs: Array<string>; bibcode: string 
   return (
     <>
       {doiIDs.map((id) => (
-        <SimpleLink href={createUrlByType(bibcode, 'doi', id)} isExternal key={id}>
+        <SimpleLink href={createUrlByType(bibcode, 'doi', id)} newTab key={id}>
           {id} <ExternalLinkIcon mx="2px" />
         </SimpleLink>
       ))}
@@ -305,7 +303,6 @@ const PlanetaryFeatures = memo(({ features, ids }: { features: Array<string>; id
                     <SimpleLink
                       variant="subtle"
                       href={`${EXTERNAL_URLS.USGS_PLANETARY_FEATURES}${ids[index]}`}
-                      isExternal
                       textDecoration="none"
                       color="gray.700"
                       _hover={{
@@ -335,11 +332,11 @@ interface IDetailProps<T = string | Array<string>> {
   label: string;
   href?: string;
   value: T;
-  children?: (value: T) => ReactElement;
+  children?: (value: T) => ReactNode;
 }
 
 // TODO: this should take in a list of deps or the whole doc and show/hide based on that
-const Detail = <T,>(props: IDetailProps<T>): ReactElement => {
+const Detail = <T,>(props: IDetailProps<T>) => {
   const { label, href, value, children } = props;
 
   // show nothing if no value
@@ -353,14 +350,16 @@ const Detail = <T,>(props: IDetailProps<T>): ReactElement => {
     <Tr>
       <Td>{label}</Td>
       <Td wordBreak="break-word">
-        {href && (
-          <NextLink href={href} passHref legacyBehavior>
-            <Link rel="noreferrer noopener" isExternal>
-              {normalizedValue} <ExternalLinkIcon mx="2px" />
-            </Link>
-          </NextLink>
-        )}
-        {typeof children === 'function' ? children(value) : !href && normalizedValue}
+        <>
+          {href && (
+            <SimpleLink href={href} newTab>
+              <>
+                {normalizedValue} <ExternalLinkIcon mx="2px" />
+              </>
+            </SimpleLink>
+          )}
+          {typeof children === 'function' ? children(value) : !href && normalizedValue}
+        </>
       </Td>
     </Tr>
   );

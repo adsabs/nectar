@@ -1,13 +1,13 @@
-import { Container, Box, Stack, Heading, Text } from '@chakra-ui/react';
+import { Box, Container, Heading, Stack, Text } from '@chakra-ui/react';
 import Head from 'next/head';
-import { FC, ReactNode, useEffect, useRef } from 'react';
+import { PropsWithChildren, ReactNode, useEffect, useRef } from 'react';
 
 interface IFeedbackLayoutProps {
   title: string;
   alert?: ReactNode;
 }
 
-export const FeedbackLayout: FC<IFeedbackLayoutProps> = ({ children, title, alert }) => {
+export const FeedbackLayout = ({ children, title, alert }: PropsWithChildren<IFeedbackLayoutProps>) => {
   const alertRef = useRef<HTMLDivElement>();
 
   // scroll to alert does not work

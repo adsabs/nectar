@@ -14,14 +14,13 @@ import {
   GridItem,
   Heading,
   Input,
-  Link,
   Stack,
   Text,
   Textarea,
   VStack,
 } from '@chakra-ui/react';
 import { WarningTwoIcon } from '@chakra-ui/icons';
-import { BibstemPicker } from '@components';
+import { BibstemPicker, SimpleLink } from '@components';
 import { useIsClient } from '@lib/useIsClient';
 import { composeNextGSSP } from '@ssr-utils';
 import { stringifySearchParams } from '@utils';
@@ -151,11 +150,9 @@ const JournalQueryForm = ({ onSubmit, error }: SubFormProps) => {
       </Heading>
       <Text fontSize="sm">
         A bibstem is an abbreviation that the ADS uses to identify a journal. A full list is available{' '}
-        <Link isExternal href="http://adsabs.harvard.edu/abs_doc/journal_abbr.html">
-          here
-        </Link>
-        . The input field below will autocomplete on our current database of journal names, allowing you to type
-        "Astrophysical Journal", for instance, to find the bibstem "ApJ".
+        <SimpleLink href="http://adsabs.harvard.edu/abs_doc/journal_abbr.html">here</SimpleLink>. The input field below
+        will autocomplete on our current database of journal names, allowing you to type "Astrophysical Journal", for
+        instance, to find the bibstem "ApJ".
       </Text>
       <Divider mb={5} />
       <form method="POST" action={router.route} onSubmit={formSubmit} data-testid={PaperFormType.JOURNAL_QUERY}>

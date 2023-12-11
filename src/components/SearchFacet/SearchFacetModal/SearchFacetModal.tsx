@@ -21,15 +21,15 @@ import { SearchInput } from '@components/SearchFacet/SearchFacetModal/SearchInpu
 import { SortControl } from '@components/SearchFacet/SearchFacetModal/SortControl';
 import { useFacetStore } from '@components/SearchFacet/store/FacetStore';
 import { useDebounce } from 'src/lib';
-import { ReactElement, ReactNode, useCallback, useMemo } from 'react';
+import { ReactNode, useCallback, useMemo } from 'react';
 import { keyToPath, parseTitleFromKey } from '../helpers';
 import { SelectedList } from './SelectedList';
 
-interface ISearchFacetModalProps extends Omit<IFacetListProps, 'onError'> {
+interface ISearchFacetModalProps extends Omit<IFacetListProps, 'onError' | 'children'> {
   children: (props: { searchTerm: string }) => ReactNode;
 }
 
-export const SearchFacetModal = (props: ISearchFacetModalProps): ReactElement => {
+export const SearchFacetModal = (props: ISearchFacetModalProps) => {
   const { children, ...facetTreeProps } = props;
 
   const isOpen = useFacetStore((state) => state.isOpen);
@@ -48,7 +48,7 @@ export const SearchFacetModal = (props: ISearchFacetModalProps): ReactElement =>
 
 const createBreadcrumbs = (key: string) => {
   const parts = keyToPath(key);
-  const crumbs: Array<ReactElement> = [];
+  const crumbs: Array<ReactNode> = [];
   parts.forEach((part) => {
     crumbs.push(
       <Flex key={part} direction="row">

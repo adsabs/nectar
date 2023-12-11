@@ -1,14 +1,14 @@
 import { QuestionIcon, QuestionOutlineIcon } from '@chakra-ui/icons';
 import { Box, Collapse, CollapseProps, IconButton, useDisclosure } from '@chakra-ui/react';
-import { ReactElement, ReactNode } from 'react';
+import { ReactNode } from 'react';
 
-export interface IDescriptionCollapseProps extends CollapseProps {
+export interface IDescriptionCollapseProps extends Omit<CollapseProps, 'children'> {
   label: string;
   body: ReactNode;
   children: (props: { btn: ReactNode; content: ReactNode }) => ReactNode;
 }
 
-export const DescriptionCollapse = (props: IDescriptionCollapseProps): ReactElement => {
+export const DescriptionCollapse = (props: IDescriptionCollapseProps) => {
   const { label, body, children, ...collapseProps } = props;
   const { isOpen, onToggle } = useDisclosure();
 

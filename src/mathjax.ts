@@ -1,5 +1,5 @@
 import { MathJax3Config, MathJaxContext } from 'better-react-mathjax';
-import { createElement, FC, ReactElement } from 'react';
+import { createElement, ReactNode } from 'react';
 
 const config: MathJax3Config = {
   startup: {
@@ -21,6 +21,6 @@ const config: MathJax3Config = {
   },
 };
 
-export const MathJaxProvider: FC = ({ children }): ReactElement => {
+export const MathJaxProvider = ({ children }: { children: ReactNode }) => {
   return createElement(MathJaxContext, { version: 3, config }, children);
 };

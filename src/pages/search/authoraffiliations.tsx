@@ -3,14 +3,13 @@ import { authorAffiliationsKeys, fetchAuthorAffiliationSearch } from '@api/autho
 import { getAuthorAffiliationSearchParams } from '@api/author-affiliation/model';
 import { IAuthorAffiliationPayload } from '@api/author-affiliation/types';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
-import { Button, Container as Box, Link } from '@chakra-ui/react';
-import { AuthorAffiliations, AuthorAffiliationsErrorMessage } from '@components';
+import { Button, Container as Box } from '@chakra-ui/react';
+import { AuthorAffiliations, AuthorAffiliationsErrorMessage, SimpleLink } from '@components';
 import { APP_DEFAULTS } from '@config';
 import { useBackToSearchResults } from '@lib/useBackToSearchResults';
 import { composeNextGSSP } from '@ssr-utils';
 import { parseAPIError, parseQueryFromUrl } from '@utils';
 import { NextPage } from 'next';
-import NextLink from 'next/link';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 
 interface IAuthorAffilationsPageProps {
@@ -30,13 +29,11 @@ const AuthorAffiliationsPage: NextPage<IAuthorAffilationsPageProps> = (props) =>
   return (
     <>
       {showBackLink && (
-        <NextLink {...getLinkProps()}>
-          <Link _hover={{ textDecoration: 'none' }}>
-            <Button variant={'outline'} leftIcon={<ChevronLeftIcon />} mt="4">
-              Back to Results
-            </Button>
-          </Link>
-        </NextLink>
+        <SimpleLink _hover={{ textDecoration: 'none' }} {...getLinkProps()}>
+          <Button variant={'outline'} leftIcon={<ChevronLeftIcon />} mt="4">
+            Back to Results
+          </Button>
+        </SimpleLink>
       )}
 
       <Box
