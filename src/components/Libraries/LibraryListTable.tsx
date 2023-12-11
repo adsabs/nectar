@@ -246,25 +246,11 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                       <Td>
                         {isPublic ? (
                           <Tooltip label="Public">
-                            <IconButton
-                              icon={<LockIcon />}
-                              color="green.500"
-                              aria-label="public"
-                              variant="ghost"
-                              w={3}
-                              h={3}
-                            />
+                            <UnlockIcon color="green.500" aria-label="public" w={3} h={3} />
                           </Tooltip>
                         ) : (
                           <Tooltip label="Private">
-                            <IconButton
-                              icon={<UnlockIcon />}
-                              color="gray.600"
-                              aria-label="private"
-                              variant="ghost"
-                              w={3}
-                              h={3}
-                            />
+                            <LockIcon aria-label="private" w={3} h={3} />
                           </Tooltip>
                         )}
                       </Td>
@@ -273,14 +259,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                       <Td>
                         {num_users === 1 ? (
                           <Tooltip label="No collaborators">
-                            <IconButton
-                              as={UserIcon}
-                              aria-label="no collaborators"
-                              color="gray.600"
-                              w={4}
-                              h={4}
-                              variant="ghost"
-                            />
+                            <IconButton as={UserIcon} aria-label="no collaborators" w={4} h={4} variant="unstyled" />
                           </Tooltip>
                         ) : (
                           <Tooltip label={`${num_users} collaborators`}>
@@ -290,7 +269,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                               color="green.500"
                               w={4}
                               h={4}
-                              variant="ghost"
+                              variant="unstyled"
                             />
                           </Tooltip>
                         )}

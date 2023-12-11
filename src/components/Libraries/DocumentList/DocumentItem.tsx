@@ -3,6 +3,7 @@ import { Box, BoxProps, Checkbox, CheckboxProps, Flex, Link, Stack, Text } from 
 import { AllAuthorsModal } from '@components/AllAuthorsModal';
 import { IAbstractPreviewProps, ItemResourceDropdowns } from '@components/ResultList/Item';
 import { APP_DEFAULTS } from '@config';
+import { useColorModeColors } from '@lib';
 import { useIsClient } from '@lib/useIsClient';
 import { getFomattedNumericPubdate, noop, unwrapStringValue } from '@utils';
 import { MathJax } from 'better-react-mathjax';
@@ -40,6 +41,7 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
   const formattedPubDate = getFomattedNumericPubdate(pubdate);
   const [formattedBibstem] = bibstem;
   const isClient = useIsClient();
+  const colors = useColorModeColors();
 
   // citations
   const cite = useNormCite ? (
@@ -69,10 +71,10 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
   ) : null;
 
   return (
-    <Flex direction="row" as="article" border="1px" borderColor="gray.50" mb={1} borderRadius="md">
+    <Flex direction="row" as="article" border="1px" borderColor={colors.border} mb={1} borderRadius="md">
       <Flex
         direction="row"
-        backgroundColor={isChecked ? 'blue.500' : 'gray.50'}
+        backgroundColor={isChecked ? colors.panelHighlight : colors.panel}
         justifyContent="center"
         alignItems="center"
         mr="2"
