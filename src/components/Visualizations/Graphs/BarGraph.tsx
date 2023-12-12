@@ -1,6 +1,7 @@
 import { BarDatum, BarSvgProps, ResponsiveBar } from '@nivo/bar';
 import { ReactElement, useState } from 'react';
-import { Box, Radio, RadioGroup, Stack } from '@chakra-ui/react';
+import { Box, Radio, RadioGroup, Stack, useColorMode } from '@chakra-ui/react';
+import { useNivoDarkTheme } from '@lib/useNivoDarkTheme';
 
 export interface IBarGraphProps extends Omit<BarSvgProps<BarDatum>, 'height' | 'width'> {
   data: BarDatum[];
@@ -24,6 +25,8 @@ export const BarGraph = (props: IBarGraphProps): ReactElement => {
     ...barAttributes
   } = props;
   const [groupType, setGroupType] = useState('stacked');
+  const { colorMode } = useColorMode();
+  const darkTheme = useNivoDarkTheme();
 
   return (
     <Box width="100%" mt={5}>
@@ -37,6 +40,7 @@ export const BarGraph = (props: IBarGraphProps): ReactElement => {
       )}
       <div style={{ height: height, marginTop: '20px' }}>
         <ResponsiveBar
+          theme={colorMode === 'dark' ? darkTheme : null}
           data={data}
           indexBy={indexBy}
           keys={keys}
