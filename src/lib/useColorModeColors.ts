@@ -17,6 +17,7 @@ export const useColorModeColors = () => {
         lightText: 'gray.500',
         brand: 'blue.600',
         tableHighlightBackgroud: 'blue.50',
+        disabledInput: 'gray.50',
       }
     : {
         background: 'gray.800',
@@ -31,6 +32,7 @@ export const useColorModeColors = () => {
         lightText: 'gray.200',
         brand: 'blue.300',
         tableHighlightBackgroud: 'gray.700',
+        disabledInput: 'gray.700',
       };
 };
 
