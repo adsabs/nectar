@@ -7,7 +7,7 @@ import { AppState, useStore } from '@store';
 import { sanitize } from 'dompurify';
 import { isEmpty, omit } from 'ramda';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { isNonEmptyString } from 'ramda-adjunct';
+import { isNonEmptyArray, isNonEmptyString } from 'ramda-adjunct';
 
 export interface IUseGetFacetDataProps {
   field: FacetField;
@@ -74,7 +74,7 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
   );
 
   const res = data?.[field];
-  const treeData = useMemo(() => formatTreeData(res?.buckets ?? []), [res?.buckets]);
+  const treeData = useMemo(() => formatTreeData(res?.buckets ?? [], filter), [res?.buckets, filter]);
 
   const handleLoadMore = useCallback(() => {
     if (!pagination.noNext) {
@@ -133,9 +133,14 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
   };
 };
 
-const formatTreeData = (buckets: Array<IBucket>) => {
+const formatTreeData = (buckets: Array<IBucket>, filter?: IUseGetFacetDataProps['filter']) => {
   const treeData: Array<FacetItem> = [];
   buckets.forEach((bucket) => {
+    // exclude any values that are NOT included in the filter
+    if (isNonEmptyArray(filter) && !filter.includes(bucket.val as string)) {
+      return;
+    }
+
     const parentId = getPrevKey(bucket.val as string, true);
     treeData.push({
       ...bucket,
@@ -179,7 +184,6 @@ const getSearchFacetParams = (props: IUseGetFacetDataProps & { offset: number })
       mincount: 1,
       offset: props.offset,
       numBuckets: true,
-      filter: props.filter ?? [],
       sort: `count ${props.sortDir}`,
       ...(props.query ? { query: props.query } : {}),
 
