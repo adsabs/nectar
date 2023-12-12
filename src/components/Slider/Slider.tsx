@@ -1,5 +1,4 @@
 import { Box, Stack, StyleProps } from '@chakra-ui/react';
-import { ReactElement } from 'react';
 import {
   GetHandleProps,
   GetTrackProps,
@@ -188,7 +187,7 @@ interface IHandleProps {
   showLabel: boolean;
 }
 
-const Handle = ({ handle, getHandleProps, align, mt, showLabel }: IHandleProps): ReactElement => {
+const Handle = ({ handle, getHandleProps, align, mt, showLabel }: IHandleProps) => {
   return (
     <Stack
       direction="column"
@@ -237,7 +236,7 @@ const Track = ({
   target: SliderItem;
   height: number;
   getTrackProps: GetTrackProps;
-}): ReactElement => {
+}) => {
   return (
     <Box
       h={1}

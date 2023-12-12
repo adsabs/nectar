@@ -1,5 +1,4 @@
 import { Box, Table, Tbody, Td, Th, Thead, Tooltip, Tr, VisuallyHidden } from '@chakra-ui/react';
-import { ReactElement } from 'react';
 import { QuestionIcon } from '@chakra-ui/icons';
 import { IPapersTableData } from '../types';
 
@@ -7,7 +6,7 @@ export interface IPapersTableProps {
   data: IPapersTableData;
 }
 
-export const PapersTable = (props: IPapersTableProps): ReactElement => {
+export const PapersTable = (props: IPapersTableProps) => {
   const { data } = props;
 
   return (

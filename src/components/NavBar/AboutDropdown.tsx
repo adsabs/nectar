@@ -1,6 +1,6 @@
 import { ListType } from './types';
 import { isBrowser } from '@utils';
-import { MouseEvent, ReactElement } from 'react';
+import { MouseEvent } from 'react';
 import { MenuDropdown } from './MenuDropdown';
 
 const items = [
@@ -21,7 +21,7 @@ interface IAboutDropdownProps {
   onFinished?: () => void;
 }
 
-export const AboutDropdown = (props: IAboutDropdownProps): ReactElement => {
+export const AboutDropdown = (props: IAboutDropdownProps) => {
   const { type, onFinished } = props;
 
   const handleSelect = (e: MouseEvent<HTMLElement>) => {

@@ -1,5 +1,5 @@
 import { FormControl, FormHelperText, FormLabel, Input } from '@chakra-ui/react';
-import { DetailedHTMLProps, forwardRef, InputHTMLAttributes, ReactElement } from 'react';
+import { DetailedHTMLProps, forwardRef, InputHTMLAttributes } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface ITextInputProps
@@ -8,7 +8,7 @@ export interface ITextInputProps
   helptext?: string;
 }
 
-export const TextInput = forwardRef<HTMLInputElement, ITextInputProps>((props, ref): ReactElement => {
+export const TextInput = forwardRef<HTMLInputElement, ITextInputProps>((props, ref) => {
   const { label, helptext, size, ...inputProps } = props;
 
   if (typeof label === 'string') {

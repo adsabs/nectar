@@ -1,6 +1,5 @@
 import { Button, Flex, Stack, Text } from '@chakra-ui/react';
 import { ITagItem, Tags } from '@components/Tags';
-import { ReactElement } from 'react';
 
 export interface IFilterSearchBarProps {
   tagItems: ITagItem[];
@@ -20,7 +19,7 @@ export const FilterSearchBar = ({
   description,
   placeHolder,
   direction = 'column',
-}: IFilterSearchBarProps): ReactElement => {
+}: IFilterSearchBarProps) => {
   return (
     <Stack direction="column" mb={10}>
       <Text fontWeight="bold">Filter current search: </Text>

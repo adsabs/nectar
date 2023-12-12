@@ -34,7 +34,7 @@ import { EyeIcon, EyeSlashIcon } from '@heroicons/react/20/solid';
 import { ExclamationCircleIcon } from '@heroicons/react/24/solid';
 import { AppState, useStore, useStoreApi } from '@store';
 import { append, omit, uniq, without } from 'ramda';
-import { CSSProperties, MouseEventHandler, ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import { CSSProperties, MouseEventHandler, useCallback, useEffect, useMemo, useState } from 'react';
 import { facetConfig } from './config';
 import { applyFiltersToQuery } from './helpers';
 import { FacetLogic, OnFilterArgs, SearchFacetID } from './types';
@@ -64,7 +64,7 @@ export interface ISearchFacetProps extends AccordionItemProps {
 
 const querySelector = (state: AppState) => omit(['fl', 'start', 'rows'], state.latestQuery) as IADSApiSearchParams;
 
-export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
+export const SearchFacet = (props: ISearchFacetProps) => {
   const store = useStoreApi();
   const sendDataToGTM = useGTMDispatch();
   const setFacetState = useStore((state) => state.setSearchFacetState);

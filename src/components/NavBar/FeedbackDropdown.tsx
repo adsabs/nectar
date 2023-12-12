@@ -1,6 +1,6 @@
 import { isBrowser } from '@utils';
 import { useRouter } from 'next/router';
-import { MouseEvent, ReactElement } from 'react';
+import { MouseEvent } from 'react';
 import { MenuDropdown } from './MenuDropdown';
 import { ListType } from './types';
 
@@ -32,7 +32,7 @@ interface IFeedbackDropdownProps {
   onFinished?: () => void;
 }
 
-export const FeedbackDropdown = (props: IFeedbackDropdownProps): ReactElement => {
+export const FeedbackDropdown = (props: IFeedbackDropdownProps) => {
   const { type, onFinished } = props;
 
   const items = Object.values(feedbackItems);

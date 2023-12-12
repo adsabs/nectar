@@ -2,7 +2,7 @@ import { ExportApiJournalFormat, IExportApiParams } from '@api';
 import { Box, FormLabel, OrderedList } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components/Select';
 import { values } from 'ramda';
-import { Dispatch, ReactElement, useMemo } from 'react';
+import { Dispatch, ReactNode, useMemo } from 'react';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 import { DescriptionCollapse } from './DescriptionCollapse';
 
@@ -34,7 +34,7 @@ export const JournalFormatSelect = (props: {
   dispatch?: Dispatch<CitationExporterEvent>;
   onChange?: (format: ExportApiJournalFormat) => void;
   label?: string;
-  description?: ReactElement;
+  description?: ReactNode;
 }) => {
   const { journalformat: [journalformat] = [], dispatch, onChange } = props;
   const formats = useMemo(() => values(journalFormats), []);
@@ -51,27 +51,25 @@ export const JournalFormatSelect = (props: {
   return (
     <DescriptionCollapse body={props.description ?? description} label="Journal Format">
       {({ btn, content }) => (
-        <>
-          <Select<JournalFormatOption>
-            name="journalformat"
-            label={
-              <Box mb="2">
-                <FormLabel htmlFor="journal-format-select" fontSize={['sm', 'md']}>
-                  {props.label ?? 'Journal Format'} {btn}
-                </FormLabel>
-                {content}
-              </Box>
-            }
-            aria-label="Journal Format"
-            hideLabel={false}
-            id="journal-format-select"
-            options={formats}
-            value={journalFormats[journalformat]}
-            onChange={handleOnChange}
-            data-testid="export-select"
-            stylesTheme="default"
-          />
-        </>
+        <Select<JournalFormatOption>
+          name="journalformat"
+          label={
+            <Box mb="2">
+              <FormLabel htmlFor="journal-format-select" fontSize={['sm', 'md']}>
+                {props.label ?? 'Journal Format'} {btn}
+              </FormLabel>
+              {content}
+            </Box>
+          }
+          aria-label="Journal Format"
+          hideLabel={false}
+          id="journal-format-select"
+          options={formats}
+          value={journalFormats[journalformat]}
+          onChange={handleOnChange}
+          data-testid="export-select"
+          stylesTheme="default"
+        />
       )}
     </DescriptionCollapse>
   );

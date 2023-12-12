@@ -1,7 +1,7 @@
 import { Flex } from '@chakra-ui/react';
 import { Slider } from '@components/Slider';
 import { Histogram, HistogramDatum } from '@components/Visualizations';
-import { ReactElement, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export interface IHistogramSliderProps {
   data: HistogramDatum[];
@@ -17,7 +17,7 @@ export const HistogramSlider = ({
   onValuesChanged,
   width,
   height,
-}: IHistogramSliderProps): ReactElement => {
+}: IHistogramSliderProps) => {
   const range: [number, number] = [data[0].x, data[data.length - 1].x]; // histogram domain
   const [values, setValues] = useState(selectedRange); // left and right slider values
   const [sliderWidth, setSliderWidth] = useState(width);

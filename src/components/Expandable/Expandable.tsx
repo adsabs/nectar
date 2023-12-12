@@ -1,13 +1,13 @@
-import { ReactElement } from 'react';
+import { ReactNode } from 'react';
 import { Box, Collapse, Flex, Stack, StackProps, Text, useDisclosure } from '@chakra-ui/react';
 import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons';
 
 export interface IExpandableProps extends StackProps {
   title: string;
-  description: string | ReactElement;
+  description: string | ReactNode;
 }
 
-export const Expandable = ({ title, description, ...stackProps }: IExpandableProps): ReactElement => {
+export const Expandable = ({ title, description, ...stackProps }: IExpandableProps) => {
   const { isOpen, onToggle } = useDisclosure();
 
   const handleToggle = () => {

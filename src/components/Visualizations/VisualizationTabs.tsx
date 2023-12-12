@@ -1,6 +1,5 @@
 import { Tab, TabList, Tabs } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
-import { ReactElement } from 'react';
 
 export type VizSection =
   | 'overview'
@@ -49,7 +48,7 @@ export const sections: { id: VizSection; index: number; label: string; path: str
   },
 ];
 
-export const VisualizationsTabs = ({ selectedSection }: { selectedSection: VizSection }): ReactElement => {
+export const VisualizationsTabs = ({ selectedSection }: { selectedSection: VizSection }) => {
   const router = useRouter();
   const index = sections.findIndex((section) => section.id === selectedSection);
 

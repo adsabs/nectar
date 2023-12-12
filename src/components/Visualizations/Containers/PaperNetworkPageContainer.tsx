@@ -20,7 +20,7 @@ import { makeSearchParams } from '@utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { sort, uniq } from 'ramda';
-import { ReactElement, Reducer, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
+import { Reducer, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { IView } from '../GraphPanes/types';
 import { ILineGraph } from '../types';
 import { getPaperNetworkLinkDetails, getPaperNetworkNodeDetails, getPaperNetworkSummaryGraph } from '../utils';
@@ -104,7 +104,7 @@ const reducer: Reducer<IPaperNetworkPageState, PaperNetworkPageAction> = (state,
   }
 };
 
-export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerProps): ReactElement => {
+export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerProps) => {
   const router = useRouter();
 
   const toast = useToast();
@@ -306,7 +306,7 @@ const StatusDisplay = ({
   paperNetworkIsError: boolean;
   paperNetworkIsLoading: boolean;
   paperNetworkError: unknown;
-}): ReactElement => {
+}) => {
   return (
     <>
       {paperNetworkIsError && (

@@ -30,7 +30,7 @@ import { makeSearchParams, noop, parseQueryFromUrl } from '@utils';
 import { useRouter } from 'next/router';
 import { curryN, values } from 'ramda';
 import { isNonEmptyString } from 'ramda-adjunct';
-import { MouseEventHandler, ReactElement, useCallback, useEffect, useState } from 'react';
+import { MouseEventHandler, useCallback, useEffect, useState } from 'react';
 import { SecondOrderOpsLinks } from './SecondOrderOpsLinks';
 import { BulkClaimMenuItem, BulkDeleteMenuItem } from '@components/Orcid';
 import { useOrcid } from '@lib/orcid/useOrcid';
@@ -43,7 +43,7 @@ export interface IListActionsProps {
 
 type Operator = 'trending' | 'reviews' | 'useful' | 'similar';
 
-export const ListActions = (props: IListActionsProps): ReactElement => {
+export const ListActions = (props: IListActionsProps) => {
   const { onSortChange = noop, onOpenAddToLibrary } = props;
   const selected = useStore((state) => state.docs.selected ?? []);
   const clearSelected = useStore((state) => state.clearSelected);
@@ -313,7 +313,7 @@ const SelectAllCheckbox = () => {
   );
 };
 
-const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean; defaultExportFormat: string }): ReactElement => {
+const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean; defaultExportFormat: string }) => {
   const { exploreAll, ...menuGroupProps } = props;
   const router = useRouter();
   const store = useStoreApi();

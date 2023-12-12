@@ -13,7 +13,7 @@ import {
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { useCombobox } from 'downshift';
 import { matchSorter } from 'match-sorter';
-import { forwardRef, ReactElement, useEffect, useState } from 'react';
+import { forwardRef, useEffect, useState } from 'react';
 import { allSearchTerms, SearchTermItem, SearchTermOption } from './models';
 
 export interface IAllSearchTermsDropdown {
@@ -22,7 +22,7 @@ export interface IAllSearchTermsDropdown {
 
 const isItem = (item: SearchTermOption): item is SearchTermItem => item.type === 'item';
 
-export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): ReactElement => {
+export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown) => {
   const [items, setItems] = useState(allSearchTerms);
 
   const [showTooltipFor, setShowTooltipFor] = useState<SearchTermOption>(null);

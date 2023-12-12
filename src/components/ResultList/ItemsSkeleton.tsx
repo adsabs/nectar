@@ -1,12 +1,11 @@
 import { Box, Skeleton, SkeletonText, Stack } from '@chakra-ui/react';
 import { range } from 'ramda';
-import { ReactElement } from 'react';
 
 export interface ISkeletonProps {
   count: number;
 }
 
-export const ItemsSkeleton = (props: ISkeletonProps): ReactElement => {
+export const ItemsSkeleton = (props: ISkeletonProps) => {
   const { count = 0 } = props;
 
   return (

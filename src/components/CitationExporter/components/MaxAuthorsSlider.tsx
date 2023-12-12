@@ -2,7 +2,7 @@ import { IExportApiParams } from '@api';
 import { Code, FormLabel } from '@chakra-ui/react';
 import { Slider } from '@components/Slider';
 import { APP_DEFAULTS } from '@config';
-import { Dispatch, ReactElement, useEffect, useState } from 'react';
+import { Dispatch, ReactNode, useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 import { DescriptionCollapse } from './DescriptionCollapse';
@@ -12,7 +12,7 @@ export const MaxAuthorsSlider = (props: {
   dispatch: Dispatch<CitationExporterEvent>;
   isBasicMode: boolean;
   label?: string;
-  description?: ReactElement;
+  description?: ReactNode;
 }) => {
   const { maxauthor: [maxauthor] = [], isBasicMode, dispatch } = props;
   const [value, setValue] = useState(maxauthor);

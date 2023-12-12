@@ -25,7 +25,7 @@ import {
 import { APP_DEFAULTS } from '@config';
 import { noop } from '@utils';
 import { useRouter } from 'next/router';
-import { ChangeEventHandler, Dispatch, HTMLAttributes, ReactElement, useEffect, useState } from 'react';
+import { ChangeEventHandler, Dispatch, HTMLAttributes, useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { CitationExporterEvent } from './CitationExporter.machine';
 import { AuthorCutoffSlider } from './components/AuthorCutoffSlider';
@@ -59,7 +59,7 @@ export interface ICitationExporterProps extends HTMLAttributes<HTMLDivElement> {
 /**
  * Citation export component
  */
-export const CitationExporter = (props: ICitationExporterProps): ReactElement => {
+export const CitationExporter = (props: ICitationExporterProps) => {
   // early escape here, to skip extra work if nothing is passed
   if (props.records.length === 0 || typeof props.records[0] !== 'string') {
     return <ExportContainer header={<>No Records</>} />;
@@ -73,7 +73,7 @@ export const CitationExporter = (props: ICitationExporterProps): ReactElement =>
   );
 };
 
-const Exporter = (props: ICitationExporterProps): ReactElement => {
+const Exporter = (props: ICitationExporterProps) => {
   const {
     singleMode = false,
     initialFormat = ExportApiFormatKey.bibtex,
@@ -273,7 +273,7 @@ const AdvancedControls = ({
 /**
  * Static component for SSR
  */
-const Static = (props: Omit<ICitationExporterProps, 'page' | 'nextPage'>): ReactElement => {
+const Static = (props: Omit<ICitationExporterProps, 'page' | 'nextPage'>) => {
   const { records, initialFormat, singleMode, totalRecords, sort, ...divProps } = props;
 
   const { data, state } = useCitationExporter({ format: initialFormat, records, singleMode: true, sort });

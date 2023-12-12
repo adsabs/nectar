@@ -1,6 +1,6 @@
 import { FormControl, FormLabel } from '@chakra-ui/react';
 import { DescriptionCollapse, Slider } from '@components';
-import { ReactElement } from 'react';
+import { ReactNode } from 'react';
 
 export const NumberSlider = (props: {
   min: number;
@@ -8,7 +8,7 @@ export const NumberSlider = (props: {
   value: number;
   onChange?: (value: number) => void;
   label?: string;
-  description?: ReactElement;
+  description?: ReactNode;
 }) => {
   const { value, onChange, label, min, max, description } = props;
 

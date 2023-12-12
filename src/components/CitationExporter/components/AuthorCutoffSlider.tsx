@@ -1,7 +1,7 @@
 import { IExportApiParams } from '@api';
 import { Code, FormLabel } from '@chakra-ui/react';
 import { Slider } from '@components/Slider';
-import { Dispatch, ReactElement, useEffect, useState } from 'react';
+import { Dispatch, ReactNode, useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 import { DescriptionCollapse } from './DescriptionCollapse';
@@ -11,7 +11,7 @@ export const AuthorCutoffSlider = (props: {
   authorcutoff: IExportApiParams['authorcutoff'];
   dispatch: Dispatch<CitationExporterEvent>;
   label?: string;
-  description?: ReactElement;
+  description?: ReactNode;
 }) => {
   const { authorcutoff: [authorcutoff] = [], dispatch } = props;
   const [value, setValue] = useState(authorcutoff);

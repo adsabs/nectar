@@ -2,7 +2,7 @@ import { IDocsEntity, useGetAbstractPreview } from '@api';
 import { Collapse, Flex, IconButton, Text, useToast, VStack } from '@chakra-ui/react';
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import { MathJax } from 'better-react-mathjax';
-import { ReactElement, useState } from 'react';
+import { useState } from 'react';
 
 export interface IAbstractPreviewProps {
   bibcode: IDocsEntity['bibcode'];
@@ -16,7 +16,7 @@ const text = {
   seeFullAbstract: 'See full abstract' as const,
 };
 
-export const AbstractPreview = ({ bibcode }: IAbstractPreviewProps): ReactElement => {
+export const AbstractPreview = ({ bibcode }: IAbstractPreviewProps) => {
   const [show, setShow] = useState(false);
   const toast = useToast();
   const { data, isFetching, isSuccess } = useGetAbstractPreview(

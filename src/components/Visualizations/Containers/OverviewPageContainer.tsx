@@ -24,7 +24,6 @@ import { removeFQ, setFQ } from '@query-utils';
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { ReactElement } from 'react';
 import { FacetField } from '../types';
 
 interface IOverviewPageContainerProps {
@@ -32,7 +31,7 @@ interface IOverviewPageContainerProps {
   onApplyQueryCondition: (facet: FacetField, cond: string) => void;
 }
 
-export const OverviewPageContainer = ({ query, onApplyQueryCondition }: IOverviewPageContainerProps): ReactElement => {
+export const OverviewPageContainer = ({ query, onApplyQueryCondition }: IOverviewPageContainerProps) => {
   const router = useRouter();
   const onApplyYearRange = (min: number, max: number) => {
     // Apply year range fq to query

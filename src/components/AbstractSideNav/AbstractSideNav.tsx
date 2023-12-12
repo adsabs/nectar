@@ -13,7 +13,7 @@ import {
   UsersIcon,
 } from '@heroicons/react/24/solid';
 import { useRouter } from 'next/router';
-import { HTMLAttributes, ReactElement } from 'react';
+import { HTMLAttributes } from 'react';
 import { Routes } from './types';
 import { values } from 'ramda';
 import { useSession } from '@lib/useSession';
@@ -132,7 +132,7 @@ export interface IAbstractSideNavProps extends HTMLAttributes<HTMLDivElement> {
   doc?: IDocsEntity;
 }
 
-export const AbstractSideNav = (props: IAbstractSideNavProps): ReactElement => {
+export const AbstractSideNav = (props: IAbstractSideNavProps) => {
   const { doc } = props;
   const hasGraphics = useHasGraphics(doc?.bibcode);
   const hasMetrics = useHasMetrics(doc?.bibcode);
@@ -162,7 +162,7 @@ export const AbstractSideNav = (props: IAbstractSideNavProps): ReactElement => {
 /**
  * Small badge to show count value
  */
-const CountBadge = ({ count }: { count: number }): ReactElement => {
+const CountBadge = ({ count }: { count: number }) => {
   if (typeof count !== 'number' || count <= 0) {
     return null;
   }

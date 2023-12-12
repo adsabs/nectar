@@ -1,7 +1,7 @@
 import { IDocsEntity } from '@api';
 import { Flex, VisuallyHidden } from '@chakra-ui/react';
 import { noop } from '@utils';
-import { HTMLAttributes, ReactElement } from 'react';
+import { HTMLAttributes } from 'react';
 import { DocumentItem } from './DocumentItem';
 
 export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
@@ -13,7 +13,7 @@ export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
   hideResources?: boolean;
 }
 
-export const DocumentList = (props: ISimpleResultListProps): ReactElement => {
+export const DocumentList = (props: ISimpleResultListProps) => {
   const {
     docs = [],
     selectedBibcodes = [],

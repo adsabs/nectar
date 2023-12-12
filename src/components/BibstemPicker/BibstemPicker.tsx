@@ -27,7 +27,7 @@ import {
   trim,
   when,
 } from 'ramda';
-import { ForwardedRef, forwardRef, HTMLProps, ReactElement, Reducer, useEffect, useReducer, useRef } from 'react';
+import { ForwardedRef, forwardRef, HTMLProps, Reducer, useEffect, useReducer, useRef } from 'react';
 import {
   ActionMeta,
   components,
@@ -177,7 +177,7 @@ const reducer: Reducer<
   return state;
 };
 
-const BibstemPickerImpl = (props: IBibstemPickerProps, ref: ForwardedRef<never>): ReactElement => {
+const BibstemPickerImpl = (props: IBibstemPickerProps, ref: ForwardedRef<never>) => {
   const { isMultiple, onChange, ...inputProps } = props;
   const selectRef = useRef<Select<IBibstemOption, boolean, GroupBase<IBibstemOption>>>(null);
   const [state, dispatch] = useReducer(reducer, {

@@ -7,7 +7,7 @@ import { useIsClient } from '@lib/useIsClient';
 import { getFomattedNumericPubdate, noop, unwrapStringValue } from '@utils';
 import { MathJax } from 'better-react-mathjax';
 import dynamic from 'next/dynamic';
-import { ChangeEvent, ReactElement } from 'react';
+import { ChangeEvent } from 'react';
 import { SimpleLink } from '@components';
 
 const AbstractPreview = dynamic<IAbstractPreviewProps>(
@@ -25,7 +25,7 @@ export interface IItemProps {
   hideResources?: boolean;
 }
 
-export const DocumentItem = (props: IItemProps): ReactElement => {
+export const DocumentItem = (props: IItemProps) => {
   const {
     doc,
     index,
@@ -148,7 +148,7 @@ const MAX_AUTHORS = APP_DEFAULTS.RESULTS_MAX_AUTHORS;
 /**
  * Displays author list and includes a button to open all authors modal
  */
-const AuthorList = (props: IAuthorListProps): ReactElement => {
+const AuthorList = (props: IAuthorListProps) => {
   const { author, authorCount, bibcode, ...boxProps } = props;
 
   if (authorCount === 0) {

@@ -1,6 +1,6 @@
 import { Box, Button, Flex, FormControl, FormLabel, Input } from '@chakra-ui/react';
 import { DescriptionCollapse } from '@components/CitationExporter';
-import { ChangeEvent, ReactElement, useEffect, useState } from 'react';
+import { ChangeEvent, ReactNode, useEffect, useState } from 'react';
 
 export const KeyFormatInputApply = ({
   format,
@@ -10,7 +10,7 @@ export const KeyFormatInputApply = ({
 }: {
   format: string;
   label: string;
-  description: ReactElement;
+  description: ReactNode;
   onApply: (format: string) => void;
 }) => {
   const [newFormat, setNewFormat] = useState(format);

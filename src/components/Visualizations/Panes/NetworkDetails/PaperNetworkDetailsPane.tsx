@@ -17,7 +17,7 @@ import {
 import { Item } from '@components/ResultList/Item';
 import { SimpleLink } from '@components/SimpleLink';
 import { ILineGraph } from '@components/Visualizations/types';
-import { ReactElement, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NodeDetailPane } from './NodeDetailsPane';
 import { SummaryPane } from './SummaryPane';
 
@@ -53,7 +53,7 @@ export const PaperNetworkDetailsPane = ({
   onAddToFilter,
   onRemoveFromFilter,
   canAddAsFilter,
-}: PaperNetworkDetailsProps): ReactElement => {
+}: PaperNetworkDetailsProps) => {
   const [tabIndex, setTabIndex] = useState(0);
 
   // when selected node changes, change tab to node details
@@ -104,7 +104,7 @@ export const PaperNetworkDetailsPane = ({
   );
 };
 
-const PapersList = ({ node }: { node: IPaperNetworkNodeDetails }): ReactElement => {
+const PapersList = ({ node }: { node: IPaperNetworkNodeDetails }) => {
   const { papers } = node;
   const topNPapers = 30;
   return (
@@ -129,7 +129,7 @@ const PapersList = ({ node }: { node: IPaperNetworkNodeDetails }): ReactElement 
   );
 };
 
-const ReferencesList = ({ link }: { link: IPaperNetworkLinkDetails }): ReactElement => {
+const ReferencesList = ({ link }: { link: IPaperNetworkLinkDetails }) => {
   const { groupOne, groupTwo, papers } = link;
   return (
     <Box mt={5}>

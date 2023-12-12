@@ -1,17 +1,13 @@
 import { Alert, AlertDescription, AlertIcon, AlertStatus, AlertTitle, Flex } from '@chakra-ui/react';
-import { ReactElement } from 'react';
+import { ReactNode } from 'react';
 
 export interface IStaticAlertProps {
   status: AlertStatus;
-  title: string | ReactElement;
-  description?: string | ReactElement;
+  title: string | ReactNode;
+  description?: string | ReactNode;
 }
 
-export const CustomInfoMessage = ({
-  status,
-  title: alertTitle,
-  description: alertDescription,
-}: IStaticAlertProps): ReactElement => {
+export const CustomInfoMessage = ({ status, title: alertTitle, description: alertDescription }: IStaticAlertProps) => {
   return (
     <Flex justifyContent="center">
       <Alert

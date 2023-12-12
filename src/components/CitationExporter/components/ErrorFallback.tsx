@@ -2,7 +2,6 @@ import { IExportApiResponse } from '@api';
 import { Alert, AlertIcon, Button, Stack } from '@chakra-ui/react';
 import { parseAPIError } from '@utils';
 import { AxiosError } from 'axios';
-import { ReactElement } from 'react';
 import { ExportContainer } from './ExportContainer';
 
 /**
@@ -14,7 +13,7 @@ export const ErrorFallback = ({
 }: {
   error: AxiosError<IExportApiResponse> | Error;
   resetErrorBoundary: () => void;
-}): ReactElement => {
+}) => {
   const message = parseAPIError(error);
 
   return (

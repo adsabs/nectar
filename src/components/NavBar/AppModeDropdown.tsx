@@ -2,14 +2,14 @@ import { Box } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components';
 import { useStore } from '@store';
 import { AppMode } from '@types';
-import { ReactElement, useMemo } from 'react';
+import { useMemo } from 'react';
 import shallow from 'zustand/shallow';
 import { modes } from './models';
 import { useGTMDispatch } from '@elgorditosalsero/react-gtm-hook';
 
 const options = Object.values(modes);
 
-export const AppModeDropdown = (): ReactElement => {
+export const AppModeDropdown = () => {
   const sendDataToGTM = useGTMDispatch();
   const [mode, setMode]: [AppMode, (mode: AppMode) => void] = useStore((state) => [state.mode, state.setMode], shallow);
 

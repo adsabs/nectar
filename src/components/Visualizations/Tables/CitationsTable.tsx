@@ -1,6 +1,5 @@
 import { QuestionIcon } from '@chakra-ui/icons';
 import { Box, Table, Tbody, Td, Th, Thead, Tooltip, Tr, VisuallyHidden } from '@chakra-ui/react';
-import { ReactElement } from 'react';
 import { ICitationsTableData } from '../types';
 
 export interface ICitationsTableProps {
@@ -8,7 +7,7 @@ export interface ICitationsTableProps {
   isAbstract: boolean;
 }
 
-export const CitationsTable = (props: ICitationsTableProps): ReactElement => {
+export const CitationsTable = (props: ICitationsTableProps) => {
   const { data, isAbstract } = props;
 
   return (

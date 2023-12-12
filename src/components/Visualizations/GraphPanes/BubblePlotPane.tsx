@@ -1,5 +1,5 @@
 import { Box, Button, Radio, RadioGroup, Stack, Text, VStack } from '@chakra-ui/react';
-import { ReactElement, useState } from 'react';
+import { useState } from 'react';
 import { BubblePlot, BubblePlotConfig } from '../Graphs/BubblePlot';
 import { IBubblePlot, IBubblePlotNodeData } from '../types';
 
@@ -46,7 +46,7 @@ const plotTypes: { [key in PlotType]: { label: string; config: BubblePlotConfig 
   readCitation: { label: 'Read Count vs. Citation Count', config: defaultReadCitationConfig },
 };
 
-export const BubblePlotPane = ({ graph, onApplyFilter }: IBubblePlotPaneProps): ReactElement => {
+export const BubblePlotPane = ({ graph, onApplyFilter }: IBubblePlotPaneProps) => {
   const [plotType, setPlotType] = useState<PlotType>('readTime');
 
   const [selectedNodes, setSelectedNodes] = useState<IBubblePlotNodeData[]>([]);

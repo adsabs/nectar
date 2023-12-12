@@ -27,7 +27,7 @@ import { useIsClient } from '@lib/useIsClient';
 import { useMetrics } from '@lib/useMetrics';
 import { BarDatum } from '@nivo/bar';
 import axios from 'axios';
-import { ReactElement, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import {
   IBarGraph,
@@ -46,7 +46,7 @@ export interface IMetricsProps {
   bibcodes?: IDocsEntity['bibcode'][];
 }
 
-export const MetricsPane = (props: IMetricsProps): ReactElement => {
+export const MetricsPane = (props: IMetricsProps) => {
   const { metrics, isAbstract, bibcodes } = props;
 
   const {
@@ -101,7 +101,7 @@ const PapersSection = ({
 }: {
   papersTable: IPapersTableData;
   papersGraph: IMetricsGraphs;
-}): ReactElement => {
+}) => {
   const isClient = useIsClient();
 
   return (
@@ -146,7 +146,7 @@ const CitationsSection = ({
   citationsTable: ICitationsTableData;
   citationsGraphs: IMetricsGraphs;
   isAbstract: boolean;
-}): ReactElement => {
+}) => {
   const isClient = useIsClient();
 
   return (
@@ -191,7 +191,7 @@ const ReadsSection = ({
   readsTable: IReadsTableData;
   readsGraphs: IMetricsGraphs;
   isAbstract: boolean;
-}): ReactElement => {
+}) => {
   const isClient = useIsClient();
 
   return (
@@ -251,7 +251,7 @@ const IndicesSection = ({
   indicesTable: IIndicesTableData;
   indicesGraph: ILineGraph;
   bibcodes?: IDocsEntity['bibcode'][];
-}): ReactElement => {
+}) => {
   // query to get indices metrics if there is no indices graph
   const {
     data: metricsData,
@@ -359,7 +359,7 @@ const MetricsGraphs = ({
   graphs: IMetricsGraphs;
   showLegend?: boolean;
   showGroupOptions?: boolean;
-}): ReactElement => {
+}) => {
   return (
     <Tabs mt={5} variant="soft-rounded" size="sm" align="center">
       <TabList>

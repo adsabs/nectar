@@ -15,7 +15,7 @@ import { ChevronDownIcon, LockIcon, UnlockIcon } from '@chakra-ui/icons';
 import { SimpleLinkList } from '@components';
 import { ItemType } from '@components/Dropdown/types';
 import { useIsClient } from '@lib/useIsClient';
-import { HTMLAttributes, MouseEvent, MouseEventHandler, ReactElement, useMemo } from 'react';
+import { HTMLAttributes, MouseEvent, MouseEventHandler, useMemo } from 'react';
 import { IDataProductSource, IFullTextSource, IRelatedWorks, processLinkData } from './linkGenerator';
 import { useStore } from '@store';
 import { useResolverQuery } from '@api/resolver';
@@ -24,7 +24,7 @@ export interface IAbstractSourcesProps extends HTMLAttributes<HTMLDivElement> {
   doc?: IDocsEntity;
 }
 
-export const AbstractSources = ({ doc }: IAbstractSourcesProps): ReactElement => {
+export const AbstractSources = ({ doc }: IAbstractSourcesProps) => {
   const isClient = useIsClient();
   const linkServer = useStore((state) => state.settings?.user?.link_server);
   const sources = useMemo(() => {
@@ -78,7 +78,7 @@ interface IFullTextDropdownProps {
   sources: IFullTextSource[];
 }
 
-const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
+const FullTextDropdown = (props: IFullTextDropdownProps) => {
   const { sources } = props;
   const isClient = useIsClient();
 
@@ -139,7 +139,7 @@ interface IRelatedMaterialsDropdownProps {
   relatedWorks: IRelatedWorks[];
 }
 
-const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElement => {
+const DataProductDropdown = (props: IRelatedMaterialsDropdownProps) => {
   const { dataProducts, relatedWorks } = props;
   const isClient = useIsClient();
 

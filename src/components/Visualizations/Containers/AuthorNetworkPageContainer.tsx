@@ -19,7 +19,7 @@ import { makeSearchParams } from '@utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { uniq } from 'ramda';
-import { ReactElement, Reducer, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
+import { Reducer, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { IView } from '../GraphPanes/types';
 import { ILineGraph } from '../types';
 import { getAuthorNetworkNodeDetails, getAuthorNetworkSummaryGraph } from '../utils';
@@ -76,7 +76,7 @@ const reducer: Reducer<IAuthorNetworkPageState, AuthorNetworkPageAction> = (stat
   }
 };
 
-export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContainerProps): ReactElement => {
+export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContainerProps) => {
   const router = useRouter();
 
   const toast = useToast();
@@ -263,7 +263,7 @@ const StatusDisplay = ({
   authorNetworkIsError: boolean;
   authorNetworkIsLoading: boolean;
   authorNetworkError: unknown;
-}): ReactElement => {
+}) => {
   return (
     <>
       {authorNetworkIsError && (

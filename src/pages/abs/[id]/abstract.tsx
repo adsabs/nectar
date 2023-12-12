@@ -42,7 +42,7 @@ import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { equals, isNil, path } from 'ramda';
-import { memo, ReactElement, ReactNode } from 'react';
+import { memo, ReactNode } from 'react';
 import { useRouter } from 'next/router';
 import { FolderPlusIcon } from '@heroicons/react/24/solid';
 import { useSession } from '@lib/useSession';
@@ -174,7 +174,7 @@ export default AbstractPage;
 interface IDetailsProps {
   doc: IDocsEntity;
 }
-const Details = ({ doc }: IDetailsProps): ReactElement => {
+const Details = ({ doc }: IDetailsProps) => {
   const arxiv = (doc.identifier ?? ([] as string[])).find((v) => /^arxiv/i.exec(v));
 
   return (

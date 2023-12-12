@@ -1,13 +1,13 @@
-import { ReactElement } from 'react';
+import { ReactElement, ReactNode } from 'react';
 import { UrlObject } from 'url';
 
 export interface IMenuItem {
   id: string | number;
   href: string | UrlObject;
   hrefAs: string | UrlObject;
-  label: string | ReactElement;
+  label: string | ReactNode;
   icon?: ReactElement;
-  rightElement?: ReactElement;
+  rightElement?: ReactNode;
   disabled?: boolean;
 }
 

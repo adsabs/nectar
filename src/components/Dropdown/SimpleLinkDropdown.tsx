@@ -1,19 +1,19 @@
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { Box, Flex } from '@chakra-ui/react';
-import { ReactElement } from 'react';
+import { ReactNode } from 'react';
 import { ItemType } from './types';
 import { SimpleLink } from '@components';
 
 /** Non JavaScript dropdown */
 export interface ISimpleLinkDropdownProps {
   items: ItemType[];
-  label: string | ReactElement;
+  label: string | ReactNode;
   minLabelWidth?: string;
   minListWidth?: string;
   alignRight?: boolean;
 }
 
-export const SimpleLinkDropdown = (props: ISimpleLinkDropdownProps): ReactElement => {
+export const SimpleLinkDropdown = (props: ISimpleLinkDropdownProps) => {
   const { items, label, minLabelWidth, minListWidth, alignRight } = props;
 
   return (

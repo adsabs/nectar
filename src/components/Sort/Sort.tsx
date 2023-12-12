@@ -8,7 +8,7 @@ import { BarsArrowDownIcon, BarsArrowUpIcon } from '@heroicons/react/24/outline'
 import { useIsClient } from '@lib/useIsClient';
 import { makeSearchParams, normalizeSolrSort, parseQueryFromUrl } from '@utils';
 import { useRouter } from 'next/router';
-import { Fragment, MouseEventHandler, ReactElement, useCallback, useMemo } from 'react';
+import { Fragment, MouseEventHandler, useCallback, useMemo } from 'react';
 import { sortValues } from './model';
 
 /**
@@ -37,7 +37,7 @@ export interface ISortProps {
  *
  * Expects to be controlled (i.e. using sort and onChange to control value/updating)
  */
-export const Sort = (props: ISortProps): ReactElement => {
+export const Sort = (props: ISortProps) => {
   const {
     sort = APP_DEFAULTS.SORT,
     onChange,
@@ -157,7 +157,7 @@ const SortSelect = ({
 };
 
 // non-native type, used in search results
-const NoJsSort = (): ReactElement => {
+const NoJsSort = () => {
   const router = useRouter();
   const query = parseQueryFromUrl(router.asPath);
   const [sortby, dir] = query.sort[0].split(' ') as [SolrSortField, SolrSortDirection];
@@ -219,7 +219,7 @@ const NoJsSort = (): ReactElement => {
 };
 
 // native type, used by classic form
-const NoJsNativeSort = ({ name }: { name: string }): ReactElement => {
+const NoJsNativeSort = ({ name }: { name: string }) => {
   return (
     <select id="sort" name={name} defaultValue="score desc">
       {sortOptions.map((item) => (

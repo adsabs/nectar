@@ -1,7 +1,7 @@
 import { Flex, FormControl, FormLabel } from '@chakra-ui/react';
 import { Slider } from '@components/Slider';
 import { noop } from '@utils';
-import { ReactElement, useMemo } from 'react';
+import { useMemo } from 'react';
 import { WordCloud, WordDatum } from '../Graphs';
 
 export interface IWordCloudPaneProps {
@@ -22,7 +22,7 @@ export const WordCloudPane = ({
   sliderValues,
   currentSliderValue,
   selectedWords = [],
-}: IWordCloudPaneProps): ReactElement => {
+}: IWordCloudPaneProps) => {
   const handleSliderValueChange = (value: number[]) => {
     onSliderValueChange(value[0]);
   };

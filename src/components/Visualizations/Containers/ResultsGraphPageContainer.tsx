@@ -13,7 +13,7 @@ import { setFQ } from '@query-utils';
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BubblePlotPane } from '../GraphPanes';
 import { getResultsGraph } from '../utils';
 
@@ -21,7 +21,7 @@ interface IResultsGraphPageContainerProps {
   query: IADSApiSearchParams;
 }
 
-export const ResultsGraphPageContainer = ({ query }: IResultsGraphPageContainerProps): ReactElement => {
+export const ResultsGraphPageContainer = ({ query }: IResultsGraphPageContainerProps) => {
   const router = useRouter();
   const toast = useToast();
 

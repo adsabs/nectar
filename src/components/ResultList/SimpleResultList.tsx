@@ -2,7 +2,7 @@ import { IDocsEntity } from '@api';
 import { Flex, VisuallyHidden } from '@chakra-ui/react';
 import { useIsClient } from '@lib/useIsClient';
 import PT from 'prop-types';
-import { HTMLAttributes, ReactElement } from 'react';
+import { HTMLAttributes } from 'react';
 import { Item } from './Item';
 import { useHighlights } from './useHighlights';
 
@@ -21,7 +21,7 @@ const propTypes = {
   hideCheckboxes: PT.bool,
 };
 
-export const SimpleResultList = (props: ISimpleResultListProps): ReactElement => {
+export const SimpleResultList = (props: ISimpleResultListProps) => {
   const {
     docs = [],
     hideCheckboxes = false,

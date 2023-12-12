@@ -1,7 +1,7 @@
 import { IADSApiAuthorNetworkNode, IADSApiAuthorNetworkNodeKey } from '@api';
 import { FormControl, FormLabel, Radio, RadioGroup, Stack, Switch } from '@chakra-ui/react';
 import { AuthorNetworkGraph } from '@components';
-import { ChangeEvent, ReactElement, useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { PaperLimit } from '../Widgets';
 import { IView } from './types';
 
@@ -26,7 +26,7 @@ export const AuthorNetworkGraphPane = ({
   onChangePaperLimit: onChangePaperLimit,
   paperLimit,
   maxPaperLimit,
-}: IAuthorNetworkGraphPaneProps): ReactElement => {
+}: IAuthorNetworkGraphPaneProps) => {
   const [view, setView] = useState<IView>(views[0]);
 
   const [showLinkLayer, setShowLinkLayer] = useState(false);
@@ -71,7 +71,7 @@ const OverlaySwitch = ({
 }: {
   isChecked: boolean;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
-}): ReactElement => {
+}) => {
   return (
     <FormControl display="flex" alignItems="center">
       <FormLabel htmlFor="overlay" mb="0">

@@ -1,4 +1,4 @@
-import { ReactElement, Reducer, useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
+import { Reducer, useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { useD3 } from './useD3';
 import * as d3 from 'd3';
 import { BaseType, D3BrushEvent, Selection } from 'd3';
@@ -76,7 +76,7 @@ export const BubblePlot = ({
   xLabel,
   yLabel,
   onSelectNodes,
-}: BubblePlotProps): ReactElement => {
+}: BubblePlotProps) => {
   const [state, dispatch] = useReducer(reducer, {
     xScaleType: 'linear',
     yScaleType: 'linear',

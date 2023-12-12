@@ -3,12 +3,12 @@ import { useStore } from '@store';
 import { AppMode } from '@types';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { CSSProperties, ReactElement } from 'react';
+import { CSSProperties } from 'react';
 import { ScixAndNasaLogo_H_beta } from '@components/images/ScixAndNasaLogo-H_beta';
 import { SimpleLink } from '@components';
 
 const imageStyle: CSSProperties = { objectFit: 'cover', opacity: '50%', zIndex: 0 };
-export const LandingTabs = (): ReactElement => {
+export const LandingTabs = () => {
   const mode = useStore((state) => state.mode);
 
   return (

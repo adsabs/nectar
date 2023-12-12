@@ -7,7 +7,6 @@ import { SearchQueryLink } from '@components/SearchQueryLink';
 import { APP_DEFAULTS } from '@config';
 import { noop, parseQueryFromUrl, stringifySearchParams } from '@utils';
 import { useRouter } from 'next/router';
-import { ReactElement } from 'react';
 
 export interface IAbstractRefListProps {
   doc: IDocsEntity;
@@ -17,7 +16,7 @@ export interface IAbstractRefListProps {
   onPageChange: (start: number) => void;
 }
 
-export const AbstractRefList = (props: IAbstractRefListProps): ReactElement => {
+export const AbstractRefList = (props: IAbstractRefListProps) => {
   const { docs, onPageChange = noop, totalResults, searchLinkParams } = props;
   const router = useRouter();
   const { p: page } = parseQueryFromUrl(router.asPath);

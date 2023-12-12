@@ -1,6 +1,6 @@
 import { IADSApiPaperNetworkNodeKey, IADSApiPaperNetworkSummaryGraph, IADSApiPaperNetworkSummaryGraphNode } from '@api';
 import { Radio, RadioGroup, Stack } from '@chakra-ui/react';
-import { ReactElement, useState } from 'react';
+import { useState } from 'react';
 import { PaperNetworkGraph } from '../Graphs';
 import { PaperLimit } from '../Widgets';
 import { IView } from './types';
@@ -34,7 +34,7 @@ export const PaperNetworkGraphPane = ({
   onChangePaperLimit: onChangePaperLimit,
   paperLimit,
   maxPaperLimit,
-}: IPaperNetworkGraphPaneProps): ReactElement => {
+}: IPaperNetworkGraphPaneProps) => {
   const [view, setView] = useState<IView>(views[0]);
 
   const handleChangeView = (vid: IView['id']) => setView(views.filter((v) => v.id === vid)[0]);

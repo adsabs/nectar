@@ -2,7 +2,6 @@ import { useGetSearchStats } from '@api';
 import { Box, SkeletonText, Text } from '@chakra-ui/react';
 import { useStore } from '@store';
 import { truncateDecimal } from '@utils';
-import { ReactElement } from 'react';
 
 export interface INumFoundProps {
   count?: number;
@@ -14,7 +13,7 @@ const sanitizeNum = (num: number): string => {
   return (num < 0 ? 0 : num).toLocaleString();
 };
 
-export const NumFound = (props: INumFoundProps): ReactElement => {
+export const NumFound = (props: INumFoundProps) => {
   const { count = 0, isLoading } = props;
 
   if (isLoading) {

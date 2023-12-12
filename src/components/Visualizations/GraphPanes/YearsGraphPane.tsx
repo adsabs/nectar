@@ -1,7 +1,7 @@
 import { IFacetCountsFields } from '@api';
 import { Button, Flex, FormControl, FormLabel, NumberInput, NumberInputField } from '@chakra-ui/react';
 import { BarGraph, DataDownloader, Slider } from '@components';
-import { ReactElement, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { IBarGraph, YearDatum } from '../types';
 import { getYearsGraph, groupBarDatumByYear } from '../utils';
@@ -11,7 +11,7 @@ export interface IYearsGraphPaneProps {
   onApplyYearRange: (min: number, max: number) => void;
 }
 
-export const YearsGraphPane = ({ data, onApplyYearRange }: IYearsGraphPaneProps): ReactElement => {
+export const YearsGraphPane = ({ data, onApplyYearRange }: IYearsGraphPaneProps) => {
   const [range, setRange] = useState<{ min: number; max: number }>(null);
 
   const baseGraph: IBarGraph<YearDatum> = useMemo(() => {

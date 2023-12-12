@@ -3,10 +3,10 @@ import { clearFQs, removeFQClause } from '@query-utils';
 import { isIADSSearchParams, makeSearchParams, parseQueryFromUrl } from '@utils';
 import { useRouter } from 'next/router';
 import { curryN } from 'ramda';
-import { ReactElement, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FilterTuple, getFilters } from './helpers';
 
-export const FacetFilters = (props: BoxProps): ReactElement => {
+export const FacetFilters = (props: BoxProps) => {
   const router = useRouter();
   const [filterSections, setFilterSections] = useState<FilterTuple[]>([]);
 

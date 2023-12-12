@@ -18,7 +18,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { HamburgerIcon } from '@chakra-ui/icons';
-import { ReactElement, useRef } from 'react';
+import { useRef } from 'react';
 import { AboutDropdown } from './AboutDropdown';
 import { AccountDropdown } from './AccountDropdown';
 import { FeedbackDropdown } from './FeedbackDropdown';
@@ -26,7 +26,7 @@ import { OrcidDropdown } from './OrcidDropdown';
 import { ListType } from './types';
 import { isBrowser } from '@utils';
 
-export const NavMenus = (): ReactElement => {
+export const NavMenus = () => {
   const toggleMenu = () => {
     if (isOpen) {
       onClose();

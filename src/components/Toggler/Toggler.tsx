@@ -1,6 +1,6 @@
 import { ChevronRightIcon, IconProps } from '@chakra-ui/icons';
 import { Box, BoxProps, Button, Center, forwardRef } from '@chakra-ui/react';
-import { ReactElement } from 'react';
+import { ReactNode } from 'react';
 
 type Dir = 'left' | 'right' | 'up' | 'down';
 
@@ -8,7 +8,7 @@ export interface ITogglerProps extends BoxProps {
   isToggled?: boolean;
   onDirection?: Dir;
   offDirection?: Dir;
-  renderIcon?: (props: IconProps) => ReactElement;
+  renderIcon?: (props: IconProps) => ReactNode;
   offLabel?: string;
   onLabel?: string;
   isButton?: boolean;

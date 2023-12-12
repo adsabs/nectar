@@ -1,5 +1,5 @@
 import { ListType } from './types';
-import { MouseEvent, ReactElement, useState } from 'react';
+import { MouseEvent, useState } from 'react';
 import { MenuDropdown } from './MenuDropdown';
 import { Icon, Modal, ModalCloseButton, ModalContent, ModalOverlay, useDisclosure } from '@chakra-ui/react';
 import { BeakerIcon } from '@heroicons/react/24/outline';
@@ -18,7 +18,7 @@ interface IAboutDropdownProps {
   onFinished?: () => void;
 }
 
-export const ExperimentsDropdown = (props: IAboutDropdownProps): ReactElement => {
+export const ExperimentsDropdown = (props: IAboutDropdownProps) => {
   const { onFinished } = props;
   const { isOpen, onClose, onOpen } = useDisclosure({
     id: 'experiments-modal',

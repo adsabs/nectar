@@ -12,7 +12,7 @@ import {
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { ReactElement, Reducer, useMemo, useReducer } from 'react';
+import { Reducer, useMemo, useReducer } from 'react';
 import { ISliderRange } from '../types';
 import { buildWCDict } from '../utils';
 import { FilterSearchBar, IFilterSearchBarProps } from '../Widgets';
@@ -69,7 +69,7 @@ interface IConceptCloudPageContainerProps {
   query: IADSApiSearchParams;
 }
 
-export const ConceptCloudPageContainer = ({ query }: IConceptCloudPageContainerProps): ReactElement => {
+export const ConceptCloudPageContainer = ({ query }: IConceptCloudPageContainerProps) => {
   const router = useRouter();
 
   // filter search bar layout, use column when width is small

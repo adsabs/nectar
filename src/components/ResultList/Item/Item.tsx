@@ -19,7 +19,7 @@ import { useStore } from '@store';
 import { getFomattedNumericPubdate, unwrapStringValue } from '@utils';
 import { MathJax } from 'better-react-mathjax';
 import dynamic from 'next/dynamic';
-import { ChangeEvent, ReactElement, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import shallow from 'zustand/shallow';
 import { IAbstractPreviewProps } from './AbstractPreview';
 import { ItemResourceDropdowns } from './ItemResourceDropdowns';
@@ -45,7 +45,7 @@ export interface IItemProps {
   linkNewTab?: boolean;
 }
 
-export const Item = (props: IItemProps): ReactElement => {
+export const Item = (props: IItemProps) => {
   const {
     doc,
     index,
@@ -149,10 +149,7 @@ export const Item = (props: IItemProps): ReactElement => {
 /**
  * Highlights view
  */
-const Highlights = ({
-  highlights,
-  isFetchingHighlights,
-}: Pick<IItemProps, 'highlights' | 'isFetchingHighlights'>): ReactElement => {
+const Highlights = ({ highlights, isFetchingHighlights }: Pick<IItemProps, 'highlights' | 'isFetchingHighlights'>) => {
   const [showIndicator, setShowIndicator] = useState(false);
 
   // hide indicator for a period of time, in case the server respond quickly
@@ -241,7 +238,7 @@ const MAX_AUTHORS = APP_DEFAULTS.RESULTS_MAX_AUTHORS;
 /**
  * Displays author list and includes a button to open all authors modal
  */
-const AuthorList = (props: IAuthorListProps): ReactElement => {
+const AuthorList = (props: IAuthorListProps) => {
   const { author, authorCount, bibcode, ...boxProps } = props;
 
   if (authorCount === 0) {

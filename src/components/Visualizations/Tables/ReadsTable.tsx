@@ -1,5 +1,4 @@
 import { Box, Table, Tbody, Td, Th, Thead, Tooltip, Tr, VisuallyHidden } from '@chakra-ui/react';
-import { ReactElement } from 'react';
 import { QuestionIcon } from '@chakra-ui/icons';
 import { IReadsTableData } from '../types';
 
@@ -8,7 +7,7 @@ export interface IReadsTableProps {
   isAbstract: boolean;
 }
 
-export const ReadsTable = (props: IReadsTableProps): ReactElement => {
+export const ReadsTable = (props: IReadsTableProps) => {
   const { data, isAbstract } = props;
 
   return (

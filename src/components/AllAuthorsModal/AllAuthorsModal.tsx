@@ -36,16 +36,7 @@ import { MathJax } from 'better-react-mathjax';
 import { saveAs } from 'file-saver';
 import { matchSorter } from 'match-sorter';
 import { useRouter } from 'next/router';
-import {
-  ChangeEventHandler,
-  forwardRef,
-  MouseEventHandler,
-  ReactElement,
-  ReactNode,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { ChangeEventHandler, forwardRef, MouseEventHandler, ReactNode, useEffect, useRef, useState } from 'react';
 import { useGetAuthors } from './useGetAuthors';
 import { useGTMDispatch } from '@elgorditosalsero/react-gtm-hook';
 
@@ -54,7 +45,7 @@ export interface IAllAuthorsModalProps {
   label: ReactNode;
 }
 
-export const AllAuthorsModal = ({ bibcode, label }: IAllAuthorsModalProps): ReactElement => {
+export const AllAuthorsModal = ({ bibcode, label }: IAllAuthorsModalProps) => {
   const sendToGTM = useGTMDispatch();
   const { isOpen, onOpen, onClose } = useDisclosure({
     onOpen() {

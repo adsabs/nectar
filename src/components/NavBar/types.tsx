@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+import { ReactNode } from 'react';
 import { MenuItemProps } from '@chakra-ui/react';
 
 export enum ListType {
@@ -8,7 +8,7 @@ export enum ListType {
 
 export type ItemItem = {
   id: string;
-  label?: string | ReactElement;
+  label?: string | ReactNode;
   path?: string;
   disabled?: boolean;
   menuItemProps?: Omit<MenuItemProps, 'onClick'>;

@@ -1,8 +1,8 @@
 import { isBrowser } from '@utils';
 import { useRouter } from 'next/router';
-import { MouseEvent, ReactElement } from 'react';
+import { MouseEvent } from 'react';
 import { MenuDropdown } from './MenuDropdown';
-import { ItemType, ListType, ItemItem } from './types';
+import { ItemItem, ItemType, ListType } from './types';
 import { useSession } from '@lib/useSession';
 import { HStack, Icon, Text } from '@chakra-ui/react';
 import { UserIcon } from '@heroicons/react/24/solid';
@@ -32,7 +32,7 @@ interface IAccountDropdown {
   onFinished?: () => void;
 }
 
-export const AccountDropdown = (props: IAccountDropdown): ReactElement => {
+export const AccountDropdown = (props: IAccountDropdown) => {
   const { type, onFinished } = props;
   const { isAuthenticated, logout } = useSession();
 

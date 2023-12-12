@@ -1,5 +1,4 @@
 import { Box, Table, Tbody, Td, Th, Thead, Tooltip, Tr, VisuallyHidden } from '@chakra-ui/react';
-import { ReactElement } from 'react';
 import { QuestionIcon } from '@chakra-ui/icons';
 import { IIndicesTableData } from '../types';
 
@@ -7,7 +6,7 @@ export interface IIndicesTableProps {
   data: IIndicesTableData;
 }
 
-export const IndicesTable = (props: IIndicesTableProps): ReactElement => {
+export const IndicesTable = (props: IIndicesTableProps) => {
   const { data } = props;
 
   return (

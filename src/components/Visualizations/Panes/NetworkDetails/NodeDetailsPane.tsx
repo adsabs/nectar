@@ -1,5 +1,5 @@
 import { Button, Flex, Text } from '@chakra-ui/react';
-import { ReactElement } from 'react';
+import { ReactNode } from 'react';
 
 // Show selected node details
 export const NodeDetailPane = ({
@@ -12,11 +12,11 @@ export const NodeDetailPane = ({
 }: {
   title: string;
   description: string;
-  content: ReactElement;
+  content: ReactNode;
   canAddAsFilter: boolean;
   onAddToFilter: () => void;
   onRemoveFromFilter: () => void;
-}): ReactElement => {
+}) => {
   return (
     <>
       <Flex direction="column">

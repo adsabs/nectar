@@ -8,7 +8,7 @@ import { Bars4Icon, CircleStackIcon, DocumentTextIcon } from '@heroicons/react/2
 import { useIsClient } from '@lib/useIsClient';
 import { isBrowser } from '@utils';
 import { useRouter } from 'next/router';
-import { MouseEventHandler, ReactElement } from 'react';
+import { MouseEventHandler, ReactNode } from 'react';
 
 export interface IItemResourceDropdownsProps {
   doc: IDocsEntity;
@@ -16,11 +16,11 @@ export interface IItemResourceDropdownsProps {
 
 export interface IItem {
   id: string;
-  label: ReactElement | string;
+  label: ReactNode | string;
   path?: string;
 }
 
-export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): ReactElement => {
+export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps) => {
   const router = useRouter();
   const isClient = useIsClient();
 

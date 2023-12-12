@@ -31,7 +31,7 @@ import {
 import { isIADSSearchParams } from '@utils';
 import { assoc, isNil, pathOr, range } from 'ramda';
 import { isNilOrEmpty, isNotNilOrEmpty } from 'ramda-adjunct';
-import { ChangeEventHandler, Dispatch, ReactElement, SetStateAction, useCallback, useEffect, useState } from 'react';
+import { ChangeEventHandler, Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { AuthorAffiliationsErrorMessage } from './ErrorMessage';
 import { ExportModal } from './ExportModal';
@@ -43,7 +43,7 @@ export type AuthorAffiliationsProps =
   | (BoxProps & { params: IAuthorAffiliationPayload; query?: IADSApiSearchParams })
   | { params?: IAuthorAffiliationPayload; query: IADSApiSearchParams };
 
-export const AuthorAffiliations = (props: AuthorAffiliationsProps): ReactElement => {
+export const AuthorAffiliations = (props: AuthorAffiliationsProps) => {
   const { params: initialParams, query, ...boxProps } = props;
   const [params, setParams] = useState<IAuthorAffiliationPayload>(() =>
     getAuthorAffiliationSearchParams(initialParams),

@@ -28,7 +28,7 @@ const SelectImpl = <
 >(
   props: ISelectProps<Option, isMulti, Group>,
   ref: ForwardedRef<never>,
-): ReactElement => {
+) => {
   const { hideLabel = true, label, stylesTheme, id, ...selectProps } = props;
 
   const themes = {

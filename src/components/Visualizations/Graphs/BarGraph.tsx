@@ -1,5 +1,5 @@
 import { BarDatum, BarSvgProps, ResponsiveBar } from '@nivo/bar';
-import { ReactElement, useState } from 'react';
+import { useState } from 'react';
 import { Box, Radio, RadioGroup, Stack } from '@chakra-ui/react';
 
 export interface IBarGraphProps extends Omit<BarSvgProps<BarDatum>, 'height' | 'width'> {
@@ -12,7 +12,7 @@ export interface IBarGraphProps extends Omit<BarSvgProps<BarDatum>, 'height' | '
   height?: string;
 }
 
-export const BarGraph = (props: IBarGraphProps): ReactElement => {
+export const BarGraph = (props: IBarGraphProps) => {
   const {
     data,
     indexBy,

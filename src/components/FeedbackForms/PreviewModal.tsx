@@ -14,7 +14,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { parseAPIError } from '@utils';
-import { ReactElement, useCallback, useState } from 'react';
+import { ReactNode, useCallback, useState } from 'react';
 import { RecaptchaMessage } from '@components';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { FormMessage } from '@components/Feedbacks/FormMessage';
@@ -25,7 +25,7 @@ export interface IPreviewProps {
   title: string;
   submitterInfo: string;
   mainContentTitle: string;
-  mainContent: string | ReactElement;
+  mainContent: string | ReactNode;
   onClose: () => void;
   onSuccess: () => void;
   onError: (error: string) => void;

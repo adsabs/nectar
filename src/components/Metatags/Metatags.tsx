@@ -2,7 +2,6 @@ import { Esources, IDocsEntity } from '@api';
 import { AppRuntimeConfig } from '@types';
 import { getFomattedNumericPubdate } from '@utils';
 import getConfig from 'next/config';
-import { ReactElement } from 'react';
 
 const getBaseUrl = () => {
   try {
@@ -40,7 +39,7 @@ export const metatagsQueryFields: Partial<keyof IDocsEntity>[] = [
   'volume',
 ];
 
-export const Metatags = (props: IMetatagsProps): ReactElement => {
+export const Metatags = (props: IMetatagsProps) => {
   const { doc } = props;
 
   if (!doc) {

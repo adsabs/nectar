@@ -12,7 +12,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { ReactElement, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { DataDownloader, LineGraph, Slider } from '@components';
 import { ILineGraph, Y_Axis } from '../types';
@@ -26,7 +26,7 @@ export interface IHIndexGraphPaneProps {
 }
 const maxDataPoints = 2000;
 
-export const HIndexGraphPane = ({ buckets, sum, type, onApplyCondition }: IHIndexGraphPaneProps): ReactElement => {
+export const HIndexGraphPane = ({ buckets, sum, type, onApplyCondition }: IHIndexGraphPaneProps) => {
   const [limits, setLimits] = useState<{ limit: number; maxLimit: number }>({
     limit: maxDataPoints,
     maxLimit: maxDataPoints,

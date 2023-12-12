@@ -1,4 +1,4 @@
-import { ReactElement, useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useD3 } from './useD3';
 import d3Cloud from 'd3-cloud';
 import * as d3 from 'd3';
@@ -37,12 +37,7 @@ export interface IWordCloudProps {
   selectedWords?: string[];
 }
 
-export const WordCloud = ({
-  wordData,
-  fill,
-  onClickWord = noop,
-  selectedWords = [],
-}: IWordCloudProps): ReactElement => {
+export const WordCloud = ({ wordData, fill, onClickWord = noop, selectedWords = [] }: IWordCloudProps) => {
   // When selected words change, update the styles
   useEffect(() => {
     d3.selectAll<SVGTextElement, unknown>('.word-cloud-word').classed('selected', function () {

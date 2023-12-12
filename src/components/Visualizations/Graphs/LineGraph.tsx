@@ -1,6 +1,6 @@
 import { Box } from '@chakra-ui/react';
 import { ResponsiveLine, Serie } from '@nivo/line';
-import { memo, ReactElement } from 'react';
+import { memo } from 'react';
 import { X_Axis, Y_Axis } from '../types';
 
 export interface ILineGraphProps {
@@ -12,7 +12,7 @@ export interface ILineGraphProps {
 }
 
 export const LineGraph = memo(
-  ({ data, ticks, showLegend = true, yScaleType = 'linear', xScaleType }: ILineGraphProps): ReactElement => {
+  ({ data, ticks, showLegend = true, yScaleType = 'linear', xScaleType }: ILineGraphProps) => {
     return (
       <Box width="100%" mt={5}>
         <div style={{ height: '500px' }}>

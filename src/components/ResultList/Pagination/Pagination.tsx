@@ -25,16 +25,7 @@ import { NumPerPageType, SafeSearchUrlParams } from '@types';
 import { makeSearchParams, stringifySearchParams } from '@utils';
 import { useRouter } from 'next/router';
 import { curryN } from 'ramda';
-import {
-  Dispatch,
-  KeyboardEventHandler,
-  PropsWithChildren,
-  ReactElement,
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { Dispatch, KeyboardEventHandler, PropsWithChildren, useCallback, useMemo, useRef, useState } from 'react';
 import { MenuPlacement } from 'react-select';
 import { calculatePagination, PaginationAction, PaginationResult } from './usePagination';
 
@@ -69,7 +60,7 @@ export type PaginationProps = {
   onlyUpdatePageParam?: boolean;
 } & NumPerPageProp;
 
-export const Pagination = (props: PaginationProps): ReactElement => {
+export const Pagination = (props: PaginationProps) => {
   const {
     hidePerPageSelect = false,
     noLinks = false,

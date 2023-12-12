@@ -50,7 +50,7 @@ interface IProviderOptions {
   storePreset?: 'orcid-authenticated';
 }
 
-export const DefaultProviders = ({ children, options }: { children: ReactElement | ReactNode, options: IProviderOptions }) => {
+export const DefaultProviders = ({ children, options }: { children: ReactNode | ReactNode, options: IProviderOptions }) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, cacheTime: 0, staleTime: 0 },  } });
 
   const store = isObject(options?.initialStore) ?

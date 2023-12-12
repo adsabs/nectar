@@ -10,7 +10,7 @@ import { AppProps, NextWebVitalsMetric } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import 'nprogress/nprogress.css';
-import { Fragment, memo, PropsWithChildren, ReactElement, ReactNode, useEffect } from 'react';
+import { Fragment, memo, PropsWithChildren, ReactNode, useEffect } from 'react';
 import { DehydratedState, Hydrate, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { IronSession } from 'iron-session';
@@ -82,7 +82,7 @@ const QCProvider = ({ children }: { children: ReactNode }) => {
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 };
 
-const AppModeRouter = (): ReactElement => {
+const AppModeRouter = () => {
   const mode = useStore((state) => state.mode);
   const router = useRouter();
   const isClient = useIsClient();

@@ -3,7 +3,6 @@ import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, CircularProgress, 
 import { CustomInfoMessage, MetricsPane } from '@components';
 import { useBatchedSearch } from '@lib/useBatchedSearch';
 import axios from 'axios';
-import { ReactElement } from 'react';
 
 interface IMetricsPageProps {
   query: IADSApiSearchParams;
@@ -13,7 +12,7 @@ const BATCH_SIZE = 1000;
 const BATCHES = 7;
 
 // This layer fetches the bibcodes
-export const MetricsPageContainer = ({ query }: IMetricsPageProps): ReactElement => {
+export const MetricsPageContainer = ({ query }: IMetricsPageProps) => {
   const { data, progress } = useBatchedSearch<string>(
     { rows: BATCH_SIZE, fl: ['bibcode'], ...query },
     { batches: BATCHES, transformResponses: (res) => res.response.docs.map((d) => d.bibcode) },
@@ -30,7 +29,7 @@ export const MetricsPageContainer = ({ query }: IMetricsPageProps): ReactElement
 };
 
 // This layer fetches the metrics from bibcodes
-const MetricsComponent = ({ bibcodes }: { bibcodes: Bibcode[] }): ReactElement => {
+const MetricsComponent = ({ bibcodes }: { bibcodes: Bibcode[] }) => {
   // query to get metrics
   const {
     data: metricsData,

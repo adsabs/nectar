@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+import { ReactNode } from 'react';
 import { UrlObject } from 'url';
 
 export enum ListType {
@@ -8,7 +8,7 @@ export enum ListType {
 
 export type ItemType = {
   id: string;
-  label?: string | ReactElement;
+  label?: string | ReactNode;
   path?: string | UrlObject;
   newTab?: boolean;
   disabled?: boolean;

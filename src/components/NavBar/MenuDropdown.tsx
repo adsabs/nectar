@@ -2,18 +2,18 @@ import { ChevronDownIcon } from '@chakra-ui/icons';
 import { HStack, List, ListItem, Menu, MenuButton, MenuDivider, MenuItem, MenuList } from '@chakra-ui/react';
 import { ItemType, ListType } from './types';
 import { isBrowser } from '@utils';
-import { KeyboardEvent, MouseEventHandler, ReactElement } from 'react';
+import { KeyboardEvent, MouseEventHandler, ReactNode } from 'react';
 
 interface IMenuDropdownProps {
   id: string;
   type: ListType;
-  label: ReactElement | string;
+  label: ReactNode | string;
   items: ItemType[];
   hideChevron?: boolean;
   onSelect: MouseEventHandler<HTMLButtonElement | HTMLLIElement>;
 }
 
-export const MenuDropdown = (props: IMenuDropdownProps): ReactElement => {
+export const MenuDropdown = (props: IMenuDropdownProps) => {
   const { id, type, label, items, onSelect, hideChevron } = props;
 
   const handleKeydown = (e: KeyboardEvent, index: number) => {

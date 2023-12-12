@@ -1,5 +1,4 @@
 import { Box, Flex, Text } from '@chakra-ui/react';
-import { ReactElement } from 'react';
 import { ItemType } from './types';
 import { SimpleLink } from '@components';
 
@@ -13,7 +12,7 @@ export interface ISimpleLinkListProps {
   asRow?: boolean;
 }
 
-export const SimpleLinkList = (props: ISimpleLinkListProps): ReactElement => {
+export const SimpleLinkList = (props: ISimpleLinkListProps) => {
   const { items, selected, minWidth, label, showLabel = false, asRow } = props;
 
   return (

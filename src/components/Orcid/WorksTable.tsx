@@ -21,7 +21,7 @@ import {
 } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components/Select';
 import { SimpleLink } from '@components/SimpleLink';
-import { ReactElement, Suspense, useMemo, useState } from 'react';
+import { Suspense, useMemo, useState } from 'react';
 import { Actions } from './Actions';
 import {
   createColumnHelper,
@@ -290,7 +290,7 @@ const getStatusTag = (status: IOrcidProfileEntry['status']) => {
   }
 };
 
-const getTitle = (work: IOrcidProfileEntry): ReactElement => {
+const getTitle = (work: IOrcidProfileEntry) => {
   if (work.status !== 'not in ADS') {
     return (
       <SimpleLink href={`/abs/${encodeURIComponent(work.identifier)}/abstract`}>

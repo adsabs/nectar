@@ -1,5 +1,5 @@
 import { Button, Input, Stack, Text } from '@chakra-ui/react';
-import { ChangeEvent, KeyboardEvent, ReactElement, useEffect, useState } from 'react';
+import { ChangeEvent, KeyboardEvent, useEffect, useState } from 'react';
 
 export const PaperLimit = ({
   initialLimit,
@@ -9,7 +9,7 @@ export const PaperLimit = ({
   initialLimit: number;
   max: number;
   onApply: (n: number) => void;
-}): ReactElement => {
+}) => {
   const [limit, setLimit] = useState(initialLimit);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {

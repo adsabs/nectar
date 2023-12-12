@@ -1,7 +1,7 @@
 import { useD3 } from './useD3';
 import * as d3 from 'd3';
 import { BaseType, D3ZoomEvent, HierarchyRectangularNode, Selection } from 'd3';
-import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { IADSApiAuthorNetworkNode, IADSApiAuthorNetworkNodeKey, IRootName } from '@api';
 import { useAuthorNetworkGraph } from './useAuthorNetworkGraph';
 import { ADSSVGPathElement } from './types';
@@ -36,7 +36,7 @@ export const AuthorNetworkGraph = ({
   showLinkLayer,
   onClickNode,
   keyToUseAsValue,
-}: IAuthorNetworkGraphProps): ReactElement => {
+}: IAuthorNetworkGraphProps) => {
   const [selectedNode, setSelectedNode] = useState<IADSApiAuthorNetworkNode>();
 
   const { partition, arc, fontSize, line, labelTransform, textAnchor, nodeFill, labelDisplay, strokeWidth } =

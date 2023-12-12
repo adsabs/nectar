@@ -1,4 +1,4 @@
-import { MouseEventHandler, ReactElement } from 'react';
+import { MouseEventHandler } from 'react';
 import { ItemType, ListType } from './types';
 import { MenuDropdown } from '@components/NavBar/MenuDropdown';
 import { useOrcid } from '@lib/orcid/useOrcid';
@@ -13,7 +13,7 @@ interface IOrcidDropdownProps {
   onFinished?: () => void;
 }
 
-export const OrcidDropdown = ({ type, onFinished }: IOrcidDropdownProps): ReactElement => {
+export const OrcidDropdown = ({ type, onFinished }: IOrcidDropdownProps) => {
   const { toggleOrcidMode, login, logout, isAuthenticated } = useOrcid();
   const router = useRouter();
   const handleSelect: MouseEventHandler<HTMLButtonElement> = (e) => {
@@ -63,7 +63,7 @@ export const OrcidDropdown = ({ type, onFinished }: IOrcidDropdownProps): ReactE
 };
 
 const orcidActiveSelector = (state: AppState) => state.orcid.active;
-const OrcidLabel = (): ReactElement => {
+const OrcidLabel = () => {
   const active = useStore(orcidActiveSelector);
 
   return (

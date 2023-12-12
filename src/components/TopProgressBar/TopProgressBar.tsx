@@ -1,8 +1,8 @@
 import { useRouter } from 'next/router';
 import NProgress from 'nprogress';
-import { ReactElement, useEffect } from 'react';
+import { useEffect } from 'react';
 
-export const TopProgressBar = (): ReactElement => {
+export const TopProgressBar = () => {
   const Router = useRouter();
 
   const load = () => {

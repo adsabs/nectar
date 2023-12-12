@@ -1,10 +1,9 @@
 import { IDocsEntity } from '@api';
 import { Flex, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
-import { IAuthor } from '@components/FeedbackForms';
 import { Item } from '@components/ResultList/Item';
 import { ILineGraph } from '@components/Visualizations/types';
 import { equals } from 'ramda';
-import { memo, ReactElement, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { NodeDetailPane } from './NodeDetailsPane';
 import { SummaryPane } from './SummaryPane';
 
@@ -33,7 +32,7 @@ export const AuthorNetworkDetailsPane = ({
   onAddToFilter,
   onRemoveFromFilter,
   canAddAsFilter,
-}: AuthorNetworkDetailsProps): ReactElement => {
+}: AuthorNetworkDetailsProps) => {
   const [tabIndex, setTabIndex] = useState(0);
 
   // prevent tab switching during re-render
@@ -88,7 +87,7 @@ export const AuthorNetworkDetailsPane = ({
   );
 };
 
-const PapersList = ({ papers }: { papers: IAuthorNetworkNodeDetails['papers'] }): ReactElement => {
+const PapersList = ({ papers }: { papers: IAuthorNetworkNodeDetails['papers'] }) => {
   return (
     <Flex as="section" aria-label="Papers List" direction="column">
       {papers.map((doc, index) => (
