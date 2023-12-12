@@ -58,14 +58,14 @@ export const DefaultProviders = ({ children, options }: { children: ReactNode | 
     options?.storePreset ? getStateFromPreset(options.storePreset) : {};
 
   return (
-    <MathJaxProvider>
-      <QueryClientProvider client={queryClient}>
-        <StoreProvider createStore={useCreateStore(store)}>
-          <Container maxW='container.lg'>
-            {children}
-          </Container>
-        </StoreProvider>
-      </QueryClientProvider>
+      <MathJaxProvider>
+        <QueryClientProvider client={queryClient}>
+          <StoreProvider createStore={useCreateStore(store)}>
+            <Container maxW='container.lg'>
+              {children}
+            </Container>
+          </StoreProvider>
+        </QueryClientProvider>
       </MathJaxProvider>
   );
 };

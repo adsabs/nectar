@@ -3,16 +3,16 @@ import { beforeEach, describe, test, vi } from 'vitest';
 import PaperForm from '../pages/paper-form';
 
 const router = {
-  pathname: '/',
   push: vi.fn(),
-  asPath: '/',
 };
 vi.mock('next/router', () => ({
   useRouter: () => router,
 }));
 
 describe('Paper Form', () => {
-  beforeEach(() => router.push.mockReset());
+  beforeEach(() => {
+    router.push.mockReset();
+  });
 
   test('renders without error', () => {
     render(<PaperForm />);
