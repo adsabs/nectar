@@ -11,7 +11,6 @@ import {
 } from '../helpers';
 import { CollectionChoice, IRawClassicFormState, LogicChoice, PropertyChoice } from '../types';
 import { describe, expect, test } from 'vitest';
-import { URLSearchParams } from 'next/dist/compiled/@edge-runtime/primitives/url';
 
 describe('Classic Form Query Handling', () => {
   // Collections

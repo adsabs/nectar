@@ -33,7 +33,6 @@ import { FormEventHandler, useMemo } from 'react';
 import { Control, Controller, useForm, UseFormRegisterReturn, useWatch } from 'react-hook-form';
 import { getSearchQuery } from './helpers';
 import { IClassicFormState } from './types';
-import { URLSearchParams } from 'next/dist/compiled/@edge-runtime/primitives/url';
 
 const propTypes = {
   ssrError: PT.string,
