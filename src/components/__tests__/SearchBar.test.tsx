@@ -1,4 +1,4 @@
-import { composeStories } from '@storybook/testing-react';
+import { composeStories } from '@storybook/react';
 import { render } from '@test-utils';
 import userEvent from '@testing-library/user-event';
 import { expect, test } from 'vitest';

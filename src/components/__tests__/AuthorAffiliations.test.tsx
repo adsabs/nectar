@@ -7,7 +7,7 @@ import {
   toggleAff,
   toggleAll,
 } from '@components/AuthorAffiliations/helpers';
-import { composeStories } from '@storybook/testing-react';
+import { composeStories } from '@storybook/react';
 import { render } from '@test-utils';
 import { lensPath, mapObjIndexed, prop, set, view } from 'ramda';
 import { afterEach, describe, expect, test, vi } from 'vitest';

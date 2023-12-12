@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
 import { afterEach, describe, test, vi } from 'vitest';
-import { composeStories } from '@storybook/testing-react';
+import { composeStories } from '@storybook/react';
 import * as stories from '../__stories__/DataDownloader.stories';
 
 const { Default: DataDownloader } = composeStories(stories);

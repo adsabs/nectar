@@ -11,6 +11,7 @@ import mockOrcidUser from '@mocks/responses/orcid/exchangeOAuthCode.json';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MathJaxProvider } from '@mathjax';
+import { GTMProvider } from '@elgorditosalsero/react-gtm-hook';
 
 /**
  * Attach listeners and return the mocks
@@ -58,15 +59,17 @@ export const DefaultProviders = ({ children, options }: { children: ReactElement
     options?.storePreset ? getStateFromPreset(options.storePreset) : {};
 
   return (
-    <MathJaxProvider>
-      <QueryClientProvider client={queryClient}>
-        <StoreProvider createStore={useCreateStore(store)}>
-          <Container maxW='container.lg'>
-            {children}
-          </Container>
-        </StoreProvider>
-      </QueryClientProvider>
+    <GTMProvider>
+      <MathJaxProvider>
+        <QueryClientProvider client={queryClient}>
+          <StoreProvider createStore={useCreateStore(store)}>
+            <Container maxW='container.lg'>
+              {children}
+            </Container>
+          </StoreProvider>
+        </QueryClientProvider>
       </MathJaxProvider>
+    </GTMProvider>
   );
 };
 

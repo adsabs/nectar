@@ -1,15 +1,21 @@
 import { render } from '@test-utils';
-import { test } from 'vitest';
-import { composeStories } from '@storybook/testing-react';
+import { test, vi } from 'vitest';
+import { composeStories } from '@storybook/react';
 import * as stories from '../__stories__/LibraryListTable.stories';
-import { ChakraProvider } from '@chakra-ui/react';
+import { theme, ThemeProvider } from '@chakra-ui/react';
 
 const { Default: LibraryListTable } = composeStories(stories);
 
+vi.mock('next/router', () => ({
+  useRouter: () => ({
+    push: () => Promise.resolve(true),
+  }),
+}));
+
 test('renders without crashing', () => {
   render(
-    <ChakraProvider>
+    <ThemeProvider theme={theme}>
       <LibraryListTable />
-    </ChakraProvider>,
+    </ThemeProvider>,
   );
 });

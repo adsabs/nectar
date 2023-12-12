@@ -1,5 +1,5 @@
 import * as stories from '@components/__stories__/Pagination.stories';
-import { composeStories } from '@storybook/testing-react';
+import { composeStories } from '@storybook/react';
 import { render } from '@test-utils';
 import { test } from 'vitest';
 

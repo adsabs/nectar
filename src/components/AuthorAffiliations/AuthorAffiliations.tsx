@@ -13,7 +13,6 @@ import {
   FormLabel,
   Heading,
   Select,
-  Skeleton,
   SkeletonText,
   Stack,
   Table,
@@ -29,7 +28,7 @@ import {
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { isIADSSearchParams } from '@utils';
-import { assoc, isNil, pathOr, range } from 'ramda';
+import { assoc, isNil, pathOr } from 'ramda';
 import { isNilOrEmpty, isNotNilOrEmpty } from 'ramda-adjunct';
 import { ChangeEventHandler, Dispatch, ReactElement, SetStateAction, useCallback, useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -217,18 +216,28 @@ const AffForm = (props: IAffFormProps) => {
 };
 
 const SkeletonTableRows = () => {
-  const rows = range(0, 4);
   return (
     <>
-      {rows.map((i) => (
-        <Tr key={`skeleton_row_${i}`} my="2">
-          <Td colSpan={5}>
-            <Skeleton>
-              <SkeletonText h="8" />
-            </Skeleton>
-          </Td>
-        </Tr>
-      ))}
+      <Tr my="2">
+        <Td colSpan={5}>
+          <SkeletonText h="8" />
+        </Td>
+      </Tr>
+      <Tr my="2">
+        <Td colSpan={5}>
+          <SkeletonText h="8" />
+        </Td>
+      </Tr>
+      <Tr my="2">
+        <Td colSpan={5}>
+          <SkeletonText h="8" />
+        </Td>
+      </Tr>
+      <Tr my="2">
+        <Td colSpan={5}>
+          <SkeletonText h="8" />
+        </Td>
+      </Tr>
     </>
   );
 };

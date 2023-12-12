@@ -151,7 +151,7 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
               placeholder="Search..."
               aria-label="Search"
               title="Search"
-              maxlength={SEARCHBAR_MAX_LENGTH}
+              maxLength={SEARCHBAR_MAX_LENGTH}
               value={getPreview(state.searchTerm, getFocusedItemValue(state.items, state.focused))}
               aria-owns="search-listbox"
               aria-haspopup="listbox"
@@ -164,7 +164,7 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
               onChange={handleInputChange}
               spellCheck="false"
               autoComplete="off"
-              autocalpitalize="off"
+              autoCapitalize="off"
               name="q"
               _focus={{ boxShadow: 'none' }}
               data-testid="search-input"
