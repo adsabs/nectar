@@ -58,7 +58,7 @@ export const PaperNetworkGraph = ({
 }: IPaperNetworkGraphProps): ReactElement => {
   const [selectedNode, setSelectedNode] = useState<IADSApiPaperNetworkSummaryGraphNode | ILink>();
 
-  const { partition, arc, line, nodeFill, fontScale, linkScale } = usePaperNetworkGraph(
+  const { partition, arc, line, nodeFill, fontScale, linkScale, textColor } = usePaperNetworkGraph(
     nodesData,
     linksData,
     keyToUseAsValue,
@@ -288,7 +288,7 @@ export const PaperNetworkGraph = ({
         .join('path')
         .classed('link', true)
         .attr('d', (d) => line(d.source.path(d.target)))
-        .attr('stroke', '#000')
+        .attr('stroke', textColor)
         .attr('stroke-opacity', '20%')
         .attr('fill', 'none')
         .attr('stroke-width', (d) => linkScale(d.weight))
@@ -330,12 +330,13 @@ export const PaperNetworkGraph = ({
           const size = d.node[keyToUseAsValue];
           return `${fontScale(size)}px`;
         })
+        .style('fill', textColor)
         .text((d) => d.label)
         .on('click', (e, d) => setSelectedNode(d.node));
 
       return svg;
     },
-    [linksData],
+    [linksData, textColor],
   );
 
   const { ref } = useD3(renderFunction, [renderFunction]);

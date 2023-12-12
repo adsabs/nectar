@@ -1,3 +1,5 @@
+import { useColorMode } from '@chakra-ui/react';
+import { useColorModeColors } from '@lib';
 import * as d3 from 'd3';
 import { useMemo } from 'react';
 import { BubblePlotProps, Scale } from './BubblePlot';
@@ -25,12 +27,12 @@ export const useBubblePlot = ({
         .scaleOrdinal<string>()
         .domain(groups)
         .range([
-          'hsla(282, 80%, 52%, 0.5)',
-          'hsla(1, 80%, 51%, 0.5)',
-          'hsla(152, 80%, 40%, 0.5)',
-          'hsla(193, 80%, 48%, 0.5)',
-          'hsla(220, 80%, 56%, 0.5)',
-          'hsla(0, 0%, 20%, 0.5)',
+          'hsla(282, 80%, 52%, 0.9)',
+          'hsla(1, 80%, 51%, 0.9)',
+          'hsla(152, 80%, 40%, 0.9)',
+          'hsla(193, 80%, 48%, 0.9)',
+          'hsla(220, 80%, 56%, 0.9)',
+          'hsla(100, 50%, 20%, 0.9)',
         ]),
     [groups],
   );
@@ -69,5 +71,7 @@ export const useBubblePlot = ({
       : d3.scaleLinear().domain(extent).range([4, 26]);
   }, [nodes, rKey]);
 
-  return { groupColor, xScaleFn, yScaleFn, rScaleFn };
+  const { colorMode } = useColorMode();
+
+  return { groupColor, xScaleFn, yScaleFn, rScaleFn, textColor: colorMode === 'light' ? '#000000' : '#ffffff' };
 };

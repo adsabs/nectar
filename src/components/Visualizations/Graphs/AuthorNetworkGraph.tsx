@@ -5,6 +5,7 @@ import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { IADSApiAuthorNetworkNode, IADSApiAuthorNetworkNodeKey, IRootName } from '@api';
 import { useAuthorNetworkGraph } from './useAuthorNetworkGraph';
 import { ADSSVGPathElement } from './types';
+import { useColorModeColorVars } from '@lib';
 
 export interface IAuthorNetworkGraphProps {
   root: IADSApiAuthorNetworkNode;
@@ -39,7 +40,7 @@ export const AuthorNetworkGraph = ({
 }: IAuthorNetworkGraphProps): ReactElement => {
   const [selectedNode, setSelectedNode] = useState<IADSApiAuthorNetworkNode>();
 
-  const { partition, arc, fontSize, line, labelTransform, textAnchor, nodeFill, labelDisplay, strokeWidth } =
+  const { partition, arc, fontSize, line, labelTransform, textAnchor, nodeFill, labelDisplay, strokeWidth, textColor } =
     useAuthorNetworkGraph(root, linksData, keyToUseAsValue, radius, numberOfLabelsToShow);
 
   // actaul tree root data for graph
@@ -260,6 +261,7 @@ export const AuthorNetworkGraph = ({
         .attr('transform', labelTransform)
         .style('font-size', (d) => fontSize(d, keyToUseAsValue))
         .style('display', (d) => labelDisplay(d, keyToUseAsValue))
+        .style('fill', textColor)
         .text((d) => (d.depth === 2 ? (d.data.name as string) : null))
         .attr('text-anchor', textAnchor)
         .on('mouseover', handleMouseOverLabel)
@@ -317,7 +319,7 @@ export const AuthorNetworkGraph = ({
 
       return svg;
     },
-    [root, linksData],
+    [root, linksData, textColor],
   );
 
   const { ref } = useD3(renderFunction, [renderFunction]);

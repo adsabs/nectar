@@ -1,4 +1,5 @@
 import { IADSApiPaperNetworkNodeKey, IADSApiPaperNetworkSummaryGraph, IADSApiPaperNetworkSummaryGraphNode } from '@api';
+import { useColorMode } from '@chakra-ui/react';
 import * as d3 from 'd3';
 import { HierarchyRectangularNode } from 'd3';
 import { pluck } from 'ramda';
@@ -63,5 +64,15 @@ export const usePaperNetworkGraph = (
       .range([3, 22]);
   }, [weights]);
 
-  return { partition, arc, line, nodeFill, fontScale, linkScale };
+  const { colorMode } = useColorMode();
+
+  return {
+    partition,
+    arc,
+    line,
+    nodeFill,
+    fontScale,
+    linkScale,
+    textColor: colorMode === 'light' ? '#000000' : '#ffffff',
+  };
 };
