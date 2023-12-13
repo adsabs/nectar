@@ -21,8 +21,6 @@ export const GeneralTabPanel = ({ sampleBib, selectedOption, dispatch }: IGenera
 
   const exportFormatOptions = values(exportFormats);
 
-  const exportFormatOptions = values(exportFormats);
-
   // default export format changed
   const handleApplyDefaultExportFormat = (format: ExportFormat) => {
     dispatch({ type: 'SET_DEFAULT_EXPORT_FORMAT', payload: format.label });
