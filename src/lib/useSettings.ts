@@ -1,11 +1,11 @@
 import {
+  DEFAULT_USER_DATA,
   IADSApiUserDataParams,
   IADSApiUserDataResponse,
   useGetUserSettings,
   userKeys,
   useUpdateUserSettings,
 } from '@api';
-import { DEFAULT_USER_DATA } from '@components';
 import { mergeLeft } from 'ramda';
 import { useDebouncedCallback } from 'use-debounce';
 import { useQueryClient, UseQueryOptions } from '@tanstack/react-query';

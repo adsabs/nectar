@@ -10,6 +10,7 @@ import {
 import api, {
   ApiRequestConfig,
   ApiTargets,
+  DEFAULT_USER_DATA,
   IADSApiUserDataParams,
   IADSApiUserDataResponse,
   IBasicAccountsResponse,
@@ -267,6 +268,7 @@ export const useGetUserSettings = (options?: UseQueryOptions<IADSApiUserDataResp
   return useQuery({
     queryKey: userKeys.getUserSettings(),
     queryFn: fetchUserSettings,
+    placeholderData: DEFAULT_USER_DATA,
     ...options,
   });
 };

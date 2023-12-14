@@ -17,7 +17,7 @@ export interface IGeneralTabPanelProps {
 }
 
 export const GeneralTabPanel = ({ sampleBib, selectedOption, dispatch }: IGeneralTabPanelProps) => {
-  const { settings: userSettings } = useSettings();
+  const { settings: userSettings } = useSettings({ suspense: false });
 
   const exportFormatOptions = values(exportFormats);
 
@@ -26,28 +26,38 @@ export const GeneralTabPanel = ({ sampleBib, selectedOption, dispatch }: IGenera
     dispatch({ type: 'SET_DEFAULT_EXPORT_FORMAT', payload: format.label });
   };
 
-  const { defaultExportFormat, customFormat, journalFormat, keyFormat, authorcutoff, maxauthor } = useMemo(() => {
-    const defaultExportFormat = exportFormatOptions.find((option) => option.label === userSettings.defaultExportFormat);
-    const customFormat = userSettings.customFormats.length > 0 ? userSettings.customFormats[0].code : '';
-    const journalFormat = JournalFormatMap[userSettings.bibtexJournalFormat];
+  const { defaultExportFormatOpt, customFormat, journalFormat, keyFormat, authorcutoff, maxauthor } = useMemo(() => {
+    const {
+      defaultExportFormat,
+      customFormats,
+      bibtexJournalFormat,
+      bibtexKeyFormat,
+      bibtexABSKeyFormat,
+      bibtexAuthorCutoff,
+      bibtexABSAuthorCutoff,
+      bibtexMaxAuthors,
+    } = userSettings;
+
+    const defaultExportFormatOpt =
+      exportFormatOptions.find((option) => option.label === defaultExportFormat) ??
+      exportFormatOptions.find((option) => option.label === 'BibTeX');
+
+    const customFormat = customFormats.length > 0 ? customFormats[0].code : '';
+    const journalFormat = JournalFormatMap[bibtexJournalFormat];
     const keyFormat =
-      defaultExportFormat.id === exportFormats[ExportApiFormatKey.bibtex].id
-        ? userSettings.bibtexKeyFormat
-        : userSettings.bibtexABSKeyFormat;
+      defaultExportFormatOpt.id === exportFormats[ExportApiFormatKey.bibtex].id ? bibtexKeyFormat : bibtexABSKeyFormat;
     const authorcutoff =
-      defaultExportFormat.id === exportFormats[ExportApiFormatKey.bibtex].id
-        ? userSettings.bibtexAuthorCutoff
-        : userSettings.bibtexABSAuthorCutoff;
+      defaultExportFormatOpt.id === exportFormats[ExportApiFormatKey.bibtex].id
+        ? bibtexAuthorCutoff
+        : bibtexABSAuthorCutoff;
     const maxauthor =
-      defaultExportFormat.id === exportFormats[ExportApiFormatKey.bibtex].id
-        ? userSettings.bibtexMaxAuthors
-        : userSettings.bibtexAuthorCutoff;
-    return { defaultExportFormat, customFormat, journalFormat, keyFormat, authorcutoff, maxauthor };
+      defaultExportFormatOpt.id === exportFormats[ExportApiFormatKey.bibtex].id ? bibtexMaxAuthors : bibtexAuthorCutoff;
+    return { defaultExportFormatOpt, customFormat, journalFormat, keyFormat, authorcutoff, maxauthor };
   }, [userSettings]);
 
   const { data: sampleCitation } = useGetExportCitation({
-    format: defaultExportFormat.id,
-    customFormat: customFormat,
+    format: defaultExportFormatOpt.id,
+    customFormat,
     bibcode: [sampleBib],
     keyformat: [keyFormat],
     journalformat: [journalFormat],
@@ -55,11 +65,9 @@ export const GeneralTabPanel = ({ sampleBib, selectedOption, dispatch }: IGenera
     maxauthor: [parseInt(maxauthor)],
   });
 
-  const customFormats = userSettings.customFormats;
-
   // default custom format changed, reorder it to the top
   const handleChangeCustomDefault = (id: string) => {
-    const cf = JSON.parse(JSON.stringify(customFormats)) as CustomFormat[];
+    const cf = JSON.parse(JSON.stringify(userSettings.customFormats)) as CustomFormat[];
     const fromIndex = cf.findIndex((f) => f.id === id);
     const fromFormat = cf[fromIndex];
     cf.splice(fromIndex, 1); // remove

@@ -13,6 +13,9 @@ import {
   Collapse,
   Divider,
   Flex,
+  Grid,
+  GridItem,
+  Spacer,
   Stack,
   Tab,
   TabList,
@@ -156,65 +159,65 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
       isLoading={isLoading}
       {...divProps}
     >
-      <Flex direction={{ base: 'column', md: 'row' }} gap={5}>
-        <Tabs
-          onChange={handleTabChange}
-          flexGrow={2}
-          defaultIndex={initialFormat === ExportApiFormatKey.custom ? 1 : 0}
-        >
-          <TabList>
-            <Tab>Built-in Formats</Tab>
-            <Tab>Custom Formats</Tab>
-          </TabList>
+      <Grid templateColumns={{ base: 'auto', md: 'repeat(2, 1fr)' }} templateRows={{ base: '1fr', md: '1fr' }} gap={4}>
+        <GridItem>
+          <Tabs onChange={handleTabChange} defaultIndex={initialFormat === ExportApiFormatKey.custom ? 1 : 0}>
+            <TabList>
+              <Tab>Built-in Formats</Tab>
+              <Tab>Custom Formats</Tab>
+            </TabList>
 
-          <TabPanels>
-            <TabPanel>
-              <form method="GET" onSubmit={handleOnSubmit}>
-                <Stack direction={['column', 'row']} spacing={4} align="stretch">
-                  <Stack spacing="4" flex="1">
-                    <FormatSelect format={ctx.params.format} dispatch={dispatch} />
-                    <AdvancedControls dispatch={dispatch} params={ctx.params} />
-                    {ctx.records.length > 1 && (
-                      <RecordSlider range={ctx.range} records={ctx.records} dispatch={dispatch} />
-                    )}
+            <TabPanels>
+              <TabPanel>
+                <form method="GET" onSubmit={handleOnSubmit}>
+                  <Stack direction={['column', 'row']} spacing={4} align="stretch">
+                    <Stack spacing="4" flex="1">
+                      <FormatSelect format={ctx.params.format} dispatch={dispatch} />
+                      <AdvancedControls dispatch={dispatch} params={ctx.params} />
+                      {ctx.records.length > 1 && (
+                        <RecordSlider range={ctx.range} records={ctx.records} dispatch={dispatch} />
+                      )}
 
-                    <Stack direction={'row'}>
-                      {(!singleMode ||
-                        (singleMode &&
-                          (ctx.params.format === ExportApiFormatKey.bibtex ||
-                            ctx.params.format === ExportApiFormatKey.bibtexabs))) && (
-                        <Button type="submit" data-testid="export-submit" isLoading={isLoading} width="full">
-                          Submit
-                        </Button>
-                      )}
-                      {!singleMode && hasNextPage && (
-                        <Button
-                          variant="outline"
-                          rightIcon={<ChevronRightIcon fontSize="2xl" />}
-                          onClick={nextPage}
-                          isLoading={isLoading}
-                          width="full"
-                        >
-                          Next {APP_DEFAULTS.EXPORT_PAGE_SIZE}
-                        </Button>
-                      )}
+                      <Stack direction={'row'}>
+                        {(!singleMode ||
+                          (singleMode &&
+                            (ctx.params.format === ExportApiFormatKey.bibtex ||
+                              ctx.params.format === ExportApiFormatKey.bibtexabs))) && (
+                          <Button type="submit" data-testid="export-submit" isLoading={isLoading} width="full">
+                            Submit
+                          </Button>
+                        )}
+                        {!singleMode && hasNextPage && (
+                          <Button
+                            variant="outline"
+                            rightIcon={<ChevronRightIcon fontSize="2xl" />}
+                            onClick={nextPage}
+                            isLoading={isLoading}
+                            width="full"
+                          >
+                            Next {APP_DEFAULTS.EXPORT_PAGE_SIZE}
+                          </Button>
+                        )}
+                      </Stack>
+                      <Divider display={['block', 'none']} />
                     </Stack>
-                    <Divider display={['block', 'none']} />
+                  </Stack>
+                </form>
+              </TabPanel>
+              <TabPanel>
+                <Stack direction={['column', 'row']} spacing={4}>
+                  <Stack spacing="4" flexGrow={[3, 2]} maxW="lg">
+                    <CustomFormatSelect dispatch={dispatch} />
                   </Stack>
                 </Stack>
-              </form>
-            </TabPanel>
-            <TabPanel>
-              <Stack direction={['column', 'row']} spacing={4}>
-                <Stack spacing="4" flexGrow={[3, 2]} maxW="lg">
-                  <CustomFormatSelect dispatch={dispatch} />
-                </Stack>
-              </Stack>
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
-        <ResultArea result={data?.export} format={ctx.params.format} isLoading={isLoading} flexGrow={5} />
-      </Flex>
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
+        </GridItem>
+        <GridItem>
+          <ResultArea result={data?.export} format={ctx.params.format} isLoading={isLoading} flexGrow={5} />
+        </GridItem>
+      </Grid>
     </ExportContainer>
   );
 };

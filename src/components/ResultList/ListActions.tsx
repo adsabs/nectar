@@ -1,4 +1,4 @@
-import { Bibcode, ExportApiFormatKey, useGetUserSettings, useVaultBigQuerySearch } from '@api';
+import { Bibcode, DEFAULT_USER_DATA, ExportApiFormatKey, useGetUserSettings, useVaultBigQuerySearch } from '@api';
 import { ChevronDownIcon, SettingsIcon } from '@chakra-ui/icons';
 import {
   Button,
@@ -23,7 +23,7 @@ import {
   useToast,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { DEFAULT_USER_DATA, exportFormats, ISortProps, sections, Sort } from '@components';
+import { exportFormats, ISortProps, sections, Sort } from '@components';
 import { useIsClient } from '@lib/useIsClient';
 import { AppState, useStore, useStoreApi } from '@store';
 import { makeSearchParams, noop, parseQueryFromUrl } from '@utils';
@@ -35,6 +35,7 @@ import { SecondOrderOpsLinks } from './SecondOrderOpsLinks';
 import { BulkClaimMenuItem, BulkDeleteMenuItem } from '@components/Orcid';
 import { useOrcid } from '@lib/orcid/useOrcid';
 import { useSession } from '@lib/useSession';
+import { useSettings } from '@lib/useSettings';
 
 export interface IListActionsProps {
   onSortChange?: ISortProps['onChange'];
@@ -54,7 +55,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const router = useRouter();
   const toast = useToast();
 
-  const { data: settings } = useGetUserSettings({
+  const { settings } = useSettings({
     enabled: isAuthenticated,
   });
 

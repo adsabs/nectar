@@ -11,6 +11,7 @@ export const ExportFormatSelect = ({
   onChange: (format: ExportFormat) => void;
 }) => {
   const exportFormatOptions = values(exportFormats);
+
   return (
     <DescriptionCollapse body={exportFormatDescription} label="Default Export Format">
       {({ btn, content }) => (

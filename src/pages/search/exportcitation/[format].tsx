@@ -6,27 +6,25 @@ import {
   IADSApiSearchParams,
   isExportApiFormat,
   searchKeys,
-  useGetUserSettings,
   useSearchInfinite,
 } from '@api';
 import { Alert, AlertIcon, Box, Flex, Heading, HStack, Link } from '@chakra-ui/react';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
-import { CitationExporter, DEFAULT_USER_DATA, JournalFormatMap } from '@components';
+import { CitationExporter, JournalFormatMap } from '@components';
 import { getExportCitationDefaultContext } from '@components/CitationExporter/CitationExporter.machine';
 import { APP_DEFAULTS } from '@config';
 import { useIsClient } from '@lib/useIsClient';
 import { parseQueryFromUrl } from '@utils';
-import { useStore } from '@store';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
-import { isEmpty, last, omit } from 'ramda';
+import { last, omit } from 'ramda';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { composeNextGSSP } from '@ssr-utils';
 import { useSession } from '@lib/useSession';
-import { useMemo } from 'react';
+import { useSettings } from '@lib/useSettings';
 
 interface IExportCitationPageProps {
   format: ExportApiFormatKey;
@@ -44,11 +42,10 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
   const { isAuthenticated } = useSession();
 
   // get export related user settings
-  const { data: settingsData } = useGetUserSettings({
+  const { settings } = useSettings({
     enabled: isAuthenticated,
+    suspense: false,
   });
-
-  const settings = useMemo(() => settingsData ?? DEFAULT_USER_DATA, [settingsData]);
 
   const { keyformat, journalformat, authorcutoff, maxauthor } =
     format === ExportApiFormatKey.bibtexabs

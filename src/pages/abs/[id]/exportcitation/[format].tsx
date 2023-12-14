@@ -2,15 +2,15 @@ import { ExportApiFormatKey, IDocsEntity, isExportApiFormat, useGetAbstract } fr
 import { Box } from '@chakra-ui/react';
 import { CitationExporter, JournalFormatMap } from '@components';
 import { AbsLayout } from '@components/Layout/AbsLayout';
-import { DEFAULT_USER_DATA } from '@components/Settings/model';
 import { withDetailsPage } from '@hocs/withDetailsPage';
-import { useStore } from '@store';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
-import { isEmpty, path } from 'ramda';
+import { path } from 'ramda';
 import { composeNextGSSP } from '@ssr-utils';
 import { useRouter } from 'next/router';
 import { getDetailsPageTitle } from '@pages/abs/[id]/abstract';
+import { useSession } from '@lib/useSession';
+import { useSettings } from '@lib/useSettings';
 
 const ExportCitationPage: NextPage = () => {
   const router = useRouter();
@@ -18,10 +18,14 @@ const ExportCitationPage: NextPage = () => {
   const { data } = useGetAbstract({ id: router.query.id as string });
   const doc = path<IDocsEntity>(['docs', 0], data);
 
+  const { isAuthenticated } = useSession();
+
   // get export related user settings
-  const settings = useStore((state) =>
-    state.settings.user && !isEmpty(state.settings.user) ? state.settings.user : DEFAULT_USER_DATA,
-  );
+  const { settings } = useSettings({
+    enabled: isAuthenticated,
+    suspense: false,
+  });
+
   const { keyformat, journalformat, authorcutoff, maxauthor } =
     format === ExportApiFormatKey.bibtexabs
       ? {
