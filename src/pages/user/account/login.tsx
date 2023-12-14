@@ -1,10 +1,10 @@
-import { IUserCredentials } from '@api';
+import { IUserCredentials, userKeys } from '@api';
 import { Button, Container, FormControl, FormLabel, Heading, Input, InputGroup, Stack } from '@chakra-ui/react';
 import { PasswordTextInput, SimpleLink, StandardAlertMessage } from '@components';
 import { NextPage } from 'next';
 import Head from 'next/head';
 import { FormEventHandler, useCallback, useEffect, useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 import { ILoginResponse } from '@pages/api/auth/login';
 import { useReloadWithNotification } from '@components/Notification';
@@ -19,6 +19,7 @@ const Login: NextPage = () => {
   const [mainInputRef, focus] = useFocus<HTMLInputElement>();
   const reload = useReloadWithNotification();
   const { reset: resetUser } = useUser();
+  const client = useQueryClient();
 
   const {
     mutate: submit,
@@ -33,6 +34,8 @@ const Login: NextPage = () => {
       if (data?.error) {
         throw new Error(data.error);
       }
+      client.removeQueries(userKeys.getUserSettings());
+
       return data;
     },
     {

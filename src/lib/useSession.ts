@@ -1,9 +1,9 @@
-import api, { isAuthenticated } from '@api';
+import api, { isAuthenticated, userKeys } from '@api';
 import axios from 'axios';
 import { useEffect } from 'react';
 import { NotificationId } from '@store/slices';
 import { useUser } from '@lib/useUser';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ILogoutResponse } from '@pages/api/auth/logout';
 import { useReloadWithNotification } from '@components/Notification';
 
@@ -19,6 +19,7 @@ export const useSession = (props: IUseSessionProps = { redirectWithMessage: null
   const { redirectWithMessage } = props;
   const { user, reset } = useUser();
   const reload = useReloadWithNotification();
+  const client = useQueryClient();
 
   const { mutate: logout, ...result } = useMutation(['logout'], async () => {
     const { data } = await axios.post<ILogoutResponse>('/api/auth/logout');
@@ -39,7 +40,13 @@ export const useSession = (props: IUseSessionProps = { redirectWithMessage: null
   }, [result.isError]);
 
   return {
-    logout,
+    logout: () => {
+      logout(undefined, {
+        onSuccess() {
+          client.removeQueries(userKeys.getUserSettings());
+        },
+      });
+    },
     isAuthenticated: isAuthenticated(user),
     ...result,
   };

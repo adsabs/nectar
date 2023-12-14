@@ -64,7 +64,10 @@ export const useSettings = (options?: UseQueryOptions<IADSApiUserDataResponse>) 
 
   return {
     updateSettings,
-    settings: mergeLeft<IADSApiUserDataResponse, IADSApiUserDataResponse>(settings, DEFAULT_USER_DATA),
+    settings: mergeLeft<IADSApiUserDataResponse, IADSApiUserDataResponse>(
+      settings,
+      DEFAULT_USER_DATA,
+    ) as IADSApiUserDataResponse,
     updateSettingsState,
     getSettingsState,
   };
