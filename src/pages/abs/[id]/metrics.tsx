@@ -3,7 +3,6 @@ import { Box } from '@chakra-ui/react';
 import { LoadingMessage, MetricsPane } from '@components';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
-import { unwrapStringValue } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { composeNextGSSP } from '@ssr-utils';

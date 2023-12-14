@@ -5,7 +5,6 @@ import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { IADSApiAuthorNetworkNode, IADSApiAuthorNetworkNodeKey, IRootName } from '@api';
 import { useAuthorNetworkGraph } from './useAuthorNetworkGraph';
 import { ADSSVGPathElement } from './types';
-import { useColorModeColorVars } from '@lib';
 
 export interface IAuthorNetworkGraphProps {
   root: IADSApiAuthorNetworkNode;

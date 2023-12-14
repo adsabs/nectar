@@ -102,8 +102,6 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
   });
   const [hasError, setHasError] = useState(false);
 
-  const colors = useColorModeColors();
-
   const handleOnFilter = (filterArgs: OnFilterArgs) => {
     const query = store.getState().latestQuery;
     onQueryUpdate(applyFiltersToQuery({ ...filterArgs, query }));

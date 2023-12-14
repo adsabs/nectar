@@ -1,5 +1,4 @@
 import { useColorMode } from '@chakra-ui/react';
-import { useColorModeColors } from '@lib';
 import * as d3 from 'd3';
 import { useMemo } from 'react';
 import { BubblePlotProps, Scale } from './BubblePlot';

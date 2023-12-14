@@ -1,4 +1,4 @@
-import { Button, Container, Flex, IconButton, Tooltip, useColorMode, useMediaQuery } from '@chakra-ui/react';
+import { Container, Flex, IconButton, Tooltip, useColorMode, useMediaQuery } from '@chakra-ui/react';
 import { SkipNavLink } from '@chakra-ui/skip-nav';
 import { useRouter } from 'next/router';
 import { FC, useMemo } from 'react';
