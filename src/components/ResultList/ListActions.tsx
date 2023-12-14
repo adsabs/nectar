@@ -35,6 +35,7 @@ import { SecondOrderOpsLinks } from './SecondOrderOpsLinks';
 import { BulkClaimMenuItem, BulkDeleteMenuItem } from '@components/Orcid';
 import { useOrcid } from '@lib/orcid/useOrcid';
 import { useSession } from '@lib/useSession';
+import { useSettings } from '@lib/useSettings';
 
 export interface IListActionsProps {
   onSortChange?: ISortProps['onChange'];
@@ -54,7 +55,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const router = useRouter();
   const toast = useToast();
 
-  const { data: settings } = useGetUserSettings({
+  const { settings } = useSettings({
     enabled: isAuthenticated,
   });
 

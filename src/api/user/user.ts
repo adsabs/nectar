@@ -268,7 +268,7 @@ export const useGetUserSettings = (options?: UseQueryOptions<IADSApiUserDataResp
   return useQuery({
     queryKey: userKeys.getUserSettings(),
     queryFn: fetchUserSettings,
-    initialData: DEFAULT_USER_DATA,
+    placeholderData: DEFAULT_USER_DATA,
     ...options,
   });
 };
