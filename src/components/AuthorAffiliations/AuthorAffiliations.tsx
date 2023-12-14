@@ -255,12 +255,7 @@ const Row = (props: { context: IGroupedAuthorAffilationData; idx: number }) => {
   const getHandler = useCallback((idx: number) => () => toggleAff(ctx.authorName, idx), [ctx.authorName]);
 
   return (
-    <Tr
-      onFocus={setIsFocused.on}
-      onBlur={setIsFocused.off}
-      backgroundColor={state.selected ? undefined : 'gray.100'}
-      border={isFocused ? `2px solid blue` : `none`}
-    >
+    <Tr onFocus={setIsFocused.on} onBlur={setIsFocused.off} border={isFocused ? `2px solid blue` : `none`}>
       <Td>{idx}</Td>
       <Td>
         <Checkbox
@@ -289,11 +284,7 @@ const Row = (props: { context: IGroupedAuthorAffilationData; idx: number }) => {
               onBlur={setIsFocused.off}
             >
               <Tooltip label={aff} aria-label={aff}>
-                <Text
-                  isTruncated
-                  w={['xs', 'sm']}
-                  color={state.selected && state.affSelected.includes(idx) ? 'black' : 'blackAlpha.700'}
-                >
+                <Text isTruncated w={['xs', 'sm']}>
                   {aff === NONESYMBOL ? '(none)' : aff}
                 </Text>
               </Tooltip>
@@ -306,7 +297,7 @@ const Row = (props: { context: IGroupedAuthorAffilationData; idx: number }) => {
           {ctx.years.map((years, idx) => (
             <li key={`years_${years.join(',')}_${idx}`}>
               <Tooltip label={years.join(', ')} aria-label={years.join(', ')}>
-                <Text isTruncated width="24" color={state.selected ? 'black' : 'blackAlpha.400'}>
+                <Text isTruncated width="24">
                   {years.join(', ')}
                 </Text>
               </Tooltip>

@@ -1,6 +1,26 @@
 import { useColorMode } from '@chakra-ui/react';
 
-export const useColorModeColors = () => {
+const elements = [
+  'background',
+  'text',
+  'disalbedText',
+  'link',
+  'highlightBackground',
+  'highlightForeground',
+  'border',
+  'panel',
+  'panelHighlight',
+  'lightText',
+  'brand',
+  'tableHighlightBackgroud',
+  'disabledInput',
+  'pill',
+  'pillText',
+] as const;
+
+export type ColorModeColors = { [key in typeof elements[number]]: string };
+
+export const useColorModeColors = (): ColorModeColors => {
   const { colorMode } = useColorMode();
 
   return colorMode === 'light'
@@ -18,6 +38,8 @@ export const useColorModeColors = () => {
         brand: 'blue.600',
         tableHighlightBackgroud: 'blue.50',
         disabledInput: 'gray.50',
+        pill: 'blue.100',
+        pillText: 'gray.800',
       }
     : {
         background: 'gray.800',
@@ -33,30 +55,46 @@ export const useColorModeColors = () => {
         brand: 'blue.300',
         tableHighlightBackgroud: 'gray.700',
         disabledInput: 'gray.700',
+        pill: 'blue.200',
+        pillText: 'white',
       };
 };
 
-export const useColorModeColorVars = () => {
+export const useColorModeColorVars = (): ColorModeColors => {
   const { colorMode } = useColorMode();
 
   return colorMode === 'light'
     ? {
         background: 'var(--chakra-colors-white)',
         text: 'var(--chakra-colors-gray-700)',
+        disalbedText: 'var(--chakra-colors-gray-600)',
         link: 'var(--chakra-colors-blue-400)',
         highlightBackground: 'var(--chakra-colors-blue-100)',
         highlightForeground: 'var(--chakra-colors-gray-800)',
         border: 'var(--chakra-colors-gray-100)',
+        panel: 'var(--chakra-colors-gray-50)',
+        panelHighlight: 'var(--chakra-colors-blue-500)',
+        lightText: 'var(--chakra-colors-gray-500)',
+        brand: 'var(--chakra-colors-blue-600)',
+        tableHighlightBackgroud: 'var(--chakra-colors-blue-50)',
+        disabledInput: 'var(--chakra-colors-gray-50)',
         pill: 'var(--chakra-colors-blue-100)',
         pillText: 'var(--chakra-colors-gray-800)',
       }
     : {
         background: 'var(--chakra-colors-gray-800)',
         text: 'var(--chakra-colors-gray-50)',
+        disalbedText: 'var(--chakra-colors-gray-100)',
         link: 'var(--chakra-colors-blue-200)',
         highlightBackground: 'var(--chakra-colors-gray-600)',
         highlightForeground: 'var(--chakra-colors-gray-100)',
         border: 'var(--chakra-colors-gray-400)',
+        panel: 'var(--chakra-colors-gray-50)',
+        panelHighlight: 'var(--chakra-colors-gray-500)',
+        lightText: 'var(--chakra-colors-gray-500)',
+        brand: 'var(--chakra-colors-blue-600)',
+        tableHighlightBackgroud: 'blue.50',
+        disabledInput: 'var(--chakra-colors-gray-50)',
         pill: 'var(--chakra-colors-blue-200)',
         pillText: 'var(--chakra-colors-white)',
       };
