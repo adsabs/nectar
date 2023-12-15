@@ -189,7 +189,13 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
             editAuthor.index === index ? (
               <Tr key={`author-${index}`}>
                 <Td>
-                  <Input size="sm" onChange={handleEditPositionChange} value={editAuthor.position} type="number" />
+                  <Input
+                    size="sm"
+                    onChange={handleEditPositionChange}
+                    value={editAuthor.position}
+                    type="number"
+                    w={10}
+                  />
                 </Td>
                 <Td>
                   <Input size="sm" onChange={handleEditNameChange} value={editAuthor.author.name} autoFocus />
