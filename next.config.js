@@ -71,7 +71,12 @@ const config = {
     baseCanonicalUrl: process.env.BASE_CANONICAL_URL,
   },
   images: {
-    domains: ['s3.amazonaws.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
   },
   compiler: {
     reactRemoveProperties: false,
