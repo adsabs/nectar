@@ -62,7 +62,7 @@ export const calculateStartIndex = (page: number, numPerPage: number, numFound: 
   }
 
   // on last page
-  if (page * numPerPage >= results - numPerPage) {
+  if (page * numPerPage >= results) {
     if (results % numPerPage === 0) {
       return results - numPerPage;
     } else {
