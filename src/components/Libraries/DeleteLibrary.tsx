@@ -55,7 +55,7 @@ export const DeleteLibrary = ({
               <Button ref={cancelRef} onClick={onClose} variant="outline">
                 Cancel
               </Button>
-              <Button colorScheme="red" onClick={handleDelete} ml={3}>
+              <Button colorScheme="red" onClick={handleDelete} ml={3} data-testid="confirm-del-lib-btn">
                 Delete
               </Button>
             </AlertDialogFooter>

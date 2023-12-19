@@ -363,6 +363,7 @@ const Action = ({
           rightIcon={<ChevronDownIcon />}
           onClick={(e) => e.stopPropagation()}
           children={<SettingsIcon />}
+          data-testid="library-action-menu"
         />
         <MenuList>
           <MenuItem onClick={handleSettings}>Settings</MenuItem>

@@ -1,64 +1,134 @@
-{
-  "libraries": [
-    {
-      "name": "lib-1",
-      "id": "111",
-      "description": "My ADS library",
-      "num_documents": 0,
-      "date_created": "2023-09-05T22:12:05.511383",
-      "date_last_modified": "2023-09-05T22:12:05.511393",
-      "permission": "owner",
-      "public": false,
-      "num_users": 1,
-      "owner": "ads"
-    },
-    {
-      "name": "lib-2",
-      "id": "222",
-      "description": "My ADS library",
-      "num_documents": 0,
-      "date_created": "2023-09-05T22:12:29.460672",
-      "date_last_modified": "2023-09-05T22:12:29.460680",
-      "permission": "owner",
-      "public": false,
-      "num_users": 1,
-      "owner": "ads"
-    },
-    {
-      "name": "lib-3",
-      "id": "333",
-      "description": "silly library",
-      "num_documents": 3,
-      "date_created": "2023-09-18T17:46:02.068300",
-      "date_last_modified": "2023-09-18T18:16:33.668957",
-      "permission": "read",
-      "public": true,
-      "num_users": 2,
-      "owner": "johnny"
-    },
-    {
-      "name": "lib-4",
-      "id": "444",
-      "description": "another silly library",
-      "num_documents": 505,
-      "date_created": "2023-09-18T18:24:06.510578",
-      "date_last_modified": "2023-10-25T16:59:44.352260",
-      "permission": "write",
-      "public": true,
-      "num_users": 2,
-      "owner": "tracy"
-    },
-    {
-      "name": "lib-5",
-      "id": "555",
-      "description": "An ADS library",
-      "num_documents": 0,
-      "date_created": "2023-09-22T14:05:34.650827",
-      "date_last_modified": "2023-09-22T14:05:34.650837",
-      "permission": "admin",
-      "public": false,
-      "num_users": 2,
-      "owner": "amy"
-    }
-  ]
-}
+[
+  {
+    "name": "001",
+    "id": "001",
+    "description": "001",
+    "num_documents": 10,
+    "date_created": "2019-04-15T19:03:15.345389",
+    "date_last_modified": "2021-04-01T15:11:10.995740",
+    "permission": "admin",
+    "public": false,
+    "num_users": 2,
+    "owner": "ads.user.20"
+  },
+  {
+    "name": "002",
+    "id": "002",
+    "description": "002",
+    "num_documents": 5,
+    "date_created": "2019-04-15T19:03:56.246891",
+    "date_last_modified": "2021-08-28T05:03:27.780969",
+    "permission": "write",
+    "public": true,
+    "num_users": 2,
+    "owner": "ads.user.20"
+  },
+  {
+    "name": "003",
+    "id": "003",
+    "description": "003",
+    "num_documents": 4,
+    "date_created": "2019-04-30T17:37:54.052677",
+    "date_last_modified": "2021-04-01T15:08:25.317810",
+    "permission": "read",
+    "public": false,
+    "num_users": 0,
+    "owner": "ads.user.20"
+  },
+  {
+    "name": "test1",
+    "id": "004",
+    "description": "My ADS library",
+    "num_documents": 3,
+    "date_created": "2022-02-23T21:25:13.500854",
+    "date_last_modified": "2022-03-31T20:27:22.080563",
+    "permission": "owner",
+    "public": false,
+    "num_users": 1,
+    "owner": "ads.user.1"
+  },
+  {
+    "name": "test2",
+    "id": "005",
+    "description": "My ADS library",
+    "num_documents": 2,
+    "date_created": "2022-02-23T21:44:10.593087",
+    "date_last_modified": "2022-03-31T20:27:27.948129",
+    "permission": "owner",
+    "public": true,
+    "num_users": 1,
+    "owner": "ads.user.1"
+  },
+  {
+    "name": "test3",
+    "id": "006",
+    "description": "My ADS library",
+    "num_documents": 0,
+    "date_created": "2023-09-05T22:12:05.511383",
+    "date_last_modified": "2023-09-05T22:12:05.511393",
+    "permission": "owner",
+    "public": false,
+    "num_users": 1,
+    "owner": "ads.user.1"
+  },
+  {
+    "name": "test4",
+    "id": "007",
+    "description": "My ADS library",
+    "num_documents": 0,
+    "date_created": "2023-09-05T22:12:29.460672",
+    "date_last_modified": "2023-09-05T22:12:29.460680",
+    "permission": "owner",
+    "public": false,
+    "num_users": 1,
+    "owner": "ads.user.1"
+  },
+  {
+    "name": "test5",
+    "id": "008",
+    "description": "another test library",
+    "num_documents": 3,
+    "date_created": "2023-09-18T17:46:02.068300",
+    "date_last_modified": "2023-09-18T18:16:33.668957",
+    "permission": "owner",
+    "public": true,
+    "num_users": 1,
+    "owner": "ads.user.1"
+  },
+  {
+    "name": "test6",
+    "id": "009",
+    "description": "yet another test library",
+    "num_documents": 6,
+    "date_created": "2023-09-18T18:24:06.510578",
+    "date_last_modified": "2023-10-25T16:59:44.352260",
+    "permission": "owner",
+    "public": true,
+    "num_users": 1,
+    "owner": "ads.user.1"
+  },
+  {
+    "name": "10",
+    "id": "010",
+    "description": "My ADS library",
+    "num_documents": 0,
+    "date_created": "2023-09-22T14:05:34.650827",
+    "date_last_modified": "2023-09-22T14:05:34.650837",
+    "permission": "owner",
+    "public": false,
+    "num_users": 1,
+    "owner": "ads.user.1"
+  },
+  {
+    "name": "11",
+    "id": "011",
+    "description": "My ADS library",
+    "num_documents": 5,
+    "date_created": "2023-09-22T14:05:43.462906",
+    "date_last_modified": "2023-12-08T17:52:14.905397",
+    "permission": "owner",
+    "public": false,
+    "num_users": 1,
+    "owner": "ads.user.1"
+  }
+]

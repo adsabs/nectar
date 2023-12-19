@@ -84,16 +84,16 @@ export const AddLibraryModal = ({
         <ModalCloseButton />
         <ModalBody>
           <FormProvider {...formMethods}>
-            <form onSubmit={handleSubmit(handleAddLibrary)}>
+            <form onSubmit={handleSubmit(handleAddLibrary)} data-testid="add-new-lib-modal">
               <Flex direction="column" gap={2}>
                 <FormControl isRequired isInvalid={!!errors?.name}>
                   <FormLabel>Enter a name for the new library: </FormLabel>
-                  <Input {...register('name', { required: true })} autoFocus />
+                  <Input {...register('name', { required: true })} autoFocus data-testid="new-library-name" />
                   <FormErrorMessage>{errors?.name && errors.name.message}</FormErrorMessage>
                 </FormControl>
                 <FormControl>
                   <FormLabel>Description: </FormLabel>
-                  <Textarea {...register('desc')} />
+                  <Textarea {...register('desc')} data-testid="new-library-desc" />
                   <FormErrorMessage>{errors?.desc && errors.desc.message}</FormErrorMessage>
                 </FormControl>
                 <Checkbox {...register('isPublic')}>Make library public</Checkbox>
@@ -106,7 +106,7 @@ export const AddLibraryModal = ({
                 <Button type="submit" isLoading={isLoading}>
                   Submit
                 </Button>
-                <Button variant="outline" onClick={handleOnClose}>
+                <Button variant="outline" onClick={handleOnClose} data-testid="cancel-add-lib">
                   Cancel
                 </Button>
               </HStack>

@@ -99,7 +99,13 @@ export const LibrarySelector = ({
               </InputGroup>
             ))}
             {(isMultiple || (!isMultiple && selected.length === 0)) && (
-              <Input onClick={onToggle} placeholder="Select library" autoComplete="off" isReadOnly />
+              <Input
+                onClick={onToggle}
+                placeholder="Select library"
+                autoComplete="off"
+                isReadOnly
+                data-testid="library-selector"
+              />
             )}
           </Stack>
           {isOpen && (

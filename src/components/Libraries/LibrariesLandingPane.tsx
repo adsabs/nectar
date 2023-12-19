@@ -58,7 +58,7 @@ export const LibrariesLandingPane = () => {
   }, [librariesData]);
 
   // TODO: temp query to get all libraries so we can get count
-  const { data: all, refetch: recount } = useGetLibraries({}, { cacheTime: 0, staleTime: 0 });
+  const { data: all, refetch: recount } = useGetLibraries({}, { staleTime: 0 });
 
   const entries = useMemo(() => {
     return all?.libraries ? all.libraries.length : 0;
@@ -139,7 +139,7 @@ export const LibrariesLandingPane = () => {
   };
 
   const handleReload = () => {
-    void refetch();
+    void refresh();
   };
 
   return (
@@ -153,10 +153,10 @@ export const LibrariesLandingPane = () => {
             <LibraryTypeSelector type={libraryType} onChange={handleLibraryTypeChange} />
           </Stack>
           <Flex justifyContent={{ base: 'start', md: 'end' }} gap={1} my={2}>
-            <Button variant="outline" leftIcon={<AddIcon />} onClick={onAddOpen}>
+            <Button variant="outline" leftIcon={<AddIcon />} onClick={onAddOpen} data-testid="add-new-lib-btn">
               Add New Library
             </Button>
-            <Button leftIcon={<Icon as={WrenchIcon} />} onClick={onOperationOpen}>
+            <Button leftIcon={<Icon as={WrenchIcon} />} onClick={onOperationOpen} data-testid="lib-operation-btn">
               Operations
             </Button>
           </Flex>
