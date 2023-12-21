@@ -5,7 +5,9 @@ import {
   AlertDescription,
   AlertIcon,
   AlertStatus,
+  Box,
   Button,
+  Center,
   Code,
   Collapse,
   Stack,
@@ -60,10 +62,33 @@ export const SuspendedAlert = (props: ISuspendedAlertProps) => {
   );
 };
 
+export const MinimalSuspendedAlert = (props: ISuspendedAlertProps) => {
+  const { resetErrorBoundary, label, resetButtonText = 'retry' } = props;
+
+  return (
+    <Box py="3">
+      <Center>
+        <Stack alignItems="center" direction="row" spacing="2">
+          <Text fontSize="xs">{label}</Text>
+          <Button size="xs" onClick={() => resetErrorBoundary()} variant="outline" colorScheme="gray">
+            {resetButtonText}
+          </Button>
+        </Stack>
+      </Center>
+    </Box>
+  );
+};
+
 /**
  * Utility function for creating suspended alert specifically from a fallback render prop
  * @param props
  */
-export const getFallBackAlert = (props: Omit<ISuspendedAlertProps, 'error' | 'resetErrorBoundary'>) => {
+export const getFallBackAlert = (
+  props: Omit<ISuspendedAlertProps, 'error' | 'resetErrorBoundary'> & { variant?: 'full' | 'minimal' },
+) => {
+  if (props?.variant === 'minimal') {
+    return (fallbackProps: FallbackProps) => <MinimalSuspendedAlert {...props} {...fallbackProps} />;
+  }
+
   return (fallbackProps: FallbackProps) => <SuspendedAlert {...props} {...fallbackProps} />;
 };
