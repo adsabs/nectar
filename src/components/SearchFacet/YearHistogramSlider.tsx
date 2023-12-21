@@ -1,19 +1,25 @@
 import { getSearchFacetYearsParams, IADSApiSearchParams, useGetSearchFacetCounts } from '@api';
-import { Box, CircularProgress, Flex } from '@chakra-ui/react';
+import { Box, Center, CircularProgress, Flex, Heading, Icon, IconButton, Text, VisuallyHidden } from '@chakra-ui/react';
 import { HistogramSlider, ISearchFacetProps } from '@components';
 import { getYearsGraph } from '@components/Visualizations/utils';
 import { fqNameYearRange } from '@query';
 import { getFQValue, removeFQ, setFQ } from '@query-utils';
 import { useStore } from '@store';
 import { memo, useMemo } from 'react';
+import { withErrorBoundary } from '@hocs/withErrorBoundary';
+import { ArrowsOutIcon } from '@components/icons/ArrowsOut';
+import { ArrowsInIcon } from '@components/icons/ArrowsIn';
+import { getFallBackAlert } from '@components/Feedbacks/SuspendedAlert';
 
 export interface IYearHistogramSliderProps {
   onQueryUpdate: ISearchFacetProps['onQueryUpdate'];
+  expanded?: boolean;
+  onExpand?: () => void;
   width: number;
   height: number;
 }
 
-export const YearHistogramSlider = memo(({ onQueryUpdate, width, height }: IYearHistogramSliderProps) => {
+const Component = ({ onQueryUpdate, width, height, onExpand, expanded }: IYearHistogramSliderProps) => {
   const query = useStore((state) => state.latestQuery);
 
   // query without the year range filter, to show all years on the histogram
@@ -27,8 +33,9 @@ export const YearHistogramSlider = memo(({ onQueryUpdate, width, height }: IYear
     return getFQValue(fqNameYearRange, query);
   }, [query]);
 
-  const { data, isLoading } = useGetSearchFacetCounts(getSearchFacetYearsParams(cleanedQuery), {
+  const { data } = useGetSearchFacetCounts(getSearchFacetYearsParams(cleanedQuery), {
     enabled: !!cleanedQuery && cleanedQuery.q.trim().length > 0,
+    suspense: true,
   });
 
   const histogramData = useMemo(() => {
@@ -45,7 +52,7 @@ export const YearHistogramSlider = memo(({ onQueryUpdate, width, height }: IYear
   // - if no range fq, use histogram min and max
   const selectedRange: [number, number] = useMemo(() => {
     if (fqRange && histogramData) {
-      const range = /year:([0-9]{4})-([0-9]{4})/gm.exec(fqRange);
+      const range = /year:(\d{4})-(\d{4})/gm.exec(fqRange);
       if (range.length === 3) {
         return [parseInt(range[1]), parseInt(range[2])];
       }
@@ -62,23 +69,57 @@ export const YearHistogramSlider = memo(({ onQueryUpdate, width, height }: IYear
   };
 
   return (
-    <Box>
-      {isLoading && (
-        <Flex direction="column" justifyContent="center" alignItems="center" height="170" position="relative" mt={5}>
-          <CircularProgress isIndeterminate />
-        </Flex>
-      )}
-      {histogramData && selectedRange && (
-        <Box height="170" position="relative" mt={5}>
-          <HistogramSlider
-            data={histogramData}
-            selectedRange={selectedRange}
-            width={histogramData.length === 1 ? 50 : width}
-            height={height}
-            onValuesChanged={handleApply}
-          />
-        </Box>
-      )}
+    <Box as="section" position="relative" aria-labelledby="year-histogram">
+      <VisuallyHidden>
+        <Heading as="h3" id="year-histogram">
+          Year Histogram
+        </Heading>
+      </VisuallyHidden>
+      <IconButton
+        aria-label="expand"
+        position="absolute"
+        size="xs"
+        icon={<Icon as={expanded ? ArrowsInIcon : ArrowsOutIcon} fontSize="xl" />}
+        top={0}
+        left={0}
+        colorScheme="gray"
+        variant="outline"
+        onClick={onExpand}
+      />
+      <Center>
+        <Text fontWeight="semibold" fontSize="sm">
+          Year(s)
+        </Text>
+      </Center>
+      <Flex justifyContent="center">
+        {histogramData && selectedRange && (
+          <Box height="170" position="relative" mt={5}>
+            <HistogramSlider
+              data={histogramData}
+              selectedRange={selectedRange}
+              width={histogramData.length === 1 ? 50 : width}
+              height={height}
+              onValuesChanged={handleApply}
+            />
+          </Box>
+        )}
+      </Flex>
     </Box>
   );
-});
+};
+
+export const HistogramSliderLoader = () => {
+  return (
+    <Flex direction="column" justifyContent="center" alignItems="center" height="170" position="relative" mt={5}>
+      <CircularProgress isIndeterminate />
+    </Flex>
+  );
+};
+
+export const YearHistogramSlider = withErrorBoundary(
+  {
+    onLoadingRender: () => <HistogramSliderLoader />,
+    onErrorRender: getFallBackAlert({ label: 'Unable to load histogram', variant: 'minimal' }),
+  },
+  memo(Component),
+);

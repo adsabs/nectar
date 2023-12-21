@@ -27,7 +27,6 @@ import {
   ListItem,
   Portal,
   Stack,
-  Text,
   Tooltip,
   useDisclosure,
   useMediaQuery,
@@ -49,7 +48,6 @@ import {
 import { calculateStartIndex } from '@components/ResultList/Pagination/usePagination';
 import { FacetFilters } from '@components/SearchFacet/FacetFilters';
 import { IYearHistogramSliderProps } from '@components/SearchFacet/YearHistogramSlider';
-import { ArrowsInIcon } from '@components/icons/ArrowsIn';
 import { APP_DEFAULTS } from '@config';
 import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { useIsClient } from 'src/lib';
@@ -65,11 +63,9 @@ import { useRouter } from 'next/router';
 import { last, omit, path } from 'ramda';
 import { FormEventHandler, useEffect, useRef, useState } from 'react';
 import { dehydrate, QueryClient, useQueryClient } from '@tanstack/react-query';
-import { ArrowsOutIcon } from '@components/icons/ArrowsOut';
 
-const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
-  () => import('@components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),
-  { ssr: false },
+const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(() =>
+  import('@components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),
 );
 
 const SearchFacets = dynamic<ISearchFacetsProps>(
@@ -105,6 +101,7 @@ const SearchPage: NextPage = () => {
   const queryClient = useQueryClient();
   const queries = queryClient.getQueriesData<IADSApiSearchResponse>([SEARCH_API_KEYS.primary]);
   const numFound = queries.length > 1 ? path<number>(['1', 'response', 'numFound'], last(queries)) : null;
+  const [isPrint] = useMediaQuery('print'); // use to hide elements when printing
 
   // parse the query params from the URL, this should match what the server parsed
   const parsedParams = parseQueryFromUrl(router.asPath);
@@ -117,13 +114,9 @@ const SearchPage: NextPage = () => {
 
   const { data, isSuccess, isLoading, error } = useSearch(omitP(params));
 
-  const [isPrint] = useMediaQuery('print'); // use to hide elements when printing
-
+  // needed by histogram for positioning and styling
   const [histogramExpanded, setHistogramExpanded] = useState(false);
-
   const [width, setWidth] = useState(0);
-
-  // use this to get full width, used by histogram
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -208,36 +201,21 @@ const SearchPage: NextPage = () => {
             <FacetFilters mt="2" />
           </form>
         </HideOnPrint>
-        {/* if histogram is expanded, show it below the search bar, otherwise it should be part of the facets */}
-        {!isPrint && isClient && (!data || data.docs.length > 0) && histogramExpanded && (
-          <Box position="relative" aria-label="Year Histogram">
-            <IconButton
-              aria-label="expand"
-              size="xs"
-              icon={<Icon as={ArrowsInIcon} fontSize="xl" />}
-              position="absolute"
-              top={0}
-              left={0}
-              colorScheme="gray"
-              variant="outline"
-              onClick={handleToggleExpand}
-            />
-            <Center>
-              <Text fontWeight="semibold" fontSize="sm">
-                Year(s)
-              </Text>
-            </Center>
-            <Flex justifyContent="center">
-              <YearHistogramSlider onQueryUpdate={handleSearchFacetSubmission} width={width} height={125} />
-            </Flex>
-          </Box>
-        )}
+        {!isPrint && isClient && (!data || data.docs.length > 0) && histogramExpanded ? (
+          <YearHistogramSlider
+            onQueryUpdate={handleSearchFacetSubmission}
+            onExpand={handleToggleExpand}
+            expanded
+            width={width}
+            height={125}
+          />
+        ) : null}
         <Flex direction="row" gap={10}>
           <Box display={{ base: 'none', lg: 'block' }}>
             {/* hide facets if screen is too small */}
             {!isPrint && isClient && (!data || data.docs.length > 0) && (
               <SearchFacetFilters
-                showHistogram={!histogramExpanded}
+                histogramExpanded={histogramExpanded}
                 onExpandHistogram={handleToggleExpand}
                 onSearchFacetSubmission={handleSearchFacetSubmission}
               />
@@ -285,11 +263,11 @@ const SearchPage: NextPage = () => {
 };
 
 const SearchFacetFilters = (props: {
-  showHistogram: boolean;
+  histogramExpanded: boolean;
   onExpandHistogram: () => void;
   onSearchFacetSubmission: (queryUpdates: Partial<IADSApiSearchParams>) => void;
 }) => {
-  const { showHistogram, onSearchFacetSubmission, onExpandHistogram } = props;
+  const { histogramExpanded, onSearchFacetSubmission, onExpandHistogram } = props;
   const showFilters = useStore(selectors.showFilters);
   const handleToggleFilters = useStore(selectors.toggleSearchFacetsOpen);
   const handleResetFilters = useStore(selectors.resetSearchFacets);
@@ -341,31 +319,15 @@ const SearchFacetFilters = (props: {
             />
           </Tooltip>
         </Flex>
-        {showHistogram && (
-          <Box aria-label="Year Histogram">
-            <Box position="relative">
-              <IconButton
-                aria-label="expand"
-                position="absolute"
-                size="xs"
-                icon={<Icon as={ArrowsOutIcon} fontSize="xl" />}
-                top={0}
-                left={0}
-                colorScheme="gray"
-                variant="outline"
-                onClick={onExpandHistogram}
-              />
-              <Center>
-                <Text fontWeight="semibold" fontSize="sm">
-                  Year(s)
-                </Text>
-              </Center>
-              <Flex justifyContent="center">
-                <YearHistogramSlider onQueryUpdate={onSearchFacetSubmission} width={200} height={125} />
-              </Flex>
-            </Box>
-          </Box>
-        )}
+        {!histogramExpanded ? (
+          <YearHistogramSlider
+            onQueryUpdate={onSearchFacetSubmission}
+            onExpand={onExpandHistogram}
+            expanded={false}
+            width={200}
+            height={125}
+          />
+        ) : null}
         <SearchFacets onQueryUpdate={onSearchFacetSubmission} />
       </Flex>
     );
