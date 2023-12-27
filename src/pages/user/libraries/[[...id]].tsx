@@ -29,7 +29,7 @@ const LibrariesHome: NextPage<ILibrariesHomeProps> = ({ id, subpage, from }) => 
     {
       id,
     },
-    { enabled: !!id },
+    { enabled: !!id, staleTime: 0 },
   );
 
   return (

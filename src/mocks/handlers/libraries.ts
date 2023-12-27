@@ -1,10 +1,9 @@
 import {
   ApiTargets,
   IADSApiLibraryAddParams,
-  IADSApiLibraryAddResponse,
+  IADSApiLibraryDocumentParams,
   IADSApiLibraryEntityResponse,
   IADSApiLibraryOperationParams,
-  IADSApiLibraryOperationResponse,
   IADSApiLibraryResponse,
   ILibraryMetadata,
 } from '@api';
@@ -18,7 +17,13 @@ const libraries = [...allLibraries] as ILibraryMetadata[];
 
 const entities = allEntities as { [key in string]: IADSApiLibraryEntityResponse };
 
+// get library
 export const librariesHandlers = [
+  rest.get(apiHandlerRoute(ApiTargets.LIBRARIES, '/:id'), (req, res, ctx) => {
+    const id = req.params.id as string;
+    return res(ctx.json(entities[id]));
+  }),
+
   // get libraries
   rest.get(apiHandlerRoute(ApiTargets.LIBRARIES), (req, res, ctx) => {
     const start = req.url.searchParams.has('start') ? Number(req.url.searchParams.get('start')) : 0;
@@ -93,9 +98,38 @@ export const librariesHandlers = [
   rest.delete<null, { id: string }>(apiHandlerRoute(ApiTargets.DOCUMENTS, '/:id'), async (req, res, ctx) => {
     const id = req.params.id;
     const index = libraries.findIndex((lib) => lib.id === id);
-
     libraries.splice(index, 1);
 
     return res(ctx.json({}));
   }),
+
+  //  delete/add documents
+  rest.post<null | IADSApiLibraryDocumentParams, { id: string }>(
+    apiHandlerRoute(ApiTargets.DOCUMENTS, '/:id'),
+    async (req, res, ctx) => {
+      const id = req.params.id;
+
+      if (req.body.action === 'remove') {
+        // remove docs
+        entities[id].documents = entities[id].documents.filter((bibcode) => req.body.bibcode.indexOf(bibcode) === -1);
+        const removed = entities[id].solr.response.numFound - entities[id].documents.length;
+        entities[id].solr.response.docs = entities[id].solr.response.docs.filter(
+          ({ bibcode }) => req.body.bibcode.indexOf(bibcode) === -1,
+        );
+        entities[id].solr.response.numFound = entities[id].solr.response.docs.length;
+        entities[id].metadata.num_documents = entities[id].solr.response.docs.length;
+        libraries.find((l) => l.id === id).num_documents = entities[id].solr.response.docs.length;
+        return res(ctx.json({ removed }));
+      } else {
+        // add docs
+        entities[id].documents = uniq([...entities[id].documents, ...req.body.bibcode]);
+        const added = entities[id].documents.length - entities[id].solr.response.numFound;
+        entities[id].solr.response.docs = entities[id].documents.map((bibcode) => ({ bibcode: bibcode }));
+        entities[id].solr.response.numFound = entities[id].solr.response.docs.length;
+        entities[id].metadata.num_documents = entities[id].solr.response.docs.length;
+        libraries.find((l) => l.id === id).num_documents = entities[id].solr.response.numFound;
+        return res(ctx.json({ added }));
+      }
+    },
+  ),
 ];

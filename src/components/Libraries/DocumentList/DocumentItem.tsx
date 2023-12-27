@@ -143,6 +143,7 @@ const ItemCheckbox = (props: IItemCheckboxProps) => {
       aria-label={`${isChecked ? 'De-select' : 'Select'} item ${label[0]}`}
       size="md"
       {...checkboxProps}
+      data-testid="document-checkbox"
     />
   );
 };
