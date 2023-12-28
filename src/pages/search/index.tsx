@@ -27,6 +27,7 @@ import {
   ListItem,
   Portal,
   Stack,
+  Text,
   Tooltip,
   useDisclosure,
   useMediaQuery,
@@ -54,15 +55,16 @@ import { useIsClient } from 'src/lib';
 import { composeNextGSSP } from '@ssr-utils';
 import { AppState, createStore, useStore, useStoreApi } from '@store';
 import { NumPerPageType } from '@types';
-import { isApiSearchResponse, makeSearchParams, parseQueryFromUrl } from '@utils';
-import axios from 'axios';
+import { makeSearchParams, parseQueryFromUrl } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { last, omit, path } from 'ramda';
-import { FormEventHandler, useEffect, useRef, useState } from 'react';
+import { FormEventHandler, useCallback, useEffect, useRef, useState } from 'react';
 import { dehydrate, QueryClient, useQueryClient } from '@tanstack/react-query';
+import { SOLR_ERROR, useSolrError } from '@lib/useSolrError';
+import { AxiosError } from 'axios';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(() =>
   import('@components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),
@@ -112,7 +114,7 @@ const SearchPage: NextPage = () => {
     start: calculateStartIndex(parsedParams.p, storeNumPerPage, numFound),
   };
 
-  const { data, isSuccess, isLoading, error } = useSearch(omitP(params));
+  const { data, isSuccess, isLoading, isFetching, error, isError } = useSearch(omitP(params));
 
   // needed by histogram for positioning and styling
   const [histogramExpanded, setHistogramExpanded] = useState(false);
@@ -186,6 +188,14 @@ const SearchPage: NextPage = () => {
     setHistogramExpanded((prev) => !prev);
   };
 
+  // conditions
+  const loading = isLoading || isFetching;
+  const noResults = !loading && isSuccess && data?.numFound === 0;
+  const hasResults = !loading && isSuccess && data?.numFound > 0;
+  const isHistogramExpanded = histogramExpanded && !isPrint && isClient && hasResults;
+  const showFilters = !isPrint && isClient && hasResults;
+  const showListActions = !isPrint && (loading || hasResults);
+
   return (
     <>
       <Head>
@@ -201,7 +211,7 @@ const SearchPage: NextPage = () => {
             <FacetFilters mt="2" />
           </form>
         </HideOnPrint>
-        {!isPrint && isClient && (!data || data.docs.length > 0) && histogramExpanded ? (
+        {isHistogramExpanded ? (
           <YearHistogramSlider
             onQueryUpdate={handleSearchFacetSubmission}
             onExpand={handleToggleExpand}
@@ -213,16 +223,16 @@ const SearchPage: NextPage = () => {
         <Flex direction="row" gap={10}>
           <Box display={{ base: 'none', lg: 'block' }}>
             {/* hide facets if screen is too small */}
-            {!isPrint && isClient && (!data || data.docs.length > 0) && (
+            {showFilters ? (
               <SearchFacetFilters
                 histogramExpanded={histogramExpanded}
                 onExpandHistogram={handleToggleExpand}
                 onSearchFacetSubmission={handleSearchFacetSubmission}
               />
-            )}
+            ) : null}
           </Box>
           <Box flexGrow={2}>
-            {!isPrint && (isLoading || (isSuccess && data?.numFound > 0)) ? (
+            {showListActions ? (
               <form>
                 <fieldset disabled={isLoading}>
                   <ListActions onSortChange={handleSortChange} onOpenAddToLibrary={onOpenAddToLibrary} />
@@ -233,8 +243,8 @@ const SearchPage: NextPage = () => {
               Search Results
             </VisuallyHidden>
 
-            {!isLoading && data?.numFound === 0 && <NoResultsMsg query={params.q} />}
-            {isLoading && <ItemsSkeleton count={storeNumPerPage} />}
+            {noResults ? <NoResultsMsg /> : null}
+            {loading ? <ItemsSkeleton count={storeNumPerPage} /> : null}
 
             {data && (
               <>
@@ -249,14 +259,14 @@ const SearchPage: NextPage = () => {
                 )}
               </>
             )}
-            {error && (
-              <Box aria-labelledby="search-form-title" my={16}>
-                <SearchErrorAlert error={error} />
-              </Box>
-            )}
           </Box>
         </Flex>
       </Stack>
+      {isError ? (
+        <Center aria-labelledby="search-form-title" mt={4}>
+          <SearchErrorAlert error={error} />
+        </Center>
+      ) : null}
       <AddToLibraryModal isOpen={isAddToLibraryOpen} onClose={onCloseAddToLibrary} />
     </>
   );
@@ -352,14 +362,10 @@ const SearchFacetFilters = (props: {
   );
 };
 
-const NoResultsMsg = ({ query = '' }: { query: string }) => (
+const NoResultsMsg = () => (
   <CustomInfoMessage
     status="info"
-    title={
-      <>
-        Sorry no results were found for <Code children={query} />
-      </>
-    }
+    title={<>Sorry no results were found</>}
     description={
       <List w="100%">
         <ListItem>
@@ -415,11 +421,11 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
 
   // prefetch the citation counts for this query
   if (/^citation_count(_norm)?/.test(params.sort[0])) {
-    void (await queryClient.prefetchQuery({
+    await queryClient.prefetchQuery({
       queryKey: searchKeys.stats(cleanedParams),
       queryFn: fetchSearch,
       meta: { params: getSearchStatsParams(params, params.sort[0]) },
-    }));
+    });
   }
   const initialState = createStore().getState();
 
@@ -460,31 +466,28 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
 
 export default SearchPage;
 
-const SearchErrorAlert = ({ error }: { error: unknown }) => {
-  if (!error) {
-    return null;
-  }
+const SearchErrorAlert = ({ error }: { error: AxiosError<IADSApiSearchResponse> | Error }) => {
+  const data = useSolrError(error);
 
-  // Show a message about updating query if the it's a syntax error
-  if (axios.isAxiosError(error) && error.response.status === 400 && isApiSearchResponse(error.response.data)) {
-    const query = error.response.data.responseHeader.params.q;
-
-    return (
-      <Alert status="error">
-        <AlertIcon />
-        <Stack direction="row">
-          <p>Unable to parse </p>
-          <Code>{query}</Code>
-          <p>please update, and try again</p>
-        </Stack>
-      </Alert>
-    );
-  }
+  const getMsg = useCallback(() => {
+    switch (data?.error) {
+      case SOLR_ERROR.FIELD_NOT_FOUND:
+        return (
+          <Text>
+            Unknown field: <Code>{data?.field}</Code>
+          </Text>
+        );
+      case SOLR_ERROR.SYNTAX_ERROR:
+        return <Text>There was an issue parsing the query</Text>;
+      default:
+        return <Text>There was an issue performing the search, please check your query</Text>;
+    }
+  }, [data.error]);
 
   return (
     <Alert status="error">
       <AlertIcon />
-      {axios.isAxiosError(error) && error.message}
+      {getMsg()}
     </Alert>
   );
 };
