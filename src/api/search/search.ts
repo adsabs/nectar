@@ -10,10 +10,17 @@ import api, {
   IDocsEntity,
   InfiniteADSQuery,
 } from '@api';
-import { AxiosError } from 'axios';
+import axios, { AxiosError } from 'axios';
 import { omit } from 'ramda';
-import { MutationFunction, QueryFunctionContext, QueryKey, useMutation } from '@tanstack/react-query';
-import { QueryFunction, useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import {
+  MutationFunction,
+  QueryFunction,
+  QueryFunctionContext,
+  QueryKey,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+} from '@tanstack/react-query';
 import {
   defaultParams,
   getAbstractParams,
@@ -30,7 +37,7 @@ import {
   getSingleRecordParams,
   getTocParams,
 } from './models';
-import { isString, parseAPIError } from '@utils';
+import { isString } from '@utils';
 import { resolveObjectQuery } from '@api/objects/objects';
 
 type ErrorType = Error | AxiosError;
@@ -101,7 +108,7 @@ export const useSearch: SearchADSQuery = (params, options) => {
     meta: { params },
     select: responseSelector,
     retry: (failCount, error): boolean => {
-      return parseAPIError(error) !== 'Request failed with status code 400';
+      return axios.isAxiosError(error) && error.response?.status !== 400;
     },
     ...options,
   });
@@ -370,7 +377,7 @@ export const fetchBigQuerySearch: MutationFunction<IADSApiSearchResponse['respon
     const config: ApiRequestConfig = {
       method: 'POST',
       url: `${ApiTargets.BIGQUERY}`,
-      params: {...params, rows: variables.rows},
+      params: { ...params, rows: variables.rows },
       data: `bibcode\n${variables.bibcodes.join('\n')}`,
       headers: { 'Content-Type': 'bigquery/csv' },
     };

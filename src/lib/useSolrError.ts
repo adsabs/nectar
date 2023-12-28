@@ -1,3 +1,6 @@
+import { AxiosError, isAxiosError } from 'axios';
+import { IADSApiSearchResponse } from '@api';
+
 type SolrErrorResponse = {
   code: number;
   metadata: Array<string>;
@@ -5,9 +8,9 @@ type SolrErrorResponse = {
 };
 
 export enum SOLR_ERROR {
+  UNKNOWN,
   FIELD_NOT_FOUND,
   SYNTAX_ERROR,
-  UNKNOWN,
 }
 
 const isSolrErrorResponse = (error: unknown): error is SolrErrorResponse => {
@@ -15,22 +18,26 @@ const isSolrErrorResponse = (error: unknown): error is SolrErrorResponse => {
 };
 
 export const useSolrError = (error: unknown) => {
-  if (!isSolrErrorResponse(error)) {
+  let solrError = error;
+
+  // if incoming error is an axios error, extract the actual solr error from it
+  if (isAxiosError(solrError)) {
+    solrError = (solrError as AxiosError<IADSApiSearchResponse>).response.data.error as SolrErrorResponse;
+  }
+
+  // if incoming error is not a solr error, return unknown
+  if (!isSolrErrorResponse(solrError)) {
     return { error: SOLR_ERROR.UNKNOWN };
   }
 
-  if (error.code !== 400) {
-    return { error: SOLR_ERROR.UNKNOWN };
-  }
-
-  if (error.msg.includes('undefined field')) {
+  if (solrError.msg.includes('undefined field')) {
     return {
       error: SOLR_ERROR.FIELD_NOT_FOUND,
-      field: error.msg.split('undefined field ')[1],
+      field: solrError.msg.split('undefined field ')[1],
     };
   }
 
-  if (error.msg.includes('Syntax Error, cannot parse')) {
+  if (solrError.msg.includes('Syntax Error, cannot parse')) {
     return {
       error: SOLR_ERROR.SYNTAX_ERROR,
     };
