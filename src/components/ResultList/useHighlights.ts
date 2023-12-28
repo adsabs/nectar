@@ -1,5 +1,4 @@
 import { useGetHighlights } from '@api';
-import { useToast } from '@chakra-ui/react';
 import { AppState, useStore } from '@store';
 import { decode } from 'he';
 import { flatten, map, pipe, reduce, values } from 'ramda';
@@ -32,24 +31,14 @@ const selectors = {
  * It also watches the global switch for `showHighlights`, so no fetching will happen unless that is set
  */
 export const useHighlights = () => {
-  const toast = useToast();
   const latestQuery = useStore(selectors.latestQuery);
   const showHighlights = useStore(selectors.showHighlights);
 
-  const { error, isFetching, data } = useGetHighlights(latestQuery, {
+  const { isFetching, data } = useGetHighlights(latestQuery, {
     // will not trigger unless the toggle has been set
     enabled: showHighlights,
-    notifyOnChangeProps: ['data', 'error', 'isFetching'],
+    notifyOnChangeProps: ['data', 'isFetching'],
   });
-
-  // if error, show toast message
-  if (error) {
-    toast({
-      status: 'error',
-      title: 'Error!',
-      description: 'Unable to fetch highlights',
-    });
-  }
 
   // Do this first to maintain results ordering
   const highlights = data?.docs.map(({ id }) => data.highlighting[id]) ?? [];
