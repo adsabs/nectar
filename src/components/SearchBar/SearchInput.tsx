@@ -55,7 +55,7 @@ const ClearInputButton = (props: ButtonProps) => {
 export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { isLoading, ...inputProps } = props;
-  const [input, focus] = useFocus();
+  const [input, focus] = useFocus({ selectTextOnFocus: false });
   const refs = useMergeRefs(ref, input);
   const { query, queryAddition, onDoneAppendingToQuery, isClearingQuery, onDoneClearingQuery } = useIntermediateQuery();
 
