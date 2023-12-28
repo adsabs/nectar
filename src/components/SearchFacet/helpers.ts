@@ -3,7 +3,6 @@ import { escape, getOperator, getTerms, joinQueries, Operator, splitQuery } from
 import { isString } from '@utils';
 import {
   always,
-  and,
   append,
   both,
   complement,
@@ -13,6 +12,7 @@ import {
   defaultTo,
   filter,
   head,
+  identity,
   ifElse,
   is,
   isEmpty,
@@ -30,7 +30,6 @@ import {
   replace,
   split,
   tail,
-  test,
   toPairs,
   uniq,
   when,
@@ -89,6 +88,8 @@ export const getPrevKey = (key: string, includePrefix?: boolean) => {
     : parts.slice(1, -1).join(DEFAULT_DELIMETER);
 };
 
+const isHierarchical = (key: string) => /^\d\//.test(key);
+
 /**
  * Parse root value from id
  *
@@ -101,10 +102,17 @@ export const getPrevKey = (key: string, includePrefix?: boolean) => {
  */
 export const parseRootFromKey = (key: string, includePrefix?: boolean) =>
   when(
-    and(nonEmptyString, test(/\//)),
-    pipe<[string], string[], string>(
-      split('/'),
-      ifElse(always(includePrefix), pipe<[string[]], string, string>(nth(1), concat('0/')), nth(1)),
+    nonEmptyString,
+    ifElse(
+      // we only parse out the root if the key is hierarchical
+      isHierarchical,
+      pipe<[string], string[], string>(
+        split('/'),
+        ifElse(always(includePrefix), pipe<[string[]], string, string>(nth(1), concat('0/')), nth(1)),
+      ),
+
+      // otherwise, just return the key
+      identity,
     ),
   )(key);
 
