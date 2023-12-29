@@ -2,18 +2,25 @@ import {
   ApiTargets,
   IADSApiLibraryAddParams,
   IADSApiLibraryDocumentParams,
+  IADSApiLibraryEditMetaParams,
   IADSApiLibraryEntityResponse,
   IADSApiLibraryOperationParams,
+  IADSApiLibraryPermissionResponse,
+  IADSApiLibraryPermissionUpdateParams,
   IADSApiLibraryResponse,
+  IADSApiLibraryTransferParams,
   ILibraryMetadata,
 } from '@api';
 import { rest } from 'msw';
 import allLibraries from '../responses/library/all-libraries.json';
 import allEntities from '../responses/library/library-entities.json';
+import allPermissions from '../responses/library/permissions.json';
 import { apiHandlerRoute } from '@mocks/mockHelpers';
 import { uniq } from 'ramda';
 
 const libraries = [...allLibraries] as ILibraryMetadata[];
+
+const permissions = allPermissions as { [key in string]: IADSApiLibraryPermissionResponse };
 
 const entities = allEntities as { [key in string]: IADSApiLibraryEntityResponse };
 
@@ -103,6 +110,35 @@ export const librariesHandlers = [
     return res(ctx.json({}));
   }),
 
+  // edit library meta
+  rest.put<Omit<IADSApiLibraryEditMetaParams, 'id'>, { id: string }>(
+    apiHandlerRoute(ApiTargets.DOCUMENTS, '/:id'),
+    async (req, res, ctx) => {
+      const id = req.params.id;
+      const { name, description, public: isPublic } = req.body;
+
+      const library = libraries.find((l) => l.id === id);
+      const entity = entities[id];
+
+      if (name) {
+        library.name = name;
+        entity.metadata.name = name;
+      }
+
+      if (description) {
+        library.description = description;
+        entity.metadata.description = description;
+      }
+
+      if (isPublic) {
+        library.public = isPublic;
+        entity.metadata.public = isPublic;
+      }
+
+      return res(ctx.json({ name: library.name, description: library.description, public: library.public }));
+    },
+  ),
+
   //  delete/add documents
   rest.post<null | IADSApiLibraryDocumentParams, { id: string }>(
     apiHandlerRoute(ApiTargets.DOCUMENTS, '/:id'),
@@ -130,6 +166,57 @@ export const librariesHandlers = [
         libraries.find((l) => l.id === id).num_documents = entities[id].solr.response.numFound;
         return res(ctx.json({ added }));
       }
+    },
+  ),
+
+  rest.get<null, { id: string }>(apiHandlerRoute(ApiTargets.PERMISSIONS, '/:id'), async (req, res, ctx) => {
+    const id = req.params.id;
+    return res(ctx.json(permissions[id]));
+  }),
+
+  rest.post<IADSApiLibraryPermissionUpdateParams, { id: string }>(
+    apiHandlerRoute(ApiTargets.PERMISSIONS, '/:id'),
+    async (req, res, ctx) => {
+      const id = req.params.id;
+      const { email, permission } = req.body;
+
+      const userPermissions = permissions[id].find((up) => !!up[email]);
+
+      if (userPermissions) {
+        // existing user
+        if (!permission.admin && !permission.read && !permission.write) {
+          // remove user
+          permissions[id] = permissions[id].filter((up) => !up[email]);
+        } else {
+          userPermissions[email] = permission.admin
+            ? ['admin']
+            : permission.write
+            ? ['write']
+            : permission.read
+            ? ['read']
+            : [];
+        }
+      } else {
+        // new user
+        permissions[id].push({
+          [email]: permission.admin ? ['admin'] : permission.write ? ['write'] : permission.read ? ['read'] : [],
+        });
+      }
+
+      return res(ctx.json({}));
+    },
+  ),
+
+  rest.post<Omit<IADSApiLibraryTransferParams, 'id'>, { id: string }>(
+    apiHandlerRoute(ApiTargets.LIBRARY_TRANSFER, '/:id'),
+    async (req, res, ctx) => {
+      const id = req.params.id;
+      const { email } = req.body;
+
+      libraries.find((l) => l.id === id).owner = email;
+      entities[id].metadata.owner = email;
+
+      return res(ctx.json({}));
     },
   ),
 ];

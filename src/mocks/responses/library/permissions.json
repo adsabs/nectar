@@ -1,0 +1,13 @@
+{
+  "001": [{ "ads.user.20": ["owner"] }, { "ads.user.1": ["read"] }],
+  "002": [{ "ads.user.20": ["owner"] }, { "ads.user.1": ["write"] }],
+  "003": [{ "ads.user.20": ["owner"] }, { "ads.user.1": ["admin"] }],
+  "004": [{ "ads.user.1": ["owner"] }],
+  "005": [{ "ads.user.1": ["owner"] }],
+  "006": [{ "ads.user.1": ["owner"] }],
+  "007": [{ "ads.user.1": ["owner"] }],
+  "008": [{ "ads.user.1": ["owner"] }],
+  "009": [{ "ads.user.1": ["owner"] }],
+  "010": [{ "ads.user.1": ["owner"] }],
+  "011": [{ "ads.user.1": ["owner"] }]
+}

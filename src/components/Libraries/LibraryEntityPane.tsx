@@ -203,7 +203,7 @@ export const LibraryEntityPane = ({ library, publicView, onRefetch = noop }: ILi
             </Button>
           </SimpleLink>
           <SimpleLink href={`/user/libraries/${id}/settings`}>
-            <IconButton aria-label="settings" icon={<SettingsIcon />} variant="outline" />
+            <IconButton aria-label="settings" icon={<SettingsIcon />} variant="outline" data-testid="settings-btn" />
           </SimpleLink>
         </Flex>
       )}
