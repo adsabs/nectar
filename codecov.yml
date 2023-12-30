@@ -1,14 +1,28 @@
+codecov:
+  require_ci_to_pass: true
+
 coverage:
   status:
+    project:
+      default:
+        target: 80%
+        threshold: 2%
     patch: false
 
   range: 40..60
-  round: down
-  precision: 2
+  round: up
+  precision: 1
 
 ignore:
   - src/**/*.test.*
   - src/mocks/**/*
+  - e2e/**/*
+  - .*/**/*
 
 comment:
   layout: diff, files
+  require_changes: true
+  behavior: default
+
+github_checks:
+  annotations: false
