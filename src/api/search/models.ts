@@ -88,6 +88,7 @@ export const getAbstractParams = (id: string): IADSApiSearchParams => ({
     'orcid_other',
     'doi',
     'pub_raw',
+    'pub',
     'keyword',
     'comment',
     'pubnote',
