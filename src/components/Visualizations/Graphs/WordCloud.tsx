@@ -81,6 +81,8 @@ export const WordCloud = ({
             .classed('selected', selectedWords.findIndex((w) => text === w) !== -1)
             .attr('data-word', text)
             .style('fill', fill(origSize))
+            .style('stroke', '#fff')
+            .style('stroke-width', 0.2)
             .on('click', () => onClickWord(text))
             .attr('transform', randomStartPos())
             .transition()

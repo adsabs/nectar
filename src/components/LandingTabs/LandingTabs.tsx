@@ -6,6 +6,7 @@ import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { CSSProperties, ReactElement } from 'react';
 import { ScixAndNasaLogo_H_beta } from '@components/images/ScixAndNasaLogo-H_beta';
+import { useColorModeColors } from '@lib';
 
 const imageStyle: CSSProperties = { objectFit: 'cover', opacity: '50%', zIndex: 0 };
 export const LandingTabs = (): ReactElement => {
@@ -60,8 +61,9 @@ const Tabs = ({ show }: { show: boolean }) => {
   if (!show) {
     return null;
   }
+
   return (
-    <HStack justifyContent="center" spacing={2} zIndex={5} color="white" fontSize={{ base: 'md', sm: 'xl' }}>
+    <HStack justifyContent="center" spacing={2} zIndex={5} fontSize={{ base: 'md', sm: 'xl' }}>
       <Tab href="/classic-form" label="Classic Form" active={pathname === '/classic-form'} />
       <Tab href="/" label="Modern Form" active={pathname === '/'} />
       <Tab href="/paper-form" label="Paper Form" active={pathname === '/paper-form'} />
@@ -88,12 +90,13 @@ interface ITabProps {
   active: boolean;
 }
 const Tab = ({ href, label, active }: ITabProps) => {
+  const { background, highlightForeground } = useColorModeColors();
   return (
     <Link as={NextLink} href={href} passHref>
       <Box
         as={'a'}
-        backgroundColor={active ? 'white' : 'transparent'}
-        color={active ? 'blue.400' : 'gray.50'}
+        backgroundColor={active ? background : 'transparent'}
+        color={active ? highlightForeground : 'gray.50'}
         px={4}
         py={2}
         borderTopRadius={3}

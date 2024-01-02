@@ -1,4 +1,5 @@
 import { IADSApiAuthorNetworkNode, IADSApiAuthorNetworkNodeKey } from '@api';
+import { useColorMode } from '@chakra-ui/react';
 import * as d3 from 'd3';
 import { useCallback, useMemo } from 'react';
 import { ILink, NetworkHierarchyNode } from './AuthorNetworkGraph';
@@ -192,6 +193,8 @@ export const useAuthorNetworkGraph = (
     return linkScale(weight);
   };
 
+  const { colorMode } = useColorMode();
+
   return {
     partition,
     arc,
@@ -202,5 +205,6 @@ export const useAuthorNetworkGraph = (
     nodeFill,
     labelDisplay,
     strokeWidth,
+    textColor: colorMode === 'light' ? '#000000' : '#ffffff',
   };
 };

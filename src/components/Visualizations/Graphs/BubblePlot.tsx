@@ -87,7 +87,7 @@ export const BubblePlot = ({
   useEffect(() => dispatch({ type: 'SET_X_SCALE_TYPE', payload: xScaleTypes[0] }), [xScaleTypes]);
   useEffect(() => dispatch({ type: 'SET_Y_SCALE_TYPE', payload: yScaleTypes[0] }), [yScaleTypes]);
 
-  const { groupColor, xScaleFn, yScaleFn, rScaleFn } = useBubblePlot({
+  const { groupColor, xScaleFn, yScaleFn, rScaleFn, textColor } = useBubblePlot({
     graph,
     xKey,
     yKey,
@@ -337,7 +337,7 @@ export const BubblePlot = ({
       })
       .attr('fill', function (d) {
         if (d === 'other') {
-          return 'hsla(0, 0%, 20%, 1)';
+          return 'hsla(100, 50%, 20%, 0.9)';
         }
         return groupColor(d);
       });
@@ -436,12 +436,14 @@ export const BubblePlot = ({
       const yLabelElement = svg
         .append('g')
         .attr('transform', `translate(${margin.left / 2}, ${height + margin.top / 2}) rotate(-90)`)
-        .classed('y-label', true);
+        .classed('y-label', true)
+        .style('fill', textColor);
 
       const xLabelElement = svg
         .append('g')
         .attr('transform', `translate(${width / 2},${height + margin.top + margin.bottom / 2})`)
-        .classed('x-label', true);
+        .classed('x-label', true)
+        .style('fill', textColor);
 
       renderXAxisLabel(xLabelElement);
       renderYAxisLabel(yLabelElement);
@@ -520,7 +522,7 @@ export const BubblePlot = ({
 
       return svg;
     },
-    [graph],
+    [graph, textColor],
   );
 
   const { ref } = useD3(renderFunction, [renderFunction]);

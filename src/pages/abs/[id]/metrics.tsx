@@ -3,7 +3,6 @@ import { Box } from '@chakra-ui/react';
 import { LoadingMessage, MetricsPane } from '@components';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
-import { unwrapStringValue } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { composeNextGSSP } from '@ssr-utils';
@@ -25,7 +24,6 @@ const MetricsPage: NextPage = () => {
 
   const hasCitations = isSuccess && metrics && metrics[MetricsResponseKey.CS][CitationsStatsKey.TNC] > 0;
   const hasReads = isSuccess && metrics && metrics[MetricsResponseKey.BS][BasicStatsKey.TNR] > 0;
-  const title = unwrapStringValue(doc?.title);
 
   return (
     <AbsLayout doc={doc} titleDescription="Metrics for">

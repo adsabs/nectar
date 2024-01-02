@@ -7,3 +7,4 @@ export * from './useIsClient';
 export * from './useMetrics';
 export * from './useGetResourceLinks';
 export * from './useGetUserEmail';
+export * from './useColorModeColors';

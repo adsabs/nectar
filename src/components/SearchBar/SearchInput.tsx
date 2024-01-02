@@ -2,6 +2,7 @@ import {
   ButtonProps,
   CloseButton,
   Code,
+  DarkMode,
   Flex,
   forwardRef,
   Icon,
@@ -10,6 +11,7 @@ import {
   InputGroup,
   InputProps,
   InputRightElement,
+  LightMode,
   List,
   ListItem,
   Popover,
@@ -17,10 +19,20 @@ import {
   PopoverBody,
   PopoverContent,
   Text,
+  useColorMode,
   useMergeRefs,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { ChangeEventHandler, Dispatch, KeyboardEventHandler, useCallback, useEffect, useReducer, useRef } from 'react';
+import {
+  ChangeEventHandler,
+  Dispatch,
+  KeyboardEventHandler,
+  useCallback,
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
 import { useIntermediateQuery } from '@lib/useIntermediateQuery';
 import { isNonEmptyString } from 'ramda-adjunct';
 import { TypeaheadOption } from '@components/SearchBar/types';
@@ -28,6 +40,7 @@ import { initialState, reducer, SearchInputAction } from '@components/SearchBar/
 import { getFocusedItemValue, getPreview } from '@components/SearchBar/helpers';
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { useFocus } from '@lib/useFocus';
+import { useColorModeColors } from '@lib';
 
 const SEARCHBAR_MAX_LENGTH = 2048 as const;
 
@@ -225,6 +238,9 @@ const TypeaheadItem = (props: {
 }) => {
   const { focused, item, dispatch, index, onClick } = props;
   const liRef = useRef<HTMLLIElement>(null);
+  const colors = useColorModeColors();
+  const { colorMode } = useColorMode();
+  const [isMouseOver, setIsMouseOver] = useState(false);
 
   const handleClick = useCallback(() => {
     dispatch({ type: 'FOCUS_ITEM', index });
@@ -233,6 +249,14 @@ const TypeaheadItem = (props: {
       onClick();
     }
   }, [onClick]);
+
+  const handleMouseOver = () => {
+    setIsMouseOver(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsMouseOver(false);
+  };
 
   // scroll element into view when focused
   useEffect(() => {
@@ -245,17 +269,27 @@ const TypeaheadItem = (props: {
     <ListItem
       ref={liRef}
       backgroundColor={focused ? 'blue.100' : 'auto'}
-      _hover={{ cursor: 'pointer', backgroundColor: 'blue.100' }}
+      _hover={{ cursor: 'pointer', backgroundColor: colors.highlightBackground }}
       px="2"
       py="1"
       onClick={handleClick}
       role="presentation"
+      onMouseEnter={handleMouseOver}
+      onMouseLeave={handleMouseLeave}
     >
       <Flex role="option" aria-label={item.label} aria-atomic="true">
         <Text flex="1" role="presentation">
           {item.label}
         </Text>
-        <Code>{item.value}</Code>
+        {(colorMode === 'dark' && isMouseOver) || colorMode === 'light' ? (
+          <LightMode>
+            <Code>{item.value}</Code>
+          </LightMode>
+        ) : (
+          <DarkMode>
+            <Code>{item.value}</Code>
+          </DarkMode>
+        )}
       </Flex>
     </ListItem>
   );

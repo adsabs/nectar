@@ -1,7 +1,7 @@
 import { IADSApiSearchParams, useVaultBigQuerySearch } from '@api';
 import { IADSApiPaperNetworkFullGraph, IADSApiPaperNetworkSummaryGraphNode } from '@api/vis/types';
 import { useGetPaperNetwork } from '@api/vis/vis';
-import { Box, SimpleGrid, useBreakpointValue, useToast } from '@chakra-ui/react';
+import { Box, Center, SimpleGrid, useBreakpointValue, useToast } from '@chakra-ui/react';
 import {
   CustomInfoMessage,
   DataDownloader,
@@ -316,7 +316,11 @@ const StatusDisplay = ({
           description={axios.isAxiosError(paperNetworkError) && paperNetworkError.message}
         />
       )}
-      {paperNetworkIsLoading && <LoadingMessage message="Fetching paper network data" />}
+      {paperNetworkIsLoading && (
+        <Center>
+          <LoadingMessage message="Fetching paper network data" />
+        </Center>
+      )}
     </>
   );
 };

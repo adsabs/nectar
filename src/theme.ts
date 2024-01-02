@@ -1,13 +1,8 @@
-import {
-  extendTheme,
-  ThemeComponentProps,
-  ThemeConfig,
-  withDefaultColorScheme,
-  withDefaultSize,
-} from '@chakra-ui/react';
+import { extendTheme, StyleFunctionProps, ThemeConfig, withDefaultSize } from '@chakra-ui/react';
+import { mode } from '@chakra-ui/theme-tools';
 
 const config: ThemeConfig = {
-  initialColorMode: 'light', // use 'system' when we have dark mode switch
+  initialColorMode: 'light',
   useSystemColorMode: false,
 };
 
@@ -64,23 +59,16 @@ export const theme = extendTheme(
       '2xl': '1536px',
     },
     styles: {
-      global: {
+      global: (props: StyleFunctionProps) => ({
         'html, body': {
-          color: 'gray.700',
+          color: mode('gray.600', 'whiteAlpha.900')(props),
           fontSize: 'md',
           fontWeight: 'normal',
         },
         a: {
-          color: 'blue.400',
+          color: mode('blue.400', 'blue.200')(props),
         },
-        footer: {
-          backgroundColor: 'gray.900',
-          color: 'gray.50',
-        },
-        'footer a': {
-          color: 'gray.50',
-        },
-      },
+      }),
     },
     components: {
       Heading: {
@@ -93,21 +81,21 @@ export const theme = extendTheme(
           },
         },
       },
-      Link: {
+      Link: (props: StyleFunctionProps) => ({
         baseStyle: {
-          color: 'blue.500',
+          color: mode('blue.400', 'blue.200')(props),
         },
         variants: {
           footer: {
             color: 'gray.50',
           },
           dropdownItem: {
-            color: 'gray.700',
+            color: mode('gray.700', 'whiteAlpha.900')(props),
             _hover: { textDecoration: 'none' },
             _focus: { textDecoration: 'none', boxShadow: 'none' },
           },
         },
-      },
+      }),
       Menu: {
         parts: ['button', 'list', 'item'],
         variants: {
@@ -208,20 +196,21 @@ export const theme = extendTheme(
             },
           },
         },
-        variants: {
-          outline: (props: ThemeComponentProps) => ({
-            field: {
-              backgroundColor: props.colorMode === 'light' ? 'white' : 'black',
-            },
-          }),
-        },
       },
       Textarea: {
-        variants: {
-          outline: (props: ThemeComponentProps) => ({
-            backgroundColor: props.colorMode === 'light' ? 'white' : 'black',
-            borderRadius: '2px',
-          }),
+        sizes: {
+          lg: {
+            borderRadius: 'sm',
+          },
+          md: {
+            borderRadius: 'sm',
+          },
+          sm: {
+            borderRadius: 'sm',
+          },
+          xs: {
+            borderRadius: 'sm',
+          },
         },
       },
       Text: {
@@ -238,14 +227,12 @@ export const theme = extendTheme(
             borderRadius: '0',
             borderColor: 'gray.200',
             backgroundColor: 'transparent',
-            color: 'gray.700',
           },
           pageCurrent: {
             borderWidth: '1px',
             borderRadius: '0',
             borderColor: 'blue.500',
             backgroundColor: 'blue.50',
-            color: 'gray.700',
             zIndex: '5',
           },
           pagePrev: {
@@ -253,21 +240,18 @@ export const theme = extendTheme(
             borderRadius: '5px 0 0 5px',
             borderColor: 'gray.200',
             backgroundColor: 'transparent',
-            color: 'gray.700',
           },
           pageBetween: {
             borderWidth: '1px',
             borderRadius: '0 0 0 0',
             borderColor: 'gray.200',
             backgroundColor: 'transparent',
-            color: 'gray.700',
           },
           pageNext: {
             borderWidth: '1px',
             borderRadius: '0 5px 5px 0',
             borderColor: 'gray.200',
             backgroundColor: 'transparent',
-            color: 'gray.700',
           },
           warning: {
             backgroundColor: 'red.500',
@@ -279,6 +263,9 @@ export const theme = extendTheme(
             backgroundColor: 'transparent',
             color: 'gray.700',
           },
+        },
+        defaultProps: {
+          colorScheme: 'blue',
         },
       },
       Select: {
@@ -298,9 +285,16 @@ export const theme = extendTheme(
           },
         },
       },
+      Modal: {
+        baseStyle: (props: StyleFunctionProps) => ({
+          dialog: {
+            bg: mode('whiteAlpha.900', 'gray.800')(props),
+          },
+        }),
+      },
     },
   },
-  withDefaultColorScheme({ colorScheme: 'blue' }),
+  // withDefaultColorScheme({ colorScheme: 'blue' }),
   withDefaultSize({
     size: 'sm',
     components: ['Button', 'IconButton', 'Table'],

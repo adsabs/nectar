@@ -1,7 +1,7 @@
 import { IADSApiSearchParams, useVaultBigQuerySearch } from '@api';
 import { IADSApiAuthorNetworkNode, IBibcodeDict } from '@api/vis/types';
 import { useGetAuthorNetwork } from '@api/vis/vis';
-import { Box, SimpleGrid, useBreakpointValue, useToast } from '@chakra-ui/react';
+import { Box, Center, SimpleGrid, useBreakpointValue, useToast } from '@chakra-ui/react';
 import {
   AuthorNetworkDetailsPane,
   AuthorNetworkGraphPane,
@@ -273,7 +273,11 @@ const StatusDisplay = ({
           description={axios.isAxiosError(authorNetworkError) && authorNetworkError.message}
         />
       )}
-      {authorNetworkIsLoading && <LoadingMessage message="Fetching author network data" />}
+      {authorNetworkIsLoading && (
+        <Center>
+          <LoadingMessage message="Fetching author network data" />
+        </Center>
+      )}
     </>
   );
 };

@@ -1,5 +1,5 @@
 import { Bibcode, IADSApiSearchParams, useGetMetrics } from '@api';
-import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, CircularProgress, Text } from '@chakra-ui/react';
+import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, Center, CircularProgress, Text } from '@chakra-ui/react';
 import { CustomInfoMessage, MetricsPane } from '@components';
 import { useBatchedSearch } from '@lib/useBatchedSearch';
 import axios from 'axios';
@@ -63,7 +63,7 @@ const MetricsComponent = ({ bibcodes }: { bibcodes: Bibcode[] }): ReactElement =
               <Text my={5}>
                 {isLoading ? 'Loading' : 'Showing'} metrics for <b>{bibcodes.length.toLocaleString()}</b> records
               </Text>
-              {isLoading && <CircularProgress isIndeterminate />}
+              <Center>{isLoading && <CircularProgress isIndeterminate />}</Center>
               {metricsData && <MetricsPane metrics={metricsData} isAbstract={false} bibcodes={bibcodes} />}
             </>
           )}

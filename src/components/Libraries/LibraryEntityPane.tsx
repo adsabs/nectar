@@ -15,6 +15,7 @@ import {
   Flex,
   Heading,
   HStack,
+  Icon,
   IconButton,
   Table,
   Tbody,
@@ -29,6 +30,7 @@ import {
 } from '@chakra-ui/react';
 import { CustomInfoMessage, ItemsSkeleton, Pagination, SearchQueryLink, SimpleLink, Sort } from '@components';
 import { BuildingLibraryIcon } from '@heroicons/react/24/solid';
+import { useColorModeColors } from '@lib';
 import { AppState, useStore } from '@store';
 import { NumPerPageType } from '@types';
 import { noop, parseAPIError } from '@utils';
@@ -92,6 +94,8 @@ export const LibraryEntityPane = ({ library, publicView, onRefetch = noop }: ILi
     },
     { cacheTime: 0, staleTime: 0 },
   );
+
+  const colors = useColorModeColors();
 
   const { numFound } = library.solr.response;
 
@@ -205,16 +209,15 @@ export const LibraryEntityPane = ({ library, publicView, onRefetch = noop }: ILi
 
       <Flex alignItems="center" gap={2}>
         {publicView ? (
-          <IconButton
-            icon={<BuildingLibraryIcon color="white" />}
+          <Icon
+            as={BuildingLibraryIcon}
             aria-label="SciX Public Library"
-            isRound={true}
-            colorScheme="gray"
-            backgroundColor="gray.800"
-            size="md"
+            borderRadius={25}
+            w={10}
+            h={10}
+            backgroundColor="gray.700"
+            color="white"
             p={2}
-            cursor="default"
-            _hover={{ backgroundColor: 'gray.800' }}
           />
         ) : isPublic ? (
           <Tooltip label="This library is public">
@@ -230,7 +233,7 @@ export const LibraryEntityPane = ({ library, publicView, onRefetch = noop }: ILi
         </Heading>
       </Flex>
       <Text my={2}>{description}</Text>
-      <Table variant="unstyled" my={4} backgroundColor="gray.50" display={{ base: 'none', sm: 'block' }}>
+      <Table variant="unstyled" my={4} backgroundColor={colors.panel} display={{ base: 'none', sm: 'block' }}>
         <Thead>
           <Tr>
             <Th>Papers</Th>
@@ -342,8 +345,10 @@ const BulkAction = ({
     isAllSelected || isSomeSelected ? onClearAllCurrent() : onSelectAllCurrent();
   };
 
+  const { panel: PanelBackground } = useColorModeColors();
+
   return (
-    <Flex justifyContent="space-between" backgroundColor="gray.50" p={4}>
+    <Flex justifyContent="space-between" backgroundColor={PanelBackground} p={4}>
       <HStack gap={2}>
         <Tooltip
           label={

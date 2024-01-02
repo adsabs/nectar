@@ -1,5 +1,6 @@
 import { Box, Text, TextProps } from '@chakra-ui/react';
 import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
+import { useColorModeColors } from '@lib';
 import { ArrayChange, Change } from 'diff';
 import { DiffSection } from './types';
 
@@ -56,6 +57,8 @@ const ArrayChanges = ({ label, changes }: { label: string; changes: ArrayChange<
 };
 
 const TextChanges = ({ changes, newValue }: { changes: Change[]; newValue: string }) => {
+  const colors = useColorModeColors();
+
   let i = 0;
   return (
     <>
@@ -76,7 +79,7 @@ const TextChanges = ({ changes, newValue }: { changes: Change[]; newValue: strin
       <br />
       <br />
       <Text fontWeight="bold">Updated:</Text>
-      <Box backgroundColor="gray.50" p={4} mt={2}>
+      <Box backgroundColor={colors.panel} p={4} mt={2}>
         <pre style={{ whiteSpace: 'pre-wrap' }}>{newValue}</pre>
       </Box>
     </>

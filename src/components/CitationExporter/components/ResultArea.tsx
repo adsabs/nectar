@@ -6,6 +6,7 @@ import { useIsClient } from '@lib/useIsClient';
 import { exportFormats } from '../models';
 import { LabeledCopyButton } from '@components/CopyButton';
 import { useGTMDispatch } from '@elgorditosalsero/react-gtm-hook';
+import { useColorModeColors } from '@lib';
 
 export const ResultArea = ({
   result = '',
@@ -30,6 +31,7 @@ export const ResultArea = ({
   });
   const isFullWidth = useBreakpointValue([true, false]);
   const isClient = useIsClient();
+  const { panel: textAreaBackgroundColor } = useColorModeColors();
   return (
     <Stack flexGrow={[1, 1, 2]} {...stackProps}>
       {isClient && (
@@ -66,7 +68,7 @@ export const ResultArea = ({
         fontSize={['xs', 'sm']}
         resize="none"
         minH={['xs', 'sm']}
-        bgColor="gray.100"
+        bgColor={textAreaBackgroundColor}
         fontFamily="monospace"
         fontWeight="semibold"
         value={result}

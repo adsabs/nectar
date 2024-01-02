@@ -1,4 +1,4 @@
-import { CheckIcon, EditIcon } from '@chakra-ui/icons';
+import { AddIcon, CheckIcon, CloseIcon, EditIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
@@ -44,9 +44,12 @@ import escapeHtml from 'escape-html';
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import { getFallBackAlert } from '@components/Feedbacks/SuspendedAlert';
+import { useColorModeColors } from '@lib';
 
 export const UserSettings = () => {
   const isMobile = useBreakpointValue({ base: true, lg: false });
+
+  const { background } = useColorModeColors();
 
   const body = (
     <>
@@ -86,7 +89,7 @@ export const UserSettings = () => {
   }
 
   return (
-    <Card h="fit-content">
+    <Card h="fit-content" backgroundColor={background}>
       <CardBody>{body}</CardBody>
     </Card>
   );
@@ -151,7 +154,6 @@ const AliasEditableControls = (props: { name: string; index: number }) => {
     <ButtonGroup>
       <IconButton
         variant="outline"
-        colorScheme="gray"
         icon={<EditIcon />}
         size="xs"
         aria-label="edit affiliation"
@@ -221,7 +223,6 @@ const AffEditableControls = () => {
   return (
     <IconButton
       variant="outline"
-      colorScheme="gray"
       size="xs"
       icon={<EditIcon />}
       aria-label="edit affiliation"
@@ -345,15 +346,17 @@ const AddNewAliasButton = () => {
               onClick={handleAddNew}
               variant="outline"
               colorScheme="green"
-              icon={<Icon fontWeight="bold" fontSize="18" as={PlusIcon} />}
+              icon={<AddIcon />}
               aria-label="Add new alias"
+              size="xs"
             />
             <IconButton
               onClick={() => setAddingNew(false)}
               variant="outline"
               colorScheme="red"
               aria-label="cancel add new alias"
-              icon={<Icon as={XMarkIcon} />}
+              icon={<CloseIcon />}
+              size="xs"
             />
           </ButtonGroup>
         </Flex>

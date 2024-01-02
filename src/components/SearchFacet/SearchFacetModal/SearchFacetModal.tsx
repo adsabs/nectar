@@ -20,9 +20,9 @@ import { AlphaSorter } from '@components/SearchFacet/SearchFacetModal/AlphaSorte
 import { SearchInput } from '@components/SearchFacet/SearchFacetModal/SearchInput';
 import { SortControl } from '@components/SearchFacet/SearchFacetModal/SortControl';
 import { useFacetStore } from '@components/SearchFacet/store/FacetStore';
-import { useDebounce } from 'src/lib';
 import { ReactElement, ReactNode, useCallback, useMemo } from 'react';
 import { keyToPath, parseTitleFromKey } from '../helpers';
+import { useDebounce } from 'src/lib';
 import { SelectedList } from './SelectedList';
 
 interface ISearchFacetModalProps extends Omit<IFacetListProps, 'onError'> {
@@ -72,7 +72,7 @@ const ModalFacet = (props: ISearchFacetModalProps) => {
 
   return (
     <>
-      <ModalHeader backgroundColor="gray.100">
+      <ModalHeader>
         <Stack direction="row" alignItems="center">
           <Heading size="lg">{params.label}</Heading>
           {focused ? createBreadcrumbs(focused.id) : null}
@@ -105,7 +105,7 @@ const ModalFacet = (props: ISearchFacetModalProps) => {
           {children({ searchTerm })}
         </Flex>
       </ModalBody>
-      <ModalFooter backgroundColor="white">
+      <ModalFooter>
         <Stack direction="column" spacing="2" justifyContent="center" w="full">
           <SelectedList />
           <LogicSelect onFilter={onFilter} />

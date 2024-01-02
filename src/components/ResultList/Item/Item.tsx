@@ -26,6 +26,7 @@ import shallow from 'zustand/shallow';
 import { IAbstractPreviewProps } from './AbstractPreview';
 import { ItemResourceDropdowns } from './ItemResourceDropdowns';
 import { HideOnPrint } from '@components';
+import { useColorModeColors } from '@lib';
 
 const AbstractPreview = dynamic<IAbstractPreviewProps>(
   () => import('./AbstractPreview').then((mod) => mod.AbstractPreview),
@@ -69,6 +70,8 @@ export const Item = (props: IItemProps): ReactElement => {
   // memoize the isSelected callback on bibcode
   const isChecked = useStore(useCallback((state) => state.isDocSelected(bibcode), [bibcode]));
 
+  const colors = useColorModeColors();
+
   // citations
   const cite = useNormCite ? (
     typeof doc.citation_count_norm === 'number' && doc.citation_count_norm > 0 ? (
@@ -97,11 +100,11 @@ export const Item = (props: IItemProps): ReactElement => {
   ) : null;
 
   return (
-    <Flex direction="row" as="article" border="1px" borderColor="gray.50" mb={1} borderRadius="md">
+    <Flex direction="row" as="article" border="1px" borderColor={colors.border} mb={1} borderRadius="md">
       <Flex
         as={HideOnPrint}
         direction="row"
-        backgroundColor={isChecked ? 'blue.500' : 'gray.50'}
+        backgroundColor={isChecked ? colors.panelHighlight : colors.panel}
         justifyContent="center"
         alignItems="center"
         mr="2"
@@ -190,7 +193,8 @@ const Highlights = ({
                 sx={{
                   // Apply a style to the <em> tag, which is included in the highlight string
                   '& em': {
-                    backgroundColor: 'rgba(219, 234, 254)',
+                    backgroundColor: 'blue.100',
+                    color: 'gray.800',
                     padding: 'var(--chakra-space-1)',
                     fontWeight: 'bold',
                   },
@@ -200,7 +204,7 @@ const Highlights = ({
               ></Text>
             ))
           ) : (
-            <Text color="blackAlpha.500">No Highlights</Text>
+            <Text>No Highlights</Text>
           )}
         </Fade>
       )}

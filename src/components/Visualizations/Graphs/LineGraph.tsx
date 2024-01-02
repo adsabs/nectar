@@ -1,4 +1,5 @@
-import { Box } from '@chakra-ui/react';
+import { Box, useColorMode } from '@chakra-ui/react';
+import { useNivoDarkTheme } from '@lib/useNivoDarkTheme';
 import { ResponsiveLine, Serie } from '@nivo/line';
 import { memo, ReactElement } from 'react';
 import { X_Axis, Y_Axis } from '../types';
@@ -13,10 +14,14 @@ export interface ILineGraphProps {
 
 export const LineGraph = memo(
   ({ data, ticks, showLegend = true, yScaleType = 'linear', xScaleType }: ILineGraphProps): ReactElement => {
+    const { colorMode } = useColorMode();
+    const darkTheme = useNivoDarkTheme();
+
     return (
       <Box width="100%" mt={5}>
         <div style={{ height: '500px' }}>
           <ResponsiveLine
+            theme={colorMode === 'dark' ? darkTheme : null}
             data={data}
             margin={{ top: 50, right: showLegend ? 110 : 50, bottom: 50, left: 60 }}
             colors={{ scheme: 'category10' }}

@@ -1,4 +1,5 @@
 import { FormControl, FormLabel } from '@chakra-ui/react';
+import { useColorModeColorVars } from '@lib';
 import { ForwardedRef, forwardRef, ReactElement, ReactNode, useMemo } from 'react';
 import { default as ReactSelect, GroupBase, Props, StylesConfig } from 'react-select';
 
@@ -18,18 +19,17 @@ export interface ISelectProps<
   hideLabel?: boolean;
   stylesTheme?: 'theme' | 'sort' | 'default' | 'default.sm';
   id: string;
-  'data-testid'?:string;
+  'data-testid'?: string;
 }
 
-const SelectImpl = <
+function SelectImpl<
   Option = SelectOption,
   isMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>,
->(
-  props: ISelectProps<Option, isMulti, Group>,
-  ref: ForwardedRef<never>,
-): ReactElement => {
+>(props: ISelectProps<Option, isMulti, Group>, ref: ForwardedRef<never>): ReactElement {
   const { hideLabel = true, label, stylesTheme, id, ...selectProps } = props;
+
+  const colors = useColorModeColorVars();
 
   const themes: Record<string, StylesConfig<Option, isMulti, Group>> = useMemo(
     () =>
@@ -39,7 +39,7 @@ const SelectImpl = <
             ...provided,
             height: '2em',
             borderRadius: '2px',
-            borderColor: 'var(--chakra-colors-gray-100)',
+            borderColor: colors.border,
             backgroundColor: 'var(--chakra-colors-gray-900)',
             outline: 'none',
             boxShadow: state.isFocused ? 'var(--chakra-shadows-outline)' : 'none',
@@ -54,14 +54,17 @@ const SelectImpl = <
           container: (provided) => ({
             ...provided,
             zIndex: 10,
+            borderColor: colors.border,
           }),
           option: (provided, state) => ({
             ...provided,
-            backgroundColor: state.isFocused ? 'var(--chakra-colors-gray-100)' : 'transparent',
-            color: 'var(--chakra-colors-gray-700)',
+            backgroundColor: state.isFocused ? colors.highlightBackground : 'transparent',
+            color: state.isFocused ? colors.highlightForeground : colors.text,
           }),
           menu: (provided) => ({
             ...provided,
+            backgroundColor: colors.background,
+            boxShadow: `0 0 0 1px ${colors.border}`,
             zIndex: 10,
           }),
         },
@@ -71,17 +74,26 @@ const SelectImpl = <
             height: '2.6em',
             borderRadius: '2px 0 0 2px',
             borderRightWidth: '0',
+            borderColor: colors.border,
+            backgroundColor: colors.background,
+          }),
+          // the text in control
+          singleValue: (provided) => ({
+            ...provided,
+            color: colors.text,
           }),
           indicatorSeparator: () => ({
             isDisabled: true,
           }),
           option: (provided, state) => ({
             ...provided,
-            backgroundColor: state.isFocused ? 'var(--chakra-colors-gray-100)' : 'transparent',
-            color: 'var(--chakra-colors-gray-700)',
+            backgroundColor: state.isFocused ? colors.highlightBackground : 'transparent',
+            color: state.isFocused ? colors.highlightForeground : colors.text,
           }),
           menu: (provided) => ({
             ...provided,
+            backgroundColor: colors.background,
+            boxShadow: `0 0 0 1px ${colors.border}`,
             zIndex: 10,
           }),
         },
@@ -90,17 +102,25 @@ const SelectImpl = <
             ...provided,
             height: '2.85em',
             borderRadius: '2px',
+            borderColor: colors.border,
+            backgroundColor: 'transparent',
+          }),
+          singleValue: (provided) => ({
+            ...provided,
+            color: colors.text,
           }),
           indicatorSeparator: () => ({
             isDisabled: true,
           }),
           option: (provided, state) => ({
             ...provided,
-            backgroundColor: state.isFocused ? 'var(--chakra-colors-gray-100)' : 'transparent',
-            color: 'var(--chakra-colors-gray-700)',
+            backgroundColor: state.isFocused ? colors.highlightBackground : 'transparent',
+            color: state.isFocused ? colors.highlightForeground : colors.text,
           }),
           menu: (provided) => ({
             ...provided,
+            backgroundColor: colors.background,
+            boxShadow: `0 0 0 1px ${colors.border}`,
             zIndex: 10,
           }),
         },
@@ -114,8 +134,13 @@ const SelectImpl = <
             minHeight: '28px',
             borderRadius: '2px',
             fontSize: '0.8em',
+            borderColor: colors.border,
+            backgroundColor: 'transparent',
           }),
-
+          singleValue: (provided) => ({
+            ...provided,
+            color: colors.text,
+          }),
           indicatorsContainer: (provided) => ({
             ...provided,
             height: '28px',
@@ -130,17 +155,19 @@ const SelectImpl = <
           }),
           option: (provided, state) => ({
             ...provided,
-            backgroundColor: state.isFocused ? 'var(--chakra-colors-gray-100)' : 'transparent',
-            color: 'var(--chakra-colors-gray-700)',
+            backgroundColor: state.isFocused ? colors.highlightBackground : 'transparent',
+            color: state.isFocused ? colors.highlightForeground : colors.text,
             fontSize: '0.8em',
           }),
           menu: (provided) => ({
             ...provided,
+            backgroundColor: colors.background,
+            boxShadow: `0 0 0 1px ${colors.border}`,
             zIndex: 10,
           }),
         },
       } as const),
-    [],
+    [colors],
   );
 
   return (
@@ -155,10 +182,14 @@ const SelectImpl = <
         {...selectProps}
         styles={themes[stylesTheme]}
       />
-      <input type="hidden" value={(selectProps?.value as SelectOption)?.value} data-testid={selectProps['data-testid']} />
+      <input
+        type="hidden"
+        value={(selectProps?.value as SelectOption)?.value}
+        data-testid={selectProps['data-testid']}
+      />
     </FormControl>
   );
-};
+}
 
 export const Select = forwardRef(SelectImpl) as <
   Option = SelectOption,

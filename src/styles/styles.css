@@ -105,6 +105,8 @@
 .bubble-plot-svg .paper-circle {
   cursor: pointer;
   opacity: 0.6;
+  stroke: #fff;
+  stroke-width: 1px;
 }
 
 .bubble-plot-svg .paper-circle:hover {

@@ -5,7 +5,7 @@ import NextLink from 'next/link';
 import { cloneElement } from 'react';
 import { SimpleLinkDropdown } from '@components/Dropdown';
 import { ItemType } from '@components/Dropdown/types';
-import { useIsClient } from 'src/lib';
+import { useColorModeColors, useIsClient } from 'src/lib';
 
 export interface ITopNavigationMenuProps extends BoxProps {
   menuItems: CatMenuItems | SingleMenuItems;
@@ -13,15 +13,17 @@ export interface ITopNavigationMenuProps extends BoxProps {
 }
 
 const TopMenuItem = ({ href, hrefAs, label, icon, rightElement, disabled = false, active = false }: IMenuItemProps) => {
+  const colors = useColorModeColors();
+
   return (
     <MenuItem
       isDisabled={disabled}
-      backgroundColor={active ? 'gray.100' : 'transparent'}
+      backgroundColor={active ? colors.highlightBackground : 'transparent'}
       mb={1}
-      _hover={{ backgroundColor: 'gray.100' }}
+      _hover={{ backgroundColor: colors.highlightBackground }}
     >
       <NextLink href={href} as={hrefAs} passHref>
-        <Box width="full" color="gray.700">
+        <Box width="full">
           <Stack direction="row" alignItems="center">
             {icon && cloneElement(icon, { marginRight: '16px', width: '18px', 'aria-hidden': true })}
             <Text fontWeight="normal">{label}</Text>
@@ -39,11 +41,11 @@ const TopMenuButton = ({ label, icon, rightElement }: IMenuItemProps) => {
     <Flex
       alignItems="center"
       justifyContent="space-between"
-      backgroundColor="gray.50"
       borderRadius="md"
       px={3}
       py={2}
       width="full"
+      borderWidth={0.5}
     >
       <Stack direction="row" alignItems="center">
         {icon && cloneElement(icon, { marginRight: '16px', width: '18px', 'aria-hidden': true })}

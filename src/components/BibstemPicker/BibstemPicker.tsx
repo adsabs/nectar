@@ -1,4 +1,5 @@
 import { HStack, Text, VisuallyHidden } from '@chakra-ui/react';
+import { useColorModeColorVars } from '@lib';
 import { IBibstemOption } from '@types';
 import axios from 'axios';
 import {
@@ -188,6 +189,8 @@ const BibstemPickerImpl = (props: IBibstemPickerProps, ref: ForwardedRef<never>)
     isMultiple,
   });
 
+  const colors = useColorModeColorVars();
+
   const fetchOptions = async (value: string): Promise<OptionsOrGroups<IBibstemOption, GroupBase<IBibstemOption>>> => {
     const valueToFetch = cleanInput(value);
     if (valueToFetch.length === 0) {
@@ -263,6 +266,48 @@ const BibstemPickerImpl = (props: IBibstemPickerProps, ref: ForwardedRef<never>)
           Option,
         }}
         ref={selectRef}
+        styles={{
+          control: (provided) => ({
+            ...provided,
+            height: '2.85em',
+            borderRadius: '2px',
+            borderColor: colors.border,
+            backgroundColor: 'transparent',
+          }),
+          singleValue: (provided) => ({
+            ...provided,
+            color: colors.text,
+          }),
+          indicatorSeparator: () => ({
+            isDisabled: true,
+          }),
+          option: (provided, state) => ({
+            ...provided,
+            backgroundColor: state.isFocused ? colors.highlightBackground : colors.background,
+            color: state.isFocused ? colors.highlightForeground : colors.text,
+          }),
+          menu: (provided) => ({
+            ...provided,
+            backgroundColor: colors.background,
+            boxShadow: `0 0 0 1px ${colors.border}`,
+            zIndex: 10,
+          }),
+          multiValueLabel: (provided) => ({
+            ...provided,
+            backgroundColor: colors.pill,
+            borderTopRightRadius: 0,
+            borderBottomRightRadius: 0,
+            color: colors.pillText,
+          }),
+          multiValueRemove: (provided) => ({
+            ...provided,
+            backgroundColor: colors.pill,
+            borderTopLeftRadius: 0,
+            borderBottomLeftRadius: 0,
+            ':hover': { backgroundColor: colors.pill },
+            color: colors.pillText,
+          }),
+        }}
         {...pick(['onBlur'], inputProps)}
       />
     </>

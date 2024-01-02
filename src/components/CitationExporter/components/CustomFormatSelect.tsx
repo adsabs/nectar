@@ -6,6 +6,7 @@ import { useSession } from '@lib/useSession';
 import { SimpleLink } from '@components/SimpleLink';
 import { DEFAULT_USER_DATA } from '@api';
 import { useSettings } from '@lib/useSettings';
+import { useColorModeColors } from '@lib';
 
 export interface ICustomFormatSelectProps {
   dispatch: Dispatch<CitationExporterEvent>;
@@ -17,6 +18,8 @@ export const CustomFormatSelect = ({ dispatch }: ICustomFormatSelectProps) => {
   const { settings: settingsData } = useSettings({ enabled: isAuthenticated, suspense: false });
 
   const customFormats = settingsData?.customFormats ?? DEFAULT_USER_DATA.customFormats;
+
+  const colors = useColorModeColors();
 
   // custom formats to options
   const customFormatOptions = customFormats
@@ -91,7 +94,7 @@ export const CustomFormatSelect = ({ dispatch }: ICustomFormatSelectProps) => {
         placeholder="Enter a custom format"
         size="md"
         isReadOnly={selectedFormatOption.id !== 'new'}
-        backgroundColor={selectedFormatOption.id === 'new' ? 'transparent' : 'gray.50'}
+        backgroundColor={selectedFormatOption.id === 'new' ? 'transparent' : colors.disabledInput}
         value={formatCode}
         onChange={handleFormatCodeChange}
       />

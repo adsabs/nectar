@@ -232,12 +232,11 @@ const Keywords = memo(({ keywords }: { keywords: Array<string> }) => {
       {(keywords) => (
         <Flex flexWrap={'wrap'}>
           {keywords.map((keyword) => (
-            <Tag size="md" variant="subtle" bgColor="gray.100" whiteSpace={'nowrap'} m="1" key={keyword}>
+            <Tag size="md" variant="subtle" whiteSpace={'nowrap'} m="1" key={keyword}>
               <HStack spacing="2">
                 <Text>{keyword}</Text>
                 <SearchQueryLink
                   params={{ q: `keyword:"${keyword}"` }}
-                  color="gray.700"
                   textDecoration="none"
                   _hover={{
                     color: 'gray.900',

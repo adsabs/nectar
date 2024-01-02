@@ -15,6 +15,7 @@ import { useCombobox } from 'downshift';
 import { matchSorter } from 'match-sorter';
 import { forwardRef, ReactElement, useEffect, useState } from 'react';
 import { allSearchTerms, SearchTermItem, SearchTermOption } from './models';
+import { useColorModeColors } from '@lib';
 
 export interface IAllSearchTermsDropdown {
   onSelect: (value: string) => void;
@@ -105,6 +106,8 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
     }
   }, [items]);
 
+  const colors = useColorModeColors();
+
   const toggleIsOpen = () => {
     isOpen ? closeMenu() : openMenu();
   };
@@ -155,7 +158,7 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
       </Flex>
       <UnorderedList
         zIndex={10}
-        bgColor="white"
+        bgColor={colors.background}
         border={isOpen && items.length > 0 ? '1px' : 'none'}
         borderRadius={5}
         borderColor="gray.200"
@@ -176,9 +179,9 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
           items.map((term, index) => (
             <ListItem
               key={`${term.type}-${term.title}`}
-              color={!isItem(term) ? 'gray.300' : 'gray.700'}
+              color={!isItem(term) ? 'gray.300' : highlightedIndex === index ? colors.highlightForeground : colors.text}
               fontWeight={!isItem(term) ? 'bold' : 'normal'}
-              backgroundColor={highlightedIndex === index ? 'blue.100' : 'auto'}
+              backgroundColor={highlightedIndex === index ? colors.highlightBackground : 'auto'}
               {...getItemProps({
                 item: term,
                 index,
@@ -202,6 +205,8 @@ interface ISearchTermTooltipProps {
   term: SearchTermOption;
 }
 const SearchTermTooltip = forwardRef<HTMLDivElement, ISearchTermTooltipProps>(({ term }, ref) => {
+  const colors = useColorModeColors();
+
   if (!isItem(term)) {
     return null;
   }
@@ -218,8 +223,10 @@ const SearchTermTooltip = forwardRef<HTMLDivElement, ISearchTermTooltipProps>(({
       m={5}
       data-testid="allSearchTermsTooltip"
       display={{ base: 'none', md: 'initial' }}
+      color={colors.text}
+      backgroundColor={colors.background}
     >
-      <Text color="gray.900" fontWeight="bold" backgroundColor="gray.100" p={2} data-testid="allSearchTooltipTitle">
+      <Text fontWeight="bold" p={2} data-testid="allSearchTooltipTitle">
         {term.title}
       </Text>
       <Text p={2} dangerouslySetInnerHTML={{ __html: term.description }} data-testid="allSearchTooltipDesc" />

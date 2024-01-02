@@ -33,6 +33,7 @@ import {
 import { ControlledPaginationControls } from '@components';
 import { CustomInfoMessage } from '@components/Feedbacks';
 import { UserGroupIcon, UserIcon } from '@heroicons/react/24/solid';
+import { useColorModeColors } from '@lib';
 import { NumPerPageType } from '@types';
 import { noop, parseAPIError } from '@utils';
 import { intlFormat, intlFormatDistance } from 'date-fns';
@@ -138,6 +139,8 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
 
   const { mutate: deleteLibrary } = useDeleteLibrary();
 
+  const colors = useColorModeColors();
+
   const toast = useToast({
     duration: 2000,
   });
@@ -235,7 +238,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                   <Tr
                     key={id}
                     cursor="pointer"
-                    _hover={{ backgroundColor: 'blue.50' }}
+                    _hover={{ backgroundColor: colors.highlightBackground, color: colors.highlightForeground }}
                     onClick={() => onLibrarySelect(id)}
                   >
                     {showIndex && !isMobile && <Td>{pageSize * pageIndex + index + 1}</Td>}
@@ -243,25 +246,11 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                       <Td>
                         {isPublic ? (
                           <Tooltip label="Public">
-                            <IconButton
-                              icon={<LockIcon />}
-                              color="green.500"
-                              aria-label="public"
-                              variant="ghost"
-                              w={3}
-                              h={3}
-                            />
+                            <UnlockIcon color="green.500" aria-label="public" w={3} h={3} />
                           </Tooltip>
                         ) : (
                           <Tooltip label="Private">
-                            <IconButton
-                              icon={<UnlockIcon />}
-                              color="gray.600"
-                              aria-label="private"
-                              variant="ghost"
-                              w={3}
-                              h={3}
-                            />
+                            <LockIcon aria-label="private" w={3} h={3} />
                           </Tooltip>
                         )}
                       </Td>
@@ -270,14 +259,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                       <Td>
                         {num_users === 1 ? (
                           <Tooltip label="No collaborators">
-                            <IconButton
-                              as={UserIcon}
-                              aria-label="no collaborators"
-                              color="gray.600"
-                              w={4}
-                              h={4}
-                              variant="ghost"
-                            />
+                            <IconButton as={UserIcon} aria-label="no collaborators" w={4} h={4} variant="unstyled" />
                           </Tooltip>
                         ) : (
                           <Tooltip label={`${num_users} collaborators`}>
@@ -287,7 +269,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                               color="green.500"
                               w={4}
                               h={4}
-                              variant="ghost"
+                              variant="unstyled"
                             />
                           </Tooltip>
                         )}
@@ -339,7 +321,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
 
 const LastModified = ({ date }: { date: string }) => {
   // date string here is missing the timezone, add it or the time is wrong
-  const dateStr = new Date(`${date.match(/\+\d{2}:\d{2}$/) ? date : `${date}+00:00`}`); 
+  const dateStr = new Date(`${date.match(/\+\d{2}:\d{2}$/) ? date : `${date}+00:00`}`);
   const formatted = intlFormatDistance(dateStr, new Date());
   return (
     <Tooltip
