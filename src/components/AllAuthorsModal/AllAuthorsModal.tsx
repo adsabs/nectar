@@ -304,9 +304,9 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
                 <Thead>
                   <Tr>
                     <Th display={{ base: 'none', sm: 'table-cell' }}></Th>
-                    <Th>Name</Th>
+                    <Th w="25%">Name</Th>
                     <Th>ORCiD</Th>
-                    <Th>Affliation</Th>
+                    <Th w="55%">Affliation</Th>
                   </Tr>
                 </Thead>
                 <Tbody>{renderRows()}</Tbody>
