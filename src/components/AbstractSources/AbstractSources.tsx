@@ -147,7 +147,7 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
     () =>
       dataProducts.map((source) => ({
         id: source.name,
-        label: source.name,
+        label: `${source.name} (${source.count})`,
         path: source.url,
         newTab: true,
       })),
