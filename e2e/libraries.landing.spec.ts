@@ -115,7 +115,7 @@ test('Delete libraries', async ({ page }) => {
   await expect(page.getByTestId('pagination-string')).toHaveText('Showing 1 to 10 of 10 results');
 });
 
-test('Goes to settings', async ({ page }) => {
+test('Action menu -> settings go to library settings page', async ({ page }) => {
   await page.goto('/user/libraries', { timeout: 60000 });
 
   await page.locator('tbody > tr').nth(0).getByTestId('library-action-menu').click();
@@ -129,7 +129,7 @@ test('Goes to settings', async ({ page }) => {
   expect(page.url()).toContain('/settings?from=landing');
 });
 
-test('Goes to individual library', async ({ page }) => {
+test('Click on library goes to individual library page', async ({ page }) => {
   await page.goto('/user/libraries', { timeout: 60000 });
 
   await page.locator('tbody > tr').nth(0).click();

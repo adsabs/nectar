@@ -9,7 +9,7 @@ test('Back button goes to landing page', async ({ page }) => {
   expect(page.url()).toMatch(/^.*\/user\/libraries$/);
 });
 
-test('Library information are correct', async ({ page }) => {
+test('Library metadata are correct', async ({ page }) => {
   await page.goto('/user/libraries/001', { timeout: 60000 });
 
   await expect(page.getByLabel('private')).toBeVisible();
@@ -26,7 +26,7 @@ test('Library information are correct', async ({ page }) => {
   await expect(page.getByLabel('Results').getByRole('article')).toHaveCount(10);
 });
 
-test('View library as search results', async ({ page }) => {
+test('Click on view library as search results goes to search', async ({ page }) => {
   await page.goto('/user/libraries/001', { timeout: 60000 });
 
   await page.getByText('View as Search Results').click();
@@ -53,10 +53,10 @@ test('Delete all docs from library', async ({ page }) => {
   await expect(page.getByLabel('Results').getByRole('article')).toHaveCount(0);
 });
 
-test('Public library should have correct metadata', async ({ page }) => {
+test('Public library view should have correct metadata', async ({ page }) => {
   await page.goto('/public-libraries/001', { timeout: 60000 });
 
-  await expect(page.getByLabel('private')).toBeHidden();
+  await expect(page.getByLabel('private')).toBeHidden(); // this info is hidden from public view
   await expect(page.getByLabel('SciX Public Library')).toBeVisible();
   await expect(page.getByTestId('lib-title')).toHaveText('001');
   await expect(page.getByTestId('lib-desc')).toHaveText('001');

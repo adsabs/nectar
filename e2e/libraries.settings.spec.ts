@@ -53,7 +53,7 @@ test('Library settings has correct information for owner', async ({ page }) => {
   await expect(page.getByText('This library has no collaborators')).toHaveCount(1);
   await expect(page.getByTestId('collab-table')).toBeVisible();
 
-  // delete is enabled
+  // delete is allowed
   await expect(page.getByText('Delete Library')).toBeVisible();
 });
 
@@ -86,7 +86,7 @@ test('Library settings has correct information for admin', async ({ page }) => {
   await expect(page.getByTestId('collab-table')).toBeVisible();
   await expect(page.getByTestId('collab-table').locator('tbody tr')).toHaveCount(2);
 
-  // has no delete btn
+  // delete is not allowed
   await expect(page.getByText('Delete Library')).toBeHidden();
 });
 
@@ -164,7 +164,7 @@ test('User with read permission cannot edit settings', async ({ page }) => {
   await expect(page.getByText('Delete Library')).toBeHidden();
 });
 
-test('Library owner can edit library', async ({ page }) => {
+test('Library owner can edit library metadata', async ({ page }) => {
   await page.goto('/user/libraries/004/settings', { timeout: 60000 });
 
   // modify
@@ -210,6 +210,28 @@ test('Library owner can delete library', async ({ page }) => {
   await expect(page.getByTestId('pagination-string')).toHaveText('Showing 1 to 10 of 10 results');
 });
 
+test('Owner can edit collaborators', async ({ page }) => {
+  await page.goto('/user/libraries/004/settings', { timeout: 60000 });
+
+  // add user
+  expect(page.getByTestId('new-collaborator-row').locator('td').nth(1).locator('input').fill('ads.user.100@mail.com'));
+  await page.getByTestId('add-collaborator-btn').click();
+  await expect(page.getByTestId('collab-table').locator('tbody tr')).toHaveCount(2);
+  await expect(page.getByTestId('collab-table').locator('tbody tr').nth(0).locator('td').nth(1)).toContainText(
+    'ads.user.100',
+  );
+  await expect(page.getByTestId('collab-table').locator('tbody tr').nth(0).locator('td').nth(2)).toContainText('read');
+
+  // edit permission
+  await page.getByTestId('collab-table').locator('tbody tr').nth(0).locator('td').nth(2).locator('div').nth(0).click();
+  await page.locator('[id^="react-select-permission-type-"]').locator('[id$="-option-0"]').click();
+  await expect(page.getByTestId('collab-table').locator('tbody tr').nth(0).locator('td').nth(2)).toContainText('admin');
+
+  // remove user
+  await page.getByTestId('collab-table').locator('tbody tr').nth(0).getByLabel('delete collaborator').click();
+  await expect(page.getByTestId('collab-table').locator('tbody tr')).toHaveCount(2);
+});
+
 test('Admin can edit collaborators', async ({ page }) => {
   await page.goto('/user/libraries/001/settings', { timeout: 60000 });
 
@@ -232,8 +254,14 @@ test('Admin can edit collaborators', async ({ page }) => {
   await expect(page.getByTestId('collab-table').locator('tbody tr')).toHaveCount(2);
 });
 
-test('Owner can edit collaborators', async ({ page }) => {
-  await page.goto('/user/libraries/004/settings', { timeout: 60000 });
+test('User with write permission canot edit collaborators', async ({ page }) => {
+  await page.goto('/user/libraries/002/settings', { timeout: 60000 });
+
+  await expect(page.getByTestId('new-collaborator-row')).toBeHidden();
+});
+
+test('User with read permission canot edit collaborators', async ({ page }) => {
+  await page.goto('/user/libraries/003/settings', { timeout: 60000 });
 
   await expect(page.getByTestId('new-collaborator-row')).toBeHidden();
 });
