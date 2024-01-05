@@ -1,5 +1,9 @@
 import { expect, test } from '@playwright/test';
 
+test.describe.configure({
+  mode: 'parallel',
+});
+
 test('Libraries show up in the table', async ({ page }) => {
   await page.goto('/user/libraries', { timeout: 60000 });
   const rows = page.getByTestId('libraries-table').locator('tbody > tr');

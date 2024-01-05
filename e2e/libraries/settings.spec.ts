@@ -1,6 +1,10 @@
 // back button should go to whereever it came from
 import { expect, test } from '@playwright/test';
 
+test.describe.configure({
+  mode: 'parallel',
+});
+
 test('Library settings back button goes to the landing page', async ({ page }) => {
   await page.goto('/user/libraries', { timeout: 60000 });
 
