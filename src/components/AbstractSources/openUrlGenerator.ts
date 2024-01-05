@@ -1,5 +1,5 @@
-import { IDocsEntity } from '@api';
 import { is } from 'ramda';
+import { IGetOpenUrlOptions } from '@components/AbstractSources/types';
 
 /**
  * check if value is string
@@ -25,11 +25,6 @@ const STATIC_FIELDS = {
   sid: 'ADS',
 };
 
-export interface IGetOpenUrlOptions {
-  metadata: IDocsEntity;
-  linkServer: string;
-}
-
 /**
  * Generates an OpenUrl using metadata and a linkServer
  * @param {object} options
@@ -46,7 +41,7 @@ export const getOpenUrl = (options: IGetOpenUrlOptions): string => {
   const degree =
     isString(bibcode) && (bibcode.includes('PhDT') ? 'PhD' : bibcode.includes('MsT') ? 'Masters' : undefined);
 
-  // genre is "disseration" for phd thesis, otherwise use doctype/article
+  // genre is "dissertation" for phd thesis, otherwise use doctype/article
   const genre =
     isString(doctype) && isString(bibcode) && bibcode.includes('PhDT')
       ? 'dissertation'
