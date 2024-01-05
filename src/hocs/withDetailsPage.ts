@@ -2,6 +2,7 @@ import {
   fetchGraphics,
   fetchMetrics,
   fetchSearch,
+  fetchUserSettings,
   getAbstractParams,
   getCitationsParams,
   getCoreadsParams,
@@ -12,6 +13,7 @@ import {
   graphicsKeys,
   metricsKeys,
   searchKeys,
+  userKeys,
 } from '@api';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
@@ -21,6 +23,7 @@ export const withDetailsPage = async (
   ctx: GetServerSidePropsContext,
 ): Promise<GetServerSidePropsResult<Record<string, unknown>>> => {
   const { id } = ctx.params as { id: string };
+  const isAuthenticated = ctx.req.session?.isAuthenticated;
 
   const pathname = ctx.resolvedUrl.split('?')[0];
   const queryClient = new QueryClient();
@@ -54,6 +57,14 @@ export const withDetailsPage = async (
       queryFn: fetchLinks,
       meta: { params: { bibcode: id, link_type: 'associated' } },
     }),
+
+    // user settings (only if we're on the abstract page, and the user is logged in)
+    isAuthenticated && pathname.endsWith('/abstract')
+      ? queryClient.prefetchQuery({
+          queryKey: userKeys.getUserSettings(),
+          queryFn: fetchUserSettings,
+        })
+      : Promise.resolve(),
 
     // references (only if we're on the references page)
     pathname.endsWith('/references')
