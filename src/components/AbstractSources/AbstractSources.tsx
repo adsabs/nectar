@@ -1,7 +1,8 @@
-import { IDocsEntity } from '@api';
+import { Esources, IDocsEntity, useGetUserSettings } from '@api';
 import {
   Button,
   HStack,
+  Icon,
   Menu,
   MenuButton,
   MenuDivider,
@@ -16,9 +17,10 @@ import { SimpleLinkList } from '@components';
 import { ItemType } from '@components/Dropdown/types';
 import { useIsClient } from '@lib/useIsClient';
 import { HTMLAttributes, MouseEvent, MouseEventHandler, ReactElement, useMemo } from 'react';
-import { IDataProductSource, IFullTextSource, IRelatedWorks, processLinkData } from './linkGenerator';
-import { useStore } from '@store';
 import { useResolverQuery } from '@api/resolver';
+import { AcademicCapIcon } from '@heroicons/react/24/solid';
+import { processLinkData } from '@components/AbstractSources/linkGenerator';
+import { IDataProductSource, IFullTextSource, IRelatedWorks } from '@components/AbstractSources/types';
 
 export interface IAbstractSourcesProps extends HTMLAttributes<HTMLDivElement> {
   doc?: IDocsEntity;
@@ -26,14 +28,8 @@ export interface IAbstractSourcesProps extends HTMLAttributes<HTMLDivElement> {
 
 export const AbstractSources = ({ doc }: IAbstractSourcesProps): ReactElement => {
   const isClient = useIsClient();
-  const linkServer = useStore((state) => state.settings?.user?.link_server);
-  const sources = useMemo(() => {
-    // linkServer is not available on the server, so we need to check for it
-    if (isClient && linkServer) {
-      return processLinkData(doc, linkServer);
-    }
-    return processLinkData(doc);
-  }, [doc, linkServer, isClient, processLinkData]);
+  const { data: settings } = useGetUserSettings();
+  const sources = processLinkData(doc, settings?.link_server);
 
   const { data: relatedWorksResp } = useResolverQuery(
     { bibcode: doc.bibcode, link_type: 'associated' },
@@ -78,23 +74,37 @@ interface IFullTextDropdownProps {
   sources: IFullTextSource[];
 }
 
+const getLabel = (source: IFullTextSource) => {
+  if (source.type === Esources.INSTITUTION) {
+    return (
+      <>
+        <Icon as={AcademicCapIcon} mr={1} />
+        {` ${source.name}`}
+      </>
+    );
+  } else if (source.open) {
+    return (
+      <>
+        <UnlockIcon color="green.600" mr={1} />
+        {` ${source.name}`}
+      </>
+    );
+  }
+  return (
+    <>
+      <LockIcon color="gray.700" mr={1} />
+      {` ${source.name}`}
+    </>
+  );
+};
+
 const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
   const { sources } = props;
   const isClient = useIsClient();
 
   const fullSourceItems = sources.map((source) => ({
     id: source.name,
-    label: source.open ? (
-      <>
-        <UnlockIcon color="green.500" mr={1} />
-        {` ${source.name}`}
-      </>
-    ) : (
-      <>
-        <LockIcon mr={1} />
-        {` ${source.name}`}
-      </>
-    ),
+    label: getLabel(source),
     path: source.url,
     newTab: true,
   }));
