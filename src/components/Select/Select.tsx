@@ -198,3 +198,16 @@ export const Select = forwardRef(SelectImpl) as <
 >(
   props: ISelectProps<Option, isMulti, Group> & { ref?: ForwardedRef<never> },
 ) => ReactElement;
+
+export const createOptions =
+  <T,>(labelKey: keyof T | ((item: T) => ReactNode), valueKey: keyof T | ((item: T) => ReactNode)) =>
+  (items: T[]): Array<SelectOption<T>> => {
+    return items.map(
+      (item) =>
+        ({
+          id: item,
+          label: typeof labelKey === 'function' ? labelKey(item) : (item[labelKey] as string),
+          value: typeof valueKey === 'function' ? valueKey(item) : (item[valueKey] as string),
+        } as SelectOption<T>),
+    );
+  };

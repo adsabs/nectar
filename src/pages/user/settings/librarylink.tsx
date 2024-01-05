@@ -1,56 +1,75 @@
-import { Select, SelectOption, SettingsLayout, SimpleLink } from '@components';
-import { fetchLibraryLinkServers, fetchUserSettings, useLibraryLinkServers, userKeys, vaultKeys } from '@api';
-import { useMemo } from 'react';
+import { createOptions, Select, SelectOption, SettingsLayout, SimpleLink } from '@components';
+import {
+  fetchLibraryLinkServers,
+  fetchUserSettings,
+  IADSApiLibraryLinkServersResponse,
+  LibraryLinkServer,
+  useLibraryLinkServers,
+  userKeys,
+  vaultKeys,
+} from '@api';
+import { useEffect, useState } from 'react';
 import { useSettings } from '@lib/useSettings';
-import { chakra, Heading, Icon, Text, VStack } from '@chakra-ui/react';
+import { chakra, Heading, Icon, Skeleton, Text, VStack } from '@chakra-ui/react';
 import { AcademicCapIcon } from '@heroicons/react/20/solid';
 import { GetServerSideProps } from 'next';
 import { composeNextGSSP } from '@ssr-utils';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
+import { isNonEmptyArray, isNotNilOrEmpty } from 'ramda-adjunct';
+import { find, propEq } from 'ramda';
+
+const findServer = (url: string, linkServer: IADSApiLibraryLinkServersResponse) =>
+  find(propEq('link', url), linkServer);
+
+const createLinkServerOptions = createOptions<LibraryLinkServer>('name', 'link');
+
+const defaultSelection: SelectOption<LibraryLinkServer> = {
+  id: {
+    name: '',
+    link: '',
+    gif: '',
+  },
+  label: 'No Selected Institution',
+  value: '',
+};
 
 const LibraryLinkServerPage = () => {
   const { settings, updateSettings } = useSettings();
   const { data: servers } = useLibraryLinkServers();
-  const serverOptions = useMemo(() => {
-    if (!servers) {
-      return [];
-    }
-    return servers.map((server) => ({
-      id: server.name,
-      label: server.name,
-      value: server.name,
-    }));
-  }, [servers]);
+  const [selected, setSelected] = useState<SelectOption<LibraryLinkServer>>(defaultSelection);
 
-  const value = useMemo(() => {
-    if (!settings['link_server']) {
-      return null;
+  // the incoming link_server is the URL for the server, we need to find it in the list of servers
+  useEffect(() => {
+    if (isNonEmptyArray(servers) && isNotNilOrEmpty(settings['link_server'])) {
+      const server = findServer(settings['link_server'], servers);
+      if (server) {
+        setSelected({
+          id: server,
+          label: server.name,
+          value: server.link,
+        });
+      }
     }
-    return {
-      id: settings['link_server'],
-      label: settings['link_server'],
-      value: settings['link_server'],
-    };
-  }, [settings['link_server']]);
+  }, [settings['link_server'], servers]);
 
-  const handleSubmit = (option: SelectOption<string>) => {
-    updateSettings({ link_server: option.value });
-  };
+  const handleSubmit = (option: SelectOption<LibraryLinkServer>) => updateSettings({ link_server: option.value });
 
   return (
     <SettingsLayout title="Library Link Server">
       <VStack spacing={4} align="flex-start">
-        <Select<SelectOption<string>>
-          value={value}
-          options={serverOptions}
-          stylesTheme="default"
-          onChange={handleSubmit}
-          label="Choose Your Institution"
-          id="library-server-selector"
-          instanceId="library-server-instance"
-          hideLabel={false}
-          isSearchable
-        />
+        <Skeleton isLoaded={isNonEmptyArray(servers)} width="full">
+          <Select<SelectOption<LibraryLinkServer>>
+            value={selected}
+            options={createLinkServerOptions(servers)}
+            stylesTheme="default"
+            onChange={handleSubmit}
+            label="Choose Your Institution"
+            id="library-server-selector"
+            instanceId="library-server-instance"
+            hideLabel={false}
+            isSearchable
+          />
+        </Skeleton>
         <VStack spacing="2" align="flex-start">
           <Heading as="h3" size="md">
             What Is a Library Link Server?
