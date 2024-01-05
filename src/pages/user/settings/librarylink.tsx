@@ -10,7 +10,7 @@ import {
 } from '@api';
 import { useEffect, useState } from 'react';
 import { useSettings } from '@lib/useSettings';
-import { chakra, Heading, Icon, Skeleton, Text, VStack } from '@chakra-ui/react';
+import { Button, chakra, Heading, Icon, Skeleton, Text, VStack } from '@chakra-ui/react';
 import { AcademicCapIcon } from '@heroicons/react/20/solid';
 import { GetServerSideProps } from 'next';
 import { composeNextGSSP } from '@ssr-utils';
@@ -53,6 +53,10 @@ const LibraryLinkServerPage = () => {
   }, [settings['link_server'], servers]);
 
   const handleSubmit = (option: SelectOption<LibraryLinkServer>) => updateSettings({ link_server: option.value });
+  const handleClear = () => {
+    setSelected(defaultSelection);
+    updateSettings({ link_server: '' });
+  };
 
   return (
     <SettingsLayout title="Library Link Server">
@@ -70,6 +74,9 @@ const LibraryLinkServerPage = () => {
             isSearchable
           />
         </Skeleton>
+        <Button variant="link" colorScheme="blue" size="sm" onClick={handleClear}>
+          Clear Selection
+        </Button>
         <VStack spacing="2" align="flex-start">
           <Heading as="h3" size="md">
             What Is a Library Link Server?
