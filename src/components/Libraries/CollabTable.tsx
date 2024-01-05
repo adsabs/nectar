@@ -140,7 +140,7 @@ export const CollabTable = ({ id }: { id: LibraryIdentifier }) => {
 
   // Row for adding new Reference
   const newUserTableRow = (
-    <Tr>
+    <Tr data-testid="new-collaborator-row">
       <Td color="gray.200">{collaborators?.length + 1}</Td>
       <Td>
         <Input size="sm" onChange={handleNewUserChange} value={newUser?.user ?? ''} ref={newUserInputRef} />
@@ -167,6 +167,7 @@ export const CollabTable = ({ id }: { id: LibraryIdentifier }) => {
           colorScheme="green"
           isDisabled={!newUserIsValid}
           onClick={handleAddUser}
+          data-testid="add-collaborator-btn"
         />
       </Td>
     </Tr>
@@ -190,7 +191,7 @@ export const CollabTable = ({ id }: { id: LibraryIdentifier }) => {
               This library has {collaborators.length === 0 ? 'no' : collaborators.length} collaborators
             </Text>
           </HStack>
-          <Table size="sm">
+          <Table size="sm" data-testid="collab-table">
             <Thead>
               <Tr>
                 <Th aria-label="position" w="10%"></Th>
@@ -201,7 +202,7 @@ export const CollabTable = ({ id }: { id: LibraryIdentifier }) => {
             </Thead>
             <Tbody>
               {collaborators.map((u, index) => (
-                <Tr key={`user-${index}`}>
+                <Tr key={`user-${index}`} data-testid="collaborator-row">
                   <Td>{index + 1}</Td>
                   <Td>{u.user}</Td>
                   <Td>

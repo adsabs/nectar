@@ -158,7 +158,11 @@ export const LibrarySettingsPane = ({ library, onRefetch, isFromLanding = false 
     <>
       <Box>
         <Heading variant="pageTitle" as="h1" my={4}>
-          <SimpleLink href={isFromLanding ? '/user/libraries' : `/user/libraries/${id}`} display="inline">
+          <SimpleLink
+            href={isFromLanding ? '/user/libraries' : `/user/libraries/${id}`}
+            display="inline"
+            data-testid="settings-back-btn"
+          >
             <ChevronLeftIcon mr={2} />
           </SimpleLink>
           Settings
@@ -167,7 +171,12 @@ export const LibrarySettingsPane = ({ library, onRefetch, isFromLanding = false 
       <Flex direction="column" gap={4} alignItems="start">
         <FormControl>
           <FormLabel>Library Name</FormLabel>
-          <Input value={nameValue} isReadOnly={!canEdit} onChange={handleOnNameChange} />
+          <Input
+            value={nameValue}
+            isReadOnly={!canEdit}
+            onChange={handleOnNameChange}
+            data-testid="library-name-input"
+          />
         </FormControl>
         <FormControl>
           <FormLabel>
@@ -176,12 +185,24 @@ export const LibrarySettingsPane = ({ library, onRefetch, isFromLanding = false 
               (max 200 characters)
             </Text>
           </FormLabel>
-          <Textarea value={descValue} isReadOnly={!canEdit} maxLength={200} onChange={handleOnDescChange} />
+          <Textarea
+            value={descValue}
+            isReadOnly={!canEdit}
+            maxLength={200}
+            onChange={handleOnDescChange}
+            data-testid="library-desc-input"
+          />
         </FormControl>
         <FormControl>
           <Flex>
             <FormLabel>Make library public?</FormLabel>
-            <Switch isChecked={isChecked} onChange={handleCheckboxChange} isDisabled={!canEdit} />
+            <Switch
+              isChecked={isChecked}
+              onChange={handleCheckboxChange}
+              isDisabled={!canEdit}
+              data-testid="library-public-switch"
+              aria-label={isChecked ? 'is public' : 'is private'}
+            />
           </Flex>
           <Text>
             <Text display="inline" fontStyle="italic">
@@ -200,20 +221,20 @@ export const LibrarySettingsPane = ({ library, onRefetch, isFromLanding = false 
             Save
           </Button>
         )}
-        <FormControl>
+        <FormControl className="metadata">
           <FormLabel>Permission</FormLabel>
           {permission}
         </FormControl>
-        <FormControl>
+        <FormControl className="metadata">
           <FormLabel>Owner</FormLabel>
           {owner}
           {permission === 'owner' && <TransferLibrary onTransfer={handleTransfer} isLoading={isTranfering} />}
         </FormControl>
-        <FormControl>
+        <FormControl className="metadata">
           <FormLabel>Date Created</FormLabel>
           {new Date(date_created).toLocaleString()}
         </FormControl>
-        <FormControl>
+        <FormControl className="metadata">
           <FormLabel>Last Modified</FormLabel>
           {new Date(date_last_modified).toLocaleString()}
         </FormControl>
@@ -261,7 +282,12 @@ const TransferLibrary = ({ onTransfer, isLoading }: { onTransfer: (user: string)
           <ModalBody>
             <FormControl>
               <FormLabel>New Owner</FormLabel>
-              <Input placeholder="new-owner@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <Input
+                placeholder="new-owner@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                data-testid="transfer-owner-email-input"
+              />
             </FormControl>
           </ModalBody>
 
@@ -269,7 +295,12 @@ const TransferLibrary = ({ onTransfer, isLoading }: { onTransfer: (user: string)
             <Button variant="outline" mr={3} onClick={handleCancel}>
               Cancel
             </Button>
-            <Button onClick={handleTransfer} isDisabled={!isValid} isLoading={isLoading}>
+            <Button
+              onClick={handleTransfer}
+              isDisabled={!isValid}
+              isLoading={isLoading}
+              data-testid="transfer-submit-btn"
+            >
               Transfer
             </Button>
           </ModalFooter>

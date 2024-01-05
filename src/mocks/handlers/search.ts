@@ -111,4 +111,41 @@ export const searchHandlers = [
 
     return res(ctx.status(200), ctx.json<IADSApiSearchResponse>(body));
   }),
+
+  rest.post<string>(apiHandlerRoute(ApiTargets.BIGQUERY), async (req, res, ctx) => {
+    const bibcodes = req.body;
+    const rows = Number(new URL(req.url).searchParams.get('rows'));
+    const authors = range(0, 5).map(() => `${faker.name.lastName()}, ${faker.random.alpha(1)}.`);
+    const results = bibcodes
+      .split('\n')
+      .slice(1)
+      .map((b) => ({
+        bibcode: b,
+        author: authors,
+        author_count: authors.length,
+        bibstem: [faker.random.alphaNumeric(5)],
+        id: faker.random.alphaNumeric(5),
+        identifier: [faker.random.alphaNumeric(10)],
+        pub: faker.lorem.words(3),
+        pubdate: '2019-03-00',
+        title: [faker.lorem.sentence(5)],
+        esources: ['PUB_PDF'],
+        property: ['ESOURCE', 'NONARTICLE', 'NOT REFEREED', 'OPENACCESS', 'PUB_OPENACCESS', 'TOC'],
+        citation_count: faker.datatype.number(100),
+        citation_count_norm: 0.0,
+        '[citations]': {
+          num_references: faker.datatype.number(100),
+          num_citations: faker.datatype.number(100),
+        },
+      }));
+
+    return res(
+      ctx.json({
+        response: {
+          numberFound: rows,
+          docs: results.slice(0, rows),
+        },
+      }),
+    );
+  }),
 ];

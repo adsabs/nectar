@@ -58,7 +58,7 @@ export interface IADSApiLibraryEntityResponse {
     response: {
       numFound: number;
       start: number;
-      docs: { bibcode: string; alternate_bibcode: string[] };
+      docs: { bibcode: string; alternate_bibcode?: string[] }[];
     };
   };
 }

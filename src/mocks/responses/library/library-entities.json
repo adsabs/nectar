@@ -1,0 +1,452 @@
+{
+  "001": {
+    "documents": ["00000", "11111", "22222", "33333", "44444", "55555", "66666", "77777", "88888", "99999"],
+    "solr": {
+      "response": {
+        "numFound": 10,
+        "start": 0,
+        "docs": [
+          {
+            "bibcode": "00000"
+          },
+          {
+            "bibcode": "11111"
+          },
+          {
+            "bibcode": "22222"
+          },
+          {
+            "bibcode": "33333"
+          },
+          {
+            "bibcode": "44444"
+          },
+          {
+            "bibcode": "55555"
+          },
+          {
+            "bibcode": "66666"
+          },
+          {
+            "bibcode": "77777"
+          },
+          {
+            "bibcode": "88888"
+          },
+          {
+            "bibcode": "99999"
+          }
+        ]
+      }
+    },
+    "metadata": {
+      "name": "001",
+      "id": "001",
+      "description": "001",
+      "num_documents": 10,
+      "date_created": "2019-04-15T19:03:15.345389",
+      "date_last_modified": "2021-04-01T15:11:10.995740",
+      "permission": "admin",
+      "public": false,
+      "num_users": 2,
+      "owner": "ads.user.20"
+    },
+    "updates": {
+      "num_updated": 0,
+      "duplicates_removed": 0,
+      "update_list": []
+    }
+  },
+  "002": {
+    "documents": ["11111", "22222", "33333", "44444", "55555"],
+    "solr": {
+      "response": {
+        "numFound": 5,
+        "start": 0,
+        "docs": [
+          {
+            "bibcode": "11111"
+          },
+          {
+            "bibcode": "22222"
+          },
+          {
+            "bibcode": "33333"
+          },
+          {
+            "bibcode": "44444"
+          },
+          {
+            "bibcode": "55555"
+          }
+        ]
+      }
+    },
+    "metadata": {
+      "name": "002",
+      "id": "002",
+      "description": "002",
+      "num_documents": 5,
+      "date_created": "2019-04-15T19:03:56.246891",
+      "date_last_modified": "2021-08-28T05:03:27.780969",
+      "permission": "write",
+      "public": true,
+      "num_users": 2,
+      "owner": "ads.user.20"
+    },
+    "updates": {
+      "num_updated": 0,
+      "duplicates_removed": 0,
+      "update_list": []
+    }
+  },
+  "003": {
+    "documents": ["aaaaa", "bbbbb", "ccccc", "ddddd"],
+    "solr": {
+      "response": {
+        "numFound": 4,
+        "start": 0,
+        "docs": [
+          {
+            "bibcode": "aaaaa"
+          },
+          {
+            "bibcode": "bbbbb"
+          },
+          {
+            "bibcode": "ccccc"
+          },
+          {
+            "bibcode": "ddddd"
+          }
+        ]
+      }
+    },
+    "metadata": {
+      "name": "003",
+      "id": "003",
+      "description": "003",
+      "num_documents": 4,
+      "date_created": "2019-04-30T17:37:54.052677",
+      "date_last_modified": "2021-04-01T15:08:25.317810",
+      "permission": "read",
+      "public": false,
+      "num_users": 1,
+      "owner": "ads.user.20"
+    },
+    "updates": {
+      "num_updated": 0,
+      "duplicates_removed": 0,
+      "update_list": []
+    }
+  },
+  "004": {
+    "documents": ["00000", "aaaaa", "bbbbb"],
+    "solr": {
+      "response": {
+        "numFound": 3,
+        "start": 0,
+        "docs": [
+          {
+            "bibcode": "00000"
+          },
+          {
+            "bibcode": "aaaaa"
+          },
+          {
+            "bibcode": "bbbbb"
+          }
+        ]
+      }
+    },
+    "metadata": {
+      "name": "test1",
+      "id": "004",
+      "description": "My ADS library",
+      "num_documents": 3,
+      "date_created": "2022-02-23T21:25:13.500854",
+      "date_last_modified": "2022-03-31T20:27:22.080563",
+      "permission": "owner",
+      "public": false,
+      "num_users": 1,
+      "owner": "ads.user.1"
+    },
+    "updates": {
+      "num_updated": 0,
+      "duplicates_removed": 0,
+      "update_list": []
+    }
+  },
+  "005": {
+    "documents": ["55555", "66666"],
+    "solr": {
+      "response": {
+        "numFound": 2,
+        "start": 0,
+        "docs": [
+          {
+            "bibcode": "55555"
+          },
+          {
+            "bibcode": "66666"
+          }
+        ]
+      }
+    },
+    "metadata": {
+      "name": "test2",
+      "id": "005",
+      "description": "My ADS library",
+      "num_documents": 2,
+      "date_created": "2022-02-23T21:44:10.593087",
+      "date_last_modified": "2022-03-31T20:27:27.948129",
+      "permission": "owner",
+      "public": true,
+      "num_users": 1,
+      "owner": "ads.user.1"
+    },
+    "updates": {
+      "num_updated": 0,
+      "duplicates_removed": 0,
+      "update_list": []
+    }
+  },
+  "006": {
+    "documents": [],
+    "solr": {
+      "response": {
+        "numFound": 0,
+        "start": 0,
+        "docs": []
+      }
+    },
+    "metadata": {
+      "name": "test3",
+      "id": "006",
+      "description": "My ADS library",
+      "num_documents": 0,
+      "date_created": "2023-09-05T22:12:05.511383",
+      "date_last_modified": "2023-09-05T22:12:05.511393",
+      "permission": "owner",
+      "public": false,
+      "num_users": 1,
+      "owner": "ads.user.1"
+    },
+    "updates": {
+      "num_updated": 0,
+      "duplicates_removed": 0,
+      "update_list": []
+    }
+  },
+  "007": {
+    "documents": [],
+    "solr": {
+      "response": {
+        "numFound": 0,
+        "start": 0,
+        "docs": []
+      }
+    },
+    "metadata": {
+      "name": "test4",
+      "id": "007",
+      "description": "My ADS library",
+      "num_documents": 0,
+      "date_created": "2023-09-05T22:12:29.460672",
+      "date_last_modified": "2023-09-05T22:12:29.460680",
+      "permission": "owner",
+      "public": false,
+      "num_users": 1,
+      "owner": "ads.user.1"
+    },
+    "updates": {
+      "num_updated": 0,
+      "duplicates_removed": 0,
+      "update_list": []
+    }
+  },
+  "008": {
+    "documents": ["44444", "55555", "66666"],
+    "solr": {
+      "response": {
+        "numFound": 3,
+        "start": 0,
+        "docs": [
+          {
+            "bibcode": "44444"
+          },
+          {
+            "bibcode": "55555"
+          },
+          {
+            "bibcode": "66666"
+          }
+        ]
+      }
+    },
+    "metadata": {
+      "name": "test5",
+      "id": "008",
+      "description": "another test library",
+      "num_documents": 3,
+      "date_created": "2023-09-18T17:46:02.068300",
+      "date_last_modified": "2023-09-18T18:16:33.668957",
+      "permission": "owner",
+      "public": true,
+      "num_users": 1,
+      "owner": "ads.user.1"
+    },
+    "updates": {
+      "num_updated": 0,
+      "duplicates_removed": 0,
+      "update_list": []
+    }
+  },
+  "009": {
+    "documents": ["00000", "11111", "22222", "33333", "44444", "55555"],
+    "solr": {
+      "response": {
+        "numFound": 6,
+        "start": 0,
+        "docs": [
+          {
+            "bibcode": "00000"
+          },
+          {
+            "bibcode": "11111"
+          },
+          {
+            "bibcode": "22222"
+          },
+          {
+            "bibcode": "33333"
+          },
+          {
+            "bibcode": "44444"
+          },
+          {
+            "bibcode": "55555"
+          }
+        ]
+      }
+    },
+    "metadata": {
+      "name": "test6",
+      "id": "009",
+      "description": "yet another test library",
+      "num_documents": 6,
+      "date_created": "2023-09-18T18:24:06.510578",
+      "date_last_modified": "2023-10-25T16:59:44.352260",
+      "permission": "owner",
+      "public": true,
+      "num_users": 1,
+      "owner": "ads.user.1"
+    },
+    "updates": {
+      "num_updated": 0,
+      "duplicates_removed": 0,
+      "update_list": []
+    }
+  },
+  "010": {
+    "documents": ["00000", "11111", "22222", "33333", "44444", "55555", "66666", "ccccc", "bbbbb", "aaaaa"],
+    "solr": {
+      "response": {
+        "numFound": 10,
+        "start": 0,
+        "docs": [
+          {
+            "bibcode": "00000"
+          },
+          {
+            "bibcode": "11111"
+          },
+          {
+            "bibcode": "22222"
+          },
+          {
+            "bibcode": "33333"
+          },
+          {
+            "bibcode": "44444"
+          },
+          {
+            "bibcode": "55555"
+          },
+          {
+            "bibcode": "66666"
+          },
+          {
+            "bibcode": "ccccc"
+          },
+          {
+            "bibcode": "bbbbb"
+          },
+          {
+            "bibcode": "aaaaa"
+          }
+        ]
+      }
+    },
+    "metadata": {
+      "name": "10",
+      "id": "010",
+      "description": "My ADS library",
+      "num_documents": 10,
+      "date_created": "2023-09-22T14:05:34.650827",
+      "date_last_modified": "2023-09-22T14:05:34.650837",
+      "permission": "owner",
+      "public": false,
+      "num_users": 1,
+      "owner": "ads.user.1"
+    },
+    "updates": {
+      "num_updated": 0,
+      "duplicates_removed": 0,
+      "update_list": []
+    }
+  },
+  "011": {
+    "documents": ["44444", "55555", "66666", "77777", "88888"],
+    "solr": {
+      "response": {
+        "numFound": 5,
+        "start": 0,
+        "docs": [
+          {
+            "bibcode": "44444"
+          },
+          {
+            "bibcode": "55555"
+          },
+          {
+            "bibcode": "66666"
+          },
+          {
+            "bibcode": "77777"
+          },
+          {
+            "bibcode": "88888"
+          }
+        ]
+      }
+    },
+    "metadata": {
+      "name": "11",
+      "id": "011",
+      "description": "My ADS library",
+      "num_documents": 5,
+      "date_created": "2023-09-22T14:05:43.462906",
+      "date_last_modified": "2023-12-08T17:52:14.905397",
+      "permission": "owner",
+      "public": false,
+      "num_users": 1,
+      "owner": "ads.user.1"
+    },
+    "updates": {
+      "num_updated": 0,
+      "duplicates_removed": 0,
+      "update_list": []
+    }
+  }
+}

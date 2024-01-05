@@ -190,7 +190,7 @@ export const OperationModal = ({
         <ModalCloseButton />
         <ModalBody>
           <FormProvider {...formMethods}>
-            <form onSubmit={handleSubmit(handleOperate)}>
+            <form onSubmit={handleSubmit(handleOperate)} data-testid="lib-operation-modal">
               <Flex direction="column" gap={4}>
                 <FormControl>
                   <FormLabel>Action:</FormLabel>
@@ -203,10 +203,18 @@ export const OperationModal = ({
                           <Radio value="union" autoFocus>
                             Union
                           </Radio>
-                          <Radio value="intersection">Intersection</Radio>
-                          <Radio value="difference">Difference</Radio>
-                          <Radio value="copy">Copy</Radio>
-                          <Radio value="empty">Empty</Radio>
+                          <Radio value="intersection" data-testid="radio-intersect">
+                            Intersection
+                          </Radio>
+                          <Radio value="difference" data-testid="radio-diff">
+                            Difference
+                          </Radio>
+                          <Radio value="copy" data-testid="radio-copy">
+                            Copy
+                          </Radio>
+                          <Radio value="empty" data-testid="radio-empty">
+                            Empty
+                          </Radio>
                         </Stack>
                       </RadioGroup>
                     )}
@@ -221,18 +229,18 @@ export const OperationModal = ({
                     </FormControl>
                     <FormControl isInvalid={!!errors?.name}>
                       <FormLabel>New Library Name:</FormLabel>
-                      <Input {...register('name', { required: true })} />
+                      <Input {...register('name', { required: true })} data-testid="new-lib-name" />
                       <FormErrorMessage>{errors?.name && errors.name.message}</FormErrorMessage>
                     </FormControl>
                     <FormControl>
                       <FormLabel>Description:</FormLabel>
-                      <Textarea {...register('desc')} />
+                      <Textarea {...register('desc')} data-testid="new-lib-desc" />
                     </FormControl>
                     <Checkbox {...register('isPublic')}>Make library public</Checkbox>
                   </>
                 )}
                 {(action === 'copy' || action === 'empty') && (
-                  <FormControl isInvalid={!!errors?.source}>
+                  <FormControl isInvalid={!!errors?.source} data-testid="source-selector">
                     <FormLabel>Source Library:</FormLabel>
                     <LibrarySelector
                       isMultiple={false}
@@ -243,7 +251,7 @@ export const OperationModal = ({
                   </FormControl>
                 )}
                 {action === 'copy' && (
-                  <FormControl isInvalid={!!errors?.target}>
+                  <FormControl isInvalid={!!errors?.target} data-testid="target-selector">
                     <FormLabel>Target Library:</FormLabel>
                     <LibrarySelector
                       isMultiple={false}
@@ -258,7 +266,7 @@ export const OperationModal = ({
                 <Button type="submit" isLoading={isLoading}>
                   Submit
                 </Button>
-                <Button variant="outline" onClick={handleOnClose}>
+                <Button variant="outline" onClick={handleOnClose} data-testid="cancel-lib-operation">
                   Cancel
                 </Button>
               </HStack>

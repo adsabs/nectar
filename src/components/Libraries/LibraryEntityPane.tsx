@@ -85,7 +85,7 @@ export const LibraryEntityPane = ({ library, publicView, onRefetch = noop }: ILi
     owner,
   } = library.metadata;
 
-  const { data: documents } = useGetLibraryEntity(
+  const { data: documents, refetch: refetchDocs } = useGetLibraryEntity(
     {
       id,
       start: onPage * pageSize,
@@ -185,7 +185,8 @@ export const LibraryEntityPane = ({ library, publicView, onRefetch = noop }: ILi
             // reset
             setOnPage(0);
             setSelected([]);
-            onRefetch();
+            onRefetch(); // update entity
+            void refetchDocs(); // refresh doc list
           }
         },
       },
@@ -197,12 +198,12 @@ export const LibraryEntityPane = ({ library, publicView, onRefetch = noop }: ILi
       {!publicView && (
         <Flex justifyContent="space-between" my={4}>
           <SimpleLink href="/user/libraries">
-            <Button variant="outline" leftIcon={<ChevronLeftIcon />}>
+            <Button variant="outline" leftIcon={<ChevronLeftIcon />} data-testid="lib-back-btn">
               Back to libraries
             </Button>
           </SimpleLink>
           <SimpleLink href={`/user/libraries/${id}/settings`}>
-            <IconButton aria-label="settings" icon={<SettingsIcon />} variant="outline" />
+            <IconButton aria-label="settings" icon={<SettingsIcon />} variant="outline" data-testid="settings-btn" />
           </SimpleLink>
         </Flex>
       )}
@@ -228,12 +229,20 @@ export const LibraryEntityPane = ({ library, publicView, onRefetch = noop }: ILi
             <LockIcon aria-label="private" />
           </Tooltip>
         )}
-        <Heading variant="pageTitle" as="h1">
+        <Heading variant="pageTitle" as="h1" data-testid="lib-title">
           {name}
         </Heading>
       </Flex>
-      <Text my={2}>{description}</Text>
-      <Table variant="unstyled" my={4} backgroundColor={colors.panel} display={{ base: 'none', sm: 'block' }}>
+      <Text my={2} data-testid="lib-desc">
+        {description}
+      </Text>
+      <Table
+        variant="unstyled"
+        my={4}
+        backgroundColor={colors.panel}
+        display={{ base: 'none', sm: 'block' }}
+        data-testid="lib-meta"
+      >
         <Thead>
           <Tr>
             <Th>Papers</Th>
@@ -361,6 +370,7 @@ const BulkAction = ({
             isIndeterminate={!isAllSelected && isSomeSelected}
             onChange={handleChange}
             mr={2}
+            data-testid="select-all-checkbox"
           />
         </Tooltip>
         {selectedCount > 0 && (
@@ -372,7 +382,12 @@ const BulkAction = ({
           </>
         )}
       </HStack>
-      <Button isDisabled={selectedCount === 0} colorScheme="red" onClick={onDeleteSelected}>
+      <Button
+        isDisabled={selectedCount === 0}
+        colorScheme="red"
+        onClick={onDeleteSelected}
+        data-testid="del-selected-btn"
+      >
         Delete
       </Button>
     </Flex>
