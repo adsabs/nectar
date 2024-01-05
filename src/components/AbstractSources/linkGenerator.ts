@@ -1,8 +1,9 @@
 import { Esources, IDocsEntity } from '@api';
-import { compose, descend, is, map, prop, sort, sortWith } from 'ramda';
+import { compose, descend, is, map, pipe, prop, sort } from 'ramda';
 import { DEFAULT_ORDERING, GATEWAY_BASE_URL, LINK_TYPES, MAYBE_OPEN_SOURCES } from './model';
 import { getOpenUrl } from './openUrlGenerator';
 import { isNilOrEmpty } from 'ramda-adjunct';
+import { IDataProductSource, IFullTextSource, ProcessLinkDataReturns } from '@components/AbstractSources/types';
 
 /**
  * Create the resolver url
@@ -12,38 +13,9 @@ import { isNilOrEmpty } from 'ramda-adjunct';
  */
 export const createGatewayUrl = (bibcode: string, target: string): string => {
   if (is(String, bibcode) && is(String, target)) {
-    return GATEWAY_BASE_URL + enc(bibcode) + '/' + target;
+    return `${GATEWAY_BASE_URL + encodeURIComponent(bibcode)}/${target}`;
   }
   return '';
-};
-
-export interface IFullTextSource {
-  url: string;
-  open?: boolean;
-  shortName: string;
-  name?: string;
-  type?: string;
-  description: string;
-  openUrl?: boolean;
-  rawType?: keyof typeof Esources;
-}
-
-export interface IDataProductSource {
-  url: string;
-  count: string;
-  name: string;
-  description: string;
-}
-
-export interface IRelatedWorks {
-  url: string;
-  name: string;
-  description: string;
-}
-
-type ProcessLinkDataReturns = {
-  fullTextSources: IFullTextSource[];
-  dataProducts: IDataProductSource[];
 };
 
 /**
@@ -62,23 +34,18 @@ type ProcessLinkDataReturns = {
  * @returns {ProcessLinkDataReturns} - the fulltext and data sources
  */
 export const processLinkData = (doc: IDocsEntity, linkServer?: string): ProcessLinkDataReturns => {
-  let countOpenUrls = 0;
-
   if (isNilOrEmpty(doc)) {
     return { fullTextSources: [], dataProducts: [] };
   }
 
-  const mapOverSources = map<keyof typeof Esources, IFullTextSource>((el): IFullTextSource => {
-    const linkInfo = LINK_TYPES[el];
+  /**
+   * Create an OpenURL (only one) if the following is true:
+   *   - The article HAS an Identifier (doi, issn, isbn)
+   *   - The user is authenticated (linkServer is present)
+   */
+  const maybeCreateInstitutionURL = () => {
     const identifier = doc.doi || doc.issn || doc.isbn;
-
-    // Create an OpenURL
-    // Only create an openURL if the following is true:
-    //   - The article HAS an Identifier (doi, issn, isbn)
-    //   - The user is authenticated
-    //   - the user HAS a library link server
-    if (identifier && linkServer && countOpenUrls < 1) {
-      countOpenUrls += 1;
+    if (identifier && linkServer) {
       return {
         url: getOpenUrl({ metadata: doc, linkServer }),
         openUrl: true,
@@ -86,41 +53,34 @@ export const processLinkData = (doc: IDocsEntity, linkServer?: string): ProcessL
         rawType: Esources.INSTITUTION,
       };
     }
+  };
 
+  /**
+   * Map over the sources and create the full text sources
+   * @param {string} el - the source
+   * @returns {IFullTextSource} - the full text source
+   */
+  const mapOverSources = map<keyof typeof Esources, IFullTextSource>((el): IFullTextSource => {
+    const linkInfo = LINK_TYPES[el];
     const [prefix] = el.split('_');
-    const open = MAYBE_OPEN_SOURCES.includes(el) && doc.property.includes(`${prefix}_OPENACCESS`);
+    const open = MAYBE_OPEN_SOURCES.includes(el) && !!doc.property?.includes(`${prefix}_OPENACCESS`);
 
     return {
-      url: createGatewayUrl(doc.bibcode, el),
+      url: createGatewayUrl(doc?.bibcode, el),
       open,
-      shortName: linkInfo?.shortName || el,
-      name: linkInfo?.name || el,
-      type: linkInfo?.type || 'HTML',
-      description: linkInfo?.description,
+      shortName: linkInfo?.shortName ?? el,
+      name: linkInfo?.name ?? el,
+      type: linkInfo?.type ?? 'HTML',
+      description: linkInfo?.description ?? el,
       rawType: el,
     };
   });
 
-  // TODO: Verify this is still needed
-  // // if no arxiv link is present, check links_data as well to make sure
-  // const hasEprint = fullTextSources.some(({ name }) => name === LINK_TYPES.EPRINT_PDF.name);
-  // if (!hasEprint && Array.isArray(doc.links_data)) {
-  //   doc.links_data.forEach((linkData) => {
-  //     const link = JSON.parse(linkData) as IEprintLink;
-  //     if (/preprint/i.test(link.type)) {
-  //       const info = LINK_TYPES.EPRINT_PDF;
-  //       fullTextSources.push({
-  //         url: link.url,
-  //         open: true,
-  //         shortName: info?.shortName ?? link.type,
-  //         name: info?.name ?? link.type,
-  //         type: info?.type ?? 'HTML',
-  //         description: info?.description,
-  //       });
-  //     }
-  //   });
-  // }
-
+  /**
+   * Map over the data products and create the data products
+   * @param {string} product - the product
+   * @returns {IDataProductSource} - the data product
+   */
   const mapOverDataProducts = map((product: string): IDataProductSource => {
     const [source, count = '1'] = product.split(':');
     const linkInfo = LINK_TYPES[source as Esources];
@@ -128,13 +88,25 @@ export const processLinkData = (doc: IDocsEntity, linkServer?: string): ProcessL
     return {
       url: createGatewayUrl(doc.bibcode, source),
       count,
-      name: linkInfo ? linkInfo.shortName : source,
-      description: linkInfo ? linkInfo.description : source,
+      name: linkInfo?.shortName ?? source,
+      description: linkInfo?.description ?? source,
     };
   });
 
-  const processEsources = compose(sortByDefaultOrdering, mapOverSources);
-  const processDataProducts = compose(sortWith([descend(prop('count'))]), mapOverDataProducts);
+  // map over the sources and sort them by our default ordering
+  const processEsources = pipe(
+    mapOverSources,
+
+    // create the openurl and prepend it
+    (sources) => {
+      const openUrl = maybeCreateInstitutionURL();
+      return openUrl ? [openUrl, ...sources] : sources;
+    },
+    sortByDefaultOrdering,
+  );
+
+  // map over the data products and sort them by count
+  const processDataProducts = pipe(mapOverDataProducts, sort(descend(prop('count'))));
 
   return {
     fullTextSources: Array.isArray(doc.esources) ? processEsources(doc.esources) : [],
@@ -151,13 +123,9 @@ export const processLinkData = (doc: IDocsEntity, linkServer?: string): ProcessL
  */
 export const createUrlByType = function (bibcode: string, type: string, identifier: string): string {
   if (typeof bibcode === 'string' && typeof type === 'string' && typeof identifier === 'string') {
-    return GATEWAY_BASE_URL + bibcode + '/' + type + ':' + identifier;
+    return `${GATEWAY_BASE_URL + bibcode}/${type}:${identifier}`;
   }
   return '';
-};
-
-const enc = function (str: string) {
-  return encodeURIComponent(str);
 };
 
 // reorder the full text sources based on our default ordering
