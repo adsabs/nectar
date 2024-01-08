@@ -104,10 +104,11 @@ const Carousel = () => {
                 <Text fontWeight="bold">Science Focus Areas</Text>
               </Heading>
               <Image
-                src="/images/carousel/banner_sciencetopics.jpg"
+                src="/images/carousel/banner_sciencetopics.webp"
                 alt="all scix focus areas"
                 width={760}
                 height={200}
+                quality={90}
               />
               <Text fontSize="xl">
                 NASA SciX covers and unifies the fields of Earth Science, Planetary Science, Astrophysics, and
@@ -130,10 +131,11 @@ const Carousel = () => {
                   expanding access & accelerating scientific discovery for societal benefit.
                 </Text>
                 <Image
-                  src="/images/carousel/lightbulb_science.jpg"
+                  src="/images/carousel/lightbulb_science.webp"
                   alt="lightbulb and open padlock unlocking scientific ideas"
                   width={300}
                   height={300}
+                  quality={90}
                 />
               </Flex>
             </Stack>
