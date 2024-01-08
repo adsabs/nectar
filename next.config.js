@@ -59,6 +59,19 @@ const config = {
         permanent: false,
         basePath: false,
       },
+      {
+        has: [
+          {
+            type: 'host',
+            key: 'page',
+            value: 'localhost',
+          },
+        ],
+        source: '/scixhelp/:slug*',
+        destination: 'http://adsabs.github.io/scixhelp/:slug*',
+        permanent: false,
+        basePath: false,
+      },
     ];
   },
   trailingSlash: false,
