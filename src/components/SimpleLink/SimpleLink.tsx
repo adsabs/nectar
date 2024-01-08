@@ -11,7 +11,7 @@ export interface ISimpleLinkProps extends LinkProps {
 
 export const SimpleLink: FC<ISimpleLinkProps> = (props): ReactElement => {
   const { children, href, icon, newTab, variant = 'default', ...linkProps } = props;
-  const isExternal = newTab || /^https?/.test(href);
+  const isExternal = linkProps.isExternal || newTab || /^https?/.test(href);
 
   return (
     <NextLink href={href} passHref legacyBehavior>
