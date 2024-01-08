@@ -163,7 +163,11 @@ const Carousel = () => {
             </Stack>
           ),
         },
-        { uniqueId: 'search-examples', title: 'Search Examples', content: <SearchExamples /> },
+        {
+          uniqueId: 'search-examples',
+          title: 'Search Examples',
+          content: <SearchExamples />,
+        },
       ]}
     />
   );
