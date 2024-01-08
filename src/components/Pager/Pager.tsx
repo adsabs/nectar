@@ -1,9 +1,9 @@
 import { forwardRef, HTMLAttributes, ReactNode, useState } from 'react';
 import {
+  Box,
   ButtonProps,
   Flex,
   Heading,
-  HStack,
   Icon,
   IconButton,
   keyframes,
@@ -33,6 +33,7 @@ type Page = {
 
 export interface IPagerProps extends HTMLAttributes<HTMLDivElement> {
   pages: Page[];
+  arrowMargin?: string;
 }
 
 const changePage = (noOfPages: number, direction: 'next' | 'prev') => (page: number) => {
@@ -46,7 +47,7 @@ const changePage = (noOfPages: number, direction: 'next' | 'prev') => (page: num
 };
 
 export const Pager = (props: IPagerProps) => {
-  const { pages, ...divProps } = props;
+  const { pages, arrowMargin = '200px', ...divProps } = props;
   const [selectedPage, setSelectedPage] = useState(0);
   const [interacted, setInteracted] = useState(false);
   const [shouldWiggle, setShouldWiggle] = useState(false);
@@ -78,31 +79,35 @@ export const Pager = (props: IPagerProps) => {
         onFocus={() => setShouldWiggle(true)}
         onBlur={() => setShouldWiggle(false)}
       >
-        {title}
-        <Flex alignItems="center">
-          <ChangePageButton direction="previous" onClick={prev} />
-          <TabPanels>
-            {pages.map((page, index) => (
-              <TabPanel key={page.uniqueId} alignContent="center" minH="sm">
-                {typeof page.content === 'function'
-                  ? page.content({ page: index, title: page.title, next, prev })
-                  : page.content}
-              </TabPanel>
-            ))}
-          </TabPanels>
-          <ChangePageButton
-            direction="next"
-            onClick={next}
-            wiggle={!interacted && shouldWiggle && selectedPage === 0}
-          />
+        <Flex direction="row" alignItems="flex-start">
+          <Box mt={arrowMargin}>
+            <ChangePageButton direction="previous" onClick={prev} />
+          </Box>
+          <Flex direction="column" alignItems="center">
+            {title}
+            <TabPanels>
+              {pages.map((page, index) => (
+                <TabPanel key={page.uniqueId} alignContent="center" minW="2xl" w="2xl">
+                  {typeof page.content === 'function'
+                    ? page.content({ page: index, title: page.title, next, prev })
+                    : page.content}
+                </TabPanel>
+              ))}
+            </TabPanels>
+          </Flex>
+          <Box mt={arrowMargin}>
+            <ChangePageButton
+              direction="next"
+              onClick={next}
+              wiggle={!interacted && shouldWiggle && selectedPage === 0}
+            />
+          </Box>
         </Flex>
-        <HStack spacing="4" justifyContent="center">
-          <TabList>
-            {pages.map((page) => (
-              <DotTab key={page.uniqueId}>{page.title}</DotTab>
-            ))}
-          </TabList>
-        </HStack>
+        <TabList>
+          {pages.map((page) => (
+            <DotTab key={page.uniqueId}>{page.title}</DotTab>
+          ))}
+        </TabList>
       </Tabs>
     </div>
   );
