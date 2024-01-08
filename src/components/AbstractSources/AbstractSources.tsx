@@ -92,7 +92,7 @@ const getLabel = (source: IFullTextSource) => {
   }
   return (
     <>
-      <LockIcon color="gray.700" mr={1} />
+      <LockIcon mr={1} />
       {` ${source.name}`}
     </>
   );
