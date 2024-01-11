@@ -40,7 +40,6 @@ import { applyFiltersToQuery } from './helpers';
 import { FacetLogic, OnFilterArgs, SearchFacetID } from './types';
 import { useGTMDispatch } from '@elgorditosalsero/react-gtm-hook';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { useColorModeColors } from '@lib';
 
 export interface ISearchFacetProps extends AccordionItemProps {
   field: FacetField;
