@@ -17,7 +17,7 @@ export const Footer: FC = () => {
       color="gray.50"
       sx={{ a: { color: 'gray.50' } }}
     >
-      <Flex direction="column" width={80} mx={5}>
+      <Flex direction="column" width="96" mx={5}>
         <Text fontWeight="semibold">
           © The{' '}
           <Text as="abbr" title="Smithsonian Astrophysical Observatory">
@@ -27,7 +27,7 @@ export const Footer: FC = () => {
           <Text as="abbr" title="National Aeronautics and Space Administration">
             NASA
           </Text>{' '}
-          Data System
+          Astrophysics Data System
         </Text>
         <Text color="gray.300">help[at]scixplorer.org</Text>
         <Text color="gray.300" mt={3}>
