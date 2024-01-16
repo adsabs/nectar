@@ -20,7 +20,12 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
   collections: {
     label: 'Collections',
     field: 'database' as FacetField,
-    logic: defaultLogic,
+
+    // collections should not have an exclude option (always additive)
+    logic: {
+      single: ['limit to'],
+      multiple: ['and', 'or'],
+    },
     storeId: 'collections',
   },
   refereed: {
