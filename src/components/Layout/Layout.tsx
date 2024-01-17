@@ -1,4 +1,4 @@
-import { Container, Flex, IconButton, Tooltip, useColorMode, useMediaQuery } from '@chakra-ui/react';
+import { Container, Flex, useMediaQuery } from '@chakra-ui/react';
 import { SkipNavLink } from '@chakra-ui/skip-nav';
 import { useRouter } from 'next/router';
 import { FC, useMemo } from 'react';
@@ -8,7 +8,6 @@ import dynamic from 'next/dynamic';
 import { LandingTabsStatic } from '@components';
 import { Notification } from '@components/Notification';
 import Head from 'next/head';
-import { MoonIcon, SunIcon } from '@chakra-ui/icons';
 
 const LandingTabs = dynamic(() => import('@components/LandingTabs/LandingTabs').then((mod) => mod.LandingTabs), {
   ssr: false,
@@ -32,8 +31,6 @@ export const Layout: FC = ({ children }) => {
 
   const favicon = useMemo(() => (isDarkMode ? darkModeFavicon : lightModeFavicon), [isDarkMode]);
 
-  const { colorMode, toggleColorMode } = useColorMode();
-
   return (
     <Flex direction="column">
       <Head>
@@ -44,22 +41,6 @@ export const Layout: FC = ({ children }) => {
       {isPrint ? null : <NavBar />}
       {isPrint ? null : <Notification />}
       <main>
-        <Tooltip label={`Switch to ${colorMode === 'light' ? 'dark' : 'light'} mode`}>
-          <IconButton
-            size="lg"
-            position="fixed"
-            bottom={10}
-            right={10}
-            onClick={toggleColorMode}
-            color={colorMode === 'light' ? 'gray.50' : 'gray.800'}
-            backgroundColor={colorMode === 'light' ? 'gray.800' : 'gray.50'}
-            border="1px solid"
-            aria-label="toggle dark mode"
-            icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
-            zIndex="sticky"
-            isRound
-          />
-        </Tooltip>
         {isLandingPage && <LandingTabs />}
         <Container maxW={isLandingPage ? 'container.md' : 'container.xl'} id="main-content">
           {children}
