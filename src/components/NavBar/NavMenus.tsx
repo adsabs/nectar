@@ -26,6 +26,7 @@ import { FeedbackDropdown } from './FeedbackDropdown';
 import { OrcidDropdown } from './OrcidDropdown';
 import { ListType } from './types';
 import { isBrowser } from '@utils';
+import { ColorModeMenu } from './ColorModeMenu';
 
 export const NavMenus = (): ReactElement => {
   const toggleMenu = () => {
@@ -117,11 +118,12 @@ export const NavMenus = (): ReactElement => {
                   </AccordionPanel>
                 </AccordionItem>
               </Accordion>
+              <ColorModeMenu type="switch" />
             </DrawerBody>
           </DrawerContent>
         </Drawer>
       </Box>
-      <Box display={{ base: 'none', lg: 'flex' }} flexDirection="row" mx={3}>
+      <Box display={{ base: 'none', lg: 'flex' }} flexDirection="row" mx={3} alignItems="center">
         {/* Cannot use stack here, will produce warning with popper in menu */}
         <FeedbackDropdown type={ListType.DROPDOWN} />
         <OrcidDropdown type={ListType.DROPDOWN} />
@@ -130,6 +132,7 @@ export const NavMenus = (): ReactElement => {
           <MenuButton onClick={handleHelp}>Help</MenuButton>
         </Menu>
         <AccountDropdown type={ListType.DROPDOWN} />
+        <ColorModeMenu type="icon" />
       </Box>
     </Flex>
   );
