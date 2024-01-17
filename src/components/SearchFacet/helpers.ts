@@ -123,8 +123,8 @@ export const cleanClause = curry((fqKey: string, clause: string) => {
   const terms = getTerms(clause);
   const operator = getOperator(clause);
 
-  // for authors, there is more processing to make it get the names
-  if (fqKey === 'fq_author') {
+  // for hierarchical facets, there is more processing to make it get the fields
+  if (fqKey === 'fq_author' || fqKey === 'fq_gpn') {
     return pipe(
       map(pipe(replace(/["\\]/g, ''), parseTitleFromKey)),
 
