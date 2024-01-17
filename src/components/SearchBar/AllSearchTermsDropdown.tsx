@@ -89,6 +89,8 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
     menuId: 'allSearchTermsMenu',
     inputId: 'allSearchTermsInput',
     getItemId: (index) => `allSearchTermsItem-${index}`,
+    labelId: 'allSearchTermsLabel',
+    toggleButtonId: 'allSearchTermsMenuToggle',
   });
 
   useEffect(() => {
