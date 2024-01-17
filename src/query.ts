@@ -4,6 +4,7 @@ import {
   always,
   curry,
   defaultTo,
+  equals,
   is,
   join,
   map,
@@ -20,6 +21,13 @@ import {
 export type Operator = 'AND' | 'OR' | 'NOT';
 const DEFAULT_OPERATOR = 'AND' as const;
 
+/**
+ * Regex to match a field
+ * @example
+ * `author_facet_hier:bar` -> `author_facet_heir:`
+ */
+const FIELD_REGEX = /[a-z_0-9]+:/gi;
+
 export const fqNameYearRange = 'range';
 
 export const joinConditions = (operator: Operator, conditions: string[]) =>
@@ -30,10 +38,16 @@ const parse = (query: string) => lucene.parse(query);
 const stringify = (ast: lucene.AST) => lucene.toString(ast);
 const isNonEmptyString = (v: unknown) => typeof v === 'string' && v.length > 0;
 const isUndefinedOrEmpty = (v: unknown) => typeof v === 'undefined' || (typeof v === 'string' && v.length === 0);
-const stripFieldFromClause = (clause: string) => replace(/[a-z_]+:/g, '', clause);
+const stripFieldFromClause = (clause: string) => replace(FIELD_REGEX, '', clause);
 const capitalizeOperators = (query: string) => query.replace(/\b(and|or|not)\b/gi, toUpper);
 const appendIfString = (list: string[], result: string) => (is(String, result) ? [...list, result] : list);
-export const getOperator = pipe<[string], lucene.AST, string>(parse, pathOr('AND', ['left', 'operator']));
+export const getOperator = pipe<[string], lucene.AST, string, string>(
+  parse,
+  pathOr('AND', ['left', 'operator']),
+
+  // if the operator is implicit, then it's an ''
+  when(equals('<implicit>'), always('')),
+);
 
 // convert fields that the AST cannot handle into something they can
 const transformQueryFields = (query: string) => {
@@ -124,7 +138,10 @@ export const splitQuery = (
     uniq,
     map(
       pipe(
+        // run any transforms on the clause
         when(always(is(Function, options.transform)), options.transform),
+
+        // remove the field from the clause
         when(always(options.stripField), stripFieldFromClause),
       ),
     ),
