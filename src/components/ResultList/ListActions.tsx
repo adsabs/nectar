@@ -318,7 +318,7 @@ const SelectAllCheckbox = () => {
 };
 
 const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean; defaultExportFormat: string }): ReactElement => {
-  const { exploreAll, ...menuGroupProps } = props;
+  const { exploreAll, defaultExportFormat, ...menuGroupProps } = props;
   const router = useRouter();
   const store = useStoreApi();
   const [selected, setSelected] = useState<Bibcode[]>([]);
@@ -326,7 +326,7 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean; defaultExport
 
   const { data } = useVaultBigQuerySearch(selected, { enabled: !exploreAll && selected.length > 0 });
 
-  const defaultExportFormatValue = values(exportFormats).find((f) => f.label === props.defaultExportFormat).value;
+  const defaultExportFormatValue = values(exportFormats).find((f) => f.label === defaultExportFormat).value;
 
   useEffect(() => {
     if (data) {
