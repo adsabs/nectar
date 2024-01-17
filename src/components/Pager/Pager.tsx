@@ -99,7 +99,7 @@ export const Pager = (props: IPagerProps) => {
             <ChangePageButton
               direction="next"
               onClick={next}
-              wiggle={!interacted && shouldWiggle && selectedPage === 0}
+              wiggle={!!(!interacted && shouldWiggle && selectedPage === 0)}
             />
           </Box>
         </Flex>
