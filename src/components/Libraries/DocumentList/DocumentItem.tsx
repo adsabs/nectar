@@ -1,20 +1,16 @@
 import { IDocsEntity } from '@api';
 import { Box, BoxProps, Checkbox, CheckboxProps, Flex, Link, Stack, Text } from '@chakra-ui/react';
 import { AllAuthorsModal } from '@components/AllAuthorsModal';
-import { IAbstractPreviewProps, ItemResourceDropdowns } from '@components/ResultList/Item';
+import { ItemResourceDropdowns } from '@components/ResultList/Item';
 import { APP_DEFAULTS } from '@config';
 import { useColorModeColors } from '@lib';
 import { useIsClient } from '@lib/useIsClient';
 import { getFomattedNumericPubdate, noop, unwrapStringValue } from '@utils';
 import { MathJax } from 'better-react-mathjax';
-import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
 import { ChangeEvent, ReactElement } from 'react';
+import { ItemAnnotation } from './ItemAnnotation';
 
-const AbstractPreview = dynamic<IAbstractPreviewProps>(
-  () => import('@components/ResultList/Item/AbstractPreview').then((mod) => mod.AbstractPreview),
-  { ssr: false },
-);
 export interface IItemProps {
   doc: IDocsEntity;
   index: number;
@@ -111,7 +107,7 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
             {cite && (formattedPubDate || formattedBibstem) ? <span className="px-2">·</span> : null}
             {cite}
           </Text>
-          <AbstractPreview bibcode={bibcode} />
+          <ItemAnnotation bibcode={bibcode} />
         </Flex>
       </Stack>
     </Flex>
