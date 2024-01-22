@@ -42,6 +42,7 @@
     "@playwright/browser-chromium": "^1.39.0",
     "@playwright/browser-firefox": "^1.39.0",
     "@playwright/browser-webkit": "^1.39.0",
+    "@sentry/nextjs": "^7.94.1",
     "@storybook/addon-controls": "^7.5.3",
     "@storybook/client-api": "^7.5.3",
     "@storybook/testing-react": "^2.0.1",
