@@ -1,6 +1,5 @@
 /* eslint-disable */
 import { orcidHandlers } from '@mocks/handlers/orcid';
-import { passthroughs } from '@mocks/handlers/passthroughs';
 import { userHandlers } from '@mocks/responses/user/user';
 import { objectsHandlers } from '@mocks/handlers/objects';
 import { accountHandlers } from '@mocks/handlers/accounts';
@@ -24,7 +23,6 @@ export const handlers = [
   ...myadsHandlers,
   ...objectsHandlers,
   ...orcidHandlers,
-  ...passthroughs,
   ...referenceHandlers,
   ...searchHandlers,
   ...userHandlers,
