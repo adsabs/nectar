@@ -119,23 +119,29 @@ export const NOTIFICATIONS: Record<NotificationId, Notification> = {
     status: 'error',
     message: 'There was an issue verifying your account. Please try again.',
   },
+  'login-required': {
+    id: 'login-required',
+    status: 'warning',
+    message: 'You must be logged in to view that page.',
+  },
 };
 
 export type NotificationId =
-  | 'orcid-auth-failed'
   | 'account-deleted-success'
-  | 'account-logout-success'
+  | 'account-login-failed'
   | 'account-login-required'
   | 'account-login-success'
-  | 'account-login-failed'
   | 'account-logout-failed'
+  | 'account-logout-success'
   | 'account-register-success'
-  | 'verify-email-success'
   | 'account-reset-password-success'
+  | 'api-connect-failed'
+  | 'login-required'
+  | 'orcid-auth-failed'
+  | 'verify-account-failed'
   | 'verify-account-success'
   | 'verify-account-was-valid'
-  | 'verify-token-invalid'
-  | 'verify-account-failed'
-  | 'api-connect-failed';
+  | 'verify-email-success'
+  | 'verify-token-invalid';
 
 export const getNotification = (id: NotificationId) => (id in NOTIFICATIONS ? NOTIFICATIONS[id] : null);
