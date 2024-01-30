@@ -1,4 +1,4 @@
-import { ILibraryMetadata, LibraryIdentifier, useDeleteLibrary } from '@api';
+import { IADSApiLibraryParams, ILibraryMetadata, LibraryIdentifier, useDeleteLibrary } from '@api';
 import {
   ChevronDownIcon,
   LockIcon,
@@ -59,22 +59,22 @@ const columns: { id: Column; heading: string; sortable: boolean }[] = [
   {
     id: 'name',
     heading: 'Library',
-    sortable: false, // TODO: true
+    sortable: true,
   },
   {
     id: 'num_documents',
     heading: 'Papers',
-    sortable: false, // TODO: true
+    sortable: false,
   },
   {
     id: 'owner',
     heading: 'Owner',
-    sortable: false, // TODO: true
+    sortable: false,
   },
   {
     id: 'permission',
     heading: 'Permission',
-    sortable: false, // TODO: true
+    sortable: false,
   },
   {
     id: 'date_last_modified',
@@ -87,7 +87,7 @@ const columns: { id: Column; heading: string; sortable: boolean }[] = [
 const hideColsSmallDisplay: Column[] = ['public', 'num_users', 'permission', 'date_last_modified'];
 
 export interface ILibraryListTableSort {
-  col: keyof ILibraryMetadata;
+  col: IADSApiLibraryParams['sort'];
   dir: SortDirection;
 }
 
