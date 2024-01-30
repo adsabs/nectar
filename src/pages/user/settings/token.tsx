@@ -142,12 +142,12 @@ const TokenArea = (props: { onGenerate: () => void; isLoading: boolean }) => {
           <Stack direction={{ base: 'column', xs: 'row' }}>
             <Code>
               {
-                "curl -H 'Authorization: Bearer:*************************' https://api.adsabs.harvard.edu/v1/search/query?q=star&fl=bibcode"
+                "curl -H 'Authorization: Bearer *************************' https://api.adsabs.harvard.edu/v1/search/query?q=star&fl=bibcode"
               }
             </Code>
             <SimpleCopyButton
               variant="solid"
-              text={`curl -H 'Authorization: Bearer:${
+              text={`curl -H 'Authorization: Bearer ${
                 data?.access_token ?? ''
               }' https://api.adsabs.harvard.edu/v1/search/query?q=star&fl=bibcode`}
             />

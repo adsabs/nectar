@@ -64,7 +64,7 @@ test('basic request calls bootstrap and adds auth', async ({ server }: TestConte
 
   const expectedToken = (JSON.parse(onRes.mock.calls[0][0].body) as IApiUserResponse).user.access_token;
 
-  expect(onReq.mock.calls[1][0].headers.get('authorization')).toEqual(`Bearer:${expectedToken}`);
+  expect(onReq.mock.calls[1][0].headers.get('authorization')).toEqual(`Bearer ${expectedToken}`);
   expect(onReq.mock.calls[1][0].headers.get('cookie')).toEqual('session=test-session');
 });
 
@@ -76,7 +76,7 @@ test('passing token initially skips bootstrap', async ({ server }: TestContext) 
 
   // only a single call since bootstrapping was unnecessary
   expect(onReq).toBeCalledTimes(1);
-  expect(onReq.mock.calls[0][0].headers.get('authorization')).toEqual(`Bearer:${mockUserData.access_token}`);
+  expect(onReq.mock.calls[0][0].headers.get('authorization')).toEqual(`Bearer ${mockUserData.access_token}`);
   expect(onReq.mock.calls[0][0].headers.get('cookie')).toEqual('session=test-session');
 });
 
@@ -115,7 +115,7 @@ test('if user data set in local storage, it is used instead of bootstrapping', a
 
   await testRequest();
   expect(onReq).toBeCalledTimes(1);
-  expect(onReq.mock.calls[0][0].headers.get('authorization')).toEqual(`Bearer:from-local-storage`);
+  expect(onReq.mock.calls[0][0].headers.get('authorization')).toEqual(`Bearer from-local-storage`);
   global.localStorage.clear();
 });
 

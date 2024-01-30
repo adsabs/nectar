@@ -50,7 +50,7 @@ const applyTokenToRequest = (request: ApiRequestConfig, token: string): ApiReque
     ...request,
     headers: {
       ...request.headers,
-      authorization: `Bearer:${token}`,
+      authorization: `Bearer ${token}`,
     },
   };
 };
