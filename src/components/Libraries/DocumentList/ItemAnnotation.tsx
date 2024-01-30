@@ -1,4 +1,10 @@
-import { useGetAbstractPreview } from '@api';
+import {
+  LibraryIdentifier,
+  useAddAnnotation,
+  useDeleteAnnotation,
+  useGetAbstractPreview,
+  useUpdateAnnotation,
+} from '@api';
 import { ChevronUpIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import {
   Button,
@@ -13,25 +19,37 @@ import {
   Tabs,
   Text,
   Textarea,
+  useToast,
   VStack,
 } from '@chakra-ui/react';
+import { parseAPIError } from '@utils';
 import { MathJax } from 'better-react-mathjax';
-import { useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 
-export const ItemAnnotation = ({ bibcode }: { bibcode: string }) => {
+export const ItemAnnotation = ({
+  library,
+  bibcode,
+  note,
+  onUpdate,
+}: {
+  library: LibraryIdentifier;
+  bibcode: string;
+  note: string;
+  onUpdate: () => void;
+}) => {
   const [show, setShow] = useState(false);
 
   return (
     <Flex direction="column" justifyContent="center" alignContent="center">
       <Collapse in={show} animateOpacity>
-        <Tabs variant="enclosed" size="sm" mt={2}>
+        <Tabs variant="enclosed" size="sm" mt={2} isLazy={true}>
           <TabList>
             <Tab>Annotation</Tab>
             <Tab>Abstract</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>
-              <Annotation bibcode={bibcode} />
+              {show && <Annotation library={library} bibcode={bibcode} note={note} onUpdate={onUpdate} />}
             </TabPanel>
             <TabPanel>
               <Abstract bibcode={bibcode} />
@@ -55,17 +73,118 @@ export const ItemAnnotation = ({ bibcode }: { bibcode: string }) => {
   );
 };
 
-const Annotation = ({ bibcode }: { bibcode: string }) => {
+const Annotation = ({
+  library,
+  bibcode,
+  note,
+  onUpdate,
+}: {
+  library: LibraryIdentifier;
+  bibcode: string;
+  note: string;
+  onUpdate: () => void;
+}) => {
+  const { mutate: deleteNote, isLoading: isDeleting } = useDeleteAnnotation();
+
+  const { mutate: addNote, isLoading: isAdding } = useAddAnnotation();
+
+  const { mutate: updateNode, isLoading: isUpdating } = useUpdateAnnotation();
+
+  const [noteValue, setNoteValue] = useState(note);
+
+  const isLoading = isDeleting || isAdding || isUpdating;
+
+  const toast = useToast({
+    duration: 2000,
+  });
+
+  const handleNoteChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setNoteValue(e.target.value);
+  };
+
+  const handleSubmit = () => {
+    if (note.length > 0 && noteValue.length === 0) {
+      // delete note
+      deleteNote(
+        { library, bibcode },
+        {
+          onSettled(data, error) {
+            if (error) {
+              toast({
+                status: 'error',
+                title: parseAPIError(error),
+              });
+            } else {
+              toast({
+                status: 'success',
+                title: 'Annotation deleted',
+              });
+            }
+            onUpdate();
+          },
+        },
+      );
+    } else if (note.length === 0 && noteValue.length > 0) {
+      // add note
+      addNote(
+        { library, bibcode, content: noteValue },
+        {
+          onSettled(data, error) {
+            if (error) {
+              toast({
+                status: 'error',
+                title: parseAPIError(error),
+              });
+            } else {
+              toast({
+                status: 'success',
+                title: 'Annotation added',
+              });
+            }
+            onUpdate();
+          },
+        },
+      );
+    } else if (note.length > 0 && noteValue.length > 0) {
+      // update note
+      updateNode(
+        { library, bibcode, content: noteValue },
+        {
+          onSettled(data, error) {
+            if (error) {
+              toast({
+                status: 'error',
+                title: parseAPIError(error),
+              });
+            } else {
+              toast({
+                status: 'success',
+                title: 'Annotation updated',
+              });
+            }
+            onUpdate();
+          },
+        },
+      );
+    }
+  };
+
+  const handleReset = () => {
+    setNoteValue(note);
+  };
+
   return (
     <Flex direction="column">
-      <Textarea />
-      <Flex direction="row" justifyContent="start" gap={1} mt={2}>
-        <Button type="submit" size="xs">
-          Submit
-        </Button>
-        <Button type="reset" variant="outline" size="xs">
-          Reset
-        </Button>
+      <Flex direction="column">
+        <Textarea value={noteValue} onChange={handleNoteChange} />
+        <Flex direction="row" justifyContent="start" gap={1} mt={2}>
+          <Button size="xs" onClick={handleSubmit} disabled={noteValue === note} isLoading={isLoading}>
+            Submit
+          </Button>
+          <Button variant="outline" size="xs" onClick={handleReset} disabled={noteValue === note || isLoading}>
+            Reset
+          </Button>
+        </Flex>
       </Flex>
     </Flex>
   );

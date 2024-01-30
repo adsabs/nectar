@@ -1,4 +1,4 @@
-import { IDocsEntity } from '@api';
+import { IDocsEntity, INote, LibraryIdentifier } from '@api';
 import { Flex, VisuallyHidden } from '@chakra-ui/react';
 import { noop } from '@utils';
 import { HTMLAttributes, ReactElement } from 'react';
@@ -6,6 +6,9 @@ import { DocumentItem } from './DocumentItem';
 
 export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
   docs: IDocsEntity[];
+  library: LibraryIdentifier;
+  notes: { [key in string]: INote };
+  onNoteUpdate: () => void;
   indexStart?: number;
   selectedBibcodes?: string[];
   onSet?: (bibcode: string, checked: boolean) => void;
@@ -16,6 +19,9 @@ export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
 export const DocumentList = (props: ISimpleResultListProps): ReactElement => {
   const {
     docs = [],
+    library,
+    notes = {},
+    onNoteUpdate,
     selectedBibcodes = [],
     indexStart = 0,
     hideCheckbox,
@@ -41,6 +47,9 @@ export const DocumentList = (props: ISimpleResultListProps): ReactElement => {
       {docs.map((doc, index) => (
         <DocumentItem
           doc={doc}
+          library={library}
+          note={notes[doc.bibcode]?.content ?? ''}
+          onNoteUpdate={onNoteUpdate}
           key={doc.bibcode}
           index={start + index}
           hideCheckbox={hideCheckbox}
