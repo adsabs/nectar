@@ -11,11 +11,11 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import 'nprogress/nprogress.css';
 import { FC, memo, ReactElement, useEffect } from 'react';
-import { DehydratedState, Hydrate, QueryClientProvider, useQuery } from '@tanstack/react-query';
+import { DehydratedState, Hydrate, QueryClientProvider, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { IronSession } from 'iron-session';
 import axios from 'axios';
-import api, { checkUserData } from '@api';
+import api, { checkUserData, userKeys } from '@api';
 import { isNilOrEmpty, notEqual } from 'ramda-adjunct';
 import { useUser } from '@lib/useUser';
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
@@ -106,6 +106,7 @@ const UserSync = (): ReactElement => {
   const router = useRouter();
   const store = useStoreApi();
   const { user } = useUser();
+  const qc = useQueryClient();
 
   const { data } = useQuery<{
     user: IronSession['token'];
@@ -132,6 +133,9 @@ const UserSync = (): ReactElement => {
 
       // apply the user data to the api instance
       api.setUserData(data.user);
+
+      // attempt to invalidate any currently cached user settings
+      void qc.invalidateQueries(userKeys.getUserSettings());
     }
   }, [data, store, user]);
 

@@ -29,7 +29,8 @@ export interface IAbstractSourcesProps extends HTMLAttributes<HTMLDivElement> {
 export const AbstractSources = ({ doc }: IAbstractSourcesProps): ReactElement => {
   const isClient = useIsClient();
   const { data: settings } = useGetUserSettings();
-  const sources = processLinkData(doc, settings?.link_server);
+
+  const sources = processLinkData(doc, settings.link_server);
 
   const { data: relatedWorksResp } = useResolverQuery(
     { bibcode: doc.bibcode, link_type: 'associated' },

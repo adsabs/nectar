@@ -7,17 +7,17 @@ import { FormEventHandler, useCallback, useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 import { ILoginResponse } from '@pages/api/auth/login';
-import { useReloadWithNotification } from '@components/Notification';
 import { useFocus } from '@lib/useFocus';
 import { useUser } from '@lib/useUser';
 import { parseAPIError } from '@utils';
+import { useRouter } from 'next/router';
 
 const initialParams: IUserCredentials = { email: '', password: '' };
 
 const Login: NextPage = () => {
+  const { reload } = useRouter();
   const [params, setParams] = useState<IUserCredentials>(initialParams);
   const [mainInputRef, focus] = useFocus<HTMLInputElement>();
-  const reload = useReloadWithNotification();
   const { reset: resetUser } = useUser();
 
   const {
@@ -44,7 +44,7 @@ const Login: NextPage = () => {
   // redirect on successful login
   useEffect(() => {
     if (data?.success) {
-      resetUser().finally(() => void reload('account-login-success'));
+      reload();
     }
   }, [data?.success, reload, resetUser]);
 
@@ -108,10 +108,11 @@ const Login: NextPage = () => {
             <SimpleLink alignSelf="flex-end" href="/user/account/forgotpassword">
               Forgot password?
             </SimpleLink>
-            <Button type="submit" isLoading={isLoading}>
+            {/* show loading indicator even after success, since we should be awaiting a page refresh */}
+            <Button type="submit" isLoading={isLoading || data?.success}>
               Submit
             </Button>
-            {isLoading ? null : (
+            {isLoading || data?.success ? null : (
               <SimpleLink alignSelf="center" href="/user/account/register">
                 Register
               </SimpleLink>

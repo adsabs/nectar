@@ -23,7 +23,6 @@ import { useRouter } from 'next/router';
 import { last, omit } from 'ramda';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { composeNextGSSP } from '@ssr-utils';
-import { useSession } from '@lib/useSession';
 import { useSettings } from '@lib/useSettings';
 
 interface IExportCitationPageProps {
@@ -39,11 +38,9 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
   const { format, query, error } = props;
   const isClient = useIsClient();
   const router = useRouter();
-  const { isAuthenticated } = useSession();
 
   // get export related user settings
   const { settings } = useSettings({
-    enabled: isAuthenticated,
     suspense: false,
   });
 

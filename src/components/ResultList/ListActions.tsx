@@ -1,4 +1,4 @@
-import { Bibcode, DEFAULT_USER_DATA, ExportApiFormatKey, useVaultBigQuerySearch } from '@api';
+import { Bibcode, ExportApiFormatKey, useVaultBigQuerySearch } from '@api';
 import { ChevronDownIcon, SettingsIcon } from '@chakra-ui/icons';
 import {
   Button,
@@ -56,9 +56,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const router = useRouter();
   const toast = useToast();
 
-  const { settings } = useSettings({
-    enabled: isAuthenticated,
-  });
+  const { settings } = useSettings({ suspense: false });
 
   useEffect(() => {
     setExploreAll(noneSelected);
@@ -187,10 +185,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
                       <MenuDivider />
                     </>
                   )}
-                  <ExportMenu
-                    exploreAll={exploreAll}
-                    defaultExportFormat={settings?.defaultExportFormat ?? DEFAULT_USER_DATA.defaultExportFormat}
-                  />
+                  <ExportMenu exploreAll={exploreAll} defaultExportFormat={settings.defaultExportFormat} />
                   <OrcidBulkMenu />
                 </MenuList>
               </Portal>

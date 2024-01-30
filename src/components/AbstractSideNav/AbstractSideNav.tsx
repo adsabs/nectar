@@ -1,6 +1,6 @@
-import { DEFAULT_USER_DATA, IDocsEntity, useGetUserSettings, useHasGraphics, useHasMetrics } from '@api';
+import { IDocsEntity, useGetUserSettings, useHasGraphics, useHasMetrics } from '@api';
 import { Badge } from '@chakra-ui/react';
-import { IMenuItem, SideNavigationMenu, TopNavigationMenu, exportFormats } from '@components';
+import { exportFormats, IMenuItem, SideNavigationMenu, TopNavigationMenu } from '@components';
 import {
   ArrowDownIcon as DownloadIcon,
   ChartPieIcon,
@@ -40,7 +40,7 @@ const useGetItems = ({
 
   // for export citation menu link, it needs to go to user's default setting if logged in
   // otherwise go to bibtex
-  const defaultExportFormat = settings?.defaultExportFormat ?? DEFAULT_USER_DATA.defaultExportFormat;
+  const defaultExportFormat = settings.defaultExportFormat;
   const defaultExportFormatPath =
     typeof defaultExportFormat === 'string'
       ? values(exportFormats).find((f) => f.label === defaultExportFormat).value

@@ -15,7 +15,7 @@ const DeleteAccountPage = () => {
   const [email, setEmail] = useState('');
   const [formError, setFormError] = useState<FormError>(null);
   const storeEmail = useStore((state: AppState) => state.user.username);
-  const { logout } = useSession({ redirectWithMessage: 'account-deleted-success' });
+  const { logout } = useSession();
   const {
     mutate: deleteAccount,
     error,

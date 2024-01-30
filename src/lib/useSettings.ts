@@ -12,8 +12,10 @@ import { useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { useToast } from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { isNotEmpty } from 'ramda-adjunct';
+import { useSession } from '@lib/useSession';
 
 export const useSettings = (options?: UseQueryOptions<IADSApiUserDataResponse>) => {
+  const { isAuthenticated } = useSession();
   const toast = useToast({
     position: 'bottom',
     isClosable: true,
@@ -23,6 +25,8 @@ export const useSettings = (options?: UseQueryOptions<IADSApiUserDataResponse>) 
   const queryClient = useQueryClient();
   const { data: settings, ...getSettingsState } = useGetUserSettings({
     suspense: true,
+    retry: false,
+    enabled: isAuthenticated,
     ...options,
   });
   const { mutate, ...updateSettingsState } = useUpdateUserSettings({

@@ -15,7 +15,7 @@ export interface ICustomFormatSelectProps {
 export const CustomFormatSelect = ({ dispatch }: ICustomFormatSelectProps) => {
   const { isAuthenticated } = useSession();
 
-  const { settings: settingsData } = useSettings({ enabled: isAuthenticated, suspense: false });
+  const { settings: settingsData } = useSettings({ suspense: false });
 
   const customFormats = settingsData?.customFormats ?? DEFAULT_USER_DATA.customFormats;
 
