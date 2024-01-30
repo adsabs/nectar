@@ -282,22 +282,53 @@ const handleResponse = (req: NextRequest, res: NextResponse, session: IronSessio
   const pathname = req.nextUrl.pathname;
   const authenticated = isAuthenticated(session.token);
 
-  if (hasAccessToRoute(pathname, authenticated)) {
-    return res;
+  // If the user is authenticated, and they are on the login page, redirect them to the root
+  if (pathname === '/user/account/login' && authenticated) {
+    const next = req.nextUrl.searchParams.get('next');
+    if (next) {
+      // if there is a next param, redirect to it
+      const url = new URL(decodeURIComponent(next), req.nextUrl.origin);
+
+      // this url MUST be relative, otherwise we should redirect to root
+      if (url.origin !== req.nextUrl.origin) {
+        // url is external, ignore it and redirect to root
+        const url = req.nextUrl.clone();
+        url.searchParams.delete('next');
+        url.pathname = '/';
+        return redirect(url, res, 'account-login-success');
+      }
+
+      // if the url is relative, redirect to it
+      return redirect(url, res, 'account-login-success');
+    } else {
+      // otherwise redirect to root
+      const url = req.nextUrl.clone();
+      url.pathname = '/';
+      return redirect(url, res, 'account-login-success');
+    }
   }
 
-  const url = req.nextUrl.clone();
-
-  // if on any of the account pages, redirect to root
-  if (pathname.startsWith('/user/account') || pathname.startsWith('/user/settings')) {
+  // request is authenticated, cannot access register
+  if (pathname === '/user/account/register' && authenticated) {
+    const url = req.nextUrl.clone();
     url.pathname = '/';
     return redirect(url, res);
   }
 
-  // otherwise redirect to login
-  url.pathname = '/user/account/login';
-  url.searchParams.set('redirectUri', encodeURIComponent(pathname));
-  return redirect(url, res);
+  // request is not authenticated, but the user is trying to access a protected route
+  if (
+    !authenticated &&
+    pathname !== '/user/account/login' &&
+    pathname !== '/user/account/register' &&
+    pathname.startsWith('/user')
+  ) {
+    const url = req.nextUrl.clone();
+    url.pathname = '/user/account/login';
+    url.searchParams.set('next', encodeURIComponent(pathname));
+    return redirect(url, res, 'login-required');
+  }
+
+  return res;
 };
 
 const handleVerifyResponse = async (req: NextRequest, res: NextResponse, session: IronSession) => {
@@ -314,7 +345,9 @@ const handleVerifyResponse = async (req: NextRequest, res: NextResponse, session
       return res;
     }
   } catch (e) {
-    return redirect(new URL('/', req.url), res);
+    const url = req.nextUrl.clone();
+    url.pathname = '/';
+    return redirect(url, res, 'verify-token-invalid');
   }
 };
 
@@ -341,6 +374,7 @@ const verify = async (options: { token: string; req: NextRequest; res: NextRespo
     if (json.message === 'success') {
       // apply the session cookie to the response
       res.headers.set('set-cookie', result.headers.get('set-cookie'));
+      newUrl.pathname = '/user/account/login';
       return redirect(newUrl, res, 'verify-account-success');
     }
 
@@ -354,7 +388,7 @@ const verify = async (options: { token: string; req: NextRequest; res: NextRespo
     }
 
     // unknown error
-    return NextResponse.redirect(newUrl, { status: 307, ...res });
+    return redirect(newUrl, res, 'verify-account-failed');
   } catch (e) {
     return redirect(newUrl, res, 'verify-account-failed');
   }
