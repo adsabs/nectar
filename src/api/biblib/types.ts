@@ -61,6 +61,10 @@ export interface IADSApiLibraryEntityResponse {
       docs: { bibcode: string; alternate_bibcode?: string[] }[];
     };
   };
+  library_notes: {
+    notes: { [key in string]: INote };
+    orphan_notes: { [key in string]: INote };
+  };
 }
 
 // Add library
@@ -191,3 +195,54 @@ export interface IADSApiLibraryTransferResponse {}
 export interface IADSApiLibraryErrorResponse {
   error: string;
 }
+
+export interface IADSApiLibraryGetAnnotationParams {
+  library: LibraryIdentifier;
+  bibcode: string;
+}
+
+export interface INote {
+  id: string;
+  content: string;
+  bibcode: string;
+  library_id: LibraryIdentifier;
+  date_created: string;
+  date_last_modified: string;
+}
+
+export interface IADSApiLibraryGetAnnotationResponse {
+  document: string;
+  note: INote;
+  library_metadata: ILibraryMetadata;
+}
+
+export interface IADSApiLibraryAddAnnotationParams {
+  library: LibraryIdentifier;
+  bibcode: string;
+  content: string;
+}
+
+export interface IADSApiLibraryAddAnnotationResponse {
+  document: string;
+  note: INote;
+  library_metadata: ILibraryMetadata;
+}
+
+export interface IADSApiLibraryUpdateAnnotationParams {
+  library: LibraryIdentifier;
+  bibcode: string;
+  content: string;
+}
+
+export interface IADSApiLibraryUpdateAnnotationResponse {
+  document: string;
+  note: INote;
+  library_metadata: ILibraryMetadata;
+}
+
+export interface IADSApiLibraryDeleteAnnotationParams {
+  library: LibraryIdentifier;
+  bibcode: string;
+}
+
+export interface IADSApiLibraryDeleteAnnotationResponse {}
