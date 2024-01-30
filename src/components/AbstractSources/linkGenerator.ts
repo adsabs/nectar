@@ -2,7 +2,7 @@ import { Esources, IDocsEntity } from '@api';
 import { compose, descend, is, map, pipe, prop, sort } from 'ramda';
 import { DEFAULT_ORDERING, GATEWAY_BASE_URL, LINK_TYPES, MAYBE_OPEN_SOURCES } from './model';
 import { getOpenUrl } from './openUrlGenerator';
-import { isNilOrEmpty } from 'ramda-adjunct';
+import { isNilOrEmpty, isNonEmptyString } from 'ramda-adjunct';
 import { IDataProductSource, IFullTextSource, ProcessLinkDataReturns } from '@components/AbstractSources/types';
 
 /**
@@ -45,7 +45,7 @@ export const processLinkData = (doc: IDocsEntity, linkServer?: string): ProcessL
    */
   const maybeCreateInstitutionURL = () => {
     const identifier = doc.doi || doc.issn || doc.isbn;
-    if (identifier && linkServer) {
+    if (identifier && isNonEmptyString(linkServer)) {
       return {
         url: getOpenUrl({ metadata: doc, linkServer }),
         openUrl: true,

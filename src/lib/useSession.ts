@@ -1,24 +1,17 @@
 import api, { isAuthenticated } from '@api';
 import axios from 'axios';
 import { useEffect } from 'react';
-import { NotificationId } from '@store/slices';
 import { useUser } from '@lib/useUser';
 import { useMutation } from '@tanstack/react-query';
 import { ILogoutResponse } from '@pages/api/auth/logout';
-import { useReloadWithNotification } from '@components/Notification';
-
-interface IUseSessionProps {
-  redirectWithMessage?: NotificationId;
-}
+import { useRouter } from 'next/router';
 
 /**
  * Provides access to the user session and methods to logout
- * @param props
  */
-export const useSession = (props: IUseSessionProps = { redirectWithMessage: null }) => {
-  const { redirectWithMessage } = props;
+export const useSession = () => {
   const { user, reset } = useUser();
-  const reload = useReloadWithNotification();
+  const { reload } = useRouter();
 
   const { mutate: logout, ...result } = useMutation(['logout'], async () => {
     const { data } = await axios.post<ILogoutResponse>('/api/auth/logout');
@@ -28,13 +21,15 @@ export const useSession = (props: IUseSessionProps = { redirectWithMessage: null
   useEffect(() => {
     if (result.data?.success) {
       api.reset();
-      reset().finally(() => void reload(redirectWithMessage ?? 'account-logout-success'));
+      reset().finally(() => {
+        reload();
+      });
     }
-  }, [result.data?.success, redirectWithMessage]);
+  }, [result.data?.success]);
 
   useEffect(() => {
     if (result.isError) {
-      void reload('account-logout-failed');
+      reload();
     }
   }, [result.isError]);
 

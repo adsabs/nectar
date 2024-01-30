@@ -9,7 +9,6 @@ import { path } from 'ramda';
 import { composeNextGSSP } from '@ssr-utils';
 import { useRouter } from 'next/router';
 import { getDetailsPageTitle } from '@pages/abs/[id]/abstract';
-import { useSession } from '@lib/useSession';
 import { useSettings } from '@lib/useSettings';
 
 const ExportCitationPage: NextPage = () => {
@@ -18,11 +17,8 @@ const ExportCitationPage: NextPage = () => {
   const { data } = useGetAbstract({ id: router.query.id as string });
   const doc = path<IDocsEntity>(['docs', 0], data);
 
-  const { isAuthenticated } = useSession();
-
   // get export related user settings
   const { settings } = useSettings({
-    enabled: isAuthenticated,
     suspense: false,
   });
 
