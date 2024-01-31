@@ -57,12 +57,7 @@ export const LibrariesLandingPane = () => {
     }
   }, [librariesData]);
 
-  // TODO: temp query to get all libraries so we can get count
-  const { data: all, refetch: recount } = useGetLibraries({}, { staleTime: 0 });
-
-  const entries = useMemo(() => {
-    return all?.libraries ? all.libraries.length : 0;
-  }, [all]); // TODO: get this using API (waiting for implementation)
+  const count = librariesData?.libraries_count ?? 0;
 
   // add library
   const { mutate: addLibrary, isLoading: isAddingLibrary } = useAddLibrary();
@@ -73,7 +68,6 @@ export const LibrariesLandingPane = () => {
   const refresh = () => {
     // refetch libraries and reset lib count
     void refetch();
-    void recount();
   };
 
   const handleSortChange = (sort: ILibraryListTableSort) => {
@@ -167,7 +161,7 @@ export const LibrariesLandingPane = () => {
           <>
             <LibraryListTable
               libraries={libraries}
-              entries={entries}
+              entries={count}
               sort={sort}
               pageSize={pageSize}
               pageIndex={pageIndex}

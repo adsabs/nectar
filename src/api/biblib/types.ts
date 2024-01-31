@@ -33,10 +33,14 @@ export interface IADSApiLibraryParams {
   rows?: number;
   sort?: keyof ILibraryMetadata;
   order?: 'asc' | 'desc';
+  ownership?: boolean; // if true, response is categorized by ownership
 }
 
 export interface IADSApiLibraryResponse {
-  libraries: ILibraryMetadata[];
+  libraries_count: number;
+  libraries?: ILibraryMetadata[];
+  my_libraries?: ILibraryMetadata[];
+  shared_with_me?: ILibraryMetadata[];
 }
 
 // Get library Entity
