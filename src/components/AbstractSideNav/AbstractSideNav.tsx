@@ -1,4 +1,4 @@
-import { IDocsEntity, useGetUserSettings, useHasGraphics, useHasMetrics } from '@api';
+import { IDocsEntity, useHasGraphics, useHasMetrics } from '@api';
 import { Badge } from '@chakra-ui/react';
 import { exportFormats, IMenuItem, SideNavigationMenu, TopNavigationMenu } from '@components';
 import {
@@ -16,7 +16,7 @@ import { useRouter } from 'next/router';
 import { HTMLAttributes, ReactElement } from 'react';
 import { Routes } from './types';
 import { values } from 'ramda';
-import { useSession } from '@lib/useSession';
+import { useSettings } from '@lib/useSettings';
 
 const abstractPath = '/abs';
 
@@ -32,11 +32,7 @@ const useGetItems = ({
   const router = useRouter();
   const docId = router.query.id as string;
 
-  const { isAuthenticated } = useSession();
-
-  const { data: settings } = useGetUserSettings({
-    enabled: isAuthenticated,
-  });
+  const { settings } = useSettings();
 
   // for export citation menu link, it needs to go to user's default setting if logged in
   // otherwise go to bibtex

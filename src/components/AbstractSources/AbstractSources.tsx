@@ -1,4 +1,4 @@
-import { Esources, IDocsEntity, useGetUserSettings } from '@api';
+import { Esources, IDocsEntity } from '@api';
 import {
   Button,
   HStack,
@@ -21,6 +21,7 @@ import { useResolverQuery } from '@api/resolver';
 import { AcademicCapIcon } from '@heroicons/react/24/solid';
 import { processLinkData } from '@components/AbstractSources/linkGenerator';
 import { IDataProductSource, IFullTextSource, IRelatedWorks } from '@components/AbstractSources/types';
+import { useSettings } from '@lib/useSettings';
 
 export interface IAbstractSourcesProps extends HTMLAttributes<HTMLDivElement> {
   doc?: IDocsEntity;
@@ -28,7 +29,7 @@ export interface IAbstractSourcesProps extends HTMLAttributes<HTMLDivElement> {
 
 export const AbstractSources = ({ doc }: IAbstractSourcesProps): ReactElement => {
   const isClient = useIsClient();
-  const { data: settings } = useGetUserSettings();
+  const { settings } = useSettings();
 
   const sources = processLinkData(doc, settings.link_server);
 
