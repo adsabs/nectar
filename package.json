@@ -9,9 +9,9 @@
     "preinstall": "npx only-allow pnpm",
     "dev": "PORT=8000 next dev | pino-pretty -ctC",
     "dev:mocks": "NEXT_PUBLIC_API_MOCKING=enabled PORT=8000 next dev | pino-pretty -ctC",
-    "build": "NEXT_TELEMETRY_DISABLED=1 DIST_DIR=./dist/ pnpm build-bibstem-index && next build",
-    "start": "NODE_ENV=production PORT=8000 DIST_DIR=./dist/ node dist/standalone/server.js",
-    "analyze": "NEXT_TELEMETRY_DISABLED=1 DIST_DIR=./dev/ ANALYZE=true next build",
+    "build": "NEXT_TELEMETRY_DISABLED=1 pnpm build-bibstem-index && next build",
+    "start": "NODE_ENV=production PORT=8000 node dist/standalone/server.js",
+    "analyze": "NEXT_TELEMETRY_DISABLED=1 ANALYZE=true next build",
     "test": "NODE_ENV=test vitest",
     "test:coverage": "NODE_ENV=test vitest --run --coverage",
     "integration": "playwright test --config=./playwright.config.ts",
@@ -192,5 +192,11 @@
   "browserslist": [
     ">0.3%",
     "not dead"
-  ]
+  ],
+  "nextBundleAnalysis": {
+    "budget": null,
+    "budgetPercentIncreaseRed": 20,
+    "minimumChangeThreshold": 0,
+    "showDetails": true
+  }
 }

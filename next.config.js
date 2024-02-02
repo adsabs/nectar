@@ -94,7 +94,7 @@ const config = {
   compiler: {
     reactRemoveProperties: false,
   },
-  output: 'standalone',
+  ...(!process.env.NORMAL_BUILD ? {} : { output: 'standalone' }),
   // Don't bother linting during CI builds
   ...(!process.env.CI ? {} : { eslint: { ignoreDuringBuilds: true } }),
 };
