@@ -215,7 +215,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
                   <MenuDivider />
                   <MenuGroup title="OPERATIONS">
                     <MenuItem onClick={handleOpsLink('trending')} data-testid="trending-operator">
-                      Co-reads
+                      Trending
                     </MenuItem>
                     <MenuItem onClick={handleOpsLink('reviews')} data-testid="reviews-operator">
                       Reviews
