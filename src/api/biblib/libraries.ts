@@ -456,7 +456,7 @@ export const updateAnnotation: MutationFunction<
   return data;
 };
 
-// create annotation
+// delete annotation
 
 export const useDeleteAnnotation: ADSMutation<
   IADSApiLibraryDeleteAnnotationResponse,

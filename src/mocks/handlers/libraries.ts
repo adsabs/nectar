@@ -1,6 +1,8 @@
 import {
   ApiTargets,
+  IADSApiLibraryAddAnnotationParams,
   IADSApiLibraryAddParams,
+  IADSApiLibraryDeleteAnnotationParams,
   IADSApiLibraryDocumentParams,
   IADSApiLibraryEditMetaParams,
   IADSApiLibraryEntityResponse,
@@ -9,7 +11,9 @@ import {
   IADSApiLibraryPermissionUpdateParams,
   IADSApiLibraryResponse,
   IADSApiLibraryTransferParams,
+  IADSApiLibraryUpdateAnnotationParams,
   ILibraryMetadata,
+  LibraryIdentifier,
 } from '@api';
 import { rest } from 'msw';
 import allLibraries from '../responses/library/all-libraries.json';
@@ -217,6 +221,51 @@ export const librariesHandlers = [
       entities[id].metadata.owner = email;
 
       return res(ctx.json({}));
+    },
+  ),
+
+  // add note
+  rest.post<Omit<IADSApiLibraryAddAnnotationParams, 'library' | 'bibcode'>, { library: string; bibcode: string }>(
+    apiHandlerRoute(ApiTargets.LIBRARY_NOTES, '/:library/:bibcode'),
+    async (req, res, ctx) => {
+      const { library, bibcode } = req.params;
+      const { content } = req.body;
+
+      entities[library].library_notes.notes[bibcode] = {
+        id: '12345',
+        content,
+        bibcode,
+        library_id: library,
+        date_created: '2019-04-15T19:03:15.345389',
+        date_last_modified: '2019-04-15T19:03:15.345389',
+      };
+
+      return res(ctx.json(await req.json()));
+    },
+  ),
+
+  // update note
+  rest.put<Omit<IADSApiLibraryUpdateAnnotationParams, 'library' | 'bibcode'>, { library: string; bibcode: string }>(
+    apiHandlerRoute(ApiTargets.LIBRARY_NOTES, '/:library/:bibcode'),
+    async (req, res, ctx) => {
+      const { library, bibcode } = req.params;
+      const { content } = req.body;
+
+      entities[library].library_notes.notes[bibcode].content = content;
+
+      return res(ctx.json(await req.json()));
+    },
+  ),
+
+  // delete note
+  rest.delete<Omit<IADSApiLibraryDeleteAnnotationParams, 'library' | 'bibcode'>, { library: string; bibcode: string }>(
+    apiHandlerRoute(ApiTargets.LIBRARY_NOTES, '/:library/:bibcode'),
+    async (req, res, ctx) => {
+      const { library, bibcode } = req.params;
+
+      delete entities[library].library_notes.notes[bibcode];
+
+      return res(ctx.json(await req.json()));
     },
   ),
 ];

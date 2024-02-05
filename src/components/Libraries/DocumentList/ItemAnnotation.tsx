@@ -45,7 +45,7 @@ export const ItemAnnotation = ({
         <Tabs variant="enclosed" size="sm" mt={2} isLazy={true}>
           <TabList>
             <Tab>Annotation</Tab>
-            <Tab>Abstract</Tab>
+            <Tab data-testid="abstract-tab">Abstract</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>
@@ -175,13 +175,19 @@ const Annotation = ({
 
   return (
     <Flex direction="column">
-      <Flex direction="column">
+      <Flex direction="column" data-testid="annotation">
         <Textarea value={noteValue} onChange={handleNoteChange} />
         <Flex direction="row" justifyContent="start" gap={1} mt={2}>
-          <Button size="xs" onClick={handleSubmit} disabled={noteValue === note} isLoading={isLoading}>
+          <Button size="xs" onClick={handleSubmit} disabled={noteValue === note} isLoading={isLoading} type="submit">
             Submit
           </Button>
-          <Button variant="outline" size="xs" onClick={handleReset} disabled={noteValue === note || isLoading}>
+          <Button
+            variant="outline"
+            size="xs"
+            onClick={handleReset}
+            disabled={noteValue === note || isLoading}
+            type="reset"
+          >
             Reset
           </Button>
         </Flex>

@@ -65,9 +65,9 @@ export interface IADSApiLibraryEntityResponse {
       docs: { bibcode: string; alternate_bibcode?: string[] }[];
     };
   };
-  library_notes: {
-    notes: { [key in string]: INote };
-    orphan_notes: { [key in string]: INote };
+  library_notes?: {
+    notes?: { [key in string]: INote };
+    orphan_notes?: { [key in string]: INote };
   };
 }
 
