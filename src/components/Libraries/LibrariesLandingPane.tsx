@@ -47,13 +47,17 @@ export const LibrariesLandingPane = () => {
     isLoading,
     refetch,
   } = useGetLibraries(
-    { start: pageIndex * pageSize, rows: pageSize, sort: sort.col, order: sort.dir },
+    { start: pageIndex * pageSize, rows: pageSize, sort: sort.col, order: sort.dir, ownership: libraryType !== 'all' },
     { staleTime: 0, cacheTime: 0 },
   );
 
   const libraries = useMemo(() => {
     if (librariesData) {
-      return librariesData.libraries;
+      return libraryType == 'all'
+        ? librariesData.libraries
+        : libraryType === 'owner'
+        ? librariesData.my_libraries
+        : librariesData.shared_with_me;
     }
   }, [librariesData]);
 

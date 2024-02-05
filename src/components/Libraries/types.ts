@@ -1,1 +1,1 @@
-export type LibraryType = 'all' | 'owner' | 'collab' | 'follow';
+export type LibraryType = 'all' | 'owner' | 'collab'; // TODO: 'following';
