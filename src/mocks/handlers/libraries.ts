@@ -42,15 +42,23 @@ export const librariesHandlers = [
       ? (req.url.searchParams.get('sort') as keyof ILibraryMetadata)
       : 'date_last_modified';
     const order = req.url.searchParams.has('order') ? req.url.searchParams.get('order') : 'desc';
+    const access_type = req.url.searchParams.has('access_type') ? req.url.searchParams.get('access_type') : 'all';
 
     libraries.sort((l1, l2) => (l1[sortby] > l2[sortby] ? 1 : l1[sortby] < l2[sortby] ? -1 : 0));
     if (order === 'desc') {
       libraries.reverse();
     }
 
+    let ret = [...libraries];
+    if (access_type == 'owner') {
+      ret = libraries.filter((l) => l.permission === 'owner');
+    } else if (access_type === 'collaborator') {
+      ret = libraries.filter((l) => l.permission !== 'owner');
+    }
+
     const r = {
-      libraries: libraries.slice(start, start + rows),
-      count: libraries.length,
+      libraries: ret.slice(start, start + rows),
+      count: ret.length,
     } as IADSApiLibraryResponse;
     return res(ctx.json(r));
   }),
