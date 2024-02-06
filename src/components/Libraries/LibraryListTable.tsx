@@ -240,6 +240,12 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                     cursor="pointer"
                     _hover={{ backgroundColor: colors.highlightBackground, color: colors.highlightForeground }}
                     onClick={() => onLibrarySelect(id)}
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        onLibrarySelect(id);
+                      }
+                    }}
                   >
                     {showIndex && !isMobile && <Td>{pageSize * pageIndex + index + 1}</Td>}
                     {allHiddenCols.indexOf('public') === -1 && (
