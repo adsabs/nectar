@@ -1,6 +1,6 @@
 import { Box, Center, Flex, Heading, Stack, Text, VisuallyHidden } from '@chakra-ui/react';
 import { ISearchExamplesProps, Pager, SearchBar, SearchExamplesPlaceholder, SimpleLink } from '@components';
-import { useStore, useStoreApi } from '@store';
+import { useStore } from '@store';
 import { makeSearchParams } from '@utils';
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
@@ -15,7 +15,7 @@ const SearchExamples = dynamic<ISearchExamplesProps>(
 );
 
 const HomePage: NextPage = () => {
-  const store = useStoreApi();
+  const sort = useStore((state) => state.query.sort);
   const submitQuery = useStore((state) => state.submitQuery);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -30,7 +30,6 @@ const HomePage: NextPage = () => {
   const handleOnSubmit: ChangeEventHandler<HTMLFormElement> = useCallback(
     (e) => {
       e.preventDefault();
-      const { sort } = store.getState().query;
       const query = new FormData(e.currentTarget).get('q') as string;
 
       if (query && query.trim().length > 0) {
@@ -40,7 +39,7 @@ const HomePage: NextPage = () => {
         void router.push({ pathname: '/search', search: makeSearchParams({ q: query, sort, p: 1 }) });
       }
     },
-    [router, store, submitQuery, updateQuery],
+    [router, sort, submitQuery, updateQuery],
   );
 
   return (
