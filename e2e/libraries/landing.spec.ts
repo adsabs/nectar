@@ -21,6 +21,23 @@ test('Libraries show up in the table', async ({ page }) => {
   await expect(page.getByTestId('pagination-string')).toHaveText('Showing 1 to 11 of 11 results');
 });
 
+test('Sort libraries table', async ({ page }) => {
+  await page.goto('/user/libraries', { timeout: 60000 });
+  await expect(page.locator('tbody > tr').nth(0).locator('td').nth(3)).toContainText('001');
+
+  // reverse sort order date
+  await page.locator('thead > tr').nth(0).locator('th').nth(7).click();
+  await expect(page.locator('tbody > tr').nth(0).locator('td').nth(3)).toContainText('11');
+
+  // sort by name
+  await page.locator('thead > tr').nth(0).locator('th').nth(3).click();
+  await expect(page.locator('tbody > tr').nth(0).locator('td').nth(3)).toContainText('001');
+
+  // reverse sort by name
+  await page.locator('thead > tr').nth(0).locator('th').nth(3).click();
+  await expect(page.locator('tbody > tr').nth(0).locator('td').nth(3)).toContainText('test6');
+});
+
 test('Add new library', async ({ page }) => {
   await page.goto('/user/libraries', { timeout: 60000 });
 

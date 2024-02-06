@@ -13,7 +13,6 @@ import {
   IADSApiLibraryTransferParams,
   IADSApiLibraryUpdateAnnotationParams,
   ILibraryMetadata,
-  LibraryIdentifier,
 } from '@api';
 import { rest } from 'msw';
 import allLibraries from '../responses/library/all-libraries.json';
@@ -39,7 +38,20 @@ export const librariesHandlers = [
   rest.get(apiHandlerRoute(ApiTargets.LIBRARIES), (req, res, ctx) => {
     const start = req.url.searchParams.has('start') ? Number(req.url.searchParams.get('start')) : 0;
     const rows = req.url.searchParams.has('rows') ? Number(req.url.searchParams.get('rows')) : libraries.length;
-    const r = { libraries: libraries.slice(start, start + rows) } as IADSApiLibraryResponse;
+    const sortby = req.url.searchParams.has('sort')
+      ? (req.url.searchParams.get('sort') as keyof ILibraryMetadata)
+      : 'date_last_modified';
+    const order = req.url.searchParams.has('order') ? req.url.searchParams.get('order') : 'desc';
+
+    libraries.sort((l1, l2) => (l1[sortby] > l2[sortby] ? 1 : l1[sortby] < l2[sortby] ? -1 : 0));
+    if (order === 'desc') {
+      libraries.reverse();
+    }
+
+    const r = {
+      libraries: libraries.slice(start, start + rows),
+      libraries_count: libraries.length,
+    } as IADSApiLibraryResponse;
     return res(ctx.json(r));
   }),
 
