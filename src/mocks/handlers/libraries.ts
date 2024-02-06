@@ -50,7 +50,7 @@ export const librariesHandlers = [
 
     const r = {
       libraries: libraries.slice(start, start + rows),
-      libraries_count: libraries.length,
+      count: libraries.length,
     } as IADSApiLibraryResponse;
     return res(ctx.json(r));
   }),

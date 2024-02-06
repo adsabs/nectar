@@ -27,20 +27,20 @@ export interface ILibraryMetadata {
   name: string;
 }
 
+export type LibraryType = 'all' | 'owner' | 'collaborator'; // TODO: 'following';
+
 // Get all libraries
 export interface IADSApiLibraryParams {
   start?: number;
   rows?: number;
   sort?: keyof ILibraryMetadata;
   order?: 'asc' | 'desc';
-  ownership?: boolean; // if true, response is categorized by ownership
+  access_type?: LibraryType;
 }
 
 export interface IADSApiLibraryResponse {
-  libraries_count: number;
+  count: number;
   libraries?: ILibraryMetadata[];
-  my_libraries?: ILibraryMetadata[];
-  shared_with_me?: ILibraryMetadata[];
 }
 
 // Get library Entity

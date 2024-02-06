@@ -1,6 +1,7 @@
 import {
   IADSApiLibraryOperationParams,
   LibraryIdentifier,
+  LibraryType,
   useAddLibrary,
   useGetLibraries,
   useLibraryOperation,
@@ -12,13 +13,12 @@ import { AppState, useStore } from '@store';
 import { NumPerPageType } from '@types';
 import { parseAPIError } from '@utils';
 import { useRouter } from 'next/router';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { AddLibraryModal } from './AddLibraryModal';
 import { ILibraryListTableSort, LibraryListTable } from './LibraryListTable';
 import { LibraryTypeSelector } from './LibraryTypeSelector';
 import { OperationModal } from './OperationModal';
 import { TableSkeleton } from './TableSkeleton';
-import { LibraryType } from './types';
 
 export const LibrariesLandingPane = () => {
   const router = useRouter();
@@ -47,21 +47,13 @@ export const LibrariesLandingPane = () => {
     isLoading,
     refetch,
   } = useGetLibraries(
-    { start: pageIndex * pageSize, rows: pageSize, sort: sort.col, order: sort.dir, ownership: libraryType !== 'all' },
+    { start: pageIndex * pageSize, rows: pageSize, sort: sort.col, order: sort.dir, access_type: libraryType },
     { staleTime: 0, cacheTime: 0 },
   );
 
-  const libraries = useMemo(() => {
-    if (librariesData) {
-      return libraryType == 'all'
-        ? librariesData.libraries
-        : libraryType === 'owner'
-        ? librariesData.my_libraries
-        : librariesData.shared_with_me;
-    }
-  }, [librariesData]);
+  const libraries = librariesData?.libraries ?? [];
 
-  const count = librariesData?.libraries_count ?? 0;
+  const count = librariesData?.count ?? 0;
 
   // add library
   const { mutate: addLibrary, isLoading: isAddingLibrary } = useAddLibrary();
@@ -93,8 +85,6 @@ export const LibrariesLandingPane = () => {
   };
 
   const handleLibraryTypeChange = (type: LibraryType) => {
-    // TODO: fetch libs
-    // if successful
     setLibraryType(type);
   };
 
