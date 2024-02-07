@@ -187,7 +187,11 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                 {columns.map((column) => (
                   <Fragment key={`col-${column.id}`}>
                     {allHiddenCols.indexOf(column.id) === -1 && (
-                      <Th aria-label={column.heading} cursor={column.sortable ? 'pointer' : 'default'}>
+                      <Th
+                        aria-label={column.heading}
+                        cursor={column.sortable ? 'pointer' : 'default'}
+                        w={column.id === 'name' ? '40%' : undefined}
+                      >
                         {sort.col !== column.id ? (
                           column.sortable ? (
                             <Flex alignItems="center" onClick={() => onChangeSort({ col: column.id, dir: 'asc' })}>
