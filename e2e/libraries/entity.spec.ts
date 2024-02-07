@@ -38,7 +38,7 @@ test('Click on view library as search results goes to search', async ({ page }) 
   expect(page.url()).toMatch(/^.*\/search\?q=docs\(library%2F001\).*/);
 });
 
-test('View document annotations', async ({ page }) => {
+test('Edit document annotations with admin permission', async ({ page }) => {
   await page.goto('/user/libraries/001', { timeout: 60000 });
   await page.getByLabel('show abstract').first().click(); // expand abstract / annotation
   const annotationArea1 = page.getByTestId('annotation').first();
@@ -85,6 +85,68 @@ test('View document annotations', async ({ page }) => {
   await expect(annotationArea2.locator("button[type='reset']")).toBeDisabled();
 });
 
+test('View document annotations with write permission', async ({ page }) => {
+  await page.goto('/user/libraries/002', { timeout: 60000 });
+
+  await page.getByLabel('show abstract').first().click(); // expand abstract / annotation
+  const annotationArea1 = page.getByTestId('annotation').first();
+  await expect(annotationArea1.locator('textarea')).toHaveText('Notes for 11111');
+  await expect(annotationArea1.locator("button[type='submit']")).toBeDisabled();
+  await expect(annotationArea1.locator("button[type='reset']")).toBeDisabled();
+
+  // modify annotation and reset
+  await annotationArea1.locator('textarea').fill('Updated notes for 11111');
+  await expect(annotationArea1.locator("button[type='submit']")).toBeEnabled();
+  await expect(annotationArea1.locator("button[type='reset']")).toBeEnabled();
+  await annotationArea1.locator("button[type='reset']").click();
+  await expect(annotationArea1.locator('textarea')).toHaveText('Notes for 11111');
+  await expect(annotationArea1.locator("button[type='submit']")).toBeDisabled();
+  await expect(annotationArea1.locator("button[type='reset']")).toBeDisabled();
+
+  // modify annotation and submit
+  await annotationArea1.locator('textarea').fill('Updated notes for 11111');
+  const responsePromise = page.waitForEvent('requestfinished');
+  await annotationArea1.locator("button[type='submit']").click();
+  await responsePromise;
+  await expect(annotationArea1.locator('textarea')).toHaveText('Updated notes for 11111');
+  await expect(annotationArea1.locator("button[type='submit']")).toBeDisabled();
+  await expect(annotationArea1.locator("button[type='reset']")).toBeDisabled();
+
+  // create new annotation and submit
+  await page.getByLabel('show abstract').nth(1).click(); // expand abstract / annotation
+  const annotationArea2 = page.getByTestId('annotation').nth(1);
+  await annotationArea2.locator('textarea').fill('Notes for 22222');
+  const responsePromise2 = page.waitForEvent('requestfinished');
+  await annotationArea2.locator("button[type='submit']").click();
+  await responsePromise2;
+  await expect(annotationArea2.locator('textarea')).toHaveText('Notes for 22222');
+  await expect(annotationArea2.locator("button[type='submit']")).toBeDisabled();
+  await expect(annotationArea2.locator("button[type='reset']")).toBeDisabled();
+
+  // delete note 1
+  await annotationArea2.locator('textarea').fill('');
+  const responsePromise3 = page.waitForEvent('requestfinished');
+  await annotationArea2.locator("button[type='submit']").click();
+  await responsePromise3;
+  await expect(annotationArea2.locator('textarea')).toHaveText('');
+  await expect(annotationArea2.locator("button[type='submit']")).toBeDisabled();
+  await expect(annotationArea2.locator("button[type='reset']")).toBeDisabled();
+});
+
+test('View document annotations with read permission', async ({ page }) => {
+  await page.goto('/user/libraries/003', { timeout: 60000 });
+
+  await page.getByLabel('show abstract').nth(0).click(); // expand abstract / annotation
+  const annotationArea = page.getByTestId('annotation').nth(0);
+  await expect(annotationArea.locator('textarea')).toBeHidden();
+  await expect(annotationArea).toContainText('Notes for aaaaa');
+
+  await page.getByLabel('show abstract').nth(1).click(); // expand abstract / annotation
+  const annotationArea2 = page.getByTestId('annotation').nth(1);
+  await expect(annotationArea2.locator('textarea')).toBeHidden();
+  await expect(annotationArea2).toContainText('No annotations');
+});
+
 test('Delete selected docs from library', async ({ page }) => {
   await page.goto('/user/libraries/001', { timeout: 60000 });
 
@@ -118,4 +180,12 @@ test('Public library view should have correct metadata', async ({ page }) => {
   await expect(metadata.nth(2)).toHaveText('4/1/2021, 3:11:10 PM');
 
   await expect(page.getByLabel('Results').getByRole('article')).toHaveCount(10);
+});
+
+test('Public library should show abstract but not annotations', async ({ page }) => {
+  await page.goto('/public-libraries/001', { timeout: 60000 });
+
+  await page.getByLabel('show abstract').first().click(); // expand abstract / annotation
+  await expect(page.getByTestId('annotation')).toBeHidden();
+  await expect(page.getByTestId('anno-abstract').first()).toBeVisible();
 });

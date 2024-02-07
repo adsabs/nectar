@@ -1,4 +1,4 @@
-import { IDocsEntity, INote, LibraryIdentifier } from '@api';
+import { IDocsEntity, ILibraryMetadata, INote } from '@api';
 import { Flex, VisuallyHidden } from '@chakra-ui/react';
 import { noop } from '@utils';
 import { HTMLAttributes, ReactElement } from 'react';
@@ -6,14 +6,15 @@ import { DocumentItem } from './DocumentItem';
 
 export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
   docs: IDocsEntity[];
-  library: LibraryIdentifier;
-  notes: { [key in string]: INote };
+  library: ILibraryMetadata;
+  notes?: { [key in string]: INote };
   onNoteUpdate: () => void;
   indexStart?: number;
   selectedBibcodes?: string[];
   onSet?: (bibcode: string, checked: boolean) => void;
   hideCheckbox: boolean;
   hideResources?: boolean;
+  publicView: boolean;
 }
 
 export const DocumentList = (props: ISimpleResultListProps): ReactElement => {
@@ -27,6 +28,7 @@ export const DocumentList = (props: ISimpleResultListProps): ReactElement => {
     hideCheckbox,
     onSet = noop,
     hideResources = false,
+    publicView,
     ...divProps
   } = props;
 
@@ -48,7 +50,7 @@ export const DocumentList = (props: ISimpleResultListProps): ReactElement => {
         <DocumentItem
           doc={doc}
           library={library}
-          note={notes[doc.bibcode]?.content ?? ''}
+          note={notes?.[doc.bibcode]?.content ?? ''}
           onNoteUpdate={onNoteUpdate}
           key={doc.bibcode}
           index={start + index}
@@ -56,6 +58,7 @@ export const DocumentList = (props: ISimpleResultListProps): ReactElement => {
           isChecked={selectedBibcodes?.includes(doc.bibcode)}
           onSet={(checked) => onSet(doc.bibcode, checked)}
           hideResources={hideResources}
+          publicView={publicView}
         />
       ))}
     </Flex>

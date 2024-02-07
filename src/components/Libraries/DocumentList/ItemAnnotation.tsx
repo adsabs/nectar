@@ -1,5 +1,6 @@
 import {
   LibraryIdentifier,
+  LibraryPermission,
   useAddAnnotation,
   useDeleteAnnotation,
   useGetAbstractPreview,
@@ -7,6 +8,10 @@ import {
 } from '@api';
 import { ChevronUpIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
   Button,
   Collapse,
   Flex,
@@ -30,11 +35,15 @@ export const ItemAnnotation = ({
   library,
   bibcode,
   note,
+  showNote,
   onUpdate,
+  permission,
 }: {
   library: LibraryIdentifier;
   bibcode: string;
-  note: string;
+  showNote: boolean;
+  note?: string;
+  permission?: LibraryPermission;
   onUpdate: () => void;
 }) => {
   const [show, setShow] = useState(false);
@@ -42,20 +51,32 @@ export const ItemAnnotation = ({
   return (
     <Flex direction="column" justifyContent="center" alignContent="center">
       <Collapse in={show} animateOpacity>
-        <Tabs variant="enclosed" size="sm" mt={2} isLazy={true}>
-          <TabList>
-            <Tab>Annotation</Tab>
-            <Tab data-testid="abstract-tab">Abstract</Tab>
-          </TabList>
-          <TabPanels>
-            <TabPanel>
-              {show && <Annotation library={library} bibcode={bibcode} note={note} onUpdate={onUpdate} />}
-            </TabPanel>
-            <TabPanel>
-              <Abstract bibcode={bibcode} />
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
+        {showNote ? (
+          <Tabs variant="enclosed" size="sm" mt={2} isLazy={true}>
+            <TabList>
+              <Tab>Annotation</Tab>
+              <Tab data-testid="abstract-tab">Abstract</Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel>
+                {show && (
+                  <Annotation
+                    library={library}
+                    bibcode={bibcode}
+                    note={note}
+                    onUpdate={onUpdate}
+                    permission={permission}
+                  />
+                )}
+              </TabPanel>
+              <TabPanel>
+                <Abstract bibcode={bibcode} />
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
+        ) : (
+          <Abstract bibcode={bibcode} />
+        )}
       </Collapse>
       <VStack>
         <IconButton
@@ -76,13 +97,15 @@ export const ItemAnnotation = ({
 const Annotation = ({
   library,
   bibcode,
-  note,
+  note = '',
   onUpdate,
+  permission,
 }: {
   library: LibraryIdentifier;
   bibcode: string;
   note: string;
   onUpdate: () => void;
+  permission: LibraryPermission;
 }) => {
   const { mutate: deleteNote, isLoading: isDeleting } = useDeleteAnnotation();
 
@@ -93,6 +116,8 @@ const Annotation = ({
   const [noteValue, setNoteValue] = useState(note);
 
   const isLoading = isDeleting || isAdding || isUpdating;
+
+  const canWrite = ['owner', 'admin', 'write'].includes(permission);
 
   const toast = useToast({
     duration: 2000,
@@ -176,21 +201,41 @@ const Annotation = ({
   return (
     <Flex direction="column">
       <Flex direction="column" data-testid="annotation">
-        <Textarea value={noteValue} onChange={handleNoteChange} />
-        <Flex direction="row" justifyContent="start" gap={1} mt={2}>
-          <Button size="xs" onClick={handleSubmit} disabled={noteValue === note} isLoading={isLoading} type="submit">
-            Submit
-          </Button>
-          <Button
-            variant="outline"
-            size="xs"
-            onClick={handleReset}
-            disabled={noteValue === note || isLoading}
-            type="reset"
-          >
-            Reset
-          </Button>
-        </Flex>
+        {canWrite ? (
+          <Textarea
+            value={noteValue}
+            onChange={handleNoteChange}
+            placeholder="Annotation can be seen by all collaborators. Collaborators with write permission can make changes to annotations."
+          />
+        ) : (
+          <Text>
+            {!!noteValue && noteValue.trim().length > 0 ? (
+              noteValue
+            ) : (
+              <Alert status="info" backgroundColor="transparent">
+                <AlertIcon />
+                <AlertTitle>No annotations</AlertTitle>
+                <AlertDescription>Collaborators with write permission can add annotations.</AlertDescription>
+              </Alert>
+            )}
+          </Text>
+        )}
+        {canWrite && (
+          <Flex direction="row" justifyContent="start" gap={1} mt={2}>
+            <Button size="xs" onClick={handleSubmit} disabled={noteValue === note} isLoading={isLoading} type="submit">
+              Submit
+            </Button>
+            <Button
+              variant="outline"
+              size="xs"
+              onClick={handleReset}
+              disabled={noteValue === note || isLoading}
+              type="reset"
+            >
+              Reset
+            </Button>
+          </Flex>
+        )}
       </Flex>
     </Flex>
   );
@@ -212,6 +257,7 @@ const Abstract = ({ bibcode }: { bibcode: string }) => {
             __html: error ? 'Error fetching abstract' : data.docs[0]?.abstract ?? 'No Abstract',
           }}
           wordBreak="break-word"
+          data-testid="anno-abstract"
         />
       )}
     </>

@@ -307,8 +307,9 @@ export const LibraryEntityPane = ({ library, publicView, onRefetch = noop }: ILi
             <>
               <DocumentList
                 docs={docs}
-                library={library.metadata.id}
-                notes={library.library_notes?.notes}
+                library={library.metadata}
+                publicView={publicView}
+                notes={publicView ? undefined : library.library_notes?.notes}
                 indexStart={onPage * pageSize}
                 onSet={handleSelectDoc}
                 hideCheckbox={!canWrite || publicView}

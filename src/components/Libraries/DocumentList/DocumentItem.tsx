@@ -1,4 +1,4 @@
-import { IDocsEntity, LibraryIdentifier } from '@api';
+import { IDocsEntity, ILibraryMetadata } from '@api';
 import { Box, BoxProps, Checkbox, CheckboxProps, Flex, Link, Stack, Text } from '@chakra-ui/react';
 import { AllAuthorsModal } from '@components/AllAuthorsModal';
 import { ItemResourceDropdowns } from '@components/ResultList/Item';
@@ -13,7 +13,8 @@ import { ItemAnnotation } from './ItemAnnotation';
 
 export interface IItemProps {
   doc: IDocsEntity;
-  library: LibraryIdentifier;
+  library: ILibraryMetadata;
+  publicView: boolean;
   note?: string;
   onNoteUpdate: () => void;
   index: number;
@@ -29,6 +30,7 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
   const {
     doc,
     library,
+    publicView,
     note = '',
     onNoteUpdate,
     index,
@@ -113,7 +115,14 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
             {cite && (formattedPubDate || formattedBibstem) ? <span className="px-2">·</span> : null}
             {cite}
           </Text>
-          <ItemAnnotation library={library} bibcode={bibcode} note={note} onUpdate={onNoteUpdate} />
+          <ItemAnnotation
+            library={library.id}
+            bibcode={bibcode}
+            note={note}
+            onUpdate={onNoteUpdate}
+            showNote={!publicView}
+            permission={library.permission}
+          />
         </Flex>
       </Stack>
     </Flex>
