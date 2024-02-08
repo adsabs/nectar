@@ -18,9 +18,18 @@ const getSearchUrl = (params: IADSApiSearchParams) => `/search?${makeSearchParam
  */
 export const SearchQueryLink = (props: ISearchQueryLinkProps): ReactElement => {
   const { params, replace = false, scroll, shallow = false, locale, ...linkProps } = props;
+
   return (
-    <NextLink href={getSearchUrl(params)} passHref legacyBehavior>
-      <Link replace={replace} scroll={scroll} shallow={shallow} locale={locale} {...linkProps} />
+    <NextLink
+      href={getSearchUrl(params)}
+      locale={locale}
+      replace={replace}
+      shallow={shallow}
+      scroll={scroll}
+      passHref
+      legacyBehavior
+    >
+      <Link {...linkProps} />
     </NextLink>
   );
 };
