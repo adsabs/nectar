@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useStore } from '@store';
 import { useRouter } from 'next/router';
 import { NotificationId } from '@store/slices';
@@ -25,12 +25,20 @@ export const Notification = () => {
     }
   }, [router.asPath, notification]);
 
-  const reset = () => {
-    const { notify, ...query } = router.query;
-    router.replace(router.pathname, { query }, { shallow: true }).finally(() => {
+  const reset = useCallback(() => {
+    const [root, query = ''] = router.asPath.split('?');
+    const params = new URLSearchParams(query);
+
+    // remove the notify query param
+    params.delete('notify');
+    const newQuery = params.toString() ? `?${params.toString()}` : '';
+    const as = `${root}${newQuery}`;
+
+    // update the url without triggering a page refresh
+    router.replace(as, as, { shallow: true }).finally(() => {
       resetNotification();
     });
-  };
+  }, [router.asPath]);
 
   // clear notification after timeout
   useEffect(() => {
