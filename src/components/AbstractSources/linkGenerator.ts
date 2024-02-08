@@ -65,6 +65,22 @@ export const processLinkData = (doc: IDocsEntity, linkServer?: string): ProcessL
     const [prefix] = el.split('_');
     const open = MAYBE_OPEN_SOURCES.includes(el) && !!doc.property?.includes(`${prefix}_OPENACCESS`);
 
+    // if the source is a publisher, we need to update the name to be the publisher name
+    if (el.startsWith('PUB_') && doc.publisher) {
+      return {
+        url: createGatewayUrl(doc?.bibcode, el),
+        open,
+        shortName: doc.publisher,
+
+        // Adds the type to the name to match the way we display the default publisher entry
+        // and to differentiate between the different publisher links
+        name: `${doc.publisher} ${linkInfo?.type ?? 'HTML'}`,
+        type: linkInfo?.type ?? 'HTML',
+        description: linkInfo?.description ?? el,
+        rawType: el,
+      };
+    }
+
     return {
       url: createGatewayUrl(doc?.bibcode, el),
       open,
