@@ -278,6 +278,7 @@ export interface IDocsEntity {
   property?: string[];
   pub_raw?: string;
   pub?: string;
+  publisher?: string;
   pubdate?: string;
   pubnote?: string;
   read_count?: number;
