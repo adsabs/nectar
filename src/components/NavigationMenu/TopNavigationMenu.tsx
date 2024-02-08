@@ -25,7 +25,7 @@ const TopMenuItem = ({ href, hrefAs, label, icon, rightElement, disabled = false
       <NextLink href={href} as={hrefAs} passHref>
         <Box width="full">
           <Stack direction="row" alignItems="center">
-            {icon && cloneElement(icon, { marginRight: '16px', width: '18px', 'aria-hidden': true })}
+            {icon && cloneElement(icon, { marginright: '16px', width: '18px', 'aria-hidden': true })}
             <Text fontWeight="normal">{label}</Text>
             {rightElement}
           </Stack>
@@ -48,7 +48,7 @@ const TopMenuButton = ({ label, icon, rightElement }: IMenuItemProps) => {
       borderWidth={0.5}
     >
       <Stack direction="row" alignItems="center">
-        {icon && cloneElement(icon, { marginRight: '16px', width: '18px', 'aria-hidden': true })}
+        {icon && cloneElement(icon, { marginright: '16px', width: '18px', 'aria-hidden': true })}
         <Text fontWeight="normal">{label}</Text>
         {rightElement}
       </Stack>
@@ -98,7 +98,7 @@ const Static = ({ menuItems, activeItem, ...boxProps }: ITopNavigationMenuProps)
     id: item.id as string,
     label: (
       <Stack direction="row" alignItems="center">
-        {item.icon && cloneElement(item.icon, { marginRight: '16px', width: '18px', 'aria-hidden': true })}
+        {item.icon && cloneElement(item.icon, { marginright: '16px', width: '18px', 'aria-hidden': true })}
         <Text fontWeight="normal">{item.label}</Text>
         {item.rightElement}
       </Stack>
