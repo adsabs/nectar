@@ -191,7 +191,6 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
           </Detail>
           <Detail label="Book Author(s)" value={doc.book_author} />
           <Detail label="Publication Date" value={doc.pubdate} />
-          <Detail label="Publisher" value={doc.pub} />
           <Detail label="DOI" value={doc.doi}>
             {(doi) => <Doi doiIDs={doi} bibcode={doc.bibcode} />}
           </Detail>
