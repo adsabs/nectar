@@ -1,10 +1,10 @@
 import { useToast } from '@chakra-ui/react';
-import React, { useCallback, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useStore } from '@store';
 import { useRouter } from 'next/router';
 import { NotificationId } from '@store/slices';
 
-const TIMEOUT = 5000;
+const TIMEOUT = 3000;
 
 export const Notification = () => {
   const notification = useStore((state) => state.notification);
@@ -20,35 +20,13 @@ export const Notification = () => {
   const router = useRouter();
 
   useEffect(() => {
-    if (router.query?.notify && !notification) {
-      setNotification(router.query.notify as NotificationId);
-    }
-  }, [router.asPath, notification]);
-
-  const reset = useCallback(() => {
-    const [root, query = ''] = router.asPath.split('?');
+    const [, query = ''] = router.asPath.split('?');
     const params = new URLSearchParams(query);
 
-    // remove the notify query param
-    params.delete('notify');
-    const newQuery = params.toString() ? `?${params.toString()}` : '';
-    const as = `${root}${newQuery}`;
-
-    // update the url without triggering a page refresh
-    router.replace(as, as, { shallow: true }).finally(() => {
-      resetNotification();
-    });
-  }, [router.asPath]);
-
-  // clear notification after timeout
-  useEffect(() => {
-    let id: ReturnType<typeof setTimeout>;
-
-    if (notification !== null) {
-      id = setTimeout(reset, TIMEOUT);
+    if (params.has('notify') && notification === null) {
+      setNotification(params.get('notify') as NotificationId);
     }
-    return () => clearTimeout(id);
-  }, [notification]);
+  }, [router.asPath, notification]);
 
   useEffect(() => {
     if (notification !== null && !toast.isActive(notification?.id)) {
@@ -56,10 +34,10 @@ export const Notification = () => {
         id: notification?.id,
         description: notification?.message,
         status: notification?.status,
-        onCloseComplete: reset,
+        onCloseComplete: resetNotification,
       });
     }
-  }, [notification]);
+  }, [notification, resetNotification, toast]);
 
   return <></>;
 };
