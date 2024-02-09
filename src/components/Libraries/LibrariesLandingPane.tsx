@@ -46,10 +46,14 @@ export const LibrariesLandingPane = () => {
     data: librariesData,
     isLoading,
     refetch,
-  } = useGetLibraries(
-    { start: pageIndex * pageSize, rows: pageSize, sort: sort.col, order: sort.dir, access_type: libraryType },
-    { staleTime: 0, cacheTime: 0 },
-  );
+    remove,
+  } = useGetLibraries({
+    start: pageIndex * pageSize,
+    rows: pageSize,
+    sort: sort.col,
+    order: sort.dir,
+    access_type: libraryType,
+  });
 
   const libraries = librariesData?.libraries ?? [];
 
@@ -61,8 +65,9 @@ export const LibrariesLandingPane = () => {
   // library operation
   const { mutate: operateLibrary, isLoading: isOperatingLibrary } = useLibraryOperation();
 
+  // only if libraries updated and need to clear cache
   const refresh = () => {
-    // refetch libraries and reset lib count
+    remove();
     void refetch();
   };
 
