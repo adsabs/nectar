@@ -50,7 +50,8 @@ const validationSchema = z
     name: z.string().min(1, 'Name is required'),
     email: z.string().email('Invalid email').min(1, 'Email is required'),
     collection: z.custom<Database>().array(),
-    bibcode: z.string().min(1, 'Bibcode is required'),
+    isNew: z.boolean(),
+    bibcode: z.string(),
     title: z.string().min(1, 'Title is required'),
     authors: z.custom<IAuthor>().array(),
     noAuthors: z.boolean(),
@@ -78,6 +79,14 @@ const validationSchema = z
         message: 'Invalid date (should be in YYYY-MM format)',
       });
     }
+
+    if (!schema.isNew && schema.bibcode.length < 1) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['bibcode'],
+        message: 'Bibcode is required',
+      });
+    }
     return z.NEVER;
   });
 
@@ -100,6 +109,7 @@ export const RecordPanel = ({
     name: '',
     email: userEmail ?? '',
     bibcode: bibcode ?? '',
+    isNew: isNew,
     collection: [] as Database[],
     title: '',
     noAuthors: false,
@@ -190,6 +200,7 @@ export const RecordPanel = ({
         name: getValues('name'),
         email: getValues('email'),
         bibcode: getValues('bibcode'),
+        isNew: false,
       });
       void recordRefetch();
     } else if (state === 'loading-urls') {
@@ -318,6 +329,7 @@ export const RecordPanel = ({
         name: getValues('name'),
         email: getValues('email'),
         bibcode: getValues('bibcode'),
+        isNew,
         abstract,
         title: title[0],
         publication: pub_raw,
@@ -396,7 +408,7 @@ export const RecordPanel = ({
             </FormControl>
           </Flex>
 
-          <BibcodeField showLoadBtn={!isNew} onLoad={handleOnLoadingRecord} isLoading={isLoading} />
+          <BibcodeField showLoadBtn={!isNew} onLoad={handleOnLoadingRecord} isLoading={isLoading} isRequired={!isNew} />
 
           {(isNew || (!isNew && !!recordOriginalFormValues.title)) && (
             <>

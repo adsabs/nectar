@@ -6,10 +6,12 @@ export const BibcodeField = ({
   showLoadBtn,
   onLoad,
   isLoading,
+  isRequired,
 }: {
   showLoadBtn: boolean;
   onLoad: (bibcode: string) => void;
   isLoading: boolean;
+  isRequired: boolean;
 }) => {
   const {
     register,
@@ -23,10 +25,10 @@ export const BibcodeField = ({
   };
 
   return (
-    <FormControl isRequired isInvalid={!!errors.bibcode}>
+    <FormControl isRequired={isRequired} isInvalid={!!errors.bibcode}>
       <FormLabel>{showLoadBtn ? `SciX-ID / DOI / Bibcode` : `Bibcode`}</FormLabel>
       <Flex direction="row">
-        <Input {...register('bibcode', { required: true })} />
+        <Input {...register('bibcode', { required: isRequired })} />
         {showLoadBtn && (
           <Button
             size="md"
