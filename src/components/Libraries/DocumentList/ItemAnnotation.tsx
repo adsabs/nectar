@@ -6,7 +6,7 @@ import {
   useGetAbstractPreview,
   useUpdateAnnotation,
 } from '@api';
-import { ChevronUpIcon, ChevronDownIcon } from '@chakra-ui/icons';
+import { ChevronUpIcon, ChevronDownIcon, EditIcon, CloseIcon, CheckIcon } from '@chakra-ui/icons';
 import {
   Alert,
   AlertDescription,
@@ -27,6 +27,7 @@ import {
   useToast,
   VStack,
 } from '@chakra-ui/react';
+import { useColorModeColors } from '@lib';
 import { parseAPIError } from '@utils';
 import { MathJax } from 'better-react-mathjax';
 import { ChangeEvent, useState } from 'react';
@@ -115,6 +116,8 @@ const Annotation = ({
 
   const [noteValue, setNoteValue] = useState(note);
 
+  const [isEditing, setIsEditing] = useState(false);
+
   const isLoading = isDeleting || isAdding || isUpdating;
 
   const canWrite = ['owner', 'admin', 'write'].includes(permission);
@@ -145,6 +148,7 @@ const Annotation = ({
                 title: 'Annotation deleted',
               });
             }
+            setIsEditing(false);
             onUpdate();
           },
         },
@@ -166,6 +170,7 @@ const Annotation = ({
                 title: 'Annotation added',
               });
             }
+            setIsEditing(false);
             onUpdate();
           },
         },
@@ -187,6 +192,7 @@ const Annotation = ({
                 title: 'Annotation updated',
               });
             }
+            setIsEditing(false);
             onUpdate();
           },
         },
@@ -194,46 +200,69 @@ const Annotation = ({
     }
   };
 
-  const handleReset = () => {
+  const handleCancel = () => {
     setNoteValue(note);
+    setIsEditing(false);
   };
+
+  const { lightText } = useColorModeColors();
 
   return (
     <Flex direction="column">
       <Flex direction="column" data-testid="annotation">
-        {canWrite ? (
+        {isEditing ? (
           <Textarea
             value={noteValue}
             onChange={handleNoteChange}
             placeholder="Annotation can be seen by all collaborators. Collaborators with write permission can make changes to annotations."
           />
         ) : (
-          <Text>
+          <>
             {!!noteValue && noteValue.trim().length > 0 ? (
-              noteValue
+              <Text>noteValue</Text>
             ) : (
-              <Alert status="info" backgroundColor="transparent">
-                <AlertIcon />
-                <AlertTitle>No annotations</AlertTitle>
-                <AlertDescription>Collaborators with write permission can add annotations.</AlertDescription>
-              </Alert>
+              <>
+                {!canWrite && (
+                  <Text color={lightText} fontWeight="light" fontStyle="italic">
+                    No annotations. Collaborators with write permission can add annotations.
+                  </Text>
+                )}
+              </>
             )}
-          </Text>
+          </>
         )}
         {canWrite && (
           <Flex direction="row" justifyContent="start" gap={1} mt={2}>
-            <Button size="xs" onClick={handleSubmit} disabled={noteValue === note} isLoading={isLoading} type="submit">
-              Submit
-            </Button>
-            <Button
-              variant="outline"
-              size="xs"
-              onClick={handleReset}
-              disabled={noteValue === note || isLoading}
-              type="reset"
-            >
-              Reset
-            </Button>
+            {!isEditing ? (
+              <IconButton
+                aria-label="add/edit annotation"
+                onClick={() => setIsEditing(true)}
+                isLoading={isLoading}
+                variant="outline"
+                icon={<EditIcon />}
+              />
+            ) : (
+              <>
+                <IconButton
+                  aria-label="submit"
+                  type="submit"
+                  onClick={handleSubmit}
+                  isDisabled={noteValue === note}
+                  isLoading={isLoading}
+                  colorScheme="green"
+                  variant="outline"
+                  icon={<CheckIcon />}
+                />
+                <IconButton
+                  aria-label="cancel"
+                  onClick={handleCancel}
+                  colorScheme="red"
+                  variant="outline"
+                  isDisabled={isLoading}
+                  icon={<CloseIcon />}
+                />
+              </>
+            )}
           </Flex>
         )}
       </Flex>
