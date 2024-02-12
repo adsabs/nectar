@@ -8,11 +8,6 @@ import {
 } from '@api';
 import { ChevronUpIcon, ChevronDownIcon, EditIcon, CloseIcon, CheckIcon } from '@chakra-ui/icons';
 import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  AlertTitle,
-  Button,
   Collapse,
   Flex,
   IconButton,
@@ -219,7 +214,7 @@ const Annotation = ({
         ) : (
           <>
             {!!noteValue && noteValue.trim().length > 0 ? (
-              <Text>noteValue</Text>
+              <Text>{noteValue}</Text>
             ) : (
               <>
                 {!canWrite && (

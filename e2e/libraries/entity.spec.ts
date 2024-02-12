@@ -40,49 +40,63 @@ test('Click on view library as search results goes to search', async ({ page }) 
 
 test('Edit document annotations with admin permission', async ({ page }) => {
   await page.goto('/user/libraries/001', { timeout: 60000 });
+
+  // initial state are correct
   await page.getByLabel('show abstract').first().click(); // expand abstract / annotation
   const annotationArea1 = page.getByTestId('annotation').first();
-  await expect(annotationArea1.locator('textarea')).toHaveText('Notes for 00000');
-  await expect(annotationArea1.locator("button[type='submit']")).toBeDisabled();
-  await expect(annotationArea1.locator("button[type='reset']")).toBeDisabled();
+  await expect(annotationArea1.locator('textarea')).toBeHidden(); // not in editing mode
+  await expect(annotationArea1).toHaveText('Notes for 00000'); // has correct annotation
+  await annotationArea1.getByLabel('add/edit annotation').first().isEnabled(); // edit button enabled
+  await expect(annotationArea1.getByLabel('submit').first()).toBeHidden();
+  await expect(annotationArea1.getByLabel('cancel').first()).toBeHidden();
 
-  // modify annotation and reset
+  // edit mode
+  await annotationArea1.getByLabel('add/edit annotation').first().click(); // edit button click
+  await expect(annotationArea1.locator('textarea')).toBeVisible(); // in edit mode
+  await expect(annotationArea1.getByLabel('submit').first()).toBeDisabled();
+  await expect(annotationArea1.getByLabel('cancel').first()).toBeEnabled();
+
+  // cancel works
   await annotationArea1.locator('textarea').fill('Updated notes for 00000');
-  await expect(annotationArea1.locator("button[type='submit']")).toBeEnabled();
-  await expect(annotationArea1.locator("button[type='reset']")).toBeEnabled();
-  await annotationArea1.locator("button[type='reset']").click();
-  await expect(annotationArea1.locator('textarea')).toHaveText('Notes for 00000');
-  await expect(annotationArea1.locator("button[type='submit']")).toBeDisabled();
-  await expect(annotationArea1.locator("button[type='reset']")).toBeDisabled();
+  await expect(annotationArea1.getByLabel('submit').first()).toBeEnabled();
+  await annotationArea1.getByLabel('cancel').first().click(); // click cancel
+  await expect(annotationArea1.locator('textarea')).toBeHidden(); // not in editing mode
+  await expect(annotationArea1).toHaveText('Notes for 00000');
+  await expect(annotationArea1.getByLabel('submit').first()).toBeHidden();
+  await expect(annotationArea1.getByLabel('cancel').first()).toBeHidden();
 
-  // modify annotation and submit
+  // modify existing annotation and submit
+  await annotationArea1.getByLabel('add/edit annotation').first().click(); // edit button click
   await annotationArea1.locator('textarea').fill('Updated notes for 00000');
   const responsePromise = page.waitForEvent('requestfinished');
-  await annotationArea1.locator("button[type='submit']").click();
+  await annotationArea1.getByLabel('submit').first().click(); // submit
   await responsePromise;
-  await expect(annotationArea1.locator('textarea')).toHaveText('Updated notes for 00000');
-  await expect(annotationArea1.locator("button[type='submit']")).toBeDisabled();
-  await expect(annotationArea1.locator("button[type='reset']")).toBeDisabled();
+  await expect(annotationArea1).toHaveText('Updated notes for 00000'); // has updated annotation
+  await annotationArea1.getByLabel('add/edit annotation').first().isEnabled(); // edit button enabled
+  await expect(annotationArea1.getByLabel('submit').first()).toBeHidden();
+  await expect(annotationArea1.getByLabel('cancel').first()).toBeHidden();
 
   // create new annotation and submit
   await page.getByLabel('show abstract').nth(1).click(); // expand abstract / annotation
   const annotationArea2 = page.getByTestId('annotation').nth(1);
+  await annotationArea2.getByLabel('add/edit annotation').first().click(); // edit button click
   await annotationArea2.locator('textarea').fill('Notes for 11111');
   const responsePromise2 = page.waitForEvent('requestfinished');
-  await annotationArea2.locator("button[type='submit']").click();
+  await annotationArea2.getByLabel('submit').first().click(); // submit
   await responsePromise2;
-  await expect(annotationArea2.locator('textarea')).toHaveText('Notes for 11111');
-  await expect(annotationArea2.locator("button[type='submit']")).toBeDisabled();
-  await expect(annotationArea2.locator("button[type='reset']")).toBeDisabled();
+  await expect(annotationArea2).toHaveText('Notes for 11111');
+  await expect(annotationArea2.getByLabel('submit').first()).toBeHidden();
+  await expect(annotationArea2.getByLabel('cancel').first()).toBeHidden();
 
-  // delete note 1
+  // delete annotation
+  await annotationArea2.getByLabel('add/edit annotation').first().click(); // edit button click
   await annotationArea2.locator('textarea').fill('');
   const responsePromise3 = page.waitForEvent('requestfinished');
-  await annotationArea2.locator("button[type='submit']").click();
+  await annotationArea2.getByLabel('submit').first().click(); // submit
   await responsePromise3;
-  await expect(annotationArea2.locator('textarea')).toHaveText('');
-  await expect(annotationArea2.locator("button[type='submit']")).toBeDisabled();
-  await expect(annotationArea2.locator("button[type='reset']")).toBeDisabled();
+  await expect(annotationArea2).toHaveText('');
+  await expect(annotationArea2.getByLabel('submit').first()).toBeHidden();
+  await expect(annotationArea2.getByLabel('cancel').first()).toBeHidden();
 });
 
 test('View document annotations with write permission', async ({ page }) => {
@@ -90,61 +104,81 @@ test('View document annotations with write permission', async ({ page }) => {
 
   await page.getByLabel('show abstract').first().click(); // expand abstract / annotation
   const annotationArea1 = page.getByTestId('annotation').first();
-  await expect(annotationArea1.locator('textarea')).toHaveText('Notes for 11111');
-  await expect(annotationArea1.locator("button[type='submit']")).toBeDisabled();
-  await expect(annotationArea1.locator("button[type='reset']")).toBeDisabled();
+  await expect(annotationArea1.locator('textarea')).toBeHidden(); // not in editing mode
+  await expect(annotationArea1).toHaveText('Notes for 11111'); // has correct annotation
+  await annotationArea1.getByLabel('add/edit annotation').first().isEnabled(); // edit button enabled
+  await expect(annotationArea1.getByLabel('submit').first()).toBeHidden();
+  await expect(annotationArea1.getByLabel('cancel').first()).toBeHidden();
 
-  // modify annotation and reset
+  // edit mode
+  await annotationArea1.getByLabel('add/edit annotation').first().click(); // edit button click
+  await expect(annotationArea1.locator('textarea')).toBeVisible(); // in edit mode
+  await expect(annotationArea1.getByLabel('submit').first()).toBeDisabled();
+  await expect(annotationArea1.getByLabel('cancel').first()).toBeEnabled();
+
+  // cancel works
   await annotationArea1.locator('textarea').fill('Updated notes for 11111');
-  await expect(annotationArea1.locator("button[type='submit']")).toBeEnabled();
-  await expect(annotationArea1.locator("button[type='reset']")).toBeEnabled();
-  await annotationArea1.locator("button[type='reset']").click();
-  await expect(annotationArea1.locator('textarea')).toHaveText('Notes for 11111');
-  await expect(annotationArea1.locator("button[type='submit']")).toBeDisabled();
-  await expect(annotationArea1.locator("button[type='reset']")).toBeDisabled();
+  await expect(annotationArea1.getByLabel('submit').first()).toBeEnabled();
+  await annotationArea1.getByLabel('cancel').first().click(); // click cancel
+  await expect(annotationArea1.locator('textarea')).toBeHidden(); // not in editing mode
+  await expect(annotationArea1).toHaveText('Notes for 11111');
+  await expect(annotationArea1.getByLabel('submit').first()).toBeHidden();
+  await expect(annotationArea1.getByLabel('cancel').first()).toBeHidden();
 
-  // modify annotation and submit
+  // // modify existing annotation and submit
+  await annotationArea1.getByLabel('add/edit annotation').first().click(); // edit button click
   await annotationArea1.locator('textarea').fill('Updated notes for 11111');
   const responsePromise = page.waitForEvent('requestfinished');
-  await annotationArea1.locator("button[type='submit']").click();
+  await annotationArea1.getByLabel('submit').first().click(); // submit
   await responsePromise;
-  await expect(annotationArea1.locator('textarea')).toHaveText('Updated notes for 11111');
-  await expect(annotationArea1.locator("button[type='submit']")).toBeDisabled();
-  await expect(annotationArea1.locator("button[type='reset']")).toBeDisabled();
+  await expect(annotationArea1).toHaveText('Updated notes for 11111'); // has updated annotation
+  await annotationArea1.getByLabel('add/edit annotation').first().isEnabled(); // edit button enabled
+  await expect(annotationArea1.getByLabel('submit').first()).toBeHidden();
+  await expect(annotationArea1.getByLabel('cancel').first()).toBeHidden();
 
   // create new annotation and submit
   await page.getByLabel('show abstract').nth(1).click(); // expand abstract / annotation
   const annotationArea2 = page.getByTestId('annotation').nth(1);
+  await annotationArea2.getByLabel('add/edit annotation').first().click(); // edit button click
   await annotationArea2.locator('textarea').fill('Notes for 22222');
   const responsePromise2 = page.waitForEvent('requestfinished');
-  await annotationArea2.locator("button[type='submit']").click();
+  await annotationArea2.getByLabel('submit').first().click(); // submit
   await responsePromise2;
-  await expect(annotationArea2.locator('textarea')).toHaveText('Notes for 22222');
-  await expect(annotationArea2.locator("button[type='submit']")).toBeDisabled();
-  await expect(annotationArea2.locator("button[type='reset']")).toBeDisabled();
+  await expect(annotationArea2).toHaveText('Notes for 22222');
+  await expect(annotationArea2.getByLabel('submit').first()).toBeHidden();
+  await expect(annotationArea2.getByLabel('cancel').first()).toBeHidden();
 
-  // delete note 1
+  // delete annotation
+  await annotationArea2.getByLabel('add/edit annotation').first().click(); // edit button click
   await annotationArea2.locator('textarea').fill('');
   const responsePromise3 = page.waitForEvent('requestfinished');
-  await annotationArea2.locator("button[type='submit']").click();
+  await annotationArea2.getByLabel('submit').first().click(); // submit
   await responsePromise3;
-  await expect(annotationArea2.locator('textarea')).toHaveText('');
-  await expect(annotationArea2.locator("button[type='submit']")).toBeDisabled();
-  await expect(annotationArea2.locator("button[type='reset']")).toBeDisabled();
+  await expect(annotationArea2).toHaveText('');
+  await expect(annotationArea2.getByLabel('submit').first()).toBeHidden();
+  await expect(annotationArea2.getByLabel('cancel').first()).toBeHidden();
 });
 
 test('View document annotations with read permission', async ({ page }) => {
   await page.goto('/user/libraries/003', { timeout: 60000 });
 
+  // can see annotation but cannot edit
   await page.getByLabel('show abstract').nth(0).click(); // expand abstract / annotation
-  const annotationArea = page.getByTestId('annotation').nth(0);
-  await expect(annotationArea.locator('textarea')).toBeHidden();
-  await expect(annotationArea).toContainText('Notes for aaaaa');
+  const annotationArea1 = page.getByTestId('annotation').first();
+  await expect(annotationArea1.locator('textarea')).toBeHidden(); // not in editing mode
+  await expect(annotationArea1).toHaveText('Notes for aaaaa'); // has correct annotation
+  await expect(annotationArea1.getByLabel('add/edit annotation').first()).toBeHidden(); // edit button hidden
+  await expect(annotationArea1.getByLabel('submit').first()).toBeHidden();
+  await expect(annotationArea1.getByLabel('cancel').first()).toBeHidden();
 
+  // no annotation message
   await page.getByLabel('show abstract').nth(1).click(); // expand abstract / annotation
   const annotationArea2 = page.getByTestId('annotation').nth(1);
-  await expect(annotationArea2.locator('textarea')).toBeHidden();
-  await expect(annotationArea2).toContainText('No annotations');
+  await expect(annotationArea2.locator('textarea')).toBeHidden(); // not in editing mode
+  await expect(annotationArea2).toHaveText('No annotations. Collaborators with write permission can add annotations.'); // has no annotation
+  await expect(annotationArea2.getByLabel('add/edit annotation').first()).toBeHidden(); // edit button hidden
+  await expect(annotationArea2.getByLabel('submit').first()).toBeHidden();
+  await expect(annotationArea2.getByLabel('cancel').first()).toBeHidden();
 });
 
 test('Delete selected docs from library', async ({ page }) => {
