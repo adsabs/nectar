@@ -24,6 +24,7 @@ export interface IKeyword {
 export type FormValues = {
   name: string;
   email: string;
+  isNew: boolean;
   bibcode: string;
   collection: Database[];
   title: string;
