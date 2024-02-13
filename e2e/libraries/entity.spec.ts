@@ -94,7 +94,7 @@ test('Edit document annotations with admin permission', async ({ page }) => {
   const responsePromise3 = page.waitForEvent('requestfinished');
   await annotationArea2.getByLabel('submit').first().click(); // submit
   await responsePromise3;
-  await expect(annotationArea2).toHaveText('');
+  await expect(annotationArea2).toHaveText('No annotations. Click the edit icon to add one.');
   await expect(annotationArea2.getByLabel('submit').first()).toBeHidden();
   await expect(annotationArea2.getByLabel('cancel').first()).toBeHidden();
 });
@@ -154,7 +154,7 @@ test('View document annotations with write permission', async ({ page }) => {
   const responsePromise3 = page.waitForEvent('requestfinished');
   await annotationArea2.getByLabel('submit').first().click(); // submit
   await responsePromise3;
-  await expect(annotationArea2).toHaveText('');
+  await expect(annotationArea2).toHaveText('No annotations. Click the edit icon to add one.');
   await expect(annotationArea2.getByLabel('submit').first()).toBeHidden();
   await expect(annotationArea2.getByLabel('cancel').first()).toBeHidden();
 });
