@@ -21,12 +21,28 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
+import { DescriptionCollapse } from '@components/CitationExporter';
 import { SimpleLink } from '@components/SimpleLink';
 import { isValidEmail, parseAPIError } from '@utils';
 import { useRouter } from 'next/router';
 import { ChangeEvent, useMemo, useState } from 'react';
 import { CollabTable } from './CollabTable';
 import { DeleteLibrary } from './DeleteLibrary';
+
+const permissionsDescription = (
+  <>
+    <Text>
+      <i>Read</i>: Can view the contents of a private library.
+    </Text>
+    <Text>
+      <i>Write</i>: Can view a library, add/remove records, add and modify annotations.
+    </Text>
+    <Text>
+      <i>Admin</i>: Can view a library, add/remove records, add and modify annotations, edit the library name and
+      description, and add/remove other collaborators
+    </Text>
+  </>
+);
 
 export interface ISettingsPaneProps {
   library: IADSApiLibraryEntityResponse;
@@ -240,8 +256,19 @@ export const LibrarySettingsPane = ({ library, onRefetch, isFromLanding = false 
         </FormControl>
         {canEdit && (
           <>
-            <Text fontWeight="bold">Collaborators</Text>
-            <CollabTable id={id} />
+            <DescriptionCollapse body={permissionsDescription} label="Collaborators">
+              {({ btn, content }) => (
+                <FormControl>
+                  <Box mb="2">
+                    <FormLabel fontSize={['sm', 'md']}>
+                      {'Collaborators'} {btn}
+                    </FormLabel>
+                    {content}
+                  </Box>
+                  <CollabTable id={id} />
+                </FormControl>
+              )}
+            </DescriptionCollapse>
           </>
         )}
         {permission === 'owner' && <DeleteLibrary onDelete={handleDeleteLibrary} />}

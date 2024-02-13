@@ -216,13 +216,14 @@ const Annotation = ({
             {!!noteValue && noteValue.trim().length > 0 ? (
               <Text>{noteValue}</Text>
             ) : (
-              <>
-                {!canWrite && (
-                  <Text color={lightText} fontWeight="light" fontStyle="italic">
-                    No annotations. Collaborators with write permission can add annotations.
-                  </Text>
+              <Text color={lightText} fontWeight="light" fontStyle="italic">
+                No annotations.{' '}
+                {canWrite ? (
+                  <>Click the edit icon to add one.</>
+                ) : (
+                  <>Collaborators with write permission can add annotations.</>
                 )}
-              </>
+              </Text>
             )}
           </>
         )}
