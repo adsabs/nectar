@@ -1,7 +1,7 @@
 import {
   getSearchParams,
-  IADSApiLibraryEntityResponse,
   IDocsEntity,
+  LibraryIdentifier,
   SolrSort,
   useBigQuerySearch,
   useEditLibraryDocuments,
@@ -11,6 +11,7 @@ import { ChevronLeftIcon, LockIcon, SettingsIcon, UnlockIcon } from '@chakra-ui/
 import {
   Box,
   Button,
+  Center,
   Checkbox,
   Flex,
   Heading,
@@ -28,23 +29,30 @@ import {
   useBreakpoint,
   useToast,
 } from '@chakra-ui/react';
-import { CustomInfoMessage, ItemsSkeleton, Pagination, SearchQueryLink, SimpleLink, Sort } from '@components';
+import {
+  CustomInfoMessage,
+  ItemsSkeleton,
+  LoadingMessage,
+  Pagination,
+  SearchQueryLink,
+  SimpleLink,
+  Sort,
+} from '@components';
 import { BuildingLibraryIcon } from '@heroicons/react/24/solid';
 import { useColorModeColors } from '@lib';
 import { AppState, useStore } from '@store';
 import { NumPerPageType } from '@types';
-import { noop, parseAPIError } from '@utils';
+import { parseAPIError } from '@utils';
 import { uniq } from 'ramda';
 import { useEffect, useMemo, useState } from 'react';
 import { DocumentList } from './DocumentList/DocumentList';
 
 export interface ILibraryEntityPaneProps {
-  library: IADSApiLibraryEntityResponse;
+  id: LibraryIdentifier;
   publicView: boolean;
-  onRefetch?: () => void;
 }
 
-export const LibraryEntityPane = ({ library, publicView, onRefetch = noop }: ILibraryEntityPaneProps) => {
+export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) => {
   const pageSize = useStore((state: AppState) => state.numPerPage);
 
   const setPageSize = useStore((state: AppState) => state.setNumPerPage);
@@ -75,7 +83,18 @@ export const LibraryEntityPane = ({ library, publicView, onRefetch = noop }: ILi
   const isMobile = ['base', 'xs', 'sm'].includes(breakpoint, 0);
 
   const {
-    id,
+    data: library,
+    isLoading: isLoadingLibs,
+    error: errorFetchingLibs,
+    refetch: refetchLibs,
+  } = useGetLibraryEntity(
+    {
+      id,
+    },
+    { enabled: !!id, staleTime: 0 },
+  );
+
+  const {
     name,
     description,
     num_documents,
@@ -83,7 +102,7 @@ export const LibraryEntityPane = ({ library, publicView, onRefetch = noop }: ILi
     date_created,
     date_last_modified,
     owner,
-  } = library.metadata;
+  } = useMemo(() => library?.metadata, [library]);
 
   const { data: documents, refetch: refetchDocs } = useGetLibraryEntity(
     {
@@ -185,7 +204,7 @@ export const LibraryEntityPane = ({ library, publicView, onRefetch = noop }: ILi
             // reset
             setOnPage(0);
             setSelected([]);
-            onRefetch(); // update entity
+            void refetchLibs(); // update entity
             void refetchDocs(); // refresh doc list
           }
         },
@@ -194,146 +213,175 @@ export const LibraryEntityPane = ({ library, publicView, onRefetch = noop }: ILi
   };
 
   return (
-    <Box mt={4}>
-      {!publicView && (
-        <Flex justifyContent="space-between" my={4}>
-          <SimpleLink href="/user/libraries">
-            <Button variant="outline" leftIcon={<ChevronLeftIcon />} data-testid="lib-back-btn">
-              Back to libraries
-            </Button>
-          </SimpleLink>
-          <SimpleLink href={`/user/libraries/${id}/settings`}>
-            <IconButton aria-label="settings" icon={<SettingsIcon />} variant="outline" data-testid="settings-btn" />
-          </SimpleLink>
-        </Flex>
+    <>
+      {isLoadingLibs && (
+        <Center>
+          <LoadingMessage message="Loading library" />
+        </Center>
       )}
-
-      <Flex alignItems="center" gap={2}>
-        {publicView ? (
-          <Icon
-            as={BuildingLibraryIcon}
-            aria-label="SciX Public Library"
-            borderRadius={25}
-            w={10}
-            h={10}
-            backgroundColor="gray.700"
-            color="white"
-            p={2}
-          />
-        ) : isPublic ? (
-          <Tooltip label="This library is public">
-            <UnlockIcon color="green.500" aria-label="public" />
-          </Tooltip>
-        ) : (
-          <Tooltip label="This library is private">
-            <LockIcon aria-label="private" />
-          </Tooltip>
-        )}
-        <Heading variant="pageTitle" as="h1" data-testid="lib-title">
-          {name}
-        </Heading>
-      </Flex>
-      <Text my={2} data-testid="lib-desc">
-        {description}
-      </Text>
-      <Table
-        variant="unstyled"
-        my={4}
-        backgroundColor={colors.panel}
-        display={{ base: 'none', sm: 'block' }}
-        data-testid="lib-meta"
-      >
-        <Thead>
-          <Tr>
-            <Th>Papers</Th>
-            {!publicView && <Th>Owner</Th>}
-            <Th>Date Created</Th>
-            <Th>Last Modified</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          <Tr>
-            <Td>
-              Found {numFound} of {num_documents}
-            </Td>
-            {!publicView && <Td>{owner}</Td>}
-            <Td>{new Date(date_created).toLocaleString()}</Td>
-            <Td>{new Date(date_last_modified).toLocaleString()}</Td>
-          </Tr>
-        </Tbody>
-      </Table>
-
-      {num_documents === 0 && <CustomInfoMessage status="info" title="Library is empty" />}
-
-      {num_documents > 0 && numFound === 0 && <CustomInfoMessage status="info" title="Found 0 articles" />}
-
-      {errorFetchingDocs && (
+      {errorFetchingLibs && (
         <CustomInfoMessage
-          status="error"
-          title="Error loading documents"
-          description={parseAPIError(errorFetchingDocs)}
+          status={'error'}
+          title={'Library not found'}
+          description={
+            <Text>
+              Library does not exist.{' '}
+              <SimpleLink href={'/user/libraries'} display="inline">
+                View all libraries.
+              </SimpleLink>
+            </Text>
+          }
         />
       )}
+      {!isLoadingLibs && library && (
+        <Box mt={4}>
+          {!publicView && (
+            <Flex justifyContent="space-between" my={4}>
+              <SimpleLink href="/user/libraries">
+                <Button variant="outline" leftIcon={<ChevronLeftIcon />} data-testid="lib-back-btn">
+                  Back to libraries
+                </Button>
+              </SimpleLink>
+              <SimpleLink href={`/user/libraries/${id}/settings`}>
+                <IconButton
+                  aria-label="settings"
+                  icon={<SettingsIcon />}
+                  variant="outline"
+                  data-testid="settings-btn"
+                />
+              </SimpleLink>
+            </Flex>
+          )}
 
-      {numFound > 0 && !errorFetchingDocs && (
-        <Flex direction="column" gap={2}>
-          <Flex
-            direction={{ base: 'column', sm: 'row' }}
-            justifyContent={{ base: 'start', sm: 'space-between' }}
-            alignItems={{ base: 'start', sm: 'end' }}
-            style={isLoadingDocs ? { pointerEvents: 'none' } : { pointerEvents: 'auto' }}
-          >
-            <Sort sort={sort} onChange={handleChangeSort} />
-            <SearchQueryLink params={{ ...getSearchParams, q: `docs(library/${id})` }}>
-              View as search results
-            </SearchQueryLink>
+          <Flex alignItems="center" gap={2}>
+            {publicView ? (
+              <Icon
+                as={BuildingLibraryIcon}
+                aria-label="SciX Public Library"
+                borderRadius={25}
+                w={10}
+                h={10}
+                backgroundColor="gray.700"
+                color="white"
+                p={2}
+              />
+            ) : isPublic ? (
+              <Tooltip label="This library is public">
+                <UnlockIcon color="green.500" aria-label="public" />
+              </Tooltip>
+            ) : (
+              <Tooltip label="This library is private">
+                <LockIcon aria-label="private" />
+              </Tooltip>
+            )}
+            <Heading variant="pageTitle" as="h1" data-testid="lib-title">
+              {name}
+            </Heading>
           </Flex>
+          <Text my={2} data-testid="lib-desc">
+            {description}
+          </Text>
+          <Table
+            variant="unstyled"
+            my={4}
+            backgroundColor={colors.panel}
+            display={{ base: 'none', sm: 'block' }}
+            data-testid="lib-meta"
+          >
+            <Thead>
+              <Tr>
+                <Th>Papers</Th>
+                {!publicView && <Th>Owner</Th>}
+                <Th>Date Created</Th>
+                <Th>Last Modified</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              <Tr>
+                <Td>
+                  Found {numFound} of {num_documents}
+                </Td>
+                {!publicView && <Td>{owner}</Td>}
+                <Td>{new Date(date_created).toLocaleString()}</Td>
+                <Td>{new Date(date_last_modified).toLocaleString()}</Td>
+              </Tr>
+            </Tbody>
+          </Table>
 
-          {canWrite && !publicView && (
-            <Box style={isLoadingDocs ? { pointerEvents: 'none' } : { pointerEvents: 'auto' }} w="full">
-              <BulkAction
-                isAllSelected={isAllSelected}
-                isSomeSelected={isSomeSelected}
-                onSelectAllCurrent={handleSelectAllCurrent}
-                onClearAllCurrent={handleClearAllCurrent}
-                onClearAll={handleClearAll}
-                selectedCount={selected.length}
-                onDeleteSelected={handleDeleteFromLibrary}
-              />
-            </Box>
+          {num_documents === 0 && <CustomInfoMessage status="info" title="Library is empty" />}
+
+          {num_documents > 0 && numFound === 0 && <CustomInfoMessage status="info" title="Found 0 articles" />}
+
+          {errorFetchingDocs && (
+            <CustomInfoMessage
+              status="error"
+              title="Error loading documents"
+              description={parseAPIError(errorFetchingDocs)}
+            />
           )}
 
-          {!isLoadingDocs ? (
-            <>
-              <DocumentList
-                docs={docs}
-                library={library.metadata}
-                publicView={publicView}
-                notes={publicView ? undefined : library.library_notes?.notes}
-                indexStart={onPage * pageSize}
-                onSet={handleSelectDoc}
-                hideCheckbox={!canWrite || publicView}
-                selectedBibcodes={selected}
-                hideResources={isMobile}
-                onNoteUpdate={onRefetch}
-              />
-              <Pagination
-                totalResults={numFound}
-                page={onPage + 1}
-                numPerPage={pageSize}
-                onNext={handleNextPage}
-                onPrevious={handlePrevPage}
-                onPageSelect={handlePageSelect}
-                onPerPageSelect={handlePerPageSelect}
-                skipRouting
-              />
-            </>
-          ) : (
-            <ItemsSkeleton count={pageSize} />
+          {numFound > 0 && !errorFetchingDocs && (
+            <Flex direction="column" gap={2}>
+              <Flex
+                direction={{ base: 'column', sm: 'row' }}
+                justifyContent={{ base: 'start', sm: 'space-between' }}
+                alignItems={{ base: 'start', sm: 'end' }}
+                style={isLoadingDocs ? { pointerEvents: 'none' } : { pointerEvents: 'auto' }}
+              >
+                <Sort sort={sort} onChange={handleChangeSort} />
+                <SearchQueryLink params={{ ...getSearchParams, q: `docs(library/${id})` }}>
+                  View as search results
+                </SearchQueryLink>
+              </Flex>
+
+              {canWrite && !publicView && (
+                <Box style={isLoadingDocs ? { pointerEvents: 'none' } : { pointerEvents: 'auto' }} w="full">
+                  <BulkAction
+                    isAllSelected={isAllSelected}
+                    isSomeSelected={isSomeSelected}
+                    onSelectAllCurrent={handleSelectAllCurrent}
+                    onClearAllCurrent={handleClearAllCurrent}
+                    onClearAll={handleClearAll}
+                    selectedCount={selected.length}
+                    onDeleteSelected={handleDeleteFromLibrary}
+                  />
+                </Box>
+              )}
+
+              {!isLoadingDocs ? (
+                <>
+                  <DocumentList
+                    library={id}
+                    docs={docs}
+                    notes={!publicView ? library.library_notes?.notes : undefined}
+                    showNotes={!publicView}
+                    canEdit={canWrite}
+                    indexStart={onPage * pageSize}
+                    onSet={handleSelectDoc}
+                    hideCheckbox={!canWrite || publicView}
+                    selectedBibcodes={selected}
+                    hideResources={isMobile}
+                    onNoteUpdate={refetchLibs}
+                  />
+                  <Pagination
+                    totalResults={numFound}
+                    page={onPage + 1}
+                    numPerPage={pageSize}
+                    onNext={handleNextPage}
+                    onPrevious={handlePrevPage}
+                    onPageSelect={handlePageSelect}
+                    onPerPageSelect={handlePerPageSelect}
+                    skipRouting
+                  />
+                </>
+              ) : (
+                <ItemsSkeleton count={pageSize} />
+              )}
+            </Flex>
           )}
-        </Flex>
+        </Box>
       )}
-    </Box>
+    </>
   );
 };
 

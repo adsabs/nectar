@@ -1,6 +1,5 @@
 import {
   LibraryIdentifier,
-  LibraryPermission,
   useAddAnnotation,
   useDeleteAnnotation,
   useGetAbstractPreview,
@@ -33,13 +32,13 @@ export const ItemAnnotation = ({
   note,
   showNote,
   onUpdate,
-  permission,
+  canEdit = false,
 }: {
   library: LibraryIdentifier;
   bibcode: string;
   showNote: boolean;
   note?: string;
-  permission?: LibraryPermission;
+  canEdit?: boolean;
   onUpdate: () => void;
 }) => {
   const [show, setShow] = useState(false);
@@ -56,13 +55,7 @@ export const ItemAnnotation = ({
             <TabPanels>
               <TabPanel>
                 {show && (
-                  <Annotation
-                    library={library}
-                    bibcode={bibcode}
-                    note={note}
-                    onUpdate={onUpdate}
-                    permission={permission}
-                  />
+                  <Annotation library={library} bibcode={bibcode} note={note} onUpdate={onUpdate} canEdit={canEdit} />
                 )}
               </TabPanel>
               <TabPanel>
@@ -95,13 +88,13 @@ const Annotation = ({
   bibcode,
   note = '',
   onUpdate,
-  permission,
+  canEdit,
 }: {
   library: LibraryIdentifier;
   bibcode: string;
   note: string;
   onUpdate: () => void;
-  permission: LibraryPermission;
+  canEdit: boolean;
 }) => {
   const { mutate: deleteNote, isLoading: isDeleting } = useDeleteAnnotation();
 
@@ -114,8 +107,6 @@ const Annotation = ({
   const [isEditing, setIsEditing] = useState(false);
 
   const isLoading = isDeleting || isAdding || isUpdating;
-
-  const canWrite = ['owner', 'admin', 'write'].includes(permission);
 
   const toast = useToast({
     duration: 2000,
@@ -218,7 +209,7 @@ const Annotation = ({
             ) : (
               <Text color={lightText} fontWeight="light" fontStyle="italic">
                 No annotations.{' '}
-                {canWrite ? (
+                {canEdit ? (
                   <>Click the edit icon to add one.</>
                 ) : (
                   <>Collaborators with write permission can add annotations.</>
@@ -227,7 +218,7 @@ const Annotation = ({
             )}
           </>
         )}
-        {canWrite && (
+        {canEdit && (
           <Flex direction="row" justifyContent="start" gap={1} mt={2}>
             {!isEditing ? (
               <IconButton
