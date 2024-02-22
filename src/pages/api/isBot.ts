@@ -1,6 +1,6 @@
 import { NextApiHandler } from 'next';
 // eslint-disable-next-line @next/next/no-server-import-in-page
-import { logger } from '../../../logger/logger';
+import { logger } from '@logger/logger';
 import { resolve as dnsResolve, resolve4 as dnsResolve4 } from 'dns';
 import { promisify } from 'util';
 

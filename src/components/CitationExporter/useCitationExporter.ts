@@ -7,11 +7,11 @@ import {
   SolrSort,
   useGetExportCitation,
 } from '@api';
-import { purifyString } from '@utils';
 import { useMachine } from '@xstate/react/fsm';
 import { useEffect, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { generateMachine, ICitationExporterState } from './CitationExporter.machine';
+import DOMPurify from 'isomorphic-dompurify';
 
 export interface IUseCitationExporterProps {
   records: ICitationExporterState['records'];
@@ -59,7 +59,7 @@ export const useCitationExporter = ({
   // clean params before submitting to API
   const params: IExportApiParams = {
     ...state.context.params,
-    keyformat: [purifyString(state.context.params.keyformat[0])],
+    keyformat: [DOMPurify.sanitize(state.context.params.keyformat[0])],
   };
 
   // on mount, check the cache to see if we any records for this querykey, if not, we should trigger an initial load

@@ -5,7 +5,7 @@ import { isPast, parseISO } from 'date-fns';
 import { identity, isNil } from 'ramda';
 import { defaultRequestConfig } from './config';
 import { IApiUserResponse } from '@pages/api/user';
-import { logger } from '../../logger/logger';
+import { logger } from '@logger/logger';
 
 export const isUserData = (userData?: IUserData): userData is IUserData => {
   return (

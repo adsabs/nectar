@@ -2,7 +2,6 @@ import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, IUserData, Sol
 import { APP_DEFAULTS } from '@config';
 import { NumPerPageType, SafeSearchUrlParams } from '@types';
 import axios, { AxiosError } from 'axios';
-import DOMPurify from 'isomorphic-dompurify';
 import { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from 'next';
 import { useRouter } from 'next/router';
 import qs from 'qs';
@@ -325,14 +324,6 @@ export const stringifySearchParams = (params: Record<string, unknown>, options?:
 
 export const parseSearchParams = (params: string, options?: qs.IParseOptions) =>
   qs.parse(params, { parseArrays: true, ...options });
-
-export const purifyString = (value: string): string => {
-  try {
-    return DOMPurify.sanitize(value);
-  } catch (e) {
-    return value;
-  }
-};
 
 /**
  * @see https://stackoverflow.com/a/9461657

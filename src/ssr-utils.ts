@@ -1,23 +1,22 @@
 import { isUserData } from '@api';
 import { AppState } from '@store';
-import { withIronSessionSsr } from 'iron-session/next';
+import { getIronSession } from 'iron-session';
 import { sessionConfig } from '@config';
-import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
+import { GetServerSideProps, GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import api from '@api/api';
 import { dehydrate, hydrate, QueryClient } from '@tanstack/react-query';
 import { getNotification, NotificationId } from '@store/slices';
-import { logger } from '../logger/logger';
+import { logger } from '@logger';
+import { SessionData } from '@types';
 
 const log = logger.child({ module: 'ssr-inject' });
 
-const updateUserStateSSR: IncomingGSSP = (ctx, prevResult) => {
-  const userData = ctx.req.session.token;
-
+const updateUserStateSSR: IncomingGSSP = async (ctx, prevResult) => {
+  const session = await getIronSession<SessionData>(ctx.req, ctx.res, sessionConfig);
   log.debug({
     msg: 'Injecting session data into SSR',
-    session: ctx.req.session,
-    isValidUserData: isUserData(userData),
-    token: isUserData(userData) ? userData.access_token : null,
+    isValidUserData: isUserData(session.token),
+    token: isUserData(session.token) ? session.token.access_token : null,
   });
 
   const qc = new QueryClient();
@@ -25,13 +24,13 @@ const updateUserStateSSR: IncomingGSSP = (ctx, prevResult) => {
   if (prevResult?.props?.dehydratedState) {
     hydrate(qc, prevResult.props.dehydratedState);
   }
-  qc.setQueryData(['user'], userData);
+  qc.setQueryData(['user'], session.token);
 
   return Promise.resolve({
     props: {
       dehydratedAppState: {
         ...((prevResult?.props?.dehydratedAppState ?? {}) as AppState),
-        user: isUserData(userData) ? userData : {},
+        user: isUserData(session.token) ? session.token : {},
         // set notification if present
         notification: getNotification(ctx.query?.notify as NotificationId),
       } as AppState,
@@ -40,7 +39,7 @@ const updateUserStateSSR: IncomingGSSP = (ctx, prevResult) => {
   });
 };
 
-export const injectSessionGSSP = withIronSessionSsr((ctx) => updateUserStateSSR(ctx, { props: {} }), sessionConfig);
+export const injectSessionGSSP: GetServerSideProps = (ctx) => updateUserStateSSR(ctx, { props: {} });
 
 type IncomingGSSP = (
   ctx: GetServerSidePropsContext,
@@ -52,12 +51,12 @@ type IncomingGSSP = (
  * invoking left to right
  * Props are merged, other properties will overwrite
  */
-export const composeNextGSSP = (...fns: IncomingGSSP[]) =>
-  withIronSessionSsr(async (ctx: GetServerSidePropsContext): Promise<
-    GetServerSidePropsResult<Record<string, unknown>>
-  > => {
+export const composeNextGSSP =
+  (...fns: IncomingGSSP[]) =>
+  async (ctx: GetServerSidePropsContext): Promise<GetServerSidePropsResult<Record<string, unknown>>> => {
+    const session = await getIronSession<SessionData>(ctx.req, ctx.res, sessionConfig);
     fns.push(updateUserStateSSR);
-    api.setUserData(ctx.req.session.token);
+    api.setUserData(session.token);
     let ssrProps = { props: {} };
     for (const fn of fns) {
       const result = await fn(ctx, ssrProps);
@@ -68,4 +67,4 @@ export const composeNextGSSP = (...fns: IncomingGSSP[]) =>
       ssrProps = { ...ssrProps, ...result, props };
     }
     return ssrProps;
-  }, sessionConfig);
+  };

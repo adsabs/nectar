@@ -15,7 +15,7 @@ import {
 } from './slices';
 import { AppSerializableState, AppState } from './types';
 import { isPlainObject, isPrimitive } from 'ramda-adjunct';
-import { logger } from '../../logger/logger';
+import { logger } from '@logger/logger';
 
 export const APP_STORAGE_KEY = 'nectar-app-state';
 

@@ -1,6 +1,6 @@
-import { IADSApiSearchParams, IUserData } from '@api';
-import { APP_DEFAULTS } from '@config';
+import { IADSApiSearchParams } from '@api';
 import { SetupServerApi } from 'msw/node';
+import { APP_DEFAULTS } from '@config';
 
 export enum AppMode {
   GENERAL = 'GENERAL',
@@ -29,11 +29,6 @@ export interface AppError {
     code: AppErrorCode;
     innererror?: InnerError;
   };
-}
-
-export interface SessionData {
-  userData: IUserData;
-  isAuthenticated: boolean;
 }
 
 export type NumPerPageType = typeof APP_DEFAULTS['PER_PAGE_OPTIONS'][number];
@@ -65,4 +60,16 @@ export interface AppRuntimeConfig {
     apiHost: string;
     baseCanonicalUrl: string;
   };
+}
+
+export interface SessionData {
+  token?: {
+    access_token: string;
+    anonymous: boolean;
+    expire_in: string;
+    username: string;
+  };
+  isAuthenticated?: boolean;
+  apiCookieHash?: number[];
+  bot?: boolean;
 }

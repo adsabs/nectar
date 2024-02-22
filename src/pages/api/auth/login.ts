@@ -1,14 +1,14 @@
 import { ApiTargets, IBasicAccountsResponse, IUserCredentials } from '@api';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { z } from 'zod';
-import { IronSession } from 'iron-session';
-import { withIronSessionApiRoute } from 'iron-session/next';
+import { getIronSession, IronSession } from 'iron-session';
 import { sessionConfig } from '@config';
 import { configWithCSRF, fetchUserData, hash, isValidToken, pickUserData } from '@auth-utils';
 import { defaultRequestConfig } from '@api/config';
 import axios, { AxiosResponse } from 'axios';
 import setCookie from 'set-cookie-parser';
-import { logger } from '../../../../logger/logger';
+import { logger } from '@logger';
+import { SessionData } from '@types';
 
 const log = logger.child({ module: 'api/login' });
 
@@ -17,14 +17,12 @@ export interface ILoginResponse {
   error?: 'invalid-credentials' | 'login-failed' | 'failed-userdata-request' | 'invalid-token' | 'method-not-allowed';
 }
 
-export default withIronSessionApiRoute(login, sessionConfig);
-
 async function login(req: NextApiRequest, res: NextApiResponse<ILoginResponse>) {
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, error: 'method-not-allowed' });
   }
 
-  const session = req.session;
+  const session = await getIronSession<SessionData>(req, res, sessionConfig);
   const creds = schema.safeParse(req.body);
   if (creds.success) {
     return await handleAuthentication(creds.data, res, session);
@@ -42,7 +40,7 @@ const schema = z
 export const handleAuthentication = async (
   credentials: IUserCredentials,
   res: NextApiResponse,
-  session: IronSession,
+  session: IronSession<SessionData>,
 ) => {
   const config = await configWithCSRF({
     ...defaultRequestConfig,
@@ -105,3 +103,5 @@ export const handleAuthentication = async (
     return res.status(401).json({ success: false, error: 'login-failed' });
   }
 };
+
+export default login;

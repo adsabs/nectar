@@ -2,14 +2,13 @@
 import type { NextRequest } from 'next/server';
 // eslint-disable-next-line @next/next/no-server-import-in-page
 import { NextResponse, userAgent } from 'next/server';
-import { getIronSession } from 'iron-session/edge';
-import { ApiTargets } from '../src/api/models';
+import { getIronSession, IronSession } from 'iron-session';
+import { ApiTargets, IBootstrapPayload, IUserData, IVerifyAccountResponse } from '@api';
 import { equals, isNil, pick } from 'ramda';
-import { IBootstrapPayload, IUserData, IVerifyAccountResponse } from '@api';
 import { isPast, parseISO } from 'date-fns';
 import { AUTH_EXCEPTIONS, PROTECTED_ROUTES, sessionConfig } from '@config';
-import { IronSession } from 'iron-session';
-import { logger } from '../logger/logger';
+import { logger } from '@logger/logger';
+import { SessionData } from '@types';
 
 const log = logger.child({ module: 'middleware' });
 
@@ -30,7 +29,7 @@ export async function middleware(req: NextRequest) {
 
   // get the current session
   const res = NextResponse.next();
-  const session = await getIronSession(req, res, sessionConfig);
+  const session = await getIronSession<SessionData>(req, res, sessionConfig);
   const adsSessionCookie = req.cookies.get(process.env.ADS_SESSION_COOKIE_NAME)?.value;
   const apiCookieHash = await hash(adsSessionCookie);
   const refresh = req.headers.has('x-RefreshToken');
@@ -226,7 +225,7 @@ const handleBotResponse = async ({
 }: {
   req: NextRequest;
   res: NextResponse;
-  session: IronSession;
+  session: IronSession<SessionData>;
   crawlerResult: CRAWLER_RESULT;
 }) => {
   const ua = userAgent(req).ua;
@@ -278,7 +277,7 @@ const handleBotResponse = async ({
   return handleResponse(req, res, session);
 };
 
-const handleResponse = (req: NextRequest, res: NextResponse, session: IronSession) => {
+const handleResponse = (req: NextRequest, res: NextResponse, session: IronSession<SessionData>) => {
   const pathname = req.nextUrl.pathname;
   const authenticated = isAuthenticated(session.token);
 
@@ -331,7 +330,7 @@ const handleResponse = (req: NextRequest, res: NextResponse, session: IronSessio
   return res;
 };
 
-const handleVerifyResponse = async (req: NextRequest, res: NextResponse, session: IronSession) => {
+const handleVerifyResponse = async (req: NextRequest, res: NextResponse, session: IronSession<SessionData>) => {
   // verify requests have a token we need to send to the API
   try {
     const [, , , , route, token] = req.nextUrl.pathname.split('/');
@@ -351,7 +350,12 @@ const handleVerifyResponse = async (req: NextRequest, res: NextResponse, session
   }
 };
 
-const verify = async (options: { token: string; req: NextRequest; res: NextResponse; session: IronSession }) => {
+const verify = async (options: {
+  token: string;
+  req: NextRequest;
+  res: NextResponse;
+  session: IronSession<SessionData>;
+}) => {
   const { req, res, session, token } = options;
   // get a new url ready to go, we'll redirect with a message depending on status
   const newUrl = req.nextUrl.clone();

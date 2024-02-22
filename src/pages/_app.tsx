@@ -5,7 +5,7 @@ import { useCreateQueryClient } from '@lib/useCreateQueryClient';
 import { MathJaxProvider } from '@mathjax';
 import { AppState, StoreProvider, useCreateStore, useStore, useStoreApi } from '@store';
 import { theme } from '@theme';
-import { AppMode } from '@types';
+import { AppMode, SessionData } from '@types';
 import { AppProps, NextWebVitalsMetric } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
@@ -22,7 +22,7 @@ import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import '../styles/styles.css';
 import { GTMProvider, sendToGTM } from '@elgorditosalsero/react-gtm-hook';
 import Head from 'next/head';
-import { logger } from '../../logger/logger';
+import { logger } from '@logger/logger';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
   require('../mocks');
@@ -109,12 +109,14 @@ const UserSync = (): ReactElement => {
   const qc = useQueryClient();
 
   const { data } = useQuery<{
-    user: IronSession['token'];
+    user: IronSession<SessionData>['token'];
     isAuthenticated: boolean;
   }>({
     queryKey: ['user'],
     queryFn: async () => {
-      const { data } = await axios.get<{ user: IronSession['token']; isAuthenticated: boolean }>('/api/user');
+      const { data } = await axios.get<{ user: IronSession<SessionData>['token']; isAuthenticated: boolean }>(
+        '/api/user',
+      );
       if (isNilOrEmpty(data)) {
         throw new Error('Empty session');
       }

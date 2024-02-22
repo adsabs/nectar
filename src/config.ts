@@ -1,5 +1,5 @@
 import { SolrSort } from '@api';
-import { IronSessionOptions } from 'iron-session';
+import { SessionOptions } from 'iron-session';
 
 export const APP_DEFAULTS = {
   DETAILS_MAX_AUTHORS: 50,
@@ -20,7 +20,7 @@ export const APP_DEFAULTS = {
 
 export const GOOGLE_RECAPTCHA_KEY = '6Lex_aQUAAAAAMwJFbdGFeigshN7mRQdbXoGQ7-N';
 
-export const sessionConfig: IronSessionOptions = {
+export const sessionConfig: SessionOptions = {
   password: process.env.COOKIE_SECRET,
   cookieName: process.env.SCIX_SESSION_COOKIE_NAME,
   // secure: true should be used in production () but can't be used in development (HTTP)

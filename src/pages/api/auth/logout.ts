@@ -5,8 +5,9 @@ import { configWithCSRF, fetchUserData, hash, isValidToken, pickUserData } from 
 import { defaultRequestConfig } from '@api/config';
 import axios, { AxiosResponse } from 'axios';
 import setCookie from 'set-cookie-parser';
-import { withIronSessionApiRoute } from 'iron-session/next';
-import { logger } from '../../../../logger/logger';
+import { logger } from '@logger';
+import { getIronSession } from 'iron-session';
+import { SessionData } from '@types';
 
 export interface ILogoutResponse {
   success?: boolean;
@@ -15,14 +16,12 @@ export interface ILogoutResponse {
 
 const log = logger.child({ module: 'api/logout' });
 
-export default withIronSessionApiRoute(logout, sessionConfig);
-
 async function logout(req: NextApiRequest, res: NextApiResponse<ILogoutResponse>) {
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, error: 'method-not-allowed' });
   }
 
-  const session = req.session;
+  const session = await getIronSession<SessionData>(req, res, sessionConfig);
   const config = await configWithCSRF({
     ...defaultRequestConfig,
     url: ApiTargets.LOGOUT,
@@ -81,3 +80,5 @@ async function logout(req: NextApiRequest, res: NextApiResponse<ILogoutResponse>
     return res.status(401).json({ success: false, error: 'logout-failed' });
   }
 }
+
+export default logout;
