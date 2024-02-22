@@ -18,12 +18,17 @@ import {
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { fetchLinks, resolverKeys } from '@api/resolver';
+import { getIronSession } from 'iron-session';
+import { SessionData } from '@types';
+import { sessionConfig } from '@config';
 
 export const withDetailsPage = async (
   ctx: GetServerSidePropsContext,
 ): Promise<GetServerSidePropsResult<Record<string, unknown>>> => {
+  const session = await getIronSession<SessionData>(ctx.req, ctx.res, sessionConfig);
+
   const { id } = ctx.params as { id: string };
-  const isAuthenticated = ctx.req.session?.isAuthenticated;
+  const isAuthenticated = session.isAuthenticated;
 
   const pathname = ctx.resolvedUrl.split('?')[0];
   const queryClient = new QueryClient();

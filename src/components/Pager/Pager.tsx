@@ -1,13 +1,13 @@
 import { forwardRef, HTMLAttributes, ReactNode, useState } from 'react';
 import {
   Box,
+  Button,
   ButtonProps,
   Flex,
   Heading,
   Icon,
   IconButton,
   keyframes,
-  Tab,
   TabList,
   TabPanel,
   TabPanels,
@@ -151,12 +151,6 @@ const ChangePageButton = (props: ButtonProps & { direction: 'next' | 'previous';
 const DotTab = forwardRef<HTMLButtonElement, TabProps>((props, ref) => {
   const tabProps = useTab({ ...props, ref });
   const isSelected = !!tabProps['aria-selected'];
-
   const styles = useMultiStyleConfig('Tabs', tabProps);
-
-  return (
-    <Tab __css={styles.tab} {...tabProps}>
-      {isSelected ? '●' : '○'}
-    </Tab>
-  );
+  return <Button __css={styles.tab}>{isSelected ? '●' : '○'}</Button>;
 });

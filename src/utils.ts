@@ -44,7 +44,7 @@ export const normalizeURLParams = <T extends Record<string, string> = Record<str
     if (skipKeys.includes(key)) {
       return acc;
     }
-    const rawValue = query[key];
+    const rawValue = query[key] as string | Array<string>;
     const value = typeof rawValue === 'string' ? rawValue : Array.isArray(rawValue) ? rawValue.join(',') : undefined;
 
     if (typeof value === 'undefined') {
