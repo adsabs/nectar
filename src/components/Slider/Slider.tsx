@@ -219,11 +219,7 @@ const Handle = ({ handle, getHandleProps, align, mt, showLabel }: IHandleProps):
         borderWidth={1}
         {...getHandleProps(handle.id)}
       />
-      {showLabel && (
-        <Box mt={5} fontSize="md">
-          {handle.value}
-        </Box>
-      )}
+      {showLabel && <Box fontSize="md">{handle.value}</Box>}
     </Stack>
   );
 };
