@@ -80,14 +80,14 @@ export const useCreateStore = (incomingState: Partial<AppState> = {}): (() => St
   // initialize the store
   store = store ?? createStore(incomingState);
 
-  // force reset of the search facets
-  store.getState().resetSearchFacets();
-
   // in the case that initialState changes, merge the changes in
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (incomingState && store) {
       store.setState(mergeDeepLeft(incomingState, store.getState()) as AppState);
+
+      // force reset of the search facets
+      store.getState().resetSearchFacets();
     }
   }, [incomingState]);
 
