@@ -28,6 +28,10 @@ export async function middleware(req: NextRequest) {
   logRequest(req);
   log.info({ msg: 'IP address', ip: req.ip });
 
+  if (req.nextUrl.pathname.startsWith('/monitor')) {
+    return handleMonitorResponse(req);
+  }
+
   // get the current session
   const res = NextResponse.next();
   const session = await getIronSession(req, res, sessionConfig);
@@ -399,4 +403,36 @@ const redirect = (url: URL, res: NextResponse, message?: string) => {
     url.searchParams.set('notify', message);
   }
   return NextResponse.redirect(url, { status: 307, ...res });
+};
+
+// Sentry.io tunneling
+const SENTRY_HOST = 'o1060269.ingest.sentry.io';
+const SENTRY_PROJECT_IDS = ['6049652'];
+const handleMonitorResponse = async (req: NextRequest) => {
+  try {
+    const envelope = await req.text();
+    const piece = envelope.split('\n')[0];
+    const header = JSON.parse(piece) as Record<string, string>;
+    const dsn = new URL(header['dsn']);
+    const project_id = dsn.pathname?.replace('/', '');
+
+    if (dsn.hostname !== SENTRY_HOST) {
+      throw new Error(`Invalid sentry hostname: ${dsn.hostname}`);
+    }
+
+    if (!project_id || !SENTRY_PROJECT_IDS.includes(project_id)) {
+      throw new Error(`Invalid sentry project id: ${project_id}`);
+    }
+
+    const upstream_sentry_url = `https://${SENTRY_HOST}/api/${project_id}/envelope/`;
+    await fetch(upstream_sentry_url, { method: 'POST', body: envelope });
+
+    return NextResponse.json({ status: 200 });
+  } catch (e) {
+    log.error({
+      msg: 'error tunneling to sentry',
+      error: e,
+    });
+    return NextResponse.json({ error: 'error tunneling to sentry' }, { status: 500 });
+  }
 };
