@@ -20,6 +20,7 @@ export * from './Layout';
 export * from './Metatags';
 export * from './NavBar';
 export * from './NavigationMenu';
+export * from './EmailNotifications';
 export * from './NumFound';
 export * from './Pagination';
 export * from './ResultList';
