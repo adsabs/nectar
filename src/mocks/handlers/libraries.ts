@@ -1,6 +1,8 @@
 import {
   ApiTargets,
+  IADSApiLibraryAddAnnotationParams,
   IADSApiLibraryAddParams,
+  IADSApiLibraryDeleteAnnotationParams,
   IADSApiLibraryDocumentParams,
   IADSApiLibraryEditMetaParams,
   IADSApiLibraryEntityResponse,
@@ -9,6 +11,7 @@ import {
   IADSApiLibraryPermissionUpdateParams,
   IADSApiLibraryResponse,
   IADSApiLibraryTransferParams,
+  IADSApiLibraryUpdateAnnotationParams,
   ILibraryMetadata,
 } from '@api';
 import { rest } from 'msw';
@@ -35,7 +38,28 @@ export const librariesHandlers = [
   rest.get(apiHandlerRoute(ApiTargets.LIBRARIES), (req, res, ctx) => {
     const start = req.url.searchParams.has('start') ? Number(req.url.searchParams.get('start')) : 0;
     const rows = req.url.searchParams.has('rows') ? Number(req.url.searchParams.get('rows')) : libraries.length;
-    const r = { libraries: libraries.slice(start, start + rows) } as IADSApiLibraryResponse;
+    const sortby = req.url.searchParams.has('sort')
+      ? (req.url.searchParams.get('sort') as keyof ILibraryMetadata)
+      : 'date_last_modified';
+    const order = req.url.searchParams.has('order') ? req.url.searchParams.get('order') : 'desc';
+    const access_type = req.url.searchParams.has('access_type') ? req.url.searchParams.get('access_type') : 'all';
+
+    libraries.sort((l1, l2) => (l1[sortby] > l2[sortby] ? 1 : l1[sortby] < l2[sortby] ? -1 : 0));
+    if (order === 'desc') {
+      libraries.reverse();
+    }
+
+    let ret = [...libraries];
+    if (access_type == 'owner') {
+      ret = libraries.filter((l) => l.permission === 'owner');
+    } else if (access_type === 'collaborator') {
+      ret = libraries.filter((l) => l.permission !== 'owner');
+    }
+
+    const r = {
+      libraries: ret.slice(start, start + rows),
+      count: ret.length,
+    } as IADSApiLibraryResponse;
     return res(ctx.json(r));
   }),
 
@@ -217,6 +241,51 @@ export const librariesHandlers = [
       entities[id].metadata.owner = email;
 
       return res(ctx.json({}));
+    },
+  ),
+
+  // add note
+  rest.post<Omit<IADSApiLibraryAddAnnotationParams, 'library' | 'bibcode'>, { library: string; bibcode: string }>(
+    apiHandlerRoute(ApiTargets.LIBRARY_NOTES, '/:library/:bibcode'),
+    async (req, res, ctx) => {
+      const { library, bibcode } = req.params;
+      const { content } = req.body;
+
+      entities[library].library_notes.notes[bibcode] = {
+        id: '12345',
+        content,
+        bibcode,
+        library_id: library,
+        date_created: '2019-04-15T19:03:15.345389',
+        date_last_modified: '2019-04-15T19:03:15.345389',
+      };
+
+      return res(ctx.json(await req.json()));
+    },
+  ),
+
+  // update note
+  rest.put<Omit<IADSApiLibraryUpdateAnnotationParams, 'library' | 'bibcode'>, { library: string; bibcode: string }>(
+    apiHandlerRoute(ApiTargets.LIBRARY_NOTES, '/:library/:bibcode'),
+    async (req, res, ctx) => {
+      const { library, bibcode } = req.params;
+      const { content } = req.body;
+
+      entities[library].library_notes.notes[bibcode].content = content;
+
+      return res(ctx.json(await req.json()));
+    },
+  ),
+
+  // delete note
+  rest.delete<Omit<IADSApiLibraryDeleteAnnotationParams, 'library' | 'bibcode'>, { library: string; bibcode: string }>(
+    apiHandlerRoute(ApiTargets.LIBRARY_NOTES, '/:library/:bibcode'),
+    async (req, res, ctx) => {
+      const { library, bibcode } = req.params;
+
+      delete entities[library].library_notes.notes[bibcode];
+
+      return res(ctx.json(await req.json()));
     },
   ),
 ];

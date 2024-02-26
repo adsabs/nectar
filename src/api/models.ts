@@ -198,6 +198,7 @@ export enum ApiTargets {
   LIBRARY_TRANSFER = '/biblib/transfer',
   LIBRARY_OPERATION = 'biblib/libraries/operations',
   LIBRARY_QUERY = 'biblib/query',
+  LIBRARY_NOTES = 'biblib/notes',
   DOCUMENTS = '/biblib/documents',
   PERMISSIONS = '/biblib/permissions',
   REFERENCE = '/reference/text',

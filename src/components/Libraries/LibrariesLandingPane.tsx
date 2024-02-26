@@ -1,6 +1,7 @@
 import {
   IADSApiLibraryOperationParams,
   LibraryIdentifier,
+  LibraryType,
   useAddLibrary,
   useGetLibraries,
   useLibraryOperation,
@@ -12,13 +13,12 @@ import { AppState, useStore } from '@store';
 import { NumPerPageType } from '@types';
 import { parseAPIError } from '@utils';
 import { useRouter } from 'next/router';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { AddLibraryModal } from './AddLibraryModal';
 import { ILibraryListTableSort, LibraryListTable } from './LibraryListTable';
 import { LibraryTypeSelector } from './LibraryTypeSelector';
 import { OperationModal } from './OperationModal';
 import { TableSkeleton } from './TableSkeleton';
-import { LibraryType } from './types';
 
 export const LibrariesLandingPane = () => {
   const router = useRouter();
@@ -46,23 +46,18 @@ export const LibrariesLandingPane = () => {
     data: librariesData,
     isLoading,
     refetch,
-  } = useGetLibraries(
-    { start: pageIndex * pageSize, rows: pageSize, sort: sort.col, order: sort.dir },
-    { staleTime: 0, cacheTime: 0 },
-  );
+    remove,
+  } = useGetLibraries({
+    start: pageIndex * pageSize,
+    rows: pageSize,
+    sort: sort.col,
+    order: sort.dir,
+    access_type: libraryType,
+  });
 
-  const libraries = useMemo(() => {
-    if (librariesData) {
-      return librariesData.libraries;
-    }
-  }, [librariesData]);
+  const libraries = librariesData?.libraries ?? [];
 
-  // TODO: temp query to get all libraries so we can get count
-  const { data: all, refetch: recount } = useGetLibraries({}, { staleTime: 0 });
-
-  const entries = useMemo(() => {
-    return all?.libraries ? all.libraries.length : 0;
-  }, [all]); // TODO: get this using API (waiting for implementation)
+  const count = librariesData?.count ?? 0;
 
   // add library
   const { mutate: addLibrary, isLoading: isAddingLibrary } = useAddLibrary();
@@ -70,10 +65,10 @@ export const LibrariesLandingPane = () => {
   // library operation
   const { mutate: operateLibrary, isLoading: isOperatingLibrary } = useLibraryOperation();
 
+  // only if libraries updated and need to clear cache
   const refresh = () => {
-    // refetch libraries and reset lib count
+    remove();
     void refetch();
-    void recount();
   };
 
   const handleSortChange = (sort: ILibraryListTableSort) => {
@@ -95,8 +90,6 @@ export const LibrariesLandingPane = () => {
   };
 
   const handleLibraryTypeChange = (type: LibraryType) => {
-    // TODO: fetch libs
-    // if successful
     setLibraryType(type);
   };
 
@@ -167,7 +160,7 @@ export const LibrariesLandingPane = () => {
           <>
             <LibraryListTable
               libraries={libraries}
-              entries={entries}
+              entries={count}
               sort={sort}
               pageSize={pageSize}
               pageIndex={pageIndex}

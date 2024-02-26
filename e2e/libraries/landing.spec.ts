@@ -21,6 +21,41 @@ test('Libraries show up in the table', async ({ page }) => {
   await expect(page.getByTestId('pagination-string')).toHaveText('Showing 1 to 11 of 11 results');
 });
 
+test('Filter by library type', async ({ page }) => {
+  await page.goto('/user/libraries', { timeout: 60000 });
+  await page.locator('[id="lib-type-select"]').click(); // select dropdown
+  await page.locator('[id^="react-select-lib-type-select"]').locator('[id$="-option-1"]').click(); // select 'owner'
+  await expect(page.getByTestId('libraries-table').locator('tbody > tr')).toHaveCount(8);
+  await expect(page.getByTestId('pagination-string')).toHaveText('Showing 1 to 8 of 8 results');
+
+  await page.locator('[id="lib-type-select"]').click(); // select dropdown
+  await page.locator('[id^="react-select-lib-type-select"]').locator('[id$="-option-2"]').click(); // select 'collaborator'
+  await expect(page.getByTestId('libraries-table').locator('tbody > tr')).toHaveCount(3);
+  await expect(page.getByTestId('pagination-string')).toHaveText('Showing 1 to 3 of 3 results');
+
+  await page.locator('[id="lib-type-select"]').click(); // select dropdown
+  await page.locator('[id^="react-select-lib-type-select"]').locator('[id$="-option-0"]').click(); // select 'all'
+  await expect(page.getByTestId('libraries-table').locator('tbody > tr')).toHaveCount(10);
+  await expect(page.getByTestId('pagination-string')).toHaveText('Showing 1 to 10 of 11 results');
+});
+
+test('Sort libraries table', async ({ page }) => {
+  await page.goto('/user/libraries', { timeout: 60000 });
+  await expect(page.locator('tbody > tr').nth(0).locator('td').nth(3)).toContainText('001');
+
+  // reverse sort order date
+  await page.locator('thead > tr').nth(0).locator('th').nth(7).click();
+  await expect(page.locator('tbody > tr').nth(0).locator('td').nth(3)).toContainText('11');
+
+  // sort by name
+  await page.locator('thead > tr').nth(0).locator('th').nth(3).click();
+  await expect(page.locator('tbody > tr').nth(0).locator('td').nth(3)).toContainText('001');
+
+  // reverse sort by name
+  await page.locator('thead > tr').nth(0).locator('th').nth(3).click();
+  await expect(page.locator('tbody > tr').nth(0).locator('td').nth(3)).toContainText('test6');
+});
+
 test('Add new library', async ({ page }) => {
   await page.goto('/user/libraries', { timeout: 60000 });
 

@@ -21,7 +21,7 @@ const PublicLibraries: NextPage = () => {
       </Head>
       {id && isLoading && <LoadingMessage message="Loading" />}
       {id && error && <CustomInfoMessage status="error" title="Error" description={parseAPIError(error)} />}
-      {id && data && <LibraryEntityPane library={data} publicView />}
+      {id && data && <LibraryEntityPane id={data.metadata.id} publicView />}
     </>
   );
 };

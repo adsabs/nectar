@@ -3,6 +3,8 @@ import api, {
   ADSQuery,
   ApiRequestConfig,
   ApiTargets,
+  IADSApiLibraryGetAnnotationParams,
+  IADSApiLibraryGetAnnotationResponse,
   IADSApiLibraryAddParams,
   IADSApiLibraryAddResponse,
   IADSApiLibraryDeleteParams,
@@ -27,8 +29,15 @@ import api, {
   IADSApiLibraryResponse,
   IADSApiLibraryTransferParams,
   IADSApiLibraryTransferResponse,
+  IADSApiLibraryAddAnnotationResponse,
+  IADSApiLibraryAddAnnotationParams,
+  IADSApiLibraryUpdateAnnotationResponse,
+  IADSApiLibraryUpdateAnnotationParams,
+  IADSApiLibraryDeleteAnnotationResponse,
+  IADSApiLibraryDeleteAnnotationParams,
 } from '@api';
 import { MutationFunction, QueryFunction, useMutation, useQuery } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 import { omit } from 'ramda';
 
 export enum LIBRARY_API_KEYS {
@@ -44,6 +53,10 @@ export enum LIBRARY_API_KEYS {
   PERMISSION = 'library/permission',
   PERMISSION_UPDATE = 'library/permission-update',
   TRANSFER = 'library/transfer',
+  GET_ANNOTATION = 'library/get_annotation',
+  ADD_ANNOTATION = 'library/add_annotation',
+  UPDATE_ANNOTATION = 'library/update_annotation',
+  DELETE_ANNOTATION = 'library/delete_annotation',
 }
 
 export const librariesKeys = {
@@ -59,6 +72,10 @@ export const librariesKeys = {
   permission: (params: IADSApiLibraryPermissionParams) => [LIBRARY_API_KEYS.PERMISSION, params],
   permission_update: () => [LIBRARY_API_KEYS.PERMISSION_UPDATE] as const,
   transfer: () => [LIBRARY_API_KEYS.TRANSFER] as const,
+  get_annotation: (params: IADSApiLibraryGetAnnotationParams) => [LIBRARY_API_KEYS.GET_ANNOTATION, params] as const,
+  add_annotation: () => [LIBRARY_API_KEYS.ADD_ANNOTATION] as const,
+  update_annotation: () => [LIBRARY_API_KEYS.UPDATE_ANNOTATION] as const,
+  delete_annotation: () => [LIBRARY_API_KEYS.DELETE_ANNOTATION] as const,
 };
 
 // libraries
@@ -354,5 +371,114 @@ export const transfer: MutationFunction<IADSApiLibraryTransferResponse, IADSApiL
   };
 
   const { data } = await api.request<IADSApiLibraryTransferResponse>(config);
+  return data;
+};
+
+// Annotations
+
+export const useGetAnnotation: ADSQuery<IADSApiLibraryGetAnnotationParams, IADSApiLibraryGetAnnotationResponse> = (
+  params,
+  options,
+) => {
+  return useQuery({
+    queryKey: librariesKeys.get_annotation(params),
+    queryFn: fetchAnnotation,
+    meta: { params },
+    retry: (count, error) => {
+      return error instanceof AxiosError && error.message === 'Request failed with status code 400' ? false : count < 3;
+    },
+    ...options,
+  });
+};
+
+export const fetchAnnotation: QueryFunction<IADSApiLibraryGetAnnotationResponse> = async ({ meta }) => {
+  const { params } = meta as { params: IADSApiLibraryGetAnnotationParams };
+  const config: ApiRequestConfig = {
+    method: 'GET',
+    url: `${ApiTargets.LIBRARY_NOTES}/${params.library}/${params.bibcode}`,
+  };
+
+  const { data } = await api.request<IADSApiLibraryGetAnnotationResponse>(config);
+  return data;
+};
+
+// create annotation
+
+export const useAddAnnotation: ADSMutation<
+  IADSApiLibraryAddAnnotationResponse,
+  undefined,
+  IADSApiLibraryAddAnnotationParams
+> = (_, options) => {
+  return useMutation({
+    mutationKey: librariesKeys.add_annotation(),
+    mutationFn: addAnnotation,
+    ...options,
+  });
+};
+
+export const addAnnotation: MutationFunction<IADSApiLibraryAddAnnotationResponse, IADSApiLibraryAddAnnotationParams> =
+  async (params) => {
+    const config: ApiRequestConfig = {
+      method: 'POST',
+      url: `${ApiTargets.LIBRARY_NOTES}/${params.library}/${params.bibcode}`,
+      data: { content: params.content },
+    };
+
+    const { data } = await api.request<IADSApiLibraryAddAnnotationResponse>(config);
+    return data;
+  };
+
+// update annotation
+
+export const useUpdateAnnotation: ADSMutation<
+  IADSApiLibraryUpdateAnnotationResponse,
+  undefined,
+  IADSApiLibraryUpdateAnnotationParams
+> = (_, options) => {
+  return useMutation({
+    mutationKey: librariesKeys.update_annotation(),
+    mutationFn: updateAnnotation,
+    ...options,
+  });
+};
+
+export const updateAnnotation: MutationFunction<
+  IADSApiLibraryUpdateAnnotationResponse,
+  IADSApiLibraryUpdateAnnotationParams
+> = async (params) => {
+  const config: ApiRequestConfig = {
+    method: 'PUT',
+    url: `${ApiTargets.LIBRARY_NOTES}/${params.library}/${params.bibcode}`,
+    data: { content: params.content },
+  };
+
+  const { data } = await api.request<IADSApiLibraryAddAnnotationResponse>(config);
+  return data;
+};
+
+// delete annotation
+
+export const useDeleteAnnotation: ADSMutation<
+  IADSApiLibraryDeleteAnnotationResponse,
+  undefined,
+  IADSApiLibraryDeleteAnnotationParams
+> = (_, options) => {
+  return useMutation({
+    mutationKey: librariesKeys.delete_annotation(),
+    mutationFn: deleteAnnotation,
+    ...options,
+  });
+};
+
+export const deleteAnnotation: MutationFunction<
+  IADSApiLibraryDeleteAnnotationResponse,
+  IADSApiLibraryDeleteAnnotationParams
+> = async (params) => {
+  const config: ApiRequestConfig = {
+    method: 'DELETE',
+    url: `${ApiTargets.LIBRARY_NOTES}/${params.library}/${params.bibcode}`,
+  };
+
+  const { data } = await api.request<IADSApiLibraryDeleteAnnotationResponse>(config);
   return data;
 };

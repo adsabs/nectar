@@ -1,11 +1,16 @@
-import { IDocsEntity } from '@api';
+import { IDocsEntity, INote, LibraryIdentifier } from '@api';
 import { Flex, VisuallyHidden } from '@chakra-ui/react';
 import { noop } from '@utils';
 import { HTMLAttributes, ReactElement } from 'react';
 import { DocumentItem } from './DocumentItem';
 
 export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
+  library: LibraryIdentifier;
   docs: IDocsEntity[];
+  notes?: { [key in string]: INote };
+  showNotes: boolean;
+  canEdit: boolean;
+  onNoteUpdate: () => void;
   indexStart?: number;
   selectedBibcodes?: string[];
   onSet?: (bibcode: string, checked: boolean) => void;
@@ -15,7 +20,12 @@ export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
 
 export const DocumentList = (props: ISimpleResultListProps): ReactElement => {
   const {
+    library,
     docs = [],
+    notes,
+    showNotes,
+    canEdit,
+    onNoteUpdate,
     selectedBibcodes = [],
     indexStart = 0,
     hideCheckbox,
@@ -41,12 +51,17 @@ export const DocumentList = (props: ISimpleResultListProps): ReactElement => {
       {docs.map((doc, index) => (
         <DocumentItem
           doc={doc}
+          library={library}
+          canEdit={canEdit}
+          note={notes?.[doc.bibcode]?.content ?? ''}
+          onNoteUpdate={onNoteUpdate}
           key={doc.bibcode}
           index={start + index}
           hideCheckbox={hideCheckbox}
           isChecked={selectedBibcodes?.includes(doc.bibcode)}
           onSet={(checked) => onSet(doc.bibcode, checked)}
           hideResources={hideResources}
+          showNote={showNotes}
         />
       ))}
     </Flex>

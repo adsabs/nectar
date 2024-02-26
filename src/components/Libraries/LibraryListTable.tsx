@@ -1,4 +1,4 @@
-import { ILibraryMetadata, LibraryIdentifier, useDeleteLibrary } from '@api';
+import { IADSApiLibraryParams, ILibraryMetadata, LibraryIdentifier, useDeleteLibrary } from '@api';
 import {
   ChevronDownIcon,
   LockIcon,
@@ -59,22 +59,22 @@ const columns: { id: Column; heading: string; sortable: boolean }[] = [
   {
     id: 'name',
     heading: 'Library',
-    sortable: false, // TODO: true
+    sortable: true,
   },
   {
     id: 'num_documents',
     heading: 'Papers',
-    sortable: false, // TODO: true
+    sortable: false,
   },
   {
     id: 'owner',
     heading: 'Owner',
-    sortable: false, // TODO: true
+    sortable: false,
   },
   {
     id: 'permission',
     heading: 'Permission',
-    sortable: false, // TODO: true
+    sortable: false,
   },
   {
     id: 'date_last_modified',
@@ -87,7 +87,7 @@ const columns: { id: Column; heading: string; sortable: boolean }[] = [
 const hideColsSmallDisplay: Column[] = ['public', 'num_users', 'permission', 'date_last_modified'];
 
 export interface ILibraryListTableSort {
-  col: keyof ILibraryMetadata;
+  col: IADSApiLibraryParams['sort'];
   dir: SortDirection;
 }
 
@@ -187,7 +187,11 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                 {columns.map((column) => (
                   <Fragment key={`col-${column.id}`}>
                     {allHiddenCols.indexOf(column.id) === -1 && (
-                      <Th aria-label={column.heading} cursor={column.sortable ? 'pointer' : 'default'}>
+                      <Th
+                        aria-label={column.heading}
+                        cursor={column.sortable ? 'pointer' : 'default'}
+                        w={column.id === 'name' ? '40%' : undefined}
+                      >
                         {sort.col !== column.id ? (
                           column.sortable ? (
                             <Flex alignItems="center" onClick={() => onChangeSort({ col: column.id, dir: 'asc' })}>
@@ -240,6 +244,12 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                     cursor="pointer"
                     _hover={{ backgroundColor: colors.highlightBackground, color: colors.highlightForeground }}
                     onClick={() => onLibrarySelect(id)}
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        onLibrarySelect(id);
+                      }
+                    }}
                   >
                     {showIndex && !isMobile && <Td>{pageSize * pageIndex + index + 1}</Td>}
                     {allHiddenCols.indexOf('public') === -1 && (

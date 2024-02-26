@@ -1,21 +1,22 @@
-import { LibraryType, Select, SelectOption } from '@components';
+import { LibraryType } from '@api';
+import { Select, SelectOption } from '@components';
 
 const libraryTypes: SelectOption<LibraryType>[] = [
   { id: 'all', label: 'All', value: 'all' },
-  // {
-  //   id: 'owner',
-  //   label: 'Owner',
-  //   value: 'owner',
-  // },
-  // {
-  //   id: 'collab',
-  //   label: 'Collaborator',
-  //   value: 'collab',
-  // },
-  // {
-  //   id: 'follow',
+  {
+    id: 'owner',
+    label: 'Owner',
+    value: 'owner',
+  },
+  {
+    id: 'collaborator',
+    label: 'Collaborator',
+    value: 'collaborator',
+  },
+  // TODO: {
+  //   id: 'following',
   //   label: 'Following',
-  //   value: 'follow',
+  //   value: 'following',
   // },
 ];
 

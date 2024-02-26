@@ -55,6 +55,18 @@
       "num_updated": 0,
       "duplicates_removed": 0,
       "update_list": []
+    },
+    "library_notes": {
+      "notes": {
+        "00000": {
+          "id": "00000",
+          "content": "Notes for 00000",
+          "bibcode": "00000",
+          "library_id": "001",
+          "date_created": "2019-04-15T19:03:15.345389",
+          "date_last_modified": "2019-04-15T19:03:15.345389"
+        }
+      }
     }
   },
   "002": {
@@ -98,6 +110,18 @@
       "num_updated": 0,
       "duplicates_removed": 0,
       "update_list": []
+    },
+    "library_notes": {
+      "notes": {
+        "11111": {
+          "id": "11111",
+          "content": "Notes for 11111",
+          "bibcode": "11111",
+          "library_id": "002",
+          "date_created": "2019-04-15T19:03:15.345389",
+          "date_last_modified": "2019-04-15T19:03:15.345389"
+        }
+      }
     }
   },
   "003": {
@@ -138,6 +162,18 @@
       "num_updated": 0,
       "duplicates_removed": 0,
       "update_list": []
+    },
+    "library_notes": {
+      "notes": {
+        "aaaaa": {
+          "id": "aaaaa",
+          "content": "Notes for aaaaa",
+          "bibcode": "aaaaa",
+          "library_id": "003",
+          "date_created": "2019-04-15T19:03:15.345389",
+          "date_last_modified": "2019-04-15T19:03:15.345389"
+        }
+      }
     }
   },
   "004": {

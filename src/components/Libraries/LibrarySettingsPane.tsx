@@ -1,4 +1,4 @@
-import { IADSApiLibraryEntityResponse, useDeleteLibrary, useEditLibraryMeta, useTransfer } from '@api';
+import { LibraryIdentifier, useDeleteLibrary, useEditLibraryMeta, useGetLibraryEntity, useTransfer } from '@api';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -20,7 +20,10 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Center,
 } from '@chakra-ui/react';
+import { DescriptionCollapse } from '@components/CitationExporter';
+import { CustomInfoMessage, LoadingMessage } from '@components/Feedbacks';
 import { SimpleLink } from '@components/SimpleLink';
 import { isValidEmail, parseAPIError } from '@utils';
 import { useRouter } from 'next/router';
@@ -28,16 +31,42 @@ import { ChangeEvent, useMemo, useState } from 'react';
 import { CollabTable } from './CollabTable';
 import { DeleteLibrary } from './DeleteLibrary';
 
+const permissionsDescription = (
+  <>
+    <Text>
+      <i>Read</i>: Can view the contents of a private library.
+    </Text>
+    <Text>
+      <i>Write</i>: Can view a library, add/remove records, add and modify annotations.
+    </Text>
+    <Text>
+      <i>Admin</i>: Can view a library, add/remove records, add and modify annotations, edit the library name and
+      description, and add/remove other collaborators
+    </Text>
+  </>
+);
+
 export interface ISettingsPaneProps {
-  library: IADSApiLibraryEntityResponse;
-  onRefetch?: () => void;
+  id: LibraryIdentifier;
   isFromLanding?: boolean;
 }
 
-export const LibrarySettingsPane = ({ library, onRefetch, isFromLanding = false }: ISettingsPaneProps) => {
+export const LibrarySettingsPane = ({ id, isFromLanding = false }: ISettingsPaneProps) => {
   const router = useRouter();
 
-  const { id } = library.metadata;
+  const {
+    data: library,
+    isLoading,
+    error,
+    refetch,
+  } = useGetLibraryEntity(
+    {
+      id,
+    },
+    { enabled: !!id, staleTime: 0 },
+  );
+
+  const { name, description, permission, owner, public: isPublic, date_created, date_last_modified } = library.metadata;
 
   const { mutate: deleteLibrary } = useDeleteLibrary();
 
@@ -46,8 +75,6 @@ export const LibrarySettingsPane = ({ library, onRefetch, isFromLanding = false 
   });
 
   const { mutate: updateMeta } = useEditLibraryMeta();
-
-  const { name, description, permission, owner, public: isPublic, date_created, date_last_modified } = library.metadata;
 
   const { mutate: transfer, isLoading: isTranfering } = useTransfer();
 
@@ -100,7 +127,7 @@ export const LibrarySettingsPane = ({ library, onRefetch, isFromLanding = false 
               status: 'success',
               title: 'Updated',
             });
-            onRefetch();
+            void refetch();
           }
           setIsSaving(false);
         },
@@ -156,96 +183,130 @@ export const LibrarySettingsPane = ({ library, onRefetch, isFromLanding = false 
 
   return (
     <>
-      <Box>
-        <Heading variant="pageTitle" as="h1" my={4}>
-          <SimpleLink
-            href={isFromLanding ? '/user/libraries' : `/user/libraries/${id}`}
-            display="inline"
-            data-testid="settings-back-btn"
-          >
-            <ChevronLeftIcon mr={2} />
-          </SimpleLink>
-          Settings
-        </Heading>
-      </Box>
-      <Flex direction="column" gap={4} alignItems="start">
-        <FormControl>
-          <FormLabel>Library Name</FormLabel>
-          <Input
-            value={nameValue}
-            isReadOnly={!canEdit}
-            onChange={handleOnNameChange}
-            data-testid="library-name-input"
-          />
-        </FormControl>
-        <FormControl>
-          <FormLabel>
-            Description{' '}
-            <Text display="inline" fontWeight="normal" fontStyle="italic">
-              (max 200 characters)
+      {isLoading && (
+        <Center>
+          <LoadingMessage message="Loading library" />
+        </Center>
+      )}
+      {error && (
+        <CustomInfoMessage
+          status={'error'}
+          title={'Library not found'}
+          description={
+            <Text>
+              Library does not exist.{' '}
+              <SimpleLink href={'/user/libraries'} display="inline">
+                View all libraries.
+              </SimpleLink>
             </Text>
-          </FormLabel>
-          <Textarea
-            value={descValue}
-            isReadOnly={!canEdit}
-            maxLength={200}
-            onChange={handleOnDescChange}
-            data-testid="library-desc-input"
-          />
-        </FormControl>
-        <FormControl>
-          <Flex>
-            <FormLabel>Make library public?</FormLabel>
-            <Switch
-              isChecked={isChecked}
-              onChange={handleCheckboxChange}
-              isDisabled={!canEdit}
-              data-testid="library-public-switch"
-              aria-label={isChecked ? 'is public' : 'is private'}
-            />
+          }
+        />
+      )}
+      {!isLoading && library && (
+        <>
+          <Box>
+            <Heading variant="pageTitle" as="h1" my={4}>
+              <SimpleLink
+                href={isFromLanding ? '/user/libraries' : `/user/libraries/${id}`}
+                display="inline"
+                data-testid="settings-back-btn"
+              >
+                <ChevronLeftIcon mr={2} />
+              </SimpleLink>
+              Settings
+            </Heading>
+          </Box>
+          <Flex direction="column" gap={4} alignItems="start">
+            <FormControl>
+              <FormLabel>Library Name</FormLabel>
+              <Input
+                value={nameValue}
+                isReadOnly={!canEdit}
+                onChange={handleOnNameChange}
+                data-testid="library-name-input"
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel>
+                Description{' '}
+                <Text display="inline" fontWeight="normal" fontStyle="italic">
+                  (max 200 characters)
+                </Text>
+              </FormLabel>
+              <Textarea
+                value={descValue}
+                isReadOnly={!canEdit}
+                maxLength={200}
+                onChange={handleOnDescChange}
+                data-testid="library-desc-input"
+              />
+            </FormControl>
+            <FormControl>
+              <Flex>
+                <FormLabel>Make library public?</FormLabel>
+                <Switch
+                  isChecked={isChecked}
+                  onChange={handleCheckboxChange}
+                  isDisabled={!canEdit}
+                  data-testid="library-public-switch"
+                  aria-label={isChecked ? 'is public' : 'is private'}
+                />
+              </Flex>
+              <Text>
+                <Text display="inline" fontStyle="italic">
+                  Public libraries
+                </Text>{' '}
+                are available for all to read.{' '}
+                <Text display="inline" fontStyle="italic">
+                  Private libraries
+                </Text>{' '}
+                are visible to only you and any collaborators.{' '}
+                <SimpleLink href={`/public-libraries/${id}`}>View as public library</SimpleLink>
+              </Text>
+            </FormControl>
+            {canEdit && (
+              <Button onClick={handleSave} isDisabled={nameValue.length < 1 || !modified || isSaving}>
+                Save
+              </Button>
+            )}
+            <FormControl className="metadata">
+              <FormLabel>Permission</FormLabel>
+              {permission}
+            </FormControl>
+            <FormControl className="metadata">
+              <FormLabel>Owner</FormLabel>
+              {owner}
+              {permission === 'owner' && <TransferLibrary onTransfer={handleTransfer} isLoading={isTranfering} />}
+            </FormControl>
+            <FormControl className="metadata">
+              <FormLabel>Date Created</FormLabel>
+              {new Date(date_created).toLocaleString()}
+            </FormControl>
+            <FormControl className="metadata">
+              <FormLabel>Last Modified</FormLabel>
+              {new Date(date_last_modified).toLocaleString()}
+            </FormControl>
+            {canEdit && (
+              <>
+                <DescriptionCollapse body={permissionsDescription} label="Collaborators">
+                  {({ btn, content }) => (
+                    <FormControl>
+                      <Box mb="2">
+                        <FormLabel fontSize={['sm', 'md']}>
+                          {'Collaborators'} {btn}
+                        </FormLabel>
+                        {content}
+                      </Box>
+                      <CollabTable id={id} />
+                    </FormControl>
+                  )}
+                </DescriptionCollapse>
+              </>
+            )}
+            {permission === 'owner' && <DeleteLibrary onDelete={handleDeleteLibrary} />}
           </Flex>
-          <Text>
-            <Text display="inline" fontStyle="italic">
-              Public libraries
-            </Text>{' '}
-            are available for all to read.{' '}
-            <Text display="inline" fontStyle="italic">
-              Private libraries
-            </Text>{' '}
-            are visible to only you and any collaborators.{' '}
-            <SimpleLink href={`/public-libraries/${id}`}>View as public library</SimpleLink>
-          </Text>
-        </FormControl>
-        {canEdit && (
-          <Button onClick={handleSave} isDisabled={nameValue.length < 1 || !modified || isSaving}>
-            Save
-          </Button>
-        )}
-        <FormControl className="metadata">
-          <FormLabel>Permission</FormLabel>
-          {permission}
-        </FormControl>
-        <FormControl className="metadata">
-          <FormLabel>Owner</FormLabel>
-          {owner}
-          {permission === 'owner' && <TransferLibrary onTransfer={handleTransfer} isLoading={isTranfering} />}
-        </FormControl>
-        <FormControl className="metadata">
-          <FormLabel>Date Created</FormLabel>
-          {new Date(date_created).toLocaleString()}
-        </FormControl>
-        <FormControl className="metadata">
-          <FormLabel>Last Modified</FormLabel>
-          {new Date(date_last_modified).toLocaleString()}
-        </FormControl>
-        {canEdit && (
-          <>
-            <Text fontWeight="bold">Collaborators</Text>
-            <CollabTable id={id} />
-          </>
-        )}
-        {permission === 'owner' && <DeleteLibrary onDelete={handleDeleteLibrary} />}
-      </Flex>
+        </>
+      )}
     </>
   );
 };
