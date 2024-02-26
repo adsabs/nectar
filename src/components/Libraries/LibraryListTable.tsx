@@ -32,11 +32,11 @@ import {
 } from '@chakra-ui/react';
 import { ControlledPaginationControls } from '@components';
 import { CustomInfoMessage } from '@components/Feedbacks';
+import { TimeSince } from '@components/TimeSince';
 import { UserGroupIcon, UserIcon } from '@heroicons/react/24/solid';
 import { useColorModeColors } from '@lib';
 import { NumPerPageType } from '@types';
 import { noop, parseAPIError } from '@utils';
-import { intlFormat, intlFormatDistance } from 'date-fns';
 import { useRouter } from 'next/router';
 import { uniq } from 'ramda';
 import { Fragment, MouseEvent, useMemo } from 'react';
@@ -296,7 +296,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                     {allHiddenCols.indexOf('permission') === -1 && <Td>{permission}</Td>}
                     {allHiddenCols.indexOf('date_last_modified') === -1 && (
                       <Td>
-                        <LastModified date={date_last_modified} />
+                        <TimeSince date={date_last_modified} />
                       </Td>
                     )}
                     {showSettings && !isMobile && (
@@ -326,27 +326,6 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
         </Box>
       )}
     </>
-  );
-};
-
-const LastModified = ({ date }: { date: string }) => {
-  // date string here is missing the timezone, add it or the time is wrong
-  const dateStr = new Date(`${date.match(/\+\d{2}:\d{2}$/) ? date : `${date}+00:00`}`);
-  const formatted = intlFormatDistance(dateStr, new Date());
-  return (
-    <Tooltip
-      label={intlFormat(dateStr, {
-        hour12: false,
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-      })}
-    >
-      {formatted}
-    </Tooltip>
   );
 };
 

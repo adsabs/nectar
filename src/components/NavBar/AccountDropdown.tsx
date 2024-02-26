@@ -22,6 +22,7 @@ export const items: ItemType[] = [
 
 const loggedInItems: ItemType[] = [
   { id: 'libraries', path: '/user/libraries', label: 'SciX Libraries' },
+  { id: 'notifications', path: '/user/notifications', label: 'Email Notifications' },
   { id: 'settings', path: '/user/settings', label: 'Settings' },
   'divider',
   { id: 'logout', path: null, label: 'Logout' },
