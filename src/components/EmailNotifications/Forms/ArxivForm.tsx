@@ -13,13 +13,13 @@ import {
   useToast,
   Text,
 } from '@chakra-ui/react';
-import { parseAPIError } from '@utils';
+import { noop, parseAPIError } from '@utils';
 
 import { has, keys, toPairs, uniq, without } from 'ramda';
 import { ChangeEvent, useState } from 'react';
 import { arxivModel } from '../ArxivModel';
 
-export const ArxivForm = ({ onClose, onUpdated }: { onClose: () => void; onUpdated: () => void }) => {
+export const ArxivForm = ({ onClose, onUpdated = noop }: { onClose: () => void; onUpdated?: () => void }) => {
   const toast = useToast({ duration: 2000 });
 
   const [keywords, setKeywords] = useState('');
@@ -88,7 +88,7 @@ export const ArxivForm = ({ onClose, onUpdated }: { onClose: () => void; onUpdat
 
   return (
     <form>
-      <Flex direction="column" gap={2}>
+      <Flex direction="column" gap={4}>
         <FormControl>
           <FormLabel>Keywords (optional)</FormLabel>
           <Input onChange={handleKeywordsChange} value={keywords} autoFocus placeholder="star OR planet" />
