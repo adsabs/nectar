@@ -1,10 +1,10 @@
 import { useMediaQuery } from '@chakra-ui/react';
 
 export const Favicons = () => {
-  const [systemDarkMode] = useMediaQuery('(prefers-color-scheme: dark)');
+  const [systemDarkMode] = useMediaQuery('(prefers-color-scheme: dark)', { ssr: true, fallback: false });
 
   if (systemDarkMode) {
-    // light colored icon (for dark mode)
+    // light-colored icon (for dark mode)
     return (
       <>
         <link rel="icon" type="image/png" sizes="32x32" href="/dark/favicon-32x32.png" />
@@ -16,7 +16,7 @@ export const Favicons = () => {
     );
   }
 
-  // dark colored icon (for light mode)
+  // dark-colored icon (for light mode)
   return (
     <>
       <link rel="icon" type="image/png" sizes="32x32" href="/light/favicon-32x32.png" />

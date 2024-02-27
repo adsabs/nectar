@@ -47,7 +47,7 @@ import {
   useState,
 } from 'react';
 import { useGetAuthors } from './useGetAuthors';
-import { useGTMDispatch } from '@elgorditosalsero/react-gtm-hook';
+import { sendGTMEvent } from '@next/third-parties/google';
 
 export interface IAllAuthorsModalProps {
   bibcode: IDocsEntity['bibcode'];
@@ -55,10 +55,9 @@ export interface IAllAuthorsModalProps {
 }
 
 export const AllAuthorsModal = ({ bibcode, label }: IAllAuthorsModalProps): ReactElement => {
-  const sendToGTM = useGTMDispatch();
   const { isOpen, onOpen, onClose } = useDisclosure({
     onOpen() {
-      sendToGTM({
+      sendGTMEvent({
         event: 'author_list_open',
       });
     },
@@ -146,7 +145,6 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
     const [list, setList] = useState(authors);
     const [searchVal, setSearchVal] = useState('');
     const debSearchVal = useDebounce(searchVal, 500);
-    const sendDataToGTM = useGTMDispatch();
 
     // fill list with authors when it finishes loading
     useEffect(() => setList(authors), [authors]);
@@ -200,7 +198,7 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
         { type: 'text/csv;charset=utf-8' },
       );
       saveAs(csvBlob, `${doc.bibcode}-authors.csv`);
-      sendDataToGTM({
+      sendGTMEvent({
         event: 'author_list_export',
       });
     };

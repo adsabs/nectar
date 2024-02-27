@@ -20,8 +20,8 @@ import { isNilOrEmpty, notEqual } from 'ramda-adjunct';
 import { useUser } from '@lib/useUser';
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import '../styles/styles.css';
-import { GTMProvider, sendToGTM } from '@elgorditosalsero/react-gtm-hook';
 import { logger } from '../../logger/logger';
+import { GoogleTagManager, sendGTMEvent } from '@next/third-parties/google';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
   require('../mocks');
@@ -46,6 +46,7 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
       <UserSync />
       <Layout>
         <Component {...pageProps} />
+        <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
       </Layout>
     </Providers>
   );
@@ -59,20 +60,18 @@ const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => 
       : localStorageManager;
 
   return (
-    <GTMProvider state={{ id: process.env.NEXT_PUBLIC_GTM_ID, dataLayerName: 'nectar_gtm_datalayer' }}>
-      <GoogleReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? ''}>
-        <MathJaxProvider>
-          <ChakraProvider theme={theme} colorModeManager={colorModeManager}>
-            <StoreProvider createStore={createStore}>
-              <QCProvider>
-                <Hydrate state={pageProps.dehydratedState}>{children}</Hydrate>
-                <ReactQueryDevtools />
-              </QCProvider>
-            </StoreProvider>
-          </ChakraProvider>
-        </MathJaxProvider>
-      </GoogleReCaptchaProvider>
-    </GTMProvider>
+    <GoogleReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? ''}>
+      <MathJaxProvider>
+        <ChakraProvider theme={theme} colorModeManager={colorModeManager}>
+          <StoreProvider createStore={createStore}>
+            <QCProvider>
+              <Hydrate state={pageProps.dehydratedState}>{children}</Hydrate>
+              <ReactQueryDevtools />
+            </QCProvider>
+          </StoreProvider>
+        </ChakraProvider>
+      </MathJaxProvider>
+    </GoogleReCaptchaProvider>
   );
 };
 
@@ -152,15 +151,12 @@ const UserSync = (): ReactElement => {
 export const reportWebVitals = (metric: NextWebVitalsMetric) => {
   logger.debug({ msg: 'web vitals', ...metric });
 
-  sendToGTM({
-    dataLayerName: 'nectar_gtm_datalayer',
-    data: {
-      event: 'web_vitals',
-      web_vitals_name: metric.name,
-      web_vitals_value: Math.round(metric.name === 'CLS' ? metric.value * 1000 : metric.value),
-      web_vitals_label: metric.id,
-      non_interaction: true,
-    },
+  sendGTMEvent({
+    event: 'web_vitals',
+    web_vitals_name: metric.name,
+    web_vitals_value: Math.round(metric.name === 'CLS' ? metric.value * 1000 : metric.value),
+    web_vitals_label: metric.id,
+    non_interaction: true,
   });
 };
 
