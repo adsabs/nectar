@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useState } from 'react';
-import { QueryCache, QueryClient } from '@tanstack/react-query';
+import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
+import { logger } from '../../logger/logger';
 
 export const useCreateQueryClient = () => {
   const queryCache = new QueryCache({
@@ -11,7 +12,15 @@ export const useCreateQueryClient = () => {
       }
 
       if (axios.isAxiosError(error) || error instanceof Error) {
-        // TODO: global error, what should be done here?
+        logger.error({ msg: 'Query error', error, query });
+      }
+    },
+  });
+
+  const mutationCache = new MutationCache({
+    onError: (error, mutation) => {
+      if (axios.isAxiosError(error) || error instanceof Error) {
+        logger.error({ msg: 'Mutation error', error, mutation });
       }
     },
   });
@@ -25,9 +34,12 @@ export const useCreateQueryClient = () => {
             refetchOnMount: false,
             refetchOnReconnect: false,
             staleTime: Infinity,
+            retry: false,
+            retryOnMount: false,
           },
         },
         queryCache,
+        mutationCache,
       }),
   );
 
