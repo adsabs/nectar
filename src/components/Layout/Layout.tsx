@@ -1,13 +1,14 @@
 import { Container, Flex, useMediaQuery } from '@chakra-ui/react';
 import { SkipNavLink } from '@chakra-ui/skip-nav';
 import { useRouter } from 'next/router';
-import { FC, useMemo } from 'react';
+import { FC } from 'react';
 import { Footer } from '../Footer';
 import { NavBar } from '../NavBar';
 import dynamic from 'next/dynamic';
 import { LandingTabsStatic } from '@components';
 import { Notification } from '@components/Notification';
 import Head from 'next/head';
+import { Favicons } from '@components/Favicons/Favicons';
 
 const LandingTabs = dynamic(() => import('@components/LandingTabs/LandingTabs').then((mod) => mod.LandingTabs), {
   ssr: false,
@@ -15,11 +16,6 @@ const LandingTabs = dynamic(() => import('@components/LandingTabs/LandingTabs').
 });
 
 const LANDING_PAGES = ['/', '/classic-form', '/paper-form'];
-
-const darkModeFavicon = '/favicon-dark.png';
-
-const lightModeFavicon = '/favicon-light.png';
-
 export const Layout: FC = ({ children }) => {
   const router = useRouter();
 
@@ -27,15 +23,13 @@ export const Layout: FC = ({ children }) => {
 
   const [isPrint] = useMediaQuery('print');
 
-  const [isDarkMode] = useMediaQuery('(prefers-color-scheme: dark)');
-
-  const favicon = useMemo(() => (isDarkMode ? darkModeFavicon : lightModeFavicon), [isDarkMode]);
-
   return (
     <Flex direction="column">
       <Head>
         <title>NASA Science Explorer</title>
-        <link rel="icon" type="image/png" href={favicon} />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="charset" content="utf-8" />
+        <Favicons />
       </Head>
       <SkipNavLink id="main-content">Skip to content</SkipNavLink>
       {isPrint ? null : <NavBar />}
