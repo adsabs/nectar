@@ -12,6 +12,11 @@ const resolveApiBaseUrl = (defaultBaseUrl = ''): string => {
     return 'http://localhost';
   }
 
+  // use a known URL for development
+  if (process.env.NODE_ENV === 'development' && typeof process.env.NEXT_PUBLIC_API_HOST_CLIENT === 'string') {
+    return process.env.NEXT_PUBLIC_API_HOST_CLIENT;
+  }
+
   const config = getConfig() as AppRuntimeConfig;
 
   if (typeof config === 'undefined') {
