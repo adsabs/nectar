@@ -1,18 +1,29 @@
 import { NotificationTemplate } from '@api';
 import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay } from '@chakra-ui/react';
+import { noop } from '@utils';
 import { ArxivForm } from './Forms/ArxivForm';
+import { QueryForm } from './Forms/QueryForm';
 
 export const AddNotificationModal = ({
   isOpen,
   onClose,
   template,
-  onUpdated,
+  onUpdated = noop,
 }: {
   isOpen: boolean;
   onClose: () => void;
-  template: NotificationTemplate;
-  onUpdated: () => void;
+  template?: NotificationTemplate;
+  onUpdated?: () => void;
 }) => {
+  const body = (
+    <>
+      {!template ? (
+        <QueryForm onClose={onClose} onUpdated={onUpdated} />
+      ) : template === 'arxiv' ? (
+        <ArxivForm onClose={onClose} onUpdated={onUpdated} />
+      ) : null}
+    </>
+  );
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="3xl">
       <ModalOverlay />
@@ -26,7 +37,7 @@ export const AddNotificationModal = ({
             : `${template[0].toUpperCase()}${template.slice(1)}`}
         </ModalHeader>
         <ModalCloseButton />
-        <ModalBody>{template === 'arxiv' && <ArxivForm onClose={onClose} onUpdated={onUpdated} />}</ModalBody>
+        <ModalBody>{body}</ModalBody>
       </ModalContent>
     </Modal>
   );

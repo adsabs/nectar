@@ -66,7 +66,20 @@ export const NotificationsPane = () => {
   const [addTemplate, setAddTemplate] = useState<NotificationTemplate>();
 
   const handleSetActive = (id: INotification['id'], active: boolean) => {
-    editNotification({ id, active });
+    editNotification(
+      { id, active },
+      {
+        onSettled(data, error) {
+          if (error) {
+            toast({ status: 'error', title: 'Error', description: parseAPIError(error) });
+          } else {
+            toast({ status: 'success', title: 'Notification modified' });
+            remove();
+            void refetch();
+          }
+        },
+      },
+    );
   };
 
   const handleOpenCreate = (template?: NotificationTemplate) => {
@@ -79,16 +92,19 @@ export const NotificationsPane = () => {
   };
 
   const handleDelete = (id: INotification['id']) => {
-    deleteNotification(id, {
-      onSettled(data, error) {
-        if (error) {
-          toast({ status: 'error', title: 'Error', description: parseAPIError(error) });
-        } else {
-          toast({ status: 'success', title: 'Notification Deleted' });
-          reload();
-        }
+    deleteNotification(
+      { id },
+      {
+        onSettled(data, error) {
+          if (error) {
+            toast({ status: 'error', title: 'Error', description: parseAPIError(error) });
+          } else {
+            toast({ status: 'success', title: 'Notification Deleted' });
+            reload();
+          }
+        },
       },
-    });
+    );
   };
 
   const reload = () => {
@@ -245,16 +261,10 @@ const Action = ({
           </>
         )}
         <MenuDivider />
-        <MenuItem>
+        <MenuItem onClick={() => onSetActive(!active)}>
           <Flex w="full" justifyContent="space-between" style={{ pointerEvents: 'none' }}>
             <Text>Enable Notification?</Text>
-            <Switch
-              isChecked={active}
-              isFocusable={false}
-              isReadOnly
-              aria-hidden
-              onClick={() => onSetActive(!active)}
-            />
+            <Switch isChecked={active} isFocusable={false} isReadOnly aria-hidden />
           </Flex>
         </MenuItem>
         <MenuItem onClick={onEdit}>Edit</MenuItem>

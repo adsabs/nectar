@@ -1,5 +1,5 @@
 import { Bibcode, ExportApiFormatKey, useVaultBigQuerySearch } from '@api';
-import { ChevronDownIcon, SettingsIcon } from '@chakra-ui/icons';
+import { BellIcon, ChevronDownIcon, SettingsIcon } from '@chakra-ui/icons';
 import {
   Button,
   Checkbox,
@@ -20,6 +20,7 @@ import {
   Stack,
   Switch,
   Text,
+  useDisclosure,
   useToast,
   VisuallyHidden,
 } from '@chakra-ui/react';
@@ -37,6 +38,7 @@ import { useOrcid } from '@lib/orcid/useOrcid';
 import { useSession } from '@lib/useSession';
 import { useSettings } from '@lib/useSettings';
 import { useColorModeColors } from '@lib';
+import { AddNotificationModal } from '@components/EmailNotifications/AddNotificationModal';
 
 export interface IListActionsProps {
   onSortChange?: ISortProps['onChange'];
@@ -57,6 +59,12 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const toast = useToast();
 
   const { settings } = useSettings({ suspense: false });
+
+  const {
+    isOpen: isCreateNotificationOpen,
+    onOpen: onCreateNotificationOpen,
+    onClose: onCreateNotificationClose,
+  } = useDisclosure();
 
   useEffect(() => {
     setExploreAll(noneSelected);
@@ -121,119 +129,142 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const colors = useColorModeColors();
 
   return (
-    <Flex
-      direction="column"
-      gap={1}
-      mb={1}
-      as="section"
-      aria-labelledby="result-actions-title"
-      data-testid="listactions"
-    >
-      <VisuallyHidden as="h2" id="result-actions-title">
-        Result Actions
-      </VisuallyHidden>
-      <Flex justifyContent="space-between" width="full" gap={1}>
-        <SortWrapper onChange={onSortChange} />
-        {isClient && <SettingsMenu />}
-      </Flex>
-      {isClient && (
-        <Stack
-          direction={{ base: 'column', md: 'row' }}
-          alignItems={{ base: 'start', md: 'center' }}
-          justifyContent={{ md: 'space-between' }}
-          backgroundColor={colors.panel}
-          borderRadius="2px"
-          p={2}
-        >
+    <>
+      <Flex
+        direction="column"
+        gap={1}
+        mb={1}
+        as="section"
+        aria-labelledby="result-actions-title"
+        data-testid="listactions"
+      >
+        <VisuallyHidden as="h2" id="result-actions-title">
+          Result Actions
+        </VisuallyHidden>
+        <Flex justifyContent="space-between" width="full" gap={1}>
+          <SortWrapper onChange={onSortChange} />
+          {isClient && (
+            <Flex gap={1}>
+              <IconButton
+                icon={<BellIcon />}
+                aria-label="Create email notification of this query"
+                variant="outline"
+                onClick={onCreateNotificationOpen}
+              />
+              <SettingsMenu />
+            </Flex>
+          )}
+        </Flex>
+        {isClient && (
           <Stack
-            direction="row"
-            spacing={{ base: '2', md: '5' }}
-            order={{ base: '2', md: '1' }}
-            mt={{ base: '2', md: '0' }}
-            wrap="wrap"
+            direction={{ base: 'column', md: 'row' }}
+            alignItems={{ base: 'start', md: 'center' }}
+            justifyContent={{ md: 'space-between' }}
+            backgroundColor={colors.panel}
+            borderRadius="2px"
+            p={2}
           >
-            <SelectAllCheckbox />
-            {!noneSelected && (
-              <>
-                <Text data-testid="listactions-selected">{selected.length.toLocaleString()} Selected</Text>
-                <Button variant="link" fontWeight="normal" onClick={clearSelected} data-testid="listactions-clearall">
-                  Clear All
-                </Button>
-                <SecondOrderOpsLinks />
-              </>
-            )}
-          </Stack>
-          <Stack direction="row" mx={5} order={{ base: '1', md: '2' }} wrap="wrap">
-            <Menu>
-              <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-                Bulk Actions
-              </MenuButton>
-              <Portal>
-                <MenuList>
-                  <MenuOptionGroup value={exploreAll ? 'all' : 'selected'} type="radio" onChange={handleExploreOption}>
-                    <MenuItemOption value="all" closeOnSelect={false}>
-                      All
-                    </MenuItemOption>
-                    <MenuItemOption value="selected" isDisabled={selected.length === 0} closeOnSelect={false}>
-                      Selected
-                    </MenuItemOption>
-                  </MenuOptionGroup>
-                  <MenuDivider />
-                  {isAuthenticated && (
-                    <>
-                      <MenuItem onClick={onOpenAddToLibrary}>Add to Library</MenuItem>
-                      <MenuDivider />
-                    </>
-                  )}
-                  <ExportMenu exploreAll={exploreAll} defaultExportFormat={settings.defaultExportFormat} />
-                  <OrcidBulkMenu />
-                </MenuList>
-              </Portal>
-            </Menu>
-            <Menu>
-              <MenuButton as={Button} rightIcon={<ChevronDownIcon />} data-testid="explorer-menu-btn">
-                Explore
-              </MenuButton>
-              <Portal>
-                <MenuList data-testid="explorer-menu-items">
-                  <MenuOptionGroup value={exploreAll ? 'all' : 'selected'} type="radio" onChange={handleExploreOption}>
-                    <MenuItemOption value="all" closeOnSelect={false}>
-                      All
-                    </MenuItemOption>
-                    <MenuItemOption value="selected" isDisabled={selected.length === 0} closeOnSelect={false}>
-                      Selected
-                    </MenuItemOption>
-                  </MenuOptionGroup>
-                  <MenuDivider />
-                  <MenuGroup title="VISUALIZATIONS">
-                    {sections.map((section) => (
-                      <MenuItem onClick={handleExploreVizLink} data-section-path={section.path} key={section.id}>
-                        {section.label}
+            <Stack
+              direction="row"
+              spacing={{ base: '2', md: '5' }}
+              order={{ base: '2', md: '1' }}
+              mt={{ base: '2', md: '0' }}
+              wrap="wrap"
+            >
+              <SelectAllCheckbox />
+              {!noneSelected && (
+                <>
+                  <Text data-testid="listactions-selected">{selected.length.toLocaleString()} Selected</Text>
+                  <Button variant="link" fontWeight="normal" onClick={clearSelected} data-testid="listactions-clearall">
+                    Clear All
+                  </Button>
+                  <SecondOrderOpsLinks />
+                </>
+              )}
+            </Stack>
+            <Stack direction="row" mx={5} order={{ base: '1', md: '2' }} wrap="wrap">
+              <Menu>
+                <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+                  Bulk Actions
+                </MenuButton>
+                <Portal>
+                  <MenuList>
+                    <MenuOptionGroup
+                      value={exploreAll ? 'all' : 'selected'}
+                      type="radio"
+                      onChange={handleExploreOption}
+                    >
+                      <MenuItemOption value="all" closeOnSelect={false}>
+                        All
+                      </MenuItemOption>
+                      <MenuItemOption value="selected" isDisabled={selected.length === 0} closeOnSelect={false}>
+                        Selected
+                      </MenuItemOption>
+                    </MenuOptionGroup>
+                    <MenuDivider />
+                    {isAuthenticated && (
+                      <>
+                        <MenuItem onClick={onOpenAddToLibrary}>Add to Library</MenuItem>
+                        <MenuDivider />
+                      </>
+                    )}
+                    <ExportMenu exploreAll={exploreAll} defaultExportFormat={settings.defaultExportFormat} />
+                    <OrcidBulkMenu />
+                  </MenuList>
+                </Portal>
+              </Menu>
+              <Menu>
+                <MenuButton as={Button} rightIcon={<ChevronDownIcon />} data-testid="explorer-menu-btn">
+                  Explore
+                </MenuButton>
+                <Portal>
+                  <MenuList data-testid="explorer-menu-items">
+                    <MenuOptionGroup
+                      value={exploreAll ? 'all' : 'selected'}
+                      type="radio"
+                      onChange={handleExploreOption}
+                    >
+                      <MenuItemOption value="all" closeOnSelect={false}>
+                        All
+                      </MenuItemOption>
+                      <MenuItemOption value="selected" isDisabled={selected.length === 0} closeOnSelect={false}>
+                        Selected
+                      </MenuItemOption>
+                    </MenuOptionGroup>
+                    <MenuDivider />
+                    <MenuGroup title="VISUALIZATIONS">
+                      {sections.map((section) => (
+                        <MenuItem onClick={handleExploreVizLink} data-section-path={section.path} key={section.id}>
+                          {section.label}
+                        </MenuItem>
+                      ))}
+                    </MenuGroup>
+                    <MenuDivider />
+                    <MenuGroup title="OPERATIONS">
+                      <MenuItem onClick={handleOpsLink('trending')} data-testid="trending-operator">
+                        Trending
                       </MenuItem>
-                    ))}
-                  </MenuGroup>
-                  <MenuDivider />
-                  <MenuGroup title="OPERATIONS">
-                    <MenuItem onClick={handleOpsLink('trending')} data-testid="trending-operator">
-                      Trending
-                    </MenuItem>
-                    <MenuItem onClick={handleOpsLink('reviews')} data-testid="reviews-operator">
-                      Reviews
-                    </MenuItem>
-                    <MenuItem onClick={handleOpsLink('useful')} data-testid="useful-operator">
-                      Useful
-                    </MenuItem>
-                    <MenuItem onClick={handleOpsLink('similar')} data-testid="similar-operator">
-                      Similar
-                    </MenuItem>
-                  </MenuGroup>
-                </MenuList>
-              </Portal>
-            </Menu>
+                      <MenuItem onClick={handleOpsLink('reviews')} data-testid="reviews-operator">
+                        Reviews
+                      </MenuItem>
+                      <MenuItem onClick={handleOpsLink('useful')} data-testid="useful-operator">
+                        Useful
+                      </MenuItem>
+                      <MenuItem onClick={handleOpsLink('similar')} data-testid="similar-operator">
+                        Similar
+                      </MenuItem>
+                    </MenuGroup>
+                  </MenuList>
+                </Portal>
+              </Menu>
+            </Stack>
           </Stack>
-        </Stack>
-      )}
-    </Flex>
+        )}
+      </Flex>
+      <Portal>
+        <AddNotificationModal isOpen={isCreateNotificationOpen} onClose={onCreateNotificationClose} />
+      </Portal>
+    </>
   );
 };
 
