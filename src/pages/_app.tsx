@@ -1,4 +1,4 @@
-import { ChakraProvider } from '@chakra-ui/react';
+import { ChakraProvider, cookieStorageManagerSSR, localStorageManager } from '@chakra-ui/react';
 import { Layout } from '@components';
 import { useIsClient } from 'src/lib';
 import { useCreateQueryClient } from '@lib/useCreateQueryClient';
@@ -21,7 +21,6 @@ import { useUser } from '@lib/useUser';
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import '../styles/styles.css';
 import { GTMProvider, sendToGTM } from '@elgorditosalsero/react-gtm-hook';
-import Head from 'next/head';
 import { logger } from '../../logger/logger';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
@@ -46,9 +45,6 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
       <TopProgressBar />
       <UserSync />
       <Layout>
-        <Head>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        </Head>
         <Component {...pageProps} />
       </Layout>
     </Providers>
@@ -57,12 +53,16 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
 
 const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => {
   const createStore = useCreateStore(pageProps.dehydratedAppState ?? {});
+  const colorModeManager =
+    typeof pageProps.colorModeCookie === 'string'
+      ? cookieStorageManagerSSR(pageProps.colorModeCookie)
+      : localStorageManager;
 
   return (
     <GTMProvider state={{ id: process.env.NEXT_PUBLIC_GTM_ID, dataLayerName: 'nectar_gtm_datalayer' }}>
       <GoogleReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? ''}>
         <MathJaxProvider>
-          <ChakraProvider theme={theme}>
+          <ChakraProvider theme={theme} colorModeManager={colorModeManager}>
             <StoreProvider createStore={createStore}>
               <QCProvider>
                 <Hydrate state={pageProps.dehydratedState}>{children}</Hydrate>

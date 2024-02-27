@@ -10,6 +10,12 @@ import { logger } from '../logger/logger';
 
 const log = logger.child({ module: 'ssr-inject' });
 
+const injectColorModeCookie: IncomingGSSP = (ctx, prev) => {
+  const colorMode = ctx.req.cookies['chakra-ui-color-mode'];
+  log.debug({ msg: 'Injecting color mode from cookie', colorMode });
+  return Promise.resolve({ props: { colorModeCookie: `chakra-ui-color-mode=${colorMode}`, ...prev.props } });
+};
+
 const updateUserStateSSR: IncomingGSSP = (ctx, prevResult) => {
   const userData = ctx.req.session.token;
 
@@ -57,6 +63,7 @@ export const composeNextGSSP = (...fns: IncomingGSSP[]) =>
     GetServerSidePropsResult<Record<string, unknown>>
   > => {
     fns.push(updateUserStateSSR);
+    fns.push(injectColorModeCookie);
     api.setUserData(ctx.req.session.token);
     let ssrProps = { props: {} };
     for (const fn of fns) {
