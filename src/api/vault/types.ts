@@ -23,11 +23,11 @@ export type NotificationType = 'template' | 'query';
 export interface INotification {
   active: boolean;
   created: string;
-  data: string;
+  data?: string;
   frequency: NotificationFrequency;
   id: number;
-  name: string;
-  template: NotificationTemplate;
+  name?: string;
+  template?: NotificationTemplate;
   type: NotificationType;
   updated: string;
   qid?: string;
