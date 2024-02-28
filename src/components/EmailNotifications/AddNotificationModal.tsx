@@ -3,6 +3,7 @@ import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOve
 import { noop } from '@utils';
 import { ArxivForm } from './Forms/ArxivForm';
 import { CitationForm } from './Forms/CitationForm';
+import { KeywordsForm } from './Forms/KewordsForm';
 import { QueryForm } from './Forms/QueryForm';
 
 export const AddNotificationModal = ({
@@ -26,7 +27,9 @@ export const AddNotificationModal = ({
         <CitationForm onClose={onClose} onUpdated={onUpdated} template="citations" />
       ) : template === 'authors' ? (
         <CitationForm onClose={onClose} onUpdated={onUpdated} template="authors" />
-      ) : null}
+      ) : (
+        <KeywordsForm onClose={onClose} onUpdated={onUpdated} />
+      )}
     </>
   );
   return (
