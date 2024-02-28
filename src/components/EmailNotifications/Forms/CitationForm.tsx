@@ -1,4 +1,4 @@
-import { IADSApiAddNotificationParams, NotificationTemplate, useAddNotification } from '@api';
+import { IADSApiAddNotificationParams, useAddNotification } from '@api';
 import { CheckIcon, DeleteIcon } from '@chakra-ui/icons';
 import {
   Flex,
