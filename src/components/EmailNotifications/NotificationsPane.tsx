@@ -241,6 +241,8 @@ const Action = ({
   onEdit: () => void;
   onDelete: () => void;
 }) => {
+  const colors = useColorModeColors();
+
   return (
     <Menu>
       <MenuButton
@@ -250,7 +252,8 @@ const Action = ({
         onClick={(e) => e.stopPropagation()}
         children={<SettingsIcon />}
       />
-      <MenuList>
+      {/* make sure parent <tr> doesn't overwrite colors here when row is disabled */}
+      <MenuList backgroundColor={colors.background} color={colors.text}>
         {type === 'template' && template === 'keyword' ? (
           <MenuItem>Search</MenuItem>
         ) : (

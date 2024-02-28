@@ -56,9 +56,6 @@ export const ArxivForm = ({ onClose, onUpdated = noop }: { onClose: () => void; 
 
   const handleAddNotification = () => {
     const params: IADSApiAddNotificationParams = {
-      active: true,
-      frequency: 'daily',
-      name: null,
       type: 'template',
       template: 'arxiv',
       data: keywords.trim().length === 0 ? null : keywords,
@@ -87,34 +84,29 @@ export const ArxivForm = ({ onClose, onUpdated = noop }: { onClose: () => void; 
   };
 
   return (
-    <form>
-      <Flex direction="column" gap={4}>
-        <FormControl>
-          <FormLabel>Keywords (optional)</FormLabel>
-          <Input onChange={handleKeywordsChange} value={keywords} autoFocus placeholder="star OR planet" />
-          <Text fontSize="sm" fontStyle="italic" mt={1}>
-            Used to rank papers from selected arXiv categories (below). Boolean "AND" is assumed, but can be overriden
-            by using explicit logical operators between keywords
-          </Text>
-        </FormControl>
-        <FormControl>
-          <FormLabel>Frequency</FormLabel>
-          <Input isReadOnly value="daily" />
-        </FormControl>
-        <FormControl>
-          <FormLabel>arXiv Categories (must choose at least one)</FormLabel>
-          <Categories selected={selected} onToggleSelect={handleToggleSelect} />
-        </FormControl>
-        <HStack mt={4} justifyContent="end">
-          <Button isLoading={isLoading} onClick={handleAddNotification} isDisabled={selected.length === 0}>
-            Submit
-          </Button>
-          <Button variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-        </HStack>
-      </Flex>
-    </form>
+    <Flex direction="column" gap={4}>
+      <Text fontSize="larger">Daily updates from arXiv.org</Text>
+      <FormControl>
+        <FormLabel>Keywords (optional)</FormLabel>
+        <Input onChange={handleKeywordsChange} value={keywords} autoFocus placeholder="star OR planet" />
+        <Text fontSize="sm" fontStyle="italic" mt={1}>
+          Used to rank papers from selected arXiv categories (below). Boolean "AND" is assumed, but can be overriden by
+          using explicit logical operators between keywords
+        </Text>
+      </FormControl>
+      <FormControl>
+        <FormLabel>arXiv Categories (must choose at least one)</FormLabel>
+        <Categories selected={selected} onToggleSelect={handleToggleSelect} />
+      </FormControl>
+      <HStack mt={4} justifyContent="end">
+        <Button isLoading={isLoading} onClick={handleAddNotification} isDisabled={selected.length === 0}>
+          Submit
+        </Button>
+        <Button variant="outline" onClick={onClose}>
+          Cancel
+        </Button>
+      </HStack>
+    </Flex>
   );
 };
 
