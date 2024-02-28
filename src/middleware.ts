@@ -15,35 +15,77 @@ const log = logger.child({ module: 'middleware' });
 
 const logRequest = (req: NextRequest) => {
   log.info({
+    msg: 'Middleware request',
     method: req.method,
     url: req.nextUrl.toString(),
-    headers: req.headers,
-    cookies: req.cookies,
-    body: req.body,
   });
 };
+
+const REPORT_TO_HEADER = [
+  {
+    group: 'csp-sentry',
+    max_age: 10886400,
+    endpoints: [
+      {
+        url: 'https://o1060269.ingest.sentry.io/api/6049652/security/?sentry_key=e87ef8ec678b4ad5a2193c5463d386fd',
+      },
+    ],
+  },
+] as const;
+
+const CSP_HEADER = `
+  default-src 'self' https://o1060269.ingest.sentry.io;
+  script-src 'self' ${
+    process.env.NODE_ENV === 'development' ? `'unsafe-eval'` : ''
+  } https://www.googletagmanager.com https://www.youtube-nocookie.com;
+  style-src 'self' ${process.env.NODE_ENV === 'development' ? `'unsafe-inline'` : ''};
+  img-src 'self';
+  font-src 'self';
+  connect-src 'self' https://*.adsabs.harvard.edu https://o1060269.ingest.sentry.io;
+  frame-src https://www.google.com https://www.recaptcha.net;
+  frame-ancestors 'self';
+  form-action 'self';
+  base-uri 'self';
+  manifest-src 'self';
+  worker-src 'self';
+  object-src 'none';
+  require-trusted-types-for 'script';
+  report-uri https://o1060269.ingest.sentry.io/api/6049652/security/?sentry_key=e87ef8ec678b4ad5a2193c5463d386fd;
+  report-to csp-sentry;
+` as const;
+
+const cspHeaderString = CSP_HEADER.replace(/\s{2,}/g, ' ').trim();
+const reportToHeader = REPORT_TO_HEADER.map((r) => JSON.stringify(r)).join(' ');
 
 // This function can be marked `async` if using `await` inside
 export async function middleware(req: NextRequest) {
   logRequest(req);
-  log.info({ msg: 'IP address', ip: req.ip });
+  log.debug({ msg: 'IP address', ip: req.ip });
 
   if (req.nextUrl.pathname.startsWith('/monitor')) {
     return handleMonitorResponse(req);
   }
 
+  // apply the CSP header to the request
+  const requestHeaders = new Headers();
+  requestHeaders.set('Report-To', reportToHeader);
+  requestHeaders.set('Content-Security-Policy-Report-Only', cspHeaderString);
+
   // get the current session
-  const res = NextResponse.next();
+  const res = NextResponse.next({
+    headers: requestHeaders,
+  });
+
+  // apply the CSP to the response
+  res.headers.set('Report-To', reportToHeader);
+  res.headers.set('Content-Security-Policy-Report-Only', cspHeaderString);
   const session = await getIronSession(req, res, sessionConfig);
   const adsSessionCookie = req.cookies.get(process.env.ADS_SESSION_COOKIE_NAME)?.value;
   const apiCookieHash = await hash(adsSessionCookie);
   const refresh = req.headers.has('x-RefreshToken');
 
-  log.info({
+  log.debug({
     url: req.nextUrl.toString(),
-    session,
-    adsSessionCookie,
-    apiCookieHash,
     refresh,
     hasAccessToRoute: hasAccessToRoute(req.nextUrl.pathname, session.isAuthenticated),
   });
@@ -62,15 +104,13 @@ export async function middleware(req: NextRequest) {
     apiCookieHash !== null &&
     equals(apiCookieHash, session.apiCookieHash)
   ) {
-    log.info({
-      msg: 'session is valid, continuing',
-    });
+    log.debug('session is valid, continuing');
     return handleResponse(req, res, session);
   }
 
   // if the request is from a bot, we need to handle it differently
   if (req.ip) {
-    log.info({
+    log.debug({
       msg: 'session is invalid, checking if request is from a crawler',
       session,
       refresh,
@@ -81,19 +121,14 @@ export async function middleware(req: NextRequest) {
       return handleBotResponse({ req, res, session, crawlerResult });
     }
   } else if (userAgent(req).isBot) {
-    log.info({ msg: 'request has a known bot useragent string, but no IP, so unable to verify' });
+    log.debug({ msg: 'request has a known bot useragent string, but no IP, so unable to verify' });
     return handleBotResponse({ req, res, session, crawlerResult: CRAWLER_RESULT.UNVERIFIABLE });
   }
-  log.info({ msg: 'request is from a human' });
+  log.debug({ msg: 'request is from a human' });
+  log.debug({ msg: 'session is invalid, bootstrapping' });
 
   // bootstrap a new token, passing in the current session cookie value
   const { token, headers } = (await bootstrap(adsSessionCookie)) ?? {};
-
-  log.info({
-    msg: 'bootstrap result',
-    token,
-    headers,
-  });
 
   // validate token, update session, forward cookies
   if (isValidToken(token)) {
@@ -108,6 +143,8 @@ export async function middleware(req: NextRequest) {
     );
     res.headers.set('set-cookie', headers.get('set-cookie'));
     await session.save();
+
+    log.debug('Bootstrap successful, responding now');
 
     return handleResponse(req, res, session);
   }
