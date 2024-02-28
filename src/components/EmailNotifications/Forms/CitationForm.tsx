@@ -1,4 +1,4 @@
-import { IADSApiAddNotificationParams, useAddNotification } from '@api';
+import { IADSApiAddNotificationParams, NotificationTemplate, useAddNotification } from '@api';
 import { CheckIcon, DeleteIcon } from '@chakra-ui/icons';
 import {
   Flex,
@@ -20,7 +20,15 @@ import { ChangeEvent, MouseEvent, useRef, useState } from 'react';
 
 type Author = { author: string; type: 'Author' | 'Orcid' };
 
-export const CitationForm = ({ onClose, onUpdated = noop }: { onClose: () => void; onUpdated?: () => void }) => {
+export const CitationForm = ({
+  onClose,
+  onUpdated = noop,
+  template,
+}: {
+  onClose: () => void;
+  onUpdated?: () => void;
+  template: 'citations' | 'authors';
+}) => {
   const toast = useToast({ duration: 2000 });
 
   const [authors, setAuthors] = useState<Author[]>([]);
@@ -67,7 +75,7 @@ export const CitationForm = ({ onClose, onUpdated = noop }: { onClose: () => voi
   const handleSubmit = () => {
     const params: IADSApiAddNotificationParams = {
       data: authors.map((a) => `${a.type === 'Author' ? 'author' : 'orcid'}:"${a.author}"`).join(' OR '),
-      template: 'citations',
+      template: template,
       type: 'template',
     };
 
