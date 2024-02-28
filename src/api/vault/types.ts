@@ -21,10 +21,10 @@ export type NotificationTemplate = 'arxiv' | 'authors' | 'citations' | 'keyword'
 export type NotificationType = 'template' | 'query';
 
 export interface INotification {
-  active: boolean;
+  active?: boolean;
   created: string;
   data?: string;
-  frequency: NotificationFrequency;
+  frequency?: NotificationFrequency;
   id: number;
   name?: string;
   template?: NotificationTemplate;

@@ -2,6 +2,7 @@ import { NotificationTemplate } from '@api';
 import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay } from '@chakra-ui/react';
 import { noop } from '@utils';
 import { ArxivForm } from './Forms/ArxivForm';
+import { CitationForm } from './Forms/CitationForm';
 import { QueryForm } from './Forms/QueryForm';
 
 export const AddNotificationModal = ({
@@ -21,6 +22,8 @@ export const AddNotificationModal = ({
         <QueryForm onClose={onClose} onUpdated={onUpdated} />
       ) : template === 'arxiv' ? (
         <ArxivForm onClose={onClose} onUpdated={onUpdated} />
+      ) : template === 'citations' ? (
+        <CitationForm onClose={onClose} onUpdated={onUpdated} />
       ) : null}
     </>
   );
