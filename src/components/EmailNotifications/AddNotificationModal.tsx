@@ -23,7 +23,9 @@ export const AddNotificationModal = ({
       ) : template === 'arxiv' ? (
         <ArxivForm onClose={onClose} onUpdated={onUpdated} />
       ) : template === 'citations' ? (
-        <CitationForm onClose={onClose} onUpdated={onUpdated} />
+        <CitationForm onClose={onClose} onUpdated={onUpdated} template="citations" />
+      ) : template === 'authors' ? (
+        <CitationForm onClose={onClose} onUpdated={onUpdated} template="authors" />
       ) : null}
     </>
   );
