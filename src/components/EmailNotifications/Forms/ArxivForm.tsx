@@ -1,4 +1,10 @@
-import { IADSApiAddNotificationParams, useAddNotification } from '@api';
+import {
+  IADSApiAddNotificationParams,
+  IADSApiEditNotificationParams,
+  INotification,
+  useAddNotification,
+  useEditNotification,
+} from '@api';
 import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -16,17 +22,43 @@ import {
 import { noop, parseAPIError } from '@utils';
 
 import { has, keys, toPairs, uniq, without } from 'ramda';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { arxivModel } from '../ArxivModel';
 
-export const ArxivForm = ({ onClose, onUpdated = noop }: { onClose: () => void; onUpdated?: () => void }) => {
+export const ArxivForm = ({
+  onClose,
+  onUpdated = noop,
+  notification,
+}: {
+  onClose: () => void;
+  onUpdated?: () => void;
+  notification?: INotification;
+}) => {
   const toast = useToast({ duration: 2000 });
 
-  const [keywords, setKeywords] = useState('');
+  const [keywords, setKeywords] = useState(notification?.data ?? '');
 
   const [selected, setSelected] = useState<string[]>([]);
 
-  const { mutate: addNotification, isLoading } = useAddNotification();
+  // initialize arxiv selection model
+  useEffect(() => {
+    if (!!notification) {
+      let tempSelectedKeys: string[] = [];
+      notification?.classes?.map((key) => {
+        // if a parent node, select all of its children
+        if (has(key, arxivModel) && !!arxivModel[key].children && keys(arxivModel[key].children).length > 0) {
+          tempSelectedKeys = [...tempSelectedKeys, ...keys(arxivModel[key].children)];
+        } else {
+          tempSelectedKeys.push(key);
+        }
+      });
+      setSelected(tempSelectedKeys);
+    }
+  }, [notification]);
+
+  const { mutate: addNotification, isLoading: isAdding } = useAddNotification();
+
+  const { mutate: editNofication, isLoading: isEditing } = useEditNotification();
 
   const handleKeywordsChange = (e: ChangeEvent<HTMLInputElement>) => {
     setKeywords(e.target.value);
@@ -54,28 +86,55 @@ export const ArxivForm = ({ onClose, onUpdated = noop }: { onClose: () => void; 
     }
   };
 
-  const handleAddNotification = () => {
-    const params: IADSApiAddNotificationParams = {
-      type: 'template',
-      template: 'arxiv',
-      data: keywords.trim().length === 0 ? null : keywords,
-      classes: [...selected],
-    };
-
+  const handleSubmit = () => {
     // for categories, select parents instead if all childrens are selected
+    let classes = [...selected];
     toPairs(arxivModel).forEach(([k, v]) => {
       if (keys(v.children).length > 0 && keys(v.children).every((ckey) => selected.includes(ckey))) {
         // all children are selected, remove all and add parent
-        params.classes = [...without(keys(v.children), params.classes), k];
+        classes = [...without(keys(v.children), classes), k];
       }
     });
 
+    if (!!notification) {
+      // edit existing notification
+      handleEditNotification({
+        id: notification.id,
+        data: keywords.trim().length === 0 ? null : keywords,
+        classes,
+      });
+    } else {
+      // add new notification
+      handleAddNotification({
+        type: 'template',
+        template: 'arxiv',
+        data: keywords.trim().length === 0 ? null : keywords,
+        classes: [...selected],
+      });
+    }
+  };
+
+  const handleAddNotification = (params: IADSApiAddNotificationParams) => {
     addNotification(params, {
       onSettled(data, error) {
         if (error) {
           toast({ status: 'error', title: 'Error', description: parseAPIError(error) });
         } else {
           toast({ status: 'success', title: 'Notification Created' });
+          onClose();
+          onUpdated();
+        }
+      },
+    });
+  };
+
+  const handleEditNotification = (params: IADSApiEditNotificationParams) => {
+    editNofication(params, {
+      onSettled(data, error) {
+        if (error) {
+          toast({ status: 'error', title: 'Error', description: parseAPIError(error) });
+        } else {
+          toast({ status: 'success', title: 'Notification Modified' });
           onClose();
           onUpdated();
         }
@@ -99,7 +158,7 @@ export const ArxivForm = ({ onClose, onUpdated = noop }: { onClose: () => void; 
         <Categories selected={selected} onToggleSelect={handleToggleSelect} />
       </FormControl>
       <HStack mt={4} justifyContent="end">
-        <Button isLoading={isLoading} onClick={handleAddNotification} isDisabled={selected.length === 0}>
+        <Button isLoading={isAdding || isEditing} onClick={handleSubmit} isDisabled={selected.length === 0}>
           Submit
         </Button>
         <Button variant="outline" onClick={onClose}>

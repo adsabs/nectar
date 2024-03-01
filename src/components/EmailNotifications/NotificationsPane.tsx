@@ -42,7 +42,7 @@ import { TableSkeleton } from '@components/Libraries/TableSkeleton';
 import { TimeSince } from '@components/TimeSince';
 import { useColorModeColors } from '@lib';
 import { parseAPIError } from '@utils';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AddNotificationModal } from './AddNotificationModal';
 import { DeleteNotificationMenuItem } from './DeleteNotificationMenuItem';
 
@@ -64,6 +64,15 @@ export const NotificationsPane = () => {
   const { isOpen: isCreateOpen, onOpen: onCreateOpen, onClose: onCreateClose } = useDisclosure();
 
   const [addTemplate, setAddTemplate] = useState<NotificationTemplate>();
+
+  const [editingNotification, setEditingNotification] = useState<INotification['id']>(null);
+
+  // reset add/edit modal when modal closes
+  useEffect(() => {
+    if (!isCreateOpen) {
+      setEditingNotification(null);
+    }
+  }, [isCreateOpen]);
 
   const handleSetActive = (id: INotification['id'], active: boolean) => {
     editNotification(
@@ -88,7 +97,8 @@ export const NotificationsPane = () => {
   };
 
   const handleOpenEdit = (id: INotification['id']) => {
-    // TODO: open modal
+    setEditingNotification(id);
+    onCreateOpen();
   };
 
   const handleDelete = (id: INotification['id']) => {
@@ -164,7 +174,7 @@ export const NotificationsPane = () => {
                     >
                       <Td>{i + 1}</Td>
                       <Td>{n.name}</Td>
-                      <Td>{n.type === 'template' ? n.template : 'general'}</Td>
+                      <Td>{n.type === 'template' ? n.template : 'query'}</Td>
                       <Td>{n.frequency}</Td>
                       <Td>
                         <TimeSince date={n.updated} />
@@ -189,8 +199,13 @@ export const NotificationsPane = () => {
           </>
         )}
       </Flex>
-
-      <AddNotificationModal isOpen={isCreateOpen} onClose={onCreateClose} template={addTemplate} onUpdated={reload} />
+      <AddNotificationModal
+        isOpen={isCreateOpen}
+        onClose={onCreateClose}
+        onUpdated={reload}
+        template={!editingNotification ? addTemplate : null}
+        nid={editingNotification ?? null}
+      />
     </>
   );
 };
@@ -270,7 +285,7 @@ const Action = ({
             <Switch isChecked={active} isFocusable={false} isReadOnly aria-hidden />
           </Flex>
         </MenuItem>
-        <MenuItem onClick={onEdit}>Edit</MenuItem>
+        {type !== 'query' && <MenuItem onClick={onEdit}>Edit</MenuItem>}
         <DeleteNotificationMenuItem onDelete={onDelete} />
       </MenuList>
     </Menu>
