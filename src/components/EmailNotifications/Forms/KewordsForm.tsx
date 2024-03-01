@@ -1,38 +1,70 @@
-import { IADSApiAddNotificationParams, useAddNotification } from '@api';
+import { IADSApiAddNotificationParams, INotification, useAddNotification, useEditNotification } from '@api';
 import { Input, FormControl, FormLabel, HStack, Button, Flex, useToast, Text } from '@chakra-ui/react';
 import { noop, parseAPIError } from '@utils';
 
 import { ChangeEvent, useState } from 'react';
 
-export const KeywordsForm = ({ onClose, onUpdated = noop }: { onClose: () => void; onUpdated?: () => void }) => {
+export const KeywordsForm = ({
+  onClose,
+  onUpdated = noop,
+  notification,
+}: {
+  onClose: () => void;
+  onUpdated?: () => void;
+  notification?: INotification;
+}) => {
   const toast = useToast({ duration: 2000 });
 
-  const [keywords, setKeywords] = useState('');
+  const [keywords, setKeywords] = useState(notification?.data ?? '');
 
-  const { mutate: addNotification, isLoading } = useAddNotification();
+  const { mutate: addNotification, isLoading: isAdding } = useAddNotification();
+
+  const { mutate: editNofication, isLoading: isEditing } = useEditNotification();
 
   const handleKeywordsChange = (e: ChangeEvent<HTMLInputElement>) => {
     setKeywords(e.target.value);
   };
 
   const handleAddNotification = () => {
-    const params: IADSApiAddNotificationParams = {
-      type: 'template',
-      template: 'keyword',
-      data: keywords.trim().length === 0 ? null : keywords,
-    };
-
-    addNotification(params, {
-      onSettled(data, error) {
-        if (error) {
-          toast({ status: 'error', title: 'Error', description: parseAPIError(error) });
-        } else {
-          toast({ status: 'success', title: 'Notification Created' });
-          onClose();
-          onUpdated();
-        }
-      },
-    });
+    if (!!notification) {
+      // edit existing
+      editNofication(
+        {
+          id: notification.id,
+          data: keywords,
+        },
+        {
+          onSettled(data, error) {
+            if (error) {
+              toast({ status: 'error', title: 'Error', description: parseAPIError(error) });
+            } else {
+              toast({ status: 'success', title: 'Notification Modified' });
+              onClose();
+              onUpdated();
+            }
+          },
+        },
+      );
+    } else {
+      addNotification(
+        {
+          type: 'template',
+          template: 'keyword',
+          data: keywords,
+        },
+        {
+          onSettled(data, error) {
+            if (error) {
+              toast({ status: 'error', title: 'Error', description: parseAPIError(error) });
+            } else {
+              toast({ status: 'success', title: 'Notification Created' });
+              onClose();
+              onUpdated();
+            }
+          },
+        },
+      );
+    }
   };
 
   return (
@@ -49,7 +81,11 @@ export const KeywordsForm = ({ onClose, onUpdated = noop }: { onClose: () => voi
         </Text>
       </FormControl>
       <HStack mt={4} justifyContent="end">
-        <Button isLoading={isLoading} onClick={handleAddNotification} isDisabled={keywords.length === 0}>
+        <Button
+          isLoading={isAdding || isEditing}
+          onClick={handleAddNotification}
+          isDisabled={keywords.trim().length === 0}
+        >
           Submit
         </Button>
         <Button variant="outline" onClick={onClose}>
