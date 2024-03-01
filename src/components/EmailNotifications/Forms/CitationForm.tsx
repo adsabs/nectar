@@ -1,4 +1,4 @@
-import { IADSApiAddNotificationParams, useAddNotification } from '@api';
+import { INotification, useAddNotification, useEditNotification } from '@api';
 import { CheckIcon, DeleteIcon } from '@chakra-ui/icons';
 import {
   Flex,
@@ -16,7 +16,7 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { noop, parseAPIError } from '@utils';
-import { ChangeEvent, MouseEvent, useRef, useState } from 'react';
+import { ChangeEvent, MouseEvent, useEffect, useRef, useState } from 'react';
 
 type Author = { author: string; type: 'Author' | 'Orcid' };
 
@@ -24,14 +24,31 @@ export const CitationForm = ({
   onClose,
   onUpdated = noop,
   template,
+  notification,
 }: {
   onClose: () => void;
   onUpdated?: () => void;
-  template: 'citations' | 'authors';
+  template?: 'citations' | 'authors';
+  notification?: INotification;
 }) => {
   const toast = useToast({ duration: 2000 });
 
   const [authors, setAuthors] = useState<Author[]>([]);
+
+  // init authors if edit existing
+  useEffect(() => {
+    if (notification) {
+      const list = notification.data.split(/ [oO][Rr] /).map((item) => {
+        const parts = item.trim().split(':');
+        if (parts[0].trim().toLowerCase() === 'author') {
+          return { author: parts[1].trim().replace(/^"(.+)"$/, '$1'), type: 'Author' as Author['type'] };
+        } else {
+          return { author: parts[1].trim().replace(/^"(.+)"$/, '$1'), type: 'Orcid' as Author['type'] };
+        }
+      });
+      setAuthors(list);
+    }
+  }, [notification]);
 
   // New author row being added
   const [newAuthorName, setNewAuthorName] = useState<string>(null);
@@ -53,7 +70,9 @@ export const CitationForm = ({
       ? 'Orcid'
       : 'Invalid';
 
-  const { mutate: addNotification, isLoading } = useAddNotification();
+  const { mutate: addNotification, isLoading: isAdding } = useAddNotification();
+
+  const { mutate: editNofication, isLoading: isEditing } = useEditNotification();
 
   const handleNewAuthorNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     setNewAuthorName(e.target.value);
@@ -73,23 +92,46 @@ export const CitationForm = ({
   };
 
   const handleSubmit = () => {
-    const params: IADSApiAddNotificationParams = {
-      data: authors.map((a) => `${a.type === 'Author' ? 'author' : 'orcid'}:"${a.author}"`).join(' OR '),
-      template: template,
-      type: 'template',
-    };
-
-    addNotification(params, {
-      onSettled(data, error) {
-        if (error) {
-          toast({ status: 'error', title: 'Error', description: parseAPIError(error) });
-        } else {
-          toast({ status: 'success', title: 'Notification Created' });
-          onClose();
-          onUpdated();
-        }
-      },
-    });
+    if (!!notification) {
+      // edit existing
+      editNofication(
+        {
+          id: notification.id,
+          data: authors.map((a) => `${a.type === 'Author' ? 'author' : 'orcid'}:"${a.author}"`).join(' OR '),
+        },
+        {
+          onSettled(data, error) {
+            if (error) {
+              toast({ status: 'error', title: 'Error', description: parseAPIError(error) });
+            } else {
+              toast({ status: 'success', title: 'Notification Modified' });
+              onClose();
+              onUpdated();
+            }
+          },
+        },
+      );
+    } else {
+      // add new
+      addNotification(
+        {
+          data: authors.map((a) => `${a.type === 'Author' ? 'author' : 'orcid'}:"${a.author}"`).join(' OR '),
+          template: template,
+          type: 'template',
+        },
+        {
+          onSettled(data, error) {
+            if (error) {
+              toast({ status: 'error', title: 'Error', description: parseAPIError(error) });
+            } else {
+              toast({ status: 'success', title: 'Notification Created' });
+              onClose();
+              onUpdated();
+            }
+          },
+        },
+      );
+    }
   };
 
   // Row for adding new author
@@ -151,7 +193,7 @@ export const CitationForm = ({
         </Tbody>
       </Table>
       <HStack mt={4} justifyContent="end">
-        <Button isDisabled={authors.length === 0} isLoading={isLoading} onClick={handleSubmit}>
+        <Button isDisabled={authors.length === 0} isLoading={isAdding || isEditing} onClick={handleSubmit}>
           Submit
         </Button>
         <Button variant="outline" onClick={onClose}>
