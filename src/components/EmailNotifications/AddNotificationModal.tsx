@@ -70,7 +70,7 @@ export const AddNotificationModal = ({
               ) : notification?.template === 'citations' || notification?.template === 'authors' ? (
                 <CitationForm onClose={onClose} onUpdated={onUpdated} notification={notification} />
               ) : (
-                <KeywordsForm onClose={onClose} onUpdated={onUpdated} />
+                <KeywordsForm onClose={onClose} onUpdated={onUpdated} notification={notification} />
               )}
             </>
           )}
