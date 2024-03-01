@@ -39,7 +39,7 @@ export type IADSApiNotificationsReponse = Omit<INotification, 'qid' | 'stateful'
 
 export type IADSApiNotificationParams = Pick<INotification, 'id'>;
 
-export type IADSApiNotificationReponse = INotification;
+export type IADSApiNotificationReponse = INotification[];
 
 export type IADSApiAddNotificationParams = Omit<INotification, 'id' | 'created' | 'updated'>;
 
