@@ -67,10 +67,8 @@ export const AddNotificationModal = ({
             <>
               {notification?.template === 'arxiv' ? (
                 <ArxivForm onClose={onClose} onUpdated={onUpdated} notification={notification} />
-              ) : notification?.template === 'citations' ? (
-                <CitationForm onClose={onClose} onUpdated={onUpdated} template="citations" />
-              ) : notification?.template === 'authors' ? (
-                <CitationForm onClose={onClose} onUpdated={onUpdated} template="authors" />
+              ) : notification?.template === 'citations' || notification?.template === 'authors' ? (
+                <CitationForm onClose={onClose} onUpdated={onUpdated} notification={notification} />
               ) : (
                 <KeywordsForm onClose={onClose} onUpdated={onUpdated} />
               )}
