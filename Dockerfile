@@ -26,6 +26,7 @@ COPY . .
 # Uncomment the following line in case you want to disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED 1
 ENV NODE_ENV production
+RUN export GIT_SHA=$(git rev-parse HEAD); echo "GIT_SHA=$GIT_SHA" >> .env.local
 
 # ensure pnpm is available in the builder
 RUN npm install -g pnpm

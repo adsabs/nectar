@@ -9,6 +9,10 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
  **/
 const config = {
   distDir: process.env.DIST_DIR || 'dist',
+  generateBuildId: async () => {
+    return process.env.GIT_SHA;
+  },
+  generateEtags: true,
   poweredByHeader: false,
   reactStrictMode: true,
   experimental: { newNextLinkBehavior: false, webVitalsAttribution: ['CLS', 'LCP'] },
