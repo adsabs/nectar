@@ -5,7 +5,7 @@ import NextLink, { LinkProps as NextLinkProps } from 'next/link';
 import { MouseEventHandler, ReactElement } from 'react';
 import { useRouter } from 'next/router';
 
-type LinkProps = ChackraLinkProps & Omit<NextLinkProps, 'as' | 'href' | 'passHref' | 'prefetch'>;
+type LinkProps = ChackraLinkProps & Omit<NextLinkProps, 'as' | 'href' | 'passHref'>;
 export interface ISearchQueryLinkProps extends LinkProps {
   params: IADSApiSearchParams;
 }
@@ -17,7 +17,7 @@ const getSearchUrl = (params: IADSApiSearchParams) => `/search?${makeSearchParam
  * This generates the URL based on the params passed in
  */
 export const SearchQueryLink = (props: ISearchQueryLinkProps): ReactElement => {
-  const { params, replace = false, scroll, shallow = false, locale, ...linkProps } = props;
+  const { params, replace = false, scroll, shallow = false, locale, prefetch = false, ...linkProps } = props;
 
   return (
     <NextLink
@@ -26,6 +26,7 @@ export const SearchQueryLink = (props: ISearchQueryLinkProps): ReactElement => {
       replace={replace}
       shallow={shallow}
       scroll={scroll}
+      prefetch={prefetch}
       passHref
       legacyBehavior
     >
