@@ -1,3 +1,5 @@
+import { IADSApiSearchParams } from '@api/search';
+
 export interface IADSVaultExecuteQueryParams {
   qid: string;
 }
@@ -52,3 +54,7 @@ export type IADSApiEditNotificationResponse = INotification;
 export type IADSApiDeleteNotificationParams = Pick<INotification, 'id'>;
 
 export type IADSApiDeleteNotificationResponse = INotification;
+
+export type IADSApiNotificationQueryParams = Pick<INotification, 'id'>;
+
+export type IADSApiNotificationQueryResponse = IADSApiSearchParams[];
