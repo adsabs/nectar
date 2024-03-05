@@ -6,7 +6,7 @@ import {
   useGetNotificationQuery,
   useGetNotifications,
 } from '@api';
-import { ChevronDownIcon, SettingsIcon } from '@chakra-ui/icons';
+import { ChevronDownIcon, SettingsIcon, SmallCloseIcon } from '@chakra-ui/icons';
 import {
   Table,
   Thead,
@@ -36,6 +36,9 @@ import {
   AlertDialogOverlay,
   OrderedList,
   ListItem,
+  InputGroup,
+  InputRightElement,
+  IconButton,
 } from '@chakra-ui/react';
 import { CustomInfoMessage } from '@components/Feedbacks';
 import { TableSkeleton } from '@components/Libraries/TableSkeleton';
@@ -141,6 +144,10 @@ export const NotificationsPane = () => {
     );
   };
 
+  const handleClearSearch = () => {
+    setSearchVal('');
+  };
+
   const reload = () => {
     remove();
     void refetch();
@@ -151,7 +158,12 @@ export const NotificationsPane = () => {
       <Flex direction="column" gap={4}>
         <Flex direction={{ base: 'column', md: 'row' }} justifyContent={{ base: 'start', md: 'space-between' }} gap={2}>
           <Stack w="300px">
-            <Input placeholder="search" value={searchVal} onChange={handleSearchValueChange} />
+            <InputGroup>
+              <Input placeholder="search" value={searchVal} onChange={handleSearchValueChange} />
+              <InputRightElement>
+                <IconButton icon={<SmallCloseIcon />} aria-label="clear" onClick={handleClearSearch} variant="ghost" />
+              </InputRightElement>
+            </InputGroup>
           </Stack>
           <Menu>
             <MenuButton as={Button} rightIcon={<ChevronDownIcon />} variant="outline">
