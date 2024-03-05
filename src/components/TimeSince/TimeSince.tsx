@@ -1,4 +1,4 @@
-import { Tooltip } from '@chakra-ui/react';
+import { Box, Tooltip } from '@chakra-ui/react';
 import { intlFormat, intlFormatDistance } from 'date-fns';
 
 export const TimeSince = ({ date }: { date: string }) => {
@@ -17,7 +17,7 @@ export const TimeSince = ({ date }: { date: string }) => {
         second: '2-digit',
       })}
     >
-      {formatted}
+      <Box tabIndex={-1}>{formatted}</Box>
     </Tooltip>
   );
 };

@@ -6,7 +6,7 @@ import {
   useGetNotificationQuery,
   useGetNotifications,
 } from '@api';
-import { ChevronDownIcon, SettingsIcon, SmallCloseIcon } from '@chakra-ui/icons';
+import { BellIcon, ChevronDownIcon, CloseIcon, SettingsIcon } from '@chakra-ui/icons';
 import {
   Table,
   Thead,
@@ -40,6 +40,7 @@ import {
   InputRightElement,
   IconButton,
 } from '@chakra-ui/react';
+import { SimpleLink } from '@components';
 import { CustomInfoMessage } from '@components/Feedbacks';
 import { TableSkeleton } from '@components/Libraries/TableSkeleton';
 import { TimeSince } from '@components/TimeSince';
@@ -60,7 +61,7 @@ export const NotificationsPane = () => {
 
   const colors = useColorModeColors();
 
-  const { data: notifications, isLoading, error, refetch, remove } = useGetNotifications();
+  const { data: notifications, isLoading, error, refetch } = useGetNotifications({ cacheTime: 0, staleTime: 0 });
 
   const { mutate: editNotification } = useEditNotification();
 
@@ -110,7 +111,6 @@ export const NotificationsPane = () => {
             toast({ status: 'error', title: 'Error', description: parseAPIError(error) });
           } else {
             toast({ status: 'success', title: 'Notification modified' });
-            remove();
             void refetch();
           }
         },
@@ -149,7 +149,6 @@ export const NotificationsPane = () => {
   };
 
   const reload = () => {
-    remove();
     void refetch();
   };
 
@@ -160,9 +159,11 @@ export const NotificationsPane = () => {
           <Stack w="300px">
             <InputGroup>
               <Input placeholder="search" value={searchVal} onChange={handleSearchValueChange} />
-              <InputRightElement>
-                <IconButton icon={<SmallCloseIcon />} aria-label="clear" onClick={handleClearSearch} variant="ghost" />
-              </InputRightElement>
+              {searchVal.length > 0 && (
+                <InputRightElement>
+                  <IconButton icon={<CloseIcon />} aria-label="clear" onClick={handleClearSearch} variant="ghost" />
+                </InputRightElement>
+              )}
             </InputGroup>
           </Stack>
           <Menu>
@@ -263,13 +264,18 @@ const CreateQueryNotificationMenuItem = () => {
             </AlertDialogHeader>
             <AlertDialogBody>
               <OrderedList>
-                <ListItem>Perform a new search</ListItem>
-                <ListItem>On the results page, click the 'Create Email Notification' icon</ListItem>
+                <ListItem>Perform a new search from the search page</ListItem>
+                <ListItem>
+                  On the results page, click the 'Create Email Notification' icon <BellIcon aria-hidden />
+                </ListItem>
               </OrderedList>
+              <SimpleLink mt={2} href="/" fontWeight="bold">
+                Click here to go to the search page
+              </SimpleLink>
             </AlertDialogBody>
             <AlertDialogFooter>
               <Button ref={cancelRef} onClick={onClose} ml={3}>
-                Ok
+                Close
               </Button>
             </AlertDialogFooter>
           </AlertDialogContent>
