@@ -38,7 +38,7 @@ export const CitationForm = ({
   // init authors if edit existing
   useEffect(() => {
     if (notification) {
-      const list = notification.data.split(/ [oO][Rr] /).map((item) => {
+      const list = notification.data?.split(/ [oO][Rr] /).map((item) => {
         const parts = item.trim().split(':');
         if (parts[0].trim().toLowerCase() === 'author') {
           return { author: parts[1].trim().replace(/^"(.+)"$/, '$1'), type: 'Author' as Author['type'] };
@@ -46,7 +46,7 @@ export const CitationForm = ({
           return { author: parts[1].trim().replace(/^"(.+)"$/, '$1'), type: 'Orcid' as Author['type'] };
         }
       });
-      setAuthors(list);
+      setAuthors(list ?? []);
     }
   }, [notification]);
 
