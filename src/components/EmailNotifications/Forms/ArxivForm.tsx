@@ -109,7 +109,7 @@ export const ArxivForm = ({
         type: 'template',
         template: 'arxiv',
         data: keywords.trim().length === 0 ? null : keywords,
-        classes: [...selected],
+        classes: [...classes],
       });
     }
   };
