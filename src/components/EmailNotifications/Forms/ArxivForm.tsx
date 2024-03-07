@@ -22,7 +22,7 @@ import {
 import { noop, parseAPIError } from '@utils';
 
 import { has, keys, toPairs, uniq, without } from 'ramda';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import { arxivModel } from '../ArxivModel';
 
 export const ArxivForm = ({
@@ -86,7 +86,9 @@ export const ArxivForm = ({
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
     // for categories, select parents instead if all childrens are selected
     let classes = [...selected];
     toPairs(arxivModel).forEach(([k, v]) => {
@@ -143,28 +145,30 @@ export const ArxivForm = ({
   };
 
   return (
-    <Flex direction="column" gap={4}>
+    <Flex direction="column" gap={4} data-testid="create-arxiv-modal">
       <Text fontSize="larger">Daily updates from arXiv.org</Text>
-      <FormControl>
-        <FormLabel>Keywords (optional)</FormLabel>
-        <Input onChange={handleKeywordsChange} value={keywords} autoFocus placeholder="star OR planet" />
-        <Text fontSize="sm" fontStyle="italic" mt={1}>
-          Used to rank papers from selected arXiv categories (below). Boolean "AND" is assumed, but can be overriden by
-          using explicit logical operators between keywords
-        </Text>
-      </FormControl>
-      <FormControl>
-        <FormLabel>arXiv Categories (must choose at least one)</FormLabel>
-        <Categories selected={selected} onToggleSelect={handleToggleSelect} />
-      </FormControl>
-      <HStack mt={4} justifyContent="end">
-        <Button isLoading={isAdding || isEditing} onClick={handleSubmit} isDisabled={selected.length === 0}>
-          Submit
-        </Button>
-        <Button variant="outline" onClick={onClose}>
-          Cancel
-        </Button>
-      </HStack>
+      <form onSubmit={handleSubmit}>
+        <FormControl>
+          <FormLabel>Keywords (optional)</FormLabel>
+          <Input onChange={handleKeywordsChange} value={keywords} autoFocus placeholder="star OR planet" />
+          <Text fontSize="sm" fontStyle="italic" mt={1}>
+            Used to rank papers from selected arXiv categories (below). Boolean "AND" is assumed, but can be overriden
+            by using explicit logical operators between keywords
+          </Text>
+        </FormControl>
+        <FormControl>
+          <FormLabel>arXiv Categories (must choose at least one)</FormLabel>
+          <Categories selected={selected} onToggleSelect={handleToggleSelect} />
+        </FormControl>
+        <HStack mt={4} justifyContent="end">
+          <Button isLoading={isAdding || isEditing} isDisabled={selected.length === 0} type="submit">
+            Submit
+          </Button>
+          <Button variant="outline" onClick={onClose} type="button">
+            Cancel
+          </Button>
+        </HStack>
+      </form>
     </Flex>
   );
 };
