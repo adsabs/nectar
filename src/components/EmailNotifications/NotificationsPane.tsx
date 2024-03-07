@@ -168,14 +168,22 @@ export const NotificationsPane = () => {
             </InputGroup>
           </Stack>
           <Menu>
-            <MenuButton as={Button} rightIcon={<ChevronDownIcon />} variant="outline">
+            <MenuButton as={Button} rightIcon={<ChevronDownIcon />} variant="outline" data-testid="create-noti-btn">
               Create
             </MenuButton>
             <MenuList>
-              <MenuItem onClick={() => handleOpenCreate('arxiv')}>arXiv</MenuItem>
-              <MenuItem onClick={() => handleOpenCreate('citations')}>Citations</MenuItem>
-              <MenuItem onClick={() => handleOpenCreate('authors')}>Authors</MenuItem>
-              <MenuItem onClick={() => handleOpenCreate('keyword')}>Keyword</MenuItem>
+              <MenuItem onClick={() => handleOpenCreate('arxiv')} data-testid="new-arxiv-btn">
+                arXiv
+              </MenuItem>
+              <MenuItem onClick={() => handleOpenCreate('citations')} data-testid="new-citations-btn">
+                Citations
+              </MenuItem>
+              <MenuItem onClick={() => handleOpenCreate('authors')} data-testid="new-authors-btn">
+                Authors
+              </MenuItem>
+              <MenuItem onClick={() => handleOpenCreate('keyword')} data-testid="new-keyword-btn">
+                Keyword
+              </MenuItem>
               <CreateQueryNotificationMenuItem />
             </MenuList>
           </Menu>
@@ -185,7 +193,7 @@ export const NotificationsPane = () => {
         {error && (
           <CustomInfoMessage status="error" title="Error fetching notifications" description={parseAPIError(error)} />
         )}
-        {!isLoading && (
+        {!isLoading && !error && (
           <>
             {!notifications || notifications.length === 0 ? (
               <CustomInfoMessage
@@ -196,7 +204,7 @@ export const NotificationsPane = () => {
             ) : filteredNotifications && filteredNotifications.length === 0 ? (
               <CustomInfoMessage status="info" title="No Notifications Found" />
             ) : (
-              <Table variant="simple">
+              <Table variant="simple" data-testid="notifications-table">
                 <Thead>
                   <Tr>
                     <Th></Th>
