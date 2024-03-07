@@ -3,7 +3,7 @@ import { Input, FormControl, FormLabel, HStack, Button, useToast, Flex } from '@
 import { Select, SelectOption } from '@components';
 import { useStore } from '@store';
 import { noop, parseAPIError } from '@utils';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 
 const frequencyOptions: SelectOption<NotificationFrequency>[] = [
   {
@@ -37,7 +37,8 @@ export const QueryForm = ({ onClose, onUpdated = noop }: { onClose: () => void; 
 
   const { mutate: addNotification, isLoading } = useAddNotification();
 
-  const handleAddNotification = () => {
+  const handleAddNotification = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setState('submitting');
   };
 
@@ -81,39 +82,36 @@ export const QueryForm = ({ onClose, onUpdated = noop }: { onClose: () => void; 
   };
 
   return (
-    <Flex direction="column" gap={4}>
-      <FormControl>
-        <FormLabel>Query</FormLabel>
-        <Input readOnly defaultValue={query.q} />
-      </FormControl>
-      <FormControl isRequired>
-        <FormLabel>Notification Name</FormLabel>
-        <Input value={name} onChange={handleNameChange} autoFocus isRequired />
-      </FormControl>
-      <FormControl>
-        <FormLabel>Frequency</FormLabel>
-        <Select<SelectOption<NotificationFrequency>>
-          label="Frequency"
-          id="frequency-select"
-          options={frequencyOptions}
-          value={frequencyOption}
-          onChange={handleFrequencyChange}
-          stylesTheme="default"
-        />
-      </FormControl>
-      <HStack mt={4} justifyContent="end">
-        <Button
-          type="submit"
-          isLoading={isLoading || isSearching}
-          onClick={handleAddNotification}
-          isDisabled={name.trim().length === 0}
-        >
-          Submit
-        </Button>
-        <Button variant="outline" onClick={onClose}>
-          Cancel
-        </Button>
-      </HStack>
+    <Flex direction="column" gap={4} data-testid="create-query-modal">
+      <form onSubmit={handleAddNotification}>
+        <FormControl>
+          <FormLabel>Query</FormLabel>
+          <Input readOnly defaultValue={query.q} />
+        </FormControl>
+        <FormControl isRequired>
+          <FormLabel>Notification Name</FormLabel>
+          <Input value={name} onChange={handleNameChange} autoFocus isRequired />
+        </FormControl>
+        <FormControl>
+          <FormLabel>Frequency</FormLabel>
+          <Select<SelectOption<NotificationFrequency>>
+            label="Frequency"
+            id="frequency-select"
+            options={frequencyOptions}
+            value={frequencyOption}
+            onChange={handleFrequencyChange}
+            stylesTheme="default"
+          />
+        </FormControl>
+        <HStack mt={4} justifyContent="end">
+          <Button type="submit" isLoading={isLoading || isSearching} isDisabled={name.trim().length === 0}>
+            Submit
+          </Button>
+          <Button variant="outline" onClick={onClose} type="button">
+            Cancel
+          </Button>
+        </HStack>
+      </form>
     </Flex>
   );
 };

@@ -1,8 +1,8 @@
-import { IADSApiAddNotificationParams, INotification, useAddNotification, useEditNotification } from '@api';
+import { INotification, useAddNotification, useEditNotification } from '@api';
 import { Input, FormControl, FormLabel, HStack, Button, Flex, useToast, Text } from '@chakra-ui/react';
 import { noop, parseAPIError } from '@utils';
 
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, useState } from 'react';
 
 export const KeywordsForm = ({
   onClose,
@@ -25,7 +25,9 @@ export const KeywordsForm = ({
     setKeywords(e.target.value);
   };
 
-  const handleAddNotification = () => {
+  const handleAddNotification = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
     if (!!notification) {
       // edit existing
       editNofication(
@@ -68,30 +70,28 @@ export const KeywordsForm = ({
   };
 
   return (
-    <Flex direction="column" gap={4}>
+    <Flex direction="column" gap={4} data-testid="create-keyword-modal">
       <Text fontSize="larger">
         Weekly updates on the most recent, most popular, and most cited papers on your favorite keyword(s) or any other
         query
       </Text>
-      <FormControl>
-        <FormLabel>Set or Keywords</FormLabel>
-        <Input onChange={handleKeywordsChange} value={keywords} autoFocus placeholder="star OR planet" />
-        <Text fontSize="sm" fontStyle="italic" mt={1}>
-          Boolean "AND" is assumed, but can be overriden by using explicit logical operators between keywords
-        </Text>
-      </FormControl>
-      <HStack mt={4} justifyContent="end">
-        <Button
-          isLoading={isAdding || isEditing}
-          onClick={handleAddNotification}
-          isDisabled={keywords.trim().length === 0}
-        >
-          Submit
-        </Button>
-        <Button variant="outline" onClick={onClose}>
-          Cancel
-        </Button>
-      </HStack>
+      <form onSubmit={handleAddNotification}>
+        <FormControl>
+          <FormLabel>Set or Keywords</FormLabel>
+          <Input onChange={handleKeywordsChange} value={keywords} autoFocus placeholder="star OR planet" />
+          <Text fontSize="sm" fontStyle="italic" mt={1}>
+            Boolean "AND" is assumed, but can be overriden by using explicit logical operators between keywords
+          </Text>
+        </FormControl>
+        <HStack mt={4} justifyContent="end">
+          <Button isLoading={isAdding || isEditing} isDisabled={keywords.trim().length === 0} type="submit">
+            Submit
+          </Button>
+          <Button variant="outline" onClick={onClose} type="button">
+            Cancel
+          </Button>
+        </HStack>
+      </form>
     </Flex>
   );
 };

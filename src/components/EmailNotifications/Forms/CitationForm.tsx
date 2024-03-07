@@ -145,6 +145,11 @@ export const CitationForm = ({
           ref={newAuthorNameRef}
           placeholder="Last, First M. or 1111-2222-3333-4444"
           autoFocus
+          onKeyUp={(e) => {
+            if (newAuthorNameIsValid && e.key === 'Enter') {
+              handleAddAuthor();
+            }
+          }}
         />
       </Td>
       <Td>{newAuthorType}</Td>
@@ -162,7 +167,7 @@ export const CitationForm = ({
   );
 
   return (
-    <Flex direction="column" gap={4}>
+    <Flex direction="column" gap={4} data-testid="create-citations-modal">
       <Text fontSize="larger">Weekly updates on the latest citations to your papers or those by any other authors</Text>
       <Table>
         <Thead>
@@ -196,7 +201,7 @@ export const CitationForm = ({
         <Button isDisabled={authors.length === 0} isLoading={isAdding || isEditing} onClick={handleSubmit}>
           Submit
         </Button>
-        <Button variant="outline" onClick={onClose}>
+        <Button variant="outline" onClick={onClose} type="button">
           Cancel
         </Button>
       </HStack>
