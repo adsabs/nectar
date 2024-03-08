@@ -1,9 +1,5 @@
 const { withSentryConfig } = require('@sentry/nextjs');
 
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true',
-});
-
 /**
  * @type {import('next').NextConfig}
  **/
@@ -15,7 +11,7 @@ const config = {
   generateEtags: true,
   poweredByHeader: false,
   reactStrictMode: true,
-  experimental: { newNextLinkBehavior: false, webVitalsAttribution: ['CLS', 'LCP'] },
+  experimental: { webVitalsAttribution: ['CLS', 'LCP'] },
   async rewrites() {
     if (process.env.NODE_ENV !== 'production') {
       return {
@@ -25,6 +21,32 @@ const config = {
       };
     }
     return {};
+  },
+  async headers() {
+    return [
+      {
+        source: '/:slug*',
+        headers: [
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin',
+          },
+          {
+            key: 'Feature-Policy',
+            value:
+              "geolocation 'none'; midi 'none'; microphone 'none'; camera 'none'; magnetometer 'none'; gyroscope 'none'; speaker 'none'; fullscreen 'self'; payment 'none'",
+          },
+        ],
+      },
+    ];
   },
   async redirects() {
     return [
@@ -105,42 +127,48 @@ const config = {
   ...(!process.env.CI ? {} : { eslint: { ignoreDuringBuilds: true } }),
 };
 
-module.exports = withBundleAnalyzer(
-  withSentryConfig(
-    config,
-    {
-      // For all available options, see:
-      // https://github.com/getsentry/sentry-webpack-plugin#options
+const sentryConfig = [
+  {
+    // for all available options, see:
+    // https://github.com/getsentry/sentry-webpack-plugin#options
 
-      // Suppresses source map uploading logs during build
-      silent: true,
-      org: 'adsabs',
-      project: 'nectar',
-    },
-    {
-      // For all available options, see:
-      // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
+    // suppresses source map uploading logs during build
+    silent: true,
+    org: 'adsabs',
+    project: 'nectar',
+  },
+  {
+    // for all available options, see:
+    // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
 
-      // Upload a larger set of source maps for prettier stack traces (increases build time)
-      widenClientFileUpload: true,
+    // upload a larger set of source maps for prettier stack traces (increases build time)
+    widenclientfileupload: true,
 
-      // Transpiles SDK to be compatible with IE11 (increases bundle size)
-      transpileClientSDK: true,
+    // transpiles sdk to be compatible with ie11 (increases bundle size)
+    transpileclientsdk: true,
 
-      // Routes browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers (increases server load)
-      tunnelRoute: '/monitor',
+    // routes browser requests to sentry through a next.js rewrite to circumvent ad-blockers (increases server load)
+    tunnelroute: '/monitor',
 
-      // Hides source maps from generated client bundles
-      hideSourceMaps: true,
+    // hides source maps from generated client bundles
+    hidesourcemaps: true,
 
-      // Automatically tree-shake Sentry logger statements to reduce bundle size
-      disableLogger: true,
+    // automatically tree-shake sentry logger statements to reduce bundle size
+    disablelogger: true,
 
-      // Enables automatic instrumentation of Vercel Cron Monitors.
-      // See the following for more information:
-      // https://docs.sentry.io/product/crons/
-      // https://vercel.com/docs/cron-jobs
-      automaticVercelMonitors: false,
-    },
-  ),
-);
+    // enables automatic instrumentation of vercel cron monitors.
+    // see the following for more information:
+    // https://docs.sentry.io/product/crons/
+    // https://vercel.com/docs/cron-jobs
+    automaticvercelmonitors: false,
+  },
+];
+
+if (process.env.NODE_ENV === 'production') {
+  module.exports = withSentryConfig(config, ...sentryConfig);
+} else {
+  const withBundleAnalyzer = require('@next/bundle-analyzer')({
+    enabled: process.env.ANALYZE === 'true',
+  });
+  module.exports = withBundleAnalyzer(withSentryConfig(config, ...sentryConfig));
+}
