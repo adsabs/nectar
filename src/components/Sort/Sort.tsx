@@ -1,13 +1,12 @@
 import { SolrSort, SolrSortDirection, SolrSortField } from '@api';
-import { Box, HStack, IconButton, Input, Link } from '@chakra-ui/react';
-import { SimpleLinkDropdown } from '@components';
+import { Box, HStack, IconButton, Input } from '@chakra-ui/react';
+import { SearchQueryLink, SimpleLinkDropdown } from '@components';
 import { ItemType } from '@components/Dropdown/types';
 import { ISelectProps, Select } from '@components/Select';
 import { APP_DEFAULTS } from '@config';
 import { BarsArrowDownIcon, BarsArrowUpIcon } from '@heroicons/react/24/outline';
 import { useIsClient } from '@lib/useIsClient';
 import { makeSearchParams, normalizeSolrSort, parseQueryFromUrl } from '@utils';
-import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { Fragment, MouseEventHandler, ReactElement, useCallback, useMemo } from 'react';
 import { sortValues } from './model';
@@ -184,39 +183,31 @@ const NoJsSort = (): ReactElement => {
         minListWidth="300px"
         minLabelWidth="300px"
       />
-      <NextLink
-        href={{
-          search: makeSearchParams({ q: '*:*', ...router.query, p: 1, sort: [`${sortby} ${getToggledDir(dir)}`] }),
-        }}
-        passHref
-        legacyBehavior
-      >
-        <Link>
-          <>
-            {dir === 'desc' ? (
-              <IconButton
-                variant="outline"
-                icon={<BarsArrowDownIcon width="20px" />}
-                aria-label="Sort descending"
-                borderLeftRadius="0"
-                borderRightRadius="2px"
-                size="md"
-                colorScheme="gray"
-              />
-            ) : (
-              <IconButton
-                variant="outline"
-                icon={<BarsArrowUpIcon width="20px" />}
-                aria-label="Sort ascending"
-                borderLeftRadius="0"
-                borderRightRadius="2px"
-                size="md"
-                colorScheme="gray"
-              />
-            )}
-          </>
-        </Link>
-      </NextLink>
+      <SearchQueryLink params={{ q: '*:*', ...router.query, p: 1, sort: [`${sortby} ${getToggledDir(dir)}`] }}>
+        <>
+          {dir === 'desc' ? (
+            <IconButton
+              variant="outline"
+              icon={<BarsArrowDownIcon width="20px" />}
+              aria-label="Sort descending"
+              borderLeftRadius="0"
+              borderRightRadius="2px"
+              size="md"
+              colorScheme="gray"
+            />
+          ) : (
+            <IconButton
+              variant="outline"
+              icon={<BarsArrowUpIcon width="20px" />}
+              aria-label="Sort ascending"
+              borderLeftRadius="0"
+              borderRightRadius="2px"
+              size="md"
+              colorScheme="gray"
+            />
+          )}
+        </>
+      </SearchQueryLink>
     </HStack>
   );
 };

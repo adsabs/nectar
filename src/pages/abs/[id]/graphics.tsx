@@ -1,13 +1,12 @@
 import { IDocsEntity, useGetAbstract, useGetGraphics } from '@api';
-import { Box, Flex, Link } from '@chakra-ui/react';
+import { Box, Flex } from '@chakra-ui/react';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { composeNextGSSP } from '@ssr-utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import NextImage from 'next/legacy/image';
-import NextLink from 'next/link';
-import { LoadingMessage } from '@components';
+import { LoadingMessage, SimpleLink } from '@components';
 import { useRouter } from 'next/router';
 import { path } from 'ramda';
 import { getDetailsPageTitle } from '@pages/abs/[id]/abstract';
@@ -54,12 +53,11 @@ const GraphicsPage: NextPage = () => {
                   borderRadius="md"
                   p={2}
                   m={2}
+                  as={SimpleLink}
+                  href={figure.images[0].highres}
+                  isExternal
                 >
-                  <NextLink href={figure.images[0].highres} passHref legacyBehavior>
-                    <Link target="_blank" rel="noreferrer noopener">
-                      <NextImage src={figure.images[0].thumbnail} width="150" height="150" alt={figure.figure_label} />
-                    </Link>
-                  </NextLink>
+                  <NextImage src={figure.images[0].thumbnail} width="150" height="150" alt={figure.figure_label} />
                   <Box aria-hidden="true">{figure.figure_label}</Box>
                 </Flex>
               );

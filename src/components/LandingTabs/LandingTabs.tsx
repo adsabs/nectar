@@ -1,12 +1,12 @@
-import { Box, Center, Flex, Heading, HStack, Icon, Link, Show, VisuallyHidden } from '@chakra-ui/react';
+import { Box, Center, Flex, Heading, HStack, Icon, Show, VisuallyHidden } from '@chakra-ui/react';
 import { useStore } from '@store';
 import { AppMode } from '@types';
 import Image from 'next/image';
-import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { CSSProperties, ReactElement } from 'react';
 import { ScixAndNasaLogo_H_beta } from '@components/images/ScixAndNasaLogo-H_beta';
 import { useColorModeColors } from '@lib';
+import { SimpleLink } from '@components';
 
 const imageStyle: CSSProperties = { objectFit: 'cover', opacity: '50%', zIndex: 0 };
 export const LandingTabs = (): ReactElement => {
@@ -92,18 +92,16 @@ interface ITabProps {
 const Tab = ({ href, label, active }: ITabProps) => {
   const { background, highlightForeground } = useColorModeColors();
   return (
-    <Link as={NextLink} href={href} passHref>
-      <Box
-        as={'a'}
-        backgroundColor={active ? background : 'transparent'}
-        color={active ? highlightForeground : 'gray.50'}
-        px={4}
-        py={2}
-        borderTopRadius={3}
-        fontWeight="semibold"
-      >
-        {label}
-      </Box>
-    </Link>
+    <SimpleLink
+      href={href}
+      backgroundColor={active ? background : 'transparent'}
+      color={active ? highlightForeground : 'gray.50'}
+      px={4}
+      py={2}
+      borderTopRadius={3}
+      fontWeight="semibold"
+    >
+      {label}
+    </SimpleLink>
   );
 };

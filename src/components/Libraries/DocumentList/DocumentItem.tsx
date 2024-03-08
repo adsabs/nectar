@@ -1,5 +1,5 @@
 import { IDocsEntity, LibraryIdentifier } from '@api';
-import { Box, BoxProps, Checkbox, CheckboxProps, Flex, Link, Stack, Text } from '@chakra-ui/react';
+import { Box, BoxProps, Checkbox, CheckboxProps, Flex, Stack, Text } from '@chakra-ui/react';
 import { AllAuthorsModal } from '@components/AllAuthorsModal';
 import { ItemResourceDropdowns } from '@components/ResultList/Item';
 import { APP_DEFAULTS } from '@config';
@@ -7,9 +7,9 @@ import { useColorModeColors } from '@lib';
 import { useIsClient } from '@lib/useIsClient';
 import { getFomattedNumericPubdate, noop, unwrapStringValue } from '@utils';
 import { MathJax } from 'better-react-mathjax';
-import NextLink from 'next/link';
 import { ChangeEvent, ReactElement } from 'react';
 import { ItemAnnotation } from './ItemAnnotation';
+import { SimpleLink } from '@components';
 
 export interface IItemProps {
   doc: IDocsEntity;
@@ -52,28 +52,24 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
   // citations
   const cite = useNormCite ? (
     typeof doc.citation_count_norm === 'number' && doc.citation_count_norm > 0 ? (
-      <NextLink
-        href={{ pathname: `/abs/[id]/citations`, search: 'p=1' }}
-        as={{ pathname: `/abs/${bibcode}/citations`, search: 'p=1' }}
-        passHref
-        legacyBehavior
+      <SimpleLink
+        href={{
+          pathname: `/abs/${bibcode}/citations`,
+          search: 'p=1',
+        }}
       >
-        <Link target={linkNewTab ? '_blank' : '_self'} rel={linkNewTab ? 'noopener noreferrer' : ''}>
-          <Text>cited(n): {doc.citation_count_norm}</Text>
-        </Link>
-      </NextLink>
+        <Text>cited(n): {doc.citation_count_norm}</Text>
+      </SimpleLink>
     ) : null
   ) : typeof doc.citation_count === 'number' && doc.citation_count > 0 ? (
-    <NextLink
-      href={{ pathname: `/abs/[id]/citations`, search: 'p=1' }}
-      as={{ pathname: `/abs/${bibcode}/citations`, search: 'p=1' }}
-      passHref
-      legacyBehavior
+    <SimpleLink
+      href={{
+        pathname: `/abs/${bibcode}/citations`,
+        search: 'p=1',
+      }}
     >
-      <Link target={linkNewTab ? '_blank' : '_self'} rel={linkNewTab ? 'noopener noreferrer' : ''}>
-        cited: {doc.citation_count}
-      </Link>
-    </NextLink>
+      cited: {doc.citation_count}
+    </SimpleLink>
   ) : null;
 
   return (
@@ -95,15 +91,9 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
       </Flex>
       <Stack direction="column" width="full" spacing={0} mx={3} mt={2}>
         <Flex justifyContent="space-between">
-          <NextLink href={`/abs/[id]/abstract`} as={`/abs/${bibcode}/abstract`} passHref legacyBehavior>
-            <Link
-              fontWeight="semibold"
-              target={linkNewTab ? '_blank' : '_self'}
-              rel={linkNewTab ? 'noopener noreferrer' : ''}
-            >
-              <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
-            </Link>
-          </NextLink>
+          <SimpleLink href={`/abs/${bibcode}/abstract`} fontWeight="semibold">
+            <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
+          </SimpleLink>
           <Flex alignItems="start" ml={1}>
             {!isClient || hideResources ? null : <ItemResourceDropdowns doc={doc} />}
           </Flex>

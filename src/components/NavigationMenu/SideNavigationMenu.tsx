@@ -1,8 +1,8 @@
 import { cloneElement } from 'react';
-import NextLink from 'next/link';
 import { Box, BoxProps, Button, Flex, Text } from '@chakra-ui/react';
 import { CatMenuItems, IMenuItem, IMenuItemProps, SingleMenuItems } from './types';
 import { useColorModeColors } from '@lib';
+import { SimpleLink } from '@components';
 
 export interface ISideNavigationMenuProps extends BoxProps {
   menuItems: CatMenuItems | SingleMenuItems;
@@ -12,22 +12,15 @@ export interface ISideNavigationMenuProps extends BoxProps {
 /**
  * Menu item rendered as button link
  */
-const SideMenuItem = ({
-  href,
-  hrefAs,
-  label,
-  icon,
-  active = false,
-  disabled = false,
-  rightElement = null,
-}: IMenuItemProps) => {
+const SideMenuItem = ({ href, label, icon, active = false, disabled = false, rightElement = null }: IMenuItemProps) => {
   const colors = useColorModeColors();
 
   return (
     <>
       {disabled ? (
         <Button
-          as="a"
+          as={SimpleLink}
+          href={href}
           w="full"
           variant={active ? 'solid' : 'ghost'}
           size="md"
@@ -47,27 +40,26 @@ const SideMenuItem = ({
           </Flex>
         </Button>
       ) : (
-        <NextLink href={href} as={hrefAs} passHref legacyBehavior>
-          <Button
-            as="a"
-            w="full"
-            variant={active ? 'solid' : 'ghost'}
-            size="md"
-            aria-current={active ? 'page' : undefined}
-            justifyContent="start"
-            colorScheme="gray"
-            mb={1}
-            color={colors.text}
-            fontSize="normal"
-            fontWeight="normal"
-            leftIcon={icon ? cloneElement(icon, { width: '18px', 'aria-hidden': true }) : null}
-          >
-            <Flex direction="row" alignItems="center" justifyContent="space-between" w="full">
-              <>{label}</>
-              <>{rightElement}</>
-            </Flex>
-          </Button>
-        </NextLink>
+        <Button
+          as={SimpleLink}
+          href={href}
+          w="full"
+          variant={active ? 'solid' : 'ghost'}
+          size="md"
+          aria-current={active ? 'page' : undefined}
+          justifyContent="start"
+          colorScheme="gray"
+          mb={1}
+          color={colors.text}
+          fontSize="normal"
+          fontWeight="normal"
+          leftIcon={icon ? cloneElement(icon, { width: '18px', 'aria-hidden': true }) : null}
+        >
+          <Flex direction="row" alignItems="center" justifyContent="space-between" w="full">
+            <>{label}</>
+            <>{rightElement}</>
+          </Flex>
+        </Button>
       )}
     </>
   );

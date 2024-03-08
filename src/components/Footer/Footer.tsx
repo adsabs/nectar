@@ -1,6 +1,5 @@
-import { Box, Flex, HStack, Link, Text, VisuallyHidden } from '@chakra-ui/react';
+import { Box, Flex, HStack, Text, VisuallyHidden } from '@chakra-ui/react';
 import { CFALogo, NasaLogo, SimpleLink, SmithsonianLogo } from '@components';
-import NextLink from 'next/link';
 import { FC } from 'react';
 import { EXTERNAL_URLS } from '@config';
 
@@ -39,26 +38,20 @@ export const Footer: FC = () => {
           Cooperative Agreement 80NSSC21M0056.
         </Text>
         <HStack my={3} spacing={1}>
-          <NextLink href={EXTERNAL_URLS.NASA_HOME_PAGE} passHref legacyBehavior>
-            <Link variant="footer" rel="noopener noreferrer">
-              <VisuallyHidden as="abbr" title="National Aeronautics and Space Administration">
-                NASA
-              </VisuallyHidden>
-              <NasaLogo width="80px" height="66px" aria-hidden />
-            </Link>
-          </NextLink>
-          <NextLink href={EXTERNAL_URLS.SMITHSONIAN_HOME_PAGE} passHref legacyBehavior>
-            <Link variant="footer" rel="noopener noreferrer">
-              <VisuallyHidden>Smithsonian Institution</VisuallyHidden>
-              <SmithsonianLogo width="66px" height="68px" aria-hidden />
-            </Link>
-          </NextLink>
-          <NextLink href={EXTERNAL_URLS.CFA_HOME_PAGE} passHref legacyBehavior>
-            <Link variant="footer" rel="noopener noreferrer">
-              <VisuallyHidden>Center for Astrophysics</VisuallyHidden>
-              <CFALogo width="100px" height="41px" style={{ filter: 'invert(1)' }} aria-hidden />
-            </Link>
-          </NextLink>
+          <SimpleLink href={EXTERNAL_URLS.NASA_HOME_PAGE} variant="footer" isExternal>
+            <VisuallyHidden as="abbr" title="National Aeronautics and Space Administration">
+              NASA
+            </VisuallyHidden>
+            <NasaLogo width="80px" height="66px" aria-hidden />
+          </SimpleLink>
+          <SimpleLink href={EXTERNAL_URLS.SMITHSONIAN_HOME_PAGE} variant="footer" isExternal>
+            <VisuallyHidden>Smithsonian Institution</VisuallyHidden>
+            <SmithsonianLogo width="66px" height="68px" aria-hidden />
+          </SimpleLink>
+          <SimpleLink href={EXTERNAL_URLS.CFA_HOME_PAGE} variant="footer" isExternal>
+            <VisuallyHidden>Center for Astrophysics</VisuallyHidden>
+            <CFALogo width="100px" height="41px" style={{ filter: 'invert(1)' }} aria-hidden />
+          </SimpleLink>
         </HStack>
       </Flex>
       <Flex direction="column" mx={5} my={{ base: '3', md: '0' }}>
