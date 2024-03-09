@@ -7,7 +7,6 @@ import {
   HStack,
   Icon,
   IconButton,
-  Link,
   Stack,
   Table,
   Tag,
@@ -42,7 +41,6 @@ import { MathJax } from 'better-react-mathjax';
 import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
-import NextLink from 'next/link';
 import { equals, isNil, path } from 'ramda';
 import { memo, ReactElement } from 'react';
 import { useRouter } from 'next/router';
@@ -353,11 +351,9 @@ const Detail = <T,>(props: IDetailProps<T>): ReactElement => {
       <Td>{label}</Td>
       <Td wordBreak="break-word">
         {href && (
-          <NextLink href={href} passHref legacyBehavior>
-            <Link rel="noreferrer noopener" isExternal>
-              {normalizedValue} <ExternalLinkIcon mx="2px" />
-            </Link>
-          </NextLink>
+          <SimpleLink href={href} isExternal>
+            {normalizedValue} <ExternalLinkIcon mx="2px" />
+          </SimpleLink>
         )}
         {typeof children === 'function' ? children(value) : !href && normalizedValue}
       </Td>
