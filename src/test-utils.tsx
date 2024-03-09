@@ -11,7 +11,7 @@ import mockOrcidUser from '@mocks/responses/orcid/exchangeOAuthCode.json';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MathJaxProvider } from '@mathjax';
-import { GTMProvider } from '@elgorditosalsero/react-gtm-hook';
+import { GoogleTagManager } from '@next/third-parties/google';
 
 /**
  * Attach listeners and return the mocks
@@ -59,17 +59,16 @@ export const DefaultProviders = ({ children, options }: { children: ReactElement
     options?.storePreset ? getStateFromPreset(options.storePreset) : {};
 
   return (
-    <GTMProvider>
       <MathJaxProvider>
         <QueryClientProvider client={queryClient}>
           <StoreProvider createStore={useCreateStore(store)}>
             <Container maxW='container.lg'>
               {children}
+              <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
             </Container>
           </StoreProvider>
         </QueryClientProvider>
       </MathJaxProvider>
-    </GTMProvider>
   );
 };
 
