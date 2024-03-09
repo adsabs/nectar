@@ -268,7 +268,7 @@ const AuthorList = (props: IAuthorListProps): ReactElement => {
       {authorCount > MAX_AUTHORS ? (
         <AllAuthorsModal bibcode={bibcode} label={`and ${authorCount - MAX_AUTHORS} more`} />
       ) : (
-        <AllAuthorsModal bibcode={bibcode} label={'show list'} />
+        <AllAuthorsModal bibcode={bibcode} label={'show details'} />
       )}
     </Box>
   );

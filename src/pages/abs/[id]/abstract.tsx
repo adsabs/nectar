@@ -114,7 +114,7 @@ const AbstractPage: NextPage = () => {
                 {doc.author_count > MAX ? (
                   <AllAuthorsModal bibcode={doc.bibcode} label={`and ${doc.author_count - MAX} more`} />
                 ) : (
-                  <>{doc.author_count > 0 && <AllAuthorsModal bibcode={doc.bibcode} label={'show list'} />}</>
+                  <>{doc.author_count > 0 && <AllAuthorsModal bibcode={doc.bibcode} label={'show details'} />}</>
                 )}
               </Flex>
             ) : (
