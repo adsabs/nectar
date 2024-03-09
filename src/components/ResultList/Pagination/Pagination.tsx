@@ -24,7 +24,7 @@ import { APP_DEFAULTS } from '@config';
 import { NumPerPageType, SafeSearchUrlParams } from '@types';
 import { makeSearchParams, stringifySearchParams } from '@utils';
 import { useRouter } from 'next/router';
-import { curryN } from 'ramda';
+import { clamp, curryN } from 'ramda';
 import { Dispatch, FC, KeyboardEventHandler, ReactElement, useCallback, useMemo, useRef, useState } from 'react';
 import { MenuPlacement } from 'react-select';
 import { calculatePagination, PaginationAction, PaginationResult } from './usePagination';
@@ -266,6 +266,8 @@ const PaginationButton: FC<{ page: number; noLinks: boolean; onlyUpdatePageParam
   );
 };
 
+const cleanPage = (page: number) => (Number.isNaN(page) ? 1 : page);
+const clampPage = (page: number, totalPages: number) => clamp(1, totalPages - 1, page);
 /**
  * Popover for manually selecting a page
  */
@@ -289,12 +291,15 @@ const ManualPageSelect = ({
   const open = () => setIsOpen(!isOpen);
   const close = () => setIsOpen(false);
 
-  const handleChange = (_: string, page: number) => {
-    setPage(Number.isNaN(page) ? 1 : page);
-  };
+  const handleChange = useCallback(
+    (_: string, page: number) => {
+      setPage(clampPage(cleanPage(page), totalPages));
+    },
+    [totalPages],
+  );
 
   // submit the change to page
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     if (page !== currentPage) {
       if (!skipRouting) {
         void router.push({
@@ -311,7 +316,7 @@ const ManualPageSelect = ({
       }
     }
     close();
-  };
+  }, [page, currentPage, skipRouting, dispatch, onPageSelect]);
 
   // on enter, submit the change
   const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (e) => {
@@ -352,7 +357,6 @@ const ManualPageSelect = ({
               defaultValue={currentPage}
               min={1}
               max={totalPages}
-              value={page}
               onChange={handleChange}
               onKeyDown={handleKeyDown}
             >
@@ -362,7 +366,7 @@ const ManualPageSelect = ({
                 <NumberDecrementStepper />
               </NumberInputStepper>
             </NumberInput>
-            <Button onClick={handleSubmit}>Goto Page {page}</Button>
+            <Button onClick={handleSubmit}>Goto Page {page.toLocaleString()}</Button>
           </Stack>
         </PopoverBody>
       </PopoverContent>
