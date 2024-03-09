@@ -1,14 +1,14 @@
 const { withSentryConfig } = require('@sentry/nextjs');
 
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true',
-});
-
 /**
  * @type {import('next').NextConfig}
  **/
 const config = {
   distDir: process.env.DIST_DIR || 'dist',
+  generateBuildId: async () => {
+    return process.env.GIT_SHA ?? '';
+  },
+  generateEtags: true,
   poweredByHeader: false,
   reactStrictMode: true,
   experimental: { newNextLinkBehavior: false, webVitalsAttribution: ['CLS', 'LCP'] },
@@ -127,12 +127,10 @@ const config = {
   ...(!process.env.CI ? {} : { eslint: { ignoreDuringBuilds: true } }),
 };
 
-module.exports = withBundleAnalyzer(
-  withSentryConfig(
-    config,
-    {
-      // For all available options, see:
-      // https://github.com/getsentry/sentry-webpack-plugin#options
+const sentryConfig = [
+  {
+    // For all available options, see:
+    // https://github.com/getsentry/sentry-webpack-plugin#options
 
       // Suppresses source map uploading logs during build
       silent: true,
@@ -158,11 +156,19 @@ module.exports = withBundleAnalyzer(
       // Automatically tree-shake Sentry logger statements to reduce bundle size
       disableLogger: true,
 
-      // Enables automatic instrumentation of Vercel Cron Monitors.
-      // See the following for more information:
-      // https://docs.sentry.io/product/crons/
-      // https://vercel.com/docs/cron-jobs
-      automaticVercelMonitors: false,
-    },
-  ),
-);
+    // Enables automatic instrumentation of Vercel Cron Monitors.
+    // See the following for more information:
+    // https://docs.sentry.io/product/crons/
+    // https://vercel.com/docs/cron-jobs
+    automaticVercelMonitors: false,
+  },
+];
+
+if (process.env.NODE_ENV === 'production') {
+  module.exports = withSentryConfig(config, ...sentryConfig);
+} else {
+  const withBundleAnalyzer = require('@next/bundle-analyzer')({
+    enabled: process.env.ANALYZE === 'true',
+  });
+  module.exports = withBundleAnalyzer(withSentryConfig(config, ...sentryConfig));
+}
