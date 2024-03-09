@@ -1,10 +1,8 @@
 import { ReactElement } from 'react';
-import { UrlObject } from 'url';
+import { ISimpleLinkProps } from '@components';
 
-export interface IMenuItem {
+export interface IMenuItem extends Pick<ISimpleLinkProps, 'href'> {
   id: string | number;
-  href: string | UrlObject;
-  hrefAs: string | UrlObject;
   label: string | ReactElement;
   icon?: ReactElement;
   rightElement?: ReactElement;

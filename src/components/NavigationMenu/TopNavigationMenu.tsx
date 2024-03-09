@@ -1,18 +1,18 @@
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { Box, BoxProps, Flex, Menu, MenuButton, MenuItem, MenuList, Stack, Text } from '@chakra-ui/react';
 import { CatMenuItems, IMenuItem, IMenuItemProps, SingleMenuItems } from './types';
-import NextLink from 'next/link';
 import { cloneElement } from 'react';
 import { SimpleLinkDropdown } from '@components/Dropdown';
 import { ItemType } from '@components/Dropdown/types';
 import { useColorModeColors, useIsClient } from 'src/lib';
+import { SimpleLink } from '@components';
 
 export interface ITopNavigationMenuProps extends BoxProps {
   menuItems: CatMenuItems | SingleMenuItems;
   activeItem: IMenuItem;
 }
 
-const TopMenuItem = ({ href, hrefAs, label, icon, rightElement, disabled = false, active = false }: IMenuItemProps) => {
+const TopMenuItem = ({ href, label, icon, rightElement, disabled = false, active = false }: IMenuItemProps) => {
   const colors = useColorModeColors();
 
   return (
@@ -21,16 +21,16 @@ const TopMenuItem = ({ href, hrefAs, label, icon, rightElement, disabled = false
       backgroundColor={active ? colors.highlightBackground : 'transparent'}
       mb={1}
       _hover={{ backgroundColor: colors.highlightBackground }}
+      as={SimpleLink}
+      href={href}
     >
-      <NextLink href={href} as={hrefAs} passHref>
-        <Box width="full">
-          <Stack direction="row" alignItems="center">
-            {icon && cloneElement(icon, { marginright: '16px', width: '18px', 'aria-hidden': true })}
-            <Text fontWeight="normal">{label}</Text>
-            {rightElement}
-          </Stack>
-        </Box>
-      </NextLink>
+      <Box width="full">
+        <Stack direction="row" alignItems="center">
+          {icon && cloneElement(icon, { marginright: '16px', width: '18px', 'aria-hidden': true })}
+          <Text fontWeight="normal">{label}</Text>
+          {rightElement}
+        </Stack>
+      </Box>
     </MenuItem>
   );
 };
@@ -105,7 +105,7 @@ const Static = ({ menuItems, activeItem, ...boxProps }: ITopNavigationMenuProps)
     ),
 
     // TODO: need to refactor this so it supports dynamic routes (i.e. linkProps)
-    path: item.hrefAs,
+    path: item.href.toString(),
     disabled: item.disabled,
   }));
 
