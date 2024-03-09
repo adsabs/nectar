@@ -6,14 +6,16 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
+ENV NODE_ENV=production
+
 RUN npm install -g pnpm
 
 # Files required by pnpm install
 COPY .npmrc.* package.json pnpm-lock.yaml .pnpmfile.cjs.* ./
 
 # install deps
-RUN pnpm install sharp
-RUN pnpm install --frozen-lockfile --ignore-scripts
+RUN pnpm add sharp
+RUN pnpm install --frozen-lockfile --ignore-scripts --no-optional
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -21,24 +23,24 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Next.js collects completely anonymous telemetry data about general usage.
-# Learn more here: https://nextjs.org/telemetry
-# Uncomment the following line in case you want to disable telemetry during the build.
-ENV NEXT_TELEMETRY_DISABLED 1
-ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+ENV NODE_ENV=production
+
+# Add the git commit hash to the environment variables
+RUN export GIT_SHA=$(git rev-parse HEAD); echo "GIT_SHA=$GIT_SHA" >> .env.local
 
 # ensure pnpm is available in the builder
 RUN npm install -g pnpm
 
-RUN pnpm build
+RUN pnpm run build
 
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
-# Uncomment the following line in case you want to disable telemetry during runtime.
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
