@@ -22,6 +22,32 @@ const config = {
     }
     return {};
   },
+  async headers() {
+    return [
+      {
+        source: '/:slug*',
+        headers: [
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin',
+          },
+          {
+            key: 'Feature-Policy',
+            value:
+              "geolocation 'none'; midi 'none'; microphone 'none'; camera 'none'; magnetometer 'none'; gyroscope 'none'; speaker 'none'; fullscreen 'self'; payment 'none'",
+          },
+        ],
+      },
+    ];
+  },
   async redirects() {
     return [
       // redirect bare abs links to /abstract by default
