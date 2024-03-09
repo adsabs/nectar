@@ -5,8 +5,8 @@ import { FC, HTMLAttributes, MouseEventHandler, useMemo } from 'react';
 import { examples } from './examples';
 import { useIsClient } from '@lib/useIsClient';
 import { useIntermediateQuery } from '@lib/useIntermediateQuery';
-import { useGTMDispatch } from '@elgorditosalsero/react-gtm-hook';
 import { useColorModeColors } from '@lib';
+import { sendGTMEvent } from '@next/third-parties/google';
 
 export interface ISearchExamplesProps extends HTMLAttributes<HTMLDivElement> {
   onSelect?: () => void;
@@ -14,8 +14,6 @@ export interface ISearchExamplesProps extends HTMLAttributes<HTMLDivElement> {
 
 export const SearchExamples: FC<ISearchExamplesProps> = (props) => {
   const { onSelect = noop, ...divProps } = props;
-
-  const sendDataToGTM = useGTMDispatch();
   const mode = useStore((state) => state.mode);
   const { appendToQuery } = useIntermediateQuery();
 
@@ -25,7 +23,7 @@ export const SearchExamples: FC<ISearchExamplesProps> = (props) => {
     // Add our text to the end of the query
     appendToQuery(text);
 
-    sendDataToGTM({
+    sendGTMEvent({
       event: 'search_example_click',
       search_example: text,
     });

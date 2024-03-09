@@ -5,19 +5,18 @@ import { AppMode } from '@types';
 import { ReactElement, useMemo } from 'react';
 import shallow from 'zustand/shallow';
 import { modes } from './models';
-import { useGTMDispatch } from '@elgorditosalsero/react-gtm-hook';
+import { sendGTMEvent } from '@next/third-parties/google';
 
 const options = Object.values(modes);
 
 export const AppModeDropdown = (): ReactElement => {
-  const sendDataToGTM = useGTMDispatch();
   const [mode, setMode]: [AppMode, (mode: AppMode) => void] = useStore((state) => [state.mode, state.setMode], shallow);
 
   const option = useMemo(() => modes[mode], [mode]);
 
   const handleThemeChange = ({ id: mode }: SelectOption<AppMode>) => {
     setMode(mode);
-    sendDataToGTM({
+    sendGTMEvent({
       event: 'app_mode_change',
       mode,
     });

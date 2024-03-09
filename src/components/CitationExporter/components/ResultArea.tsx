@@ -5,8 +5,8 @@ import { useDownloadFile } from '@lib/useDownloadFile';
 import { useIsClient } from '@lib/useIsClient';
 import { exportFormats } from '../models';
 import { LabeledCopyButton } from '@components/CopyButton';
-import { useGTMDispatch } from '@elgorditosalsero/react-gtm-hook';
 import { useColorModeColors } from '@lib';
+import { sendGTMEvent } from '@next/third-parties/google';
 
 export const ResultArea = ({
   result = '',
@@ -18,11 +18,10 @@ export const ResultArea = ({
   format: ExportApiFormatKey;
   isLoading?: boolean;
 } & StackProps) => {
-  const sendDataToGTM = useGTMDispatch();
   const { onDownload, hasDownloaded, isDownloading } = useDownloadFile(result, {
     filename: () => `export-${format}.${exportFormats[format].ext}`,
     onDownloaded() {
-      sendDataToGTM({
+      sendGTMEvent({
         event: 'citation_export',
         export_type: 'download',
         export_format: format,
@@ -54,7 +53,7 @@ export const ResultArea = ({
             width={isFullWidth ? 'full' : 'auto'}
             variant="outline"
             onCopyComplete={() => {
-              sendDataToGTM({
+              sendGTMEvent({
                 event: 'citation_export',
                 export_type: 'copy',
                 export_format: format,

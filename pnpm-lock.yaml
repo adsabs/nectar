@@ -32,9 +32,6 @@ importers:
       '@dnd-kit/utilities':
         specifier: ^3.2.2
         version: 3.2.2(react@18.2.0)
-      '@elgorditosalsero/react-gtm-hook':
-        specifier: ^2.7.2
-        version: 2.7.2(react@18.2.0)
       '@emotion/react':
         specifier: 11.8.2
         version: 11.8.2(@babel/core@7.22.10)(@types/react@17.0.43)(react@18.2.0)
@@ -50,6 +47,9 @@ importers:
       '@next/bundle-analyzer':
         specifier: ^10.2.3
         version: 10.2.3
+      '@next/third-parties':
+        specifier: ^14.1.0
+        version: 14.1.0(next@13.5.6)(react@18.2.0)
       '@nivo/bar':
         specifier: ^0.80.0
         version: 0.80.0(@nivo/core@0.80.0)(prop-types@15.8.1)(react-dom@18.2.0)(react@18.2.0)
@@ -4092,15 +4092,6 @@ packages:
       tslib: 2.5.0
     dev: false
 
-  /@elgorditosalsero/react-gtm-hook@2.7.2(react@18.2.0):
-    resolution: {integrity: sha512-5lGZOk7BcWTdz2pqu2sa/IyAtuTItCCZuEGUthnlJgpWKvVGrzVyhIOVj1/ed575jusaMIr+yIfeZ11WzH2QqQ==}
-    engines: {node: '>=12'}
-    peerDependencies:
-      react: ^16.13.1 || ^17.0.0 || 18
-    dependencies:
-      react: 18.2.0
-    dev: false
-
   /@emotion/babel-plugin@11.10.5(@babel/core@7.22.10):
     resolution: {integrity: sha512-xE7/hyLHJac7D2Ve9dKroBBZqBT7WuPQmWcq7HSGb84sUuP4mlOWoB8dvVfD9yk5DHkU1m6RW7xSoDtnQHNQeA==}
     peerDependencies:
@@ -4846,6 +4837,17 @@ packages:
     os: [win32]
     requiresBuild: true
     optional: true
+
+  /@next/third-parties@14.1.0(next@13.5.6)(react@18.2.0):
+    resolution: {integrity: sha512-f55SdvQ1WWxi4mb5QqtYQh5wRzbm1XaeP7s39DPn4ks3re+n9VlFccbMxBRHqkE62zAyIKmvkUB2cByT/gugGA==}
+    peerDependencies:
+      next: ^13.0.0 || ^14.0.0
+      react: ^18.2.0
+    dependencies:
+      next: 13.5.6(@babel/core@7.22.10)(react-dom@18.2.0)(react@18.2.0)
+      react: 18.2.0
+      third-party-capital: 1.0.20
+    dev: false
 
   /@nivo/annotations@0.80.0(@nivo/core@0.80.0)(prop-types@15.8.1)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-bC9z0CLjU07LULTMWsqpjovRtHxP7n8oJjqBQBLmHOGB4IfiLbrryBfu9+aEZH3VN2jXHhdpWUz+HxeZzOzsLg==}
@@ -15842,6 +15844,10 @@ packages:
   /text-table@0.2.0:
     resolution: {integrity: sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==}
     dev: true
+
+  /third-party-capital@1.0.20:
+    resolution: {integrity: sha512-oB7yIimd8SuGptespDAZnNkzIz+NWaJCu2RMsbs4Wmp9zSDUM8Nhi3s2OOcqYuv3mN4hitXc8DVx+LyUmbUDiA==}
+    dev: false
 
   /thread-stream@2.4.1:
     resolution: {integrity: sha512-d/Ex2iWd1whipbT681JmTINKw0ZwOUBZm7+Gjs64DHuX34mmw8vJL2bFAaNacaW72zYiTJxSHi5abUuOi5nsfg==}

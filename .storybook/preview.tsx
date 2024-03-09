@@ -1,11 +1,11 @@
 import { Preview } from '@storybook/react';
+import { GoogleTagManager } from '@next/third-parties/google';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { StoreProvider, useCreateStore } from '../src/store/store';
 import { initialize, mswLoader } from 'msw-storybook-addon';
 import { handlers } from '../src/mocks/handlers';
 import { theme } from '../src/theme';
 import { MathJaxProvider } from '../src/mathjax';
-import { GTMProvider } from '@elgorditosalsero/react-gtm-hook';
 import { useCreateQueryClient } from '@lib';
 
 export const parameters = {
@@ -29,15 +29,14 @@ const preview: Preview = {
         },
       });
       return (
-        <GTMProvider>
-          <MathJaxProvider>
-            <QueryClientProvider client={qc}>
-              <StoreProvider createStore={useCreateStore({})}>
-                <Story />
-              </StoreProvider>
-            </QueryClientProvider>
-          </MathJaxProvider>
-        </GTMProvider>
+        <MathJaxProvider>
+          <QueryClientProvider client={qc}>
+            <StoreProvider createStore={useCreateStore({})}>
+              <Story />
+              <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
+            </StoreProvider>
+          </QueryClientProvider>
+        </MathJaxProvider>
       );
     },
   ],
