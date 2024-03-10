@@ -120,17 +120,15 @@ dist
 dev/
 storybook-static/
 .DS_Store
-.idea
+.idea/
 .env.development
 .env.production
-/.vitest/
-/.vitest-preview/
-/test-results/
-/playwright-report/
-/playwright/.cache/
-
-# Sentry Config File
-.sentryclirc
+.vitest/
+.vitest-preview/
+test-results/
+playwright-report/
+playwright/.cache/
+playwright/.auth/
 
 # Sentry Config File
 .sentryclirc

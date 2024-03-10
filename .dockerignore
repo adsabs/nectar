@@ -10,3 +10,7 @@ stories
 .prettier*
 LICENSE
 README.md
+__mocks__
+test-results
+.env.local.sample
+dev

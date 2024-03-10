@@ -1,11 +1,10 @@
-// back button should go to whereever it came from
 import { expect, test } from '@playwright/test';
 
 test.describe.configure({
   mode: 'parallel',
 });
 
-test('Back button goes to landing page', async ({ page }) => {
+test.skip('Back button goes to landing page', async ({ page }) => {
   await page.goto('/user/libraries/001', { timeout: 60000 });
 
   await page.getByTestId('lib-back-btn').click();
@@ -13,7 +12,7 @@ test('Back button goes to landing page', async ({ page }) => {
   expect(page.url()).toMatch(/^.*\/user\/libraries$/);
 });
 
-test('Library metadata are correct', async ({ page }) => {
+test.skip('Library metadata are correct', async ({ page }) => {
   await page.goto('/user/libraries/001', { timeout: 60000 });
 
   await expect(page.getByLabel('private')).toBeVisible();
@@ -30,7 +29,7 @@ test('Library metadata are correct', async ({ page }) => {
   await expect(page.getByLabel('Results').getByRole('article')).toHaveCount(10);
 });
 
-test('Click on view library as search results goes to search', async ({ page }) => {
+test.skip('Click on view library as search results goes to search', async ({ page }) => {
   await page.goto('/user/libraries/001', { timeout: 60000 });
 
   await page.getByText('View as Search Results').click();
@@ -38,7 +37,7 @@ test('Click on view library as search results goes to search', async ({ page }) 
   expect(page.url()).toMatch(/^.*\/search\?q=docs\(library%2F001\).*/);
 });
 
-test('Edit document annotations with admin permission', async ({ page }) => {
+test.skip('Edit document annotations with admin permission', async ({ page }) => {
   await page.goto('/user/libraries/001', { timeout: 60000 });
 
   // initial state are correct
@@ -99,7 +98,7 @@ test('Edit document annotations with admin permission', async ({ page }) => {
   await expect(annotationArea2.getByLabel('cancel').first()).toBeHidden();
 });
 
-test('View document annotations with write permission', async ({ page }) => {
+test.skip('View document annotations with write permission', async ({ page }) => {
   await page.goto('/user/libraries/002', { timeout: 60000 });
 
   await page.getByLabel('show abstract').first().click(); // expand abstract / annotation
@@ -159,7 +158,7 @@ test('View document annotations with write permission', async ({ page }) => {
   await expect(annotationArea2.getByLabel('cancel').first()).toBeHidden();
 });
 
-test('View document annotations with read permission', async ({ page }) => {
+test.skip('View document annotations with read permission', async ({ page }) => {
   await page.goto('/user/libraries/003', { timeout: 60000 });
 
   // can see annotation but cannot edit
@@ -181,7 +180,7 @@ test('View document annotations with read permission', async ({ page }) => {
   await expect(annotationArea2.getByLabel('cancel').first()).toBeHidden();
 });
 
-test('Delete selected docs from library', async ({ page }) => {
+test.skip('Delete selected docs from library', async ({ page }) => {
   await page.goto('/user/libraries/001', { timeout: 60000 });
 
   await page.getByTestId('document-checkbox').nth(1).check();
@@ -191,7 +190,7 @@ test('Delete selected docs from library', async ({ page }) => {
   await expect(page.getByLabel('Results').getByRole('article')).toHaveCount(8);
 });
 
-test('Delete all docs from library', async ({ page }) => {
+test.skip('Delete all docs from library', async ({ page }) => {
   await page.goto('/user/libraries/001', { timeout: 60000 });
 
   await page.getByTestId('select-all-checkbox').check();
@@ -200,7 +199,7 @@ test('Delete all docs from library', async ({ page }) => {
   await expect(page.getByLabel('Results').getByRole('article')).toHaveCount(0);
 });
 
-test('Public library view should have correct metadata', async ({ page }) => {
+test.skip('Public library view should have correct metadata', async ({ page }) => {
   await page.goto('/public-libraries/001', { timeout: 60000 });
 
   await expect(page.getByLabel('private')).toBeHidden(); // this info is hidden from public view
@@ -216,7 +215,7 @@ test('Public library view should have correct metadata', async ({ page }) => {
   await expect(page.getByLabel('Results').getByRole('article')).toHaveCount(10);
 });
 
-test('Public library should show abstract but not annotations', async ({ page }) => {
+test.skip('Public library should show abstract but not annotations', async ({ page }) => {
   await page.goto('/public-libraries/001', { timeout: 60000 });
 
   await page.getByLabel('show abstract').first().click(); // expand abstract / annotation

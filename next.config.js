@@ -6,7 +6,7 @@ const { withSentryConfig } = require('@sentry/nextjs');
 const config = {
   distDir: process.env.DIST_DIR || 'dist',
   generateBuildId: async () => {
-    return process.env.GIT_SHA ?? '';
+    return process.env.GIT_SHA || 'latest';
   },
   generateEtags: true,
   poweredByHeader: false,
@@ -161,6 +161,7 @@ const sentryConfig = [
     // https://docs.sentry.io/product/crons/
     // https://vercel.com/docs/cron-jobs
     automaticVercelMonitors: false,
+    release: process.env.GIT_SHA || 'latest',
   },
 ];
 

@@ -48,6 +48,9 @@ declare global {
       GIT_SHA: string;
       CSP_REPORT_URI: string;
       CSP_REPORT_ONLY: string;
+      MAILSLURP_API_KEY: string;
+      MAILSLURP_INBOX_ID: string;
+      MAILSLURP_DOMAIN: string;
     }
   }
 }

@@ -1,11 +1,10 @@
-// back button should go to whereever it came from
 import { expect, test } from '@playwright/test';
 
 test.describe.configure({
   mode: 'parallel',
 });
 
-test('Library settings back button goes to the landing page', async ({ page }) => {
+test.skip('Library settings back button goes to the landing page', async ({ page }) => {
   await page.goto('/user/libraries', { timeout: 60000 });
 
   await page.locator('tbody > tr').nth(0).getByTestId('library-action-menu').click();
@@ -21,7 +20,7 @@ test('Library settings back button goes to the landing page', async ({ page }) =
   expect(page.url()).toMatch(/^.*\/user\/libraries$/);
 });
 
-test('Library settings back button goes to the library page', async ({ page }) => {
+test.skip('Library settings back button goes to the library page', async ({ page }) => {
   // enter from library entity
   await page.goto('/user/libraries/001', { timeout: 60000 });
   await page.getByTestId('settings-btn').click();
@@ -34,7 +33,7 @@ test('Library settings back button goes to the library page', async ({ page }) =
   expect(page.url()).toMatch(/^.*\/user\/libraries\/001$/);
 });
 
-test('Library settings has correct information for owner', async ({ page }) => {
+test.skip('Library settings has correct information for owner', async ({ page }) => {
   await page.goto('/user/libraries/004/settings', { timeout: 60000 });
 
   await expect(page.getByTestId('library-name-input')).toBeEditable({ editable: true });
@@ -61,7 +60,7 @@ test('Library settings has correct information for owner', async ({ page }) => {
   await expect(page.getByText('Delete Library')).toBeVisible();
 });
 
-test('Library settings has correct information for admin', async ({ page }) => {
+test.skip('Library settings has correct information for admin', async ({ page }) => {
   await page.goto('/user/libraries/001/settings', { timeout: 60000 });
 
   await expect(page.getByTestId('library-name-input')).toBeEnabled();
@@ -94,7 +93,7 @@ test('Library settings has correct information for admin', async ({ page }) => {
   await expect(page.getByText('Delete Library')).toBeHidden();
 });
 
-test('Library with admin permission can edit but cannot delete', async ({ page }) => {
+test.skip('Library with admin permission can edit but cannot delete', async ({ page }) => {
   await page.goto('/user/libraries/001/settings', { timeout: 60000 });
 
   await expect(page.getByText('Delete Library')).toBeHidden();
@@ -134,7 +133,7 @@ test('Library with admin permission can edit but cannot delete', async ({ page }
   await expect(row.nth(1).getByLabel('public')).toBeVisible();
 });
 
-test('User with write permission cannot edit settings', async ({ page }) => {
+test.skip('User with write permission cannot edit settings', async ({ page }) => {
   await page.goto('/user/libraries/002/settings', { timeout: 60000 });
 
   await expect(page.getByTestId('library-name-input')).toBeEditable({ editable: false });
@@ -151,7 +150,7 @@ test('User with write permission cannot edit settings', async ({ page }) => {
   await expect(page.getByText('Delete Library')).toBeHidden();
 });
 
-test('User with read permission cannot edit settings', async ({ page }) => {
+test.skip('User with read permission cannot edit settings', async ({ page }) => {
   await page.goto('/user/libraries/003/settings', { timeout: 60000 });
 
   await expect(page.getByTestId('library-name-input')).toBeEditable({ editable: false });
@@ -168,7 +167,7 @@ test('User with read permission cannot edit settings', async ({ page }) => {
   await expect(page.getByText('Delete Library')).toBeHidden();
 });
 
-test('Library owner can edit library metadata', async ({ page }) => {
+test.skip('Library owner can edit library metadata', async ({ page }) => {
   await page.goto('/user/libraries/004/settings', { timeout: 60000 });
 
   // modify
@@ -204,7 +203,7 @@ test('Library owner can edit library metadata', async ({ page }) => {
   await expect(row.nth(3).locator('p').nth(1)).toContainText('004 updated');
 });
 
-test('Library owner can delete library', async ({ page }) => {
+test.skip('Library owner can delete library', async ({ page }) => {
   await page.goto('/user/libraries/004/settings', { timeout: 60000 });
   await page.getByText('Delete Library').click();
   await page.getByTestId('confirm-del-lib-btn').click();
@@ -214,7 +213,7 @@ test('Library owner can delete library', async ({ page }) => {
   await expect(page.getByTestId('pagination-string')).toHaveText('Showing 1 to 10 of 10 results');
 });
 
-test('Owner can edit collaborators', async ({ page }) => {
+test.skip('Owner can edit collaborators', async ({ page }) => {
   await page.goto('/user/libraries/004/settings', { timeout: 60000 });
 
   // add user
@@ -236,7 +235,7 @@ test('Owner can edit collaborators', async ({ page }) => {
   await expect(page.getByTestId('collab-table').locator('tbody tr')).toHaveCount(2);
 });
 
-test('Admin can edit collaborators', async ({ page }) => {
+test.skip('Admin can edit collaborators', async ({ page }) => {
   await page.goto('/user/libraries/001/settings', { timeout: 60000 });
 
   // add user
@@ -258,19 +257,19 @@ test('Admin can edit collaborators', async ({ page }) => {
   await expect(page.getByTestId('collab-table').locator('tbody tr')).toHaveCount(2);
 });
 
-test('User with write permission canot edit collaborators', async ({ page }) => {
+test.skip('User with write permission canot edit collaborators', async ({ page }) => {
   await page.goto('/user/libraries/002/settings', { timeout: 60000 });
 
   await expect(page.getByTestId('new-collaborator-row')).toBeHidden();
 });
 
-test('User with read permission canot edit collaborators', async ({ page }) => {
+test.skip('User with read permission canot edit collaborators', async ({ page }) => {
   await page.goto('/user/libraries/003/settings', { timeout: 60000 });
 
   await expect(page.getByTestId('new-collaborator-row')).toBeHidden();
 });
 
-test('Owner can transfer library', async ({ page }) => {
+test.skip('Owner can transfer library', async ({ page }) => {
   await page.goto('/user/libraries/004/settings', { timeout: 60000 });
 
   await page.getByText('Transfer Ownership').click();

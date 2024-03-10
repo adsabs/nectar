@@ -68,10 +68,8 @@ ENV GIT_SHA="$GIT_SHA"
 ENV PORT=8000
 ENV HOSTNAME="0.0.0.0"
 
-RUN usermod -u "$USER_ID" pwuser
-RUN usermod -g "$GROUP_ID" pwuser
-
 RUN corepack enable
+USER $USER_ID
 WORKDIR /app
 
 RUN mkdir /app/screenshots
