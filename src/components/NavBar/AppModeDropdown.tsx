@@ -32,6 +32,8 @@ export const AppModeDropdown = (): ReactElement => {
         label="Select theme"
         id="theme-selector"
         instanceId="theme-selector"
+        data-testid="theme-selector"
+        inputId="theme-selector-input"
       />
     </Box>
   );

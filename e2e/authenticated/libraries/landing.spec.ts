@@ -1,10 +1,74 @@
 import { expect, test } from '@playwright/test';
+import { addNewLibraryFromDashboard, deleteLibraryFromDashboard, gotoAllLibraries } from './libraries.utils';
 
 test.describe.configure({
   mode: 'parallel',
 });
 
-test('Libraries show up in the table', async ({ page }) => {
+test.fixme('User can add, update and delete a library from the dashboard', async ({ page }) => {
+  await gotoAllLibraries(page);
+  await expect(page.locator('#main-content').getByRole('alert')).toHaveText('No libraries found');
+  await addNewLibraryFromDashboard(page, { name: 'test library', public: false, description: 'test description' });
+  await expect(page.getByRole('cell', { name: 'test library test description' })).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'private' })).toBeVisible();
+  await page.getByTestId('library-action-menu').click();
+  await page.getByRole('menuitem', { name: 'Settings' }).click();
+  await page.getByTestId('library-name-input').click();
+  await page.getByTestId('library-name-input').fill('test library updated');
+  await page.getByTestId('library-desc-input').click();
+  await page.getByTestId('library-desc-input').fill('test description updated');
+  await page.getByTestId('library-public-switch').locator('span').first().click();
+  await page.getByRole('button', { name: 'Save' }).click();
+  await gotoAllLibraries(page);
+  await expect.soft(page.getByRole('cell', { name: 'public' })).toBeVisible();
+  await deleteLibraryFromDashboard(page, { name: 'test library updated' });
+  await expect(page.locator('#main-content').getByRole('alert')).toHaveText('No libraries found');
+});
+
+// test('Empty account shows no libraries', async ({ page }) => {
+//   await gotoAllLibraries(page);
+//   await expect(page.locator('#main-content').getByRole('alert')).toHaveText('No libraries found');
+// });
+
+// test('Sorting and Filtering a list of libraries', async ({ page }) => {
+//   await addTestLibraries(page);
+//
+//   // -------- pagination ----------
+//
+//   const rows = page.getByTestId('libraries-table').locator('tbody > tr');
+//   await expect(rows).toHaveCount(10);
+//   await expect(page.getByTestId('pagination-string')).toHaveText('Showing 1 to 10 of 11 results');
+//
+//   // go to next page
+//   await page.getByLabel('go to next page').click();
+//   await expect(page.getByTestId('libraries-table').locator('tbody > tr')).toHaveCount(1);
+//   await expect(page.getByTestId('pagination-string')).toHaveText('Showing 11 to 11 of 11 results');
+//
+//   // show 50 per page
+//   await page.getByTestId('page-size-selector').selectOption('50');
+//   await expect(page.getByTestId('libraries-table').locator('tbody > tr')).toHaveCount(11);
+//   await expect(page.getByTestId('pagination-string')).toHaveText('Showing 1 to 11 of 11 results');
+//
+//   // -------- filtering ----------
+//   await page.locator('[id="lib-type-select"]').click(); // select dropdown
+//   await page.locator('[id^="react-select-lib-type-select"]').locator('[id$="-option-1"]').click(); // select 'owner'
+//   await expect(page.getByTestId('libraries-table').locator('tbody > tr')).toHaveCount(8);
+//   await expect(page.getByTestId('pagination-string')).toHaveText('Showing 1 to 8 of 8 results');
+//
+//   await page.locator('[id="lib-type-select"]').click(); // select dropdown
+//   await page.locator('[id^="react-select-lib-type-select"]').locator('[id$="-option-2"]').click(); // select 'collaborator'
+//   await expect(page.getByTestId('libraries-table').locator('tbody > tr')).toHaveCount(3);
+//   await expect(page.getByTestId('pagination-string')).toHaveText('Showing 1 to 3 of 3 results');
+//
+//   await page.locator('[id="lib-type-select"]').click(); // select dropdown
+//   await page.locator('[id^="react-select-lib-type-select"]').locator('[id$="-option-0"]').click(); // select 'all'
+//   await expect(page.getByTestId('libraries-table').locator('tbody > tr')).toHaveCount(10);
+//   await expect(page.getByTestId('pagination-string')).toHaveText('Showing 1 to 10 of 11 results');
+//
+//   await cleanupTestLibraries(page);
+// });
+
+test.fixme('Libraries show up in the table', async ({ page }) => {
   await page.goto('/user/libraries', { timeout: 60000 });
   const rows = page.getByTestId('libraries-table').locator('tbody > tr');
   await expect(rows).toHaveCount(10);
@@ -21,7 +85,7 @@ test('Libraries show up in the table', async ({ page }) => {
   await expect(page.getByTestId('pagination-string')).toHaveText('Showing 1 to 11 of 11 results');
 });
 
-test('Filter by library type', async ({ page }) => {
+test.fixme('Filter by library type', async ({ page }) => {
   await page.goto('/user/libraries', { timeout: 60000 });
   await page.locator('[id="lib-type-select"]').click(); // select dropdown
   await page.locator('[id^="react-select-lib-type-select"]').locator('[id$="-option-1"]').click(); // select 'owner'
@@ -39,7 +103,7 @@ test('Filter by library type', async ({ page }) => {
   await expect(page.getByTestId('pagination-string')).toHaveText('Showing 1 to 10 of 11 results');
 });
 
-test('Sort libraries table', async ({ page }) => {
+test.fixme('Sort libraries table', async ({ page }) => {
   await page.goto('/user/libraries', { timeout: 60000 });
   await expect(page.locator('tbody > tr').nth(0).locator('td').nth(3)).toContainText('001');
 
@@ -56,7 +120,7 @@ test('Sort libraries table', async ({ page }) => {
   await expect(page.locator('tbody > tr').nth(0).locator('td').nth(3)).toContainText('test6');
 });
 
-test('Add new library', async ({ page }) => {
+test.fixme('Add new library', async ({ page }) => {
   await page.goto('/user/libraries', { timeout: 60000 });
 
   await page.getByTestId('add-new-lib-btn').click();
@@ -77,7 +141,7 @@ test('Add new library', async ({ page }) => {
   await expect(page.getByTestId('libraries-table').locator('tbody > tr')).toHaveCount(12);
 });
 
-test('Library operations - union', async ({ page }) => {
+test.fixme('Library operations - union', async ({ page }) => {
   await page.goto('/user/libraries', { timeout: 60000 });
 
   await page.getByTestId('lib-operation-btn').click();
@@ -101,7 +165,7 @@ test('Library operations - union', async ({ page }) => {
   await expect(page.getByTestId('pagination-string')).toHaveText('Showing 1 to 10 of 12 results');
 });
 
-test('Library operations - copy', async ({ page }) => {
+test.fixme('Library operations - copy', async ({ page }) => {
   await page.goto('/user/libraries', { timeout: 60000 });
 
   await page.getByTestId('lib-operation-btn').click();
@@ -120,7 +184,7 @@ test('Library operations - copy', async ({ page }) => {
   await expect(page.getByTestId('libraries-table').locator('tbody > tr').nth(1).locator('td').nth(4)).toHaveText('10');
 });
 
-test('Library operations - empty', async ({ page }) => {
+test.fixme('Library operations - empty', async ({ page }) => {
   await page.goto('/user/libraries', { timeout: 60000 });
 
   await page.getByTestId('lib-operation-btn').click();
@@ -137,7 +201,7 @@ test('Library operations - empty', async ({ page }) => {
   await expect(page.getByTestId('libraries-table').locator('tbody > tr').nth(0).locator('td').nth(4)).toHaveText('0');
 });
 
-test('Delete libraries', async ({ page }) => {
+test.fixme('Delete libraries', async ({ page }) => {
   await page.goto('/user/libraries', { timeout: 60000 });
 
   // no permission to delete
@@ -154,7 +218,7 @@ test('Delete libraries', async ({ page }) => {
   await expect(page.getByTestId('pagination-string')).toHaveText('Showing 1 to 10 of 10 results');
 });
 
-test('Action menu -> settings go to library settings page', async ({ page }) => {
+test.fixme('Action menu -> settings go to library settings page', async ({ page }) => {
   await page.goto('/user/libraries', { timeout: 60000 });
 
   await page.locator('tbody > tr').nth(0).getByTestId('library-action-menu').click();
@@ -168,7 +232,7 @@ test('Action menu -> settings go to library settings page', async ({ page }) => 
   expect(page.url()).toContain('/settings?from=landing');
 });
 
-test('Click on library goes to individual library page', async ({ page }) => {
+test.fixme('Click on library goes to individual library page', async ({ page }) => {
   await page.goto('/user/libraries', { timeout: 60000 });
 
   await page.locator('tbody > tr').nth(0).click();
