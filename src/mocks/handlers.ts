@@ -12,6 +12,7 @@ import { referenceHandlers } from '@mocks/handlers/reference';
 import { myadsHandlers } from '@mocks/handlers/myads';
 import { bibstemHandlers } from '@mocks/handlers/bibstems';
 import { librariesHandlers } from '@mocks/handlers/libraries';
+import { notificationsHandlers } from './handlers/notifications';
 
 export const handlers = [
   ...accountHandlers,
@@ -27,4 +28,5 @@ export const handlers = [
   ...searchHandlers,
   ...userHandlers,
   ...librariesHandlers,
+  ...notificationsHandlers,
 ];
