@@ -78,7 +78,13 @@ export const KeywordsForm = ({
       <form onSubmit={handleAddNotification}>
         <FormControl>
           <FormLabel>Set or Keywords</FormLabel>
-          <Input onChange={handleKeywordsChange} value={keywords} autoFocus placeholder="star OR planet" />
+          <Input
+            onChange={handleKeywordsChange}
+            value={keywords}
+            autoFocus
+            placeholder="star OR planet"
+            data-testid="keyword-input"
+          />
           <Text fontSize="sm" fontStyle="italic" mt={1}>
             Boolean "AND" is assumed, but can be overriden by using explicit logical operators between keywords
           </Text>

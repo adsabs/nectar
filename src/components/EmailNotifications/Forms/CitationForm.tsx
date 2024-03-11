@@ -150,6 +150,8 @@ export const CitationForm = ({
               handleAddAuthor();
             }
           }}
+          data-testid="new-author-input"
+          aria-label="new author input"
         />
       </Td>
       <Td>{newAuthorType}</Td>
@@ -169,7 +171,7 @@ export const CitationForm = ({
   return (
     <Flex direction="column" gap={4} data-testid="create-citations-modal">
       <Text fontSize="larger">Weekly updates on the latest citations to your papers or those by any other authors</Text>
-      <Table>
+      <Table data-testid="authors-list-table">
         <Thead>
           <Tr>
             <Th>Author (Name or ORCiD)</Th>

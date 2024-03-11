@@ -1,0 +1,68 @@
+[
+  {
+    "id": 1,
+    "name": "query example",
+    "type": "query",
+    "active": true,
+    "frequency": "daily",
+    "template": null,
+    "data": null,
+    "created": "2024-03-06T22:37:30.672299+00:00",
+    "updated": "2024-03-06T22:37:30.672315+00:00"
+  },
+  {
+    "id": 2,
+    "name": "arxiv without keyword",
+    "type": "template",
+    "active": true,
+    "frequency": "daily",
+    "template": "arxiv",
+    "data": null,
+    "created": "2024-03-06T22:39:28.774781+00:00",
+    "updated": "2024-03-06T22:39:28.774796+00:00"
+  },
+  {
+    "id": 3,
+    "name": "arxiv with keyword",
+    "type": "template",
+    "active": true,
+    "frequency": "daily",
+    "template": "arxiv",
+    "data": "star",
+    "created": "2024-03-06T22:40:54.451621+00:00",
+    "updated": "2024-03-06T22:40:54.451640+00:00"
+  },
+  {
+    "id": 4,
+    "name": "citations example",
+    "type": "template",
+    "active": true,
+    "frequency": "weekly",
+    "template": "citations",
+    "data": "orcid:\"1111-2222-3333-4444\" OR author:\"Smith, John\"",
+    "created": "2024-03-06T22:41:50.399503+00:00",
+    "updated": "2024-03-06T22:41:50.399522+00:00"
+  },
+  {
+    "id": 5,
+    "name": "authors example",
+    "type": "template",
+    "active": true,
+    "frequency": "weekly",
+    "template": "authors",
+    "data": "orcid:\"1111-2222-3333-4444\" OR author:\"Doe, Jane\"",
+    "created": "2024-03-06T22:42:42.296962+00:00",
+    "updated": "2024-03-06T22:42:42.296977+00:00"
+  },
+  {
+    "id": 6,
+    "name": "keyword example",
+    "type": "template",
+    "active": true,
+    "frequency": "weekly",
+    "template": "keyword",
+    "data": "star or planet",
+    "created": "2024-03-06T22:43:36.874097+00:00",
+    "updated": "2024-03-06T22:43:36.874114+00:00"
+  }
+]
