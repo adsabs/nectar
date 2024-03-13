@@ -90,7 +90,7 @@ export const QueryForm = ({ onClose, onUpdated = noop }: { onClose: () => void; 
         </FormControl>
         <FormControl isRequired>
           <FormLabel>Notification Name</FormLabel>
-          <Input value={name} onChange={handleNameChange} autoFocus isRequired />
+          <Input value={name} onChange={handleNameChange} autoFocus isRequired data-testid="create-query-name" />
         </FormControl>
         <FormControl>
           <FormLabel>Frequency</FormLabel>

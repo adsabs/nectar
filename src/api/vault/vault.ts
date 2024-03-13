@@ -97,7 +97,7 @@ export const fetchVaultSearch: QueryFunction<IADSApiVaultResponse> = async ({ me
 
   const config: ApiRequestConfig = {
     method: 'POST',
-    url: `${ApiTargets.MYADS_STORAGE}/query`,
+    url: ApiTargets.MYADS_STORAGE_QUERY,
     data: params,
   };
 
