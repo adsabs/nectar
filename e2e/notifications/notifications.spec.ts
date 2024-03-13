@@ -139,7 +139,27 @@ test('Add keyword notification', async ({ page }) => {
   await expect(rows.nth(6)).toContainText('7added examplekeywordweekly');
 });
 
-// TODO:
-test.only('Add query notification', async ({ page }) => {
-  await expect(page.getByTestId('create-query-modal')).toBeVisible();
+test('Add query notification', async ({ page }) => {
+  // search page
+  await page.goto('/search?q=Smith%2C+Jane&sort=score+desc&sort=date+desc&p=1', { timeout: 60000 });
+
+  // click create query notification
+  await page.getByLabel('Create email notification of this query').click();
+  const form = page.getByTestId('create-query-modal');
+  await expect(form).toBeVisible();
+  await expect(form.locator('button').getByText('submit')).toBeDisabled();
+
+  await form.getByTestId('create-query-name').fill('By Smith, Jane');
+  await expect(form.locator('button').getByText('submit')).toBeEnabled();
+  await form.locator('button').getByText('submit').click();
+  await expect(page.getByTestId('create-query-modal')).toBeHidden({ timeout: 5000 });
+
+  // go to notifications
+  await page.getByText('Account').click();
+  await page.getByText('Email Notifications').click();
+  await page.waitForURL('**/user/notifications**');
+  expect(page.url()).toContain('/user/notifications');
+  const rows = page.getByTestId('notifications-table').locator('tbody > tr');
+  await expect(rows).toHaveCount(7);
+  await expect(rows.nth(6)).toContainText('7By Smith, Janequerydaily');
 });

@@ -29,10 +29,10 @@ export const notificationsHandlers = [
   rest.post<IADSApiAddNotificationParams, { id: string }>(
     apiHandlerRoute(ApiTargets.MYADS_NOTIFICATIONS),
     (req, res, ctx) => {
-      const { type, template = null, data = null, classes = [], frequency } = req.body;
+      const { type, template = null, data = null, classes = [], frequency, name = 'added example' } = req.body;
       const entity: INotification = {
         id: 7,
-        name: 'added example',
+        name,
         qid: null,
         type,
         active: true,
@@ -93,5 +93,9 @@ export const notificationsHandlers = [
         },
       ]),
     );
+  }),
+
+  rest.post(apiHandlerRoute(ApiTargets.MYADS_STORAGE_QUERY), (req, res, ctx) => {
+    return res(ctx.json({ qid: '12345678', numFound: 1 }));
   }),
 ];
