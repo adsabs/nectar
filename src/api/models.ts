@@ -157,6 +157,7 @@ export enum ApiTargets {
   SERVICE_CITATION_HELPER = '/citation_helper',
   SERVICE_AUTHOR_AFFILIATION_EXPORT = '/authoraff',
   MYADS_STORAGE = '/vault',
+  MYADS_STORAGE_QUERY = '/vault/query',
   MYADS_NOTIFICATIONS = '/vault/notifications',
   MYADS_NOTIFICATIONS_QUERY = '/vault/notification_query',
   LINK_SERVERS = '/vault/configuration/link_servers',

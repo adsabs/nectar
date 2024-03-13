@@ -1,6 +1,9 @@
+import { fetchNotifications, vaultKeys } from '@api';
 import { Flex, Heading } from '@chakra-ui/react';
 import { NotificationsPane } from '@components';
-import { NextPage } from 'next';
+import { composeNextGSSP } from '@ssr-utils';
+import { QueryClient } from '@tanstack/react-query';
+import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 
 const NotificationPage: NextPage = () => {
@@ -21,4 +24,15 @@ const NotificationPage: NextPage = () => {
 
 export default NotificationPage;
 
-export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(async () => {
+  const queryClient = new QueryClient();
+
+  void (await queryClient.prefetchQuery({
+    queryKey: vaultKeys.notifications(),
+    queryFn: fetchNotifications,
+  }));
+
+  return Promise.resolve({
+    props: {},
+  });
+});
