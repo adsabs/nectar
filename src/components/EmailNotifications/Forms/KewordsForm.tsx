@@ -70,12 +70,12 @@ export const KeywordsForm = ({
   };
 
   return (
-    <Flex direction="column" gap={4} data-testid="create-keyword-modal">
-      <Text fontSize="larger">
-        Weekly updates on the most recent, most popular, and most cited papers on your favorite keyword(s) or any other
-        query
-      </Text>
-      <form onSubmit={handleAddNotification}>
+    <form onSubmit={handleAddNotification}>
+      <Flex direction="column" gap={4} data-testid="create-keyword-modal">
+        <Text fontSize="larger">
+          Weekly updates on the most recent, most popular, and most cited papers on your favorite keyword(s) or any
+          other query
+        </Text>
         <FormControl>
           <FormLabel>Set or Keywords</FormLabel>
           <Input
@@ -97,7 +97,7 @@ export const KeywordsForm = ({
             Cancel
           </Button>
         </HStack>
-      </form>
-    </Flex>
+      </Flex>
+    </form>
   );
 };

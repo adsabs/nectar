@@ -145,9 +145,9 @@ export const ArxivForm = ({
   };
 
   return (
-    <Flex direction="column" gap={4} data-testid="create-arxiv-modal">
-      <Text fontSize="larger">Daily updates from arXiv.org</Text>
-      <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit}>
+      <Flex direction="column" gap={4} data-testid="create-arxiv-modal">
+        <Text fontSize="larger">Daily updates from arXiv.org</Text>
         <FormControl>
           <FormLabel>Keywords (optional)</FormLabel>
           <Input onChange={handleKeywordsChange} value={keywords} autoFocus placeholder="star OR planet" />
@@ -168,8 +168,8 @@ export const ArxivForm = ({
             Cancel
           </Button>
         </HStack>
-      </form>
-    </Flex>
+      </Flex>
+    </form>
   );
 };
 

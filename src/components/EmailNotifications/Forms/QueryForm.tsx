@@ -82,8 +82,8 @@ export const QueryForm = ({ onClose, onUpdated = noop }: { onClose: () => void; 
   };
 
   return (
-    <Flex direction="column" gap={4} data-testid="create-query-modal">
-      <form onSubmit={handleAddNotification}>
+    <form onSubmit={handleAddNotification}>
+      <Flex direction="column" gap={4} data-testid="create-query-modal">
         <FormControl>
           <FormLabel>Query</FormLabel>
           <Input readOnly defaultValue={query.q} />
@@ -111,7 +111,7 @@ export const QueryForm = ({ onClose, onUpdated = noop }: { onClose: () => void; 
             Cancel
           </Button>
         </HStack>
-      </form>
-    </Flex>
+      </Flex>
+    </form>
   );
 };
