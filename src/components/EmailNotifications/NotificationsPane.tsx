@@ -159,7 +159,12 @@ export const NotificationsPane = () => {
         <Flex direction={{ base: 'column', md: 'row' }} justifyContent={{ base: 'start', md: 'space-between' }} gap={2}>
           <Stack w="300px">
             <InputGroup>
-              <Input placeholder="search" value={searchVal} onChange={handleSearchValueChange} />
+              <Input
+                placeholder="search"
+                value={searchVal}
+                onChange={handleSearchValueChange}
+                data-testid="filter-notifications"
+              />
               {searchVal.length > 0 && (
                 <InputRightElement>
                   <IconButton icon={<CloseIcon />} aria-label="clear" onClick={handleClearSearch} variant="ghost" />
@@ -344,6 +349,7 @@ const Action = ({
         rightIcon={<ChevronDownIcon />}
         onClick={(e) => e.stopPropagation()}
         children={<SettingsIcon />}
+        data-testid="action-btn"
       />
       {/* make sure parent <tr> doesn't overwrite colors here when row is disabled */}
       <MenuList backgroundColor={colors.background} color={colors.text}>

@@ -18,7 +18,7 @@ const entities = allEntities as { [key in string]: INotification };
 export const notificationsHandlers = [
   rest.get(apiHandlerRoute(ApiTargets.MYADS_NOTIFICATIONS, '/:id'), (req, res, ctx) => {
     const id = req.params.id as string;
-    return res(ctx.json(entities[id]));
+    return res(ctx.json([entities[id]]));
   }),
 
   rest.get(apiHandlerRoute(ApiTargets.MYADS_NOTIFICATIONS), (req, res, ctx) => {

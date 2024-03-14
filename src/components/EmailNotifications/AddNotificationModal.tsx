@@ -37,6 +37,8 @@ export const AddNotificationModal = ({
     return data?.[0] ?? null;
   }, [data]);
 
+  const templateLabel = template ?? notification?.template;
+
   const body = (
     <>
       {!nid ? (
@@ -83,12 +85,14 @@ export const AddNotificationModal = ({
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
-          Create Email Notification -{' '}
-          {!template
-            ? 'for this query'
-            : template === 'arxiv'
-            ? 'arXiv'
-            : `${template[0].toUpperCase()}${template.slice(1)}`}
+          {nid ? `Edit Email Notification - ` : `Create Email Notification - `}
+          {`${
+            !templateLabel
+              ? 'for this query'
+              : templateLabel === 'arxiv'
+              ? 'arXiv'
+              : `${templateLabel[0].toUpperCase()}${templateLabel.slice(1)}`
+          }`}
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>{body}</ModalBody>
