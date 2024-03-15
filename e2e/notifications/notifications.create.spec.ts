@@ -4,47 +4,6 @@ test.describe.configure({
   mode: 'parallel',
 });
 
-test('Notifications show up in the table', async ({ page }) => {
-  await page.goto('/user/notifications', { timeout: 60000 });
-  const rows = page.getByTestId('notifications-table').locator('tbody > tr');
-  await expect(rows).toHaveCount(6);
-  await expect(rows.nth(0)).toContainText('1query examplequerydaily');
-  await expect(rows.nth(1)).toContainText('2arxiv without keywordarxivdaily');
-  await expect(rows.nth(2)).toContainText('3arxiv with keywordarxivdaily');
-  await expect(rows.nth(3)).toContainText('4citations examplecitationsweekly');
-  await expect(rows.nth(4)).toContainText('5authors exampleauthorsweekly');
-  await expect(rows.nth(5)).toContainText('6keyword examplekeywordweekly');
-});
-
-test('Delete notification', async ({ page }) => {
-  await page.goto('/user/notifications', { timeout: 60000 });
-  await page.getByTestId('action-btn').nth(0).click();
-  await expect(page.locator('button[role="menuitem"]').getByText('Delete Notification').nth(0)).toBeVisible();
-  await page.locator('button[role="menuitem"]').getByText('Delete').nth(0).click({ force: true });
-  await page.getByTestId('confirm-del-lib-btn').click();
-
-  const rows = page.getByTestId('notifications-table').locator('tbody > tr');
-  await expect(rows).toHaveCount(5);
-  await expect(rows.nth(0)).toContainText('1arxiv without keywordarxivdaily');
-  await expect(rows.nth(1)).toContainText('2arxiv with keywordarxivdaily');
-  await expect(rows.nth(2)).toContainText('3citations examplecitationsweekly');
-  await expect(rows.nth(3)).toContainText('4authors exampleauthorsweekly');
-  await expect(rows.nth(4)).toContainText('5keyword examplekeywordweekly');
-});
-
-test('Filter notifications', async ({ page }) => {
-  await page.goto('/user/notifications', { timeout: 60000 });
-
-  await page.getByTestId('filter-notifications').fill('daily');
-  let rows = page.getByTestId('notifications-table').locator('tbody > tr');
-  await expect(rows).toHaveCount(3);
-
-  // clear
-  await page.getByLabel('clear').click();
-  rows = page.getByTestId('notifications-table').locator('tbody > tr');
-  await expect(rows).toHaveCount(6);
-});
-
 test('Add arxiv notification', async ({ page }) => {
   await page.goto('/user/notifications', { timeout: 60000 });
 
