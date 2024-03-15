@@ -352,14 +352,14 @@ const Action = ({
         data-testid="action-btn"
       />
       {/* make sure parent <tr> doesn't overwrite colors here when row is disabled */}
-      <MenuList backgroundColor={colors.background} color={colors.text}>
+      <MenuList backgroundColor={colors.background} color={colors.text} data-testid="action-menu">
         {type === 'template' && template === 'keyword' && data !== null ? (
           <>
             <MenuItem onClick={() => handleRunQuery(0)}>Recent Papers</MenuItem>
             <MenuItem onClick={() => handleRunQuery(1)}>Most Popular</MenuItem>
             <MenuItem onClick={() => handleRunQuery(2)}>Most Cited</MenuItem>
           </>
-        ) : type === 'template' && template === 'arxiv' && !!data ? (
+        ) : type === 'template' && template === 'arxiv' && data !== null ? (
           <>
             <MenuItem onClick={() => handleRunQuery(0)}>Keyword Matches - Recent Papers</MenuItem>
             <MenuItem onClick={() => handleRunQuery(1)}>Other Recent Papers in Selected Categories</MenuItem>
