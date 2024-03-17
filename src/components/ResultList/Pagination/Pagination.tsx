@@ -2,7 +2,6 @@ import {
   Box,
   Button,
   Flex,
-  Link,
   NumberDecrementStepper,
   NumberIncrementStepper,
   NumberInput,
@@ -20,11 +19,10 @@ import {
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
-import { Select, SelectOption } from '@components';
+import { ISimpleLinkProps, Select, SelectOption, SimpleLink } from '@components';
 import { APP_DEFAULTS } from '@config';
 import { NumPerPageType, SafeSearchUrlParams } from '@types';
 import { makeSearchParams, stringifySearchParams } from '@utils';
-import NextLink, { LinkProps } from 'next/link';
 import { useRouter } from 'next/router';
 import { clamp, curryN } from 'ramda';
 import { Dispatch, FC, KeyboardEventHandler, ReactElement, useCallback, useMemo, useRef, useState } from 'react';
@@ -244,7 +242,7 @@ const PaginationButton: FC<{ page: number; noLinks: boolean; onlyUpdatePageParam
   const { children, page, noLinks, onlyUpdatePageParam } = props;
   const router = useRouter();
   const getLinkParams = useCallback(
-    (page: number): LinkProps => {
+    (page: number): ISimpleLinkProps => {
       const search = onlyUpdatePageParam
         ? stringifySearchParams({ ...router.query, p: page })
         : makeSearchParams({
@@ -254,7 +252,6 @@ const PaginationButton: FC<{ page: number; noLinks: boolean; onlyUpdatePageParam
 
       return {
         href: { pathname: router.pathname, search },
-        as: { pathname: router.asPath.split('?')[0], search },
       };
     },
     [router.pathname, router.asPath, router.query],
@@ -263,9 +260,9 @@ const PaginationButton: FC<{ page: number; noLinks: boolean; onlyUpdatePageParam
   return noLinks ? (
     <>{children}</>
   ) : (
-    <NextLink {...getLinkParams(page)} passHref shallow legacyBehavior>
-      <Link>{children}</Link>
-    </NextLink>
+    <SimpleLink {...getLinkParams(page)} shallow>
+      {children}
+    </SimpleLink>
   );
 };
 

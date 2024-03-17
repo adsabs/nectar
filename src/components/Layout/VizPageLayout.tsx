@@ -1,6 +1,5 @@
-import { Flex, Heading, HStack, Link } from '@chakra-ui/react';
-import { VisualizationsTabs, VizSection } from '@components';
-import NextLink from 'next/link';
+import { Flex, Heading, HStack } from '@chakra-ui/react';
+import { SimpleLink, VisualizationsTabs, VizSection } from '@components';
 import Head from 'next/head';
 import { FC } from 'react';
 import { UrlObject } from 'url';
@@ -20,11 +19,9 @@ export const VizPageLayout: FC<IVizPageLayoutProps> = ({ children, vizPage, from
       <Flex direction="column">
         <HStack my={10}>
           {from && (
-            <NextLink href={from} passHref legacyBehavior>
-              <Link aria-label="Back to search results">
-                <ChevronLeftIcon w={8} h={8} />
-              </Link>
-            </NextLink>
+            <SimpleLink href={from} aria-label="Back to search Results">
+              <ChevronLeftIcon w={8} h={8} />
+            </SimpleLink>
           )}
           <Heading as="h2" fontSize="2xl">
             Visualizations

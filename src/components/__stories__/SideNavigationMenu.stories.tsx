@@ -13,31 +13,26 @@ const menuItems1 = {
     {
       id: 'libraryimport',
       href: `/libraryimport`,
-      hrefAs: `/libraryimport`,
       label: 'Import Libraries',
     },
     {
       id: 'librarylink',
       href: `/librarylink`,
-      hrefAs: `/librarylink`,
       label: 'Library Link Server',
     },
     {
       id: 'orcid',
       href: `/orcid`,
-      hrefAs: `/orcid`,
       label: 'ORCiD',
     },
     {
       id: 'application',
       href: `/application`,
-      hrefAs: `/application`,
       label: 'Search',
     },
     {
       id: 'export',
       href: `/export`,
-      hrefAs: `/export`,
       label: 'Export',
     },
   ],
@@ -45,25 +40,21 @@ const menuItems1 = {
     {
       id: 'email',
       href: `/email`,
-      hrefAs: `/email`,
       label: 'Change Email',
     },
     {
       id: 'password',
       href: `/password`,
-      hrefAs: `/password`,
       label: 'Change Password',
     },
     {
       id: 'token',
       href: `/token`,
-      hrefAs: `/token`,
       label: 'API Token',
     },
     {
       id: 'delete',
       href: `/delete`,
-      hrefAs: `/delete`,
       label: 'Delete Account',
     },
   ],
@@ -73,31 +64,26 @@ const menuItems2 = [
   {
     id: 'libraryimport',
     href: `/libraryimport`,
-    hrefAs: `/libraryimport`,
     label: 'Import Libraries',
   },
   {
     id: 'librarylink',
     href: `/librarylink`,
-    hrefAs: `/librarylink`,
     label: 'Library Link Server',
   },
   {
     id: 'orcid',
     href: `/orcid`,
-    hrefAs: `/orcid`,
     label: 'ORCiD',
   },
   {
     id: 'application',
     href: `/application`,
-    hrefAs: `/application`,
     label: 'Search',
   },
   {
     id: 'export',
     href: `/export`,
-    hrefAs: `/export`,
     label: 'Export',
   },
 ];

@@ -26,6 +26,7 @@ export const sessionConfig: IronSessionOptions = {
   // secure: true should be used in production () but can't be used in development (HTTP)
   cookieOptions: {
     secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
   },
 };
 

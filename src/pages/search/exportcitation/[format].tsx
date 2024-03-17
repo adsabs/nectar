@@ -8,9 +8,9 @@ import {
   searchKeys,
   useSearchInfinite,
 } from '@api';
-import { Alert, AlertIcon, Box, Flex, Heading, HStack, Link } from '@chakra-ui/react';
+import { Alert, AlertIcon, Box, Flex, Heading, HStack } from '@chakra-ui/react';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
-import { CitationExporter, JournalFormatMap } from '@components';
+import { CitationExporter, JournalFormatMap, SimpleLink } from '@components';
 import { getExportCitationDefaultContext } from '@components/CitationExporter/CitationExporter.machine';
 import { APP_DEFAULTS } from '@config';
 import { useIsClient } from '@lib/useIsClient';
@@ -18,12 +18,11 @@ import { parseQueryFromUrl } from '@utils';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
-import NextLink from 'next/link';
-import { useRouter } from 'next/router';
-import { last, omit } from 'ramda';
+import { last } from 'ramda';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { composeNextGSSP } from '@ssr-utils';
 import { useSettings } from '@lib/useSettings';
+import { useBackToSearchResults } from '@lib/useBackToSearchResults';
 
 interface IExportCitationPageProps {
   format: ExportApiFormatKey;
@@ -37,7 +36,6 @@ interface IExportCitationPageProps {
 const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
   const { format, query, error } = props;
   const isClient = useIsClient();
-  const router = useRouter();
 
   // get export related user settings
   const { settings } = useSettings({
@@ -60,6 +58,7 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
         };
 
   const { data, fetchNextPage, hasNextPage } = useSearchInfinite(query);
+  const { getSearchHref } = useBackToSearchResults();
 
   // TODO: add more error handling here
   if (!data) {
@@ -81,15 +80,9 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
       </Head>
       <Flex direction="column">
         <HStack my={10}>
-          <NextLink
-            href={{ pathname: '/search', query: omit(['qid', 'format'], router.query) }}
-            passHref
-            legacyBehavior
-          >
-            <Link aria-label="Back to search results">
-              <ChevronLeftIcon w={8} h={8} />
-            </Link>
-          </NextLink>
+          <SimpleLink href={getSearchHref()}>
+            <ChevronLeftIcon w={8} h={8} />
+          </SimpleLink>
           <Heading as="h2" fontSize="2xl">
             Export Citations
           </Heading>

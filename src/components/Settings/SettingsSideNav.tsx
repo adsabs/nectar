@@ -10,25 +10,21 @@ const useGetMenuItems = () => {
       {
         id: 'application',
         href: `${settingsPath}/application`,
-        hrefAs: `${settingsPath}/application`,
         label: 'Search',
       },
       {
         id: 'export',
         href: `${settingsPath}/export`,
-        hrefAs: `${settingsPath}/export`,
         label: 'Export',
       },
       {
         id: 'librarylink',
         href: `${settingsPath}/librarylink`,
-        hrefAs: `${settingsPath}/librarylink`,
         label: 'Library Link Server',
       },
       {
         id: 'orcid',
         href: `${settingsPath}/orcid`,
-        hrefAs: `${settingsPath}/orcid`,
         label: 'ORCiD',
       },
     ],
@@ -36,25 +32,21 @@ const useGetMenuItems = () => {
       {
         id: 'email',
         href: `${settingsPath}/email`,
-        hrefAs: `${settingsPath}/email`,
         label: 'Change Email',
       },
       {
         id: 'password',
         href: `${settingsPath}/password`,
-        hrefAs: `${settingsPath}/password`,
         label: 'Change Password',
       },
       {
         id: 'token',
         href: `${settingsPath}/token`,
-        hrefAs: `${settingsPath}/token`,
         label: 'API Token',
       },
       {
         id: 'delete',
         href: `${settingsPath}/delete`,
-        hrefAs: `${settingsPath}/delete`,
         label: 'Delete Account',
       },
     ],

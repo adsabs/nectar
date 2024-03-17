@@ -38,9 +38,8 @@ import { CSSProperties, MouseEventHandler, ReactElement, useCallback, useEffect,
 import { facetConfig } from './config';
 import { applyFiltersToQuery } from './helpers';
 import { FacetLogic, OnFilterArgs, SearchFacetID } from './types';
-import { useGTMDispatch } from '@elgorditosalsero/react-gtm-hook';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { useColorModeColors } from '@lib';
+import { sendGTMEvent } from '@next/third-parties/google';
 
 export interface ISearchFacetProps extends AccordionItemProps {
   field: FacetField;
@@ -67,7 +66,6 @@ const querySelector = (state: AppState) => omit(['fl', 'start', 'rows'], state.l
 
 export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
   const store = useStoreApi();
-  const sendDataToGTM = useGTMDispatch();
   const setFacetState = useStore((state) => state.setSearchFacetState);
   const hideFacet = useStore((state) => state.hideSearchFacet);
   const showFacet = useStore((state) => state.showSearchFacet);
@@ -105,7 +103,7 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
   const handleOnFilter = (filterArgs: OnFilterArgs) => {
     const query = store.getState().latestQuery;
     onQueryUpdate(applyFiltersToQuery({ ...filterArgs, query }));
-    sendDataToGTM({
+    sendGTMEvent({
       event: 'facet_applied',
       facet_field: filterArgs.field,
       facet_logic: filterArgs.logic,
