@@ -17,9 +17,15 @@ export const KeywordsForm = ({
 
   const [keywords, setKeywords] = useState(notification?.data ?? '');
 
+  const [name, setName] = useState<string>(notification?.name ?? '');
+
   const { mutate: addNotification, isLoading: isAdding } = useAddNotification();
 
   const { mutate: editNofication, isLoading: isEditing } = useEditNotification();
+
+  const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value);
+  };
 
   const handleKeywordsChange = (e: ChangeEvent<HTMLInputElement>) => {
     setKeywords(e.target.value);
@@ -34,6 +40,7 @@ export const KeywordsForm = ({
         {
           id: notification.id,
           data: keywords,
+          name,
         },
         {
           onSettled(data, error) {
@@ -76,6 +83,12 @@ export const KeywordsForm = ({
           Weekly updates on the most recent, most popular, and most cited papers on your favorite keyword(s) or any
           other query
         </Text>
+        {notification && (
+          <FormControl>
+            <FormLabel>Notification Name</FormLabel>
+            <Input value={name} onChange={handleNameChange} autoFocus />
+          </FormControl>
+        )}
         <FormControl>
           <FormLabel>Set or Keywords</FormLabel>
           <Input
