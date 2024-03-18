@@ -11,7 +11,7 @@ import { logger } from '../logger/logger';
 const log = logger.child({ module: 'ssr-inject' });
 
 const injectColorModeCookie: IncomingGSSP = (ctx, prev) => {
-  const colorMode = ctx.req.cookies['chakra-ui-color-mode'];
+  const colorMode = ctx.req.cookies['chakra-ui-color-mode'] ?? '';
   log.debug({ msg: 'Injecting color mode from cookie', colorMode });
   return Promise.resolve({ props: { colorModeCookie: `chakra-ui-color-mode=${colorMode}`, ...prev.props } });
 };
