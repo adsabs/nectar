@@ -50,7 +50,7 @@ export const vaultKeys = {
   addNotification: () => [VaultKeys.ADD_NOTIFICATION] as const,
   editNotification: () => [VaultKeys.EDIT_NOTIFICATION] as const,
   delNotification: () => [VaultKeys.DEL_NOTIFICATION] as const,
-  notificationQuery: (id: string) => [VaultKeys.NOTIFICATION, { id }] as const,
+  notificationQuery: (id: string) => [VaultKeys.NOTIFICATION_QUERY, { id }] as const,
 };
 
 /**

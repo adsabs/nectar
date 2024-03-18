@@ -320,7 +320,10 @@ const Action = ({
 
   const [runQueryId, setRunQueryId] = useState<number>(null);
 
-  const { data: queries, error } = useGetNotificationQuery({ id }, { enabled: runQueryId !== null });
+  const { data: queries, error } = useGetNotificationQuery(
+    { id },
+    { enabled: runQueryId !== null, staleTime: 0, cacheTime: 0 },
+  );
 
   // start fetching the queries
   const handleRunQuery = (qid: number) => {
