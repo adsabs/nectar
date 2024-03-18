@@ -8,6 +8,7 @@ import { useRouter } from 'next/router';
 import { ChangeEventHandler, useCallback, useEffect, useState } from 'react';
 import { useIntermediateQuery } from '@lib/useIntermediateQuery';
 import Image from 'next/image';
+import { YouTubeEmbed } from '@next/third-parties/google';
 
 const SearchExamples = dynamic<ISearchExamplesProps>(
   () => import('@components/SearchExamples').then((m) => m.SearchExamples),
@@ -77,15 +78,14 @@ const Carousel = () => {
                 <Text fontWeight="bold">SciX Digital Library</Text>
               </Heading>
               <Center>
-                <iframe
-                  width="560"
-                  height="315"
-                  src="https://www.youtube-nocookie.com/embed/LeTFmhmPjs0?si=RtpASLVZtKqbxOOr"
-                  title="YouTube video player"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                ></iframe>
+                <YouTubeEmbed
+                  videoid="LeTFmhmPjs0"
+                  height={315}
+                  width={560}
+                  params="fs=0&rel=0"
+                  playlabel="Learn more about the SciX digital library and how it can support your scientific research in this
+                welcome video and brief user tutorial from Dr. Stephanie Jarmak."
+                />
               </Center>
               <Text fontSize="xl">
                 Learn more about the SciX digital library and how it can support your scientific research in this
