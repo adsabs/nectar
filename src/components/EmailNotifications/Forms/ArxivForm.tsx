@@ -40,6 +40,8 @@ export const ArxivForm = ({
 
   const [selected, setSelected] = useState<string[]>([]);
 
+  const [name, setName] = useState<string>(notification?.name ?? '');
+
   // initialize arxiv selection model
   useEffect(() => {
     if (!!notification) {
@@ -59,6 +61,10 @@ export const ArxivForm = ({
   const { mutate: addNotification, isLoading: isAdding } = useAddNotification();
 
   const { mutate: editNofication, isLoading: isEditing } = useEditNotification();
+
+  const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value);
+  };
 
   const handleKeywordsChange = (e: ChangeEvent<HTMLInputElement>) => {
     setKeywords(e.target.value);
@@ -103,6 +109,7 @@ export const ArxivForm = ({
       handleEditNotification({
         id: notification.id,
         data: keywords.trim().length === 0 ? null : keywords,
+        name,
         classes,
       });
     } else {
@@ -148,6 +155,12 @@ export const ArxivForm = ({
     <form onSubmit={handleSubmit}>
       <Flex direction="column" gap={4} data-testid="create-arxiv-modal">
         <Text fontSize="larger">Daily updates from arXiv.org</Text>
+        {notification && (
+          <FormControl>
+            <FormLabel>Notification Name</FormLabel>
+            <Input value={name} onChange={handleNameChange} autoFocus />
+          </FormControl>
+        )}
         <FormControl>
           <FormLabel>Keywords (optional)</FormLabel>
           <Input onChange={handleKeywordsChange} value={keywords} autoFocus placeholder="star OR planet" />
