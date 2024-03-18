@@ -14,9 +14,11 @@ import {
   Th,
   Thead,
   useToast,
+  FormControl,
+  FormLabel,
 } from '@chakra-ui/react';
 import { noop, parseAPIError } from '@utils';
-import { ChangeEvent, MouseEvent, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, FormEvent, MouseEvent, useEffect, useRef, useState } from 'react';
 
 type Author = { author: string; type: 'Author' | 'Orcid' };
 
@@ -35,6 +37,8 @@ export const CitationForm = ({
 
   const [authors, setAuthors] = useState<Author[]>([]);
 
+  const [name, setName] = useState<string>(notification?.name ?? '');
+
   // init authors if edit existing
   useEffect(() => {
     if (notification) {
@@ -49,6 +53,10 @@ export const CitationForm = ({
       setAuthors(list ?? []);
     }
   }, [notification]);
+
+  const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value);
+  };
 
   // New author row being added
   const [newAuthorName, setNewAuthorName] = useState<string>(null);
@@ -98,6 +106,7 @@ export const CitationForm = ({
         {
           id: notification.id,
           data: authors.map((a) => `${a.type === 'Author' ? 'author' : 'orcid'}:"${a.author}"`).join(' OR '),
+          name,
         },
         {
           onSettled(data, error) {
@@ -171,6 +180,12 @@ export const CitationForm = ({
   return (
     <Flex direction="column" gap={4} data-testid="create-citations-modal">
       <Text fontSize="larger">Weekly updates on the latest citations to your papers or those by any other authors</Text>
+      {notification && (
+        <FormControl>
+          <FormLabel>Notification Name</FormLabel>
+          <Input value={name} onChange={handleNameChange} autoFocus />
+        </FormControl>
+      )}
       <Table data-testid="authors-list-table">
         <Thead>
           <Tr>
