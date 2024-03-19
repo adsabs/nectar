@@ -62,6 +62,7 @@ export const notificationsHandlers = [
       const t = notifications.find((n) => n.id === parseInt(id));
       t.data = entities[id].data;
       t.active = entities[id].active;
+      t.name = entities[id].name;
 
       return res(ctx.json(entities[id]));
     },
