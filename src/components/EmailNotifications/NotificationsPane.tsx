@@ -102,10 +102,9 @@ export const NotificationsPane = () => {
     setSearchVal(e.target.value.toLowerCase());
   };
 
-  // WARNING: include data or it's erased when edit call is made, this should be a bug on the API
-  const handleSetActive = (id: INotification['id'], active: boolean, data: string) => {
+  const handleSetActive = (id: INotification['id'], active: boolean) => {
     editNotification(
-      { id, active, data },
+      { id, active },
       {
         onSettled(data, error) {
           if (error) {
@@ -238,7 +237,7 @@ export const NotificationsPane = () => {
                         <Td>
                           <Action
                             notification={n}
-                            onSetActive={(active, data) => handleSetActive(n.id, active, data)}
+                            onSetActive={(active) => handleSetActive(n.id, active)}
                             onEdit={() => handleOpenEdit(n.id)}
                             onDelete={() => handleDelete(n.id)}
                           />
@@ -306,7 +305,7 @@ const Action = ({
   onDelete,
 }: {
   notification: INotification;
-  onSetActive: (active: boolean, data: string) => void;
+  onSetActive: (active: boolean) => void;
   onEdit: () => void;
   onDelete: () => void;
 }) => {
@@ -371,7 +370,7 @@ const Action = ({
           <MenuItem onClick={() => handleRunQuery(0)}>Search</MenuItem>
         )}
         <MenuDivider />
-        <MenuItem onClick={() => onSetActive(!active, data)}>
+        <MenuItem onClick={() => onSetActive(!active)}>
           <Flex w="full" justifyContent="space-between" style={{ pointerEvents: 'none' }}>
             <Text>Enable Notification?</Text>
             <Switch isChecked={active} isFocusable={false} isReadOnly aria-hidden />
