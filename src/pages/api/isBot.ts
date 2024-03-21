@@ -25,7 +25,7 @@ export const isBot: NextApiHandler = async (req, res) => {
 const evaluate = (ua: string, remoteIP: string) => {
   if (typeof remoteIP !== 'string' || remoteIP.length <= 0) {
     log.debug('Request IP is not a string or is empty', { remoteIP });
-    return RESULT.UNVERIFIABLE;
+    return RESULT.HUMAN;
   }
   return classify(ua, remoteIP);
 };

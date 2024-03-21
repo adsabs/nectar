@@ -60,7 +60,7 @@ test('basic request calls bootstrap and adds auth', async ({ server }: TestConte
   // first request was intercepted and bootstrapped
   expect(urls(onReq)[0]).toEqual(API_USER);
   // the refresh header was added to force a new session
-  expect(onReq.mock.calls[0][0].headers.get('X-RefreshToken')).toEqual('1');
+  expect(onReq.mock.calls[0][0].headers.get('X-Refresh-Token')).toEqual('1');
 
   const expectedToken = (JSON.parse(onRes.mock.calls[0][0].body) as IApiUserResponse).user.access_token;
 
