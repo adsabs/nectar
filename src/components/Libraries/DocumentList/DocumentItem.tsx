@@ -1,5 +1,5 @@
 import { IDocsEntity, LibraryIdentifier } from '@api';
-import { Box, BoxProps, Checkbox, CheckboxProps, Flex, Stack, Text } from '@chakra-ui/react';
+import { Box, BoxProps, Checkbox, CheckboxProps, Flex, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { AllAuthorsModal } from '@components/AllAuthorsModal';
 import { ItemResourceDropdowns } from '@components/ResultList/Item';
 import { APP_DEFAULTS } from '@config';
@@ -40,14 +40,14 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
     isChecked = false,
     onSet = noop,
     useNormCite,
-    linkNewTab = false,
     hideResources = true,
   } = props;
-  const { bibcode, pubdate, title = ['Untitled'], author = [], bibstem = [], author_count } = doc;
+  const { bibcode, pubdate, title = ['Untitled'], author = [], author_count, pub } = doc;
   const formattedPubDate = getFomattedNumericPubdate(pubdate);
-  const [formattedBibstem] = bibstem;
   const isClient = useIsClient();
   const colors = useColorModeColors();
+  const truncatedPub =
+    pub?.length > APP_DEFAULTS.RESULT_ITEM_PUB_CUTOFF ? pub.slice(0, APP_DEFAULTS.RESULT_ITEM_PUB_CUTOFF) + '...' : pub;
 
   // citations
   const cite = useNormCite ? (
@@ -102,9 +102,11 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
           <AuthorList author={author} authorCount={author_count} bibcode={doc.bibcode} />
           <Text fontSize="xs" mt={0.5}>
             {formattedPubDate}
-            {formattedPubDate && formattedBibstem ? <span className="px-2">·</span> : ''}
-            {formattedBibstem}
-            {cite && (formattedPubDate || formattedBibstem) ? <span className="px-2">·</span> : null}
+            {formattedPubDate && pub ? <span className="px-2">·</span> : ''}
+            <Tooltip label={pub} aria-label="publication tooltip" placement="top">
+              <span>{truncatedPub}</span>
+            </Tooltip>
+            {cite && (formattedPubDate || pub) ? <span className="px-2">·</span> : null}
             {cite}
           </Text>
           <ItemAnnotation
