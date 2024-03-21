@@ -57,7 +57,7 @@ export const isOrcidProfileEntry = (entry: unknown): entry is IOrcidProfileEntry
   return (
     typeof identifier === 'string' &&
     typeof status === 'string' &&
-    (status === 'verified' || status === 'not in ADS' || status === 'pending') &&
+    (status === 'verified' || status === 'not in ADS' || status === 'pending' || status === 'rejected') &&
     typeof title === 'string' &&
     (typeof pubyear === 'string' || pubyear === null || pubmonth === undefined) &&
     (typeof pubmonth === 'string' || pubmonth === null || pubmonth === undefined) &&
