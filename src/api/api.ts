@@ -61,7 +61,7 @@ enum API_STATUS {
   UNAUTHORIZED = 401,
 }
 
-const log = logger.child({ module: 'api' });
+const log = logger.child({}, { msgPrefix: '[api] ' });
 
 /**
  * Api structure that wraps the axios instance
@@ -99,7 +99,7 @@ class Api {
         ) {
           // clear the recent error
           this.recentError = null;
-          log.debug({ msg: 'rejecting request due to recent error', err: error });
+          log.debug({ msg: 'Rejecting request due to recent error', err: error });
           return Promise.reject(error);
         }
 
@@ -111,7 +111,7 @@ class Api {
         if (error.response.status === API_STATUS.UNAUTHORIZED) {
           this.invalidateUserData();
 
-          log.debug({ msg: 'unauthorized request, refreshing token and retrying', err: error });
+          log.debug({ msg: 'Unauthorized request, refreshing token and retrying', err: error });
 
           // retry the request
           return this.request(error.config as ApiRequestConfig);
@@ -146,7 +146,7 @@ class Api {
   async request<T>(config: ApiRequestConfig): Promise<AxiosResponse<T>> {
     if (process.env.NODE_ENV === 'development') {
       log.info({
-        msg: 'request',
+        msg: 'API Request',
         config,
         userData: this.userData,
       });
@@ -201,10 +201,10 @@ class Api {
   async fetchUserData() {
     const { data } = await axios.get<IApiUserResponse>('/api/user', {
       headers: {
-        'x-RefreshToken': 1,
+        'x-Refresh-Token': 1,
       },
     });
-    log.debug({ msg: 'fetching user data', data });
+    log.debug({ msg: 'Fetching user data', data });
     return data.user;
   }
 

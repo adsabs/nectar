@@ -37,7 +37,7 @@ const TopProgressBar = dynamic<Record<string, never>>(
 export type AppPageProps = { dehydratedState: DehydratedState; dehydratedAppState: AppState; [key: string]: unknown };
 
 const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
-  logger.debug({ msg: 'app page props', ...pageProps });
+  logger.debug('App', { props: pageProps as unknown });
 
   return (
     <Providers pageProps={pageProps as AppPageProps}>
@@ -165,7 +165,7 @@ const UserSync = (): ReactElement => {
 };
 
 export const reportWebVitals = (metric: NextWebVitalsMetric) => {
-  logger.debug({ msg: 'web vitals', ...metric });
+  logger.debug('Web Vitals', { metric });
 
   sendGTMEvent({
     event: 'web_vitals',

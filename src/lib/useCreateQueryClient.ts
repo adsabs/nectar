@@ -12,7 +12,7 @@ export const useCreateQueryClient = () => {
       }
 
       if (axios.isAxiosError(error) || error instanceof Error) {
-        logger.error({ msg: 'Query error', error, query });
+        logger.error('Query Error', { error, query });
       }
     },
   });
@@ -20,7 +20,7 @@ export const useCreateQueryClient = () => {
   const mutationCache = new MutationCache({
     onError: (error, mutation) => {
       if (axios.isAxiosError(error) || error instanceof Error) {
-        logger.error({ msg: 'Mutation error', error, mutation });
+        logger.error('Mutation Error', { error, mutation });
       }
     },
   });
