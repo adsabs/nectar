@@ -15,7 +15,7 @@ declare module 'iron-session' {
       username: string;
     };
     isAuthenticated?: boolean;
-    apiCookieHash?: number[];
+    apiCookieHash?: string;
     bot?: boolean;
   }
 }
@@ -43,7 +43,11 @@ declare global {
       NEXT_PUBLIC_GTM_ID: string;
       NEXT_PUBLIC_RECAPTCHA_SITE_KEY: string;
       NEXT_PUBLIC_API_MOCKING: string;
+      NEXT_PUBLIC_SENTRY_DSN: string;
+      NEXT_PUBLIC_SENTRY_PROJECT_ID: string;
       GIT_SHA: string;
+      CSP_REPORT_URI: string;
+      CSP_REPORT_ONLY: string;
     }
   }
 }

@@ -46,7 +46,7 @@ export const hash = async (str?: string) => {
   }
   try {
     const buffer = await globalThis.crypto.subtle.digest('SHA-1', Buffer.from(str, 'utf-8'));
-    return Array.from(new Uint8Array(buffer));
+    return Array.from(new Uint8Array(buffer)).toString();
   } catch (e) {
     return null;
   }

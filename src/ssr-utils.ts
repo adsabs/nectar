@@ -8,7 +8,13 @@ import { dehydrate, hydrate, QueryClient } from '@tanstack/react-query';
 import { getNotification, NotificationId } from '@store/slices';
 import { logger } from '../logger/logger';
 
-const log = logger.child({ module: 'ssr-inject' });
+const log = logger.child({}, { msgPrefix: '[ssr-inject] ' });
+
+const injectNonce: IncomingGSSP = (ctx, prev) => {
+  const nonce = ctx.res.getHeader('X-Nonce') ?? '';
+  log.debug({ msg: 'Injecting nonce', nonce });
+  return Promise.resolve({ props: { nonce, ...prev.props } });
+};
 
 const injectColorModeCookie: IncomingGSSP = (ctx, prev) => {
   const colorMode = ctx.req.cookies['chakra-ui-color-mode'] ?? '';
@@ -20,8 +26,8 @@ const updateUserStateSSR: IncomingGSSP = (ctx, prevResult) => {
   const userData = ctx.req.session.token;
 
   log.debug({
-    msg: 'Injecting session data into SSR',
-    session: ctx.req.session,
+    msg: 'Injecting session data into client props',
+    userData,
     isValidUserData: isUserData(userData),
     token: isUserData(userData) ? userData.access_token : null,
   });
@@ -62,6 +68,7 @@ export const composeNextGSSP = (...fns: IncomingGSSP[]) =>
   withIronSessionSsr(async (ctx: GetServerSidePropsContext): Promise<
     GetServerSidePropsResult<Record<string, unknown>>
   > => {
+    fns.push(injectNonce);
     fns.push(updateUserStateSSR);
     fns.push(injectColorModeCookie);
     api.setUserData(ctx.req.session.token);
