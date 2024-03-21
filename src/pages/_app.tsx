@@ -113,20 +113,36 @@ const UserSync = (): ReactElement => {
   }>({
     queryKey: ['user'],
     queryFn: async () => {
-      const { data } = await axios.get<{ user: IronSession['token']; isAuthenticated: boolean }>('/api/user');
+      const { data } = await axios.get<{
+        user: IronSession['token'];
+        isAuthenticated: boolean;
+      }>('/api/user', {
+        headers: {
+          'X-Refresh-Token': 1,
+        },
+      });
       if (isNilOrEmpty(data)) {
         throw new Error('Empty session');
       }
       return data;
     },
-    retry: 1,
-    enabled: !checkUserData(user),
+    retry: false,
+
+    // refetch every 5 minutes
+    refetchInterval: 60 * 5 * 1000,
   });
 
   // Comparing the incoming user data with the current user data, and update the store if they are different
   useEffect(() => {
     if (data?.user && checkUserData(data?.user) && notEqual(data.user, user)) {
-      logger.debug({ msg: 'user data synced', data: data.user });
+      logger.debug('User Synced', { user: data.user });
+
+      // if the username has changed, we know it's a new user we should do a full reload
+      if (user.username !== data.user.username) {
+        logger.debug('Detected a username change, assuming session is expired');
+        void router.push('/user/account/login?notify=account-session-expired');
+        return;
+      }
 
       store.setState({ user: data.user });
 

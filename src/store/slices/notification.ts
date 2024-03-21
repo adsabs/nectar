@@ -79,6 +79,11 @@ export const NOTIFICATIONS: Record<NotificationId, Notification> = {
     status: 'error',
     message: 'There was an issue logging in. Please check your credentials.',
   },
+  'account-session-expired': {
+    id: 'account-session-expired',
+    status: 'warning',
+    message: 'Your session has expired, please login again',
+  },
   'account-logout-failed': {
     id: 'account-logout-success',
     status: 'error',
@@ -134,6 +139,7 @@ export type NotificationId =
   | 'account-logout-failed'
   | 'account-logout-success'
   | 'account-register-success'
+  | 'account-session-expired'
   | 'account-reset-password-success'
   | 'api-connect-failed'
   | 'login-required'
