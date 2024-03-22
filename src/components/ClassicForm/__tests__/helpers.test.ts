@@ -111,7 +111,7 @@ describe('Classic Form Query Handling', () => {
   ])(`getBibstems(%s) -> %s`, (bibstems, expected) => expect(getBibstems(bibstems)).toBe(expected));
 
   test('getSearchQuery handles empty input', () => {
-    expect(getSearchQuery({} as IRawClassicFormState)).toBe('q=%2A%3A%2A&sort=score+desc&sort=date+desc&p=1');
+    expect(getSearchQuery({} as IRawClassicFormState)).toBe('q=%2A%3A%2A&sort=score+desc%2Cdate+desc&p=1');
   });
 
   test('getSearchQuery properly generates search query', () => {
@@ -135,6 +135,6 @@ describe('Classic Form Query Handling', () => {
     expect(result.get('q')).toBe(
       `collection:(astronomy physics) pubdate:[2020-12 TO 2022-01] author:("Smith, A" "Jones, B" ="Jones, Bob") object:(IRAS HIP) property:(refereed article) title:("Black Hole" -"Milky Way" -star) abs:("Event Horizon" Singularity) bibstem:(PhRvL) -bibstem:(Apj)`,
     );
-    expect(result.getAll('sort')).toStrictEqual(['score desc', 'date desc']);
+    expect(result.getAll('sort')).toStrictEqual(['score desc,date desc']);
   });
 });
