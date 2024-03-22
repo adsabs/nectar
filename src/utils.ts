@@ -316,7 +316,7 @@ export const makeSearchParams = (params: SafeSearchUrlParams, options: { omit?: 
 export const stringifySearchParams = (params: Record<string, unknown>, options?: qs.IStringifyOptions) =>
   qs.stringify(params, {
     indices: false,
-    arrayFormat: 'repeat',
+    arrayFormat: 'comma',
     format: 'RFC1738',
     sort: (a, b) => a - b,
     skipNulls: true,

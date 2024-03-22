@@ -2,6 +2,7 @@ import { AppRuntimeConfig } from '@types';
 import { AxiosRequestConfig } from 'axios';
 import getConfig from 'next/config';
 import qs from 'qs';
+import { APP_DEFAULTS } from '@config';
 
 /**
  * Figure out which config to pick, based on the current environment
@@ -30,12 +31,12 @@ const resolveApiBaseUrl = (defaultBaseUrl = ''): string => {
 export const defaultRequestConfig: AxiosRequestConfig = {
   baseURL: resolveApiBaseUrl(),
   withCredentials: true,
-  timeout: 30000,
+  timeout: typeof window === 'undefined' ? APP_DEFAULTS.SSR_API_TIMEOUT : APP_DEFAULTS.API_TIMEOUT,
   paramsSerializer: {
     serialize: (params) =>
       qs.stringify(params, {
         indices: false,
-        arrayFormat: 'repeat',
+        arrayFormat: 'comma',
         format: 'RFC1738',
         sort: (a, b) => a - b,
         skipNulls: true,
