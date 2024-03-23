@@ -1,8 +1,9 @@
 import {
+  DatabaseEnum,
+  DEFAULT_USER_DATA,
   ExternalLinkAction,
   fetchUserSettings,
   IADSApiUserDataParams,
-  IADSApiUserDataResponse,
   UserDataKeys,
   userKeys,
 } from '@api';
@@ -19,7 +20,7 @@ import {
 } from '@components';
 import { composeNextGSSP } from '@ssr-utils';
 import { GetServerSideProps } from 'next';
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { dehydrate, QueryClient, QueryErrorResetBoundary } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import { getFallBackAlert } from '@components/Feedbacks/SuspendedAlert';
@@ -100,20 +101,35 @@ const AppSettingsPage = () => {
     setParams({ [UserDataKeys.EXTERNAL_LINK_ACTION]: id });
   };
 
-  const handleApplyDatabases = (names: string[]) => {
-    const newValue = JSON.parse(
-      JSON.stringify(settings.defaultDatabase),
-    ) as IADSApiUserDataResponse[UserDataKeys.DEFAULT_DATABASE];
-    newValue.forEach((v) => {
-      if (names.findIndex((n) => n === v.name) === -1) {
-        v.value = false;
-      } else {
-        v.value = true;
-      }
-    });
+  const handleApplyDatabases = useCallback(
+    (names: string[]) => {
+      const currentDatabases = settings[UserDataKeys.DEFAULT_DATABASE];
 
-    setParams({ [UserDataKeys.DEFAULT_DATABASE]: newValue });
-  };
+      // if ALL is selected, reset to default (except for All)
+      if (names.includes(DatabaseEnum.All)) {
+        return setParams({
+          [UserDataKeys.DEFAULT_DATABASE]: [
+            ...DEFAULT_USER_DATA[UserDataKeys.DEFAULT_DATABASE],
+            { name: DatabaseEnum.All, value: true },
+          ],
+        });
+      }
+
+      const defaultDatabases: typeof settings[UserDataKeys.DEFAULT_DATABASE] = [];
+      for (const db of currentDatabases) {
+        // skip ALL
+        if (db.name === DatabaseEnum.All) {
+          continue;
+        }
+        defaultDatabases.push({
+          name: db.name,
+          value: names.includes(db.name),
+        });
+      }
+      setParams({ [UserDataKeys.DEFAULT_DATABASE]: defaultDatabases });
+    },
+    [settings[UserDataKeys.DEFAULT_DATABASE]],
+  );
 
   return (
     <>
@@ -158,13 +174,25 @@ const AppSettingsPage = () => {
                 </FormLabel>
                 {content}
               </Box>
+
               <CheckboxGroup onChange={handleApplyDatabases} value={selectedValues.databases.selected}>
                 <Stack direction="row" id="default-collections" spacing="6">
-                  {selectedValues.databases.databases.map((o) => (
-                    <Checkbox value={o.name} key={o.name}>
-                      {o.name}
-                    </Checkbox>
-                  ))}
+                  <Checkbox value="All">All</Checkbox>
+                  <Checkbox value="Physics" isDisabled={selectedValues.databases.selected.includes(DatabaseEnum.All)}>
+                    Physics
+                  </Checkbox>
+                  <Checkbox value="Astronomy" isDisabled={selectedValues.databases.selected.includes(DatabaseEnum.All)}>
+                    Astronomy
+                  </Checkbox>
+                  <Checkbox value="General" isDisabled={selectedValues.databases.selected.includes(DatabaseEnum.All)}>
+                    General
+                  </Checkbox>
+                  <Checkbox
+                    value="Earth Science"
+                    isDisabled={selectedValues.databases.selected.includes(DatabaseEnum.All)}
+                  >
+                    Earth Science
+                  </Checkbox>
                 </Stack>
               </CheckboxGroup>
             </FormControl>

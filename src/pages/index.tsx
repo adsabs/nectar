@@ -12,15 +12,7 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { ChangeEventHandler, useCallback, useEffect, useState } from 'react';
-<<<<<<< HEAD
-=======
-import { useIntermediateQuery } from '@lib/useIntermediateQuery';
-import Image from 'next/image';
-import { YouTubeEmbed } from '@next/third-parties/google';
 import { useSettings } from '@lib/useSettings';
-import { DatabaseEnum, IADSApiSearchParams, IADSApiUserDataResponse } from '@api';
-import { applyFiltersToQuery } from '@components/SearchFacet/helpers';
->>>>>>> 85fef6a4 (feat: Apply default filters to query)
 
 const SearchExamples = dynamic<ISearchExamplesProps>(
   () => import('@components/SearchExamples').then((m) => m.SearchExamples),

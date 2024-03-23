@@ -127,6 +127,7 @@ export enum DatabaseEnum {
   Astronomy = 'Astronomy',
   General = 'General',
   EarthScience = 'Earth Science',
+  All = 'All',
 }
 
 export enum ExternalLinkAction {
@@ -150,7 +151,7 @@ export interface IADSApiUserDataResponse {
   [UserDataKeys.LINK_SERVER]: string;
   [UserDataKeys.CUSTOM_FORMATS]: CustomFormat[];
   [UserDataKeys.BIBTEX_FORMAT]: string;
-  [UserDataKeys.DEFAULT_DATABASE]: { name: DatabaseEnum; value: boolean }[];
+  [UserDataKeys.DEFAULT_DATABASE]: Array<{ name: DatabaseEnum; value: boolean }>;
   [UserDataKeys.BIBTEX_MAX_AUTHORS]: string;
   [UserDataKeys.LAST_MESSAGE]: string;
   [UserDataKeys.ABS_FORMAT]: string;
