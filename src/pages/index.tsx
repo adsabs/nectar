@@ -1,5 +1,8 @@
+import { IADSApiSearchParams } from '@api/search/types';
+import { DatabaseEnum, IADSApiUserDataResponse } from '@api/user/types';
 import { Box, Center, Flex, Heading, Spinner, Stack, Text, VisuallyHidden } from '@chakra-ui/react';
 import { IPagerProps, ISearchExamplesProps, SearchBar, SearchExamplesPlaceholder, SimpleLink } from '@components';
+import { applyFiltersToQuery } from '@components/SearchFacet/helpers';
 import { useIntermediateQuery } from '@lib/useIntermediateQuery';
 import { YouTubeEmbed } from '@next/third-parties/google';
 import { useStore } from '@store';
@@ -9,6 +12,15 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { ChangeEventHandler, useCallback, useEffect, useState } from 'react';
+<<<<<<< HEAD
+=======
+import { useIntermediateQuery } from '@lib/useIntermediateQuery';
+import Image from 'next/image';
+import { YouTubeEmbed } from '@next/third-parties/google';
+import { useSettings } from '@lib/useSettings';
+import { DatabaseEnum, IADSApiSearchParams, IADSApiUserDataResponse } from '@api';
+import { applyFiltersToQuery } from '@components/SearchFacet/helpers';
+>>>>>>> 85fef6a4 (feat: Apply default filters to query)
 
 const SearchExamples = dynamic<ISearchExamplesProps>(
   () => import('@components/SearchExamples').then((m) => m.SearchExamples),
@@ -25,6 +37,7 @@ const Pager = dynamic<IPagerProps>(() => import('@components/Pager').then((m) =>
 
 const HomePage: NextPage = () => {
   const sort = useStore((state) => state.query.sort);
+  const { settings } = useSettings();
   const submitQuery = useStore((state) => state.submitQuery);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -33,9 +46,50 @@ const HomePage: NextPage = () => {
   // clear search on mount
   useEffect(() => clearQuery(), []);
 
+  /**
+   * Take in a query object and apply any FQ filters
+   * These will either be any default ON filters or whatever has been set by the user in the preferences
+   */
+  const applyDefaultFilters = useCallback(
+    (query: IADSApiSearchParams) => {
+      const defaultDatabases = getListOfAppliedDefaultDatabases(settings.defaultDatabase);
+      if (Array.isArray(defaultDatabases) && defaultDatabases.length > 0) {
+        return applyFiltersToQuery({
+          query,
+          values: defaultDatabases,
+          field: 'database',
+          logic: 'or',
+        });
+      }
+      return query;
+    },
+    [settings.defaultDatabase],
+  );
+
+  /**
+   * update route and start searching
+   */
+  const handleOnSubmit: ChangeEventHandler<HTMLFormElement> = useCallback(
+    (e) => {
+      e.preventDefault();
+      const query = new FormData(e.currentTarget).get('q') as string;
+
+      if (query && query.trim().length > 0) {
+        updateQuery(query);
+        setIsLoading(true);
+        submitQuery();
+        void router.push({
+          pathname: '/search',
+          search: makeSearchParams(applyDefaultFilters({ q: query, sort, p: 1 })),
+        });
+      }
+    },
+    [router, sort, submitQuery, updateQuery],
+  );
+
   return (
     <Box aria-labelledby="form-title" my={8}>
-      <form method="get" action="/search">
+      <form method="get" action="/search" onSubmit={handleOnSubmit}>
         <VisuallyHidden as="h2" id="form-title">
           Modern Search Form
         </VisuallyHidden>
@@ -162,4 +216,23 @@ const Carousel = () => {
       ]}
     />
   );
+};
+
+/**
+ * Get a list of default databases that have been applied
+ * @param databases
+ */
+const getListOfAppliedDefaultDatabases = (databases: IADSApiUserDataResponse['defaultDatabase']): Array<string> => {
+  const defaultDatabases = [];
+  for (const db of databases) {
+    // if All is selected, exit early here and return an empty array (no filters to apply)
+    if (db.name === DatabaseEnum.All && db.value) {
+      return [];
+    }
+
+    if (db.value) {
+      defaultDatabases.push(db.name);
+    }
+  }
+  return defaultDatabases;
 };
