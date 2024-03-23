@@ -24,7 +24,7 @@
       "@*": [
         "./src/*"
       ],
-      "@logger": ["./src/logger/logger"],
+      "@logger": ["./logger/logger"],
     },
     "incremental": true
   },
