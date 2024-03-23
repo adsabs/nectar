@@ -28,7 +28,6 @@ const DEFAULT_OPERATOR = 'AND' as const;
  */
 const FIELD_REGEX = /[a-z_0-9]+:/gi;
 
-export const fqNameYearRange = 'range';
 
 export const joinConditions = (operator: Operator, conditions: string[]) =>
   pipe(defaultTo(''), join(defaultTo(' AND ', ` ${operator} `)))(conditions);
