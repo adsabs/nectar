@@ -20,13 +20,13 @@ import {
   Tabs,
 } from '@chakra-ui/react';
 import { HIndexGraphPane, YearsGraphPane } from '@components';
-import { fqNameYearRange } from '@query';
 import { removeFQ, setFQ } from '@query-utils';
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { ReactElement } from 'react';
 import { FacetField } from '../types';
+import { fqNameYearRange } from '@components/SearchFacet/YearHistogramSlider';
 
 interface IOverviewPageContainerProps {
   query: IADSApiSearchParams;
@@ -40,7 +40,7 @@ export const OverviewPageContainer = ({ query, onApplyQueryCondition }: IOvervie
     const cleanedQuery = query.fq ? removeFQ(fqNameYearRange, query) : query;
     const newQuery = setFQ(fqNameYearRange, `year:${min}-${max}`, cleanedQuery);
 
-    // tigger search
+    // trigger search
     const search = makeSearchParams({ ...newQuery, p: 1 });
     void router.push({ pathname: '/search', search }, null, { scroll: false });
   };
