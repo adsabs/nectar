@@ -26,6 +26,7 @@ import {
 } from 'ramda';
 import { isEmptyArray } from 'ramda-adjunct';
 import { z } from 'zod';
+import { logger } from '../logger/logger';
 
 type Query = Partial<IADSApiSearchParams>;
 type Tuple<T = string> = [T, T];
@@ -49,23 +50,54 @@ const setFQHeader = curry((name: string, query: Query) =>
   over(fQHeaderLens, pipe(append(makeFQHeader(name)), uniq), query),
 );
 
-const removeFQHeader = curry(
-  (key: string, query: Query): Query =>
-    pipe<[Query], Query, Query>(
+const removeFQHeader = curry((key: string, query: Query): Query => {
+  logger.debug({ msg: 'Removing FQ header from query', key, query });
+  try {
+    return pipe<[Query], Query, Query>(
       // remove the header
       over(fQHeaderLens, without([makeFQHeader(key)])),
 
       // if fq is now empty, remove the whole prop from the query
       when(propSatisfies(isEmptyArray, 'fq'), dissoc('fq')),
-    )(query),
-);
+    )(query);
+  } catch (error) {
+    logger.error({
+      msg: 'Error removing FQ header from query',
+      error,
+      query,
+      key,
+    });
+    return query;
+  }
+});
 
 /**
  *  Removes an FQ from the passed in query
  */
-export const removeFQ = curry((key: string, query: Query) =>
-  pipe<[Query], Query, Query>(dissoc(applyFQPrefix(key)), removeFQHeader(key))(query),
-);
+export const removeFQ = curry((key: string, query: Query) => {
+  try {
+    const fqKey = applyFQPrefix(key);
+    if (!query[fqKey] || query[fqKey] === '') {
+      logger.debug({ msg: 'FQ does not exist in query', key, query });
+      return query;
+    }
+    return pipe<[Query], Query, Query>(
+      // remove the key from the query (i.e. fq_author)
+      dissoc(fqKey),
+
+      // remove the header (i.e. {!type=aqp v=$fq_author})
+      removeFQHeader(key),
+    )(query);
+  } catch (error) {
+    logger.error({
+      msg: 'Error removing FQ from query',
+      error,
+      query,
+      key,
+    });
+    return query;
+  }
+});
 
 /**
  * Clears FQs from the Query object
