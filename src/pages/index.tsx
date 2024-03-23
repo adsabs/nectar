@@ -9,6 +9,9 @@ import { ChangeEventHandler, useCallback, useEffect, useState } from 'react';
 import { useIntermediateQuery } from '@lib/useIntermediateQuery';
 import Image from 'next/image';
 import { YouTubeEmbed } from '@next/third-parties/google';
+import { useSettings } from '@lib/useSettings';
+import { DatabaseEnum, IADSApiSearchParams, IADSApiUserDataResponse } from '@api';
+import { applyFiltersToQuery } from '@components/SearchFacet/helpers';
 
 const SearchExamples = dynamic<ISearchExamplesProps>(
   () => import('@components/SearchExamples').then((m) => m.SearchExamples),
@@ -17,6 +20,7 @@ const SearchExamples = dynamic<ISearchExamplesProps>(
 
 const HomePage: NextPage = () => {
   const sort = useStore((state) => state.query.sort);
+  const { settings } = useSettings();
   const submitQuery = useStore((state) => state.submitQuery);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -24,6 +28,26 @@ const HomePage: NextPage = () => {
 
   // clear search on mount
   useEffect(() => clearQuery(), []);
+
+  /**
+   * Take in a query object and apply any FQ filters
+   * These will either be any default ON filters or whatever has been set by the user in the preferences
+   */
+  const applyDefaultFilters = useCallback(
+    (query: IADSApiSearchParams) => {
+      const defaultDatabases = getListOfAppliedDefaultDatabases(settings.defaultDatabase);
+      if (Array.isArray(defaultDatabases) && defaultDatabases.length > 0) {
+        return applyFiltersToQuery({
+          query,
+          values: defaultDatabases,
+          field: 'database',
+          logic: 'or',
+        });
+      }
+      return query;
+    },
+    [settings.defaultDatabase],
+  );
 
   /**
    * update route and start searching
@@ -37,7 +61,10 @@ const HomePage: NextPage = () => {
         updateQuery(query);
         setIsLoading(true);
         submitQuery();
-        void router.push({ pathname: '/search', search: makeSearchParams({ q: query, sort, p: 1 }) });
+        void router.push({
+          pathname: '/search',
+          search: makeSearchParams(applyDefaultFilters({ q: query, sort, p: 1 })),
+        });
       }
     },
     [router, sort, submitQuery, updateQuery],
@@ -170,4 +197,23 @@ const Carousel = () => {
       ]}
     />
   );
+};
+
+/**
+ * Get a list of default databases that have been applied
+ * @param databases
+ */
+const getListOfAppliedDefaultDatabases = (databases: IADSApiUserDataResponse['defaultDatabase']): Array<string> => {
+  const defaultDatabases = [];
+  for (const db of databases) {
+    // if All is selected, exit early here and return an empty array (no filters to apply)
+    if (db.name === DatabaseEnum.All && db.value) {
+      return [];
+    }
+
+    if (db.value) {
+      defaultDatabases.push(db.name);
+    }
+  }
+  return defaultDatabases;
 };
