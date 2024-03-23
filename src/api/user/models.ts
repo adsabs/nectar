@@ -7,6 +7,7 @@ export const DEFAULT_USER_DATA: IADSApiUserDataResponse = {
   [UserDataKeys.CUSTOM_FORMATS]: [],
   [UserDataKeys.BIBTEX_FORMAT]: '',
   [UserDataKeys.DEFAULT_DATABASE]: [
+    { name: DatabaseEnum.All, value: false },
     { name: DatabaseEnum.Physics, value: false },
     { name: DatabaseEnum.Astronomy, value: false },
     { name: DatabaseEnum.General, value: false },
