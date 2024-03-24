@@ -1,4 +1,5 @@
 import api, {
+  ADSMutation,
   ADSQuery,
   ApiRequestConfig,
   ApiTargets,
@@ -7,15 +8,36 @@ import api, {
   IADSApiSearchResponse,
   IDocsEntity,
 } from '@api';
-import { QueryFunction, useQuery, UseQueryOptions } from '@tanstack/react-query';
+import { MutationFunction, QueryFunction, useQuery, UseQueryOptions, useMutation } from '@tanstack/react-query';
+import { omit } from 'ramda';
 import { getVaultBigQueryParams } from './models';
-import { IADSApiVaultResponse, IADSVaultExecuteQueryParams } from './types';
+import {
+  IADSApiAddNotificationParams,
+  IADSApiAddNotificationResponse,
+  IADSApiDeleteNotificationParams,
+  IADSApiDeleteNotificationResponse,
+  IADSApiEditNotificationParams,
+  IADSApiEditNotificationResponse,
+  IADSApiNotificationParams,
+  IADSApiNotificationQueryParams,
+  IADSApiNotificationQueryResponse,
+  IADSApiNotificationReponse,
+  IADSApiNotificationsReponse,
+  IADSApiVaultResponse,
+  IADSVaultExecuteQueryParams,
+} from './types';
 
 export enum VaultKeys {
   VAULT = 'vault',
   EXECUTE_QUERY = 'vault/execute_query',
   BIGQUERY = 'vault/bigquery',
   LIBRARY_LINK_SERVERS = 'vault/library_link_servers',
+  NOTIFICATIONS = 'vault/notifications',
+  NOTIFICATION = 'vault/notification',
+  ADD_NOTIFICATION = 'vault/add_notification',
+  EDIT_NOTIFICATION = 'vault/edit_notification',
+  DEL_NOTIFICATION = 'vault/del_notification',
+  NOTIFICATION_QUERY = 'vault/notification_query',
 }
 
 export const vaultKeys = {
@@ -23,6 +45,12 @@ export const vaultKeys = {
   executeQuery: (qid: IADSVaultExecuteQueryParams['qid']) => [VaultKeys.EXECUTE_QUERY, { qid }] as const,
   bigquery: (bibcodes: IDocsEntity['bibcode'][]) => [VaultKeys.BIGQUERY, { bibcodes }] as const,
   libraryLinkServers: () => [VaultKeys.LIBRARY_LINK_SERVERS] as const,
+  notifications: () => [VaultKeys.NOTIFICATIONS] as const,
+  notification: (id: string) => [VaultKeys.NOTIFICATION, { id }] as const,
+  addNotification: () => [VaultKeys.ADD_NOTIFICATION] as const,
+  editNotification: () => [VaultKeys.EDIT_NOTIFICATION] as const,
+  delNotification: () => [VaultKeys.DEL_NOTIFICATION] as const,
+  notificationQuery: (id: string) => [VaultKeys.NOTIFICATION_QUERY, { id }] as const,
 };
 
 /**
@@ -69,7 +97,7 @@ export const fetchVaultSearch: QueryFunction<IADSApiVaultResponse> = async ({ me
 
   const config: ApiRequestConfig = {
     method: 'POST',
-    url: `${ApiTargets.MYADS_STORAGE}/query`,
+    url: ApiTargets.MYADS_STORAGE_QUERY,
     data: params,
   };
 
@@ -105,4 +133,149 @@ export const useLibraryLinkServers = (options?: UseQueryOptions<IADSApiLibraryLi
     queryFn: fetchLibraryLinkServers,
     ...options,
   });
+};
+
+// email notifications
+
+// get all notification
+
+export const useGetNotifications = (options?: UseQueryOptions<IADSApiNotificationsReponse>) => {
+  return useQuery({
+    queryKey: vaultKeys.notifications(),
+    queryFn: fetchNotifications,
+    ...options,
+  });
+};
+
+export const fetchNotifications: QueryFunction<IADSApiNotificationsReponse> = async () => {
+  const config: ApiRequestConfig = {
+    method: 'GET',
+    url: ApiTargets.MYADS_NOTIFICATIONS,
+  };
+
+  const { data } = await api.request<IADSApiNotificationsReponse>(config);
+  return data;
+};
+
+// get single notification
+
+export const useGetNotification: ADSQuery<IADSApiNotificationParams, IADSApiNotificationReponse> = (
+  params,
+  options,
+) => {
+  return useQuery({
+    queryKey: vaultKeys.notification(params.id.toString()),
+    meta: { params },
+    queryFn: fetchNotification,
+    ...options,
+  });
+};
+
+export const fetchNotification: QueryFunction<IADSApiNotificationReponse> = async ({ meta }) => {
+  const { params } = meta as { params: IADSApiNotificationParams };
+  const config: ApiRequestConfig = {
+    method: 'GET',
+    url: `${ApiTargets.MYADS_NOTIFICATIONS}/${params.id.toString()}`,
+  };
+
+  const { data } = await api.request<IADSApiNotificationReponse>(config);
+  return data;
+};
+
+// add notification
+
+export const useAddNotification: ADSMutation<IADSApiAddNotificationResponse, undefined, IADSApiAddNotificationParams> =
+  (_, options) => {
+    return useMutation({
+      mutationKey: vaultKeys.addNotification(),
+      mutationFn: addNotification,
+      ...options,
+    });
+  };
+
+export const addNotification: MutationFunction<IADSApiAddNotificationResponse, IADSApiAddNotificationParams> = async (
+  params,
+) => {
+  const config: ApiRequestConfig = {
+    method: 'POST',
+    url: ApiTargets.MYADS_NOTIFICATIONS,
+    data: params,
+  };
+
+  const { data } = await api.request<IADSApiAddNotificationResponse>(config);
+  return data;
+};
+
+// edit notification
+
+export const useEditNotification: ADSMutation<
+  IADSApiEditNotificationResponse,
+  undefined,
+  IADSApiEditNotificationParams
+> = (_, options) => {
+  return useMutation({
+    mutationKey: vaultKeys.editNotification(),
+    mutationFn: editNotification,
+    ...options,
+  });
+};
+
+export const editNotification: MutationFunction<IADSApiEditNotificationResponse, IADSApiEditNotificationParams> =
+  async (params) => {
+    const config: ApiRequestConfig = {
+      method: 'PUT',
+      url: `${ApiTargets.MYADS_NOTIFICATIONS}/${params.id}`,
+      data: omit(['id'], params),
+    };
+
+    const { data } = await api.request<IADSApiEditNotificationResponse>(config);
+    return data;
+  };
+
+export const useDelNotification: ADSMutation<
+  IADSApiDeleteNotificationResponse,
+  undefined,
+  IADSApiDeleteNotificationParams
+> = (_, options) => {
+  return useMutation({
+    mutationKey: vaultKeys.delNotification(),
+    mutationFn: deleteNotification,
+    ...options,
+  });
+};
+
+export const deleteNotification: MutationFunction<IADSApiDeleteNotificationResponse, IADSApiDeleteNotificationParams> =
+  async ({ id }) => {
+    const config: ApiRequestConfig = {
+      method: 'DELETE',
+      url: `${ApiTargets.MYADS_NOTIFICATIONS}/${id}`,
+    };
+
+    const { data } = await api.request<IADSApiDeleteNotificationResponse>(config);
+    return data;
+  };
+
+// get notification query
+
+export const useGetNotificationQuery: ADSQuery<IADSApiNotificationQueryParams, IADSApiNotificationQueryResponse> = (
+  params,
+  options,
+) => {
+  return useQuery({
+    queryKey: vaultKeys.notificationQuery(params.id.toString()),
+    meta: { params },
+    queryFn: fetchNotificationQuery,
+    ...options,
+  });
+};
+
+export const fetchNotificationQuery: QueryFunction<IADSApiNotificationQueryResponse> = async ({ meta }) => {
+  const { params } = meta as { params: IADSApiNotificationParams };
+  const config: ApiRequestConfig = {
+    method: 'GET',
+    url: `${ApiTargets.MYADS_NOTIFICATIONS_QUERY}/${params.id.toString()}`,
+  };
+
+  const { data } = await api.request<IADSApiNotificationQueryResponse>(config);
+  return data;
 };
