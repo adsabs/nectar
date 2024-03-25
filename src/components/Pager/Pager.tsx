@@ -99,7 +99,7 @@ export const Pager = (props: IPagerProps) => {
             <ChangePageButton
               direction="next"
               onClick={next}
-              wiggle={!!(!interacted && shouldWiggle && selectedPage === 0)}
+              wiggle={!!(!interacted && !!shouldWiggle && selectedPage === 0)}
             />
           </Box>
         </Flex>
@@ -113,7 +113,7 @@ export const Pager = (props: IPagerProps) => {
   );
 };
 
-const wiggle = keyframes`
+const wiggleAnim = keyframes`
   10%, 90% {
     transform: translate3d(-1px, 0, 0);
   }
@@ -131,7 +131,7 @@ const wiggle = keyframes`
   }
 `;
 const ChangePageButton = (props: ButtonProps & { direction: 'next' | 'previous'; wiggle?: boolean }) => {
-  const { direction, ...buttonProps } = props;
+  const { direction, wiggle = false, ...buttonProps } = props;
   return (
     <IconButton
       {...buttonProps}
@@ -142,8 +142,8 @@ const ChangePageButton = (props: ButtonProps & { direction: 'next' | 'previous';
       colorScheme="black"
       _hover={{ animation: 'none' }}
       _focus={{ animation: 'none' }}
-      animation={props.wiggle ? `${wiggle} 2s cubic-bezier(0.455, 0.030, 0.515, 0.955) infinite` : undefined}
-      animationDelay={props.wiggle ? '2s' : undefined}
+      animation={wiggle ? `${wiggleAnim} 2s cubic-bezier(0.455, 0.030, 0.515, 0.955) infinite` : undefined}
+      animationdelay={wiggle ? '2s' : undefined}
     />
   );
 };
