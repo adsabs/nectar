@@ -125,7 +125,7 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
   useEffect(() => {
     if (documents?.documents) {
       fetchDocuments(
-        { bibcodes: documents.documents, rows: pageSize },
+        { bibcodes: documents.documents, rows: pageSize, sort },
         {
           onSettled(data) {
             if (data) {
