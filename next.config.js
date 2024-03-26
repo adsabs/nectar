@@ -11,7 +11,11 @@ const config = {
   generateEtags: true,
   poweredByHeader: false,
   reactStrictMode: true,
-  experimental: { newNextLinkBehavior: false, webVitalsAttribution: ['CLS', 'LCP'] },
+  experimental: {
+    newNextLinkBehavior: false,
+    webVitalsAttribution: ['CLS', 'LCP'],
+    optimisticClientCache: false
+  },
   async rewrites() {
     if (process.env.NODE_ENV !== 'production') {
       return {

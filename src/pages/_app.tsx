@@ -10,7 +10,7 @@ import { AppProps, NextWebVitalsMetric } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import 'nprogress/nprogress.css';
-import { FC, memo, ReactElement, useEffect } from 'react';
+import { FC, memo, ReactElement, useEffect, useMemo } from 'react';
 import { DehydratedState, Hydrate, QueryClientProvider, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { IronSession } from 'iron-session';
@@ -38,6 +38,11 @@ export type AppPageProps = { dehydratedState: DehydratedState; dehydratedAppStat
 
 const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
   logger.debug('App', { props: pageProps as unknown });
+  const router = useRouter();
+
+  useMemo(() => {
+    router.prefetch = () => new Promise((res) => res());
+  }, [router]);
 
   return (
     <Providers pageProps={pageProps as AppPageProps}>
