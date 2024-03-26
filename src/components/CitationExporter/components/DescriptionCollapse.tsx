@@ -20,7 +20,9 @@ export const DescriptionCollapse = (props: IDescriptionCollapseProps): ReactElem
         btn: <IconButton onClick={onToggle} icon={icon} variant="ghost" isRound aria-label={label} />,
         content: (
           <Collapse in={isOpen} {...collapseProps}>
-            <Box overflowX="scroll">{body}</Box>
+            <Box overflowX="auto" mb="2">
+              {body}
+            </Box>
           </Collapse>
         ),
       })}
