@@ -14,7 +14,8 @@ const config = {
   experimental: {
     newNextLinkBehavior: false,
     webVitalsAttribution: ['CLS', 'LCP'],
-    optimisticClientCache: false
+    optimisticClientCache: false,
+    optimizePackageImports: ['@api', '@components', '@chakra-ui/react', 'ramda']
   },
   async rewrites() {
     if (process.env.NODE_ENV !== 'production') {
@@ -46,7 +47,7 @@ const config = {
           {
             key: 'Feature-Policy',
             value:
-              "geolocation 'none'; midi 'none'; microphone 'none'; camera 'none'; magnetometer 'none'; gyroscope 'none'; speaker 'none'; fullscreen 'self'; payment 'none'",
+              "geolocation 'none'; midi 'none'; microphone 'none'; camera 'none'; magnetometer 'none'; gyroscope 'none'; fullscreen 'self'; payment 'none'",
           },
         ],
       },
