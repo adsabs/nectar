@@ -55,7 +55,7 @@ import { useIsClient } from 'src/lib';
 import { composeNextGSSP } from '@ssr-utils';
 import { AppState, createStore, useStore, useStoreApi } from '@store';
 import { NumPerPageType } from '@types';
-import { makeSearchParams, parseQueryFromUrl } from '@utils';
+import { makeSearchParams, parseQueryFromUrl, parseAPIError } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
@@ -67,8 +67,9 @@ import { SOLR_ERROR, useSolrError } from '@lib/useSolrError';
 import { AxiosError } from 'axios';
 import { logger } from '../../../logger/logger';
 
-const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(() =>
-  import('@components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),
+const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
+  () => import('@components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),
+  { ssr: false },
 );
 
 const SearchFacets = dynamic<ISearchFacetsProps>(
@@ -396,71 +397,80 @@ const NoResultsMsg = () => (
   />
 );
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-  const { p: page, ...query } = parseQueryFromUrl<{ p: string }>(ctx.req.url);
-
-  const queryClient = new QueryClient();
-
-  // prime the search with a small query to get the current numFound
-  let primer = null;
-  if (page > 1) {
-    const primerParams = getSearchParams({ ...query, start: 0, rows: 1, fl: ['id'] });
-    primer = await queryClient.fetchQuery({
-      queryKey: searchKeys.primary(primerParams),
-      queryFn: fetchSearch,
-      meta: { params: primerParams },
-    });
-  }
-
-  const params: IADSApiSearchParams = getSearchParams({
-    ...query,
-    q: query.q.length === 0 ? '*:*' : query.q,
-    start: calculateStartIndex(page, APP_DEFAULTS.RESULT_PER_PAGE, primer?.response.numFound),
-  });
-
-  // omit fields from queryKey
-  const { fl, ...cleanedParams } = params;
-
-  // prefetch the citation counts for this query
-  if (/^citation_count(_norm)?/.test(params.sort[0])) {
-    await queryClient.prefetchQuery({
-      queryKey: searchKeys.stats(cleanedParams),
-      queryFn: fetchSearch,
-      meta: { params: getSearchStatsParams(params, params.sort[0]) },
-    });
-  }
-  const initialState = createStore().getState();
-
   try {
-    // primary query prefetch
-    const primaryResult = await queryClient.fetchQuery({
-      queryKey: [SEARCH_API_KEYS.primary],
-      queryFn: fetchSearch,
-      queryHash: JSON.stringify(searchKeys.primary(omit(['fl'], params) as IADSApiSearchParams)),
-      meta: { params },
+    const { p: page, ...query } = parseQueryFromUrl<{ p: string }>(ctx.req.url);
+    const queryClient = new QueryClient();
+
+    // prime the search with a small query to get the current numFound
+    let primer = null;
+    if (page > 1) {
+      const primerParams = getSearchParams({ ...query, start: 0, rows: 1, fl: ['id'] });
+      primer = await queryClient.fetchQuery({
+        queryKey: searchKeys.primary(primerParams),
+        queryFn: fetchSearch,
+        meta: { params: primerParams },
+      });
+    }
+
+    const params: IADSApiSearchParams = getSearchParams({
+      ...query,
+      q: query.q.length === 0 ? '*:*' : query.q,
+      start: calculateStartIndex(page, APP_DEFAULTS.RESULT_PER_PAGE, primer?.response.numFound),
     });
 
-    return {
-      props: {
-        dehydratedState: dehydrate(queryClient),
-        dehydratedAppState: {
-          query: params,
-          latestQuery: params,
-          docs: {
-            ...initialState.docs,
-            current: primaryResult.response.docs.map((d) => d.bibcode),
-          },
-        } as AppState,
-      },
-    };
+    // omit fields from queryKey
+    const { fl, ...cleanedParams } = params;
+
+    // prefetch the citation counts for this query
+    if (/^citation_count(_norm)?/.test(params.sort[0])) {
+      await queryClient.prefetchQuery({
+        queryKey: searchKeys.stats(cleanedParams),
+        queryFn: fetchSearch,
+        meta: { params: getSearchStatsParams(params, params.sort[0]) },
+      });
+    }
+    const initialState = createStore().getState();
+
+    try {
+      // primary query prefetch
+      const primaryResult = await queryClient.fetchQuery({
+        queryKey: [SEARCH_API_KEYS.primary],
+        queryFn: fetchSearch,
+        queryHash: JSON.stringify(searchKeys.primary(omit(['fl'], params) as IADSApiSearchParams)),
+        meta: { params },
+      });
+
+      return {
+        props: {
+          dehydratedState: dehydrate(queryClient),
+          dehydratedAppState: {
+            query: params,
+            latestQuery: params,
+            docs: {
+              ...initialState.docs,
+              current: primaryResult.response.docs.map((d) => d.bibcode),
+            },
+          } as AppState,
+        },
+      };
+    } catch (e) {
+      logger.error({ msg: 'error fetching search results', error: e });
+      return {
+        props: {
+          dehydratedState: dehydrate(queryClient),
+          dehydratedAppState: {
+            query: params,
+            latestQuery: params,
+          } as AppState,
+          pageError: parseAPIError(e),
+        },
+      };
+    }
   } catch (e) {
-    logger.error({ msg: 'error fetching search results', error: e });
+    logger.error({ msg: 'Search Page Error', error: e });
     return {
       props: {
-        dehydratedState: dehydrate(queryClient),
-        dehydratedAppState: {
-          query: params,
-          latestQuery: params,
-        } as AppState,
+        pageError: parseAPIError(e),
       },
     };
   }

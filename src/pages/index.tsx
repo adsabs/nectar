@@ -1,19 +1,27 @@
-import { Box, Center, Flex, Heading, Stack, Text, VisuallyHidden } from '@chakra-ui/react';
-import { ISearchExamplesProps, Pager, SearchBar, SearchExamplesPlaceholder, SimpleLink } from '@components';
+import { Box, Center, Flex, Heading, Spinner, Stack, Text, VisuallyHidden } from '@chakra-ui/react';
+import { IPagerProps, ISearchExamplesProps, SearchBar, SearchExamplesPlaceholder, SimpleLink } from '@components';
+import { useIntermediateQuery } from '@lib/useIntermediateQuery';
+import { YouTubeEmbed } from '@next/third-parties/google';
 import { useStore } from '@store';
-import { makeSearchParams } from '@utils';
+import { makeSearchParams, normalizeSolrSort } from '@utils';
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { ChangeEventHandler, useCallback, useEffect, useState } from 'react';
-import { useIntermediateQuery } from '@lib/useIntermediateQuery';
-import Image from 'next/image';
-import { YouTubeEmbed } from '@next/third-parties/google';
 
 const SearchExamples = dynamic<ISearchExamplesProps>(
   () => import('@components/SearchExamples').then((m) => m.SearchExamples),
   { ssr: false, loading: () => <SearchExamplesPlaceholder /> },
 );
+const Pager = dynamic<IPagerProps>(() => import('@components/Pager').then((m) => m.Pager), {
+  ssr: false,
+  loading: () => (
+    <Center>
+      <Spinner />
+    </Center>
+  ),
+});
 
 const HomePage: NextPage = () => {
   const sort = useStore((state) => state.query.sort);
@@ -25,27 +33,9 @@ const HomePage: NextPage = () => {
   // clear search on mount
   useEffect(() => clearQuery(), []);
 
-  /**
-   * update route and start searching
-   */
-  const handleOnSubmit: ChangeEventHandler<HTMLFormElement> = useCallback(
-    (e) => {
-      e.preventDefault();
-      const query = new FormData(e.currentTarget).get('q') as string;
-
-      if (query && query.trim().length > 0) {
-        updateQuery(query);
-        setIsLoading(true);
-        submitQuery();
-        void router.push({ pathname: '/search', search: makeSearchParams({ q: query, sort, p: 1 }) });
-      }
-    },
-    [router, sort, submitQuery, updateQuery],
-  );
-
   return (
     <Box aria-labelledby="form-title" my={8}>
-      <form method="get" action="/search" onSubmit={handleOnSubmit}>
+      <form method="get" action="/search">
         <VisuallyHidden as="h2" id="form-title">
           Modern Search Form
         </VisuallyHidden>
@@ -57,6 +47,8 @@ const HomePage: NextPage = () => {
             <Carousel />
           </Box>
         </Flex>
+        <input type="hidden" name="sort" value={normalizeSolrSort(sort)} />
+        <input type="hidden" name="p" value="1" />
       </form>
     </Box>
   );

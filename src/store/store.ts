@@ -81,7 +81,7 @@ export const useCreateStore = (incomingState: Partial<AppState> = {}): (() => St
   store = store ?? createStore(incomingState);
 
   // force reset of the search facets
-  store.getState().resetSearchFacets();
+  setTimeout(() => store.getState().resetSearchFacets(), 300);
 
   // in the case that initialState changes, merge the changes in
   // eslint-disable-next-line react-hooks/rules-of-hooks
