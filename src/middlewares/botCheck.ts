@@ -72,6 +72,4 @@ export const botCheck = async (req: NextRequest, res: NextResponse) => {
     session.bot = true;
     await session.save();
   }
-
-  return res;
 };

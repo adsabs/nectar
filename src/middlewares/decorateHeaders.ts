@@ -1,9 +1,9 @@
-// eslint-disable-next-line @next/next/no-server-import-in-page
-import { NextRequest, NextResponse } from 'next/server';
 import { edgeLogger } from 'logger/logger';
+// eslint-disable-next-line @next/next/no-server-import-in-page
+import { NextRequest } from 'next/server';
 
 const log = edgeLogger.child({}, { msgPrefix: '[decorateHeaders] ' });
-export const decorateHeaders = async (req: NextRequest) => {
+export const decorateHeaders = (req: NextRequest) => {
   log.debug('Decorating headers');
   const { cspHeader, reportToHeader, nonce } = generateCSP();
   const requestHeaders = new Headers(req.headers);
@@ -15,13 +15,7 @@ export const decorateHeaders = async (req: NextRequest) => {
   );
   log.debug('Headers set');
 
-  return Promise.resolve(
-    NextResponse.next({
-      request: {
-        headers: requestHeaders,
-      },
-    }),
-  );
+  return requestHeaders;
 };
 
 const generateCSP = () => {
