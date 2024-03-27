@@ -33,6 +33,9 @@ export const ItemAnnotation = ({
   showNote,
   onUpdate,
   canEdit = false,
+  open,
+  onOpen,
+  onClose,
 }: {
   library: LibraryIdentifier;
   bibcode: string;
@@ -40,12 +43,15 @@ export const ItemAnnotation = ({
   note?: string;
   canEdit?: boolean;
   onUpdate: () => void;
+  open: boolean;
+  onOpen: () => void;
+  onClose: () => void;
 }) => {
-  const [show, setShow] = useState(false);
+  // const [show, setShow] = useState(open);
 
   return (
     <Flex direction="column" justifyContent="center" alignContent="center">
-      <Collapse in={show} animateOpacity>
+      <Collapse in={open} animateOpacity>
         {showNote ? (
           <Tabs variant="enclosed" size="sm" mt={2} isLazy={true}>
             <TabList>
@@ -54,7 +60,7 @@ export const ItemAnnotation = ({
             </TabList>
             <TabPanels>
               <TabPanel>
-                {show && (
+                {open && (
                   <Annotation library={library} bibcode={bibcode} note={note} onUpdate={onUpdate} canEdit={canEdit} />
                 )}
               </TabPanel>
@@ -69,14 +75,14 @@ export const ItemAnnotation = ({
       </Collapse>
       <VStack>
         <IconButton
-          aria-label={show ? 'hide abstract' : 'show abstract'}
-          onClick={() => setShow(!show)}
+          aria-label={open ? 'hide abstract' : 'show abstract'}
+          onClick={() => (open ? onClose() : onOpen())}
           disabled={false}
           variant="unstyled"
           width="fit-content"
           display="flex"
           fontSize="md"
-          icon={show ? <ChevronUpIcon /> : <ChevronDownIcon />}
+          icon={open ? <ChevronUpIcon /> : <ChevronDownIcon />}
         />
       </VStack>
     </Flex>

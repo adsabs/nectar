@@ -1,5 +1,16 @@
 import { IDocsEntity, LibraryIdentifier } from '@api';
-import { Box, BoxProps, Checkbox, CheckboxProps, Flex, Stack, Text } from '@chakra-ui/react';
+import {
+  Box,
+  BoxProps,
+  Checkbox,
+  CheckboxProps,
+  Flex,
+  IconButton,
+  Stack,
+  Text,
+  Tooltip,
+  useDisclosure,
+} from '@chakra-ui/react';
 import { AllAuthorsModal } from '@components/AllAuthorsModal';
 import { ItemResourceDropdowns } from '@components/ResultList/Item';
 import { APP_DEFAULTS } from '@config';
@@ -10,6 +21,7 @@ import { MathJax } from 'better-react-mathjax';
 import { ChangeEvent, ReactElement } from 'react';
 import { ItemAnnotation } from './ItemAnnotation';
 import { SimpleLink } from '@components';
+import { PencilSquareIcon } from '@heroicons/react/24/outline';
 
 export interface IItemProps {
   doc: IDocsEntity;
@@ -40,14 +52,17 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
     isChecked = false,
     onSet = noop,
     useNormCite,
-    linkNewTab = false,
     hideResources = true,
   } = props;
-  const { bibcode, pubdate, title = ['Untitled'], author = [], bibstem = [], author_count } = doc;
+  const { bibcode, pubdate, title = ['Untitled'], author = [], author_count, pub } = doc;
   const formattedPubDate = getFomattedNumericPubdate(pubdate);
-  const [formattedBibstem] = bibstem;
   const isClient = useIsClient();
   const colors = useColorModeColors();
+  const truncatedPub =
+    pub?.length > APP_DEFAULTS.RESULT_ITEM_PUB_CUTOFF ? pub.slice(0, APP_DEFAULTS.RESULT_ITEM_PUB_CUTOFF) + '...' : pub;
+
+  // annotation / abstract
+  const { isOpen, onClose, onOpen } = useDisclosure();
 
   // citations
   const cite = useNormCite ? (
@@ -95,6 +110,15 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
             <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
           </SimpleLink>
           <Flex alignItems="start" ml={1}>
+            <Tooltip label="Show annotation">
+              <IconButton
+                aria-label="Show annotation"
+                icon={<PencilSquareIcon width="18px" height="18px" />}
+                variant="link"
+                size="xs"
+                onClick={onOpen}
+              />
+            </Tooltip>
             {!isClient || hideResources ? null : <ItemResourceDropdowns doc={doc} />}
           </Flex>
         </Flex>
@@ -102,9 +126,11 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
           <AuthorList author={author} authorCount={author_count} bibcode={doc.bibcode} />
           <Text fontSize="xs" mt={0.5}>
             {formattedPubDate}
-            {formattedPubDate && formattedBibstem ? <span className="px-2">·</span> : ''}
-            {formattedBibstem}
-            {cite && (formattedPubDate || formattedBibstem) ? <span className="px-2">·</span> : null}
+            {formattedPubDate && pub ? <span className="px-2">·</span> : ''}
+            <Tooltip label={pub} aria-label="publication tooltip" placement="top">
+              <span>{truncatedPub}</span>
+            </Tooltip>
+            {cite && (formattedPubDate || pub) ? <span className="px-2">·</span> : null}
             {cite}
           </Text>
           <ItemAnnotation
@@ -114,6 +140,9 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
             onUpdate={onNoteUpdate}
             showNote={showNote}
             canEdit={canEdit}
+            open={isOpen}
+            onOpen={onOpen}
+            onClose={onClose}
           />
         </Flex>
       </Stack>

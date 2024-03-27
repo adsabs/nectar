@@ -125,7 +125,7 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
   useEffect(() => {
     if (documents?.documents) {
       fetchDocuments(
-        { bibcodes: documents.documents, rows: pageSize },
+        { bibcodes: documents.documents, rows: pageSize, sort },
         {
           onSettled(data) {
             if (data) {
@@ -328,7 +328,7 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
                 alignItems={{ base: 'start', sm: 'end' }}
                 style={isLoadingDocs ? { pointerEvents: 'none' } : { pointerEvents: 'auto' }}
               >
-                <Sort sort={sort} onChange={handleChangeSort} />
+                <Sort sort={sort} onChange={handleChangeSort} omits={['score']} disableWhenNoJs />
                 <SearchQueryLink params={{ ...getSearchParams, q: `docs(library/${id})` }}>
                   View as search results
                 </SearchQueryLink>

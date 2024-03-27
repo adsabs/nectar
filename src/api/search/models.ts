@@ -179,6 +179,5 @@ export const getHighlightParams = (params: IADSApiSearchParams): IADSApiSearchPa
 
 export const getBigQueryParams = (): IADSApiSearchParams => ({
   q: '*:*',
-  sort: ['date desc'],
   fl: defaultFields,
 });

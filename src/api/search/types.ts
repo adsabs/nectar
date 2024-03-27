@@ -529,5 +529,5 @@ export const queryFields = [
 
 export interface IBigQueryMutationParams {
   params: IADSApiSearchParams;
-  variables: { bibcodes: IDocsEntity['bibcode'][]; rows: number };
+  variables: { bibcodes: IDocsEntity['bibcode'][]; rows: number; sort?: SolrSort[] };
 }

@@ -18,6 +18,7 @@ import { sortValues } from './model';
 export interface ISortProps {
   name?: string;
   sort?: SolrSort | SolrSort[];
+  omits?: SolrSortField[]; // do not show these in the dropdown
   hideLabel?: boolean;
   fullWidth?: boolean;
   onChange?: (sort: SolrSort[]) => void;
@@ -30,6 +31,8 @@ export interface ISortProps {
    * otherwise will use one with same look and feel as JS supported one
    */
   useNativeWhenNoJs?: boolean;
+
+  disableWhenNoJs?: boolean;
 }
 
 /**
@@ -42,11 +45,17 @@ export const Sort = (props: ISortProps): ReactElement => {
     sort = APP_DEFAULTS.SORT,
     onChange,
     name = 'sort',
+    omits = [],
     useNativeWhenNoJs = false,
+    disableWhenNoJs = false,
     hideLabel = true,
     fullWidth = false,
     innerSelectProps,
   } = props;
+
+  const sortOptions: SortOptionType[] = sortValues
+    .filter((v) => !omits.includes(v.id))
+    .map((v) => ({ id: v.id, value: v.id, label: v.text }));
 
   // normalize incoming sort
   const allSorts = useMemo(() => normalizeSolrSort(sort), [sort]);
@@ -71,8 +80,16 @@ export const Sort = (props: ISortProps): ReactElement => {
   // non-js initially rendered on the server, will be swapped out
   // for the full-featured one below when it hits client
   const isClient = useIsClient();
-  if (!isClient) {
-    return <>{useNativeWhenNoJs ? <NoJsNativeSort name={name} /> : <NoJsSort />}</>;
+  if (!isClient && !disableWhenNoJs) {
+    return (
+      <>
+        {useNativeWhenNoJs ? (
+          <NoJsNativeSort name={name} sortOptions={sortOptions} />
+        ) : (
+          <NoJsSort sortOptions={sortOptions} />
+        )}
+      </>
+    );
   }
 
   const sortContainerWidth = fullWidth ? 'full' : '250px';
@@ -82,6 +99,7 @@ export const Sort = (props: ISortProps): ReactElement => {
       <Box width={sortContainerWidth}>
         <SortSelect
           hideLabel={hideLabel}
+          sortOptions={sortOptions}
           sort={selected}
           onChange={handleSelectionChange}
           innerSelectProps={innerSelectProps}
@@ -126,16 +144,16 @@ interface SortOptionType {
   label: string;
 }
 
-export const sortOptions: SortOptionType[] = sortValues.map((v) => ({ id: v.id, value: v.id, label: v.text }));
-
 // Sort Select component
 const SortSelect = ({
   sort,
+  sortOptions,
   onChange,
   hideLabel,
   innerSelectProps,
 }: {
   sort: string;
+  sortOptions: SortOptionType[];
   onChange: (val: SortOptionType) => void;
   hideLabel: ISortProps['hideLabel'];
   innerSelectProps?: Partial<ISelectProps<SortOptionType>>;
@@ -157,7 +175,7 @@ const SortSelect = ({
 };
 
 // non-native type, used in search results
-const NoJsSort = (): ReactElement => {
+const NoJsSort = ({ sortOptions }: { sortOptions: SortOptionType[] }): ReactElement => {
   const router = useRouter();
   const query = parseQueryFromUrl(router.asPath);
   const [sortby, dir] = query.sort[0].split(' ') as [SolrSortField, SolrSortDirection];
@@ -213,7 +231,7 @@ const NoJsSort = (): ReactElement => {
 };
 
 // native type, used by classic form
-const NoJsNativeSort = ({ name }: { name: string }): ReactElement => {
+const NoJsNativeSort = ({ name, sortOptions }: { name: string; sortOptions: SortOptionType[] }): ReactElement => {
   return (
     <select id="sort" name={name} defaultValue="score desc">
       {sortOptions.map((item) => (
