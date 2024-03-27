@@ -54,15 +54,11 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
 
 const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => {
   const createStore = useCreateStore(pageProps.dehydratedAppState ?? {});
-  const colorModeManager =
-    typeof pageProps.colorModeCookie === 'string'
-      ? cookieStorageManagerSSR(pageProps.colorModeCookie)
-      : localStorageManager;
 
   return (
     <GoogleReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? ''}>
       <MathJaxProvider>
-        <ChakraProvider theme={theme} colorModeManager={colorModeManager}>
+        <ChakraProvider theme={theme}>
           <StoreProvider createStore={createStore}>
             <QCProvider>
               <Hydrate state={pageProps.dehydratedState}>{children}</Hydrate>
