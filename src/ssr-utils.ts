@@ -16,12 +16,6 @@ const injectNonce: IncomingGSSP = (ctx, prev) => {
   return Promise.resolve({ props: { nonce, ...prev.props } });
 };
 
-const injectColorModeCookie: IncomingGSSP = (ctx, prev) => {
-  const colorMode = ctx.req.cookies['chakra-ui-color-mode'] ?? '';
-  log.debug({ msg: 'Injecting color mode from cookie', colorMode });
-  return Promise.resolve({ props: { colorModeCookie: `chakra-ui-color-mode=${colorMode}`, ...prev.props } });
-};
-
 const updateUserStateSSR: IncomingGSSP = (ctx, prevResult) => {
   const userData = ctx.req.session.token;
 
@@ -70,7 +64,6 @@ export const composeNextGSSP = (...fns: IncomingGSSP[]) =>
   > => {
     fns.push(injectNonce);
     fns.push(updateUserStateSSR);
-    fns.push(injectColorModeCookie);
     api.setUserData(ctx.req.session.token);
     let ssrProps = { props: {} };
     for (const fn of fns) {
