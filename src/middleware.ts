@@ -1,11 +1,10 @@
+import { sessionConfig } from '@config';
+import { initSession } from '@middlewares/initSession';
+import { verifyMiddleware } from '@middlewares/verifyMiddleware';
+import { getIronSession } from 'iron-session/edge';
+import { edgeLogger } from 'logger/logger';
 // eslint-disable-next-line @next/next/no-server-import-in-page
 import { NextRequest, NextResponse } from 'next/server';
-import { decorateHeaders } from '@middlewares/decorateHeaders';
-import { initSession } from '@middlewares/initSession';
-import { getIronSession } from 'iron-session/edge';
-import { sessionConfig } from '@config';
-import { edgeLogger } from 'logger/logger';
-import { verifyMiddleware } from '@middlewares/verifyMiddleware';
 
 const log = edgeLogger.child({}, { msgPrefix: '[middleware] ' });
 
@@ -19,11 +18,13 @@ const redirect = (url: URL, req: NextRequest, message?: string) => {
 };
 
 const redirectIfAuthenticated = async (req: NextRequest, res: NextResponse) => {
+  log.debug('Redirect if Authenticated Middleware');
   const session = await getIronSession(req, res, sessionConfig);
 
   // if the user is authenticated, redirect them to the root
   if (session.isAuthenticated) {
     const url = req.nextUrl.clone();
+    log.debug({ msg: 'User is authenticated, redirecting to home', url });
     url.pathname = '/';
     return redirect(url, req);
   }
@@ -89,11 +90,8 @@ export async function middleware(req: NextRequest) {
     method: req.method,
     url: req.nextUrl.toString(),
   });
-  const res = NextResponse.next();
 
-  // root middlewares
-  await decorateHeaders(req);
-  await initSession(req, res);
+  const res = await initSession(req, NextResponse.next());
 
   const path = req.nextUrl.pathname;
 
@@ -113,6 +111,7 @@ export async function middleware(req: NextRequest) {
     return verifyMiddleware(req, res);
   }
 
+  log.debug({ msg: 'Non-special route, continuing', res });
   return res;
 }
 
