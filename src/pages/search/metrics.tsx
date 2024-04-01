@@ -1,10 +1,10 @@
 import { IADSApiSearchParams } from '@api';
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/react';
 import { MetricsPageContainer, VizPageLayout } from '@components';
-import { makeSearchParams, parseQueryFromUrl } from '@utils';
-import axios from 'axios';
+import { makeSearchParams, parseAPIError, parseQueryFromUrl } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import { composeNextGSSP } from '@ssr-utils';
+import { logger } from '@logger';
 
 interface IMetricsProps {
   originalQuery: IADSApiSearchParams;
@@ -64,10 +64,12 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
         bibsQuery: params,
       },
     });
-  } catch (e) {
+  } catch (error) {
+    logger.error({ msg: 'GSSP error on metrics page', error });
     return Promise.resolve({
       props: {
-        error: axios.isAxiosError(e) ? e.message : 'Unable to fetch data',
+        error: parseAPIError(error, { defaultMessage: 'Unable to fetch data' }),
+        pageError: parseAPIError(error),
       },
     });
   }

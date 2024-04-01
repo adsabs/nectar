@@ -7,6 +7,7 @@ import api from '@api/api';
 import { dehydrate, hydrate, QueryClient } from '@tanstack/react-query';
 import { getNotification, NotificationId } from '@store/slices';
 import { logger } from '../logger/logger';
+import { parseAPIError } from '@utils';
 
 const log = logger.child({}, { msgPrefix: '[ssr-inject] ' });
 
@@ -67,10 +68,16 @@ export const composeNextGSSP = (...fns: IncomingGSSP[]) =>
     api.setUserData(ctx.req.session.token);
     let ssrProps = { props: {} };
     for (const fn of fns) {
-      const result = await fn(ctx, ssrProps);
+      let result;
       let props = {};
-      if ('props' in result) {
-        props = { ...ssrProps.props, ...result.props };
+      try {
+        result = await fn(ctx, ssrProps);
+      } catch (error) {
+        logger.error({ error });
+        props = { pageError: parseAPIError(error) };
+      }
+      if (result && 'props' in result) {
+        props = { ...props, ...ssrProps.props, ...result.props };
       }
       ssrProps = { ...ssrProps, ...result, props };
     }

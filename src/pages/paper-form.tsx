@@ -36,6 +36,7 @@ import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { useErrorMessage } from '@lib/useErrorMessage';
 import { APP_DEFAULTS } from '@config';
 import { useColorModeColors } from '@lib';
+import { logger } from '@logger';
 
 enum PaperFormType {
   JOURNAL_QUERY = 'journal-query',
@@ -368,10 +369,12 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
           permanent: false,
         },
       };
-    } catch (e) {
+    } catch (error) {
+      logger.error({ msg: 'GSSP error on paper form', error });
       return {
         props: {
-          error: { form: body.form, message: (e as Error)?.message },
+          error: { form: body.form, message: (error as Error)?.message },
+          pageError: error,
         },
       };
     }

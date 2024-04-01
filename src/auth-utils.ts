@@ -3,6 +3,7 @@ import { ApiRequestConfig, ApiTargets, IBootstrapPayload, ICSRFResponse, IUserDa
 import { defaultRequestConfig } from '@api/config';
 import { isNil } from 'ramda';
 import { isPast, parseISO } from 'date-fns';
+import { APP_DEFAULTS } from '@config';
 
 const fetchCSRF = async () =>
   await axios.get<ICSRFResponse, AxiosResponse<ICSRFResponse>>(ApiTargets.CSRF, defaultRequestConfig);
@@ -31,6 +32,7 @@ export const fetchUserData = async (additionalConfig?: AxiosRequestConfig) => {
     ...additionalConfig,
     method: 'GET',
     url: ApiTargets.BOOTSTRAP,
+    timeout: APP_DEFAULTS.API_TIMEOUT,
   };
 
   return await axios.request<IBootstrapPayload, AxiosResponse<IBootstrapPayload>>(config);

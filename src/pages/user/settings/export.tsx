@@ -23,6 +23,8 @@ import { composeNextGSSP } from '@ssr-utils';
 import { ErrorBoundary } from 'react-error-boundary';
 import { getFallBackAlert } from '@components/Feedbacks/SuspendedAlert';
 import { isNotEmpty } from 'ramda-adjunct';
+import { logger } from '@logger';
+import { parseAPIError } from '@utils';
 
 // partial user data params
 // used to update user data
@@ -186,24 +188,33 @@ const ExportSettings = () => {
 
 export default Page;
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async () => {
-  // get a sample doc
-  const params = getSearchParams({ q: 'bibstem:ApJ author_count:[10 TO 20]', rows: 1 });
-  const queryClient = new QueryClient();
-  await queryClient.prefetchQuery({
-    queryKey: searchKeys.primary(params),
-    queryHash: JSON.stringify(searchKeys.primary(omit(['fl'], params) as IADSApiSearchParams)),
-    queryFn: fetchSearch,
-    meta: { params },
-  });
+  try {
+    // get a sample doc
+    const params = getSearchParams({ q: 'bibstem:ApJ author_count:[10 TO 20]', rows: 1 });
+    const queryClient = new QueryClient();
+    await queryClient.prefetchQuery({
+      queryKey: searchKeys.primary(params),
+      queryHash: JSON.stringify(searchKeys.primary(omit(['fl'], params) as IADSApiSearchParams)),
+      queryFn: fetchSearch,
+      meta: { params },
+    });
 
-  await queryClient.prefetchQuery({
-    queryKey: userKeys.getUserSettings(),
-    queryFn: fetchUserSettings,
-  });
+    await queryClient.prefetchQuery({
+      queryKey: userKeys.getUserSettings(),
+      queryFn: fetchUserSettings,
+    });
 
-  return {
-    props: {
-      dehydratedState: dehydrate(queryClient),
-    },
-  };
+    return {
+      props: {
+        dehydratedState: dehydrate(queryClient),
+      },
+    };
+  } catch (error) {
+    logger.error({ msg: 'GSSP error on export settings page', error });
+    return {
+      props: {
+        pageError: parseAPIError(error),
+      },
+    };
+  }
 });

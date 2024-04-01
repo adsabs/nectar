@@ -7,6 +7,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { composeNextGSSP } from '@ssr-utils';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
+import { parseAPIError } from '@utils';
+import { logger } from '@logger';
 
 const Record: NextPage = () => {
   const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({
@@ -105,22 +107,31 @@ export default Record;
 
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
   const { bibcode } = ctx.query;
-  if (typeof bibcode === 'string') {
-    const queryClient = new QueryClient();
-    const params = getSingleRecordParams(bibcode);
 
-    void (await queryClient.prefetchQuery({
-      queryKey: searchKeys.record(bibcode),
-      queryFn: fetchSearch,
-      meta: { params },
-    }));
+  try {
+    if (typeof bibcode === 'string') {
+      const queryClient = new QueryClient();
+      const params = getSingleRecordParams(bibcode);
 
+      void (await queryClient.prefetchQuery({
+        queryKey: searchKeys.record(bibcode),
+        queryFn: fetchSearch,
+        meta: { params },
+      }));
+
+      return {
+        props: {
+          dehydratedState: dehydrate(queryClient),
+        },
+      };
+    }
+    return { props: {} };
+  } catch (error) {
+    logger.error({ msg: 'GSSP error on missing/update feedback form', error });
     return {
       props: {
-        dehydratedState: dehydrate(queryClient),
+        pageError: parseAPIError(error),
       },
     };
   }
-
-  return { props: {} };
 });

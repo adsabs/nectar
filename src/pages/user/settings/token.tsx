@@ -25,6 +25,7 @@ import { fetchUserApiToken, useGenerateNewApiToken, useGetUserApiToken, userKeys
 import { ErrorBoundary } from 'react-error-boundary';
 import { getFallBackAlert } from '@components/Feedbacks/SuspendedAlert';
 import { composeNextGSSP } from '@ssr-utils';
+import { logger } from '@logger';
 
 const ApiTokenPage = () => {
   const qc = useQueryClient();
@@ -177,14 +178,21 @@ export default ApiTokenPage;
 export const getServerSideProps = composeNextGSSP(async () => {
   const qc = new QueryClient();
 
-  await qc.prefetchQuery({
-    queryKey: userKeys.userApiToken(),
-    queryFn: fetchUserApiToken,
-  });
+  try {
+    await qc.prefetchQuery({
+      queryKey: userKeys.userApiToken(),
+      queryFn: fetchUserApiToken,
+    });
 
-  return {
-    props: {
-      dehydratedState: dehydrate(qc),
-    },
-  };
+    return {
+      props: {
+        dehydratedState: dehydrate(qc),
+      },
+    };
+  } catch (error) {
+    logger.error({ msg: 'GSSP on token settings page', error });
+    return {
+      props: { pageError: error },
+    };
+  }
 });

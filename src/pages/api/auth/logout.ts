@@ -1,6 +1,6 @@
 import { ApiTargets, IBasicAccountsResponse } from '@api';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { sessionConfig } from '@config';
+import { APP_DEFAULTS, sessionConfig } from '@config';
 import { configWithCSRF, fetchUserData, hash, isValidToken, pickUserData } from '@auth-utils';
 import { defaultRequestConfig } from '@api/config';
 import axios, { AxiosResponse } from 'axios';
@@ -27,6 +27,7 @@ async function logout(req: NextApiRequest, res: NextApiResponse<ILogoutResponse>
     ...defaultRequestConfig,
     url: ApiTargets.LOGOUT,
     method: 'POST',
+    timeout: APP_DEFAULTS.API_TIMEOUT,
   });
 
   try {
