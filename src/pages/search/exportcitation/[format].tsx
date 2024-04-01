@@ -14,7 +14,7 @@ import { CitationExporter, JournalFormatMap, SimpleLink } from '@components';
 import { getExportCitationDefaultContext } from '@components/CitationExporter/CitationExporter.machine';
 import { APP_DEFAULTS } from '@config';
 import { useIsClient } from '@lib/useIsClient';
-import { parseQueryFromUrl } from '@utils';
+import { parseAPIError, parseQueryFromUrl } from '@utils';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
@@ -23,6 +23,7 @@ import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { composeNextGSSP } from '@ssr-utils';
 import { useSettings } from '@lib/useSettings';
 import { useBackToSearchResults } from '@lib/useBackToSearchResults';
+import { logger } from '@logger';
 
 interface IExportCitationPageProps {
   format: ExportApiFormatKey;
@@ -185,10 +186,12 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
         dehydratedState,
       },
     };
-  } catch (e) {
+  } catch (error) {
+    logger.error({ msg: 'GSSP error in export citation page', error });
     return {
       props: {
-        error: axios.isAxiosError(e) ? e.message : 'Unable to fetch data',
+        pageError: parseAPIError(error),
+        error: axios.isAxiosError(error) ? error.message : 'Unable to fetch data',
       },
     };
   }

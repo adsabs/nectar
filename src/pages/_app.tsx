@@ -1,4 +1,4 @@
-import { ChakraProvider, cookieStorageManagerSSR, localStorageManager } from '@chakra-ui/react';
+import { ChakraProvider } from '@chakra-ui/react';
 import { Layout } from '@components';
 import { useIsClient } from 'src/lib';
 import { useCreateQueryClient } from '@lib/useCreateQueryClient';
@@ -136,14 +136,7 @@ const UserSync = (): ReactElement => {
   // Comparing the incoming user data with the current user data, and update the store if they are different
   useEffect(() => {
     if (data?.user && checkUserData(data?.user) && notEqual(data.user, user)) {
-      logger.debug('User Synced', { user: data.user });
-
-      // if the username has changed, we know it's a new user we should do a full reload
-      if (user.username !== data.user.username) {
-        logger.debug('Detected a username change, assuming session is expired');
-        void router.push('/user/account/login?notify=account-session-expired');
-        return;
-      }
+      logger.debug({ msg: 'User Synced', user: data.user });
 
       store.setState({ user: data.user });
 

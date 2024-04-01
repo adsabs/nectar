@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { z } from 'zod';
 import { IronSession } from 'iron-session';
 import { withIronSessionApiRoute } from 'iron-session/next';
-import { sessionConfig } from '@config';
+import { APP_DEFAULTS, sessionConfig } from '@config';
 import { configWithCSRF, fetchUserData, hash, isValidToken, pickUserData } from '@auth-utils';
 import { defaultRequestConfig } from '@api/config';
 import axios, { AxiosResponse } from 'axios';
@@ -52,6 +52,7 @@ export const handleAuthentication = async (
       username: credentials.email,
       password: credentials.password,
     },
+    timeout: APP_DEFAULTS.API_TIMEOUT,
   });
 
   try {

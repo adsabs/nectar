@@ -17,6 +17,8 @@ import { composeNextGSSP } from '@ssr-utils';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { isNonEmptyArray, isNotNilOrEmpty } from 'ramda-adjunct';
 import { find, propEq } from 'ramda';
+import { parseAPIError } from '@utils';
+import { logger } from '@logger';
 
 const findServer = (url: string, linkServer: IADSApiLibraryLinkServersResponse) =>
   find(propEq('link', url), linkServer);
@@ -122,21 +124,30 @@ export default LibraryLinkServerPage;
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async () => {
   const queryClient = new QueryClient();
 
-  // prefetch link servers
-  await queryClient.prefetchQuery({
-    queryKey: vaultKeys.libraryLinkServers(),
-    queryFn: fetchLibraryLinkServers,
-  });
+  try {
+    // prefetch link servers
+    await queryClient.prefetchQuery({
+      queryKey: vaultKeys.libraryLinkServers(),
+      queryFn: fetchLibraryLinkServers,
+    });
 
-  // prefetch the user settings
-  await queryClient.prefetchQuery({
-    queryKey: userKeys.getUserSettings(),
-    queryFn: fetchUserSettings,
-  });
+    // prefetch the user settings
+    await queryClient.prefetchQuery({
+      queryKey: userKeys.getUserSettings(),
+      queryFn: fetchUserSettings,
+    });
 
-  return {
-    props: {
-      dehydratedState: dehydrate(queryClient),
-    },
-  };
+    return {
+      props: {
+        dehydratedState: dehydrate(queryClient),
+      },
+    };
+  } catch (error) {
+    logger.error({ msg: 'GSSP error on libraryLink settings page', error });
+    return {
+      props: {
+        pageError: parseAPIError(error),
+      },
+    };
+  }
 });

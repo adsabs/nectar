@@ -3,6 +3,8 @@ import { ClassicForm, getSearchQuery, IClassicFormState } from '@components/Clas
 import { GetServerSideProps, GetServerSidePropsContext, NextPage } from 'next';
 import Head from 'next/head';
 import { composeNextGSSP } from '@ssr-utils';
+import { parseAPIError } from '@utils';
+import { logger } from '@logger';
 
 const ClassicFormPage: NextPage<{ ssrError?: string }> = ({ ssrError }) => {
   return (
@@ -29,10 +31,11 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
           permanent: false,
         },
       });
-    } catch (e) {
+    } catch (error) {
+      logger.error({ msg: 'GSSP error on classic form page', error });
       return Promise.resolve({
         props: {
-          ssrError: { message: (e as Error)?.message },
+          pageError: parseAPIError(error),
         },
       });
     }

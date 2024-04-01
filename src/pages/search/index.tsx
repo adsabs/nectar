@@ -55,7 +55,7 @@ import { useIsClient } from 'src/lib';
 import { composeNextGSSP } from '@ssr-utils';
 import { AppState, createStore, useStore, useStoreApi } from '@store';
 import { NumPerPageType } from '@types';
-import { makeSearchParams, parseQueryFromUrl, parseAPIError } from '@utils';
+import { makeSearchParams, parseAPIError, parseQueryFromUrl } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
@@ -453,8 +453,8 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
           } as AppState,
         },
       };
-    } catch (e) {
-      logger.error({ msg: 'error fetching search results', error: e });
+    } catch (error) {
+      logger.error({ msg: 'error fetching search results', error: error });
       return {
         props: {
           dehydratedState: dehydrate(queryClient),
@@ -462,7 +462,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
             query: params,
             latestQuery: params,
           } as AppState,
-          pageError: parseAPIError(e),
+          pageError: parseAPIError(error),
         },
       };
     }

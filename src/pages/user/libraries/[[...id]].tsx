@@ -12,6 +12,8 @@ import { composeNextGSSP } from '@ssr-utils';
 import { QueryClient } from '@tanstack/react-query';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
+import { logger } from '@logger';
+import { parseAPIError } from '@utils';
 
 interface ILibrariesHomeProps {
   id?: string;
@@ -79,33 +81,42 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
 
   const queryClient = new QueryClient();
 
-  if (!id) {
+  try {
+    if (!id) {
+      void (await queryClient.prefetchQuery({
+        queryKey: librariesKeys.libraries({}),
+        queryFn: fetchLibraries,
+        meta: { params: {} },
+      }));
+
+      return Promise.resolve({
+        props: {},
+      });
+    }
+
+    const libraryId = id[0];
+    const subpage = id[1] ?? null;
+
     void (await queryClient.prefetchQuery({
-      queryKey: librariesKeys.libraries({}),
-      queryFn: fetchLibraries,
-      meta: { params: {} },
+      queryKey: librariesKeys.library({ id: libraryId }),
+      queryFn: fetchLibraryEntity,
+      meta: { params: { id: libraryId } },
+      staleTime: 0,
     }));
 
     return Promise.resolve({
-      props: {},
+      props: {
+        id: libraryId,
+        subpage: subpage,
+        from,
+      },
+    });
+  } catch (error) {
+    logger.error({ msg: 'GSSP error on individual library page', error });
+    return Promise.resolve({
+      props: {
+        pageError: parseAPIError(error),
+      },
     });
   }
-
-  const lid = id[0];
-  const subpage = id[1] ?? null;
-
-  void (await queryClient.prefetchQuery({
-    queryKey: librariesKeys.library({ id: lid }),
-    queryFn: fetchLibraryEntity,
-    meta: { params: { id: lid } },
-    staleTime: 0,
-  }));
-
-  return Promise.resolve({
-    props: {
-      id: lid,
-      subpage: subpage,
-      from,
-    },
-  });
 });

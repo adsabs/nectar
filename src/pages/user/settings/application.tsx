@@ -25,6 +25,8 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { getFallBackAlert } from '@components/Feedbacks/SuspendedAlert';
 import { useSettings } from '@lib/useSettings';
 import { isNotEmpty } from 'ramda-adjunct';
+import { logger } from '@logger';
+import { parseAPIError } from '@utils';
 
 // generate options for select component
 const useGetOptions = () => {
@@ -177,14 +179,24 @@ export default Page;
 
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async () => {
   const queryClient = new QueryClient();
-  await queryClient.prefetchQuery({
-    queryKey: userKeys.getUserSettings(),
-    queryFn: fetchUserSettings,
-  });
 
-  return {
-    props: {
-      dehydratedState: dehydrate(queryClient),
-    },
-  };
+  try {
+    await queryClient.prefetchQuery({
+      queryKey: userKeys.getUserSettings(),
+      queryFn: fetchUserSettings,
+    });
+
+    return {
+      props: {
+        dehydratedState: dehydrate(queryClient),
+      },
+    };
+  } catch (error) {
+    logger.error({ msg: 'GSSP error in application settings page', error });
+    return {
+      props: {
+        pageError: parseAPIError(error),
+      },
+    };
+  }
 });

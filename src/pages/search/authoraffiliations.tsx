@@ -11,6 +11,7 @@ import { composeNextGSSP } from '@ssr-utils';
 import { parseAPIError, parseQueryFromUrl } from '@utils';
 import { NextPage } from 'next';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
+import { logger } from '@logger';
 
 interface IAuthorAffilationsPageProps {
   error?: string;
@@ -103,11 +104,12 @@ export const getServerSideProps = composeNextGSSP(async (ctx) => {
         dehydratedState,
       },
     };
-  } catch (e) {
+  } catch (error) {
+    logger.error({ msg: 'GSSP error on author affiliations form', error });
     return {
       props: {
         query: params,
-        error: parseAPIError(e),
+        error: parseAPIError(error),
       },
     };
   }
