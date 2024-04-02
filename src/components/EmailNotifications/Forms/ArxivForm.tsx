@@ -18,12 +18,15 @@ import {
   IconButton,
   useToast,
   Text,
+  FormErrorMessage,
 } from '@chakra-ui/react';
+import { useDebounce } from '@lib';
 import { noop, parseAPIError } from '@utils';
 
 import { has, keys, toPairs, uniq, without } from 'ramda';
-import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
+import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from 'react';
 import { arxivModel } from '../ArxivModel';
+import { isValidKeyword } from './Utils';
 
 export const ArxivForm = ({
   onClose,
@@ -38,9 +41,16 @@ export const ArxivForm = ({
 
   const [keywords, setKeywords] = useState(notification?.data ?? '');
 
+  const dbKeywords = useDebounce(keywords);
+
   const [selected, setSelected] = useState<string[]>([]);
 
   const [name, setName] = useState<string>(notification?.name ?? '');
+
+  const { kwValid, kwErrorMessage } = useMemo(() => {
+    const isValid = isValidKeyword(dbKeywords);
+    return { kwValid: isValid, kwErrorMessage: isValid ? null : 'Invalid keyword syntax' };
+  }, [dbKeywords]);
 
   // initialize arxiv selection model
   useEffect(() => {
@@ -161,9 +171,10 @@ export const ArxivForm = ({
             <Input value={name} onChange={handleNameChange} autoFocus />
           </FormControl>
         )}
-        <FormControl>
+        <FormControl isInvalid={!kwValid}>
           <FormLabel>Keywords (optional)</FormLabel>
           <Input onChange={handleKeywordsChange} value={keywords} autoFocus placeholder="star OR planet" />
+          <FormErrorMessage>{kwErrorMessage}</FormErrorMessage>
           <Text fontSize="sm" fontStyle="italic" mt={1}>
             Used to rank papers from selected arXiv categories (below). Boolean "AND" is assumed, but can be overriden
             by using explicit logical operators between keywords
@@ -174,7 +185,7 @@ export const ArxivForm = ({
           <Categories selected={selected} onToggleSelect={handleToggleSelect} />
         </FormControl>
         <HStack mt={4} justifyContent="end">
-          <Button isLoading={isAdding || isEditing} isDisabled={selected.length === 0} type="submit">
+          <Button isLoading={isAdding || isEditing} isDisabled={selected.length === 0 || !kwValid} type="submit">
             Submit
           </Button>
           <Button variant="outline" onClick={onClose} type="button">
