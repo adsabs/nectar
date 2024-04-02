@@ -16,7 +16,7 @@ import { BibtexTabPanel, CustomFormatsTabPanel, exportFormats, GeneralTabPanel, 
 import { useSettings } from '@lib/useSettings';
 import { GetServerSideProps, NextPage } from 'next';
 import { Reducer, Suspense, useEffect, useMemo, useReducer } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import { nanoid } from 'nanoid';
 import { dehydrate, QueryClient, QueryErrorResetBoundary } from '@tanstack/react-query';
 import { omit, pathOr, values } from 'ramda';
 import { composeNextGSSP } from '@ssr-utils';
@@ -54,7 +54,7 @@ const reducer: Reducer<UserDataSetterState, UserDataSetterEvent> = (state, actio
       return {
         [UserDataKeys.CUSTOM_FORMATS]: [
           ...action.payload.currentFormats,
-          { id: `format-${uuidv4()}`, name: action.payload.name, code: action.payload.code },
+          { id: `format-${nanoid()}`, name: action.payload.name, code: action.payload.code },
         ],
       };
     case 'EDIT_CUSTOM_FORMAT':

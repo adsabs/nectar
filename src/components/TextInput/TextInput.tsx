@@ -1,6 +1,6 @@
 import { FormControl, FormHelperText, FormLabel, Input } from '@chakra-ui/react';
 import { DetailedHTMLProps, forwardRef, InputHTMLAttributes, ReactElement } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import { nanoid } from 'nanoid';
 
 export interface ITextInputProps
   extends Omit<DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>, 'ref'> {
@@ -12,7 +12,7 @@ export const TextInput = forwardRef<HTMLInputElement, ITextInputProps>((props, r
   const { label, helptext, size, ...inputProps } = props;
 
   if (typeof label === 'string') {
-    const id = typeof inputProps.id === 'string' ? inputProps.id : `input-text-${uuidv4()}`;
+    const id = typeof inputProps.id === 'string' ? inputProps.id : `input-text-${nanoid()}`;
     return (
       <FormControl>
         <FormLabel>{label}</FormLabel>
