@@ -1,8 +1,20 @@
 import { INotification, useAddNotification, useEditNotification } from '@api';
-import { Input, FormControl, FormLabel, HStack, Button, Flex, useToast, Text } from '@chakra-ui/react';
+import {
+  Input,
+  FormControl,
+  FormLabel,
+  HStack,
+  Button,
+  Flex,
+  useToast,
+  Text,
+  FormErrorMessage,
+} from '@chakra-ui/react';
+import { useDebounce } from '@lib';
 import { noop, parseAPIError } from '@utils';
 
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, useMemo, useState } from 'react';
+import { isValidKeyword } from './Utils';
 
 export const KeywordsForm = ({
   onClose,
@@ -17,11 +29,18 @@ export const KeywordsForm = ({
 
   const [keywords, setKeywords] = useState(notification?.data ?? '');
 
+  const dbKeywords = useDebounce(keywords);
+
   const [name, setName] = useState<string>(notification?.name ?? '');
 
   const { mutate: addNotification, isLoading: isAdding } = useAddNotification();
 
   const { mutate: editNofication, isLoading: isEditing } = useEditNotification();
+
+  const { kwValid, kwErrorMessage } = useMemo(() => {
+    const isValid = isValidKeyword(dbKeywords);
+    return { kwValid: isValid, kwErrorMessage: isValid ? null : 'Invalid keyword syntax' };
+  }, [dbKeywords]);
 
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
@@ -89,7 +108,7 @@ export const KeywordsForm = ({
             <Input value={name} onChange={handleNameChange} autoFocus />
           </FormControl>
         )}
-        <FormControl>
+        <FormControl isInvalid={!kwValid}>
           <FormLabel>Set or Keywords</FormLabel>
           <Input
             onChange={handleKeywordsChange}
@@ -98,12 +117,13 @@ export const KeywordsForm = ({
             placeholder="star OR planet"
             data-testid="keyword-input"
           />
+          <FormErrorMessage>{kwErrorMessage}</FormErrorMessage>
           <Text fontSize="sm" fontStyle="italic" mt={1}>
             Boolean "AND" is assumed, but can be overriden by using explicit logical operators between keywords
           </Text>
         </FormControl>
         <HStack mt={4} justifyContent="end">
-          <Button isLoading={isAdding || isEditing} isDisabled={keywords.trim().length === 0} type="submit">
+          <Button isLoading={isAdding || isEditing} isDisabled={keywords.trim().length === 0 || !kwValid} type="submit">
             Submit
           </Button>
           <Button variant="outline" onClick={onClose} type="button">
