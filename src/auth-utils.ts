@@ -6,7 +6,10 @@ import { isPast, parseISO } from 'date-fns';
 import { APP_DEFAULTS } from '@config';
 
 const fetchCSRF = async () =>
-  await axios.get<ICSRFResponse, AxiosResponse<ICSRFResponse>>(ApiTargets.CSRF, defaultRequestConfig);
+  await axios.get<ICSRFResponse, AxiosResponse<ICSRFResponse>>(ApiTargets.CSRF, {
+    ...defaultRequestConfig,
+    timeout: APP_DEFAULTS.API_TIMEOUT,
+  });
 
 export const configWithCSRF = async (config: ApiRequestConfig): Promise<ApiRequestConfig> => {
   const csrfRes = await fetchCSRF();
