@@ -40,11 +40,11 @@ import { MagnifyingGlassIcon, PlusIcon, TrashIcon, XMarkIcon } from '@heroicons/
 import { remove, update } from 'ramda';
 import { isNotNilOrEmpty } from 'ramda-adjunct';
 import { noop } from '@utils';
-import escapeHtml from 'escape-html';
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import { getFallBackAlert } from '@components/Feedbacks/SuspendedAlert';
 import { useColorModeColors } from '@lib';
+import DOMPurify from 'isomorphic-dompurify';
 
 export const UserSettings = () => {
   const isMobile = useBreakpointValue({ base: true, lg: false });
@@ -236,7 +236,7 @@ const AffiliationEditor = () => {
 
   const handleOnChange = useCallback(
     (affiliation: string) => {
-      const cleanAffiliation = escapeHtml(affiliation.trim());
+      const cleanAffiliation = DOMPurify.sanitize(affiliation.trim());
 
       if (isNotNilOrEmpty(cleanAffiliation) && preferences.currentAffiliation === affiliation) {
         return;
@@ -293,7 +293,7 @@ const AddNewAliasButton = () => {
   const ref = useRef<HTMLInputElement>(null);
 
   const handleAddNew = useCallback(() => {
-    const cleanName = escapeHtml(name.trim());
+    const cleanName = DOMPurify.sanitize(name.trim());
 
     // if already there, warn about it
     if (preferences.nameVariations.includes(cleanName)) {
@@ -399,7 +399,7 @@ const AliasEditor = (props: { name: string; index: number }) => {
 
   const handleOnChange = useCallback(
     (name: string) => {
-      const cleanName = escapeHtml(name.trim());
+      const cleanName = DOMPurify.sanitize(name.trim());
 
       // if name is empty or equal to the one we're updating, don't update
       if (isNotNilOrEmpty(cleanName) || preferences.nameVariations[index] === cleanName) {
