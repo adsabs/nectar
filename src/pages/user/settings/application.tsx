@@ -109,7 +109,7 @@ const AppSettingsPage = () => {
       if (names.includes(DatabaseEnum.All)) {
         return setParams({
           [UserDataKeys.DEFAULT_DATABASE]: [
-            ...DEFAULT_USER_DATA[UserDataKeys.DEFAULT_DATABASE],
+            ...DEFAULT_USER_DATA[UserDataKeys.DEFAULT_DATABASE].filter((db) => db.name !== DatabaseEnum.All),
             { name: DatabaseEnum.All, value: true },
           ],
         });
