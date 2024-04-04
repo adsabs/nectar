@@ -1,13 +1,12 @@
 const { withSentryConfig } = require('@sentry/nextjs');
+const nextBuildId = require('next-build-id');
 
 /**
  * @type {import('next').NextConfig}
  **/
 const config = {
   distDir: process.env.DIST_DIR || 'dist',
-  generateBuildId: async () => {
-    return process.env.GIT_SHA ?? '';
-  },
+  generateBuildId: async () => nextBuildId({ dir: __dirname, describe: true }),
   generateEtags: true,
   poweredByHeader: false,
   reactStrictMode: true,
@@ -15,7 +14,7 @@ const config = {
     newNextLinkBehavior: false,
     webVitalsAttribution: ['CLS', 'LCP'],
     optimisticClientCache: false,
-    optimizePackageImports: ['@api', '@components', '@chakra-ui/react', 'ramda']
+    optimizePackageImports: ['@api', '@components', '@chakra-ui/react', 'ramda'],
   },
   async rewrites() {
     if (process.env.NODE_ENV !== 'production') {

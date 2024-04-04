@@ -27,9 +27,6 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 ENV NODE_ENV=production
 
-# Add the git commit hash to the environment variables
-RUN export GIT_SHA=$(git rev-parse HEAD); echo "GIT_SHA=$GIT_SHA" >> .env.local
-
 # ensure pnpm is available in the builder
 RUN npm install -g pnpm
 
