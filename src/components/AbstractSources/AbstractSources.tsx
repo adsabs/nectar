@@ -1,5 +1,11 @@
 import { Esources, IDocsEntity } from '@api';
 import {
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
+  Box,
   Button,
   HStack,
   Icon,
@@ -9,44 +15,63 @@ import {
   MenuGroup,
   MenuItem,
   MenuList,
-  Text,
-  VStack,
 } from '@chakra-ui/react';
 import { ChevronDownIcon, LockIcon, UnlockIcon } from '@chakra-ui/icons';
-import { SimpleLinkList } from '@components';
-import { ItemType } from '@components/Dropdown/types';
-import { useIsClient } from '@lib/useIsClient';
-import { HTMLAttributes, MouseEvent, MouseEventHandler, ReactElement, useMemo } from 'react';
+import { SimpleLink } from '@components';
+import { ReactElement, useMemo } from 'react';
 import { useResolverQuery } from '@api/resolver';
 import { AcademicCapIcon } from '@heroicons/react/24/solid';
 import { processLinkData } from '@components/AbstractSources/linkGenerator';
-import { IDataProductSource, IFullTextSource, IRelatedWorks } from '@components/AbstractSources/types';
+import { IFullTextSource } from '@components/AbstractSources/types';
 import { useSettings } from '@lib/useSettings';
+import { AbstractSourceItems, AbstractResourceType } from './AbstractSourceItems';
 
-export interface IAbstractSourcesProps extends HTMLAttributes<HTMLDivElement> {
+export interface IAbstractSourcesProps {
   doc?: IDocsEntity;
+  style: 'accordion' | 'menu';
 }
 
-export const AbstractSources = ({ doc }: IAbstractSourcesProps): ReactElement => {
-  const isClient = useIsClient();
+export const AbstractSources = ({ doc, style }: IAbstractSourcesProps): ReactElement => {
   const { settings } = useSettings();
 
   const sources = processLinkData(doc, settings.link_server);
+
+  const fullTextResources: AbstractResourceType[] = useMemo(() => {
+    return !sources || !sources.fullTextSources
+      ? ([] as AbstractResourceType[])
+      : sources.fullTextSources.map((s) => ({
+          id: s.name,
+          label: getLabel(s),
+          path: s.url,
+        }));
+  }, [sources]);
+
+  const dataProductResources: AbstractResourceType[] = useMemo(() => {
+    return !sources || !sources.dataProducts
+      ? ([] as AbstractResourceType[])
+      : sources.dataProducts.map((s) => ({
+          id: s.name,
+          label: `${s.name} (${s.count})`,
+          path: s.url,
+        }));
+  }, [sources]);
 
   const { data: relatedWorksResp } = useResolverQuery(
     { bibcode: doc.bibcode, link_type: 'associated' },
     { enabled: !!doc?.bibcode },
   );
 
-  const relatedWorks = useMemo(() => {
-    const res = [] as IRelatedWorks[];
-    if (relatedWorksResp && !relatedWorksResp.error && relatedWorksResp.links.count > 0) {
-      for (const link of relatedWorksResp.links.records) {
-        res.push({ url: link.url, name: link.title, description: link.type });
-      }
-    }
-    return res;
-  }, [relatedWorksResp]);
+  const relatedResources: AbstractResourceType[] = useMemo(
+    () =>
+      !relatedWorksResp || relatedWorksResp.error || relatedWorksResp.links.count === 0
+        ? ([] as AbstractResourceType[])
+        : relatedWorksResp.links.records.map((s) => ({
+            id: s.title,
+            label: s.title,
+            path: s.url,
+          })),
+    [relatedWorksResp],
+  );
 
   if (!doc) {
     return <></>;
@@ -54,27 +79,55 @@ export const AbstractSources = ({ doc }: IAbstractSourcesProps): ReactElement =>
 
   return (
     <>
-      {!isClient ? (
-        <VStack as="section" wrap="wrap" spacing={0.5} columnGap={1} rowGap={1} alignItems="start">
-          <FullTextDropdown sources={sources.fullTextSources} />
-          <DataProductDropdown dataProducts={sources.dataProducts} relatedWorks={[]} />
-        </VStack>
+      {style === 'accordion' ? (
+        <Box>
+          <Accordion variant="abs-resources" allowMultiple defaultIndex={fullTextResources.length === 0 ? [] : [0]}>
+            <AccordionItem isDisabled={fullTextResources.length === 0}>
+              <AccordionButton>
+                <Box flex="1" textAlign="left" fontWeight="medium">
+                  Full Text Sources
+                </Box>
+                <AccordionIcon />
+              </AccordionButton>
+              <AccordionPanel>
+                <AbstractSourceItems resources={fullTextResources} type="list" />
+              </AccordionPanel>
+            </AccordionItem>
+            <AccordionItem isDisabled={dataProductResources.length === 0}>
+              <AccordionButton>
+                <Box flex="1" textAlign="left" fontWeight="medium">
+                  Data Products
+                </Box>
+                <AccordionIcon />
+              </AccordionButton>
+              <AccordionPanel>
+                <AbstractSourceItems resources={dataProductResources} type="list" />
+              </AccordionPanel>
+            </AccordionItem>
+            <AccordionItem isDisabled={relatedResources.length === 0}>
+              <AccordionButton>
+                <Box flex="1" textAlign="left" fontWeight="medium">
+                  Related Materials
+                </Box>
+                <AccordionIcon />
+              </AccordionButton>
+              <AccordionPanel>
+                <AbstractSourceItems resources={relatedResources} type="list" />
+              </AccordionPanel>
+            </AccordionItem>
+          </Accordion>
+        </Box>
       ) : (
-        <HStack as="section" wrap="wrap" spacing={0.5} columnGap={1} rowGap={1} alignItems="start">
-          <FullTextDropdown sources={sources.fullTextSources} />
-          <DataProductDropdown dataProducts={sources.dataProducts} relatedWorks={relatedWorks} />
-          <Button hidden={true}>Add to library</Button>
-        </HStack>
+        <Box>
+          <HStack as="section" wrap="wrap" spacing={0.5} columnGap={1} rowGap={1} alignItems="start">
+            <AbstractSourceItems resources={fullTextResources} type="menu" />
+            <DataProductDropdown dataProducts={dataProductResources} relatedWorks={relatedResources} />
+          </HStack>
+        </Box>
       )}
     </>
   );
 };
-
-///// dropdown components //////
-
-interface IFullTextDropdownProps {
-  sources: IFullTextSource[];
-}
 
 const getLabel = (source: IFullTextSource) => {
   if (source.type === Esources.INSTITUTION) {
@@ -100,156 +153,46 @@ const getLabel = (source: IFullTextSource) => {
   );
 };
 
-const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
-  const { sources } = props;
-  const isClient = useIsClient();
-
-  const fullSourceItems = sources.map((source) => ({
-    id: source.name,
-    label: getLabel(source),
-    path: source.url,
-    newTab: true,
-  }));
-
-  const handleSelect = (e: MouseEvent<HTMLElement>) => {
-    const id = (e.target as HTMLElement).dataset['id'];
-    const path = fullSourceItems.find((item) => id === item.id)?.path;
-    if (isClient && path) {
-      window.open(path, '_blank', 'noopener,noreferrer');
-    }
-  };
-
-  return (
-    <>
-      {!isClient && (
-        <span>
-          <SimpleLinkList items={fullSourceItems} minWidth="180px" label="Full text sources" showLabel={true} asRow />
-        </span>
-      )}
-      {isClient ? (
-        <Menu>
-          <MenuButton as={Button} rightIcon={<ChevronDownIcon />} isDisabled={fullSourceItems.length === 0}>
-            Full Text Sources
-          </MenuButton>
-          {fullSourceItems.length > 0 && (
-            <MenuList>
-              {fullSourceItems.map((item) => (
-                <MenuItem key={item.id} data-id={item.id} onClick={handleSelect}>
-                  {item.label}
-                </MenuItem>
-              ))}
-            </MenuList>
-          )}
-        </Menu>
-      ) : null}
-    </>
-  );
-};
-
 interface IRelatedMaterialsDropdownProps {
-  dataProducts: IDataProductSource[];
-  relatedWorks: IRelatedWorks[];
+  dataProducts: AbstractResourceType[];
+  relatedWorks: AbstractResourceType[];
 }
 
 const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElement => {
   const { dataProducts, relatedWorks } = props;
-  const isClient = useIsClient();
-
-  const dataProductItems = useMemo(
-    () =>
-      dataProducts.map((source) => ({
-        id: source.name,
-        label: `${source.name} (${source.count})`,
-        path: source.url,
-        newTab: true,
-      })),
-    [dataProducts],
-  );
-
-  const relatedWorkItems = useMemo(
-    () =>
-      relatedWorks.map((source) => ({
-        id: source.name,
-        label: source.name,
-        path: source.url,
-        newTab: true,
-      })),
-    [relatedWorks],
-  );
-
-  const items: ItemType[] = [];
-
-  if (dataProductItems.length > 0) {
-    // data product heading
-    items.push({
-      id: 'data-subheading',
-      label: 'Data Products:',
-      path: '',
-      disabled: true,
-    });
-    items.push(...dataProductItems);
-  }
-
-  if (relatedWorkItems.length > 0) {
-    // related works heading
-    items.push({
-      id: 'related-subheading',
-      label: 'Related Materials:',
-      path: '',
-      disabled: true,
-    });
-    items.push(...relatedWorkItems);
-  }
-
-  const handleSelect: MouseEventHandler<HTMLElement> = (e) => {
-    const id = e.currentTarget.dataset['id'];
-    const path = items.find((item) => id === item.id)?.path as string;
-    if (isClient && path) {
-      window.open(path, '_blank', 'noopener,noreferrer');
-    }
-  };
 
   return (
-    <>
-      {!isClient ? (
-        <span>
-          <SimpleLinkList items={items} minWidth="150px" label="Other Resources" showLabel={true} asRow />
-        </span>
-      ) : null}
-      {isClient && (
-        <Menu>
-          <MenuButton
-            as={Button}
-            rightIcon={<ChevronDownIcon />}
-            isDisabled={dataProducts.length === 0 && relatedWorks.length === 0}
-          >
-            Other Resources
-          </MenuButton>
-          <MenuList>
-            {dataProductItems.length > 0 && (
-              <MenuGroup title="Data Products">
-                {dataProductItems.map((item) => (
-                  <MenuItem key={item.id} data-id={item.id} onClick={handleSelect}>
-                    <Text ml={2}>{item.label}</Text>
-                  </MenuItem>
-                ))}
-              </MenuGroup>
-            )}
-            {relatedWorkItems.length > 0 && (
-              <>
-                {dataProductItems.length > 0 && <MenuDivider />}
-                <MenuGroup title="Related Materials">
-                  {relatedWorkItems.map((item) => (
-                    <MenuItem key={item.id} data-id={item.id} onClick={handleSelect}>
-                      <Text ml={2}>{item.label}</Text>
-                    </MenuItem>
-                  ))}
-                </MenuGroup>
-              </>
-            )}
-          </MenuList>
-        </Menu>
-      )}
-    </>
+    <Menu>
+      <MenuButton
+        as={Button}
+        rightIcon={<ChevronDownIcon />}
+        isDisabled={dataProducts.length === 0 && relatedWorks.length === 0}
+      >
+        Other Resources
+      </MenuButton>
+      <MenuList>
+        {dataProducts.length > 0 && (
+          <MenuGroup title="Data Products">
+            {dataProducts.map((item) => (
+              <MenuItem key={item.id} data-id={item.id} as={SimpleLink} href={item.path} newTab>
+                {item.label}
+              </MenuItem>
+            ))}
+          </MenuGroup>
+        )}
+        {relatedWorks.length > 0 && (
+          <>
+            {dataProducts.length > 0 && <MenuDivider />}
+            <MenuGroup title="Related Materials">
+              {relatedWorks.map((item) => (
+                <MenuItem key={item.id} data-id={item.id} as={SimpleLink} href={item.path} newTab>
+                  {item.label}
+                </MenuItem>
+              ))}
+            </MenuGroup>
+          </>
+        )}
+      </MenuList>
+    </Menu>
   );
 };

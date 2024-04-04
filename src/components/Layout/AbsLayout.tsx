@@ -1,7 +1,8 @@
 import { IDocsEntity } from '@api';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
-import { Button, Flex, Heading, Stack, Text } from '@chakra-ui/react';
-import { AbstractSideNav, Metatags, SimpleLink } from '@components';
+import { Box, Button, Flex, Heading, Stack, Text } from '@chakra-ui/react';
+import { AbstractSideNav, AbstractSources, Metatags, SimpleLink } from '@components';
+import { useIsClient } from '@lib';
 import { useBackToSearchResults } from '@lib/useBackToSearchResults';
 import { unwrapStringValue } from '@utils';
 import { MathJax } from 'better-react-mathjax';
@@ -15,6 +16,8 @@ interface IAbsLayoutProps {
 
 export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription }) => {
   const { getSearchHref, show: showBackLink } = useBackToSearchResults();
+
+  const isClient = useIsClient();
 
   if (!doc) {
     return <>{children}</>;
@@ -44,7 +47,12 @@ export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription
           <title>{title}</title>
           <Metatags doc={doc} />
         </Head>
-        <AbstractSideNav doc={doc} />
+        <Stack direction="column">
+          <Box display={{ base: 'none', lg: 'block' }} maxW="72">
+            <AbstractSources doc={doc} style="accordion" />
+          </Box>
+          <AbstractSideNav doc={doc} />
+        </Stack>
         <Stack direction="column" as="section" aria-labelledby="title" spacing={1} width="full">
           <Heading as="h2" id="title" fontSize="2xl" variant="abstract">
             <Text as="span" fontSize="xl">
