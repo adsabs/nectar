@@ -146,7 +146,6 @@ export const theme = extendTheme(
             item: {
               paddingX: '1',
               paddingY: '1',
-              cursor: 'pointer',
               color: mode('gray.700', 'whiteAlpha.900')(props),
               _focus: { outline: 'none', boxShadow: 'outline' },
             },

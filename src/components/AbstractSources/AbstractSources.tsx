@@ -16,15 +16,19 @@ import {
   MenuItem,
   MenuList,
 } from '@chakra-ui/react';
-import { ChevronDownIcon, LockIcon, UnlockIcon } from '@chakra-ui/icons';
+import { ChevronDownIcon } from '@chakra-ui/icons';
 import { SimpleLink } from '@components';
 import { ReactElement, useMemo } from 'react';
 import { useResolverQuery } from '@api/resolver';
-import { AcademicCapIcon } from '@heroicons/react/24/solid';
 import { processLinkData } from '@components/AbstractSources/linkGenerator';
-import { IFullTextSource } from '@components/AbstractSources/types';
 import { useSettings } from '@lib/useSettings';
-import { AbstractSourceItems, AbstractResourceType } from './AbstractSourceItems';
+import {
+  AbstractSourceItems,
+  AbstractResourceType,
+  FullTextSourceItems,
+  FullTextResourceType,
+} from './AbstractSourceItems';
+import { collectBy, prop } from 'ramda';
 
 export interface IAbstractSourcesProps {
   doc?: IDocsEntity;
@@ -36,14 +40,22 @@ export const AbstractSources = ({ doc, style }: IAbstractSourcesProps): ReactEle
 
   const sources = processLinkData(doc, settings.link_server);
 
-  const fullTextResources: AbstractResourceType[] = useMemo(() => {
-    return !sources || !sources.fullTextSources
-      ? ([] as AbstractResourceType[])
-      : sources.fullTextSources.map((s) => ({
-          id: s.name,
-          label: getLabel(s),
-          path: s.url,
-        }));
+  const fullTextResources: FullTextResourceType[] = useMemo(() => {
+    if (!sources || !sources.fullTextSources) {
+      return [] as FullTextResourceType[];
+    }
+
+    const groups = collectBy(prop('shortName'), sources.fullTextSources); // [[], []]
+    return groups.map((group) => {
+      const label = group[0].shortName;
+      const links = group.map((source) => ({
+        type: source.type.toLowerCase(),
+        path: source.url,
+        open: source.open ?? false,
+        rawType: source.rawType,
+      }));
+      return { label, links };
+    });
   }, [sources]);
 
   const dataProductResources: AbstractResourceType[] = useMemo(() => {
@@ -90,7 +102,7 @@ export const AbstractSources = ({ doc, style }: IAbstractSourcesProps): ReactEle
                 <AccordionIcon />
               </AccordionButton>
               <AccordionPanel>
-                <AbstractSourceItems resources={fullTextResources} type="list" />
+                <FullTextSourceItems resources={fullTextResources} type="list" />
               </AccordionPanel>
             </AccordionItem>
             <AccordionItem isDisabled={dataProductResources.length === 0}>
@@ -120,35 +132,11 @@ export const AbstractSources = ({ doc, style }: IAbstractSourcesProps): ReactEle
       ) : (
         <Box>
           <HStack as="section" wrap="wrap" spacing={0.5} columnGap={1} rowGap={1} alignItems="start">
-            <AbstractSourceItems resources={fullTextResources} type="menu" />
+            <FullTextSourceItems resources={fullTextResources} type="menu" />
             <DataProductDropdown dataProducts={dataProductResources} relatedWorks={relatedResources} />
           </HStack>
         </Box>
       )}
-    </>
-  );
-};
-
-const getLabel = (source: IFullTextSource) => {
-  if (source.type === Esources.INSTITUTION) {
-    return (
-      <>
-        <Icon as={AcademicCapIcon} mr={1} />
-        {` ${source.name}`}
-      </>
-    );
-  } else if (source.open) {
-    return (
-      <>
-        <UnlockIcon color="green.600" mr={1} />
-        {` ${source.name}`}
-      </>
-    );
-  }
-  return (
-    <>
-      <LockIcon mr={1} />
-      {` ${source.name}`}
     </>
   );
 };
