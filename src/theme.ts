@@ -142,6 +142,14 @@ export const theme = extendTheme(
               _focus: { outline: 'none', boxShadow: 'outline' },
             },
           },
+          accordion: (props: StyleFunctionProps) => ({
+            item: {
+              paddingX: '1',
+              paddingY: '1',
+              color: mode('gray.700', 'whiteAlpha.900')(props),
+              _focus: { outline: 'none', boxShadow: 'outline' },
+            },
+          }),
           autocomplete: {
             container: {
               zIndex: '10',
@@ -163,6 +171,21 @@ export const theme = extendTheme(
               cursor: 'pointer',
               color: 'gray.700',
               _focus: { outline: 'none', boxShadow: 'outline', backgroundColor: 'gray.100' },
+            },
+          },
+        },
+      },
+      Accordion: {
+        parts: ['container', 'button'],
+        variants: {
+          'abs-resources': {
+            container: {
+              borderWidth: 0.5,
+              borderRadius: 5,
+              marginTop: 1,
+            },
+            button: {
+              fontWeight: 'md',
             },
           },
         },

@@ -133,7 +133,9 @@ const AbstractPage: NextPage = () => {
             )}
 
             <Flex justifyContent="space-between">
-              <AbstractSources doc={doc} />
+              <Box display={{ base: 'block', lg: 'none' }}>
+                <AbstractSources doc={doc} style="menu" />
+              </Box>
               {isAuthenticated && (
                 <Tooltip label="add to library">
                   <IconButton
