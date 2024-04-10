@@ -2,7 +2,6 @@ import {
   getSearchParams,
   IDocsEntity,
   LibraryIdentifier,
-  SolrSort,
   useBigQuerySearch,
   useEditLibraryDocuments,
   useGetLibraryEntity,
@@ -30,6 +29,7 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import {
+  AnySort,
   CustomInfoMessage,
   ItemsSkeleton,
   LoadingMessage,
@@ -42,7 +42,7 @@ import { BuildingLibraryIcon } from '@heroicons/react/24/solid';
 import { useColorModeColors } from '@lib';
 import { AppState, useStore } from '@store';
 import { NumPerPageType } from '@types';
-import { parseAPIError } from '@utils';
+import { isBiblibSort, isSolrSort, parseAPIError } from '@utils';
 import { uniq } from 'ramda';
 import { useEffect, useMemo, useState } from 'react';
 import { DocumentList } from './DocumentList/DocumentList';
@@ -61,7 +61,7 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
 
   const [onPage, setOnPage] = useState(0);
 
-  const [sort, setSort] = useState<SolrSort[]>(['date desc']);
+  const [sort, setSort] = useState<AnySort>('time desc');
 
   const [selected, setSelected] = useState<string[]>([]);
 
@@ -109,7 +109,7 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
       id,
       start: onPage * pageSize,
       rows: pageSize,
-      sort: sort,
+      sort: [sort],
     },
     { cacheTime: 0, staleTime: 0 },
   );
@@ -125,11 +125,18 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
   useEffect(() => {
     if (documents?.documents) {
       fetchDocuments(
-        { bibcodes: documents.documents, rows: pageSize, sort },
+        { bibcodes: documents.documents, rows: pageSize, sort: isSolrSort(sort) ? [sort] : ['date desc'] },
         {
           onSettled(data) {
             if (data) {
-              setDocs(data.docs);
+              // If using biblib sort, need to manually sort the results base on the sequence from library entity query
+              // Biblib sorting is not available on big query here
+              if (isBiblibSort(sort)) {
+                const sorted = documents.documents.map((d) => data.docs.find((d1) => d === d1.bibcode));
+                setDocs(sorted);
+              } else {
+                setDocs(data.docs);
+              }
             }
           },
         },
@@ -160,8 +167,8 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
     setPageSize(perPage);
   };
 
-  const handleChangeSort = (sort: SolrSort[]) => {
-    setSort(sort);
+  const handleChangeSort = (sort: AnySort[]) => {
+    setSort(sort[0]);
   };
 
   const handleSelectDoc = (bibcode: string, checked: boolean) => {
@@ -328,7 +335,13 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
                 alignItems={{ base: 'start', sm: 'end' }}
                 style={isLoadingDocs ? { pointerEvents: 'none' } : { pointerEvents: 'auto' }}
               >
-                <Sort sort={sort} onChange={handleChangeSort} omits={['score']} disableWhenNoJs />
+                <Sort
+                  sort={[sort]}
+                  onChange={handleChangeSort}
+                  omits={['score']}
+                  addons={[{ field: 'time', label: 'Time Added' }]}
+                  disableWhenNoJs
+                />
                 <SearchQueryLink params={{ ...getSearchParams, q: `docs(library/${id})` }}>
                   View as search results
                 </SearchQueryLink>

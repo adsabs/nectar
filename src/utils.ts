@@ -217,6 +217,10 @@ export const isSolrSort = (maybeSolrSort: string): maybeSolrSort is SolrSort => 
   ].includes(maybeSolrSort);
 };
 
+export const isBiblibSort = (sort: string) => {
+  return ['time asc', 'time desc'].includes(sort);
+};
+
 // checks if passed in value is valid string
 export const isString = (maybeString: unknown): maybeString is string => typeof maybeString === 'string';
 
