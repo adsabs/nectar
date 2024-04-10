@@ -7,7 +7,6 @@ import {
   IADSApiSearchResponse,
   SEARCH_API_KEYS,
   searchKeys,
-  SolrSort,
   useSearch,
 } from '@api';
 import { CheckCircleIcon } from '@chakra-ui/icons';
@@ -35,6 +34,7 @@ import {
 } from '@chakra-ui/react';
 import {
   AddToLibraryModal,
+  AnySort,
   CustomInfoMessage,
   HideOnPrint,
   ISearchFacetsProps,
@@ -134,7 +134,7 @@ const SearchPage: NextPage = () => {
   const { isOpen: isAddToLibraryOpen, onClose: onCloseAddToLibrary, onOpen: onOpenAddToLibrary } = useDisclosure();
 
   // on Sort change handler
-  const handleSortChange = (sort: SolrSort[]) => {
+  const handleSortChange = (sort: AnySort[]) => {
     const query = store.getState().query;
     if (query.q.length === 0) {
       // if query is empty, do not submit search
