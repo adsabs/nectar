@@ -43,12 +43,16 @@ export interface IADSApiLibraryResponse {
   libraries?: ILibraryMetadata[];
 }
 
+export type BiblibSortField = 'time';
+
+export type BiblibSort = 'time asc' | 'time desc';
+
 // Get library Entity
 export interface IADSApiLibraryEntityParams {
   id: LibraryIdentifier;
   start?: number;
   rows?: number;
-  sort?: SolrSort[];
+  sort?: (SolrSort | BiblibSort)[];
 }
 export interface IADSApiLibraryEntityResponse {
   documents: IDocsEntity['bibcode'][];

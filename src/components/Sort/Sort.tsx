@@ -1,4 +1,4 @@
-import { SolrSort, SolrSortDirection, SolrSortField } from '@api';
+import { BiblibSortField, SolrSortDirection, SolrSortField } from '@api';
 import { Box, HStack, IconButton, Input } from '@chakra-ui/react';
 import { SearchQueryLink, SimpleLinkDropdown } from '@components';
 import { ItemType } from '@components/Dropdown/types';
@@ -6,22 +6,21 @@ import { ISelectProps, Select } from '@components/Select';
 import { APP_DEFAULTS } from '@config';
 import { BarsArrowDownIcon, BarsArrowUpIcon } from '@heroicons/react/24/outline';
 import { useIsClient } from '@lib/useIsClient';
-import { makeSearchParams, normalizeSolrSort, parseQueryFromUrl } from '@utils';
+import { isSolrSort, makeSearchParams, normalizeSolrSort, parseQueryFromUrl } from '@utils';
 import { useRouter } from 'next/router';
+import { prop, sortBy } from 'ramda';
 import { Fragment, MouseEventHandler, ReactElement, useCallback, useMemo } from 'react';
-import { sortValues } from './model';
+import { solrSortValues } from './model';
 
-/**
- *
- *
- */
+export type AnySort = `${BiblibSortField | SolrSortField} ${SolrSortDirection}`;
 export interface ISortProps {
   name?: string;
-  sort?: SolrSort | SolrSort[];
+  sort?: AnySort[];
   omits?: SolrSortField[]; // do not show these in the dropdown
+  addons?: { field: BiblibSortField; label: string }[]; // By default, only solr sorts are shown, additional sort fields none solr
   hideLabel?: boolean;
   fullWidth?: boolean;
-  onChange?: (sort: SolrSort[]) => void;
+  onChange?: (sort: AnySort[]) => void;
   leftMargin?: string;
   rightMargin?: string;
   innerSelectProps?: Partial<ISelectProps<SortOptionType>>;
@@ -46,6 +45,7 @@ export const Sort = (props: ISortProps): ReactElement => {
     onChange,
     name = 'sort',
     omits = [],
+    addons = [],
     useNativeWhenNoJs = false,
     disableWhenNoJs = false,
     hideLabel = true,
@@ -53,12 +53,17 @@ export const Sort = (props: ISortProps): ReactElement => {
     innerSelectProps,
   } = props;
 
-  const sortOptions: SortOptionType[] = sortValues
-    .filter((v) => !omits.includes(v.id))
-    .map((v) => ({ id: v.id, value: v.id, label: v.text }));
+  const sortOptions = useMemo(
+    () =>
+      sortBy(prop('label'), [
+        ...solrSortValues.filter((v) => !omits.includes(v.id)).map((v) => ({ id: v.id, value: v.id, label: v.text })),
+        ...addons.map((v) => ({ id: v.field, value: v.field, label: v.label })),
+      ]),
+    [addons, omits],
+  );
 
   // normalize incoming sort
-  const allSorts = useMemo(() => normalizeSolrSort(sort), [sort]);
+  const allSorts = useMemo(() => (isSolrSort(sort[0]) ? normalizeSolrSort(sort) : sort), [sort]);
 
   // split first sort, the rest are just along for the ride
   const [selected, direction] = useMemo(() => allSorts[0].split(/\W+/), [allSorts]);
@@ -66,14 +71,14 @@ export const Sort = (props: ISortProps): ReactElement => {
   // fire onChange handler for direction change
   const handleDirectionChange: MouseEventHandler<HTMLButtonElement> = useCallback(
     (e) => {
-      onChange([`${selected} ${e.currentTarget.dataset['direction']}` as SolrSort, ...allSorts.slice(1)]);
+      onChange([`${selected} ${e.currentTarget.dataset['direction']}` as AnySort, ...allSorts.slice(1)]);
     },
     [selected, onChange],
   );
 
   // fire onChange handler for selection change
   const handleSelectionChange = useCallback(
-    (selection: SortOptionType) => onChange([`${selection.value} ${direction}` as SolrSort, ...allSorts.slice(1)]),
+    (selection: SortOptionType) => onChange([`${selection.value} ${direction}` as AnySort, ...allSorts.slice(1)]),
     [direction, onChange],
   );
 
@@ -139,7 +144,7 @@ export const Sort = (props: ISortProps): ReactElement => {
 };
 
 interface SortOptionType {
-  id: SolrSortField;
+  id: SolrSortField | BiblibSortField;
   value: string;
   label: string;
 }

@@ -6,7 +6,7 @@ export interface ISortDescriptor {
   desc: string;
 }
 
-export const sortValues: ISortDescriptor[] = [
+export const solrSortValues: ISortDescriptor[] = [
   { id: 'score', text: 'Relevance', desc: 'sort by the relative score' },
   { id: 'date', text: 'Date', desc: 'sort by publication date' },
   {
