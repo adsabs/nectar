@@ -1,4 +1,4 @@
-import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, IUserData, SolrSort } from '@api';
+import { BiblibSort, IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, IUserData, SolrSort } from '@api';
 import { APP_DEFAULTS } from '@config';
 import { NumPerPageType, SafeSearchUrlParams } from '@types';
 import axios, { AxiosError } from 'axios';
@@ -217,8 +217,8 @@ export const isSolrSort = (maybeSolrSort: string): maybeSolrSort is SolrSort => 
   ].includes(maybeSolrSort);
 };
 
-export const isBiblibSort = (sort: string): maybeBiblibSort is BiblibSort => {
-  return ['time asc', 'time desc'].includes(sort);
+export const isBiblibSort = (maybeBiblibSort: string): maybeBiblibSort is BiblibSort => {
+  return ['time asc', 'time desc'].includes(maybeBiblibSort);
 };
 
 // checks if passed in value is valid string
