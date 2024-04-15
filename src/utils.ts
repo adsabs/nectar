@@ -217,7 +217,7 @@ export const isSolrSort = (maybeSolrSort: string): maybeSolrSort is SolrSort => 
   ].includes(maybeSolrSort);
 };
 
-export const isBiblibSort = (sort: string) => {
+export const isBiblibSort = (sort: string): maybeBiblibSort is BiblibSort => {
   return ['time asc', 'time desc'].includes(sort);
 };
 
