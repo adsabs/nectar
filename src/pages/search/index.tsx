@@ -8,6 +8,7 @@ import {
   SEARCH_API_KEYS,
   searchKeys,
   useSearch,
+  SolrSort,
 } from '@api';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import {
@@ -34,7 +35,6 @@ import {
 } from '@chakra-ui/react';
 import {
   AddToLibraryModal,
-  AnySort,
   CustomInfoMessage,
   HideOnPrint,
   ISearchFacetsProps,
@@ -55,7 +55,7 @@ import { useIsClient } from 'src/lib';
 import { composeNextGSSP } from '@ssr-utils';
 import { AppState, createStore, useStore, useStoreApi } from '@store';
 import { NumPerPageType } from '@types';
-import { makeSearchParams, parseAPIError, parseQueryFromUrl } from '@utils';
+import { makeSearchParams, normalizeSolrSort, parseAPIError, parseQueryFromUrl } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
@@ -134,7 +134,7 @@ const SearchPage: NextPage = () => {
   const { isOpen: isAddToLibraryOpen, onClose: onCloseAddToLibrary, onOpen: onOpenAddToLibrary } = useDisclosure();
 
   // on Sort change handler
-  const handleSortChange = (sort: AnySort[]) => {
+  const handleSortChange = (sort: SolrSort) => {
     const query = store.getState().query;
     if (query.q.length === 0) {
       // if query is empty, do not submit search

@@ -1,4 +1,6 @@
 import {
+  BiblibSort,
+  BiblibSortField,
   getSearchParams,
   IDocsEntity,
   LibraryIdentifier,
@@ -29,7 +31,6 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import {
-  AnySort,
   CustomInfoMessage,
   ItemsSkeleton,
   LoadingMessage,
@@ -38,11 +39,12 @@ import {
   SimpleLink,
   Sort,
 } from '@components';
+import { biblibSortOptions } from '@components/Sort/model';
 import { BuildingLibraryIcon } from '@heroicons/react/24/solid';
 import { useColorModeColors } from '@lib';
 import { AppState, useStore } from '@store';
 import { NumPerPageType } from '@types';
-import { isBiblibSort, isSolrSort, parseAPIError } from '@utils';
+import { isBiblibSort, isSolrSort, normalizeSolrSort, parseAPIError } from '@utils';
 import { uniq } from 'ramda';
 import { useEffect, useMemo, useState } from 'react';
 import { DocumentList } from './DocumentList/DocumentList';
@@ -61,7 +63,7 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
 
   const [onPage, setOnPage] = useState(0);
 
-  const [sort, setSort] = useState<AnySort>('time desc');
+  const [sort, setSort] = useState<BiblibSort>('time desc');
 
   const [selected, setSelected] = useState<string[]>([]);
 
@@ -125,11 +127,15 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
   useEffect(() => {
     if (documents?.documents) {
       fetchDocuments(
-        { bibcodes: documents.documents, rows: pageSize, sort: isSolrSort(sort) ? [sort] : ['date desc'] },
+        {
+          bibcodes: documents.documents,
+          rows: pageSize,
+          sort: isSolrSort(sort) ? normalizeSolrSort(sort) : ['date desc'], // if using biblib specific sort, default to date
+        },
         {
           onSettled(data) {
             if (data) {
-              // If using biblib sort, need to manually sort the results base on the sequence from library entity query
+              // If using biblib exclusive sort, need to manually sort the results base on the sequence from library entity query
               // Biblib sorting is not available on big query here
               if (isBiblibSort(sort)) {
                 const sorted = documents.documents.map((d) => data.docs.find((d1) => d === d1.bibcode));
@@ -167,8 +173,8 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
     setPageSize(perPage);
   };
 
-  const handleChangeSort = (sort: AnySort[]) => {
-    setSort(sort[0]);
+  const handleChangeSort = (sort: BiblibSort) => {
+    setSort(sort);
   };
 
   const handleSelectDoc = (bibcode: string, checked: boolean) => {
@@ -335,11 +341,10 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
                 alignItems={{ base: 'start', sm: 'end' }}
                 style={isLoadingDocs ? { pointerEvents: 'none' } : { pointerEvents: 'auto' }}
               >
-                <Sort
-                  sort={[sort]}
+                <Sort<BiblibSort, BiblibSortField>
+                  sort={sort}
                   onChange={handleChangeSort}
-                  omits={['score']}
-                  addons={[{ field: 'time', label: 'Time Added' }]}
+                  options={biblibSortOptions}
                   disableWhenNoJs
                 />
                 <SearchQueryLink params={{ ...getSearchParams, q: `docs(library/${id})` }}>

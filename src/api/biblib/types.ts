@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
-import { SolrSort } from '@api/models';
+import { BiblibSort, SolrSort } from '@api/models';
 import { IADSApiSearchParams, IDocsEntity } from '@api/search';
 
 export const permissions = ['owner', 'admin', 'write', 'read'];
@@ -42,10 +42,6 @@ export interface IADSApiLibraryResponse {
   count: number;
   libraries?: ILibraryMetadata[];
 }
-
-export type BiblibSortField = 'time';
-
-export type BiblibSort = 'time asc' | 'time desc';
 
 // Get library Entity
 export interface IADSApiLibraryEntityParams {

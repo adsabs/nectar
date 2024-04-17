@@ -102,7 +102,12 @@ export type SolrField =
   | 'useful()'
   | string;
 
-export type SolrSortDirection = 'desc' | 'asc';
+export type SortField = SolrSortField | BiblibSortField;
+
+export type SortType = SolrSort | BiblibSort;
+
+export type SortDirection = 'desc' | 'asc';
+
 export type SolrSortField =
   | 'author_count'
   | 'bibcode'
@@ -115,7 +120,7 @@ export type SolrSortField =
   | 'read_count'
   | 'score'
   | 'id';
-export type SolrSort = `${SolrSortField} ${SolrSortDirection}`;
+export type SolrSort = `${SolrSortField} ${SortDirection}`;
 
 export const solrSorts = [
   'author_count asc',
@@ -140,6 +145,45 @@ export const solrSorts = [
   'read_count desc',
   'score asc',
   'score desc',
+] as const;
+
+export type BiblibSortField =
+  | 'author_count'
+  | 'bibcode'
+  | 'citation_count'
+  | 'citation_count_norm'
+  | 'classic_factor'
+  | 'first_author'
+  | 'date'
+  | 'entry_date'
+  | 'read_count'
+  | 'id'
+  | 'time';
+export type BiblibSort = `${BiblibSortField} ${SortDirection}`;
+
+export const biblibSorts = [
+  'author_count asc',
+  'author_count desc',
+  'bibcode asc',
+  'bibcode desc',
+  'citation_count asc',
+  'citation_count desc',
+  'citation_count_norm asc',
+  'citation_count_norm desc',
+  'classic_factor asc',
+  'classic_factor desc',
+  'first_author asc',
+  'first_author desc',
+  'date asc',
+  'date desc',
+  'entry_date asc',
+  'entry_date desc',
+  'id asc',
+  'id desc',
+  'read_count asc',
+  'read_count desc',
+  'time asc',
+  'time desc',
 ] as const;
 
 export enum ApiTargets {

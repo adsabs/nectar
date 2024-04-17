@@ -1,29 +1,25 @@
-import { BiblibSortField, SolrSortDirection, SolrSortField } from '@api';
+import { SortDirection, SolrSortField, SortField, SortType } from '@api';
 import { Box, HStack, IconButton, Input } from '@chakra-ui/react';
 import { SearchQueryLink, SimpleLinkDropdown } from '@components';
 import { ItemType } from '@components/Dropdown/types';
 import { ISelectProps, Select } from '@components/Select';
-import { APP_DEFAULTS } from '@config';
 import { BarsArrowDownIcon, BarsArrowUpIcon } from '@heroicons/react/24/outline';
 import { useIsClient } from '@lib/useIsClient';
-import { isSolrSort, makeSearchParams, normalizeSolrSort, parseQueryFromUrl } from '@utils';
+import { makeSearchParams, parseQueryFromUrl } from '@utils';
 import { useRouter } from 'next/router';
-import { prop, sortBy } from 'ramda';
 import { Fragment, MouseEventHandler, ReactElement, useCallback, useMemo } from 'react';
-import { solrSortValues } from './model';
 
-export type AnySort = `${BiblibSortField | SolrSortField} ${SolrSortDirection}`;
-export interface ISortProps {
+export interface ISortProps<S extends SortType, F extends SortField> {
+  sort: S;
+  options: SortOptionType<F>[];
   name?: string;
-  sort?: AnySort[];
-  omits?: SolrSortField[]; // do not show these in the dropdown
-  addons?: { field: BiblibSortField; label: string }[]; // By default, only solr sorts are shown, additional sort fields none solr
+  hiddenInput?: { name: string; value: string };
   hideLabel?: boolean;
   fullWidth?: boolean;
-  onChange?: (sort: AnySort[]) => void;
+  onChange?: (sort: S) => void;
   leftMargin?: string;
   rightMargin?: string;
-  innerSelectProps?: Partial<ISelectProps<SortOptionType>>;
+  innerSelectProps?: Partial<ISelectProps<SortOptionType<F>>>;
 
   /**
    * If true will use the native dropdown when no JavaScript,
@@ -39,13 +35,13 @@ export interface ISortProps {
  *
  * Expects to be controlled (i.e. using sort and onChange to control value/updating)
  */
-export const Sort = (props: ISortProps): ReactElement => {
+export const Sort = <S extends SortType, F extends SortField>(props: ISortProps<S, F>): ReactElement => {
   const {
-    sort = APP_DEFAULTS.SORT,
+    sort,
     onChange,
+    options,
     name = 'sort',
-    omits = [],
-    addons = [],
+    hiddenInput,
     useNativeWhenNoJs = false,
     disableWhenNoJs = false,
     hideLabel = true,
@@ -53,32 +49,20 @@ export const Sort = (props: ISortProps): ReactElement => {
     innerSelectProps,
   } = props;
 
-  const sortOptions = useMemo(
-    () =>
-      sortBy(prop('label'), [
-        ...solrSortValues.filter((v) => !omits.includes(v.id)).map((v) => ({ id: v.id, value: v.id, label: v.text })),
-        ...addons.map((v) => ({ id: v.field, value: v.field, label: v.label })),
-      ]),
-    [addons, omits],
-  );
-
-  // normalize incoming sort
-  const allSorts = useMemo(() => (isSolrSort(sort[0]) ? normalizeSolrSort(sort) : sort), [sort]);
-
   // split first sort, the rest are just along for the ride
-  const [selected, direction] = useMemo(() => allSorts[0].split(/\W+/), [allSorts]);
+  const [selected, direction] = useMemo(() => sort.split(/\W+/), [sort]);
 
   // fire onChange handler for direction change
   const handleDirectionChange: MouseEventHandler<HTMLButtonElement> = useCallback(
     (e) => {
-      onChange([`${selected} ${e.currentTarget.dataset['direction']}` as AnySort, ...allSorts.slice(1)]);
+      onChange(`${selected} ${e.currentTarget.dataset['direction']}` as S);
     },
     [selected, onChange],
   );
 
   // fire onChange handler for selection change
   const handleSelectionChange = useCallback(
-    (selection: SortOptionType) => onChange([`${selection.value} ${direction}` as AnySort, ...allSorts.slice(1)]),
+    (selection: SortOptionType<F>) => onChange(`${selection.value} ${direction}` as S),
     [direction, onChange],
   );
 
@@ -88,11 +72,7 @@ export const Sort = (props: ISortProps): ReactElement => {
   if (!isClient && !disableWhenNoJs) {
     return (
       <>
-        {useNativeWhenNoJs ? (
-          <NoJsNativeSort name={name} sortOptions={sortOptions} />
-        ) : (
-          <NoJsSort sortOptions={sortOptions} />
-        )}
+        {useNativeWhenNoJs ? <NoJsNativeSort name={name} sortOptions={options} /> : <NoJsSort sortOptions={options} />}
       </>
     );
   }
@@ -104,7 +84,7 @@ export const Sort = (props: ISortProps): ReactElement => {
       <Box width={sortContainerWidth}>
         <SortSelect
           hideLabel={hideLabel}
-          sortOptions={sortOptions}
+          sortOptions={options}
           sort={selected}
           onChange={handleSelectionChange}
           innerSelectProps={innerSelectProps}
@@ -138,19 +118,19 @@ export const Sort = (props: ISortProps): ReactElement => {
         />
       )}
 
-      <Input type="hidden" name={name} value={allSorts.join(',')} />
+      {hiddenInput && <Input type="hidden" name={hiddenInput.name} value={hiddenInput.value} />}
     </HStack>
   );
 };
 
-interface SortOptionType {
-  id: SolrSortField | BiblibSortField;
+interface SortOptionType<F extends SortField> {
+  id: F;
   value: string;
   label: string;
 }
 
 // Sort Select component
-const SortSelect = ({
+const SortSelect = <S extends SortType, F extends SortField>({
   sort,
   sortOptions,
   onChange,
@@ -158,14 +138,14 @@ const SortSelect = ({
   innerSelectProps,
 }: {
   sort: string;
-  sortOptions: SortOptionType[];
-  onChange: (val: SortOptionType) => void;
-  hideLabel: ISortProps['hideLabel'];
-  innerSelectProps?: Partial<ISelectProps<SortOptionType>>;
+  sortOptions: SortOptionType<F>[];
+  onChange: (val: SortOptionType<F>) => void;
+  hideLabel: ISortProps<S, F>['hideLabel'];
+  innerSelectProps?: Partial<ISelectProps<SortOptionType<F>>>;
 }) => {
   const selected = sortOptions.find((o) => o.id === sort) ?? sortOptions[0];
   return (
-    <Select<SortOptionType>
+    <Select<SortOptionType<F>>
       label="Sort"
       hideLabel={hideLabel}
       value={selected}
@@ -180,12 +160,12 @@ const SortSelect = ({
 };
 
 // non-native type, used in search results
-const NoJsSort = ({ sortOptions }: { sortOptions: SortOptionType[] }): ReactElement => {
+const NoJsSort = <F extends SortField>({ sortOptions }: { sortOptions: SortOptionType<F>[] }): ReactElement => {
   const router = useRouter();
   const query = parseQueryFromUrl(router.asPath);
-  const [sortby, dir] = query.sort[0].split(' ') as [SolrSortField, SolrSortDirection];
+  const [sortby, dir] = query.sort[0].split(' ') as [SolrSortField, SortDirection];
 
-  const getToggledDir = (dir: SolrSortDirection) => {
+  const getToggledDir = (dir: SortDirection) => {
     return dir === 'asc' ? 'desc' : 'asc';
   };
 
@@ -236,7 +216,13 @@ const NoJsSort = ({ sortOptions }: { sortOptions: SortOptionType[] }): ReactElem
 };
 
 // native type, used by classic form
-const NoJsNativeSort = ({ name, sortOptions }: { name: string; sortOptions: SortOptionType[] }): ReactElement => {
+const NoJsNativeSort = <F extends SortField>({
+  name,
+  sortOptions,
+}: {
+  name: string;
+  sortOptions: SortOptionType<F>[];
+}): ReactElement => {
   return (
     <select id="sort" name={name} defaultValue="score desc">
       {sortOptions.map((item) => (
