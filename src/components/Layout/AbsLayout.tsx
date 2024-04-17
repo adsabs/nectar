@@ -2,7 +2,6 @@ import { IDocsEntity } from '@api';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex, Heading, Stack, Text } from '@chakra-ui/react';
 import { AbstractSideNav, AbstractSources, Metatags, SimpleLink } from '@components';
-import { useIsClient } from '@lib';
 import { useBackToSearchResults } from '@lib/useBackToSearchResults';
 import { unwrapStringValue } from '@utils';
 import { MathJax } from 'better-react-mathjax';
@@ -16,8 +15,6 @@ interface IAbsLayoutProps {
 
 export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription }) => {
   const { getSearchHref, show: showBackLink } = useBackToSearchResults();
-
-  const isClient = useIsClient();
 
   if (!doc) {
     return <>{children}</>;

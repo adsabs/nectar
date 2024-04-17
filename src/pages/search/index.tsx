@@ -55,7 +55,7 @@ import { useIsClient } from 'src/lib';
 import { composeNextGSSP } from '@ssr-utils';
 import { AppState, createStore, useStore, useStoreApi } from '@store';
 import { NumPerPageType } from '@types';
-import { makeSearchParams, normalizeSolrSort, parseAPIError, parseQueryFromUrl } from '@utils';
+import { makeSearchParams, parseAPIError, parseQueryFromUrl } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
