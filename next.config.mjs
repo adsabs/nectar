@@ -1,5 +1,6 @@
-const { withSentryConfig } = require('@sentry/nextjs');
-const nextBuildId = require('next-build-id');
+import nextBuildId from 'next-build-id';
+import { withSentryConfig } from '@sentry/nextjs';
+import withBundleAnalyzer from '@next/bundle-analyzer';
 
 const CSP = `
   default-src 'self';
@@ -21,12 +22,13 @@ const CSP = `
 /**
  * @type {import('next').NextConfig}
  **/
-const config = {
+const nextConfig = {
   distDir: process.env.DIST_DIR || 'dist',
-  generateBuildId: async () => nextBuildId({ dir: __dirname, describe: true }),
+  generateBuildId: async () => nextBuildId({ dir: process.env.__dirname, describe: true }),
   generateEtags: true,
   poweredByHeader: false,
   reactStrictMode: true,
+  sw
   experimental: {
     newNextLinkBehavior: false,
     webVitalsAttribution: ['CLS', 'LCP'],
@@ -151,53 +153,43 @@ const config = {
   compiler: {
     reactRemoveProperties: false,
   },
-  output: 'standalone',
-  // Don't bother linting during CI builds
-  ...(!process.env.CI ? {} : { eslint: { ignoreDuringBuilds: true } }),
+  // set standalone output on
+  output: process.env.STANDALONE ? 'standalone' : undefined,
+  // we do not need to check eslint during build
+  eslint: { dirs: ['.'], ignoreDuringBuilds: true },
+  // we do not need to check types during build
+  typescript: { ignoreBuildErrors: true },
+  // we don't need i18n
+  i18n: null,
+  // don't need to redirect on trailing slash
+  skipTrailingSlashRedirect: true,
 };
 
-const sentryConfig = [
-  {
-    // For all available options, see:
-    // https://github.com/getsentry/sentry-webpack-plugin#options
 
-    // Suppresses source map uploading logs during build
-    silent: true,
-    org: 'adsabs',
-    project: 'nectar',
-  },
-  {
-    // For all available options, see:
-    // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
+/** @type {import('@sentry/cli').SentryCliOptions} */
+const sentrySettings = {
+  silent: true,
+  org: 'adsabs',
+  project: 'nectar',
+  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+};
 
-    // Upload a larger set of source maps for prettier stack traces (increases build time)
-    widenClientFileUpload: true,
+/** @type {import('@sentry/nextjs/types/config/types').UserSentryOptions} */
+const sentryConfig = {
+  // Upload a larger set of source maps for prettier stack traces (increases build time)
+  widenClientFileUpload: true,
+  // Transpiles SDK to be compatible with IE11 (increases bundle size)
+  transpileClientSDK: true,
+  // Routes browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers (increases server load)
+  tunnelRoute: '/api/monitor',
+  // no source map comments
+  hideSourceMaps: false,
+  // Automatically tree-shake Sentry logger statements to reduce bundle size
+  disableLogger: true,
+};
 
-    // Transpiles SDK to be compatible with IE11 (increases bundle size)
-    transpileClientSDK: true,
+const config = process.env.ANALYZE ? withBundleAnalyzer({})(nextConfig) : nextConfig;
+const nextConfigWithSentry = withSentryConfig(config, sentrySettings, sentryConfig);
 
-    // Routes browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers (increases server load)
-    tunnelRoute: '/api/monitor',
+export default process.env.NODE_ENV === 'production' ? nextConfigWithSentry : config;
 
-    // Hides source maps from generated client bundles
-    hideSourceMaps: true,
-
-    // Automatically tree-shake Sentry logger statements to reduce bundle size
-    disableLogger: true,
-
-    // Enables automatic instrumentation of Vercel Cron Monitors.
-    // See the following for more information:
-    // https://docs.sentry.io/product/crons/
-    // https://vercel.com/docs/cron-jobs
-    automaticVercelMonitors: false,
-  },
-];
-
-if (process.env.NODE_ENV === 'production') {
-  module.exports = withSentryConfig(config, ...sentryConfig);
-} else {
-  const withBundleAnalyzer = require('@next/bundle-analyzer')({
-    enabled: process.env.ANALYZE === 'true',
-  });
-  module.exports = withBundleAnalyzer(withSentryConfig(config, ...sentryConfig));
-}
