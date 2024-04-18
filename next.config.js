@@ -1,6 +1,23 @@
 const { withSentryConfig } = require('@sentry/nextjs');
 const nextBuildId = require('next-build-id');
 
+const CSP = `
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://www.google.com https://www.gstatic.com https://cdnjs.cloudflare.com https://www.googletagmanager.com;
+  style-src 'self' 'unsafe-inline';
+  base-uri 'self';
+  object-src 'none';
+  connect-src 'self' https://*.google-analytics.com https://*.adsabs.harvard.edu;
+  font-src 'self' https://cdnjs.cloudflare.com;
+  frame-src https://www.youtube-nocookie.com https://www.google.com;
+  form-action 'self';
+  img-src * data:;
+  manifest-src 'self';
+  media-src 'none';
+  worker-src 'self' blob:;
+  report-uri https://o1060269.ingest.sentry.io/api/6049652/security/?sentry_key=e87ef8ec678b4ad5a2193c5463d386fd
+`;
+
 /**
  * @type {import('next').NextConfig}
  **/
@@ -40,13 +57,21 @@ const config = {
             value: 'nosniff',
           },
           {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
+          },
+          {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin',
           },
           {
-            key: 'Feature-Policy',
+            key: 'Permissions-Policy',
             value:
-              "geolocation 'none'; midi 'none'; microphone 'none'; camera 'none'; magnetometer 'none'; gyroscope 'none'; fullscreen 'self'; payment 'none'",
+              'accelerometer=(), ambient-light-sensor=(), autoplay=(), battery=(), camera=(), cross-origin-isolated=(), display-capture=(), document-domain=(), encrypted-media=(), execution-while-not-rendered=(), execution-while-out-of-viewport=(), fullscreen=(self), geolocation=(), gyroscope=(), keyboard-map=(), magnetometer=(), microphone=(), midi=(), navigation-override=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), sync-xhr=(), usb=(), web-share=(), xr-spatial-tracking=()',
+          },
+          {
+            key: 'Content-Security-Policy-Report-Only',
+            value: CSP.replace(/\n/g, ''),
           },
         ],
       },
