@@ -1,6 +1,7 @@
 import { Bibcode, ExportApiFormatKey, useVaultBigQuerySearch } from '@api';
 import { BellIcon, ChevronDownIcon, SettingsIcon } from '@chakra-ui/icons';
 import {
+  Box,
   Button,
   Checkbox,
   Flex,
@@ -43,12 +44,13 @@ import { AddNotificationModal } from '@components/EmailNotifications/AddNotifica
 export interface IListActionsProps {
   onSortChange?: ISortProps['onChange'];
   onOpenAddToLibrary: () => void;
+  isLoading: boolean;
 }
 
 type Operator = 'trending' | 'reviews' | 'useful' | 'similar';
 
 export const ListActions = (props: IListActionsProps): ReactElement => {
-  const { onSortChange = noop, onOpenAddToLibrary } = props;
+  const { onSortChange = noop, onOpenAddToLibrary, isLoading } = props;
   const selected = useStore((state) => state.docs.selected ?? []);
   const clearSelected = useStore((state) => state.clearSelected);
   const isClient = useIsClient();
@@ -129,7 +131,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const colors = useColorModeColors();
 
   return (
-    <>
+    <Box my={2} display={isLoading ? 'none' : 'initial'}>
       <Flex
         direction="column"
         gap={1}
@@ -264,7 +266,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
       <Portal>
         <AddNotificationModal isOpen={isCreateNotificationOpen} onClose={onCreateNotificationClose} />
       </Portal>
-    </>
+    </Box>
   );
 };
 
@@ -298,10 +300,10 @@ const HighlightsToggle = () => {
 
   return (
     <FormControl display="flex" alignItems="center" width="fit-content">
-      <FormLabel htmlFor="show-highlights" mb="0">
+      <FormLabel mb="0" htmlFor="show-highlights">
         Show Highlights?
       </FormLabel>
-      <Switch id="show-highlights" isChecked={showHighlights} onChange={toggleShowHighlights} />
+      <Switch isChecked={showHighlights} onChange={toggleShowHighlights} id="show-highlights" />
     </FormControl>
   );
 };
@@ -339,6 +341,7 @@ const SelectAllCheckbox = () => {
       isIndeterminate={!isAllSelected && isSomeSelected}
       onChange={handleChange}
       data-testid="listactions-checkbox"
+      aria-label={isSomeSelected || isAllSelected ? 'deselect all' : 'select all'}
     />
   );
 };

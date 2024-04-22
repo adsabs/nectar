@@ -233,13 +233,13 @@ const SearchPage: NextPage = () => {
               />
             ) : null}
           </Box>
-          <Box flexGrow={2}>
+          <Box>
             {showListActions ? (
-              <form>
-                <fieldset disabled={isLoading}>
-                  <ListActions onSortChange={handleSortChange} onOpenAddToLibrary={onOpenAddToLibrary} />
-                </fieldset>
-              </form>
+              <ListActions
+                onSortChange={handleSortChange}
+                onOpenAddToLibrary={onOpenAddToLibrary}
+                isLoading={isLoading}
+              />
             ) : null}
             <VisuallyHidden as="h2" id="search-form-title">
               Search Results
