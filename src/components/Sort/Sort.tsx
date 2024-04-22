@@ -1,4 +1,4 @@
-import { SortDirection, SolrSortField, SortField, SortType } from '@api';
+import { SortDirection, SolrSortField, SortField, SortType, SolrSort } from '@api';
 import { Box, HStack, IconButton, Input } from '@chakra-ui/react';
 import { SearchQueryLink, SimpleLinkDropdown } from '@components';
 import { ItemType } from '@components/Dropdown/types';
@@ -35,7 +35,9 @@ export interface ISortProps<S extends SortType, F extends SortField> {
  *
  * Expects to be controlled (i.e. using sort and onChange to control value/updating)
  */
-export const Sort = <S extends SortType, F extends SortField>(props: ISortProps<S, F>): ReactElement => {
+export const Sort = <S extends SortType = SolrSort, F extends SortField = SolrSortField>(
+  props: ISortProps<S, F>,
+): ReactElement => {
   const {
     sort,
     onChange,
