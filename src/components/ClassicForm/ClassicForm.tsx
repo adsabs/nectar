@@ -33,6 +33,9 @@ import { FormEventHandler, useMemo } from 'react';
 import { Control, Controller, useForm, UseFormRegisterReturn, useWatch } from 'react-hook-form';
 import { getSearchQuery } from './helpers';
 import { IClassicFormState } from './types';
+import { SolrSort, SolrSortField } from '@api';
+import { solrSortOptions } from '@components/Sort/model';
+import { normalizeSolrSort } from '@utils';
 
 const propTypes = {
   ssrError: PT.string,
@@ -257,10 +260,12 @@ export const ClassicForm = (props: IClassicFormProps) => {
             name="sort"
             control={control}
             render={({ field }) => (
-              <Sort
+              <Sort<SolrSort, SolrSortField>
                 name={field.name}
-                onChange={(sort) => field.onChange(sort)}
-                sort={field.value}
+                onChange={(sort) => field.onChange(normalizeSolrSort(sort))}
+                sort={field.value[0]}
+                options={solrSortOptions}
+                hiddenInput={{ name: 'sort', value: field.value.join(',') }}
                 innerSelectProps={{
                   onBlur: field.onBlur,
                 }}

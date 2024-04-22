@@ -1,4 +1,4 @@
-import { Bibcode, ExportApiFormatKey, useVaultBigQuerySearch } from '@api';
+import { Bibcode, ExportApiFormatKey, SolrSort, SolrSortField, useVaultBigQuerySearch } from '@api';
 import { BellIcon, ChevronDownIcon, SettingsIcon } from '@chakra-ui/icons';
 import {
   Button,
@@ -39,9 +39,10 @@ import { useSession } from '@lib/useSession';
 import { useSettings } from '@lib/useSettings';
 import { useColorModeColors } from '@lib';
 import { AddNotificationModal } from '@components/EmailNotifications/AddNotificationModal';
+import { solrSortOptions } from '@components/Sort/model';
 
 export interface IListActionsProps {
-  onSortChange?: ISortProps['onChange'];
+  onSortChange?: ISortProps<SolrSort, SolrSortField>['onChange'];
   onOpenAddToLibrary: () => void;
 }
 
@@ -273,10 +274,10 @@ const sortSelector: [
   (prev: AppState['query'], next: AppState['query']) => boolean,
 ] = [(state) => state.query, (prev, curr) => prev.sort === curr.sort];
 
-const SortWrapper = ({ onChange }: { onChange: ISortProps['onChange'] }) => {
+const SortWrapper = ({ onChange }: { onChange: ISortProps<SolrSort, SolrSortField>['onChange'] }) => {
   const query = useStore(...sortSelector);
 
-  return <Sort sort={query.sort} onChange={onChange} />;
+  return <Sort<SolrSort, SolrSortField> sort={query.sort[0]} onChange={onChange} options={solrSortOptions} />;
 };
 
 const SettingsMenu = () => {

@@ -1,4 +1,4 @@
-import { Esources, IDocsEntity } from '@api';
+import { IDocsEntity } from '@api';
 import {
   Accordion,
   AccordionButton,
@@ -8,7 +8,6 @@ import {
   Box,
   Button,
   HStack,
-  Icon,
   Menu,
   MenuButton,
   MenuDivider,
