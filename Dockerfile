@@ -25,11 +25,12 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+ENV STANDALONE=1
+ENV DIST_DIR="dist"
 ENV NODE_ENV=production
 
 # ensure pnpm is available in the builder
-RUN npm install -g pnpm
-
+RUN corepack enable
 RUN pnpm run build
 
 # Production image, copy all the files and run next
@@ -47,8 +48,9 @@ COPY --from=builder /app/.env.local ./
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --chown=nextjs:nodejs /app/dist/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/dist/static ./dist/static
+COPY --from=builder /app/dist/standalone ./
+COPY --from=builder /app/dist/static ./dist/static
+COPY --from=builder --chown=nextjs:nodejs /app/dist/cache ./dist/cache
 
 USER nextjs
 
