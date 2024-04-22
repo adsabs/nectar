@@ -28,7 +28,6 @@ const nextConfig = {
   generateEtags: true,
   poweredByHeader: false,
   reactStrictMode: true,
-  sw
   experimental: {
     newNextLinkBehavior: false,
     webVitalsAttribution: ['CLS', 'LCP'],
@@ -188,7 +187,9 @@ const sentryConfig = {
   disableLogger: true,
 };
 
-const config = process.env.ANALYZE ? withBundleAnalyzer({})(nextConfig) : nextConfig;
+const config = process.env.ANALYZE === 'true' ? withBundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+})(nextConfig) : nextConfig;
 const nextConfigWithSentry = withSentryConfig(config, sentrySettings, sentryConfig);
 
 export default process.env.NODE_ENV === 'production' ? nextConfigWithSentry : config;
