@@ -1,6 +1,6 @@
 export const useNivoDarkTheme = () => {
   return {
-    background: '#333333',
+    background: '#1C1C1C',
     text: {
       fill: '#000000',
     },
@@ -14,6 +14,11 @@ export const useNivoDarkTheme = () => {
     tooltip: {
       container: {
         background: '#000000',
+      },
+    },
+    legends: {
+      text: {
+        fill: '#ffffff',
       },
     },
   };
