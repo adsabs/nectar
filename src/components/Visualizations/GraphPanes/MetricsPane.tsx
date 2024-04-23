@@ -370,7 +370,7 @@ const MetricsGraphs = ({
   showGroupOptions?: boolean;
 }): ReactElement => {
   return (
-    <Tabs mt={5} variant="soft-rounded" size="sm" align="center">
+    <Tabs mt={5} variant="solid-rounded" size="sm" align="center">
       <TabList>
         <Tab>Total</Tab>
         <Tab>Normalized</Tab>

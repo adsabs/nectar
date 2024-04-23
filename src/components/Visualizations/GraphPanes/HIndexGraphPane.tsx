@@ -125,9 +125,11 @@ export const HIndexGraphPane = ({ buckets, sum, type, onApplyCondition }: IHInde
                 ranked {type} of <b>{statsCount}</b>
               </Text>
               <Text>H-Index for results: {transformedGraph.hindex ? transformedGraph.hindex : ''}</Text>
-              <FormControl>
-                <Flex direction="row">
-                  <FormLabel>Y-Axis</FormLabel>
+              <fieldset>
+                <Flex direction="row" gap={2}>
+                  <Text as="legend" fontWeight="bold">
+                    Y-Axis
+                  </Text>
                   <RadioGroup value={yaxis} onChange={handleChangeYAxis} size="md">
                     <Stack spacing={4} direction="row">
                       <Radio value="linear">Linear</Radio>
@@ -135,7 +137,7 @@ export const HIndexGraphPane = ({ buckets, sum, type, onApplyCondition }: IHInde
                     </Stack>
                   </RadioGroup>
                 </Flex>
-              </FormControl>
+              </fieldset>
               <LineGraph
                 data={transformedGraph.data}
                 ticks={getLineGraphXTicks(transformedGraph.data, 10)}
