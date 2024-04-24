@@ -2,10 +2,11 @@ import { isBrowser } from '@utils';
 import { useRouter } from 'next/router';
 import { MouseEvent, ReactElement } from 'react';
 import { MenuDropdown } from './MenuDropdown';
-import { ItemType, ListType, ItemItem } from './types';
+import { ItemType, ListType, ItemItem, DividerItem } from './types';
 import { useSession } from '@lib/useSession';
-import { HStack, Icon, Text } from '@chakra-ui/react';
+import { Flex, HStack, Icon, Text } from '@chakra-ui/react';
 import { UserIcon } from '@heroicons/react/24/solid';
+import { useGetUserEmail } from '@lib';
 
 export const items: ItemType[] = [
   {
@@ -36,9 +37,25 @@ interface IAccountDropdown {
 export const AccountDropdown = (props: IAccountDropdown): ReactElement => {
   const { type, onFinished } = props;
   const { isAuthenticated, logout } = useSession();
+  const username = useGetUserEmail();
 
   const router = useRouter();
-  const itemsToShow = isAuthenticated ? loggedInItems : items;
+  const itemsToShow = isAuthenticated
+    ? [
+        {
+          id: 'user',
+          label: (
+            <Flex direction="column" my={2}>
+              <Text>Signed in as</Text>
+              <Text fontWeight="bold">{username}</Text>
+            </Flex>
+          ),
+          static: true,
+        },
+        'divider' as DividerItem,
+        ...loggedInItems,
+      ]
+    : items;
 
   const handleSelect = (e: MouseEvent<HTMLElement>) => {
     const id = (e.target as HTMLElement).dataset['id'];
@@ -46,7 +63,7 @@ export const AccountDropdown = (props: IAccountDropdown): ReactElement => {
       if (id === 'logout') {
         logout();
       } else {
-        const item = itemsToShow.find((item) => item !== 'divider' && id === item.id);
+        const item = itemsToShow.find((item) => item !== 'divider' && id === (item as ItemItem).id);
         void router.push(item ? (item as ItemItem).path : '/');
       }
 

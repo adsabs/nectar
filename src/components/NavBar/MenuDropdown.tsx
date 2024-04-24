@@ -1,7 +1,7 @@
 import { ChevronDownIcon } from '@chakra-ui/icons';
-import { HStack, List, ListItem, Menu, MenuButton, MenuDivider, MenuItem, MenuList } from '@chakra-ui/react';
+import { Box, HStack, List, ListItem, Menu, MenuButton, MenuDivider, MenuItem, MenuList } from '@chakra-ui/react';
 import { ItemType, ListType } from './types';
-import { isBrowser } from '@utils';
+import { isBrowser, noop } from '@utils';
 import { Fragment, KeyboardEvent, MouseEventHandler, ReactElement } from 'react';
 
 interface IMenuDropdownProps {
@@ -50,6 +50,16 @@ export const MenuDropdown = (props: IMenuDropdownProps): ReactElement => {
           <Fragment key={`${id}-${index}`}>
             {item === 'divider' ? (
               <MenuDivider />
+            ) : item.static ? (
+              <MenuItem
+                onClick={() => noop}
+                cursor="default"
+                data-id={item.id}
+                _hover={{ backgroundColor: 'transparent' }}
+                {...item?.menuItemProps}
+              >
+                {item.label}
+              </MenuItem>
             ) : (
               <MenuItem onClick={onSelect} data-id={item.id} {...item?.menuItemProps}>
                 {item.label}
@@ -63,7 +73,20 @@ export const MenuDropdown = (props: IMenuDropdownProps): ReactElement => {
     <List variant="navbar" role="menu">
       {items.map((item, index) => (
         <Fragment key={`${id}-${index}`}>
-          {item !== 'divider' && (
+          {item === 'divider' ? (
+            <Box my={2} />
+          ) : item.static ? (
+            <ListItem
+              key={item.id}
+              role="menuitem"
+              id={`${id}-item-${item.id}`}
+              data-id={item.id}
+              cursor="default"
+              _hover={{ backgroundColor: 'transparent' }}
+            >
+              {item.label}
+            </ListItem>
+          ) : (
             <ListItem
               key={item.id}
               role="menuitem"
@@ -72,6 +95,7 @@ export const MenuDropdown = (props: IMenuDropdownProps): ReactElement => {
               data-id={item.id}
               tabIndex={0}
               onKeyDown={(e) => handleKeydown(e, index)}
+              {...item.listItemProps}
             >
               {item.label}
             </ListItem>
