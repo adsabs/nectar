@@ -23,8 +23,7 @@ test.skip('blank form has correct defaults set', async ({ page }) => {
   await expect(page.getByTestId('sort')).toHaveText('Date');
 });
 
-// TODO: fix this test
-test.skip('default form can be submitted, and is valid', async ({ page }) => {
+test.fixme('default form can be submitted, and is valid', async ({ page }) => {
   await page.goto('/classic-form');
   await page.getByRole('button', { name: 'Search' }).click();
   await page.waitForURL('**/search?**');

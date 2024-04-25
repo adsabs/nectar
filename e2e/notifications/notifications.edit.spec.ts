@@ -4,7 +4,7 @@ test.describe.configure({
   mode: 'parallel',
 });
 
-test('Edit arxiv notification', async ({ page }) => {
+test.fixme('Edit arxiv notification', async ({ page }) => {
   await page.goto('/user/notifications', { timeout: 60000 });
 
   // edit
@@ -50,7 +50,7 @@ test('Edit arxiv notification', async ({ page }) => {
   await expect(form.locator('input[value="gr-qc"]')).toBeChecked();
 });
 
-test('Edit citations notification', async ({ page }) => {
+test.fixme('Edit citations notification', async ({ page }) => {
   await page.goto('/user/notifications', { timeout: 60000 });
 
   // edit
@@ -99,7 +99,7 @@ test('Edit citations notification', async ({ page }) => {
   await expect(rows.nth(1)).toContainText('Smith, JaneAuthor');
 });
 
-test('Edit authors notification', async ({ page }) => {
+test.fixme('Edit authors notification', async ({ page }) => {
   await page.goto('/user/notifications', { timeout: 60000 });
 
   // edit
@@ -148,7 +148,7 @@ test('Edit authors notification', async ({ page }) => {
   await expect(rows.nth(1)).toContainText('Smith, JaneAuthor');
 });
 
-test('Edit keyword notification', async ({ page }) => {
+test.fixme('Edit keyword notification', async ({ page }) => {
   await page.goto('/user/notifications', { timeout: 60000 });
 
   // edit

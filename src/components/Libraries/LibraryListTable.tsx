@@ -9,26 +9,26 @@ import {
   UpDownIcon,
 } from '@chakra-ui/icons';
 import {
-  Table,
-  TableProps,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-  Flex,
-  Text,
-  Tooltip,
+  Box,
+  Button,
   Center,
+  Flex,
+  IconButton,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
-  useToast,
-  Button,
+  Table,
+  TableProps,
+  Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tooltip,
+  Tr,
   useBreakpoint,
-  Box,
-  IconButton,
+  useToast,
 } from '@chakra-ui/react';
 import { ControlledPaginationControls } from '@components';
 import { CustomInfoMessage } from '@components/Feedbacks';
@@ -245,6 +245,8 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                     _hover={{ backgroundColor: colors.highlightBackground, color: colors.highlightForeground }}
                     onClick={() => onLibrarySelect(id)}
                     tabIndex={0}
+                    data-testid={`library-[${name}]`}
+                    id={id}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         onLibrarySelect(id);

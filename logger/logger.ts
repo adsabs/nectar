@@ -5,7 +5,7 @@ export const logger: Logger = pino({
   browser: {
     asObject: true,
   },
-  level: process.env.NODE_ENV === 'development' ? 'debug' : 'info',
+  level: process.env.NODE_ENV === 'development' ? 'trace' : 'info',
   base: {
     env: process.env.NODE_ENV || 'development',
   },

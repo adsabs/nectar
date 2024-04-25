@@ -10,3 +10,16 @@ stories
 .prettier*
 LICENSE
 README.md
+__mocks__
+e2e-test-results
+.env.local.sample
+dev
+tsconfig.tsbuildinfo
+.worktrees
+.husky
+.idea
+.gitignore
+.prettierrc.json
+.vitest
+Dockerfile*
+docker*

@@ -81,7 +81,7 @@ const Login: NextPage = () => {
         <form onSubmit={handleSubmit} aria-labelledby="form-label">
           <Stack direction="column" spacing={4}>
             <FormControl isRequired>
-              <FormLabel>Email</FormLabel>
+              <FormLabel htmlFor="email">Email</FormLabel>
               <Input
                 ref={mainInputRef}
                 type="text"
@@ -94,7 +94,7 @@ const Login: NextPage = () => {
               />
             </FormControl>
             <FormControl isRequired>
-              <FormLabel>Password</FormLabel>
+              <FormLabel htmlFor="password">Password</FormLabel>
               <InputGroup>
                 <PasswordTextInput
                   name="password"
