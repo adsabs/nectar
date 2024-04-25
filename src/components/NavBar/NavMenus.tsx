@@ -65,7 +65,18 @@ export const NavMenus = (): ReactElement => {
             <DrawerCloseButton />
             <DrawerHeader />
             <DrawerBody>
-              <Accordion allowMultiple defaultIndex={[0, 1, 2]}>
+              <Accordion allowMultiple defaultIndex={[0]}>
+                <AccordionItem>
+                  <AccordionButton>
+                    <Box flex="1" textAlign="left" fontWeight="medium">
+                      Account
+                    </Box>
+                    <AccordionIcon />
+                  </AccordionButton>
+                  <AccordionPanel>
+                    <AccountDropdown type={ListType.ACCORDION} onFinished={onClose} />
+                  </AccordionPanel>
+                </AccordionItem>
                 <AccordionItem>
                   <AccordionButton>
                     <Box flex="1" textAlign="left" fontWeight="medium">
@@ -105,17 +116,6 @@ export const NavMenus = (): ReactElement => {
                       Help
                     </Box>
                   </AccordionButton>
-                </AccordionItem>
-                <AccordionItem>
-                  <AccordionButton>
-                    <Box flex="1" textAlign="left" fontWeight="medium">
-                      Account
-                    </Box>
-                    <AccordionIcon />
-                  </AccordionButton>
-                  <AccordionPanel>
-                    <AccountDropdown type={ListType.ACCORDION} onFinished={onClose} />
-                  </AccordionPanel>
                 </AccordionItem>
               </Accordion>
               <ColorModeMenu type="switch" />
