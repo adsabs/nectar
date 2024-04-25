@@ -63,6 +63,7 @@ export const composeNextGSSP = (...fns: IncomingGSSP[]) =>
   withIronSessionSsr(async (ctx: GetServerSidePropsContext): Promise<
     GetServerSidePropsResult<Record<string, unknown>>
   > => {
+    ctx.res.setHeader('Cache-Control', 'max-age=3600, stale-while-revaluate=86400');
     fns.push(injectNonce);
     fns.push(updateUserStateSSR);
     api.setUserData(ctx.req.session.token);
