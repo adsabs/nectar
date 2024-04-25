@@ -6,6 +6,7 @@ import { identity, isNil } from 'ramda';
 import { defaultRequestConfig } from './config';
 import { IApiUserResponse } from '@pages/api/user';
 import { logger } from '../../logger/logger';
+import { buildStorage, CacheOptions, setupCache, StorageValue } from 'axios-cache-interceptor';
 
 export const isUserData = (userData?: IUserData): userData is IUserData => {
   return (
@@ -63,6 +64,36 @@ enum API_STATUS {
 
 const log = logger.child({}, { msgPrefix: '[api] ' });
 
+const getClientSideCacheConfig = async () => {
+  const idb = await import('idb-keyval');
+  const storage = buildStorage({
+    async find(key) {
+      const value = await idb.get<string>(key);
+      if (!value) {
+        return;
+      }
+      return JSON.parse(value) as StorageValue;
+    },
+    async set(key, value) {
+      await idb.set(key, JSON.stringify(value));
+    },
+    async remove(key) {
+      await idb.del(key);
+    },
+  });
+
+  const config: CacheOptions = {
+    debug: log.debug,
+    cacheTakeover: false,
+    cachePredicate: {
+      ignoreUrls: [/^(?!\/search\/)/],
+    },
+    storage,
+  };
+
+  return config;
+};
+
 /**
  * Api structure that wraps the axios instance
  * This allows us to manage the setting/resetting of the token
@@ -77,10 +108,10 @@ class Api {
 
   private constructor() {
     this.service = axios.create(defaultRequestConfig);
-    this.init();
+    void this.init();
   }
 
-  private init() {
+  private async init() {
     this.service.interceptors.response.use(identity, (error: AxiosError & { canRefresh: boolean }) => {
       log.error(error);
       if (axios.isAxiosError(error)) {
@@ -119,6 +150,18 @@ class Api {
       }
       return Promise.reject(error);
     });
+
+    // setup clientside caching
+    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
+      try {
+        setupCache(this.service, await getClientSideCacheConfig());
+      } catch (error) {
+        log.error({
+          msg: 'Client-side cache not created.',
+          error,
+        });
+      }
+    }
   }
 
   public static getInstance(): Api {
@@ -210,7 +253,7 @@ class Api {
 
   public reset() {
     this.service = this.service = axios.create(defaultRequestConfig);
-    this.init();
+    void this.init();
     this.userData = null;
     this.recentError = null;
     this.bootstrapRetries = 2;
