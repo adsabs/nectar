@@ -4,6 +4,7 @@ import { useRemoveWorks } from '@lib/orcid/useRemoveWorks';
 import { parseAPIError } from '@utils';
 import { OrcidLogo } from '@components';
 import React from 'react';
+import { useColorModeColors } from '@lib';
 
 interface IOrcidActionBtnProps extends ButtonProps {
   identifier: string;
@@ -31,6 +32,8 @@ export const DeleteFromOrcidButton = forwardRef<IOrcidActionBtnProps, 'button'>(
     },
   );
 
+  const { lightText } = useColorModeColors();
+
   return (
     <Button
       variant="outline"
@@ -43,7 +46,9 @@ export const DeleteFromOrcidButton = forwardRef<IOrcidActionBtnProps, 'button'>(
     >
       <HStack spacing={1}>
         <Icon as={OrcidLogo} boxSize="4" aria-hidden />
-        <Text fontSize="xs">Delete Claim</Text>
+        <Text fontSize="xs" color={lightText}>
+          Delete Claim
+        </Text>
       </HStack>
     </Button>
   );
