@@ -1,5 +1,5 @@
 import { composeStories } from '@storybook/react';
-import { render } from '@test-utils';
+import { render } from '@/test-utils';
 import { test } from 'vitest';
 import * as stories from '../__stories__/SimpleResultList.stories';
 

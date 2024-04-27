@@ -1,4 +1,4 @@
-import { SolrSort } from '@api';
+import { SolrSort } from '@/api';
 import { IronSessionOptions } from 'iron-session';
 
 export const APP_DEFAULTS = {

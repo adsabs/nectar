@@ -1,5 +1,5 @@
 import { Text, TextProps } from '@chakra-ui/react';
-import { SimpleLink } from '@components';
+import { SimpleLink } from '@/components';
 
 export const RecaptchaMessage = (props: TextProps) => {
   return (

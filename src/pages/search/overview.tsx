@@ -1,8 +1,8 @@
-import { IADSApiSearchParams } from '@api';
-import { OverviewPageContainer, VizPageLayout } from '@components';
-import { FacetField } from '@components/Visualizations/types';
-import { getQueryWithCondition } from '@components/Visualizations/utils';
-import { makeSearchParams, parseQueryFromUrl } from '@utils';
+import { IADSApiSearchParams } from '@/api';
+import { OverviewPageContainer, VizPageLayout } from '@/components';
+import { FacetField } from '@/components/Visualizations/types';
+import { getQueryWithCondition } from '@/components/Visualizations/utils';
+import { makeSearchParams, parseQueryFromUrl } from '@/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 
@@ -32,4 +32,4 @@ const OverviewPage: NextPage = () => {
 };
 
 export default OverviewPage;
-export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';
+export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

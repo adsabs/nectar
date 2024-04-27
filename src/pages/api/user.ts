@@ -1,7 +1,7 @@
 /// <reference types="../../../global" />
 import { withIronSessionApiRoute } from 'iron-session/next';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { sessionConfig } from '@config';
+import { sessionConfig } from '@/config';
 import { IronSession } from 'iron-session';
 
 export interface IApiUserResponse {

@@ -1,4 +1,4 @@
-import api, { ADSQuery, ApiRequestConfig, ApiTargets } from '@api';
+import api, { ADSQuery, ApiRequestConfig, ApiTargets } from '@/api';
 import { QueryFunction, useQuery } from '@tanstack/react-query';
 import { IADSApiReferenceResponse } from './types';
 

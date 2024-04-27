@@ -1,4 +1,4 @@
-import { IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
+import { IOrcidProfileEntry } from '@/api/orcid/types/orcid-profile';
 import {
   Box,
   Center,
@@ -19,8 +19,8 @@ import {
   Tr,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { Select, SelectOption } from '@components/Select';
-import { SimpleLink } from '@components/SimpleLink';
+import { Select, SelectOption } from '@/components/Select';
+import { SimpleLink } from '@/components/SimpleLink';
 import { ReactElement, Suspense, useMemo, useState } from 'react';
 import { Actions } from './Actions';
 import {
@@ -35,13 +35,13 @@ import {
 import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import { intlFormat, intlFormatDistance } from 'date-fns';
 import { isNilOrEmpty, isObject } from 'ramda-adjunct';
-import { NASA_SCIX_BRAND_NAME, NASA_SCIX_BRAND_NAME_SHORT, ORCID_ADS_SOURCE_NAME } from '@config';
+import { NASA_SCIX_BRAND_NAME, NASA_SCIX_BRAND_NAME_SHORT, ORCID_ADS_SOURCE_NAME } from '@/config';
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useOrcidProfile } from '@lib/orcid/useOrcidProfile';
-import { getFallBackAlert } from '@components/Feedbacks/SuspendedAlert';
+import { useOrcidProfile } from '@/lib/orcid/useOrcidProfile';
+import { getFallBackAlert } from '@/components/Feedbacks/SuspendedAlert';
 import DOMPurify from 'dompurify';
-import { PaginationControls } from '@components';
+import { PaginationControls } from '@/components';
 
 export const WorksTable = () => {
   return (

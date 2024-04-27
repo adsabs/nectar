@@ -1,5 +1,5 @@
-import { StoreSlice } from '@store';
-import { AppMode } from '@types';
+import { StoreSlice } from '@/store';
+import { AppMode } from '@/types';
 
 export interface IAppModeState {
   mode: AppMode;

@@ -1,4 +1,4 @@
-import { SolrSort } from '@api';
+import { SolrSort } from '@/api';
 
 export type LogicChoice = 'and' | 'or' | 'boolean';
 export type CollectionChoice = 'astronomy' | 'physics' | 'general' | 'earthscience';

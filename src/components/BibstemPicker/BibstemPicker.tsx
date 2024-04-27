@@ -1,6 +1,6 @@
 import { HStack, Text, VisuallyHidden } from '@chakra-ui/react';
-import { useColorModeColorVars } from '@lib';
-import { IBibstemOption } from '@types';
+import { useColorModeColorVars } from '@/lib';
+import { IBibstemOption } from '@/types';
 import axios from 'axios';
 import {
   always,

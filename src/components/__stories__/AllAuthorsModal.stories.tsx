@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { AllAuthorsModal } from '@components';
+import { AllAuthorsModal } from '@/components';
 
 const meta: Meta = {
   title: 'AllAuthorsModal',

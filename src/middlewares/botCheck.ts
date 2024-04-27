@@ -1,6 +1,6 @@
-import { sessionConfig } from '@config';
+import { sessionConfig } from '@/config';
 import { getIronSession } from 'iron-session/edge';
-import { edgeLogger } from '../../logger/logger';
+import { edgeLogger } from '@/logger';
 // eslint-disable-next-line @next/next/no-server-import-in-page
 import { NextRequest, NextResponse, userAgent } from 'next/server';
 import { IronSessionData } from 'iron-session';

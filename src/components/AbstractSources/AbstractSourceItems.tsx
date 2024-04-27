@@ -1,4 +1,4 @@
-import { Esources } from '@api';
+import { Esources } from '@/api';
 import { ChevronDownIcon, Icon, LockIcon, UnlockIcon } from '@chakra-ui/icons';
 import {
   Menu,
@@ -15,11 +15,11 @@ import {
   HStack,
   IconButton,
 } from '@chakra-ui/react';
-import { ItemType } from '@components/Dropdown/types';
-import { GenericFileIcon } from '@components/icons/GenericFileIcon';
-import { HtmlFileIcon } from '@components/icons/HtmlFileIcon';
-import { PdfFileIcon } from '@components/icons/PdfFileIcon';
-import { SimpleLink } from '@components/SimpleLink';
+import { ItemType } from '@/components/Dropdown/types';
+import { GenericFileIcon } from '@/components/icons/GenericFileIcon';
+import { HtmlFileIcon } from '@/components/icons/HtmlFileIcon';
+import { PdfFileIcon } from '@/components/icons/PdfFileIcon';
+import { SimpleLink } from '@/components/SimpleLink';
 import { AcademicCapIcon } from '@heroicons/react/24/solid';
 import { IFullTextSource } from './types';
 

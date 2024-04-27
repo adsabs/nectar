@@ -1,4 +1,4 @@
-import { INotification, useAddNotification, useEditNotification } from '@api';
+import { INotification, useAddNotification, useEditNotification } from '@/api';
 import {
   Input,
   FormControl,
@@ -10,8 +10,8 @@ import {
   Text,
   FormErrorMessage,
 } from '@chakra-ui/react';
-import { useDebounce } from '@lib';
-import { noop, parseAPIError } from '@utils';
+import { useDebounce } from '@/lib';
+import { noop, parseAPIError } from '@/utils';
 
 import { ChangeEvent, FormEvent, useMemo, useState } from 'react';
 import { isValidKeyword } from './Utils';

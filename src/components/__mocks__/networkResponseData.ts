@@ -1,4 +1,4 @@
-import { IADSApiAuthorNetworkResponse } from '@api';
+import { IADSApiAuthorNetworkResponse } from '@/api';
 
 export const response: IADSApiAuthorNetworkResponse = {
   msg: { numFound: 41, start: 0, rows: 400 },

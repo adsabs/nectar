@@ -1,8 +1,8 @@
 import { Box, Flex, HStack, Icon } from '@chakra-ui/react';
-import { ScixAndTextLogo_H_beta } from '@components/images/ScixAndTextLogo-H_beta';
+import { ScixAndTextLogo_H_beta } from '@/components/images/ScixAndTextLogo-H_beta';
 import dynamic from 'next/dynamic';
 import { FC } from 'react';
-import { SimpleLink } from '@components';
+import { SimpleLink } from '@/components';
 
 const AppModeDropdown = dynamic<Record<string, never>>(
   () => import('./AppModeDropdown').then((mod) => mod.AppModeDropdown),

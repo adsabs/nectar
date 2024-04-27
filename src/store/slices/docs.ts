@@ -1,4 +1,4 @@
-import { StoreSlice } from '@store';
+import { StoreSlice } from '@/store';
 import { difference, equals, intersection, union } from 'ramda';
 
 export interface IDocsState {

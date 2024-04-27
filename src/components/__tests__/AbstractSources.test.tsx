@@ -1,4 +1,4 @@
-import { render } from '@test-utils';
+import { render } from '@/test-utils';
 import Meta, { Default } from '../__stories__/AbstractSources.stories';
 import { composeStory } from '@storybook/react';
 import { test, vi } from 'vitest';

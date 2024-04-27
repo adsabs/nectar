@@ -1,8 +1,8 @@
 import { cloneElement } from 'react';
 import { Box, BoxProps, Button, Flex, Text } from '@chakra-ui/react';
 import { CatMenuItems, IMenuItem, IMenuItemProps, SingleMenuItems } from './types';
-import { useColorModeColors } from '@lib';
-import { SimpleLink } from '@components';
+import { useColorModeColors } from '@/lib';
+import { SimpleLink } from '@/components';
 
 export interface ISideNavigationMenuProps extends BoxProps {
   menuItems: CatMenuItems | SingleMenuItems;

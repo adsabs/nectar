@@ -1,4 +1,4 @@
-import { Sort } from '@components';
+import { Sort } from '@/components';
 import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {

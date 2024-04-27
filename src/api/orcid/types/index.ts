@@ -1,9 +1,9 @@
-import type { IOrcidUser } from '@api/orcid/types/orcid-user';
-import type { IOrcidProfile } from '@api/orcid/types/orcid-profile';
-import type { IOrcidName } from '@api/orcid/types/orcid-name';
-import type { IOrcidWork } from '@api/orcid/types/orcid-work';
-import { IOrcidPreferences } from '@api/orcid/types/orcid-preferences';
-import { OrcidErrorResponse } from '@api/orcid/types/common';
+import type { IOrcidUser } from '@/api/orcid/types/orcid-user';
+import type { IOrcidProfile } from '@/api/orcid/types/orcid-profile';
+import type { IOrcidName } from '@/api/orcid/types/orcid-name';
+import type { IOrcidWork } from '@/api/orcid/types/orcid-work';
+import { IOrcidPreferences } from '@/api/orcid/types/orcid-preferences';
+import { OrcidErrorResponse } from '@/api/orcid/types/common';
 
 export type { IOrcidWork } from './orcid-work';
 export type { IOrcidProfile } from './orcid-profile';

@@ -1,11 +1,11 @@
-import { ExportApiFormatKey } from '@api';
+import { ExportApiFormatKey } from '@/api';
 import { CheckIcon, DownloadIcon } from '@chakra-ui/icons';
 import { Button, HStack, Spinner, Stack, StackProps, Textarea, useBreakpointValue } from '@chakra-ui/react';
-import { useDownloadFile } from '@lib/useDownloadFile';
-import { useIsClient } from '@lib/useIsClient';
+import { useDownloadFile } from '@/lib/useDownloadFile';
+import { useIsClient } from '@/lib/useIsClient';
 import { exportFormats } from '../models';
-import { LabeledCopyButton } from '@components/CopyButton';
-import { useColorModeColors } from '@lib';
+import { LabeledCopyButton } from '@/components/CopyButton';
+import { useColorModeColors } from '@/lib';
 import { sendGTMEvent } from '@next/third-parties/google';
 
 export const ResultArea = ({

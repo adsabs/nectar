@@ -1,6 +1,6 @@
-import { IADSApiAuthorNetworkNode, IADSApiAuthorNetworkNodeKey } from '@api';
+import { IADSApiAuthorNetworkNode, IADSApiAuthorNetworkNodeKey } from '@/api';
 import { FormControl, FormLabel, Radio, RadioGroup, Stack, Switch } from '@chakra-ui/react';
-import { AuthorNetworkGraph } from '@components';
+import { AuthorNetworkGraph } from '@/components';
 import { ChangeEvent, ReactElement, useState } from 'react';
 import { PaperLimit } from '../Widgets';
 import { IView } from './types';

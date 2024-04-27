@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import { ISearchInputProps, QuickFields, SearchInput } from '@components';
+import { ISearchInputProps, QuickFields, SearchInput } from '@/components';
 import { VStack } from '@chakra-ui/react';
 
 export const SearchBar = forwardRef<HTMLInputElement, ISearchInputProps>((props, ref) => {

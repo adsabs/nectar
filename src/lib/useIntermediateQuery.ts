@@ -1,4 +1,4 @@
-import { useStore } from '@store';
+import { useStore } from '@/store';
 import { useDebouncedCallback } from 'use-debounce';
 
 export const useIntermediateQuery = () => {

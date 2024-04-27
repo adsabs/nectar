@@ -1,4 +1,4 @@
-import { exportTypes } from '@components/AuthorAffiliations/models';
+import { exportTypes } from '@/components/AuthorAffiliations/models';
 
 /**
  * @example

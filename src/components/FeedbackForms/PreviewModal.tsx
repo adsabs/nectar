@@ -1,4 +1,4 @@
-import { IFeedbackParams, useFeedback } from '@api/feedback';
+import { IFeedbackParams, useFeedback } from '@/api/feedback';
 import {
   Box,
   Button,
@@ -13,12 +13,12 @@ import {
   ModalOverlay,
   Text,
 } from '@chakra-ui/react';
-import { parseAPIError } from '@utils';
+import { parseAPIError } from '@/utils';
 import { ReactElement, useCallback, useState } from 'react';
-import { RecaptchaMessage } from '@components';
+import { RecaptchaMessage } from '@/components';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
-import { FormMessage } from '@components/Feedbacks/FormMessage';
-import { useColorModeColors } from '@lib';
+import { FormMessage } from '@/components/Feedbacks/FormMessage';
+import { useColorModeColors } from '@/lib';
 
 export interface IPreviewProps {
   params: IFeedbackParams;

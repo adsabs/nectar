@@ -1,5 +1,5 @@
-import { AbstractRefList } from '@components';
-import { docs } from '@components/__mocks__/data';
+import { AbstractRefList } from '@/components';
+import { docs } from '@/components/__mocks__/data';
 import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {

@@ -7,7 +7,7 @@ import api, {
   IADSApiSearchParams,
   IADSApiSearchResponse,
   IDocsEntity,
-} from '@api';
+} from '@/api';
 import { MutationFunction, QueryFunction, useQuery, UseQueryOptions, useMutation } from '@tanstack/react-query';
 import { omit } from 'ramda';
 import { getVaultBigQueryParams } from './models';

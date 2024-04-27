@@ -1,25 +1,25 @@
 import {
-  Input,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
+  Button,
+  Checkbox,
   Flex,
   FormControl,
-  FormLabel,
   FormErrorMessage,
-  Textarea,
-  Checkbox,
+  FormLabel,
   HStack,
-  Button,
-  Tabs,
-  TabList,
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
   Tab,
+  TabList,
   TabPanel,
   TabPanels,
+  Tabs,
   Text,
+  Textarea,
   useToast,
 } from '@chakra-ui/react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -27,9 +27,9 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LibrarySelector } from './LibrarySelector';
 import { useState } from 'react';
-import { LibraryIdentifier, useAddDocumentsByQuery, useAddLibrary, useEditLibraryDocuments } from '@api';
-import { useStore } from '@store';
-import { parseAPIError } from '@utils';
+import { LibraryIdentifier, useAddDocumentsByQuery, useAddLibrary, useEditLibraryDocuments } from '@/api';
+import { useStore } from '@/store';
+import { parseAPIError } from '@/utils';
 
 export type SelectionType = 'all' | 'selected';
 

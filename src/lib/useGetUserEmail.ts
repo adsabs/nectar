@@ -1,4 +1,4 @@
-import { useStore } from '@store';
+import { useStore } from '@/store';
 
 export const useGetUserEmail = () => {
   const username = useStore((state) => state.user.username);

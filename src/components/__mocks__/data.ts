@@ -1,4 +1,4 @@
-import { Esources, IADSApiMetricsResponse, IDocsEntity } from '@api';
+import { Esources, IADSApiMetricsResponse, IDocsEntity } from '@/api';
 import { BarDatum } from '@nivo/bar';
 import { Serie } from '@nivo/line';
 

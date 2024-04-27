@@ -1,6 +1,6 @@
-import { fetchVaultSearch, vaultKeys } from '@api';
-import { fetchReferenceText, referenceKeys } from '@api/reference/reference';
-import { getVaultBigQueryParams } from '@api/vault/models';
+import { fetchVaultSearch, vaultKeys } from '@/api';
+import { fetchReferenceText, referenceKeys } from '@/api/reference/reference';
+import { getVaultBigQueryParams } from '@/api/vault/models';
 import {
   Alert,
   Box,
@@ -21,10 +21,10 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { WarningTwoIcon } from '@chakra-ui/icons';
-import { BibstemPicker } from '@components';
-import { useIsClient } from '@lib/useIsClient';
-import { composeNextGSSP } from '@ssr-utils';
-import { stringifySearchParams } from '@utils';
+import { BibstemPicker } from '@/components';
+import { useIsClient } from '@/lib/useIsClient';
+import { composeNextGSSP } from '@/ssr-utils';
+import { stringifySearchParams } from '@/utils';
 import DOMPurify from 'isomorphic-dompurify';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
@@ -33,10 +33,10 @@ import { any, head, isEmpty, join, map, not, omit, pipe, reject, toPairs, values
 import { FormEventHandler, useCallback } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
-import { useErrorMessage } from '@lib/useErrorMessage';
-import { APP_DEFAULTS } from '@config';
-import { useColorModeColors } from '@lib';
-import { logger } from '@logger';
+import { useErrorMessage } from '@/lib/useErrorMessage';
+import { APP_DEFAULTS } from '@/config';
+import { useColorModeColors } from '@/lib';
+import { logger } from '@/logger';
 
 enum PaperFormType {
   JOURNAL_QUERY = 'journal-query',

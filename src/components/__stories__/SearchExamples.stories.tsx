@@ -1,4 +1,4 @@
-import { SearchExamples } from '@components';
+import { SearchExamples } from '@/components';
 import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {

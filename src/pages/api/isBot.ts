@@ -1,5 +1,5 @@
 import { NextApiHandler } from 'next';
-import { logger } from 'logger/logger';
+import { logger } from '@/logger';
 import { resolve as dnsResolve, resolve4 as dnsResolve4 } from 'dns';
 import { promisify } from 'util';
 

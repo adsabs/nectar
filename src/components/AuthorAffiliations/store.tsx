@@ -1,4 +1,4 @@
-import { IAuthorAffiliationItem } from '@api/author-affiliation/types';
+import { IAuthorAffiliationItem } from '@/api/author-affiliation/types';
 import { isNotNilOrEmpty } from 'ramda-adjunct';
 import { FC } from 'react';
 import create, { GetState, Mutate, SetState, StoreApi } from 'zustand';

@@ -1,4 +1,4 @@
-import { BibstemPicker } from '@components';
+import { BibstemPicker } from '@/components';
 
 import { Meta, StoryObj } from '@storybook/react';
 

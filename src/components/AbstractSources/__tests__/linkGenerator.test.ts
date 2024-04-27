@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
-import { processLinkData } from '@components/AbstractSources/linkGenerator';
-import { Esources } from '@api';
+import { processLinkData } from '@/components/AbstractSources/linkGenerator';
+import { Esources } from '@/api';
 
 const shuffle = <T>(arr: Array<T>) => arr.sort(() => Math.random() - 0.5);
 

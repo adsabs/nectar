@@ -1,4 +1,4 @@
-import { IAuthorAffiliationItem } from '@api/author-affiliation/types';
+import { IAuthorAffiliationItem } from '@/api/author-affiliation/types';
 import {
   append,
   equals,

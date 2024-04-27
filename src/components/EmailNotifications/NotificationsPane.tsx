@@ -5,7 +5,7 @@ import {
   useEditNotification,
   useGetNotificationQuery,
   useGetNotifications,
-} from '@api';
+} from '@/api';
 import { BellIcon, ChevronDownIcon, CloseIcon, SettingsIcon } from '@chakra-ui/icons';
 import {
   Table,
@@ -40,12 +40,12 @@ import {
   InputRightElement,
   IconButton,
 } from '@chakra-ui/react';
-import { SimpleLink } from '@components';
-import { CustomInfoMessage } from '@components/Feedbacks';
-import { TableSkeleton } from '@components/Libraries/TableSkeleton';
-import { TimeSince } from '@components/TimeSince';
-import { useColorModeColors, useDebounce } from '@lib';
-import { makeSearchParams, parseAPIError } from '@utils';
+import { SimpleLink } from '@/components';
+import { CustomInfoMessage } from '@/components/Feedbacks';
+import { TableSkeleton } from '@/components/Libraries/TableSkeleton';
+import { TimeSince } from '@/components/TimeSince';
+import { useColorModeColors, useDebounce } from '@/lib';
+import { makeSearchParams, parseAPIError } from '@/utils';
 import { useRouter } from 'next/router';
 import { values } from 'ramda';
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';

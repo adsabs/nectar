@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useState } from 'react';
 import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
-import { logger } from '../../logger/logger';
+import { logger } from '@/logger';
 
 export const useCreateQueryClient = () => {
   const queryCache = new QueryCache({

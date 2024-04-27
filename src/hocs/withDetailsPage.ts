@@ -14,12 +14,12 @@ import {
   metricsKeys,
   searchKeys,
   userKeys,
-} from '@api';
+} from '@/api';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
-import { fetchLinks, resolverKeys } from '@api/resolver';
-import { logger } from '@logger';
-import { parseAPIError } from '@utils';
+import { fetchLinks, resolverKeys } from '@/api/resolver';
+import { logger } from '@/logger';
+import { parseAPIError } from '@/utils';
 
 export const withDetailsPage = async (
   ctx: GetServerSidePropsContext,

@@ -3,7 +3,7 @@ import { MouseEvent, ReactElement, useState } from 'react';
 import { MenuDropdown } from './MenuDropdown';
 import { Icon, Modal, ModalCloseButton, ModalContent, ModalOverlay, useDisclosure } from '@chakra-ui/react';
 import { BeakerIcon } from '@heroicons/react/24/outline';
-import { PlanetaryFeatures } from '@components/Experiments/PlanetaryFeatures';
+import { PlanetaryFeatures } from '@/components/Experiments/PlanetaryFeatures';
 
 const items = [
   {

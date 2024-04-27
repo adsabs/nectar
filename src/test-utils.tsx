@@ -1,4 +1,4 @@
-import { AppState, StoreProvider, useCreateStore } from '@store';
+import { AppState, StoreProvider, useCreateStore } from '@/store';
 import { render, renderHook, RenderOptions } from '@testing-library/react';
 import { MockedRequest } from 'msw';
 import { ServerLifecycleEventsMap, SetupServerApi } from 'msw/node';
@@ -7,10 +7,10 @@ import { ReactElement, ReactNode } from 'react';
 import { Mock, vi } from 'vitest';
 import { Container } from '@chakra-ui/react';
 import { isObject } from 'ramda-adjunct';
-import mockOrcidUser from '@mocks/responses/orcid/exchangeOAuthCode.json';
+import mockOrcidUser from '@/mocks/responses/orcid/exchangeOAuthCode.json';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MathJaxProvider } from '@mathjax';
+import { MathJaxProvider } from '@/mathjax';
 import { GoogleTagManager } from '@next/third-parties/google';
 
 /**

@@ -1,5 +1,5 @@
-import { SimpleLinkDropdown } from '@components/Dropdown';
-import { states } from '@components/__mocks__/data';
+import { SimpleLinkDropdown } from '@/components/Dropdown';
+import { states } from '@/components/__mocks__/data';
 import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {

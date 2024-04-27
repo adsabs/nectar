@@ -1,5 +1,5 @@
 import { Flex, Heading, HStack } from '@chakra-ui/react';
-import { SimpleLink, VisualizationsTabs, VizSection } from '@components';
+import { SimpleLink, VisualizationsTabs, VizSection } from '@/components';
 import Head from 'next/head';
 import { FC } from 'react';
 import { UrlObject } from 'url';

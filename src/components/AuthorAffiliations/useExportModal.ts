@@ -1,4 +1,4 @@
-import { authorAffiliationsKeys, useAuthorAffiliationExport } from '@api/author-affiliation/author-affiliation';
+import { authorAffiliationsKeys, useAuthorAffiliationExport } from '@/api/author-affiliation/author-affiliation';
 import { FileType, useDownloadFile } from 'src/lib';
 import { mergeLeft } from 'ramda';
 import { Reducer, useEffect, useReducer } from 'react';

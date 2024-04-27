@@ -1,5 +1,5 @@
 import { Button, Flex, Stack, Text } from '@chakra-ui/react';
-import { ITagItem, Tags } from '@components/Tags';
+import { ITagItem, Tags } from '@/components/Tags';
 import { ReactElement } from 'react';
 
 export interface IFilterSearchBarProps {

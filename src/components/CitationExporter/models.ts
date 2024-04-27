@@ -1,5 +1,5 @@
-import { ExportApiFormatKey } from '@api';
-import { SelectOption } from '@components/Select';
+import { ExportApiFormatKey } from '@/api';
+import { SelectOption } from '@/components/Select';
 
 export type ExportFormat = SelectOption<ExportApiFormatKey> & { ext: string };
 

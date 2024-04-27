@@ -1,4 +1,4 @@
-import { IADSApiSearchParams } from '@api';
+import { IADSApiSearchParams } from '@/api';
 import { BarDatum } from '@nivo/bar';
 import { Serie } from '@nivo/line';
 import { FacetField, YearDatum } from '../types';

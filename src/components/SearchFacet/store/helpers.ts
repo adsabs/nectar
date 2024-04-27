@@ -1,6 +1,6 @@
-import { getPrevKey } from '@components/SearchFacet/helpers';
-import { IFacetStoreState } from '@components/SearchFacet/store/FacetStore';
-import { FacetItem } from '@components/SearchFacet/types';
+import { getPrevKey } from '@/components/SearchFacet/helpers';
+import { IFacetStoreState } from '@/components/SearchFacet/store/FacetStore';
+import { FacetItem } from '@/components/SearchFacet/types';
 import { assoc, curry, flip, has, ifElse, lensPath, pipe, prop, reduce, set, unless, view } from 'ramda';
 
 type Selection = IFacetStoreState['selection'];

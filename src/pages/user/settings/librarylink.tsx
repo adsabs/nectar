@@ -1,4 +1,4 @@
-import { createOptions, Select, SelectOption, SettingsLayout, SimpleLink } from '@components';
+import { createOptions, Select, SelectOption, SettingsLayout, SimpleLink } from '@/components';
 import {
   fetchLibraryLinkServers,
   fetchUserSettings,
@@ -7,18 +7,18 @@ import {
   useLibraryLinkServers,
   userKeys,
   vaultKeys,
-} from '@api';
+} from '@/api';
 import { useEffect, useState } from 'react';
-import { useSettings } from '@lib/useSettings';
+import { useSettings } from '@/lib/useSettings';
 import { Button, chakra, Heading, Icon, Skeleton, Text, VStack } from '@chakra-ui/react';
 import { AcademicCapIcon } from '@heroicons/react/20/solid';
 import { GetServerSideProps } from 'next';
-import { composeNextGSSP } from '@ssr-utils';
+import { composeNextGSSP } from '@/ssr-utils';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { isNonEmptyArray, isNotNilOrEmpty } from 'ramda-adjunct';
 import { find, propEq } from 'ramda';
-import { parseAPIError } from '@utils';
-import { logger } from '@logger';
+import { parseAPIError } from '@/utils';
+import { logger } from '@/logger';
 
 const findServer = (url: string, linkServer: IADSApiLibraryLinkServersResponse) =>
   find(propEq('link', url), linkServer);

@@ -1,4 +1,4 @@
-import { IFacetCountsFields } from '@api';
+import { IFacetCountsFields } from '@/api';
 
 export const facetFoundFieldsData: IFacetCountsFields = {
   facet_queries: {},

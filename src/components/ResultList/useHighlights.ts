@@ -1,5 +1,5 @@
-import { useGetHighlights } from '@api';
-import { AppState, useStore } from '@store';
+import { useGetHighlights } from '@/api';
+import { AppState, useStore } from '@/store';
 import { decode } from 'he';
 import { flatten, map, pipe, reduce, values } from 'ramda';
 

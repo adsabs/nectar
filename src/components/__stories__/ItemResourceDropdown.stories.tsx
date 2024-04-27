@@ -1,5 +1,5 @@
-import { ItemResourceDropdowns } from '@components/ResultList/Item';
-import { doc } from '@components/__mocks__/data';
+import { ItemResourceDropdowns } from '@/components/ResultList/Item';
+import { doc } from '@/components/__mocks__/data';
 import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {

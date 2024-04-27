@@ -1,5 +1,5 @@
-import { ApiTargets, Esources, IADSApiSearchResponse } from '@api';
-import { IAuthorAffiliationItem } from '@api/author-affiliation/types';
+import { ApiTargets, Esources, IADSApiSearchResponse } from '@/api';
+import { IAuthorAffiliationItem } from '@/api/author-affiliation/types';
 import { faker } from '@faker-js/faker';
 import { range, slice } from 'ramda';
 

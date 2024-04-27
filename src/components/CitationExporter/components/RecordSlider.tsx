@@ -1,5 +1,5 @@
 import { Box, FormLabel } from '@chakra-ui/react';
-import { Slider } from '@components/Slider';
+import { Slider } from '@/components/Slider';
 import { Dispatch, useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { CitationExporterEvent, ICitationExporterState } from '../CitationExporter.machine';

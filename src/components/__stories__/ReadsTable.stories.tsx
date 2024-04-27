@@ -1,5 +1,5 @@
-import { ReadsTable } from '@components';
-import { readsTableData } from '@components/__mocks__/data';
+import { ReadsTable } from '@/components';
+import { readsTableData } from '@/components/__mocks__/data';
 import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {

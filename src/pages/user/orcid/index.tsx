@@ -13,17 +13,17 @@ import {
   useBreakpointValue,
   useDisclosure,
 } from '@chakra-ui/react';
-import { AppState, useStore } from '@store';
+import { AppState, useStore } from '@/store';
 import { useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
-import { NASA_SCIX_BRAND_NAME } from '@config';
+import { NASA_SCIX_BRAND_NAME } from '@/config';
 
-const UserSettings = dynamic(() => import('@components/Orcid/UserSettings').then((m) => m.UserSettings), {
+const UserSettings = dynamic(() => import('@/components/Orcid/UserSettings').then((m) => m.UserSettings), {
   ssr: false,
   loading: () => <Spinner />,
 });
-const WorksTable = dynamic(() => import('@components/Orcid/WorksTable').then((m) => m.WorksTable), {
+const WorksTable = dynamic(() => import('@/components/Orcid/WorksTable').then((m) => m.WorksTable), {
   ssr: false,
   loading: () => <Spinner />,
 });
@@ -93,4 +93,4 @@ const OrcidPage: NextPage = () => {
 
 export default OrcidPage;
 
-export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';
+export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

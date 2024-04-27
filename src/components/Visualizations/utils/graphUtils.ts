@@ -12,7 +12,7 @@ import {
   ReadsHistogramType,
   TimeSeriesKey,
   TimeSeriesType,
-} from '@api';
+} from '@/api';
 import {
   IADSApiAuthorNetworkNode,
   IADSApiAuthorNetworkResponse,
@@ -21,8 +21,8 @@ import {
   IADSApiPaperNetworkSummaryGraphNode,
   IADSApiWordCloudResponse,
   IBibcodeDict,
-} from '@api/vis/types';
-import { IAuthorNetworkNodeDetails, IPaperNetworkLinkDetails, IPaperNetworkNodeDetails } from '@components';
+} from '@/api/vis/types';
+import { IAuthorNetworkNodeDetails, IPaperNetworkLinkDetails, IPaperNetworkNodeDetails } from '@/components';
 import { Datum, Serie } from '@nivo/line';
 import * as d3 from 'd3';
 import { decode } from 'he';

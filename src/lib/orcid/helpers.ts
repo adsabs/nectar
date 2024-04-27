@@ -1,11 +1,11 @@
-import { IOrcidProfile, IOrcidWork } from '@api/orcid/types';
+import { IOrcidProfile, IOrcidWork } from '@/api/orcid/types';
 import { lensPath, map, view } from 'ramda';
-import { Contributor, ExternalID } from '@api/orcid/types/orcid-work';
-import { IDocsEntity } from '@api/search/types';
+import { Contributor, ExternalID } from '@/api/orcid/types/orcid-work';
+import { IDocsEntity } from '@/api/search/types';
 import { isArray, isNilOrEmpty } from 'ramda-adjunct';
-import { IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
-import { parsePublicationDate } from '@utils';
-import { ORCID_ADS_SOURCE_NAME } from '@config';
+import { IOrcidProfileEntry } from '@/api/orcid/types/orcid-profile';
+import { parsePublicationDate } from '@/utils';
+import { ORCID_ADS_SOURCE_NAME } from '@/config';
 import { formatISO } from 'date-fns';
 
 export const orcidLenses = {

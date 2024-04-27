@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import { Selection } from 'd3';
 import { useCallback, useEffect, useMemo } from 'react';
 import { HistogramDatum, Margin } from '../types';
-import { noop } from '@utils';
+import { noop } from '@/utils';
 import { useHistogram } from './useHistogram';
 
 export interface IHistogramProps {

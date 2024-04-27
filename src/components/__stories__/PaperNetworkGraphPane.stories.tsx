@@ -1,8 +1,8 @@
-import { PaperNetworkGraphPane } from '@components';
+import { PaperNetworkGraphPane } from '@/components';
 import { Meta, StoryObj } from '@storybook/react';
-import { response } from '@components/__mocks__/paperNetworkResponseData';
-import { noop } from '@utils';
-import { IView } from '@components/Visualizations/GraphPanes/types';
+import { response } from '@/components/__mocks__/paperNetworkResponseData';
+import { noop } from '@/utils';
+import { IView } from '@/components/Visualizations/GraphPanes/types';
 
 const meta: Meta = {
   title: 'Visualizations/GraphPanes/PaperNetworkGraphPane',

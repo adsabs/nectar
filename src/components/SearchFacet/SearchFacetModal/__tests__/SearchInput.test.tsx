@@ -1,10 +1,10 @@
-import { ISearchInputProps, SearchInput } from '@components/SearchFacet/SearchFacetModal/SearchInput';
+import { ISearchInputProps, SearchInput } from '@/components/SearchFacet/SearchFacetModal/SearchInput';
 import { render } from '@testing-library/react';
 import { expect, test, vi } from 'vitest';
-import { noop } from '@utils';
+import { noop } from '@/utils';
 import userEvent from '@testing-library/user-event';
-import { FacetStoreProvider } from '@components/SearchFacet/store/FacetStore';
-import { SearchFacetID } from '@components/SearchFacet/types';
+import { FacetStoreProvider } from '@/components/SearchFacet/store/FacetStore';
+import { SearchFacetID } from '@/components/SearchFacet/types';
 
 const setup = (id?: SearchFacetID, props?: ISearchInputProps) => {
   const user = userEvent.setup();

@@ -1,5 +1,5 @@
-import { IADSApiSearchParams, IUserData } from '@api';
-import { APP_DEFAULTS } from '@config';
+import { IADSApiSearchParams, IUserData } from '@/api';
+import { APP_DEFAULTS } from '@/config';
 import { SetupServerApi } from 'msw/node';
 
 export enum AppMode {

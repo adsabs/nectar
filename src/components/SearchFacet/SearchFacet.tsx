@@ -1,4 +1,4 @@
-import { FacetField, IADSApiSearchParams, IFacetCountsFields } from '@api';
+import { FacetField, IADSApiSearchParams, IFacetCountsFields } from '@/api';
 import { DragHandleIcon } from '@chakra-ui/icons';
 import {
   AccordionItemProps,
@@ -14,9 +14,9 @@ import {
   Tooltip,
   useDisclosure,
 } from '@chakra-ui/react';
-import { FacetList } from '@components/SearchFacet/FacetList';
-import { FacetStoreProvider } from '@components/SearchFacet/store/FacetStore';
-import { Toggler } from '@components/Toggler';
+import { FacetList } from '@/components/SearchFacet/FacetList';
+import { FacetStoreProvider } from '@/components/SearchFacet/store/FacetStore';
+import { Toggler } from '@/components/Toggler';
 import {
   closestCenter,
   DndContext,
@@ -32,7 +32,7 @@ import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } 
 import { CSS } from '@dnd-kit/utilities';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/20/solid';
 import { ExclamationCircleIcon } from '@heroicons/react/24/solid';
-import { AppState, useStore, useStoreApi } from '@store';
+import { AppState, useStore, useStoreApi } from '@/store';
 import { append, omit, uniq, without } from 'ramda';
 import { CSSProperties, MouseEventHandler, ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { facetConfig } from './config';

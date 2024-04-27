@@ -1,8 +1,8 @@
-import { LibraryIdentifier, ILibraryMetadata, useGetLibraries } from '@api';
+import { LibraryIdentifier, ILibraryMetadata, useGetLibraries } from '@/api';
 import { CloseIcon } from '@chakra-ui/icons';
 import { useDisclosure, Stack, InputGroup, InputRightElement, IconButton, Input } from '@chakra-ui/react';
-import { LoadingMessage } from '@components';
-import { NumPerPageType } from '@types';
+import { LoadingMessage } from '@/components';
+import { NumPerPageType } from '@/types';
 import { useState, useMemo } from 'react';
 import { ILibraryListTableSort, LibraryListTable } from './LibraryListTable';
 

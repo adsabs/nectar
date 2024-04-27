@@ -1,5 +1,5 @@
 import { Box, useColorMode } from '@chakra-ui/react';
-import { useNivoDarkTheme } from '@lib/useNivoDarkTheme';
+import { useNivoDarkTheme } from '@/lib/useNivoDarkTheme';
 import { ResponsiveLine, Serie } from '@nivo/line';
 import { memo, ReactElement } from 'react';
 import { X_Axis, Y_Axis } from '../types';

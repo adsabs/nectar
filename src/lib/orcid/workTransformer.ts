@@ -1,12 +1,12 @@
-import { IDocsEntity } from '@api';
-import { IOrcidWork } from '@api/orcid/types';
+import { IDocsEntity } from '@/api';
+import { IOrcidWork } from '@/api/orcid/types';
 
 import { append, find, head, identity, map, over, pipe, set, startsWith, unless, view, when } from 'ramda';
 import { isNilOrEmpty, isString } from 'ramda-adjunct';
-import { coalesceAuthorsFromDoc, parsePublicationDate } from '@utils';
-import { adsDocLenses, convertDocType, orcidLenses } from '@lib/orcid/helpers';
-import { Contributor, ExternalID } from '@api/orcid/types/orcid-work';
-import { IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
+import { coalesceAuthorsFromDoc, parsePublicationDate } from '@/utils';
+import { adsDocLenses, convertDocType, orcidLenses } from '@/lib/orcid/helpers';
+import { Contributor, ExternalID } from '@/api/orcid/types/orcid-work';
+import { IOrcidProfileEntry } from '@/api/orcid/types/orcid-profile';
 
 const MAX_ABSTRACT_LENGTH = 4997;
 

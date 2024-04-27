@@ -1,5 +1,5 @@
-import { HistogramSlider } from '@components/HistogramSlider';
-import { yearPaperCountData } from '@components/__mocks__/yearPaperCountData';
+import { HistogramSlider } from '@/components/HistogramSlider';
+import { yearPaperCountData } from '@/components/__mocks__/yearPaperCountData';
 import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {

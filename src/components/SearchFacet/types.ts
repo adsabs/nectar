@@ -1,4 +1,4 @@
-import { FacetField } from '@api';
+import { FacetField } from '@/api';
 
 export interface IFacetNode {
   key: string;

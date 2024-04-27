@@ -1,4 +1,4 @@
-import { CustomFormat } from '@api';
+import { CustomFormat } from '@/api';
 import {
   Box,
   Button,
@@ -15,12 +15,12 @@ import {
   Thead,
   Tr,
 } from '@chakra-ui/react';
-import { customFormatDescription, DescriptionCollapse } from '@components';
+import { customFormatDescription, DescriptionCollapse } from '@/components';
 import { CheckIcon, CloseIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { useEffect, useState } from 'react';
-import { noop } from '@utils';
+import { noop } from '@/utils';
 import { sort } from 'ramda';
-import { useColorModeColors } from '@lib';
+import { useColorModeColors } from '@/lib';
 
 export interface ICustomFormatsTableProps {
   customFormats: CustomFormat[];

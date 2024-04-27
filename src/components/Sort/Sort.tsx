@@ -1,11 +1,11 @@
-import { SortDirection, SolrSortField, SortField, SortType, SolrSort } from '@api';
+import { SortDirection, SolrSortField, SortField, SortType, SolrSort } from '@/api';
 import { Box, HStack, IconButton, Input } from '@chakra-ui/react';
-import { SearchQueryLink, SimpleLinkDropdown } from '@components';
-import { ItemType } from '@components/Dropdown/types';
-import { ISelectProps, Select } from '@components/Select';
+import { SearchQueryLink, SimpleLinkDropdown } from '@/components';
+import { ItemType } from '@/components/Dropdown/types';
+import { ISelectProps, Select } from '@/components/Select';
 import { BarsArrowDownIcon, BarsArrowUpIcon } from '@heroicons/react/24/outline';
-import { useIsClient } from '@lib/useIsClient';
-import { makeSearchParams, parseQueryFromUrl } from '@utils';
+import { useIsClient } from '@/lib/useIsClient';
+import { makeSearchParams, parseQueryFromUrl } from '@/utils';
 import { useRouter } from 'next/router';
 import { Fragment, MouseEventHandler, ReactElement, useCallback, useMemo } from 'react';
 

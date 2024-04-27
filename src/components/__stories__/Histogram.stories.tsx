@@ -1,5 +1,5 @@
-import { Histogram } from '@components';
-import { yearPaperCountData } from '@components/__mocks__/yearPaperCountData';
+import { Histogram } from '@/components';
+import { yearPaperCountData } from '@/components/__mocks__/yearPaperCountData';
 import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {

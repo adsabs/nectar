@@ -1,6 +1,6 @@
-import { StoreSlice } from '@store';
-import { IOrcidUser } from '@api/orcid/types';
-import { isValidIOrcidUser } from '@api/orcid/models';
+import { StoreSlice } from '@/store';
+import { IOrcidUser } from '@/api/orcid/types';
+import { isValidIOrcidUser } from '@/api/orcid/models';
 
 export interface IORCIDState {
   orcid: {

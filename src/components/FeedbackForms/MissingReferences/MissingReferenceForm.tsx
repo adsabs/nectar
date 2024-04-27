@@ -10,8 +10,8 @@ import {
   Stack,
   useDisclosure,
 } from '@chakra-ui/react';
-import { ExportApiFormatKey, useGetExportCitation, useSearch } from '@api';
-import { IFeedbackParams } from '@api/feedback';
+import { ExportApiFormatKey, useGetExportCitation, useSearch } from '@/api';
+import { IFeedbackParams } from '@/api/feedback';
 import { omit } from 'ramda';
 import { MouseEvent, useEffect, useState } from 'react';
 import { PreviewModal } from '../PreviewModal';
@@ -20,7 +20,7 @@ import { FormValues, Reference } from './types';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useGetUserEmail } from '@lib';
+import { useGetUserEmail } from '@/lib';
 
 const validationSchema = z.object({
   name: z.string().min(1, 'Name is required'),

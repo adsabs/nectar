@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
-import { transformADStoOrcid } from '@lib/orcid/workTransformer';
-import { IOrcidWork } from '@api/orcid/types';
-import { IDocsEntity } from '@api';
+import { transformADStoOrcid } from '@/lib/orcid/workTransformer';
+import { IOrcidWork } from '@/api/orcid/types';
+import { IDocsEntity } from '@/api';
 
 const mockDoc: IDocsEntity = {
   bibcode: '2023RvMPP...7...17M',

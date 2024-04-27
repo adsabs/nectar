@@ -1,6 +1,6 @@
-import { ApiTargets } from '@api';
+import { ApiTargets } from '@/api';
 import { rest } from 'msw';
-import { apiHandlerRoute } from '@mocks/mockHelpers';
+import { apiHandlerRoute } from '@/mocks/mockHelpers';
 
 export const objectsHandlers = [
   // on post to objects service, just return the query

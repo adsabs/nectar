@@ -1,7 +1,7 @@
 import { BarDatum, BarSvgProps, ResponsiveBar } from '@nivo/bar';
 import { ReactElement, useState } from 'react';
 import { Box, Radio, RadioGroup, Stack, useColorMode } from '@chakra-ui/react';
-import { useNivoDarkTheme } from '@lib/useNivoDarkTheme';
+import { useNivoDarkTheme } from '@/lib/useNivoDarkTheme';
 
 export interface IBarGraphProps extends Omit<BarSvgProps<BarDatum>, 'height' | 'width'> {
   data: BarDatum[];

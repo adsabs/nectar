@@ -1,14 +1,20 @@
-import { ExportApiFormatKey, ExportApiJournalFormat, IDocsEntity, JournalFormatName, useGetExportCitation } from '@api';
+import {
+  ExportApiFormatKey,
+  ExportApiJournalFormat,
+  IDocsEntity,
+  JournalFormatName,
+  useGetExportCitation,
+} from '@/api';
 import { Button, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Tooltip, VStack } from '@chakra-ui/react';
-import { MaxAuthorSlider, SampleTextArea } from '@components';
-import { JournalFormatSelect } from '@components/CitationExporter';
-import { JournalFormatMap } from '@components/Settings/model';
-import { UserDataSetterEvent } from '@pages/user/settings/export';
+import { MaxAuthorSlider, SampleTextArea } from '@/components';
+import { JournalFormatSelect } from '@/components/CitationExporter';
+import { JournalFormatMap } from '@/components/Settings/model';
+import { UserDataSetterEvent } from '@/pages/user/settings/export';
 import { Dispatch, useState } from 'react';
 import { bibtexExportFormatDescription, journalNameHandlingDescription, maxAuthorDescription } from '../Description';
 import { KeyFormatInputApply } from '../KeyFormatInputApply';
 import { MaxAuthorCutoffSlider } from '../MaxAuthorCutoffSlider';
-import { useSettings } from '@lib/useSettings';
+import { useSettings } from '@/lib/useSettings';
 
 export type IBibtexTabPanelProps = {
   sampleBib: IDocsEntity['bibcode'];

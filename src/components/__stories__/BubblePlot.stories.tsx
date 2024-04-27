@@ -1,5 +1,5 @@
-import { BubblePlot } from '@components/Visualizations';
-import { graph } from '@components/__mocks__/bubblePlotData';
+import { BubblePlot } from '@/components/Visualizations';
+import { graph } from '@/components/__mocks__/bubblePlotData';
 import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {

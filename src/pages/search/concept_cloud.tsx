@@ -1,5 +1,5 @@
-import { ConceptCloudPageContainer, VizPageLayout } from '@components';
-import { parseQueryFromUrl } from '@utils';
+import { ConceptCloudPageContainer, VizPageLayout } from '@/components';
+import { parseQueryFromUrl } from '@/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 
@@ -24,4 +24,4 @@ const ConceptCloudPage: NextPage = () => {
 };
 
 export default ConceptCloudPage;
-export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';
+export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

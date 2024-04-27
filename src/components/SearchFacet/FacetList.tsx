@@ -28,17 +28,17 @@ import {
   useBoolean,
 } from '@chakra-ui/react';
 import { ChevronRightIcon } from '@chakra-ui/icons';
-import { Pagination, Toggler } from '@components';
-import { getLevelFromKey, isRootNode, parseRootFromKey, parseTitleFromKey } from '@components/SearchFacet/helpers';
-import { selectors, useFacetStore } from '@components/SearchFacet/store/FacetStore';
-import { FacetItem, FacetLogic, OnFilterArgs } from '@components/SearchFacet/types';
-import { IUseGetFacetDataProps, useGetFacetData } from '@components/SearchFacet/useGetFacetData';
+import { Pagination, Toggler } from '@/components';
+import { getLevelFromKey, isRootNode, parseRootFromKey, parseTitleFromKey } from '@/components/SearchFacet/helpers';
+import { selectors, useFacetStore } from '@/components/SearchFacet/store/FacetStore';
+import { FacetItem, FacetLogic, OnFilterArgs } from '@/components/SearchFacet/types';
+import { IUseGetFacetDataProps, useGetFacetData } from '@/components/SearchFacet/useGetFacetData';
 import { EllipsisHorizontalIcon, ExclamationTriangleIcon, InformationCircleIcon } from '@heroicons/react/24/solid';
-import { kFormatNumber } from '@utils';
+import { kFormatNumber } from '@/utils';
 import { equals, isEmpty } from 'ramda';
 import { forwardRef, memo, MouseEventHandler, useCallback, useEffect } from 'react';
 import { SearchFacetModal } from './SearchFacetModal';
-import { useColorModeColors } from '@lib';
+import { useColorModeColors } from '@/lib';
 
 export interface IFacetListProps extends ListProps {
   noLoadMore?: boolean;

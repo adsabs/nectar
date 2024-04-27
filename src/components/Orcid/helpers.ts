@@ -1,4 +1,4 @@
-import { IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
+import { IOrcidProfileEntry } from '@/api/orcid/types/orcid-profile';
 import { UseToastOptions } from '@chakra-ui/react';
 
 export const isClaimedBySciX = (profile: IOrcidProfileEntry) => {

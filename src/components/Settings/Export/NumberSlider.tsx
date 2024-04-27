@@ -1,5 +1,5 @@
 import { FormControl, FormLabel } from '@chakra-ui/react';
-import { DescriptionCollapse, Slider } from '@components';
+import { DescriptionCollapse, Slider } from '@/components';
 import { ReactElement } from 'react';
 
 export const NumberSlider = (props: {

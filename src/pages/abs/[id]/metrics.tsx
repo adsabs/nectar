@@ -1,14 +1,21 @@
-import { BasicStatsKey, CitationsStatsKey, IDocsEntity, MetricsResponseKey, useGetAbstract, useGetMetrics } from '@api';
+import {
+  BasicStatsKey,
+  CitationsStatsKey,
+  IDocsEntity,
+  MetricsResponseKey,
+  useGetAbstract,
+  useGetMetrics,
+} from '@/api';
 import { Box } from '@chakra-ui/react';
-import { LoadingMessage, MetricsPane } from '@components';
-import { AbsLayout } from '@components/Layout/AbsLayout';
-import { withDetailsPage } from '@hocs/withDetailsPage';
+import { LoadingMessage, MetricsPane } from '@/components';
+import { AbsLayout } from '@/components/Layout/AbsLayout';
+import { withDetailsPage } from '@/hocs/withDetailsPage';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
-import { composeNextGSSP } from '@ssr-utils';
+import { composeNextGSSP } from '@/ssr-utils';
 import { path } from 'ramda';
 import { useRouter } from 'next/router';
-import { getDetailsPageTitle } from '@pages/abs/[id]/abstract';
+import { getDetailsPageTitle } from '@/pages/abs/[id]/abstract';
 
 const MetricsPage: NextPage = () => {
   const router = useRouter();

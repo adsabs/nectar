@@ -35,7 +35,7 @@ import api, {
   IADSApiLibraryUpdateAnnotationParams,
   IADSApiLibraryDeleteAnnotationResponse,
   IADSApiLibraryDeleteAnnotationParams,
-} from '@api';
+} from '@/api';
 import { MutationFunction, QueryFunction, useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { omit } from 'ramda';

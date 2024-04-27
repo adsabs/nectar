@@ -1,4 +1,4 @@
-import { IADSApiPaperNetworkSummaryGraphNode, IDocsEntity } from '@api';
+import { IADSApiPaperNetworkSummaryGraphNode, IDocsEntity } from '@/api';
 import {
   Box,
   Flex,
@@ -14,9 +14,9 @@ import {
   Thead,
   Tr,
 } from '@chakra-ui/react';
-import { Item } from '@components/ResultList/Item';
-import { SimpleLink } from '@components/SimpleLink';
-import { ILineGraph } from '@components/Visualizations/types';
+import { Item } from '@/components/ResultList/Item';
+import { SimpleLink } from '@/components/SimpleLink';
+import { ILineGraph } from '@/components/Visualizations/types';
 import { ReactElement, useEffect, useState } from 'react';
 import { NodeDetailPane } from './NodeDetailsPane';
 import { SummaryPane } from './SummaryPane';

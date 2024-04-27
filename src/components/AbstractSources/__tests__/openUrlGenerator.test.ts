@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { processLinkData } from '@components/AbstractSources/linkGenerator';
+import { processLinkData } from '@/components/AbstractSources/linkGenerator';
 
 test('processLinkData produces correct output', () => {
   expect(

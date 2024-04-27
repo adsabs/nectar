@@ -5,13 +5,13 @@ import {
   useAddLibrary,
   useGetLibraries,
   useLibraryOperation,
-} from '@api';
+} from '@/api';
 import { AddIcon, Icon } from '@chakra-ui/icons';
 import { Box, Button, Flex, Heading, Stack, useDisclosure, useToast } from '@chakra-ui/react';
 import { WrenchIcon } from '@heroicons/react/24/solid';
-import { AppState, useStore } from '@store';
-import { NumPerPageType } from '@types';
-import { parseAPIError } from '@utils';
+import { AppState, useStore } from '@/store';
+import { NumPerPageType } from '@/types';
+import { parseAPIError } from '@/utils';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { AddLibraryModal } from './AddLibraryModal';

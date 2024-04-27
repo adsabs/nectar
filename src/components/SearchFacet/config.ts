@@ -1,5 +1,5 @@
-import { FacetField } from '@api';
-import { ISearchFacetProps } from '@components';
+import { FacetField } from '@/api';
+import { ISearchFacetProps } from '@/components';
 import { SearchFacetID } from './types';
 
 const defaultLogic: ISearchFacetProps['logic'] = {

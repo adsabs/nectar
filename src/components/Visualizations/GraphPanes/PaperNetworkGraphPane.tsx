@@ -1,4 +1,8 @@
-import { IADSApiPaperNetworkNodeKey, IADSApiPaperNetworkSummaryGraph, IADSApiPaperNetworkSummaryGraphNode } from '@api';
+import {
+  IADSApiPaperNetworkNodeKey,
+  IADSApiPaperNetworkSummaryGraph,
+  IADSApiPaperNetworkSummaryGraphNode,
+} from '@/api';
 import { Radio, RadioGroup, Stack } from '@chakra-ui/react';
 import { ReactElement, useState } from 'react';
 import { PaperNetworkGraph } from '../Graphs';

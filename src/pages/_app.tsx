@@ -1,11 +1,11 @@
 import { ChakraProvider } from '@chakra-ui/react';
-import { Layout } from '@components';
+import { Layout } from '@/components';
 import { useIsClient } from 'src/lib';
-import { useCreateQueryClient } from '@lib/useCreateQueryClient';
-import { MathJaxProvider } from '@mathjax';
-import { AppState, StoreProvider, useCreateStore, useStore, useStoreApi } from '@store';
-import { theme } from '@theme';
-import { AppMode } from '@types';
+import { useCreateQueryClient } from '@/lib/useCreateQueryClient';
+import { MathJaxProvider } from '@/mathjax';
+import { AppState, StoreProvider, useCreateStore, useStore, useStoreApi } from '@/store';
+import { theme } from '@/theme';
+import { AppMode } from '@/types';
 import { AppProps, NextWebVitalsMetric } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
@@ -15,12 +15,12 @@ import { DehydratedState, Hydrate, QueryClientProvider, useQuery, useQueryClient
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { IronSession } from 'iron-session';
 import axios from 'axios';
-import api, { checkUserData, userKeys } from '@api';
+import api, { checkUserData, userKeys } from '@/api';
 import { isNilOrEmpty, notEqual } from 'ramda-adjunct';
-import { useUser } from '@lib/useUser';
+import { useUser } from '@/lib/useUser';
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import '../styles/styles.css';
-import { logger } from '../../logger/logger';
+import { logger } from '@/logger';
 import { GoogleTagManager, sendGTMEvent } from '@next/third-parties/google';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
@@ -28,7 +28,7 @@ if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !=
 }
 
 const TopProgressBar = dynamic<Record<string, never>>(
-  () => import('@components/TopProgressBar').then((mod) => mod.TopProgressBar),
+  () => import('@/components/TopProgressBar').then((mod) => mod.TopProgressBar),
   {
     ssr: false,
   },

@@ -1,4 +1,4 @@
-import { LibraryIdentifier, useDeleteLibrary, useEditLibraryMeta, useGetLibraryEntity, useTransfer } from '@api';
+import { LibraryIdentifier, useDeleteLibrary, useEditLibraryMeta, useGetLibraryEntity, useTransfer } from '@/api';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -22,10 +22,10 @@ import {
   ModalOverlay,
   Center,
 } from '@chakra-ui/react';
-import { DescriptionCollapse } from '@components/CitationExporter';
-import { CustomInfoMessage, LoadingMessage } from '@components/Feedbacks';
-import { SimpleLink } from '@components/SimpleLink';
-import { isValidEmail, parseAPIError } from '@utils';
+import { DescriptionCollapse } from '@/components/CitationExporter';
+import { CustomInfoMessage, LoadingMessage } from '@/components/Feedbacks';
+import { SimpleLink } from '@/components/SimpleLink';
+import { isValidEmail, parseAPIError } from '@/utils';
 import { useRouter } from 'next/router';
 import { ChangeEvent, useMemo, useState } from 'react';
 import { CollabTable } from './CollabTable';

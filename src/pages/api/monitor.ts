@@ -1,5 +1,5 @@
 import { NextApiResponse } from 'next';
-import { logger } from 'logger/logger';
+import { logger } from '@/logger';
 
 const SENTRY_HOST = 'o1060269.ingest.sentry.io';
 const SENTRY_PROJECT_IDS = [process.env.NEXT_PUBLIC_SENTRY_PROJECT_ID];

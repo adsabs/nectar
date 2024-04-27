@@ -1,4 +1,4 @@
-import { IDocsEntity, LibraryIdentifier } from '@api';
+import { IDocsEntity, LibraryIdentifier } from '@/api';
 import {
   Box,
   BoxProps,
@@ -11,16 +11,16 @@ import {
   Tooltip,
   useDisclosure,
 } from '@chakra-ui/react';
-import { AllAuthorsModal } from '@components/AllAuthorsModal';
-import { ItemResourceDropdowns } from '@components/ResultList/Item';
-import { APP_DEFAULTS } from '@config';
-import { useColorModeColors } from '@lib';
-import { useIsClient } from '@lib/useIsClient';
-import { getFomattedNumericPubdate, noop, unwrapStringValue } from '@utils';
+import { AllAuthorsModal } from '@/components/AllAuthorsModal';
+import { ItemResourceDropdowns } from '@/components/ResultList/Item';
+import { APP_DEFAULTS } from '@/config';
+import { useColorModeColors } from '@/lib';
+import { useIsClient } from '@/lib/useIsClient';
+import { getFomattedNumericPubdate, noop, unwrapStringValue } from '@/utils';
 import { MathJax } from 'better-react-mathjax';
 import { ChangeEvent, ReactElement } from 'react';
 import { ItemAnnotation } from './ItemAnnotation';
-import { SimpleLink } from '@components';
+import { SimpleLink } from '@/components';
 import { PencilSquareIcon } from '@heroicons/react/24/outline';
 
 export interface IItemProps {

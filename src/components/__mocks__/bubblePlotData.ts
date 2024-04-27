@@ -1,4 +1,4 @@
-import { IBubblePlotNodeData } from '@components';
+import { IBubblePlotNodeData } from '@/components';
 
 const journalNames = ['AAS', 'astro', 'PhRvL', 'IJMPD', 'graa', 'other'];
 

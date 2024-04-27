@@ -1,4 +1,4 @@
-import { AppMode } from '@types';
+import { AppMode } from '@/types';
 
 export const examples = {
   [AppMode.GENERAL]: {

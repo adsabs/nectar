@@ -1,4 +1,4 @@
-import { IADSApiAuthorNetworkNodeKey, IADSApiPaperNetworkNodeKey } from '@api';
+import { IADSApiAuthorNetworkNodeKey, IADSApiPaperNetworkNodeKey } from '@/api';
 
 export interface IView {
   id: string;

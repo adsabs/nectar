@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { LibraryListTable } from '@components';
-import { libraries } from '@components/__mocks__/libraries';
-import { noop } from '@utils';
+import { LibraryListTable } from '@/components';
+import { libraries } from '@/components/__mocks__/libraries';
+import { noop } from '@/utils';
 
 const meta: Meta = {
   title: 'Library/LibraryListTable',

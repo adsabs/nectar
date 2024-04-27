@@ -1,9 +1,9 @@
-import { useOrcidGetProfile } from '@api/orcid';
-import { AppState, useStore } from '@store';
-import { isValidIOrcidUser } from '@api/orcid/models';
+import { useOrcidGetProfile } from '@/api/orcid';
+import { AppState, useStore } from '@/store';
+import { isValidIOrcidUser } from '@/api/orcid/models';
 import { useEffect, useState } from 'react';
-import { findWorkInProfile } from '@lib/orcid/helpers';
-import { IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
+import { findWorkInProfile } from '@/lib/orcid/helpers';
+import { IOrcidProfileEntry } from '@/api/orcid/types/orcid-profile';
 
 interface IUseWorkProps {
   identifier: string | string[];

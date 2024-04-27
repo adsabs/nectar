@@ -10,21 +10,21 @@ import {
   UserDataKeys,
   userKeys,
   useSearch,
-} from '@api';
+} from '@/api';
 import { Spinner, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
-import { BibtexTabPanel, CustomFormatsTabPanel, exportFormats, GeneralTabPanel, SettingsLayout } from '@components';
-import { useSettings } from '@lib/useSettings';
+import { BibtexTabPanel, CustomFormatsTabPanel, exportFormats, GeneralTabPanel, SettingsLayout } from '@/components';
+import { useSettings } from '@/lib/useSettings';
 import { GetServerSideProps, NextPage } from 'next';
 import { Reducer, Suspense, useEffect, useMemo, useReducer } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { dehydrate, QueryClient, QueryErrorResetBoundary } from '@tanstack/react-query';
 import { omit, pathOr, values } from 'ramda';
-import { composeNextGSSP } from '@ssr-utils';
+import { composeNextGSSP } from '@/ssr-utils';
 import { ErrorBoundary } from 'react-error-boundary';
-import { getFallBackAlert } from '@components/Feedbacks/SuspendedAlert';
+import { getFallBackAlert } from '@/components/Feedbacks/SuspendedAlert';
 import { isNotEmpty } from 'ramda-adjunct';
-import { logger } from '@logger';
-import { parseAPIError } from '@utils';
+import { logger } from '@/logger';
+import { parseAPIError } from '@/utils';
 
 // partial user data params
 // used to update user data

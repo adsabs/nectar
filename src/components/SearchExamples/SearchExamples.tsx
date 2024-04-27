@@ -1,11 +1,11 @@
 import { Box, Flex, Grid, GridItem, Text } from '@chakra-ui/react';
-import { useStore } from '@store';
-import { noop } from '@utils';
+import { useStore } from '@/store';
+import { noop } from '@/utils';
 import { FC, HTMLAttributes, MouseEventHandler, useMemo } from 'react';
 import { examples } from './examples';
-import { useIsClient } from '@lib/useIsClient';
-import { useIntermediateQuery } from '@lib/useIntermediateQuery';
-import { useColorModeColors } from '@lib';
+import { useIsClient } from '@/lib/useIsClient';
+import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
+import { useColorModeColors } from '@/lib';
 import { sendGTMEvent } from '@next/third-parties/google';
 
 export interface ISearchExamplesProps extends HTMLAttributes<HTMLDivElement> {

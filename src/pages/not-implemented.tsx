@@ -12,4 +12,4 @@ const NotImplemented: NextPage = () => {
 };
 
 export default NotImplemented;
-export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';
+export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

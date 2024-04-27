@@ -1,14 +1,14 @@
-import { getSearchFacetYearsParams, IADSApiSearchParams, useGetSearchFacetCounts } from '@api';
+import { getSearchFacetYearsParams, IADSApiSearchParams, useGetSearchFacetCounts } from '@/api';
 import { Box, Center, CircularProgress, Flex, Heading, Icon, IconButton, Text, VisuallyHidden } from '@chakra-ui/react';
-import { HistogramSlider, ISearchFacetProps } from '@components';
-import { getYearsGraph } from '@components/Visualizations/utils';
-import { getFQValue, removeFQ, setFQ } from '@query-utils';
-import { useStore } from '@store';
+import { HistogramSlider, ISearchFacetProps } from '@/components';
+import { getYearsGraph } from '@/components/Visualizations/utils';
+import { getFQValue, removeFQ, setFQ } from '@/query-utils';
+import { useStore } from '@/store';
 import { memo, useMemo } from 'react';
-import { withErrorBoundary } from '@hocs/withErrorBoundary';
-import { ArrowsOutIcon } from '@components/icons/ArrowsOut';
-import { ArrowsInIcon } from '@components/icons/ArrowsIn';
-import { getFallBackAlert } from '@components/Feedbacks/SuspendedAlert';
+import { withErrorBoundary } from '@/hocs/withErrorBoundary';
+import { ArrowsOutIcon } from '@/components/icons/ArrowsOut';
+import { ArrowsInIcon } from '@/components/icons/ArrowsIn';
+import { getFallBackAlert } from '@/components/Feedbacks/SuspendedAlert';
 
 export const fqNameYearRange = 'range';
 export interface IYearHistogramSliderProps {

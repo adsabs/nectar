@@ -1,10 +1,10 @@
 import { Button, chakra, FormControl, FormErrorMessage, FormLabel, Input, Stack, Text } from '@chakra-ui/react';
-import { SettingsLayout, StandardAlertMessage } from '@components';
+import { SettingsLayout, StandardAlertMessage } from '@/components';
 import { FormEventHandler, useState } from 'react';
-import { AppState, useStore } from '@store';
-import { parseAPIError } from '@utils';
-import { useSession } from '@lib/useSession';
-import { useDeleteAccount } from '@api';
+import { AppState, useStore } from '@/store';
+import { parseAPIError } from '@/utils';
+import { useSession } from '@/lib/useSession';
+import { useDeleteAccount } from '@/api';
 
 type FormError = {
   param: string;
@@ -81,4 +81,4 @@ const DeleteAccountPage = () => {
 
 export default DeleteAccountPage;
 
-export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';
+export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

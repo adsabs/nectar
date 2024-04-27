@@ -19,10 +19,10 @@ import {
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
-import { ISimpleLinkProps, Select, SelectOption, SimpleLink } from '@components';
-import { APP_DEFAULTS } from '@config';
-import { NumPerPageType, SafeSearchUrlParams } from '@types';
-import { makeSearchParams, stringifySearchParams } from '@utils';
+import { ISimpleLinkProps, Select, SelectOption, SimpleLink } from '@/components';
+import { APP_DEFAULTS } from '@/config';
+import { NumPerPageType, SafeSearchUrlParams } from '@/types';
+import { makeSearchParams, stringifySearchParams } from '@/utils';
 import { useRouter } from 'next/router';
 import { clamp, curryN } from 'ramda';
 import { Dispatch, FC, KeyboardEventHandler, ReactElement, useCallback, useMemo, useRef, useState } from 'react';

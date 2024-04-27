@@ -1,4 +1,4 @@
-import { IADSApiSearchResponse } from '@api';
+import { IADSApiSearchResponse } from '@/api';
 
 type GenerateOptions = {
   params?: Record<string, string>;

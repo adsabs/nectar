@@ -1,8 +1,8 @@
-import { calculatePage } from '@components/ResultList/Pagination/usePagination';
-import { AppState, useStore } from '@store';
-import { makeSearchParams } from '@utils';
+import { calculatePage } from '@/components/ResultList/Pagination/usePagination';
+import { AppState, useStore } from '@/store';
+import { makeSearchParams } from '@/utils';
 import { useCallback } from 'react';
-import { ISimpleLinkProps } from '@components';
+import { ISimpleLinkProps } from '@/components';
 
 const selector = {
   latestQuery: (state: AppState) => state.latestQuery,

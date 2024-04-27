@@ -5,14 +5,14 @@ import {
   useGetUserSettings,
   userKeys,
   useUpdateUserSettings,
-} from '@api';
+} from '@/api';
 import { mergeLeft } from 'ramda';
 import { useDebouncedCallback } from 'use-debounce';
 import { useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { useToast } from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { isNotEmpty } from 'ramda-adjunct';
-import { useSession } from '@lib/useSession';
+import { useSession } from '@/lib/useSession';
 
 export const useSettings = (options?: UseQueryOptions<IADSApiUserDataResponse>) => {
   const { isAuthenticated } = useSession();

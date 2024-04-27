@@ -1,4 +1,4 @@
-import { TopNavigationMenu } from '@components';
+import { TopNavigationMenu } from '@/components';
 import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {

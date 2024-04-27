@@ -14,14 +14,14 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { isString } from '@utils';
-import { useOrcidExchangeToken, useOrcidPreferences, useOrcidSetPreferences } from '@api/orcid/orcid';
+import { isString } from '@/utils';
+import { useOrcidExchangeToken, useOrcidPreferences, useOrcidSetPreferences } from '@/api/orcid/orcid';
 import { isArray } from 'ramda-adjunct';
 import { useCallback, useEffect, useRef } from 'react';
-import { AppState, useStore } from '@store';
-import { isValidIOrcidUser } from '@api/orcid/models';
-import { useRedirectWithNotification } from '@components/Notification';
-import { SimpleLink } from '@components';
+import { AppState, useStore } from '@/store';
+import { isValidIOrcidUser } from '@/api/orcid/models';
+import { useRedirectWithNotification } from '@/components/Notification';
+import { SimpleLink } from '@/components';
 
 const setOrcidUserSelector = (state: AppState) => state.setOrcidUser;
 
@@ -151,4 +151,4 @@ const OrcidPage: NextPage = () => {
 
 export default OrcidPage;
 
-export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';
+export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

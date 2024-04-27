@@ -1,12 +1,12 @@
-import { IDocsEntity } from '@api';
+import { IDocsEntity } from '@/api';
 import { IconButton, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import { LockIcon, UnlockIcon } from '@chakra-ui/icons';
-import { SimpleLinkDropdown } from '@components';
-import { processLinkData } from '@components/AbstractSources/linkGenerator';
-import { SimpleAction } from '@components/Orcid/SimpleAction';
+import { SimpleLinkDropdown } from '@/components';
+import { processLinkData } from '@/components/AbstractSources/linkGenerator';
+import { SimpleAction } from '@/components/Orcid/SimpleAction';
 import { Bars4Icon, CircleStackIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
-import { useIsClient } from '@lib/useIsClient';
-import { isBrowser } from '@utils';
+import { useIsClient } from '@/lib/useIsClient';
+import { isBrowser } from '@/utils';
 import { useRouter } from 'next/router';
 import { MouseEventHandler, ReactElement } from 'react';
 

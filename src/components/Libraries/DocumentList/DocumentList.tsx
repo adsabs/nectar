@@ -1,6 +1,6 @@
-import { IDocsEntity, INote, LibraryIdentifier } from '@api';
+import { IDocsEntity, INote, LibraryIdentifier } from '@/api';
 import { Flex, VisuallyHidden } from '@chakra-ui/react';
-import { noop } from '@utils';
+import { noop } from '@/utils';
 import { HTMLAttributes, ReactElement } from 'react';
 import { DocumentItem } from './DocumentItem';
 

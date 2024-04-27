@@ -1,5 +1,5 @@
 import { BoxProps, Flex, IconButton, Tag, TagCloseButton, TagLabel, Wrap } from '@chakra-ui/react';
-import { useFacetStore } from '@components/SearchFacet/store/FacetStore';
+import { useFacetStore } from '@/components/SearchFacet/store/FacetStore';
 import { isEmpty } from 'ramda';
 import { MouseEventHandler } from 'react';
 import { parseRootFromKey, parseTitleFromKey } from '../helpers';

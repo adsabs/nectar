@@ -4,7 +4,7 @@ import {
   useDeleteAnnotation,
   useGetAbstractPreview,
   useUpdateAnnotation,
-} from '@api';
+} from '@/api';
 import { ChevronUpIcon, ChevronDownIcon, EditIcon, CloseIcon, CheckIcon } from '@chakra-ui/icons';
 import {
   Collapse,
@@ -21,8 +21,8 @@ import {
   useToast,
   VStack,
 } from '@chakra-ui/react';
-import { useColorModeColors } from '@lib';
-import { parseAPIError } from '@utils';
+import { useColorModeColors } from '@/lib';
+import { parseAPIError } from '@/utils';
 import { MathJax } from 'better-react-mathjax';
 import { ChangeEvent, useState } from 'react';
 

@@ -1,4 +1,4 @@
-import { TypeaheadOption } from '@components/SearchBar/types';
+import { TypeaheadOption } from '@/components/SearchBar/types';
 import { Reducer } from 'react';
 import {
   appendSearchTerm,
@@ -8,8 +8,8 @@ import {
   getFocusedItemValue,
   getPreview,
   updateSearchTerm,
-} from '@components/SearchBar/helpers';
-import { typeaheadOptions } from '@components/SearchBar/models';
+} from '@/components/SearchBar/helpers';
+import { typeaheadOptions } from '@/components/SearchBar/models';
 
 export interface ISearchInputState {
   isOpen: boolean;

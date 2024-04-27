@@ -1,4 +1,4 @@
-import { splitQuery } from '@query';
+import { splitQuery } from '@/query';
 
 export const replaceObjectTerms = (query: string) => {
   const replaceObjectWithAbs = (term: string) => term.replace('object:', 'abs:');

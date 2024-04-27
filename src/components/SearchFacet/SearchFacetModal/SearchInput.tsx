@@ -8,8 +8,8 @@ import {
   InputRightElement,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { useFacetStore } from '@components/SearchFacet/store/FacetStore';
-import { capitalizeString } from '@utils';
+import { useFacetStore } from '@/components/SearchFacet/store/FacetStore';
+import { capitalizeString } from '@/utils';
 import { ChangeEventHandler, FC } from 'react';
 
 export interface ISearchInputProps extends InputGroupProps {

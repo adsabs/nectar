@@ -1,8 +1,8 @@
-import { AppRuntimeConfig } from '@types';
+import { AppRuntimeConfig } from '@/types';
 import { AxiosRequestConfig } from 'axios';
 import getConfig from 'next/config';
 import qs from 'qs';
-import { APP_DEFAULTS } from '@config';
+import { APP_DEFAULTS } from '@/config';
 
 /**
  * Figure out which config to pick, based on the current environment

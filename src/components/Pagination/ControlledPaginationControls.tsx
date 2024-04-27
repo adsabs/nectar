@@ -1,7 +1,7 @@
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { Flex, FlexProps, HStack, Icon, IconButton, Select } from '@chakra-ui/react';
 import { ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from '@heroicons/react/24/solid';
-import { NumPerPageType } from '@types';
+import { NumPerPageType } from '@/types';
 import { useCallback } from 'react';
 
 export interface IControlledPaginationControlsProps extends FlexProps {
