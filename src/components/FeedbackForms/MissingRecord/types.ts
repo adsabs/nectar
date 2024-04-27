@@ -1,5 +1,5 @@
-import { Database } from '@api/search';
-import { IResourceUrl } from '@lib';
+import { Database } from '@/api/search';
+import { IResourceUrl } from '@/lib';
 import { ArrayChange, Change } from 'diff';
 
 export interface IAuthor {

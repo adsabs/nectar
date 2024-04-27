@@ -1,5 +1,5 @@
-import { ExportApiFormatKey, isExportApiFormat } from '@api';
-import { Select } from '@components';
+import { ExportApiFormatKey, isExportApiFormat } from '@/api';
+import { Select } from '@/components';
 import { omit, values } from 'ramda';
 import { Dispatch, useMemo } from 'react';
 import { CitationExporterEvent } from '../CitationExporter.machine';

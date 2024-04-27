@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
-import { BiblibSort, SolrSort } from '@api/models';
-import { IADSApiSearchParams, IDocsEntity } from '@api/search';
+import { BiblibSort, SolrSort } from '@/api/models';
+import { IADSApiSearchParams, IDocsEntity } from '@/api/search';
 
 export const permissions = ['owner', 'admin', 'write', 'read'];
 

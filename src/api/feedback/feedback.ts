@@ -1,4 +1,4 @@
-import api, { ADSMutation, ApiRequestConfig, ApiTargets } from '@api';
+import api, { ADSMutation, ApiRequestConfig, ApiTargets } from '@/api';
 import { MutationFunction, useMutation } from '@tanstack/react-query';
 import { IFeedbackParams, IADSApiFeedbackResponse } from './types';
 

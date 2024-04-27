@@ -1,11 +1,11 @@
-import { IUserData } from '@api';
-import { APP_STORAGE_KEY, updateAppUser } from '@store';
+import { IUserData } from '@/api';
+import { APP_STORAGE_KEY, updateAppUser } from '@/store';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { isPast, parseISO } from 'date-fns';
 import { identity, isNil } from 'ramda';
 import { defaultRequestConfig } from './config';
-import { IApiUserResponse } from '@pages/api/user';
-import { logger } from '../../logger/logger';
+import { IApiUserResponse } from '@/pages/api/user';
+import { logger } from '@/logger';
 import { buildStorage, CacheOptions, setupCache, StorageValue } from 'axios-cache-interceptor';
 
 export const isUserData = (userData?: IUserData): userData is IUserData => {

@@ -1,5 +1,5 @@
-import { AuthorNetworkPageContainer, VizPageLayout } from '@components';
-import { makeSearchParams, parseQueryFromUrl } from '@utils';
+import { AuthorNetworkPageContainer, VizPageLayout } from '@/components';
+import { makeSearchParams, parseQueryFromUrl } from '@/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 
@@ -24,4 +24,4 @@ export const AuthorNetworkPage: NextPage = () => {
 };
 
 export default AuthorNetworkPage;
-export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';
+export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

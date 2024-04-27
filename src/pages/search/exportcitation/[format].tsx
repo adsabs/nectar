@@ -7,23 +7,23 @@ import {
   isExportApiFormat,
   searchKeys,
   useSearchInfinite,
-} from '@api';
+} from '@/api';
 import { Alert, AlertIcon, Box, Flex, Heading, HStack } from '@chakra-ui/react';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
-import { CitationExporter, JournalFormatMap, SimpleLink } from '@components';
-import { getExportCitationDefaultContext } from '@components/CitationExporter/CitationExporter.machine';
-import { APP_DEFAULTS } from '@config';
-import { useIsClient } from '@lib/useIsClient';
-import { parseAPIError, parseQueryFromUrl } from '@utils';
+import { CitationExporter, JournalFormatMap, SimpleLink } from '@/components';
+import { getExportCitationDefaultContext } from '@/components/CitationExporter/CitationExporter.machine';
+import { APP_DEFAULTS } from '@/config';
+import { useIsClient } from '@/lib/useIsClient';
+import { parseAPIError, parseQueryFromUrl } from '@/utils';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { last } from 'ramda';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
-import { composeNextGSSP } from '@ssr-utils';
-import { useSettings } from '@lib/useSettings';
-import { useBackToSearchResults } from '@lib/useBackToSearchResults';
-import { logger } from '@logger';
+import { composeNextGSSP } from '@/ssr-utils';
+import { useSettings } from '@/lib/useSettings';
+import { useBackToSearchResults } from '@/lib/useBackToSearchResults';
+import { logger } from '@/logger';
 
 interface IExportCitationPageProps {
   format: ExportApiFormatKey;

@@ -7,7 +7,7 @@ import {
   IUsePaginationProps,
   IUsePaginationResult,
   usePagination,
-} from '@components/ResultList/Pagination/usePagination';
+} from '@/components/ResultList/Pagination/usePagination';
 
 import { keys, pick } from 'ramda';
 import { beforeEach, describe, expect, test, vi } from 'vitest';

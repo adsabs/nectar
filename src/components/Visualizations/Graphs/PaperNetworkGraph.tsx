@@ -7,7 +7,7 @@ import {
   IADSApiPaperNetworkNodeKey,
   IADSApiPaperNetworkSummaryGraph,
   IADSApiPaperNetworkSummaryGraphNode,
-} from '@api';
+} from '@/api';
 import { usePaperNetworkGraph } from './usePaperNetworkGraph';
 import { ADSSVGPathElement } from './types';
 

@@ -1,7 +1,7 @@
-import { cleanup } from '@test-utils';
+import { cleanup } from '@/test-utils';
 import type { TestContext } from 'vitest';
 import { afterAll, afterEach, beforeAll, beforeEach, expect, vi } from 'vitest';
-import { server } from '@mocks/server';
+import { server } from '@/mocks/server';
 import matchers from '@testing-library/jest-dom/matchers';
 
 import { TextDecoder, TextEncoder } from 'util';

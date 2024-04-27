@@ -1,6 +1,6 @@
 import { rest } from 'msw';
-import { ApiTargets } from '@api';
-import { apiHandlerRoute } from '@mocks/mockHelpers';
+import { ApiTargets } from '@/api';
+import { apiHandlerRoute } from '@/mocks/mockHelpers';
 
 export const accountHandlers = [
   rest.get(apiHandlerRoute(ApiTargets.BOOTSTRAP), (req, res, ctx) => {

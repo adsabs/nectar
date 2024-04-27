@@ -1,5 +1,5 @@
-import api, { ADSQuery, ApiRequestConfig } from '@api';
-import { ApiTargets } from '@api/models';
+import api, { ADSQuery, ApiRequestConfig } from '@/api';
+import { ApiTargets } from '@/api/models';
 import {
   IADSApiAuthorNetworkResponse,
   IADSApiPaperNetworkResponse,
@@ -7,7 +7,7 @@ import {
   IADSApiWordCloudParams,
   IADSApiWordCloudResponse,
 } from './types';
-import { IADSApiSearchParams, IADSApiSearchResponse } from '@api/search';
+import { IADSApiSearchParams, IADSApiSearchResponse } from '@/api/search';
 import { QueryFunction, useQuery } from '@tanstack/react-query';
 import { getAuthorNetworkParams, getPaperNetworkParams, getResultsGraphParams, getWordCloudParams } from './models';
 

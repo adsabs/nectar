@@ -1,5 +1,5 @@
-import { SimpleLinkList } from '@components';
-import { states } from '@components/__mocks__/data';
+import { SimpleLinkList } from '@/components';
+import { states } from '@/components/__mocks__/data';
 import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {

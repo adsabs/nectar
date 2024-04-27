@@ -23,19 +23,19 @@ import {
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { CalendarIcon } from '@chakra-ui/icons';
-import { BibstemPicker, Expandable, IRawClassicFormState, SimpleCopyButton, SimpleLink, Sort } from '@components';
-import { APP_DEFAULTS } from '@config';
-import { useErrorMessage } from '@lib/useErrorMessage';
-import { useIsClient } from '@lib/useIsClient';
+import { BibstemPicker, Expandable, IRawClassicFormState, SimpleCopyButton, SimpleLink, Sort } from '@/components';
+import { APP_DEFAULTS } from '@/config';
+import { useErrorMessage } from '@/lib/useErrorMessage';
+import { useIsClient } from '@/lib/useIsClient';
 import { useRouter } from 'next/router';
 import PT from 'prop-types';
 import { FormEventHandler, useMemo } from 'react';
 import { Control, Controller, useForm, UseFormRegisterReturn, useWatch } from 'react-hook-form';
 import { getSearchQuery } from './helpers';
 import { IClassicFormState } from './types';
-import { SolrSort, SolrSortField } from '@api';
-import { solrSortOptions } from '@components/Sort/model';
-import { normalizeSolrSort } from '@utils';
+import { SolrSort, SolrSortField } from '@/api';
+import { solrSortOptions } from '@/components/Sort/model';
+import { normalizeSolrSort } from '@/utils';
 
 const propTypes = {
   ssrError: PT.string,

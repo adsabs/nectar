@@ -1,4 +1,4 @@
-import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, searchKeys, useSearchInfinite } from '@api';
+import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, searchKeys, useSearchInfinite } from '@/api';
 import { AxiosError } from 'axios';
 import { chain } from 'ramda';
 import { useEffect, useState } from 'react';

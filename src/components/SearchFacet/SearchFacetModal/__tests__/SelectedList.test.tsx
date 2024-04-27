@@ -1,9 +1,9 @@
-import { SearchFacetID } from '@components/SearchFacet/types';
+import { SearchFacetID } from '@/components/SearchFacet/types';
 import userEvent from '@testing-library/user-event';
 import { render } from '@testing-library/react';
-import { FacetStoreProvider } from '@components/SearchFacet/store/FacetStore';
+import { FacetStoreProvider } from '@/components/SearchFacet/store/FacetStore';
 import { expect, test } from 'vitest';
-import { SelectedList } from '@components/SearchFacet/SearchFacetModal/SelectedList';
+import { SelectedList } from '@/components/SearchFacet/SearchFacetModal/SelectedList';
 
 const setup = (id?: SearchFacetID) => {
   const user = userEvent.setup();

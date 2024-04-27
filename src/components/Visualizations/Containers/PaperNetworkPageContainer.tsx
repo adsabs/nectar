@@ -1,6 +1,6 @@
-import { IADSApiSearchParams, useVaultBigQuerySearch } from '@api';
-import { IADSApiPaperNetworkFullGraph, IADSApiPaperNetworkSummaryGraphNode } from '@api/vis/types';
-import { useGetPaperNetwork } from '@api/vis/vis';
+import { IADSApiSearchParams, useVaultBigQuerySearch } from '@/api';
+import { IADSApiPaperNetworkFullGraph, IADSApiPaperNetworkSummaryGraphNode } from '@/api/vis/types';
+import { useGetPaperNetwork } from '@/api/vis/vis';
 import { Box, Center, SimpleGrid, useBreakpointValue, useToast } from '@chakra-ui/react';
 import {
   CustomInfoMessage,
@@ -14,9 +14,9 @@ import {
   PaperNetworkGraphPane,
   SimpleLink,
   StandardAlertMessage,
-} from '@components';
-import { setFQ } from '@query-utils';
-import { makeSearchParams } from '@utils';
+} from '@/components';
+import { setFQ } from '@/query-utils';
+import { makeSearchParams } from '@/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { sort, uniq } from 'ramda';

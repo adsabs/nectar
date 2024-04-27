@@ -1,4 +1,4 @@
-import { IADSApiSearchParams, IDocsEntity, useGetAffiliations } from '@api';
+import { IADSApiSearchParams, IDocsEntity, useGetAffiliations } from '@/api';
 import { CloseIcon, DownloadIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -26,12 +26,12 @@ import {
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
-import { OrcidActiveIcon } from '@components/icons/Orcid';
-import { Pagination } from '@components/ResultList/Pagination';
-import { usePagination } from '@components/ResultList/Pagination/usePagination';
-import { SearchQueryLink } from '@components/SearchQueryLink';
-import { useDebounce } from '@lib/useDebounce';
-import { unwrapStringValue } from '@utils';
+import { OrcidActiveIcon } from '@/components/icons/Orcid';
+import { Pagination } from '@/components/ResultList/Pagination';
+import { usePagination } from '@/components/ResultList/Pagination/usePagination';
+import { SearchQueryLink } from '@/components/SearchQueryLink';
+import { useDebounce } from '@/lib/useDebounce';
+import { unwrapStringValue } from '@/utils';
 import { MathJax } from 'better-react-mathjax';
 import { saveAs } from 'file-saver';
 import { matchSorter } from 'match-sorter';

@@ -1,8 +1,8 @@
 import { Button, Flex, HStack, Text } from '@chakra-ui/react';
 import { MouseEvent, ReactElement, useCallback } from 'react';
-import { AllSearchTermsDropdown } from '@components';
+import { AllSearchTermsDropdown } from '@/components';
 import { quickfields } from './models';
-import { useIntermediateQuery } from '@lib/useIntermediateQuery';
+import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 
 export interface IQuickFieldsProps {
   isLoading?: boolean;

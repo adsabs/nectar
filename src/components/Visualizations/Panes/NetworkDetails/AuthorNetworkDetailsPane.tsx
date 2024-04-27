@@ -1,7 +1,7 @@
-import { IDocsEntity } from '@api';
+import { IDocsEntity } from '@/api';
 import { Flex, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
-import { Item } from '@components/ResultList/Item';
-import { ILineGraph } from '@components/Visualizations/types';
+import { Item } from '@/components/ResultList/Item';
+import { ILineGraph } from '@/components/Visualizations/types';
 import { equals } from 'ramda';
 import { ReactElement, useEffect, useRef, useState } from 'react';
 import { NodeDetailPane } from './NodeDetailsPane';

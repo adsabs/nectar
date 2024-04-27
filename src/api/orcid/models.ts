@@ -1,9 +1,9 @@
-import { isString } from '@utils';
+import { isString } from '@/utils';
 import { isNilOrEmpty, isNumber, isObject } from 'ramda-adjunct';
-import { IOrcidUser } from '@api/orcid/types';
+import { IOrcidUser } from '@/api/orcid/types';
 import { allPass, has } from 'ramda';
 import { addSeconds, isValid } from 'date-fns';
-import { IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
+import { IOrcidProfileEntry } from '@/api/orcid/types/orcid-profile';
 
 const orcidRegex = /^\d{4}-\d{4}-\d{4}-\d{3}[0-9X]$/;
 

@@ -1,6 +1,6 @@
 import { Flex, FormControl, FormLabel } from '@chakra-ui/react';
-import { Slider } from '@components/Slider';
-import { noop } from '@utils';
+import { Slider } from '@/components/Slider';
+import { noop } from '@/utils';
 import { ReactElement, useMemo } from 'react';
 import { WordCloud, WordDatum } from '../Graphs';
 

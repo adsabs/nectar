@@ -1,8 +1,8 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { CustomInfoMessage, LibraryEntityPane, LoadingMessage } from '@components';
-import { useGetLibraryEntity } from '@api';
-import { parseAPIError } from '@utils';
+import { CustomInfoMessage, LibraryEntityPane, LoadingMessage } from '@/components';
+import { useGetLibraryEntity } from '@/api';
+import { parseAPIError } from '@/utils';
 import Head from 'next/head';
 
 const PublicLibraries: NextPage = () => {
@@ -28,4 +28,4 @@ const PublicLibraries: NextPage = () => {
 
 export default PublicLibraries;
 
-export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';
+export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

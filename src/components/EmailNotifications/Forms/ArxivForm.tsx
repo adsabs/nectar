@@ -4,7 +4,7 @@ import {
   INotification,
   useAddNotification,
   useEditNotification,
-} from '@api';
+} from '@/api';
 import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -20,8 +20,8 @@ import {
   Text,
   FormErrorMessage,
 } from '@chakra-ui/react';
-import { useDebounce } from '@lib';
-import { noop, parseAPIError } from '@utils';
+import { useDebounce } from '@/lib';
+import { noop, parseAPIError } from '@/utils';
 
 import { has, keys, toPairs, uniq, without } from 'ramda';
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from 'react';

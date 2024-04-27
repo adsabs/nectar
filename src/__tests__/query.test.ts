@@ -1,4 +1,4 @@
-import * as Q from '@query';
+import * as Q from '@/query';
 import { describe, expect, it } from 'vitest';
 
 describe('Query Utilities', () => {

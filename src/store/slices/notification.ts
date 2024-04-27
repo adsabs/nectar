@@ -1,4 +1,4 @@
-import { StoreSlice } from '@store';
+import { StoreSlice } from '@/store';
 
 export type Notification = {
   id: NotificationId;

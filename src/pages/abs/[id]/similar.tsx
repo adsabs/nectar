@@ -1,14 +1,14 @@
-import { getSimilarParams, IDocsEntity, useGetAbstract, useGetSimilar } from '@api';
-import { AbstractRefList } from '@components';
-import { AbsLayout } from '@components/Layout/AbsLayout';
-import { withDetailsPage } from '@hocs/withDetailsPage';
-import { useGetAbstractParams } from '@lib/useGetAbstractParams';
+import { getSimilarParams, IDocsEntity, useGetAbstract, useGetSimilar } from '@/api';
+import { AbstractRefList } from '@/components';
+import { AbsLayout } from '@/components/Layout/AbsLayout';
+import { withDetailsPage } from '@/hocs/withDetailsPage';
+import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
-import { composeNextGSSP } from '@ssr-utils';
+import { composeNextGSSP } from '@/ssr-utils';
 import { path } from 'ramda';
 import { useRouter } from 'next/router';
-import { getDetailsPageTitle } from '@pages/abs/[id]/abstract';
+import { getDetailsPageTitle } from '@/pages/abs/[id]/abstract';
 
 const SimilarPage: NextPage = () => {
   const router = useRouter();

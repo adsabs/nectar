@@ -1,4 +1,4 @@
-import { ADSQuery } from '@api';
+import { ADSQuery } from '@/api';
 
 export type FeedbackBaseParams = {
   name: string;

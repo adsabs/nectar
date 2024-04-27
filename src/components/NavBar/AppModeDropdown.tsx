@@ -1,7 +1,7 @@
 import { Box } from '@chakra-ui/react';
-import { Select, SelectOption } from '@components';
-import { useStore } from '@store';
-import { AppMode } from '@types';
+import { Select, SelectOption } from '@/components';
+import { useStore } from '@/store';
+import { AppMode } from '@/types';
 import { ReactElement, useMemo } from 'react';
 import shallow from 'zustand/shallow';
 import { modes } from './models';

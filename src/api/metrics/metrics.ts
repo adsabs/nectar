@@ -7,7 +7,7 @@ import api, {
   CitationsStatsKey,
   IADSApiMetricsParams,
   MetricsResponseKey,
-} from '@api';
+} from '@/api';
 import { isNil } from 'ramda';
 import { QueryFunction, useQuery } from '@tanstack/react-query';
 import { getMetricsParams, getMetricsTimeSeriesParams } from './model';

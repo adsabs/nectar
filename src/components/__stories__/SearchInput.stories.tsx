@@ -1,4 +1,4 @@
-import { SearchInput } from '@components';
+import { SearchInput } from '@/components';
 import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof SearchInput> = {

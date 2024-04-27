@@ -1,5 +1,5 @@
-import { PapersTable } from '@components';
-import { papersTableData } from '@components/__mocks__/data';
+import { PapersTable } from '@/components';
+import { papersTableData } from '@/components/__mocks__/data';
 import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {

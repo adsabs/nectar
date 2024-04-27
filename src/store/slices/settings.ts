@@ -1,7 +1,7 @@
-import { IADSApiUserDataResponse } from '@api';
-import { SearchFacetID } from '@components/SearchFacet/types';
-import { StoreSlice } from '@store';
-import { AppMode } from '@types';
+import { IADSApiUserDataResponse } from '@/api';
+import { SearchFacetID } from '@/components/SearchFacet/types';
+import { StoreSlice } from '@/store';
+import { AppMode } from '@/types';
 import { filter, is, pipe, propEq, uniq, without } from 'ramda';
 
 export interface ISettingsState {

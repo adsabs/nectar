@@ -1,5 +1,5 @@
-import { MetricsPane } from '@components';
-import { metrics } from '@components/__mocks__/data';
+import { MetricsPane } from '@/components';
+import { metrics } from '@/components/__mocks__/data';
 import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {

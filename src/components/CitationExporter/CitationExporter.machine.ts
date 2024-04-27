@@ -1,6 +1,6 @@
-import { ExportApiFormatKey, ExportApiJournalFormat, IDocsEntity, IExportApiParams } from '@api';
-import { APP_DEFAULTS } from '@config';
-import { normalizeSolrSort } from '@utils';
+import { ExportApiFormatKey, ExportApiJournalFormat, IDocsEntity, IExportApiParams } from '@/api';
+import { APP_DEFAULTS } from '@/config';
+import { normalizeSolrSort } from '@/utils';
 import { assign, createMachine } from '@xstate/fsm';
 import { equals } from 'ramda';
 import { IUseCitationExporterProps } from './useCitationExporter';

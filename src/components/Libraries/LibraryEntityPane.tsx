@@ -7,7 +7,7 @@ import {
   useBigQuerySearch,
   useEditLibraryDocuments,
   useGetLibraryEntity,
-} from '@api';
+} from '@/api';
 import { ChevronLeftIcon, LockIcon, SettingsIcon, UnlockIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -38,13 +38,13 @@ import {
   SearchQueryLink,
   SimpleLink,
   Sort,
-} from '@components';
-import { biblibSortOptions } from '@components/Sort/model';
+} from '@/components';
+import { biblibSortOptions } from '@/components/Sort/model';
 import { BuildingLibraryIcon } from '@heroicons/react/24/solid';
-import { useColorModeColors } from '@lib';
-import { AppState, useStore } from '@store';
-import { NumPerPageType } from '@types';
-import { isBiblibSort, isSolrSort, normalizeSolrSort, parseAPIError } from '@utils';
+import { useColorModeColors } from '@/lib';
+import { AppState, useStore } from '@/store';
+import { NumPerPageType } from '@/types';
+import { isBiblibSort, isSolrSort, normalizeSolrSort, parseAPIError } from '@/utils';
 import { uniq } from 'ramda';
 import { useEffect, useMemo, useState } from 'react';
 import { DocumentList } from './DocumentList/DocumentList';

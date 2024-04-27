@@ -6,7 +6,7 @@ import { initialize, mswLoader } from 'msw-storybook-addon';
 import { handlers } from '../src/mocks/handlers';
 import { theme } from '../src/theme';
 import { MathJaxProvider } from '../src/mathjax';
-import { useCreateQueryClient } from '@lib';
+import { useCreateQueryClient } from '@/lib';
 
 export const parameters = {
   chakra: { theme },

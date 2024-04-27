@@ -13,12 +13,12 @@ import {
   IADSApiLibraryTransferParams,
   IADSApiLibraryUpdateAnnotationParams,
   ILibraryMetadata,
-} from '@api';
+} from '@/api';
 import { rest } from 'msw';
 import allLibraries from '../responses/library/all-libraries.json';
 import allEntities from '../responses/library/library-entities.json';
 import allPermissions from '../responses/library/permissions.json';
-import { apiHandlerRoute } from '@mocks/mockHelpers';
+import { apiHandlerRoute } from '@/mocks/mockHelpers';
 import { uniq } from 'ramda';
 
 const libraries = [...allLibraries] as ILibraryMetadata[];

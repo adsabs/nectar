@@ -1,7 +1,7 @@
-import { FacetField } from '@api';
+import { FacetField } from '@/api';
 import faker from '@faker-js/faker';
 import { descend, prop, sortWith } from 'ramda';
-import allFacetsResponse from '@mocks/responses/facets/all-facets.json';
+import allFacetsResponse from '@/mocks/responses/facets/all-facets.json';
 
 type GenerateOptions = {
   count?: number;

@@ -1,11 +1,11 @@
 import { rest } from 'msw';
-import { ApiTargets, FacetField, IADSApiSearchResponse } from '@api';
+import { ApiTargets, FacetField, IADSApiSearchResponse } from '@/api';
 import qs from 'qs';
 import faker from '@faker-js/faker';
-import { generateFacetResponse } from '@mocks/generators/facets';
+import { generateFacetResponse } from '@/mocks/generators/facets';
 import { clamp, map, range } from 'ramda';
-import { api, apiHandlerRoute, highlights_mocks, ids_mocks, ranRange } from '@mocks/mockHelpers';
-import { generateSearchResponse } from '@mocks/generators/search';
+import { api, apiHandlerRoute, highlights_mocks, ids_mocks, ranRange } from '@/mocks/mockHelpers';
+import { generateSearchResponse } from '@/mocks/generators/search';
 
 export const searchHandlers = [
   rest.get(apiHandlerRoute(ApiTargets.SEARCH), async (req, res, ctx) => {

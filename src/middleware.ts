@@ -1,8 +1,8 @@
-import { sessionConfig } from '@config';
-import { initSession } from '@middlewares/initSession';
-import { verifyMiddleware } from '@middlewares/verifyMiddleware';
+import { sessionConfig } from '@/config';
+import { initSession } from '@/middlewares/initSession';
+import { verifyMiddleware } from '@/middlewares/verifyMiddleware';
 import { getIronSession } from 'iron-session/edge';
-import { edgeLogger } from 'logger/logger';
+import { edgeLogger } from '@/logger';
 // eslint-disable-next-line @next/next/no-server-import-in-page
 import { NextRequest, NextResponse } from 'next/server';
 

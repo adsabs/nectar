@@ -1,12 +1,12 @@
 import { ChangeEvent, Dispatch, useEffect, useState } from 'react';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 import { Button, FormControl, FormLabel, Input, Text } from '@chakra-ui/react';
-import { Select } from '@components/Select';
-import { useSession } from '@lib/useSession';
-import { SimpleLink } from '@components/SimpleLink';
-import { DEFAULT_USER_DATA } from '@api';
-import { useSettings } from '@lib/useSettings';
-import { useColorModeColors } from '@lib';
+import { Select } from '@/components/Select';
+import { useSession } from '@/lib/useSession';
+import { SimpleLink } from '@/components/SimpleLink';
+import { DEFAULT_USER_DATA } from '@/api';
+import { useSettings } from '@/lib/useSettings';
+import { useColorModeColors } from '@/lib';
 
 export interface ICustomFormatSelectProps {
   dispatch: Dispatch<CitationExporterEvent>;

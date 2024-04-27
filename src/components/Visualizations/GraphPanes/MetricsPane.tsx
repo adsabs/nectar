@@ -1,4 +1,4 @@
-import { IADSApiMetricsResponse, IDocsEntity, MetricsResponseKey, TimeSeriesKey, useGetMetricsTimeSeries } from '@api';
+import { IADSApiMetricsResponse, IDocsEntity, MetricsResponseKey, TimeSeriesKey, useGetMetricsTimeSeries } from '@/api';
 import {
   Alert,
   AlertDescription,
@@ -22,10 +22,10 @@ import {
   LineGraph,
   PapersTable,
   ReadsTable,
-} from '@components';
-import { useColorModeColors } from '@lib';
-import { useIsClient } from '@lib/useIsClient';
-import { useMetrics } from '@lib/useMetrics';
+} from '@/components';
+import { useColorModeColors } from '@/lib';
+import { useIsClient } from '@/lib/useIsClient';
+import { useMetrics } from '@/lib/useMetrics';
 import { BarDatum } from '@nivo/bar';
 import axios from 'axios';
 import { ReactElement, useMemo } from 'react';

@@ -1,5 +1,5 @@
-import { LineGraph } from '@components';
-import { linedatum } from '@components/__mocks__/data';
+import { LineGraph } from '@/components';
+import { linedatum } from '@/components/__mocks__/data';
 import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {

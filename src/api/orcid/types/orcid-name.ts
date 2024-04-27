@@ -1,4 +1,4 @@
-import { IValue } from '@api/orcid/types/common';
+import { IValue } from '@/api/orcid/types/common';
 
 export interface IOrcidName {
   'last-modified-date': IValue;

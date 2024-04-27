@@ -1,4 +1,4 @@
-import { Esources, IDocsEntity } from '@api';
+import { Esources, IDocsEntity } from '@/api';
 
 export interface IGetOpenUrlOptions {
   metadata: IDocsEntity;

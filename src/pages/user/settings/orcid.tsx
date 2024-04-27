@@ -1,7 +1,7 @@
 import { Button, Text } from '@chakra-ui/react';
-import { SettingsLayout } from '@components';
-import { useOrcid } from '@lib/orcid/useOrcid';
-import { UserSettings } from '@components/Orcid';
+import { SettingsLayout } from '@/components';
+import { useOrcid } from '@/lib/orcid/useOrcid';
+import { UserSettings } from '@/components/Orcid';
 
 const OrcidPage = () => {
   const { login, isAuthenticated } = useOrcid();
@@ -29,4 +29,4 @@ const OrcidPage = () => {
 };
 
 export default OrcidPage;
-export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';
+export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

@@ -1,4 +1,4 @@
-import { isEmptyObject } from '@utils';
+import { isEmptyObject } from '@/utils';
 import lucene from 'lucene';
 import {
   always,
@@ -27,7 +27,6 @@ const DEFAULT_OPERATOR = 'AND' as const;
  * `author_facet_hier:bar` -> `author_facet_heir:`
  */
 const FIELD_REGEX = /[a-z_0-9]+:/gi;
-
 
 export const joinConditions = (operator: Operator, conditions: string[]) =>
   pipe(defaultTo(''), join(defaultTo(' AND ', ` ${operator} `)))(conditions);

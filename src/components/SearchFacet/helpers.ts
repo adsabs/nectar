@@ -1,6 +1,6 @@
-import { FacetField, IADSApiSearchParams } from '@api';
-import { escape, getOperator, getTerms, joinQueries, Operator, splitQuery } from '@query';
-import { isString } from '@utils';
+import { FacetField, IADSApiSearchParams } from '@/api';
+import { escape, getOperator, getTerms, joinQueries, Operator, splitQuery } from '@/query';
+import { isString } from '@/utils';
 import {
   always,
   append,

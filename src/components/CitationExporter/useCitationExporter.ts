@@ -6,8 +6,8 @@ import {
   IExportApiParams,
   SolrSort,
   useGetExportCitation,
-} from '@api';
-import { purifyString } from '@utils';
+} from '@/api';
+import { purifyString } from '@/utils';
 import { useMachine } from '@xstate/react/fsm';
 import { useEffect, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';

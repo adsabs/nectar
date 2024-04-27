@@ -1,5 +1,5 @@
 import { ReactElement } from 'react';
-import { ISimpleLinkProps } from '@components';
+import { ISimpleLinkProps } from '@/components';
 
 export interface IMenuItem extends Pick<ISimpleLinkProps, 'href'> {
   id: string | number;

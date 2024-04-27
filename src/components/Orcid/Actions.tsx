@@ -1,4 +1,4 @@
-import { IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
+import { IOrcidProfileEntry } from '@/api/orcid/types/orcid-profile';
 import {
   Center,
   Flex,
@@ -14,14 +14,14 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { isClaimedBySciX, isInSciX } from './helpers';
-import { useUpdateWork } from '@lib/orcid/useUpdateWork';
-import { useAddWorks } from '@lib/orcid/useAddWorks';
-import { useRemoveWorks } from '@lib/orcid/useRemoveWorks';
+import { useUpdateWork } from '@/lib/orcid/useUpdateWork';
+import { useAddWorks } from '@/lib/orcid/useAddWorks';
+import { useRemoveWorks } from '@/lib/orcid/useRemoveWorks';
 import React, { useEffect, useRef } from 'react';
-import { isOrcidProfileEntry } from '@api/orcid/models';
-import { TOAST_DEFAULTS } from '@components/Orcid/helpers';
-import { AddToOrcidButton } from '@components/Orcid/AddToOrcidButton';
-import { parseAPIError } from '@utils';
+import { isOrcidProfileEntry } from '@/api/orcid/models';
+import { TOAST_DEFAULTS } from '@/components/Orcid/helpers';
+import { AddToOrcidButton } from '@/components/Orcid/AddToOrcidButton';
+import { parseAPIError } from '@/utils';
 import { Cog8ToothIcon } from '@heroicons/react/20/solid';
 
 export interface IActionProps {

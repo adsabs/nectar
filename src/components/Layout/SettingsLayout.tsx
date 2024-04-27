@@ -1,9 +1,9 @@
 import { Heading, LayoutProps, Stack, Text } from '@chakra-ui/react';
-import { SettingsSideNav } from '@components';
+import { SettingsSideNav } from '@/components';
 import Head from 'next/head';
 import { FC } from 'react';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
-import { SuspendedAlert } from '@components/Feedbacks/SuspendedAlert';
+import { SuspendedAlert } from '@/components/Feedbacks/SuspendedAlert';
 
 interface ISettingsLayoutProps {
   title: string;

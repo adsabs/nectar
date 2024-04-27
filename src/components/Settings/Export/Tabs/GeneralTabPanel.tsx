@@ -1,14 +1,14 @@
-import { CustomFormat, ExportApiFormatKey, IDocsEntity, useGetExportCitation } from '@api';
+import { CustomFormat, ExportApiFormatKey, IDocsEntity, useGetExportCitation } from '@/api';
 import { Stack } from '@chakra-ui/react';
-import { SampleTextArea } from '@components';
-import { ExportFormat, exportFormats } from '@components/CitationExporter';
-import { JournalFormatMap } from '@components/Settings/model';
-import { UserDataSetterEvent } from '@pages/user/settings/export';
+import { SampleTextArea } from '@/components';
+import { ExportFormat, exportFormats } from '@/components/CitationExporter';
+import { JournalFormatMap } from '@/components/Settings/model';
+import { UserDataSetterEvent } from '@/pages/user/settings/export';
 import { values } from 'ramda';
 import { Dispatch, useMemo } from 'react';
 import { ExportFormatSelect } from '../ExportFormatSelect';
 import { CustomFormatSelect } from '../CustomFormatSelect';
-import { useSettings } from '@lib/useSettings';
+import { useSettings } from '@/lib/useSettings';
 
 export interface IGeneralTabPanelProps {
   sampleBib: IDocsEntity['bibcode'];

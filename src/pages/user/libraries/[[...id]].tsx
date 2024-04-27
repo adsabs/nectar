@@ -1,4 +1,4 @@
-import { fetchLibraries, fetchLibraryEntity, librariesKeys, useGetLibraryEntity } from '@api';
+import { fetchLibraries, fetchLibraryEntity, librariesKeys, useGetLibraryEntity } from '@/api';
 import { Center, Text } from '@chakra-ui/react';
 import {
   CustomInfoMessage,
@@ -7,13 +7,13 @@ import {
   LibrarySettingsPane,
   LoadingMessage,
   SimpleLink,
-} from '@components';
-import { composeNextGSSP } from '@ssr-utils';
+} from '@/components';
+import { composeNextGSSP } from '@/ssr-utils';
 import { QueryClient } from '@tanstack/react-query';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
-import { logger } from '@logger';
-import { parseAPIError } from '@utils';
+import { logger } from '@/logger';
+import { parseAPIError } from '@/utils';
 
 interface ILibrariesHomeProps {
   id?: string;

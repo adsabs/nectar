@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
-import { NotificationId } from '@store/slices';
-import { useStore } from '@store';
+import { NotificationId } from '@/store/slices';
+import { useStore } from '@/store';
 
 interface IRedirectWithNotificationProps {
   path: string;

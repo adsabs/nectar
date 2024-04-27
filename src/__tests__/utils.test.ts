@@ -1,6 +1,6 @@
-import api from '@api';
-import { APP_DEFAULTS } from '@config';
-import { normalizeSolrSort, parseAPIError } from '@utils';
+import api from '@/api';
+import { APP_DEFAULTS } from '@/config';
+import { normalizeSolrSort, parseAPIError } from '@/utils';
 import { beforeEach, describe, expect, test, TestContext } from 'vitest';
 import { rest } from 'msw';
 

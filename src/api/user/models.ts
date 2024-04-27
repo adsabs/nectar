@@ -1,4 +1,4 @@
-import { APP_DEFAULTS } from '@config';
+import { APP_DEFAULTS } from '@/config';
 import { DatabaseEnum, ExternalLinkAction, IADSApiUserDataResponse, JournalFormatName, UserDataKeys } from './types';
 
 export const DEFAULT_USER_DATA: IADSApiUserDataResponse = {

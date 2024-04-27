@@ -1,6 +1,6 @@
 import { rest } from 'msw';
-import defaultBibstems from '@components/BibstemPicker/defaultBibstems.json';
-import { IBibstemOption } from '@types';
+import defaultBibstems from '@/components/BibstemPicker/defaultBibstems.json';
+import { IBibstemOption } from '@/types';
 
 export const bibstemHandlers = [
   rest.get<unknown, { term: string }>(`*/api/bibstems/:term`, (req, res, ctx) => {

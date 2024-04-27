@@ -1,15 +1,15 @@
-import { getCitationsParams, IDocsEntity, useGetAbstract, useGetCitations } from '@api';
+import { getCitationsParams, IDocsEntity, useGetAbstract, useGetCitations } from '@/api';
 import { Alert, AlertIcon } from '@chakra-ui/react';
-import { AbstractRefList } from '@components/AbstractRefList';
-import { AbsLayout } from '@components/Layout/AbsLayout';
-import { withDetailsPage } from '@hocs/withDetailsPage';
-import { useGetAbstractParams } from '@lib/useGetAbstractParams';
+import { AbstractRefList } from '@/components/AbstractRefList';
+import { AbsLayout } from '@/components/Layout/AbsLayout';
+import { withDetailsPage } from '@/hocs/withDetailsPage';
+import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { NextPage } from 'next';
 import Head from 'next/head';
-import { composeNextGSSP } from '@ssr-utils';
+import { composeNextGSSP } from '@/ssr-utils';
 import { useRouter } from 'next/router';
 import { path } from 'ramda';
-import { getDetailsPageTitle } from '@pages/abs/[id]/abstract';
+import { getDetailsPageTitle } from '@/pages/abs/[id]/abstract';
 
 const CitationsPage: NextPage = () => {
   const router = useRouter();

@@ -1,4 +1,4 @@
-import { IDocsEntity, useGetAbstractPreview } from '@api';
+import { IDocsEntity, useGetAbstractPreview } from '@/api';
 import { Collapse, Flex, IconButton, Text, useToast, VStack } from '@chakra-ui/react';
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import { MathJax } from 'better-react-mathjax';

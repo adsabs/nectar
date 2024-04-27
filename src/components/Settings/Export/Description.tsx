@@ -1,5 +1,5 @@
 import { Table, TableCaption, Tbody, Td, Text, Th, Thead, Tr } from '@chakra-ui/react';
-import { SimpleLink } from '@components/SimpleLink';
+import { SimpleLink } from '@/components/SimpleLink';
 
 export const exportFormatDescription = (
   <>

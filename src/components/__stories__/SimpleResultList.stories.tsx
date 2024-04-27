@@ -1,4 +1,4 @@
-import { SimpleResultList } from '@components';
+import { SimpleResultList } from '@/components';
 import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {

@@ -1,4 +1,4 @@
-import { render } from '@test-utils';
+import { render } from '@/test-utils';
 import { beforeEach, describe, test, vi } from 'vitest';
 import PaperForm from '../pages/paper-form';
 

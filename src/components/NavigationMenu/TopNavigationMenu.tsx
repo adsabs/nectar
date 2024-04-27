@@ -2,10 +2,10 @@ import { ChevronDownIcon } from '@chakra-ui/icons';
 import { Box, BoxProps, Flex, Menu, MenuButton, MenuItem, MenuList, Stack, Text } from '@chakra-ui/react';
 import { CatMenuItems, IMenuItem, IMenuItemProps, SingleMenuItems } from './types';
 import { cloneElement } from 'react';
-import { SimpleLinkDropdown } from '@components/Dropdown';
-import { ItemType } from '@components/Dropdown/types';
+import { SimpleLinkDropdown } from '@/components/Dropdown';
+import { ItemType } from '@/components/Dropdown/types';
 import { useColorModeColors, useIsClient } from 'src/lib';
-import { SimpleLink } from '@components';
+import { SimpleLink } from '@/components';
 
 export interface ITopNavigationMenuProps extends BoxProps {
   menuItems: CatMenuItems | SingleMenuItems;

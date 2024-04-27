@@ -1,10 +1,10 @@
-import { LibraryIdentifier, LibraryPermission, permissions, useGetPermission, useModifyPermission } from '@api';
+import { LibraryIdentifier, LibraryPermission, permissions, useGetPermission, useModifyPermission } from '@/api';
 import { CheckIcon, DeleteIcon } from '@chakra-ui/icons';
 import { HStack, Icon, IconButton, Input, Table, Tbody, Td, Th, Thead, Tr, useToast, Text } from '@chakra-ui/react';
-import { CustomInfoMessage } from '@components';
-import { Select, SelectOption } from '@components/Select';
+import { CustomInfoMessage } from '@/components';
+import { Select, SelectOption } from '@/components/Select';
 import { UserIcon, UserGroupIcon } from '@heroicons/react/24/solid';
-import { isValidEmail, parseAPIError } from '@utils';
+import { isValidEmail, parseAPIError } from '@/utils';
 import { keys, values } from 'ramda';
 import { useState, useRef, ChangeEvent, useMemo } from 'react';
 import { SelectInstance } from 'react-select';

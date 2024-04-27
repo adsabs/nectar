@@ -1,4 +1,4 @@
-import { Store } from '@store';
+import { Store } from '@/store';
 import actualCreate from 'zustand';
 import { afterEach } from 'vitest';
 import { act } from '@testing-library/react';

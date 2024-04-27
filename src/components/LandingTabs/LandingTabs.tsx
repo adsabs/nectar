@@ -1,12 +1,12 @@
 import { Box, Center, Flex, Heading, HStack, Icon, Show, VisuallyHidden } from '@chakra-ui/react';
-import { useStore } from '@store';
-import { AppMode } from '@types';
+import { useStore } from '@/store';
+import { AppMode } from '@/types';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { CSSProperties, ReactElement } from 'react';
-import { ScixAndNasaLogo_H_beta } from '@components/images/ScixAndNasaLogo-H_beta';
-import { useColorModeColors } from '@lib';
-import { SimpleLink } from '@components';
+import { ScixAndNasaLogo_H_beta } from '@/components/images/ScixAndNasaLogo-H_beta';
+import { useColorModeColors } from '@/lib';
+import { SimpleLink } from '@/components';
 
 const imageStyle: CSSProperties = { objectFit: 'cover', opacity: '50%', zIndex: 0 };
 export const LandingTabs = (): ReactElement => {

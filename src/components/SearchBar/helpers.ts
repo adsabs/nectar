@@ -1,5 +1,5 @@
 import { curry } from 'ramda';
-import { TypeaheadOption } from '@components/SearchBar/types';
+import { TypeaheadOption } from '@/components/SearchBar/types';
 import { matchSorter } from 'match-sorter';
 
 export const filterItems = curry((query: string, items: TypeaheadOption[]) => {

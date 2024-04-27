@@ -1,9 +1,9 @@
-import { IDocsEntity } from '@api';
+import { IDocsEntity } from '@/api';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex, Heading, Stack, Text } from '@chakra-ui/react';
-import { AbstractSideNav, AbstractSources, Metatags, SimpleLink } from '@components';
-import { useBackToSearchResults } from '@lib/useBackToSearchResults';
-import { unwrapStringValue } from '@utils';
+import { AbstractSideNav, AbstractSources, Metatags, SimpleLink } from '@/components';
+import { useBackToSearchResults } from '@/lib/useBackToSearchResults';
+import { unwrapStringValue } from '@/utils';
 import { MathJax } from 'better-react-mathjax';
 import Head from 'next/head';
 import { FC } from 'react';

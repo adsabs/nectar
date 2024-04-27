@@ -4,8 +4,8 @@ import {
   IADSApiEditNotificationParams,
   IADSApiNotificationsReponse,
   INotification,
-} from '@api';
-import { apiHandlerRoute } from '@mocks/mockHelpers';
+} from '@/api';
+import { apiHandlerRoute } from '@/mocks/mockHelpers';
 import { rest } from 'msw';
 import { omit } from 'ramda';
 import allNotifications from '../responses/notifications/all-notifications.json';

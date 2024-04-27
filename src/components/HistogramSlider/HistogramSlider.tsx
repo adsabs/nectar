@@ -1,6 +1,6 @@
 import { Flex } from '@chakra-ui/react';
-import { Slider } from '@components/Slider';
-import { Histogram, HistogramDatum } from '@components/Visualizations';
+import { Slider } from '@/components/Slider';
+import { Histogram, HistogramDatum } from '@/components/Visualizations';
 import { ReactElement, useEffect, useState } from 'react';
 
 export interface IHistogramSliderProps {

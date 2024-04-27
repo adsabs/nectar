@@ -1,5 +1,5 @@
 import { composeStories } from '@storybook/react';
-import { render } from '@test-utils';
+import { render } from '@/test-utils';
 import userEvent from '@testing-library/user-event';
 import { expect, test } from 'vitest';
 import * as stories from '../__stories__/SearchBar.stories';

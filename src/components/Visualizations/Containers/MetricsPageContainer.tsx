@@ -1,7 +1,7 @@
-import { Bibcode, IADSApiSearchParams, useGetMetrics } from '@api';
+import { Bibcode, IADSApiSearchParams, useGetMetrics } from '@/api';
 import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, Center, CircularProgress, Text } from '@chakra-ui/react';
-import { CustomInfoMessage, MetricsPane } from '@components';
-import { useBatchedSearch } from '@lib/useBatchedSearch';
+import { CustomInfoMessage, MetricsPane } from '@/components';
+import { useBatchedSearch } from '@/lib/useBatchedSearch';
 import axios from 'axios';
 import { ReactElement } from 'react';
 

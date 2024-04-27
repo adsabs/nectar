@@ -1,4 +1,4 @@
-import { Bibcode, ExportApiFormatKey, SolrSort, SolrSortField, useVaultBigQuerySearch } from '@api';
+import { Bibcode, ExportApiFormatKey, SolrSort, SolrSortField, useVaultBigQuerySearch } from '@/api';
 import { BellIcon, ChevronDownIcon, SettingsIcon } from '@chakra-ui/icons';
 import {
   Button,
@@ -24,22 +24,22 @@ import {
   useToast,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { exportFormats, ISortProps, sections, Sort } from '@components';
-import { useIsClient } from '@lib/useIsClient';
-import { AppState, useStore, useStoreApi } from '@store';
-import { makeSearchParams, noop, parseQueryFromUrl } from '@utils';
+import { exportFormats, ISortProps, sections, Sort } from '@/components';
+import { useIsClient } from '@/lib/useIsClient';
+import { AppState, useStore, useStoreApi } from '@/store';
+import { makeSearchParams, noop, parseQueryFromUrl } from '@/utils';
 import { useRouter } from 'next/router';
 import { curryN, values } from 'ramda';
 import { isNonEmptyString } from 'ramda-adjunct';
 import { MouseEventHandler, ReactElement, useCallback, useEffect, useState } from 'react';
 import { SecondOrderOpsLinks } from './SecondOrderOpsLinks';
-import { BulkClaimMenuItem, BulkDeleteMenuItem } from '@components/Orcid';
-import { useOrcid } from '@lib/orcid/useOrcid';
-import { useSession } from '@lib/useSession';
-import { useSettings } from '@lib/useSettings';
-import { useColorModeColors } from '@lib';
-import { AddNotificationModal } from '@components/EmailNotifications/AddNotificationModal';
-import { solrSortOptions } from '@components/Sort/model';
+import { BulkClaimMenuItem, BulkDeleteMenuItem } from '@/components/Orcid';
+import { useOrcid } from '@/lib/orcid/useOrcid';
+import { useSession } from '@/lib/useSession';
+import { useSettings } from '@/lib/useSettings';
+import { useColorModeColors } from '@/lib';
+import { AddNotificationModal } from '@/components/EmailNotifications/AddNotificationModal';
+import { solrSortOptions } from '@/components/Sort/model';
 
 export interface IListActionsProps {
   onSortChange?: ISortProps<SolrSort, SolrSortField>['onChange'];

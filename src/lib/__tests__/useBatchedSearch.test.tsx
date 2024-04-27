@@ -1,5 +1,5 @@
-import { useBatchedSearch } from '@lib/useBatchedSearch';
-import { createServerListenerMocks, renderHook, urls } from '@test-utils';
+import { useBatchedSearch } from '@/lib/useBatchedSearch';
+import { createServerListenerMocks, renderHook, urls } from '@/test-utils';
 import { expect, test, TestContext } from 'vitest';
 import { waitFor } from '@testing-library/dom';
 

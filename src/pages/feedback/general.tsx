@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { useFeedback } from '@api/feedback';
+import { useFeedback } from '@/api/feedback';
 import {
   AlertStatus,
   Button,
@@ -14,10 +14,10 @@ import {
   Textarea,
   useDisclosure,
 } from '@chakra-ui/react';
-import { FeedbackAlert, FeedbackLayout, RecaptchaMessage } from '@components';
+import { FeedbackAlert, FeedbackLayout, RecaptchaMessage } from '@/components';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useStore } from '@store';
-import { makeSearchParams, parseAPIError } from '@utils';
+import { useStore } from '@/store';
+import { makeSearchParams, parseAPIError } from '@/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { MouseEvent, useCallback, useState } from 'react';
@@ -34,8 +34,8 @@ import {
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
-import { FormMessage } from '@components/Feedbacks/FormMessage';
-import { useGetUserEmail } from '@lib';
+import { FormMessage } from '@/components/Feedbacks/FormMessage';
+import { useGetUserEmail } from '@/lib';
 
 type FormValues = {
   name: string;
@@ -228,4 +228,4 @@ const General: NextPage = () => {
 };
 
 export default General;
-export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';
+export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

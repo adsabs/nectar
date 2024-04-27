@@ -25,7 +25,7 @@ import { AccountDropdown } from './AccountDropdown';
 import { FeedbackDropdown } from './FeedbackDropdown';
 import { OrcidDropdown } from './OrcidDropdown';
 import { ListType } from './types';
-import { isBrowser } from '@utils';
+import { isBrowser } from '@/utils';
 import { ColorModeMenu } from './ColorModeMenu';
 
 export const NavMenus = (): ReactElement => {

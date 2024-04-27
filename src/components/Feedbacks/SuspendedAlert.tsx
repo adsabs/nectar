@@ -14,7 +14,7 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import { parseAPIError } from '@utils';
+import { parseAPIError } from '@/utils';
 import React from 'react';
 
 interface ISuspendedAlertProps extends FallbackProps {

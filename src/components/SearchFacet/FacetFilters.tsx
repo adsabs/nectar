@@ -1,6 +1,6 @@
 import { Box, BoxProps, Button, Flex, Tag, TagCloseButton, TagLabel, Tooltip } from '@chakra-ui/react';
-import { clearFQs, removeFQClause } from '@query-utils';
-import { isIADSSearchParams, makeSearchParams, parseQueryFromUrl } from '@utils';
+import { clearFQs, removeFQClause } from '@/query-utils';
+import { isIADSSearchParams, makeSearchParams, parseQueryFromUrl } from '@/utils';
 import { useRouter } from 'next/router';
 import { curryN } from 'ramda';
 import { ReactElement, useCallback, useEffect, useState } from 'react';

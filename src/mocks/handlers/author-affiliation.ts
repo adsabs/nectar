@@ -1,8 +1,8 @@
 import { rest } from 'msw';
-import { ApiTargets } from '@api';
-import { IAuthorAffiliationExportPayload, IAuthorAffiliationResponse } from '@api/author-affiliation/types';
+import { ApiTargets } from '@/api';
+import { IAuthorAffiliationExportPayload, IAuthorAffiliationResponse } from '@/api/author-affiliation/types';
 import { flatten, range } from 'ramda';
-import { apiHandlerRoute, authorAffData } from '@mocks/mockHelpers';
+import { apiHandlerRoute, authorAffData } from '@/mocks/mockHelpers';
 import faker from '@faker-js/faker';
 
 export const authorAffiliationHandlers = [

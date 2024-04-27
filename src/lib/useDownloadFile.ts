@@ -1,4 +1,4 @@
-import { noop } from '@utils';
+import { noop } from '@/utils';
 import { formatISO } from 'date-fns';
 import { saveAs } from 'file-saver';
 import { parse } from 'path';

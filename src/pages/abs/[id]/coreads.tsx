@@ -1,13 +1,13 @@
-import { getCoreadsParams, useGetAbstract, useGetCoreads } from '@api';
-import { AbstractRefList } from '@components';
-import { AbsLayout } from '@components/Layout/AbsLayout';
-import { useGetAbstractParams } from '@lib/useGetAbstractParams';
+import { getCoreadsParams, useGetAbstract, useGetCoreads } from '@/api';
+import { AbstractRefList } from '@/components';
+import { AbsLayout } from '@/components/Layout/AbsLayout';
+import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { NextPage } from 'next';
 import Head from 'next/head';
-import { getDetailsPageTitle } from '@pages/abs/[id]/abstract';
+import { getDetailsPageTitle } from '@/pages/abs/[id]/abstract';
 import { useRouter } from 'next/router';
-import { composeNextGSSP } from '@ssr-utils';
-import { withDetailsPage } from '@hocs/withDetailsPage';
+import { composeNextGSSP } from '@/ssr-utils';
+import { withDetailsPage } from '@/hocs/withDetailsPage';
 
 const CoreadsPage: NextPage = () => {
   const router = useRouter();

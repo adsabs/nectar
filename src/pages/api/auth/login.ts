@@ -1,14 +1,14 @@
-import { ApiTargets, IBasicAccountsResponse, IUserCredentials } from '@api';
+import { ApiTargets, IBasicAccountsResponse, IUserCredentials } from '@/api';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { z } from 'zod';
 import { IronSession } from 'iron-session';
 import { withIronSessionApiRoute } from 'iron-session/next';
-import { APP_DEFAULTS, sessionConfig } from '@config';
-import { configWithCSRF, fetchUserData, hash, isValidToken, pickUserData } from '@auth-utils';
-import { defaultRequestConfig } from '@api/config';
+import { APP_DEFAULTS, sessionConfig } from '@/config';
+import { configWithCSRF, fetchUserData, hash, isValidToken, pickUserData } from '@/auth-utils';
+import { defaultRequestConfig } from '@/api/config';
 import axios, { AxiosResponse } from 'axios';
 import setCookie from 'set-cookie-parser';
-import { logger } from '../../../../logger/logger';
+import { logger } from '@/logger';
 
 const log = logger.child({}, { msgPrefix: '[api/login] ' });
 

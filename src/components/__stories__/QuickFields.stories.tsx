@@ -1,4 +1,4 @@
-import { QuickFields } from '@components';
+import { QuickFields } from '@/components';
 import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof QuickFields> = {

@@ -19,7 +19,7 @@ import {
   Stack,
   useDisclosure,
 } from '@chakra-ui/react';
-import { parseAPIError } from '@utils';
+import { parseAPIError } from '@/utils';
 import { useEffect } from 'react';
 import { exportTypes } from './models';
 import { useExportModal } from './useExportModal';

@@ -1,4 +1,4 @@
-import { IBibstemOption } from '@types';
+import { IBibstemOption } from '@/types';
 import Fuse from 'fuse.js';
 import DOMPurify from 'isomorphic-dompurify';
 import type { NextApiRequest, NextApiResponse } from 'next';

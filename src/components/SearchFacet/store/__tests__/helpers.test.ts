@@ -1,5 +1,5 @@
-import { IFacetStoreState } from '@components/SearchFacet/store/FacetStore';
-import { computeNextSelectionState } from '@components/SearchFacet/store/helpers';
+import { IFacetStoreState } from '@/components/SearchFacet/store/FacetStore';
+import { computeNextSelectionState } from '@/components/SearchFacet/store/helpers';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('computeNextSelectionState', () => {

@@ -6,9 +6,9 @@ import {
   toggle,
   toggleAff,
   toggleAll,
-} from '@components/AuthorAffiliations/helpers';
+} from '@/components/AuthorAffiliations/helpers';
 import { composeStories } from '@storybook/react';
-import { render } from '@test-utils';
+import { render } from '@/test-utils';
 import { lensPath, mapObjIndexed, prop, set, view } from 'ramda';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import * as stories from '../__stories__/AuthorAffiliations.stories';

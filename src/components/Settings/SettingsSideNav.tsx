@@ -1,4 +1,4 @@
-import { SideNavigationMenu, TopNavigationMenu } from '@components/NavigationMenu';
+import { SideNavigationMenu, TopNavigationMenu } from '@/components/NavigationMenu';
 import { useRouter } from 'next/router';
 
 const settingsPath = '/user/settings';

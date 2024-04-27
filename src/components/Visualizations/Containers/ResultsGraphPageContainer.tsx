@@ -1,4 +1,4 @@
-import { IADSApiSearchParams, IDocsEntity, useGetResultsGraph, useVaultBigQuerySearch } from '@api';
+import { IADSApiSearchParams, IDocsEntity, useGetResultsGraph, useVaultBigQuerySearch } from '@/api';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import { Box, Flex, List, ListIcon, ListItem, Text, useToast } from '@chakra-ui/react';
 import {
@@ -7,10 +7,10 @@ import {
   IBubblePlotNodeData,
   LoadingMessage,
   StandardAlertMessage,
-} from '@components';
-import { Expandable } from '@components/Expandable';
-import { setFQ } from '@query-utils';
-import { makeSearchParams } from '@utils';
+} from '@/components';
+import { Expandable } from '@/components/Expandable';
+import { setFQ } from '@/query-utils';
+import { makeSearchParams } from '@/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';

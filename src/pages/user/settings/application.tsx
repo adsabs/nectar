@@ -6,7 +6,7 @@ import {
   IADSApiUserDataParams,
   UserDataKeys,
   userKeys,
-} from '@api';
+} from '@/api';
 import { Box, Checkbox, CheckboxGroup, FormControl, FormLabel, Spinner, Stack } from '@chakra-ui/react';
 import {
   authorsPerResultsDescription,
@@ -17,17 +17,17 @@ import {
   Select,
   SelectOption,
   SettingsLayout,
-} from '@components';
-import { composeNextGSSP } from '@ssr-utils';
+} from '@/components';
+import { composeNextGSSP } from '@/ssr-utils';
 import { GetServerSideProps } from 'next';
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { dehydrate, QueryClient, QueryErrorResetBoundary } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
-import { getFallBackAlert } from '@components/Feedbacks/SuspendedAlert';
-import { useSettings } from '@lib/useSettings';
+import { getFallBackAlert } from '@/components/Feedbacks/SuspendedAlert';
+import { useSettings } from '@/lib/useSettings';
 import { isNotEmpty } from 'ramda-adjunct';
-import { logger } from '@logger';
-import { parseAPIError } from '@utils';
+import { logger } from '@/logger';
+import { parseAPIError } from '@/utils';
 
 // generate options for select component
 const useGetOptions = () => {

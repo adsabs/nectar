@@ -1,4 +1,4 @@
-import { IADSApiLibraryParams, ILibraryMetadata, LibraryIdentifier, useDeleteLibrary } from '@api';
+import { IADSApiLibraryParams, ILibraryMetadata, LibraryIdentifier, useDeleteLibrary } from '@/api';
 import {
   ChevronDownIcon,
   LockIcon,
@@ -30,13 +30,13 @@ import {
   Box,
   IconButton,
 } from '@chakra-ui/react';
-import { ControlledPaginationControls } from '@components';
-import { CustomInfoMessage } from '@components/Feedbacks';
-import { TimeSince } from '@components/TimeSince';
+import { ControlledPaginationControls } from '@/components';
+import { CustomInfoMessage } from '@/components/Feedbacks';
+import { TimeSince } from '@/components/TimeSince';
 import { UserGroupIcon, UserIcon } from '@heroicons/react/24/solid';
-import { useColorModeColors } from '@lib';
-import { NumPerPageType } from '@types';
-import { noop, parseAPIError } from '@utils';
+import { useColorModeColors } from '@/lib';
+import { NumPerPageType } from '@/types';
+import { noop, parseAPIError } from '@/utils';
 import { useRouter } from 'next/router';
 import { uniq } from 'ramda';
 import { Fragment, MouseEvent, useMemo } from 'react';

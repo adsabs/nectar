@@ -1,6 +1,6 @@
-import { BiblibSort, IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, IUserData, SolrSort } from '@api';
-import { APP_DEFAULTS } from '@config';
-import { NumPerPageType, SafeSearchUrlParams } from '@types';
+import { BiblibSort, IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, IUserData, SolrSort } from '@/api';
+import { APP_DEFAULTS } from '@/config';
+import { NumPerPageType, SafeSearchUrlParams } from '@/types';
 import axios, { AxiosError } from 'axios';
 import DOMPurify from 'isomorphic-dompurify';
 import { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from 'next';

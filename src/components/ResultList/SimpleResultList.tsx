@@ -1,6 +1,6 @@
-import { IDocsEntity } from '@api';
+import { IDocsEntity } from '@/api';
 import { Flex, VisuallyHidden } from '@chakra-ui/react';
-import { useIsClient } from '@lib/useIsClient';
+import { useIsClient } from '@/lib/useIsClient';
 import PT from 'prop-types';
 import { HTMLAttributes, ReactElement } from 'react';
 import { Item } from './Item';

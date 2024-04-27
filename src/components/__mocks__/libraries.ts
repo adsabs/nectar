@@ -1,4 +1,4 @@
-import { ILibraryMetadata } from '@api';
+import { ILibraryMetadata } from '@/api';
 
 export const libraries: ILibraryMetadata[] = [
   {

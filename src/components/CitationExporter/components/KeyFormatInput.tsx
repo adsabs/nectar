@@ -1,4 +1,4 @@
-import { IExportApiParams } from '@api';
+import { IExportApiParams } from '@/api';
 import { Box, Code, FormControl, FormLabel, Input } from '@chakra-ui/react';
 import { ChangeEventHandler, Dispatch, ReactElement, useCallback } from 'react';
 import { CitationExporterEvent } from '../CitationExporter.machine';
@@ -49,7 +49,7 @@ const description = (
         display="block"
         whiteSpace="pre"
         children={`@INPROCEEDINGS{2019AAS...23338108A,
-author = {{Accomazzi}, Alberto and {Kurtz}, 
+author = {{Accomazzi}, Alberto and {Kurtz},
 Michael J. and ...`}
       />
     </p>

@@ -1,4 +1,4 @@
-import { IOrcidMutationParams, IOrcidResponse } from '@api/orcid/types';
+import { IOrcidMutationParams, IOrcidResponse } from '@/api/orcid/types';
 import { MutateOptions, UseMutationOptions } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 

@@ -1,5 +1,5 @@
-import { SelectOption } from '@components/Select';
-import { AppMode } from '@types';
+import { SelectOption } from '@/components/Select';
+import { AppMode } from '@/types';
 
 export const modes: Record<AppMode, SelectOption<AppMode>> = {
   [AppMode.GENERAL]: {

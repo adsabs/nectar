@@ -1,13 +1,13 @@
-import { isUserData } from '@api';
-import { AppState } from '@store';
+import { isUserData } from '@/api';
+import { AppState } from '@/store';
 import { withIronSessionSsr } from 'iron-session/next';
-import { sessionConfig } from '@config';
+import { sessionConfig } from '@/config';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
-import api from '@api/api';
+import api from '@/api/api';
 import { dehydrate, hydrate, QueryClient } from '@tanstack/react-query';
-import { getNotification, NotificationId } from '@store/slices';
-import { logger } from '../logger/logger';
-import { parseAPIError } from '@utils';
+import { getNotification, NotificationId } from '@/store/slices';
+import { logger } from '@/logger';
+import { parseAPIError } from '@/utils';
 
 const log = logger.child({}, { msgPrefix: '[ssr-inject] ' });
 

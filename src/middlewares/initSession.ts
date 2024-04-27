@@ -1,13 +1,13 @@
 import { getIronSession } from 'iron-session/edge';
-import { sessionConfig } from '@config';
-import { ApiTargets } from '@api/models';
-import { IBootstrapPayload, IUserData } from '@api/user/types';
+import { sessionConfig } from '@/config';
+import { ApiTargets } from '@/api/models';
+import { IBootstrapPayload, IUserData } from '@/api/user/types';
 import { isNil, pick } from 'ramda';
 import { isPast, parseISO } from 'date-fns';
-import { edgeLogger } from '../../logger/logger';
+import { edgeLogger } from '@/logger';
 // eslint-disable-next-line @next/next/no-server-import-in-page
 import { NextRequest, NextResponse } from 'next/server';
-import { botCheck } from '@middlewares/botCheck';
+import { botCheck } from '@/middlewares/botCheck';
 
 /**
  * Checks if the user data is valid

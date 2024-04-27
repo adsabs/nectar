@@ -1,4 +1,4 @@
-import { IADSApiSearchParams } from '@api/search';
+import { IADSApiSearchParams } from '@/api/search';
 import { mapObjIndexed } from 'ramda';
 import { IADSApiVisParams, IADSApiWordCloudParams } from './types';
 

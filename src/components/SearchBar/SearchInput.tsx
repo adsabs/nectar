@@ -33,14 +33,14 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useIntermediateQuery } from '@lib/useIntermediateQuery';
+import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 import { isNonEmptyString } from 'ramda-adjunct';
-import { TypeaheadOption } from '@components/SearchBar/types';
-import { initialState, reducer, SearchInputAction } from '@components/SearchBar/searchInputReducer';
-import { getFocusedItemValue, getPreview } from '@components/SearchBar/helpers';
+import { TypeaheadOption } from '@/components/SearchBar/types';
+import { initialState, reducer, SearchInputAction } from '@/components/SearchBar/searchInputReducer';
+import { getFocusedItemValue, getPreview } from '@/components/SearchBar/helpers';
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
-import { useFocus } from '@lib/useFocus';
-import { useColorModeColors } from '@lib';
+import { useFocus } from '@/lib/useFocus';
+import { useColorModeColors } from '@/lib';
 
 const SEARCHBAR_MAX_LENGTH = 2048 as const;
 

@@ -15,11 +15,11 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { IFacetListProps, LogicSelect } from '@components/SearchFacet/FacetList';
-import { AlphaSorter } from '@components/SearchFacet/SearchFacetModal/AlphaSorter';
-import { SearchInput } from '@components/SearchFacet/SearchFacetModal/SearchInput';
-import { SortControl } from '@components/SearchFacet/SearchFacetModal/SortControl';
-import { useFacetStore } from '@components/SearchFacet/store/FacetStore';
+import { IFacetListProps, LogicSelect } from '@/components/SearchFacet/FacetList';
+import { AlphaSorter } from '@/components/SearchFacet/SearchFacetModal/AlphaSorter';
+import { SearchInput } from '@/components/SearchFacet/SearchFacetModal/SearchInput';
+import { SortControl } from '@/components/SearchFacet/SearchFacetModal/SortControl';
+import { useFacetStore } from '@/components/SearchFacet/store/FacetStore';
 import { ReactElement, ReactNode, useCallback, useMemo } from 'react';
 import { keyToPath, parseTitleFromKey } from '../helpers';
 import { useDebounce } from 'src/lib';

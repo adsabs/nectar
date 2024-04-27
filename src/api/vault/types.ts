@@ -1,4 +1,4 @@
-import { IADSApiSearchParams } from '@api/search';
+import { IADSApiSearchParams } from '@/api/search';
 
 export interface IADSVaultExecuteQueryParams {
   qid: string;

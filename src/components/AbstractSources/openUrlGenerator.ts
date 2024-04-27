@@ -1,5 +1,5 @@
 import { is } from 'ramda';
-import { IGetOpenUrlOptions } from '@components/AbstractSources/types';
+import { IGetOpenUrlOptions } from '@/components/AbstractSources/types';
 
 /**
  * check if value is string

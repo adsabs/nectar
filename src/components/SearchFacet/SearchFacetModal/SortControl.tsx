@@ -1,5 +1,5 @@
 import { Flex, FlexProps, Icon, IconButton, Select } from '@chakra-ui/react';
-import { IFacetStoreState } from '@components/SearchFacet/store/FacetStore';
+import { IFacetStoreState } from '@/components/SearchFacet/store/FacetStore';
 import { BarsArrowDownIcon, BarsArrowUpIcon } from '@heroicons/react/24/solid';
 import { ChangeEventHandler } from 'react';
 

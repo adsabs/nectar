@@ -1,4 +1,4 @@
-import { IDocsEntity, useGetAbstract } from '@api';
+import { IDocsEntity, useGetAbstract } from '@/api';
 
 /**
  * helper hook for getting hold of the primary doc

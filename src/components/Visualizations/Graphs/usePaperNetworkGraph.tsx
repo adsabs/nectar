@@ -1,4 +1,8 @@
-import { IADSApiPaperNetworkNodeKey, IADSApiPaperNetworkSummaryGraph, IADSApiPaperNetworkSummaryGraphNode } from '@api';
+import {
+  IADSApiPaperNetworkNodeKey,
+  IADSApiPaperNetworkSummaryGraph,
+  IADSApiPaperNetworkSummaryGraphNode,
+} from '@/api';
 import { useColorMode } from '@chakra-ui/react';
 import * as d3 from 'd3';
 import { HierarchyRectangularNode } from 'd3';

@@ -1,4 +1,4 @@
-import { INotification, NotificationTemplate, useGetNotification } from '@api';
+import { INotification, NotificationTemplate, useGetNotification } from '@/api';
 import {
   Center,
   Modal,
@@ -9,8 +9,8 @@ import {
   ModalOverlay,
   Spinner,
 } from '@chakra-ui/react';
-import { CustomInfoMessage } from '@components/Feedbacks';
-import { noop, parseAPIError } from '@utils';
+import { CustomInfoMessage } from '@/components/Feedbacks';
+import { noop, parseAPIError } from '@/utils';
 import { useMemo } from 'react';
 import { ArxivForm } from './Forms/ArxivForm';
 import { CitationForm } from './Forms/CitationForm';

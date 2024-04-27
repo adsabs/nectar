@@ -1,6 +1,6 @@
 import { AlertStatus, Text, useDisclosure } from '@chakra-ui/react';
-import { AssociatedArticlesForm, FeedbackLayout } from '@components';
-import { FeedbackAlert } from '@components/FeedbackForms';
+import { AssociatedArticlesForm, FeedbackLayout } from '@/components';
+import { FeedbackAlert } from '@/components/FeedbackForms';
 import { NextPage } from 'next';
 import { useMemo, useState } from 'react';
 
@@ -70,4 +70,4 @@ const AssociatedArticles: NextPage = () => {
 };
 
 export default AssociatedArticles;
-export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';
+export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

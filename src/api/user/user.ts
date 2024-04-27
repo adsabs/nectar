@@ -20,9 +20,9 @@ import api, {
   IUserForgotPasswordCredentials,
   IUserRegistrationCredentials,
   IUserResetPasswordCredentials,
-} from '@api';
-import { configWithCSRF, isValidToken } from '@auth-utils';
-import { defaultRequestConfig } from '@api/config';
+} from '@/api';
+import { configWithCSRF, isValidToken } from '@/auth-utils';
+import { defaultRequestConfig } from '@/api/config';
 
 export enum UserKeys {
   USER_API_TOKEN = 'user-api-token',

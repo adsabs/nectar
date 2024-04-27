@@ -1,11 +1,11 @@
-import api, { IBootstrapPayload } from '@api';
-import { ApiRequestConfig } from '@api/api';
-import { APP_STORAGE_KEY } from '@store';
-import { createServerListenerMocks } from '@test-utils';
+import api, { IBootstrapPayload } from '@/api';
+import { ApiRequestConfig } from '@/api/api';
+import { APP_STORAGE_KEY } from '@/store';
+import { createServerListenerMocks } from '@/test-utils';
 import { rest } from 'msw';
 import { map, path, pipe, repeat } from 'ramda';
 import { beforeEach, expect, Mock, test, TestContext, vi } from 'vitest';
-import { IApiUserResponse } from '@pages/api/user';
+import { IApiUserResponse } from '@/pages/api/user';
 
 global.alert = vi.fn();
 

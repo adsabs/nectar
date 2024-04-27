@@ -1,4 +1,4 @@
-import api, { ADSQuery, ApiRequestConfig, ApiTargets, IADSApiGraphicsParams, IDocsEntity } from '@api';
+import api, { ADSQuery, ApiRequestConfig, ApiTargets, IADSApiGraphicsParams, IDocsEntity } from '@/api';
 import { isNil } from 'ramda';
 import { QueryFunction, useQuery, UseQueryResult } from '@tanstack/react-query';
 import { IADSApiGraphicsResponse } from './types';

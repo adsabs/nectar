@@ -1,4 +1,4 @@
-import { INotification, useAddNotification, useEditNotification } from '@api';
+import { INotification, useAddNotification, useEditNotification } from '@/api';
 import { CheckIcon, DeleteIcon } from '@chakra-ui/icons';
 import {
   Flex,
@@ -17,7 +17,7 @@ import {
   FormControl,
   FormLabel,
 } from '@chakra-ui/react';
-import { noop, parseAPIError } from '@utils';
+import { noop, parseAPIError } from '@/utils';
 import { ChangeEvent, FormEvent, MouseEvent, useEffect, useRef, useState } from 'react';
 
 type Author = { author: string; type: 'Author' | 'Orcid' };

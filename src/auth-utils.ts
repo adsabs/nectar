@@ -1,9 +1,9 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { ApiRequestConfig, ApiTargets, IBootstrapPayload, ICSRFResponse, IUserData } from '@api';
-import { defaultRequestConfig } from '@api/config';
+import { ApiRequestConfig, ApiTargets, IBootstrapPayload, ICSRFResponse, IUserData } from '@/api';
+import { defaultRequestConfig } from '@/api/config';
 import { isNil } from 'ramda';
 import { isPast, parseISO } from 'date-fns';
-import { APP_DEFAULTS } from '@config';
+import { APP_DEFAULTS } from '@/config';
 
 const fetchCSRF = async () =>
   await axios.get<ICSRFResponse, AxiosResponse<ICSRFResponse>>(ApiTargets.CSRF, {

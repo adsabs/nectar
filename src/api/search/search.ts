@@ -9,7 +9,7 @@ import api, {
   IBigQueryMutationParams,
   IDocsEntity,
   InfiniteADSQuery,
-} from '@api';
+} from '@/api';
 import axios, { AxiosError } from 'axios';
 import { omit } from 'ramda';
 import {
@@ -37,8 +37,8 @@ import {
   getSingleRecordParams,
   getTocParams,
 } from './models';
-import { isString } from '@utils';
-import { resolveObjectQuery } from '@api/objects/objects';
+import { isString } from '@/utils';
+import { resolveObjectQuery } from '@/api/objects/objects';
 
 type ErrorType = Error | AxiosError;
 

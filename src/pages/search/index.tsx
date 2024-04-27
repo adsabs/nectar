@@ -7,9 +7,9 @@ import {
   IADSApiSearchResponse,
   SEARCH_API_KEYS,
   searchKeys,
-  useSearch,
   SolrSort,
-} from '@api';
+  useSearch,
+} from '@/api';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import {
   Alert,
@@ -45,17 +45,17 @@ import {
   SearchBar,
   SimpleLink,
   SimpleResultList,
-} from '@components';
-import { calculateStartIndex } from '@components/ResultList/Pagination/usePagination';
-import { FacetFilters } from '@components/SearchFacet/FacetFilters';
-import { IYearHistogramSliderProps } from '@components/SearchFacet/YearHistogramSlider';
-import { APP_DEFAULTS } from '@config';
+} from '@/components';
+import { calculateStartIndex } from '@/components/ResultList/Pagination/usePagination';
+import { FacetFilters } from '@/components/SearchFacet/FacetFilters';
+import { IYearHistogramSliderProps } from '@/components/SearchFacet/YearHistogramSlider';
+import { APP_DEFAULTS } from '@/config';
 import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { useIsClient } from 'src/lib';
-import { composeNextGSSP } from '@ssr-utils';
-import { AppState, createStore, useStore, useStoreApi } from '@store';
-import { NumPerPageType } from '@types';
-import { makeSearchParams, parseAPIError, parseQueryFromUrl } from '@utils';
+import { composeNextGSSP } from '@/ssr-utils';
+import { AppState, createStore, useStore, useStoreApi } from '@/store';
+import { NumPerPageType } from '@/types';
+import { makeSearchParams, parseAPIError, parseQueryFromUrl } from '@/utils';
 import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
@@ -63,17 +63,17 @@ import { useRouter } from 'next/router';
 import { last, omit, path } from 'ramda';
 import { FormEventHandler, useCallback, useEffect, useRef, useState } from 'react';
 import { dehydrate, QueryClient, useQueryClient } from '@tanstack/react-query';
-import { SOLR_ERROR, useSolrError } from '@lib/useSolrError';
+import { SOLR_ERROR, useSolrError } from '@/lib/useSolrError';
 import { AxiosError } from 'axios';
-import { logger } from '../../../logger/logger';
+import { logger } from '@/logger';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
-  () => import('@components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),
+  () => import('@/components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),
   { ssr: false },
 );
 
 const SearchFacets = dynamic<ISearchFacetsProps>(
-  () => import('@components/SearchFacet').then((mod) => mod.SearchFacets),
+  () => import('@/components/SearchFacet').then((mod) => mod.SearchFacets),
   { ssr: false },
 );
 

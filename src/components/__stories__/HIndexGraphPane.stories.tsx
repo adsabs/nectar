@@ -1,5 +1,5 @@
-import { HIndexGraphPane } from '@components';
-import { buckets, sum } from '@components/__mocks__/hIndexGraphData';
+import { HIndexGraphPane } from '@/components';
+import { buckets, sum } from '@/components/__mocks__/hIndexGraphData';
 import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {

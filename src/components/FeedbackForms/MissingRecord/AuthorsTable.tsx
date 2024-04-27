@@ -1,6 +1,6 @@
 import { CheckIcon, CloseIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons';
 import { Tr, Td, Input, IconButton, Table, Thead, Th, Tbody, HStack } from '@chakra-ui/react';
-import { PaginationControls } from '@components';
+import { PaginationControls } from '@/components';
 import {
   createColumnHelper,
   flexRender,

@@ -1,4 +1,4 @@
-import { NumFound } from '@components';
+import { NumFound } from '@/components';
 import { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {

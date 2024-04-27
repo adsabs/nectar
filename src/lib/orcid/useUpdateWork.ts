@@ -1,12 +1,12 @@
-import { AppState, useStore } from '@store';
-import { useOrcidUpdateWork } from '@api/orcid';
+import { AppState, useStore } from '@/store';
+import { useOrcidUpdateWork } from '@/api/orcid';
 import { useEffect, useState } from 'react';
-import { useSearch } from '@api';
-import { transformADStoOrcid } from '@lib/orcid/workTransformer';
-import { OrcidHookOptions, OrcidMutationOptions } from '@lib/orcid/types';
-import { parseAPIError } from '@utils';
-import { IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
-import { isOrcidProfileEntry } from '@api/orcid/models';
+import { useSearch } from '@/api';
+import { transformADStoOrcid } from '@/lib/orcid/workTransformer';
+import { OrcidHookOptions, OrcidMutationOptions } from '@/lib/orcid/types';
+import { parseAPIError } from '@/utils';
+import { IOrcidProfileEntry } from '@/api/orcid/types/orcid-profile';
+import { isOrcidProfileEntry } from '@/api/orcid/models';
 
 const orcidUserSelector = (state: AppState) => state.orcid.user;
 export const useUpdateWork = (

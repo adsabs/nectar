@@ -1,8 +1,8 @@
 import { Button, ButtonProps, forwardRef, HStack, Icon, Text, useToast } from '@chakra-ui/react';
-import { TOAST_DEFAULTS } from '@components/Orcid/helpers';
-import { useRemoveWorks } from '@lib/orcid/useRemoveWorks';
-import { parseAPIError } from '@utils';
-import { OrcidLogo } from '@components';
+import { TOAST_DEFAULTS } from '@/components/Orcid/helpers';
+import { useRemoveWorks } from '@/lib/orcid/useRemoveWorks';
+import { parseAPIError } from '@/utils';
+import { OrcidLogo } from '@/components';
 import React from 'react';
 
 interface IOrcidActionBtnProps extends ButtonProps {

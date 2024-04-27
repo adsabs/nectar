@@ -1,4 +1,4 @@
-import { IDocsEntity } from '@api';
+import { IDocsEntity } from '@/api';
 import {
   Accordion,
   AccordionButton,
@@ -16,11 +16,11 @@ import {
   MenuList,
 } from '@chakra-ui/react';
 import { ChevronDownIcon } from '@chakra-ui/icons';
-import { SimpleLink } from '@components';
+import { SimpleLink } from '@/components';
 import { ReactElement, useMemo } from 'react';
-import { useResolverQuery } from '@api/resolver';
-import { processLinkData } from '@components/AbstractSources/linkGenerator';
-import { useSettings } from '@lib/useSettings';
+import { useResolverQuery } from '@/api/resolver';
+import { processLinkData } from '@/components/AbstractSources/linkGenerator';
+import { useSettings } from '@/lib/useSettings';
 import {
   AbstractSourceItems,
   AbstractResourceType,

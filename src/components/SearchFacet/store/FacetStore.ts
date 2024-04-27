@@ -1,6 +1,6 @@
-import { ISearchFacetProps } from '@components';
-import { facetConfig } from '@components/SearchFacet/config';
-import { FacetItem, IFacetParams, SearchFacetID } from '@components/SearchFacet/types';
+import { ISearchFacetProps } from '@/components';
+import { facetConfig } from '@/components/SearchFacet/config';
+import { FacetItem, IFacetParams, SearchFacetID } from '@/components/SearchFacet/types';
 import { omit, pick } from 'ramda';
 import { createElement, FC } from 'react';
 import create from 'zustand';
