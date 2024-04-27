@@ -141,10 +141,11 @@ export const initSession = async (req: NextRequest, res: NextResponse) => {
   if (isValidToken(token)) {
     session.token = token;
     session.isAuthenticated = isAuthenticated(token);
-    res.cookies.set(process.env.ADS_SESSION_COOKIE_NAME, headers.get('set-cookie') ?? '');
+    log.debug({ msg: 'headers', headers: headers.entries() });
+    const sessionCookieValue = headers.get('set-cookie').split('=')[1] ?? '';
+    res.cookies.set(process.env.ADS_SESSION_COOKIE_NAME, sessionCookieValue);
     session.apiCookieHash = await hash(res.cookies.get(process.env.ADS_SESSION_COOKIE_NAME)?.value);
     await session.save();
-    log.debug('New session created.');
     return res;
   }
 
