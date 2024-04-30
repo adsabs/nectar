@@ -45,7 +45,8 @@ export const Actions = ({ work }: IActionProps) => {
               as={IconButton}
               isDisabled={!inSciX}
               variant="ghost"
-              icon={<Icon as={Cog8ToothIcon} color="gray.500" fontSize="18px" aria-hidden />}
+              icon={<Icon as={Cog8ToothIcon} color="gray.500" fontSize="18px" />}
+              aria-label={`actions for ${work.title}`}
             />
             <MenuList>
               <SyncToOrcidMenuItem work={work} isDisabled={!claimedBySciX} />
