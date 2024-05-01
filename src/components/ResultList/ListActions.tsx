@@ -282,11 +282,12 @@ const SortWrapper = ({ onChange }: { onChange: ISortProps['onChange'] }) => {
 };
 
 const SettingsMenu = () => {
+  const toggleShowHighlights = useStore((state) => state.toggleShowHighlights);
   return (
     <Menu>
       <MenuButton as={IconButton} aria-label="Result list settings" variant="outline" icon={<SettingsIcon />} />
       <MenuList>
-        <MenuItem>
+        <MenuItem onClick={toggleShowHighlights}>
           <HighlightsToggle />
         </MenuItem>
       </MenuList>
@@ -296,14 +297,13 @@ const SettingsMenu = () => {
 
 const HighlightsToggle = () => {
   const showHighlights = useStore((state) => state.showHighlights);
-  const toggleShowHighlights = useStore((state) => state.toggleShowHighlights);
 
   return (
     <FormControl display="flex" alignItems="center" width="fit-content">
       <FormLabel mb="0" htmlFor="show-highlights">
         Show Highlights?
       </FormLabel>
-      <Switch isChecked={showHighlights} onChange={toggleShowHighlights} id="show-highlights" />
+      <Switch isChecked={showHighlights} id="show-highlights" tabIndex={0} />
     </FormControl>
   );
 };
