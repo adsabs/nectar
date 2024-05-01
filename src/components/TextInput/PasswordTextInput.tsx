@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { forwardRef } from 'react';
 import { CheckIcon } from '@chakra-ui/icons';
+import { useColorModeColors } from '@lib';
 
 interface IPasswordTextInputProps extends InputProps {
   onSwitch?: (hidden: boolean) => void;
@@ -22,6 +23,7 @@ export const PasswordTextInput = forwardRef<HTMLInputElement, IPasswordTextInput
   const { getCheckboxProps, getInputProps, htmlProps, state } = useCheckbox({
     onChange: (e) => onSwitch?.(e.target.checked),
   });
+  const { link } = useColorModeColors();
   return (
     <>
       <InputGroup>
@@ -35,7 +37,7 @@ export const PasswordTextInput = forwardRef<HTMLInputElement, IPasswordTextInput
         <InputRightElement>
           <chakra.label cursor="pointer" color="gray.600" mr="2" {...htmlProps}>
             <Input {...getInputProps()} required={false} type="checkbox" hidden />
-            <Flex textDecoration="underline" {...getCheckboxProps()}>
+            <Flex textDecoration="underline" color={link} {...getCheckboxProps()}>
               {state.isChecked ? 'Hide' : 'Show'}
             </Flex>
           </chakra.label>
@@ -68,13 +70,9 @@ export const PasswordRequirements = ({ password }: { password: string }) => {
 };
 
 export const Req = ({ message, valid }: { message: string; valid: boolean }) => {
+  const { text } = useColorModeColors();
   return (
-    <Text
-      fontWeight={valid ? 'bold' : 'auto'}
-      color={valid ? 'auto' : 'gray.600'}
-      fontSize="sm"
-      aria-describedby="password"
-    >
+    <Text fontWeight={valid ? 'bold' : 'auto'} color={valid ? 'auto' : text} fontSize="sm" aria-describedby="password">
       {valid && <Icon as={CheckIcon} color="green.500" mr={2} aria-label="requirement is valid" />}
       {message}
     </Text>

@@ -211,7 +211,7 @@ export const NotificationsPane = () => {
               <Table variant="simple" data-testid="notifications-table">
                 <Thead>
                   <Tr>
-                    <Th></Th>
+                    <Th aria-label="index"></Th>
                     <Th w="30%">Name</Th>
                     <Th>Type</Th>
                     <Th>Frequency</Th>
@@ -352,6 +352,7 @@ const Action = ({
         onClick={(e) => e.stopPropagation()}
         children={<SettingsIcon />}
         data-testid="action-btn"
+        aria-label={`actions`}
       />
       {/* make sure parent <tr> doesn't overwrite colors here when row is disabled */}
       <MenuList backgroundColor={colors.background} color={colors.text} data-testid="action-menu">
@@ -373,7 +374,12 @@ const Action = ({
         <MenuItem onClick={() => onSetActive(!active)}>
           <Flex w="full" justifyContent="space-between" style={{ pointerEvents: 'none' }}>
             <Text>Enable Notification?</Text>
-            <Switch isChecked={active} isFocusable={false} isReadOnly aria-hidden />
+            <Switch
+              isChecked={active}
+              isFocusable={false}
+              isReadOnly
+              aria-label={`notification is ${active ? 'enabled' : 'disabled'}`}
+            />
           </Flex>
         </MenuItem>
         {type !== 'query' && <MenuItem onClick={onEdit}>Edit</MenuItem>}
