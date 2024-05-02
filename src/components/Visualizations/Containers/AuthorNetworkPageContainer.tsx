@@ -216,7 +216,6 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
                 label="Download CSV Data"
                 getFileContent={() => getCSVDataContent()}
                 fileName="author-network.csv"
-                showLabel={true}
               />
             )}
             <AuthorNetworkGraphPane

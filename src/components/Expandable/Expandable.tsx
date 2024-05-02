@@ -1,5 +1,5 @@
 import { ReactElement } from 'react';
-import { Box, Button, Collapse, Flex, Stack, StackProps, Text, useDisclosure } from '@chakra-ui/react';
+import { Box, Button, Collapse, Flex, Stack, StackProps, useDisclosure } from '@chakra-ui/react';
 import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons';
 
 export interface IExpandableProps extends StackProps {

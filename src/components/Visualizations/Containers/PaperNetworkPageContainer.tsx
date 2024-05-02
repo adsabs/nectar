@@ -250,7 +250,6 @@ export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerP
                 label="Download CSV Data"
                 getFileContent={() => getCSVDataContent()}
                 fileName="paper-network.csv"
-                showLabel={true}
               />
             )}
             <PaperNetworkGraphPane

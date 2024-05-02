@@ -127,7 +127,6 @@ const PapersSection = ({
               label="Download CSV Data"
               getFileContent={() => getBarGraphCSVDataContent(papersGraph.totalGraph)}
               fileName="metrics-papers.csv"
-              showLabel={true}
               my={5}
             />
           )}
@@ -174,7 +173,6 @@ const CitationsSection = ({
               label="Download CSV Data"
               getFileContent={() => getBarGraphCSVDataContent(citationsGraphs.totalGraph)}
               fileName="metrics-citations.csv"
-              showLabel={true}
               my={5}
             />
           )}
@@ -221,7 +219,6 @@ const ReadsSection = ({
               label="Download CSV Data"
               getFileContent={() => getBarGraphCSVDataContent(readsGraphs.totalGraph)}
               fileName="metrics-reads.csv"
-              showLabel={true}
               my={5}
             />
           )}
@@ -329,7 +326,6 @@ const IndicesSection = ({
               label="Download CSV Data"
               getFileContent={() => getCSVDataContent()}
               fileName="metrics-indices.csv"
-              showLabel={true}
               my={5}
             />
           )}
