@@ -166,6 +166,16 @@ export const BubblePlot = ({
       }
     });
 
+    papers.on('keypress', (event: KeyboardEvent, node) => {
+      if (event.key === 'Enter') {
+        if (findIndex(propEq('bibcode', node.bibcode), selectedNodes) === -1) {
+          dispatch({ type: 'SELECT_NODES', payload: [node] });
+        } else {
+          dispatch({ type: 'DESELECT_NODE', payload: node });
+        }
+      }
+    });
+
     // select nodes when rectangle boundary is drawn
     const brush = d3
       .brush()
@@ -351,11 +361,21 @@ export const BubblePlot = ({
       .attr('x', 15)
       .attr('y', (_d, i) => i * 22 + 10)
       .text((d) => d)
+      .attr('tabindex', 0)
       .on('click', function (_e, group) {
         if (this.classList.contains('selected')) {
           dispatch({ type: 'SELECT_GROUP', payload: null });
         } else {
           dispatch({ type: 'SELECT_GROUP', payload: group });
+        }
+      })
+      .on('keypress', function (e: KeyboardEvent, group) {
+        if (e.key === 'Enter') {
+          if (this.classList.contains('selected')) {
+            dispatch({ type: 'SELECT_GROUP', payload: null });
+          } else {
+            dispatch({ type: 'SELECT_GROUP', payload: group });
+          }
         }
       });
   };
@@ -371,10 +391,22 @@ export const BubblePlot = ({
       // these linsteners should be removed at element.selectAll('*').remove()
       xLabelElement
         .select('.scale-choice.linear')
-        .on('click', () => dispatch({ type: 'SET_X_SCALE_TYPE', payload: 'linear' }));
+        .attr('tabindex', 0)
+        .on('click', () => dispatch({ type: 'SET_X_SCALE_TYPE', payload: 'linear' }))
+        .on('keypress', (event: KeyboardEvent) => {
+          if (event.key === 'Enter') {
+            dispatch({ type: 'SET_X_SCALE_TYPE', payload: 'linear' });
+          }
+        });
       xLabelElement
         .select('.scale-choice.log')
-        .on('click', () => dispatch({ type: 'SET_X_SCALE_TYPE', payload: 'log' }));
+        .attr('tabindex', 0)
+        .on('click', () => dispatch({ type: 'SET_X_SCALE_TYPE', payload: 'log' }))
+        .on('keypress', (event: KeyboardEvent) => {
+          if (event.key === 'Enter') {
+            dispatch({ type: 'SET_X_SCALE_TYPE', payload: 'log' });
+          }
+        });
     },
     [renderAxisScaleOptions, xLabel, xScaleTypes, state.xScaleType],
   );
@@ -390,10 +422,22 @@ export const BubblePlot = ({
       // these linsteners should be removed at element.selectAll('*').remove()
       yLabelElement
         .select('.scale-choice.linear')
-        .on('click', () => dispatch({ type: 'SET_Y_SCALE_TYPE', payload: 'linear' }));
+        .attr('tabindex', 0)
+        .on('click', () => dispatch({ type: 'SET_Y_SCALE_TYPE', payload: 'linear' }))
+        .on('keypress', (event: KeyboardEvent) => {
+          if (event.key === 'Enter') {
+            dispatch({ type: 'SET_Y_SCALE_TYPE', payload: 'linear' });
+          }
+        });
       yLabelElement
         .select('.scale-choice.log')
-        .on('click', () => dispatch({ type: 'SET_Y_SCALE_TYPE', payload: 'log' }));
+        .attr('tabindex', 0)
+        .on('click', () => dispatch({ type: 'SET_Y_SCALE_TYPE', payload: 'log' }))
+        .on('keypress', (event: KeyboardEvent) => {
+          if (event.key === 'Enter') {
+            dispatch({ type: 'SET_Y_SCALE_TYPE', payload: 'log' });
+          }
+        });
     },
     [renderAxisScaleOptions, yLabel, yScaleTypes, state.yScaleType],
   );
@@ -474,7 +518,8 @@ export const BubblePlot = ({
           (state.xScaleType === 'log' && d[xKey] === 0) || (state.yScaleType === 'log' && d[yKey] === 0) // hide invalid nodes (log(0))
             ? 'none'
             : 'block',
-        );
+        )
+        .attr('tabindex', 0);
 
       // tooltip event
       papers.on('mouseover.tooltip', (event, node) => {
