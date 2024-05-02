@@ -261,6 +261,7 @@ export const AuthorNetworkGraph = ({
         .style('font-size', (d) => fontSize(d, keyToUseAsValue))
         .style('display', (d) => labelDisplay(d, keyToUseAsValue))
         .style('fill', textColor)
+        .attr('tabindex', 0)
         .text((d) => (d.depth === 2 ? (d.data.name as string) : null))
         .attr('text-anchor', textAnchor)
         .on('mouseover', handleMouseOverLabel)
@@ -268,6 +269,11 @@ export const AuthorNetworkGraph = ({
           // remove highlights
           g.selectAll('.link').classed('selected-link', false);
           g.selectAll('.node-label').classed('linked-label', false);
+        })
+        .on('keypress', (e: KeyboardEvent, p) => {
+          if (e.key === 'Enter') {
+            setSelectedNode(p.data);
+          }
         })
         .on('click', (e, p) => {
           setSelectedNode(p.data);

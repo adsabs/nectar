@@ -117,7 +117,6 @@ export const HIndexGraphPane = ({ buckets, sum, type, onApplyCondition }: IHInde
                 label="Download CSV Data"
                 getFileContent={getCSVDataContent}
                 fileName={`${type}.csv`}
-                showLabel={true}
                 my={5}
               />
               <Text>
