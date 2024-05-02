@@ -112,6 +112,7 @@ export const Histogram = ({
         .attr('transform', (d) => `translate(${xScale(d.x0)} , 0)`)
         .attr('width', (d) => xScale(d.x1) - xScale(d.x0))
         .attr('height', height)
+        .attr('tabindex', 0)
         .style('fill', '#fff')
         .style('opacity', 0) // make it transparent
         .on('mouseover', (event, bin) => {
@@ -130,6 +131,12 @@ export const Histogram = ({
         .on('click', (e, bin) => {
           const { x } = data.find((d) => d.x === bin.x0);
           onClick(x);
+        })
+        .on('keypress', (e: KeyboardEvent, bin) => {
+          if (e.key === 'Enter') {
+            const { x } = data.find((d) => d.x === bin.x0);
+            onClick(x);
+          }
         })
         .style('cursor', 'pointer');
 
