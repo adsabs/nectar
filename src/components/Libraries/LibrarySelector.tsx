@@ -102,7 +102,13 @@ export const LibrarySelector = ({
             {(isMultiple || (!isMultiple && selected.length === 0)) && (
               <Input
                 onClick={onToggle}
-                onKeyDown={(e) => (e.key === 'Enter' ? onToggle() : noop())}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onToggle();
+                  }
+                }}
                 placeholder="Select library"
                 autoComplete="off"
                 isReadOnly

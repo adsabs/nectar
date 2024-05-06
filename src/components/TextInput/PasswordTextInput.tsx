@@ -1,16 +1,5 @@
-import {
-  chakra,
-  Flex,
-  Icon,
-  Input,
-  InputGroup,
-  InputProps,
-  InputRightElement,
-  Stack,
-  Text,
-  useCheckbox,
-} from '@chakra-ui/react';
-import { forwardRef } from 'react';
+import { Button, Icon, Input, InputGroup, InputProps, InputRightElement, Stack, Text } from '@chakra-ui/react';
+import { forwardRef, useState } from 'react';
 import { CheckIcon } from '@chakra-ui/icons';
 import { useColorModeColors } from '@lib';
 
@@ -20,27 +9,27 @@ interface IPasswordTextInputProps extends InputProps {
 
 export const PasswordTextInput = forwardRef<HTMLInputElement, IPasswordTextInputProps>((props, ref) => {
   const { onSwitch, ...inputProps } = props;
-  const { getCheckboxProps, getInputProps, htmlProps, state } = useCheckbox({
-    onChange: (e) => onSwitch?.(e.target.checked),
-  });
-  const { link } = useColorModeColors();
+  const [showPwd, setShowPwd] = useState(false);
+
+  const handleToggleShowPwd = () => {
+    onSwitch?.(!showPwd);
+    setShowPwd((prev) => !prev);
+  };
+
   return (
     <>
       <InputGroup>
         <Input
-          placeholder={state.isChecked ? '' : '*******'}
+          placeholder={showPwd ? '' : '*******'}
           {...inputProps}
-          type={state.isChecked ? 'text' : 'password'}
+          type={showPwd ? 'text' : 'password'}
           ref={ref}
           pr="12"
         />
-        <InputRightElement>
-          <chakra.label cursor="pointer" color="gray.600" mr="2" {...htmlProps}>
-            <Input {...getInputProps()} required={false} type="checkbox" hidden />
-            <Flex textDecoration="underline" color={link} {...getCheckboxProps()}>
-              {state.isChecked ? 'Hide' : 'Show'}
-            </Flex>
-          </chakra.label>
+        <InputRightElement mx={2}>
+          <Button variant="link" tabIndex={0} onClick={handleToggleShowPwd}>
+            {showPwd ? 'Hide' : 'Show'}
+          </Button>
         </InputRightElement>
       </InputGroup>
     </>
