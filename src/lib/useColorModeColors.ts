@@ -29,7 +29,7 @@ export const useColorModeColors = (): ColorModeColors => {
     ? {
         background: 'white',
         text: 'gray.700',
-        disalbedText: 'gray.600',
+        disalbedText: 'gray.400',
         link: 'blue.400',
         highlightBackground: 'blue.100',
         highlightForeground: 'gray.800',
@@ -73,7 +73,7 @@ export const useColorModeColorVars = (): ColorModeColors => {
     ? {
         background: 'var(--chakra-colors-white)',
         text: 'var(--chakra-colors-gray-700)',
-        disalbedText: 'var(--chakra-colors-gray-600)',
+        disalbedText: 'var(--chakra-colors-gray-400)',
         link: 'var(--chakra-colors-blue-400)',
         highlightBackground: 'var(--chakra-colors-blue-100)',
         highlightForeground: 'var(--chakra-colors-gray-800)',
