@@ -64,8 +64,8 @@ export const Slider = ({
         rootStyle={{
           position: 'relative',
         }}
-        onUpdate={handleUpdateValues}
-        onSlideEnd={handleChangeValues}
+        onChange={handleChangeValues} // value when mouse drag stopped, or keyboard update value
+        onUpdate={handleUpdateValues} // this updates values when mouse dragging, used by histogram
       >
         <Rail>
           {({ getRailProps }) => (
@@ -217,6 +217,7 @@ const Handle = ({ handle, getHandleProps, align, mt, showLabel }: IHandleProps):
         color="gray.900"
         borderColor="blue.600"
         borderWidth={1}
+        tabIndex={0}
         {...getHandleProps(handle.id)}
       />
       {showLabel && (
