@@ -144,7 +144,6 @@ export const ResultsGraphPageContainer = ({ query }: IResultsGraphPageContainerP
               label="Download CSV Data"
               getFileContent={() => getCSVDataContent()}
               fileName="results-graph.csv"
-              showLabel={true}
             />
           )}
           <BubblePlotPane graph={graphData} onApplyFilter={handleApplyFilter} />

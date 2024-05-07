@@ -28,7 +28,6 @@ const SideMenuItem = ({ href, label, icon, active = false, disabled = false, rig
           justifyContent="start"
           colorScheme="gray"
           mb={1}
-          color={colors.disalbedText}
           fontSize="normal"
           fontWeight="normal"
           isDisabled

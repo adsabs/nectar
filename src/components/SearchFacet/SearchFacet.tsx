@@ -135,7 +135,7 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
 
   return (
     <ListItem ref={setNodeRef} style={style} my={0} w="64">
-      <h2>
+      <h3>
         <HStack
           spacing={0}
           sx={{
@@ -197,7 +197,7 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
             />
           </Tooltip>
         </HStack>
-      </h2>
+      </h3>
       {isOpen && (
         <Box
           pl={7}

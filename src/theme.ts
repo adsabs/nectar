@@ -30,9 +30,9 @@ export const theme = extendTheme(
         '400': '#969696',
         '500': '#808080',
         '600': '#666666',
-        '700': '#4D4D4D',
-        '800': '#333333',
-        '900': '#1A1A1A',
+        '700': '#303130',
+        '800': '#1C1C1C',
+        '900': '#000000',
       },
     },
     fontSizes: {
@@ -61,9 +61,10 @@ export const theme = extendTheme(
     styles: {
       global: (props: StyleFunctionProps) => ({
         'html, body': {
-          color: mode('gray.600', 'whiteAlpha.900')(props),
+          color: mode('gray.600', 'white')(props),
           fontSize: 'md',
           fontWeight: 'normal',
+          backgroundColor: mode('white', 'gray.800')(props),
         },
         a: {
           color: mode('blue.400', 'blue.200')(props),
@@ -314,6 +315,15 @@ export const theme = extendTheme(
             bg: mode('whiteAlpha.900', 'gray.800')(props),
           },
         }),
+      },
+      Tabs: {
+        parts: ['tab'],
+        baseStyle: {
+          thumb: {
+            borderColor: 'gray.200',
+            borderRadius: '5px',
+          },
+        },
       },
     },
   },

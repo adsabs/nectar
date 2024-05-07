@@ -25,7 +25,7 @@ import { AccountDropdown } from './AccountDropdown';
 import { FeedbackDropdown } from './FeedbackDropdown';
 import { OrcidDropdown } from './OrcidDropdown';
 import { ListType } from './types';
-import { isBrowser } from '@utils';
+import { isBrowser, noop } from '@utils';
 import { ColorModeMenu } from './ColorModeMenu';
 
 export const NavMenus = (): ReactElement => {
@@ -129,7 +129,9 @@ export const NavMenus = (): ReactElement => {
         <OrcidDropdown type={ListType.DROPDOWN} />
         <AboutDropdown type={ListType.DROPDOWN} />
         <Menu variant="navbar">
-          <MenuButton onClick={handleHelp}>Help</MenuButton>
+          <MenuButton onClick={handleHelp} onKeyDown={(e) => (e.key === 'Enter' ? handleHelp() : noop())}>
+            Help
+          </MenuButton>
         </Menu>
         <AccountDropdown type={ListType.DROPDOWN} />
         <ColorModeMenu type="icon" />
