@@ -8,6 +8,7 @@ import { edgeLogger } from '@/logger';
 // eslint-disable-next-line @next/next/no-server-import-in-page
 import { NextRequest, NextResponse } from 'next/server';
 import { botCheck } from '@/middlewares/botCheck';
+import setCookie from 'set-cookie-parser';
 
 /**
  * Checks if the user data is valid
@@ -142,7 +143,7 @@ export const initSession = async (req: NextRequest, res: NextResponse) => {
     session.token = token;
     session.isAuthenticated = isAuthenticated(token);
     log.debug({ msg: 'headers', headers: headers.entries() });
-    const sessionCookieValue = headers.get('set-cookie').split('=')[1] ?? '';
+    const sessionCookieValue = setCookie.parse(headers.get('set-cookie') ?? '')[0].value;
     res.cookies.set(process.env.ADS_SESSION_COOKIE_NAME, sessionCookieValue);
     session.apiCookieHash = await hash(res.cookies.get(process.env.ADS_SESSION_COOKIE_NAME)?.value);
     await session.save();
