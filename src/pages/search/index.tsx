@@ -87,6 +87,7 @@ const selectors = {
   showFilters: (state: AppState) => state.settings.searchFacets.open,
   toggleSearchFacetsOpen: (state: AppState) => state.toggleSearchFacetsOpen,
   resetSearchFacets: (state: AppState) => state.resetSearchFacets,
+  clearAllSelected: (state: AppState) => state.clearAllSelected,
 };
 
 const omitP = omit(['p']);
@@ -101,6 +102,7 @@ const SearchPage: NextPage = () => {
   const submitQuery = useStore(selectors.submitQuery);
   const setNumPerPage = useStore(selectors.setNumPerPage);
   const setDocs = useStore(selectors.setDocs);
+  const clearSelectedDocs = useStore(selectors.clearAllSelected);
 
   const queryClient = useQueryClient();
   const queries = queryClient.getQueriesData<IADSApiSearchResponse>([SEARCH_API_KEYS.primary]);
@@ -156,6 +158,9 @@ const SearchPage: NextPage = () => {
       // if query is empty, do not submit search
       return;
     }
+
+    // clear current docs since we are entering new search
+    clearSelectedDocs();
 
     // generate a URL search string and trigger a page transition, and update store
     const search = makeSearchParams({ ...params, ...query, q, p: 1 });
