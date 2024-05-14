@@ -1,7 +1,7 @@
 import { ISearchFacetProps } from '@/components';
 import { facetConfig } from '@/components/SearchFacet/config';
 import { FacetItem, IFacetParams, SearchFacetID } from '@/components/SearchFacet/types';
-import { omit, pick } from 'ramda';
+import { omit, pick, uniq } from 'ramda';
 import { createElement, FC } from 'react';
 import create from 'zustand';
 import createContext from 'zustand/context';
@@ -38,6 +38,13 @@ export interface IFacetStoreState {
   sort: ['count' | 'index', 'asc' | 'desc'];
   letter: string;
   search: string;
+
+  // For keyboard focusing
+  keyboardFocus: number[]; // index
+  expanded: string[];
+  childrenCount: {
+    [key: string]: number;
+  };
 }
 
 export type FacetStoreEvents = {
@@ -50,6 +57,10 @@ export type FacetStoreEvents = {
   addNodes: (nodes: FacetItem[]) => void;
   updateModal: (isOpen: boolean) => void;
   clearSelection: () => void;
+  setKeyboardFocus: (index: number[]) => void;
+  setExpanded: (id: string) => void;
+  setCollapsed: (id: string) => void;
+  setChildrenCount: (id: string, count: number) => void;
 };
 
 const initialState: IFacetStoreState = {
@@ -62,6 +73,9 @@ const initialState: IFacetStoreState = {
   letter: 'All',
   search: '',
   isOpen: false,
+  keyboardFocus: null,
+  expanded: [],
+  childrenCount: {},
 };
 
 const createStore = (preloadedState: Partial<IFacetStoreState>) => () =>
@@ -103,6 +117,10 @@ const createStore = (preloadedState: Partial<IFacetStoreState>) => () =>
     setSort: (sort) => set({ sort }),
     reset: () => set(omit(['params'], initialState)),
     clearSelection: () => set(pick(['selection', 'selected'], initialState)),
+    setKeyboardFocus: (index) => set({ keyboardFocus: index }),
+    setExpanded: (id) => set({ expanded: uniq([...get().expanded, id]) }),
+    setCollapsed: (id) => set({ expanded: get().expanded.filter((d) => d !== id) }),
+    setChildrenCount: (id, count) => set({ childrenCount: { ...get().childrenCount, [id]: count } }),
   }));
 
 const FacetStoreContext = createContext<IFacetStoreState & FacetStoreEvents>();
@@ -113,7 +131,10 @@ export const FacetStoreProvider: FC<{ facetId: SearchFacetID }> = ({ children, f
     ['label', 'field', 'hasChildren', 'logic', 'facetQuery', 'filter', 'forceUppercaseInitial', 'maxDepth'],
     facetConfig[facetId],
   ) as FacetParams;
-  return createElement(FacetStoreContext.Provider, { createStore: createStore({ params }), children });
+  return createElement(FacetStoreContext.Provider, {
+    createStore: createStore({ params }),
+    children,
+  });
 };
 
 type CombinedState = IFacetStoreState & FacetStoreEvents;
@@ -127,6 +148,9 @@ export const selectors = {
   letter: (state: CombinedState) => state.letter,
   search: (state: CombinedState) => state.search,
   isOpen: (state: CombinedState) => state.isOpen,
+  keyboardFocus: (state: CombinedState) => state.keyboardFocus,
+  expanded: (state: CombinedState) => state.expanded,
+  childrenCount: (state: CombinedState) => state.childrenCount,
 
   // actions
   select: (state: CombinedState) => state.select,
@@ -138,4 +162,8 @@ export const selectors = {
   addNodes: (state: CombinedState) => state.addNodes,
   updateModal: (state: CombinedState) => state.updateModal,
   clearSelection: (state: CombinedState) => state.clearSelection,
+  setKeyboardFocused: (state: CombinedState) => state.setKeyboardFocus,
+  setExpanded: (state: CombinedState) => state.setExpanded,
+  setCollapsed: (state: CombinedState) => state.setCollapsed,
+  setChildrenCount: (state: CombinedState) => state.setChildrenCount,
 };

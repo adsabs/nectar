@@ -15,7 +15,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { FacetList } from '@/components/SearchFacet/FacetList';
-import { FacetStoreProvider } from '@/components/SearchFacet/store/FacetStore';
+import { FacetStoreProvider, selectors, useFacetStore } from '@/components/SearchFacet/store/FacetStore';
 import { Toggler } from '@/components/Toggler';
 import {
   closestCenter,
@@ -34,12 +34,22 @@ import { EyeIcon, EyeSlashIcon } from '@heroicons/react/20/solid';
 import { ExclamationCircleIcon } from '@heroicons/react/24/solid';
 import { AppState, useStore, useStoreApi } from '@/store';
 import { append, omit, uniq, without } from 'ramda';
-import { CSSProperties, MouseEventHandler, ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  CSSProperties,
+  KeyboardEvent,
+  MouseEventHandler,
+  ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { facetConfig } from './config';
 import { applyFiltersToQuery } from './helpers';
-import { FacetLogic, OnFilterArgs, SearchFacetID } from './types';
+import { FacetLogic, KeyboardFocusItem, OnFilterArgs, SearchFacetID } from './types';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { sendGTMEvent } from '@next/third-parties/google';
+import { FacetContext } from './FacetContext';
 
 export interface ISearchFacetProps extends AccordionItemProps {
   field: FacetField;
@@ -133,6 +143,24 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
     padding: isDragging ? '4px' : undefined,
   };
 
+  // keyboard focus search facet and item
+  // const [keyboardFocus, setKeyboardFocus] = useState<KeyboardFocusItem>({ facetId: null, index: [] });
+  // const [expanded, setExpanded] = useState<string[]>([]);
+  // const [childrenCount, setChildrenCount] = useState<{
+  //   [key: string]: number;
+  // }>({});
+
+  // const [focusChildren, setFocusChildren] = useState<boolean>(false);
+
+  const setKeyboardFocused = useFacetStore(selectors.setKeyboardFocused);
+
+  const handleFacetKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
+    if (isOpen && e.key === 'ArrowDown') {
+      // enter focus on first item
+      setKeyboardFocused([0]);
+    }
+  };
+
   return (
     <ListItem ref={setNodeRef} style={style} my={0} w="64">
       <h3>
@@ -161,6 +189,7 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
             _focus={{
               boxShadow: '',
             }}
+            onKeyDown={handleFacetKeyDown}
           >
             <DragHandleIcon mr="1" color="gray.400" fontSize="md" />
             <Toggler isToggled={isOpen} fontSize="2xl" />
@@ -194,6 +223,7 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
               m={0}
               height={8}
               icon={<Center>{facetState.hidden ? <Icon as={EyeSlashIcon} /> : <Icon as={EyeIcon} />}</Center>}
+              onKeyDown={handleFacetKeyDown}
             />
           </Tooltip>
         </HStack>
@@ -209,9 +239,13 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
           borderBottomRadius="md"
           mt="0"
         >
-          <FacetStoreProvider facetId={storeId} key={JSON.stringify(searchQuery)}>
-            <FacetList noLoadMore={noLoadMore} onFilter={handleOnFilter} onError={handleOnError} />
-          </FacetStoreProvider>
+          {/* <FacetStoreProvider
+            facetId={storeId}
+            key={JSON.stringify(searchQuery)}
+            keyboardFocus={focusChildren ? [0] : null}
+          > */}
+          <FacetList noLoadMore={noLoadMore} onFilter={handleOnFilter} onError={handleOnError} facetId={storeId} />
+          {/* </FacetStoreProvider> */}
         </Box>
       )}
     </ListItem>
@@ -367,18 +401,21 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
       hidden: uniq(hidden ? append(id, prev.hidden) : without([id], prev.hidden)),
     }));
   };
+  // const searchQuery = useStore(querySelector);
 
   const visibleItems = useMemo(() => {
     return facetsList.visible.map((facetId) => {
       const facetProps = facetConfig[facetId];
       return (
-        <SearchFacet
-          {...facetProps}
-          key={facetProps.storeId}
-          onQueryUpdate={onQueryUpdate}
-          defaultIsHidden={false}
-          onVisibilityChange={handleVisibilityChange}
-        />
+        <FacetStoreProvider facetId={facetProps.storeId} key={facetProps.storeId}>
+          <SearchFacet
+            {...facetProps}
+            // key={facetProps.storeId}
+            onQueryUpdate={onQueryUpdate}
+            defaultIsHidden={false}
+            onVisibilityChange={handleVisibilityChange}
+          />
+        </FacetStoreProvider>
       );
     });
   }, [facetsList.visible, onQueryUpdate, handleVisibilityChange]);
@@ -387,13 +424,15 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
     const facetProps = facetsList.hidden.map((id) => facetConfig[id]).sort((a, b) => a.label.localeCompare(b.label));
     return facetProps.map((facetProp) => {
       return (
-        <SearchFacet
-          {...facetProp}
-          key={facetProp.storeId}
-          onQueryUpdate={onQueryUpdate}
-          defaultIsHidden={true}
-          onVisibilityChange={handleVisibilityChange}
-        />
+        <FacetStoreProvider facetId={facetProp.storeId} key={facetProp.storeId}>
+          <SearchFacet
+            {...facetProp}
+            // key={facetProp.storeId}
+            onQueryUpdate={onQueryUpdate}
+            defaultIsHidden={true}
+            onVisibilityChange={handleVisibilityChange}
+          />
+        </FacetStoreProvider>
       );
     });
   }, [facetsList.hidden, onQueryUpdate, handleVisibilityChange]);
@@ -403,13 +442,15 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
       const facetProp = facetConfig[draggingFacetId];
       // change hidden
       return (
-        <SearchFacet
-          {...facetProp}
-          key={facetProp.storeId}
-          onQueryUpdate={onQueryUpdate}
-          defaultIsHidden={true}
-          onVisibilityChange={handleVisibilityChange}
-        />
+        <FacetStoreProvider facetId={facetProp.storeId} key={facetProp.storeId}>
+          <SearchFacet
+            {...facetProp}
+            // key={facetProp.storeId}
+            onQueryUpdate={onQueryUpdate}
+            defaultIsHidden={true}
+            onVisibilityChange={handleVisibilityChange}
+          />
+        </FacetStoreProvider>
       );
     }
   }, [draggingFacetId, onQueryUpdate, handleVisibilityChange]);
