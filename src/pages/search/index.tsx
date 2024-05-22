@@ -188,6 +188,10 @@ const SearchPage: NextPage = () => {
 
   const handleSearchFacetSubmission = (queryUpdates: Partial<IADSApiSearchParams>) => {
     const search = makeSearchParams({ ...params, ...queryUpdates, p: 1 });
+
+    // clear current docs on filter change
+    clearSelectedDocs();
+
     void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
   };
 
