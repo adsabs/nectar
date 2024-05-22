@@ -68,7 +68,7 @@ export type SearchFacetID =
 
 export type FacetCountTuple = [string, number];
 
-export type FacetItem = { id: string; val: string; count: number; parentId: string };
+export type FacetItem = { id: string; val: string; count: number; parentId: string; level?: number };
 
 export type OnFilterArgs = {
   logic: FacetLogic;
