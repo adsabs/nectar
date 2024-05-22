@@ -8,6 +8,7 @@ import { sanitize } from 'dompurify';
 import { isEmpty, omit } from 'ramda';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { isNonEmptyArray, isNonEmptyString } from 'ramda-adjunct';
+import { useObjects } from '@/api/objects/objects';
 
 export interface IUseGetFacetDataProps {
   field: FacetField;
@@ -76,6 +77,31 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
   const res = data?.[field];
   const treeData = useMemo(() => formatTreeData(res?.buckets ?? [], filter), [res?.buckets, filter]);
 
+  const identifiers = useMemo(
+    () =>
+      field === 'simbad_object_facet_hier' && treeData && treeData.length > 0 && treeData[0].level > 0
+        ? treeData.map(({ val }) => val.split('/')[val.split('/').length - 1])
+        : ([] as string[]),
+    [treeData],
+  );
+
+  const {
+    data: objects,
+    isLoading,
+    isFetching,
+    isError,
+  } = useObjects({ identifiers }, { enabled: identifiers && identifiers.length > 0 });
+  const enhancedTreeData = useMemo(() => {
+    if (objects && treeData) {
+      return treeData.map((data) => {
+        const id = data.val.split('/')[data.val.split('/').length - 1];
+        return { ...data, val: data.val.replace(id, objects[id].canonical) };
+      });
+    } else {
+      return treeData;
+    }
+  }, [objects, treeData]);
+
   const handleLoadMore = useCallback(() => {
     if (!pagination.noNext) {
       setPagination(({ nextPage }) =>
@@ -116,13 +142,13 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
   // After creation, add the nodes to the state to optimize rendering
   const addNodes = useFacetStore((state) => state.addNodes);
   useEffect(() => {
-    if (treeData?.length > 0) {
-      addNodes(treeData);
+    if (enhancedTreeData?.length > 0) {
+      addNodes(enhancedTreeData);
     }
-  }, [treeData]);
+  }, [enhancedTreeData]);
 
   return {
-    treeData,
+    treeData: enhancedTreeData,
     totalResults: res?.numBuckets ?? 0,
     pagination: pagination,
     handlePrevious,
@@ -130,6 +156,9 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
     handlePageChange,
     canLoadMore: res?.numBuckets !== treeData?.length,
     ...result,
+    isLoading: result.isLoading || isLoading,
+    isFetching: result.isFetching || isFetching,
+    isError: result.isError || isError,
   };
 };
 
