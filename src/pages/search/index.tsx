@@ -1,14 +1,13 @@
 import {
   defaultParams,
-  fetchSearch,
   getSearchParams,
-  getSearchStatsParams,
   IADSApiSearchParams,
   IADSApiSearchResponse,
   SEARCH_API_KEYS,
   searchKeys,
   SolrSort,
   useSearch,
+  fetchSearchSSR,
 } from '@/api';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import {
@@ -49,11 +48,10 @@ import {
 import { calculateStartIndex } from '@/components/ResultList/Pagination/usePagination';
 import { FacetFilters } from '@/components/SearchFacet/FacetFilters';
 import { IYearHistogramSliderProps } from '@/components/SearchFacet/YearHistogramSlider';
-import { APP_DEFAULTS } from '@/config';
 import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { useIsClient } from 'src/lib';
 import { composeNextGSSP } from '@/ssr-utils';
-import { AppState, createStore, useStore, useStoreApi } from '@/store';
+import { AppState, useStore, useStoreApi } from '@/store';
 import { NumPerPageType } from '@/types';
 import { makeSearchParams, parseAPIError, parseQueryFromUrl } from '@/utils';
 import { GetServerSideProps, NextPage } from 'next';
@@ -405,81 +403,53 @@ const NoResultsMsg = () => (
     }
   />
 );
+
+const omitUnsafeQueryParams = omit(['fl', 'start', 'rows']);
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
+  const queryClient = new QueryClient();
+  const { p: page, n: numPerPage, ...query } = parseQueryFromUrl<{ p: string; n: string }>(ctx.req.url);
+
+  const params = getSearchParams({
+    ...omitUnsafeQueryParams(query),
+    q: query.q.length === 0 ? '*:*' : query.q,
+    start: (page - 1) * numPerPage,
+    rows: numPerPage,
+  });
+
   try {
-    const { p: page, ...query } = parseQueryFromUrl<{ p: string }>(ctx.req.url);
-    const queryClient = new QueryClient();
+    const queryKey = searchKeys.primary(params);
 
-    // prime the search with a small query to get the current numFound
-    let primer = null;
-    if (page > 1) {
-      const primerParams = getSearchParams({ ...query, start: 0, rows: 1, fl: ['id'] });
-      primer = await queryClient.fetchQuery({
-        queryKey: searchKeys.primary(primerParams),
-        queryFn: fetchSearch,
-        meta: { params: primerParams },
-      });
-    }
-
-    const params: IADSApiSearchParams = getSearchParams({
-      ...query,
-      q: query.q.length === 0 ? '*:*' : query.q,
-      start: calculateStartIndex(page, APP_DEFAULTS.RESULT_PER_PAGE, primer?.response.numFound),
+    // primary query prefetch
+    await queryClient.fetchQuery({
+      queryKey,
+      queryFn: () => fetchSearchSSR(params, ctx),
     });
 
-    // omit fields from queryKey
-    const { fl, ...cleanedParams } = params;
-
-    // prefetch the citation counts for this query
-    if (/^citation_count(_norm)?/.test(params.sort[0])) {
-      await queryClient.prefetchQuery({
-        queryKey: searchKeys.stats(cleanedParams),
-        queryFn: fetchSearch,
-        meta: { params: getSearchStatsParams(params, params.sort[0]) },
-      });
-    }
-    const initialState = createStore().getState();
-
-    try {
-      // primary query prefetch
-      const primaryResult = await queryClient.fetchQuery({
-        queryKey: [SEARCH_API_KEYS.primary],
-        queryFn: fetchSearch,
-        queryHash: JSON.stringify(searchKeys.primary(omit(['fl'], params) as IADSApiSearchParams)),
-        meta: { params },
-      });
-
-      return {
-        props: {
-          dehydratedState: dehydrate(queryClient),
-          dehydratedAppState: {
-            query: params,
-            latestQuery: params,
-            docs: {
-              ...initialState.docs,
-              current: primaryResult.response.docs.map((d) => d.bibcode),
-            },
-          } as AppState,
-        },
-      };
-    } catch (error) {
-      logger.error({ msg: 'error fetching search results', error: error });
-      return {
-        props: {
-          dehydratedState: dehydrate(queryClient),
-          dehydratedAppState: {
-            query: params,
-            latestQuery: params,
-          } as AppState,
-          pageError: parseAPIError(error),
-        },
-      };
-    }
-  } catch (e) {
-    logger.error({ msg: 'Search Page Error', error: e });
     return {
       props: {
-        pageError: parseAPIError(e),
+        dehydratedState: dehydrate(queryClient),
+        dehydratedAppState: {
+          query: params,
+          latestQuery: params,
+          numPerPage: numPerPage as NumPerPageType,
+        } as AppState,
+        page,
+        params,
+      },
+    };
+  } catch (error) {
+    logger.error({ msg: 'Error fetching search results', error });
+    return {
+      props: {
+        dehydratedState: dehydrate(queryClient),
+        dehydratedAppState: {
+          query: params,
+          latestQuery: params,
+          numPerPage: numPerPage as NumPerPageType,
+        } as AppState,
+        pageError: parseAPIError(error),
+        page,
+        params,
       },
     };
   }
