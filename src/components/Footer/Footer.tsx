@@ -92,7 +92,7 @@ export const Footer: FC = () => {
         <Text fontWeight="bold" pb={1}>
           PROJECT
         </Text>
-        <SimpleLink href="/help/privacy/" variant="footer">
+        <SimpleLink href="/help/privacy" variant="footer">
           Privacy Policy
         </SimpleLink>
         <SimpleLink href="/help/terms" variant="footer">

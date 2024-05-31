@@ -177,7 +177,6 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
               onChange={handleInputChange}
               spellCheck="false"
               autoComplete="off"
-              autoCapitalize="off"
               name="q"
               _focus={{ boxShadow: 'none' }}
               data-testid="search-input"
