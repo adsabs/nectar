@@ -4,7 +4,7 @@ import { useAddWorks } from '@/lib/orcid/useAddWorks';
 import { parseAPIError } from '@/utils';
 import { OrcidInactiveLogo } from '@/components';
 import React from 'react';
-import { useColorModeColors } from '@lib';
+import { useColorModeColors } from '@/lib';
 
 interface IOrcidActionBtnProps extends ButtonProps {
   identifier: string;
