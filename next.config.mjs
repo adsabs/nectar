@@ -4,20 +4,20 @@ import withBundleAnalyzer from '@next/bundle-analyzer';
 
 const CSP = `
   default-src 'self';
-  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://www.google.com https://www.gstatic.com https://cdnjs.cloudflare.com https://www.googletagmanager.com;
-  style-src 'self' 'unsafe-inline';
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://www.google-analytics.com https://www.gstatic.com https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google.com https://www.googleadservices.com https://www.googlesyndication.com;
+  style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com;
   base-uri 'self';
   object-src 'none';
-  connect-src 'self' https://*.google-analytics.com https://*.adsabs.harvard.edu;
-  font-src 'self' https://cdnjs.cloudflare.com;
-  frame-src https://www.youtube-nocookie.com https://www.google.com;
+  connect-src 'self' https://*.google-analytics.com https://*.adsabs.harvard.edu https://o1060269.ingest.sentry.io;
+  font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com;
+  frame-src https://www.youtube-nocookie.com https://www.google.com https://www.google.com/recaptcha/;
   form-action 'self';
-  img-src * data:;
+  img-src * data: https://www.google.com https://www.gstatic.com https://i.ytimg.com https://s.ytimg.com;
   manifest-src 'self';
   media-src 'none';
   worker-src 'self' blob:;
-  report-uri https://o1060269.ingest.sentry.io/api/6049652/security/?sentry_key=e87ef8ec678b4ad5a2193c5463d386fd
-`;
+  report-uri https://o1060269.ingest.sentry.io/api/6049652/security/?sentry_key=e87ef8ec678b4ad5a2193c5463d386fd;
+`.replace(/\s{2,}/g, ' ').trim();
 
 /**
  * @type {import('next').NextConfig}
@@ -47,7 +47,7 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/:slug*',
+        source: '/(.*)',
         headers: [
           {
             key: 'Strict-Transport-Security',
@@ -64,6 +64,9 @@ const nextConfig = {
           {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin',
+          }, {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block'
           },
           {
             key: 'Permissions-Policy',
@@ -72,7 +75,7 @@ const nextConfig = {
           },
           {
             key: 'Content-Security-Policy-Report-Only',
-            value: CSP.replace(/\n/g, ''),
+            value: CSP,
           },
         ],
       },
