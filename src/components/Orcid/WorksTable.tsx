@@ -40,7 +40,7 @@ import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useOrcidProfile } from '@/lib/orcid/useOrcidProfile';
 import { getFallBackAlert } from '@/components/Feedbacks/SuspendedAlert';
-import DOMPurify from 'dompurify';
+import DOMPurify from 'isomorphic-dompurify';
 import { PaginationControls } from '@/components';
 
 export const WorksTable = () => {
