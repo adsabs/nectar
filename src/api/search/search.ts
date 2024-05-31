@@ -40,7 +40,6 @@ import {
 import { isString } from '@/utils';
 import { resolveObjectQuery, resolveObjectQuerySSR } from '@/api/objects/objects';
 import { GetServerSidePropsContext } from 'next';
-import { logger } from '@/logger';
 import { defaultRequestConfig } from '../config';
 import { TRACING_HEADERS } from '@/config';
 
@@ -418,7 +417,6 @@ export const fetchSearchSSR = async (params: IADSApiSearchParams, ctx: GetServer
   const finalParams = { ...params };
 
   const token = ctx.req.session?.token?.access_token;
-  logger.debug({ msg: 'fetch search', token, params });
   if (!token) {
     throw new Error('No Token');
   }
