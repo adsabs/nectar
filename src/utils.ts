@@ -92,18 +92,24 @@ export const getFomattedNumericPubdate = (pubdate: string): string | null => {
   return `${year}/${month}`;
 };
 
-export const parsePublicationDate = (pubdate: string) => {
+export const parsePublicationDate = (pubdate: string): { year: string; month: string; day: string } | null => {
   if (isNilOrEmpty(pubdate)) {
     return null;
   }
 
-  const regex = /^(\d{4})-(\d{2}|\d|00)-(\d{2}|\d|00)$/;
-  const match = RegExp(regex).exec(pubdate);
+  const regex = /^(\d{4})-(\d{2})-(\d{2})$/;
+  const match: RegExpExecArray | null = regex.exec(pubdate);
 
-  // if bad match, at least grab the year which should always be first 4 characters
-  return match && match.length === 4
-    ? { year: match[1], month: match[2], day: match[3] }
-    : { year: pubdate.slice(0, 4), month: '00', day: '00' };
+  // handle dates with year, month, and day
+  if (match && match.length === 4) {
+    return { year: match[1], month: match[2], day: match[3] };
+  } else {
+    // handle dates with only year and month
+    const year = pubdate.slice(0, 4);
+    const monthMatch = /^(\d{4})-(\d{2})$/.exec(pubdate);
+    const month = monthMatch ? monthMatch[2] : '00';
+    return { year, month, day: '00' };
+  }
 };
 
 /**
@@ -171,7 +177,7 @@ export const isNumPerPageType = (value: number): value is NumPerPageType => {
 /**
  * Helper to parse query params into API search parameters
  */
-export const parseQueryFromUrl = <TExtra extends Record<string, string | string[]>>(
+export const parseQueryFromUrl = <TExtra extends Record<string, string | number | Array<string | number>>>(
   url: string,
   { sortPostfix }: { sortPostfix?: SolrSort } = {},
 ) => {
@@ -327,8 +333,18 @@ export const stringifySearchParams = (params: Record<string, unknown>, options?:
     ...options,
   });
 
-export const parseSearchParams = (params: string, options?: qs.IParseOptions) =>
-  qs.parse(params, { parseArrays: true, ...options });
+const qTransformers = (q: string) => {
+  if (typeof q === 'string') {
+    return q.replace(/“/g, '"').replace(/”/g, '"');
+  }
+  return q;
+};
+
+const parseSearchParams = (params: string, options?: qs.IParseOptions) => {
+  const parsed = qs.parse(params, { parseArrays: true, charset: 'utf-8', ...options });
+  parsed.q = qTransformers(parsed.q as string);
+  return parsed;
+};
 
 export const purifyString = (value: string): string => {
   try {
