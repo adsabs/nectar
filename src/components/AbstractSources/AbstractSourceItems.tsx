@@ -22,6 +22,7 @@ import { PdfFileIcon } from '@/components/icons/PdfFileIcon';
 import { SimpleLink } from '@/components/SimpleLink';
 import { AcademicCapIcon } from '@heroicons/react/24/solid';
 import { IFullTextSource } from './types';
+import { Fragment } from 'react';
 
 export type AbstractResourceType = Pick<ItemType, 'id' | 'label' | 'path'>;
 
@@ -89,9 +90,9 @@ export const FullTextSourceItems = ({ resources, type, ...boxProps }: IFullTextS
           {resources.length > 0 && (
             <MenuList>
               {resources.map((group) => (
-                <>
+                <Fragment key={group.label}>
                   {group.links.map((link) => (
-                    <MenuItem key={`${group.label}-${link.type}`} as={SimpleLink} href={link.path} newTab>
+                    <MenuItem key={link.rawType} as={SimpleLink} href={link.path} newTab>
                       {link.rawType === Esources.INSTITUTION ? (
                         <Icon as={AcademicCapIcon} mr={1} />
                       ) : link.open ? (
@@ -102,7 +103,7 @@ export const FullTextSourceItems = ({ resources, type, ...boxProps }: IFullTextS
                       {`${group.label} ${link.type.toLocaleUpperCase()}`}
                     </MenuItem>
                   ))}
-                </>
+                </Fragment>
               ))}
             </MenuList>
           )}
@@ -117,6 +118,7 @@ export const FullTextSourceItems = ({ resources, type, ...boxProps }: IFullTextS
                   {group.links.map((link) => (
                     <IconButton
                       aria-label={`${group.label} ${link.type}`}
+                      key={link.rawType}
                       icon={
                         link.rawType === Esources.INSTITUTION ? (
                           <AcademicCapIcon />

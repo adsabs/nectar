@@ -218,7 +218,7 @@ const Categories = ({ selected, onToggleSelect }: { selected: string[]; onToggle
   return (
     <Box>
       {toPairs(arxivModel).map(([k, v]) => (
-        <Flex direction="column">
+        <Flex direction="column" key={k}>
           <Flex h={8}>
             {keys(v.children).length > 0 && (
               <IconButton
