@@ -181,16 +181,22 @@ export const parseQueryFromUrl = <TExtra extends Record<string, string | number 
   url: string,
   { sortPostfix }: { sortPostfix?: SolrSort } = {},
 ) => {
-  const params = parseSearchParams(url.split('?')[1]) as Record<string, string | string[]>;
+  const queryString = url.indexOf('?') === -1 ? url : url.split('?')[1];
+  const params = parseSearchParams(queryString) as Record<string, string | string[]>;
   const normalizedParams = normalizeURLParams(params, ['fq']);
-
   const q = decodeURIComponent(normalizedParams?.q ?? '');
+  const numPerPage = parseNumberAndClamp(
+    normalizedParams?.n,
+    head(APP_DEFAULTS.PER_PAGE_OPTIONS),
+    last(APP_DEFAULTS.PER_PAGE_OPTIONS),
+  );
 
   return {
     ...normalizedParams,
     q: q === '' ? APP_DEFAULTS.EMPTY_QUERY : q,
     sort: normalizeSolrSort(params.sort, sortPostfix),
     p: parseNumberAndClamp(normalizedParams?.p, 1),
+    n: isNumPerPageType(numPerPage) ? numPerPage : APP_DEFAULTS.RESULT_PER_PAGE,
     ...(params.fq ? { fq: safeSplitString(params.fq) } : {}),
   } as IADSApiSearchParams & { p?: number; n?: number } & TExtra;
 };

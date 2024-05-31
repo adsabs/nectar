@@ -63,3 +63,5 @@ export const EXTERNAL_URLS = {
   TWITTER_SCIX: 'https://twitter.com/scixcommunity' as const,
   CFA_SAO_HOME_PAGE: 'https://www.cfa.harvard.edu/sao' as const,
 };
+
+export const TRACING_HEADERS = ['X-Original-Uri', 'X-Original-Forwarded-For', 'X-Forwarded-For', 'X-Amzn-Trace-Id'];

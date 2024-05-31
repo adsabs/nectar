@@ -11,7 +11,7 @@ import api, {
   InfiniteADSQuery,
 } from '@/api';
 import axios, { AxiosError } from 'axios';
-import { omit } from 'ramda';
+import { omit, pick } from 'ramda';
 import {
   MutationFunction,
   QueryFunction,
@@ -38,7 +38,11 @@ import {
   getTocParams,
 } from './models';
 import { isString } from '@/utils';
-import { resolveObjectQuery } from '@/api/objects/objects';
+import { resolveObjectQuery, resolveObjectQuerySSR } from '@/api/objects/objects';
+import { GetServerSidePropsContext } from 'next';
+import { logger } from '@/logger';
+import { defaultRequestConfig } from '../config';
+import { TRACING_HEADERS } from '@/config';
 
 type ErrorType = Error | AxiosError;
 
@@ -108,7 +112,7 @@ export const useSearch: SearchADSQuery = (params, options) => {
     meta: { params },
     select: responseSelector,
     retry: (failCount, error): boolean => {
-      return axios.isAxiosError(error) && error.response?.status !== 400;
+      return failCount < 1 && axios.isAxiosError(error) && error.response?.status !== 400;
     },
     ...options,
   });
@@ -407,6 +411,35 @@ export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta }
     params: finalParams,
   };
   const { data } = await api.request<IADSApiSearchResponse>(config);
+  return data;
+};
+
+export const fetchSearchSSR = async (params: IADSApiSearchParams, ctx: GetServerSidePropsContext) => {
+  const finalParams = { ...params };
+
+  const token = ctx.req.session?.token?.access_token;
+  logger.debug({ msg: 'fetch search', token, params });
+  if (!token) {
+    throw new Error('No Token');
+  }
+
+  if (isString(params.q) && params.q.includes('object:')) {
+    const { query } = await resolveObjectQuerySSR({ query: params.q }, ctx);
+    finalParams.q = query;
+  }
+
+  const config: ApiRequestConfig = {
+    ...defaultRequestConfig,
+    method: 'GET',
+    url: ApiTargets.SEARCH,
+    params: finalParams,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      ...pick(TRACING_HEADERS, ctx.req.headers),
+    },
+  };
+
+  const { data } = await axios.request<IADSApiSearchResponse>(config);
   return data;
 };
 
