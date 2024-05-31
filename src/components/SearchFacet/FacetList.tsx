@@ -33,7 +33,7 @@ import { selectors, useFacetStore } from '@/components/SearchFacet/store/FacetSt
 import { FacetItem, FacetLogic, OnFilterArgs, SearchFacetID } from '@/components/SearchFacet/types';
 import { IUseGetFacetDataProps, useGetFacetData } from '@/components/SearchFacet/useGetFacetData';
 import { EllipsisHorizontalIcon, ExclamationTriangleIcon, InformationCircleIcon } from '@heroicons/react/24/solid';
-import { kFormatNumber } from '@/utils';
+import { kFormatNumber, noop } from '@/utils';
 import { equals, isEmpty, uniq } from 'ramda';
 import { forwardRef, KeyboardEvent, memo, MouseEventHandler, useCallback, useContext, useEffect, useRef } from 'react';
 import { SearchFacetModal } from './SearchFacetModal';
