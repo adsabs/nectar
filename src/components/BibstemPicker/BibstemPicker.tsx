@@ -234,10 +234,10 @@ const BibstemPickerImpl = (props: IBibstemPickerProps, ref: ForwardedRef<never>)
       <VisuallyHidden>
         <input
           aria-hidden
-          data-testid="hidden-input"
+          data-testid="bibstem-picker-hidden-input"
           type="text"
           name="bibstems"
-          value={state.hiddenValue}
+          defaultValue={state.hiddenValue}
           {...omit(['value'], inputProps)}
           onFocus={() => selectRef.current.focus()}
           ref={ref}
@@ -245,6 +245,7 @@ const BibstemPickerImpl = (props: IBibstemPickerProps, ref: ForwardedRef<never>)
       </VisuallyHidden>
       <AsyncCreatableSelect<IBibstemOption, typeof isMultiple>
         instanceId="bibstem-picker"
+        aria-label="Bibstem Picker"
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         loadOptions={fetchOptions}
         // only look at the incoming meta value to decide what to update

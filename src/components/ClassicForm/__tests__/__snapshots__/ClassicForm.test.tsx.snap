@@ -1,0 +1,275 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`abstract textbox updates query 1`] = `"collection:(astronomy)"`;
+
+exports[`abstract textbox updates query 2`] = `"collection:(astronomy) abs:(foo)"`;
+
+exports[`abstract textbox updates query 3`] = `"collection:(astronomy) abs:(foo bar baz)"`;
+
+exports[`abstract textbox updates query 4`] = `"collection:(astronomy) abs:(foo OR bar OR baz)"`;
+
+exports[`abstract textbox updates query 5`] = `"collection:(astronomy) abs:(foo bar baz)"`;
+
+exports[`author textbox updates query 1`] = `"collection:(astronomy)"`;
+
+exports[`author textbox updates query 2`] = `"collection:(astronomy) author:("Smith, J")"`;
+
+exports[`author textbox updates query 3`] = `"collection:(astronomy) author:("Smith, J" "Smith, A" "James, B")"`;
+
+exports[`author textbox updates query 4`] = `"collection:(astronomy) author:("Smith, J" OR "Smith, A" OR "James, B" OR -"Smith, John" OR ="Smith, John" OR "^Smith, J") author_count:1"`;
+
+exports[`author textbox updates query 5`] = `"collection:(astronomy) author:("Smith, J" OR "Smith, A" OR "James, B" OR -"Smith, John" OR ="Smith, John" OR "^Smith, J") author_count:1"`;
+
+exports[`checkboxes updates query properly 1`] = `"collection:(astronomy)"`;
+
+exports[`checkboxes updates query properly 2`] = `""`;
+
+exports[`checkboxes updates query properly 3`] = `"collection:(physics)"`;
+
+exports[`checkboxes updates query properly 4`] = `"collection:(physics general)"`;
+
+exports[`checkboxes updates query properly 5`] = `"collection:(physics general earthscience)"`;
+
+exports[`checkboxes updates query properly 6`] = `"collection:(physics general earthscience) property:(refereed)"`;
+
+exports[`checkboxes updates query properly 7`] = `"collection:(physics general earthscience) property:(refereed article)"`;
+
+exports[`has correct initial values 1`] = `"collection:(astronomy)"`;
+
+exports[`object textbox updates query 1`] = `"collection:(astronomy)"`;
+
+exports[`object textbox updates query 2`] = `"collection:(astronomy) object:(foo)"`;
+
+exports[`object textbox updates query 3`] = `"collection:(astronomy) object:(foo bar baz)"`;
+
+exports[`object textbox updates query 4`] = `"collection:(astronomy) object:(foo OR bar OR baz)"`;
+
+exports[`pubdate updates the query 1`] = `"collection:(astronomy) pubdate:[2020-01 TO 9999-12]"`;
+
+exports[`pubdate updates the query 2`] = `"collection:(astronomy) pubdate:[2020-01 TO 2021-01]"`;
+
+exports[`publications textbox updates query 1`] = `
+[
+  "LRCA",
+]
+`;
+
+exports[`publications textbox updates query 2`] = `"LRCA"`;
+
+exports[`publications textbox updates query 3`] = `
+[
+  "LRCA",
+  "PhRvL",
+]
+`;
+
+exports[`publications textbox updates query 4`] = `"LRCA,PhRvL"`;
+
+exports[`publications textbox updates query 5`] = `
+<div
+  class=" css-h3hx5y-menu"
+  id="react-select-bibstem-picker-listbox"
+>
+  <div
+    class=" css-1n6sfyn-MenuList"
+  >
+    <div
+      aria-disabled="false"
+      class=" css-1kmzzr7-option"
+      id="react-select-bibstem-picker-option-0"
+      tabindex="-1"
+    >
+      <div
+        class="chakra-stack css-1oeb4ru"
+        data-testid="option"
+      >
+        <p
+          class="chakra-text css-in3yi3"
+        >
+          ApJ
+        </p>
+        <p
+          class="chakra-text css-13xnkip"
+        >
+          The Astrophysical Journal
+        </p>
+      </div>
+    </div>
+    <div
+      aria-disabled="false"
+      class=" css-16grddd-option"
+      id="react-select-bibstem-picker-option-1"
+      tabindex="-1"
+    >
+      <div
+        class="chakra-stack css-1oeb4ru"
+        data-testid="option"
+      >
+        <p
+          class="chakra-text css-in3yi3"
+        >
+          a
+        </p>
+        <p
+          class="chakra-text css-13xnkip"
+        >
+          Custom Journal? insert "a"
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`publications textbox updates query 6`] = `"LRCA,PhRvL,ApJ"`;
+
+exports[`publications textbox updates query 7`] = `
+<div
+  class=" css-h3hx5y-menu"
+  id="react-select-bibstem-picker-listbox"
+>
+  <div
+    class=" css-1n6sfyn-MenuList"
+  >
+    <div
+      aria-disabled="false"
+      class=" css-1kmzzr7-option"
+      id="react-select-bibstem-picker-option-0"
+      tabindex="-1"
+    >
+      <div
+        class="chakra-stack css-1oeb4ru"
+        data-testid="option"
+      >
+        <p
+          class="chakra-text css-in3yi3"
+        >
+          BGeo
+        </p>
+        <p
+          class="chakra-text css-13xnkip"
+        >
+          Biogeosciences
+        </p>
+      </div>
+    </div>
+    <div
+      aria-disabled="false"
+      class=" css-16grddd-option"
+      id="react-select-bibstem-picker-option-1"
+      tabindex="-1"
+    >
+      <div
+        class="chakra-stack css-1oeb4ru"
+        data-testid="option"
+      >
+        <p
+          class="chakra-text css-in3yi3"
+        >
+          -b
+        </p>
+        <p
+          class="chakra-text css-13xnkip"
+        >
+          Custom Journal? insert "-b"
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`publications textbox updates query 8`] = `"LRCA,PhRvL,ApJ,-BGeo"`;
+
+exports[`publications textbox updates query 9`] = `
+<div
+  class=" css-h3hx5y-menu"
+  id="react-select-bibstem-picker-listbox"
+>
+  <div
+    class=" css-1n6sfyn-MenuList"
+  >
+    <div
+      aria-disabled="false"
+      class=" css-1kmzzr7-option"
+      id="react-select-bibstem-picker-option-0"
+      tabindex="-1"
+    >
+      <div
+        class="chakra-stack css-1oeb4ru"
+        data-testid="option"
+      >
+        <p
+          class="chakra-text css-in3yi3"
+        >
+          e
+        </p>
+        <p
+          class="chakra-text css-13xnkip"
+        >
+          Custom Journal? insert "e"
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`publications textbox updates query 10`] = `"LRCA,PhRvL,ApJ,-BGeo,e"`;
+
+exports[`publications textbox updates query 11`] = `
+<div
+  class=" css-h3hx5y-menu"
+  id="react-select-bibstem-picker-listbox"
+>
+  <div
+    class=" css-1n6sfyn-MenuList"
+  >
+    <div
+      aria-disabled="false"
+      class=" css-1kmzzr7-option"
+      id="react-select-bibstem-picker-option-0"
+      tabindex="-1"
+    >
+      <div
+        class="chakra-stack css-1oeb4ru"
+        data-testid="option"
+      >
+        <p
+          class="chakra-text css-in3yi3"
+        >
+          -e
+        </p>
+        <p
+          class="chakra-text css-13xnkip"
+        >
+          Custom Journal? insert "-e"
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`publications textbox updates query 12`] = `"LRCA,PhRvL,ApJ,-BGeo,e,-e"`;
+
+exports[`publications textbox updates query 13`] = `
+[
+  "/api/bibstems/a",
+  "/api/bibstems/b",
+  "/api/bibstems/e",
+  "/api/bibstems/e",
+]
+`;
+
+exports[`publications textbox updates query 14`] = `"collection:(astronomy) bibstem:(LRCA OR PhRvL OR ApJ OR e) -bibstem:(BGeo OR e)"`;
+
+exports[`title textbox updates query 1`] = `"collection:(astronomy)"`;
+
+exports[`title textbox updates query 2`] = `"collection:(astronomy) title:(foo)"`;
+
+exports[`title textbox updates query 3`] = `"collection:(astronomy) title:(foo bar baz)"`;
+
+exports[`title textbox updates query 4`] = `"collection:(astronomy) title:(foo OR bar OR baz)"`;
+
+exports[`title textbox updates query 5`] = `"collection:(astronomy) title:(foo bar baz)"`;

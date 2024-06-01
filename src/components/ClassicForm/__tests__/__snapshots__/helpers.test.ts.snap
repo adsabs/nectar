@@ -1,0 +1,5 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Classic Form Query Handling > getSearchQuery handles empty input 1`] = `"p=1&q=%2A%3A%2A&sort=score+desc%2Cdate+desc"`;
+
+exports[`Classic Form Query Handling > getSearchQuery properly generates search query 1`] = `"collection:(astronomy physics) pubdate:[2020-12 TO 2022-01] author:("Smith, A" "Jones, B" ="Jones, Bob") object:(IRAS HIP) property:(refereed article) title:("Black Hole" -"Milky Way" -star) abs:("Event Horizon" Singularity) bibstem:(PhRvL) -bibstem:(Apj)"`;

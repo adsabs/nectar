@@ -166,17 +166,25 @@ function SelectImpl<
             zIndex: 10,
           }),
         },
-      } as const),
+      }) as const,
     [colors],
   );
 
   return (
     <FormControl>
-      {!hideLabel && (typeof label === 'string' ? <FormLabel htmlFor={id}>{label}</FormLabel> : label)}
+      {!hideLabel &&
+        (typeof label === 'string' ? (
+          <FormLabel id="select-label" htmlFor={id}>
+            {label}
+          </FormLabel>
+        ) : (
+          label
+        ))}
       <ReactSelect
         isSearchable={false}
+        aria-labelledby={typeof label === 'string' ? 'select-label' : undefined}
         aria-label={typeof label === 'string' ? label : 'select'}
-        id={id}
+        inputId={id}
         instanceId={id}
         ref={ref}
         {...selectProps}
@@ -208,6 +216,6 @@ export const createOptions =
           id: item,
           label: typeof labelKey === 'function' ? labelKey(item) : (item[labelKey] as string),
           value: typeof valueKey === 'function' ? valueKey(item) : (item[valueKey] as string),
-        } as SelectOption<T>),
+        }) as SelectOption<T>,
     );
   };

@@ -11,6 +11,7 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
+  Heading,
   HStack,
   Input,
   InputGroup,
@@ -59,7 +60,7 @@ export const defaultClassicFormState: IClassicFormState = {
 };
 
 export interface IClassicFormProps {
-  ssrError: string;
+  ssrError?: string;
 }
 
 export const ClassicForm = (props: IClassicFormProps) => {
@@ -92,9 +93,10 @@ export const ClassicForm = (props: IClassicFormProps) => {
 
         {/* Collection selection */}
         <FormControl aria-labelledby="collection-group">
-          <VisuallyHidden id="collection-group">Collection</VisuallyHidden>
-          <FormLabel>Limit Query</FormLabel>
-          <CheckboxGroup defaultValue={['astronomy']}>
+          <Heading size="sm" mb="2" id="collection-group">
+            Limit Query
+          </Heading>
+          <CheckboxGroup defaultValue={['astronomy']} aria-labelledby="collection-group">
             <HStack spacing="6">
               <Checkbox value="astronomy" {...register('limit')}>
                 Astronomy
@@ -177,7 +179,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
             <FormLabel htmlFor="pubdate_start">Publication Date Start</FormLabel>
             <InputGroup>
               <InputLeftElement pointerEvents="none" children={<CalendarIcon color="gray.300" />} />
-              <Input placeholder="YYYY/MM" type="text" {...register('pubdate_start')} />
+              <Input id="pubdate_start" placeholder="YYYY/MM" type="text" {...register('pubdate_start')} />
             </InputGroup>
             <FormHelperText>Ex: "2011/04"</FormHelperText>
           </FormControl>
@@ -185,7 +187,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
             <FormLabel htmlFor="pubdate_end">Publication Date End</FormLabel>
             <InputGroup>
               <InputLeftElement pointerEvents="none" children={<CalendarIcon color="gray.300" />} />
-              <Input placeholder="YYYY/MM" {...register('pubdate_end')} />
+              <Input id="pubdate_end" placeholder="YYYY/MM" {...register('pubdate_end')} />
             </InputGroup>
             <FormHelperText>Ex: "2014/12"</FormHelperText>
           </FormControl>
@@ -198,7 +200,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
             <FormLabel htmlFor="title">Title</FormLabel>
             <LogicRadios variant="all" radioProps={register('logic_title')} />
           </Flex>
-          <Input {...register('title')} />
+          <Input id="title" {...register('title')} />
           <FormHelperText>Ex: "Content of the Future in the ADS"</FormHelperText>
         </FormControl>
 
@@ -209,7 +211,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
             <FormLabel htmlFor="abstract_keywords">Abstract / Keywords</FormLabel>
             <LogicRadios variant="all" radioProps={register('logic_abstract_keywords')} />
           </Flex>
-          <Input {...register('abstract_keywords')} />
+          <Input id="abstract_keywords" {...register('abstract_keywords')} />
           <FormHelperText>Ex: "Dark Energy"</FormHelperText>
         </FormControl>
 
@@ -255,7 +257,6 @@ export const ClassicForm = (props: IClassicFormProps) => {
         {/* Sort */}
         <FormControl aria-labelledby="sort">
           <VisuallyHidden id="sort">Sort</VisuallyHidden>
-          <FormLabel htmlFor="sort">Sort</FormLabel>
           <Controller
             name="sort"
             control={control}
@@ -286,7 +287,9 @@ export const ClassicForm = (props: IClassicFormProps) => {
         )}
 
         <FormControl>
-          <Button type="submit">Search</Button>
+          <Button type="submit" role="button">
+            Search
+          </Button>
         </FormControl>
 
         <CurrentQuery control={control} />
@@ -334,7 +337,7 @@ const CurrentQuery = (props: { control: Control<IClassicFormState> }) => {
       title="Generated Query"
       description={
         <HStack>
-          <Code>{query}</Code>
+          <Code data-testid="generated-query">{query}</Code>
           {typeof query === 'string' ? <SimpleCopyButton text={query} /> : null}
         </HStack>
       }
