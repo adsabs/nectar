@@ -34,8 +34,8 @@ import { FacetItem, FacetLogic, OnFilterArgs, SearchFacetID } from '@/components
 import { IUseGetFacetDataProps, useGetFacetData } from '@/components/SearchFacet/useGetFacetData';
 import { EllipsisHorizontalIcon, ExclamationTriangleIcon, InformationCircleIcon } from '@heroicons/react/24/solid';
 import { kFormatNumber, noop } from '@/utils';
-import { equals, isEmpty, uniq } from 'ramda';
-import { forwardRef, KeyboardEvent, memo, MouseEventHandler, useCallback, useContext, useEffect, useRef } from 'react';
+import { equals, isEmpty } from 'ramda';
+import { forwardRef, KeyboardEvent, memo, MouseEventHandler, useCallback, useEffect, useRef } from 'react';
 import { SearchFacetModal } from './SearchFacetModal';
 import { useColorModeColors } from '@/lib';
 
@@ -384,7 +384,6 @@ export const Item = (props: IItemProps) => {
   } = props;
   const setFocused = useFacetStore(selectors.setFocused);
 
-  // const { keyboardFocus, setKeyboardFocus, expanded, setExpanded } = useContext(FacetContext);
   const keyboardFocus = useFacetStore(selectors.keyboardFocus);
   const setKeyboardFocus = useFacetStore(selectors.setKeyboardFocused);
   const expanded = useFacetStore(selectors.expanded);
