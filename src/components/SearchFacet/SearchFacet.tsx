@@ -33,7 +33,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/20/solid';
 import { ExclamationCircleIcon } from '@heroicons/react/24/solid';
 import { AppState, useStore, useStoreApi } from '@/store';
-import { append, omit, uniq, without } from 'ramda';
+import { append, uniq, without } from 'ramda';
 import {
   CSSProperties,
   KeyboardEvent,
@@ -46,10 +46,9 @@ import {
 } from 'react';
 import { facetConfig } from './config';
 import { applyFiltersToQuery } from './helpers';
-import { FacetLogic, KeyboardFocusItem, OnFilterArgs, SearchFacetID } from './types';
+import { FacetLogic, OnFilterArgs, SearchFacetID } from './types';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { sendGTMEvent } from '@next/third-parties/google';
-import { FacetContext } from './FacetContext';
 
 export interface ISearchFacetProps extends AccordionItemProps {
   field: FacetField;
@@ -72,14 +71,11 @@ export interface ISearchFacetProps extends AccordionItemProps {
   onQueryUpdate: (queryUpdates: Partial<IADSApiSearchParams>) => void;
 }
 
-const querySelector = (state: AppState) => omit(['fl', 'start', 'rows'], state.latestQuery) as IADSApiSearchParams;
-
 export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
   const store = useStoreApi();
   const setFacetState = useStore((state) => state.setSearchFacetState);
   const hideFacet = useStore((state) => state.hideSearchFacet);
   const showFacet = useStore((state) => state.showSearchFacet);
-  const searchQuery = useStore(querySelector);
   const { label, field, storeId, onQueryUpdate, noLoadMore, defaultIsHidden, onVisibilityChange } = props;
   const { listeners, attributes, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
     id: storeId,
@@ -142,15 +138,6 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
     border: isDragging ? 'dashed blue 3px' : undefined,
     padding: isDragging ? '4px' : undefined,
   };
-
-  // keyboard focus search facet and item
-  // const [keyboardFocus, setKeyboardFocus] = useState<KeyboardFocusItem>({ facetId: null, index: [] });
-  // const [expanded, setExpanded] = useState<string[]>([]);
-  // const [childrenCount, setChildrenCount] = useState<{
-  //   [key: string]: number;
-  // }>({});
-
-  // const [focusChildren, setFocusChildren] = useState<boolean>(false);
 
   const setKeyboardFocused = useFacetStore(selectors.setKeyboardFocused);
 
@@ -239,13 +226,7 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
           borderBottomRadius="md"
           mt="0"
         >
-          {/* <FacetStoreProvider
-            facetId={storeId}
-            key={JSON.stringify(searchQuery)}
-            keyboardFocus={focusChildren ? [0] : null}
-          > */}
           <FacetList noLoadMore={noLoadMore} onFilter={handleOnFilter} onError={handleOnError} facetId={storeId} />
-          {/* </FacetStoreProvider> */}
         </Box>
       )}
     </ListItem>
@@ -401,7 +382,6 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
       hidden: uniq(hidden ? append(id, prev.hidden) : without([id], prev.hidden)),
     }));
   };
-  // const searchQuery = useStore(querySelector);
 
   const visibleItems = useMemo(() => {
     return facetsList.visible.map((facetId) => {
@@ -410,7 +390,6 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
         <FacetStoreProvider facetId={facetProps.storeId} key={facetProps.storeId}>
           <SearchFacet
             {...facetProps}
-            // key={facetProps.storeId}
             onQueryUpdate={onQueryUpdate}
             defaultIsHidden={false}
             onVisibilityChange={handleVisibilityChange}
@@ -427,7 +406,6 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
         <FacetStoreProvider facetId={facetProp.storeId} key={facetProp.storeId}>
           <SearchFacet
             {...facetProp}
-            // key={facetProp.storeId}
             onQueryUpdate={onQueryUpdate}
             defaultIsHidden={true}
             onVisibilityChange={handleVisibilityChange}
@@ -445,7 +423,6 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
         <FacetStoreProvider facetId={facetProp.storeId} key={facetProp.storeId}>
           <SearchFacet
             {...facetProp}
-            // key={facetProp.storeId}
             onQueryUpdate={onQueryUpdate}
             defaultIsHidden={true}
             onVisibilityChange={handleVisibilityChange}
