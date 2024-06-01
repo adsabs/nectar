@@ -33,12 +33,12 @@ export const HistogramSlider = ({
 
   // slider stopped
   const handleChangeValues = (values: readonly number[]) => {
-    setValues([values[0], values[1]]);
+    // setValues([values[0], values[1]]);
     onValuesChanged([values[0], values[1]]);
   };
 
   const handleClickHistogram = (x: number) => {
-    setValues([x, x]);
+    // setValues([x, x]);
     onValuesChanged([x, x]);
   };
 
