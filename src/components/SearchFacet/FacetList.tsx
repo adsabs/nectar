@@ -30,7 +30,7 @@ import { ChevronRightIcon } from '@chakra-ui/icons';
 import { Pagination, Toggler } from '@/components';
 import { getLevelFromKey, isRootNode, parseRootFromKey, parseTitleFromKey } from '@/components/SearchFacet/helpers';
 import { selectors, useFacetStore } from '@/components/SearchFacet/store/FacetStore';
-import { FacetItem, FacetLogic, OnFilterArgs, SearchFacetID } from '@/components/SearchFacet/types';
+import { FacetItem, FacetLogic, OnFilterArgs } from '@/components/SearchFacet/types';
 import { IUseGetFacetDataProps, useGetFacetData } from '@/components/SearchFacet/useGetFacetData';
 import { EllipsisHorizontalIcon, ExclamationTriangleIcon, InformationCircleIcon } from '@heroicons/react/24/solid';
 import { kFormatNumber, noop } from '@/utils';
@@ -40,20 +40,19 @@ import { SearchFacetModal } from './SearchFacetModal';
 import { useColorModeColors } from '@/lib';
 
 export interface IFacetListProps extends ListProps {
-  facetId: SearchFacetID;
   noLoadMore?: boolean;
   onFilter?: (args: OnFilterArgs) => void;
   onError?: () => void;
 }
 
 export const FacetList = (props: IFacetListProps) => {
-  const { facetId, noLoadMore, onFilter, onError } = props;
+  const { noLoadMore, onFilter, onError } = props;
 
   const focused = useFacetStore(selectors.focused);
 
   return (
     <>
-      <SearchFacetModal onFilter={onFilter} facetId={facetId}>
+      <SearchFacetModal onFilter={onFilter}>
         {({ searchTerm }) =>
           focused ? (
             <NodeListModal
@@ -61,37 +60,20 @@ export const FacetList = (props: IFacetListProps) => {
               level="child"
               prefix={focused.id}
               searchTerm={searchTerm}
-              facetId={facetId}
               parentIndex={[]}
             />
           ) : (
-            <NodeListModal
-              onError={onError}
-              level="root"
-              prefix=""
-              searchTerm={searchTerm}
-              facetId={facetId}
-              parentIndex={[]}
-            />
+            <NodeListModal onError={onError} level="root" prefix="" searchTerm={searchTerm} parentIndex={[]} />
           )
         }
       </SearchFacetModal>
-      <NodeList
-        level="root"
-        prefix=""
-        onError={onError}
-        noLoadMore={noLoadMore}
-        searchTerm=""
-        facetId={facetId}
-        parentIndex={[]}
-      />
+      <NodeList level="root" prefix="" onError={onError} noLoadMore={noLoadMore} searchTerm="" parentIndex={[]} />
       <LogicSelect mt="2" onFilter={onFilter} />
     </>
   );
 };
 
 export interface INodeListProps extends Pick<IUseGetFacetDataProps, 'prefix' | 'level'> {
-  facetId: SearchFacetID;
   parentIndex: number[];
   noLoadMore?: boolean;
   onLoadMore?: () => void;
@@ -101,7 +83,7 @@ export interface INodeListProps extends Pick<IUseGetFacetDataProps, 'prefix' | '
 }
 
 export const NodeList = memo((props: INodeListProps) => {
-  const { facetId, parentIndex, prefix, level, noLoadMore, onError, onLoadMore, onKeyboardFocusNext = noop } = props;
+  const { parentIndex, prefix, level, noLoadMore, onError, onLoadMore, onKeyboardFocusNext = noop } = props;
 
   const params = useFacetStore(selectors.params);
   const [sortField, sortDir] = useFacetStore(selectors.sort);
@@ -129,7 +111,7 @@ export const NodeList = memo((props: INodeListProps) => {
 
   useEffect(() => {
     if (treeData) {
-      const id = `${facetId}-${parentIndex.join('-')}`;
+      const id = `${parentIndex.join('-')}`;
       if (!(id in childrenCount) || treeData.length !== childrenCount[id]) {
         setChildrenCount(id, treeData.length);
       }
@@ -188,7 +170,7 @@ export const NodeList = memo((props: INodeListProps) => {
   const handleKeyboardFocusPrev = (index: number[]) => {
     if (level === 'root') {
       if (index[0] > 0) {
-        const prevId = `${facetId}-${index[0] - 1}`;
+        const prevId = `${index[0] - 1}`;
         if (expanded.indexOf(prevId) !== -1) {
           // if previous is expanded, go to previous last child
           setKeyboardFocus([index[0] - 1, childrenCount[prevId] - 1]);
@@ -210,7 +192,7 @@ export const NodeList = memo((props: INodeListProps) => {
 
   const handleArrowUpFromLoadMore = () => {
     if (level === 'root') {
-      const lastRootId = `${facetId}-${treeData.length - 1}`;
+      const lastRootId = `${treeData.length - 1}`;
       setKeyboardFocus(
         expanded.indexOf(lastRootId) !== -1
           ? [treeData.length - 1, childrenCount[lastRootId] - 1]
@@ -237,7 +219,6 @@ export const NodeList = memo((props: INodeListProps) => {
             key={node.id}
             onError={onError}
             expandable={expandable}
-            facetId={facetId}
             index={[...parentIndex, index]}
             onKeyboardFocusNext={handleKeyboardFocusNext}
             onKeyboardFocusPrev={handleKeyboardFocusPrev}
@@ -318,15 +299,7 @@ export const NodeListModal = (props: INodeListProps) => {
       ) : (
         <List w="full" data-testid={`search-facet-${level}-list`}>
           {treeData?.map((node) => (
-            <Item
-              node={node}
-              key={node.id}
-              onError={onError}
-              expandable={expandable}
-              variant="modal"
-              facetId={'data'}
-              index={[]}
-            />
+            <Item node={node} key={node.id} onError={onError} expandable={expandable} variant="modal" index={[]} />
           ))}
         </List>
       )}
@@ -352,7 +325,6 @@ interface IItemProps {
   node: FacetItem;
   variant?: 'basic' | 'modal';
   onError: () => void;
-  facetId: SearchFacetID;
   index: number[]; // index position in the tree
   onKeyboardFocusNext?: (index: number[]) => void;
   onKeyboardFocusPrev?: (index: number[]) => void;
@@ -372,16 +344,7 @@ const indexEqual = (a: number[], b: number[]) => {
 };
 
 export const Item = (props: IItemProps) => {
-  const {
-    node,
-    variant = 'basic',
-    expandable,
-    onError,
-    facetId,
-    index,
-    onKeyboardFocusNext,
-    onKeyboardFocusPrev,
-  } = props;
+  const { node, variant = 'basic', expandable, onError, index, onKeyboardFocusNext, onKeyboardFocusPrev } = props;
   const setFocused = useFacetStore(selectors.setFocused);
 
   const keyboardFocus = useFacetStore(selectors.keyboardFocus);
@@ -404,7 +367,7 @@ export const Item = (props: IItemProps) => {
     }
   }, [itemHasKeyboardFocus, checkboxRef]);
 
-  const id = `${facetId}-${index.join('-')}`;
+  const id = `${index.join('-')}`;
 
   const isExpanded = expanded.indexOf(id) !== -1;
 
@@ -491,7 +454,6 @@ export const Item = (props: IItemProps) => {
           onError={onError}
           onLoadMore={() => setFocused(node)}
           searchTerm=""
-          facetId={facetId}
           parentIndex={index}
           onKeyboardFocusNext={onKeyboardFocusNext}
         />
