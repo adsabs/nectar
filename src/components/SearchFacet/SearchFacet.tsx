@@ -226,7 +226,7 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
           borderBottomRadius="md"
           mt="0"
         >
-          <FacetList noLoadMore={noLoadMore} onFilter={handleOnFilter} onError={handleOnError} facetId={storeId} />
+          <FacetList noLoadMore={noLoadMore} onFilter={handleOnFilter} onError={handleOnError} />
         </Box>
       )}
     </ListItem>
