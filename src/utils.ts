@@ -181,7 +181,7 @@ export const parseQueryFromUrl = <TExtra extends Record<string, string | number 
   url: string,
   { sortPostfix }: { sortPostfix?: SolrSort } = {},
 ) => {
-  const queryString = url.indexOf('?') === -1 ? url : url.split('?')[1];
+  const queryString = url.indexOf('?') === -1 ? '' : url.split('?')[1];
   const params = parseSearchParams(queryString) as Record<string, string | string[]>;
   const normalizedParams = normalizeURLParams(params, ['fq']);
   const q = decodeURIComponent(normalizedParams?.q ?? '');
