@@ -5,6 +5,7 @@ import { defaultExclude, defineConfig } from 'vitest/config';
 
 export default defineConfig({
   plugins: [...react(), tsconfigPaths()],
+  cacheDir: '.vitest',
   test: {
     environment: 'jsdom',
     exclude: [...defaultExclude, '**/e2e/**'],
@@ -13,9 +14,6 @@ export default defineConfig({
     threads: true,
     maxConcurrency: 16,
     globals: false,
-    cache: {
-      dir: '.vitest',
-    },
     coverage: {
       provider: 'v8',
       reporter: 'lcov',

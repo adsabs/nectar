@@ -1,0 +1,74 @@
+services:
+
+  # Run build server
+  dev:
+    extends:
+      file: docker-compose.overrides.yml
+      service: common
+    env_file: .env.local
+    ports:
+      - '8000:8000'
+    build:
+      context: .
+      target: dev
+    volumes:
+      - .:/app
+
+  # Run production server
+  prod:
+    extends:
+      file: docker-compose.overrides.yml
+      service: common
+    ports:
+      - '8000:8000'
+    tty: true
+    build:
+      context: .
+      target: prod
+
+  # Run unit tests
+  unit:
+    extends:
+      file: docker-compose.overrides.yml
+      service: common
+    build:
+      context: .
+      target: unit
+    tty: true
+    volumes:
+      - ./src:/app/src
+
+  # Run e2e tests on production build
+  e2e:
+    extends:
+      file: docker-compose.overrides.yml
+      service: common
+    build:
+      context: .
+      target: e2e
+    tty: true
+    network_mode: host
+    depends_on:
+      - prod
+    volumes:
+      - ./playwright.config.ts:/app/playwright.config.ts
+      - ./.playwright:/app/.playwright
+      - ./e2e:/app/e2e
+
+  # Runs UI web server
+  e2e-ui:
+    extends:
+      file: docker-compose.overrides.yml
+      service: common
+    build:
+      context: .
+      target: e2e
+    tty: true
+    network_mode: host
+    depends_on:
+      - prod
+    volumes:
+      - ./e2e:/app/e2e
+      - ./.playwright:/app/.playwright
+      - ./playwright.config.ts:/app/playwright.config.ts
+    command: [ "test", "--ui", "--ui-host=0.0.0.0", "--ui-port=3000" ]

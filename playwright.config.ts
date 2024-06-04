@@ -8,6 +8,7 @@ dotenv.config();
  */
 export default defineConfig({
   testDir: './e2e',
+  testMatch: '*.e2e.*',
   /* Run tests in files in parallel */
   fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -27,6 +28,7 @@ export default defineConfig({
     trace: 'on-first-retry',
 
     bypassCSP: true,
+    screenshot: 'on',
   },
 
   /* Configure projects for major browsers */
@@ -49,14 +51,6 @@ export default defineConfig({
     },
   ],
   webServer: [
-    {
-      command: 'pnpm storybook dev --ci --quiet --disable-telemetry --port 8001',
-      timeout: 300000,
-      stdout: 'ignore',
-      stderr: 'pipe',
-      reuseExistingServer: !process.env.CI,
-      url: 'http://localhost:8001',
-    },
     {
       env: {
         BASE_CANONICAL_URL: process.env.BASE_CANONICAL_URL || 'https://ui.adsabs.harvard.edu',
