@@ -4,10 +4,11 @@ import { useQuery } from '@tanstack/react-query';
 import { isString } from '@/utils';
 import { isNotEmpty } from 'ramda-adjunct';
 import { hasObjectTerm, replaceObjectTerms } from '@/api/objects/helpers';
-import { APP_DEFAULTS } from '@/config';
+import { APP_DEFAULTS, TRACING_HEADERS } from '@/config';
 import { defaultRequestConfig } from '../config';
 import axios from 'axios';
 import { GetServerSidePropsContext } from 'next';
+import { pick } from 'ramda';
 
 export enum OBJECTS_API_KEYS {
   QUERY = 'object/query',
@@ -73,6 +74,7 @@ export const resolveObjectQuerySSR = async (params: IObjectsApiParams, ctx: GetS
     method: 'POST',
     data: { query: [query] },
     headers: {
+      ...pick(TRACING_HEADERS, ctx.req.headers),
       Authorization: `Bearer ${token}`,
     },
   };
