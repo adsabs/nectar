@@ -106,6 +106,7 @@ describe('parseQueryFromUrl', () => {
       'Simple case with no query params',
       [baseUrl, {}],
       {
+        n: 10,
         q: APP_DEFAULTS.EMPTY_QUERY,
         sort: ['score desc', 'date desc'],
         p: 1,
@@ -115,6 +116,7 @@ describe('parseQueryFromUrl', () => {
       'Case with query params',
       [`${baseUrl}?q=test&sort=score asc&fq=author:John`, {}],
       {
+        n: 10,
         q: 'test',
         sort: ['score asc', 'date desc'],
         p: 1,
@@ -125,6 +127,7 @@ describe('parseQueryFromUrl', () => {
       'Case with multiple filter queries',
       [`${baseUrl}?q=test&fq=author:John&fq=year:2021`, {}],
       {
+        n: 10,
         q: 'test',
         sort: ['score desc', 'date desc'],
         p: 1,
@@ -135,6 +138,7 @@ describe('parseQueryFromUrl', () => {
       'Case with pagination',
       [`${baseUrl}?q=test&p=3`, {}],
       {
+        n: 10,
         q: 'test',
         sort: ['score desc', 'date desc'],
         p: 3,
@@ -144,6 +148,7 @@ describe('parseQueryFromUrl', () => {
       'Case with invalid pagination',
       [`${baseUrl}?q=test&p=invalid`, {}],
       {
+        n: 10,
         q: 'test',
         sort: ['score desc', 'date desc'],
         p: 1,
@@ -153,6 +158,7 @@ describe('parseQueryFromUrl', () => {
       'Case with sort postfix',
       [`${baseUrl}?q=test&sort=citation_count desc`, { sortPostfix: 'author_count asc' }],
       {
+        n: 10,
         q: 'test',
         sort: ['citation_count desc', 'author_count asc'],
         p: 1,
@@ -161,10 +167,11 @@ describe('parseQueryFromUrl', () => {
     [
       'Case with long set of query params, including all FQs',
       [
-        `${baseUrl}?q=star&sort=score+desc%2Cdate+desc&p=1&fq_property=(property%3A"refereed")&fq_data=(data_facet%3A"NED")&fq_bibstem=(bibstem_facet%3A"A\\%26A"+AND+bibstem_facet%3A"AJ"+AND+bibstem_facet%3A"ApJL"+AND+bibstem_facet%3A"Ap\\%26SS"+AND+bibstem_facet%3A"PASP")&fq_database=(database%3A"earthscience")&fq_author=(author_facet_hier%3A"0\\%2FWang%2C+J"+AND+author_facet_hier%3A"0\\%2FWang%2C+Y"+AND+author_facet_hier%3A"0\\%2FHenning%2C+T"+AND+author_facet_hier%3A"0\\%2FZhang%2C+Y"+AND+author_facet_hier%3A"0\\%2FChen%2C+Y")&fq_aff=(aff_facet_hier%3A"0\\%2FMax+Planck")&fq_bibgroup=(bibgroup_facet%3A"ESO\\%2FTelescopes")&fq_simbad=(simbad_object_facet_hier%3A"0\\%2FStar")&fq_ned=(ned_object_facet_hier%3A"0\\%2FGalaxy")&fq_vizier=(vizier_facet%3A"Optical")&fq_doctype=(doctype_facet_hier%3A"0\\%2FArticle")&fq={!type%3Daqp+v%3D%24fq_property}%2C{!type%3Daqp+v%3D%24fq_data}%2C{!type%3Daqp+v%3D%24fq_bibstem}%2C{!type%3Daqp+v%3D%24fq_database}%2C{!type%3Daqp+v%3D%24fq_author}%2C{!type%3Daqp+v%3D%24fq_aff}%2C{!type%3Daqp+v%3D%24fq_bibgroup}%2C{!type%3Daqp+v%3D%24fq_simbad}%2C{!type%3Daqp+v%3D%24fq_ned}%2C{!type%3Daqp+v%3D%24fq_vizier}%2C{!type%3Daqp+v%3D%24fq_doctype}%2C{!type%3Daqp+v%3D%24fq_gpn}&fq_gpn=(gpn_facet_hier_3level%3A"0\\%2FMars")`,
+        `${baseUrl}?n=100&q=star&sort=score+desc%2Cdate+desc&p=1&fq_property=(property%3A"refereed")&fq_data=(data_facet%3A"NED")&fq_bibstem=(bibstem_facet%3A"A\\%26A"+AND+bibstem_facet%3A"AJ"+AND+bibstem_facet%3A"ApJL"+AND+bibstem_facet%3A"Ap\\%26SS"+AND+bibstem_facet%3A"PASP")&fq_database=(database%3A"earthscience")&fq_author=(author_facet_hier%3A"0\\%2FWang%2C+J"+AND+author_facet_hier%3A"0\\%2FWang%2C+Y"+AND+author_facet_hier%3A"0\\%2FHenning%2C+T"+AND+author_facet_hier%3A"0\\%2FZhang%2C+Y"+AND+author_facet_hier%3A"0\\%2FChen%2C+Y")&fq_aff=(aff_facet_hier%3A"0\\%2FMax+Planck")&fq_bibgroup=(bibgroup_facet%3A"ESO\\%2FTelescopes")&fq_simbad=(simbad_object_facet_hier%3A"0\\%2FStar")&fq_ned=(ned_object_facet_hier%3A"0\\%2FGalaxy")&fq_vizier=(vizier_facet%3A"Optical")&fq_doctype=(doctype_facet_hier%3A"0\\%2FArticle")&fq={!type%3Daqp+v%3D%24fq_property}%2C{!type%3Daqp+v%3D%24fq_data}%2C{!type%3Daqp+v%3D%24fq_bibstem}%2C{!type%3Daqp+v%3D%24fq_database}%2C{!type%3Daqp+v%3D%24fq_author}%2C{!type%3Daqp+v%3D%24fq_aff}%2C{!type%3Daqp+v%3D%24fq_bibgroup}%2C{!type%3Daqp+v%3D%24fq_simbad}%2C{!type%3Daqp+v%3D%24fq_ned}%2C{!type%3Daqp+v%3D%24fq_vizier}%2C{!type%3Daqp+v%3D%24fq_doctype}%2C{!type%3Daqp+v%3D%24fq_gpn}&fq_gpn=(gpn_facet_hier_3level%3A"0\\%2FMars")`,
         {},
       ],
       {
+        n: 100,
         fq: [
           '{!type=aqp v=$fq_property}',
           '{!type=aqp v=$fq_data}',
@@ -202,9 +209,20 @@ describe('parseQueryFromUrl', () => {
       },
     ],
     [
+      'NumPerPage param is parsed correctly',
+      [`${baseUrl}?n=10000`, {}],
+      {
+        n: 100,
+        q: '*:*',
+        sort: ['score desc', 'date desc'],
+        p: 1,
+      },
+    ],
+    [
       'Case with smart quotes',
       [`${baseUrl}?q=object:“test”`, {}],
       {
+        n: 10,
         q: 'object:"test"',
         sort: ['score desc', 'date desc'],
         p: 1,
