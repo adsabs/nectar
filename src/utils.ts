@@ -45,7 +45,7 @@ export const normalizeURLParams = <T extends Record<string, string> = Record<str
     if (skipKeys.includes(key)) {
       return acc;
     }
-    const rawValue = query[key];
+    const rawValue = query[key] as string | Array<string>;
     const value = typeof rawValue === 'string' ? rawValue : Array.isArray(rawValue) ? rawValue.join(',') : undefined;
 
     if (typeof value === 'undefined') {
@@ -238,8 +238,8 @@ export const normalizeSolrSort = (rawSolrSort: unknown, postfixSort?: SolrSort):
   const sort = Array.isArray(rawSolrSort)
     ? filter(isString, rawSolrSort)
     : isString(rawSolrSort)
-    ? rawSolrSort.split(',')
-    : null;
+      ? rawSolrSort.split(',')
+      : null;
 
   const tieBreaker = postfixSort || APP_DEFAULTS.QUERY_SORT_POSTFIX;
 
@@ -328,7 +328,7 @@ export const stringifySearchParams = (params: Record<string, unknown>, options?:
     indices: false,
     arrayFormat: 'comma',
     format: 'RFC1738',
-    sort: (a, b) => a - b,
+    sort: (a, b) => a.localeCompare(b),
     skipNulls: true,
     ...options,
   });

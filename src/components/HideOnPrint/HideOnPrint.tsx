@@ -1,7 +1,7 @@
-import { FC } from 'react';
+import { FC, PropsWithChildren } from 'react';
 import { Box, BoxProps } from '@chakra-ui/react';
 
-export const HideOnPrint: FC<BoxProps> = (props) => {
+export const HideOnPrint: FC<PropsWithChildren<BoxProps>> = (props) => {
   const { children, ...boxProps } = props;
   return (
     <Box

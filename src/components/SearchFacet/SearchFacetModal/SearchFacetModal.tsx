@@ -25,7 +25,7 @@ import { keyToPath, parseTitleFromKey } from '../helpers';
 import { useDebounce } from 'src/lib';
 import { SelectedList } from './SelectedList';
 
-interface ISearchFacetModalProps extends Omit<IFacetListProps, 'onError'> {
+interface ISearchFacetModalProps extends Omit<IFacetListProps, 'onError' | 'children'> {
   children: (props: { searchTerm: string }) => ReactNode;
 }
 

@@ -1,7 +1,7 @@
 import { Container, Flex, useMediaQuery } from '@chakra-ui/react';
 import { SkipNavLink } from '@chakra-ui/skip-nav';
 import { useRouter } from 'next/router';
-import { FC } from 'react';
+import { FC, PropsWithChildren } from 'react';
 import { Footer } from '../Footer';
 import { NavBar } from '../NavBar';
 import dynamic from 'next/dynamic';
@@ -16,7 +16,7 @@ const LandingTabs = dynamic(() => import('@/components/LandingTabs/LandingTabs')
 });
 
 const LANDING_PAGES = ['/', '/classic-form', '/paper-form'];
-export const Layout: FC = ({ children }) => {
+export const Layout: FC<PropsWithChildren> = ({ children }) => {
   const router = useRouter();
 
   const isLandingPage = LANDING_PAGES.includes(router.pathname);

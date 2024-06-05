@@ -334,7 +334,7 @@ export const AssociatedTable = () => {
           stylesTheme="default"
           onChange={handleRelationshipChange}
         />
-        <FormErrorMessage>{!!errors.relationship && errors.relationship}</FormErrorMessage>
+        <FormErrorMessage>{!!errors.relationship && errors.relationship.message}</FormErrorMessage>
       </FormControl>
 
       {relationship !== null && (
@@ -359,12 +359,12 @@ export const AssociatedTable = () => {
                 relationship === 'errata'
                   ? 'Errata '
                   : relationship === 'addenda'
-                  ? 'Addenda '
-                  : relationship === 'series'
-                  ? 'Series of articles '
-                  : relationship === 'arxiv'
-                  ? 'Main paper '
-                  : 'Related '
+                    ? 'Addenda '
+                    : relationship === 'series'
+                      ? 'Series of articles '
+                      : relationship === 'arxiv'
+                        ? 'Main paper '
+                        : 'Related '
               }Bibcode(s)`}</FormLabel>
               <Flex direction="column" gap={2}>
                 {associatedBibcodes.map((b, index) => (

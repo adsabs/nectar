@@ -38,7 +38,7 @@ export const defaultRequestConfig: AxiosRequestConfig = {
         indices: false,
         arrayFormat: 'comma',
         format: 'RFC1738',
-        sort: (a, b) => a - b,
+        sort: (a, b) => a.localeCompare(b),
         skipNulls: true,
       }),
   },

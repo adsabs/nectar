@@ -10,7 +10,7 @@ const ClassicFormPage: NextPage<{ ssrError?: string }> = ({ ssrError }) => {
   return (
     <Box as="section" aria-labelledby="form-title" my={16}>
       <Head>
-        <title>NASA Science Explorer - Classic Form Search</title>
+        <title>Classic Form - NASA Science Explorer</title>
       </Head>
       <ClassicForm ssrError={ssrError} />
     </Box>

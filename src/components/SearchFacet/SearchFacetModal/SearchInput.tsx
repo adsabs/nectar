@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react';
 import { useFacetStore } from '@/components/SearchFacet/store/FacetStore';
 import { capitalizeString } from '@/utils';
-import { ChangeEventHandler, FC } from 'react';
+import { ChangeEventHandler, FC, PropsWithChildren } from 'react';
 
 export interface ISearchInputProps extends InputGroupProps {
   search: string;
@@ -18,7 +18,7 @@ export interface ISearchInputProps extends InputGroupProps {
   isDisabled?: boolean;
 }
 
-export const SearchInput: FC<ISearchInputProps> = (props) => {
+export const SearchInput: FC<PropsWithChildren<ISearchInputProps>> = (props) => {
   const { search, onSearchChange, isDisabled, ...inputGroupProps } = props;
 
   const forceUppercaseInitial = useFacetStore((state) => state.params.forceUppercaseInitial);

@@ -9,7 +9,7 @@ const propTypes = {
   children: PT.element,
 }
 
-export const ${name}: FC<I${name}Props> = (props) => {
+export const ${name}: FC<PropsWithChildren<I${name}Props>> = (props) => {
   const { children, ...divProps } = props;
   return (
     <div {...divProps}>

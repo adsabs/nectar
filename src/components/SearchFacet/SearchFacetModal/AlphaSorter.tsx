@@ -1,13 +1,13 @@
 import { Box, Flex, FlexProps, RadioProps, useRadio, useRadioGroup } from '@chakra-ui/react';
 import { range } from 'ramda';
-import { FC } from 'react';
+import { FC, PropsWithChildren } from 'react';
 
 interface IAlphaSorterProps extends FlexProps {
   letter: string;
   onLetterChange: (letter: string) => void;
 }
 
-export const AlphaSorter: FC<IAlphaSorterProps> = (props) => {
+export const AlphaSorter: FC<PropsWithChildren<IAlphaSorterProps>> = (props) => {
   const { letter = 'All', onLetterChange, ...flexProps } = props;
   const { getRootProps, getRadioProps } = useRadioGroup({
     onChange: onLetterChange,
