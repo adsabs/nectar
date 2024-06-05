@@ -23,8 +23,8 @@
     "lint": "tsc --project ./tsconfig.json && eslint .",
     "prepare": "husky install",
     "docker:unit": "docker compose -f docker-compose.yml run -it --rm unit",
-    "docker:integration": "docker compose -f docker-compose.yml run -it --rm e2e",
-    "docker:integration:ui": "docker compose -f docker-compose.yml up e2e-ui --build",
+    "docker:integration": "docker compose -f docker-compose.yml up --build e2e",
+    "docker:integration:ui": "docker compose -f docker-compose.yml up --build e2e-ui",
     "docker:dev": "docker compose -f docker-compose.yml up dev --build",
     "docker:prod": "docker compose -f docker-compose.yml up prod --build"
   },

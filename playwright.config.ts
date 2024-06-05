@@ -28,7 +28,15 @@ export default defineConfig({
     trace: 'on-first-retry',
 
     bypassCSP: true,
-    screenshot: 'on',
+    screenshot: 'only-on-failure',
+    timezoneId: 'America/New_York',
+    locale: 'en-US',
+    video: 'retain-on-failure',
+  },
+  expect: {
+    toHaveScreenshot: {
+      maxDiffPixelRatio: 0.05,
+    },
   },
 
   /* Configure projects for major browsers */
