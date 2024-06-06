@@ -2,69 +2,89 @@ services:
 
   # Run build server
   dev:
-    extends:
-      file: docker-compose.overrides.yml
-      service: common
     env_file: .env.local
     ports:
       - '8000:8000'
     build:
       context: .
       target: dev
+      args:
+        USER_UID: ${USER_UID:-1000}
+        USER_GID: ${USER_GID:-1000}
+    user: ${USER_UID:-1000}:${USER_GID:-1000}
     volumes:
       - .:/app
 
   # Run production server
   prod:
-    extends:
-      file: docker-compose.overrides.yml
-      service: common
+    env_file: .env.local
     ports:
       - '8000:8000'
     tty: true
     build:
       context: .
       target: prod
+      args:
+        USER_UID: ${USER_UID:-1000}
+        USER_GID: ${USER_GID:-1000}
+    user: ${USER_UID:-1000}:${USER_GID:-1000}
+    networks:
+      - internal
 
   # Run unit tests
   unit:
-    extends:
-      file: docker-compose.overrides.yml
-      service: common
+    env_file: .env.local
     build:
       context: .
       target: unit
+      args:
+        USER_UID: ${USER_UID:-1000}
+        USER_GID: ${USER_GID:-1000}
+    user: ${USER_UID:-1000}:${USER_GID:-1000}
     tty: true
     volumes:
       - ./src:/app/src
 
   # Run e2e tests on production build
   e2e:
-    extends:
-      file: docker-compose.overrides.yml
-      service: common
+    env_file: .env.local
+    init: true
+    ipc: host
     build:
       context: .
       target: e2e
+      args:
+        USER_UID: ${USER_UID:-1000}
+        USER_GID: ${USER_GID:-1000}
+    user: ${USER_UID:-1000}:${USER_GID:-1000}
     tty: true
-    network_mode: host
     depends_on:
       - prod
     volumes:
       - ./playwright.config.ts:/app/playwright.config.ts
       - ./.playwright:/app/.playwright
       - ./e2e:/app/e2e
+      - ./test-results:/app/test-results
+    networks:
+      - internal
 
   # Runs UI web server
   e2e-ui:
-    extends:
-      file: docker-compose.overrides.yml
-      service: common
+    env_file: .env.local
+    init: true
+    ipc: host
+    cap_add:
+      - SYS_ADMIN
     build:
       context: .
       target: e2e
+      args:
+        USER_UID: ${USER_UID:-1000}
+        USER_GID: ${USER_GID:-1000}
+    user: ${USER_UID:-1000}:${USER_GID:-1000}
     tty: true
-    network_mode: host
+    ports:
+      - '3000:3000'
     depends_on:
       - prod
     volumes:
@@ -72,3 +92,9 @@ services:
       - ./.playwright:/app/.playwright
       - ./playwright.config.ts:/app/playwright.config.ts
     command: [ "test", "--ui", "--ui-host=0.0.0.0", "--ui-port=3000" ]
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge

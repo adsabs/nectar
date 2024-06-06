@@ -1,8 +1,0 @@
-services:
-  common:
-    build:
-      args:
-        USER_UID: 1000
-        USER_GID: 1000
-    user: 1000:1000
-    env_file: .env.local

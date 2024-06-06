@@ -1,0 +1,46 @@
+name: Test Coverage
+
+on:
+  pull_request_target:
+    types:
+      - closed
+
+jobs:
+  unit-tests:
+    if: github.event.pull_request.merged == true
+    timeout-minutes: 60
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        node-version: [20]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: false
+      - uses: actions/cache@v3
+        name: restore/setup pnpm cache
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Test
+        run: pnpm test:coverage
+
+      - name: Upload Coverage
+        uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          fail_ci_if_error: false
+          files: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-nectar
+          path_to_write_report: ./coverage/codecov_report.txt
+          verbose: true
+

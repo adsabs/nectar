@@ -15,6 +15,7 @@
     "start:local": "NODE_ENV=production PORT=8000 DIST_DIR=./dist/ next start",
     "analyze": "NEXT_TELEMETRY_DISABLED=1 DIST_DIR=./dev/ ANALYZE=true pnpm build-bibstem-index && next build",
     "test": "NODE_ENV=test vitest",
+    "test:no-coverage": "NODE_ENV=test vitest --run",
     "test:coverage": "NODE_ENV=test vitest --run --coverage",
     "integration": "playwright test --config=./playwright.config.ts",
     "storybook": "storybook dev -p 8001 --no-open --disable-telemetry",
@@ -22,11 +23,11 @@
     "build-bibstem-index": "node ./scripts/gen-bibstem-index",
     "lint": "tsc --project ./tsconfig.json && eslint .",
     "prepare": "husky install",
-    "docker:unit": "docker compose -f docker-compose.yml run -it --rm unit",
-    "docker:integration": "docker compose -f docker-compose.yml up --build e2e",
-    "docker:integration:ui": "docker compose -f docker-compose.yml up --build e2e-ui",
-    "docker:dev": "docker compose -f docker-compose.yml up dev --build",
-    "docker:prod": "docker compose -f docker-compose.yml up prod --build"
+    "docker:unit": "USER_UID=$(id -u) USER_GID=$(id -g) docker compose -f docker-compose.yml run -it --rm unit",
+    "docker:integration": "USER_UID=$(id -u) USER_GID=$(id -g) docker compose -f docker-compose.yml up --build e2e",
+    "docker:integration:ui": "USER_UID=$(id -u) USER_GID=$(id -g) docker compose -f docker-compose.yml up --build e2e-ui",
+    "docker:dev": "USER_UID=$(id -u) USER_GID=$(id -g) docker compose -f docker-compose.yml up dev --build",
+    "docker:prod": "USER_UID=$(id -u) USER_GID=$(id -g) docker compose -f docker-compose.yml up prod --build"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.0",
