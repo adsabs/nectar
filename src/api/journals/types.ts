@@ -16,7 +16,7 @@ export interface IADSApiJournalsSummaryParams {
 }
 
 export interface IADSApiJournalsSummaryResponse {
-  summary: {
+  summary?: {
     master: {
       bibstem: string;
       journal_name: string;
@@ -54,5 +54,20 @@ export interface IADSApiJournalsSummaryResponse {
       name_native_language: string;
       name_normalized: string;
     };
+  };
+  Error?: string;
+  'Error Info'?: string;
+}
+
+export interface IADSApiJournalsISSNParams {
+  issn: string;
+}
+
+export interface IADSApiJournalsISSNResponse {
+  issn?: {
+    ISSN: string;
+    ISSN_type: string;
+    bibstem: string;
+    journal_name: string;
   };
 }

@@ -250,4 +250,5 @@ export enum ApiTargets {
   REFERENCE = '/reference/text',
   JOURNAL = 'journals/journal',
   JOURNAL_SUMMARY = 'journals/summary',
+  JOURNAL_ISSN = 'journals/issn',
 }
