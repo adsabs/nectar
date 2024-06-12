@@ -67,7 +67,7 @@ const JournalSearch = () => {
 
   const searchTerm = useDebounce(term, 500);
 
-  const { data, isFetching } = useGetJournal({ term: searchTerm }, { enabled: searchTerm.trim() !== '' });
+  const { data, isFetching } = useGetJournal({ term: searchTerm.trim() }, { enabled: searchTerm.trim() !== '' });
 
   const handleTermChange = (e: ChangeEvent<HTMLInputElement>) => {
     setTerm(e.target.value);
@@ -161,7 +161,10 @@ const JournalSummary = ({ bibstem, onClose }: { bibstem: string; onClose: () => 
 const IssnSearch = () => {
   const [term, setTerm] = useState('');
 
-  const { data, isFetching, error } = useGetISSN({ issn: term }, { enabled: term.length === 9 && term[4] === '-' });
+  const { data, isFetching, error } = useGetISSN(
+    { issn: term.trim() },
+    { enabled: term.trim().length === 9 && term.trim()[4] === '-' },
+  );
 
   const handleTermChange = (e: ChangeEvent<HTMLInputElement>) => {
     setTerm(e.target.value);
