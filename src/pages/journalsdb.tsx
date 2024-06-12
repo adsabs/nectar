@@ -40,6 +40,11 @@ const AbstractPage: NextPage = () => {
         <title>Journals Database</title>
       </Head>
       <Container maxW="container.xl" my={4} minH="container.sm">
+        <Text my={4}>
+          Search here for a journal, book or conference proceeding to see if it is indexed in SciX. Enter a full or
+          partial title for a Journal Search or an ISSN for an ISSN search to get information about the content
+          available in SciX.
+        </Text>
         <FormControl>
           <Stack direction="row">
             <FormLabel>Search by: </FormLabel>
