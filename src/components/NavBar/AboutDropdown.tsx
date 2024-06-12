@@ -12,7 +12,7 @@ const items = [
   {
     id: 'journals',
     path: '/journalsdb',
-    label: 'Journals Database',
+    label: 'About our Content',
   },
   {
     id: 'blog',
