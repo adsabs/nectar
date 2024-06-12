@@ -10,6 +10,11 @@ const items = [
     label: 'About SciX',
   },
   {
+    id: 'journals',
+    path: '/journalsdb',
+    label: 'Journals Database',
+  },
+  {
     id: 'blog',
     path: '/scixblog',
     label: 'SciX Blog',
