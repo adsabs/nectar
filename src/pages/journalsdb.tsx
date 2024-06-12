@@ -10,6 +10,7 @@ import {
   Container,
   FormControl,
   FormLabel,
+  Heading,
   IconButton,
   Input,
   InputGroup,
@@ -30,7 +31,7 @@ import {
 import { NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { ascend, compose, descend, prop, sort, sortBy, sortWith, toLower } from 'ramda';
+import { ascend, descend, prop, sortWith } from 'ramda';
 import { ChangeEvent, useMemo, useState } from 'react';
 
 const AbstractPage: NextPage = () => {
@@ -42,6 +43,7 @@ const AbstractPage: NextPage = () => {
         <title>Journals Database</title>
       </Head>
       <Container maxW="container.xl" my={4} minH="container.sm">
+        <Heading as="h1">Journals Database</Heading>
         <Text my={4}>
           Search here for a journal, book or conference proceeding to see if it is indexed in SciX. Enter a full or
           partial title for a Journal Search or an ISSN for an ISSN search to get information about the content
