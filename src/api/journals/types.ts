@@ -2,13 +2,13 @@ export interface IADSApiJournalsJournalParams {
   term: string;
 }
 
+export interface IADSApiJournal {
+  bibstem: string;
+  name: string;
+}
+
 export interface IADSApiJournalsJournalResponse {
-  journal: [
-    {
-      bibstem: string;
-      name: string;
-    },
-  ];
+  journal: IADSApiJournal[];
 }
 
 export interface IADSApiJournalsSummaryParams {
