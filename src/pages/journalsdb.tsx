@@ -1,7 +1,8 @@
 import { useGetISSN, useGetJournal, useGetJournalSummary } from '@/api/journals/journals';
+import { IADSApiJournal } from '@/api/journals/types';
 import { useDebounce } from '@/lib/useDebounce';
 import { makeSearchParams } from '@/utils';
-import { ArrowBackIcon } from '@chakra-ui/icons';
+import { ArrowBackIcon, ArrowUpDownIcon, TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
@@ -29,6 +30,7 @@ import {
 import { NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import { ascend, compose, descend, prop, sort, sortBy, sortWith, toLower } from 'ramda';
 import { ChangeEvent, useMemo, useState } from 'react';
 
 const AbstractPage: NextPage = () => {
@@ -68,6 +70,11 @@ const JournalSearch = () => {
 
   const [term, setTerm] = useState('');
 
+  const [sort, setSort] = useState<{ col: keyof IADSApiJournal; dir: 'asc' | 'desc' }>({
+    col: 'bibstem',
+    dir: 'asc',
+  });
+
   const [bibstem, setBibstem] = useState<string>(null);
 
   const searchTerm = useDebounce(term, 500);
@@ -85,6 +92,13 @@ const JournalSearch = () => {
     });
   };
 
+  const sortedJournals = useMemo(() => {
+    if (data?.journal) {
+      return sortWith([sort.dir === 'asc' ? ascend(prop(sort.col)) : descend(prop(sort.col))], data.journal);
+    }
+    return [];
+  }, [sort, data]);
+
   return (
     <>
       <InputGroup mt={4}>
@@ -101,18 +115,78 @@ const JournalSearch = () => {
             <Text size="sm" my={4}>
               <strong>{data.journal.length}</strong> results
             </Text>
-            {data.journal.length > 0 && (
+            {sortedJournals.length > 0 && (
               <TableContainer>
                 <Table>
                   <Thead>
                     <Tr>
-                      <Th>Bibstem</Th>
-                      <Th>Name</Th>
+                      <Th></Th>
+                      <Th>
+                        Bibstem{' '}
+                        {sort.col === 'bibstem' ? (
+                          sort.dir === 'asc' ? (
+                            <IconButton
+                              icon={<TriangleUpIcon />}
+                              variant="ghost"
+                              size="xs"
+                              aria-label="sort descending by bibstem"
+                              onClick={() => setSort({ col: 'bibstem', dir: 'desc' })}
+                            />
+                          ) : (
+                            <IconButton
+                              icon={<TriangleDownIcon />}
+                              variant="ghost"
+                              size="xs"
+                              aria-label="sort ascending by bibstem"
+                              onClick={() => setSort({ col: 'bibstem', dir: 'asc' })}
+                            />
+                          )
+                        ) : (
+                          <IconButton
+                            icon={<ArrowUpDownIcon />}
+                            variant="ghost"
+                            size="xs"
+                            aria-label="sort by bibstem"
+                            onClick={() => setSort({ col: 'bibstem', dir: 'asc' })}
+                          />
+                        )}
+                      </Th>
+                      <Th>
+                        Name{' '}
+                        {sort.col === 'name' ? (
+                          sort.dir === 'asc' ? (
+                            <IconButton
+                              icon={<TriangleUpIcon />}
+                              variant="ghost"
+                              size="xs"
+                              aria-label="sort descending by name"
+                              onClick={() => setSort({ col: 'name', dir: 'desc' })}
+                            />
+                          ) : (
+                            <IconButton
+                              icon={<TriangleDownIcon />}
+                              variant="ghost"
+                              size="xs"
+                              aria-label="sort ascending by name"
+                              onClick={() => setSort({ col: 'name', dir: 'asc' })}
+                            />
+                          )
+                        ) : (
+                          <IconButton
+                            icon={<ArrowUpDownIcon />}
+                            variant="ghost"
+                            size="xs"
+                            aria-label="sort by name"
+                            onClick={() => setSort({ col: 'name', dir: 'asc' })}
+                          />
+                        )}
+                      </Th>
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {data.journal.map(({ bibstem, name }) => (
+                    {sortedJournals.map(({ bibstem, name }, index) => (
                       <Tr>
+                        <Td>{index + 1}</Td>
                         <Td>
                           <Button variant="link" onClick={() => searchByBibstem(bibstem)}>
                             {bibstem}
