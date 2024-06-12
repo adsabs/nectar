@@ -1,5 +1,6 @@
 import { useGetISSN, useGetJournal, useGetJournalSummary } from '@/api/journals/journals';
 import { IADSApiJournal } from '@/api/journals/types';
+import { SimpleLink } from '@/components';
 import { useDebounce } from '@/lib/useDebounce';
 import { makeSearchParams } from '@/utils';
 import { ArrowBackIcon, ArrowUpDownIcon, TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
@@ -87,13 +88,6 @@ const JournalSearch = () => {
     setTerm(e.target.value);
   };
 
-  const searchByBibstem = (bibstem: string) => {
-    void router.push({
-      pathname: '/search',
-      query: makeSearchParams({ q: `bibstem:"${bibstem}"`, sort: ['date desc'] }),
-    });
-  };
-
   const sortedJournals = useMemo(() => {
     if (data?.journal) {
       return sortWith([sort.dir === 'asc' ? ascend(prop(sort.col)) : descend(prop(sort.col))], data.journal);
@@ -122,8 +116,8 @@ const JournalSearch = () => {
                 <Table>
                   <Thead>
                     <Tr>
-                      <Th></Th>
-                      <Th>
+                      <Th w="5%"></Th>
+                      <Th w="15%">
                         Bibstem{' '}
                         {sort.col === 'bibstem' ? (
                           sort.dir === 'asc' ? (
@@ -190,12 +184,24 @@ const JournalSearch = () => {
                       <Tr>
                         <Td>{index + 1}</Td>
                         <Td>
-                          <Button variant="link" onClick={() => searchByBibstem(bibstem)}>
+                          <SimpleLink
+                            href={`${router.basePath}/search?${makeSearchParams({
+                              q: `bibstem:"${bibstem}"`,
+                              sort: ['date desc'],
+                            })}`}
+                            newTab
+                            fontWeight="bold"
+                          >
                             {bibstem}
-                          </Button>
+                          </SimpleLink>
                         </Td>
                         <Td>
-                          <Button variant="link" onClick={() => setBibstem(bibstem)}>
+                          <Button
+                            variant="link"
+                            onClick={() => setBibstem(bibstem)}
+                            fontWeight="medium"
+                            _hover={{ textDecoration: 'none' }}
+                          >
                             {name}
                           </Button>
                         </Td>
