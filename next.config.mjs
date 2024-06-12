@@ -25,7 +25,7 @@ const CSP = `
 const nextConfig = {
   distDir: process.env.DIST_DIR || 'dist',
   generateBuildId: async () => nextBuildId({ dir: process.env.__dirname, describe: true }),
-  generateEtags: true,
+  generateEtags: false,
   poweredByHeader: false,
   reactStrictMode: true,
   experimental: {
