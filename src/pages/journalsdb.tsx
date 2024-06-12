@@ -42,7 +42,7 @@ const AbstractPage: NextPage = () => {
       <Head>
         <title>Journals Database</title>
       </Head>
-      <Container maxW="container.xl" my={4} minH="container.sm">
+      <Container maxW="container.lg" my={4} minH="container.sm">
         <Heading as="h1">Journals Database</Heading>
         <Text my={4}>
           Search here for a journal, book or conference proceeding to see if it is indexed in SciX. Enter a full or
