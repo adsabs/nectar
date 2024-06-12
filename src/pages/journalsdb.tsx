@@ -194,16 +194,15 @@ const IssnSearch = () => {
             </Text>
             <pre>{JSON.stringify(data.issn, null, 2)}</pre>
             <Button variant="link" onClick={() => setBibstem(data.issn.bibstem)}>
-              View {data.issn.bibstem} summary
+              View {data.issn.bibstem} details
             </Button>
           </>
         )}
         {!bibstem && !isFetching && !error && data && !data.issn && (
           <>
             <Text fontSize="2xl" my={2} fontWeight="bold">
-              Error
+              Unknown ISSN
             </Text>
-            <Text>ISSN not found</Text>
           </>
         )}
         {bibstem && <JournalSummary bibstem={bibstem} onClose={() => setBibstem(null)} />}
