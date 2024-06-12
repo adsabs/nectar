@@ -142,7 +142,7 @@ const JournalSummary = ({ bibstem, onClose }: { bibstem: string; onClose: () => 
 
   return (
     <>
-      <IconButton icon={<ArrowBackIcon />} aria-label="Clear search" onClick={onClose} />
+      <IconButton icon={<ArrowBackIcon />} aria-label="Back" onClick={onClose} />
       <Box as="section" mt={4}>
         {isFetching && <Spinner />}
         {!isFetching && summary && (
@@ -160,6 +160,8 @@ const JournalSummary = ({ bibstem, onClose }: { bibstem: string; onClose: () => 
 
 const IssnSearch = () => {
   const [term, setTerm] = useState('');
+
+  const [bibstem, setBibstem] = useState<string>(null);
 
   const { data, isFetching, error } = useGetISSN(
     { issn: term.trim() },
@@ -180,15 +182,18 @@ const IssnSearch = () => {
       </InputGroup>
       <Box as="section" mt={4}>
         {isFetching && <Spinner />}
-        {!isFetching && !error && data?.issn && (
+        {!bibstem && !isFetching && !error && data?.issn && (
           <>
             <Text fontSize="2xl" my={2} fontWeight="bold">
               ISSN: {data.issn.ISSN}
             </Text>
             <pre>{JSON.stringify(data.issn, null, 2)}</pre>
+            <Button variant="link" onClick={() => setBibstem(data.issn.bibstem)}>
+              View {data.issn.bibstem} summary
+            </Button>
           </>
         )}
-        {!isFetching && !error && data && !data.issn && (
+        {!bibstem && !isFetching && !error && data && !data.issn && (
           <>
             <Text fontSize="2xl" my={2} fontWeight="bold">
               Error
@@ -196,6 +201,7 @@ const IssnSearch = () => {
             <Text>ISSN not found</Text>
           </>
         )}
+        {bibstem && <JournalSummary bibstem={bibstem} onClose={() => setBibstem(null)} />}
       </Box>
     </>
   );
