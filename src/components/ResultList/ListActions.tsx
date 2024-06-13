@@ -85,6 +85,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
         const q = createOperatorQuery(path.operator, `docs(${data.qid})`);
         void router.push({ pathname: '', search: makeSearchParams({ q, sort: ['score desc'] }) });
       }
+      clearSelected();
       setPath(null);
     }
 
@@ -125,7 +126,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
     }
   };
 
-  const handleOpsLink = useCallback((name: Operator) => () => handleOperationsLink(name), []);
+  const handleOpsLink = useCallback((name: Operator) => () => handleOperationsLink(name), [exploreAll, router]);
 
   const colors = useColorModeColors();
 
