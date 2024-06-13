@@ -22,5 +22,5 @@ export const userSlice: StoreSlice<IUserState & IUserAction> = (set, get) => ({
 
   resetUser: () => set({ user: defaultUserData }, false, 'user/resetUser'),
 
-  getUsername: () => get().user.username,
+  getUsername: () => get().user?.username,
 });
