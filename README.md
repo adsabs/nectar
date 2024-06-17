@@ -79,3 +79,26 @@ This should open the results in a browser to see the generated bundles:
 ```bash
 pnpm run analyze
 ```
+
+#### Docker
+
+We can run both the production and the development server on Docker.
+
+```bash
+pnpm run docker:dev
+pnpm run docker:prod
+```
+
+Run the integration tests:
+
+```bash
+pnpm run docker:integration
+
+# Runs the playwright UI server
+pnpm run docker:integration:ui
+```
+
+Run the unit tests:
+```bash
+pnpm run docker:unit
+```

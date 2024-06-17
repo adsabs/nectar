@@ -10,7 +10,7 @@ const ClassicFormPage: NextPage<{ ssrError?: string }> = ({ ssrError }) => {
   return (
     <Box as="section" aria-labelledby="form-title" my={16}>
       <Head>
-        <title>NASA Science Explorer - Classic Form Search</title>
+        <title>Classic Form - NASA Science Explorer</title>
       </Head>
       <ClassicForm ssrError={ssrError} />
     </Box>
@@ -21,7 +21,7 @@ export default ClassicFormPage;
 
 type ReqWithBody = GetServerSidePropsContext['req'] & { body: IClassicFormState };
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-  if (ctx.req.method == 'POST') {
+  if (ctx.req.method === 'POST') {
     const body = (ctx.req as ReqWithBody).body;
     try {
       return Promise.resolve({

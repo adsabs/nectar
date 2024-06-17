@@ -1,7 +1,7 @@
 import { Box, Flex, Grid, GridItem, Text } from '@chakra-ui/react';
 import { useStore } from '@/store';
 import { noop } from '@/utils';
-import { FC, HTMLAttributes, MouseEventHandler, useMemo } from 'react';
+import { FC, HTMLAttributes, MouseEventHandler, PropsWithChildren, useMemo } from 'react';
 import { examples } from './examples';
 import { useIsClient } from '@/lib/useIsClient';
 import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
@@ -12,7 +12,7 @@ export interface ISearchExamplesProps extends HTMLAttributes<HTMLDivElement> {
   onSelect?: () => void;
 }
 
-export const SearchExamples: FC<ISearchExamplesProps> = (props) => {
+export const SearchExamples: FC<PropsWithChildren<ISearchExamplesProps>> = (props) => {
   const { onSelect = noop, ...divProps } = props;
   const mode = useStore((state) => state.mode);
   const { appendToQuery } = useIntermediateQuery();

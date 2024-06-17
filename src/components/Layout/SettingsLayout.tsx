@@ -1,7 +1,7 @@
 import { Heading, LayoutProps, Stack, Text } from '@chakra-ui/react';
 import { SettingsSideNav } from '@/components';
 import Head from 'next/head';
-import { FC } from 'react';
+import { FC, PropsWithChildren } from 'react';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 import { SuspendedAlert } from '@/components/Feedbacks/SuspendedAlert';
 
@@ -10,7 +10,7 @@ interface ISettingsLayoutProps {
   maxW?: LayoutProps['maxW'];
 }
 
-export const SettingsLayout: FC<ISettingsLayoutProps> = ({ children, title }) => {
+export const SettingsLayout: FC<PropsWithChildren<ISettingsLayoutProps>> = ({ children, title }) => {
   return (
     <Stack direction={{ base: 'column', lg: 'row' }} spacing={6} my={{ base: 2, lg: 10 }}>
       <Head>

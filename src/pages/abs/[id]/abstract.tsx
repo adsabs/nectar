@@ -352,12 +352,16 @@ const Detail = <T,>(props: IDetailProps<T>): ReactElement => {
     <Tr>
       <Td>{label}</Td>
       <Td wordBreak="break-word">
-        {href && (
-          <SimpleLink href={href} isExternal>
-            {normalizedValue} <ExternalLinkIcon mx="2px" />
-          </SimpleLink>
-        )}
-        {typeof children === 'function' ? children(value) : !href && normalizedValue}
+        <>
+          {href && (
+            <SimpleLink href={href} isExternal>
+              <>
+                {normalizedValue} <ExternalLinkIcon mx="2px" />
+              </>
+            </SimpleLink>
+          )}
+          {typeof children === 'function' ? children(value) : !href && normalizedValue}
+        </>
       </Td>
     </Tr>
   );

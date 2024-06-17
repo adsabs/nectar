@@ -2,7 +2,7 @@ import { ISearchFacetProps } from '@/components';
 import { facetConfig } from '@/components/SearchFacet/config';
 import { FacetItem, IFacetParams, SearchFacetID } from '@/components/SearchFacet/types';
 import { omit, pick } from 'ramda';
-import { createElement, FC } from 'react';
+import { createElement, FC, PropsWithChildren } from 'react';
 import create from 'zustand';
 import createContext from 'zustand/context';
 import { computeNextSelectionState, createNodes, getSelected } from './helpers';
@@ -108,7 +108,7 @@ const createStore = (preloadedState: Partial<IFacetStoreState>) => () =>
 const FacetStoreContext = createContext<IFacetStoreState & FacetStoreEvents>();
 export const useFacetStore = FacetStoreContext.useStore;
 
-export const FacetStoreProvider: FC<{ facetId: SearchFacetID }> = ({ children, facetId }) => {
+export const FacetStoreProvider: FC<PropsWithChildren<{ facetId: SearchFacetID }>> = ({ children, facetId }) => {
   const params = pick(
     ['label', 'field', 'hasChildren', 'logic', 'facetQuery', 'filter', 'forceUppercaseInitial', 'maxDepth'],
     facetConfig[facetId],

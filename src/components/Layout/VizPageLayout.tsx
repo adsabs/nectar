@@ -1,7 +1,7 @@
 import { Flex, Heading, HStack } from '@chakra-ui/react';
 import { SimpleLink, VisualizationsTabs, VizSection } from '@/components';
 import Head from 'next/head';
-import { FC } from 'react';
+import { FC, PropsWithChildren } from 'react';
 import { UrlObject } from 'url';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
 
@@ -10,7 +10,7 @@ interface IVizPageLayoutProps {
   from?: UrlObject;
 }
 
-export const VizPageLayout: FC<IVizPageLayoutProps> = ({ children, vizPage, from }) => {
+export const VizPageLayout: FC<PropsWithChildren<IVizPageLayoutProps>> = ({ children, vizPage, from }) => {
   return (
     <>
       <Head>

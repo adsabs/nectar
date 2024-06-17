@@ -1,13 +1,13 @@
-import { Container, Box, Stack, Heading, Text } from '@chakra-ui/react';
+import { Box, Container, Heading, Stack, Text } from '@chakra-ui/react';
 import Head from 'next/head';
-import { FC, ReactNode, useEffect, useRef } from 'react';
+import { FC, PropsWithChildren, ReactNode, useEffect, useRef } from 'react';
 
 interface IFeedbackLayoutProps {
   title: string;
   alert?: ReactNode;
 }
 
-export const FeedbackLayout: FC<IFeedbackLayoutProps> = ({ children, title, alert }) => {
+export const FeedbackLayout: FC<PropsWithChildren<IFeedbackLayoutProps>> = ({ children, title, alert }) => {
   const alertRef = useRef<HTMLDivElement>();
 
   // scroll to alert does not work
@@ -20,7 +20,7 @@ export const FeedbackLayout: FC<IFeedbackLayoutProps> = ({ children, title, aler
   return (
     <Container maxW="container.lg" my={{ base: 2, lg: 10 }} px={0}>
       <Head>
-        <title>{title}</title>
+        <title>{`${title} - NASA Science Explorer`}</title>
       </Head>
       <Box ref={alertRef}>{!!alert && alert}</Box>
       <Stack direction="column" as="section" aria-labelledby="title" spacing={1} width="full">

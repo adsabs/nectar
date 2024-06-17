@@ -1,12 +1,9 @@
 import { Box, Heading, Spinner } from '@chakra-ui/react';
-import { FC, HTMLAttributes, ReactNode } from 'react';
+import { FC, HTMLAttributes, PropsWithChildren, ReactNode } from 'react';
 
-export const ExportContainer: FC<{ header: ReactNode; isLoading?: boolean } & HTMLAttributes<HTMLDivElement>> = ({
-  children,
-  header,
-  isLoading,
-  ...divProps
-}) => {
+export const ExportContainer: FC<
+  PropsWithChildren<{ header: ReactNode; isLoading?: boolean } & HTMLAttributes<HTMLDivElement>>
+> = ({ children, header, isLoading, ...divProps }) => {
   return (
     <Box
       p="3"

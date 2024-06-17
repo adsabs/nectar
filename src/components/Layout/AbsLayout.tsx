@@ -6,14 +6,14 @@ import { useBackToSearchResults } from '@/lib/useBackToSearchResults';
 import { unwrapStringValue } from '@/utils';
 import { MathJax } from 'better-react-mathjax';
 import Head from 'next/head';
-import { FC } from 'react';
+import { PropsWithChildren } from 'react';
 
 interface IAbsLayoutProps {
   doc: IDocsEntity;
   titleDescription: string;
 }
 
-export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription }) => {
+export const AbsLayout = ({ children, doc, titleDescription }: PropsWithChildren<IAbsLayoutProps>) => {
   const { getSearchHref, show: showBackLink } = useBackToSearchResults();
 
   if (!doc) {

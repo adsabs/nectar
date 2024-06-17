@@ -1,4 +1,4 @@
-import { SortDirection, SolrSortField, SortField, SortType, SolrSort } from '@/api';
+import { SolrSort, SolrSortField, SortDirection, SortField, SortType } from '@/api';
 import { Box, HStack, IconButton, Input } from '@chakra-ui/react';
 import { SearchQueryLink, SimpleLinkDropdown } from '@/components';
 import { ItemType } from '@/components/Dropdown/types';
@@ -85,7 +85,6 @@ export const Sort = <S extends SortType = SolrSort, F extends SortField = SolrSo
     <HStack spacing={0} data-testid="sort" alignItems="flex-end">
       <Box width={sortContainerWidth}>
         <SortSelect
-          hideLabel={hideLabel}
           sortOptions={options}
           sort={selected}
           onChange={handleSelectionChange}
@@ -136,21 +135,19 @@ const SortSelect = <S extends SortType, F extends SortField>({
   sort,
   sortOptions,
   onChange,
-  hideLabel,
   innerSelectProps,
 }: {
   sort: string;
   sortOptions: SortOptionType<F>[];
   onChange: (val: SortOptionType<F>) => void;
-  hideLabel: ISortProps<S, F>['hideLabel'];
   innerSelectProps?: Partial<ISelectProps<SortOptionType<F>>>;
 }) => {
   const selected = sortOptions.find((o) => o.id === sort) ?? sortOptions[0];
   return (
     <Select<SortOptionType<F>>
       label="Sort"
-      hideLabel={hideLabel}
       value={selected}
+      hideLabel={false}
       options={sortOptions}
       stylesTheme="sort"
       onChange={onChange}

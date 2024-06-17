@@ -118,10 +118,7 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
     <Box
       aria-label="all search terms dropdown"
       {...getComboboxProps({
-        ref: (el: HTMLDivElement) => {
-          tooltipReferenceRef(el);
-          return el;
-        },
+        ref: (el: HTMLDivElement) => tooltipReferenceRef(el),
       })}
       w="200px"
     >
@@ -131,10 +128,7 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
             placeholder="all search terms"
             fontSize="md"
             {...getInputProps({
-              ref: (el: HTMLInputElement) => {
-                dropdownReferenceRef(el);
-                return el;
-              },
+              ref: (el: HTMLInputElement) => dropdownReferenceRef(el),
               onKeyDown: (event) => {
                 if (event.key === 'Enter') {
                   if (items.length === 0 || !isOpen) {
@@ -170,10 +164,7 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
         overflowY="scroll"
         overflowX="hidden"
         {...getMenuProps({
-          ref: (el: HTMLUListElement) => {
-            dropdownPopperRef(el);
-            return el;
-          },
+          ref: (el: HTMLUListElement) => dropdownPopperRef(el),
         })}
         data-testid="allSearchTermsMenu"
       >

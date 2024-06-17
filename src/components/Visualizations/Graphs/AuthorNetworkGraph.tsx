@@ -129,7 +129,7 @@ export const AuthorNetworkGraph = ({
 
   // handle mouse over label
   const handleMouseOverLabel = useCallback(
-    (e, n: NetworkHierarchyNode<IADSApiAuthorNetworkNode>) => {
+    (_: unknown, n: NetworkHierarchyNode<IADSApiAuthorNetworkNode>) => {
       if (!showLinkLayer) {
         return;
       }
@@ -156,7 +156,7 @@ export const AuthorNetworkGraph = ({
 
   // handle mouse over link
   const handleMouseOverLink = useCallback(
-    (e, link: ILink) => {
+    (_: unknown, link: ILink) => {
       if (!showLinkLayer) {
         return;
       }
@@ -245,7 +245,7 @@ export const AuthorNetworkGraph = ({
         .each(function (d) {
           this.lastAngle = { x0: d.x0, x1: d.x1 };
         }) // save this angle for use in transition interpolation
-        .on('click', (e, p) => {
+        .on('click', (_: unknown, p) => {
           setSelectedNode(p.data);
         });
 
@@ -269,7 +269,7 @@ export const AuthorNetworkGraph = ({
           g.selectAll('.link').classed('selected-link', false);
           g.selectAll('.node-label').classed('linked-label', false);
         })
-        .on('click', (e, p) => {
+        .on('click', (_: unknown, p) => {
           setSelectedNode(p.data);
         });
 

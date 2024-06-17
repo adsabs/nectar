@@ -1,7 +1,7 @@
 import { DownloadIcon } from '@chakra-ui/icons';
 import { Flex, IconButton, StyleProps, Text } from '@chakra-ui/react';
 import { useDownloadFile } from 'src/lib';
-import { FC } from 'react';
+import { FC, PropsWithChildren } from 'react';
 
 export interface IDataDownloaderProps extends StyleProps {
   label: string;
@@ -13,7 +13,7 @@ export interface IDataDownloaderProps extends StyleProps {
 /**
  * The component is a download button, which handles downloading of dynamically generated data file
  */
-export const DataDownloader: FC<IDataDownloaderProps> = ({
+export const DataDownloader: FC<PropsWithChildren<IDataDownloaderProps>> = ({
   label,
   getFileContent,
   fileName,

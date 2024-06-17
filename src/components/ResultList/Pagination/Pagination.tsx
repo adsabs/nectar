@@ -25,7 +25,17 @@ import { NumPerPageType, SafeSearchUrlParams } from '@/types';
 import { makeSearchParams, stringifySearchParams } from '@/utils';
 import { useRouter } from 'next/router';
 import { clamp, curryN } from 'ramda';
-import { Dispatch, FC, KeyboardEventHandler, ReactElement, useCallback, useMemo, useRef, useState } from 'react';
+import {
+  Dispatch,
+  FC,
+  KeyboardEventHandler,
+  PropsWithChildren,
+  ReactElement,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { MenuPlacement } from 'react-select';
 import { calculatePagination, PaginationAction, PaginationResult } from './usePagination';
 
@@ -106,7 +116,7 @@ export const Pagination = (props: PaginationProps): ReactElement => {
    */
   const perPageChangeHandler = useCallback(
     ({ value }: SelectOption) => {
-      const numPerPage = parseInt(value, 10) as typeof APP_DEFAULTS['PER_PAGE_OPTIONS'][number];
+      const numPerPage = parseInt(value, 10) as (typeof APP_DEFAULTS)['PER_PAGE_OPTIONS'][number];
       if (typeof onPerPageSelect === 'function') {
         onPerPageSelect(numPerPage);
       }
@@ -238,7 +248,9 @@ export const Pagination = (props: PaginationProps): ReactElement => {
   );
 };
 
-const PaginationButton: FC<{ page: number; noLinks: boolean; onlyUpdatePageParam: boolean }> = (props) => {
+const PaginationButton: FC<PropsWithChildren<{ page: number; noLinks: boolean; onlyUpdatePageParam: boolean }>> = (
+  props,
+) => {
   const { children, page, noLinks, onlyUpdatePageParam } = props;
   const router = useRouter();
   const getLinkParams = useCallback(

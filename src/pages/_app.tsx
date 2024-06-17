@@ -10,7 +10,7 @@ import { AppProps, NextWebVitalsMetric } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import 'nprogress/nprogress.css';
-import { FC, memo, ReactElement, useEffect, useMemo } from 'react';
+import { FC, memo, PropsWithChildren, ReactElement, useEffect, useMemo } from 'react';
 import { DehydratedState, Hydrate, QueryClientProvider, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { IronSession } from 'iron-session';
@@ -57,7 +57,7 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
   );
 });
 
-const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => {
+const Providers: FC<PropsWithChildren<{ pageProps: AppPageProps }>> = ({ children, pageProps }) => {
   const createStore = useCreateStore(pageProps.dehydratedAppState ?? {});
 
   return (
@@ -76,7 +76,7 @@ const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => 
   );
 };
 
-const QCProvider: FC = ({ children }) => {
+const QCProvider: FC<PropsWithChildren> = ({ children }) => {
   const queryClient = useCreateQueryClient();
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 };
