@@ -7,6 +7,11 @@ import {
   HStack,
   Icon,
   IconButton,
+  Link,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Stack,
   Table,
   Tag,
@@ -18,10 +23,11 @@ import {
   useDisclosure,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { ChatIcon, ExternalLinkIcon } from '@chakra-ui/icons';
+import { ChatIcon, ExternalLinkIcon, TriangleDownIcon } from '@chakra-ui/icons';
 import {
   AbstractSources,
   AddToLibraryModal,
+  CopyMenuItem,
   feedbackItems,
   LabeledCopyButton,
   SearchQueryLink,
@@ -217,9 +223,27 @@ const Doi = memo(({ doiIDs, bibcode }: { doiIDs: Array<string>; bibcode: string 
   return (
     <>
       {doiIDs.map((id) => (
-        <SimpleLink href={createUrlByType(bibcode, 'doi', id)} isExternal key={id}>
-          {id} <ExternalLinkIcon mx="2px" />
-        </SimpleLink>
+        <Stack direction="row" my={1} key={id}>
+          <Text>{id}</Text>
+          <Menu>
+            <MenuButton
+              as={IconButton}
+              variant="outline"
+              minW={4}
+              height={4}
+              borderRadius={3}
+              icon={<TriangleDownIcon boxSize={2} />}
+              aria-label="menu"
+            />
+            <MenuList>
+              <MenuItem as={Link} href={createUrlByType(bibcode, 'doi', id)} isExternal>
+                Open
+                <ExternalLinkIcon mx={2} />
+              </MenuItem>
+              <CopyMenuItem label={'Copy DOI'} text={id} />
+            </MenuList>
+          </Menu>
+        </Stack>
       ))}
     </>
   );
