@@ -10,3 +10,11 @@ stories
 .prettier*
 LICENSE
 README.md
+out
+tmp
+.nx
+codecov.yml
+nx.json
+Dockerfile
+docker/data
+docker/docker-compose.yml

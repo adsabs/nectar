@@ -1,0 +1,22 @@
+{
+  "access_token": "authenticated-token",
+  "refresh_token": "authenticated-refresh-token",
+  "expires_at": "99999999999",
+  "token_type": "bearer",
+  "username": "testing@testing.com",
+  "scopes": [
+    "api",
+    "user",
+    "store-query",
+    "execute-query",
+    "store-preferences"
+  ],
+  "anonymous": false,
+  "client_id": "HSh9e1tdpj5hSeemdHmGYcnweK0tXGTGB6moILKZ",
+  "client_secret": "48ozyFG8GUIIQrk1SUGWsHZQMcs5JKH4n1qxzYxK6zE94MEDQhW5pT454RQH",
+  "ratelimit": 1.0,
+  "client_name": "BB client",
+  "individual_ratelimits": null,
+  "given_name": null,
+  "family_name": null
+}

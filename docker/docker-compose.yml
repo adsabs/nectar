@@ -1,0 +1,29 @@
+services:
+  nectar:
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile
+      target: prod
+    ports:
+      - '8000:8000'
+    depends_on:
+      - cache
+
+  cache:
+    image: redis:alpine
+    volumes:
+      - ./data/redis:/data
+    restart: always
+    ports:
+      - '6379:6379'
+    privileged: true
+    command: sh -c "sysctl -w vm.overcommit_memory=1 && redis-server --bind 0.0.0.0"
+
+  dev_cache:
+    image: redis:alpine
+    volumes:
+      - ./data/redis:/data
+    restart: always
+    privileged: true
+    network_mode: host
+    command: sh -c "sysctl -w vm.overcommit_memory=1 && redis-server --bind 0.0.0.0"

@@ -1,0 +1,20 @@
+{
+  "access_token": "anonymous-token",
+  "refresh_token": "anonymous-refresh-token",
+  "expires_at": "9999999999",
+  "token_type": "bearer",
+  "username": "anonymous@ads",
+  "scopes": [
+    "api",
+    "execute-query",
+    "store-query"
+  ],
+  "anonymous": true,
+  "client_id": "AHEd5Fq0s2FvzOBMW1vgH2ewQ6WxgNt9CKdS2Fv4",
+  "client_secret": "EyPhxtzIH2lchiHyZZ9g0OHMxvnfO6Yt4XA8BcT7VHRwPL24krVBwnwWoMcd",
+  "ratelimit": 1.0,
+  "client_name": "BB client",
+  "individual_ratelimits": null,
+  "given_name": null,
+  "family_name": null
+}

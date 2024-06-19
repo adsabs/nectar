@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "resolveJsonModule": true
+  },
+  "extends": "./tsconfig.json",
+  "include": [
+    "vitest.config.ts",
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts",
+    "src/**/*.d.ts",
+    "test/**/*.ts",
+    "types/*"
+  ]
+}
