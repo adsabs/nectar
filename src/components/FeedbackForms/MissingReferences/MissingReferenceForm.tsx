@@ -65,7 +65,7 @@ export const MissingReferenceForm = ({
     setError,
     getValues,
     control,
-    formState: { errors },
+    formState: { errors, isValid },
     reset,
     handleSubmit,
   } = formMethods;
@@ -228,31 +228,29 @@ export const MissingReferenceForm = ({
 
   return (
     <FormProvider {...formMethods}>
-      <form onSubmit={handleSubmit(handlePreview)}>
-        <Flex direction="column" gap={4} my={2}>
-          <Stack direction={{ base: 'column', sm: 'row' }} gap={2}>
-            <FormControl isRequired isInvalid={!!errors.name}>
-              <FormLabel>Name</FormLabel>
-              <Input {...register('name', { required: true })} autoFocus />
-              <FormErrorMessage>{errors.name && errors.name.message}</FormErrorMessage>
-            </FormControl>
-            <FormControl isRequired isInvalid={!!errors.email}>
-              <FormLabel>Email</FormLabel>
-              <Input {...register('email', { required: true })} type="email" />
-              <FormErrorMessage>{errors.email && errors.email.message}</FormErrorMessage>
-            </FormControl>
-          </Stack>
-          <MissingReferenceTable />
-          <HStack mt={2}>
-            <Button type="submit" isLoading={state !== 'idle'}>
-              Preview
-            </Button>
-            <Button variant="outline" onClick={handleReset} isDisabled={state !== 'idle'}>
-              Reset
-            </Button>
-          </HStack>
-        </Flex>
-      </form>
+      <Flex direction="column" gap={4} my={2}>
+        <Stack direction={{ base: 'column', sm: 'row' }} gap={2}>
+          <FormControl isRequired isInvalid={!!errors.name}>
+            <FormLabel>Name</FormLabel>
+            <Input {...register('name', { required: true })} autoFocus />
+            <FormErrorMessage>{errors.name && errors.name.message}</FormErrorMessage>
+          </FormControl>
+          <FormControl isRequired isInvalid={!!errors.email}>
+            <FormLabel>Email</FormLabel>
+            <Input {...register('email', { required: true })} type="email" />
+            <FormErrorMessage>{errors.email && errors.email.message}</FormErrorMessage>
+          </FormControl>
+        </Stack>
+        <MissingReferenceTable />
+        <HStack mt={2}>
+          <Button isLoading={state !== 'idle'} isDisabled={!isValid} onClick={handleSubmit(handlePreview)}>
+            Preview
+          </Button>
+          <Button variant="outline" onClick={handleReset} isDisabled={state !== 'idle'}>
+            Reset
+          </Button>
+        </HStack>
+      </Flex>
       {/* intentionally make this remount each time so that recaptcha is regenerated */}
       {isPreviewOpen && (
         <PreviewModal

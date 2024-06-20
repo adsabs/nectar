@@ -231,7 +231,6 @@ export const AssociatedArticlesForm = ({
 
   return (
     <FormProvider {...formMethods}>
-      {/* <form onSubmit={handleSubmit(handlePreview)}> */}
       <Flex direction="column" gap={4} my={2}>
         <Stack direction={{ base: 'column', sm: 'row' }} gap={2}>
           <FormControl isRequired isInvalid={!!errors.name}>
@@ -260,7 +259,6 @@ export const AssociatedArticlesForm = ({
           </Button>
         </HStack>
       </Flex>
-      {/* </form> */}
 
       {/* intentionally make this remount each time so that recaptcha is regenerated */}
       {isPreviewOpen && (
