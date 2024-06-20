@@ -68,7 +68,7 @@ type PaperFormState = {
     bibstem?: string;
     year?: string;
     volume?: string;
-    pageid?: string;
+    page?: string;
   };
   [PaperFormType.REFERENCE_QUERY]: {
     form: PaperFormType.REFERENCE_QUERY;
@@ -199,9 +199,9 @@ const JournalQueryForm = ({ onSubmit, error }: SubFormProps) => {
           </GridItem>
           <GridItem colSpan={2}>
             <FormControl>
-              <FormLabel htmlFor="pageid">Page / Id</FormLabel>
-              <Input id="pageid" name="pageid" placeholder="Page / Id" {...register('pageid')} />
-              <FormErrorMessage>{errors.pageid && errors.pageid.message}</FormErrorMessage>
+              <FormLabel htmlFor="page">Page / Id</FormLabel>
+              <Input id="page" name="page" placeholder="Page / Id" {...register('page')} />
+              <FormErrorMessage>{errors.page && errors.page.message}</FormErrorMessage>
             </FormControl>
           </GridItem>
         </Grid>
@@ -265,7 +265,7 @@ const ReferenceQueryForm = ({ onSubmit, error }: SubFormProps) => {
             placeholder="Reference"
             {...register('reference', { required: true, validate: validateNotEmpty })}
           />
-          <FormHelperText>Enter a full reference string (eg Smith et al 2000, A&amp;A 362, pp. 333-341</FormHelperText>
+          <FormHelperText>Enter a full reference string (eg Smith et al 2000, A&amp;A 362, pp. 333-341)</FormHelperText>
           <FormErrorMessage>{errors.reference && errors.reference.message}</FormErrorMessage>
         </FormControl>
         <Stack direction="row" mt={5}>
