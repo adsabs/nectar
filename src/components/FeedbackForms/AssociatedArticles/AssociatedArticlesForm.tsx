@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { useSearch } from '@/api';
 import { AssociatedBibcode, IFeedbackParams, Relationship } from '@/api/feedback';
-import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
+import { AddIcon, CheckIcon, DeleteIcon } from '@chakra-ui/icons';
 import {
   AlertStatus,
   Button,
@@ -18,7 +18,7 @@ import {
 import { PreviewModal, Select, SelectOption } from '@/components';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ChangeEvent, MouseEventHandler, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, KeyboardEvent, MouseEventHandler, useEffect, useRef, useState } from 'react';
 import { FormProvider, useFieldArray, useForm, useFormContext, useWatch } from 'react-hook-form';
 import { omit } from 'ramda';
 import { useGetUserEmail } from '@/lib';
@@ -86,7 +86,7 @@ export const AssociatedArticlesForm = ({
     register,
     setError,
     getValues,
-    formState: { errors },
+    formState: { errors, isValid },
     reset,
     handleSubmit,
   } = formMethods;
@@ -163,6 +163,7 @@ export const AssociatedArticlesForm = ({
           // set error(s)
           const foundBibs = bibcodesData.docs.map((d) => d.bibcode);
           const invalidBibs = allBibcodes.filter((b) => !foundBibs.includes(b));
+          console.log(invalidBibs);
 
           if (invalidBibs.includes(mainBibcode)) {
             setError('mainBibcode', { message: 'Bibcode not found' });
@@ -230,31 +231,36 @@ export const AssociatedArticlesForm = ({
 
   return (
     <FormProvider {...formMethods}>
-      <form onSubmit={handleSubmit(handlePreview)}>
-        <Flex direction="column" gap={4} my={2}>
-          <Stack direction={{ base: 'column', sm: 'row' }} gap={2}>
-            <FormControl isRequired isInvalid={!!errors.name}>
-              <FormLabel>Name</FormLabel>
-              <Input {...register('name', { required: true })} autoFocus />
-              <FormErrorMessage>{errors.name && errors.name.message}</FormErrorMessage>
-            </FormControl>
-            <FormControl isRequired isInvalid={!!errors.email}>
-              <FormLabel>Email</FormLabel>
-              <Input {...register('email', { required: true })} type="email" />
-              <FormErrorMessage>{errors.email && errors.email.message}</FormErrorMessage>
-            </FormControl>
-          </Stack>
-          <AssociatedTable />
-          <HStack mt={2}>
-            <Button type="submit" isLoading={state !== 'idle'}>
-              Preview
-            </Button>
-            <Button type="reset" variant="outline" onClick={handleReset} isDisabled={state !== 'idle'}>
-              Reset
-            </Button>
-          </HStack>
-        </Flex>
-      </form>
+      {/* <form onSubmit={handleSubmit(handlePreview)}> */}
+      <Flex direction="column" gap={4} my={2}>
+        <Stack direction={{ base: 'column', sm: 'row' }} gap={2}>
+          <FormControl isRequired isInvalid={!!errors.name}>
+            <FormLabel>Name</FormLabel>
+            <Input {...register('name', { required: true })} autoFocus />
+            <FormErrorMessage>{errors.name && errors.name.message}</FormErrorMessage>
+          </FormControl>
+          <FormControl isRequired isInvalid={!!errors.email}>
+            <FormLabel>Email</FormLabel>
+            <Input {...register('email', { required: true })} type="email" />
+            <FormErrorMessage>{errors.email && errors.email.message}</FormErrorMessage>
+          </FormControl>
+        </Stack>
+        <AssociatedTable />
+        <HStack mt={2}>
+          <Button
+            type="submit"
+            isLoading={state !== 'idle'}
+            isDisabled={!isValid}
+            onClick={handleSubmit(handlePreview)}
+          >
+            Preview
+          </Button>
+          <Button type="reset" variant="outline" onClick={handleReset} isDisabled={state !== 'idle'}>
+            Reset
+          </Button>
+        </HStack>
+      </Flex>
+      {/* </form> */}
 
       {/* intentionally make this remount each time so that recaptcha is regenerated */}
       {isPreviewOpen && (
@@ -316,10 +322,21 @@ export const AssociatedTable = () => {
   };
 
   const handleAddAssociatedBibcode = () => {
-    newAssociatedBibcodeRef.current.focus();
     append({ value: newAssociatedBibcode });
     setNewAssociatedBibcode('');
   };
+
+  const handleKeydownNewBibcode = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && newAssociatedBibcode.length > 0) {
+      handleAddAssociatedBibcode();
+    }
+  };
+
+  useEffect(() => {
+    if (newAssociatedBibcode === '') {
+      newAssociatedBibcodeRef.current.focus();
+    }
+  }, [newAssociatedBibcode]);
 
   return (
     <>
@@ -383,19 +400,20 @@ export const AssociatedTable = () => {
                       </IconButton>
                     </HStack>
                     <FormErrorMessage>
-                      {!!errors.associatedBibcodes?.[index] && errors.associatedBibcodes[index].value.message}
+                      {!!errors.associatedBibcodes?.[index] && errors.associatedBibcodes[index].message}
                     </FormErrorMessage>
                   </FormControl>
                 ))}
               </Flex>
             </FormControl>
 
-            <FormControl isInvalid={errors.associatedBibcodes?.length > 0}>
+            <FormControl>
               <HStack>
                 <Input
                   onChange={handleNewAssociatedBibcodeChange}
                   value={newAssociatedBibcode}
                   ref={newAssociatedBibcodeRef}
+                  onKeyDown={handleKeydownNewBibcode}
                 />
                 <IconButton
                   aria-label="Add"
@@ -405,12 +423,9 @@ export const AssociatedTable = () => {
                   onClick={handleAddAssociatedBibcode}
                   isDisabled={!newAssociatedBibcode}
                 >
-                  <AddIcon />
+                  <CheckIcon />
                 </IconButton>
               </HStack>
-              <FormErrorMessage>
-                {!!errors.associatedBibcodes?.message && errors.associatedBibcodes.message}
-              </FormErrorMessage>
             </FormControl>
           </Flex>
         </>
