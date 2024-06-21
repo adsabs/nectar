@@ -8,7 +8,7 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { useState, ChangeEvent, MouseEvent, useRef, useMemo } from 'react';
+import { useState, ChangeEvent, MouseEvent, useRef, useMemo, KeyboardEvent } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import { FormValues, IAuthor } from './types';
 
@@ -133,12 +133,11 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
     remove(index);
   };
 
-  const handleApplyEditAuthor = (e: MouseEvent<HTMLButtonElement>) => {
-    const index = parseInt(e.currentTarget.dataset['index']);
-    update(index, editAuthor.author);
+  const handleApplyEditAuthor = () => {
+    update(editAuthor.index, editAuthor.author);
     const newPosition = parseInt(editAuthor.position);
     if (typeof newPosition === 'number' && newPosition > 0 && newPosition <= authors.length) {
-      move(index, parseInt(editAuthor.position) - 1);
+      move(editAuthor.index, parseInt(editAuthor.position) - 1);
     }
     setEditAuthor({ index: -1, author: null, position: null });
   };
@@ -147,18 +146,46 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
     setEditAuthor({ index: -1, author: null, position: null });
   };
 
+  const handleKeydownEditAuthor = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && editAuthorIsValid) {
+      handleApplyEditAuthor();
+    }
+  };
+
+  const handleKeydownNewAuthor = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && newAuthorIsValid) {
+      handleAddAuthor();
+    }
+  };
+
   // Row for adding new author
   const newAuthorTableRow = (
     <Tr>
       <Td color="gray.200">{authors.length + 1}</Td>
       <Td>
-        <Input size="sm" onChange={handleNewNameChange} value={newAuthor?.name ?? ''} ref={newAuthorNameRef} />
+        <Input
+          size="sm"
+          onChange={handleNewNameChange}
+          value={newAuthor?.name ?? ''}
+          ref={newAuthorNameRef}
+          onKeyDown={handleKeydownNewAuthor}
+        />
       </Td>
       <Td>
-        <Input size="sm" onChange={handleNewAffChange} value={newAuthor?.aff ?? ''} />
+        <Input
+          size="sm"
+          onChange={handleNewAffChange}
+          value={newAuthor?.aff ?? ''}
+          onKeyDown={handleKeydownNewAuthor}
+        />
       </Td>
       <Td>
-        <Input size="sm" onChange={handleNewOrcidChange} value={newAuthor?.orcid ?? ''} />
+        <Input
+          size="sm"
+          onChange={handleNewOrcidChange}
+          value={newAuthor?.orcid ?? ''}
+          onKeyDown={handleKeydownNewAuthor}
+        />
       </Td>
       <Td>
         <IconButton
@@ -195,16 +222,33 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
                     value={editAuthor.position}
                     type="number"
                     w={10}
+                    onKeyDown={handleKeydownEditAuthor}
                   />
                 </Td>
                 <Td>
-                  <Input size="sm" onChange={handleEditNameChange} value={editAuthor.author.name} autoFocus />
+                  <Input
+                    size="sm"
+                    onChange={handleEditNameChange}
+                    value={editAuthor.author.name}
+                    autoFocus
+                    onKeyDown={handleKeydownEditAuthor}
+                  />
                 </Td>
                 <Td>
-                  <Input size="sm" onChange={handleEditAffChange} value={editAuthor.author.aff} />
+                  <Input
+                    size="sm"
+                    onChange={handleEditAffChange}
+                    value={editAuthor.author.aff}
+                    onKeyDown={handleKeydownEditAuthor}
+                  />
                 </Td>
                 <Td>
-                  <Input size="sm" onChange={handleEditOrcidChange} value={editAuthor.author.orcid} />
+                  <Input
+                    size="sm"
+                    onChange={handleEditOrcidChange}
+                    value={editAuthor.author.orcid}
+                    onKeyDown={handleKeydownEditAuthor}
+                  />
                 </Td>
                 <Td>
                   <HStack>

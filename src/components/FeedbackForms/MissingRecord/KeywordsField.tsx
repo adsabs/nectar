@@ -39,12 +39,34 @@ export const KeywordsField = () => {
           {keywords.map((kw, index) => (
             <Tag key={`keyword-${kw.value}`} mr={2}>
               <TagLabel>{kw.value}</TagLabel>
-              <TagRightIcon as={SmallCloseIcon} onClick={() => remove(index)} cursor="pointer" />
+              <TagRightIcon
+                as={SmallCloseIcon}
+                onClick={() => remove(index)}
+                cursor="pointer"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    remove(index);
+                  }
+                }}
+                aria-label={`remove keyword ${kw.value}`}
+              />
             </Tag>
           ))}
         </Flex>
         <Flex direction="row">
-          <Input value={newKeyword} onChange={handleNewKeywordChange} ref={inputRef} />
+          <Input
+            value={newKeyword}
+            onChange={handleNewKeywordChange}
+            ref={inputRef}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && isNewKeywordValid) {
+                e.preventDefault();
+                e.stopPropagation();
+                handleAddKeyword();
+              }
+            }}
+          />
           <Button
             isDisabled={!isNewKeywordValid}
             onClick={handleAddKeyword}
