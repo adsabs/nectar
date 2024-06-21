@@ -139,7 +139,7 @@ export const RecordPanel = ({
     register,
     control,
     getValues,
-    formState: { errors },
+    formState: { errors, isValid },
     reset,
     handleSubmit,
     setFocus,
@@ -393,105 +393,103 @@ export const RecordPanel = ({
 
   return (
     <FormProvider {...formMethods}>
-      <form onSubmit={handleSubmit(handlePreview)}>
-        <Stack direction="column" gap={4} m={0}>
-          <Flex direction={{ base: 'column', sm: 'row' }} gap={2} alignItems="start">
-            <FormControl isRequired isInvalid={!!errors.name}>
-              <FormLabel>Name</FormLabel>
-              <Input {...register('name', { required: true })} />
-              <FormErrorMessage>{errors.name && errors.name.message}</FormErrorMessage>
+      <Stack direction="column" gap={4} m={0}>
+        <Flex direction={{ base: 'column', sm: 'row' }} gap={2} alignItems="start">
+          <FormControl isRequired isInvalid={!!errors.name}>
+            <FormLabel>Name</FormLabel>
+            <Input {...register('name', { required: true })} />
+            <FormErrorMessage>{errors.name && errors.name.message}</FormErrorMessage>
+          </FormControl>
+          <FormControl isRequired isInvalid={!!errors.email}>
+            <FormLabel>Email</FormLabel>
+            <Input {...register('email', { required: true })} type="email" />
+            <FormErrorMessage>{errors.email && errors.email.message}</FormErrorMessage>
+          </FormControl>
+        </Flex>
+
+        <BibcodeField showLoadBtn={!isNew} onLoad={handleOnLoadingRecord} isLoading={isLoading} isRequired={!isNew} />
+
+        {(isNew || (!isNew && !!recordOriginalFormValues.title)) && (
+          <>
+            <FormControl>
+              <FormLabel>Collection</FormLabel>
+              <Controller
+                name="collection"
+                control={control}
+                render={({ field: { ref, ...rest } }) => (
+                  <CheckboxGroup {...rest}>
+                    <Stack direction={{ base: 'column', sm: 'row' }}>
+                      {collections.map((c) => (
+                        <Checkbox key={`collection-${c.value}`} value={c.value}>
+                          {c.label}
+                        </Checkbox>
+                      ))}
+                    </Stack>
+                  </CheckboxGroup>
+                )}
+              />
             </FormControl>
-            <FormControl isRequired isInvalid={!!errors.email}>
-              <FormLabel>Email</FormLabel>
-              <Input {...register('email', { required: true })} type="email" />
-              <FormErrorMessage>{errors.email && errors.email.message}</FormErrorMessage>
+
+            <FormControl isRequired>
+              <FormLabel>Title</FormLabel>
+              <Input {...register('title', { required: true })} />
             </FormControl>
-          </Flex>
 
-          <BibcodeField showLoadBtn={!isNew} onLoad={handleOnLoadingRecord} isLoading={isLoading} isRequired={!isNew} />
+            <AuthorsField />
 
-          {(isNew || (!isNew && !!recordOriginalFormValues.title)) && (
-            <>
-              <FormControl>
-                <FormLabel>Collection</FormLabel>
-                <Controller
-                  name="collection"
-                  control={control}
-                  render={({ field: { ref, ...rest } }) => (
-                    <CheckboxGroup {...rest}>
-                      <Stack direction={{ base: 'column', sm: 'row' }}>
-                        {collections.map((c) => (
-                          <Checkbox key={`collection-${c.value}`} value={c.value}>
-                            {c.label}
-                          </Checkbox>
-                        ))}
-                      </Stack>
-                    </CheckboxGroup>
-                  )}
-                />
-              </FormControl>
-
+            <Stack direction={{ base: 'column', sm: 'row' }} gap={2} alignItems="start">
               <FormControl isRequired>
-                <FormLabel>Title</FormLabel>
-                <Input {...register('title', { required: true })} />
+                <FormLabel>Publication</FormLabel>
+                <Input {...register('publication', { required: true })} />
               </FormControl>
 
-              <AuthorsField />
+              <PubDateField />
+            </Stack>
 
-              <Stack direction={{ base: 'column', sm: 'row' }} gap={2} alignItems="start">
-                <FormControl isRequired>
-                  <FormLabel>Publication</FormLabel>
-                  <Input {...register('publication', { required: true })} />
-                </FormControl>
+            <UrlsField />
 
-                <PubDateField />
-              </Stack>
+            <FormControl isRequired>
+              <FormLabel>Abstract</FormLabel>
+              <Textarea {...register('abstract', { required: true })} rows={10} />
+            </FormControl>
 
-              <UrlsField />
+            <KeywordsField />
 
-              <FormControl isRequired>
-                <FormLabel>Abstract</FormLabel>
-                <Textarea {...register('abstract', { required: true })} rows={10} />
-              </FormControl>
-
-              <KeywordsField />
-
-              {isNew ? (
-                <ReferencesField />
-              ) : (
-                <FormControl>
-                  <FormLabel>References</FormLabel>
-                  <Text>
-                    To add references, use the{' '}
-                    <SimpleLink href="/feedback/missingreferences" display="inline">
-                      Missing References
-                    </SimpleLink>{' '}
-                    form. To make changes to existing references, use the{' '}
-                    <SimpleLink href="/feedback/general" display="inline">
-                      General Feedback
-                    </SimpleLink>{' '}
-                    form.
-                  </Text>
-                </FormControl>
-              )}
-
+            {isNew ? (
+              <ReferencesField />
+            ) : (
               <FormControl>
-                <FormLabel>User Comments</FormLabel>
-                <Textarea {...register('comments')} />
+                <FormLabel>References</FormLabel>
+                <Text>
+                  To add references, use the{' '}
+                  <SimpleLink href="/feedback/missingreferences" display="inline">
+                    Missing References
+                  </SimpleLink>{' '}
+                  form. To make changes to existing references, use the{' '}
+                  <SimpleLink href="/feedback/general" display="inline">
+                    General Feedback
+                  </SimpleLink>{' '}
+                  form.
+                </Text>
               </FormControl>
+            )}
 
-              <HStack mt={2}>
-                <Button type="submit" isLoading={isLoading}>
-                  Preview
-                </Button>
-                <Button type="reset" variant="outline" onClick={handleReset} isDisabled={isLoading}>
-                  Reset
-                </Button>
-              </HStack>
-            </>
-          )}
-        </Stack>
-      </form>
+            <FormControl>
+              <FormLabel>User Comments</FormLabel>
+              <Textarea {...register('comments')} />
+            </FormControl>
+
+            <HStack mt={2}>
+              <Button isLoading={isLoading} isDisabled={!isValid} onClick={handleSubmit(handlePreview)}>
+                Preview
+              </Button>
+              <Button variant="outline" onClick={handleReset} isDisabled={isLoading}>
+                Reset
+              </Button>
+            </HStack>
+          </>
+        )}
+      </Stack>
 
       {/* intentionally make this remount each time so that recaptcha is regenerated */}
       {isPreviewOpen && (

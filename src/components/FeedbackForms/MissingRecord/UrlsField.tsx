@@ -2,7 +2,7 @@ import { CheckIcon, CloseIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons';
 import { FormControl, FormLabel, Tr, Td, Input, IconButton, Table, Thead, Th, Tbody, HStack } from '@chakra-ui/react';
 import { Select, SelectOption } from '@/components/Select';
 import { IResourceUrl, ResourceUrlType, resourceUrlTypes, useIsClient } from '@/lib';
-import { useState, ChangeEvent, MouseEvent, useRef } from 'react';
+import { useState, ChangeEvent, MouseEvent, useRef, KeyboardEvent } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import { SelectInstance } from 'react-select';
 import { FormValues } from './types';
@@ -101,14 +101,25 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
     remove(index);
   };
 
-  const handleApplyEditUrl = (e: MouseEvent<HTMLButtonElement>) => {
-    const index = parseInt(e.currentTarget.dataset['index']);
-    update(index, editUrl.url);
+  const handleApplyEditUrl = () => {
+    update(editUrl.index, editUrl.url);
     setEditUrl({ index: -1, url: null });
   };
 
   const handleCancelEditUrl = () => {
     setEditUrl({ index: -1, url: null });
+  };
+
+  const handleKeydownEditUrl = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && editUrlisValid) {
+      handleApplyEditUrl();
+    }
+  };
+
+  const handleKeydownNewUrl = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && newUrlIsValid) {
+      handleAddUrl();
+    }
   };
 
   // Row for adding new url
@@ -131,7 +142,7 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
         )}
       </Td>
       <Td>
-        <Input size="sm" onChange={handleNewUrlChange} value={newUrl?.url ?? ''} />
+        <Input size="sm" onChange={handleNewUrlChange} value={newUrl?.url ?? ''} onKeyDown={handleKeydownNewUrl} />
       </Td>
       <Td>
         <IconButton
@@ -174,7 +185,12 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
                 />
               </Td>
               <Td>
-                <Input size="sm" onChange={handleEditUrlChange} value={editUrl.url.url} />
+                <Input
+                  size="sm"
+                  onChange={handleEditUrlChange}
+                  value={editUrl.url.url}
+                  onKeyDown={handleKeydownEditUrl}
+                />
               </Td>
 
               <Td>
