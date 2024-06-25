@@ -140,6 +140,7 @@ const CFTable = ({ customFormats, selected = null, onSelect = noop, onModify, on
                       value={isAdding.name}
                       placeholder="New Format"
                       onChange={(e) => setIsAdding({ ...isAdding, name: e.target.value })}
+                      autoFocus
                     />
                   </Td>
                   <Td>

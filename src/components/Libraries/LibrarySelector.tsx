@@ -3,6 +3,7 @@ import { CloseIcon } from '@chakra-ui/icons';
 import { useDisclosure, Stack, InputGroup, InputRightElement, IconButton, Input } from '@chakra-ui/react';
 import { LoadingMessage } from '@/components';
 import { NumPerPageType } from '@/types';
+import { noop } from '@/utils';
 import { useState, useMemo } from 'react';
 import { ILibraryListTableSort, LibraryListTable } from './LibraryListTable';
 
@@ -101,6 +102,13 @@ export const LibrarySelector = ({
             {(isMultiple || (!isMultiple && selected.length === 0)) && (
               <Input
                 onClick={onToggle}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onToggle();
+                  }
+                }}
                 placeholder="Select library"
                 autoComplete="off"
                 isReadOnly

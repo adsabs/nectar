@@ -9,6 +9,7 @@ import {
   Text,
   UnorderedList,
   usePopper,
+  VisuallyHidden,
 } from '@chakra-ui/react';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { useCombobox } from 'downshift';
@@ -126,6 +127,7 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
       w="200px"
     >
       <Flex>
+        <VisuallyHidden id="allSearchTermsLabel">All Search Terms</VisuallyHidden>
         <InputGroup>
           <Input
             placeholder="all search terms"

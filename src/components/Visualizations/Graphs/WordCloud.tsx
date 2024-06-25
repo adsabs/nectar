@@ -84,12 +84,17 @@ export const WordCloud = ({
             .style('stroke', '#fff')
             .style('stroke-width', 0.2)
             .on('click', () => onClickWord(text))
+            .attr('tabindex', 0)
+            .on('keypress', (e: KeyboardEvent) => {
+              if (e.key === 'Enter') {
+                onClickWord(text);
+              }
+            })
             .attr('transform', randomStartPos())
             .transition()
             .duration(1000)
             .attr('transform', `translate(${x},${y}) rotate(${rotate})`);
         });
-
       cloud.start();
 
       return svg;

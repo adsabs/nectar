@@ -1,4 +1,4 @@
-import { Box, Flex, HStack, Icon } from '@chakra-ui/react';
+import { Box, Flex, Heading, HStack, Icon } from '@chakra-ui/react';
 import { ScixAndTextLogo_H_beta } from '@/components/images/ScixAndTextLogo-H_beta';
 import dynamic from 'next/dynamic';
 import { FC } from 'react';
@@ -20,7 +20,9 @@ export const NavBar: FC = () => {
         <HStack spacing={3}>
           <SimpleLink href="/" _hover={{ textDecoration: 'none' }}>
             <HStack cursor="pointer" spacing={1}>
-              <Icon as={ScixAndTextLogo_H_beta} width="6em" height="3em" color="gray.50" aria-label="Scix Home" />
+              <Heading as="h1" size="sm">
+                <Icon as={ScixAndTextLogo_H_beta} width="6em" height="3em" color="gray.50" aria-label="Scix Home" />
+              </Heading>
             </HStack>
           </SimpleLink>
           <AppModeDropdown />

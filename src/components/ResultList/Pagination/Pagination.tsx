@@ -2,6 +2,8 @@ import {
   Box,
   Button,
   Flex,
+  FormControl,
+  FormLabel,
   NumberDecrementStepper,
   NumberIncrementStepper,
   NumberInput,
@@ -352,22 +354,25 @@ const ManualPageSelect = ({
         <PopoverArrow />
         <PopoverCloseButton />
         <PopoverBody>
-          <Stack spacing={2}>
-            <NumberInput
-              defaultValue={currentPage}
-              min={1}
-              max={totalPages}
-              onChange={handleChange}
-              onKeyDown={handleKeyDown}
-            >
-              <NumberInputField ref={pagePickerRef} />
-              <NumberInputStepper>
-                <NumberIncrementStepper />
-                <NumberDecrementStepper />
-              </NumberInputStepper>
-            </NumberInput>
-            <Button onClick={handleSubmit}>Goto Page {page.toLocaleString()}</Button>
-          </Stack>
+          <FormControl>
+            <FormLabel hidden>Select Page</FormLabel>
+            <Stack spacing={2}>
+              <NumberInput
+                defaultValue={currentPage}
+                min={1}
+                max={totalPages}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+              >
+                <NumberInputField ref={pagePickerRef} />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
+              <Button onClick={handleSubmit}>Goto Page {page.toLocaleString()}</Button>
+            </Stack>
+          </FormControl>
         </PopoverBody>
       </PopoverContent>
     </Popover>
