@@ -61,7 +61,7 @@ export const resolveObjectQuery = async (params: IObjectsQueryApiParams) => {
   return data;
 };
 
-export const resolveObjectQuerySSR = async (params: IObjectsApiParams, ctx: GetServerSidePropsContext) => {
+export const resolveObjectQuerySSR = async (params: IObjectsQueryApiParams, ctx: GetServerSidePropsContext) => {
   const { query } = params;
 
   const token = ctx.req.session?.token?.access_token;

@@ -1,4 +1,4 @@
-import { FacetField, IADSApiSearchParams, IBucket, useGetSearchFacetJSON } from '@/api';
+import { FacetField, IADSApiSearchParams, IBucket, useGetSearchFacetJSON, useObjects } from '@/api';
 import { calculatePagination } from '@/components/ResultList/Pagination/usePagination';
 import { getLevelFromKey, getPrevKey } from '@/components/SearchFacet/helpers';
 import { useFacetStore } from '@/components/SearchFacet/store/FacetStore';
@@ -8,7 +8,6 @@ import { sanitize } from 'dompurify';
 import { isEmpty, omit } from 'ramda';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { isNonEmptyArray, isNonEmptyString } from 'ramda-adjunct';
-import { useObjects } from '@/api/objects/objects';
 
 export interface IUseGetFacetDataProps {
   field: FacetField;
@@ -91,6 +90,7 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
     isFetching,
     isError,
   } = useObjects({ identifiers }, { enabled: identifiers && identifiers.length > 0 });
+
   const enhancedTreeData = useMemo(() => {
     if (objects && treeData) {
       return treeData.map((data) => {

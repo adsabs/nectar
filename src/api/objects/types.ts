@@ -20,9 +20,11 @@ export interface IObjectsApiParams {
   identifiers: string[];
 }
 
+export interface IObjectMap {
+  canonical: string;
+  id: string;
+}
+
 export interface IObjectsApiResponse {
-  [key: string]: {
-    canonical: string;
-    id: string;
-  };
+  [key: string]: IObjectMap;
 }

@@ -1,6 +1,7 @@
-import { FacetField, IADSApiSearchParams } from '@/api';
+import { FacetField, IADSApiSearchParams, IObjectsApiParams, IObjectsApiResponse, OBJECTS_API_KEYS } from '@/api';
 import { escape, getOperator, getTerms, joinQueries, Operator, splitQuery } from '@/query';
 import { isString } from '@/utils';
+import { QueryClient } from '@tanstack/react-query';
 import {
   always,
   append,
@@ -213,3 +214,23 @@ export const getFilters = (query: IADSApiSearchParams): FilterTuple[] =>
       splitQuery(v, { stripField: false }),
     ]),
   )(query);
+
+// get object name from react query cache
+export const getObjectName = (id: string, queryClient: QueryClient) => {
+  const queryCache = queryClient.getQueryCache();
+  const cache = queryCache
+    .getAll()
+    .find(
+      (cache) =>
+        cache.queryKey[0] === OBJECTS_API_KEYS.OBJECTS &&
+        (cache.queryKey[1] as IObjectsApiParams).identifiers?.indexOf(id) !== -1,
+    );
+
+  const data = !!cache
+    ? queryClient.getQueryData([
+        OBJECTS_API_KEYS.OBJECTS,
+        { identifiers: (cache.queryKey[1] as IObjectsApiParams).identifiers },
+      ])
+    : null;
+  return data ? (data as IObjectsApiResponse)[id]?.canonical : null;
+};

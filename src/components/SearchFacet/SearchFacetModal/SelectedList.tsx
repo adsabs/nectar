@@ -2,8 +2,9 @@ import { BoxProps, Flex, IconButton, Tag, TagCloseButton, TagLabel, Wrap } from 
 import { useFacetStore } from '@/components/SearchFacet/store/FacetStore';
 import { isEmpty } from 'ramda';
 import { MouseEventHandler } from 'react';
-import { parseRootFromKey, parseTitleFromKey } from '../helpers';
+import { getObjectName, parseRootFromKey, parseTitleFromKey } from '../helpers';
 import { XMarkIcon } from '@heroicons/react/20/solid';
+import { useQueryClient } from '@tanstack/react-query';
 
 const formatKeyToName = (key: string) => (key.startsWith('0') ? parseRootFromKey(key) : parseTitleFromKey(key));
 
@@ -11,6 +12,9 @@ export const SelectedList = (props: BoxProps) => {
   const selected = useFacetStore((state) => state.selected);
   const select = useFacetStore((state) => state.select);
   const clearSelection = useFacetStore((state) => state.clearSelection);
+  const facetId = useFacetStore((state) => state.params.field);
+
+  const queryClient = useQueryClient();
 
   if (isEmpty(selected)) {
     return null;
@@ -38,7 +42,11 @@ export const SelectedList = (props: BoxProps) => {
       <Wrap flex="1" spacing="1">
         {selected.map((key) => (
           <Tag key={key} size="sm" variant="subtle">
-            <TagLabel>{formatKeyToName(key)}</TagLabel>
+            <TagLabel>
+              {facetId === 'simbad_object_facet_hier' && key.startsWith('1/')
+                ? getObjectName(formatKeyToName(key), queryClient)
+                : formatKeyToName(key)}
+            </TagLabel>
             <TagCloseButton
               onClick={handleDeselect}
               data-key={key}
