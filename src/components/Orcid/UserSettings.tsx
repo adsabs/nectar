@@ -121,7 +121,7 @@ const AliasEditableControls = (props: { name: string; index: number }) => {
   const initRef = useRef<HTMLButtonElement>(null);
 
   const handleRemove = useCallback(() => {
-    if (isNotNilOrEmpty(preferences)) {
+    if (isNotNilOrEmpty(preferences) && isNotNilOrEmpty(preferences.nameVariations)) {
       setPreferences({ preferences: { ...preferences, nameVariations: remove(index, 1, preferences.nameVariations) } });
     }
     onClose();
@@ -270,12 +270,12 @@ const AliasList = () => {
 
   return (
     <>
-      {preferences?.nameVariations.length === 0 ? (
+      {preferences?.nameVariations?.length === 0 ? (
         <Box my={1}>
           <Text>No aliases found</Text>
         </Box>
       ) : null}
-      {preferences?.nameVariations.map((name, index) => (
+      {preferences?.nameVariations?.map((name, index) => (
         <Box my={1} key={name}>
           <AliasEditor name={name} index={index} />
         </Box>
@@ -296,7 +296,7 @@ const AddNewAliasButton = () => {
     const cleanName = escapeHtml(name.trim());
 
     // if already there, warn about it
-    if (preferences.nameVariations.includes(cleanName)) {
+    if (preferences.nameVariations?.includes(cleanName)) {
       setError('Alias already exists');
       return;
     }
@@ -306,7 +306,7 @@ const AddNewAliasButton = () => {
       setPreferences({
         preferences: {
           ...preferences,
-          nameVariations: [...preferences.nameVariations, name],
+          nameVariations: preferences.nameVariations ? [...preferences.nameVariations, name] : [name],
         },
       });
       setAddingNew(false);
@@ -385,9 +385,10 @@ const AddNewAliasButton = () => {
         variant="outline"
         w={['full', 'auto']}
         rightIcon={<Icon fontSize="14" as={MagnifyingGlassIcon} />}
-        params={{ q: `author:(${preferences?.nameVariations.map(wrapName).join(' OR ')})` }}
+        params={{ q: `author:(${preferences?.nameVariations?.map(wrapName).join(' OR ')})` }}
+        isDisabled={!preferences?.nameVariations || preferences?.nameVariations.length === 0}
       >
-        <>{preferences?.nameVariations.length > 1 ? 'Search by aliases' : 'Search by alias'}</>
+        <>{preferences?.nameVariations?.length > 1 ? 'Search by aliases' : 'Search by alias'}</>
       </SearchQueryLinkButton>
     </Stack>
   );
