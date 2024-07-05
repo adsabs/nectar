@@ -4,11 +4,18 @@ import { render } from '@testing-library/react';
 import { FacetStoreProvider } from '@/components/SearchFacet/store/FacetStore';
 import { expect, test } from 'vitest';
 import { SelectedList } from '@/components/SearchFacet/SearchFacetModal/SelectedList';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const setup = (id?: SearchFacetID) => {
   const user = userEvent.setup();
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, cacheTime: 0, staleTime: 0 } } });
+
   const result = render(<SelectedList />, {
-    wrapper: ({ children }) => <FacetStoreProvider facetId={id ?? 'author'}>{children}</FacetStoreProvider>,
+    wrapper: ({ children }) => (
+      <QueryClientProvider client={queryClient}>
+        <FacetStoreProvider facetId={id ?? 'author'}>{children}</FacetStoreProvider>
+      </QueryClientProvider>
+    ),
   });
   return { ...result, user };
 };
