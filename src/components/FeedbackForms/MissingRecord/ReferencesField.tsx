@@ -2,7 +2,7 @@ import { CheckIcon, CloseIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons';
 import { FormControl, FormLabel, Tr, Td, Input, IconButton, Table, Thead, Th, Tbody, HStack } from '@chakra-ui/react';
 import { Select, SelectOption } from '@/components/Select';
 import { useIsClient } from '@/lib';
-import { useState, ChangeEvent, MouseEvent, useRef } from 'react';
+import { useState, ChangeEvent, MouseEvent, useRef, KeyboardEvent } from 'react';
 import { FormValues, IReference, ReferenceType, referenceTypes } from './types';
 import { SelectInstance } from 'react-select';
 import { useFieldArray } from 'react-hook-form';
@@ -87,9 +87,8 @@ export const ReferencesTable = ({ editable }: { editable: boolean }) => {
     remove(index);
   };
 
-  const handleApplyEditReference = (e: MouseEvent<HTMLButtonElement>) => {
-    const index = parseInt(e.currentTarget.dataset['index']);
-    update(index, editReference.reference);
+  const handleApplyEditReference = () => {
+    update(editReference.index, editReference.reference);
     setEditReference({ index: -1, reference: null });
   };
 
@@ -97,6 +96,17 @@ export const ReferencesTable = ({ editable }: { editable: boolean }) => {
     setEditReference({ index: -1, reference: null });
   };
 
+  const handleKeydownEditRef = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && editReferenceisValid) {
+      handleApplyEditReference();
+    }
+  };
+
+  const handleKeydownNewRef = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && newReferenceIsValid) {
+      handleAddReference();
+    }
+  };
   // Row for adding new Reference
   const newReferenceTableRow = (
     <Tr>
@@ -117,7 +127,12 @@ export const ReferencesTable = ({ editable }: { editable: boolean }) => {
         )}
       </Td>
       <Td>
-        <Input size="sm" onChange={handleNewReferenceChange} value={newReference?.reference ?? ''} />
+        <Input
+          size="sm"
+          onChange={handleNewReferenceChange}
+          value={newReference?.reference ?? ''}
+          onKeyDown={handleKeydownNewRef}
+        />
       </Td>
       <Td>
         <IconButton
@@ -165,7 +180,12 @@ export const ReferencesTable = ({ editable }: { editable: boolean }) => {
                 />
               </Td>
               <Td>
-                <Input size="sm" onChange={handleEditReferenceChange} value={editReference.reference.reference} />
+                <Input
+                  size="sm"
+                  onChange={handleEditReferenceChange}
+                  value={editReference.reference.reference}
+                  onKeyDown={handleKeydownEditRef}
+                />
               </Td>
               <Td>
                 <HStack>

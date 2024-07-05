@@ -27,6 +27,7 @@ export const useSettings = (options?: UseQueryOptions<IADSApiUserDataResponse>) 
     suspense: true,
     retry: false,
     enabled: isAuthenticated,
+    placeholderData: DEFAULT_USER_DATA,
     ...options,
   });
   const { mutate, ...updateSettingsState } = useUpdateUserSettings({

@@ -1,5 +1,14 @@
 import { CheckIcon, CopyIcon } from '@chakra-ui/icons';
-import { Button, ButtonProps, IconButton, Tooltip, useClipboard, UseClipboardOptions } from '@chakra-ui/react';
+import {
+  Button,
+  ButtonProps,
+  IconButton,
+  MenuItem,
+  MenuItemProps,
+  Tooltip,
+  useClipboard,
+  UseClipboardOptions,
+} from '@chakra-ui/react';
 import { ReactElement, useEffect } from 'react';
 
 export interface ICopyButtonProps extends ButtonProps {
@@ -58,5 +67,20 @@ export const LabeledCopyButton = (props: ICopyButtonProps & { label: string }): 
     >
       {hasCopied ? 'Copied to clipboard!' : label}
     </Button>
+  );
+};
+
+export const CopyMenuItem = (props: MenuItemProps & { label: string; text: string }): ReactElement => {
+  const { label, text, ...rest } = props;
+  const { onCopy, setValue } = useClipboard(text);
+
+  useEffect(() => {
+    setValue(text);
+  }, [text]);
+
+  return (
+    <MenuItem onClick={onCopy} {...rest}>
+      {label} <CopyIcon mx={2} />
+    </MenuItem>
   );
 };

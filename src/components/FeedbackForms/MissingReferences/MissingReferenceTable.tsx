@@ -14,7 +14,7 @@ import {
   IconButton,
   FormErrorMessage,
 } from '@chakra-ui/react';
-import { useState, ChangeEvent, MouseEvent, useRef } from 'react';
+import { useState, ChangeEvent, MouseEvent, useRef, KeyboardEvent } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import { FormValues, Reference } from './types';
 
@@ -72,8 +72,7 @@ export const MissingReferenceTable = () => {
     setEditingReference((prev) => ({ index: prev.index, reference: { ...prev.reference, cited: e.target.value } }));
   };
 
-  const handleApplyEdit = (e: MouseEvent<HTMLButtonElement>) => {
-    const index = parseInt(e.currentTarget.dataset['index']);
+  const handleApplyEdit = (index: number) => {
     update(index, editingReference.reference);
     setEditingReference({ index: -1, reference: { citing: '', cited: '' } });
   };
@@ -87,6 +86,22 @@ export const MissingReferenceTable = () => {
     append(newReference);
     setNewReference({ citing: '', cited: '' });
     newReferenceRef.current.focus();
+  };
+
+  const handleKeydownNewRef = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && newReference.citing.length > 0 && newReference.cited.length > 0) {
+      handleAddReference();
+    }
+  };
+
+  const handleKeydownEditRef = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (
+      e.key === 'Enter' &&
+      editingReference.reference.citing.length > 0 &&
+      editingReference.reference.cited.length > 0
+    ) {
+      handleApplyEdit(editingReference.index);
+    }
   };
 
   return (
@@ -113,10 +128,16 @@ export const MissingReferenceTable = () => {
                       onChange={handleEditCitingInputChange}
                       value={editingReference.reference.citing}
                       autoFocus
+                      onKeyDown={handleKeydownEditRef}
                     />
                   </Td>
                   <Td>
-                    <Input size="sm" onChange={handleEditCitedInputChange} value={editingReference.reference.cited} />
+                    <Input
+                      size="sm"
+                      onChange={handleEditCitedInputChange}
+                      value={editingReference.reference.cited}
+                      onKeyDown={handleKeydownEditRef}
+                    />
                   </Td>
                   <Td>
                     <HStack>
@@ -126,7 +147,11 @@ export const MissingReferenceTable = () => {
                         variant="outline"
                         colorScheme="green"
                         data-index={index}
-                        onClick={handleApplyEdit}
+                        isDisabled={
+                          editingReference.reference.citing.length === 0 ||
+                          editingReference.reference.cited.length === 0
+                        }
+                        onClick={() => handleApplyEdit(index)}
                       />
                       <IconButton
                         aria-label="cancel"
@@ -191,6 +216,7 @@ export const MissingReferenceTable = () => {
                     onChange={handleCitingInputChange}
                     value={newReference.citing}
                     ref={newReferenceRef}
+                    onKeyDown={handleKeydownNewRef}
                   />
                   <FormErrorMessage>{errors.references?.message && errors.references?.message}</FormErrorMessage>
                 </FormControl>
@@ -201,6 +227,7 @@ export const MissingReferenceTable = () => {
                   placeholder="1998ApJ...501L..41Y"
                   onChange={handleCitedInputChange}
                   value={newReference.cited}
+                  onKeyDown={handleKeydownNewRef}
                 />
               </Td>
               <Td>
