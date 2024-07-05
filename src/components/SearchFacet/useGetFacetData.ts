@@ -78,7 +78,7 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
 
   const identifiers = useMemo(
     () =>
-      field === 'simbad_object_facet_hier' && treeData && treeData.length > 0 && treeData[0].level > 0
+      field === 'simbad_object_facet_hier' && treeData?.[0]?.level > 0
         ? treeData.map(({ val }) => val.split('/')[val.split('/').length - 1])
         : ([] as string[]),
     [treeData],
@@ -89,7 +89,7 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
     isLoading,
     isFetching,
     isError,
-  } = useObjects({ identifiers }, { enabled: identifiers && identifiers.length > 0 });
+  } = useObjects({ identifiers }, { enabled: identifiers?.length > 0 });
 
   const enhancedTreeData = useMemo(() => {
     if (objects && treeData) {
