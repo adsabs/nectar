@@ -9,9 +9,22 @@ export type ObjectService = {
   };
 };
 
-export interface IObjectsApiParams {
+export interface IObjectsQueryApiParams {
   query: string;
 }
-export interface IObjectsApiResult {
+export interface IObjectsQueryApiResult {
   query?: string;
+}
+
+export interface IObjectsApiParams {
+  identifiers: string[];
+}
+
+export interface IObjectMap {
+  canonical: string;
+  id: string;
+}
+
+export interface IObjectsApiResponse {
+  [key: string]: IObjectMap;
 }

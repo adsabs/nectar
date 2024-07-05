@@ -1,5 +1,11 @@
 import api, { ADSQuery, ApiRequestConfig, ApiTargets } from '@/api';
-import { IObjectsApiParams, IObjectsApiResult, ObjectService } from '@/api/objects/types';
+import {
+  IObjectsApiParams,
+  IObjectsApiResponse,
+  IObjectsQueryApiParams,
+  IObjectsQueryApiResult,
+  ObjectService,
+} from '@/api/objects/types';
 import { useQuery } from '@tanstack/react-query';
 import { isString } from '@/utils';
 import { isNotEmpty } from 'ramda-adjunct';
@@ -12,13 +18,15 @@ import { pick } from 'ramda';
 
 export enum OBJECTS_API_KEYS {
   QUERY = 'object/query',
+  OBJECTS = 'objects',
 }
 
 export const objectsApiKeys = {
-  query: (params: IObjectsApiParams) => [OBJECTS_API_KEYS.QUERY, params] as const,
+  query: (params: IObjectsQueryApiParams) => [OBJECTS_API_KEYS.QUERY, params] as const,
+  objects: (params: IObjectsApiParams) => [OBJECTS_API_KEYS.OBJECTS, params] as const,
 };
 
-export const useObjectQuery: ADSQuery<IObjectsApiParams, IObjectsApiResult> = (params, options) => {
+export const useObjectQuery: ADSQuery<IObjectsQueryApiParams, IObjectsQueryApiResult> = (params, options) => {
   return useQuery({
     queryKey: objectsApiKeys.query(params),
     queryFn: () => resolveObjectQuery(params),
@@ -27,7 +35,7 @@ export const useObjectQuery: ADSQuery<IObjectsApiParams, IObjectsApiResult> = (p
   });
 };
 
-export const resolveObjectQuery = async (params: IObjectsApiParams) => {
+export const resolveObjectQuery = async (params: IObjectsQueryApiParams) => {
   const { query } = params;
 
   // if query is a string and doesn't have an object term, just return the query
@@ -53,7 +61,7 @@ export const resolveObjectQuery = async (params: IObjectsApiParams) => {
   return data;
 };
 
-export const resolveObjectQuerySSR = async (params: IObjectsApiParams, ctx: GetServerSidePropsContext) => {
+export const resolveObjectQuerySSR = async (params: IObjectsQueryApiParams, ctx: GetServerSidePropsContext) => {
   const { query } = params;
 
   const token = ctx.req.session?.token?.access_token;
@@ -85,6 +93,28 @@ export const resolveObjectQuerySSR = async (params: IObjectsApiParams, ctx: GetS
   if (data.Error) {
     return { query: replaceObjectTerms(query) };
   }
+
+  return data;
+};
+
+export const useObjects: ADSQuery<IObjectsApiParams, IObjectsApiResponse> = (params, options) => {
+  return useQuery({
+    queryKey: objectsApiKeys.objects(params),
+    queryFn: () => resolveObjects(params),
+    ...options,
+  });
+};
+
+export const resolveObjects = async (params: IObjectsApiParams) => {
+  const { identifiers } = params;
+
+  const config: ApiRequestConfig = {
+    url: ApiTargets.SERVICE_OBJECTS,
+    method: 'POST',
+    data: { identifiers },
+  };
+
+  const { data } = await api.request<IObjectsApiResponse>(config);
 
   return data;
 };
