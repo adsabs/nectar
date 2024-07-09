@@ -36,7 +36,7 @@ export const defaultRequestConfig: AxiosRequestConfig = {
     serialize: (params) =>
       qs.stringify(params, {
         indices: false,
-        arrayFormat: 'comma',
+        arrayFormat: 'repeat',
         format: 'RFC1738',
         sort: (a, b) => a - b,
         skipNulls: true,
