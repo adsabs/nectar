@@ -22,10 +22,12 @@ const retryFn = (count: number, error: unknown) => {
 /**
  * Fetches graphics and returns true if the request returns successfully
  */
-export const useHasGraphics: ADSQuery<IDocsEntity['bibcode'], IADSApiGraphicsResponse, null, boolean> = (
-  bibcode,
-  options,
-) => {
+export const useGetGraphicsCount: ADSQuery<
+  IDocsEntity['bibcode'],
+  IADSApiGraphicsResponse,
+  IADSApiGraphicsResponse,
+  number
+> = (bibcode, options) => {
   const params = { bibcode };
 
   const { data } = useQuery({
@@ -36,7 +38,7 @@ export const useHasGraphics: ADSQuery<IDocsEntity['bibcode'], IADSApiGraphicsRes
     ...options,
   });
 
-  return !isNil(data);
+  return data?.figures?.length ?? 0;
 };
 
 /**
