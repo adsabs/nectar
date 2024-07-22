@@ -8,16 +8,17 @@ import FastifyEnv from '@fastify/env';
 import FastifyHelmet from '@fastify/helmet';
 import FastifySensible from '@fastify/sensible';
 import FastifyStatic from '@fastify/static';
+import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import * as Sentry from '@sentry/node';
 import Fastify, { FastifyInstance } from 'fastify';
 import next from 'next';
 import path from 'path';
 
 import { loadConfig } from './config';
-import CachePlugin from './plugins/cache.js';
-import FetcherPlugin from './plugins/fetcher.js';
-import HandlersPlugin from './plugins/handlers.js';
-import SessionPlugin from './plugins/session.js';
+import CachePlugin from './plugins/cache';
+import FetcherPlugin from './plugins/fetcher';
+import RoutesPlugin from './plugins/routes';
+import SessionPlugin from './plugins/session';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -31,9 +32,12 @@ const initialize = async () => {
     : undefined;
 
   const server: FastifyInstance = Fastify({
-    logger: true,
+    logger: {
+      msgPrefix: '[server] ',
+      level: isProduction ? 'info' : 'debug',
+    },
     keepAliveTimeout: parseInt(process.env.KEEP_ALIVE_TIMEOUT, 10),
-  });
+  }).withTypeProvider<TypeBoxTypeProvider>();
 
   const nextApp = next({
     dev: !isProduction,
@@ -49,36 +53,31 @@ const initialize = async () => {
   try {
     await nextApp.prepare();
 
-    // Loads environment vars and decorates the fastify instance with config
+    // Register external plugins
     await server.register(FastifyEnv, { schema, dotenv: false, logLevel: 'debug' });
-
-    // Register CORS plugin
     await server.register(FastifyCors, { origin: false });
-
-    // Register helmet plugin
     await server.register(FastifyHelmet, helmetConfig);
-
-    // Register the cookies plugin
     await server.register(FastifyCookie, { secret: server.config.COOKIE_SECRET });
-
-    // Register sensible plugin
     await server.register(FastifySensible);
+    await server.register(FastifyStatic, { root: path.join(nextDir, 'public'), prefix: '/static/' });
 
-    // Register plugins
+    // Register internal plugins
     await server.register(CachePlugin);
     await server.register(FetcherPlugin);
     await server.register(SessionPlugin);
-    await server.register(HandlersPlugin);
-
-    // Serve static files
-    await server.register(FastifyStatic, { root: path.join(nextDir, 'public'), prefix: '/static/' });
+    await server.register(RoutesPlugin);
 
     server.route({
       url: '/*',
-      method: ['GET', 'POST', 'PUT', 'DELETE'],
+      method: ['GET', 'POST', 'PUT'],
       handler: async (request, reply) => {
         try {
           request.raw.redis = server.redis;
+          if (request.session) {
+            request.raw.session = {
+              user: request.session.get('user'),
+            };
+          }
           await nextApp.getRequestHandler()(request.raw, reply.raw);
         } catch (error) {
           server.log.error(error);

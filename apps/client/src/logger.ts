@@ -2,6 +2,7 @@ import pino, { Logger } from 'pino';
 
 export const logger: Logger = pino({
   errorKey: 'error',
+  msgPrefix: '[client] ',
   browser: {
     asObject: true,
   },

@@ -3,14 +3,14 @@ import type { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
 import { parse } from 'url';
 
-import { pick } from '../lib/utils.js';
-import { IBootstrapPayload } from '../types.js';
+import { getSetCookieHeader, pick } from '../lib/utils';
+import { BootstrapPayload } from '../types';
 
 const TRACING_HEADERS = ['X-Original-Uri', 'X-Original-Forwarded-For', 'X-Forwarded-For', 'X-Amzn-Trace-Id'];
 
 const sessionRoutes = [
   '/abs/',
-  '/search/',
+  '/search',
   '/user/',
   '/public-libraries/',
   '/settings/',
@@ -18,6 +18,7 @@ const sessionRoutes = [
   '/_app',
   '/classic-form',
   '/paper-form',
+  '/session',
 ];
 
 const session: FastifyPluginAsync = async (server) => {
@@ -26,7 +27,6 @@ const session: FastifyPluginAsync = async (server) => {
    * @param request
    */
   const shouldHandle = (request: FastifyRequest) => {
-    return false;
     const { pathname } = parse(request.raw.url ?? '', true);
 
     if (!pathname) {
@@ -44,7 +44,7 @@ const session: FastifyPluginAsync = async (server) => {
   const bootstrapToken = async (request: FastifyRequest) => {
     server.log.info('Bootstrapping token');
 
-    const { body, headers } = await server.fetcher<IBootstrapPayload>({
+    const { body, headers } = await server.fetcher<BootstrapPayload>({
       path: 'BOOTSTRAP',
       method: 'GET',
       headers: {
@@ -59,8 +59,7 @@ const session: FastifyPluginAsync = async (server) => {
     server.log.info('Bootstrap successful');
     // Store the incoming set-cookie in our session
     // we need to keep this value, so we can use it to bootstrap later if need be ??
-    const setCookie = Array.isArray(headers['set-cookie']) ? headers['set-cookie'][0] : headers['set-cookie'];
-    request.session.set('adsws_session_cookie', setCookie);
+    request.session.set('adsws_session_cookie', getSetCookieHeader(headers));
 
     server.log.info({ msg: 'user', user: body });
     request.session.set('user', body);
@@ -91,12 +90,11 @@ const session: FastifyPluginAsync = async (server) => {
     }
     server.log.info('Checking session, bootstrapping if necessary');
     try {
-      server.log.info({ msg: 'session', session: request.session.get('user') });
       if (request.session) {
         const user = request.session.get('user');
         if (user) {
           server.log.info('session found, continuing');
-          server.log.info({ msg: 'user found', user });
+          server.log.info({ msg: 'session', user, apiCookie: request.session.get('adsws_session_cookie') });
         } else {
           await bootstrapToken(request);
         }
@@ -104,32 +102,9 @@ const session: FastifyPluginAsync = async (server) => {
         await bootstrapToken(request);
       }
     } catch (e) {
-      server.log.error({ error: e });
+      server.log.error({ error: e as Error });
       throw e;
     }
-  });
-
-  /**
-   * Route to get the session info
-   */
-  server.get<{
-    Querystring: never;
-    Headers: never;
-    Reply: {
-      200: {
-        api: {
-          token: string;
-        };
-      };
-    };
-  }>('/session', async (request, reply) => {
-    void reply.status(200).send({
-      api: {
-        token: request.session.get('user')?.access_token ?? '',
-      },
-    });
-
-    return reply;
   });
 };
 

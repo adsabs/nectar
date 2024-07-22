@@ -1,14 +1,3 @@
-import {
-  defaultParams,
-  getSearchParams,
-  IADSApiSearchParams,
-  IADSApiSearchResponse,
-  SEARCH_API_KEYS,
-  searchKeys,
-  SolrSort,
-  useSearch,
-  fetchSearchSSR,
-} from '@/api';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import {
   Alert,
@@ -32,6 +21,28 @@ import {
   useMediaQuery,
   VisuallyHidden,
 } from '@chakra-ui/react';
+import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/20/solid';
+import { dehydrate, QueryClient, useQueryClient } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
+import { GetServerSideProps, NextPage } from 'next';
+import dynamic from 'next/dynamic';
+import Head from 'next/head';
+import { useRouter } from 'next/router';
+import { last, omit, path } from 'ramda';
+import { FormEventHandler, useCallback, useEffect, useRef, useState } from 'react';
+import { useIsClient } from 'src/lib';
+
+import {
+  defaultParams,
+  fetchSearchSSR,
+  getSearchParams,
+  IADSApiSearchParams,
+  IADSApiSearchResponse,
+  SEARCH_API_KEYS,
+  searchKeys,
+  SolrSort,
+  useSearch,
+} from '@/api';
 import {
   AddToLibraryModal,
   CustomInfoMessage,
@@ -48,23 +59,12 @@ import {
 import { calculateStartIndex } from '@/components/ResultList/Pagination/usePagination';
 import { FacetFilters } from '@/components/SearchFacet/FacetFilters';
 import { IYearHistogramSliderProps } from '@/components/SearchFacet/YearHistogramSlider';
-import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/20/solid';
-import { useIsClient } from 'src/lib';
+import { SOLR_ERROR, useSolrError } from '@/lib/useSolrError';
+import { logger } from '@/logger';
 import { composeNextGSSP } from '@/ssr-utils';
 import { AppState, useStore, useStoreApi } from '@/store';
 import { NumPerPageType } from '@/types';
 import { makeSearchParams, parseAPIError, parseQueryFromUrl } from '@/utils';
-import { GetServerSideProps, NextPage } from 'next';
-import dynamic from 'next/dynamic';
-import Head from 'next/head';
-import { useRouter } from 'next/router';
-import { last, omit, path } from 'ramda';
-import { FormEventHandler, useCallback, useEffect, useRef, useState } from 'react';
-import { dehydrate, QueryClient, useQueryClient } from '@tanstack/react-query';
-import { SOLR_ERROR, useSolrError } from '@/lib/useSolrError';
-import { AxiosError } from 'axios';
-import { logger } from '@/logger';
-import { BRAND_NAME_FULL, BRAND_NAME_SHORT } from '@/config';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
   () => import('@/components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),
@@ -209,7 +209,7 @@ const SearchPage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>{`${params.q} - ${BRAND_NAME_FULL} Search`}</title>
+        <title>{`${params.q} | NASA Science Explorer - Search Results`}</title>
       </Head>
       <Stack direction="column" aria-labelledby="search-form-title" spacing="10" ref={ref}>
         <HideOnPrint pt={10}>
@@ -409,6 +409,12 @@ const omitUnsafeQueryParams = omit(['fl', 'start', 'rows']);
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
   const queryClient = new QueryClient();
   const { p: page, n: numPerPage, ...query } = parseQueryFromUrl<{ p: string; n: string }>(ctx.req.url);
+
+  logger.debug({ msg: 'checking session from gssp', session: ctx.req.session });
+
+  logger.debug('Attempting to fetch from redis inside GSSP');
+  const result = await ctx.req.redis.get('test');
+  logger.debug({ msg: 'redis result', result });
 
   const params = getSearchParams({
     ...omitUnsafeQueryParams(query),

@@ -1,18 +1,19 @@
 import { FastifyHelmetOptions } from '@fastify/helmet';
-import S from 'fluent-json-schema';
+import { Type as T } from '@fastify/type-provider-typebox';
 
 export const loadConfig = () => {
-  const schema = S.object()
-    .prop('NODE_ENV', S.string().enum(['development', 'production', 'testing']).required().default('production'))
-    .prop('COOKIE_SECRET', S.string().required())
-    .prop('SCIX_SESSION_COOKIE_NAME', S.string().required())
-    .prop('ADS_SESSION_COOKIE_NAME', S.string().required())
-    .prop('API_HOST_SERVER', S.string().required())
-    .prop('KEEP_ALIVE_TIMEOUT', S.number().required().default(5000))
-    .prop('REDIS_HOST', S.string().required())
-    .prop('REDIS_PORT', S.number().required())
-    .prop('PORT', S.number().required().default(8000))
-    .valueOf();
+  const schema = T.Object({
+    NODE_ENV: T.String({ enum: ['development', 'production', 'testing'], default: 'production' }),
+    COOKIE_SECRET: T.String(),
+    SCIX_SESSION_COOKIE_NAME: T.String(),
+    ADS_SESSION_COOKIE_NAME: T.String(),
+    API_HOST_SERVER: T.String(),
+    KEEP_ALIVE_TIMEOUT: T.Number({ default: 5000 }),
+    REDIS_HOST: T.String(),
+    REDIS_PORT: T.Number(),
+    PORT: T.Number({ default: 8000 }),
+    CSRF_HEADER: T.String({ default: 'X-CSRFToken' }),
+  });
 
   const helmetConfig: FastifyHelmetOptions = {
     global: true,
@@ -39,7 +40,7 @@ export const loadConfig = () => {
           "'self'",
           'https://*.google-analytics.com',
           'https://*.adsabs.harvard.edu',
-          'https://o1060269.ingest.sentry.io',
+          'https://o1060269.ingest.us.sentry.io',
         ],
         'font-src': ["'self'", 'https://cdnjs.cloudflare.com', 'https://fonts.gstatic.com'],
         'frame-src': [

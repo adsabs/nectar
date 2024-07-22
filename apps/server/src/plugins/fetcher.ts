@@ -1,9 +1,9 @@
 import type { FastifyInstance, FastifyPluginCallback } from 'fastify';
 import fp from 'fastify-plugin';
-import { Agent, Dispatcher, request as undiciRequest } from 'undici';
-import { IncomingHttpHeaders } from 'undici/types/header.js';
+import { Agent, Dispatcher, errors, request as undiciRequest } from 'undici';
+import { IncomingHttpHeaders } from 'undici/types/header';
 
-import { apiTargets } from '../lib/api.js';
+import { apiTargets } from '../lib/api';
 
 const dispatcher = new Agent({
   connectTimeout: 30_000,
@@ -20,24 +20,26 @@ export type Fetcher = <TBody = unknown>(
   options: RequestOptions,
 ) => Promise<{ body: TBody; headers: IncomingHttpHeaders; statusCode: number }>;
 
-const requestPlugin: FastifyPluginCallback = (fastify: FastifyInstance, _opts, done) => {
-  const fetcher = async <TBody = unknown>({ path, signal, ...rest }: RequestOptions) => {
+const requestPlugin: FastifyPluginCallback = (server: FastifyInstance, _opts, done) => {
+  const fetcher = async <TBody = unknown>({ path, signal, headers = {}, ...rest }: RequestOptions) => {
+    // set the default content type to JSON
+    headers['Content-Type'] = 'application/json';
+
     try {
-      const url = `${fastify.config.API_HOST_SERVER}${apiTargets[path]}`;
-      const res = await undiciRequest(url, { signal, dispatcher, throwOnError: true, ...rest });
+      const url = `${server.config.API_HOST_SERVER}${apiTargets[path]}`;
+      const res = await undiciRequest(url, { signal, dispatcher, throwOnError: true, headers, ...rest });
       const json = (await res.body.json()) as TBody;
       return {
-        statusCode: res.statusCode,
-        headers: res.headers,
         body: json,
+        ...res,
       };
     } catch (e) {
-      fastify.log.error({ msg: 'Error during fetch', error: e });
+      server.log.error({ msg: 'Error during fetch', error: e as errors.UndiciError });
       throw e;
     }
   };
 
-  fastify.decorate('fetcher', fetcher);
+  server.decorate('fetcher', fetcher);
   done();
 };
 

@@ -1,4 +1,4 @@
-export interface IBootstrapPayload {
+export type BootstrapPayload = {
   username: string;
   scopes: string[];
   client_id: string;
@@ -11,4 +11,8 @@ export interface IBootstrapPayload {
   expire_in: string;
   refresh_token: string;
   message?: string;
-}
+};
+
+export type CSRFResponse = {
+  csrf: string;
+};
