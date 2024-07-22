@@ -1,5 +1,5 @@
 import { Box, Flex, HStack, Text, VisuallyHidden } from '@chakra-ui/react';
-import { CFALogo, NasaLogo, SimpleLink, SmithsonianLogo } from '@/components';
+import { CFALogo, NASAPartnerLogo, SimpleLink, SmithsonianLogo } from '@/components';
 import { FC } from 'react';
 import { EXTERNAL_URLS } from '@/config';
 
@@ -21,10 +21,6 @@ export const Footer: FC = () => {
           © The{' '}
           <Text as="abbr" title="Smithsonian Astrophysical Observatory">
             SAO
-          </Text>
-          /
-          <Text as="abbr" title="National Aeronautics and Space Administration">
-            NASA
           </Text>{' '}
           Astrophysics Data System
         </Text>
@@ -37,22 +33,27 @@ export const Footer: FC = () => {
           </Text>{' '}
           Cooperative Agreement 80NSSC21M0056.
         </Text>
-        <HStack my={3} spacing={1}>
+        <HStack my={3} spacing={2}>
+          <SimpleLink href={EXTERNAL_URLS.SMITHSONIAN_HOME_PAGE} variant="footer" isExternal>
+            <VisuallyHidden>Smithsonian Institution</VisuallyHidden>
+            <SmithsonianLogo width="60px" height="60px" aria-hidden />
+          </SimpleLink>
+          <SimpleLink href={EXTERNAL_URLS.CFA_HOME_PAGE} variant="footer" isExternal>
+            <VisuallyHidden>Center for Astrophysics</VisuallyHidden>
+            <CFALogo width="100px" height="40px" style={{ filter: 'invert(1)' }} aria-hidden />
+          </SimpleLink>
           <SimpleLink href={EXTERNAL_URLS.NASA_HOME_PAGE} variant="footer" isExternal>
             <VisuallyHidden as="abbr" title="National Aeronautics and Space Administration">
               NASA
             </VisuallyHidden>
-            <NasaLogo width="80px" height="66px" aria-hidden />
-          </SimpleLink>
-          <SimpleLink href={EXTERNAL_URLS.SMITHSONIAN_HOME_PAGE} variant="footer" isExternal>
-            <VisuallyHidden>Smithsonian Institution</VisuallyHidden>
-            <SmithsonianLogo width="66px" height="68px" aria-hidden />
-          </SimpleLink>
-          <SimpleLink href={EXTERNAL_URLS.CFA_HOME_PAGE} variant="footer" isExternal>
-            <VisuallyHidden>Center for Astrophysics</VisuallyHidden>
-            <CFALogo width="100px" height="41px" style={{ filter: 'invert(1)' }} aria-hidden />
+            <NASAPartnerLogo width="80px" height="60.24px" aria-hidden />
           </SimpleLink>
         </HStack>
+        <Text fontStyle="italic" fontSize="xx-small">
+          *The material contained in this document is based upon work supported by a National Aeronautics and Space
+          Administration (NASA) grant or cooperative agreement. Any opinions, findings, conclusions or recommendations
+          expressed in this material are those of the author and do not necessarily reflect the views of NASA.
+        </Text>
       </Flex>
       <Flex direction="column" mx={5} my={{ base: '3', md: '0' }}>
         <Text fontWeight="bold" pb={1}>
