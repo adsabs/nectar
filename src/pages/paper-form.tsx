@@ -30,13 +30,15 @@ import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { any, head, isEmpty, join, map, not, omit, pipe, reject, toPairs, values } from 'ramda';
-import { FormEventHandler, useCallback } from 'react';
+import { FormEventHandler, useCallback, useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { useErrorMessage } from '@/lib/useErrorMessage';
 import { APP_DEFAULTS, BRAND_NAME_FULL } from '@/config';
 import { useColorModeColors } from '@/lib';
 import { logger } from '@/logger';
+import { useStore } from '@/store';
+import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 
 enum PaperFormType {
   JOURNAL_QUERY = 'journal-query',
@@ -89,6 +91,16 @@ const PaperForm: NextPage<{ error?: IPaperFormServerError }> = ({ error: ssrErro
   const router = useRouter();
   const queryClient = useQueryClient();
   const [error, setError] = useErrorMessage(ssrError);
+
+  const clearSelectedDocs = useStore((state) => state.clearAllSelected);
+  const { clearQuery } = useIntermediateQuery();
+
+  // clear search on mount
+  useEffect(() => {
+    clearSelectedDocs();
+    clearQuery();
+  }, []);
+
   const handleSubmit = useCallback(async (params: PaperFormState[PaperFormType]) => {
     try {
       await router.push(await getSearchQuery(params, queryClient));
