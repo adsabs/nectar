@@ -34,7 +34,7 @@ const CSRFResponse = T.Object({
 
 const apiLoginResponse = T.Object({
   message: T.String({ required: false }),
-  error: T.String({ requi }),
+  error: T.String({ required: false }),
 });
 
 export type NectarLoginResponse = Static<typeof loginResponse> & Static<typeof loginErrorResponse>;
