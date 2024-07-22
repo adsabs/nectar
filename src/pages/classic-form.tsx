@@ -6,8 +6,20 @@ import { composeNextGSSP } from '@/ssr-utils';
 import { parseAPIError } from '@/utils';
 import { logger } from '@/logger';
 import { BRAND_NAME_FULL } from '@/config';
+import { useEffect } from 'react';
+import { useStore } from '@/store';
+import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 
 const ClassicFormPage: NextPage<{ ssrError?: string }> = ({ ssrError }) => {
+  const clearSelectedDocs = useStore((state) => state.clearAllSelected);
+  const { clearQuery } = useIntermediateQuery();
+
+  // clear search on mount
+  useEffect(() => {
+    clearSelectedDocs();
+    clearQuery();
+  }, []);
+
   return (
     <Box as="section" aria-labelledby="form-title" my={16}>
       <Head>

@@ -34,9 +34,13 @@ const HomePage: NextPage = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const { clearQuery, updateQuery } = useIntermediateQuery();
+  const clearSelectedDocs = useStore((state) => state.clearAllSelected);
 
   // clear search on mount
-  useEffect(() => clearQuery(), []);
+  useEffect(() => {
+    clearSelectedDocs();
+    clearQuery();
+  }, []);
 
   /**
    * Take in a query object and apply any FQ filters
