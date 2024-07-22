@@ -108,13 +108,3 @@ storybook-static/
 .nx/cache
 .nx/workspace-data
 tmp
-#/------------------!DOTENV_PRIVATE_KEYS!-------------------/
-#/ private decryption keys. DO NOT commit to source control /
-#/     [how it works](https://dotenvx.com/encryption)       /
-#/----------------------------------------------------------/
-
-# .env.production
-DOTENV_PRIVATE_KEY_PRODUCTION="3afc62af19dd7da4e87e77cc7eccc6c047043856b75470f40a3896cce43d957c"
-
-# .env.ci
-DOTENV_PRIVATE_KEY_CI="d5f01417bf35aa118dc30e7c1a05c17c9d8080fb90200333fdcc59fa1d48a976"
