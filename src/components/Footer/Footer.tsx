@@ -33,22 +33,24 @@ export const Footer: FC = () => {
           </Text>{' '}
           Cooperative Agreement 80NSSC21M0056.
         </Text>
-        <HStack my={3} spacing={2}>
+
+        <HStack my={3} spacing={4}>
           <SimpleLink href={EXTERNAL_URLS.SMITHSONIAN_HOME_PAGE} variant="footer" isExternal>
             <VisuallyHidden>Smithsonian Institution</VisuallyHidden>
-            <SmithsonianLogo width="60px" height="60px" aria-hidden />
+            <SmithsonianLogo width="72.6px" height="72.6px" aria-hidden />
           </SimpleLink>
           <SimpleLink href={EXTERNAL_URLS.CFA_HOME_PAGE} variant="footer" isExternal>
             <VisuallyHidden>Center for Astrophysics</VisuallyHidden>
-            <CFALogo width="100px" height="40px" style={{ filter: 'invert(1)' }} aria-hidden />
+            <CFALogo width="121px" height="48.4px" style={{ filter: 'invert(1)' }} aria-hidden />
           </SimpleLink>
           <SimpleLink href={EXTERNAL_URLS.NASA_HOME_PAGE} variant="footer" isExternal>
             <VisuallyHidden as="abbr" title="National Aeronautics and Space Administration">
               NASA
             </VisuallyHidden>
-            <NASAPartnerLogo width="80px" height="60.24px" aria-hidden />
+            <NASAPartnerLogo width="96.8px" height="72.89px" aria-hidden />
           </SimpleLink>
         </HStack>
+
         <Text fontStyle="italic" fontSize="xx-small">
           *The material contained in this document is based upon work supported by a National Aeronautics and Space
           Administration (NASA) grant or cooperative agreement. Any opinions, findings, conclusions or recommendations
