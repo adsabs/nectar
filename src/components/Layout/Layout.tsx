@@ -9,6 +9,7 @@ import { LandingTabsStatic } from '@/components';
 import { Notification } from '@/components/Notification';
 import Head from 'next/head';
 import { Favicons } from '@/components/Favicons/Favicons';
+import { BRAND_NAME_FULL } from '@/config';
 
 const LandingTabs = dynamic(() => import('@/components/LandingTabs/LandingTabs').then((mod) => mod.LandingTabs), {
   ssr: false,
@@ -26,7 +27,7 @@ export const Layout: FC = ({ children }) => {
   return (
     <Flex direction="column">
       <Head>
-        <title>Science Explorer</title>
+        <title>{`${BRAND_NAME_FULL}`}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="charset" content="utf-8" />
         <Favicons />

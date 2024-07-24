@@ -148,8 +148,8 @@ const Carousel = () => {
                 quality={90}
               />
               <Text fontSize="xl">
-                NASA SciX covers and unifies the fields of Earth Science, Planetary Science, Astrophysics, and
-                Heliophysics. It will also cover NASA funded research in Biological and Physical Sciences.
+                SciX covers and unifies the fields of Earth Science, Planetary Science, Astrophysics, and Heliophysics.
+                It will also cover NASA funded research in Biological and Physical Sciences.
               </Text>
             </Stack>
           ),
