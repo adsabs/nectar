@@ -66,8 +66,8 @@ export const UserSettings = () => {
             <Suspense fallback={<UserSettingSkeleton />}>
               <form onSubmit={noop}>
                 <FormControl mt={4}>
-                  <FormLabel>Academic Affiliation</FormLabel>
-                  <AffiliationEditor />
+                  <FormLabel htmlFor="aff-editor">Academic Affiliation</FormLabel>
+                  <AffiliationEditor id="aff-editor" />
                 </FormControl>
                 <FormControl mt={4}>
                   <FormLabel>Aliases</FormLabel>
@@ -231,7 +231,7 @@ const AffEditableControls = () => {
   );
 };
 
-const AffiliationEditor = () => {
+const AffiliationEditor = ({ id }: { id: string }) => {
   const { preferences, setPreferences } = useOrcidPrefs({ getPrefsOptions: { suspense: true } });
 
   const handleOnChange = useCallback(
@@ -255,6 +255,7 @@ const AffiliationEditor = () => {
       isPreviewFocusable={false}
       onSubmit={handleOnChange}
       submitOnBlur
+      id={id}
     >
       <Flex gap={4} alignItems="center">
         <EditablePreview flex={1} />

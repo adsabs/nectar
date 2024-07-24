@@ -245,6 +245,7 @@ const BibstemPickerImpl = (props: IBibstemPickerProps, ref: ForwardedRef<never>)
       </VisuallyHidden>
       <AsyncCreatableSelect<IBibstemOption, typeof isMultiple>
         instanceId="bibstem-picker"
+        aria-label="bibstem picker"
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         loadOptions={fetchOptions}
         // only look at the incoming meta value to decide what to update

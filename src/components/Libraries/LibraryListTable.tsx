@@ -45,16 +45,18 @@ import { DeleteLibrary } from './DeleteLibrary';
 type Column = keyof ILibraryMetadata;
 type SortDirection = 'asc' | 'desc';
 
-const columns: { id: Column; heading: string; sortable: boolean }[] = [
+const columns: { id: Column; heading: string; sortable: boolean; hint?: string }[] = [
   {
     id: 'public',
     heading: '',
     sortable: false,
+    hint: 'public or private',
   },
   {
     id: 'num_users',
     heading: '',
     sortable: false,
+    hint: 'number of collaborators',
   },
   {
     id: 'name',
@@ -188,7 +190,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
                   <Fragment key={`col-${column.id}`}>
                     {allHiddenCols.indexOf(column.id) === -1 && (
                       <Th
-                        aria-label={column.heading}
+                        aria-label={column.hint ?? column.heading}
                         cursor={column.sortable ? 'pointer' : 'default'}
                         w={column.id === 'name' ? '40%' : undefined}
                       >
@@ -351,7 +353,7 @@ const Action = ({
           variant="outline"
           rightIcon={<ChevronDownIcon />}
           onClick={(e) => e.stopPropagation()}
-          children={<SettingsIcon />}
+          children={<SettingsIcon aria-label="actions" />}
           data-testid="library-action-menu"
         />
         <MenuList>

@@ -292,7 +292,13 @@ export const PaperNetworkGraph = ({
         .attr('stroke-opacity', '20%')
         .attr('fill', 'none')
         .attr('stroke-width', (d) => linkScale(d.weight))
-        .on('click', (e, p) => setSelectedNode(p));
+        .attr('tabindex', 0)
+        .on('click', (e, p) => setSelectedNode(p))
+        .on('keypress', (e: KeyboardEvent, p) => {
+          if (e.key === 'Enter') {
+            setSelectedNode(p);
+          }
+        });
 
       // labels
       const labeValues: number[] = [];
@@ -330,9 +336,15 @@ export const PaperNetworkGraph = ({
           const size = d.node[keyToUseAsValue];
           return `${fontScale(size)}px`;
         })
+        .attr('tabindex', 0)
         .style('fill', textColor)
         .text((d) => d.label)
-        .on('click', (e, d) => setSelectedNode(d.node));
+        .on('click', (e, d) => setSelectedNode(d.node))
+        .on('keypress', (e: KeyboardEvent, d) => {
+          if (e.key === 'Enter') {
+            setSelectedNode(d.node);
+          }
+        });
 
       return svg;
     },
