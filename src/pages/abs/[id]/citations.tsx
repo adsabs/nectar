@@ -5,11 +5,9 @@ import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { withDetailsPage } from '@/hocs/withDetailsPage';
 import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { NextPage } from 'next';
-import Head from 'next/head';
 import { composeNextGSSP } from '@/ssr-utils';
 import { useRouter } from 'next/router';
 import { path } from 'ramda';
-import { getDetailsPageTitle } from '@/pages/abs/[id]/abstract';
 
 const CitationsPage: NextPage = () => {
   const router = useRouter();
@@ -22,10 +20,7 @@ const CitationsPage: NextPage = () => {
   const citationsParams = getCitationsParams(doc?.bibcode, 0);
 
   return (
-    <AbsLayout doc={doc} titleDescription="Papers that cite">
-      <Head>
-        <title>{getDetailsPageTitle(doc, 'Citations')}</title>
-      </Head>
+    <AbsLayout doc={doc} titleDescription="Papers that cite" label="Citations">
       {(abstractError || citationsError) && (
         <Alert status="error">
           <AlertIcon />

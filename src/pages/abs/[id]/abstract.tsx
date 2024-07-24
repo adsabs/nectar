@@ -38,15 +38,14 @@ import { IAllAuthorsModalProps } from '@/components/AllAuthorsModal';
 import { useGetAuthors } from '@/components/AllAuthorsModal/useGetAuthors';
 import { OrcidActiveIcon } from '@/components/icons/Orcid';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
-import { APP_DEFAULTS, EXTERNAL_URLS, NASA_SCIX_BRAND_NAME } from '@/config';
+import { APP_DEFAULTS, EXTERNAL_URLS } from '@/config';
 import { withDetailsPage } from '@/hocs/withDetailsPage';
 import { useIsClient } from '@/lib/useIsClient';
 import { composeNextGSSP } from '@/ssr-utils';
-import { pluralize, unwrapStringValue } from '@/utils';
+import { pluralize } from '@/utils';
 import { MathJax } from 'better-react-mathjax';
 import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
-import Head from 'next/head';
 import { equals, isNil, path } from 'ramda';
 import { memo, ReactElement } from 'react';
 import { useRouter } from 'next/router';
@@ -82,10 +81,7 @@ const AbstractPage: NextPage = () => {
   };
 
   return (
-    <AbsLayout doc={doc} titleDescription={''}>
-      <Head>
-        <title>{getDetailsPageTitle(doc, 'Abstract')}</title>
-      </Head>
+    <AbsLayout doc={doc} titleDescription={''} label="Abstract">
       <Box as="article" aria-labelledby="title">
         {doc && (
           <Stack direction="column" gap={2}>
@@ -388,9 +384,3 @@ const Detail = <T,>(props: IDetailProps<T>): ReactElement => {
 };
 
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage);
-
-export const getDetailsPageTitle = (doc: IDocsEntity, name: string): string => {
-  const title = unwrapStringValue(doc?.title);
-  const subTitle = `${name} - ${title}`;
-  return `${isNil(title) ? name : subTitle} - ${NASA_SCIX_BRAND_NAME}`;
-};

@@ -1,6 +1,7 @@
 import { Container, Box, Stack, Heading, Text } from '@chakra-ui/react';
 import Head from 'next/head';
 import { FC, ReactNode, useEffect, useRef } from 'react';
+import { BRAND_NAME_FULL } from '@/config';
 
 interface IFeedbackLayoutProps {
   title: string;
@@ -20,7 +21,7 @@ export const FeedbackLayout: FC<IFeedbackLayoutProps> = ({ children, title, aler
   return (
     <Container maxW="container.lg" my={{ base: 2, lg: 10 }} px={0}>
       <Head>
-        <title>{title}</title>
+        <title>{`${title} - ${BRAND_NAME_FULL} Feedback`}</title>
       </Head>
       <Box ref={alertRef}>{!!alert && alert}</Box>
       <Stack direction="column" as="section" aria-labelledby="title" spacing={1} width="full">

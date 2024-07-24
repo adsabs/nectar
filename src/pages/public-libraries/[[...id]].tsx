@@ -2,8 +2,9 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { CustomInfoMessage, LibraryEntityPane, LoadingMessage } from '@/components';
 import { useGetLibraryEntity } from '@/api';
-import { parseAPIError } from '@/utils';
+import { parseAPIError, unwrapStringValue } from '@/utils';
 import Head from 'next/head';
+import { BRAND_NAME_FULL } from '@/config';
 
 const PublicLibraries: NextPage = () => {
   const router = useRouter();
@@ -17,7 +18,7 @@ const PublicLibraries: NextPage = () => {
   return (
     <>
       <Head>
-        <title>NASA Science Explorer - Public Library - {data?.metadata?.name ?? ''}</title>
+        <title>{`${unwrapStringValue(data?.metadata?.name)} - ${BRAND_NAME_FULL} Public Library`}</title>
       </Head>
       {id && isLoading && <LoadingMessage message="Loading" />}
       {id && error && <CustomInfoMessage status="error" title="Error" description={parseAPIError(error)} />}

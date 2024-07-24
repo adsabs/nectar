@@ -3,8 +3,6 @@ import { AbstractRefList } from '@/components';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { NextPage } from 'next';
-import Head from 'next/head';
-import { getDetailsPageTitle } from '@/pages/abs/[id]/abstract';
 import { useRouter } from 'next/router';
 import { composeNextGSSP } from '@/ssr-utils';
 import { withDetailsPage } from '@/hocs/withDetailsPage';
@@ -20,10 +18,7 @@ const CoreadsPage: NextPage = () => {
   const coreadsParams = getCoreadsParams(doc?.bibcode, 0);
 
   return (
-    <AbsLayout doc={doc} titleDescription="Papers also read by those who read">
-      <Head>
-        <title>{getDetailsPageTitle(doc, 'Coreads')}</title>
-      </Head>
+    <AbsLayout doc={doc} titleDescription="Papers also read by those who read" label="Coreads">
       {isSuccess && (
         <AbstractRefList
           doc={doc}

@@ -11,6 +11,7 @@ import { useFocus } from '@/lib/useFocus';
 import { useUser } from '@/lib/useUser';
 import { parseAPIError } from '@/utils';
 import { useRouter } from 'next/router';
+import { BRAND_NAME_FULL } from '@/config';
 
 const initialParams: IUserCredentials = { email: '', password: '' };
 
@@ -70,7 +71,7 @@ const Login: NextPage = () => {
   return (
     <>
       <Head>
-        <title>NASA Science Explorer - Login</title>
+        <title>{`${BRAND_NAME_FULL} Login`}</title>
       </Head>
 
       <Container display="flex" flexDirection="column" py="24">

@@ -34,7 +34,7 @@ import { FormEventHandler, useCallback } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { useErrorMessage } from '@/lib/useErrorMessage';
-import { APP_DEFAULTS } from '@/config';
+import { APP_DEFAULTS, BRAND_NAME_FULL } from '@/config';
 import { useColorModeColors } from '@/lib';
 import { logger } from '@/logger';
 
@@ -100,7 +100,7 @@ const PaperForm: NextPage<{ error?: IPaperFormServerError }> = ({ error: ssrErro
   return (
     <VStack as="article" spacing={5} my={16}>
       <Head>
-        <title>Paper Form - NASA Science Explorer</title>
+        <title>{`${BRAND_NAME_FULL} Paper Form`}</title>
       </Head>
       <JournalQueryForm onSubmit={handleSubmit} error={error?.form === PaperFormType.JOURNAL_QUERY ? error : null} />
       <ReferenceQueryForm

@@ -27,6 +27,7 @@ import { parseAPIError } from '@/utils';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { RecaptchaMessage } from '@/components/RecaptchaMessage/RecaptchaMessage';
 import { FormMessage } from '@/components/Feedbacks/FormMessage';
+import { BRAND_NAME_FULL } from '@/config';
 
 const initialParams: IUserRegistrationCredentials = { email: '', password: '', confirmPassword: '', recaptcha: '' };
 
@@ -74,7 +75,7 @@ const Register: NextPage = () => {
   return (
     <div>
       <Head>
-        <title>NASA Science Explorer - Register</title>
+        <title>{`${BRAND_NAME_FULL} Register Account`}</title>
       </Head>
 
       <Container display="flex" flexDirection="column" py="24">

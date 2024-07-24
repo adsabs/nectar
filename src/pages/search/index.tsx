@@ -64,6 +64,7 @@ import { dehydrate, QueryClient, useQueryClient } from '@tanstack/react-query';
 import { SOLR_ERROR, useSolrError } from '@/lib/useSolrError';
 import { AxiosError } from 'axios';
 import { logger } from '@/logger';
+import { BRAND_NAME_FULL, BRAND_NAME_SHORT } from '@/config';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
   () => import('@/components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),
@@ -208,7 +209,7 @@ const SearchPage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>{`${params.q} | NASA Science Explorer - Search Results`}</title>
+        <title>{`${params.q} - ${BRAND_NAME_FULL} Search`}</title>
       </Head>
       <Stack direction="column" aria-labelledby="search-form-title" spacing="10" ref={ref}>
         <HideOnPrint pt={10}>

@@ -4,11 +4,9 @@ import { CitationExporter, JournalFormatMap } from '@/components';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { withDetailsPage } from '@/hocs/withDetailsPage';
 import { GetServerSideProps, NextPage } from 'next';
-import Head from 'next/head';
 import { path } from 'ramda';
 import { composeNextGSSP } from '@/ssr-utils';
 import { useRouter } from 'next/router';
-import { getDetailsPageTitle } from '@/pages/abs/[id]/abstract';
 import { useSettings } from '@/lib/useSettings';
 
 const ExportCitationPage: NextPage = () => {
@@ -38,10 +36,7 @@ const ExportCitationPage: NextPage = () => {
         };
 
   return (
-    <AbsLayout doc={doc} titleDescription="Export citation for">
-      <Head>
-        <title>{getDetailsPageTitle(doc, 'Export')}</title>
-      </Head>
+    <AbsLayout doc={doc} titleDescription="Export citation for" label="Export Citations">
       <Box pt="1">
         <CitationExporter
           initialFormat={format}

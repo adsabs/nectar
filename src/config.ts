@@ -47,10 +47,10 @@ const search = new URLSearchParams({
 });
 export const ORCID_LOGIN_URL = `${process.env.NEXT_PUBLIC_ORCID_API_URL}/oauth/authorize?${search.toString()}`;
 
-export const ORCID_ADS_SOURCE_NAME = 'NASA Astrophysics Data System';
-export const ORCID_ADS_SOURCE_NAME_SHORT = 'NASA ADS';
-export const NASA_SCIX_BRAND_NAME = 'NASA Science Explorer';
-export const NASA_SCIX_BRAND_NAME_SHORT = 'NASA SciX';
+export const ORCID_ADS_SOURCE_NAME = 'Astrophysics Data System';
+export const ORCID_ADS_SOURCE_NAME_SHORT = 'ADS';
+export const BRAND_NAME_FULL = 'Science Explorer';
+export const BRAND_NAME_SHORT = 'SciX';
 export const ORCID_BULK_DELETE_CHUNK_SIZE = 4;
 export const ORCID_BULK_DELETE_DELAY = 1000;
 

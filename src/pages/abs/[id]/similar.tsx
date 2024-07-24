@@ -4,11 +4,9 @@ import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { withDetailsPage } from '@/hocs/withDetailsPage';
 import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { GetServerSideProps, NextPage } from 'next';
-import Head from 'next/head';
 import { composeNextGSSP } from '@/ssr-utils';
 import { path } from 'ramda';
 import { useRouter } from 'next/router';
-import { getDetailsPageTitle } from '@/pages/abs/[id]/abstract';
 
 const SimilarPage: NextPage = () => {
   const router = useRouter();
@@ -20,10 +18,7 @@ const SimilarPage: NextPage = () => {
   const similarParams = getSimilarParams(doc?.bibcode, 0);
 
   return (
-    <AbsLayout doc={doc} titleDescription="Papers similar to">
-      <Head>
-        <title>{getDetailsPageTitle(doc, 'Similar')}</title>
-      </Head>
+    <AbsLayout doc={doc} titleDescription="Papers similar to" label="Similar Papers">
       {isSuccess && (
         <AbstractRefList
           doc={doc}

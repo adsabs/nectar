@@ -13,7 +13,8 @@ import { QueryClient } from '@tanstack/react-query';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { logger } from '@/logger';
-import { parseAPIError } from '@/utils';
+import { parseAPIError, unwrapStringValue } from '@/utils';
+import { BRAND_NAME_FULL } from '@/config';
 
 interface ILibrariesHomeProps {
   id?: string;
@@ -33,10 +34,14 @@ const LibrariesHome: NextPage<ILibrariesHomeProps> = ({ id, subpage, from }) => 
     { enabled: !!id },
   );
 
+  const title = !!id
+    ? `${unwrapStringValue(library?.metadata?.name)} - ${BRAND_NAME_FULL} library`
+    : `${BRAND_NAME_FULL} libraries`;
+
   return (
     <>
       <Head>
-        <title>{`NASA Science Explorer - Libraries - ${!!id ? library?.metadata.name ?? '' : ''}`}</title>
+        <title>{title}</title>
       </Head>
       {!!id && isLoadingLib && (
         <Center>
