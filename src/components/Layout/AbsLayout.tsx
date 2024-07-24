@@ -7,13 +7,15 @@ import { unwrapStringValue } from '@/utils';
 import { MathJax } from 'better-react-mathjax';
 import Head from 'next/head';
 import { FC } from 'react';
+import { BRAND_NAME_FULL } from '@/config';
 
 interface IAbsLayoutProps {
   doc: IDocsEntity;
   titleDescription: string;
+  label: string;
 }
 
-export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription }) => {
+export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription, label }) => {
   const { getSearchHref, show: showBackLink } = useBackToSearchResults();
 
   if (!doc) {
@@ -41,7 +43,7 @@ export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription
       )}
       <Stack direction={{ base: 'column', lg: 'row' }} spacing={6}>
         <Head>
-          <title>{title}</title>
+          <title>{`${unwrapStringValue(doc.title)} - ${BRAND_NAME_FULL} ${label}`}</title>
           <Metatags doc={doc} />
         </Head>
         <Stack direction="column">

@@ -5,12 +5,13 @@ import { composeNextGSSP } from '@/ssr-utils';
 import { QueryClient } from '@tanstack/react-query';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
+import { BRAND_NAME_FULL } from '@/config';
 
 const NotificationPage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>NASA Science Explorer - Email Notifications</title>
+        <title>{`${BRAND_NAME_FULL} Email Notifications`}</title>
       </Head>
       <Flex my={4} direction="column" gap={4}>
         <Heading as="h2" id="title" variant="pageTitle">

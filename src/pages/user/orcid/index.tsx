@@ -17,7 +17,7 @@ import { AppState, useStore } from '@/store';
 import { useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
-import { NASA_SCIX_BRAND_NAME } from '@/config';
+import { BRAND_NAME_FULL } from '@/config';
 
 const UserSettings = dynamic(() => import('@/components/Orcid/UserSettings').then((m) => m.UserSettings), {
   ssr: false,
@@ -49,7 +49,7 @@ const OrcidPage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>{NASA_SCIX_BRAND_NAME} - My ORCiD Page</title>
+        <title>{`${BRAND_NAME_FULL} My ORCiD Page`}</title>
       </Head>
       {isMobile ? (
         <Box py="4">

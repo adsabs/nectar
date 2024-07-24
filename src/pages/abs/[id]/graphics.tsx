@@ -4,12 +4,10 @@ import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { withDetailsPage } from '@/hocs/withDetailsPage';
 import { composeNextGSSP } from '@/ssr-utils';
 import { GetServerSideProps, NextPage } from 'next';
-import Head from 'next/head';
 import NextImage from 'next/legacy/image';
 import { LoadingMessage, SimpleLink } from '@/components';
 import { useRouter } from 'next/router';
 import { path } from 'ramda';
-import { getDetailsPageTitle } from '@/pages/abs/[id]/abstract';
 
 const GraphicsPage: NextPage = () => {
   const router = useRouter();
@@ -23,10 +21,7 @@ const GraphicsPage: NextPage = () => {
     isSuccess,
   } = useGetGraphics(doc?.bibcode, { enabled: !!doc?.bibcode, keepPreviousData: true, retry: false });
   return (
-    <AbsLayout doc={doc} titleDescription="Graphics from">
-      <Head>
-        <title>{getDetailsPageTitle(doc, 'Graphics')}</title>
-      </Head>
+    <AbsLayout doc={doc} titleDescription="Graphics from" label="Graphics">
       {isError && (
         <Box mt={5} fontSize="xl">
           Unable to fetch graphics

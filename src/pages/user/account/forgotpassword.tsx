@@ -9,6 +9,7 @@ import { RecaptchaMessage, StandardAlertMessage } from '@/components';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { useCallback, useState } from 'react';
 import { FormMessage } from '@/components/Feedbacks/FormMessage';
+import { BRAND_NAME_FULL } from '@/config';
 
 export { useQuery } from '@tanstack/react-query';
 
@@ -43,7 +44,7 @@ const ForgotPassword: NextPage = () => {
   return (
     <>
       <Head>
-        <title>NASA Science Explorer - Forgot Password</title>
+        <title>{`${BRAND_NAME_FULL} Forgot Password`}</title>
       </Head>
 
       <Container display="flex" flexDirection="column" py="24">

@@ -35,7 +35,7 @@ import {
 import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import { intlFormat, intlFormatDistance } from 'date-fns';
 import { isNilOrEmpty, isObject } from 'ramda-adjunct';
-import { NASA_SCIX_BRAND_NAME, NASA_SCIX_BRAND_NAME_SHORT, ORCID_ADS_SOURCE_NAME } from '@/config';
+import { BRAND_NAME_FULL, BRAND_NAME_SHORT, ORCID_ADS_SOURCE_NAME } from '@/config';
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useOrcidProfile } from '@/lib/orcid/useOrcidProfile';
@@ -332,7 +332,7 @@ const getSource = (sources: IOrcidProfileEntry['source']) => {
         // shorten the source name if possible
         const source =
           rawSource === ORCID_ADS_SOURCE_NAME ? (
-            <Tooltip label={NASA_SCIX_BRAND_NAME}>{NASA_SCIX_BRAND_NAME_SHORT}</Tooltip>
+            <Tooltip label={BRAND_NAME_FULL}>{BRAND_NAME_SHORT}</Tooltip>
           ) : (
             rawSource
           );

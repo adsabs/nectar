@@ -4,12 +4,10 @@ import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { withDetailsPage } from '@/hocs/withDetailsPage';
 import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { GetServerSideProps, NextPage } from 'next';
-import Head from 'next/head';
 import { composeNextGSSP } from '@/ssr-utils';
 import { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { path } from 'ramda';
-import { getDetailsPageTitle } from '@/pages/abs/[id]/abstract';
 
 const VolumePage: NextPage = () => {
   const router = useRouter();
@@ -30,10 +28,7 @@ const VolumePage: NextPage = () => {
   }, [doc]);
 
   return (
-    <AbsLayout doc={doc} titleDescription="Papers in the same volume as">
-      <Head>
-        <title>{getDetailsPageTitle(doc, 'Volume Content')}</title>
-      </Head>
+    <AbsLayout doc={doc} titleDescription="Papers in the same volume as" label="Volume Content">
       {isSuccess && (
         <AbstractRefList
           doc={doc}

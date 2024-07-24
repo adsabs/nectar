@@ -14,6 +14,8 @@ import { IUserResetPasswordCredentials, useResetPassword } from '@/api';
 import { parseAPIError } from '@/utils';
 import { useEffect } from 'react';
 import { useRedirectWithNotification } from '@/components/Notification';
+import Head from 'next/head';
+import { BRAND_NAME_FULL } from '@/config';
 
 const ResetPasswordPage: NextPage = () => {
   const router = useRouter();
@@ -49,62 +51,70 @@ const ResetPasswordPage: NextPage = () => {
   };
 
   return (
-    <Container display="flex" flexDirection="column" py="24">
-      <Heading as="h2" id="form-label" alignSelf="center" my="6">
-        Reset Password
-      </Heading>
+    <>
+      <Head>
+        <title>{`${BRAND_NAME_FULL} Verify Password Reset`}</title>
+      </Head>
+      <Container display="flex" flexDirection="column" py="24">
+        <Heading as="h2" id="form-label" alignSelf="center" my="6">
+          Reset Password
+        </Heading>
 
-      <form onSubmit={handleSubmit(onFormSubmit)} aria-labelledby="form-label">
-        <VStack spacing="4">
-          <FormControl isInvalid={!!errors.password} isRequired>
-            <FormLabel>New Password</FormLabel>
-            <PasswordTextInput
-              ref={(value) => {
-                ref(value);
-                mainInputRef.current = value;
-              }}
-              name="password"
-              {...passwordProps}
-            />
-            <PasswordContainer control={control} />
-          </FormControl>
-          <FormControl isInvalid={!!errors.confirmPassword} isRequired>
-            <FormLabel>Confirm Password</FormLabel>
-            <PasswordTextInput
-              name="confirmPassword"
-              {...register('confirmPassword', { required: true, validate: (value) => value === getValues('password') })}
-            />
-            {!!errors.confirmPassword && <FormErrorMessage>Passwords do not match</FormErrorMessage>}
-          </FormControl>
-          <input type="hidden" name="token" value={router.query.verifyToken?.[0]} />
-          <Button type="submit" isLoading={isLoading}>
-            Submit
-          </Button>
-          {isError && (
-            <StandardAlertMessage
-              status="error"
-              title="There was an issue resetting your password"
-              description={parseAPIError(error)}
-            />
-          )}
-          {!!data && (
-            <StandardAlertMessage
-              status="success"
-              title="Password reset successfully"
-              description={
-                <>
-                  You can now{' '}
-                  <SimpleLink display="inline" href="/user/account/login">
-                    login
-                  </SimpleLink>{' '}
-                  with your new password
-                </>
-              }
-            />
-          )}
-        </VStack>
-      </form>
-    </Container>
+        <form onSubmit={handleSubmit(onFormSubmit)} aria-labelledby="form-label">
+          <VStack spacing="4">
+            <FormControl isInvalid={!!errors.password} isRequired>
+              <FormLabel>New Password</FormLabel>
+              <PasswordTextInput
+                ref={(value) => {
+                  ref(value);
+                  mainInputRef.current = value;
+                }}
+                name="password"
+                {...passwordProps}
+              />
+              <PasswordContainer control={control} />
+            </FormControl>
+            <FormControl isInvalid={!!errors.confirmPassword} isRequired>
+              <FormLabel>Confirm Password</FormLabel>
+              <PasswordTextInput
+                name="confirmPassword"
+                {...register('confirmPassword', {
+                  required: true,
+                  validate: (value) => value === getValues('password'),
+                })}
+              />
+              {!!errors.confirmPassword && <FormErrorMessage>Passwords do not match</FormErrorMessage>}
+            </FormControl>
+            <input type="hidden" name="token" value={router.query.verifyToken?.[0]} />
+            <Button type="submit" isLoading={isLoading}>
+              Submit
+            </Button>
+            {isError && (
+              <StandardAlertMessage
+                status="error"
+                title="There was an issue resetting your password"
+                description={parseAPIError(error)}
+              />
+            )}
+            {!!data && (
+              <StandardAlertMessage
+                status="success"
+                title="Password reset successfully"
+                description={
+                  <>
+                    You can now{' '}
+                    <SimpleLink display="inline" href="/user/account/login">
+                      login
+                    </SimpleLink>{' '}
+                    with your new password
+                  </>
+                }
+              />
+            )}
+          </VStack>
+        </form>
+      </Container>
+    </>
   );
 };
 

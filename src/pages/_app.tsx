@@ -22,6 +22,8 @@ import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import '../styles/styles.css';
 import { logger } from '@/logger';
 import { GoogleTagManager, sendGTMEvent } from '@next/third-parties/google';
+import Head from 'next/head';
+import { APP_DEFAULTS, BRAND_NAME_FULL } from '@/config';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
   require('../mocks');
@@ -45,15 +47,20 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
   }, [router]);
 
   return (
-    <Providers pageProps={pageProps as AppPageProps}>
-      <AppModeRouter />
-      <TopProgressBar />
-      <UserSync />
-      <Layout>
-        <Component {...pageProps} />
-        <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
-      </Layout>
-    </Providers>
+    <>
+      <Head>
+        <title>{`${BRAND_NAME_FULL}`}</title>
+      </Head>
+      <Providers pageProps={pageProps as AppPageProps}>
+        <AppModeRouter />
+        <TopProgressBar />
+        <UserSync />
+        <Layout>
+          <Component {...pageProps} />
+          <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
+        </Layout>
+      </Providers>
+    </>
   );
 });
 

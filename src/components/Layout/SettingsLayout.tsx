@@ -4,6 +4,7 @@ import Head from 'next/head';
 import { FC } from 'react';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 import { SuspendedAlert } from '@/components/Feedbacks/SuspendedAlert';
+import { BRAND_NAME_FULL } from '@/config';
 
 interface ISettingsLayoutProps {
   title: string;
@@ -14,7 +15,7 @@ export const SettingsLayout: FC<ISettingsLayoutProps> = ({ children, title }) =>
   return (
     <Stack direction={{ base: 'column', lg: 'row' }} spacing={6} my={{ base: 2, lg: 10 }}>
       <Head>
-        <title>{title}</title>
+        <title>{`${BRAND_NAME_FULL} ${title}`}</title>
       </Head>
       <SettingsSideNav />
       <Stack direction="column" as="section" aria-labelledby="title" spacing={1} width="full">

@@ -5,12 +5,13 @@ import Head from 'next/head';
 import { composeNextGSSP } from '@/ssr-utils';
 import { parseAPIError } from '@/utils';
 import { logger } from '@/logger';
+import { BRAND_NAME_FULL } from '@/config';
 
 const ClassicFormPage: NextPage<{ ssrError?: string }> = ({ ssrError }) => {
   return (
     <Box as="section" aria-labelledby="form-title" my={16}>
       <Head>
-        <title>NASA Science Explorer - Classic Form Search</title>
+        <title>{`${BRAND_NAME_FULL} Classic Form`}</title>
       </Head>
       <ClassicForm ssrError={ssrError} />
     </Box>

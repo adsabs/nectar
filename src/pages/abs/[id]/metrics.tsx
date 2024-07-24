@@ -11,11 +11,9 @@ import { LoadingMessage, MetricsPane } from '@/components';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { withDetailsPage } from '@/hocs/withDetailsPage';
 import { GetServerSideProps, NextPage } from 'next';
-import Head from 'next/head';
 import { composeNextGSSP } from '@/ssr-utils';
 import { path } from 'ramda';
 import { useRouter } from 'next/router';
-import { getDetailsPageTitle } from '@/pages/abs/[id]/abstract';
 
 const MetricsPage: NextPage = () => {
   const router = useRouter();
@@ -33,10 +31,7 @@ const MetricsPage: NextPage = () => {
   const hasReads = isSuccess && metrics && metrics[MetricsResponseKey.BS][BasicStatsKey.TNR] > 0;
 
   return (
-    <AbsLayout doc={doc} titleDescription="Metrics for">
-      <Head>
-        <title>{getDetailsPageTitle(doc, 'Metrics')}</title>
-      </Head>
+    <AbsLayout doc={doc} titleDescription="Metrics for" label="Metrics">
       {isError && (
         <Box mt={5} fontSize="xl">
           Unable to fetch metrics

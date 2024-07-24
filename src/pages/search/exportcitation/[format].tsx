@@ -12,9 +12,9 @@ import { Alert, AlertIcon, Box, Flex, Heading, HStack } from '@chakra-ui/react';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
 import { CitationExporter, JournalFormatMap, SimpleLink } from '@/components';
 import { getExportCitationDefaultContext } from '@/components/CitationExporter/CitationExporter.machine';
-import { APP_DEFAULTS } from '@/config';
+import { APP_DEFAULTS, BRAND_NAME_FULL } from '@/config';
 import { useIsClient } from '@/lib/useIsClient';
-import { parseAPIError, parseQueryFromUrl } from '@/utils';
+import { parseAPIError, parseQueryFromUrl, unwrapStringValue } from '@/utils';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
@@ -24,6 +24,7 @@ import { composeNextGSSP } from '@/ssr-utils';
 import { useSettings } from '@/lib/useSettings';
 import { useBackToSearchResults } from '@/lib/useBackToSearchResults';
 import { logger } from '@/logger';
+import { useRouter } from 'next/router';
 
 interface IExportCitationPageProps {
   format: ExportApiFormatKey;
@@ -35,7 +36,7 @@ interface IExportCitationPageProps {
 }
 
 const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
-  const { format, query, error } = props;
+  const { format, query } = props;
   const isClient = useIsClient();
 
   // get export related user settings
@@ -58,7 +59,7 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
           maxauthor: parseInt(settings.bibtexMaxAuthors),
         };
 
-  const { data, fetchNextPage, hasNextPage } = useSearchInfinite(query);
+  const { data, fetchNextPage, hasNextPage, error } = useSearchInfinite(query);
   const { getSearchHref } = useBackToSearchResults();
 
   // TODO: add more error handling here
@@ -77,7 +78,7 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
   return (
     <>
       <Head>
-        <title>NASA Science Explorer - Export Citations</title>
+        <title>{`${unwrapStringValue(query?.q)} - ${BRAND_NAME_FULL} Export Citations`}</title>
       </Head>
       <Flex direction="column">
         <HStack my={10}>
@@ -141,15 +142,14 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
   }
 
   const queryClient = new QueryClient();
+  const params: IADSApiSearchParams = {
+    rows: APP_DEFAULTS.EXPORT_PAGE_SIZE,
+    fl: ['bibcode'],
+    sort: APP_DEFAULTS.SORT,
+    ...(qid ? { q: `docs(${qid})`, sort: ['id asc'] } : query),
+  };
 
   try {
-    const params: IADSApiSearchParams = {
-      rows: APP_DEFAULTS.EXPORT_PAGE_SIZE,
-      fl: ['bibcode'],
-      sort: APP_DEFAULTS.SORT,
-      ...(qid ? { q: `docs(${qid})`, sort: ['id asc'] } : query),
-    };
-
     // primary search, this is based on query params
     const data = await queryClient.fetchInfiniteQuery({
       queryKey: searchKeys.infinite(params),
@@ -190,6 +190,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
     logger.error({ msg: 'GSSP error in export citation page', error });
     return {
       props: {
+        query: params,
         pageError: parseAPIError(error),
         error: axios.isAxiosError(error) ? error.message : 'Unable to fetch data',
       },
