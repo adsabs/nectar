@@ -51,7 +51,7 @@ export const WorksTable = () => {
       </Heading>
       <Text>
         <SimpleLink href="/orcid-instructions" newTab display="inline">
-          Learn about using ORCiD with NASA SciX
+          Learn about using ORCiD with SciX
         </SimpleLink>
       </Text>
       <Text>Claims take up to 24 hours to be indexed in SciX</Text>
