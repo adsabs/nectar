@@ -24,7 +24,7 @@ export const AbstractRefList = (props: IAbstractRefListProps): ReactElement => {
   const params = { ...searchLinkParams, start: calculateStartIndex(page, APP_DEFAULTS.RESULT_PER_PAGE) };
 
   const handlePageChange = (page: number) => {
-    onPageChange(page);
+    onPageChange(page - 1);
     void router.push({ pathname: router.pathname, search: stringifySearchParams({ ...router.query, p: page }) });
   };
 
