@@ -267,7 +267,7 @@ const PaginationButton: FC<{ page: number; noLinks: boolean; onlyUpdatePageParam
 };
 
 const cleanPage = (page: number) => (Number.isNaN(page) ? 1 : page);
-const clampPage = (page: number, totalPages: number) => clamp(1, totalPages - 1, page);
+const clampPage = (page: number, totalPages: number) => clamp(1, totalPages, page);
 /**
  * Popover for manually selecting a page
  */
