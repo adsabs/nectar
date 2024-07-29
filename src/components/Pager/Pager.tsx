@@ -1,4 +1,4 @@
-import { forwardRef, HTMLAttributes, ReactNode, useState } from 'react';
+import { forwardRef, HTMLAttributes, ReactNode, useEffect, useState } from 'react';
 import {
   Box,
   ButtonProps,
@@ -17,6 +17,7 @@ import {
   useTab,
 } from '@chakra-ui/react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
+import { noop } from '@/utils';
 
 type PageContext = {
   page: number;
@@ -33,28 +34,43 @@ type Page = {
 
 export interface IPagerProps extends HTMLAttributes<HTMLDivElement> {
   pages: Page[];
+  initialPage: number;
   arrowMargin?: string;
+  onChangePage?: (page: number) => void;
 }
 
-const changePage = (noOfPages: number, direction: 'next' | 'prev') => (page: number) => {
-  if (page === 0 && direction === 'prev') {
-    return noOfPages - 1;
-  }
-  if (page === noOfPages - 1 && direction === 'next') {
-    return 0;
-  }
-  return direction === 'next' ? page + 1 : page - 1;
-};
+const changePage =
+  (noOfPages: number, direction: 'next' | 'prev', onChange: (page: number) => void = noop) =>
+  (page: number) => {
+    let ret = 0;
+    if (page === 0 && direction === 'prev') {
+      ret = noOfPages - 1;
+    } else if (page === noOfPages - 1 && direction === 'next') {
+      ret = 0;
+    }
+    ret = direction === 'next' ? page + 1 : page - 1;
+
+    onChange(ret);
+
+    return ret;
+  };
 
 export const Pager = (props: IPagerProps) => {
-  const { pages, arrowMargin = '200px', ...divProps } = props;
-  const [selectedPage, setSelectedPage] = useState(0);
+  const { pages, initialPage, onChangePage = noop, arrowMargin = '200px', ...divProps } = props;
+  const [selectedPage, setSelectedPage] = useState(initialPage);
   const [interacted, setInteracted] = useState(false);
   const [shouldWiggle, setShouldWiggle] = useState(false);
 
-  const next = () => setSelectedPage(changePage(pages.length, 'next'));
-  const prev = () => setSelectedPage(changePage(pages.length, 'prev'));
-  const handlePageChange = (page: number) => setSelectedPage(page);
+  useEffect(() => {
+    setSelectedPage(initialPage);
+  }, [initialPage]);
+
+  const next = () => setSelectedPage(changePage(pages.length, 'next', onChangePage));
+  const prev = () => setSelectedPage(changePage(pages.length, 'prev', onChangePage));
+  const handlePageChange = (page: number) => {
+    setSelectedPage(page);
+    onChangePage(page);
+  };
 
   const title =
     typeof pages[selectedPage].title === 'string' ? (
