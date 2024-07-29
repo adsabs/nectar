@@ -3,8 +3,8 @@ import type { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
 import { parse } from 'url';
 
-import { getSetCookieHeader, pick } from '../lib/utils';
-import { BootstrapPayload } from '../types';
+import { IBootstrapPayload } from '../../../client/src/api';
+import { getSetCookieHeader } from '../lib/utils';
 
 const TRACING_HEADERS = ['X-Original-Uri', 'X-Original-Forwarded-For', 'X-Forwarded-For', 'X-Amzn-Trace-Id'];
 
@@ -44,17 +44,33 @@ const session: FastifyPluginAsync = async (server) => {
   const bootstrapToken = async (request: FastifyRequest) => {
     server.log.info('Bootstrapping token');
 
-    const { body, headers } = await server.fetcher<BootstrapPayload>({
-      path: 'BOOTSTRAP',
-      method: 'GET',
-      headers: {
-        // use the session cookie (if present)
-        cookie: request.session.get('adsws_session_cookie'),
+    // const { body, headers } = await server.fetcher<BootstrapPayload>({
+    //   path: 'BOOTSTRAP',
+    //   method: 'GET',
+    //   headers: {
+    //     // use the session cookie (if present)
+    //     cookie: request.session.get('adsws_session_cookie'),
+    //
+    //     // forward tracing headers
+    //     ...pick(TRACING_HEADERS, request.headers),
+    //   },
+    // });
 
-        // forward tracing headers
-        ...pick(TRACING_HEADERS, request.headers),
-      },
-    });
+    const body: IBootstrapPayload = {
+      username: 'twhostetler0@gmail.com',
+      scopes: ['api', 'user', 'store-query', 'execute-query', 'store-preferences'],
+      client_id: 'ffh7fsBd0GG4qx4prTNF8lnWadUjCHRAx4Ps0w6J',
+      access_token: 'gQe9AIA8GxT2teeZfrETT71zu3onjpxgRConx2aL',
+      client_name: 'BB client',
+      token_type: 'Bearer',
+      ratelimit: 1.0,
+      anonymous: false,
+      client_secret: 'bbSAMwmohbbTwO0efATnr17OlanrFhVBGd5I8k5LKWlxjUeaZGq374fNHLH7',
+      expire_in: '2500-01-01T00:00:00',
+      refresh_token: 'xBrZ1LDUsfVruEoTX7Nz68EXFYvJes1cUpaWLeRi',
+    };
+
+    const headers = {};
 
     server.log.info('Bootstrap successful');
     // Store the incoming set-cookie in our session
@@ -78,6 +94,10 @@ const session: FastifyPluginAsync = async (server) => {
     logLevel: 'debug',
   });
 
+  const isSessionValid = (request: FastifyRequest) => {
+    return !!request.session;
+  };
+
   /**
    * PreHandler hook to bootstrap the token, if necessary
    */
@@ -88,9 +108,16 @@ const session: FastifyPluginAsync = async (server) => {
       server.log.info('NOT checking session, passing through');
       return;
     }
+
+    // Check if the incoming request has a session cookie
+    const hasSessionCookie = request.cookies[server.config.ADS_SESSION_COOKIE_NAME];
+
+    // Then check if the session is valid
+
     server.log.info('Checking session, bootstrapping if necessary');
+    server.log.info({ data: request.session.get('user') });
     try {
-      if (request.session) {
+      if (isSessionValid(request)) {
         const user = request.session.get('user');
         if (user) {
           server.log.info('session found, continuing');

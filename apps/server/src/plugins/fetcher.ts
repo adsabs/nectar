@@ -27,7 +27,7 @@ const requestPlugin: FastifyPluginCallback = (server: FastifyInstance, _opts, do
 
     try {
       const url = `${server.config.API_HOST_SERVER}${apiTargets[path]}`;
-      const res = await undiciRequest(url, { signal, dispatcher, throwOnError: true, headers, ...rest });
+      const res = await undiciRequest(url, { signal, dispatcher, throwOnError: false, headers, ...rest });
       const json = (await res.body.json()) as TBody;
       return {
         body: json,
