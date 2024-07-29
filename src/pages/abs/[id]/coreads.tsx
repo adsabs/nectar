@@ -6,15 +6,20 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { composeNextGSSP } from '@/ssr-utils';
 import { withDetailsPage } from '@/hocs/withDetailsPage';
+import { APP_DEFAULTS } from '@/config';
 
 const CoreadsPage: NextPage = () => {
   const router = useRouter();
   const { data: abstractDoc } = useGetAbstract({ id: router.query.id as string });
   const doc = abstractDoc?.docs?.[0];
+  const pageIndex = router.query.p ? parseInt(router.query.p as string) - 1 : 0;
 
   const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode);
 
-  const { data, isSuccess } = useGetCoreads(getParams(), { keepPreviousData: true });
+  const { data, isSuccess } = useGetCoreads(
+    { ...getParams(), start: pageIndex * APP_DEFAULTS.RESULT_PER_PAGE },
+    { keepPreviousData: true },
+  );
   const coreadsParams = getCoreadsParams(doc?.bibcode, 0);
 
   return (
