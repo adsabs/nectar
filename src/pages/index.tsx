@@ -107,7 +107,7 @@ const Carousel = () => {
   const [initialPage, setInitialPage] = useState<number>(0);
 
   useEffect(() => {
-    setInitialPage(parseInt(localStorage.getItem('carousel') ?? '0'));
+    setInitialPage(parseInt(localStorage.getItem('carousel') ?? '0', 10));
   });
 
   const handlePageChange = (page: number) => {

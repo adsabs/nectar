@@ -47,9 +47,9 @@ const changePage =
       ret = noOfPages - 1;
     } else if (page === noOfPages - 1 && direction === 'next') {
       ret = 0;
+    } else {
+      ret = direction === 'next' ? page + 1 : page - 1;
     }
-    ret = direction === 'next' ? page + 1 : page - 1;
-
     onChange(ret);
 
     return ret;
