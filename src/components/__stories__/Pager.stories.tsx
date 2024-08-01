@@ -12,6 +12,7 @@ export default meta;
 export const Default: Story = {
   render: () => (
     <Pager
+      initialPage={0}
       pages={[
         { title: 'First', content: 'Page 1', uniqueId: 'first' },
         { title: 'Second', content: 'Page 2', uniqueId: 'second' },
@@ -27,6 +28,7 @@ export const Default: Story = {
 export const WithDynamicContent: Story = {
   render: () => (
     <Pager
+      initialPage={0}
       pages={[
         {
           title: 'First',
