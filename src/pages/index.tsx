@@ -104,8 +104,20 @@ export default HomePage;
 export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
 
 const Carousel = () => {
+  const [initialPage, setInitialPage] = useState<number>(0);
+
+  useEffect(() => {
+    setInitialPage(parseInt(localStorage.getItem('carousel') ?? '0', 10));
+  });
+
+  const handlePageChange = (page: number) => {
+    localStorage.setItem('carousel', page.toString());
+  };
+
   return (
     <Pager
+      onChangePage={handlePageChange}
+      initialPage={initialPage}
       pages={[
         {
           uniqueId: 'welcome',
@@ -127,7 +139,7 @@ const Carousel = () => {
               </Center>
               <Text fontSize="xl">
                 Learn more about the SciX digital library and how it can support your scientific research in this
-                welcome video and brief user tutorial from Dr. Stephanie Jarmak.
+                welcome video and brief user tutorial from <br /> Dr. Stephanie Jarmak.
               </Text>
             </Stack>
           ),
