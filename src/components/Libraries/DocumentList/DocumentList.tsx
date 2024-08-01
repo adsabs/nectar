@@ -16,6 +16,7 @@ export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
   onSet?: (bibcode: string, checked: boolean) => void;
   hideCheckbox: boolean;
   hideResources?: boolean;
+  useNormCite?: boolean;
 }
 
 export const DocumentList = (props: ISimpleResultListProps): ReactElement => {
@@ -31,6 +32,7 @@ export const DocumentList = (props: ISimpleResultListProps): ReactElement => {
     hideCheckbox,
     onSet = noop,
     hideResources = false,
+    useNormCite = false,
     ...divProps
   } = props;
 
@@ -62,6 +64,7 @@ export const DocumentList = (props: ISimpleResultListProps): ReactElement => {
           onSet={(checked) => onSet(doc.bibcode, checked)}
           hideResources={hideResources}
           showNote={showNotes}
+          useNormCite={useNormCite}
         />
       ))}
     </Flex>

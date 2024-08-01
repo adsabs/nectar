@@ -87,6 +87,7 @@ const selectors = {
   toggleSearchFacetsOpen: (state: AppState) => state.toggleSearchFacetsOpen,
   resetSearchFacets: (state: AppState) => state.resetSearchFacets,
   clearAllSelected: (state: AppState) => state.clearAllSelected,
+  query: (state: AppState) => state.query,
 };
 
 const omitP = omit(['p']);
@@ -102,6 +103,7 @@ const SearchPage: NextPage = () => {
   const setNumPerPage = useStore(selectors.setNumPerPage);
   const setDocs = useStore(selectors.setDocs);
   const clearSelectedDocs = useStore(selectors.clearAllSelected);
+  const sort = useStore(selectors.query).sort[0];
 
   const queryClient = useQueryClient();
   const queries = queryClient.getQueriesData<IADSApiSearchResponse>([SEARCH_API_KEYS.primary]);
@@ -258,7 +260,11 @@ const SearchPage: NextPage = () => {
 
             {data && (
               <>
-                <SimpleResultList docs={data.docs} indexStart={params.start} />
+                <SimpleResultList
+                  docs={data.docs}
+                  indexStart={params.start}
+                  useNormCite={sort.startsWith('citation_count_norm')}
+                />
                 {!isPrint && (
                   <Pagination
                     numPerPage={storeNumPerPage}

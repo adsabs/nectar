@@ -73,7 +73,7 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
           search: 'p=1',
         }}
       >
-        <Text>cited(n): {doc.citation_count_norm}</Text>
+        <Text>cited(n): {doc.citation_count_norm.toFixed(2)}</Text>
       </SimpleLink>
     ) : null
   ) : typeof doc.citation_count === 'number' && doc.citation_count > 0 ? (
