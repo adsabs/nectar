@@ -380,6 +380,7 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
                     selectedBibcodes={selected}
                     hideResources={isMobile}
                     onNoteUpdate={refetchLibs}
+                    useNormCite={sort.startsWith('citation_count_norm')}
                   />
                   <Pagination
                     totalResults={numFound}

@@ -74,7 +74,7 @@ export const Item = (props: IItemProps): ReactElement => {
   const cite = useNormCite ? (
     typeof doc.citation_count_norm === 'number' && doc.citation_count_norm > 0 ? (
       <SimpleLink href={{ pathname: `/abs/${bibcode}/citations`, search: 'p=1' }} newTab={linkNewTab}>
-        <Text>cited(n): {doc.citation_count_norm}</Text>
+        <Text>cited(n): {doc.citation_count_norm.toFixed(2)}</Text>
       </SimpleLink>
     ) : null
   ) : typeof doc.citation_count === 'number' && doc.citation_count > 0 ? (

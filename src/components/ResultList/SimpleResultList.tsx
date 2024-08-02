@@ -13,6 +13,7 @@ export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
   showOrcidAction?: boolean;
   hideActions?: boolean;
   allowHighlight?: boolean;
+  useNormCite?: boolean;
 }
 
 const propTypes = {
@@ -28,6 +29,7 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
     indexStart = 0,
     hideActions = false,
     allowHighlight = true,
+    useNormCite = false,
     ...divProps
   } = props;
 
@@ -58,6 +60,7 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
           showHighlights={allowHighlight && showHighlights}
           highlights={highlights?.[index] ?? []}
           isFetchingHighlights={allowHighlight && isFetchingHighlights}
+          useNormCite={useNormCite}
         />
       ))}
     </Flex>
