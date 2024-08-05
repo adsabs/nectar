@@ -205,7 +205,7 @@ export const allSearchTerms: SearchTermOption[] = [
   {
     type: 'item',
     id: 'author_count',
-    value: 'author_count:',
+    value: 'author_count:[1 TO 20]',
     title: 'author count',
     description: 'Find records that have a specific number of authors, or a range of author counts',
     syntax: ['author_count:count', 'author_count:[min_count TO max_count]'],
