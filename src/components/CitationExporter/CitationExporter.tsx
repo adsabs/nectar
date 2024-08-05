@@ -148,11 +148,23 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
   return (
     <ExportContainer
       header={
-        <>
-          Exporting record{ctx.range[1] - ctx.range[0] > 1 ? 's' : ''}{' '}
-          {ctx.range[0] + 1 + page * APP_DEFAULTS.EXPORT_PAGE_SIZE} to{' '}
-          {ctx.range[1] + page * APP_DEFAULTS.EXPORT_PAGE_SIZE} (total: {totalRecords.toLocaleString()})
-        </>
+        <Stack direction="row" alignItems="center" gap={4}>
+          <>
+            Exporting record{ctx.range[1] - ctx.range[0] > 1 ? 's' : ''}{' '}
+            {ctx.range[0] + 1 + page * APP_DEFAULTS.EXPORT_PAGE_SIZE} to{' '}
+            {ctx.range[1] + page * APP_DEFAULTS.EXPORT_PAGE_SIZE} (total: {totalRecords.toLocaleString()})
+          </>
+          {!singleMode && hasNextPage && (
+            <Button
+              variant="outline"
+              rightIcon={<ChevronRightIcon fontSize="2xl" />}
+              onClick={nextPage}
+              isLoading={isLoading}
+            >
+              Next {APP_DEFAULTS.EXPORT_PAGE_SIZE}
+            </Button>
+          )}
+        </Stack>
       }
       isLoading={isLoading}
       {...divProps}
@@ -182,17 +194,6 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
                               ctx.params.format === ExportApiFormatKey.bibtexabs))) && (
                           <Button type="submit" data-testid="export-submit" isLoading={isLoading} width="full">
                             Submit
-                          </Button>
-                        )}
-                        {!singleMode && hasNextPage && (
-                          <Button
-                            variant="outline"
-                            rightIcon={<ChevronRightIcon fontSize="2xl" />}
-                            onClick={nextPage}
-                            isLoading={isLoading}
-                            width="full"
-                          >
-                            Next {APP_DEFAULTS.EXPORT_PAGE_SIZE}
                           </Button>
                         )}
                       </Stack>
