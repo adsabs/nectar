@@ -23,7 +23,7 @@ export interface IGeneralFeedbackParams {
   url?: string;
 }
 
-export type Relationship = 'errata' | 'addenda' | 'series' | 'arxiv' | 'other';
+export type Relationship = 'errata' | 'addenda' | 'series' | 'arxiv' | 'duplicate' | 'other';
 
 export type AssociatedBibcode = {
   value: string;

@@ -46,8 +46,8 @@ const AssociatedArticles: NextPage = () => {
   return (
     <FeedbackLayout title="Submit Associated Articles for the SciX Abstract Service" alert={alert}>
       <Text my={2}>
-        Use this form to submit correlated articles (errata, multiple part articles, etc) with other articles in the
-        SciX. For instance:
+        Use this form to submit correlated articles (errata, multiple part articles, etc) with other articles in SciX.
+        For instance:
       </Text>
       <Text my={2}>
         <strong>1999ApJ...511L..65Y</strong>: Erratum: An X-Ray Microlensing Test of AU-Scale Accretion Disk Structure

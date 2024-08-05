@@ -283,6 +283,7 @@ const relationOptions: SelectOption<Relationship>[] = [
   { id: 'addenda', value: 'addenda', label: 'Main Paper/Addenda' },
   { id: 'series', value: 'series', label: 'Series of Articles' },
   { id: 'arxiv', value: 'arxiv', label: 'arXiv/Published' },
+  { id: 'duplicate', value: 'duplicate', label: 'Duplicate Articles' },
   { id: 'other', value: 'other', label: 'Other' },
 ];
 
@@ -379,6 +380,8 @@ export const AssociatedTable = () => {
                   ? 'Series of articles '
                   : relationship === 'arxiv'
                   ? 'Main paper '
+                  : relationship === 'duplicate'
+                  ? 'Duplicate '
                   : 'Related '
               }Bibcode(s)`}</FormLabel>
               <Flex direction="column" gap={2}>
