@@ -4,7 +4,7 @@ import { BarGraph, DataDownloader, Slider } from '@/components';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { IBarGraph, YearDatum } from '../types';
-import { getYearsGraph, groupBarDatumByYear } from '../utils';
+import { getYearGraphTicks, getYearsGraph } from '../utils';
 
 export interface IYearsGraphPaneProps {
   data: IFacetCountsFields;
@@ -50,8 +50,6 @@ export const YearsGraphPane = ({ data, onApplyYearRange }: IYearsGraphPaneProps)
   };
 
   // transformed the graph data using the range
-  // group the years if too many to display
-  const MAX_X_COUNT = 10;
   const transformedGraph = useMemo(() => {
     if (range && baseGraph) {
       // user selected min and max year to display
@@ -64,20 +62,18 @@ export const YearsGraphPane = ({ data, onApplyYearRange }: IYearsGraphPaneProps)
           ? lastYear
           : debouncedRange.max;
 
-      const totalYears = max - min + 1;
       const startIndex = min - firstYear;
       const endIndex = startIndex + (max - min) + 1;
-      if (totalYears > MAX_X_COUNT) {
-        // too crowded to display, create a new bar graph by merging the years
-        const groupedDatum = groupBarDatumByYear(baseGraph.data, MAX_X_COUNT, startIndex, endIndex);
-        return { data: groupedDatum, keys: baseGraph.keys, indexBy: baseGraph.indexBy };
-      } else {
-        return {
-          data: baseGraph.data.slice(startIndex, endIndex + 1),
-          keys: baseGraph.keys,
-          indexBy: baseGraph.indexBy,
-        };
-      }
+      return {
+        data: baseGraph.data.slice(startIndex, endIndex + 1),
+        keys: baseGraph.keys,
+        indexBy: baseGraph.indexBy,
+        // reduce the number of ticks if too crowded
+        ticks:
+          endIndex - startIndex > 20
+            ? getYearGraphTicks(baseGraph.data.slice(startIndex, endIndex + 1), 10)
+            : undefined,
+      };
     }
   }, [baseGraph, debouncedRange]);
 
@@ -103,6 +99,8 @@ export const YearsGraphPane = ({ data, onApplyYearRange }: IYearsGraphPaneProps)
             indexBy={transformedGraph.indexBy}
             keys={transformedGraph.keys}
             showGroupOptions={false}
+            ticks={transformedGraph.ticks}
+            padding={0.1}
           />
           <Slider
             aria-label="Limit Slider"

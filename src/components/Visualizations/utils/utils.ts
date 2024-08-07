@@ -79,3 +79,15 @@ export const getQueryWithCondition = (query: IADSApiSearchParams['q'], facetFiel
 
   // TODO remove any old conditions, requires new way to represent q internally?
 };
+
+export const getYearGraphTicks = (data: YearDatum[], maxTicks: number) => {
+  const ticks: number[] = [];
+
+  data.forEach((d, index) => {
+    if (index % maxTicks === 0) {
+      ticks.push(d.year);
+    }
+  });
+
+  return ticks;
+};
