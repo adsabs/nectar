@@ -18,6 +18,7 @@ export const APP_DEFAULTS = {
   EMPTY_QUERY: '*:*',
   API_TIMEOUT: 30000,
   SSR_API_TIMEOUT: 5000,
+  PREFERRED_SEARCH_SORT: 'score',
 } as const;
 
 export const GOOGLE_RECAPTCHA_KEY = '6Lex_aQUAAAAAMwJFbdGFeigshN7mRQdbXoGQ7-N';
