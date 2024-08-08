@@ -13,6 +13,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { ChangeEventHandler, useCallback, useEffect, useState } from 'react';
 import { useSettings } from '@/lib/useSettings';
+import { SolrSort } from '@/api';
 
 const SearchExamples = dynamic<ISearchExamplesProps>(
   () => import('@/components/SearchExamples').then((m) => m.SearchExamples),
@@ -28,8 +29,8 @@ const Pager = dynamic<IPagerProps>(() => import('@/components/Pager').then((m) =
 });
 
 const HomePage: NextPage = () => {
-  const sort = useStore((state) => state.query.sort);
   const { settings } = useSettings();
+  const sort = [`${settings.preferredSearchSort} desc` as SolrSort];
   const submitQuery = useStore((state) => state.submitQuery);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
