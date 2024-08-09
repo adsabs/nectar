@@ -4,6 +4,7 @@ import {
   ExternalLinkAction,
   fetchUserSettings,
   IADSApiUserDataParams,
+  SolrSortField,
   UserDataKeys,
   userKeys,
 } from '@/api';
@@ -28,6 +29,7 @@ import { useSettings } from '@/lib/useSettings';
 import { isNotEmpty } from 'ramda-adjunct';
 import { logger } from '@/logger';
 import { parseAPIError } from '@/utils';
+import { solrSortOptions } from '@/components/Sort/model';
 
 // generate options for select component
 const useGetOptions = () => {
@@ -84,15 +86,21 @@ const AppSettingsPage = () => {
       databases: settings.defaultDatabase ?? [],
       selected: settings.defaultDatabase?.filter((d) => d.value === true).map((d) => d.name) ?? [],
     };
+    const preferredSortOption = solrSortOptions.filter((o) => o.id === settings.preferredSearchSort);
 
     return {
       authorsVisible,
       externalLinksAction,
       databases,
+      preferredSortOption,
     };
   }, [settings, externalLinksOptions]);
 
   // apply changes
+  const handleApplyPreferredSort = ({ id }: SelectOption<SolrSortField>) => {
+    setParams({ [UserDataKeys.PREFERRED_SEARCH_SORT]: id });
+  };
+
   const handleApplyAuthorsVisible = (n: number) => {
     setParams({ [UserDataKeys.MIN_AUTHOR_RESULT]: n.toString() });
   };
@@ -134,6 +142,15 @@ const AppSettingsPage = () => {
   return (
     <>
       <Stack direction="column" spacing={5}>
+        <Select<SelectOption<SolrSortField>>
+          label="Default Sort"
+          hideLabel={false}
+          value={selectedValues.preferredSortOption}
+          options={solrSortOptions}
+          stylesTheme="default"
+          id="preferred-search-sort"
+          onChange={handleApplyPreferredSort}
+        />
         <NumberSlider
           min={1}
           max={10}

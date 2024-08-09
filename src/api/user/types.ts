@@ -1,4 +1,5 @@
 import { range } from 'ramda';
+import { SolrSortField } from '../models';
 
 export interface IADSApiUserResponse {
   [key: string]: unknown;
@@ -118,6 +119,7 @@ export enum UserDataKeys {
   DEFAULT_HIDE_SIDEBARS = 'defaultHideSidebars',
   MIN_AUTHOR_RESULT = 'minAuthorsPerResult',
   ABS_AUTHOR_CUTOFF = 'bibtexABSAuthorCutoff',
+  PREFERRED_SEARCH_SORT = 'preferredSearchSort',
 }
 
 export type CustomFormat = { id: string; code: string; name: string };
@@ -163,6 +165,7 @@ export interface IADSApiUserDataResponse {
   [UserDataKeys.DEFAULT_HIDE_SIDEBARS]: string;
   [UserDataKeys.MIN_AUTHOR_RESULT]: typeof MinAuthorsPerResultOptions[number];
   [UserDataKeys.ABS_AUTHOR_CUTOFF]: string;
+  [UserDataKeys.PREFERRED_SEARCH_SORT]: SolrSortField;
 }
 
 export type IADSApiUserDataParams = Partial<IADSApiUserDataResponse>;
