@@ -50,9 +50,15 @@ export const WorksTable = () => {
         My ORCiD Page
       </Heading>
       <Text>
-        <SimpleLink href="/orcid-instructions" newTab display="inline">
-          Learn about using ORCiD with SciX
-        </SimpleLink>
+        Learn about{' '}
+        <SimpleLink href="/scixhelp/orcid-scix/claiming-papers" newTab display="inline">
+          cliaming papers
+        </SimpleLink>{' '}
+        and{' '}
+        <SimpleLink href="/scixhelp/orcid-scix/orcid-search" newTab display="inline">
+          searching for papers
+        </SimpleLink>{' '}
+        in ORCiD with SciX
       </Text>
       <Text>Claims take up to 24 hours to be indexed in SciX</Text>
       <QueryErrorResetBoundary>
