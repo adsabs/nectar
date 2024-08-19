@@ -1,3 +1,5 @@
+import getConfig from 'next/config';
+
 import { SolrSort } from '@/api';
 
 export const APP_DEFAULTS = {
@@ -39,13 +41,13 @@ export const PROTECTED_ROUTES = ['/user/libraries', '/user/settings'];
 export const AUTH_EXCEPTIONS = ['/user/account'];
 
 const search = new URLSearchParams({
-  client_id: process.env.NEXT_PUBLIC_ORCID_CLIENT_ID,
+  client_id: getConfig().publicRuntimeConfig.orcidClientId,
   response_type: 'code',
   access_type: 'offline',
   scope: '/orcid-profile/read-limited /orcid-works/create /orcid-works/update',
-  redirect_uri: process.env.NEXT_PUBLIC_ORCID_REDIRECT_URI,
+  redirect_uri: getConfig().publicRuntimeConfig.orcidRedirectUrl,
 });
-export const ORCID_LOGIN_URL = `${process.env.NEXT_PUBLIC_ORCID_API_URL}/oauth/authorize?${search.toString()}`;
+export const ORCID_LOGIN_URL = `${getConfig().publicRuntimeConfig.orcidBaseUrl}/oauth/authorize?${search.toString()}`;
 
 export const ORCID_ADS_SOURCE_NAME = 'Astrophysics Data System';
 export const ORCID_ADS_SOURCE_NAME_SHORT = 'ADS';

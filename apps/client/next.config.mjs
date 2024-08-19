@@ -10,7 +10,8 @@ const isDev = process.env.NODE_ENV !== 'production';
  */
 const nextConfig = {
   output: 'standalone',
-  generateBuildId: async () => nextBuildId({ dir: process.env.__dirname, describe: true }),
+  generateBuildId: async () =>
+    nextBuildId({ dir: process.env.__dirname, describe: true }),
   generateEtags: true,
   poweredByHeader: false,
   reactStrictMode: true,
@@ -19,7 +20,12 @@ const nextConfig = {
     webVitalsAttribution: ['CLS', 'LCP'],
     optimisticClientCache: false,
     esmExternals: 'loose',
-    optimizePackageImports: ['@api', '@components', '@chakra-ui/react', 'ramda'],
+    optimizePackageImports: [
+      '@api',
+      '@components',
+      '@chakra-ui/react',
+      'ramda',
+    ],
   },
   async rewrites() {
     if (isDev) {
@@ -125,7 +131,9 @@ const nextConfig = {
   trailingSlash: false,
   publicRuntimeConfig: {
     apiHost: process.env.API_HOST_CLIENT,
-    experiments: process.env.NEXT_PUBLIC_ENABLE_EXPERIMENTS?.split(',') || [],
+    orcidRedirectUrl: process.env.ORCID_REDIRECT_URL,
+    orcidClientId: process.env.ORCID_CLIENT_ID,
+    orcidBaseUrl: process.env.ORCID_BASE_URL,
   },
   serverRuntimeConfig: {
     apiHost: process.env.API_HOST_SERVER,
