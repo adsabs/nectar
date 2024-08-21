@@ -151,6 +151,7 @@ export const Slider = ({
                       align="center"
                       mt={marginTop}
                       showLabel={showLabel}
+                      onEnter={(value) => handleEnter(0, value)}
                     />
                     <Handle
                       key={handles[1].id}
@@ -159,6 +160,7 @@ export const Slider = ({
                       align="center"
                       mt={marginTop}
                       showLabel={showLabel}
+                      onEnter={(value) => handleEnter(1, value)}
                     />
                   </>
                 )}
