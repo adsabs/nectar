@@ -7,7 +7,7 @@ import { FetcherResponse } from 'src/plugins/fetcher';
 
 import { IADSApiSearchParams, IADSApiSearchResponse } from '../../../client/src/api';
 import { pick } from '../lib/utils';
-import { searchParamsSchema } from '../types';
+import { DetailsResponse, searchParamsSchema, SearchResponse } from '../types';
 
 const searchFields = [
   'bibcode',
@@ -50,12 +50,12 @@ export const nextjsRoute: FastifyPluginCallbackTypebox = async (server) => {
     return match ? match[1] : null;
   }
 
-  const getDetailsHandler = (request: FastifyRequest) => async () => {
+  const getDetailsHandler = (request: FastifyRequest) => async (): Promise<DetailsResponse> => {
     const id = extractIdentifier(request.url);
-
     if (!id) {
       return {
         doc: null,
+        query: null,
         error: {
           statusCode: 400,
           errorMsg: 'Bad Request',
@@ -67,22 +67,32 @@ export const nextjsRoute: FastifyPluginCallbackTypebox = async (server) => {
     const cacheKey = buildCacheKey(request);
 
     // Check the cache for the document
-    const cachedResponse = await getCachedResponse(server, cacheKey);
+    const [, cachedResponse] = await server.to<string | null>(server.redis.get(cacheKey));
     if (cachedResponse) {
-      return cachedResponse;
+      server.log.debug({ cachedResponse }, 'Cache response');
+      return JSON.parse(cachedResponse) as DetailsResponse;
     }
 
     // Check for search cache using the search cookie
     const searchCacheKey = request.cookies.search;
     if (searchCacheKey) {
-      const searchResponse = await getSearchCacheResponse(server, searchCacheKey, id);
-      if (searchResponse) {
-        await cacheResponse(server, cacheKey, searchResponse);
-        return searchResponse;
+      const [, searchCacheResponse] = await server.to<string | null>(server.redis.get(searchCacheKey));
+      if (searchCacheResponse) {
+        const searchResponse = JSON.parse(searchCacheResponse) as SearchResponse;
+        const doc = searchResponse.response.response.docs.find((doc) => doc.id === id);
+        if (doc) {
+          const res: DetailsResponse = {
+            doc,
+            query: searchResponse.response.responseHeader.params,
+            error: null,
+          };
+          await server.to(server.redis.set(cacheKey, JSON.stringify(res), 'EX', 300));
+          return res;
+        }
       }
     }
 
-    // Fetch details directly if not found in the cache
+    // Fetch the details directly if not found in cache
     const query = {
       fl: searchFields,
       rows: 1,
@@ -102,81 +112,47 @@ export const nextjsRoute: FastifyPluginCallbackTypebox = async (server) => {
 
     if (err || response.statusCode !== 200) {
       server.log.error({ msg: 'Details fetch failed', err });
+
       return {
         doc: null,
         query: null,
         error: {
-          statusCode: response.statusCode,
-          errorMsg: err?.message || 'Unknown error',
+          statusCode: response?.statusCode || 500,
+          errorMsg: err?.message || 'Failed to fetch details',
           friendlyMessage: 'Failed to fetch details. Please try again later.',
         },
       };
     }
 
-    // Cache and return the response
-    const res = {
+    // Cache and return the fetched document
+    const res: DetailsResponse = {
       doc: response.body.response.docs[0],
       query: null,
       error: null,
     };
-    await cacheResponse(server, cacheKey, res);
+    await server.to(server.redis.set(cacheKey, JSON.stringify(res), 'EX', 300));
     return res;
-
-    function getCachedResponse(server, cacheKey) {
-      return server.to(server.redis.get(cacheKey)).then(([err, cachedResponse]) => {
-        if (err || !cachedResponse) {
-          return null;
-        }
-        server.log.debug({ cachedResponse }, 'Cache response');
-        return JSON.parse(cachedResponse);
-      });
-    }
-
-    function getSearchCacheResponse(server, searchCacheKey, id) {
-      return server.to(server.redis.get(searchCacheKey)).then(([err, searchCacheResponse]) => {
-        if (err || !searchCacheResponse) {
-          return null;
-        }
-        const searchResponse = JSON.parse(searchCacheResponse) as IADSApiSearchResponse;
-        const doc = searchResponse.response.docs.find((doc) => doc.id === id);
-        if (!doc) {
-          return null;
-        }
-        return {
-          doc,
-          query: searchResponse.responseHeader.params,
-          error: null,
-        };
-      });
-    }
-
-    function cacheResponse(server, cacheKey, response) {
-      return server.to(server.redis.set(cacheKey, JSON.stringify(response), 'EX', 300));
-    }
   };
 
-  const getSearchHandler = (request: FastifyRequest) => async () => {
+  const getSearchHandler = (request: FastifyRequest) => async (): Promise<SearchResponse> => {
     const reqQuery = Value.Parse(searchParamsSchema, request.query);
-    const query = {
+
+    const query: IADSApiSearchParams = {
       fl: searchFields,
       rows: reqQuery.n,
       start: (reqQuery.p - 1) * reqQuery.n,
       q: reqQuery.q,
       sort: reqQuery.sort as IADSApiSearchParams['sort'],
-    } as IADSApiSearchParams;
+    };
 
-    // check cache
     const cacheKey = buildCacheKey(request);
 
-    const [, cacheResponse] = await server.to(server.redis.get(cacheKey));
+    const [, cacheResponse] = await server.to<string | null>(server.redis.get(cacheKey));
     if (cacheResponse) {
       server.log.debug({ cacheResponse }, 'Cache response');
-      return {
-        response: JSON.parse(cacheResponse) as IADSApiSearchResponse,
-        query,
-        error: null,
-      };
+      return JSON.parse(cacheResponse) as SearchResponse;
     }
+
     const [err, response] = await server.to<FetcherResponse<IADSApiSearchResponse>>(
       server.fetcher<IADSApiSearchResponse>({
         path: 'SEARCH',
@@ -188,26 +164,32 @@ export const nextjsRoute: FastifyPluginCallbackTypebox = async (server) => {
       }),
     );
 
-    if (err) {
+    if (err || response.statusCode !== 200) {
       server.log.error({ err, query }, 'Error fetching search results');
 
       return {
-        response: err?.body as IADSApiSearchResponse,
+        response: null,
         query,
-        error: err.message,
+        error: {
+          statusCode: response?.statusCode || 500,
+          errorMsg: err?.message || 'Failed to fetch search results',
+          friendlyMessage: 'Failed to fetch search results. Please try again later.',
+        },
       };
     }
 
-    const [cacheErr] = await server.to(server.redis.set(cacheKey, JSON.stringify(response.body), 'EX', 300));
-    if (cacheErr) {
-      server.log.error({ err: cacheErr }, 'Cache set failed');
-    }
-
-    return {
+    const res: SearchResponse = {
       response: response.body,
       query,
       error: null,
     };
+
+    const [cacheErr] = await server.to(server.redis.set(cacheKey, JSON.stringify(res), 'EX', 300));
+    if (cacheErr) {
+      server.log.error({ err: cacheErr }, 'Cache set failed');
+    }
+
+    return res;
   };
 
   server.addHook('onRequest', async (request, reply) => {

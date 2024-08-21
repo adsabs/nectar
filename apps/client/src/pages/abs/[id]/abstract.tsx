@@ -33,7 +33,7 @@ import { equals, isNil } from 'ramda';
 import { isNilOrEmpty } from 'ramda-adjunct';
 import { memo, ReactElement } from 'react';
 
-import { IADSApiSearchParams, IDocsEntity, useGetAbstract } from '@/api';
+import { IADSApiSearchParams, IDocsEntity } from '@/api';
 import {
   AbstractSources,
   AddToLibraryModal,
@@ -51,6 +51,7 @@ import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { APP_DEFAULTS, EXTERNAL_URLS } from '@/config';
 import { useIsClient } from '@/lib/useIsClient';
 import { useSession } from '@/lib/useSession';
+import { logger } from '@/logger';
 import { pluralize } from '@/utils';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
@@ -68,7 +69,7 @@ const AbstractPage: NextPage<InferGetServerSidePropsType<typeof getServerSidePro
   const router = useRouter();
   const isClient = useIsClient();
   const { isAuthenticated } = useSession();
-  const { data } = useGetAbstract({ id: router.query.id as string });
+  // const { data } = useGetAbstract({ id: router.query.id as string });
   // const doc = path<IDocsEntity>(['docs', 0], data);
 
   // process authors from doc
@@ -386,30 +387,25 @@ const Detail = <T,>(props: IDetailProps<T>): ReactElement => {
 };
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const { query, response, error } = await ctx.req.details();
+  const { query, doc, error } = await ctx.req.details();
 
-  if (response) {
+  if (doc) {
     return {
       props: {
-        page: ctx.query.p ?? 1,
         params: query,
-        docs: response.response.docs,
-        numFound: response.response.numFound,
+        doc,
         error: null,
       },
     };
   }
 
+  logger.error({ error }, 'Error fetching details page data');
+
   return {
     props: {
-      error: {
-        message: error,
-        response: response,
-      },
-      page: ctx.query.p ?? 1,
+      error,
       params: query,
-      numFound: 0,
-      docs: [],
+      doc: null,
     },
   };
 };

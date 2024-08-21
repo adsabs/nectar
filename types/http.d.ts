@@ -1,7 +1,6 @@
 import { RequestOptions } from 'src/plugins/fetcher';
 
-import { IADSApiSearchParams, IADSApiSearchResponse } from '../apps/client/src/api';
-import { FetcherError } from '../apps/server/src/plugins/fetcher';
+import { DetailsResponse, SearchResponse } from '../apps/server/src/types';
 
 declare module 'node:http' {
   interface IncomingMessage {
@@ -9,16 +8,8 @@ declare module 'node:http' {
       user: SessionData['user'];
     };
     fetch: <T>(options: RequestOptions, extraOptions = { cache: true }) => Promise<T | { error: string }>;
-    search: () => Promise<{
-      query: IADSApiSearchParams;
-      response: IADSApiSearchResponse;
-      error?: FetcherError;
-    }>;
-    details: () => Promise<{
-      doc: IDocsEntity;
-      query?: IADSApiSearchParams;
-      error?: FetcherError;
-    }>;
+    search: () => Promise<SearchResponse>;
+    details: () => Promise<DetailsResponse>;
   }
   //   search: {
   //     response: IADSApiSearchResponse;

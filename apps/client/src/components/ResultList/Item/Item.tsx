@@ -1,4 +1,3 @@
-import { IDocsEntity } from '@/api';
 import {
   Box,
   BoxProps,
@@ -12,24 +11,21 @@ import {
   Tooltip,
   useTimeout,
 } from '@chakra-ui/react';
+import { MathJax } from 'better-react-mathjax';
+import { ChangeEvent, ReactElement, useCallback, useEffect, useState } from 'react';
+import shallow from 'zustand/shallow';
+
+import { IDocsEntity } from '@/api';
+import { HideOnPrint, SimpleLink } from '@/components';
 import { AllAuthorsModal } from '@/components/AllAuthorsModal';
 import { APP_DEFAULTS } from '@/config';
+import { useColorModeColors } from '@/lib';
 import { useIsClient } from '@/lib/useIsClient';
 import { useStore } from '@/store';
 import { getFomattedNumericPubdate, unwrapStringValue } from '@/utils';
-import { MathJax } from 'better-react-mathjax';
-import dynamic from 'next/dynamic';
-import { ChangeEvent, ReactElement, useCallback, useEffect, useState } from 'react';
-import shallow from 'zustand/shallow';
-import { IAbstractPreviewProps } from './AbstractPreview';
-import { ItemResourceDropdowns } from './ItemResourceDropdowns';
-import { HideOnPrint, SimpleLink } from '@/components';
-import { useColorModeColors } from '@/lib';
 
-const AbstractPreview = dynamic<IAbstractPreviewProps>(
-  () => import('./AbstractPreview').then((mod) => mod.AbstractPreview),
-  { ssr: false },
-);
+import { ItemResourceDropdowns } from './ItemResourceDropdowns';
+
 export interface IItemProps {
   doc: IDocsEntity;
   index: number;
@@ -129,7 +125,6 @@ export const Item = (props: IItemProps): ReactElement => {
             {extraInfo}
           </Flex>
           {showHighlights && <Highlights highlights={highlights} isFetchingHighlights={isFetchingHighlights} />}
-          <AbstractPreview bibcode={bibcode} />
         </Flex>
       </Stack>
     </Flex>

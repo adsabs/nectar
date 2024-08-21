@@ -1,5 +1,7 @@
 import { Static, Type as T } from '@fastify/type-provider-typebox';
 
+import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity } from '../../client/src/api';
+
 export const bootstrapResponseSchema = T.Object({
   username: T.String(),
   scopes: T.Array(T.String()),
@@ -105,3 +107,21 @@ export const searchParamsSchema = T.Object({
 
 export type NectarUserData = Static<typeof sessionResponseSchema>;
 export type NectarSessionErrorResponse = Static<typeof sessionErrorResponseSchema>;
+
+export type CommonError = {
+  statusCode: number;
+  errorMsg: string;
+  friendlyMessage: string;
+};
+
+export type DetailsResponse = {
+  doc?: IDocsEntity;
+  query?: IADSApiSearchParams;
+  error: null;
+};
+
+export type SearchResponse = {
+  response?: IADSApiSearchResponse;
+  query: IADSApiSearchParams;
+  error: CommonError;
+};
