@@ -1,12 +1,10 @@
 import type { FastifyRedis } from '@fastify/redis';
 import type { Session, SessionData } from '@fastify/secure-session';
+import { IADSApiSearchResponse, IADSApiUserResponse } from 'apps/client/src/api';
+import { NextServer } from 'next/dist/server/next';
 
 import { BootstrapTokenFn, FetcherFn, SearchFn } from '../src/plugins/api';
 import { ScixSession, ScixUser } from '../src/types';
-
-declare module '@fastify/secure-session' {
-  type SessionData = ScixSession;
-}
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -23,16 +21,13 @@ declare module 'fastify' {
       CSRF_HEADER: string;
       API_BASE_DOMAIN_SERVER: string;
     };
-    api: {
-      bootstrapToken: BootstrapTokenFn;
-      search: SearchFn;
-    };
     fetcher: FetcherFn;
     verifyUser: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
-    authenticate: (
-      request: FastifyRequest,
-      reply: FastifyReply,
-    ) => Promise<void>;
+    authenticate: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
+    nextAppContext: NextServer;
+    checkCache: <Res>(request: FastifyRequest) => Promise<Res | null>;
+    setCache: (request: FastifyRequest, data: unknown) => Promise<void>;
+    search: (request: FastifyRequest) => Promise<IADSApiSearchResponse>;
   }
 
   interface FastifyRequest {

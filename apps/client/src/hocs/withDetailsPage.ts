@@ -1,40 +1,12 @@
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 
-import {
-  ApiTargets,
-  fetchGraphics,
-  fetchMetrics,
-  fetchSearch,
-  fetchUserSettings,
-  getAbstractParams,
-  getCitationsParams,
-  getCoreadsParams,
-  getMetricsParams,
-  getReferencesParams,
-  getSearchParams,
-  getSimilarParams,
-  getTocParams,
-  graphicsKeys,
-  metricsKeys,
-  searchKeys,
-  userKeys,
-} from '@/api';
-import { fetchLinks, resolverKeys } from '@/api/resolver';
 import { logger } from '@/logger';
 import { parseAPIError } from '@/utils';
 
 export const withDetailsPage = async (
   ctx: GetServerSidePropsContext,
 ): Promise<GetServerSidePropsResult<Record<string, unknown>>> => {
-  const { id } = ctx.params as { id: string };
-
-  const pathname = ctx.resolvedUrl.split('?')[0];
-  const queryClient = new QueryClient();
-
-  // TODO: get this from the session
-  const isAuthenticated = false;
-
   try {
     // Fetch all the data we need for the details page
     await Promise.allSettled([
@@ -121,7 +93,8 @@ export const withDetailsPage = async (
     ]);
     return {
       props: {
-        dehydratedState: dehydrate(queryClient),
+        doc: ctx.req.details.doc,
+        query: ctx.req.details.query,
       },
     };
   } catch (error) {

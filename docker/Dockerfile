@@ -33,4 +33,3 @@ COPY --from=prod_deps /app/node_modules ./node_modules/
 RUN mkdir -p ./.pnpm-cache
 RUN --mount=type=cache,id=nextjs,target=.pnpm-cache pnpm run build
 CMD ["pnpm", "start"]
-

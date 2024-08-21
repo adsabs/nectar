@@ -304,7 +304,7 @@ export const enumKeys = <O extends object, K extends keyof O = keyof O>(obj: O):
 
 // omit params that should not be included in any urls
 // `id` is typically slug used in abstract pages
-const omitSearchParams = omit(['fl', 'start', 'rows', 'id']);
+const omitSearchParams = omit(['fl', 'start', 'rows', 'id', 'interal_logging_params']);
 
 /**
  * Generates a string for use in URLs, this assumes we want to include `sort` and `p` so those values
@@ -314,11 +314,32 @@ const omitSearchParams = omit(['fl', 'start', 'rows', 'id']);
  */
 export const makeSearchParams = (params: SafeSearchUrlParams, options: { omit?: string[] } = {}) => {
   const cleanParams = omitSearchParams(params);
+
+  // Destructure relevant params from cleanParams
+  const { start, rows, p } = cleanParams;
+
+  // Determine the correct value for `p` (page)
+  let page: number;
+  if (typeof p !== 'undefined') {
+    // If `p` is provided, it takes precedence
+    page = parseNumberAndClamp(p as string, 1);
+  } else if (typeof start !== 'undefined' && typeof rows !== 'undefined') {
+    // If `start` and `rows` are provided, calculate `p`
+    page = Math.floor(parseInt(start as string) / parseInt(rows as string)) + 1;
+  } else {
+    // Default value for `p` if neither is provided
+    page = 1;
+  }
+
+  // Set `n` to the value of `rows` if provided
+  const n = rows ? parseInt(rows as string) : undefined;
+
   return stringifySearchParams(
     omit(options.omit ?? [], {
       ...cleanParams,
+      p: page,
+      n: n,
       sort: normalizeSolrSort(cleanParams.sort),
-      p: parseNumberAndClamp(cleanParams?.p as string, 1),
     }),
   );
 };
@@ -344,7 +365,11 @@ const qTransformers = (q: string) => {
 };
 
 const parseSearchParams = (params: string, options?: qs.IParseOptions) => {
-  const parsed = qs.parse(params, { parseArrays: true, charset: 'utf-8', ...options });
+  const parsed = qs.parse(params, {
+    parseArrays: true,
+    charset: 'utf-8',
+    ...options,
+  });
   parsed.q = qTransformers(parsed.q as string);
   return parsed;
 };

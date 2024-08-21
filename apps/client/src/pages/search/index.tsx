@@ -1,7 +1,9 @@
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import {
   Alert,
+  AlertDescription,
   AlertIcon,
+  AlertTitle,
   Box,
   Button,
   Center,
@@ -22,26 +24,16 @@ import {
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/20/solid';
-import { dehydrate, QueryClient, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { last, omit, path } from 'ramda';
+import { omit } from 'ramda';
 import { FormEventHandler, useCallback, useEffect, useRef, useState } from 'react';
 import { useIsClient } from 'src/lib';
 
-import {
-  defaultParams,
-  getSearchParams,
-  IADSApiSearchParams,
-  IADSApiSearchResponse,
-  SEARCH_API_KEYS,
-  searchKeys,
-  SolrSort,
-  useSearch,
-} from '@/api';
+import { IADSApiSearchParams, IADSApiSearchResponse, SolrSort } from '@/api';
 import {
   AddToLibraryModal,
   CustomInfoMessage,
@@ -55,15 +47,14 @@ import {
   SimpleLink,
   SimpleResultList,
 } from '@/components';
-import { calculateStartIndex } from '@/components/ResultList/Pagination/usePagination';
 import { FacetFilters } from '@/components/SearchFacet/FacetFilters';
 import { IYearHistogramSliderProps } from '@/components/SearchFacet/YearHistogramSlider';
 import { BRAND_NAME_FULL } from '@/config';
 import { SOLR_ERROR, useSolrError } from '@/lib/useSolrError';
-import { composeNextGSSP } from '@/ssr-utils';
+import { logger } from '@/logger';
 import { AppState, useStore, useStoreApi } from '@/store';
 import { NumPerPageType } from '@/types';
-import { makeSearchParams, parseQueryFromUrl } from '@/utils';
+import { makeSearchParams } from '@/utils';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
   () => import('@/components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),
@@ -91,8 +82,16 @@ const selectors = {
 
 const omitP = omit(['p']);
 
-const SearchPage: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>> = ({ params }) => {
+const SearchPage: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>> = ({
+  params,
+  docs,
+  error,
+  numFound,
+}) => {
   const router = useRouter();
+  const isLoading = false;
+  const isFetching = false;
+  const isSuccess = true;
 
   const store = useStoreApi();
   const storeNumPerPage = useStore(selectors.numPerPage);
@@ -102,18 +101,17 @@ const SearchPage: NextPage<InferGetServerSidePropsType<typeof getServerSideProps
   const setNumPerPage = useStore(selectors.setNumPerPage);
   const setDocs = useStore(selectors.setDocs);
   const clearSelectedDocs = useStore(selectors.clearAllSelected);
-  const sort = useStore(selectors.query).sort[0];
 
   const [isPrint] = useMediaQuery('print'); // use to hide elements when printing
-
-  // parse the query params from the URL, this should match what the server parsed
-
-  const { data, isSuccess, isLoading, isFetching, error, isError } = useSearch(params);
 
   // needed by histogram for positioning and styling
   const [histogramExpanded, setHistogramExpanded] = useState(false);
   const [width, setWidth] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    void router.replace({ pathname: '/search', search: makeSearchParams(params) }, undefined, { shallow: true });
+  }, []);
 
   useEffect(() => {
     if (ref.current) {
@@ -126,7 +124,7 @@ const SearchPage: NextPage<InferGetServerSidePropsType<typeof getServerSideProps
   const { isOpen: isAddToLibraryOpen, onClose: onCloseAddToLibrary, onOpen: onOpenAddToLibrary } = useDisclosure();
 
   // on Sort change handler
-  const handleSortChange = (sort: SolrSort) => {
+  const handleSortChange = async (sort: SolrSort) => {
     const query = store.getState().query;
     if (query.q.length === 0) {
       // if query is empty, do not submit search
@@ -135,14 +133,13 @@ const SearchPage: NextPage<InferGetServerSidePropsType<typeof getServerSideProps
 
     // generate search string and trigger page transition, also update store
     const search = makeSearchParams({ ...params, ...query, sort, p: 1 });
-    void router.push({ pathname: router.pathname, search }, null, {
+    await router.push({ pathname: router.pathname, search }, null, {
       scroll: false,
-      shallow: true,
     });
   };
 
   // On submission handler
-  const handleOnSubmit: FormEventHandler<HTMLFormElement> = (e) => {
+  const handleOnSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     const q = new FormData(e.currentTarget).get('q') as string;
 
@@ -156,34 +153,49 @@ const SearchPage: NextPage<InferGetServerSidePropsType<typeof getServerSideProps
     clearSelectedDocs();
 
     // generate a URL search string and trigger a page transition, and update store
-    const search = makeSearchParams({ ...params, ...query, q, p: 1 });
-    void router.push({ pathname: router.pathname, search }, null, {
+    const search = makeSearchParams({
+      ...params,
+      ...query,
+      q,
+      p: 1,
+      n: storeNumPerPage,
+    });
+
+    if (router.asPath.includes(search)) {
+      logger.debug('Search query is the same as the current query, not navigating');
+      return;
+    }
+
+    await router.push({ pathname: router.pathname, search }, null, {
       scroll: false,
-      shallow: true,
     });
   };
-
-  // Update the store when we have data
-  useEffect(() => {
-    if (data?.docs.length > 0) {
-      setDocs(data.docs.map((d) => d.bibcode));
-      setQuery(omitP(params));
-      submitQuery();
-    }
-  }, [data]);
 
   /**
    * When updating perPage, this updates the store with both the current
    * numPerPage value and the current query
    */
-  const handlePerPageChange = (numPerPage: NumPerPageType) => {
+  const handlePerPageChange = async (numPerPage: NumPerPageType) => {
     // should reset to the first page on numPerPage update
     updateQuery({ start: 0, rows: numPerPage });
     setNumPerPage(numPerPage);
+    const search = makeSearchParams({
+      ...params,
+      ...store.getState().query,
+      n: numPerPage,
+    });
+    await router.push({ pathname: router.pathname, search }, null, {
+      scroll: false,
+    });
   };
 
   const handleSearchFacetSubmission = (queryUpdates: Partial<IADSApiSearchParams>) => {
-    const search = makeSearchParams({ ...params, ...queryUpdates, p: 1 });
+    const search = makeSearchParams({
+      ...params,
+      ...queryUpdates,
+      p: 1,
+      n: storeNumPerPage,
+    });
 
     // clear current docs on filter change
     clearSelectedDocs();
@@ -200,8 +212,8 @@ const SearchPage: NextPage<InferGetServerSidePropsType<typeof getServerSideProps
 
   // conditions
   const loading = isLoading || isFetching;
-  const noResults = !loading && isSuccess && data?.numFound === 0;
-  const hasResults = !loading && isSuccess && data?.numFound > 0;
+  const noResults = !loading && isSuccess && numFound === 0;
+  const hasResults = !loading && isSuccess && numFound > 0;
   const isHistogramExpanded = histogramExpanded && !isPrint && isClient && hasResults;
   const showFilters = !isPrint && isClient && hasResults;
   const showListActions = !isPrint && (loading || hasResults);
@@ -216,7 +228,7 @@ const SearchPage: NextPage<InferGetServerSidePropsType<typeof getServerSideProps
           <form method="get" action="/search" onSubmit={handleOnSubmit}>
             <Flex direction="column" width="full">
               <SearchBar isLoading={isLoading} />
-              <NumFound count={data?.numFound} isLoading={isLoading} />
+              <NumFound count={numFound} isLoading={isLoading} />
             </Flex>
             <FacetFilters mt="2" />
           </form>
@@ -253,21 +265,26 @@ const SearchPage: NextPage<InferGetServerSidePropsType<typeof getServerSideProps
               Search Results
             </VisuallyHidden>
 
+            {error ? (
+              <Center aria-labelledby="search-form-title" mt={4}>
+                <SearchErrorAlert error={error.response} />
+              </Center>
+            ) : null}
+
             {noResults ? <NoResultsMsg /> : null}
             {loading ? <ItemsSkeleton count={storeNumPerPage} /> : null}
-
-            {data && (
+            {docs && (
               <>
                 <SimpleResultList
-                  docs={data.docs}
+                  docs={docs}
                   indexStart={params.start}
-                  useNormCite={sort.startsWith('citation_count_norm')}
+                  useNormCite={params.sort[0].startsWith('citation_count_norm')}
                 />
                 {!isPrint && (
                   <Pagination
                     numPerPage={storeNumPerPage}
                     page={params.p}
-                    totalResults={data.numFound}
+                    totalResults={numFound}
                     onPerPageSelect={handlePerPageChange}
                   />
                 )}
@@ -276,11 +293,6 @@ const SearchPage: NextPage<InferGetServerSidePropsType<typeof getServerSideProps
           </Box>
         </Flex>
       </Stack>
-      {isError ? (
-        <Center aria-labelledby="search-form-title" mt={4}>
-          <SearchErrorAlert error={error} />
-        </Center>
-      ) : null}
       <AddToLibraryModal isOpen={isAddToLibraryOpen} onClose={onCloseAddToLibrary} />
     </Box>
   );
@@ -411,60 +423,40 @@ const NoResultsMsg = () => (
 
 const omitUnsafeQueryParams = omit(['fl', 'start', 'rows']);
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const queryClient = new QueryClient();
-  const { p: page, n: numPerPage, ...query } = parseQueryFromUrl<{ p: string; n: string }>(ctx.req.url ?? '');
+  const { query, response, error } = await ctx.req.search();
 
-  const params = getSearchParams({
-    ...omitUnsafeQueryParams(query),
-    q: query.q.length === 0 ? '*:*' : query.q,
-    start: (page - 1) * numPerPage,
-    rows: numPerPage,
-  });
+  if (response) {
+    return {
+      props: {
+        dehydratedAppState: {
+          query,
+          latestQuery: query,
+          numPerPage: query.rows,
+        } as AppState,
+        page: ctx.query.p ?? 1,
+        params: query,
+        docs: response.response.docs,
+        numFound: response.response.numFound,
+        error: null,
+      },
+    };
+  }
 
-  // await queryClient.prefetchQuery({
-  //   queryKey: searchKeys.primary(params),
-  //   queryFn: async () =>
-  //     await ctx.req.fetch({
-  //       path: 'SEARCH',
-  //       method: 'GET',
-  //       query: params,
-  //     }),
-  // });
-
-  // try {
-  //   const queryKey = searchKeys.primary(params);
-  //
-  //   // primary query prefetch
-  //   await queryClient.prefetchQuery({
-  //     queryKey,
-  //     queryFn: () => ctx.req.api.search(params),
-  //   });
-  //
-  //   return {
-  //     props: {
-  //       dehydratedState: dehydrate(queryClient),
-  //       dehydratedAppState: {
-  //         query: params,
-  //         latestQuery: params,
-  //         numPerPage: numPerPage as NumPerPageType,
-  //       } as AppState,
-  //       page,
-  //       params,
-  //     },
-  //   };
-  // } catch (error) {
-  //   logger.error({ msg: 'Error fetching search results', error });
   return {
     props: {
-      dehydratedState: dehydrate(queryClient),
       dehydratedAppState: {
-        query: params,
-        latestQuery: params,
-        numPerPage: numPerPage as NumPerPageType,
+        query,
+        latestQuery: query,
+        numPerPage: query.rows,
       } as AppState,
-      // pageError: parseAPIError(error),
-      page,
-      params,
+      error: {
+        message: error,
+        response: response,
+      },
+      page: ctx.query.p ?? 1,
+      params: query,
+      numFound: 0,
+      docs: [],
     },
   };
 };
@@ -492,7 +484,8 @@ const SearchErrorAlert = ({ error }: { error: AxiosError<IADSApiSearchResponse> 
   return (
     <Alert status="error">
       <AlertIcon />
-      {getMsg()}
+      <AlertTitle>{getMsg()}</AlertTitle>
+      <AlertDescription>{data.solrMsg}</AlertDescription>
     </Alert>
   );
 };

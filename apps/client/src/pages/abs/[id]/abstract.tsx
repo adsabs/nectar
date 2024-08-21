@@ -1,4 +1,4 @@
-import { IADSApiSearchParams, IDocsEntity, useGetAbstract } from '@/api';
+import { ChatIcon, ExternalLinkIcon, TriangleDownIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
@@ -23,7 +23,17 @@ import {
   useDisclosure,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { ChatIcon, ExternalLinkIcon, TriangleDownIcon } from '@chakra-ui/icons';
+import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
+import { FolderPlusIcon } from '@heroicons/react/24/solid';
+import { MathJax } from 'better-react-mathjax';
+import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next';
+import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
+import { equals, isNil } from 'ramda';
+import { isNilOrEmpty } from 'ramda-adjunct';
+import { memo, ReactElement } from 'react';
+
+import { IADSApiSearchParams, IDocsEntity, useGetAbstract } from '@/api';
 import {
   AbstractSources,
   AddToLibraryModal,
@@ -39,20 +49,9 @@ import { useGetAuthors } from '@/components/AllAuthorsModal/useGetAuthors';
 import { OrcidActiveIcon } from '@/components/icons/Orcid';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { APP_DEFAULTS, EXTERNAL_URLS } from '@/config';
-import { withDetailsPage } from '@/hocs/withDetailsPage';
 import { useIsClient } from '@/lib/useIsClient';
-import { composeNextGSSP } from '@/ssr-utils';
-import { pluralize } from '@/utils';
-import { MathJax } from 'better-react-mathjax';
-import { GetServerSideProps, NextPage } from 'next';
-import dynamic from 'next/dynamic';
-import { equals, isNil, path } from 'ramda';
-import { memo, ReactElement } from 'react';
-import { useRouter } from 'next/router';
-import { FolderPlusIcon } from '@heroicons/react/24/solid';
 import { useSession } from '@/lib/useSession';
-import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
-import { isNilOrEmpty } from 'ramda-adjunct';
+import { pluralize } from '@/utils';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   () => import('@/components/AllAuthorsModal').then((m) => m.AllAuthorsModal),
@@ -65,23 +64,26 @@ const createQuery = (type: 'author' | 'orcid', value: string): IADSApiSearchPara
   return { q: `${type}:"${value}"`, sort: ['score desc'] };
 };
 
-const AbstractPage: NextPage = () => {
+const AbstractPage: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>> = ({ doc, query }) => {
   const router = useRouter();
   const isClient = useIsClient();
   const { isAuthenticated } = useSession();
   const { data } = useGetAbstract({ id: router.query.id as string });
-  const doc = path<IDocsEntity>(['docs', 0], data);
+  // const doc = path<IDocsEntity>(['docs', 0], data);
 
   // process authors from doc
   const authors = useGetAuthors({ doc, includeAff: false });
   const { isOpen: isAddToLibraryOpen, onClose: onCloseAddToLibrary, onOpen: onOpenAddToLibrary } = useDisclosure();
 
   const handleFeedback = () => {
-    void router.push({ pathname: feedbackItems.record.path, query: { bibcode: doc.bibcode } });
+    void router.push({
+      pathname: feedbackItems.record.path,
+      query: { bibcode: doc.bibcode },
+    });
   };
 
   return (
-    <AbsLayout doc={doc} titleDescription={''} label="Abstract">
+    <AbsLayout doc={doc} query={query} titleDescription={''} label="Abstract">
       <Box as="article" aria-labelledby="title">
         {doc && (
           <Stack direction="column" gap={2}>
@@ -91,7 +93,7 @@ const AbstractPage: NextPage = () => {
                   Authors
                 </VisuallyHidden>
                 {authors.map(([, author, orcid], index) => (
-                  <Box mr={1} key={`${author}-${index}`}>
+                  <Box mr={1} key={``}>
                     <SearchQueryLink
                       params={createQuery('author', author)}
                       px={1}
@@ -383,4 +385,31 @@ const Detail = <T,>(props: IDetailProps<T>): ReactElement => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage);
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const { query, response, error } = await ctx.req.details();
+
+  if (response) {
+    return {
+      props: {
+        page: ctx.query.p ?? 1,
+        params: query,
+        docs: response.response.docs,
+        numFound: response.response.numFound,
+        error: null,
+      },
+    };
+  }
+
+  return {
+    props: {
+      error: {
+        message: error,
+        response: response,
+      },
+      page: ctx.query.p ?? 1,
+      params: query,
+      numFound: 0,
+      docs: [],
+    },
+  };
+};

@@ -1,21 +1,13 @@
-import { calculatePage } from '@/components/ResultList/Pagination/usePagination';
-import { AppState, useStore } from '@/store';
+import { IADSApiSearchParams } from '@/api';
 import { makeSearchParams } from '@/utils';
-import { useCallback } from 'react';
-import { ISimpleLinkProps } from '@/components';
 
-const selector = {
-  latestQuery: (state: AppState) => state.latestQuery,
-};
+export const useBackToSearchResults = ({ query = { q: '*:*' } }: { query: IADSApiSearchParams }) => {
+  // don't show if the query is the default (all results)
+  const show = query?.q !== '*:*';
 
-export const useBackToSearchResults = () => {
-  const latestQuery = useStore(selector.latestQuery);
-  const show = latestQuery.q !== '';
-
-  const getSearchHref = useCallback<() => ISimpleLinkProps['href']>(() => {
-    const search = makeSearchParams({ ...latestQuery, p: calculatePage(latestQuery.start, latestQuery.rows) });
-    return { pathname: '/search', search };
-  }, [latestQuery]);
+  const getSearchHref = () => {
+    return { pathname: '/search', search: makeSearchParams(query) };
+  };
 
   return {
     getSearchHref,

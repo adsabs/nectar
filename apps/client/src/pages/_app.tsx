@@ -10,7 +10,7 @@ import { AppProps, NextWebVitalsMetric } from 'next/app';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { FC, memo, ReactElement, useEffect, useMemo } from 'react';
+import { FC, ReactElement, useEffect, useMemo } from 'react';
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import { useIsClient } from 'src/lib';
 
@@ -34,10 +34,13 @@ const TopProgressBar = dynamic<Record<string, never>>(
   },
 );
 
-export type AppPageProps = { dehydratedState: DehydratedState; dehydratedAppState: AppState; [key: string]: unknown };
+export type AppPageProps = {
+  dehydratedState: DehydratedState;
+  dehydratedAppState: AppState;
+  [key: string]: unknown;
+};
 
-const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
-  logger.debug('App', { props: pageProps as unknown });
+const NectarApp = ({ Component, pageProps }: AppProps): ReactElement => {
   const router = useRouter();
 
   useMemo(() => {
@@ -59,7 +62,7 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
       </Providers>
     </>
   );
-});
+};
 
 const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => {
   const createStore = useCreateStore(pageProps.dehydratedAppState ?? {});

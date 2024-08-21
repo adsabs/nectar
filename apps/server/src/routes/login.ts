@@ -7,7 +7,7 @@ import { pick, unwrapHeader } from '../lib/utils';
 import { FetcherError } from '../plugins/fetcher';
 import { APILoginResponse, loginErrorResponseSchema, loginPayloadSchema, loginResponseSchema } from '../types';
 
-const loginRoute: FastifyPluginCallbackTypebox = (server) => {
+export const loginRoute: FastifyPluginCallbackTypebox = (server) => {
   server.post('/auth/login', {
     schema: {
       body: loginPayloadSchema,
@@ -56,7 +56,11 @@ const loginRoute: FastifyPluginCallbackTypebox = (server) => {
           },
         });
 
-        server.log.info({ msg: 'login response', body: JSON.stringify(loginBody), message: loginBody.message });
+        server.log.info({
+          msg: 'login response',
+          body: JSON.stringify(loginBody),
+          message: loginBody.message,
+        });
 
         // Check if authentication was successful
         if (loginStatusCode === 200 && loginBody?.message === 'success') {
@@ -108,7 +112,11 @@ const loginRoute: FastifyPluginCallbackTypebox = (server) => {
           });
         } else if (loginStatusCode === 401) {
           // Handle authentication failure
-          server.log.error({ msg: 'login error', err: loginBody.error, statusCode: loginStatusCode });
+          server.log.error({
+            msg: 'login error',
+            err: loginBody.error,
+            statusCode: loginStatusCode,
+          });
           return reply.status(401).send({
             errorKey: 'login-error',
             friendlyMessage: loginBody.message || 'Invalid credentials. Please try again.',
@@ -117,7 +125,11 @@ const loginRoute: FastifyPluginCallbackTypebox = (server) => {
         }
 
         // Handle authentication failure
-        server.log.error({ msg: 'login error', err: loginBody.error, statusCode: loginStatusCode });
+        server.log.error({
+          msg: 'login error',
+          err: loginBody.error,
+          statusCode: loginStatusCode,
+        });
         return reply.status(401).send({
           errorKey: 'login-error',
           friendlyMessage: 'Invalid credentials. Please try again.',
@@ -125,7 +137,10 @@ const loginRoute: FastifyPluginCallbackTypebox = (server) => {
         });
       } catch (error) {
         // Catch and log unexpected errors
-        server.log.error({ msg: 'Unexpected error during login', err: error as FetcherError });
+        server.log.error({
+          msg: 'Unexpected error during login',
+          err: error as FetcherError,
+        });
         return reply.status(500).send({
           errorKey: 'login-error',
           friendlyMessage: 'An unexpected error occurred. Please try again later.',
@@ -137,8 +152,3 @@ const loginRoute: FastifyPluginCallbackTypebox = (server) => {
 
   return server;
 };
-
-export default fp(loginRoute, {
-  name: 'routes/login',
-  dependencies: ['cache'],
-});

@@ -5,6 +5,17 @@ import fp from 'fastify-plugin';
 
 const proxy: FastifyPluginAsync = async (server) => {
   await server.register(FastifyProxy, {
+    config: {
+      rateLimit: {
+        max: 30,
+        timeWindow: '1 minute',
+        errorResponseBuilder: (_req, context) => ({
+          code: 429,
+          error: 'Too Many Requests',
+          message: `You have exceeded the login request limit. Please try again in ${context.after}`,
+        }),
+      },
+    },
     upstream: 'https://qa.adsabs.harvard.edu',
     prefix: '/v1',
     rewritePrefix: '/v1',

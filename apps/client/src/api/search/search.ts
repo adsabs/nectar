@@ -1,3 +1,16 @@
+import {
+  MutationFunction,
+  QueryFunction,
+  QueryFunctionContext,
+  QueryKey,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+} from '@tanstack/react-query';
+import axios, { AxiosError } from 'axios';
+import { GetServerSidePropsContext } from 'next';
+import { omit, pick } from 'ramda';
+
 import api, {
   ADSMutation,
   ADSQuery,
@@ -10,17 +23,11 @@ import api, {
   IDocsEntity,
   InfiniteADSQuery,
 } from '@/api';
-import axios, { AxiosError } from 'axios';
-import { omit, pick } from 'ramda';
-import {
-  MutationFunction,
-  QueryFunction,
-  QueryFunctionContext,
-  QueryKey,
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-} from '@tanstack/react-query';
+import { resolveObjectQuery, resolveObjectQuerySSR } from '@/api/objects/objects';
+import { TRACING_HEADERS } from '@/config';
+import { isString } from '@/utils';
+
+import { defaultRequestConfig } from '../config';
 import {
   defaultParams,
   getAbstractParams,
@@ -37,11 +44,6 @@ import {
   getSingleRecordParams,
   getTocParams,
 } from './models';
-import { isString } from '@/utils';
-import { resolveObjectQuery, resolveObjectQuerySSR } from '@/api/objects/objects';
-import { GetServerSidePropsContext } from 'next';
-import { defaultRequestConfig } from '../config';
-import { TRACING_HEADERS } from '@/config';
 
 type ErrorType = Error | AxiosError;
 
@@ -57,7 +59,10 @@ export const facetCountSelector = (data: IADSApiSearchResponse): IADSApiSearchRe
   data.facet_counts;
 export const highlightingSelector = (
   data: IADSApiSearchResponse,
-): { docs: IADSApiSearchResponse['response']['docs']; highlighting: IADSApiSearchResponse['highlighting'] } => ({
+): {
+  docs: IADSApiSearchResponse['response']['docs'];
+  highlighting: IADSApiSearchResponse['highlighting'];
+} => ({
   docs: data.response.docs,
   highlighting: data.highlighting,
 });
@@ -101,12 +106,9 @@ const omitParams = (query: IADSApiSearchParams) =>
  * Generic search hook
  */
 export const useSearch: SearchADSQuery = (params, options) => {
-  // omit fields from queryKey
-  const cleanParams = omitParams(getSearchParams(params));
-
   return useQuery<IADSApiSearchResponse, ErrorType, IADSApiSearchResponse['response']>({
-    queryKey: searchKeys.primary(cleanParams),
-    queryHash: JSON.stringify(searchKeys.primary(cleanParams)),
+    queryKey: searchKeys.primary(params),
+    queryHash: JSON.stringify(searchKeys.primary(params)),
     queryFn: fetchSearch,
     meta: { params },
     select: responseSelector,
@@ -117,14 +119,20 @@ export const useSearch: SearchADSQuery = (params, options) => {
   });
 };
 
-type SubPageQuery = SearchADSQuery<{ bibcode: IDocsEntity['bibcode']; start?: IADSApiSearchParams['start'] }>;
+type SubPageQuery = SearchADSQuery<{
+  bibcode: IDocsEntity['bibcode'];
+  start?: IADSApiSearchParams['start'];
+}>;
 
 /**
  * Get highlights based on a search query
  */
 export const useGetHighlights: SearchADSQuery<
   IADSApiSearchParams,
-  { docs: IADSApiSearchResponse['response']['docs']; highlighting: IADSApiSearchResponse['highlighting'] }
+  {
+    docs: IADSApiSearchResponse['response']['docs'];
+    highlighting: IADSApiSearchResponse['highlighting'];
+  }
 > = (params, options) => {
   const highlightParams = getHighlightParams(params);
   return useQuery({
@@ -223,7 +231,9 @@ export const useGetAbstract: SearchADSQuery<{ id: string }> = ({ id }, options) 
 /**
  * Get affiliations based on an id
  */
-export const useGetAffiliations: SearchADSQuery<{ bibcode: IDocsEntity['bibcode'] }> = ({ bibcode }, options) => {
+export const useGetAffiliations: SearchADSQuery<{
+  bibcode: IDocsEntity['bibcode'];
+}> = ({ bibcode }, options) => {
   const params = getAffiliationParams(bibcode);
   return useQuery({
     queryKey: searchKeys.affiliations({ bibcode }),
@@ -237,8 +247,14 @@ export const useGetAffiliations: SearchADSQuery<{ bibcode: IDocsEntity['bibcode'
 /**
  * Get abstract preview based on bibcode
  */
-export const useGetAbstractPreview: SearchADSQuery<{ bibcode: IDocsEntity['bibcode'] }> = ({ bibcode }, options) => {
-  const params = { ...defaultParams, q: `identifier:"${bibcode}"`, fl: ['abstract'] };
+export const useGetAbstractPreview: SearchADSQuery<{
+  bibcode: IDocsEntity['bibcode'];
+}> = ({ bibcode }, options) => {
+  const params = {
+    ...defaultParams,
+    q: `identifier:"${bibcode}"`,
+    fl: ['abstract'],
+  };
   return useQuery({
     queryKey: searchKeys.preview(bibcode),
     queryHash: JSON.stringify(searchKeys.preview(bibcode)),
@@ -371,24 +387,29 @@ export const useBigQuerySearch: ADSMutation<
   return useMutation({
     mutationKey: searchKeys.bigquery(),
     mutationFn: ({ bibcodes, rows, sort }) =>
-      fetchBigQuerySearch({ params, variables: { bibcodes, rows, sort: sort ?? ['date desc'] } }),
+      fetchBigQuerySearch({
+        params,
+        variables: { bibcodes, rows, sort: sort ?? ['date desc'] },
+      }),
     ...options,
   });
 };
 
-export const fetchBigQuerySearch: MutationFunction<IADSApiSearchResponse['response'], IBigQueryMutationParams> =
-  async ({ params, variables }: IBigQueryMutationParams) => {
-    const config: ApiRequestConfig = {
-      method: 'POST',
-      url: `${ApiTargets.BIGQUERY}`,
-      params: { ...params, rows: variables.rows, sort: variables.sort },
-      data: `bibcode\n${variables.bibcodes.join('\n')}`,
-      headers: { 'Content-Type': 'bigquery/csv' },
-    };
-
-    const { data } = await api.request<IADSApiSearchResponse>(config);
-    return data.response;
+export const fetchBigQuerySearch: MutationFunction<
+  IADSApiSearchResponse['response'],
+  IBigQueryMutationParams
+> = async ({ params, variables }: IBigQueryMutationParams) => {
+  const config: ApiRequestConfig = {
+    method: 'POST',
+    url: `${ApiTargets.BIGQUERY}`,
+    params: { ...params, rows: variables.rows, sort: variables.sort },
+    data: `bibcode\n${variables.bibcodes.join('\n')}`,
+    headers: { 'Content-Type': 'bigquery/csv' },
   };
+
+  const { data } = await api.request<IADSApiSearchResponse>(config);
+  return data.response;
+};
 
 /**
  * Base fetcher for search

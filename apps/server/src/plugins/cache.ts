@@ -34,10 +34,16 @@ const cache: FastifyPluginAsync = async (server) => {
 
   // Register the rate-limit plugin
   await server.register(FastifyRateLimit, {
-    allowList: ['127.0.0.1', 'localhost'],
-    max: 100,
-    timeWindow: '1 minute',
+    // allowList: ['127.0.0.1', 'localhost'],
+    max: 50,
+    timeWindow: 10000,
     redis: server.redis,
+  });
+
+  server.setErrorHandler(async (error, request, reply) => {
+    if (error.statusCode === 429) {
+      await reply.redirect(429, '/error?code=429');
+    }
   });
 
   /**
@@ -76,6 +82,30 @@ const cache: FastifyPluginAsync = async (server) => {
       server.log.error({ msg: 'Cache get failed', err });
     }
 
+    server.decorate('checkCache', async <Res>(request) => {
+      const cacheKey = buildCacheKey(request);
+      server.log.debug({ msg: 'Checking cache for key', cacheKey });
+      const [err, response] = await server.to(server.redis.get(cacheKey));
+      if (err) {
+        server.log.error({ msg: 'Cache get failed', err });
+        return null;
+      }
+
+      server.log.debug({
+        msg: 'Cache hit for key',
+        cacheKey,
+      });
+      return JSON.parse(response) as Res;
+    });
+
+    server.decorate('setCache', async (request, response) => {
+      const cacheKey = buildCacheKey(request);
+      const [err] = await server.to(server.redis.set(cacheKey, JSON.stringify(response), 'EX', 300));
+      if (err) {
+        server.log.error({ msg: 'Cache set failed', err });
+      }
+    });
+
     return;
   });
 
@@ -93,7 +123,7 @@ const cache: FastifyPluginAsync = async (server) => {
     if (
       request.raw.method !== 'GET' ||
       !request.raw.url.startsWith('/v1/') ||
-      !payload.readable ||
+      !payload?.readable ||
       reply.statusCode !== 200
     ) {
       return payload;

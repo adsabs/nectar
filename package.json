@@ -45,7 +45,7 @@
     "@sentry/nextjs": "^7.118.0",
     "@sentry/node": "^8.20.0",
     "@sentry/profiling-node": "^8.20.0",
-    "@sinclair/typebox": "^0.32.34",
+    "@sinclair/typebox": "^0.33.7",
     "@storybook/addon-controls": "^7.5.3",
     "@storybook/client-api": "^7.5.3",
     "@storybook/testing-react": "^2.0.1",

@@ -1,22 +1,26 @@
-import { IDocsEntity } from '@/api';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex, Heading, Stack, Text } from '@chakra-ui/react';
-import { AbstractSideNav, AbstractSources, Metatags, SimpleLink } from '@/components';
-import { useBackToSearchResults } from '@/lib/useBackToSearchResults';
-import { unwrapStringValue } from '@/utils';
 import { MathJax } from 'better-react-mathjax';
 import Head from 'next/head';
 import { FC } from 'react';
+
+import { IADSApiSearchParams, IDocsEntity } from '@/api';
+import { AbstractSideNav, AbstractSources, Metatags, SimpleLink } from '@/components';
 import { BRAND_NAME_FULL } from '@/config';
+import { useBackToSearchResults } from '@/lib/useBackToSearchResults';
+import { unwrapStringValue } from '@/utils';
 
 interface IAbsLayoutProps {
   doc: IDocsEntity;
   titleDescription: string;
   label: string;
+  query?: IADSApiSearchParams;
 }
 
-export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription, label }) => {
-  const { getSearchHref, show: showBackLink } = useBackToSearchResults();
+export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription, label, query }) => {
+  const { getSearchHref, show: showBackLink } = useBackToSearchResults({
+    query,
+  });
 
   if (!doc) {
     return <>{children}</>;

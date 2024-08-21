@@ -107,5 +107,5 @@ export const noop = <T = unknown>(props?: T) => {
   return props;
 };
 
-const excludePathsRegex = /^\/(_next|v1|api)\/.+$/;
+const excludePathsRegex = /^\/(_next\/static|_next\/webpack-hmr|v1|api)\/.+$/;
 export const skipUrl = (url: string) => excludePathsRegex.test(url);

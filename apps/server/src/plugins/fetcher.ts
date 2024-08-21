@@ -34,7 +34,6 @@ export type FetcherFn = <TBody = unknown>(options: RequestOptions) => Promise<Fe
  */
 const requestPlugin: FastifyPluginCallback = (server: FastifyInstance, _opts, done) => {
   // Track ongoing requests for cancellation.
-  const ongoingRequests: Record<string, AbortController> = {};
 
   // Create a RetryAgent with retry logic.
   const retryAgent = new RetryAgent(
@@ -47,7 +46,7 @@ const requestPlugin: FastifyPluginCallback = (server: FastifyInstance, _opts, do
         rejectUnauthorized: server.config.NODE_ENV === 'production',
       },
     }),
-    { maxRetries: 3, minTimeout: 1000 },
+    { maxRetries: 3, minTimeout: 1000, statusCodes: [502, 503, 504] },
   );
 
   // Fetcher function to handle HTTP requests.
@@ -57,19 +56,34 @@ const requestPlugin: FastifyPluginCallback = (server: FastifyInstance, _opts, do
     payload,
     ...rest
   }: RequestOptions): Promise<FetcherResponse<TBody>> => {
-    const requestKey = `${rest.method}${path}`;
+    const requestKey = `${rest.method}${path}${JSON.stringify(rest.query)}`;
+    const debounceTime = 300; // Debounce period in milliseconds
+    const controller = new AbortController();
+    const ongoingRequests: Record<
+      string,
+      {
+        controller: AbortController;
+        promise: Promise<FetcherResponse<TBody>>;
+        timeoutId: NodeJS.Timeout;
+      }
+    > = {};
 
     server.log.info({ msg: 'Fetching', path, headers, payload, ...rest });
 
-    // Abort ongoing request with the same key.
+    // If there's an ongoing request with the same key, wait for its result
     if (ongoingRequests[requestKey]) {
-      server.log.debug({ msg: 'Found matching request, aborting previous' });
-      ongoingRequests[requestKey].abort();
-      delete ongoingRequests[requestKey];
+      server.log.debug({
+        msg: 'Found matching request, returning existing response',
+      });
+      return ongoingRequests[requestKey].promise;
     }
 
-    const controller = new AbortController();
-    ongoingRequests[requestKey] = controller;
+    // Set up the controller and store the placeholder for the promise
+    ongoingRequests[requestKey] = {
+      controller,
+      promise: null,
+      timeoutId: null, // For debouncing
+    };
 
     // Set host header for non-production environments to avoid CORS issues.
     if (server.config.NODE_ENV !== 'production') {
@@ -83,62 +97,97 @@ const requestPlugin: FastifyPluginCallback = (server: FastifyInstance, _opts, do
       headers['content-length'] = Buffer.byteLength(body, 'utf8').toString();
     }
 
-    try {
-      const url = `${server.config.API_HOST_SERVER}${rest.url ? rest.url : getApiEndpoint(path)}`;
+    // Debounce logic
+    const debouncePromise = new Promise<FetcherResponse<TBody>>((resolve, reject) => {
+      ongoingRequests[requestKey].timeoutId = setTimeout(async () => {
+        try {
+          const url = `${server.config.API_HOST_SERVER}${rest.url ? rest.url : getApiEndpoint(path)}`;
 
-      const res = await undiciRequest(url, {
-        ...rest,
-        signal: controller.signal,
-        dispatcher: retryAgent,
-        headers: {
-          'content-type': 'application/json',
-          ...headers,
-        },
-        body,
-        throwOnError: false,
-      });
+          const res = await undiciRequest(url, {
+            ...rest,
+            signal: controller.signal,
+            dispatcher: retryAgent,
+            headers: {
+              'content-type': 'application/json',
+              ...headers,
+            },
+            body,
+            throwOnError: true,
+          });
 
-      const rawBody = await res.body.text();
+          if (controller.signal.aborted) {
+            server.log.debug({
+              msg: 'Request was aborted',
+              url,
+            });
+            throw new errors.RequestAbortedError('Request was aborted');
+          }
 
-      server.log.info({
-        msg: 'Received a response',
-        status: res.statusCode,
-        headers: res.headers,
-      });
+          const rawBody = await res.body.text();
 
-      let json: TBody;
-      try {
-        json = JSON.parse(rawBody) as TBody;
-      } catch (jsonParseError) {
-        server.log.error({
-          msg: 'Failed to parse response body as JSON',
-          err: jsonParseError,
-          url,
-        });
-        json = {
-          rawResponse: rawBody,
-        } as TBody;
-      }
+          server.log.info({
+            msg: 'Received a response',
+            status: res.statusCode,
+            headers: res.headers,
+          });
 
-      return {
-        body: json,
-        headers: res.headers,
-        statusCode: res.statusCode,
-      };
-    } catch (error) {
-      server.log.error({
-        msg: 'Error during fetch',
-        err: error as FetcherError,
-      });
-      throw error as FetcherError;
-    } finally {
-      // Clean up the ongoingRequests record.
-      delete ongoingRequests[requestKey];
-    }
+          let json: TBody;
+          try {
+            json = JSON.parse(rawBody) as TBody;
+          } catch (jsonParseError) {
+            server.log.error({
+              msg: 'Failed to parse response body as JSON',
+              err: jsonParseError,
+              url,
+            });
+            json = {
+              rawResponse: rawBody,
+            } as TBody;
+          }
+
+          // Resolve the promise with the successful response
+          resolve({
+            body: json,
+            headers: res.headers,
+            statusCode: res.statusCode,
+          });
+        } catch (error) {
+          if (error.name === 'AbortError') {
+            server.log.debug({
+              msg: 'Request was aborted',
+              url: `${rest.url || getApiEndpoint(path)}`,
+            });
+            resolve({
+              body: null,
+              headers: {},
+              statusCode: 499,
+            });
+          } else {
+            server.log.error({
+              msg: 'Error during fetch',
+              err: error as FetcherError,
+            });
+            reject(error as FetcherError);
+          }
+        } finally {
+          // Clean up the ongoingRequests record safely.
+          clearTimeout(ongoingRequests[requestKey].timeoutId);
+          if (ongoingRequests[requestKey].controller === controller) {
+            delete ongoingRequests[requestKey];
+          }
+        }
+      }, debounceTime);
+    });
+
+    // Store the promise in the ongoingRequests so that other requests can share it
+    ongoingRequests[requestKey].promise = debouncePromise;
+
+    return debouncePromise;
   };
 
   // Decorate the Fastify server instance with the fetcher method.
   server.decorate('fetcher', fetcher);
+
   done();
 };
 

@@ -93,5 +93,15 @@ export const sessionErrorResponseSchema = T.Object({
   actualError: T.String(),
 });
 
+export const searchParamsSchema = T.Object({
+  q: T.String({ default: '*:*' }),
+  sort: T.Optional(T.Array(T.String(), { default: ['score desc', 'date desc'] })),
+  p: T.Optional(T.Number({ default: 1 })),
+  n: T.Optional(T.Number({ default: 10 })),
+  facet: T.Optional(T.Boolean()),
+  fl: T.Optional(T.String()),
+  fq: T.Optional(T.String()),
+});
+
 export type NectarUserData = Static<typeof sessionResponseSchema>;
 export type NectarSessionErrorResponse = Static<typeof sessionErrorResponseSchema>;
