@@ -209,7 +209,7 @@ const SearchPage: NextPage = () => {
   const showListActions = !isPrint && (loading || hasResults);
 
   return (
-    <>
+    <Box>
       <Head>
         <title>{`${params.q} - ${BRAND_NAME_FULL} Search`}</title>
       </Head>
@@ -232,7 +232,7 @@ const SearchPage: NextPage = () => {
             height={125}
           />
         ) : null}
-        <Flex direction="row" gap={10}>
+        <Flex direction="row" gap={10} width="full">
           <Box display={{ base: 'none', lg: 'block' }}>
             {/* hide facets if screen is too small */}
             {showFilters ? (
@@ -243,13 +243,13 @@ const SearchPage: NextPage = () => {
               />
             ) : null}
           </Box>
-          <Box flexGrow={2}>
+          <Box width="full">
             {showListActions ? (
-              <form>
-                <fieldset disabled={isLoading}>
-                  <ListActions onSortChange={handleSortChange} onOpenAddToLibrary={onOpenAddToLibrary} />
-                </fieldset>
-              </form>
+              <ListActions
+                onSortChange={handleSortChange}
+                onOpenAddToLibrary={onOpenAddToLibrary}
+                isLoading={isLoading}
+              />
             ) : null}
             <VisuallyHidden as="h2" id="search-form-title">
               Search Results
@@ -284,7 +284,7 @@ const SearchPage: NextPage = () => {
         </Center>
       ) : null}
       <AddToLibraryModal isOpen={isAddToLibraryOpen} onClose={onCloseAddToLibrary} />
-    </>
+    </Box>
   );
 };
 

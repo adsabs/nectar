@@ -25,7 +25,6 @@ import {
   Text,
   TextProps,
   Tooltip,
-  useBoolean,
 } from '@chakra-ui/react';
 import { ChevronRightIcon } from '@chakra-ui/icons';
 import { Pagination, Toggler } from '@/components';
@@ -34,9 +33,9 @@ import { selectors, useFacetStore } from '@/components/SearchFacet/store/FacetSt
 import { FacetItem, FacetLogic, OnFilterArgs } from '@/components/SearchFacet/types';
 import { IUseGetFacetDataProps, useGetFacetData } from '@/components/SearchFacet/useGetFacetData';
 import { EllipsisHorizontalIcon, ExclamationTriangleIcon, InformationCircleIcon } from '@heroicons/react/24/solid';
-import { kFormatNumber } from '@/utils';
+import { kFormatNumber, noop } from '@/utils';
 import { equals, isEmpty } from 'ramda';
-import { forwardRef, memo, MouseEventHandler, useCallback, useEffect } from 'react';
+import { forwardRef, KeyboardEvent, memo, MouseEventHandler, useCallback, useEffect, useRef } from 'react';
 import { SearchFacetModal } from './SearchFacetModal';
 import { useColorModeColors } from '@/lib';
 
@@ -56,27 +55,35 @@ export const FacetList = (props: IFacetListProps) => {
       <SearchFacetModal onFilter={onFilter}>
         {({ searchTerm }) =>
           focused ? (
-            <NodeListModal onError={onError} level="child" prefix={focused.id} searchTerm={searchTerm} />
+            <NodeListModal
+              onError={onError}
+              level="child"
+              prefix={focused.id}
+              searchTerm={searchTerm}
+              parentIndex={[]}
+            />
           ) : (
-            <NodeListModal onError={onError} level="root" prefix="" searchTerm={searchTerm} />
+            <NodeListModal onError={onError} level="root" prefix="" searchTerm={searchTerm} parentIndex={[]} />
           )
         }
       </SearchFacetModal>
-      <NodeList level="root" prefix="" onError={onError} noLoadMore={noLoadMore} searchTerm="" />
+      <NodeList level="root" prefix="" onError={onError} noLoadMore={noLoadMore} searchTerm="" parentIndex={[]} />
       <LogicSelect mt="2" onFilter={onFilter} />
     </>
   );
 };
 
 export interface INodeListProps extends Pick<IUseGetFacetDataProps, 'prefix' | 'level'> {
+  parentIndex: number[];
   noLoadMore?: boolean;
   onLoadMore?: () => void;
   onError: () => void;
   searchTerm: string;
+  onKeyboardFocusNext?: (index: number[]) => void;
 }
 
 export const NodeList = memo((props: INodeListProps) => {
-  const { prefix, level, noLoadMore, onError, onLoadMore } = props;
+  const { parentIndex, prefix, level, noLoadMore, onError, onLoadMore, onKeyboardFocusNext = noop } = props;
 
   const params = useFacetStore(selectors.params);
   const [sortField, sortDir] = useFacetStore(selectors.sort);
@@ -96,6 +103,20 @@ export const NodeList = memo((props: INodeListProps) => {
       onError();
     }
   }, [isError]);
+
+  const setKeyboardFocus = useFacetStore(selectors.setKeyboardFocused);
+  const expanded = useFacetStore(selectors.expanded);
+  const childrenCount = useFacetStore(selectors.childrenCount);
+  const setChildrenCount = useFacetStore(selectors.setChildrenCount);
+
+  useEffect(() => {
+    if (treeData) {
+      const id = `${parentIndex.join('-')}`;
+      if (!(id in childrenCount) || treeData.length !== childrenCount[id]) {
+        setChildrenCount(id, treeData.length);
+      }
+    }
+  }, [treeData]);
 
   if (isError) {
     return (
@@ -128,14 +149,90 @@ export const NodeList = memo((props: INodeListProps) => {
     }
   };
 
+  const handleKeyboardFocusNext = (index: number[]) => {
+    if (level === 'root') {
+      // focus on next silbing
+      if (index[0] + 1 < treeData.length) {
+        setKeyboardFocus([index[0] + 1]);
+      }
+      // else do nothing
+    } else {
+      // focus on next silbing
+      if (index[1] + 1 < treeData.length) {
+        setKeyboardFocus([index[0], index[1] + 1]);
+      } else {
+        // focus next item in the parent level
+        onKeyboardFocusNext([index[0]]);
+      }
+    }
+  };
+
+  const handleKeyboardFocusPrev = (index: number[]) => {
+    if (level === 'root') {
+      if (index[0] > 0) {
+        const prevId = `${index[0] - 1}`;
+        if (expanded.indexOf(prevId) !== -1) {
+          // if previous is expanded, go to previous last child
+          setKeyboardFocus([index[0] - 1, childrenCount[prevId] - 1]);
+        } else {
+          // else go to previous silbing
+          setKeyboardFocus([index[0] - 1]);
+        }
+      }
+    } else {
+      // focus on previous silbing
+      if (index[1] > 0) {
+        setKeyboardFocus([index[0], index[1] - 1]);
+      } else {
+        // focus on parent
+        setKeyboardFocus([index[0]]);
+      }
+    }
+  };
+
+  const handleArrowUpFromLoadMore = () => {
+    if (level === 'root') {
+      const lastRootId = `${treeData.length - 1}`;
+      setKeyboardFocus(
+        expanded.indexOf(lastRootId) !== -1
+          ? [treeData.length - 1, childrenCount[lastRootId] - 1]
+          : [treeData.length - 1],
+      );
+    } else {
+      setKeyboardFocus([parentIndex[0], treeData.length - 1]);
+    }
+  };
+
+  const handleArrowDownFromLoadMore = () => {
+    // focus on next parent sibling
+    if (level !== 'root' && parentIndex[0] + 1 < treeData.length) {
+      setKeyboardFocus([parentIndex[0] + 1]);
+    }
+  };
+
   return (
     <>
       <List w="full" data-testid={`search-facet-${level}-list`} pl={level === 'child' ? 4 : 0}>
-        {treeData?.map((node) => (
-          <Item node={node} key={node.id} onError={onError} expandable={expandable} />
+        {treeData?.map((node, index) => (
+          <Item
+            node={node}
+            key={node.id}
+            onError={onError}
+            expandable={expandable}
+            index={[...parentIndex, index]}
+            onKeyboardFocusNext={handleKeyboardFocusNext}
+            onKeyboardFocusPrev={handleKeyboardFocusPrev}
+          />
         ))}
       </List>
-      <LoadMoreBtn mt={level === 'root' ? 2 : 0} show={!noLoadMore && canLoadMore} onClick={handleLoadMore} pullRight />
+      <LoadMoreBtn
+        mt={level === 'root' ? 2 : 0}
+        show={!noLoadMore && canLoadMore}
+        onClick={handleLoadMore}
+        pullRight
+        onArrowUp={handleArrowUpFromLoadMore}
+        onArrowDown={handleArrowDownFromLoadMore}
+      />
     </>
   );
 }, equals);
@@ -202,7 +299,7 @@ export const NodeListModal = (props: INodeListProps) => {
       ) : (
         <List w="full" data-testid={`search-facet-${level}-list`}>
           {treeData?.map((node) => (
-            <Item node={node} key={node.id} onError={onError} expandable={expandable} variant="modal" />
+            <Item node={node} key={node.id} onError={onError} expandable={expandable} variant="modal" index={[]} />
           ))}
         </List>
       )}
@@ -228,15 +325,78 @@ interface IItemProps {
   node: FacetItem;
   variant?: 'basic' | 'modal';
   onError: () => void;
+  index: number[]; // index position in the tree
+  onKeyboardFocusNext?: (index: number[]) => void;
+  onKeyboardFocusPrev?: (index: number[]) => void;
 }
 
+const indexEqual = (a: number[], b: number[]) => {
+  if (!a || !b || a.length !== b.length) {
+    return false;
+  } else {
+    for (let i = 0; i < a.length; i++) {
+      if (a[i] !== b[i]) {
+        return false;
+      }
+    }
+  }
+  return true;
+};
+
 export const Item = (props: IItemProps) => {
-  const { node, variant = 'basic', expandable, onError } = props;
-  const [expanded, setExpanded] = useBoolean(false);
+  const { node, variant = 'basic', expandable, onError, index, onKeyboardFocusNext, onKeyboardFocusPrev } = props;
   const setFocused = useFacetStore(selectors.setFocused);
 
+  const keyboardFocus = useFacetStore(selectors.keyboardFocus);
+  const setKeyboardFocus = useFacetStore(selectors.setKeyboardFocused);
+  const expanded = useFacetStore(selectors.expanded);
+  const setExpanded = useFacetStore(selectors.setExpanded);
+  const setCollapsed = useFacetStore(selectors.setCollapsed);
+
+  const checkboxRef = useRef<HTMLInputElement>();
+
+  const itemHasKeyboardFocus = keyboardFocus !== null && indexEqual(index, keyboardFocus);
+
+  useEffect(() => {
+    if (checkboxRef.current) {
+      if (itemHasKeyboardFocus) {
+        checkboxRef.current.focus();
+      } else {
+        checkboxRef.current.blur();
+      }
+    }
+  }, [itemHasKeyboardFocus, checkboxRef]);
+
+  const id = `${index.join('-')}`;
+
+  const isExpanded = expanded.indexOf(id) !== -1;
+
   const handleExpand = () => {
-    variant === 'basic' ? setExpanded.toggle() : setFocused(node);
+    variant === 'basic' ? (isExpanded ? setCollapsed(id) : setExpanded(id)) : setFocused(node);
+  };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLElement>) => {
+    if (variant === 'basic') {
+      // expand/collapse children
+      if (expandable && e.key === 'ArrowRight') {
+        setExpanded(id);
+      } else if (expandable && e.key === 'ArrowLeft') {
+        setCollapsed(id);
+      } else if (e.key === 'ArrowDown') {
+        // go to first child
+        if (expandable && isExpanded) {
+          setKeyboardFocus([...index, 0]);
+        } else {
+          onKeyboardFocusNext([...index]);
+          // to go next sibling or next group or nothing
+        }
+      } else if (e.key === 'ArrowUp') {
+        onKeyboardFocusPrev([...index]);
+        // go to prev sib or parent or nothing
+      } else if (e.key === 'Tab') {
+        setKeyboardFocus([]);
+      }
+    }
   };
 
   const listItemProps: ListItemProps = {
@@ -265,9 +425,10 @@ export const Item = (props: IItemProps) => {
             borderBottom: 'none',
           },
         }}
+        onKeyDown={handleKeyDown}
       >
         <Text {...textProps}>
-          <NodeCheckbox node={node} />
+          <NodeCheckbox node={node} variant={variant} ref={checkboxRef} />
           {expandable ? <ListIcon as={SimpleExpandButton} onClick={handleExpand} /> : null}
         </Text>
       </ListItem>
@@ -276,14 +437,26 @@ export const Item = (props: IItemProps) => {
 
   return (
     <>
-      <ListItem {...listItemProps} data-testid={`search-facet-${expandable ? 'root' : 'child'}-item`}>
+      <ListItem
+        {...listItemProps}
+        data-testid={`search-facet-${expandable ? 'root' : 'child'}-item`}
+        onKeyDown={handleKeyDown}
+      >
         <Text {...textProps}>
-          <NodeCheckbox node={node} />
-          {expandable ? <ExpandButton isExpanded={expanded} onExpand={handleExpand} /> : null}
+          <NodeCheckbox node={node} variant={variant} ref={checkboxRef} />
+          {expandable ? <ExpandButton isExpanded={isExpanded} onExpand={handleExpand} /> : null}
         </Text>
       </ListItem>
-      {expandable && expanded ? (
-        <NodeList prefix={node.val} level="child" onError={onError} onLoadMore={() => setFocused(node)} searchTerm="" />
+      {expandable && isExpanded ? (
+        <NodeList
+          prefix={node.val}
+          level="child"
+          onError={onError}
+          onLoadMore={() => setFocused(node)}
+          searchTerm=""
+          parentIndex={index}
+          onKeyboardFocusNext={onKeyboardFocusNext}
+        />
       ) : null}
     </>
   );
@@ -316,16 +489,18 @@ export const ExpandButton = (props: { isExpanded: boolean; onExpand: () => void 
       color="gray.400"
       onClick={onExpand}
       data-testid="search-facet-expand"
+      tabIndex={-1}
     />
   );
 };
 
 interface INodeCheckboxProps extends CheckboxProps {
   node: FacetItem;
+  variant?: 'basic' | 'modal';
 }
 
 export const NodeCheckbox = forwardRef<HTMLInputElement, INodeCheckboxProps>((props, ref) => {
-  const { node, ...checkboxProps } = props;
+  const { node, variant, ...checkboxProps } = props;
   const isRoot = isRootNode(node.val);
   const label = isRoot ? parseRootFromKey(node.val) : parseTitleFromKey(node.val);
   const isSelected = useFacetStore(useCallback((state) => state.selection?.[node.id]?.selected ?? false, [node.id]));
@@ -352,6 +527,7 @@ export const NodeCheckbox = forwardRef<HTMLInputElement, INodeCheckboxProps>((pr
       value={node.id}
       data-testid={`search-facet-${isRoot ? 'root' : 'child'}-checkbox`}
       my={0.5}
+      tabIndex={variant === 'basic' ? -1 : 0} // for sidebar ('basic'), use customized keyboard navigation
     >
       <Text as="span" display="inline-flex" justifyContent="space-between" w="full">
         <Tooltip label={label} placement="right">
@@ -359,7 +535,7 @@ export const NodeCheckbox = forwardRef<HTMLInputElement, INodeCheckboxProps>((pr
             {label}
           </Text>
         </Tooltip>
-        <Text color="gray.400" fontSize="md" fontWeight="medium">
+        <Text color={colors.lightText} fontSize="md" fontWeight="medium">
           {kFormatNumber(node.count)}
         </Text>
       </Text>
@@ -372,10 +548,28 @@ interface ILoadMoreBtnProps extends Omit<IconButtonProps, 'aria-label'> {
   pullRight?: boolean;
   showBottomBorder?: boolean;
   label?: string;
+  onArrowUp?: () => void;
+  onArrowDown?: () => void;
 }
 
 export const LoadMoreBtn = (props: ILoadMoreBtnProps) => {
-  const { show, pullRight, showBottomBorder, label = 'more', ...btnProps } = props;
+  const {
+    show,
+    pullRight,
+    showBottomBorder,
+    label = 'more',
+    onArrowUp = noop,
+    onArrowDown = noop,
+    ...btnProps
+  } = props;
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key === 'ArrowUp') {
+      onArrowUp();
+    } else if (e.key === 'ArrowDown') {
+      onArrowDown();
+    }
+  };
 
   if (show) {
     return (
@@ -390,6 +584,7 @@ export const LoadMoreBtn = (props: ILoadMoreBtnProps) => {
           type="button"
           borderRadius="md"
           aria-label={label}
+          onKeyDown={handleKeyDown}
           {...btnProps}
         />
       </Stack>

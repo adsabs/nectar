@@ -87,13 +87,7 @@ export const YearsGraphPane = ({ data, onApplyYearRange }: IYearsGraphPaneProps)
     <>
       {transformedGraph && (
         <Flex direction="column">
-          <DataDownloader
-            label="Download CSV Data"
-            getFileContent={getCSVDataContent}
-            fileName="years.csv"
-            showLabel={true}
-            my={5}
-          />
+          <DataDownloader label="Download CSV Data" getFileContent={getCSVDataContent} fileName="years.csv" my={5} />
           <BarGraph
             data={transformedGraph.data}
             indexBy={transformedGraph.indexBy}

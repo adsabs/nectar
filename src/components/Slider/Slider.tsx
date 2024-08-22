@@ -54,6 +54,11 @@ export const Slider = ({
 
   const showLabel = !ticks;
 
+  // keyboard apply enter, set new value
+  const handleEnter = (index: number, value: number) => {
+    onSlideEnd([...values.slice(0, index), value, ...values.slice(index + 1)]);
+  };
+
   return (
     <Box id={id} width={width || 'full'} minH={34} {...boxProps}>
       <CompoundSlider
@@ -64,8 +69,8 @@ export const Slider = ({
         rootStyle={{
           position: 'relative',
         }}
-        onUpdate={handleUpdateValues}
-        onSlideEnd={handleChangeValues}
+        onSlideEnd={handleChangeValues} // value when mouse drag stopped
+        onUpdate={handleUpdateValues} // this updates values when mouse or keyboard dragging, used by histogram
       >
         <Rail>
           {({ getRailProps }) => (
@@ -91,6 +96,7 @@ export const Slider = ({
                 align="center"
                 mt={marginTop}
                 showLabel={showLabel}
+                onEnter={(value) => handleEnter(0, value)}
               />
             ) : (
               <Box as="div" className="slider-handles">
@@ -103,6 +109,7 @@ export const Slider = ({
                       align="end"
                       mt={marginTop}
                       showLabel={showLabel}
+                      onEnter={(value) => handleEnter(0, value)}
                     />
                     <Handle
                       key={handles[1].id}
@@ -111,6 +118,7 @@ export const Slider = ({
                       align="start"
                       mt={marginTop}
                       showLabel={showLabel}
+                      onEnter={(value) => handleEnter(1, value)}
                     />
                   </>
                 ) : handles[0].percent > handles[1].percent ? (
@@ -122,6 +130,7 @@ export const Slider = ({
                       align="start"
                       mt={marginTop}
                       showLabel={showLabel}
+                      onEnter={(value) => handleEnter(0, value)}
                     />
                     <Handle
                       key={handles[1].id}
@@ -130,6 +139,7 @@ export const Slider = ({
                       align="end"
                       mt={marginTop}
                       showLabel={showLabel}
+                      onEnter={(value) => handleEnter(1, value)}
                     />
                   </>
                 ) : (
@@ -141,6 +151,7 @@ export const Slider = ({
                       align="center"
                       mt={marginTop}
                       showLabel={showLabel}
+                      onEnter={(value) => handleEnter(0, value)}
                     />
                     <Handle
                       key={handles[1].id}
@@ -149,6 +160,7 @@ export const Slider = ({
                       align="center"
                       mt={marginTop}
                       showLabel={showLabel}
+                      onEnter={(value) => handleEnter(1, value)}
                     />
                   </>
                 )}
@@ -187,9 +199,10 @@ interface IHandleProps {
   align: 'start' | 'end' | 'center';
   mt: number;
   showLabel: boolean;
+  onEnter: (value: number) => void;
 }
 
-const Handle = ({ handle, getHandleProps, align, mt, showLabel }: IHandleProps): ReactElement => {
+const Handle = ({ handle, getHandleProps, align, mt, showLabel, onEnter }: IHandleProps): ReactElement => {
   return (
     <Stack
       direction="column"
@@ -207,6 +220,11 @@ const Handle = ({ handle, getHandleProps, align, mt, showLabel }: IHandleProps):
             : `calc(${handle.percent}% - 0.5em)`,
       }}
       alignItems={align}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          onEnter(handle.value);
+        }
+      }}
     >
       <Box
         width={4}
@@ -217,6 +235,7 @@ const Handle = ({ handle, getHandleProps, align, mt, showLabel }: IHandleProps):
         color="gray.900"
         borderColor="blue.600"
         borderWidth={1}
+        tabIndex={0}
         {...getHandleProps(handle.id)}
       />
       {showLabel && (

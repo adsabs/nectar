@@ -59,7 +59,7 @@ export const AuthorNetworkDetailsPane = ({
   };
 
   return (
-    <Tabs variant="soft-rounded" index={tabIndex} onChange={handleTabIndexChange}>
+    <Tabs variant="solid-rounded" index={tabIndex} onChange={handleTabIndexChange}>
       <TabList>
         <Tab>Summary</Tab>
         <Tab>Detail</Tab>

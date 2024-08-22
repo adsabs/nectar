@@ -91,9 +91,8 @@ export const ClassicForm = (props: IClassicFormProps) => {
         </VisuallyHidden>
 
         {/* Collection selection */}
-        <FormControl aria-labelledby="collection-group">
-          <VisuallyHidden id="collection-group">Collection</VisuallyHidden>
-          <FormLabel>Limit Query</FormLabel>
+        <FormControl as="fieldset">
+          <FormLabel as="legend">Collection</FormLabel>
           <CheckboxGroup defaultValue={['astronomy']}>
             <HStack spacing="6">
               <Checkbox value="astronomy" {...register('limit')}>
@@ -113,8 +112,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
         </FormControl>
 
         {/* Author text area */}
-        <FormControl aria-labelledby="author-group">
-          <VisuallyHidden id="author-group">Author</VisuallyHidden>
+        <FormControl>
           <Flex direction="row" justifyContent="space-between">
             <FormLabel htmlFor={'author'}>Author</FormLabel>
             <LogicRadios variant="andor" radioProps={register('logic_author')} />
@@ -147,8 +145,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
         </FormControl>
 
         {/* Object text area */}
-        <FormControl aria-labelledby="object-group">
-          <VisuallyHidden id="object-group">Object</VisuallyHidden>
+        <FormControl>
           <Flex direction="row" justifyContent="space-between">
             <FormLabel htmlFor="object">Object</FormLabel>
             <LogicRadios variant="andor" radioProps={register('logic_object')} />
@@ -174,7 +171,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
         >
           <FormControl>
             <VisuallyHidden id="publication-group">Publication</VisuallyHidden>
-            <FormLabel htmlFor="pubdate_start">Publication Date Start</FormLabel>
+            <FormLabel>Publication Date Start</FormLabel>
             <InputGroup>
               <InputLeftElement pointerEvents="none" children={<CalendarIcon color="gray.300" />} />
               <Input placeholder="YYYY/MM" type="text" {...register('pubdate_start')} />
@@ -182,7 +179,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
             <FormHelperText>Ex: "2011/04"</FormHelperText>
           </FormControl>
           <FormControl>
-            <FormLabel htmlFor="pubdate_end">Publication Date End</FormLabel>
+            <FormLabel>Publication Date End</FormLabel>
             <InputGroup>
               <InputLeftElement pointerEvents="none" children={<CalendarIcon color="gray.300" />} />
               <Input placeholder="YYYY/MM" {...register('pubdate_end')} />
@@ -192,10 +189,9 @@ export const ClassicForm = (props: IClassicFormProps) => {
         </Stack>
 
         {/* Title */}
-        <FormControl aria-labelledby="title-group">
-          <VisuallyHidden id="title-group">Title</VisuallyHidden>
+        <FormControl>
           <Flex direction="row" justifyContent="space-between">
-            <FormLabel htmlFor="title">Title</FormLabel>
+            <FormLabel>Title</FormLabel>
             <LogicRadios variant="all" radioProps={register('logic_title')} />
           </Flex>
           <Input {...register('title')} />
@@ -203,10 +199,9 @@ export const ClassicForm = (props: IClassicFormProps) => {
         </FormControl>
 
         {/* Abstract / Keywords */}
-        <FormControl aria-labelledby="abstract-keywords-group">
-          <VisuallyHidden id="abstract-keywords-group">Abstract / Keywords</VisuallyHidden>
+        <FormControl>
           <Flex direction="row" justifyContent="space-between">
-            <FormLabel htmlFor="abstract_keywords">Abstract / Keywords</FormLabel>
+            <FormLabel>Abstract / Keywords</FormLabel>
             <LogicRadios variant="all" radioProps={register('logic_abstract_keywords')} />
           </Flex>
           <Input {...register('abstract_keywords')} />
@@ -214,9 +209,8 @@ export const ClassicForm = (props: IClassicFormProps) => {
         </FormControl>
 
         {/* Property */}
-        <FormControl aria-labelledby="property-group">
-          <VisuallyHidden id="property-group">Property</VisuallyHidden>
-          <FormLabel htmlFor="property">Property</FormLabel>
+        <FormControl as="fieldset">
+          <FormLabel as="legend">Property</FormLabel>
           <CheckboxGroup>
             <HStack spacing={4}>
               <Checkbox fontWeight="bold" value="refereed-only" {...register('property')}>
@@ -235,7 +229,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
             name="bibstems"
             control={control}
             render={({ field }) => (
-              <FormControl aria-labelledby="bibstem">
+              <FormControl>
                 <VisuallyHidden id="bibstem">Publications</VisuallyHidden>
                 <FormLabel htmlFor="bibstem-picker">Publications</FormLabel>
                 <BibstemPicker isMultiple onChange={(items) => field.onChange(items)} id="bibstem-picker" />
@@ -244,18 +238,16 @@ export const ClassicForm = (props: IClassicFormProps) => {
             )}
           />
         ) : (
-          <FormControl aria-labelledby="bibstem">
-            <VisuallyHidden id="bibstem">Publications</VisuallyHidden>
-            <FormLabel htmlFor="bibstem">Publication</FormLabel>
+          <FormControl>
+            <FormLabel>Publication</FormLabel>
             <Input placeholder="Publication" {...register('bibstems')} />
             <FormHelperText>Start typing to search journal database (ex. "ApJ")</FormHelperText>
           </FormControl>
         )}
 
         {/* Sort */}
-        <FormControl aria-labelledby="sort">
-          <VisuallyHidden id="sort">Sort</VisuallyHidden>
-          <FormLabel htmlFor="sort">Sort</FormLabel>
+        <FormControl>
+          <FormLabel>Sort</FormLabel>
           <Controller
             name="sort"
             control={control}

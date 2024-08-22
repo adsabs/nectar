@@ -4,6 +4,7 @@ import { useAddWorks } from '@/lib/orcid/useAddWorks';
 import { parseAPIError } from '@/utils';
 import { OrcidInactiveLogo } from '@/components';
 import React from 'react';
+import { useColorModeColors } from '@/lib';
 
 interface IOrcidActionBtnProps extends ButtonProps {
   identifier: string;
@@ -28,6 +29,8 @@ export const AddToOrcidButton = forwardRef<IOrcidActionBtnProps, 'button'>((prop
     },
   );
 
+  const { lightText } = useColorModeColors();
+
   return (
     <Button
       variant="outline"
@@ -40,7 +43,9 @@ export const AddToOrcidButton = forwardRef<IOrcidActionBtnProps, 'button'>((prop
     >
       <HStack spacing={1}>
         <Icon as={OrcidInactiveLogo} boxSize={4} aria-hidden />
-        <Text fontSize="xs">Claim</Text>
+        <Text fontSize="xs" color={lightText}>
+          Claim
+        </Text>
       </HStack>
     </Button>
   );

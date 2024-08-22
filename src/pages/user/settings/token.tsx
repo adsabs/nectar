@@ -11,7 +11,6 @@ import {
   Heading,
   InputGroup,
   InputLeftAddon,
-  InputRightAddon,
   Spinner,
   Stack,
   Text,
@@ -117,20 +116,27 @@ const TokenArea = (props: { onGenerate: () => void; isLoading: boolean }) => {
 
   return (
     <Stack direction="column" gap={2}>
-      <InputGroup size="md">
-        <InputLeftAddon children={<SimpleCopyButton text={data?.access_token} />} />
-        <PasswordTextInput name="token" id="token" value={data?.access_token} autoFocus isReadOnly />
-        <InputRightAddon
-          bgColor="blue.500"
-          color="gray.50"
-          borderColor="blue.500"
+      <Stack direction="row" spacing={0}>
+        <InputGroup size="md">
+          <InputLeftAddon children={<SimpleCopyButton text={data?.access_token} />} />
+          <PasswordTextInput name="token" id="token" value={data?.access_token} autoFocus isReadOnly />
+        </InputGroup>
+        <Button
+          borderLeftRadius="0"
           borderRightRadius="md"
-          cursor="pointer"
+          size="md"
           onClick={onGenerate}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              e.stopPropagation();
+              onGenerate();
+            }
+          }}
         >
           {isLoading ? <Spinner size="sm" /> : 'Generate New Token'}
-        </InputRightAddon>
-      </InputGroup>
+        </Button>
+      </Stack>
       {!!data?.access_token && (
         <>
           <Text>

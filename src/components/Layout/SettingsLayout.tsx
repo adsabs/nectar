@@ -20,7 +20,7 @@ export const SettingsLayout: FC<ISettingsLayoutProps> = ({ children, title }) =>
       <SettingsSideNav />
       <Stack direction="column" as="section" aria-labelledby="title" spacing={1} width="full">
         <Heading as="h2" fontSize="2xl" variant="abstract" id="settings-section-title">
-          <Text as="span" fontSize="xl">
+          <Text as="span" fontSize="xl" id="title">
             {title}
           </Text>
         </Heading>

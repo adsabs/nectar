@@ -77,9 +77,7 @@ const TitleLogo = () => {
       <Show above="sm">
         <Icon as={ScixAndNasaLogo_H_beta} height="4em" width="25em" aria-hidden />
       </Show>
-      <VisuallyHidden>
-        <Heading as="h1">Science Explorer</Heading>
-      </VisuallyHidden>
+      <VisuallyHidden>Science Explorer</VisuallyHidden>
     </Center>
   );
 };

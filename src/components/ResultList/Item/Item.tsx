@@ -97,7 +97,7 @@ export const Item = (props: IItemProps): ReactElement => {
         w="64px"
       >
         <Text
-          color={isChecked ? 'white' : 'initial'}
+          color={isChecked ? colors.background : 'initial'}
           display={{ base: 'none', md: 'initial' }}
           mr={1}
           data-testid="results-index"

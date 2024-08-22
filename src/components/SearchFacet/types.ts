@@ -75,3 +75,5 @@ export type OnFilterArgs = {
   field: FacetField;
   values: string[];
 };
+
+export type KeyboardFocusItem = { facetId: SearchFacetID; index: number[] };

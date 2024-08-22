@@ -35,7 +35,6 @@ import { Controller, useForm } from 'react-hook-form';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { useErrorMessage } from '@/lib/useErrorMessage';
 import { APP_DEFAULTS, BRAND_NAME_FULL } from '@/config';
-import { useColorModeColors } from '@/lib';
 import { logger } from '@/logger';
 import { useStore } from '@/store';
 import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
@@ -143,8 +142,6 @@ const JournalQueryForm = ({ onSubmit, error }: SubFormProps) => {
     control,
   } = useForm<PaperFormState['journal-query']>();
 
-  const colors = useColorModeColors();
-
   const handleReset = () => reset();
 
   const formSubmit: FormEventHandler<HTMLFormElement> = (e) => {
@@ -155,7 +152,6 @@ const JournalQueryForm = ({ onSubmit, error }: SubFormProps) => {
   return (
     <VStack
       aria-labelledby="journal-search-form"
-      backgroundColor={colors.panel}
       borderRadius={5}
       shadow="base"
       padding={5}
@@ -189,7 +185,7 @@ const JournalQueryForm = ({ onSubmit, error }: SubFormProps) => {
               />
             ) : (
               <FormControl>
-                <FormLabel htmlFor="bibstem">Publication</FormLabel>
+                <FormLabel>Publication</FormLabel>
                 <Input id="bibstem" name="bibstem" placeholder="Publication" {...register('bibstem')} />
                 <FormErrorMessage>{errors.bibstem && errors.bibstem.message}</FormErrorMessage>
               </FormControl>
@@ -245,8 +241,6 @@ const ReferenceQueryForm = ({ onSubmit, error }: SubFormProps) => {
     formState: { errors, isSubmitting },
   } = useForm<PaperFormState['reference-query']>();
 
-  const colors = useColorModeColors();
-
   const handleReset = () => reset();
   const formSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
@@ -255,14 +249,7 @@ const ReferenceQueryForm = ({ onSubmit, error }: SubFormProps) => {
   };
 
   return (
-    <Box
-      aria-labelledby="reference-query-form"
-      backgroundColor={colors.panel}
-      borderRadius={5}
-      shadow="base"
-      padding={5}
-      width="full"
-    >
+    <Box aria-labelledby="reference-query-form" borderRadius={5} shadow="base" padding={5} width="full">
       <Heading as="h2" fontSize="large" fontWeight="bold" id="reference-query-form">
         Reference Query
       </Heading>
@@ -308,8 +295,6 @@ const BibcodeQueryForm = ({ onSubmit, error }: SubFormProps) => {
     formState: { errors, isSubmitting },
   } = useForm<PaperFormState['bibcode-query']>();
 
-  const colors = useColorModeColors();
-
   const handleReset = () => reset();
   const formSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
@@ -318,14 +303,7 @@ const BibcodeQueryForm = ({ onSubmit, error }: SubFormProps) => {
   };
 
   return (
-    <Box
-      aria-labelledby="bibstem-query-form"
-      backgroundColor={colors.panel}
-      borderRadius={5}
-      shadow="base"
-      padding={5}
-      width="full"
-    >
+    <Box aria-labelledby="bibstem-query-form" borderRadius={5} shadow="base" padding={5} width="full">
       <Heading as="h2" fontSize="large" fontWeight="bold" id="bibstem-query-form">
         Bibliographic Code Query
       </Heading>
