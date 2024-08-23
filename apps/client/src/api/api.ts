@@ -1,16 +1,6 @@
 import { NectarSessionResponse } from '@server/routes/session';
-import axios, {
-  AxiosError,
-  AxiosInstance,
-  AxiosRequestConfig,
-  AxiosResponse,
-} from 'axios';
-import {
-  buildStorage,
-  CacheOptions,
-  setupCache,
-  StorageValue,
-} from 'axios-cache-interceptor';
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { buildStorage, CacheOptions, setupCache, StorageValue } from 'axios-cache-interceptor';
 import { identity, isNil } from 'ramda';
 
 import { IUserData } from '@/api';
@@ -40,10 +30,7 @@ export const checkUserData = (userData?: IUserData): boolean => {
  * Apply a bearer token string to the request's headers
  * returns a new request config with authorization header added
  */
-const applyTokenToRequest = (
-  request: ApiRequestConfig,
-  token: string,
-): ApiRequestConfig => {
+const applyTokenToRequest = (request: ApiRequestConfig, token: string): ApiRequestConfig => {
   return {
     ...request,
     headers: {
@@ -111,62 +98,56 @@ class Api {
   }
 
   private async init() {
-    this.service.interceptors.response.use(
-      identity,
-      (error: AxiosError & { canRefresh: boolean }) => {
-        log.error(error);
-        if (axios.isAxiosError(error)) {
-          // if the server never responded, there won't be a response object -- in that case, reject immediately
-          // this is important for SSR, just fail fast
-          if (!error.response || typeof global.window === 'undefined') {
-            return Promise.reject(error);
-          }
-
-          // check if the incoming error is the exact same status and URL as the last request
-          // if so, we should reject to keep from getting into a loop
-          if (
-            this.recentError &&
-            this.recentError.status === error?.response.status &&
-            this.recentError.config.url === error.config?.url
-          ) {
-            // clear the recent error
-            this.recentError = null;
-            log.debug({
-              msg: 'Rejecting request due to recent error',
-              err: error,
-            });
-            return Promise.reject(error);
-          }
-
-          // if request is NOT bootstrap, store error config
-          if (error.config?.url !== '/api/user') {
-            this.recentError = {
-              status: error.response.status,
-              config: error.config ?? {},
-            };
-          }
-
-          if (error.response.status === API_STATUS.UNAUTHORIZED) {
-            this.invalidateUserData();
-
-            log.debug({
-              msg: 'Unauthorized request, refreshing token and retrying',
-              err: error,
-            });
-
-            // retry the request
-            return this.request(error.config as ApiRequestConfig);
-          }
+    this.service.interceptors.response.use(identity, (error: AxiosError & { canRefresh: boolean }) => {
+      log.error(error);
+      if (axios.isAxiosError(error)) {
+        // if the server never responded, there won't be a response object -- in that case, reject immediately
+        // this is important for SSR, just fail fast
+        if (!error.response || typeof global.window === 'undefined') {
+          return Promise.reject(error);
         }
-        return Promise.reject(error);
-      },
-    );
+
+        // check if the incoming error is the exact same status and URL as the last request
+        // if so, we should reject to keep from getting into a loop
+        if (
+          this.recentError &&
+          this.recentError.status === error?.response.status &&
+          this.recentError.config.url === error.config?.url
+        ) {
+          // clear the recent error
+          this.recentError = null;
+          log.debug({
+            msg: 'Rejecting request due to recent error',
+            err: error,
+          });
+          return Promise.reject(error);
+        }
+
+        // if request is NOT bootstrap, store error config
+        if (error.config?.url !== '/api/user') {
+          this.recentError = {
+            status: error.response.status,
+            config: error.config ?? {},
+          };
+        }
+
+        if (error.response.status === API_STATUS.UNAUTHORIZED) {
+          this.invalidateUserData();
+
+          log.debug({
+            msg: 'Unauthorized request, refreshing token and retrying',
+            err: error,
+          });
+
+          // retry the request
+          return this.request(error.config as ApiRequestConfig);
+        }
+      }
+      return Promise.reject(error);
+    });
 
     // setup clientside caching
-    if (
-      typeof global.window !== 'undefined' &&
-      process.env.NODE_ENV === 'production'
-    ) {
+    if (typeof global.window !== 'undefined' && process.env.NODE_ENV === 'production') {
       try {
         setupCache(this.service, await getClientSideCacheConfig());
       } catch (error) {
@@ -201,7 +182,7 @@ class Api {
       log.debug({ msg: 'User data present, using token', data: this.userData });
       return this.userData.token;
     }
-    const { data } = await axios.get<NectarSessionResponse>('/api/user');
+    const { data } = await axios.get<NectarSessionResponse>('/api/auth/token');
     log.debug({ msg: 'User data refreshed', data });
     this.setUserData(data.user);
     updateAppUser(data.user);
@@ -226,9 +207,7 @@ class Api {
       log.error({ msg: 'Unable to refresh token' });
       return Promise.reject('Unable to refresh token');
     }
-    return this.service.request<T>(
-      applyTokenToRequest(config, this.userData.token),
-    );
+    return this.service.request<T>(applyTokenToRequest(config, this.userData.token));
     // serverside, we can just send the request
     // if (typeof global.window === 'undefined') {
     //   return this.service.request<T>(

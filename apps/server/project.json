@@ -27,10 +27,9 @@
           "fastify",
           "@fastify",
           "undici",
-          "fastify-autoload",
           "fastify-plugin",
-          "fluent-json-schema",
-          "ioredis"
+          "ioredis",
+          "nanoid-esm"
         ],
         "esbuildOptions": {
           "sourcemap": true,

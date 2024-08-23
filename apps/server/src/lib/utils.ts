@@ -43,6 +43,8 @@ export const isSessionValid = (session: NectarUserData): session is NectarUserDa
   }
 };
 
+export const createOrRenewSession = (session: ScixSession): ScixSession => {};
+
 /**
  * Stringifies an object to a JSON string.
  *
@@ -99,8 +101,17 @@ export const parseTraceId = (traceId: string): ParsedTraceId => {
 export const bootstrapResponseToUser = (response: BootstrapResponse): ScixUser => ({
   name: response.username,
   expire: response.expires_at,
-  anonymous: response.anonymous,
+  role: response.anonymous ? 'anonymous' : 'user',
   token: response.access_token,
+  permissions: response.scopes,
+});
+
+export const getAnonymousUser = (): ScixUser => ({
+  name: 'anonymous@ads',
+  role: 'anonymous',
+  token: '',
+  permissions: [],
+  expire: '',
 });
 
 export const noop = <T = unknown>(props?: T) => {

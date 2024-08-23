@@ -34,17 +34,16 @@ const cache: FastifyPluginAsync = async (server) => {
 
   // Register the rate-limit plugin
   await server.register(FastifyRateLimit, {
-    // allowList: ['127.0.0.1', 'localhost'],
-    max: 50,
-    timeWindow: 10000,
+    max: 300,
+    timeWindow: '1 minute',
     redis: server.redis,
   });
 
-  server.setErrorHandler(async (error, request, reply) => {
-    if (error.statusCode === 429) {
-      await reply.redirect(429, '/error?code=429');
-    }
-  });
+  // server.setErrorHandler(async (error, request, reply) => {
+  //   if (error.statusCode === 429) {
+  //     await reply.redirect(429, '/error?code=429');
+  //   }
+  // });
 
   /**
    * Hook to handle requests before processing.

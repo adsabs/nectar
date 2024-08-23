@@ -1,12 +1,14 @@
 import type { FastifyRedis } from '@fastify/redis';
 import type { Session, SessionData } from '@fastify/secure-session';
-import { IADSApiSearchResponse, IADSApiUserResponse } from 'apps/client/src/api';
+import { IADSApiSearchResponse } from 'apps/client/src/api';
 import { NextServer } from 'next/dist/server/next';
 
-import { BootstrapTokenFn, FetcherFn, SearchFn } from '../src/plugins/api';
-import { ScixSession, ScixUser } from '../src/types';
+import { FetcherFn } from '../src/plugins/api';
+import { BootstrapResponse, ScixSession, ScixUser } from '../src/types';
 
 declare module 'fastify' {
+  import ToType = module;
+
   interface FastifyInstance {
     config: {
       NODE_ENV: string;
@@ -28,12 +30,15 @@ declare module 'fastify' {
     checkCache: <Res>(request: FastifyRequest) => Promise<Res | null>;
     setCache: (request: FastifyRequest, data: unknown) => Promise<void>;
     search: (request: FastifyRequest) => Promise<IADSApiSearchResponse>;
+    bootstrap: (request: FastifyRequest) => ToType<BootstrapResponse>;
+    createAnonymousSession: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
   }
 
   interface FastifyRequest {
     session: Session<SessionData>;
     redis: FastifyRedis;
     user: ScixUser;
+    auth: ScixSession;
     externalSessionCookie: string;
     authCookie: string;
   }

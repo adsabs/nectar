@@ -74,15 +74,17 @@ export type CSRFResponse = Static<typeof csrfResponseSchema>;
 export const userSchema = T.Object({
   expire: T.String(),
   token: T.String(),
-  name: T.String(),
-  anonymous: T.Boolean(),
+  name: T.Union([T.Literal('anonymous@ads'), T.String()]),
+  role: T.Union([T.Literal('anonymous'), T.Literal('user')]),
+  permissions: T.Array(T.String()),
 });
 
 export type ScixUser = Static<typeof userSchema>;
 
 export const sessionSchema = T.Object({
-  user: userSchema,
-  externalSession: T.Optional(T.String()),
+  user: T.Optional(userSchema),
+  id: T.String(),
+  exSession: T.Optional(T.String()),
 });
 export type ScixSession = Static<typeof sessionSchema>;
 

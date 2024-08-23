@@ -14,18 +14,15 @@ import Fastify, { FastifyServerOptions } from 'fastify';
 import next from 'next';
 import { NextServer } from 'next/dist/server/next';
 import path from 'path';
-import { Dispatcher } from 'undici';
 
-import { IADSApiSearchParams } from '../../client/src/api';
-import { loadConfig, TRACING_HEADERS } from './config';
-import { bootstrapResponseToUser, noop, pick } from './lib/utils';
+import { loadConfig } from './config';
+import { noop } from './lib/utils';
 import AuthPlugin from './plugins/auth';
-import CachePlugin, { buildCacheKey } from './plugins/cache';
-import FetcherPlugin, { FetcherError, FetcherResponse, RequestOptions } from './plugins/fetcher';
+import CachePlugin from './plugins/cache';
+import FetcherPlugin from './plugins/fetcher';
 import ProxyPlugin from './plugins/proxy';
 import RoutesPlugin from './plugins/routes';
-import SSRPlugin from './plugins/ssr';
-import { sessionResponseSchema } from './types';
+import { ScixSession } from './types';
 
 const isProduction = process.env.NODE_ENV === 'production';
 const isTest = process.env.NODE_ENV === 'test';
@@ -81,10 +78,15 @@ export const buildServer = async (options: FastifyServerOptions = {}) => {
         cookieName: server.config.SCIX_SESSION_COOKIE_NAME,
         signed: false,
       },
-      formatUser: bootstrapResponseToUser,
-      decoratorName: 'user',
+      verify: {
+        onlyCookie: true,
+      },
+      formatUser: (session: ScixSession) => {
+        return session;
+      },
+      decoratorName: 'auth',
       sign: {
-        expiresIn: '24h',
+        expiresIn: '1h',
       },
     });
     await server.register(FastifyAuth);
