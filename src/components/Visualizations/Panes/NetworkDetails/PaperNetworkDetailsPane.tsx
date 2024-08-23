@@ -2,6 +2,7 @@ import { IADSApiPaperNetworkSummaryGraphNode, IDocsEntity } from '@/api';
 import {
   Box,
   Flex,
+  HStack,
   Tab,
   Table,
   TabList,
@@ -14,12 +15,13 @@ import {
   Thead,
   Tr,
 } from '@chakra-ui/react';
-import { Item } from '@/components/ResultList/Item';
 import { SimpleLink } from '@/components/SimpleLink';
 import { ILineGraph } from '@/components/Visualizations/types';
 import { ReactElement, useEffect, useState } from 'react';
 import { NodeDetailPane } from './NodeDetailsPane';
 import { SummaryPane } from './SummaryPane';
+import { MathJax } from 'better-react-mathjax';
+import { unwrapStringValue } from '@/utils';
 
 export interface IPaperNetworkNodeDetails extends IADSApiPaperNetworkSummaryGraphNode {
   papers: IDocsEntity[];
@@ -113,16 +115,8 @@ const PapersList = ({ node }: { node: IPaperNetworkNodeDetails }): ReactElement 
         {papers.length > topNPapers ? `Top ${topNPapers} papers from this group` : 'Papers in this group'}
       </Text>
       <Flex as="section" aria-label="Papers List" direction="column">
-        {papers.map((doc, index) => (
-          <Item
-            doc={doc}
-            key={doc.bibcode}
-            index={index + 1}
-            hideCheckbox={true}
-            hideActions={true}
-            showHighlights={false}
-            linkNewTab={true}
-          />
+        {papers.slice(0, topNPapers).map((doc) => (
+          <PaperItem doc={doc} key={doc.bibcode} />
         ))}
       </Flex>
     </Box>
@@ -160,6 +154,29 @@ const ReferencesList = ({ link }: { link: IPaperNetworkLinkDetails }): ReactElem
           ))}
         </Tbody>
       </Table>
+    </Box>
+  );
+};
+
+const PaperItem = ({ doc }: { doc: IDocsEntity }) => {
+  const { bibcode, title, citation_count, author } = doc;
+
+  const cite =
+    typeof doc.citation_count === 'number' && doc.citation_count > 0 ? (
+      <SimpleLink href={{ pathname: `/abs/${bibcode}/citations`, search: 'p=1' }} newTab>
+        cited: {citation_count}
+      </SimpleLink>
+    ) : null;
+
+  return (
+    <Box my={0.5}>
+      <SimpleLink href={`/abs/${bibcode}/abstract`} fontWeight="semibold">
+        <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
+      </SimpleLink>
+      <HStack>
+        <Text fontSize="sm">{author ?? author[0]}</Text>
+        <Text fontSize="sm">{cite}</Text>
+      </HStack>
     </Box>
   );
 };

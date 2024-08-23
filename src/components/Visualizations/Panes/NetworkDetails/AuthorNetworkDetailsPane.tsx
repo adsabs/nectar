@@ -1,11 +1,13 @@
 import { IDocsEntity } from '@/api';
-import { Flex, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
-import { Item } from '@/components/ResultList/Item';
+import { Box, Flex, HStack, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react';
 import { ILineGraph } from '@/components/Visualizations/types';
 import { equals } from 'ramda';
 import { ReactElement, useEffect, useRef, useState } from 'react';
 import { NodeDetailPane } from './NodeDetailsPane';
 import { SummaryPane } from './SummaryPane';
+import { SimpleLink } from '@/components';
+import { unwrapStringValue } from '@/utils';
+import { MathJax } from 'better-react-mathjax';
 
 interface Paper extends IDocsEntity {
   groupAuthorCount?: number;
@@ -90,22 +92,34 @@ export const AuthorNetworkDetailsPane = ({
 const PapersList = ({ papers }: { papers: IAuthorNetworkNodeDetails['papers'] }): ReactElement => {
   return (
     <Flex as="section" aria-label="Papers List" direction="column">
-      {papers.map((doc, index) => (
-        <Item
-          doc={doc}
-          key={doc.bibcode}
-          index={index + 1}
-          hideCheckbox={true}
-          hideActions={true}
-          showHighlights={false}
-          extraInfo={
-            doc.groupAuthorCount
-              ? `${doc.groupAuthorCount} author${doc.groupAuthorCount > 1 ? 's' : ''} from this group`
-              : null
-          }
-          linkNewTab={true}
-        />
+      {papers.map((paper) => (
+        <PaperItem paper={paper} key={paper.bibcode} />
       ))}
     </Flex>
+  );
+};
+
+const PaperItem = ({ paper }: { paper: Paper }) => {
+  const { bibcode, title, citation_count, groupAuthorCount } = paper;
+
+  const cite =
+    typeof citation_count === 'number' && citation_count > 0 ? (
+      <SimpleLink href={{ pathname: `/abs/${bibcode}/citations`, search: 'p=1' }} newTab>
+        cited: {citation_count}
+      </SimpleLink>
+    ) : null;
+
+  return (
+    <Box my={0.5}>
+      <SimpleLink href={`/abs/${bibcode}/abstract`} fontWeight="semibold">
+        <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
+      </SimpleLink>
+      <HStack>
+        <Text fontSize="sm">
+          {groupAuthorCount ? `${groupAuthorCount} author${groupAuthorCount > 1 ? 's' : ''} from this group` : null}
+        </Text>
+        <Text fontSize="sm">{cite}</Text>
+      </HStack>
+    </Box>
   );
 };
