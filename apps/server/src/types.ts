@@ -107,7 +107,7 @@ export const searchParamsSchema = T.Object({
   fq: T.Optional(T.String()),
 });
 
-export type NectarUserData = Static<typeof sessionResponseSchema>;
+export type NectarSessionResponse = Static<typeof sessionResponseSchema>;
 export type NectarSessionErrorResponse = Static<typeof sessionErrorResponseSchema>;
 
 export type CommonError = {

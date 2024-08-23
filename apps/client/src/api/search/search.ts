@@ -38,7 +38,6 @@ import {
   getHighlightParams,
   getReferencesParams,
   getSearchFacetParams,
-  getSearchParams,
   getSearchStatsParams,
   getSimilarParams,
   getSingleRecordParams,

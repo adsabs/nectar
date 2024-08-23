@@ -41,7 +41,7 @@ const authPlugin: FastifyPluginAsync = async (server) => {
       server.serializeCookie(server.config.SCIX_SESSION_COOKIE_NAME, signedJwt, {
         httpOnly: true,
         secure: server.config.NODE_ENV === 'production',
-        sameSite: 'lax',
+        sameSite: 'strict',
         path: '/',
         expires: getTokenExpiry(),
       }),
@@ -115,7 +115,7 @@ const authPlugin: FastifyPluginAsync = async (server) => {
       void reply.setCookie(server.config.SCIX_SESSION_COOKIE_NAME, newToken, {
         httpOnly: true,
         secure: server.config.NODE_ENV === 'production',
-        sameSite: 'lax',
+        sameSite: 'strict',
         path: '/',
         expires: getTokenExpiry(), // Set your expiry
       });

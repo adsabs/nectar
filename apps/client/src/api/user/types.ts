@@ -1,4 +1,4 @@
-import { NectarSessionResponse } from '@server/routes/session';
+import { ScixUser } from '@server/types';
 import { range } from 'ramda';
 
 import { SolrSortField } from '../models';
@@ -48,7 +48,7 @@ export interface IBootstrapPayload {
   message?: string;
 }
 
-export type IUserData = NectarSessionResponse['user'];
+export type IUserData = ScixUser;
 
 export interface IUserForgotPasswordCredentials {
   email: string;

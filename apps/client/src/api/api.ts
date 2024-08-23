@@ -1,7 +1,7 @@
-import { NectarSessionResponse } from '@server/routes/session';
+import type { NectarSessionResponse, ScixUser } from '@server/types';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { buildStorage, CacheOptions, setupCache, StorageValue } from 'axios-cache-interceptor';
-import { identity, isNil } from 'ramda';
+import { __, all, allPass, complement, identity, includes, is, isEmpty, propSatisfies } from 'ramda';
 
 import { IUserData } from '@/api';
 import { logger } from '@/logger';
@@ -9,18 +9,21 @@ import { updateAppUser } from '@/store';
 
 import { defaultRequestConfig } from './config';
 
-export const isUserData = (userData?: IUserData): userData is IUserData => {
-  return (
-    !isNil(userData) &&
-    typeof userData.token === 'string' &&
-    typeof userData.expire === 'string' &&
-    userData.token.length > 0 &&
-    userData.expire.length > 0
-  );
+const isUserData = (userData: unknown): userData is IUserData => {
+  return allPass([
+    is(Object), // Checks if userData is an object
+    propSatisfies(is(String), 'expire'), // Checks if 'expire' is a string
+    propSatisfies(complement(isEmpty), 'expire'), // Checks if 'expire' is not an empty string
+    propSatisfies(is(String), 'token'), // Checks if 'token' is a string
+    propSatisfies(complement(isEmpty), 'token'), // Checks if 'token' is not an empty string
+    propSatisfies(is(String), 'name'), // Checks if 'name' is a string
+    propSatisfies(is(Array), 'permissions'), // Checks if 'permissions' is an array
+    propSatisfies(all(is(String)), 'permissions'), // Checks if all elements in 'permissions' are strings
+    propSatisfies(includes(__, ['anonymous', 'user']), 'role'), // Checks if 'role' is either 'anonymous' or 'user'
+  ])(userData);
 };
 
-export const isAuthenticated = (user: IUserData) =>
-  isUserData(user) && (!user.anonymous || user.username !== 'anonymous@ads');
+export const isAuthenticated = (user: IUserData) => isUserData(user) && user.role === 'user';
 
 export const checkUserData = (userData?: IUserData): boolean => {
   return isUserData(userData);
@@ -86,7 +89,7 @@ const getClientSideCacheConfig = async () => {
 class Api {
   private static instance: Api;
   private service: AxiosInstance;
-  private userData: NectarSessionResponse | null;
+  private userData: ScixUser | null;
   private bootstrapRetries = 2;
   private recentError: { status: number; config: AxiosRequestConfig } | null;
 
@@ -150,11 +153,8 @@ class Api {
     if (typeof global.window !== 'undefined' && process.env.NODE_ENV === 'production') {
       try {
         setupCache(this.service, await getClientSideCacheConfig());
-      } catch (error) {
-        log.error({
-          msg: 'Client-side cache not created.',
-          error,
-        });
+      } catch (err) {
+        log.error({ err });
       }
     }
   }
@@ -166,7 +166,7 @@ class Api {
     return Api.instance;
   }
 
-  public setUserData(userData: NectarSessionResponse) {
+  public setUserData(userData: ScixUser) {
     this.userData = userData;
   }
 
@@ -182,7 +182,7 @@ class Api {
       log.debug({ msg: 'User data present, using token', data: this.userData });
       return this.userData.token;
     }
-    const { data } = await axios.get<NectarSessionResponse>('/api/auth/token');
+    const { data } = await axios.get<NectarSessionResponse>('/api/auth/session');
     log.debug({ msg: 'User data refreshed', data });
     this.setUserData(data.user);
     updateAppUser(data.user);

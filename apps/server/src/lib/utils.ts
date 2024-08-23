@@ -2,7 +2,7 @@ import stringify from 'json-stringify-safe';
 import { pipeline as pipelineCB, Readable, Writable } from 'stream';
 import { promisify } from 'util';
 
-import { BootstrapResponse, NectarUserData, ScixSession, ScixUser, sessionResponseSchema } from '../types';
+import { BootstrapResponse, NectarSessionResponse, ScixSession, ScixUser, sessionResponseSchema } from '../types';
 
 /**
  * Picks the specified properties from an object.
@@ -35,7 +35,7 @@ export function unwrapHeader(header: Array<string> | string): string {
  * @param {ScixSession} session
  * @returns {boolean} - True if the session is valid, false otherwise.
  */
-export const isSessionValid = (session: NectarUserData): session is NectarUserData => {
+export const isSessionValid = (session: NectarSessionResponse): session is NectarSessionResponse => {
   if (sessionResponseSchema.validateSync(session)) {
     // Considering the token expired if within 1 minute of expiration time
     const expiresAtTimestamp = parseInt(session.user.expire, 10) * 1000;
