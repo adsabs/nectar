@@ -1,0 +1,20 @@
+{
+  "name": "adsapi",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "lib/adsapi/src",
+  "projectType": "library",
+  "tags": [],
+  "// targets": "to see all targets run: nx show project adsapi --web",
+  "targets": {
+    "test":{
+      "executor": "@nx/vite:test",
+      "outputs": [
+        "{options.reportsDirectory}"
+      ],
+      "options": {
+        "cache": false,
+        "configFile": "lib/adsapi/vite.config.ts"
+      }
+    }
+  }
+}
