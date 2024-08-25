@@ -16,7 +16,6 @@ import { useIsClient } from 'src/lib';
 
 import { Layout } from '@/components';
 import { BRAND_NAME_FULL } from '@/config';
-import SessionProvider from '@/lib/SessionProvider';
 import { useCreateQueryClient } from '@/lib/useCreateQueryClient';
 import { logger } from '@/logger';
 import { MathJaxProvider } from '@/mathjax';
@@ -75,7 +74,7 @@ const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => 
           <StoreProvider createStore={createStore}>
             <QCProvider>
               <Hydrate state={pageProps.dehydratedState}>
-                <SessionProvider>{children}</SessionProvider>
+                {children}
                 <ReactQueryDevtools />
               </Hydrate>
             </QCProvider>

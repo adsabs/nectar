@@ -9,7 +9,7 @@ declare module 'node:http' {
     };
     fetch: <T>(options: RequestOptions, extraOptions = { cache: true }) => Promise<T | { error: string }>;
     search: () => Promise<SearchResponse>;
-    details: () => Promise<DetailsResponse>;
+    details: (id: string) => Promise<DetailsResponse>;
   }
   //   search: {
   //     response: IADSApiSearchResponse;

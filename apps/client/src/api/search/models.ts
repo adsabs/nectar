@@ -1,4 +1,4 @@
-import { IADSApiSearchParams, IDocsEntity } from '@/api';
+import type { IADSApiSearchParams, IDocsEntity } from '@/api';
 import { APP_DEFAULTS } from '@/config';
 
 export const defaultFields: IADSApiSearchParams['fl'] = [

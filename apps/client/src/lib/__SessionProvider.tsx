@@ -80,7 +80,7 @@ const sessionReducer: Reducer<Pick<ScixSession, 'user' | 'error' | 'loading'>, S
 };
 
 // SessionProvider component to manage session state and API requests
-const SessionProvider: FC<{ children: ReactNode }> = ({ children }) => {
+const __SessionProvider: FC<{ children: ReactNode }> = ({ children }) => {
   // Create and store the Axios instance using a ref
   const api = useRef<AxiosInstance>(createAxiosInstance());
   // Use a reducer to manage session state
@@ -192,4 +192,4 @@ const SessionProvider: FC<{ children: ReactNode }> = ({ children }) => {
   );
 };
 
-export default SessionProvider;
+export default __SessionProvider;

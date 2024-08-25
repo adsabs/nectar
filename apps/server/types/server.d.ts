@@ -4,7 +4,7 @@ import { IADSApiSearchResponse } from 'apps/client/src/api';
 import { NextServer } from 'next/dist/server/next';
 
 import { FetcherFn } from '../src/plugins/api';
-import { BootstrapResponse, ScixSession, ScixUser } from '../src/types';
+import { BootstrapResponse, DetailsResponse, ScixSession, ScixUser, SearchResponse } from '../src/types';
 
 declare module 'fastify' {
   import ToType = module;
@@ -41,6 +41,14 @@ declare module 'fastify' {
     auth: ScixSession;
     externalSessionCookie: string;
     authCookie: string;
+    getSearchHandler: (request: FastifyRequest) => () => Promise<SearchResponse>;
+    getDetailsHandler: (request: FastifyRequest) => (id: string) => Promise<DetailsResponse>;
+  }
+}
+
+declare module '@fastify/jwt' {
+  interface FastifyJWT {
+    user: ScixUser;
   }
 }
 

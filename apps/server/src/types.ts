@@ -119,7 +119,7 @@ export type CommonError = {
 export type DetailsResponse = {
   doc?: IDocsEntity;
   query?: IADSApiSearchParams;
-  error: null;
+  error: CommonError;
 };
 
 export type SearchResponse = {

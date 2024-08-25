@@ -86,3 +86,38 @@ type ApiTargetKey = keyof typeof apiTargets;
 
 // Utility function to get the API endpoint
 export const getApiEndpoint = (key: ApiTargetKey): string => apiTargets[key];
+
+export const searchFields = [
+  'bibcode',
+  'title',
+  'author',
+  '[fields author=10]',
+  'author_count',
+  'pubdate',
+  'bibstem',
+  '[citations]',
+  'citation_count',
+  'citation_count_norm',
+  'esources',
+  'property',
+  'data',
+  'id',
+  'read_count',
+  'abstract',
+  'comment',
+  `[fields orcid_pub=${50}]`,
+  `[fields orcid_user=${50}]`,
+  `[fields orcid_other=${50}]`,
+  'orcid_pub',
+  'orcid_user',
+  'orcid_other',
+  'doi',
+  'pub_raw',
+  'publisher',
+  'keyword',
+  'comment',
+  'pubnote',
+  'book_author',
+  'gpn',
+  'gpn_id',
+];
