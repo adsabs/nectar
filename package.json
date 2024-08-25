@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "license": "LGPL-2.1-or-later",
   "scripts": {
-    "build": "NODE_ENV=production dotenvx run --env-file=.env --env-file=.env.production --env-file=.env.local --debug --overload -- nx build client",
+    "build": "NODE_ENV=production dotenvx run --env-file=.env --env-file=.env.production --env-file=.env.local --overload -- nx build client",
     "start": "NODE_ENV=production dotenvx run --env-file=.env --env-file=.env.production --env-file=.env.local --overload -- node dist/app | pino-pretty -S",
     "dev": "NODE_ENV=development dotenvx run --env-file=.env --env-file=.env.production --env-file=.env.local --overload -- nx serve server | pino-pretty -S",
     "test:server": "NODE_ENV=test dotenvx run --env-file=.env --env-file=.env.production --env-file=.env.local --overload -- nx test server | pino-pretty -S",

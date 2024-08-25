@@ -25,6 +25,7 @@ import {
 } from '@chakra-ui/react';
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { FolderPlusIcon } from '@heroicons/react/24/solid';
+import { CommonError } from '@server/types';
 import { MathJax } from 'better-react-mathjax';
 import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next';
 import dynamic from 'next/dynamic';
@@ -386,25 +387,41 @@ const Detail = <T,>(props: IDetailProps<T>): ReactElement => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const { query, doc, error } = await ctx.req.details();
+export const getServerSideProps: GetServerSideProps<
+  { params?: IADSApiSearchParams; doc: IDocsEntity | null; error: CommonError | null },
+  { id: string },
+  never
+> = async (ctx) => {
+  if (ctx.params) {
+    const { query, doc, error } = await ctx.req.details(ctx.params?.id);
 
-  if (doc) {
+    if (doc) {
+      return {
+        props: {
+          params: query,
+          doc,
+          error: null,
+        },
+      };
+    }
+
+    logger.error({ error }, 'Error fetching details page data');
+
     return {
       props: {
+        error,
         params: query,
-        doc,
-        error: null,
+        doc: null,
       },
     };
   }
-
-  logger.error({ error }, 'Error fetching details page data');
-
   return {
     props: {
-      error,
-      params: query,
+      error: {
+        errorMsg: 'Bad Request',
+        friendlyMessage: 'Invalid document identifier',
+        statusCode: 400,
+      },
       doc: null,
     },
   };

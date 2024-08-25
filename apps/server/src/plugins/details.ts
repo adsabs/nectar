@@ -65,7 +65,7 @@ const details: FastifyPluginCallback = async (server) => {
           path: 'SEARCH',
           query,
           headers: {
-            authorization: `Bearer ${request.user.token}`,
+            authorization: `Bearer ${request.auth.user.token}`,
             ...pick(TRACING_HEADERS, request.headers),
           },
         }),
@@ -95,8 +95,9 @@ const details: FastifyPluginCallback = async (server) => {
       return res;
     };
 
-  server.addHook('preHandler', (request) => {
+  server.addHook('preHandler', (request, _reply, done) => {
     request.raw.details = getDetailsHandler(request);
+    done();
   });
 };
 

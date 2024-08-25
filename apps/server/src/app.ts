@@ -19,9 +19,11 @@ import { loadConfig } from './config';
 import { noop } from './lib/utils';
 import AuthPlugin from './plugins/auth';
 import CachePlugin from './plugins/cache';
+import DetailsPlugin from './plugins/details';
 import FetcherPlugin from './plugins/fetcher';
 import ProxyPlugin from './plugins/proxy';
 import RoutesPlugin from './plugins/routes';
+import SearchPlugin from './plugins/search';
 import { ScixSession } from './types';
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -99,6 +101,8 @@ export const buildServer = async (options: FastifyServerOptions = {}) => {
     await server.register(CachePlugin);
     await server.register(FetcherPlugin);
     await server.register(AuthPlugin);
+    await server.register(SearchPlugin);
+    await server.register(DetailsPlugin);
     await server.register(ProxyPlugin);
     await server.register(RoutesPlugin);
 

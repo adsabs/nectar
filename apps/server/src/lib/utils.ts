@@ -120,3 +120,7 @@ export const noop = <T = unknown>(props?: T) => {
 
 const excludePathsRegex = /^\/(_next\/static|_next\/webpack-hmr|v1|api)\/.+$/;
 export const skipUrl = (url: string) => excludePathsRegex.test(url);
+
+export const hasToken = (user: ScixUser): boolean => {
+  return !!user.token && user.token.length > 0;
+};

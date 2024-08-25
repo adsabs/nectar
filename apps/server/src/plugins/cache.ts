@@ -37,6 +37,19 @@ const cache: FastifyPluginAsync = async (server) => {
     max: 300,
     timeWindow: '1 minute',
     redis: server.redis,
+    addHeadersOnExceeding: {
+      // default show all the response headers when rate limit is not reached
+      'x-ratelimit-limit': false,
+      'x-ratelimit-remaining': false,
+      'x-ratelimit-reset': false,
+    },
+    addHeaders: {
+      // default show all the response headers when rate limit is reached
+      'x-ratelimit-limit': false,
+      'x-ratelimit-remaining': false,
+      'x-ratelimit-reset': false,
+      'retry-after': false,
+    },
   });
 
   // server.setErrorHandler(async (error, request, reply) => {
@@ -81,31 +94,31 @@ const cache: FastifyPluginAsync = async (server) => {
       server.log.error({ msg: 'Cache get failed', err });
     }
 
-    server.decorate('checkCache', async <Res>(request) => {
-      const cacheKey = buildCacheKey(request);
-      server.log.debug({ msg: 'Checking cache for key', cacheKey });
-      const [err, response] = await server.to(server.redis.get(cacheKey));
-      if (err) {
-        server.log.error({ msg: 'Cache get failed', err });
-        return null;
-      }
-
-      server.log.debug({
-        msg: 'Cache hit for key',
-        cacheKey,
-      });
-      return JSON.parse(response) as Res;
-    });
-
-    server.decorate('setCache', async (request, response) => {
-      const cacheKey = buildCacheKey(request);
-      const [err] = await server.to(server.redis.set(cacheKey, JSON.stringify(response), 'EX', 300));
-      if (err) {
-        server.log.error({ msg: 'Cache set failed', err });
-      }
-    });
-
     return;
+  });
+
+  server.decorate('checkCache', async <Res>(request) => {
+    const cacheKey = buildCacheKey(request);
+    server.log.debug({ msg: 'Checking cache for key', cacheKey });
+    const [err, response] = await server.to(server.redis.get(cacheKey));
+    if (err) {
+      server.log.error({ msg: 'Cache get failed', err });
+      return null;
+    }
+
+    server.log.debug({
+      msg: 'Cache hit for key',
+      cacheKey,
+    });
+    return JSON.parse(response) as Res;
+  });
+
+  server.decorate('setCache', async (request, response) => {
+    const cacheKey = buildCacheKey(request);
+    const [err] = await server.to(server.redis.set(cacheKey, JSON.stringify(response), 'EX', 300));
+    if (err) {
+      server.log.error({ msg: 'Cache set failed', err });
+    }
   });
 
   /**

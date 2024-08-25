@@ -423,6 +423,7 @@ const NoResultsMsg = () => (
 
 const omitUnsafeQueryParams = omit(['fl', 'start', 'rows']);
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  logger.debug({ req: ctx.req }, 'Search page request');
   const { query, response, error } = await ctx.req.search();
 
   if (response) {

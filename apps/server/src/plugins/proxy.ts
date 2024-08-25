@@ -1,18 +1,17 @@
 import FastifyProxy from '@fastify/http-proxy';
 import { FastifyPluginAsync } from 'fastify';
-import { FastifyRequest } from 'fastify/types/request';
 import fp from 'fastify-plugin';
 
 const proxy: FastifyPluginAsync = async (server) => {
   await server.register(FastifyProxy, {
     config: {
       rateLimit: {
-        max: 30,
+        max: 100,
         timeWindow: '1 minute',
         errorResponseBuilder: (_req, context) => ({
           code: 429,
           error: 'Too Many Requests',
-          message: `You have exceeded the login request limit. Please try again in ${context.after}`,
+          message: `You have exceeded the api request limit. Please try again in ${context.after}`,
         }),
       },
     },
@@ -30,9 +29,7 @@ const proxy: FastifyPluginAsync = async (server) => {
     preValidation: server.auth([server.authenticate]),
     proxyPayloads: false,
     preHandler: (request, reply, next) => {
-      if (request.user) {
-        request.headers['authorization'] = `Bearer ${request.user.token}`;
-      }
+      request.headers['authorization'] = `Bearer ${request.auth.user.token}`;
       next();
     },
   });
