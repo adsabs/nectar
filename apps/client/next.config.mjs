@@ -10,22 +10,16 @@ const isDev = process.env.NODE_ENV !== 'production';
  */
 const nextConfig = {
   output: 'standalone',
-  generateBuildId: async () =>
-    nextBuildId({ dir: process.env.__dirname, describe: true }),
+  generateBuildId: async () => nextBuildId({ dir: process.env.__dirname, describe: true }),
   generateEtags: true,
   poweredByHeader: false,
   reactStrictMode: true,
   transpilePackages: ['@nivo'],
   experimental: {
     webVitalsAttribution: ['CLS', 'LCP'],
-    optimisticClientCache: false,
+    // optimisticClientCache: false,
     esmExternals: 'loose',
-    optimizePackageImports: [
-      '@api',
-      '@components',
-      '@chakra-ui/react',
-      'ramda',
-    ],
+    optimizePackageImports: ['@api', '@components', '@chakra-ui/react', 'ramda'],
   },
   async rewrites() {
     if (isDev) {

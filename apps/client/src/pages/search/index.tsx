@@ -7,7 +7,6 @@ import {
   Box,
   Button,
   Center,
-  Code,
   Flex,
   Heading,
   Icon,
@@ -17,23 +16,22 @@ import {
   ListItem,
   Portal,
   Stack,
-  Text,
   Tooltip,
   useDisclosure,
   useMediaQuery,
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/20/solid';
-import { AxiosError } from 'axios';
+import { CommonError } from '@server/types';
 import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { omit } from 'ramda';
-import { FormEventHandler, useCallback, useEffect, useRef, useState } from 'react';
+import { FormEventHandler, useEffect, useRef, useState } from 'react';
 import { useIsClient } from 'src/lib';
 
-import { IADSApiSearchParams, IADSApiSearchResponse, SolrSort } from '@/api';
+import { IADSApiSearchParams, SolrSort } from '@/api';
 import {
   AddToLibraryModal,
   CustomInfoMessage,
@@ -50,7 +48,6 @@ import {
 import { FacetFilters } from '@/components/SearchFacet/FacetFilters';
 import { IYearHistogramSliderProps } from '@/components/SearchFacet/YearHistogramSlider';
 import { BRAND_NAME_FULL } from '@/config';
-import { SOLR_ERROR, useSolrError } from '@/lib/useSolrError';
 import { logger } from '@/logger';
 import { AppState, useStore, useStoreApi } from '@/store';
 import { NumPerPageType } from '@/types';
@@ -267,7 +264,7 @@ const SearchPage: NextPage<InferGetServerSidePropsType<typeof getServerSideProps
 
             {error ? (
               <Center aria-labelledby="search-form-title" mt={4}>
-                <SearchErrorAlert error={error.response} />
+                <SearchErrorAlert error={error} />
               </Center>
             ) : null}
 
@@ -423,8 +420,8 @@ const NoResultsMsg = () => (
 
 const omitUnsafeQueryParams = omit(['fl', 'start', 'rows']);
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  logger.debug({ req: ctx.req }, 'Search page request');
   const { query, response, error } = await ctx.req.search();
+  logger.debug({ query, response, error }, 'Search page request');
 
   if (response) {
     return {
@@ -450,10 +447,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         latestQuery: query,
         numPerPage: query.rows,
       } as AppState,
-      error: {
-        message: error,
-        response: response,
-      },
+      error,
       page: ctx.query.p ?? 1,
       params: query,
       numFound: 0,
@@ -464,29 +458,29 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
 export default SearchPage;
 
-const SearchErrorAlert = ({ error }: { error: AxiosError<IADSApiSearchResponse> | Error }) => {
-  const data = useSolrError(error);
-
-  const getMsg = useCallback(() => {
-    switch (data?.error) {
-      case SOLR_ERROR.FIELD_NOT_FOUND:
-        return (
-          <Text>
-            Unknown field: <Code>{data?.field}</Code>
-          </Text>
-        );
-      case SOLR_ERROR.SYNTAX_ERROR:
-        return <Text>There was an issue parsing the query</Text>;
-      default:
-        return <Text>There was an issue performing the search, please check your query</Text>;
-    }
-  }, [data.error]);
+const SearchErrorAlert = ({ error }: { error: CommonError }) => {
+  // const data = useSolrError(error);
+  //
+  // const getMsg = useCallback(() => {
+  //   switch (data?.error) {
+  //     case SOLR_ERROR.FIELD_NOT_FOUND:
+  //       return (
+  //         <Text>
+  //           Unknown field: <Code>{data?.field}</Code>
+  //         </Text>
+  //       );
+  //     case SOLR_ERROR.SYNTAX_ERROR:
+  //       return <Text>There was an issue parsing the query</Text>;
+  //     default:
+  //       return <Text>There was an issue performing the search, please check your query</Text>;
+  //   }
+  // }, [data.error]);
 
   return (
     <Alert status="error">
       <AlertIcon />
-      <AlertTitle>{getMsg()}</AlertTitle>
-      <AlertDescription>{data.solrMsg}</AlertDescription>
+      <AlertTitle>{error.errorMsg}</AlertTitle>
+      <AlertDescription>{error.friendlyMessage}</AlertDescription>
     </Alert>
   );
 };

@@ -137,6 +137,8 @@ const authPlugin: FastifyPluginAsync = async (server) => {
         void reply.clearCookie(server.config.SCIX_SESSION_COOKIE_NAME);
         return reply.send(jwtErr);
       }
+      server.log.error({ err: jwtErr }, 'Error verifying jwt session');
+      await server.createAnonymousSession(request, reply);
     }
 
     if (hasToken(request.auth.user)) {

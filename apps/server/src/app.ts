@@ -97,16 +97,7 @@ export const buildServer = async (options: FastifyServerOptions = {}) => {
       credentials: true,
     });
 
-    // Register internal plugins
-    await server.register(CachePlugin);
-    await server.register(FetcherPlugin);
-    await server.register(AuthPlugin);
-    await server.register(SearchPlugin);
-    await server.register(DetailsPlugin);
-    await server.register(ProxyPlugin);
-    await server.register(RoutesPlugin);
-
-    if (isProduction) {
+    if (server.config.NODE_ENV === 'production') {
       await server.register(FastifyStatic, {
         root: [path.join(nextDir, '.next/static')],
         prefix: '/_next/static/',
@@ -116,6 +107,16 @@ export const buildServer = async (options: FastifyServerOptions = {}) => {
         },
       });
     }
+
+    // Register internal plugins
+    await server.register(CachePlugin);
+    await server.register(FetcherPlugin);
+    await server.register(AuthPlugin);
+    await server.register(SearchPlugin);
+    await server.register(DetailsPlugin);
+    await server.register(ProxyPlugin);
+    await server.register(RoutesPlugin);
+
     Sentry.setupFastifyErrorHandler(server);
 
     return server;

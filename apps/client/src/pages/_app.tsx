@@ -10,7 +10,7 @@ import { AppProps, NextWebVitalsMetric } from 'next/app';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { FC, ReactElement, useEffect, useMemo } from 'react';
+import { FC, ReactElement, useEffect } from 'react';
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import { useIsClient } from 'src/lib';
 
@@ -41,11 +41,11 @@ export type AppPageProps = {
 };
 
 const NectarApp = ({ Component, pageProps }: AppProps): ReactElement => {
-  const router = useRouter();
+  // const router = useRouter();
 
-  useMemo(() => {
-    router.prefetch = () => new Promise((res) => res());
-  }, [router]);
+  // useMemo(() => {
+  //   router.prefetch = () => new Promise((res) => res());
+  // }, [router]);
 
   return (
     <>
