@@ -20,6 +20,7 @@ import { isNilOrEmpty, notEqual } from 'ramda-adjunct';
 import { useUser } from '@/lib/useUser';
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import '../styles/styles.css';
+import '../styles/page-loader.css';
 import { logger } from '@/logger';
 import { GoogleTagManager, sendGTMEvent } from '@next/third-parties/google';
 import Head from 'next/head';
