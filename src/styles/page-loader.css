@@ -1,0 +1,9 @@
+/* overwrite nprogress.css */
+
+#nprogress .spinner {
+  display: none;
+}
+
+#nprogress .bar {
+  height: 5px;
+}
