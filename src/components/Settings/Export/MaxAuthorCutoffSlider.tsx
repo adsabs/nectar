@@ -1,21 +1,62 @@
-import { NumberSlider } from './NumberSlider';
+import { DescriptionCollapse } from '@/components/CitationExporter';
+import { APP_DEFAULTS } from '@/config';
+import {
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
+  FormLabel,
+  Flex,
+} from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
+import { useDebounce } from 'use-debounce';
 
 export interface IMaxAuthorCutoffSliderProps {
   value: number;
   onChange: (v: number) => void;
 }
 
-export const MIN_EXPORT_AUTHORS_CUTOFF = 1;
-export const MAX_EXPORT_AUTHORS_CUTOFF = 500;
+export const MaxAuthorCutoffSlider = ({ value: defaultValue, onChange }: IMaxAuthorCutoffSliderProps) => {
+  const [value, setValue] = useState(defaultValue);
+  const [debouncedValue] = useDebounce(value, 500);
 
-export const MaxAuthorCutoffSlider = ({ value, onChange }: IMaxAuthorCutoffSliderProps) => {
+  useEffect(() => {
+    if (debouncedValue >= APP_DEFAULTS.MIN_AUTHORCUTOFF && debouncedValue <= APP_DEFAULTS.MAX_AUTHORCUTOFF) {
+      onChange(debouncedValue);
+    }
+  }, [debouncedValue]);
+
   return (
-    <NumberSlider
-      min={MIN_EXPORT_AUTHORS_CUTOFF}
-      max={MAX_EXPORT_AUTHORS_CUTOFF}
-      value={value}
-      onChange={onChange}
+    <DescriptionCollapse
+      body={`Between ${APP_DEFAULTS.MIN_AUTHORCUTOFF} and ${APP_DEFAULTS.MAX_AUTHORCUTOFF}`}
       label="Maximum Authors Cutoff"
-    />
+    >
+      {({ btn, content }) => (
+        <Flex direction="column">
+          <FormLabel htmlFor="authorcutoff-input" fontSize={['sm', 'md']}>
+            Maximum Authors Cutoff {btn}
+          </FormLabel>
+          {content}
+          <NumberInput
+            id="authorcutoff-input"
+            defaultValue={defaultValue}
+            min={APP_DEFAULTS.MIN_AUTHORCUTOFF}
+            max={APP_DEFAULTS.MAX_AUTHORCUTOFF}
+            onChange={(v) => {
+              if (v.length > 0) {
+                setValue(parseInt(v));
+              }
+            }}
+          >
+            <NumberInputField />
+            <NumberInputStepper>
+              <NumberIncrementStepper />
+              <NumberDecrementStepper />
+            </NumberInputStepper>
+          </NumberInput>
+        </Flex>
+      )}
+    </DescriptionCollapse>
   );
 };
