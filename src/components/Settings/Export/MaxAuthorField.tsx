@@ -1,48 +1,48 @@
-import { DescriptionCollapse } from '@/components/CitationExporter';
+import { DescriptionCollapse } from '@/components';
 import { APP_DEFAULTS } from '@/config';
 import {
+  FormLabel,
   NumberInput,
   NumberInputField,
   NumberInputStepper,
   NumberIncrementStepper,
   NumberDecrementStepper,
-  FormLabel,
   Flex,
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 
-export interface IMaxAuthorCutoffSliderProps {
+export interface IMaxAuthorFieldProps {
   value: number;
   onChange: (v: number) => void;
 }
 
-export const MaxAuthorCutoffSlider = ({ value: defaultValue, onChange }: IMaxAuthorCutoffSliderProps) => {
+export const MaxAuthorField = ({ value: defaultValue, onChange }: IMaxAuthorFieldProps) => {
   const [value, setValue] = useState(defaultValue);
   const [debouncedValue] = useDebounce(value, 500);
 
   useEffect(() => {
-    if (debouncedValue >= APP_DEFAULTS.MIN_AUTHORCUTOFF && debouncedValue <= APP_DEFAULTS.MAX_AUTHORCUTOFF) {
+    if (debouncedValue >= APP_DEFAULTS.MIN_EXPORT_AUTHORS && debouncedValue <= APP_DEFAULTS.MAX_EXPORT_AUTHORS) {
       onChange(debouncedValue);
     }
   }, [debouncedValue]);
 
   return (
     <DescriptionCollapse
-      body={`Between ${APP_DEFAULTS.MIN_AUTHORCUTOFF} and ${APP_DEFAULTS.MAX_AUTHORCUTOFF}`}
-      label="Maximum Authors Cutoff"
+      body={`Set between ${APP_DEFAULTS.MIN_EXPORT_AUTHORS} and ${APP_DEFAULTS.MAX_EXPORT_AUTHORS}`}
+      label="Maximum Authors"
     >
       {({ btn, content }) => (
         <Flex direction="column">
-          <FormLabel htmlFor="authorcutoff-input" fontSize={['sm', 'md']}>
-            Maximum Authors Cutoff {btn}
+          <FormLabel htmlFor="maxauthor-input" fontSize={['sm', 'md']}>
+            Maximum Authors {btn}
           </FormLabel>
           {content}
           <NumberInput
-            id="authorcutoff-input"
+            id="maxauthor-input"
             defaultValue={defaultValue}
-            min={APP_DEFAULTS.MIN_AUTHORCUTOFF}
-            max={APP_DEFAULTS.MAX_AUTHORCUTOFF}
+            min={APP_DEFAULTS.MIN_EXPORT_AUTHORS}
+            max={APP_DEFAULTS.MAX_EXPORT_AUTHORS}
             onChange={(v) => {
               if (v.length > 0) {
                 setValue(parseInt(v));

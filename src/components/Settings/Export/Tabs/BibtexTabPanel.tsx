@@ -6,14 +6,14 @@ import {
   useGetExportCitation,
 } from '@/api';
 import { Button, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Tooltip, VStack } from '@chakra-ui/react';
-import { MaxAuthorSlider, SampleTextArea } from '@/components';
+import { MaxAuthorField, SampleTextArea } from '@/components';
 import { JournalFormatSelect } from '@/components/CitationExporter';
 import { JournalFormatMap } from '@/components/Settings/model';
 import { UserDataSetterEvent } from '@/pages/user/settings/export';
 import { Dispatch, useState } from 'react';
 import { bibtexExportFormatDescription, journalNameHandlingDescription, maxAuthorDescription } from '../Description';
 import { KeyFormatInputApply } from '../KeyFormatInputApply';
-import { MaxAuthorCutoffSlider } from '../MaxAuthorCutoffSlider';
+import { MaxAuthorCutoffField } from '../MaxAuthorCutoffField';
 import { useSettings } from '@/lib/useSettings';
 
 export type IBibtexTabPanelProps = {
@@ -155,7 +155,7 @@ export const BibtexTabPanel = ({ sampleBib, dispatch }: IBibtexTabPanelProps) =>
             label="Default Export Key Format"
             onApply={handleChangeAllBibtexExportKeyFormat}
           />
-          <MaxAuthorSlider value={bibtexMaxAuthors} onChange={handleApplyAllBibtexMaxAuthors} />
+          <MaxAuthorField value={bibtexMaxAuthors} onChange={handleApplyAllBibtexMaxAuthors} />
         </>
       ) : (
         <>
@@ -220,8 +220,8 @@ const AdvancedTab = ({
         onApply={onApplyKeyFormat}
       />
       {maxAuthorDescription}
-      <MaxAuthorCutoffSlider value={maxCutoff} onChange={onChangeMaxCutoff} />
-      <MaxAuthorSlider value={maxAuthor} onChange={onChangeMaxAuthor} />
+      <MaxAuthorCutoffField value={maxCutoff} onChange={onChangeMaxCutoff} />
+      <MaxAuthorField value={maxAuthor} onChange={onChangeMaxAuthor} />
     </Stack>
   );
 };

@@ -12,7 +12,7 @@ import { useDebounce } from 'use-debounce';
 import { CitationExporterEvent, ICitationExporterState } from '../CitationExporter.machine';
 import { DescriptionCollapse } from './DescriptionCollapse';
 
-export const RecordSlider = (props: {
+export const RecordField = (props: {
   records: string[];
   range: ICitationExporterState['range'];
   dispatch: Dispatch<CitationExporterEvent>;

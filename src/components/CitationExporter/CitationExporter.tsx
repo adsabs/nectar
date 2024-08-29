@@ -29,15 +29,15 @@ import { useRouter } from 'next/router';
 import { ChangeEventHandler, Dispatch, HTMLAttributes, ReactElement, useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { CitationExporterEvent } from './CitationExporter.machine';
-import { AuthorCutoffSlider } from './components/AuthorCutoffSlider';
+import { AuthorCutoffField } from './components/AuthorCutoffField';
 import { CustomFormatSelect } from './components/CustomFormatSelect';
 import { ErrorFallback } from './components/ErrorFallback';
 import { ExportContainer } from './components/ExportContainer';
 import { FormatSelect } from './components/FormatSelect';
 import { JournalFormatSelect } from './components/JournalFormatSelect';
 import { KeyFormatInput } from './components/KeyFormatInput';
-import { MaxAuthorsSlider } from './components/MaxAuthorsSlider';
-import { RecordSlider } from './components/RecordSlider';
+import { MaxAuthorsField } from './components/MaxAuthorsField';
+import { RecordField } from './components/RecordField';
 import { ResultArea } from './components/ResultArea';
 import { exportFormats } from './models';
 import { useCitationExporter } from './useCitationExporter';
@@ -194,7 +194,7 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
                       <FormatSelect format={ctx.params.format} dispatch={dispatch} />
                       <AdvancedControls dispatch={dispatch} params={ctx.params} />
                       {ctx.records.length > 1 && (
-                        <RecordSlider range={ctx.range} records={ctx.records} dispatch={dispatch} />
+                        <RecordField range={ctx.range} records={ctx.records} dispatch={dispatch} />
                       )}
 
                       <Stack direction={'row'}>
@@ -271,8 +271,8 @@ const AdvancedControls = ({
                 </Button>
               </VStack>
             )}
-            {!isBasicMode && <AuthorCutoffSlider authorcutoff={params.authorcutoff} dispatch={dispatch} />}
-            <MaxAuthorsSlider maxauthor={params.maxauthor} dispatch={dispatch} isBasicMode={isBasicMode} />
+            {!isBasicMode && <AuthorCutoffField authorcutoff={params.authorcutoff} dispatch={dispatch} />}
+            <MaxAuthorsField maxauthor={params.maxauthor} dispatch={dispatch} isBasicMode={isBasicMode} />
           </Stack>
         </Collapse>
       </Box>

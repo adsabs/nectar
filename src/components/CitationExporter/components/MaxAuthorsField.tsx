@@ -14,7 +14,7 @@ import { CitationExporterEvent } from '../CitationExporter.machine';
 import { DescriptionCollapse } from './DescriptionCollapse';
 import { useDebounce } from 'use-debounce';
 
-export const MaxAuthorsSlider = (props: {
+export const MaxAuthorsField = (props: {
   maxauthor: IExportApiParams['maxauthor'];
   dispatch: Dispatch<CitationExporterEvent>;
   isBasicMode: boolean;
