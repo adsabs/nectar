@@ -1,11 +1,18 @@
 import { IExportApiParams } from '@/api';
-import { Code, FormLabel } from '@chakra-ui/react';
-import { Slider } from '@/components/Slider';
+import {
+  Code,
+  FormLabel,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+} from '@chakra-ui/react';
 import { APP_DEFAULTS } from '@/config';
 import { Dispatch, ReactElement, useEffect, useState } from 'react';
-import { useDebounce } from 'use-debounce';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 import { DescriptionCollapse } from './DescriptionCollapse';
+import { useDebounce } from 'use-debounce';
 
 export const MaxAuthorsSlider = (props: {
   maxauthor: IExportApiParams['maxauthor'];
@@ -16,17 +23,18 @@ export const MaxAuthorsSlider = (props: {
 }) => {
   const { maxauthor: [maxauthor] = [], isBasicMode, dispatch } = props;
   const [value, setValue] = useState(maxauthor);
-  const [debouncedValue] = useDebounce(value, 300);
+  const [debouncedValue] = useDebounce(value, 500);
 
   // in basic mode, max author and author cutoff are always the same
   useEffect(() => {
-    dispatch({ type: 'SET_MAX_AUTHOR', payload: debouncedValue });
-    if (isBasicMode) {
-      dispatch({ type: 'SET_AUTHOR_CUTOFF', payload: debouncedValue });
+    if (debouncedValue >= 0 && debouncedValue <= APP_DEFAULTS.MAX_EXPORT_AUTHORS) {
+      dispatch({ type: 'SET_MAX_AUTHOR', payload: debouncedValue });
+      if (isBasicMode) {
+        dispatch({ type: 'SET_AUTHOR_CUTOFF', payload: debouncedValue });
+      }
     }
   }, [debouncedValue]);
 
-  const handleChange = (val: number[]) => setValue(val[0]);
   const label = props.label ?? 'Max Authors';
 
   return (
@@ -34,19 +42,27 @@ export const MaxAuthorsSlider = (props: {
       <DescriptionCollapse body={props.description ?? description} label={label}>
         {({ btn, content }) => (
           <>
-            <FormLabel htmlFor="maxauthor-slider" fontSize={['sm', 'md']}>
+            <FormLabel htmlFor="maxauthor-input" fontSize={['sm', 'md']}>
               {label} <span aria-hidden="true">({value === 0 ? 'ALL' : value})</span> {btn}
             </FormLabel>
             {content}
-            <Slider
-              id="maxauthor-slider"
-              aria-label={label}
-              range={[0, APP_DEFAULTS.MAX_AUTHORCUTOFF]}
-              values={[value]}
-              onSlideEnd={handleChange}
-              size={1}
-              px={4}
-            />
+            <NumberInput
+              id="maxauthor-input"
+              defaultValue={maxauthor}
+              min={0}
+              max={APP_DEFAULTS.MAX_EXPORT_AUTHORS}
+              onChange={(v) => {
+                if (v.length > 0) {
+                  setValue(parseInt(v));
+                }
+              }}
+            >
+              <NumberInputField />
+              <NumberInputStepper>
+                <NumberIncrementStepper />
+                <NumberDecrementStepper />
+              </NumberInputStepper>
+            </NumberInput>
           </>
         )}
       </DescriptionCollapse>
@@ -56,7 +72,8 @@ export const MaxAuthorsSlider = (props: {
 
 const description = (
   <p>
-    Maximum number of authors displayed. In advanced mode, this only applies if the number of authors exceed{' '}
-    <Code>authorcutoff</Code>.
+    Maximum number of authors displayed. Use values between <Code>0</Code> and{' '}
+    <Code>{APP_DEFAULTS.MAX_EXPORT_AUTHORS}</Code>. Use <Code>0</Code> to display all authors. In advanced mode, this
+    only applies if the number of authors exceed <Code>authorcutoff</Code>.
   </p>
 );
