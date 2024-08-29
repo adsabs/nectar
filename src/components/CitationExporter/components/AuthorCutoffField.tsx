@@ -14,7 +14,7 @@ import { DescriptionCollapse } from './DescriptionCollapse';
 import { APP_DEFAULTS } from '@/config';
 import { useDebounce } from 'use-debounce';
 
-export const AuthorCutoffSlider = (props: {
+export const AuthorCutoffField = (props: {
   authorcutoff: IExportApiParams['authorcutoff'];
   dispatch: Dispatch<CitationExporterEvent>;
   label?: string;
