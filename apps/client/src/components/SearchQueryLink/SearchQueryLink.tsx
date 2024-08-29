@@ -19,9 +19,7 @@ const getSearchUrl = (params: IADSApiSearchParams) => `/search?${makeSearchParam
 export const SearchQueryLink = (props: ISearchQueryLinkProps): ReactElement => {
   const { params, replace = false, shallow = false, prefetch = true, ...linkProps } = props;
 
-  return (
-    <SimpleLink replace={replace} shallow={shallow} prefetch={prefetch} {...linkProps} href={getSearchUrl(params)} />
-  );
+  return <SimpleLink replace={replace} shallow={shallow} {...linkProps} href={getSearchUrl(params)} />;
 };
 
 export interface ISearchQueryLinkButtonProps extends Omit<ButtonProps, 'onClick'> {

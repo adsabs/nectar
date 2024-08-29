@@ -2,6 +2,8 @@ import FastifyProxy from '@fastify/http-proxy';
 import { FastifyPluginAsync } from 'fastify';
 import fp from 'fastify-plugin';
 
+import { TRACING_HEADERS } from '../config';
+
 const proxy: FastifyPluginAsync = async (server) => {
   await server.register(FastifyProxy, {
     config: {
@@ -30,7 +32,19 @@ const proxy: FastifyPluginAsync = async (server) => {
     proxyPayloads: false,
     preHandler: (request, reply, next) => {
       request.headers['authorization'] = `Bearer ${request.auth.user.token}`;
+      TRACING_HEADERS.forEach((header) => {
+        const value = request.headers[header];
+        if (value) {
+          void reply.header(header, value);
+        }
+      });
       next();
+    },
+    replyOptions: {
+      rewriteHeaders(headers, request) {
+        server.log.debug({ headers }, 'Rewriting headers');
+        return headers;
+      },
     },
   });
 };

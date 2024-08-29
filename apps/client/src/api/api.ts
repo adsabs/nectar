@@ -128,9 +128,9 @@ class SessionManager {
   // Centralized error handling
   private handleError(err: AxiosError, reject: (reason?: any) => void) {
     if (err.response?.status === 401) {
-      log.error('Session may have expired, triggering refresh');
-      this.errors.emit({ err, type: 'error' }, 'Your session may have expired, please refresh this page');
-      reject('Session may have expired');
+      log.error('Session has expired, triggering refresh');
+      this.errors.emit({ err, type: 'error' }, 'Your session has expired, please refresh this page');
+      reject('Session has expired');
     } else if (err.response?.status === 429) {
       log.error('Too many requests, throttling');
       this.errors.emit({ err, type: 'error' }, 'Too many requests, please wait a minute and try again');
@@ -162,13 +162,13 @@ class ErrorManager {
   }
   emit({ err, type }: { err: Error; type: 'info' | 'error' }, msg = 'API Error') {
     log.error({ err, type }, msg);
-    if (type === 'error') {
+    if (type === 'error' && !this.toastInstance.toast.isActive(this.id)) {
       this.toastInstance.toast({
         title: 'API Error',
         description: msg,
         status: 'error',
       });
-    } else if (type === 'info') {
+    } else if (type === 'info' && !this.toastInstance.toast.isActive(this.id)) {
       this.toastInstance.toast({
         title: 'API Info',
         description: msg,

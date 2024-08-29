@@ -5,6 +5,7 @@ import { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
 import { Readable } from 'stream';
 
+import { apiTargets } from '../lib/api';
 import { consumeReadableStream } from '../lib/utils';
 
 /**
@@ -98,6 +99,10 @@ const cache: FastifyPluginAsync = async (server) => {
   });
 
   server.decorate('checkCache', async <Res>(request) => {
+    if (request.url.startsWith(`/v1${apiTargets.CSRF}`)) {
+      return null;
+    }
+
     const cacheKey = buildCacheKey(request);
     server.log.debug({ msg: 'Checking cache for key', cacheKey });
     const [err, response] = await server.to(server.redis.get(cacheKey));
@@ -114,6 +119,9 @@ const cache: FastifyPluginAsync = async (server) => {
   });
 
   server.decorate('setCache', async (request, response) => {
+    if (request.url.startsWith(`/v1${apiTargets.CSRF}`)) {
+      return;
+    }
     const cacheKey = buildCacheKey(request);
     const [err] = await server.to(server.redis.set(cacheKey, JSON.stringify(response), 'EX', 300));
     if (err) {

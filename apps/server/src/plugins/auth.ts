@@ -1,15 +1,58 @@
 import { Type as T } from '@sinclair/typebox';
-import { FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
+import { FastifyPluginAsync } from 'fastify';
 import fp from 'fastify-plugin';
 
 import { TRACING_HEADERS } from '../config';
-import { bootstrapResponseToUser, getAnonymousUser, hasToken, pick, skipUrl } from '../lib/utils';
+import { bootstrapResponseToUser, getAnonymousUser, pick, skipUrl, unwrapHeader } from '../lib/utils';
 import { BootstrapResponse, sessionResponseSchema, userSchema } from '../types';
 import { FetcherResponse } from './fetcher';
 
-const getTokenExpiry = () => new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+const getTokenExpiry = () => new Date(Date.now() + 12 * 60 * 60 * 1000); // 12 hours
 
 const authPlugin: FastifyPluginAsync = async (server) => {
+  server.decorate('refreshToken', async (request, reply) => {
+    const [err, response] = await server.to<FetcherResponse<BootstrapResponse>>(
+      server.fetcher<BootstrapResponse>({
+        path: 'BOOTSTRAP',
+        method: 'GET',
+        headers: {
+          ...pick(TRACING_HEADERS, request.headers),
+          cookie: request.cookies[server.config.ADS_SESSION_COOKIE_NAME],
+        },
+      }),
+    );
+
+    if (err) {
+      server.log.error({ err }, 'Error during bootstrap');
+      return [err, null];
+    }
+
+    server.log.debug({ response }, 'Token refreshed.');
+
+    const user = bootstrapResponseToUser(response.body);
+    const responseSetCookie = unwrapHeader(response.headers['set-cookie']);
+
+    // Generate a new JWT
+    const newToken = await reply.jwtSign({
+      user,
+      id: response.body.username,
+      exSession: request.cookies[server.config.ADS_SESSION_COOKIE_NAME],
+    });
+
+    void reply.raw.setHeader('set-cookie', [
+      server.serializeCookie(server.config.SCIX_SESSION_COOKIE_NAME, newToken, {
+        httpOnly: true,
+        secure: server.config.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/',
+        expires: getTokenExpiry(),
+      }),
+      ...(responseSetCookie ? [responseSetCookie] : []),
+    ]);
+
+    return [null, response];
+  });
+
   server.decorate('bootstrap', async (request) => {
     return server.to<FetcherResponse<BootstrapResponse>>(
       server.fetcher<BootstrapResponse>({
@@ -45,7 +88,6 @@ const authPlugin: FastifyPluginAsync = async (server) => {
         path: '/',
         expires: getTokenExpiry(),
       }),
-      ...(exSession ? [exSession] : []),
     ]);
   });
 
@@ -91,33 +133,13 @@ const authPlugin: FastifyPluginAsync = async (server) => {
     },
     onRequest: server.auth([server.authenticate]),
     handler: async (request, reply) => {
-      const [err, res] = await server.bootstrap(request);
+      const [err, response] = await server.refreshToken(request, reply);
 
       if (err) {
-        server.log.error({ err }, 'Error during bootstrap');
-        reply.send(err);
+        return reply.send(err);
       }
 
-      const user = bootstrapResponseToUser(res.body);
-
-      // Generate a new JWT
-      const newToken = await reply.jwtSign({
-        user,
-        id: res.body.username,
-        exSession: request.cookies[server.config.ADS_SESSION_COOKIE_NAME],
-      });
-
-      void reply.raw.setHeader('set-cookie', [
-        server.serializeCookie(server.config.SCIX_SESSION_COOKIE_NAME, newToken, {
-          httpOnly: true,
-          secure: server.config.NODE_ENV === 'production',
-          sameSite: 'strict',
-          path: '/',
-          expires: getTokenExpiry(),
-        }),
-        res.headers['set-cookie'],
-      ]);
-      return reply.send({ user });
+      return reply.send({ user: bootstrapResponseToUser(response) });
     },
   });
 
@@ -125,58 +147,74 @@ const authPlugin: FastifyPluginAsync = async (server) => {
     return url.startsWith('/search') || url.startsWith('/abs') || url.startsWith('/_next/data');
   };
 
-  const handleSSRRoute = async (request: FastifyRequest, reply: FastifyReply) => {
-    server.log.debug('is SSR route, will validate');
-
-    // check if we have an incoming jwt
-    const [jwtErr] = await server.to(request.jwtVerify());
-
-    if (jwtErr) {
-      if (jwtErr?.code === 'FST_JWT_AUTHORIZATION_TOKEN_INVALID') {
-        server.log.error({ err: jwtErr }, 'Invalid JWT token, clear cookie and return now');
-        void reply.clearCookie(server.config.SCIX_SESSION_COOKIE_NAME);
-        return reply.send(jwtErr);
-      }
-      server.log.error({ err: jwtErr }, 'Error verifying jwt session');
-      await server.createAnonymousSession(request, reply);
-    }
-
-    if (hasToken(request.auth.user)) {
-      server.log.debug('Already have a valid token, skipping refresh');
-      return;
-    }
-    server.log.debug('No valid token, refreshing session');
-    const [bootstrapErr, res] = await server.bootstrap(request);
-    if (bootstrapErr) {
-      server.log.error({ err: bootstrapErr }, 'Error during bootstrap');
-      return;
-    }
-
-    const user = bootstrapResponseToUser(res.body);
-
-    // Generate a new JWT
-    const newToken = await reply.jwtSign({
-      user,
-      id: res.body.username,
-      exSession: request.cookies[server.config.ADS_SESSION_COOKIE_NAME],
-    });
-
-    void reply.raw.setHeader('set-cookie', [
-      server.serializeCookie(server.config.SCIX_SESSION_COOKIE_NAME, newToken, {
-        httpOnly: true,
-        secure: server.config.NODE_ENV === 'production',
-        sameSite: 'strict',
-        path: '/',
-        expires: getTokenExpiry(),
-      }),
-      res.headers['set-cookie'],
-    ]);
-
-    server.log.debug('Refreshed session');
-    return;
-  };
+  // const handleSSRRoute = async (request: FastifyRequest, reply: FastifyReply) => {
+  //   server.log.debug('is SSR route, will validate');
+  //
+  //   // check if we have an incoming jwt
+  //   const [jwtErr] = await server.to(request.jwtVerify());
+  //
+  //   if (jwtErr) {
+  //     if (jwtErr?.code === 'FST_JWT_AUTHORIZATION_TOKEN_INVALID') {
+  //       server.log.error({ err: jwtErr }, 'Invalid JWT token, clear cookie and return now');
+  //       void reply.clearCookie(server.config.SCIX_SESSION_COOKIE_NAME);
+  //       return reply.send(jwtErr);
+  //     }
+  //     server.log.error({ err: jwtErr }, 'Error verifying jwt session');
+  //     await server.createAnonymousSession(request, reply);
+  //   }
+  //
+  //   if (hasToken(request.auth.user)) {
+  //     server.log.debug('Already have a valid token, skipping refresh');
+  //     return;
+  //   }
+  //   server.log.debug('No valid token, refreshing session');
+  //   const [bootstrapErr, res] = await server.bootstrap(request);
+  //   if (bootstrapErr) {
+  //     server.log.error({ err: bootstrapErr }, 'Error during bootstrap');
+  //     return;
+  //   }
+  //
+  //   const user = bootstrapResponseToUser(res.body);
+  //
+  //   // Generate a new JWT
+  //   const newToken = await reply.jwtSign({
+  //     user,
+  //     id: res.body.username,
+  //     exSession: request.cookies[server.config.ADS_SESSION_COOKIE_NAME],
+  //   });
+  //
+  //   void reply.raw.setHeader('set-cookie', [
+  //     server.serializeCookie(server.config.SCIX_SESSION_COOKIE_NAME, newToken, {
+  //       httpOnly: true,
+  //       secure: server.config.NODE_ENV === 'production',
+  //       sameSite: 'strict',
+  //       path: '/',
+  //       expires: getTokenExpiry(),
+  //     }),
+  //     res.headers['set-cookie'],
+  //   ]);
+  //
+  //   server.log.debug('Refreshed session');
+  //   return;
+  // };
 
   server.addHook('onRequest', async (request, reply) => {
+    // if ads session cookie is present, set it in the response
+    if (request.cookies[server.config.ADS_SESSION_COOKIE_NAME]) {
+      server.log.debug({
+        msg: 'Found external session cookie',
+        cookie: request.cookies[server.config.ADS_SESSION_COOKIE_NAME],
+      });
+      reply.raw.setHeader('set-cookie', request.cookies[server.config.ADS_SESSION_COOKIE_NAME]);
+    }
+
+    // if tracing headers are present, set them in the response
+    TRACING_HEADERS.forEach((header) => {
+      if (request.headers[header]) {
+        reply.raw.setHeader(header, request.headers[header]);
+      }
+    });
+
     const url = request.url;
     if (skipUrl(url.split('?')[0])) {
       server.log.debug({
@@ -184,10 +222,6 @@ const authPlugin: FastifyPluginAsync = async (server) => {
         url,
       });
       return;
-    }
-
-    if (isSSRRoute(url)) {
-      return await handleSSRRoute(request, reply);
     }
 
     if (!request.cookies[server.config.SCIX_SESSION_COOKIE_NAME]) {

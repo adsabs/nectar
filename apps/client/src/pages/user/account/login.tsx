@@ -6,7 +6,8 @@ import { NextPage } from 'next';
 import Head from 'next/head';
 import { FormEventHandler, useCallback, useEffect, useRef } from 'react';
 
-import { fetchCSRF } from '@/auth-utils';
+import { ApiTargets, ICSRFResponse } from '@/api';
+import api from '@/api/api';
 import { FeedbackAlert, PasswordTextInput, SimpleLink } from '@/components';
 import { BRAND_NAME_FULL } from '@/config';
 import { logger } from '@/logger';
@@ -22,14 +23,17 @@ const Login: NextPage = () => {
   } = useMutation<NectarLoginResponse, NectarLoginErrorResponse, NectarLoginPayload['credentials']>(
     ['login'],
     async (credentials) => {
-      const { data: csrfResponse } = await fetchCSRF();
+      const { data: csrfResponse } = await api.request<ICSRFResponse>({
+        url: ApiTargets.CSRF,
+        method: 'GET',
+      });
 
       const body: NectarLoginPayload = {
         credentials,
         csrf: csrfResponse?.csrf,
       };
 
-      const { data } = await axios.post<NectarLoginResponse | NectarLoginErrorResponse>('/auth/login', body);
+      const { data } = await axios.post<NectarLoginResponse | NectarLoginErrorResponse>('/api/auth/login', body);
       return data;
     },
   );

@@ -166,6 +166,7 @@ const requestPlugin: FastifyPluginCallback = (server: FastifyInstance, _opts, do
             server.log.error({
               msg: 'Error during fetch',
               err: error as FetcherError,
+              url: `${rest.url || getApiEndpoint(path)}`,
             });
             reject(error as FetcherError);
           }
@@ -193,4 +194,4 @@ const requestPlugin: FastifyPluginCallback = (server: FastifyInstance, _opts, do
 
 export default fp(requestPlugin, { name: 'fetcher', dependencies: ['cache'] });
 
-export type FetcherError = errors.UndiciError;
+export type FetcherError = errors.ResponseStatusCodeError;

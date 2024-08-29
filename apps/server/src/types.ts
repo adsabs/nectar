@@ -31,33 +31,6 @@ export const loginPayloadSchema = T.Object({
 
 export type LoginPayload = Static<typeof loginPayloadSchema>;
 
-export const loginResponseSchema = T.Object({
-  api: T.Object({
-    token: T.String(),
-  }),
-  user: T.Object({
-    name: T.String(),
-    settings: T.Unknown(),
-    isAnonymous: T.Boolean(),
-  }),
-});
-
-export type LoginResponse = Static<typeof loginResponseSchema>;
-
-export const loginErrorResponseSchema = T.Object({
-  errorKey: T.Union([
-    T.Literal('csrf-invalid'),
-    T.Literal('login-error'),
-    T.Literal('login-error-bootstrap'),
-    T.Literal('login-error-user-data'),
-    T.Literal('login-error-unexpected'),
-  ]),
-  friendlyMessage: T.String(),
-  actualError: T.Optional(T.String()),
-});
-
-export type LoginErrorResponse = Static<typeof loginErrorResponseSchema>;
-
 export const apiLoginResponseSchema = T.Object({
   message: T.Optional(T.String()),
   error: T.Optional(T.String()),
@@ -80,6 +53,9 @@ export const userSchema = T.Object({
 });
 
 export type ScixUser = Static<typeof userSchema>;
+
+export const loginResponseSchema = T.Object({ user: userSchema });
+export type LoginResponse = Static<typeof loginResponseSchema>;
 
 export const sessionSchema = T.Object({
   user: T.Optional(userSchema),
@@ -106,6 +82,27 @@ export const searchParamsSchema = T.Object({
   fl: T.Optional(T.String()),
   fq: T.Optional(T.String()),
 });
+
+export const commonErrorSchema = T.Object({
+  statusCode: T.Number(),
+  errorMsg: T.String(),
+  friendlyMessage: T.String(),
+});
+
+export const loginErrorResponseSchema = T.Object({
+  errorKey: T.Union([
+    T.Literal('csrf-invalid'),
+    T.Literal('login-error'),
+    T.Literal('login-error-bootstrap'),
+    T.Literal('login-error-user-data'),
+    T.Literal('login-error-unexpected'),
+  ]),
+  statusCode: T.Pick(commonErrorSchema, ['statusCode']),
+  errorMsg: T.Pick(commonErrorSchema, ['errorMsg']),
+  friendlyMessage: T.Pick(commonErrorSchema, ['friendlyMessage']),
+});
+
+export type LoginErrorResponse = Static<typeof loginErrorResponseSchema>;
 
 export type NectarSessionResponse = Static<typeof sessionResponseSchema>;
 export type NectarSessionErrorResponse = Static<typeof sessionErrorResponseSchema>;

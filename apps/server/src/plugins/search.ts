@@ -1,5 +1,5 @@
 import { Value } from '@sinclair/typebox/value';
-import { FastifyPluginCallback, FastifyRequest } from 'fastify';
+import { FastifyPluginCallback, FastifyReply, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
 import { pick } from 'src/lib/utils';
 
@@ -8,10 +8,10 @@ import { TRACING_HEADERS } from '../config';
 import { searchFields } from '../lib/api';
 import { searchParamsSchema, SearchResponse } from '../types';
 import { buildCacheKey } from './cache';
-import { FetcherResponse } from './fetcher';
+import { FetcherError, FetcherResponse } from './fetcher';
 
 const search: FastifyPluginCallback = async (server) => {
-  const getSearchHandler = (request: FastifyRequest) => async (): Promise<SearchResponse> => {
+  const getSearchHandler = (request: FastifyRequest, reply: FastifyReply) => async (): Promise<SearchResponse> => {
     const reqQuery = Value.Parse(searchParamsSchema, request.query);
 
     const query: IADSApiSearchParams = {
@@ -30,52 +30,77 @@ const search: FastifyPluginCallback = async (server) => {
       return JSON.parse(cacheResponse) as SearchResponse;
     }
 
-    const [err, response] = await server.to<FetcherResponse<IADSApiSearchResponse>>(
-      server.fetcher<SearchResponse>({
-        path: 'SEARCH',
-        query,
-        headers: {
-          authorization: `Bearer ${request.auth.user.token}`,
-          ...pick(TRACING_HEADERS, request.headers),
-        },
-      }),
-    );
+    const executeSearch = async (token: string): Promise<SearchResponse> => {
+      const [err, response] = await server.to<FetcherResponse<IADSApiSearchResponse>>(
+        server.fetcher<SearchResponse>({
+          path: 'SEARCH',
+          query,
+          headers: {
+            authorization: `Bearer ${token}`,
+            ...pick(TRACING_HEADERS, request.headers),
+          },
+        }),
+      );
 
-    if (err || response.statusCode !== 200) {
-      server.log.error({ err, query }, 'Error fetching search results');
+      const searchError = err as FetcherError;
+
+      if (searchError || response.statusCode !== 200) {
+        server.log.error({ err, query }, 'Error fetching search results');
+
+        return {
+          response: null,
+          query,
+          error: {
+            statusCode: searchError.statusCode || 500,
+            errorMsg: searchError?.message || 'Failed to fetch search results',
+            friendlyMessage: 'Failed to fetch search results. Please try again later.',
+          },
+        };
+      }
 
       return {
-        response: null,
+        response: response.body,
         query,
-        error: {
-          statusCode: response?.statusCode || 500,
-          errorMsg: err?.message || 'Failed to fetch search results',
-          friendlyMessage: 'Failed to fetch search results. Please try again later.',
-        },
+        error: null,
       };
-    }
-
-    const res: SearchResponse = {
-      response: response.body,
-      query,
-      error: null,
     };
 
-    const [cacheErr] = await server.to(server.redis.set(cacheKey, JSON.stringify(res), 'EX', 300));
-    if (cacheErr) {
-      server.log.error({ err: cacheErr }, 'Cache set failed');
+    let searchResponse = await executeSearch(request.auth.user.token);
+
+    server.log.debug({ searchResponse }, 'Search response');
+
+    // Check for 401 status code and attempt token refresh
+    if (searchResponse.error?.statusCode === 401) {
+      server.log.info('Received 401 Unauthorized, attempting to refresh token');
+
+      const [refreshErr, refreshResponse] = await server.refreshToken(request, reply);
+
+      if (refreshErr || !refreshResponse || refreshResponse.statusCode !== 200) {
+        server.log.error({ refreshErr, refreshResponse }, 'Token refresh failed');
+        return searchResponse; // Return the original 401 response
+      }
+
+      // Retry the search with the refreshed token
+      searchResponse = await executeSearch(refreshResponse.body.access_token);
     }
 
-    return res;
+    if (!searchResponse.error) {
+      const [cacheErr] = await server.to(server.redis.set(cacheKey, JSON.stringify(searchResponse), 'EX', 300));
+      if (cacheErr) {
+        server.log.error({ err: cacheErr }, 'Cache set failed');
+      }
+    }
+
+    return searchResponse;
   };
 
-  server.addHook('preHandler', (request, _reply, done) => {
-    request.raw.search = getSearchHandler(request);
+  server.addHook('preHandler', (request, reply, done) => {
+    request.raw.search = getSearchHandler(request, reply);
     done();
   });
 };
 
 export default fp(search, {
   name: 'search',
-  dependencies: ['cache', 'fetcher'],
+  dependencies: ['cache', 'fetcher', 'auth'],
 });

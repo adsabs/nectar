@@ -21,6 +21,7 @@ import AuthPlugin from './plugins/auth';
 import CachePlugin from './plugins/cache';
 import DetailsPlugin from './plugins/details';
 import FetcherPlugin from './plugins/fetcher';
+import LoginRoutePlugin from './plugins/loginRoute';
 import ProxyPlugin from './plugins/proxy';
 import RoutesPlugin from './plugins/routes';
 import SearchPlugin from './plugins/search';
@@ -88,7 +89,7 @@ export const buildServer = async (options: FastifyServerOptions = {}) => {
       },
       decoratorName: 'auth',
       sign: {
-        expiresIn: '1h',
+        expiresIn: '12h',
       },
     });
     await server.register(FastifyAuth);
@@ -115,6 +116,7 @@ export const buildServer = async (options: FastifyServerOptions = {}) => {
     await server.register(SearchPlugin);
     await server.register(DetailsPlugin);
     await server.register(ProxyPlugin);
+    await server.register(LoginRoutePlugin);
     await server.register(RoutesPlugin);
 
     Sentry.setupFastifyErrorHandler(server);

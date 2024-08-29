@@ -32,6 +32,7 @@ declare module 'fastify' {
     search: (request: FastifyRequest) => Promise<IADSApiSearchResponse>;
     bootstrap: (request: FastifyRequest) => ToType<BootstrapResponse>;
     createAnonymousSession: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
+    refreshToken: (request: FastifyRequest, reply: FastifyReply) => ToType<BootstrapResponse>;
   }
 
   interface FastifyRequest {
