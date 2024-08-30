@@ -566,3 +566,15 @@ export const immutableInsert = <T>(arr: T[], index: number, newItem: T): T[] => 
 ];
 
 export const immutableRemove = <T>(arr: T[], index: number): T[] => [...arr.slice(0, index), ...arr.slice(index + 1)];
+
+export const getPageFromSearchParams = (
+  params: { rows: number; start: number } extends IADSApiSearchParams
+    ? IADSApiSearchParams
+    : { rows: number; start: number },
+): number => {
+  return params.start / params.rows + 1;
+};
+
+export const getStartFromPageAndRows = (page: number, rows = APP_DEFAULTS.RESULT_PER_PAGE): number => {
+  return (page - 1) * rows;
+};

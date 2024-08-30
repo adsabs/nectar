@@ -1,15 +1,17 @@
-import { IDocsEntity, useGetAbstract, useGetGraphics } from '@/api';
 import { Box, Flex } from '@chakra-ui/react';
-import { AbsLayout } from '@/components/Layout/AbsLayout';
-import { withDetailsPage } from '@/hocs/withDetailsPage';
-import { composeNextGSSP } from '@/ssr-utils';
-import { GetServerSideProps, NextPage } from 'next';
+import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next';
 import NextImage from 'next/legacy/image';
-import { LoadingMessage, SimpleLink } from '@/components';
 import { useRouter } from 'next/router';
 import { path } from 'ramda';
 
-const GraphicsPage: NextPage = () => {
+import { IDocsEntity, useGetAbstract, useGetGraphics } from '@/api';
+import { LoadingMessage, SimpleLink } from '@/components';
+import { AbsLayout } from '@/components/Layout/AbsLayout';
+import { withDetailsPage } from '@/hocs/withDetailsPage';
+import { composeNextGSSP } from '@/ssr-utils';
+
+const GraphicsPage: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>> = (props) => {
+  const { doc } = props;
   const router = useRouter();
   const { data } = useGetAbstract({ id: router.query.id as string });
   const doc = path<IDocsEntity>(['docs', 0], data);

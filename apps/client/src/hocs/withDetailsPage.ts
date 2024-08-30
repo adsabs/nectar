@@ -1,107 +1,85 @@
-import { dehydrate, QueryClient } from '@tanstack/react-query';
-import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
+import { CommonError } from '@server/types';
+import { GetServerSideProps } from 'next';
 
+import { IADSApiSearchParams, IDocsEntity } from '@/api';
 import { logger } from '@/logger';
-import { parseAPIError } from '@/utils';
 
-export const withDetailsPage = async (
-  ctx: GetServerSidePropsContext,
-): Promise<GetServerSidePropsResult<Record<string, unknown>>> => {
-  try {
-    // Fetch all the data we need for the details page
-    await Promise.allSettled([
-      // primary abstract data
-      // queryClient.fetchQuery({
-      //   queryKey: searchKeys.abstract(id),
-      //   queryFn: async () =>
-      //     await ctx.req.fetch({
-      //       path: 'SEARCH',
-      //       method: 'GET',
-      //       query: getAbstractParams(id),
-      //     }),
-      // }),
-      // // graphics
-      // queryClient.prefetchQuery({
-      //   queryKey: graphicsKeys.primary(id),
-      //   queryFn: fetchGraphics,
-      //   meta: { params: { bibcode: id } },
-      // }),
-      // // metrics
-      // queryClient.prefetchQuery({
-      //   queryKey: metricsKeys.primary([id]),
-      //   queryFn: fetchMetrics,
-      //   meta: { params: getMetricsParams([id]) },
-      // }),
-      // // associated works
-      // queryClient.prefetchQuery({
-      //   queryKey: resolverKeys.links({ bibcode: id, link_type: 'associated' }),
-      //   queryFn: async () => {
-      //     const response = await ctx.req.fetch({
-      //       url: `${ApiTargets.RESOLVER}/${id}/associated`,
-      //       method: 'GET',
-      //     });
-      //     return response;
-      //   },
-      // }),
-      // user settings (only if we're on the abstract page, and the user is logged in)
-      // isAuthenticated && pathname.endsWith('/abstract')
-      //   ? queryClient.prefetchQuery({
-      //       queryKey: userKeys.getUserSettings(),
-      //       queryFn: fetchUserSettings,
-      //     })
-      //   : Promise.resolve(),
-      // references (only if we're on the references page)
-      // pathname.endsWith('/references')
-      //   ? queryClient.prefetchQuery({
-      //       queryKey: searchKeys.references({ bibcode: id, start: 0 }),
-      //       queryFn: fetchSearch,
-      //       meta: { params: getReferencesParams(id, 0) },
-      //     })
-      //   : Promise.resolve(),
-      // // citations (only if we're on the citations page)
-      // pathname.endsWith('/citations')
-      //   ? queryClient.prefetchQuery({
-      //       queryKey: searchKeys.citations({ bibcode: id, start: 0 }),
-      //       queryFn: fetchSearch,
-      //       meta: { params: getCitationsParams(id, 0) },
-      //     })
-      //   : Promise.resolve(),
-      // // coreads (only if we're on the coreads page)
-      // pathname.endsWith('/coreads')
-      //   ? queryClient.prefetchQuery({
-      //       queryKey: searchKeys.coreads({ bibcode: id, start: 0 }),
-      //       queryFn: fetchSearch,
-      //       meta: { params: getCoreadsParams(id, 0) },
-      //     })
-      //   : Promise.resolve(),
-      // // similar (only if we're on the similar page)
-      // pathname.endsWith('/similar')
-      //   ? queryClient.prefetchQuery({
-      //       queryKey: searchKeys.similar({ bibcode: id, start: 0 }),
-      //       queryFn: fetchSearch,
-      //       meta: { params: getSimilarParams(id, 0) },
-      //     })
-      //   : Promise.resolve(),
-      // // toc (only if we're on the toc page)
-      // pathname.endsWith('/toc')
-      //   ? queryClient.prefetchQuery({
-      //       queryKey: searchKeys.toc({ bibcode: id, start: 0 }),
-      //       queryFn: fetchSearch,
-      //       meta: { params: getTocParams(id, 0) },
-      //     })
-      //   : Promise.resolve(),
-    ]);
+export const withDetailsPage: GetServerSideProps<
+  { params?: IADSApiSearchParams; doc: IDocsEntity | null; error: CommonError | null; page: number },
+  { id: string }
+> = async (ctx) => {
+  const page = ctx.query.p ? parseInt(ctx.query.p as string) : 1;
+  // Ensure params exist
+  if (!ctx.params || !ctx.params.id) {
+    logger.warn({ params: ctx.params }, 'Missing or invalid document identifier');
     return {
       props: {
-        doc: ctx.req.details.doc,
-        query: ctx.req.details.query,
+        error: {
+          errorMsg: 'Bad Request',
+          friendlyMessage: 'Invalid document identifier',
+          statusCode: 400,
+        },
+        doc: null,
+        params: undefined,
+        page,
       },
     };
-  } catch (error) {
-    logger.error({ msg: 'GSSP error on details page', error });
+  }
+
+  try {
+    const { query, doc, error } = await ctx.req.details(ctx.params.id);
+
+    if (doc) {
+      logger.info({ docId: ctx.params.id }, 'Document fetched successfully');
+      return {
+        props: {
+          params: query,
+          doc,
+          error: null,
+          page,
+        },
+      };
+    }
+
+    // Handle case where the document is not found but no error was thrown
+    if (!doc && !error) {
+      logger.warn({ docId: ctx.params.id }, 'Document not found');
+      return {
+        props: {
+          page,
+          params: query,
+          doc: null,
+          error: {
+            errorMsg: 'Document Not Found',
+            friendlyMessage: 'The requested document could not be found',
+            statusCode: 404,
+          },
+        },
+      };
+    }
+
+    // If there's an error returned, handle it
+    logger.error({ error, docId: ctx.params.id }, 'Error fetching details page data');
     return {
       props: {
-        pageError: parseAPIError(error),
+        page,
+        error,
+        params: query,
+        doc: null,
+      },
+    };
+  } catch (err) {
+    logger.error({ err, docId: ctx.params.id }, 'Unexpected error occurred during document fetch');
+    return {
+      props: {
+        error: {
+          errorMsg: 'Internal Server Error',
+          friendlyMessage: 'There was a problem loading details for this record',
+          statusCode: 500,
+        },
+        doc: null,
+        params: undefined,
+        page,
       },
     };
   }

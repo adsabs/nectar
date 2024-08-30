@@ -25,9 +25,8 @@ import {
 } from '@chakra-ui/react';
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { FolderPlusIcon } from '@heroicons/react/24/solid';
-import { CommonError } from '@server/types';
 import { MathJax } from 'better-react-mathjax';
-import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next';
+import { InferGetServerSidePropsType, NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { equals, isNil } from 'ramda';
@@ -50,9 +49,9 @@ import { useGetAuthors } from '@/components/AllAuthorsModal/useGetAuthors';
 import { OrcidActiveIcon } from '@/components/icons/Orcid';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { APP_DEFAULTS, EXTERNAL_URLS } from '@/config';
+import { withDetailsPage } from '@/hocs/withDetailsPage';
 import { useIsClient } from '@/lib/useIsClient';
 import { useSession } from '@/lib/useSession';
-import { logger } from '@/logger';
 import { pluralize } from '@/utils';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
@@ -85,7 +84,7 @@ const AbstractPage: NextPage<InferGetServerSidePropsType<typeof getServerSidePro
   };
 
   return (
-    <AbsLayout doc={doc} query={query} titleDescription={''} label="Abstract">
+    <AbsLayout doc={doc} params={query} titleDescription={''} label="Abstract">
       <Box as="article" aria-labelledby="title">
         {doc && (
           <Stack direction="column" gap={2}>
@@ -387,42 +386,4 @@ const Detail = <T,>(props: IDetailProps<T>): ReactElement => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps<
-  { params?: IADSApiSearchParams; doc: IDocsEntity | null; error: CommonError | null },
-  { id: string },
-  never
-> = async (ctx) => {
-  if (ctx.params) {
-    const { query, doc, error } = await ctx.req.details(ctx.params?.id);
-
-    if (doc) {
-      return {
-        props: {
-          params: query,
-          doc,
-          error: null,
-        },
-      };
-    }
-
-    logger.error({ error }, 'Error fetching details page data');
-
-    return {
-      props: {
-        error,
-        params: query,
-        doc: null,
-      },
-    };
-  }
-  return {
-    props: {
-      error: {
-        errorMsg: 'Bad Request',
-        friendlyMessage: 'Invalid document identifier',
-        statusCode: 400,
-      },
-      doc: null,
-    },
-  };
-};
+export const getServerSideProps = withDetailsPage;

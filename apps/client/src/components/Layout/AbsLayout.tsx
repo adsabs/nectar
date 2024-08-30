@@ -1,5 +1,6 @@
 import { ChevronLeftIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex, Heading, Stack, Text } from '@chakra-ui/react';
+import { CommonError } from '@server/types';
 import { MathJax } from 'better-react-mathjax';
 import Head from 'next/head';
 import { FC } from 'react';
@@ -11,16 +12,16 @@ import { useBackToSearchResults } from '@/lib/useBackToSearchResults';
 import { unwrapStringValue } from '@/utils';
 
 interface IAbsLayoutProps {
-  doc: IDocsEntity;
+  doc?: IDocsEntity;
+  error?: CommonError;
   titleDescription: string;
   label: string;
-  query?: IADSApiSearchParams;
+  params?: IADSApiSearchParams;
 }
 
-export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription, label, query }) => {
-  const { getSearchHref, show: showBackLink } = useBackToSearchResults({
-    query,
-  });
+export const AbsLayout: FC<IAbsLayoutProps> = (props) => {
+  const { children, doc, error, titleDescription, label, params } = props;
+  const { getSearchHref, show: showBackLink } = useBackToSearchResults({ query: params });
 
   if (!doc) {
     return <>{children}</>;
