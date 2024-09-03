@@ -116,7 +116,7 @@ const logo = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
         fontSize="30"
         fontWeight="700"
       >
-        NASA SciX BETA
+        BETA
       </text>
     </g>
   </svg>
