@@ -37,7 +37,6 @@ import {
   CustomInfoMessage,
   HideOnPrint,
   ISearchFacetsProps,
-  ItemsSkeleton,
   ListActions,
   NumFound,
   Pagination,
@@ -269,13 +268,13 @@ const SearchPage: NextPage<InferGetServerSidePropsType<typeof getServerSideProps
             ) : null}
 
             {noResults ? <NoResultsMsg /> : null}
-            {loading ? <ItemsSkeleton count={storeNumPerPage} /> : null}
             {docs && (
               <>
                 <SimpleResultList
                   docs={docs}
                   indexStart={params.start}
                   useNormCite={params.sort[0].startsWith('citation_count_norm')}
+                  isLoading={loading}
                 />
                 {!isPrint && (
                   <Pagination
@@ -423,7 +422,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const { query, response, error } = await ctx.req.search();
   logger.debug({ query, response, error }, 'Search page request');
 
-  if (response) {
+  if (response?.response) {
     return {
       props: {
         dehydratedAppState: {

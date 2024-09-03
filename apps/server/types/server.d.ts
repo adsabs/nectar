@@ -22,6 +22,7 @@ declare module 'fastify' {
       REDIS_KEY_PREFIX: string;
       CSRF_HEADER: string;
       API_BASE_DOMAIN_SERVER: string;
+      API_PREFIX: string;
     };
     fetcher: FetcherFn;
     verifyUser: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;

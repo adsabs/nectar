@@ -1,20 +1,14 @@
 import { Box, Flex } from '@chakra-ui/react';
-import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next';
+import { InferGetServerSidePropsType, NextPage } from 'next';
 import NextImage from 'next/legacy/image';
-import { useRouter } from 'next/router';
-import { path } from 'ramda';
 
-import { IDocsEntity, useGetAbstract, useGetGraphics } from '@/api';
+import { useGetGraphics } from '@/api';
 import { LoadingMessage, SimpleLink } from '@/components';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { withDetailsPage } from '@/hocs/withDetailsPage';
-import { composeNextGSSP } from '@/ssr-utils';
 
 const GraphicsPage: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>> = (props) => {
-  const { doc } = props;
-  const router = useRouter();
-  const { data } = useGetAbstract({ id: router.query.id as string });
-  const doc = path<IDocsEntity>(['docs', 0], data);
+  const { doc, params, page, error } = props;
 
   const {
     data: graphics,
@@ -23,7 +17,7 @@ const GraphicsPage: NextPage<InferGetServerSidePropsType<typeof getServerSidePro
     isSuccess,
   } = useGetGraphics(doc?.bibcode, { enabled: !!doc?.bibcode, keepPreviousData: true, retry: false });
   return (
-    <AbsLayout doc={doc} titleDescription="Graphics from" label="Graphics">
+    <AbsLayout doc={doc} titleDescription="Graphics from" label="Graphics" error={error} params={params}>
       {isError && (
         <Box mt={5} fontSize="xl">
           Unable to fetch graphics
@@ -34,7 +28,7 @@ const GraphicsPage: NextPage<InferGetServerSidePropsType<typeof getServerSidePro
           No graphics
         </Box>
       )}
-      {isLoading && <LoadingMessage message="Loading" />}
+      {isLoading && <LoadingMessage message="Loading Graphics" />}
       {isSuccess && graphics && (
         <>
           <Box dangerouslySetInnerHTML={{ __html: graphics.header }}></Box>
@@ -68,4 +62,4 @@ const GraphicsPage: NextPage<InferGetServerSidePropsType<typeof getServerSidePro
 
 export default GraphicsPage;
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage);
+export const getServerSideProps = withDetailsPage;

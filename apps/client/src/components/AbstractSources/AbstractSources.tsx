@@ -1,4 +1,4 @@
-import { IDocsEntity } from '@/api';
+import { ChevronDownIcon } from '@chakra-ui/icons';
 import {
   Accordion,
   AccordionButton,
@@ -15,36 +15,38 @@ import {
   MenuItem,
   MenuList,
 } from '@chakra-ui/react';
-import { ChevronDownIcon } from '@chakra-ui/icons';
-import { SimpleLink } from '@/components';
+import { collectBy, prop } from 'ramda';
 import { ReactElement, useMemo } from 'react';
+
+import { IDocsEntity } from '@/api';
 import { useResolverQuery } from '@/api/resolver';
+import { SimpleLink } from '@/components';
 import { processLinkData } from '@/components/AbstractSources/linkGenerator';
 import { useSettings } from '@/lib/useSettings';
+
 import {
-  AbstractSourceItems,
   AbstractResourceType,
-  FullTextSourceItems,
+  AbstractSourceItems,
   FullTextResourceType,
+  FullTextSourceItems,
 } from './AbstractSourceItems';
-import { collectBy, prop } from 'ramda';
 
 export interface IAbstractSourcesProps {
   doc?: IDocsEntity;
   style: 'accordion' | 'menu';
 }
 
-export const AbstractSources = ({ doc, style }: IAbstractSourcesProps): ReactElement => {
+export const AbstractSources = ({ doc, style }: IAbstractSourcesProps) => {
   const { settings } = useSettings();
 
-  const sources = processLinkData(doc, settings.link_server);
+  const sources = useMemo(() => processLinkData(doc, settings?.link_server), [doc, settings]);
 
   const fullTextResources: FullTextResourceType[] = useMemo(() => {
     if (!sources || !sources.fullTextSources) {
       return [] as FullTextResourceType[];
     }
 
-    const groups = collectBy(prop('shortName'), sources.fullTextSources); // [[], []]
+    const groups = collectBy(prop('shortName'), sources.fullTextSources);
     return groups.map((group) => {
       const label = group[0].shortName;
       const links = group.map((source) => ({
@@ -68,7 +70,7 @@ export const AbstractSources = ({ doc, style }: IAbstractSourcesProps): ReactEle
   }, [sources]);
 
   const { data: relatedWorksResp } = useResolverQuery(
-    { bibcode: doc.bibcode, link_type: 'associated' },
+    { bibcode: doc?.bibcode, link_type: 'associated' },
     { enabled: !!doc?.bibcode },
   );
 
@@ -83,10 +85,6 @@ export const AbstractSources = ({ doc, style }: IAbstractSourcesProps): ReactEle
           })),
     [relatedWorksResp],
   );
-
-  if (!doc) {
-    return <></>;
-  }
 
   return (
     <>

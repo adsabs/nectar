@@ -4,10 +4,14 @@ import fp from 'fastify-plugin';
 import { IADSApiSearchResponse } from '../../../client/src/api';
 import { TRACING_HEADERS } from '../config';
 import { searchFields } from '../lib/api';
-import { pick } from '../lib/utils';
+import { omit, pick } from '../lib/utils';
 import { DetailsResponse, SearchResponse } from '../types';
 import { buildCacheKey } from './cache';
 import { FetcherResponse } from './fetcher';
+
+const getSearchParams = (params: IADSApiSearchResponse['responseHeader']['params']) => {
+  return omit(['internal_logging_params', 'wt', 'fl', 'start', 'rows', 'fq'], params);
+};
 
 const details: FastifyPluginCallback = async (server) => {
   const getDetailsHandler =
@@ -38,6 +42,7 @@ const details: FastifyPluginCallback = async (server) => {
 
       // Check for search cache using the search cookie
       const searchCacheKey = request.cookies.search;
+      let searchParams = null;
       if (searchCacheKey) {
         server.log.debug({ searchCacheKey }, 'Checking search cache');
         const [, searchCacheResponse] = await server.to<string | null>(server.redis.get(searchCacheKey));
@@ -45,10 +50,11 @@ const details: FastifyPluginCallback = async (server) => {
           server.log.debug({ searchCacheResponse, searchCacheKey }, 'Cache hit for search');
           const searchResponse = JSON.parse(searchCacheResponse) as SearchResponse;
           const doc = searchResponse.response.response.docs.find((doc) => doc.id === id);
+          searchParams = getSearchParams(searchResponse.response.responseHeader.params);
           if (doc) {
             const res: DetailsResponse = {
               doc,
-              query: searchResponse.response.responseHeader.params,
+              query: searchParams,
               error: null,
             };
             await server.to(server.redis.set(cacheKey, JSON.stringify(res), 'EX', 300));
@@ -60,6 +66,19 @@ const details: FastifyPluginCallback = async (server) => {
 
       // Function to execute the search
       const executeSearch = async (token: string): Promise<DetailsResponse> => {
+        if (!token || token === '') {
+          server.log.warn({ token }, 'Missing or empty token for document search');
+          return {
+            doc: null,
+            query: searchParams,
+            error: {
+              statusCode: 401,
+              errorMsg: 'No Token',
+              friendlyMessage: 'No Token',
+            },
+          };
+        }
+
         const query = {
           fl: searchFields,
           rows: 1,
@@ -78,11 +97,11 @@ const details: FastifyPluginCallback = async (server) => {
           }),
         );
 
-        if (err || response.statusCode !== 200) {
-          server.log.error({ msg: 'Details fetch failed', err, query }, 'Error during document search');
+        if (err || !response || response.statusCode !== 200) {
+          server.log.error({ msg: 'Details fetch failed', err, response, query }, 'Error during document search');
           return {
             doc: null,
-            query: null,
+            query: searchParams,
             error: {
               statusCode: response?.statusCode || 500,
               errorMsg: err?.message || 'Failed to fetch details',
@@ -95,7 +114,7 @@ const details: FastifyPluginCallback = async (server) => {
         // Cache and return the fetched document
         const res: DetailsResponse = {
           doc: response.body.response.docs[0],
-          query: null,
+          query: searchParams,
           error: null,
         };
         await server.to(server.redis.set(cacheKey, JSON.stringify(res), 'EX', 300));
@@ -116,9 +135,19 @@ const details: FastifyPluginCallback = async (server) => {
           return detailsResponse; // Return the original 401 response
         }
 
-        server.log.info({ docId: id }, 'Token refreshed successfully, retrying document fetch');
-        // Retry the search with the refreshed token
+        server.log.info(
+          { docId: id, newToken: refreshResponse.body.access_token },
+          'Token refreshed successfully, retrying document fetch',
+        );
+        // Retry the search with the refreshed token, but safeguard against infinite loops
         detailsResponse = await executeSearch(refreshResponse.body.access_token);
+        if (detailsResponse.error?.statusCode === 401) {
+          server.log.warn(
+            { docId: id },
+            'Repeated 401 Unauthorized after token refresh, aborting retry to avoid infinite loop',
+          );
+          return detailsResponse; // Prevent infinite loop by returning response after a second 401
+        }
       }
 
       server.log.info({ docId: id }, 'Document fetch process completed');
@@ -126,7 +155,6 @@ const details: FastifyPluginCallback = async (server) => {
     };
 
   server.addHook('preHandler', (request, reply, done) => {
-    server.log.debug({ method: request.method, url: request.url }, 'Initializing document fetch handler');
     request.raw.details = getDetailsHandler(request, reply);
     done();
   });

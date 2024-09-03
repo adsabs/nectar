@@ -16,6 +16,7 @@ export const loadConfig = () => {
     PORT: T.Number({ default: 8000 }),
     CSRF_HEADER: T.String({ default: 'X-CSRFToken' }),
     API_BASE_DOMAIN_SERVER: T.String(),
+    API_PREFIX: T.String({ default: '/v1' }),
   });
 
   const helmetConfig: FastifyHelmetOptions = {

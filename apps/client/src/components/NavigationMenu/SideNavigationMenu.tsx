@@ -1,8 +1,10 @@
-import { cloneElement } from 'react';
 import { Box, BoxProps, Button, Flex, Text } from '@chakra-ui/react';
-import { CatMenuItems, IMenuItem, IMenuItemProps, SingleMenuItems } from './types';
-import { useColorModeColors } from '@/lib';
+import { cloneElement } from 'react';
+
 import { SimpleLink } from '@/components';
+import { useColorModeColors } from '@/lib';
+
+import { CatMenuItems, IMenuItem, IMenuItemProps, SingleMenuItems } from './types';
 
 export interface ISideNavigationMenuProps extends BoxProps {
   menuItems: CatMenuItems | SingleMenuItems;
@@ -31,7 +33,7 @@ const SideMenuItem = ({ href, label, icon, active = false, disabled = false, rig
           fontSize="normal"
           fontWeight="normal"
           isDisabled
-          leftIcon={icon ? cloneElement(icon, { width: '18px', 'aria-hidden': true }) : null}
+          leftIcon={icon ? cloneElement(icon, { width: '18px', 'aria-hidden': true }) : <></>}
         >
           <Flex direction="row" alignItems="center" justifyContent="space-between" w="full">
             <>{label}</>
@@ -52,7 +54,7 @@ const SideMenuItem = ({ href, label, icon, active = false, disabled = false, rig
           color={colors.text}
           fontSize="normal"
           fontWeight="normal"
-          leftIcon={icon ? cloneElement(icon, { width: '18px', 'aria-hidden': true }) : null}
+          leftIcon={icon ? cloneElement(icon, { width: '18px', 'aria-hidden': true }) : <></>}
         >
           <Flex direction="row" alignItems="center" justifyContent="space-between" w="full">
             <>{label}</>

@@ -1,42 +1,66 @@
-import { getCoreadsParams, useGetAbstract, useGetCoreads } from '@/api';
-import { AbstractRefList } from '@/components';
+import { Stack } from '@chakra-ui/react';
+import { InferGetServerSidePropsType, NextPage } from 'next';
+
+import { getCoreadsParams, useGetCoreads } from '@/api';
+import { FeedbackAlert, Pagination, SearchQueryLink, SimpleResultList, SimpleResultListSkeleton } from '@/components';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
-import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
-import { NextPage } from 'next';
-import { useRouter } from 'next/router';
-import { composeNextGSSP } from '@/ssr-utils';
 import { withDetailsPage } from '@/hocs/withDetailsPage';
-import { APP_DEFAULTS } from '@/config';
+import { useGetAbstractParams } from '@/lib';
+import { getStartFromPageAndRows } from '@/utils';
 
-const CoreadsPage: NextPage = () => {
-  const router = useRouter();
-  const { data: abstractDoc } = useGetAbstract({ id: router.query.id as string });
-  const doc = abstractDoc?.docs?.[0];
-  const pageIndex = router.query.p ? parseInt(router.query.p as string) - 1 : 0;
+const CoreadsPage: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>> = (props) => {
+  const { doc, params: pageParams, page, error: pageError } = props;
+  const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode, getStartFromPageAndRows(page));
 
-  const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode);
+  const params = {
+    ...getParams(),
+    ...getCoreadsParams(doc?.bibcode, getStartFromPageAndRows(page)),
+  };
 
-  const { data, isSuccess } = useGetCoreads(
-    { ...getParams(), start: pageIndex * APP_DEFAULTS.RESULT_PER_PAGE },
-    { keepPreviousData: true },
-  );
-  const coreadsParams = getCoreadsParams(doc?.bibcode, 0);
+  const { data, isLoading, error } = useGetCoreads(params, { keepPreviousData: true });
 
   return (
-    <AbsLayout doc={doc} titleDescription="Papers also read by those who read" label="Coreads">
-      {isSuccess && (
-        <AbstractRefList
-          doc={doc}
-          docs={data.docs}
-          totalResults={data.numFound}
-          onPageChange={onPageChange}
-          searchLinkParams={coreadsParams}
-        />
-      )}
+    <AbsLayout
+      doc={doc}
+      titleDescription="Papers also read by those who read"
+      label="Coreads"
+      error={pageError}
+      params={pageParams}
+      isLoading={false}
+    >
+      <Stack direction="column" spacing={1} mt={1} w="full">
+        {isLoading ? <SimpleResultListSkeleton /> : null}
+        {error ? <FeedbackAlert status="error" title="Unable to fetch citations" description={error.message} /> : null}
+        {data ? (
+          <>
+            <SearchQueryLink params={params}>
+              <>View as search results</>
+            </SearchQueryLink>
+            <SimpleResultList
+              docs={data.docs}
+              hideCheckboxes={true}
+              indexStart={params?.start ?? 0}
+              allowHighlight={false}
+            />
+            <Pagination
+              totalResults={data.numFound}
+              hidePerPageSelect
+              page={page}
+              onNext={onPageChange}
+              onPrevious={onPageChange}
+              onPageSelect={onPageChange}
+              onlyUpdatePageParam
+              skipRouting
+            />
+          </>
+        ) : (
+          <FeedbackAlert status="info" title="No Citations Found" />
+        )}
+      </Stack>
     </AbsLayout>
   );
 };
 
 export default CoreadsPage;
 
-export const getServerSideProps = composeNextGSSP(withDetailsPage);
+export const getServerSideProps = withDetailsPage;

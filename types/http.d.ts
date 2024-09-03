@@ -1,5 +1,6 @@
 import { RequestOptions } from 'src/plugins/fetcher';
 
+import { IADSApiSearchParams } from '../apps/client/src/api';
 import { DetailsResponse, SearchResponse } from '../apps/server/src/types';
 
 declare module 'node:http' {
@@ -8,7 +9,7 @@ declare module 'node:http' {
       user: SessionData['user'];
     };
     fetch: <T>(options: RequestOptions, extraOptions = { cache: true }) => Promise<T | { error: string }>;
-    search: () => Promise<SearchResponse>;
+    search: (params: Partial<IADSApiSearchParams> = {}) => Promise<SearchResponse>;
     details: (id: string) => Promise<DetailsResponse>;
   }
   //   search: {

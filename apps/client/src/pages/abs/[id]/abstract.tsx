@@ -65,12 +65,11 @@ const createQuery = (type: 'author' | 'orcid', value: string): IADSApiSearchPara
   return { q: `${type}:"${value}"`, sort: ['score desc'] };
 };
 
-const AbstractPage: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>> = ({ doc, query }) => {
+const AbstractPage: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>> = (props) => {
+  const { doc, params: pageParams, error: pageError } = props;
   const router = useRouter();
   const isClient = useIsClient();
   const { isAuthenticated } = useSession();
-  // const { data } = useGetAbstract({ id: router.query.id as string });
-  // const doc = path<IDocsEntity>(['docs', 0], data);
 
   // process authors from doc
   const authors = useGetAuthors({ doc, includeAff: false });
@@ -79,12 +78,12 @@ const AbstractPage: NextPage<InferGetServerSidePropsType<typeof getServerSidePro
   const handleFeedback = () => {
     void router.push({
       pathname: feedbackItems.record.path,
-      query: { bibcode: doc.bibcode },
+      query: { bibcode: doc?.bibcode },
     });
   };
 
   return (
-    <AbsLayout doc={doc} params={query} titleDescription={''} label="Abstract">
+    <AbsLayout doc={doc} params={pageParams} error={pageError} titleDescription={''} label="Abstract">
       <Box as="article" aria-labelledby="title">
         {doc && (
           <Stack direction="column" gap={2}>

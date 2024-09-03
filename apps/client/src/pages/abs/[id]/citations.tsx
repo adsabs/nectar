@@ -1,51 +1,66 @@
-import { getCitationsParams, IDocsEntity, useGetAbstract, useGetCitations } from '@/api';
-import { Alert, AlertIcon } from '@chakra-ui/react';
-import { AbstractRefList } from '@/components/AbstractRefList';
+import { Stack } from '@chakra-ui/react';
+import { InferGetServerSidePropsType, NextPage } from 'next';
+
+import { getCitationsParams, useGetCitations } from '@/api';
+import { FeedbackAlert, Pagination, SearchQueryLink, SimpleResultList, SimpleResultListSkeleton } from '@/components';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { withDetailsPage } from '@/hocs/withDetailsPage';
-import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
-import { NextPage } from 'next';
-import { composeNextGSSP } from '@/ssr-utils';
-import { useRouter } from 'next/router';
-import { path } from 'ramda';
-import { APP_DEFAULTS } from '@/config';
+import { useGetAbstractParams } from '@/lib';
+import { getStartFromPageAndRows } from '@/utils';
 
-const CitationsPage: NextPage = () => {
-  const router = useRouter();
-  const { data: abstractDoc, error: abstractError } = useGetAbstract({ id: router.query.id as string });
-  const doc = path<IDocsEntity>(['docs', 0], abstractDoc);
-  const pageIndex = router.query.p ? parseInt(router.query.p as string) - 1 : 0;
-  const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode);
+const CitationsPage: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>> = (props) => {
+  const { doc, params: pageParams, page, error: pageError } = props;
+  const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode, getStartFromPageAndRows(page));
 
-  // get the primary response from server (or cache)
-  const {
-    data,
-    isSuccess,
-    error: citationsError,
-  } = useGetCitations({ ...getParams(), start: pageIndex * APP_DEFAULTS.RESULT_PER_PAGE }, { keepPreviousData: true });
-  const citationsParams = getCitationsParams(doc?.bibcode, 0);
+  const params = {
+    ...getParams(),
+    ...getCitationsParams(doc?.bibcode, getStartFromPageAndRows(page)),
+  };
+
+  const { data, error, isLoading } = useGetCitations(params, { keepPreviousData: true });
 
   return (
-    <AbsLayout doc={doc} titleDescription="Papers that cite" label="Citations">
-      {(abstractError || citationsError) && (
-        <Alert status="error">
-          <AlertIcon />
-          {abstractError?.message || citationsError?.message}
-        </Alert>
-      )}
-      {isSuccess && (
-        <AbstractRefList
-          doc={doc}
-          docs={data.docs}
-          totalResults={data.numFound}
-          onPageChange={onPageChange}
-          searchLinkParams={citationsParams}
-        />
-      )}
+    <AbsLayout
+      doc={doc}
+      titleDescription="Papers that cite"
+      label="Citations"
+      error={pageError}
+      params={pageParams}
+      isLoading={false}
+    >
+      <Stack direction="column" spacing={1} mt={1} w="full">
+        {isLoading ? <SimpleResultListSkeleton /> : null}
+        {error ? <FeedbackAlert status="error" title="Unable to fetch citations" description={error.message} /> : null}
+        {data ? (
+          <>
+            <SearchQueryLink params={params}>
+              <>View as search results</>
+            </SearchQueryLink>
+            <SimpleResultList
+              docs={data.docs}
+              hideCheckboxes={true}
+              indexStart={params?.start ?? 0}
+              allowHighlight={false}
+            />
+            <Pagination
+              totalResults={data.numFound}
+              hidePerPageSelect
+              page={page}
+              onNext={onPageChange}
+              onPrevious={onPageChange}
+              onPageSelect={onPageChange}
+              onlyUpdatePageParam
+              skipRouting
+            />
+          </>
+        ) : (
+          <FeedbackAlert status="info" title="No Citations Found" />
+        )}
+      </Stack>
     </AbsLayout>
   );
 };
 
 export default CitationsPage;
 
-export const getServerSideProps = composeNextGSSP(withDetailsPage);
+export const getServerSideProps = withDetailsPage;

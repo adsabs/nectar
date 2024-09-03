@@ -1,8 +1,11 @@
-import { IDocsEntity } from '@/api';
-import { Flex, VisuallyHidden } from '@chakra-ui/react';
-import { useIsClient } from '@/lib/useIsClient';
+import { Flex, Skeleton, SkeletonText, Stack, VisuallyHidden } from '@chakra-ui/react';
 import PT from 'prop-types';
 import { HTMLAttributes, ReactElement } from 'react';
+
+import { IDocsEntity } from '@/api';
+import { APP_DEFAULTS } from '@/config';
+import { useIsClient } from '@/lib/useIsClient';
+
 import { Item } from './Item';
 import { useHighlights } from './useHighlights';
 
@@ -14,6 +17,7 @@ export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
   hideActions?: boolean;
   allowHighlight?: boolean;
   useNormCite?: boolean;
+  isLoading?: boolean;
 }
 
 const propTypes = {
@@ -30,6 +34,7 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
     hideActions = false,
     allowHighlight = true,
     useNormCite = false,
+    isLoading = false,
     ...divProps
   } = props;
 
@@ -37,6 +42,10 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
   const start = indexStart + 1;
 
   const { highlights, showHighlights, isFetchingHighlights } = useHighlights();
+
+  if (isLoading) {
+    return <SimpleResultListSkeleton />;
+  }
 
   return (
     <Flex
@@ -66,4 +75,51 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
     </Flex>
   );
 };
+
 SimpleResultList.propTypes = propTypes;
+
+export const SimpleResultListSkeleton = (props: { items?: number }) => {
+  const { items = APP_DEFAULTS.RESULT_PER_PAGE } = props;
+
+  return (
+    <Flex direction="column" w="full">
+      {Array.from({ length: items }).map((_, idx) => (
+        <Flex
+          key={`skel_${idx}`}
+          direction="row"
+          as="article"
+          border="1px"
+          borderColor="gray.200"
+          mb={1}
+          borderRadius="md"
+        >
+          <Flex
+            direction="row"
+            backgroundColor="gray.100"
+            justifyContent="center"
+            alignItems="center"
+            mr="2"
+            px="2"
+            borderLeftRadius="md"
+            w="64px"
+          >
+            <Skeleton height="15px" width="30px" />
+          </Flex>
+          <Stack direction="column" width="full" spacing={0} mx={3} mt={2}>
+            <Flex justifyContent="space-between">
+              <Skeleton height="15px" width="60%" />
+              <Flex alignItems="start" ml={1}>
+                <Skeleton height="15px" width="20px" />
+              </Flex>
+            </Flex>
+            <Flex direction="column" mt={2}>
+              <Skeleton height="12px" width="80%" />
+              <SkeletonText mt="2" noOfLines={2} spacing="2" skeletonHeight="2" />
+              <Skeleton height="12px" width="40%" my="2" />
+            </Flex>
+          </Stack>
+        </Flex>
+      ))}
+    </Flex>
+  );
+};

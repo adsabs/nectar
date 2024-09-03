@@ -1,9 +1,10 @@
-import { IDocsEntity } from '@/api';
 import { adjust, compose, map, range, repeat, transpose, without } from 'ramda';
 import { useEffect, useState } from 'react';
 
+import { IDocsEntity } from '@/api';
+
 export interface IUseAuthorsProps {
-  doc: IDocsEntity;
+  doc?: IDocsEntity;
   includeAff?: boolean;
 }
 
@@ -33,7 +34,7 @@ export const useGetAuthors = (props: IUseAuthorsProps): string[][] => {
 
   useEffect(() => {
     if (doc) {
-      const { author, aff, orcid_other = [], orcid_pub = [], orcid_user = [] } = doc;
+      const { author = [], aff, orcid_other = [], orcid_pub = [], orcid_user = [] } = doc;
       const len = author?.length ?? 0;
 
       // creates a table out of the arrays, then removes any '-', leaving sub-arrays with our author, aff, and orcid

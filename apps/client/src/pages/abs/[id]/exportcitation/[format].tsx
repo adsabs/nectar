@@ -1,19 +1,17 @@
-import { ExportApiFormatKey, IDocsEntity, isExportApiFormat, useGetAbstract } from '@/api';
 import { Box } from '@chakra-ui/react';
+import { InferGetServerSidePropsType, NextPage } from 'next';
+import { useRouter } from 'next/router';
+
+import { ExportApiFormatKey, isExportApiFormat } from '@/api';
 import { CitationExporter, JournalFormatMap } from '@/components';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { withDetailsPage } from '@/hocs/withDetailsPage';
-import { GetServerSideProps, NextPage } from 'next';
-import { path } from 'ramda';
-import { composeNextGSSP } from '@/ssr-utils';
-import { useRouter } from 'next/router';
 import { useSettings } from '@/lib/useSettings';
 
-const ExportCitationPage: NextPage = () => {
+const ExportCitationPage: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>> = (props) => {
+  const { doc, params: pageParams, error: pageError } = props;
   const router = useRouter();
   const format = isExportApiFormat(router.query.format) ? router.query.format : ExportApiFormatKey.bibtex;
-  const { data } = useGetAbstract({ id: router.query.id as string });
-  const doc = path<IDocsEntity>(['docs', 0], data);
 
   // get export related user settings
   const { settings } = useSettings({
@@ -36,7 +34,13 @@ const ExportCitationPage: NextPage = () => {
         };
 
   return (
-    <AbsLayout doc={doc} titleDescription="Export citation for" label="Export Citations">
+    <AbsLayout
+      doc={doc}
+      titleDescription="Export citation for"
+      label="Export Citations"
+      params={pageParams}
+      error={pageError}
+    >
       <Box pt="1">
         <CitationExporter
           initialFormat={format}
@@ -54,4 +58,4 @@ const ExportCitationPage: NextPage = () => {
 
 export default ExportCitationPage;
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage);
+export const getServerSideProps = withDetailsPage;

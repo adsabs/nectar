@@ -21,6 +21,21 @@ export function pick<T extends object, K extends keyof T>(keys: K[], obj: T): Pi
 }
 
 /**
+ * Omit the specified keys from an object.
+ * @param keys
+ * @param obj
+ */
+export function omit<T extends object, K extends keyof T>(keys: K[], obj: T): Omit<T, K> {
+  const result = { ...obj };
+  keys.forEach((key) => {
+    if (key in obj) {
+      delete result[key];
+    }
+  });
+  return result;
+}
+
+/**
  * Get the first set-cookie header from the headers object.
  * @param header - The set-cookie header or an array of set-cookie headers.
  * @returns The first set-cookie header.

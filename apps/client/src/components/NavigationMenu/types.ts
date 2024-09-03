@@ -1,11 +1,12 @@
 import { ReactElement } from 'react';
+
 import { ISimpleLinkProps } from '@/components';
 
 export interface IMenuItem extends Pick<ISimpleLinkProps, 'href'> {
   id: string | number;
   label: string | ReactElement;
   icon?: ReactElement;
-  rightElement?: ReactElement;
+  rightElement?: ReactElement | null;
   disabled?: boolean;
 }
 

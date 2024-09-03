@@ -38,7 +38,7 @@ const requestPlugin: FastifyPluginCallback = (server: FastifyInstance, _opts, do
   // Create a RetryAgent with retry logic.
   const retryAgent = new RetryAgent(
     new Agent({
-      connectTimeout: 30_000,
+      connectTimeout: 60_000,
       connections: 16,
       pipelining: 8,
       keepAliveTimeout: 60_000,
@@ -46,7 +46,7 @@ const requestPlugin: FastifyPluginCallback = (server: FastifyInstance, _opts, do
         rejectUnauthorized: server.config.NODE_ENV === 'production',
       },
     }),
-    { maxRetries: 3, minTimeout: 1000, statusCodes: [502, 503, 504] },
+    { maxRetries: 3, minTimeout: 1000, statusCodes: [500, 502, 503, 504] },
   );
 
   // Fetcher function to handle HTTP requests.
@@ -101,7 +101,9 @@ const requestPlugin: FastifyPluginCallback = (server: FastifyInstance, _opts, do
     const debouncePromise = new Promise<FetcherResponse<TBody>>((resolve, reject) => {
       ongoingRequests[requestKey].timeoutId = setTimeout(async () => {
         try {
-          const url = `${server.config.API_HOST_SERVER}${rest.url ? rest.url : getApiEndpoint(path)}`;
+          const url = `${server.config.API_HOST_SERVER}${server.config.API_PREFIX}${
+            rest.url ? rest.url : getApiEndpoint(path)
+          }`;
 
           const res = await undiciRequest(url, {
             ...rest,

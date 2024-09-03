@@ -1,4 +1,3 @@
-import { Bibcode, ExportApiFormatKey, SolrSort, SolrSortField, useVaultBigQuerySearch } from '@/api';
 import { BellIcon, ChevronDownIcon, SettingsIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -25,33 +24,36 @@ import {
   useToast,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { exportFormats, ISortProps, sections, Sort } from '@/components';
-import { useIsClient } from '@/lib/useIsClient';
-import { AppState, useStore, useStoreApi } from '@/store';
-import { makeSearchParams, noop, parseQueryFromUrl } from '@/utils';
 import { useRouter } from 'next/router';
 import { curryN, values } from 'ramda';
 import { isNonEmptyString } from 'ramda-adjunct';
 import { MouseEventHandler, ReactElement, useCallback, useEffect, useState } from 'react';
-import { SecondOrderOpsLinks } from './SecondOrderOpsLinks';
+
+import { Bibcode, ExportApiFormatKey, SolrSort, SolrSortField, useVaultBigQuerySearch } from '@/api';
+import { exportFormats, ISortProps, sections, Sort } from '@/components';
+import { AddNotificationModal } from '@/components/EmailNotifications/AddNotificationModal';
 import { BulkClaimMenuItem, BulkDeleteMenuItem } from '@/components/Orcid';
+import { solrSortOptions } from '@/components/Sort/model';
+import { useColorModeColors } from '@/lib';
 import { useOrcid } from '@/lib/orcid/useOrcid';
+import { useIsClient } from '@/lib/useIsClient';
 import { useSession } from '@/lib/useSession';
 import { useSettings } from '@/lib/useSettings';
-import { useColorModeColors } from '@/lib';
-import { AddNotificationModal } from '@/components/EmailNotifications/AddNotificationModal';
-import { solrSortOptions } from '@/components/Sort/model';
+import { AppState, useStore, useStoreApi } from '@/store';
+import { makeSearchParams, noop, parseQueryFromUrl } from '@/utils';
+
+import { SecondOrderOpsLinks } from './SecondOrderOpsLinks';
 
 export interface IListActionsProps {
   onSortChange?: ISortProps<SolrSort, SolrSortField>['onChange'];
-  onOpenAddToLibrary: () => void;
+  onOpenAddToLibrary?: () => void;
   isLoading: boolean;
 }
 
 type Operator = 'trending' | 'reviews' | 'useful' | 'similar';
 
 export const ListActions = (props: IListActionsProps): ReactElement => {
-  const { onSortChange = noop, onOpenAddToLibrary, isLoading } = props;
+  const { onSortChange = noop, onOpenAddToLibrary = noop, isLoading } = props;
   const selected = useStore((state) => state.docs.selected ?? []);
   const clearSelected = useStore((state) => state.clearSelected);
   const isClient = useIsClient();

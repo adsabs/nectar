@@ -1,9 +1,11 @@
-import { Esources, IDocsEntity } from '@/api';
 import { compose, descend, is, map, pipe, prop, sort } from 'ramda';
+import { isNilOrEmpty, isNonEmptyString } from 'ramda-adjunct';
+
+import { Esources, IDocsEntity } from '@/api';
+import { IDataProductSource, IFullTextSource, ProcessLinkDataReturns } from '@/components/AbstractSources/types';
+
 import { DEFAULT_ORDERING, GATEWAY_BASE_URL, LINK_TYPES, MAYBE_OPEN_SOURCES } from './model';
 import { getOpenUrl } from './openUrlGenerator';
-import { isNilOrEmpty, isNonEmptyString } from 'ramda-adjunct';
-import { IDataProductSource, IFullTextSource, ProcessLinkDataReturns } from '@/components/AbstractSources/types';
 
 /**
  * Create the resolver url
@@ -33,7 +35,7 @@ export const createGatewayUrl = (bibcode: string, target: string): string => {
  * @param {string} linkServer - the link server
  * @returns {ProcessLinkDataReturns} - the fulltext and data sources
  */
-export const processLinkData = (doc: IDocsEntity, linkServer?: string): ProcessLinkDataReturns => {
+export const processLinkData = (doc?: IDocsEntity, linkServer?: string): ProcessLinkDataReturns => {
   if (isNilOrEmpty(doc)) {
     return { fullTextSources: [], dataProducts: [] };
   }

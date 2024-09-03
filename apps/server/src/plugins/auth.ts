@@ -143,69 +143,24 @@ const authPlugin: FastifyPluginAsync = async (server) => {
     },
   });
 
-  const isSSRRoute = (url: string) => {
-    return url.startsWith('/search') || url.startsWith('/abs') || url.startsWith('/_next/data');
-  };
-
-  // const handleSSRRoute = async (request: FastifyRequest, reply: FastifyReply) => {
-  //   server.log.debug('is SSR route, will validate');
-  //
-  //   // check if we have an incoming jwt
-  //   const [jwtErr] = await server.to(request.jwtVerify());
-  //
-  //   if (jwtErr) {
-  //     if (jwtErr?.code === 'FST_JWT_AUTHORIZATION_TOKEN_INVALID') {
-  //       server.log.error({ err: jwtErr }, 'Invalid JWT token, clear cookie and return now');
-  //       void reply.clearCookie(server.config.SCIX_SESSION_COOKIE_NAME);
-  //       return reply.send(jwtErr);
-  //     }
-  //     server.log.error({ err: jwtErr }, 'Error verifying jwt session');
-  //     await server.createAnonymousSession(request, reply);
-  //   }
-  //
-  //   if (hasToken(request.auth.user)) {
-  //     server.log.debug('Already have a valid token, skipping refresh');
-  //     return;
-  //   }
-  //   server.log.debug('No valid token, refreshing session');
-  //   const [bootstrapErr, res] = await server.bootstrap(request);
-  //   if (bootstrapErr) {
-  //     server.log.error({ err: bootstrapErr }, 'Error during bootstrap');
-  //     return;
-  //   }
-  //
-  //   const user = bootstrapResponseToUser(res.body);
-  //
-  //   // Generate a new JWT
-  //   const newToken = await reply.jwtSign({
-  //     user,
-  //     id: res.body.username,
-  //     exSession: request.cookies[server.config.ADS_SESSION_COOKIE_NAME],
-  //   });
-  //
-  //   void reply.raw.setHeader('set-cookie', [
-  //     server.serializeCookie(server.config.SCIX_SESSION_COOKIE_NAME, newToken, {
-  //       httpOnly: true,
-  //       secure: server.config.NODE_ENV === 'production',
-  //       sameSite: 'strict',
-  //       path: '/',
-  //       expires: getTokenExpiry(),
-  //     }),
-  //     res.headers['set-cookie'],
-  //   ]);
-  //
-  //   server.log.debug('Refreshed session');
-  //   return;
-  // };
-
   server.addHook('onRequest', async (request, reply) => {
     // if ads session cookie is present, set it in the response
     if (request.cookies[server.config.ADS_SESSION_COOKIE_NAME]) {
+      const exSessionCookie = request.cookies[server.config.ADS_SESSION_COOKIE_NAME];
       server.log.debug({
         msg: 'Found external session cookie',
-        cookie: request.cookies[server.config.ADS_SESSION_COOKIE_NAME],
+        cookie: exSessionCookie,
       });
-      reply.raw.setHeader('set-cookie', request.cookies[server.config.ADS_SESSION_COOKIE_NAME]);
+
+      reply.raw.setHeader(
+        'set-cookie',
+        server.serializeCookie(server.config.ADS_SESSION_COOKIE_NAME, exSessionCookie, {
+          httpOnly: true,
+          secure: server.config.NODE_ENV === 'production',
+          sameSite: 'lax',
+          path: '/',
+        }),
+      );
     }
 
     // if tracing headers are present, set them in the response

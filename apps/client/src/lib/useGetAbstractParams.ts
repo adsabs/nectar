@@ -1,14 +1,15 @@
-import { AppState, useStore } from '@/store';
 import { useCallback, useEffect, useRef, useState } from 'react';
+
+import { AppState, useStore } from '@/store';
 
 /**
  * Helper hook for handling pagination in abstract subpages
  */
-export const useGetAbstractParams = (id: string) => {
-  const [start, setStart] = useState(0);
+export const useGetAbstractParams = (id = '', initialStart = 0) => {
+  const [start, setStart] = useState(initialStart);
   const pageSize = useStore((state: AppState) => state.numPerPage);
 
-  const prev = useRef<string>();
+  const prev = useRef<string>(id);
   useEffect(() => {
     prev.current = id;
   });

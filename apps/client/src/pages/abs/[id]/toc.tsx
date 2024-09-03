@@ -1,47 +1,72 @@
-import { getTocParams, IDocsEntity, useGetAbstract, useGetToc } from '@/api';
-import { AbstractRefList } from '@/components/AbstractRefList';
+import { Stack } from '@chakra-ui/react';
+import { InferGetServerSidePropsType, NextPage } from 'next';
+
+import { getTocParams, useGetToc } from '@/api';
+import { FeedbackAlert, Pagination, SearchQueryLink, SimpleResultList, SimpleResultListSkeleton } from '@/components';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { withDetailsPage } from '@/hocs/withDetailsPage';
-import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
-import { GetServerSideProps, NextPage } from 'next';
-import { composeNextGSSP } from '@/ssr-utils';
-import { useMemo } from 'react';
-import { useRouter } from 'next/router';
-import { path } from 'ramda';
+import { useGetAbstractParams } from '@/lib';
+import { getStartFromPageAndRows } from '@/utils';
 
-const VolumePage: NextPage = () => {
-  const router = useRouter();
-  const { data: abstractResult } = useGetAbstract({ id: router.query.id as string });
-  const doc = path<IDocsEntity>(['docs', 0], abstractResult);
+const VolumePage: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>> = (props) => {
+  const { doc, params: pageParams, page, error: pageError } = props;
 
-  const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode);
+  const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode, getStartFromPageAndRows(page));
 
-  const { data, isSuccess } = useGetToc(getParams(), {
-    enabled: !!getParams && !!doc?.bibcode,
+  const params = {
+    ...getParams(),
+    ...getTocParams(doc?.bibcode, getStartFromPageAndRows(page)),
+  };
+
+  const { data, error, isLoading, isSuccess } = useGetToc(params, {
+    enabled: !!params && !!doc?.bibcode,
     keepPreviousData: true,
   });
 
-  const tocParams = useMemo(() => {
-    if (doc?.bibcode) {
-      return getTocParams(doc.bibcode, 0);
-    }
-  }, [doc]);
-
   return (
-    <AbsLayout doc={doc} titleDescription="Papers in the same volume as" label="Volume Content">
-      {isSuccess && (
-        <AbstractRefList
-          doc={doc}
-          docs={data.docs}
-          totalResults={data.numFound}
-          onPageChange={onPageChange}
-          searchLinkParams={tocParams}
-        />
-      )}
+    <AbsLayout
+      doc={doc}
+      titleDescription="Papers in the same volume as"
+      label="Volume Content"
+      error={pageError}
+      params={pageParams}
+      isLoading={false}
+    >
+      <Stack direction="column" spacing={1} mt={1} w="full">
+        {isLoading ? <SimpleResultListSkeleton /> : null}
+        {error ? (
+          <FeedbackAlert status="error" title="Unable to fetch volume content" description={error.message} />
+        ) : null}
+        {isSuccess && data ? (
+          <>
+            <SearchQueryLink params={params}>
+              <>View as search results</>
+            </SearchQueryLink>
+            <SimpleResultList
+              docs={data.docs}
+              hideCheckboxes={true}
+              indexStart={params?.start ?? 0}
+              allowHighlight={false}
+            />
+            <Pagination
+              totalResults={data.numFound}
+              hidePerPageSelect
+              page={page}
+              onNext={onPageChange}
+              onPrevious={onPageChange}
+              onPageSelect={onPageChange}
+              onlyUpdatePageParam
+              skipRouting
+            />
+          </>
+        ) : (
+          <FeedbackAlert status="info" title="No Volume Content Found" />
+        )}
+      </Stack>
     </AbsLayout>
   );
 };
 
 export default VolumePage;
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage);
+export const getServerSideProps = withDetailsPage;

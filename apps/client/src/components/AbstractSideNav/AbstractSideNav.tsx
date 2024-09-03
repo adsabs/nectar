@@ -1,6 +1,4 @@
-import { IDocsEntity, useGetGraphicsCount, useHasMetrics } from '@/api';
 import { Badge } from '@chakra-ui/react';
-import { exportFormats, IMenuItem, SideNavigationMenu, TopNavigationMenu } from '@/components';
 import {
   ArrowDownIcon as DownloadIcon,
   ChartPieIcon,
@@ -13,10 +11,14 @@ import {
   UsersIcon,
 } from '@heroicons/react/24/solid';
 import { useRouter } from 'next/router';
-import { HTMLAttributes, ReactElement } from 'react';
-import { Routes } from './types';
 import { values } from 'ramda';
+import { HTMLAttributes, ReactElement } from 'react';
+
+import { IDocsEntity, useGetGraphicsCount, useHasMetrics } from '@/api';
+import { exportFormats, IMenuItem, SideNavigationMenu, TopNavigationMenu } from '@/components';
 import { useSettings } from '@/lib/useSettings';
+
+import { Routes } from './types';
 
 const abstractPath = '/abs';
 
@@ -24,23 +26,30 @@ const useGetItems = ({
   doc,
   hasMetrics,
   graphicsCount,
+  activeId,
 }: {
-  doc: IDocsEntity;
+  doc?: IDocsEntity; // Marked as optional to handle undefined cases
   hasMetrics: boolean;
   graphicsCount: number;
+  activeId?: Routes;
 }) => {
   const router = useRouter();
   const docId = router.query.id as string;
 
   const { settings } = useSettings();
 
-  // for export citation menu link, it needs to go to user's default setting if logged in
-  // otherwise go to bibtex
-  const defaultExportFormat = settings.defaultExportFormat;
+  // Default to 'bibtex' if no user settings are available
+  const defaultExportFormat = settings?.defaultExportFormat;
   const defaultExportFormatPath =
     typeof defaultExportFormat === 'string'
-      ? values(exportFormats).find((f) => f.label === defaultExportFormat).value
+      ? values(exportFormats).find((f) => f.label === defaultExportFormat)?.value ?? 'bibtex'
       : 'bibtex';
+
+  const citationCount = doc?.citation_count ?? 0;
+  const referenceCount = doc?.['[citations]']?.num_references ?? 0;
+  const readCount = doc?.read_count ?? 0;
+  const hasAbstract = Boolean(doc?.abstract);
+  const hasTOCProperty = doc?.property?.indexOf('TOC') !== -1;
 
   const items: Record<Routes, IMenuItem> = {
     [Routes.ABSTRACT]: {
@@ -54,37 +63,37 @@ const useGetItems = ({
       href: { pathname: `${abstractPath}/${docId}/${Routes.CITATIONS}`, search: 'p=1' },
       label: 'Citations',
       icon: <CollectionIcon />,
-      rightElement: <CountBadge count={doc?.citation_count ?? 0} />,
-      disabled: doc?.citation_count <= 0,
+      rightElement: citationCount > 0 ? <CountBadge count={citationCount} /> : null,
+      disabled: citationCount <= 0,
     },
     [Routes.REFERENCES]: {
       id: Routes.REFERENCES,
       href: { pathname: `${abstractPath}/${docId}/${Routes.REFERENCES}`, search: 'p=1' },
       label: 'References',
       icon: <ClipboardListIcon />,
-      rightElement: <CountBadge count={doc['[citations]']?.num_references ?? 0} />,
-      disabled: doc['[citations]']?.num_references <= 0,
+      rightElement: referenceCount > 0 ? <CountBadge count={referenceCount} /> : null,
+      disabled: referenceCount <= 0,
     },
     [Routes.COREADS]: {
       id: Routes.COREADS,
       href: { pathname: `${abstractPath}/${docId}/${Routes.COREADS}`, search: 'p=1' },
       label: 'Co-Reads',
       icon: <UsersIcon />,
-      disabled: doc?.read_count <= 0,
+      disabled: readCount <= 0,
     },
     [Routes.SIMILAR]: {
       id: Routes.SIMILAR,
       href: { pathname: `${abstractPath}/${docId}/${Routes.SIMILAR}` },
       label: 'Similar Papers',
       icon: <DuplicateIcon />,
-      disabled: !doc?.abstract,
+      disabled: !hasAbstract,
     },
     [Routes.VOLUMECONTENT]: {
       id: Routes.VOLUMECONTENT,
       href: { pathname: `${abstractPath}/${docId}/${Routes.VOLUMECONTENT}`, search: 'p=1' },
       label: 'Volume Content',
       icon: <TableIcon />,
-      disabled: doc.property?.indexOf('TOC') > -1,
+      disabled: hasTOCProperty,
     },
     [Routes.GRAPHICS]: {
       id: Routes.GRAPHICS,
@@ -109,22 +118,35 @@ const useGetItems = ({
     },
   };
 
+  // Determine the active item, or default to the first item if no match is found
+  const activeItem =
+    Object.entries(items).find(([route]) => {
+      return route === activeId || router.asPath.indexOf(`/${route}`) > -1;
+    })?.[1] || Object.values(items)[0];
+
   return {
     menuItems: Object.values(items),
-    // Finds the active item by comparing the current route
-    activeItem: Object.entries(items).find(([route]) => router.asPath.indexOf(`/${route}`) > -1)[1],
+    activeItem,
   };
 };
 
 export interface IAbstractSideNavProps extends HTMLAttributes<HTMLDivElement> {
   doc?: IDocsEntity;
+  activeId?: Routes;
 }
 
 export const AbstractSideNav = (props: IAbstractSideNavProps): ReactElement => {
-  const { doc } = props;
-  const graphicsCount = useGetGraphicsCount(doc?.bibcode);
-  const hasMetrics = useHasMetrics(doc?.bibcode);
-  const { menuItems, activeItem } = useGetItems({ doc, graphicsCount, hasMetrics });
+  const { doc, activeId } = props;
+
+  const graphicsCount = useGetGraphicsCount(doc?.bibcode, { enabled: !!doc });
+  const hasMetrics = useHasMetrics(doc?.bibcode, { enabled: !!doc });
+
+  const { menuItems, activeItem } = useGetItems({
+    doc,
+    graphicsCount: graphicsCount ?? 0,
+    hasMetrics: hasMetrics ?? false,
+    activeId,
+  });
 
   return (
     <>
@@ -150,7 +172,7 @@ export const AbstractSideNav = (props: IAbstractSideNavProps): ReactElement => {
 /**
  * Small badge to show count value
  */
-const CountBadge = ({ count }: { count: number }): ReactElement => {
+const CountBadge = ({ count }: { count: number }) => {
   if (typeof count !== 'number' || count <= 0) {
     return null;
   }

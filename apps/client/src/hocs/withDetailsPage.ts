@@ -5,7 +5,7 @@ import { IADSApiSearchParams, IDocsEntity } from '@/api';
 import { logger } from '@/logger';
 
 export const withDetailsPage: GetServerSideProps<
-  { params?: IADSApiSearchParams; doc: IDocsEntity | null; error: CommonError | null; page: number },
+  { params?: IADSApiSearchParams; doc?: IDocsEntity; error?: CommonError; page: number },
   { id: string }
 > = async (ctx) => {
   const page = ctx.query.p ? parseInt(ctx.query.p as string) : 1;
@@ -19,8 +19,6 @@ export const withDetailsPage: GetServerSideProps<
           friendlyMessage: 'Invalid document identifier',
           statusCode: 400,
         },
-        doc: null,
-        params: undefined,
         page,
       },
     };
@@ -35,7 +33,6 @@ export const withDetailsPage: GetServerSideProps<
         props: {
           params: query,
           doc,
-          error: null,
           page,
         },
       };
@@ -48,7 +45,6 @@ export const withDetailsPage: GetServerSideProps<
         props: {
           page,
           params: query,
-          doc: null,
           error: {
             errorMsg: 'Document Not Found',
             friendlyMessage: 'The requested document could not be found',
@@ -65,7 +61,6 @@ export const withDetailsPage: GetServerSideProps<
         page,
         error,
         params: query,
-        doc: null,
       },
     };
   } catch (err) {
@@ -77,8 +72,6 @@ export const withDetailsPage: GetServerSideProps<
           friendlyMessage: 'There was a problem loading details for this record',
           statusCode: 500,
         },
-        doc: null,
-        params: undefined,
         page,
       },
     };

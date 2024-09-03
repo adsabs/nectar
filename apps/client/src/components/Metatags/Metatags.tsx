@@ -1,8 +1,8 @@
+import getConfig from 'next/config';
+
 import { Esources, IDocsEntity } from '@/api';
 import { AppRuntimeConfig } from '@/types';
 import { getFomattedNumericPubdate } from '@/utils';
-import getConfig from 'next/config';
-import { ReactElement } from 'react';
 
 const getBaseUrl = () => {
   try {
@@ -15,7 +15,7 @@ const getBaseUrl = () => {
 const baseUrl = getBaseUrl();
 const LINKGWAY_BASE_URL = `${baseUrl}/link_gateway`;
 interface IMetatagsProps {
-  doc: IDocsEntity;
+  doc?: IDocsEntity;
 }
 
 export const metatagsQueryFields: Partial<keyof IDocsEntity>[] = [
@@ -40,7 +40,7 @@ export const metatagsQueryFields: Partial<keyof IDocsEntity>[] = [
   'volume',
 ];
 
-export const Metatags = (props: IMetatagsProps): ReactElement => {
+export const Metatags = (props: IMetatagsProps) => {
   const { doc } = props;
 
   if (!doc) {

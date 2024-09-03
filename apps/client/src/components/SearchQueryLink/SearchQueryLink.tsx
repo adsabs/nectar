@@ -7,7 +7,7 @@ import { ISimpleLinkProps, SimpleLink } from '@/components';
 import { makeSearchParams } from '@/utils';
 
 export interface ISearchQueryLinkProps extends Omit<ISimpleLinkProps, 'href'> {
-  params: IADSApiSearchParams;
+  params?: IADSApiSearchParams;
 }
 
 const getSearchUrl = (params: IADSApiSearchParams) => `/search?${makeSearchParams(params)}`;
@@ -18,6 +18,10 @@ const getSearchUrl = (params: IADSApiSearchParams) => `/search?${makeSearchParam
  */
 export const SearchQueryLink = (props: ISearchQueryLinkProps): ReactElement => {
   const { params, replace = false, shallow = false, prefetch = true, ...linkProps } = props;
+
+  if (!params) {
+    return null;
+  }
 
   return <SimpleLink replace={replace} shallow={shallow} {...linkProps} href={getSearchUrl(params)} />;
 };
