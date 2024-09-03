@@ -305,7 +305,7 @@ export const RecordPanel = ({
       const {
         abstract = '',
         aff,
-        author,
+        author = [],
         keyword = [],
         orcid_pub,
         pub_raw,
