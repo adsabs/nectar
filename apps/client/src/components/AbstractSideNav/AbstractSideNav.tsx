@@ -121,7 +121,10 @@ const useGetItems = ({
   // Determine the active item, or default to the first item if no match is found
   const activeItem =
     Object.entries(items).find(([route]) => {
-      return route === activeId || router.asPath.indexOf(`/${route}`) > -1;
+      if (activeId) {
+        return route === activeId;
+      }
+      return router.asPath.indexOf(`/${route}`) > -1;
     })?.[1] || Object.values(items)[0];
 
   return {

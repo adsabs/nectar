@@ -82,7 +82,6 @@ const cache: FastifyPluginAsync = async (server) => {
         server.log.debug({
           msg: 'Cache hit for key',
           cacheKey,
-          cachedResponse: JSON.parse(cachedResponse),
         });
 
         // Serve the cached response
@@ -159,9 +158,9 @@ const cache: FastifyPluginAsync = async (server) => {
       // Store the response in the cache (TTL 5 mins)
       await server.redis.set(cacheKey, body, 'EX', 300);
 
-      server.log.debug({ msg: 'Cache set for key', cacheKey, body });
+      server.log.debug({ cacheKey, url: request.url }, 'cache set for key');
     } catch (err) {
-      server.log.error({ msg: 'Cache set failed', err });
+      server.log.error({ err }, 'Error setting cache');
     }
 
     // Return the response body to be sent

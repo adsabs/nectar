@@ -1,7 +1,6 @@
 import type { FastifyInstance, FastifyPluginCallback } from 'fastify';
 import fp from 'fastify-plugin';
 import { OutgoingHttpHeaders } from 'http';
-import { AbortController } from 'next/dist/compiled/@edge-runtime/primitives';
 import { Agent, Dispatcher, errors, request as undiciRequest, RetryAgent } from 'undici';
 
 import { apiTargets, getApiEndpoint } from '../lib/api';
@@ -33,15 +32,14 @@ export type FetcherFn = <TBody = unknown>(options: RequestOptions) => Promise<Fe
  * Fastify plugin to add the fetcher and bootstrapToken functions to the Fastify instance.
  */
 const requestPlugin: FastifyPluginCallback = (server: FastifyInstance, _opts, done) => {
-  // Track ongoing requests for cancellation.
-
-  // Create a RetryAgent with retry logic.
+  // Create a RetryAgent with retry logic and connection pooling.
   const retryAgent = new RetryAgent(
     new Agent({
       connectTimeout: 60_000,
-      connections: 16,
-      pipelining: 8,
+      connections: 128,
+      pipelining: 2,
       keepAliveTimeout: 60_000,
+      keepAliveMaxTimeout: 2 * 60_000,
       connect: {
         rejectUnauthorized: server.config.NODE_ENV === 'production',
       },
@@ -70,7 +68,7 @@ const requestPlugin: FastifyPluginCallback = (server: FastifyInstance, _opts, do
 
     server.log.info({ msg: 'Fetching', path, headers, payload, ...rest });
 
-    // If there's an ongoing request with the same key, wait for its result
+    // If there's an ongoing request with the same key, return its result
     if (ongoingRequests[requestKey]) {
       server.log.debug({
         msg: 'Found matching request, returning existing response',
@@ -108,7 +106,7 @@ const requestPlugin: FastifyPluginCallback = (server: FastifyInstance, _opts, do
           const res = await undiciRequest(url, {
             ...rest,
             signal: controller.signal,
-            dispatcher: retryAgent,
+            dispatcher: retryAgent, // Use the retry agent with pooling
             headers: {
               'content-type': 'application/json',
               ...headers,

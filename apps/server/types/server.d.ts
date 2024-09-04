@@ -3,6 +3,7 @@ import type { Session, SessionData } from '@fastify/secure-session';
 import { IADSApiSearchResponse } from 'apps/client/src/api';
 import { NextServer } from 'next/dist/server/next';
 
+import { IADSApiSearchParams } from '../../client/src/api';
 import { FetcherFn } from '../src/plugins/api';
 import { BootstrapResponse, DetailsResponse, ScixSession, ScixUser, SearchResponse } from '../src/types';
 
@@ -51,6 +52,10 @@ declare module 'fastify' {
 declare module '@fastify/jwt' {
   interface FastifyJWT {
     auth: ScixUser;
+    search?: {
+      params: Partial<IADSApiSearchParams>;
+      cacheKey: string;
+    };
   }
   type VerifyPayloadType = ScixSession;
 }

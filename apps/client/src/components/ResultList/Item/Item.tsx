@@ -80,7 +80,7 @@ export const Item = (props: IItemProps): ReactElement => {
   ) : null;
 
   return (
-    <Flex direction="row" as="article" border="1px" borderColor={colors.border} mb={1} borderRadius="md">
+    <Flex direction="row" as="article" border="1px" borderColor={colors.border} mb={2} borderRadius="md">
       <Flex
         as={HideOnPrint}
         direction="row"
@@ -102,7 +102,7 @@ export const Item = (props: IItemProps): ReactElement => {
         </Text>
         {hideCheckbox ? null : <ItemCheckbox index={index} bibcode={bibcode} label={title} isChecked={isChecked} />}
       </Flex>
-      <Stack direction="column" width="full" spacing={0} mx={3} mt={2}>
+      <Stack direction="column" width="full" spacing={0} mx={3} my={2}>
         <Flex justifyContent="space-between">
           <SimpleLink href={`/abs/${bibcode}/abstract`} fontWeight="semibold">
             <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />

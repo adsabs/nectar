@@ -34,7 +34,6 @@ const search: FastifyPluginCallback = async (server) => {
 
       const [, cacheResponse] = await server.to<string | null>(server.redis.get(cacheKey));
       if (cacheResponse) {
-        server.log.debug({ cacheResponse }, 'Cache response');
         return JSON.parse(cacheResponse) as SearchResponse;
       }
 
@@ -74,8 +73,6 @@ const search: FastifyPluginCallback = async (server) => {
       };
 
       let searchResponse = await executeSearch(request.auth.user.token);
-
-      server.log.debug({ searchResponse }, 'Search response');
 
       // Check for 401 status code and attempt token refresh
       if (searchResponse.error?.statusCode === 401) {

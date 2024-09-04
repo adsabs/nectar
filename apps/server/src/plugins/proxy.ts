@@ -10,7 +10,7 @@ const proxy: FastifyPluginAsync = async (server) => {
   await server.register(FastifyProxy, {
     config: {
       rateLimit: {
-        max: 100,
+        max: 120,
         timeWindow: '1 minute',
         errorResponseBuilder: (_req, context) => ({
           code: 429,
@@ -26,14 +26,14 @@ const proxy: FastifyPluginAsync = async (server) => {
     logLevel: 'trace',
     undici: {
       connections: 16,
-      pipelining: 8,
+      pipelining: 1,
       keepAliveTimeout: 60_000,
       connectTimeout: 60_000,
     },
     preValidation: server.auth([server.authenticate]),
     proxyPayloads: false,
     preHandler: (request, reply, next) => {
-      server.log.debug({ request }, 'PROXY');
+      server.log.debug({ url: request.url }, 'PROXY');
       request.headers['authorization'] = `Bearer ${request.auth.user.token}`;
       TRACING_HEADERS.forEach((header) => {
         const value = request.headers[header];

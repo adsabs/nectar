@@ -29,7 +29,7 @@
           "undici",
           "fastify-plugin",
           "ioredis",
-          "nanoid-esm"
+          "uuid"
         ],
         "esbuildOptions": {
           "sourcemap": true,

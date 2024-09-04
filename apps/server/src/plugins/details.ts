@@ -36,7 +36,7 @@ const details: FastifyPluginCallback = async (server) => {
       // Check the cache for the document
       const [, cachedResponse] = await server.to<string | null>(server.redis.get(cacheKey));
       if (cachedResponse) {
-        server.log.debug({ cachedResponse, cacheKey }, 'Cache hit for document');
+        server.log.debug({ cacheKey }, 'Cache hit for document');
         return JSON.parse(cachedResponse) as DetailsResponse;
       }
 
@@ -47,7 +47,7 @@ const details: FastifyPluginCallback = async (server) => {
         server.log.debug({ searchCacheKey }, 'Checking search cache');
         const [, searchCacheResponse] = await server.to<string | null>(server.redis.get(searchCacheKey));
         if (searchCacheResponse) {
-          server.log.debug({ searchCacheResponse, searchCacheKey }, 'Cache hit for search');
+          server.log.debug({ searchCacheKey }, 'Cache hit for search');
           const searchResponse = JSON.parse(searchCacheResponse) as SearchResponse;
           const doc = searchResponse.response.response.docs.find((doc) => doc.id === id);
           searchParams = getSearchParams(searchResponse.response.responseHeader.params);

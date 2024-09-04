@@ -1,5 +1,18 @@
 import { ChevronLeftIcon } from '@chakra-ui/icons';
-import { Box, Button, Flex, Heading, Skeleton, SkeletonProps, SkeletonText, Stack, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Center,
+  Flex,
+  Heading,
+  HStack,
+  Skeleton,
+  SkeletonProps,
+  SkeletonText,
+  Stack,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
 import { CommonError } from '@server/types';
 import { MathJax } from 'better-react-mathjax';
 import Head from 'next/head';
@@ -32,11 +45,15 @@ interface IAbsLayoutProps {
 export const AbsLayout: FC<IAbsLayoutProps> = (props) => {
   const { children, doc, error, titleDescription, label, params, isLoading } = props;
 
+  console.log('AbsLayout -> doc', doc, error);
+
   if (error) {
     return (
       <Stack direction="column" my={{ base: '6', lg: params ? '12' : '16' }}>
         <BackToSearchBtn params={params} />
-        <FeedbackAlert status="error" title={error.errorMsg} description={error.friendlyMessage} />
+        <Center>
+          <FeedbackAlert status="error" title={error.errorMsg} description={error.friendlyMessage} />
+        </Center>
       </Stack>
     );
   }
@@ -116,12 +133,30 @@ export const AbsSkeleton = ({ path }: { path: string }) => {
             <Box pt="1">
               <CitationExporter singleMode />
             </Box>
+          ) : path === Routes.GRAPHICS ? (
+            <GraphicsPageSkeleton />
           ) : (
             <SimpleResultListSkeleton />
           )}
         </Stack>
       </Stack>
     </Stack>
+  );
+};
+
+const GraphicsPageSkeleton = (props: SkeletonProps) => {
+  return (
+    <VStack spacing="4" width="full">
+      {Array.from({ length: 3 }).map(() => (
+        <HStack spacing="4">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <Box key={index}>
+              <Skeleton height="200px" width="175px" />
+            </Box>
+          ))}
+        </HStack>
+      ))}
+    </VStack>
   );
 };
 

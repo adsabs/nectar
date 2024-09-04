@@ -157,11 +157,6 @@ const PageSkeleton: FC<{ pageProps: Record<string, unknown> }> = ({ children, pa
     };
   }, [router, incomingRoute]);
 
-  // Debugging to see state changes
-  useEffect(() => {
-    console.debug({ isLoading, incomingRoute }, 'Page Skeleton State');
-  }, [isLoading, incomingRoute]);
-
   if (!isLoading) {
     return <>{children}</>;
   }
@@ -176,7 +171,7 @@ const PageSkeleton: FC<{ pageProps: Record<string, unknown> }> = ({ children, pa
   } else if (incomingRoute?.startsWith('/search')) {
     return (
       <Layout>
-        <SearchBar />
+        <SearchBar w="full" />
         <Box w="full">
           <ListActions isLoading />
         </Box>
@@ -190,7 +185,7 @@ const PageSkeleton: FC<{ pageProps: Record<string, unknown> }> = ({ children, pa
 
   return (
     <Layout>
-      <LoadingMessage message="Loading..." />
+      <LoadingMessage message="Loading..." my={16} />
     </Layout>
   );
 };
