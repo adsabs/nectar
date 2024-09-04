@@ -23,7 +23,7 @@ import {
   useDisclosure,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { ChatIcon, ExternalLinkIcon, TriangleDownIcon } from '@chakra-ui/icons';
+import { EditIcon, ExternalLinkIcon, TriangleDownIcon } from '@chakra-ui/icons';
 import {
   AbstractSources,
   AddToLibraryModal,
@@ -161,8 +161,8 @@ const AbstractPage: NextPage = () => {
             </Box>
             <Details doc={doc} />
             <Flex justifyContent="end">
-              <Button variant="link" onClick={handleFeedback}>
-                <ChatIcon mr={2} /> Feedback/Corrections?
+              <Button variant="link" size="sm" onClick={handleFeedback}>
+                <EditIcon mr={2} /> Make Corrections
               </Button>
             </Flex>
           </Stack>
