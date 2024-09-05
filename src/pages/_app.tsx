@@ -37,7 +37,11 @@ const TopProgressBar = dynamic<Record<string, never>>(
   },
 );
 
-export type AppPageProps = { dehydratedState: DehydratedState; dehydratedAppState: AppState; [key: string]: unknown };
+export type AppPageProps = {
+  dehydratedState: DehydratedState;
+  dehydratedAppState: AppState;
+  [key: string]: unknown;
+};
 
 const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
   logger.debug('App', { props: pageProps as unknown });
@@ -50,6 +54,7 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
   return (
     <>
       <Head>
+        <DefaultMeta />
         <title>{`${BRAND_NAME_FULL}`}</title>
       </Head>
       <Providers pageProps={pageProps as AppPageProps}>
@@ -176,6 +181,26 @@ export const reportWebVitals = (metric: NextWebVitalsMetric) => {
     web_vitals_label: metric.id,
     non_interaction: true,
   });
+};
+
+const DefaultMeta = () => {
+  return (
+    <>
+      <meta name="google-site-verification" content="2K2Hn5eIn2hgc1C9qiHwQQa46piB4bcYshJK5BzPMq0" />
+      <meta name="title" content="Science Explorer" />
+      <meta
+        name="description"
+        content="Science Explorer is a digital library for astronomy, physics, and earth science, providing access to 20+ million records and advanced research tools."
+      />
+      <meta
+        name="keywords"
+        content="Science Explorer, Digital library, Astronomy research, Physics research, Earth science research, Bibliographic collections, Scientific publications, Refereed literature, Preprints, Research tools, Citation tracking, Interdisciplinary studies, Open science, FAIR principles, Data catalogs, Advanced discovery tools, Scientific knowledge access, Scholarly articles, Bibliometrics, Information science"
+      />
+      <meta name="robots" content="index, follow" />
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+      <meta name="language" content="English" />
+    </>
+  );
 };
 
 export default NectarApp;
