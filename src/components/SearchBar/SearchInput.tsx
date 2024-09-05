@@ -143,7 +143,7 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
   }, [focus]);
 
   return (
-    <Popover isOpen={state.isOpen} placement="bottom" gutter={0} matchWidth autoFocus={false}>
+    <Popover isOpen={state.isOpen} placement="bottom" gutter={0} matchWidth autoFocus={false} strategy="fixed">
       <PopoverAnchor>
         <InputGroup
           display="flex"
