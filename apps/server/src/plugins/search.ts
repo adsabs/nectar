@@ -65,6 +65,11 @@ const search: FastifyPluginCallback = async (server) => {
           };
         }
 
+        // forward the set-cookie header
+        if (response.headers['set-cookie']) {
+          reply.raw.setHeader('set-cookie', response.headers['set-cookie']);
+        }
+
         return {
           response: response.body,
           query,
@@ -94,15 +99,7 @@ const search: FastifyPluginCallback = async (server) => {
         if (cacheErr) {
           server.log.error({ err: cacheErr }, 'Cache set failed');
         } else {
-          reply.raw.setHeader(
-            'set-cookie',
-            server.serializeCookie('search', cacheKey, {
-              path: '/',
-              httpOnly: true,
-              sameSite: 'lax',
-              secure: false,
-            }),
-          );
+          await server.updateSession(request, reply, { cid: cacheKey });
         }
       }
 

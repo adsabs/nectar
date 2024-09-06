@@ -41,7 +41,10 @@ const details: FastifyPluginCallback = async (server) => {
       }
 
       // Check for search cache using the search cookie
-      const searchCacheKey = request.cookies.search;
+      const searchCacheKey = request.auth.cid;
+
+      server.log.debug({ searchCacheKey, query: request.query }, 'details cached?');
+
       let searchParams = null;
       if (searchCacheKey) {
         server.log.debug({ searchCacheKey }, 'Checking search cache');

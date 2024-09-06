@@ -37,6 +37,7 @@ const authPlugin: FastifyPluginAsync = async (server) => {
       user,
       id: response.body.username,
       exSession: request.cookies[server.config.ADS_SESSION_COOKIE_NAME],
+      cid: null,
     });
 
     void reply.raw.setHeader('set-cookie', [
@@ -53,17 +54,27 @@ const authPlugin: FastifyPluginAsync = async (server) => {
     return [null, response];
   });
 
-  server.decorate('bootstrap', async (request) => {
-    return server.to<FetcherResponse<BootstrapResponse>>(
-      server.fetcher<BootstrapResponse>({
-        path: 'BOOTSTRAP',
-        method: 'GET',
-        headers: {
-          ...pick(TRACING_HEADERS, request.headers),
-          cookie: request.cookies[server.config.ADS_SESSION_COOKIE_NAME],
-        },
+  server.decorate('updateSession', async (request, reply, updates) => {
+    request.auth = {
+      ...request.auth,
+      ...updates,
+    };
+    const [signError, signedJwt] = await server.to(reply.jwtSign(request.auth));
+
+    if (signError) {
+      server.log.error({ signError }, 'Error during jwtSign');
+      return false;
+    }
+    reply.raw.setHeader('set-cookie', [
+      server.serializeCookie(server.config.SCIX_SESSION_COOKIE_NAME, signedJwt, {
+        httpOnly: true,
+        secure: server.config.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/',
+        expires: getTokenExpiry(),
       }),
-    );
+    ]);
+    return true;
   });
 
   server.decorate('createAnonymousSession', async (request, reply) => {
@@ -72,6 +83,7 @@ const authPlugin: FastifyPluginAsync = async (server) => {
       id: 'anonymous@ads',
       user: getAnonymousUser(),
       exSession,
+      cid: null,
     };
     const [signError, signedJwt] = await server.to(reply.jwtSign(request.auth));
 

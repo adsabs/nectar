@@ -42,6 +42,7 @@ const requestPlugin: FastifyPluginCallback = (server: FastifyInstance, _opts, do
       keepAliveMaxTimeout: 2 * 60_000,
       connect: {
         rejectUnauthorized: server.config.NODE_ENV === 'production',
+        keepAlive: true,
       },
     }),
     { maxRetries: 3, minTimeout: 1000, statusCodes: [500, 502, 503, 504] },
@@ -106,7 +107,7 @@ const requestPlugin: FastifyPluginCallback = (server: FastifyInstance, _opts, do
           const res = await undiciRequest(url, {
             ...rest,
             signal: controller.signal,
-            dispatcher: retryAgent, // Use the retry agent with pooling
+            dispatcher: retryAgent,
             headers: {
               'content-type': 'application/json',
               ...headers,

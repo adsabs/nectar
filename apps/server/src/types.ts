@@ -61,6 +61,7 @@ export const sessionSchema = T.Object({
   user: T.Optional(userSchema),
   id: T.String(),
   exSession: T.Optional(T.String()),
+  cid: T.Optional(T.String()),
 });
 export type ScixSession = Static<typeof sessionSchema>;
 
@@ -121,6 +122,7 @@ export type DetailsResponse = {
 
 export type SearchResponse = {
   response?: IADSApiSearchResponse;
+  cacheId?: string;
   query: IADSApiSearchParams;
   error: CommonError;
 };

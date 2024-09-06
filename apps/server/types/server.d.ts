@@ -32,7 +32,7 @@ declare module 'fastify' {
     checkCache: <Res>(request: FastifyRequest) => Promise<Res | null>;
     setCache: (request: FastifyRequest, data: unknown) => Promise<void>;
     search: (request: FastifyRequest) => Promise<IADSApiSearchResponse>;
-    bootstrap: (request: FastifyRequest) => ToType<BootstrapResponse>;
+    updateSession: (request: FastifyRequest, reply: FastifyReply, updates: Partial<ScixSession>) => Promise<boolean>;
     createAnonymousSession: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
     refreshToken: (request: FastifyRequest, reply: FastifyReply) => ToType<BootstrapResponse>;
   }

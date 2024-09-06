@@ -6,7 +6,6 @@ import { v4 } from 'uuid';
 import { TRACING_HEADERS } from '../config';
 
 const proxy: FastifyPluginAsync = async (server) => {
-  server.log.debug({ config: server.config }, 'config');
   await server.register(FastifyProxy, {
     config: {
       rateLimit: {
