@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [ 18 ]
+        node-version: [18]
     steps:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v2
@@ -25,7 +25,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.pnpm-cache.outputs.cache-hit != 'true'
-        run: pnpm install
+        run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 SENTRYCLI_SKIP_DOWNLOAD=1 pnpm install
 
       - name: Lint
         run: pnpm lint
@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [ 18 ]
+        node-version: [18]
     steps:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v2
@@ -55,7 +55,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.pnpm-cache.outputs.cache-hit != 'true'
-        run: pnpm install
+        run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 SENTRYCLI_SKIP_DOWNLOAD=1 pnpm install
 
       - name: Test
         run: pnpm test:coverage
@@ -83,7 +83,7 @@ jobs:
       COOKIE_SECRET: ${{ vars.COOKIE_SECRET }}
     strategy:
       matrix:
-        node-version: [ 18 ]
+        node-version: [18]
     steps:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v2
