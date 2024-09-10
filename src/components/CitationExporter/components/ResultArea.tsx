@@ -70,7 +70,7 @@ export const ResultArea = ({
         bgColor={textAreaBackgroundColor}
         fontFamily="monospace"
         fontWeight="semibold"
-        value={result}
+        value={result.length > 0 ? result : isLoading ? 'Loading...' : 'Press "submit" to generate export.'}
         data-testid="export-output"
       />
     </Stack>

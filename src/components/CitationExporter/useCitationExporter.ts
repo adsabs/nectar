@@ -117,7 +117,6 @@ export const useCitationExporter = ({
   // main result fetcher, this will not run unless we're in the 'fetching' state
   const result = useGetExportCitation(params, {
     enabled: state.matches('fetching'),
-    keepPreviousData: state.matches('idle'),
 
     // will re-throw error to allow error boundary to catch
     useErrorBoundary: true,

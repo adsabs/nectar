@@ -109,13 +109,20 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
   useEffect(() => {
     if (
       router.query.format !== ctx.params.format &&
-      ((state.matches('idle') && singleMode) || (state.matches('fetching') && !singleMode))
+      (state.matches('idle') || (state.matches('fetching') && !singleMode))
     ) {
-      void router.push({ pathname: router.pathname, query: { ...router.query, format: ctx.params.format } }, null, {
-        shallow: true,
-      });
+      void router.push(
+        {
+          pathname: router.pathname,
+          query: { ...router.query, format: ctx.params.format },
+        },
+        null,
+        {
+          shallow: true,
+        },
+      );
     }
-  }, [state.value, state.context.params]);
+  }, [state.value, router.query, ctx.params.format]);
 
   // Attempt to parse the url to grab the format, then update it, otherwise allow the server to handle the path
   useEffect(() => {
@@ -142,7 +149,10 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
   };
 
   const handleTabChange = (index: number) => {
-    dispatch({ type: 'SET_IS_CUSTOM_FORMAT', payload: { isCustomFormat: index === 1 } });
+    dispatch({
+      type: 'SET_IS_CUSTOM_FORMAT',
+      payload: { isCustomFormat: index === 1 },
+    });
   };
 
   return (
@@ -277,7 +287,12 @@ const AdvancedControls = ({
 const Static = (props: Omit<ICitationExporterProps, 'page' | 'nextPage'>): ReactElement => {
   const { records, initialFormat, singleMode, totalRecords, sort, ...divProps } = props;
 
-  const { data, state } = useCitationExporter({ format: initialFormat, records, singleMode: true, sort });
+  const { data, state } = useCitationExporter({
+    format: initialFormat,
+    records,
+    singleMode: true,
+    sort,
+  });
   const ctx = state.context;
 
   const format = exportFormats[ctx.params.format];
