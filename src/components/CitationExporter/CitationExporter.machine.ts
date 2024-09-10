@@ -172,7 +172,10 @@ export const generateMachine = ({
           },
           SET_SORT: {
             actions: assign<ICitationExporterState, SetSort>({
-              params: (ctx, evt) => ({ ...ctx.params, sort: normalizeSolrSort(evt.payload) }),
+              params: (ctx, evt) => ({
+                ...ctx.params,
+                sort: normalizeSolrSort(evt.payload),
+              }),
             }),
           },
           SET_FORMAT: [
@@ -184,7 +187,10 @@ export const generateMachine = ({
           ],
           SET_KEY_FORMAT: {
             actions: assign<ICitationExporterState, SetKeyFormat>({
-              params: (ctx, evt) => ({ ...ctx.params, keyformat: [evt.payload] }),
+              params: (ctx, evt) => ({
+                ...ctx.params,
+                keyformat: [evt.payload],
+              }),
             }),
           },
           SET_RANGE: {
@@ -198,17 +204,26 @@ export const generateMachine = ({
           },
           SET_AUTHOR_CUTOFF: {
             actions: assign<ICitationExporterState, SetAuthorCutoff>({
-              params: (ctx, evt) => ({ ...ctx.params, authorcutoff: [evt.payload] }),
+              params: (ctx, evt) => ({
+                ...ctx.params,
+                authorcutoff: [evt.payload],
+              }),
             }),
           },
           SET_MAX_AUTHOR: {
             actions: assign<ICitationExporterState, SetMaxAuthor>({
-              params: (ctx, evt) => ({ ...ctx.params, maxauthor: [evt.payload] }),
+              params: (ctx, evt) => ({
+                ...ctx.params,
+                maxauthor: [evt.payload],
+              }),
             }),
           },
           SET_JOURNAL_FORMAT: {
             actions: assign<ICitationExporterState, SetJournalFormat>({
-              params: (ctx, evt) => ({ ...ctx.params, journalformat: [evt.payload] }),
+              params: (ctx, evt) => ({
+                ...ctx.params,
+                journalformat: [evt.payload],
+              }),
             }),
           },
           SET_IS_CUSTOM_FORMAT: {
@@ -222,10 +237,16 @@ export const generateMachine = ({
           },
           SET_CUSTOM_FORMAT: {
             actions: assign<ICitationExporterState, SetCustomFormat>({
-              params: (ctx, evt) => ({ ...ctx.params, customFormat: evt.payload }),
+              params: (ctx, evt) => ({
+                ...ctx.params,
+                customFormat: evt.payload,
+              }),
             }),
           },
-          SUBMIT: { target: 'fetching', cond: (ctx) => !equals(ctx.prevParams, ctx.params) },
+          SUBMIT: {
+            target: 'fetching',
+            cond: (ctx) => !equals(ctx.prevParams, ctx.params),
+          },
           FORCE_SUBMIT: 'fetching',
         },
       },
