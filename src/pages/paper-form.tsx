@@ -163,7 +163,7 @@ const JournalQueryForm = ({ onSubmit, error }: SubFormProps) => {
       </Heading>
       <Text fontSize="sm">
         A bibstem is an abbreviation that the ADS uses to identify a journal. A full list is available{' '}
-        <Link isExternal href="http://adsabs.harvard.edu/abs_doc/journal_abbr.html">
+        <Link isExternal href="/journalsdb">
           here
         </Link>
         . The input field below will autocomplete on our current database of journal names, allowing you to type
