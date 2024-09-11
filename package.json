@@ -54,7 +54,7 @@
     "@xstate/fsm": "^2.0.0",
     "@xstate/inspect": "^0.7.1",
     "@xstate/react": "^3.2.2",
-    "axios": "^1.6.0",
+    "axios": "^1.7.4",
     "axios-cache-interceptor": "^1",
     "better-react-mathjax": "^2.0.1",
     "chakra-dayzed-datepicker": "^0.2.9",
