@@ -243,7 +243,8 @@ export const allSearchTerms: SearchTermOption[] = [
     id: 'bibstem',
     value: 'bibstem:',
     title: 'bib abbrev',
-    description: 'Find records that contain a specific bibstem in their bibcode',
+    description:
+      'Find records that contain a specific bibstem in their bibcode. A full list is available <a href="/journalsdb" ref="noopener noreferrer" target="_blank">here</a>.',
     syntax: ['bibstem:adsbibstem'],
     example: ['bibstem:ApJ'],
   },
@@ -398,7 +399,8 @@ export const allSearchTerms: SearchTermOption[] = [
     id: 'pub',
     value: 'bibstem:',
     title: 'publication full name',
-    description: 'Limit search to a specific publication',
+    description:
+      'Limit search to a specific publication. A full list is available <a href="/journalsdb" ref="noopener noreferrer" target="_blank">here</a>.',
     syntax: ['pub:adsbibstem'],
     example: ['pub:ApJ'],
   },
