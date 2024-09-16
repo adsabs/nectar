@@ -24,7 +24,7 @@ import '../styles/page-loader.css';
 import { logger } from '@/logger';
 import { GoogleTagManager, sendGTMEvent } from '@next/third-parties/google';
 import Head from 'next/head';
-import { APP_DEFAULTS, BRAND_NAME_FULL } from '@/config';
+import { BRAND_NAME_FULL } from '@/config';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
   require('../mocks');
