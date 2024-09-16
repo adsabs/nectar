@@ -1,21 +1,14 @@
-import { isUserData } from '@/api';
 import { AppState } from '@/store';
 import { withIronSessionSsr } from 'iron-session/next';
 import { sessionConfig } from '@/config';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
-import api from '@/api/api';
+import api, { isUserData } from '@/api/api';
 import { dehydrate, hydrate, QueryClient } from '@tanstack/react-query';
 import { getNotification, NotificationId } from '@/store/slices';
 import { logger } from '@/logger';
 import { parseAPIError } from '@/utils';
 
 const log = logger.child({}, { msgPrefix: '[ssr-inject] ' });
-
-const injectNonce: IncomingGSSP = (ctx, prev) => {
-  const nonce = ctx.res.getHeader('X-Nonce') ?? '';
-  log.debug({ msg: 'Injecting nonce', nonce });
-  return Promise.resolve({ props: { nonce, ...prev.props } });
-};
 
 const updateUserStateSSR: IncomingGSSP = (ctx, prevResult) => {
   const userData = ctx.req.session.token;
@@ -51,7 +44,10 @@ export const injectSessionGSSP = withIronSessionSsr((ctx) => updateUserStateSSR(
 
 type IncomingGSSP = (
   ctx: GetServerSidePropsContext,
-  props: { props: { dehydratedAppState?: AppState } & Record<string, unknown>; [key: string]: unknown },
+  props: {
+    props: { dehydratedAppState?: AppState } & Record<string, unknown>;
+    [key: string]: unknown;
+  },
 ) => Promise<GetServerSidePropsResult<Record<string, unknown>>>;
 
 /**
@@ -63,23 +59,36 @@ export const composeNextGSSP = (...fns: IncomingGSSP[]) =>
   withIronSessionSsr(async (ctx: GetServerSidePropsContext): Promise<
     GetServerSidePropsResult<Record<string, unknown>>
   > => {
-    ctx.res.setHeader('Cache-Control', 'max-age=3600, stale-while-revaluate=86400');
-    fns.push(injectNonce);
-    fns.push(updateUserStateSSR);
+    ctx.res.setHeader('Cache-Control', 's-max-age=60, stale-while-revalidate=300');
+
+    // only push if the list of fns does not already have the updater
+    if (!fns.includes(updateUserStateSSR)) {
+      fns.push(updateUserStateSSR);
+    }
+
     api.setUserData(ctx.req.session.token);
     let ssrProps = { props: {} };
+
     for (const fn of fns) {
       let result;
       let props = {};
       try {
-        result = await fn(ctx, ssrProps);
+        // Ensure that the result is awaited properly and no promises remain unhandled
+        result = await fn(ctx, ssrProps); // Await the function result
       } catch (error) {
         logger.error({ error });
         props = { pageError: parseAPIError(error) };
       }
+
+      // Make sure the result is fully resolved and it's not a Promise
       if (result && 'props' in result) {
-        props = { ...props, ...ssrProps.props, ...result.props };
+        // Check if result.props is a promise and await it if necessary
+        if (result.props instanceof Promise) {
+          result.props = await result.props;
+        }
+        props = { ...props, ...ssrProps.props, ...result.props }; // Spread properties safely
       }
+
       ssrProps = { ...ssrProps, ...result, props };
     }
     return ssrProps;
