@@ -116,7 +116,6 @@ const AppModeRouter = (): ReactElement => {
  * work in progress, not sure if this is the best way to do this
  */
 const UserSync = (): ReactElement => {
-  const router = useRouter();
   const store = useStoreApi();
   const { user } = useUser();
   const qc = useQueryClient();
@@ -160,13 +159,6 @@ const UserSync = (): ReactElement => {
       void qc.invalidateQueries(userKeys.getUserSettings());
     }
   }, [data, store, user]);
-
-  // if both the incoming and the current user data is invalid, reload the page
-  useEffect(() => {
-    if (data?.user && !checkUserData(data?.user) && !checkUserData(user)) {
-      router.reload();
-    }
-  }, [data, router, user]);
 
   return <></>;
 };
