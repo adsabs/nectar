@@ -73,8 +73,11 @@
     "framer-motion": "^6.5.1",
     "fuse.js": "^6.6.2",
     "he": "^1.2.0",
+    "http-proxy": "^1.18.1",
     "idb-keyval": "^6.2.1",
+    "ioredis": "^5.4.1",
     "isomorphic-dompurify": "^0.15.0",
+    "lru-cache": "^11.0.1",
     "lucene": "^2.1.1",
     "match-sorter": "^6.3.1",
     "memoize-one": "^6.0.0",
@@ -134,6 +137,7 @@
     "@types/express": "^4.17.13",
     "@types/file-saver": "^2.0.5",
     "@types/he": "^1.1.2",
+    "@types/http-proxy": "^1.17.15",
     "@types/jsonpath": "^0.2.0",
     "@types/katex": "^0.11.1",
     "@types/lucene": "^2.1.4",
@@ -199,5 +203,5 @@
     ">0.3%",
     "not dead"
   ],
-  "packageManager": "pnpm@8.15.5+sha1.a58c038faac410c947dbdb93eb30994037d0fce2"
+  "packageManager": "pnpm@9.10.0+sha512.73a29afa36a0d092ece5271de5177ecbf8318d454ecd701343131b8ebc0c1a91c487da46ab77c8e596d6acf1461e3594ced4becedf8921b074fbd8653ed7051c"
 }
