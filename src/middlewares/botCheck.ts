@@ -1,7 +1,6 @@
 import { sessionConfig } from '@/config';
 import { getIronSession } from 'iron-session/edge';
 import { edgeLogger } from '@/logger';
-// eslint-disable-next-line @next/next/no-server-import-in-page
 import { NextRequest, NextResponse, userAgent } from 'next/server';
 import { IronSessionData } from 'iron-session';
 
@@ -43,13 +42,22 @@ const getBotToken = (result: CRAWLER_RESULT): IronSessionData['token'] => {
   switch (result) {
     case CRAWLER_RESULT.BOT:
       log.debug('Bot detected');
-      return { access_token: process.env.VERIFIED_BOTS_ACCESS_TOKEN, ...baseToken };
+      return {
+        access_token: process.env.VERIFIED_BOTS_ACCESS_TOKEN,
+        ...baseToken,
+      };
     case CRAWLER_RESULT.UNVERIFIABLE:
       log.debug('Unverifiable bot detected');
-      return { access_token: process.env.UNVERIFIABLE_BOTS_ACCESS_TOKEN, ...baseToken };
+      return {
+        access_token: process.env.UNVERIFIABLE_BOTS_ACCESS_TOKEN,
+        ...baseToken,
+      };
     case CRAWLER_RESULT.POTENTIAL_MALICIOUS_BOT:
       log.debug('Potentially malicious bot detected');
-      return { access_token: process.env.MALICIOUS_BOTS_ACCESS_TOKEN, ...baseToken };
+      return {
+        access_token: process.env.MALICIOUS_BOTS_ACCESS_TOKEN,
+        ...baseToken,
+      };
     case CRAWLER_RESULT.HUMAN:
     default:
       log.debug('Human detected');

@@ -1,5 +1,4 @@
 import { edgeLogger } from '@/logger';
-// eslint-disable-next-line @next/next/no-server-import-in-page
 import { NextRequest } from 'next/server';
 
 const log = edgeLogger.child({}, { msgPrefix: '[decorateHeaders] ' });

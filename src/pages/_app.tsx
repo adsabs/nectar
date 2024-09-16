@@ -24,7 +24,7 @@ import '../styles/page-loader.css';
 import { logger } from '@/logger';
 import { GoogleTagManager, sendGTMEvent } from '@next/third-parties/google';
 import Head from 'next/head';
-import { APP_DEFAULTS, BRAND_NAME_FULL } from '@/config';
+import { BRAND_NAME_FULL } from '@/config';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
   require('../mocks');
@@ -37,7 +37,11 @@ const TopProgressBar = dynamic<Record<string, never>>(
   },
 );
 
-export type AppPageProps = { dehydratedState: DehydratedState; dehydratedAppState: AppState; [key: string]: unknown };
+export type AppPageProps = {
+  dehydratedState: DehydratedState;
+  dehydratedAppState: AppState;
+  [key: string]: unknown;
+};
 
 const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
   logger.debug('App', { props: pageProps as unknown });
