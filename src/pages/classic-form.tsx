@@ -32,7 +32,9 @@ const ClassicFormPage: NextPage<{ ssrError?: string }> = ({ ssrError }) => {
 
 export default ClassicFormPage;
 
-type ReqWithBody = GetServerSidePropsContext['req'] & { body: IClassicFormState };
+type ReqWithBody = GetServerSidePropsContext['req'] & {
+  body: IClassicFormState;
+};
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
   if (ctx.req.method == 'POST') {
     const body = (ctx.req as ReqWithBody).body;

@@ -3,15 +3,31 @@ import { initSession } from '@/middlewares/initSession';
 import { verifyMiddleware } from '@/middlewares/verifyMiddleware';
 import { getIronSession } from 'iron-session/edge';
 import { edgeLogger } from '@/logger';
+//  eslint-disable-next-line @next/next/no-server-import-in-page
 import { NextRequest, NextResponse } from 'next/server';
+import { rateLimit } from '@/rateLimit';
 
 const log = edgeLogger.child({}, { msgPrefix: '[middleware] ' });
 
-const redirect = (url: URL, req: NextRequest, message?: string) => {
+const redirect = (
+  url: URL,
+  req: NextRequest,
+  options?: {
+    message: string;
+    clearParams?: boolean;
+  },
+) => {
+  const clear = options?.clearParams ?? true;
+  log.debug({ options, url: url.searchParams.toString() }, 'redirection');
+  if (clear) {
+    url.search = '';
+    url.searchParams.forEach((_, key, search) => search.delete(key));
+  }
+
   // clean the url of any existing notify params
   url.searchParams.delete('notify');
-  if (message) {
-    url.searchParams.set('notify', message);
+  if (options?.message) {
+    url.searchParams.set('notify', options?.message);
   }
   return NextResponse.redirect(url, req);
 };
@@ -49,13 +65,13 @@ const loginMiddleware = async (req: NextRequest, res: NextResponse) => {
         log.debug('Next param is external, redirecting to root');
         url.searchParams.delete('next');
         url.pathname = '/';
-        return redirect(url, req, 'account-login-success');
+        return redirect(url, req, { message: 'account-login-success' });
       }
 
       log.debug('Next param is relative, redirecting to it');
       url.searchParams.delete('next');
       url.pathname = nextUrl.pathname;
-      return redirect(url, req, 'account-login-success');
+      return redirect(url, req, { message: 'account-login-success' });
     }
 
     log.debug('No next param found, redirecting to root');
@@ -80,7 +96,7 @@ const protectedRoute = async (req: NextRequest, res: NextResponse) => {
   const originalPath = url.pathname;
   url.pathname = '/user/account/login';
   url.searchParams.set('next', encodeURIComponent(originalPath));
-  return redirect(url, req, 'login-required');
+  return redirect(url, req, { message: 'login-required', clearParams: false });
 };
 
 export async function middleware(req: NextRequest) {
@@ -90,7 +106,31 @@ export async function middleware(req: NextRequest) {
     url: req.nextUrl.toString(),
   });
 
-  const res = await initSession(req, NextResponse.next());
+  const res = NextResponse.next();
+
+  // Skip middleware for the root path
+  if (req.nextUrl.pathname === '/') {
+    return res;
+  }
+
+  const ip = req.ip || req.headers.get('x-forwarded-for') || 'unknown';
+
+  // Apply rate limiting
+  if (!rateLimit(ip)) {
+    log.warn({ msg: 'Rate limit exceeded', ip });
+    const url = req.nextUrl.clone();
+    url.pathname = '/';
+    return redirect(url, req, { message: 'rate-limit-exceeded' });
+  }
+
+  const session = await getIronSession(req, res, sessionConfig);
+  await initSession(req, res, session);
+  if (!session.token) {
+    log.error('Failed to create a new session, redirecting back to root');
+    const url = req.nextUrl.clone();
+    url.pathname = '/';
+    return redirect(url, req, { message: 'api-connect-failed' });
+  }
 
   const path = req.nextUrl.pathname;
 
@@ -116,7 +156,7 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|light|dark|_next/image|favicon|android|images|mockServiceWorker|site.webmanifest).*)',
+    '/((?!api|_next/static|light|dark|_next/image|favicon|android|images|mockServiceWorker|site.webmanifest|error|feedback|classic-form|paper-form).*)',
     '/api/user',
   ],
 };

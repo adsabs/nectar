@@ -1,3 +1,4 @@
+//  eslint-disable-next-line @next/next/no-server-import-in-page
 import { NextRequest, NextResponse } from 'next/server';
 import { getIronSession } from 'iron-session/edge';
 import { sessionConfig } from '@/config';

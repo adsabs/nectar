@@ -8,6 +8,7 @@ const TIMEOUT = 10000;
 export const Notification = () => {
   const toastId = useRef<ToastId>(null);
   const router = useRouter();
+  const timeoutId = useRef<NodeJS.Timeout>(null);
   const notification = useStore((state) => state.notification);
   const resetNotification = useStore((state) => state.resetNotification);
   const toast = useToast({
@@ -20,14 +21,16 @@ export const Notification = () => {
   // Reset notification (clear from store and close toast)
   const reset = useCallback(() => {
     resetNotification();
+    clearTimeout(timeoutId.current);
     if (toastId.current) {
       toast.close(toastId.current);
     }
-  }, [resetNotification, toast, toastId.current]);
+  }, [resetNotification, toast, toastId.current, timeoutId.current]);
 
   // Show notification
   useEffect(() => {
     if (notification !== null && !toast.isActive(toastId.current)) {
+      clearTimeout(timeoutId.current);
       toastId.current = toast({
         id: notification?.id,
         description: notification?.message,
@@ -36,7 +39,7 @@ export const Notification = () => {
       });
     }
     return () => {
-      setTimeout(reset, TIMEOUT);
+      timeoutId.current = setTimeout(reset, TIMEOUT);
     };
   }, [notification, resetNotification, toast, toastId.current, reset]);
 

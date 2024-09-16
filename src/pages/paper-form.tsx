@@ -262,7 +262,10 @@ const ReferenceQueryForm = ({ onSubmit, error }: SubFormProps) => {
             name="reference"
             id="reference"
             placeholder="Reference"
-            {...register('reference', { required: true, validate: validateNotEmpty })}
+            {...register('reference', {
+              required: true,
+              validate: validateNotEmpty,
+            })}
           />
           <FormHelperText>Enter a full reference string (eg Smith et al 2000, A&amp;A 362, pp. 333-341)</FormHelperText>
           <FormErrorMessage>{errors.reference && errors.reference.message}</FormErrorMessage>
@@ -315,7 +318,10 @@ const BibcodeQueryForm = ({ onSubmit, error }: SubFormProps) => {
           <Textarea
             id="bibcodes"
             name="bibcodes"
-            {...register('bibcodes', { required: true, validate: validateNotEmpty })}
+            {...register('bibcodes', {
+              required: true,
+              validate: validateNotEmpty,
+            })}
           />
           <FormHelperText>Enter list of Bibcodes (e.g. 1989ApJ...342L..71R), one per line.</FormHelperText>
           <FormErrorMessage>{errors.bibcodes && errors.bibcodes.message}</FormErrorMessage>
