@@ -198,5 +198,6 @@
   "browserslist": [
     ">0.3%",
     "not dead"
-  ]
+  ],
+  "packageManager": "pnpm@8.15.5+sha1.a58c038faac410c947dbdb93eb30994037d0fce2"
 }
