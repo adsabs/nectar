@@ -5,7 +5,6 @@ import { IBootstrapPayload, IUserData } from '@/api/user/types';
 import { isNil, pick } from 'ramda';
 import { isPast, parseISO } from 'date-fns';
 import { edgeLogger } from '@/logger';
-// eslint-disable-next-line @next/next/no-server-import-in-page
 import { NextRequest, NextResponse } from 'next/server';
 import { botCheck } from '@/middlewares/botCheck';
 import setCookie from 'set-cookie-parser';
@@ -133,7 +132,7 @@ export const initSession = async (req: NextRequest, res: NextResponse) => {
   log.debug('Session is invalid, or expired, creating new one...');
 
   // check if the user is a bot
-  await botCheck(req, res);
+  // await botCheck(req, res);
 
   // bootstrap a new token, passing in the current session cookie value
   const { token, headers } = (await bootstrap(adsSessionCookie)) ?? {};
