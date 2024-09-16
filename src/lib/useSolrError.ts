@@ -22,7 +22,7 @@ export const useSolrError = (error: unknown) => {
 
   // if incoming error is an axios error, extract the actual solr error from it
   if (isAxiosError(solrError)) {
-    solrError = (solrError as AxiosError<IADSApiSearchResponse>).response.data.error as SolrErrorResponse;
+    solrError = (solrError as AxiosError<IADSApiSearchResponse>)?.response?.data?.error as SolrErrorResponse;
   }
 
   // if incoming error is not a solr error, return unknown

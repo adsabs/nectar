@@ -37,7 +37,10 @@ export const notificationSlice: StoreSlice<INotificationState & INotificationAct
     ),
   resetNotification: () =>
     set(
-      { notification: initialState.notification, lastSeenNotification: get().notification },
+      {
+        notification: initialState.notification,
+        lastSeenNotification: get().notification,
+      },
       false,
       'notification/resetNotification',
     ),
@@ -67,7 +70,12 @@ export const NOTIFICATIONS: Record<NotificationId, Notification> = {
   'api-connect-failed': {
     id: 'api-connect-failed',
     status: 'error',
-    message: 'There was a problem contacting the API, please reload the page and try again.',
+    message: 'There was a problem contacting the API. Please try again later.',
+  },
+  'rate-limit-exceeded': {
+    id: 'rate-limit-exceeded',
+    status: 'error',
+    message: 'You have exceeded the rate limit. Please try again later.',
   },
   'account-login-success': {
     id: 'account-login-success',
@@ -143,6 +151,7 @@ export type NotificationId =
   | 'account-reset-password-success'
   | 'api-connect-failed'
   | 'login-required'
+  | 'rate-limit-exceeded'
   | 'orcid-auth-failed'
   | 'verify-account-failed'
   | 'verify-account-success'

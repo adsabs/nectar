@@ -14,6 +14,7 @@ import { useRouter } from 'next/router';
 import { ChangeEventHandler, useCallback, useEffect, useState } from 'react';
 import { useSettings } from '@/lib/useSettings';
 import { SolrSort } from '@/api';
+import { NotificationId } from '@/store/slices';
 
 const SearchExamples = dynamic<ISearchExamplesProps>(
   () => import('@/components/SearchExamples').then((m) => m.SearchExamples),
@@ -36,6 +37,17 @@ const HomePage: NextPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { clearQuery, updateQuery } = useIntermediateQuery();
   const clearSelectedDocs = useStore((state) => state.clearAllSelected);
+  const setNotification = useStore((state) => state.setNotification);
+
+  useEffect(() => {
+    const setNotify = () => {
+      if (router.query.notify) {
+        setNotification(router.query.notify as NotificationId);
+      }
+    };
+    router.events.on('routeChangeComplete', setNotify);
+    return () => router.events.off('routeChangeComplete', setNotify);
+  }, [router]);
 
   // clear search on mount
   useEffect(() => {
@@ -75,10 +87,14 @@ const HomePage: NextPage = () => {
         updateQuery(query);
         setIsLoading(true);
         submitQuery();
-        void router.push({
-          pathname: '/search',
-          search: makeSearchParams(applyDefaultFilters({ q: query, sort, p: 1 })),
-        });
+        void router
+          .push({
+            pathname: '/search',
+            search: makeSearchParams(applyDefaultFilters({ q: query, sort, p: 1 })),
+          })
+          .finally(() => {
+            setIsLoading(false);
+          });
       }
     },
     [router, sort, submitQuery, updateQuery],
@@ -106,7 +122,6 @@ const HomePage: NextPage = () => {
 };
 
 export default HomePage;
-export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
 
 const Carousel = () => {
   const [initialPage, setInitialPage] = useState<number>(0);
@@ -245,3 +260,5 @@ const getListOfAppliedDefaultDatabases = (databases: IADSApiUserDataResponse['de
   }
   return defaultDatabases;
 };
+
+export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

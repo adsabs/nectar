@@ -1,12 +1,11 @@
-import { getIronSession } from 'iron-session/edge';
-import { sessionConfig } from '@/config';
+import { IronSession } from 'iron-session';
 import { ApiTargets } from '@/api/models';
 import { IBootstrapPayload, IUserData } from '@/api/user/types';
 import { isNil, pick } from 'ramda';
 import { isPast, parseISO } from 'date-fns';
 import { edgeLogger } from '@/logger';
+//  eslint-disable-next-line @next/next/no-server-import-in-page
 import { NextRequest, NextResponse } from 'next/server';
-import { botCheck } from '@/middlewares/botCheck';
 import setCookie from 'set-cookie-parser';
 
 /**
@@ -105,9 +104,8 @@ const log = edgeLogger.child({}, { msgPrefix: '[initSession] ' });
  * @param req
  * @param res
  */
-export const initSession = async (req: NextRequest, res: NextResponse) => {
+export const initSession = async (req: NextRequest, res: NextResponse, session: IronSession) => {
   log.debug('Initializing session');
-  const session = await getIronSession(req, res, sessionConfig);
   const adsSessionCookie = req.cookies.get(process.env.ADS_SESSION_COOKIE_NAME)?.value;
   const apiCookieHash = await hash(adsSessionCookie);
 
@@ -146,13 +144,5 @@ export const initSession = async (req: NextRequest, res: NextResponse) => {
     res.cookies.set(process.env.ADS_SESSION_COOKIE_NAME, sessionCookieValue);
     session.apiCookieHash = await hash(res.cookies.get(process.env.ADS_SESSION_COOKIE_NAME)?.value);
     await session.save();
-    return res;
   }
-
-  log.error('Failed to create a new session, redirecting back to root');
-  // if bootstrapping fails, we should probably redirect back to root and show a message
-  const url = req.nextUrl.clone();
-  url.pathname = '/';
-  url.searchParams.set('notify', 'api-connect-failed');
-  return NextResponse.redirect(url, req);
 };
