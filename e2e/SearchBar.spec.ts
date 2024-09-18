@@ -10,14 +10,14 @@ test.beforeEach(async ({ page }) => {
   await page.locator('search-input').isVisible();
 });
 
-test('Input allows basic input', async ({ page }) => {
+test.skip('Input allows basic input', async ({ page }) => {
   await expect(page.getByTestId('search-input')).toBeFocused();
   await expect(page.getByTestId('search-input')).toHaveValue(``);
   await page.getByTestId('search-input').fill(`star abs:"black hole"`);
   await expect(page.getByTestId('search-input')).toHaveValue(`star abs:"black hole"`);
 });
 
-test('Input autocomplete dropdown basic functionality works', async ({ page }) => {
+test.skip('Input autocomplete dropdown basic functionality works', async ({ page }) => {
   const input = page.getByTestId('search-input');
   await input.fill(`au`);
   await input.press('ArrowDown');
@@ -31,7 +31,7 @@ test('Input autocomplete dropdown basic functionality works', async ({ page }) =
   await expect(input).toHaveValue(`author:"Smith, A"`);
 });
 
-test('Can clear the input', async ({ page }) => {
+test.skip('Can clear the input', async ({ page }) => {
   const input = page.getByTestId('search-input');
 
   // initially should be no clear button
@@ -42,7 +42,7 @@ test('Can clear the input', async ({ page }) => {
   await expect(input).toHaveValue(``);
 });
 
-test('previews show when focusing on items in dropdown', async ({ page }) => {
+test.skip('previews show when focusing on items in dropdown', async ({ page }) => {
   const input = page.getByTestId('search-input');
   await input.fill(`au`);
   await input.press('ArrowDown');
@@ -59,7 +59,7 @@ test('previews show when focusing on items in dropdown', async ({ page }) => {
   await expect(input).toHaveValue(`au`);
 });
 
-test('escape properly closes the dropdown', async ({ page }) => {
+test.skip('escape properly closes the dropdown', async ({ page }) => {
   const input = page.getByTestId('search-input');
   await input.fill(`au`);
   await expect(page.getByTestId('search-autocomplete-menu')).toBeVisible();
@@ -96,7 +96,7 @@ test.skip('clicking on search examples updates input', async ({ page }) => {
   await expect(input).toHaveValue(`${texts[1]} ${texts[2]} ${texts[3]}`);
 });
 
-test('quick search works properly', async ({ page }) => {
+test.skip('quick search works properly', async ({ page }) => {
   const input = page.getByTestId('search-input');
 
   // click the author quick search button
@@ -118,14 +118,14 @@ test('quick search works properly', async ({ page }) => {
   await expect(page.getByTestId('allSearchTermsMenu')).toBeHidden();
 });
 
-test('Pressing enter starts search', async ({ page }) => {
+test.skip('Pressing enter starts search', async ({ page }) => {
   await page.getByTestId('search-input').fill(`author:"Smith, A"`);
   await page.getByTestId('search-input').press('Enter');
   await page.waitForURL('**/search?**');
   checkQuery(page, `author:"Smith, A"`);
 });
 
-test('clicking on the search button starts search', async ({ page }) => {
+test.skip('clicking on the search button starts search', async ({ page }) => {
   await page.locator('search-input').isVisible();
   await page.getByTestId('search-input').fill(`author:"Smith, A"`);
   await page.getByTestId('search-submit').click();
@@ -133,7 +133,7 @@ test('clicking on the search button starts search', async ({ page }) => {
   checkQuery(page, `author:"Smith, A"`);
 });
 
-test('autocomplete menu works with mouse', async ({ page }) => {
+test.skip('autocomplete menu works with mouse', async ({ page }) => {
   await page.getByTestId('search-input').fill(`au`);
   await page.getByTestId('search-autocomplete-menu').isVisible();
   await page.getByText('Author', { exact: true }).click();

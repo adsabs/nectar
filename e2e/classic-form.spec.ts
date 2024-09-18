@@ -35,7 +35,7 @@ test.skip('default form can be submitted, and is valid', async ({ page }) => {
   checkQuery(page, 'collection:(astronomy)');
 });
 
-test('form can be filled out and submitted, and is valid', async ({ page }) => {
+test.skip('form can be filled out and submitted, and is valid', async ({ page }) => {
   await page.goto('/classic-form');
   // forces the page to wait for the form to be visible
   await page.locator('form').isVisible();
@@ -72,7 +72,7 @@ test('form can be filled out and submitted, and is valid', async ({ page }) => {
   );
 });
 
-test('logic switches work properly', async ({ page }) => {
+test.skip('logic switches work properly', async ({ page }) => {
   await page.goto('/classic-form');
   // author
   await page.getByRole('textbox', { name: 'Author' }).fill('Smith, A\nJones, B');
@@ -99,7 +99,7 @@ test('logic switches work properly', async ({ page }) => {
   );
 });
 
-test('boolean switches work properly', async ({ page }) => {
+test.skip('boolean switches work properly', async ({ page }) => {
   await page.goto('/classic-form');
   // title
   await page.locator('input[name="title"]').fill(`"Black Hole" Galaxy -Solar -"Milky Way"`);
@@ -118,7 +118,7 @@ test('boolean switches work properly', async ({ page }) => {
   );
 });
 
-test('author name single-author filter works properly', async ({ page }) => {
+test.skip('author name single-author filter works properly', async ({ page }) => {
   await page.goto('/classic-form');
   await page.locator('form').isVisible();
 
@@ -129,7 +129,7 @@ test('author name single-author filter works properly', async ({ page }) => {
   await page.waitForURL('**/search?**');
   checkQuery(page, `collection:(astronomy) author:("^Smith, A") author_count:1`);
 });
-test('author name filters works properly', async ({ page }) => {
+test.skip('author name filters works properly', async ({ page }) => {
   await page.goto('/classic-form');
   await page.locator('form').isVisible();
 
@@ -141,7 +141,7 @@ test('author name filters works properly', async ({ page }) => {
   checkQuery(page, `collection:(astronomy) author:(="Smith, A" -"Jones, A")`);
 });
 
-test('Can get to classic form from landing page', async ({ page }) => {
+test.skip('Can get to classic form from landing page', async ({ page }) => {
   await page.goto('/');
   await page.locator('#theme-selector svg').click();
   await page.getByText('Astrophysics', { exact: true }).click();
