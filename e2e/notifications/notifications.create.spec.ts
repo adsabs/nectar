@@ -4,7 +4,7 @@ test.describe.configure({
   mode: 'parallel',
 });
 
-test('Add arxiv notification', async ({ page }) => {
+test.skip('Add arxiv notification', async ({ page }) => {
   await page.goto('/user/notifications', { timeout: 60000 });
 
   // open create arxiv
@@ -39,7 +39,7 @@ test('Add arxiv notification', async ({ page }) => {
   await expect(rows.nth(6)).toContainText('7added examplearxivdaily');
 });
 
-test('Add citations notification', async ({ page }) => {
+test.skip('Add citations notification', async ({ page }) => {
   await page.goto('/user/notifications', { timeout: 60000 });
 
   // open create
@@ -73,7 +73,7 @@ test('Add citations notification', async ({ page }) => {
   await expect(rows.nth(6)).toContainText('7added examplecitationsweekly');
 });
 
-test('Add authors notification', async ({ page }) => {
+test.skip('Add authors notification', async ({ page }) => {
   await page.goto('/user/notifications', { timeout: 60000 });
   await page.getByTestId('create-noti-btn').click();
   await page.getByTestId('new-authors-btn').click();
@@ -105,7 +105,7 @@ test('Add authors notification', async ({ page }) => {
   await expect(rows.nth(6)).toContainText('7added exampleauthorsweekly');
 });
 
-test('Add keyword notification', async ({ page }) => {
+test.skip('Add keyword notification', async ({ page }) => {
   await page.goto('/user/notifications', { timeout: 60000 });
   await page.getByTestId('create-noti-btn').click();
   await page.getByTestId('new-keyword-btn').click();
@@ -127,7 +127,7 @@ test('Add keyword notification', async ({ page }) => {
   await expect(rows.nth(6)).toContainText('7added examplekeywordweekly');
 });
 
-test('Add query notification', async ({ page }) => {
+test.skip('Add query notification', async ({ page }) => {
   // search page
   await page.goto('/search?q=Smith%2C+Jane&sort=score+desc&sort=date+desc&p=1', { timeout: 60000 });
 

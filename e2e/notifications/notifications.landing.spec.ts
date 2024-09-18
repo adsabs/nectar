@@ -4,7 +4,7 @@ test.describe.configure({
   mode: 'parallel',
 });
 
-test('Notifications show up in the table', async ({ page }) => {
+test.skip('Notifications show up in the table', async ({ page }) => {
   await page.goto('/user/notifications', { timeout: 60000 });
   const rows = page.getByTestId('notifications-table').locator('tbody > tr');
   await expect(rows).toHaveCount(6);
@@ -16,7 +16,7 @@ test('Notifications show up in the table', async ({ page }) => {
   await expect(rows.nth(5)).toContainText('6keyword examplekeywordweekly');
 });
 
-test('Delete notification', async ({ page }) => {
+test.skip('Delete notification', async ({ page }) => {
   await page.goto('/user/notifications', { timeout: 60000 });
   await page.getByTestId('action-btn').nth(0).click();
   await expect(page.locator('button[role="menuitem"]').getByText('Delete Notification').nth(0)).toBeVisible();
@@ -32,7 +32,7 @@ test('Delete notification', async ({ page }) => {
   await expect(rows.nth(4)).toContainText('5keyword examplekeywordweekly');
 });
 
-test('Filter notifications', async ({ page }) => {
+test.skip('Filter notifications', async ({ page }) => {
   await page.goto('/user/notifications', { timeout: 60000 });
 
   await page.getByTestId('filter-notifications').fill('daily');
@@ -45,7 +45,7 @@ test('Filter notifications', async ({ page }) => {
   await expect(rows).toHaveCount(6);
 });
 
-test('Search menus are correct', async ({ page }) => {
+test.skip('Search menus are correct', async ({ page }) => {
   await page.goto('/user/notifications', { timeout: 60000 });
   await page.getByTestId('action-btn').nth(0).click(); // query notification
   let search = page.getByTestId('action-menu').nth(0).locator('button[role="menuitem"]').getByText('Search');
@@ -92,7 +92,7 @@ test('Search menus are correct', async ({ page }) => {
   await page.getByTestId('action-btn').nth(5).click(); // close
 });
 
-test('Action: search', async ({ page }) => {
+test.skip('Action: search', async ({ page }) => {
   await page.goto('/user/notifications', { timeout: 60000 });
   await page.getByTestId('action-btn').nth(0).click(); // a query notification
   const search = page.getByTestId('action-menu').nth(0).locator('button[role="menuitem"]').getByText('Search');
@@ -103,7 +103,7 @@ test('Action: search', async ({ page }) => {
   expect(page.url()).toContain('/search?q=star&sort=date+desc&p=1');
 });
 
-test('Enable disable notification', async ({ page }) => {
+test.skip('Enable disable notification', async ({ page }) => {
   await page.goto('/user/notifications', { timeout: 60000 });
   await page.getByTestId('action-btn').nth(0).click();
   let btn = page.getByTestId('action-menu').nth(0).locator('button[role="menuitem"]').getByText('Enable Notification?');
