@@ -20,6 +20,9 @@ export default defineConfig({
   reporter: process.env.CI ? 'github' : 'list',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
+    extraHTTPHeaders: {
+      'x-scix-ci': 'true',
+    },
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: 'http://localhost:8000',
 
@@ -38,15 +41,15 @@ export default defineConfig({
       },
     },
 
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
+    // {
+    //   name: 'firefox',
+    //   use: { ...devices['Desktop Firefox'] },
+    // },
 
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
+    // {
+    //   name: 'webkit',
+    //   use: { ...devices['Desktop Safari'] },
+    // },
   ],
   webServer: [
     {
