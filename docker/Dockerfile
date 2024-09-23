@@ -30,6 +30,7 @@ COPY --link . .
 
 FROM prod_deps AS prod
 COPY --from=prod_deps /app/node_modules ./node_modules/
+EXPOSE 8000
 RUN mkdir -p ./.pnpm-cache
 RUN --mount=type=cache,id=nextjs,target=.pnpm-cache pnpm run build
 CMD ["pnpm", "start"]
