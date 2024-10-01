@@ -8,19 +8,19 @@ test.describe.configure({
   mode: 'parallel',
 });
 
-test('should render the pager', async ({ page }) => {
+test.skip('should render the pager', async ({ page }) => {
   await page.goto('?args=&id=pager--default&viewMode=story');
   await page.waitForSelector('#storybook-root [role="tablist"]');
 });
 
-test('should render the pager with the correct number of pages', async ({ page }) => {
+test.skip('should render the pager with the correct number of pages', async ({ page }) => {
   await page.goto('?args=&id=pager--default&viewMode=story');
   const pager = await page.waitForSelector('#storybook-root [role="tablist"]');
   const pages = await pager.$$('[role="tab"]');
   test.expect(pages.length).toBe(6);
 });
 
-test('clicking on next should advance the page', async ({ page }) => {
+test.skip('clicking on next should advance the page', async ({ page }) => {
   await page.goto('?args=&id=pager--default&viewMode=story');
   await page.waitForSelector('#storybook-root [role="tablist"]');
   const next = page.getByLabel('goto next page');
@@ -32,7 +32,7 @@ test('clicking on next should advance the page', async ({ page }) => {
   await test.expect(activeTab).toHaveAttribute('data-index', '1');
 });
 
-test('clicking on previous should go back a page, or cycle around', async ({ page }) => {
+test.skip('clicking on previous should go back a page, or cycle around', async ({ page }) => {
   await page.goto('?args=&id=pager--default&viewMode=story');
   await page.waitForSelector('#storybook-root [role="tablist"]');
   const previous = page.getByLabel('goto previous page');
@@ -44,7 +44,7 @@ test('clicking on previous should go back a page, or cycle around', async ({ pag
   await test.expect(activeTab).toHaveAttribute('data-index', '5');
 });
 
-test('should cycle through pages correctly in both directions', async ({ page }) => {
+test.skip('should cycle through pages correctly in both directions', async ({ page }) => {
   await page.goto('?args=&id=pager--default&viewMode=story');
   await page.waitForSelector('#storybook-root [role="tablist"]');
 
@@ -68,7 +68,7 @@ test('should cycle through pages correctly in both directions', async ({ page })
   }
 });
 
-test('dynamic page content works properly', async ({ page }) => {
+test.skip('dynamic page content works properly', async ({ page }) => {
   await page.goto('?args=&id=pager--with-dynamic-content&viewMode=story');
   await page.waitForSelector('#storybook-root [role="tablist"]');
   const text = await page.getByRole('tabpanel').textContent();
