@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18]
+        node-version: [20]
     steps:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v2
@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18]
+        node-version: [20]
     steps:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v2
@@ -69,7 +69,6 @@ jobs:
           files: ./coverage/lcov.info
           flags: unittests
           name: codecov-nectar
-          path_to_write_report: ./coverage/codecov_report.txt
           verbose: true
 
   e2e-tests:
@@ -83,7 +82,7 @@ jobs:
       COOKIE_SECRET: ${{ vars.COOKIE_SECRET }}
     strategy:
       matrix:
-        node-version: [18]
+        node-version: [20]
     steps:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v2
