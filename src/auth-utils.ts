@@ -90,7 +90,7 @@ export const isAuthenticated = (user: IUserData) =>
  * Picks the user data from the bootstrap payload
  * @param userData
  */
-export const pickUserData = (userData?: IUserData) => {
+export const pickUserData = (userData?: IUserData | IBootstrapPayload) => {
   if (!isUserData(userData)) {
     return null;
   }
