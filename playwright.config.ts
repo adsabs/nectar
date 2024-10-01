@@ -38,6 +38,9 @@ export default defineConfig({
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
+        launchOptions: {
+          args: ['--use-angle=gl-egl', '--use-gl=angle', '--enable-gpu', '--ignore-gpu-blocklist'],
+        },
       },
     },
 
@@ -52,14 +55,6 @@ export default defineConfig({
     // },
   ],
   webServer: [
-    {
-      command: 'pnpm storybook dev --ci --quiet --disable-telemetry --port 8001',
-      timeout: 300000,
-      stdout: 'ignore',
-      stderr: 'pipe',
-      reuseExistingServer: !process.env.CI,
-      url: 'http://localhost:8001',
-    },
     {
       env: {
         BASE_CANONICAL_URL: process.env.BASE_CANONICAL_URL || 'https://ui.adsabs.harvard.edu',
