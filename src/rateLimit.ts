@@ -2,8 +2,8 @@ import { LRUCache } from 'lru-cache';
 
 // Environment variables for rate-limiting settings with fallback values
 const RATE_LIMIT_MAX = parseInt(process.env.RATE_LIMIT_MAX ?? '1500', 10);
-const RATE_LIMIT_TTL = parseInt(process.env.RATE_LIMIT_TTL ?? '60000', 10);
-const RATE_LIMIT_COUNT = parseInt(process.env.RATE_LIMIT ?? '100', 10);
+const RATE_LIMIT_TTL = parseInt(process.env.RATE_LIMIT_TTL ?? '60000', 10); // 1 minute
+const RATE_LIMIT_COUNT = parseInt(process.env.RATE_LIMIT_COUNT ?? '100', 10); // Max requests allowed within the TTL
 
 // LRU cache to store request count per IP
 const rateLimitCache = new LRUCache<string, { count: number; lastRequest: number }>({
@@ -21,22 +21,26 @@ export const rateLimit = (ip: string): boolean => {
   const currentTime = Date.now();
 
   // Retrieve or initialize the entry for the current IP
-  const entry = rateLimitCache.get(ip) || {
-    count: 0,
-    lastRequest: currentTime,
-  };
+  let entry = rateLimitCache.get(ip);
 
-  // Check if the request is within the time window for rate limiting
-  if (currentTime - entry.lastRequest < RATE_LIMIT_TTL) {
-    entry.count += 1;
+  // Initialize the entry if not present
+  if (!entry) {
+    entry = { count: 1, lastRequest: currentTime };
   } else {
-    entry.count = 1; // Reset count if outside of time window
-    entry.lastRequest = currentTime;
+    // Check if the current time is outside of the TTL window
+    if (currentTime - entry.lastRequest > RATE_LIMIT_TTL) {
+      // If outside the window, reset the count and timestamp
+      entry.count = 1;
+      entry.lastRequest = currentTime;
+    } else {
+      // Otherwise, increment the count for this IP
+      entry.count += 1;
+    }
   }
 
-  // Store the updated request count and timestamp in the cache
+  // Store the updated entry back in the cache with a fresh TTL
   rateLimitCache.set(ip, entry);
 
-  // Return true if the request count is within the allowed limit, false otherwise
+  // Check if the IP's request count exceeds the allowed limit
   return entry.count <= RATE_LIMIT_COUNT;
 };
