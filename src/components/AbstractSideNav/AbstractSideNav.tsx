@@ -1,4 +1,4 @@
-import { IDocsEntity, useGetGraphicsCount, useHasMetrics } from '@/api';
+import { IDocsEntity } from '@/api';
 import { Badge } from '@chakra-ui/react';
 import { exportFormats, IMenuItem, SideNavigationMenu, TopNavigationMenu } from '@/components';
 import {
@@ -91,15 +91,15 @@ const useGetItems = ({
       href: { pathname: `${abstractPath}/${docId}/${Routes.GRAPHICS}` },
       label: 'Graphics',
       icon: <PhotographIcon />,
-      rightElement: graphicsCount > 0 ? <CountBadge count={graphicsCount} /> : null,
-      disabled: graphicsCount === 0,
+      rightElement: null,
+      disabled: false,
     },
     [Routes.METRICS]: {
       id: Routes.METRICS,
       href: { pathname: `${abstractPath}/${docId}/${Routes.METRICS}` },
       label: 'Metrics',
       icon: <ChartPieIcon />,
-      disabled: !hasMetrics,
+      disabled: false,
     },
     [Routes.EXPORT]: {
       id: Routes.EXPORT,
@@ -122,9 +122,9 @@ export interface IAbstractSideNavProps extends HTMLAttributes<HTMLDivElement> {
 
 export const AbstractSideNav = (props: IAbstractSideNavProps): ReactElement => {
   const { doc } = props;
-  const graphicsCount = useGetGraphicsCount(doc?.bibcode);
-  const hasMetrics = useHasMetrics(doc?.bibcode);
-  const { menuItems, activeItem } = useGetItems({ doc, graphicsCount, hasMetrics });
+  // const graphicsCount = useGetGraphicsCount(doc?.bibcode);
+  // const hasMetrics = useHasMetrics(doc?.bibcode);
+  const { menuItems, activeItem } = useGetItems({ doc, graphicsCount: 0, hasMetrics: true });
 
   return (
     <>
