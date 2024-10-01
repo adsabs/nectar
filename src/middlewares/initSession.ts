@@ -7,6 +7,7 @@ import { edgeLogger } from '@/logger';
 //  eslint-disable-next-line @next/next/no-server-import-in-page
 import { NextRequest, NextResponse } from 'next/server';
 import setCookie from 'set-cookie-parser';
+import { botCheck } from '@/middlewares/botCheck';
 
 /**
  * Checks if the user data is valid
@@ -103,46 +104,50 @@ const log = edgeLogger.child({}, { msgPrefix: '[initSession] ' });
  * Middleware to initialize the session
  * @param req
  * @param res
+ * @param session
  */
 export const initSession = async (req: NextRequest, res: NextResponse, session: IronSession) => {
-  log.debug('Initializing session');
+  log.debug({ session }, 'Initializing session');
+  // await initialize(session);
+
   const adsSessionCookie = req.cookies.get(process.env.ADS_SESSION_COOKIE_NAME)?.value;
   const apiCookieHash = await hash(adsSessionCookie);
 
   log.debug('Incoming session found, validating...');
 
-  // if the session is valid, do not bootstrap
-  if (
-    // if the user has already been identified as a bot, we don't need to re-bootstrap
-    (session.bot && isValidToken(session.token)) ||
-    // check if the refresh token is present, meaning we want to force a new session
-    (!req.headers.has('X-Refresh-Token') &&
-      // check if the token is valid
-      isValidToken(session.token) &&
-      // check if the cookie hash matches the one in the session
-      apiCookieHash !== null &&
-      // the incoming cookie hash matches the one in the session
-      apiCookieHash === session.apiCookieHash)
-  ) {
+  // Check if the session is valid
+  const isUserIdentifiedAsBot = session.bot && isValidToken(session.token);
+  const hasRefreshTokenHeader = req.headers.has('x-refresh-token');
+  const isTokenValid = isValidToken(session.token);
+  const isApiCookieHashPresent = apiCookieHash !== null;
+  const isApiCookieHashMatching = apiCookieHash === session.apiCookieHash;
+
+  const isValidSession =
+    isUserIdentifiedAsBot ||
+    (!hasRefreshTokenHeader && isTokenValid && isApiCookieHashPresent && isApiCookieHashMatching);
+
+  if (isValidSession) {
     log.debug('Session is valid.');
     return res;
   }
+
   log.debug('Session is invalid, or expired, creating new one...');
 
   // check if the user is a bot
-  // await botCheck(req, res);
+  await botCheck(req, res);
 
   // bootstrap a new token, passing in the current session cookie value
   const { token, headers } = (await bootstrap(adsSessionCookie)) ?? {};
 
   // validate token, update session, forward cookies
   if (isValidToken(token)) {
+    log.debug('Refreshed token is valid');
     session.token = token;
     session.isAuthenticated = isAuthenticated(token);
-    log.debug({ msg: 'headers', headers: headers.entries() });
     const sessionCookieValue = setCookie.parse(headers.get('set-cookie') ?? '')[0].value;
     res.cookies.set(process.env.ADS_SESSION_COOKIE_NAME, sessionCookieValue);
     session.apiCookieHash = await hash(res.cookies.get(process.env.ADS_SESSION_COOKIE_NAME)?.value);
     await session.save();
+    log.debug('Saved to session');
   }
 };
