@@ -2,10 +2,8 @@ import { ExportApiFormatKey, IDocsEntity, isExportApiFormat, useGetAbstract } fr
 import { Box } from '@chakra-ui/react';
 import { CitationExporter, JournalFormatMap } from '@/components';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
-import { withDetailsPage } from '@/hocs/withDetailsPage';
-import { GetServerSideProps, NextPage } from 'next';
+import { NextPage } from 'next';
 import { path } from 'ramda';
-import { composeNextGSSP } from '@/ssr-utils';
 import { useRouter } from 'next/router';
 import { useSettings } from '@/lib/useSettings';
 
@@ -54,4 +52,4 @@ const ExportCitationPage: NextPage = () => {
 
 export default ExportCitationPage;
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage);
+export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

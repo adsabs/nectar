@@ -1,4 +1,4 @@
-import { IADSApiSearchParams, IDocsEntity, useGetAbstract } from '@/api';
+import { fetchSearch, getAbstractParams, IADSApiSearchParams, IDocsEntity, searchKeys, useGetAbstract } from '@/api';
 import {
   Box,
   Button,
@@ -39,10 +39,9 @@ import { useGetAuthors } from '@/components/AllAuthorsModal/useGetAuthors';
 import { OrcidActiveIcon } from '@/components/icons/Orcid';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { APP_DEFAULTS, EXTERNAL_URLS } from '@/config';
-import { withDetailsPage } from '@/hocs/withDetailsPage';
 import { useIsClient } from '@/lib/useIsClient';
 import { composeNextGSSP } from '@/ssr-utils';
-import { pluralize } from '@/utils';
+import { parseAPIError, pluralize } from '@/utils';
 import { MathJax } from 'better-react-mathjax';
 import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
@@ -53,6 +52,8 @@ import { FolderPlusIcon } from '@heroicons/react/24/solid';
 import { useSession } from '@/lib/useSession';
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { isNilOrEmpty } from 'ramda-adjunct';
+import { dehydrate, QueryClient } from '@tanstack/react-query';
+import { logger } from '@/logger';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   () => import('@/components/AllAuthorsModal').then((m) => m.AllAuthorsModal),
@@ -383,4 +384,26 @@ const Detail = <T,>(props: IDetailProps<T>): ReactElement => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage);
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
+  try {
+    const { id } = ctx.params as { id: string };
+    const queryClient = new QueryClient();
+    await queryClient.fetchQuery({
+      queryKey: searchKeys.abstract(id),
+      queryFn: fetchSearch,
+      meta: { params: getAbstractParams(id) },
+    });
+    return {
+      props: {
+        dehydratedState: dehydrate(queryClient),
+      },
+    };
+  } catch (err) {
+    logger.error({ err, url: ctx.resolvedUrl }, 'Error fetching details');
+    return {
+      props: {
+        pageError: parseAPIError(err),
+      },
+    };
+  }
+});
