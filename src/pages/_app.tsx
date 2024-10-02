@@ -63,7 +63,7 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
         <UserSync />
         <Layout>
           <Component {...pageProps} />
-          <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
+          <GoogleTagManager gtmId="GTM-PHZ52J6T" />
         </Layout>
       </Providers>
     </>
