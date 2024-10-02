@@ -11,20 +11,18 @@ jobs:
         node-version: [20]
     steps:
       - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v4
         name: Install pnpm
-        id: pnpm-install
         with:
-          version: 8
           run_install: false
-      - uses: actions/cache@v3
-        name: restore/setup pnpm cache
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
 
-      - name: Install dependencies
-        if: steps.pnpm-cache.outputs.cache-hit != 'true'
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install Deps
         run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 SENTRYCLI_SKIP_DOWNLOAD=1 pnpm install
 
       - name: Lint
@@ -36,25 +34,20 @@ jobs:
   unit-tests:
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20]
     steps:
       - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v4
         name: Install pnpm
-        id: pnpm-install
         with:
-          version: 8
           run_install: false
-      - uses: actions/cache@v3
-        name: restore/setup pnpm cache
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
 
-      - name: Install dependencies
-        if: steps.pnpm-cache.outputs.cache-hit != 'true'
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install Deps
         run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 SENTRYCLI_SKIP_DOWNLOAD=1 pnpm install
 
       - name: Test
@@ -80,26 +73,24 @@ jobs:
       API_HOST_CLIENT: ${{ vars.API_HOST_CLIENT }}
       API_HOST_SERVER: ${{ vars.API_HOST_SERVER }}
       COOKIE_SECRET: ${{ vars.COOKIE_SECRET }}
-    strategy:
-      matrix:
-        node-version: [20]
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+      SENTRYCLI_SKIP_DOWNLOAD: 1
     steps:
       - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
-        name: Install pnpm
-        id: pnpm-install
-        with:
-          version: 8
-          run_install: false
-      - uses: actions/cache@v3
-        name: restore/setup pnpm cache
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
 
-      - name: Install dependencies
-        if: steps.pnpm-cache.outputs.cache-hit != 'true'
-        run: pnpm install
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install Deps
+        run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 SENTRYCLI_SKIP_DOWNLOAD=1 pnpm install
 
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps

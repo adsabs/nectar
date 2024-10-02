@@ -171,7 +171,7 @@ const JournalQueryForm = ({ onSubmit, error }: SubFormProps) => {
       </Text>
       <Divider mb={5} />
       <form method="POST" action={router.route} onSubmit={formSubmit} data-testid={PaperFormType.JOURNAL_QUERY}>
-        <input type="hidden" name="form" value={PaperFormType.JOURNAL_QUERY} {...register('form')} />
+        <input type="hidden" name="form" defaultValue={PaperFormType.JOURNAL_QUERY} {...register('form')} />
         {/* Bibstem picker */}
         <Grid templateColumns="repeat(5, 1fr)" gap={4}>
           <GridItem colSpan={6}>
@@ -255,7 +255,7 @@ const ReferenceQueryForm = ({ onSubmit, error }: SubFormProps) => {
       </Heading>
       <Divider mt={2} mb={4} />
       <form method="POST" onSubmit={formSubmit} action={router.route} data-testid={PaperFormType.REFERENCE_QUERY}>
-        <input type="hidden" name="form" value={PaperFormType.REFERENCE_QUERY} {...register('form')} />
+        <input type="hidden" name="form" defaultValue={PaperFormType.REFERENCE_QUERY} {...register('form')} />
         <FormControl isRequired>
           <FormLabel htmlFor="reference">Reference</FormLabel>
           <Input
@@ -312,7 +312,7 @@ const BibcodeQueryForm = ({ onSubmit, error }: SubFormProps) => {
       </Heading>
       <Divider mt={2} mb={4} />
       <form method="POST" onSubmit={formSubmit} action={router.route} data-testid={PaperFormType.BIBCODE_QUERY}>
-        <input type="hidden" name="form" value={PaperFormType.BIBCODE_QUERY} {...register('form')} />
+        <input type="hidden" name="form" defaultValue={PaperFormType.BIBCODE_QUERY} {...register('form')} />
         <FormControl isRequired>
           <FormLabel htmlFor="bibcodes">List of Bibcodes</FormLabel>
           <Textarea

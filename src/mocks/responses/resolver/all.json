@@ -1,0 +1,87 @@
+{
+    "service": "",
+    "action": "display",
+    "links": {
+        "count": 17,
+        "link_type": "all",
+        "records": [
+            {
+                "bibcode": "2024npjSA...2...15F",
+                "title": "ABSTRACT (1)",
+                "url": "/link_gateway/2024npjSA...2...15F/ABSTRACT",
+                "type": "abstract",
+                "count": 1
+            },
+            {
+                "bibcode": "2024npjSA...2...15F",
+                "title": "CITATIONS (1)",
+                "url": "/link_gateway/2024npjSA...2...15F/CITATIONS",
+                "type": "citations",
+                "count": 1
+            },
+            {
+                "bibcode": "2024npjSA...2...15F",
+                "title": "REFERENCES (1)",
+                "url": "/link_gateway/2024npjSA...2...15F/REFERENCES",
+                "type": "references",
+                "count": 1
+            },
+            {
+                "bibcode": "2024npjSA...2...15F",
+                "title": "COREADS (1)",
+                "url": "/link_gateway/2024npjSA...2...15F/COREADS",
+                "type": "coreads",
+                "count": 1
+            },
+            {
+                "bibcode": "2024npjSA...2...15F",
+                "title": "OPENURL (1)",
+                "url": "/link_gateway/2024npjSA...2...15F/OPENURL",
+                "type": "openurl",
+                "count": 1
+            },
+            {
+                "bibcode": "2024npjSA...2...15F",
+                "title": "GRAPHICS (1)",
+                "url": "/link_gateway/2024npjSA...2...15F/GRAPHICS",
+                "type": "graphics",
+                "count": 1
+            },
+            {
+                "bibcode": "2024npjSA...2...15F",
+                "title": "METRICS (1)",
+                "url": "/link_gateway/2024npjSA...2...15F/METRICS",
+                "type": "metrics",
+                "count": 1
+            },
+            {
+                "bibcode": "2024npjSA...2...15F",
+                "title": "SIMILAR (1)",
+                "url": "/link_gateway/2024npjSA...2...15F/SIMILAR",
+                "type": "similar",
+                "count": 1
+            },
+            {
+                "bibcode": "2024npjSA...2...15F",
+                "title": "ESOURCE (1)",
+                "url": "/link_gateway/2024npjSA...2...15F/ESOURCE",
+                "type": "esource",
+                "count": 1
+            },
+            {
+                "bibcode": "2024npjSA...2...15F",
+                "title": "DOI (1)",
+                "url": "/link_gateway/2024npjSA...2...15F/DOI",
+                "type": "doi",
+                "count": 1
+            },
+            {
+                "bibcode": "2024npjSA...2...15F",
+                "title": "ARXIV (1)",
+                "url": "/link_gateway/2024npjSA...2...15F/ARXIV",
+                "type": "arxiv",
+                "count": 1
+            }
+        ]
+    }
+}
