@@ -391,11 +391,16 @@ export const fetchBigQuerySearch: MutationFunction<IADSApiSearchResponse['respon
   };
 
 /**
- * Base fetcher for search
+ * Fetches search results from the API based on provided search parameters.
  *
- * *This shouldn't be used directly, except during prefetching*
+ * @function
+ * @param {Object} options - The function options.
+ * @param {Object} options.meta - Metadata for the search query.
+ * @param {Object} options.meta.params - The search parameters to be used in the query.
+ *
+ * @returns {Promise<IADSApiSearchResponse>} - A promise that resolves to the search response data.
  */
-export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta }) => {
+export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta, signal }) => {
   const { params } = meta as { params: IADSApiSearchParams };
 
   const finalParams = { ...params };
@@ -408,12 +413,30 @@ export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta }
     method: 'GET',
     url: ApiTargets.SEARCH,
     params: finalParams,
+    signal,
   };
   const { data } = await api.request<IADSApiSearchResponse>(config);
   return data;
 };
 
-export const fetchSearchSSR = async (params: IADSApiSearchParams, ctx: GetServerSidePropsContext) => {
+/**
+ * Fetches search results on the server side.
+ *
+ * This function performs a search request using the provided parameters and server-side context.
+ * It handles token validation and query string resolution when necessary.
+ * The search request is sent to the specified API target with appropriate headers and configurations.
+ *
+ * @param {IADSApiSearchParams} params - The parameters for the search request.
+ * @param {GetServerSidePropsContext} ctx - The server-side context that includes request and session information.
+ * @param {QueryFunctionContext} qfCtx - The query function context that provides cancellation signal.
+ * @returns {Promise<IADSApiSearchResponse>} - A promise that resolves to the search response data.
+ * @throws {Error} - Throws an error if the token is not available.
+ */
+export const fetchSearchSSR = async (
+  params: IADSApiSearchParams,
+  ctx: GetServerSidePropsContext,
+  { signal }: QueryFunctionContext,
+) => {
   const finalParams = { ...params };
 
   const token = ctx.req.session?.token?.access_token;
@@ -431,6 +454,7 @@ export const fetchSearchSSR = async (params: IADSApiSearchParams, ctx: GetServer
     method: 'GET',
     url: ApiTargets.SEARCH,
     params: finalParams,
+    signal,
     headers: {
       Authorization: `Bearer ${token}`,
       ...pick(TRACING_HEADERS, ctx.req.headers),
@@ -444,6 +468,7 @@ export const fetchSearchSSR = async (params: IADSApiSearchParams, ctx: GetServer
 export const fetchSearchInfinite: QueryFunction<IADSApiSearchResponse & { pageParam: string }> = async ({
   meta,
   pageParam = '*',
+  signal,
 }: QueryFunctionContext<QueryKey, string>) => {
   const { params } = meta as { params: IADSApiSearchParams };
 
@@ -460,6 +485,7 @@ export const fetchSearchInfinite: QueryFunction<IADSApiSearchResponse & { pagePa
       ...finalParams,
       cursorMark: pageParam,
     } as IADSApiSearchParams,
+    signal,
   };
   const { data } = await api.request<IADSApiSearchResponse>(config);
 
