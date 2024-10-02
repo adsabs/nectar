@@ -106,6 +106,7 @@ export async function middleware(req: NextRequest) {
       method: req.method,
       url: req.nextUrl.toString(),
       path,
+      headers: req.headers,
     },
     'Request',
   );
@@ -122,9 +123,7 @@ export async function middleware(req: NextRequest) {
   // Apply rate limiting
   if (!rateLimit(ip)) {
     log.warn({ msg: 'Rate limit exceeded', ip });
-    const url = req.nextUrl.clone();
-    url.pathname = '/';
-    return redirect(url, req, { message: 'rate-limit-exceeded' });
+    return NextResponse.json({ error: 'Rate Limit Exceeded' }, { status: 429 });
   }
 
   const session = await getIronSession(req, res, sessionConfig);
