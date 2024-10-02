@@ -1,6 +1,5 @@
 import { ExportApiFormatKey } from '@/api';
 import { Meta, StoryObj } from '@storybook/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CitationExporter } from '../CitationExporter';
 
 const meta: Meta = {
@@ -14,16 +13,6 @@ const meta: Meta = {
   parameters: {
     controls: { expanded: true },
   },
-  decorators: [
-    (Story) => {
-      const queryClient = new QueryClient();
-      return (
-        <QueryClientProvider client={queryClient}>
-          <Story />
-        </QueryClientProvider>
-      );
-    },
-  ],
 };
 
 type Story = StoryObj<typeof CitationExporter>;

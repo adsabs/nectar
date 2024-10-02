@@ -4,7 +4,7 @@ import { apiHandlerRoute } from '@/mocks/mockHelpers';
 
 export const exportHandlers = [
   rest.post<IExportApiParams, { format: ExportApiFormatKey }>(
-    apiHandlerRoute(ApiTargets.EXPORT, ':format'),
+    apiHandlerRoute(ApiTargets.EXPORT, '/:format'),
     (req, res, ctx) => {
       const { bibcode, ...body } = req.body;
       const { format } = req.params;

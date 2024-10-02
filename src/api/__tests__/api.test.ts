@@ -238,8 +238,6 @@ test('401 does not cause infinite loop if refresh repeatedly fails', async ({ se
 
   await expect(testRequest).rejects.toThrowErrorMatchingInlineSnapshot('"Unable to obtain API access"');
 
-  console.log(dig(['url', 'pathname'])(onReq));
-
   expect(onReq).toBeCalledTimes(4);
   expect(urls(onReq)).toEqual([
     // initial bootstrap since we don't have userData

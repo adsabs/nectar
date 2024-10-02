@@ -13,12 +13,14 @@ import { myadsHandlers } from '@/mocks/handlers/myads';
 import { bibstemHandlers } from '@/mocks/handlers/bibstems';
 import { librariesHandlers } from '@/mocks/handlers/libraries';
 import { notificationsHandlers } from './handlers/notifications';
+import { resolverHandlers } from '@/mocks/handlers/resolver';
 
 export const handlers = [
   ...accountHandlers,
   ...authorAffiliationHandlers,
   ...bibstemHandlers,
   ...exportHandlers,
+  ...resolverHandlers,
   ...graphicsHandlers,
   ...metricsHandlers,
   ...myadsHandlers,
