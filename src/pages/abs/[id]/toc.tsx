@@ -6,6 +6,8 @@ import { NextPage } from 'next';
 import { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { path } from 'ramda';
+import { ItemsSkeleton, StandardAlertMessage } from '@/components';
+import { parseAPIError } from '@/utils';
 
 const VolumePage: NextPage = () => {
   const router = useRouter();
@@ -14,7 +16,7 @@ const VolumePage: NextPage = () => {
 
   const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode);
 
-  const { data, isSuccess } = useGetToc(getParams(), {
+  const { data, isSuccess, isLoading, isFetching, isError, error } = useGetToc(getParams(), {
     enabled: !!getParams && !!doc?.bibcode,
     keepPreviousData: true,
   });
@@ -27,7 +29,9 @@ const VolumePage: NextPage = () => {
 
   return (
     <AbsLayout doc={doc} titleDescription="Papers in the same volume as" label="Volume Content">
-      {isSuccess && (
+      {isLoading || isFetching ? <ItemsSkeleton count={10} /> : null}
+      {isError ? <StandardAlertMessage title={parseAPIError(error)} /> : null}
+      {isSuccess ? (
         <AbstractRefList
           doc={doc}
           docs={data.docs}
@@ -35,7 +39,7 @@ const VolumePage: NextPage = () => {
           onPageChange={onPageChange}
           searchLinkParams={tocParams}
         />
-      )}
+      ) : null}
     </AbsLayout>
   );
 };

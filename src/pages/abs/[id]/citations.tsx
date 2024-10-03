@@ -7,10 +7,16 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { path } from 'ramda';
 import { APP_DEFAULTS } from '@/config';
+import { ItemsSkeleton } from '@/components';
 
 const CitationsPage: NextPage = () => {
   const router = useRouter();
-  const { data: abstractDoc, error: abstractError } = useGetAbstract({ id: router.query.id as string });
+  const {
+    data: abstractDoc,
+    error: abstractError,
+    isLoading: absLoading,
+    isFetching: absFetching,
+  } = useGetAbstract({ id: router.query.id as string });
   const doc = path<IDocsEntity>(['docs', 0], abstractDoc);
   const pageIndex = router.query.p ? parseInt(router.query.p as string) - 1 : 0;
   const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode);
@@ -20,11 +26,16 @@ const CitationsPage: NextPage = () => {
     data,
     isSuccess,
     error: citationsError,
+    isLoading: citLoading,
+    isFetching: citFetching,
   } = useGetCitations({ ...getParams(), start: pageIndex * APP_DEFAULTS.RESULT_PER_PAGE }, { keepPreviousData: true });
+
+  const isLoading = absLoading || absFetching || citLoading || citFetching;
   const citationsParams = getCitationsParams(doc?.bibcode, 0);
 
   return (
     <AbsLayout doc={doc} titleDescription="Papers that cite" label="Citations">
+      {isLoading ? <ItemsSkeleton count={10} /> : null}
       {(abstractError || citationsError) && (
         <Alert status="error">
           <AlertIcon />
