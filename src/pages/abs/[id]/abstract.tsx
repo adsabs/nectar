@@ -1,4 +1,4 @@
-import { fetchSearch, getAbstractParams, IADSApiSearchParams, IDocsEntity, searchKeys, useGetAbstract } from '@/api';
+import { fetchSearchSSR, getAbstractParams, IADSApiSearchParams, IDocsEntity, searchKeys, useGetAbstract } from '@/api';
 import {
   Box,
   Button,
@@ -387,11 +387,11 @@ const Detail = <T,>(props: IDetailProps<T>): ReactElement => {
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
   try {
     const { id } = ctx.params as { id: string };
+    const params = getAbstractParams(id);
     const queryClient = new QueryClient();
     await queryClient.fetchQuery({
       queryKey: searchKeys.abstract(id),
-      queryFn: fetchSearch,
-      meta: { params: getAbstractParams(id) },
+      queryFn: (qfCtx) => fetchSearchSSR(params, ctx, qfCtx),
     });
     return {
       props: {
