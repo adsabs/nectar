@@ -2,8 +2,8 @@ import { LRUCache } from 'lru-cache';
 
 // Environment variables for rate-limiting settings with fallback values
 const RATE_LIMIT_MAX = parseInt(process.env.RATE_LIMIT_MAX ?? '1500', 10);
-const RATE_LIMIT_TTL = parseInt(process.env.RATE_LIMIT_TTL ?? '60000', 10); // 1 minute
-const RATE_LIMIT_COUNT = parseInt(process.env.RATE_LIMIT_COUNT ?? '100', 10); // Max requests allowed within the TTL
+const RATE_LIMIT_TTL = parseInt(process.env.RATE_LIMIT_TTL ?? '60000', 10);
+const RATE_LIMIT_COUNT = parseInt(process.env.RATE_LIMIT_COUNT ?? '100', 10);
 
 // LRU cache to store request count per IP
 const rateLimitCache = new LRUCache<string, { count: number; lastRequest: number }>({
