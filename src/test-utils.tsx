@@ -5,13 +5,14 @@ import { ServerLifecycleEventsMap, SetupServerApi } from 'msw/node';
 import { AnyFunction, map, path, pipe } from 'ramda';
 import { ReactElement, ReactNode } from 'react';
 import { Mock, vi } from 'vitest';
-import { Container } from '@chakra-ui/react';
+import { Container, ThemeProvider } from '@chakra-ui/react';
 import { isObject } from 'ramda-adjunct';
 import mockOrcidUser from '@/mocks/responses/orcid/exchangeOAuthCode.json';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MathJaxProvider } from '@/mathjax';
 import { GoogleTagManager } from '@next/third-parties/google';
+import { theme } from '@/theme';
 
 /**
  * Attach listeners and return the mocks
@@ -59,6 +60,7 @@ export const DefaultProviders = ({ children, options }: { children: ReactElement
     options?.storePreset ? getStateFromPreset(options.storePreset) : {};
 
   return (
+    <ThemeProvider theme={theme}>
       <MathJaxProvider>
         <QueryClientProvider client={queryClient}>
           <StoreProvider createStore={useCreateStore(store)}>
@@ -69,6 +71,7 @@ export const DefaultProviders = ({ children, options }: { children: ReactElement
           </StoreProvider>
         </QueryClientProvider>
       </MathJaxProvider>
+    </ThemeProvider>
   );
 };
 

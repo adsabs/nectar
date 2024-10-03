@@ -1,5 +1,6 @@
 import {
   defaultParams,
+  fetchSearchSSR,
   getSearchParams,
   IADSApiSearchParams,
   IADSApiSearchResponse,
@@ -7,7 +8,6 @@ import {
   searchKeys,
   SolrSort,
   useSearch,
-  fetchSearchSSR,
 } from '@/api';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import {
@@ -64,7 +64,7 @@ import { dehydrate, QueryClient, useQueryClient } from '@tanstack/react-query';
 import { SOLR_ERROR, useSolrError } from '@/lib/useSolrError';
 import { AxiosError } from 'axios';
 import { logger } from '@/logger';
-import { BRAND_NAME_FULL, BRAND_NAME_SHORT } from '@/config';
+import { BRAND_NAME_FULL } from '@/config';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
   () => import('@/components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),
@@ -429,7 +429,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
     // primary query prefetch
     await queryClient.fetchQuery({
       queryKey,
-      queryFn: () => fetchSearchSSR(params, ctx),
+      queryFn: (qfCtx) => fetchSearchSSR(params, ctx, qfCtx),
     });
 
     return {

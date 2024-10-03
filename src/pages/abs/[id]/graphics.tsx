@@ -1,13 +1,15 @@
-import { IDocsEntity, useGetAbstract, useGetGraphics } from '@/api';
+import { fetchGraphics, graphicsKeys, IDocsEntity, useGetAbstract, useGetGraphics } from '@/api';
 import { Box, Flex } from '@chakra-ui/react';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
-import { withDetailsPage } from '@/hocs/withDetailsPage';
 import { composeNextGSSP } from '@/ssr-utils';
 import { GetServerSideProps, NextPage } from 'next';
 import NextImage from 'next/legacy/image';
 import { LoadingMessage, SimpleLink } from '@/components';
 import { useRouter } from 'next/router';
 import { path } from 'ramda';
+import { dehydrate, QueryClient } from '@tanstack/react-query';
+import { logger } from '@/logger';
+import { parseAPIError } from '@/utils';
 
 const GraphicsPage: NextPage = () => {
   const router = useRouter();
@@ -66,4 +68,26 @@ const GraphicsPage: NextPage = () => {
 
 export default GraphicsPage;
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage);
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
+  try {
+    const { id } = ctx.params as { id: string };
+    const queryClient = new QueryClient();
+    await queryClient.prefetchQuery({
+      queryKey: graphicsKeys.primary(id),
+      queryFn: fetchGraphics,
+      meta: { params: { bibcode: id } },
+    });
+    return {
+      props: {
+        dehydratedState: dehydrate(queryClient),
+      },
+    };
+  } catch (err) {
+    logger.error({ err, url: ctx.resolvedUrl }, 'Error fetching details');
+    return {
+      props: {
+        pageError: parseAPIError(err),
+      },
+    };
+  }
+});

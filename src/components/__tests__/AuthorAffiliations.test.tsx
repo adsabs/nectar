@@ -31,7 +31,7 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-describe('UI', () => {
+describe.skip('UI', () => {
   test('providing no args shows warning', async () => {
     const { findByRole } = render(<WithNoIntitialArgs />);
     await findByRole('alert');

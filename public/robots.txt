@@ -1,0 +1,28 @@
+Sitemap: https://scixplorer.org/sitemap/sitemap_index.xml
+
+User-agent: *
+Disallow: /v1/
+Disallow: /resources
+Disallow: /core
+Disallow: /tugboat
+Disallow: /link_gateway/
+Disallow: /search/
+Disallow: /execute-query/
+Disallow: /status
+
+Allow: /help/
+Allow: /about/
+Allow: /blog/
+
+# there may be a more elegant way to do this, but I fear that if we just use a
+# single regexp such as /abs/*/* we may miss out on indexing links containing
+# DOIs or arXiv ids, so we do it the pedantic way
+Allow: /abs/
+Disallow: /abs/*/citations
+Disallow: /abs/*/references
+Disallow: /abs/*/coreads
+Disallow: /abs/*/similar
+Disallow: /abs/*/toc
+Disallow: /abs/*/graphics
+Disallow: /abs/*/metrics
+Disallow: /abs/*/exportcitation

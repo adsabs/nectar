@@ -3,10 +3,12 @@ import api, {
   ADSQuery,
   ApiRequestConfig,
   ApiTargets,
-  IADSApiLibraryGetAnnotationParams,
-  IADSApiLibraryGetAnnotationResponse,
+  IADSApiLibraryAddAnnotationParams,
+  IADSApiLibraryAddAnnotationResponse,
   IADSApiLibraryAddParams,
   IADSApiLibraryAddResponse,
+  IADSApiLibraryDeleteAnnotationParams,
+  IADSApiLibraryDeleteAnnotationResponse,
   IADSApiLibraryDeleteParams,
   IADSApiLibraryDeleteResponse,
   IADSApiLibraryDocumentParams,
@@ -15,6 +17,8 @@ import api, {
   IADSApiLibraryEditMetaResponse,
   IADSApiLibraryEntityParams,
   IADSApiLibraryEntityResponse,
+  IADSApiLibraryGetAnnotationParams,
+  IADSApiLibraryGetAnnotationResponse,
   IADSApiLibraryOperationParams,
   IADSApiLibraryOperationResponse,
   IADSApiLibraryParams,
@@ -29,12 +33,8 @@ import api, {
   IADSApiLibraryResponse,
   IADSApiLibraryTransferParams,
   IADSApiLibraryTransferResponse,
-  IADSApiLibraryAddAnnotationResponse,
-  IADSApiLibraryAddAnnotationParams,
-  IADSApiLibraryUpdateAnnotationResponse,
   IADSApiLibraryUpdateAnnotationParams,
-  IADSApiLibraryDeleteAnnotationResponse,
-  IADSApiLibraryDeleteAnnotationParams,
+  IADSApiLibraryUpdateAnnotationResponse,
 } from '@/api';
 import { MutationFunction, QueryFunction, useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
@@ -89,12 +89,13 @@ export const useGetLibraries: ADSQuery<IADSApiLibraryParams, IADSApiLibraryRespo
   });
 };
 
-export const fetchLibraries: QueryFunction<IADSApiLibraryResponse> = async ({ meta }) => {
+export const fetchLibraries: QueryFunction<IADSApiLibraryResponse> = async ({ meta, signal }) => {
   const { params } = meta as { params: IADSApiLibraryParams };
   const config: ApiRequestConfig = {
     method: 'GET',
     url: ApiTargets.LIBRARIES,
     params,
+    signal,
   };
 
   const { data } = await api.request<IADSApiLibraryResponse>(config);
@@ -135,12 +136,13 @@ export const useGetLibraryEntity: ADSQuery<IADSApiLibraryEntityParams, IADSApiLi
   });
 };
 
-export const fetchLibraryEntity: QueryFunction<IADSApiLibraryEntityResponse> = async ({ meta }) => {
+export const fetchLibraryEntity: QueryFunction<IADSApiLibraryEntityResponse> = async ({ meta, signal }) => {
   const { params } = meta as { params: IADSApiLibraryEntityParams };
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.LIBRARIES}/${params.id}`,
     params: omit(['id'], params),
+    signal,
   };
 
   const { data } = await api.request<IADSApiLibraryEntityResponse>(config);
@@ -311,11 +313,12 @@ export const useGetPermission: ADSQuery<IADSApiLibraryPermissionParams, IADSApiL
   });
 };
 
-export const getPermission: QueryFunction<IADSApiLibraryPermissionResponse> = async ({ meta }) => {
+export const getPermission: QueryFunction<IADSApiLibraryPermissionResponse> = async ({ meta, signal }) => {
   const { params } = meta as { params: IADSApiLibraryPermissionParams };
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.PERMISSIONS}/${params.id}`,
+    signal,
   };
 
   const { data } = await api.request<IADSApiLibraryPermissionResponse>(config);
@@ -391,11 +394,12 @@ export const useGetAnnotation: ADSQuery<IADSApiLibraryGetAnnotationParams, IADSA
   });
 };
 
-export const fetchAnnotation: QueryFunction<IADSApiLibraryGetAnnotationResponse> = async ({ meta }) => {
+export const fetchAnnotation: QueryFunction<IADSApiLibraryGetAnnotationResponse> = async ({ meta, signal }) => {
   const { params } = meta as { params: IADSApiLibraryGetAnnotationParams };
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.LIBRARY_NOTES}/${params.library}/${params.bibcode}`,
+    signal,
   };
 
   const { data } = await api.request<IADSApiLibraryGetAnnotationResponse>(config);

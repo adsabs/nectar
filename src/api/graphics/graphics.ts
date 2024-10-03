@@ -55,12 +55,13 @@ export const useGetGraphics: ADSQuery<IDocsEntity['bibcode'], IADSApiGraphicsRes
   });
 };
 
-export const fetchGraphics: QueryFunction<IADSApiGraphicsResponse> = async ({ meta }) => {
+export const fetchGraphics: QueryFunction<IADSApiGraphicsResponse> = async ({ meta, signal }) => {
   const { params } = meta as { params: IADSApiGraphicsParams };
 
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.GRAPHICS}/${params.bibcode}`,
+    signal,
   };
 
   const { data: graphics } = await api.request<IADSApiGraphicsResponse>(config);

@@ -1,4 +1,4 @@
-import { IUserData } from '@/api';
+import { ApiTargets, IBootstrapPayload, IUserData } from '@/api';
 import { APP_STORAGE_KEY, updateAppUser } from '@/store';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { isPast, parseISO } from 'date-fns';
@@ -7,6 +7,7 @@ import { defaultRequestConfig } from './config';
 import { IApiUserResponse } from '@/pages/api/user';
 import { logger } from '@/logger';
 import { buildStorage, CacheOptions, setupCache, StorageValue } from 'axios-cache-interceptor';
+import { pickUserData } from '@/auth-utils';
 
 export const isUserData = (userData?: IUserData): userData is IUserData => {
   return (
@@ -103,17 +104,24 @@ class Api {
   private static instance: Api;
   private service: AxiosInstance;
   private userData: IUserData;
-  private bootstrapRetries = 2;
+  private udInvalidated: boolean;
   private recentError: { status: number; config: AxiosRequestConfig };
+  private udPromise: Promise<IUserData> | null;
 
   private constructor() {
     this.service = axios.create(defaultRequestConfig);
+    this.reset();
     void this.init();
   }
 
   private async init() {
     this.service.interceptors.response.use(identity, (error: AxiosError & { canRefresh: boolean }) => {
       log.error(error);
+
+      if (this.udInvalidated) {
+        return Promise.reject(error);
+      }
+
       if (axios.isAxiosError(error)) {
         // if the server never responded, there won't be a response object -- in that case, reject immediately
         // this is important for SSR, just fail fast
@@ -164,6 +172,129 @@ class Api {
     }
   }
 
+  /**
+   * Asynchronously obtains API access, refreshing if necessary.
+   *
+   * @returns {Promise<IUserData | null>} Resolves to API access data or null if retrieval fails.
+   */
+  private async getUserData(): Promise<IUserData | null> {
+    this.udPromise = (async () => {
+      log.debug('Attempting to obtain API access');
+      try {
+        if (this.udInvalidated) {
+          log.debug('API access invalidated, trying to refresh.');
+          const refreshedUserData = await this.getRemoteUserData(true);
+          if (refreshedUserData) {
+            this.udInvalidated = false;
+            return refreshedUserData;
+          }
+          throw new Error('Failed to refresh API access');
+        }
+
+        if (checkUserData(this.userData)) {
+          log.debug('Valid API access found in memory');
+          return this.userData;
+        }
+
+        log.debug('Checking local storage for API access data');
+        const localStorageUD = checkLocalStorageForUserData();
+        if (checkUserData(localStorageUD)) {
+          log.debug('Valid API access found in local storage, returning...');
+          this.userData = localStorageUD;
+          return localStorageUD;
+        }
+
+        log.debug('Fetching API access data from session');
+        const sessionUserData = await this.getRemoteUserData(false);
+        if (sessionUserData) {
+          return sessionUserData;
+        }
+        throw new Error('API access unavailable from session or local storage');
+      } catch (e) {
+        log.error({ err: e }, 'Failed to obtain API access');
+        throw new Error('Unable to obtain API access', { cause: e });
+      } finally {
+        this.udPromise = null;
+      }
+    })();
+    return this.udPromise;
+  }
+
+  /**
+   * Fetches API access data, refreshing if necessary.
+   *
+   * @param {boolean} refreshImmediately - Should refresh API access immediately?
+   * @returns {Promise<IUserData | null>} API access data or null if unsuccessful.
+   */
+  private async getRemoteUserData(refreshImmediately: boolean): Promise<IUserData | null> {
+    log.debug({ refreshImmediately }, 'Attempting to remotely fetch API access data');
+    if (refreshImmediately) {
+      log.debug('Trying to refresh API access immediately');
+      const refreshedUserData = await this.tryRefreshUserData();
+      if (!refreshedUserData) {
+        throw new Error('Unable to refresh API access');
+      }
+      return refreshedUserData;
+    }
+    // Fetch API access data from the session endpoint
+    const sessionUserData = await this.getSessionUserData();
+    if (sessionUserData) {
+      return sessionUserData;
+    }
+    // If session fails, try to refresh the data
+    return await this.tryRefreshUserData();
+  }
+
+  /**
+   * Fetches API access data from the session endpoint.
+   *
+   * @returns {Promise<IUserData | null>} API access data or null if not available.
+   */
+  private async getSessionUserData(): Promise<IUserData | null> {
+    try {
+      log.debug('Fetching API access data from session endpoint (/api/user)');
+      const { data } = await axios.get<IApiUserResponse>('/api/user');
+      if (checkUserData(data.user)) {
+        log.debug('Successfully fetched API access data from session, saving...');
+        return data.user;
+      }
+    } catch (e) {
+      log.error({ err: e }, 'Failed to fetch API access data from session endpoint');
+    }
+    return null;
+  }
+
+  /**
+   * Attempts to refresh API access using server requests.
+   *
+   * @returns {Promise<IUserData | null>} Refreshed API access data or null if all attempts fail.
+   */
+  private async tryRefreshUserData(): Promise<IUserData | null> {
+    try {
+      log.debug('Refreshing API access data from API endpoint (/api/user)');
+      const { data } = await axios.get<IApiUserResponse>('/api/user', { headers: { 'X-Refresh-Token': '1' } });
+      if (checkUserData(data.user)) {
+        log.debug('Successfully refreshed API access data, saving...');
+        return data.user;
+      }
+    } catch (e) {
+      log.error({ err: e }, 'Failed to refresh API access data from /api/user');
+    }
+
+    log.debug('Trying to refresh API access using bootstrap API');
+    try {
+      const { data } = await axios.get<IBootstrapPayload>(ApiTargets.BOOTSTRAP, defaultRequestConfig);
+      const userData = pickUserData(data);
+      if (checkUserData(userData)) {
+        log.debug('Successfully refreshed API access using bootstrap, saving...');
+        return userData;
+      }
+    } catch (e) {
+      log.error({ err: e }, 'Failed to refresh API access using bootstrap');
+    }
+    return null;
+  }
+
   public static getInstance(): Api {
     if (!Api.instance) {
       Api.instance = new Api();
@@ -180,6 +311,7 @@ class Api {
   private invalidateUserData() {
     updateAppUser(null);
     this.userData = null;
+    this.udInvalidated = true;
   }
 
   /**
@@ -199,64 +331,18 @@ class Api {
       return this.service.request<T>(applyTokenToRequest(config, this.userData?.access_token));
     }
 
-    // in the case we have an unauthorized response, we should skip right to refreshing the token
-    const unauthorized = this.recentError?.status === API_STATUS.UNAUTHORIZED;
-
-    // we have valid token, send the request right away
-    if (!unauthorized && checkUserData(this.userData)) {
-      return this.service.request<T>(applyTokenToRequest(config, this.userData.access_token));
-    }
-
-    // otherwise attempt to get the token from local storage
-    const userData = checkLocalStorageForUserData();
-    if (!unauthorized && checkUserData(userData)) {
-      // set user data property
-      this.setUserData(userData);
-
-      return this.service.request<T>(applyTokenToRequest(config, userData.access_token));
-    }
-
-    // finally, we have to attempt a bootstrap request
-    try {
-      const freshUserData = await this.fetchUserData();
-
-      // if we don't have valid user data, throw an error
-      if (!checkUserData(freshUserData)) {
-        return Promise.reject(new Error('Unable to refresh token'));
-      }
-
-      // set user data property and in the app store
-      this.setUserData(freshUserData);
-      updateAppUser(freshUserData);
-
-      return this.service.request<T>(applyTokenToRequest(config, freshUserData.access_token));
-    } catch (e) {
-      if (this.bootstrapRetries > 0) {
-        this.bootstrapRetries -= 1;
-        return this.request(config);
-      }
-      // bootstrapping failed all attempts, let user know
-      const bootstrapError = new Error('Unrecoverable Error, unable to refresh token', { cause: e as Error });
-      return Promise.reject(bootstrapError);
-    }
-  }
-
-  async fetchUserData() {
-    const { data } = await axios.get<IApiUserResponse>('/api/user', {
-      headers: {
-        'x-Refresh-Token': 1,
-      },
-    });
-    log.debug({ msg: 'Fetching user data', data });
-    return data.user;
+    const ud = await this.getUserData();
+    this.setUserData(ud);
+    return this.service.request<T>(applyTokenToRequest(config, ud.access_token));
   }
 
   public reset() {
     this.service = this.service = axios.create(defaultRequestConfig);
     void this.init();
     this.userData = null;
+    this.udInvalidated = false;
+    this.udPromise = null;
     this.recentError = null;
-    this.bootstrapRetries = 2;
   }
 }
 

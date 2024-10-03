@@ -100,16 +100,21 @@ const protectedRoute = async (req: NextRequest, res: NextResponse) => {
 };
 
 export async function middleware(req: NextRequest) {
-  log.info({
-    msg: 'Request',
-    method: req.method,
-    url: req.nextUrl.toString(),
-  });
+  const path = req.nextUrl.pathname;
+  log.info(
+    {
+      method: req.method,
+      url: req.nextUrl.toString(),
+      path,
+      headers: req.headers,
+    },
+    'Request',
+  );
 
   const res = NextResponse.next();
 
   // Skip middleware for the root path
-  if (req.nextUrl.pathname === '/') {
+  if (path === '/') {
     return res;
   }
 
@@ -118,21 +123,18 @@ export async function middleware(req: NextRequest) {
   // Apply rate limiting
   if (!rateLimit(ip)) {
     log.warn({ msg: 'Rate limit exceeded', ip });
-    const url = req.nextUrl.clone();
-    url.pathname = '/';
-    return redirect(url, req, { message: 'rate-limit-exceeded' });
+    return NextResponse.json({ error: 'Rate Limit Exceeded' }, { status: 429 });
   }
 
   const session = await getIronSession(req, res, sessionConfig);
   await initSession(req, res, session);
+
   if (!session.token) {
     log.error('Failed to create a new session, redirecting back to root');
     const url = req.nextUrl.clone();
     url.pathname = '/';
     return redirect(url, req, { message: 'api-connect-failed' });
   }
-
-  const path = req.nextUrl.pathname;
 
   if (path.startsWith('/user/account/login')) {
     return loginMiddleware(req, res);
