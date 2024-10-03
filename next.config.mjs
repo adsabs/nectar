@@ -17,7 +17,9 @@ const CSP = `
   media-src 'none';
   worker-src 'self' blob:;
   report-uri https://o1060269.ingest.sentry.io/api/6049652/security/?sentry_key=e87ef8ec678b4ad5a2193c5463d386fd;
-`.replace(/\s{2,}/g, ' ').trim();
+`
+  .replace(/\s{2,}/g, ' ')
+  .trim();
 
 /**
  * @type {import('next').NextConfig}
@@ -31,7 +33,6 @@ const nextConfig = {
   experimental: {
     newNextLinkBehavior: false,
     webVitalsAttribution: ['CLS', 'LCP'],
-    optimisticClientCache: false,
     optimizePackageImports: ['@api', '@components', '@chakra-ui/react', 'ramda'],
   },
   async rewrites() {
@@ -64,9 +65,10 @@ const nextConfig = {
           {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin',
-          }, {
+          },
+          {
             key: 'X-XSS-Protection',
-            value: '1; mode=block'
+            value: '1; mode=block',
           },
           {
             key: 'Permissions-Policy',
@@ -167,7 +169,6 @@ const nextConfig = {
   skipTrailingSlashRedirect: true,
 };
 
-
 /** @type {import('@sentry/cli').SentryCliOptions} */
 const sentrySettings = {
   silent: true,
@@ -190,10 +191,12 @@ const sentryConfig = {
   disableLogger: true,
 };
 
-const config = process.env.ANALYZE === 'true' ? withBundleAnalyzer({
-  enabled: process.env.ANALYZE === 'true',
-})(nextConfig) : nextConfig;
+const config =
+  process.env.ANALYZE === 'true'
+    ? withBundleAnalyzer({
+        enabled: process.env.ANALYZE === 'true',
+      })(nextConfig)
+    : nextConfig;
 const nextConfigWithSentry = withSentryConfig(config, sentrySettings, sentryConfig);
 
 export default process.env.NODE_ENV === 'production' ? nextConfigWithSentry : config;
-
