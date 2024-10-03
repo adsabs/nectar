@@ -20,7 +20,7 @@
     "storybook": "storybook dev -p 8001 --no-open --disable-telemetry",
     "build-storybook": "storybook build",
     "build-bibstem-index": "node ./scripts/gen-bibstem-index",
-    "lint": "tsc -v && tsc --project ./tsconfig.json && eslint .",
+    "lint": "tsc -v && tsc --project ./tsconfig.json && eslint --cache .",
     "prepare": "husky install"
   },
   "dependencies": {
