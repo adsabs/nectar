@@ -18,6 +18,14 @@ const getIp = (req: NextRequest) =>
   req.headers.get('X-Real-Ip') ||
   req.ip;
 
+/**
+ * Asynchronously checks if a request is from a web crawler.
+ *
+ * @param {NextRequest} req - The incoming request object.
+ * @param {string} ip - The IP address of the request sender.
+ * @param {string} ua - The User-Agent string of the request sender.
+ * @returns {Promise<CRAWLER_RESULT>} A promise that resolves to the result of the crawler check.
+ */
 const crawlerCheck = async (req: NextRequest, ip: string, ua: string) => {
   try {
     const res = await fetch(new URL('/api/isBot', req.nextUrl), {
@@ -39,6 +47,17 @@ const baseToken: IronSessionData['token'] = {
 };
 
 const log = edgeLogger.child({}, { msgPrefix: '[botCheck] ' });
+/**
+ * Retrieves the bot token based on the crawler result.
+ *
+ * Depending on the type of crawler result provided, this function
+ * will return a specific token for verified bots, unverifiable bots,
+ * or potentially malicious bots. If a human is detected, it will
+ * return null.
+ *
+ * @param {CRAWLER_RESULT} result - The result of the crawler detection.
+ * @returns {IronSessionData['token']} The token associated with the detected crawler type, or null if human is detected.
+ */
 const getBotToken = (result: CRAWLER_RESULT): IronSessionData['token'] => {
   switch (result) {
     case CRAWLER_RESULT.BOT:
@@ -66,11 +85,40 @@ const getBotToken = (result: CRAWLER_RESULT): IronSessionData['token'] => {
   }
 };
 
-export const botCheck = async (req: NextRequest, res: NextResponse) => {
+/**
+ * The `botCheck` function examines the incoming request to determine whether it is originating from a bot or a human user.
+ *
+ * It makes use of the `getIronSession` method to manage session persistence and integrity, storing the result in the
+ * `session` object. The function checks the user agent string via `userAgent` method to determine if the request originates
+ * from a known bot.
+ *
+ * If the request is not from a bot (i.e., `userAgentData.isBot` is false), it logs this information for debugging purposes
+ * and sets the session's `bot` property to `false`, before saving the session.
+ *
+ * If the request could be from a bot, it extracts the IP address using `getIp` and performs a crawler check using
+ * `crawlerCheck`, passing the request, IP, and user agent information. The function then attempts to retrieve a bot token
+ * using `getBotToken` and the results of the crawler check.
+ *
+ * If a token is identified (indicating a bot), the session is updated to reflect the presence of a bot, authenticated status
+ * is reset, the API cookie hash is cleared, and the session is saved.
+ *
+ * @param {NextRequest} req - The incoming HTTP request object.
+ * @param {NextResponse} res - The outgoing HTTP response object.
+ * @returns {Promise<void>} - Returns a promise that resolves without a value when session changes are saved.
+ */
+export const botCheck = async (req: NextRequest, res: NextResponse): Promise<void> => {
   const session = await getIronSession(req, res, sessionConfig);
-  const ua = userAgent(req).ua;
+  const userAgentData = userAgent(req);
+
+  if (!userAgentData.isBot) {
+    log.debug({ ua: userAgentData }, 'User agent is not from a known bot, unverifiable');
+    session.bot = false;
+    await session.save();
+    return;
+  }
+
   const ip = getIp(req);
-  const crawlerResult = await crawlerCheck(req, ip, ua);
+  const crawlerResult = await crawlerCheck(req, ip, userAgentData.ua);
   const token = getBotToken(crawlerResult);
 
   // if token is set, then it's a bot of some kind

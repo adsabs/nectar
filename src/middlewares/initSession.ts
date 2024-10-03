@@ -134,7 +134,15 @@ export const initSession = async (req: NextRequest, res: NextResponse, session: 
   log.debug('Session is invalid, or expired, creating new one...');
 
   // check if the user is a bot
-  await botCheck(req, res);
+  try {
+    await botCheck(req, res);
+    if (session.bot) {
+      log.debug({ token: session.token }, 'User is identified as a bot');
+      return res;
+    }
+  } catch (err) {
+    log.error({ err }, 'Error during bot detection');
+  }
 
   // bootstrap a new token, passing in the current session cookie value
   const { token, headers } = (await bootstrap(adsSessionCookie)) ?? {};
@@ -150,4 +158,5 @@ export const initSession = async (req: NextRequest, res: NextResponse, session: 
     await session.save();
     log.debug('Saved to session');
   }
+  return res;
 };
