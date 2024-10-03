@@ -1,16 +1,12 @@
-import { fetchSearch, getCitationsParams, IDocsEntity, searchKeys, useGetAbstract, useGetCitations } from '@/api';
+import { getCitationsParams, IDocsEntity, useGetAbstract, useGetCitations } from '@/api';
 import { Alert, AlertIcon } from '@chakra-ui/react';
 import { AbstractRefList } from '@/components/AbstractRefList';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
-import { GetServerSideProps, NextPage } from 'next';
-import { composeNextGSSP } from '@/ssr-utils';
+import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { path } from 'ramda';
 import { APP_DEFAULTS } from '@/config';
-import { dehydrate, QueryClient } from '@tanstack/react-query';
-import { logger } from '@/logger';
-import { parseAPIError } from '@/utils';
 
 const CitationsPage: NextPage = () => {
   const router = useRouter();
@@ -50,26 +46,27 @@ const CitationsPage: NextPage = () => {
 
 export default CitationsPage;
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-  try {
-    const { id } = ctx.params as { id: string };
-    const queryClient = new QueryClient();
-    await queryClient.prefetchQuery({
-      queryKey: searchKeys.citations({ bibcode: id, start: 0 }),
-      queryFn: fetchSearch,
-      meta: { params: getCitationsParams(id, 0) },
-    });
-    return {
-      props: {
-        dehydratedState: dehydrate(queryClient),
-      },
-    };
-  } catch (err) {
-    logger.error({ err, url: ctx.resolvedUrl }, 'Error fetching details');
-    return {
-      props: {
-        pageError: parseAPIError(err),
-      },
-    };
-  }
-});
+export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
+// export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
+//   try {
+//     const { id } = ctx.params as { id: string };
+//     const queryClient = new QueryClient();
+//     await queryClient.prefetchQuery({
+//       queryKey: searchKeys.citations({ bibcode: id, start: 0 }),
+//       queryFn: fetchSearch,
+//       meta: { params: getCitationsParams(id, 0) },
+//     });
+//     return {
+//       props: {
+//         dehydratedState: dehydrate(queryClient),
+//       },
+//     };
+//   } catch (err) {
+//     logger.error({ err, url: ctx.resolvedUrl }, 'Error fetching details');
+//     return {
+//       props: {
+//         pageError: parseAPIError(err),
+//       },
+//     };
+//   }
+// });

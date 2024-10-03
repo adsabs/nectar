@@ -1,15 +1,11 @@
-import { fetchSearch, getSimilarParams, IDocsEntity, searchKeys, useGetAbstract, useGetSimilar } from '@/api';
+import { getSimilarParams, IDocsEntity, useGetAbstract, useGetSimilar } from '@/api';
 import { AbstractRefList } from '@/components';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
-import { GetServerSideProps, NextPage } from 'next';
-import { composeNextGSSP } from '@/ssr-utils';
+import { NextPage } from 'next';
 import { path } from 'ramda';
 import { useRouter } from 'next/router';
 import { APP_DEFAULTS } from '@/config';
-import { dehydrate, QueryClient } from '@tanstack/react-query';
-import { logger } from '@/logger';
-import { parseAPIError } from '@/utils';
 
 const SimilarPage: NextPage = () => {
   const router = useRouter();
@@ -41,26 +37,27 @@ const SimilarPage: NextPage = () => {
 
 export default SimilarPage;
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-  try {
-    const { id } = ctx.params as { id: string };
-    const queryClient = new QueryClient();
-    await queryClient.prefetchQuery({
-      queryKey: searchKeys.similar({ bibcode: id, start: 0 }),
-      queryFn: fetchSearch,
-      meta: { params: getSimilarParams(id, 0) },
-    });
-    return {
-      props: {
-        dehydratedState: dehydrate(queryClient),
-      },
-    };
-  } catch (err) {
-    logger.error({ err, url: ctx.resolvedUrl }, 'Error fetching details');
-    return {
-      props: {
-        pageError: parseAPIError(err),
-      },
-    };
-  }
-});
+export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
+// export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
+//   try {
+//     const { id } = ctx.params as { id: string };
+//     const queryClient = new QueryClient();
+//     await queryClient.prefetchQuery({
+//       queryKey: searchKeys.similar({ bibcode: id, start: 0 }),
+//       queryFn: fetchSearch,
+//       meta: { params: getSimilarParams(id, 0) },
+//     });
+//     return {
+//       props: {
+//         dehydratedState: dehydrate(queryClient),
+//       },
+//     };
+//   } catch (err) {
+//     logger.error({ err, url: ctx.resolvedUrl }, 'Error fetching details');
+//     return {
+//       props: {
+//         pageError: parseAPIError(err),
+//       },
+//     };
+//   }
+// });

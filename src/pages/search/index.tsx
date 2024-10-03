@@ -1,14 +1,4 @@
-import {
-  defaultParams,
-  fetchSearchSSR,
-  getSearchParams,
-  IADSApiSearchParams,
-  IADSApiSearchResponse,
-  SEARCH_API_KEYS,
-  searchKeys,
-  SolrSort,
-  useSearch,
-} from '@/api';
+import { defaultParams, IADSApiSearchParams, IADSApiSearchResponse, SEARCH_API_KEYS, SolrSort, useSearch } from '@/api';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import {
   Alert,
@@ -50,20 +40,18 @@ import { FacetFilters } from '@/components/SearchFacet/FacetFilters';
 import { IYearHistogramSliderProps } from '@/components/SearchFacet/YearHistogramSlider';
 import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { useIsClient } from 'src/lib';
-import { composeNextGSSP } from '@/ssr-utils';
 import { AppState, useStore, useStoreApi } from '@/store';
 import { NumPerPageType } from '@/types';
-import { makeSearchParams, parseAPIError, parseQueryFromUrl } from '@/utils';
-import { GetServerSideProps, NextPage } from 'next';
+import { makeSearchParams, parseQueryFromUrl } from '@/utils';
+import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { last, omit, path } from 'ramda';
 import { FormEventHandler, useCallback, useEffect, useRef, useState } from 'react';
-import { dehydrate, QueryClient, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { SOLR_ERROR, useSolrError } from '@/lib/useSolrError';
 import { AxiosError } from 'axios';
-import { logger } from '@/logger';
 import { BRAND_NAME_FULL } from '@/config';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
@@ -412,56 +400,57 @@ const NoResultsMsg = () => (
 );
 
 const omitUnsafeQueryParams = omit(['fl', 'start', 'rows']);
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-  const queryClient = new QueryClient();
-  const { p: page, n: numPerPage, ...query } = parseQueryFromUrl<{ p: string; n: string }>(ctx.req.url);
-
-  const params = getSearchParams({
-    ...omitUnsafeQueryParams(query),
-    q: query.q.length === 0 ? '*:*' : query.q,
-    start: (page - 1) * numPerPage,
-    rows: numPerPage,
-  });
-
-  try {
-    const queryKey = searchKeys.primary(params);
-
-    // primary query prefetch
-    await queryClient.fetchQuery({
-      queryKey,
-      queryFn: (qfCtx) => fetchSearchSSR(params, ctx, qfCtx),
-    });
-
-    return {
-      props: {
-        dehydratedState: dehydrate(queryClient),
-        dehydratedAppState: {
-          query: params,
-          latestQuery: params,
-          numPerPage: numPerPage as NumPerPageType,
-        } as AppState,
-        page,
-        params,
-      },
-    };
-  } catch (error) {
-    logger.error({ msg: 'Error fetching search results', error });
-    return {
-      props: {
-        dehydratedState: dehydrate(queryClient),
-        dehydratedAppState: {
-          query: params,
-          latestQuery: params,
-          numPerPage: numPerPage as NumPerPageType,
-        } as AppState,
-        pageError: parseAPIError(error),
-        page,
-        params,
-      },
-    };
-  }
-});
-
+export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
+// export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
+//   const queryClient = new QueryClient();
+//   const { p: page, n: numPerPage, ...query } = parseQueryFromUrl<{ p: string; n: string }>(ctx.req.url);
+//
+//   const params = getSearchParams({
+//     ...omitUnsafeQueryParams(query),
+//     q: query.q.length === 0 ? '*:*' : query.q,
+//     start: (page - 1) * numPerPage,
+//     rows: numPerPage,
+//   });
+//
+//   try {
+//     const queryKey = searchKeys.primary(params);
+//
+//     // primary query prefetch
+//     await queryClient.fetchQuery({
+//       queryKey,
+//       queryFn: (qfCtx) => fetchSearchSSR(params, ctx, qfCtx),
+//     });
+//
+//     return {
+//       props: {
+//         dehydratedState: dehydrate(queryClient),
+//         dehydratedAppState: {
+//           query: params,
+//           latestQuery: params,
+//           numPerPage: numPerPage as NumPerPageType,
+//         } as AppState,
+//         page,
+//         params,
+//       },
+//     };
+//   } catch (error) {
+//     logger.error({ msg: 'Error fetching search results', error });
+//     return {
+//       props: {
+//         dehydratedState: dehydrate(queryClient),
+//         dehydratedAppState: {
+//           query: params,
+//           latestQuery: params,
+//           numPerPage: numPerPage as NumPerPageType,
+//         } as AppState,
+//         pageError: parseAPIError(error),
+//         page,
+//         params,
+//       },
+//     };
+//   }
+// });
+//
 export default SearchPage;
 
 const SearchErrorAlert = ({ error }: { error: AxiosError<IADSApiSearchResponse> | Error }) => {
