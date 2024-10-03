@@ -1,10 +1,11 @@
 import { getCoreadsParams, useGetAbstract, useGetCoreads } from '@/api';
-import { AbstractRefList } from '@/components';
+import { AbstractRefList, ItemsSkeleton, StandardAlertMessage } from '@/components';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { APP_DEFAULTS } from '@/config';
+import { parseAPIError } from '@/utils';
 
 const CoreadsPage: NextPage = () => {
   const router = useRouter();
@@ -14,7 +15,7 @@ const CoreadsPage: NextPage = () => {
 
   const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode);
 
-  const { data, isSuccess } = useGetCoreads(
+  const { data, isSuccess, isLoading, isFetching, error, isError } = useGetCoreads(
     { ...getParams(), start: pageIndex * APP_DEFAULTS.RESULT_PER_PAGE },
     { keepPreviousData: true },
   );
@@ -22,7 +23,9 @@ const CoreadsPage: NextPage = () => {
 
   return (
     <AbsLayout doc={doc} titleDescription="Papers also read by those who read" label="Coreads">
-      {isSuccess && (
+      {isLoading || isFetching ? <ItemsSkeleton count={10} /> : null}
+      {isError ? <StandardAlertMessage title={parseAPIError(error)} /> : null}
+      {isSuccess ? (
         <AbstractRefList
           doc={doc}
           docs={data.docs}
@@ -30,7 +33,7 @@ const CoreadsPage: NextPage = () => {
           onPageChange={onPageChange}
           searchLinkParams={coreadsParams}
         />
-      )}
+      ) : null}
     </AbsLayout>
   );
 };

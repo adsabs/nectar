@@ -1,11 +1,12 @@
 import { getSimilarParams, IDocsEntity, useGetAbstract, useGetSimilar } from '@/api';
-import { AbstractRefList } from '@/components';
+import { AbstractRefList, ItemsSkeleton, StandardAlertMessage } from '@/components';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { NextPage } from 'next';
 import { path } from 'ramda';
 import { useRouter } from 'next/router';
 import { APP_DEFAULTS } from '@/config';
+import { parseAPIError } from '@/utils';
 
 const SimilarPage: NextPage = () => {
   const router = useRouter();
@@ -14,7 +15,7 @@ const SimilarPage: NextPage = () => {
   const pageIndex = router.query.p ? parseInt(router.query.p as string) - 1 : 0;
 
   const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode);
-  const { data, isSuccess } = useGetSimilar(
+  const { data, isSuccess, isLoading, isFetching, isError, error } = useGetSimilar(
     { ...getParams(), start: pageIndex * APP_DEFAULTS.RESULT_PER_PAGE },
     { keepPreviousData: true },
   );
@@ -22,7 +23,9 @@ const SimilarPage: NextPage = () => {
 
   return (
     <AbsLayout doc={doc} titleDescription="Papers similar to" label="Similar Papers">
-      {isSuccess && (
+      {isLoading || isFetching ? <ItemsSkeleton count={10} /> : null}
+      {isError ? <StandardAlertMessage title={parseAPIError(error)} /> : null}
+      {isSuccess ? (
         <AbstractRefList
           doc={doc}
           docs={data.docs}
@@ -30,7 +33,7 @@ const SimilarPage: NextPage = () => {
           onPageChange={onPageChange}
           searchLinkParams={similarParams}
         />
-      )}
+      ) : null}
     </AbsLayout>
   );
 };

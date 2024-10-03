@@ -28,6 +28,10 @@ export const AbstractRefList = (props: IAbstractRefListProps): ReactElement => {
     void router.push({ pathname: router.pathname, search: stringifySearchParams({ ...router.query, p: page }) });
   };
 
+  if (!docs) {
+    return null;
+  }
+
   return (
     <Stack direction="column" spacing={1} mt={1} w="full">
       <SearchQueryLink params={params}>
