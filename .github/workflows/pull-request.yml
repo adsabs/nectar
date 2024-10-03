@@ -3,12 +3,42 @@ name: Pull Request
 on: [push, pull_request]
 
 jobs:
-  build-and-lint:
-    timeout-minutes: 60
+
+  lint:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - uses: actions/cache/restore@v4
+        with:
+          path: .eslintcache
+          key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+
+      - name: Install Deps
+        run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 SENTRYCLI_SKIP_DOWNLOAD=1 pnpm install
+
+      - name: Lint
+        run: pnpm lint
+
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: .eslintcache
+          key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+
+  build:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v4
@@ -25,14 +55,10 @@ jobs:
       - name: Install Deps
         run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 SENTRYCLI_SKIP_DOWNLOAD=1 pnpm install
 
-      - name: Lint
-        run: pnpm lint
-
       - name: Build
         run: pnpm build
 
   unit-tests:
-    timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -65,7 +91,7 @@ jobs:
           verbose: true
 
   e2e-tests:
-    timeout-minutes: 60
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     env:
       CI: true
