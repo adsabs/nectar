@@ -48,7 +48,7 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
   const router = useRouter();
 
   useMemo(() => {
-    router.prefetch = () => new Promise((res) => res());
+    router.prefetch = () => Promise.resolve();
   }, [router]);
 
   return (

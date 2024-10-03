@@ -38,7 +38,7 @@ import { IAllAuthorsModalProps } from '@/components/AllAuthorsModal';
 import { useGetAuthors } from '@/components/AllAuthorsModal/useGetAuthors';
 import { OrcidActiveIcon } from '@/components/icons/Orcid';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
-import { APP_DEFAULTS, EXTERNAL_URLS, sessionConfig } from '@/config';
+import { APP_DEFAULTS, EXTERNAL_URLS } from '@/config';
 import { useIsClient } from '@/lib/useIsClient';
 import { composeNextGSSP } from '@/ssr-utils';
 import { parseAPIError, pluralize } from '@/utils';
@@ -54,7 +54,6 @@ import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { isNilOrEmpty } from 'ramda-adjunct';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { logger } from '@/logger';
-import { getIronSession } from 'iron-session/edge';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   () => import('@/components/AllAuthorsModal').then((m) => m.AllAuthorsModal),
@@ -386,12 +385,6 @@ const Detail = <T,>(props: IDetailProps<T>): ReactElement => {
 };
 
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-  logger.debug(
-    {
-      session: (await getIronSession(ctx.req, ctx.res, sessionConfig)).token,
-    },
-    'session',
-  );
   try {
     const { id } = ctx.params as { id: string };
     const queryClient = new QueryClient();
