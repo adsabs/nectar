@@ -23,11 +23,11 @@ const invalidMockUserData: Pick<IBootstrapPayload, 'username' | 'access_token' |
   expire_in: '',
 };
 
-const testHandler = rest.get('*test', (req, res, ctx) => {
+const testHandler = rest.get('*test', (_, res, ctx) => {
   return res(ctx.status(200), ctx.json({ ok: true }));
 });
 
-const unAuthorizedHandler = rest.get('*test', (req, res, ctx) =>
+const unAuthorizedHandler = rest.get('*test', (_, res, ctx) =>
   res(ctx.status(401), ctx.json({ message: 'User unauthorized' })),
 );
 
@@ -80,10 +80,10 @@ test('User data is found and used if set in local storage', async ({ server }: T
 });
 
 test('Attempts to get user data from server without refresh', async ({ server }: TestContext) => {
-  const { onRequest: onReq, onResponse: onRes } = createServerListenerMocks(server);
+  const { onRequest: onReq } = createServerListenerMocks(server);
   server.use(testHandler);
   server.use(
-    rest.get(`*${API_USER}`, (req, res, ctx) => {
+    rest.get(`*${API_USER}`, (_, res, ctx) => {
       return res(ctx.status(200), ctx.json({ user: { ...mockUserData, access_token: 'from-session' } }));
     }),
   );
@@ -106,10 +106,10 @@ test('Unauthenticated request with no previous session, will force a token refre
   const { onRequest: onReq } = createServerListenerMocks(server);
   server.use(testHandler);
   server.use(
-    rest.get(`*${API_USER}`, (req, res, ctx) => {
+    rest.get(`*${API_USER}`, (_, res, ctx) => {
       return res.once(ctx.status(500), ctx.json({ error: 'Server Error' }));
     }),
-    rest.get(`*${API_USER}`, (req, res, ctx) => {
+    rest.get(`*${API_USER}`, (_, res, ctx) => {
       return res(ctx.status(200), ctx.json({ user: { ...mockUserData, access_token: 'refreshed' } }));
     }),
   );
@@ -140,7 +140,7 @@ test('Fallback to bootstrapping directly if the /api/user endpoint continuously 
   const { onRequest: onReq } = createServerListenerMocks(server);
   server.use(testHandler);
   server.use(
-    rest.get(`*${API_USER}`, (req, res, ctx) => {
+    rest.get(`*${API_USER}`, (_, res, ctx) => {
       return res(ctx.status(500), ctx.json({ error: 'Server Error' }));
     }),
   );
@@ -195,7 +195,7 @@ test('401 response refreshes token properly', async ({ server }: TestContext) =>
   const { onRequest: onReq } = createServerListenerMocks(server);
   server.use(testHandler);
   server.use(
-    rest.get('*test', (req, res, ctx) => {
+    rest.get('*test', (_, res, ctx) => {
       return res.once(ctx.status(401), ctx.json({ error: 'Not Authorized' }));
     }),
   );
@@ -222,7 +222,7 @@ test('401 does not cause infinite loop if refresh repeatedly fails', async ({ se
   const { onRequest: onReq } = createServerListenerMocks(server);
   server.use(testHandler);
   server.use(
-    rest.get('*test', (req, res, ctx) => {
+    rest.get('*test', (_, res, ctx) => {
       return res.once(ctx.status(401), ctx.json({ error: 'Not Authorized' }));
     }),
     rest.get(`*${API_USER}`, (_, res, ctx) => {
@@ -282,7 +282,7 @@ test('repeated 401s do not cause infinite loop', async ({ server }: TestContext)
 });
 
 test('request fails without a response body are rejected', async ({ server }: TestContext) => {
-  server.use(rest.get('*test', (_req, res, ctx) => res(ctx.delay('infinite'), ctx.status(400, 'error'))));
+  server.use(rest.get('*test', (_, res, ctx) => res(ctx.delay('infinite'), ctx.status(400, 'error'))));
 
   // simulates a timeout, by aborting the request after a timeout
   const control = new AbortController();

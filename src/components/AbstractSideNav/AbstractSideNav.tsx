@@ -22,15 +22,7 @@ import { IMenuItem, SideNavigationMenu, TopNavigationMenu } from '@/components/N
 
 const abstractPath = '/abs';
 
-const useGetItems = ({
-  doc,
-  hasMetrics,
-  graphicsCount,
-}: {
-  doc: IDocsEntity;
-  hasMetrics: boolean;
-  graphicsCount: number;
-}) => {
+const useGetItems = ({ doc }: { doc: IDocsEntity; hasMetrics: boolean; graphicsCount: number }) => {
   const router = useRouter();
   const docId = router.query.id as string;
 

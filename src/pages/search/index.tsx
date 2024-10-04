@@ -395,8 +395,8 @@ const NoResultsMsg = () => (
   />
 );
 
-const omitUnsafeQueryParams = omit(['fl', 'start', 'rows']);
 export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
+// const omitUnsafeQueryParams = omit(['fl', 'start', 'rows']);
 // export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
 //   const queryClient = new QueryClient();
 //   const { p: page, n: numPerPage, ...query } = parseQueryFromUrl<{ p: string; n: string }>(ctx.req.url);
