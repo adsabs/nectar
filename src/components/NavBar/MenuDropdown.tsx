@@ -1,8 +1,9 @@
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { Box, HStack, List, ListItem, Menu, MenuButton, MenuDivider, MenuItem, MenuList } from '@chakra-ui/react';
 import { ItemType, ListType } from './types';
-import { isBrowser, noop } from '@/utils';
 import { Fragment, KeyboardEvent, MouseEventHandler, ReactElement } from 'react';
+import { isBrowser } from '@/utils/common/guards';
+import { noop } from '@/utils/common/noop';
 
 interface IMenuDropdownProps {
   id: string;

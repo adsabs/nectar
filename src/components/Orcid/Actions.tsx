@@ -21,8 +21,8 @@ import React, { useEffect, useRef } from 'react';
 import { isOrcidProfileEntry } from '@/api/orcid/models';
 import { TOAST_DEFAULTS } from '@/components/Orcid/helpers';
 import { AddToOrcidButton } from '@/components/Orcid/AddToOrcidButton';
-import { parseAPIError } from '@/utils';
 import { Cog8ToothIcon } from '@heroicons/react/20/solid';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 export interface IActionProps {
   work: IOrcidProfileEntry;

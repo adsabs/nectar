@@ -1,6 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { Tags } from '../Tags';
-import { noop } from '@/utils';
+
+import { noop } from '@/utils/common/noop';
 
 const meta: Meta = {
   title: 'Tags',

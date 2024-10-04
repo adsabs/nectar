@@ -3,12 +3,12 @@ import { ClassicForm, getSearchQuery, IClassicFormState } from '@/components/Cla
 import { GetServerSideProps, GetServerSidePropsContext, NextPage } from 'next';
 import Head from 'next/head';
 import { composeNextGSSP } from '@/ssr-utils';
-import { parseAPIError } from '@/utils';
 import { logger } from '@/logger';
 import { BRAND_NAME_FULL } from '@/config';
 import { useEffect } from 'react';
 import { useStore } from '@/store';
 import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 const ClassicFormPage: NextPage<{ ssrError?: string }> = ({ ssrError }) => {
   const clearSelectedDocs = useStore((state) => state.clearAllSelected);

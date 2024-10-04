@@ -19,7 +19,6 @@ import { getFallBackAlert } from '@/components/Feedbacks/SuspendedAlert';
 import { useSettings } from '@/lib/useSettings';
 import { isNotEmpty } from 'ramda-adjunct';
 import { logger } from '@/logger';
-import { parseAPIError } from '@/utils';
 import { solrSortOptions } from '@/components/Sort/model';
 import { SettingsLayout } from '@/components/Layout';
 import { Select, SelectOption } from '@/components/Select';
@@ -30,6 +29,7 @@ import {
   NumberSlider,
 } from '@/components/Settings';
 import { DescriptionCollapse } from '@/components/CitationExporter';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 // generate options for select component
 const useGetOptions = () => {

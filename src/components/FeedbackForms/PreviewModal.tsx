@@ -13,7 +13,6 @@ import {
   ModalOverlay,
   Text,
 } from '@chakra-ui/react';
-import { parseAPIError } from '@/utils';
 import { ReactElement, useCallback, useState } from 'react';
 
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
@@ -21,6 +20,7 @@ import { FormMessage } from '@/components/Feedbacks/FormMessage';
 
 import { RecaptchaMessage } from '@/components/RecaptchaMessage/RecaptchaMessage';
 import { useColorModeColors } from '@/lib/useColorModeColors';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 export interface IPreviewProps {
   params: IFeedbackParams;

@@ -4,7 +4,6 @@ import { useRouter } from 'next/router';
 import { useFocus } from '@/lib/useFocus';
 import { Control, SubmitHandler, useForm, useWatch } from 'react-hook-form';
 import { IUserResetPasswordCredentials, useResetPassword } from '@/api';
-import { parseAPIError } from '@/utils';
 import { useEffect } from 'react';
 import { useRedirectWithNotification } from '@/components/Notification';
 import Head from 'next/head';
@@ -12,6 +11,7 @@ import { BRAND_NAME_FULL } from '@/config';
 import { PasswordRequirements, PasswordTextInput, passwordValidators } from '@/components/TextInput';
 import { StandardAlertMessage } from '@/components/Feedbacks';
 import { SimpleLink } from '@/components/SimpleLink';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 const ResetPasswordPage: NextPage = () => {
   const router = useRouter();

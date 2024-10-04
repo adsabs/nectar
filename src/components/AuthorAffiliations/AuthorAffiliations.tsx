@@ -27,7 +27,6 @@ import {
   useBoolean,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { isIADSSearchParams } from '@/utils';
 import { assoc, isNil, pathOr } from 'ramda';
 import { isNilOrEmpty, isNotNilOrEmpty } from 'ramda-adjunct';
 import { ChangeEventHandler, Dispatch, ReactElement, SetStateAction, useCallback, useEffect, useState } from 'react';
@@ -37,6 +36,7 @@ import { ExportModal } from './ExportModal';
 import { countOptions, NONESYMBOL } from './models';
 import { AuthorAffStoreProvider, useAuthorAffStore } from './store';
 import { IGroupedAuthorAffilationData } from './types';
+import { isIADSSearchParams } from '@/utils/common/guards';
 
 export type AuthorAffiliationsProps =
   | (BoxProps & { params: IAuthorAffiliationPayload; query?: IADSApiSearchParams })

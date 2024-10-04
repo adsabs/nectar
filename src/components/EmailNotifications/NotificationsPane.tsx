@@ -45,7 +45,6 @@ import { CustomInfoMessage } from '@/components/Feedbacks';
 import { TableSkeleton } from '@/components/Libraries/TableSkeleton';
 import { TimeSince } from '@/components/TimeSince';
 
-import { makeSearchParams, parseAPIError } from '@/utils';
 import { useRouter } from 'next/router';
 import { values } from 'ramda';
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
@@ -54,6 +53,8 @@ import { DeleteNotificationMenuItem } from './DeleteNotificationMenuItem';
 import { SimpleLink } from '@/components/SimpleLink';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { useDebounce } from '@/lib/useDebounce';
+import { makeSearchParams } from '@/utils/common/search';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 export const NotificationsPane = () => {
   const toast = useToast({ duration: 2000 });

@@ -3,16 +3,12 @@ import { ChevronLeftIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
+  Center,
+  Flex,
   FormControl,
   FormLabel,
   Heading,
   Input,
-  Textarea,
-  Text,
-  Flex,
-  useToast,
-  Switch,
-  useDisclosure,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -20,16 +16,22 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Center,
+  Switch,
+  Text,
+  Textarea,
+  useDisclosure,
+  useToast,
 } from '@chakra-ui/react';
 import { DescriptionCollapse } from '@/components/CitationExporter';
 import { CustomInfoMessage, LoadingMessage } from '@/components/Feedbacks';
 import { SimpleLink } from '@/components/SimpleLink';
-import { isValidEmail, parseAPIError } from '@/utils';
 import { useRouter } from 'next/router';
 import { ChangeEvent, useMemo, useState } from 'react';
 import { CollabTable } from './CollabTable';
 import { DeleteLibrary } from './DeleteLibrary';
+
+import { isValidEmail } from '@/utils/common/isValidEmail';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 const permissionsDescription = (
   <>

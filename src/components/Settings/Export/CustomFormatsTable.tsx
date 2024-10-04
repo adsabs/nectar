@@ -18,12 +18,12 @@ import {
 
 import { CheckIcon, CloseIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { useEffect, useState } from 'react';
-import { noop } from '@/utils';
 import { sort } from 'ramda';
 
 import { DescriptionCollapse } from '@/components/CitationExporter';
 import { customFormatDescription } from '@/components/Settings';
 import { useColorModeColors } from '@/lib/useColorModeColors';
+import { noop } from '@/utils/common/noop';
 
 export interface ICustomFormatsTableProps {
   customFormats: CustomFormat[];

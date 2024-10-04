@@ -24,10 +24,10 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { getFallBackAlert } from '@/components/Feedbacks/SuspendedAlert';
 import { isNotEmpty } from 'ramda-adjunct';
 import { logger } from '@/logger';
-import { parseAPIError } from '@/utils';
 import { exportFormats } from '@/components/CitationExporter';
 import { SettingsLayout } from '@/components/Layout';
 import { BibtexTabPanel, CustomFormatsTabPanel, GeneralTabPanel } from '@/components/Settings';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 // partial user data params
 // used to update user data

@@ -1,9 +1,9 @@
 import { APP_DEFAULTS } from '@/config';
 import { NumPerPageType } from '@/types';
-import { isNumPerPageType } from '@/utils';
 import memoizeOne from 'memoize-one';
 import { clamp, equals } from 'ramda';
 import { Dispatch, Reducer, useCallback, useEffect, useReducer } from 'react';
+import { isNumPerPageType } from '@/utils/common/guards';
 
 /**
  * Calculate the total pages based on the number of results and how many records per page

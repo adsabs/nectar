@@ -1,12 +1,12 @@
 import { Button, ButtonProps, forwardRef, HStack, Icon, Text, useToast } from '@chakra-ui/react';
 import { TOAST_DEFAULTS } from '@/components/Orcid/helpers';
 import { useAddWorks } from '@/lib/orcid/useAddWorks';
-import { parseAPIError } from '@/utils';
 
 import React from 'react';
 
 import { OrcidInactiveLogo } from '@/components/images';
 import { useColorModeColors } from '@/lib/useColorModeColors';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 interface IOrcidActionBtnProps extends ButtonProps {
   identifier: string;

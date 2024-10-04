@@ -7,11 +7,11 @@ import {
   SolrSort,
   useGetExportCitation,
 } from '@/api';
-import { purifyString } from '@/utils';
 import { useMachine } from '@xstate/react/fsm';
 import { useEffect, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { generateMachine, ICitationExporterState } from './CitationExporter.machine';
+import { purifyString } from '@/utils/common/formatters';
 
 export interface IUseCitationExporterProps {
   records: ICitationExporterState['records'];

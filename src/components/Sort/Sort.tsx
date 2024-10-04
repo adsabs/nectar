@@ -5,11 +5,11 @@ import { ItemType } from '@/components/Dropdown/types';
 import { ISelectProps, Select } from '@/components/Select';
 import { BarsArrowDownIcon, BarsArrowUpIcon } from '@heroicons/react/24/outline';
 import { useIsClient } from '@/lib/useIsClient';
-import { makeSearchParams, parseQueryFromUrl } from '@/utils';
 import { useRouter } from 'next/router';
 import { Fragment, MouseEventHandler, ReactElement, useCallback, useMemo } from 'react';
 import { SimpleLinkDropdown } from '@/components/Dropdown';
 import { SearchQueryLink } from '@/components/SearchQueryLink';
+import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
 
 export interface ISortProps<S extends SortType, F extends SortField> {
   sort: S;

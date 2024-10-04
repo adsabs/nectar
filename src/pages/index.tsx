@@ -6,7 +6,6 @@ import { applyFiltersToQuery } from '@/components/SearchFacet/helpers';
 import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 import { YouTubeEmbed } from '@next/third-parties/google';
 import { useStore } from '@/store';
-import { makeSearchParams, normalizeSolrSort } from '@/utils';
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
@@ -19,6 +18,7 @@ import { IPagerProps } from '@/components/Pager';
 import { ISearchExamplesProps, SearchExamplesPlaceholder } from '@/components/SearchExamples';
 import { SearchBar } from '@/components/SearchBar';
 import { SimpleLink } from '@/components/SimpleLink';
+import { makeSearchParams, normalizeSolrSort } from '@/utils/common/search';
 
 const SearchExamples = dynamic<ISearchExamplesProps>(
   () => import('@/components/SearchExamples').then((m) => m.SearchExamples),

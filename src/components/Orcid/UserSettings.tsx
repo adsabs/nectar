@@ -39,7 +39,6 @@ import { isValidIOrcidUser } from '@/api/orcid/models';
 import { MagnifyingGlassIcon, PlusIcon, TrashIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { remove, update } from 'ramda';
 import { isNotNilOrEmpty } from 'ramda-adjunct';
-import { noop } from '@/utils';
 import escapeHtml from 'escape-html';
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -47,6 +46,7 @@ import { getFallBackAlert } from '@/components/Feedbacks/SuspendedAlert';
 
 import { SearchQueryLink, SearchQueryLinkButton } from '@/components/SearchQueryLink';
 import { useColorModeColors } from '@/lib/useColorModeColors';
+import { noop } from '@/utils/common/noop';
 
 export const UserSettings = () => {
   const isMobile = useBreakpointValue({ base: true, lg: false });

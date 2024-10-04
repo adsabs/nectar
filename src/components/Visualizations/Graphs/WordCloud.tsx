@@ -3,7 +3,8 @@ import { useD3 } from './useD3';
 import d3Cloud from 'd3-cloud';
 import * as d3 from 'd3';
 import { Selection } from 'd3';
-import { noop } from '@/utils';
+
+import { noop } from '@/utils/common/noop';
 
 const width = 1000;
 

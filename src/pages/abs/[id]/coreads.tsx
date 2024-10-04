@@ -1,12 +1,12 @@
 import { getCoreadsParams, useGetAbstract, useGetCoreads } from '@/api';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useGetAbstractParams } from '@/lib';
+import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { APP_DEFAULTS } from '@/config';
 import { AbsLayout } from '@/components/Layout';
 import { ItemsSkeleton } from '@/components/ResultList';
 import { StandardAlertMessage } from '@/components/Feedbacks';
-import { parseAPIError } from '@/utils';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 import { AbstractRefList } from '@/components/AbstractRefList';
 
 const CoreadsPage: NextPage = () => {

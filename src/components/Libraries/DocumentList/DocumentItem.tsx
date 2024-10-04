@@ -16,7 +16,6 @@ import { ItemResourceDropdowns } from '@/components/ResultList/Item';
 import { APP_DEFAULTS } from '@/config';
 
 import { useIsClient } from '@/lib/useIsClient';
-import { getFomattedNumericPubdate, noop, unwrapStringValue } from '@/utils';
 import { MathJax } from 'better-react-mathjax';
 import { ChangeEvent, ReactElement } from 'react';
 import { ItemAnnotation } from './ItemAnnotation';
@@ -24,6 +23,9 @@ import { ItemAnnotation } from './ItemAnnotation';
 import { PencilSquareIcon } from '@heroicons/react/24/outline';
 import { SimpleLink } from '@/components/SimpleLink/SimpleLink';
 import { useColorModeColors } from '@/lib/useColorModeColors';
+
+import { getFormattedNumericPubdate, unwrapStringValue } from '@/utils/common/formatters';
+import { noop } from '@/utils/common/noop';
 
 export interface IItemProps {
   doc: IDocsEntity;
@@ -57,7 +59,7 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
     hideResources = true,
   } = props;
   const { bibcode, pubdate, title = ['Untitled'], author = [], author_count, pub } = doc;
-  const formattedPubDate = getFomattedNumericPubdate(pubdate);
+  const formattedPubDate = getFormattedNumericPubdate(pubdate);
   const isClient = useIsClient();
   const colors = useColorModeColors();
   const truncatedPub =

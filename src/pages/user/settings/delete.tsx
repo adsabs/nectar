@@ -2,11 +2,11 @@ import { Button, chakra, FormControl, FormErrorMessage, FormLabel, Input, Stack,
 
 import { FormEventHandler, useState } from 'react';
 import { AppState, useStore } from '@/store';
-import { parseAPIError } from '@/utils';
 import { useSession } from '@/lib/useSession';
 import { useDeleteAccount } from '@/api';
 import { SettingsLayout } from '@/components/Layout';
 import { StandardAlertMessage } from '@/components/Feedbacks';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 type FormError = {
   param: string;

@@ -7,9 +7,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { composeNextGSSP } from '@/ssr-utils';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import { parseAPIError } from '@/utils';
 import { logger } from '@/logger';
 import { FeedbackLayout } from '@/components/Layout';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 const Record: NextPage = () => {
   const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({

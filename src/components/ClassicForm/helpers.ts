@@ -1,4 +1,3 @@
-import { makeSearchParams } from '@/utils';
 import DOMPurify from 'isomorphic-dompurify';
 import {
   __,
@@ -41,6 +40,7 @@ import { isNilOrEmpty, isNotEmpty } from 'ramda-adjunct';
 import { CollectionChoice, IClassicFormState, IRawClassicFormState, LogicChoice, PropertyChoice } from './types';
 import { getTerms } from '@/query';
 import { APP_DEFAULTS } from '@/config';
+import { makeSearchParams } from '@/utils/common/search';
 
 const DEFAULT_PREFIXES = ['-', '+', '='];
 const NOT_PREFIX = ['-'];

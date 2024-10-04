@@ -10,12 +10,13 @@ import {
   Spinner,
 } from '@chakra-ui/react';
 import { CustomInfoMessage } from '@/components/Feedbacks';
-import { noop, parseAPIError } from '@/utils';
 import { useMemo } from 'react';
 import { ArxivForm } from './Forms/ArxivForm';
 import { CitationForm } from './Forms/CitationForm';
 import { KeywordsForm } from './Forms/KewordsForm';
 import { QueryForm } from './Forms/QueryForm';
+import { noop } from '@/utils/common/noop';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 export const AddNotificationModal = ({
   isOpen,

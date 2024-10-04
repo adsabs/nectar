@@ -1,8 +1,8 @@
 import { Esources, IDocsEntity } from '@/api';
 import { AppRuntimeConfig } from '@/types';
-import { getFomattedNumericPubdate } from '@/utils';
 import getConfig from 'next/config';
 import { ReactElement } from 'react';
+import { getFormattedNumericPubdate } from '@/utils/common/formatters';
 
 const getBaseUrl = () => {
   try {
@@ -64,7 +64,7 @@ export const Metatags = (props: IMetatagsProps): ReactElement => {
 
   const logo = `${baseUrl}/styles/images/transparent_logo.svg`;
 
-  const formatted_numeric_pubdate = doc.pubdate ? getFomattedNumericPubdate(doc.pubdate) ?? '' : '';
+  const formatted_numeric_pubdate = doc.pubdate ? getFormattedNumericPubdate(doc.pubdate) ?? '' : '';
 
   const last_page = doc.page_range ? getLastPage(doc.page_range) : '';
 

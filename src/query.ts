@@ -1,4 +1,3 @@
-import { isEmptyObject } from '@/utils';
 import lucene from 'lucene';
 import {
   always,
@@ -17,6 +16,7 @@ import {
   when,
   without,
 } from 'ramda';
+import { isEmptyObject } from '@/utils/common/guards';
 
 export type Operator = 'AND' | 'OR' | 'NOT';
 const DEFAULT_OPERATOR = 'AND' as const;

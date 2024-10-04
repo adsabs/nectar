@@ -9,12 +9,12 @@ import axios, { AxiosError } from 'axios';
 import { ILoginResponse } from '@/pages/api/auth/login';
 import { useFocus } from '@/lib/useFocus';
 import { useUser } from '@/lib/useUser';
-import { parseAPIError } from '@/utils';
 import { useRouter } from 'next/router';
 import { BRAND_NAME_FULL } from '@/config';
 import { PasswordTextInput } from '@/components/TextInput';
 import { SimpleLink } from '@/components/SimpleLink';
 import { StandardAlertMessage } from '@/components/Feedbacks';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 const initialParams: IUserCredentials = { email: '', password: '' };
 

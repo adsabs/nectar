@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import { NextPage } from 'next';
+import NextImage from 'next/image';
 import { IDocsEntity, useGetAbstract, useGetGraphics } from '@/api';
 import { path } from 'ramda';
 import { AbsLayout } from '@/components/Layout';

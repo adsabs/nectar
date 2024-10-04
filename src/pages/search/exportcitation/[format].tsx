@@ -14,7 +14,6 @@ import { ChevronLeftIcon } from '@chakra-ui/icons';
 import { getExportCitationDefaultContext } from '@/components/CitationExporter/CitationExporter.machine';
 import { APP_DEFAULTS, BRAND_NAME_FULL } from '@/config';
 import { useIsClient } from '@/lib/useIsClient';
-import { parseAPIError, parseQueryFromUrl, unwrapStringValue } from '@/utils';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
@@ -27,6 +26,9 @@ import { logger } from '@/logger';
 import { SimpleLink } from '@/components/SimpleLink';
 import { CitationExporter } from '@/components/CitationExporter';
 import { JournalFormatMap } from '@/components/Settings';
+import { parseQueryFromUrl } from '@/utils/common/search';
+import { unwrapStringValue } from '@/utils/common/formatters';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 interface IExportCitationPageProps {
   format: ExportApiFormatKey;

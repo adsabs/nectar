@@ -1,8 +1,8 @@
-import { parseQueryFromUrl } from '@/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { VizPageLayout } from '@/components/Layout';
 import { ConceptCloudPageContainer } from '@/components/Visualizations';
+import { parseQueryFromUrl } from '@/utils/common/search';
 
 const ConceptCloudPage: NextPage = () => {
   const router = useRouter();

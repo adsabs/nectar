@@ -17,7 +17,8 @@ import {
   useTab,
 } from '@chakra-ui/react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
-import { noop } from '@/utils';
+
+import { noop } from '@/utils/common/noop';
 
 type PageContext = {
   page: number;

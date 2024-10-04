@@ -14,7 +14,6 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { isString } from '@/utils';
 import { useOrcidExchangeToken, useOrcidPreferences, useOrcidSetPreferences } from '@/api/orcid/orcid';
 import { isArray } from 'ramda-adjunct';
 import { useCallback, useEffect, useRef } from 'react';
@@ -22,6 +21,7 @@ import { AppState, useStore } from '@/store';
 import { isValidIOrcidUser } from '@/api/orcid/models';
 import { useRedirectWithNotification } from '@/components/Notification';
 import { SimpleLink } from '@/components/SimpleLink';
+import { isString } from '@/utils/common/guards';
 
 const setOrcidUserSelector = (state: AppState) => state.setOrcidUser;
 

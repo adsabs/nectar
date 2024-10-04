@@ -33,7 +33,6 @@ import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { APP_DEFAULTS, EXTERNAL_URLS } from '@/config';
 import { useIsClient } from '@/lib/useIsClient';
 import { composeNextGSSP } from '@/ssr-utils';
-import { parseAPIError, pluralize } from '@/utils';
 import { MathJax } from 'better-react-mathjax';
 import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
@@ -52,6 +51,9 @@ import { SearchQueryLink } from '@/components/SearchQueryLink';
 import { AbstractSources } from '@/components/AbstractSources';
 import { AddToLibraryModal } from '@/components/Libraries';
 import { CopyMenuItem, LabeledCopyButton } from '@/components/CopyButton';
+
+import { pluralize } from '@/utils/common/formatters';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   () => import('@/components/AllAuthorsModal').then((m) => m.AllAuthorsModal),

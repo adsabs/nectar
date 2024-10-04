@@ -1,8 +1,8 @@
-import { makeSearchParams, parseQueryFromUrl } from '@/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { VizPageLayout } from '@/components/Layout';
 import { AuthorNetworkPageContainer } from '@/components/Visualizations';
+import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
 
 export const AuthorNetworkPage: NextPage = () => {
   const router = useRouter();

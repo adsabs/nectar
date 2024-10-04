@@ -1,6 +1,5 @@
 import { Box, Flex, Grid, GridItem, Text } from '@chakra-ui/react';
 import { useStore } from '@/store';
-import { noop } from '@/utils';
 import { FC, HTMLAttributes, MouseEventHandler, useMemo } from 'react';
 import { examples } from './examples';
 import { useIsClient } from '@/lib/useIsClient';
@@ -8,6 +7,7 @@ import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 
 import { sendGTMEvent } from '@next/third-parties/google';
 import { useColorModeColors } from '@/lib/useColorModeColors';
+import { noop } from '@/utils/common/noop';
 
 export interface ISearchExamplesProps extends HTMLAttributes<HTMLDivElement> {
   onSelect?: () => void;

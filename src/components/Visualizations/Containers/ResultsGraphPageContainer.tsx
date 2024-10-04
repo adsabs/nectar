@@ -4,7 +4,6 @@ import { Box, Flex, List, ListIcon, ListItem, Text, useToast } from '@chakra-ui/
 
 import { Expandable } from '@/components/Expandable';
 import { setFQ } from '@/query-utils';
-import { makeSearchParams } from '@/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
@@ -13,6 +12,7 @@ import { getResultsGraph } from '../utils';
 import { CustomInfoMessage, LoadingMessage, StandardAlertMessage } from '@/components/Feedbacks';
 import { IBubblePlotNodeData } from '@/components/Visualizations';
 import { DataDownloader } from '@/components/DataDownloader';
+import { makeSearchParams } from '@/utils/common/search';
 
 interface IResultsGraphPageContainerProps {
   query: IADSApiSearchParams;
