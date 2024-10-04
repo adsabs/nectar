@@ -20,9 +20,10 @@ import { CheckIcon, CloseIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { useEffect, useState } from 'react';
 import { noop } from '@/utils';
 import { sort } from 'ramda';
-import { useColorModeColors } from '@/lib';
+
 import { DescriptionCollapse } from '@/components/CitationExporter';
 import { customFormatDescription } from '@/components/Settings';
+import { useColorModeColors } from '@/lib/useColorModeColors';
 
 export interface ICustomFormatsTableProps {
   customFormats: CustomFormat[];

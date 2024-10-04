@@ -1,11 +1,13 @@
-import { CheckIcon, CloseIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons';
-import { FormControl, FormLabel, Tr, Td, Input, IconButton, Table, Thead, Th, Tbody, HStack } from '@chakra-ui/react';
+import { CheckIcon, CloseIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
+import { FormControl, FormLabel, HStack, IconButton, Input, Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react';
 import { Select, SelectOption } from '@/components/Select';
-import { IResourceUrl, ResourceUrlType, resourceUrlTypes, useIsClient } from '@/lib';
-import { useState, ChangeEvent, MouseEvent, useRef, KeyboardEvent } from 'react';
+
+import { ChangeEvent, KeyboardEvent, MouseEvent, useRef, useState } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import { SelectInstance } from 'react-select';
 import { FormValues } from './types';
+import { IResourceUrl, ResourceUrlType, resourceUrlTypes } from '@/lib/useGetResourceLinks';
+import { useIsClient } from '@/lib/useIsClient';
 
 export const UrlsField = () => {
   return (

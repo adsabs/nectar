@@ -40,7 +40,7 @@ import { initialState, reducer, SearchInputAction } from '@/components/SearchBar
 import { getFocusedItemValue, getPreview } from '@/components/SearchBar/helpers';
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { useFocus } from '@/lib/useFocus';
-import { useColorModeColors } from '@/lib';
+import { useColorModeColors } from '@/lib/useColorModeColors';
 
 const SEARCHBAR_MAX_LENGTH = 2048 as const;
 

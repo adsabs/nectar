@@ -37,9 +37,10 @@ import { kFormatNumber, noop } from '@/utils';
 import { equals, isEmpty } from 'ramda';
 import { forwardRef, KeyboardEvent, memo, MouseEventHandler, useCallback, useEffect, useRef } from 'react';
 import { SearchFacetModal } from './SearchFacetModal';
-import { useColorModeColors } from '@/lib';
+
 import { Pagination } from '@/components/ResultList/Pagination';
 import { Toggler } from '@/components/Toggler';
+import { useColorModeColors } from '@/lib/useColorModeColors';
 
 export interface IFacetListProps extends ListProps {
   noLoadMore?: boolean;

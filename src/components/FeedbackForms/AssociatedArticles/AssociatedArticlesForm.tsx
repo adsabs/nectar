@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { useSearch } from '@/api';
 import { AssociatedBibcode, IFeedbackParams, Relationship } from '@/api/feedback';
-import { AddIcon, CheckIcon, DeleteIcon } from '@chakra-ui/icons';
+import { CheckIcon, DeleteIcon } from '@chakra-ui/icons';
 import {
   AlertStatus,
   Button,
@@ -21,9 +21,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ChangeEvent, KeyboardEvent, MouseEventHandler, useEffect, useRef, useState } from 'react';
 import { FormProvider, useFieldArray, useForm, useFormContext, useWatch } from 'react-hook-form';
 import { omit } from 'ramda';
-import { useGetUserEmail } from '@/lib';
+
 import { PreviewModal } from '@/components/FeedbackForms';
 import { Select, SelectOption } from '@/components/Select';
+import { useGetUserEmail } from '@/lib/useGetUserEmail';
 
 type FormValues = {
   name: string;

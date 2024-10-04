@@ -5,8 +5,9 @@ import { UserDataSetterEvent } from '@/pages/user/settings/export';
 import { Dispatch, useEffect, useMemo, useState } from 'react';
 import { CustomFormatsTable } from '../CustomFormatsTable';
 import { useSettings } from '@/lib/useSettings';
-import { useColorModeColors } from '@/lib';
+
 import { SampleTextArea } from '@/components/Settings';
+import { useColorModeColors } from '@/lib/useColorModeColors';
 
 export type ICustomFormatsTabPanelProps = {
   sampleBib: IDocsEntity['bibcode'];

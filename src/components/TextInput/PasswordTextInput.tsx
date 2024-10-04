@@ -1,7 +1,7 @@
 import { Button, Icon, Input, InputGroup, InputProps, InputRightElement, Stack, Text } from '@chakra-ui/react';
 import { forwardRef, useState } from 'react';
 import { CheckIcon } from '@chakra-ui/icons';
-import { useColorModeColors } from '@/lib';
+import { useColorModeColors } from '@/lib/useColorModeColors';
 
 interface IPasswordTextInputProps extends InputProps {
   onSwitch?: (hidden: boolean) => void;

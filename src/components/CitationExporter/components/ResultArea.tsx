@@ -5,8 +5,9 @@ import { useDownloadFile } from '@/lib/useDownloadFile';
 import { useIsClient } from '@/lib/useIsClient';
 import { exportFormats } from '../models';
 import { LabeledCopyButton } from '@/components/CopyButton';
-import { useColorModeColors } from '@/lib';
+
 import { sendGTMEvent } from '@next/third-parties/google';
+import { useColorModeColors } from '@/lib/useColorModeColors';
 
 export const ResultArea = ({
   result = '',

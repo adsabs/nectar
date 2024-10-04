@@ -34,7 +34,7 @@ import {
 import { CustomInfoMessage } from '@/components/Feedbacks';
 import { TimeSince } from '@/components/TimeSince';
 import { UserGroupIcon, UserIcon } from '@heroicons/react/24/solid';
-import { useColorModeColors } from '@/lib';
+
 import { NumPerPageType } from '@/types';
 import { noop, parseAPIError } from '@/utils';
 import { useRouter } from 'next/router';
@@ -42,6 +42,7 @@ import { uniq } from 'ramda';
 import { Fragment, MouseEvent, useMemo } from 'react';
 import { DeleteLibrary } from './DeleteLibrary';
 import { ControlledPaginationControls } from '@/components/Pagination';
+import { useColorModeColors } from '@/lib/useColorModeColors';
 
 type Column = keyof ILibraryMetadata;
 type SortDirection = 'asc' | 'desc';

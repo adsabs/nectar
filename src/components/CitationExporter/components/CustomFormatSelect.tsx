@@ -6,7 +6,7 @@ import { useSession } from '@/lib/useSession';
 import { SimpleLink } from '@/components/SimpleLink';
 import { DEFAULT_USER_DATA } from '@/api';
 import { useSettings } from '@/lib/useSettings';
-import { useColorModeColors } from '@/lib';
+import { useColorModeColors } from '@/lib/useColorModeColors';
 
 export interface ICustomFormatSelectProps {
   dispatch: Dispatch<CitationExporterEvent>;

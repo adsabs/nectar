@@ -44,8 +44,9 @@ import escapeHtml from 'escape-html';
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import { getFallBackAlert } from '@/components/Feedbacks/SuspendedAlert';
-import { useColorModeColors } from '@/lib';
+
 import { SearchQueryLink, SearchQueryLinkButton } from '@/components/SearchQueryLink';
+import { useColorModeColors } from '@/lib/useColorModeColors';
 
 export const UserSettings = () => {
   const isMobile = useBreakpointValue({ base: true, lg: false });

@@ -20,7 +20,7 @@ import { FormValues, Reference } from './types';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useGetUserEmail } from '@/lib';
+import { useGetUserEmail } from '@/lib/useGetUserEmail';
 
 const validationSchema = z.object({
   name: z.string().min(1, 'Name is required'),

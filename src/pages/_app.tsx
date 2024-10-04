@@ -1,6 +1,5 @@
 import { ChakraProvider } from '@chakra-ui/react';
 
-import { useIsClient } from 'src/lib';
 import { useCreateQueryClient } from '@/lib/useCreateQueryClient';
 import { MathJaxProvider } from '@/mathjax';
 import { AppState, StoreProvider, useCreateStore, useStore, useStoreApi } from '@/store';
@@ -26,6 +25,7 @@ import { GoogleTagManager, sendGTMEvent } from '@next/third-parties/google';
 import Head from 'next/head';
 import { BRAND_NAME_FULL } from '@/config';
 import { Layout } from '@/components/Layout';
+import { useIsClient } from '@/lib/useIsClient';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
   require('../mocks');

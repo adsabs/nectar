@@ -4,8 +4,9 @@ import { useRemoveWorks } from '@/lib/orcid/useRemoveWorks';
 import { parseAPIError } from '@/utils';
 
 import React from 'react';
-import { useColorModeColors } from '@/lib';
+
 import { OrcidLogo } from '@/components/images';
+import { useColorModeColors } from '@/lib/useColorModeColors';
 
 interface IOrcidActionBtnProps extends ButtonProps {
   identifier: string;

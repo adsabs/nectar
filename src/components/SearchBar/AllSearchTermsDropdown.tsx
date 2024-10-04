@@ -16,7 +16,7 @@ import { useCombobox } from 'downshift';
 import { matchSorter } from 'match-sorter';
 import { forwardRef, ReactElement, useEffect, useState } from 'react';
 import { allSearchTerms, SearchTermItem, SearchTermOption } from './models';
-import { useColorModeColors } from '@/lib';
+import { useColorModeColors } from '@/lib/useColorModeColors';
 
 export interface IAllSearchTermsDropdown {
   onSelect: (value: string) => void;

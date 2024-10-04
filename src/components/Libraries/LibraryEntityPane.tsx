@@ -33,7 +33,7 @@ import {
 
 import { biblibSortOptions } from '@/components/Sort/model';
 import { BuildingLibraryIcon } from '@heroicons/react/24/solid';
-import { useColorModeColors } from '@/lib';
+
 import { AppState, useStore } from '@/store';
 import { NumPerPageType } from '@/types';
 import { isBiblibSort, isSolrSort, normalizeSolrSort, parseAPIError } from '@/utils';
@@ -45,6 +45,7 @@ import { CustomInfoMessage, LoadingMessage } from '@/components/Feedbacks';
 import { Sort } from '@/components/Sort';
 import { SearchQueryLink } from '@/components/SearchQueryLink';
 import { ItemsSkeleton, Pagination } from '@/components/ResultList';
+import { useColorModeColors } from '@/lib/useColorModeColors';
 
 export interface ILibraryEntityPaneProps {
   id: LibraryIdentifier;

@@ -18,8 +18,9 @@ import { ReactElement, useCallback, useState } from 'react';
 
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { FormMessage } from '@/components/Feedbacks/FormMessage';
-import { useColorModeColors } from '@/lib';
+
 import { RecaptchaMessage } from '@/components/RecaptchaMessage/RecaptchaMessage';
+import { useColorModeColors } from '@/lib/useColorModeColors';
 
 export interface IPreviewProps {
   params: IFeedbackParams;

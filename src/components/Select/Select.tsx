@@ -1,5 +1,6 @@
+import { useColorModeColorVars } from '@/lib/useColorModeColors';
 import { FormControl, FormLabel } from '@chakra-ui/react';
-import { useColorModeColorVars } from '@/lib';
+
 import { ForwardedRef, forwardRef, ReactElement, ReactNode, useMemo } from 'react';
 import { default as ReactSelect, GroupBase, Props, StylesConfig } from 'react-select';
 
