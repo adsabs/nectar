@@ -7,7 +7,7 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { path } from 'ramda';
 import { APP_DEFAULTS } from '@/config';
-import { ItemsSkeleton } from '@/components';
+import { ItemsSkeleton } from '@/components/ResultList/ItemsSkeleton';
 
 const ReferencesPage: NextPage = () => {
   const router = useRouter();
