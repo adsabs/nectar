@@ -1,6 +1,6 @@
-import { PapersTable } from '@/components';
 import { papersTableData } from '@/components/__mocks__/data';
 import { Meta, StoryObj } from '@storybook/react';
+import { PapersTable } from '@/components/Visualizations';
 
 const meta: Meta = {
   title: 'Visualizations/tables/PapersTable',

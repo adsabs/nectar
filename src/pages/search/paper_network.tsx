@@ -1,7 +1,8 @@
-import { PaperNetworkPageContainer, VizPageLayout } from '@/components';
 import { makeSearchParams, parseQueryFromUrl } from '@/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
+import { VizPageLayout } from '@/components/Layout';
+import { PaperNetworkPageContainer } from '@/components/Visualizations';
 
 const PaperMetworkPage: NextPage = () => {
   const router = useRouter();

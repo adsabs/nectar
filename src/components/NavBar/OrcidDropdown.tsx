@@ -3,10 +3,11 @@ import { ItemType, ListType } from './types';
 import { MenuDropdown } from '@/components/NavBar/MenuDropdown';
 import { useOrcid } from '@/lib/orcid/useOrcid';
 import { isBrowser } from '@/utils';
-import { OrcidInactiveLogo, OrcidLogo } from '@/components';
+
 import { Flex, HStack, Icon, Switch, Text } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import { AppState, useStore } from '@/store';
+import { OrcidInactiveLogo, OrcidLogo } from '@/components/images';
 
 interface IOrcidDropdownProps {
   type: ListType;

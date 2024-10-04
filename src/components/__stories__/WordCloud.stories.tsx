@@ -1,6 +1,6 @@
-import { WordCloud } from '@/components';
 import { fill, wordData } from '@/components/__mocks__/wordCloud';
 import { Meta, StoryObj } from '@storybook/react';
+import { WordCloud } from '@/components/Visualizations';
 
 const meta: Meta = {
   title: 'Visualizations/Graphs/WordCloud',

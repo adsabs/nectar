@@ -1,5 +1,5 @@
 import { LibraryType } from '@/api';
-import { Select, SelectOption } from '@/components';
+import { Select, SelectOption } from '@/components/Select';
 
 const libraryTypes: SelectOption<LibraryType>[] = [
   { id: 'all', label: 'All', value: 'all' },

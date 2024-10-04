@@ -16,7 +16,7 @@ import {
   MenuList,
 } from '@chakra-ui/react';
 import { ChevronDownIcon } from '@chakra-ui/icons';
-import { SimpleLink } from '@/components';
+
 import { ReactElement, useMemo } from 'react';
 import { useResolverQuery } from '@/api/resolver';
 import { processLinkData } from '@/components/AbstractSources/linkGenerator';
@@ -28,6 +28,7 @@ import {
   FullTextResourceType,
 } from './AbstractSourceItems';
 import { collectBy, prop } from 'ramda';
+import { SimpleLink } from '@/components/SimpleLink';
 
 export interface IAbstractSourcesProps {
   doc?: IDocsEntity;

@@ -1,4 +1,3 @@
-import { createOptions, Select, SelectOption, SettingsLayout, SimpleLink } from '@/components';
 import {
   fetchLibraryLinkServers,
   fetchUserSettings,
@@ -19,6 +18,9 @@ import { isNonEmptyArray, isNotNilOrEmpty } from 'ramda-adjunct';
 import { find, propEq } from 'ramda';
 import { parseAPIError } from '@/utils';
 import { logger } from '@/logger';
+import { createOptions, Select, SelectOption } from '@/components/Select';
+import { SettingsLayout } from '@/components/Layout';
+import { SimpleLink } from '@/components/SimpleLink';
 
 const findServer = (url: string, linkServer: IADSApiLibraryLinkServersResponse) =>
   find(propEq('link', url), linkServer);

@@ -9,28 +9,28 @@ import {
   UpDownIcon,
 } from '@chakra-ui/icons';
 import {
-  Table,
-  TableProps,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-  Flex,
-  Text,
-  Tooltip,
+  Box,
+  Button,
   Center,
+  Flex,
+  IconButton,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
-  useToast,
-  Button,
+  Table,
+  TableProps,
+  Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tooltip,
+  Tr,
   useBreakpoint,
-  Box,
-  IconButton,
+  useToast,
 } from '@chakra-ui/react';
-import { ControlledPaginationControls } from '@/components';
+
 import { CustomInfoMessage } from '@/components/Feedbacks';
 import { TimeSince } from '@/components/TimeSince';
 import { UserGroupIcon, UserIcon } from '@heroicons/react/24/solid';
@@ -41,6 +41,7 @@ import { useRouter } from 'next/router';
 import { uniq } from 'ramda';
 import { Fragment, MouseEvent, useMemo } from 'react';
 import { DeleteLibrary } from './DeleteLibrary';
+import { ControlledPaginationControls } from '@/components/Pagination';
 
 type Column = keyof ILibraryMetadata;
 type SortDirection = 'asc' | 'desc';

@@ -9,16 +9,7 @@ import {
   userKeys,
 } from '@/api';
 import { Box, Checkbox, CheckboxGroup, FormControl, FormLabel, Spinner, Stack } from '@chakra-ui/react';
-import {
-  authorsPerResultsDescription,
-  defaultActionExternalLinksDescription,
-  defaultCollectionsDescription,
-  DescriptionCollapse,
-  NumberSlider,
-  Select,
-  SelectOption,
-  SettingsLayout,
-} from '@/components';
+
 import { composeNextGSSP } from '@/ssr-utils';
 import { GetServerSideProps } from 'next';
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
@@ -30,6 +21,15 @@ import { isNotEmpty } from 'ramda-adjunct';
 import { logger } from '@/logger';
 import { parseAPIError } from '@/utils';
 import { solrSortOptions } from '@/components/Sort/model';
+import { SettingsLayout } from '@/components/Layout';
+import { Select, SelectOption } from '@/components/Select';
+import {
+  authorsPerResultsDescription,
+  defaultActionExternalLinksDescription,
+  defaultCollectionsDescription,
+  NumberSlider,
+} from '@/components/Settings';
+import { DescriptionCollapse } from '@/components/CitationExporter';
 
 // generate options for select component
 const useGetOptions = () => {

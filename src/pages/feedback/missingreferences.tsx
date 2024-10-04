@@ -1,8 +1,11 @@
 import { AlertStatus, Text, useDisclosure } from '@chakra-ui/react';
-import { feedbackItems, FeedbackLayout, MissingReferenceForm, SimpleLink } from '@/components';
-import { FeedbackAlert } from '@/components/FeedbackForms';
+
+import { FeedbackAlert, MissingReferenceForm } from '@/components/FeedbackForms';
 import { NextPage } from 'next';
 import { useMemo, useState } from 'react';
+import { FeedbackLayout } from '@/components/Layout';
+import { SimpleLink } from '@/components/SimpleLink';
+import { feedbackItems } from '@/components/NavBar';
 
 const MissingReferences: NextPage = () => {
   const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({

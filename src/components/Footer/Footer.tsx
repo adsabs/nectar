@@ -1,7 +1,9 @@
 import { Box, Flex, HStack, Text, VisuallyHidden } from '@chakra-ui/react';
-import { CFALogo, NASAPartnerLogo, SimpleLink, SmithsonianLogo } from '@/components';
+
 import { FC } from 'react';
 import { EXTERNAL_URLS } from '@/config';
+import { SimpleLink } from '@/components/SimpleLink';
+import { CFALogo, NASAPartnerLogo, SmithsonianLogo } from '@/components/images';
 
 export const Footer: FC = () => {
   return (

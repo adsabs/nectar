@@ -1,10 +1,12 @@
 import { Button, chakra, FormControl, FormErrorMessage, FormLabel, Input, Stack, Text } from '@chakra-ui/react';
-import { SettingsLayout, StandardAlertMessage } from '@/components';
+
 import { FormEventHandler, useState } from 'react';
 import { AppState, useStore } from '@/store';
 import { parseAPIError } from '@/utils';
 import { useSession } from '@/lib/useSession';
 import { useDeleteAccount } from '@/api';
+import { SettingsLayout } from '@/components/Layout';
+import { StandardAlertMessage } from '@/components/Feedbacks';
 
 type FormError = {
   param: string;

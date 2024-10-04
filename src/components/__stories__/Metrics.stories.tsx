@@ -1,6 +1,6 @@
-import { MetricsPane } from '@/components';
 import { metrics } from '@/components/__mocks__/data';
 import { Meta, StoryObj } from '@storybook/react';
+import { MetricsPane } from '@/components/Visualizations';
 
 const meta: Meta = {
   title: 'Visualizations/Metrics',

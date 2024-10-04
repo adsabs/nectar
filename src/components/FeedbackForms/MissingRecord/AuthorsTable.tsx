@@ -1,6 +1,6 @@
 import { CheckIcon, CloseIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons';
 import { Tr, Td, Input, IconButton, Table, Thead, Th, Tbody, HStack } from '@chakra-ui/react';
-import { PaginationControls } from '@/components';
+
 import {
   createColumnHelper,
   flexRender,
@@ -11,6 +11,7 @@ import {
 import { useState, ChangeEvent, MouseEvent, useRef, useMemo, KeyboardEvent } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import { FormValues, IAuthor } from './types';
+import { PaginationControls } from '@/components/Pagination';
 
 export const AuthorsTable = ({ editable }: { editable: boolean }) => {
   const {

@@ -1,10 +1,13 @@
 import { IFacetCountsFields } from '@/api';
 import { Button, Flex, FormControl, FormLabel, NumberInput, NumberInputField } from '@chakra-ui/react';
-import { BarGraph, DataDownloader, Slider } from '@/components';
+
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { IBarGraph, YearDatum } from '../types';
 import { getYearGraphTicks, getYearsGraph } from '../utils';
+import { DataDownloader } from '@/components/DataDownloader';
+import { BarGraph } from '@/components/Visualizations';
+import { Slider } from '@/components/Slider';
 
 export interface IYearsGraphPaneProps {
   data: IFacetCountsFields;

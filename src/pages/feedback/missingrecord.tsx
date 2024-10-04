@@ -1,6 +1,6 @@
 import { fetchSearch, getSingleRecordParams, searchKeys } from '@/api';
 import { AlertStatus, Flex, Tab, TabList, TabPanel, TabPanels, Tabs, Text, useDisclosure } from '@chakra-ui/react';
-import { FeedbackLayout } from '@/components';
+
 import { FeedbackAlert, RecordPanel } from '@/components/FeedbackForms';
 import { GetServerSideProps, NextPage } from 'next';
 import { useEffect, useMemo, useState } from 'react';
@@ -9,6 +9,7 @@ import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { parseAPIError } from '@/utils';
 import { logger } from '@/logger';
+import { FeedbackLayout } from '@/components/Layout';
 
 const Record: NextPage = () => {
   const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({

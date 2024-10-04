@@ -6,7 +6,7 @@ import {
   useGetExportCitation,
 } from '@/api';
 import { Button, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Tooltip, VStack } from '@chakra-ui/react';
-import { MaxAuthorField, SampleTextArea } from '@/components';
+
 import { JournalFormatSelect } from '@/components/CitationExporter';
 import { JournalFormatMap } from '@/components/Settings/model';
 import { UserDataSetterEvent } from '@/pages/user/settings/export';
@@ -15,6 +15,7 @@ import { bibtexExportFormatDescription, journalNameHandlingDescription, maxAutho
 import { KeyFormatInputApply } from '../KeyFormatInputApply';
 import { MaxAuthorCutoffField } from '../MaxAuthorCutoffField';
 import { useSettings } from '@/lib/useSettings';
+import { MaxAuthorField, SampleTextArea } from '@/components/Settings';
 
 export type IBibtexTabPanelProps = {
   sampleBib: IDocsEntity['bibcode'];

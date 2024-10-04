@@ -1,5 +1,5 @@
-import { SimpleResultList } from '@/components';
 import { Meta, StoryObj } from '@storybook/react';
+import { SimpleResultList } from '@/components/ResultList';
 
 const meta: Meta = {
   title: 'ResultList/SimpleResultList',

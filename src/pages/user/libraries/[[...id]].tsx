@@ -1,13 +1,5 @@
 import { fetchLibraries, fetchLibraryEntity, librariesKeys, useGetLibraryEntity } from '@/api';
 import { Center, Text } from '@chakra-ui/react';
-import {
-  CustomInfoMessage,
-  LibrariesLandingPane,
-  LibraryEntityPane,
-  LibrarySettingsPane,
-  LoadingMessage,
-  SimpleLink,
-} from '@/components';
 import { composeNextGSSP } from '@/ssr-utils';
 import { QueryClient } from '@tanstack/react-query';
 import { GetServerSideProps, NextPage } from 'next';
@@ -15,6 +7,9 @@ import Head from 'next/head';
 import { logger } from '@/logger';
 import { parseAPIError, unwrapStringValue } from '@/utils';
 import { BRAND_NAME_FULL } from '@/config';
+import { CustomInfoMessage, LoadingMessage } from '@/components/Feedbacks';
+import { SimpleLink } from '@/components/SimpleLink';
+import { LibrariesLandingPane, LibraryEntityPane, LibrarySettingsPane } from '@/components/Libraries';
 
 interface ILibrariesHomeProps {
   id?: string;

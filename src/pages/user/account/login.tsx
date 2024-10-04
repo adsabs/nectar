@@ -1,6 +1,6 @@
 import { IUserCredentials } from '@/api';
 import { Button, Container, FormControl, FormLabel, Heading, Input, InputGroup, Stack } from '@chakra-ui/react';
-import { PasswordTextInput, SimpleLink, StandardAlertMessage } from '@/components';
+
 import { NextPage } from 'next';
 import Head from 'next/head';
 import { FormEventHandler, useCallback, useEffect, useState } from 'react';
@@ -12,6 +12,9 @@ import { useUser } from '@/lib/useUser';
 import { parseAPIError } from '@/utils';
 import { useRouter } from 'next/router';
 import { BRAND_NAME_FULL } from '@/config';
+import { PasswordTextInput } from '@/components/TextInput';
+import { SimpleLink } from '@/components/SimpleLink';
+import { StandardAlertMessage } from '@/components/Feedbacks';
 
 const initialParams: IUserCredentials = { email: '', password: '' };
 

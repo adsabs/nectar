@@ -1,12 +1,5 @@
 import { NextPage } from 'next';
 import { Button, Container, FormControl, FormErrorMessage, FormLabel, Heading, VStack } from '@chakra-ui/react';
-import {
-  PasswordRequirements,
-  PasswordTextInput,
-  passwordValidators,
-  SimpleLink,
-  StandardAlertMessage,
-} from '@/components';
 import { useRouter } from 'next/router';
 import { useFocus } from '@/lib/useFocus';
 import { Control, SubmitHandler, useForm, useWatch } from 'react-hook-form';
@@ -16,6 +9,9 @@ import { useEffect } from 'react';
 import { useRedirectWithNotification } from '@/components/Notification';
 import Head from 'next/head';
 import { BRAND_NAME_FULL } from '@/config';
+import { PasswordRequirements, PasswordTextInput, passwordValidators } from '@/components/TextInput';
+import { StandardAlertMessage } from '@/components/Feedbacks';
+import { SimpleLink } from '@/components/SimpleLink';
 
 const ResetPasswordPage: NextPage = () => {
   const router = useRouter();

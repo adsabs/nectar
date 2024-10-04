@@ -1,6 +1,6 @@
-import { AbstractSideNav } from '@/components';
 import { doc } from '@/components/__mocks__/data';
 import { Meta, StoryObj } from '@storybook/react';
+import { AbstractSideNav } from '@/components/AbstractSideNav';
 
 const meta: Meta = {
   title: 'AbstractSideNav',

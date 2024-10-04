@@ -1,22 +1,13 @@
 import { IBucket, ISearchStats } from '@/api';
-import {
-  Button,
-  Flex,
-  FormControl,
-  FormLabel,
-  HStack,
-  NumberInput,
-  NumberInputField,
-  Radio,
-  RadioGroup,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
+import { Button, Flex, HStack, NumberInput, NumberInputField, Radio, RadioGroup, Stack, Text } from '@chakra-ui/react';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
-import { DataDownloader, LineGraph, Slider } from '@/components';
+
 import { ILineGraph, Y_Axis } from '../types';
 import { getHIndexGraphData, getLineGraphXTicks } from '../utils';
+import { LineGraph } from '@/components/Visualizations';
+import { DataDownloader } from '@/components/DataDownloader';
+import { Slider } from '@/components/Slider';
 
 export interface IHIndexGraphPaneProps {
   buckets: IBucket[];

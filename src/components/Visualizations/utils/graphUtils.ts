@@ -22,7 +22,7 @@ import {
   IADSApiWordCloudResponse,
   IBibcodeDict,
 } from '@/api/vis/types';
-import { IAuthorNetworkNodeDetails, IPaperNetworkLinkDetails, IPaperNetworkNodeDetails } from '@/components';
+
 import { Datum, Serie } from '@nivo/line';
 import * as d3 from 'd3';
 import { decode } from 'he';
@@ -59,6 +59,11 @@ import {
   ISliderRange,
   YearDatum,
 } from '../types';
+import {
+  IAuthorNetworkNodeDetails,
+  IPaperNetworkLinkDetails,
+  IPaperNetworkNodeDetails,
+} from '@/components/Visualizations';
 
 /************ metrics helpers ************/
 

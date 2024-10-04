@@ -5,9 +5,10 @@ import { equals } from 'ramda';
 import { ReactElement, useEffect, useRef, useState } from 'react';
 import { NodeDetailPane } from './NodeDetailsPane';
 import { SummaryPane } from './SummaryPane';
-import { SimpleLink } from '@/components';
+
 import { unwrapStringValue } from '@/utils';
 import { MathJax } from 'better-react-mathjax';
+import { SimpleLink } from '@/components/SimpleLink';
 
 interface Paper extends IDocsEntity {
   groupAuthorCount?: number;

@@ -12,7 +12,7 @@ import {
   useSearch,
 } from '@/api';
 import { Spinner, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
-import { BibtexTabPanel, CustomFormatsTabPanel, exportFormats, GeneralTabPanel, SettingsLayout } from '@/components';
+
 import { useSettings } from '@/lib/useSettings';
 import { GetServerSideProps, NextPage } from 'next';
 import { Reducer, Suspense, useEffect, useMemo, useReducer } from 'react';
@@ -25,6 +25,9 @@ import { getFallBackAlert } from '@/components/Feedbacks/SuspendedAlert';
 import { isNotEmpty } from 'ramda-adjunct';
 import { logger } from '@/logger';
 import { parseAPIError } from '@/utils';
+import { exportFormats } from '@/components/CitationExporter';
+import { SettingsLayout } from '@/components/Layout';
+import { BibtexTabPanel, CustomFormatsTabPanel, GeneralTabPanel } from '@/components/Settings';
 
 // partial user data params
 // used to update user data

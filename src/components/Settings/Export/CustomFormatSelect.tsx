@@ -1,6 +1,7 @@
 import { FormControl, FormLabel } from '@chakra-ui/react';
-import { Select } from '@/components';
+
 import { useSettings } from '@/lib/useSettings';
+import { Select } from '@/components/Select';
 
 export const CustomFormatSelect = ({ onChange }: { onChange: (id: string) => void }) => {
   const { settings } = useSettings({ cacheTime: 0 });

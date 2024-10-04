@@ -10,7 +10,7 @@ import {
 } from '@/api';
 import { Alert, AlertIcon, Box, Flex, Heading, HStack } from '@chakra-ui/react';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
-import { CitationExporter, JournalFormatMap, SimpleLink } from '@/components';
+
 import { getExportCitationDefaultContext } from '@/components/CitationExporter/CitationExporter.machine';
 import { APP_DEFAULTS, BRAND_NAME_FULL } from '@/config';
 import { useIsClient } from '@/lib/useIsClient';
@@ -24,7 +24,9 @@ import { composeNextGSSP } from '@/ssr-utils';
 import { useSettings } from '@/lib/useSettings';
 import { useBackToSearchResults } from '@/lib/useBackToSearchResults';
 import { logger } from '@/logger';
-import { useRouter } from 'next/router';
+import { SimpleLink } from '@/components/SimpleLink';
+import { CitationExporter } from '@/components/CitationExporter';
+import { JournalFormatMap } from '@/components/Settings';
 
 interface IExportCitationPageProps {
   format: ExportApiFormatKey;

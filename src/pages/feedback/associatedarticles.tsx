@@ -1,8 +1,9 @@
 import { AlertStatus, Text, useDisclosure } from '@chakra-ui/react';
-import { AssociatedArticlesForm, FeedbackLayout } from '@/components';
-import { FeedbackAlert } from '@/components/FeedbackForms';
+
+import { AssociatedArticlesForm, FeedbackAlert } from '@/components/FeedbackForms';
 import { NextPage } from 'next';
 import { useMemo, useState } from 'react';
+import { FeedbackLayout } from '@/components/Layout';
 
 const AssociatedArticles: NextPage = () => {
   const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({

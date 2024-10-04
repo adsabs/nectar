@@ -15,10 +15,11 @@ import {
 } from '@chakra-ui/react';
 import { parseAPIError } from '@/utils';
 import { ReactElement, useCallback, useState } from 'react';
-import { RecaptchaMessage } from '@/components';
+
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { FormMessage } from '@/components/Feedbacks/FormMessage';
 import { useColorModeColors } from '@/lib';
+import { RecaptchaMessage } from '@/components/RecaptchaMessage/RecaptchaMessage';
 
 export interface IPreviewProps {
   params: IFeedbackParams;

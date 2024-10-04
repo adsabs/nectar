@@ -14,15 +14,7 @@ import {
   Tabs,
   Text,
 } from '@chakra-ui/react';
-import {
-  BarGraph,
-  CitationsTable,
-  DataDownloader,
-  IndicesTable,
-  LineGraph,
-  PapersTable,
-  ReadsTable,
-} from '@/components';
+
 import { useColorModeColors } from '@/lib';
 import { useIsClient } from '@/lib/useIsClient';
 import { useMetrics } from '@/lib/useMetrics';
@@ -40,6 +32,15 @@ import {
   IReadsTableData,
 } from '../types';
 import { getIndicesTableData, getLineGraphXTicks, plotTimeSeriesGraph } from '../utils';
+import { DataDownloader } from '@/components/DataDownloader';
+import {
+  BarGraph,
+  CitationsTable,
+  IndicesTable,
+  LineGraph,
+  PapersTable,
+  ReadsTable,
+} from '@/components/Visualizations';
 
 export interface IMetricsProps {
   metrics: IADSApiMetricsResponse;

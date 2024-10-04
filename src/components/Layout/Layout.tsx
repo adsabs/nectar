@@ -5,11 +5,12 @@ import { FC } from 'react';
 import { Footer } from '../Footer';
 import { NavBar } from '../NavBar';
 import dynamic from 'next/dynamic';
-import { LandingTabsStatic } from '@/components';
+
 import { Notification } from '@/components/Notification';
 import Head from 'next/head';
 import { Favicons } from '@/components/Favicons/Favicons';
 import { BRAND_NAME_FULL } from '@/config';
+import { LandingTabsStatic } from '@/components/LandingTabs';
 
 const LandingTabs = dynamic(() => import('@/components/LandingTabs/LandingTabs').then((mod) => mod.LandingTabs), {
   ssr: false,

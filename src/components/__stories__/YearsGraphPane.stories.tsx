@@ -1,6 +1,6 @@
-import { YearsGraphPane } from '@/components';
 import { Meta, StoryObj } from '@storybook/react';
 import { facetFoundFieldsData } from '@/components/__mocks__/facetCountFields';
+import { YearsGraphPane } from '@/components/Visualizations';
 
 const meta: Meta = {
   title: 'Visualizations/YearsGraphPane',

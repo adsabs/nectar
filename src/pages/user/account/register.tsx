@@ -10,13 +10,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import {
-  PasswordRequirements,
-  PasswordTextInput,
-  passwordValidators,
-  SimpleLink,
-  StandardAlertMessage,
-} from '@/components';
+
 import { NextPage } from 'next';
 import Head from 'next/head';
 import { Control, SubmitHandler, useForm, useWatch } from 'react-hook-form';
@@ -28,6 +22,9 @@ import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { RecaptchaMessage } from '@/components/RecaptchaMessage/RecaptchaMessage';
 import { FormMessage } from '@/components/Feedbacks/FormMessage';
 import { BRAND_NAME_FULL } from '@/config';
+import { PasswordRequirements, PasswordTextInput, passwordValidators } from '@/components/TextInput';
+import { SimpleLink } from '@/components/SimpleLink';
+import { StandardAlertMessage } from '@/components/Feedbacks';
 
 const initialParams: IUserRegistrationCredentials = { email: '', password: '', confirmPassword: '', recaptcha: '' };
 

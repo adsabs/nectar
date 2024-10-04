@@ -1,6 +1,6 @@
-import { CitationsTable } from '@/components';
 import { citationsTableData } from '@/components/__mocks__/data';
 import { Meta, StoryObj } from '@storybook/react';
+import { CitationsTable } from '@/components/Visualizations';
 
 const meta: Meta = {
   title: 'Visualizations/tables/CitationsTable',

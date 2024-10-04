@@ -1,13 +1,17 @@
 import { IDocsEntity } from '@/api';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex, Heading, Stack, Text } from '@chakra-ui/react';
-import { AbstractSideNav, AbstractSources, Metatags, SimpleLink } from '@/components';
+
 import { useBackToSearchResults } from '@/lib/useBackToSearchResults';
 import { unwrapStringValue } from '@/utils';
 import { MathJax } from 'better-react-mathjax';
 import Head from 'next/head';
 import { FC } from 'react';
 import { BRAND_NAME_FULL } from '@/config';
+import { Metatags } from '@/components/Metatags';
+import { SimpleLink } from '@/components/SimpleLink';
+import { AbstractSources } from '@/components/AbstractSources';
+import { AbstractSideNav } from '@/components/AbstractSideNav';
 
 interface IAbsLayoutProps {
   doc: IDocsEntity;

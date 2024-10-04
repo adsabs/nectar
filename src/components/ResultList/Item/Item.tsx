@@ -23,8 +23,10 @@ import { ChangeEvent, ReactElement, useCallback, useEffect, useState } from 'rea
 import shallow from 'zustand/shallow';
 import { IAbstractPreviewProps } from './AbstractPreview';
 import { ItemResourceDropdowns } from './ItemResourceDropdowns';
-import { HideOnPrint, SimpleLink } from '@/components';
+
 import { useColorModeColors } from '@/lib';
+import { HideOnPrint } from '@/components/HideOnPrint';
+import { SimpleLink } from '@/components/SimpleLink';
 
 const AbstractPreview = dynamic<IAbstractPreviewProps>(
   () => import('./AbstractPreview').then((mod) => mod.AbstractPreview),

@@ -3,7 +3,7 @@ import { Button, ButtonProps } from '@chakra-ui/react';
 import { makeSearchParams } from '@/utils';
 import { MouseEventHandler, ReactElement } from 'react';
 import { useRouter } from 'next/router';
-import { ISimpleLinkProps, SimpleLink } from '@/components';
+import { ISimpleLinkProps, SimpleLink } from '@/components/SimpleLink';
 
 export interface ISearchQueryLinkProps extends Omit<ISimpleLinkProps, 'href'> {
   params: IADSApiSearchParams;

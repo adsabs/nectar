@@ -21,7 +21,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { WarningTwoIcon } from '@chakra-ui/icons';
-import { BibstemPicker } from '@/components';
+
 import { useIsClient } from '@/lib/useIsClient';
 import { composeNextGSSP } from '@/ssr-utils';
 import { stringifySearchParams } from '@/utils';
@@ -38,6 +38,7 @@ import { APP_DEFAULTS, BRAND_NAME_FULL } from '@/config';
 import { logger } from '@/logger';
 import { useStore } from '@/store';
 import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
+import { BibstemPicker } from '@/components/BibstemPicker';
 
 enum PaperFormType {
   JOURNAL_QUERY = 'journal-query',

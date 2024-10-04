@@ -1,5 +1,5 @@
-import { TopProgressBar } from '@/components';
 import { Meta, StoryObj } from '@storybook/react';
+import { TopProgressBar } from '@/components/TopProgressBar';
 
 const meta: Meta = {
   title: 'TopProgressBar',

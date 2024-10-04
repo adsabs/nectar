@@ -1,17 +1,12 @@
-import {
-  BasicStatsKey,
-  CitationsStatsKey,
-  IDocsEntity,
-  MetricsResponseKey,
-  useGetAbstract,
-  useGetMetrics,
-} from '@/api';
-import { Box } from '@chakra-ui/react';
-import { LoadingMessage, MetricsPane } from '@/components';
-import { AbsLayout } from '@/components/Layout/AbsLayout';
+import { IDocsEntity, useGetAbstract, useGetMetrics } from '@/api';
 import { NextPage } from 'next';
-import { path } from 'ramda';
 import { useRouter } from 'next/router';
+import { path } from 'ramda';
+import { BasicStatsKey, CitationsStatsKey, MetricsResponseKey } from '@/api/lib/metrics/types';
+import { AbsLayout } from '@/components/Layout';
+import { Box } from '@chakra-ui/react';
+import { LoadingMessage } from '@/components/Feedbacks';
+import { MetricsPane } from '@/components/Visualizations';
 
 const MetricsPage: NextPage = () => {
   const router = useRouter();

@@ -15,12 +15,14 @@ import {
   Thead,
   Tr,
 } from '@chakra-ui/react';
-import { customFormatDescription, DescriptionCollapse } from '@/components';
+
 import { CheckIcon, CloseIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { useEffect, useState } from 'react';
 import { noop } from '@/utils';
 import { sort } from 'ramda';
 import { useColorModeColors } from '@/lib';
+import { DescriptionCollapse } from '@/components/CitationExporter';
+import { customFormatDescription } from '@/components/Settings';
 
 export interface ICustomFormatsTableProps {
   customFormats: CustomFormat[];

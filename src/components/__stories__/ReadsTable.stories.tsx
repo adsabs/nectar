@@ -1,6 +1,6 @@
-import { ReadsTable } from '@/components';
 import { readsTableData } from '@/components/__mocks__/data';
 import { Meta, StoryObj } from '@storybook/react';
+import { ReadsTable } from '@/components/Visualizations';
 
 const meta: Meta = {
   title: 'Visualizations/tables/ReadsTable',

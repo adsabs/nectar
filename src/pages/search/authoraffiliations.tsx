@@ -4,7 +4,7 @@ import { getAuthorAffiliationSearchParams } from '@/api/author-affiliation/model
 import { IAuthorAffiliationPayload } from '@/api/author-affiliation/types';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
 import { Button, Container as Box } from '@chakra-ui/react';
-import { AuthorAffiliations, AuthorAffiliationsErrorMessage, SimpleLink } from '@/components';
+
 import { APP_DEFAULTS } from '@/config';
 import { useBackToSearchResults } from '@/lib/useBackToSearchResults';
 import { composeNextGSSP } from '@/ssr-utils';
@@ -12,6 +12,8 @@ import { parseAPIError, parseQueryFromUrl } from '@/utils';
 import { NextPage } from 'next';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { logger } from '@/logger';
+import { AuthorAffiliations, AuthorAffiliationsErrorMessage } from '@/components/AuthorAffiliations';
+import { SimpleLink } from '@/components/SimpleLink';
 
 interface IAuthorAffilationsPageProps {
   error?: string;

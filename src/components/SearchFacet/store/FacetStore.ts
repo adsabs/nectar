@@ -1,4 +1,3 @@
-import { ISearchFacetProps } from '@/components';
 import { facetConfig } from '@/components/SearchFacet/config';
 import { FacetItem, IFacetParams, SearchFacetID } from '@/components/SearchFacet/types';
 import { omit, pick, uniq } from 'ramda';
@@ -6,6 +5,7 @@ import { createElement, FC } from 'react';
 import create from 'zustand';
 import createContext from 'zustand/context';
 import { computeNextSelectionState, createNodes, getSelected } from './helpers';
+import { ISearchFacetProps } from '@/components/SearchFacet';
 
 type FacetParams = {
   field: IFacetParams['field'];
