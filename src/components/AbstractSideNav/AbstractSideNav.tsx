@@ -78,7 +78,7 @@ const useGetItems = ({ doc }: { doc: IDocsEntity; hasMetrics: boolean; graphicsC
       href: { pathname: `${abstractPath}/${docId}/${Routes.VOLUMECONTENT}`, search: 'p=1' },
       label: 'Volume Content',
       icon: <TableIcon />,
-      disabled: doc.property?.indexOf('TOC') > -1,
+      disabled: doc.property?.indexOf('TOC') === -1,
     },
     [Routes.GRAPHICS]: {
       id: Routes.GRAPHICS,
