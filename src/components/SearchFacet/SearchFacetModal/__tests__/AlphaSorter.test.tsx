@@ -1,8 +1,8 @@
 import { render } from '@/test-utils';
 import { AlphaSorter } from '@/components/SearchFacet/SearchFacetModal/AlphaSorter';
-import { noop } from '@/utils';
 import userEvent from '@testing-library/user-event';
 import { expect, test, vi } from 'vitest';
+import { noop } from '@/utils/common/noop';
 
 test('renders without crashing', () => {
   render(<AlphaSorter letter="A" onLetterChange={noop} />);

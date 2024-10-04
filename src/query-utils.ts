@@ -1,7 +1,6 @@
 import { IADSApiSearchParams, queryFields, solrSorts } from '@/api';
 import { joinQueries, removeClauseAndStringify, splitQuery } from '@/query';
 import { defaultQueryParams } from '@/store/slices';
-import { normalizeSolrSort } from '@/utils';
 import {
   append,
   assoc,
@@ -27,6 +26,7 @@ import {
 import { isEmptyArray } from 'ramda-adjunct';
 import { z } from 'zod';
 import { logger } from '@/logger';
+import { normalizeSolrSort } from '@/utils/common/search';
 
 type Query = Partial<IADSApiSearchParams>;
 type Tuple<T = string> = [T, T];

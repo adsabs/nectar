@@ -11,11 +11,11 @@ import {
   useToast,
 } from '@chakra-ui/react';
 
-import { noop, parseAPIError } from '@/utils';
-
 import { ChangeEvent, FormEvent, useMemo, useState } from 'react';
 import { isValidKeyword } from './Utils';
 import { useDebounce } from '@/lib/useDebounce';
+import { noop } from '@/utils/common/noop';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 export const KeywordsForm = ({
   onClose,

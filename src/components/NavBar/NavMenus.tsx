@@ -25,8 +25,9 @@ import { AccountDropdown } from './AccountDropdown';
 import { FeedbackDropdown } from './FeedbackDropdown';
 import { OrcidDropdown } from './OrcidDropdown';
 import { ListType } from './types';
-import { isBrowser, noop } from '@/utils';
 import { ColorModeMenu } from './ColorModeMenu';
+import { isBrowser } from '@/utils/common/guards';
+import { noop } from '@/utils/common/noop';
 
 export const NavMenus = (): ReactElement => {
   const toggleMenu = () => {

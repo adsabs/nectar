@@ -1,8 +1,9 @@
 import { useGetSearchStats } from '@/api';
 import { Box, SkeletonText, Text } from '@chakra-ui/react';
 import { useStore } from '@/store';
-import { truncateDecimal } from '@/utils';
 import { ReactElement } from 'react';
+
+import { truncateDecimal } from '@/utils/common/formatters';
 
 export interface INumFoundProps {
   count?: number;

@@ -2,11 +2,11 @@ import { Button, FormControl, FormErrorMessage, FormLabel, Stack } from '@chakra
 
 import { Control, SubmitHandler, useForm, useWatch } from 'react-hook-form';
 import { useFocus } from '@/lib/useFocus';
-import { parseAPIError } from '@/utils';
 import { IUserChangePasswordCredentials, useChangeUserPassword } from '@/api';
 import { PasswordRequirements, PasswordTextInput } from '@/components/TextInput';
 import { SettingsLayout } from '@/components/Layout';
 import { StandardAlertMessage } from '@/components/Feedbacks';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 const initialParams: IUserChangePasswordCredentials = { currentPassword: '', password: '', confirmPassword: '' };
 const passwordValidators = {

@@ -4,7 +4,6 @@ import { NextPage } from 'next';
 import Head from 'next/head';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useFocus } from '@/lib/useFocus';
-import { parseAPIError } from '@/utils';
 
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { useCallback, useState } from 'react';
@@ -12,6 +11,7 @@ import { FormMessage } from '@/components/Feedbacks/FormMessage';
 import { BRAND_NAME_FULL } from '@/config';
 import { StandardAlertMessage } from '@/components/Feedbacks';
 import { RecaptchaMessage } from '@/components/RecaptchaMessage/RecaptchaMessage';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 export { useQuery } from '@tanstack/react-query';
 

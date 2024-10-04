@@ -37,11 +37,11 @@ import {
   getSingleRecordParams,
   getTocParams,
 } from './models';
-import { isString } from '@/utils';
 import { resolveObjectQuery, resolveObjectQuerySSR } from '@/api/objects/objects';
 import { GetServerSidePropsContext } from 'next';
 import { defaultRequestConfig } from '../config';
 import { TRACING_HEADERS } from '@/config';
+import { isString } from '@/utils/common/guards';
 
 type ErrorType = Error | AxiosError;
 

@@ -9,8 +9,8 @@ import {
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { useFacetStore } from '@/components/SearchFacet/store/FacetStore';
-import { capitalizeString } from '@/utils';
 import { ChangeEventHandler, FC } from 'react';
+import { capitalizeString } from '@/utils/common/formatters';
 
 export interface ISearchInputProps extends InputGroupProps {
   search: string;

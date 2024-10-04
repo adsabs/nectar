@@ -24,7 +24,6 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { APP_DEFAULTS } from '@/config';
-import { noop } from '@/utils';
 import { useRouter } from 'next/router';
 import { ChangeEventHandler, Dispatch, HTMLAttributes, ReactElement, useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -41,6 +40,7 @@ import { RecordField } from './components/RecordField';
 import { ResultArea } from './components/ResultArea';
 import { exportFormats } from './models';
 import { useCitationExporter } from './useCitationExporter';
+import { noop } from '@/utils/common/noop';
 
 export interface ICitationExporterProps extends HTMLAttributes<HTMLDivElement> {
   singleMode?: boolean;

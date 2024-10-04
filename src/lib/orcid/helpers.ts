@@ -4,9 +4,9 @@ import { Contributor, ExternalID } from '@/api/orcid/types/orcid-work';
 import { IDocsEntity } from '@/api/search/types';
 import { isArray, isNilOrEmpty } from 'ramda-adjunct';
 import { IOrcidProfileEntry } from '@/api/orcid/types/orcid-profile';
-import { parsePublicationDate } from '@/utils';
 import { ORCID_ADS_SOURCE_NAME } from '@/config';
 import { formatISO } from 'date-fns';
+import { parsePublicationDate } from '@/utils/common/parsePublicationDate';
 
 export const orcidLenses = {
   createdDate: lensPath<IOrcidWork, string>(['created-date', 'value']),

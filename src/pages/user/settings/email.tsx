@@ -4,10 +4,10 @@ import { Button, chakra, FormControl, FormLabel, Input, Stack, Text } from '@cha
 import { PasswordTextInput } from '@/components/TextInput/PasswordTextInput';
 import { useStore } from '@/store';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { parseAPIError } from '@/utils';
 import { useFocus } from '@/lib/useFocus';
 import { StandardAlertMessage } from '@/components/Feedbacks';
 import { SettingsLayout } from '@/components/Layout';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 const UpdateEmailPage = () => {
   const email = useStore((state) => state.user?.username);

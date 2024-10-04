@@ -1,6 +1,6 @@
 import { Alert, AlertDescription, AlertIcon, AlertTitle, Button } from '@chakra-ui/react';
-import { parseAPIError } from '@/utils';
 import { FallbackProps } from 'react-error-boundary';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 // hard-coded error messages from the service
 // this is fragile, but a default is provided if a match no longer works

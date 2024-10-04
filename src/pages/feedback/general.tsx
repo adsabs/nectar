@@ -17,7 +17,6 @@ import {
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useStore } from '@/store';
-import { makeSearchParams, parseAPIError } from '@/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { MouseEvent, useCallback, useState } from 'react';
@@ -40,6 +39,8 @@ import { FeedbackLayout } from '@/components/Layout';
 import { FeedbackAlert } from '@/components/FeedbackForms';
 import { RecaptchaMessage } from '@/components/RecaptchaMessage/RecaptchaMessage';
 import { useGetUserEmail } from '@/lib/useGetUserEmail';
+import { makeSearchParams } from '@/utils/common/search';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 type FormValues = {
   name: string;

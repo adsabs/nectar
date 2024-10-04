@@ -1,7 +1,7 @@
 import { ListType } from './types';
-import { isBrowser } from '@/utils';
 import { MouseEvent, ReactElement } from 'react';
 import { MenuDropdown } from './MenuDropdown';
+import { isBrowser } from '@/utils/common/guards';
 
 const items = [
   {

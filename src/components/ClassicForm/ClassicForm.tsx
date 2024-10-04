@@ -35,12 +35,12 @@ import { getSearchQuery } from './helpers';
 import { IClassicFormState, IRawClassicFormState } from './types';
 import { SolrSort, SolrSortField } from '@/api';
 import { solrSortOptions } from '@/components/Sort/model';
-import { normalizeSolrSort } from '@/utils';
 import { SimpleLink } from '@/components/SimpleLink';
 import { BibstemPicker } from '@/components/BibstemPicker';
 import { Sort } from '@/components/Sort';
 import { Expandable } from '@/components/Expandable';
 import { SimpleCopyButton } from '@/components/CopyButton';
+import { normalizeSolrSort } from '@/utils/common/search';
 
 const propTypes = {
   ssrError: PT.string,

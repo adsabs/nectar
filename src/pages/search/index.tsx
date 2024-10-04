@@ -29,7 +29,6 @@ import {
   useMediaQuery,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { makeSearchParams, parseQueryFromUrl } from '@/utils';
 import { calculateStartIndex } from '@/components/ResultList/Pagination/usePagination';
 import { FormEventHandler, useCallback, useEffect, useRef, useState } from 'react';
 import { useIsClient } from '@/lib/useIsClient';
@@ -49,6 +48,7 @@ import { CheckCircleIcon } from '@chakra-ui/icons';
 import { SimpleLink } from '@/components/SimpleLink';
 import { AxiosError } from 'axios';
 import { SOLR_ERROR, useSolrError } from '@/lib/useSolrError';
+import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
   () => import('@/components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),

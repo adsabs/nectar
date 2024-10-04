@@ -1,8 +1,8 @@
-import { isBrowser } from '@/utils';
 import { useRouter } from 'next/router';
 import { MouseEvent, ReactElement } from 'react';
 import { MenuDropdown } from './MenuDropdown';
 import { ListType } from './types';
+import { isBrowser } from '@/utils/common/guards';
 
 export const feedbackItems = {
   record: {

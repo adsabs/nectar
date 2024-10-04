@@ -6,7 +6,8 @@ import api, { isUserData } from '@/api/api';
 import { dehydrate, hydrate, QueryClient } from '@tanstack/react-query';
 import { getNotification, NotificationId } from '@/store/slices';
 import { logger } from '@/logger';
-import { parseAPIError } from '@/utils';
+
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 const log = logger.child({}, { msgPrefix: '[ssr-inject] ' });
 

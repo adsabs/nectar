@@ -36,7 +36,6 @@ import { BuildingLibraryIcon } from '@heroicons/react/24/solid';
 
 import { AppState, useStore } from '@/store';
 import { NumPerPageType } from '@/types';
-import { isBiblibSort, isSolrSort, normalizeSolrSort, parseAPIError } from '@/utils';
 import { uniq } from 'ramda';
 import { useEffect, useMemo, useState } from 'react';
 import { DocumentList } from './DocumentList/DocumentList';
@@ -46,6 +45,9 @@ import { Sort } from '@/components/Sort';
 import { SearchQueryLink } from '@/components/SearchQueryLink';
 import { ItemsSkeleton, Pagination } from '@/components/ResultList';
 import { useColorModeColors } from '@/lib/useColorModeColors';
+import { isBiblibSort, isSolrSort } from '@/utils/common/guards';
+import { normalizeSolrSort } from '@/utils/common/search';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 export interface ILibraryEntityPaneProps {
   id: LibraryIdentifier;

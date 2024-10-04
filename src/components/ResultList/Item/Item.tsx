@@ -16,7 +16,6 @@ import { AllAuthorsModal } from '@/components/AllAuthorsModal';
 import { APP_DEFAULTS } from '@/config';
 import { useIsClient } from '@/lib/useIsClient';
 import { useStore } from '@/store';
-import { getFomattedNumericPubdate, unwrapStringValue } from '@/utils';
 import { MathJax } from 'better-react-mathjax';
 import dynamic from 'next/dynamic';
 import { ChangeEvent, ReactElement, useCallback, useEffect, useState } from 'react';
@@ -27,6 +26,8 @@ import { ItemResourceDropdowns } from './ItemResourceDropdowns';
 import { HideOnPrint } from '@/components/HideOnPrint';
 import { SimpleLink } from '@/components/SimpleLink';
 import { useColorModeColors } from '@/lib/useColorModeColors';
+
+import { getFormattedNumericPubdate, unwrapStringValue } from '@/utils/common/formatters';
 
 const AbstractPreview = dynamic<IAbstractPreviewProps>(
   () => import('./AbstractPreview').then((mod) => mod.AbstractPreview),
@@ -62,7 +63,7 @@ export const Item = (props: IItemProps): ReactElement => {
     linkNewTab = false,
   } = props;
   const { bibcode, pubdate, title = ['Untitled'], author = [], author_count, pub } = doc;
-  const formattedPubDate = getFomattedNumericPubdate(pubdate);
+  const formattedPubDate = getFormattedNumericPubdate(pubdate);
   const isClient = useIsClient();
   const truncatedPub =
     pub?.length > APP_DEFAULTS.RESULT_ITEM_PUB_CUTOFF ? pub.slice(0, APP_DEFAULTS.RESULT_ITEM_PUB_CUTOFF) + '...' : pub;

@@ -1,9 +1,9 @@
 import { IADSApiSearchParams } from '@/api';
 import { Button, ButtonProps } from '@chakra-ui/react';
-import { makeSearchParams } from '@/utils';
 import { MouseEventHandler, ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import { ISimpleLinkProps, SimpleLink } from '@/components/SimpleLink';
+import { makeSearchParams } from '@/utils/common/search';
 
 export interface ISearchQueryLinkProps extends Omit<ISimpleLinkProps, 'href'> {
   params: IADSApiSearchParams;

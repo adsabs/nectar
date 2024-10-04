@@ -32,11 +32,11 @@ import { DiffSectionPanel } from './DiffSectionPanel';
 import { AxiosError } from 'axios';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { parsePublicationDate } from '@/utils';
 import { SimpleLink } from '@/components/SimpleLink';
 import { PreviewModal } from '@/components/FeedbackForms';
 import { IResourceUrl, useGetResourceLinks } from '@/lib/useGetResourceLinks';
 import { useGetUserEmail } from '@/lib/useGetUserEmail';
+import { parsePublicationDate } from '@/utils/common/parsePublicationDate';
 
 const collections: { value: Database; label: string }[] = [
   { value: 'astronomy', label: 'Astronomy and Astrophysics' },

@@ -1,8 +1,8 @@
 import { IView } from '@/components/Visualizations/GraphPanes/types';
 import { response } from '@/components/__mocks__/networkResponseData';
 import { Meta, StoryObj } from '@storybook/react';
-import { noop } from '@/utils';
 import { AuthorNetworkGraphPane } from '@/components/Visualizations';
+import { noop } from '@/utils/common/noop';
 
 const meta: Meta = {
   title: 'Visualizations/GraphPanes/AuthorNetworkGraphPane',

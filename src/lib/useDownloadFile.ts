@@ -1,9 +1,9 @@
-import { noop } from '@/utils';
 import { formatISO } from 'date-fns';
 import { saveAs } from 'file-saver';
 import { parse } from 'path';
 import { isFunction, isNonEmptyString } from 'ramda-adjunct';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { noop } from '@/utils/common/noop';
 
 export interface IUseDownloadFileOptions {
   filename?: string | (() => string);

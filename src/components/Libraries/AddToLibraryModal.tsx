@@ -29,7 +29,8 @@ import { LibrarySelector } from './LibrarySelector';
 import { useState } from 'react';
 import { LibraryIdentifier, useAddDocumentsByQuery, useAddLibrary, useEditLibraryDocuments } from '@/api';
 import { useStore } from '@/store';
-import { parseAPIError } from '@/utils';
+
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 export type SelectionType = 'all' | 'selected';
 

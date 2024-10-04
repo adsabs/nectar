@@ -21,7 +21,8 @@ import { ReactElement, useEffect, useState } from 'react';
 import { NodeDetailPane } from './NodeDetailsPane';
 import { SummaryPane } from './SummaryPane';
 import { MathJax } from 'better-react-mathjax';
-import { unwrapStringValue } from '@/utils';
+
+import { unwrapStringValue } from '@/utils/common/formatters';
 
 export interface IPaperNetworkNodeDetails extends IADSApiPaperNetworkSummaryGraphNode {
   papers: IDocsEntity[];

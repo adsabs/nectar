@@ -1,8 +1,8 @@
 import { IDocsEntity, INote, LibraryIdentifier } from '@/api';
 import { Flex, VisuallyHidden } from '@chakra-ui/react';
-import { noop } from '@/utils';
 import { HTMLAttributes, ReactElement } from 'react';
 import { DocumentItem } from './DocumentItem';
+import { noop } from '@/utils/common/noop';
 
 export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
   library: LibraryIdentifier;

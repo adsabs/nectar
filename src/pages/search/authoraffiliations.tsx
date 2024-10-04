@@ -8,12 +8,13 @@ import { Button, Container as Box } from '@chakra-ui/react';
 import { APP_DEFAULTS } from '@/config';
 import { useBackToSearchResults } from '@/lib/useBackToSearchResults';
 import { composeNextGSSP } from '@/ssr-utils';
-import { parseAPIError, parseQueryFromUrl } from '@/utils';
 import { NextPage } from 'next';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { logger } from '@/logger';
 import { AuthorAffiliations, AuthorAffiliationsErrorMessage } from '@/components/AuthorAffiliations';
 import { SimpleLink } from '@/components/SimpleLink';
+import { parseQueryFromUrl } from '@/utils/common/search';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 interface IAuthorAffilationsPageProps {
   error?: string;

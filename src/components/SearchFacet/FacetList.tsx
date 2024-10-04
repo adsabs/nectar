@@ -33,7 +33,6 @@ import { selectors, useFacetStore } from '@/components/SearchFacet/store/FacetSt
 import { FacetItem, FacetLogic, OnFilterArgs } from '@/components/SearchFacet/types';
 import { IUseGetFacetDataProps, useGetFacetData } from '@/components/SearchFacet/useGetFacetData';
 import { EllipsisHorizontalIcon, ExclamationTriangleIcon, InformationCircleIcon } from '@heroicons/react/24/solid';
-import { kFormatNumber, noop } from '@/utils';
 import { equals, isEmpty } from 'ramda';
 import { forwardRef, KeyboardEvent, memo, MouseEventHandler, useCallback, useEffect, useRef } from 'react';
 import { SearchFacetModal } from './SearchFacetModal';
@@ -41,6 +40,8 @@ import { SearchFacetModal } from './SearchFacetModal';
 import { Pagination } from '@/components/ResultList/Pagination';
 import { Toggler } from '@/components/Toggler';
 import { useColorModeColors } from '@/lib/useColorModeColors';
+import { kFormatNumber } from '@/utils/common/formatters';
+import { noop } from '@/utils/common/noop';
 
 export interface IFacetListProps extends ListProps {
   noLoadMore?: boolean;

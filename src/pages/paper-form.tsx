@@ -24,7 +24,6 @@ import { WarningTwoIcon } from '@chakra-ui/icons';
 
 import { useIsClient } from '@/lib/useIsClient';
 import { composeNextGSSP } from '@/ssr-utils';
-import { stringifySearchParams } from '@/utils';
 import DOMPurify from 'isomorphic-dompurify';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
@@ -39,6 +38,7 @@ import { logger } from '@/logger';
 import { useStore } from '@/store';
 import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 import { BibstemPicker } from '@/components/BibstemPicker';
+import { stringifySearchParams } from '@/utils/common/search';
 
 enum PaperFormType {
   JOURNAL_QUERY = 'journal-query',

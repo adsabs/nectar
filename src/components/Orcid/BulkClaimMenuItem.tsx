@@ -3,9 +3,11 @@ import { useAddWorks } from '@/lib/orcid/useAddWorks';
 import { AppState, useStore } from '@/store';
 import React, { useCallback, useRef } from 'react';
 import { TOAST_DEFAULTS } from '@/components/Orcid/helpers';
-import { parseAPIError, pluralize } from '@/utils';
 import { IOrcidResponse } from '@/api/orcid/types';
 import { BulkClaimErrorDetails } from '@/components/Orcid/BulkDeleteMenuItem';
+
+import { pluralize } from '@/utils/common/formatters';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 const selectedDocsSelector = (state: AppState) => state.docs.selected;
 

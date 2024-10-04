@@ -21,13 +21,13 @@ import {
 } from '@chakra-ui/react';
 
 import { removeFQ, setFQ } from '@/query-utils';
-import { makeSearchParams } from '@/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { ReactElement } from 'react';
 import { FacetField } from '../types';
 import { fqNameYearRange } from '@/components/SearchFacet/YearHistogramSlider';
 import { HIndexGraphPane, YearsGraphPane } from '@/components/Visualizations';
+import { makeSearchParams } from '@/utils/common/search';
 
 interface IOverviewPageContainerProps {
   query: IADSApiSearchParams;

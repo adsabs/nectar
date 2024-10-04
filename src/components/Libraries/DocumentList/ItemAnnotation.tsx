@@ -22,10 +22,10 @@ import {
   VStack,
 } from '@chakra-ui/react';
 
-import { parseAPIError } from '@/utils';
 import { MathJax } from 'better-react-mathjax';
 import { ChangeEvent, useState } from 'react';
 import { useColorModeColors } from '@/lib/useColorModeColors';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 export const ItemAnnotation = ({
   library,

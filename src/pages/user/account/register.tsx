@@ -17,7 +17,6 @@ import { Control, SubmitHandler, useForm, useWatch } from 'react-hook-form';
 import { useFocus } from '@/lib/useFocus';
 import { useCallback, useEffect, useState } from 'react';
 import { useRedirectWithNotification } from '@/components/Notification';
-import { parseAPIError } from '@/utils';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { RecaptchaMessage } from '@/components/RecaptchaMessage/RecaptchaMessage';
 import { FormMessage } from '@/components/Feedbacks/FormMessage';
@@ -25,6 +24,7 @@ import { BRAND_NAME_FULL } from '@/config';
 import { PasswordRequirements, PasswordTextInput, passwordValidators } from '@/components/TextInput';
 import { SimpleLink } from '@/components/SimpleLink';
 import { StandardAlertMessage } from '@/components/Feedbacks';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 const initialParams: IUserRegistrationCredentials = { email: '', password: '', confirmPassword: '', recaptcha: '' };
 

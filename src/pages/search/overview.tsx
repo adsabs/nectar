@@ -2,11 +2,11 @@ import { IADSApiSearchParams } from '@/api';
 
 import { FacetField } from '@/components/Visualizations/types';
 import { getQueryWithCondition } from '@/components/Visualizations/utils';
-import { makeSearchParams, parseQueryFromUrl } from '@/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { VizPageLayout } from '@/components/Layout';
 import { OverviewPageContainer } from '@/components/Visualizations';
+import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
 
 const OverviewPage: NextPage = () => {
   const router = useRouter();

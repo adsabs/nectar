@@ -28,7 +28,6 @@ import {
 
 import { useIsClient } from '@/lib/useIsClient';
 import { AppState, useStore, useStoreApi } from '@/store';
-import { makeSearchParams, noop, parseQueryFromUrl } from '@/utils';
 import { useRouter } from 'next/router';
 import { curryN, values } from 'ramda';
 import { isNonEmptyString } from 'ramda-adjunct';
@@ -45,6 +44,8 @@ import { ISortProps, Sort } from '@/components/Sort';
 import { sections } from '@/components/Visualizations';
 import { exportFormats } from '@/components/CitationExporter';
 import { useColorModeColors } from '@/lib/useColorModeColors';
+import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
+import { noop } from '@/utils/common/noop';
 
 export interface IListActionsProps {
   onSortChange?: ISortProps<SolrSort, SolrSortField>['onChange'];

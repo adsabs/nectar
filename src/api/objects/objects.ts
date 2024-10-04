@@ -7,7 +7,6 @@ import {
   ObjectService,
 } from '@/api/objects/types';
 import { useQuery } from '@tanstack/react-query';
-import { isString } from '@/utils';
 import { isNotEmpty } from 'ramda-adjunct';
 import { hasObjectTerm, replaceObjectTerms } from '@/api/objects/helpers';
 import { APP_DEFAULTS, TRACING_HEADERS } from '@/config';
@@ -15,6 +14,7 @@ import { defaultRequestConfig } from '../config';
 import axios from 'axios';
 import { GetServerSidePropsContext } from 'next';
 import { pick } from 'ramda';
+import { isString } from '@/utils/common/guards';
 
 export enum OBJECTS_API_KEYS {
   QUERY = 'object/query',

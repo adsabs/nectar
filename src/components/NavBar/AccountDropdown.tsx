@@ -1,4 +1,3 @@
-import { isBrowser } from '@/utils';
 import { useRouter } from 'next/router';
 import { MouseEvent, ReactElement } from 'react';
 import { MenuDropdown } from './MenuDropdown';
@@ -7,6 +6,7 @@ import { useSession } from '@/lib/useSession';
 import { Flex, HStack, Icon, Text } from '@chakra-ui/react';
 import { UserIcon } from '@heroicons/react/24/solid';
 import { useGetUserEmail } from '@/lib/useGetUserEmail';
+import { isBrowser } from '@/utils/common/guards';
 
 export const items: ItemType[] = [
   {

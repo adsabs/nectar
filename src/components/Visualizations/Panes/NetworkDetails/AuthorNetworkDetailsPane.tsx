@@ -6,9 +6,9 @@ import { ReactElement, useEffect, useRef, useState } from 'react';
 import { NodeDetailPane } from './NodeDetailsPane';
 import { SummaryPane } from './SummaryPane';
 
-import { unwrapStringValue } from '@/utils';
 import { MathJax } from 'better-react-mathjax';
 import { SimpleLink } from '@/components/SimpleLink';
+import { unwrapStringValue } from '@/utils/common/formatters';
 
 interface Paper extends IDocsEntity {
   groupAuthorCount?: number;

@@ -3,7 +3,6 @@ import { ChevronLeftIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex, Heading, Stack, Text } from '@chakra-ui/react';
 
 import { useBackToSearchResults } from '@/lib/useBackToSearchResults';
-import { unwrapStringValue } from '@/utils';
 import { MathJax } from 'better-react-mathjax';
 import Head from 'next/head';
 import { FC } from 'react';
@@ -12,6 +11,7 @@ import { Metatags } from '@/components/Metatags';
 import { SimpleLink } from '@/components/SimpleLink';
 import { AbstractSources } from '@/components/AbstractSources';
 import { AbstractSideNav } from '@/components/AbstractSideNav';
+import { unwrapStringValue } from '@/utils/common/formatters';
 
 interface IAbsLayoutProps {
   doc: IDocsEntity;

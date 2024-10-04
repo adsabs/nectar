@@ -4,12 +4,14 @@ import { HStack, Icon, IconButton, Input, Table, Tbody, Td, Text, Th, Thead, Tr,
 
 import { Select, SelectOption } from '@/components/Select';
 import { UserGroupIcon, UserIcon } from '@heroicons/react/24/solid';
-import { isValidEmail, parseAPIError } from '@/utils';
 import { keys, values } from 'ramda';
 import { ChangeEvent, useMemo, useRef, useState } from 'react';
 import { SelectInstance } from 'react-select';
 import { TableSkeleton } from './TableSkeleton';
 import { CustomInfoMessage } from '@/components/Feedbacks';
+
+import { isValidEmail } from '@/utils/common/isValidEmail';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 const permissionOptions: SelectOption<LibraryPermission>[] = permissions
   .filter((p) => p !== 'owner')
