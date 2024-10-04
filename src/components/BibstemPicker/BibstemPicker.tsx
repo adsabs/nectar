@@ -1,5 +1,5 @@
 import { HStack, Text, VisuallyHidden } from '@chakra-ui/react';
-import { useColorModeColorVars } from '@/lib';
+
 import { IBibstemOption } from '@/types';
 import axios from 'axios';
 import {
@@ -42,6 +42,7 @@ import {
 import AsyncCreatableSelect from 'react-select/async-creatable';
 import Select from 'react-select/dist/declarations/src/Select';
 import defaultBibstems from './defaultBibstems.json';
+import { useColorModeColorVars } from '@/lib/useColorModeColors';
 
 export interface IBibstemPickerProps extends Omit<HTMLProps<HTMLInputElement>, 'onChange'> {
   isMultiple?: boolean;

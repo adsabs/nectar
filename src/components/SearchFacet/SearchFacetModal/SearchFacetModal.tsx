@@ -22,8 +22,8 @@ import { SortControl } from '@/components/SearchFacet/SearchFacetModal/SortContr
 import { useFacetStore } from '@/components/SearchFacet/store/FacetStore';
 import { ReactElement, ReactNode, useCallback, useMemo } from 'react';
 import { keyToPath, parseTitleFromKey } from '../helpers';
-import { useDebounce } from 'src/lib';
 import { SelectedList } from './SelectedList';
+import { useDebounce } from '@/lib/useDebounce';
 
 interface ISearchFacetModalProps extends Omit<IFacetListProps, 'onError'> {
   children: (props: { searchTerm: string }) => ReactNode;

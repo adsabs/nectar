@@ -1,5 +1,5 @@
+import { useColorModeColors } from '@/lib/useColorModeColors';
 import { FormControl, FormControlProps, FormLabel, Textarea } from '@chakra-ui/react';
-import { useColorModeColors } from '@/lib';
 
 export type ISampleTextAreaProps = {
   value: string;

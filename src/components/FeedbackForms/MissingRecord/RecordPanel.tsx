@@ -17,7 +17,6 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 
-import { IResourceUrl, useGetResourceLinks, useGetUserEmail } from '@/lib';
 import { omit } from 'ramda';
 import { MouseEvent, useEffect, useMemo, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
@@ -36,6 +35,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { parsePublicationDate } from '@/utils';
 import { SimpleLink } from '@/components/SimpleLink';
 import { PreviewModal } from '@/components/FeedbackForms';
+import { IResourceUrl, useGetResourceLinks } from '@/lib/useGetResourceLinks';
+import { useGetUserEmail } from '@/lib/useGetUserEmail';
 
 const collections: { value: Database; label: string }[] = [
   { value: 'astronomy', label: 'Astronomy and Astrophysics' },

@@ -2,11 +2,11 @@ import { isBrowser } from '@/utils';
 import { useRouter } from 'next/router';
 import { MouseEvent, ReactElement } from 'react';
 import { MenuDropdown } from './MenuDropdown';
-import { ItemType, ListType, ItemItem, DividerItem } from './types';
+import { DividerItem, ItemItem, ItemType, ListType } from './types';
 import { useSession } from '@/lib/useSession';
 import { Flex, HStack, Icon, Text } from '@chakra-ui/react';
 import { UserIcon } from '@heroicons/react/24/solid';
-import { useGetUserEmail } from '@/lib';
+import { useGetUserEmail } from '@/lib/useGetUserEmail';
 
 export const items: ItemType[] = [
   {

@@ -1,7 +1,7 @@
 import { DownloadIcon } from '@chakra-ui/icons';
 import { Button, StyleProps, Text } from '@chakra-ui/react';
-import { useDownloadFile } from 'src/lib';
 import { FC } from 'react';
+import { useDownloadFile } from '@/lib/useDownloadFile';
 
 export interface IDataDownloaderProps extends StyleProps {
   label: string;

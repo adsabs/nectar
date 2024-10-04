@@ -15,7 +15,6 @@ import {
   Text,
 } from '@chakra-ui/react';
 
-import { useColorModeColors } from '@/lib';
 import { useIsClient } from '@/lib/useIsClient';
 import { useMetrics } from '@/lib/useMetrics';
 import { BarDatum } from '@nivo/bar';
@@ -41,6 +40,7 @@ import {
   PapersTable,
   ReadsTable,
 } from '@/components/Visualizations';
+import { useColorModeColors } from '@/lib/useColorModeColors';
 
 export interface IMetricsProps {
   metrics: IADSApiMetricsResponse;

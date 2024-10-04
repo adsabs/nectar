@@ -1,8 +1,9 @@
 import { Box, Text, TextProps } from '@chakra-ui/react';
 import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
-import { useColorModeColors } from '@/lib';
+
 import { ArrayChange, Change } from 'diff';
 import { DiffSection } from './types';
+import { useColorModeColors } from '@/lib/useColorModeColors';
 
 interface IDiffSectionPanelProps {
   section: DiffSection;

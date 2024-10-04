@@ -1,5 +1,6 @@
+import { useColorModeColors } from '@/lib/useColorModeColors';
 import { Box, Stack, StyleProps } from '@chakra-ui/react';
-import { useColorModeColors } from '@/lib';
+
 import { ReactElement } from 'react';
 import {
   GetHandleProps,

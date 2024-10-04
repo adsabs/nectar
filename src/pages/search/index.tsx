@@ -1,5 +1,12 @@
+import dynamic from 'next/dynamic';
+import { IYearHistogramSliderProps } from '@/components/SearchFacet/YearHistogramSlider';
+import { ISearchFacetsProps } from '@/components/SearchFacet';
+import { AppState, useStore, useStoreApi } from '@/store';
+import { last, omit, path } from 'ramda';
+import { NextPage } from 'next';
+import { useRouter } from 'next/router';
+import { useQueryClient } from '@tanstack/react-query';
 import { defaultParams, IADSApiSearchParams, IADSApiSearchResponse, SEARCH_API_KEYS, SolrSort, useSearch } from '@/api';
-import { CheckCircleIcon } from '@chakra-ui/icons';
 import {
   Alert,
   AlertIcon,
@@ -22,33 +29,26 @@ import {
   useMediaQuery,
   VisuallyHidden,
 } from '@chakra-ui/react';
-
-import { calculateStartIndex } from '@/components/ResultList/Pagination/usePagination';
-import { FacetFilters } from '@/components/SearchFacet/FacetFilters';
-import { IYearHistogramSliderProps } from '@/components/SearchFacet/YearHistogramSlider';
-import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/20/solid';
-import { useIsClient } from 'src/lib';
-import { AppState, useStore, useStoreApi } from '@/store';
-import { NumPerPageType } from '@/types';
 import { makeSearchParams, parseQueryFromUrl } from '@/utils';
-import { NextPage } from 'next';
-import dynamic from 'next/dynamic';
-import Head from 'next/head';
-import { useRouter } from 'next/router';
-import { last, omit, path } from 'ramda';
+import { calculateStartIndex } from '@/components/ResultList/Pagination/usePagination';
 import { FormEventHandler, useCallback, useEffect, useRef, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { SOLR_ERROR, useSolrError } from '@/lib/useSolrError';
-import { AxiosError } from 'axios';
+import { useIsClient } from '@/lib/useIsClient';
+import { NumPerPageType } from '@/types';
+import Head from 'next/head';
 import { BRAND_NAME_FULL } from '@/config';
-import { ItemsSkeleton, ListActions, Pagination, SimpleResultList } from '@/components/ResultList';
-import { ISearchFacetsProps } from '@/components/SearchFacet';
 import { HideOnPrint } from '@/components/HideOnPrint';
 import { SearchBar } from '@/components/SearchBar';
 import { NumFound } from '@/components/NumFound';
+import { FacetFilters } from '@/components/SearchFacet/FacetFilters';
+import { ItemsSkeleton, ListActions, Pagination, SimpleResultList } from '@/components/ResultList';
 import { AddToLibraryModal } from '@/components/Libraries';
+import { ArrowPathIcon } from '@heroicons/react/24/solid';
+import { XMarkIcon } from '@heroicons/react/20/solid';
 import { CustomInfoMessage } from '@/components/Feedbacks';
+import { CheckCircleIcon } from '@chakra-ui/icons';
 import { SimpleLink } from '@/components/SimpleLink';
+import { AxiosError } from 'axios';
+import { SOLR_ERROR, useSolrError } from '@/lib/useSolrError';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
   () => import('@/components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),

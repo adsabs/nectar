@@ -4,8 +4,9 @@ import { CatMenuItems, IMenuItem, IMenuItemProps, SingleMenuItems } from './type
 import { cloneElement } from 'react';
 import { SimpleLinkDropdown } from '@/components/Dropdown';
 import { ItemType } from '@/components/Dropdown/types';
-import { useColorModeColors, useIsClient } from 'src/lib';
 import { SimpleLink } from '@/components/SimpleLink';
+import { useColorModeColors } from '@/lib/useColorModeColors';
+import { useIsClient } from '@/lib/useIsClient';
 
 export interface ITopNavigationMenuProps extends BoxProps {
   menuItems: CatMenuItems | SingleMenuItems;

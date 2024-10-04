@@ -5,8 +5,9 @@ import { FC, HTMLAttributes, MouseEventHandler, useMemo } from 'react';
 import { examples } from './examples';
 import { useIsClient } from '@/lib/useIsClient';
 import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
-import { useColorModeColors } from '@/lib';
+
 import { sendGTMEvent } from '@next/third-parties/google';
+import { useColorModeColors } from '@/lib/useColorModeColors';
 
 export interface ISearchExamplesProps extends HTMLAttributes<HTMLDivElement> {
   onSelect?: () => void;

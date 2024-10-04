@@ -24,9 +24,9 @@ import shallow from 'zustand/shallow';
 import { IAbstractPreviewProps } from './AbstractPreview';
 import { ItemResourceDropdowns } from './ItemResourceDropdowns';
 
-import { useColorModeColors } from '@/lib';
 import { HideOnPrint } from '@/components/HideOnPrint';
 import { SimpleLink } from '@/components/SimpleLink';
+import { useColorModeColors } from '@/lib/useColorModeColors';
 
 const AbstractPreview = dynamic<IAbstractPreviewProps>(
   () => import('./AbstractPreview').then((mod) => mod.AbstractPreview),

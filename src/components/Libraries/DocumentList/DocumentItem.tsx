@@ -14,7 +14,7 @@ import {
 import { AllAuthorsModal } from '@/components/AllAuthorsModal';
 import { ItemResourceDropdowns } from '@/components/ResultList/Item';
 import { APP_DEFAULTS } from '@/config';
-import { useColorModeColors } from '@/lib';
+
 import { useIsClient } from '@/lib/useIsClient';
 import { getFomattedNumericPubdate, noop, unwrapStringValue } from '@/utils';
 import { MathJax } from 'better-react-mathjax';
@@ -23,6 +23,7 @@ import { ItemAnnotation } from './ItemAnnotation';
 
 import { PencilSquareIcon } from '@heroicons/react/24/outline';
 import { SimpleLink } from '@/components/SimpleLink/SimpleLink';
+import { useColorModeColors } from '@/lib/useColorModeColors';
 
 export interface IItemProps {
   doc: IDocsEntity;
