@@ -6,8 +6,9 @@ import { NextPage } from 'next';
 import { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { path } from 'ramda';
-import { ItemsSkeleton, StandardAlertMessage } from '@/components';
-import { parseAPIError } from '@/utils';
+import { ItemsSkeleton } from '@/components/ResultList/ItemsSkeleton';
+import { parseAPIError } from '@/utils/common/parseAPIError';
+import { StandardAlertMessage } from '@/components/Feedbacks';
 
 const VolumePage: NextPage = () => {
   const router = useRouter();
