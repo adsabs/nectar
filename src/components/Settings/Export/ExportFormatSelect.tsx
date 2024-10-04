@@ -1,7 +1,9 @@
 import { Box, FormControl, FormLabel } from '@chakra-ui/react';
-import { DescriptionCollapse, exportFormatDescription, Select } from '@/components';
+
 import { values } from 'ramda';
-import { ExportFormat, exportFormats } from '@/components/CitationExporter';
+import { DescriptionCollapse, ExportFormat, exportFormats } from '@/components/CitationExporter';
+import { exportFormatDescription } from '@/components/Settings';
+import { Select } from '@/components/Select';
 
 export const ExportFormatSelect = ({
   selectedOption,

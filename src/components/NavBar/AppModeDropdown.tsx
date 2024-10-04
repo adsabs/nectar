@@ -1,11 +1,12 @@
 import { Box } from '@chakra-ui/react';
-import { Select, SelectOption } from '@/components';
+
 import { useStore } from '@/store';
 import { AppMode } from '@/types';
 import { ReactElement, useMemo } from 'react';
 import shallow from 'zustand/shallow';
 import { modes } from './models';
 import { sendGTMEvent } from '@next/third-parties/google';
+import { Select, SelectOption } from '@/components/Select';
 
 const options = Object.values(modes);
 

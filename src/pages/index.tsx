@@ -1,7 +1,7 @@
 import { IADSApiSearchParams } from '@/api/search/types';
 import { DatabaseEnum, IADSApiUserDataResponse } from '@/api/user/types';
 import { Box, Center, Flex, Heading, Spinner, Stack, Text, VisuallyHidden } from '@chakra-ui/react';
-import { IPagerProps, ISearchExamplesProps, SearchBar, SearchExamplesPlaceholder, SimpleLink } from '@/components';
+
 import { applyFiltersToQuery } from '@/components/SearchFacet/helpers';
 import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 import { YouTubeEmbed } from '@next/third-parties/google';
@@ -15,6 +15,10 @@ import { ChangeEventHandler, useCallback, useEffect, useState } from 'react';
 import { useSettings } from '@/lib/useSettings';
 import { SolrSort } from '@/api';
 import { NotificationId } from '@/store/slices';
+import { IPagerProps } from '@/components/Pager';
+import { ISearchExamplesProps, SearchExamplesPlaceholder } from '@/components/SearchExamples';
+import { SearchBar } from '@/components/SearchBar';
+import { SimpleLink } from '@/components/SimpleLink';
 
 const SearchExamples = dynamic<ISearchExamplesProps>(
   () => import('@/components/SearchExamples').then((m) => m.SearchExamples),

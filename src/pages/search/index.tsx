@@ -22,19 +22,7 @@ import {
   useMediaQuery,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import {
-  AddToLibraryModal,
-  CustomInfoMessage,
-  HideOnPrint,
-  ISearchFacetsProps,
-  ItemsSkeleton,
-  ListActions,
-  NumFound,
-  Pagination,
-  SearchBar,
-  SimpleLink,
-  SimpleResultList,
-} from '@/components';
+
 import { calculateStartIndex } from '@/components/ResultList/Pagination/usePagination';
 import { FacetFilters } from '@/components/SearchFacet/FacetFilters';
 import { IYearHistogramSliderProps } from '@/components/SearchFacet/YearHistogramSlider';
@@ -53,6 +41,14 @@ import { useQueryClient } from '@tanstack/react-query';
 import { SOLR_ERROR, useSolrError } from '@/lib/useSolrError';
 import { AxiosError } from 'axios';
 import { BRAND_NAME_FULL } from '@/config';
+import { ItemsSkeleton, ListActions, Pagination, SimpleResultList } from '@/components/ResultList';
+import { ISearchFacetsProps } from '@/components/SearchFacet';
+import { HideOnPrint } from '@/components/HideOnPrint';
+import { SearchBar } from '@/components/SearchBar';
+import { NumFound } from '@/components/NumFound';
+import { AddToLibraryModal } from '@/components/Libraries';
+import { CustomInfoMessage } from '@/components/Feedbacks';
+import { SimpleLink } from '@/components/SimpleLink';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
   () => import('@/components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),

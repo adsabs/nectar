@@ -1,5 +1,5 @@
-import { QuickFields } from '@/components';
 import { Meta, StoryObj } from '@storybook/react';
+import { QuickFields } from '@/components/SearchBar';
 
 const meta: Meta<typeof QuickFields> = {
   title: 'SearchBar/QuickFields',

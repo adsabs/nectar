@@ -2,9 +2,10 @@ import { Button, ButtonProps, forwardRef, HStack, Icon, Text, useToast } from '@
 import { TOAST_DEFAULTS } from '@/components/Orcid/helpers';
 import { useAddWorks } from '@/lib/orcid/useAddWorks';
 import { parseAPIError } from '@/utils';
-import { OrcidInactiveLogo } from '@/components';
+
 import React from 'react';
 import { useColorModeColors } from '@/lib';
+import { OrcidInactiveLogo } from '@/components/images';
 
 interface IOrcidActionBtnProps extends ButtonProps {
   identifier: string;

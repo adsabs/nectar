@@ -25,7 +25,7 @@ import {
   useToast,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { exportFormats, ISortProps, sections, Sort } from '@/components';
+
 import { useIsClient } from '@/lib/useIsClient';
 import { AppState, useStore, useStoreApi } from '@/store';
 import { makeSearchParams, noop, parseQueryFromUrl } from '@/utils';
@@ -41,6 +41,9 @@ import { useSettings } from '@/lib/useSettings';
 import { useColorModeColors } from '@/lib';
 import { AddNotificationModal } from '@/components/EmailNotifications/AddNotificationModal';
 import { solrSortOptions } from '@/components/Sort/model';
+import { ISortProps, Sort } from '@/components/Sort';
+import { sections } from '@/components/Visualizations';
+import { exportFormats } from '@/components/CitationExporter';
 
 export interface IListActionsProps {
   onSortChange?: ISortProps<SolrSort, SolrSortField>['onChange'];

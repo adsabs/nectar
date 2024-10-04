@@ -1,11 +1,13 @@
 import { ExportApiFormatKey, IDocsEntity, isExportApiFormat, useGetAbstract } from '@/api';
 import { Box } from '@chakra-ui/react';
-import { CitationExporter, JournalFormatMap } from '@/components';
+
 import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { NextPage } from 'next';
 import { path } from 'ramda';
 import { useRouter } from 'next/router';
 import { useSettings } from '@/lib/useSettings';
+import { CitationExporter } from '@/components/CitationExporter';
+import { JournalFormatMap } from '@/components/Settings';
 
 const ExportCitationPage: NextPage = () => {
   const router = useRouter();

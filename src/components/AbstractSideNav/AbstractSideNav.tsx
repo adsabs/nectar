@@ -1,6 +1,6 @@
 import { IDocsEntity } from '@/api';
 import { Badge } from '@chakra-ui/react';
-import { exportFormats, IMenuItem, SideNavigationMenu, TopNavigationMenu } from '@/components';
+
 import {
   ArrowDownIcon as DownloadIcon,
   ChartPieIcon,
@@ -17,6 +17,8 @@ import { HTMLAttributes, ReactElement } from 'react';
 import { Routes } from './types';
 import { values } from 'ramda';
 import { useSettings } from '@/lib/useSettings';
+import { exportFormats } from '@/components/CitationExporter';
+import { IMenuItem, SideNavigationMenu, TopNavigationMenu } from '@/components/NavigationMenu';
 
 const abstractPath = '/abs';
 

@@ -24,15 +24,7 @@ import {
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { EditIcon, ExternalLinkIcon, TriangleDownIcon } from '@chakra-ui/icons';
-import {
-  AbstractSources,
-  AddToLibraryModal,
-  CopyMenuItem,
-  feedbackItems,
-  LabeledCopyButton,
-  SearchQueryLink,
-  SimpleLink,
-} from '@/components';
+
 import { createUrlByType } from '@/components/AbstractSources/linkGenerator';
 import { IAllAuthorsModalProps } from '@/components/AllAuthorsModal';
 import { useGetAuthors } from '@/components/AllAuthorsModal/useGetAuthors';
@@ -54,6 +46,12 @@ import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { isNilOrEmpty } from 'ramda-adjunct';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { logger } from '@/logger';
+import { SimpleLink } from '@/components/SimpleLink';
+import { feedbackItems } from '@/components/NavBar';
+import { SearchQueryLink } from '@/components/SearchQueryLink';
+import { AbstractSources } from '@/components/AbstractSources';
+import { AddToLibraryModal } from '@/components/Libraries';
+import { CopyMenuItem, LabeledCopyButton } from '@/components/CopyButton';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   () => import('@/components/AllAuthorsModal').then((m) => m.AllAuthorsModal),

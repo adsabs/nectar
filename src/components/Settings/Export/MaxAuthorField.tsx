@@ -1,16 +1,16 @@
-import { DescriptionCollapse } from '@/components';
 import { APP_DEFAULTS } from '@/config';
 import {
+  Flex,
   FormLabel,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
   NumberInput,
   NumberInputField,
   NumberInputStepper,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
-  Flex,
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
+import { DescriptionCollapse } from '@/components/CitationExporter';
 
 export interface IMaxAuthorFieldProps {
   value: number;

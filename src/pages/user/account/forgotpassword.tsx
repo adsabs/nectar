@@ -5,11 +5,13 @@ import Head from 'next/head';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useFocus } from '@/lib/useFocus';
 import { parseAPIError } from '@/utils';
-import { RecaptchaMessage, StandardAlertMessage } from '@/components';
+
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { useCallback, useState } from 'react';
 import { FormMessage } from '@/components/Feedbacks/FormMessage';
 import { BRAND_NAME_FULL } from '@/config';
+import { StandardAlertMessage } from '@/components/Feedbacks';
+import { RecaptchaMessage } from '@/components/RecaptchaMessage/RecaptchaMessage';
 
 export { useQuery } from '@tanstack/react-query';
 

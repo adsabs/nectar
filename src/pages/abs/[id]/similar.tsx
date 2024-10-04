@@ -1,12 +1,14 @@
-import { getSimilarParams, IDocsEntity, useGetAbstract, useGetSimilar } from '@/api';
-import { AbstractRefList, ItemsSkeleton, StandardAlertMessage } from '@/components';
-import { AbsLayout } from '@/components/Layout/AbsLayout';
-import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { NextPage } from 'next';
-import { path } from 'ramda';
 import { useRouter } from 'next/router';
+import { getSimilarParams, IDocsEntity, useGetAbstract, useGetSimilar } from '@/api';
+import { path } from 'ramda';
+import { useGetAbstractParams } from '@/lib';
 import { APP_DEFAULTS } from '@/config';
+import { AbsLayout } from '@/components/Layout';
+import { ItemsSkeleton } from '@/components/ResultList';
+import { StandardAlertMessage } from '@/components/Feedbacks';
 import { parseAPIError } from '@/utils';
+import { AbstractRefList } from '@/components/AbstractRefList';
 
 const SimilarPage: NextPage = () => {
   const router = useRouter();

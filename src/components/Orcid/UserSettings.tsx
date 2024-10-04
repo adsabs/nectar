@@ -34,7 +34,7 @@ import { useOrcid } from '@/lib/orcid/useOrcid';
 import { OrcidLogo } from '@/components/images';
 import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useOrcidPrefs } from '@/lib/orcid/useOrcidPrefs';
-import { SearchQueryLink, SearchQueryLinkButton } from '@/components';
+
 import { isValidIOrcidUser } from '@/api/orcid/models';
 import { MagnifyingGlassIcon, PlusIcon, TrashIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { remove, update } from 'ramda';
@@ -45,6 +45,7 @@ import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import { getFallBackAlert } from '@/components/Feedbacks/SuspendedAlert';
 import { useColorModeColors } from '@/lib';
+import { SearchQueryLink, SearchQueryLinkButton } from '@/components/SearchQueryLink';
 
 export const UserSettings = () => {
   const isMobile = useBreakpointValue({ base: true, lg: false });

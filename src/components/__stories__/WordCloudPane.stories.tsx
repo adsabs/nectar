@@ -1,6 +1,6 @@
-import { IWordCloudPaneProps, WordCloudPane } from '@/components';
 import { fill, wordData } from '@/components/__mocks__/wordCloud';
 import { Meta, StoryObj } from '@storybook/react';
+import { IWordCloudPaneProps, WordCloudPane } from '@/components/Visualizations';
 
 const meta: Meta = {
   title: 'Visualizations/GraphPanes/WordCloudPane',

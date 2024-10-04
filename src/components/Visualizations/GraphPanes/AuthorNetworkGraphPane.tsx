@@ -1,9 +1,10 @@
 import { IADSApiAuthorNetworkNode, IADSApiAuthorNetworkNodeKey } from '@/api';
 import { FormControl, FormLabel, Radio, RadioGroup, Stack, Switch } from '@chakra-ui/react';
-import { AuthorNetworkGraph } from '@/components';
+
 import { ChangeEvent, ReactElement, useState } from 'react';
 import { PaperLimit } from '../Widgets';
 import { IView } from './types';
+import { AuthorNetworkGraph } from '@/components/Visualizations';
 
 export interface IAuthorNetworkGraphPaneProps {
   root: IADSApiAuthorNetworkNode;

@@ -41,7 +41,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { useOrcidProfile } from '@/lib/orcid/useOrcidProfile';
 import { getFallBackAlert } from '@/components/Feedbacks/SuspendedAlert';
 import DOMPurify from 'dompurify';
-import { PaginationControls } from '@/components';
+import { PaginationControls } from '@/components/Pagination';
 
 export const WorksTable = () => {
   return (

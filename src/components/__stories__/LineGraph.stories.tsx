@@ -1,6 +1,6 @@
-import { LineGraph } from '@/components';
 import { linedatum } from '@/components/__mocks__/data';
 import { Meta, StoryObj } from '@storybook/react';
+import { LineGraph } from '@/components/Visualizations';
 
 const meta: Meta = {
   title: 'Visualizations/graphs/LineGraph',

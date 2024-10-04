@@ -21,7 +21,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { AppState, useStore } from '@/store';
 import { isValidIOrcidUser } from '@/api/orcid/models';
 import { useRedirectWithNotification } from '@/components/Notification';
-import { SimpleLink } from '@/components';
+import { SimpleLink } from '@/components/SimpleLink';
 
 const setOrcidUserSelector = (state: AppState) => state.setOrcidUser;
 

@@ -1,6 +1,6 @@
-import { BarGraph } from '@/components';
 import { bardatum } from '@/components/__mocks__/data';
 import { Meta, StoryObj } from '@storybook/react';
+import { BarGraph } from '@/components/Visualizations';
 
 const meta: Meta = {
   title: 'Visualizations/graphs/BarGraph',

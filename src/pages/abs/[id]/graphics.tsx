@@ -1,11 +1,11 @@
-import { IDocsEntity, useGetAbstract, useGetGraphics } from '@/api';
-import { Box, Flex } from '@chakra-ui/react';
-import { AbsLayout } from '@/components/Layout/AbsLayout';
-import { NextPage } from 'next';
-import NextImage from 'next/legacy/image';
-import { LoadingMessage, SimpleLink } from '@/components';
 import { useRouter } from 'next/router';
+import { NextPage } from 'next';
+import { IDocsEntity, useGetAbstract, useGetGraphics } from '@/api';
 import { path } from 'ramda';
+import { AbsLayout } from '@/components/Layout';
+import { Box, Flex } from '@chakra-ui/react';
+import { LoadingMessage } from '@/components/Feedbacks';
+import { SimpleLink } from '@/components/SimpleLink';
 
 const GraphicsPage: NextPage = () => {
   const router = useRouter();

@@ -16,7 +16,7 @@ import {
   Textarea,
   useDisclosure,
 } from '@chakra-ui/react';
-import { PreviewModal, SimpleLink } from '@/components';
+
 import { IResourceUrl, useGetResourceLinks, useGetUserEmail } from '@/lib';
 import { omit } from 'ramda';
 import { MouseEvent, useEffect, useMemo, useState } from 'react';
@@ -34,6 +34,8 @@ import { AxiosError } from 'axios';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { parsePublicationDate } from '@/utils';
+import { SimpleLink } from '@/components/SimpleLink';
+import { PreviewModal } from '@/components/FeedbackForms';
 
 const collections: { value: Database; label: string }[] = [
   { value: 'astronomy', label: 'Astronomy and Astrophysics' },

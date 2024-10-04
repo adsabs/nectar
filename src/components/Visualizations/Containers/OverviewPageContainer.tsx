@@ -19,7 +19,7 @@ import {
   TabPanels,
   Tabs,
 } from '@chakra-ui/react';
-import { HIndexGraphPane, YearsGraphPane } from '@/components';
+
 import { removeFQ, setFQ } from '@/query-utils';
 import { makeSearchParams } from '@/utils';
 import axios from 'axios';
@@ -27,6 +27,7 @@ import { useRouter } from 'next/router';
 import { ReactElement } from 'react';
 import { FacetField } from '../types';
 import { fqNameYearRange } from '@/components/SearchFacet/YearHistogramSlider';
+import { HIndexGraphPane, YearsGraphPane } from '@/components/Visualizations';
 
 interface IOverviewPageContainerProps {
   query: IADSApiSearchParams;

@@ -1,7 +1,8 @@
 import { Button, Text } from '@chakra-ui/react';
-import { SettingsLayout } from '@/components';
+
 import { useOrcid } from '@/lib/orcid/useOrcid';
 import { UserSettings } from '@/components/Orcid';
+import { SettingsLayout } from '@/components/Layout';
 
 const OrcidPage = () => {
   const { login, isAuthenticated } = useOrcid();

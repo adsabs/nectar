@@ -8,39 +8,39 @@ import {
 } from '@/api';
 import { BellIcon, ChevronDownIcon, CloseIcon, SettingsIcon } from '@chakra-ui/icons';
 import {
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  useBreakpoint,
-  Text,
-  Button,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  Switch,
-  Flex,
-  MenuDivider,
-  useToast,
-  Input,
-  Stack,
-  useDisclosure,
   AlertDialog,
   AlertDialogBody,
   AlertDialogContent,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogOverlay,
-  OrderedList,
-  ListItem,
+  Button,
+  Flex,
+  IconButton,
+  Input,
   InputGroup,
   InputRightElement,
-  IconButton,
+  ListItem,
+  Menu,
+  MenuButton,
+  MenuDivider,
+  MenuItem,
+  MenuList,
+  OrderedList,
+  Stack,
+  Switch,
+  Table,
+  Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tr,
+  useBreakpoint,
+  useDisclosure,
+  useToast,
 } from '@chakra-ui/react';
-import { SimpleLink } from '@/components';
+
 import { CustomInfoMessage } from '@/components/Feedbacks';
 import { TableSkeleton } from '@/components/Libraries/TableSkeleton';
 import { TimeSince } from '@/components/TimeSince';
@@ -51,6 +51,7 @@ import { values } from 'ramda';
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { AddNotificationModal } from './AddNotificationModal';
 import { DeleteNotificationMenuItem } from './DeleteNotificationMenuItem';
+import { SimpleLink } from '@/components/SimpleLink';
 
 export const NotificationsPane = () => {
   const toast = useToast({ duration: 2000 });

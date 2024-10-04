@@ -1,7 +1,7 @@
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { ReactElement } from 'react';
 import { ItemType } from './types';
-import { SimpleLink } from '@/components';
+import { SimpleLink } from '@/components/SimpleLink';
 
 /** Non JavaScript dropdown */
 export interface ISimpleLinkListProps {

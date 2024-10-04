@@ -1,5 +1,5 @@
-import { NumFound } from '@/components';
 import { Meta, StoryObj } from '@storybook/react';
+import { NumFound } from '@/components/NumFound';
 
 const meta: Meta = {
   title: 'NumFound',

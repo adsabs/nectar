@@ -3,13 +3,14 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { PlanetaryApiResponse } from '@/pages/api/experiments/planetary';
 import axios from 'axios';
 import { FormEvent, useEffect, useMemo, useState } from 'react';
-import { Select } from '@/components';
+
 import { isNil } from 'ramda';
 import { GlobeAltIcon } from '@heroicons/react/24/solid';
 import { useRouter } from 'next/router';
 import { IADSApiSearchParams, useVaultBigQuerySearch } from '@/api';
 import { makeSearchParams } from '@/utils';
 import * as Q from '@/query-utils';
+import { Select } from '@/components/Select';
 
 const BIGQUERY_THRESHOLD = 20;
 

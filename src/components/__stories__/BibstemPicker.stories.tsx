@@ -1,6 +1,5 @@
-import { BibstemPicker } from '@/components';
-
 import { Meta, StoryObj } from '@storybook/react';
+import { BibstemPicker } from '@/components/BibstemPicker';
 
 const meta: Meta = {
   title: 'BibstemPicker/BibstemPicker',

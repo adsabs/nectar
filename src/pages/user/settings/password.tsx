@@ -1,9 +1,12 @@
 import { Button, FormControl, FormErrorMessage, FormLabel, Stack } from '@chakra-ui/react';
-import { PasswordRequirements, PasswordTextInput, SettingsLayout, StandardAlertMessage } from '@/components';
+
 import { Control, SubmitHandler, useForm, useWatch } from 'react-hook-form';
 import { useFocus } from '@/lib/useFocus';
 import { parseAPIError } from '@/utils';
 import { IUserChangePasswordCredentials, useChangeUserPassword } from '@/api';
+import { PasswordRequirements, PasswordTextInput } from '@/components/TextInput';
+import { SettingsLayout } from '@/components/Layout';
+import { StandardAlertMessage } from '@/components/Feedbacks';
 
 const initialParams: IUserChangePasswordCredentials = { currentPassword: '', password: '', confirmPassword: '' };
 const passwordValidators = {

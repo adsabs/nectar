@@ -1,11 +1,12 @@
 import { CustomFormat, ExportApiFormatKey, IDocsEntity, useGetExportCitation } from '@/api';
 import { Flex } from '@chakra-ui/react';
-import { SampleTextArea } from '@/components';
+
 import { UserDataSetterEvent } from '@/pages/user/settings/export';
 import { Dispatch, useEffect, useMemo, useState } from 'react';
 import { CustomFormatsTable } from '../CustomFormatsTable';
 import { useSettings } from '@/lib/useSettings';
 import { useColorModeColors } from '@/lib';
+import { SampleTextArea } from '@/components/Settings';
 
 export type ICustomFormatsTabPanelProps = {
   sampleBib: IDocsEntity['bibcode'];

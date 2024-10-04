@@ -1,12 +1,13 @@
 import { Flex, Heading, HStack } from '@chakra-ui/react';
-import { SimpleLink, VisualizationsTabs, VizSection } from '@/components';
+
 import Head from 'next/head';
 import { FC } from 'react';
 import { UrlObject } from 'url';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
 import { BRAND_NAME_FULL } from '@/config';
 import { useRouter } from 'next/router';
-import { BRAND } from 'zod';
+import { VisualizationsTabs, VizSection } from '@/components/Visualizations';
+import { SimpleLink } from '@/components/SimpleLink';
 
 interface IVizPageLayoutProps {
   vizPage: VizSection;

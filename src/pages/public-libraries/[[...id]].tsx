@@ -1,10 +1,11 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { CustomInfoMessage, LibraryEntityPane, LoadingMessage } from '@/components';
 import { useGetLibraryEntity } from '@/api';
 import { parseAPIError, unwrapStringValue } from '@/utils';
 import Head from 'next/head';
 import { BRAND_NAME_FULL } from '@/config';
+import { CustomInfoMessage, LoadingMessage } from '@/components/Feedbacks';
+import { LibraryEntityPane } from '@/components/Libraries';
 
 const PublicLibraries: NextPage = () => {
   const router = useRouter();
