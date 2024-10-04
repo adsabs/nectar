@@ -10,6 +10,7 @@ import { Notification } from '@/components/Notification';
 import Head from 'next/head';
 import { Favicons } from '@/components/Favicons/Favicons';
 import { BRAND_NAME_FULL } from '@/config';
+import { GlobalErrorBoundary } from '@/components/Feedbacks/GlobalErrorBoundary';
 
 const LandingTabs = dynamic(() => import('@/components/LandingTabs/LandingTabs').then((mod) => mod.LandingTabs), {
   ssr: false,
@@ -38,7 +39,7 @@ export const Layout: FC = ({ children }) => {
       <main>
         {isLandingPage && <LandingTabs />}
         <Container maxW={isLandingPage ? 'container.md' : 'container.xl'} id="main-content">
-          {children}
+          <GlobalErrorBoundary>{children}</GlobalErrorBoundary>
         </Container>
       </main>
       {isPrint ? null : <Footer />}
