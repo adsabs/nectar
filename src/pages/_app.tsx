@@ -25,8 +25,9 @@ import Head from 'next/head';
 import { BRAND_NAME_FULL } from '@/config';
 import { Layout } from '@/components/Layout';
 import { useIsClient } from '@/lib/useIsClient';
-import api, { checkUserData } from '@/api/api';
+import api from '@/api/api';
 import { userKeys } from '@/api/user/user';
+import { isValidToken } from '@/auth-utils';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -154,7 +155,7 @@ const UserSync = (): ReactElement => {
 
   // Comparing the incoming user data with the current user data, and update the store if they are different
   useEffect(() => {
-    if (data?.user && checkUserData(data?.user) && notEqual(data.user, user)) {
+    if (data?.user && isValidToken(data?.user) && notEqual(data.user, user)) {
       logger.debug({ msg: 'User Synced', user: data.user });
 
       store.setState({ user: data.user });

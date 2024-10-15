@@ -4,7 +4,7 @@ export const mockSession: IronSessionData = {
   token: {
     access_token: '',
     anonymous: true,
-    expire_in: '9999-01-01T00:00:00',
+    expires_at: '1950000000',
     username: 'anonymous',
   },
   isAuthenticated: false,
