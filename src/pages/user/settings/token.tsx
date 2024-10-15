@@ -19,12 +19,10 @@ import {
 } from '@chakra-ui/react';
 
 import { Suspense, useRef } from 'react';
-import { dehydrate, QueryClient, QueryErrorResetBoundary, useQueryClient } from '@tanstack/react-query';
-import { fetchUserApiToken, useGenerateNewApiToken, useGetUserApiToken, userKeys } from '@/api';
+import { QueryErrorResetBoundary, useQueryClient } from '@tanstack/react-query';
+import { useGenerateNewApiToken, useGetUserApiToken, userKeys } from '@/api';
 import { ErrorBoundary } from 'react-error-boundary';
 import { getFallBackAlert } from '@/components/Feedbacks/SuspendedAlert';
-import { composeNextGSSP } from '@/ssr-utils';
-import { logger } from '@/logger';
 import { SimpleCopyButton } from '@/components/CopyButton';
 import { SettingsLayout } from '@/components/Layout';
 import { StandardAlertMessage } from '@/components/Feedbacks';
@@ -186,24 +184,4 @@ const TokenArea = (props: { onGenerate: () => void; isLoading: boolean }) => {
 
 export default ApiTokenPage;
 
-export const getServerSideProps = composeNextGSSP(async () => {
-  const qc = new QueryClient();
-
-  try {
-    await qc.prefetchQuery({
-      queryKey: userKeys.userApiToken(),
-      queryFn: fetchUserApiToken,
-    });
-
-    return {
-      props: {
-        dehydratedState: dehydrate(qc),
-      },
-    };
-  } catch (error) {
-    logger.error({ msg: 'GSSP on token settings page', error });
-    return {
-      props: { pageError: error },
-    };
-  }
-});
+export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

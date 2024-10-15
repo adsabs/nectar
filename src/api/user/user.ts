@@ -90,8 +90,10 @@ const registerUser: MutationFunction<IBasicAccountsResponse, IUserRegistrationCr
   const config = await configWithCSRF({
     ...defaultRequestConfig,
     method: 'POST',
-    url: ApiTargets.REGISTER,
+    url: ApiTargets.USER,
     data: {
+      given_name: credentials.givenName,
+      family_name: credentials.familyName,
       email: credentials.email,
       password1: credentials.password,
       password2: credentials.confirmPassword,
@@ -208,8 +210,8 @@ const resetUserPassword: MutationFunction<IBasicAccountsResponse, IUserResetPass
 export const deleteUserAccount: MutationFunction<IBasicAccountsResponse, unknown> = async () => {
   const config = await configWithCSRF({
     ...defaultRequestConfig,
-    method: 'POST',
-    url: ApiTargets.DELETE,
+    method: 'DELETE',
+    url: ApiTargets.USER,
   });
 
   const { data } = await api.request<IBasicAccountsResponse>(config);

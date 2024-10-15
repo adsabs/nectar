@@ -2,7 +2,7 @@ import { IBootstrapPayload } from '@/api';
 import { StoreSlice } from '@/store';
 
 export interface IUserState {
-  user: Pick<IBootstrapPayload, 'username' | 'anonymous' | 'access_token' | 'expire_in'>;
+  user: Pick<IBootstrapPayload, 'username' | 'anonymous' | 'access_token' | 'expires_at'>;
 }
 
 export interface IUserAction {
@@ -14,7 +14,7 @@ const defaultUserData: IUserState['user'] = {
   username: undefined,
   anonymous: undefined,
   access_token: undefined,
-  expire_in: undefined,
+  expires_at: undefined,
 };
 
 export const userSlice: StoreSlice<IUserState & IUserAction> = (set, get) => ({

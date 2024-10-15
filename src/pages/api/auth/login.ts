@@ -6,7 +6,7 @@ import { withIronSessionApiRoute } from 'iron-session/next';
 import { APP_DEFAULTS, sessionConfig } from '@/config';
 import { configWithCSRF, fetchUserData, hash, isValidToken, pickUserData } from '@/auth-utils';
 import { defaultRequestConfig } from '@/api/config';
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosResponse, HttpStatusCode } from 'axios';
 import setCookie from 'set-cookie-parser';
 import { logger } from '@/logger';
 
@@ -44,26 +44,26 @@ export const handleAuthentication = async (
   res: NextApiResponse,
   session: IronSession,
 ) => {
-  const config = await configWithCSRF({
-    ...defaultRequestConfig,
-    method: 'POST',
-    url: ApiTargets.USER,
-    data: {
-      username: credentials.email,
-      password: credentials.password,
-    },
-    timeout: APP_DEFAULTS.API_TIMEOUT,
-  });
-
   try {
-    const { data, headers } = await axios.request<IBasicAccountsResponse, AxiosResponse<IBasicAccountsResponse>>(
-      config,
-    );
+    const config = await configWithCSRF({
+      ...defaultRequestConfig,
+      method: 'POST',
+      url: ApiTargets.LOGIN,
+      data: credentials,
+      timeout: APP_DEFAULTS.API_TIMEOUT,
+    });
+    log.debug({ config }, 'Attempting to login user');
+    const { data, headers, status } = await axios.request<
+      IBasicAccountsResponse,
+      AxiosResponse<IBasicAccountsResponse>
+    >(config);
+
+    log.debug({ data, headers }, 'Result');
     const apiSessionCookie = setCookie
       .parse(headers['set-cookie'])
       .find((c) => c.name === process.env.ADS_SESSION_COOKIE_NAME);
 
-    if (data.message === 'success') {
+    if (status === HttpStatusCode.Ok) {
       // user has been authenticated
       session.destroy();
 

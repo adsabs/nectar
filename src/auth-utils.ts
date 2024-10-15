@@ -2,14 +2,18 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { ApiRequestConfig, ApiTargets, IBootstrapPayload, ICSRFResponse, IUserData } from '@/api';
 import { defaultRequestConfig } from '@/api/config';
 import { isNil } from 'ramda';
-import { isPast, parseISO } from 'date-fns';
 import { APP_DEFAULTS } from '@/config';
+import { logger } from '@/logger';
 
-const fetchCSRF = async () =>
-  await axios.get<ICSRFResponse, AxiosResponse<ICSRFResponse>>(ApiTargets.CSRF, {
+const fetchCSRF = async () => {
+  const config: AxiosRequestConfig = {
     ...defaultRequestConfig,
+    url: ApiTargets.CSRF,
     timeout: APP_DEFAULTS.API_TIMEOUT,
-  });
+  };
+  logger.debug({ config }, 'Fetching CSRF token');
+  return axios.request<ICSRFResponse, AxiosResponse<ICSRFResponse>>(config);
+};
 
 export const configWithCSRF = async (config: ApiRequestConfig): Promise<ApiRequestConfig> => {
   const csrfRes = await fetchCSRF();
@@ -61,23 +65,31 @@ export const hash = async (str?: string) => {
  * Checks if the user data is valid
  * @param userData
  */
-export const isUserData = (userData?: IUserData): userData is IUserData => {
-  return (
-    !isNil(userData) &&
-    typeof userData.access_token === 'string' &&
-    typeof userData.expire_in === 'string' &&
-    userData.access_token.length > 0 &&
-    userData.expire_in.length > 0
-  );
+export const isUserData = (userData?: IUserData): userData is IUserData =>
+  !isNil(userData) &&
+  typeof userData.access_token === 'string' &&
+  typeof userData.expires_at === 'string' &&
+  userData.access_token.length > 0 &&
+  userData.expires_at.length > 0;
+
+/**
+ * Checks if a token is expired based on the expiration time.
+ *
+ * @param {string} expiresAt - The expiration time of the token in seconds since the Unix epoch.
+ * @returns {boolean} - Returns true if the current time is greater than or equal to the expiration time, false otherwise.
+ */
+export const isTokenExpired = (expiresAt: string): boolean => {
+  const currentTime = Math.floor(Date.now() / 1000);
+  const tokenExpiryTime = parseInt(expiresAt, 10);
+  return currentTime >= tokenExpiryTime;
 };
 
 /**
- * Checks if the user data is valid and the token is not expired
+ * Checks if the token is valid
  * @param userData
  */
-export const isValidToken = (userData?: IUserData): boolean => {
-  return isUserData(userData) && !isPast(parseISO(userData.expire_in));
-};
+export const isValidToken = (userData?: IUserData): boolean =>
+  isUserData(userData) && !isTokenExpired(userData.expires_at);
 
 /**
  * Checks if the user is authenticated
@@ -96,7 +108,7 @@ export const pickUserData = (userData?: IUserData | IBootstrapPayload) => {
   }
   return {
     access_token: userData.access_token,
-    expire_in: userData.expire_in,
+    expires_at: userData.expires_at,
     username: userData.username,
     anonymous: userData.anonymous,
   };

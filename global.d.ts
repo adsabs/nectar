@@ -11,7 +11,7 @@ declare module 'iron-session' {
     token?: {
       access_token: string;
       anonymous: boolean;
-      expire_in: string;
+      expires_at: string;
       username: string;
     };
     isAuthenticated?: boolean;

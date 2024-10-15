@@ -456,6 +456,7 @@ export const fetchSearchSSR = async (
     params: finalParams,
     signal,
     headers: {
+      ...defaultRequestConfig.headers,
       Authorization: `Bearer ${token}`,
       ...pick(TRACING_HEADERS, ctx.req.headers),
     },
