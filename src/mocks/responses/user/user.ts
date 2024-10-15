@@ -16,7 +16,7 @@ export const userHandlers = [
       ctx.json({
         user: {
           access_token: 'test',
-          expire_in: '2500-03-22T14:50:07.712037',
+          expires_at: '9999999999999999',
           anonymous: false,
           username: 'test',
         },
