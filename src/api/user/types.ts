@@ -41,12 +41,14 @@ export interface IBootstrapPayload {
   ratelimit: number;
   anonymous: boolean;
   client_secret: string;
-  expire_in: string;
+  expires_at: string;
   refresh_token: string;
+  given_name: string;
+  family_name: string;
   message?: string;
 }
 
-export type IUserData = Pick<IBootstrapPayload, 'username' | 'anonymous' | 'access_token' | 'expire_in'>;
+export type IUserData = Pick<IBootstrapPayload, 'username' | 'anonymous' | 'access_token' | 'expires_at'>;
 
 export interface IUserForgotPasswordCredentials {
   email: string;
@@ -59,6 +61,8 @@ export interface IUserCredentials {
 }
 
 export interface IUserRegistrationCredentials {
+  givenName: string;
+  familyName: string;
   email: string;
   password: string;
   confirmPassword: string;

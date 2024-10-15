@@ -84,6 +84,7 @@ export const resolveObjectQuerySSR = async (params: IObjectsQueryApiParams, ctx:
     method: 'POST',
     data: { query: [query] },
     headers: {
+      ...defaultRequestConfig.headers,
       ...pick(TRACING_HEADERS, ctx.req.headers),
       Authorization: `Bearer ${token}`,
     },
