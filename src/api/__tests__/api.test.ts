@@ -10,28 +10,26 @@ global.alert = vi.fn();
 
 const API_USER = '/api/user';
 
-const mockUserData: Pick<IBootstrapPayload, 'username' | 'access_token' | 'anonymous' | 'expire_in'> = {
+const mockUserData: Pick<IBootstrapPayload, 'username' | 'access_token' | 'anonymous' | 'expires_at'> = {
   username: 'anonymous@ads',
   access_token: 'foo_access_token',
   anonymous: true,
-  expire_in: '2099-03-22T14:50:07.712037',
+  expires_at: '99999999999999999',
 };
-const invalidMockUserData: Pick<IBootstrapPayload, 'username' | 'access_token' | 'anonymous' | 'expire_in'> = {
+const invalidMockUserData: Pick<IBootstrapPayload, 'username' | 'access_token' | 'anonymous' | 'expires_at'> = {
   username: 'anonymous@ads',
   access_token: '',
   anonymous: true,
-  expire_in: '',
+  expires_at: '',
 };
 
-const testHandler = rest.get('*test', (_, res, ctx) => {
+const testHandlerWith200 = rest.get('*test', (_, res, ctx) => {
   return res(ctx.status(200), ctx.json({ ok: true }));
 });
 
-const unAuthorizedHandler = rest.get('*test', (_, res, ctx) =>
+const testHandlerWith401 = rest.get('*test', (_, res, ctx) =>
   res(ctx.status(401), ctx.json({ message: 'User unauthorized' })),
 );
-
-const unAuthorizedRequest = () => api.request({ method: 'GET', url: '/test' });
 
 const testRequest = (params?: Record<string, string>, config: Partial<ApiRequestConfig> = {}) =>
   api.request({
@@ -56,7 +54,7 @@ beforeEach(() => {
 
 test('User data is found and used if set directly on api instance', async ({ server }: TestContext) => {
   const { onRequest: onReq } = createServerListenerMocks(server);
-  server.use(testHandler);
+  server.use(testHandlerWith200);
 
   // user data can be found if
   api.setUserData({ ...mockUserData, access_token: 'from-memory' });
@@ -67,7 +65,7 @@ test('User data is found and used if set directly on api instance', async ({ ser
 
 test('User data is found and used if set in local storage', async ({ server }: TestContext) => {
   const { onRequest: onReq } = createServerListenerMocks(server);
-  server.use(testHandler);
+  server.use(testHandlerWith200);
 
   // user data located in local storage
   localStorage.setItem(
@@ -81,7 +79,7 @@ test('User data is found and used if set in local storage', async ({ server }: T
 
 test('Attempts to get user data from server without refresh', async ({ server }: TestContext) => {
   const { onRequest: onReq } = createServerListenerMocks(server);
-  server.use(testHandler);
+  server.use(testHandlerWith200);
   server.use(
     rest.get(`*${API_USER}`, (_, res, ctx) => {
       return res(ctx.status(200), ctx.json({ user: { ...mockUserData, access_token: 'from-session' } }));
@@ -104,7 +102,7 @@ test('Unauthenticated request with no previous session, will force a token refre
   server,
 }: TestContext) => {
   const { onRequest: onReq } = createServerListenerMocks(server);
-  server.use(testHandler);
+  server.use(testHandlerWith200);
   server.use(
     rest.get(`*${API_USER}`, (_, res, ctx) => {
       return res.once(ctx.status(500), ctx.json({ error: 'Server Error' }));
@@ -138,11 +136,9 @@ test('Fallback to bootstrapping directly if the /api/user endpoint continuously 
   server,
 }: TestContext) => {
   const { onRequest: onReq } = createServerListenerMocks(server);
-  server.use(testHandler);
   server.use(
-    rest.get(`*${API_USER}`, (_, res, ctx) => {
-      return res(ctx.status(500), ctx.json({ error: 'Server Error' }));
-    }),
+    testHandlerWith200,
+    rest.get(`*${API_USER}`, (_, res, ctx) => res(ctx.status(500), ctx.json({ error: 'Server Error' }))),
   );
 
   await testRequest();
@@ -164,6 +160,7 @@ test('Fallback to bootstrapping directly if the /api/user endpoint continuously 
   ]);
 
   // the refresh header was added to force a new session
+  expect(onReq.mock.calls[1][0].headers.get('x-refresh-token')).toMatchInlineSnapshot('"1"');
   expect(onReq.mock.calls[3][0].headers.get('authorization')).toMatchInlineSnapshot(
     '"Bearer ------ mocked token ---------"',
   );
@@ -171,7 +168,7 @@ test('Fallback to bootstrapping directly if the /api/user endpoint continuously 
 
 test('passing token initially skips bootstrap', async ({ server }: TestContext) => {
   const { onRequest: onReq } = createServerListenerMocks(server);
-  server.use(testHandler);
+  server.use(testHandlerWith200);
   api.setUserData(mockUserData);
   await testRequest();
 
@@ -183,18 +180,17 @@ test('passing token initially skips bootstrap', async ({ server }: TestContext) 
 
 test('expired userdata causes bootstrap', async ({ server }: TestContext) => {
   const { onRequest: onReq } = createServerListenerMocks(server);
-  server.use(testHandler);
-  api.setUserData({ ...mockUserData, expire_in: '1977-03-22T14:50:07.712037' });
+  server.use(testHandlerWith200);
+  api.setUserData({ ...mockUserData, expires_at: '999' });
   await testRequest();
 
-  expect(onReq).toBeCalledTimes(2);
-  expect(urls(onReq)[0]).toEqual(API_USER);
+  expect(urls(onReq)).toStrictEqual([API_USER, API_USER, ApiTargets.BOOTSTRAP, '/test']);
 });
 
 test('401 response refreshes token properly', async ({ server }: TestContext) => {
   const { onRequest: onReq } = createServerListenerMocks(server);
-  server.use(testHandler);
   server.use(
+    testHandlerWith200,
     rest.get('*test', (_, res, ctx) => {
       return res.once(ctx.status(401), ctx.json({ error: 'Not Authorized' }));
     }),
@@ -202,25 +198,20 @@ test('401 response refreshes token properly', async ({ server }: TestContext) =>
 
   const { data } = await testRequest();
   expect(data).toEqual({ ok: true });
-  expect(onReq).toBeCalledTimes(4);
-  expect(urls(onReq)).toEqual([
+  expect(urls(onReq)).toStrictEqual([
     // initial bootstrap because we don't have any userData stored
     API_USER,
-
-    // this request will fail, triggering a refresh
-    '/test',
-
-    // refresh and retry original request
     API_USER,
+    ApiTargets.BOOTSTRAP,
     '/test',
   ]);
 
-  expect(onReq.mock.calls[2][0].headers.get('x-refresh-token')).toEqual('1');
+  expect(onReq.mock.calls[1][0].headers.get('x-refresh-token')).toEqual('1');
 });
 
 test('401 does not cause infinite loop if refresh repeatedly fails', async ({ server }: TestContext) => {
   const { onRequest: onReq } = createServerListenerMocks(server);
-  server.use(testHandler);
+  server.use(testHandlerWith200);
   server.use(
     rest.get('*test', (_, res, ctx) => {
       return res.once(ctx.status(401), ctx.json({ error: 'Not Authorized' }));
@@ -261,24 +252,18 @@ test('401 does not cause infinite loop if refresh repeatedly fails', async ({ se
  */
 test('repeated 401s do not cause infinite loop', async ({ server }: TestContext) => {
   const { onRequest: onReq } = createServerListenerMocks(server);
-  server.use(unAuthorizedHandler);
 
-  await expect(unAuthorizedRequest).rejects.toThrowError();
+  // everything returns a 401
+  server.use(
+    rest.get(`*${API_USER}`, (_, res, ctx) => res(ctx.status(401), ctx.json({ error: 'Not Authorized' }))),
+    rest.get(`*${ApiTargets.BOOTSTRAP}`, (_, res, ctx) => res(ctx.status(401), ctx.json({ error: 'Not Authorized' }))),
+    rest.get('*test', (_, res, ctx) => res(ctx.status(401), ctx.json({ message: 'Not Authorized' }))),
+  );
 
-  expect(onReq).toBeCalledTimes(4);
-  expect(urls(onReq)).toEqual([
-    // successful
-    API_USER,
+  await expect(testRequest).rejects.toThrowError();
 
-    // 401
-    '/test',
-
-    // successful
-    API_USER,
-
-    // 401 again, this should throw an error and abort re-bootstrapping
-    '/test',
-  ]);
+  expect(onReq).toBeCalledTimes(3);
+  expect(urls(onReq)).toEqual([API_USER, API_USER, ApiTargets.BOOTSTRAP]);
 });
 
 test('request fails without a response body are rejected', async ({ server }: TestContext) => {
@@ -286,13 +271,13 @@ test('request fails without a response body are rejected', async ({ server }: Te
 
   // simulates a timeout, by aborting the request after a timeout
   const control = new AbortController();
-  setTimeout(() => control.abort(), 50);
-  await expect(testRequest({}, { signal: control.signal })).rejects.toThrowError();
+  setTimeout(() => control.abort(), 500);
+  await expect(testRequest({}, { signal: control.signal })).rejects.toThrowErrorMatchingInlineSnapshot('"canceled"');
 });
 
 test('request rejects if the refreshed user data is not valid', async ({ server }: TestContext) => {
   server.use(
-    unAuthorizedHandler,
+    testHandlerWith401,
     rest.get(`*${API_USER}`, (_, res, ctx) => {
       return res.once(ctx.status(200), ctx.json({ user: invalidMockUserData, isAuthenticated: false }));
     }),
@@ -308,10 +293,28 @@ test('request rejects if the refreshed user data is not valid', async ({ server 
 
   api.setUserData(mockUserData);
 
-  await expect(testRequest).rejects.toThrowError();
+  await expect(testRequest).rejects.toThrowErrorMatchingInlineSnapshot('"Unable to obtain API access"');
 
   // after the 401 from `test` we try to bootstrap, it's invalid so we reject
   expect(onReq).toBeCalledTimes(3);
   expect(urls(onReq)).toStrictEqual(['/test', API_USER, ApiTargets.BOOTSTRAP]);
   expect(onReq.mock.calls[1][0].headers.get('x-refresh-token')).toEqual('1');
+});
+
+test('duplicate requests are provided the same promise', async ({ server }: TestContext) => {
+  const { onRequest: onReq } = createServerListenerMocks(server);
+  server.use(rest.get('*test', (_, res, ctx) => res(ctx.status(200), ctx.delay(100), ctx.json({ ok: true }))));
+
+  // fire off 100 test requests
+  const prom = Promise.race(Array.from({ length: 100 }, () => testRequest()));
+
+  // should have a single promise
+  expect(Array.from(api.getPendingRequests())).toHaveLength(1);
+  await prom;
+
+  // should have been cleaned up
+  expect(Array.from(api.getPendingRequests())).toHaveLength(0);
+
+  // all the requests shared the promise, so only a single flow actually went through
+  expect(urls(onReq)).toStrictEqual([API_USER, API_USER, ApiTargets.BOOTSTRAP, '/test']);
 });

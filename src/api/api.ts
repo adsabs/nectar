@@ -1,30 +1,13 @@
 import { ApiTargets, IBootstrapPayload, IUserData } from '@/api';
 import { APP_STORAGE_KEY, updateAppUser } from '@/store';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { isPast, parseISO } from 'date-fns';
-import { identity, isNil } from 'ramda';
 import { defaultRequestConfig } from './config';
 import { IApiUserResponse } from '@/pages/api/user';
 import { logger } from '@/logger';
 import { buildStorage, CacheOptions, setupCache, StorageValue } from 'axios-cache-interceptor';
-import { pickUserData } from '@/auth-utils';
-
-export const isUserData = (userData?: IUserData): userData is IUserData => {
-  return (
-    !isNil(userData) &&
-    typeof userData.access_token === 'string' &&
-    typeof userData.expire_in === 'string' &&
-    userData.access_token.length > 0 &&
-    userData.expire_in.length > 0
-  );
-};
-
-export const isAuthenticated = (user: IUserData) =>
-  isUserData(user) && (!user.anonymous || user.username !== 'anonymous@ads');
-
-export const checkUserData = (userData?: IUserData): boolean => {
-  return isUserData(userData) && !isPast(parseISO(userData.expire_in));
-};
+import { isUserData, isValidToken, pickUserData } from '@/auth-utils';
+import crypto from 'crypto';
+import { identity } from 'ramda';
 
 /**
  * Reads the current user data from localStorage
@@ -106,12 +89,16 @@ class Api {
   private userData: IUserData;
   private udInvalidated: boolean;
   private recentError: { status: number; config: AxiosRequestConfig };
-  private udPromise: Promise<IUserData> | null;
+  private pendingRequestsMap: Map<string, Promise<AxiosResponse>>;
 
   private constructor() {
     this.service = axios.create(defaultRequestConfig);
     this.reset();
     void this.init();
+  }
+
+  public getPendingRequests() {
+    return this.pendingRequestsMap.entries();
   }
 
   private async init() {
@@ -178,46 +165,41 @@ class Api {
    * @returns {Promise<IUserData | null>} Resolves to API access data or null if retrieval fails.
    */
   private async getUserData(): Promise<IUserData | null> {
-    this.udPromise = (async () => {
-      log.debug('Attempting to obtain API access');
-      try {
-        if (this.udInvalidated) {
-          log.debug('API access invalidated, trying to refresh.');
-          const refreshedUserData = await this.getRemoteUserData(true);
-          if (refreshedUserData) {
-            this.udInvalidated = false;
-            return refreshedUserData;
-          }
-          throw new Error('Failed to refresh API access');
+    log.debug('Attempting to obtain API access');
+    try {
+      if (this.udInvalidated) {
+        log.debug('API access invalidated, trying to refresh.');
+        const refreshedUserData = await this.getRemoteUserData(true);
+        if (refreshedUserData) {
+          this.udInvalidated = false;
+          return refreshedUserData;
         }
-
-        if (checkUserData(this.userData)) {
-          log.debug('Valid API access found in memory');
-          return this.userData;
-        }
-
-        log.debug('Checking local storage for API access data');
-        const localStorageUD = checkLocalStorageForUserData();
-        if (checkUserData(localStorageUD)) {
-          log.debug('Valid API access found in local storage, returning...');
-          this.userData = localStorageUD;
-          return localStorageUD;
-        }
-
-        log.debug('Fetching API access data from session');
-        const sessionUserData = await this.getRemoteUserData(false);
-        if (sessionUserData) {
-          return sessionUserData;
-        }
-        throw new Error('API access unavailable from session or local storage');
-      } catch (e) {
-        log.error({ err: e }, 'Failed to obtain API access');
-        throw new Error('Unable to obtain API access', { cause: e });
-      } finally {
-        this.udPromise = null;
+        throw new Error('Failed to refresh API access');
       }
-    })();
-    return this.udPromise;
+
+      if (isValidToken(this.userData)) {
+        log.debug('Valid API access found in memory');
+        return this.userData;
+      }
+
+      log.debug('Checking local storage for API access data');
+      const localStorageUD = checkLocalStorageForUserData();
+      if (isValidToken(localStorageUD)) {
+        log.debug('Valid API access found in local storage, returning...');
+        this.userData = localStorageUD;
+        return localStorageUD;
+      }
+
+      log.debug('Fetching API access data from session');
+      const sessionUserData = await this.getRemoteUserData(false);
+      if (sessionUserData) {
+        return sessionUserData;
+      }
+      throw new Error('API access unavailable from session or local storage');
+    } catch (e) {
+      log.error({ err: e }, 'Failed to obtain API access');
+      throw new Error('Unable to obtain API access', { cause: e });
+    }
   }
 
   /**
@@ -254,7 +236,7 @@ class Api {
     try {
       log.debug('Fetching API access data from session endpoint (/api/user)');
       const { data } = await axios.get<IApiUserResponse>('/api/user');
-      if (checkUserData(data.user)) {
+      if (isValidToken(data.user)) {
         log.debug('Successfully fetched API access data from session, saving...');
         return data.user;
       }
@@ -273,7 +255,7 @@ class Api {
     try {
       log.debug('Refreshing API access data from API endpoint (/api/user)');
       const { data } = await axios.get<IApiUserResponse>('/api/user', { headers: { 'X-Refresh-Token': '1' } });
-      if (checkUserData(data.user)) {
+      if (isValidToken(data.user)) {
         log.debug('Successfully refreshed API access data, saving...');
         return data.user;
       }
@@ -285,7 +267,7 @@ class Api {
     try {
       const { data } = await axios.get<IBootstrapPayload>(ApiTargets.BOOTSTRAP, defaultRequestConfig);
       const userData = pickUserData(data);
-      if (checkUserData(userData)) {
+      if (isValidToken(userData)) {
         log.debug('Successfully refreshed API access using bootstrap, saving...');
         return userData;
       }
@@ -331,18 +313,44 @@ class Api {
       return this.service.request<T>(applyTokenToRequest(config, this.userData?.access_token));
     }
 
-    const ud = await this.getUserData();
-    this.setUserData(ud);
-    return this.service.request<T>(applyTokenToRequest(config, ud.access_token));
+    const cfgHash = this.hashConfig(config);
+    if (this.pendingRequestsMap.has(cfgHash)) {
+      return this.pendingRequestsMap.get(cfgHash) as Promise<AxiosResponse<T, unknown>>;
+    }
+
+    const request = new Promise<AxiosResponse<T>>((resolve, reject) => {
+      this.getUserData()
+        .then((ud) => {
+          this.setUserData(ud);
+          const cfg = applyTokenToRequest(config, ud.access_token);
+          this.service
+            .request<T>(cfg)
+            .then(resolve)
+            .catch((err) => {
+              log.error({ err: err as AxiosError }, 'Request Error');
+              reject(err);
+            })
+            .finally(() => {
+              this.pendingRequestsMap.delete(cfgHash);
+            });
+        })
+        .catch(reject);
+    });
+    this.pendingRequestsMap.set(cfgHash, request);
+    return request;
   }
+
+  private hashConfig = (config: ApiRequestConfig) => {
+    return crypto.createHash('md5').update(JSON.stringify(config)).digest('hex');
+  };
 
   public reset() {
     this.service = this.service = axios.create(defaultRequestConfig);
     void this.init();
     this.userData = null;
     this.udInvalidated = false;
-    this.udPromise = null;
     this.recentError = null;
+    this.pendingRequestsMap = new Map();
   }
 }
 
