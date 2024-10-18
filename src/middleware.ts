@@ -99,6 +99,34 @@ const protectedRoute = async (req: NextRequest, res: NextResponse) => {
   return redirect(url, req, { message: 'login-required', clearParams: false });
 };
 
+/**
+ * Sends an analytics event for specific routes to a designated link gateway.
+ *
+ * If the request's path starts with '/abs', an event is sent to the link gateway with
+ * the adjusted path. Otherwise, no event is sent.
+ *
+ * @param {NextRequest} req - The request object containing the URL information.
+ * @returns {Promise<void>} - A promise that resolves when the operation completes,
+ * either successfully or with an error.
+ */
+const emitAnalytics = async (req: NextRequest): Promise<void> => {
+  const path = req.nextUrl.pathname;
+
+  // For abs/ routes we want to send emit an event to the link gateway
+  if (path.startsWith('/abs')) {
+    const url = `${process.env.BASE_URL}/link_gateway${path.replace('/abs', '')}`;
+    log.debug({ path, url }, 'Emitting abs route event to link gateway');
+
+    try {
+      await fetch(url, { method: 'GET' });
+      log.debug('Event successfully sent to link gateway');
+    } catch (err) {
+      log.error({ err: err as Error }, 'Error sending event to link gateway');
+    }
+  }
+  return Promise.resolve();
+};
+
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
   log.info(
@@ -112,8 +140,11 @@ export async function middleware(req: NextRequest) {
 
   const res = NextResponse.next();
 
-  // Skip middleware for the root path
-  if (path === '/') {
+  // Emit analytics
+  void emitAnalytics(req);
+
+  // Skip middleware for some paths
+  if (path === '/' || path.startsWith('/_next/data')) {
     return res;
   }
 
@@ -161,7 +192,7 @@ export const config = {
   matcher: [
     {
       source:
-        '/((?!api|_next/static|_next/data|light|dark|_next/image|favicon|android|images|mockServiceWorker|site.webmanifest|error|feedback|classic-form|paper-form).*)',
+        '/((?!api|_next/static|light|dark|_next/image|favicon|android|images|mockServiceWorker|site.webmanifest|error|feedback|classic-form|paper-form).*)',
       missing: [
         { type: 'header', key: 'next-router-prefetch' },
         { type: 'header', key: 'purpose', value: 'prefetch' },
