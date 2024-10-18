@@ -5,7 +5,7 @@ export const logger: Logger = pino({
   browser: {
     asObject: true,
   },
-  level: process.env.LOG_LEVEL || 'info',
+  level: process.env.NEXT_PUBLIC_LOG_LEVEL || 'info',
   base: {
     env: process.env.NODE_ENV || 'development',
   },
@@ -29,7 +29,7 @@ export const edgeLogger: Logger = pino({
       }
     },
   },
-  level: process.env.LOG_LEVEL || 'info',
+  level: process.env.NEXT_PUBLIC_LOG_LEVEL || 'info',
   base: {
     env: process.env.NODE_ENV || 'development',
   },
