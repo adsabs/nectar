@@ -1,11 +1,3 @@
-import {
-  DEFAULT_USER_DATA,
-  IADSApiUserDataParams,
-  IADSApiUserDataResponse,
-  useGetUserSettings,
-  userKeys,
-  useUpdateUserSettings,
-} from '@/api';
 import { mergeLeft } from 'ramda';
 import { useDebouncedCallback } from 'use-debounce';
 import { useQueryClient, UseQueryOptions } from '@tanstack/react-query';
@@ -13,6 +5,9 @@ import { useToast } from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { isNotEmpty } from 'ramda-adjunct';
 import { useSession } from '@/lib/useSession';
+import { IADSApiUserDataParams, IADSApiUserDataResponse } from '@/api/user/types';
+import { useGetUserSettings, userKeys, useUpdateUserSettings } from '@/api/user/user';
+import { DEFAULT_USER_DATA } from '@/api/user/models';
 
 export const useSettings = (options?: UseQueryOptions<IADSApiUserDataResponse>) => {
   const { isAuthenticated } = useSession();

@@ -1,4 +1,3 @@
-import { IADSApiMetricsResponse, IDocsEntity, MetricsResponseKey, TimeSeriesKey, useGetMetricsTimeSeries } from '@/api';
 import {
   Alert,
   AlertDescription,
@@ -41,6 +40,9 @@ import {
   ReadsTable,
 } from '@/components/Visualizations';
 import { useColorModeColors } from '@/lib/useColorModeColors';
+import { IADSApiMetricsResponse, MetricsResponseKey, TimeSeriesKey } from '@/api/metrics/types';
+import { IDocsEntity } from '@/api/search/types';
+import { useGetMetricsTimeSeries } from '@/api/metrics/metrics';
 
 export interface IMetricsProps {
   metrics: IADSApiMetricsResponse;

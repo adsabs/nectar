@@ -1,4 +1,3 @@
-import { IADSApiSearchParams, useGetWordCloud } from '@/api';
 import { Box, Flex, Text, useBreakpointValue } from '@chakra-ui/react';
 
 import axios from 'axios';
@@ -13,6 +12,8 @@ import { LoadingMessage, StandardAlertMessage } from '@/components/Feedbacks';
 import { Expandable } from '@/components/Expandable';
 import { SimpleLink } from '@/components/SimpleLink';
 import { makeSearchParams } from '@/utils/common/search';
+import { IADSApiSearchParams } from '@/api/search/types';
+import { useGetWordCloud } from '@/api/vis/vis';
 
 const MAX_ROWS_TO_FETCH = 100;
 

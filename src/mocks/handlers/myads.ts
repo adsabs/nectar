@@ -1,6 +1,8 @@
 import { rest } from 'msw';
-import { ApiTargets, IADSApiVaultResponse } from '@/api';
+
 import { apiHandlerRoute } from '@/mocks/mockHelpers';
+import { IADSApiVaultResponse } from '@/api/vault/types';
+import { ApiTargets } from '@/api/models';
 
 export const myadsHandlers = [
   rest.post(apiHandlerRoute(ApiTargets.MYADS_STORAGE, 'query'), (req, res, ctx) => {

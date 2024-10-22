@@ -1,4 +1,3 @@
-import { IADSApiSearchParams, IDocsEntity, useGetResultsGraph, useVaultBigQuerySearch } from '@/api';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import { Box, Flex, List, ListIcon, ListItem, Text, useToast } from '@chakra-ui/react';
 
@@ -13,6 +12,9 @@ import { CustomInfoMessage, LoadingMessage, StandardAlertMessage } from '@/compo
 import { IBubblePlotNodeData } from '@/components/Visualizations';
 import { DataDownloader } from '@/components/DataDownloader';
 import { makeSearchParams } from '@/utils/common/search';
+import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
+import { useGetResultsGraph } from '@/api/vis/vis';
+import { useVaultBigQuerySearch } from '@/api/vault/vault';
 
 interface IResultsGraphPageContainerProps {
   query: IADSApiSearchParams;
@@ -38,7 +40,7 @@ export const ResultsGraphPageContainer = ({ query }: IResultsGraphPageContainerP
   useEffect(() => {
     if (bigQueryData && applyingBibcodes.length > 0) {
       const q = setFQ('selection', `docs(${bigQueryData.qid})`, query);
-      const search = makeSearchParams(q as IADSApiSearchParams);
+      const search = makeSearchParams(q);
       void router.push({ pathname: '/search', search });
       setApplyingBibcodes([]);
     }

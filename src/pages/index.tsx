@@ -12,13 +12,14 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { ChangeEventHandler, useCallback, useEffect, useState } from 'react';
 import { useSettings } from '@/lib/useSettings';
-import { SolrSort } from '@/api';
+
 import { NotificationId } from '@/store/slices';
 import { IPagerProps } from '@/components/Pager';
 import { ISearchExamplesProps, SearchExamplesPlaceholder } from '@/components/SearchExamples';
 import { SearchBar } from '@/components/SearchBar';
 import { SimpleLink } from '@/components/SimpleLink';
 import { makeSearchParams, normalizeSolrSort } from '@/utils/common/search';
+import { SolrSort } from '@/api/models';
 
 const SearchExamples = dynamic<ISearchExamplesProps>(
   () => import('@/components/SearchExamples').then((m) => m.SearchExamples),

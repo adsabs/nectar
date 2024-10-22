@@ -1,4 +1,3 @@
-import { IDocsEntity } from '@/api';
 import {
   Accordion,
   AccordionButton,
@@ -18,17 +17,18 @@ import {
 import { ChevronDownIcon } from '@chakra-ui/icons';
 
 import { ReactElement, useMemo } from 'react';
-import { useResolverQuery } from '@/api/resolver';
 import { processLinkData } from '@/components/AbstractSources/linkGenerator';
 import { useSettings } from '@/lib/useSettings';
 import {
-  AbstractSourceItems,
   AbstractResourceType,
-  FullTextSourceItems,
+  AbstractSourceItems,
   FullTextResourceType,
+  FullTextSourceItems,
 } from './AbstractSourceItems';
 import { collectBy, prop } from 'ramda';
 import { SimpleLink } from '@/components/SimpleLink';
+import { IDocsEntity } from '@/api/search/types';
+import { useResolverQuery } from '@/api/resolver/resolver';
 
 export interface IAbstractSourcesProps {
   doc?: IDocsEntity;

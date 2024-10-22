@@ -1,13 +1,13 @@
-import {
-  IADSApiPaperNetworkNodeKey,
-  IADSApiPaperNetworkSummaryGraph,
-  IADSApiPaperNetworkSummaryGraphNode,
-} from '@/api';
 import { Radio, RadioGroup, Stack } from '@chakra-ui/react';
 import { ReactElement, useState } from 'react';
 import { PaperNetworkGraph } from '../Graphs';
 import { PaperLimit } from '../Widgets';
 import { IView } from './types';
+import {
+  IADSApiPaperNetworkNodeKey,
+  IADSApiPaperNetworkSummaryGraph,
+  IADSApiPaperNetworkSummaryGraphNode,
+} from '@/api/vis/types';
 
 export interface IPaperNetworkGraphPaneProps {
   nodesData: IADSApiPaperNetworkSummaryGraph['nodes'];

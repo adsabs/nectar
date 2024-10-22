@@ -1,4 +1,3 @@
-import { getSearchFacetYearsParams, IADSApiSearchParams, useGetSearchFacetCounts } from '@/api';
 import { Box, Center, CircularProgress, Flex, Heading, Icon, IconButton, Text, VisuallyHidden } from '@chakra-ui/react';
 
 import { getYearsGraph } from '@/components/Visualizations/utils';
@@ -11,6 +10,9 @@ import { ArrowsInIcon } from '@/components/icons/ArrowsIn';
 import { getFallBackAlert } from '@/components/Feedbacks/SuspendedAlert';
 import { ISearchFacetProps } from '@/components/SearchFacet/SearchFacet';
 import { HistogramSlider } from '@/components/HistogramSlider';
+import { IADSApiSearchParams } from '@/api/search/types';
+import { useGetSearchFacetCounts } from '@/api/search/search';
+import { getSearchFacetYearsParams } from '@/api/search/models';
 
 export const fqNameYearRange = 'range';
 export interface IYearHistogramSliderProps {

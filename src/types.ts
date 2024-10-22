@@ -1,6 +1,7 @@
-import { IADSApiSearchParams, IUserData } from '@/api';
 import { APP_DEFAULTS } from '@/config';
 import { SetupServerApi } from 'msw/node';
+import { IUserData } from '@/api/user/types';
+import { IADSApiSearchParams } from '@/api/search/types';
 
 export enum AppMode {
   GENERAL = 'GENERAL',

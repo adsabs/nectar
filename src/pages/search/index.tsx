@@ -6,7 +6,7 @@ import { last, omit, path } from 'ramda';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useQueryClient } from '@tanstack/react-query';
-import { defaultParams, IADSApiSearchParams, IADSApiSearchResponse, SEARCH_API_KEYS, SolrSort, useSearch } from '@/api';
+
 import {
   Alert,
   AlertIcon,
@@ -49,6 +49,10 @@ import { SimpleLink } from '@/components/SimpleLink';
 import { AxiosError } from 'axios';
 import { SOLR_ERROR, useSolrError } from '@/lib/useSolrError';
 import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
+import { IADSApiSearchParams, IADSApiSearchResponse } from '@/api/search/types';
+import { SEARCH_API_KEYS, useSearch } from '@/api/search/search';
+import { defaultParams } from '@/api/search/models';
+import { SolrSort } from '@/api/models';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
   () => import('@/components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),

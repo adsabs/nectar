@@ -1,7 +1,7 @@
-import { IADSApiSearchParams } from '@/api';
 import { BarDatum } from '@nivo/bar';
 import { Serie } from '@nivo/line';
 import { FacetField, YearDatum } from '../types';
+import { IADSApiSearchParams } from '@/api/search/types';
 
 /**
  * From a line graph data, return an array of X ticks with the specified max number of ticks

@@ -1,5 +1,5 @@
-import { BiblibSortField, SolrSortField } from '@/api';
 import { SelectOption } from '@/components/Select';
+import { BiblibSortField, SolrSortField } from '@/api/models';
 
 export const solrSortOptions: SelectOption<SolrSortField>[] = [
   { id: 'score', value: 'score', label: 'Relevance' },

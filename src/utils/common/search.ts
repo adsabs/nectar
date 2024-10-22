@@ -1,10 +1,12 @@
 import { clamp, filter, head, last, omit, uniq } from 'ramda';
 import qs from 'qs';
-import { IADSApiSearchParams, SolrSort } from '@/api';
+
 import { isNumPerPageType, isSolrSort, isString } from '@/utils/common/guards';
 import { APP_DEFAULTS } from '@/config';
 import { ParsedUrlQuery } from 'querystring';
 import { SafeSearchUrlParams } from '@/types';
+import { SolrSort } from '@/api/models';
+import { IADSApiSearchParams } from '@/api/search/types';
 
 /**
  * Type representing the parsed query parameters.

@@ -1,4 +1,3 @@
-import { IDocsEntity } from '@/api';
 import { Badge } from '@chakra-ui/react';
 
 import {
@@ -19,6 +18,7 @@ import { values } from 'ramda';
 import { useSettings } from '@/lib/useSettings';
 import { exportFormats } from '@/components/CitationExporter';
 import { IMenuItem, SideNavigationMenu, TopNavigationMenu } from '@/components/NavigationMenu';
+import { IDocsEntity } from '@/api/search/types';
 
 const abstractPath = '/abs';
 

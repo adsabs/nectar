@@ -1,7 +1,7 @@
-import { Database } from '@/api/search';
-import { IResourceUrl } from '@/lib/useGetResourceLinks';
+import type { IResourceUrl } from '@/lib/useGetResourceLinks';
 
 import { ArrayChange, Change } from 'diff';
+import type { Database } from '@/api/search/types';
 
 export interface IAuthor {
   name: string;

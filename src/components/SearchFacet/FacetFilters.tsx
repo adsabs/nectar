@@ -4,10 +4,11 @@ import { useRouter } from 'next/router';
 import { curryN } from 'ramda';
 import { ReactElement, useCallback, useEffect, useState } from 'react';
 import { FilterTuple, getFilters, getObjectName } from './helpers';
-import { useObjects } from '@/api';
+
 import { useQueryClient } from '@tanstack/react-query';
 import { isIADSSearchParams } from '@/utils/common/guards';
 import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
+import { useObjects } from '@/api/objects/objects';
 
 export const FacetFilters = (props: BoxProps): ReactElement => {
   const router = useRouter();

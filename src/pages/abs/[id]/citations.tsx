@@ -1,4 +1,3 @@
-import { getCitationsParams, IDocsEntity, useGetAbstract, useGetCitations } from '@/api';
 import { Alert, AlertIcon } from '@chakra-ui/react';
 import { AbstractRefList } from '@/components/AbstractRefList';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
@@ -8,6 +7,9 @@ import { useRouter } from 'next/router';
 import { path } from 'ramda';
 import { APP_DEFAULTS } from '@/config';
 import { ItemsSkeleton } from '@/components/ResultList/ItemsSkeleton';
+import { useGetAbstract, useGetCitations } from '@/api/search/search';
+import { IDocsEntity } from '@/api/search/types';
+import { getCitationsParams } from '@/api/search/models';
 
 const CitationsPage: NextPage = () => {
   const router = useRouter();

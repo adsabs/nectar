@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { IADSApiLibraryOperationParams, LibraryIdentifier, LibraryOperationAction } from '@/api';
+
 import {
   Button,
   Checkbox,
@@ -24,6 +24,7 @@ import { Controller, FormProvider, useFieldArray, useForm, useWatch } from 'reac
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LibrarySelector } from './LibrarySelector';
+import { IADSApiLibraryOperationParams, LibraryIdentifier, LibraryOperationAction } from '@/api/biblib/types';
 
 type LibraryIdentifierValue = {
   value: LibraryIdentifier;

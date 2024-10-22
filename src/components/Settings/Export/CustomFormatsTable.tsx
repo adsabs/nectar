@@ -1,4 +1,3 @@
-import { CustomFormat } from '@/api';
 import {
   Box,
   Button,
@@ -24,6 +23,7 @@ import { DescriptionCollapse } from '@/components/CitationExporter';
 import { customFormatDescription } from '@/components/Settings';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { noop } from '@/utils/common/noop';
+import { CustomFormat } from '@/api/user/types';
 
 export interface ICustomFormatsTableProps {
   customFormats: CustomFormat[];

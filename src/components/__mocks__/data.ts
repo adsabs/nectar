@@ -1,6 +1,7 @@
-import { Esources, IADSApiMetricsResponse, IDocsEntity } from '@/api';
 import { BarDatum } from '@nivo/bar';
 import { Serie } from '@nivo/line';
+import { Esources, IDocsEntity } from '@/api/search/types';
+import { IADSApiMetricsResponse } from '@/api/metrics/types';
 
 export const states = [
   'Alabama',

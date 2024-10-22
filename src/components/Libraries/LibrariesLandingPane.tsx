@@ -1,11 +1,3 @@
-import {
-  IADSApiLibraryOperationParams,
-  LibraryIdentifier,
-  LibraryType,
-  useAddLibrary,
-  useGetLibraries,
-  useLibraryOperation,
-} from '@/api';
 import { AddIcon, Icon } from '@chakra-ui/icons';
 import { Box, Button, Flex, Heading, Stack, useDisclosure, useToast } from '@chakra-ui/react';
 import { WrenchIcon } from '@heroicons/react/24/solid';
@@ -19,6 +11,8 @@ import { LibraryTypeSelector } from './LibraryTypeSelector';
 import { OperationModal } from './OperationModal';
 import { TableSkeleton } from './TableSkeleton';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { IADSApiLibraryOperationParams, LibraryIdentifier, LibraryType } from '@/api/biblib/types';
+import { useAddLibrary, useGetLibraries, useLibraryOperation } from '@/api/biblib/libraries';
 
 export const LibrariesLandingPane = () => {
   const router = useRouter();

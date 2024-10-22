@@ -1,4 +1,4 @@
-import { IADSApiSearchParams, IDocsEntity } from '@/api';
+import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
 
 export const getVaultBigQueryParams = (bibcodes: IDocsEntity['bibcode'][]): IADSApiSearchParams => ({
   q: '*:*',

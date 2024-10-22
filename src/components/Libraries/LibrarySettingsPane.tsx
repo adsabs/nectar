@@ -1,4 +1,3 @@
-import { LibraryIdentifier, useDeleteLibrary, useEditLibraryMeta, useGetLibraryEntity, useTransfer } from '@/api';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -32,6 +31,8 @@ import { DeleteLibrary } from './DeleteLibrary';
 
 import { isValidEmail } from '@/utils/common/isValidEmail';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { LibraryIdentifier } from '@/api/biblib/types';
+import { useDeleteLibrary, useEditLibraryMeta, useGetLibraryEntity, useTransfer } from '@/api/biblib/libraries';
 
 const permissionsDescription = (
   <>

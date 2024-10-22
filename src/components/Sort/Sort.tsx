@@ -1,4 +1,3 @@
-import { SolrSort, SolrSortField, SortDirection, SortField, SortType } from '@/api';
 import { Box, HStack, IconButton, Input } from '@chakra-ui/react';
 
 import { ItemType } from '@/components/Dropdown/types';
@@ -10,6 +9,7 @@ import { Fragment, MouseEventHandler, ReactElement, useCallback, useMemo } from 
 import { SimpleLinkDropdown } from '@/components/Dropdown';
 import { SearchQueryLink } from '@/components/SearchQueryLink';
 import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
+import { SolrSort, SolrSortField, SortDirection, SortField, SortType } from '@/api/models';
 
 export interface ISortProps<S extends SortType, F extends SortField> {
   sort: S;

@@ -1,4 +1,3 @@
-import { IUserCredentials } from '@/api';
 import { Button, Container, FormControl, FormLabel, Heading, Input, InputGroup, Stack } from '@chakra-ui/react';
 
 import { NextPage } from 'next';
@@ -15,6 +14,7 @@ import { PasswordTextInput } from '@/components/TextInput';
 import { SimpleLink } from '@/components/SimpleLink';
 import { StandardAlertMessage } from '@/components/Feedbacks';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { IUserCredentials } from '@/api/user/types';
 
 const initialParams: IUserCredentials = { email: '', password: '' };
 

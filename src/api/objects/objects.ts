@@ -1,4 +1,3 @@
-import api, { ADSQuery, ApiRequestConfig, ApiTargets } from '@/api';
 import {
   IObjectsApiParams,
   IObjectsApiResponse,
@@ -15,6 +14,9 @@ import axios from 'axios';
 import { GetServerSidePropsContext } from 'next';
 import { pick } from 'ramda';
 import { isString } from '@/utils/common/guards';
+import { ADSQuery } from '@/api/types';
+import api, { ApiRequestConfig } from '@/api/api';
+import { ApiTargets } from '@/api/models';
 
 export enum OBJECTS_API_KEYS {
   QUERY = 'object/query',

@@ -1,17 +1,12 @@
-import api, {
-  ADSQuery,
-  ApiRequestConfig,
-  ApiTargets,
-  BasicStatsKey,
-  Bibcode,
-  CitationsStatsKey,
-  IADSApiMetricsParams,
-  MetricsResponseKey,
-} from '@/api';
 import { isNil } from 'ramda';
 import { QueryFunction, useQuery } from '@tanstack/react-query';
 import { getMetricsParams, getMetricsTimeSeriesParams } from './model';
-import { IADSApiMetricsResponse } from './types';
+import { Bibcode } from '@/api/search/types';
+import { ADSQuery } from '@/api/types';
+import { BasicStatsKey, CitationsStatsKey, IADSApiMetricsResponse, MetricsResponseKey } from '@/api/lib/metrics/types';
+import api, { ApiRequestConfig } from '@/api/api';
+import { ApiTargets } from '@/api/models';
+import { IADSApiMetricsParams } from '@/api/metrics/types';
 
 const MAX_RETRIES = 3;
 

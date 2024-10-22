@@ -1,9 +1,9 @@
-import { IADSApiSearchParams } from '@/api';
 import { APP_DEFAULTS } from '@/config';
 import { StoreSlice } from '@/store';
 import { NumPerPageType } from '@/types';
 import { mergeRight } from 'ramda';
 import { isNumPerPageType } from '@/utils/common/guards';
+import { IADSApiSearchParams } from '@/api/search/types';
 
 export const defaultQueryParams: IADSApiSearchParams = {
   q: '',

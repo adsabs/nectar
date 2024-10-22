@@ -1,4 +1,3 @@
-import { IDocsEntity } from '@/api';
 import { Box, Flex, HStack, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react';
 import { ILineGraph } from '@/components/Visualizations/types';
 import { equals } from 'ramda';
@@ -9,6 +8,7 @@ import { SummaryPane } from './SummaryPane';
 import { MathJax } from 'better-react-mathjax';
 import { SimpleLink } from '@/components/SimpleLink';
 import { unwrapStringValue } from '@/utils/common/formatters';
+import { IDocsEntity } from '@/api/search/types';
 
 interface Paper extends IDocsEntity {
   groupAuthorCount?: number;

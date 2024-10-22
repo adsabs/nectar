@@ -1,8 +1,8 @@
-import { IADSApiAuthorNetworkNode, IADSApiAuthorNetworkNodeKey } from '@/api';
 import { useColorMode } from '@chakra-ui/react';
 import * as d3 from 'd3';
 import { useCallback, useMemo } from 'react';
 import { ILink, NetworkHierarchyNode } from './AuthorNetworkGraph';
+import { IADSApiAuthorNetworkNode, IADSApiAuthorNetworkNodeKey } from '@/api/vis/types';
 
 /**
  *

@@ -1,4 +1,4 @@
-import { Esources } from '@/api';
+import { Esources } from '@/api/search/types';
 
 export const GATEWAY_BASE_URL = '/link_gateway/';
 

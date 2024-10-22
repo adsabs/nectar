@@ -1,4 +1,3 @@
-import { IDocsEntity, useGetAbstract, useGetMetrics } from '@/api';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { path } from 'ramda';
@@ -7,6 +6,9 @@ import { AbsLayout } from '@/components/Layout';
 import { Box } from '@chakra-ui/react';
 import { LoadingMessage } from '@/components/Feedbacks';
 import { MetricsPane } from '@/components/Visualizations';
+import { useGetAbstract } from '@/api/search/search';
+import { IDocsEntity } from '@/api/search/types';
+import { useGetMetrics } from '@/api/metrics/metrics';
 
 const MetricsPage: NextPage = () => {
   const router = useRouter();

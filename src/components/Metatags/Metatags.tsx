@@ -1,8 +1,8 @@
-import { Esources, IDocsEntity } from '@/api';
 import { AppRuntimeConfig } from '@/types';
 import getConfig from 'next/config';
 import { ReactElement } from 'react';
 import { getFormattedNumericPubdate } from '@/utils/common/formatters';
+import { Esources, IDocsEntity } from '@/api/search/types';
 
 const getBaseUrl = () => {
   try {

@@ -1,10 +1,3 @@
-import {
-  IADSApiAddNotificationParams,
-  IADSApiEditNotificationParams,
-  INotification,
-  useAddNotification,
-  useEditNotification,
-} from '@/api';
 import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -28,6 +21,8 @@ import { isValidKeyword } from './Utils';
 import { useDebounce } from '@/lib/useDebounce';
 import { noop } from '@/utils/common/noop';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { IADSApiAddNotificationParams, IADSApiEditNotificationParams, INotification } from '@/api/vault/types';
+import { useAddNotification, useEditNotification } from '@/api/vault/vault';
 
 export const ArxivForm = ({
   onClose,

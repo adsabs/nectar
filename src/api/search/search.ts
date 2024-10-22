@@ -1,15 +1,3 @@
-import api, {
-  ADSMutation,
-  ADSQuery,
-  ApiRequestConfig,
-  ApiTargets,
-  getSearchFacetJSONParams,
-  IADSApiSearchParams,
-  IADSApiSearchResponse,
-  IBigQueryMutationParams,
-  IDocsEntity,
-  InfiniteADSQuery,
-} from '@/api';
 import axios, { AxiosError } from 'axios';
 import { omit, pick } from 'ramda';
 import {
@@ -30,6 +18,7 @@ import {
   getCoreadsParams,
   getHighlightParams,
   getReferencesParams,
+  getSearchFacetJSONParams,
   getSearchFacetParams,
   getSearchParams,
   getSearchStatsParams,
@@ -42,6 +31,10 @@ import { GetServerSidePropsContext } from 'next';
 import { defaultRequestConfig } from '../config';
 import { TRACING_HEADERS } from '@/config';
 import { isString } from '@/utils/common/guards';
+import { IADSApiSearchParams, IADSApiSearchResponse, IBigQueryMutationParams, IDocsEntity } from '@/api/search/types';
+import { ADSMutation, ADSQuery, InfiniteADSQuery } from '@/api/types';
+import api, { ApiRequestConfig } from '@/api/api';
+import { ApiTargets } from '@/api/models';
 
 type ErrorType = Error | AxiosError;
 

@@ -1,5 +1,5 @@
 import { range } from 'ramda';
-import { SolrSortField } from '../models';
+import { SolrSortField } from '@/api/models';
 
 export interface IADSApiUserResponse {
   [key: string]: unknown;

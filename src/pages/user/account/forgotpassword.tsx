@@ -1,4 +1,3 @@
-import { IUserForgotPasswordCredentials, useForgotPassword } from '@/api';
 import { Button, Container, FormControl, FormLabel, Heading, Input, Stack } from '@chakra-ui/react';
 import { NextPage } from 'next';
 import Head from 'next/head';
@@ -12,6 +11,8 @@ import { BRAND_NAME_FULL } from '@/config';
 import { StandardAlertMessage } from '@/components/Feedbacks';
 import { RecaptchaMessage } from '@/components/RecaptchaMessage/RecaptchaMessage';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { IUserForgotPasswordCredentials } from '@/api/user/types';
+import { useForgotPassword } from '@/api/user/user';
 
 export { useQuery } from '@tanstack/react-query';
 

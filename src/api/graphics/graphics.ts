@@ -1,7 +1,10 @@
-import api, { ADSQuery, ApiRequestConfig, ApiTargets, IADSApiGraphicsParams, IDocsEntity } from '@/api';
 import { isNil } from 'ramda';
 import { QueryFunction, useQuery, UseQueryResult } from '@tanstack/react-query';
-import { IADSApiGraphicsResponse } from './types';
+import { IADSApiGraphicsParams, IADSApiGraphicsResponse } from './types';
+import { IDocsEntity } from '@/api/search/types';
+import { ADSQuery } from '@/api/types';
+import api, { ApiRequestConfig } from '@/api/api';
+import { ApiTargets } from '@/api/models';
 
 const MAX_RETRIES = 3;
 

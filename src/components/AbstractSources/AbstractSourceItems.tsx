@@ -1,19 +1,18 @@
-import { Esources } from '@/api';
 import { ChevronDownIcon, Icon, LockIcon, UnlockIcon } from '@chakra-ui/icons';
 import {
-  Menu,
-  MenuButton,
-  Button,
-  MenuList,
-  MenuItem,
-  List,
-  ListItem,
-  BoxProps,
   Box,
+  BoxProps,
+  Button,
   Flex,
-  Text,
   HStack,
   IconButton,
+  List,
+  ListItem,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Text,
 } from '@chakra-ui/react';
 import { ItemType } from '@/components/Dropdown/types';
 import { GenericFileIcon } from '@/components/icons/GenericFileIcon';
@@ -23,6 +22,7 @@ import { SimpleLink } from '@/components/SimpleLink';
 import { AcademicCapIcon } from '@heroicons/react/24/solid';
 import { IFullTextSource } from './types';
 import { Fragment } from 'react';
+import { Esources } from '@/api/search/types';
 
 export type AbstractResourceType = Pick<ItemType, 'id' | 'label' | 'path'>;
 

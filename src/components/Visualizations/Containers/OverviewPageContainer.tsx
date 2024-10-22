@@ -1,12 +1,4 @@
 import {
-  getSearchFacetCitationsParams,
-  getSearchFacetReadsParams,
-  getSearchFacetYearsParams,
-  IADSApiSearchParams,
-  useGetSearchFacet,
-  useGetSearchFacetCounts,
-} from '@/api';
-import {
   Alert,
   AlertDescription,
   AlertIcon,
@@ -28,6 +20,13 @@ import { FacetField } from '../types';
 import { fqNameYearRange } from '@/components/SearchFacet/YearHistogramSlider';
 import { HIndexGraphPane, YearsGraphPane } from '@/components/Visualizations';
 import { makeSearchParams } from '@/utils/common/search';
+import { IADSApiSearchParams } from '@/api/search/types';
+import { useGetSearchFacet, useGetSearchFacetCounts } from '@/api/search/search';
+import {
+  getSearchFacetCitationsParams,
+  getSearchFacetReadsParams,
+  getSearchFacetYearsParams,
+} from '@/api/search/models';
 
 interface IOverviewPageContainerProps {
   query: IADSApiSearchParams;

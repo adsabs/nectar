@@ -2,11 +2,13 @@ import { expect, test, TestContext } from 'vitest';
 import { createServerListenerMocks, render, urls } from '@/test-utils';
 import { WorksTable } from '@/components/Orcid';
 import { rest } from 'msw';
-import { ApiTargets, IADSApiSearchResponse } from '@/api';
+
 import { equals } from 'ramda';
 import { waitFor } from '@testing-library/dom';
 import orcidProfileResponse from '@/mocks/responses/orcid/orcid-profile_full.json';
 import { apiHandlerRoute } from '@/mocks/mockHelpers';
+import { ApiTargets } from '@/api/models';
+import { IADSApiSearchResponse } from '@/api/search/types';
 
 test.skip('triggers call to profile on mount', async ({ server }: TestContext) => {
   const { onRequest } = createServerListenerMocks(server);

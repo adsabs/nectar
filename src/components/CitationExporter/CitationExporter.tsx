@@ -1,11 +1,3 @@
-import {
-  ExportApiFormatKey,
-  ExportApiJournalFormat,
-  IDocsEntity,
-  IExportApiParams,
-  isExportApiFormat,
-  SolrSort,
-} from '@/api';
 import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -41,6 +33,9 @@ import { ResultArea } from './components/ResultArea';
 import { exportFormats } from './models';
 import { useCitationExporter } from './useCitationExporter';
 import { noop } from '@/utils/common/noop';
+import { ExportApiFormatKey, ExportApiJournalFormat, IExportApiParams, isExportApiFormat } from '@/api/export/types';
+import { IDocsEntity } from '@/api/search/types';
+import { SolrSort } from '@/api/models';
 
 export interface ICitationExporterProps extends HTMLAttributes<HTMLDivElement> {
   singleMode?: boolean;

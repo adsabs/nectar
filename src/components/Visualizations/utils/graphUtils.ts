@@ -1,19 +1,4 @@
 import {
-  BasicStatsKey,
-  CitationsHistogramKey,
-  CitationsHistogramType,
-  CitationsStatsKey,
-  IBucket,
-  IDocsEntity,
-  IFacetCountsFields,
-  PapersHistogramKey,
-  PapersHistogramType,
-  ReadsHistogramKey,
-  ReadsHistogramType,
-  TimeSeriesKey,
-  TimeSeriesType,
-} from '@/api';
-import {
   IADSApiAuthorNetworkNode,
   IADSApiAuthorNetworkResponse,
   IADSApiPaperNetworkFullGraph,
@@ -64,6 +49,19 @@ import {
   IPaperNetworkLinkDetails,
   IPaperNetworkNodeDetails,
 } from '@/components/Visualizations';
+import {
+  BasicStatsKey,
+  CitationsHistogramKey,
+  CitationsHistogramType,
+  CitationsStatsKey,
+  PapersHistogramKey,
+  PapersHistogramType,
+  ReadsHistogramKey,
+  ReadsHistogramType,
+  TimeSeriesKey,
+  TimeSeriesType,
+} from '@/api/metrics/types';
+import { IBucket, IDocsEntity, IFacetCountsFields } from '@/api/search/types';
 
 /************ metrics helpers ************/
 

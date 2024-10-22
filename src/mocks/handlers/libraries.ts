@@ -1,5 +1,10 @@
+import { rest } from 'msw';
+import allLibraries from '../responses/library/all-libraries.json';
+import allEntities from '../responses/library/library-entities.json';
+import allPermissions from '../responses/library/permissions.json';
+import { apiHandlerRoute } from '@/mocks/mockHelpers';
+import { uniq } from 'ramda';
 import {
-  ApiTargets,
   IADSApiLibraryAddAnnotationParams,
   IADSApiLibraryAddParams,
   IADSApiLibraryDeleteAnnotationParams,
@@ -13,13 +18,8 @@ import {
   IADSApiLibraryTransferParams,
   IADSApiLibraryUpdateAnnotationParams,
   ILibraryMetadata,
-} from '@/api';
-import { rest } from 'msw';
-import allLibraries from '../responses/library/all-libraries.json';
-import allEntities from '../responses/library/library-entities.json';
-import allPermissions from '../responses/library/permissions.json';
-import { apiHandlerRoute } from '@/mocks/mockHelpers';
-import { uniq } from 'ramda';
+} from '@/api/biblib/types';
+import { ApiTargets } from '@/api/models';
 
 const libraries = [...allLibraries] as ILibraryMetadata[];
 

@@ -3,7 +3,7 @@ import { Button, Container, FormControl, FormErrorMessage, FormLabel, Heading, V
 import { useRouter } from 'next/router';
 import { useFocus } from '@/lib/useFocus';
 import { Control, SubmitHandler, useForm, useWatch } from 'react-hook-form';
-import { IUserResetPasswordCredentials, useResetPassword } from '@/api';
+
 import { useEffect } from 'react';
 import { useRedirectWithNotification } from '@/components/Notification';
 import Head from 'next/head';
@@ -12,6 +12,8 @@ import { PasswordRequirements, PasswordTextInput, passwordValidators } from '@/c
 import { StandardAlertMessage } from '@/components/Feedbacks';
 import { SimpleLink } from '@/components/SimpleLink';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { IUserResetPasswordCredentials } from '@/api/user/types';
+import { useResetPassword } from '@/api/user/user';
 
 const ResetPasswordPage: NextPage = () => {
   const router = useRouter();

@@ -33,7 +33,7 @@ import { FormEventHandler, useMemo } from 'react';
 import { Control, Controller, useForm, UseFormRegisterReturn, useWatch } from 'react-hook-form';
 import { getSearchQuery } from './helpers';
 import { IClassicFormState, IRawClassicFormState } from './types';
-import { SolrSort, SolrSortField } from '@/api';
+
 import { solrSortOptions } from '@/components/Sort/model';
 import { SimpleLink } from '@/components/SimpleLink';
 import { BibstemPicker } from '@/components/BibstemPicker';
@@ -41,6 +41,7 @@ import { Sort } from '@/components/Sort';
 import { Expandable } from '@/components/Expandable';
 import { SimpleCopyButton } from '@/components/CopyButton';
 import { normalizeSolrSort } from '@/utils/common/search';
+import { SolrSort, SolrSortField } from '@/api/models';
 
 const propTypes = {
   ssrError: PT.string,

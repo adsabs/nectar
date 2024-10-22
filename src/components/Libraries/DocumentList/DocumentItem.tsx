@@ -1,4 +1,3 @@
-import { IDocsEntity, LibraryIdentifier } from '@/api';
 import {
   Box,
   BoxProps,
@@ -26,6 +25,8 @@ import { useColorModeColors } from '@/lib/useColorModeColors';
 
 import { getFormattedNumericPubdate, unwrapStringValue } from '@/utils/common/formatters';
 import { noop } from '@/utils/common/noop';
+import { IDocsEntity } from '@/api/search/types';
+import { LibraryIdentifier } from '@/api/biblib/types';
 
 export interface IItemProps {
   doc: IDocsEntity;

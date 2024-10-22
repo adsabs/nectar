@@ -27,10 +27,12 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LibrarySelector } from './LibrarySelector';
 import { useState } from 'react';
-import { LibraryIdentifier, useAddDocumentsByQuery, useAddLibrary, useEditLibraryDocuments } from '@/api';
+
 import { useStore } from '@/store';
 
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { LibraryIdentifier } from '@/api/biblib/types';
+import { useAddDocumentsByQuery, useAddLibrary, useEditLibraryDocuments } from '@/api/biblib/libraries';
 
 export type SelectionType = 'all' | 'selected';
 

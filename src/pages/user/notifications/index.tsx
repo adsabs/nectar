@@ -1,4 +1,3 @@
-import { fetchNotifications, vaultKeys } from '@/api';
 import { Flex, Heading } from '@chakra-ui/react';
 
 import { composeNextGSSP } from '@/ssr-utils';
@@ -7,6 +6,7 @@ import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { BRAND_NAME_FULL } from '@/config';
 import { NotificationsPane } from '@/components/EmailNotifications';
+import { fetchNotifications, vaultKeys } from '@/api/vault/vault';
 
 const NotificationPage: NextPage = () => {
   return (

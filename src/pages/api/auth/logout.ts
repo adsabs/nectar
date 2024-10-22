@@ -1,4 +1,3 @@
-import { ApiTargets, IBasicAccountsResponse } from '@/api';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { APP_DEFAULTS, sessionConfig } from '@/config';
 import { configWithCSRF, fetchUserData, hash, isValidToken, pickUserData } from '@/auth-utils';
@@ -7,6 +6,8 @@ import axios, { AxiosResponse } from 'axios';
 import setCookie from 'set-cookie-parser';
 import { withIronSessionApiRoute } from 'iron-session/next';
 import { logger } from '@/logger';
+import { ApiTargets } from '@/api/models';
+import { IBasicAccountsResponse } from '@/api/user/types';
 
 export interface ILogoutResponse {
   success?: boolean;

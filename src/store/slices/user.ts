@@ -1,5 +1,5 @@
-import { IBootstrapPayload } from '@/api';
 import { StoreSlice } from '@/store';
+import { IBootstrapPayload } from '@/api/user/types';
 
 export interface IUserState {
   user: Pick<IBootstrapPayload, 'username' | 'anonymous' | 'access_token' | 'expire_in'>;

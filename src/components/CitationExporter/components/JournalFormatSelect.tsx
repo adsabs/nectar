@@ -1,10 +1,10 @@
-import { ExportApiJournalFormat, IExportApiParams } from '@/api';
 import { Box, FormLabel, OrderedList } from '@chakra-ui/react';
 import { Select, SelectOption } from '@/components/Select';
 import { values } from 'ramda';
 import { Dispatch, ReactElement, useMemo } from 'react';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 import { DescriptionCollapse } from './DescriptionCollapse';
+import { ExportApiJournalFormat, IExportApiParams } from '@/api/export/types';
 
 type JournalFormatOption = SelectOption<ExportApiJournalFormat>;
 

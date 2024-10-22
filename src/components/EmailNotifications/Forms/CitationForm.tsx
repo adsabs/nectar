@@ -1,4 +1,3 @@
-import { INotification, useAddNotification, useEditNotification } from '@/api';
 import { CheckIcon, DeleteIcon } from '@chakra-ui/icons';
 import {
   Button,
@@ -20,6 +19,8 @@ import {
 import { ChangeEvent, MouseEvent, useEffect, useRef, useState } from 'react';
 import { noop } from '@/utils/common/noop';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { INotification } from '@/api/vault/types';
+import { useAddNotification, useEditNotification } from '@/api/vault/vault';
 
 type Author = { author: string; type: 'Author' | 'Orcid' };
 

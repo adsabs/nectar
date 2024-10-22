@@ -1,4 +1,3 @@
-import { IDocsEntity } from '@/api';
 import {
   Box,
   BoxProps,
@@ -28,6 +27,7 @@ import { SimpleLink } from '@/components/SimpleLink';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 
 import { getFormattedNumericPubdate, unwrapStringValue } from '@/utils/common/formatters';
+import { IDocsEntity } from '@/api/search/types';
 
 const AbstractPreview = dynamic<IAbstractPreviewProps>(
   () => import('./AbstractPreview').then((mod) => mod.AbstractPreview),

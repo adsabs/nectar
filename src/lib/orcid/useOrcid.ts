@@ -2,12 +2,12 @@ import { AppState, useStore } from '@/store';
 import { useIsClient } from '@/lib/useIsClient';
 import { ORCID_LOGIN_URL } from '@/config';
 import { useRouter } from 'next/router';
-import { useOrcidGetName, useOrcidGetProfile } from '@/api/orcid';
 import { isValidIOrcidUser } from '@/api/orcid/models';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useToast } from '@chakra-ui/react';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { useOrcidGetName, useOrcidGetProfile } from '@/api/orcid/orcid';
 
 const setOrcidModeSelector = (state: AppState) => state.setOrcidMode;
 const activeSelector = (state: AppState) => state.orcid.active;

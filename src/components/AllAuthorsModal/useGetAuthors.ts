@@ -1,6 +1,6 @@
-import { IDocsEntity } from '@/api';
 import { adjust, compose, map, range, repeat, transpose, without } from 'ramda';
 import { useEffect, useState } from 'react';
+import { IDocsEntity } from '@/api/search/types';
 
 export interface IUseAuthorsProps {
   doc: IDocsEntity;

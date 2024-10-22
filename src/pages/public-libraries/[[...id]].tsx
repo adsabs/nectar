@@ -1,12 +1,13 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useGetLibraryEntity } from '@/api';
+
 import Head from 'next/head';
 import { BRAND_NAME_FULL } from '@/config';
 import { CustomInfoMessage, LoadingMessage } from '@/components/Feedbacks';
 import { LibraryEntityPane } from '@/components/Libraries';
 import { unwrapStringValue } from '@/utils/common/formatters';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { useGetLibraryEntity } from '@/api/biblib/libraries';
 
 const PublicLibraries: NextPage = () => {
   const router = useRouter();

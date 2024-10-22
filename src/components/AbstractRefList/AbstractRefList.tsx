@@ -1,4 +1,3 @@
-import { IADSApiSearchParams, IDocsEntity } from '@/api';
 import { Stack } from '@chakra-ui/react';
 
 import { Pagination, PaginationProps } from '@/components/ResultList/Pagination';
@@ -10,6 +9,7 @@ import { ReactElement } from 'react';
 import { SimpleResultList } from '@/components/ResultList';
 import { parseQueryFromUrl, stringifySearchParams } from '@/utils/common/search';
 import { noop } from '@/utils/common/noop';
+import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
 
 export interface IAbstractRefListProps {
   doc: IDocsEntity;

@@ -1,13 +1,3 @@
-import api, {
-  ADSMutation,
-  ADSQuery,
-  ApiRequestConfig,
-  ApiTargets,
-  IADSApiLibraryLinkServersResponse,
-  IADSApiSearchParams,
-  IADSApiSearchResponse,
-  IDocsEntity,
-} from '@/api';
 import { MutationFunction, QueryFunction, useMutation, useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { omit } from 'ramda';
 import { getVaultBigQueryParams } from './models';
@@ -18,6 +8,7 @@ import {
   IADSApiDeleteNotificationResponse,
   IADSApiEditNotificationParams,
   IADSApiEditNotificationResponse,
+  IADSApiLibraryLinkServersResponse,
   IADSApiNotificationParams,
   IADSApiNotificationQueryParams,
   IADSApiNotificationQueryResponse,
@@ -26,6 +17,10 @@ import {
   IADSApiVaultResponse,
   IADSVaultExecuteQueryParams,
 } from './types';
+import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity } from '@/api/search/types';
+import { ADSMutation, ADSQuery } from '@/api/types';
+import api, { ApiRequestConfig } from '@/api/api';
+import { ApiTargets } from '@/api/models';
 
 export enum VaultKeys {
   VAULT = 'vault',

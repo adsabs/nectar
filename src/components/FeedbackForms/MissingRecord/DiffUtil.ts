@@ -1,6 +1,6 @@
-import { IRecordParams } from '@/api/feedback';
 import { ArrayChange, Change, diffArrays, diffWords } from 'diff';
 import { DiffSection, FormValues } from './types';
+import { IRecordParams } from '@/api/feedback/types';
 
 type ProcessedFormKey = keyof IRecordParams;
 

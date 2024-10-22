@@ -1,4 +1,3 @@
-import { fetchSearchSSR, getAbstractParams, IADSApiSearchParams, IDocsEntity, searchKeys, useGetAbstract } from '@/api';
 import {
   Box,
   Button,
@@ -54,6 +53,9 @@ import { CopyMenuItem, LabeledCopyButton } from '@/components/CopyButton';
 
 import { pluralize } from '@/utils/common/formatters';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { fetchSearchSSR, searchKeys, useGetAbstract } from '@/api/search/search';
+import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
+import { getAbstractParams } from '@/api/search/models';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   () => import('@/components/AllAuthorsModal').then((m) => m.AllAuthorsModal),

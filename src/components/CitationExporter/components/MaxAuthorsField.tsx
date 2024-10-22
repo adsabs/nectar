@@ -1,4 +1,3 @@
-import { IExportApiParams } from '@/api';
 import {
   Code,
   FormLabel,
@@ -13,6 +12,7 @@ import { Dispatch, ReactElement, useEffect, useState } from 'react';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 import { DescriptionCollapse } from './DescriptionCollapse';
 import { useDebounce } from 'use-debounce';
+import { IExportApiParams } from '@/api/export/types';
 
 export const MaxAuthorsField = (props: {
   maxauthor: IExportApiParams['maxauthor'];

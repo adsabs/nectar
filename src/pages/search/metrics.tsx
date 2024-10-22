@@ -1,4 +1,3 @@
-import { IADSApiSearchParams } from '@/api';
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/react';
 
 import { GetServerSideProps, NextPage } from 'next';
@@ -8,6 +7,7 @@ import { VizPageLayout } from '@/components/Layout';
 import { MetricsPageContainer } from '@/components/Visualizations';
 import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { IADSApiSearchParams } from '@/api/search/types';
 
 interface IMetricsProps {
   originalQuery: IADSApiSearchParams;

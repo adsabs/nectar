@@ -1,6 +1,6 @@
-import { IDocsEntity } from '@/api';
 import { isNilOrEmpty } from 'ramda-adjunct';
 import { adjust, compose, map, range, repeat, transpose, without } from 'ramda';
+import { IDocsEntity } from '@/api/search/types';
 
 /**
  * Takes in a doc and tries to gather all author information into a data structure like below:

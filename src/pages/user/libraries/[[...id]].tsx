@@ -1,4 +1,3 @@
-import { fetchLibraries, fetchLibraryEntity, librariesKeys, useGetLibraryEntity } from '@/api';
 import { Center, Text } from '@chakra-ui/react';
 import { composeNextGSSP } from '@/ssr-utils';
 import { QueryClient } from '@tanstack/react-query';
@@ -11,6 +10,7 @@ import { SimpleLink } from '@/components/SimpleLink';
 import { LibrariesLandingPane, LibraryEntityPane, LibrarySettingsPane } from '@/components/Libraries';
 import { unwrapStringValue } from '@/utils/common/formatters';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { fetchLibraries, fetchLibraryEntity, librariesKeys, useGetLibraryEntity } from '@/api/biblib/libraries';
 
 interface ILibrariesHomeProps {
   id?: string;

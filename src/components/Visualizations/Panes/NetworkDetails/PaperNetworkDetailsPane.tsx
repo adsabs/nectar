@@ -1,4 +1,3 @@
-import { IADSApiPaperNetworkSummaryGraphNode, IDocsEntity } from '@/api';
 import {
   Box,
   Flex,
@@ -23,6 +22,8 @@ import { SummaryPane } from './SummaryPane';
 import { MathJax } from 'better-react-mathjax';
 
 import { unwrapStringValue } from '@/utils/common/formatters';
+import { IADSApiPaperNetworkSummaryGraphNode } from '@/api/vis/types';
+import { IDocsEntity } from '@/api/search/types';
 
 export interface IPaperNetworkNodeDetails extends IADSApiPaperNetworkSummaryGraphNode {
   papers: IDocsEntity[];

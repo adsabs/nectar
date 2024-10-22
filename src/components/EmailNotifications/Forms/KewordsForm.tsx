@@ -1,4 +1,3 @@
-import { INotification, useAddNotification, useEditNotification } from '@/api';
 import {
   Button,
   Flex,
@@ -16,6 +15,8 @@ import { isValidKeyword } from './Utils';
 import { useDebounce } from '@/lib/useDebounce';
 import { noop } from '@/utils/common/noop';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { INotification } from '@/api/vault/types';
+import { useAddNotification, useEditNotification } from '@/api/vault/vault';
 
 export const KeywordsForm = ({
   onClose,

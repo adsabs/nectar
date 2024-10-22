@@ -1,4 +1,3 @@
-import { IDocsEntity } from '@/api';
 import { IconButton, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import { LockIcon, UnlockIcon } from '@chakra-ui/icons';
 
@@ -10,6 +9,7 @@ import { useRouter } from 'next/router';
 import { MouseEventHandler, ReactElement } from 'react';
 import { SimpleLinkDropdown } from '@/components/Dropdown';
 import { isBrowser } from '@/utils/common/guards';
+import { IDocsEntity } from '@/api/search/types';
 
 export interface IItemResourceDropdownsProps {
   doc: IDocsEntity;

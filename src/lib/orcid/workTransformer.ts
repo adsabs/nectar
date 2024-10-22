@@ -1,4 +1,3 @@
-import { IDocsEntity } from '@/api';
 import { IOrcidWork } from '@/api/orcid/types';
 
 import { append, find, head, identity, map, over, pipe, set, startsWith, unless, view, when } from 'ramda';
@@ -8,6 +7,7 @@ import { Contributor, ExternalID } from '@/api/orcid/types/orcid-work';
 import { IOrcidProfileEntry } from '@/api/orcid/types/orcid-profile';
 import { coalesceAuthorsFromDoc } from '@/utils/common/coalesceAuthorsFromDoc';
 import { parsePublicationDate } from '@/utils/common/parsePublicationDate';
+import { IDocsEntity } from '@/api/search/types';
 
 const MAX_ABSTRACT_LENGTH = 4997;
 

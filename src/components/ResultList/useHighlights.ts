@@ -1,7 +1,7 @@
-import { useGetHighlights } from '@/api';
 import { AppState, useStore } from '@/store';
 import { decode } from 'he';
 import { flatten, map, pipe, reduce, values } from 'ramda';
+import { useGetHighlights } from '@/api/search/search';
 
 /**
  * Transform incoming highlights data into 2d array

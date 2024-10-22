@@ -1,6 +1,8 @@
-import api, { ADSMutation, ApiRequestConfig, ApiTargets } from '@/api';
 import { MutationFunction, useMutation } from '@tanstack/react-query';
-import { IFeedbackParams, IADSApiFeedbackResponse } from './types';
+import { IADSApiFeedbackResponse, IFeedbackParams } from './types';
+import { ADSMutation } from '@/api/types';
+import api, { ApiRequestConfig } from '@/api/api';
+import { ApiTargets } from '@/api/models';
 
 const feedbackKeys = {
   general: () => ['feedback/general'] as const,

@@ -1,4 +1,3 @@
-import { INotification, NotificationTemplate, useGetNotification } from '@/api';
 import {
   Center,
   Modal,
@@ -17,6 +16,8 @@ import { KeywordsForm } from './Forms/KewordsForm';
 import { QueryForm } from './Forms/QueryForm';
 import { noop } from '@/utils/common/noop';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { INotification, NotificationTemplate } from '@/api/vault/types';
+import { useGetNotification } from '@/api/vault/vault';
 
 export const AddNotificationModal = ({
   isOpen,

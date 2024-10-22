@@ -1,7 +1,6 @@
-import { FacetField } from '@/api';
-
 import { SearchFacetID } from './types';
 import { ISearchFacetProps } from '@/components/SearchFacet/SearchFacet';
+import { FacetField } from '@/api/search/types';
 
 const defaultLogic: ISearchFacetProps['logic'] = {
   single: ['limit to', 'exclude'],

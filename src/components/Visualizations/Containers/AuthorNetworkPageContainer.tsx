@@ -1,4 +1,3 @@
-import { IADSApiSearchParams, useVaultBigQuerySearch } from '@/api';
 import { IADSApiAuthorNetworkNode, IBibcodeDict } from '@/api/vis/types';
 import { useGetAuthorNetwork } from '@/api/vis/vis';
 import { Box, Center, SimpleGrid, useBreakpointValue, useToast } from '@chakra-ui/react';
@@ -23,6 +22,8 @@ import { Expandable } from '@/components/Expandable';
 import { SimpleLink } from '@/components/SimpleLink';
 import { DataDownloader } from '@/components/DataDownloader';
 import { makeSearchParams } from '@/utils/common/search';
+import { IADSApiSearchParams } from '@/api/search/types';
+import { useVaultBigQuerySearch } from '@/api/vault/vault';
 
 interface IAuthorNetworkPageContainerProps {
   query: IADSApiSearchParams;
@@ -143,7 +144,7 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
   useEffect(() => {
     if (bigQueryData && applyingBibcodes.length > 0) {
       const q = setFQ('selection', `docs(${bigQueryData.qid})`, query);
-      const search = makeSearchParams(q as IADSApiSearchParams);
+      const search = makeSearchParams(q);
       void router.push({ pathname: '/search', search });
       setApplyingBibcodes([]);
     }

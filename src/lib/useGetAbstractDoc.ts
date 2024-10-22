@@ -1,4 +1,5 @@
-import { IDocsEntity, useGetAbstract } from '@/api';
+import { IDocsEntity } from '@/api/search/types';
+import { useGetAbstract } from '@/api/search/search';
 
 /**
  * helper hook for getting hold of the primary doc

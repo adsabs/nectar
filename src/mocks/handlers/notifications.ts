@@ -1,15 +1,15 @@
-import {
-  ApiTargets,
-  IADSApiAddNotificationParams,
-  IADSApiEditNotificationParams,
-  IADSApiNotificationsReponse,
-  INotification,
-} from '@/api';
 import { apiHandlerRoute } from '@/mocks/mockHelpers';
 import { rest } from 'msw';
 import { omit } from 'ramda';
 import allNotifications from '../responses/notifications/all-notifications.json';
 import allEntities from '../responses/notifications/notification-entities.json';
+import {
+  IADSApiAddNotificationParams,
+  IADSApiEditNotificationParams,
+  IADSApiNotificationsReponse,
+  INotification,
+} from '@/api/vault/types';
+import { ApiTargets } from '@/api/models';
 
 const notifications = [...allNotifications] as IADSApiNotificationsReponse;
 

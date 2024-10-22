@@ -1,4 +1,3 @@
-import { ExportApiFormatKey } from '@/api';
 import { CheckIcon, DownloadIcon } from '@chakra-ui/icons';
 import { Button, HStack, Spinner, Stack, StackProps, Textarea, useBreakpointValue } from '@chakra-ui/react';
 import { useDownloadFile } from '@/lib/useDownloadFile';
@@ -8,6 +7,7 @@ import { LabeledCopyButton } from '@/components/CopyButton';
 
 import { sendGTMEvent } from '@next/third-parties/google';
 import { useColorModeColors } from '@/lib/useColorModeColors';
+import { ExportApiFormatKey } from '@/api/export/types';
 
 export const ResultArea = ({
   result = '',

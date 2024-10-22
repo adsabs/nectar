@@ -1,5 +1,3 @@
-import { Database, IDocsEntity, useGetSingleRecord } from '@/api';
-import { IFeedbackParams } from '@/api/feedback';
 import {
   AlertStatus,
   Button,
@@ -37,6 +35,9 @@ import { PreviewModal } from '@/components/FeedbackForms';
 import { IResourceUrl, useGetResourceLinks } from '@/lib/useGetResourceLinks';
 import { useGetUserEmail } from '@/lib/useGetUserEmail';
 import { parsePublicationDate } from '@/utils/common/parsePublicationDate';
+import type { Database, IDocsEntity } from '@/api/search/types';
+import type { IFeedbackParams } from '@/api/feedback/types';
+import { useGetSingleRecord } from '@/api/search/search';
 
 const collections: { value: Database; label: string }[] = [
   { value: 'astronomy', label: 'Astronomy and Astrophysics' },

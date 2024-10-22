@@ -1,4 +1,3 @@
-import { ExportApiFormatKey, IDocsEntity, isExportApiFormat, useGetAbstract } from '@/api';
 import { Box } from '@chakra-ui/react';
 
 import { AbsLayout } from '@/components/Layout/AbsLayout';
@@ -8,6 +7,9 @@ import { useRouter } from 'next/router';
 import { useSettings } from '@/lib/useSettings';
 import { CitationExporter } from '@/components/CitationExporter';
 import { JournalFormatMap } from '@/components/Settings';
+import { ExportApiFormatKey, isExportApiFormat } from '@/api/export/types';
+import { useGetAbstract } from '@/api/search/search';
+import { IDocsEntity } from '@/api/search/types';
 
 const ExportCitationPage: NextPage = () => {
   const router = useRouter();
