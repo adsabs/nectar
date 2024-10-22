@@ -1,6 +1,7 @@
 import { ArrayChange, Change, diffArrays, diffWords } from 'diff';
 import { DiffSection, FormValues } from './types';
 import { IRecordParams } from '@/api/feedback/types';
+import { logger } from '@/logger';
 
 type ProcessedFormKey = keyof IRecordParams;
 
@@ -60,7 +61,8 @@ export const getDiffSections = (leftValues: FormValues, rightValues: FormValues)
       } else if (typeof value === 'string') {
         changes = diffWords(value, right[key as ProcessedFormKey] as string);
       }
-    } catch (e) {
+    } catch (err) {
+      logger.error({ err, key, value, isArray, left, right }, 'Error caught while attempting to diff sections');
       return null;
     }
 
@@ -98,7 +100,8 @@ export const getDiffString = (leftValues: FormValues, rightValues: FormValues) =
       } else if (typeof value === 'string') {
         changes = diffWords(value, right[key as ProcessedFormKey] as string);
       }
-    } catch (e) {
+    } catch (err) {
+      logger.error({ err, changes, left, right, sections }, 'Error caught while attempting to diff strings');
       return null;
     }
 
@@ -138,7 +141,7 @@ const stringifyArrayChanges = (changes: ArrayChange<string>[]) => {
       };
       index += 1;
     } else if (entries[i].removed && entries[j] && entries[j].added) {
-      // actual change made, this should show up as text striked through
+      // actual change made, this should show up as text struck through
 
       out.push(`${index} ${strikeText(entries[i].value)}${entries[j].value}`);
       entries[j] = { value: entries[j].value, count: entries[j].count };

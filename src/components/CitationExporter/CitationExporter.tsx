@@ -36,6 +36,7 @@ import { noop } from '@/utils/common/noop';
 import { ExportApiFormatKey, ExportApiJournalFormat, IExportApiParams, isExportApiFormat } from '@/api/export/types';
 import { IDocsEntity } from '@/api/search/types';
 import { SolrSort } from '@/api/models';
+import { logger } from '@/logger';
 
 export interface ICitationExporterProps extends HTMLAttributes<HTMLDivElement> {
   singleMode?: boolean;
@@ -129,14 +130,15 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
           dispatch('FORCE_SUBMIT');
           return false;
         }
-      } catch (e) {
+      } catch (err) {
+        logger.error({ err, as }, 'Error caught attempting to parse format from url');
         dispatch({ type: 'SET_FORMAT', payload: ExportApiFormatKey.bibtex });
         dispatch('FORCE_SUBMIT');
       }
       return true;
     });
     return () => router.beforePopState(() => true);
-  }, []);
+  }, [dispatch, router]);
 
   const handleOnSubmit: ChangeEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();

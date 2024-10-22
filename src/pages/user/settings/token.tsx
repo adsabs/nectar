@@ -124,7 +124,9 @@ const TokenArea = (props: { onGenerate: () => void; isLoading: boolean }) => {
     <Stack direction="column" gap={2}>
       <Stack direction="row" spacing={0}>
         <InputGroup size="md">
-          <InputLeftAddon children={<SimpleCopyButton text={data?.access_token} />} />
+          <InputLeftAddon>
+            <SimpleCopyButton text={data?.access_token} />
+          </InputLeftAddon>
           <PasswordTextInput name="token" id="token" value={data?.access_token} autoFocus isReadOnly />
         </InputGroup>
         <Button
@@ -147,7 +149,7 @@ const TokenArea = (props: { onGenerate: () => void; isLoading: boolean }) => {
         <>
           <Text>
             This API token allows you to access ADS data programmatically. For instance, to fetch the first few bibcodes
-            for the query "star", make the following request:
+            for the query &#34;star&#34;, make the following request:
           </Text>
           <Heading size="sm" as="h2">
             API Usage

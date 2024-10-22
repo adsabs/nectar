@@ -47,19 +47,30 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
 
   const newURLTypeInputRef = useRef<never>();
 
-  const isValidUrl = ({ url, type }: IResourceUrl) => {
+  /**
+   * Checks if the provided URL is valid and uses an allowed protocol.
+   *
+   * This function takes an object containing a URL and a type,
+   * and verifies if the URL is valid and if it uses one of the allowed protocols (http or https).
+   *
+   * @param {Object} param - The input object containing the URL and type.
+   * @param {string} param.url - The URL to be validated.
+   * @param {string} param.type - The type associated with the URL.
+   * @returns {boolean} Returns true if the URL is valid and uses an allowed protocol, otherwise false.
+   */
+  const isValidUrl = ({ url, type }: IResourceUrl): boolean => {
     if (!url || !type) {
       return false;
     }
 
-    let test;
+    const VALID_PROTOCOLS = ['http:', 'https:'];
+
     try {
-      test = new URL(url);
-    } catch (_) {
+      const testUrl = new URL(url);
+      return VALID_PROTOCOLS.includes(testUrl.protocol);
+    } catch {
       return false;
     }
-
-    return test.protocol === 'http:' || test.protocol === 'https:';
   };
 
   const newUrlIsValid = !!newUrl && isValidUrl(newUrl);

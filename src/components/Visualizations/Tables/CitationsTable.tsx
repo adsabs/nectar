@@ -90,7 +90,8 @@ export const CitationsTable = (props: ICitationsTableProps): ReactElement => {
                   <sup>i</sup> is the number of authors for publication i and C<sub>i</sub> the number of citations that
                   this paper received, the normalized citation count for each article is C<sub>i</sub>/N
                   <sub>auth</sub>
-                  <sup>i</sup> ,and the 'normalized citations' for this list of N papers is the sum of these N numbers.
+                  <sup>i</sup> ,and the &#39;normalized citations&#39; for this list of N papers is the sum of these N
+                  numbers.
                 </div>
               }
             >

@@ -7,6 +7,7 @@ import { BasicStatsKey, CitationsStatsKey, IADSApiMetricsResponse, MetricsRespon
 import api, { ApiRequestConfig } from '@/api/api';
 import { ApiTargets } from '@/api/models';
 import { IADSApiMetricsParams } from '@/api/metrics/types';
+import { logger } from '@/logger';
 
 const MAX_RETRIES = 3;
 
@@ -48,7 +49,8 @@ export const useHasMetrics: ADSQuery<Bibcode, IADSApiMetricsResponse, null, bool
     const hasReads = metrics[MetricsResponseKey.BS][BasicStatsKey.TNR] > 0;
 
     return hasCitations || hasReads;
-  } catch (e) {
+  } catch (err) {
+    logger.error({ err, metrics }, 'Caught error attempting to check for reads/citations');
     return false;
   }
 };

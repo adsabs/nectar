@@ -1,10 +1,11 @@
-//  eslint-disable-next-line @next/next/no-server-import-in-page
 import { NextRequest, NextResponse } from 'next/server';
 import { getIronSession } from 'iron-session/edge';
 import { sessionConfig } from '@/config';
 import { edgeLogger } from '@/logger';
 import { ApiTargets } from '@/api/models';
 import { IVerifyAccountResponse } from '@/api/user/types';
+
+const log = edgeLogger.child({}, { msgPrefix: '[verifyMiddleware] ' });
 
 const extractToken = (path: string) => {
   try {
@@ -15,12 +16,12 @@ const extractToken = (path: string) => {
       return { token, route };
     }
     return { route: '', token: '' };
-  } catch (e) {
+  } catch (err) {
+    log.error({ err, path }, 'Error caught attempting to extract verify token');
     return { route: '', token: '' };
   }
 };
 
-const log = edgeLogger.child({}, { msgPrefix: '[verifyMiddleware] ' });
 export const verifyMiddleware = async (req: NextRequest, res: NextResponse) => {
   log.debug('Handling verify request');
   const session = await getIronSession(req, res, sessionConfig);

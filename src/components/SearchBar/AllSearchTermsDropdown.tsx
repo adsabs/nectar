@@ -153,11 +153,9 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
             onClick={toggleIsOpen}
             data-testid="allSearchTermsInput"
           />
-          <InputRightElement
-            children={<ChevronDownIcon boxSize={6} color="gray.200" />}
-            data-testid="allSearchTermsMenuToggle"
-            {...getToggleButtonProps()}
-          />
+          <InputRightElement data-testid="allSearchTermsMenuToggle" {...getToggleButtonProps()}>
+            <ChevronDownIcon boxSize={6} color="gray.200" />
+          </InputRightElement>
         </InputGroup>
       </Flex>
       <UnorderedList
@@ -255,3 +253,4 @@ const SearchTermTooltip = forwardRef<HTMLDivElement, ISearchTermTooltipProps>(({
     </Box>
   );
 });
+SearchTermTooltip.displayName = 'SearchTermTooltip';

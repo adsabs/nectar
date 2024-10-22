@@ -12,3 +12,4 @@ export const SearchBar = forwardRef<HTMLInputElement, ISearchInputProps>((props,
     </VStack>
   );
 });
+SearchBar.displayName = 'SearchBar';

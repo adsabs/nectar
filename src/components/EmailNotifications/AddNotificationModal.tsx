@@ -12,7 +12,7 @@ import { CustomInfoMessage } from '@/components/Feedbacks';
 import { useMemo } from 'react';
 import { ArxivForm } from './Forms/ArxivForm';
 import { CitationForm } from './Forms/CitationForm';
-import { KeywordsForm } from './Forms/KewordsForm';
+import { KeywordsForm } from './Forms/KeywordsForm';
 import { QueryForm } from './Forms/QueryForm';
 import { noop } from '@/utils/common/noop';
 import { parseAPIError } from '@/utils/common/parseAPIError';

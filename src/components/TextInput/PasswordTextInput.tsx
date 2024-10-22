@@ -35,6 +35,7 @@ export const PasswordTextInput = forwardRef<HTMLInputElement, IPasswordTextInput
     </>
   );
 });
+PasswordTextInput.displayName = 'PasswordTextInput';
 
 export const passwordValidators = {
   uppercase: (password: string) => /[A-Z]/.test(password),

@@ -240,6 +240,7 @@ export const NodeList = memo((props: INodeListProps) => {
     </>
   );
 }, equals);
+NodeList.displayName = 'NodeList';
 
 export const NodeListModal = (props: INodeListProps) => {
   const { prefix, searchTerm, level, onError } = props;
@@ -546,6 +547,7 @@ export const NodeCheckbox = forwardRef<HTMLInputElement, INodeCheckboxProps>((pr
     </Checkbox>
   );
 });
+NodeCheckbox.displayName = 'NodeCheckbox';
 
 interface ILoadMoreBtnProps extends Omit<IconButtonProps, 'aria-label'> {
   show: boolean;

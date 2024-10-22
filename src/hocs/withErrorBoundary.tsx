@@ -10,6 +10,7 @@ interface IWithErrorBoundaryProps {
 
 export const withErrorBoundary =
   <TProps extends object>(options: IWithErrorBoundaryProps, WrappedComponent: FunctionComponent<TProps>) =>
+  // eslint-disable-next-line react/display-name
   (props: TProps) =>
     (
       <QueryErrorResetBoundary>

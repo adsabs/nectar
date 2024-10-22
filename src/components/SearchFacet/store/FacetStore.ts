@@ -131,6 +131,8 @@ export const FacetStoreProvider: FC<{ facetId: SearchFacetID }> = ({ children, f
     ['label', 'field', 'hasChildren', 'logic', 'facetQuery', 'filter', 'forceUppercaseInitial', 'maxDepth'],
     facetConfig[facetId],
   ) as FacetParams;
+
+  // eslint-disable-next-line react/no-children-prop
   return createElement(FacetStoreContext.Provider, {
     createStore: createStore({ params }),
     children,

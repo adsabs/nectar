@@ -23,6 +23,7 @@ import { TOAST_DEFAULTS } from '@/components/Orcid/helpers';
 import { AddToOrcidButton } from '@/components/Orcid/AddToOrcidButton';
 import { Cog8ToothIcon } from '@heroicons/react/20/solid';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { logger } from '@/logger';
 
 export interface IActionProps {
   work: IOrcidProfileEntry;
@@ -88,7 +89,7 @@ const SyncToOrcidMenuItem = (props: IOrcidActionProps) => {
         description: parseAPIError(error),
       });
     }
-  }, [error]);
+  }, [error, toast]);
 
   const handleSyncToOrcid = () => {
     toastId.current = toast({
@@ -100,7 +101,8 @@ const SyncToOrcidMenuItem = (props: IOrcidActionProps) => {
     if (work) {
       try {
         updateWork(work);
-      } catch (error) {
+      } catch (err) {
+        logger.error({ err, work }, 'Error syncing claim');
         toast.update(toastId.current, { status: 'error', title: 'Unable to sync claim' });
       }
     }

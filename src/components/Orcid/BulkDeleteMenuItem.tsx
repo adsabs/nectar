@@ -19,6 +19,7 @@ import { IOrcidResponse } from '@/api/orcid/types';
 
 import { pluralize } from '@/utils/common/formatters';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { logger } from '@/logger';
 
 const selectedDocsSelector = (state: AppState) => state.docs.selected;
 export const BulkDeleteMenuItem = (props: MenuItemProps) => {
@@ -69,14 +70,15 @@ export const BulkDeleteMenuItem = (props: MenuItemProps) => {
 
     try {
       removeWorks(selected);
-    } catch (e) {
+    } catch (err) {
+      logger.error({ err, selected }, 'Error deleting claim');
       toast.update(mainToastIdRef.current, {
         status: 'error',
         title: 'Unable to delete claims',
         description: 'Please try again later.',
       });
     }
-  }, [removeWorks, selected]);
+  }, [removeWorks, selected, toast]);
 
   return (
     <MenuItem onClick={handleClick} isDisabled={selected.length === 0} {...props}>

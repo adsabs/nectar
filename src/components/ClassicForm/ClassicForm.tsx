@@ -137,8 +137,8 @@ export const ClassicForm = (props: IClassicFormProps) => {
               Use <Code>-</Code> to filter out an author. (Ex: <Code>-Smith, John</Code>)
             </Text>
             <Text>
-              Use <Code>=</Code> to restrict name expansion. For example <Code>=Smith, Jim</Code> will match "Smith,
-              Jim" but not "Smith, James".
+              Use <Code>=</Code> to restrict name expansion. For example <Code>=Smith, Jim</Code> will match &#34;Smith,
+              Jim&#34; but not &#34;Smith, James&#34;.
             </Text>
             <Text>
               Surround name with <Code>^ $</Code> to match papers with only one particular author. (Ex:{' '}
@@ -179,18 +179,22 @@ export const ClassicForm = (props: IClassicFormProps) => {
             <VisuallyHidden id="publication-group">Publication</VisuallyHidden>
             <FormLabel>Publication Date Start</FormLabel>
             <InputGroup>
-              <InputLeftElement pointerEvents="none" children={<CalendarIcon color="gray.300" />} />
+              <InputLeftElement pointerEvents="none">
+                <CalendarIcon color="gray.300" />
+              </InputLeftElement>
               <Input placeholder="YYYY/MM" type="text" {...register('pubdate_start')} />
             </InputGroup>
-            <FormHelperText>Ex: "2011/04"</FormHelperText>
+            <FormHelperText>Ex: &#34;2011/04&#34;</FormHelperText>
           </FormControl>
           <FormControl>
             <FormLabel>Publication Date End</FormLabel>
             <InputGroup>
-              <InputLeftElement pointerEvents="none" children={<CalendarIcon color="gray.300" />} />
+              <InputLeftElement pointerEvents="none">
+                <CalendarIcon color="gray.300" />
+              </InputLeftElement>
               <Input placeholder="YYYY/MM" {...register('pubdate_end')} />
             </InputGroup>
-            <FormHelperText>Ex: "2014/12"</FormHelperText>
+            <FormHelperText>Ex: &#34;2014/12&#34;</FormHelperText>
           </FormControl>
         </Stack>
 
@@ -201,7 +205,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
             <LogicRadios variant="all" radioProps={register('logic_title')} />
           </Flex>
           <Input {...register('title')} />
-          <FormHelperText>Ex: "Content of the Future in the ADS"</FormHelperText>
+          <FormHelperText>Ex: &#34;Content of the Future in the ADS&#34;</FormHelperText>
         </FormControl>
 
         {/* Abstract / Keywords */}
@@ -211,7 +215,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
             <LogicRadios variant="all" radioProps={register('logic_abstract_keywords')} />
           </Flex>
           <Input {...register('abstract_keywords')} />
-          <FormHelperText>Ex: "Dark Energy"</FormHelperText>
+          <FormHelperText>Ex: &#34;Dark Energy&#34;</FormHelperText>
         </FormControl>
 
         {/* Property */}
@@ -239,7 +243,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
                 <VisuallyHidden id="bibstem">Publications</VisuallyHidden>
                 <FormLabel htmlFor="bibstem-picker">Publications</FormLabel>
                 <BibstemPicker isMultiple onChange={(items) => field.onChange(items)} id="bibstem-picker" />
-                <FormHelperText>Ex. "A&amp;A" or "-A&amp;A"</FormHelperText>
+                <FormHelperText>Ex. &#34;A&amp;A&#34; or &#34;-A&amp;A&#34;</FormHelperText>
               </FormControl>
             )}
           />
@@ -247,7 +251,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
           <FormControl>
             <FormLabel>Publication</FormLabel>
             <Input placeholder="Publication" {...register('bibstems')} />
-            <FormHelperText>Start typing to search journal database (ex. "ApJ")</FormHelperText>
+            <FormHelperText>Start typing to search journal database (ex. &#34;ApJ&#34;)</FormHelperText>
           </FormControl>
         )}
 

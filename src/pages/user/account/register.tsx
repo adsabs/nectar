@@ -67,7 +67,7 @@ const Register: NextPage = () => {
         setFormError(e as Error);
       }
     },
-    [executeRecaptcha],
+    [executeRecaptcha, submit],
   );
 
   return (

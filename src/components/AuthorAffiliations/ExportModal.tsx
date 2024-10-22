@@ -49,7 +49,7 @@ export const ExportModal = (props: ButtonProps) => {
       // if modal closes unexpectedly, this will make sure the state gets reset
       onDone();
     }
-  }, [isOpen]);
+  }, [isOpen, onDone]);
 
   return (
     <>
@@ -69,7 +69,7 @@ export const ExportModal = (props: ButtonProps) => {
               <Stack>
                 {exportTypes.map((type) => (
                   <Radio size="sm" key={type} value={type}>
-                    <Code children={type} p="1" />
+                    <Code p="1">{type}</Code>
                   </Radio>
                 ))}
               </Stack>

@@ -143,13 +143,15 @@ export const ConceptCloudPageContainer = ({ query }: IConceptCloudPageContainerP
                 <Text>
                   Move the slider towards <strong> Frequent</strong> to view a word cloud that is simply composed of the
                   words that appeared most frequently in your results. (This word cloud is likely to feature generic
-                  terms like 'observations' prominently.)
+                  terms like &#39;observations&#39; prominently.)
                 </Text>
                 <Text>
                   Move the slider towards <strong>Unique</strong> to see a word cloud that shows words that appeared in
                   your results but which appear very rarely in the rest of the ADS corpus.
                 </Text>
-                <Text>To facet your ADS search, select words from the word cloud and click the 'Search' button.</Text>
+                <Text>
+                  To facet your ADS search, select words from the word cloud and click the &#39;Search&#39; button.
+                </Text>
                 <SimpleLink href="/help/actions/visualize#word-cloud" newTab>
                   Learn more about concept cloud
                 </SimpleLink>

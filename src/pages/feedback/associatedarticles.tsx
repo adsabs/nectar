@@ -63,7 +63,8 @@ const AssociatedArticles: NextPage = () => {
         Such associated references are connected with links in the SciX database. If you know of any correlated
         references (errata, multiple part articles, etc) that do not have such links, please let us know about them by
         filling in the codes for these correlated articles in this form. The form accepts one bibcode for the main paper
-        and one or more bibcodes for the associated articles. Use the "Add a Record" button to enter multiple records.
+        and one or more bibcodes for the associated articles. Use the &#34;Add a Record&#34; button to enter multiple
+        records.
       </Text>
       <AssociatedArticlesForm onOpenAlert={handleOnOpenAlert} />
     </FeedbackLayout>

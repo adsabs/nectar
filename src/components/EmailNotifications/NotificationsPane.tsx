@@ -111,7 +111,11 @@ export const NotificationsPane = () => {
       {
         onSettled(data, error) {
           if (error) {
-            toast({ status: 'error', title: 'Error', description: parseAPIError(error) });
+            toast({
+              status: 'error',
+              title: 'Error',
+              description: parseAPIError(error),
+            });
           } else {
             toast({ status: 'success', title: 'Notification modified' });
             void refetch();
@@ -137,7 +141,11 @@ export const NotificationsPane = () => {
       {
         onSettled(data, error) {
           if (error) {
-            toast({ status: 'error', title: 'Error', description: parseAPIError(error) });
+            toast({
+              status: 'error',
+              title: 'Error',
+              description: parseAPIError(error),
+            });
           } else {
             toast({ status: 'success', title: 'Notification Deleted' });
             reload();
@@ -282,7 +290,7 @@ const CreateQueryNotificationMenuItem = () => {
               <OrderedList>
                 <ListItem>Perform a new search from the search page</ListItem>
                 <ListItem>
-                  On the results page, click the 'Create Email Notification' icon <BellIcon aria-hidden />
+                  On the results page, click the &#39;Create Email Notification&#39; icon <BellIcon aria-hidden />
                 </ListItem>
               </OrderedList>
               <SimpleLink mt={2} href="/" fontWeight="bold">
@@ -342,7 +350,11 @@ const Action = ({
       void router.push({ pathname: '/search', search: params });
       setRunQueryId(null);
     } else if (error) {
-      toast({ status: 'error', title: 'An error occurred', description: parseAPIError(error) });
+      toast({
+        status: 'error',
+        title: 'An error occurred',
+        description: parseAPIError(error),
+      });
     }
   }, [queries, error, runQueryId]);
 
@@ -353,10 +365,11 @@ const Action = ({
         variant="outline"
         rightIcon={<ChevronDownIcon />}
         onClick={(e) => e.stopPropagation()}
-        children={<SettingsIcon />}
         data-testid="action-btn"
         aria-label={`actions`}
-      />
+      >
+        <SettingsIcon />
+      </MenuButton>
       {/* make sure parent <tr> doesn't overwrite colors here when row is disabled */}
       <MenuList backgroundColor={colors.background} color={colors.text} data-testid="action-menu">
         {type === 'template' && template === 'keyword' && data !== null ? (

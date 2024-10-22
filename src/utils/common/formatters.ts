@@ -1,6 +1,7 @@
 import { isArray, isNonEmptyString, isNotString } from 'ramda-adjunct';
 import { head, pipe, when } from 'ramda';
 import DOMPurify from 'isomorphic-dompurify';
+import { logger } from '@/logger';
 
 /**
  * Truncates a decimal number to a specified number of decimal places without rounding.
@@ -85,7 +86,8 @@ export const capitalizeString = (str: string) =>
 export const purifyString = (value: string): string => {
   try {
     return DOMPurify.sanitize(value);
-  } catch (e) {
+  } catch (err) {
+    logger.error({ err, value }, 'Error caught sanitizing string');
     return value;
   }
 };

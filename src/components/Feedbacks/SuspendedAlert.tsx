@@ -87,8 +87,10 @@ export const getFallBackAlert = (
   props: Omit<ISuspendedAlertProps, 'error' | 'resetErrorBoundary'> & { variant?: 'full' | 'minimal' },
 ) => {
   if (props?.variant === 'minimal') {
+    // eslint-disable-next-line react/display-name
     return (fallbackProps: FallbackProps) => <MinimalSuspendedAlert {...props} {...fallbackProps} />;
   }
 
+  // eslint-disable-next-line react/display-name
   return (fallbackProps: FallbackProps) => <SuspendedAlert {...props} {...fallbackProps} />;
 };

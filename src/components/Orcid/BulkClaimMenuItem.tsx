@@ -8,6 +8,7 @@ import { BulkClaimErrorDetails } from '@/components/Orcid/BulkDeleteMenuItem';
 
 import { pluralize } from '@/utils/common/formatters';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { logger } from '@/logger';
 
 const selectedDocsSelector = (state: AppState) => state.docs.selected;
 
@@ -80,14 +81,15 @@ export const BulkClaimMenuItem = (props: MenuItemProps) => {
 
     try {
       addWorks(selected.slice(0, 100));
-    } catch (error) {
+    } catch (err) {
+      logger.error({ err, selected }, 'Error caught attempting to claim works');
       toast.update(mainToastIdRef.current, {
         status: 'error',
         title: 'Unable to claim works',
         description: 'Please try again later.',
       });
     }
-  }, [addWorks, selected]);
+  }, [addWorks, selected, toast]);
 
   return (
     <MenuItem onClick={handleClick} isDisabled={selected.length === 0} {...props}>

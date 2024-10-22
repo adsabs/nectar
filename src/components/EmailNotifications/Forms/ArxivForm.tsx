@@ -131,7 +131,7 @@ export const ArxivForm = ({
 
   const handleAddNotification = (params: IADSApiAddNotificationParams) => {
     addNotification(params, {
-      onSettled(data, error) {
+      onSettled(_data, error) {
         if (error) {
           toast({ status: 'error', title: 'Error', description: parseAPIError(error) });
         } else {
@@ -145,7 +145,7 @@ export const ArxivForm = ({
 
   const handleEditNotification = (params: IADSApiEditNotificationParams) => {
     editNofication(params, {
-      onSettled(data, error) {
+      onSettled(_data, error) {
         if (error) {
           toast({ status: 'error', title: 'Error', description: parseAPIError(error) });
         } else {
@@ -172,8 +172,8 @@ export const ArxivForm = ({
           <Input onChange={handleKeywordsChange} value={keywords} autoFocus placeholder="star OR planet" />
           <FormErrorMessage>{kwErrorMessage}</FormErrorMessage>
           <Text fontSize="sm" fontStyle="italic" mt={1}>
-            Used to rank papers from selected arXiv categories (below). Boolean "AND" is assumed, but can be overriden
-            by using explicit logical operators between keywords
+            Used to rank papers from selected arXiv categories (below). Boolean &#34;AND&#34; is assumed, but can be
+            overridden by using explicit logical operators between keywords
           </Text>
         </FormControl>
         <FormControl>

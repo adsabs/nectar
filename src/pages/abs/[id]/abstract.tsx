@@ -247,6 +247,7 @@ const Doi = memo(({ doiIDs, bibcode }: { doiIDs: Array<string>; bibcode: string 
     </>
   );
 }, equals);
+Doi.displayName = 'Doi';
 
 const Keywords = memo(({ keywords }: { keywords: Array<string> }) => {
   const label = `Search for papers that mention this keyword`;
@@ -281,6 +282,7 @@ const Keywords = memo(({ keywords }: { keywords: Array<string> }) => {
     </Detail>
   );
 }, equals);
+Keywords.displayName = 'Keywords';
 
 const PlanetaryFeatures = memo(({ features, ids }: { features: Array<string>; ids: Array<string> }) => {
   const label = `Search for papers that mention this feature`;
@@ -352,6 +354,7 @@ const PlanetaryFeatures = memo(({ features, ids }: { features: Array<string>; id
     </Detail>
   );
 }, equals);
+PlanetaryFeatures.displayName = 'PlanetaryFeatures';
 
 interface IDetailProps<T = string | Array<string>> {
   label: string;

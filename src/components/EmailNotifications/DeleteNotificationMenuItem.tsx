@@ -1,13 +1,13 @@
 import {
-  useDisclosure,
-  Button,
   AlertDialog,
-  AlertDialogOverlay,
-  AlertDialogContent,
-  AlertDialogHeader,
   AlertDialogBody,
+  AlertDialogContent,
   AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
+  Button,
   MenuItem,
+  useDisclosure,
 } from '@chakra-ui/react';
 import { MouseEvent, useRef } from 'react';
 
@@ -42,7 +42,7 @@ export const DeleteNotificationMenuItem = ({
             <AlertDialogHeader fontSize="lg" fontWeight="bold">
               Delete Noficitaion
             </AlertDialogHeader>
-            <AlertDialogBody>Are you sure? You can't undo this action.</AlertDialogBody>
+            <AlertDialogBody>Are you sure? You can&#39;t undo this action.</AlertDialogBody>
             <AlertDialogFooter backgroundColor="transparent">
               <Button ref={cancelRef} onClick={onClose} variant="outline">
                 Cancel

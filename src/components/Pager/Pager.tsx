@@ -177,3 +177,4 @@ const DotTab = forwardRef<HTMLButtonElement, TabProps>((props, ref) => {
     </Tab>
   );
 });
+DotTab.displayName = 'DotTab';
