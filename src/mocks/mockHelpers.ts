@@ -1,7 +1,8 @@
-import { ApiTargets, Esources, IADSApiSearchResponse } from '@/api';
 import { IAuthorAffiliationItem } from '@/api/author-affiliation/types';
 import { faker } from '@faker-js/faker';
 import { range, slice } from 'ramda';
+import { Esources, IADSApiSearchResponse } from '@/api/search/types';
+import { ApiTargets } from '@/api/models';
 
 faker.seed(Date.now());
 

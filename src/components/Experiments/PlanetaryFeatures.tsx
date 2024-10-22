@@ -7,10 +7,12 @@ import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { isNil } from 'ramda';
 import { GlobeAltIcon } from '@heroicons/react/24/solid';
 import { useRouter } from 'next/router';
-import { IADSApiSearchParams, useVaultBigQuerySearch } from '@/api';
+
 import * as Q from '@/query-utils';
 import { Select } from '@/components/Select';
 import { makeSearchParams } from '@/utils/common/search';
+import { IADSApiSearchParams } from '@/api/search/types';
+import { useVaultBigQuerySearch } from '@/api/vault/vault';
 
 const BIGQUERY_THRESHOLD = 20;
 

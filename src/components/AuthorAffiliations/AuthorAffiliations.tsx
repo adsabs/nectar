@@ -1,4 +1,3 @@
-import { IADSApiSearchParams, IDocsEntity, useSearchInfinite } from '@/api';
 import { useAuthorAffiliationSearch } from '@/api/author-affiliation/author-affiliation';
 import { getAuthorAffiliationSearchParams } from '@/api/author-affiliation/model';
 import { IAuthorAffiliationItem, IAuthorAffiliationPayload } from '@/api/author-affiliation/types';
@@ -37,6 +36,8 @@ import { countOptions, NONESYMBOL } from './models';
 import { AuthorAffStoreProvider, useAuthorAffStore } from './store';
 import { IGroupedAuthorAffilationData } from './types';
 import { isIADSSearchParams } from '@/utils/common/guards';
+import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
+import { useSearchInfinite } from '@/api/search/search';
 
 export type AuthorAffiliationsProps =
   | (BoxProps & { params: IAuthorAffiliationPayload; query?: IADSApiSearchParams })

@@ -1,10 +1,10 @@
-import { IDocsEntity } from '@/api';
 import { Flex, VisuallyHidden } from '@chakra-ui/react';
 import { useIsClient } from '@/lib/useIsClient';
 import PT from 'prop-types';
 import { HTMLAttributes, ReactElement } from 'react';
 import { Item } from './Item';
 import { useHighlights } from './useHighlights';
+import { IDocsEntity } from '@/api/search/types';
 
 export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
   docs: IDocsEntity[];

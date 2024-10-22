@@ -1,16 +1,3 @@
-import {
-  CustomFormat,
-  fetchSearch,
-  fetchUserSettings,
-  getSearchParams,
-  IADSApiSearchParams,
-  IADSApiUserDataResponse,
-  JournalFormatName,
-  searchKeys,
-  UserDataKeys,
-  userKeys,
-  useSearch,
-} from '@/api';
 import { Spinner, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
 
 import { useSettings } from '@/lib/useSettings';
@@ -28,6 +15,11 @@ import { exportFormats } from '@/components/CitationExporter';
 import { SettingsLayout } from '@/components/Layout';
 import { BibtexTabPanel, CustomFormatsTabPanel, GeneralTabPanel } from '@/components/Settings';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { CustomFormat, IADSApiUserDataResponse, JournalFormatName, UserDataKeys } from '@/api/user/types';
+import { getSearchParams } from '@/api/search/models';
+import { fetchSearch, searchKeys, useSearch } from '@/api/search/search';
+import { IADSApiSearchParams } from '@/api/search/types';
+import { fetchUserSettings, userKeys } from '@/api/user/user';
 
 // partial user data params
 // used to update user data

@@ -1,5 +1,5 @@
-import { SolrSort } from '@/api';
 import { IronSessionOptions } from 'iron-session';
+import { SolrSort } from '@/api/models';
 
 export const APP_DEFAULTS = {
   DETAILS_MAX_AUTHORS: 50,

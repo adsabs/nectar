@@ -1,4 +1,3 @@
-import { ApiTargets } from '@/api';
 import { rest } from 'msw';
 import orcidNameResponse from '../responses/orcid/orcid-name.json';
 import orcidWorksPostResponse from '../responses/orcid/orcid-works_post.json';
@@ -10,6 +9,7 @@ import orcidPreferencesResponse from '../responses/orcid/orcid-preferences.json'
 import { IOrcidProfile, IOrcidWork } from '@/api/orcid/types';
 import { path } from 'ramda';
 import { api, apiHandlerRoute } from '@/mocks/mockHelpers';
+import { ApiTargets } from '@/api/models';
 
 let profile: IOrcidProfile = orcidProfileResponse as IOrcidProfile;
 const getId = path(['external-ids', 'external-id', '0', 'external-id-value']);

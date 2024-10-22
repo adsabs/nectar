@@ -1,7 +1,8 @@
-import { ADSQuery, ApiTargets } from '@/api';
 import { QueryFunction, useQuery, UseQueryResult } from '@tanstack/react-query';
 import api, { ApiRequestConfig } from '../api';
 import { ExportApiFormatKey, IExportApiParams, IExportApiResponse } from './types';
+import { ADSQuery } from '@/api/types';
+import { ApiTargets } from '@/api/models';
 
 export type UseExportCitationResult = UseQueryResult<Partial<IExportApiResponse>>;
 

@@ -1,6 +1,6 @@
-import { ExportApiFormatKey } from '@/api';
 import { Meta, StoryObj } from '@storybook/react';
 import { CitationExporter } from '../CitationExporter';
+import { ExportApiFormatKey } from '@/api/export/types';
 
 const meta: Meta = {
   title: 'CitationExporter',

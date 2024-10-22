@@ -1,8 +1,9 @@
-import { IDocsEntity, useGetAbstractPreview } from '@/api';
 import { Collapse, Flex, IconButton, Text, useToast, VStack } from '@chakra-ui/react';
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import { MathJax } from 'better-react-mathjax';
 import { ReactElement, useState } from 'react';
+import { IDocsEntity } from '@/api/search/types';
+import { useGetAbstractPreview } from '@/api/search/search';
 
 export interface IAbstractPreviewProps {
   bibcode: IDocsEntity['bibcode'];

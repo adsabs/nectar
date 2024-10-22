@@ -1,4 +1,3 @@
-import { IUserChangeEmailCredentials, useChangeUserEmail } from '@/api';
 import { Button, chakra, FormControl, FormLabel, Input, Stack, Text } from '@chakra-ui/react';
 
 import { PasswordTextInput } from '@/components/TextInput/PasswordTextInput';
@@ -8,6 +7,8 @@ import { useFocus } from '@/lib/useFocus';
 import { StandardAlertMessage } from '@/components/Feedbacks';
 import { SettingsLayout } from '@/components/Layout';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { IUserChangeEmailCredentials } from '@/api/user/types';
+import { useChangeUserEmail } from '@/api/user/user';
 
 const UpdateEmailPage = () => {
   const email = useStore((state) => state.user?.username);

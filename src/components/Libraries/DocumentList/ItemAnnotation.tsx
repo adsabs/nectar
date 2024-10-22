@@ -1,10 +1,3 @@
-import {
-  LibraryIdentifier,
-  useAddAnnotation,
-  useDeleteAnnotation,
-  useGetAbstractPreview,
-  useUpdateAnnotation,
-} from '@/api';
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon, CloseIcon, EditIcon } from '@chakra-ui/icons';
 import {
   Collapse,
@@ -26,6 +19,9 @@ import { MathJax } from 'better-react-mathjax';
 import { ChangeEvent, useState } from 'react';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { LibraryIdentifier } from '@/api/biblib/types';
+import { useAddAnnotation, useDeleteAnnotation, useUpdateAnnotation } from '@/api/biblib/libraries';
+import { useGetAbstractPreview } from '@/api/search/search';
 
 export const ItemAnnotation = ({
   library,

@@ -1,4 +1,3 @@
-import { ApiTargets, IBasicAccountsResponse, IUserCredentials } from '@/api';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { z } from 'zod';
 import { IronSession } from 'iron-session';
@@ -9,6 +8,8 @@ import { defaultRequestConfig } from '@/api/config';
 import axios, { AxiosResponse } from 'axios';
 import setCookie from 'set-cookie-parser';
 import { logger } from '@/logger';
+import { IBasicAccountsResponse, IUserCredentials } from '@/api/user/types';
+import { ApiTargets } from '@/api/models';
 
 const log = logger.child({}, { msgPrefix: '[api/login] ' });
 

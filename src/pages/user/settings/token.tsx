@@ -20,7 +20,7 @@ import {
 
 import { Suspense, useRef } from 'react';
 import { dehydrate, QueryClient, QueryErrorResetBoundary, useQueryClient } from '@tanstack/react-query';
-import { fetchUserApiToken, useGenerateNewApiToken, useGetUserApiToken, userKeys } from '@/api';
+
 import { ErrorBoundary } from 'react-error-boundary';
 import { getFallBackAlert } from '@/components/Feedbacks/SuspendedAlert';
 import { composeNextGSSP } from '@/ssr-utils';
@@ -30,6 +30,7 @@ import { SettingsLayout } from '@/components/Layout';
 import { StandardAlertMessage } from '@/components/Feedbacks';
 import { PasswordTextInput } from '@/components/TextInput';
 import { SimpleLink } from '@/components/SimpleLink';
+import { fetchUserApiToken, useGenerateNewApiToken, useGetUserApiToken, userKeys } from '@/api/user/user';
 
 const ApiTokenPage = () => {
   const qc = useQueryClient();

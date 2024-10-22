@@ -1,9 +1,9 @@
-import { IExportApiResponse } from '@/api';
 import { Alert, AlertIcon, Button, Stack } from '@chakra-ui/react';
 import { AxiosError } from 'axios';
 import { ReactElement } from 'react';
 import { ExportContainer } from './ExportContainer';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { IExportApiResponse } from '@/api/export/types';
 
 /**
  * Error boundary fallback

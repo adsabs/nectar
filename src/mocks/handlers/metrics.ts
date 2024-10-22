@@ -1,6 +1,8 @@
 import { rest } from 'msw';
-import { ApiTargets, IADSApiMetricsParams } from '@/api';
+
 import { apiHandlerRoute } from '@/mocks/mockHelpers';
+import { IADSApiMetricsParams } from '@/api/metrics/types';
+import { ApiTargets } from '@/api/models';
 
 export const metricsHandlers = [
   rest.post<IADSApiMetricsParams>(apiHandlerRoute(ApiTargets.SERVICE_METRICS), async (req, res, ctx) => {

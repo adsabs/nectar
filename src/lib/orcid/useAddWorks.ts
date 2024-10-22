@@ -1,11 +1,12 @@
 import { AppState, useStore } from '@/store';
-import { orcidKeys, useOrcidAddWorks } from '@/api/orcid';
-import { useSearch } from '@/api';
+
 import { useEffect, useState } from 'react';
 import { transformADStoOrcid } from '@/lib/orcid/workTransformer';
 import { isValidIOrcidUser } from '@/api/orcid/models';
 import { OrcidHookOptions, OrcidMutationOptions } from '@/lib/orcid/types';
 import { useQueryClient } from '@tanstack/react-query';
+import { orcidKeys, useOrcidAddWorks } from '@/api/orcid/orcid';
+import { useSearch } from '@/api/search/search';
 
 const orcidUserSelector = (state: AppState) => state.orcid.user;
 const isAuthenticatedSelector = (state: AppState) => state.orcid.isAuthenticated;

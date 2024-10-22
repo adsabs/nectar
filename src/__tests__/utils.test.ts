@@ -1,4 +1,4 @@
-import api from '@/api';
+import api from '@/api/api';
 import { APP_DEFAULTS } from '@/config';
 import { beforeEach, describe, expect, test, TestContext } from 'vitest';
 import { rest } from 'msw';

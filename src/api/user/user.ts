@@ -7,10 +7,9 @@ import {
   useQuery,
   UseQueryOptions,
 } from '@tanstack/react-query';
-import api, {
-  ApiRequestConfig,
-  ApiTargets,
-  DEFAULT_USER_DATA,
+import { configWithCSRF, isValidToken } from '@/auth-utils';
+import { defaultRequestConfig } from '@/api/config';
+import {
   IADSApiUserDataParams,
   IADSApiUserDataResponse,
   IBasicAccountsResponse,
@@ -20,9 +19,10 @@ import api, {
   IUserForgotPasswordCredentials,
   IUserRegistrationCredentials,
   IUserResetPasswordCredentials,
-} from '@/api';
-import { configWithCSRF, isValidToken } from '@/auth-utils';
-import { defaultRequestConfig } from '@/api/config';
+} from '@/api/user/types';
+import api, { ApiRequestConfig } from '@/api/api';
+import { ApiTargets } from '@/api/models';
+import { DEFAULT_USER_DATA } from '@/api/user/models';
 
 export enum UserKeys {
   USER_API_TOKEN = 'user-api-token',

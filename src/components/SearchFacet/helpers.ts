@@ -1,4 +1,3 @@
-import { FacetField, IADSApiSearchParams, IObjectsApiParams, IObjectsApiResponse, OBJECTS_API_KEYS } from '@/api';
 import { escape, getOperator, getTerms, joinQueries, Operator, splitQuery } from '@/query';
 import { QueryClient } from '@tanstack/react-query';
 import {
@@ -37,6 +36,9 @@ import {
 import { isNonEmptyString } from 'ramda-adjunct';
 import { FacetLogic, OnFilterArgs } from './types';
 import { isString } from '@/utils/common/guards';
+import { FacetField, IADSApiSearchParams } from '@/api/search/types';
+import { OBJECTS_API_KEYS } from '@/api/objects/objects';
+import { IObjectsApiParams, IObjectsApiResponse } from '@/api/objects/types';
 
 const DEFAULT_DELIMETER = '/';
 

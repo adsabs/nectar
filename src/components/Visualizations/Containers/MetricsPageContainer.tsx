@@ -1,4 +1,3 @@
-import { Bibcode, IADSApiSearchParams, useGetMetrics } from '@/api';
 import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, Center, CircularProgress, Text } from '@chakra-ui/react';
 
 import { useBatchedSearch } from '@/lib/useBatchedSearch';
@@ -6,6 +5,8 @@ import axios from 'axios';
 import { ReactElement } from 'react';
 import { CustomInfoMessage } from '@/components/Feedbacks';
 import { MetricsPane } from '@/components/Visualizations';
+import { Bibcode, IADSApiSearchParams } from '@/api/search/types';
+import { useGetMetrics } from '@/api/metrics/metrics';
 
 interface IMetricsPageProps {
   query: IADSApiSearchParams;

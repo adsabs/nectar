@@ -1,8 +1,9 @@
-import { BiblibSort, IADSApiSearchParams, IADSApiSearchResponse, SolrSort } from '@/api';
 import { is, keys, propIs } from 'ramda';
 import { NumPerPageType } from '@/types';
 import { APP_DEFAULTS } from '@/config';
 import { isPlainObject } from 'ramda-adjunct';
+import { BiblibSort, SolrSort } from '@/api/models';
+import { IADSApiSearchParams, IADSApiSearchResponse } from '@/api/search/types';
 
 /**
  * Determines if the current environment is a browser.

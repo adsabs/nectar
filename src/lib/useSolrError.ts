@@ -1,5 +1,5 @@
 import { AxiosError, isAxiosError } from 'axios';
-import { IADSApiSearchResponse } from '@/api';
+import { IADSApiSearchResponse } from '@/api/search/types';
 
 type SolrErrorResponse = {
   code: number;

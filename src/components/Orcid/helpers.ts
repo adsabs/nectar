@@ -1,6 +1,6 @@
 import { IOrcidProfileEntry } from '@/api/orcid/types/orcid-profile';
 import { UseToastOptions } from '@chakra-ui/react';
-import { IDocsEntity } from '@/api';
+import { IDocsEntity } from '@/api/search/types';
 
 export const isClaimedBySciX = (profile: IOrcidProfileEntry) => {
   return profile?.source?.indexOf('NASA Astrophysics Data System') !== -1;

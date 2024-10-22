@@ -1,4 +1,3 @@
-import { CustomFormat, ExportApiFormatKey, IDocsEntity, useGetExportCitation } from '@/api';
 import { Stack } from '@chakra-ui/react';
 
 import { ExportFormat, exportFormats } from '@/components/CitationExporter';
@@ -10,6 +9,10 @@ import { ExportFormatSelect } from '../ExportFormatSelect';
 import { CustomFormatSelect } from '../CustomFormatSelect';
 import { useSettings } from '@/lib/useSettings';
 import { SampleTextArea } from '@/components/Settings';
+import { IDocsEntity } from '@/api/search/types';
+import { ExportApiFormatKey } from '@/api/export/types';
+import { useGetExportCitation } from '@/api/export/export';
+import { CustomFormat } from '@/api/user/types';
 
 export interface IGeneralTabPanelProps {
   sampleBib: IDocsEntity['bibcode'];

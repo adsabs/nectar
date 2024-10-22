@@ -1,13 +1,3 @@
-import {
-  DatabaseEnum,
-  DEFAULT_USER_DATA,
-  ExternalLinkAction,
-  fetchUserSettings,
-  IADSApiUserDataParams,
-  SolrSortField,
-  UserDataKeys,
-  userKeys,
-} from '@/api';
 import { Box, Checkbox, CheckboxGroup, FormControl, FormLabel, Spinner, Stack } from '@chakra-ui/react';
 
 import { composeNextGSSP } from '@/ssr-utils';
@@ -30,6 +20,10 @@ import {
 } from '@/components/Settings';
 import { DescriptionCollapse } from '@/components/CitationExporter';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { DatabaseEnum, ExternalLinkAction, IADSApiUserDataParams, UserDataKeys } from '@/api/user/types';
+import { SolrSortField } from '@/api/models';
+import { DEFAULT_USER_DATA } from '@/api/user/models';
+import { fetchUserSettings, userKeys } from '@/api/user/user';
 
 // generate options for select component
 const useGetOptions = () => {

@@ -1,8 +1,7 @@
-import api, {
-  ADSMutation,
-  ADSQuery,
-  ApiRequestConfig,
-  ApiTargets,
+import { MutationFunction, QueryFunction, useMutation, useQuery } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
+import { omit } from 'ramda';
+import {
   IADSApiLibraryAddAnnotationParams,
   IADSApiLibraryAddAnnotationResponse,
   IADSApiLibraryAddParams,
@@ -35,10 +34,10 @@ import api, {
   IADSApiLibraryTransferResponse,
   IADSApiLibraryUpdateAnnotationParams,
   IADSApiLibraryUpdateAnnotationResponse,
-} from '@/api';
-import { MutationFunction, QueryFunction, useMutation, useQuery } from '@tanstack/react-query';
-import { AxiosError } from 'axios';
-import { omit } from 'ramda';
+} from '@/api/biblib/types';
+import { ADSMutation, ADSQuery } from '@/api/types';
+import api, { ApiRequestConfig } from '@/api/api';
+import { ApiTargets } from '@/api/models';
 
 export enum LIBRARY_API_KEYS {
   LIBRARIES = 'library/libraries',

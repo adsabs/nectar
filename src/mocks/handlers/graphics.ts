@@ -1,6 +1,8 @@
 import { rest } from 'msw';
-import { ApiTargets, IADSApiGraphicsParams } from '@/api';
+
 import { apiHandlerRoute } from '@/mocks/mockHelpers';
+import { IADSApiGraphicsParams } from '@/api/graphics/types';
+import { ApiTargets } from '@/api/models';
 
 export const graphicsHandlers = [
   rest.get<IADSApiGraphicsParams>(apiHandlerRoute(ApiTargets.GRAPHICS, ':id'), (req, res, ctx) => {

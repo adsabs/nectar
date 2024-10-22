@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { useSearch } from '@/api';
-import { AssociatedBibcode, IFeedbackParams, Relationship } from '@/api/feedback';
+
 import { CheckIcon, DeleteIcon } from '@chakra-ui/icons';
 import {
   AlertStatus,
@@ -25,6 +24,8 @@ import { omit } from 'ramda';
 import { PreviewModal } from '@/components/FeedbackForms';
 import { Select, SelectOption } from '@/components/Select';
 import { useGetUserEmail } from '@/lib/useGetUserEmail';
+import { useSearch } from '@/api/search/search';
+import { AssociatedBibcode, IFeedbackParams, Relationship } from '@/api/feedback/types';
 
 type FormValues = {
   name: string;

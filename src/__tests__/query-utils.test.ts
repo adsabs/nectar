@@ -1,4 +1,4 @@
-import { IADSApiSearchParams } from '@/api';
+import { IADSApiSearchParams } from '@/api/search/types';
 import * as query from '@/query-utils';
 import { defaultQueryParams } from '@/store/slices';
 import { describe, expect, test } from 'vitest';

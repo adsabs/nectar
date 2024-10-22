@@ -1,10 +1,9 @@
-import { ExportApiFormatKey, isExportApiFormat } from '@/api';
-
 import { omit, values } from 'ramda';
 import { Dispatch, useMemo } from 'react';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 import { ExportFormat, exportFormats } from '../models';
 import { Select } from '@/components/Select';
+import { ExportApiFormatKey, isExportApiFormat } from '@/api/export/types';
 
 export interface IFormatSelectProps {
   format: ExportApiFormatKey;

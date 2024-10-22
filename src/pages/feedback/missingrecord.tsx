@@ -1,4 +1,3 @@
-import { fetchSearch, getSingleRecordParams, searchKeys } from '@/api';
 import { AlertStatus, Flex, Tab, TabList, TabPanel, TabPanels, Tabs, Text, useDisclosure } from '@chakra-ui/react';
 
 import { FeedbackAlert, RecordPanel } from '@/components/FeedbackForms';
@@ -10,6 +9,8 @@ import { useRouter } from 'next/router';
 import { logger } from '@/logger';
 import { FeedbackLayout } from '@/components/Layout';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { getSingleRecordParams } from '@/api/search/models';
+import { fetchSearch, searchKeys } from '@/api/search/search';
 
 const Record: NextPage = () => {
   const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({

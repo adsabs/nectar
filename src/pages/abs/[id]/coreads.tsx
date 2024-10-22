@@ -1,4 +1,3 @@
-import { getCoreadsParams, useGetAbstract, useGetCoreads } from '@/api';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
@@ -8,6 +7,8 @@ import { ItemsSkeleton } from '@/components/ResultList';
 import { StandardAlertMessage } from '@/components/Feedbacks';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { AbstractRefList } from '@/components/AbstractRefList';
+import { useGetAbstract, useGetCoreads } from '@/api/search/search';
+import { getCoreadsParams } from '@/api/search/models';
 
 const CoreadsPage: NextPage = () => {
   const router = useRouter();

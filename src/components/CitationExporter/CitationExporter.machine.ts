@@ -1,9 +1,10 @@
-import { ExportApiFormatKey, ExportApiJournalFormat, IDocsEntity, IExportApiParams } from '@/api';
 import { APP_DEFAULTS } from '@/config';
 import { assign, createMachine } from '@xstate/fsm';
 import { equals } from 'ramda';
 import { IUseCitationExporterProps } from './useCitationExporter';
 import { normalizeSolrSort } from '@/utils/common/search';
+import { IDocsEntity } from '@/api/search/types';
+import { ExportApiFormatKey, ExportApiJournalFormat, IExportApiParams } from '@/api/export/types';
 
 export interface ICitationExporterState {
   records: IDocsEntity['bibcode'][];

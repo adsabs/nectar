@@ -1,5 +1,5 @@
-import { IADSApiSearchParams, IDocsEntity } from '@/api';
 import { APP_DEFAULTS } from '@/config';
+import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
 
 export const defaultFields: IADSApiSearchParams['fl'] = [
   'bibcode',

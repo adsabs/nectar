@@ -1,4 +1,3 @@
-import { IDocsEntity } from '@/api';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex, Heading, Stack, Text } from '@chakra-ui/react';
 
@@ -12,6 +11,7 @@ import { SimpleLink } from '@/components/SimpleLink';
 import { AbstractSources } from '@/components/AbstractSources';
 import { AbstractSideNav } from '@/components/AbstractSideNav';
 import { unwrapStringValue } from '@/utils/common/formatters';
+import { IDocsEntity } from '@/api/search/types';
 
 interface IAbsLayoutProps {
   doc: IDocsEntity;

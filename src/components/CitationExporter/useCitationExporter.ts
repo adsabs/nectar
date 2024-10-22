@@ -1,17 +1,11 @@
-import {
-  ExportApiFormatKey,
-  ExportApiJournalFormat,
-  exportCitationKeys,
-  fetchExportCitation,
-  IExportApiParams,
-  SolrSort,
-  useGetExportCitation,
-} from '@/api';
 import { useMachine } from '@xstate/react/fsm';
 import { useEffect, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { generateMachine, ICitationExporterState } from './CitationExporter.machine';
 import { purifyString } from '@/utils/common/formatters';
+import { ExportApiFormatKey, ExportApiJournalFormat, IExportApiParams } from '@/api/export/types';
+import { SolrSort } from '@/api/models';
+import { exportCitationKeys, fetchExportCitation, useGetExportCitation } from '@/api/export/export';
 
 export interface IUseCitationExporterProps {
   records: ICitationExporterState['records'];

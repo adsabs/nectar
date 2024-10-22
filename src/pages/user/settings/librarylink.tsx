@@ -1,12 +1,3 @@
-import {
-  fetchLibraryLinkServers,
-  fetchUserSettings,
-  IADSApiLibraryLinkServersResponse,
-  LibraryLinkServer,
-  useLibraryLinkServers,
-  userKeys,
-  vaultKeys,
-} from '@/api';
 import { useEffect, useState } from 'react';
 import { useSettings } from '@/lib/useSettings';
 import { Button, chakra, Heading, Icon, Skeleton, Text, VStack } from '@chakra-ui/react';
@@ -21,6 +12,9 @@ import { createOptions, Select, SelectOption } from '@/components/Select';
 import { SettingsLayout } from '@/components/Layout';
 import { SimpleLink } from '@/components/SimpleLink';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { IADSApiLibraryLinkServersResponse, LibraryLinkServer } from '@/api/vault/types';
+import { fetchLibraryLinkServers, useLibraryLinkServers, vaultKeys } from '@/api/vault/vault';
+import { fetchUserSettings, userKeys } from '@/api/user/user';
 
 const findServer = (url: string, linkServer: IADSApiLibraryLinkServersResponse) =>
   find(propEq('link', url), linkServer);

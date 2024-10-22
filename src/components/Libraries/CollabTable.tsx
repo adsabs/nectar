@@ -1,4 +1,3 @@
-import { LibraryIdentifier, LibraryPermission, permissions, useGetPermission, useModifyPermission } from '@/api';
 import { CheckIcon, DeleteIcon } from '@chakra-ui/icons';
 import { HStack, Icon, IconButton, Input, Table, Tbody, Td, Text, Th, Thead, Tr, useToast } from '@chakra-ui/react';
 
@@ -12,6 +11,8 @@ import { CustomInfoMessage } from '@/components/Feedbacks';
 
 import { isValidEmail } from '@/utils/common/isValidEmail';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { LibraryIdentifier, LibraryPermission, permissions } from '@/api/biblib/types';
+import { useGetPermission, useModifyPermission } from '@/api/biblib/libraries';
 
 const permissionOptions: SelectOption<LibraryPermission>[] = permissions
   .filter((p) => p !== 'owner')

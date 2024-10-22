@@ -1,4 +1,3 @@
-import { fetchSearchInfinite, IADSApiSearchParams, searchKeys } from '@/api';
 import { authorAffiliationsKeys, fetchAuthorAffiliationSearch } from '@/api/author-affiliation/author-affiliation';
 import { getAuthorAffiliationSearchParams } from '@/api/author-affiliation/model';
 import { IAuthorAffiliationPayload } from '@/api/author-affiliation/types';
@@ -15,6 +14,8 @@ import { AuthorAffiliations, AuthorAffiliationsErrorMessage } from '@/components
 import { SimpleLink } from '@/components/SimpleLink';
 import { parseQueryFromUrl } from '@/utils/common/search';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { IADSApiSearchParams } from '@/api/search/types';
+import { fetchSearchInfinite, searchKeys } from '@/api/search/search';
 
 interface IAuthorAffilationsPageProps {
   error?: string;

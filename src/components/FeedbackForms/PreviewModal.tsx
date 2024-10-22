@@ -1,4 +1,3 @@
-import { IFeedbackParams, useFeedback } from '@/api/feedback';
 import {
   Box,
   Button,
@@ -21,6 +20,8 @@ import { FormMessage } from '@/components/Feedbacks/FormMessage';
 import { RecaptchaMessage } from '@/components/RecaptchaMessage/RecaptchaMessage';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { useFeedback } from '@/api/feedback/feedback';
+import { IFeedbackParams } from '@/api/feedback/types';
 
 export interface IPreviewProps {
   params: IFeedbackParams;

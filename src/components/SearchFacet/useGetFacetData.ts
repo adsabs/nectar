@@ -1,4 +1,3 @@
-import { FacetField, IADSApiSearchParams, IBucket, useGetSearchFacetJSON, useObjects } from '@/api';
 import { calculatePagination } from '@/components/ResultList/Pagination/usePagination';
 import { getLevelFromKey, getPrevKey } from '@/components/SearchFacet/helpers';
 import { useFacetStore } from '@/components/SearchFacet/store/FacetStore';
@@ -8,6 +7,9 @@ import { sanitize } from 'dompurify';
 import { isEmpty, omit } from 'ramda';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { isNonEmptyArray, isNonEmptyString } from 'ramda-adjunct';
+import { FacetField, IADSApiSearchParams, IBucket } from '@/api/search/types';
+import { useGetSearchFacetJSON } from '@/api/search/search';
+import { useObjects } from '@/api/objects/objects';
 
 export interface IUseGetFacetDataProps {
   field: FacetField;

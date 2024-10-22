@@ -1,13 +1,3 @@
-import {
-  ExportApiFormatKey,
-  exportCitationKeys,
-  fetchExportCitation,
-  fetchSearchInfinite,
-  IADSApiSearchParams,
-  isExportApiFormat,
-  searchKeys,
-  useSearchInfinite,
-} from '@/api';
 import { Alert, AlertIcon, Box, Flex, Heading, HStack } from '@chakra-ui/react';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
 
@@ -29,6 +19,10 @@ import { JournalFormatMap } from '@/components/Settings';
 import { parseQueryFromUrl } from '@/utils/common/search';
 import { unwrapStringValue } from '@/utils/common/formatters';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { ExportApiFormatKey, isExportApiFormat } from '@/api/export/types';
+import { IADSApiSearchParams } from '@/api/search/types';
+import { fetchSearchInfinite, searchKeys, useSearchInfinite } from '@/api/search/search';
+import { exportCitationKeys, fetchExportCitation } from '@/api/export/export';
 
 interface IExportCitationPageProps {
   format: ExportApiFormatKey;

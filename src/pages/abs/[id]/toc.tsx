@@ -1,4 +1,3 @@
-import { getTocParams, IDocsEntity, useGetAbstract, useGetToc } from '@/api';
 import { AbstractRefList } from '@/components/AbstractRefList';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
@@ -9,6 +8,9 @@ import { path } from 'ramda';
 import { ItemsSkeleton } from '@/components/ResultList/ItemsSkeleton';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { StandardAlertMessage } from '@/components/Feedbacks';
+import { useGetAbstract, useGetToc } from '@/api/search/search';
+import { IDocsEntity } from '@/api/search/types';
+import { getTocParams } from '@/api/search/models';
 
 const VolumePage: NextPage = () => {
   const router = useRouter();

@@ -1,12 +1,15 @@
 import { useRouter } from 'next/router';
 import { NextPage } from 'next';
 import NextImage from 'next/image';
-import { IDocsEntity, useGetAbstract, useGetGraphics } from '@/api';
+
 import { path } from 'ramda';
 import { AbsLayout } from '@/components/Layout';
 import { Box, Flex } from '@chakra-ui/react';
 import { LoadingMessage } from '@/components/Feedbacks';
 import { SimpleLink } from '@/components/SimpleLink';
+import { useGetAbstract } from '@/api/search/search';
+import { IDocsEntity } from '@/api/search/types';
+import { useGetGraphics } from '@/api/graphics/graphics';
 
 const GraphicsPage: NextPage = () => {
   const router = useRouter();

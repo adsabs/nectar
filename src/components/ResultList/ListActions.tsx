@@ -1,4 +1,3 @@
-import { Bibcode, ExportApiFormatKey, SolrSort, SolrSortField, useVaultBigQuerySearch } from '@/api';
 import { BellIcon, ChevronDownIcon, SettingsIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -46,6 +45,10 @@ import { exportFormats } from '@/components/CitationExporter';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
 import { noop } from '@/utils/common/noop';
+import { SolrSort, SolrSortField } from '@/api/models';
+import { useVaultBigQuerySearch } from '@/api/vault/vault';
+import { Bibcode } from '@/api/search/types';
+import { ExportApiFormatKey } from '@/api/export/types';
 
 export interface IListActionsProps {
   onSortChange?: ISortProps<SolrSort, SolrSortField>['onChange'];

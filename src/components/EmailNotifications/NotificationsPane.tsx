@@ -1,11 +1,3 @@
-import {
-  INotification,
-  NotificationTemplate,
-  useDelNotification,
-  useEditNotification,
-  useGetNotificationQuery,
-  useGetNotifications,
-} from '@/api';
 import { BellIcon, ChevronDownIcon, CloseIcon, SettingsIcon } from '@chakra-ui/icons';
 import {
   AlertDialog,
@@ -55,6 +47,13 @@ import { useColorModeColors } from '@/lib/useColorModeColors';
 import { useDebounce } from '@/lib/useDebounce';
 import { makeSearchParams } from '@/utils/common/search';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import {
+  useDelNotification,
+  useEditNotification,
+  useGetNotificationQuery,
+  useGetNotifications,
+} from '@/api/vault/vault';
+import { INotification, NotificationTemplate } from '@/api/vault/types';
 
 export const NotificationsPane = () => {
   const toast = useToast({ duration: 2000 });

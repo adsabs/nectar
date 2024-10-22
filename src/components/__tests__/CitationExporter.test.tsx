@@ -1,4 +1,3 @@
-import { ExportApiFormatKey, IExportApiParams } from '@/api';
 import { APP_DEFAULTS } from '@/config';
 import { composeStories } from '@storybook/react';
 import { render, waitFor } from '@/test-utils';
@@ -6,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { ReactElement } from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import * as stories from '../__stories__/CitationExporter.stories';
+import { ExportApiFormatKey, IExportApiParams } from '@/api/export/types';
 
 const { NoRecords, MultiRecord, SingleMode } = composeStories(stories);
 

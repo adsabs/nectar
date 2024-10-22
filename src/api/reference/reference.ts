@@ -1,6 +1,8 @@
-import api, { ADSQuery, ApiRequestConfig, ApiTargets } from '@/api';
 import { QueryFunction, useQuery } from '@tanstack/react-query';
 import { IADSApiReferenceResponse } from './types';
+import { ADSQuery } from '@/api/types';
+import api, { ApiRequestConfig } from '@/api/api';
+import { ApiTargets } from '@/api/models';
 
 export enum ReferenceKeysEnum {
   TEXT = 'text',

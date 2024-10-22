@@ -1,4 +1,3 @@
-import { fetchVaultSearch, vaultKeys } from '@/api';
 import { fetchReferenceText, referenceKeys } from '@/api/reference/reference';
 import { getVaultBigQueryParams } from '@/api/vault/models';
 import {
@@ -39,6 +38,7 @@ import { useStore } from '@/store';
 import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 import { BibstemPicker } from '@/components/BibstemPicker';
 import { stringifySearchParams } from '@/utils/common/search';
+import { fetchVaultSearch, vaultKeys } from '@/api/vault/vault';
 
 enum PaperFormType {
   JOURNAL_QUERY = 'journal-query',

@@ -1,4 +1,3 @@
-import { IUserRegistrationCredentials, useRegisterUser } from '@/api';
 import {
   Button,
   Container,
@@ -25,6 +24,8 @@ import { PasswordRequirements, PasswordTextInput, passwordValidators } from '@/c
 import { SimpleLink } from '@/components/SimpleLink';
 import { StandardAlertMessage } from '@/components/Feedbacks';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { IUserRegistrationCredentials } from '@/api/user/types';
+import { useRegisterUser } from '@/api/user/user';
 
 const initialParams: IUserRegistrationCredentials = { email: '', password: '', confirmPassword: '', recaptcha: '' };
 

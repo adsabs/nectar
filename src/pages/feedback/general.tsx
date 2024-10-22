@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { useFeedback } from '@/api/feedback';
 import {
   AlertStatus,
   Button,
@@ -41,6 +40,7 @@ import { RecaptchaMessage } from '@/components/RecaptchaMessage/RecaptchaMessage
 import { useGetUserEmail } from '@/lib/useGetUserEmail';
 import { makeSearchParams } from '@/utils/common/search';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { useFeedback } from '@/api/feedback/feedback';
 
 type FormValues = {
   name: string;

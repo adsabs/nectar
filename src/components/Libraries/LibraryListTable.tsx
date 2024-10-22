@@ -1,4 +1,3 @@
-import { IADSApiLibraryParams, ILibraryMetadata, LibraryIdentifier, useDeleteLibrary } from '@/api';
 import {
   ChevronDownIcon,
   LockIcon,
@@ -44,6 +43,8 @@ import { ControlledPaginationControls } from '@/components/Pagination';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { noop } from '@/utils/common/noop';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { IADSApiLibraryParams, ILibraryMetadata, LibraryIdentifier } from '@/api/biblib/types';
+import { useDeleteLibrary } from '@/api/biblib/libraries';
 
 type Column = keyof ILibraryMetadata;
 type SortDirection = 'asc' | 'desc';

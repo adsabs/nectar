@@ -1,6 +1,6 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { getSimilarParams, IDocsEntity, useGetAbstract, useGetSimilar } from '@/api';
+
 import { path } from 'ramda';
 import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { APP_DEFAULTS } from '@/config';
@@ -9,6 +9,9 @@ import { ItemsSkeleton } from '@/components/ResultList';
 import { StandardAlertMessage } from '@/components/Feedbacks';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { AbstractRefList } from '@/components/AbstractRefList';
+import { useGetAbstract, useGetSimilar } from '@/api/search/search';
+import { IDocsEntity } from '@/api/search/types';
+import { getSimilarParams } from '@/api/search/models';
 
 const SimilarPage: NextPage = () => {
   const router = useRouter();

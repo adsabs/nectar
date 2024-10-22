@@ -1,8 +1,8 @@
-import { IExportApiParams } from '@/api';
 import { Box, Code, FormControl, FormLabel, Input } from '@chakra-ui/react';
 import { ChangeEventHandler, Dispatch, ReactElement, useCallback } from 'react';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 import { DescriptionCollapse } from './DescriptionCollapse';
+import { IExportApiParams } from '@/api/export/types';
 
 interface IKeyFormatInputProps {
   keyformat: IExportApiParams['keyformat'];

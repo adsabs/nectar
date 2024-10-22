@@ -1,6 +1,6 @@
-import { IADSApiSearchParams } from '@/api/search';
 import { mapObjIndexed } from 'ramda';
 import { IADSApiVisParams, IADSApiWordCloudParams } from './types';
+import { IADSApiSearchParams } from '@/api/search/types';
 
 export const defaultResultsGraphParams: IADSApiSearchParams = {
   q: '*:*',

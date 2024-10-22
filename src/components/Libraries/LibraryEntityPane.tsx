@@ -1,13 +1,3 @@
-import {
-  BiblibSort,
-  BiblibSortField,
-  getSearchParams,
-  IDocsEntity,
-  LibraryIdentifier,
-  useBigQuerySearch,
-  useEditLibraryDocuments,
-  useGetLibraryEntity,
-} from '@/api';
 import { ChevronLeftIcon, LockIcon, SettingsIcon, UnlockIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -48,6 +38,12 @@ import { useColorModeColors } from '@/lib/useColorModeColors';
 import { isBiblibSort, isSolrSort } from '@/utils/common/guards';
 import { normalizeSolrSort } from '@/utils/common/search';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { LibraryIdentifier } from '@/api/biblib/types';
+import { IDocsEntity } from '@/api/search/types';
+import { BiblibSort, BiblibSortField } from '@/api/models';
+import { useEditLibraryDocuments, useGetLibraryEntity } from '@/api/biblib/libraries';
+import { useBigQuerySearch } from '@/api/search/search';
+import { getSearchParams } from '@/api/search/models';
 
 export interface ILibraryEntityPaneProps {
   id: LibraryIdentifier;

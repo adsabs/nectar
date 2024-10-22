@@ -1,4 +1,3 @@
-import { IADSApiSearchParams, IDocsEntity, useGetAffiliations } from '@/api';
 import { CloseIcon, DownloadIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -48,6 +47,8 @@ import {
 import { useGetAuthors } from './useGetAuthors';
 import { sendGTMEvent } from '@next/third-parties/google';
 import { unwrapStringValue } from '@/utils/common/formatters';
+import { useGetAffiliations } from '@/api/search/search';
+import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
 
 export interface IAllAuthorsModalProps {
   bibcode: IDocsEntity['bibcode'];

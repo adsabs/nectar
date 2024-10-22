@@ -1,4 +1,3 @@
-import { FacetField, IADSApiSearchParams, IFacetCountsFields } from '@/api';
 import { DragHandleIcon } from '@chakra-ui/icons';
 import {
   AccordionItemProps,
@@ -49,6 +48,7 @@ import { applyFiltersToQuery } from './helpers';
 import { FacetLogic, OnFilterArgs, SearchFacetID } from './types';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { sendGTMEvent } from '@next/third-parties/google';
+import { FacetField, IADSApiSearchParams, IFacetCountsFields } from '@/api/search/types';
 
 export interface ISearchFacetProps extends AccordionItemProps {
   field: FacetField;

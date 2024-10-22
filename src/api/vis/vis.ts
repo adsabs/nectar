@@ -1,4 +1,3 @@
-import api, { ADSQuery, ApiRequestConfig } from '@/api';
 import { ApiTargets } from '@/api/models';
 import {
   IADSApiAuthorNetworkResponse,
@@ -7,9 +6,11 @@ import {
   IADSApiWordCloudParams,
   IADSApiWordCloudResponse,
 } from './types';
-import { IADSApiSearchParams, IADSApiSearchResponse } from '@/api/search';
 import { QueryFunction, useQuery } from '@tanstack/react-query';
 import { getAuthorNetworkParams, getPaperNetworkParams, getResultsGraphParams, getWordCloudParams } from './models';
+import { ADSQuery } from '@/api/types';
+import { IADSApiSearchParams, IADSApiSearchResponse } from '@/api/search/types';
+import api, { ApiRequestConfig } from '@/api/api';
 
 const MAX_RETRIES = 3;
 
