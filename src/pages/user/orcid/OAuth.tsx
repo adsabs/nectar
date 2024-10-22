@@ -130,7 +130,7 @@ const OrcidPage: NextPage = () => {
               <FormLabel>Authorize SCiX to Record and Publish Claims</FormLabel>
               <Text>
                 Allow SCiX to record my claims and to make them available publicly for auditing and indexing. This makes
-                me an "ADS Verified User" and allows ADS to validate my name(s) against author lists in papers.
+                me an &#34;ADS Verified User&#34; and allows ADS to validate my name(s) against author lists in papers.
               </Text>
             </FormControl>
 

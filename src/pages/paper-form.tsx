@@ -46,24 +46,6 @@ enum PaperFormType {
   BIBCODE_QUERY = 'bibcode-query',
 }
 
-export interface PaperFormParams {
-  // journal-query
-  bibstem: string;
-  year: string;
-  volume: string;
-  page: string;
-
-  // reference-query
-  reference: string;
-
-  // bibcode-query
-  bibcodes: string[];
-}
-
-export type RawPaperFormParams = {
-  [Property in keyof PaperFormParams]: string;
-};
-
 type PaperFormState = {
   [PaperFormType.JOURNAL_QUERY]: {
     form: PaperFormType.JOURNAL_QUERY;
@@ -99,15 +81,18 @@ const PaperForm: NextPage<{ error?: IPaperFormServerError }> = ({ error: ssrErro
   useEffect(() => {
     clearSelectedDocs();
     clearQuery();
-  }, []);
+  }, [clearQuery, clearSelectedDocs]);
 
-  const handleSubmit = useCallback(async (params: PaperFormState[PaperFormType]) => {
-    try {
-      await router.push(await getSearchQuery(params, queryClient));
-    } catch (e) {
-      setError({ form: params.form, message: (e as Error).message });
-    }
-  }, []);
+  const handleSubmit = useCallback(
+    async (params: PaperFormState[PaperFormType]) => {
+      try {
+        await router.push(await getSearchQuery(params, queryClient));
+      } catch (e) {
+        setError({ form: params.form, message: (e as Error).message });
+      }
+    },
+    [queryClient, router, setError],
+  );
 
   return (
     <VStack as="article" spacing={5} my={16}>
@@ -164,11 +149,11 @@ const JournalQueryForm = ({ onSubmit, error }: SubFormProps) => {
       </Heading>
       <Text fontSize="sm">
         A bibstem is an abbreviation that the ADS uses to identify a journal. A full list is available{' '}
-        <Link isExternal href="http://adsabs.harvard.edu/abs_doc/journal_abbr.html">
+        <Link isExternal href="//adsabs.harvard.edu/abs_doc/journal_abbr.html">
           here
         </Link>
         . The input field below will autocomplete on our current database of journal names, allowing you to type
-        "Astrophysical Journal", for instance, to find the bibstem "ApJ".
+        &#34;Astrophysical Journal&#34;, for instance, to find the bibstem &#34;ApJ&#34;.
       </Text>
       <Divider mb={5} />
       <form method="POST" action={router.route} onSubmit={formSubmit} data-testid={PaperFormType.JOURNAL_QUERY}>
@@ -348,7 +333,7 @@ const BibcodeQueryForm = ({ onSubmit, error }: SubFormProps) => {
 };
 
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-  if (ctx.req.method == 'POST') {
+  if (ctx.req.method === 'POST') {
     const queryClient = new QueryClient();
 
     type ReqWithBody = typeof ctx.req & {
@@ -443,8 +428,8 @@ const getSearchQuery = async (formParams: PaperFormState[PaperFormType], queryCl
         if (resolved.score !== '0.0' && typeof resolved.bibcode === 'string') {
           return `/search?${stringifyQuery(`bibcode:${resolved.bibcode}`)}`;
         }
-      } catch (e) {
-        throw new Error('Error fetching result from reference resolver');
+      } catch (err) {
+        throw new Error('Error fetching result from reference resolver', { cause: err });
       }
       throw new Error('No entries found for this reference string');
     }
@@ -458,8 +443,8 @@ const getSearchQuery = async (formParams: PaperFormState[PaperFormType], queryCl
           meta: { params },
         });
         return `/search?${stringifyQuery(`docs(${qid})`)}`;
-      } catch (e) {
-        throw new Error('Error retrieving result for this set of bibcodes, please try again');
+      } catch (err) {
+        throw new Error('Error retrieving result for this set of bibcodes, please try again', { cause: err });
       }
     }
   }

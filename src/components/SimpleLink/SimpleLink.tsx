@@ -28,6 +28,7 @@ export const SimpleLink = forwardRef(
     );
   },
 );
+SimpleLink.displayName = 'SimpleLink';
 
 const isHrefExternal = (href: Url, isExternal?: boolean): boolean =>
   isExternal ?? /^https?:/.test(typeof href === 'string' ? href : href.protocol);

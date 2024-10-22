@@ -50,7 +50,7 @@ export const DeleteLibrary = ({
             <AlertDialogHeader fontSize="lg" fontWeight="bold">
               Delete Library
             </AlertDialogHeader>
-            <AlertDialogBody>Are you sure? You can't undo this action.</AlertDialogBody>
+            <AlertDialogBody>Are you sure? You can&#39;t undo this action.</AlertDialogBody>
             <AlertDialogFooter backgroundColor="transparent">
               <Button ref={cancelRef} onClick={onClose} variant="outline">
                 Cancel

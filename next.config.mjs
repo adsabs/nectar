@@ -160,7 +160,7 @@ const nextConfig = {
   // set standalone output on
   output: process.env.STANDALONE ? 'standalone' : undefined,
   // we do not need to check eslint during build
-  eslint: { dirs: ['.'], ignoreDuringBuilds: true },
+  eslint: { dirs: ['src'], ignoreDuringBuilds: true },
   // we do not need to check types during build
   typescript: { ignoreBuildErrors: true },
   // we don't need i18n
@@ -191,12 +191,7 @@ const sentryConfig = {
   disableLogger: true,
 };
 
-const config =
-  process.env.ANALYZE === 'true'
-    ? withBundleAnalyzer({
-        enabled: process.env.ANALYZE === 'true',
-      })(nextConfig)
-    : nextConfig;
+const config = process.env.ANALYZE === 'true' ? withBundleAnalyzer(nextConfig) : nextConfig;
 const nextConfigWithSentry = withSentryConfig(config, sentrySettings, sentryConfig);
 
 export default process.env.NODE_ENV === 'production' ? nextConfigWithSentry : config;

@@ -303,4 +303,3 @@ const Tick = ({ tick, count, label }: ITickProps) => {
     </Box>
   );
 };
-5;

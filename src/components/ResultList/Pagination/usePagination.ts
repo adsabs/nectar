@@ -4,6 +4,7 @@ import memoizeOne from 'memoize-one';
 import { clamp, equals } from 'ramda';
 import { Dispatch, Reducer, useCallback, useEffect, useReducer } from 'react';
 import { isNumPerPageType } from '@/utils/common/guards';
+import { logger } from '@/logger';
 
 /**
  * Calculate the total pages based on the number of results and how many records per page
@@ -12,7 +13,8 @@ export const getTotalPages = (totalResults: number, numPerPage: number): number 
   try {
     const pages = Math.ceil(totalResults / numPerPage);
     return pages <= 0 ? 1 : pages;
-  } catch (e) {
+  } catch (err) {
+    logger.error({ err, totalResults, numPerPage }, 'Error caught attempting to calculate total pages');
     return 1;
   }
 };
@@ -28,7 +30,8 @@ export const cleanClamp = (value: unknown, min = 0, max: number = Number.MAX_SAF
       return clamp(min, max, Math.abs(parseInt(value, 10)));
     }
     return min;
-  } catch (e) {
+  } catch (err) {
+    logger.error({ err, value, min, max }, 'Error caught attempting to clamp value');
     return min;
   }
 };
@@ -231,7 +234,7 @@ export const usePagination = (props: IUsePaginationProps) => {
       const pagination = calculatePagination({ ...state });
       onStateChange(pagination, state, dispatch);
     }
-  }, [state]);
+  }, [onStateChange, state]);
 
   const getPaginationProps = useCallback(() => {
     return {

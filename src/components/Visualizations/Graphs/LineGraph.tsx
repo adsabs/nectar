@@ -98,3 +98,4 @@ export const LineGraph = memo(
     );
   },
 );
+LineGraph.displayName = 'LineGraph';

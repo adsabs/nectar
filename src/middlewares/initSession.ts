@@ -4,10 +4,11 @@ import { IBootstrapPayload, IUserData } from '@/api/user/types';
 import { isNil, pick } from 'ramda';
 import { isPast, parseISO } from 'date-fns';
 import { edgeLogger } from '@/logger';
-//  eslint-disable-next-line @next/next/no-server-import-in-page
 import { NextRequest, NextResponse } from 'next/server';
 import setCookie from 'set-cookie-parser';
 import { botCheck } from '@/middlewares/botCheck';
+
+const log = edgeLogger.child({}, { msgPrefix: '[initSession] ' });
 
 /**
  * Checks if the user data is valid
@@ -93,12 +94,11 @@ const hash = async (str?: string) => {
   try {
     const buffer = await globalThis.crypto.subtle.digest('SHA-1', Buffer.from(str, 'utf-8'));
     return Array.from(new Uint8Array(buffer)).toString();
-  } catch (e) {
+  } catch (err) {
+    log.error({ err, str }, 'Error caught attempting to hash string');
     return '';
   }
 };
-
-const log = edgeLogger.child({}, { msgPrefix: '[initSession] ' });
 
 /**
  * Middleware to initialize the session
@@ -108,7 +108,6 @@ const log = edgeLogger.child({}, { msgPrefix: '[initSession] ' });
  */
 export const initSession = async (req: NextRequest, res: NextResponse, session: IronSession) => {
   log.debug({ session }, 'Initializing session');
-  // await initialize(session);
 
   const adsSessionCookie = req.cookies.get(process.env.ADS_SESSION_COOKIE_NAME)?.value;
   const apiCookieHash = await hash(adsSessionCookie);

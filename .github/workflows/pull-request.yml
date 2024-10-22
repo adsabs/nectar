@@ -28,7 +28,7 @@ jobs:
         run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 SENTRYCLI_SKIP_DOWNLOAD=1 pnpm install
 
       - name: Lint
-        run: pnpm lint
+        run: pnpm lint --quiet
 
       - uses: actions/cache/save@v4
         if: always()

@@ -15,7 +15,7 @@ const OrcidPage = () => {
         </Button>
         <Text fontSize="sm">
           You will be redirected to ORCID. <br />
-          Please sign in with your ORCID credentials and click on the "authorize" button.
+          Please sign in with your ORCID credentials and click on the &#34;authorize&#34; button.
         </Text>
       </SettingsLayout>
     );

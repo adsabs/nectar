@@ -37,9 +37,12 @@ const checkLocalStorageForUserData = (): IUserData => {
   try {
     const {
       state: { user },
-    } = JSON.parse(localStorage.getItem(APP_STORAGE_KEY)) as { state: { user: IUserData } };
+    } = JSON.parse(localStorage.getItem(APP_STORAGE_KEY)) as {
+      state: { user: IUserData };
+    };
     return user;
-  } catch (e) {
+  } catch (err) {
+    log.error({ err }, 'Error caught attempting to get user data from local storage');
     return null;
   }
 };
@@ -139,19 +142,28 @@ class Api {
         ) {
           // clear the recent error
           this.recentError = null;
-          log.debug({ msg: 'Rejecting request due to recent error', err: error });
+          log.debug({
+            msg: 'Rejecting request due to recent error',
+            err: error,
+          });
           return Promise.reject(error);
         }
 
         // if request is NOT bootstrap, store error config
         if (error.config.url !== '/api/user') {
-          this.recentError = { status: error.response.status, config: error.config };
+          this.recentError = {
+            status: error.response.status,
+            config: error.config,
+          };
         }
 
         if (error.response.status === API_STATUS.UNAUTHORIZED) {
           this.invalidateUserData();
 
-          log.debug({ msg: 'Unauthorized request, refreshing token and retrying', err: error });
+          log.debug({
+            msg: 'Unauthorized request, refreshing token and retrying',
+            err: error,
+          });
 
           // retry the request
           return this.request(error.config as ApiRequestConfig);
@@ -273,7 +285,9 @@ class Api {
   private async tryRefreshUserData(): Promise<IUserData | null> {
     try {
       log.debug('Refreshing API access data from API endpoint (/api/user)');
-      const { data } = await axios.get<IApiUserResponse>('/api/user', { headers: { 'X-Refresh-Token': '1' } });
+      const { data } = await axios.get<IApiUserResponse>('/api/user', {
+        headers: { 'X-Refresh-Token': '1' },
+      });
       if (checkUserData(data.user)) {
         log.debug('Successfully refreshed API access data, saving...');
         return data.user;

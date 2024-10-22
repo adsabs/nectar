@@ -35,8 +35,8 @@ const MetricsPage: NextPage<IMetricsProps> = (props) => {
 
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
   const BATCH_SIZE = 1000;
-  const { qid: _qid, ...originalQuery } = ctx.query;
-  const { qid = null, p, ...query } = parseQueryFromUrl<{ qid: string }>(ctx.req.url, { sortPostfix: 'id asc' });
+  const { ...originalQuery } = ctx.query;
+  const { qid = null, ...query } = parseQueryFromUrl<{ qid: string }>(ctx.req.url, { sortPostfix: 'id asc' });
 
   // TODO: figure out why this clears the cache on transition
   // const queryClient = new QueryClient();

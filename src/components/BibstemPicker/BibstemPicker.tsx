@@ -43,6 +43,7 @@ import AsyncCreatableSelect from 'react-select/async-creatable';
 import Select from 'react-select/dist/declarations/src/Select';
 import defaultBibstems from './defaultBibstems.json';
 import { useColorModeColorVars } from '@/lib/useColorModeColors';
+import { logger } from '@/logger';
 
 export interface IBibstemPickerProps extends Omit<HTMLProps<HTMLInputElement>, 'onChange'> {
   isMultiple?: boolean;
@@ -73,6 +74,7 @@ const isOptionDisabled = (option: IBibstemOption): boolean => propOr(false, 'isD
  */
 const getPill =
   (selected: IBibstemOption[]) =>
+  // eslint-disable-next-line react/display-name
   ({ children, ...props }: MultiValueProps<IBibstemOption>) => {
     const match = find<IBibstemOption>(propEq('value', props.data.value), selected);
     return (
@@ -118,7 +120,11 @@ interface IBibstemPickerState {
 const reducer: Reducer<
   IBibstemPickerState,
   | { type: 'update_input'; payload: string; meta: InputActionMeta }
-  | { type: 'update_selected'; payload: IBibstemOption | MultiValue<IBibstemOption>; meta: ActionMeta<IBibstemOption> }
+  | {
+      type: 'update_selected';
+      payload: IBibstemOption | MultiValue<IBibstemOption>;
+      meta: ActionMeta<IBibstemOption>;
+    }
   | { type: 'reset' }
 > = (state, action) => {
   // for normal typing, check for prefix, otherwise just update value; also clear error
@@ -140,7 +146,12 @@ const reducer: Reducer<
       // if user backspaces and removes entry, just pop from our list
       case 'pop-value': {
         const selected = init(state.selected);
-        return { ...state, selected, hiddenValue: formatBibstemOptions(selected), prefix: '' };
+        return {
+          ...state,
+          selected,
+          hiddenValue: formatBibstemOptions(selected),
+          prefix: '',
+        };
       }
 
       // find and remove the option from our list
@@ -150,7 +161,12 @@ const reducer: Reducer<
           ? removeOption(state.selected, action.meta.removedValue)
           : ([action.payload] as IBibstemOption[]);
 
-        return { ...state, selected, hiddenValue: formatBibstemOptions(selected), prefix: '' };
+        return {
+          ...state,
+          selected,
+          hiddenValue: formatBibstemOptions(selected),
+          prefix: '',
+        };
       }
 
       // push on new entry and apply prefix (if necessary)
@@ -158,7 +174,12 @@ const reducer: Reducer<
         const selected = state.isMultiple
           ? [...state.selected, applyPrefix(state.prefix, action.meta.option)]
           : ([action.payload] as IBibstemOption[]);
-        return { ...state, selected, hiddenValue: formatBibstemOptions(selected), prefix: '' };
+        return {
+          ...state,
+          selected,
+          hiddenValue: formatBibstemOptions(selected),
+          prefix: '',
+        };
       }
 
       // push new entry, but don't check for prefixes on custom entries
@@ -167,13 +188,24 @@ const reducer: Reducer<
           ? [...state.selected, action.meta.option]
           : ([action.payload] as IBibstemOption[]);
 
-        return { ...state, selected, hiddenValue: formatBibstemOptions(selected), prefix: '' };
+        return {
+          ...state,
+          selected,
+          hiddenValue: formatBibstemOptions(selected),
+          prefix: '',
+        };
       }
     }
   }
 
   if (action.type === 'reset') {
-    return { ...state, selected: [], hiddenValue: '', prefix: '', inputValue: '' };
+    return {
+      ...state,
+      selected: [],
+      hiddenValue: '',
+      prefix: '',
+      inputValue: '',
+    };
   }
 
   return state;
@@ -201,7 +233,8 @@ const BibstemPickerImpl = (props: IBibstemPickerProps, ref: ForwardedRef<never>)
     try {
       const { data } = await axios.get<IBibstemOption[]>(`api/bibstems/${valueToFetch}`);
       return data;
-    } catch (e) {
+    } catch (err) {
+      logger.error({ err }, 'Error fetching bibstems from api');
       // send back a single "error" item with a message
       return [
         {

@@ -41,7 +41,10 @@ export const KeywordsForm = ({
 
   const { kwValid, kwErrorMessage } = useMemo(() => {
     const isValid = isValidKeyword(dbKeywords);
-    return { kwValid: isValid, kwErrorMessage: isValid ? null : 'Invalid keyword syntax' };
+    return {
+      kwValid: isValid,
+      kwErrorMessage: isValid ? null : 'Invalid keyword syntax',
+    };
   }, [dbKeywords]);
 
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -66,7 +69,11 @@ export const KeywordsForm = ({
         {
           onSettled(data, error) {
             if (error) {
-              toast({ status: 'error', title: 'Error', description: parseAPIError(error) });
+              toast({
+                status: 'error',
+                title: 'Error',
+                description: parseAPIError(error),
+              });
             } else {
               toast({ status: 'success', title: 'Notification Modified' });
               onClose();
@@ -85,7 +92,11 @@ export const KeywordsForm = ({
         {
           onSettled(data, error) {
             if (error) {
-              toast({ status: 'error', title: 'Error', description: parseAPIError(error) });
+              toast({
+                status: 'error',
+                title: 'Error',
+                description: parseAPIError(error),
+              });
             } else {
               toast({ status: 'success', title: 'Notification Created' });
               onClose();
@@ -121,7 +132,7 @@ export const KeywordsForm = ({
           />
           <FormErrorMessage>{kwErrorMessage}</FormErrorMessage>
           <Text fontSize="sm" fontStyle="italic" mt={1}>
-            Boolean "AND" is assumed, but can be overriden by using explicit logical operators between keywords
+            Boolean &#34;AND&#34; is assumed, but can be overriden by using explicit logical operators between keywords
           </Text>
         </FormControl>
         <HStack mt={4} justifyContent="end">

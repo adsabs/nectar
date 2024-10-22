@@ -7,6 +7,7 @@ import { ParsedUrlQuery } from 'querystring';
 import { SafeSearchUrlParams } from '@/types';
 import { SolrSort } from '@/api/models';
 import { IADSApiSearchParams } from '@/api/search/types';
+import { logger } from '@/logger';
 
 /**
  * Type representing the parsed query parameters.
@@ -29,17 +30,30 @@ export const normalizeURLParams = <T extends Record<string, string> = Record<str
   query: ParsedQueryParams,
   skipKeys: string[] = [],
 ): T => {
-  return Object.keys(query).reduce((acc, key) => {
-    if (skipKeys.includes(key)) {
-      return acc;
+  const SKIPPED_KEYS = new Set(skipKeys);
+
+  const convertToString = (value: unknown): string | undefined => {
+    if (typeof value === 'string') {
+      return value;
     }
-    const rawValue = query[key];
-    const value = typeof rawValue === 'string' ? rawValue : Array.isArray(rawValue) ? rawValue.join(',') : undefined;
+    if (Array.isArray(value)) {
+      return value.join(',');
+    }
+    return undefined;
+  };
+
+  return Object.keys(query).reduce((result, key) => {
+    if (SKIPPED_KEYS.has(key)) {
+      return result;
+    }
+
+    const value = convertToString(query[key]);
     if (typeof value === 'undefined') {
-      return acc;
+      return result;
     }
+
     return {
-      ...acc,
+      ...result,
       [key]: value,
     };
   }, {}) as T;
@@ -64,23 +78,30 @@ export const parseNumberAndClamp = (
     const val = Array.isArray(value) ? value[0] : value;
     const num = typeof val === 'number' ? val : parseInt(val, 10);
     return clamp(min, max, Number.isNaN(num) ? min : num);
-  } catch (e) {
+  } catch (err) {
+    logger.error({ err, value, min, max }, 'Error caught while parsing number');
     return min;
   }
 };
 
 /**
- * Parses query parameters from the provided URL and returns a normalized parameter object.
+ * Parses the query parameters from the given URL and normalizes them according to specific rules.
  *
- * @param {string} url - The URL containing the query parameters to parse.
- * @param {object} [options] - Additional options for parsing.
- * @param {SolrSort} [options.sortPostfix] - An optional sort postfix for Solr sorting.
- * @returns {IADSApiSearchParams & { p?: number, n?: number } & TExtra} - The normalized parameters object.
+ * @template TExtra - An optional extension of the default query parameters, defined as a record of string, number,
+ *  or arrays of strings/numbers.
+ *
+ * @param {string} url - The URL containing the query string to parse.
+ * @param {Object} [options] - Optional settings for parsing.
+ * @param {SolrSort} [options.sortPostfix] - Optional postfix to append to the sort parameter.
+ *
+ * @returns {IADSApiSearchParams & { p?: number; n?: number } & TExtra } An object containing the parsed and normalized
+ *  query parameters, including optional page (`p`) and number per page (`n`) parameters, as well as any additional
+ *  parameters defined by `TExtra`.
  */
 export const parseQueryFromUrl = <TExtra extends Record<string, string | number | Array<string | number>>>(
   url: string,
   { sortPostfix }: { sortPostfix?: SolrSort } = {},
-) => {
+): IADSApiSearchParams & { p?: number; n?: number } & TExtra => {
   const queryString = url.indexOf('?') === -1 ? '' : url.split('?')[1];
   const params = parseSearchParams(queryString) as Record<string, string | string[]>;
   const normalizedParams = normalizeURLParams(params, ['fq']);
@@ -147,7 +168,8 @@ export const safeSplitString = (value: string | string[], delimiter: string | Re
     if (isString(value)) {
       return value.split(delimiter);
     }
-  } catch (e) {
+  } catch (err) {
+    logger.error({ err }, 'Error caught while parsing string');
     return [];
   }
 };

@@ -33,28 +33,32 @@ export const useSettings = (options?: UseQueryOptions<IADSApiUserDataResponse>) 
 
   useEffect(() => {
     if (updateSettingsState.isError) {
-      toast.isActive('settings')
-        ? toast.update('settings', {
-            title: 'Something went wrong.',
-            status: 'error',
-          })
-        : toast({
-            title: 'Something went wrong.',
-            status: 'error',
-          });
+      if (toast.isActive('settings')) {
+        toast.update('settings', {
+          title: 'Something went wrong.',
+          status: 'error',
+        });
+      } else {
+        toast({
+          title: 'Something went wrong.',
+          status: 'error',
+        });
+      }
     }
     if (updateSettingsState.isSuccess) {
-      toast.isActive('settings')
-        ? toast.update('settings', {
-            title: 'Settings Updated.',
-            status: 'success',
-          })
-        : toast({
-            title: 'Settings Updated.',
-            status: 'success',
-          });
+      if (toast.isActive('settings')) {
+        toast.update('settings', {
+          title: 'Settings Updated.',
+          status: 'success',
+        });
+      } else {
+        toast({
+          title: 'Settings Updated.',
+          status: 'success',
+        });
+      }
     }
-  }, [updateSettingsState.isSuccess, updateSettingsState.isError]);
+  }, [updateSettingsState.isSuccess, updateSettingsState.isError, toast]);
 
   const updateSettings = useDebouncedCallback((params: IADSApiUserDataParams) => {
     if (isNotEmpty(params)) {

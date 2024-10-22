@@ -357,9 +357,10 @@ const Action = ({
           variant="outline"
           rightIcon={<ChevronDownIcon />}
           onClick={(e) => e.stopPropagation()}
-          children={<SettingsIcon aria-label="actions" />}
           data-testid="library-action-menu"
-        />
+        >
+          <SettingsIcon aria-label="actions" />
+        </MenuButton>
         <MenuList>
           <MenuItem onClick={handleSettings}>Settings</MenuItem>
           <DeleteLibrary onDelete={onDelete} format="menuitem" isDisabled={disableDelete} />

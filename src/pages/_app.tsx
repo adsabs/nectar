@@ -29,6 +29,7 @@ import api, { checkUserData } from '@/api/api';
 import { userKeys } from '@/api/user/user';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   require('../mocks');
 }
 
@@ -71,6 +72,7 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
     </>
   );
 });
+NectarApp.displayName = 'NectarApp';
 
 const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => {
   const createStore = useCreateStore(pageProps.dehydratedAppState ?? {});

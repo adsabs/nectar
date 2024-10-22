@@ -1,5 +1,0 @@
-cypress
-dev
-dist
-**/*.js
-public/mockServiceWorker.js

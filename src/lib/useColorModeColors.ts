@@ -1,26 +1,25 @@
 import { useColorMode } from '@chakra-ui/react';
 
-const elements = [
-  'background',
-  'text',
-  'disalbedText',
-  'link',
-  'highlightBackground',
-  'highlightForeground',
-  'disabledBackground',
-  'disabledForeground',
-  'border',
-  'panel',
-  'panelHighlight',
-  'lightText',
-  'brand',
-  'tableHighlightBackgroud',
-  'disabledInput',
-  'pill',
-  'pillText',
-] as const;
+type Elements =
+  | 'background'
+  | 'text'
+  | 'disabledText'
+  | 'link'
+  | 'highlightBackground'
+  | 'highlightForeground'
+  | 'disabledBackground'
+  | 'disabledForeground'
+  | 'border'
+  | 'panel'
+  | 'panelHighlight'
+  | 'lightText'
+  | 'brand'
+  | 'tableHighlightBackgroud'
+  | 'disabledInput'
+  | 'pill'
+  | 'pillText';
 
-export type ColorModeColors = { [key in typeof elements[number]]: string };
+export type ColorModeColors = { [key in Elements]: string };
 
 export const useColorModeColors = (): ColorModeColors => {
   const { colorMode } = useColorMode();
@@ -29,7 +28,7 @@ export const useColorModeColors = (): ColorModeColors => {
     ? {
         background: 'white',
         text: 'gray.700',
-        disalbedText: 'gray.400',
+        disabledText: 'gray.400',
         link: 'blue.400',
         highlightBackground: 'blue.100',
         highlightForeground: 'gray.800',
@@ -48,7 +47,7 @@ export const useColorModeColors = (): ColorModeColors => {
     : {
         background: 'gray.800',
         text: 'gray.50',
-        disalbedText: 'gray.100',
+        disabledText: 'gray.100',
         link: 'blue.200',
         highlightBackground: 'gray.600',
         highlightForeground: 'gray.100',
@@ -73,7 +72,7 @@ export const useColorModeColorVars = (): ColorModeColors => {
     ? {
         background: 'var(--chakra-colors-white)',
         text: 'var(--chakra-colors-gray-700)',
-        disalbedText: 'var(--chakra-colors-gray-400)',
+        disabledText: 'var(--chakra-colors-gray-400)',
         link: 'var(--chakra-colors-blue-400)',
         highlightBackground: 'var(--chakra-colors-blue-100)',
         highlightForeground: 'var(--chakra-colors-gray-800)',
@@ -92,7 +91,7 @@ export const useColorModeColorVars = (): ColorModeColors => {
     : {
         background: 'var(--chakra-colors-gray-800)',
         text: 'var(--chakra-colors-gray-50)',
-        disalbedText: 'var(--chakra-colors-gray-100)',
+        disabledText: 'var(--chakra-colors-gray-100)',
         link: 'var(--chakra-colors-blue-200)',
         highlightBackground: 'var(--chakra-colors-gray-600)',
         highlightForeground: 'var(--chakra-colors-gray-100)',

@@ -17,9 +17,12 @@ import {
   without,
 } from 'ramda';
 import { isEmptyObject } from '@/utils/common/guards';
+import { logger } from '@/logger';
 
 export type Operator = 'AND' | 'OR' | 'NOT';
 const DEFAULT_OPERATOR = 'AND' as const;
+
+const log = logger.child({ module: 'query' }, { msgPrefix: '[query] ' });
 
 /**
  * Regex to match a field
@@ -103,7 +106,8 @@ export const joinQueries = curry((queryB: string, queryA: string) => {
       });
     }
     return queryA;
-  } catch (e) {
+  } catch (err) {
+    log.error({ err, queryA, queryB }, 'Error caught while attempting to join queries');
     return queryA;
   }
 });

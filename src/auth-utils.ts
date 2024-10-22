@@ -7,6 +7,7 @@ import { APP_DEFAULTS } from '@/config';
 import { IBootstrapPayload, ICSRFResponse, IUserData } from '@/api/user/types';
 import { ApiTargets } from '@/api/models';
 import { ApiRequestConfig } from '@/api/api';
+import { edgeLogger as logger } from '@/logger';
 
 const fetchCSRF = async () =>
   await axios.get<ICSRFResponse, AxiosResponse<ICSRFResponse>>(ApiTargets.CSRF, {
@@ -55,7 +56,8 @@ export const hash = async (str?: string) => {
   try {
     const buffer = await globalThis.crypto.subtle.digest('SHA-1', Buffer.from(str, 'utf-8'));
     return Array.from(new Uint8Array(buffer)).toString();
-  } catch (e) {
+  } catch (err) {
+    logger.error({ err }, 'Error caught attempting to hash string');
     return null;
   }
 };

@@ -116,7 +116,9 @@ export const AllAuthorsModal = ({ bibcode, label }: IAllAuthorsModalProps): Reac
                   size="xl"
                   fontWeight="bold"
                   as={MathJax}
-                  dangerouslySetInnerHTML={{ __html: unwrapStringValue(data.docs[0].title) }}
+                  dangerouslySetInnerHTML={{
+                    __html: unwrapStringValue(data.docs[0].title),
+                  }}
                 />
               </Box>
             )}
@@ -170,7 +172,10 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
       numFound: list.length,
       onStateChange: (pagination) => {
         if (pagination.startIndex !== start || pagination.endIndex !== end) {
-          setPagination({ start: pagination.startIndex, end: pagination.endIndex });
+          setPagination({
+            start: pagination.startIndex,
+            end: pagination.endIndex,
+          });
         }
       },
     });
@@ -318,3 +323,4 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
     );
   },
 );
+AuthorsTable.displayName = 'AllAuthorsModal';

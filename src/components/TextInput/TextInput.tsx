@@ -24,3 +24,4 @@ export const TextInput = forwardRef<HTMLInputElement, ITextInputProps>((props, r
 
   return <Input as="input" ref={ref} {...inputProps} />;
 });
+TextInput.displayName = 'TextInput';

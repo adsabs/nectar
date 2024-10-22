@@ -1,7 +1,6 @@
 import { sessionConfig } from '@/config';
 import { getIronSession } from 'iron-session/edge';
 import { edgeLogger } from '@/logger';
-//  eslint-disable-next-line @next/next/no-server-import-in-page
 import { NextRequest, NextResponse, userAgent } from 'next/server';
 import { IronSessionData } from 'iron-session';
 
@@ -25,7 +24,8 @@ const crawlerCheck = async (req: NextRequest, ip: string, ua: string) => {
       body: JSON.stringify({ ua, ip }),
     });
     return (await res.json()) as CRAWLER_RESULT;
-  } catch (e) {
+  } catch (err) {
+    log.error({ err }, 'Fetching /api/isBot failed, continuing');
     // if the bot check fails, we assume it's a human so we don't restrict a real user because of fetch failure here
     return Promise.resolve(CRAWLER_RESULT.HUMAN);
   }

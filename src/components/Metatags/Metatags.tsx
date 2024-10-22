@@ -3,11 +3,13 @@ import getConfig from 'next/config';
 import { ReactElement } from 'react';
 import { getFormattedNumericPubdate } from '@/utils/common/formatters';
 import { Esources, IDocsEntity } from '@/api/search/types';
+import { logger } from '@/logger';
 
 const getBaseUrl = () => {
   try {
     return (getConfig() as AppRuntimeConfig).serverRuntimeConfig?.baseCanonicalUrl ?? '';
-  } catch (e) {
+  } catch (err) {
+    logger.error({ err }, 'Error caught resolving base url');
     return '';
   }
 };
