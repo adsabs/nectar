@@ -12,10 +12,13 @@ enum CRAWLER_RESULT {
 }
 
 const getIp = (req: NextRequest) =>
-  req.headers.get('X-Original-Forwarded-For') ||
-  req.headers.get('X-Forwarded-For') ||
-  req.headers.get('X-Real-Ip') ||
-  req.ip;
+  (
+    req.headers.get('X-Original-Forwarded-For') ||
+    req.headers.get('X-Forwarded-For') ||
+    req.headers.get('X-Real-Ip')
+  )
+    .split(',')
+    .shift() || 'unknown';
 
 const crawlerCheck = async (req: NextRequest, ip: string, ua: string) => {
   try {
