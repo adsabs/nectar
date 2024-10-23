@@ -58,7 +58,10 @@ import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
 import { getAbstractParams } from '@/api/search/models';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
-  () => import('@/components/AllAuthorsModal').then((m) => m.AllAuthorsModal),
+  () =>
+    import('@/components/AllAuthorsModal').then((m) => ({
+      default: m.AllAuthorsModal,
+    })),
   { ssr: false },
 );
 

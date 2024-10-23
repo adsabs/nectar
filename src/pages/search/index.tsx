@@ -55,12 +55,18 @@ import { defaultParams } from '@/api/search/models';
 import { SolrSort } from '@/api/models';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
-  () => import('@/components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),
+  () =>
+    import('@/components/SearchFacet/YearHistogramSlider').then((mod) => ({
+      default: mod.YearHistogramSlider,
+    })),
   { ssr: false },
 );
 
 const SearchFacets = dynamic<ISearchFacetsProps>(
-  () => import('@/components/SearchFacet').then((mod) => mod.SearchFacets),
+  () =>
+    import('@/components/SearchFacet').then((mod) => ({
+      default: mod.SearchFacets,
+    })),
   { ssr: false },
 );
 

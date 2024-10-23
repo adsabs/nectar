@@ -19,14 +19,26 @@ import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { BRAND_NAME_FULL } from '@/config';
 
-const UserSettings = dynamic(() => import('@/components/Orcid/UserSettings').then((m) => m.UserSettings), {
-  ssr: false,
-  loading: () => <Spinner />,
-});
-const WorksTable = dynamic(() => import('@/components/Orcid/WorksTable').then((m) => m.WorksTable), {
-  ssr: false,
-  loading: () => <Spinner />,
-});
+const UserSettings = dynamic(
+  () =>
+    import('@/components/Orcid/UserSettings').then((m) => ({
+      default: m.UserSettings,
+    })),
+  {
+    ssr: false,
+    loading: () => <Spinner />,
+  },
+);
+const WorksTable = dynamic(
+  () =>
+    import('@/components/Orcid/WorksTable').then((m) => ({
+      default: m.WorksTable,
+    })),
+  {
+    ssr: false,
+    loading: () => <Spinner />,
+  },
+);
 
 const setOrcidModeSelector = (state: AppState) => state.setOrcidMode;
 const orcidModeActiveSelector = (state: AppState) => state.orcid.active;
