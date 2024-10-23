@@ -12,10 +12,16 @@ import { Favicons } from '@/components/Favicons/Favicons';
 import { BRAND_NAME_FULL } from '@/config';
 import { LandingTabsStatic } from '@/components/LandingTabs';
 
-const LandingTabs = dynamic(() => import('@/components/LandingTabs/LandingTabs').then((mod) => mod.LandingTabs), {
-  ssr: false,
-  loading: () => <LandingTabsStatic />,
-});
+const LandingTabs = dynamic(
+  () =>
+    import('@/components/LandingTabs/LandingTabs').then((mod) => ({
+      default: mod.LandingTabs,
+    })),
+  {
+    ssr: false,
+    loading: () => <LandingTabsStatic />,
+  },
+);
 
 const LANDING_PAGES = ['/', '/classic-form', '/paper-form'];
 export const Layout: FC = ({ children }) => {
