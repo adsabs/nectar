@@ -30,7 +30,10 @@ import { getFormattedNumericPubdate, unwrapStringValue } from '@/utils/common/fo
 import { IDocsEntity } from '@/api/search/types';
 
 const AbstractPreview = dynamic<IAbstractPreviewProps>(
-  () => import('./AbstractPreview').then((mod) => mod.AbstractPreview),
+  () =>
+    import('./AbstractPreview').then((mod) => ({
+      default: mod.AbstractPreview,
+    })),
   { ssr: false },
 );
 export interface IItemProps {

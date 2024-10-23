@@ -34,7 +34,10 @@ if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !=
 }
 
 const TopProgressBar = dynamic<Record<string, never>>(
-  () => import('@/components/TopProgressBar').then((mod) => mod.TopProgressBar),
+  () =>
+    import('@/components/TopProgressBar').then((mod) => ({
+      default: mod.TopProgressBar,
+    })),
   {
     ssr: false,
   },
