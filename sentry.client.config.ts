@@ -21,10 +21,14 @@ Sentry.init({
 
   // You can remove this option if you're not planning to use the Sentry Session Replay feature:
   integrations: [
-    new Sentry.Replay({
+    Sentry.replayIntegration({
       maskAllText: false,
       blockAllMedia: false,
       maskAllInputs: true,
+      unmask: ['input[name=q]'],
+    }),
+    Sentry.browserTracingIntegration({
+      enableInp: true,
     }),
   ],
 });
