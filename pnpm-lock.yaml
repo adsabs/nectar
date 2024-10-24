@@ -137,9 +137,6 @@ importers:
       escape-html:
         specifier: ^1.0.3
         version: 1.0.3
-      express:
-        specifier: ^4.17.3
-        version: 4.17.3
       file-saver:
         specifier: ^2.0.5
         version: 2.0.5
