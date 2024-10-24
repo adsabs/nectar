@@ -22,17 +22,26 @@ import { makeSearchParams, normalizeSolrSort } from '@/utils/common/search';
 import { SolrSort } from '@/api/models';
 
 const SearchExamples = dynamic<ISearchExamplesProps>(
-  () => import('@/components/SearchExamples').then((m) => m.SearchExamples),
+  () =>
+    import('@/components/SearchExamples').then((m) => ({
+      default: m.SearchExamples,
+    })),
   { ssr: false, loading: () => <SearchExamplesPlaceholder /> },
 );
-const Pager = dynamic<IPagerProps>(() => import('@/components/Pager').then((m) => m.Pager), {
-  ssr: false,
-  loading: () => (
-    <Center>
-      <Spinner />
-    </Center>
-  ),
-});
+const Pager = dynamic<IPagerProps>(
+  () =>
+    import('@/components/Pager').then((m) => ({
+      default: m.Pager,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <Center>
+        <Spinner />
+      </Center>
+    ),
+  },
+);
 
 const HomePage: NextPage = () => {
   const { settings } = useSettings();
