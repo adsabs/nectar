@@ -1,8 +1,11 @@
 import { Box, useColorMode } from '@chakra-ui/react';
 import { useNivoDarkTheme } from '@/lib/useNivoDarkTheme';
-import { ResponsiveLine, Serie } from '@nivo/line';
+import type { Serie } from '@nivo/line';
 import { memo, ReactElement } from 'react';
 import { X_Axis, Y_Axis } from '../types';
+import dynamic from 'next/dynamic';
+
+const ResponsiveLine = dynamic(() => import('@nivo/line').then((m) => m.default.ResponsiveLine), { ssr: false });
 
 export interface ILineGraphProps {
   data: Serie[];
@@ -23,7 +26,12 @@ export const LineGraph = memo(
           <ResponsiveLine
             theme={colorMode === 'dark' ? darkTheme : null}
             data={data}
-            margin={{ top: 50, right: showLegend ? 110 : 50, bottom: 50, left: 60 }}
+            margin={{
+              top: 50,
+              right: showLegend ? 110 : 50,
+              bottom: 50,
+              left: 60,
+            }}
             colors={{ scheme: 'category10' }}
             xScale={xScaleType === 'linear' ? { type: 'linear', min: 'auto', max: 'auto' } : { type: 'point' }}
             yScale={

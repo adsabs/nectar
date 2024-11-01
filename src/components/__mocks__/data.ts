@@ -1,5 +1,5 @@
-import { BarDatum } from '@nivo/bar';
-import { Serie } from '@nivo/line';
+import type { BarDatum } from '@nivo/bar';
+import type { Serie } from '@nivo/line';
 import { Esources, IDocsEntity } from '@/api/search/types';
 import { IADSApiMetricsResponse } from '@/api/metrics/types';
 

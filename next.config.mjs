@@ -26,20 +26,29 @@ const CSP = `
  **/
 const nextConfig = {
   distDir: process.env.DIST_DIR || 'dist',
-  generateBuildId: async () => nextBuildId({ dir: process.env.__dirname, describe: true }),
+  generateBuildId: async () =>
+    nextBuildId({ dir: process.env.__dirname, describe: true }),
   generateEtags: true,
   poweredByHeader: false,
   reactStrictMode: true,
   experimental: {
     newNextLinkBehavior: false,
     webVitalsAttribution: ['CLS', 'LCP'],
-    optimizePackageImports: ['@api', '@components', '@chakra-ui/react', 'ramda'],
+    optimizePackageImports: [
+      '@api',
+      '@components',
+      '@chakra-ui/react',
+      'ramda',
+    ],
   },
   async rewrites() {
     if (process.env.NODE_ENV !== 'production') {
       return {
         beforeFiles: [
-          { source: '/link_gateway/:path*', destination: `${process.env.BASE_CANONICAL_URL}/link_gateway/:path*` },
+          {
+            source: '/link_gateway/:path*',
+            destination: `${process.env.BASE_CANONICAL_URL}/link_gateway/:path*`,
+          },
         ],
       };
     }
@@ -191,7 +200,14 @@ const sentryConfig = {
   disableLogger: true,
 };
 
-const config = process.env.ANALYZE === 'true' ? withBundleAnalyzer(nextConfig) : nextConfig;
-const nextConfigWithSentry = withSentryConfig(config, sentrySettings, sentryConfig);
+const config =
+  process.env.ANALYZE === 'true' ? withBundleAnalyzer(nextConfig) : nextConfig;
+const nextConfigWithSentry = withSentryConfig(
+  config,
+  sentrySettings,
+  sentryConfig,
+);
 
-export default process.env.NODE_ENV === 'production' ? nextConfigWithSentry : config;
+export default process.env.NODE_ENV === 'production'
+  ? nextConfigWithSentry
+  : config;
