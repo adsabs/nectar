@@ -1,5 +1,5 @@
-import { BarDatum } from '@nivo/bar';
-import { Serie } from '@nivo/line';
+import type { BarDatum } from '@nivo/bar';
+import type { Serie } from '@nivo/line';
 import { BasicStatsKey, CitationsStatsKey, TimeSeriesKey } from '@/api/metrics/types';
 
 export interface IBubblePlotNodeData {

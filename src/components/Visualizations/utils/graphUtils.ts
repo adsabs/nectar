@@ -8,7 +8,7 @@ import {
   IBibcodeDict,
 } from '@/api/vis/types';
 
-import { Datum, Serie } from '@nivo/line';
+import type { Datum, Serie } from '@nivo/line';
 import * as d3 from 'd3';
 import { decode } from 'he';
 import {
@@ -454,10 +454,16 @@ export const getAuthorNetworkSummaryGraph = (response: IADSApiAuthorNetworkRespo
     allYears.forEach((year) => (skeleton[year.toString()] = 0));
 
     // into year and paper count array [ ... {year: count} ]
-    const yearPaperCount = { ...skeleton, ...countBy((bibcode) => bibcode.slice(0, 4), bibcodes) };
+    const yearPaperCount = {
+      ...skeleton,
+      ...countBy((bibcode) => bibcode.slice(0, 4), bibcodes),
+    };
 
     // convert to line graph data [ ... {x: year, y: count} ]
-    const graphData = Object.entries(yearPaperCount).map(([year, count]) => ({ x: year, y: count }));
+    const graphData = Object.entries(yearPaperCount).map(([year, count]) => ({
+      x: year,
+      y: count,
+    }));
 
     data.push({ id: group.name as string, data: graphData });
   });
@@ -495,7 +501,12 @@ export const getAuthorNetworkNodeDetails = (
       })
       [bibcodes.length - 1].slice(0, 4);
 
-    return { name: node.name as string, type: 'author', papers, mostRecentYear };
+    return {
+      name: node.name as string,
+      type: 'author',
+      papers,
+      mostRecentYear,
+    };
   }
   // if selected a group node
   else {
@@ -558,7 +569,12 @@ export const getAuthorNetworkNodeDetails = (
       }, papers),
     );
 
-    return { name: `Group ${node.name as string}`, type: 'group', papers, mostRecentYear };
+    return {
+      name: `Group ${node.name as string}`,
+      type: 'group',
+      papers,
+      mostRecentYear,
+    };
   }
 };
 
@@ -600,10 +616,16 @@ export const getPaperNetworkSummaryGraph = (response: IADSApiPaperNetworkRespons
     allYears.forEach((year) => (skeleton[year.toString()] = 0));
 
     // all papers in this group into year and paper count [ ... {year: count} ]
-    const yearPaperCount = { ...skeleton, ...countBy((bibcode) => bibcode.slice(0, 4), bibcodes) };
+    const yearPaperCount = {
+      ...skeleton,
+      ...countBy((bibcode) => bibcode.slice(0, 4), bibcodes),
+    };
 
     // convert graph data to [ ... {x: year, y: count} ]
-    const graphData = Object.entries(yearPaperCount).map(([year, count]) => ({ x: year, y: count }));
+    const graphData = Object.entries(yearPaperCount).map(([year, count]) => ({
+      x: year,
+      y: count,
+    }));
 
     data.push({ id: groupName, data: graphData });
   });
@@ -680,7 +702,11 @@ export const getPaperNetworkLinkDetails = (
   intersection(allReferences1, allReferences2).forEach((b) => {
     const percent1 = allReferences1.filter((b1) => b1 === b).length / allReferences1.length;
     const percent2 = allReferences2.filter((b1) => b1 === b).length / allReferences2.length;
-    references.push({ bibcode: b, percent1: percent1 * 100, percent2: percent2 * 100 });
+    references.push({
+      bibcode: b,
+      percent1: percent1 * 100,
+      percent2: percent2 * 100,
+    });
   });
 
   references.sort((a, b) => b.percent1 * b.percent2 - a.percent1 * a.percent2);
