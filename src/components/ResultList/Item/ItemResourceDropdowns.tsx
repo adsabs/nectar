@@ -1,15 +1,18 @@
-import { IconButton, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
+import { IconButton, Menu, MenuButton, MenuItem, MenuList, useClipboard, useToast } from '@chakra-ui/react';
 import { LockIcon, UnlockIcon } from '@chakra-ui/icons';
-
 import { processLinkData } from '@/components/AbstractSources/linkGenerator';
 import { SimpleAction } from '@/components/Orcid/SimpleAction';
-import { Bars4Icon, CircleStackIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { Bars4Icon, CircleStackIcon, DocumentTextIcon, ShareIcon } from '@heroicons/react/24/outline';
 import { useIsClient } from '@/lib/useIsClient';
 import { useRouter } from 'next/router';
-import { MouseEventHandler, ReactElement } from 'react';
+import { MouseEventHandler, ReactElement, useEffect } from 'react';
 import { SimpleLinkDropdown } from '@/components/Dropdown';
 import { isBrowser } from '@/utils/common/guards';
 import { IDocsEntity } from '@/api/search/types';
+import { useGetExportCitation } from '@/api/export/export';
+import { useSettings } from '@/lib/useSettings';
+import { exportFormats } from '@/components/CitationExporter/models';
+import { values } from 'ramda';
 
 export interface IItemResourceDropdownsProps {
   doc: IDocsEntity;
@@ -24,6 +27,33 @@ export interface IItem {
 export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): ReactElement => {
   const router = useRouter();
   const isClient = useIsClient();
+  const toast = useToast({ duration: 2000 });
+  const { settings } = useSettings();
+  const { defaultExportFormat, customFormats } = settings;
+
+  const { data: citationData } = useGetExportCitation(
+    {
+      format: values(exportFormats).find((f) => f.label === defaultExportFormat).id,
+      customFormat: defaultExportFormat === exportFormats.custom.label ? customFormats[0].code : undefined,
+      bibcode: [doc.bibcode],
+    },
+    { enabled: !!settings?.defaultExportFormat },
+  );
+
+  const { hasCopied, onCopy, setValue, value } = useClipboard('');
+
+  useEffect(() => {
+    if (value !== '') {
+      onCopy();
+    }
+  }, [value]);
+
+  useEffect(() => {
+    if (hasCopied) {
+      toast({ status: 'info', title: 'Copied to Clipboard' });
+      setValue('');
+    }
+  }, [hasCopied]);
 
   let fullSourceItems: IItem[] = [];
 
@@ -135,6 +165,14 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
     />
   );
 
+  const handleCopyAbstractUrl = () => {
+    setValue(`${process.env.NEXT_PUBLIC_BASE_CANONICAL_URL}/abs/${doc.bibcode}/abstract`);
+  };
+
+  const handleCopyCitation = () => {
+    setValue(citationData.export);
+  };
+
   return (
     <>
       {/* orcid menu */}
@@ -174,7 +212,6 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
           )}
         </>
       )}
-
       {/* reference and citation items menu */}
       {isClient ? (
         <Menu variant="compact">
@@ -210,7 +247,6 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
           )}
         </>
       )}
-
       {/* data product items menu */}
       {isClient ? (
         <Menu variant="compact">
@@ -246,6 +282,20 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
           )}
         </>
       )}
+      {/* share menu */}
+      <Menu variant="compact">
+        <MenuButton
+          as={IconButton}
+          aria-label="share options"
+          icon={<ShareIcon width="18px" height="18px" />}
+          variant="link"
+          size="xs"
+        />
+        <MenuList>
+          <MenuItem onClick={handleCopyAbstractUrl}>Copy URL</MenuItem>
+          <MenuItem onClick={handleCopyCitation}>Copy Default Citation</MenuItem>
+        </MenuList>
+      </Menu>
     </>
   );
 };
