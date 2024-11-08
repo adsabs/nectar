@@ -52,7 +52,7 @@ export const WorksTable = () => {
       <Text>
         Learn about{' '}
         <SimpleLink href="/scixhelp/orcid-scix/claiming-papers" newTab display="inline">
-          cliaming papers
+          claiming papers
         </SimpleLink>{' '}
         and{' '}
         <SimpleLink href="/scixhelp/orcid-scix/orcid-search" newTab display="inline">
