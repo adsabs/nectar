@@ -407,8 +407,8 @@ export const Item = (props: IItemProps) => {
   const listItemProps: ListItemProps = {
     w: 'full',
     _hover: { pointer: 'cursor' },
-    key: node.id,
   };
+
   const textProps: TextProps = {
     as: 'span',
     alignItems: 'center',
@@ -421,6 +421,7 @@ export const Item = (props: IItemProps) => {
     return (
       <ListItem
         {...listItemProps}
+        key={node.id}
         data-testid={`search-facet-${expandable ? 'root' : 'child'}-item`}
         borderBottom="solid 1px"
         borderColor="gray.100"
