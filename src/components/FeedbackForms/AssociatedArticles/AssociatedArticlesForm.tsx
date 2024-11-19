@@ -7,6 +7,7 @@ import {
   Flex,
   FormControl,
   FormErrorMessage,
+  FormHelperText,
   FormLabel,
   HStack,
   IconButton,
@@ -121,10 +122,16 @@ export const AssociatedArticlesForm = ({
       setParams(null);
       closePreview();
     } else if (state === 'submitting') {
-      const { mainBibcode, associatedBibcodes } = getValues();
+      const { mainBibcode, associatedBibcodes, relationship } = getValues();
 
       // validate bibcodes
-      const bibsSet = new Set([mainBibcode, ...associatedBibcodes.map((b) => b.value)]);
+
+      // if relationship is 'other', associated bibcodes could be DOI or URL, these do not need to be validated
+      const relatedBibcodes =
+        relationship === 'other'
+          ? associatedBibcodes.filter((b) => !b.value.includes('/')) // if string has '/' assume it's URL or DOI
+          : associatedBibcodes;
+      const bibsSet = new Set([mainBibcode, ...relatedBibcodes.map((b) => b.value)]);
       setAllBibcodes(Array.from(bibsSet));
     } else if (state === 'validate-bibcodes' && allBibcodes) {
       void bibcodesRefetch();
@@ -375,19 +382,24 @@ export const AssociatedTable = () => {
 
           <Flex direction="column" gap={2}>
             <FormControl>
-              <FormLabel>{`${
-                relationship === 'errata'
-                  ? 'Errata '
-                  : relationship === 'addenda'
-                  ? 'Addenda '
-                  : relationship === 'series'
-                  ? 'Series of articles '
-                  : relationship === 'arxiv'
-                  ? 'Main paper '
-                  : relationship === 'duplicate'
-                  ? 'Duplicate '
-                  : 'Related '
-              }Bibcode(s)`}</FormLabel>
+              <FormLabel>
+                {`${
+                  relationship === 'errata'
+                    ? 'Errata '
+                    : relationship === 'addenda'
+                    ? 'Addenda '
+                    : relationship === 'series'
+                    ? 'Series of articles '
+                    : relationship === 'arxiv'
+                    ? 'Main paper '
+                    : relationship === 'duplicate'
+                    ? 'Duplicate '
+                    : 'Related '
+                }${relationship === 'other' ? 'Bibcode, Associated URL, or DOI without prefix' : 'Bibcode(s)'}`}
+              </FormLabel>
+              {relationship === 'other' && (
+                <FormHelperText>i.e. https://doi.org/10.1093/mnras/stae2140, 10.1093/mnras/stae2140</FormHelperText>
+              )}
               <Flex direction="column" gap={2}>
                 {associatedBibcodes.map((b, index) => (
                   <FormControl isInvalid={!!errors.associatedBibcodes?.[index]} key={`asso-bib-${b.value}`}>
