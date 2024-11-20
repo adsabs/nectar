@@ -1,8 +1,8 @@
 import { useGetISSN, useGetJournal, useGetJournalSummary } from '@/api/journals/journals';
 import { IADSApiJournal } from '@/api/journals/types';
-import { SimpleLink } from '@/components';
+import { SimpleLink } from '@/components/SimpleLink';
 import { useDebounce } from '@/lib/useDebounce';
-import { makeSearchParams } from '@/utils';
+import { makeSearchParams } from '@/utils/common/search';
 import { ArrowBackIcon, ArrowUpDownIcon, TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -111,6 +111,10 @@ const JournalSearch = () => {
             <Text size="sm" my={4}>
               <strong>{data.journal.length}</strong> results
             </Text>
+            <Text size="sm" my={4}>
+              Click on the <i>journal name</i> to get a summary of our holdings. Click on the{' '}
+              <i>journal abbreviation</i> to search SciX for records
+            </Text>
             {sortedJournals.length > 0 && (
               <TableContainer>
                 <Table>
@@ -181,7 +185,7 @@ const JournalSearch = () => {
                   </Thead>
                   <Tbody>
                     {sortedJournals.map(({ bibstem, name }, index) => (
-                      <Tr>
+                      <Tr key={bibstem}>
                         <Td>{index + 1}</Td>
                         <Td>
                           <SimpleLink
