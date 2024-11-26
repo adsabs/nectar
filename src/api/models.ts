@@ -249,6 +249,6 @@ export enum ApiTargets {
   PERMISSIONS = '/biblib/permissions',
   REFERENCE = '/reference/text',
   JOURNAL = 'journals/journal',
-  JOURNAL_SUMMARY = 'journals/summary',
+  JOURNAL_SUMMARY = 'journals/browse',
   JOURNAL_ISSN = 'journals/issn',
 }
