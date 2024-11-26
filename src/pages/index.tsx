@@ -4,7 +4,6 @@ import { Box, Center, Flex, Heading, Spinner, Stack, Text, useMediaQuery, Visual
 
 import { applyFiltersToQuery } from '@/components/SearchFacet/helpers';
 import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
-import { YouTubeEmbed } from '@next/third-parties/google';
 import { useStore } from '@/store';
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
@@ -176,19 +175,12 @@ const Carousel = () => {
                 <Text fontWeight="thin">WELCOME TO THE</Text>
                 <Text fontWeight="bold">SciX Digital Library</Text>
               </Heading>
-              <Center>
-                <YouTubeEmbed
-                  videoid="LeTFmhmPjs0"
-                  height={315}
-                  width={560}
-                  params="fs=0&rel=0"
-                  playlabel="Learn more about the SciX digital library and how it can support your scientific research in this
-                welcome video and brief user tutorial from Dr. Stephanie Jarmak."
-                />
-              </Center>
               <Text fontSize="xl">
-                Learn more about the SciX digital library and how it can support your scientific research in this
-                welcome video and brief user tutorial from <br /> Dr. Stephanie Jarmak.
+                Learn more about the SciX digital library and how it can support your scientific research in{' '}
+                <SimpleLink href="https://youtu.be/LeTFmhmPjs0" isExternal newTab>
+                  this welcome video
+                </SimpleLink>{' '}
+                and brief user tutorial from <br /> Dr. Stephanie Jarmak.
               </Text>
             </Stack>
           ),
@@ -252,7 +244,7 @@ const Carousel = () => {
               </Text>
               <Text fontSize="xl">
                 Use the{' '}
-                <SimpleLink href="/scixhelp/quickstart-scix/searching-for-paper" display="inline" isExternal>
+                <SimpleLink href="/scixhelp/quickstart-scix/searching-for-paper" display="inline" isExternal newTab>
                   quick start guide
                 </SimpleLink>{' '}
                 to start your search of the portal and find out where to go with any questions about advanced tools and
