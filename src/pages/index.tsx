@@ -1,6 +1,6 @@
 import { IADSApiSearchParams } from '@/api/search/types';
 import { DatabaseEnum, IADSApiUserDataResponse } from '@/api/user/types';
-import { Box, Center, Flex, Heading, Spinner, Stack, Text, VisuallyHidden } from '@chakra-ui/react';
+import { Box, Center, Flex, Heading, Spinner, Stack, Text, useMediaQuery, VisuallyHidden } from '@chakra-ui/react';
 
 import { applyFiltersToQuery } from '@/components/SearchFacet/helpers';
 import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
@@ -113,6 +113,21 @@ const HomePage: NextPage = () => {
     },
     [router, sort, submitQuery, updateQuery],
   );
+
+  const [isMobile] = useMediaQuery('(max-width: 800px)');
+
+  if (isMobile) {
+    return (
+      <>
+        <Heading as="h3" my={5}>
+          <Center>
+            <Text fontWeight="thin">Search Examples</Text>
+          </Center>
+        </Heading>
+        <SearchExamples />
+      </>
+    );
+  }
 
   return (
     <Box aria-labelledby="form-title" my={8}>
