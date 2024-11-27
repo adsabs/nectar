@@ -115,19 +115,6 @@ const HomePage: NextPage = () => {
 
   const [isMobile] = useMediaQuery('(max-width: 800px)');
 
-  if (isMobile) {
-    return (
-      <>
-        <Heading as="h3" my={5}>
-          <Center>
-            <Text fontWeight="thin">Search Examples</Text>
-          </Center>
-        </Heading>
-        <SearchExamples />
-      </>
-    );
-  }
-
   return (
     <Box aria-labelledby="form-title" my={8}>
       <form method="get" action="/search" onSubmit={handleOnSubmit}>
@@ -138,9 +125,20 @@ const HomePage: NextPage = () => {
           <Box my={2}>
             <SearchBar isLoading={isLoading} />
           </Box>
-          <Box mb={2} mt={5} minW="md">
-            <Carousel />
-          </Box>
+          {isMobile ? (
+            <>
+              <Heading as="h3" my={5}>
+                <Center>
+                  <Text fontWeight="thin">Search Examples</Text>
+                </Center>
+              </Heading>
+              <SearchExamples />
+            </>
+          ) : (
+            <Box mb={2} mt={5} minW="md">
+              <Carousel />
+            </Box>
+          )}
         </Flex>
         <input type="hidden" name="sort" value={normalizeSolrSort(sort)} />
         <input type="hidden" name="p" value="1" />
