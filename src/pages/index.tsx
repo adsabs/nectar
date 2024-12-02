@@ -1,10 +1,9 @@
 import { IADSApiSearchParams } from '@/api/search/types';
 import { DatabaseEnum, IADSApiUserDataResponse } from '@/api/user/types';
-import { Box, Center, Flex, Heading, Spinner, Stack, Text, VisuallyHidden } from '@chakra-ui/react';
+import { Box, Center, Flex, Heading, Spinner, Stack, Text, useMediaQuery, VisuallyHidden } from '@chakra-ui/react';
 
 import { applyFiltersToQuery } from '@/components/SearchFacet/helpers';
 import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
-import { YouTubeEmbed } from '@next/third-parties/google';
 import { useStore } from '@/store';
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
@@ -114,6 +113,8 @@ const HomePage: NextPage = () => {
     [router, sort, submitQuery, updateQuery],
   );
 
+  const [isMobile] = useMediaQuery('(max-width: 800px)');
+
   return (
     <Box aria-labelledby="form-title" my={8}>
       <form method="get" action="/search" onSubmit={handleOnSubmit}>
@@ -124,9 +125,20 @@ const HomePage: NextPage = () => {
           <Box my={2}>
             <SearchBar isLoading={isLoading} />
           </Box>
-          <Box mb={2} mt={5} minW="md">
-            <Carousel />
-          </Box>
+          {isMobile ? (
+            <>
+              <Heading as="h3" my={5}>
+                <Center>
+                  <Text fontWeight="thin">Search Examples</Text>
+                </Center>
+              </Heading>
+              <SearchExamples />
+            </>
+          ) : (
+            <Box mb={2} mt={5} minW="md">
+              <Carousel />
+            </Box>
+          )}
         </Flex>
         <input type="hidden" name="sort" value={normalizeSolrSort(sort)} />
         <input type="hidden" name="p" value="1" />
@@ -161,19 +173,12 @@ const Carousel = () => {
                 <Text fontWeight="thin">WELCOME TO THE</Text>
                 <Text fontWeight="bold">SciX Digital Library</Text>
               </Heading>
-              <Center>
-                <YouTubeEmbed
-                  videoid="LeTFmhmPjs0"
-                  height={315}
-                  width={560}
-                  params="fs=0&rel=0"
-                  playlabel="Learn more about the SciX digital library and how it can support your scientific research in this
-                welcome video and brief user tutorial from Dr. Stephanie Jarmak."
-                />
-              </Center>
               <Text fontSize="xl">
-                Learn more about the SciX digital library and how it can support your scientific research in this
-                welcome video and brief user tutorial from <br /> Dr. Stephanie Jarmak.
+                Learn more about the SciX digital library and how it can support your scientific research in{' '}
+                <SimpleLink href="https://youtu.be/LeTFmhmPjs0" isExternal newTab>
+                  this welcome video
+                </SimpleLink>{' '}
+                and brief user tutorial from <br /> Dr. Stephanie Jarmak.
               </Text>
             </Stack>
           ),
@@ -237,7 +242,7 @@ const Carousel = () => {
               </Text>
               <Text fontSize="xl">
                 Use the{' '}
-                <SimpleLink href="/scixhelp/quickstart-scix/searching-for-paper" display="inline" isExternal>
+                <SimpleLink href="/scixhelp/quickstart-scix/searching-for-paper" display="inline" isExternal newTab>
                   quick start guide
                 </SimpleLink>{' '}
                 to start your search of the portal and find out where to go with any questions about advanced tools and
