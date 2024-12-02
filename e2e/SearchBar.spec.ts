@@ -48,11 +48,11 @@ test.skip('previews show when focusing on items in dropdown', async ({ page }) =
   await input.press('ArrowDown');
   await expect(input).toHaveValue(`author:""`);
   await input.press('ArrowDown');
-  await expect(input).toHaveValue(`author:"^"`);
+  await expect(input).toHaveValue(`first_author:""`);
   await input.press('ArrowDown');
   await expect(input).toHaveValue(`au`);
   await input.press('ArrowUp');
-  await expect(input).toHaveValue(`author:"^"`);
+  await expect(input).toHaveValue(`first_author:""`);
   await input.press('ArrowUp');
   await expect(input).toHaveValue(`author:""`);
   await input.press('ArrowUp');
