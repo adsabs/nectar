@@ -2,7 +2,7 @@ import { TypeaheadOption } from './types';
 
 export const typeaheadOptions: TypeaheadOption[] = [
   { value: 'author:""', label: 'Author', match: ['author:"'], desc: '', id: 0 },
-  { value: 'author:"^"', label: 'First Author', match: ['first author', 'author:"^'], desc: '', id: 1 },
+  { value: 'first_author:""', label: 'First Author', match: ['first author', 'first_author:"'], desc: '', id: 1 },
   { value: 'bibcode:""', label: 'Bibcode', desc: 'e.g. bibcode:1989ApJ...342L..71R', match: ['bibcode:"'], id: 2 },
   {
     value: 'bibstem:""',
@@ -314,11 +314,11 @@ export const allSearchTerms: SearchTermOption[] = [
   {
     type: 'item',
     id: 'first-author',
-    value: 'author:"^"',
+    value: 'first_author:""',
     title: 'first author',
     description: 'Search by first author of the paper',
-    syntax: ['author:"^Last, F"'],
-    example: ['author:"^huchra, j"'],
+    syntax: ['first_author:"Last, F"'],
+    example: ['first_author:"huchra, j"'],
   },
   {
     type: 'item',
@@ -571,11 +571,11 @@ export const quickfields: SearchTermItem[] = [
   {
     type: 'item',
     id: 'first-author',
-    value: 'author:"^"',
+    value: 'first_author:""',
     title: 'first author',
     description: 'Search by first author of the paper',
-    syntax: ['author:"^Last, F"'],
-    example: ['author:"^huchra, j"'],
+    syntax: ['first_author:"Last, F"'],
+    example: ['first_author:"huchra, j"'],
   },
   {
     type: 'item',

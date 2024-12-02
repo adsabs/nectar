@@ -4,7 +4,7 @@ export const examples = {
   [AppMode.GENERAL]: {
     left: [
       { label: 'author', text: 'author:"penrose, roger"' },
-      { label: 'first author', text: 'author:"^penrose, roger"' },
+      { label: 'first author', text: 'first_author:"penrose, roger"' },
       { label: 'abstract+title', text: 'abs:"black hole"' },
       { label: 'year', text: 'year:2000' },
       { label: 'year range', text: 'year:2000-2005' },
@@ -23,7 +23,7 @@ export const examples = {
   [AppMode.ASTROPHYSICS]: {
     left: [
       { label: 'author', text: 'author:"huchra, john"' },
-      { label: 'first author', text: 'author:"^huchra, john"' },
+      { label: 'first author', text: 'first_author:"huchra, john"' },
       { label: 'abstract+title', text: 'abs:"dark energy"' },
       { label: 'year', text: 'year:2000' },
       { label: 'year range', text: 'year:2000-2005' },
@@ -42,7 +42,7 @@ export const examples = {
   [AppMode.HELIOPHYSICS]: {
     left: [
       { label: 'author', text: 'author:"pollock, craig"' },
-      { label: 'first author', text: 'author:"^pollock, craig"' },
+      { label: 'first author', text: 'first_author:"pollock, craig"' },
       { label: 'abstract+title', text: 'abs:"plasma"' },
       { label: 'year', text: 'year:2000' },
       { label: 'year range', text: 'year:2000-2005' },
@@ -61,7 +61,7 @@ export const examples = {
   [AppMode.EARTH_SCIENCE]: {
     left: [
       { label: 'author', text: 'author:"Crutzen, Paul"' },
-      { label: 'first author', text: 'author:"^Crutzen, Paul"' },
+      { label: 'first author', text: 'first_author:"Crutzen, Paul"' },
       { label: 'abstract+title', text: 'abs:"plate tectonics"' },
       { label: 'year', text: 'year:2000' },
       { label: 'year range', text: 'year:2000-2005' },
@@ -80,7 +80,7 @@ export const examples = {
   [AppMode.PLANET_SCIENCE]: {
     left: [
       { label: 'author', text: 'author:"sagan, carl"' },
-      { label: 'first author', text: 'author:"^sagan, carl"' },
+      { label: 'first author', text: 'first_author:"sagan, carl"' },
       { label: 'abstract+title', text: 'abs:"mars"' },
       { label: 'year', text: 'year:2000' },
       { label: 'year range', text: 'year:2000-2005' },
@@ -99,7 +99,7 @@ export const examples = {
   [AppMode.BIO_PHYSICAL]: {
     left: [
       { label: 'author', text: 'author:"houghton, michael"' },
-      { label: 'first author', text: 'author:"^houghton, michael"' },
+      { label: 'first author', text: 'first_author:"houghton, michael"' },
       { label: 'abstract+title', text: 'abs:"rna"' },
       { label: 'year', text: 'year:2000' },
       { label: 'year range', text: 'year:2000-2005' },
