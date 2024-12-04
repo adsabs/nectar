@@ -12,7 +12,7 @@ import { IDocsEntity } from '@/api/search/types';
 import { useGetExportCitation } from '@/api/export/export';
 import { useSettings } from '@/lib/useSettings';
 import { exportFormats } from '@/components/CitationExporter/models';
-import { values } from 'ramda';
+import { ExportApiFormatKey } from '@/api/export/types';
 
 export interface IItemResourceDropdownsProps {
   doc: IDocsEntity;
@@ -33,7 +33,8 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
 
   const { data: citationData } = useGetExportCitation(
     {
-      format: values(exportFormats).find((f) => f.label === defaultExportFormat).id,
+      // format: values(exportFormats).find((f) => f.label === defaultExportFormat).id,
+      format: ExportApiFormatKey.agu,
       customFormat: defaultExportFormat === exportFormats.custom.label ? customFormats[0].code : undefined,
       bibcode: [doc.bibcode],
     },

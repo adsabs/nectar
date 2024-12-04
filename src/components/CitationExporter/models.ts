@@ -18,6 +18,20 @@ export const exportFormats: Record<ExportApiFormatKey, ExportFormat> = {
     ext: 'txt',
     value: 'ads',
   },
+  agu: {
+    id: ExportApiFormatKey.agu,
+    label: 'AGU',
+    help: 'American Geophysical Union format',
+    ext: 'txt',
+    value: 'agu',
+  },
+  ams: {
+    id: ExportApiFormatKey.ams,
+    label: 'AMS',
+    help: 'American Meteorological Society format',
+    ext: 'txt',
+    value: 'ams',
+  },
   bibtex: {
     id: ExportApiFormatKey.bibtex,
     label: 'BibTeX',
@@ -52,6 +66,13 @@ export const exportFormats: Record<ExportApiFormatKey, ExportFormat> = {
     help: 'EndNote format',
     ext: 'enw',
     value: 'endnote',
+  },
+  gsa: {
+    id: ExportApiFormatKey.gsa,
+    label: 'GSA',
+    help: 'The Geological Society of America format',
+    ext: 'txt',
+    value: 'GSA',
   },
   icarus: {
     id: ExportApiFormatKey.icarus,
