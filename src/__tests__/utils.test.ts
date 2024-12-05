@@ -163,7 +163,7 @@ describe('parseQueryFromUrl', () => {
     [
       'Case with long set of query params, including all FQs',
       [
-        `${baseUrl}?n=100&q=star&sort=score+desc%2Cdate+desc&p=1&fq_property=(property%3A"refereed")&fq_data=(data_facet%3A"NED")&fq_bibstem=(bibstem_facet%3A"A\\%26A"+AND+bibstem_facet%3A"AJ"+AND+bibstem_facet%3A"ApJL"+AND+bibstem_facet%3A"Ap\\%26SS"+AND+bibstem_facet%3A"PASP")&fq_database=(database%3A"earthscience")&fq_author=(author_facet_hier%3A"0\\%2FWang%2C+J"+AND+author_facet_hier%3A"0\\%2FWang%2C+Y"+AND+author_facet_hier%3A"0\\%2FHenning%2C+T"+AND+author_facet_hier%3A"0\\%2FZhang%2C+Y"+AND+author_facet_hier%3A"0\\%2FChen%2C+Y")&fq_aff=(aff_facet_hier%3A"0\\%2FMax+Planck")&fq_bibgroup=(bibgroup_facet%3A"ESO\\%2FTelescopes")&fq_simbad=(simbad_object_facet_hier%3A"0\\%2FStar")&fq_ned=(ned_object_facet_hier%3A"0\\%2FGalaxy")&fq_vizier=(vizier_facet%3A"Optical")&fq_doctype=(doctype_facet_hier%3A"0\\%2FArticle")&fq={!type%3Daqp+v%3D%24fq_property}%2C{!type%3Daqp+v%3D%24fq_data}%2C{!type%3Daqp+v%3D%24fq_bibstem}%2C{!type%3Daqp+v%3D%24fq_database}%2C{!type%3Daqp+v%3D%24fq_author}%2C{!type%3Daqp+v%3D%24fq_aff}%2C{!type%3Daqp+v%3D%24fq_bibgroup}%2C{!type%3Daqp+v%3D%24fq_simbad}%2C{!type%3Daqp+v%3D%24fq_ned}%2C{!type%3Daqp+v%3D%24fq_vizier}%2C{!type%3Daqp+v%3D%24fq_doctype}%2C{!type%3Daqp+v%3D%24fq_gpn}&fq_gpn=(gpn_facet_hier_3level%3A"0\\%2FMars")`,
+        `${baseUrl}?n=100&q=star&sort=score+desc%2Cdate+desc&p=1&fq_property=(property%3A"refereed")&fq_data=(data_facet%3A"NED")&fq_bibstem=(bibstem_facet%3A"A\\%26A"+AND+bibstem_facet%3A"AJ"+AND+bibstem_facet%3A"ApJL"+AND+bibstem_facet%3A"Ap\\%26SS"+AND+bibstem_facet%3A"PASP")&fq_database=(database%3A"earthscience")&fq_author=(author_facet_hier%3A"0\\%2FWang%2C+J"+AND+author_facet_hier%3A"0\\%2FWang%2C+Y"+AND+author_facet_hier%3A"0\\%2FHenning%2C+T"+AND+author_facet_hier%3A"0\\%2FZhang%2C+Y"+AND+author_facet_hier%3A"0\\%2FChen%2C+Y")&fq_aff=(aff_facet_hier%3A"0\\%2FMax+Planck")&fq_bibgroup=(bibgroup_facet%3A"ESO\\%2FTelescopes")&fq_simbad=(simbad_object_facet_hier%3A"0\\%2FStar")&fq_ned=(ned_object_facet_hier%3A"0\\%2FGalaxy")&fq_vizier=(vizier_facet%3A"Optical")&fq_doctype=(doctype_facet_hier%3A"0\\%2FArticle")&fq={!type%3Daqp+v%3D%24fq_property}%2C{!type%3Daqp+v%3D%24fq_data}%2C{!type%3Daqp+v%3D%24fq_bibstem}%2C{!type%3Daqp+v%3D%24fq_database}%2C{!type%3Daqp+v%3D%24fq_author}%2C{!type%3Daqp+v%3D%24fq_aff}%2C{!type%3Daqp+v%3D%24fq_bibgroup}%2C{!type%3Daqp+v%3D%24fq_simbad}%2C{!type%3Daqp+v%3D%24fq_ned}%2C{!type%3Daqp+v%3D%24fq_vizier}%2C{!type%3Daqp+v%3D%24fq_doctype}%2C{!type%3Daqp+v%3D%24fq_planetary_feature}&fq_planetary_feature=(planetary_feature_facet%3A"0\\%2FMars")`,
         {},
       ],
       {
@@ -180,7 +180,7 @@ describe('parseQueryFromUrl', () => {
           '{!type=aqp v=$fq_ned}',
           '{!type=aqp v=$fq_vizier}',
           '{!type=aqp v=$fq_doctype}',
-          '{!type=aqp v=$fq_gpn}',
+          '{!type=aqp v=$fq_planetary_feature}',
         ],
         fq_bibstem:
           '(bibstem_facet:"A\\&A" AND bibstem_facet:"AJ" AND bibstem_facet:"ApJL" AND' +
@@ -198,7 +198,7 @@ describe('parseQueryFromUrl', () => {
         fq_ned: '(ned_object_facet_hier:"0\\/Galaxy")',
         fq_vizier: '(vizier_facet:"Optical")',
         fq_doctype: '(doctype_facet_hier:"0\\/Article")',
-        fq_gpn: '(gpn_facet_hier_3level:"0\\/Mars")',
+        fq_planetary_feature: '(planetary_feature_facet:"0\\/Mars")',
         q: 'star',
         sort: ['score desc', 'date desc'],
         p: 1,

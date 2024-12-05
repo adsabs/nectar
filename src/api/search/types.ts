@@ -117,7 +117,7 @@ export type FacetField =
   | 'ned_object_facet_hier'
   | 'nedtype_object_facet_hier'
   | 'simbad_object_facet_hier'
-  | 'gpn_facet_hier_3level';
+  | 'planetary_feature_facet';
 
 export interface IFacetCountsFields {
   facet_queries: unknown;
@@ -246,7 +246,7 @@ export interface IDocsEntity {
   first_author_facet_hier?: string;
   first_author_norm?: string;
   first_author?: string;
-  gpn?: string[];
+  planetary_feature?: string[];
   gpn_id?: string[];
   grant_agencies?: string;
   grant_facet_hier?: string;

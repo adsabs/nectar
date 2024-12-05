@@ -209,7 +209,7 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
             )}
           </Detail>
           <Keywords keywords={doc.keyword} />
-          <PlanetaryFeatures features={doc.gpn} ids={doc.gpn_id} />
+          <PlanetaryFeatures features={doc.planetary_feature} ids={doc.gpn_id} />
           <Detail label="Comment(s)" value={doc.comment} />
           <Detail label="E-Print Comment(s)" value={doc.pubnote} />
         </Tbody>
@@ -313,7 +313,7 @@ const PlanetaryFeatures = memo(({ features, ids }: { features: Array<string>; id
                   <Text>{feature}</Text>
                   <HStack spacing="1">
                     <SearchQueryLink
-                      params={{ q: `gpn:"${feature}"` }}
+                      params={{ q: `planetary_feature:"${feature}"` }}
                       textDecoration="none"
                       color="gray.700"
                       _hover={{
