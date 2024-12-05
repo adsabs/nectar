@@ -9,6 +9,7 @@ import {
   Center,
   Checkbox,
   CheckboxProps,
+  Code,
   Collapse,
   Divider,
   Heading,
@@ -242,6 +243,18 @@ export const NodeList = memo((props: INodeListProps) => {
 }, equals);
 NodeList.displayName = 'NodeList';
 
+const capitalize = (s: string) => {
+  if (typeof s === 'string' && s.length > 0) {
+    try {
+      return s.charAt(0).toUpperCase() + s.slice(1);
+    } catch {
+      return s;
+    }
+  }
+  return s;
+};
+const isCapitalized = (s: string) => s === capitalize(s);
+
 export const NodeListModal = (props: INodeListProps) => {
   const { prefix, searchTerm, level, onError } = props;
 
@@ -249,6 +262,8 @@ export const NodeListModal = (props: INodeListProps) => {
   const depth = getLevelFromKey(prefix) + 1;
   const expandable = params.hasChildren && (level === 'root' || params.maxDepth > depth);
   const [, sortDir] = useFacetStore(selectors.sort);
+  const setSearch = useFacetStore(selectors.setSearch);
+  const handleCapitalizeSearchTerm = useCallback(() => setSearch(capitalize(searchTerm)), [searchTerm, setSearch]);
 
   const { treeData, isFetching, isError, pagination, handleLoadMore, handlePrevious, handlePageChange, totalResults } =
     useGetFacetData({
@@ -280,7 +295,14 @@ export const NodeListModal = (props: INodeListProps) => {
         <Alert status="error">
           <AlertIcon as={InformationCircleIcon} />
           <AlertTitle>No Results</AlertTitle>
-          <AlertDescription>Try refining your search</AlertDescription>
+          <AlertDescription>
+            No results for <Code>{searchTerm}</Code>.{' '}
+            {isCapitalized(searchTerm) ? null : (
+              <Button variant="link" onClick={handleCapitalizeSearchTerm}>
+                Try {capitalize(searchTerm)}?
+              </Button>
+            )}
+          </AlertDescription>
         </Alert>
       </Center>
     );

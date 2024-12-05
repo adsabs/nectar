@@ -14,7 +14,7 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
     hasChildren: true,
     logic: defaultLogic,
     storeId: 'author',
-    forceUppercaseInitial: true,
+    forceUppercaseInitial: false,
     maxDepth: 1,
   },
   collections: {
