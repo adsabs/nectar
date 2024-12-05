@@ -13,6 +13,7 @@ import { useGetExportCitation } from '@/api/export/export';
 import { useSettings } from '@/lib/useSettings';
 import { exportFormats } from '@/components/CitationExporter/models';
 import { ExportApiFormatKey } from '@/api/export/types';
+import CopyToClipboard from 'react-copy-html-to-clipboard';
 
 export interface IItemResourceDropdownsProps {
   doc: IDocsEntity;
@@ -170,8 +171,12 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
     setValue(`${process.env.NEXT_PUBLIC_BASE_CANONICAL_URL}/abs/${doc.bibcode}/abstract`);
   };
 
-  const handleCopyCitation = () => {
-    setValue(citationData.export);
+  const handleCitationCopied = () => {
+    if (citationData?.export) {
+      toast({ status: 'info', title: 'Copied to Clipboard' });
+    } else {
+      toast({ status: 'error', title: 'There was a problem fetching citation' });
+    }
   };
 
   return (
@@ -294,7 +299,10 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
         />
         <MenuList>
           <MenuItem onClick={handleCopyAbstractUrl}>Copy URL</MenuItem>
-          <MenuItem onClick={handleCopyCitation}>Copy Default Citation</MenuItem>
+
+          <CopyToClipboard text={citationData?.export} onCopy={handleCitationCopied} options={{ asHtml: true }}>
+            <MenuItem>Copy Citation</MenuItem>
+          </CopyToClipboard>
         </MenuList>
       </Menu>
     </>

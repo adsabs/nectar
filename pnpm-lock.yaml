@@ -41,6 +41,15 @@ importers:
       '@emotion/styled':
         specifier: ^11.10.5
         version: 11.10.5(@babel/core@7.22.10)(@emotion/react@11.8.2(@babel/core@7.22.10)(@types/react@17.0.43)(react@18.3.1))(@types/react@17.0.43)(react@18.3.1)
+      '@fortawesome/fontawesome-svg-core':
+        specifier: ^6.7.0
+        version: 6.7.0
+      '@fortawesome/free-solid-svg-icons':
+        specifier: ^6.7.0
+        version: 6.7.0
+      '@fortawesome/react-fontawesome':
+        specifier: ^0.2.2
+        version: 0.2.2(@fortawesome/fontawesome-svg-core@6.7.0)(react@18.3.1)
       '@heroicons/react':
         specifier: ^2.0.16
         version: 2.0.16(react@18.3.1)
@@ -206,6 +215,12 @@ importers:
       react-compound-slider:
         specifier: ^3.4.0
         version: 3.4.0(react@18.3.1)
+      react-copy-html-to-clipboard:
+        specifier: ^6.0.4
+        version: 6.0.4(react@18.3.1)
+      react-copy-to-clipboard:
+        specifier: ^5.1.0
+        version: 5.1.0(react@18.3.1)
       react-device-detect:
         specifier: ^2.2.3
         version: 2.2.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2648,6 +2663,24 @@ packages:
 
   '@floating-ui/utils@0.1.6':
     resolution: {integrity: sha512-OfX7E2oUDYxtBvsuS4e/jSn4Q9Qb6DzgeYtsAdkPZ47znpoNsMgZw0+tVijiv3uGNR6dgNlty6r9rzIzHjtd/A==}
+
+  '@fortawesome/fontawesome-common-types@6.7.0':
+    resolution: {integrity: sha512-AUetZXU6cQdAe21p8j3mg2aD40MMDKfFNUNgq/G7gR3HMDp0BsQskAudLDSgq6d0SbCY0QKP0g4s5Y02S1kkhw==}
+    engines: {node: '>=6'}
+
+  '@fortawesome/fontawesome-svg-core@6.7.0':
+    resolution: {integrity: sha512-v6YZjSPuxriC7lYxCzKFbgZ1iaf60AVX2CsfZXSc0U9+mqVd8VGVtMEqDqz5GxDpNUQ8bMDfW+gspVMYGlRpUA==}
+    engines: {node: '>=6'}
+
+  '@fortawesome/free-solid-svg-icons@6.7.0':
+    resolution: {integrity: sha512-9ww5hQ3OzEehUrSXAlPTJ73xDub73fnxr+se5PU0MFQor2nZBO0m7HNm5Q4KD9XMYjwRqh2BnBNR2/9EFbGqmg==}
+    engines: {node: '>=6'}
+
+  '@fortawesome/react-fontawesome@0.2.2':
+    resolution: {integrity: sha512-EnkrprPNqI6SXJl//m29hpaNzOp1bruISWaOiRtkMi/xSvHJlzc2j2JAYS7egxt/EbjSNV/k6Xy0AQI6vB2+1g==}
+    peerDependencies:
+      '@fortawesome/fontawesome-svg-core': ~1 || ~6
+      react: '>=16.3'
 
   '@heroicons/react@2.0.16':
     resolution: {integrity: sha512-x89rFxH3SRdYaA+JCXwfe+RkE1SFTo9GcOkZettHer71Y3T7V+ogKmfw5CjTazgS3d0ClJ7p1NA+SP7VQLQcLw==}
@@ -5800,6 +5833,9 @@ packages:
     resolution: {integrity: sha512-yCEafptTtb4bk7GLEQoM8KVJpxAfdBJYaXyzQEgQQQgYrZiDp8SJmGKlYza6CYjEDNstAdNdKA3UuoULlEbS6w==}
     engines: {node: '>=12.13'}
 
+  copy-html-to-clipboard@4.0.1:
+    resolution: {integrity: sha512-uvEr7smwMQReydH7XzSgpxM1SywZfxS+1NLhlSvzLIGz8esPbY248y1Tg7LTYsr/yVP/1kUyf8Ypgd9ljJJkBw==}
+
   copy-to-clipboard@3.3.1:
     resolution: {integrity: sha512-i13qo6kIHTTpCm8/Wup+0b1mVWETvu2kIMzKoK8FpkLkFxlt0znUAHcMzox+T8sPlqtZXq3CulEjQHsYiGFJUw==}
 
@@ -8798,6 +8834,16 @@ packages:
     resolution: {integrity: sha512-KSje/rB0xSvvcb7YV0+82hkiXTV5ljSS7axKrNiXLf9AEO+rrr1Xq4MJWA+6v030YNNo/RoSoEB6D6fnoy+8ng==}
     peerDependencies:
       react: '>=16.9'
+
+  react-copy-html-to-clipboard@6.0.4:
+    resolution: {integrity: sha512-lUV84N9OiL3exfM+lK7XEN30xgK7XLRqAqcr+8m9ZtQ82xGUjT7fCWwvOS88YH/TaANqokWWZRtrgSMK1m8huw==}
+    peerDependencies:
+      react: ^15.3.0
+
+  react-copy-to-clipboard@5.1.0:
+    resolution: {integrity: sha512-k61RsNgAayIJNoy9yDsYzDe/yAZAzEbEgcz3DZMhF686LEyukcE1hzurxe85JandPUG+yTfGVFzuEw3xt8WP/A==}
+    peerDependencies:
+      react: ^15.3.0 || 16 || 17 || 18
 
   react-device-detect@2.2.3:
     resolution: {integrity: sha512-buYY3qrCnQVlIFHrC5UcUoAj7iANs/+srdkwsnNjI7anr3Tt7UY6MqNxtMLlr0tMBied0O49UZVK8XKs3ZIiPw==}
@@ -13128,6 +13174,22 @@ snapshots:
 
   '@floating-ui/utils@0.1.6': {}
 
+  '@fortawesome/fontawesome-common-types@6.7.0': {}
+
+  '@fortawesome/fontawesome-svg-core@6.7.0':
+    dependencies:
+      '@fortawesome/fontawesome-common-types': 6.7.0
+
+  '@fortawesome/free-solid-svg-icons@6.7.0':
+    dependencies:
+      '@fortawesome/fontawesome-common-types': 6.7.0
+
+  '@fortawesome/react-fontawesome@0.2.2(@fortawesome/fontawesome-svg-core@6.7.0)(react@18.3.1)':
+    dependencies:
+      '@fortawesome/fontawesome-svg-core': 6.7.0
+      prop-types: 15.8.1
+      react: 18.3.1
+
   '@heroicons/react@2.0.16(react@18.3.1)':
     dependencies:
       react: 18.3.1
@@ -17240,6 +17302,10 @@ snapshots:
     dependencies:
       is-what: 4.1.15
 
+  copy-html-to-clipboard@4.0.1:
+    dependencies:
+      toggle-selection: 1.0.6
+
   copy-to-clipboard@3.3.1:
     dependencies:
       toggle-selection: 1.0.6
@@ -20820,6 +20886,18 @@ snapshots:
       d3-array: 2.12.1
       react: 18.3.1
       warning: 4.0.3
+
+  react-copy-html-to-clipboard@6.0.4(react@18.3.1):
+    dependencies:
+      copy-html-to-clipboard: 4.0.1
+      prop-types: 15.8.1
+      react: 18.3.1
+
+  react-copy-to-clipboard@5.1.0(react@18.3.1):
+    dependencies:
+      copy-to-clipboard: 3.3.1
+      prop-types: 15.8.1
+      react: 18.3.1
 
   react-device-detect@2.2.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:

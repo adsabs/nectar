@@ -21,6 +21,7 @@ import {
   Tr,
   useDisclosure,
   VisuallyHidden,
+  useToast,
 } from '@chakra-ui/react';
 import { EditIcon, ExternalLinkIcon, TriangleDownIcon } from '@chakra-ui/icons';
 
@@ -56,6 +57,11 @@ import { parseAPIError } from '@/utils/common/parseAPIError';
 import { fetchSearchSSR, searchKeys, useGetAbstract } from '@/api/search/search';
 import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
 import { getAbstractParams } from '@/api/search/models';
+import { useGetExportCitation } from '@/api/export/export';
+import { exportFormats } from '@/components/CitationExporter';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faQuoteLeft } from '@fortawesome/free-solid-svg-icons';
+import CopyToClipboard from 'react-copy-html-to-clipboard';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   () =>
@@ -144,17 +150,20 @@ const AbstractPage: NextPage = () => {
               <Box display={{ base: 'block', lg: 'none' }}>
                 <AbstractSources doc={doc} style="menu" />
               </Box>
-              {isAuthenticated && (
-                <Tooltip label="add to library">
-                  <IconButton
-                    aria-label="Add to library"
-                    icon={<FolderPlusIcon />}
-                    variant="ghost"
-                    onClick={onOpenAddToLibrary}
-                  />
-                </Tooltip>
-              )}
+              <Flex>
+                {isAuthenticated && (
+                  <Tooltip label="add to library">
+                    <IconButton
+                      aria-label="Add to library"
+                      icon={<FolderPlusIcon />}
+                      variant="ghost"
+                      onClick={onOpenAddToLibrary}
+                    />
+                  </Tooltip>
+                )}
+              </Flex>
             </Flex>
+
             <Box as="section" py="2" aria-labelledby="abstract">
               <VisuallyHidden as="h2" id="abstract">
                 Abstract
@@ -187,6 +196,21 @@ interface IDetailsProps {
 const Details = ({ doc }: IDetailsProps): ReactElement => {
   const arxiv = (doc.identifier ?? ([] as string[])).find((v) => /^arxiv/i.exec(v));
 
+  const { data: citationData, isLoading: isLoadingCitation } = useGetExportCitation({
+    format: exportFormats.agu.id,
+    bibcode: [doc.bibcode],
+  });
+
+  const toast = useToast({ duration: 2000 });
+
+  const handleCitationCopied = () => {
+    if (citationData?.export) {
+      toast({ status: 'info', title: 'Copied to Clipboard' });
+    } else {
+      toast({ status: 'error', title: 'There was a problem fetching citation' });
+    }
+  };
+
   return (
     <Box as="section" border="1px" borderColor="gray.50" borderRadius="md" shadow="sm" aria-labelledby="details">
       <VisuallyHidden as="h2" id="details">
@@ -195,7 +219,18 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
       <Table colorScheme="gray" size="md" role="presentation">
         <Tbody>
           <Detail label="Publication" value={doc.pub_raw}>
-            {(pub_raw) => <span dangerouslySetInnerHTML={{ __html: pub_raw }}></span>}
+            {(pub_raw) => (
+              <>
+                <span dangerouslySetInnerHTML={{ __html: pub_raw }}></span>
+                {!isLoadingCitation && (
+                  <CopyToClipboard text={citationData?.export} onCopy={handleCitationCopied} options={{ asHtml: true }}>
+                    <Button aria-label="Copy citation" variant="outline" mx={2} cursor="pointer">
+                      <FontAwesomeIcon icon={faQuoteLeft} />
+                    </Button>
+                  </CopyToClipboard>
+                )}
+              </>
+            )}
           </Detail>
           <Detail label="Book Author(s)" value={doc.book_author} />
           <Detail label="Publication Date" value={doc.pubdate} />
