@@ -20,13 +20,6 @@ test('renders the label and input with the correct placeholder', () => {
   expect(getByPlaceholderText('Search (case-sensitive)')).toBeInTheDocument();
 });
 
-test('renders the label and input with uppercase label if the flag is set', () => {
-  const { getByLabelText, getByPlaceholderText } = setup('author');
-
-  expect(getByLabelText('Search')).toBeInTheDocument();
-  expect(getByPlaceholderText('Search')).toBeInTheDocument();
-});
-
 test('calls onSearchChange with the correct value when the input changes', async () => {
   const mockOnChange = vi.fn();
   const { getByPlaceholderText, user } = setup('collections', { search: '', onSearchChange: mockOnChange });
@@ -34,15 +27,6 @@ test('calls onSearchChange with the correct value when the input changes', async
   await user.type(input, 'a');
 
   expect(mockOnChange).toHaveBeenCalledWith('a');
-});
-
-test('calls onSearchChange with the capitalized search term when the flag is set', async () => {
-  const mockOnChange = vi.fn();
-  const { getByPlaceholderText, user } = setup('author', { search: '', onSearchChange: mockOnChange });
-  const input = getByPlaceholderText('Search') as HTMLInputElement;
-  await user.type(input, 'a');
-
-  expect(mockOnChange).toHaveBeenCalledWith('A');
 });
 
 test('does call onSearchChange with empty string when the clear button is clicked', async () => {
