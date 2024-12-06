@@ -48,7 +48,7 @@ export const facetFields: FacetField[] = [
   'ned_object_facet_hier',
   'nedtype_object_facet_hier',
   'simbad_object_facet_hier',
-  'gpn_facet_hier_3level',
+  'planetary_feature_facet',
 ];
 
 export type SearchFacetID =

@@ -4,8 +4,7 @@ import {
   Button,
   Checkbox,
   Flex,
-  FormControl,
-  FormLabel,
+  Icon,
   IconButton,
   Menu,
   MenuButton,
@@ -20,6 +19,7 @@ import {
   Stack,
   Switch,
   Text,
+  Tooltip,
   useDisclosure,
   useToast,
   VisuallyHidden,
@@ -49,6 +49,7 @@ import { SolrSort, SolrSortField } from '@/api/models';
 import { useVaultBigQuerySearch } from '@/api/vault/vault';
 import { Bibcode } from '@/api/search/types';
 import { ExportApiFormatKey } from '@/api/export/types';
+import { DocumentTextIcon } from '@heroicons/react/24/outline';
 
 export interface IListActionsProps {
   onSortChange?: ISortProps<SolrSort, SolrSortField>['onChange'];
@@ -292,14 +293,11 @@ const SortWrapper = ({ onChange }: { onChange: ISortProps<SolrSort, SolrSortFiel
 };
 
 const SettingsMenu = () => {
-  const toggleShowHighlights = useStore((state) => state.toggleShowHighlights);
   return (
-    <Menu>
+    <Menu isLazy autoSelect={false}>
       <MenuButton as={IconButton} aria-label="Result list settings" variant="outline" icon={<SettingsIcon />} />
       <MenuList>
-        <MenuItem onClick={toggleShowHighlights}>
-          <HighlightsToggle />
-        </MenuItem>
+        <HighlightsToggle />
       </MenuList>
     </Menu>
   );
@@ -307,14 +305,17 @@ const SettingsMenu = () => {
 
 const HighlightsToggle = () => {
   const showHighlights = useStore((state) => state.showHighlights);
+  const toggleShowHighlights = useStore((state) => state.toggleShowHighlights);
 
   return (
-    <FormControl display="flex" alignItems="center" width="fit-content">
-      <FormLabel mb="0" htmlFor="show-highlights">
-        Show Highlights?
-      </FormLabel>
-      <Switch isChecked={showHighlights} id="show-highlights" tabIndex={0} />
-    </FormControl>
+    <Tooltip label="Show or hide keyword highlights in the results.">
+      <MenuItem onClick={toggleShowHighlights} icon={<Icon as={DocumentTextIcon} fontSize={20} />} iconSpacing={4}>
+        <Flex justifyContent="space-between">
+          Highlights
+          <Switch isChecked={showHighlights} id="show-highlights" onClick={toggleShowHighlights} />
+        </Flex>
+      </MenuItem>
+    </Tooltip>
   );
 };
 
@@ -352,7 +353,9 @@ const SelectAllCheckbox = () => {
       onChange={handleChange}
       data-testid="listactions-checkbox"
       aria-label={isSomeSelected || isAllSelected ? 'deselect all' : 'select all'}
-    />
+    >
+      Select All
+    </Checkbox>
   );
 };
 
