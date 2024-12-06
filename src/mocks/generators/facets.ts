@@ -18,7 +18,7 @@ const createVal = (prefix: string, id: FacetField) => {
     case 'doctype_facet_hier':
     case 'simbad_object_facet_hier':
     case 'ned_object_facet_hier':
-    case 'planetary_feature_facet':
+    case 'planetary_feature_facet_hier_3level':
       return `${prefix}${faker.lorem.words(2)}`;
 
     default:
