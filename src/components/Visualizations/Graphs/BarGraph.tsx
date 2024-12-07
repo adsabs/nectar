@@ -1,10 +1,9 @@
 import type { BarDatum, BarSvgProps } from '@nivo/bar';
-import { ReactElement, useState } from 'react';
+import { ResponsiveBar } from '@nivo/bar';
+import type { ReactElement } from 'react';
+import { useState } from 'react';
 import { Box, Radio, RadioGroup, Stack, useColorMode } from '@chakra-ui/react';
 import { useNivoDarkTheme } from '@/lib/useNivoDarkTheme';
-import dynamic from 'next/dynamic';
-
-const ResponsiveBar = dynamic(() => import('@nivo/bar').then((m) => m.default.ResponsiveBar), { ssr: false });
 
 export interface IBarGraphProps extends Omit<BarSvgProps<BarDatum>, 'height' | 'width'> {
   data: BarDatum[];

@@ -1,46 +1,23 @@
 import { IADSApiSearchParams } from '@/api/search/types';
 import { DatabaseEnum, IADSApiUserDataResponse } from '@/api/user/types';
-import { Box, Center, Flex, Heading, Spinner, Stack, Text, useMediaQuery, VisuallyHidden } from '@chakra-ui/react';
+import { Box, Center, Flex, Heading, Stack, Text, useMediaQuery, VisuallyHidden } from '@chakra-ui/react';
 
 import { applyFiltersToQuery } from '@/components/SearchFacet/helpers';
 import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 import { useStore } from '@/store';
 import { NextPage } from 'next';
-import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { ChangeEventHandler, useCallback, useEffect, useState } from 'react';
 import { useSettings } from '@/lib/useSettings';
 
 import { NotificationId } from '@/store/slices';
-import { IPagerProps } from '@/components/Pager';
-import { ISearchExamplesProps, SearchExamplesPlaceholder } from '@/components/SearchExamples';
 import { SearchBar } from '@/components/SearchBar';
 import { SimpleLink } from '@/components/SimpleLink';
 import { makeSearchParams, normalizeSolrSort } from '@/utils/common/search';
 import { SolrSort } from '@/api/models';
-
-const SearchExamples = dynamic<ISearchExamplesProps>(
-  () =>
-    import('@/components/SearchExamples').then((m) => ({
-      default: m.SearchExamples,
-    })),
-  { ssr: false, loading: () => <SearchExamplesPlaceholder /> },
-);
-const Pager = dynamic<IPagerProps>(
-  () =>
-    import('@/components/Pager').then((m) => ({
-      default: m.Pager,
-    })),
-  {
-    ssr: false,
-    loading: () => (
-      <Center>
-        <Spinner />
-      </Center>
-    ),
-  },
-);
+import { SearchExamples } from '@/components/SearchExamples/SearchExamples';
+import { Pager } from '@/components/Pager/Pager';
 
 const HomePage: NextPage = () => {
   const { settings } = useSettings();

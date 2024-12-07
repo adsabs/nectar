@@ -1,11 +1,9 @@
 import { Box, useColorMode } from '@chakra-ui/react';
 import { useNivoDarkTheme } from '@/lib/useNivoDarkTheme';
 import type { Serie } from '@nivo/line';
+import { ResponsiveLine } from '@nivo/line';
 import { memo, ReactElement } from 'react';
 import { X_Axis, Y_Axis } from '../types';
-import dynamic from 'next/dynamic';
-
-const ResponsiveLine = dynamic(() => import('@nivo/line').then((m) => m.default.ResponsiveLine), { ssr: false });
 
 export interface ILineGraphProps {
   data: Serie[];
