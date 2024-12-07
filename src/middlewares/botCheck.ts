@@ -15,7 +15,8 @@ const getIp = (req: NextRequest) =>
   (
     req.headers.get('X-Original-Forwarded-For') ||
     req.headers.get('X-Forwarded-For') ||
-    req.headers.get('X-Real-Ip')
+    req.headers.get('X-Real-Ip') ||
+    ''
   )
     .split(',')
     .shift() || 'unknown';
