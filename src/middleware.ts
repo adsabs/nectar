@@ -113,10 +113,7 @@ const emitAnalytics = async (req: NextRequest): Promise<void> => {
 
   // For abs/ routes we want to send emit an event to the link gateway
   if (path.startsWith('/abs')) {
-    const url = `${process.env.BASE_URL}/link_gateway${path.replace(
-      '/abs',
-      '',
-    )}`;
+    const url = `${process.env.BASE_URL}/link_gateway${path.replace('/abs', '')}`;
     log.debug({ path, url }, 'Emitting abs route event to link gateway');
 
     try {
@@ -133,7 +130,8 @@ const getIp = (req: NextRequest) =>
   (
     req.headers.get('X-Original-Forwarded-For') ||
     req.headers.get('X-Forwarded-For') ||
-    req.headers.get('X-Real-Ip')
+    req.headers.get('X-Real-Ip') ||
+    ''
   )
     .split(',')
     .shift() || 'unknown';
@@ -183,10 +181,7 @@ export async function middleware(req: NextRequest) {
     return loginMiddleware(req, res);
   }
 
-  if (
-    path.startsWith('/user/account/register') ||
-    path.startsWith('/user/forgotpassword')
-  ) {
+  if (path.startsWith('/user/account/register') || path.startsWith('/user/forgotpassword')) {
     return redirectIfAuthenticated(req, res);
   }
 
@@ -194,10 +189,7 @@ export async function middleware(req: NextRequest) {
     return protectedRoute(req, res);
   }
 
-  if (
-    path.startsWith('/user/account/verify/change-email') ||
-    path.startsWith('/user/account/verify/register')
-  ) {
+  if (path.startsWith('/user/account/verify/change-email') || path.startsWith('/user/account/verify/register')) {
     return verifyMiddleware(req, res);
   }
 
