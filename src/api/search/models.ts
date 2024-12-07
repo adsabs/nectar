@@ -94,7 +94,7 @@ export const getAbstractParams = (id: string): IADSApiSearchParams => ({
     'pubnote',
     'book_author',
     'planetary_feature',
-    'gpn_id',
+    'planetary_feature_id',
   ],
   q: `identifier:"${id}"`,
 });

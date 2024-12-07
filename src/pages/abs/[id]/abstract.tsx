@@ -20,8 +20,8 @@ import {
   Tooltip,
   Tr,
   useDisclosure,
-  VisuallyHidden,
   useToast,
+  VisuallyHidden,
 } from '@chakra-ui/react';
 import { EditIcon, ExternalLinkIcon, TriangleDownIcon } from '@chakra-ui/icons';
 
@@ -244,7 +244,7 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
             )}
           </Detail>
           <Keywords keywords={doc.keyword} />
-          <PlanetaryFeatures features={doc.planetary_feature} ids={doc.gpn_id} />
+          <PlanetaryFeatures features={doc.planetary_feature} ids={doc.planetary_feature_id} />
           <Detail label="Comment(s)" value={doc.comment} />
           <Detail label="E-Print Comment(s)" value={doc.pubnote} />
         </Tbody>

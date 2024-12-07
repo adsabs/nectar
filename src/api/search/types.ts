@@ -247,7 +247,7 @@ export interface IDocsEntity {
   first_author_norm?: string;
   first_author?: string;
   planetary_feature?: string[];
-  gpn_id?: string[];
+  planetary_feature_id?: string[];
   grant_agencies?: string;
   grant_facet_hier?: string;
   grant_id?: string;
