@@ -50,6 +50,7 @@ export interface IItemProps {
   highlights?: string[];
   extraInfo?: string;
   linkNewTab?: boolean;
+  defaultCitation: string;
 }
 
 export const Item = (props: IItemProps): ReactElement => {
@@ -64,6 +65,7 @@ export const Item = (props: IItemProps): ReactElement => {
     highlights,
     extraInfo,
     linkNewTab = false,
+    defaultCitation = '',
   } = props;
   const { bibcode, pubdate, title = ['Untitled'], author = [], author_count, pub } = doc;
   const formattedPubDate = getFormattedNumericPubdate(pubdate);
@@ -118,7 +120,7 @@ export const Item = (props: IItemProps): ReactElement => {
             <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
           </SimpleLink>
           <Flex alignItems="start" ml={1}>
-            {!isClient || hideActions ? null : <ItemResourceDropdowns doc={doc} />}
+            {!isClient || hideActions ? null : <ItemResourceDropdowns doc={doc} defaultCitation={defaultCitation} />}
           </Flex>
         </Flex>
         <Flex direction="column">

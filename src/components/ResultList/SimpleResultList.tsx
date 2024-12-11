@@ -1,10 +1,14 @@
 import { Flex, VisuallyHidden } from '@chakra-ui/react';
 import { useIsClient } from '@/lib/useIsClient';
 import PT from 'prop-types';
-import { HTMLAttributes, ReactElement } from 'react';
+import { HTMLAttributes, ReactElement, useMemo } from 'react';
 import { Item } from './Item';
 import { useHighlights } from './useHighlights';
 import { IDocsEntity } from '@/api/search/types';
+import { useGetExportCitation } from '@/api/export/export';
+import { useSettings } from '@/lib/useSettings';
+import { ExportApiFormatKey } from '@/api/export/types';
+import { exportFormats } from '../CitationExporter';
 
 export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
   docs: IDocsEntity[];
@@ -38,6 +42,33 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
 
   const { highlights, showHighlights, isFetchingHighlights } = useHighlights();
 
+  const { settings } = useSettings();
+  const { defaultExportFormat, customFormats } = settings;
+
+  const bibcodes = docs.map((d) => d.bibcode).sort();
+
+  const { data: citationData } = useGetExportCitation(
+    {
+      // format: values(exportFormats).find((f) => f.label === defaultExportFormat).id,
+      format: ExportApiFormatKey.agu,
+      customFormat: defaultExportFormat === exportFormats.custom.label ? customFormats[0].code : undefined,
+      bibcode: bibcodes,
+      sort: ['bibcode asc'],
+    },
+    { enabled: !!settings?.defaultExportFormat },
+  );
+
+  // a map from bibcode to citation
+  const defaultCitations = useMemo(() => {
+    const citationSet = new Map<string, string>();
+    if (!!citationData) {
+      citationData.export.split('\n').forEach((c, index) => {
+        citationSet.set(bibcodes[index], c);
+      });
+    }
+    return citationSet;
+  }, [citationData]);
+
   return (
     <Flex
       as="section"
@@ -61,6 +92,7 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
           highlights={highlights?.[index] ?? []}
           isFetchingHighlights={allowHighlight && isFetchingHighlights}
           useNormCite={useNormCite}
+          defaultCitation={defaultCitations?.get(doc.bibcode)}
         />
       ))}
     </Flex>
