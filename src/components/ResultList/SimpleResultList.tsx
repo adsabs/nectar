@@ -9,6 +9,7 @@ import { useGetExportCitation } from '@/api/export/export';
 import { useSettings } from '@/lib/useSettings';
 import { ExportApiFormatKey } from '@/api/export/types';
 import { exportFormats } from '../CitationExporter';
+import { logger } from '@/logger';
 
 export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
   docs: IDocsEntity[];
@@ -67,11 +68,11 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
           citationSet.set(bibcodes[index], c);
         });
       }
-    } catch {
-      defaultCitations.clear();
+    } catch (err) {
+      logger.error({ err }, 'Error processing citation data');
     }
     return citationSet;
-  }, [citationData]);
+  }, [citationData, bibcodes]);
 
   return (
     <Flex
