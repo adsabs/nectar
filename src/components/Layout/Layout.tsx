@@ -24,10 +24,13 @@ const LandingTabs = dynamic(
 );
 
 const LANDING_PAGES = ['/', '/classic-form', '/paper-form'];
+const INTRO_PAGE = ['/intro', '/astrophysics', '/heliophysics', '/planetary', '/earth', '/biophysical'];
 export const Layout: FC = ({ children }) => {
   const router = useRouter();
 
   const isLandingPage = LANDING_PAGES.includes(router.pathname);
+
+  const isIntroPage = INTRO_PAGE.includes(router.pathname);
 
   const [isPrint] = useMediaQuery('print');
 
@@ -39,15 +42,22 @@ export const Layout: FC = ({ children }) => {
         <meta name="charset" content="utf-8" />
         <Favicons />
       </Head>
-      <SkipNavLink id="main-content">Skip to content</SkipNavLink>
-      {isPrint ? null : <NavBar />}
-      {isPrint ? null : <Notification />}
-      <main>
-        {isLandingPage && <LandingTabs />}
-        <Container maxW={isLandingPage ? 'container.md' : 'container.xl'} id="main-content">
-          {children}
-        </Container>
-      </main>
+      {isIntroPage ? (
+        <>{children}</>
+      ) : (
+        <>
+          <SkipNavLink id="main-content">Skip to content</SkipNavLink>
+          {isPrint ? null : <NavBar />}
+          {isPrint ? null : <Notification />}
+
+          <main>
+            {isLandingPage && <LandingTabs />}
+            <Container maxW={isLandingPage ? 'container.md' : 'container.xl'} id="main-content" mb={6}>
+              {children}
+            </Container>
+          </main>
+        </>
+      )}
       {isPrint ? null : <Footer />}
     </Flex>
   );
