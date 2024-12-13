@@ -61,10 +61,14 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
   // a map from bibcode to citation
   const defaultCitations = useMemo(() => {
     const citationSet = new Map<string, string>();
-    if (!!citationData) {
-      citationData.export.split('\n').forEach((c, index) => {
-        citationSet.set(bibcodes[index], c);
-      });
+    try {
+      if (!!citationData) {
+        citationData.export.split('\n').forEach((c, index) => {
+          citationSet.set(bibcodes[index], c);
+        });
+      }
+    } catch {
+      defaultCitations.clear();
     }
     return citationSet;
   }, [citationData]);
