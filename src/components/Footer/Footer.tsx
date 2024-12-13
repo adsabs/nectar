@@ -9,7 +9,6 @@ export const Footer: FC = () => {
   return (
     <Box
       as="footer"
-      mt={3}
       py={6}
       display="flex"
       flexDirection={{ base: 'column', md: 'row' }}

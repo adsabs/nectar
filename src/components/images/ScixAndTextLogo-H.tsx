@@ -3,8 +3,6 @@ import { forwardRef, Ref, SVGProps } from 'react';
 const logo = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="168.153"
-    height="61.516"
     x="0"
     y="0"
     version="1.1"
