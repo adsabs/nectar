@@ -9,14 +9,11 @@ import { MouseEventHandler, ReactElement, useEffect } from 'react';
 import { SimpleLinkDropdown } from '@/components/Dropdown';
 import { isBrowser } from '@/utils/common/guards';
 import { IDocsEntity } from '@/api/search/types';
-import { useGetExportCitation } from '@/api/export/export';
-import { useSettings } from '@/lib/useSettings';
-import { exportFormats } from '@/components/CitationExporter/models';
-import { ExportApiFormatKey } from '@/api/export/types';
 import CopyToClipboard from 'react-copy-html-to-clipboard';
 
 export interface IItemResourceDropdownsProps {
   doc: IDocsEntity;
+  defaultCitation: string;
 }
 
 export interface IItem {
@@ -25,22 +22,10 @@ export interface IItem {
   path?: string;
 }
 
-export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): ReactElement => {
+export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDropdownsProps): ReactElement => {
   const router = useRouter();
   const isClient = useIsClient();
   const toast = useToast({ duration: 2000 });
-  const { settings } = useSettings();
-  const { defaultExportFormat, customFormats } = settings;
-
-  const { data: citationData } = useGetExportCitation(
-    {
-      // format: values(exportFormats).find((f) => f.label === defaultExportFormat).id,
-      format: ExportApiFormatKey.agu,
-      customFormat: defaultExportFormat === exportFormats.custom.label ? customFormats[0].code : undefined,
-      bibcode: [doc.bibcode],
-    },
-    { enabled: !!settings?.defaultExportFormat },
-  );
 
   const { hasCopied, onCopy, setValue, value } = useClipboard('');
 
@@ -172,10 +157,10 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
   };
 
   const handleCitationCopied = () => {
-    if (citationData?.export) {
+    if (defaultCitation !== '') {
       toast({ status: 'info', title: 'Copied to Clipboard' });
     } else {
-      toast({ status: 'error', title: 'There was a problem fetching citation' });
+      toast({ status: 'error', title: 'There was a problem fetching citation. Try reloading the page.' });
     }
   };
 
@@ -300,7 +285,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
         <MenuList>
           <MenuItem onClick={handleCopyAbstractUrl}>Copy URL</MenuItem>
 
-          <CopyToClipboard text={citationData?.export} onCopy={handleCitationCopied} options={{ asHtml: true }}>
+          <CopyToClipboard text={defaultCitation} onCopy={handleCitationCopied} options={{ asHtml: true }}>
             <MenuItem>Copy Citation</MenuItem>
           </CopyToClipboard>
         </MenuList>
