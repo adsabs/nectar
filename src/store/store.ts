@@ -19,7 +19,6 @@ import { IUserData } from '@/api/user/types';
 
 export const APP_STORAGE_KEY = 'nectar-app-state';
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const createStore = (preloadedState: Partial<AppState> = {}) => {
   const state = (set: NamedSet<AppState>, get: GetState<AppState>) => ({
     ...searchSlice(set, get),
@@ -74,7 +73,7 @@ export const useCreateStore = (incomingState: Partial<AppState> = {}): (() => St
   }
 
   if (process.env.NODE_ENV === 'development') {
-    logger.debug({ msg: 'useCreateStore', incomingState });
+    logger.debug({ incomingState }, 'useCreateStore');
   }
 
   // initialize the store
