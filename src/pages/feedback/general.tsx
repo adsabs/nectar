@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
 import {
   AlertStatus,
   Button,
@@ -13,6 +12,7 @@ import {
   Textarea,
   useDisclosure,
 } from '@chakra-ui/react';
+import * as Sentry from '@sentry/nextjs';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useStore } from '@/store';
@@ -41,6 +41,7 @@ import { useGetUserEmail } from '@/lib/useGetUserEmail';
 import { makeSearchParams } from '@/utils/common/search';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { useFeedback } from '@/api/feedback/feedback';
+import { logger } from '@/logger';
 
 type FormValues = {
   name: string;
@@ -148,6 +149,19 @@ const General: NextPage = () => {
             },
           },
         );
+
+        try {
+          const eventId = Sentry.captureMessage('Feedback submitted');
+          const feedback = {
+            name,
+            email: userEmail ?? 'anonymous',
+            message: comments,
+            associatedEventId: eventId,
+          };
+          Sentry.captureFeedback(feedback);
+        } catch {
+          logger.error('Failed to send feedback to analytics');
+        }
       } catch (e) {
         setFormError(e as Error);
       }

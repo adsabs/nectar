@@ -56,13 +56,9 @@ export const searchSlice: StoreSlice<ISearchState & ISearchAction> = (set) => ({
 
   // can only be updated using `submitQuery` which just moves the current query over
   latestQuery: defaultQueryParams,
-
   prevQuery: defaultQueryParams,
-
   numPerPage: APP_DEFAULTS.RESULT_PER_PAGE,
-
   showHighlights: false,
-
   queryAddition: null,
   clearQueryFlag: false,
 

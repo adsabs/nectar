@@ -30,5 +30,6 @@ Sentry.init({
     Sentry.browserTracingIntegration({
       enableInp: true,
     }),
+    Sentry.feedbackIntegration(),
   ],
 });
