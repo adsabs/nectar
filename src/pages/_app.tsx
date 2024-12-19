@@ -1,22 +1,15 @@
-import { ChakraProvider } from '@chakra-ui/react';
-
-import { useCreateQueryClient } from '@/lib/useCreateQueryClient';
-import { MathJaxProvider } from '@/mathjax';
-import { AppState, StoreProvider, useCreateStore, useStore, useStoreApi } from '@/store';
-import { theme } from '@/theme';
+import { AppState, useStore, useStoreApi } from '@/store';
 import { AppMode } from '@/types';
 import { AppProps, NextWebVitalsMetric } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import 'nprogress/nprogress.css';
-import { FC, memo, ReactElement, useEffect, useMemo } from 'react';
-import { DehydratedState, Hydrate, QueryClientProvider, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { memo, ReactElement, useEffect, useMemo } from 'react';
+import { DehydratedState, useQuery, useQueryClient } from '@tanstack/react-query';
 import { IronSession } from 'iron-session';
 import axios from 'axios';
 import { isNilOrEmpty, notEqual } from 'ramda-adjunct';
 import { useUser } from '@/lib/useUser';
-import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import '../styles/styles.css';
 import '../styles/page-loader.css';
 import { logger } from '@/logger';
@@ -27,6 +20,7 @@ import { Layout } from '@/components/Layout';
 import { useIsClient } from '@/lib/useIsClient';
 import api, { checkUserData } from '@/api/api';
 import { userKeys } from '@/api/user/user';
+import { Providers } from '@/providers';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -77,30 +71,6 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
 });
 NectarApp.displayName = 'NectarApp';
 
-const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => {
-  const createStore = useCreateStore(pageProps.dehydratedAppState ?? {});
-
-  return (
-    <GoogleReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? ''}>
-      <MathJaxProvider>
-        <ChakraProvider theme={theme}>
-          <StoreProvider createStore={createStore}>
-            <QCProvider>
-              <Hydrate state={pageProps.dehydratedState}>{children}</Hydrate>
-              <ReactQueryDevtools />
-            </QCProvider>
-          </StoreProvider>
-        </ChakraProvider>
-      </MathJaxProvider>
-    </GoogleReCaptchaProvider>
-  );
-};
-
-const QCProvider: FC = ({ children }) => {
-  const queryClient = useCreateQueryClient();
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
-};
-
 const AppModeRouter = (): ReactElement => {
   const mode = useStore((state) => state.mode);
   const router = useRouter();
@@ -113,7 +83,7 @@ const AppModeRouter = (): ReactElement => {
         void router.replace('/');
       }
     }
-  }, [mode, router.asPath]);
+  }, [mode, router.asPath, isClient, router]);
 
   return <></>;
 };
