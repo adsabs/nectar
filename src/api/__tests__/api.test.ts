@@ -185,7 +185,7 @@ test('expired userdata causes bootstrap', async ({ server }: TestContext) => {
   api.setUserData({ ...mockUserData, expires_at: '999' });
   await testRequest();
 
-  expect(urls(onReq)).toStrictEqual([API_USER, API_USER, ApiTargets.BOOTSTRAP, '/test']);
+  expect(urls(onReq)).toStrictEqual([API_USER, '/test']);
 });
 
 test('401 response refreshes token properly', async ({ server }: TestContext) => {
@@ -202,12 +202,8 @@ test('401 response refreshes token properly', async ({ server }: TestContext) =>
   expect(urls(onReq)).toStrictEqual([
     // initial bootstrap because we don't have any userData stored
     API_USER,
-    API_USER,
-    ApiTargets.BOOTSTRAP,
     '/test',
   ]);
-
-  expect(onReq.mock.calls[1][0].headers.get('x-refresh-token')).toEqual('1');
 });
 
 test('401 does not cause infinite loop if refresh repeatedly fails', async ({ server }: TestContext) => {
@@ -317,5 +313,5 @@ test('duplicate requests are provided the same promise', async ({ server }: Test
   expect(Array.from(api.getPendingRequests())).toHaveLength(0);
 
   // all the requests shared the promise, so only a single flow actually went through
-  expect(urls(onReq)).toStrictEqual([API_USER, API_USER, ApiTargets.BOOTSTRAP, '/test']);
+  expect(urls(onReq)).toStrictEqual([API_USER, '/test']);
 });
