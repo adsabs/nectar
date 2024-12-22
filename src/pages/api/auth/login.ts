@@ -15,7 +15,13 @@ const log = logger.child({}, { msgPrefix: '[api/login] ' });
 
 export interface ILoginResponse {
   success?: boolean;
-  error?: 'invalid-credentials' | 'login-failed' | 'failed-userdata-request' | 'invalid-token' | 'method-not-allowed';
+  error?:
+    | 'invalid-credentials'
+    | 'login-failed'
+    | 'failed-userdata-request'
+    | 'invalid-token'
+    | 'method-not-allowed'
+    | 'must-reset-credentials';
 }
 
 export default withIronSessionApiRoute(login, sessionConfig);
@@ -100,10 +106,16 @@ export const handleAuthentication = async (
         return res.status(200).json({ success: false, error: 'failed-userdata-request' });
       }
     }
-    log.debug('Login failed', { data });
+    log.debug({ data }, 'Login failed');
     return res.status(401).json({ success: false, error: 'login-failed' });
-  } catch (error) {
-    log.trace('Login failed', { error });
+  } catch (err) {
+    log.error({ err }, 'Login failed');
+
+    // if the login failed due to a password reset requirement, return a specific error
+    if (axios.isAxiosError(err) && err.response && err.response.status === HttpStatusCode.UnprocessableEntity) {
+      return res.status(401).json({ success: false, error: 'must-reset-credentials' });
+    }
+
     return res.status(401).json({ success: false, error: 'login-failed' });
   }
 };

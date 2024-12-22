@@ -34,6 +34,7 @@ const Login: NextPage = () => {
     ['login'],
     async (params) => {
       const { data } = await axios.post<ILoginResponse>('/api/auth/login', params);
+
       if (data?.error) {
         throw new Error(data.error);
       }
@@ -69,7 +70,7 @@ const Login: NextPage = () => {
     if (isError) {
       focus();
     }
-  }, [isError]);
+  }, [isError, focus]);
 
   return (
     <>
@@ -143,6 +144,14 @@ const LoginErrorMessage = (props: { error: AxiosError<ILoginResponse> | Error })
     case 'failed-userdata-request':
     case 'invalid-token':
       return <StandardAlertMessage status="error" title="Unable to login" description="Please try again later." />;
+    case 'must-reset-credentials':
+      return (
+        <StandardAlertMessage
+          status="error"
+          title="Please reset your password"
+          description="Your password does not meet the new security requirements. An email has been sent to you with instructions on how to reset your password."
+        />
+      );
     default:
       return null;
   }
