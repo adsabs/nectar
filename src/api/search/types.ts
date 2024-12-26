@@ -291,6 +291,9 @@ export interface IDocsEntity {
   simbtype?: string;
   thesis?: string;
   title?: string[];
+  uat?: string[];
+  uat_id?: string;
+  uat_facet_hier?: string;
   vizier_facet?: string;
   vizier?: string;
   volume?: string;

@@ -240,6 +240,7 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
           />
           <Detail label="Bibcode" value={doc.bibcode} copiable />
           <Keywords keywords={doc.keyword} />
+          <UATKeywords keywords={doc.uat} ids={doc.uat_id} />
           <PlanetaryFeatures features={doc.planetary_feature} ids={doc.planetary_feature_id} />
           <Detail label="Comment(s)" value={doc.comment} />
           <Detail label="E-Print Comment(s)" value={doc.pubnote} />
@@ -302,6 +303,45 @@ const Keywords = memo(({ keywords }: { keywords: Array<string> }) => {
   );
 }, equals);
 Keywords.displayName = 'Keywords';
+
+const UATKeywords = memo(({ keywords, ids }: { keywords: Array<string>; ids: Array<string> }) => {
+  const label = `Search for papers that mention this keyword`;
+  return (
+    <Detail label={`UAT ${pluralize('Keyword', keywords?.length ?? 0)} (generated)`} value={keywords}>
+      {(keywords) => (
+        <Flex flexWrap={'wrap'}>
+          {keywords.map((keyword, index) => (
+            <Tag size="md" variant="subtle" whiteSpace={'nowrap'} m="1" key={keyword}>
+              <HStack spacing="2">
+                <Tooltip label="Open UAT">
+                  <SimpleLink href={`https://astrothesaurus.org/uat/${encodeURIComponent(ids[index])}`}>
+                    {keyword}
+                  </SimpleLink>
+                </Tooltip>
+                <SearchQueryLink
+                  params={{ q: `keyword:"${keyword}"` }}
+                  textDecoration="none"
+                  _hover={{
+                    color: 'gray.900',
+                  }}
+                  aria-label={label}
+                  fontSize="md"
+                >
+                  <Tooltip label={label}>
+                    <Center>
+                      <Icon as={MagnifyingGlassIcon} transform="rotate(90deg)" />
+                    </Center>
+                  </Tooltip>
+                </SearchQueryLink>
+              </HStack>
+            </Tag>
+          ))}
+        </Flex>
+      )}
+    </Detail>
+  );
+}, equals);
+UATKeywords.displayName = 'UATKeywords';
 
 const PlanetaryFeatures = memo(({ features, ids }: { features: Array<string>; ids: Array<string> }) => {
   const label = `Search for papers that mention this feature`;
