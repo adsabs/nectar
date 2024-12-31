@@ -6,11 +6,6 @@ import {
   HStack,
   Icon,
   IconButton,
-  Link,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
   Stack,
   Table,
   Tag,
@@ -23,7 +18,7 @@ import {
   useToast,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { EditIcon, ExternalLinkIcon, TriangleDownIcon } from '@chakra-ui/icons';
+import { EditIcon } from '@chakra-ui/icons';
 
 import { createUrlByType } from '@/components/AbstractSources/linkGenerator';
 import { IAllAuthorsModalProps } from '@/components/AllAuthorsModal';
@@ -50,7 +45,7 @@ import { feedbackItems } from '@/components/NavBar';
 import { SearchQueryLink } from '@/components/SearchQueryLink';
 import { AbstractSources } from '@/components/AbstractSources';
 import { AddToLibraryModal } from '@/components/Libraries';
-import { CopyMenuItem, LabeledCopyButton } from '@/components/CopyButton';
+import { SimpleCopyButton } from '@/components/CopyButton';
 
 import { pluralize } from '@/utils/common/formatters';
 import { parseAPIError } from '@/utils/common/parseAPIError';
@@ -224,8 +219,8 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
                 <span dangerouslySetInnerHTML={{ __html: pub_raw }}></span>
                 {!isLoadingCitation && (
                   <CopyToClipboard text={citationData?.export} onCopy={handleCitationCopied} options={{ asHtml: true }}>
-                    <Button aria-label="Copy citation" variant="outline" mx={2} cursor="pointer">
-                      <FontAwesomeIcon icon={faQuoteLeft} />
+                    <Button aria-label="Copy citation" variant="outline" mx={2} cursor="pointer" size="xs">
+                      <FontAwesomeIcon icon={faQuoteLeft} size="xs" />
                     </Button>
                   </CopyToClipboard>
                 )}
@@ -237,12 +232,13 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
           <Detail label="DOI" value={doc.doi}>
             {(doi) => <Doi doiIDs={doi} bibcode={doc.bibcode} />}
           </Detail>
-          <Detail label="arXiv" value={arxiv} href={createUrlByType(doc?.bibcode, 'arxiv', arxiv?.split(':')[1])} />
-          <Detail label="Bibcode" value={doc.bibcode}>
-            {(bibcode) => (
-              <LabeledCopyButton text={doc.bibcode} label={bibcode} size="md" fontWeight="normal" iconPos="right" />
-            )}
-          </Detail>
+          <Detail
+            label="arXiv"
+            value={arxiv}
+            href={createUrlByType(doc?.bibcode, 'arxiv', arxiv?.split(':')[1])}
+            newTab
+          />
+          <Detail label="Bibcode" value={doc.bibcode} copiable />
           <Keywords keywords={doc.keyword} />
           <PlanetaryFeatures features={doc.planetary_feature} ids={doc.planetary_feature_id} />
           <Detail label="Comment(s)" value={doc.comment} />
@@ -261,25 +257,10 @@ const Doi = memo(({ doiIDs, bibcode }: { doiIDs: Array<string>; bibcode: string 
     <>
       {doiIDs.map((id) => (
         <Stack direction="row" my={1} key={id}>
-          <Text>{id}</Text>
-          <Menu>
-            <MenuButton
-              as={IconButton}
-              variant="outline"
-              minW={4}
-              height={4}
-              borderRadius={3}
-              icon={<TriangleDownIcon boxSize={2} />}
-              aria-label="menu"
-            />
-            <MenuList>
-              <MenuItem as={Link} href={createUrlByType(bibcode, 'doi', id)} isExternal>
-                Open
-                <ExternalLinkIcon mx={2} />
-              </MenuItem>
-              <CopyMenuItem label={'Copy DOI'} text={id} />
-            </MenuList>
-          </Menu>
+          <SimpleLink href={createUrlByType(bibcode, 'doi', id)} newTab _hover={{ textDecor: 'underline' }}>
+            {id}
+          </SimpleLink>
+          <SimpleCopyButton text={id} variant="outline" size="xs" />
         </Stack>
       ))}
     </>
@@ -294,7 +275,7 @@ const Keywords = memo(({ keywords }: { keywords: Array<string> }) => {
       {(keywords) => (
         <Flex flexWrap={'wrap'}>
           {keywords.map((keyword) => (
-            <Tag size="md" variant="subtle" whiteSpace={'nowrap'} m="1" key={keyword}>
+            <Tag size="md" variant="subtle" whiteSpace="nowrap" m="1" key={keyword}>
               <HStack spacing="2">
                 <Text>{keyword}</Text>
                 <SearchQueryLink
@@ -333,59 +314,36 @@ const PlanetaryFeatures = memo(({ features, ids }: { features: Array<string>; id
       {(features) => (
         <Flex flexWrap={'wrap'}>
           {features.map((feature, index) => (
-            <Flex direction="row" alignItems="center" key={feature}>
-              <Tag
-                size="md"
-                variant="subtle"
-                bgColor="gray.100"
-                whiteSpace="nowrap"
-                m="1"
-                _hover={{
-                  color: 'black',
-                }}
-              >
-                <HStack spacing="2">
-                  <Text>{feature}</Text>
-                  <HStack spacing="1">
-                    <SearchQueryLink
-                      params={{ q: `planetary_feature:"${feature}"` }}
-                      textDecoration="none"
-                      color="gray.700"
-                      _hover={{
-                        color: 'gray.900',
-                        textDecoration: 'none',
-                      }}
-                      aria-label={label}
-                      fontSize="md"
-                    >
-                      <Tooltip label={label}>
-                        <Center>
-                          <Icon as={MagnifyingGlassIcon} transform="rotate(90deg)" />
-                        </Center>
-                      </Tooltip>
-                    </SearchQueryLink>
-                    <SimpleLink
-                      variant="subtle"
-                      href={`${EXTERNAL_URLS.USGS_PLANETARY_FEATURES}${ids[index]}`}
-                      isExternal
-                      textDecoration="none"
-                      color="gray.700"
-                      _hover={{
-                        color: 'gray.900',
-                      }}
-                      aria-label={usgsLabel}
-                      fontSize="md"
-                    >
-                      <Tooltip label={usgsLabel}>
-                        <Center>
-                          <ExternalLinkIcon mx="2px" />
-                        </Center>
-                      </Tooltip>
-                    </SimpleLink>
-                  </HStack>
+            <Tag size="md" variant="subtle" whiteSpace="nowrap" m="1" key={feature}>
+              <HStack spacing="2">
+                <SimpleLink
+                  href={`${EXTERNAL_URLS.USGS_PLANETARY_FEATURES}${ids[index]}`}
+                  isExternal
+                  aria-label={usgsLabel}
+                  newTab
+                  _hover={{ textDecor: 'underline' }}
+                >
+                  {feature}
+                </SimpleLink>
+                <HStack spacing="1">
+                  <SearchQueryLink
+                    params={{ q: `planetary_feature:"${feature}"` }}
+                    textDecoration="none"
+                    _hover={{
+                      color: 'gray.900',
+                    }}
+                    aria-label={label}
+                    fontSize="md"
+                  >
+                    <Tooltip label={label}>
+                      <Center>
+                        <Icon as={MagnifyingGlassIcon} transform="rotate(90deg)" />
+                      </Center>
+                    </Tooltip>
+                  </SearchQueryLink>
                 </HStack>
-              </Tag>
-            </Flex>
+              </HStack>
+            </Tag>
           ))}
         </Flex>
       )}
@@ -397,13 +355,15 @@ PlanetaryFeatures.displayName = 'PlanetaryFeatures';
 interface IDetailProps<T = string | Array<string>> {
   label: string;
   href?: string;
+  newTab?: boolean;
   value: T;
+  copiable?: boolean;
   children?: (value: T) => ReactElement;
 }
 
 // TODO: this should take in a list of deps or the whole doc and show/hide based on that
 const Detail = <T,>(props: IDetailProps<T>): ReactElement => {
-  const { label, href, value, children } = props;
+  const { label, href, newTab = false, value, copiable = false, children } = props;
 
   // show nothing if no value
   if (isNilOrEmpty(value)) {
@@ -417,11 +377,12 @@ const Detail = <T,>(props: IDetailProps<T>): ReactElement => {
       <Td>{label}</Td>
       <Td wordBreak="break-word">
         {href && (
-          <SimpleLink href={href} isExternal>
-            {normalizedValue} <ExternalLinkIcon mx="2px" />
+          <SimpleLink href={href} newTab={newTab}>
+            {normalizedValue}
           </SimpleLink>
         )}
         {typeof children === 'function' ? children(value) : !href && normalizedValue}
+        {copiable && <SimpleCopyButton text={normalizedValue as string} size="xs" variant="outline" mx={2} />}
       </Td>
     </Tr>
   );

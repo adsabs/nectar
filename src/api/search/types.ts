@@ -280,7 +280,7 @@ export interface IDocsEntity {
   pub?: string;
   publisher?: string;
   pubdate?: string;
-  pubnote?: string;
+  pubnote?: string[];
   read_count?: number;
   reader?: string;
   recid?: number;
