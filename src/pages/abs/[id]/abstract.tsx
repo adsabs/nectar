@@ -240,7 +240,18 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
           />
           <Detail label="Bibcode" value={doc.bibcode} copiable />
           <Keywords keywords={doc.keyword} />
-          <UATKeywords keywords={doc.uat} ids={doc.uat_id} />
+          {/* <UATKeywords keywords={doc.uat} ids={doc.uat_id} /> */}
+          <UATKeywords
+            keywords={[
+              'cosmology/origin of the universe/early universe/recombination (cosmology)/cosmic background radiation/cosmic microwave background radiation',
+              'cosmology/origin of the universe/big bang theory/recombination (cosmology)/cosmic background radiation/cosmic microwave background radiation',
+              'observational astronomy/astronomical methods/radio astronomy/cosmic noise/cosmic background radiation/cosmic microwave background radiation',
+              'cosmology/astronomical radiation sources/radio sources/radio continuum emission',
+              'interstellar medium/interstellar emissions/radio continuum emission',
+              'stellar astronomy/stellar types/stellar evolutionary types/evolved stars/subgiant stars',
+            ]}
+            ids={['322', '322', '322', '5', '5', '1646']}
+          />
           <PlanetaryFeatures features={doc.planetary_feature} ids={doc.planetary_feature_id} />
           <Detail label="Comment(s)" value={doc.comment} />
           <Detail label="E-Print Comment(s)" value={doc.pubnote} />
