@@ -127,7 +127,7 @@ export const cleanClause = curry((fqKey: string, clause: string) => {
   const operator = getOperator(clause);
 
   // for hierarchical facets, there is more processing to make it get the fields
-  if (fqKey === 'fq_author' || fqKey === 'fq_planetary_feature') {
+  if (fqKey === 'fq_author' || fqKey === 'fq_planetary_feature' || fqKey === 'fq_uat') {
     return pipe(
       map(pipe(replace(/["\\]/g, ''), parseTitleFromKey)),
 

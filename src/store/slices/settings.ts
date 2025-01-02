@@ -54,6 +54,7 @@ export const defaultSettings: ISettingsState['settings'] = {
       'vizier',
       'pubtype',
       'planetary',
+      'uat',
     ],
     state: {
       ['author']: { hidden: false, expanded: true },
@@ -69,6 +70,7 @@ export const defaultSettings: ISettingsState['settings'] = {
       ['vizier']: { hidden: false, expanded: false },
       ['pubtype']: { hidden: false, expanded: false },
       ['planetary']: { hidden: false, expanded: false },
+      ['uat']: { hidden: false, expanded: false },
     },
     open: true,
     ignored: [],
