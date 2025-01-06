@@ -18,11 +18,12 @@ import {
   Tooltip,
   Tr,
   useBreakpoint,
+  useClipboard,
   useToast,
 } from '@chakra-ui/react';
 
 import { biblibSortOptions } from '@/components/Sort/model';
-import { BuildingLibraryIcon } from '@heroicons/react/24/solid';
+import { BuildingLibraryIcon, ShareIcon } from '@heroicons/react/24/solid';
 
 import { AppState, useStore } from '@/store';
 import { NumPerPageType } from '@/types';
@@ -221,6 +222,26 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
     );
   };
 
+  const { hasCopied, onCopy, setValue, value } = useClipboard('');
+
+  useEffect(() => {
+    if (library?.metadata?.id) {
+      setValue(`${process.env.NEXT_PUBLIC_BASE_CANONICAL_URL}/public-libraries/${library.metadata.id}`);
+    }
+  }, [library, setValue]);
+
+  const handleCopyPublicURL = () => {
+    if (value !== '') {
+      onCopy();
+    }
+  };
+
+  useEffect(() => {
+    if (hasCopied) {
+      toast({ status: 'info', title: 'Copied to Clipboard' });
+    }
+  }, [hasCopied, toast]);
+
   return (
     <>
       {isLoadingLibs && (
@@ -251,41 +272,67 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
                   Back to libraries
                 </Button>
               </SimpleLink>
-              <SimpleLink href={`/user/libraries/${id}/settings`}>
-                <IconButton
-                  aria-label="settings"
-                  icon={<SettingsIcon />}
-                  variant="outline"
-                  data-testid="settings-btn"
-                />
-              </SimpleLink>
+              <HStack>
+                {isPublic && (
+                  <Tooltip label="View as public library">
+                    <SimpleLink href={`/public-libraries/${library.metadata.id}`}>
+                      <IconButton
+                        aria-label="view as public library"
+                        icon={<BuildingLibraryIcon width="20px" height="20px" />}
+                        variant="outline"
+                      />
+                    </SimpleLink>
+                  </Tooltip>
+                )}
+                <SimpleLink href={`/user/libraries/${id}/settings`}>
+                  <IconButton
+                    aria-label="settings"
+                    icon={<SettingsIcon />}
+                    variant="outline"
+                    data-testid="settings-btn"
+                  />
+                </SimpleLink>
+              </HStack>
             </Flex>
           )}
 
-          <Flex alignItems="center" gap={2}>
-            {publicView ? (
-              <Icon
-                as={BuildingLibraryIcon}
-                aria-label="SciX Public Library"
-                borderRadius={25}
-                w={10}
-                h={10}
-                backgroundColor="gray.700"
-                color="white"
-                p={2}
-              />
-            ) : isPublic ? (
-              <Tooltip label="This library is public">
-                <UnlockIcon color="green.500" aria-label="public" />
-              </Tooltip>
-            ) : (
-              <Tooltip label="This library is private">
-                <LockIcon aria-label="private" />
+          <Flex justifyContent="space-between">
+            <Flex alignItems="center" gap={2}>
+              {publicView ? (
+                <Icon
+                  as={BuildingLibraryIcon}
+                  aria-label="SciX Public Library"
+                  borderRadius={25}
+                  w={10}
+                  h={10}
+                  backgroundColor="gray.700"
+                  color="white"
+                  p={2}
+                />
+              ) : isPublic ? (
+                <Tooltip label="This library is public">
+                  <UnlockIcon color="green.500" aria-label="public" />
+                </Tooltip>
+              ) : (
+                <Tooltip label="This library is private">
+                  <LockIcon aria-label="private" />
+                </Tooltip>
+              )}
+              <Heading variant="pageTitle" as="h1" data-testid="lib-title">
+                {name}
+              </Heading>
+            </Flex>
+            {publicView && isPublic && (
+              <Tooltip label="Copy public library link">
+                <IconButton
+                  aria-label="copy public library link"
+                  icon={<ShareIcon width="18px" height="18px" />}
+                  variant="outline"
+                  cursor="pointer"
+                  onClick={handleCopyPublicURL}
+                />
               </Tooltip>
             )}
-            <Heading variant="pageTitle" as="h1" data-testid="lib-title">
-              {name}
-            </Heading>
           </Flex>
           <Text my={2} data-testid="lib-desc">
             {description}
