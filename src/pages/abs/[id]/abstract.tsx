@@ -324,9 +324,13 @@ const UATKeywords = memo(({ keywords, ids }: { keywords: Array<string>; ids: Arr
           {keywords.map((keyword, index) => (
             <Tag size="md" variant="subtle" whiteSpace={'nowrap'} m="1" key={keyword}>
               <HStack spacing="2">
-                <Tooltip label="Open UAT">
-                  <SimpleLink href={`https://astrothesaurus.org/uat/${encodeURIComponent(ids[index])}`}>
-                    {keyword}
+                <Tooltip label={keyword}>
+                  <SimpleLink
+                    href={`https://astrothesaurus.org/uat/${encodeURIComponent(ids[index])}`}
+                    newTab
+                    isExternal
+                  >
+                    {shortenKeyword(keyword)}
                   </SimpleLink>
                 </Tooltip>
                 <SearchQueryLink
@@ -374,7 +378,7 @@ const PlanetaryFeatures = memo(({ features, ids }: { features: Array<string>; id
                   newTab
                   _hover={{ textDecor: 'underline' }}
                 >
-                  {feature}
+                  {feature.replaceAll('/', ' > ')}
                 </SimpleLink>
                 <HStack spacing="1">
                   <SearchQueryLink
@@ -462,3 +466,12 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
     };
   }
 });
+
+const shortenKeyword = (keyword: string) => {
+  const words = keyword.split('/');
+  if (words.length <= 2) {
+    return words.join(' < ');
+  } else {
+    return `${words[0]} < ... < ${words[words.length - 1]}`;
+  }
+};
