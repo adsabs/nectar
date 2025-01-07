@@ -367,7 +367,7 @@ const PlanetaryFeatures = memo(({ features, ids }: { features: Array<string>; id
                   newTab
                   _hover={{ textDecor: 'underline' }}
                 >
-                  {feature.replaceAll('/', ' > ')}
+                  {feature.replaceAll('/', ' < ')}
                 </SimpleLink>
                 <HStack spacing="1">
                   <SearchQueryLink
