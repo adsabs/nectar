@@ -11,17 +11,17 @@ global.alert = vi.fn();
 
 const API_USER = '/api/user';
 
-const mockUserData: Pick<IBootstrapPayload, 'username' | 'access_token' | 'anonymous' | 'expires_at'> = {
+const mockUserData: Pick<IBootstrapPayload, 'username' | 'access_token' | 'anonymous' | 'expire_in'> = {
   username: 'anonymous@ads',
   access_token: 'foo_access_token',
   anonymous: true,
-  expires_at: '99999999999999999',
+  expire_in: '99999999999999999',
 };
-const invalidMockUserData: Pick<IBootstrapPayload, 'username' | 'access_token' | 'anonymous' | 'expires_at'> = {
+const invalidMockUserData: Pick<IBootstrapPayload, 'username' | 'access_token' | 'anonymous' | 'expire_in'> = {
   username: 'anonymous@ads',
   access_token: '',
   anonymous: true,
-  expires_at: '',
+  expire_in: '',
 };
 
 const testHandlerWith200 = rest.get('*test', (_, res, ctx) => {
@@ -182,7 +182,7 @@ test('passing token initially skips bootstrap', async ({ server }: TestContext) 
 test('expired userdata causes bootstrap', async ({ server }: TestContext) => {
   const { onRequest: onReq } = createServerListenerMocks(server);
   server.use(testHandlerWith200);
-  api.setUserData({ ...mockUserData, expires_at: '999' });
+  api.setUserData({ ...mockUserData, expire_in: '999' });
   await testRequest();
 
   expect(urls(onReq)).toStrictEqual([API_USER, '/test']);

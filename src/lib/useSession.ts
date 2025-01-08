@@ -1,11 +1,10 @@
-import api from '@/api/api';
 import axios from 'axios';
 import { useEffect } from 'react';
 import { useUser } from '@/lib/useUser';
 import { useMutation } from '@tanstack/react-query';
 import { ILogoutResponse } from '@/pages/api/auth/logout';
 import { useRouter } from 'next/router';
-import { isAuthenticated } from '@/auth-utils';
+import api, { isAuthenticated } from '@/api/api';
 
 /**
  * Provides access to the user session and methods to logout

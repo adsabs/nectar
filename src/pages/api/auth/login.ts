@@ -5,7 +5,7 @@ import { withIronSessionApiRoute } from 'iron-session/next';
 import { APP_DEFAULTS, sessionConfig } from '@/config';
 import { configWithCSRF, fetchUserData, hash, isValidToken, pickUserData } from '@/auth-utils';
 import { defaultRequestConfig } from '@/api/config';
-import axios, { AxiosResponse, HttpStatusCode } from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import setCookie from 'set-cookie-parser';
 import { logger } from '@/logger';
 import { IBasicAccountsResponse, IUserCredentials } from '@/api/user/types';
@@ -51,26 +51,26 @@ export const handleAuthentication = async (
   res: NextApiResponse,
   session: IronSession,
 ) => {
-  try {
-    const config = await configWithCSRF({
-      ...defaultRequestConfig,
-      method: 'POST',
-      url: ApiTargets.LOGIN,
-      data: credentials,
-      timeout: APP_DEFAULTS.API_TIMEOUT,
-    });
-    log.debug({ config }, 'Attempting to login user');
-    const { data, headers, status } = await axios.request<
-      IBasicAccountsResponse,
-      AxiosResponse<IBasicAccountsResponse>
-    >(config);
+  const config = await configWithCSRF({
+    ...defaultRequestConfig,
+    method: 'POST',
+    url: ApiTargets.USER,
+    data: {
+      username: credentials.email,
+      password: credentials.password,
+    },
+    timeout: APP_DEFAULTS.API_TIMEOUT,
+  });
 
-    log.debug({ data, headers }, 'Result');
+  try {
+    const { data, headers } = await axios.request<IBasicAccountsResponse, AxiosResponse<IBasicAccountsResponse>>(
+      config,
+    );
     const apiSessionCookie = setCookie
       .parse(headers['set-cookie'])
       .find((c) => c.name === process.env.ADS_SESSION_COOKIE_NAME);
 
-    if (status === HttpStatusCode.Ok) {
+    if (data.message === 'success') {
       // user has been authenticated
       session.destroy();
 
@@ -112,7 +112,7 @@ export const handleAuthentication = async (
     log.error({ err }, 'Login failed');
 
     // if the login failed due to a password reset requirement, return a specific error
-    if (axios.isAxiosError(err) && err.response && err.response.status === HttpStatusCode.UnprocessableEntity) {
+    if (axios.isAxiosError(err) && err.response && err.response.status === axios.HttpStatusCode.UnprocessableEntity) {
       return res.status(401).json({ success: false, error: 'must-reset-credentials' });
     }
 

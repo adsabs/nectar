@@ -38,7 +38,6 @@ const UpdateEmailPage = () => {
               autoFocus
               name="email"
               id="email"
-              autoComplete="email"
               ref={(value) => {
                 emailRef(value);
                 mainInputRef.current = value;
@@ -49,12 +48,7 @@ const UpdateEmailPage = () => {
 
           <FormControl isRequired>
             <FormLabel>Password</FormLabel>
-            <PasswordTextInput
-              name="password"
-              id="password"
-              autoComplete="password"
-              {...register('password', { required: true })}
-            />
+            <PasswordTextInput name="password" id="password" {...register('password', { required: true })} />
           </FormControl>
 
           <Button type="submit" isLoading={isLoading}>

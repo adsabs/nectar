@@ -27,14 +27,7 @@ import { parseAPIError } from '@/utils/common/parseAPIError';
 import { IUserRegistrationCredentials } from '@/api/user/types';
 import { useRegisterUser } from '@/api/user/user';
 
-const initialParams: IUserRegistrationCredentials = {
-  givenName: '',
-  familyName: '',
-  email: '',
-  password: '',
-  confirmPassword: '',
-  recaptcha: '',
-};
+const initialParams: IUserRegistrationCredentials = { email: '', password: '', confirmPassword: '', recaptcha: '' };
 
 const Register: NextPage = () => {
   const { executeRecaptcha } = useGoogleReCaptcha();
@@ -49,6 +42,8 @@ const Register: NextPage = () => {
   } = useForm({
     defaultValues: initialParams,
   });
+  const { ref, ...registerProps } = register('email', { required: true });
+  const [emailRef] = useFocus();
   const [formError, setFormError] = useState<Error | string | null>(null);
   useEffect(() => {
     if (data) {
@@ -75,8 +70,6 @@ const Register: NextPage = () => {
     [executeRecaptcha, submit],
   );
 
-  const { ref, ...registerProps } = register('givenName');
-  const [focusElementRef] = useFocus();
   return (
     <div>
       <Head>
@@ -89,36 +82,6 @@ const Register: NextPage = () => {
         </Heading>
         <form onSubmit={handleSubmit(onFormSubmit)} aria-labelledby="form-label">
           <Stack direction="column" spacing={4}>
-            <FormControl isInvalid={!!errors.familyName}>
-              <FormLabel>Given Name</FormLabel>
-              <Input
-                autoFocus
-                type="text"
-                placeholder="James T."
-                name="given_name"
-                id="given_name"
-                autoComplete="given-name"
-                ref={(value) => {
-                  focusElementRef.current = value;
-                  ref(value);
-                }}
-                {...registerProps}
-              />
-              {!!errors.familyName && <FormErrorMessage>{errors.givenName.message}</FormErrorMessage>}
-            </FormControl>
-            <FormControl isInvalid={!!errors.familyName}>
-              <FormLabel>Family Name</FormLabel>
-              <Input
-                autoFocus
-                type="text"
-                placeholder="Kirk"
-                name="family_name"
-                id="family_name"
-                autoComplete="family-name"
-                {...register('familyName')}
-              />
-              {!!errors.familyName && <FormErrorMessage>{errors.familyName.message}</FormErrorMessage>}
-            </FormControl>
             <FormControl isRequired isInvalid={!!errors.email}>
               <FormLabel>Email</FormLabel>
               <Input
@@ -128,7 +91,11 @@ const Register: NextPage = () => {
                 name="email"
                 id="email"
                 autoComplete="email"
-                {...register('email', { required: true })}
+                ref={(value) => {
+                  emailRef.current = value;
+                  ref(value);
+                }}
+                {...registerProps}
               />
               {!!errors.email && <FormErrorMessage>{errors.email.message}</FormErrorMessage>}
             </FormControl>
@@ -137,7 +104,6 @@ const Register: NextPage = () => {
               <PasswordTextInput
                 name="password"
                 id="password"
-                autoComplete="new-password"
                 {...register('password', {
                   required: true,
                   minLength: 4,
@@ -151,7 +117,6 @@ const Register: NextPage = () => {
               <PasswordTextInput
                 name="confirmPassword"
                 id="confirmPassword"
-                autoComplete="new-password"
                 {...register('confirmPassword', {
                   required: true,
                   validate: (value) => value === getValues('password'),
