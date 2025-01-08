@@ -25,10 +25,8 @@ export const accountHandlers = [
         ratelimit: 1.0,
         anonymous: true,
         client_secret: 'ly8MkAN34LBNDwco3Ptl4tPMFuNzsEzMXGS8KYMneokpZsSYrVgSrs1lJJx7',
-        expires_at: '999999999999999999',
+        expire_in: '2099-03-22T14:50:07.712037',
         refresh_token: 'BENF2Gu2EXDXreAjzkiDoV7ReXaNisy4j9kn088u',
-        given_name: 'Test T.',
-        family_name: 'Tester',
       }),
     );
   }),

@@ -14,11 +14,7 @@ const resolveApiBaseUrl = (defaultBaseUrl = ''): string => {
   }
 
   // use a known URL for development
-  if (
-    typeof window !== 'undefined' &&
-    process.env.NODE_ENV === 'development' &&
-    typeof process.env.NEXT_PUBLIC_API_HOST_CLIENT === 'string'
-  ) {
+  if (process.env.NODE_ENV === 'development' && typeof process.env.NEXT_PUBLIC_API_HOST_CLIENT === 'string') {
     return process.env.NEXT_PUBLIC_API_HOST_CLIENT;
   }
 
@@ -35,10 +31,6 @@ const resolveApiBaseUrl = (defaultBaseUrl = ''): string => {
 export const defaultRequestConfig: AxiosRequestConfig = {
   baseURL: resolveApiBaseUrl(),
   withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-
   timeout: typeof window === 'undefined' ? APP_DEFAULTS.SSR_API_TIMEOUT : APP_DEFAULTS.API_TIMEOUT,
   paramsSerializer: {
     serialize: (params) =>

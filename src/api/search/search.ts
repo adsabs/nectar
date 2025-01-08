@@ -447,7 +447,6 @@ export const fetchSearchSSR = async (
     url: ApiTargets.SEARCH,
     params: finalParams,
     headers: {
-      ...defaultRequestConfig.headers,
       Authorization: `Bearer ${token}`,
       ...pick(TRACING_HEADERS, ctx.req.headers),
     },
