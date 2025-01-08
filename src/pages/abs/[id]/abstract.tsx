@@ -323,7 +323,7 @@ const UATKeywords = memo(({ keywords, ids }: { keywords: Array<string>; ids: Arr
                   </SimpleLink>
                 </Tooltip>
                 <SearchQueryLink
-                  params={{ q: `keyword:"${keyword.split('/').pop()}"` }}
+                  params={{ q: `uat:"${keyword.split('/').pop()}"` }}
                   textDecoration="none"
                   _hover={{
                     color: 'gray.900',
