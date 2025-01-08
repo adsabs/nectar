@@ -1,7 +1,8 @@
 import { IronSession } from 'iron-session';
 import { ApiTargets } from '@/api/models';
 import { IBootstrapPayload, IUserData } from '@/api/user/types';
-import { pick } from 'ramda';
+import { isNil, pick } from 'ramda';
+import { isPast, parseISO } from 'date-fns';
 import { edgeLogger } from '@/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import setCookie from 'set-cookie-parser';
@@ -13,38 +14,24 @@ const log = edgeLogger.child({}, { msgPrefix: '[initSession] ' });
  * Checks if the user data is valid
  * @param userData
  */
-export const isUserData = (userData?: IUserData): userData is IUserData =>
-  typeof userData !== 'undefined' &&
+const isUserData = (userData?: IUserData): userData is IUserData =>
+  !isNil(userData) &&
   typeof userData.access_token === 'string' &&
-  typeof userData.expires_at === 'string' &&
+  typeof userData.expire_in === 'string' &&
   userData.access_token.length > 0 &&
-  userData.expires_at.length > 0;
-
-/**
- * Checks if a token is expired based on the expiration time.
- *
- * @param {string} expiresAt - The expiration time of the token in seconds since the Unix epoch.
- * @returns {boolean} - Returns true if the current time is greater than or equal to the expiration time, false otherwise.
- */
-export const isTokenExpired = (expiresAt: string): boolean => {
-  const currentTime = Math.floor(Date.now() / 1000);
-  const tokenExpiryTime = parseInt(expiresAt, 10);
-  return currentTime >= tokenExpiryTime;
-};
+  userData.expire_in.length > 0;
 
 /**
  * Checks if the token is valid
  * @param userData
  */
-export const isValidToken = (userData?: IUserData): boolean =>
-  isUserData(userData) && !isTokenExpired(userData.expires_at);
+const isValidToken = (userData?: IUserData): boolean => isUserData(userData) && !isPast(parseISO(userData.expire_in));
 
 /**
  * Checks if the user is authenticated
  * @param user
  */
-export const isAuthenticated = (user: IUserData) =>
-  isUserData(user) && (!user.anonymous || user.username !== 'anonymous@ads');
+const isAuthenticated = (user: IUserData) => isUserData(user) && (!user.anonymous || user.username !== 'anonymous@ads');
 
 /**
  * Bootstraps the session (to get a new token)
@@ -57,7 +44,7 @@ const bootstrap = async (cookie?: string) => {
         access_token: 'mocked',
         username: 'mocked',
         anonymous: false,
-        expires_at: 'mocked',
+        expire_in: 'mocked',
       },
       headers: new Headers({
         'set-cookie': `${process.env.ADS_SESSION_COOKIE_NAME}=mocked`,
@@ -84,7 +71,7 @@ const bootstrap = async (cookie?: string) => {
       payload: json,
     });
     return {
-      token: pick(['access_token', 'username', 'anonymous', 'expires_at'], json) as IUserData,
+      token: pick(['access_token', 'username', 'anonymous', 'expire_in'], json) as IUserData,
       headers: res.headers,
     };
   } catch (error) {

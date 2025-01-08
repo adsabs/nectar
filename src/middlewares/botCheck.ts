@@ -37,7 +37,7 @@ const crawlerCheck = async (req: NextRequest, ip: string, ua: string) => {
 
 const baseToken: IronSessionData['token'] = {
   anonymous: true,
-  expires_at: '99999999999999',
+  expire_in: '9999-01-01T00:00:00',
   username: 'anonymous',
   access_token: 'no-token',
 };

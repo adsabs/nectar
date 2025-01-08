@@ -1,5 +1,5 @@
 import { useStore } from '@/store';
-import { isUserData } from '@/auth-utils';
+import { isUserData } from '@/api/api';
 
 export const useGetUserEmail = () => {
   const user = useStore((state) => state.user);

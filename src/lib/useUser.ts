@@ -1,7 +1,7 @@
 import { useStore } from '@/store';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
-import { isUserData } from '@/auth-utils';
+import { isUserData } from '@/api/api';
 
 /**
  * Provides access to the user object and methods to reset it
