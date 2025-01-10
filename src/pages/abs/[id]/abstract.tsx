@@ -367,7 +367,7 @@ const PlanetaryFeatures = memo(({ features, ids }: { features: Array<string>; id
                   newTab
                   _hover={{ textDecor: 'underline' }}
                 >
-                  {feature.replaceAll('/', ' < ')}
+                  {feature.replaceAll('/', ' > ')}
                 </SimpleLink>
                 <HStack spacing="1">
                   <SearchQueryLink
@@ -459,8 +459,8 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
 const shortenKeyword = (keyword: string) => {
   const words = keyword.split('/');
   if (words.length <= 2) {
-    return words.join(' < ');
+    return words.join(' > ');
   } else {
-    return `${words[0]} < ... < ${words[words.length - 1]}`;
+    return `${words[0]} > ... > ${words[words.length - 1]}`;
   }
 };
