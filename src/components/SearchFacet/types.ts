@@ -49,6 +49,7 @@ export const facetFields: FacetField[] = [
   'nedtype_object_facet_hier',
   'simbad_object_facet_hier',
   'planetary_feature_facet_hier_3level',
+  'uat_facet_hier',
 ];
 
 export type SearchFacetID =
@@ -64,7 +65,8 @@ export type SearchFacetID =
   | 'data'
   | 'vizier'
   | 'pubtype'
-  | 'planetary';
+  | 'planetary'
+  | 'uat';
 
 export type FacetCountTuple = [string, number];
 

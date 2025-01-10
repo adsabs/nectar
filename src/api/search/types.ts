@@ -117,7 +117,8 @@ export type FacetField =
   | 'ned_object_facet_hier'
   | 'nedtype_object_facet_hier'
   | 'simbad_object_facet_hier'
-  | 'planetary_feature_facet_hier_3level';
+  | 'planetary_feature_facet_hier_3level'
+  | 'uat_facet_hier';
 
 export interface IFacetCountsFields {
   facet_queries: unknown;
@@ -291,6 +292,9 @@ export interface IDocsEntity {
   simbtype?: string;
   thesis?: string;
   title?: string[];
+  uat?: string[];
+  uat_id?: string[];
+  uat_facet_hier?: string;
   vizier_facet?: string;
   vizier?: string;
   volume?: string;

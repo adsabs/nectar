@@ -240,6 +240,7 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
           />
           <Detail label="Bibcode" value={doc.bibcode} copiable />
           <Keywords keywords={doc.keyword} />
+          <UATKeywords keywords={doc.uat} ids={doc.uat_id} />
           <PlanetaryFeatures features={doc.planetary_feature} ids={doc.planetary_feature_id} />
           <Detail label="Comment(s)" value={doc.comment} />
           <Detail label="E-Print Comment(s)" value={doc.pubnote} />
@@ -303,6 +304,49 @@ const Keywords = memo(({ keywords }: { keywords: Array<string> }) => {
 }, equals);
 Keywords.displayName = 'Keywords';
 
+const UATKeywords = memo(({ keywords, ids }: { keywords: Array<string>; ids: Array<string> }) => {
+  const label = `Search for papers that mention this keyword`;
+  return (
+    <Detail label={`UAT ${pluralize('Keyword', keywords?.length ?? 0)} (generated)`} value={keywords}>
+      {(keywords) => (
+        <Flex flexWrap={'wrap'}>
+          {keywords.map((keyword, index) => (
+            <Tag size="md" variant="subtle" whiteSpace={'nowrap'} m="1" key={keyword}>
+              <HStack spacing="2">
+                <Tooltip label={keyword}>
+                  <SimpleLink
+                    href={`https://astrothesaurus.org/uat/${encodeURIComponent(ids[index])}`}
+                    newTab
+                    isExternal
+                  >
+                    {shortenKeyword(keyword)}
+                  </SimpleLink>
+                </Tooltip>
+                <SearchQueryLink
+                  params={{ q: `uat:"${keyword.split('/').pop()}"` }}
+                  textDecoration="none"
+                  _hover={{
+                    color: 'gray.900',
+                  }}
+                  aria-label={label}
+                  fontSize="md"
+                >
+                  <Tooltip label={label}>
+                    <Center>
+                      <Icon as={MagnifyingGlassIcon} transform="rotate(90deg)" />
+                    </Center>
+                  </Tooltip>
+                </SearchQueryLink>
+              </HStack>
+            </Tag>
+          ))}
+        </Flex>
+      )}
+    </Detail>
+  );
+}, equals);
+UATKeywords.displayName = 'UATKeywords';
+
 const PlanetaryFeatures = memo(({ features, ids }: { features: Array<string>; ids: Array<string> }) => {
   const label = `Search for papers that mention this feature`;
   const usgsLabel = `Go to the USGS page for this feature`;
@@ -323,7 +367,7 @@ const PlanetaryFeatures = memo(({ features, ids }: { features: Array<string>; id
                   newTab
                   _hover={{ textDecor: 'underline' }}
                 >
-                  {feature}
+                  {feature.replaceAll('/', ' > ')}
                 </SimpleLink>
                 <HStack spacing="1">
                   <SearchQueryLink
@@ -411,3 +455,12 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
     };
   }
 });
+
+const shortenKeyword = (keyword: string) => {
+  const words = keyword.split('/');
+  if (words.length <= 2) {
+    return words.join(' > ');
+  } else {
+    return `${words[0]} > ... > ${words[words.length - 1]}`;
+  }
+};
