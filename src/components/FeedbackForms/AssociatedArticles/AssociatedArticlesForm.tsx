@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
-
 import { CheckIcon, DeleteIcon } from '@chakra-ui/icons';
 import {
   AlertStatus,

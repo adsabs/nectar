@@ -19,9 +19,16 @@ import { theme } from '@/theme';
  */
 export const createServerListenerMocks = (server: SetupServerApi) => {
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+// Extract the `on` method type
+  type ServerEventOnMethod = typeof server.events.on;
+
+// Extract listener type for a specific event
+  type EventListener<T extends keyof ServerLifecycleEventsMap> =
+    ServerEventOnMethod extends (event: T, listener: infer U) => void ? U : never;
+
+// Extract the parameters of the listener
   type EventMockParams<T extends keyof ServerLifecycleEventsMap> =
-    Parameters<Parameters<typeof server.events.on<T>>[1]>;
+    Parameters<EventListener<T>>;
 
   const onRequest = vi.fn<EventMockParams<'request:start'>, void>();
   const onMatch = vi.fn<EventMockParams<'request:match'>, void>();

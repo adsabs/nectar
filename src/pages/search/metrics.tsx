@@ -58,7 +58,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
 
     // react-query infinite queries cannot be serialized by next, currently.
     // see https://github.com/tannerlinsley/react-query/issues/3301#issuecomment-1041374043
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
     // const dehydratedState: DehydratedState = JSON.parse(JSON.stringify(dehydrate(queryClient)));
 
     return Promise.resolve({

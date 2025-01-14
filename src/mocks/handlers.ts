@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { orcidHandlers } from '@/mocks/handlers/orcid';
 import { userHandlers } from '@/mocks/responses/user/user';
 import { objectsHandlers } from '@/mocks/handlers/objects';

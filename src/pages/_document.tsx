@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { ColorModeScript } from '@chakra-ui/react';
 import { theme } from '@/theme';
 import Document, { Head, Html, Main, NextScript } from 'next/document';
