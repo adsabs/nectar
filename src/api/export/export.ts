@@ -22,7 +22,7 @@ export const useGetExportCitation: ADSQuery<IExportApiParams, IExportApiResponse
   });
 };
 
-export const fetchExportCitation: QueryFunction<IExportApiResponse> = async ({ meta, signal }) => {
+export const fetchExportCitation: QueryFunction<IExportApiResponse> = async ({ meta }) => {
   const {
     params: { customFormat, format, ...params },
   } = meta as { params: IExportApiParams };
@@ -33,7 +33,6 @@ export const fetchExportCitation: QueryFunction<IExportApiResponse> = async ({ m
   const config: ApiRequestConfig = {
     method: 'POST',
     url: `${ApiTargets.EXPORT}/${format}`,
-    signal,
     data: {
       ...params,
       ...(format === ExportApiFormatKey.custom ? { format: customFormat } : {}),

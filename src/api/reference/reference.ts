@@ -26,13 +26,12 @@ export const useReferenceSearch: ReferenceQuery = (text, options) => {
   });
 };
 
-export const fetchReferenceText: QueryFunction<IADSApiReferenceResponse> = async ({ meta, signal }) => {
+export const fetchReferenceText: QueryFunction<IADSApiReferenceResponse> = async ({ meta }) => {
   const { params } = meta as { params: { text: string } };
 
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.REFERENCE}/${params.text}`,
-    signal,
   };
 
   const { data } = await api.request<IADSApiReferenceResponse>(config);

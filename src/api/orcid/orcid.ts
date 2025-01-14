@@ -137,21 +137,20 @@ export const useOrcidPreferences: OrcidQuery<'getPreferences'> = (params, option
   });
 };
 
-const fetchExchangeToken: QueryFunction<IOrcidUser> = async ({ meta, signal }) => {
+const fetchExchangeToken: QueryFunction<IOrcidUser> = async ({ meta }) => {
   const { params } = meta as { params: IOrcidParams['exchangeToken'] };
 
   const config: ApiRequestConfig = {
     method: 'GET',
     url: ApiTargets.ORCID_EXCHANGE_TOKEN,
     params,
-    signal,
   };
 
   const { data } = await api.request<IOrcidUser>(config);
   return data;
 };
 
-const getPreferences: QueryFunction<IOrcidResponse['getPreferences']> = async ({ meta, signal }) => {
+const getPreferences: QueryFunction<IOrcidResponse['getPreferences']> = async ({ meta }) => {
   const { params } = meta as { params: IOrcidParams['getPreferences'] };
 
   if (!isValidIOrcidUser(params.user)) {
@@ -164,14 +163,13 @@ const getPreferences: QueryFunction<IOrcidResponse['getPreferences']> = async ({
     headers: {
       'orcid-authorization': `Bearer ${params.user.access_token}`,
     },
-    signal,
   };
 
   const { data } = await api.request<IOrcidResponse['getPreferences']>(config);
   return data;
 };
 
-export const fetchProfile: QueryFunction<IOrcidResponse['profile']> = async ({ meta, signal }) => {
+export const fetchProfile: QueryFunction<IOrcidResponse['profile']> = async ({ meta }) => {
   const { params } = meta as { params: IOrcidParams['profile'] };
 
   if (!isValidIOrcidUser(params.user)) {
@@ -186,7 +184,6 @@ export const fetchProfile: QueryFunction<IOrcidResponse['profile']> = async ({ m
     headers: {
       'orcid-authorization': `Bearer ${params.user.access_token}`,
     },
-    signal,
   };
 
   const { data } = await api.request<IOrcidResponse['profile']>(config);
@@ -300,7 +297,7 @@ const updateWork: MutationFunction<IOrcidResponse['updateWork'], IOrcidMutationP
 
   return data;
 };
-const getName: QueryFunction<IOrcidResponse['name']> = async ({ meta, signal }) => {
+const getName: QueryFunction<IOrcidResponse['name']> = async ({ meta }) => {
   const { params } = meta as { params: IOrcidParams['name'] };
 
   if (!isValidIOrcidUser(params.user)) {
@@ -313,14 +310,13 @@ const getName: QueryFunction<IOrcidResponse['name']> = async ({ meta, signal }) 
     headers: {
       'orcid-authorization': `Bearer ${params.user.access_token}`,
     },
-    signal,
   };
 
   const { data } = await api.request<null>(config);
   return data;
 };
 
-const getWork: QueryFunction<IOrcidResponse['getWork']> = async ({ meta, signal }) => {
+const getWork: QueryFunction<IOrcidResponse['getWork']> = async ({ meta }) => {
   const { params } = meta as { params: IOrcidParams['getWork'] };
 
   if (!isValidIOrcidUser(params.user)) {
@@ -333,7 +329,6 @@ const getWork: QueryFunction<IOrcidResponse['getWork']> = async ({ meta, signal 
     headers: {
       'orcid-authorization': `Bearer ${params.user.access_token}`,
     },
-    signal,
   };
 
   const { data } = await api.request<null>(config);

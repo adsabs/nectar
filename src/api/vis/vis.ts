@@ -41,14 +41,13 @@ export const useGetAuthorNetwork: ADSQuery<IADSApiSearchParams, IADSApiAuthorNet
   });
 };
 
-export const fetchAuthorNetwork: QueryFunction<IADSApiAuthorNetworkResponse> = async ({ meta, signal }) => {
+export const fetchAuthorNetwork: QueryFunction<IADSApiAuthorNetworkResponse> = async ({ meta }) => {
   const { params } = meta as { params: IADSApiVisParams };
 
   const config: ApiRequestConfig = {
     method: 'POST',
     url: ApiTargets.SERVICE_AUTHOR_NETWORK,
     data: params,
-    signal,
   };
 
   const { data } = await api.request<IADSApiAuthorNetworkResponse>(config);
@@ -67,14 +66,13 @@ export const useGetPaperNetwork: ADSQuery<IADSApiSearchParams, IADSApiPaperNetwo
   });
 };
 
-export const fetchPaperNetwork: QueryFunction<IADSApiPaperNetworkResponse> = async ({ meta, signal }) => {
+export const fetchPaperNetwork: QueryFunction<IADSApiPaperNetworkResponse> = async ({ meta }) => {
   const { params } = meta as { params: IADSApiVisParams };
 
   const config: ApiRequestConfig = {
     method: 'POST',
     url: ApiTargets.SERVICE_PAPER_NETWORK,
     data: params,
-    signal,
   };
 
   const { data } = await api.request<IADSApiPaperNetworkResponse>(config);
@@ -93,14 +91,13 @@ export const useGetWordCloud: ADSQuery<IADSApiSearchParams, IADSApiWordCloudResp
   });
 };
 
-export const fetchWordCloud: QueryFunction<IADSApiWordCloudResponse> = async ({ meta, signal }) => {
+export const fetchWordCloud: QueryFunction<IADSApiWordCloudResponse> = async ({ meta }) => {
   const { params } = meta as { params: IADSApiWordCloudParams };
 
   const config: ApiRequestConfig = {
     method: 'POST',
     url: ApiTargets.SERVICE_WORDCLOUD,
     data: params,
-    signal,
   };
 
   const { data } = await api.request<IADSApiWordCloudResponse>(config);
@@ -119,14 +116,13 @@ export const useGetResultsGraph: ADSQuery<IADSApiSearchParams, IADSApiSearchResp
   });
 };
 
-export const fetchResultsGraph: QueryFunction<IADSApiSearchResponse> = async ({ meta, signal }) => {
+export const fetchResultsGraph: QueryFunction<IADSApiSearchResponse> = async ({ meta }) => {
   const { params } = meta as { params: IADSApiSearchParams };
 
   const config: ApiRequestConfig = {
     method: 'GET',
     url: ApiTargets.SEARCH,
     params,
-    signal,
   };
 
   const { data } = await api.request<IADSApiSearchResponse>(config);

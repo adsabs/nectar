@@ -88,13 +88,12 @@ export const useGetLibraries: ADSQuery<IADSApiLibraryParams, IADSApiLibraryRespo
   });
 };
 
-export const fetchLibraries: QueryFunction<IADSApiLibraryResponse> = async ({ meta, signal }) => {
+export const fetchLibraries: QueryFunction<IADSApiLibraryResponse> = async ({ meta }) => {
   const { params } = meta as { params: IADSApiLibraryParams };
   const config: ApiRequestConfig = {
     method: 'GET',
     url: ApiTargets.LIBRARIES,
     params,
-    signal,
   };
 
   const { data } = await api.request<IADSApiLibraryResponse>(config);
@@ -135,13 +134,12 @@ export const useGetLibraryEntity: ADSQuery<IADSApiLibraryEntityParams, IADSApiLi
   });
 };
 
-export const fetchLibraryEntity: QueryFunction<IADSApiLibraryEntityResponse> = async ({ meta, signal }) => {
+export const fetchLibraryEntity: QueryFunction<IADSApiLibraryEntityResponse> = async ({ meta }) => {
   const { params } = meta as { params: IADSApiLibraryEntityParams };
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.LIBRARIES}/${params.id}`,
     params: omit(['id'], params),
-    signal,
   };
 
   const { data } = await api.request<IADSApiLibraryEntityResponse>(config);
@@ -312,12 +310,11 @@ export const useGetPermission: ADSQuery<IADSApiLibraryPermissionParams, IADSApiL
   });
 };
 
-export const getPermission: QueryFunction<IADSApiLibraryPermissionResponse> = async ({ meta, signal }) => {
+export const getPermission: QueryFunction<IADSApiLibraryPermissionResponse> = async ({ meta }) => {
   const { params } = meta as { params: IADSApiLibraryPermissionParams };
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.PERMISSIONS}/${params.id}`,
-    signal,
   };
 
   const { data } = await api.request<IADSApiLibraryPermissionResponse>(config);
@@ -393,12 +390,11 @@ export const useGetAnnotation: ADSQuery<IADSApiLibraryGetAnnotationParams, IADSA
   });
 };
 
-export const fetchAnnotation: QueryFunction<IADSApiLibraryGetAnnotationResponse> = async ({ meta, signal }) => {
+export const fetchAnnotation: QueryFunction<IADSApiLibraryGetAnnotationResponse> = async ({ meta }) => {
   const { params } = meta as { params: IADSApiLibraryGetAnnotationParams };
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.LIBRARY_NOTES}/${params.library}/${params.bibcode}`,
-    signal,
   };
 
   const { data } = await api.request<IADSApiLibraryGetAnnotationResponse>(config);

@@ -32,17 +32,13 @@ export const useAuthorAffiliationExport: ExportQuery = (params, options) => {
   });
 };
 
-export const fetchAuthorAffiliationSearch: QueryFunction<IAuthorAffiliationResponse['data']> = async ({
-  meta,
-  signal,
-}) => {
+export const fetchAuthorAffiliationSearch: QueryFunction<IAuthorAffiliationResponse['data']> = async ({ meta }) => {
   const { params } = meta as { params: IAuthorAffiliationPayload };
 
   const config: ApiRequestConfig = {
     method: 'POST',
     url: ApiTargets.AUTHOR_AFFILIATION_SEARCH,
     data: params,
-    signal,
   };
 
   const { data } = await api.request<IAuthorAffiliationResponse>(config);
@@ -50,14 +46,13 @@ export const fetchAuthorAffiliationSearch: QueryFunction<IAuthorAffiliationRespo
   return data.data;
 };
 
-export const fetchAuthorAffiliationExport: QueryFunction<string> = async ({ meta, signal }) => {
+export const fetchAuthorAffiliationExport: QueryFunction<string> = async ({ meta }) => {
   const { params } = meta as { params: IAuthorAffiliationExportPayload };
 
   const config: ApiRequestConfig = {
     method: 'POST',
     url: ApiTargets.AUTHOR_AFFILIATION_EXPORT,
     data: params,
-    signal,
   };
 
   const { data } = await api.request<string>(config);

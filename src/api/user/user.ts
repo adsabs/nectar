@@ -142,12 +142,11 @@ const changeUserEmail = async (credentials: IUserChangeEmailCredentials) => {
   throw new Error('change-email-failed');
 };
 
-export const fetchUserSettings: QueryFunction<IADSApiUserDataResponse> = async ({ signal }) => {
+export const fetchUserSettings: QueryFunction<IADSApiUserDataResponse> = async ({}) => {
   const config = {
     ...defaultRequestConfig,
     method: 'GET',
     url: ApiTargets.USER_DATA,
-    signal,
   };
 
   const { data } = await api.request<IADSApiUserDataResponse>(config);
