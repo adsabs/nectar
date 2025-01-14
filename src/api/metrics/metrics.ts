@@ -86,14 +86,13 @@ export const useGetMetricsTimeSeries: ADSQuery<Bibcode[], IADSApiMetricsResponse
   });
 };
 
-export const fetchMetrics: QueryFunction<IADSApiMetricsResponse> = async ({ meta, signal }) => {
+export const fetchMetrics: QueryFunction<IADSApiMetricsResponse> = async ({ meta }) => {
   const { params } = meta as { params: IADSApiMetricsParams };
 
   const config: ApiRequestConfig = {
     method: 'POST',
     url: ApiTargets.SERVICE_METRICS,
     data: params,
-    signal,
   };
 
   const { data: metrics } = await api.request<IADSApiMetricsResponse>(config);

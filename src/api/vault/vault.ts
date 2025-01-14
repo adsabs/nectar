@@ -87,38 +87,35 @@ export const useVaultBigQuerySearch: ADSQuery<IDocsEntity['bibcode'][], IADSApiV
   });
 };
 
-export const fetchVaultSearch: QueryFunction<IADSApiVaultResponse> = async ({ meta, signal }) => {
+export const fetchVaultSearch: QueryFunction<IADSApiVaultResponse> = async ({ meta }) => {
   const { params } = meta as { params: IADSApiSearchParams };
 
   const config: ApiRequestConfig = {
     method: 'POST',
     url: ApiTargets.MYADS_STORAGE_QUERY,
     data: params,
-    signal,
   };
 
   const { data } = await api.request<IADSApiVaultResponse>(config);
   return data;
 };
 
-export const fetchVaultExecuteQuery: QueryFunction<IADSApiSearchResponse['response']> = async ({ meta, signal }) => {
+export const fetchVaultExecuteQuery: QueryFunction<IADSApiSearchResponse['response']> = async ({ meta }) => {
   const { params } = meta as { params: IADSVaultExecuteQueryParams };
 
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.MYADS_STORAGE}/execute_query/${params.qid}`,
-    signal,
   };
 
   const { data } = await api.request<IADSApiSearchResponse['response']>(config);
   return data;
 };
 
-export const fetchLibraryLinkServers: QueryFunction<IADSApiLibraryLinkServersResponse> = async ({ signal }) => {
+export const fetchLibraryLinkServers: QueryFunction<IADSApiLibraryLinkServersResponse> = async ({}) => {
   const config: ApiRequestConfig = {
     method: 'GET',
     url: ApiTargets.LINK_SERVERS,
-    signal,
   };
 
   const { data } = await api.request<IADSApiLibraryLinkServersResponse>(config);
@@ -145,11 +142,10 @@ export const useGetNotifications = (options?: UseQueryOptions<IADSApiNotificatio
   });
 };
 
-export const fetchNotifications: QueryFunction<IADSApiNotificationsReponse> = async ({ signal }) => {
+export const fetchNotifications: QueryFunction<IADSApiNotificationsReponse> = async ({}) => {
   const config: ApiRequestConfig = {
     method: 'GET',
     url: ApiTargets.MYADS_NOTIFICATIONS,
-    signal,
   };
 
   const { data } = await api.request<IADSApiNotificationsReponse>(config);
@@ -170,12 +166,11 @@ export const useGetNotification: ADSQuery<IADSApiNotificationParams, IADSApiNoti
   });
 };
 
-export const fetchNotification: QueryFunction<IADSApiNotificationReponse> = async ({ meta, signal }) => {
+export const fetchNotification: QueryFunction<IADSApiNotificationReponse> = async ({ meta }) => {
   const { params } = meta as { params: IADSApiNotificationParams };
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.MYADS_NOTIFICATIONS}/${params.id.toString()}`,
-    signal,
   };
 
   const { data } = await api.request<IADSApiNotificationReponse>(config);
@@ -269,12 +264,11 @@ export const useGetNotificationQuery: ADSQuery<IADSApiNotificationQueryParams, I
   });
 };
 
-export const fetchNotificationQuery: QueryFunction<IADSApiNotificationQueryResponse> = async ({ meta, signal }) => {
+export const fetchNotificationQuery: QueryFunction<IADSApiNotificationQueryResponse> = async ({ meta }) => {
   const { params } = meta as { params: IADSApiNotificationParams };
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.MYADS_NOTIFICATIONS_QUERY}/${params.id.toString()}`,
-    signal,
   };
 
   const { data } = await api.request<IADSApiNotificationQueryResponse>(config);

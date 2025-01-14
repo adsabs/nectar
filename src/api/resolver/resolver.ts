@@ -21,14 +21,13 @@ export const useResolverQuery: ADSQuery<IADSApiResolverParams, IADSApiResolverRe
   });
 };
 
-export const fetchLinks: QueryFunction<IADSApiResolverResponse> = async ({ meta, signal }) => {
+export const fetchLinks: QueryFunction<IADSApiResolverResponse> = async ({ meta }) => {
   const { params } = meta as { params: IADSApiResolverParams };
 
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.RESOLVER}/${params.bibcode}/${params.link_type}`,
     validateStatus: (status) => status === 200 || status === 404,
-    signal,
   };
 
   const { data } = await api.request<IADSApiResolverResponse>(config);

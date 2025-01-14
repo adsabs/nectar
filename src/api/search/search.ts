@@ -393,7 +393,7 @@ export const fetchBigQuerySearch: MutationFunction<IADSApiSearchResponse['respon
  *
  * @returns {Promise<IADSApiSearchResponse>} - A promise that resolves to the search response data.
  */
-export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta, signal }) => {
+export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta }) => {
   const { params } = meta as { params: IADSApiSearchParams };
 
   const finalParams = { ...params };
@@ -406,7 +406,6 @@ export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta, 
     method: 'GET',
     url: ApiTargets.SEARCH,
     params: finalParams,
-    signal,
   };
   const { data } = await api.request<IADSApiSearchResponse>(config);
   return data;
@@ -428,7 +427,7 @@ export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta, 
 export const fetchSearchSSR = async (
   params: IADSApiSearchParams,
   ctx: GetServerSidePropsContext,
-  { signal }: QueryFunctionContext,
+  {}: QueryFunctionContext,
 ) => {
   const finalParams = { ...params };
 
@@ -447,7 +446,6 @@ export const fetchSearchSSR = async (
     method: 'GET',
     url: ApiTargets.SEARCH,
     params: finalParams,
-    signal,
     headers: {
       ...defaultRequestConfig.headers,
       Authorization: `Bearer ${token}`,
@@ -462,7 +460,6 @@ export const fetchSearchSSR = async (
 export const fetchSearchInfinite: QueryFunction<IADSApiSearchResponse & { pageParam: string }> = async ({
   meta,
   pageParam = '*',
-  signal,
 }: QueryFunctionContext<QueryKey, string>) => {
   const { params } = meta as { params: IADSApiSearchParams };
 
@@ -479,7 +476,6 @@ export const fetchSearchInfinite: QueryFunction<IADSApiSearchResponse & { pagePa
       ...finalParams,
       cursorMark: pageParam,
     } as IADSApiSearchParams,
-    signal,
   };
   const { data } = await api.request<IADSApiSearchResponse>(config);
 
