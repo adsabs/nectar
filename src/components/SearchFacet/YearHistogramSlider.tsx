@@ -29,7 +29,7 @@ const Component = ({ onQueryUpdate, width, height, onExpand, expanded }: IYearHi
   // query without the year range filter, to show all years on the histogram
   const cleanedQuery = useMemo(() => {
     const q = JSON.parse(JSON.stringify(query)) as IADSApiSearchParams;
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+
     return q.fq ? (removeFQ(fqNameYearRange, q) as IADSApiSearchParams) : q;
   }, [query]);
 

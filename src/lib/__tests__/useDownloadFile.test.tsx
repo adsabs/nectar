@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { useDownloadFile } from '@/lib/useDownloadFile';
 import { act, renderHook } from '@testing-library/react';
 import { saveAs } from 'file-saver';

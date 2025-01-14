@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-
 const bypassStrings = ['sentry.io', '_next', '__next', 'site.webmanifest', 'favicon'];
 
 const startMsw = async () => {

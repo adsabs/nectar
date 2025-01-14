@@ -184,7 +184,6 @@ export const BubblePlot = ({
         [width, height],
       ])
       .on('end', (event) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const e = event as D3BrushEvent<IBubbleNode>;
         const extent = e.selection;
 
