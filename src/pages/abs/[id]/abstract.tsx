@@ -425,7 +425,9 @@ const Detail = <T,>(props: IDetailProps<T>): ReactElement => {
             {normalizedValue}
           </SimpleLink>
         )}
-        {typeof children === 'function' ? children(value) : !href && normalizedValue}
+        {typeof children === 'function'
+          ? children(value)
+          : !href && <span dangerouslySetInnerHTML={{ __html: normalizedValue }} />}
         {copiable && <SimpleCopyButton text={normalizedValue as string} size="xs" variant="outline" mx={2} />}
       </Td>
     </Tr>
