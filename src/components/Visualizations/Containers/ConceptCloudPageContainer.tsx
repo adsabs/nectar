@@ -1,8 +1,7 @@
 import { Box, Flex, Text, useBreakpointValue } from '@chakra-ui/react';
-
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { ReactElement, Reducer, useMemo, useReducer } from 'react';
+import { ReactElement, Reducer, useCallback, useMemo, useReducer } from 'react';
 import { ISliderRange } from '../types';
 import { buildWCDict } from '../utils';
 import { FilterSearchBar, IFilterSearchBarProps } from '../Widgets';
@@ -14,6 +13,7 @@ import { SimpleLink } from '@/components/SimpleLink';
 import { makeSearchParams } from '@/utils/common/search';
 import { IADSApiSearchParams } from '@/api/search/types';
 import { useGetWordCloud } from '@/api/vis/vis';
+import { DataDownloader } from '@/components/DataDownloader';
 
 const MAX_ROWS_TO_FETCH = 100;
 
@@ -83,6 +83,14 @@ export const ConceptCloudPageContainer = ({ query }: IConceptCloudPageContainerP
     { enabled: !!query && !!query.q && query.q.length > 0 },
   );
 
+  const getCSVDataContent = useCallback(() => {
+    let output = 'Word, Idf, Record Count, Total Occurrences\n';
+    Object.entries(data).map(([key, value]) => {
+      output += `"${key}","${value.idf}","${value.record_count}","${value.total_occurrences}"\n`;
+    });
+    return output;
+  }, [data]);
+
   // build the word list for graph
   const { wordList, fill } = useMemo(() => {
     if (!data) {
@@ -132,7 +140,7 @@ export const ConceptCloudPageContainer = ({ query }: IConceptCloudPageContainerP
       )}
       {isLoading && <LoadingMessage message="Fetching concept cloud data" />}
       {!isLoading && isSuccess && data && (
-        <Box>
+        <Flex direction="column" gap={2}>
           <Expandable
             title="About Concept Cloud"
             description={
@@ -158,6 +166,13 @@ export const ConceptCloudPageContainer = ({ query }: IConceptCloudPageContainerP
               </Flex>
             }
           />
+          {data && (
+            <DataDownloader
+              label="Download CSV Data"
+              getFileContent={() => getCSVDataContent()}
+              fileName="word-cloud.csv"
+            />
+          )}
           <FilterSearchBar
             tagItems={filterTagItems}
             onRemove={(tag) => dispatch({ type: 'REMOVE_FILTER', payload: tag.id as string })}
@@ -176,7 +191,7 @@ export const ConceptCloudPageContainer = ({ query }: IConceptCloudPageContainerP
             currentSliderValue={state.currentSliderValue}
             selectedWords={state.filters}
           />
-        </Box>
+        </Flex>
       )}
     </Box>
   );
