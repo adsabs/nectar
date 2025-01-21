@@ -14,6 +14,7 @@ import {
   ModalOverlay,
   Stack,
   Text,
+  useToast,
 } from '@chakra-ui/react';
 import { IFacetListProps, LogicSelect } from '@/components/SearchFacet/FacetList';
 import { AlphaSorter } from '@/components/SearchFacet/SearchFacetModal/AlphaSorter';
@@ -24,6 +25,10 @@ import { ReactElement, ReactNode, useCallback, useMemo } from 'react';
 import { keyToPath, parseTitleFromKey } from '../helpers';
 import { SelectedList } from './SelectedList';
 import { useDebounce } from '@/lib/useDebounce';
+import { FACET_DEFAULT_PREFIX, useGetFacetData } from '../useGetFacetData';
+import { pluck } from 'ramda';
+import { DataDownloader } from '@/components/DataDownloader';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 
 interface ISearchFacetModalProps extends Omit<IFacetListProps, 'onError'> {
   children: (props: { searchTerm: string }) => ReactNode;
@@ -70,6 +75,32 @@ const ModalFacet = (props: ISearchFacetModalProps) => {
   const setLetter = useFacetStore((state) => state.setLetter);
   const { searchTerm, search, letter, sort } = useGetSearchTerm();
 
+  const toast = useToast({ duration: 2000 });
+
+  const downloadable = !params.field.endsWith('_hier');
+
+  const { treeData, isFetched, error } = useGetFacetData({
+    ...params,
+    searchTerm: undefined,
+    prefix: FACET_DEFAULT_PREFIX,
+    level: 'root',
+    sortDir: sort[1],
+    offset: 0,
+    limit: 2000,
+  });
+
+  const getFullList = useCallback(() => {
+    if (isFetched && !error) {
+      const data = pluck('val', treeData);
+      let output = '';
+      data.forEach((d) => (output += `${d}\n`));
+      return output;
+    } else if (error) {
+      toast({ status: 'error', title: 'Failed to get the list.', description: parseAPIError(error) });
+      return '';
+    }
+  }, [isFetched, error, toast, treeData]);
+
   return (
     <>
       <ModalHeader>
@@ -102,6 +133,12 @@ const ModalFacet = (props: ISearchFacetModalProps) => {
             ) : null}
           </>
           <UnExpandButton />
+
+          {downloadable && (
+            <Flex direction="row" justifyContent="end">
+              <DataDownloader label="Download full list" getFileContent={getFullList} fileName="fulllist.txt" />
+            </Flex>
+          )}
           {children({ searchTerm })}
         </Flex>
       </ModalBody>

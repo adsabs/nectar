@@ -31,6 +31,10 @@ export const useDownloadFile = (value: string | (() => string), options: IUseDow
   }, [value, type]);
 
   const onDownload = useCallback(() => {
+    if (href === '') {
+      return;
+    }
+
     setIsDownloading(true);
 
     if (type === 'BROWSER') {

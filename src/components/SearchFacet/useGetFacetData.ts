@@ -23,6 +23,8 @@ export interface IUseGetFacetDataProps {
   enabled?: boolean;
   hasChildren?: boolean;
   searchTerm?: string;
+  limit?: number;
+  offset?: number;
 }
 
 export const FACET_DEFAULT_LIMIT = 10;
@@ -43,6 +45,8 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
     hasChildren = false,
     filter = [],
     searchTerm,
+    limit,
+    offset,
   } = props;
 
   const [pagination, setPagination] = useState(() => calculatePagination({ page: 0, numPerPage: FACET_DEFAULT_LIMIT }));
@@ -64,7 +68,8 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
         level,
         sortField,
         sortDir,
-        offset: pagination.startIndex,
+        offset: offset ?? pagination.startIndex,
+        limit,
         hasChildren,
         searchTerm,
       }),
@@ -202,7 +207,7 @@ const getPrefix = (key: string, searchTerm: string) => {
   return `${level + 1}${key.slice(1)}/${searchTerm}`;
 };
 
-const getSearchFacetParams = (props: IUseGetFacetDataProps & { offset: number }) => {
+const getSearchFacetParams = (props: IUseGetFacetDataProps & { offset: number; limit?: number }) => {
   if (!props?.field) {
     return '';
   }
@@ -211,7 +216,7 @@ const getSearchFacetParams = (props: IUseGetFacetDataProps & { offset: number })
     [props.field]: {
       type: 'terms',
       field: props.field,
-      limit: FACET_DEFAULT_LIMIT,
+      limit: props.limit ?? FACET_DEFAULT_LIMIT,
       mincount: 1,
       offset: props.offset,
       numBuckets: true,
