@@ -120,6 +120,18 @@ const SearchPage: NextPage = () => {
   const [width, setWidth] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
 
+  // watch for route changes and update the query
+  useEffect(() => {
+    const handleRouteChange = (url: string) => {
+      updateQuery(parseQueryFromUrl(url));
+    };
+
+    router.events.on('routeChangeStart', handleRouteChange);
+    return () => {
+      router.events.off('routeChangeStart', handleRouteChange);
+    };
+  }, [router, updateQuery]);
+
   useEffect(() => {
     if (ref.current) {
       setWidth(ref.current.offsetWidth - 20);
