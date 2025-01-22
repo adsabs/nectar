@@ -34,9 +34,18 @@ describe('Classic Form Query Handling', () => {
     ['foo\n=bar\n-baz', 'and', 'author:(foo =bar -baz)'],
     ['foo$', 'and', 'author:(foo) author_count:1'],
     ['foo$', 'or', 'author:(foo) author_count:1'],
-    ['foo$\nbar\n-baz', 'boolean', 'author:(foo OR bar OR -baz) author_count:1'],
+    ['foo$\nbar\n-baz', 'boolean', 'author:(foo bar -baz) author_count:1'],
     ['=foo$', 'and', 'author:(=foo) author_count:1'],
-    ['foo\nbar$\nbaz', 'and', 'author:(foo OR bar OR baz) author_count:1'],
+    ['foo\nbar$\nbaz', 'and', 'author:(foo bar baz) author_count:1'],
+    ['^foo\n^bar\nbaz', 'and', 'author:(baz) first_author:(foo bar)'],
+    ['^foo, a\n^foo, b\nbaz', 'and', 'author:(baz) first_author:("foo, a" "foo, b")'],
+    ['^foo, a\n^foo, b$\nbaz', 'and', 'author:(baz) first_author:("foo, a" "foo, b") author_count:1'],
+    ['    foo     \n   baz   \n  ^baz  ', 'and', 'author:(foo baz) first_author:(baz)'],
+    ['-foo', 'and', 'author:(-foo)'],
+    ['foo\n-bar\n=baz', 'and', 'author:(foo -bar =baz)'],
+    ['foo@bar.com', 'and', 'author:("foo@bar.com")'],
+    ['foo bar', 'and', 'author:("foo bar")'],
+    ['foo-bar', 'and', 'author:("foo-bar")'],
   ])('getAuthor(%s, %s) -> %s', (author, logic, expected) => expect(getAuthor(author, logic)).toBe(expected));
 
   // object
