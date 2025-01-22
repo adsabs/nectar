@@ -22,12 +22,14 @@ import {
   length,
   lt,
   map,
+  partition,
   pipe,
   propEq,
   reject,
   replace,
   split,
   splitAt,
+  startsWith,
   T,
   tail,
   test,
@@ -52,7 +54,7 @@ const logicJoin = (logic: LogicChoice) => pipe(join(logic === 'or' ? ' OR ' : ' 
 const wrapWithField = curry((field: string, value: string) => `${field}:(${value})`);
 const notWrapWithField = curry((field: string, value: string) => `-${wrapWithField(field, value)}`);
 const quoteWrap = curry((prefix: string, v: string) => `${prefix}${quoteTerm(v)}`);
-const splitList = split(/[\r\n]/g);
+const splitList = pipe(split(/[\r\n]/g), map(trim));
 const joinItemsWithLogic = (logic: LogicChoice) => pipe(getLogic, logicJoin)(logic);
 const quoteTerm = (term: string) => (/[^A-z]/.test(term) ? `"${term}"` : term);
 const hasPrefix = (prefix: Array<string>) => test(new RegExp(`^[${prefix.join('')}]`));
@@ -154,9 +156,34 @@ export const getLogic = (logic: LogicChoice): LogicChoice => {
  * getAuthor('foo/nbar', 'and'); // author:("foo" "bar")
  * getAuthor('-foo/nbar', 'or'); // author:(-"foo" OR "bar")
  * getAuthor('foo$', 'and'); // author:"foo" author_count:1
+ * getAuthor('^foo', 'and'); // first_author:("foo") author_count:1
  */
-export const getAuthor = (author: string, logic: LogicChoice) =>
-  unless(
+export const getAuthor = (author: string, logic: LogicChoice) => {
+  const parseAndFormat = (list: Array<string>): string => {
+    const [firstAuthors, otherAuthors] = partition(startsWith('^'), list);
+    const firstAuthorResult = isEmpty(firstAuthors)
+      ? undefined
+      : pipe(
+          map(replace(/^\^/, '')),
+          parsePrefixesAndWrapItems,
+          joinItemsWithLogic(logic),
+          wrapWithField('first_author'),
+        )(firstAuthors);
+
+    const otherAuthorResult = isEmpty(otherAuthors)
+      ? undefined
+      : pipe(parsePrefixesAndWrapItems, joinItemsWithLogic(logic), wrapWithField('author'))(otherAuthors);
+
+    if (!firstAuthorResult && typeof otherAuthorResult === 'string') {
+      return otherAuthorResult;
+    }
+    if (!otherAuthorResult && typeof firstAuthorResult === 'string') {
+      return firstAuthorResult;
+    }
+    return [otherAuthorResult, firstAuthorResult].join(' ');
+  };
+
+  return unless(
     isNilOrEmpty,
     pipe(
       trim,
@@ -168,17 +195,19 @@ export const getAuthor = (author: string, logic: LogicChoice) =>
           replace(/\$/g, ''),
           splitList,
           reject(isEmpty),
-          parsePrefixesAndWrapItems,
-          joinItemsWithLogic('or'),
-          wrapWithField('author'),
-          (v: string) => `${v} author_count:1`,
+          ifElse(
+            isEmpty,
+            emptyStr,
+            pipe(parseAndFormat, (v: string) => `${v} author_count:1`),
+          ),
         ),
 
-        // no $, so just parse normally
-        pipe(splitList, reject(isEmpty), parsePrefixesAndWrapItems, joinItemsWithLogic(logic), wrapWithField('author')),
+        // not single-author search, parse prefixes and wrap items
+        pipe(splitList, reject(isEmpty), parseAndFormat),
       ),
     ),
   )(author);
+};
 
 /**
  * Parse object list
