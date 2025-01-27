@@ -1,4 +1,4 @@
-import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
+import { ChevronLeftIcon, ChevronRightIcon, DownloadIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
@@ -21,13 +21,13 @@ import { AlphaSorter } from '@/components/SearchFacet/SearchFacetModal/AlphaSort
 import { SearchInput } from '@/components/SearchFacet/SearchFacetModal/SearchInput';
 import { SortControl } from '@/components/SearchFacet/SearchFacetModal/SortControl';
 import { useFacetStore } from '@/components/SearchFacet/store/FacetStore';
-import { ReactElement, ReactNode, useCallback, useMemo } from 'react';
+import { ReactElement, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { keyToPath, parseTitleFromKey } from '../helpers';
 import { SelectedList } from './SelectedList';
 import { useDebounce } from '@/lib/useDebounce';
 import { FACET_DEFAULT_PREFIX, useGetFacetData } from '../useGetFacetData';
-import { pluck } from 'ramda';
-import { DataDownloader } from '@/components/DataDownloader';
+import { useDownloadFile } from '@/lib/useDownloadFile';
+import { join, pipe, pluck } from 'ramda';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 
 interface ISearchFacetModalProps extends Omit<IFacetListProps, 'onError'> {
@@ -75,32 +75,6 @@ const ModalFacet = (props: ISearchFacetModalProps) => {
   const setLetter = useFacetStore((state) => state.setLetter);
   const { searchTerm, search, letter, sort } = useGetSearchTerm();
 
-  const toast = useToast({ duration: 2000 });
-
-  const downloadable = !params.field.endsWith('_hier');
-
-  const { treeData, isFetched, error } = useGetFacetData({
-    ...params,
-    searchTerm: undefined,
-    prefix: FACET_DEFAULT_PREFIX,
-    level: 'root',
-    sortDir: sort[1],
-    offset: 0,
-    limit: 2000,
-  });
-
-  const getFullList = useCallback(() => {
-    if (isFetched && !error) {
-      const data = pluck('val', treeData);
-      let output = '';
-      data.forEach((d) => (output += `${d}\n`));
-      return output;
-    } else if (error) {
-      toast({ status: 'error', title: 'Failed to get the list.', description: parseAPIError(error) });
-      return '';
-    }
-  }, [isFetched, error, toast, treeData]);
-
   return (
     <>
       <ModalHeader>
@@ -133,12 +107,7 @@ const ModalFacet = (props: ISearchFacetModalProps) => {
             ) : null}
           </>
           <UnExpandButton />
-
-          {downloadable && (
-            <Flex direction="row" justifyContent="end">
-              <DataDownloader label="Download full list" getFileContent={getFullList} fileName="fulllist.txt" />
-            </Flex>
-          )}
+          <FacetDownloadButton />
           {children({ searchTerm })}
         </Flex>
       </ModalBody>
@@ -198,4 +167,60 @@ const UnExpandButton = () => {
       <Divider />
     </Stack>
   );
+};
+
+const FacetDownloadButton = () => {
+  const [enabled, setEnabled] = useState(false);
+  const toast = useToast({ duration: 2000, id: 'facet-download' });
+  const params = useFacetStore((state) => state.params);
+  const { sort } = useGetSearchTerm();
+  const isDownloadable = !params.field.endsWith('_hier');
+
+  const { treeData, isSuccess, error, isFetching } = useGetFacetData({
+    ...params,
+    searchTerm: undefined,
+    prefix: FACET_DEFAULT_PREFIX,
+    level: 'root',
+    sortDir: sort[1],
+    offset: 0,
+    limit: 2000,
+    enabled,
+  });
+
+  const formatData = useCallback(() => pipe(pluck('val'), join('\n'))(treeData), [treeData]);
+
+  const { onDownload } = useDownloadFile(formatData, { filename: 'fulllist.txt' });
+
+  useEffect(() => {
+    if (enabled && isSuccess) {
+      setEnabled(false);
+      if (!toast.isActive('facet-download')) {
+        toast({ status: 'success', title: 'Download complete.' });
+      }
+      onDownload();
+    }
+    if (error) {
+      if (!toast.isActive('facet-download')) {
+        toast({ status: 'error', title: 'Failed to get the list.', description: parseAPIError(error) });
+      }
+    }
+  }, [treeData, error, isSuccess, toast, onDownload, enabled]);
+
+  if (isDownloadable) {
+    return (
+      <Flex direction="row" justifyContent="end">
+        <Button
+          w="fit-content"
+          onClick={() => setEnabled(true)}
+          variant="ghost"
+          fontSize="md"
+          leftIcon={<DownloadIcon aria-hidden />}
+          isLoading={isFetching}
+        >
+          <Text>Download full list</Text>
+        </Button>
+      </Flex>
+    );
+  }
+  return null;
 };
