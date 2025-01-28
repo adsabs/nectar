@@ -1,13 +1,14 @@
 import { CheckIcon, DownloadIcon } from '@chakra-ui/icons';
-import { Button, HStack, Spinner, Stack, StackProps, Textarea, useBreakpointValue } from '@chakra-ui/react';
+import { Box, Button, HStack, Spinner, Stack, StackProps, Textarea, useBreakpointValue, Text } from '@chakra-ui/react';
 import { useDownloadFile } from '@/lib/useDownloadFile';
 import { useIsClient } from '@/lib/useIsClient';
-import { exportFormats } from '../models';
+import { citationFormatIds, exportFormats } from '../models';
 import { LabeledCopyButton } from '@/components/CopyButton';
 
 import { sendGTMEvent } from '@next/third-parties/google';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { ExportApiFormatKey } from '@/api/export/types';
+import { LoadingMessage } from '@/components/Feedbacks';
 
 export const ResultArea = ({
   result = '',
@@ -29,6 +30,7 @@ export const ResultArea = ({
       });
     },
   });
+  const colors = useColorModeColors();
   const isFullWidth = useBreakpointValue([true, false]);
   const isClient = useIsClient();
   const { panel: textAreaBackgroundColor } = useColorModeColors();
@@ -63,17 +65,38 @@ export const ResultArea = ({
           />
         </HStack>
       )}
-      <Textarea
-        readOnly
-        fontSize={['xs', 'sm']}
-        resize="none"
-        minH={['xs', 'sm']}
-        bgColor={textAreaBackgroundColor}
-        fontFamily="monospace"
-        fontWeight="semibold"
-        value={result.length > 0 ? result : isLoading ? 'Loading...' : 'Press "submit" to generate export.'}
-        data-testid="export-output"
-      />
+      {citationFormatIds.includes(format) ? (
+        <>
+          {result.length > 0 ? (
+            <Box
+              fontWeight="medium"
+              dangerouslySetInnerHTML={{ __html: result }}
+              overflowY="scroll"
+              maxHeight="72"
+              border="1px"
+              borderRadius="md"
+              borderColor={colors.border}
+              padding={2}
+            />
+          ) : isLoading ? (
+            <LoadingMessage message="Loading" />
+          ) : (
+            <Text>{`Press "submit" to generate export.`}</Text>
+          )}
+        </>
+      ) : (
+        <Textarea
+          readOnly
+          fontSize={['xs', 'sm']}
+          resize="none"
+          minH={['xs', 'sm']}
+          bgColor={textAreaBackgroundColor}
+          fontFamily="monospace"
+          fontWeight="semibold"
+          value={result.length > 0 ? result : isLoading ? 'Loading...' : 'Press "submit" to generate export.'}
+          data-testid="export-output"
+        />
+      )}
     </Stack>
   );
 };
