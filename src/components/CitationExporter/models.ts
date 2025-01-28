@@ -1,5 +1,6 @@
 import { SelectOption } from '@/components/Select';
 import { ExportApiFormatKey } from '@/api/export/types';
+import { pick } from 'ramda';
 
 export type ExportFormat = SelectOption<ExportApiFormatKey> & { ext: string };
 
@@ -166,3 +167,5 @@ export const exportFormats: Record<ExportApiFormatKey, ExportFormat> = {
     value: 'votable',
   },
 };
+
+export const citationFormats = pick(['agu', 'ams', 'gsa'], exportFormats);

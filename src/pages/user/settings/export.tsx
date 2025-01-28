@@ -13,7 +13,12 @@ import { isNotEmpty } from 'ramda-adjunct';
 import { logger } from '@/logger';
 import { exportFormats } from '@/components/CitationExporter';
 import { SettingsLayout } from '@/components/Layout';
-import { BibtexTabPanel, CustomFormatsTabPanel, GeneralTabPanel } from '@/components/Settings';
+import {
+  BibtexTabPanel,
+  CustomFormatsTabPanel,
+  GeneralTabPanel,
+  QuickExportFormatTabPane,
+} from '@/components/Settings';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { CustomFormat, IADSApiUserDataResponse, JournalFormatName, UserDataKeys } from '@/api/user/types';
 import { getSearchParams } from '@/api/search/models';
@@ -27,6 +32,7 @@ type UserDataSetterState = Partial<IADSApiUserDataResponse>;
 
 export type UserDataSetterEvent =
   | { type: 'SET_DEFAULT_EXPORT_FORMAT'; payload: string }
+  | { type: 'SET_DEFAULT_CITATION_FORMAT'; payload: string }
   | { type: 'ADD_CUSTOM_FORMAT'; payload: { currentFormats: CustomFormat[]; name: string; code: string } }
   | { type: 'EDIT_CUSTOM_FORMAT'; payload: { currentFormats: CustomFormat[]; id: string; name: string; code: string } }
   | { type: 'DELETE_CUSTOM_FORMAT'; payload: { currentFormats: CustomFormat[]; id: string } }
@@ -47,6 +53,8 @@ const reducer: Reducer<UserDataSetterState, UserDataSetterEvent> = (state, actio
   switch (action.type) {
     case 'SET_DEFAULT_EXPORT_FORMAT':
       return { [UserDataKeys.DEFAULT_EXPORT_FORMAT]: action.payload };
+    case 'SET_DEFAULT_CITATION_FORMAT':
+      return { [UserDataKeys.DEFAULT_CITATION_FORMAT]: action.payload };
     case 'ADD_CUSTOM_FORMAT':
       return {
         [UserDataKeys.CUSTOM_FORMATS]: [
@@ -165,6 +173,7 @@ const ExportSettings = () => {
         <Tab>Default Format</Tab>
         <Tab>Custom Formats</Tab>
         <Tab>BibTeX</Tab>
+        <Tab>Default Copy Citation Format</Tab>
       </TabList>
       <TabPanels>
         <TabPanel px={{ base: 0, sm: '2' }}>
@@ -175,6 +184,9 @@ const ExportSettings = () => {
         </TabPanel>
         <TabPanel px={{ base: 0, sm: '2' }}>
           <BibtexTabPanel sampleBib={sampleBib} dispatch={dispatch} />
+        </TabPanel>
+        <TabPanel px={{ base: 0, sm: '2' }}>
+          <QuickExportFormatTabPane sampleBib={sampleBib} dispatch={dispatch} />
         </TabPanel>
       </TabPanels>
     </Tabs>
