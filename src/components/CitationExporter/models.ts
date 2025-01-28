@@ -168,4 +168,6 @@ export const exportFormats: Record<ExportApiFormatKey, ExportFormat> = {
   },
 };
 
-export const citationFormats = pick(['agu', 'ams', 'gsa'], exportFormats);
+export const citationFormatIds = [ExportApiFormatKey.agu, ExportApiFormatKey.ams, ExportApiFormatKey.gsa];
+
+export const citationFormats = pick(citationFormatIds, exportFormats);
