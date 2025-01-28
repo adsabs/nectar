@@ -7,9 +7,9 @@ import { useHighlights } from './useHighlights';
 import { IDocsEntity } from '@/api/search/types';
 import { useGetExportCitation } from '@/api/export/export';
 import { useSettings } from '@/lib/useSettings';
-import { ExportApiFormatKey } from '@/api/export/types';
-import { exportFormats } from '../CitationExporter';
+import { citationFormats } from '../CitationExporter';
 import { logger } from '@/logger';
+import { values } from 'ramda';
 
 export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
   docs: IDocsEntity[];
@@ -44,19 +44,17 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
   const { highlights, showHighlights, isFetchingHighlights } = useHighlights();
 
   const { settings } = useSettings();
-  const { defaultExportFormat, customFormats } = settings;
+  const { defaultCitationFormat } = settings;
 
   const bibcodes = docs.map((d) => d.bibcode).sort();
 
   const { data: citationData } = useGetExportCitation(
     {
-      // format: values(exportFormats).find((f) => f.label === defaultExportFormat).id,
-      format: ExportApiFormatKey.agu,
-      customFormat: defaultExportFormat === exportFormats.custom.label ? customFormats[0].code : undefined,
+      format: values(citationFormats).find((f) => f.value === defaultCitationFormat).id,
       bibcode: bibcodes,
       sort: ['bibcode asc'],
     },
-    { enabled: !!settings?.defaultExportFormat },
+    { enabled: !!settings?.defaultCitationFormat },
   );
 
   // a map from bibcode to citation

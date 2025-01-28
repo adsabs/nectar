@@ -40,7 +40,7 @@ import { composeNextGSSP } from '@/ssr-utils';
 import { MathJax } from 'better-react-mathjax';
 import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
-import { equals, isNil, path } from 'ramda';
+import { equals, isNil, path, values } from 'ramda';
 import { memo, ReactElement, useState } from 'react';
 import { useRouter } from 'next/router';
 import { FolderPlusIcon } from '@heroicons/react/24/solid';
@@ -62,11 +62,12 @@ import { fetchSearchSSR, searchKeys, useGetAbstract } from '@/api/search/search'
 import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
 import { getAbstractParams } from '@/api/search/models';
 import { useGetExportCitation } from '@/api/export/export';
-import { ExportFormat } from '@/components/CitationExporter';
+import { citationFormats, ExportFormat } from '@/components/CitationExporter';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faQuoteLeft } from '@fortawesome/free-solid-svg-icons';
-import { Select, SelectOption } from '@/components/Select';
+import { Select } from '@/components/Select';
 import { LoadingMessage } from '@/components/Feedbacks';
+import { useSettings } from '@/lib/useSettings';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   () =>
@@ -252,25 +253,15 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
 };
 
 const CitationModal = ({ isOpen, onClose, bibcode }: { isOpen: boolean; onClose: () => void; bibcode: string }) => {
-  const options = [
-    {
-      id: 'agu',
-      label: 'AGU',
-      value: 'agu',
-    },
-    {
-      id: 'ams',
-      label: 'AMS',
-      value: 'ams',
-    },
-    {
-      id: 'gsa',
-      label: 'GSA',
-      value: 'gsa',
-    },
-  ]; // hardcoded for now
+  const { settings } = useSettings();
 
-  const [selectedOption, setSelectedOption] = useState(options[0]); // TODO: use settings default here
+  const options = values(citationFormats);
+
+  const defaultOption = settings.defaultCitationFormat
+    ? options.find((option) => option.value === settings.defaultCitationFormat)
+    : options.find((option) => option.id === 'agu');
+
+  const [selectedOption, setSelectedOption] = useState(defaultOption);
 
   const { data, isLoading, isError, error } = useGetExportCitation(
     {
@@ -287,14 +278,14 @@ const CitationModal = ({ isOpen, onClose, bibcode }: { isOpen: boolean; onClose:
         <ModalHeader></ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <Select<SelectOption<string>>
+          <Select
             name="format"
             label="Citation Format"
             hideLabel
             id="citation-format-selector"
             options={options}
             value={selectedOption}
-            onChange={(v) => setSelectedOption(v)}
+            onChange={(o) => setSelectedOption(o)}
             stylesTheme="default.sm"
           />
           <Box my={6}>
