@@ -9,7 +9,8 @@ import {
   useClipboard,
   UseClipboardOptions,
 } from '@chakra-ui/react';
-import { ReactElement, useEffect } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
+import CopyToClipboard from 'react-copy-html-to-clipboard';
 
 export interface ICopyButtonProps extends ButtonProps {
   text: string;
@@ -43,30 +44,35 @@ export const SimpleCopyButton = (props: ICopyButtonProps): ReactElement => {
   );
 };
 
-export const LabeledCopyButton = (props: ICopyButtonProps & { label: string }): ReactElement => {
-  const { label, text, options, onCopyComplete, iconPos = 'left', ...rest } = props;
-  const { hasCopied, onCopy, setValue } = useClipboard(text, options);
-
-  useEffect(() => {
-    setValue(text);
-  }, [text]);
+export const LabeledCopyButton = (props: ICopyButtonProps & { label: string; asHtml?: boolean }): ReactElement => {
+  const { label, text, options, onCopyComplete, iconPos = 'left', asHtml = false, ...rest } = props;
+  const [hasCopied, setHasCopied] = useState(false);
+  const handleCopied = () => {
+    setHasCopied(true);
+    onCopyComplete();
+  };
 
   useEffect(() => {
     if (hasCopied) {
-      onCopyComplete?.();
+      const timeoutId = setTimeout(() => {
+        setHasCopied(false);
+      }, 2000);
+
+      return () => clearTimeout(timeoutId);
     }
   }, [hasCopied]);
 
   return (
-    <Button
-      variant="link"
-      aria-label="copy to clipboard"
-      onClick={onCopy}
-      {...(iconPos === 'left' ? { leftIcon: <CopyIcon /> } : { rightIcon: <CopyIcon /> })}
-      {...rest}
-    >
-      {hasCopied ? 'Copied to clipboard!' : label}
-    </Button>
+    <CopyToClipboard text={text} onCopy={handleCopied} options={{ asHtml: asHtml }}>
+      <Button
+        variant="link"
+        aria-label="copy to clipboard"
+        {...(iconPos === 'left' ? { leftIcon: <CopyIcon /> } : { rightIcon: <CopyIcon /> })}
+        {...rest}
+      >
+        {hasCopied ? 'Copied to clipboard!' : label}
+      </Button>
+    </CopyToClipboard>
   );
 };
 

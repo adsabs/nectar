@@ -1,5 +1,5 @@
 import { CheckIcon, DownloadIcon } from '@chakra-ui/icons';
-import { Box, Button, HStack, Spinner, Stack, StackProps, Textarea, useBreakpointValue, Text } from '@chakra-ui/react';
+import { Box, Button, HStack, Spinner, Stack, StackProps, Textarea, useBreakpointValue } from '@chakra-ui/react';
 import { useDownloadFile } from '@/lib/useDownloadFile';
 import { useIsClient } from '@/lib/useIsClient';
 import { citationFormatIds, exportFormats } from '../models';
@@ -8,7 +8,7 @@ import { LabeledCopyButton } from '@/components/CopyButton';
 import { sendGTMEvent } from '@next/third-parties/google';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { ExportApiFormatKey } from '@/api/export/types';
-import { LoadingMessage } from '@/components/Feedbacks';
+import { convertHtmlToRtf } from '../helpers';
 
 export const ResultArea = ({
   result = '',
@@ -20,16 +20,20 @@ export const ResultArea = ({
   format: ExportApiFormatKey;
   isLoading?: boolean;
 } & StackProps) => {
-  const { onDownload, hasDownloaded, isDownloading } = useDownloadFile(result, {
-    filename: () => `export-${format}.${exportFormats[format].ext}`,
-    onDownloaded() {
-      sendGTMEvent({
-        event: 'citation_export',
-        export_type: 'download',
-        export_format: format,
-      });
+  const { onDownload, hasDownloaded, isDownloading } = useDownloadFile(
+    citationFormatIds.includes(format) ? convertHtmlToRtf(result) : result,
+    {
+      filename: () => `export-${format}.${exportFormats[format].ext}`,
+      onDownloaded() {
+        sendGTMEvent({
+          event: 'citation_export',
+          export_type: 'download',
+          export_format: format,
+        });
+      },
     },
-  });
+  );
+
   const colors = useColorModeColors();
   const isFullWidth = useBreakpointValue([true, false]);
   const isClient = useIsClient();
@@ -62,6 +66,7 @@ export const ResultArea = ({
                 export_format: format,
               });
             }}
+            asHtml={citationFormatIds.includes(format)}
           />
         </HStack>
       )}
@@ -72,16 +77,22 @@ export const ResultArea = ({
               fontWeight="medium"
               dangerouslySetInnerHTML={{ __html: result }}
               overflowY="scroll"
-              maxHeight="72"
+              height="72"
               border="1px"
               borderRadius="md"
               borderColor={colors.border}
               padding={2}
             />
           ) : isLoading ? (
-            <LoadingMessage message="Loading" />
+            <Box height="72" border="1px" borderRadius="md" borderColor={colors.border} padding={2}>{`Loading...`}</Box>
           ) : (
-            <Text>{`Press "submit" to generate export.`}</Text>
+            <Box
+              height="72"
+              border="1px"
+              borderRadius="md"
+              borderColor={colors.border}
+              padding={2}
+            >{`Press "submit" to generate export.`}</Box>
           )}
         </>
       ) : (
