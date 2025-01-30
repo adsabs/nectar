@@ -76,7 +76,7 @@ export const Footer: FC = () => {
           Careers@SciX
         </SimpleLink>
         <SimpleLink href="/help/accessibility" variant="footer">
-          Accessibility
+          Web Accessibility Policy
         </SimpleLink>
         <SimpleLink href={EXTERNAL_URLS.NASA_SDE_HOME_PAGE} variant="footer" isExternal>
           NASA Science Discovery Engine
