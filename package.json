@@ -45,7 +45,7 @@
     "@nivo/bar": "^0.80.0",
     "@nivo/core": "^0.80.0",
     "@nivo/line": "^0.80.0",
-    "@sentry/nextjs": "^8.47.0",
+    "@sentry/nextjs": "^8.49.0",
     "@storybook/addon-controls": "^7.5.3",
     "@storybook/client-api": "^7.5.3",
     "@storybook/testing-react": "^2.0.1",
