@@ -102,7 +102,13 @@ const EarthScience: NextPage = () => {
                 </VStack>
               </Tooltip>
               <Tooltip label={``}>
-                <VStack m={10} cursor="pointer" onClick={() => handleLink('/')}>
+                <VStack
+                  m={10}
+                  cursor="pointer"
+                  onClick={() =>
+                    handleLink('/search?q=title%3A%22continental+drift%22&sort=date+asc&sort=date+desc&n=10&p=1')
+                  }
+                >
                   <FontAwesomeIcon icon={faNewspaper} size="4x" />
                   <Text>Publications</Text>
                 </VStack>

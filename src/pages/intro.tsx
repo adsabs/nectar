@@ -42,12 +42,10 @@ const IntroPage: NextPage = () => {
                     <Text>Astrophsics</Text>
                   </Flex>
                 </SimpleLink>
-                <SimpleLink href="/heliophysics">
-                  <Flex direction="column" alignItems="center">
-                    <Image src="/styles/img/disc-heliophysics.jpg" aria-hidden width="200px" />
-                    <Text>Heliophysics</Text>
-                  </Flex>
-                </SimpleLink>
+                <Flex direction="column" alignItems="center">
+                  <Image src="/styles/img/disc-heliophysics.jpg" aria-hidden width="200px" />
+                  <Text>Heliophysics</Text>
+                </Flex>
                 <SimpleLink href="/planetary">
                   <Flex direction="column" alignItems="center">
                     <Image src="/styles/img/disc-planetary.jpg" aria-hidden width="200px" />
@@ -62,12 +60,10 @@ const IntroPage: NextPage = () => {
                     <Text>Earth Science</Text>
                   </Flex>
                 </SimpleLink>
-                <SimpleLink href="/biophysical">
-                  <Flex direction="column" alignItems="center">
-                    <Image src="/styles/img/disc-biophysical.jpg" aria-hidden width="200px" />
-                    <Text>Biological & Physical Science</Text>
-                  </Flex>
-                </SimpleLink>
+                <Flex direction="column" alignItems="center">
+                  <Image src="/styles/img/disc-biophysical.jpg" aria-hidden width="200px" />
+                  <Text>Biological & Physical Science</Text>
+                </Flex>
               </Flex>
             </Box>
             <Box fontSize="2xl" my={10}>
