@@ -215,16 +215,18 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
             {(pub_raw) => (
               <>
                 <span dangerouslySetInnerHTML={{ __html: pub_raw }}></span>
-                <Button
-                  aria-label="Copy citation"
-                  variant="outline"
-                  mx={2}
-                  cursor="pointer"
-                  size="xs"
-                  onClick={onCitationOpen}
-                >
-                  <FontAwesomeIcon icon={faQuoteLeft} size="xs" />
-                </Button>
+                <Tooltip label="copy citation">
+                  <Button
+                    aria-label="Copy citation"
+                    variant="outline"
+                    mx={2}
+                    cursor="pointer"
+                    size="xs"
+                    onClick={onCitationOpen}
+                  >
+                    <FontAwesomeIcon icon={faQuoteLeft} size="xs" />
+                  </Button>
+                </Tooltip>
               </>
             )}
           </Detail>
@@ -301,7 +303,7 @@ const CitationModal = ({ isOpen, onClose, bibcode }: { isOpen: boolean; onClose:
               <>
                 <Box fontSize="sm" fontWeight="medium" dangerouslySetInnerHTML={{ __html: data.export }} />
                 <Flex justifyContent="end">
-                  <SimpleCopyButton text={data.export} variant="outline" size="xs" />
+                  <SimpleCopyButton text={data.export} variant="outline" size="xs" asHtml />
                 </Flex>
               </>
             )}
