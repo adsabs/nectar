@@ -95,30 +95,36 @@ const EarthScience: NextPage = () => {
                   <Text>Authors</Text>
                 </VStack>
               </Tooltip>
-              <Tooltip label={``}>
-                <VStack m={10} cursor="pointer" onClick={() => handleLink('/')}>
-                  <FontAwesomeIcon icon={faChartSimple} size="4x" />
-                  <Text>Data</Text>
-                </VStack>
-              </Tooltip>
-              <Tooltip label={``}>
-                <VStack
-                  m={10}
-                  cursor="pointer"
-                  onClick={() =>
-                    handleLink('/search?q=title%3A%22continental+drift%22&sort=date+asc&sort=date+desc&n=10&p=1')
-                  }
-                >
-                  <FontAwesomeIcon icon={faNewspaper} size="4x" />
-                  <Text>Publications</Text>
-                </VStack>
-              </Tooltip>
-              <Tooltip label={``}>
-                <VStack m={10} cursor="pointer" onClick={() => handleLink('/')}>
-                  <FontAwesomeIcon icon={faBuildingColumns} size="4x" />
-                  <Text>Institutions</Text>
-                </VStack>
-              </Tooltip>
+              <VStack
+                m={10}
+                cursor="pointer"
+                onClick={() =>
+                  handleLink('/search?q=collection%3Aearthscience+data%3Anoaa&sort=score+desc&sort=date+desc&p=1')
+                }
+              >
+                <FontAwesomeIcon icon={faChartSimple} size="4x" />
+                <Text>Data</Text>
+              </VStack>
+              <VStack
+                m={10}
+                cursor="pointer"
+                onClick={() =>
+                  handleLink('/search?q=title%3A%22continental+drift%22&sort=date+asc&sort=date+desc&n=10&p=1')
+                }
+              >
+                <FontAwesomeIcon icon={faNewspaper} size="4x" />
+                <Text>Publications</Text>
+              </VStack>
+              <VStack
+                m={10}
+                cursor="pointer"
+                onClick={() =>
+                  handleLink('search?q=collection%3Aearthscience+institution%3AMIT&sort=score+desc&sort=date+desc&p=1')
+                }
+              >
+                <FontAwesomeIcon icon={faBuildingColumns} size="4x" />
+                <Text>Institutions</Text>
+              </VStack>
             </Flex>
           </Box>
         </Container>
