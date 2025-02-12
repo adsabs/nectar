@@ -277,7 +277,7 @@ const CitationModal = ({ isOpen, onClose, bibcode }: { isOpen: boolean; onClose:
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader></ModalHeader>
+        <ModalHeader>Citation</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <Select
