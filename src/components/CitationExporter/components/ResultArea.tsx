@@ -8,7 +8,8 @@ import { LabeledCopyButton } from '@/components/CopyButton';
 import { sendGTMEvent } from '@next/third-parties/google';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { ExportApiFormatKey } from '@/api/export/types';
-import { convertHtmlToRtf } from '../helpers';
+import { useEffect, useState } from 'react';
+import { htmlToRtfPreprocess } from '../helpers';
 
 export const ResultArea = ({
   result = '',
@@ -20,10 +21,31 @@ export const ResultArea = ({
   format: ExportApiFormatKey;
   isLoading?: boolean;
 } & StackProps) => {
+  const [rtf, setRtf] = useState<string>(null);
+
+  // for html format, convert to RTF and and additional clean up
+  useEffect(() => {
+    const loadHtmlToRtf = async () => {
+      if (citationFormatIds.includes(format)) {
+        try {
+          import('html-to-rtf-browser').then((m) => {
+            const htmlToRtf = new m.default();
+            setRtf(htmlToRtf.convertHtmlToRtf(htmlToRtfPreprocess(result)));
+          });
+        } catch (error) {
+          console.error('Failed to load html-to-rtf-browser', error);
+        }
+      }
+    };
+
+    loadHtmlToRtf();
+  }, [result]);
+
   const { onDownload, hasDownloaded, isDownloading } = useDownloadFile(
-    citationFormatIds.includes(format) ? convertHtmlToRtf(result) : result,
+    citationFormatIds.includes(format) ? rtf : result,
     {
       filename: () => `export-${format}.${exportFormats[format].ext}`,
+      type: citationFormatIds.includes(format) ? 'RTF' : 'TEXT',
       onDownloaded() {
         sendGTMEvent({
           event: 'citation_export',

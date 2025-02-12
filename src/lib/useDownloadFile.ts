@@ -79,6 +79,7 @@ export const fileTypes = {
   CSV: 'CSV',
   XLS: 'XLS',
   TEXT: 'TEXT',
+  RTF: 'RTF',
   BROWSER: 'BROWSER',
 } as const;
 export type FileType = keyof typeof fileTypes;
@@ -92,6 +93,8 @@ const getMetaData = (type: FileType): Meta => {
     case 'BROWSER':
     case 'TEXT':
       return ['text/plain', '.txt'];
+    case 'RTF':
+      return ['application/rtf;charset=utf-8', '.rtf'];
     default:
       return ['text/plain', '.txt'];
   }

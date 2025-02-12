@@ -71,6 +71,7 @@
     "framer-motion": "^6.5.1",
     "fuse.js": "^6.6.2",
     "he": "^1.2.0",
+    "html-to-rtf-browser": "^1.6.1",
     "http-proxy": "^1.18.1",
     "idb-keyval": "^6.2.1",
     "ioredis": "^5.4.1",
