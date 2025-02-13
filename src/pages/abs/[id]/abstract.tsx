@@ -1,4 +1,8 @@
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
   Box,
   Button,
   Center,
@@ -6,6 +10,12 @@ import {
   HStack,
   Icon,
   IconButton,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
   Stack,
   Table,
   Tag,
@@ -15,7 +25,6 @@ import {
   Tooltip,
   Tr,
   useDisclosure,
-  useToast,
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { EditIcon } from '@chakra-ui/icons';
@@ -31,8 +40,8 @@ import { composeNextGSSP } from '@/ssr-utils';
 import { MathJax } from 'better-react-mathjax';
 import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
-import { equals, isNil, path } from 'ramda';
-import { memo, ReactElement } from 'react';
+import { equals, isNil, path, values } from 'ramda';
+import { memo, ReactElement, useState } from 'react';
 import { useRouter } from 'next/router';
 import { FolderPlusIcon } from '@heroicons/react/24/solid';
 import { useSession } from '@/lib/useSession';
@@ -53,10 +62,12 @@ import { fetchSearchSSR, searchKeys, useGetAbstract } from '@/api/search/search'
 import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
 import { getAbstractParams } from '@/api/search/models';
 import { useGetExportCitation } from '@/api/export/export';
-import { exportFormats } from '@/components/CitationExporter';
+import { citationFormats, ExportFormat } from '@/components/CitationExporter';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faQuoteLeft } from '@fortawesome/free-solid-svg-icons';
-import CopyToClipboard from 'react-copy-html-to-clipboard';
+import { Select } from '@/components/Select';
+import { LoadingMessage } from '@/components/Feedbacks';
+import { useSettings } from '@/lib/useSettings';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   () =>
@@ -191,20 +202,7 @@ interface IDetailsProps {
 const Details = ({ doc }: IDetailsProps): ReactElement => {
   const arxiv = (doc.identifier ?? ([] as string[])).find((v) => /^arxiv/i.exec(v));
 
-  const { data: citationData, isLoading: isLoadingCitation } = useGetExportCitation({
-    format: exportFormats.agu.id,
-    bibcode: [doc.bibcode],
-  });
-
-  const toast = useToast({ duration: 2000 });
-
-  const handleCitationCopied = () => {
-    if (citationData?.export) {
-      toast({ status: 'info', title: 'Copied to Clipboard' });
-    } else {
-      toast({ status: 'error', title: 'There was a problem fetching citation' });
-    }
-  };
+  const { isOpen: isCitationOpen, onOpen: onCitationOpen, onClose: onCitationClose } = useDisclosure();
 
   return (
     <Box as="section" border="1px" borderColor="gray.50" borderRadius="md" shadow="sm" aria-labelledby="details">
@@ -217,13 +215,18 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
             {(pub_raw) => (
               <>
                 <span dangerouslySetInnerHTML={{ __html: pub_raw }}></span>
-                {!isLoadingCitation && (
-                  <CopyToClipboard text={citationData?.export} onCopy={handleCitationCopied} options={{ asHtml: true }}>
-                    <Button aria-label="Copy citation" variant="outline" mx={2} cursor="pointer" size="xs">
-                      <FontAwesomeIcon icon={faQuoteLeft} size="xs" />
-                    </Button>
-                  </CopyToClipboard>
-                )}
+                <Tooltip label="copy citation">
+                  <Button
+                    aria-label="Copy citation"
+                    variant="outline"
+                    mx={2}
+                    cursor="pointer"
+                    size="xs"
+                    onClick={onCitationOpen}
+                  >
+                    <FontAwesomeIcon icon={faQuoteLeft} size="xs" />
+                  </Button>
+                </Tooltip>
               </>
             )}
           </Detail>
@@ -246,10 +249,70 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
           <Detail label="E-Print Comment(s)" value={doc.pubnote} />
         </Tbody>
       </Table>
+      <CitationModal isOpen={isCitationOpen} onClose={onCitationClose} bibcode={doc?.bibcode} />
     </Box>
   );
 };
 
+const CitationModal = ({ isOpen, onClose, bibcode }: { isOpen: boolean; onClose: () => void; bibcode: string }) => {
+  const { settings } = useSettings();
+
+  const options = values(citationFormats);
+
+  const defaultOption = settings.defaultCitationFormat
+    ? options.find((option) => option.value === settings.defaultCitationFormat)
+    : options.find((option) => option.id === 'agu');
+
+  const [selectedOption, setSelectedOption] = useState(defaultOption);
+
+  const { data, isLoading, isError, error } = useGetExportCitation(
+    {
+      format: selectedOption.id as ExportFormat['id'],
+      bibcode: [bibcode],
+    },
+    { enabled: !!bibcode && isOpen },
+  );
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Citation</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>
+          <Select
+            name="format"
+            label="Citation Format"
+            hideLabel
+            id="citation-format-selector"
+            options={options}
+            value={selectedOption}
+            onChange={(o) => setSelectedOption(o)}
+            stylesTheme="default.sm"
+          />
+          <Box my={6}>
+            {isLoading ? (
+              <LoadingMessage message="Loading" />
+            ) : isError ? (
+              <Alert status="error">
+                <AlertIcon />
+                <AlertTitle>Error fetching citation!</AlertTitle>
+                <AlertDescription>{parseAPIError(error)}</AlertDescription>
+              </Alert>
+            ) : (
+              <>
+                <Box fontSize="sm" fontWeight="medium" dangerouslySetInnerHTML={{ __html: data.export }} />
+                <Flex justifyContent="end">
+                  <SimpleCopyButton text={data.export} variant="outline" size="xs" asHtml />
+                </Flex>
+              </>
+            )}
+          </Box>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
+  );
+};
 const Doi = memo(({ doiIDs, bibcode }: { doiIDs: Array<string>; bibcode: string }) => {
   if (isNilOrEmpty(bibcode)) {
     return null;

@@ -1,5 +1,6 @@
 import { SelectOption } from '@/components/Select';
 import { ExportApiFormatKey } from '@/api/export/types';
+import { pick } from 'ramda';
 
 export type ExportFormat = SelectOption<ExportApiFormatKey> & { ext: string };
 
@@ -22,14 +23,14 @@ export const exportFormats: Record<ExportApiFormatKey, ExportFormat> = {
     id: ExportApiFormatKey.agu,
     label: 'AGU',
     help: 'American Geophysical Union format',
-    ext: 'txt',
+    ext: 'rtf',
     value: 'agu',
   },
   ams: {
     id: ExportApiFormatKey.ams,
     label: 'AMS',
     help: 'American Meteorological Society format',
-    ext: 'txt',
+    ext: 'rtf',
     value: 'ams',
   },
   bibtex: {
@@ -71,7 +72,7 @@ export const exportFormats: Record<ExportApiFormatKey, ExportFormat> = {
     id: ExportApiFormatKey.gsa,
     label: 'GSA',
     help: 'The Geological Society of America format',
-    ext: 'txt',
+    ext: 'rtf',
     value: 'GSA',
   },
   icarus: {
@@ -166,3 +167,7 @@ export const exportFormats: Record<ExportApiFormatKey, ExportFormat> = {
     value: 'votable',
   },
 };
+
+export const citationFormatIds = [ExportApiFormatKey.agu, ExportApiFormatKey.ams, ExportApiFormatKey.gsa];
+
+export const citationFormats = pick(citationFormatIds, exportFormats);

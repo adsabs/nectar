@@ -1,13 +1,15 @@
 import { CheckIcon, DownloadIcon } from '@chakra-ui/icons';
-import { Button, HStack, Spinner, Stack, StackProps, Textarea, useBreakpointValue } from '@chakra-ui/react';
+import { Box, Button, HStack, Spinner, Stack, StackProps, Textarea, useBreakpointValue } from '@chakra-ui/react';
 import { useDownloadFile } from '@/lib/useDownloadFile';
 import { useIsClient } from '@/lib/useIsClient';
-import { exportFormats } from '../models';
+import { citationFormatIds, exportFormats } from '../models';
 import { LabeledCopyButton } from '@/components/CopyButton';
 
 import { sendGTMEvent } from '@next/third-parties/google';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { ExportApiFormatKey } from '@/api/export/types';
+import { useEffect, useState } from 'react';
+import { htmlToRtfPreprocess } from '../helpers';
 
 export const ResultArea = ({
   result = '',
@@ -19,16 +21,42 @@ export const ResultArea = ({
   format: ExportApiFormatKey;
   isLoading?: boolean;
 } & StackProps) => {
-  const { onDownload, hasDownloaded, isDownloading } = useDownloadFile(result, {
-    filename: () => `export-${format}.${exportFormats[format].ext}`,
-    onDownloaded() {
-      sendGTMEvent({
-        event: 'citation_export',
-        export_type: 'download',
-        export_format: format,
-      });
+  const [rtf, setRtf] = useState<string>(null);
+
+  // for html format, convert to RTF and and additional clean up
+  useEffect(() => {
+    const loadHtmlToRtf = async () => {
+      if (citationFormatIds.includes(format)) {
+        try {
+          import('html-to-rtf-browser').then((m) => {
+            const htmlToRtf = new m.default();
+            setRtf(htmlToRtf.convertHtmlToRtf(htmlToRtfPreprocess(result)));
+          });
+        } catch (error) {
+          console.error('Failed to load html-to-rtf-browser', error);
+        }
+      }
+    };
+
+    loadHtmlToRtf();
+  }, [result]);
+
+  const { onDownload, hasDownloaded, isDownloading } = useDownloadFile(
+    citationFormatIds.includes(format) ? rtf : result,
+    {
+      filename: () => `export-${format}.${exportFormats[format].ext}`,
+      type: citationFormatIds.includes(format) ? 'RTF' : 'TEXT',
+      onDownloaded() {
+        sendGTMEvent({
+          event: 'citation_export',
+          export_type: 'download',
+          export_format: format,
+        });
+      },
     },
-  });
+  );
+
+  const colors = useColorModeColors();
   const isFullWidth = useBreakpointValue([true, false]);
   const isClient = useIsClient();
   const { panel: textAreaBackgroundColor } = useColorModeColors();
@@ -60,20 +88,48 @@ export const ResultArea = ({
                 export_format: format,
               });
             }}
+            asHtml={citationFormatIds.includes(format)}
           />
         </HStack>
       )}
-      <Textarea
-        readOnly
-        fontSize={['xs', 'sm']}
-        resize="none"
-        minH={['xs', 'sm']}
-        bgColor={textAreaBackgroundColor}
-        fontFamily="monospace"
-        fontWeight="semibold"
-        value={result.length > 0 ? result : isLoading ? 'Loading...' : 'Press "submit" to generate export.'}
-        data-testid="export-output"
-      />
+      {citationFormatIds.includes(format) ? (
+        <>
+          {result.length > 0 ? (
+            <Box
+              fontWeight="medium"
+              dangerouslySetInnerHTML={{ __html: result }}
+              overflowY="scroll"
+              height="72"
+              border="1px"
+              borderRadius="md"
+              borderColor={colors.border}
+              padding={2}
+            />
+          ) : isLoading ? (
+            <Box height="72" border="1px" borderRadius="md" borderColor={colors.border} padding={2}>{`Loading...`}</Box>
+          ) : (
+            <Box
+              height="72"
+              border="1px"
+              borderRadius="md"
+              borderColor={colors.border}
+              padding={2}
+            >{`Press "submit" to generate export.`}</Box>
+          )}
+        </>
+      ) : (
+        <Textarea
+          readOnly
+          fontSize={['xs', 'sm']}
+          resize="none"
+          minH={['xs', 'sm']}
+          bgColor={textAreaBackgroundColor}
+          fontFamily="monospace"
+          fontWeight="semibold"
+          value={result.length > 0 ? result : isLoading ? 'Loading...' : 'Press "submit" to generate export.'}
+          data-testid="export-output"
+        />
+      )}
     </Stack>
   );
 };

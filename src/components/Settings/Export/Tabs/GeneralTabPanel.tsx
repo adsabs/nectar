@@ -1,6 +1,6 @@
-import { Stack } from '@chakra-ui/react';
+import { Box, Stack, Text } from '@chakra-ui/react';
 
-import { ExportFormat, exportFormats } from '@/components/CitationExporter';
+import { citationFormatIds, ExportFormat, exportFormats } from '@/components/CitationExporter';
 import { JournalFormatMap } from '@/components/Settings/model';
 import { UserDataSetterEvent } from '@/pages/user/settings/export';
 import { values } from 'ramda';
@@ -13,6 +13,7 @@ import { IDocsEntity } from '@/api/search/types';
 import { ExportApiFormatKey } from '@/api/export/types';
 import { useGetExportCitation } from '@/api/export/export';
 import { CustomFormat } from '@/api/user/types';
+import { LoadingMessage } from '@/components/Feedbacks';
 
 export interface IGeneralTabPanelProps {
   sampleBib: IDocsEntity['bibcode'];
@@ -59,7 +60,7 @@ export const GeneralTabPanel = ({ sampleBib, selectedOption, dispatch }: IGenera
     return { defaultExportFormatOpt, customFormat, journalFormat, keyFormat, authorcutoff, maxauthor };
   }, [userSettings]);
 
-  const { data: sampleCitation } = useGetExportCitation({
+  const { data: sampleCitation, isLoading } = useGetExportCitation({
     format: defaultExportFormatOpt.id,
     customFormat,
     bibcode: [sampleBib],
@@ -87,10 +88,27 @@ export const GeneralTabPanel = ({ sampleBib, selectedOption, dispatch }: IGenera
     <Stack direction="column">
       <ExportFormatSelect selectedOption={selectedOption} onChange={handleApplyDefaultExportFormat} />
       {selectedOption.id === ExportApiFormatKey.custom && <CustomFormatSelect onChange={handleChangeCustomDefault} />}
-      <SampleTextArea
-        value={sampleCitation?.export ?? 'No custom format. Go to the Custom Formats tab to create a custom format.'}
-        label="Default Export Sample"
-      />
+      {isLoading ? (
+        <LoadingMessage message="Loading" />
+      ) : (
+        <>
+          {citationFormatIds.includes(selectedOption.id) ? (
+            <>
+              <Text size="md" fontWeight="bold">
+                Default Export Sample
+              </Text>
+              <Box fontWeight="medium" dangerouslySetInnerHTML={{ __html: sampleCitation?.export }} />
+            </>
+          ) : (
+            <SampleTextArea
+              value={
+                sampleCitation?.export ?? 'No custom format. Go to the Custom Formats tab to create a custom format.'
+              }
+              label="Default Export Sample"
+            />
+          )}
+        </>
+      )}
     </Stack>
   );
 };

@@ -1,72 +1,85 @@
 import { CheckIcon, CopyIcon } from '@chakra-ui/icons';
-import {
-  Button,
-  ButtonProps,
-  IconButton,
-  MenuItem,
-  MenuItemProps,
-  Tooltip,
-  useClipboard,
-  UseClipboardOptions,
-} from '@chakra-ui/react';
-import { ReactElement, useEffect } from 'react';
+import { Button, ButtonProps, IconButton, MenuItem, MenuItemProps, useClipboard } from '@chakra-ui/react';
+import { ReactElement, useEffect, useState } from 'react';
+import CopyToClipboard from 'react-copy-html-to-clipboard';
 
 export interface ICopyButtonProps extends ButtonProps {
   text: string;
   onCopyComplete?: () => void;
-  options?: UseClipboardOptions;
+  timeout?: number;
+  asHtml?: boolean;
   iconPos?: 'left' | 'right';
 }
 
-export const SimpleCopyButton = (props: ICopyButtonProps): ReactElement => {
-  const { text, options, onCopyComplete, ...rest } = props;
-  const { hasCopied, onCopy, setValue } = useClipboard(text, options);
+const DEFAULT_TIMEOUT = 1500;
 
-  useEffect(() => {
-    setValue(text);
-  }, [text]);
+export const SimpleCopyButton = (props: ICopyButtonProps): ReactElement => {
+  const { text, onCopyComplete, timeout = DEFAULT_TIMEOUT, asHtml = false, ...rest } = props;
+
+  const [hasCopied, setHasCopied] = useState(false);
 
   useEffect(() => {
     if (hasCopied) {
-      onCopyComplete?.();
+      const timeoutId = setTimeout(() => {
+        setHasCopied(false);
+      }, timeout);
+
+      return () => clearTimeout(timeoutId);
     }
   }, [hasCopied]);
 
+  const handleCopied = () => {
+    setHasCopied(true);
+    onCopyComplete?.();
+  };
+
   return (
-    <Tooltip label={hasCopied ? 'Copied' : 'Copy to clipboard'}>
+    <CopyToClipboard text={text} onCopy={handleCopied} options={{ asHtml: asHtml }}>
       {hasCopied ? (
         <IconButton aria-label="copied" icon={<CheckIcon />} variant="link" color="green.500" {...rest} />
       ) : (
-        <IconButton icon={<CopyIcon />} variant="link" aria-label="copy to clipboard" onClick={onCopy} {...rest} />
+        <IconButton
+          icon={<CopyIcon />}
+          variant="link"
+          aria-label="copy to clipboard"
+          onClick={handleCopied}
+          {...rest}
+        />
       )}
-    </Tooltip>
+    </CopyToClipboard>
   );
 };
 
 export const LabeledCopyButton = (props: ICopyButtonProps & { label: string }): ReactElement => {
-  const { label, text, options, onCopyComplete, iconPos = 'left', ...rest } = props;
-  const { hasCopied, onCopy, setValue } = useClipboard(text, options);
-
-  useEffect(() => {
-    setValue(text);
-  }, [text]);
+  const { label, text, onCopyComplete, timeout = DEFAULT_TIMEOUT, iconPos = 'left', asHtml = false, ...rest } = props;
+  const [hasCopied, setHasCopied] = useState(false);
 
   useEffect(() => {
     if (hasCopied) {
-      onCopyComplete?.();
+      const timeoutId = setTimeout(() => {
+        setHasCopied(false);
+      }, timeout);
+
+      return () => clearTimeout(timeoutId);
     }
   }, [hasCopied]);
 
+  const handleCopied = () => {
+    setHasCopied(true);
+    onCopyComplete?.();
+  };
+
   return (
-    <Button
-      variant="link"
-      aria-label="copy to clipboard"
-      onClick={onCopy}
-      {...(iconPos === 'left' ? { leftIcon: <CopyIcon /> } : { rightIcon: <CopyIcon /> })}
-      {...rest}
-    >
-      {hasCopied ? 'Copied to clipboard!' : label}
-    </Button>
+    <CopyToClipboard text={text} onCopy={handleCopied} options={{ asHtml: asHtml }}>
+      <Button
+        variant="link"
+        aria-label="copy to clipboard"
+        {...(iconPos === 'left' ? { leftIcon: <CopyIcon /> } : { rightIcon: <CopyIcon /> })}
+        {...rest}
+      >
+        {hasCopied ? 'Copied to clipboard!' : label}
+      </Button>
+    </CopyToClipboard>
   );
 };
 

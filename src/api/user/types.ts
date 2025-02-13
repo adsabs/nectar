@@ -120,6 +120,7 @@ export enum UserDataKeys {
   ABS_MAX_AUTHORS = 'bibtexABSMaxAuthors',
   BIBTEX_JOURNAL_FORMAT = 'bibtexJournalFormat',
   DEFAULT_EXPORT_FORMAT = 'defaultExportFormat',
+  DEFAULT_CITATION_FORMAT = 'defaultCitationFormat', // this is for the one click citation
   DEFAULT_HIDE_SIDEBARS = 'defaultHideSidebars',
   MIN_AUTHOR_RESULT = 'minAuthorsPerResult',
   ABS_AUTHOR_CUTOFF = 'bibtexABSAuthorCutoff',
@@ -166,6 +167,7 @@ export interface IADSApiUserDataResponse {
   [UserDataKeys.ABS_MAX_AUTHORS]: string;
   [UserDataKeys.BIBTEX_JOURNAL_FORMAT]: JournalFormatName;
   [UserDataKeys.DEFAULT_EXPORT_FORMAT]: string;
+  [UserDataKeys.DEFAULT_CITATION_FORMAT]: string;
   [UserDataKeys.DEFAULT_HIDE_SIDEBARS]: string;
   [UserDataKeys.MIN_AUTHOR_RESULT]: typeof MinAuthorsPerResultOptions[number];
   [UserDataKeys.ABS_AUTHOR_CUTOFF]: string;
