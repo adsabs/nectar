@@ -242,7 +242,7 @@ const AuthorsTable = forwardRef<HTMLInputElement, { doc: IDocsEntity; onSearchCl
                   )}
                 </Td>
                 <Td>
-                  <Text>{aff}</Text>
+                  <Text dangerouslySetInnerHTML={{ __html: aff }} />
                 </Td>
               </Tr>
             );
