@@ -42,6 +42,7 @@ import { makeSearchParams } from '@/utils/common/search';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { useFeedback } from '@/api/feedback/feedback';
 import { logger } from '@/logger';
+import { SimpleLink } from '@/components/SimpleLink';
 
 type FormValues = {
   name: string;
@@ -208,7 +209,19 @@ const General: NextPage = () => {
     <FeedbackLayout title="General Feedback" alert={alert}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Text my={2}>
-          You can also reach us at <strong>adshelp [at] cfa.harvard.edu</strong>
+          Use this form for general comments and questions only. To request updates, use the appropriate forms to{' '}
+          <SimpleLink href="/feedback/missingrecord">
+            <strong>add new or correct existing records</strong>
+          </SimpleLink>
+          ,{' '}
+          <SimpleLink href="/feedback/missingreferences">
+            <strong>add missing references</strong>
+          </SimpleLink>{' '}
+          or to{' '}
+          <SimpleLink href="/feedback/associatedarticles">
+            <strong>submit associated articles</strong>
+          </SimpleLink>
+          . You can also send general comments and questions to <strong>adshelp [at] cfa.harvard.edu</strong>.
         </Text>
         <Flex direction="column" gap={4}>
           <Stack direction={{ base: 'column', sm: 'row' }} gap={2}>
