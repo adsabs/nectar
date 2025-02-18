@@ -39,7 +39,7 @@ const IntroPage: NextPage = () => {
                 <SimpleLink href="/astrophysics">
                   <Flex direction="column" alignItems="center">
                     <Image src="/styles/img/disc-astrophysics.png" aria-hidden width="200px" />
-                    <Text>Astrophsics</Text>
+                    <Text>Astrophysics</Text>
                   </Flex>
                 </SimpleLink>
                 <Flex direction="column" alignItems="center">
