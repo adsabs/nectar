@@ -84,7 +84,7 @@ export const MissingReferenceTable = () => {
 
   const handleAddReference = () => {
     append(newReference);
-    setNewReference({ citing: '', cited: '' });
+    setNewReference({ citing: newReference.citing, cited: '' });
     newReferenceRef.current.focus();
   };
 
