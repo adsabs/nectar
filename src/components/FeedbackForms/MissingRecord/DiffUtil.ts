@@ -49,10 +49,6 @@ export const getDiffSections = (leftValues: FormValues, rightValues: FormValues)
   const sectionsChanges: DiffSection[] = Object.entries(left).map(([key, value]) => {
     const isArray = Array.isArray(value);
 
-    if (isArray && value.length === 0) {
-      return null;
-    }
-
     let changes: (ArrayChange<string> | Change)[] = [];
 
     try {
