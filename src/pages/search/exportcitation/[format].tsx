@@ -27,6 +27,7 @@ import { exportCitationKeys, fetchExportCitation } from '@/api/export/export';
 interface IExportCitationPageProps {
   format: ExportApiFormatKey;
   query: IADSApiSearchParams;
+  referrer?: string;
   error?: {
     status?: string;
     message?: string;
@@ -34,7 +35,7 @@ interface IExportCitationPageProps {
 }
 
 const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
-  const { format, query } = props;
+  const { format, query, referrer } = props;
   const isClient = useIsClient();
 
   // get export related user settings
@@ -80,7 +81,7 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
       </Head>
       <Flex direction="column">
         <HStack my={10}>
-          <SimpleLink href={getSearchHref()}>
+          <SimpleLink href={referrer ?? getSearchHref()}>
             <ChevronLeftIcon w={8} h={8} />
           </SimpleLink>
           <Heading as="h2" fontSize="2xl">
@@ -125,6 +126,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
     qid = null,
     p,
     format,
+    referrer = null,
     ...query
   } = parseQueryFromUrl<{ qid: string; format: string }>(ctx.req.url, { sortPostfix: 'id asc' });
 
@@ -134,6 +136,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
         format,
         query,
         qid,
+        referrer,
         error: 'No Records',
       },
     };
@@ -181,6 +184,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
       props: {
         format: exportParams.format,
         query: params,
+        referrer,
         dehydratedState,
       },
     };
