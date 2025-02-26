@@ -42,6 +42,7 @@ import { useGetSingleRecord } from '@/api/search/search';
 const collections: { value: Database; label: string }[] = [
   { value: 'astronomy', label: 'Astronomy and Astrophysics' },
   { value: 'physics', label: 'Physics and Geophysics' },
+  { value: 'earthscience', label: 'Earth Science' },
   { value: 'general', label: 'General' },
 ];
 
