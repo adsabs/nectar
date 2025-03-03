@@ -103,11 +103,6 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
         e.preventDefault();
         dispatch({ type: 'KEYDOWN_ARROW_DOWN' });
       }
-
-      // if a normal key, then the user is editing, we should close the menu
-      if (state.isOpen && !['ArrowUp', 'ArrowDown', 'Enter', 'Escape', 'Tab'].includes(e.key)) {
-        dispatch({ type: 'SOFT_RESET' });
-      }
     },
     [state.isOpen],
   );
