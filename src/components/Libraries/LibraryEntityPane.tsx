@@ -1,4 +1,4 @@
-import { ChevronLeftIcon, LockIcon, SettingsIcon, UnlockIcon } from '@chakra-ui/icons';
+import { ChevronDownIcon, ChevronLeftIcon, LockIcon, SettingsIcon, UnlockIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
@@ -9,6 +9,17 @@ import {
   HStack,
   Icon,
   IconButton,
+  Menu,
+  MenuButton,
+  MenuDivider,
+  MenuGroup,
+  MenuGroupProps,
+  MenuItem,
+  MenuItemOption,
+  MenuList,
+  MenuOptionGroup,
+  Portal,
+  Stack,
   Table,
   Tbody,
   Td,
@@ -27,8 +38,8 @@ import { BuildingLibraryIcon, ShareIcon } from '@heroicons/react/24/solid';
 
 import { AppState, useStore } from '@/store';
 import { NumPerPageType } from '@/types';
-import { uniq } from 'ramda';
-import { useEffect, useMemo, useState } from 'react';
+import { curryN, uniq, values } from 'ramda';
+import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { DocumentList } from './DocumentList/DocumentList';
 import { SimpleLink } from '@/components/SimpleLink';
 import { CustomInfoMessage, LoadingMessage } from '@/components/Feedbacks';
@@ -40,11 +51,16 @@ import { isBiblibSort, isSolrSort } from '@/utils/common/guards';
 import { normalizeSolrSort } from '@/utils/common/search';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { LibraryIdentifier } from '@/api/biblib/types';
-import { IDocsEntity } from '@/api/search/types';
+import { Bibcode, IDocsEntity } from '@/api/search/types';
 import { BiblibSort, BiblibSortField } from '@/api/models';
 import { useEditLibraryDocuments, useGetLibraryEntity } from '@/api/biblib/libraries';
 import { useBigQuerySearch } from '@/api/search/search';
 import { getSearchParams } from '@/api/search/models';
+import { useSettings } from '@/lib/useSettings';
+import { ExportApiFormatKey } from '@/api/export/types';
+import { useVaultBigQuerySearch } from '@/api/vault/vault';
+import { useRouter } from 'next/router';
+import { exportFormats } from '../CitationExporter';
 
 export interface ILibraryEntityPaneProps {
   id: LibraryIdentifier;
@@ -249,7 +265,7 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
           <LoadingMessage message="Loading library" />
         </Center>
       )}
-      {errorFetchingLibs && (
+      {!isLoadingLibs && errorFetchingLibs && (
         <CustomInfoMessage
           status={'error'}
           title={'Library not found'}
@@ -395,15 +411,16 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
                 </SearchQueryLink>
               </Flex>
 
-              {canWrite && !publicView && (
+              {canWrite && !publicView && !isLoadingDocs && (
                 <Box style={isLoadingDocs ? { pointerEvents: 'none' } : { pointerEvents: 'auto' }} w="full">
-                  <BulkAction
+                  <BulkMenu
+                    library={id}
                     isAllSelected={isAllSelected}
                     isSomeSelected={isSomeSelected}
                     onSelectAllCurrent={handleSelectAllCurrent}
                     onClearAllCurrent={handleClearAllCurrent}
                     onClearAll={handleClearAll}
-                    selectedCount={selected.length}
+                    selectedDocs={selected}
                     onDeleteSelected={handleDeleteFromLibrary}
                   />
                 </Box>
@@ -447,28 +464,44 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
   );
 };
 
-const BulkAction = ({
+const BulkMenu = ({
+  library,
   isAllSelected,
   isSomeSelected,
   onSelectAllCurrent,
   onClearAllCurrent,
   onClearAll,
-  selectedCount,
+  selectedDocs,
   onDeleteSelected,
 }: {
+  library: string;
   isAllSelected: boolean;
   isSomeSelected: boolean;
-  selectedCount: number;
+  selectedDocs: string[];
   onSelectAllCurrent: () => void;
   onClearAllCurrent: () => void;
   onClearAll: () => void;
   onDeleteSelected: () => void;
 }) => {
+  const { settings } = useSettings();
+
+  const { panel: PanelBackground } = useColorModeColors();
+
+  const [applyToAll, setApplyToAll] = useState(selectedDocs.length === 0);
+
+  useEffect(() => {
+    setApplyToAll(selectedDocs.length === 0);
+  }, [selectedDocs]);
+
   const handleChange = () => {
     isAllSelected || isSomeSelected ? onClearAllCurrent() : onSelectAllCurrent();
   };
 
-  const { panel: PanelBackground } = useColorModeColors();
+  const handleApplyOption = (value: string | string[]) => {
+    if (typeof value === 'string') {
+      setApplyToAll(value === 'all');
+    }
+  };
 
   return (
     <Flex justifyContent="space-between" backgroundColor={PanelBackground} p={4}>
@@ -487,23 +520,108 @@ const BulkAction = ({
             data-testid="select-all-checkbox"
           />
         </Tooltip>
-        {selectedCount > 0 && (
+        {selectedDocs.length > 0 && (
           <>
-            <>{selectedCount} selected</>
+            <>{selectedDocs.length} selected</>
             <Button variant="link" onClick={onClearAll}>
               Clear All
             </Button>
           </>
         )}
       </HStack>
-      <Button
-        isDisabled={selectedCount === 0}
-        colorScheme="red"
-        onClick={onDeleteSelected}
-        data-testid="del-selected-btn"
-      >
-        Delete
-      </Button>
+      <Stack direction="row" order={{ base: '1', md: '2' }} wrap="wrap">
+        <Menu>
+          <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+            Export
+          </MenuButton>
+          <Portal>
+            <MenuList>
+              <MenuOptionGroup value={applyToAll ? 'all' : 'selected'} type="radio" onChange={handleApplyOption}>
+                <MenuItemOption value="all" closeOnSelect={false}>
+                  All
+                </MenuItemOption>
+                <MenuItemOption value="selected" isDisabled={selectedDocs.length === 0} closeOnSelect={false}>
+                  Selected
+                </MenuItemOption>
+              </MenuOptionGroup>
+              <MenuDivider />
+              {applyToAll ? (
+                <ExportMenu library={library} defaultExportFormat={settings.defaultExportFormat} />
+              ) : (
+                <ExportMenu library={library} docs={selectedDocs} defaultExportFormat={settings.defaultExportFormat} />
+              )}
+            </MenuList>
+          </Portal>
+        </Menu>
+        <Button
+          isDisabled={selectedDocs.length === 0}
+          colorScheme="red"
+          onClick={onDeleteSelected}
+          data-testid="del-selected-btn"
+        >
+          Delete
+        </Button>
+      </Stack>
     </Flex>
+  );
+};
+
+const ExportMenu = (
+  props: MenuGroupProps & { docs?: string[]; library: string; defaultExportFormat: string },
+): ReactElement => {
+  const { docs, library, defaultExportFormat, ...menuGroupProps } = props;
+  const router = useRouter();
+  const [selected, setSelected] = useState<Bibcode[]>(null);
+  const [route, setRoute] = useState(['', '']);
+
+  const { data } = useVaultBigQuerySearch(selected ?? [], { enabled: !!selected && selected.length > 0 });
+
+  const defaultExportFormatValue = values(exportFormats).find((f) => f.label === defaultExportFormat).value;
+
+  useEffect(() => {
+    // when vault query is done, transition to the export page passing only qid
+    if (data) {
+      setSelected([]);
+      void router.push(
+        {
+          pathname: route[0],
+          query: { q: `docs(library/${library}`, qid: data.qid, referrer: `/user/libraries/${library}` },
+        },
+        {
+          pathname: route[1],
+          query: { q: `docs(library/${library}`, qid: data.qid, referrer: `/user/libraries/${library}` },
+        },
+      );
+    }
+  }, [data]);
+
+  // on route change
+  useEffect(() => {
+    if (route[0] !== '' && route[1] !== '') {
+      if (docs && docs.length > 0) {
+        // do this to trigger query request
+        return setSelected(docs);
+      } else {
+        // if explore all, then just use the current query, and do not trigger vault (redirect immediately)
+        void router.push(
+          { pathname: route[0], query: { q: `docs(library/${library})`, referrer: `/user/libraries/${library}` } },
+          { pathname: route[1], query: { q: `docs(library/${library})`, referrer: `/user/libraries/${library}` } },
+        );
+      }
+    }
+  }, [route]);
+
+  const handleExportItemClick = curryN(2, (format: ExportApiFormatKey) => {
+    setRoute([`/search/exportcitation/[format]`, `/search/exportcitation/${format}`]);
+  });
+
+  return (
+    <MenuGroup {...menuGroupProps} title="EXPORT">
+      <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.bibtex)}>in BibTeX</MenuItem>
+      <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.aastex)}>in AASTeX</MenuItem>
+      <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.endnote)}>in EndNote</MenuItem>
+      <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.ris)}>in RIS</MenuItem>
+      <MenuItem onClick={handleExportItemClick(defaultExportFormatValue as ExportApiFormatKey)}>Other Formats</MenuItem>
+    </MenuGroup>
   );
 };
