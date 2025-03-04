@@ -19,10 +19,20 @@ import { useSettings } from '@/lib/useSettings';
 import { exportFormats } from '@/components/CitationExporter';
 import { IMenuItem, SideNavigationMenu, TopNavigationMenu } from '@/components/NavigationMenu';
 import { IDocsEntity } from '@/api/search/types';
+import { useGetGraphicsCount } from '@/api/graphics/graphics';
+import { useHasMetrics } from '@/api/metrics/metrics';
 
 const abstractPath = '/abs';
 
-const useGetItems = ({ doc }: { doc: IDocsEntity; hasMetrics: boolean; graphicsCount: number }) => {
+const useGetItems = ({
+  doc,
+  graphicsCount,
+  hasMetrics,
+}: {
+  doc: IDocsEntity;
+  hasMetrics: boolean;
+  graphicsCount: number;
+}) => {
   const router = useRouter();
   const docId = router.query.id as string;
 
@@ -86,14 +96,14 @@ const useGetItems = ({ doc }: { doc: IDocsEntity; hasMetrics: boolean; graphicsC
       label: 'Graphics',
       icon: <PhotographIcon />,
       rightElement: null,
-      disabled: false,
+      disabled: graphicsCount === 0,
     },
     [Routes.METRICS]: {
       id: Routes.METRICS,
       href: { pathname: `${abstractPath}/${docId}/${Routes.METRICS}` },
       label: 'Metrics',
       icon: <ChartPieIcon />,
-      disabled: false,
+      disabled: !hasMetrics,
     },
     [Routes.EXPORT]: {
       id: Routes.EXPORT,
@@ -116,9 +126,9 @@ export interface IAbstractSideNavProps extends HTMLAttributes<HTMLDivElement> {
 
 export const AbstractSideNav = (props: IAbstractSideNavProps): ReactElement => {
   const { doc } = props;
-  // const graphicsCount = useGetGraphicsCount(doc?.bibcode);
-  // const hasMetrics = useHasMetrics(doc?.bibcode);
-  const { menuItems, activeItem } = useGetItems({ doc, graphicsCount: 0, hasMetrics: true });
+  const graphicsCount = useGetGraphicsCount(doc?.bibcode);
+  const hasMetrics = useHasMetrics(doc?.bibcode);
+  const { menuItems, activeItem } = useGetItems({ doc, graphicsCount, hasMetrics });
 
   return (
     <>

@@ -20,8 +20,6 @@ const SideMenuItem = ({ href, label, icon, active = false, disabled = false, rig
     <>
       {disabled ? (
         <Button
-          as={SimpleLink}
-          href={href}
           w="full"
           variant={active ? 'solid' : 'ghost'}
           size="md"
