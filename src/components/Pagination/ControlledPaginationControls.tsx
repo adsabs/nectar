@@ -1,8 +1,8 @@
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
-import { Flex, FlexProps, HStack, Icon, IconButton, Select } from '@chakra-ui/react';
-import { ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from '@heroicons/react/24/solid';
+import { Button, Flex, FlexProps, Select } from '@chakra-ui/react';
 import { NumPerPageType } from '@/types';
 import { useCallback } from 'react';
+import { ManualPageSelect } from './ManualPageSelect';
 
 export interface IControlledPaginationControlsProps extends FlexProps {
   entries: number;
@@ -49,41 +49,32 @@ export const ControlledPaginationControls = (props: IControlledPaginationControl
           <option value={100}>100</option>
         </Select>
       </Flex>
-      <HStack spacing="1" flex="1" justifyContent="flex-end">
-        <IconButton
-          aria-label="go to first page"
-          variant="outline"
-          colorScheme="gray"
-          icon={<Icon as={ChevronDoubleLeftIcon} />}
-          isDisabled={pageIndex === 0}
-          onClick={() => onChangePageIndex(0)}
-        />
-        <IconButton
+      <Flex flex="1" justifyContent="flex-end">
+        <Button
           aria-label="go to previous page"
-          variant="outline"
-          colorScheme="gray"
-          icon={<Icon as={ChevronLeftIcon} />}
+          variant="pagePrev"
+          leftIcon={<ChevronLeftIcon />}
           isDisabled={pageIndex === 0}
           onClick={handlePreviousPage}
+        >
+          Prev
+        </Button>
+        <ManualPageSelect
+          page={pageIndex + 1}
+          totalPages={pageCount}
+          onPageSelect={(p) => onChangePageIndex(p - 1)}
+          isDisabled={pageCount <= 1}
         />
-        <IconButton
+        <Button
           aria-label="go to next page"
-          variant="outline"
-          colorScheme="gray"
-          icon={<Icon as={ChevronRightIcon} />}
+          variant="pageNext"
+          rightIcon={<ChevronRightIcon />}
           isDisabled={pageIndex === pageCount - 1}
           onClick={handleNextPage}
-        />
-
-        <IconButton
-          aria-label="go to last page"
-          variant="outline"
-          colorScheme="gray"
-          icon={<Icon as={ChevronDoubleRightIcon} />}
-          isDisabled={pageIndex === pageCount - 1}
-          onClick={() => onChangePageIndex(pageCount - 1)}
-        />
-      </HStack>
+        >
+          Next
+        </Button>
+      </Flex>
     </Flex>
   );
 };

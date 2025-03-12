@@ -259,24 +259,26 @@ export const theme = extendTheme(
             backgroundColor: 'blue.50',
             zIndex: '5',
           },
-          pagePrev: {
+          pagePrev: (props: StyleFunctionProps) => ({
             borderWidth: '1px',
             borderRadius: '5px 0 0 5px',
             borderColor: 'gray.200',
             backgroundColor: 'transparent',
-          },
+            color: mode('blue.400', 'blue.200')(props),
+          }),
           pageBetween: {
             borderWidth: '1px',
             borderRadius: '0 0 0 0',
             borderColor: 'gray.200',
             backgroundColor: 'transparent',
           },
-          pageNext: {
+          pageNext: (props: StyleFunctionProps) => ({
             borderWidth: '1px',
             borderRadius: '0 5px 5px 0',
             borderColor: 'gray.200',
             backgroundColor: 'transparent',
-          },
+            color: mode('blue.400', 'blue.200')(props),
+          }),
           warning: {
             backgroundColor: 'red.500',
             color: 'gray.50',
