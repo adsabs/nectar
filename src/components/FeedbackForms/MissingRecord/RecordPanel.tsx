@@ -63,7 +63,7 @@ const validationSchema = z
     publication: z.string().min(1, 'Publication is required'),
     pubDate: z.string().min(1, 'Publication date is required'),
     urls: z.custom<IResourceUrl>().array(),
-    abstract: z.string().min(1, 'Abstract is required'),
+    abstract: z.string(),
     keywords: z.custom<IKeyword>().array(),
     references: z.custom<IReference>().array(),
     comments: z.string(),
@@ -453,9 +453,9 @@ export const RecordPanel = ({
 
             <UrlsField />
 
-            <FormControl isRequired>
+            <FormControl>
               <FormLabel>Abstract</FormLabel>
-              <Textarea {...register('abstract', { required: true })} rows={10} />
+              <Textarea {...register('abstract')} rows={10} />
             </FormControl>
 
             <KeywordsField />
