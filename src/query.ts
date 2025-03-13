@@ -40,7 +40,7 @@ const stringify = (ast: lucene.AST) => lucene.toString(ast);
 const isNonEmptyString = (v: unknown) => typeof v === 'string' && v.length > 0;
 const isUndefinedOrEmpty = (v: unknown) => typeof v === 'undefined' || (typeof v === 'string' && v.length === 0);
 const stripFieldFromClause = (clause: string) => replace(FIELD_REGEX, '', clause);
-const capitalizeOperators = (query: string) => query.replace(/\b(and|or|not)\b/gi, toUpper);
+const capitalizeOperators = (query: string) => query.replace(/\b(and|or|not)\b(?=(?:[^"]*"[^"]*")*[^"]*$)/gi, toUpper);
 const appendIfString = (list: string[], result: string) => (is(String, result) ? [...list, result] : list);
 export const getOperator = pipe<[string], lucene.AST, string, string>(
   parse,
