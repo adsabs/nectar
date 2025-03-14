@@ -1,8 +1,8 @@
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
-import { Flex, FlexProps, HStack, Icon, IconButton, Select } from '@chakra-ui/react';
-import { ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from '@heroicons/react/24/solid';
+import { Button, Flex, FlexProps, Select } from '@chakra-ui/react';
 import { Table } from '@tanstack/react-table';
 import { useCallback } from 'react';
+import { ManualPageSelect } from './ManualPageSelect';
 
 export interface IPaginationControlsProps<T> extends FlexProps {
   table: Table<T>;
@@ -34,41 +34,32 @@ export const PaginationControls = <T extends object>(props: IPaginationControlsP
           <option value={100}>100</option>
         </Select>
       </Flex>
-      <HStack spacing="1" flex="1" justifyContent="flex-end">
-        <IconButton
-          aria-label="go to first page"
-          variant="outline"
-          colorScheme="gray"
-          icon={<Icon as={ChevronDoubleLeftIcon} />}
-          isDisabled={!table.getCanPreviousPage()}
-          onClick={() => table.setPageIndex(0)}
-        />
-        <IconButton
+      <Flex flex="1" justifyContent="flex-end">
+        <Button
           aria-label="go to previous page"
-          variant="outline"
-          colorScheme="gray"
-          icon={<Icon as={ChevronLeftIcon} />}
+          variant="pagePrev"
+          leftIcon={<ChevronLeftIcon />}
           isDisabled={!table.getCanPreviousPage()}
           onClick={() => table.previousPage()}
+        >
+          Prev
+        </Button>
+        <ManualPageSelect
+          page={pageIndex + 1}
+          totalPages={table.getPageCount()}
+          onPageSelect={(p) => table.setPageIndex(p - 1)}
+          isDisabled={entries.length <= pageSize}
         />
-        <IconButton
+        <Button
           aria-label="go to next page"
-          variant="outline"
-          colorScheme="gray"
-          icon={<Icon as={ChevronRightIcon} />}
+          variant="pageNext"
+          rightIcon={<ChevronRightIcon />}
           isDisabled={!table.getCanNextPage()}
           onClick={() => table.nextPage()}
-        />
-
-        <IconButton
-          aria-label="go to last page"
-          variant="outline"
-          colorScheme="gray"
-          icon={<Icon as={ChevronDoubleRightIcon} />}
-          isDisabled={!table.getCanNextPage()}
-          onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-        />
-      </HStack>
+        >
+          Next
+        </Button>
+      </Flex>
     </Flex>
   );
 };
