@@ -3,6 +3,7 @@ import {
   AlertDescription,
   AlertIcon,
   AlertTitle,
+  Box,
   BoxProps,
   Button,
   ButtonGroup,
@@ -10,7 +11,6 @@ import {
   Checkbox,
   CheckboxProps,
   Code,
-  Collapse,
   Divider,
   Heading,
   IconButton,
@@ -20,6 +20,13 @@ import {
   ListItem,
   ListItemProps,
   ListProps,
+  Popover,
+  PopoverAnchor,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverHeader,
   Skeleton,
   Spinner,
   Stack,
@@ -35,7 +42,17 @@ import { FacetItem, FacetLogic, OnFilterArgs } from '@/components/SearchFacet/ty
 import { IUseGetFacetDataProps, useGetFacetData } from '@/components/SearchFacet/useGetFacetData';
 import { EllipsisHorizontalIcon, ExclamationTriangleIcon, InformationCircleIcon } from '@heroicons/react/24/solid';
 import { equals, isEmpty } from 'ramda';
-import { forwardRef, KeyboardEvent, memo, MouseEventHandler, useCallback, useEffect, useRef } from 'react';
+import {
+  ForwardedRef,
+  forwardRef,
+  KeyboardEvent,
+  memo,
+  MouseEventHandler,
+  ReactElement,
+  useCallback,
+  useEffect,
+  useRef,
+} from 'react';
 import { SearchFacetModal } from './SearchFacetModal';
 
 import { Pagination } from '@/components/ResultList/Pagination';
@@ -48,12 +65,18 @@ export interface IFacetListProps extends ListProps {
   noLoadMore?: boolean;
   onFilter?: (args: OnFilterArgs) => void;
   onError?: () => void;
+  label?: string;
 }
 
 export const FacetList = (props: IFacetListProps) => {
-  const { noLoadMore, onFilter, onError } = props;
+  const { noLoadMore, onFilter, onError, label } = props;
 
   const focused = useFacetStore(selectors.focused);
+
+  const clearSelection = useFacetStore(selectors.clearSelection);
+  const handleOnClose = () => {
+    clearSelection();
+  };
 
   return (
     <>
@@ -72,8 +95,9 @@ export const FacetList = (props: IFacetListProps) => {
           )
         }
       </SearchFacetModal>
-      <NodeList level="root" prefix="" onError={onError} noLoadMore={noLoadMore} searchTerm="" parentIndex={[]} />
-      <LogicSelect mt="2" onFilter={onFilter} />
+      <LogicSelect mt="2" onFilter={onFilter} onClose={handleOnClose} label={label}>
+        <NodeList level="root" prefix="" onError={onError} noLoadMore={noLoadMore} searchTerm="" parentIndex={[]} />
+      </LogicSelect>
     </>
   );
 };
@@ -87,160 +111,163 @@ export interface INodeListProps extends Pick<IUseGetFacetDataProps, 'prefix' | '
   onKeyboardFocusNext?: (index: number[]) => void;
 }
 
-export const NodeList = memo((props: INodeListProps) => {
-  const { parentIndex, prefix, level, noLoadMore, onError, onLoadMore, onKeyboardFocusNext = noop } = props;
+export const NodeList = memo(
+  forwardRef((props: INodeListProps, ref: ForwardedRef<HTMLDivElement>) => {
+    const { parentIndex, prefix, level, noLoadMore, onError, onLoadMore, onKeyboardFocusNext = noop } = props;
 
-  const params = useFacetStore(selectors.params);
-  const [sortField, sortDir] = useFacetStore(selectors.sort);
-  const updateModal = useFacetStore(selectors.updateModal);
-  const depth = getLevelFromKey(prefix) + 1;
-  const expandable = params.hasChildren && (level === 'root' || params.maxDepth > depth);
-  const { treeData, isFetching, isError, canLoadMore } = useGetFacetData({
-    ...params,
-    prefix,
-    level,
-    sortDir,
-    sortField,
-  });
+    const params = useFacetStore(selectors.params);
+    const [sortField, sortDir] = useFacetStore(selectors.sort);
+    const updateModal = useFacetStore(selectors.updateModal);
+    const depth = getLevelFromKey(prefix) + 1;
+    const expandable = params.hasChildren && (level === 'root' || params.maxDepth > depth);
+    const { treeData, isFetching, isError, canLoadMore } = useGetFacetData({
+      ...params,
+      prefix,
+      level,
+      sortDir,
+      sortField,
+    });
 
-  useEffect(() => {
-    if (isError && typeof onError === 'function') {
-      onError();
-    }
-  }, [isError]);
-
-  const setKeyboardFocus = useFacetStore(selectors.setKeyboardFocused);
-  const expanded = useFacetStore(selectors.expanded);
-  const childrenCount = useFacetStore(selectors.childrenCount);
-  const setChildrenCount = useFacetStore(selectors.setChildrenCount);
-
-  useEffect(() => {
-    if (treeData) {
-      const id = `${parentIndex.join('-')}`;
-      if (!(id in childrenCount) || treeData.length !== childrenCount[id]) {
-        setChildrenCount(id, treeData.length);
+    useEffect(() => {
+      if (isError && typeof onError === 'function') {
+        onError();
       }
-    }
-  }, [treeData]);
+    }, [isError]);
 
-  if (isError) {
-    return (
-      <Center data-testid="search-facet-error">
-        <Text>Error loading results</Text>
-      </Center>
-    );
-  }
+    const setKeyboardFocus = useFacetStore(selectors.setKeyboardFocused);
+    const expanded = useFacetStore(selectors.expanded);
+    const childrenCount = useFacetStore(selectors.childrenCount);
+    const setChildrenCount = useFacetStore(selectors.setChildrenCount);
 
-  if (isFetching) {
-    return (
-      <Center data-testid="search-facet-loading">
-        <Spinner size="sm" />
-      </Center>
-    );
-  } else if (treeData?.length === 0) {
-    return (
-      <Center data-testid="search-facet-no-results">
-        <Heading as="h2" size="xs">
-          No Results
-        </Heading>
-      </Center>
-    );
-  }
-
-  const handleLoadMore = () => {
-    updateModal(true);
-    if (typeof onLoadMore === 'function') {
-      onLoadMore();
-    }
-  };
-
-  const handleKeyboardFocusNext = (index: number[]) => {
-    if (level === 'root') {
-      // focus on next silbing
-      if (index[0] + 1 < treeData.length) {
-        setKeyboardFocus([index[0] + 1]);
-      }
-      // else do nothing
-    } else {
-      // focus on next silbing
-      if (index[1] + 1 < treeData.length) {
-        setKeyboardFocus([index[0], index[1] + 1]);
-      } else {
-        // focus next item in the parent level
-        onKeyboardFocusNext([index[0]]);
-      }
-    }
-  };
-
-  const handleKeyboardFocusPrev = (index: number[]) => {
-    if (level === 'root') {
-      if (index[0] > 0) {
-        const prevId = `${index[0] - 1}`;
-        if (expanded.indexOf(prevId) !== -1) {
-          // if previous is expanded, go to previous last child
-          setKeyboardFocus([index[0] - 1, childrenCount[prevId] - 1]);
-        } else {
-          // else go to previous silbing
-          setKeyboardFocus([index[0] - 1]);
+    useEffect(() => {
+      if (treeData) {
+        const id = `${parentIndex.join('-')}`;
+        if (!(id in childrenCount) || treeData.length !== childrenCount[id]) {
+          setChildrenCount(id, treeData.length);
         }
       }
-    } else {
-      // focus on previous silbing
-      if (index[1] > 0) {
-        setKeyboardFocus([index[0], index[1] - 1]);
-      } else {
-        // focus on parent
-        setKeyboardFocus([index[0]]);
-      }
-    }
-  };
+    }, [treeData]);
 
-  const handleArrowUpFromLoadMore = () => {
-    if (level === 'root') {
-      const lastRootId = `${treeData.length - 1}`;
-      setKeyboardFocus(
-        expanded.indexOf(lastRootId) !== -1
-          ? [treeData.length - 1, childrenCount[lastRootId] - 1]
-          : [treeData.length - 1],
+    if (isError) {
+      return (
+        <Center data-testid="search-facet-error">
+          <Text>Error loading results</Text>
+        </Center>
       );
-    } else {
-      setKeyboardFocus([parentIndex[0], treeData.length - 1]);
     }
-  };
 
-  const handleArrowDownFromLoadMore = () => {
-    // focus on next parent sibling
-    if (level !== 'root' && parentIndex[0] + 1 < treeData.length) {
-      setKeyboardFocus([parentIndex[0] + 1]);
+    if (isFetching) {
+      return (
+        <Center data-testid="search-facet-loading">
+          <Spinner size="sm" />
+        </Center>
+      );
+    } else if (treeData?.length === 0) {
+      return (
+        <Center data-testid="search-facet-no-results">
+          <Heading as="h2" size="xs">
+            No Results
+          </Heading>
+        </Center>
+      );
     }
-  };
 
-  return (
-    <>
-      <List w="full" data-testid={`search-facet-${level}-list`} pl={level === 'child' ? 4 : 0}>
-        {treeData?.map((node, index) => (
-          <Item
-            node={node}
-            key={node.id}
-            onError={onError}
-            expandable={expandable}
-            index={[...parentIndex, index]}
-            onKeyboardFocusNext={handleKeyboardFocusNext}
-            onKeyboardFocusPrev={handleKeyboardFocusPrev}
-          />
-        ))}
-      </List>
-      <LoadMoreBtn
-        mt={level === 'root' ? 2 : 0}
-        show={!noLoadMore && canLoadMore}
-        onClick={handleLoadMore}
-        pullRight
-        onArrowUp={handleArrowUpFromLoadMore}
-        onArrowDown={handleArrowDownFromLoadMore}
-      />
-    </>
-  );
-}, equals);
+    const handleLoadMore = () => {
+      updateModal(true);
+      if (typeof onLoadMore === 'function') {
+        onLoadMore();
+      }
+    };
+
+    const handleKeyboardFocusNext = (index: number[]) => {
+      if (level === 'root') {
+        // focus on next silbing
+        if (index[0] + 1 < treeData.length) {
+          setKeyboardFocus([index[0] + 1]);
+        }
+        // else do nothing
+      } else {
+        // focus on next silbing
+        if (index[1] + 1 < treeData.length) {
+          setKeyboardFocus([index[0], index[1] + 1]);
+        } else {
+          // focus next item in the parent level
+          onKeyboardFocusNext([index[0]]);
+        }
+      }
+    };
+
+    const handleKeyboardFocusPrev = (index: number[]) => {
+      if (level === 'root') {
+        if (index[0] > 0) {
+          const prevId = `${index[0] - 1}`;
+          if (expanded.indexOf(prevId) !== -1) {
+            // if previous is expanded, go to previous last child
+            setKeyboardFocus([index[0] - 1, childrenCount[prevId] - 1]);
+          } else {
+            // else go to previous silbing
+            setKeyboardFocus([index[0] - 1]);
+          }
+        }
+      } else {
+        // focus on previous silbing
+        if (index[1] > 0) {
+          setKeyboardFocus([index[0], index[1] - 1]);
+        } else {
+          // focus on parent
+          setKeyboardFocus([index[0]]);
+        }
+      }
+    };
+
+    const handleArrowUpFromLoadMore = () => {
+      if (level === 'root') {
+        const lastRootId = `${treeData.length - 1}`;
+        setKeyboardFocus(
+          expanded.indexOf(lastRootId) !== -1
+            ? [treeData.length - 1, childrenCount[lastRootId] - 1]
+            : [treeData.length - 1],
+        );
+      } else {
+        setKeyboardFocus([parentIndex[0], treeData.length - 1]);
+      }
+    };
+
+    const handleArrowDownFromLoadMore = () => {
+      // focus on next parent sibling
+      if (level !== 'root' && parentIndex[0] + 1 < treeData.length) {
+        setKeyboardFocus([parentIndex[0] + 1]);
+      }
+    };
+
+    return (
+      <Box ref={ref}>
+        <List w="full" data-testid={`search-facet-${level}-list`} pl={level === 'child' ? 4 : 0}>
+          {treeData?.map((node, index) => (
+            <Item
+              node={node}
+              key={node.id}
+              onError={onError}
+              expandable={expandable}
+              index={[...parentIndex, index]}
+              onKeyboardFocusNext={handleKeyboardFocusNext}
+              onKeyboardFocusPrev={handleKeyboardFocusPrev}
+            />
+          ))}
+        </List>
+        <LoadMoreBtn
+          mt={level === 'root' ? 2 : 0}
+          show={!noLoadMore && canLoadMore}
+          onClick={handleLoadMore}
+          pullRight
+          onArrowUp={handleArrowUpFromLoadMore}
+          onArrowDown={handleArrowDownFromLoadMore}
+        />
+      </Box>
+    );
+  }),
+  equals,
+);
 NodeList.displayName = 'NodeList';
 
 const capitalize = (s: string) => {
@@ -625,8 +652,10 @@ export const LoadMoreBtn = (props: ILoadMoreBtnProps) => {
   return null;
 };
 
-export const LogicSelect = (props: Pick<IFacetListProps, 'onFilter'> & BoxProps) => {
-  const { onFilter, ...boxProps } = props;
+const LogicSelect = (
+  props: Pick<IFacetListProps, 'onFilter'> & BoxProps & { onClose: () => void; label: string },
+): ReactElement => {
+  const { children, onFilter, onClose, label, ...boxProps } = props;
   const params = useFacetStore((state) => state.params);
   const selected = useFacetStore((state) => state.selected);
   const reset = useFacetStore((state) => state.reset);
@@ -644,16 +673,26 @@ export const LogicSelect = (props: Pick<IFacetListProps, 'onFilter'> & BoxProps)
 
   const logicType = selected.length > 1 ? params.logic.multiple : params.logic.single;
   return (
-    <Collapse in={selected.length > 0}>
-      <Center {...boxProps}>
-        <ButtonGroup size="sm" isAttached variant="outline">
-          {logicType.map((value) => (
-            <Button key={value} data-value={value} onClick={handleSelect} borderRadius="none">
-              {value}
-            </Button>
-          ))}
-        </ButtonGroup>
-      </Center>
-    </Collapse>
+    <Popover isOpen={selected.length > 0} placement="right-start">
+      <PopoverAnchor>{children}</PopoverAnchor>
+      <PopoverContent maxWidth="fit-content" minWidth="40">
+        <PopoverHeader fontSize="md" fontWeight="bold">
+          {`${label} (${selected.length})`}
+        </PopoverHeader>
+        <PopoverArrow />
+        <PopoverCloseButton onClick={onClose} />
+        <PopoverBody>
+          <Center {...boxProps}>
+            <ButtonGroup size="sm" isAttached variant="outline">
+              {logicType.map((value) => (
+                <Button key={value} data-value={value} onClick={handleSelect} borderRadius="none">
+                  {value}
+                </Button>
+              ))}
+            </ButtonGroup>
+          </Center>
+        </PopoverBody>
+      </PopoverContent>
+    </Popover>
   );
 };
