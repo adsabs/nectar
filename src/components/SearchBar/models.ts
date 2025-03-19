@@ -386,6 +386,15 @@ export const allSearchTerms: SearchTermOption[] = [
   },
   {
     type: 'item',
+    id: 'planetary_feature',
+    value: 'planetary_feature:""',
+    title: 'planetary feature',
+    description: 'Search using planetary feature',
+    syntax: ['planetary_feature:"feature"'],
+    example: ['planetary_feature:"mars"'],
+  },
+  {
+    type: 'item',
     id: 'property',
     value: 'property:',
     title: 'property',
@@ -421,6 +430,15 @@ export const allSearchTerms: SearchTermOption[] = [
     description: 'Search for word or phrase in title field',
     syntax: ['title:"phrase"'],
     example: ['title:"weak lensing"'],
+  },
+  {
+    type: 'item',
+    id: 'uat',
+    value: 'uat:""',
+    title: 'uat',
+    description: 'Search using UAT keyword',
+    syntax: ['uat:"phrase"'],
+    example: ['uat:"cosmology"'],
   },
   {
     type: 'item',
