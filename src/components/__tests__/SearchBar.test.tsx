@@ -1,10 +1,7 @@
-import { composeStories } from '@storybook/react';
 import { render } from '@/test-utils';
 import userEvent from '@testing-library/user-event';
 import { expect, test } from 'vitest';
-import * as stories from '../__stories__/SearchBar.stories';
-
-const { Basic: SearchBar } = composeStories(stories);
+import { SearchBar } from '../SearchBar';
 
 const setup = () => {
   const utils = render(<SearchBar />);

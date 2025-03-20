@@ -7,13 +7,10 @@ import {
   toggleAff,
   toggleAll,
 } from '@/components/AuthorAffiliations/helpers';
-import { composeStories } from '@storybook/react';
-import { render } from '@/test-utils';
 import { lensPath, mapObjIndexed, prop, set, view } from 'ramda';
 import { afterEach, describe, expect, test, vi } from 'vitest';
-import * as stories from '../__stories__/AuthorAffiliations.stories';
 
-const { WithNoIntitialArgs } = composeStories(stories);
+//TODO: write a test for this component
 
 vi.mock('file-saver', () => ({
   saveAs: vi.fn(),
@@ -29,13 +26,6 @@ vi.stubGlobal('open', vi.fn());
 
 afterEach(() => {
   vi.clearAllMocks();
-});
-
-describe.skip('UI', () => {
-  test('providing no args shows warning', async () => {
-    const { findByRole } = render(<WithNoIntitialArgs />);
-    await findByRole('alert');
-  });
 });
 
 describe('helpers', () => {

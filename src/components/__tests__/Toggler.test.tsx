@@ -1,9 +1,6 @@
 import { render } from '@testing-library/react';
 import { test } from 'vitest';
-import { composeStories } from '@storybook/react';
-import * as stories from '../__stories__/Toggler.stories';
-
-const { Default: Toggler } = composeStories(stories);
+import { Toggler } from '@/components/Toggler';
 
 test('renders without crashing', () => {
   render(<Toggler />);
