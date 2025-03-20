@@ -2,6 +2,3 @@
 **/.svn
 **/.hg
 **/node_modules
-
-# This file gives issues with complex types, for now ignore
-**/src/test-utils.tsx

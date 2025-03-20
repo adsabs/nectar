@@ -13,7 +13,7 @@ import CopyToClipboard from 'react-copy-html-to-clipboard';
 
 export interface IItemResourceDropdownsProps {
   doc: IDocsEntity;
-  defaultCitation: string;
+  defaultCitation?: string;
 }
 
 export interface IItem {

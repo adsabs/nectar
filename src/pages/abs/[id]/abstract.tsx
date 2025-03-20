@@ -469,7 +469,7 @@ interface IDetailProps<T = string | Array<string>> {
 }
 
 // TODO: this should take in a list of deps or the whole doc and show/hide based on that
-const Detail = <T,>(props: IDetailProps<T>): ReactElement => {
+const Detail = <T extends string | string[]>(props: IDetailProps<T>): ReactElement => {
   const { label, href, newTab = false, value, copiable = false, children } = props;
 
   // show nothing if no value
@@ -477,7 +477,7 @@ const Detail = <T,>(props: IDetailProps<T>): ReactElement => {
     return null;
   }
 
-  const normalizedValue = Array.isArray(value) ? value.join('; ') : value;
+  const normalizedValue: string = Array.isArray(value) ? value.join('; ') : value;
 
   return (
     <Tr>

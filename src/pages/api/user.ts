@@ -1,4 +1,3 @@
-/// <reference types="../../../global" />
 import { NextApiRequest, NextApiResponse } from 'next';
 import { sessionConfig } from '@/config';
 import { IronSession } from 'iron-session';

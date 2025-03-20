@@ -1,7 +1,7 @@
 import { AppState, StoreProvider, useCreateStore } from '@/store';
 import { render, renderHook, RenderOptions } from '@testing-library/react';
 import { MockedRequest } from 'msw';
-import { ServerLifecycleEventsMap, SetupServerApi } from 'msw/node';
+import { SetupServerApi } from 'msw/node';
 import { AnyFunction, map, path, pipe } from 'ramda';
 import { ReactElement, ReactNode } from 'react';
 import { Mock, vi } from 'vitest';
@@ -18,31 +18,19 @@ import { theme } from '@/theme';
  * Attach listeners and return the mocks
  */
 export const createServerListenerMocks = (server: SetupServerApi) => {
-
-// Extract the `on` method type
-  type ServerEventOnMethod = typeof server.events.on;
-
-// Extract listener type for a specific event
-  type EventListener<T extends keyof ServerLifecycleEventsMap> =
-    ServerEventOnMethod extends (event: T, listener: infer U) => void ? U : never;
-
-// Extract the parameters of the listener
-  type EventMockParams<T extends keyof ServerLifecycleEventsMap> =
-    Parameters<EventListener<T>>;
-
-  const onRequest = vi.fn<EventMockParams<'request:start'>, void>();
-  const onMatch = vi.fn<EventMockParams<'request:match'>, void>();
-  const onResponse = vi.fn<EventMockParams<'response:mocked'>, void>();
-  const onUnhandled = vi.fn<EventMockParams<'request:unhandled'>, void>();
-  const onRequestEnd = vi.fn<EventMockParams<'request:end'>, void>();
-  const onResponseBypass = vi.fn<EventMockParams<'response:bypass'>, void>();
-  const onUnhandleException = vi.fn<EventMockParams<'unhandledException'>, void>();
+  const onRequest = vi.fn<[MockedRequest]>();
+  const onMatch = vi.fn<[MockedRequest]>();
+  const onUnhandled = vi.fn<[MockedRequest]>();
+  const onRequestEnd = vi.fn<[MockedRequest]>();
+  const onResponse = vi.fn<[response: unknown, requestId: string]>();
+  const onResponseBypass = vi.fn<[response: unknown, requestId: string]>();
+  const onUnhandleException = vi.fn<[error: Error, request: MockedRequest]>();
 
   server.events.on('request:start', onRequest);
-  server.events.on('response:mocked', onResponse);
   server.events.on('request:match', onMatch);
   server.events.on('request:unhandled', onUnhandled);
   server.events.on('request:end', onRequestEnd);
+  server.events.on('response:mocked', onResponse);
   server.events.on('response:bypass', onResponseBypass);
   server.events.on('unhandledException', onUnhandleException);
 

@@ -1,25 +1,3 @@
-import { SetupServerApi } from 'msw/node';
-
-declare module 'vitest' {
-  export interface TestContext {
-    server?: SetupServerApi;
-  }
-}
-
-declare module 'iron-session' {
-  interface IronSessionData {
-    token?: {
-      access_token: string;
-      anonymous: boolean;
-      expires_at: string;
-      username: string;
-    };
-    isAuthenticated?: boolean;
-    apiCookieHash?: string;
-    bot?: boolean;
-  }
-}
-
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
@@ -51,3 +29,4 @@ declare global {
     }
   }
 }
+export {};
