@@ -23,13 +23,16 @@
     "paths": {
       "@/*": [
         "./src/*"
-      ],
+      ]
     },
-    "incremental": true
+    "incremental": true,
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/types"
+    ]
   },
   "include": [
-    "reset.d.ts",
-    "global.d.ts",
+    "src/**/*.d.ts",
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
