@@ -25,7 +25,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
 
       - name: Install Deps
-        run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 SENTRYCLI_SKIP_DOWNLOAD=1 pnpm install
+        run: SENTRYCLI_SKIP_DOWNLOAD=1 pnpm install
 
       - name: Lint
         run: pnpm lint --quiet
@@ -53,7 +53,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install Deps
-        run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 SENTRYCLI_SKIP_DOWNLOAD=1 pnpm install
+        run: SENTRYCLI_SKIP_DOWNLOAD=1 pnpm install
 
       - name: Build
         run: pnpm build
@@ -74,7 +74,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install Deps
-        run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 SENTRYCLI_SKIP_DOWNLOAD=1 pnpm install
+        run: SENTRYCLI_SKIP_DOWNLOAD=1 pnpm install
 
       - name: Test
         run: pnpm test:coverage
