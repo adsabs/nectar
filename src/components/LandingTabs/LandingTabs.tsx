@@ -63,11 +63,23 @@ const Tabs = ({ show }: { show: boolean }) => {
     return null;
   }
 
+  const getActiveTab = () => {
+    switch (pathname) {
+      case '/classic-form':
+        return 'classic-form';
+      case '/paper-form':
+        return 'paper-form';
+      default:
+        return 'modern-form';
+    }
+  };
+  const tab = getActiveTab();
   return (
     <HStack justifyContent="center" spacing={2} zIndex={5} fontSize={{ base: 'md', sm: 'xl' }}>
-      <Tab href="/classic-form" label="Classic Form" active={pathname === '/classic-form'} />
-      <Tab href="/" label="Modern Form" active={pathname === '/'} />
-      <Tab href="/paper-form" label="Paper Form" active={pathname === '/paper-form'} />
+      <Tab href="/classic-form" label="Classic Form" active={tab === 'classic-form'} />
+      <Tab href="/" label="Modern Form" active={tab === 'modern-form'} />
+      <Tab href="/paper-form" label="Paper Form" active={tab === 'paper-form'} />
+      <input type="hidden" data-testid="active-tab" name="active-tab" value={tab} />
     </HStack>
   );
 };

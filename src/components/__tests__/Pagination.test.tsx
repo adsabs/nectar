@@ -1,10 +1,18 @@
-import * as stories from '@/components/__stories__/Pagination.stories';
-import { composeStories } from '@storybook/react';
 import { render } from '@/test-utils';
-import { test } from 'vitest';
+import { test, vi } from 'vitest';
+import { Pagination } from '@/components/ResultList/Pagination';
 
-const { Default: Pagination } = composeStories(stories);
+const mocks = vi.hoisted(() => ({
+  useRouter: () => ({
+    query: { id: 'foo' },
+    asPath: '/search',
+    pathname: '/search',
+    push: vi.fn(),
+  }),
+}));
 
-test.skip('renders without crashing', () => {
-  render(<Pagination />);
+vi.mock('next/router', () => ({ useRouter: mocks.useRouter }));
+
+test('renders without crashing', () => {
+  render(<Pagination page={1} totalResults={100} />);
 });

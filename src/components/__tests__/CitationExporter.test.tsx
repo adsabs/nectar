@@ -1,13 +1,31 @@
 import { APP_DEFAULTS } from '@/config';
-import { composeStories } from '@storybook/react';
 import { render, waitFor } from '@/test-utils';
 import userEvent from '@testing-library/user-event';
 import { ReactElement } from 'react';
 import { describe, expect, test, vi } from 'vitest';
-import * as stories from '../__stories__/CitationExporter.stories';
 import { ExportApiFormatKey, IExportApiParams } from '@/api/export/types';
+import { CitationExporter } from '@/components/CitationExporter';
 
-const { NoRecords, MultiRecord, SingleMode } = composeStories(stories);
+const NoRecords = () => <CitationExporter records={[]} />;
+const SingleMode = () => <CitationExporter records={['2021APS..APRA01003G']} singleMode />;
+const MultiRecord = () => (
+  <CitationExporter
+    initialFormat={ExportApiFormatKey.bibtex}
+    totalRecords={100}
+    records={[
+      '2021APS..APRA01003G',
+      '2018cosp...42E1191G',
+      '2017koa..prop..257G',
+      '2015koa..prop..493G',
+      '2015koa..prop..393G',
+      '2015IAUGA..2258598G',
+      '2015IAUGA..2258584G',
+      '2014koa..prop..669G',
+      '2014koa..prop..579G',
+      '2014ATel.6110....1G',
+    ]}
+  />
+);
 
 const router = {
   pathname: '/',
