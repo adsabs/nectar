@@ -227,7 +227,7 @@ const JournalSummary = ({ bibstem, onClose }: { bibstem: string; onClose: () => 
 
   const summary = useMemo(() => {
     if (data) {
-      return JSON.stringify(data.summary, null, 2);
+      return JSON.stringify(data.browse, null, 2);
     }
   }, [data]);
 
@@ -239,7 +239,7 @@ const JournalSummary = ({ bibstem, onClose }: { bibstem: string; onClose: () => 
         {!isFetching && summary && (
           <>
             <Text fontSize="2xl" my={2}>
-              <strong>{data.summary.master.bibstem}</strong> {data.summary.master.journal_name}
+              <strong>{data.browse.classic_bibstem}</strong> {data.browse.canonical_name}
             </Text>
             <pre>{summary}</pre>
           </>
