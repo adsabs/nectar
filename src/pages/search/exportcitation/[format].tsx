@@ -27,7 +27,7 @@ import { exportCitationKeys, fetchExportCitation } from '@/api/export/export';
 interface IExportCitationPageProps {
   format: ExportApiFormatKey;
   query: IADSApiSearchParams;
-  referrer?: string;
+  referrer?: string; // this is currently used by the library
   error?: {
     status?: string;
     message?: string;
@@ -59,7 +59,7 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
         };
 
   const { data, fetchNextPage, hasNextPage, error } = useSearchInfinite(query);
-  const { getSearchHref } = useBackToSearchResults();
+  const { getSearchHref, show: showSearchHref } = useBackToSearchResults();
 
   // TODO: add more error handling here
   if (!data) {
@@ -81,9 +81,12 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
       </Head>
       <Flex direction="column">
         <HStack my={10}>
-          <SimpleLink href={referrer ?? getSearchHref()}>
-            <ChevronLeftIcon w={8} h={8} />
-          </SimpleLink>
+          {(referrer || showSearchHref) && (
+            <SimpleLink href={referrer ?? getSearchHref()}>
+              <ChevronLeftIcon w={8} h={8} />
+            </SimpleLink>
+          )}
+
           <Heading as="h2" fontSize="2xl">
             Export Citations
           </Heading>
