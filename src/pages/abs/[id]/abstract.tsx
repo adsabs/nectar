@@ -3,6 +3,7 @@ import {
   AlertDescription,
   AlertIcon,
   AlertTitle,
+  Badge,
   Box,
   Button,
   Center,
@@ -41,7 +42,7 @@ import { MathJax } from 'better-react-mathjax';
 import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import { equals, isNil, path, values } from 'ramda';
-import { memo, ReactElement, useState } from 'react';
+import { memo, ReactElement, ReactNode, useState } from 'react';
 import { useRouter } from 'next/router';
 import { FolderPlusIcon } from '@heroicons/react/24/solid';
 import { useSession } from '@/lib/useSession';
@@ -368,9 +369,17 @@ const Keywords = memo(({ keywords }: { keywords: Array<string> }) => {
 Keywords.displayName = 'Keywords';
 
 const UATKeywords = memo(({ keywords, ids }: { keywords: Array<string>; ids: Array<string> }) => {
-  const label = `Search for papers that mention this keyword`;
+  const desc = `Search for papers that mention this keyword`;
+  const label = (
+    <>
+      {`UAT ${pluralize('Keyword', keywords?.length ?? 0)} (generated)`}
+      <Badge colorScheme="blue" mx={1}>
+        BETA
+      </Badge>
+    </>
+  );
   return (
-    <Detail label={`UAT ${pluralize('Keyword', keywords?.length ?? 0)} (generated)`} value={keywords}>
+    <Detail label={label} value={keywords}>
       {(keywords) => (
         <Flex flexWrap={'wrap'}>
           {keywords.map((keyword, index) => (
@@ -391,10 +400,10 @@ const UATKeywords = memo(({ keywords, ids }: { keywords: Array<string>; ids: Arr
                   _hover={{
                     color: 'gray.900',
                   }}
-                  aria-label={label}
+                  aria-label={desc}
                   fontSize="md"
                 >
-                  <Tooltip label={label}>
+                  <Tooltip label={desc}>
                     <Center>
                       <Icon as={MagnifyingGlassIcon} transform="rotate(90deg)" />
                     </Center>
@@ -460,7 +469,7 @@ const PlanetaryFeatures = memo(({ features, ids }: { features: Array<string>; id
 PlanetaryFeatures.displayName = 'PlanetaryFeatures';
 
 interface IDetailProps<T = string | Array<string>> {
-  label: string;
+  label: string | ReactNode;
   href?: string;
   newTab?: boolean;
   value: T;
