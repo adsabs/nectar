@@ -16,44 +16,23 @@ export interface IADSApiJournalsSummaryParams {
 }
 
 export interface IADSApiJournalsSummaryResponse {
-  summary?: {
-    master: {
-      bibstem: string;
-      journal_name: string;
-      primary_language: string;
-      multilingual: boolean;
-      defunct: boolean;
-      pubtype: string;
-      refereed: string;
-      collection: string;
-      notes: string;
-      not_indexed: boolean;
-    };
-    idents: {
+  browse?: {
+    canonical_name: string;
+    classic_bibstem: string;
+    canonical_abbreviation: string;
+    primary_language: string;
+    native_language_title: string;
+    title_language: string;
+    completeness_estimate: string;
+    external_identifiers: {
       id_type: string;
       id_value: string;
     }[];
-    abbrev: string[];
-    pubhist: [
-      {
-        publisher: string;
-        title: {
-          year_start: number;
-          year_end: number;
-          vol_start: string;
-          vol_end: string;
-          complete: string;
-          successor_masterid: number;
-          notes: string;
-        };
-      },
-    ];
-    names: {
-      name_english_translated: string;
-      title_language: string;
-      name_native_language: string;
-      name_normalized: string;
-    };
+    publication_history: {
+      publisher: string;
+      start_year: string;
+      start_volume: string;
+    }[];
   };
   Error?: string;
   'Error Info'?: string;
