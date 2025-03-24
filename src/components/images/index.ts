@@ -5,3 +5,7 @@ export * from './OrcidInactiveLogo';
 export * from './OrcidLogo';
 export * from './SmithsonianLogo';
 export * from './ScixAndNasaLogo-H';
+export * from './ScixLogoAndAbbr_H';
+export * from './ScixLogoAndAbbrAndLink_H';
+export * from './ScixLogoAndText_H';
+export * from './ScixText_H';
