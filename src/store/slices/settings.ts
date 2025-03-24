@@ -200,9 +200,12 @@ export const settingsSlice: StoreSlice<ISettingsState & ISettingsAction> = (set,
 const getIgnoredSearchFacets = (mode: AppMode): SearchFacetID[] => {
   switch (mode) {
     case AppMode.EARTH_SCIENCE:
-      return ['simbad', 'ned', 'vizier'];
-
+      return ['simbad', 'ned', 'vizier', 'planetary', 'uat'];
+    case AppMode.PLANET_SCIENCE:
+      return ['uat'];
+    case AppMode.ASTROPHYSICS:
+      return ['planetary'];
     default:
-      return [];
+      return ['planetary', 'uat'];
   }
 };
