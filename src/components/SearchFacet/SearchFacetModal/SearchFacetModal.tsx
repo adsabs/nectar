@@ -1,7 +1,11 @@
 import { ChevronLeftIcon, ChevronRightIcon, DownloadIcon } from '@chakra-ui/icons';
 import {
   Box,
+  BoxProps,
   Button,
+  ButtonGroup,
+  Center,
+  Collapse,
   Divider,
   Flex,
   Heading,
@@ -16,12 +20,12 @@ import {
   Text,
   useToast,
 } from '@chakra-ui/react';
-import { IFacetListProps, LogicSelect } from '@/components/SearchFacet/FacetList';
+import { IFacetListProps } from '@/components/SearchFacet/FacetList';
 import { AlphaSorter } from '@/components/SearchFacet/SearchFacetModal/AlphaSorter';
 import { SearchInput } from '@/components/SearchFacet/SearchFacetModal/SearchInput';
 import { SortControl } from '@/components/SearchFacet/SearchFacetModal/SortControl';
 import { useFacetStore } from '@/components/SearchFacet/store/FacetStore';
-import { ReactElement, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+import { MouseEventHandler, ReactElement, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { keyToPath, parseTitleFromKey } from '../helpers';
 import { SelectedList } from './SelectedList';
 import { useDebounce } from '@/lib/useDebounce';
@@ -29,6 +33,7 @@ import { FACET_DEFAULT_PREFIX, useGetFacetData } from '../useGetFacetData';
 import { useDownloadFile } from '@/lib/useDownloadFile';
 import { join, pipe, pluck } from 'ramda';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { FacetLogic } from '../types';
 
 interface ISearchFacetModalProps extends Omit<IFacetListProps, 'onError'> {
   children: (props: { searchTerm: string }) => ReactNode;
@@ -223,4 +228,37 @@ const FacetDownloadButton = () => {
     );
   }
   return null;
+};
+
+const LogicSelect = (props: Pick<IFacetListProps, 'onFilter'> & BoxProps) => {
+  const { onFilter, ...boxProps } = props;
+  const params = useFacetStore((state) => state.params);
+  const selected = useFacetStore((state) => state.selected);
+  const reset = useFacetStore((state) => state.reset);
+
+  const handleSelect: MouseEventHandler<HTMLButtonElement> = useCallback(
+    (e) => {
+      if (selected.length > 0) {
+        const logicChoice = e.currentTarget.getAttribute('data-value') as FacetLogic;
+        onFilter({ field: params.field, logic: logicChoice, values: selected });
+        reset();
+      }
+    },
+    [selected],
+  );
+
+  const logicType = selected.length > 1 ? params.logic.multiple : params.logic.single;
+  return (
+    <Collapse in={selected.length > 0}>
+      <Center {...boxProps}>
+        <ButtonGroup size="sm" isAttached variant="outline">
+          {logicType.map((value) => (
+            <Button key={value} data-value={value} onClick={handleSelect} borderRadius="none">
+              {value}
+            </Button>
+          ))}
+        </ButtonGroup>
+      </Center>
+    </Collapse>
+  );
 };
