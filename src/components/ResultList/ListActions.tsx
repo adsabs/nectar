@@ -137,6 +137,14 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
     }
   };
 
+  const handleOpenCitationHelper = () => {
+    if (exploreAll) {
+      void router.push({ pathname: '/search/citation_helper', query: router.query });
+    } else {
+      setPath({ path: '/search/citation_helper' });
+    }
+  };
+
   const handleOpsLink = useCallback((name: Operator) => () => handleOperationsLink(name), [exploreAll, router]);
 
   const colors = useColorModeColors();
@@ -252,6 +260,8 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
                         </MenuItem>
                       ))}
                     </MenuGroup>
+                    <MenuDivider />
+                    <MenuItem onClick={handleOpenCitationHelper}>Citation Helper</MenuItem>
                     <MenuDivider />
                     <MenuGroup title="OPERATIONS">
                       <MenuItem onClick={handleOpsLink('trending')} data-testid="trending-operator">
