@@ -35,7 +35,7 @@ const ReferencesPage: NextPage = () => {
   const referencesParams = getReferencesParams(doc?.bibcode, 0);
 
   return (
-    <AbsLayout doc={doc} titleDescription="Paper referenced by" label="References">
+    <AbsLayout doc={doc} titleDescription="Papers referenced by" label="References">
       {isLoading ? <ItemsSkeleton count={10} /> : null}
       {(abstractError || referencesError) && (
         <Alert status="error">

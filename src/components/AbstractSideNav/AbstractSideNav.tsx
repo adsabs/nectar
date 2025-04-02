@@ -131,7 +131,7 @@ export const AbstractSideNav = (props: IAbstractSideNavProps): ReactElement => {
   const { menuItems, activeItem } = useGetItems({ doc, graphicsCount, hasMetrics });
 
   return (
-    <>
+    <div id="abstract-nav-menu">
       {/* Large viewports */}
       <SideNavigationMenu
         menuItems={menuItems}
@@ -147,7 +147,7 @@ export const AbstractSideNav = (props: IAbstractSideNavProps): ReactElement => {
         display={{ base: 'initial', lg: 'none' }}
         mx={2}
       />
-    </>
+    </div>
   );
 };
 
