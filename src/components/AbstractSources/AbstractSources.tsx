@@ -92,7 +92,7 @@ export const AbstractSources = ({ doc, style }: IAbstractSourcesProps): ReactEle
   return (
     <>
       {style === 'accordion' ? (
-        <Box>
+        <Box id="resources-container">
           <Accordion variant="abs-resources" allowMultiple defaultIndex={fullTextResources.length === 0 ? [] : [0]}>
             <AccordionItem isDisabled={fullTextResources.length === 0}>
               <AccordionButton>
@@ -130,7 +130,7 @@ export const AbstractSources = ({ doc, style }: IAbstractSourcesProps): ReactEle
           </Accordion>
         </Box>
       ) : (
-        <Box>
+        <Box id="resources-container">
           <HStack as="section" wrap="wrap" spacing={0.5} columnGap={1} rowGap={1} alignItems="start">
             <FullTextSourceItems resources={fullTextResources} type="menu" />
             <DataProductDropdown dataProducts={dataProductResources} relatedWorks={relatedResources} />

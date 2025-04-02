@@ -128,6 +128,7 @@ export const ResultArea = ({
           fontWeight="semibold"
           value={result.length > 0 ? result : isLoading ? 'Loading...' : 'Press "submit" to generate export.'}
           data-testid="export-output"
+          id="export-output"
         />
       )}
     </Stack>
