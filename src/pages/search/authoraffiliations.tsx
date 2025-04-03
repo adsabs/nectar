@@ -39,14 +39,7 @@ const AuthorAffiliationsPage: NextPage<IAuthorAffilationsPageProps> = (props) =>
         </Button>
       )}
 
-      <Box
-        as="section"
-        maxW="container.xl"
-        mt={showBackLink ? 0 : 4}
-        mb="4"
-        aria-labelledby="author-affiliation-title"
-        centerContent
-      >
+      <Box as="section" maxW="container.xl" mt={showBackLink ? 0 : 4} mb="4" centerContent>
         <AuthorAffiliations params={params} query={query} w="full" maxW="container.lg" />
       </Box>
     </>
