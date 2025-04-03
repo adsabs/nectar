@@ -129,12 +129,19 @@ const AffForm = (props: IAffFormProps) => {
 
   return (
     <Box>
-      <Heading as="h2" size="md" mt="2">
+      <Heading as="h2" size="md" mt="2" id="author-affiliation-title">
         {getCaption(items?.length ?? 0, records)}
       </Heading>
       <Text colorScheme="grey">{getSubCaption(params)}</Text>
 
-      <Stack spacing="2" mb="4" mt="2" alignItems={['center', 'flex-end']} flexDirection={['column-reverse', 'row']}>
+      <Stack
+        spacing="2"
+        mb="4"
+        mt="2"
+        alignItems={['center', 'flex-end']}
+        flexDirection={['column-reverse', 'row']}
+        id="author-affiliation-content"
+      >
         <Stack flex="1" spacing="4" direction="row" alignItems="center" mt={['2', 'auto']}>
           {/* Form toggle buttons  */}
           <Button size="xs" variant="ghost" onClick={toggleAll} isDisabled={isDisabled}>
