@@ -1,11 +1,10 @@
-import { IADSApiSearchParams } from '@/api/search/types';
+import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
 import { composeNextGSSP } from '@/ssr-utils';
-
 import { SimpleLink } from '@/components/SimpleLink';
 import { APP_DEFAULTS, BRAND_NAME_FULL } from '@/config';
 import { useBackToSearchResults } from '@/lib/useBackToSearchResults';
-import { unwrapStringValue } from '@/utils/common/formatters';
-import { ChevronLeftIcon } from '@chakra-ui/icons';
+import { getFormattedNumericPubdate, unwrapStringValue } from '@/utils/common/formatters';
+import { ChevronLeftIcon, InfoIcon } from '@chakra-ui/icons';
 import {
   Flex,
   HStack,
@@ -18,12 +17,13 @@ import {
   Stack,
   useDisclosure,
   Button,
+  Tooltip,
 } from '@chakra-ui/react';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { parseQueryFromUrl } from '@/utils/common/search';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
-import { fetchSearch, searchKeys } from '@/api/search/search';
+import { fetchSearch, searchKeys, useSearch } from '@/api/search/search';
 import { citationHelperKeys, fetchCitationHelper, useCitationHelper } from '@/api/citation_helper/citation_helper';
 import { ICitationHelperParams, ISuggestionEntry } from '@/api/citation_helper/types';
 import { logger } from '@/logger';
@@ -33,9 +33,11 @@ import { LoadingMessage, StandardAlertMessage } from '@/components/Feedbacks';
 import { HideOnPrint } from '@/components/HideOnPrint';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { MathJax } from 'better-react-mathjax';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { AddToLibraryModal } from '@/components/Libraries';
 import { useSession } from '@/lib/useSession';
+import { AbstractPreview, AuthorList } from '@/components/ResultList/Item';
+import { getSearchParams } from '@/api/search/models';
 
 interface ICitationHelperPageProps {
   query: IADSApiSearchParams;
@@ -54,6 +56,7 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
 
   const colors = useColorModeColors();
 
+  // from the input bibcodes, get suggested papers
   const {
     data: suggestions,
     isLoading: isCitationHelperLoading,
@@ -61,13 +64,26 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
     error: citationHelperError,
   } = useCitationHelper({ bibcodes: bibcodes }, { enabled: bibcodes.length > 0 });
 
+  // for suggested papers, get paper details
+  const docsQuery = useMemo(() => {
+    if (!isCitationHelperLoading && !isCitationHelperError && Array.isArray(suggestions)) {
+      return suggestions.map((s) => `bibcode:${s.bibcode}`).join(' OR ');
+    } else {
+      return null;
+    }
+  }, [suggestions]);
+
+  const { data: details, isFetching: isFetchingDocsDetails } = useSearch(getSearchParams({ q: docsQuery }), {
+    enabled: !!docsQuery,
+  });
+
   return (
     <>
       <Head>
         <title>{`${unwrapStringValue(query?.q)} - ${BRAND_NAME_FULL} Citation Helper`}</title>
       </Head>
       <Flex direction="column">
-        <HStack my={10}>
+        <HStack mt={10} mb={4}>
           {showSearchHref && (
             <SimpleLink href={getSearchHref()}>
               <ChevronLeftIcon w={8} h={8} />
@@ -77,14 +93,18 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
             Citation Helper
           </Heading>
         </HStack>
-
+        <Text>
+          <InfoIcon mr={2} color={colors.brand} />
+          {`The citation helper returns up to 10 publications related to your submitted list through citation links, using
+          a "friends of friends" network approach, and assigns each a score based on their citation connections`}
+        </Text>
         <Box pt="1">
           {error ? (
             <Alert status="error">
               <AlertIcon />
               {error}
             </Alert>
-          ) : isCitationHelperLoading ? (
+          ) : isCitationHelperLoading || isFetchingDocsDetails ? (
             <LoadingMessage message="Loading..." />
           ) : isCitationHelperError ? (
             <StandardAlertMessage title={'Error'} description={parseAPIError(citationHelperError)} />
@@ -111,23 +131,24 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
                   </Button>
                 </Stack>
               )}
-              {suggestions.map((d) => (
+              {suggestions.map((e) => (
                 <Item
-                  entry={d}
-                  key={d.bibcode}
+                  entry={e}
+                  doc={details.docs.find((d) => d.bibcode === e.bibcode)}
+                  key={e.bibcode}
                   showCheckbox={isAuthenticated}
-                  isSelected={selectedSuggestions.has(d.bibcode)}
+                  isSelected={selectedSuggestions.has(e.bibcode)}
                   setSelected={(s) => {
                     if (s) {
                       setSelectedSuggestions((prev) => {
                         const newSet = new Set(prev);
-                        newSet.add(d.bibcode);
+                        newSet.add(e.bibcode);
                         return newSet;
                       });
                     } else {
                       setSelectedSuggestions((prev) => {
                         const newSet = new Set(prev);
-                        newSet.delete(d.bibcode);
+                        newSet.delete(e.bibcode);
                         return newSet;
                       });
                     }
@@ -155,18 +176,32 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
 
 export const Item = ({
   entry,
+  doc,
   isSelected = false,
   setSelected,
   showCheckbox,
 }: {
   entry: ISuggestionEntry;
+  doc: IDocsEntity;
   isSelected: boolean;
   setSelected: (selected: boolean) => void;
   showCheckbox: boolean;
 }) => {
-  const { bibcode, title, author, score } = entry;
+  const { bibcode, title, score } = entry;
+
+  const { author_count, author = [], pubdate, pub, citation_count } = doc;
+
+  const formattedPubDate = getFormattedNumericPubdate(pubdate);
+
+  const truncatedPub =
+    pub?.length > APP_DEFAULTS.RESULT_ITEM_PUB_CUTOFF ? pub.slice(0, APP_DEFAULTS.RESULT_ITEM_PUB_CUTOFF) + '...' : pub;
 
   const colors = useColorModeColors();
+
+  const cite =
+    typeof citation_count === 'number' && citation_count > 0 ? (
+      <SimpleLink href={{ pathname: `/abs/${bibcode}/citations`, search: 'p=1' }}>cited: {citation_count}</SimpleLink>
+    ) : null;
 
   return (
     <Flex direction="row" as="article" border="1px" borderColor={colors.border} mb={1} borderRadius="md">
@@ -185,14 +220,27 @@ export const Item = ({
           <Checkbox aria-label={title} isChecked={isSelected} onChange={(e) => setSelected(e.target.checked)} />
         </Flex>
       )}
-      <Stack direction="column" width="full" spacing={0} mx={3} my={2}>
+      <Stack direction="column" width="full" spacing={0} mx={3} mt={2}>
         <Flex justifyContent="space-between">
-          <SimpleLink href={`/abs/${bibcode}/abstract`} fontWeight="semibold" newTab>
+          <SimpleLink href={`/abs/${bibcode}/abstract`} fontWeight="semibold">
             <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
           </SimpleLink>
           <Text fontSize="sm">Score: {score}</Text>
         </Flex>
-        <Text>{author}</Text>
+        <Flex direction="column">
+          {author_count > 0 && <AuthorList author={author} authorCount={author_count} bibcode={doc.bibcode} />}
+          <Flex fontSize="xs" mt={0.5}>
+            {formattedPubDate}
+
+            {formattedPubDate && pub ? <Text px="2">·</Text> : ''}
+            <Tooltip label={pub} aria-label="publication tooltip" placement="top">
+              <span>{truncatedPub}</span>
+            </Tooltip>
+            {cite && (formattedPubDate || pub) ? <Text px="2">·</Text> : null}
+            {cite}
+          </Flex>
+          <AbstractPreview bibcode={bibcode} />
+        </Flex>
       </Stack>
     </Flex>
   );
