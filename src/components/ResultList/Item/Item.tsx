@@ -240,7 +240,7 @@ const MAX_AUTHORS = APP_DEFAULTS.RESULTS_MAX_AUTHORS;
 /**
  * Displays author list and includes a button to open all authors modal
  */
-const AuthorList = (props: IAuthorListProps): ReactElement => {
+export const AuthorList = (props: IAuthorListProps): ReactElement => {
   const { author, authorCount, bibcode, ...boxProps } = props;
 
   if (authorCount === 0) {
