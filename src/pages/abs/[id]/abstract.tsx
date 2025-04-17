@@ -69,6 +69,7 @@ import { faQuoteLeft } from '@fortawesome/free-solid-svg-icons';
 import { Select } from '@/components/Select';
 import { LoadingMessage } from '@/components/Feedbacks';
 import { useSettings } from '@/lib/useSettings';
+import { useTrackAbstractView } from '@/lib/useTrackAbstractView';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   () =>
@@ -90,6 +91,7 @@ const AbstractPage: NextPage = () => {
   const { isAuthenticated } = useSession();
   const { data } = useGetAbstract({ id: router.query.id as string });
   const doc = path<IDocsEntity>(['docs', 0], data);
+  useTrackAbstractView(doc);
 
   // process authors from doc
   const authors = useGetAuthors({ doc, includeAff: false });
@@ -200,6 +202,7 @@ export default AbstractPage;
 interface IDetailsProps {
   doc: IDocsEntity;
 }
+
 const Details = ({ doc }: IDetailsProps): ReactElement => {
   const arxiv = (doc.identifier ?? ([] as string[])).find((v) => /^arxiv/i.exec(v));
 

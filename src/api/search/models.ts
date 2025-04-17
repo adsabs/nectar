@@ -80,6 +80,7 @@ export const getAbstractParams = (id: string): IADSApiSearchParams => ({
     'abstract',
     'comment',
     'data',
+    'database',
     `[fields orcid_pub=${APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
     `[fields orcid_user=${APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
     `[fields orcid_other=${APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
