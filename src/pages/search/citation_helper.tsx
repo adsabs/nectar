@@ -4,7 +4,7 @@ import { SimpleLink } from '@/components/SimpleLink';
 import { APP_DEFAULTS, BRAND_NAME_FULL } from '@/config';
 import { useBackToSearchResults } from '@/lib/useBackToSearchResults';
 import { getFormattedNumericPubdate, unwrapStringValue } from '@/utils/common/formatters';
-import { ChevronLeftIcon, InfoIcon } from '@chakra-ui/icons';
+import { ChevronLeftIcon, ExternalLinkIcon, InfoIcon } from '@chakra-ui/icons';
 import {
   Flex,
   HStack,
@@ -33,11 +33,16 @@ import { LoadingMessage, StandardAlertMessage } from '@/components/Feedbacks';
 import { HideOnPrint } from '@/components/HideOnPrint';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { MathJax } from 'better-react-mathjax';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { AddToLibraryModal } from '@/components/Libraries';
 import { useSession } from '@/lib/useSession';
 import { AbstractPreview, AuthorList } from '@/components/ResultList/Item';
 import { getSearchParams } from '@/api/search/models';
+import { useVaultBigQuerySearch } from '@/api/vault/vault';
+import { SearchQueryLink } from '@/components/SearchQueryLink';
+import { ControlledPaginationControls } from '@/components/Pagination';
+import { AppState, useStore } from '@/store';
+import { NumPerPageType } from '@/types';
 
 interface ICitationHelperPageProps {
   query: IADSApiSearchParams;
@@ -56,6 +61,12 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
 
   const colors = useColorModeColors();
 
+  const pageSize = useStore((state: AppState) => state.numPerPage);
+
+  const setPageSize = useStore((state: AppState) => state.setNumPerPage);
+
+  const [pagination, setPagination] = useState({ entries: 0, pageIndex: 0 });
+
   // from the input bibcodes, get suggested papers
   const {
     data: suggestions,
@@ -64,18 +75,56 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
     error: citationHelperError,
   } = useCitationHelper({ bibcodes: bibcodes }, { enabled: bibcodes.length > 0 });
 
+  // subset of suggestions that are shown
+  const shownSuggestions = useMemo(() => {
+    if (Array.isArray(suggestions)) {
+      const startIndex = pagination.pageIndex * pageSize;
+      const endIndex = pagination.pageIndex * pageSize + pageSize;
+      return suggestions.slice(startIndex, endIndex > suggestions.length ? suggestions.length : endIndex);
+    }
+  }, [suggestions, pagination, pageSize]);
+
   // for suggested papers, get paper details
-  const docsQuery = useMemo(() => {
-    if (!isCitationHelperLoading && !isCitationHelperError && Array.isArray(suggestions)) {
-      return suggestions.map((s) => `bibcode:${s.bibcode}`).join(' OR ');
-    } else {
-      return null;
+  const {
+    data: bigQueryData,
+    isFetching: isFetchingBigQuery,
+    isError: isBigQueryError,
+    error: bigQueryError,
+  } = useVaultBigQuerySearch(Array.isArray(suggestions) ? suggestions.map((s) => s.bibcode) : [], {
+    enabled: !!suggestions && Array.isArray(suggestions),
+  });
+
+  const {
+    data: details,
+    isFetching: isFetchingDocsDetails,
+    isError: isDocsDetailsError,
+    error: docsDetailsError,
+  } = useSearch(
+    getSearchParams({
+      q: !!bigQueryData?.qid ? `docs(${bigQueryData.qid})` : '',
+      // rows: pageSize,
+      // start: pagination.pageIndex * pageSize,
+      rows: bigQueryData?.numfound ?? 100, // TODO: really just want page size, but this is out of the original order, so need to fetch all
+    }),
+    {
+      enabled: !!bigQueryData?.qid,
+    },
+  );
+
+  const handleChangePageIndex = (index: number) => {
+    setPagination((prev) => ({ ...prev, pageIndex: index }));
+  };
+
+  const handleChangePageSize = (size: NumPerPageType) => {
+    setPageSize(size);
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+  };
+
+  useEffect(() => {
+    if (!!suggestions && Array.isArray(suggestions)) {
+      setPagination((prev) => ({ ...prev, entries: suggestions.length, pageIndex: 0 }));
     }
   }, [suggestions]);
-
-  const { data: details, isFetching: isFetchingDocsDetails } = useSearch(getSearchParams({ q: docsQuery }), {
-    enabled: !!docsQuery,
-  });
 
   return (
     <>
@@ -93,23 +142,30 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
             Citation Helper
           </Heading>
         </HStack>
-        <Text>
-          <InfoIcon mr={2} color={colors.brand} />
-          {`The citation helper returns up to 10 publications related to your submitted list through citation links, using
-          a "friends of friends" network approach, and assigns each a score based on their citation connections`}
-        </Text>
         <Box pt="1">
           {error ? (
             <Alert status="error">
               <AlertIcon />
               {error}
             </Alert>
-          ) : isCitationHelperLoading || isFetchingDocsDetails ? (
+          ) : isCitationHelperLoading || isFetchingBigQuery || isFetchingDocsDetails ? (
             <LoadingMessage message="Loading..." />
           ) : isCitationHelperError ? (
             <StandardAlertMessage title={'Error'} description={parseAPIError(citationHelperError)} />
+          ) : isBigQueryError ? (
+            <StandardAlertMessage title={'Error'} description={parseAPIError(bigQueryError)} />
+          ) : isDocsDetailsError ? (
+            <StandardAlertMessage title={'Error'} description={parseAPIError(docsDetailsError)} />
           ) : Array.isArray(suggestions) ? (
             <>
+              <Text>
+                <InfoIcon mr={2} color={colors.brand} />
+                {`The citation helper returns up to 100 publications related to your submitted list through citation links, using
+          a "friends of friends" network approach, and assigns each a score based on their citation connections`}
+              </Text>
+              <SearchQueryLink params={{ q: `docs(${bigQueryData.qid})`, sort: ['score desc'] }} newTab>
+                View as search results <ExternalLinkIcon />
+              </SearchQueryLink>
               {isAuthenticated && (
                 <Stack
                   direction="row"
@@ -131,7 +187,7 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
                   </Button>
                 </Stack>
               )}
-              {suggestions.map((e) => (
+              {shownSuggestions.map((e) => (
                 <Item
                   entry={e}
                   doc={details.docs.find((d) => d.bibcode === e.bibcode)}
@@ -155,6 +211,13 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
                   }}
                 />
               ))}
+              <ControlledPaginationControls
+                entries={pagination.entries}
+                pageIndex={pagination.pageIndex}
+                pageSize={pageSize}
+                onChangePageSize={handleChangePageSize}
+                onChangePageIndex={handleChangePageIndex}
+              />
             </>
           ) : (
             <StandardAlertMessage
