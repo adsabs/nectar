@@ -36,6 +36,13 @@ export const Footer: FC = () => {
           Cooperative Agreement 80NSSC21M0056.
         </Text>
 
+        {/* Show app version, if available */}
+        {process.env.NEXT_PUBLIC_APP_VERSION ? (
+          <Text fontSize="xs" opacity={0.6}>
+            Version: {process.env.NEXT_PUBLIC_APP_VERSION}
+          </Text>
+        ) : null}
+
         <HStack my={3} spacing={4}>
           <SimpleLink href={EXTERNAL_URLS.SMITHSONIAN_HOME_PAGE} variant="footer" isExternal>
             <VisuallyHidden>Smithsonian Institution</VisuallyHidden>
