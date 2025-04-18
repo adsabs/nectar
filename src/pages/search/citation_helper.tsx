@@ -43,6 +43,7 @@ import { SearchQueryLink } from '@/components/SearchQueryLink';
 import { ControlledPaginationControls } from '@/components/Pagination';
 import { AppState, useStore } from '@/store';
 import { NumPerPageType } from '@/types';
+import { uniq } from 'ramda';
 
 interface ICitationHelperPageProps {
   query: IADSApiSearchParams;
@@ -55,7 +56,7 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
 
   const { isOpen: isAddToLibraryOpen, onClose: onCloseAddToLibrary, onOpen: onOpenAddToLibrary } = useDisclosure();
 
-  const [selectedSuggestions, setSelectedSuggestions] = useState(new Set<string>());
+  const [selectedBibcodes, setSelectedBibcodes] = useState<string[]>([]);
 
   const { isAuthenticated } = useSession();
 
@@ -84,6 +85,10 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
     }
   }, [suggestions, pagination, pageSize]);
 
+  const currentPageBibcodes = useMemo(() => {
+    return shownSuggestions.map((s) => s.bibcode);
+  }, [shownSuggestions]);
+
   // for suggested papers, get paper details
   const {
     data: bigQueryData,
@@ -102,9 +107,7 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
   } = useSearch(
     getSearchParams({
       q: !!bigQueryData?.qid ? `docs(${bigQueryData.qid})` : '',
-      // rows: pageSize,
-      // start: pagination.pageIndex * pageSize,
-      rows: bigQueryData?.numfound ?? 100, // TODO: really just want page size, but this is out of the original order, so need to fetch all
+      rows: bigQueryData?.numfound ?? 100,
     }),
     {
       enabled: !!bigQueryData?.qid,
@@ -128,7 +131,7 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
 
   const handleCloseLibraryModal = (added = false) => {
     if (added) {
-      setSelectedSuggestions(new Set());
+      setSelectedBibcodes([]);
     }
     onCloseAddToLibrary();
   };
@@ -182,14 +185,37 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
                   p={2}
                   my={2}
                 >
-                  <SelectAllCheckbox
-                    isAllSelected={selectedSuggestions.size === suggestions.length}
-                    isSomeSelected={selectedSuggestions.size > 0 && selectedSuggestions.size < suggestions.length}
-                    onChange={(isChecked: boolean) =>
-                      setSelectedSuggestions(isChecked ? new Set(suggestions.map((s) => s.bibcode)) : new Set())
-                    }
-                  />
-                  <Button onClick={onOpenAddToLibrary} isDisabled={selectedSuggestions.size === 0} width="fit-content">
+                  <HStack>
+                    <SelectAllCheckbox
+                      isAllSelected={currentPageBibcodes.every((b) => selectedBibcodes.includes(b))}
+                      isSomeSelected={currentPageBibcodes.some((b) => selectedBibcodes.includes(b))}
+                      onChange={(isChecked: boolean) => {
+                        if (isChecked) {
+                          // add all current page bibcodes to selected
+                          setSelectedBibcodes((prev) => uniq([...prev, ...currentPageBibcodes]));
+                        } else {
+                          // clear all current page bibcodes from selected
+                          setSelectedBibcodes((prev) => prev.filter((b) => !currentPageBibcodes.includes(b)));
+                        }
+                        // setSelectedSuggestions(isChecked ? new Set(suggestions.map((s) => s.bibcode)) : new Set())
+                      }}
+                    />
+                    {selectedBibcodes.length > 0 && (
+                      <Stack
+                        direction="row"
+                        spacing={{ base: '2', md: '5' }}
+                        order={{ base: '2', md: '1' }}
+                        mt={{ base: '2', md: '0' }}
+                        wrap="wrap"
+                      >
+                        <Text>{`${selectedBibcodes.length} selected`}</Text>
+                        <Button variant="link" fontWeight="normal" onClick={() => setSelectedBibcodes([])}>
+                          Clear All
+                        </Button>
+                      </Stack>
+                    )}
+                  </HStack>
+                  <Button onClick={onOpenAddToLibrary} isDisabled={selectedBibcodes.length === 0} width="fit-content">
                     Add to library
                   </Button>
                 </Stack>
@@ -200,20 +226,12 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
                   doc={details.docs.find((d) => d.bibcode === e.bibcode)}
                   key={e.bibcode}
                   showCheckbox={isAuthenticated}
-                  isSelected={selectedSuggestions.has(e.bibcode)}
+                  isSelected={selectedBibcodes.includes(e.bibcode)}
                   setSelected={(s) => {
                     if (s) {
-                      setSelectedSuggestions((prev) => {
-                        const newSet = new Set(prev);
-                        newSet.add(e.bibcode);
-                        return newSet;
-                      });
+                      setSelectedBibcodes((prev) => uniq([...prev, e.bibcode]));
                     } else {
-                      setSelectedSuggestions((prev) => {
-                        const newSet = new Set(prev);
-                        newSet.delete(e.bibcode);
-                        return newSet;
-                      });
+                      setSelectedBibcodes((prev) => prev.filter((b) => b !== e.bibcode));
                     }
                   }}
                 />
@@ -235,11 +253,7 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
           )}
         </Box>
       </Flex>
-      <AddToLibraryModal
-        isOpen={isAddToLibraryOpen}
-        onClose={handleCloseLibraryModal}
-        bibcodes={Array.from(selectedSuggestions)}
-      />
+      <AddToLibraryModal isOpen={isAddToLibraryOpen} onClose={handleCloseLibraryModal} bibcodes={selectedBibcodes} />
     </>
   );
 };
