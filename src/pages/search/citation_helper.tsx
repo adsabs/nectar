@@ -126,6 +126,13 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
     }
   }, [suggestions]);
 
+  const handleCloseLibraryModal = (added = false) => {
+    if (added) {
+      setSelectedSuggestions(new Set());
+    }
+    onCloseAddToLibrary();
+  };
+
   return (
     <>
       <Head>
@@ -230,7 +237,7 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
       </Flex>
       <AddToLibraryModal
         isOpen={isAddToLibraryOpen}
-        onClose={onCloseAddToLibrary}
+        onClose={handleCloseLibraryModal}
         bibcodes={Array.from(selectedSuggestions)}
       />
     </>
