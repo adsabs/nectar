@@ -149,8 +149,8 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
   const params: IADSApiSearchParams = {
     rows: APP_DEFAULTS.EXPORT_PAGE_SIZE,
     fl: ['bibcode'],
-    sort: APP_DEFAULTS.SORT,
-    ...(qid ? { q: `docs(${qid})`, sort: ['id asc'] } : query),
+    sort: query.sort ?? APP_DEFAULTS.SORT,
+    ...(qid ? { q: `docs(${qid})` } : query),
   };
 
   try {

@@ -50,7 +50,11 @@ const extractYearAndMonth = (pubdate: string): { year: string; month: string } |
  */
 export const getFormattedNumericPubdate = (pubdate: string): string | null => {
   const extractedDate = extractYearAndMonth(pubdate);
-  return extractedDate ? `${extractedDate.year}/${extractedDate.month}` : null;
+  return extractedDate ? `${extractedDate.year}/${extractedDate.month}`.replace('/00', '') : null;
+};
+
+export const getCleanedPublDate = (pubdate: string) => {
+  return pubdate.replaceAll('-00', '');
 };
 
 /**
