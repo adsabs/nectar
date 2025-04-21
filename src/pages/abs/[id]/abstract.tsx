@@ -57,7 +57,7 @@ import { AbstractSources } from '@/components/AbstractSources';
 import { AddToLibraryModal } from '@/components/Libraries';
 import { SimpleCopyButton } from '@/components/CopyButton';
 
-import { pluralize } from '@/utils/common/formatters';
+import { getCleanedPublDate, pluralize } from '@/utils/common/formatters';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { fetchSearchSSR, searchKeys, useGetAbstract } from '@/api/search/search';
 import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
@@ -235,7 +235,7 @@ const Details = ({ doc }: IDetailsProps): ReactElement => {
             )}
           </Detail>
           <Detail label="Book Author(s)" value={doc.book_author} />
-          <Detail label="Publication Date" value={doc.pubdate} />
+          <Detail label="Publication Date" value={getCleanedPublDate(doc.pubdate)} />
           <Detail label="DOI" value={doc.doi}>
             {(doi) => <Doi doiIDs={doi} bibcode={doc.bibcode} />}
           </Detail>
