@@ -197,7 +197,6 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
                           // clear all current page bibcodes from selected
                           setSelectedBibcodes((prev) => prev.filter((b) => !currentPageBibcodes.includes(b)));
                         }
-                        // setSelectedSuggestions(isChecked ? new Set(suggestions.map((s) => s.bibcode)) : new Set())
                       }}
                     />
                     {selectedBibcodes.length > 0 && (
