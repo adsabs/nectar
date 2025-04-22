@@ -173,7 +173,7 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
                 {`The citation helper returns up to 100 publications related to your submitted list through citation links, using
           a "friends of friends" network approach, and assigns each a score based on their citation connections`}
               </Text>
-              <SearchQueryLink params={{ q: `docs(${bigQueryData.qid})`, sort: ['score desc'] }} newTab>
+              <SearchQueryLink params={{ q: `docs(${bigQueryData.qid})`, sort: ['date desc'] }} newTab my={2}>
                 View as search results <ExternalLinkIcon />
               </SearchQueryLink>
               {isAuthenticated && (
