@@ -43,7 +43,7 @@ export const AddToLibraryModal = ({
 }: {
   bibcodes?: string[];
   isOpen: boolean;
-  onClose: () => void;
+  onClose: (added?: boolean) => void;
 }) => {
   const selectedDocs = useStore((state) => state.docs.selected);
 
@@ -82,7 +82,7 @@ export const AddToLibraryModal = ({
                 title: `${data.number_added} papers added to library`,
               });
               clearSelections();
-              onClose();
+              onClose(true);
             }
           },
         },
@@ -99,7 +99,7 @@ export const AddToLibraryModal = ({
             if (data) {
               toast({ status: 'success', title: `${data.number_added} papers added to library` });
               clearSelections();
-              onClose();
+              onClose(true);
             } else if (error) {
               toast({
                 status: 'error',
@@ -114,7 +114,7 @@ export const AddToLibraryModal = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="3xl">
+    <Modal isOpen={isOpen} onClose={() => onClose(false)} size="3xl">
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
@@ -160,7 +160,7 @@ const AddToExistingLibraryPane = ({
   onSubmit,
   isLoading,
 }: {
-  onClose: () => void;
+  onClose: (added: boolean) => void;
   onSubmit: (id: LibraryIdentifier) => void;
   isLoading: boolean;
 }) => {
@@ -169,9 +169,9 @@ const AddToExistingLibraryPane = ({
   const handleOnSubmit = () => {
     onSubmit(library);
   };
-  const handleOnClose = () => {
+  const handleCancel = () => {
     setLibrary(null);
-    onClose();
+    onClose(false);
   };
 
   return (
@@ -181,7 +181,7 @@ const AddToExistingLibraryPane = ({
         <Button onClick={handleOnSubmit} isDisabled={!library} isLoading={isLoading}>
           Submit
         </Button>
-        <Button variant="outline" onClick={handleOnClose}>
+        <Button variant="outline" onClick={handleCancel}>
           Cancel
         </Button>
       </HStack>
@@ -194,7 +194,7 @@ const AddToNewLibraryPane = ({
   onSubmit,
   isLoading,
 }: {
-  onClose: () => void;
+  onClose: (added: boolean) => void;
   onSubmit: (id: LibraryIdentifier) => void;
   isLoading: boolean;
 }) => {
@@ -254,9 +254,9 @@ const AddToNewLibraryPane = ({
     );
   };
 
-  const handleOnClose = () => {
+  const handleCancel = () => {
     reset();
-    onClose();
+    onClose(false);
   };
 
   return (
@@ -282,7 +282,7 @@ const AddToNewLibraryPane = ({
           <Button type="submit" isLoading={isAddingLib || isLoading}>
             Submit
           </Button>
-          <Button variant="outline" onClick={handleOnClose}>
+          <Button variant="outline" onClick={handleCancel}>
             Cancel
           </Button>
         </HStack>

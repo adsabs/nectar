@@ -9,6 +9,7 @@ export const APP_DEFAULTS = {
   SORT: ['score desc', 'date desc'] as SolrSort[],
   QUERY_SORT_POSTFIX: 'date desc' as SolrSort,
   EXPORT_PAGE_SIZE: 500,
+  CITATION_HELPER_INPUT_SIZE: 100,
   AUTHOR_AFF_SEARCH_SIZE: 100,
   MIN_AUTHORCUTOFF: 1,
   MAX_AUTHORCUTOFF: 500,
