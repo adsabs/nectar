@@ -41,6 +41,7 @@ import { getFocusedItemValue, getPreview } from '@/components/SearchBar/helpers'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { useFocus } from '@/lib/useFocus';
 import { useColorModeColors } from '@/lib/useColorModeColors';
+import { uatTypeaheadOptions } from './models';
 
 const SEARCHBAR_MAX_LENGTH = 2048 as const;
 
@@ -117,7 +118,25 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
 
   // handle updates to the search term
   const handleInputChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    dispatch({ type: 'SET_SEARCH_TERM', payload: e.target.value });
+    // first check if user is typing a UAT keyword
+    // if so show matching UAT keyword options
+    const value = e.target.value;
+    const fields = value.match(/(?:[^\s"]+|"[^"]*")+\w*(?:[^\s"]+|"[^"]*){0,1}/g); // split each search item
+    if (fields && fields.length > 0 && fields[fields.length - 1].toLowerCase().startsWith('uat:"')) {
+      // is entering a uat keyword
+      const test = fields[fields.length - 1].match(/uat:"([^"]*$)/i);
+      if (test && test.length > 1 && test[1].length > 0) {
+        const userUatTerm = test[1];
+
+        // TODO: get matching options
+        const uatOptions = uatTypeaheadOptions.filter((t) => t.label.toLocaleLowerCase().startsWith(userUatTerm));
+        dispatch({ type: 'SET_UAT_TYPEAHEAD_OPTIONS', payload: { uatOptions, searchTerm: value } });
+      } else {
+        dispatch({ type: 'SET_SEARCH_TERM', payload: value });
+      }
+    } else {
+      dispatch({ type: 'SET_SEARCH_TERM', payload: value });
+    }
   };
 
   // clear input
@@ -160,7 +179,11 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
               aria-label="Search"
               title="Search"
               maxLength={SEARCHBAR_MAX_LENGTH}
-              value={getPreview(state.searchTerm, getFocusedItemValue(state.items, state.focused))}
+              value={
+                state.items.length > 0
+                  ? getPreview(state.searchTerm, getFocusedItemValue(state.items, state.focused))
+                  : state.searchTerm
+              }
               aria-owns="search-listbox"
               aria-haspopup="listbox"
               aria-expanded={state.isOpen}
@@ -204,18 +227,30 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
             aria-labelledby="search-box-label"
             data-testid="search-autocomplete-menu"
           >
-            {state.items.length > 0 &&
-              state.items.map((item, index) => (
-                <TypeaheadItem
-                  key={item.id}
-                  item={item}
-                  dispatch={dispatch}
-                  index={index}
-                  onClick={handleItemClick}
-                  focused={state.focused === index}
-                  data-testid={`search-autocomplete-item-${index}`}
-                />
-              ))}
+            {state.items.length > 0
+              ? state.items.map((item, index) => (
+                  <TypeaheadItem
+                    key={item.id}
+                    item={item}
+                    dispatch={dispatch}
+                    index={index}
+                    onClick={handleItemClick}
+                    focused={state.focused === index}
+                    data-testid={`search-autocomplete-item-${index}`}
+                  />
+                ))
+              : state.uatItems.length > 0
+              ? state.uatItems.map((item, index) => (
+                  <TypeaheadItem
+                    key={item.id}
+                    item={item}
+                    dispatch={dispatch}
+                    index={index}
+                    onClick={handleItemClick}
+                    focused={state.focused === index}
+                  />
+                ))
+              : null}
           </List>
         </PopoverBody>
       </PopoverContent>
