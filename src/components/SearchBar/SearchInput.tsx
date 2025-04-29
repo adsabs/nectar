@@ -41,7 +41,8 @@ import { getFocusedItemValue, getPreview } from '@/components/SearchBar/helpers'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { useFocus } from '@/lib/useFocus';
 import { useColorModeColors } from '@/lib/useColorModeColors';
-import { uatTypeaheadOptions } from './models';
+import { logger } from '@/logger';
+import axios from 'axios';
 
 const SEARCHBAR_MAX_LENGTH = 2048 as const;
 
@@ -63,7 +64,7 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
   // on mount, set the search term, focus and force reset to clear the menu
   useEffect(() => {
     if (isNonEmptyString(query)) {
-      dispatch({ type: 'SET_SEARCH_TERM', payload: query });
+      dispatch({ type: 'SET_SEARCH_TERM', payload: { query } });
       dispatch({ type: 'SOFT_RESET' });
       setTimeout(() => focus(), 10);
     }
@@ -124,18 +125,19 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
     const fields = value.match(/(?:[^\s"]+|"[^"]*")+\w*(?:[^\s"]+|"[^"]*){0,1}/g); // split each search item
     if (fields && fields.length > 0 && fields[fields.length - 1].toLowerCase().startsWith('uat:"')) {
       // is entering a uat keyword
+      dispatch({ type: 'SET_SEARCH_TERM', payload: { query: value, hideMenu: true } });
+
       const test = fields[fields.length - 1].match(/uat:"([^"]*$)/i);
       if (test && test.length > 1 && test[1].length > 0) {
         const userUatTerm = test[1];
 
-        // TODO: get matching options
-        const uatOptions = uatTypeaheadOptions.filter((t) => t.label.toLocaleLowerCase().startsWith(userUatTerm));
-        dispatch({ type: 'SET_UAT_TYPEAHEAD_OPTIONS', payload: { uatOptions, searchTerm: value } });
-      } else {
-        dispatch({ type: 'SET_SEARCH_TERM', payload: value });
+        // get matching options
+        fetchUATOptions(userUatTerm).then((options) => {
+          dispatch({ type: 'SET_UAT_TYPEAHEAD_OPTIONS', payload: options });
+        });
       }
     } else {
-      dispatch({ type: 'SET_SEARCH_TERM', payload: value });
+      dispatch({ type: 'SET_SEARCH_TERM', payload: { query: value } });
     }
   };
 
@@ -322,4 +324,20 @@ const TypeaheadItem = (props: {
       </Flex>
     </ListItem>
   );
+};
+
+const fetchUATOptions = async (value: string): Promise<TypeaheadOption[]> => {
+  const valueToFetch = value.trim();
+  if (valueToFetch.length === 0) {
+    return [];
+  }
+
+  try {
+    const { data } = await axios.get<TypeaheadOption[]>(`api/uat_options/${valueToFetch}`);
+    return data;
+  } catch (err) {
+    logger.error({ err }, 'Error fetching UAT options from api');
+    // send back a single "error" item with a message
+    return [];
+  }
 };

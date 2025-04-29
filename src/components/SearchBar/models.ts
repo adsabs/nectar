@@ -135,30 +135,6 @@ export const typeaheadOptions: TypeaheadOption[] = [
   },
 ];
 
-export const uatTypeaheadOptions: TypeaheadOption[] = [
-  {
-    label: 'DC stars',
-    id: 1,
-    value: '"DC stars"',
-    desc: '',
-    match: [],
-  },
-  {
-    label: 'White dwarf stars',
-    id: 2,
-    value: '"White dwarf stars"',
-    desc: '',
-    match: [],
-  },
-  {
-    label: 'Absolute magnitude',
-    id: 3,
-    value: '"Absolute magnitude"',
-    desc: '',
-    match: [],
-  },
-];
-
 export type SearchTermItem = {
   type: 'item';
   title: string;
