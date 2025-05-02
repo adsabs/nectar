@@ -43,6 +43,7 @@ import { useFocus } from '@/lib/useFocus';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { logger } from '@/logger';
 import axios from 'axios';
+import { useDebounce } from '@/lib/useDebounce';
 
 const SEARCHBAR_MAX_LENGTH = 2048 as const;
 
@@ -60,6 +61,8 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
   const [input, focus] = useFocus({ selectTextOnFocus: false });
   const refs = useMergeRefs(ref, input);
   const { query, queryAddition, onDoneAppendingToQuery, isClearingQuery, onDoneClearingQuery } = useIntermediateQuery();
+  const [userInput, setUserInput] = useState<string>('');
+  const debouncedUserInput = useDebounce(userInput, 100);
 
   // on mount, set the search term, focus and force reset to clear the menu
   useEffect(() => {
@@ -119,14 +122,18 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
 
   // handle updates to the search term
   const handleInputChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setUserInput(e.target.value);
+    const value = e.target.value;
+    // if not doing UAT search
+    const fields = splitSearchItems(value);
+    dispatch({ type: 'SET_SEARCH_TERM', payload: { query: value, hideMenu: isDoingUatSearch(fields) } });
+  };
+
+  useEffect(() => {
     // first check if user is typing a UAT keyword
     // if so show matching UAT keyword options
-    const value = e.target.value;
-    const fields = value.match(/(?:[^\s"]+|"[^"]*")+\w*(?:[^\s"]+|"[^"]*){0,1}/g); // split each search item
-    if (fields && fields.length > 0 && fields[fields.length - 1].toLowerCase().startsWith('uat:"')) {
-      // is entering a uat keyword
-      dispatch({ type: 'SET_SEARCH_TERM', payload: { query: value, hideMenu: true } });
-
+    const fields = splitSearchItems(debouncedUserInput);
+    if (isDoingUatSearch(fields)) {
       const test = fields[fields.length - 1].match(/uat:"([^"]*$)/i);
       if (test && test.length > 1 && test[1].length > 0) {
         const userUatTerm = test[1];
@@ -136,9 +143,16 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
           dispatch({ type: 'SET_UAT_TYPEAHEAD_OPTIONS', payload: options });
         });
       }
-    } else {
-      dispatch({ type: 'SET_SEARCH_TERM', payload: { query: value } });
     }
+  }, [debouncedUserInput]);
+
+  const splitSearchItems = (value: string) => {
+    // split each search item
+    return value.match(/(?:[^\s"]+|"[^"]*")+\w*(?:[^\s"]+|"[^"]*){0,1}/g);
+  };
+
+  const isDoingUatSearch = (fields: RegExpMatchArray) => {
+    return fields && fields.length > 0 && fields[fields.length - 1].toLowerCase().startsWith('uat:"');
   };
 
   // clear input
