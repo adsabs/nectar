@@ -61,7 +61,7 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
   const [input, focus] = useFocus({ selectTextOnFocus: false });
   const refs = useMergeRefs(ref, input);
   const { query, queryAddition, onDoneAppendingToQuery, isClearingQuery, onDoneClearingQuery } = useIntermediateQuery();
-  const [userInput, setUserInput] = useState<string>('');
+  const [userInput, setUserInput] = useState<{ value: string; cursorPos: number }>({ value: '', cursorPos: 0 });
   const debouncedUserInput = useDebounce(userInput, 100);
 
   // on mount, set the search term, focus and force reset to clear the menu
@@ -122,26 +122,45 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
 
   // handle updates to the search term
   const handleInputChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    setUserInput(e.target.value);
+    setUserInput({ value: e.target.value, cursorPos: e.target.selectionStart });
     const value = e.target.value;
-    // if not doing UAT search
     const fields = splitSearchItems(value);
-    dispatch({ type: 'SET_SEARCH_TERM', payload: { query: value, hideMenu: isDoingUatSearch(fields) } });
+
+    // hide the default auto-complete dropdown if doing a UAT search
+    dispatch({ type: 'SET_SEARCH_TERM', payload: { query: value, hideMenu: isLastSearchTermUAT(fields) } });
   };
 
+  /* *
+   * if user is typing in the UAT keyword, show auto complete
+   *
+   * conditions:
+   * - the last search term starts with `uat:"`
+   * - user has typed partial UAT keyword
+   * - cursor is at the last term, inside quote `uat:""`,
+   *   where the closing quote might or might not exist
+   *
+   * */
   useEffect(() => {
-    // first check if user is typing a UAT keyword
-    // if so show matching UAT keyword options
-    const fields = splitSearchItems(debouncedUserInput);
-    if (isDoingUatSearch(fields)) {
-      const test = fields[fields.length - 1].match(/uat:"([^"]*)"?$/i);
-      if (test && test.length > 1 && test[1].length > 0) {
-        const userUatTerm = test[1];
+    const { value: searchString, cursorPos } = debouncedUserInput;
+    const terms = splitSearchItems(searchString);
 
-        // get matching options
-        fetchUATOptions(userUatTerm).then((options) => {
-          dispatch({ type: 'SET_UAT_TYPEAHEAD_OPTIONS', payload: options });
-        });
+    if (isLastSearchTermUAT(terms)) {
+      const lastSearchTerm = terms[terms.length - 1];
+
+      // has partial uat keyword
+      const test = terms[terms.length - 1].match(/uat:"([^"]*)"?$/i);
+      if (test && test.length > 1 && test[1].length > 0) {
+        const uatKeyword = test[1];
+
+        // only show uat auto complete if user is typing inside the last term value: uat:"xxx|x"
+        const uatKeywordStartPos = searchString.length - lastSearchTerm.length + 'uat:"'.length - 1;
+        const uatKeywordEndPos = lastSearchTerm.endsWith('"') ? searchString.length - 1 : searchString.length;
+        if (cursorPos >= uatKeywordStartPos && cursorPos <= uatKeywordEndPos) {
+          // get matching options
+          fetchUATOptions(uatKeyword).then((options) => {
+            dispatch({ type: 'SET_UAT_TYPEAHEAD_OPTIONS', payload: options });
+          });
+        }
       }
     }
   }, [debouncedUserInput]);
@@ -151,7 +170,7 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
     return value.match(/(?:[^\s"]+|"[^"]*")+\w*(?:[^\s"]+|"[^"]*){0,1}/g);
   };
 
-  const isDoingUatSearch = (fields: RegExpMatchArray) => {
+  const isLastSearchTermUAT = (fields: RegExpMatchArray) => {
     return fields && fields.length > 0 && fields[fields.length - 1].toLowerCase().startsWith('uat:"');
   };
 
@@ -264,6 +283,7 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
                     index={index}
                     onClick={handleItemClick}
                     focused={state.focused === index}
+                    showValue={false}
                   />
                 ))
               : null}
@@ -279,9 +299,10 @@ const TypeaheadItem = (props: {
   index: number;
   focused: boolean;
   dispatch: Dispatch<SearchInputAction>;
+  showValue?: boolean;
   onClick?: () => void;
 }) => {
-  const { focused, item, dispatch, index, onClick } = props;
+  const { focused, item, dispatch, index, onClick, showValue = true } = props;
   const liRef = useRef<HTMLLIElement>(null);
   const colors = useColorModeColors();
   const { colorMode } = useColorMode();
@@ -326,14 +347,18 @@ const TypeaheadItem = (props: {
         <Text flex="1" role="presentation">
           {item.label}
         </Text>
-        {(colorMode === 'dark' && isMouseOver) || colorMode === 'light' ? (
-          <LightMode>
-            <Code>{item.value}</Code>
-          </LightMode>
-        ) : (
-          <DarkMode>
-            <Code>{item.value}</Code>
-          </DarkMode>
+        {showValue && (
+          <>
+            {(colorMode === 'dark' && isMouseOver) || colorMode === 'light' ? (
+              <LightMode>
+                <Code>{item.value}</Code>
+              </LightMode>
+            ) : (
+              <DarkMode>
+                <Code>{item.value}</Code>
+              </DarkMode>
+            )}
+          </>
         )}
       </Flex>
     </ListItem>
