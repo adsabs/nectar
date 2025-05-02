@@ -11,11 +11,15 @@ export interface SearchRequest extends NextApiRequest {
 
 interface IUatTerm {
   name: string;
+  altNames: string[];
 }
 
 // create a fuse instance using pre-generated index
 const fuse = new Fuse<IUatTerm>(uatTerms as IUatTerm[], {
-  keys: [{ name: 'name', weight: 1.0 }],
+  keys: [
+    { name: 'name', weight: 0.9 },
+    { name: 'altNames', weight: 0.1 },
+  ],
   isCaseSensitive: false,
   includeScore: true,
   shouldSort: true,
@@ -29,7 +33,7 @@ const formatResult = (result: Fuse.FuseResult<IUatTerm>[]) =>
     return {
       value: `"${r.item.name.toLowerCase()}"`,
       label: r.item.name,
-      desc: '',
+      desc: r.item.altNames?.map((n) => `"${n}"`).join(', '),
       id: i,
       match: [] as string[],
     } as TypeaheadOption;
