@@ -19,6 +19,7 @@ import {
   PopoverBody,
   PopoverContent,
   Text,
+  Tooltip,
   useColorMode,
   useMergeRefs,
   VisuallyHidden,
@@ -343,24 +344,26 @@ const TypeaheadItem = (props: {
       onMouseEnter={handleMouseOver}
       onMouseLeave={handleMouseLeave}
     >
-      <Flex role="option" aria-label={item.label} aria-atomic="true">
-        <Text flex="1" role="presentation">
-          {item.label}
-        </Text>
-        {showValue && (
-          <>
-            {(colorMode === 'dark' && isMouseOver) || colorMode === 'light' ? (
-              <LightMode>
-                <Code>{item.value}</Code>
-              </LightMode>
-            ) : (
-              <DarkMode>
-                <Code>{item.value}</Code>
-              </DarkMode>
-            )}
-          </>
-        )}
-      </Flex>
+      <Tooltip label={item.desc}>
+        <Flex role="option" aria-label={item.label} aria-atomic="true">
+          <Text flex="1" role="presentation">
+            {item.label}
+          </Text>
+          {showValue && (
+            <>
+              {(colorMode === 'dark' && isMouseOver) || colorMode === 'light' ? (
+                <LightMode>
+                  <Code>{item.value}</Code>
+                </LightMode>
+              ) : (
+                <DarkMode>
+                  <Code>{item.value}</Code>
+                </DarkMode>
+              )}
+            </>
+          )}
+        </Flex>
+      </Tooltip>
     </ListItem>
   );
 };
