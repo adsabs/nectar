@@ -134,7 +134,7 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
     // if so show matching UAT keyword options
     const fields = splitSearchItems(debouncedUserInput);
     if (isDoingUatSearch(fields)) {
-      const test = fields[fields.length - 1].match(/uat:"([^"]*$)/i);
+      const test = fields[fields.length - 1].match(/uat:"([^"]*)"?$/i);
       if (test && test.length > 1 && test[1].length > 0) {
         const userUatTerm = test[1];
 
