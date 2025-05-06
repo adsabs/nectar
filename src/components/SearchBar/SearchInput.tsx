@@ -29,6 +29,7 @@ import {
   Dispatch,
   KeyboardEventHandler,
   useCallback,
+  useDeferredValue,
   useEffect,
   useReducer,
   useRef,
@@ -42,7 +43,6 @@ import { getFocusedItemValue, getPreview } from '@/components/SearchBar/helpers'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { useFocus } from '@/lib/useFocus';
 import { useColorModeColors } from '@/lib/useColorModeColors';
-import { useDebounce } from '@/lib/useDebounce';
 import { useUATTermsSearch } from '@/api/uat/uat';
 
 const SEARCHBAR_MAX_LENGTH = 2048 as const;
@@ -62,7 +62,7 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
   const refs = useMergeRefs(ref, input);
   const { query, queryAddition, onDoneAppendingToQuery, isClearingQuery, onDoneClearingQuery } = useIntermediateQuery();
   const [userInput, setUserInput] = useState<{ value: string; cursorPos: number }>({ value: '', cursorPos: 0 });
-  const debouncedUserInput = useDebounce(userInput, 100);
+  const deferredUserInput = useDeferredValue(userInput);
   const [uatSearchTerm, setUatSearchTerm] = useState(null);
 
   const { data: uatSearchTermData } = useUATTermsSearch({ term: uatSearchTerm }, { enabled: !!uatSearchTerm });
@@ -161,7 +161,7 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
    *
    * */
   useEffect(() => {
-    const { value: searchString, cursorPos } = debouncedUserInput;
+    const { value: searchString, cursorPos } = deferredUserInput;
     const terms = splitSearchItems(searchString);
 
     if (isLastSearchTermUAT(terms)) {
@@ -181,7 +181,7 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
         }
       }
     }
-  }, [debouncedUserInput]);
+  }, [deferredUserInput]);
 
   const splitSearchItems = (value: string) => {
     // split each search item
