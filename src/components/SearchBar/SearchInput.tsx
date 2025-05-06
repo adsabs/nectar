@@ -42,9 +42,8 @@ import { getFocusedItemValue, getPreview } from '@/components/SearchBar/helpers'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { useFocus } from '@/lib/useFocus';
 import { useColorModeColors } from '@/lib/useColorModeColors';
-import { logger } from '@/logger';
-import axios from 'axios';
 import { useDebounce } from '@/lib/useDebounce';
+import { useUATTermsSearch } from '@/api/uat/uat';
 
 const SEARCHBAR_MAX_LENGTH = 2048 as const;
 
@@ -64,6 +63,26 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
   const { query, queryAddition, onDoneAppendingToQuery, isClearingQuery, onDoneClearingQuery } = useIntermediateQuery();
   const [userInput, setUserInput] = useState<{ value: string; cursorPos: number }>({ value: '', cursorPos: 0 });
   const debouncedUserInput = useDebounce(userInput, 100);
+  const [uatSearchTerm, setUatSearchTerm] = useState(null);
+
+  const { data: uatSearchTermData } = useUATTermsSearch({ term: uatSearchTerm }, { enabled: !!uatSearchTerm });
+
+  useEffect(() => {
+    if (!!uatSearchTermData) {
+      // convert to typeahead options and dispatch
+      const options = uatSearchTermData.uatTerms.map((r, i) => {
+        return {
+          value: `"${r.name}"`,
+          label: r.name,
+          desc: [r.name, ...(r.altNames || [])].join(', '),
+          id: i,
+          match: [] as string[],
+        } as TypeaheadOption;
+      });
+      dispatch({ type: 'SET_UAT_TYPEAHEAD_OPTIONS', payload: options });
+    }
+    setUatSearchTerm(null); // reset
+  }, [uatSearchTermData]);
 
   // on mount, set the search term, focus and force reset to clear the menu
   useEffect(() => {
@@ -157,10 +176,8 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
         const uatKeywordStartPos = searchString.length - lastSearchTerm.length + 'uat:"'.length - 1;
         const uatKeywordEndPos = lastSearchTerm.endsWith('"') ? searchString.length - 1 : searchString.length;
         if (cursorPos >= uatKeywordStartPos && cursorPos <= uatKeywordEndPos) {
-          // get matching options
-          fetchUATOptions(uatKeyword).then((options) => {
-            dispatch({ type: 'SET_UAT_TYPEAHEAD_OPTIONS', payload: options });
-          });
+          // trigger UAT keyword search
+          setUatSearchTerm(uatKeyword);
         }
       }
     }
@@ -366,20 +383,4 @@ const TypeaheadItem = (props: {
       </Tooltip>
     </ListItem>
   );
-};
-
-const fetchUATOptions = async (value: string): Promise<TypeaheadOption[]> => {
-  const valueToFetch = value.trim();
-  if (valueToFetch.length === 0) {
-    return [];
-  }
-
-  try {
-    const { data } = await axios.get<TypeaheadOption[]>(`api/uat_options/${valueToFetch}`);
-    return data;
-  } catch (err) {
-    logger.error({ err }, 'Error fetching UAT options from api');
-    // send back a single "error" item with a message
-    return [];
-  }
 };
