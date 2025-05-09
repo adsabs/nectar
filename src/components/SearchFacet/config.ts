@@ -110,10 +110,9 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
   uat: {
     label: 'UAT',
     field: 'uat_facet_hier' as FacetField,
-    hasChildren: true,
+    hasChildren: false,
     logic: defaultLogic,
     storeId: 'uat',
-    maxDepth: 2,
     noLoadMore: true,
   },
 };
