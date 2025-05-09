@@ -40,7 +40,7 @@ import { getLevelFromKey, isRootNode, parseRootFromKey, parseTitleFromKey } from
 import { selectors, useFacetStore } from '@/components/SearchFacet/store/FacetStore';
 import { FacetItem, FacetLogic, OnFilterArgs } from '@/components/SearchFacet/types';
 import { IUseGetFacetDataProps, useGetFacetData } from '@/components/SearchFacet/useGetFacetData';
-import { EllipsisHorizontalIcon, ExclamationTriangleIcon, InformationCircleIcon } from '@heroicons/react/24/solid';
+import { ExclamationTriangleIcon, InformationCircleIcon } from '@heroicons/react/24/solid';
 import { equals, isEmpty } from 'ramda';
 import {
   ForwardedRef,
@@ -60,6 +60,7 @@ import { Toggler } from '@/components/Toggler';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { kFormatNumber } from '@/utils/common/formatters';
 import { noop } from '@/utils/common/noop';
+import { ArrowUpRightIcon } from '@heroicons/react/20/solid';
 
 export interface IFacetListProps extends ListProps {
   noLoadMore?: boolean;
@@ -113,14 +114,14 @@ export interface INodeListProps extends Pick<IUseGetFacetDataProps, 'prefix' | '
 
 export const NodeList = memo(
   forwardRef((props: INodeListProps, ref: ForwardedRef<HTMLDivElement>) => {
-    const { parentIndex, prefix, level, noLoadMore, onError, onLoadMore, onKeyboardFocusNext = noop } = props;
+    const { parentIndex, prefix, level, onError, onLoadMore, onKeyboardFocusNext = noop } = props;
 
     const params = useFacetStore(selectors.params);
     const [sortField, sortDir] = useFacetStore(selectors.sort);
     const updateModal = useFacetStore(selectors.updateModal);
     const depth = getLevelFromKey(prefix) + 1;
     const expandable = params.hasChildren && (level === 'root' || params.maxDepth > depth);
-    const { treeData, isFetching, isError, canLoadMore } = useGetFacetData({
+    const { treeData, isFetching, isError } = useGetFacetData({
       ...params,
       prefix,
       level,
@@ -132,7 +133,7 @@ export const NodeList = memo(
       if (isError && typeof onError === 'function') {
         onError();
       }
-    }, [isError]);
+    }, [isError, onError]);
 
     const setKeyboardFocus = useFacetStore(selectors.setKeyboardFocused);
     const expanded = useFacetStore(selectors.expanded);
@@ -146,7 +147,7 @@ export const NodeList = memo(
           setChildrenCount(id, treeData.length);
         }
       }
-    }, [treeData]);
+    }, [childrenCount, parentIndex, setChildrenCount, treeData]);
 
     if (isError) {
       return (
@@ -181,13 +182,13 @@ export const NodeList = memo(
 
     const handleKeyboardFocusNext = (index: number[]) => {
       if (level === 'root') {
-        // focus on next silbing
+        // focus on next sibling
         if (index[0] + 1 < treeData.length) {
           setKeyboardFocus([index[0] + 1]);
         }
         // else do nothing
       } else {
-        // focus on next silbing
+        // focus on next sibling
         if (index[1] + 1 < treeData.length) {
           setKeyboardFocus([index[0], index[1] + 1]);
         } else {
@@ -205,12 +206,12 @@ export const NodeList = memo(
             // if previous is expanded, go to previous last child
             setKeyboardFocus([index[0] - 1, childrenCount[prevId] - 1]);
           } else {
-            // else go to previous silbing
+            // else go to previous sibling
             setKeyboardFocus([index[0] - 1]);
           }
         }
       } else {
-        // focus on previous silbing
+        // focus on previous sibling
         if (index[1] > 0) {
           setKeyboardFocus([index[0], index[1] - 1]);
         } else {
@@ -257,7 +258,7 @@ export const NodeList = memo(
         </List>
         <LoadMoreBtn
           mt={level === 'root' ? 2 : 0}
-          show={!noLoadMore && canLoadMore}
+          show
           onClick={handleLoadMore}
           pullRight
           onArrowUp={handleArrowUpFromLoadMore}
@@ -606,6 +607,7 @@ interface ILoadMoreBtnProps extends Omit<IconButtonProps, 'aria-label'> {
   label?: string;
   onArrowUp?: () => void;
   onArrowDown?: () => void;
+  totalResults?: number;
 }
 
 export const LoadMoreBtn = (props: ILoadMoreBtnProps) => {
@@ -629,23 +631,26 @@ export const LoadMoreBtn = (props: ILoadMoreBtnProps) => {
 
   if (show) {
     return (
-      <Stack direction="row" justifyContent={pullRight ? 'end' : 'normal'}>
-        <IconButton
-          data-testid="search-facet-load-more-btn"
-          icon={<EllipsisHorizontalIcon />}
-          size="xs"
-          variant="outline"
-          colorScheme="gray"
-          p="0.5"
-          type="button"
-          borderRadius="md"
-          aria-label={label}
-          onKeyDown={handleKeyDown}
-          {...btnProps}
-        />
-      </Stack>
+      <Tooltip label="Opens full list with search and filter options" placement="right">
+        <Stack direction="row" justifyContent={pullRight ? 'end' : 'normal'}>
+          <IconButton
+            icon={<ArrowUpRightIcon />}
+            size="xs"
+            variant="outline"
+            colorScheme="gray"
+            opacity={0.7}
+            type="button"
+            borderRadius="md"
+            aria-label={label}
+            onKeyDown={handleKeyDown}
+            data-testid="search-facet-load-more-btn"
+            {...btnProps}
+          />
+        </Stack>
+      </Tooltip>
     );
   }
+
   if (show && showBottomBorder) {
     return <Divider size={'sm'} />;
   }
@@ -668,7 +673,7 @@ const LogicSelect = (
         reset();
       }
     },
-    [selected],
+    [onFilter, params.field, reset, selected],
   );
 
   const logicType = selected.length > 1 ? params.logic.multiple : params.logic.single;
