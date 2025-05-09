@@ -1,7 +1,9 @@
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { usePopper, VStack, Tooltip, Box, UnorderedList, ListItem } from '@chakra-ui/react';
+import axios from 'axios';
 import { useSelect } from 'downshift';
+import { useEffect, useState } from 'react';
 
 export type UATTermItem = {
   type: 'item';
@@ -18,23 +20,116 @@ export type UATTermOption = UATTermItem | UATTermGroup;
 
 const isUATGroup = (item: UATTermOption): item is UATTermGroup => item.type === 'group';
 
+const UAT_ENDPOINT = 'http://vocabs.ardc.edu.au/repository/api/sparql/aas_the-unified-astronomy-thesaurus_5-1-0';
+
+interface IRelatedKeywords {
+  relation: 'child' | 'parent' | 'related';
+  label: string;
+  uri: string;
+}
+
 export const UATDropdown = ({ keyword }: { keyword: string }) => {
-  // fetch keyword parents and childrens on isOpen
+  // TODO: fetch keyword parents and childrens on isOpen
 
-  console.log(keyword);
+  const [uri, setUri] = useState<string>(null);
+  const [keywords, setKeywords] = useState<IRelatedKeywords[]>([]);
 
-  const parents = [1, 2, 3, 4, 5].map(
-    (n) => ({ type: 'item', label: `parent ${n}`, value: `parent ${n}` } as UATTermItem),
-  );
-  const children = [1, 2, 3, 4, 5, 6, 7, 8, 9].map(
-    (n) => ({ type: 'item', label: `child ${n}`, value: `child ${n}` } as UATTermItem),
-  );
+  useEffect(() => {
+    const fetchKeyword = async () => {
+      const query = `
+        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        SELECT ?concept ?label WHERE {
+        ?concept skos:prefLabel ?label .
+        FILTER (LANG(?label) = "en")
+        FILTER (LCASE(STR(?label)) = "${keyword}")
+      }
+      `;
+
+      const url = `${UAT_ENDPOINT}?query=${encodeURIComponent(query)}`;
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            Accept: 'application/sparql-results+json',
+          },
+        });
+        setUri(response.data.results.bindings[0].concept.value);
+      } catch (error) {
+        console.error('Error fetching UAT data:', error);
+      }
+    };
+    fetchKeyword();
+  }, [keyword]);
+
+  useEffect(() => {
+    if (uri !== null) {
+      const fetchUAT = async () => {
+        const query = `
+        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        SELECT * WHERE {
+          ?concept a skos:Concept .
+          VALUES ?concept {<${uri}>}
+
+          {
+            ?concept skos:broader ?relatedConcept .
+            BIND("parent" AS ?relationType)
+          }
+          UNION
+          {
+            ?concept skos:narrower ?relatedConcept .
+            BIND("child" AS ?relationType)
+          }
+          UNION
+          {
+            ?concept skos:related ?relatedConcept .
+            BIND("related" AS ?relationType)
+          }
+
+          ?relatedConcept skos:prefLabel ?label .
+          FILTER (lang(?label) = "en")
+        }
+        ORDER BY ?relationType ?label
+      `;
+
+        const url = `${UAT_ENDPOINT}?query=${encodeURIComponent(query)}`;
+        try {
+          const response = await axios.get(url, {
+            headers: {
+              Accept: 'application/sparql-results+json',
+            },
+          });
+          setKeywords(
+            response.data.results.bindings.map((d) => ({
+              relation: d.relationType.value,
+              label: d.label.value,
+              uri: d.relatedConcept.value,
+            })),
+          );
+        } catch (error) {
+          console.error('Error fetching UAT data:', error);
+        }
+      };
+
+      fetchUAT();
+    }
+  }, [uri]);
+
+  const parents = keywords
+    .filter((r) => r.relation === 'parent')
+    .map((n) => ({ type: 'item', label: n.label, value: n.label } as UATTermItem));
+  const children = keywords
+    .filter((r) => r.relation === 'child')
+    .map((n) => ({ type: 'item', label: n.label, value: n.label } as UATTermItem));
+  const related = keywords
+    .filter((r) => r.relation === 'related')
+    .map((n) => ({ type: 'item', label: n.label, value: n.label } as UATTermItem));
 
   const items: UATTermOption[] = [
-    { type: 'group', label: 'Broader' } as UATTermGroup,
+    { type: 'group', label: `Broader (${parents.length})` } as UATTermGroup,
     ...parents,
-    { type: 'group', label: 'Narrower' } as UATTermGroup,
+    { type: 'group', label: `Narrower  (${children.length})` } as UATTermGroup,
     ...children,
+    { type: 'group', label: `Related  (${related.length})` } as UATTermGroup,
+    ...related,
   ];
 
   const { isOpen, getToggleButtonProps, getMenuProps, highlightedIndex, getItemProps } = useSelect({
@@ -59,6 +154,7 @@ export const UATDropdown = ({ keyword }: { keyword: string }) => {
           })}
           m={1}
           cursor="pointer"
+          tabIndex={0}
         >
           <ChevronDownIcon aria-label="Related keywords" boxSize={4} />
         </Box>
@@ -70,10 +166,10 @@ export const UATDropdown = ({ keyword }: { keyword: string }) => {
         borderRadius={5}
         borderColor="gray.200"
         boxShadow="lg"
-        maxHeight="400px"
-        w="200px"
+        maxHeight="500px"
+        w="fit-content"
+        maxW="400px"
         overflowY="scroll"
-        overflowX="hidden"
         {...getMenuProps({
           ref: (el: HTMLUListElement) => {
             dropdownPopperRef(el);
