@@ -6,7 +6,7 @@ import { AppState, useStore } from '@/store';
 import { sanitize } from 'isomorphic-dompurify';
 import { isEmpty, omit } from 'ramda';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { isNonEmptyArray, isNonEmptyString } from 'ramda-adjunct';
+import { isNonEmptyString } from 'ramda-adjunct';
 import { FacetField, IADSApiSearchParams, IBucket } from '@/api/search/types';
 import { useGetSearchFacetJSON } from '@/api/search/search';
 import { useObjects } from '@/api/objects/objects';
@@ -60,11 +60,12 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
   const { data, ...result } = useGetSearchFacetJSON(
     {
       ...searchQuery,
+      filter,
+      field,
       ['json.facet']: getSearchFacetParams({
         field,
         prefix,
         query,
-        filter,
         level,
         sortField,
         sortDir,
@@ -81,14 +82,14 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
   );
 
   const res = data?.[field];
-  const treeData = useMemo(() => formatTreeData(res?.buckets ?? [], filter), [res?.buckets, filter]);
+  const treeData = useMemo(() => formatTreeData(res?.buckets ?? []), [res?.buckets]);
 
   const identifiers = useMemo(
     () =>
       field === 'simbad_object_facet_hier' && treeData?.[0]?.level > 0
         ? treeData.map(({ val }) => val.split('/')[val.split('/').length - 1])
         : ([] as string[]),
-    [treeData],
+    [field, treeData],
   );
 
   const {
@@ -152,7 +153,7 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
     if (enhancedTreeData?.length > 0) {
       addNodes(enhancedTreeData);
     }
-  }, [enhancedTreeData]);
+  }, [addNodes, enhancedTreeData]);
 
   return {
     treeData: enhancedTreeData,
@@ -169,14 +170,9 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
   };
 };
 
-const formatTreeData = (buckets: Array<IBucket>, filter?: IUseGetFacetDataProps['filter']) => {
+const formatTreeData = (buckets: Array<IBucket>) => {
   const treeData: Array<FacetItem> = [];
   buckets.forEach((bucket) => {
-    // exclude any values that are NOT included in the filter
-    if (isNonEmptyArray(filter) && !filter.includes(bucket.val as string)) {
-      return;
-    }
-
     const parentId = getPrevKey(bucket.val as string, true);
     treeData.push({
       ...bucket,
@@ -222,7 +218,6 @@ const getSearchFacetParams = (props: IUseGetFacetDataProps & { offset: number; l
       numBuckets: true,
       sort: `count ${props.sortDir}`,
       ...(props.query ? { query: props.query } : {}),
-
       ...(props.hasChildren
         ? { prefix: getPrefix(props.prefix, sanitize(props.searchTerm)) }
         : { prefix: sanitize(props.searchTerm) }),

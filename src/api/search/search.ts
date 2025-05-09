@@ -35,6 +35,9 @@ import { IADSApiSearchParams, IADSApiSearchResponse, IBigQueryMutationParams, ID
 import { ADSMutation, ADSQuery, InfiniteADSQuery } from '@/api/types';
 import api, { ApiRequestConfig } from '@/api/api';
 import { ApiTargets } from '@/api/models';
+import { logger } from '@/logger';
+
+type PostTransformer = (data: IADSApiSearchResponse) => IADSApiSearchResponse;
 
 type ErrorType = Error | AxiosError;
 
@@ -319,19 +322,45 @@ export const useGetSearchFacet: SearchADSQuery<IADSApiSearchParams, IADSApiSearc
   });
 };
 
-export const useGetSearchFacetJSON: SearchADSQuery<IADSApiSearchParams, IADSApiSearchResponse['facets']> = (
-  params,
-  options,
-) => {
+export const useGetSearchFacetJSON: SearchADSQuery<
+  IADSApiSearchParams & {
+    filter?: string[];
+    field: string;
+  },
+  IADSApiSearchResponse['facets']
+> = (params, options) => {
   const searchParams: IADSApiSearchParams = getSearchFacetJSONParams(params);
 
   // omit fields from queryKey
   const { fl, ...cleanParams } = searchParams;
 
+  // TODO: this should be done in the API, for now this works to filter out unwanted property data
+  const transformData = (data: IADSApiSearchResponse) => {
+    try {
+      if (params?.filter?.length > 0 && data) {
+        const buckets = data.facets[params.field].buckets;
+        const filtered = buckets.filter((bucket) => {
+          return params.filter?.some((filter) => filter === bucket.val);
+        });
+        return {
+          ...data,
+          facets: {
+            ...data.facets,
+            [params.field]: { ...data.facets[params.field], buckets: filtered, numBuckets: filtered.length },
+          },
+        };
+      }
+      return data;
+    } catch (e) {
+      logger.error('Error processing facet data', { error: e });
+      return data;
+    }
+  };
+
   return useQuery({
     queryKey: searchKeys.facet(cleanParams),
     queryFn: fetchSearch,
-    meta: { params: searchParams },
+    meta: { params: searchParams, postTransformers: [transformData] },
     select: facetFieldSelector,
     ...options,
   });
@@ -394,7 +423,10 @@ export const fetchBigQuerySearch: MutationFunction<IADSApiSearchResponse['respon
  * @returns {Promise<IADSApiSearchResponse>} - A promise that resolves to the search response data.
  */
 export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta }) => {
-  const { params } = meta as { params: IADSApiSearchParams };
+  const { params, postTransformers } = meta as {
+    params: IADSApiSearchParams;
+    postTransformers?: Array<PostTransformer>;
+  };
 
   const finalParams = { ...params };
   if (isString(params.q) && params.q.includes('object:')) {
@@ -408,6 +440,12 @@ export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta }
     params: finalParams,
   };
   const { data } = await api.request<IADSApiSearchResponse>(config);
+
+  // apply post transformers if any
+  if (postTransformers && data) {
+    return postTransformers.reduce((acc, transformer) => transformer(acc), data);
+  }
+
   return data;
 };
 
