@@ -202,7 +202,7 @@ export const UATDropdown = ({ keyword }: { keyword: string }) => {
               {isUATGroup(term) ? (
                 <>{term.label}</>
               ) : (
-                <SearchQueryLink params={{ q: `uat:"${term.value}"` }} textDecoration="none">
+                <SearchQueryLink params={{ q: `uat:"${term.value}"` }} textDecoration="none" color="inherit">
                   {term.label}
                 </SearchQueryLink>
               )}
