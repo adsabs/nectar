@@ -4,6 +4,7 @@ import { usePopper, VStack, Tooltip, Box, UnorderedList, ListItem } from '@chakr
 import axios from 'axios';
 import { useSelect } from 'downshift';
 import { useEffect, useState } from 'react';
+import { SearchQueryLink } from '../SearchQueryLink';
 
 export type UATTermItem = {
   type: 'item';
@@ -26,10 +27,12 @@ interface IRelatedKeywords {
   relation: 'child' | 'parent' | 'related';
   label: string;
   uri: string;
+  value: string;
 }
 
 export const UATDropdown = ({ keyword }: { keyword: string }) => {
   // TODO: fetch keyword parents and childrens on isOpen
+  // TODO: use useQuery to cache
 
   const [uri, setUri] = useState<string>(null);
   const [keywords, setKeywords] = useState<IRelatedKeywords[]>([]);
@@ -52,7 +55,7 @@ export const UATDropdown = ({ keyword }: { keyword: string }) => {
             Accept: 'application/sparql-results+json',
           },
         });
-        setUri(response.data.results.bindings[0].concept.value);
+        setUri(response.data.results.bindings[0]?.concept?.value);
       } catch (error) {
         console.error('Error fetching UAT data:', error);
       }
@@ -102,6 +105,7 @@ export const UATDropdown = ({ keyword }: { keyword: string }) => {
               relation: d.relationType.value,
               label: d.label.value,
               uri: d.relatedConcept.value,
+              value: d.label.value,
             })),
           );
         } catch (error) {
@@ -195,7 +199,13 @@ export const UATDropdown = ({ keyword }: { keyword: string }) => {
                 disabled: isUATGroup(term),
               })}
             >
-              {term.label}
+              {isUATGroup(term) ? (
+                <>{term.label}</>
+              ) : (
+                <SearchQueryLink params={{ q: `uat:"${term.value}"` }} textDecoration="none">
+                  {term.label}
+                </SearchQueryLink>
+              )}
             </ListItem>
           ))}
       </UnorderedList>
