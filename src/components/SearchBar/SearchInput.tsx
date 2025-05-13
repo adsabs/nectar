@@ -43,7 +43,7 @@ import { getFocusedItemValue, getPreview } from '@/components/SearchBar/helpers'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { useFocus } from '@/lib/useFocus';
 import { useColorModeColors } from '@/lib/useColorModeColors';
-import { useUATTermsSearch } from '@/api/uat/uat';
+import { useUATTermsSearchOptions } from '@/api/uat/uat';
 
 const SEARCHBAR_MAX_LENGTH = 2048 as const;
 
@@ -65,24 +65,17 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
   const deferredUserInput = useDeferredValue(userInput);
   const [uatSearchTerm, setUatSearchTerm] = useState(null);
 
-  const { data: uatSearchTermData } = useUATTermsSearch({ term: uatSearchTerm }, { enabled: !!uatSearchTerm });
+  const { data: uatSearchTermOptions } = useUATTermsSearchOptions(
+    { term: uatSearchTerm },
+    { enabled: !!uatSearchTerm },
+  );
 
   useEffect(() => {
-    if (!!uatSearchTermData) {
-      // convert to typeahead options and dispatch
-      const options = uatSearchTermData.uatTerms.map((r, i) => {
-        return {
-          value: `"${r.name}"`,
-          label: r.name,
-          desc: [r.name, ...(r.altNames || [])].join(', '),
-          id: i,
-          match: [] as string[],
-        } as TypeaheadOption;
-      });
-      dispatch({ type: 'SET_UAT_TYPEAHEAD_OPTIONS', payload: options });
+    if (!!uatSearchTermOptions) {
+      dispatch({ type: 'SET_UAT_TYPEAHEAD_OPTIONS', payload: uatSearchTermOptions });
     }
     setUatSearchTerm(null); // reset
-  }, [uatSearchTermData]);
+  }, [uatSearchTermOptions]);
 
   // on mount, set the search term, focus and force reset to clear the menu
   useEffect(() => {
