@@ -1,12 +1,13 @@
 import { useUATTermsSearch } from '@/api/uat/uat';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { parseAPIError } from '@/utils/common/parseAPIError';
+import { makeSearchParams } from '@/utils/common/search';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { usePopper, VStack, Tooltip, Box, ListItem, List } from '@chakra-ui/react';
 import { useSelect } from 'downshift';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { CustomInfoMessage, LoadingMessage } from '../Feedbacks';
-import { SearchQueryLink } from '../SearchQueryLink';
 
 export type UATTermItem = {
   type: 'item';
@@ -24,11 +25,21 @@ export type UATTermOption = UATTermItem | UATTermGroup;
 const isUATGroup = (item: UATTermOption): item is UATTermGroup => item.type === 'group';
 
 export const UATDropdown = ({ keyword }: { keyword: string }) => {
+  const colors = useColorModeColors();
+
+  const router = useRouter();
+
   const [options, setOptions] = useState<UATTermOption[]>([]);
 
-  const { isOpen, getToggleButtonProps, getMenuProps, highlightedIndex, getItemProps } = useSelect({
+  const { isOpen, getToggleButtonProps, getMenuProps, highlightedIndex, getItemProps } = useSelect<UATTermOption>({
     items: options,
     itemToString: (option) => option.label,
+    onSelectedItemChange: ({ selectedItem: option }) => {
+      if (option.type === 'item') {
+        const params = { q: `uat:"${option.value}"` };
+        void router.push(`/search?${makeSearchParams(params)}`);
+      }
+    },
   });
 
   const { data, isFetching, isFetched, error } = useUATTermsSearch({ term: keyword, exact: true }, { enabled: isOpen });
@@ -61,8 +72,6 @@ export const UATDropdown = ({ keyword }: { keyword: string }) => {
   const { popperRef: dropdownPopperRef, referenceRef: dropdownReferenceRef } = usePopper({
     placement: 'right-start',
   });
-
-  const colors = useColorModeColors();
 
   return (
     <VStack>
@@ -130,19 +139,14 @@ export const UATDropdown = ({ keyword }: { keyword: string }) => {
                     p={2}
                     pl={isUATGroup(option) ? 2 : 4}
                     cursor={isUATGroup(option) ? 'default' : 'pointer'}
+                    role={isUATGroup(option) ? 'listitem' : 'link'}
                     {...getItemProps({
                       item: option,
                       index,
                       disabled: isUATGroup(option),
                     })}
                   >
-                    {isUATGroup(option) ? (
-                      <>{option.label}</>
-                    ) : (
-                      <SearchQueryLink params={{ q: `uat:"${option.value}"` }} textDecoration="none" color="inherit">
-                        {option.label}
-                      </SearchQueryLink>
-                    )}
+                    {option.label}
                   </ListItem>
                 ))}
               </List>
