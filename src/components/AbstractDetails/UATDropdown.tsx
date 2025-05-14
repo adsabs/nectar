@@ -1,9 +1,9 @@
+import { useUATTermsSearch } from '@/api/uat/uat';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { usePopper, VStack, Tooltip, Box, UnorderedList, ListItem } from '@chakra-ui/react';
-import axios from 'axios';
 import { useSelect } from 'downshift';
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { SearchQueryLink } from '../SearchQueryLink';
 
 export type UATTermItem = {
@@ -21,120 +21,34 @@ export type UATTermOption = UATTermItem | UATTermGroup;
 
 const isUATGroup = (item: UATTermOption): item is UATTermGroup => item.type === 'group';
 
-const UAT_ENDPOINT = 'http://vocabs.ardc.edu.au/repository/api/sparql/aas_the-unified-astronomy-thesaurus_5-1-0';
-
-interface IRelatedKeywords {
-  relation: 'child' | 'parent' | 'related';
-  label: string;
-  uri: string;
-  value: string;
-}
-
 export const UATDropdown = ({ keyword }: { keyword: string }) => {
   // TODO: fetch keyword parents and childrens on isOpen
-  // TODO: use useQuery to cache
+  const { data, isFetched } = useUATTermsSearch({ term: keyword, exact: true });
 
-  const [uri, setUri] = useState<string>(null);
-  const [keywords, setKeywords] = useState<IRelatedKeywords[]>([]);
+  const items = useMemo(() => {
+    if (isFetched && !!data && data.uatTerms.length > 0 && data.uatTerms[0].name.toLowerCase() === keyword) {
+      const uatTerm = data.uatTerms[0];
+      const parents =
+        uatTerm.broader?.map((n) => ({ type: 'item', label: n.name, value: n.name } as UATTermItem)) ??
+        ([] as UATTermItem[]);
+      const children =
+        uatTerm.narrower?.map((n) => ({ type: 'item', label: n.name, value: n.name } as UATTermItem)) ??
+        ([] as UATTermItem[]);
+      const related =
+        uatTerm.related?.map((n) => ({ type: 'item', label: n.name, value: n.name } as UATTermItem)) ??
+        ([] as UATTermItem[]);
 
-  useEffect(() => {
-    const fetchKeyword = async () => {
-      const query = `
-        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-        SELECT ?concept ?label WHERE {
-        ?concept skos:prefLabel ?label .
-        FILTER (LANG(?label) = "en")
-        FILTER (LCASE(STR(?label)) = "${keyword}")
-      }
-      `;
-
-      const url = `${UAT_ENDPOINT}?query=${encodeURIComponent(query)}`;
-      try {
-        const response = await axios.get(url, {
-          headers: {
-            Accept: 'application/sparql-results+json',
-          },
-        });
-        setUri(response.data.results.bindings[0]?.concept?.value);
-      } catch (error) {
-        console.error('Error fetching UAT data:', error);
-      }
-    };
-    fetchKeyword();
-  }, [keyword]);
-
-  useEffect(() => {
-    if (uri !== null) {
-      const fetchUAT = async () => {
-        const query = `
-        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-        SELECT * WHERE {
-          ?concept a skos:Concept .
-          VALUES ?concept {<${uri}>}
-
-          {
-            ?concept skos:broader ?relatedConcept .
-            BIND("parent" AS ?relationType)
-          }
-          UNION
-          {
-            ?concept skos:narrower ?relatedConcept .
-            BIND("child" AS ?relationType)
-          }
-          UNION
-          {
-            ?concept skos:related ?relatedConcept .
-            BIND("related" AS ?relationType)
-          }
-
-          ?relatedConcept skos:prefLabel ?label .
-          FILTER (lang(?label) = "en")
-        }
-        ORDER BY ?relationType ?label
-      `;
-
-        const url = `${UAT_ENDPOINT}?query=${encodeURIComponent(query)}`;
-        try {
-          const response = await axios.get(url, {
-            headers: {
-              Accept: 'application/sparql-results+json',
-            },
-          });
-          setKeywords(
-            response.data.results.bindings.map((d) => ({
-              relation: d.relationType.value,
-              label: d.label.value,
-              uri: d.relatedConcept.value,
-              value: d.label.value,
-            })),
-          );
-        } catch (error) {
-          console.error('Error fetching UAT data:', error);
-        }
-      };
-
-      fetchUAT();
+      return [
+        { type: 'group', label: `Broader (${parents.length})` } as UATTermGroup,
+        ...parents,
+        { type: 'group', label: `Narrower  (${children.length})` } as UATTermGroup,
+        ...children,
+        { type: 'group', label: `Related  (${related.length})` } as UATTermGroup,
+        ...related,
+      ];
     }
-  }, [uri]);
-
-  const parents = keywords
-    .filter((r) => r.relation === 'parent')
-    .map((n) => ({ type: 'item', label: n.label, value: n.label } as UATTermItem));
-  const children = keywords
-    .filter((r) => r.relation === 'child')
-    .map((n) => ({ type: 'item', label: n.label, value: n.label } as UATTermItem));
-  const related = keywords
-    .filter((r) => r.relation === 'related')
-    .map((n) => ({ type: 'item', label: n.label, value: n.label } as UATTermItem));
-
-  const items: UATTermOption[] = [
-    { type: 'group', label: `Broader (${parents.length})` } as UATTermGroup,
-    ...parents,
-    { type: 'group', label: `Narrower  (${children.length})` } as UATTermGroup,
-    ...children,
-    { type: 'group', label: `Related  (${related.length})` } as UATTermGroup,
-    ...related,
-  ];
+    return [];
+  }, [data, isFetched]);
 
   const { isOpen, getToggleButtonProps, getMenuProps, highlightedIndex, getItemProps } = useSelect({
     items,

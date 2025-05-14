@@ -6,6 +6,7 @@ import { IUATTerm, IUATTermsSearchReponse } from '@/api/uat/types';
 export interface SearchRequest extends NextApiRequest {
   query: {
     term: string;
+    exact?: 'true' | 'false';
   };
 }
 
@@ -22,19 +23,28 @@ const fuse = new Fuse<IUATTerm>(uatTerms as IUATTerm[], {
   location: 0,
 });
 
+const fuseExact = new Fuse<IUATTerm>(uatTerms as IUATTerm[], {
+  keys: ['name'],
+  threshold: 0,
+  useExtendedSearch: true,
+});
+
 const formatResult = (result: Fuse.FuseResult<IUATTerm>[]) =>
   result.map((r) => {
-    return {
-      name: `${r.item.name.toLowerCase()}`,
-      altNames: r.item.altNames?.map((n) => `${n.toLowerCase()}`),
-    } as IUATTerm;
+    return r.item as IUATTerm;
   });
 
 const request = (req: SearchRequest, res: NextApiResponse<IUATTermsSearchReponse>) => {
   try {
     const value = req.query.term;
-    const result = fuse.search(value, { limit: 100 });
-    res.status(200).json({ uatTerms: formatResult(result) });
+    const exact = req.query.exact && req.query.exact === 'true' ? true : false;
+    if (exact) {
+      const result = fuseExact.search(`="${value}"`);
+      res.status(200).json({ uatTerms: formatResult(result) });
+    } else {
+      const result = fuse.search(value, { limit: 100 });
+      res.status(200).json({ uatTerms: formatResult(result) });
+    }
   } catch (e) {
     const error = e instanceof Error ? e.message : 'Unknown Server Error';
     res.status(500).json({ uatTerms: [], error });
