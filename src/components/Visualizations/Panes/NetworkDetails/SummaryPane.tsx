@@ -11,7 +11,11 @@ export const SummaryPane = ({ summaryGraph }: { summaryGraph: ILineGraph }) => {
   return (
     <>
       {summaryGraph.error && (
-        <CustomInfoMessage status={'error'} title="Cannot generate network" description={summaryGraph.error.message} />
+        <CustomInfoMessage
+          status={'error'}
+          alertTitle="Cannot generate network"
+          description={summaryGraph.error.message}
+        />
       )}
       <>
         <Text>Group Activity Over Time (measured in papers published)</Text>

@@ -181,9 +181,9 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
   return (
     <>
       {!libraries ? (
-        <CustomInfoMessage status="error" title="Unable to load libraries" />
+        <CustomInfoMessage status="error" alertTitle="Unable to load libraries" />
       ) : libraries.length === 0 ? (
-        <CustomInfoMessage status="info" title="No libraries found" />
+        <CustomInfoMessage status="info" alertTitle="No libraries found" />
       ) : (
         <Box my={4}>
           <Table variant="simple" {...tableProps} data-testid="libraries-table">

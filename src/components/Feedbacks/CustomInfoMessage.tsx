@@ -1,17 +1,18 @@
-import { Alert, AlertDescription, AlertIcon, AlertStatus, AlertTitle, Flex } from '@chakra-ui/react';
+import { Alert, AlertDescription, AlertIcon, AlertProps, AlertStatus, AlertTitle, Flex } from '@chakra-ui/react';
 import { ReactElement } from 'react';
 
-export interface IStaticAlertProps {
+export interface IStaticAlertProps extends AlertProps {
   status: AlertStatus;
-  title: string | ReactElement;
+  alertTitle: string | ReactElement;
   description?: string | ReactElement;
 }
 
 export const CustomInfoMessage = ({
   status,
-  title: alertTitle,
+  alertTitle,
   description: alertDescription,
-}: IStaticAlertProps): ReactElement => {
+  ...alertProps
+}: IStaticAlertProps) => {
   return (
     <Flex justifyContent="center">
       <Alert
@@ -22,6 +23,7 @@ export const CustomInfoMessage = ({
         backgroundColor="transparent"
         my={5}
         width="50%"
+        {...alertProps}
       >
         <AlertIcon boxSize="40px" mr={0} />
         <AlertTitle mt={4} mb={1} fontSize="lg">

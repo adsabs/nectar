@@ -1,9 +1,11 @@
 import { useUATTermsSearch } from '@/api/uat/uat';
 import { useColorModeColors } from '@/lib/useColorModeColors';
+import { parseAPIError } from '@/utils/common/parseAPIError';
 import { ChevronDownIcon } from '@chakra-ui/icons';
-import { usePopper, VStack, Tooltip, Box, UnorderedList, ListItem } from '@chakra-ui/react';
+import { usePopper, VStack, Tooltip, Box, ListItem, List } from '@chakra-ui/react';
 import { useSelect } from 'downshift';
-import { useMemo } from 'react';
+import { useEffect, useState } from 'react';
+import { CustomInfoMessage, LoadingMessage } from '../Feedbacks';
 import { SearchQueryLink } from '../SearchQueryLink';
 
 export type UATTermItem = {
@@ -22,10 +24,16 @@ export type UATTermOption = UATTermItem | UATTermGroup;
 const isUATGroup = (item: UATTermOption): item is UATTermGroup => item.type === 'group';
 
 export const UATDropdown = ({ keyword }: { keyword: string }) => {
-  // TODO: fetch keyword parents and childrens on isOpen
-  const { data, isFetched } = useUATTermsSearch({ term: keyword, exact: true });
+  const [options, setOptions] = useState<UATTermOption[]>([]);
 
-  const items = useMemo(() => {
+  const { isOpen, getToggleButtonProps, getMenuProps, highlightedIndex, getItemProps } = useSelect({
+    items: options,
+    itemToString: (option) => option.label,
+  });
+
+  const { data, isFetching, isFetched, error } = useUATTermsSearch({ term: keyword, exact: true }, { enabled: isOpen });
+
+  useEffect(() => {
     if (isFetched && !!data && data.uatTerms.length > 0 && data.uatTerms[0].name.toLowerCase() === keyword) {
       const uatTerm = data.uatTerms[0];
       const parents =
@@ -37,26 +45,23 @@ export const UATDropdown = ({ keyword }: { keyword: string }) => {
       const related =
         uatTerm.related?.map((n) => ({ type: 'item', label: n.name, value: n.name } as UATTermItem)) ??
         ([] as UATTermItem[]);
-
-      return [
+      setOptions([
         { type: 'group', label: `Broader (${parents.length})` } as UATTermGroup,
         ...parents,
         { type: 'group', label: `Narrower  (${children.length})` } as UATTermGroup,
         ...children,
         { type: 'group', label: `Related  (${related.length})` } as UATTermGroup,
         ...related,
-      ];
+      ]);
+    } else {
+      setOptions([]);
     }
-    return [];
-  }, [data, isFetched]);
+  }, [data, isFetched, keyword]);
 
-  const { isOpen, getToggleButtonProps, getMenuProps, highlightedIndex, getItemProps } = useSelect({
-    items,
-    itemToString: (item) => item.label,
-  });
   const { popperRef: dropdownPopperRef, referenceRef: dropdownReferenceRef } = usePopper({
     placement: 'right-start',
   });
+
   const colors = useColorModeColors();
 
   return (
@@ -77,15 +82,17 @@ export const UATDropdown = ({ keyword }: { keyword: string }) => {
           <ChevronDownIcon aria-label="Related keywords" boxSize={4} />
         </Box>
       </Tooltip>
-      <UnorderedList
+
+      <Box
         zIndex={10}
         bgColor={colors.background}
-        border={isOpen && items.length > 0 ? '1px' : 'none'}
+        border={isOpen && options.length > 0 ? '1px' : 'none'}
         borderRadius={5}
         borderColor="gray.200"
         boxShadow="lg"
         maxHeight="500px"
         w="fit-content"
+        minW="200px"
         maxW="400px"
         overflowY="scroll"
         {...getMenuProps({
@@ -95,34 +102,54 @@ export const UATDropdown = ({ keyword }: { keyword: string }) => {
           },
         })}
       >
-        {isOpen &&
-          items.map((term, index) => (
-            <ListItem
-              key={`${term}-${index}`}
-              fontWeight={isUATGroup(term) ? 'bold' : 'normal'}
-              color={
-                isUATGroup(term) ? 'gray.300' : highlightedIndex === index ? colors.highlightForeground : colors.text
-              }
-              backgroundColor={highlightedIndex === index ? colors.highlightBackground : 'auto'}
-              p={2}
-              pl={isUATGroup(term) ? 2 : 4}
-              cursor={isUATGroup(term) ? 'default' : 'pointer'}
-              {...getItemProps({
-                item: term,
-                index,
-                disabled: isUATGroup(term),
-              })}
-            >
-              {isUATGroup(term) ? (
-                <>{term.label}</>
-              ) : (
-                <SearchQueryLink params={{ q: `uat:"${term.value}"` }} textDecoration="none" color="inherit">
-                  {term.label}
-                </SearchQueryLink>
-              )}
-            </ListItem>
-          ))}
-      </UnorderedList>
+        {isOpen && (
+          <>
+            {isFetching ? (
+              <LoadingMessage message={'Loading'} />
+            ) : error ? (
+              <CustomInfoMessage
+                status="error"
+                alertTitle={'Error'}
+                description={parseAPIError(error)}
+                w="fit-content"
+              />
+            ) : (
+              <List>
+                {options.map((option, index) => (
+                  <ListItem
+                    key={option.label}
+                    fontWeight={isUATGroup(option) ? 'bold' : 'normal'}
+                    color={
+                      isUATGroup(option)
+                        ? 'gray.300'
+                        : highlightedIndex === index
+                        ? colors.highlightForeground
+                        : colors.text
+                    }
+                    backgroundColor={highlightedIndex === index ? colors.highlightBackground : 'auto'}
+                    p={2}
+                    pl={isUATGroup(option) ? 2 : 4}
+                    cursor={isUATGroup(option) ? 'default' : 'pointer'}
+                    {...getItemProps({
+                      item: option,
+                      index,
+                      disabled: isUATGroup(option),
+                    })}
+                  >
+                    {isUATGroup(option) ? (
+                      <>{option.label}</>
+                    ) : (
+                      <SearchQueryLink params={{ q: `uat:"${option.value}"` }} textDecoration="none" color="inherit">
+                        {option.label}
+                      </SearchQueryLink>
+                    )}
+                  </ListItem>
+                ))}
+              </List>
+            )}
+          </>
+        )}
+      </Box>
     </VStack>
   );
 };

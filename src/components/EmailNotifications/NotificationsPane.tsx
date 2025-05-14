@@ -206,18 +206,22 @@ export const NotificationsPane = () => {
 
         {isLoading && <TableSkeleton r={8} h="30px" />}
         {error && (
-          <CustomInfoMessage status="error" title="Error fetching notifications" description={parseAPIError(error)} />
+          <CustomInfoMessage
+            status="error"
+            alertTitle="Error fetching notifications"
+            description={parseAPIError(error)}
+          />
         )}
         {!isLoading && !error && (
           <>
             {!notifications || notifications.length === 0 ? (
               <CustomInfoMessage
                 status="info"
-                title="No Email Notifications"
+                alertTitle="No Email Notifications"
                 description="Click create to start adding email notifications"
               />
             ) : filteredNotifications && filteredNotifications.length === 0 ? (
-              <CustomInfoMessage status="info" title="No Notifications Found" />
+              <CustomInfoMessage status="info" alertTitle="No Notifications Found" />
             ) : (
               <Table variant="simple" data-testid="notifications-table">
                 <Thead>

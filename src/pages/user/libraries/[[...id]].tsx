@@ -47,7 +47,7 @@ const LibrariesHome: NextPage<ILibrariesHomeProps> = ({ id, subpage, from }) => 
       {!!id && error && (
         <CustomInfoMessage
           status={'error'}
-          title={'Library not found'}
+          alertTitle={'Library not found'}
           description={
             <Text>
               Library does not exist.{' '}

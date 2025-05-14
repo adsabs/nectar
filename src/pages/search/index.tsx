@@ -387,7 +387,7 @@ const SearchFacetFilters = (props: {
 const NoResultsMsg = () => (
   <CustomInfoMessage
     status="info"
-    title={<>Sorry no results were found</>}
+    alertTitle={<>Sorry no results were found</>}
     description={
       <List w="100%">
         <ListItem>

@@ -65,7 +65,7 @@ export const AddNotificationModal = ({
             </Center>
           )}
           {!isFetching && error && (
-            <CustomInfoMessage status="error" title="Error fetching data" description={parseAPIError(error)} />
+            <CustomInfoMessage status="error" alertTitle="Error fetching data" description={parseAPIError(error)} />
           )}
           {!isFetching && notification && (
             <>

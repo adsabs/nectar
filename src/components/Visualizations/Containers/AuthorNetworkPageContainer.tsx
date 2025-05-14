@@ -194,7 +194,7 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
         authorNetworkError={authorNetworkError}
       />
       {!authorNetworkIsLoading && authorNetworkIsSuccess && !authorNetworkData.data?.root && (
-        <CustomInfoMessage status="info" title="Could not generate" description={<NotEnoughData />} />
+        <CustomInfoMessage status="info" alertTitle="Could not generate" description={<NotEnoughData />} />
       )}
       {!authorNetworkIsLoading && authorNetworkIsSuccess && authorNetworkData.data?.root && (
         <SimpleGrid columns={columns} spacing={16}>

@@ -227,7 +227,7 @@ export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerP
         paperNetworkError={paperNetworkError}
       />
       {!paperNetworkIsLoading && paperNetworkIsSuccess && !paperNetworkData.data?.summaryGraph && (
-        <CustomInfoMessage status="info" title="Could not generate" description={<NotEnoughData />} />
+        <CustomInfoMessage status="info" alertTitle="Could not generate" description={<NotEnoughData />} />
       )}
       {!paperNetworkIsLoading && paperNetworkIsSuccess && paperNetworkData.data?.summaryGraph && (
         <SimpleGrid columns={columns} spacing={16}>
