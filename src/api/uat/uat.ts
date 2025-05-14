@@ -26,7 +26,7 @@ export const useUATTermsSearch: ADSQuery<IATTermsSearchParams, IUATTermsSearchRe
 export const fetchUATTerms: QueryFunction<IUATTermsSearchReponse> = async ({ meta }) => {
   const { params } = meta as { params: IATTermsSearchParams };
 
-  const { data } = await axios.get(`/api/uat/${params.term}`);
+  const { data } = await axios.get(`/api/uat/${params.term}${params.exact ? '?exact=true' : ''}`);
   return data;
 };
 
