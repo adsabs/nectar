@@ -95,7 +95,11 @@ export const ResultsGraphPageContainer = ({ query }: IResultsGraphPageContainerP
       )}
       {isLoading && <LoadingMessage message="Fetching results graph data" />}
       {!isLoading && isSuccess && !graphData && (
-        <CustomInfoMessage status="info" title="Could not generate" description="Could not generate results graph" />
+        <CustomInfoMessage
+          status="info"
+          alertTitle="Could not generate"
+          description="Could not generate results graph"
+        />
       )}
       {!isLoading && isSuccess && graphData && (
         <Flex direction="column" gap={2}>

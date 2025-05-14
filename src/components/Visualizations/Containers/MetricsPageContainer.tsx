@@ -50,7 +50,11 @@ const MetricsComponent = ({ bibcodes }: { bibcodes: Bibcode[] }): ReactElement =
           {isErrorMetrics && (
             <>
               {errorMetrics instanceof Error && errorMetrics.message.startsWith('No data available') ? (
-                <CustomInfoMessage status="info" title="Metrics not available" description={errorMetrics.message} />
+                <CustomInfoMessage
+                  status="info"
+                  alertTitle="Metrics not available"
+                  description={errorMetrics.message}
+                />
               ) : (
                 <Alert status="error" my={5}>
                   <AlertIcon />

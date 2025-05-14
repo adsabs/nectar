@@ -24,7 +24,7 @@ const PublicLibraries: NextPage = () => {
         <title>{`${unwrapStringValue(data?.metadata?.name)} - ${BRAND_NAME_FULL} Public Library`}</title>
       </Head>
       {id && isLoading && <LoadingMessage message="Loading" />}
-      {id && error && <CustomInfoMessage status="error" title="Error" description={parseAPIError(error)} />}
+      {id && error && <CustomInfoMessage status="error" alertTitle="Error" description={parseAPIError(error)} />}
       {id && data && <LibraryEntityPane id={data.metadata.id} publicView />}
     </>
   );

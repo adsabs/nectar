@@ -194,7 +194,7 @@ export const LibrarySettingsPane = ({ id, isFromLanding = false }: ISettingsPane
       {error && (
         <CustomInfoMessage
           status={'error'}
-          title={'Library not found'}
+          alertTitle={'Library not found'}
           description={
             <Text>
               Library does not exist.{' '}

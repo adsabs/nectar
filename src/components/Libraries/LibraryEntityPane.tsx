@@ -268,7 +268,7 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
       {!isLoadingLibs && errorFetchingLibs && (
         <CustomInfoMessage
           status={'error'}
-          title={'Library not found'}
+          alertTitle={'Library not found'}
           description={
             <Text>
               Library does not exist.{' '}
@@ -380,14 +380,14 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
             </Tbody>
           </Table>
 
-          {num_documents === 0 && <CustomInfoMessage status="info" title="Library is empty" />}
+          {num_documents === 0 && <CustomInfoMessage status="info" alertTitle="Library is empty" />}
 
-          {num_documents > 0 && numFound === 0 && <CustomInfoMessage status="info" title="Found 0 articles" />}
+          {num_documents > 0 && numFound === 0 && <CustomInfoMessage status="info" alertTitle="Found 0 articles" />}
 
           {errorFetchingDocs && (
             <CustomInfoMessage
               status="error"
-              title="Error loading documents"
+              alertTitle="Error loading documents"
               description={parseAPIError(errorFetchingDocs)}
             />
           )}
