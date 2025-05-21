@@ -50,7 +50,7 @@ export const fetchUATTermOptions: QueryFunction<TypeaheadOption[]> = async ({ me
       return {
         value: `"${r.name}"`,
         label: r.name,
-        desc: [r.name, ...(r.altNames || [])].join(', '),
+        desc: [...(r.altNames || [])].join(', '),
         id: i,
         match: [] as string[],
       } as TypeaheadOption;

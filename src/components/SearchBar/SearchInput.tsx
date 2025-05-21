@@ -19,7 +19,6 @@ import {
   PopoverBody,
   PopoverContent,
   Text,
-  Tooltip,
   useColorMode,
   useMergeRefs,
   VisuallyHidden,
@@ -354,7 +353,7 @@ const TypeaheadItem = (props: {
       onMouseEnter={handleMouseOver}
       onMouseLeave={handleMouseLeave}
     >
-      <Tooltip label={item.desc}>
+      <Flex direction="column">
         <Flex role="option" aria-label={item.label} aria-atomic="true">
           <Text flex="1" role="presentation">
             {item.label}
@@ -373,7 +372,12 @@ const TypeaheadItem = (props: {
             </>
           )}
         </Flex>
-      </Tooltip>
+        {item.desc && (
+          <Text mx={2} fontSize="xs" fontWeight="light">
+            {item.desc}
+          </Text>
+        )}
+      </Flex>
     </ListItem>
   );
 };
