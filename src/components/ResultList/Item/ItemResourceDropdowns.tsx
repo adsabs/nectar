@@ -102,7 +102,7 @@ export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDro
     const id = e.currentTarget.dataset['id'];
     const path = fullSourceItems.find((item) => id === item.id)?.path;
     if (isBrowser() && path) {
-      window.open(path, '_blank', 'noopener,noreferrer');
+      window.open(path, '_blank', 'noopener');
     }
   };
 
@@ -118,7 +118,7 @@ export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDro
     const id = e.currentTarget.dataset['id'];
     const path = dataProductItems.find((item) => id === item.id)?.path;
     if (isBrowser() && path) {
-      window.open(path, '_blank', 'noopener,noreferrer');
+      window.open(path, '_blank', 'noopener');
     }
   };
 

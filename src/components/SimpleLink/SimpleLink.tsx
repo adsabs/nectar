@@ -18,7 +18,7 @@ export const SimpleLink = forwardRef(
         variant={variant}
         isExternal={isExternal}
         prefetch={prefetch}
-        rel={isExternal ? 'noopener noreferrer' : undefined}
+        rel={isExternal ? 'noopener' : undefined}
         target={typeof newTab === 'boolean' && newTab ? '_blank' : linkProps.target}
         {...linkProps}
       >
