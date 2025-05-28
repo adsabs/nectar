@@ -37,7 +37,7 @@ export const AboutDropdown = (props: IAboutDropdownProps): ReactElement => {
   const handleSelect = (e: MouseEvent<HTMLElement>) => {
     const id = (e.target as HTMLElement).dataset['id'];
     if (isBrowser()) {
-      window.open(items.find((item) => id === item.id).path, '_blank', 'noopener,noreferrer');
+      window.open(items.find((item) => id === item.id).path, '_blank', 'noopener');
       if (onFinished) {
         onFinished();
       }
