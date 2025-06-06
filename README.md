@@ -1,4 +1,6 @@
-## Nectar
+<p align="center">
+  <img src="./public/images/scix_banner.png" alt="SciXplorer - Science Explorer" width="100%" />
+</p>
 
 ### Getting started
 
