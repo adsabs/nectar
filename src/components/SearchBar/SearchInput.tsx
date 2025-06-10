@@ -28,6 +28,7 @@ import {
   Dispatch,
   KeyboardEventHandler,
   useCallback,
+  useDeferredValue,
   useEffect,
   useReducer,
   useRef,
@@ -41,6 +42,7 @@ import { getFocusedItemValue, getPreview } from '@/components/SearchBar/helpers'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { useFocus } from '@/lib/useFocus';
 import { useColorModeColors } from '@/lib/useColorModeColors';
+import { useUATTermsSearchOptions } from '@/api/uat/uat';
 
 const SEARCHBAR_MAX_LENGTH = 2048 as const;
 
@@ -58,11 +60,26 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
   const [input, focus] = useFocus({ selectTextOnFocus: false });
   const refs = useMergeRefs(ref, input);
   const { query, queryAddition, onDoneAppendingToQuery, isClearingQuery, onDoneClearingQuery } = useIntermediateQuery();
+  const [userInput, setUserInput] = useState<{ value: string; cursorPos: number }>({ value: '', cursorPos: 0 });
+  const deferredUserInput = useDeferredValue(userInput);
+  const [uatSearchTerm, setUatSearchTerm] = useState(null);
+
+  const { data: uatSearchTermOptions } = useUATTermsSearchOptions(
+    { term: uatSearchTerm },
+    { enabled: !!uatSearchTerm },
+  );
+
+  useEffect(() => {
+    if (!!uatSearchTermOptions) {
+      dispatch({ type: 'SET_UAT_TYPEAHEAD_OPTIONS', payload: uatSearchTermOptions });
+    }
+    setUatSearchTerm(null); // reset
+  }, [uatSearchTermOptions]);
 
   // on mount, set the search term, focus and force reset to clear the menu
   useEffect(() => {
     if (isNonEmptyString(query)) {
-      dispatch({ type: 'SET_SEARCH_TERM', payload: query });
+      dispatch({ type: 'SET_SEARCH_TERM', payload: { query } });
       dispatch({ type: 'SOFT_RESET' });
       setTimeout(() => focus(), 10);
     }
@@ -117,7 +134,54 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
 
   // handle updates to the search term
   const handleInputChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    dispatch({ type: 'SET_SEARCH_TERM', payload: e.target.value });
+    setUserInput({ value: e.target.value, cursorPos: e.target.selectionStart });
+    const value = e.target.value;
+    const fields = splitSearchItems(value);
+
+    // hide the default auto-complete dropdown if doing a UAT search
+    dispatch({ type: 'SET_SEARCH_TERM', payload: { query: value, hideMenu: isLastSearchTermUAT(fields) } });
+  };
+
+  /* *
+   * if user is typing in the UAT keyword, show auto complete
+   *
+   * conditions:
+   * - the last search term starts with `uat:"`
+   * - user has typed partial UAT keyword
+   * - cursor is at the last term, inside quote `uat:""`,
+   *   where the closing quote might or might not exist
+   *
+   * */
+  useEffect(() => {
+    const { value: searchString, cursorPos } = deferredUserInput;
+    const terms = splitSearchItems(searchString);
+
+    if (isLastSearchTermUAT(terms)) {
+      const lastSearchTerm = terms[terms.length - 1];
+
+      // has partial uat keyword
+      const test = terms[terms.length - 1].match(/uat:"([^"]*)"?$/i);
+      if (test && test.length > 1 && test[1].length > 0) {
+        const uatKeyword = test[1];
+
+        // only show uat auto complete if user is typing inside the last term value: uat:"xxx|x"
+        const uatKeywordStartPos = searchString.length - lastSearchTerm.length + 'uat:"'.length - 1;
+        const uatKeywordEndPos = lastSearchTerm.endsWith('"') ? searchString.length - 1 : searchString.length;
+        if (cursorPos >= uatKeywordStartPos && cursorPos <= uatKeywordEndPos) {
+          // trigger UAT keyword search
+          setUatSearchTerm(uatKeyword);
+        }
+      }
+    }
+  }, [deferredUserInput]);
+
+  const splitSearchItems = (value: string) => {
+    // split each search item
+    return value.match(/(?:[^\s"]+|"[^"]*")+\w*(?:[^\s"]+|"[^"]*){0,1}/g);
+  };
+
+  const isLastSearchTermUAT = (fields: RegExpMatchArray) => {
+    return fields && fields.length > 0 && fields[fields.length - 1].toLowerCase().startsWith('uat:"');
   };
 
   // clear input
@@ -160,7 +224,11 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
               aria-label="Search"
               title="Search"
               maxLength={SEARCHBAR_MAX_LENGTH}
-              value={getPreview(state.searchTerm, getFocusedItemValue(state.items, state.focused))}
+              value={
+                state.items.length > 0
+                  ? getPreview(state.searchTerm, getFocusedItemValue(state.items, state.focused))
+                  : state.searchTerm
+              }
               aria-owns="search-listbox"
               aria-haspopup="listbox"
               aria-expanded={state.isOpen}
@@ -204,18 +272,31 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
             aria-labelledby="search-box-label"
             data-testid="search-autocomplete-menu"
           >
-            {state.items.length > 0 &&
-              state.items.map((item, index) => (
-                <TypeaheadItem
-                  key={item.id}
-                  item={item}
-                  dispatch={dispatch}
-                  index={index}
-                  onClick={handleItemClick}
-                  focused={state.focused === index}
-                  data-testid={`search-autocomplete-item-${index}`}
-                />
-              ))}
+            {state.items.length > 0
+              ? state.items.map((item, index) => (
+                  <TypeaheadItem
+                    key={item.id}
+                    item={item}
+                    dispatch={dispatch}
+                    index={index}
+                    onClick={handleItemClick}
+                    focused={state.focused === index}
+                    data-testid={`search-autocomplete-item-${index}`}
+                  />
+                ))
+              : state.uatItems.length > 0
+              ? state.uatItems.map((item, index) => (
+                  <TypeaheadItem
+                    key={item.id}
+                    item={item}
+                    dispatch={dispatch}
+                    index={index}
+                    onClick={handleItemClick}
+                    focused={state.focused === index}
+                    showValue={false}
+                  />
+                ))
+              : null}
           </List>
         </PopoverBody>
       </PopoverContent>
@@ -228,9 +309,10 @@ const TypeaheadItem = (props: {
   index: number;
   focused: boolean;
   dispatch: Dispatch<SearchInputAction>;
+  showValue?: boolean;
   onClick?: () => void;
 }) => {
-  const { focused, item, dispatch, index, onClick } = props;
+  const { focused, item, dispatch, index, onClick, showValue = true } = props;
   const liRef = useRef<HTMLLIElement>(null);
   const colors = useColorModeColors();
   const { colorMode } = useColorMode();
@@ -271,18 +353,29 @@ const TypeaheadItem = (props: {
       onMouseEnter={handleMouseOver}
       onMouseLeave={handleMouseLeave}
     >
-      <Flex role="option" aria-label={item.label} aria-atomic="true">
-        <Text flex="1" role="presentation">
-          {item.label}
-        </Text>
-        {(colorMode === 'dark' && isMouseOver) || colorMode === 'light' ? (
-          <LightMode>
-            <Code>{item.value}</Code>
-          </LightMode>
-        ) : (
-          <DarkMode>
-            <Code>{item.value}</Code>
-          </DarkMode>
+      <Flex direction="column">
+        <Flex role="option" aria-label={item.label} aria-atomic="true">
+          <Text flex="1" role="presentation">
+            {item.label}
+          </Text>
+          {showValue && (
+            <>
+              {(colorMode === 'dark' && isMouseOver) || colorMode === 'light' ? (
+                <LightMode>
+                  <Code>{item.value}</Code>
+                </LightMode>
+              ) : (
+                <DarkMode>
+                  <Code>{item.value}</Code>
+                </DarkMode>
+              )}
+            </>
+          )}
+        </Flex>
+        {item.desc && (
+          <Text mx={2} fontSize="xs" fontWeight="light">
+            {item.desc}
+          </Text>
         )}
       </Flex>
     </ListItem>

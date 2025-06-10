@@ -37,6 +37,12 @@ export const updateSearchTerm = (searchTerm: string, value: string) => {
   return searchTerm ? `${searchTerm.replace(/\S+$/, '')}${value}` : value;
 };
 
+export const updateUATSearchTerm = (searchTerm: string, value: string) => {
+  return searchTerm
+    ? `${searchTerm.replace(/^uat:"[^"]+"?$/i, '').replace(/\s+uat:"[^"]+"?$/i, ' ')}uat:${value}`
+    : value;
+};
+
 export const appendSearchTerm = (searchTerm: string, value: string) => {
   return searchTerm.length > 0 ? `${searchTerm} ${value}` : value;
 };

@@ -8,19 +8,22 @@ import {
   getFocusedItemValue,
   getPreview,
   updateSearchTerm,
+  updateUATSearchTerm,
 } from '@/components/SearchBar/helpers';
 import { typeaheadOptions } from '@/components/SearchBar/models';
 
 export interface ISearchInputState {
   isOpen: boolean;
   searchTerm: string;
+  uatItems: TypeaheadOption[];
   items: TypeaheadOption[];
   focused: number;
   cursorPosition: number;
 }
 
 export type SearchInputAction =
-  | { type: 'SET_SEARCH_TERM'; payload: string }
+  | { type: 'SET_SEARCH_TERM'; payload: { query: string; hideMenu?: boolean } }
+  | { type: 'SET_UAT_TYPEAHEAD_OPTIONS'; payload: TypeaheadOption[] }
   | { type: 'SET_SEARCH_TERM_ADDITION'; payload: string }
   | { type: 'CLICK_ITEM' }
   | { type: 'FOCUS_ITEM'; index: number }
@@ -39,22 +42,45 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
     case 'HARD_RESET':
       return initialState;
     case 'SET_SEARCH_TERM': {
-      if (extractFinalTerm(action.payload) === '') {
+      if (action.payload.hideMenu) {
         return {
           ...state,
           isOpen: false,
-          searchTerm: action.payload,
+          searchTerm: action.payload.query,
           focused: -1,
           items: [],
         };
       }
-      const items = filterItems(extractFinalTerm(action.payload), typeaheadOptions);
+      const finalTerm = extractFinalTerm(action.payload.query);
+      if (finalTerm === '') {
+        return {
+          ...state,
+          isOpen: false,
+          searchTerm: action.payload.query,
+          uatItems: [],
+          focused: -1,
+          items: [],
+        };
+      }
+
+      const items = filterItems(finalTerm, typeaheadOptions);
       return {
         ...state,
         isOpen: items.length > 0,
-        searchTerm: action.payload,
+        searchTerm: action.payload.query,
+        uatItems: [],
         focused: -1,
         items,
+      };
+    }
+    case 'SET_UAT_TYPEAHEAD_OPTIONS': {
+      const uatOptions = action.payload;
+      return {
+        ...state,
+        isOpen: uatOptions.length > 0,
+        uatItems: uatOptions,
+        focused: 0,
+        items: [],
       };
     }
     case 'SET_SEARCH_TERM_ADDITION': {
@@ -80,12 +106,15 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
           preview: searchTerm,
 
           // if no items, show all items
-          items: state.items.length === 0 ? typeaheadOptions : state.items,
+          items: state.items.length === 0 && state.uatItems.length === 0 ? typeaheadOptions : state.items,
         };
       }
 
       // if menu is open, and we're at the bottom, cycle to the top
-      if (state.focused === state.items.length - 1) {
+      if (
+        (state.items.length > 0 && state.focused === state.items.length - 1) ||
+        (state.uatItems.length > 0 && state.focused === state.uatItems.length - 1)
+      ) {
         return {
           ...state,
           focused: -1,
@@ -100,7 +129,7 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
 
     case 'KEYDOWN_ARROW_UP': {
       // if menu is open, and we're at the top, cycle to the bottom
-      if (state.focused === -1 && state.items.length > 0 && state.isOpen) {
+      if (state.focused === -1 && (state.items.length > 0 || state.uatItems.length > 0) && state.isOpen) {
         return {
           ...state,
           focused: state.items.length - 1,
@@ -118,14 +147,24 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
     case 'KEYDOWN_ENTER': {
       // if menu is open, and we're focused on an item, select it
       if (state.focused > -1) {
-        const searchTerm = updateSearchTerm(state.searchTerm, state.items[state.focused].value);
-        return {
-          ...state,
-          isOpen: false,
-          focused: -1,
-          searchTerm: getPreview(searchTerm, getFocusedItemValue(state.items, state.focused)),
-          cursorPosition: getCursorPosition(searchTerm),
-        };
+        if (state.items.length > 0) {
+          const searchTerm = updateSearchTerm(state.searchTerm, state.items[state.focused].value);
+          return {
+            ...state,
+            isOpen: false,
+            focused: -1,
+            searchTerm: getPreview(searchTerm, getFocusedItemValue(state.items, state.focused)),
+            cursorPosition: getCursorPosition(searchTerm),
+          };
+        } else if (state.uatItems.length > 0) {
+          const searchTerm = updateUATSearchTerm(state.searchTerm, state.uatItems[state.focused].value);
+          return {
+            ...state,
+            isOpen: false,
+            focused: -1,
+            searchTerm: searchTerm,
+          };
+        }
       }
 
       // if menu is closed, and we're not focused on an item, do nothing
@@ -149,6 +188,7 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
 export const initialState: ISearchInputState = {
   isOpen: false,
   searchTerm: '',
+  uatItems: [],
   items: [],
   focused: -1,
   cursorPosition: 0,
