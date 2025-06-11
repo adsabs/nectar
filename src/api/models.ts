@@ -150,6 +150,20 @@ export const solrSorts = [
   'score desc',
 ] as const;
 
+export const solrDefaultSortDirection: Record<SolrSortField, SortDirection> = {
+  author_count: 'asc',
+  bibcode: 'desc',
+  citation_count: 'desc',
+  citation_count_norm: 'desc',
+  classic_factor: 'desc',
+  first_author: 'asc',
+  date: 'desc',
+  entry_date: 'desc',
+  read_count: 'desc',
+  score: 'desc',
+  id: 'desc',
+};
+
 export type BiblibSortField =
   | 'author_count'
   | 'bibcode'
