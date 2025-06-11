@@ -52,7 +52,7 @@ import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
 import { IADSApiSearchParams, IADSApiSearchResponse } from '@/api/search/types';
 import { SEARCH_API_KEYS, useSearch } from '@/api/search/search';
 import { defaultParams } from '@/api/search/models';
-import { SolrSort } from '@/api/models';
+import { solrDefaultSortDirection, SolrSort, SolrSortField } from '@/api/models';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
   () =>
@@ -150,8 +150,15 @@ const SearchPage: NextPage = () => {
       return;
     }
 
+    // if sort field has changed, use its default sort order
+    const currentSortField = query.sort[0].split(' ')[0];
+    const newSortField = sort.split(' ')[0] as SolrSortField;
+
+    const newSort =
+      currentSortField === newSortField ? sort : `${newSortField} ${solrDefaultSortDirection[newSortField]}`;
+
     // generate search string and trigger page transition, also update store
-    const search = makeSearchParams({ ...params, ...query, sort, p: 1 });
+    const search = makeSearchParams({ ...params, ...query, sort: newSort, p: 1 });
     void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
   };
 
