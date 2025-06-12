@@ -1,6 +1,6 @@
-import nextBuildId from 'next-build-id';
-import { withSentryConfig } from '@sentry/nextjs';
 import withBundleAnalyzer from '@next/bundle-analyzer';
+import { withSentryConfig } from '@sentry/nextjs';
+import nextBuildId from 'next-build-id';
 
 const CSP = `
   default-src 'self';
@@ -41,9 +41,16 @@ const nextConfig = {
     if (process.env.NODE_ENV !== 'production') {
       return {
         beforeFiles: [
+          // rewrites for link_gateway
           {
             source: '/link_gateway/:path*',
             destination: `${process.env.BASE_CANONICAL_URL}/link_gateway/:path*`,
+          },
+
+          // rewrites for API calls to the server
+          {
+            source: '/v1/:path*',
+            destination: `${process.env.API_HOST_CLIENT}/:path*`,
           },
         ],
       };
