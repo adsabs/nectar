@@ -427,7 +427,7 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean; defaultExport
 };
 
 const createOperatorQuery = (operator: Operator, originalQuery: string) => {
-  return operator === 'trending' ? `trending(${originalQuery})-(${originalQuery})` : `${operator}(${originalQuery})`;
+  return `${operator}(${originalQuery})`;
 };
 
 const OrcidBulkMenu = () => {
