@@ -79,6 +79,9 @@ export const Footer: FC = () => {
         <SimpleLink href="/scixhelp" variant="footer">
           SciX Help
         </SimpleLink>
+        <SimpleLink href="https://adsabs.github.io/Status-Page/" variant="footer">
+          System Status
+        </SimpleLink>
         <SimpleLink href="/scixabout/careers" variant="footer">
           Careers@SciX
         </SimpleLink>
