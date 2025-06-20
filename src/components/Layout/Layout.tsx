@@ -11,6 +11,7 @@ import Head from 'next/head';
 import { Favicons } from '@/components/Favicons/Favicons';
 import { BRAND_NAME_FULL } from '@/config';
 import { LandingTabsStatic } from '@/components/LandingTabs';
+import { SiteAlert } from '../SiteAlert';
 
 const LandingTabs = dynamic(
   () =>
@@ -40,6 +41,7 @@ export const Layout: FC = ({ children }) => {
         <Favicons />
       </Head>
       <SkipNavLink id="main-content">Skip to content</SkipNavLink>
+      {isPrint ? null : <SiteAlert />}
       {isPrint ? null : <NavBar />}
       {isPrint ? null : <Notification />}
       <main>

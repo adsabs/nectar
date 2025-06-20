@@ -1,4 +1,4 @@
-import { mergeLeft } from 'ramda';
+import { isNil, mergeLeft } from 'ramda';
 import { useDebouncedCallback } from 'use-debounce';
 import { useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { useToast } from '@chakra-ui/react';
@@ -9,7 +9,7 @@ import { IADSApiUserDataParams, IADSApiUserDataResponse } from '@/api/user/types
 import { useGetUserSettings, userKeys, useUpdateUserSettings } from '@/api/user/user';
 import { DEFAULT_USER_DATA } from '@/api/user/models';
 
-export const useSettings = (options?: UseQueryOptions<IADSApiUserDataResponse>) => {
+export const useSettings = (options?: UseQueryOptions<IADSApiUserDataResponse>, hideToast?: boolean) => {
   const { isAuthenticated } = useSession();
   const toast = useToast({
     position: 'bottom',
@@ -32,33 +32,35 @@ export const useSettings = (options?: UseQueryOptions<IADSApiUserDataResponse>) 
   });
 
   useEffect(() => {
-    if (updateSettingsState.isError) {
-      if (toast.isActive('settings')) {
-        toast.update('settings', {
-          title: 'Something went wrong.',
-          status: 'error',
-        });
-      } else {
-        toast({
-          title: 'Something went wrong.',
-          status: 'error',
-        });
+    if (isNil(hideToast) || hideToast === false) {
+      if (updateSettingsState.isError) {
+        if (toast.isActive('settings')) {
+          toast.update('settings', {
+            title: 'Something went wrong.',
+            status: 'error',
+          });
+        } else {
+          toast({
+            title: 'Something went wrong.',
+            status: 'error',
+          });
+        }
+      }
+      if (updateSettingsState.isSuccess) {
+        if (toast.isActive('settings')) {
+          toast.update('settings', {
+            title: 'Settings Updated.',
+            status: 'success',
+          });
+        } else {
+          toast({
+            title: 'Settings Updated.',
+            status: 'success',
+          });
+        }
       }
     }
-    if (updateSettingsState.isSuccess) {
-      if (toast.isActive('settings')) {
-        toast.update('settings', {
-          title: 'Settings Updated.',
-          status: 'success',
-        });
-      } else {
-        toast({
-          title: 'Settings Updated.',
-          status: 'success',
-        });
-      }
-    }
-  }, [updateSettingsState.isSuccess, updateSettingsState.isError, toast]);
+  }, [updateSettingsState.isSuccess, updateSettingsState.isError, toast, hideToast]);
 
   const updateSettings = useDebouncedCallback((params: IADSApiUserDataParams) => {
     if (isNotEmpty(params)) {

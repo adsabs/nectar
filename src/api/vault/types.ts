@@ -58,3 +58,8 @@ export type IADSApiDeleteNotificationResponse = INotification;
 export type IADSApiNotificationQueryParams = Pick<INotification, 'id'>;
 
 export type IADSApiNotificationQueryResponse = IADSApiSearchParams[];
+
+// Currently nothing, but might need to provide params when API is updated
+export type IADSApiSiteWideMsgParams = object;
+
+export type IADSApiSiteWideMsgResponse = string;
