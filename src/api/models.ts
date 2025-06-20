@@ -258,6 +258,7 @@ export enum ApiTargets {
   SITE_CONFIGURATION = '/vault/configuration',
   USER_DATA = '/vault/user-data',
   LINK_SERVERS = '/vault/configuration/link_servers',
+  SITE_SIDE_MESSAGE = '/vault/configuration/site_wide_message',
 
   // Search and Query
   BIGQUERY = '/search/bigquery',
