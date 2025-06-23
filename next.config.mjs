@@ -179,6 +179,9 @@ const nextConfig = {
   i18n: null,
   // don't need to redirect on trailing slash
   skipTrailingSlashRedirect: true,
+  devIndicators: {
+    position: 'bottom-right',
+  },
 };
 
 /** @type {import('@sentry/cli').SentryCliOptions} */
@@ -187,6 +190,8 @@ const sentrySettings = {
   org: 'adsabs',
   project: 'nectar',
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  environment: process.env.NODE_ENV || 'development',
 };
 
 /** @type {import('@sentry/nextjs/types/config/types').UserSentryOptions} */
@@ -195,15 +200,16 @@ const sentryConfig = {
   widenClientFileUpload: true,
   // Transpiles SDK to be compatible with IE11 (increases bundle size)
   transpileClientSDK: true,
-  // Routes browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers (increases server load)
-  tunnelRoute: '/api/monitor',
   // no source map comments
   hideSourceMaps: false,
   // Automatically tree-shake Sentry logger statements to reduce bundle size
   disableLogger: true,
+  reactComponentAnnotation: { enabled: true },
 };
 
 const config = process.env.ANALYZE === 'true' ? withBundleAnalyzer(nextConfig) : nextConfig;
 const nextConfigWithSentry = withSentryConfig(config, sentrySettings, sentryConfig);
 
-export default process.env.NODE_ENV === 'production' ? nextConfigWithSentry : config;
+// don't include sentry config in testing or CI environments
+const finalConfig = ['production', 'development'].includes(process.env.NODE_ENV) ? nextConfigWithSentry : config;
+export default finalConfig;
