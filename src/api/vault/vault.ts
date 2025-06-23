@@ -14,6 +14,8 @@ import {
   IADSApiNotificationQueryResponse,
   IADSApiNotificationReponse,
   IADSApiNotificationsReponse,
+  IADSApiSiteWideMsgParams,
+  IADSApiSiteWideMsgResponse,
   IADSApiVaultResponse,
   IADSVaultExecuteQueryParams,
 } from './types';
@@ -33,6 +35,7 @@ export enum VaultKeys {
   EDIT_NOTIFICATION = 'vault/edit_notification',
   DEL_NOTIFICATION = 'vault/del_notification',
   NOTIFICATION_QUERY = 'vault/notification_query',
+  SITE_WIDE_MSG = 'vault/site_side_msg',
 }
 
 export const vaultKeys = {
@@ -46,6 +49,7 @@ export const vaultKeys = {
   editNotification: () => [VaultKeys.EDIT_NOTIFICATION] as const,
   delNotification: () => [VaultKeys.DEL_NOTIFICATION] as const,
   notificationQuery: (id: string) => [VaultKeys.NOTIFICATION_QUERY, { id }] as const,
+  siteWideMsg: () => [VaultKeys.SITE_WIDE_MSG] as const,
 };
 
 /**
@@ -272,5 +276,24 @@ export const fetchNotificationQuery: QueryFunction<IADSApiNotificationQueryRespo
   };
 
   const { data } = await api.request<IADSApiNotificationQueryResponse>(config);
+  return data;
+};
+
+export const useGetSiteWideMsg: ADSQuery<IADSApiSiteWideMsgParams, IADSApiSiteWideMsgResponse> = (options) => {
+  return useQuery({
+    queryKey: vaultKeys.siteWideMsg(),
+    queryFn: fetchSiteWideMsg,
+    staleTime: 60 * 60 * 1000, // 1 hour
+    ...options,
+  });
+};
+
+export const fetchSiteWideMsg: QueryFunction<IADSApiSiteWideMsgResponse> = async () => {
+  const config: ApiRequestConfig = {
+    method: 'GET',
+    url: `${ApiTargets.SITE_SIDE_MESSAGE}`,
+  };
+
+  const { data } = await api.request<IADSApiSiteWideMsgResponse>(config);
   return data;
 };
