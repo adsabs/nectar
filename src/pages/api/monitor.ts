@@ -1,38 +1,55 @@
-import { NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from 'next';
 import { logger } from '@/logger';
 
-const SENTRY_HOST = 'o1060269.ingest.sentry.io';
-const SENTRY_PROJECT_IDS = [process.env.NEXT_PUBLIC_SENTRY_PROJECT_ID];
-const log = logger.child({}, { msgPrefix: '[monitor] ' });
-const monitor = async (req: Request, res: NextApiResponse) => {
-  try {
-    const envelope = await req.text();
-    const piece = envelope.split('\n')[0];
-    const header = JSON.parse(piece) as Record<string, string>;
-    const dsn = new URL(header['dsn']);
-    const project_id = dsn.pathname?.replace('/', '');
+const log = logger.child({}, { msgPrefix: '[sentry-monitor] ' });
 
-    if (dsn.hostname !== SENTRY_HOST) {
-      const error = `Invalid sentry hostname: ${dsn.hostname}`;
-      log.error(error);
-      return res.status(500).json({ error });
-    }
-
-    if (!project_id || !SENTRY_PROJECT_IDS.includes(project_id)) {
-      const error = `Invalid sentry project id: ${project_id}`;
-      log.error(error);
-      return res.status(500).json({ error });
-    }
-
-    const upstream_sentry_url = `https://${SENTRY_HOST}/api/${project_id}/envelope/`;
-    await fetch(upstream_sentry_url, { method: 'POST', body: envelope });
-
-    return res.status(200).json({ status: 'ok' });
-  } catch (e) {
-    const error = 'Failed to forward sentry envelope';
-    log.error(error, { error: e });
-    return res.status(500).json({ error });
-  }
+export const config = {
+  api: {
+    bodyParser: false,
+    responseLimit: false,
+  },
 };
 
-export default monitor;
+const parsed = new URL(process.env.NEXT_PUBLIC_SENTRY_DSN || '');
+const monitorBaseUrl = `${parsed.protocol}//${parsed.hostname}/api${parsed.pathname}/envelope/`;
+log.debug({ parsed, monitorBaseUrl }, 'Parsed Sentry DSN and constructed monitor base URL');
+
+export default async function monitor(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'POST') {
+    res.setHeader('Allow', 'POST');
+    return res.status(405).end('Method Not Allowed');
+  }
+
+  if (!monitorBaseUrl) {
+    log.error('Missing NEXT_PUBLIC_SENTRY_DSN');
+    return res.status(500).json({ error: 'Missing DSN' });
+  }
+
+  try {
+    const chunks: Uint8Array[] = [];
+    for await (const chunk of req) {
+      chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
+    }
+    const rawBody = Buffer.concat(chunks);
+    const forwardRes = await fetch(monitorBaseUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': Array.isArray(req.headers['content-type'])
+          ? req.headers['content-type'][0]
+          : req.headers['content-type'] || 'application/octet-stream',
+        'X-Sentry-Auth': Array.isArray(req.headers['x-sentry-auth'])
+          ? req.headers['x-sentry-auth'][0]
+          : req.headers['x-sentry-auth'] || '',
+        Origin: Array.isArray(req.headers['origin']) ? req.headers['origin'][0] : req.headers['origin'] || '',
+      },
+      body: rawBody,
+    });
+
+    res.status(forwardRes.status).end();
+  } catch (err) {
+    if (err instanceof Error) {
+      log.error({ err }, 'Error forwarding Sentry envelope');
+    }
+    res.status(500).json({ err: 'Failed to forward Sentry envelope' });
+  }
+}
