@@ -46,7 +46,10 @@ export const Layout: FC = ({ children }) => {
       {isPrint ? null : <Notification />}
       <main>
         {isLandingPage && <LandingTabs />}
-        <Container maxW={isLandingPage ? 'container.md' : 'container.xl'} id="main-content">
+        <Container
+          maxW={router.pathname === '/' ? 'full' : isLandingPage ? 'container.md' : 'container.xl'}
+          id="main-content"
+        >
           {children}
         </Container>
       </main>
