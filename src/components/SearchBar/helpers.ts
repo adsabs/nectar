@@ -12,25 +12,23 @@ export const filterItems = curry((query: string, items: TypeaheadOption[]) => {
   return matchSorter(items, term, { keys: ['match'], threshold: matchSorter.rankings.WORD_STARTS_WITH });
 });
 
-export const extractFinalTerm = (query: string) => {
-  // detect fields, and return the last field
-  const fields = query.match(/(?:[^\s"]+|"[^"]*")+/g);
+export const extractFinalTerm = (query: string): string => {
+  try {
+    const terms = splitSearchTerms(query);
 
-  if (fields !== null && fields.length > 1) {
-    // if query is a field with no value, return empty string
-    if (query.endsWith(': ')) {
+    // If the query ends in a space or colon + space, assume new term is starting
+    if (query.trimEnd().endsWith(':') || query.endsWith(' ')) {
       return '';
     }
 
-    return fields[fields.length - 1];
-  }
+    if (terms.length === 0) {
+      return '';
+    }
 
-  // if query ends with a space, return empty string
-  if (query.endsWith(' ')) {
+    return terms[terms.length - 1];
+  } catch (e) {
     return '';
   }
-
-  return query;
 };
 
 export const updateSearchTerm = (searchTerm: string, value: string) => {
@@ -73,3 +71,19 @@ export const getPreview = (searchTerm: string, value: string | null) => {
   }
   return updateSearchTerm(searchTerm, value);
 };
+
+export function splitSearchTerms(input: string): string[] {
+  const results: string[] = [];
+
+  const regex = /"[^"]*"|\([^)"]*(?:"[^"]*"[^)]*)*\)|\S+:\([^)"]*(?:"[^"]*"[^)]*)*\)|\S+:"[^"]*"|\S+/g;
+
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(input)) !== null) {
+    const token = match[0].trim();
+    if (token) {
+      results.push(token);
+    }
+  }
+
+  return results;
+}

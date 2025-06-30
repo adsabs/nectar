@@ -22,7 +22,7 @@ export interface ISearchInputState {
 }
 
 export type SearchInputAction =
-  | { type: 'SET_SEARCH_TERM'; payload: { query: string; hideMenu?: boolean } }
+  | { type: 'SET_SEARCH_TERM'; payload: { query: string; cursorPosition: number } }
   | { type: 'SET_UAT_TYPEAHEAD_OPTIONS'; payload: TypeaheadOption[] }
   | { type: 'SET_SEARCH_TERM_ADDITION'; payload: string }
   | { type: 'CLICK_ITEM' }
@@ -42,17 +42,8 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
     case 'HARD_RESET':
       return initialState;
     case 'SET_SEARCH_TERM': {
-      if (action.payload.hideMenu) {
-        return {
-          ...state,
-          isOpen: false,
-          searchTerm: action.payload.query,
-          focused: -1,
-          items: [],
-        };
-      }
       const finalTerm = extractFinalTerm(action.payload.query);
-      if (finalTerm === '') {
+      if (finalTerm === '' || finalTerm.toLowerCase().startsWith('uat:')) {
         return {
           ...state,
           isOpen: false,
@@ -60,6 +51,7 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
           uatItems: [],
           focused: -1,
           items: [],
+          cursorPosition: action.payload.cursorPosition,
         };
       }
 
@@ -70,6 +62,7 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
         searchTerm: action.payload.query,
         uatItems: [],
         focused: -1,
+        cursorPosition: action.payload.cursorPosition,
         items,
       };
     }

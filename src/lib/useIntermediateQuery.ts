@@ -9,14 +9,8 @@ export const useIntermediateQuery = () => {
   const clearQueryFlag = useStore((state) => state.clearQueryFlag);
   const setClearQueryFlag = useStore((state) => state.setClearQueryFlag);
 
-  const updateQ = useDebouncedCallback(
-    (q: string) => {
-      updateQuery({ q });
-    },
-    60,
-    { leading: true },
-  );
-
+  const updateQ = (q: string) => updateQuery({ q });
+  const updateQDebounced = useDebouncedCallback(updateQ, 1000, { leading: true });
   const appendToQuery = useDebouncedCallback(
     (value: string) => {
       setQueryAddition(value);
@@ -26,8 +20,9 @@ export const useIntermediateQuery = () => {
   );
 
   return {
-    query,
+    query: query,
     updateQuery: updateQ,
+    debouncedUpdateQuery: updateQDebounced,
 
     // clearing
     isClearingQuery: clearQueryFlag,

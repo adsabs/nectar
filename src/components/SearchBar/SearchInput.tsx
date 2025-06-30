@@ -23,17 +23,7 @@ import {
   useMergeRefs,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import {
-  ChangeEventHandler,
-  Dispatch,
-  KeyboardEventHandler,
-  useCallback,
-  useDeferredValue,
-  useEffect,
-  useReducer,
-  useRef,
-  useState,
-} from 'react';
+import { ChangeEventHandler, Dispatch, useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 import { isNonEmptyString } from 'ramda-adjunct';
 import { TypeaheadOption } from '@/components/SearchBar/types';
@@ -42,7 +32,8 @@ import { getFocusedItemValue, getPreview } from '@/components/SearchBar/helpers'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { useFocus } from '@/lib/useFocus';
 import { useColorModeColors } from '@/lib/useColorModeColors';
-import { useUATTermsSearchOptions } from '@/api/uat/uat';
+import { useKeyDownHandler } from '@/components/SearchBar/hooks/useKeyDownHandler';
+import { useUATSearch } from '@/components/SearchBar/hooks/useUATSearch';
 
 const SEARCHBAR_MAX_LENGTH = 2048 as const;
 
@@ -54,36 +45,34 @@ const ClearInputButton = (props: ButtonProps) => {
   return <CloseButton aria-label="Clear search" size="lg" data-testid="searchbar-clear" {...props} />;
 };
 
+const useSyncWithGlobal = (props: { searchTerm: string; dispatch: Dispatch<SearchInputAction> }) => {
+  const { query: globalQuery } = useIntermediateQuery();
+  const { searchTerm, dispatch } = props;
+  const hasSynced = useRef(false);
+
+  useEffect(() => {
+    if (globalQuery && !hasSynced.current) {
+      dispatch({ type: 'SET_SEARCH_TERM', payload: { query: globalQuery, cursorPosition: globalQuery.length } });
+    }
+    hasSynced.current = true;
+  }, [searchTerm, globalQuery, dispatch]);
+};
+
 export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { isLoading, ...inputProps } = props;
   const [input, focus] = useFocus({ selectTextOnFocus: false });
   const refs = useMergeRefs(ref, input);
-  const { query, queryAddition, onDoneAppendingToQuery, isClearingQuery, onDoneClearingQuery } = useIntermediateQuery();
-  const [userInput, setUserInput] = useState<{ value: string; cursorPos: number }>({ value: '', cursorPos: 0 });
-  const deferredUserInput = useDeferredValue(userInput);
-  const [uatSearchTerm, setUatSearchTerm] = useState(null);
+  const { queryAddition, onDoneAppendingToQuery, isClearingQuery, onDoneClearingQuery, debouncedUpdateQuery } =
+    useIntermediateQuery();
+  const onKeyDown = useKeyDownHandler({ isOpen: state.isOpen, dispatch });
+  useUATSearch({ query: state.searchTerm, dispatch, cursorPosition: state.cursorPosition });
+  useSyncWithGlobal({ searchTerm: state.searchTerm, dispatch });
 
-  const { data: uatSearchTermOptions } = useUATTermsSearchOptions(
-    { term: uatSearchTerm },
-    { enabled: !!uatSearchTerm },
-  );
+  useEffect(() => console.log(), []);
 
-  useEffect(() => {
-    if (!!uatSearchTermOptions) {
-      dispatch({ type: 'SET_UAT_TYPEAHEAD_OPTIONS', payload: uatSearchTermOptions });
-    }
-    setUatSearchTerm(null); // reset
-  }, [uatSearchTermOptions]);
-
-  // on mount, set the search term, focus and force reset to clear the menu
-  useEffect(() => {
-    if (isNonEmptyString(query)) {
-      dispatch({ type: 'SET_SEARCH_TERM', payload: { query } });
-      dispatch({ type: 'SOFT_RESET' });
-      setTimeout(() => focus(), 10);
-    }
-  }, [query]);
+  // on mount, focus the input
+  useEffect(() => focus(), [focus]);
 
   // handle query additions
   useEffect(() => {
@@ -92,37 +81,7 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
       dispatch({ type: 'SET_SEARCH_TERM_ADDITION', payload: queryAddition });
       onDoneAppendingToQuery();
     }
-  }, [queryAddition]);
-
-  // run the handlers based on the keydown event
-  const handleOnKeyDown: KeyboardEventHandler<HTMLInputElement> = useCallback(
-    (e) => {
-      // if any modifier keys, ignore
-      if (e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) {
-        return;
-      }
-
-      if (e.key === 'Enter' && state.isOpen) {
-        e.preventDefault();
-        dispatch({ type: 'KEYDOWN_ENTER' });
-      } else if (e.key === 'Escape' && state.isOpen) {
-        e.preventDefault();
-        dispatch({ type: 'KEYDOWN_ESCAPE' });
-      } else if (e.key === 'ArrowUp' && state.isOpen) {
-        e.preventDefault();
-        dispatch({ type: 'KEYDOWN_ARROW_UP' });
-      } else if (e.key === 'Tab' && state.isOpen) {
-        e.preventDefault();
-        dispatch({ type: 'KEYDOWN_TAB' });
-      }
-
-      if (e.key === 'ArrowDown' && e.currentTarget.selectionStart === e.currentTarget.value.length) {
-        e.preventDefault();
-        dispatch({ type: 'KEYDOWN_ARROW_DOWN' });
-      }
-    },
-    [state.isOpen],
-  );
+  }, [focus, onDoneAppendingToQuery, queryAddition]);
 
   // handle updates to the cursor position, usually just to move inside "" or ()
   useEffect(() => {
@@ -130,65 +89,25 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
     if (input.current) {
       input.current.setSelectionRange(state.cursorPosition, state.cursorPosition);
     }
-  }, [input.current, state.cursorPosition]);
+  }, [input, state.cursorPosition]);
 
   // handle updates to the search term
-  const handleInputChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    setUserInput({ value: e.target.value, cursorPos: e.target.selectionStart });
-    const value = e.target.value;
-    const fields = splitSearchItems(value);
-
-    // hide the default auto-complete dropdown if doing a UAT search
-    dispatch({ type: 'SET_SEARCH_TERM', payload: { query: value, hideMenu: isLastSearchTermUAT(fields) } });
-  };
-
-  /* *
-   * if user is typing in the UAT keyword, show auto complete
-   *
-   * conditions:
-   * - the last search term starts with `uat:"`
-   * - user has typed partial UAT keyword
-   * - cursor is at the last term, inside quote `uat:""`,
-   *   where the closing quote might or might not exist
-   *
-   * */
-  useEffect(() => {
-    const { value: searchString, cursorPos } = deferredUserInput;
-    const terms = splitSearchItems(searchString);
-
-    if (isLastSearchTermUAT(terms)) {
-      const lastSearchTerm = terms[terms.length - 1];
-
-      // has partial uat keyword
-      const test = terms[terms.length - 1].match(/uat:"([^"]*)"?$/i);
-      if (test && test.length > 1 && test[1].length > 0) {
-        const uatKeyword = test[1];
-
-        // only show uat auto complete if user is typing inside the last term value: uat:"xxx|x"
-        const uatKeywordStartPos = searchString.length - lastSearchTerm.length + 'uat:"'.length - 1;
-        const uatKeywordEndPos = lastSearchTerm.endsWith('"') ? searchString.length - 1 : searchString.length;
-        if (cursorPos >= uatKeywordStartPos && cursorPos <= uatKeywordEndPos) {
-          // trigger UAT keyword search
-          setUatSearchTerm(uatKeyword);
-        }
-      }
-    }
-  }, [deferredUserInput]);
-
-  const splitSearchItems = (value: string) => {
-    // split each search item
-    return value.match(/(?:[^\s"]+|"[^"]*")+\w*(?:[^\s"]+|"[^"]*){0,1}/g);
-  };
-
-  const isLastSearchTermUAT = (fields: RegExpMatchArray) => {
-    return fields && fields.length > 0 && fields[fields.length - 1].toLowerCase().startsWith('uat:"');
-  };
+  const handleInputChange: ChangeEventHandler<HTMLInputElement> = useCallback(
+    (e) => {
+      dispatch({
+        type: 'SET_SEARCH_TERM',
+        payload: { query: e.target.value, cursorPosition: e.target.selectionStart },
+      });
+      debouncedUpdateQuery(e.target.value);
+    },
+    [debouncedUpdateQuery, dispatch],
+  );
 
   // clear input
-  const handleClearInput = () => {
+  const handleClearInput = useCallback(() => {
     focus();
     dispatch({ type: 'HARD_RESET' });
-  };
+  }, [focus, dispatch]);
 
   useEffect(() => {
     if (isClearingQuery) {
@@ -197,10 +116,7 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
     }
   }, [isClearingQuery, onDoneClearingQuery, handleClearInput]);
 
-  const handleItemClick = useCallback(() => {
-    focus({ moveCursorToEnd: false });
-  }, [focus]);
-
+  const handleItemClick = useCallback(() => focus({ moveCursorToEnd: false }), [focus]);
   return (
     <Popover isOpen={state.isOpen} placement="bottom" gutter={0} matchWidth autoFocus={false} strategy="fixed">
       <PopoverAnchor>
@@ -235,7 +151,7 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
               aria-autocomplete="list"
               aria-activedescendant={state.focused > -1 ? `search-item-${state.focused}` : undefined}
               autoFocus
-              onKeyDown={handleOnKeyDown}
+              onKeyDown={onKeyDown}
               borderLeftRadius="md"
               onChange={handleInputChange}
               spellCheck="false"
@@ -324,7 +240,7 @@ const TypeaheadItem = (props: {
     if (typeof onClick === 'function') {
       onClick();
     }
-  }, [onClick]);
+  }, [dispatch, index, onClick]);
 
   const handleMouseOver = () => {
     setIsMouseOver(true);
@@ -339,7 +255,7 @@ const TypeaheadItem = (props: {
     if (typeof liRef.current?.scrollIntoView === 'function' && focused) {
       liRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
     }
-  }, [liRef.current, focused]);
+  }, [liRef, focused]);
 
   return (
     <ListItem

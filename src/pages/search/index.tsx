@@ -123,7 +123,9 @@ const SearchPage: NextPage = () => {
   // watch for route changes and update the query
   useEffect(() => {
     const handleRouteChange = (url: string) => {
-      updateQuery(parseQueryFromUrl(url));
+      if (url.startsWith('/search')) {
+        updateQuery(parseQueryFromUrl(url));
+      }
     };
 
     router.events.on('routeChangeStart', handleRouteChange);
