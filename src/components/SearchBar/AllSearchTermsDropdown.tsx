@@ -107,7 +107,7 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
         setShowTooltipFor(items[0]);
       }
     }
-  }, [items]);
+  }, [isOpen, items, setHighlightedIndex]);
 
   const colors = useColorModeColors();
 
@@ -206,6 +206,7 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
 interface ISearchTermTooltipProps {
   term: SearchTermOption;
 }
+
 const SearchTermTooltip = forwardRef<HTMLDivElement, ISearchTermTooltipProps>(({ term }, ref) => {
   const colors = useColorModeColors();
 
