@@ -9,6 +9,7 @@ import {
   getPreview,
   updateSearchTerm,
   updateUATSearchTerm,
+  wrapSelectedWithField,
 } from '@/components/SearchBar/helpers';
 import { typeaheadOptions } from '@/components/SearchBar/models';
 
@@ -24,7 +25,7 @@ export interface ISearchInputState {
 export type SearchInputAction =
   | { type: 'SET_SEARCH_TERM'; payload: { query: string; cursorPosition: number } }
   | { type: 'SET_UAT_TYPEAHEAD_OPTIONS'; payload: TypeaheadOption[] }
-  | { type: 'SET_SEARCH_TERM_ADDITION'; payload: string }
+  | { type: 'SET_SEARCH_TERM_ADDITION'; payload: { selectedRange: Array<number>; queryAddition: string } }
   | { type: 'CLICK_ITEM' }
   | { type: 'FOCUS_ITEM'; index: number }
   | { type: 'KEYDOWN_ENTER' }
@@ -77,7 +78,21 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
       };
     }
     case 'SET_SEARCH_TERM_ADDITION': {
-      const searchTerm = appendSearchTerm(state.searchTerm, action.payload);
+      const { selectedRange, queryAddition } = action.payload;
+      const selection = state.searchTerm.slice(selectedRange[0], selectedRange[1]);
+
+      if (typeof selection === 'string' && selection.trim().length > 0) {
+        // if selection is not empty, replace it with the query addition
+        const searchTerm = wrapSelectedWithField(state.searchTerm, selectedRange[0], selectedRange[1], queryAddition);
+        return {
+          ...state,
+          searchTerm,
+          preview: searchTerm,
+          cursorPosition: getCursorPosition(searchTerm),
+        };
+      }
+
+      const searchTerm = appendSearchTerm(state.searchTerm, queryAddition);
       return {
         ...state,
         searchTerm,

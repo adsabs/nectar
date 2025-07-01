@@ -34,6 +34,7 @@ import { useFocus } from '@/lib/useFocus';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { useKeyDownHandler } from '@/components/SearchBar/hooks/useKeyDownHandler';
 import { useUATSearch } from '@/components/SearchBar/hooks/useUATSearch';
+import { useSyncWithGlobal } from '@/components/SearchBar/hooks/UseSyncWithGlobal';
 
 const SEARCHBAR_MAX_LENGTH = 2048 as const;
 
@@ -45,31 +46,15 @@ const ClearInputButton = (props: ButtonProps) => {
   return <CloseButton aria-label="Clear search" size="lg" data-testid="searchbar-clear" {...props} />;
 };
 
-const useSyncWithGlobal = (props: { searchTerm: string; dispatch: Dispatch<SearchInputAction> }) => {
-  const { query: globalQuery } = useIntermediateQuery();
-  const { searchTerm, dispatch } = props;
-  const hasSynced = useRef(false);
-
-  useEffect(() => {
-    if (globalQuery && !hasSynced.current) {
-      dispatch({ type: 'SET_SEARCH_TERM', payload: { query: globalQuery, cursorPosition: globalQuery.length } });
-    }
-    hasSynced.current = true;
-  }, [searchTerm, globalQuery, dispatch]);
-};
-
 export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { isLoading, ...inputProps } = props;
   const [input, focus] = useFocus({ selectTextOnFocus: false });
   const refs = useMergeRefs(ref, input);
-  const { queryAddition, onDoneAppendingToQuery, isClearingQuery, onDoneClearingQuery, debouncedUpdateQuery } =
-    useIntermediateQuery();
+  const { queryAddition, onDoneAppendingToQuery, onDoneClearingQuery, isClearingQuery } = useIntermediateQuery();
   const onKeyDown = useKeyDownHandler({ isOpen: state.isOpen, dispatch });
   useUATSearch({ query: state.searchTerm, dispatch, cursorPosition: state.cursorPosition });
   useSyncWithGlobal({ searchTerm: state.searchTerm, dispatch });
-
-  useEffect(() => console.log(), []);
 
   // on mount, focus the input
   useEffect(() => focus(), [focus]);
@@ -78,10 +63,16 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
   useEffect(() => {
     if (isNonEmptyString(queryAddition)) {
       focus();
-      dispatch({ type: 'SET_SEARCH_TERM_ADDITION', payload: queryAddition });
+      dispatch({
+        type: 'SET_SEARCH_TERM_ADDITION',
+        payload: {
+          selectedRange: [input.current?.selectionStart ?? 0, input.current?.selectionEnd ?? 0],
+          queryAddition,
+        },
+      });
       onDoneAppendingToQuery();
     }
-  }, [focus, onDoneAppendingToQuery, queryAddition]);
+  }, [focus, input, onDoneAppendingToQuery, queryAddition, state.searchTerm]);
 
   // handle updates to the cursor position, usually just to move inside "" or ()
   useEffect(() => {
@@ -98,9 +89,8 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
         type: 'SET_SEARCH_TERM',
         payload: { query: e.target.value, cursorPosition: e.target.selectionStart },
       });
-      debouncedUpdateQuery(e.target.value);
     },
-    [debouncedUpdateQuery, dispatch],
+    [dispatch],
   );
 
   // clear input

@@ -20,7 +20,7 @@ export const QuickFields = (props: IQuickFieldsProps): ReactElement => {
         appendToQuery(target.dataset['value']);
       }
     },
-    [isLoading],
+    [appendToQuery, isLoading],
   );
 
   const handleASTSelect = useCallback(
@@ -29,7 +29,7 @@ export const QuickFields = (props: IQuickFieldsProps): ReactElement => {
         appendToQuery(value);
       }
     },
-    [isLoading],
+    [appendToQuery, isLoading],
   );
 
   return (
