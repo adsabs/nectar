@@ -11,6 +11,14 @@ import {
   useMediaQuery,
   VisuallyHidden,
   forwardRef,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalOverlay,
+  useDisclosure,
+  HStack,
 } from '@chakra-ui/react';
 
 import { applyFiltersToQuery } from '@/components/SearchFacet/helpers';
@@ -29,6 +37,9 @@ import { makeSearchParams, normalizeSolrSort } from '@/utils/common/search';
 import { SolrSort } from '@/api/models';
 import { SearchExamples } from '@/components/SearchExamples/SearchExamples';
 import { useColorModeColors } from '@/lib/useColorModeColors';
+import { useSession } from '@/lib/useSession';
+
+const NEW_USER_KEY = 'new-user';
 
 const HomePage: NextPage = () => {
   const { settings } = useSettings();
@@ -56,7 +67,7 @@ const HomePage: NextPage = () => {
 
   const oriSearchLocRef = useRef<HTMLDivElement>();
 
-  const examplesSectionRef = useRef<HTMLDivElement>();
+  const learnMoreSectionRef = useRef<HTMLDivElement>();
 
   const quickStartSectionRef = useRef<HTMLDivElement>();
 
@@ -102,6 +113,16 @@ const HomePage: NextPage = () => {
         observer.unobserve(current);
       }
     };
+  }, []);
+
+  const { isOpen, onClose, onOpen } = useDisclosure();
+
+  const { isAuthenticated } = useSession();
+
+  useEffect(() => {
+    if (!isAuthenticated && localStorage.getItem(NEW_USER_KEY) === null) {
+      onOpen();
+    }
   }, []);
 
   /**
@@ -182,64 +203,33 @@ const HomePage: NextPage = () => {
             </>
           ) : (
             <Flex direction="column" mb={2} gap={20} alignItems="center">
-              <IntroSection />
-              <Stack spacing={4} direction={'row'} justifyContent="center">
-                <Button
-                  rounded={'full'}
-                  px={6}
-                  onClick={() => quickStartSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' })}
-                  size="md"
-                >
-                  Get started
-                </Button>
-                <Button
-                  rounded={'full'}
-                  px={6}
-                  variant="outline"
-                  onClick={() => examplesSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' })}
-                  size="md"
-                >
-                  Search Examples
-                </Button>
-              </Stack>
-              <ExploreSection />
+              <ExamplesSection />
+              <ExploreSection ref={learnMoreSectionRef} />
               <DiscoverSection />
               <QuickStartSection ref={quickStartSectionRef} />
-              <ExamplesSection ref={examplesSectionRef} />
             </Flex>
           )}
         </Flex>
         <input type="hidden" name="sort" value={normalizeSolrSort(sort)} />
         <input type="hidden" name="p" value="1" />
       </form>
+      <WelcomeModal
+        isOpen={isOpen}
+        onClose={onClose}
+        scrollToLearnMore={() => learnMoreSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })}
+        scrollToQuickStart={() => quickStartSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })}
+      />
     </Box>
   );
 };
 
 export default HomePage;
 
-const IntroSection = () => {
-  return (
-    <Stack as="section" flexDirection="column" textAlign="left" spacing="4" p={10} pb={0} maxW="container.md">
-      <Heading as="h3">
-        <Text fontWeight="thin">WELCOME TO THE</Text>
-        <Text fontWeight="bold">SciX Digital Library</Text>
-      </Heading>
-      <Text fontSize="xl">
-        Learn more about the SciX digital library and how it can support your scientific research in{' '}
-        <SimpleLink href="https://youtu.be/LeTFmhmPjs0" isExternal newTab>
-          this welcome video
-        </SimpleLink>{' '}
-        and brief user tutorial from <br /> Dr. Stephanie Jarmak.
-      </Text>
-    </Stack>
-  );
-};
-
-const ExploreSection = () => {
+const ExploreSection = forwardRef((_prop, ref) => {
   const colors = useColorModeColors();
   return (
     <Stack
+      ref={ref}
       as="section"
       flexDirection="column"
       textAlign="left"
@@ -266,7 +256,7 @@ const ExploreSection = () => {
       </Text>
     </Stack>
   );
-};
+});
 
 const DiscoverSection = () => {
   return (
@@ -353,6 +343,66 @@ const getListOfAppliedDefaultDatabases = (databases: IADSApiUserDataResponse['de
     }
   }
   return defaultDatabases;
+};
+
+const WelcomeModal = ({
+  isOpen,
+  onClose,
+  scrollToLearnMore,
+  scrollToQuickStart,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  scrollToLearnMore: () => void;
+  scrollToQuickStart: () => void;
+}) => {
+  const handleScrollToLearnMore = () => {
+    scrollToLearnMore();
+    onClose();
+  };
+
+  const handleScrollToQuickStart = () => {
+    scrollToQuickStart();
+    onClose();
+  };
+
+  const handleClosed = () => {
+    localStorage.setItem(NEW_USER_KEY, 'false');
+  };
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} onCloseComplete={handleClosed} size="lg">
+      <ModalOverlay />
+      <ModalContent>
+        <ModalCloseButton />
+        <ModalBody>
+          <Text fontWeight="thin" fontSize="2xl">
+            WELCOME TO THE
+          </Text>
+          <Text fontWeight="bold" mb={4} fontSize="2xl">
+            SciX Digital Library
+          </Text>
+          <Text>
+            Learn more about the SciX digital library and how it can support your scientific research in{' '}
+            <SimpleLink href="https://youtu.be/LeTFmhmPjs0" isExternal newTab>
+              this welcome video
+            </SimpleLink>{' '}
+            and brief user tutorial from Dr. Stephanie Jarmak.
+          </Text>
+        </ModalBody>
+        <ModalFooter>
+          <HStack>
+            <Button rounded={'full'} px={6} onClick={handleScrollToLearnMore}>
+              Learn More
+            </Button>
+            <Button rounded={'full'} px={6} variant="outline" onClick={handleScrollToQuickStart}>
+              Quick Start Guide
+            </Button>
+          </HStack>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
 };
 
 export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
