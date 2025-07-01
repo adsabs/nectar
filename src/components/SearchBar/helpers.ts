@@ -87,3 +87,41 @@ export function splitSearchTerms(input: string): string[] {
 
   return results;
 }
+
+export function wrapSelectedWithField(
+  input: string,
+  selectionStart: number,
+  selectionEnd: number,
+  fieldTemplate: string,
+): string {
+  const selectedText = input.slice(selectionStart, selectionEnd).trim();
+  const before = input.slice(0, selectionStart);
+  const after = input.slice(selectionEnd);
+
+  // No selection → just append fieldTemplate to the end
+  const hasSelection = selectionStart !== selectionEnd;
+
+  const fieldMatch = fieldTemplate.match(/^([a-zA-Z0-9_]+):(.*)$/);
+
+  if (!hasSelection) {
+    return input + (input ? ' ' : '') + fieldTemplate;
+  }
+
+  if (fieldMatch) {
+    const [, fieldName, wrapper] = fieldMatch;
+
+    if (wrapper === '') {
+      return `${before}${fieldName}:${selectedText}${after}`;
+    } else if (wrapper === '()') {
+      return `${before}${fieldName}:(${selectedText})${after}`;
+    } else if (wrapper === '""') {
+      return `${before}${fieldName}:"${selectedText}"${after}`;
+    } else {
+      // unknown wrapper → append
+      return input + ' ' + fieldTemplate;
+    }
+  }
+
+  // not a field → append to end
+  return input + (input ? ' ' : '') + fieldTemplate;
+}
