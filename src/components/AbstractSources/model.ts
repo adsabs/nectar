@@ -12,6 +12,8 @@ export const DEFAULT_ORDERING = [
   Esources.EPRINT_HTML,
   Esources.AUTHOR_PDF,
   Esources.AUTHOR_HTML,
+  Esources.PMC_PDF,
+  Esources.PMC_HTML,
 ];
 
 export interface ILinkType {
@@ -30,6 +32,8 @@ export const MAYBE_OPEN_SOURCES = [
   Esources.EPRINT_HTML,
   Esources.PUB_PDF,
   Esources.PUB_HTML,
+  Esources.PMC_PDF,
+  Esources.PMC_HTML,
 ];
 
 // set of link types and descriptions
@@ -219,6 +223,18 @@ export const LINK_TYPES: Record<keyof typeof Esources, ILinkType> = {
   protocols: {
     shortName: 'protocols',
     description: 'Collaborative Platform and Preprint Server for Science Methods and Protocols',
+  },
+  PMC_HTML: {
+    name: 'PubMed Central HTML',
+    shortName: 'PubMed Central',
+    description: 'PubMed Central HTML',
+    type: 'HTML',
+  },
+  PMC_PDF: {
+    name: 'PubMed Central PDF',
+    shortName: 'PubMed Central',
+    description: 'PubMed Central PDF',
+    type: 'PDF',
   },
   PUB_HTML: {
     name: 'Publisher Article',
