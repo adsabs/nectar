@@ -23,6 +23,11 @@ describe('wrapSelectedWithField', () => {
     ['Selection with space', ['a b c', 4, 5, 'wrap:()'], 'a b wrap:(c)'],
     ['Selection is trimmed', ['a b     c', 4, 9, 'wrap:()'], 'a b wrap:(c)'],
     ['Template has text in field', ['start middle end', 0, 5, 'field:"test"'], 'start middle end field:"test"'],
+    ['Double quotes', ['abc def', 4, 7, '""'], 'abc "def"'],
+    ['Double quotes + star', ['abc def', 4, 7, '""*'], 'abc "def"*'],
+    ['Equals + double quotes', ['abc def', 4, 7, '=""'], 'abc ="def"'],
+    ['Equals + double quotes with no selection', ['abc def', 7, 7, '=""'], 'abc def =""'],
+    ['Quotes with question mark', ['abc def', 4, 7, '""?'], 'abc "def"?'],
   ];
   test.each(testCases)('%s', (_, args, expected) => {
     expect(wrapSelectedWithField(...args)).toBe(expected);

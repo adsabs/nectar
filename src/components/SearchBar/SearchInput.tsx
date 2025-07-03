@@ -23,11 +23,11 @@ import {
   useMergeRefs,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { ChangeEventHandler, Dispatch, useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import { ChangeEventHandler, Dispatch, useCallback, useEffect, useRef, useState } from 'react';
 import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 import { isNonEmptyString } from 'ramda-adjunct';
 import { TypeaheadOption } from '@/components/SearchBar/types';
-import { initialState, reducer, SearchInputAction } from '@/components/SearchBar/searchInputReducer';
+import { ISearchInputState, SearchInputAction } from '@/components/SearchBar/searchInputReducer';
 import { getFocusedItemValue, getPreview } from '@/components/SearchBar/helpers';
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { useFocus } from '@/lib/useFocus';
@@ -40,6 +40,8 @@ const SEARCHBAR_MAX_LENGTH = 2048 as const;
 
 export interface ISearchInputProps extends InputProps {
   isLoading?: boolean;
+  state: ISearchInputState;
+  dispatch: Dispatch<SearchInputAction>;
 }
 
 const ClearInputButton = (props: ButtonProps) => {
@@ -47,8 +49,7 @@ const ClearInputButton = (props: ButtonProps) => {
 };
 
 export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
-  const { isLoading, ...inputProps } = props;
+  const { isLoading, state, dispatch, ...inputProps } = props;
   const [input, focus] = useFocus({ selectTextOnFocus: false });
   const refs = useMergeRefs(ref, input);
   const { queryAddition, onDoneAppendingToQuery, onDoneClearingQuery, isClearingQuery } = useIntermediateQuery();
@@ -57,7 +58,7 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
   useSyncWithGlobal({ searchTerm: state.searchTerm, dispatch });
 
   // on mount, focus the input
-  useEffect(() => focus(), [focus]);
+  // useEffect(() => focus(), [focus]);
 
   // handle query additions
   useEffect(() => {
@@ -72,7 +73,7 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
       });
       onDoneAppendingToQuery();
     }
-  }, [focus, input, onDoneAppendingToQuery, queryAddition, state.searchTerm]);
+  }, [dispatch, focus, input, onDoneAppendingToQuery, queryAddition, state.searchTerm]);
 
   // handle updates to the cursor position, usually just to move inside "" or ()
   useEffect(() => {
@@ -106,6 +107,15 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
     }
   }, [isClearingQuery, onDoneClearingQuery, handleClearInput]);
 
+  const handleOnSelect = useCallback(() => {
+    if (input.current) {
+      dispatch({
+        type: 'SET_SELECTED_RANGE',
+        payload: [input.current.selectionStart, input.current.selectionEnd],
+      });
+    }
+  }, [dispatch, input]);
+
   const handleItemClick = useCallback(() => focus({ moveCursorToEnd: false }), [focus]);
   return (
     <Popover isOpen={state.isOpen} placement="bottom" gutter={0} matchWidth autoFocus={false} strategy="fixed">
@@ -130,6 +140,7 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
               aria-label="Search"
               title="Search"
               maxLength={SEARCHBAR_MAX_LENGTH}
+              onSelect={handleOnSelect}
               value={
                 state.items.length > 0
                   ? getPreview(state.searchTerm, getFocusedItemValue(state.items, state.focused))
