@@ -53,7 +53,6 @@ const Telemetry: FC = () => {
   const query = useStore((state) => state.query, shallow);
   const user = useStore((state) => state.user, shallow);
   const docs = useStore((state) => state.docs.current, shallow);
-  logger.debug({ query, user }, 'Telemetry');
 
   useEffect(() => {
     try {
