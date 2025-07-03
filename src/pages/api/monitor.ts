@@ -10,9 +10,17 @@ export const config = {
   },
 };
 
-const parsed = new URL(process.env.NEXT_PUBLIC_SENTRY_DSN || '');
-const monitorBaseUrl = `${parsed.protocol}//${parsed.hostname}/api${parsed.pathname}/envelope/`;
-log.debug({ parsed, monitorBaseUrl }, 'Parsed Sentry DSN and constructed monitor base URL');
+let monitorBaseUrl: string | null = null;
+try {
+  if (!process.env.NEXT_PUBLIC_SENTRY_DSN) {
+    throw new Error('NEXT_PUBLIC_SENTRY_DSN is not defined or empty');
+  }
+  const parsed = new URL(process.env.NEXT_PUBLIC_SENTRY_DSN);
+  monitorBaseUrl = `${parsed.protocol}//${parsed.hostname}/api${parsed.pathname}/envelope/`;
+  log.debug({ parsed, monitorBaseUrl }, 'Parsed Sentry DSN and constructed monitor base URL');
+} catch (err) {
+  log.error({ err }, 'Failed to parse NEXT_PUBLIC_SENTRY_DSN');
+}
 
 export default async function monitor(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
