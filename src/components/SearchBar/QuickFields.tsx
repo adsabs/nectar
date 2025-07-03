@@ -1,39 +1,38 @@
-import { Button, Flex, HStack, Text } from '@chakra-ui/react';
-import { MouseEvent, ReactElement, useCallback } from 'react';
+import { Button, Flex, FlexProps, HStack, Text } from '@chakra-ui/react';
+import { Dispatch, MouseEvent, ReactElement, useCallback } from 'react';
 
 import { quickfields } from './models';
-import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 import { AllSearchTermsDropdown } from '@/components/SearchBar/AllSearchTermsDropdown';
+import { SearchInputAction } from '@/components/SearchBar/searchInputReducer';
 
-export interface IQuickFieldsProps {
+export interface IQuickFieldsProps extends FlexProps {
   isLoading?: boolean;
+  dispatch: Dispatch<SearchInputAction>;
 }
 
 export const QuickFields = (props: IQuickFieldsProps): ReactElement => {
-  const { isLoading } = props;
-  const { appendToQuery } = useIntermediateQuery();
+  const { isLoading, dispatch, ...elProps } = props;
 
   const handleQFSelect = useCallback(
     (e: MouseEvent<HTMLElement>) => {
       if (!isLoading) {
-        const target = e.currentTarget;
-        appendToQuery(target.dataset['value']);
+        dispatch({ type: 'SET_SEARCH_TERM_ADDITION', payload: { queryAddition: e.currentTarget.dataset['value'] } });
       }
     },
-    [appendToQuery, isLoading],
+    [dispatch, isLoading],
   );
 
   const handleASTSelect = useCallback(
-    (value: string) => {
+    (queryAddition: string) => {
       if (!isLoading) {
-        appendToQuery(value);
+        dispatch({ type: 'SET_SEARCH_TERM_ADDITION', payload: { queryAddition } });
       }
     },
-    [appendToQuery, isLoading],
+    [dispatch, isLoading],
   );
 
   return (
-    <Flex direction="row" justifyContent="start" fontSize="md" gap={5}>
+    <Flex direction="row" justifyContent="start" fontSize="md" gap={5} id="quick-fields" {...elProps}>
       <HStack spacing={5} fontSize="md">
         <Text>QUICK FIELD: </Text>
         {quickfields.map((term) => (

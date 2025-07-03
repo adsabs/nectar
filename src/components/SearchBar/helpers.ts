@@ -54,6 +54,8 @@ export const getCursorPosition = (searchTerm: string) => {
     searchTerm.endsWith(`[]`)
   ) {
     return searchTerm.length - 1;
+  } else if (searchTerm.endsWith('""?') || searchTerm.endsWith('""*')) {
+    return searchTerm.length - 2;
   }
   return searchTerm.length;
 };
@@ -97,31 +99,49 @@ export function wrapSelectedWithField(
   const selectedText = input.slice(selectionStart, selectionEnd).trim();
   const before = input.slice(0, selectionStart);
   const after = input.slice(selectionEnd);
-
-  // No selection → just append fieldTemplate to the end
   const hasSelection = selectionStart !== selectionEnd;
 
-  const fieldMatch = fieldTemplate.match(/^([a-zA-Z0-9_]+):(.*)$/);
+  const colonMatch = fieldTemplate.match(/^([a-zA-Z0-9_]+):(.*)$/);
+  const funcMatch = fieldTemplate.match(/^([a-zA-Z0-9_]+)\(\)$/);
 
+  // No selection → append raw
   if (!hasSelection) {
     return input + (input ? ' ' : '') + fieldTemplate;
   }
 
-  if (fieldMatch) {
-    const [, fieldName, wrapper] = fieldMatch;
-
+  // Standard field formats
+  if (colonMatch) {
+    const [, fieldName, wrapper] = colonMatch;
     if (wrapper === '') {
       return `${before}${fieldName}:${selectedText}${after}`;
-    } else if (wrapper === '()') {
-      return `${before}${fieldName}:(${selectedText})${after}`;
-    } else if (wrapper === '""') {
-      return `${before}${fieldName}:"${selectedText}"${after}`;
-    } else {
-      // unknown wrapper → append
-      return input + ' ' + fieldTemplate;
     }
+    if (wrapper === '()') {
+      return `${before}${fieldName}:(${selectedText})${after}`;
+    }
+    if (wrapper === '""') {
+      return `${before}${fieldName}:"${selectedText}"${after}`;
+    }
+    return input + ' ' + fieldTemplate;
   }
 
-  // not a field → append to end
+  // Function-style
+  if (funcMatch) {
+    const [, fieldName] = funcMatch;
+    return `${before}${fieldName}(${selectedText})${after}`;
+  }
+
+  // Operator-based formats
+  switch (fieldTemplate) {
+    case '""':
+      return `${before}"${selectedText}"${after}`;
+    case '""*':
+      return `${before}"${selectedText}"*${after}`;
+    case '=""':
+      return `${before}="${selectedText}"${after}`;
+    case '""?':
+      return `${before}"${selectedText}"?${after}`;
+  }
+
+  // Unknown pattern, treat as literal append
   return input + (input ? ' ' : '') + fieldTemplate;
 }

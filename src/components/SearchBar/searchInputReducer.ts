@@ -20,12 +20,14 @@ export interface ISearchInputState {
   items: TypeaheadOption[];
   focused: number;
   cursorPosition: number;
+  selectedRange?: [number, number];
 }
 
 export type SearchInputAction =
   | { type: 'SET_SEARCH_TERM'; payload: { query: string; cursorPosition: number } }
   | { type: 'SET_UAT_TYPEAHEAD_OPTIONS'; payload: TypeaheadOption[] }
-  | { type: 'SET_SEARCH_TERM_ADDITION'; payload: { selectedRange: Array<number>; queryAddition: string } }
+  | { type: 'SET_SEARCH_TERM_ADDITION'; payload: { queryAddition: string } }
+  | { type: 'SET_SELECTED_RANGE'; payload: [number, number] }
   | { type: 'CLICK_ITEM' }
   | { type: 'FOCUS_ITEM'; index: number }
   | { type: 'KEYDOWN_ENTER' }
@@ -78,7 +80,8 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
       };
     }
     case 'SET_SEARCH_TERM_ADDITION': {
-      const { selectedRange, queryAddition } = action.payload;
+      const { queryAddition } = action.payload;
+      const selectedRange = state.selectedRange || [0, 0];
       const selection = state.searchTerm.slice(selectedRange[0], selectedRange[1]);
 
       if (typeof selection === 'string' && selection.trim().length > 0) {
@@ -188,6 +191,9 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
 
     case 'FOCUS_ITEM':
       return { ...state, focused: action.index };
+
+    case 'SET_SELECTED_RANGE':
+      return { ...state, selectedRange: action.payload };
 
     default:
       return state;
