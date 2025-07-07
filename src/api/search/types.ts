@@ -181,6 +181,8 @@ export enum Esources {
   PASA = 'PASA',
   PDG = 'PDG',
   PDS = 'PDS',
+  PMC_HTML = 'PMC_HTML',
+  PMC_PDF = 'PMC_PDF',
   protocols = 'protocols',
   PUB_HTML = 'PUB_HTML',
   PUB_PDF = 'PUB_PDF',
