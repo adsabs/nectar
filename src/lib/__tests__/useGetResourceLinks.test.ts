@@ -29,6 +29,7 @@ const expectedUrls = [
 
 describe('resourceLinks', () => {
   beforeEach(() => {
+    vi.resetAllMocks();
     global.fetch = vi.fn();
   });
 
@@ -94,6 +95,47 @@ describe('resourceLinks', () => {
     });
 
     const result = await fetchUrl('fake-id');
+    expect(result).toEqual([]);
+  });
+});
+
+describe('Redirected response', () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    global.fetch = vi.fn();
+  });
+  test('fetchUrl handles 302 redirect and uses Location header', async () => {
+    const mockFetch = global.fetch as unknown as ReturnType<typeof vi.fn>;
+    mockFetch.mockResolvedValueOnce({
+      status: 302,
+      headers: {
+        get: (name: string) => (name === 'Location' ? 'https://doi.org/10.1234/foo' : null),
+      },
+      text: () => Promise.resolve(''), // not used in redirect
+    });
+
+    const result = await fetchUrl('test-id');
+
+    expect(result).toEqual([
+      {
+        type: 'DOI',
+        url: 'https://doi.org/10.1234/foo',
+      },
+    ]);
+  });
+
+  test('fetchUrl returns empty if redirect has no Location', async () => {
+    const mockFetch = global.fetch as unknown as ReturnType<typeof vi.fn>;
+    mockFetch.mockResolvedValueOnce({
+      status: 302,
+      headers: {
+        get: (() => null) as (name: string) => string | null,
+      },
+      text: () => Promise.resolve(''),
+    });
+
+    const result = await fetchUrl('test-id');
+
     expect(result).toEqual([]);
   });
 });
