@@ -17,15 +17,17 @@ export const useKeyDownHandler = (props: IUseKeyDownHandlerProps): KeyboardEvent
     if (e.key === 'Enter' && isOpen) {
       e.preventDefault();
       dispatch({ type: 'KEYDOWN_ENTER' });
-    } else if (e.key === 'Escape' && isOpen) {
-      e.preventDefault();
-      dispatch({ type: 'KEYDOWN_ESCAPE' });
     } else if (e.key === 'ArrowUp' && isOpen) {
       e.preventDefault();
       dispatch({ type: 'KEYDOWN_ARROW_UP' });
     } else if (e.key === 'Tab' && isOpen) {
       e.preventDefault();
       dispatch({ type: 'KEYDOWN_TAB' });
+    }
+
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      dispatch({ type: 'KEYDOWN_ESCAPE' });
     }
 
     if (e.key === 'ArrowDown' && e.currentTarget.selectionStart === e.currentTarget.value.length) {
