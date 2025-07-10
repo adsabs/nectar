@@ -55,8 +55,18 @@ export const transformUrl = (url: string) => {
 export const fetchUrl = async (identifier: string): Promise<IResourceUrl[]> => {
   const url = `/link_gateway/${encodeURIComponent(identifier)}/ESOURCE`;
   const res = await fetch(url);
-  const raw = await res.text();
 
+  // check for 302 redirects
+  if (res.status === 302 || res.status === 301) {
+    const redirectUrl = res.headers.get('Location');
+    if (redirectUrl) {
+      const transformedUrl = transformUrl(redirectUrl);
+      return transformedUrl ? [transformedUrl] : [];
+    }
+    return [];
+  }
+
+  const raw = await res.text();
   if (!raw) {
     return [];
   }
