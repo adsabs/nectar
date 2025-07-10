@@ -16,6 +16,7 @@
     "analyze": "NEXT_TELEMETRY_DISABLED=1 DIST_DIR=./dist/ ANALYZE=true pnpm build-bibstem-index && next build",
     "test": "NODE_ENV=test vitest",
     "test:coverage": "NODE_ENV=test vitest --run --coverage",
+    "test:ci": "NODE_ENV=test vitest --run --coverage --testTimeout 30000 --retry 2",
     "build-bibstem-index": "node ./scripts/gen-bibstem-index",
     "lint": "next lint",
     "prepare": "husky"
