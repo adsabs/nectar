@@ -1,5 +1,17 @@
-import { splitSearchTerms, wrapSelectedWithField } from '../helpers';
+import {
+  appendSearchTerm,
+  extractFinalTerm,
+  filterItems,
+  getCursorPosition,
+  getFocusedItemValue,
+  getPreview,
+  splitSearchTerms,
+  updateSearchTerm,
+  updateUATSearchTerm,
+  wrapSelectedWithField,
+} from '../helpers';
 import { describe, expect, test } from 'vitest';
+import { TypeaheadOption } from '@/components/SearchBar/types';
 
 describe('wrapSelectedWithField', () => {
   const testCases: [string, Parameters<typeof wrapSelectedWithField>, string][] = [
@@ -67,5 +79,114 @@ describe('splitSearchTerms', () => {
   ];
   test.each(testCases)('%s', (_, input, expected) => {
     expect(splitSearchTerms(input)).toEqual(expected);
+  });
+});
+
+describe('extractFinalTerm', () => {
+  test('returns last token when input is valid', () => {
+    expect(extractFinalTerm('author:(Einstein) tag:(gravity) year:1920')).toBe('year:1920');
+  });
+
+  test('returns empty string when ends in space', () => {
+    expect(extractFinalTerm('foo bar ')).toBe('');
+  });
+
+  test('returns empty string when ends in colon', () => {
+    expect(extractFinalTerm('author:')).toBe('');
+  });
+
+  test('handles malformed input gracefully', () => {
+    expect(extractFinalTerm('title:"Unclosed quote')).toBe('quote');
+  });
+});
+
+describe('updateSearchTerm', () => {
+  test('replaces final word with new value', () => {
+    expect(updateSearchTerm('foo bar', 'baz')).toBe('foo baz');
+  });
+
+  test('returns value when input is empty', () => {
+    expect(updateSearchTerm('', 'baz')).toBe('baz');
+  });
+});
+
+describe('updateUATSearchTerm', () => {
+  test('replaces uat:"..." pattern with uat:value', () => {
+    expect(updateUATSearchTerm('author:"foo" uat:"old"', '"new"')).toBe('author:"foo" uat:"new"');
+  });
+
+  test('handles bare uat string', () => {
+    expect(updateUATSearchTerm('uat:"thing"', '"new"')).toBe('uat:"new"');
+  });
+
+  test('adds prefix if input is empty', () => {
+    expect(updateUATSearchTerm('', '"new"')).toBe('"new"');
+  });
+});
+
+describe('appendSearchTerm', () => {
+  test('appends space + value if input is non-empty', () => {
+    expect(appendSearchTerm('foo', 'bar')).toBe('foo bar');
+  });
+
+  test('returns value if input is empty', () => {
+    expect(appendSearchTerm('', 'bar')).toBe('bar');
+  });
+});
+
+describe('getCursorPosition', () => {
+  test('returns length - 1 for closing quote/pair patterns', () => {
+    expect(getCursorPosition('field:""')).toBe('field:"'.length);
+    expect(getCursorPosition('title()')).toBe('title('.length);
+    expect(getCursorPosition('tags[]')).toBe('tags['.length);
+    expect(getCursorPosition('name:"^"')).toBe('name:"^'.length);
+  });
+
+  test('returns length - 2 for ""? or ""*', () => {
+    // Length: 7 → cursor at 5
+    expect(getCursorPosition('foo""?')).toBe('foo"'.length);
+    expect(getCursorPosition('bar""*')).toBe('bar"'.length);
+  });
+
+  test('returns length if nothing special', () => {
+    expect(getCursorPosition('simple')).toBe(6);
+    expect(getCursorPosition('title:"foo"')).toBe(11);
+  });
+});
+
+const exampleItem: TypeaheadOption = { value: 'similar()', label: 'Similar', desc: '', id: 1, match: [] };
+
+describe('getFocusedItemValue', () => {
+  test('returns null when focused index is invalid', () => {
+    expect(getFocusedItemValue([exampleItem], -1)).toBe(null);
+    expect(getFocusedItemValue([exampleItem], 5)).toBe(null);
+  });
+
+  test('returns item value when focused is valid', () => {
+    expect(getFocusedItemValue([exampleItem, { ...exampleItem, value: 'y' }], 1)).toBe('y');
+  });
+});
+
+describe('getPreview', () => {
+  test('returns original searchTerm if value is null', () => {
+    expect(getPreview('foo', null)).toBe('foo');
+  });
+
+  test('returns updated term if value is present', () => {
+    expect(getPreview('foo bar', 'baz')).toBe('foo baz');
+  });
+});
+
+describe('filterItems', () => {
+  test('returns [] if input ends in space', () => {
+    expect(filterItems('foo ', [{ ...exampleItem, value: 'x', match: ['foo'] }])).toEqual([]);
+  });
+
+  test('filters items using matchSorter on term', () => {
+    const items = [
+      { ...exampleItem, value: 'a', match: ['gravity'] },
+      { ...exampleItem, value: 'b', match: ['galaxy'] },
+    ];
+    expect(filterItems('gra', items)).toEqual([items[0]]);
   });
 });

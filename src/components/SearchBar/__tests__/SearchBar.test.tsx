@@ -1,60 +1,26 @@
-import { render } from '@/test-utils';
-import userEvent from '@testing-library/user-event';
-import { expect, test } from 'vitest';
+import { render, renderHook } from '@/test-utils';
+import { beforeEach, expect, test } from 'vitest';
 import { SearchBar } from '../index';
-import { within } from '@testing-library/dom';
+import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 
-const setup = () => {
-  const utils = render(<SearchBar />);
-  return {
-    user: userEvent.setup(),
-    ...utils,
-  };
-};
+beforeEach(() => {
+  const { result } = renderHook(() => useIntermediateQuery());
+  // Clear the query before each test to ensure a clean state
+  result.current.clearQuery();
+});
 
 test('SearchBar renders without crashing', () => render(<SearchBar />));
 
 test('Quick field appends to input', async () => {
-  const { user, getByTestId, getAllByTestId } = setup();
+  const { user, getByTestId, getAllByTestId } = render(<SearchBar />);
   const input = getByTestId('search-input') as HTMLInputElement;
   await user.click(getAllByTestId('quickfield')[0]);
   await user.click(getAllByTestId('quickfield')[1]);
   expect(input.value).toBe('author:"" first_author:""');
 });
 
-test('Quick fields non-menu buttons work to wrap selection', async () => {
-  const { user, getByTestId, getAllByTestId } = setup();
-  const input = getByTestId('search-input') as HTMLInputElement;
-  await user.type(input, 'test selection');
-  input.setSelectionRange(5, 15); // Select "selection"
-  await user.click(getAllByTestId('quickfield')[0]);
-  expect(input.value).toBe('test author:"selection"');
-});
-
-test('Quick field menu works to wrap selection', async () => {
-  const { user, getByTestId, getAllByTestId, findByRole } = setup();
-  const input = getByTestId('search-input') as HTMLInputElement;
-
-  // Type text and select the "selection" part
-  await user.type(input, 'test selection');
-  input.setSelectionRange(5, 15); // Select "selection"
-
-  // Open dropdown menu
-  const toggle = getByTestId('allSearchTermsMenuToggle');
-  await user.click(toggle);
-
-  // Wait for the menu options to render
-  const listbox = await findByRole('listbox');
-  const options = within(listbox).getAllByRole('option');
-
-  // Select the first option (e.g., author:"")
-  await user.click(options[0]);
-
-  // Expect: dispatch was called with selectedRange: [5, 15], and appropriate query addition
-});
-
 test('Cursor moves inside appended field', async () => {
-  const { user, getByTestId, getAllByTestId } = setup();
+  const { user, getByTestId, getAllByTestId } = render(<SearchBar />);
   const input = getByTestId('search-input') as HTMLInputElement;
   await user.click(getAllByTestId('quickfield')[0]);
   expect(input.value).toBe('author:""');
@@ -65,7 +31,79 @@ test('Cursor moves inside appended field', async () => {
 });
 
 test('On mount the input gets focus', async () => {
-  const { getByTestId } = setup();
+  const { getByTestId } = render(<SearchBar />);
   const input = getByTestId('search-input') as HTMLInputElement;
   expect(document.activeElement).toBe(input);
+});
+test('Typing opens typeahead menu', async () => {
+  const { user, getByTestId, queryByTestId } = render(<SearchBar />);
+  const input = getByTestId('search-input');
+  await user.type(input, 'sim');
+  expect(queryByTestId('search-autocomplete-menu')).toBeInTheDocument();
+});
+
+test('Arrow down navigates typeahead options', async () => {
+  const { user, getByTestId, getAllByTestId } = render(<SearchBar />);
+  const input = getByTestId('search-input');
+  await user.type(input, 'f');
+  await user.keyboard('{ArrowDown}');
+  const items = getAllByTestId('search-autocomplete-item');
+  expect(items[0]).toHaveAttribute('data-focused', 'true');
+  await user.keyboard('{ArrowDown}');
+  expect(items[0]).toHaveAttribute('data-focused', 'false');
+  expect(items[1]).toHaveAttribute('data-focused', 'true');
+});
+
+test('Enter inserts selected suggestion', async () => {
+  const { user, getByTestId, getAllByTestId } = render(<SearchBar />);
+  const input = getByTestId('search-input');
+  await user.type(input, 'sim');
+  const items = getAllByTestId('search-autocomplete-item');
+  await user.keyboard('{ArrowDown}');
+  expect(items[0]).toHaveAttribute('data-focused', 'true');
+  await user.keyboard('{Enter}');
+  expect(input).toHaveValue('similar()');
+});
+
+test('Escape key closes typeahead', async () => {
+  const { user, getByTestId, queryByTestId } = render(<SearchBar />);
+  const input = getByTestId('search-input');
+  await user.type(input, 'sim');
+  expect(queryByTestId('search-autocomplete-menu')).toBeVisible();
+  await user.keyboard('{Escape}');
+  expect(queryByTestId('search-autocomplete-menu')).not.toBeVisible();
+});
+
+test('Clearing input closes typeahead menu', async () => {
+  const { user, getByTestId, queryByTestId } = render(<SearchBar />);
+  const input = getByTestId('search-input');
+  await user.type(input, 'sim');
+  expect(queryByTestId('search-autocomplete-menu')).toBeVisible();
+  await user.click(getByTestId('search-clearbtn'));
+  expect(queryByTestId('search-autocomplete-menu')).not.toBeVisible();
+});
+
+test('Wraps and restores cursor position', async () => {
+  const { user, getByTestId, getAllByTestId } = render(<SearchBar />);
+  const input = getByTestId('search-input') as HTMLInputElement;
+  await user.type(input, 'abc def');
+  await user.pointer([
+    { target: input, offset: 0, keys: '[MouseLeft>]' }, // Click and hold at the beginning
+    { offset: 3 }, // Drag the mouse 3 characters to the right
+    { keys: '[/MouseLeft]' }, // Release the mouse button
+  ]);
+  expect(input.selectionStart).toBe(0);
+  expect(input.selectionEnd).toBe(3);
+  await user.click(getAllByTestId('quickfield')[0]);
+  expect(input.value).toBe('author:"abc" def');
+  expect(input.selectionStart).toBe(16);
+});
+
+test('selecting quickfield appends to existing query', async () => {
+  const { user, getByTestId, getAllByTestId } = render(<SearchBar />);
+  const input = getByTestId('search-input') as HTMLInputElement;
+  await user.type(input, 'abc def');
+  await user.click(getAllByTestId('quickfield')[0]);
+  expect(input.value).toBe('abc def author:""');
+  expect(input.selectionStart).toBe(16); // After 'author:"'
 });

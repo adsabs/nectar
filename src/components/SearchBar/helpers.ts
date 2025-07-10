@@ -1,8 +1,8 @@
-import { curry } from 'ramda';
 import { TypeaheadOption } from '@/components/SearchBar/types';
 import { matchSorter } from 'match-sorter';
+import { logger } from '@/logger';
 
-export const filterItems = curry((query: string, items: TypeaheadOption[]) => {
+export const filterItems = (query: string, items: TypeaheadOption[]) => {
   if (/\s+$/.exec(query)) {
     return [];
   }
@@ -10,7 +10,7 @@ export const filterItems = curry((query: string, items: TypeaheadOption[]) => {
   const term = extractFinalTerm(query);
 
   return matchSorter(items, term, { keys: ['match'], threshold: matchSorter.rankings.WORD_STARTS_WITH });
-});
+};
 
 export const extractFinalTerm = (query: string): string => {
   try {
@@ -27,6 +27,7 @@ export const extractFinalTerm = (query: string): string => {
 
     return terms[terms.length - 1];
   } catch (e) {
+    logger.error({ error: e }, 'Error extracting final term from query');
     return '';
   }
 };
