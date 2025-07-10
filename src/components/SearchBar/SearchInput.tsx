@@ -1,9 +1,6 @@
 import {
   ButtonProps,
   CloseButton,
-  Code,
-  DarkMode,
-  Flex,
   forwardRef,
   Icon,
   IconButton,
@@ -11,30 +8,25 @@ import {
   InputGroup,
   InputProps,
   InputRightElement,
-  LightMode,
   List,
-  ListItem,
   Popover,
   PopoverAnchor,
   PopoverBody,
   PopoverContent,
-  Text,
-  useColorMode,
   useMergeRefs,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { ChangeEventHandler, Dispatch, useCallback, useEffect, useRef, useState } from 'react';
+import { ChangeEventHandler, Dispatch, useCallback, useEffect } from 'react';
 import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 import { isNonEmptyString } from 'ramda-adjunct';
-import { TypeaheadOption } from '@/components/SearchBar/types';
 import { ISearchInputState, SearchInputAction } from '@/components/SearchBar/searchInputReducer';
 import { getFocusedItemValue, getPreview } from '@/components/SearchBar/helpers';
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { useFocus } from '@/lib/useFocus';
-import { useColorModeColors } from '@/lib/useColorModeColors';
 import { useKeyDownHandler } from '@/components/SearchBar/hooks/useKeyDownHandler';
 import { useUATSearch } from '@/components/SearchBar/hooks/useUATSearch';
 import { useSyncWithGlobal } from '@/components/SearchBar/hooks/UseSyncWithGlobal';
+import { TypeaheadItem } from '@/components/SearchBar/TypeaheadItem';
 
 const SEARCHBAR_MAX_LENGTH = 2048 as const;
 
@@ -57,23 +49,25 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
   useUATSearch({ query: state.searchTerm, dispatch, cursorPosition: state.cursorPosition });
   useSyncWithGlobal({ searchTerm: state.searchTerm, dispatch });
 
-  // on mount, focus the input
-  // useEffect(() => focus(), [focus]);
-
   // handle query additions
   useEffect(() => {
-    if (isNonEmptyString(queryAddition)) {
-      focus();
-      dispatch({
-        type: 'SET_SEARCH_TERM_ADDITION',
-        payload: {
-          selectedRange: [input.current?.selectionStart ?? 0, input.current?.selectionEnd ?? 0],
-          queryAddition,
-        },
-      });
-      onDoneAppendingToQuery();
+    if (!isNonEmptyString(queryAddition)) {
+      return;
     }
-  }, [dispatch, focus, input, onDoneAppendingToQuery, queryAddition, state.searchTerm]);
+
+    // If the query is already fully applied, skip it
+    const isAlreadyAppended =
+      state.searchTerm.endsWith(queryAddition) ||
+      state.searchTerm.includes(getFocusedItemValue(state.items, state.focused));
+
+    if (!isAlreadyAppended) {
+      focus();
+      dispatch({ type: 'SET_SEARCH_TERM_ADDITION', payload: { queryAddition } });
+    }
+
+    // always clear the query addition
+    onDoneAppendingToQuery();
+  }, [dispatch, focus, queryAddition, onDoneAppendingToQuery, state.searchTerm, state.items, state.focused]);
 
   // handle updates to the cursor position, usually just to move inside "" or ()
   useEffect(() => {
@@ -117,6 +111,12 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
   }, [dispatch, input]);
 
   const handleItemClick = useCallback(() => focus({ moveCursorToEnd: false }), [focus]);
+
+  const value =
+    state.focused === -1 || !state.items.length
+      ? state.searchTerm
+      : getPreview(state.searchTerm, getFocusedItemValue(state.items, state.focused));
+
   return (
     <Popover isOpen={state.isOpen} placement="bottom" gutter={0} matchWidth autoFocus={false} strategy="fixed">
       <PopoverAnchor>
@@ -141,11 +141,7 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
               title="Search"
               maxLength={SEARCHBAR_MAX_LENGTH}
               onSelect={handleOnSelect}
-              value={
-                state.items.length > 0
-                  ? getPreview(state.searchTerm, getFocusedItemValue(state.items, state.focused))
-                  : state.searchTerm
-              }
+              value={value}
               aria-owns="search-listbox"
               aria-haspopup="listbox"
               aria-expanded={state.isOpen}
@@ -198,7 +194,10 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
                     index={index}
                     onClick={handleItemClick}
                     focused={state.focused === index}
-                    data-testid={`search-autocomplete-item-${index}`}
+                    id={`search-item-${index}`}
+                    data-type="item"
+                    data-index={index}
+                    data-testid="search-autocomplete-item"
                   />
                 ))
               : state.uatItems.length > 0
@@ -208,9 +207,13 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
                     item={item}
                     dispatch={dispatch}
                     index={index}
+                    id={`search-item-${index}`}
                     onClick={handleItemClick}
                     focused={state.focused === index}
                     showValue={false}
+                    data-type="uat"
+                    data-index={index}
+                    data-testid="search-autocomplete-item"
                   />
                 ))
               : null}
@@ -220,81 +223,3 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
     </Popover>
   );
 });
-
-const TypeaheadItem = (props: {
-  item: TypeaheadOption;
-  index: number;
-  focused: boolean;
-  dispatch: Dispatch<SearchInputAction>;
-  showValue?: boolean;
-  onClick?: () => void;
-}) => {
-  const { focused, item, dispatch, index, onClick, showValue = true } = props;
-  const liRef = useRef<HTMLLIElement>(null);
-  const colors = useColorModeColors();
-  const { colorMode } = useColorMode();
-  const [isMouseOver, setIsMouseOver] = useState(false);
-
-  const handleClick = useCallback(() => {
-    dispatch({ type: 'FOCUS_ITEM', index });
-    dispatch({ type: 'CLICK_ITEM' });
-    if (typeof onClick === 'function') {
-      onClick();
-    }
-  }, [dispatch, index, onClick]);
-
-  const handleMouseOver = () => {
-    setIsMouseOver(true);
-  };
-
-  const handleMouseLeave = () => {
-    setIsMouseOver(false);
-  };
-
-  // scroll element into view when focused
-  useEffect(() => {
-    if (typeof liRef.current?.scrollIntoView === 'function' && focused) {
-      liRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
-    }
-  }, [liRef, focused]);
-
-  return (
-    <ListItem
-      ref={liRef}
-      backgroundColor={focused ? 'blue.100' : 'auto'}
-      _hover={{ cursor: 'pointer', backgroundColor: colors.highlightBackground }}
-      px="2"
-      py="1"
-      onClick={handleClick}
-      role="presentation"
-      onMouseEnter={handleMouseOver}
-      onMouseLeave={handleMouseLeave}
-    >
-      <Flex direction="column">
-        <Flex role="option" aria-label={item.label} aria-atomic="true">
-          <Text flex="1" role="presentation">
-            {item.label}
-          </Text>
-          {showValue && (
-            <>
-              {(colorMode === 'dark' && isMouseOver) || colorMode === 'light' ? (
-                <LightMode>
-                  <Code>{item.value}</Code>
-                </LightMode>
-              ) : (
-                <DarkMode>
-                  <Code>{item.value}</Code>
-                </DarkMode>
-              )}
-            </>
-          )}
-        </Flex>
-        {item.desc && (
-          <Text mx={2} fontSize="xs" fontWeight="light">
-            {item.desc}
-          </Text>
-        )}
-      </Flex>
-    </ListItem>
-  );
-};

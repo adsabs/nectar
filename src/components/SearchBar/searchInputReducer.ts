@@ -5,8 +5,6 @@ import {
   extractFinalTerm,
   filterItems,
   getCursorPosition,
-  getFocusedItemValue,
-  getPreview,
   updateSearchTerm,
   updateUATSearchTerm,
   wrapSelectedWithField,
@@ -46,6 +44,8 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
       return initialState;
     case 'SET_SEARCH_TERM': {
       const finalTerm = extractFinalTerm(action.payload.query);
+      const cursorPosition = action.payload.cursorPosition;
+
       if (finalTerm === '' || finalTerm.toLowerCase().startsWith('uat:')) {
         return {
           ...state,
@@ -54,21 +54,34 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
           uatItems: [],
           focused: -1,
           items: [],
-          cursorPosition: action.payload.cursorPosition,
+          cursorPosition,
         };
       }
 
-      const items = filterItems(finalTerm, typeaheadOptions);
+      const newItems = filterItems(finalTerm, typeaheadOptions);
+
+      const isSame =
+        state.searchTerm === action.payload.query &&
+        state.cursorPosition === cursorPosition &&
+        state.focused === -1 &&
+        state.items.length === newItems.length &&
+        state.items.every((item, idx) => item.id === newItems[idx]?.id);
+
+      if (isSame) {
+        return state;
+      }
+
       return {
         ...state,
-        isOpen: items.length > 0,
+        isOpen: newItems.length > 0,
         searchTerm: action.payload.query,
         uatItems: [],
         focused: -1,
-        cursorPosition: action.payload.cursorPosition,
-        items,
+        cursorPosition,
+        items: newItems,
       };
     }
+
     case 'SET_UAT_TYPEAHEAD_OPTIONS': {
       const uatOptions = action.payload;
       return {
@@ -90,7 +103,6 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
         return {
           ...state,
           searchTerm,
-          preview: searchTerm,
           cursorPosition: getCursorPosition(searchTerm),
         };
       }
@@ -99,7 +111,6 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
       return {
         ...state,
         searchTerm,
-        preview: searchTerm,
         cursorPosition: getCursorPosition(searchTerm),
       };
     }
@@ -114,7 +125,6 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
           isOpen: true,
           focused: 0,
           searchTerm,
-          preview: searchTerm,
 
           // if no items, show all items
           items: state.items.length === 0 && state.uatItems.length === 0 ? typeaheadOptions : state.items,
@@ -164,7 +174,7 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
             ...state,
             isOpen: false,
             focused: -1,
-            searchTerm: getPreview(searchTerm, getFocusedItemValue(state.items, state.focused)),
+            searchTerm,
             cursorPosition: getCursorPosition(searchTerm),
           };
         } else if (state.uatItems.length > 0) {
@@ -173,7 +183,7 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
             ...state,
             isOpen: false,
             focused: -1,
-            searchTerm: searchTerm,
+            searchTerm,
           };
         }
       }

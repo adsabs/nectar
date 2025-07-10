@@ -18,12 +18,18 @@ export const useSyncWithGlobal = (props: { searchTerm: string; dispatch: Dispatc
   useEffect(() => {
     if (globalQuery && searchTerm !== globalQuery && !hasSynced.current) {
       dispatch({ type: 'SET_SEARCH_TERM', payload: { query: globalQuery, cursorPosition: globalQuery.length } });
-      hasSynced.current = true;
     }
+    // Set hasSynced flag to true after the initial sync whether we updated the search term or not
+    hasSynced.current = true;
   }, [searchTerm, globalQuery, dispatch]);
 
   // on local changes we want to flush changes to the global store
+  const prev = useRef<string>(searchTerm);
+
   useEffect(() => {
-    debouncedUpdateQuery(searchTerm);
+    if (prev.current !== searchTerm) {
+      debouncedUpdateQuery(searchTerm);
+      prev.current = searchTerm;
+    }
   }, [searchTerm, debouncedUpdateQuery]);
 };
