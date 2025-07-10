@@ -50,7 +50,9 @@ export const useUATSearch = ({ query, cursorPosition, dispatch }: UseUATSearchPr
 
   // Dispatch only if the new data is different from the previous
   useEffect(() => {
-    if (!data || data.length === 0) {return;}
+    if (!data || data.length === 0) {
+      return;
+    }
 
     const prevData = prevDataRef.current;
     const isSame =
