@@ -192,7 +192,7 @@ export const RecordPanel = ({
     if (isFocused) {
       setFocus('name');
     }
-  }, [isFocused]);
+  }, [isFocused, setFocus]);
 
   useEffect(() => {
     if (state === 'idle') {
