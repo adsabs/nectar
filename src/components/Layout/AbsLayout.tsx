@@ -51,7 +51,7 @@ export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription
           <Metatags doc={doc} />
         </Head>
         <Stack direction="column">
-          <Box display={{ base: 'none', lg: 'block' }} maxW="72">
+          <Box display={{ base: 'none', lg: 'block' }} w="72">
             <AbstractSources doc={doc} style="accordion" />
           </Box>
           <AbstractSideNav doc={doc} />
