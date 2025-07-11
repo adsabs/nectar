@@ -31,7 +31,7 @@ interface SetSort {
 
 interface SetFormat {
   type: 'SET_FORMAT';
-  payload: ExportApiFormatKey;
+  payload: string;
 }
 
 interface SetKeyFormat {

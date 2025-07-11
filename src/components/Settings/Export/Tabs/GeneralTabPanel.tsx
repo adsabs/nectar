@@ -1,9 +1,7 @@
 import { Box, Stack, Text } from '@chakra-ui/react';
 
-import { citationFormatIds, ExportFormat, exportFormats } from '@/components/CitationExporter';
 import { JournalFormatMap } from '@/components/Settings/model';
 import { UserDataSetterEvent } from '@/pages/user/settings/export';
-import { values } from 'ramda';
 import { Dispatch, useMemo } from 'react';
 import { ExportFormatSelect } from '../ExportFormatSelect';
 import { CustomFormatSelect } from '../CustomFormatSelect';
@@ -14,20 +12,21 @@ import { ExportApiFormatKey } from '@/api/export/types';
 import { useGetExportCitation } from '@/api/export/export';
 import { CustomFormat } from '@/api/user/types';
 import { LoadingMessage } from '@/components/Feedbacks';
+import { ExportFormatOption, useExportFormats } from '@/lib/useExportFormats';
 
 export interface IGeneralTabPanelProps {
   sampleBib: IDocsEntity['bibcode'];
   dispatch: Dispatch<UserDataSetterEvent>;
-  selectedOption: ExportFormat;
+  selectedOption: ExportFormatOption;
 }
 
 export const GeneralTabPanel = ({ sampleBib, selectedOption, dispatch }: IGeneralTabPanelProps) => {
   const { settings: userSettings } = useSettings({ suspense: false });
 
-  const exportFormatOptions = values(exportFormats);
+  const { getFormatOptionByLabel } = useExportFormats();
 
   // default export format changed
-  const handleApplyDefaultExportFormat = (format: ExportFormat) => {
+  const handleApplyDefaultExportFormat = (format: ExportFormatOption) => {
     dispatch({ type: 'SET_DEFAULT_EXPORT_FORMAT', payload: format.label });
   };
 
@@ -43,20 +42,14 @@ export const GeneralTabPanel = ({ sampleBib, selectedOption, dispatch }: IGenera
       bibtexMaxAuthors,
     } = userSettings;
 
-    const defaultExportFormatOpt =
-      exportFormatOptions.find((option) => option.label === defaultExportFormat) ??
-      exportFormatOptions.find((option) => option.label === 'BibTeX');
+    const defaultExportFormatOpt = getFormatOptionByLabel(defaultExportFormat) ?? getFormatOptionByLabel('BibTeX');
 
     const customFormat = customFormats.length > 0 ? customFormats[0].code : '';
     const journalFormat = JournalFormatMap[bibtexJournalFormat];
-    const keyFormat =
-      defaultExportFormatOpt.id === exportFormats[ExportApiFormatKey.bibtex].id ? bibtexKeyFormat : bibtexABSKeyFormat;
+    const keyFormat = defaultExportFormatOpt.id === ExportApiFormatKey.bibtex ? bibtexKeyFormat : bibtexABSKeyFormat;
     const authorcutoff =
-      defaultExportFormatOpt.id === exportFormats[ExportApiFormatKey.bibtex].id
-        ? bibtexAuthorCutoff
-        : bibtexABSAuthorCutoff;
-    const maxauthor =
-      defaultExportFormatOpt.id === exportFormats[ExportApiFormatKey.bibtex].id ? bibtexMaxAuthors : bibtexAuthorCutoff;
+      defaultExportFormatOpt.id === ExportApiFormatKey.bibtex ? bibtexAuthorCutoff : bibtexABSAuthorCutoff;
+    const maxauthor = defaultExportFormatOpt.id === ExportApiFormatKey.bibtex ? bibtexMaxAuthors : bibtexAuthorCutoff;
     return { defaultExportFormatOpt, customFormat, journalFormat, keyFormat, authorcutoff, maxauthor };
   }, [userSettings]);
 
@@ -92,7 +85,7 @@ export const GeneralTabPanel = ({ sampleBib, selectedOption, dispatch }: IGenera
         <LoadingMessage message="Loading" />
       ) : (
         <>
-          {citationFormatIds.includes(selectedOption.id) ? (
+          {selectedOption.type === 'HTML' ? (
             <>
               <Text size="md" fontWeight="bold">
                 Default Export Sample

@@ -1,9 +1,8 @@
-import { omit, values } from 'ramda';
-import { Dispatch, useMemo } from 'react';
+import { Dispatch } from 'react';
 import { CitationExporterEvent } from '../CitationExporter.machine';
-import { ExportFormat, exportFormats } from '../models';
 import { Select } from '@/components/Select';
-import { ExportApiFormatKey, isExportApiFormat } from '@/api/export/types';
+import { ExportApiFormatKey } from '@/api/export/types';
+import { ExportFormatOption, useExportFormats } from '@/lib/useExportFormats';
 
 export interface IFormatSelectProps {
   format: ExportApiFormatKey;
@@ -12,22 +11,20 @@ export interface IFormatSelectProps {
   label?: string;
 }
 export const FormatSelect = (props: IFormatSelectProps) => {
-  const formats = useMemo(() => values(omit(['custom'], exportFormats)), []);
+  const { formatOptions, getFormatOptionById } = useExportFormats();
 
-  const handleOnChange = ({ id }: ExportFormat) => {
-    if (isExportApiFormat(id)) {
-      props.dispatch({ type: 'SET_FORMAT', payload: id });
-    }
+  const handleOnChange = ({ id }: ExportFormatOption) => {
+    props.dispatch({ type: 'SET_FORMAT', payload: id });
   };
 
   return (
-    <Select<ExportFormat>
+    <Select<ExportFormatOption>
       name="format"
       label={props.label ?? 'Format'}
       hideLabel={false}
       id="export-format-select"
-      options={formats}
-      value={exportFormats[props.format]}
+      options={formatOptions}
+      value={getFormatOptionById(props.format)}
       onChange={handleOnChange}
       data-testid="export-select"
       stylesTheme="default"

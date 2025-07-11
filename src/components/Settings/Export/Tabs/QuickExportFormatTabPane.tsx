@@ -1,13 +1,13 @@
 import { Box, Stack, Text } from '@chakra-ui/react';
 
-import { citationFormats, ExportFormat } from '@/components/CitationExporter';
 import { UserDataSetterEvent } from '@/pages/user/settings/export';
-import { values } from 'ramda';
 import { Dispatch, useMemo } from 'react';
 import { useSettings } from '@/lib/useSettings';
 import { IDocsEntity } from '@/api/search/types';
 import { useGetExportCitation } from '@/api/export/export';
 import { Select } from '@/components/Select';
+import { ExportFormatOption, useExportFormats } from '@/lib/useExportFormats';
+import { ExportApiFormatKey } from '@/api/export/types';
 
 export interface QuickExportFormatTabPaneProps {
   sampleBib: IDocsEntity['bibcode'];
@@ -17,10 +17,12 @@ export interface QuickExportFormatTabPaneProps {
 export const QuickExportFormatTabPane = ({ sampleBib, dispatch }: QuickExportFormatTabPaneProps) => {
   const { settings: userSettings } = useSettings({ suspense: false });
 
-  const citationFormatOptions = values(citationFormats);
+  const { formatOptions } = useExportFormats();
+
+  const citationFormatOptions = formatOptions.filter((o) => o.type === 'HTML');
 
   // default export format changed
-  const handleApplyDefaulCitationFormat = (format: ExportFormat) => {
+  const handleApplyDefaulCitationFormat = (format: ExportFormatOption) => {
     dispatch({ type: 'SET_DEFAULT_CITATION_FORMAT', payload: format.value });
   };
 
@@ -28,8 +30,8 @@ export const QuickExportFormatTabPane = ({ sampleBib, dispatch }: QuickExportFor
     const { defaultCitationFormat } = userSettings;
 
     return (
-      citationFormatOptions.find((option) => option.value === defaultCitationFormat) ??
-      citationFormatOptions.find((option) => option.id === 'agu')
+      citationFormatOptions.find((option) => option.id === defaultCitationFormat) ??
+      citationFormatOptions.find((option) => option.id === ExportApiFormatKey.agu)
     );
   }, [userSettings, citationFormatOptions]);
 

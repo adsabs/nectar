@@ -1,4 +1,6 @@
 import { useGetExportCitation } from '@/api/export/export';
+import { ExportApiFormatKey } from '@/api/export/types';
+import { useExportFormats } from '@/lib/useExportFormats';
 import { useSettings } from '@/lib/useSettings';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import {
@@ -15,9 +17,7 @@ import {
   AlertDescription,
   Flex,
 } from '@chakra-ui/react';
-import { values } from 'ramda';
 import { useState } from 'react';
-import { citationFormats, ExportFormat } from '../CitationExporter';
 import { SimpleCopyButton } from '../CopyButton';
 import { LoadingMessage } from '../Feedbacks';
 import { Select } from '../Select';
@@ -33,17 +33,19 @@ export const AbstractCitationModal = ({
 }) => {
   const { settings } = useSettings();
 
-  const options = values(citationFormats);
+  const { formatOptions, getFormatOptionById } = useExportFormats();
+
+  const options = formatOptions.filter((o) => o.type === 'HTML');
 
   const defaultOption = settings.defaultCitationFormat
-    ? options.find((option) => option.value === settings.defaultCitationFormat)
-    : options.find((option) => option.id === 'agu');
+    ? getFormatOptionById(settings.defaultCitationFormat)
+    : getFormatOptionById(ExportApiFormatKey.agu);
 
   const [selectedOption, setSelectedOption] = useState(defaultOption);
 
   const { data, isLoading, isError, error } = useGetExportCitation(
     {
-      format: selectedOption.id as ExportFormat['id'],
+      format: selectedOption.id,
       bibcode: [bibcode],
     },
     { enabled: !!bibcode && isOpen },

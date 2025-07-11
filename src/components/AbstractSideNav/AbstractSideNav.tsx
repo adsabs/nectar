@@ -14,13 +14,12 @@ import {
 import { useRouter } from 'next/router';
 import { HTMLAttributes, ReactElement } from 'react';
 import { Routes } from './types';
-import { values } from 'ramda';
 import { useSettings } from '@/lib/useSettings';
-import { exportFormats } from '@/components/CitationExporter';
 import { IMenuItem, SideNavigationMenu, TopNavigationMenu } from '@/components/NavigationMenu';
 import { IDocsEntity } from '@/api/search/types';
 import { useGetGraphicsCount } from '@/api/graphics/graphics';
 import { useHasMetrics } from '@/api/metrics/metrics';
+import { useExportFormats } from '@/lib/useExportFormats';
 
 const abstractPath = '/abs';
 
@@ -38,12 +37,14 @@ const useGetItems = ({
 
   const { settings } = useSettings();
 
+  const { formatOptions } = useExportFormats();
+
   // for export citation menu link, it needs to go to user's default setting if logged in
   // otherwise go to bibtex
   const defaultExportFormat = settings.defaultExportFormat;
   const defaultExportFormatPath =
     typeof defaultExportFormat === 'string'
-      ? values(exportFormats).find((f) => f.label === defaultExportFormat).value
+      ? formatOptions.find((f) => f.label === defaultExportFormat)?.value ?? 'bibtex'
       : 'bibtex';
 
   const items: Record<Routes, IMenuItem> = {

@@ -7,7 +7,7 @@ import { useIsClient } from '@/lib/useIsClient';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
-import { last } from 'ramda';
+import { last, map, prop } from 'ramda';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { composeNextGSSP } from '@/ssr-utils';
 import { useSettings } from '@/lib/useSettings';
@@ -19,10 +19,10 @@ import { JournalFormatMap } from '@/components/Settings';
 import { parseQueryFromUrl } from '@/utils/common/search';
 import { unwrapStringValue } from '@/utils/common/formatters';
 import { parseAPIError } from '@/utils/common/parseAPIError';
-import { ExportApiFormatKey, isExportApiFormat } from '@/api/export/types';
+import { ExportApiFormatKey } from '@/api/export/types';
 import { IADSApiSearchParams } from '@/api/search/types';
 import { fetchSearchInfinite, searchKeys, useSearchInfinite } from '@/api/search/search';
-import { exportCitationKeys, fetchExportCitation } from '@/api/export/export';
+import { exportCitationKeys, fetchExportCitation, fetchExportFormats } from '@/api/export/export';
 
 interface IExportCitationPageProps {
   format: ExportApiFormatKey;
@@ -161,11 +161,18 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
       meta: { params },
     });
 
+    const formatsData = await queryClient.fetchQuery({
+      queryKey: exportCitationKeys.manifest(),
+      queryFn: fetchExportFormats,
+    });
+
+    const formats = map(prop('route'), formatsData).map((r) => r.substring(1));
+
     // extract bibcodes to use for export
     const records = data.pages[0].response.docs.map((d) => d.bibcode);
 
     const { params: exportParams } = getExportCitationDefaultContext({
-      format: isExportApiFormat(format) ? format : ExportApiFormatKey.bibtex,
+      format: formats.includes(format) ? format : ExportApiFormatKey.bibtex,
       records,
       singleMode: false,
       sort: params.sort,

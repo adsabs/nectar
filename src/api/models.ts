@@ -277,6 +277,7 @@ export enum ApiTargets {
 
   // Miscellaneous
   EXPORT = '/export',
+  EXPORT_MANIFEST = '/export/manifest',
   FEEDBACK = '/feedback',
   GRAPHICS = '/graphics',
   RECOMMENDER = '/recommender',

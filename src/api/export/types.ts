@@ -1,4 +1,3 @@
-import { enumKeys } from '@/utils/common/enumKeys';
 import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
 
 /**
@@ -44,8 +43,17 @@ export enum ExportApiJournalFormat {
   FullName = 3,
 }
 
+export interface IExportFormat {
+  name: string;
+  type: 'text' | 'custom' | 'XML' | 'HTML' | 'tagged' | 'LaTeX';
+  route: string;
+}
+
+export type ExportFormatsApiResponse = IExportFormat[];
+
 export interface IExportApiParams {
-  format: ExportApiFormatKey;
+  // format: ExportApiFormatKey;
+  format: string;
   customFormat?: string;
   bibcode: IDocsEntity['bibcode'][];
   sort?: IADSApiSearchParams['sort'];
@@ -60,7 +68,3 @@ export interface IExportApiResponse {
   msg: string;
   error?: ExportApiErrorKey;
 }
-
-export const isExportApiFormat = (format: unknown): format is ExportApiFormatKey => {
-  return typeof format === 'string' && enumKeys(ExportApiFormatKey).includes(format as ExportApiFormatKey);
-};
