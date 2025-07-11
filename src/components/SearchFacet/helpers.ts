@@ -223,7 +223,7 @@ const transformFqKey = (key: string): string => {
  *
  * @param {string} key - The fq key to get the alias for.
  */
-const getKeyAlias = (key: string): string => {
+const getKeyAlias = (key: string): string | undefined => {
   switch (key) {
     case 'fq_aff':
       return 'inst';
