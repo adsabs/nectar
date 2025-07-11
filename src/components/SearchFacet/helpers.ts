@@ -196,10 +196,41 @@ export const applyFiltersToQuery = (
   )(query);
 };
 
-export type FilterTuple = [string, string[], string[]];
+export type FilterTuple = [string, string[], string[], string | undefined];
 
 const pickByFqs = (query: IADSApiSearchParams): Partial<IADSApiSearchParams> =>
   pickBy((_, k) => String(k).startsWith('fq_'), query);
+
+/**
+ * Transforms the fq key to a more readable format by removing the 'fq_' prefix.
+ * This is used to generate the filter labels.
+ *
+ * @param {string} key - The fq key to transform.
+ * @return {string} - The transformed key without the 'fq_' prefix.
+ */
+const transformFqKey = (key: string): string => {
+  // if the key does not start with 'fq_', return it as is
+  if (!isString(key) || !key.startsWith('fq_')) {
+    return key;
+  }
+
+  return replace('fq_', '', key);
+};
+
+/**
+ * Returns a key alias for the given key.
+ * This is used to provide a more user-friendly label for the filter.
+ *
+ * @param {string} key - The fq key to get the alias for.
+ */
+const getKeyAlias = (key: string): string => {
+  switch (key) {
+    case 'fq_aff':
+      return 'inst';
+    default:
+      return undefined;
+  }
+};
 
 /**
  * Extracts the filter values from the query string.
@@ -211,9 +242,10 @@ export const getFilters = (query: IADSApiSearchParams): FilterTuple[] =>
     pickByFqs,
     toPairs,
     map<[string, string], FilterTuple>(([k, v]) => [
-      replace('fq_', '', k),
+      transformFqKey(k),
       pipe<[string], string[], string[]>(splitQuery, map(cleanClause(k)))(v),
       splitQuery(v, { stripField: false }),
+      getKeyAlias(k),
     ]),
   )(query);
 

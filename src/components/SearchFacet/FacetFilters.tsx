@@ -51,9 +51,9 @@ export const FacetFilters = (props: BoxProps): ReactElement => {
 
     // parse and generate the filters from the query, and set our sections
     const filters = getFilters(parsedQuery).map((tuple) => {
-      const [label, cleanClauses, rawClauses] = tuple;
+      const [label, cleanClauses, rawClauses, alias] = tuple;
       if (label === 'simbad') {
-        return [label, translateObjectClauses(cleanClauses), rawClauses] as FilterTuple;
+        return [label, translateObjectClauses(cleanClauses), rawClauses, alias] as FilterTuple;
       } else {
         return tuple;
       }
@@ -97,12 +97,14 @@ export const FacetFilters = (props: BoxProps): ReactElement => {
   return (
     <Box {...props} my="3">
       <Flex {...props} mb="1" wrap="wrap">
-        {filterSections.map(([label, cleanClauses, rawClauses]) => (
+        {filterSections.map(([label, cleanClauses, rawClauses, alias]) => (
           <span key={label}>
             {cleanClauses.map((clause, index) => (
               <Tag key={clause} size="sm" my="0.5" fontSize="sm" maxWidth="200" mr={2}>
                 <TagLabel isTruncated noOfLines={1}>
-                  <Tooltip label={`${label}: ${clause}`}>{`${label}: ${clause}`}</Tooltip>
+                  <Tooltip label={`${alias ? alias : label}: ${clause}`}>{`${
+                    alias ? alias : label
+                  }: ${clause}`}</Tooltip>
                 </TagLabel>
                 <TagCloseButton
                   data-value={clause}
