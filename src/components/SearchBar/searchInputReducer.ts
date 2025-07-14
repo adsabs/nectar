@@ -5,10 +5,9 @@ import {
   extractFinalTerm,
   filterItems,
   getCursorPosition,
-  getFocusedItemValue,
-  getPreview,
   updateSearchTerm,
   updateUATSearchTerm,
+  wrapSelectedWithField,
 } from '@/components/SearchBar/helpers';
 import { typeaheadOptions } from '@/components/SearchBar/models';
 
@@ -19,12 +18,14 @@ export interface ISearchInputState {
   items: TypeaheadOption[];
   focused: number;
   cursorPosition: number;
+  selectedRange?: [number, number];
 }
 
 export type SearchInputAction =
-  | { type: 'SET_SEARCH_TERM'; payload: { query: string; hideMenu?: boolean } }
+  | { type: 'SET_SEARCH_TERM'; payload: { query: string; cursorPosition: number } }
   | { type: 'SET_UAT_TYPEAHEAD_OPTIONS'; payload: TypeaheadOption[] }
-  | { type: 'SET_SEARCH_TERM_ADDITION'; payload: string }
+  | { type: 'SET_SEARCH_TERM_ADDITION'; payload: { queryAddition: string } }
+  | { type: 'SET_SELECTED_RANGE'; payload: [number, number] }
   | { type: 'CLICK_ITEM' }
   | { type: 'FOCUS_ITEM'; index: number }
   | { type: 'KEYDOWN_ENTER' }
@@ -42,17 +43,10 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
     case 'HARD_RESET':
       return initialState;
     case 'SET_SEARCH_TERM': {
-      if (action.payload.hideMenu) {
-        return {
-          ...state,
-          isOpen: false,
-          searchTerm: action.payload.query,
-          focused: -1,
-          items: [],
-        };
-      }
       const finalTerm = extractFinalTerm(action.payload.query);
-      if (finalTerm === '') {
+      const cursorPosition = action.payload.cursorPosition;
+
+      if (finalTerm === '' || finalTerm.toLowerCase().startsWith('uat:')) {
         return {
           ...state,
           isOpen: false,
@@ -60,19 +54,34 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
           uatItems: [],
           focused: -1,
           items: [],
+          cursorPosition,
         };
       }
 
-      const items = filterItems(finalTerm, typeaheadOptions);
+      const newItems = filterItems(finalTerm, typeaheadOptions);
+
+      const isSame =
+        state.searchTerm === action.payload.query &&
+        state.cursorPosition === cursorPosition &&
+        state.focused === -1 &&
+        state.items.length === newItems.length &&
+        state.items.every((item, idx) => item.id === newItems[idx]?.id);
+
+      if (isSame) {
+        return state;
+      }
+
       return {
         ...state,
-        isOpen: items.length > 0,
+        isOpen: newItems.length > 0,
         searchTerm: action.payload.query,
         uatItems: [],
         focused: -1,
-        items,
+        cursorPosition,
+        items: newItems,
       };
     }
+
     case 'SET_UAT_TYPEAHEAD_OPTIONS': {
       const uatOptions = action.payload;
       return {
@@ -84,11 +93,24 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
       };
     }
     case 'SET_SEARCH_TERM_ADDITION': {
-      const searchTerm = appendSearchTerm(state.searchTerm, action.payload);
+      const { queryAddition } = action.payload;
+      const selectedRange = state.selectedRange || [0, 0];
+      const selection = state.searchTerm.slice(selectedRange[0], selectedRange[1]);
+
+      if (typeof selection === 'string' && selection.trim().length > 0) {
+        // if selection is not empty, replace it with the query addition
+        const searchTerm = wrapSelectedWithField(state.searchTerm, selectedRange[0], selectedRange[1], queryAddition);
+        return {
+          ...state,
+          searchTerm,
+          cursorPosition: getCursorPosition(searchTerm),
+        };
+      }
+
+      const searchTerm = appendSearchTerm(state.searchTerm, queryAddition);
       return {
         ...state,
         searchTerm,
-        preview: searchTerm,
         cursorPosition: getCursorPosition(searchTerm),
       };
     }
@@ -103,7 +125,6 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
           isOpen: true,
           focused: 0,
           searchTerm,
-          preview: searchTerm,
 
           // if no items, show all items
           items: state.items.length === 0 && state.uatItems.length === 0 ? typeaheadOptions : state.items,
@@ -153,7 +174,7 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
             ...state,
             isOpen: false,
             focused: -1,
-            searchTerm: getPreview(searchTerm, getFocusedItemValue(state.items, state.focused)),
+            searchTerm,
             cursorPosition: getCursorPosition(searchTerm),
           };
         } else if (state.uatItems.length > 0) {
@@ -162,7 +183,7 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
             ...state,
             isOpen: false,
             focused: -1,
-            searchTerm: searchTerm,
+            searchTerm,
           };
         }
       }
@@ -180,6 +201,9 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
 
     case 'FOCUS_ITEM':
       return { ...state, focused: action.index };
+
+    case 'SET_SELECTED_RANGE':
+      return { ...state, selectedRange: action.payload };
 
     default:
       return state;
