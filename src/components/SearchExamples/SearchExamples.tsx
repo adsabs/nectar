@@ -67,7 +67,7 @@ export const SearchExample = (props: ISearchExampleProps) => {
   const colors = useColorModeColors();
 
   return (
-    <Grid templateColumns="1fr 2fr" gap={3} my={1}>
+    <Grid as="section" templateColumns="1fr 2fr" gap={3} my={1}>
       <Text align="right" fontWeight="semibold" py={2}>
         {label}
       </Text>

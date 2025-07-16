@@ -222,7 +222,6 @@ const SearchTermTooltip = forwardRef<HTMLDivElement, ISearchTermTooltipProps>(({
       borderRadius={5}
       w={300}
       zIndex={10}
-      m={5}
       data-testid="allSearchTermsTooltip"
       display={{ base: 'none', md: 'initial' }}
       color={colors.text}
