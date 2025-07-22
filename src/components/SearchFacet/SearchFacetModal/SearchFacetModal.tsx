@@ -191,10 +191,10 @@ const FacetDownloadButton = () => {
     enabled,
   });
 
-  const pluckVal = (list: FacetItem[]) => pluck('val', list);
-  const cleanup = replace(/^0\//, ''); // remove prefix
-  const formatData = useCallback(() => pipe(pluckVal, map<string, string>(cleanup), join('\n'))(treeData), [treeData]);
-
+  const formatData = useCallback(
+    () => pipe<[FacetItem[]], string[], string[], string>(pluck('val'), map(replace(/^0\//, '')), join('\n'))(treeData),
+    [treeData],
+  );
   const { onDownload } = useDownloadFile(formatData, { filename: 'fulllist.txt' });
 
   useEffect(() => {
@@ -212,7 +212,6 @@ const FacetDownloadButton = () => {
     }
   }, [treeData, error, isSuccess, toast, onDownload, enabled]);
 
-  // if (isDownloadable) {
   return (
     <Flex direction="row" justifyContent="end">
       <Button
