@@ -92,7 +92,7 @@ export const Item = (props: IItemProps): ReactElement => {
   ) : null;
 
   return (
-    <Flex direction="row" as="article" border="1px" borderColor={colors.border} mb={1} borderRadius="md">
+    <Flex direction="row" as="article" border="1px" borderColor={colors.border} mb={1} borderRadius="md" id={bibcode}>
       <Flex
         as={HideOnPrint}
         direction="row"
@@ -116,7 +116,7 @@ export const Item = (props: IItemProps): ReactElement => {
       </Flex>
       <Stack direction="column" width="full" spacing={0} mx={3} mt={2}>
         <Flex justifyContent="space-between">
-          <SimpleLink href={`/abs/${bibcode}/abstract`} fontWeight="semibold">
+          <SimpleLink href={`/abs/${bibcode}/abstract`} fontWeight="semibold" className="article-title">
             <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
           </SimpleLink>
           <Flex alignItems="start" ml={1}>
