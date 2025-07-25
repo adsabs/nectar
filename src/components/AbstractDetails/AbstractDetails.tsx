@@ -2,23 +2,23 @@ import { IDocsEntity } from '@/api/search/types';
 import { EXTERNAL_URLS } from '@/config';
 import { pluralize } from '@/utils/common/formatters';
 import {
-  useDisclosure,
-  VisuallyHidden,
-  Table,
-  Tbody,
-  Tooltip,
-  Button,
-  Tr,
-  Td,
-  Text,
-  Box,
   Badge,
+  Box,
+  Button,
   Center,
   Flex,
   HStack,
   Icon,
   Stack,
+  Table,
   Tag,
+  Tbody,
+  Td,
+  Text,
+  Tooltip,
+  Tr,
+  useDisclosure,
+  VisuallyHidden,
 } from '@chakra-ui/react';
 import { faQuoteLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -212,11 +212,7 @@ const UATKeywords = memo(({ keywords, ids }: { keywords: Array<string>; ids: Arr
               <Tag size="md" variant="subtle" whiteSpace={'nowrap'} m="1" key={keyword}>
                 <HStack spacing="2">
                   <Tooltip label={keyword}>
-                    <SimpleLink
-                      href={`https://astrothesaurus.org/uat/${encodeURIComponent(ids[index])}`}
-                      newTab
-                      isExternal
-                    >
+                    <SimpleLink href={`https://astrothesaurus.org/uat/${encodeURIComponent(ids[index])}`} newTab>
                       {shortenKeyword(keyword)}
                     </SimpleLink>
                   </Tooltip>
@@ -262,7 +258,6 @@ const PlanetaryFeatures = memo(({ features, ids }: { features: Array<string>; id
               <HStack spacing="2">
                 <SimpleLink
                   href={`${EXTERNAL_URLS.USGS_PLANETARY_FEATURES}${ids[index]}`}
-                  isExternal
                   aria-label={usgsLabel}
                   newTab
                   _hover={{ textDecor: 'underline' }}

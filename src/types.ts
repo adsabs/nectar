@@ -37,7 +37,7 @@ export interface SessionData {
   isAuthenticated: boolean;
 }
 
-export type NumPerPageType = typeof APP_DEFAULTS['PER_PAGE_OPTIONS'][number];
+export type NumPerPageType = (typeof APP_DEFAULTS)['PER_PAGE_OPTIONS'][number];
 
 export type SafeSearchUrlParams = Omit<IADSApiSearchParams, 'fl' | 'start' | 'rows'> & { p?: number };
 
@@ -51,7 +51,6 @@ export interface IBibstemOption {
 
 // used for testing
 declare global {
-  // eslint-disable-next-line no-var
   var __mockServer__: SetupServerApi & {
     onRequest: unknown;
     onResponse: unknown;
