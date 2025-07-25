@@ -13,7 +13,6 @@ import {
   GridItem,
   Heading,
   Input,
-  Link,
   Stack,
   Text,
   Textarea,
@@ -39,6 +38,7 @@ import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 import { BibstemPicker } from '@/components/BibstemPicker';
 import { stringifySearchParams } from '@/utils/common/search';
 import { fetchVaultSearch, vaultKeys } from '@/api/vault/vault';
+import { SimpleLink } from '@/components/SimpleLink';
 
 enum PaperFormType {
   JOURNAL_QUERY = 'journal-query',
@@ -149,11 +149,9 @@ const JournalQueryForm = ({ onSubmit, error }: SubFormProps) => {
       </Heading>
       <Text fontSize="sm">
         A bibstem is an abbreviation that the ADS uses to identify a journal. A full list is available{' '}
-        <Link isExternal href="/journalsdb">
-          here
-        </Link>
-        . The input field below will autocomplete on our current database of journal names, allowing you to type
-        &#34;Astrophysical Journal&#34;, for instance, to find the bibstem &#34;ApJ&#34;.
+        <SimpleLink href="/journalsdb">here</SimpleLink>. The input field below will autocomplete on our current
+        database of journal names, allowing you to type &#34;Astrophysical Journal&#34;, for instance, to find the
+        bibstem &#34;ApJ&#34;.
       </Text>
       <Divider mb={5} />
       <form method="POST" action={router.route} onSubmit={formSubmit} data-testid={PaperFormType.JOURNAL_QUERY}>

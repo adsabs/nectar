@@ -52,7 +52,6 @@ const GraphicsPage: NextPage = () => {
                   m={2}
                   as={SimpleLink}
                   href={figure.images[0].highres}
-                  isExternal
                 >
                   <NextImage src={figure.images[0].thumbnail} width="150" height="150" alt={figure.figure_label} />
                   <Box aria-hidden="true">{figure.figure_label}</Box>

@@ -44,15 +44,15 @@ export const Footer: FC = () => {
         ) : null}
 
         <HStack my={3} spacing={4}>
-          <SimpleLink href={EXTERNAL_URLS.SMITHSONIAN_HOME_PAGE} variant="footer" isExternal>
+          <SimpleLink href={EXTERNAL_URLS.SMITHSONIAN_HOME_PAGE} variant="footer">
             <VisuallyHidden>Smithsonian Institution</VisuallyHidden>
             <SmithsonianLogo width="72.6px" height="72.6px" aria-hidden />
           </SimpleLink>
-          <SimpleLink href={EXTERNAL_URLS.CFA_HOME_PAGE} variant="footer" isExternal>
+          <SimpleLink href={EXTERNAL_URLS.CFA_HOME_PAGE} variant="footer">
             <VisuallyHidden>Center for Astrophysics</VisuallyHidden>
             <CFALogo width="121px" height="48.4px" style={{ filter: 'invert(1)' }} aria-hidden />
           </SimpleLink>
-          <SimpleLink href={EXTERNAL_URLS.NASA_HOME_PAGE} variant="footer" isExternal>
+          <SimpleLink href={EXTERNAL_URLS.NASA_HOME_PAGE} variant="footer">
             <VisuallyHidden as="abbr" title="National Aeronautics and Space Administration">
               NASA
             </VisuallyHidden>
@@ -88,7 +88,7 @@ export const Footer: FC = () => {
         <SimpleLink href="/help/accessibility" variant="footer">
           Web Accessibility Policy
         </SimpleLink>
-        <SimpleLink href={EXTERNAL_URLS.NASA_SDE_HOME_PAGE} variant="footer" isExternal>
+        <SimpleLink href={EXTERNAL_URLS.NASA_SDE_HOME_PAGE} variant="footer">
           NASA Science Discovery Engine
         </SimpleLink>
       </Flex>

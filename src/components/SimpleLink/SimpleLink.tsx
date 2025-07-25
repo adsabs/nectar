@@ -1,34 +1,43 @@
-import { forwardRef, PropsWithChildren, ReactElement, Ref } from 'react';
-import { Url } from 'next/dist/shared/lib/router/router';
-import { Link, LinkProps } from '@chakra-ui/next-js';
+import { AnchorHTMLAttributes, forwardRef, PropsWithChildren, ReactElement, ReactNode, Ref } from 'react';
+import NextLink, { LinkProps as NextLinkProps } from 'next/link';
+import { UrlObject } from 'url';
 
-export interface ISimpleLinkProps extends LinkProps {
+export interface ISimpleLinkProps extends Omit<NextLinkProps, 'href'> {
+  href: string | UrlObject;
   newTab?: boolean;
   icon?: ReactElement;
+  className?: string;
+  anchorProps?: AnchorHTMLAttributes<HTMLAnchorElement>;
+  children?: ReactNode;
 }
 
 export const SimpleLink = forwardRef(
   (props: PropsWithChildren<ISimpleLinkProps>, ref: Ref<HTMLAnchorElement>): ReactElement => {
-    const { children, icon, variant = 'default', prefetch = false, newTab, ...linkProps } = props;
-    const isExternal = isHrefExternal(linkProps.href, linkProps.isExternal);
+    const { children, icon, prefetch = false, newTab, className, href, anchorProps, ...rest } = props;
+    const isExternal = isHrefExternal(href);
 
     return (
-      <Link
-        ref={ref}
-        variant={variant}
-        isExternal={isExternal}
-        prefetch={prefetch}
-        rel={isExternal ? 'noopener' : undefined}
-        target={typeof newTab === 'boolean' && newTab ? '_blank' : linkProps.target}
-        {...linkProps}
-      >
-        {icon && <>{icon}</>}
-        {children}
-      </Link>
+      <NextLink href={href} prefetch={prefetch} passHref {...rest} legacyBehavior>
+        <a
+          ref={ref}
+          className={className}
+          target={newTab || isExternal ? '_blank' : undefined}
+          rel={isExternal ? 'noopener' : undefined}
+          {...anchorProps}
+        >
+          {icon && <>{icon}</>}
+          {children}
+        </a>
+      </NextLink>
     );
   },
 );
+
 SimpleLink.displayName = 'SimpleLink';
 
-const isHrefExternal = (href: Url, isExternal?: boolean): boolean =>
-  isExternal ?? /^https?:/.test(typeof href === 'string' ? href : href.protocol);
+function isHrefExternal(href: string | UrlObject): boolean {
+  if (typeof href === 'string') {
+    return /^https?:/.test(href);
+  }
+  return typeof href.protocol === 'string' && /^https?:/.test(href.protocol);
+}

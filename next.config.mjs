@@ -30,7 +30,7 @@ const nextConfig = {
   generateEtags: true,
   poweredByHeader: false,
   reactStrictMode: true,
-  transpilePackages: ['@nivo'],
+  transpilePackages: ['@nivo/core', '@nivo/line', '@nivo/bar'],
   experimental: {
     esmExternals: 'loose',
     newNextLinkBehavior: false,
