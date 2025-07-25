@@ -21,9 +21,14 @@
     "lint": "next lint",
     "prepare": "husky"
   },
+  "pnpm": {
+    "overrides": {
+      "d3-interpolate": "2.0.1"
+    }
+  },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.0",
-    "@chakra-ui/next-js": "^2.2.0",
+    "@chakra-ui/next-js": "^2.4.2",
     "@chakra-ui/react": "^2.4.6",
     "@chakra-ui/skip-nav": "^2.1.0",
     "@chakra-ui/theme-tools": "^2.1.2",
@@ -75,7 +80,7 @@
     "lucene": "^2.1.1",
     "match-sorter": "^6.3.1",
     "memoize-one": "^6.0.0",
-    "next": "15.2.4",
+    "next": "15.4.4",
     "next-build-id": "^3.0.0",
     "nprogress": "^0.2.0",
     "pino": "^8.16.2",

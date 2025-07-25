@@ -108,7 +108,7 @@ export const CustomFormatSelect = ({ dispatch }: ICustomFormatSelectProps) => {
       </Button>
       <Text>
         For more information on custom formats, see{' '}
-        <SimpleLink href="/help/actions/export#the-ads-custom-format" display="inline" isExternal>
+        <SimpleLink href="/help/actions/export#the-ads-custom-format" display="inline">
           SciX Help
         </SimpleLink>
         .

@@ -152,7 +152,7 @@ const Carousel = () => {
               </Heading>
               <Text fontSize="xl">
                 Learn more about the SciX digital library and how it can support your scientific research in{' '}
-                <SimpleLink href="https://youtu.be/LeTFmhmPjs0" isExternal newTab>
+                <SimpleLink href="https://youtu.be/LeTFmhmPjs0" newTab>
                   this welcome video
                 </SimpleLink>{' '}
                 and brief user tutorial from <br /> Dr. Stephanie Jarmak.
@@ -219,7 +219,7 @@ const Carousel = () => {
               </Text>
               <Text fontSize="xl">
                 Use the{' '}
-                <SimpleLink href="/scixhelp/quickstart-scix/searching-for-paper" display="inline" isExternal newTab>
+                <SimpleLink href="/scixhelp/quickstart-scix/searching-for-paper" display="inline" newTab>
                   quick start guide
                 </SimpleLink>{' '}
                 to start your search of the portal and find out where to go with any questions about advanced tools and

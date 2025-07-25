@@ -6,7 +6,6 @@ import {
   Heading,
   Icon,
   IconButton,
-  keyframes,
   Tab,
   TabList,
   TabPanel,
@@ -17,6 +16,7 @@ import {
   useTab,
 } from '@chakra-ui/react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
+import { keyframes } from '@emotion/react';
 
 import { noop } from '@/utils/common/noop';
 
@@ -166,7 +166,7 @@ const ChangePageButton = (props: ButtonProps & { direction: 'next' | 'previous';
 };
 
 const DotTab = forwardRef<HTMLButtonElement, TabProps>((props, ref) => {
-  const tabProps = useTab({ ...props, ref });
+  const tabProps = useTab({ ...props, ref }) as TabProps;
   const isSelected = !!tabProps['aria-selected'];
 
   const styles = useMultiStyleConfig('Tabs', tabProps);
