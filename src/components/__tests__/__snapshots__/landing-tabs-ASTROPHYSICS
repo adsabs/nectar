@@ -31,19 +31,16 @@
         class="chakra-stack css-502sb"
       >
         <a
-          class="css-0"
           href="/classic-form"
         >
           Classic Form
         </a>
         <a
-          class="css-0"
           href="/"
         >
           Modern Form
         </a>
         <a
-          class="css-0"
           href="/paper-form"
         >
           Paper Form

@@ -85,7 +85,7 @@ export const ExportModal = (props: ButtonProps) => {
             {downloadLink ? (
               <Box mt="2">
                 Download not working?{' '}
-                <SimpleLink href={downloadLink} anchorProps={{ download: downloadFilename }}>
+                <SimpleLink href={downloadLink} download={downloadFilename}>
                   Direct Link
                 </SimpleLink>
               </Box>

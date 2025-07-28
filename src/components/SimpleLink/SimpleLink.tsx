@@ -1,33 +1,62 @@
-import { AnchorHTMLAttributes, forwardRef, PropsWithChildren, ReactElement, ReactNode, Ref } from 'react';
+import { forwardRef, PropsWithChildren, ReactElement, ReactNode, Ref } from 'react';
 import NextLink, { LinkProps as NextLinkProps } from 'next/link';
 import { UrlObject } from 'url';
+import { chakra, LinkProps as ChakraLinkProps } from '@chakra-ui/react';
 
-export interface ISimpleLinkProps extends Omit<NextLinkProps, 'href'> {
-  href: string | UrlObject;
+export interface ISimpleLinkProps extends NextLinkProps, Omit<ChakraLinkProps, 'as' | 'href'> {
   newTab?: boolean;
   icon?: ReactElement;
-  className?: string;
-  anchorProps?: AnchorHTMLAttributes<HTMLAnchorElement>;
   children?: ReactNode;
 }
 
 export const SimpleLink = forwardRef(
   (props: PropsWithChildren<ISimpleLinkProps>, ref: Ref<HTMLAnchorElement>): ReactElement => {
-    const { children, icon, prefetch = false, newTab, className, href, anchorProps, ...rest } = props;
+    const {
+      children,
+      icon,
+      prefetch = false,
+      newTab,
+      href,
+      onNavigate,
+      onClick,
+      onTouchStart,
+      onMouseEnter,
+      locale,
+      legacyBehavior = true,
+      passHref = true,
+      shallow,
+      scroll,
+      replace,
+      as,
+      ...rest
+    } = props;
     const isExternal = isHrefExternal(href);
 
     return (
-      <NextLink href={href} prefetch={prefetch} passHref {...rest} legacyBehavior>
-        <a
+      <NextLink
+        href={href}
+        prefetch={prefetch}
+        passHref={passHref}
+        onClick={onClick}
+        onTouchStart={onTouchStart}
+        onMouseEnter={onMouseEnter}
+        onNavigate={onNavigate}
+        locale={locale}
+        shallow={shallow}
+        scroll={scroll}
+        replace={replace}
+        as={as}
+        legacyBehavior={legacyBehavior}
+      >
+        <chakra.a
           ref={ref}
-          className={className}
           target={newTab || isExternal ? '_blank' : undefined}
           rel={isExternal ? 'noopener' : undefined}
-          {...anchorProps}
+          {...rest}
         >
           {icon && <>{icon}</>}
           {children}
-        </a>
+        </chakra.a>
       </NextLink>
     );
   },
