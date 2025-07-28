@@ -1,18 +1,15 @@
 import { render } from '@/test-utils';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import { SearchBar } from '../index';
 
-const useRouterMock = vi.fn(() => ({
-  query: { q: '' },
-  events: { on: vi.fn(), off: vi.fn() },
-}));
-vi.mock('next/router', () => ({
-  useRouter: () => useRouterMock(),
+const mocks = vi.hoisted(() => ({
+  useRouter: vi.fn(() => ({
+    query: { q: '' },
+    events: { on: vi.fn(), off: vi.fn() },
+  })),
 }));
 
-beforeEach(() => {
-  vi.restoreAllMocks();
-});
+vi.mock('next/router', () => ({ useRouter: mocks.useRouter }));
 
 test('SearchBar renders without crashing', () => render(<SearchBar />));
 
@@ -115,7 +112,7 @@ test('selecting quickfield appends to existing query', async () => {
 });
 
 test('Updates via changes to the search URL', async () => {
-  useRouterMock.mockReturnValue({ query: { q: 'URL_QUERY' }, events: { on: vi.fn(), off: vi.fn() } });
+  mocks.useRouter.mockImplementationOnce(() => ({ query: { q: 'URL_QUERY' }, events: { on: vi.fn(), off: vi.fn() } }));
   const { getByTestId } = render(<SearchBar />);
   const input = getByTestId('search-input') as HTMLInputElement;
   expect(input.value).toBe('URL_QUERY');
