@@ -1,9 +1,9 @@
 <div>
   <div
-    class="chakra-container css-1uu3zu4"
+    class="chakra-container css-14vcoqp"
   >
     <div
-      class="css-174zj6w"
+      class="css-1gbjoun"
     >
       <img
         alt="Starry sky"
@@ -28,22 +28,22 @@
         </div>
       </div>
       <div
-        class="chakra-stack css-1vshbgw"
+        class="chakra-stack css-502sb"
       >
         <a
-          class="chakra-link css-u4b0jr"
+          class="css-0"
           href="/classic-form"
         >
           Classic Form
         </a>
         <a
-          class="chakra-link css-x7dx61"
+          class="css-0"
           href="/"
         >
           Modern Form
         </a>
         <a
-          class="chakra-link css-u4b0jr"
+          class="css-0"
           href="/paper-form"
         >
           Paper Form
