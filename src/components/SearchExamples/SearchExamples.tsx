@@ -1,37 +1,35 @@
 import { Box, Flex, Grid, GridItem, Text } from '@chakra-ui/react';
 import { useStore } from '@/store';
-import { FC, HTMLAttributes, MouseEventHandler, useMemo } from 'react';
+import { FC, HTMLAttributes, MouseEventHandler, useCallback, useMemo } from 'react';
 import { examples } from './examples';
 import { useIsClient } from '@/lib/useIsClient';
-import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 
 import { sendGTMEvent } from '@next/third-parties/google';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { noop } from '@/utils/common/noop';
 
 export interface ISearchExamplesProps extends HTMLAttributes<HTMLDivElement> {
-  onSelect?: () => void;
+  onSelectExample?: (textToAppend: string) => void;
 }
 
 export const SearchExamples: FC<ISearchExamplesProps> = (props) => {
-  const { onSelect = noop, ...divProps } = props;
+  const { onSelectExample = noop, ...divProps } = props;
   const mode = useStore((state) => state.mode);
-  const { appendToQuery } = useIntermediateQuery();
 
-  const handleClick: MouseEventHandler<HTMLButtonElement> = (e) => {
-    const text = e.currentTarget.dataset['text'];
+  const handleClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
+    (e) => {
+      const text = e.currentTarget.dataset['text'];
 
-    // Add our text to the end of the query
-    appendToQuery(text);
+      sendGTMEvent({
+        event: 'search_example_click',
+        search_example: text,
+      });
 
-    sendGTMEvent({
-      event: 'search_example_click',
-      search_example: text,
-    });
-
-    // fire select callback
-    onSelect();
-  };
+      // fire select callback
+      onSelectExample(text);
+    },
+    [onSelectExample],
+  );
 
   // memoize left/right examples
   const [leftExamples, rightExamples] = useMemo(
@@ -43,7 +41,7 @@ export const SearchExamples: FC<ISearchExamplesProps> = (props) => {
         <SearchExample label={label} example={text} key={label} data-text={text} onClick={handleClick} />
       )),
     ],
-    [mode],
+    [handleClick, mode],
   );
 
   return (

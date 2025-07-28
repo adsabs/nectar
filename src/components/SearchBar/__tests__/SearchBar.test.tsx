@@ -1,21 +1,22 @@
-import { render, renderHook } from '@/test-utils';
-import { expect, test, vi } from 'vitest';
+import { render } from '@/test-utils';
+import { beforeEach, expect, test, vi } from 'vitest';
 import { SearchBar } from '../index';
-import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 
-const useRouterMock = vi.fn(() => ({ query: { q: '' } }));
+const useRouterMock = vi.fn(() => ({
+  query: { q: '' },
+  events: { on: vi.fn(), off: vi.fn() },
+}));
 vi.mock('next/router', () => ({
   useRouter: () => useRouterMock(),
 }));
-const setInitialStoreQuery = (query = '') => {
-  const { result } = renderHook(() => useIntermediateQuery());
-  result.current.updateQuery(query);
-};
+
+beforeEach(() => {
+  vi.restoreAllMocks();
+});
 
 test('SearchBar renders without crashing', () => render(<SearchBar />));
 
 test('Quick field appends to input', async () => {
-  setInitialStoreQuery('');
   const { user, getByTestId, getAllByTestId } = render(<SearchBar />);
   const input = getByTestId('search-input') as HTMLInputElement;
   await user.click(getAllByTestId('quickfield')[0]);
@@ -24,7 +25,6 @@ test('Quick field appends to input', async () => {
 });
 
 test('Cursor moves inside appended field', async () => {
-  setInitialStoreQuery('');
   const { user, getByTestId, getAllByTestId } = render(<SearchBar />);
   const input = getByTestId('search-input') as HTMLInputElement;
   await user.click(getAllByTestId('quickfield')[0]);
@@ -36,14 +36,12 @@ test('Cursor moves inside appended field', async () => {
 });
 
 test('On mount the input gets focus', async () => {
-  setInitialStoreQuery('');
   const { getByTestId } = render(<SearchBar />);
   const input = getByTestId('search-input') as HTMLInputElement;
   expect(document.activeElement).toBe(input);
 });
 
 test('Typing opens typeahead menu', async () => {
-  setInitialStoreQuery('');
   const { user, getByTestId, queryByTestId } = render(<SearchBar />);
   const input = getByTestId('search-input');
   await user.type(input, 'sim');
@@ -51,7 +49,6 @@ test('Typing opens typeahead menu', async () => {
 });
 
 test('Arrow down navigates typeahead options', async () => {
-  setInitialStoreQuery('');
   const { user, getByTestId, getAllByTestId } = render(<SearchBar />);
   const input = getByTestId('search-input');
   await user.type(input, 'f');
@@ -64,7 +61,6 @@ test('Arrow down navigates typeahead options', async () => {
 });
 
 test('Enter inserts selected suggestion', async () => {
-  setInitialStoreQuery('');
   const { user, getByTestId, getAllByTestId } = render(<SearchBar />);
   const input = getByTestId('search-input');
   await user.type(input, 'sim');
@@ -76,7 +72,6 @@ test('Enter inserts selected suggestion', async () => {
 });
 
 test('Escape key closes typeahead', async () => {
-  setInitialStoreQuery('');
   const { user, getByTestId, queryByTestId } = render(<SearchBar />);
   const input = getByTestId('search-input');
   await user.type(input, 'sim');
@@ -86,7 +81,6 @@ test('Escape key closes typeahead', async () => {
 });
 
 test('Clearing input closes typeahead menu', async () => {
-  setInitialStoreQuery('');
   const { user, getByTestId, queryByTestId } = render(<SearchBar />);
   const input = getByTestId('search-input');
   await user.type(input, 'sim');
@@ -96,7 +90,6 @@ test('Clearing input closes typeahead menu', async () => {
 });
 
 test('Wraps and restores cursor position', async () => {
-  setInitialStoreQuery('');
   const { user, getByTestId, getAllByTestId } = render(<SearchBar />);
   const input = getByTestId('search-input') as HTMLInputElement;
   await user.type(input, 'abc def');
@@ -113,7 +106,6 @@ test('Wraps and restores cursor position', async () => {
 });
 
 test('selecting quickfield appends to existing query', async () => {
-  setInitialStoreQuery('');
   const { user, getByTestId, getAllByTestId } = render(<SearchBar />);
   const input = getByTestId('search-input') as HTMLInputElement;
   await user.type(input, 'abc def');
@@ -122,18 +114,27 @@ test('selecting quickfield appends to existing query', async () => {
   expect(input.selectionStart).toBe(16); // After 'author:"'
 });
 
-test('Updates the empty searchbar from the store', async () => {
-  setInitialStoreQuery('FROM_STORE');
-  useRouterMock.mockReturnValue({ query: { q: '' } });
-  const { getByTestId } = render(<SearchBar />);
-  const input = getByTestId('search-input') as HTMLInputElement;
-  expect(input.value).toBe('FROM_STORE');
-});
-
-test('Prioritize the URL query param over store query', async () => {
-  setInitialStoreQuery('FROM_STORE');
-  useRouterMock.mockReturnValue({ query: { q: 'URL_QUERY' } });
+test('Updates via changes to the search URL', async () => {
+  useRouterMock.mockReturnValue({ query: { q: 'URL_QUERY' }, events: { on: vi.fn(), off: vi.fn() } });
   const { getByTestId } = render(<SearchBar />);
   const input = getByTestId('search-input') as HTMLInputElement;
   expect(input.value).toBe('URL_QUERY');
+});
+
+test('Search term gets update via props', async () => {
+  const { getByTestId, rerender } = render(<SearchBar />);
+  const input = getByTestId('search-input') as HTMLInputElement;
+  expect(input.value).toBe('');
+  rerender(<SearchBar query="test" />);
+  expect(input.value).toBe('test');
+});
+
+test('Query additions are added via props', async () => {
+  const { getByTestId, rerender } = render(<SearchBar query="a b c" />);
+  const input = getByTestId('search-input') as HTMLInputElement;
+  expect(input.value).toBe('a b c');
+  rerender(<SearchBar query="a b c" queryAddition={`test:""`} />);
+  expect(input.value).toBe('a b c test:""');
+  // Check cursor position after addition, should be inside the quotes
+  expect(input.selectionStart).toBe(12);
 });
