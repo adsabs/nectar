@@ -22,7 +22,7 @@ export interface ISearchInputState {
 }
 
 export type SearchInputAction =
-  | { type: 'SET_SEARCH_TERM'; payload: { query: string; cursorPosition: number } }
+  | { type: 'SET_SEARCH_TERM'; payload: { query: string; cursorPosition?: number } }
   | { type: 'SET_UAT_TYPEAHEAD_OPTIONS'; payload: TypeaheadOption[] }
   | { type: 'SET_SEARCH_TERM_ADDITION'; payload: { queryAddition: string } }
   | { type: 'SET_SELECTED_RANGE'; payload: [number, number] }
@@ -44,7 +44,7 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
       return initialState;
     case 'SET_SEARCH_TERM': {
       const finalTerm = extractFinalTerm(action.payload.query);
-      const cursorPosition = action.payload.cursorPosition;
+      const cursorPosition = action.payload.cursorPosition ?? action.payload.query.length;
 
       if (finalTerm === '' || finalTerm.toLowerCase().startsWith('uat:')) {
         return {

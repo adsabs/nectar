@@ -3,6 +3,7 @@ import { SearchInputAction } from '@/components/SearchBar/searchInputReducer';
 import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 import { useDebouncedCallback } from 'use-debounce';
 import { useRouter } from 'next/router';
+import { parseQueryFromUrl } from '@/utils/common/search';
 
 /**
  * Synchronizes the search term with the global query from the intermediate query state.
@@ -10,36 +11,50 @@ import { useRouter } from 'next/router';
  * This should only happen once when the component mounts, because we want to keep the flow one-way here, syncing only as much
  * as necessary to ensure the search input reflects the global query state.
  * @param props
+ * @param options
  */
-export const useSyncWithGlobal = (props: { searchTerm: string; dispatch: Dispatch<SearchInputAction> }) => {
-  const { query: globalQuery, updateQuery } = useIntermediateQuery();
-  const { query } = useRouter();
+export const useSyncWithGlobal = (
+  props: { searchTerm: string; dispatch: Dispatch<SearchInputAction> },
+  options?: {
+    /** How long to debounce the updates to the global store */
+    updateWait: number;
+  },
+) => {
+  const { updateQuery, clearQuery } = useIntermediateQuery();
+  const { query: urlQuery, events } = useRouter();
   const { searchTerm, dispatch } = props;
-  const hasSynced = useRef(false);
-  const debouncedUpdateQuery = useDebouncedCallback((q: string) => updateQuery(q), 500);
+  const debouncedUpdateQuery = useDebouncedCallback((q: string) => updateQuery(q), options?.updateWait ?? 500);
 
   useEffect(() => {
-    if (hasSynced.current) {
-      return; // Skip if already synced
-    }
-    if (query?.q && query.q.length > 0 && query.q !== globalQuery) {
-      // If the global query is different from the current search term, update it
-      // give the URL query priority over the global query
+    const handler = (url: string) => {
+      if (url.startsWith('/search')) {
+        const { q } = parseQueryFromUrl(url) as { q: string | undefined };
+        dispatch({
+          type: 'SET_SEARCH_TERM',
+          payload: { query: q, cursorPosition: q.length },
+        });
+      }
+    };
+    events.on('routeChangeStart', handler);
+    return () => {
+      events.off('routeChangeStart', handler);
+    };
+  }, [clearQuery, dispatch, events]);
+
+  useEffect(() => {
+    if (urlQuery?.q) {
+      const query = urlQuery.q as string;
       dispatch({
         type: 'SET_SEARCH_TERM',
-        payload: { query: query.q as string, cursorPosition: (query.q as string).length },
+        payload: { query: query as string, cursorPosition: query.length },
       });
-    } else if (globalQuery && globalQuery.length > 0 && searchTerm !== globalQuery) {
-      // If the global query is set and different from the current search term, update it
-      dispatch({ type: 'SET_SEARCH_TERM', payload: { query: globalQuery, cursorPosition: globalQuery.length } });
     }
-    // Set hasSynced flag to true after the initial sync whether we updated the search term or not
-    hasSynced.current = true;
-  }, [searchTerm, globalQuery, dispatch, query?.q]);
+  }, [dispatch, urlQuery.q]);
 
   // on local changes we want to flush changes to the global store
   const prev = useRef<string>(searchTerm);
 
+  // update the global query when debounced by some time
   useEffect(() => {
     if (prev.current !== searchTerm) {
       debouncedUpdateQuery(searchTerm);

@@ -102,7 +102,7 @@ const SearchPage: NextPage = () => {
   const queryClient = useQueryClient();
   const queries = queryClient.getQueriesData<IADSApiSearchResponse>([SEARCH_API_KEYS.primary]);
   const numFound = queries.length > 1 ? path<number>(['1', 'response', 'numFound'], last(queries)) : null;
-  const [isPrint] = useMediaQuery('print'); // use to hide elements when printing
+  const [isPrint] = useMediaQuery('print');
 
   // parse the query params from the URL, this should match what the server parsed
   const parsedParams = parseQueryFromUrl(router.asPath);
@@ -119,20 +119,6 @@ const SearchPage: NextPage = () => {
   const [histogramExpanded, setHistogramExpanded] = useState(false);
   const [width, setWidth] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
-
-  // watch for route changes and update the query
-  useEffect(() => {
-    const handleRouteChange = (url: string) => {
-      if (url.startsWith('/search')) {
-        updateQuery(parseQueryFromUrl(url));
-      }
-    };
-
-    router.events.on('routeChangeStart', handleRouteChange);
-    return () => {
-      router.events.off('routeChangeStart', handleRouteChange);
-    };
-  }, [router, updateQuery]);
 
   useEffect(() => {
     if (ref.current) {
