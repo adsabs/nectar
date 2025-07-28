@@ -18,7 +18,7 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>((props, re
   const refs = useMergeRefs(inputRef, ref);
 
   useEffect(() => {
-    if (query) {
+    if (query !== undefined) {
       dispatch({ type: 'SET_SEARCH_TERM', payload: { query } });
     }
   }, [query]);
