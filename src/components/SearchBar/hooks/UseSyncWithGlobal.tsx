@@ -31,7 +31,7 @@ export const useSyncWithGlobal = (
         const { q } = parseQueryFromUrl(url) as { q: string | undefined };
         dispatch({
           type: 'SET_SEARCH_TERM',
-          payload: { query: q, cursorPosition: q.length },
+          payload: { query: q, cursorPosition: q ? q.length : 0 },
         });
       }
     };
