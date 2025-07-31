@@ -533,6 +533,18 @@ export const queryFields = [
   'year',
 ] as const;
 
+export const queryFnOperators = [
+  'citations',
+  'pos',
+  'references',
+  'reviews',
+  'similar',
+  'topn',
+  'trending',
+  'useful',
+  'docs',
+] as const;
+
 export interface IBigQueryMutationParams {
   params: IADSApiSearchParams;
   variables: { bibcodes: IDocsEntity['bibcode'][]; rows: number; sort?: SolrSort[] };
