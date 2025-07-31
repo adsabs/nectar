@@ -1,11 +1,11 @@
 import { useGetExportFormats } from '@/api/export/export';
-import { ExportFormatsApiResponse } from '@/api/export/types';
+import { ExportFormatsApiResponse, IExportFormat } from '@/api/export/types';
 import { DEFAULT_EXPORT_FORMATS } from '@/components/CitationExporter';
 import { SelectOption } from '@/components/Select';
 import { UseQueryOptions } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 
-export type ExportFormatOption = SelectOption<string> & { type: string; ext: string; route: string };
+export type ExportFormatOption = SelectOption<string> & { type: IExportFormat['type']; ext: string; route: string };
 
 export const useExportFormats = (options?: UseQueryOptions<ExportFormatsApiResponse>) => {
   const { data } = useGetExportFormats({
@@ -21,16 +21,7 @@ export const useExportFormats = (options?: UseQueryOptions<ExportFormatsApiRespo
       type: f.type,
       value: f.route.substring(1),
       route: f.route,
-      ext:
-        f.type === 'HTML'
-          ? 'rtf'
-          : f.type === 'XML'
-          ? 'xml'
-          : f.name === '/endnote'
-          ? 'enw'
-          : f.route === '/bibtexabs'
-          ? 'bib'
-          : 'txt',
+      ext: f.extension,
     }));
   }, [data]);
 

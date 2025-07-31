@@ -47,12 +47,12 @@ export interface IExportFormat {
   name: string;
   type: 'text' | 'custom' | 'XML' | 'HTML' | 'tagged' | 'LaTeX';
   route: string;
+  extension: string;
 }
 
 export type ExportFormatsApiResponse = IExportFormat[];
 
 export interface IExportApiParams {
-  // format: ExportApiFormatKey;
   format: string;
   customFormat?: string;
   bibcode: IDocsEntity['bibcode'][];
