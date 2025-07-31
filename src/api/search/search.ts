@@ -36,6 +36,7 @@ import { ADSMutation, ADSQuery, InfiniteADSQuery } from '@/api/types';
 import api, { ApiRequestConfig } from '@/api/api';
 import { ApiTargets } from '@/api/models';
 import { logger } from '@/logger';
+import { normalizeFields } from '@/api/search/utils';
 
 type PostTransformer = (data: IADSApiSearchResponse) => IADSApiSearchResponse;
 
@@ -398,19 +399,21 @@ export const useBigQuerySearch: ADSMutation<
   });
 };
 
-export const fetchBigQuerySearch: MutationFunction<IADSApiSearchResponse['response'], IBigQueryMutationParams> =
-  async ({ params, variables }: IBigQueryMutationParams) => {
-    const config: ApiRequestConfig = {
-      method: 'POST',
-      url: `${ApiTargets.BIGQUERY}`,
-      params: { ...params, rows: variables.rows, sort: variables.sort },
-      data: `bibcode\n${variables.bibcodes.join('\n')}`,
-      headers: { 'Content-Type': 'bigquery/csv' },
-    };
-
-    const { data } = await api.request<IADSApiSearchResponse>(config);
-    return data.response;
+export const fetchBigQuerySearch: MutationFunction<
+  IADSApiSearchResponse['response'],
+  IBigQueryMutationParams
+> = async ({ params, variables }: IBigQueryMutationParams) => {
+  const config: ApiRequestConfig = {
+    method: 'POST',
+    url: `${ApiTargets.BIGQUERY}`,
+    params: { ...params, rows: variables.rows, sort: variables.sort },
+    data: `bibcode\n${variables.bibcodes.join('\n')}`,
+    headers: { 'Content-Type': 'bigquery/csv' },
   };
+
+  const { data } = await api.request<IADSApiSearchResponse>(config);
+  return data.response;
+};
 
 /**
  * Fetches search results from the API based on provided search parameters.
@@ -433,6 +436,9 @@ export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta }
     const { query } = await resolveObjectQuery({ query: params.q });
     finalParams.q = query;
   }
+
+  // normalize fields in the query
+  finalParams.q = normalizeFields(finalParams.q);
 
   const config: ApiRequestConfig = {
     method: 'GET',
@@ -479,6 +485,9 @@ export const fetchSearchSSR = async (
     finalParams.q = query;
   }
 
+  // normalize fields in the query
+  finalParams.q = normalizeFields(finalParams.q);
+
   const config: ApiRequestConfig = {
     ...defaultRequestConfig,
     method: 'GET',
@@ -506,6 +515,9 @@ export const fetchSearchInfinite: QueryFunction<IADSApiSearchResponse & { pagePa
     const { query } = await resolveObjectQuery({ query: params.q });
     finalParams.q = query;
   }
+
+  // normalize fields in the query
+  finalParams.q = normalizeFields(finalParams.q);
 
   const config: ApiRequestConfig = {
     method: 'GET',
