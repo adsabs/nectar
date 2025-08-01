@@ -184,6 +184,7 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
             isOpen: false,
             focused: -1,
             searchTerm,
+            cursorPosition: getCursorPosition(searchTerm),
           };
         }
       }
