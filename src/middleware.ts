@@ -5,6 +5,7 @@ import { getIronSession } from 'iron-session/edge';
 import { edgeLogger } from '@/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimit } from '@/rateLimit';
+import { isLegacySearchURL, legacySearchURLMiddleware } from '@/middlewares/legacySearchURLMiddleware';
 
 const log = edgeLogger.child({}, { msgPrefix: '[middleware] ' });
 
@@ -191,6 +192,11 @@ export async function middleware(req: NextRequest) {
 
   if (path.startsWith('/user/account/verify/change-email') || path.startsWith('/user/account/verify/register')) {
     return verifyMiddleware(req, res);
+  }
+
+  // check if URL is a search redirect
+  if (isLegacySearchURL(req)) {
+    return legacySearchURLMiddleware(req);
   }
 
   log.debug({ msg: 'Non-special route, continuing', res });
