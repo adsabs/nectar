@@ -221,7 +221,15 @@ export const stringifySearchParams = (params: Record<string, unknown>, options?:
     indices: false,
     arrayFormat: 'repeat',
     format: 'RFC1738',
-    sort: (a, b) => a.localeCompare(b),
+    sort: (a, b) => {
+      const aNum = Number(a), bNum = Number(b);
+      const aIsNum = !isNaN(aNum) && a.trim() !== '';
+      const bIsNum = !isNaN(bNum) && b.trim() !== '';
+      if (aIsNum && bIsNum) {
+        return aNum - bNum;
+      }
+      return a.localeCompare(b);
+    },
     skipNulls: true,
     ...options,
   });
