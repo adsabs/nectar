@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2015",
     "lib": [
       "dom",
       "dom.iterable",
@@ -41,6 +41,6 @@
   "exclude": [
     "node_modules",
     "dist",
-    "dev",
+    "dev"
   ]
 }

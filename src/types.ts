@@ -18,6 +18,7 @@ export enum AppErrorCode {
 
 interface InnerError {
   code: AppErrorCode;
+
   [key: string]: unknown;
 }
 
@@ -39,7 +40,7 @@ export interface SessionData {
 
 export type NumPerPageType = (typeof APP_DEFAULTS)['PER_PAGE_OPTIONS'][number];
 
-export type SafeSearchUrlParams = Omit<IADSApiSearchParams, 'fl' | 'start' | 'rows'> & { p?: number };
+export type SafeSearchUrlParams = Omit<IADSApiSearchParams, 'fl' | 'start' | 'rows' | 'id'> & { p?: number };
 
 export interface IBibstemOption {
   label: string[];
