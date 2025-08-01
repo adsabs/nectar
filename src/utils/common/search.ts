@@ -183,7 +183,7 @@ export const safeSplitString = (value: string | string[], delimiter: string | Re
  *
  * @type {function(Object): Object}
  */
-const omitSearchParams = omit(['fl', 'start', 'rows', 'id']);
+const omitSearchParams: (arg0: object) => object = omit(['fl', 'start', 'rows', 'id']);
 
 /**
  * Generates search parameters for constructing a URL.
@@ -197,13 +197,14 @@ const omitSearchParams = omit(['fl', 'start', 'rows', 'id']);
  * @param {string[]} [options.omit] - List of parameters to be omitted.
  * @returns {string} The serialized search parameters for use in a URL.
  */
-export const makeSearchParams = (params: SafeSearchUrlParams, options: { omit?: string[] } = {}) => {
-  const cleanParams = omitSearchParams(params);
+export const makeSearchParams = (params: SafeSearchUrlParams, options: { omit?: string[] } = {}): string => {
+  const cleanParams = omitSearchParams(params) as SafeSearchUrlParams & { p?: number; n?: number };
   return stringifySearchParams(
     omit(options.omit ?? [], {
       ...cleanParams,
       sort: normalizeSolrSort(cleanParams.sort),
-      p: parseNumberAndClamp(cleanParams?.p as string, 1),
+      p: parseNumberAndClamp(cleanParams?.p as unknown as string, 1),
+      n: parseNumberAndClamp(cleanParams?.p as unknown as string, 1, APP_DEFAULTS.RESULT_PER_PAGE),
     }),
   );
 };
@@ -215,12 +216,12 @@ export const makeSearchParams = (params: SafeSearchUrlParams, options: { omit?: 
  * @param {qs.IStringifyOptions} [options] - Optional configuration for the query string formatting.
  * @returns {string} - The formatted URL query string.
  */
-export const stringifySearchParams = (params: Record<string, unknown>, options?: qs.IStringifyOptions) =>
+export const stringifySearchParams = (params: Record<string, unknown>, options?: qs.IStringifyOptions): string =>
   qs.stringify(params, {
     indices: false,
     arrayFormat: 'repeat',
     format: 'RFC1738',
-    sort: (a, b) => a - b,
+    sort: (a, b) => a.localeCompare(b),
     skipNulls: true,
     ...options,
   });
@@ -231,7 +232,7 @@ export const stringifySearchParams = (params: Record<string, unknown>, options?:
  * @param {string} q - The input string to be transformed.
  * @returns {string} - The transformed string with curly quotes replaced by straight quotes.
  */
-const qTransformers = (q: string) => {
+const qTransformers = (q: string): string => {
   if (typeof q === 'string') {
     return q.replace(/“/g, '"').replace(/”/g, '"');
   }
@@ -245,7 +246,7 @@ const qTransformers = (q: string) => {
  * @param {qs.IParseOptions} [options] - Optional settings to customize the parsing behavior.
  * @returns {Object} The parsed query object with transformations applied.
  */
-const parseSearchParams = (params: string, options?: qs.IParseOptions) => {
+const parseSearchParams = (params: string, options?: qs.IParseOptions): object => {
   const parsed = qs.parse(params, { parseArrays: true, charset: 'utf-8', ...options });
   parsed.q = qTransformers(parsed.q as string);
   return parsed;
