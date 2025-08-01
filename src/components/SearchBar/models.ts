@@ -113,25 +113,32 @@ export const typeaheadOptions: TypeaheadOption[] = [
     id: 26,
   },
   {
+    value: 'uat:"',
+    label: 'UAT Keyword Search',
+    desc: 'Search for a UAT keyword',
+    match: ['uat:"'],
+    id: 27,
+  },
+  {
     value: 'useful()',
     label: 'Useful',
     desc: 'Get papers most frequently cited by your search result set',
     match: ['useful('],
-    id: 27,
+    id: 28,
   },
   {
     value: 'similar()',
     label: 'Similar',
     desc: 'Get papers that have similar full text to your search result set',
     match: ['similar('],
-    id: 28,
+    id: 29,
   },
   {
     value: 'collection:earthscience',
     label: 'Limit to papers in the earth science collection',
     match: ['earth science', 'collection:earthscience'],
     desc: '',
-    id: 29,
+    id: 30,
   },
 ];
 

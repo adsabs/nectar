@@ -17,7 +17,6 @@ import {
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { ChangeEventHandler, Dispatch, useCallback, useEffect } from 'react';
-import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 import { isNonEmptyString } from 'ramda-adjunct';
 import { ISearchInputState, SearchInputAction } from '@/components/SearchBar/searchInputReducer';
 import { getFocusedItemValue, getPreview } from '@/components/SearchBar/helpers';
@@ -25,8 +24,8 @@ import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { useFocus } from '@/lib/useFocus';
 import { useKeyDownHandler } from '@/components/SearchBar/hooks/useKeyDownHandler';
 import { useUATSearch } from '@/components/SearchBar/hooks/useUATSearch';
-import { useSyncWithGlobal } from '@/components/SearchBar/hooks/UseSyncWithGlobal';
 import { TypeaheadItem } from '@/components/SearchBar/TypeaheadItem';
+import { useSyncWithGlobal } from '@/components/SearchBar/hooks/UseSyncWithGlobal';
 
 const SEARCHBAR_MAX_LENGTH = 2048 as const;
 
@@ -44,38 +43,24 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
   const { isLoading, state, dispatch, ...inputProps } = props;
   const [input, focus] = useFocus({ selectTextOnFocus: false });
   const refs = useMergeRefs(ref, input);
-  const { queryAddition, onDoneAppendingToQuery, onDoneClearingQuery, isClearingQuery } = useIntermediateQuery();
   const onKeyDown = useKeyDownHandler({ isOpen: state.isOpen, dispatch });
   useUATSearch({ query: state.searchTerm, dispatch, cursorPosition: state.cursorPosition });
   useSyncWithGlobal({ searchTerm: state.searchTerm, dispatch });
 
-  // handle query additions
-  useEffect(() => {
-    if (!isNonEmptyString(queryAddition)) {
-      return;
-    }
-
-    // If the query is already fully applied, skip it
-    const isAlreadyAppended =
-      state.searchTerm.endsWith(queryAddition) ||
-      state.searchTerm.includes(getFocusedItemValue(state.items, state.focused));
-
-    if (!isAlreadyAppended) {
-      focus();
-      dispatch({ type: 'SET_SEARCH_TERM_ADDITION', payload: { queryAddition } });
-    }
-
-    // always clear the query addition
-    onDoneAppendingToQuery();
-  }, [dispatch, focus, queryAddition, onDoneAppendingToQuery, state.searchTerm, state.items, state.focused]);
-
   // handle updates to the cursor position, usually just to move inside "" or ()
   useEffect(() => {
-    // set cursor position
-    if (input.current) {
+    // if the input is focused and the cursor position is less than the search term length,
+    // set the selection range to the cursor position
+    if (input.current && state.cursorPosition < state.searchTerm.length) {
       input.current.setSelectionRange(state.cursorPosition, state.cursorPosition);
     }
-  }, [input, state.cursorPosition]);
+  }, [input, state.cursorPosition, state.searchTerm.length]);
+
+  useEffect(() => {
+    if (state.searchTerm) {
+      focus();
+    }
+  }, [state.searchTerm, focus]);
 
   // handle updates to the search term
   const handleInputChange: ChangeEventHandler<HTMLInputElement> = useCallback(
@@ -93,13 +78,6 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
     focus();
     dispatch({ type: 'HARD_RESET' });
   }, [focus, dispatch]);
-
-  useEffect(() => {
-    if (isClearingQuery) {
-      handleClearInput();
-      onDoneClearingQuery();
-    }
-  }, [isClearingQuery, onDoneClearingQuery, handleClearInput]);
 
   const handleOnSelect = useCallback(() => {
     if (input.current) {

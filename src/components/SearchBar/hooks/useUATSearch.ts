@@ -1,9 +1,8 @@
-import { Dispatch, useEffect, useRef, useState } from 'react';
+import { Dispatch, useEffect, useState } from 'react';
 import { SearchInputAction } from '@/components/SearchBar/searchInputReducer';
 import { useUATTermsSearchOptions } from '@/api/uat/uat';
 import { useDebounce } from 'use-debounce';
 import { splitSearchTerms } from '@/components/SearchBar/helpers';
-import { TypeaheadOption } from '@/components/SearchBar/types';
 
 interface UseUATSearchProps {
   query: string;
@@ -40,8 +39,6 @@ export const useUATSearch = ({ query, cursorPosition, dispatch }: UseUATSearchPr
   const [debouncedTerm] = useDebounce(uatTerm, 200);
   const { data } = useUATTermsSearchOptions({ term: debouncedTerm }, { enabled: !!debouncedTerm });
 
-  const prevDataRef = useRef<TypeaheadOption[] | null>(null);
-
   // Update uatTerm only if it changes
   useEffect(() => {
     const newTerm = getUATSearchTerm(query, cursorPosition);
@@ -54,14 +51,7 @@ export const useUATSearch = ({ query, cursorPosition, dispatch }: UseUATSearchPr
       return;
     }
 
-    const prevData = prevDataRef.current;
-    const isSame =
-      prevData && prevData.length === data.length && prevData.every((item, idx) => item.id === data[idx].id);
-
-    if (!isSame) {
-      dispatch({ type: 'SET_UAT_TYPEAHEAD_OPTIONS', payload: data });
-      prevDataRef.current = data;
-      setUatTerm('');
-    }
+    dispatch({ type: 'SET_UAT_TYPEAHEAD_OPTIONS', payload: data });
+    setUatTerm('');
   }, [data, dispatch]);
 };
