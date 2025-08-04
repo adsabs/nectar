@@ -406,7 +406,7 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean; defaultExport
     }
   }, [route]);
 
-  const handleExportItemClick = curryN(2, (format: ExportApiFormatKey) => {
+  const handleExportItemClick = curryN(2, (format: string) => {
     setRoute([`/search/exportcitation/[format]`, `/search/exportcitation/${format}`]);
   });
 
@@ -420,7 +420,7 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean; defaultExport
       <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.aastex)}>in AASTeX</MenuItem>
       <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.endnote)}>in EndNote</MenuItem>
       <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.ris)}>in RIS</MenuItem>
-      <MenuItem onClick={handleExportItemClick(defaultExportFormatValue as ExportApiFormatKey)}>Other Formats</MenuItem>
+      <MenuItem onClick={handleExportItemClick(defaultExportFormatValue)}>Other Formats</MenuItem>
       <MenuDivider />
       <MenuItem onClick={handleOpenAuthorAffiliation}>Author Affiliations</MenuItem>
     </MenuGroup>

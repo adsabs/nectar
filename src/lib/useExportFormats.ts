@@ -25,6 +25,10 @@ export const useExportFormats = (options?: UseQueryOptions<ExportFormatsApiRespo
     }));
   }, [data]);
 
+  const formatOptionsNoCustom: ExportFormatOption[] = useMemo(() => {
+    return formatOptions.filter((o) => o.id !== 'custom');
+  }, formatOptions);
+
   const getFormatById = useCallback(
     (id: string) => {
       return data.find((f) => f.route.substring(1) === id);
@@ -53,5 +57,13 @@ export const useExportFormats = (options?: UseQueryOptions<ExportFormatsApiRespo
     [formatOptions],
   );
 
-  return { format: data, getFormatById, formatOptions, getFormatOptionById, isValidFormat, getFormatOptionByLabel };
+  return {
+    format: data,
+    getFormatById,
+    formatOptions,
+    formatOptionsNoCustom,
+    getFormatOptionById,
+    isValidFormat,
+    getFormatOptionByLabel,
+  };
 };

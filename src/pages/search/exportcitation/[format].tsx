@@ -25,7 +25,7 @@ import { fetchSearchInfinite, searchKeys, useSearchInfinite } from '@/api/search
 import { exportCitationKeys, fetchExportCitation, fetchExportFormats } from '@/api/export/export';
 
 interface IExportCitationPageProps {
-  format: ExportApiFormatKey;
+  format: string;
   query: IADSApiSearchParams;
   referrer?: string; // this is currently used by the library
   error?: {
