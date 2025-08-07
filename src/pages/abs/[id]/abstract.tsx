@@ -169,17 +169,27 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
   const url = new URL(`${process.env.API_HOST_SERVER}${ApiTargets.SEARCH}`);
   url.search = stringifySearchParams(params);
-  const result = await fetch(url, {
-    headers: new Headers({ Authorization: `Bearer ${bsRes.token.access_token}` }),
-  });
-  const data = (await result.json()) as IADSApiSearchResponse;
-  queryClient.setQueryData(searchKeys.abstract(ctx.params.id as string), data);
-  queryClient.setQueryData(['user'], bsRes.token);
-  ctx.res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
 
-  return {
-    props: {
-      dehydratedState: dehydrate(queryClient),
-    },
-  };
+  try {
+    const result = await fetch(url, {
+      headers: new Headers({ Authorization: `Bearer ${bsRes.token.access_token}` }),
+    });
+    const data = (await result.json()) as IADSApiSearchResponse;
+    queryClient.setQueryData(searchKeys.abstract(ctx.params.id as string), data);
+    queryClient.setQueryData(['user'], bsRes.token);
+    ctx.res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
+
+    return {
+      props: {
+        dehydratedState: dehydrate(queryClient),
+      },
+    };
+  } catch (error) {
+    logger.error({ error, url: url.toString() }, 'Error fetching abstract data');
+    return {
+      props: {
+        pageError: 'Failed to load abstract data',
+      },
+    };
+  }
 };
