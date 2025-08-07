@@ -30,7 +30,7 @@ import {
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { calculateStartIndex } from '@/components/ResultList/Pagination/usePagination';
-import { FormEventHandler, useCallback, useEffect, useRef, useState } from 'react';
+import { FormEventHandler, RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import { useIsClient } from '@/lib/useIsClient';
 import { NumPerPageType } from '@/types';
 import Head from 'next/head';
@@ -114,18 +114,7 @@ const SearchPage: NextPage = () => {
   };
 
   const { data, isSuccess, isLoading, isFetching, error, isError } = useSearch(omitP(params));
-
-  // needed by histogram for positioning and styling
-  const [histogramExpanded, setHistogramExpanded] = useState(false);
-  const [width, setWidth] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (ref.current) {
-      setWidth(ref.current.offsetWidth - 20);
-    }
-  }, [ref]);
-
+  const histogramContainerRef = useRef<HTMLDivElement>(null);
   const isClient = useIsClient();
 
   const { isOpen: isAddToLibraryOpen, onClose: onCloseAddToLibrary, onOpen: onOpenAddToLibrary } = useDisclosure();
@@ -197,15 +186,10 @@ const SearchPage: NextPage = () => {
     void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
   };
 
-  const handleToggleExpand = () => {
-    setHistogramExpanded((prev) => !prev);
-  };
-
   // conditions
   const loading = isLoading || isFetching;
   const noResults = !loading && isSuccess && data?.numFound === 0;
   const hasResults = !loading && isSuccess && data?.numFound > 0;
-  const isHistogramExpanded = histogramExpanded && !isPrint && isClient && hasResults;
   const showFilters = !isPrint && isClient && hasResults;
   const showListActions = !isPrint && (loading || hasResults);
 
@@ -214,33 +198,24 @@ const SearchPage: NextPage = () => {
       <Head>
         <title>{`${params.q} - ${BRAND_NAME_FULL} Search`}</title>
       </Head>
-      <Stack direction="column" aria-labelledby="search-form-title" spacing="10" ref={ref}>
+      <Stack direction="column" aria-labelledby="search-form-title" spacing="10">
         <HideOnPrint pt={10}>
           <form method="get" action="/search" onSubmit={handleOnSubmit}>
             <Flex direction="column" width="full">
-              <SearchBar isLoading={isLoading} />
-              <NumFound count={data?.numFound} isLoading={isLoading} />
+              <SearchBar isLoading={loading} />
+              <NumFound count={data?.numFound} isLoading={loading} />
             </Flex>
             <FacetFilters mt="2" />
           </form>
+          <Box ref={histogramContainerRef} />
         </HideOnPrint>
-        {isHistogramExpanded ? (
-          <YearHistogramSlider
-            onQueryUpdate={handleSearchFacetSubmission}
-            onExpand={handleToggleExpand}
-            expanded
-            width={width}
-            height={125}
-          />
-        ) : null}
         <Flex direction="row" gap={10} width="full">
           <Box display={{ base: 'none', lg: 'block' }}>
             {/* hide facets if screen is too small */}
             {showFilters ? (
               <SearchFacetFilters
-                histogramExpanded={histogramExpanded}
-                onExpandHistogram={handleToggleExpand}
                 onSearchFacetSubmission={handleSearchFacetSubmission}
+                histogramContainerRef={histogramContainerRef}
               />
             ) : null}
           </Box>
@@ -290,14 +265,14 @@ const SearchPage: NextPage = () => {
 };
 
 const SearchFacetFilters = (props: {
-  histogramExpanded: boolean;
-  onExpandHistogram: () => void;
+  histogramContainerRef?: RefObject<HTMLDivElement>;
   onSearchFacetSubmission: (queryUpdates: Partial<IADSApiSearchParams>) => void;
 }) => {
-  const { histogramExpanded, onSearchFacetSubmission, onExpandHistogram } = props;
+  const { onSearchFacetSubmission, histogramContainerRef } = props;
   const showFilters = useStore(selectors.showFilters);
   const handleToggleFilters = useStore(selectors.toggleSearchFacetsOpen);
   const handleResetFilters = useStore(selectors.resetSearchFacets);
+  const [histogramExpanded, setHistogramExpanded] = useState(false);
 
   if (showFilters) {
     return (
@@ -346,15 +321,27 @@ const SearchFacetFilters = (props: {
             />
           </Tooltip>
         </Flex>
-        {!histogramExpanded ? (
+        {histogramExpanded ? (
+          <Portal containerRef={histogramContainerRef}>
+            <Box mt={10}>
+              <YearHistogramSlider
+                onQueryUpdate={onSearchFacetSubmission}
+                onExpand={() => setHistogramExpanded((state) => !state)}
+                expanded={true}
+                width={props.histogramContainerRef?.current?.offsetWidth || 200}
+                height={125}
+              />
+            </Box>
+          </Portal>
+        ) : (
           <YearHistogramSlider
             onQueryUpdate={onSearchFacetSubmission}
-            onExpand={onExpandHistogram}
+            onExpand={() => setHistogramExpanded((state) => !state)}
             expanded={false}
             width={200}
             height={125}
           />
-        ) : null}
+        )}
         <SearchFacets onQueryUpdate={onSearchFacetSubmission} />
       </Flex>
     );
@@ -412,58 +399,6 @@ const NoResultsMsg = () => (
   />
 );
 
-export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
-// const omitUnsafeQueryParams = omit(['fl', 'start', 'rows']);
-// export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-//   const queryClient = new QueryClient();
-//   const { p: page, n: numPerPage, ...query } = parseQueryFromUrl<{ p: string; n: string }>(ctx.req.url);
-//
-//   const params = getSearchParams({
-//     ...omitUnsafeQueryParams(query),
-//     q: query.q.length === 0 ? '*:*' : query.q,
-//     start: (page - 1) * numPerPage,
-//     rows: numPerPage,
-//   });
-//
-//   try {
-//     const queryKey = searchKeys.primary(params);
-//
-//     // primary query prefetch
-//     await queryClient.fetchQuery({
-//       queryKey,
-//       queryFn: (qfCtx) => fetchSearchSSR(params, ctx, qfCtx),
-//     });
-//
-//     return {
-//       props: {
-//         dehydratedState: dehydrate(queryClient),
-//         dehydratedAppState: {
-//           query: params,
-//           latestQuery: params,
-//           numPerPage: numPerPage as NumPerPageType,
-//         } as AppState,
-//         page,
-//         params,
-//       },
-//     };
-//   } catch (error) {
-//     logger.error({ msg: 'Error fetching search results', error });
-//     return {
-//       props: {
-//         dehydratedState: dehydrate(queryClient),
-//         dehydratedAppState: {
-//           query: params,
-//           latestQuery: params,
-//           numPerPage: numPerPage as NumPerPageType,
-//         } as AppState,
-//         pageError: parseAPIError(error),
-//         page,
-//         params,
-//       },
-//     };
-//   }
-// });
-//
 export default SearchPage;
 
 const SearchErrorAlert = ({ error }: { error: AxiosError<IADSApiSearchResponse> | Error }) => {

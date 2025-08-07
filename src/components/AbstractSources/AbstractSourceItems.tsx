@@ -94,7 +94,7 @@ export const FullTextSourceItems = ({ resources, type, ...boxProps }: IFullTextS
                   {group.links.map((link) => (
                     <MenuItem key={link.rawType} as={SimpleLink} href={link.path} newTab>
                       {link.rawType === Esources.INSTITUTION ? (
-                        <Icon as={AcademicCapIcon} mr={1} />
+                        <Icon as={AcademicCapIcon} mr={1} fontSize="2em" />
                       ) : link.open ? (
                         <UnlockIcon color="green.600" mr={1} />
                       ) : (
@@ -121,7 +121,7 @@ export const FullTextSourceItems = ({ resources, type, ...boxProps }: IFullTextS
                       key={link.rawType}
                       icon={
                         link.rawType === Esources.INSTITUTION ? (
-                          <AcademicCapIcon />
+                          <Icon as={AcademicCapIcon} fontSize="2em" />
                         ) : link.type === 'pdf' ? (
                           <PdfFileIcon fill={link.open ? 'green' : 'gray'} />
                         ) : link.type === 'html' ? (

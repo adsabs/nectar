@@ -239,11 +239,7 @@ const Handle = ({ handle, getHandleProps, align, mt, showLabel, onEnter }: IHand
         tabIndex={0}
         {...getHandleProps(handle.id)}
       />
-      {showLabel && (
-        <Box mt={5} fontSize="md">
-          {handle.value}
-        </Box>
-      )}
+      {showLabel && <Box fontSize="md">{handle.value}</Box>}
     </Stack>
   );
 };
