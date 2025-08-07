@@ -32,7 +32,7 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>((props, re
   return (
     <VStack as="section" direction="column" spacing={2} align="stretch">
       <QuickFields isLoading={isLoading} dispatch={dispatch} />
-      <SearchInput ref={refs} dispatch={dispatch} state={state} {...rest} />
+      <SearchInput ref={refs} dispatch={dispatch} state={state} isLoading={isLoading} {...rest} />
     </VStack>
   );
 });
