@@ -20,6 +20,7 @@ import { IDocsEntity } from '@/api/search/types';
 import { useGetGraphicsCount } from '@/api/graphics/graphics';
 import { useHasMetrics } from '@/api/metrics/metrics';
 import { useExportFormats } from '@/lib/useExportFormats';
+import { ExportApiFormatKey } from '@/api/export/types';
 
 const abstractPath = '/abs';
 
@@ -44,8 +45,8 @@ const useGetItems = ({
   const defaultExportFormat = settings.defaultExportFormat;
   const defaultExportFormatPath =
     typeof defaultExportFormat === 'string'
-      ? formatOptions.find((f) => f.label === defaultExportFormat)?.value ?? 'bibtex'
-      : 'bibtex';
+      ? formatOptions.find((f) => f.label === defaultExportFormat)?.value ?? ExportApiFormatKey.bibtex
+      : ExportApiFormatKey.bibtex;
 
   const items: Record<Routes, IMenuItem> = {
     [Routes.ABSTRACT]: {

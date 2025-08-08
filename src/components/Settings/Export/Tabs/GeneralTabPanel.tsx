@@ -23,7 +23,7 @@ export interface IGeneralTabPanelProps {
 export const GeneralTabPanel = ({ sampleBib, selectedOption, dispatch }: IGeneralTabPanelProps) => {
   const { settings: userSettings } = useSettings({ suspense: false });
 
-  const { getFormatOptionByLabel } = useExportFormats();
+  const { getFormatOptionByLabel, getFormatOptionById } = useExportFormats();
 
   // default export format changed
   const handleApplyDefaultExportFormat = (format: ExportFormatOption) => {
@@ -42,7 +42,8 @@ export const GeneralTabPanel = ({ sampleBib, selectedOption, dispatch }: IGenera
       bibtexMaxAuthors,
     } = userSettings;
 
-    const defaultExportFormatOpt = getFormatOptionByLabel(defaultExportFormat) ?? getFormatOptionByLabel('BibTeX');
+    const defaultExportFormatOpt =
+      getFormatOptionByLabel(defaultExportFormat) ?? getFormatOptionById(ExportApiFormatKey.bibtex);
 
     const customFormat = customFormats.length > 0 ? customFormats[0].code : '';
     const journalFormat = JournalFormatMap[bibtexJournalFormat];

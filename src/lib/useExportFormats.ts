@@ -27,7 +27,7 @@ export const useExportFormats = (options?: UseQueryOptions<ExportFormatsApiRespo
 
   const formatOptionsNoCustom: ExportFormatOption[] = useMemo(() => {
     return formatOptions.filter((o) => o.id !== 'custom');
-  }, formatOptions);
+  }, [formatOptions]);
 
   const getFormatById = useCallback(
     (id: string) => {
@@ -57,6 +57,13 @@ export const useExportFormats = (options?: UseQueryOptions<ExportFormatsApiRespo
     [formatOptions],
   );
 
+  const isValidFormatLabel = useCallback(
+    (label: string) => {
+      return typeof label === 'string' && formatOptions.findIndex((o) => o.label === label) > -1;
+    },
+    [formatOptions],
+  );
+
   return {
     format: data,
     getFormatById,
@@ -64,6 +71,7 @@ export const useExportFormats = (options?: UseQueryOptions<ExportFormatsApiRespo
     formatOptionsNoCustom,
     getFormatOptionById,
     isValidFormat,
+    isValidFormatLabel,
     getFormatOptionByLabel,
   };
 };
