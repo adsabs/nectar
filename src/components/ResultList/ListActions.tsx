@@ -28,7 +28,7 @@ import {
 import { useIsClient } from '@/lib/useIsClient';
 import { AppState, useStore, useStoreApi } from '@/store';
 import { useRouter } from 'next/router';
-import { curryN, values } from 'ramda';
+import { curryN } from 'ramda';
 import { isNonEmptyString } from 'ramda-adjunct';
 import { MouseEventHandler, ReactElement, useCallback, useEffect, useState } from 'react';
 import { SecondOrderOpsLinks } from './SecondOrderOpsLinks';
@@ -41,7 +41,6 @@ import { AddNotificationModal } from '@/components/EmailNotifications/AddNotific
 import { solrSortOptions } from '@/components/Sort/model';
 import { ISortProps, Sort } from '@/components/Sort';
 import { sections } from '@/components/Visualizations';
-import { exportFormats } from '@/components/CitationExporter';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
 import { noop } from '@/utils/common/noop';
@@ -50,6 +49,7 @@ import { useVaultBigQuerySearch } from '@/api/vault/vault';
 import { Bibcode } from '@/api/search/types';
 import { ExportApiFormatKey } from '@/api/export/types';
 import { DocumentTextIcon } from '@heroicons/react/24/outline';
+import { useExportFormats } from '@/lib/useExportFormats';
 
 export interface IListActionsProps {
   onSortChange?: ISortProps<SolrSort, SolrSortField>['onChange'];
@@ -375,10 +375,11 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean; defaultExport
   const store = useStoreApi();
   const [selected, setSelected] = useState<Bibcode[]>([]);
   const [route, setRoute] = useState(['', '']);
+  const { getFormatOptionByLabel } = useExportFormats();
 
   const { data } = useVaultBigQuerySearch(selected, { enabled: !exploreAll && selected.length > 0 });
 
-  const defaultExportFormatValue = values(exportFormats).find((f) => f.label === defaultExportFormat).value;
+  const defaultExportFormatValue = getFormatOptionByLabel(defaultExportFormat).value;
 
   useEffect(() => {
     if (data) {
@@ -405,7 +406,7 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean; defaultExport
     }
   }, [route]);
 
-  const handleExportItemClick = curryN(2, (format: ExportApiFormatKey) => {
+  const handleExportItemClick = curryN(2, (format: string) => {
     setRoute([`/search/exportcitation/[format]`, `/search/exportcitation/${format}`]);
   });
 
@@ -419,7 +420,7 @@ const ExportMenu = (props: MenuGroupProps & { exploreAll: boolean; defaultExport
       <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.aastex)}>in AASTeX</MenuItem>
       <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.endnote)}>in EndNote</MenuItem>
       <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.ris)}>in RIS</MenuItem>
-      <MenuItem onClick={handleExportItemClick(defaultExportFormatValue as ExportApiFormatKey)}>Other Formats</MenuItem>
+      <MenuItem onClick={handleExportItemClick(defaultExportFormatValue)}>Other Formats</MenuItem>
       <MenuDivider />
       <MenuItem onClick={handleOpenAuthorAffiliation}>Author Affiliations</MenuItem>
     </MenuGroup>

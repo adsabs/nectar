@@ -7,20 +7,29 @@ import { useRouter } from 'next/router';
 import { useSettings } from '@/lib/useSettings';
 import { CitationExporter } from '@/components/CitationExporter';
 import { JournalFormatMap } from '@/components/Settings';
-import { ExportApiFormatKey, isExportApiFormat } from '@/api/export/types';
+import { ExportApiFormatKey } from '@/api/export/types';
 import { useGetAbstract } from '@/api/search/search';
 import { IDocsEntity } from '@/api/search/types';
+import { useExportFormats } from '@/lib/useExportFormats';
 
 const ExportCitationPage: NextPage = () => {
   const router = useRouter();
-  const format = isExportApiFormat(router.query.format) ? router.query.format : ExportApiFormatKey.bibtex;
+
+  const { isValidFormat } = useExportFormats();
+
   const { data } = useGetAbstract({ id: router.query.id as string });
+
   const doc = path<IDocsEntity>(['docs', 0], data);
 
   // get export related user settings
   const { settings } = useSettings({
     suspense: false,
   });
+
+  const format =
+    typeof router.query.format === 'string' && isValidFormat(router.query.format)
+      ? router.query.format
+      : ExportApiFormatKey.bibtex;
 
   const { keyformat, journalformat, authorcutoff, maxauthor } =
     format === ExportApiFormatKey.bibtexabs

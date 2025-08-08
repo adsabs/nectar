@@ -1,13 +1,22 @@
-import { QueryFunction, useQuery, UseQueryResult } from '@tanstack/react-query';
+import { QueryFunction, useQuery, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 import api, { ApiRequestConfig } from '../api';
-import { ExportApiFormatKey, IExportApiParams, IExportApiResponse } from './types';
+import { ExportApiFormatKey, ExportFormatsApiResponse, IExportApiParams, IExportApiResponse } from './types';
 import { ADSQuery } from '@/api/types';
 import { ApiTargets } from '@/api/models';
 
 export type UseExportCitationResult = UseQueryResult<Partial<IExportApiResponse>>;
 
 export const exportCitationKeys = {
+  manifest: () => ['manifest'] as const,
   primary: (params: IExportApiParams) => ['exportcitation', { params }] as const,
+};
+
+export const useGetExportFormats = (options?: UseQueryOptions<ExportFormatsApiResponse>) => {
+  return useQuery({
+    queryKey: exportCitationKeys.manifest(),
+    queryFn: fetchExportFormats,
+    ...options,
+  });
 };
 
 /**
@@ -20,6 +29,17 @@ export const useGetExportCitation: ADSQuery<IExportApiParams, IExportApiResponse
     meta: { params },
     ...options,
   });
+};
+
+export const fetchExportFormats: QueryFunction<ExportFormatsApiResponse> = async () => {
+  const config: ApiRequestConfig = {
+    method: 'GET',
+    url: ApiTargets.EXPORT_MANIFEST,
+  };
+
+  const { data } = await api.request<ExportFormatsApiResponse>(config);
+
+  return data;
 };
 
 export const fetchExportCitation: QueryFunction<IExportApiResponse> = async ({ meta }) => {

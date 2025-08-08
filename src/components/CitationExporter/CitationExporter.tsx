@@ -30,17 +30,17 @@ import { KeyFormatInput } from './components/KeyFormatInput';
 import { MaxAuthorsField } from './components/MaxAuthorsField';
 import { RecordField } from './components/RecordField';
 import { ResultArea } from './components/ResultArea';
-import { exportFormats } from './models';
 import { useCitationExporter } from './useCitationExporter';
 import { noop } from '@/utils/common/noop';
-import { ExportApiFormatKey, ExportApiJournalFormat, IExportApiParams, isExportApiFormat } from '@/api/export/types';
+import { ExportApiFormatKey, ExportApiJournalFormat, IExportApiParams } from '@/api/export/types';
 import { IDocsEntity } from '@/api/search/types';
 import { SolrSort } from '@/api/models';
 import { logger } from '@/logger';
+import { useExportFormats } from '@/lib/useExportFormats';
 
 export interface ICitationExporterProps extends HTMLAttributes<HTMLDivElement> {
   singleMode?: boolean;
-  initialFormat?: ExportApiFormatKey;
+  initialFormat?: string;
   authorcutoff?: number;
   keyformat?: string;
   journalformat?: ExportApiJournalFormat;
@@ -101,6 +101,8 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
   const isLoading = state.matches('fetching');
   const router = useRouter();
 
+  const { isValidFormat } = useExportFormats();
+
   // Updates the route when format has changed
   useEffect(() => {
     if (
@@ -125,7 +127,7 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
     router.beforePopState(({ as }) => {
       try {
         const format = as.split('?')[0].slice(as.lastIndexOf('/') + 1);
-        if (isExportApiFormat(format)) {
+        if (isValidFormat(format)) {
           dispatch({ type: 'SET_FORMAT', payload: format });
           dispatch('FORCE_SUBMIT');
           return false;
@@ -292,11 +294,12 @@ const Static = (props: Omit<ICitationExporterProps, 'page' | 'nextPage'>): React
   });
   const ctx = state.context;
 
-  const format = exportFormats[ctx.params.format];
+  const { getFormatById } = useExportFormats();
+  const format = getFormatById(ctx.params.format);
 
   if (singleMode) {
     return (
-      <ExportContainer header={<>Exporting record in {format.label} format</>} {...divProps}>
+      <ExportContainer header={<>Exporting record in {format.name} format</>} {...divProps}>
         <ResultArea result={data?.export} format={ctx.params.format} />
       </ExportContainer>
     );

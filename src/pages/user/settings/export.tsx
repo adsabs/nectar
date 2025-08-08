@@ -2,16 +2,15 @@ import { Spinner, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/rea
 
 import { useSettings } from '@/lib/useSettings';
 import { GetServerSideProps, NextPage } from 'next';
-import { Reducer, Suspense, useEffect, useMemo, useReducer } from 'react';
+import { Reducer, Suspense, useEffect, useReducer } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { dehydrate, QueryClient, QueryErrorResetBoundary } from '@tanstack/react-query';
-import { omit, pathOr, values } from 'ramda';
+import { omit, pathOr } from 'ramda';
 import { composeNextGSSP } from '@/ssr-utils';
 import { ErrorBoundary } from 'react-error-boundary';
 import { getFallBackAlert } from '@/components/Feedbacks/SuspendedAlert';
 import { isNotEmpty } from 'ramda-adjunct';
 import { logger } from '@/logger';
-import { exportFormats } from '@/components/CitationExporter';
 import { SettingsLayout } from '@/components/Layout';
 import {
   BibtexTabPanel,
@@ -25,6 +24,7 @@ import { getSearchParams } from '@/api/search/models';
 import { fetchSearch, searchKeys, useSearch } from '@/api/search/search';
 import { IADSApiSearchParams } from '@/api/search/types';
 import { fetchUserSettings, userKeys } from '@/api/user/user';
+import { useExportFormats } from '@/lib/useExportFormats';
 
 // partial user data params
 // used to update user data
@@ -117,8 +117,6 @@ const reducer: Reducer<UserDataSetterState, UserDataSetterEvent> = (state, actio
   }
 };
 
-const exportFormatOptions = values(exportFormats);
-
 export const Page: NextPage = () => {
   return (
     <SettingsLayout title="Export Settings" maxW={{ base: 'container.sm', lg: 'container.lg' }}>
@@ -156,11 +154,10 @@ const ExportSettings = () => {
 
   useEffect(() => dispatch({ type: 'CLEAR' }), []);
 
+  const { getFormatOptionByLabel } = useExportFormats();
+
   // get selected values for the form
-  const defaultExportFormatOption = useMemo(
-    () => exportFormatOptions.find((option) => option.label === userSettings.defaultExportFormat),
-    [userSettings],
-  );
+  const defaultExportFormatOption = getFormatOptionByLabel(userSettings.defaultExportFormat);
 
   // fetch the sample bibcode
   const sampleBibParams = getSearchParams({ q: 'bibstem:ApJ author_count:[10 TO 20]', rows: 1 });

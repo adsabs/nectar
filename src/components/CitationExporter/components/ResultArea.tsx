@@ -2,7 +2,6 @@ import { CheckIcon, DownloadIcon } from '@chakra-ui/icons';
 import { Box, Button, HStack, Spinner, Stack, StackProps, Textarea, useBreakpointValue } from '@chakra-ui/react';
 import { useDownloadFile } from '@/lib/useDownloadFile';
 import { useIsClient } from '@/lib/useIsClient';
-import { citationFormatIds, exportFormats } from '../models';
 import { LabeledCopyButton } from '@/components/CopyButton';
 
 import { sendGTMEvent } from '@next/third-parties/google';
@@ -10,6 +9,7 @@ import { useColorModeColors } from '@/lib/useColorModeColors';
 import { ExportApiFormatKey } from '@/api/export/types';
 import { useEffect, useState } from 'react';
 import { htmlToRtfPreprocess } from '../helpers';
+import { useExportFormats } from '@/lib/useExportFormats';
 
 export const ResultArea = ({
   result = '',
@@ -18,15 +18,19 @@ export const ResultArea = ({
   ...stackProps
 }: {
   result: string;
-  format: ExportApiFormatKey;
+  format: string;
   isLoading?: boolean;
 } & StackProps) => {
   const [rtf, setRtf] = useState<string>(null);
 
+  const { getFormatOptionById } = useExportFormats();
+
+  const formatOption = getFormatOptionById(format);
+
   // for html format, convert to RTF and and additional clean up
   useEffect(() => {
     const loadHtmlToRtf = async () => {
-      if (citationFormatIds.includes(format)) {
+      if (formatOption.type === 'HTML') {
         try {
           import('html-to-rtf-browser').then((m) => {
             const htmlToRtf = new m.default();
@@ -41,20 +45,17 @@ export const ResultArea = ({
     loadHtmlToRtf();
   }, [result]);
 
-  const { onDownload, hasDownloaded, isDownloading } = useDownloadFile(
-    citationFormatIds.includes(format) ? rtf : result,
-    {
-      filename: () => `export-${format}.${exportFormats[format].ext}`,
-      type: citationFormatIds.includes(format) ? 'RTF' : 'TEXT',
-      onDownloaded() {
-        sendGTMEvent({
-          event: 'citation_export',
-          export_type: 'download',
-          export_format: format,
-        });
-      },
+  const { onDownload, hasDownloaded, isDownloading } = useDownloadFile(formatOption.type === 'HTML' ? rtf : result, {
+    filename: () => `export-${format}.${formatOption.ext}`,
+    type: formatOption.type === 'HTML' ? 'RTF' : 'TEXT',
+    onDownloaded() {
+      sendGTMEvent({
+        event: 'citation_export',
+        export_type: 'download',
+        export_format: format,
+      });
     },
-  );
+  });
 
   const colors = useColorModeColors();
   const isFullWidth = useBreakpointValue([true, false]);
@@ -88,11 +89,11 @@ export const ResultArea = ({
                 export_format: format,
               });
             }}
-            asHtml={citationFormatIds.includes(format)}
+            asHtml={formatOption.type === 'HTML'}
           />
         </HStack>
       )}
-      {citationFormatIds.includes(format) ? (
+      {formatOption.type === 'HTML' ? (
         <>
           {result.length > 0 ? (
             <Box
