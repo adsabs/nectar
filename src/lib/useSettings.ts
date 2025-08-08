@@ -33,12 +33,18 @@ export const useSettings = (options?: UseQueryOptions<IADSApiUserDataResponse>, 
     },
   });
 
-  const { isValidFormatLabel } = useExportFormats();
+  const { isValidFormatLabel, isValidCitationFormatId } = useExportFormats();
 
   // validate settings data
-  const settings = isValidFormatLabel(settingsdata.defaultExportFormat)
-    ? settingsdata
-    : { ...settingsdata, defaultExportFormat: ExportApiFormatKey.bibtex };
+  const settings = {
+    ...settingsdata,
+    defaultExportFormat: isValidFormatLabel(settingsdata.defaultExportFormat)
+      ? settingsdata.defaultExportFormat
+      : ExportApiFormatKey.bibtex,
+    defaultCitationFormat: isValidCitationFormatId(settingsdata.defaultCitationFormat)
+      ? settingsdata.defaultCitationFormat
+      : ExportApiFormatKey.agu,
+  };
 
   useEffect(() => {
     if (isNil(hideToast) || hideToast === false) {

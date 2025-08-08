@@ -64,6 +64,13 @@ export const useExportFormats = (options?: UseQueryOptions<ExportFormatsApiRespo
     [formatOptions],
   );
 
+  const isValidCitationFormatId = useCallback(
+    (id: string) => {
+      return typeof id === 'string' && formatOptions.findIndex((o) => o.id === id && o.type === 'HTML') > -1;
+    },
+    [formatOptions],
+  );
+
   return {
     format: data,
     getFormatById,
@@ -72,6 +79,7 @@ export const useExportFormats = (options?: UseQueryOptions<ExportFormatsApiRespo
     getFormatOptionById,
     isValidFormat,
     isValidFormatLabel,
+    isValidCitationFormatId,
     getFormatOptionByLabel,
   };
 };
