@@ -14,8 +14,10 @@ import {
   Button,
   Center,
   Code,
+  Collapse,
   Flex,
   Heading,
+  HStack,
   Icon,
   IconButton,
   List,
@@ -28,6 +30,7 @@ import {
   useDisclosure,
   useMediaQuery,
   VisuallyHidden,
+  VStack,
 } from '@chakra-ui/react';
 import { calculateStartIndex } from '@/components/ResultList/Pagination/usePagination';
 import { FormEventHandler, useCallback, useEffect, useRef, useState } from 'react';
@@ -44,7 +47,7 @@ import { AddToLibraryModal } from '@/components/Libraries';
 import { ArrowPathIcon } from '@heroicons/react/24/solid';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { CustomInfoMessage } from '@/components/Feedbacks';
-import { CheckCircleIcon } from '@chakra-ui/icons';
+import { CheckCircleIcon, ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { SimpleLink } from '@/components/SimpleLink';
 import { AxiosError } from 'axios';
 import { SOLR_ERROR, useSolrError } from '@/lib/useSolrError';
@@ -468,6 +471,7 @@ export default SearchPage;
 
 const SearchErrorAlert = ({ error }: { error: AxiosError<IADSApiSearchResponse> | Error }) => {
   const data = useSolrError(error);
+  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false });
 
   const getMsg = useCallback(() => {
     switch (data?.error) {
@@ -482,12 +486,35 @@ const SearchErrorAlert = ({ error }: { error: AxiosError<IADSApiSearchResponse> 
       default:
         return <Text>There was an issue performing the search, please check your query</Text>;
     }
-  }, [data.error]);
+  }, [data?.error, data?.field]);
 
   return (
-    <Alert status="error">
-      <AlertIcon />
-      {getMsg()}
-    </Alert>
+    <Box minH="sm" w="full">
+      <Alert status="error">
+        <VStack align="stretch" spacing={2} w="full">
+          {/* Top row: icon+msg on left, button on right */}
+          <HStack justify="space-between" w="full">
+            <HStack flex="1" spacing={2} align="center">
+              <AlertIcon />
+              {getMsg()}
+            </HStack>
+            <Button
+              rightIcon={isOpen ? <ChevronDownIcon /> : <ChevronRightIcon />}
+              aria-label="toggle error details"
+              onClick={onToggle}
+              variant="ghost"
+              size="sm"
+            >
+              {isOpen ? 'Hide' : 'Show'} Full Error
+            </Button>
+          </HStack>
+
+          {/* Collapse content: spans full width */}
+          <Collapse in={isOpen} animateOpacity>
+            <Code p="2">{data.originalMsg}</Code>
+          </Collapse>
+        </VStack>
+      </Alert>
+    </Box>
   );
 };
