@@ -11,6 +11,7 @@ export const useExportFormats = (options?: UseQueryOptions<ExportFormatsApiRespo
   const { data } = useGetExportFormats({
     retry: false,
     placeholderData: DEFAULT_EXPORT_FORMATS,
+    initialData: DEFAULT_EXPORT_FORMATS,
     ...options,
   });
 
