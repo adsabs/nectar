@@ -7,9 +7,8 @@ import { isNotEmpty } from 'ramda-adjunct';
 import { useSession } from '@/lib/useSession';
 import { IADSApiUserDataParams, IADSApiUserDataResponse } from '@/api/user/types';
 import { useGetUserSettings, userKeys, useUpdateUserSettings } from '@/api/user/user';
-import { DEFAULT_USER_DATA } from '@/api/user/models';
+import { DEFAULT_CITATION_FORMAT, DEFAULT_EXPORT_FORMAT, DEFAULT_USER_DATA } from '@/api/user/models';
 import { useExportFormats } from './useExportFormats';
-import { ExportApiFormatKey } from '@/api/export/types';
 
 export const useSettings = (options?: UseQueryOptions<IADSApiUserDataResponse>, hideToast?: boolean) => {
   const { isAuthenticated } = useSession();
@@ -40,10 +39,10 @@ export const useSettings = (options?: UseQueryOptions<IADSApiUserDataResponse>, 
     ...settingsdata,
     defaultExportFormat: isValidFormatLabel(settingsdata.defaultExportFormat)
       ? settingsdata.defaultExportFormat
-      : ExportApiFormatKey.bibtex,
+      : DEFAULT_EXPORT_FORMAT,
     defaultCitationFormat: isValidCitationFormatId(settingsdata.defaultCitationFormat)
       ? settingsdata.defaultCitationFormat
-      : ExportApiFormatKey.agu,
+      : DEFAULT_CITATION_FORMAT,
   };
 
   useEffect(() => {

@@ -2,6 +2,10 @@ import { APP_DEFAULTS } from '@/config';
 import { ExportApiFormatKey } from '../export/types';
 import { DatabaseEnum, ExternalLinkAction, IADSApiUserDataResponse, JournalFormatName, UserDataKeys } from './types';
 
+export const DEFAULT_EXPORT_FORMAT = 'BibTeX';
+
+export const DEFAULT_CITATION_FORMAT = ExportApiFormatKey.agu;
+
 export const DEFAULT_USER_DATA: IADSApiUserDataResponse = {
   [UserDataKeys.HOMEPAGE]: 'Modern Form',
   [UserDataKeys.LINK_SERVER]: '',
@@ -21,8 +25,8 @@ export const DEFAULT_USER_DATA: IADSApiUserDataResponse = {
   [UserDataKeys.EXTERNAL_LINK_ACTION]: ExternalLinkAction.Auto,
   [UserDataKeys.ABS_MAX_AUTHORS]: `${APP_DEFAULTS.BIBTEX_ABS_DEFAULT_MAX_AUTHOR}`,
   [UserDataKeys.BIBTEX_JOURNAL_FORMAT]: JournalFormatName.AASTeXMacros,
-  [UserDataKeys.DEFAULT_EXPORT_FORMAT]: 'BibTeX',
-  [UserDataKeys.DEFAULT_CITATION_FORMAT]: ExportApiFormatKey.agu,
+  [UserDataKeys.DEFAULT_EXPORT_FORMAT]: DEFAULT_EXPORT_FORMAT,
+  [UserDataKeys.DEFAULT_CITATION_FORMAT]: DEFAULT_CITATION_FORMAT,
   [UserDataKeys.DEFAULT_HIDE_SIDEBARS]: 'Show',
   [UserDataKeys.MIN_AUTHOR_RESULT]: '4',
   [UserDataKeys.ABS_AUTHOR_CUTOFF]: `${APP_DEFAULTS.BIBTEX_DEFAULT_AUTHOR_CUTOFF}`,
