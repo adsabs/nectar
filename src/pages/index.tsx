@@ -3,7 +3,6 @@ import { DatabaseEnum, IADSApiUserDataResponse } from '@/api/user/types';
 import { Box, Center, Flex, Heading, Stack, Text, useMediaQuery, VisuallyHidden } from '@chakra-ui/react';
 
 import { applyFiltersToQuery } from '@/components/SearchFacet/helpers';
-import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 import { useStore } from '@/store';
 import { NextPage } from 'next';
 import Image from 'next/image';
@@ -21,11 +20,12 @@ import { Pager } from '@/components/Pager/Pager';
 
 const HomePage: NextPage = () => {
   const { settings } = useSettings();
+  const [queryAddition, setQueryAddition] = useState('');
+  const [query, setQuery] = useState<string>('');
   const sort = [`${settings.preferredSearchSort} desc` as SolrSort];
   const submitQuery = useStore((state) => state.submitQuery);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const { clearQuery, updateQuery } = useIntermediateQuery();
   const clearSelectedDocs = useStore((state) => state.clearAllSelected);
   const setNotification = useStore((state) => state.setNotification);
 
@@ -37,13 +37,13 @@ const HomePage: NextPage = () => {
     };
     router.events.on('routeChangeComplete', setNotify);
     return () => router.events.off('routeChangeComplete', setNotify);
-  }, [router]);
+  }, [router, setNotification]);
 
   // clear search on mount
   useEffect(() => {
     clearSelectedDocs();
-    clearQuery();
-  }, []);
+    setQuery('');
+  }, [clearSelectedDocs]);
 
   /**
    * Take in a query object and apply any FQ filters
@@ -74,7 +74,6 @@ const HomePage: NextPage = () => {
       const query = new FormData(e.currentTarget).get('q') as string;
 
       if (query && query.trim().length > 0) {
-        updateQuery(query);
         setIsLoading(true);
         submitQuery();
         void router
@@ -87,7 +86,17 @@ const HomePage: NextPage = () => {
           });
       }
     },
-    [router, sort, submitQuery, updateQuery],
+    [applyDefaultFilters, router, sort, submitQuery],
+  );
+
+  const handleQueryExampleSelect = useCallback(
+    (textToAppend) => {
+      setQueryAddition(textToAppend);
+
+      // Allow the user to continuously append if they'd like
+      setTimeout(setQueryAddition, 0, '');
+    },
+    [setQueryAddition],
   );
 
   const [isMobile] = useMediaQuery('(max-width: 800px)');
@@ -100,7 +109,7 @@ const HomePage: NextPage = () => {
         </VisuallyHidden>
         <Flex direction="column">
           <Box my={2}>
-            <SearchBar isLoading={isLoading} />
+            <SearchBar isLoading={isLoading} query={query} queryAddition={queryAddition} />
           </Box>
           {isMobile ? (
             <>
@@ -109,11 +118,11 @@ const HomePage: NextPage = () => {
                   <Text fontWeight="thin">Search Examples</Text>
                 </Center>
               </Heading>
-              <SearchExamples />
+              <SearchExamples onSelectExample={handleQueryExampleSelect} />
             </>
           ) : (
             <Box mb={2} mt={5} minW="md">
-              <Carousel />
+              <Carousel onExampleSelect={handleQueryExampleSelect} />
             </Box>
           )}
         </Flex>
@@ -126,12 +135,13 @@ const HomePage: NextPage = () => {
 
 export default HomePage;
 
-const Carousel = () => {
+const Carousel = (props: { onExampleSelect: (text: string) => void }) => {
   const [initialPage, setInitialPage] = useState<number>(0);
+  const { onExampleSelect } = props;
 
   useEffect(() => {
     setInitialPage(parseInt(localStorage.getItem('carousel') ?? '0', 10));
-  });
+  }, []);
 
   const handlePageChange = (page: number) => {
     localStorage.setItem('carousel', page.toString());
@@ -219,7 +229,11 @@ const Carousel = () => {
               </Text>
               <Text fontSize="xl">
                 Use the{' '}
-                <SimpleLink href="/scixhelp/quickstart-scix/searching-for-paper" display="inline" newTab>
+                <SimpleLink
+                  href="/scixhelp/quickstart-scix/searching-for-paper"
+                  anchorProps={{ display: 'inline' }}
+                  newTab
+                >
                   quick start guide
                 </SimpleLink>{' '}
                 to start your search of the portal and find out where to go with any questions about advanced tools and
@@ -231,7 +245,7 @@ const Carousel = () => {
         {
           uniqueId: 'search-examples',
           title: 'Search Examples',
-          content: <SearchExamples />,
+          content: <SearchExamples onSelectExample={onExampleSelect} />,
         },
       ]}
     />

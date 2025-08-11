@@ -115,7 +115,7 @@ export const Item = (props: IItemProps): ReactElement => {
         {hideCheckbox ? null : <ItemCheckbox index={index} bibcode={bibcode} label={title} isChecked={isChecked} />}
       </Flex>
       <Stack direction="column" width="full" spacing={0} mx={3} mt={2}>
-        <Flex justifyContent="space-between">
+        <Flex justifyContent="space-between" minH="40px">
           <SimpleLink href={`/abs/${bibcode}/abstract`} fontWeight="semibold" className="article-title">
             <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
           </SimpleLink>

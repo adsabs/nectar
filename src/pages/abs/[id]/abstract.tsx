@@ -7,7 +7,6 @@ import { OrcidActiveIcon } from '@/components/icons/Orcid';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { APP_DEFAULTS } from '@/config';
 import { useIsClient } from '@/lib/useIsClient';
-import { composeNextGSSP } from '@/ssr-utils';
 import { MathJax } from 'better-react-mathjax';
 import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
@@ -21,12 +20,14 @@ import { feedbackItems } from '@/components/NavBar';
 import { SearchQueryLink } from '@/components/SearchQueryLink';
 import { AbstractSources } from '@/components/AbstractSources';
 import { AddToLibraryModal } from '@/components/Libraries';
-import { parseAPIError } from '@/utils/common/parseAPIError';
-import { fetchSearchSSR, searchKeys, useGetAbstract } from '@/api/search/search';
-import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
+import { searchKeys, useGetAbstract } from '@/api/search/search';
+import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity } from '@/api/search/types';
 import { getAbstractParams } from '@/api/search/models';
 import { useTrackAbstractView } from '@/lib/useTrackAbstractView';
 import { AbstractDetails } from '@/components/AbstractDetails';
+import { bootstrap } from '@/lib/serverside/bootstrap';
+import { ApiTargets } from '@/api/models';
+import { stringifySearchParams } from '@/utils/common/search';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   () =>
@@ -156,26 +157,39 @@ const AbstractPage: NextPage = () => {
 
 export default AbstractPage;
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const bsRes = await bootstrap(ctx.req, ctx.res);
+  if (bsRes.error) {
+    logger.error({ error: bsRes.error, url: ctx.resolvedUrl }, 'Error during bootstrap');
+    return { props: { pageError: bsRes.error } };
+  }
+
+  const params = getAbstractParams(ctx.params.id as string);
+  const queryClient = new QueryClient();
+
+  const url = new URL(`${process.env.API_HOST_SERVER}${ApiTargets.SEARCH}`);
+  url.search = stringifySearchParams(params);
+
   try {
-    const { id } = ctx.params as { id: string };
-    const params = getAbstractParams(id);
-    const queryClient = new QueryClient();
-    await queryClient.fetchQuery({
-      queryKey: searchKeys.abstract(id),
-      queryFn: (qfCtx) => fetchSearchSSR(params, ctx, qfCtx),
+    const result = await fetch(url, {
+      headers: new Headers({ Authorization: `Bearer ${bsRes.token.access_token}` }),
     });
+    const data = (await result.json()) as IADSApiSearchResponse;
+    queryClient.setQueryData(searchKeys.abstract(ctx.params.id as string), data);
+    queryClient.setQueryData(['user'], bsRes.token);
+    ctx.res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
+
     return {
       props: {
         dehydratedState: dehydrate(queryClient),
       },
     };
-  } catch (err) {
-    logger.error({ err, url: ctx.resolvedUrl }, 'Error fetching details');
+  } catch (error) {
+    logger.error({ error, url: url.toString() }, 'Error fetching abstract data');
     return {
       props: {
-        pageError: parseAPIError(err),
+        pageError: 'Failed to load abstract data',
       },
     };
   }
-});
+};
