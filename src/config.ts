@@ -5,7 +5,7 @@ export const APP_DEFAULTS = {
   DETAILS_MAX_AUTHORS: 50,
   RESULTS_MAX_AUTHORS: 10,
   RESULT_PER_PAGE: 10,
-  PER_PAGE_OPTIONS: [10, 25, 50, 100],
+  PER_PAGE_OPTIONS: [10, 25, 50, 100, 500],
   SORT: ['score desc', 'date desc'] as SolrSort[],
   QUERY_SORT_POSTFIX: 'date desc' as SolrSort,
   EXPORT_PAGE_SIZE: 500,
