@@ -1,7 +1,7 @@
 import { clamp, filter, head, last, omit, uniq } from 'ramda';
 import qs from 'qs';
 
-import { isNumPerPageType, isSolrSort, isString } from '@/utils/common/guards';
+import { isSolrSort, isString } from '@/utils/common/guards';
 import { APP_DEFAULTS } from '@/config';
 import { ParsedUrlQuery } from 'querystring';
 import { SafeSearchUrlParams } from '@/types';
@@ -85,6 +85,30 @@ export const parseNumberAndClamp = (
 };
 
 /**
+ * Parses a number from the given value, checking against an array of valid enum values.
+ * If the value is not a valid number or not included in the enum values, it returns
+ * the first value from the enum values array as a default.
+ * @param value
+ * @param enumValues
+ */
+export const parseNumberWithEnumDefault = (
+  value: string | number | (number | string)[],
+  enumValues: ReadonlyArray<number>,
+): number => {
+  try {
+    const val = Array.isArray(value) ? value[0] : value;
+    const num = typeof val === 'number' ? val : parseInt(val, 10);
+    if (Number.isNaN(num)) {
+      return head(enumValues);
+    }
+    return enumValues.includes(num) ? num : head(enumValues);
+  } catch (err) {
+    logger.error({ err, value, enumValues }, 'Error caught while parsing number with enum default');
+    return head(enumValues);
+  }
+};
+
+/**
  * Parses the query parameters from the given URL and normalizes them according to specific rules.
  *
  * @template TExtra - An optional extension of the default query parameters, defined as a record of string, number,
@@ -106,17 +130,12 @@ export const parseQueryFromUrl = <TExtra extends Record<string, string | number 
   const params = parseSearchParams(queryString) as Record<string, string | string[]>;
   const normalizedParams = normalizeURLParams(params, ['fq']);
   const q = decodeURIComponent(normalizedParams?.q ?? '');
-  const numPerPage = parseNumberAndClamp(
-    normalizedParams?.n,
-    head(APP_DEFAULTS.PER_PAGE_OPTIONS),
-    last(APP_DEFAULTS.PER_PAGE_OPTIONS),
-  );
   return {
     ...normalizedParams,
     q: q === '' ? APP_DEFAULTS.EMPTY_QUERY : q,
     sort: normalizeSolrSort(params.sort, sortPostfix),
     p: parseNumberAndClamp(normalizedParams?.p, 1),
-    n: isNumPerPageType(numPerPage) ? numPerPage : APP_DEFAULTS.RESULT_PER_PAGE,
+    n: parseNumberWithEnumDefault(params?.n, APP_DEFAULTS.PER_PAGE_OPTIONS),
     ...(params.fq ? { fq: safeSplitString(params.fq) } : {}),
   } as IADSApiSearchParams & { p?: number; n?: number } & TExtra;
 };
@@ -204,7 +223,7 @@ export const makeSearchParams = (params: SafeSearchUrlParams, options: { omit?: 
       ...cleanParams,
       sort: normalizeSolrSort(cleanParams.sort),
       p: parseNumberAndClamp(cleanParams?.p as unknown as string, 1),
-      n: parseNumberAndClamp(cleanParams?.p as unknown as string, 1, APP_DEFAULTS.RESULT_PER_PAGE),
+      n: parseNumberWithEnumDefault(cleanParams?.n as unknown as string, APP_DEFAULTS.PER_PAGE_OPTIONS),
     }),
   );
 };
@@ -222,7 +241,8 @@ export const stringifySearchParams = (params: Record<string, unknown>, options?:
     arrayFormat: 'repeat',
     format: 'RFC1738',
     sort: (a, b) => {
-      const aNum = Number(a), bNum = Number(b);
+      const aNum = Number(a),
+        bNum = Number(b);
       const aIsNum = !isNaN(aNum) && a.trim() !== '';
       const bIsNum = !isNaN(bNum) && b.trim() !== '';
       if (aIsNum && bIsNum) {

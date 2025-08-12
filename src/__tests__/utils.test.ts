@@ -4,7 +4,12 @@ import { beforeEach, describe, expect, test, TestContext } from 'vitest';
 import { rest } from 'msw';
 
 import { truncateDecimal } from '@/utils/common/formatters';
-import { normalizeSolrSort, normalizeURLParams, parseQueryFromUrl } from '@/utils/common/search';
+import {
+  normalizeSolrSort,
+  normalizeURLParams,
+  parseNumberWithEnumDefault,
+  parseQueryFromUrl,
+} from '@/utils/common/search';
 import { coalesceAuthorsFromDoc } from '@/utils/common/coalesceAuthorsFromDoc';
 import { parsePublicationDate } from '@/utils/common/parsePublicationDate';
 import { parseAPIError } from '@/utils/common/parseAPIError';
@@ -207,22 +212,12 @@ describe('parseQueryFromUrl', () => {
     [
       'NumPerPage param is parsed correctly',
       [`${baseUrl}?n=10000`, {}],
-      {
-        n: 100,
-        q: '*:*',
-        sort: ['score desc', 'date desc'],
-        p: 1,
-      },
+      { n: 10, q: '*:*', sort: ['score desc', 'date desc'], p: 1 },
     ],
     [
       'Case with smart quotes',
       [`${baseUrl}?q=object:“test”`, {}],
-      {
-        n: 10,
-        q: 'object:"test"',
-        sort: ['score desc', 'date desc'],
-        p: 1,
-      },
+      { n: 10, q: 'object:"test"', sort: ['score desc', 'date desc'], p: 1 },
     ],
   ])('%s', (_, args, expected) => {
     const result = parseQueryFromUrl(...args);
@@ -376,5 +371,27 @@ describe('truncateDecimal', () => {
   test.concurrent.each(cases)('%s', (_, args, expected) => {
     const result = truncateDecimal(...args);
     expect(result).toBe(expected);
+  });
+});
+
+describe('parseNumberFromEnumDefault', () => {
+  const cases: [
+    string,
+    Parameters<typeof parseNumberWithEnumDefault>,
+    ReturnType<typeof parseNumberWithEnumDefault>,
+  ][] = [
+    ['default value', [APP_DEFAULTS.PER_PAGE_OPTIONS[0], APP_DEFAULTS.PER_PAGE_OPTIONS], 10],
+    ['second option', [APP_DEFAULTS.PER_PAGE_OPTIONS[1], APP_DEFAULTS.PER_PAGE_OPTIONS], 25],
+    ['third option', [APP_DEFAULTS.PER_PAGE_OPTIONS[2], APP_DEFAULTS.PER_PAGE_OPTIONS], 50],
+    ['fourth option', [APP_DEFAULTS.PER_PAGE_OPTIONS[3], APP_DEFAULTS.PER_PAGE_OPTIONS], 100],
+    ['invalid value', [999, APP_DEFAULTS.PER_PAGE_OPTIONS], 10],
+    ['undefined value', [undefined, APP_DEFAULTS.PER_PAGE_OPTIONS], 10],
+    ['null value', [null, APP_DEFAULTS.PER_PAGE_OPTIONS], 10],
+    ['empty array', [[], APP_DEFAULTS.PER_PAGE_OPTIONS], 10],
+    ['empty value with default options', [undefined, []], undefined],
+  ];
+
+  test.concurrent.each(cases)('%s', (_, args, expected) => {
+    expect(parseNumberWithEnumDefault(...args)).toBe(expected);
   });
 });
