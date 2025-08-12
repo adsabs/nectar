@@ -27,12 +27,13 @@ export const useSolrError = (error: unknown) => {
 
   // if incoming error is not a solr error, return unknown
   if (!isSolrErrorResponse(solrError)) {
-    return { error: SOLR_ERROR.UNKNOWN };
+    return { error: SOLR_ERROR.UNKNOWN, originalMsg: isAxiosError(error) ? error.message : 'Unknown error' };
   }
 
   if (solrError.msg.includes('undefined field')) {
     return {
       error: SOLR_ERROR.FIELD_NOT_FOUND,
+      originalMsg: solrError.msg,
       field: solrError.msg.split('undefined field ')[1],
     };
   }
@@ -40,6 +41,7 @@ export const useSolrError = (error: unknown) => {
   if (solrError.msg.includes('Syntax Error, cannot parse')) {
     return {
       error: SOLR_ERROR.SYNTAX_ERROR,
+      originalMsg: solrError.msg,
     };
   }
 
