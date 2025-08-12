@@ -14,8 +14,10 @@ import {
   Button,
   Center,
   Code,
+  Collapse,
   Flex,
   Heading,
+  HStack,
   Icon,
   IconButton,
   List,
@@ -28,9 +30,10 @@ import {
   useDisclosure,
   useMediaQuery,
   VisuallyHidden,
+  VStack,
 } from '@chakra-ui/react';
 import { calculateStartIndex } from '@/components/ResultList/Pagination/usePagination';
-import { FormEventHandler, useCallback, useEffect, useRef, useState } from 'react';
+import { FormEventHandler, RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import { useIsClient } from '@/lib/useIsClient';
 import { NumPerPageType } from '@/types';
 import Head from 'next/head';
@@ -44,7 +47,7 @@ import { AddToLibraryModal } from '@/components/Libraries';
 import { ArrowPathIcon } from '@heroicons/react/24/solid';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { CustomInfoMessage } from '@/components/Feedbacks';
-import { CheckCircleIcon } from '@chakra-ui/icons';
+import { CheckCircleIcon, ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { SimpleLink } from '@/components/SimpleLink';
 import { AxiosError } from 'axios';
 import { SOLR_ERROR, useSolrError } from '@/lib/useSolrError';
@@ -102,7 +105,7 @@ const SearchPage: NextPage = () => {
   const queryClient = useQueryClient();
   const queries = queryClient.getQueriesData<IADSApiSearchResponse>([SEARCH_API_KEYS.primary]);
   const numFound = queries.length > 1 ? path<number>(['1', 'response', 'numFound'], last(queries)) : null;
-  const [isPrint] = useMediaQuery('print'); // use to hide elements when printing
+  const [isPrint] = useMediaQuery('print');
 
   // parse the query params from the URL, this should match what the server parsed
   const parsedParams = parseQueryFromUrl(router.asPath);
@@ -114,32 +117,7 @@ const SearchPage: NextPage = () => {
   };
 
   const { data, isSuccess, isLoading, isFetching, error, isError } = useSearch(omitP(params));
-
-  // needed by histogram for positioning and styling
-  const [histogramExpanded, setHistogramExpanded] = useState(false);
-  const [width, setWidth] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
-
-  // watch for route changes and update the query
-  useEffect(() => {
-    const handleRouteChange = (url: string) => {
-      if (url.startsWith('/search')) {
-        updateQuery(parseQueryFromUrl(url));
-      }
-    };
-
-    router.events.on('routeChangeStart', handleRouteChange);
-    return () => {
-      router.events.off('routeChangeStart', handleRouteChange);
-    };
-  }, [router, updateQuery]);
-
-  useEffect(() => {
-    if (ref.current) {
-      setWidth(ref.current.offsetWidth - 20);
-    }
-  }, [ref]);
-
+  const histogramContainerRef = useRef<HTMLDivElement>(null);
   const isClient = useIsClient();
 
   const { isOpen: isAddToLibraryOpen, onClose: onCloseAddToLibrary, onOpen: onOpenAddToLibrary } = useDisclosure();
@@ -211,15 +189,10 @@ const SearchPage: NextPage = () => {
     void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
   };
 
-  const handleToggleExpand = () => {
-    setHistogramExpanded((prev) => !prev);
-  };
-
   // conditions
   const loading = isLoading || isFetching;
   const noResults = !loading && isSuccess && data?.numFound === 0;
   const hasResults = !loading && isSuccess && data?.numFound > 0;
-  const isHistogramExpanded = histogramExpanded && !isPrint && isClient && hasResults;
   const showFilters = !isPrint && isClient && hasResults;
   const showListActions = !isPrint && (loading || hasResults);
 
@@ -228,33 +201,24 @@ const SearchPage: NextPage = () => {
       <Head>
         <title>{`${params.q} - ${BRAND_NAME_FULL} Search`}</title>
       </Head>
-      <Stack direction="column" aria-labelledby="search-form-title" spacing="10" ref={ref}>
+      <Stack direction="column" aria-labelledby="search-form-title" spacing="10">
         <HideOnPrint pt={10}>
           <form method="get" action="/search" onSubmit={handleOnSubmit}>
             <Flex direction="column" width="full">
-              <SearchBar isLoading={isLoading} />
-              <NumFound count={data?.numFound} isLoading={isLoading} />
+              <SearchBar isLoading={loading} />
+              <NumFound count={data?.numFound} isLoading={loading} />
             </Flex>
             <FacetFilters mt="2" />
           </form>
+          <Box ref={histogramContainerRef} />
         </HideOnPrint>
-        {isHistogramExpanded ? (
-          <YearHistogramSlider
-            onQueryUpdate={handleSearchFacetSubmission}
-            onExpand={handleToggleExpand}
-            expanded
-            width={width}
-            height={125}
-          />
-        ) : null}
         <Flex direction="row" gap={10} width="full">
           <Box display={{ base: 'none', lg: 'block' }}>
             {/* hide facets if screen is too small */}
             {showFilters ? (
               <SearchFacetFilters
-                histogramExpanded={histogramExpanded}
-                onExpandHistogram={handleToggleExpand}
                 onSearchFacetSubmission={handleSearchFacetSubmission}
+                histogramContainerRef={histogramContainerRef}
               />
             ) : null}
           </Box>
@@ -304,14 +268,14 @@ const SearchPage: NextPage = () => {
 };
 
 const SearchFacetFilters = (props: {
-  histogramExpanded: boolean;
-  onExpandHistogram: () => void;
+  histogramContainerRef?: RefObject<HTMLDivElement>;
   onSearchFacetSubmission: (queryUpdates: Partial<IADSApiSearchParams>) => void;
 }) => {
-  const { histogramExpanded, onSearchFacetSubmission, onExpandHistogram } = props;
+  const { onSearchFacetSubmission, histogramContainerRef } = props;
   const showFilters = useStore(selectors.showFilters);
   const handleToggleFilters = useStore(selectors.toggleSearchFacetsOpen);
   const handleResetFilters = useStore(selectors.resetSearchFacets);
+  const [histogramExpanded, setHistogramExpanded] = useState(false);
 
   if (showFilters) {
     return (
@@ -360,15 +324,27 @@ const SearchFacetFilters = (props: {
             />
           </Tooltip>
         </Flex>
-        {!histogramExpanded ? (
+        {histogramExpanded ? (
+          <Portal containerRef={histogramContainerRef}>
+            <Box mt={10}>
+              <YearHistogramSlider
+                onQueryUpdate={onSearchFacetSubmission}
+                onExpand={() => setHistogramExpanded((state) => !state)}
+                expanded={true}
+                width={props.histogramContainerRef?.current?.offsetWidth || 200}
+                height={125}
+              />
+            </Box>
+          </Portal>
+        ) : (
           <YearHistogramSlider
             onQueryUpdate={onSearchFacetSubmission}
-            onExpand={onExpandHistogram}
+            onExpand={() => setHistogramExpanded((state) => !state)}
             expanded={false}
             width={200}
             height={125}
           />
-        ) : null}
+        )}
         <SearchFacets onQueryUpdate={onSearchFacetSubmission} />
       </Flex>
     );
@@ -426,62 +402,11 @@ const NoResultsMsg = () => (
   />
 );
 
-export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
-// const omitUnsafeQueryParams = omit(['fl', 'start', 'rows']);
-// export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-//   const queryClient = new QueryClient();
-//   const { p: page, n: numPerPage, ...query } = parseQueryFromUrl<{ p: string; n: string }>(ctx.req.url);
-//
-//   const params = getSearchParams({
-//     ...omitUnsafeQueryParams(query),
-//     q: query.q.length === 0 ? '*:*' : query.q,
-//     start: (page - 1) * numPerPage,
-//     rows: numPerPage,
-//   });
-//
-//   try {
-//     const queryKey = searchKeys.primary(params);
-//
-//     // primary query prefetch
-//     await queryClient.fetchQuery({
-//       queryKey,
-//       queryFn: (qfCtx) => fetchSearchSSR(params, ctx, qfCtx),
-//     });
-//
-//     return {
-//       props: {
-//         dehydratedState: dehydrate(queryClient),
-//         dehydratedAppState: {
-//           query: params,
-//           latestQuery: params,
-//           numPerPage: numPerPage as NumPerPageType,
-//         } as AppState,
-//         page,
-//         params,
-//       },
-//     };
-//   } catch (error) {
-//     logger.error({ msg: 'Error fetching search results', error });
-//     return {
-//       props: {
-//         dehydratedState: dehydrate(queryClient),
-//         dehydratedAppState: {
-//           query: params,
-//           latestQuery: params,
-//           numPerPage: numPerPage as NumPerPageType,
-//         } as AppState,
-//         pageError: parseAPIError(error),
-//         page,
-//         params,
-//       },
-//     };
-//   }
-// });
-//
 export default SearchPage;
 
 const SearchErrorAlert = ({ error }: { error: AxiosError<IADSApiSearchResponse> | Error }) => {
   const data = useSolrError(error);
+  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false });
 
   const getMsg = useCallback(() => {
     switch (data?.error) {
@@ -496,12 +421,35 @@ const SearchErrorAlert = ({ error }: { error: AxiosError<IADSApiSearchResponse> 
       default:
         return <Text>There was an issue performing the search, please check your query</Text>;
     }
-  }, [data.error]);
+  }, [data?.error, data?.field]);
 
   return (
-    <Alert status="error">
-      <AlertIcon />
-      {getMsg()}
-    </Alert>
+    <Box minH="sm" w="full">
+      <Alert status="error">
+        <VStack align="stretch" spacing={2} w="full">
+          {/* Top row: icon+msg on left, button on right */}
+          <HStack justify="space-between" w="full">
+            <HStack flex="1" spacing={2} align="center">
+              <AlertIcon />
+              {getMsg()}
+            </HStack>
+            <Button
+              rightIcon={isOpen ? <ChevronDownIcon /> : <ChevronRightIcon />}
+              aria-label="toggle error details"
+              onClick={onToggle}
+              variant="ghost"
+              size="sm"
+            >
+              {isOpen ? 'Hide' : 'Show'} Full Error
+            </Button>
+          </HStack>
+
+          {/* Collapse content: spans full width */}
+          <Collapse in={isOpen} animateOpacity>
+            <Code p="2">{data.originalMsg}</Code>
+          </Collapse>
+        </VStack>
+      </Alert>
+    </Box>
   );
 };
