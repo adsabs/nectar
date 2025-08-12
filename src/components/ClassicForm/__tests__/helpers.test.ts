@@ -120,7 +120,9 @@ describe('Classic Form Query Handling', () => {
   ])(`getBibstems(%s) -> %s`, (bibstems, expected) => expect(getBibstems(bibstems)).toBe(expected));
 
   test('getSearchQuery handles empty input', () => {
-    expect(getSearchQuery({} as IRawClassicFormState)).toBe('q=%2A%3A%2A&sort=score+desc&sort=date+desc&p=1');
+    const query = getSearchQuery({} as IRawClassicFormState);
+    const actual = new URLSearchParams(query);
+    expect(actual.toString()).toBe('n=10&p=1&q=*%3A*&sort=score+desc&sort=date+desc');
   });
 
   test('getSearchQuery properly generates search query', () => {
