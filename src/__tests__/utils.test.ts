@@ -384,6 +384,7 @@ describe('parseNumberFromEnumDefault', () => {
     ['second option', [APP_DEFAULTS.PER_PAGE_OPTIONS[1], APP_DEFAULTS.PER_PAGE_OPTIONS], 25],
     ['third option', [APP_DEFAULTS.PER_PAGE_OPTIONS[2], APP_DEFAULTS.PER_PAGE_OPTIONS], 50],
     ['fourth option', [APP_DEFAULTS.PER_PAGE_OPTIONS[3], APP_DEFAULTS.PER_PAGE_OPTIONS], 100],
+    ['fifth option', [APP_DEFAULTS.PER_PAGE_OPTIONS[4], APP_DEFAULTS.PER_PAGE_OPTIONS], 500],
     ['invalid value', [999, APP_DEFAULTS.PER_PAGE_OPTIONS], 10],
     ['undefined value', [undefined, APP_DEFAULTS.PER_PAGE_OPTIONS], 10],
     ['null value', [null, APP_DEFAULTS.PER_PAGE_OPTIONS], 10],
