@@ -1,24 +1,24 @@
 import { Box, FormControl, FormLabel } from '@chakra-ui/react';
 
-import { values } from 'ramda';
-import { DescriptionCollapse, ExportFormat, exportFormats } from '@/components/CitationExporter';
+import { DescriptionCollapse } from '@/components/CitationExporter';
 import { exportFormatDescription } from '@/components/Settings';
 import { Select } from '@/components/Select';
+import { ExportFormatOption, useExportFormats } from '@/lib/useExportFormats';
 
 export const ExportFormatSelect = ({
   selectedOption,
   onChange,
 }: {
-  selectedOption: ExportFormat;
-  onChange: (format: ExportFormat) => void;
+  selectedOption: ExportFormatOption;
+  onChange: (format: ExportFormatOption) => void;
 }) => {
-  const exportFormatOptions = values(exportFormats);
+  const { formatOptions } = useExportFormats();
 
   return (
     <DescriptionCollapse body={exportFormatDescription} label="Default Export Format">
       {({ btn, content }) => (
         <FormControl>
-          <Select<ExportFormat>
+          <Select<ExportFormatOption>
             name="format"
             label={
               <Box mb="2">
@@ -30,7 +30,7 @@ export const ExportFormatSelect = ({
             }
             hideLabel={false}
             id="default-export-format-selector"
-            options={exportFormatOptions}
+            options={formatOptions}
             value={selectedOption}
             onChange={onChange}
             stylesTheme="default"

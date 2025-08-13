@@ -7,9 +7,7 @@ import { useHighlights } from './useHighlights';
 import { IDocsEntity } from '@/api/search/types';
 import { useGetExportCitation } from '@/api/export/export';
 import { useSettings } from '@/lib/useSettings';
-import { citationFormats } from '../CitationExporter';
 import { logger } from '@/logger';
-import { values } from 'ramda';
 
 export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
   docs: IDocsEntity[];
@@ -50,7 +48,7 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
 
   const { data: citationData } = useGetExportCitation(
     {
-      format: values(citationFormats).find((f) => f.value === defaultCitationFormat).id,
+      format: defaultCitationFormat,
       bibcode: bibcodes,
       sort: ['bibcode asc'],
     },

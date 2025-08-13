@@ -38,7 +38,7 @@ import { BuildingLibraryIcon, ShareIcon } from '@heroicons/react/24/solid';
 
 import { AppState, useStore } from '@/store';
 import { NumPerPageType } from '@/types';
-import { curryN, uniq, values } from 'ramda';
+import { curryN, uniq } from 'ramda';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { DocumentList } from './DocumentList/DocumentList';
 import { SimpleLink } from '@/components/SimpleLink';
@@ -60,8 +60,7 @@ import { useSettings } from '@/lib/useSettings';
 import { ExportApiFormatKey } from '@/api/export/types';
 import { useVaultBigQuerySearch } from '@/api/vault/vault';
 import { useRouter } from 'next/router';
-import { exportFormats } from '../CitationExporter';
-
+import { useExportFormats } from '@/lib/useExportFormats';
 export interface ILibraryEntityPaneProps {
   id: LibraryIdentifier;
   publicView: boolean;
@@ -573,10 +572,11 @@ const ExportMenu = (
   const router = useRouter();
   const [selected, setSelected] = useState<Bibcode[]>(null);
   const [route, setRoute] = useState(['', '']);
+  const { getFormatOptionByLabel } = useExportFormats();
 
   const { data } = useVaultBigQuerySearch(selected ?? [], { enabled: !!selected && selected.length > 0 });
 
-  const defaultExportFormatValue = values(exportFormats).find((f) => f.label === defaultExportFormat).value;
+  const defaultExportFormatValue = getFormatOptionByLabel(defaultExportFormat).value;
 
   useEffect(() => {
     // when vault query is done, transition to the export page passing only qid
@@ -611,7 +611,7 @@ const ExportMenu = (
     }
   }, [route]);
 
-  const handleExportItemClick = curryN(2, (format: ExportApiFormatKey) => {
+  const handleExportItemClick = curryN(2, (format: string) => {
     setRoute([`/search/exportcitation/[format]`, `/search/exportcitation/${format}`]);
   });
 
@@ -621,7 +621,7 @@ const ExportMenu = (
       <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.aastex)}>in AASTeX</MenuItem>
       <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.endnote)}>in EndNote</MenuItem>
       <MenuItem onClick={handleExportItemClick(ExportApiFormatKey.ris)}>in RIS</MenuItem>
-      <MenuItem onClick={handleExportItemClick(defaultExportFormatValue as ExportApiFormatKey)}>Other Formats</MenuItem>
+      <MenuItem onClick={handleExportItemClick(defaultExportFormatValue)}>Other Formats</MenuItem>
     </MenuGroup>
   );
 };

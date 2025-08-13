@@ -7,7 +7,8 @@ import { isNotEmpty } from 'ramda-adjunct';
 import { useSession } from '@/lib/useSession';
 import { IADSApiUserDataParams, IADSApiUserDataResponse } from '@/api/user/types';
 import { useGetUserSettings, userKeys, useUpdateUserSettings } from '@/api/user/user';
-import { DEFAULT_USER_DATA } from '@/api/user/models';
+import { DEFAULT_CITATION_FORMAT, DEFAULT_EXPORT_FORMAT, DEFAULT_USER_DATA } from '@/api/user/models';
+import { useExportFormats } from './useExportFormats';
 
 export const useSettings = (options?: UseQueryOptions<IADSApiUserDataResponse>, hideToast?: boolean) => {
   const { isAuthenticated } = useSession();
@@ -18,11 +19,12 @@ export const useSettings = (options?: UseQueryOptions<IADSApiUserDataResponse>, 
     id: 'settings',
   });
   const queryClient = useQueryClient();
-  const { data: settings, ...getSettingsState } = useGetUserSettings({
+  const { data: settingsdata, ...getSettingsState } = useGetUserSettings({
     suspense: true,
     retry: false,
     enabled: isAuthenticated,
     placeholderData: DEFAULT_USER_DATA,
+    initialData: DEFAULT_USER_DATA,
     ...options,
   });
   const { mutate, ...updateSettingsState } = useUpdateUserSettings({
@@ -30,6 +32,19 @@ export const useSettings = (options?: UseQueryOptions<IADSApiUserDataResponse>, 
       queryClient.setQueryData<IADSApiUserDataResponse>(userKeys.getUserSettings(), data);
     },
   });
+
+  const { isValidFormatLabel, isValidCitationFormatId } = useExportFormats();
+
+  // validate settings data
+  const settings = {
+    ...settingsdata,
+    defaultExportFormat: isValidFormatLabel(settingsdata.defaultExportFormat)
+      ? settingsdata.defaultExportFormat
+      : DEFAULT_EXPORT_FORMAT,
+    defaultCitationFormat: isValidCitationFormatId(settingsdata.defaultCitationFormat)
+      ? settingsdata.defaultCitationFormat
+      : DEFAULT_CITATION_FORMAT,
+  };
 
   useEffect(() => {
     if (isNil(hideToast) || hideToast === false) {
