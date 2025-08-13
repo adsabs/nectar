@@ -31,7 +31,7 @@ interface SetSort {
 
 interface SetFormat {
   type: 'SET_FORMAT';
-  payload: ExportApiFormatKey;
+  payload: string;
 }
 
 interface SetKeyFormat {
@@ -85,7 +85,7 @@ export type CitationExporterEvent =
   | { type: 'FORCE_SUBMIT' }
   | { type: 'DONE' };
 
-export const getMaxAuthor = (format: ExportApiFormatKey) => {
+export const getMaxAuthor = (format: string) => {
   switch (format) {
     case ExportApiFormatKey.bibtex:
       return APP_DEFAULTS.BIBTEX_DEFAULT_MAX_AUTHOR;

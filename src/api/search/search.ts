@@ -36,6 +36,7 @@ import { ADSMutation, ADSQuery, InfiniteADSQuery } from '@/api/types';
 import api, { ApiRequestConfig } from '@/api/api';
 import { ApiTargets } from '@/api/models';
 import { logger } from '@/logger';
+import { normalizeFields } from '@/api/search/utils';
 
 type PostTransformer = (data: IADSApiSearchResponse) => IADSApiSearchResponse;
 
@@ -436,6 +437,9 @@ export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta }
     finalParams.q = query;
   }
 
+  // normalize fields in the query
+  finalParams.q = normalizeFields(finalParams.q);
+
   const config: ApiRequestConfig = {
     method: 'GET',
     url: ApiTargets.SEARCH,
@@ -481,6 +485,9 @@ export const fetchSearchSSR = async (
     finalParams.q = query;
   }
 
+  // normalize fields in the query
+  finalParams.q = normalizeFields(finalParams.q);
+
   const config: ApiRequestConfig = {
     ...defaultRequestConfig,
     method: 'GET',
@@ -508,6 +515,9 @@ export const fetchSearchInfinite: QueryFunction<IADSApiSearchResponse & { pagePa
     const { query } = await resolveObjectQuery({ query: params.q });
     finalParams.q = query;
   }
+
+  // normalize fields in the query
+  finalParams.q = normalizeFields(finalParams.q);
 
   const config: ApiRequestConfig = {
     method: 'GET',
