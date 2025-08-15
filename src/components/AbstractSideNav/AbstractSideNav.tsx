@@ -21,6 +21,7 @@ import { useGetGraphicsCount } from '@/api/graphics/graphics';
 import { useHasMetrics } from '@/api/metrics/metrics';
 import { useExportFormats } from '@/lib/useExportFormats';
 import { ExportApiFormatKey } from '@/api/export/types';
+import { ChatIcon, CheckCircleIcon } from '@chakra-ui/icons';
 
 const abstractPath = '/abs';
 
@@ -70,6 +71,22 @@ const useGetItems = ({
       icon: <ClipboardListIcon />,
       rightElement: <CountBadge count={doc['[citations]']?.num_references ?? 0} />,
       disabled: doc['[citations]']?.num_references <= 0,
+    },
+    [Routes.CREDITS]: {
+      id: Routes.CREDITS,
+      href: { pathname: `${abstractPath}/${docId}/${Routes.CREDITS}`, search: 'p=1' },
+      label: 'Credits',
+      icon: <CheckCircleIcon />,
+      rightElement: <CountBadge count={doc.credit?.length ?? 0} />,
+      disabled: !doc.credit || doc.credit.length === 0,
+    },
+    [Routes.MENTIONS]: {
+      id: Routes.MENTIONS,
+      href: { pathname: `${abstractPath}/${docId}/${Routes.MENTIONS}`, search: 'p=1' },
+      label: 'Mentions',
+      icon: <ChatIcon />,
+      rightElement: <CountBadge count={doc.mention?.length ?? 0} />,
+      disabled: !doc.mention || doc.mention.length === 0,
     },
     [Routes.COREADS]: {
       id: Routes.COREADS,
