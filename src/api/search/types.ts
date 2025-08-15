@@ -233,6 +233,7 @@ export interface IDocsEntity {
   classic_factor?: string;
   comment?: string[];
   copyright?: string;
+  credit?: string[];
   data_facet?: string;
   data?: string[];
   database?: Database[];
@@ -269,6 +270,7 @@ export interface IDocsEntity {
   keyword?: string[];
   lang?: string;
   links_data?: string[];
+  mention: string[];
   nedid?: string;
   nedtype_object_facet_hier?: string;
   nedtype?: string;

@@ -16,7 +16,9 @@ import {
   getBigQueryParams,
   getCitationsParams,
   getCoreadsParams,
+  getCreditsParams,
   getHighlightParams,
+  getMentionsParams,
   getReferencesParams,
   getSearchFacetJSONParams,
   getSearchFacetParams,
@@ -80,6 +82,8 @@ export const searchKeys = {
   affiliations: ({ bibcode }: SearchKeyProps) => ['search/affiliations', { bibcode }] as const,
   citations: ({ bibcode, start }: SearchKeyProps) => ['search/citations', { bibcode, start }] as const,
   references: ({ bibcode, start }: SearchKeyProps) => ['search/references', { bibcode, start }] as const,
+  credits: ({ bibcode, start }: SearchKeyProps) => ['search/credits', { bibcode, start }] as const,
+  mentions: ({ bibcode, start }: SearchKeyProps) => ['search/mentions', { bibcode, start }] as const,
   coreads: ({ bibcode, start }: SearchKeyProps) => ['search/coreads', { bibcode, start }] as const,
   similar: ({ bibcode, start }: SearchKeyProps) => ['search/similar', { bibcode, start }] as const,
   toc: ({ bibcode, start }: SearchKeyProps) => ['search/toc', { bibcode, start }] as const,
@@ -154,6 +158,34 @@ export const useGetReferences: SubPageQuery = ({ bibcode, start = 0 }, options) 
   const params = getReferencesParams(bibcode, start);
   return useQuery({
     queryKey: searchKeys.references({ bibcode, start }),
+    queryFn: fetchSearch,
+    meta: { params },
+    select: responseSelector,
+    ...options,
+  });
+};
+
+/**
+ * Get credits based on a bibcode and start
+ */
+export const useGetCredits: SubPageQuery = ({ bibcode, start = 0 }, options) => {
+  const params = getCreditsParams(bibcode, start);
+  return useQuery({
+    queryKey: searchKeys.credits({ bibcode, start }),
+    queryFn: fetchSearch,
+    meta: { params },
+    select: responseSelector,
+    ...options,
+  });
+};
+
+/**
+ * Get mentions based on a bibcode and start
+ */
+export const useGetMentions: SubPageQuery = ({ bibcode, start = 0 }, options) => {
+  const params = getMentionsParams(bibcode, start);
+  return useQuery({
+    queryKey: searchKeys.mentions({ bibcode, start }),
     queryFn: fetchSearch,
     meta: { params },
     select: responseSelector,
@@ -399,21 +431,19 @@ export const useBigQuerySearch: ADSMutation<
   });
 };
 
-export const fetchBigQuerySearch: MutationFunction<
-  IADSApiSearchResponse['response'],
-  IBigQueryMutationParams
-> = async ({ params, variables }: IBigQueryMutationParams) => {
-  const config: ApiRequestConfig = {
-    method: 'POST',
-    url: `${ApiTargets.BIGQUERY}`,
-    params: { ...params, rows: variables.rows, sort: variables.sort },
-    data: `bibcode\n${variables.bibcodes.join('\n')}`,
-    headers: { 'Content-Type': 'bigquery/csv' },
-  };
+export const fetchBigQuerySearch: MutationFunction<IADSApiSearchResponse['response'], IBigQueryMutationParams> =
+  async ({ params, variables }: IBigQueryMutationParams) => {
+    const config: ApiRequestConfig = {
+      method: 'POST',
+      url: `${ApiTargets.BIGQUERY}`,
+      params: { ...params, rows: variables.rows, sort: variables.sort },
+      data: `bibcode\n${variables.bibcodes.join('\n')}`,
+      headers: { 'Content-Type': 'bigquery/csv' },
+    };
 
-  const { data } = await api.request<IADSApiSearchResponse>(config);
-  return data.response;
-};
+    const { data } = await api.request<IADSApiSearchResponse>(config);
+    return data.response;
+  };
 
 /**
  * Fetches search results from the API based on provided search parameters.
