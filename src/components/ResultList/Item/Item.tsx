@@ -91,6 +91,14 @@ export const Item = (props: IItemProps): ReactElement => {
     </SimpleLink>
   ) : null;
 
+  // credited
+  const credited =
+    Array.isArray(doc.credit) && doc.credit.length > 0 ? (
+      <SimpleLink href={{ pathname: `/abs/${bibcode}/credits`, search: 'p=1' }} newTab={linkNewTab}>
+        credited: {doc.credit.length}
+      </SimpleLink>
+    ) : null;
+
   return (
     <Flex direction="row" as="article" border="1px" borderColor={colors.border} mb={1} borderRadius="md" id={bibcode}>
       <Flex
@@ -133,6 +141,12 @@ export const Item = (props: IItemProps): ReactElement => {
             </Tooltip>
             {cite && (formattedPubDate || pub) ? <Text px="2">·</Text> : null}
             {cite}
+            {!!credited && (
+              <>
+                <Text px="2">·</Text>
+                {credited}
+              </>
+            )}
             {cite && extraInfo && '; '}
             {extraInfo}
           </Flex>
