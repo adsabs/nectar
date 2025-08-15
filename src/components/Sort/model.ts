@@ -32,6 +32,7 @@ export const solrSortOptions: SelectOption<SolrSortField>[] = [
     label: 'Normalized Citation Count',
   },
   { id: 'read_count', value: 'read_count', label: 'Read Count' },
+  { id: 'credit_count', value: 'credit_count', label: 'Credited Count' },
 ];
 
 export const biblibSortOptions: SelectOption<BiblibSortField>[] = [
@@ -64,5 +65,6 @@ export const biblibSortOptions: SelectOption<BiblibSortField>[] = [
     label: 'Normalized Citation Count',
   },
   { id: 'read_count', value: 'read_count', label: 'Read Count' },
+  { id: 'credit_count', value: 'credit_count', label: 'Credited Count' },
   { id: 'time', value: 'time', label: 'Time Added' },
 ];
