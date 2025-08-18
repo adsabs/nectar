@@ -293,6 +293,16 @@ export const allSearchTerms: SearchTermOption[] = [
   },
   {
     type: 'item',
+    id: 'credit_count',
+    value: 'credit_count:',
+    title: 'credit count',
+    description:
+      'Find records that have been used, acknowledged or otherwise credited a specific number of times; will produce dataset and software records.',
+    syntax: ['credit_count:count', 'credit_count:[min_count TO max_count]'],
+    example: ['credit_count:3', 'credit_count:[2 TO 5]'],
+  },
+  {
+    type: 'item',
     id: 'doctype',
     value: 'doctype:',
     title: 'doctype',
@@ -363,6 +373,16 @@ export const allSearchTerms: SearchTermOption[] = [
     description: 'Search publisher- or author-supplied keywords',
     syntax: ['keyword:"phrase"'],
     example: ['keyword:sun'],
+  },
+  {
+    type: 'item',
+    id: 'mention_count',
+    value: 'mention_count:',
+    title: 'mention count',
+    description:
+      'Find publications that mention (use, acknowledge or otherwise credit) a specific number of dataset or software records. ',
+    syntax: ['mention_count:count', 'mention_count:[min_count TO max_count]'],
+    example: ['mention_count:5', 'mention_count:[2 TO 5]'],
   },
   {
     type: 'item',
