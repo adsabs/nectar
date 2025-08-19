@@ -57,10 +57,10 @@ export const typeaheadOptions: TypeaheadOption[] = [
     id: 18,
   },
   {
-    value: 'property:eprint',
+    value: 'doctype:eprint',
     label: 'Limit to eprints',
-    desc: '(property:eprint)',
-    match: ['eprint', 'property:eprint'],
+    desc: '(doctype:eprint)',
+    match: ['eprint', 'property:eprint', 'doctype:eprint'],
     id: 19,
   },
   {
@@ -78,10 +78,10 @@ export const typeaheadOptions: TypeaheadOption[] = [
     id: 21,
   },
   {
-    value: 'property:inproceedings',
+    value: 'doctype:inproceedings',
     label: 'Limit to papers in conference proceedings',
-    desc: '(property:inproceedings)',
-    match: ['proceedings', 'property:inproceedings'],
+    desc: '(doctype:inproceedings)',
+    match: ['proceedings', 'doctype:inproceedings', 'property:inproceedings'],
     id: 22,
   },
   {
