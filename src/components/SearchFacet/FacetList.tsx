@@ -289,7 +289,7 @@ export const NodeListModal = (props: INodeListProps) => {
   const params = useFacetStore(selectors.params);
   const depth = getLevelFromKey(prefix) + 1;
   const expandable = params.hasChildren && (level === 'root' || params.maxDepth > depth);
-  const [, sortDir] = useFacetStore(selectors.sort);
+  const [sortField, sortDir] = useFacetStore(selectors.sort);
   const setSearch = useFacetStore(selectors.setSearch);
   const handleCapitalizeSearchTerm = useCallback(() => setSearch(capitalize(searchTerm)), [searchTerm, setSearch]);
 
@@ -299,6 +299,7 @@ export const NodeListModal = (props: INodeListProps) => {
       searchTerm,
       prefix,
       level,
+      sortField,
       sortDir,
     });
 
