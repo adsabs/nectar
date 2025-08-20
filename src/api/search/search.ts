@@ -8,6 +8,7 @@ import {
   useInfiniteQuery,
   useMutation,
   useQuery,
+  UseQueryOptions,
 } from '@tanstack/react-query';
 import {
   defaultParams,
@@ -95,24 +96,32 @@ const omitParams = (query: IADSApiSearchParams) =>
   omit<IADSApiSearchParams, string>(['fl', 'p'], query) as IADSApiSearchParams;
 
 /**
- * Generic search hook
+ * Generic search hook.
+ * Default returns the Solr `response` block; override via `options.select`.
  */
-export const useSearch: SearchADSQuery = (params, options) => {
+export function useSearch<TData = IADSApiSearchResponse['response']>(
+  params: IADSApiSearchParams,
+  options?: Omit<UseQueryOptions<IADSApiSearchResponse, ErrorType, TData>, 'queryKey' | 'queryFn'>,
+) {
   // omit fields from queryKey
   const cleanParams = omitParams(getSearchParams(params));
 
-  return useQuery<IADSApiSearchResponse, ErrorType, IADSApiSearchResponse['response']>({
+  // If options.select is provided, use it; otherwise use default
+  const select =
+    options && 'select' in options && typeof options.select === 'function'
+      ? options.select
+      : (responseSelector as (d: IADSApiSearchResponse) => TData);
+
+  return useQuery<IADSApiSearchResponse, ErrorType, TData>({
     queryKey: searchKeys.primary(cleanParams),
     queryHash: JSON.stringify(searchKeys.primary(cleanParams)),
     queryFn: fetchSearch,
     meta: { params },
-    select: responseSelector,
-    retry: (failCount, error): boolean => {
-      return failCount < 1 && axios.isAxiosError(error) && error.response?.status !== 400;
-    },
-    ...options,
+    select,
+    retry: (failCount, error) => failCount < 1 && axios.isAxiosError(error) && error.response?.status !== 400,
+    ...(options as Omit<UseQueryOptions<IADSApiSearchResponse, ErrorType, TData>, 'queryKey' | 'queryFn' | 'select'>),
   });
-};
+}
 
 type SubPageQuery = SearchADSQuery<{ bibcode: IDocsEntity['bibcode']; start?: IADSApiSearchParams['start'] }>;
 
