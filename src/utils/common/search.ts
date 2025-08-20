@@ -9,6 +9,8 @@ import { SolrSort } from '@/api/models';
 import { IADSApiSearchParams } from '@/api/search/types';
 import { logger } from '@/logger';
 
+const IGNORED_URL_KEYS = ['fl', 'start', 'rows', 'id', 'boostType'];
+
 /**
  * Type representing the parsed query parameters.
  *
@@ -193,8 +195,6 @@ export const safeSplitString = (value: string | string[], delimiter: string | Re
   }
 };
 
-// omit params that should not be included in any urls
-// `id` is typically slug used in abstract pages
 /**
  * A variable that holds a function which omits specified search parameters
  * from an object. The specified search parameters are 'fl', 'start', 'rows',
@@ -202,7 +202,7 @@ export const safeSplitString = (value: string | string[], delimiter: string | Re
  *
  * @type {function(Object): Object}
  */
-const omitSearchParams: (arg0: object) => object = omit(['fl', 'start', 'rows', 'id']);
+const omitSearchParams: (arg0: object) => object = omit(IGNORED_URL_KEYS);
 
 /**
  * Generates search parameters for constructing a URL.

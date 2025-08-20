@@ -25,6 +25,7 @@ export interface IADSApiSearchParams {
   start?: number;
   'stats.field'?: string;
   stats?: boolean;
+  boostType?: string;
 
   [key: string]: string | number | (string | number)[] | boolean;
 }
