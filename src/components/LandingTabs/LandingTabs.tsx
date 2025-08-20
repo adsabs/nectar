@@ -4,7 +4,7 @@ import { AppMode } from '@/types';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { CSSProperties, ReactElement } from 'react';
-import { ScixAndNasaLogo_H_beta } from '@/components/images/ScixAndNasaLogo-H_beta';
+import { ScixAndNasaLogo_H } from '@/components/images/ScixAndNasaLogo-H';
 
 import { SimpleLink } from '@/components/SimpleLink/SimpleLink';
 import { useColorModeColors } from '@/lib/useColorModeColors';
@@ -88,7 +88,7 @@ const TitleLogo = () => {
   return (
     <Center>
       <Show above="sm">
-        <Icon as={ScixAndNasaLogo_H_beta} height="4em" width="25em" aria-hidden />
+        <Icon as={ScixAndNasaLogo_H} height="4em" width="25em" aria-hidden />
       </Show>
       <VisuallyHidden>Science Explorer</VisuallyHidden>
     </Center>
