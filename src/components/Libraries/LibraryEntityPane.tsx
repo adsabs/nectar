@@ -73,7 +73,7 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
 
   const [docs, setDocs] = useState<IDocsEntity[]>([]);
 
-  const [onPage, setOnPage] = useState(0);
+  const [onPageNum, setOnPageNum] = useState(1); //
 
   const [sort, setSort] = useState<BiblibSort>('time desc');
 
@@ -121,7 +121,7 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
   const { data: documents, refetch: refetchDocs } = useGetLibraryEntity(
     {
       id,
-      start: onPage * pageSize,
+      start: (onPageNum - 1) * pageSize,
       rows: pageSize,
       sort: [sort],
     },
@@ -169,19 +169,19 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
   });
 
   const handleNextPage = () => {
-    setOnPage((prev) => prev + 1);
+    setOnPageNum((prev) => prev + 1);
   };
 
   const handlePrevPage = () => {
-    setOnPage((prev) => prev - 1);
+    setOnPageNum((prev) => prev - 1);
   };
 
   const handlePageSelect = (page: number) => {
-    setOnPage(page);
+    setOnPageNum(page);
   };
 
   const handlePerPageSelect = (perPage: NumPerPageType) => {
-    setOnPage(0);
+    setOnPageNum(1);
     setPageSize(perPage);
   };
 
@@ -227,7 +227,7 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
             });
 
             // reset
-            setOnPage(0);
+            setOnPageNum(1);
             setSelected([]);
             void refetchLibs(); // update entity
             void refetchDocs(); // refresh doc list
@@ -433,7 +433,7 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
                     notes={!publicView ? library.library_notes?.notes : undefined}
                     showNotes={!publicView}
                     canEdit={canWrite}
-                    indexStart={onPage * pageSize}
+                    indexStart={(onPageNum - 1) * pageSize}
                     onSet={handleSelectDoc}
                     hideCheckbox={!canWrite || publicView}
                     selectedBibcodes={selected}
@@ -443,7 +443,7 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
                   />
                   <Pagination
                     totalResults={numFound}
-                    page={onPage + 1}
+                    page={onPageNum}
                     numPerPage={pageSize}
                     onNext={handleNextPage}
                     onPrevious={handlePrevPage}
