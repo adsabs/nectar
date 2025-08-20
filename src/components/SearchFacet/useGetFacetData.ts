@@ -216,7 +216,7 @@ const getSearchFacetParams = (props: IUseGetFacetDataProps & { offset: number; l
       mincount: 1,
       offset: props.offset,
       numBuckets: true,
-      sort: `count ${props.sortDir}`,
+      sort: `${props.sortField ?? 'index'} ${props.sortDir ?? 'desc'}`,
       ...(props.query ? { query: props.query } : {}),
       ...(props.hasChildren
         ? { prefix: getPrefix(props.prefix, sanitize(props.searchTerm)) }
