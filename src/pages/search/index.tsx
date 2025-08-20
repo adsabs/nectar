@@ -56,6 +56,7 @@ import { IADSApiSearchParams, IADSApiSearchResponse } from '@/api/search/types';
 import { SEARCH_API_KEYS, useSearch } from '@/api/search/search';
 import { defaultParams } from '@/api/search/models';
 import { solrDefaultSortDirection, SolrSort, SolrSortField } from '@/api/models';
+import { useApplyBoostTypeToParams } from '@/lib/useApplyBoostTypeToParams';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
   () =>
@@ -109,12 +110,14 @@ const SearchPage: NextPage = () => {
 
   // parse the query params from the URL, this should match what the server parsed
   const parsedParams = parseQueryFromUrl(router.asPath);
-  const params = {
-    ...defaultParams,
-    ...parsedParams,
-    rows: storeNumPerPage,
-    start: calculateStartIndex(parsedParams.p, storeNumPerPage, numFound),
-  };
+  const { params } = useApplyBoostTypeToParams({
+    params: {
+      ...defaultParams,
+      ...parsedParams,
+      rows: storeNumPerPage,
+      start: calculateStartIndex(parsedParams.p, storeNumPerPage, numFound),
+    },
+  });
 
   const { data, isSuccess, isLoading, isFetching, error, isError } = useSearch(omitP(params));
   const histogramContainerRef = useRef<HTMLDivElement>(null);
@@ -247,7 +250,7 @@ const SearchPage: NextPage = () => {
                 {!isPrint && (
                   <Pagination
                     numPerPage={storeNumPerPage}
-                    page={params.p}
+                    page={params.p as number}
                     totalResults={data.numFound}
                     onPerPageSelect={handlePerPageChange}
                   />
