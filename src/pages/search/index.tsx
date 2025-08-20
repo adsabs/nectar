@@ -116,7 +116,8 @@ const SearchPage: NextPage = () => {
     start: calculateStartIndex(parsedParams.p, storeNumPerPage, numFound),
   };
 
-  const { data, isSuccess, isLoading, isFetching, error, isError } = useSearch(omitP(params));
+  const searchParams = omitP(params);
+  const { data, isSuccess, isLoading, isFetching, error, isError } = useSearch(searchParams);
   const histogramContainerRef = useRef<HTMLDivElement>(null);
   const isClient = useIsClient();
 
@@ -165,7 +166,7 @@ const SearchPage: NextPage = () => {
   useEffect(() => {
     if (data?.docs.length > 0) {
       setDocs(data.docs.map((d) => d.bibcode));
-      setQuery(omitP(params));
+      setQuery(searchParams);
       submitQuery();
     }
   }, [data]);
@@ -236,6 +237,7 @@ const SearchPage: NextPage = () => {
 
             {noResults ? <NoResultsMsg /> : null}
             {loading ? <ItemsSkeleton count={storeNumPerPage} /> : null}
+            <PartialResultsWarning params={searchParams} />
 
             {data && (
               <>
@@ -451,5 +453,33 @@ const SearchErrorAlert = ({ error }: { error: AxiosError<IADSApiSearchResponse> 
         </VStack>
       </Alert>
     </Box>
+  );
+};
+
+/**
+ * Shows a warning if the returned search is flagged as having partial results.
+ * This is used to inform users that the results may not be complete.
+ *
+ * @param props
+ * @constructor
+ */
+const PartialResultsWarning = (props: { params: IADSApiSearchParams }) => {
+  const { params } = props;
+  const { data: isPartialResults, isError } = useSearch(params, {
+    select: (data) => data.responseHeader?.partialResults,
+  });
+
+  if (!isPartialResults || isError) {
+    return null;
+  }
+
+  return (
+    <Alert status="warning" mb={1} borderRadius="md">
+      <AlertIcon />
+      <Text>
+        The search took too long, so some results may be missing. Try refining your query to make it faster and see
+        everything.
+      </Text>
+    </Alert>
   );
 };

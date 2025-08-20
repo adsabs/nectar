@@ -39,6 +39,8 @@ export interface INormalizedADSApiSearchParams {
 interface IADSApiSearchResponseHeader {
   status: number;
   params: IADSApiSearchParams;
+  QTime: number;
+  partialResults?: boolean;
 }
 
 interface IADSApiSearchResponseError {
