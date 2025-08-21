@@ -681,8 +681,8 @@ const LogicSelect = (
   return (
     <Popover isOpen={selected.length > 0} placement="right-start">
       <PopoverAnchor>{children}</PopoverAnchor>
-      <PopoverContent maxWidth="fit-content" minWidth="40">
-        <PopoverHeader fontSize="md" fontWeight="bold">
+      <PopoverContent maxWidth="max-content" minWidth="40">
+        <PopoverHeader fontSize="md" fontWeight="bold" pr={10}>
           {`${label} (${selected.length})`}
         </PopoverHeader>
         <PopoverArrow />
