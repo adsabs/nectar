@@ -73,7 +73,7 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
 
   const [docs, setDocs] = useState<IDocsEntity[]>([]);
 
-  const [onPageNum, setOnPageNum] = useState(1); //
+  const [onPageNum, setOnPageNum] = useState(1);
 
   const [sort, setSort] = useState<BiblibSort>('time desc');
 
