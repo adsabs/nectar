@@ -17,12 +17,14 @@ const mockStateWithQuery = (query: string): ISearchInputState => ({
   cursorPosition: query.length,
 });
 
-beforeEach(() => {
-  vi.clearAllMocks();
-});
-
 describe('SearchInput reducer', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
   describe('Reset behavior', () => {
+    beforeEach(() => {
+      vi.restoreAllMocks();
+    });
     test('HARD_RESET resets to initialState', () => {
       const newState = reducer({ ...initialState, searchTerm: 'foo' }, { type: 'HARD_RESET' });
       expect(newState).toEqual(initialState);
@@ -41,8 +43,10 @@ describe('SearchInput reducer', () => {
   });
 
   describe('Search term input and suggestions', () => {
+    beforeEach(() => {
+      vi.restoreAllMocks();
+    });
     test('SET_SEARCH_TERM with "uat:" disables typeahead suggestions', () => {
-      vi.spyOn(helpers, 'extractFinalTerm').mockReturnValue('uat:');
       const state = mockStateWithQuery('author:"star" uat:');
       const result = reducer(state, {
         type: 'SET_SEARCH_TERM',
@@ -82,9 +86,20 @@ describe('SearchInput reducer', () => {
       expect(result.searchTerm).toBe('foo bar');
       expect(result.cursorPosition).toBe(7);
     });
+
+    test('Exact item match closes the menu', () => {
+      const result = reducer(initialState, { type: 'SET_SEARCH_TERM', payload: { query: 'doctype:inproceedings' } });
+      expect(result.searchTerm).toBe('doctype:inproceedings');
+      expect(result.isOpen).toBe(false);
+      expect(result.items).toHaveLength(1);
+      expect(result.items[0].value).toBe('doctype:inproceedings');
+    });
   });
 
   describe('Typeahead results and UAT integration', () => {
+    beforeEach(() => {
+      vi.restoreAllMocks();
+    });
     test('SET_UAT_TYPEAHEAD_OPTIONS opens menu and sets focused to 0', () => {
       const result = reducer(initialState, {
         type: 'SET_UAT_TYPEAHEAD_OPTIONS',
@@ -125,7 +140,6 @@ describe('SearchInput reducer', () => {
 
     test('Hybrid flow: uat selection followed by normal keyword search resumes typeahead', () => {
       const uatItem: TypeaheadOption = { value: '"Tektites"', label: 'Tektites', desc: '', id: 0, match: [] };
-      vi.spyOn(helpers, 'extractFinalTerm').mockReturnValue('uat:');
       let state = reducer(initialState, {
         type: 'SET_SEARCH_TERM',
         payload: { query: 'author:"star" uat:', cursorPosition: 18 },
@@ -141,7 +155,6 @@ describe('SearchInput reducer', () => {
       state = reducer(state, { type: 'CLICK_ITEM' });
       expect(state.searchTerm).toContain('"Tektites"');
       expect(state.isOpen).toBe(false);
-      vi.spyOn(helpers, 'extractFinalTerm').mockReturnValue('similar');
       vi.spyOn(helpers, 'filterItems').mockReturnValue([keywordItem]);
       state = reducer(state, {
         type: 'SET_SEARCH_TERM',
@@ -154,6 +167,9 @@ describe('SearchInput reducer', () => {
   });
 
   describe('Keyboard navigation', () => {
+    beforeEach(() => {
+      vi.restoreAllMocks();
+    });
     test('KEYDOWN_ARROW_DOWN cycles to -1 if focused on last item', () => {
       const state: ISearchInputState = {
         ...initialState,
