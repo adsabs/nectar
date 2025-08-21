@@ -18,6 +18,7 @@ export const defaultQueryParams: IADSApiSearchParams = {
     '[citations]',
     'citation_count',
     'citation_count_norm',
+    'credit',
     'esources',
     'property',
     'data',

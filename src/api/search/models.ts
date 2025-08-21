@@ -12,6 +12,7 @@ export const defaultFields: IADSApiSearchParams['fl'] = [
   '[citations]',
   'citation_count',
   'citation_count_norm',
+  'credit',
   'esources',
   'property',
   'pub',
@@ -48,6 +49,18 @@ export const getReferencesParams = (bibcode: IDocsEntity['bibcode'], start: numb
   start,
 });
 
+export const getMentionsParams = (bibcode: IDocsEntity['bibcode'], start: number): IADSApiSearchParams => ({
+  ...defaultParams,
+  q: `credit:${bibcode}`, // ideally, we will have `mentions(identifier:"${bibcode}")`
+  start,
+});
+
+export const getCreditsParams = (bibcode: IDocsEntity['bibcode'], start: number): IADSApiSearchParams => ({
+  ...defaultParams,
+  q: `mention:${bibcode}`, // ideally, we will have `credits(identifier:"${bibcode}")`,
+  start,
+});
+
 export const getCoreadsParams = (bibcode: IDocsEntity['bibcode'], start: number): IADSApiSearchParams => ({
   ...defaultParams,
   q: `trending(identifier:"${bibcode}") -identifier:"${bibcode}"`,
@@ -79,11 +92,13 @@ export const getAbstractParams = (id: string): IADSApiSearchParams => ({
     'read_count',
     'abstract',
     'comment',
+    'credit',
     'data',
     'database',
     `[fields orcid_pub=${APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
     `[fields orcid_user=${APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
     `[fields orcid_other=${APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
+    'mention',
     'orcid_pub',
     'orcid_user',
     'orcid_other',

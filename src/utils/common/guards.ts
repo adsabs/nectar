@@ -50,6 +50,8 @@ export const isSolrSort = (maybeSolrSort: string): maybeSolrSort is SolrSort => 
     'citation_count_norm desc',
     'classic_factor asc',
     'classic_factor desc',
+    'credit_count asc',
+    'credit_count desc',
     'first_author asc',
     'first_author desc',
     'date asc',

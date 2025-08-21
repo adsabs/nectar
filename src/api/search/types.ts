@@ -236,6 +236,8 @@ export interface IDocsEntity {
   classic_factor?: string;
   comment?: string[];
   copyright?: string;
+  credit?: string[];
+  credit_count?: number;
   data_facet?: string;
   data?: string[];
   database?: Database[];
@@ -272,6 +274,8 @@ export interface IDocsEntity {
   keyword?: string[];
   lang?: string;
   links_data?: string[];
+  mention: string[];
+  mention_count: number;
   nedid?: string;
   nedtype_object_facet_hier?: string;
   nedtype?: string;
@@ -363,6 +367,8 @@ export type QueryField =
   | 'classic_factor'
   | 'comment'
   | 'copyright'
+  | 'credit'
+  | 'credit_count'
   | 'data'
   | 'data_facet'
   | 'database'
@@ -397,6 +403,8 @@ export type QueryField =
   | 'keyword_schema'
   | 'lang'
   | 'links_data'
+  | 'mention'
+  | 'mention_count'
   | 'metadata_mtime'
   | 'metrics_mtime'
   | 'ned_object_facet_hier'
@@ -466,6 +474,8 @@ export const queryFields = [
   'classic_factor',
   'comment',
   'copyright',
+  'credit',
+  'credit_count',
   'data',
   'data_facet',
   'database',
@@ -500,6 +510,8 @@ export const queryFields = [
   'keyword_schema',
   'lang',
   'links_data',
+  'mention',
+  'mention_count',
   'metadata_mtime',
   'metrics_mtime',
   'ned_object_facet_hier',

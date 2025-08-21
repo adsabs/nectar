@@ -23,6 +23,8 @@ export type SolrField =
   | 'classic_factor'
   | 'comment'
   | 'copyright'
+  | 'credit'
+  | 'credit_count'
   | 'data'
   | 'data_facet'
   | 'database'
@@ -59,6 +61,8 @@ export type SolrField =
   | 'keyword_schema'
   | 'lang'
   | 'links_data'
+  | 'mention'
+  | 'mention_count'
   | 'nedid'
   | 'nedtype'
   | 'nedtype_object_facet_hier'
@@ -117,6 +121,7 @@ export type SolrSortField =
   | 'citation_count'
   | 'citation_count_norm'
   | 'classic_factor'
+  | 'credit_count'
   | 'first_author'
   | 'date'
   | 'entry_date'
@@ -136,6 +141,8 @@ export const solrSorts = [
   'citation_count_norm desc',
   'classic_factor asc',
   'classic_factor desc',
+  'credit_count asc',
+  'credit_count desc',
   'first_author asc',
   'first_author desc',
   'date asc',
@@ -156,6 +163,7 @@ export const solrDefaultSortDirection: Record<SolrSortField, SortDirection> = {
   citation_count: 'desc',
   citation_count_norm: 'desc',
   classic_factor: 'desc',
+  credit_count: 'desc',
   first_author: 'asc',
   date: 'desc',
   entry_date: 'desc',
@@ -170,6 +178,7 @@ export type BiblibSortField =
   | 'citation_count'
   | 'citation_count_norm'
   | 'classic_factor'
+  | 'credit_count'
   | 'first_author'
   | 'date'
   | 'entry_date'
@@ -189,6 +198,8 @@ export const biblibSorts = [
   'citation_count_norm desc',
   'classic_factor asc',
   'classic_factor desc',
+  'credit_count asc',
+  'credit_count desc',
   'first_author asc',
   'first_author desc',
   'date asc',
