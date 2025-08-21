@@ -71,9 +71,13 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
         return state;
       }
 
+      // Make sure menu closes if the current final term is an exact match to the first item
+      // this probably means the user just selected the item
+      const isOpen = newItems.length > 0 && finalTerm.toLowerCase() !== newItems[0]?.value.toLowerCase();
+
       return {
         ...state,
-        isOpen: newItems.length > 0,
+        isOpen,
         searchTerm: action.payload.query,
         uatItems: [],
         focused: -1,
