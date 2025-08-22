@@ -295,7 +295,7 @@ export interface IDocsEntity {
   reader?: string;
   recid?: number;
   reference?: string[];
-  references_count?: number;
+  reference_count?: number;
   simbad_object_facet_hier?: string;
   simbid?: string;
   simbtype?: string;

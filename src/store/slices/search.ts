@@ -16,6 +16,7 @@ export const defaultQueryParams: IADSApiSearchParams = {
     'pubdate',
     'bibstem',
     '[citations]',
+    'reference_count',
     'citation_count',
     'citation_count_norm',
     'credit',

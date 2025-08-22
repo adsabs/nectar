@@ -78,8 +78,8 @@ export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDro
   }
 
   // citations and references
-  const num_references = typeof doc['[citations]']?.num_references === 'number' ? doc['[citations]'].num_references : 0;
-  const num_citations = typeof doc['[citations]']?.num_citations === 'number' ? doc['[citations]'].num_citations : 0;
+  const num_references = typeof doc.reference_count === 'number' ? doc.reference_count : 0;
+  const num_citations = typeof doc.citation_count === 'number' ? doc.citation_count : 0;
 
   const referenceItems: IItem[] = [];
   if (num_citations > 0) {
