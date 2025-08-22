@@ -81,6 +81,7 @@ export type SolrField =
   | 'reader'
   | 'recid'
   | 'reference'
+  | 'reference_count'
   | 'simbad_object_facet_hier'
   | 'simbid'
   | 'simbtype'
