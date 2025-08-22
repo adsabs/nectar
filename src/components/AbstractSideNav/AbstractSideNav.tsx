@@ -69,8 +69,8 @@ const useGetItems = ({
       href: { pathname: `${abstractPath}/${docId}/${Routes.REFERENCES}`, search: 'p=1' },
       label: 'References',
       icon: <ClipboardListIcon />,
-      rightElement: <CountBadge count={doc['[citations]']?.num_references ?? 0} />,
-      disabled: doc['[citations]']?.num_references <= 0,
+      rightElement: <CountBadge count={doc.reference_count ?? 0} />,
+      disabled: doc.reference_count <= 0,
     },
     [Routes.CREDITS]: {
       id: Routes.CREDITS,
