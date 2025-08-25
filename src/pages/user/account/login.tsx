@@ -21,7 +21,7 @@ const initialParams: IUserCredentials = { email: '', password: '' };
 const Login: NextPage = () => {
   const { reload } = useRouter();
   const [params, setParams] = useState<IUserCredentials>(initialParams);
-  const [mainInputRef, focus] = useFocus<HTMLInputElement>();
+  const [mainInputRef, focus] = useFocus<HTMLInputElement>({ selectTextOnFocus: false });
   const { reset: resetUser } = useUser();
 
   const {
@@ -30,6 +30,7 @@ const Login: NextPage = () => {
     isError,
     isLoading,
     error,
+    reset,
   } = useMutation<ILoginResponse, AxiosError<ILoginResponse> | Error, IUserCredentials>(
     ['login'],
     async (params) => {
@@ -53,10 +54,16 @@ const Login: NextPage = () => {
     }
   }, [data?.success, reload, resetUser]);
 
-  const handleChange: FormEventHandler<HTMLInputElement> = (event) => {
-    const { name, value } = event.currentTarget;
-    setParams((prevParams) => ({ ...prevParams, [name]: value }));
-  };
+  const handleChange: FormEventHandler<HTMLInputElement> = useCallback(
+    (event) => {
+      const { name, value } = event.currentTarget;
+      if (isError) {
+        reset();
+      }
+      setParams((prevParams) => ({ ...prevParams, [name]: value }));
+    },
+    [reset, isError],
+  );
 
   const handleSubmit = useCallback<FormEventHandler<HTMLFormElement>>(
     (event) => {
@@ -89,7 +96,7 @@ const Login: NextPage = () => {
               <FormLabel>Email</FormLabel>
               <Input
                 ref={mainInputRef}
-                type="text"
+                type="email"
                 placeholder="email@example.com"
                 name="email"
                 id="email"
