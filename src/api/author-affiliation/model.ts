@@ -7,7 +7,7 @@ const defaultParams: IAuthorAffiliationPayload = {
 };
 
 export const getAuthorAffiliationSearchParams = (
-  params: Partial<IAuthorAffiliationPayload>,
+  params: Partial<IAuthorAffiliationPayload> = {},
 ): IAuthorAffiliationPayload => {
   return {
     ...defaultParams,

@@ -1,4 +1,4 @@
-import { Alert, AlertDescription, AlertIcon, AlertTitle, Button } from '@chakra-ui/react';
+import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, Button, Center } from '@chakra-ui/react';
 import { FallbackProps } from 'react-error-boundary';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 
@@ -19,11 +19,11 @@ const defaultTitle = 'Sorry, we were unable to generate the affiliations form';
 const getMessage = (error: string) => {
   switch (error) {
     case errorMessages.noBibcodeSubmitted:
-      return "No records we're sent, try going back to the search results and re-generating this form";
+      return "No records we're sent, try going back to the search results and re-generating this form.";
     case errorMessages.noResults:
-      return "No results we're found for this query, try going back to the search results and re-generating this form";
+      return 'No results were found for this query, Try expanding the year range or the number of authors.';
     default:
-      return 'Please try reloading the page to see if the error persists';
+      return 'Please try reloading the page to see if the error persists.';
   }
 };
 
@@ -38,17 +38,19 @@ export const AuthorAffiliationsErrorMessage = (
   const error = typeof props.error === 'string' ? props.error : parseAPIError(props.error);
 
   return (
-    <Alert status="error" maxW="container.sm" flexWrap="wrap" justifyContent="center">
-      <AlertIcon />
-      <AlertTitle>{title}</AlertTitle>
-      <AlertDescription>
-        {getMessage(error)}.
-        {resetErrorBoundary ? (
-          <Button variant="link" onClick={resetErrorBoundary}>
-            Or try again
-          </Button>
-        ) : null}
-      </AlertDescription>
-    </Alert>
+    <Center m="6">
+      <Alert status="error" maxW="container.sm" flexWrap="wrap" justifyContent="center" borderRadius="md">
+        <AlertIcon />
+        <AlertTitle>{title}</AlertTitle>
+        <AlertDescription>
+          <Box my="2">{getMessage(error)}</Box>
+          {resetErrorBoundary ? (
+            <Button variant="link" onClick={resetErrorBoundary}>
+              Or try again
+            </Button>
+          ) : null}
+        </AlertDescription>
+      </Alert>
+    </Center>
   );
 };
