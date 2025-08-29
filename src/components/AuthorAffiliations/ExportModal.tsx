@@ -18,7 +18,6 @@ import {
   Stack,
   useDisclosure,
 } from '@chakra-ui/react';
-import { useEffect } from 'react';
 import { exportTypes } from './models';
 import { useExportModal } from './useExportModal';
 import { parseAPIError } from '@/utils/common/parseAPIError';
@@ -31,7 +30,6 @@ export const ExportModal = (props: ButtonProps) => {
   const {
     isLoading,
     format,
-    onDone,
     onFetch,
     onFormatChange,
     numSelected,
@@ -43,13 +41,6 @@ export const ExportModal = (props: ButtonProps) => {
   } = useExportModal({
     enabled: isOpen,
   });
-
-  useEffect(() => {
-    if (!isOpen) {
-      // if modal closes unexpectedly, this will make sure the state gets reset
-      onDone();
-    }
-  }, [isOpen, onDone]);
 
   return (
     <>
