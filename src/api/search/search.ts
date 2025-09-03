@@ -440,19 +440,21 @@ export const useBigQuerySearch: ADSMutation<
   });
 };
 
-export const fetchBigQuerySearch: MutationFunction<IADSApiSearchResponse['response'], IBigQueryMutationParams> =
-  async ({ params, variables }: IBigQueryMutationParams) => {
-    const config: ApiRequestConfig = {
-      method: 'POST',
-      url: `${ApiTargets.BIGQUERY}`,
-      params: { ...params, rows: variables.rows, sort: variables.sort },
-      data: `bibcode\n${variables.bibcodes.join('\n')}`,
-      headers: { 'Content-Type': 'bigquery/csv' },
-    };
-
-    const { data } = await api.request<IADSApiSearchResponse>(config);
-    return data.response;
+export const fetchBigQuerySearch: MutationFunction<
+  IADSApiSearchResponse['response'],
+  IBigQueryMutationParams
+> = async ({ params, variables }: IBigQueryMutationParams) => {
+  const config: ApiRequestConfig = {
+    method: 'POST',
+    url: `${ApiTargets.BIGQUERY}`,
+    params: { ...params, rows: variables.rows, sort: variables.sort },
+    data: `bibcode\n${variables.bibcodes.join('\n')}`,
+    headers: { 'Content-Type': 'bigquery/csv' },
   };
+
+  const { data } = await api.request<IADSApiSearchResponse>(config);
+  return data.response;
+};
 
 /**
  * Fetches search results from the API based on provided search parameters.
