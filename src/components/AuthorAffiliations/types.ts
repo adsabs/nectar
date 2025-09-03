@@ -8,9 +8,9 @@ export interface IGroupedAuthorAffilationData {
 }
 
 export interface IFormState {
-  exportType: typeof exportTypes[number];
-  authorCount: typeof countOptions[number];
-  yearCount: typeof countOptions[number];
+  exportType: (typeof exportTypes)[number];
+  authorCount: (typeof countOptions)[number];
+  yearCount: (typeof countOptions)[number];
 }
 
 export type AuthorAffSelectionState = Record<

@@ -2,14 +2,14 @@ import { authorAffiliationsKeys, useAuthorAffiliationExport } from '@/api/author
 import { mergeLeft } from 'ramda';
 import { Reducer, useEffect, useReducer } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { exportTypeFileMappings, exportTypes } from './models';
-import { IAuthorAffState, useAuthorAffStore } from './store';
+import { exportTypeFileMappings, exportTypes } from '../models';
+import { IAuthorAffState, useAuthorAffStore } from '../store';
 import { FileType, useDownloadFile } from '@/lib/useDownloadFile';
 
 interface IExportModalState {
   mode: 'SELECTING' | 'EXPORTING' | 'DOWNLOADING';
   type: FileType;
-  format: typeof exportTypes[number];
+  format: (typeof exportTypes)[number];
   selected: string[];
 }
 
@@ -21,7 +21,7 @@ const initialState: IExportModalState = {
 };
 
 type Action =
-  | { type: 'SET_FORMAT'; format: typeof exportTypes[number] }
+  | { type: 'SET_FORMAT'; format: (typeof exportTypes)[number] }
   | { type: 'SET_SELECTED'; selected: string[] }
   | { type: 'EXPORT' }
   | { type: 'DATA' }
@@ -70,13 +70,10 @@ export const useExportModal = (props: { enabled: boolean }) => {
   // update state when the hook gets enabled (i.e. modal opened up)
   useEffect(() => {
     dispatch({ type: 'SET_SELECTED', selected: getFormattedSelection() });
-  }, [enabled]);
+  }, [enabled, getFormattedSelection]);
 
   const { data, error, isError } = useAuthorAffiliationExport(
-    {
-      selected: state.selected,
-      format: state.format,
-    },
+    { selected: state.selected, format: state.format },
     { enabled: state.mode === 'EXPORTING' && state.selected.length > 0 },
   );
 
@@ -95,7 +92,7 @@ export const useExportModal = (props: { enabled: boolean }) => {
         dispatch({ type: 'DATA' });
       }
     }
-  }, [data, state.selected, state.format, state.mode]);
+  }, [data, state.selected, state.format, state.mode, qc]);
 
   // update state if we receive data, or error
   useEffect(() => {
@@ -118,14 +115,14 @@ export const useExportModal = (props: { enabled: boolean }) => {
     if (state.mode === 'DOWNLOADING') {
       onDownload();
     }
-  }, [state.mode]);
+  }, [onDownload, state.mode]);
 
   return {
     isLoading: state.mode === 'EXPORTING' || state.mode === 'DOWNLOADING',
     onDone: () => dispatch({ type: 'DONE' }),
     format: state.format,
     onFetch: () => dispatch({ type: 'EXPORT' }),
-    onFormatChange: (format: typeof exportTypes[number]) => dispatch({ type: 'SET_FORMAT', format }),
+    onFormatChange: (format: (typeof exportTypes)[number]) => dispatch({ type: 'SET_FORMAT', format }),
     downloadLink: linkHref,
     downloadFilename: filename,
     isError,

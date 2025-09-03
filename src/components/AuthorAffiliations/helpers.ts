@@ -12,7 +12,7 @@ import {
   mapObjIndexed,
   not,
   over,
-  path,
+  pathOr,
   prop,
   propEq,
   set,
@@ -26,9 +26,9 @@ import { AuthorAffSelectionState, IGroupedAuthorAffilationData } from './types';
 
 // accessors
 const authorName = prop('authorName');
-const name = path<string>(['affiliations', 'name']);
-const years = path<string[]>(['affiliations', 'years']);
-const lastActiveDate = path<string>(['affiliations', 'lastActiveDate']);
+const name = pathOr<string>(NONESYMBOL, ['affiliations', 'name']);
+const years = pathOr<string[]>([], ['affiliations', 'years']);
+const lastActiveDate = pathOr<string>(NONESYMBOL, ['affiliations', 'lastActiveDate']);
 
 /**
  * @note
