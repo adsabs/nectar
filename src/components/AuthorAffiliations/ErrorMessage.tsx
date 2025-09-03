@@ -19,9 +19,9 @@ const defaultTitle = 'Sorry, we were unable to generate the affiliations form';
 const getMessage = (error: string) => {
   switch (error) {
     case errorMessages.noBibcodeSubmitted:
-      return "No records we're sent, try going back to the search results and re-generating this form.";
+      return "No records were sent, try going back to the search results and re-generating this form.";
     case errorMessages.noResults:
-      return 'No results were found for this query, Try expanding the year range or the number of authors.';
+      return 'No results were found for this query, try expanding the year range or the number of authors.';
     default:
       return 'Please try reloading the page to see if the error persists.';
   }
