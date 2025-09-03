@@ -18,9 +18,8 @@ import {
   Stack,
   useDisclosure,
 } from '@chakra-ui/react';
-import { useEffect } from 'react';
 import { exportTypes } from './models';
-import { useExportModal } from './useExportModal';
+import { useExportModal } from './hooks/useExportModal';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { SimpleLink } from '@/components/SimpleLink';
 
@@ -31,7 +30,6 @@ export const ExportModal = (props: ButtonProps) => {
   const {
     isLoading,
     format,
-    onDone,
     onFetch,
     onFormatChange,
     numSelected,
@@ -44,13 +42,6 @@ export const ExportModal = (props: ButtonProps) => {
     enabled: isOpen,
   });
 
-  useEffect(() => {
-    if (!isOpen) {
-      // if modal closes unexpectedly, this will make sure the state gets reset
-      onDone();
-    }
-  }, [isOpen, onDone]);
-
   return (
     <>
       <Button onClick={onOpen} variant="outline" {...btnProps}>
@@ -61,7 +52,7 @@ export const ExportModal = (props: ButtonProps) => {
         <ModalContent>
           <ModalCloseButton />
           <ModalHeader>
-            Exporting {numSelected} entrie{numSelected > 1 ? 's' : ''}
+            Exporting {numSelected.toLocaleString()} entr{numSelected > 1 ? 'ies' : 'y'}
           </ModalHeader>
           <ModalBody>
             <FormLabel htmlFor="export-selection">Select export format</FormLabel>
@@ -75,7 +66,7 @@ export const ExportModal = (props: ButtonProps) => {
               </Stack>
             </RadioGroup>
             <Button onClick={onFetch} mt="2" width="full" isLoading={isLoading} isDisabled={isError || noData}>
-              Export to file
+              Export
             </Button>
             {noData ? (
               <Alert status="warning" mt="2">
