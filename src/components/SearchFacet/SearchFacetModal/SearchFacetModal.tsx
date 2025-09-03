@@ -31,7 +31,7 @@ import { SelectedList } from './SelectedList';
 import { useDebounce } from '@/lib/useDebounce';
 import { FACET_DEFAULT_PREFIX, useGetFacetData } from '../useGetFacetData';
 import { useDownloadFile } from '@/lib/useDownloadFile';
-import { join, map, pipe, pluck, replace } from 'ramda';
+import { join, last, map, pipe, pluck, split } from 'ramda';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { FacetItem, FacetLogic } from '../types';
 
@@ -179,11 +179,12 @@ const FacetDownloadButton = () => {
   const toast = useToast({ duration: 2000, id: 'facet-download' });
   const params = useFacetStore((state) => state.params);
   const { sort } = useGetSearchTerm();
+  const focused = useFacetStore((state) => state.focused);
 
   const { treeData, isSuccess, error, isFetching } = useGetFacetData({
     ...params,
     searchTerm: undefined,
-    prefix: FACET_DEFAULT_PREFIX,
+    prefix: focused?.val || FACET_DEFAULT_PREFIX,
     level: 'root',
     sortDir: sort[1],
     offset: 0,
@@ -192,25 +193,30 @@ const FacetDownloadButton = () => {
   });
 
   const formatData = useCallback(
-    () => pipe<[FacetItem[]], string[], string[], string>(pluck('val'), map(replace(/^0\//, '')), join('\n'))(treeData),
+    () =>
+      pipe<[FacetItem[]], string[], string[], string>(
+        pluck('val'),
+        map((s: string) => last(split('/', s)) ?? ''),
+        join('\n'),
+      )(treeData),
     [treeData],
   );
   const { onDownload } = useDownloadFile(formatData, { filename: 'fulllist.txt' });
 
   useEffect(() => {
-    if (enabled && isSuccess) {
+    if (enabled && !isFetching && isSuccess) {
       setEnabled(false);
       if (!toast.isActive('facet-download')) {
         toast({ status: 'success', title: 'Download complete.' });
       }
       onDownload();
-    }
-    if (error) {
+    } else if (error) {
       if (!toast.isActive('facet-download')) {
         toast({ status: 'error', title: 'Failed to get the list.', description: parseAPIError(error) });
       }
+      setEnabled(false);
     }
-  }, [treeData, error, isSuccess, toast, onDownload, enabled]);
+  }, [treeData, error, isSuccess, toast, onDownload, enabled, isFetching]);
 
   return (
     <Flex direction="row" justifyContent="end">
