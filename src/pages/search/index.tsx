@@ -13,11 +13,8 @@ import {
   Box,
   Button,
   Center,
-  Code,
-  Collapse,
   Flex,
   Heading,
-  HStack,
   Icon,
   IconButton,
   List,
@@ -30,10 +27,9 @@ import {
   useDisclosure,
   useMediaQuery,
   VisuallyHidden,
-  VStack,
 } from '@chakra-ui/react';
 import { calculateStartIndex } from '@/components/ResultList/Pagination/usePagination';
-import { FormEventHandler, RefObject, useCallback, useEffect, useRef, useState } from 'react';
+import { FormEventHandler, RefObject, useEffect, useRef, useState } from 'react';
 import { useIsClient } from '@/lib/useIsClient';
 import { NumPerPageType } from '@/types';
 import Head from 'next/head';
@@ -47,16 +43,15 @@ import { AddToLibraryModal } from '@/components/Libraries';
 import { ArrowPathIcon } from '@heroicons/react/24/solid';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { CustomInfoMessage } from '@/components/Feedbacks';
-import { CheckCircleIcon, ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons';
+import { CheckCircleIcon } from '@chakra-ui/icons';
 import { SimpleLink } from '@/components/SimpleLink';
-import { AxiosError } from 'axios';
-import { SOLR_ERROR, useSolrError } from '@/lib/useSolrError';
 import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
 import { IADSApiSearchParams, IADSApiSearchResponse } from '@/api/search/types';
 import { SEARCH_API_KEYS, useSearch } from '@/api/search/search';
 import { defaultParams } from '@/api/search/models';
 import { solrDefaultSortDirection, SolrSort, SolrSortField } from '@/api/models';
 import { useApplyBoostTypeToParams } from '@/lib/useApplyBoostTypeToParams';
+import { SearchErrorAlert } from '@/components/SolrErrorAlert/SolrErrorAlert';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
   () =>
@@ -408,56 +403,6 @@ const NoResultsMsg = () => (
 );
 
 export default SearchPage;
-
-const SearchErrorAlert = ({ error }: { error: AxiosError<IADSApiSearchResponse> | Error }) => {
-  const data = useSolrError(error);
-  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false });
-
-  const getMsg = useCallback(() => {
-    switch (data?.error) {
-      case SOLR_ERROR.FIELD_NOT_FOUND:
-        return (
-          <Text>
-            Unknown field: <Code>{data?.field}</Code>
-          </Text>
-        );
-      case SOLR_ERROR.SYNTAX_ERROR:
-        return <Text>There was an issue parsing the query</Text>;
-      default:
-        return <Text>There was an issue performing the search, please check your query</Text>;
-    }
-  }, [data?.error, data?.field]);
-
-  return (
-    <Box minH="sm" w="full">
-      <Alert status="error">
-        <VStack align="stretch" spacing={2} w="full">
-          {/* Top row: icon+msg on left, button on right */}
-          <HStack justify="space-between" w="full">
-            <HStack flex="1" spacing={2} align="center">
-              <AlertIcon />
-              {getMsg()}
-            </HStack>
-            <Button
-              rightIcon={isOpen ? <ChevronDownIcon /> : <ChevronRightIcon />}
-              aria-label="toggle error details"
-              onClick={onToggle}
-              variant="ghost"
-              size="sm"
-            >
-              {isOpen ? 'Hide' : 'Show'} Full Error
-            </Button>
-          </HStack>
-
-          {/* Collapse content: spans full width */}
-          <Collapse in={isOpen} animateOpacity>
-            <Code p="2">{data.originalMsg}</Code>
-          </Collapse>
-        </VStack>
-      </Alert>
-    </Box>
-  );
-};
 
 /**
  * Shows a warning if the returned search is flagged as having partial results.
