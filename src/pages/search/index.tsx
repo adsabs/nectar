@@ -3,7 +3,7 @@ import { IYearHistogramSliderProps } from '@/components/SearchFacet/YearHistogra
 import { ISearchFacetsProps } from '@/components/SearchFacet';
 import { AppState, useStore, useStoreApi } from '@/store';
 import { last, omit, path } from 'ramda';
-import { NextPage } from 'next';
+import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -119,7 +119,7 @@ const SearchPage: NextPage = () => {
     },
   });
 
-  const searchParams = omitP(params);
+  const searchParams = omitP(params) as IADSApiSearchParams;
   const { data, isSuccess, isLoading, isFetching, error, isError } = useSearch(searchParams);
   const histogramContainerRef = useRef<HTMLDivElement>(null);
   const isClient = useIsClient();
@@ -485,4 +485,8 @@ const PartialResultsWarning = (props: { params: IADSApiSearchParams }) => {
       </Text>
     </Alert>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  return { props: {} };
 };
