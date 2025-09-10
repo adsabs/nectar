@@ -91,8 +91,8 @@ function isOperator(value: unknown): value is Operator {
  * The function automatically trims terms, ignores empty or falsy values,
  * and wraps each term in parentheses for clarity.
  *
- *   - a list of `string` terms, or
- *   - an `Operator` followed by one or more `string` terms.
+ *   - If only `string` terms are provided, they are joined using the default operator (`AND`).
+ *   - If the first argument is an `Operator`, it is used to join the subsequent `string` terms.
  *
  * @returns A combined query string. Returns an empty string if no valid terms are provided.
  *
