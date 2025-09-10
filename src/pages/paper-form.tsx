@@ -40,6 +40,8 @@ import { stringifySearchParams } from '@/utils/common/search';
 import { fetchVaultSearch, vaultKeys } from '@/api/vault/vault';
 import { SimpleLink } from '@/components/SimpleLink';
 
+const MAX_SIMPLE_QUERY_BIBCODES = 50;
+
 enum PaperFormType {
   JOURNAL_QUERY = 'journal-query',
   REFERENCE_QUERY = 'reference-query',
@@ -368,6 +370,13 @@ const listSanitizer = (v: string): string[] =>
   v.length > 0 ? (Array.from(v.matchAll(/[^\r\n]+/g), head) as string[]) : [];
 
 const listCheck = pipe(escape, listSanitizer);
+
+const joinBibcodeTerms = (bibcodes: string[]): string =>
+  bibcodes
+    .map((bibcode) => (typeof bibcode === 'string' ? bibcode.trim() : ''))
+    .filter((bibcode): bibcode is string => bibcode.length > 0)
+    .map((bibcode) => `(identifier:${bibcode})`)
+    .join(' OR ');
 const createQuery = pipe<
   [PaperFormState[PaperFormType.JOURNAL_QUERY]],
   Omit<PaperFormState[PaperFormType.JOURNAL_QUERY], 'form'>,
@@ -434,13 +443,18 @@ const getSearchQuery = async (formParams: PaperFormState[PaperFormType], queryCl
     case PaperFormType.BIBCODE_QUERY: {
       try {
         const cleanBibs = listCheck(formParams.bibcodes);
-        const params = getVaultBigQueryParams(cleanBibs);
-        const { qid } = await queryClient.fetchQuery({
-          queryKey: vaultKeys.bigquery(cleanBibs),
-          queryFn: fetchVaultSearch,
-          meta: { params },
-        });
-        return `/search?${stringifyQuery(`docs(${qid})`)}`;
+
+        if (cleanBibs.length > MAX_SIMPLE_QUERY_BIBCODES) {
+          const params = getVaultBigQueryParams(cleanBibs);
+          const { qid } = await queryClient.fetchQuery({
+            queryKey: vaultKeys.bigquery(cleanBibs),
+            queryFn: fetchVaultSearch,
+            meta: { params },
+          });
+          return `/search?${stringifyQuery(`docs(${qid})`)}`;
+        }
+        const q = joinBibcodeTerms(cleanBibs);
+        return `/search?${stringifyQuery(q)}`;
       } catch (err) {
         throw new Error('Error retrieving result for this set of bibcodes, please try again', { cause: err });
       }
