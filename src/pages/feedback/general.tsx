@@ -221,7 +221,7 @@ const General: NextPage = () => {
           <SimpleLink href="/feedback/associatedarticles">
             <strong>submit associated articles</strong>
           </SimpleLink>
-          . You can also send general comments and questions to <strong>adshelp [at] cfa.harvard.edu</strong>.
+          . You can also send general comments and questions to <strong>help [at] scixplorer.org</strong>.
         </Text>
         <Flex direction="column" gap={4}>
           <Stack direction={{ base: 'column', sm: 'row' }} gap={2}>
