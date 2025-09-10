@@ -130,7 +130,19 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
     if (exploreAll) {
       // new search with operator
       const query = parseQueryFromUrl(router.asPath);
-      const q = createOperatorQuery(operator, query.q);
+      // transform the query to include all applied facets
+      const qSet = new Set<string>([query.q ? query.q : '']);
+      Object.keys(query).forEach((key) => {
+        if (key.startsWith('fq_') && typeof query[key] === 'string') {
+          qSet.add(query[key]);
+        }
+      });
+      const filteredQSet = Array.from(qSet).filter(Boolean);
+      if (filteredQSet.length === 0) {
+        // Optionally, show a warning or use a default query. For now, do nothing.
+        return;
+      }
+      const q = createOperatorQuery(operator, filteredQSet.join(' AND '));
       void router.push({ pathname: '', search: makeSearchParams({ q, sort: ['score desc'] }) });
     } else {
       setPath({ operator });
