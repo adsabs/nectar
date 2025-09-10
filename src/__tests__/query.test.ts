@@ -62,4 +62,48 @@ describe('Query Utilities', () => {
     expect(Q.splitQuery(...args)).toEqual(expected);
     return Promise.resolve();
   });
+
+  describe('joinTerms', () => {
+    const joinTerms = Q.joinTerms;
+    it('joins multiple terms with DEFAULT operator (AND) when no operator is provided', () => {
+      expect(joinTerms('foo', 'bar', 'baz')).toBe('(foo) AND (bar) AND (baz)');
+    });
+
+    it('joins multiple terms with an explicit operator (OR)', () => {
+      expect(joinTerms('OR', 'author:einstein', 'author:newton')).toBe('(author:einstein) OR (author:newton)');
+    });
+
+    it('supports "NOT" operator (syntactically) and preserves parentheses', () => {
+      expect(joinTerms('NOT', 'alpha', 'beta')).toBe('(alpha) NOT (beta)');
+    });
+
+    it('returns a single parenthesized term when only one valid term is given', () => {
+      expect(joinTerms('galaxies')).toBe('(galaxies)');
+    });
+
+    it('trims terms and drops empty/falsy after trimming', () => {
+      expect(joinTerms('OR', '  title:foo  ', '   ', '', 'author:bar  ')).toBe('(title:foo) OR (author:bar)');
+    });
+
+    it('returns empty string when all inputs are empty/falsy', () => {
+      expect(joinTerms()).toBe('');
+      expect(joinTerms('', '   ', '\n')).toBe('');
+    });
+
+    it('treats an invalid first arg (e.g., "XOR") as a TERM, falling back to DEFAULT operator', () => {
+      // "XOR" is not a valid Operator; should be treated as a term
+      expect(joinTerms('XOR' as unknown as any, 'beta')).toBe('(XOR) AND (beta)');
+    });
+
+    it('ignores non-string junk safely (no throw) and keeps valid strings', () => {
+      // Bypass TS types intentionally to simulate runtime junk
+      const result = (joinTerms as any)(undefined, ' a ', null, 'b', 42, {}, '  ');
+      expect(result).toBe('(a) AND (b)');
+    });
+
+    it('handles long lists and preserves grouping parentheses around each term', () => {
+      const out = joinTerms('OR', 't1', 't2', 't3', 't4', 't5', 't6', 't7', 't8', 't9', 't10');
+      expect(out).toBe('(t1) OR (t2) OR (t3) OR (t4) OR (t5) OR (t6) OR (t7) OR (t8) OR (t9) OR (t10)');
+    });
+  });
 });
