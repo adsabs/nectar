@@ -22,7 +22,7 @@ import { searchKeys, useGetAbstract } from '@/api/search/search';
 import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity } from '@/api/search/types';
 import { getAbstractParams } from '@/api/search/models';
 import { useTrackAbstractView } from '@/lib/useTrackAbstractView';
-import { AbstractDetails } from '@/components/AbstractDetails';
+import { AbstractDetails, AbstractMetadata, IAbstractMetadata } from '@/components/AbstractDetails';
 import { bootstrap } from '@/lib/serverside/bootstrap';
 import { ApiTargets } from '@/api/models';
 import { stringifySearchParams } from '@/utils/common/search';
@@ -53,6 +53,12 @@ const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated
   const { data } = useGetAbstract({ id: router.query.id as string });
   const doc = path<IDocsEntity>(['docs', 0], data) ?? initialDoc ?? undefined;
   useTrackAbstractView(doc);
+
+  const metadata: IAbstractMetadata = {
+    refereed: doc.property?.includes('REFEREED'),
+    doctype: doc.doctype && doc.doctype !== 'erratum' ? doc.doctype : undefined,
+    erratum: doc.doctype === 'erratum',
+  };
 
   // process authors from doc
   const authors = useGetAuthors({ doc, includeAff: false });
@@ -118,6 +124,8 @@ const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated
                 </>
               )}
             </Flex>
+
+            <AbstractMetadata {...metadata} />
 
             <Flex justifyContent="space-between">
               <Box display={{ base: 'block', lg: 'none' }}>
