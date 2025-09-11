@@ -35,7 +35,7 @@ export const PapersTable = (props: IPapersTableProps): ReactElement => {
                 <span>
                   The total number of papers for which metrics were calculated. This may differ from total number of
                   papers requested due to gaps in the metrics database. If you spot a discrepancy please let us know at
-                  adshelp@cfa.harvard.edu
+                  help@scixplorer.org
                 </span>
               }
             >

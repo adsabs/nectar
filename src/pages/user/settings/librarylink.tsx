@@ -98,8 +98,8 @@ const LibraryLinkServerPage = () => {
           </Heading>
           <Text>
             Please contact your electronic resources librarian and request that they email{' '}
-            <a href="mailto: adshelp@cfa.harvard.edu">adshelp@cfa.harvard.edu</a> with the relevant openurl information.
-            If you are still having difficulties, Contact Us for help.
+            <a href="mailto: help@scixplorer.org">help@scixplorer.org</a> with the relevant openurl information. If you
+            are still having difficulties, Contact Us for help.
           </Text>
         </VStack>
       </VStack>

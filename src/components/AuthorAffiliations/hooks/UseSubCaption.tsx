@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { isNotNilOrEmpty } from 'ramda-adjunct';
 import { AffTableState } from '@/components/AuthorAffiliations/AuthorAffiliations';
 
 export const useSubCaption = (state: AffTableState) => {
