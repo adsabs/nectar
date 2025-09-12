@@ -1,4 +1,5 @@
 import { fetchReferenceText, referenceKeys } from '@/api/reference/reference';
+import * as Q from '@/query';
 import { getVaultBigQueryParams } from '@/api/vault/models';
 import {
   Alert,
@@ -39,6 +40,8 @@ import { BibstemPicker } from '@/components/BibstemPicker';
 import { stringifySearchParams } from '@/utils/common/search';
 import { fetchVaultSearch, vaultKeys } from '@/api/vault/vault';
 import { SimpleLink } from '@/components/SimpleLink';
+
+const MAX_SIMPLE_QUERY_BIBCODES = 50;
 
 enum PaperFormType {
   JOURNAL_QUERY = 'journal-query',
@@ -434,13 +437,18 @@ const getSearchQuery = async (formParams: PaperFormState[PaperFormType], queryCl
     case PaperFormType.BIBCODE_QUERY: {
       try {
         const cleanBibs = listCheck(formParams.bibcodes);
-        const params = getVaultBigQueryParams(cleanBibs);
-        const { qid } = await queryClient.fetchQuery({
-          queryKey: vaultKeys.bigquery(cleanBibs),
-          queryFn: fetchVaultSearch,
-          meta: { params },
-        });
-        return `/search?${stringifyQuery(`docs(${qid})`)}`;
+
+        if (cleanBibs.length > MAX_SIMPLE_QUERY_BIBCODES) {
+          const params = getVaultBigQueryParams(cleanBibs);
+          const { qid } = await queryClient.fetchQuery({
+            queryKey: vaultKeys.bigquery(cleanBibs),
+            queryFn: fetchVaultSearch,
+            meta: { params },
+          });
+          return `/search?${stringifyQuery(`docs(${qid})`)}`;
+        }
+        const q = Q.joinTerms('OR', ...cleanBibs.map((bib) => `identifier:${bib}`));
+        return `/search?${stringifyQuery(q)}`;
       } catch (err) {
         throw new Error('Error retrieving result for this set of bibcodes, please try again', { cause: err });
       }
