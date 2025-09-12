@@ -665,6 +665,7 @@ const LogicSelect = (
   const params = useFacetStore((state) => state.params);
   const selected = useFacetStore((state) => state.selected);
   const reset = useFacetStore((state) => state.reset);
+  const isModalOpen = useFacetStore((state) => state.isOpen);
 
   const handleSelect: MouseEventHandler<HTMLButtonElement> = useCallback(
     (e) => {
@@ -678,8 +679,9 @@ const LogicSelect = (
   );
 
   const logicType = selected.length > 1 ? params.logic.multiple : params.logic.single;
+  const isOpen = selected.length > 0 && !isModalOpen;
   return (
-    <Popover isOpen={selected.length > 0} placement="right-start">
+    <Popover isOpen={isOpen} placement="right-start">
       <PopoverAnchor>{children}</PopoverAnchor>
       <PopoverContent maxWidth="max-content" minWidth="40">
         <PopoverHeader fontSize="md" fontWeight="bold" pr={10}>
