@@ -47,7 +47,7 @@
     "@nivo/bar": "^0.80.0",
     "@nivo/core": "^0.80.0",
     "@nivo/line": "^0.80.0",
-    "@sentry/nextjs": "^8.49.0",
+    "@sentry/nextjs": "^10.11.0",
     "@tanstack/react-query": "^4.29.17",
     "@tanstack/react-table": "^8.9.2",
     "@xstate/fsm": "^2.0.0",
