@@ -4,6 +4,7 @@ import { ReactElement } from 'react';
 import { getFormattedNumericPubdate } from '@/utils/common/formatters';
 import { Esources, IDocsEntity } from '@/api/search/types';
 import { logger } from '@/logger';
+import { docToJsonld } from '@/components/Metatags/json-ld-abstract/docToJsonld';
 
 const getBaseUrl = () => {
   try {
@@ -76,6 +77,11 @@ export const Metatags = (props: IMetatagsProps): ReactElement => {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(docToJsonld(doc, baseUrl)) }}
+      />
+
       <link rel="canonical" href={`${baseUrl}/abs/${doc.bibcode}/abstract`} />
 
       <meta name="description" content={doc.abstract} />

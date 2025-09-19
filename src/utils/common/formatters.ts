@@ -97,6 +97,20 @@ export const purifyString = (value: string): string => {
 };
 
 /**
+ * Strips all HTML tags/attributes from a string while sanitizing.
+ * Useful for contexts (like JSON-LD) that expect plain text.
+ */
+export const stripHtml = (value: string): string => {
+  try {
+    // Remove all tags and attributes, leaving plain text content
+    return DOMPurify.sanitize(value, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
+  } catch (err) {
+    logger.error({ err, value }, 'Error caught stripping HTML');
+    return value;
+  }
+};
+
+/**
  * Formats a given number to a string representation with 'k' suffix if the absolute value exceeds 999.
  * If the absolute value is less than or equal to 999, returns the number itself.
  *
