@@ -58,6 +58,8 @@ export const BRAND_NAME_FULL = 'Science Explorer';
 export const BRAND_NAME_SHORT = 'SciX';
 export const ORCID_BULK_DELETE_CHUNK_SIZE = 4;
 export const ORCID_BULK_DELETE_DELAY = 1000;
+export const SCIX_CANONICAL_BASE_URL = 'https://scixplorer.org';
+export const ADS_CANONICAL_BASE_URL = 'https://ui.adsabs.harvard.edu';
 
 export const EXTERNAL_URLS = {
   USGS_PLANETARY_FEATURES: 'https://planetarynames.wr.usgs.gov/Feature/' as const,
@@ -67,6 +69,8 @@ export const EXTERNAL_URLS = {
   NASA_SDE_HOME_PAGE: 'https://sciencediscoveryengine.nasa.gov/app/nasa-sba-smd/#/home',
   TWITTER_SCIX: 'https://twitter.com/scixcommunity' as const,
   CFA_SAO_HOME_PAGE: 'https://www.cfa.harvard.edu/sao' as const,
+  UAT: 'http://astrothesaurus.org',
+  ORCID: 'https://orcid.org',
 };
 
 export const TRACING_HEADERS = ['X-Original-Uri', 'X-Original-Forwarded-For', 'X-Forwarded-For', 'X-Amzn-Trace-Id'];
