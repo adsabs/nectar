@@ -302,7 +302,7 @@ export interface IDocsEntity {
   thesis?: string;
   title?: string[];
   uat?: string[];
-  uat_id?: string[];
+  uat_id?: number[];
   uat_facet_hier?: string;
   vizier_facet?: string;
   vizier?: string;
