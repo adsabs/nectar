@@ -93,7 +93,7 @@ const OrcidToggle = () => {
 const OrcidLogin = () => {
   const { login } = useOrcid();
 
-  return <Text onClick={login}>Sign into ORCiD to claim papers in ADS</Text>;
+  return <Text onClick={login}>Sign into ORCiD to claim papers in SciX</Text>;
 };
 
 const OrcidLogout = () => {
