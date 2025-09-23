@@ -9,6 +9,7 @@ import {
   Stack,
   Stat,
   StatGroup,
+  StatHelpText,
   StatLabel,
   StatNumber,
   Text,
@@ -32,7 +33,13 @@ import { makeSearchParams, normalizeSolrSort } from '@/utils/common/search';
 import { SolrSort } from '@/api/models';
 import { SearchExamples } from '@/components/SearchExamples/SearchExamples';
 import { Pager } from '@/components/Pager/Pager';
-import { PlayCircleIcon } from '@heroicons/react/24/solid';
+import {
+  ChatBubbleBottomCenterIcon,
+  DocumentIcon,
+  FolderIcon,
+  PlayCircleIcon,
+  UserIcon,
+} from '@heroicons/react/24/solid';
 import { ExternalLinkIcon } from '@chakra-ui/icons';
 
 const HomePage: NextPage = () => {
@@ -313,25 +320,43 @@ export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
 
 const Stats = () => {
   return (
-    <Box borderWidth={0.5} borderRadius={5} p={4} mt={5} as="section" aria-label="Stats Section">
-      <StatGroup>
-        <Stat>
-          <StatLabel>Scientific Records</StatLabel>
-          <StatNumber>30M+</StatNumber>
-        </Stat>
-        <Stat>
-          <StatLabel>Citations</StatLabel>
-          <StatNumber>300M+</StatNumber>
-        </Stat>
-        <Stat>
-          <StatLabel>Peer reviewed journals</StatLabel>
-          <StatNumber>~8000</StatNumber>
-        </Stat>
-        <Stat>
-          <StatLabel>Annual Users</StatLabel>
-          <StatNumber>16M+</StatNumber>
-        </Stat>
-      </StatGroup>
-    </Box>
+    <StatGroup
+      borderWidth={0.5}
+      borderRadius={5}
+      p={4}
+      mt={5}
+      as="section"
+      aria-label="Stats Section"
+      alignItems="center"
+    >
+      <Stat textAlign="center">
+        <StatLabel color="brand.200">
+          <Icon as={FolderIcon} w={50} h={50} />
+        </StatLabel>
+        <StatNumber color="brand.200">30M+</StatNumber>
+        <StatHelpText>Scientific Records</StatHelpText>
+      </Stat>
+      <Stat textAlign="center">
+        <StatLabel color="brand.300">
+          <Icon as={ChatBubbleBottomCenterIcon} w={50} h={50} />
+        </StatLabel>
+        <StatNumber color="brand.300">300M+</StatNumber>
+        <StatHelpText>Citations</StatHelpText>
+      </Stat>
+      <Stat textAlign="center">
+        <StatLabel color="brand.400">
+          <Icon as={DocumentIcon} w={50} h={50} />
+        </StatLabel>
+        <StatNumber color="brand.400">~8000</StatNumber>
+        <StatHelpText>Peer Reviewed Journals</StatHelpText>
+      </Stat>
+      <Stat textAlign="center">
+        <StatLabel color="brand.500">
+          <Icon as={UserIcon} w={50} h={50} />
+        </StatLabel>
+        <StatNumber color="brand.500">16M+</StatNumber>
+        <StatHelpText>Annual Users</StatHelpText>
+      </Stat>
+    </StatGroup>
   );
 };
