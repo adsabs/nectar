@@ -1,6 +1,19 @@
 import { IADSApiSearchParams } from '@/api/search/types';
 import { DatabaseEnum, IADSApiUserDataResponse } from '@/api/user/types';
-import { Box, Center, Flex, Heading, Stack, Text, useMediaQuery, VisuallyHidden } from '@chakra-ui/react';
+import {
+  Box,
+  Center,
+  Flex,
+  Heading,
+  Stack,
+  Stat,
+  StatGroup,
+  StatLabel,
+  StatNumber,
+  Text,
+  useMediaQuery,
+  VisuallyHidden,
+} from '@chakra-ui/react';
 
 import { applyFiltersToQuery } from '@/components/SearchFacet/helpers';
 import { useStore } from '@/store';
@@ -126,6 +139,7 @@ const HomePage: NextPage = () => {
             </Box>
           )}
         </Flex>
+        <Stats />
         <input type="hidden" name="sort" value={normalizeSolrSort(sort)} />
         <input type="hidden" name="p" value="1" />
       </form>
@@ -261,3 +275,28 @@ const getListOfAppliedDefaultDatabases = (databases: IADSApiUserDataResponse['de
 };
 
 export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
+
+const Stats = () => {
+  return (
+    <Box borderWidth={0.5} borderRadius={5} p={4} mt={5}>
+      <StatGroup>
+        <Stat>
+          <StatLabel>Scientific Records</StatLabel>
+          <StatNumber>30M+</StatNumber>
+        </Stat>
+        <Stat>
+          <StatLabel>Citations</StatLabel>
+          <StatNumber>300M+</StatNumber>
+        </Stat>
+        <Stat>
+          <StatLabel>Peer reviewed journals</StatLabel>
+          <StatNumber>~8000</StatNumber>
+        </Stat>
+        <Stat>
+          <StatLabel>Annual Users</StatLabel>
+          <StatNumber>16M+</StatNumber>
+        </Stat>
+      </StatGroup>
+    </Box>
+  );
+};
