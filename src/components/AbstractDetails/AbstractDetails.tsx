@@ -1,6 +1,7 @@
 import { IDocsEntity } from '@/api/search/types';
 import { EXTERNAL_URLS } from '@/config';
 import { pluralize } from '@/utils/common/formatters';
+import { ExternalLinkIcon } from '@chakra-ui/icons';
 import {
   Badge,
   Box,
@@ -71,7 +72,7 @@ export const AbstractDetails = ({ doc }: IDetailsProps): ReactElement => {
             {(pub_raw) => (
               <>
                 <span dangerouslySetInnerHTML={{ __html: pub_raw }}></span>
-                <Tooltip label="copy citation">
+                <Tooltip label="Copy citation">
                   <Button
                     aria-label="Copy citation"
                     variant="outline"
@@ -133,7 +134,11 @@ const Detail = <T extends string | string[]>(props: IDetailProps<T>): ReactEleme
         {typeof children === 'function'
           ? children(value)
           : !href && <span dangerouslySetInnerHTML={{ __html: normalizedValue }} />}
-        {copiable && <SimpleCopyButton text={normalizedValue as string} size="xs" variant="outline" mx={2} />}
+        {copiable && (
+          <Tooltip label="Copy" shouldWrapChildren>
+            <SimpleCopyButton text={normalizedValue as string} size="xs" variant="outline" mx={2} />
+          </Tooltip>
+        )}
       </Td>
     </Tr>
   );
@@ -147,10 +152,20 @@ const Doi = memo(({ doiIDs, bibcode }: { doiIDs: Array<string>; bibcode: string 
     <>
       {doiIDs.map((id) => (
         <Stack direction="row" my={1} key={id}>
-          <SimpleLink href={createUrlByType(bibcode, 'doi', id)} newTab _hover={{ textDecor: 'underline' }}>
-            {id}
-          </SimpleLink>
-          <SimpleCopyButton text={id} variant="outline" size="xs" />
+          <Tooltip
+            label={
+              <>
+                Open DOI link <ExternalLinkIcon />
+              </>
+            }
+          >
+            <SimpleLink href={createUrlByType(bibcode, 'doi', id)} newTab _hover={{ textDecor: 'underline' }}>
+              {id}
+            </SimpleLink>
+          </Tooltip>
+          <Tooltip label="Copy DOI" shouldWrapChildren>
+            <SimpleCopyButton text={id} variant="outline" size="xs" />
+          </Tooltip>
         </Stack>
       ))}
     </>
