@@ -10,6 +10,14 @@ export const theme = extendTheme(
   {
     config,
     colors: {
+      brand: {
+        100: '#f2f2f2',
+        200: '#049dd9',
+        300: '#5fbfae',
+        400: '#97bf41',
+        500: '#bfac4b',
+      },
+
       blue: {
         '50': '#EAEDFA',
         '100': '#C5CDF1',
