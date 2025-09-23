@@ -5,12 +5,14 @@ import {
   Center,
   Flex,
   Heading,
+  Icon,
   Stack,
   Stat,
   StatGroup,
   StatLabel,
   StatNumber,
   Text,
+  Tooltip,
   useMediaQuery,
   VisuallyHidden,
 } from '@chakra-ui/react';
@@ -30,6 +32,8 @@ import { makeSearchParams, normalizeSolrSort } from '@/utils/common/search';
 import { SolrSort } from '@/api/models';
 import { SearchExamples } from '@/components/SearchExamples/SearchExamples';
 import { Pager } from '@/components/Pager/Pager';
+import { PlayCircleIcon } from '@heroicons/react/24/solid';
+import { ExternalLinkIcon } from '@chakra-ui/icons';
 
 const HomePage: NextPage = () => {
   const { settings } = useSettings();
@@ -140,6 +144,37 @@ const HomePage: NextPage = () => {
           )}
         </Flex>
         <Stats />
+        <Tooltip
+          label={
+            <>
+              Click to watch the video and learn more about SciX <ExternalLinkIcon aria-label="external link" />
+            </>
+          }
+          placement="auto"
+        >
+          <SimpleLink href="https://www.youtube.com/watch?v=sgJ-LolRLu8&ab_channel=ScienceExplorer%28SciX%29">
+            <Box position="relative" w="100%" mt={10} borderWidth={0.5} borderRadius={5}>
+              <Image
+                src="/images/Welcome to SciX SciXComm YT thumbnail.png"
+                alt="Click to open SciX introduction video"
+                width={0}
+                height={0}
+                sizes="100vw"
+                style={{ width: '100%', height: 'auto' }}
+              />
+              {/* Icon overlay */}
+              <Box
+                position="absolute"
+                top="50%"
+                left="50%"
+                transform="translateX(-50%) translateY(-50%)" // shift left by 50% of icon width
+                opacity={0.8}
+              >
+                <Icon as={PlayCircleIcon} aria-hidden w={20} h={20} color="red" />
+              </Box>
+            </Box>
+          </SimpleLink>
+        </Tooltip>
         <input type="hidden" name="sort" value={normalizeSolrSort(sort)} />
         <input type="hidden" name="p" value="1" />
       </form>
@@ -278,7 +313,7 @@ export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
 
 const Stats = () => {
   return (
-    <Box borderWidth={0.5} borderRadius={5} p={4} mt={5}>
+    <Box borderWidth={0.5} borderRadius={5} p={4} mt={5} as="section" aria-label="Stats Section">
       <StatGroup>
         <Stat>
           <StatLabel>Scientific Records</StatLabel>
