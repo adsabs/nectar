@@ -186,7 +186,11 @@ export async function middleware(req: NextRequest) {
     return redirectIfAuthenticated(req, res);
   }
 
-  if (path.startsWith('/user/libraries') || path.startsWith('/user/settings')) {
+  if (
+    path.startsWith('/user/libraries') ||
+    path.startsWith('/user/settings') ||
+    path.startsWith('/user/notifications')
+  ) {
     return protectedRoute(req, res);
   }
 
