@@ -55,6 +55,7 @@ const useGetItems = ({
       href: { pathname: `${abstractPath}/${docId}/${Routes.ABSTRACT}` },
       label: 'Abstract',
       icon: <DocumentTextIcon />,
+      tooltip: 'Basic information about this record',
     },
     [Routes.CITATIONS]: {
       id: Routes.CITATIONS,
@@ -63,6 +64,7 @@ const useGetItems = ({
       icon: <CollectionIcon />,
       rightElement: <CountBadge count={doc?.citation_count ?? 0} />,
       disabled: doc?.citation_count <= 0,
+      tooltip: 'View all records that cite this record',
     },
     [Routes.REFERENCES]: {
       id: Routes.REFERENCES,
@@ -71,6 +73,7 @@ const useGetItems = ({
       icon: <ClipboardListIcon />,
       rightElement: <CountBadge count={doc.reference_count ?? 0} />,
       disabled: doc.reference_count <= 0,
+      tooltip: 'View all records cited by this record',
     },
     [Routes.CREDITS]: {
       id: Routes.CREDITS,
@@ -79,6 +82,7 @@ const useGetItems = ({
       icon: <CheckCircleIcon />,
       rightElement: <CountBadge count={doc.credit?.length ?? 0} />,
       disabled: !doc.credit || doc.credit.length === 0,
+      tooltip: 'View all records that mention or acknowledge this record',
     },
     [Routes.MENTIONS]: {
       id: Routes.MENTIONS,
@@ -87,6 +91,7 @@ const useGetItems = ({
       icon: <ChatIcon />,
       rightElement: <CountBadge count={doc.mention?.length ?? 0} />,
       disabled: !doc.mention || doc.mention.length === 0,
+      tooltip: 'View all records mentioned or acknowledged by this record',
     },
     [Routes.COREADS]: {
       id: Routes.COREADS,
@@ -94,6 +99,7 @@ const useGetItems = ({
       label: 'Co-Reads',
       icon: <UsersIcon />,
       disabled: doc?.read_count <= 0,
+      tooltip: 'View all records that have been read by those who read this record',
     },
     [Routes.SIMILAR]: {
       id: Routes.SIMILAR,
@@ -101,6 +107,7 @@ const useGetItems = ({
       label: 'Similar Papers',
       icon: <DuplicateIcon />,
       disabled: !doc?.abstract,
+      tooltip: 'View all records that are semantically similar to this record',
     },
     [Routes.VOLUMECONTENT]: {
       id: Routes.VOLUMECONTENT,
@@ -108,6 +115,7 @@ const useGetItems = ({
       label: 'Volume Content',
       icon: <TableIcon />,
       disabled: doc.property?.indexOf('TOC') === -1,
+      tooltip: 'View other records published in the same volume/venue',
     },
     [Routes.GRAPHICS]: {
       id: Routes.GRAPHICS,
@@ -116,6 +124,7 @@ const useGetItems = ({
       icon: <PhotographIcon />,
       rightElement: null,
       disabled: graphicsCount === 0,
+      tooltip: 'View thumbnails of graphics published in this record',
     },
     [Routes.METRICS]: {
       id: Routes.METRICS,
@@ -123,12 +132,14 @@ const useGetItems = ({
       label: 'Metrics',
       icon: <ChartPieIcon />,
       disabled: !hasMetrics,
+      tooltip: 'View citation and usage statistics for this record',
     },
     [Routes.EXPORT]: {
       id: Routes.EXPORT,
       href: { pathname: `${abstractPath}/${docId}/${Routes.EXPORT}/${defaultExportFormatPath}` },
       label: 'Export Citation',
       icon: <DownloadIcon />,
+      tooltip: 'Provide formatted citation formats for this record',
     },
   };
 

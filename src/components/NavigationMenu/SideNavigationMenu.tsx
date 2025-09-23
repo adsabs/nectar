@@ -1,5 +1,5 @@
 import { cloneElement } from 'react';
-import { Box, BoxProps, Button, Flex, Text } from '@chakra-ui/react';
+import { Box, BoxProps, Button, Flex, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { CatMenuItems, IMenuItem, IMenuItemProps, SingleMenuItems } from './types';
 
 import { SimpleLink } from '@/components/SimpleLink';
@@ -13,7 +13,15 @@ export interface ISideNavigationMenuProps extends BoxProps {
 /**
  * Menu item rendered as button link
  */
-const SideMenuItem = ({ href, label, icon, active = false, disabled = false, rightElement = null }: IMenuItemProps) => {
+const SideMenuItem = ({
+  href,
+  label,
+  icon,
+  active = false,
+  disabled = false,
+  rightElement = null,
+  tooltip,
+}: IMenuItemProps) => {
   const colors = useColorModeColors();
 
   return (
@@ -38,26 +46,30 @@ const SideMenuItem = ({ href, label, icon, active = false, disabled = false, rig
           </Flex>
         </Button>
       ) : (
-        <Button
-          as={SimpleLink}
-          href={href}
-          w="full"
-          variant={active ? 'solid' : 'ghost'}
-          size="md"
-          aria-current={active ? 'page' : undefined}
-          justifyContent="start"
-          colorScheme="gray"
-          mb={1}
-          color={colors.text}
-          fontSize="normal"
-          fontWeight="normal"
-          leftIcon={icon ? cloneElement(icon, { width: '18px', 'aria-hidden': true }) : null}
-        >
-          <Flex direction="row" alignItems="center" justifyContent="space-between" w="full">
-            <>{label}</>
-            <>{rightElement}</>
-          </Flex>
-        </Button>
+        <Stack w="full" spacing={0}>
+          <Tooltip isDisabled={!tooltip} label={tooltip ?? ''} shouldWrapChildren>
+            <Button
+              as={SimpleLink}
+              href={href}
+              w="full"
+              variant={active ? 'solid' : 'ghost'}
+              size="md"
+              aria-current={active ? 'page' : undefined}
+              justifyContent="start"
+              colorScheme="gray"
+              mb={1}
+              color={colors.text}
+              fontSize="normal"
+              fontWeight="normal"
+              leftIcon={icon ? cloneElement(icon, { width: '18px', 'aria-hidden': true }) : null}
+            >
+              <Flex direction="row" alignItems="center" justifyContent="space-between" w="full">
+                <>{label}</>
+                <>{rightElement}</>
+              </Flex>
+            </Button>
+          </Tooltip>
+        </Stack>
       )}
     </>
   );

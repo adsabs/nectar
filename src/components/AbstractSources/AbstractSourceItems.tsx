@@ -13,6 +13,7 @@ import {
   MenuItem,
   MenuList,
   Text,
+  Tooltip,
 } from '@chakra-ui/react';
 import { ItemType } from '@/components/Dropdown/types';
 import { GenericFileIcon } from '@/components/icons/GenericFileIcon';
@@ -116,25 +117,30 @@ export const FullTextSourceItems = ({ resources, type, ...boxProps }: IFullTextS
                 <Text>{group.label}</Text>
                 <HStack>
                   {group.links.map((link) => (
-                    <IconButton
-                      aria-label={`${group.label} ${link.type}`}
+                    <Tooltip
+                      label={`${group.label} ${link.type.toLocaleUpperCase()}`}
+                      shouldWrapChildren
                       key={link.rawType}
-                      icon={
-                        link.rawType === Esources.INSTITUTION ? (
-                          <Icon as={AcademicCapIcon} fontSize="2xl" />
-                        ) : link.type === 'pdf' ? (
-                          <PdfFileIcon fill={link.open ? 'green' : 'gray'} />
-                        ) : link.type === 'html' ? (
-                          <HtmlFileIcon fill={link.open ? 'green' : 'gray'} />
-                        ) : (
-                          <GenericFileIcon fill={link.open ? 'green' : 'gray'} />
-                        )
-                      }
-                      variant="unstyled"
-                      as={SimpleLink}
-                      href={link.path}
-                      newTab
-                    />
+                    >
+                      <IconButton
+                        aria-label={`${group.label} ${link.type}`}
+                        icon={
+                          link.rawType === Esources.INSTITUTION ? (
+                            <Icon as={AcademicCapIcon} fontSize="2xl" />
+                          ) : link.type === 'pdf' ? (
+                            <PdfFileIcon fill={link.open ? 'green' : 'gray'} />
+                          ) : link.type === 'html' ? (
+                            <HtmlFileIcon fill={link.open ? 'green' : 'gray'} />
+                          ) : (
+                            <GenericFileIcon fill={link.open ? 'green' : 'gray'} />
+                          )
+                        }
+                        variant="unstyled"
+                        as={SimpleLink}
+                        href={link.path}
+                        newTab
+                      />
+                    </Tooltip>
                   ))}
                 </HStack>
               </Flex>

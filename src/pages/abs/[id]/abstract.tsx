@@ -71,21 +71,25 @@ const AbstractPage: NextPage = () => {
                 </VisuallyHidden>
                 {authors.map(([, author, orcid], index) => (
                   <Box mr={1} key={`${author}-${index}`}>
-                    <SearchQueryLink
-                      params={createQuery('author', author)}
-                      px={1}
-                      aria-label={`author "${author}", search by name`}
-                      flexShrink="0"
-                    >
-                      <>{author}</>
-                    </SearchQueryLink>
-                    {typeof orcid === 'string' && (
+                    <Tooltip label="View all records by this author" shouldWrapChildren>
                       <SearchQueryLink
-                        params={createQuery('orcid', orcid)}
-                        aria-label={`author "${author}", search by orKid`}
+                        params={createQuery('author', author)}
+                        px={1}
+                        aria-label={`author "${author}", search by name`}
+                        flexShrink="0"
                       >
-                        <OrcidActiveIcon fontSize={'large'} mx={1} />
+                        {author}
                       </SearchQueryLink>
+                    </Tooltip>
+                    {typeof orcid === 'string' && (
+                      <Tooltip label="Search by ORCiD" shouldWrapChildren>
+                        <SearchQueryLink
+                          params={createQuery('orcid', orcid)}
+                          aria-label={`author "${author}", search by orKid`}
+                        >
+                          <OrcidActiveIcon fontSize={'large'} mx={1} />
+                        </SearchQueryLink>
+                      </Tooltip>
                     )}
                     <>{index === MAX - 1 || index === doc.author_count - 1 ? '' : ';'}</>
                   </Box>
@@ -93,7 +97,13 @@ const AbstractPage: NextPage = () => {
                 {doc.author_count > MAX ? (
                   <AllAuthorsModal bibcode={doc.bibcode} label={`and ${doc.author_count - MAX} more`} />
                 ) : (
-                  <>{doc.author_count > 0 && <AllAuthorsModal bibcode={doc.bibcode} label={'show details'} />}</>
+                  <>
+                    {doc.author_count > 0 && (
+                      <Tooltip label="List all authors and affiliations" shouldWrapChildren>
+                        <AllAuthorsModal bibcode={doc.bibcode} label={'show details'} />
+                      </Tooltip>
+                    )}
+                  </>
                 )}
               </Flex>
             ) : (
