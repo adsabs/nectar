@@ -153,30 +153,19 @@ const Carousel = (props: { onExampleSelect: (text: string) => void }) => {
       initialPage={initialPage}
       pages={[
         {
-          uniqueId: 'welcome',
-          content: (
-            <Stack flexDirection="column" textAlign="left" spacing="4">
-              <Heading as="h3">
-                <Text fontWeight="thin">WELCOME TO THE</Text>
-                <Text fontWeight="bold">SciX Digital Library</Text>
-              </Heading>
-              <Text fontSize="xl">
-                Learn more about the SciX digital library and how it can support your scientific research in{' '}
-                <SimpleLink href="https://youtu.be/LeTFmhmPjs0" newTab>
-                  this welcome video
-                </SimpleLink>{' '}
-                and brief user tutorial from <br /> Dr. Stephanie Jarmak.
-              </Text>
-            </Stack>
-          ),
-        },
-        {
           uniqueId: 'explore',
           content: (
             <Stack flexDirection="column" textAlign="left" spacing="4">
               <Heading as="h3">
-                <Text fontWeight="thin">EXPLORE ACROSS</Text>
-                <Text fontWeight="bold">Science Focus Areas</Text>
+                <Text fontWeight="thin" display="inline">
+                  WELCOME TO THE
+                </Text>
+                <Text fontWeight="bold" display="inline" ml={2}>
+                  SciX Digital Library
+                </Text>
+              </Heading>
+              <Heading as="h4">
+                <Text fontSize="2xl">Explore Across Science Focus Areas</Text>
               </Heading>
               <Image
                 src="/images/carousel/banner_sciencetopics.webp"

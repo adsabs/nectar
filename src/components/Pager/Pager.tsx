@@ -63,8 +63,8 @@ export const Pager = (props: IPagerProps) => {
   const [shouldWiggle, setShouldWiggle] = useState(false);
 
   useEffect(() => {
-    setSelectedPage(initialPage);
-  }, [initialPage]);
+    setSelectedPage(initialPage >= pages.length ? 0 : initialPage);
+  }, [initialPage, pages]);
 
   const next = () => setSelectedPage(changePage(pages.length, 'next', onChangePage));
   const prev = () => setSelectedPage(changePage(pages.length, 'prev', onChangePage));
