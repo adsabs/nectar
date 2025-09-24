@@ -13,7 +13,6 @@ import {
   StatLabel,
   StatNumber,
   Text,
-  Tooltip,
   useMediaQuery,
   VisuallyHidden,
 } from '@chakra-ui/react';
@@ -126,7 +125,7 @@ const HomePage: NextPage = () => {
   const [isMobile] = useMediaQuery('(max-width: 800px)');
 
   return (
-    <Box aria-labelledby="form-title" my={8}>
+    <Flex direction="column" aria-labelledby="form-title" my={8} alignItems="center" w="full">
       <form method="get" action="/search" onSubmit={handleOnSubmit}>
         <VisuallyHidden as="h2" id="form-title">
           Modern Search Form
@@ -150,42 +149,60 @@ const HomePage: NextPage = () => {
             </Box>
           )}
         </Flex>
-        <Stats />
-        <Tooltip
-          label={
-            <>
-              Click to watch the video and learn more about SciX <ExternalLinkIcon aria-label="external link" />
-            </>
-          }
-          placement="auto"
-        >
-          <SimpleLink href="https://www.youtube.com/watch?v=sgJ-LolRLu8&ab_channel=ScienceExplorer%28SciX%29">
-            <Box position="relative" w="100%" mt={10} borderWidth={0.5} borderRadius={5}>
-              <Image
-                src="/images/Welcome to SciX SciXComm YT thumbnail.png"
-                alt="Click to open SciX introduction video"
-                width={0}
-                height={0}
-                sizes="100vw"
-                style={{ width: '100%', height: 'auto' }}
-              />
-              {/* Icon overlay */}
-              <Box
-                position="absolute"
-                top="50%"
-                left="50%"
-                transform="translateX(-50%) translateY(-50%)" // shift left by 50% of icon width
-                opacity={0.8}
-              >
-                <Icon as={PlayCircleIcon} aria-hidden w={20} h={20} color="red" />
-              </Box>
-            </Box>
-          </SimpleLink>
-        </Tooltip>
         <input type="hidden" name="sort" value={normalizeSolrSort(sort)} />
         <input type="hidden" name="p" value="1" />
       </form>
-    </Box>
+      <Stats />
+      <SimpleLink href="https://www.youtube.com/watch?v=sgJ-LolRLu8&ab_channel=ScienceExplorer%28SciX%29">
+        <Box
+          position="relative"
+          mt={10}
+          w="80%"
+          mx="auto"
+          borderRadius="lg"
+          overflow="hidden"
+          boxShadow="lg"
+          role="group" // for hover effects
+          cursor="pointer"
+          _hover={{ transform: 'scale(1.02)', boxShadow: 'xl' }}
+          transition="all 0.2s"
+        >
+          <Image
+            src="/images/Welcome to SciX SciXComm YT thumbnail.png"
+            alt="Click to open SciX introduction video"
+            width={1200}
+            height={675} // 16:9 aspect ratio
+            style={{ width: '100%', height: 'auto' }}
+          />
+
+          {/* Play button overlay */}
+          <Box
+            position="absolute"
+            top="50%"
+            left="50%"
+            transform="translate(-50%, -50%)"
+            opacity={0.9}
+            _groupHover={{ opacity: 1 }}
+          >
+            <Icon as={PlayCircleIcon} w={24} h={24} color="red.500" />
+          </Box>
+
+          {/* Gradient caption bar */}
+          <Box
+            position="absolute"
+            bottom={0}
+            left={0}
+            w="full"
+            bgGradient="linear(to-t, blackAlpha.700, transparent)"
+            color="white"
+            p={2}
+            fontSize="sm"
+          >
+            Click to learn more about SciX <ExternalLinkIcon />
+          </Box>
+        </Box>
+      </SimpleLink>
+    </Flex>
   );
 };
 
@@ -328,6 +345,7 @@ const Stats = () => {
       as="section"
       aria-label="Stats Section"
       alignItems="center"
+      w="100%"
     >
       <Stat textAlign="center">
         <StatLabel color="brand.200">
