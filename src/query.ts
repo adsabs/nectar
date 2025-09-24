@@ -1,7 +1,6 @@
 import lucene from 'lucene';
 import {
   always,
-  curry,
   defaultTo,
   equals,
   is,
@@ -71,46 +70,78 @@ const parseAndNormalize = pipe(capitalizeOperators, transformQueryFields, parse)
 const stringifyQuery = pipe(stringify, unTransformQueryFields);
 
 /**
- * Join together two queries with an operator
- *
- * @param {string} queryA
- * @param {string} queryB
+ * Type guard to ensure a value is a valid Operator.
  */
-export const joinQueries = curry((queryB: string, queryA: string) => {
+function isOperator(value: unknown): value is Operator {
+  return value === 'AND' || value === 'OR' || value === 'NOT';
+}
+
+/**
+ * Joins multiple search terms into a single query string.
+ *
+ * @remarks
+ * This function is overloaded:
+ *
+ * - `joinTerms(...terms: string[]): string`
+ *   Joins terms with the default operator (`AND`).
+ *
+ * - `joinTerms(operator: Operator, ...terms: string[]): string`
+ *   Joins terms with the given operator.
+ *
+ * The function automatically trims terms, ignores empty or falsy values,
+ * and wraps each term in parentheses for clarity.
+ *
+ *   - If only `string` terms are provided, they are joined using the default operator (`AND`).
+ *   - If the first argument is an `Operator`, it is used to join the subsequent `string` terms.
+ *
+ * @returns A combined query string. Returns an empty string if no valid terms are provided.
+ *
+ * @example
+ * ```ts
+ * joinTerms("title:galaxies", "year:>2015");
+ * // => "(title:galaxies) AND (year:>2015)"
+ *
+ * joinTerms("OR", "author:einstein", "author:newton");
+ * // => "(author:einstein) OR (author:newton)"
+ *
+ * joinTerms();
+ * // => ""
+ * ```
+ * @param terms
+ */
+export function joinTerms(...terms: string[]): string;
+export function joinTerms(operator: Operator, ...terms: string[]): string;
+export function joinTerms(...args: [Operator, ...string[]] | string[]): string {
   try {
-    if (isNonEmptyString(queryB)) {
-      const rightAST = parseAndNormalize(queryB);
+    let operator: Operator = DEFAULT_OPERATOR;
+    let terms: string[];
 
-      // if the main query is empty, return the augment as a new leftOnly node
-      if (isUndefinedOrEmpty(queryA)) {
-        return stringifyQuery({
-          left: {
-            ...rightAST,
-            parenthesized: true,
-          },
-        });
-      }
-
-      const leftAST = parseAndNormalize(queryA);
-
-      // join the two queries with the default operator
-      return stringifyQuery({
-        left: {
-          ...leftAST,
-        },
-        operator: DEFAULT_OPERATOR,
-        right: {
-          ...rightAST,
-          parenthesized: true,
-        },
-      });
+    // Detect overload shape
+    if (args.length > 0 && isOperator(args[0])) {
+      operator = args[0];
+      terms = args.slice(1) as string[];
+    } else {
+      terms = args as string[];
     }
-    return queryA;
+
+    // Sanitize terms (trim + remove empty/falsy)
+    const clean = terms.map((t) => (typeof t === 'string' ? t.trim() : '')).filter((t): t is string => t.length > 0);
+
+    if (clean.length === 0) {
+      return '';
+    }
+
+    if (clean.length === 1) {
+      return `(${clean[0]})`;
+    }
+
+    return clean.map((t) => `(${t})`).join(` ${operator} `);
   } catch (err) {
-    log.error({ err, queryA, queryB }, 'Error caught while attempting to join queries');
-    return queryA;
+    // Fail-safe: log and return empty string
+    log.error({ args, err }, 'joinTerms: error combining terms');
+    return '';
   }
-});
+}
 
 /**
  * Takes a set of clauses and removes the first match to the clause passed in
