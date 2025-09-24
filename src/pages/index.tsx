@@ -153,55 +153,6 @@ const HomePage: NextPage = () => {
         <input type="hidden" name="p" value="1" />
       </form>
       <Stats />
-      <SimpleLink href="https://www.youtube.com/watch?v=sgJ-LolRLu8&ab_channel=ScienceExplorer%28SciX%29">
-        <Box
-          position="relative"
-          mt={10}
-          w="80%"
-          mx="auto"
-          borderRadius="lg"
-          overflow="hidden"
-          boxShadow="lg"
-          role="group" // for hover effects
-          cursor="pointer"
-          _hover={{ transform: 'scale(1.02)', boxShadow: 'xl' }}
-          transition="all 0.2s"
-        >
-          <Image
-            src="/images/Welcome to SciX SciXComm YT thumbnail.png"
-            alt="Click to open SciX introduction video"
-            width={1200}
-            height={675} // 16:9 aspect ratio
-            style={{ width: '100%', height: 'auto' }}
-          />
-
-          {/* Play button overlay */}
-          <Box
-            position="absolute"
-            top="50%"
-            left="50%"
-            transform="translate(-50%, -50%)"
-            opacity={0.9}
-            _groupHover={{ opacity: 1 }}
-          >
-            <Icon as={PlayCircleIcon} w={24} h={24} color="red.500" />
-          </Box>
-
-          {/* Gradient caption bar */}
-          <Box
-            position="absolute"
-            bottom={0}
-            left={0}
-            w="full"
-            bgGradient="linear(to-t, blackAlpha.700, transparent)"
-            color="white"
-            p={2}
-            fontSize="sm"
-          >
-            Click to learn more about SciX <ExternalLinkIcon />
-          </Box>
-        </Box>
-      </SimpleLink>
     </Flex>
   );
 };
@@ -236,9 +187,6 @@ const Carousel = (props: { onExampleSelect: (text: string) => void }) => {
                 <Text fontWeight="bold" display="inline" ml={2}>
                   SciX Digital Library
                 </Text>
-              </Heading>
-              <Heading as="h4">
-                <Text fontSize="2xl">Explore Across Science Focus Areas</Text>
               </Heading>
               <Image
                 src="/images/carousel/banner_sciencetopics.webp"
@@ -301,6 +249,62 @@ const Carousel = (props: { onExampleSelect: (text: string) => void }) => {
                 to start your search of the portal and find out where to go with any questions about advanced tools and
                 features.
               </Text>
+            </Stack>
+          ),
+        },
+        {
+          uniqueId: 'about-scix',
+          content: (
+            <Stack flexDirection="column" textAlign="left" spacing="4">
+              <SimpleLink href="https://www.youtube.com/watch?v=sgJ-LolRLu8&ab_channel=ScienceExplorer%28SciX%29">
+                <Box
+                  position="relative"
+                  mt={10}
+                  w="90%"
+                  mx="auto"
+                  borderRadius="lg"
+                  overflow="hidden"
+                  boxShadow="lg"
+                  role="group" // for hover effects
+                  cursor="pointer"
+                  _hover={{ transform: 'scale(1.02)', boxShadow: 'xl' }}
+                  transition="all 0.2s"
+                >
+                  <Image
+                    src="/images/Welcome to SciX SciXComm YT thumbnail.png"
+                    alt="Click to open SciX introduction video"
+                    width={1200}
+                    height={675} // 16:9 aspect ratio
+                    style={{ width: '100%', height: 'auto' }}
+                  />
+
+                  {/* Play button overlay */}
+                  <Box
+                    position="absolute"
+                    top="50%"
+                    left="50%"
+                    transform="translate(-50%, -50%)"
+                    opacity={0.9}
+                    _groupHover={{ opacity: 1 }}
+                  >
+                    <Icon as={PlayCircleIcon} w={24} h={24} color="red.500" />
+                  </Box>
+
+                  {/* Gradient caption bar */}
+                  <Box
+                    position="absolute"
+                    bottom={0}
+                    left={0}
+                    w="full"
+                    bgGradient="linear(to-t, blackAlpha.700, transparent)"
+                    color="white"
+                    p={2}
+                    fontSize="sm"
+                  >
+                    Click to learn more about SciX <ExternalLinkIcon />
+                  </Box>
+                </Box>
+              </SimpleLink>
             </Stack>
           ),
         },
