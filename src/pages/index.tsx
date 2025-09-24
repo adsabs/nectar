@@ -346,31 +346,33 @@ const Stats = () => {
       aria-label="Stats Section"
       alignItems="center"
       w="100%"
+      display="flex"
+      flexDirection={{ base: 'column', sm: 'row' }}
     >
       <Stat textAlign="center">
         <StatLabel color="brand.200">
-          <Icon as={FolderIcon} w={50} h={50} />
+          <Icon as={FolderIcon} w={{ base: 10, md: 50 }} h={{ base: 10, md: 50 }} />
         </StatLabel>
         <StatNumber color="brand.200">30M+</StatNumber>
         <StatHelpText>Scientific Records</StatHelpText>
       </Stat>
       <Stat textAlign="center">
         <StatLabel color="brand.300">
-          <Icon as={ChatBubbleBottomCenterIcon} w={50} h={50} />
+          <Icon as={ChatBubbleBottomCenterIcon} w={{ base: 10, md: 50 }} h={{ base: 10, md: 50 }} />
         </StatLabel>
         <StatNumber color="brand.300">300M+</StatNumber>
         <StatHelpText>Citations</StatHelpText>
       </Stat>
       <Stat textAlign="center">
         <StatLabel color="brand.400">
-          <Icon as={DocumentIcon} w={50} h={50} />
+          <Icon as={DocumentIcon} w={{ base: 10, md: 50 }} h={{ base: 10, md: 50 }} />
         </StatLabel>
         <StatNumber color="brand.400">~8000</StatNumber>
         <StatHelpText>Peer Reviewed Journals</StatHelpText>
       </Stat>
       <Stat textAlign="center">
         <StatLabel color="brand.500">
-          <Icon as={UserIcon} w={50} h={50} />
+          <Icon as={UserIcon} w={{ base: 10, md: 50 }} h={{ base: 10, md: 50 }} />
         </StatLabel>
         <StatNumber color="brand.500">16M+</StatNumber>
         <StatHelpText>Annual Users</StatHelpText>
