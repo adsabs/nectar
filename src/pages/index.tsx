@@ -2,6 +2,7 @@ import { IADSApiSearchParams } from '@/api/search/types';
 import { DatabaseEnum, IADSApiUserDataResponse } from '@/api/user/types';
 import {
   Box,
+  Button,
   Center,
   Flex,
   Heading,
@@ -39,7 +40,7 @@ import {
   PlayCircleIcon,
   UserIcon,
 } from '@heroicons/react/24/solid';
-import { ExternalLinkIcon } from '@chakra-ui/icons';
+import { ExternalLinkIcon, InfoIcon } from '@chakra-ui/icons';
 
 const HomePage: NextPage = () => {
   const { settings } = useSettings();
@@ -154,6 +155,7 @@ const HomePage: NextPage = () => {
       </form>
       <Stats />
       <IntroVideoSection />
+      <FloatingIntroLink />
     </Flex>
   );
 };
@@ -330,7 +332,7 @@ const Stats = () => {
   );
 };
 
-export const IntroVideoSection = () => {
+const IntroVideoSection = () => {
   return (
     <Stack flexDirection={{ base: 'column', sm: 'row' }} alignItems="top" mt={10} gap={4}>
       <SimpleLink href="https://www.youtube.com/watch?v=sgJ-LolRLu8&ab_channel=ScienceExplorer%28SciX%29">
@@ -386,5 +388,25 @@ export const IntroVideoSection = () => {
         interface to our dramatically expanded database. Watch our launch video here.
       </Text>
     </Stack>
+  );
+};
+
+const FloatingIntroLink = () => {
+  return (
+    <SimpleLink href="/home" style={{ textDecoration: 'none' }}>
+      <Button
+        bgColor="brand.200"
+        size="xs"
+        position="fixed"
+        bottom="4"
+        right="4"
+        shadow="lg"
+        _hover={{ transform: 'scale(1.1)' }}
+        z-index="100"
+      >
+        <InfoIcon mr={2} />
+        Learn More
+      </Button>
+    </SimpleLink>
   );
 };
