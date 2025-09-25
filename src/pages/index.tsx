@@ -305,7 +305,7 @@ const Stats = () => {
           <Icon as={FolderIcon} w={{ base: 10, md: 50 }} h={{ base: 10, md: 50 }} />
         </StatLabel>
         <StatNumber color="brand.200">30M+</StatNumber>
-        <StatHelpText>Scientific Records</StatHelpText>
+        <StatHelpText>Scientific Documents</StatHelpText>
       </Stat>
       <Stat textAlign="center">
         <StatLabel color="brand.300">
@@ -385,7 +385,11 @@ const IntroVideoSection = () => {
       </SimpleLink>
       <Text fontSize="lg">
         The team behind the NASA Astrophysics Data System (ADS) has officially launched SciX, a powerful modern
-        interface to our dramatically expanded database. Watch our launch video here.
+        interface to our dramatically expanded database.{' '}
+        <SimpleLink href="https://www.youtube.com/watch?v=sgJ-LolRLu8&ab_channel=ScienceExplorer%28SciX%29">
+          Watch our launch video here
+        </SimpleLink>
+        .
       </Text>
     </Stack>
   );
