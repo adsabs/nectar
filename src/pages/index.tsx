@@ -40,7 +40,7 @@ import {
   PlayCircleIcon,
   UserIcon,
 } from '@heroicons/react/24/solid';
-import { ExternalLinkIcon, InfoIcon } from '@chakra-ui/icons';
+import { InfoIcon } from '@chakra-ui/icons';
 
 const HomePage: NextPage = () => {
   const { settings } = useSettings();
@@ -199,8 +199,8 @@ const Carousel = (props: { onExampleSelect: (text: string) => void }) => {
                 quality={90}
               />
               <Text fontSize="xl">
-                SciX covers and unifies the fields of Earth Science, Planetary Science, Astrophysics, and Heliophysics.
-                It will also cover NASA funded research in Biological and Physical Sciences.
+                SciX covers and unifies the fields of Earth science, planetary science, astrophysics, heliophysics, and
+                the NASA-funded biological and physical sciences. <SimpleLink href="/home">Learn More</SimpleLink>.
               </Text>
             </Stack>
           ),
@@ -210,8 +210,12 @@ const Carousel = (props: { onExampleSelect: (text: string) => void }) => {
           content: (
             <Stack flexDirection="column" textAlign="left" spacing="4">
               <Heading as="h3">
-                <Text fontWeight="thin">DISCOVER</Text>
-                <Text fontWeight="bold">Open Science</Text>
+                <Text fontWeight="thin" display="inline">
+                  DISCOVER
+                </Text>
+                <Text fontWeight="bold" display="inline" ml={2}>
+                  Open Science
+                </Text>
               </Heading>
               <Flex>
                 <Text fontSize="xl" py="4" pr="4">
@@ -221,8 +225,8 @@ const Carousel = (props: { onExampleSelect: (text: string) => void }) => {
                 <Image
                   src="/images/carousel/lightbulb_science.webp"
                   alt="lightbulb and open padlock unlocking scientific ideas"
-                  width={300}
-                  height={300}
+                  width={180}
+                  height={180}
                   quality={90}
                 />
               </Flex>
@@ -234,8 +238,12 @@ const Carousel = (props: { onExampleSelect: (text: string) => void }) => {
           content: (
             <Stack flexDirection="column" textAlign="left" spacing="8">
               <Heading as="h3">
-                <Text fontWeight="thin">NEW USER</Text>
-                <Text fontWeight="bold">Quick Start Guide</Text>
+                <Text fontWeight="thin" display="inline">
+                  NEW USER
+                </Text>
+                <Text fontWeight="bold" display="inline" ml={2}>
+                  Quick Start Guide
+                </Text>
               </Heading>
               <Text fontSize="xl">
                 SciX has a user-friendly search interface. New users will have no trouble jumping in to explore.
@@ -296,7 +304,7 @@ const Stats = () => {
       as="section"
       aria-label="Stats Section"
       alignItems="center"
-      w="100%"
+      w="83%"
       display="flex"
       flexDirection={{ base: 'column', sm: 'row' }}
     >
@@ -334,7 +342,7 @@ const Stats = () => {
 
 const IntroVideoSection = () => {
   return (
-    <Stack flexDirection={{ base: 'column', sm: 'row' }} alignItems="top" mt={10} gap={4}>
+    <Stack flexDirection={{ base: 'column', sm: 'row' }} alignItems="top" mt={10} gap={4} w="83%">
       <SimpleLink href="https://www.youtube.com/watch?v=sgJ-LolRLu8&ab_channel=ScienceExplorer%28SciX%29">
         <Box
           position="relative"
@@ -365,21 +373,7 @@ const IntroVideoSection = () => {
             opacity={0.9}
             _groupHover={{ opacity: 1 }}
           >
-            <Icon as={PlayCircleIcon} w={24} h={24} color="red.500" />
-          </Box>
-
-          {/* Gradient caption bar */}
-          <Box
-            position="absolute"
-            bottom={0}
-            left={0}
-            w="full"
-            bgGradient="linear(to-t, blackAlpha.700, transparent)"
-            color="white"
-            p={2}
-            fontSize="sm"
-          >
-            Click to see SciX launch video <ExternalLinkIcon />
+            <Icon as={PlayCircleIcon} w={16} h={16} color="red.500" />
           </Box>
         </Box>
       </SimpleLink>
@@ -400,7 +394,7 @@ const FloatingIntroLink = () => {
     <SimpleLink href="/home" style={{ textDecoration: 'none' }}>
       <Button
         bgColor="brand.200"
-        size="xs"
+        size="sm"
         position="fixed"
         bottom="4"
         right="4"
