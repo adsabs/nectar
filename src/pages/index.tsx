@@ -2,6 +2,7 @@ import { IADSApiSearchParams } from '@/api/search/types';
 import { DatabaseEnum, IADSApiUserDataResponse } from '@/api/user/types';
 import {
   Box,
+  Button,
   Center,
   Flex,
   Heading,
@@ -39,7 +40,7 @@ import {
   PlayCircleIcon,
   UserIcon,
 } from '@heroicons/react/24/solid';
-import { ExternalLinkIcon } from '@chakra-ui/icons';
+import { InfoIcon } from '@chakra-ui/icons';
 
 const HomePage: NextPage = () => {
   const { settings } = useSettings();
@@ -153,55 +154,8 @@ const HomePage: NextPage = () => {
         <input type="hidden" name="p" value="1" />
       </form>
       <Stats />
-      <SimpleLink href="https://www.youtube.com/watch?v=sgJ-LolRLu8&ab_channel=ScienceExplorer%28SciX%29">
-        <Box
-          position="relative"
-          mt={10}
-          w="80%"
-          mx="auto"
-          borderRadius="lg"
-          overflow="hidden"
-          boxShadow="lg"
-          role="group" // for hover effects
-          cursor="pointer"
-          _hover={{ transform: 'scale(1.02)', boxShadow: 'xl' }}
-          transition="all 0.2s"
-        >
-          <Image
-            src="/images/Welcome to SciX SciXComm YT thumbnail.png"
-            alt="Click to open SciX introduction video"
-            width={1200}
-            height={675} // 16:9 aspect ratio
-            style={{ width: '100%', height: 'auto' }}
-          />
-
-          {/* Play button overlay */}
-          <Box
-            position="absolute"
-            top="50%"
-            left="50%"
-            transform="translate(-50%, -50%)"
-            opacity={0.9}
-            _groupHover={{ opacity: 1 }}
-          >
-            <Icon as={PlayCircleIcon} w={24} h={24} color="red.500" />
-          </Box>
-
-          {/* Gradient caption bar */}
-          <Box
-            position="absolute"
-            bottom={0}
-            left={0}
-            w="full"
-            bgGradient="linear(to-t, blackAlpha.700, transparent)"
-            color="white"
-            p={2}
-            fontSize="sm"
-          >
-            Click to learn more about SciX <ExternalLinkIcon />
-          </Box>
-        </Box>
-      </SimpleLink>
+      <IntroVideoSection />
+      <FloatingIntroLink />
     </Flex>
   );
 };
@@ -237,9 +191,6 @@ const Carousel = (props: { onExampleSelect: (text: string) => void }) => {
                   SciX Digital Library
                 </Text>
               </Heading>
-              <Heading as="h4">
-                <Text fontSize="2xl">Explore Across Science Focus Areas</Text>
-              </Heading>
               <Image
                 src="/images/carousel/banner_sciencetopics.webp"
                 alt="all scix focus areas"
@@ -248,8 +199,8 @@ const Carousel = (props: { onExampleSelect: (text: string) => void }) => {
                 quality={90}
               />
               <Text fontSize="xl">
-                SciX covers and unifies the fields of Earth Science, Planetary Science, Astrophysics, and Heliophysics.
-                It will also cover NASA funded research in Biological and Physical Sciences.
+                SciX covers and unifies the fields of Earth science, planetary science, astrophysics, heliophysics, and
+                the NASA-funded biological and physical sciences. <SimpleLink href="/home">Learn More</SimpleLink>.
               </Text>
             </Stack>
           ),
@@ -259,8 +210,12 @@ const Carousel = (props: { onExampleSelect: (text: string) => void }) => {
           content: (
             <Stack flexDirection="column" textAlign="left" spacing="4">
               <Heading as="h3">
-                <Text fontWeight="thin">DISCOVER</Text>
-                <Text fontWeight="bold">Open Science</Text>
+                <Text fontWeight="thin" display="inline">
+                  DISCOVER
+                </Text>
+                <Text fontWeight="bold" display="inline" ml={2}>
+                  Open Science
+                </Text>
               </Heading>
               <Flex>
                 <Text fontSize="xl" py="4" pr="4">
@@ -270,8 +225,8 @@ const Carousel = (props: { onExampleSelect: (text: string) => void }) => {
                 <Image
                   src="/images/carousel/lightbulb_science.webp"
                   alt="lightbulb and open padlock unlocking scientific ideas"
-                  width={300}
-                  height={300}
+                  width={180}
+                  height={180}
                   quality={90}
                 />
               </Flex>
@@ -283,8 +238,12 @@ const Carousel = (props: { onExampleSelect: (text: string) => void }) => {
           content: (
             <Stack flexDirection="column" textAlign="left" spacing="8">
               <Heading as="h3">
-                <Text fontWeight="thin">NEW USER</Text>
-                <Text fontWeight="bold">Quick Start Guide</Text>
+                <Text fontWeight="thin" display="inline">
+                  NEW USER
+                </Text>
+                <Text fontWeight="bold" display="inline" ml={2}>
+                  Quick Start Guide
+                </Text>
               </Heading>
               <Text fontSize="xl">
                 SciX has a user-friendly search interface. New users will have no trouble jumping in to explore.
@@ -345,7 +304,7 @@ const Stats = () => {
       as="section"
       aria-label="Stats Section"
       alignItems="center"
-      w="100%"
+      w="83%"
       display="flex"
       flexDirection={{ base: 'column', sm: 'row' }}
     >
@@ -354,7 +313,7 @@ const Stats = () => {
           <Icon as={FolderIcon} w={{ base: 10, md: 50 }} h={{ base: 10, md: 50 }} />
         </StatLabel>
         <StatNumber color="brand.200">30M+</StatNumber>
-        <StatHelpText>Scientific Records</StatHelpText>
+        <StatHelpText>Scientific Documents</StatHelpText>
       </Stat>
       <Stat textAlign="center">
         <StatLabel color="brand.300">
@@ -378,5 +337,74 @@ const Stats = () => {
         <StatHelpText>Annual Users</StatHelpText>
       </Stat>
     </StatGroup>
+  );
+};
+
+const IntroVideoSection = () => {
+  return (
+    <Stack flexDirection={{ base: 'column', sm: 'row' }} alignItems="top" mt={10} gap={4} w="83%">
+      <SimpleLink href="https://www.youtube.com/watch?v=sgJ-LolRLu8&ab_channel=ScienceExplorer%28SciX%29">
+        <Box
+          position="relative"
+          w="100%"
+          mx="auto"
+          borderRadius="lg"
+          overflow="hidden"
+          boxShadow="lg"
+          role="group" // for hover effects
+          cursor="pointer"
+          _hover={{ transform: 'scale(1.02)', boxShadow: 'xl' }}
+          transition="all 0.2s"
+        >
+          <Image
+            src="/images/Welcome to SciX SciXComm YT thumbnail.png"
+            alt="Click to open SciX introduction video"
+            width={1200}
+            height={675} // 16:9 aspect ratio
+            style={{ width: '100%', height: 'auto' }}
+          />
+
+          {/* Play button overlay */}
+          <Box
+            position="absolute"
+            top="50%"
+            left="50%"
+            transform="translate(-50%, -50%)"
+            opacity={0.9}
+            _groupHover={{ opacity: 1 }}
+          >
+            <Icon as={PlayCircleIcon} w={16} h={16} color="red.500" />
+          </Box>
+        </Box>
+      </SimpleLink>
+      <Text fontSize="lg">
+        The team behind the NASA Astrophysics Data System (ADS) has officially launched SciX, a powerful modern
+        interface to our dramatically expanded database.{' '}
+        <SimpleLink href="https://www.youtube.com/watch?v=sgJ-LolRLu8&ab_channel=ScienceExplorer%28SciX%29">
+          Watch our launch video here
+        </SimpleLink>
+        .
+      </Text>
+    </Stack>
+  );
+};
+
+const FloatingIntroLink = () => {
+  return (
+    <SimpleLink href="/home" style={{ textDecoration: 'none' }}>
+      <Button
+        bgColor="brand.200"
+        size="sm"
+        position="fixed"
+        bottom="4"
+        right="4"
+        shadow="lg"
+        _hover={{ transform: 'scale(1.1)' }}
+        z-index="100"
+      >
+        <InfoIcon mr={2} />
+        Learn More
+      </Button>
+    </SimpleLink>
   );
 };
