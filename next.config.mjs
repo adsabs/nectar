@@ -8,8 +8,8 @@ const CSP = `
   style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com;
   base-uri 'self';
   object-src 'none';
-  connect-src 'self' https://*.google-analytics.com https://*.adsabs.harvard.edu https://o1060269.ingest.sentry.io https://*.scixplorer.org https://www.googletagmanager.com;
-  font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.gstatic.com;
+  connect-src 'self' https://*.google-analytics.com https://*.adsabs.harvard.edu https://o1060269.ingest.sentry.io;
+  font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com;
   frame-src https://www.youtube-nocookie.com https://www.google.com https://www.google.com/recaptcha/;
   form-action 'self';
   img-src * data: https://www.google.com https://www.gstatic.com https://i.ytimg.com https://s.ytimg.com;
@@ -88,7 +88,7 @@ const nextConfig = {
               'accelerometer=(), ambient-light-sensor=(), autoplay=(), battery=(), camera=(), cross-origin-isolated=(), display-capture=(), document-domain=(), encrypted-media=(), execution-while-not-rendered=(), execution-while-out-of-viewport=(), fullscreen=(self), geolocation=(), gyroscope=(), keyboard-map=(), magnetometer=(), microphone=(), midi=(), navigation-override=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), sync-xhr=(), usb=(), web-share=(), xr-spatial-tracking=()',
           },
           {
-            key: 'Content-Security-Policy',
+            key: 'Content-Security-Policy-Report-Only',
             value: CSP,
           },
         ],
