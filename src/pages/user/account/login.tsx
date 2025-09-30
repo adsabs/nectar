@@ -39,20 +39,19 @@ const Login: NextPage = () => {
       if (data?.error) {
         throw new Error(data.error);
       }
-      return data;
+
+      // reset the user and reload the page
+      await resetUser();
+      reload();
+
+      // the returned data is not being used
+      return undefined;
     },
     {
       cacheTime: 0,
       retry: false,
     },
   );
-
-  // redirect on successful login
-  useEffect(() => {
-    if (data?.success) {
-      reload();
-    }
-  }, [data?.success, reload, resetUser]);
 
   const handleChange: FormEventHandler<HTMLInputElement> = useCallback(
     (event) => {
