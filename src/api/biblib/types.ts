@@ -4,7 +4,7 @@ import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
 
 export const permissions = ['owner', 'admin', 'write', 'read'];
 
-export type LibraryPermission = typeof permissions[number];
+export type LibraryPermission = (typeof permissions)[number];
 
 export type LibraryIdentifier = string;
 
@@ -177,7 +177,7 @@ export interface IADSApiLibraryPermissionParams {
   id: LibraryIdentifier;
 }
 
-export interface IADSApiLibraryPermissionResponse extends Array<UserPermission> {}
+export type IADSApiLibraryPermissionResponse = UserPermission[];
 
 export interface IADSApiLibraryPermissionUpdateParams {
   id: LibraryIdentifier;
