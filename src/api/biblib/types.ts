@@ -185,7 +185,7 @@ export interface IADSApiLibraryPermissionUpdateParams {
   permission: { [key in 'read' | 'write' | 'admin']?: boolean };
 }
 
-export interface IADSApiLibraryPermissionUpdateResponse {}
+export type IADSApiLibraryPermissionUpdateResponse = Record<string, never>;
 
 // Transfer
 
