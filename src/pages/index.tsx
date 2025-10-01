@@ -172,6 +172,7 @@ const Carousel = (props: { onExampleSelect: (text: string) => void }) => {
 
   const handlePageChange = (page: number) => {
     localStorage.setItem('carousel', page.toString());
+    setInitialPage(page);
   };
 
   return (
