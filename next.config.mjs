@@ -8,7 +8,7 @@ const CSP = `
   style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com;
   base-uri 'self';
   object-src 'none';
-  connect-src 'self' https://*.google-analytics.com https://*.adsabs.harvard.edu https://o1060269.ingest.sentry.io https://*.scixplorer.org https://www.googletagmanager.com;
+  connect-src 'self' https://*.google-analytics.com https://*.adsabs.harvard.edu https://o1060269.ingest.sentry.io https://scixplorer.org https://*.scixplorer.org https://www.googletagmanager.com;
   font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.gstatic.com;
   frame-src https://www.youtube-nocookie.com https://www.google.com https://www.google.com/recaptcha/;
   form-action 'self';
