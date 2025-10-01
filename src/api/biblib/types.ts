@@ -194,7 +194,7 @@ export interface IADSApiLibraryTransferParams {
   email: string;
 }
 
-export interface IADSApiLibraryTransferResponse {}
+export type IADSApiLibraryTransferResponse = Record<string, never>;
 
 export interface IADSApiLibraryErrorResponse {
   error: string;
