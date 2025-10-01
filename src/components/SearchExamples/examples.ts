@@ -9,7 +9,7 @@ export const examples = {
       { label: 'year', text: 'year:2000' },
       { label: 'year range', text: 'year:2000-2005' },
       { label: 'full text', text: 'full:"black hole"' },
-      { label: 'publication', text: 'bibstem:ApJ' },
+      { label: 'publication', text: 'pub:"The Astrophysical Journal"' },
     ],
     right: [
       { label: 'citations', text: 'citations(abstract:JWST)' },
@@ -28,7 +28,7 @@ export const examples = {
       { label: 'year', text: 'year:2000' },
       { label: 'year range', text: 'year:2000-2005' },
       { label: 'full text', text: 'full:"super Earth"' },
-      { label: 'publication', text: 'bibstem:ApJ' },
+      { label: 'publication', text: 'pub:"The Astrophysical Journal"' },
     ],
     right: [
       { label: 'citations', text: 'citations(abstract:JWST)' },
@@ -47,7 +47,7 @@ export const examples = {
       { label: 'year', text: 'year:2000' },
       { label: 'year range', text: 'year:2000-2005' },
       { label: 'full text', text: 'full:"plasma"' },
-      { label: 'publication', text: 'bibstem:ApJ' },
+      { label: 'publication', text: 'pub:"The Astrophysical Journal"' },
     ],
     right: [
       { label: 'citations', text: 'citations(abstract:JWST)' },
@@ -66,7 +66,7 @@ export const examples = {
       { label: 'year', text: 'year:2000' },
       { label: 'year range', text: 'year:2000-2005' },
       { label: 'full text', text: 'full:"plate tectonics"' },
-      { label: 'publication', text: 'bibstem:GeoJI' },
+      { label: 'publication', text: 'pub:"Geophysical Journal International"' },
     ],
     right: [
       { label: 'citations', text: 'citations(abstract:JWST)' },
@@ -85,7 +85,7 @@ export const examples = {
       { label: 'year', text: 'year:2000' },
       { label: 'year range', text: 'year:2000-2005' },
       { label: 'full text', text: 'full:"mars"' },
-      { label: 'publication', text: 'bibstem:ApJ' },
+      { label: 'publication', text: 'pub:"The Astrophysical Journal"' },
     ],
     right: [
       { label: 'citations', text: 'citations(abstract:JWST)' },
@@ -104,7 +104,7 @@ export const examples = {
       { label: 'year', text: 'year:2000' },
       { label: 'year range', text: 'year:2000-2005' },
       { label: 'full text', text: 'full:"rna"' },
-      { label: 'publication', text: 'bibstem:ApJ' },
+      { label: 'publication', text: 'pub:"The Astrophysical Journal"' },
     ],
     right: [
       { label: 'citations', text: 'citations(abstract:JWST)' },

@@ -5,10 +5,10 @@ export const typeaheadOptions: TypeaheadOption[] = [
   { value: 'first_author:""', label: 'First Author', match: ['first author', 'first_author:"'], desc: '', id: 1 },
   { value: 'bibcode:""', label: 'Bibcode', desc: 'e.g. bibcode:1989ApJ...342L..71R', match: ['bibcode:"'], id: 2 },
   {
-    value: 'bibstem:""',
+    value: 'pub:""',
     label: 'Publication',
-    desc: 'e.g. bibstem:ApJ',
-    match: ['bibstem:"', 'publication (bibstem)'],
+    desc: 'e.g. pub:"The Astrophysical Journal"',
+    match: ['pub:"', 'publication'],
     id: 3,
   },
   { value: 'arXiv:', label: 'arXiv ID', desc: '', match: ['arxiv:'], id: 4 },
@@ -433,12 +433,12 @@ export const allSearchTerms: SearchTermOption[] = [
   {
     type: 'item',
     id: 'pub',
-    value: 'bibstem:',
+    value: 'pub:',
     title: 'publication full name',
     description:
       'Limit search to a specific publication. A full list is available <a href="/journalsdb" ref="noopener" target="_blank">here</a>.',
-    syntax: ['pub:adsbibstem'],
-    example: ['pub:ApJ'],
+    syntax: ['pub:"publication"'],
+    example: ['pub:"The Astrophysical Journal"'],
   },
   {
     type: 'item',
