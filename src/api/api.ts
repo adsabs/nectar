@@ -99,9 +99,7 @@ class Api {
   private pendingRequestsMap: Map<string, Promise<AxiosResponse>>;
 
   private constructor() {
-    this.service = axios.create(defaultRequestConfig);
     this.reset();
-    void this.init();
   }
 
   public getPendingRequests() {
@@ -363,7 +361,7 @@ class Api {
   };
 
   public reset() {
-    this.service = this.service = axios.create(defaultRequestConfig);
+    this.service = axios.create(defaultRequestConfig);
     void this.init();
     this.userData = null;
     this.udInvalidated = false;
