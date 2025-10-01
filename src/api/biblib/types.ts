@@ -92,7 +92,7 @@ export interface IADSApiLibraryDeleteParams {
   id: LibraryIdentifier;
 }
 
-export interface IADSApiLibraryDeleteResponse {}
+export type IADSApiLibraryDeleteResponse = Record<string, never>;
 
 // Modify library metadata
 export interface IADSApiLibraryEditMetaParams {
