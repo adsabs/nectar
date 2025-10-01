@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-interface */
 import { BiblibSort, SolrSort } from '@/api/models';
 import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
 
@@ -249,4 +248,4 @@ export interface IADSApiLibraryDeleteAnnotationParams {
   bibcode: string;
 }
 
-export interface IADSApiLibraryDeleteAnnotationResponse {}
+export type IADSApiLibraryDeleteAnnotationResponse = Record<string, never>;
