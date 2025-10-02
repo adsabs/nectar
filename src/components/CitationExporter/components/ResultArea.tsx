@@ -43,7 +43,7 @@ export const ResultArea = ({
     };
 
     loadHtmlToRtf();
-  }, [result]);
+  }, [result, formatOption.type]);
 
   const { onDownload, hasDownloaded, isDownloading } = useDownloadFile(formatOption.type === 'HTML' ? rtf : result, {
     filename: () => `export-${format}.${formatOption.ext}`,
