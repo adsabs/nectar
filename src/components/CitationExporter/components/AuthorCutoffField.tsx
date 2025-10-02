@@ -28,7 +28,7 @@ export const AuthorCutoffField = (props: {
     if (debouncedValue >= APP_DEFAULTS.MIN_AUTHORCUTOFF && debouncedValue <= APP_DEFAULTS.MAX_AUTHORCUTOFF) {
       dispatch({ type: 'SET_AUTHOR_CUTOFF', payload: debouncedValue });
     }
-  }, [debouncedValue]);
+  }, [debouncedValue, dispatch]);
 
   const label = props.label ?? 'Author Cut-off';
 
