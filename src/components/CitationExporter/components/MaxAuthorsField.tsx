@@ -33,7 +33,7 @@ export const MaxAuthorsField = (props: {
         dispatch({ type: 'SET_AUTHOR_CUTOFF', payload: debouncedValue });
       }
     }
-  }, [debouncedValue]);
+  }, [debouncedValue, dispatch, isBasicMode]);
 
   const label = props.label ?? 'Max Authors';
 
