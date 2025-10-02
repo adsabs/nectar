@@ -1,3 +1,4 @@
+import { AppMode } from '@/types';
 import { TypeaheadOption } from './types';
 
 export const typeaheadOptions: TypeaheadOption[] = [
@@ -150,6 +151,7 @@ export type SearchTermItem = {
   description: string;
   syntax: string[];
   example: string[];
+  cursorPos?: number;
 };
 export type SearchTermGroup = {
   type: 'group';
@@ -373,6 +375,16 @@ export const allSearchTerms: SearchTermOption[] = [
     description: 'Search publisher- or author-supplied keywords',
     syntax: ['keyword:"phrase"'],
     example: ['keyword:sun'],
+  },
+  {
+    type: 'item',
+    id: 'last_author',
+    value: 'pos(author:"", -1)',
+    title: 'last author',
+    description: 'Search by last author of the paper',
+    syntax: ['pos(author:"", -1)'],
+    example: ['pos(author:"huchra, j", -1)'],
+    cursorPos: -6,
   },
   {
     type: 'item',
@@ -602,51 +614,100 @@ export const allSearchTerms: SearchTermOption[] = [
   },
 ];
 
-export const quickfields: SearchTermItem[] = [
-  {
-    type: 'item',
-    id: 'author',
-    value: 'author:""',
-    title: 'author',
-    description: 'Author name may include just lastname and initial, or stricter author search (recommended)',
-    syntax: ['author:"Last, F"', 'author:"Last, First M"'],
-    example: ['author:"huchra, john p"'],
-  },
-
-  {
-    type: 'item',
-    id: 'first-author',
-    value: 'first_author:""',
-    title: 'first author',
-    description: 'Search by first author of the paper',
-    syntax: ['first_author:"Last, F"'],
-    example: ['first_author:"huchra, j"'],
-  },
-  {
-    type: 'item',
-    id: 'abs',
-    value: 'abs:""',
-    title: 'abstract',
-    description: 'Search for word or phrase in abstract, title and keywords',
-    syntax: ['abs:"phrase"'],
-    example: ['abs:"dark energy"'],
-  },
-  {
-    type: 'item',
-    id: 'year',
-    value: 'year:',
-    title: 'year',
-    description: 'Year of publication',
-    syntax: ['year:YYYY', 'year:YYYY-YYYY'],
-    example: ['year:2000', 'year:2000-2005'],
-  },
-  {
-    type: 'item',
-    id: 'full',
-    value: 'full:""',
-    title: 'fulltext',
-    description: 'Search for word or phrase in fulltext, acknowledgements, abstract, title and keywords',
-    syntax: ['full:"phrase"'],
-    example: ['full:"gravitational waves"'],
-  },
-];
+export const quickfields: { [key in AppMode | 'default']: SearchTermItem[] } = {
+  default: [
+    {
+      type: 'item',
+      id: 'author',
+      value: 'author:""',
+      title: 'author',
+      description: 'Author name may include just lastname and initial, or stricter author search (recommended)',
+      syntax: ['author:"Last, F"', 'author:"Last, First M"'],
+      example: ['author:"huchra, john p"'],
+    },
+    {
+      type: 'item',
+      id: 'first-author',
+      value: 'first_author:""',
+      title: 'first author',
+      description: 'Search by first author of the paper',
+      syntax: ['first_author:"Last, F"'],
+      example: ['first_author:"huchra, j"'],
+    },
+    {
+      type: 'item',
+      id: 'abs',
+      value: 'abs:""',
+      title: 'abstract',
+      description: 'Search for word or phrase in abstract, title and keywords',
+      syntax: ['abs:"phrase"'],
+      example: ['abs:"dark energy"'],
+    },
+    {
+      type: 'item',
+      id: 'year',
+      value: 'year:',
+      title: 'year',
+      description: 'Year of publication',
+      syntax: ['year:YYYY', 'year:YYYY-YYYY'],
+      example: ['year:2000', 'year:2000-2005'],
+    },
+    {
+      type: 'item',
+      id: 'full',
+      value: 'full:""',
+      title: 'fulltext',
+      description: 'Search for word or phrase in fulltext, acknowledgements, abstract, title and keywords',
+      syntax: ['full:"phrase"'],
+      example: ['full:"gravitational waves"'],
+    },
+  ],
+  BIO_PHYSICAL_SCIENCE: [
+    {
+      type: 'item',
+      id: 'author',
+      value: 'author:""',
+      title: 'author',
+      description: 'Author name may include just lastname and initial, or stricter author search (recommended)',
+      syntax: ['author:"Last, F"', 'author:"Last, First M"'],
+      example: ['author:"huchra, john p"'],
+    },
+    {
+      type: 'item',
+      id: 'last_author',
+      value: 'pos(author:"", -1)',
+      title: 'last author',
+      description: 'Search by last author of the paper',
+      syntax: ['pos(author:"", -1)'],
+      example: ['pos(author:"huchra, j", -1)'],
+      cursorPos: -6,
+    },
+    {
+      type: 'item',
+      id: 'abs',
+      value: 'abs:""',
+      title: 'abstract',
+      description: 'Search for word or phrase in abstract, title and keywords',
+      syntax: ['abs:"phrase"'],
+      example: ['abs:"dark energy"'],
+    },
+    {
+      type: 'item',
+      id: 'year',
+      value: 'year:',
+      title: 'year',
+      description: 'Year of publication',
+      syntax: ['year:YYYY', 'year:YYYY-YYYY'],
+      example: ['year:2000', 'year:2000-2005'],
+    },
+    {
+      type: 'item',
+      id: 'full',
+      value: 'full:""',
+      title: 'fulltext',
+      description: 'Search for word or phrase in fulltext, acknowledgements, abstract, title and keywords',
+      syntax: ['full:"phrase"'],
+      example: ['full:"gravitational waves"'],
+    },
+  ],
+};
