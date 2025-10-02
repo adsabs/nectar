@@ -10,6 +10,7 @@ import {
   wrapSelectedWithField,
 } from '@/components/SearchBar/helpers';
 import { typeaheadOptions } from '@/components/SearchBar/models';
+import { isNumber } from 'ramda-adjunct';
 
 export interface ISearchInputState {
   isOpen: boolean;
@@ -24,7 +25,7 @@ export interface ISearchInputState {
 export type SearchInputAction =
   | { type: 'SET_SEARCH_TERM'; payload: { query: string; cursorPosition?: number } }
   | { type: 'SET_UAT_TYPEAHEAD_OPTIONS'; payload: TypeaheadOption[] }
-  | { type: 'SET_SEARCH_TERM_ADDITION'; payload: { queryAddition: string } }
+  | { type: 'SET_SEARCH_TERM_ADDITION'; payload: { queryAddition: string; cursorPos?: number } }
   | { type: 'SET_SELECTED_RANGE'; payload: [number, number] }
   | { type: 'CLICK_ITEM' }
   | { type: 'FOCUS_ITEM'; index: number }
@@ -97,7 +98,8 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
       };
     }
     case 'SET_SEARCH_TERM_ADDITION': {
-      const { queryAddition } = action.payload;
+      const { queryAddition, cursorPos } = action.payload;
+      console.log(cursorPos);
       const selectedRange = state.selectedRange || [0, 0];
       const selection = state.searchTerm.slice(selectedRange[0], selectedRange[1]);
 
@@ -107,7 +109,7 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
         return {
           ...state,
           searchTerm,
-          cursorPosition: getCursorPosition(searchTerm),
+          cursorPosition: isNumber(cursorPos) ? searchTerm.length + cursorPos : getCursorPosition(searchTerm),
         };
       }
 
@@ -115,7 +117,7 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
       return {
         ...state,
         searchTerm,
-        cursorPosition: getCursorPosition(searchTerm),
+        cursorPosition: isNumber(cursorPos) ? searchTerm.length + cursorPos : getCursorPosition(searchTerm),
       };
     }
     case 'KEYDOWN_ARROW_DOWN': {

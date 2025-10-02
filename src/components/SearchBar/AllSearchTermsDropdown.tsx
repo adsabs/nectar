@@ -19,7 +19,7 @@ import { allSearchTerms, SearchTermItem, SearchTermOption } from './models';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 
 export interface IAllSearchTermsDropdown {
-  onSelect: (value: string) => void;
+  onSelect: (value: string, cursorPos?: number) => void;
 }
 
 const isItem = (item: SearchTermOption): item is SearchTermItem => item.type === 'item';
@@ -70,7 +70,7 @@ export const AllSearchTermsDropdown = ({ onSelect }: IAllSearchTermsDropdown): R
     },
     onSelectedItemChange: ({ selectedItem }) => {
       if (selectedItem && isItem(selectedItem)) {
-        onSelect(selectedItem.value); // callback
+        onSelect(selectedItem.value, selectedItem.cursorPos); // callback
         setInputValue('');
       }
     },
