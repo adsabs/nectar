@@ -99,7 +99,6 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
     }
     case 'SET_SEARCH_TERM_ADDITION': {
       const { queryAddition, cursorPos } = action.payload;
-      console.log(cursorPos);
       const selectedRange = state.selectedRange || [0, 0];
       const selection = state.searchTerm.slice(selectedRange[0], selectedRange[1]);
 
