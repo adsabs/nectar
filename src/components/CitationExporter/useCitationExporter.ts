@@ -1,5 +1,5 @@
 import { useMachine } from '@xstate/react/fsm';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { generateMachine, ICitationExporterState } from './CitationExporter.machine';
 import { purifyString } from '@/utils/common/formatters';
@@ -29,7 +29,6 @@ export const useCitationExporter = ({
   maxauthor,
   singleMode,
   sort,
-  ...rest
 }: IUseCitationExporterProps) => {
   const machine = useMemo(
     () =>
@@ -43,12 +42,13 @@ export const useCitationExporter = ({
         records,
         singleMode,
         sort,
-        ...rest,
       }),
-    [format, keyformat, customFormat, journalformat, authorcutoff, maxauthor, records, singleMode, sort, rest],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   );
   const [state, dispatch] = useMachine(machine);
   const queryClient = useQueryClient();
+  const prevFormatRef = useRef(state.context.params.format);
 
   // clean params before submitting to API
   const params: IExportApiParams = {
@@ -79,16 +79,10 @@ export const useCitationExporter = ({
   // trigger updates to machine state if incoming props change
   useEffect(() => dispatch({ type: 'SET_SINGLEMODE', payload: singleMode }), [singleMode, dispatch]);
 
-  // watch for format changes
-  useEffect(() => {
-    if (format !== params.format) {
-      dispatch({ type: 'SET_FORMAT', payload: format });
-    }
-  }, [format, dispatch, params.format]);
-
   // if we're in singleMode and format is changed, trigger a submit
   useEffect(() => {
-    if (singleMode) {
+    if (singleMode && params.format !== prevFormatRef.current) {
+      prevFormatRef.current = params.format;
       dispatch('SUBMIT');
     }
   }, [params.format, singleMode, dispatch]);
@@ -100,14 +94,16 @@ export const useCitationExporter = ({
     if (records[0] !== state.context.records[0]) {
       dispatch({ type: 'SET_RECORDS', payload: records });
     }
-  }, [records, dispatch, state.context.records]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [records, dispatch]);
 
   // watch for changes to sort
   useEffect(() => {
     if (sort !== params.sort) {
       dispatch({ type: 'SET_SORT', payload: sort });
     }
-  }, [sort, dispatch, params.sort]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sort, dispatch]);
 
   // main result fetcher, this will not run unless we're in the 'fetching' state
   const result = useGetExportCitation(params, {
@@ -132,7 +128,7 @@ export const useCitationExporter = ({
     if (state.matches('fetching') && result.data) {
       dispatch('DONE');
     }
-  }, [state.value, result.data, dispatch, state]);
+  }, [state.value, result.data, dispatch]);
 
   return { ...result, state, dispatch };
 };
