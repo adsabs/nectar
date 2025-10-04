@@ -23,7 +23,7 @@ export const RecordField = (props: {
 
   useEffect(() => {
     dispatch({ type: 'SET_RANGE', payload: debouncedValue });
-  }, [debouncedValue]);
+  }, [debouncedValue, dispatch]);
 
   return (
     <Box>
