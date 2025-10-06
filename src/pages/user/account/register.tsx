@@ -101,7 +101,7 @@ const Register: NextPage = () => {
                 .
               </Text>
             </Alert>
-            <FormControl isInvalid={!!errors.familyName}>
+            <FormControl isInvalid={!!errors.givenName}>
               <FormLabel>Given Name</FormLabel>
               <Input
                 autoFocus
@@ -116,7 +116,7 @@ const Register: NextPage = () => {
                 }}
                 {...registerProps}
               />
-              {!!errors.familyName && <FormErrorMessage>{errors.givenName.message}</FormErrorMessage>}
+              {!!errors.givenName && <FormErrorMessage>{errors.givenName.message}</FormErrorMessage>}
             </FormControl>
             <FormControl isInvalid={!!errors.familyName}>
               <FormLabel>Family Name</FormLabel>
