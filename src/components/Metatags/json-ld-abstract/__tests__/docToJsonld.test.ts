@@ -60,7 +60,6 @@ describe('docToJsonld', () => {
     expect(jsonld.datePublished).toBe('2025-03-00'); // NOTE: current code passes through
 
     // Identifiers & sameAs come from the helper (mocked)
-    console.log(mockCollect.mock.calls);
     expect(mockCollect).toHaveBeenCalledWith({ identifier: doc.identifier });
     expect(jsonld.identifier).toEqual([
       { '@type': 'PropertyValue', propertyID: 'ADS Bibcode', value: '2025arXiv250312263A' },
