@@ -233,20 +233,22 @@ const AffEditableControls = () => {
   );
 };
 
-const AffiliationEditor = ({ id }: { id: string }) => {
+export const AffiliationEditor = ({ id }: { id: string }) => {
   const { preferences, setPreferences } = useOrcidPrefs({ getPrefsOptions: { suspense: true } });
 
   const handleOnChange = useCallback(
     (affiliation: string) => {
       const cleanAffiliation = escapeHtml(affiliation.trim());
+      const existingAffiliation = preferences?.currentAffiliation ?? '';
+      const nextPreferences = isNotNilOrEmpty(preferences)
+        ? { ...preferences, currentAffiliation: cleanAffiliation }
+        : { currentAffiliation: cleanAffiliation };
 
-      if (isNotNilOrEmpty(cleanAffiliation) && preferences.currentAffiliation === affiliation) {
+      if (existingAffiliation === cleanAffiliation) {
         return;
       }
 
-      if (isNotNilOrEmpty(preferences)) {
-        setPreferences({ preferences: { ...preferences, currentAffiliation: cleanAffiliation } });
-      }
+      setPreferences({ preferences: nextPreferences });
     },
     [setPreferences, preferences],
   );
