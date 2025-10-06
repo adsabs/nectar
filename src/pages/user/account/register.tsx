@@ -1,4 +1,6 @@
 import {
+  Alert,
+  AlertIcon,
   Button,
   Container,
   FormControl,
@@ -89,6 +91,16 @@ const Register: NextPage = () => {
         </Heading>
         <form onSubmit={handleSubmit(onFormSubmit)} aria-labelledby="form-label">
           <Stack direction="column" spacing={4}>
+            <Alert status="info" variant="subtle">
+              <AlertIcon />
+              <Text fontSize="sm">
+                Your existing ADS credentials will work on SciX. Simply{' '}
+                <SimpleLink href="/user/account/login" display="inline">
+                  log in here
+                </SimpleLink>
+                .
+              </Text>
+            </Alert>
             <FormControl isInvalid={!!errors.familyName}>
               <FormLabel>Given Name</FormLabel>
               <Input
