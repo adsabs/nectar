@@ -77,12 +77,15 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
   } = useCitationHelper({ bibcodes: bibcodes }, { enabled: bibcodes.length > 0 });
 
   // subset of suggestions that are shown
-  const shownSuggestions = useMemo(() => {
-    if (Array.isArray(suggestions)) {
-      const startIndex = pagination.pageIndex * pageSize;
-      const endIndex = pagination.pageIndex * pageSize + pageSize;
-      return suggestions.slice(startIndex, endIndex > suggestions.length ? suggestions.length : endIndex);
+  const shownSuggestions = useMemo<ISuggestionEntry[]>(() => {
+    if (!Array.isArray(suggestions) || suggestions.length === 0) {
+      return [];
     }
+
+    const startIndex = pagination.pageIndex * pageSize;
+    const endIndex = Math.min(startIndex + pageSize, suggestions.length);
+
+    return suggestions.slice(startIndex, endIndex);
   }, [suggestions, pagination, pageSize]);
 
   const currentPageBibcodes = useMemo(() => {
