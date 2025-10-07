@@ -3,10 +3,10 @@ import { useColorModeColors } from '@/lib/useColorModeColors';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { makeSearchParams } from '@/utils/common/search';
 import { ChevronDownIcon } from '@chakra-ui/icons';
-import { usePopper, VStack, Tooltip, Box, ListItem, List } from '@chakra-ui/react';
+import { usePopper, Tooltip, Box, ListItem, List, Flex } from '@chakra-ui/react';
 import { useSelect } from 'downshift';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { CustomInfoMessage, LoadingMessage } from '../Feedbacks';
 
 export type UATTermItem = {
@@ -31,9 +31,21 @@ export const UATDropdown = ({ keyword }: { keyword: string }) => {
 
   const [options, setOptions] = useState<UATTermOption[]>([]);
 
+  const baseId = useMemo(() => {
+    const normalizedKeyword = keyword
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    return `uat-dropdown-${normalizedKeyword || 'keyword'}`;
+  }, [keyword]);
+
   const { isOpen, getToggleButtonProps, getMenuProps, highlightedIndex, getItemProps } = useSelect<UATTermOption>({
     items: options,
-    itemToString: (option) => option.label,
+    itemToString: (option) => option?.label ?? '',
+    id: baseId,
+    labelId: `${baseId}-label`,
+    menuId: `${baseId}-menu`,
+    toggleButtonId: `${baseId}-toggle`,
     onSelectedItemChange: ({ selectedItem: option }) => {
       if (option.type === 'item') {
         const params = { q: `uat:"${option.value}"` };
@@ -74,7 +86,7 @@ export const UATDropdown = ({ keyword }: { keyword: string }) => {
   });
 
   return (
-    <VStack>
+    <Flex direction="column" align="center" display="inline-flex" w="auto">
       <Tooltip label="related keywords">
         <Box
           variant="unstyled"
@@ -84,7 +96,7 @@ export const UATDropdown = ({ keyword }: { keyword: string }) => {
               return el;
             },
           })}
-          m={1}
+          ml={1}
           cursor="pointer"
           tabIndex={0}
         >
@@ -100,10 +112,11 @@ export const UATDropdown = ({ keyword }: { keyword: string }) => {
         borderColor="gray.200"
         boxShadow="lg"
         maxHeight="500px"
-        w="fit-content"
-        minW="200px"
-        maxW="400px"
+        w={isOpen ? 'fit-content' : '0'}
+        minW={isOpen ? '200px' : '0'}
+        maxW={isOpen ? '400px' : '0'}
         overflowY="scroll"
+        display={isOpen ? 'block' : 'none'}
         {...getMenuProps({
           ref: (el: HTMLUListElement) => {
             dropdownPopperRef(el);
@@ -154,6 +167,6 @@ export const UATDropdown = ({ keyword }: { keyword: string }) => {
           </>
         )}
       </Box>
-    </VStack>
+    </Flex>
   );
 };
