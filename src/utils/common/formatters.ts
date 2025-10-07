@@ -53,8 +53,43 @@ export const getFormattedNumericPubdate = (pubdate: string): string | null => {
   return extractedDate ? `${extractedDate.year}/${extractedDate.month}`.replace('/00', '') : null;
 };
 
-export const getCleanedPublDate = (pubdate: string) => {
-  return pubdate.replaceAll('-00', '');
+export const getCleanedPublDate = (pubdate: string): string => {
+  if (!pubdate) {
+    return pubdate;
+  }
+
+  const normalized = pubdate.trim();
+  if (normalized === '') {
+    return normalized;
+  }
+
+  const segments = normalized.split('-');
+
+  if (segments.length === 1) {
+    return normalized;
+  }
+
+  if (segments.length > 3) {
+    return normalized;
+  }
+
+  const [year, month, day] = segments;
+
+  if (!/^\d{4}$/.test(year ?? '')) {
+    return normalized;
+  }
+
+  const parts = [year];
+
+  if (month && month !== '00') {
+    parts.push(month);
+  }
+
+  if (day && day !== '00' && month && month !== '00') {
+    parts.push(day);
+  }
+
+  return parts.join('-');
 };
 
 /**
