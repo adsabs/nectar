@@ -1,6 +1,6 @@
 import { IDocsEntity } from '@/api/search/types';
 import { EXTERNAL_URLS } from '@/config';
-import { pluralize } from '@/utils/common/formatters';
+import { getCleanedPublDate, pluralize } from '@/utils/common/formatters';
 import { ExternalLinkIcon } from '@chakra-ui/icons';
 import {
   Badge,
@@ -58,6 +58,7 @@ const shortenKeyword = (keyword: string) => {
 
 export const AbstractDetails = ({ doc }: IDetailsProps): ReactElement => {
   const arxiv = (doc.identifier ?? ([] as string[])).find((v) => /^arxiv/i.exec(v));
+  const formattedPublicationDate = doc.pubdate ? getCleanedPublDate(doc.pubdate) : '';
 
   const { isOpen: isCitationOpen, onOpen: onCitationOpen, onClose: onCitationClose } = useDisclosure();
 
@@ -88,7 +89,7 @@ export const AbstractDetails = ({ doc }: IDetailsProps): ReactElement => {
             )}
           </Detail>
           <Detail label="Book Author(s)" value={doc.book_author} />
-          <Detail label="Publication Date" value={doc.pubdate} />
+          <Detail label="Publication Date" value={formattedPublicationDate} />
           <Detail label="DOI" value={doc.doi}>
             {(doi) => <Doi doiIDs={doi} bibcode={doc.bibcode} />}
           </Detail>

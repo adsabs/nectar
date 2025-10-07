@@ -3,7 +3,7 @@ import { APP_DEFAULTS } from '@/config';
 import { beforeEach, describe, expect, test, TestContext } from 'vitest';
 import { rest } from 'msw';
 
-import { truncateDecimal } from '@/utils/common/formatters';
+import { getCleanedPublDate, truncateDecimal } from '@/utils/common/formatters';
 import {
   normalizeSolrSort,
   normalizeURLParams,
@@ -48,6 +48,19 @@ describe('normalizeSolrSort', () => {
     ],
   ])('%s', (_, args, expected) => {
     expect(normalizeSolrSort(...args)).toEqual(expected);
+  });
+});
+
+describe('getCleanedPublDate', () => {
+  test.concurrent.each<[string, string]>([
+    ['2024-05-00', '2024-05'],
+    ['2024-05-07', '2024-05-07'],
+    ['2024-00-00', '2024'],
+    ['2024', '2024'],
+    [' 2024-05-00 ', '2024-05'],
+    ['foo', 'foo'],
+  ])('%s -> %s', (input, expected) => {
+    expect(getCleanedPublDate(input)).toEqual(expected);
   });
 });
 
