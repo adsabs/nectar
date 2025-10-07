@@ -1,5 +1,5 @@
 import { adjust, compose, map, range, repeat, transpose, without } from 'ramda';
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { IDocsEntity } from '@/api/search/types';
 
 export interface IUseAuthorsProps {
@@ -27,52 +27,34 @@ export interface IUseAuthorsProps {
  *    ['Li, Xinqiao']
  * ]
  */
+const buildAuthors = (doc: IDocsEntity, includeAff: boolean): string[][] => {
+  if (!doc) {
+    return [];
+  }
+
+  const { author, aff, orcid_other = [], orcid_pub = [], orcid_user = [] } = doc;
+  const len = author?.length ?? 0;
+
+  if (len === 0) {
+    return [];
+  }
+
+  const authorIndex = map((v) => v.toLocaleString(), range(1, len + 1));
+
+  if (includeAff) {
+    return map(
+      compose(
+        without(['-']),
+        adjust(2, (v) => (v === '-' ? '' : v)),
+      ),
+      transpose([authorIndex, author, aff ?? repeat('', len), orcid_other, orcid_pub, orcid_user]),
+    );
+  }
+
+  return map(without(['-']), transpose([authorIndex, author, orcid_other, orcid_pub, orcid_user]));
+};
+
 export const useGetAuthors = (props: IUseAuthorsProps): string[][] => {
   const { doc, includeAff = true } = props;
-  const [authors, setAuthors] = useState<string[][]>([]);
-
-  useEffect(() => {
-    if (doc) {
-      const { author, aff, orcid_other = [], orcid_pub = [], orcid_user = [] } = doc;
-      const len = author?.length ?? 0;
-
-      // creates a table out of the arrays, then removes any '-', leaving sub-arrays with our author, aff, and orcid
-      if (len > 0) {
-        setAuthors(
-          includeAff
-            ? map(
-                compose(
-                  // remove extra '-', essentially coalescing orcid value
-                  without(['-']),
-
-                  // replace affs with an empty string, so we don't wipe it out in the next step
-                  adjust(2, (v) => (v === '-' ? '' : v)),
-                ),
-
-                // stack each array
-                transpose([
-                  map((v) => v.toLocaleString(), range(1, len + 1)),
-                  author,
-                  aff ?? repeat('', len),
-                  orcid_other,
-                  orcid_pub,
-                  orcid_user,
-                ]),
-              )
-            : map(
-                without(['-']),
-                transpose([
-                  map((v) => v.toLocaleString(), range(1, len + 1)),
-                  author,
-                  orcid_other,
-                  orcid_pub,
-                  orcid_user,
-                ]),
-              ),
-        );
-      }
-    }
-  }, [doc, includeAff]);
-
-  return authors;
+  return useMemo(() => (doc ? buildAuthors(doc, includeAff) : []), [doc, includeAff]);
 };

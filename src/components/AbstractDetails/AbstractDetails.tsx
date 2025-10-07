@@ -180,8 +180,8 @@ const Keywords = memo(({ keywords }: { keywords: Array<string> }) => {
       {(keywords) => (
         <Flex flexWrap={'wrap'}>
           {keywords.map((keyword) => (
-            <Tag size="md" variant="subtle" whiteSpace="nowrap" m="1" key={keyword}>
-              <HStack spacing="2">
+            <Tag size="md" variant="subtle" whiteSpace="nowrap" m="1" px={2} py={1} key={keyword}>
+              <HStack spacing="1">
                 <Text>{keyword}</Text>
                 <SearchQueryLink
                   params={{ q: `keyword:"${keyword}"` }}
@@ -223,33 +223,31 @@ const UATKeywords = memo(({ keywords, ids }: { keywords: Array<string>; ids: Arr
       {(keywords) => (
         <Flex flexWrap={'wrap'}>
           {keywords.map((keyword, index) => (
-            <HStack key={keyword}>
-              <Tag size="md" variant="subtle" whiteSpace={'nowrap'} m="1" key={keyword}>
-                <HStack spacing="2">
-                  <Tooltip label={keyword}>
-                    <SimpleLink href={`https://astrothesaurus.org/uat/${encodeURIComponent(ids[index])}`} newTab>
-                      {shortenKeyword(keyword)}
-                    </SimpleLink>
+            <Tag size="md" variant="subtle" whiteSpace="nowrap" m="1" px={2} py={1} key={keyword}>
+              <HStack spacing="1">
+                <Tooltip label={keyword}>
+                  <SimpleLink href={`https://astrothesaurus.org/uat/${encodeURIComponent(ids[index])}`} newTab>
+                    {shortenKeyword(keyword)}
+                  </SimpleLink>
+                </Tooltip>
+                <SearchQueryLink
+                  params={{ q: `uat:"${keyword.split('/').pop()}"` }}
+                  textDecoration="none"
+                  _hover={{
+                    color: 'gray.900',
+                  }}
+                  aria-label={desc}
+                  fontSize="md"
+                >
+                  <Tooltip label={desc}>
+                    <Center>
+                      <Icon as={MagnifyingGlassIcon} transform="rotate(90deg)" boxSize={3} />
+                    </Center>
                   </Tooltip>
-                  <SearchQueryLink
-                    params={{ q: `uat:"${keyword.split('/').pop()}"` }}
-                    textDecoration="none"
-                    _hover={{
-                      color: 'gray.900',
-                    }}
-                    aria-label={desc}
-                    fontSize="md"
-                  >
-                    <Tooltip label={desc}>
-                      <Center>
-                        <Icon as={MagnifyingGlassIcon} transform="rotate(90deg)" />
-                      </Center>
-                    </Tooltip>
-                  </SearchQueryLink>
-                </HStack>
+                </SearchQueryLink>
                 <UATDropdown keyword={keyword} />
-              </Tag>
-            </HStack>
+              </HStack>
+            </Tag>
           ))}
         </Flex>
       )}
@@ -269,8 +267,8 @@ const PlanetaryFeatures = memo(({ features, ids }: { features: Array<string>; id
       {(features) => (
         <Flex flexWrap={'wrap'}>
           {features.map((feature, index) => (
-            <Tag size="md" variant="subtle" whiteSpace="nowrap" m="1" key={feature}>
-              <HStack spacing="2">
+            <Tag size="sm" variant="subtle" whiteSpace="nowrap" m="1" px={2} py={1} key={feature}>
+              <HStack spacing="1">
                 <SimpleLink
                   href={`${EXTERNAL_URLS.USGS_PLANETARY_FEATURES}${ids[index]}`}
                   aria-label={usgsLabel}
