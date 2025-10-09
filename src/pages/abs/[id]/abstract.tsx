@@ -43,12 +43,16 @@ const createQuery = (type: 'author' | 'orcid', value: string): IADSApiSearchPara
   return { q: `${type}:"${value}"`, sort: ['score desc'] };
 };
 
-const AbstractPage: NextPage = () => {
+interface AbstractPageProps {
+  initialDoc?: IDocsEntity | null;
+}
+
+const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc }) => {
   const router = useRouter();
   const isClient = useIsClient();
   const { isAuthenticated } = useSession();
   const { data } = useGetAbstract({ id: router.query.id as string });
-  const doc = path<IDocsEntity>(['docs', 0], data);
+  const doc = path<IDocsEntity>(['docs', 0], data) ?? initialDoc ?? undefined;
   useTrackAbstractView(doc);
 
   // process authors from doc
@@ -58,19 +62,22 @@ const AbstractPage: NextPage = () => {
   const handleFeedback = () => {
     void router.push({ pathname: feedbackItems.record.path, query: { bibcode: doc.bibcode } });
   };
+  const showAddToLibraryButton = isClient && isAuthenticated;
 
   return (
     <AbsLayout doc={doc} titleDescription={''} label="Abstract">
       <Box as="article" aria-labelledby="title">
         {doc && (
           <Stack direction="column" gap={2}>
-            {isClient ? (
-              <Flex wrap="wrap" as="section" aria-labelledby="author-list">
-                <VisuallyHidden as="h2" id="author-list">
-                  Authors
-                </VisuallyHidden>
-                {authors.map(([, author, orcid], index) => (
-                  <Box mr={1} key={`${author}-${index}`}>
+            <Flex wrap="wrap" as="section" aria-labelledby="author-list">
+              <VisuallyHidden as="h2" id="author-list">
+                Authors
+              </VisuallyHidden>
+              {authors.map(([, author, orcid], index) => {
+                const showOrcid = typeof orcid === 'string' && orcid.length > 0;
+                const isTerminalAuthor = index === MAX - 1 || index === doc.author_count - 1;
+                return (
+                  <Flex key={`${author}-${index}`} mr={1} align="center">
                     <Tooltip label="View all records by this author" shouldWrapChildren>
                       <SearchQueryLink
                         params={createQuery('author', author)}
@@ -81,54 +88,46 @@ const AbstractPage: NextPage = () => {
                         {author}
                       </SearchQueryLink>
                     </Tooltip>
-                    {typeof orcid === 'string' && (
-                      <Tooltip label="Search by ORCiD" shouldWrapChildren>
-                        <SearchQueryLink
-                          params={createQuery('orcid', orcid)}
-                          aria-label={`author "${author}", search by orKid`}
-                        >
-                          <OrcidActiveIcon fontSize={'large'} mx={1} />
-                        </SearchQueryLink>
-                      </Tooltip>
+                    {showOrcid ? (
+                      <Box as="span" display="inline-flex" justifyContent="center" mx={1}>
+                        <Tooltip label="Search by ORCiD" shouldWrapChildren>
+                          <SearchQueryLink
+                            params={createQuery('orcid', orcid)}
+                            aria-label={`author "${author}", search by orKid`}
+                          >
+                            <OrcidActiveIcon fontSize={'large'} />
+                          </SearchQueryLink>
+                        </Tooltip>
+                      </Box>
+                    ) : null}
+                    {isTerminalAuthor ? null : (
+                      <Text as="span" ml={showOrcid ? 1 : 0} mr={1}>
+                        ;
+                      </Text>
                     )}
-                    <>{index === MAX - 1 || index === doc.author_count - 1 ? '' : ';'}</>
-                  </Box>
-                ))}
-                {doc.author_count > MAX ? (
-                  <AllAuthorsModal bibcode={doc.bibcode} label={`and ${doc.author_count - MAX} more`} />
-                ) : (
-                  <>
-                    {doc.author_count > 0 && (
-                      <Tooltip label="List all authors and affiliations" shouldWrapChildren>
-                        <AllAuthorsModal bibcode={doc.bibcode} label={'show details'} />
-                      </Tooltip>
-                    )}
-                  </>
-                )}
-              </Flex>
-            ) : (
-              <Flex wrap="wrap">
-                {doc?.author?.map((author, index) => (
-                  <SearchQueryLink
-                    params={createQuery('author', author)}
-                    key={`${author}-${index}`}
-                    px={1}
-                    aria-label={`author "${author}", search by name`}
-                    flexShrink="0"
-                  >
-                    <>{author}</>
-                  </SearchQueryLink>
-                ))}
-                {doc?.author_count > MAX ? <Text>{` and ${doc?.author_count - MAX} more`}</Text> : null}
-              </Flex>
-            )}
+                  </Flex>
+                );
+              })}
+              {doc.author_count > MAX ? (
+                <AllAuthorsModal bibcode={doc.bibcode} label={`and ${doc.author_count - MAX} more`} />
+              ) : (
+                <>
+                  {doc.author_count > 0 && (
+                    <Tooltip label="List all authors and affiliations" shouldWrapChildren>
+                      <AllAuthorsModal bibcode={doc.bibcode} label={'show details'} />
+                    </Tooltip>
+                  )}
+                </>
+              )}
+            </Flex>
 
             <Flex justifyContent="space-between">
               <Box display={{ base: 'block', lg: 'none' }}>
                 <AbstractSources doc={doc} style="menu" />
               </Box>
-              <Flex>
-                {isAuthenticated && (
+              {/* Abstract actions row, this slot is spaced out so we don't cause hydration errors */}
+              <Flex minH={8} align="center" justify="center">
+                {showAddToLibraryButton ? (
                   <Tooltip label="add to library">
                     <IconButton
                       aria-label="Add to library"
@@ -137,11 +136,11 @@ const AbstractPage: NextPage = () => {
                       onClick={onOpenAddToLibrary}
                     />
                   </Tooltip>
-                )}
+                ) : null}
               </Flex>
             </Flex>
 
-            <Box as="section" py="2" aria-labelledby="abstract">
+            <Box as="section" pb="2" aria-labelledby="abstract">
               <VisuallyHidden as="h2" id="abstract">
                 Abstract
               </VisuallyHidden>
@@ -189,9 +188,12 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     queryClient.setQueryData(['user'], bsRes.token);
     ctx.res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
 
+    const initialDoc = data?.response?.docs?.[0] ?? null;
+
     return {
       props: {
         dehydratedState: dehydrate(queryClient),
+        initialDoc,
       },
     };
   } catch (error) {
@@ -199,6 +201,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     return {
       props: {
         pageError: 'Failed to load abstract data',
+        initialDoc: null,
       },
     };
   }
