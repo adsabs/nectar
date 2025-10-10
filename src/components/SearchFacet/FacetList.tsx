@@ -117,7 +117,6 @@ export const NodeList = memo(
     const { parentIndex, prefix, level, onError, onLoadMore, onKeyboardFocusNext = noop } = props;
 
     const params = useFacetStore(selectors.params);
-    const [sortField, sortDir] = useFacetStore(selectors.sort);
     const updateModal = useFacetStore(selectors.updateModal);
     const depth = getLevelFromKey(prefix) + 1;
     const expandable = params.hasChildren && (level === 'root' || params.maxDepth > depth);
@@ -125,8 +124,8 @@ export const NodeList = memo(
       ...params,
       prefix,
       level,
-      sortDir,
-      sortField,
+      sortDir: 'desc',
+      sortField: 'count',
     });
 
     useEffect(() => {
