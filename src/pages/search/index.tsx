@@ -13,6 +13,10 @@ import {
   Box,
   Button,
   Center,
+  Drawer,
+  DrawerBody,
+  DrawerContent,
+  DrawerOverlay,
   Flex,
   Heading,
   Icon,
@@ -24,6 +28,7 @@ import {
   Stack,
   Text,
   Tooltip,
+  useBreakpointValue,
   useDisclosure,
   useMediaQuery,
   VisuallyHidden,
@@ -211,16 +216,13 @@ const SearchPage: NextPage = () => {
           </form>
           <Box ref={histogramContainerRef} />
         </HideOnPrint>
-        <Flex direction="row" gap={10} width="full">
-          <Box display={{ base: 'none', lg: 'block' }}>
-            {/* hide facets if screen is too small */}
-            {showFilters ? (
-              <SearchFacetFilters
-                onSearchFacetSubmission={handleSearchFacetSubmission}
-                histogramContainerRef={histogramContainerRef}
-              />
-            ) : null}
-          </Box>
+        <Flex direction="row" gap={{ base: 0, lg: 10 }} width="full">
+          {showFilters ? (
+            <SearchFacetFilters
+              onSearchFacetSubmission={handleSearchFacetSubmission}
+              histogramContainerRef={histogramContainerRef}
+            />
+          ) : null}
           <Box width="full">
             {showListActions ? (
               <ListActions
@@ -276,6 +278,40 @@ const SearchFacetFilters = (props: {
   const handleToggleFilters = useStore(selectors.toggleSearchFacetsOpen);
   const handleResetFilters = useStore(selectors.resetSearchFacets);
   const [histogramExpanded, setHistogramExpanded] = useState(false);
+
+  const isMobile = useBreakpointValue({ base: true, lg: false });
+  const { isOpen: isFacetOpen, onClose: onCloseFacet, onOpen: onOpenFacet } = useDisclosure();
+
+  if (isMobile) {
+    return (
+      <>
+        <Box as="aside" aria-labelledby="search-facets">
+          <Portal appendToParentPortal>
+            <Button
+              position="fixed"
+              transform="rotate(90deg)"
+              borderBottomRadius="none"
+              size="xs"
+              type="button"
+              onClick={onOpenFacet}
+              top="240px"
+              left="-28px"
+            >
+              Show Filters
+            </Button>
+          </Portal>
+        </Box>
+        <Drawer placement="left" onClose={onCloseFacet} isOpen={isFacetOpen}>
+          <DrawerOverlay />
+          <DrawerContent>
+            <DrawerBody>
+              <SearchFacets onQueryUpdate={onSearchFacetSubmission} />
+            </DrawerBody>
+          </DrawerContent>
+        </Drawer>
+      </>
+    );
+  }
 
   if (showFilters) {
     return (

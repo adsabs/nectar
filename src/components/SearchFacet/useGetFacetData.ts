@@ -54,7 +54,7 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
   // on prefix change (search, letter, sort) reset back to page 0
   useEffect(() => {
     setPagination(calculatePagination({ page: 0, numPerPage: FACET_DEFAULT_LIMIT }));
-  }, [prefix]);
+  }, [prefix, searchTerm, sortDir]);
 
   // fetch the data
   const { data, ...result } = useGetSearchFacetJSON(

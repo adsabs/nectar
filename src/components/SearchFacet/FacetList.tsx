@@ -20,6 +20,7 @@ import {
   ListItem,
   ListItemProps,
   ListProps,
+  PlacementWithLogical,
   Popover,
   PopoverAnchor,
   PopoverArrow,
@@ -33,6 +34,7 @@ import {
   Text,
   TextProps,
   Tooltip,
+  useBreakpointValue,
 } from '@chakra-ui/react';
 import { ChevronRightIcon } from '@chakra-ui/icons';
 
@@ -117,7 +119,6 @@ export const NodeList = memo(
     const { parentIndex, prefix, level, onError, onLoadMore, onKeyboardFocusNext = noop } = props;
 
     const params = useFacetStore(selectors.params);
-    const [sortField, sortDir] = useFacetStore(selectors.sort);
     const updateModal = useFacetStore(selectors.updateModal);
     const depth = getLevelFromKey(prefix) + 1;
     const expandable = params.hasChildren && (level === 'root' || params.maxDepth > depth);
@@ -125,8 +126,8 @@ export const NodeList = memo(
       ...params,
       prefix,
       level,
-      sortDir,
-      sortField,
+      sortDir: 'desc',
+      sortField: 'count',
     });
 
     useEffect(() => {
@@ -666,6 +667,7 @@ const LogicSelect = (
   const selected = useFacetStore((state) => state.selected);
   const reset = useFacetStore((state) => state.reset);
   const isModalOpen = useFacetStore((state) => state.isOpen);
+  const placement = useBreakpointValue<PlacementWithLogical>({ base: 'bottom', sm: 'right-start' });
 
   const handleSelect: MouseEventHandler<HTMLButtonElement> = useCallback(
     (e) => {
@@ -681,7 +683,7 @@ const LogicSelect = (
   const logicType = selected.length > 1 ? params.logic.multiple : params.logic.single;
   const isOpen = selected.length > 0 && !isModalOpen;
   return (
-    <Popover isOpen={isOpen} placement="right-start">
+    <Popover isOpen={isOpen} placement={placement}>
       <PopoverAnchor>{children}</PopoverAnchor>
       <PopoverContent maxWidth="max-content" minWidth="40">
         <PopoverHeader fontSize="md" fontWeight="bold" pr={10}>
