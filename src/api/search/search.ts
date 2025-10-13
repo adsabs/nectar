@@ -311,7 +311,7 @@ export const useGetSearchStats: SearchADSQuery<IADSApiSearchParams, IADSApiSearc
   options,
 ) => {
   const isCitationSort =
-    Array.isArray(params.sort) && params.sort.length > 0 && /^citation_count(_norm)?/.test(params.sort[0]);
+    Array.isArray(params.sort) && params.sort.length > 0 && /^citation_count(_norm)?|credit_count/.test(params.sort[0]);
 
   const searchParams = getSearchStatsParams(
     params,

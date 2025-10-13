@@ -70,5 +70,18 @@ const SortStats = () => {
       </>
     );
   }
+
+  if (isSuccess && 'credit_count' in data.stats_fields) {
+    const count = sanitizeNum(data.stats_fields.credit_count.sum);
+    return (
+      <>
+        with{' '}
+        <Text as="span" fontWeight="bold" fontSize="xs">
+          {count}
+        </Text>{' '}
+        total credits
+      </>
+    );
+  }
   return null;
 };
