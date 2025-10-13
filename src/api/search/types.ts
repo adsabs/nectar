@@ -74,6 +74,7 @@ export interface ISearchStatsFields {
     citation_count?: ISearchStats;
     citation_count_norm?: ISearchStats;
     read_count?: ISearchStats;
+    credit_count?: ISearchStats;
   };
 }
 
