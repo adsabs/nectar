@@ -70,7 +70,7 @@ export const AbstractSources = ({ doc, style }: IAbstractSourcesProps): ReactEle
 
   const { data: relatedWorksResp } = useResolverQuery(
     { bibcode: doc.bibcode, link_type: 'associated' },
-    { enabled: !!doc?.bibcode },
+    { enabled: !!doc?.bibcode && doc?.property?.includes('ASSOCIATED') },
   );
 
   const relatedResources: AbstractResourceType[] = useMemo(
