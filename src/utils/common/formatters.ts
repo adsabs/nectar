@@ -1,6 +1,7 @@
 import { isArray, isNonEmptyString, isNotString } from 'ramda-adjunct';
 import { head, pipe, when } from 'ramda';
 import DOMPurify from 'isomorphic-dompurify';
+import { format, isValid, parseISO } from 'date-fns';
 import { logger } from '@/logger';
 
 /**
@@ -90,6 +91,75 @@ export const getCleanedPublDate = (pubdate: string): string => {
   }
 
   return parts.join('-');
+};
+
+/**
+ * Formats a publication date string into a more readable format using date-fns.
+ *
+ * @param {string} pubdate - The publication date in YYYY-MM-DD format.
+ * @returns {string} - The formatted date in a human-readable format (e.g., "January 2023", "March 15, 2024").
+ */
+export const getReadablePublDate = (pubdate: string): string => {
+  if (!pubdate) {
+    return pubdate;
+  }
+
+  const normalized = pubdate.trim();
+  if (normalized === '') {
+    return pubdate; // Return original input to preserve whitespace
+  }
+
+  // Handle year-only format
+  if (/^\d{4}$/.test(normalized)) {
+    return normalized;
+  }
+
+  try {
+    const segments = normalized.split('-');
+
+    // Handle partial dates with zero values
+    if (segments.length >= 2) {
+      const [year, month, day] = segments;
+
+      // Validate year format
+      if (!/^\d{4}$/.test(year)) {
+        return normalized;
+      }
+
+      // If month is '00' or missing, return just the year
+      if (!month || month === '00') {
+        return year;
+      }
+
+      // If month is valid but day is '00' or missing, format as "Month Year"
+      if (month !== '00' && (!day || day === '00')) {
+        const partialDate = parseISO(`${year}-${month}-01`);
+        if (isValid(partialDate)) {
+          return format(partialDate, 'MMMM yyyy');
+        }
+        return normalized;
+      }
+
+      // If we have a full date with non-zero day, format as "Month Day, Year"
+      if (day && day !== '00') {
+        const date = parseISO(normalized);
+        if (isValid(date)) {
+          return format(date, 'MMMM d, yyyy');
+        }
+      }
+    }
+
+    // Try to parse as a complete date
+    const date = parseISO(normalized);
+    if (isValid(date)) {
+      return format(date, 'MMMM d, yyyy');
+    }
+
+    return normalized;
+  } catch {
+    // If parsing fails, return the original string
+    return normalized;
+  }
 };
 
 /**
