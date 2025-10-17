@@ -123,6 +123,23 @@ describe('updateUATSearchTerm', () => {
   test('adds prefix if input is empty', () => {
     expect(updateUATSearchTerm('', '"new"')).toBe('"new"');
   });
+
+  test('handles multi-word UAT terms with spaces', () => {
+    expect(updateUATSearchTerm('author:"foo" uat:"old term"', '"main sequence"')).toBe(
+      'author:"foo" uat:"main sequence"',
+    );
+  });
+
+  test('handles UAT terms with spaces at start of query', () => {
+    expect(updateUATSearchTerm('uat:"stellar evolution"', '"main sequence stars"')).toBe('uat:"main sequence stars"');
+  });
+
+  test('preserves other fields when replacing UAT term with spaces', () => {
+    // UAT replacement, like journal replacement, puts the new term at the end after removing the old one
+    expect(updateUATSearchTerm('title:"test" uat:"old value" year:2023', '"new multi word"')).toBe(
+      'title:"test" year:2023 uat:"new multi word"',
+    );
+  });
 });
 
 describe('updateJournalSearchTerm', () => {

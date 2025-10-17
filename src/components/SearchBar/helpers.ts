@@ -37,9 +37,19 @@ export const updateSearchTerm = (searchTerm: string, value: string) => {
 };
 
 export const updateUATSearchTerm = (searchTerm: string, value: string) => {
-  return searchTerm
-    ? `${searchTerm.replace(/^uat:"[^"]+"?$/i, '').replace(/\s+uat:"[^"]+"?$/i, ' ')}uat:${value}`
-    : value;
+  if (!searchTerm) {
+    return value;
+  }
+
+  // Remove existing UAT field from anywhere in the query and replace with new value
+  // Use similar pattern to journal search but simpler since UAT only has one field type
+  const cleaned = searchTerm
+    .replace(/^uat:"[^"]+"?$/i, '') // Handle standalone UAT query
+    .replace(/^uat:"[^"]+"?\s+/i, '') // Handle UAT at start
+    .replace(/\s+uat:"[^"]+"?$/i, ' ') // Handle UAT at end
+    .replace(/\s+uat:"[^"]+"?\s+/i, ' '); // Handle UAT in middle
+
+  return cleaned.trim() ? `${cleaned.trim()} uat:${value}` : `uat:${value}`;
 };
 
 export const updateJournalSearchTerm = (searchTerm: string, value: string, fieldType?: string) => {
