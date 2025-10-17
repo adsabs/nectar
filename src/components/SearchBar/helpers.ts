@@ -42,6 +42,53 @@ export const updateUATSearchTerm = (searchTerm: string, value: string) => {
     : value;
 };
 
+export const updateJournalSearchTerm = (searchTerm: string, value: string, fieldType?: string) => {
+  if (!searchTerm) {
+    return value;
+  }
+
+  let detectedFieldType = fieldType;
+
+  // If no field type provided, try to detect from the last/current journal field being edited
+  if (!detectedFieldType) {
+    // Check for incomplete quoted term at the end first (most likely case when typing)
+    const incompleteMatch = searchTerm.match(/(pub|bibstem|pub_abbrev):"([^"]*)$/i);
+    if (incompleteMatch) {
+      detectedFieldType = incompleteMatch[1].toLowerCase();
+    } else {
+      // Check for completed terms at the end
+      const terms = splitSearchTerms(searchTerm);
+      if (terms && terms.length > 0) {
+        const lastTerm = terms[terms.length - 1];
+        const match = lastTerm.match(/(pub|bibstem|pub_abbrev):"([^"]*)"?$/i);
+        if (match) {
+          detectedFieldType = match[1].toLowerCase();
+        }
+      }
+    }
+  }
+
+  // If we still couldn't detect the field type, fall back to any journal field found
+  if (!detectedFieldType) {
+    const fieldMatch = searchTerm.match(/(pub|bibstem|pub_abbrev):"[^"]*"?/i);
+    if (!fieldMatch) {
+      return value;
+    }
+    detectedFieldType = fieldMatch[1].toLowerCase();
+  }
+
+  // Find the specific field term to replace based on detected field type
+  const fieldToReplace = new RegExp(`(^|\\s)(${detectedFieldType}):"[^"]*"?(?=\\s|$)`, 'i');
+  const replacement = `$1${detectedFieldType}:${value}`;
+
+  if (fieldToReplace.test(searchTerm)) {
+    return searchTerm.replace(fieldToReplace, replacement);
+  }
+
+  // If no specific field found to replace, add the new term
+  return searchTerm.trim() ? `${searchTerm.trim()} ${detectedFieldType}:${value}` : `${detectedFieldType}:${value}`;
+};
+
 export const appendSearchTerm = (searchTerm: string, value: string) => {
   return searchTerm.length > 0 ? `${searchTerm} ${value}` : value;
 };

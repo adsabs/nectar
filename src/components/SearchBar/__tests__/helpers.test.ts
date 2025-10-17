@@ -8,6 +8,7 @@ import {
   splitSearchTerms,
   updateSearchTerm,
   updateUATSearchTerm,
+  updateJournalSearchTerm,
   wrapSelectedWithField,
 } from '../helpers';
 import { describe, expect, test } from 'vitest';
@@ -121,6 +122,50 @@ describe('updateUATSearchTerm', () => {
 
   test('adds prefix if input is empty', () => {
     expect(updateUATSearchTerm('', '"new"')).toBe('"new"');
+  });
+});
+
+describe('updateJournalSearchTerm', () => {
+  test('replaces pub:"..." pattern with pub:value', () => {
+    expect(updateJournalSearchTerm('author:"foo" pub:"old"', '"new"')).toBe('author:"foo" pub:"new"');
+  });
+
+  test('handles bare pub string', () => {
+    expect(updateJournalSearchTerm('pub:"thing"', '"new"')).toBe('pub:"new"');
+  });
+
+  test('replaces bibstem:"..." pattern with bibstem:value', () => {
+    expect(updateJournalSearchTerm('author:"foo" bibstem:"old"', '"new"')).toBe('author:"foo" bibstem:"new"');
+  });
+
+  test('handles bare bibstem string', () => {
+    expect(updateJournalSearchTerm('bibstem:"ApJ"', '"new"')).toBe('bibstem:"new"');
+  });
+
+  test('replaces pub_abbrev:"..." pattern with pub_abbrev:value', () => {
+    expect(updateJournalSearchTerm('pub_abbrev:"old"', '"new"')).toBe('pub_abbrev:"new"');
+  });
+
+  test('preserves original field type', () => {
+    expect(updateJournalSearchTerm('BIBSTEM:"old"', '"new"')).toBe('bibstem:"new"');
+  });
+
+  test('adds prefix if input is empty', () => {
+    expect(updateJournalSearchTerm('', '"new"')).toBe('"new"');
+  });
+
+  test('returns value if no journal field found', () => {
+    expect(updateJournalSearchTerm('author:"foo" title:"bar"', '"new"')).toBe('"new"');
+  });
+
+  test('preserves original field type when multiple journal fields exist', () => {
+    // This tests the specific bug: typing pub:"Astro and having it change to bibstem: when selecting
+    expect(updateJournalSearchTerm('bibstem:"ApJ" pub:"Astro"', '"Astronomy"')).toBe('bibstem:"ApJ" pub:"Astronomy"');
+  });
+
+  test('handles incomplete pub field without changing to other field types', () => {
+    // Simulates typing pub:"Astro (without closing quote) and selecting a suggestion
+    expect(updateJournalSearchTerm('pub:"Astro', '"Astronomy"')).toBe('pub:"Astronomy"');
   });
 });
 

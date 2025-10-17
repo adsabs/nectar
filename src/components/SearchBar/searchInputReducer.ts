@@ -7,6 +7,7 @@ import {
   getCursorPosition,
   updateSearchTerm,
   updateUATSearchTerm,
+  updateJournalSearchTerm,
   wrapSelectedWithField,
 } from '@/components/SearchBar/helpers';
 import { typeaheadOptions } from '@/components/SearchBar/models';
@@ -16,6 +17,7 @@ export interface ISearchInputState {
   isOpen: boolean;
   searchTerm: string;
   uatItems: TypeaheadOption[];
+  journalItems: TypeaheadOption[];
   items: TypeaheadOption[];
   focused: number;
   cursorPosition: number;
@@ -25,6 +27,7 @@ export interface ISearchInputState {
 export type SearchInputAction =
   | { type: 'SET_SEARCH_TERM'; payload: { query: string; cursorPosition?: number } }
   | { type: 'SET_UAT_TYPEAHEAD_OPTIONS'; payload: TypeaheadOption[] }
+  | { type: 'SET_JOURNAL_TYPEAHEAD_OPTIONS'; payload: TypeaheadOption[] }
   | { type: 'SET_SEARCH_TERM_ADDITION'; payload: { queryAddition: string; cursorPos?: number } }
   | { type: 'SET_SELECTED_RANGE'; payload: [number, number] }
   | { type: 'CLICK_ITEM' }
@@ -47,12 +50,19 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
       const finalTerm = extractFinalTerm(action.payload.query);
       const cursorPosition = action.payload.cursorPosition ?? action.payload.query.length;
 
-      if (finalTerm === '' || finalTerm.toLowerCase().startsWith('uat:')) {
+      if (
+        finalTerm === '' ||
+        finalTerm.toLowerCase().startsWith('uat:') ||
+        finalTerm.toLowerCase().startsWith('pub:') ||
+        finalTerm.toLowerCase().startsWith('bibstem:') ||
+        finalTerm.toLowerCase().startsWith('pub_abbrev:')
+      ) {
         return {
           ...state,
           isOpen: false,
           searchTerm: action.payload.query,
           uatItems: [],
+          journalItems: [],
           focused: -1,
           items: [],
           cursorPosition,
@@ -81,6 +91,7 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
         isOpen,
         searchTerm: action.payload.query,
         uatItems: [],
+        journalItems: [],
         focused: -1,
         cursorPosition,
         items: newItems,
@@ -93,8 +104,20 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
         ...state,
         isOpen: uatOptions.length > 0,
         uatItems: uatOptions,
-        focused: 0,
+        focused: -1,
         items: [],
+        journalItems: [],
+      };
+    }
+    case 'SET_JOURNAL_TYPEAHEAD_OPTIONS': {
+      const journalOptions = action.payload;
+      return {
+        ...state,
+        isOpen: journalOptions.length > 0,
+        journalItems: journalOptions,
+        focused: -1,
+        items: [],
+        uatItems: [],
       };
     }
     case 'SET_SEARCH_TERM_ADDITION': {
@@ -132,14 +155,18 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
           searchTerm,
 
           // if no items, show all items
-          items: state.items.length === 0 && state.uatItems.length === 0 ? typeaheadOptions : state.items,
+          items:
+            state.items.length === 0 && state.uatItems.length === 0 && state.journalItems.length === 0
+              ? typeaheadOptions
+              : state.items,
         };
       }
 
       // if menu is open, and we're at the bottom, cycle to the top
       if (
         (state.items.length > 0 && state.focused === state.items.length - 1) ||
-        (state.uatItems.length > 0 && state.focused === state.uatItems.length - 1)
+        (state.uatItems.length > 0 && state.focused === state.uatItems.length - 1) ||
+        (state.journalItems.length > 0 && state.focused === state.journalItems.length - 1)
       ) {
         return {
           ...state,
@@ -155,10 +182,14 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
 
     case 'KEYDOWN_ARROW_UP': {
       // if menu is open, and we're at the top, cycle to the bottom
-      if (state.focused === -1 && (state.items.length > 0 || state.uatItems.length > 0) && state.isOpen) {
+      if (
+        state.focused === -1 &&
+        (state.items.length > 0 || state.uatItems.length > 0 || state.journalItems.length > 0) &&
+        state.isOpen
+      ) {
         return {
           ...state,
-          focused: state.items.length - 1,
+          focused: Math.max(state.items.length - 1, state.uatItems.length - 1, state.journalItems.length - 1),
         };
       }
 
@@ -184,6 +215,15 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
           };
         } else if (state.uatItems.length > 0) {
           const searchTerm = updateUATSearchTerm(state.searchTerm, state.uatItems[state.focused].value);
+          return {
+            ...state,
+            isOpen: false,
+            focused: -1,
+            searchTerm,
+            cursorPosition: getCursorPosition(searchTerm),
+          };
+        } else if (state.journalItems.length > 0) {
+          const searchTerm = updateJournalSearchTerm(state.searchTerm, state.journalItems[state.focused].value);
           return {
             ...state,
             isOpen: false,
@@ -219,6 +259,7 @@ export const initialState: ISearchInputState = {
   isOpen: false,
   searchTerm: '',
   uatItems: [],
+  journalItems: [],
   items: [],
   focused: -1,
   cursorPosition: 0,

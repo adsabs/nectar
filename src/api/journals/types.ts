@@ -50,3 +50,24 @@ export interface IADSApiJournalsISSNResponse {
     journal_name: string;
   };
 }
+
+// Journal autocomplete types
+export interface IJournalSearchParams {
+  term: string;
+  fieldType?: 'pub' | 'bibstem' | 'pub_abbrev';
+}
+
+export interface IJournalOption {
+  id: number;
+  value: string;
+  label: string;
+  desc: string;
+  bibstem: string;
+  pub: string;
+  pub_abbrev?: string;
+}
+
+export interface IJournalSearchResponse {
+  journals: IJournalOption[];
+  error?: string;
+}
