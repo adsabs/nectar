@@ -189,7 +189,12 @@ export const reducer: Reducer<ISearchInputState, SearchInputAction> = (state, ac
       ) {
         return {
           ...state,
-          focused: Math.max(state.items.length - 1, state.uatItems.length - 1, state.journalItems.length - 1),
+          focused:
+            (state.items.length > 0
+              ? state.items.length
+              : state.uatItems.length > 0
+              ? state.uatItems.length
+              : state.journalItems.length) - 1,
         };
       }
 
