@@ -9,6 +9,11 @@ const uatOptions: Array<TypeaheadOption> = [
   { value: '"Transits"', label: 'Transits', desc: '', id: 1, match: [] },
 ];
 
+const journalOptions: Array<TypeaheadOption> = [
+  { value: '"ApJ"', label: 'Astrophysical Journal', desc: 'Bibstem: ApJ', id: 0, match: [] },
+  { value: '"AJ"', label: 'Astronomical Journal', desc: 'Bibstem: AJ', id: 1, match: [] },
+];
+
 const keywordItem: TypeaheadOption = { value: 'similar()', label: 'Similar', desc: '', id: 1, match: [] };
 
 const mockStateWithQuery = (query: string): ISearchInputState => ({
@@ -46,14 +51,15 @@ describe('SearchInput reducer', () => {
     beforeEach(() => {
       vi.restoreAllMocks();
     });
-    test('SET_SEARCH_TERM with "uat:" disables typeahead suggestions', () => {
-      const state = mockStateWithQuery('author:"star" uat:');
+    test('SET_SEARCH_TERM with "pub:" disables typeahead suggestions', () => {
+      const state = mockStateWithQuery('author:"star" pub:');
       const result = reducer(state, {
         type: 'SET_SEARCH_TERM',
-        payload: { query: 'author:"star" uat:', cursorPosition: 18 },
+        payload: { query: 'author:"star" pub:', cursorPosition: 18 },
       });
       expect(result.isOpen).toBe(false);
       expect(result.items).toEqual([]);
+      expect(result.journalItems).toEqual([]);
     });
 
     test('SET_SEARCH_TERM_ADDITION replaces selected range with wrapped field', () => {
@@ -96,18 +102,29 @@ describe('SearchInput reducer', () => {
     });
   });
 
-  describe('Typeahead results and UAT integration', () => {
+  describe('Typeahead results and UAT/Journal integration', () => {
     beforeEach(() => {
       vi.restoreAllMocks();
     });
-    test('SET_UAT_TYPEAHEAD_OPTIONS opens menu and sets focused to 0', () => {
+    test('SET_UAT_TYPEAHEAD_OPTIONS opens menu and does not auto-focus', () => {
       const result = reducer(initialState, {
         type: 'SET_UAT_TYPEAHEAD_OPTIONS',
-        payload: uatOptions,
+        payload: [uatOptions[0], uatOptions[1]],
       });
       expect(result.isOpen).toBe(true);
       expect(result.uatItems).toHaveLength(2);
-      expect(result.focused).toBe(0);
+      expect(result.journalItems).toHaveLength(0);
+      expect(result.focused).toBe(-1);
+    });
+    test('SET_JOURNAL_TYPEAHEAD_OPTIONS opens menu and does not auto-focus', () => {
+      const result = reducer(initialState, {
+        type: 'SET_JOURNAL_TYPEAHEAD_OPTIONS',
+        payload: [journalOptions[0], journalOptions[1]],
+      });
+      expect(result.isOpen).toBe(true);
+      expect(result.journalItems).toHaveLength(2);
+      expect(result.uatItems).toHaveLength(0);
+      expect(result.focused).toBe(-1);
     });
 
     test('CLICK_ITEM inserts focused UAT item using updateUATSearchTerm', () => {
@@ -121,6 +138,21 @@ describe('SearchInput reducer', () => {
       };
       const result = reducer(state, { type: 'CLICK_ITEM' });
       expect(result.searchTerm).toBe('author:"star" uat:"Tektites"');
+      expect(result.isOpen).toBe(false);
+      expect(result.focused).toBe(-1);
+    });
+
+    test('CLICK_ITEM inserts focused journal item using updateJournalSearchTerm', () => {
+      vi.spyOn(helpers, 'updateJournalSearchTerm').mockReturnValue('author:"star" pub:"ApJ"');
+      const state: ISearchInputState = {
+        ...initialState,
+        searchTerm: 'author:"star" pub:"ap"',
+        journalItems: journalOptions,
+        focused: 0,
+        isOpen: true,
+      };
+      const result = reducer(state, { type: 'CLICK_ITEM' });
+      expect(result.searchTerm).toBe('author:"star" pub:"ApJ"');
       expect(result.isOpen).toBe(false);
       expect(result.focused).toBe(-1);
     });
@@ -150,6 +182,9 @@ describe('SearchInput reducer', () => {
         payload: [uatItem],
       });
       expect(state.isOpen).toBe(true);
+      expect(state.focused).toBe(-1);
+      // Focus on the first item before clicking
+      state = reducer(state, { type: 'FOCUS_ITEM', index: 0 });
       expect(state.focused).toBe(0);
       vi.spyOn(helpers, 'updateUATSearchTerm').mockReturnValue('author:"star" uat:"Tektites"');
       state = reducer(state, { type: 'CLICK_ITEM' });
