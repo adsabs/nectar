@@ -52,7 +52,11 @@ export const updateUATSearchTerm = (searchTerm: string, value: string) => {
   return cleaned.trim() ? `${cleaned.trim()} uat:${value}` : `uat:${value}`;
 };
 
-export const updateJournalSearchTerm = (searchTerm: string, value: string, fieldType?: string) => {
+export const updateJournalSearchTerm = (
+  searchTerm: string,
+  value: string,
+  fieldType?: 'pub' | 'bibstem' | 'pub_abbrev' | null,
+) => {
   if (!searchTerm) {
     return value;
   }
@@ -64,7 +68,7 @@ export const updateJournalSearchTerm = (searchTerm: string, value: string, field
     // Check for incomplete quoted term at the end first (most likely case when typing)
     const incompleteMatch = searchTerm.match(/(pub|bibstem|pub_abbrev):"([^"]*)$/i);
     if (incompleteMatch) {
-      detectedFieldType = incompleteMatch[1].toLowerCase();
+      detectedFieldType = incompleteMatch[1].toLowerCase() as 'pub' | 'bibstem' | 'pub_abbrev';
     } else {
       // Check for completed terms at the end
       const terms = splitSearchTerms(searchTerm);
@@ -72,7 +76,7 @@ export const updateJournalSearchTerm = (searchTerm: string, value: string, field
         const lastTerm = terms[terms.length - 1];
         const match = lastTerm.match(/(pub|bibstem|pub_abbrev):"([^"]*)"?$/i);
         if (match) {
-          detectedFieldType = match[1].toLowerCase();
+          detectedFieldType = match[1].toLowerCase() as 'pub' | 'bibstem' | 'pub_abbrev';
         }
       }
     }
@@ -84,7 +88,7 @@ export const updateJournalSearchTerm = (searchTerm: string, value: string, field
     if (!fieldMatch) {
       return value;
     }
-    detectedFieldType = fieldMatch[1].toLowerCase();
+    detectedFieldType = fieldMatch[1].toLowerCase() as 'pub' | 'bibstem' | 'pub_abbrev';
   }
 
   // Find the specific field term to replace based on detected field type

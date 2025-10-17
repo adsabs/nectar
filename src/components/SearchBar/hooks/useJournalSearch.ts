@@ -100,7 +100,6 @@ export const useJournalSearch = ({ query, cursorPosition, dispatch }: UseJournal
     }
 
     dispatch({ type: 'SET_JOURNAL_TYPEAHEAD_OPTIONS', payload: data });
-    setJournalTerm('');
   }, [data, dispatch]);
 
   return { fieldType };
