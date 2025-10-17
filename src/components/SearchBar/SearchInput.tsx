@@ -19,11 +19,17 @@ import {
 import { ChangeEventHandler, Dispatch, useCallback, useEffect } from 'react';
 import { isNonEmptyString } from 'ramda-adjunct';
 import { ISearchInputState, SearchInputAction } from '@/components/SearchBar/searchInputReducer';
-import { getFocusedItemValue, getPreview } from '@/components/SearchBar/helpers';
+import {
+  getFocusedItemValue,
+  getPreview,
+  updateUATSearchTerm,
+  updateJournalSearchTerm,
+} from '@/components/SearchBar/helpers';
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { useFocus } from '@/lib/useFocus';
 import { useKeyDownHandler } from '@/components/SearchBar/hooks/useKeyDownHandler';
 import { useUATSearch } from '@/components/SearchBar/hooks/useUATSearch';
+import { useJournalSearch } from '@/components/SearchBar/hooks/useJournalSearch';
 import { TypeaheadItem } from '@/components/SearchBar/TypeaheadItem';
 import { useSyncWithGlobal } from '@/components/SearchBar/hooks/UseSyncWithGlobal';
 
@@ -45,6 +51,11 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
   const refs = useMergeRefs(ref, input);
   const onKeyDown = useKeyDownHandler({ isOpen: state.isOpen, dispatch });
   useUATSearch({ query: state.searchTerm, dispatch, cursorPosition: state.cursorPosition });
+  const journalSearchParams = useJournalSearch({
+    query: state.searchTerm,
+    dispatch,
+    cursorPosition: state.cursorPosition,
+  });
   useSyncWithGlobal({ searchTerm: state.searchTerm, dispatch });
 
   // handle updates to the cursor position, usually just to move inside "" or ()
@@ -91,9 +102,27 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
   const handleItemClick = useCallback(() => focus({ moveCursorToEnd: false }), [focus]);
 
   const value =
-    state.focused === -1 || !state.items.length
+    state.focused === -1 || (!state.items.length && !state.uatItems.length && !state.journalItems.length)
       ? state.searchTerm
-      : getPreview(state.searchTerm, getFocusedItemValue(state.items, state.focused));
+      : (() => {
+          const focusedValue = getFocusedItemValue(
+            state.items.length > 0 ? state.items : state.uatItems.length > 0 ? state.uatItems : state.journalItems,
+            state.focused,
+          );
+
+          if (focusedValue === null) {
+            return state.searchTerm;
+          }
+
+          // Use appropriate update function based on which type of items are showing
+          if (state.uatItems.length > 0) {
+            return updateUATSearchTerm(state.searchTerm, focusedValue);
+          } else if (state.journalItems.length > 0) {
+            return updateJournalSearchTerm(state.searchTerm, focusedValue, journalSearchParams?.fieldType);
+          } else {
+            return getPreview(state.searchTerm, focusedValue);
+          }
+        })();
 
   return (
     <Popover isOpen={state.isOpen} placement="bottom" gutter={0} matchWidth autoFocus={false} strategy="fixed">
@@ -190,6 +219,22 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
                     focused={state.focused === index}
                     showValue={false}
                     data-type="uat"
+                    data-index={index}
+                    data-testid="search-autocomplete-item"
+                  />
+                ))
+              : state.journalItems.length > 0
+              ? state.journalItems.map((item, index) => (
+                  <TypeaheadItem
+                    key={item.id}
+                    item={item}
+                    dispatch={dispatch}
+                    index={index}
+                    id={`search-item-${index}`}
+                    onClick={handleItemClick}
+                    focused={state.focused === index}
+                    showValue={false}
+                    data-type="journal"
                     data-index={index}
                     data-testid="search-autocomplete-item"
                   />
