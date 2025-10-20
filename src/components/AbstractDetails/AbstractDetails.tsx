@@ -1,7 +1,7 @@
 import { IDocsEntity } from '@/api/search/types';
 import { EXTERNAL_URLS } from '@/config';
 import { getReadablePublDate, pluralize } from '@/utils/common/formatters';
-import { ExternalLinkIcon } from '@chakra-ui/icons';
+import { ExternalLinkIcon, QuestionIcon } from '@chakra-ui/icons';
 import {
   Badge,
   Box,
@@ -297,7 +297,25 @@ Collections.displayName = 'Collections';
 const Bibgroups = memo(({ bibgroups }: { bibgroups: Array<string> }) => {
   const label = `Search for papers in this bibgroup`;
   return (
-    <Detail label={pluralize('Bibgroup', bibgroups?.length ?? 0)} value={bibgroups}>
+    <Detail
+      label={
+        <>
+          {pluralize('Bibgroup', bibgroups?.length ?? 0)}
+          <Tooltip
+            label={
+              <>
+                Click to learn about bibgroups <ExternalLinkIcon />
+              </>
+            }
+          >
+            <SimpleLink href="https://scixplorer.org/scixhelp/data_faq-scix/Bibgroups">
+              <QuestionIcon ml={2} />
+            </SimpleLink>
+          </Tooltip>
+        </>
+      }
+      value={bibgroups}
+    >
       {(bibgroups) => (
         <Flex flexWrap={'wrap'}>
           {bibgroups.map((bibgroup) => (
