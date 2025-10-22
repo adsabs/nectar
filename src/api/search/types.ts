@@ -221,7 +221,7 @@ export interface IDocsEntity {
   author?: string[];
   bibcode?: string;
   bibgroup_facet?: string;
-  bibgroup?: string;
+  bibgroup?: string[];
   bibstem_facet?: string;
   bibstem?: string[];
   body?: string;

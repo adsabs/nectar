@@ -1,7 +1,7 @@
 import { IDocsEntity } from '@/api/search/types';
 import { EXTERNAL_URLS } from '@/config';
 import { getReadablePublDate, pluralize } from '@/utils/common/formatters';
-import { ExternalLinkIcon } from '@chakra-ui/icons';
+import { ExternalLinkIcon, QuestionIcon } from '@chakra-ui/icons';
 import {
   Badge,
   Box,
@@ -100,8 +100,10 @@ export const AbstractDetails = ({ doc }: IDetailsProps): ReactElement => {
             newTab
           />
           <Detail label="Bibcode" value={doc.bibcode} copiable />
+          <Collections collections={doc.database ?? []} />
           <Keywords keywords={doc.keyword} />
           <UATKeywords keywords={doc.uat} ids={doc.uat_id} />
+          <Bibgroups bibgroups={doc.bibgroup ?? []} />
           <PlanetaryFeatures features={doc.planetary_feature} ids={doc.planetary_feature_id} />
           <Detail label="Comment(s)" value={doc.comment} />
           <Detail label="E-Print Comment(s)" value={doc.pubnote} />
@@ -256,6 +258,94 @@ const UATKeywords = memo(({ keywords, ids }: { keywords: Array<string>; ids: Arr
   );
 }, equals);
 UATKeywords.displayName = 'UATKeywords';
+
+const Collections = memo(({ collections }: { collections: Array<string> }) => {
+  const label = `Search for papers in this collection`;
+  return (
+    <Detail label={pluralize('Collection', collections?.length ?? 0)} value={collections}>
+      {(collections) => (
+        <Flex flexWrap={'wrap'}>
+          {collections.map((collection) => (
+            <Tag size="md" variant="subtle" whiteSpace="nowrap" m="1" key={collection}>
+              <HStack spacing="2">
+                <Text>{collection}</Text>
+                <SearchQueryLink
+                  params={{ q: `collection:"${collection}"` }}
+                  textDecoration="none"
+                  _hover={{
+                    color: 'gray.900',
+                  }}
+                  aria-label={label}
+                  fontSize="md"
+                >
+                  <Tooltip label={label}>
+                    <Center>
+                      <Icon as={MagnifyingGlassIcon} transform="rotate(90deg)" />
+                    </Center>
+                  </Tooltip>
+                </SearchQueryLink>
+              </HStack>
+            </Tag>
+          ))}
+        </Flex>
+      )}
+    </Detail>
+  );
+}, equals);
+Collections.displayName = 'Collections';
+
+const Bibgroups = memo(({ bibgroups }: { bibgroups: Array<string> }) => {
+  const label = `Search for papers in this bibgroup`;
+  return (
+    <Detail
+      label={
+        <>
+          {pluralize('Bibgroup', bibgroups?.length ?? 0)}
+          <Tooltip
+            label={
+              <>
+                Click to learn about bibgroups <ExternalLinkIcon />
+              </>
+            }
+          >
+            <SimpleLink href="https://scixplorer.org/scixhelp/data_faq-scix/Bibgroups">
+              <QuestionIcon ml={2} />
+            </SimpleLink>
+          </Tooltip>
+        </>
+      }
+      value={bibgroups}
+    >
+      {(bibgroups) => (
+        <Flex flexWrap={'wrap'}>
+          {bibgroups.map((bibgroup) => (
+            <Tag size="md" variant="subtle" whiteSpace="nowrap" m="1" key={bibgroup}>
+              <HStack spacing="2">
+                <Text>{bibgroup}</Text>
+                <SearchQueryLink
+                  params={{ q: `bibgroup:"${bibgroup}"` }}
+                  textDecoration="none"
+                  _hover={{
+                    color: 'gray.900',
+                  }}
+                  aria-label={label}
+                  fontSize="md"
+                >
+                  <Tooltip label={label}>
+                    <Center>
+                      <Icon as={MagnifyingGlassIcon} transform="rotate(90deg)" />
+                    </Center>
+                  </Tooltip>
+                </SearchQueryLink>
+              </HStack>
+            </Tag>
+          ))}
+        </Flex>
+      )}
+    </Detail>
+  );
+}, equals);
+Bibgroups.displayName = 'Bibgroups';
 
 const PlanetaryFeatures = memo(({ features, ids }: { features: Array<string>; ids: Array<string> }) => {
   const label = `Search for papers that mention this feature`;
