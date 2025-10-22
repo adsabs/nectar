@@ -11,6 +11,15 @@ interface UseUATSearchProps {
 }
 
 const getUATSearchTerm = (query: string, cursorPosition: number): string => {
+  // Check for incomplete quoted term at the end first (e.g., uat:"main sequence)
+  const incompleteMatch = query.match(/uat:"([^"]*)$/i);
+  if (incompleteMatch) {
+    const keyword = incompleteMatch[1];
+    const start = query.length - incompleteMatch[0].length + 'uat:"'.length;
+    const isWithin = cursorPosition >= start && cursorPosition <= query.length;
+    return isWithin ? keyword : '';
+  }
+
   const terms = splitSearchTerms(query);
   if (!terms || terms.length === 0) {
     return '';
