@@ -19,18 +19,23 @@ const SimilarPage: NextPage = () => {
   const doc = path<IDocsEntity>(['docs', 0], abstractResult);
   const pageIndex = router.query.p ? parseInt(router.query.p as string) - 1 : 0;
 
-  const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode);
+  const bibcode = doc?.bibcode ?? '';
+  const { getParams, onPageChange } = useGetAbstractParams(bibcode);
+  const shouldFetchSimilar = Boolean(bibcode);
   const { data, isSuccess, isLoading, isFetching, isError, error } = useGetSimilar(
     { ...getParams(), start: pageIndex * APP_DEFAULTS.RESULT_PER_PAGE },
-    { keepPreviousData: true },
+    {
+      keepPreviousData: true,
+      enabled: shouldFetchSimilar,
+    },
   );
-  const similarParams = getSimilarParams(doc?.bibcode, 0);
+  const similarParams = shouldFetchSimilar ? getSimilarParams(bibcode, 0) : null;
 
   return (
     <AbsLayout doc={doc} titleDescription="Papers similar to" label="Similar Papers">
       {isLoading || isFetching ? <ItemsSkeleton count={10} /> : null}
       {isError ? <StandardAlertMessage title={parseAPIError(error)} /> : null}
-      {isSuccess ? (
+      {isSuccess && doc && similarParams ? (
         <AbstractRefList
           doc={doc}
           docs={data.docs}

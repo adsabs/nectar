@@ -14,7 +14,7 @@ import { unwrapStringValue } from '@/utils/common/formatters';
 import { IDocsEntity } from '@/api/search/types';
 
 interface IAbsLayoutProps {
-  doc: IDocsEntity;
+  doc?: IDocsEntity | null;
   titleDescription: string;
   label: string;
 }
@@ -22,11 +22,9 @@ interface IAbsLayoutProps {
 export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription, label }) => {
   const { getSearchHref, show: showBackLink } = useBackToSearchResults();
 
-  if (!doc) {
-    return <>{children}</>;
-  }
-
-  const title = unwrapStringValue(doc?.title);
+  const hasDoc = Boolean(doc);
+  const title = hasDoc ? unwrapStringValue(doc.title) : '';
+  const pageTitle = hasDoc ? `${title} - ${BRAND_NAME_FULL} ${label}` : `${BRAND_NAME_FULL} ${label}`;
 
   return (
     <Stack direction="column" my={{ base: '6', lg: showBackLink ? '12' : '16' }}>
@@ -47,21 +45,21 @@ export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription
       )}
       <Stack direction={{ base: 'column', lg: 'row' }} spacing={6}>
         <Head>
-          <title>{`${unwrapStringValue(doc.title)} - ${BRAND_NAME_FULL} ${label}`}</title>
-          <Metatags doc={doc} />
+          <title>{pageTitle}</title>
+          {hasDoc ? <Metatags doc={doc} /> : null}
         </Head>
         <Stack direction="column">
           <Box display={{ base: 'none', lg: 'block' }} w="72">
-            <AbstractSources doc={doc} style="accordion" />
+            {hasDoc ? <AbstractSources doc={doc} style="accordion" /> : null}
           </Box>
-          <AbstractSideNav doc={doc} />
+          {hasDoc ? <AbstractSideNav doc={doc} /> : null}
         </Stack>
         <Stack direction="column" as="section" aria-labelledby="title" spacing={1} width="full">
           <Heading as="h2" id="abstract-subview-title" fontSize="2xl" variant="abstract">
             <Text as="span" fontSize="xl">
               {titleDescription}
             </Text>{' '}
-            <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
+            <Text as={MathJax} dangerouslySetInnerHTML={{ __html: title }} />
           </Heading>
           <div id="abstract-subview-content">{children}</div>
         </Stack>
