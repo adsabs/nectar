@@ -3,6 +3,7 @@ import { AppState, useStore } from '@/store';
 import { useCallback } from 'react';
 import { ISimpleLinkProps } from '@/components/SimpleLink';
 import { makeSearchParams } from '@/utils/common/search';
+import { useIsClient } from '@/lib/useIsClient';
 
 const selector = {
   latestQuery: (state: AppState) => state.latestQuery,
@@ -10,7 +11,9 @@ const selector = {
 
 export const useBackToSearchResults = () => {
   const latestQuery = useStore(selector.latestQuery);
-  const show = latestQuery.q !== '' && latestQuery.q !== '*:*';
+  const isClient = useIsClient();
+  const hasSearchQuery = latestQuery.q !== '' && latestQuery.q !== '*:*';
+  const show = isClient && hasSearchQuery;
 
   const getSearchHref = useCallback<() => ISimpleLinkProps['href']>(() => {
     const search = makeSearchParams({ ...latestQuery, p: calculatePage(latestQuery.start, latestQuery.rows) });
