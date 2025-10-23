@@ -43,6 +43,7 @@ import { SearchQueryLink } from '@/components/SearchQueryLink';
 import { ControlledPaginationControls } from '@/components/Pagination';
 import { AppState, useStore } from '@/store';
 import { NumPerPageType } from '@/types';
+import { isNumPerPageType } from '@/utils/common/guards';
 import { uniq } from 'ramda';
 
 interface ICitationHelperPageProps {
@@ -63,6 +64,13 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
   const colors = useColorModeColors();
 
   const pageSize = useStore((state: AppState) => state.numPerPage);
+  const safePageSize = useMemo<NumPerPageType>(() => {
+    if (isNumPerPageType(pageSize)) {
+      return pageSize;
+    }
+
+    return APP_DEFAULTS.RESULT_PER_PAGE;
+  }, [pageSize]);
 
   const setPageSize = useStore((state: AppState) => state.setNumPerPage);
 
@@ -82,11 +90,11 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
       return [];
     }
 
-    const startIndex = pagination.pageIndex * pageSize;
-    const endIndex = Math.min(startIndex + pageSize, suggestions.length);
+    const startIndex = pagination.pageIndex * safePageSize;
+    const endIndex = Math.min(startIndex + safePageSize, suggestions.length);
 
     return suggestions.slice(startIndex, endIndex);
-  }, [suggestions, pagination, pageSize]);
+  }, [suggestions, pagination.pageIndex, safePageSize]);
 
   const currentPageBibcodes = useMemo(() => {
     return shownSuggestions.map((s) => s.bibcode);
@@ -241,7 +249,7 @@ export const CitationHelperPage: NextPage<ICitationHelperPageProps> = ({ query, 
               <ControlledPaginationControls
                 entries={pagination.entries}
                 pageIndex={pagination.pageIndex}
-                pageSize={pageSize}
+                pageSize={safePageSize}
                 onChangePageSize={handleChangePageSize}
                 onChangePageIndex={handleChangePageIndex}
               />
