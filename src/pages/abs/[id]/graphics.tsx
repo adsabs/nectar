@@ -4,12 +4,14 @@ import NextImage from 'next/image';
 
 import { path } from 'ramda';
 import { AbsLayout } from '@/components/Layout';
-import { Box, Flex } from '@chakra-ui/react';
+import { Box, Center, Flex, Text } from '@chakra-ui/react';
 import { LoadingMessage } from '@/components/Feedbacks';
 import { SimpleLink } from '@/components/SimpleLink';
 import { useGetAbstract } from '@/api/search/search';
 import { IDocsEntity } from '@/api/search/types';
 import { useGetGraphics } from '@/api/graphics/graphics';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faImage } from '@fortawesome/free-solid-svg-icons';
 
 const GraphicsPage: NextPage = () => {
   const router = useRouter();
@@ -30,9 +32,28 @@ const GraphicsPage: NextPage = () => {
         </Box>
       )}
       {!isError && !isLoading && !graphics && (
-        <Box mt={5} fontSize="xl">
-          No graphics
-        </Box>
+        <Center mt={10}>
+          <Flex direction="column" align="center" gap={4}>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              w={{ base: 24, md: 28 }}
+              h={{ base: 24, md: 28 }}
+              borderRadius="full"
+              bg="gray.100"
+              color="gray.400"
+              boxShadow="inner"
+              role="img"
+              aria-label="No graphics available"
+            >
+              <FontAwesomeIcon icon={faImage} size="2x" aria-hidden="true" />
+            </Box>
+            <Text fontSize="lg" color="gray.500">
+              No graphics available
+            </Text>
+          </Flex>
+        </Center>
       )}
       {isLoading && <LoadingMessage message="Loading" />}
       {isSuccess && graphics && (
