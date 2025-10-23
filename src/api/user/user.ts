@@ -7,6 +7,7 @@ import {
   useQuery,
   UseQueryOptions,
 } from '@tanstack/react-query';
+import axios from 'axios';
 import { configWithCSRF, isValidToken } from '@/auth-utils';
 import { defaultRequestConfig } from '@/api/config';
 import {
@@ -23,6 +24,7 @@ import {
 import api, { ApiRequestConfig } from '@/api/api';
 import { ApiTargets } from '@/api/models';
 import { DEFAULT_USER_DATA } from '@/api/user/models';
+import { logger } from '@/logger';
 
 export enum UserKeys {
   USER_API_TOKEN = 'user-api-token',
@@ -142,6 +144,9 @@ const changeUserEmail = async (credentials: IUserChangeEmailCredentials) => {
   throw new Error('change-email-failed');
 };
 
+const cloneDefaultUserSettings = (): IADSApiUserDataResponse =>
+  JSON.parse(JSON.stringify(DEFAULT_USER_DATA)) as IADSApiUserDataResponse;
+
 export const fetchUserSettings: QueryFunction<IADSApiUserDataResponse> = async ({}) => {
   const config = {
     ...defaultRequestConfig,
@@ -149,8 +154,27 @@ export const fetchUserSettings: QueryFunction<IADSApiUserDataResponse> = async (
     url: ApiTargets.USER_DATA,
   };
 
-  const { data } = await api.request<IADSApiUserDataResponse>(config);
-  return data;
+  try {
+    const { data } = await api.request<IADSApiUserDataResponse>(config);
+    return data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const status = error.response?.status;
+      if (status === 401 || status === 403) {
+        logger.warn(
+          {
+            err: error,
+            status,
+            wasFallback: true,
+          },
+          'Unable to fetch user settings due to authorization failure; returning defaults',
+        );
+        return cloneDefaultUserSettings();
+      }
+    }
+
+    throw error;
+  }
 };
 
 export const updateUserSettings: MutationFunction<IADSApiUserDataResponse, Partial<IADSApiUserDataParams>> = async (
