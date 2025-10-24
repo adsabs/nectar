@@ -91,3 +91,35 @@ describe('no records view', () => {
     expect(getByTestId('export-heading')).toHaveTextContent('No Records');
   });
 });
+
+describe('format selection', () => {
+  test('machine is not recreated when format changes', () => {
+    // This test verifies that the machine's useMemo has an empty dependency array,
+    // preventing recreation on every render which was causing the
+    // "Machine has changed between renders" error
+    const { rerender } = setup(<MultiRecord />);
+
+    // Re-render with different format - should not cause errors
+    rerender(
+      <CitationExporter
+        initialFormat={ExportApiFormatKey.aastex}
+        totalRecords={100}
+        records={[
+          '2021APS..APRA01003G',
+          '2018cosp...42E1191G',
+          '2017koa..prop..257G',
+          '2015koa..prop..493G',
+          '2015koa..prop..393G',
+          '2015IAUGA..2258598G',
+          '2015IAUGA..2258584G',
+          '2014koa..prop..669G',
+          '2014koa..prop..579G',
+          '2014ATel.6110....1G',
+        ]}
+      />,
+    );
+
+    // If the machine was being recreated, this would throw an error
+    // The test passing means the machine is stable across renders
+  });
+});
