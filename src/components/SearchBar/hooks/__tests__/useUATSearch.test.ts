@@ -1,16 +1,18 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { useUATSearch } from '../useUATSearch';
 import { SearchInputAction } from '../../searchInputReducer';
 
+const baseOptions = [
+  { value: '"Main sequence"', label: 'Main sequence', desc: '', id: 1, match: [] },
+  { value: '"Main sequence stars"', label: 'Main sequence stars', desc: '', id: 2, match: [] },
+];
+
+const mockUseUATTermsSearchOptions = vi.fn();
+
 // Mock the UAT API
 vi.mock('@/api/uat/uat', () => ({
-  useUATTermsSearchOptions: vi.fn().mockReturnValue({
-    data: [
-      { value: '"Main sequence"', label: 'Main sequence', desc: '', id: 1, match: [] },
-      { value: '"Main sequence stars"', label: 'Main sequence stars', desc: '', id: 2, match: [] },
-    ],
-  }),
+  useUATTermsSearchOptions: (...args: unknown[]) => mockUseUATTermsSearchOptions(...args),
 }));
 
 // Mock useDebounce
@@ -23,6 +25,9 @@ describe('useUATSearch', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUseUATTermsSearchOptions.mockImplementation(() => ({
+      data: baseOptions.map((option) => ({ ...option })),
+    }));
   });
 
   test('detects UAT search term with spaces in complete quotes', () => {
@@ -146,5 +151,33 @@ describe('useUATSearch', () => {
         expect.objectContaining({ label: 'Main sequence stars' }),
       ]),
     });
+  });
+
+  test('completing a UAT selection does not reopen the menu', async () => {
+    const { rerender } = renderHook(
+      ({ query, cursorPosition }) =>
+        useUATSearch({
+          query,
+          cursorPosition,
+          dispatch: mockDispatch,
+        }),
+      {
+        initialProps: {
+          query: 'uat:"main sequence',
+          cursorPosition: 'uat:"main sequence'.length,
+        },
+      },
+    );
+
+    await waitFor(() => expect(mockDispatch).toHaveBeenCalled());
+
+    const initialDispatchCount = mockDispatch.mock.calls.length;
+
+    rerender({
+      query: 'uat:"main sequence"',
+      cursorPosition: 'uat:"main sequence"'.length,
+    });
+
+    await waitFor(() => expect(mockDispatch.mock.calls.length).toBe(initialDispatchCount));
   });
 });
