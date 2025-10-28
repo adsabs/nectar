@@ -1,4 +1,4 @@
-import { Dispatch, useEffect, useState } from 'react';
+import { Dispatch, useEffect, useRef, useState } from 'react';
 import { SearchInputAction } from '@/components/SearchBar/searchInputReducer';
 import { useJournalSearchOptions } from '@/api/journals/journals';
 import { useDebounce } from 'use-debounce';
@@ -81,6 +81,7 @@ const getJournalSearchTerm = (query: string, cursorPosition: number): string => 
 export const useJournalSearch = ({ query, cursorPosition, dispatch }: UseJournalSearchProps) => {
   const [journalTerm, setJournalTerm] = useState(() => getJournalSearchTerm(query, cursorPosition));
   const [debouncedTerm] = useDebounce(journalTerm, 200);
+  const lastDispatchedKey = useRef<string | null>(null);
 
   // Detect which field type is being used
   const fieldType = getJournalFieldType(query, cursorPosition);
@@ -95,12 +96,28 @@ export const useJournalSearch = ({ query, cursorPosition, dispatch }: UseJournal
 
   // Dispatch only if the new data is different from the previous
   useEffect(() => {
+    if (!fieldType) {
+      lastDispatchedKey.current = null;
+      return;
+    }
+
+    if (!debouncedTerm) {
+      lastDispatchedKey.current = null;
+      return;
+    }
+
     if (!data || data.length === 0) {
       return;
     }
 
+    const key = `${fieldType ?? 'unknown'}|${debouncedTerm}`;
+    if (lastDispatchedKey.current === key) {
+      return;
+    }
+
     dispatch({ type: 'SET_JOURNAL_TYPEAHEAD_OPTIONS', payload: data });
-  }, [data, dispatch]);
+    lastDispatchedKey.current = key;
+  }, [data, debouncedTerm, dispatch, fieldType]);
 
   return { fieldType };
 };

@@ -1,8 +1,7 @@
-import { Dispatch, useEffect, useState } from 'react';
+import { Dispatch, useEffect, useRef, useState } from 'react';
 import { SearchInputAction } from '@/components/SearchBar/searchInputReducer';
 import { useUATTermsSearchOptions } from '@/api/uat/uat';
 import { useDebounce } from 'use-debounce';
-import { splitSearchTerms } from '@/components/SearchBar/helpers';
 
 interface UseUATSearchProps {
   query: string;
@@ -11,42 +10,36 @@ interface UseUATSearchProps {
 }
 
 const getUATSearchTerm = (query: string, cursorPosition: number): string => {
-  // Check for incomplete quoted term at the end first (e.g., uat:"main sequence)
-  const incompleteMatch = query.match(/uat:"([^"]*)$/i);
-  if (incompleteMatch) {
-    const keyword = incompleteMatch[1];
-    const start = query.length - incompleteMatch[0].length + 'uat:"'.length;
-    const isWithin = cursorPosition >= start && cursorPosition <= query.length;
-    return isWithin ? keyword : '';
-  }
-
-  const terms = splitSearchTerms(query);
-  if (!terms || terms.length === 0) {
+  if (!query) {
     return '';
   }
 
-  const lastTerm = terms[terms.length - 1];
-  if (!lastTerm.toLowerCase().startsWith('uat:"')) {
+  const matches = Array.from(query.matchAll(/uat:"([^"]*)"?/gi));
+
+  if (matches.length === 0) {
     return '';
   }
 
-  const match = lastTerm.match(/uat:"([^"]*)"?$/i);
-  if (!match || !match[1]) {
-    return '';
+  for (const match of matches) {
+    const [fullMatch, value = ''] = match;
+    const matchIndex = match.index ?? 0;
+    const valueStart = matchIndex + 'uat:"'.length;
+    const hasClosingQuote = fullMatch.endsWith('"');
+    const valueEnd = hasClosingQuote ? matchIndex + fullMatch.length - 1 : query.length;
+
+    if (cursorPosition >= valueStart && cursorPosition <= valueEnd) {
+      return value;
+    }
   }
 
-  const keyword = match[1];
-  const start = query.length - lastTerm.length + 'uat:"'.length - 1;
-  const end = lastTerm.endsWith('"') ? query.length - 1 : query.length;
-
-  const isWithin = cursorPosition >= start && cursorPosition <= end;
-  return isWithin ? keyword : '';
+  return '';
 };
 
 export const useUATSearch = ({ query, cursorPosition, dispatch }: UseUATSearchProps) => {
   const [uatTerm, setUatTerm] = useState(() => getUATSearchTerm(query, cursorPosition));
   const [debouncedTerm] = useDebounce(uatTerm, 200);
   const { data } = useUATTermsSearchOptions({ term: debouncedTerm }, { enabled: !!debouncedTerm });
+  const lastDispatchedTerm = useRef<string | null>(null);
 
   // Update uatTerm only if it changes
   useEffect(() => {
@@ -56,11 +49,21 @@ export const useUATSearch = ({ query, cursorPosition, dispatch }: UseUATSearchPr
 
   // Dispatch only if the new data is different from the previous
   useEffect(() => {
+    if (!debouncedTerm) {
+      lastDispatchedTerm.current = null;
+      return;
+    }
+
     if (!data || data.length === 0) {
       return;
     }
 
+    if (lastDispatchedTerm.current === debouncedTerm) {
+      return;
+    }
+
     dispatch({ type: 'SET_UAT_TYPEAHEAD_OPTIONS', payload: data });
+    lastDispatchedTerm.current = debouncedTerm;
     setUatTerm('');
-  }, [data, dispatch]);
+  }, [data, debouncedTerm, dispatch]);
 };

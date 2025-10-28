@@ -1,5 +1,18 @@
-import { describe, expect, test } from 'vitest';
-import { getJournalSearchTerm, getJournalFieldType } from '@/components/SearchBar/hooks/useJournalSearch';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { renderHook, waitFor } from '@testing-library/react';
+import { getJournalSearchTerm, getJournalFieldType, useJournalSearch } from '@/components/SearchBar/hooks/useJournalSearch';
+import { SearchInputAction } from '@/components/SearchBar/searchInputReducer';
+
+const mockUseJournalSearchOptions = vi.fn();
+
+vi.mock('@/api/journals/journals', () => ({
+  useJournalSearchOptions: (...args: unknown[]) => mockUseJournalSearchOptions(...args),
+}));
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  mockUseJournalSearchOptions.mockReturnValue({ data: [] });
+});
 
 describe('Journal Search Term Extraction', () => {
   test('extracts term from complete pub: query', () => {
@@ -163,5 +176,52 @@ describe('Journal Search Term Extraction', () => {
   test('getJournalFieldType prioritizes last matching field', () => {
     const result = getJournalFieldType('pub:"first" bibstem:"second"', 26);
     expect(result).toBe('bibstem');
+  });
+});
+
+describe('useJournalSearch hook', () => {
+  const mockDispatch = vi.fn() as unknown as React.Dispatch<SearchInputAction>;
+  const baseOptions = [
+    { value: '"Astrophysical Journal"', label: 'Astrophysical Journal', desc: 'Bibstem: ApJ', id: 1, match: [] },
+  ];
+
+  beforeEach(() => {
+    mockUseJournalSearchOptions.mockImplementation(() => ({ data: baseOptions.map((opt) => ({ ...opt })) }));
+    mockDispatch.mockClear();
+  });
+
+  test('completing a journal selection does not reopen the menu', async () => {
+    const { rerender } = renderHook(
+      ({ query, cursorPosition }) =>
+        useJournalSearch({
+          query,
+          cursorPosition,
+          dispatch: mockDispatch,
+        }),
+      {
+        initialProps: {
+          query: 'pub:"Astrophysical Jour',
+          cursorPosition: 'pub:"Astrophysical Jour'.length,
+        },
+      },
+    );
+
+    await waitFor(() => expect(mockDispatch).toHaveBeenCalled());
+
+    const initialDispatchCount = mockDispatch.mock.calls.length;
+
+    rerender({
+      query: 'pub:"Astrophysical Journal"',
+      cursorPosition: 'pub:"Astrophysical Journal"'.length,
+    });
+
+    await waitFor(() => expect(mockDispatch.mock.calls.length).toBe(initialDispatchCount));
+
+    rerender({
+      query: 'author:"Smith"',
+      cursorPosition: 'author:"Smith"'.length,
+    });
+
+    await waitFor(() => expect(mockDispatch.mock.calls.length).toBe(initialDispatchCount));
   });
 });
