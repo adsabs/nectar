@@ -3,7 +3,7 @@ import { IYearHistogramSliderProps } from '@/components/SearchFacet/YearHistogra
 import { ISearchFacetsProps } from '@/components/SearchFacet';
 import { AppState, useStore, useStoreApi } from '@/store';
 import { last, omit, path } from 'ramda';
-import { GetServerSideProps, NextPage } from 'next';
+import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -468,6 +468,4 @@ const PartialResultsWarning = (props: { params: IADSApiSearchParams }) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async () => {
-  return { props: {} };
-};
+export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
