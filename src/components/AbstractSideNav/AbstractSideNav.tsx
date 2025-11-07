@@ -146,7 +146,7 @@ const useGetItems = ({
   return {
     menuItems: Object.values(items),
     // Finds the active item by comparing the current route
-    activeItem: Object.entries(items).find(([route]) => router.asPath.indexOf(`/${route}`) > -1)[1],
+    activeItem: Object.entries(items).find(([route]) => router.asPath.indexOf(`/${route}`) > -1)?.[1],
   };
 };
 
