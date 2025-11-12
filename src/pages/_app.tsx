@@ -12,6 +12,7 @@ import { isNilOrEmpty, notEqual } from 'ramda-adjunct';
 import { useUser } from '@/lib/useUser';
 import '../styles/styles.css';
 import '../styles/page-loader.css';
+import 'shepherd.js/dist/css/shepherd.css';
 import { logger } from '@/logger';
 import { GoogleTagManager, sendGTMEvent } from '@next/third-parties/google';
 import Head from 'next/head';

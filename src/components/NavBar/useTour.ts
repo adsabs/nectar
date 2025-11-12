@@ -1,0 +1,511 @@
+import { useShepherd } from 'react-shepherd';
+import { Step, StepOptions } from 'shepherd.js';
+import { offset } from '@floating-ui/react-dom';
+import { useRouter } from 'next/router';
+import { useBreakpointValue } from '@chakra-ui/react';
+
+export const useTour = () => {
+  const router = useRouter();
+  const Shepherd = useShepherd();
+  const isMobile = useBreakpointValue({ base: true, lg: false });
+  const landingPage = /^(|\/|\/classic-form|\/paper-form)$/;
+  const resultsPage = '/search';
+  const absPage = /\/abs\//;
+
+  const tour = new Shepherd.Tour({
+    useModalOverlay: true,
+    defaultStepOptions: {
+      // classes: 'class-1 class-2',
+      scrollTo: false,
+      cancelIcon: {
+        enabled: true,
+      },
+    },
+  });
+
+  let tourType = 'home';
+
+  if (router.pathname.match(landingPage)) {
+    tour.addSteps(getHomeSteps(isMobile));
+    tourType = 'home';
+  } else if (router.pathname === resultsPage) {
+    tour.addSteps(getResultsSteps());
+    tourType = 'results';
+  } else if (router.pathname.match(absPage)) {
+    tour.addSteps(getAbstractSteps(isMobile));
+    tourType = 'abstract';
+  } else {
+    tour.addSteps(getHomeSteps(isMobile));
+    tourType = 'none';
+  }
+
+  return { tourType, tour };
+};
+
+const getHomeSteps = (isMobile: boolean) => {
+  return [
+    {
+      id: 'search-input',
+      title: 'Search',
+      text: 'Enter your search terms; by default, returned results will match all of your terms. Some commonly searched fields will be displayed in the autocomplete. For example, type “collection:” to see available disciplinary collections. Learn more about <a href="https://scixplorer.org/adstoscix" target="_blank">SciX here</a>.',
+      attachTo: {
+        element: '#tour-search-input',
+        on: 'bottom',
+      },
+      classes: 'example-step-extra-class',
+      floatingUIOptions: {
+        middleware: [offset(10)],
+      },
+      buttons: [
+        {
+          text: 'Next',
+          action: function () {
+            this.next();
+          },
+        },
+      ],
+    },
+    {
+      id: 'theme-selector',
+      title: 'Change discipline',
+      text: 'Select a discipline to change the SciX home page and results layout. In addition, records from your selected discipline will be boosted when results are sorted by Relevancy.',
+      attachTo: {
+        element: '#tour-theme-selector',
+        on: 'bottom',
+      },
+      classes: 'example-step-extra-class',
+      floatingUIOptions: {
+        middleware: [offset(10)],
+      },
+      buttons: [
+        {
+          text: 'Next',
+          action: function () {
+            this.next();
+          },
+        },
+      ],
+    },
+    {
+      id: 'quick-fields',
+      title: 'Quick fields',
+      text: 'For a more targeted search, select the specific field(s) that you want to search, e.g. “author”.',
+      attachTo: {
+        element: '#quick-fields',
+        on: 'bottom',
+      },
+      classes: 'example-step-extra-class',
+      floatingUIOptions: {
+        middleware: [offset(10)],
+      },
+      buttons: [
+        {
+          text: 'Next',
+          action: function () {
+            this.next();
+          },
+        },
+      ],
+      showOn() {
+        const el = document.querySelector('#quick-fields');
+        return !!el && window.getComputedStyle(el).display !== 'none';
+      },
+    },
+    {
+      id: 'all-search-terms',
+      title: 'All search terms',
+      text: 'A list of all search fields is available for browsing.',
+      attachTo: {
+        element: '#all-search-terms',
+        on: 'bottom',
+      },
+      classes: 'example-step-extra-class',
+      floatingUIOptions: {
+        middleware: [offset(10)],
+      },
+      buttons: [
+        {
+          text: 'Next',
+          action: function () {
+            this.next();
+          },
+        },
+      ],
+    },
+    {
+      id: 'help-pages',
+      title: 'Help pages',
+      text: 'Our full help pages can be found here.',
+      attachTo: {
+        element: isMobile ? 'button[data-id="tour-main-menu"]' : 'button[data-id="tour-help-menu"]',
+        on: 'bottom',
+      },
+      classes: 'example-step-extra-class',
+      floatingUIOptions: {
+        middleware: [offset(10)],
+      },
+      buttons: [
+        {
+          text: 'Close',
+          action: function () {
+            this.next();
+          },
+        },
+      ],
+    },
+  ] as StepOptions[] | Step[];
+};
+
+const getResultsSteps = () => {
+  return [
+    {
+      id: 'sort-order',
+      title: 'Sort order',
+      text: 'Change the sort order to rerank results according to different metadata fields or metrics.',
+      attachTo: {
+        element: '#sort-order',
+        on: 'bottom',
+      },
+      classes: 'example-step-extra-class',
+      floatingUIOptions: {
+        middleware: [offset(10)],
+      },
+      buttons: [
+        {
+          text: 'Next',
+          action: function () {
+            this.next();
+          },
+        },
+      ],
+    },
+    {
+      id: 'theme-selector',
+      title: 'Change discipline',
+      text: 'Records from your selected discipline will be boosted when results are sorted by Relevancy.',
+      attachTo: {
+        element: '#tour-theme-selector',
+        on: 'bottom',
+      },
+      classes: 'example-step-extra-class',
+      floatingUIOptions: {
+        middleware: [offset(10)],
+      },
+      buttons: [
+        {
+          text: 'Next',
+          action: function () {
+            this.next();
+          },
+        },
+      ],
+    },
+    {
+      id: 'filters',
+      title: 'filters',
+      text: 'Filter your results using the panel: open a particular facet and select one or more options to filter the results',
+      attachTo: {
+        element: '#tour-search-facets',
+        on: 'right',
+      },
+      classes: 'example-step-extra-class',
+      floatingUIOptions: {
+        middleware: [offset(10)],
+      },
+      buttons: [
+        {
+          text: 'Next',
+          action: function () {
+            this.next();
+          },
+        },
+      ],
+    },
+    {
+      id: 'quick-icons',
+      title: 'Quick icons',
+      text: 'Quickly view available links for each resource (fulltext sources, citations and references, or data products), or share or cite a paper.',
+      attachTo: {
+        element: '#tour-quick-icons',
+        on: 'bottom',
+      },
+      classes: 'example-step-extra-class',
+      floatingUIOptions: {
+        middleware: [offset(10)],
+      },
+      buttons: [
+        {
+          text: 'Next',
+          action: function () {
+            this.next();
+          },
+        },
+      ],
+    },
+    {
+      id: 'view-abstract',
+      title: 'View abstract',
+      text: 'Click here to view a record’s abstract.',
+      attachTo: {
+        element: '#tour-view-abstract',
+        on: 'bottom',
+      },
+      classes: 'example-step-extra-class',
+      floatingUIOptions: {
+        middleware: [offset(10)],
+      },
+      buttons: [
+        {
+          text: 'Next',
+          action: function () {
+            this.next();
+          },
+        },
+      ],
+    },
+    {
+      id: 'view-highlights',
+      title: 'View highlights',
+      text: 'Turn on highlights to see the context of your search terms. Note that the length of returned highlights is limited by publishers.',
+      attachTo: {
+        element: '#menu-button-tour-view-highlights',
+        on: 'bottom',
+      },
+      classes: 'example-step-extra-class',
+      floatingUIOptions: {
+        middleware: [offset(10)],
+      },
+      buttons: [
+        {
+          text: 'Next',
+          action: function () {
+            this.next();
+          },
+        },
+      ],
+    },
+    {
+      id: 'bulk-actions',
+      title: 'Bulk actions',
+      text: 'Click here to export the bibliographic information of selected records. If you’re logged in, you can also save the records to a personal library and share with colleagues.  ',
+      attachTo: {
+        element: '#menu-button-tour-bulk-actions',
+        on: 'bottom',
+      },
+      classes: 'example-step-extra-class',
+      floatingUIOptions: {
+        middleware: [offset(10)],
+      },
+      buttons: [
+        {
+          text: 'Next',
+          action: function () {
+            this.next();
+          },
+        },
+      ],
+    },
+    {
+      id: 'explore',
+      title: 'Explore',
+      text: 'Click here to visualize your search results and find other relevant papers.',
+      attachTo: {
+        element: '#menu-button-tour-explore',
+        on: 'bottom',
+      },
+      classes: 'example-step-extra-class',
+      floatingUIOptions: {
+        middleware: [offset(10)],
+      },
+      buttons: [
+        {
+          text: 'Next',
+          action: function () {
+            this.next();
+          },
+        },
+      ],
+    },
+    {
+      id: 'email-notification',
+      title: 'Email notification',
+      text: 'Turn on email notifications for this query. This will generate daily or weekly emails which include new results',
+      attachTo: {
+        element: '#tour-email-notification',
+        on: 'bottom',
+      },
+      classes: 'example-step-extra-class',
+      floatingUIOptions: {
+        middleware: [offset(10)],
+      },
+      buttons: [
+        {
+          text: 'Close',
+          action: function () {
+            this.next();
+          },
+        },
+      ],
+    },
+  ] as StepOptions[] | Step[];
+};
+
+const getAbstractSteps = (isMobile: boolean) => {
+  return [
+    {
+      id: 'full-text-sources',
+      title: 'Full text sources',
+      text: 'Links out to full text versions of this item, possibly including publisher records, preprints, scans of historical materials, or links via your institution’s library.',
+      attachTo: {
+        element: isMobile ? '#menu-button-tour-full-text-sources' : '#accordion-button-tour-full-text-sources',
+        on: isMobile ? 'bottom' : 'right',
+      },
+      classes: 'example-step-extra-class',
+      floatingUIOptions: {
+        middleware: [offset(10)],
+      },
+      buttons: [
+        {
+          text: 'Next',
+          action: function () {
+            this.next();
+          },
+        },
+      ],
+    },
+    {
+      id: 'data-products',
+      title: 'Data products, related materials',
+      text: 'External links to related data products and software, or to related records within SciX.',
+      attachTo: {
+        element: isMobile ? '#menu-button-tour-data-products' : '#accordion-button-tour-data-products',
+        on: isMobile ? 'bottom' : 'right',
+      },
+      classes: 'example-step-extra-class',
+      floatingUIOptions: {
+        middleware: [offset(10)],
+      },
+      buttons: [
+        {
+          text: 'Next',
+          action: function () {
+            this.next();
+          },
+        },
+      ],
+    },
+    {
+      id: 'navigation',
+      title: 'abstract navigation',
+      text: 'Find more information about the record, including citations, references, or related records, view usage metrics, or export the bibliographic data in a variety of formats.',
+      attachTo: {
+        element: '#abstract-nav-menu',
+        on: isMobile ? 'bottom' : 'right',
+      },
+      classes: 'example-step-extra-class',
+      floatingUIOptions: {
+        middleware: [offset(10)],
+      },
+      buttons: [
+        {
+          text: 'Next',
+          action: function () {
+            this.next();
+          },
+        },
+      ],
+    },
+    {
+      id: 'authors-list',
+      title: 'Authors list',
+      text: 'Click an author’s name or their ORCID icon to search by their name or ORCID ID.',
+      attachTo: {
+        element: '#tour-authors-list',
+        on: 'bottom',
+      },
+      classes: 'example-step-extra-class',
+      floatingUIOptions: {
+        middleware: [offset(10)],
+      },
+      buttons: [
+        {
+          text: 'Next',
+          action: function () {
+            this.next();
+          },
+        },
+      ],
+    },
+    {
+      id: 'quick-citation-copy',
+      title: 'Quick citation copy',
+      text: 'Copy the formatted citation, ready to paste into your text editor.',
+      attachTo: {
+        element: '#tour-quick-citation-copy',
+        on: 'bottom',
+      },
+      classes: 'example-step-extra-class',
+      floatingUIOptions: {
+        middleware: [offset(10)],
+      },
+      buttons: [
+        {
+          text: 'Next',
+          action: function () {
+            this.next();
+          },
+        },
+      ],
+    },
+    {
+      id: 'add-to-library',
+      title: 'Add to library',
+      text: 'Add this record to one of your personal SciX libraries.',
+      attachTo: {
+        element: '#tour-add-to-library',
+        on: 'bottom',
+      },
+      classes: 'example-step-extra-class',
+      floatingUIOptions: {
+        middleware: [offset(10)],
+      },
+      showOn() {
+        return !!document.querySelector('#tour-add-to-library');
+      },
+      buttons: [
+        {
+          text: 'Close',
+          action: function () {
+            this.complete();
+          },
+        },
+      ],
+    },
+    {
+      id: 'log-in',
+      title: 'Get more by logging in',
+      text: ' Set your institutional library, add records to your personal SciX libraries and share with colleagues, or set other customizations with a free SciX account.',
+      attachTo: {
+        element: isMobile ? 'button[data-id="tour-main-menu"]' : '#menu-button-nav-menu-account',
+        on: 'bottom',
+      },
+      classes: 'example-step-extra-class',
+      floatingUIOptions: {
+        middleware: [offset(10)],
+      },
+      showOn() {
+        return !!document.querySelector(
+          isMobile ? 'button[data-id="tour-main-menu"]' : '#menu-button-nav-menu-account',
+        );
+      },
+      buttons: [
+        {
+          text: 'Close',
+          action: function () {
+            this.complete();
+          },
+        },
+      ],
+    },
+  ] as StepOptions[] | Step[];
+};
