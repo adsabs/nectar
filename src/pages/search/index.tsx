@@ -316,6 +316,7 @@ const SearchFacetFilters = (props: {
               onClick={onOpenFacet}
               top="240px"
               left="-28px"
+              id="tour-search-facets"
             >
               Show Filters
             </Button>
@@ -335,7 +336,7 @@ const SearchFacetFilters = (props: {
 
   if (showFilters) {
     return (
-      <Flex as="aside" aria-labelledby="search-facets" minWidth="250px" direction="column">
+      <Flex as="aside" aria-labelledby="search-facets" minWidth="250px" direction="column" id="tour-search-facets">
         <Flex mb={5}>
           <Heading as="h2" id="search-facets" fontSize="normal" flex="1">
             Filters
@@ -417,6 +418,7 @@ const SearchFacetFilters = (props: {
           onClick={handleToggleFilters}
           top="240px"
           left="-28px"
+          id="tour-search-facets"
         >
           Show Filters
         </Button>

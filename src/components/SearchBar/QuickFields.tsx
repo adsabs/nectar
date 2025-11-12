@@ -47,8 +47,8 @@ export const QuickFields = (props: IQuickFieldsProps): ReactElement => {
   );
 
   return (
-    <Flex direction="row" justifyContent="start" fontSize="md" gap={5} id="quick-fields" {...elProps}>
-      <HStack spacing={5} fontSize="md">
+    <Flex direction="row" justifyContent="start" fontSize="md" gap={5} {...elProps}>
+      <HStack spacing={5} fontSize="md" display={{ base: 'none', sm: 'inherit' }} id="quick-fields">
         <Text>QUICK FIELD: </Text>
         {!isClient
           ? null
@@ -62,7 +62,6 @@ export const QuickFields = (props: IQuickFieldsProps): ReactElement => {
                 data-cursor={term.cursorPos}
                 size="md"
                 data-testid="quickfield"
-                display={{ base: 'none', sm: 'initial' }}
               >
                 {term.title}
               </Button>

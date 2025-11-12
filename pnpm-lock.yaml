@@ -41,6 +41,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.10.5
         version: 11.14.1(@emotion/react@11.8.2(@babel/core@7.28.5)(@types/react@17.0.87)(react@18.3.1))(@types/react@17.0.87)(react@18.3.1)
+      '@floating-ui/react-dom':
+        specifier: ^2.1.6
+        version: 2.1.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@fortawesome/fontawesome-svg-core':
         specifier: ^6.7.0
         version: 6.7.2
@@ -221,9 +224,15 @@ importers:
       react-select:
         specifier: ^5.7.3
         version: 5.10.2(@babel/core@7.28.5)(@types/react@17.0.87)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-shepherd:
+        specifier: ^6.1.9
+        version: 6.1.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@4.9.5)
       set-cookie-parser:
         specifier: ^2.6.0
         version: 2.7.1
+      shepherd.js:
+        specifier: ^14.5.1
+        version: 14.5.1
       use-debounce:
         specifier: ^7.0.1
         version: 7.0.1(react@18.3.1)
@@ -954,8 +963,20 @@ packages:
   '@floating-ui/core@1.7.2':
     resolution: {integrity: sha512-wNB5ooIKHQc+Kui96jE/n69rHFWAVoxn5CAzL1Xdd8FG03cgY3MLO+GF9U3W737fYDSgPWA6MReKhBQBop6Pcw==}
 
+  '@floating-ui/core@1.7.3':
+    resolution: {integrity: sha512-sGnvb5dmrJaKEZ+LDIpguvdX3bDlEllmv4/ClQ9awcmCZrlx5jQyyMWFM5kBI+EyNOCDDiKk8il0zeuX3Zlg/w==}
+
   '@floating-ui/dom@1.7.2':
     resolution: {integrity: sha512-7cfaOQuCS27HD7DX+6ib2OrnW+b4ZBwDNnCcT0uTyidcmyWb03FnQqJybDBoCnpdxwBSfA94UAYlRCt7mV+TbA==}
+
+  '@floating-ui/dom@1.7.4':
+    resolution: {integrity: sha512-OOchDgh4F2CchOX94cRVqhvy7b3AFb+/rQXyswmzmGakRfkMgoWVjfnLWkRirfLEfuD4ysVW16eXzwt3jHIzKA==}
+
+  '@floating-ui/react-dom@2.1.6':
+    resolution: {integrity: sha512-4JX6rEatQEvlmgU80wZyq9RT96HZJa88q8hp0pBd+LrczeDI4o6uA2M+uvxngVHo4Ihr8uibXxH6+70zhAFrVw==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
 
   '@floating-ui/utils@0.2.10':
     resolution: {integrity: sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ==}
@@ -1783,8 +1804,12 @@ packages:
   '@rushstack/eslint-patch@1.12.0':
     resolution: {integrity: sha512-5EwMtOqvJMMa3HbmxLlF74e+3/HhwBTMcvt3nqVJgGCozO6hzIPOBlwm8mGVNR9SN2IJpxSnlxczyDjcn7qIyw==}
 
+  '@scarf/scarf@1.4.0':
+    resolution: {integrity: sha512-xxeapPiUXdZAE3che6f3xogoJPeZgig6omHEy1rIY5WVsB3H2BHNnZH+gHG6x91SCWyQCzWGsuL2Hh3ClO5/qQ==}
+
   '@sentry-internal/browser-utils@10.27.0':
     resolution: {integrity: sha512-17tO6AXP+rmVQtLJ3ROQJF2UlFmvMWp7/8RDT5x9VM0w0tY31z8Twc0gw2KA7tcDxa5AaHDUbf9heOf+R6G6ow==}
+    
     engines: {node: '>=18'}
 
   '@sentry-internal/feedback@10.27.0':
@@ -3368,6 +3393,10 @@ packages:
 
   deep-is@0.1.4:
     resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}
+
+  deepmerge-ts@7.1.5:
+    resolution: {integrity: sha512-HOJkrhaYsweh+W+e74Yn7YStZOilkoPb6fycpwNLKzSPtruFs48nYis0zy5yJz1+ktUhHxoRDJ27RQAWLIJVJw==}
+    engines: {node: '>=16.0.0'}
 
   defaults@1.0.4:
     resolution: {integrity: sha512-eFuaLoy/Rxalv2kr+lqMlUnrDWV+3j4pljOIJgLIhI058IQfWJ7vXhyEIHu+HtC738klGALYxOKDO0bQP3tg8A==}
@@ -5106,6 +5135,13 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
+  react-shepherd@6.1.9:
+    resolution: {integrity: sha512-kSFs7ER9+tDAQ9a80CGTaWHpuNf/6RNnnAqtPxFqZSt5NnlKi6T8/E93sYMPOibhvdtpG5pIZpeT3JI1+Ppqiw==}
+    peerDependencies:
+      react: ^18.2.0
+      react-dom: ^18.2.0
+      typescript: ^5.0.0
+
   react-style-singleton@2.2.3:
     resolution: {integrity: sha512-b6jSvxvVnyptAiLjbkWLE/lOnR4lfTtDAl+eUC7RZy+QQWc6wRzIV2CE6xBuMmDxc2qIihtDCZD5NPOFl7fRBQ==}
     engines: {node: '>=10'}
@@ -5320,6 +5356,13 @@ packages:
   shebang-regex@3.0.0:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
+
+  shepherd.js@14.5.1:
+    resolution: {integrity: sha512-VuvPvLG1QjNOLP7AIm2HGyfmxEIz8QdskvWOHwUcxLDibYWjLRBmCWd8LSL5FlwhBW7D/GU+3gNVC/ASxAWdxg==}
+    engines: {node: 18.* || >= 20}
+
+  shimmer@1.2.1:
+    resolution: {integrity: sha512-sQTKC1Re/rM6XyFM6fIAGHRPVGvyXfgzIDvzoq608vM+jeyVD0Tu1E6Np0Kc2zAIFWIj963V2800iF/9LPieQw==}
 
   side-channel-list@1.0.0:
     resolution: {integrity: sha512-FCLHtRD/gnpCiCHEiJLOwdmFP+wzCmDEkc9y7NsYxeF4u7Btsn1ZuwgwJGxImImHicJArLP4R0yX4c2KCrMrTA==}
@@ -6696,10 +6739,25 @@ snapshots:
     dependencies:
       '@floating-ui/utils': 0.2.10
 
+  '@floating-ui/core@1.7.3':
+    dependencies:
+      '@floating-ui/utils': 0.2.10
+
   '@floating-ui/dom@1.7.2':
     dependencies:
       '@floating-ui/core': 1.7.2
       '@floating-ui/utils': 0.2.10
+
+  '@floating-ui/dom@1.7.4':
+    dependencies:
+      '@floating-ui/core': 1.7.3
+      '@floating-ui/utils': 0.2.10
+
+  '@floating-ui/react-dom@2.1.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@floating-ui/dom': 1.7.4
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
 
   '@floating-ui/utils@0.2.10': {}
 
@@ -7585,6 +7643,9 @@ snapshots:
   '@rushstack/eslint-patch@1.12.0': {}
 
   '@sentry-internal/browser-utils@10.27.0':
+
+  '@scarf/scarf@1.4.0': {}
+
     dependencies:
       '@sentry/core': 10.27.0
 
@@ -9432,6 +9493,8 @@ snapshots:
       which-typed-array: 1.1.19
 
   deep-is@0.1.4: {}
+
+  deepmerge-ts@7.1.5: {}
 
   defaults@1.0.4:
     dependencies:
@@ -11450,6 +11513,13 @@ snapshots:
       - '@types/react'
       - supports-color
 
+  react-shepherd@6.1.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@4.9.5):
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      shepherd.js: 14.5.1
+      typescript: 4.9.5
+
   react-style-singleton@2.2.3(@types/react@17.0.87)(react@18.3.1):
     dependencies:
       get-nonce: 1.0.1
@@ -11731,6 +11801,14 @@ snapshots:
       shebang-regex: 3.0.0
 
   shebang-regex@3.0.0: {}
+
+  shepherd.js@14.5.1:
+    dependencies:
+      '@floating-ui/dom': 1.7.2
+      '@scarf/scarf': 1.4.0
+      deepmerge-ts: 7.1.5
+
+  shimmer@1.2.1: {}
 
   side-channel-list@1.0.0:
     dependencies:

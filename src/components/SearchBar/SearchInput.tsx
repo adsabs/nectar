@@ -146,6 +146,7 @@ export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) =
               placeholder="Search..."
               aria-label="Search"
               title="Search"
+              id="tour-search-input"
               maxLength={SEARCHBAR_MAX_LENGTH}
               onSelect={handleOnSelect}
               value={value}

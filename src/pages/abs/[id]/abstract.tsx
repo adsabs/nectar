@@ -73,7 +73,7 @@ const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated
       <Box as="article" aria-labelledby="title">
         {doc && (
           <Stack direction="column" gap={2}>
-            <Flex wrap="wrap" as="section" aria-labelledby="author-list">
+            <Flex wrap="wrap" as="section" aria-labelledby="author-list" id="tour-authors-list">
               <VisuallyHidden as="h2" id="author-list">
                 Authors
               </VisuallyHidden>
@@ -139,6 +139,7 @@ const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated
                       icon={<FolderPlusIcon />}
                       variant="ghost"
                       onClick={onOpenAddToLibrary}
+                      id="tour-add-to-library"
                     />
                   </Tooltip>
                 </Flex>

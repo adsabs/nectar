@@ -5,6 +5,7 @@ import {
   AccordionItem,
   AccordionPanel,
   Box,
+  Button,
   Drawer,
   DrawerBody,
   DrawerCloseButton,
@@ -17,6 +18,7 @@ import {
   Menu,
   MenuButton,
   useDisclosure,
+  useToast,
 } from '@chakra-ui/react';
 import { HamburgerIcon } from '@chakra-ui/icons';
 import { ReactElement, useRef } from 'react';
@@ -28,8 +30,14 @@ import { ListType } from './types';
 import { ColorModeMenu } from './ColorModeMenu';
 import { isBrowser } from '@/utils/common/guards';
 import { noop } from '@/utils/common/noop';
+import { useTour } from './useTour';
+import { useRouter } from 'next/router';
 
 export const NavMenus = (): ReactElement => {
+  const { tourType, tour } = useTour();
+  const router = useRouter();
+  const toast = useToast();
+
   const toggleMenu = () => {
     if (isOpen) {
       onClose();
@@ -47,6 +55,34 @@ export const NavMenus = (): ReactElement => {
     }
   };
 
+  const handleStartTour = () => {
+    if (isOpen) {
+      onClose();
+    }
+    if (tourType === 'home' && router.pathname !== '/') {
+      router.push('/').then(() => {
+        tour.start();
+      });
+    } else if (tourType === 'results' && !document.querySelector('#tour-search-facets')) {
+      toast({
+        title: 'How to use tour',
+        description: 'Try a search with more than one result to start the tour.',
+        status: 'warning',
+        isClosable: true,
+      });
+    } else if (tourType !== 'none') {
+      tour.start();
+    } else {
+      toast({
+        title: 'How to use tour',
+        description:
+          'You can start the tour at the landing page, search results page, or abstract page. Then click "Tour" again.',
+        status: 'warning',
+        isClosable: true,
+      });
+    }
+  };
+
   return (
     <Flex justifyContent="end">
       <Box display={{ lg: 'none' }} justifyContent="end">
@@ -58,6 +94,7 @@ export const NavMenus = (): ReactElement => {
             size="lg"
             onClick={toggleMenu}
             ref={hamburgerRef}
+            data-id="tour-main-menu"
           />
         </LightMode>
         <Drawer variant="navbar" isOpen={isOpen} placement="right" onClose={onClose} finalFocusRef={hamburgerRef}>
@@ -112,9 +149,16 @@ export const NavMenus = (): ReactElement => {
                   </AccordionPanel>
                 </AccordionItem>
                 <AccordionItem>
-                  <AccordionButton onClick={handleHelp}>
+                  <AccordionButton onClick={handleHelp} id="help-pages">
                     <Box flex="1" textAlign="left" fontWeight="medium">
                       Help
+                    </Box>
+                  </AccordionButton>
+                </AccordionItem>
+                <AccordionItem>
+                  <AccordionButton onClick={handleStartTour}>
+                    <Box flex="1" textAlign="left" fontWeight="medium">
+                      Tour
                     </Box>
                   </AccordionButton>
                 </AccordionItem>
@@ -126,11 +170,18 @@ export const NavMenus = (): ReactElement => {
       </Box>
       <Box display={{ base: 'none', lg: 'flex' }} flexDirection="row" mx={3} alignItems="center">
         {/* Cannot use stack here, will produce warning with popper in menu */}
+        <Button mx={2} onClick={handleStartTour}>
+          Tour
+        </Button>
         <FeedbackDropdown type={ListType.DROPDOWN} />
         <OrcidDropdown type={ListType.DROPDOWN} />
         <AboutDropdown type={ListType.DROPDOWN} />
         <Menu variant="navbar">
-          <MenuButton onClick={handleHelp} onKeyDown={(e) => (e.key === 'Enter' ? handleHelp() : noop())}>
+          <MenuButton
+            onClick={handleHelp}
+            onKeyDown={(e) => (e.key === 'Enter' ? handleHelp() : noop())}
+            data-id="tour-help-menu"
+          >
             Help
           </MenuButton>
         </Menu>

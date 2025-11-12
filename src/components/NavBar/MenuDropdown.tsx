@@ -40,7 +40,7 @@ export const MenuDropdown = (props: IMenuDropdownProps): ReactElement => {
   };
 
   return type === ListType.DROPDOWN ? (
-    <Menu variant="navbar">
+    <Menu variant="navbar" id={`nav-menu-${id}`}>
       <MenuButton>
         <HStack>
           <>{label}</> {hideChevron ? null : <ChevronDownIcon />}

@@ -41,6 +41,7 @@ export const Sort = <S extends SortType = SolrSort, F extends SortField = SolrSo
   props: ISortProps<S, F>,
 ): ReactElement => {
   const {
+    id,
     sort,
     onChange,
     options,
@@ -84,7 +85,7 @@ export const Sort = <S extends SortType = SolrSort, F extends SortField = SolrSo
   const sortContainerWidth = fullWidth ? 'full' : '250px';
 
   return (
-    <HStack spacing={0} data-testid="sort" alignItems="flex-end">
+    <HStack spacing={0} data-testid="sort" alignItems="flex-end" id={id}>
       <Box width={sortContainerWidth}>
         <SortSelect
           hideLabel={hideLabel}

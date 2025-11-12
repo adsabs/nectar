@@ -1,4 +1,4 @@
-import { IconButton, Menu, MenuButton, MenuItem, MenuList, useClipboard, useToast } from '@chakra-ui/react';
+import { Box, IconButton, Menu, MenuButton, MenuItem, MenuList, useClipboard, useToast } from '@chakra-ui/react';
 import { LockIcon, UnlockIcon } from '@chakra-ui/icons';
 import { processLinkData } from '@/components/AbstractSources/linkGenerator';
 import { SimpleAction } from '@/components/Orcid/SimpleAction';
@@ -165,7 +165,7 @@ export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDro
   };
 
   return (
-    <>
+    <Box id="tour-quick-icons">
       {/* orcid menu */}
       <SimpleAction doc={doc} />
       {/* full resources menu */}
@@ -290,6 +290,6 @@ export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDro
           </CopyToClipboard>
         </MenuList>
       </Menu>
-    </>
+    </Box>
   );
 };

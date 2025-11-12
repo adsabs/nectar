@@ -67,7 +67,7 @@ export const AppModeDropdown = (): ReactElement => {
         stylesTheme="theme"
         onChange={handleThemeChange}
         label="Select theme"
-        id="theme-selector"
+        id="tour-theme-selector"
         instanceId="theme-selector"
       />
     </Box>
