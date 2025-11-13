@@ -1,0 +1,52 @@
+name: Post Merge
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install Deps
+        run: SENTRYCLI_SKIP_DOWNLOAD=1 pnpm install
+
+      - name: Test
+        run: pnpm test:ci:upload
+
+      - name: Upload test results to Sentry
+        if: ${{ !cancelled() }}
+        uses: getsentry/prevent-action@v0
+        with:
+          token: ${{ secrets.SENTRY_PREVENT_TOKEN }}
+
+      - name: Upload Coverage
+        uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          fail_ci_if_error: false
+          files: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-nectar
+          verbose: true
