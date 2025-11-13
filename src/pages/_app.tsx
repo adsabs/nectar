@@ -55,8 +55,8 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
   return (
     <>
       <Head>
+        <title>{BRAND_NAME_FULL}</title>
         <DefaultMeta />
-        <title>{`${BRAND_NAME_FULL}`}</title>
       </Head>
       <Providers pageProps={pageProps as AppPageProps}>
         <AppModeRouter />
