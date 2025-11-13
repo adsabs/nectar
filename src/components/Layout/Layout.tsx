@@ -9,7 +9,6 @@ import dynamic from 'next/dynamic';
 import { Notification } from '@/components/Notification';
 import Head from 'next/head';
 import { Favicons } from '@/components/Favicons/Favicons';
-import { BRAND_NAME_FULL } from '@/config';
 import { LandingTabsStatic } from '@/components/LandingTabs';
 import { SiteAlert } from '../SiteAlert';
 
@@ -35,7 +34,6 @@ export const Layout: FC = ({ children }) => {
   return (
     <Flex direction="column">
       <Head>
-        <title>{`${BRAND_NAME_FULL}`}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="charset" content="utf-8" />
         <Favicons />
