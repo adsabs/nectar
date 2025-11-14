@@ -28,10 +28,16 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
   const [newAuthor, setNewAuthor] = useState<IAuthor>(null);
 
   // Existing row being edited
-  const [editAuthor, setEditAuthor] = useState<{ index: number; author: IAuthor; position: string }>({
-    index: -1,
+  const [editAuthor, setEditAuthor] = useState<{
+    index: number;
+    author: IAuthor;
+    position: string;
+    newPosition: string;
+  }>({
+    index: -1, // index in the current page
     author: null,
-    position: null,
+    position: null, // index (from 0) in the authors list
+    newPosition: null,
   });
 
   const newAuthorNameRef = useRef<HTMLInputElement>();
@@ -97,14 +103,20 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
   // Changes to fields for existing authors
 
   const handleEditAuthor = (e: MouseEvent<HTMLButtonElement>) => {
-    const index = parseInt(e.currentTarget.dataset['index']);
-    setEditAuthor({ index, author: authors[index], position: (index + 1).toString() });
+    const index = parseInt(e.currentTarget.dataset['index']); // index in the current page, starting at 0
+    const pos = parseInt(e.currentTarget.dataset['pos']); // position in the whole list, starting at 0
+    setEditAuthor({
+      index,
+      author: authors[pos],
+      position: (pos + 1).toString(),
+      newPosition: (pos + 1).toString(),
+    });
   };
 
   const handleEditPositionChange = (e: ChangeEvent<HTMLInputElement>) => {
     setEditAuthor((prev) => ({
       ...prev,
-      position: e.target.value,
+      newPosition: e.target.value,
     }));
   };
 
@@ -130,21 +142,27 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
   };
 
   const handleDeleteAuthor = (e: MouseEvent<HTMLButtonElement>) => {
-    const index = parseInt(e.currentTarget.dataset['index']);
-    remove(index);
+    const pos = parseInt(e.currentTarget.dataset['pos']);
+    remove(pos);
   };
 
   const handleApplyEditAuthor = () => {
-    update(editAuthor.index, editAuthor.author);
-    const newPosition = parseInt(editAuthor.position);
-    if (typeof newPosition === 'number' && newPosition > 0 && newPosition <= authors.length) {
-      move(editAuthor.index, parseInt(editAuthor.position) - 1);
+    const position = parseInt(editAuthor.position) - 1;
+    update(position, editAuthor.author);
+    const newPosition = parseInt(editAuthor.newPosition) - 1;
+    if (
+      typeof newPosition === 'number' &&
+      newPosition !== position &&
+      newPosition > 0 &&
+      newPosition <= authors.length
+    ) {
+      move(position, newPosition);
     }
-    setEditAuthor({ index: -1, author: null, position: null });
+    setEditAuthor({ index: -1, author: null, position: null, newPosition: null });
   };
 
   const handleCancelEditAuthor = () => {
-    setEditAuthor({ index: -1, author: null, position: null });
+    setEditAuthor({ index: -1, author: null, position: null, newPosition: null });
   };
 
   const handleKeydownEditAuthor = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -220,7 +238,7 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
                   <Input
                     size="sm"
                     onChange={handleEditPositionChange}
-                    value={editAuthor.position}
+                    value={editAuthor.newPosition}
                     type="number"
                     w={10}
                     onKeyDown={handleKeydownEditAuthor}
@@ -287,6 +305,7 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
                         variant="outline"
                         colorScheme="blue"
                         data-index={index}
+                        data-pos={row.index}
                         onClick={handleEditAuthor}
                       />
                       <IconButton
@@ -295,6 +314,7 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
                         variant="outline"
                         colorScheme="red"
                         data-index={index}
+                        data-pos={row.index}
                         onClick={handleDeleteAuthor}
                       />
                     </HStack>
