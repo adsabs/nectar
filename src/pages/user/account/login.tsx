@@ -1,4 +1,16 @@
-import { Button, Container, FormControl, FormLabel, Heading, Input, InputGroup, Stack } from '@chakra-ui/react';
+import {
+  Alert,
+  AlertIcon,
+  Button,
+  Container,
+  FormControl,
+  FormLabel,
+  Heading,
+  Input,
+  InputGroup,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
 
 import { NextPage } from 'next';
 import Head from 'next/head';
@@ -15,14 +27,18 @@ import { SimpleLink } from '@/components/SimpleLink';
 import { StandardAlertMessage } from '@/components/Feedbacks';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { IUserCredentials } from '@/api/user/types';
+import { NotificationId } from '@/store/slices';
+import { useStore } from '@/store';
 
 const initialParams: IUserCredentials = { email: '', password: '' };
 
 const Login: NextPage = () => {
-  const { reload } = useRouter();
+  const router = useRouter();
+  const { reload } = router;
   const [params, setParams] = useState<IUserCredentials>(initialParams);
   const [mainInputRef, focus] = useFocus<HTMLInputElement>({ selectTextOnFocus: false });
   const { reset: resetUser } = useUser();
+  const setNotification = useStore((state) => state.setNotification);
 
   const {
     mutate: submit,
@@ -78,6 +94,16 @@ const Login: NextPage = () => {
     }
   }, [isError, focus]);
 
+  useEffect(() => {
+    const setNotify = () => {
+      if (router.query.notify) {
+        setNotification(router.query.notify as NotificationId);
+      }
+    };
+    router.events.on('routeChangeComplete', setNotify);
+    return () => router.events.off('routeChangeComplete', setNotify);
+  }, [router, setNotification]);
+
   return (
     <>
       <Head>
@@ -91,6 +117,16 @@ const Login: NextPage = () => {
 
         <form onSubmit={handleSubmit} aria-labelledby="form-label">
           <Stack direction="column" spacing={4}>
+            <Alert status="info" variant="subtle">
+              <AlertIcon />
+              <Text fontSize="sm">
+                Your existing ADS credentials will work on SciX. If you don&apos;t have an account,{' '}
+                <SimpleLink href="/user/account/register" display="inline">
+                  register here
+                </SimpleLink>
+                .
+              </Text>
+            </Alert>
             <FormControl isRequired>
               <FormLabel>Email</FormLabel>
               <Input
