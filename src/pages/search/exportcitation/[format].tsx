@@ -1,42 +1,114 @@
-import { Alert, AlertIcon, Box, Flex, Heading, HStack } from '@chakra-ui/react';
+import { Alert, AlertIcon, Box, Flex, Heading, HStack, Skeleton, SkeletonText, VStack } from '@chakra-ui/react';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
 
-import { getExportCitationDefaultContext } from '@/components/CitationExporter/CitationExporter.machine';
 import { APP_DEFAULTS, BRAND_NAME_FULL } from '@/config';
-import { useIsClient } from '@/lib/useIsClient';
-import axios from 'axios';
-import { GetServerSideProps, NextPage } from 'next';
+import { NextPage } from 'next';
 import Head from 'next/head';
-import { last, map, prop } from 'ramda';
-import { dehydrate, QueryClient } from '@tanstack/react-query';
-import { composeNextGSSP } from '@/ssr-utils';
+import { last } from 'ramda';
 import { useSettings } from '@/lib/useSettings';
 import { useBackToSearchResults } from '@/lib/useBackToSearchResults';
-import { logger } from '@/logger';
 import { SimpleLink } from '@/components/SimpleLink';
 import { CitationExporter } from '@/components/CitationExporter';
 import { JournalFormatMap } from '@/components/Settings';
 import { parseQueryFromUrl } from '@/utils/common/search';
 import { unwrapStringValue } from '@/utils/common/formatters';
-import { parseAPIError } from '@/utils/common/parseAPIError';
 import { ExportApiFormatKey } from '@/api/export/types';
 import { IADSApiSearchParams } from '@/api/search/types';
-import { fetchSearchInfinite, searchKeys, useSearchInfinite } from '@/api/search/search';
-import { exportCitationKeys, fetchExportCitation, fetchExportFormats } from '@/api/export/export';
+import { useSearchInfinite } from '@/api/search/search';
+import { useRouter } from 'next/router';
+import { useMemo } from 'react';
 
-interface IExportCitationPageProps {
-  format: string;
-  query: IADSApiSearchParams;
-  referrer?: string; // this is currently used by the library
-  error?: {
-    status?: string;
-    message?: string;
-  };
-}
+const LoadingSkeleton = () => (
+  <Box>
+    {/* Top bar with record count and Next button */}
+    <Flex justify="space-between" align="center" mb={6}>
+      <Skeleton height="24px" width="350px" />
+      <Skeleton height="38px" width="110px" borderRadius="md" />
+    </Flex>
 
-const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
-  const { format, query, referrer } = props;
-  const isClient = useIsClient();
+    {/* Tabs */}
+    <Flex mb={6} borderBottomWidth="1px" borderColor="gray.200">
+      <Skeleton height="20px" width="130px" mb={3} mr={6} />
+      <Skeleton height="20px" width="140px" mb={3} />
+    </Flex>
+
+    {/* Main content grid */}
+    <Flex gap={8}>
+      {/* Left sidebar */}
+      <VStack align="stretch" spacing={6} width="570px" flexShrink={0}>
+        {/* Format dropdown */}
+        <Box>
+          <Skeleton height="18px" width="60px" mb={3} />
+          <Skeleton height="40px" width="100%" borderRadius="md" />
+          <Skeleton height="16px" width="110px" mt={2} />
+        </Box>
+
+        {/* Limit Records */}
+        <Box>
+          <Flex align="center" gap={2} mb={3}>
+            <Skeleton height="18px" width="110px" />
+            <Skeleton height="16px" width="16px" borderRadius="full" />
+          </Flex>
+          <Skeleton height="40px" width="100%" borderRadius="md" />
+        </Box>
+
+        {/* Submit button */}
+        <Skeleton height="44px" width="100%" borderRadius="md" />
+      </VStack>
+
+      {/* Right content area */}
+      <Box flex="1">
+        {/* Action buttons */}
+        <Flex justify="flex-end" mb={4} gap={3}>
+          <Skeleton height="36px" width="150px" borderRadius="md" />
+          <Skeleton height="36px" width="165px" borderRadius="md" />
+        </Flex>
+
+        {/* Citation text area */}
+        <Box borderWidth="1px" borderRadius="md" p={4} bg="gray.50" minHeight="450px">
+          <SkeletonText noOfLines={18} spacing={3} skeletonHeight="3" />
+        </Box>
+      </Box>
+    </Flex>
+  </Box>
+);
+
+const ExportCitationPage: NextPage = () => {
+  const router = useRouter();
+
+  // Parse query params using the same logic as SSR
+  const { format, query, referrer, hasQuery } = useMemo(() => {
+    if (!router.isReady) {
+      return { format: ExportApiFormatKey.bibtex, query: {} as IADSApiSearchParams, hasQuery: false };
+    }
+
+    const {
+      qid,
+      format: formatParam,
+      referrer,
+      ...rest
+    } = parseQueryFromUrl<{
+      qid?: string;
+      format?: string;
+      referrer?: string;
+    }>(router.asPath, { sortPostfix: 'id asc' });
+
+    const parsedFormat = typeof formatParam === 'string' ? formatParam : ExportApiFormatKey.bibtex;
+
+    const params: IADSApiSearchParams = {
+      rows: APP_DEFAULTS.EXPORT_PAGE_SIZE,
+      fl: ['bibcode'],
+      sort: rest.sort ?? APP_DEFAULTS.SORT,
+      ...(qid ? { q: `docs(${qid})` } : rest),
+    };
+
+    return {
+      format: parsedFormat,
+      query: params,
+      referrer,
+      hasQuery: !!(qid || rest.q),
+    };
+  }, [router.isReady, router.asPath]);
 
   // get export related user settings
   const { settings } = useSettings({
@@ -58,11 +130,63 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
           maxauthor: parseInt(settings.bibtexMaxAuthors),
         };
 
-  const { data, fetchNextPage, hasNextPage, error } = useSearchInfinite(query);
+  const { data, fetchNextPage, hasNextPage, error } = useSearchInfinite(query, {
+    enabled: router.isReady && hasQuery,
+  });
   const { getSearchHref, show: showSearchHref } = useBackToSearchResults();
 
-  // TODO: add more error handling here
+  if (!router.isReady) {
+    return (
+      <>
+        <Head>
+          <title>{`${BRAND_NAME_FULL} Export Citations`}</title>
+        </Head>
+        <Flex direction="column">
+          <HStack my={10}>
+            <Skeleton height="32px" width="32px" />
+            <Skeleton height="32px" width="200px" />
+          </HStack>
+          <Box pt="1">
+            <LoadingSkeleton />
+          </Box>
+        </Flex>
+      </>
+    );
+  }
+
+  if (!hasQuery) {
+    return (
+      <Flex direction="column">
+        <Alert status="error" mt={10}>
+          <AlertIcon />
+          No search query or query ID provided
+        </Alert>
+      </Flex>
+    );
+  }
+
   if (!data) {
+    return (
+      <>
+        <Head>
+          <title>{`${unwrapStringValue(query?.q)} - ${BRAND_NAME_FULL} Export Citations`}</title>
+        </Head>
+        <Flex direction="column">
+          <HStack my={10}>
+            {(referrer || showSearchHref) && <Skeleton height="32px" width="32px" />}
+            <Heading as="h2" fontSize="2xl">
+              Export Citations
+            </Heading>
+          </HStack>
+          <Box pt="1">
+            <LoadingSkeleton />
+          </Box>
+        </Flex>
+      </>
+    );
+  }
+
+  if (data.pages.length === 0 || !data.pages[0]?.response) {
     return null;
   }
 
@@ -82,7 +206,7 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
       <Flex direction="column">
         <HStack my={10}>
           {(referrer || showSearchHref) && (
-            <SimpleLink href={referrer ?? getSearchHref()}>
+            <SimpleLink href={typeof referrer === 'string' ? referrer : getSearchHref()}>
               <ChevronLeftIcon w={8} h={8} />
             </SimpleLink>
           )}
@@ -97,7 +221,7 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
               <AlertIcon />
               {error.message}
             </Alert>
-          ) : isClient ? (
+          ) : (
             <CitationExporter
               initialFormat={format}
               keyformat={keyformat}
@@ -111,103 +235,11 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
               page={data.pages.length - 1}
               sort={query.sort}
             />
-          ) : (
-            <CitationExporter.Static
-              initialFormat={format}
-              records={records}
-              totalRecords={numFound}
-              sort={query.sort}
-            />
           )}
         </Box>
       </Flex>
     </>
   );
 };
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-  const {
-    qid = null,
-    p,
-    format,
-    referrer = null,
-    ...query
-  } = parseQueryFromUrl<{ qid: string; format: string }>(ctx.req.url, { sortPostfix: 'id asc' });
-
-  if (!query && !qid) {
-    return {
-      props: {
-        format,
-        query,
-        qid,
-        referrer,
-        error: 'No Records',
-      },
-    };
-  }
-
-  const queryClient = new QueryClient();
-  const params: IADSApiSearchParams = {
-    rows: APP_DEFAULTS.EXPORT_PAGE_SIZE,
-    fl: ['bibcode'],
-    sort: query.sort ?? APP_DEFAULTS.SORT,
-    ...(qid ? { q: `docs(${qid})` } : query),
-  };
-
-  try {
-    // primary search, this is based on query params
-    const data = await queryClient.fetchInfiniteQuery({
-      queryKey: searchKeys.infinite(params),
-      queryFn: fetchSearchInfinite,
-      meta: { params },
-    });
-
-    const formatsData = await queryClient.fetchQuery({
-      queryKey: exportCitationKeys.manifest(),
-      queryFn: fetchExportFormats,
-    });
-
-    const formats = map(prop('route'), formatsData).map((r) => r.substring(1));
-
-    // extract bibcodes to use for export
-    const records = data.pages[0].response.docs.map((d) => d.bibcode);
-
-    const { params: exportParams } = getExportCitationDefaultContext({
-      format: formats.includes(format) ? format : ExportApiFormatKey.bibtex,
-      records,
-      singleMode: false,
-      sort: params.sort,
-    });
-
-    // fetch export string, format is pulled from the url
-    void (await queryClient.prefetchQuery({
-      queryKey: exportCitationKeys.primary(exportParams),
-      queryFn: fetchExportCitation,
-      meta: { params: exportParams },
-    }));
-
-    // react-query infinite queries cannot be serialized by next, currently.
-    // see https://github.com/tannerlinsley/react-query/issues/3301#issuecomment-1041374043
-
-    const dehydratedState = JSON.parse(JSON.stringify(dehydrate(queryClient)));
-
-    return {
-      props: {
-        format: exportParams.format,
-        query: params,
-        referrer,
-        dehydratedState,
-      },
-    };
-  } catch (error) {
-    logger.error({ msg: 'GSSP error in export citation page', error });
-    return {
-      props: {
-        query: params,
-        pageError: parseAPIError(error),
-        error: axios.isAxiosError(error) ? error.message : 'Unable to fetch data',
-      },
-    };
-  }
-});
 
 export default ExportCitationPage;
