@@ -6,6 +6,7 @@ import api from '@/api/api';
 import { dehydrate, hydrate, QueryClient } from '@tanstack/react-query';
 import { getNotification, NotificationId } from '@/store/slices';
 import { logger } from '@/logger';
+import { AppMode } from '@/types';
 
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { isUserData } from '@/auth-utils';
@@ -36,6 +37,8 @@ const updateUserStateSSR: IncomingGSSP = (ctx, prevResult) => {
         user: isUserData(userData) ? userData : {},
         // set notification if present
         notification: getNotification(ctx.query?.notify as NotificationId),
+        // set mode to ASTROPHYSICS if user came from legacy app
+        ...(ctx.req.session.legacyAppReferrer && { mode: AppMode.ASTROPHYSICS }),
       } as AppState,
       dehydratedState: dehydrate(qc),
     },
@@ -58,40 +61,41 @@ type IncomingGSSP = (
  * Props are merged, other properties will overwrite
  */
 export const composeNextGSSP = (...fns: IncomingGSSP[]) =>
-  withIronSessionSsr(async (ctx: GetServerSidePropsContext): Promise<
-    GetServerSidePropsResult<Record<string, unknown>>
-  > => {
-    ctx.res.setHeader('Cache-Control', 's-max-age=60, stale-while-revalidate=300');
+  withIronSessionSsr(
+    async (ctx: GetServerSidePropsContext): Promise<GetServerSidePropsResult<Record<string, unknown>>> => {
+      ctx.res.setHeader('Cache-Control', 's-max-age=60, stale-while-revalidate=300');
 
-    // only push if the list of fns does not already have the updater
-    if (!fns.includes(updateUserStateSSR)) {
-      fns.push(updateUserStateSSR);
-    }
-
-    api.setUserData(ctx.req.session.token);
-    let ssrProps = { props: {} };
-
-    for (const fn of fns) {
-      let result;
-      let props = {};
-      try {
-        // Ensure that the result is awaited properly and no promises remain unhandled
-        result = await fn(ctx, ssrProps); // Await the function result
-      } catch (error) {
-        logger.error({ error });
-        props = { pageError: parseAPIError(error) };
+      // only push if the list of fns does not already have the updater
+      if (!fns.includes(updateUserStateSSR)) {
+        fns.push(updateUserStateSSR);
       }
 
-      // Make sure the result is fully resolved and it's not a Promise
-      if (result && 'props' in result) {
-        // Check if result.props is a promise and await it if necessary
-        if (result.props instanceof Promise) {
-          result.props = await result.props;
+      api.setUserData(ctx.req.session.token);
+      let ssrProps = { props: {} };
+
+      for (const fn of fns) {
+        let result;
+        let props = {};
+        try {
+          // Ensure that the result is awaited properly and no promises remain unhandled
+          result = await fn(ctx, ssrProps); // Await the function result
+        } catch (error) {
+          logger.error({ error });
+          props = { pageError: parseAPIError(error) };
         }
-        props = { ...props, ...ssrProps.props, ...result.props }; // Spread properties safely
-      }
 
-      ssrProps = { ...ssrProps, ...result, props };
-    }
-    return ssrProps;
-  }, sessionConfig);
+        // Make sure the result is fully resolved and it's not a Promise
+        if (result && 'props' in result) {
+          // Check if result.props is a promise and await it if necessary
+          if (result.props instanceof Promise) {
+            result.props = await result.props;
+          }
+          props = { ...props, ...ssrProps.props, ...result.props }; // Spread properties safely
+        }
+
+        ssrProps = { ...ssrProps, ...result, props };
+      }
+      return ssrProps;
+    },
+    sessionConfig,
+  );
