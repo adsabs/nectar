@@ -11,6 +11,7 @@ import { theme } from './theme';
 import shallow from 'zustand/shallow';
 import * as Sentry from '@sentry/nextjs';
 import { IADSApiSearchParams } from './api/search/types';
+import { useGlobalErrorHandler } from './lib/useGlobalErrorHandler';
 
 const windowState = {
   navigationStart: performance?.timeOrigin || performance?.timing?.navigationStart || 0,
@@ -53,6 +54,9 @@ const Telemetry: FC = () => {
   const query = useStore((state) => state.query, shallow);
   const user = useStore((state) => state.user, shallow);
   const docs = useStore((state) => state.docs.current, shallow);
+
+  // Initialize global error handlers
+  useGlobalErrorHandler();
 
   useEffect(() => {
     try {

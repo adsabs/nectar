@@ -9,6 +9,7 @@ import crypto from 'crypto';
 import { identity } from 'ramda';
 import { IBootstrapPayload, IUserData } from '@/api/user/types';
 import { ApiTargets } from '@/api/models';
+import { handleAPIError } from '@/lib/errorHandler';
 
 export const isAuthenticated = (user: IUserData) =>
   isUserData(user) && (!user.anonymous || user.username !== 'anonymous@ads');
@@ -108,7 +109,12 @@ class Api {
 
   private async init() {
     this.service.interceptors.response.use(identity, (error: AxiosError & { canRefresh: boolean }) => {
-      log.error(error);
+      // Use global error handler (skip Sentry as React Query will handle it)
+      handleAPIError(error, error.config?.url, {
+        skipSentry: true, // Prevent duplicate Sentry reports from React Query
+        method: error.config?.method,
+        data: error.config?.data,
+      });
 
       if (this.udInvalidated) {
         return Promise.reject(error);
