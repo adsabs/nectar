@@ -1,6 +1,7 @@
 import { FunctionComponent, ReactNode, Suspense } from 'react';
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
+import { handleBoundaryError } from '@/lib/errorHandler';
 
 interface IWithErrorBoundaryProps {
   onReset?: () => void;
@@ -19,6 +20,12 @@ export const withErrorBoundary =
             onReset={() => {
               options?.onReset?.();
               reset();
+            }}
+            onError={(error, errorInfo) => {
+              // Use global error handler to log and report to Sentry
+              handleBoundaryError(error, errorInfo, {
+                component: WrappedComponent.displayName || WrappedComponent.name,
+              });
             }}
             fallbackRender={options.onErrorRender}
           >
