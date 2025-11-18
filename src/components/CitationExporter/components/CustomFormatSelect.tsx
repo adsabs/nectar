@@ -48,6 +48,7 @@ export const CustomFormatSelect = ({ dispatch }: ICustomFormatSelectProps) => {
       dispatch({ type: 'SET_CUSTOM_FORMAT', payload: selectedFormatOption.code });
       dispatch({ type: 'SUBMIT' });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // fetch when selection is changed
@@ -57,7 +58,7 @@ export const CustomFormatSelect = ({ dispatch }: ICustomFormatSelectProps) => {
       dispatch({ type: 'SET_CUSTOM_FORMAT', payload: selectedFormatOption.code });
       dispatch({ type: 'SUBMIT' });
     }
-  }, [selectedFormatOption]);
+  }, [selectedFormatOption, dispatch, formatCode, selectedFormatOption.code, selectedFormatOption.id]);
 
   const handleFormatCodeChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFormatCode(e.target.value);

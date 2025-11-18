@@ -73,7 +73,7 @@ export const AllAuthorsModal = ({ bibcode, label }: IAllAuthorsModalProps): Reac
     return () => {
       router.events.off('beforeHistoryChange', onClose);
     };
-  }, [onClose]);
+  }, [onClose, router.events]);
 
   // to avoid having to play with the forwarded ref, just focus here
   const handleSearchClear = () => {
