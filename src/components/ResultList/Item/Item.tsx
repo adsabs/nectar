@@ -14,6 +14,7 @@ import {
 import { AllAuthorsModal } from '@/components/AllAuthorsModal';
 import { APP_DEFAULTS } from '@/config';
 import { useIsClient } from '@/lib/useIsClient';
+import { useScrollRestoration } from '@/lib/useScrollRestoration';
 import { useStore } from '@/store';
 import { MathJax } from 'better-react-mathjax';
 import dynamic from 'next/dynamic';
@@ -78,15 +79,26 @@ export const Item = (props: IItemProps): ReactElement => {
 
   const colors = useColorModeColors();
 
+  // Scroll restoration - save position when navigating to abstract
+  const { saveScrollPosition } = useScrollRestoration();
+
   // citations
   const cite = useNormCite ? (
     typeof doc.citation_count_norm === 'number' && doc.citation_count_norm > 0 ? (
-      <SimpleLink href={{ pathname: `/abs/${bibcode}/citations`, search: 'p=1' }} newTab={linkNewTab}>
+      <SimpleLink
+        href={{ pathname: `/abs/${bibcode}/citations`, search: 'p=1' }}
+        newTab={linkNewTab}
+        onClick={saveScrollPosition}
+      >
         <Text>cited(n): {doc.citation_count_norm.toFixed(2)}</Text>
       </SimpleLink>
     ) : null
   ) : typeof doc.citation_count === 'number' && doc.citation_count > 0 ? (
-    <SimpleLink href={{ pathname: `/abs/${bibcode}/citations`, search: 'p=1' }} newTab={linkNewTab}>
+    <SimpleLink
+      href={{ pathname: `/abs/${bibcode}/citations`, search: 'p=1' }}
+      newTab={linkNewTab}
+      onClick={saveScrollPosition}
+    >
       cited: {doc.citation_count}
     </SimpleLink>
   ) : null;
@@ -94,7 +106,11 @@ export const Item = (props: IItemProps): ReactElement => {
   // credited
   const credited =
     Array.isArray(doc.credit) && doc.credit.length > 0 ? (
-      <SimpleLink href={{ pathname: `/abs/${bibcode}/credits`, search: 'p=1' }} newTab={linkNewTab}>
+      <SimpleLink
+        href={{ pathname: `/abs/${bibcode}/credits`, search: 'p=1' }}
+        newTab={linkNewTab}
+        onClick={saveScrollPosition}
+      >
         credited: {doc.credit.length}
       </SimpleLink>
     ) : null;
@@ -124,7 +140,12 @@ export const Item = (props: IItemProps): ReactElement => {
       </Flex>
       <Stack direction="column" width="full" spacing={0} mx={3} mt={2}>
         <Flex justifyContent="space-between" minH="40px">
-          <SimpleLink href={`/abs/${bibcode}/abstract`} fontWeight="semibold" className="article-title">
+          <SimpleLink
+            href={`/abs/${bibcode}/abstract`}
+            fontWeight="semibold"
+            className="article-title"
+            onClick={saveScrollPosition}
+          >
             <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
           </SimpleLink>
           <Flex alignItems="start" ml={1}>
