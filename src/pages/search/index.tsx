@@ -36,6 +36,7 @@ import {
 import { calculateStartIndex } from '@/components/ResultList/Pagination/usePagination';
 import { FormEventHandler, RefObject, useEffect, useRef, useState } from 'react';
 import { useIsClient } from '@/lib/useIsClient';
+import { useScrollRestoration } from '@/lib/useScrollRestoration';
 import { NumPerPageType } from '@/types';
 import Head from 'next/head';
 import { BRAND_NAME_FULL } from '@/config';
@@ -123,6 +124,9 @@ const SearchPage: NextPage = () => {
   const { data, isSuccess, isLoading, isFetching, error, isError } = useSearch(searchParams);
   const histogramContainerRef = useRef<HTMLDivElement>(null);
   const isClient = useIsClient();
+
+  // Scroll restoration hook - automatically restores scroll position when returning from abstract page
+  useScrollRestoration();
 
   const { isOpen: isAddToLibraryOpen, onClose: onCloseAddToLibrary, onOpen: onOpenAddToLibrary } = useDisclosure();
 
