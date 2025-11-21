@@ -9,6 +9,7 @@ declare module 'iron-session' {
     isAuthenticated?: boolean;
     apiCookieHash?: string;
     bot?: boolean;
+    legacyAppReferrer?: boolean;
   }
 }
 export {};
