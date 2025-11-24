@@ -191,7 +191,7 @@ export const getHighlightParams = (params: IADSApiSearchParams): IADSApiSearchPa
   ...params,
   fl: ['id'],
   hl: true,
-  'hl.fl': 'title,abstract,body,ack',
+  'hl.fl': 'title,abstract,body,ack,keyword,author',
   'hl.maxAnalyzedChars': 150000,
   'hl.requireFieldMatch': true,
   'hl.usePhraseHighlighter': true,
