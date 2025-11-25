@@ -3,8 +3,9 @@ import { Step, StepOptions } from 'shepherd.js';
 import { offset } from '@floating-ui/react-dom';
 import { useRouter } from 'next/router';
 import { useBreakpointValue } from '@chakra-ui/react';
+import { LocalSettings } from '@/types';
 
-export const useTour = () => {
+export const useTour = (type?: 'home' | 'results' | 'abstract') => {
   const router = useRouter();
   const Shepherd = useShepherd();
   const isMobile = useBreakpointValue({ base: true, lg: false });
@@ -21,28 +22,40 @@ export const useTour = () => {
         enabled: true,
       },
     },
+    exitOnEsc: true,
   });
 
-  let tourType = 'home';
+  const tourType = type
+    ? type
+    : router.pathname.match(landingPage)
+    ? 'home'
+    : router.pathname === resultsPage
+    ? 'results'
+    : router.pathname.match(absPage)
+    ? 'abstract'
+    : 'none';
 
-  if (router.pathname.match(landingPage)) {
+  if (tourType === 'home') {
     tour.addSteps(getHomeSteps(isMobile));
-    tourType = 'home';
-  } else if (router.pathname === resultsPage) {
+  } else if (tourType === 'results') {
     tour.addSteps(getResultsSteps());
-    tourType = 'results';
-  } else if (router.pathname.match(absPage)) {
+  } else if (tourType == 'abstract') {
     tour.addSteps(getAbstractSteps(isMobile));
-    tourType = 'abstract';
-  } else {
-    tour.addSteps(getHomeSteps(isMobile));
-    tourType = 'none';
   }
 
+  tour.on('start', () => {
+    if (tourType === 'home') {
+      localStorage.setItem(LocalSettings.SEEN_LANDING_TOUR, 'true');
+    } else if (tourType === 'results') {
+      localStorage.setItem(LocalSettings.SEEN_RESULTS_TOUR, 'true');
+    } else if (tourType === 'abstract') {
+      localStorage.setItem(LocalSettings.SEEN_ABSTRACT_TOUR, 'true');
+    }
+  });
   return { tourType, tour };
 };
 
-const getHomeSteps = (isMobile: boolean) => {
+export const getHomeSteps = (isMobile: boolean) => {
   return [
     {
       id: 'search-input',
@@ -156,7 +169,7 @@ const getHomeSteps = (isMobile: boolean) => {
   ] as StepOptions[] | Step[];
 };
 
-const getResultsSteps = () => {
+export const getResultsSteps = () => {
   return [
     {
       id: 'sort-order',
@@ -350,7 +363,7 @@ const getResultsSteps = () => {
   ] as StepOptions[] | Step[];
 };
 
-const getAbstractSteps = (isMobile: boolean) => {
+export const getAbstractSteps = (isMobile: boolean) => {
   return [
     {
       id: 'full-text-sources',
