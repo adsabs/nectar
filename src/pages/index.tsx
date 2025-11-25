@@ -14,7 +14,6 @@ import {
   StatLabel,
   StatNumber,
   Text,
-  useMediaQuery,
   VisuallyHidden,
 } from '@chakra-ui/react';
 
@@ -44,6 +43,10 @@ import { InfoIcon } from '@chakra-ui/icons';
 import { applyAdsModeDefaultsToQuery, trackAdsDefaultsApplied } from '@/lib/adsMode';
 import { AppMode } from '@/types';
 import { syncUrlDisciplineParam } from '@/utils/appMode';
+import { LocalSettings } from '@/types';
+import { getHomeSteps } from '@/components/NavBar';
+import { useShepherd } from 'react-shepherd';
+import { useScreenSize } from '@/lib/useScreenSize';
 
 const HomePage: NextPage = () => {
   const { settings } = useSettings();
@@ -64,6 +67,9 @@ const HomePage: NextPage = () => {
   const setUrlModePrevious = useStore((state) => state.setUrlModePrevious);
   const urlModeOverride = useStore((state) => state.urlModeOverride);
   const setUrlModeOverride = useStore((state) => state.setUrlModeOverride);
+  const Shepherd = useShepherd();
+  const { isScreenSmall, isScreenLarge } = useScreenSize();
+  const [isRendered, setIsRendered] = useState(false);
 
   useEffect(() => {
     const setNotify = () => {
@@ -109,6 +115,42 @@ const HomePage: NextPage = () => {
     clearSelectedDocs();
     setQuery('');
   }, [clearSelectedDocs]);
+
+  // tour should not start until the first element is rendered
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      const element = document.getElementById('tour-search-input');
+      if (element) {
+        setIsRendered(true);
+        observer.disconnect();
+      }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (isRendered && !localStorage.getItem(LocalSettings.SEEN_LANDING_TOUR)) {
+      const tour = new Shepherd.Tour({
+        useModalOverlay: true,
+        defaultStepOptions: {
+          // classes: 'class-1 class-2',
+          scrollTo: false,
+          cancelIcon: {
+            enabled: true,
+          },
+        },
+        exitOnEsc: true,
+      });
+      tour.addSteps(getHomeSteps(!isScreenLarge));
+      localStorage.setItem(LocalSettings.SEEN_LANDING_TOUR, 'true');
+      setTimeout(() => {
+        tour.start();
+      }, 1000);
+    }
+  }, [isRendered]);
 
   /**
    * Take in a query object and apply any FQ filters
@@ -187,8 +229,6 @@ const HomePage: NextPage = () => {
     [setQueryAddition],
   );
 
-  const [isMobile] = useMediaQuery('(max-width: 800px)');
-
   return (
     <Flex direction="column" aria-labelledby="form-title" my={8} alignItems="center" w="full">
       <form method="get" action="/search" onSubmit={handleOnSubmit}>
@@ -199,7 +239,7 @@ const HomePage: NextPage = () => {
           <Box my={2}>
             <SearchBar isLoading={isLoading} query={query} queryAddition={queryAddition} />
           </Box>
-          {isMobile ? (
+          {isScreenSmall ? (
             <>
               <Heading as="h3" my={5}>
                 <Center>
@@ -231,11 +271,11 @@ const Carousel = (props: { onExampleSelect: (text: string) => void }) => {
   const { onExampleSelect } = props;
 
   useEffect(() => {
-    setInitialPage(parseInt(localStorage.getItem('carousel') ?? '0', 10));
+    setInitialPage(parseInt(localStorage.getItem(LocalSettings.CAROUSEL) ?? '0', 10));
   }, []);
 
   const handlePageChange = (page: number) => {
-    localStorage.setItem('carousel', page.toString());
+    localStorage.setItem(LocalSettings.CAROUSEL, page.toString());
     setInitialPage(page);
   };
 

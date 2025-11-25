@@ -14,7 +14,7 @@ import { useRouter } from 'next/router';
 import { FolderPlusIcon } from '@heroicons/react/24/solid';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { logger } from '@/logger';
-import { feedbackItems } from '@/components/NavBar';
+import { feedbackItems, getAbstractSteps } from '@/components/NavBar';
 import { SearchQueryLink } from '@/components/SearchQueryLink';
 import { AbstractSources } from '@/components/AbstractSources';
 import { AddToLibraryModal } from '@/components/Libraries';
@@ -28,6 +28,10 @@ import { ApiTargets } from '@/api/models';
 import { stringifySearchParams } from '@/utils/common/search';
 import { getIronSession } from 'iron-session/edge';
 import { isAuthenticated } from '@/api/api';
+import { useShepherd } from 'react-shepherd';
+import { useScreenSize } from '@/lib/useScreenSize';
+import { LocalSettings } from '@/types';
+import { useEffect, useState } from 'react';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   () =>
@@ -63,6 +67,48 @@ const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated
   // process authors from doc
   const authors = useGetAuthors({ doc, includeAff: false });
   const { isOpen: isAddToLibraryOpen, onClose: onCloseAddToLibrary, onOpen: onOpenAddToLibrary } = useDisclosure();
+
+  const Shepherd = useShepherd();
+  const { isScreenLarge } = useScreenSize();
+  const [isRendered, setIsRendered] = useState(false);
+
+  // tour should not start until the first element is rendered
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      const element = document.getElementById(
+        isScreenLarge ? 'accordion-button-tour-full-text-sources' : 'menu-button-tour-full-text-sources',
+      );
+      if (element) {
+        setIsRendered(true);
+        observer.disconnect();
+      }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (isRendered && !localStorage.getItem(LocalSettings.SEEN_ABSTRACT_TOUR)) {
+      const tour = new Shepherd.Tour({
+        useModalOverlay: true,
+        defaultStepOptions: {
+          // classes: 'class-1 class-2',
+          scrollTo: false,
+          cancelIcon: {
+            enabled: true,
+          },
+        },
+        exitOnEsc: true,
+      });
+      tour.addSteps(getAbstractSteps(!isScreenLarge));
+      localStorage.setItem(LocalSettings.SEEN_ABSTRACT_TOUR, 'true');
+      setTimeout(() => {
+        tour.start();
+      }, 1000);
+    }
+  }, [isRendered]);
 
   const handleFeedback = () => {
     void router.push({ pathname: feedbackItems.record.path, query: { bibcode: doc.bibcode } });
