@@ -16,7 +16,6 @@ export const useTour = (type?: 'home' | 'results' | 'abstract') => {
   const tour = new Shepherd.Tour({
     useModalOverlay: true,
     defaultStepOptions: {
-      // classes: 'class-1 class-2',
       scrollTo: false,
       cancelIcon: {
         enabled: true,
@@ -385,6 +384,11 @@ export const getAbstractSteps = (isMobile: boolean) => {
           },
         },
       ],
+      showOn() {
+        return !!document.querySelector(
+          isMobile ? '#menu-button-tour-full-text-sources' : '#accordion-button-tour-full-text-sources',
+        );
+      },
     },
     {
       id: 'data-products',
@@ -406,6 +410,11 @@ export const getAbstractSteps = (isMobile: boolean) => {
           },
         },
       ],
+      showOn() {
+        return !!document.querySelector(
+          isMobile ? '#menu-button-tour-data-products' : '#accordion-button-tour-data-products',
+        );
+      },
     },
     {
       id: 'navigation',
@@ -448,6 +457,9 @@ export const getAbstractSteps = (isMobile: boolean) => {
           },
         },
       ],
+      showOn() {
+        return !!document.querySelector('#tour-authors-list');
+      },
     },
     {
       id: 'quick-citation-copy',
@@ -469,6 +481,9 @@ export const getAbstractSteps = (isMobile: boolean) => {
           },
         },
       ],
+      showOn() {
+        return !!document.querySelector('#tour-quick-citation-copy');
+      },
     },
     {
       id: 'add-to-library',
