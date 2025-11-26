@@ -155,3 +155,10 @@ pre {
   white-space: -o-pre-wrap; /* Opera 7 */
   word-wrap: break-word; /* Internet Explorer 5.5+ */
 }
+
+/* shepherd.js demo tour styles */
+.shepherd-element .shepherd-header .shepherd-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}

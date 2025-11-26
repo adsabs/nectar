@@ -94,7 +94,6 @@ const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated
       const tour = new Shepherd.Tour({
         useModalOverlay: true,
         defaultStepOptions: {
-          // classes: 'class-1 class-2',
           scrollTo: false,
           cancelIcon: {
             enabled: true,
