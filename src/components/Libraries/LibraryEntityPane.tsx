@@ -405,7 +405,7 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
                   options={biblibSortOptions}
                   disableWhenNoJs
                 />
-                <SearchQueryLink params={{ ...getSearchParams, q: `docs(library/${id})` }}>
+                <SearchQueryLink params={{ ...getSearchParams, q: `docs(library/${id})`, sort: 'date desc' }}>
                   View as search results
                 </SearchQueryLink>
               </Flex>
