@@ -12,6 +12,8 @@ export enum AppMode {
   BIO_PHYSICAL = 'BIO_PHYSICAL_SCIENCE',
 }
 
+export const ByADSModes = [AppMode.ASTROPHYSICS, AppMode.HELIOPHYSICS, AppMode.PLANET_SCIENCE];
+
 export enum LocalSettings {
   SEEN_LANDING_TOUR = 'seen-landing-tour',
   SEEN_ABSTRACT_TOUR = 'seen-abstract-tour',

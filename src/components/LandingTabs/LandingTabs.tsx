@@ -1,6 +1,6 @@
-import { Box, Center, Flex, HStack, Icon, Show, VisuallyHidden } from '@chakra-ui/react';
+import { Box, Center, Flex, HStack, Icon, Show, VisuallyHidden, Text, DarkMode } from '@chakra-ui/react';
 import { useStore } from '@/store';
-import { AppMode } from '@/types';
+import { AppMode, ByADSModes } from '@/types';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { CSSProperties, ReactElement } from 'react';
@@ -40,7 +40,9 @@ export const LandingTabs = (): ReactElement => {
         <Image src="/images/bg-planet.webp" alt="Jupiter in relief" fill style={imageStyle} priority />
       )}
       <Box padding={6} zIndex={5}>
-        <TitleLogo />
+        <DarkMode>
+          <TitleLogo />
+        </DarkMode>
       </Box>
       <Tabs show={mode === AppMode.ASTROPHYSICS} />
     </Flex>
@@ -85,10 +87,18 @@ const Tabs = ({ show }: { show: boolean }) => {
 };
 
 const TitleLogo = () => {
+  const mode = useStore((state) => state.mode);
+
   return (
     <Center>
       <Show above="sm">
         <Icon as={ScixAndNasaLogo_H} height="4em" width="25em" aria-hidden />
+        {ByADSModes.includes(mode) ? (
+          <>
+            <Text color="chakra-body-text">by ADS</Text>
+            <Image src="/images/ads-logo.svg" alt="ads logo" width={40} height={40} ml={3} />
+          </>
+        ) : null}
       </Show>
       <VisuallyHidden>Science Explorer</VisuallyHidden>
     </Center>
