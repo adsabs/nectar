@@ -34,12 +34,12 @@ import {
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { calculateStartIndex } from '@/components/ResultList/Pagination/usePagination';
-import { FormEventHandler, RefObject, useEffect, useRef, useState } from 'react';
+import { FormEventHandler, RefObject, useEffect, useMemo, useRef, useState } from 'react';
 import { useIsClient } from '@/lib/useIsClient';
 import { useScrollRestoration } from '@/lib/useScrollRestoration';
 import { NumPerPageType } from '@/types';
 import Head from 'next/head';
-import { BRAND_NAME_FULL } from '@/config';
+import { APP_DEFAULTS, BRAND_NAME_FULL } from '@/config';
 import { HideOnPrint } from '@/components/HideOnPrint';
 import { SearchBar } from '@/components/SearchBar';
 import { NumFound } from '@/components/NumFound';
@@ -51,13 +51,14 @@ import { XMarkIcon } from '@heroicons/react/20/solid';
 import { CustomInfoMessage } from '@/components/Feedbacks';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import { SimpleLink } from '@/components/SimpleLink';
-import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
+import { makeSearchParams, normalizeSolrSort, parseQueryFromUrl } from '@/utils/common/search';
 import { IADSApiSearchParams, IADSApiSearchResponse } from '@/api/search/types';
 import { SEARCH_API_KEYS, useSearch } from '@/api/search/search';
 import { defaultParams } from '@/api/search/models';
 import { solrDefaultSortDirection, SolrSort, SolrSortField } from '@/api/models';
 import { useApplyBoostTypeToParams } from '@/lib/useApplyBoostTypeToParams';
 import { SearchErrorAlert } from '@/components/SolrErrorAlert/SolrErrorAlert';
+import { useSettings } from '@/lib/useSettings';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
   () =>
@@ -103,6 +104,7 @@ const SearchPage: NextPage = () => {
   const setDocs = useStore(selectors.setDocs);
   const clearSelectedDocs = useStore(selectors.clearAllSelected);
   const sort = useStore(selectors.query).sort[0];
+  const { settings } = useSettings({ suspense: false });
 
   const queryClient = useQueryClient();
   const queries = queryClient.getQueriesData<IADSApiSearchResponse>([SEARCH_API_KEYS.primary]);
@@ -111,10 +113,24 @@ const SearchPage: NextPage = () => {
 
   // parse the query params from the URL, this should match what the server parsed
   const parsedParams = parseQueryFromUrl(router.asPath);
+  const hasSortParam = useMemo(() => {
+    const queryString = router.asPath.split('?')[1];
+    if (!queryString) {
+      return false;
+    }
+    return new URLSearchParams(queryString).has('sort');
+  }, [router.asPath]);
+  const preferredSortField = settings?.preferredSearchSort ?? APP_DEFAULTS.PREFERRED_SEARCH_SORT;
+  const preferredSort = useMemo(
+    () => normalizeSolrSort([`${preferredSortField} ${solrDefaultSortDirection[preferredSortField]}`]),
+    [preferredSortField],
+  );
+  const sortWithDefault = hasSortParam ? parsedParams.sort : preferredSort;
   const { params } = useApplyBoostTypeToParams({
     params: {
       ...defaultParams,
       ...parsedParams,
+      sort: sortWithDefault,
       rows: storeNumPerPage,
       start: calculateStartIndex(parsedParams.p, storeNumPerPage, numFound),
     },
