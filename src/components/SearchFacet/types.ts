@@ -61,6 +61,7 @@ export type SearchFacetID =
   | 'publications'
   | 'bibgroups'
   | 'simbad'
+  | 'award'
   | 'ned'
   | 'data'
   | 'vizier'
