@@ -79,6 +79,14 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
     storeId: 'ned',
     maxDepth: 1,
   },
+  award: {
+    label: 'Award',
+    field: 'grant_facet_hier' as FacetField,
+    logic: defaultLogic,
+    storeId: 'award',
+    hasChildren: true,
+    maxDepth: 1,
+  },
   data: {
     label: 'Data',
     field: 'data_facet' as FacetField,
