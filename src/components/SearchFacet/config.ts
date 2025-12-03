@@ -16,6 +16,7 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
     storeId: 'author',
     forceUppercaseInitial: false,
     maxDepth: 1,
+    isLowerCase: false,
   },
   collections: {
     label: 'Collections',
@@ -27,6 +28,7 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
       multiple: ['and', 'or'],
     },
     storeId: 'collections',
+    isLowerCase: false,
   },
   refereed: {
     label: 'Refereed',
@@ -36,6 +38,7 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
     filter: ['refereed', 'notrefereed'],
     storeId: 'refereed',
     noLoadMore: true,
+    isLowerCase: false,
   },
   institutions: {
     label: 'Institutions',
@@ -44,24 +47,28 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
     logic: defaultLogic,
     storeId: 'institutions',
     maxDepth: 1,
+    isLowerCase: false,
   },
   keywords: {
     label: 'Keywords',
     field: 'keyword_facet' as FacetField,
     logic: defaultLogic,
     storeId: 'keywords',
+    isLowerCase: false,
   },
   publications: {
     label: 'Publications',
     field: 'bibstem_facet' as FacetField,
     logic: defaultLogic,
     storeId: 'publications',
+    isLowerCase: false,
   },
   bibgroups: {
     label: 'Bibgroups',
     field: 'bibgroup_facet' as FacetField,
     logic: defaultLogic,
     storeId: 'bibgroups',
+    isLowerCase: false,
   },
   simbad: {
     label: 'SIMBAD Objects',
@@ -70,6 +77,7 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
     logic: defaultLogic,
     storeId: 'simbad',
     maxDepth: 1,
+    isLowerCase: false,
   },
   ned: {
     label: 'NED Objects',
@@ -78,6 +86,7 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
     logic: defaultLogic,
     storeId: 'ned',
     maxDepth: 1,
+    isLowerCase: false,
   },
   award: {
     label: 'Award',
@@ -86,18 +95,21 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
     storeId: 'award',
     hasChildren: true,
     maxDepth: 1,
+    isLowerCase: false,
   },
   data: {
     label: 'Data',
     field: 'data_facet' as FacetField,
     logic: defaultLogic,
     storeId: 'data',
+    isLowerCase: false,
   },
   vizier: {
     label: 'Vizier Tables',
     field: 'vizier_facet' as FacetField,
     logic: defaultLogic,
     storeId: 'vizier',
+    isLowerCase: false,
   },
   pubtype: {
     label: 'Publication Type',
@@ -106,6 +118,7 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
     logic: defaultLogic,
     storeId: 'pubtype',
     maxDepth: 1,
+    isLowerCase: false,
   },
   planetary: {
     label: 'Planetary Features',
@@ -114,13 +127,15 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
     logic: defaultLogic,
     storeId: 'planetary',
     maxDepth: 2,
+    isLowerCase: false,
   },
   uat: {
     label: 'UAT',
     field: 'uat_facet_hier' as FacetField,
-    hasChildren: false,
+    hasChildren: true,
     logic: defaultLogic,
     storeId: 'uat',
     noLoadMore: true,
+    isLowerCase: true,
   },
 };
