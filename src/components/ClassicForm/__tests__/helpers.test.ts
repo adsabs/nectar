@@ -148,4 +148,31 @@ describe('Classic Form Query Handling', () => {
     );
     expect(result.getAll('sort')).toStrictEqual(['score desc', 'date desc']);
   });
+
+  test('getSearchQuery applies ADS defaults when enabled', () => {
+    const state: IRawClassicFormState = {
+      limit: ['earthscience'],
+      sort: ['score desc'],
+      author: '',
+      logic_author: 'and',
+      object: '',
+      logic_object: 'and',
+      pubdate_start: '',
+      pubdate_end: '',
+      title: '',
+      logic_title: 'and',
+      abstract_keywords: '',
+      logic_abstract_keywords: 'and',
+      property: [],
+      bibstems: '',
+    };
+
+    const result = new URLSearchParams(getSearchQuery(state, { adsModeEnabled: true }));
+    expect(result.getAll('sort')).toStrictEqual(['date desc']);
+    const fqDatabase = result.get('fq_database');
+    expect(fqDatabase).toBeTruthy();
+    expect(fqDatabase).toContain('database:"astronomy"');
+    expect(fqDatabase).toContain('database:"physics"');
+    expect(result.getAll('fq')).toContain('{!type=aqp v=$fq_database}');
+  });
 });

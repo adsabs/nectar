@@ -41,6 +41,9 @@ import {
   UserIcon,
 } from '@heroicons/react/24/solid';
 import { InfoIcon } from '@chakra-ui/icons';
+import { applyAdsModeDefaultsToQuery, trackAdsDefaultsApplied } from '@/lib/adsMode';
+import { AppMode } from '@/types';
+import { syncUrlDisciplineParam } from '@/utils/appMode';
 
 const HomePage: NextPage = () => {
   const { settings } = useSettings();
@@ -52,16 +55,54 @@ const HomePage: NextPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const clearSelectedDocs = useStore((state) => state.clearAllSelected);
   const setNotification = useStore((state) => state.setNotification);
+  const adsModeActive = useStore((state) => state.adsMode.active);
+  const mode = useStore((state) => state.mode);
+  const setMode = useStore((state) => state.setMode);
+  const dismissModeNotice = useStore((state) => state.dismissModeNotice);
+  const dismissModeNoticeSilently = useStore((state) => state.dismissModeNoticeSilently);
+  const urlModePrevious = useStore((state) => state.urlModePrevious);
+  const setUrlModePrevious = useStore((state) => state.setUrlModePrevious);
+  const urlModeOverride = useStore((state) => state.urlModeOverride);
+  const setUrlModeOverride = useStore((state) => state.setUrlModeOverride);
 
   useEffect(() => {
     const setNotify = () => {
       if (router.query.notify) {
         setNotification(router.query.notify as NotificationId);
       }
+      dismissModeNoticeSilently();
+      if (urlModeOverride) {
+        const fallbackMode = urlModePrevious ?? AppMode.GENERAL;
+        if (mode !== fallbackMode) {
+          setMode(fallbackMode);
+        }
+        setUrlModeOverride(null);
+        void syncUrlDisciplineParam(router, fallbackMode);
+      }
+      if (adsModeActive && mode !== AppMode.ASTROPHYSICS) {
+        setMode(AppMode.ASTROPHYSICS);
+      }
+      if (!adsModeActive && urlModePrevious) {
+        setMode(urlModePrevious);
+      }
+      if (!adsModeActive) {
+        setUrlModePrevious(null);
+      }
     };
     router.events.on('routeChangeComplete', setNotify);
     return () => router.events.off('routeChangeComplete', setNotify);
-  }, [router, setNotification]);
+  }, [
+    router,
+    setNotification,
+    dismissModeNoticeSilently,
+    adsModeActive,
+    mode,
+    setMode,
+    urlModePrevious,
+    setUrlModePrevious,
+    urlModeOverride,
+    setUrlModeOverride,
+  ]);
 
   // clear search on mount
   useEffect(() => {
@@ -100,10 +141,22 @@ const HomePage: NextPage = () => {
       if (query && query.trim().length > 0) {
         setIsLoading(true);
         submitQuery();
+        if (adsModeActive && mode !== AppMode.ASTROPHYSICS) {
+          setMode(AppMode.ASTROPHYSICS);
+          dismissModeNotice();
+        }
+        const defaultedQuery = applyDefaultFilters({ q: query, sort, p: 1 }) as IADSApiSearchParams;
+        const { query: adsQuery, applied } = applyAdsModeDefaultsToQuery({
+          query: defaultedQuery,
+          adsModeEnabled: adsModeActive,
+        });
+        if (applied) {
+          trackAdsDefaultsApplied('home');
+        }
         void router
           .push({
             pathname: '/search',
-            search: makeSearchParams(applyDefaultFilters({ q: query, sort, p: 1 })),
+            search: makeSearchParams({ ...adsQuery, d: adsModeActive ? AppMode.ASTROPHYSICS : mode }),
           })
           .finally(() => {
             setIsLoading(false);

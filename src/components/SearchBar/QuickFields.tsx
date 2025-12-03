@@ -7,6 +7,7 @@ import { SearchInputAction } from '@/components/SearchBar/searchInputReducer';
 import { useStore } from '@/store';
 import { AppMode } from '@/types';
 import { isNil } from 'ramda';
+import { useIsClient } from '@/lib/useIsClient';
 
 export interface IQuickFieldsProps extends FlexProps {
   isLoading?: boolean;
@@ -17,6 +18,7 @@ export const QuickFields = (props: IQuickFieldsProps): ReactElement => {
   const { isLoading, dispatch, ...elProps } = props;
 
   const mode: AppMode = useStore((state) => state.mode);
+  const isClient = useIsClient();
 
   const handleQFSelect = useCallback(
     (e: MouseEvent<HTMLElement>) => {
@@ -48,21 +50,23 @@ export const QuickFields = (props: IQuickFieldsProps): ReactElement => {
     <Flex direction="row" justifyContent="start" fontSize="md" gap={5} id="quick-fields" {...elProps}>
       <HStack spacing={5} fontSize="md">
         <Text>QUICK FIELD: </Text>
-        {(quickfields[mode] ?? quickfields.default).map((term) => (
-          <Button
-            key={term.id}
-            onClick={handleQFSelect}
-            variant="link"
-            tabIndex={0}
-            data-value={term.value}
-            data-cursor={term.cursorPos}
-            size="md"
-            data-testid="quickfield"
-            display={{ base: 'none', sm: 'initial' }}
-          >
-            {term.title}
-          </Button>
-        ))}
+        {!isClient
+          ? null
+          : (quickfields[mode] ?? quickfields.default).map((term) => (
+              <Button
+                key={term.id}
+                onClick={handleQFSelect}
+                variant="link"
+                tabIndex={0}
+                data-value={term.value}
+                data-cursor={term.cursorPos}
+                size="md"
+                data-testid="quickfield"
+                display={{ base: 'none', sm: 'initial' }}
+              >
+                {term.title}
+              </Button>
+            ))}
       </HStack>
       <AllSearchTermsDropdown onSelect={handleASTSelect} />
     </Flex>

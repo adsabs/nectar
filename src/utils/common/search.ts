@@ -4,10 +4,11 @@ import qs from 'qs';
 import { isSolrSort, isString } from '@/utils/common/guards';
 import { APP_DEFAULTS } from '@/config';
 import { ParsedUrlQuery } from 'querystring';
-import { SafeSearchUrlParams } from '@/types';
+import { AppMode, SafeSearchUrlParams } from '@/types';
 import { SolrSort } from '@/api/models';
 import { IADSApiSearchParams } from '@/api/search/types';
 import { logger } from '@/logger';
+import { appModeToDisciplineParam, normalizeDisciplineParam } from '@/utils/appMode';
 
 const IGNORED_URL_KEYS = ['fl', 'start', 'rows', 'id', 'boostType'];
 
@@ -218,12 +219,17 @@ const omitSearchParams: (arg0: object) => object = omit(IGNORED_URL_KEYS);
  */
 export const makeSearchParams = (params: SafeSearchUrlParams, options: { omit?: string[] } = {}): string => {
   const cleanParams = omitSearchParams(params) as SafeSearchUrlParams & { p?: number; n?: number };
+  const disciplineParam =
+    appModeToDisciplineParam(cleanParams.d as unknown as AppMode) ??
+    normalizeDisciplineParam(cleanParams.d as unknown as string | string[]) ??
+    cleanParams.d;
   return stringifySearchParams(
     omit(options.omit ?? [], {
       ...cleanParams,
       sort: normalizeSolrSort(cleanParams.sort),
       p: parseNumberAndClamp(cleanParams?.p as unknown as string, 1),
       n: parseNumberWithEnumDefault(cleanParams?.n as unknown as string, APP_DEFAULTS.PER_PAGE_OPTIONS),
+      d: disciplineParam,
     }),
   );
 };
