@@ -1,4 +1,5 @@
 import DOMPurify from 'isomorphic-dompurify';
+import { AppMode } from '@/types';
 import {
   __,
   adjust,
@@ -43,6 +44,8 @@ import { CollectionChoice, IClassicFormState, IRawClassicFormState, LogicChoice,
 import { getTerms } from '@/query';
 import { APP_DEFAULTS } from '@/config';
 import { makeSearchParams } from '@/utils/common/search';
+import { applyAdsModeDefaultsToQuery } from '@/lib/adsMode';
+import { IADSApiSearchParams } from '@/api/search/types';
 
 const DEFAULT_PREFIXES = ['-', '+', '='];
 const NOT_PREFIX = ['-'];
@@ -301,9 +304,16 @@ export const getBibstems = (bibstems: string) => {
 /**
  * Run classic form parameters through parsers and generate URL query string
  */
-export const getSearchQuery = (params: IRawClassicFormState): string => {
+export const getSearchQuery = (
+  params: IRawClassicFormState,
+  options: { adsModeEnabled?: boolean; mode?: AppMode } = {},
+): string => {
   if (isEmpty(params)) {
-    return makeSearchParams({ q: APP_DEFAULTS.EMPTY_QUERY });
+    const { query } = applyAdsModeDefaultsToQuery({
+      query: { q: APP_DEFAULTS.EMPTY_QUERY, sort: APP_DEFAULTS.SORT } as IADSApiSearchParams,
+      adsModeEnabled: options.adsModeEnabled ?? false,
+    });
+    return makeSearchParams({ ...query, d: options.adsModeEnabled ? AppMode.ASTROPHYSICS : options.mode });
   }
 
   // sanitize strings
@@ -335,8 +345,15 @@ export const getSearchQuery = (params: IRawClassicFormState): string => {
     getBibstems(cleanParams.bibstems),
   ]);
 
-  return makeSearchParams({
+  const queryParams: IADSApiSearchParams = {
     q: query,
     sort: cleanParams.sort,
+  };
+
+  const { query: adsQuery } = applyAdsModeDefaultsToQuery({
+    query: queryParams,
+    adsModeEnabled: options.adsModeEnabled ?? false,
   });
+
+  return makeSearchParams({ ...adsQuery, d: options.adsModeEnabled ? AppMode.ASTROPHYSICS : options.mode });
 };

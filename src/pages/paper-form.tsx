@@ -39,6 +39,10 @@ import { BibstemPicker } from '@/components/BibstemPicker';
 import { stringifySearchParams } from '@/utils/common/search';
 import { fetchVaultSearch, vaultKeys } from '@/api/vault/vault';
 import { SimpleLink } from '@/components/SimpleLink';
+import { applyAdsModeDefaultsToQuery, trackAdsDefaultsApplied } from '@/lib/adsMode';
+import { IADSApiSearchParams } from '@/api/search/types';
+import { AppMode } from '@/types';
+import { syncUrlDisciplineParam } from '@/utils/appMode';
 
 const MAX_SIMPLE_QUERY_BIBCODES = 50;
 
@@ -78,17 +82,64 @@ const PaperForm: NextPage<{ error?: IPaperFormServerError }> = ({ error: ssrErro
 
   const clearSelectedDocs = useStore((state) => state.clearAllSelected);
   const { clearQuery } = useIntermediateQuery();
+  const adsModeActive = useStore((state) => state.adsMode.active);
+  const mode = useStore((state) => state.mode);
+  const setMode = useStore((state) => state.setMode);
+  const urlModePrevious = useStore((state) => state.urlModePrevious);
+  const setUrlModePrevious = useStore((state) => state.setUrlModePrevious);
+  const urlModeOverride = useStore((state) => state.urlModeOverride);
+  const setUrlModeOverride = useStore((state) => state.setUrlModeOverride);
+  const dismissModeNotice = useStore((state) => state.dismissModeNotice);
+  const dismissModeNoticeSilently = useStore((state) => state.dismissModeNoticeSilently);
 
   // clear search on mount
   useEffect(() => {
     clearSelectedDocs();
     clearQuery();
-  }, [clearQuery, clearSelectedDocs]);
+    dismissModeNoticeSilently();
+    if (urlModeOverride) {
+      const fallbackMode = urlModePrevious ?? AppMode.GENERAL;
+      if (mode !== fallbackMode) {
+        setMode(fallbackMode);
+      }
+      setUrlModeOverride(null);
+      void syncUrlDisciplineParam(router, fallbackMode);
+    }
+    if (adsModeActive && mode !== AppMode.ASTROPHYSICS) {
+      setMode(AppMode.ASTROPHYSICS);
+    }
+    if (!adsModeActive && urlModePrevious) {
+      setMode(urlModePrevious);
+    }
+    if (!adsModeActive) {
+      setUrlModePrevious(null);
+    }
+  }, [
+    adsModeActive,
+    clearQuery,
+    clearSelectedDocs,
+    dismissModeNoticeSilently,
+    mode,
+    setMode,
+    urlModePrevious,
+    setUrlModePrevious,
+    urlModeOverride,
+    setUrlModeOverride,
+    router,
+  ]);
 
   const handleSubmit = useCallback(
     async (params: PaperFormState[PaperFormType]) => {
       try {
-        await router.push(await getSearchQuery(params, queryClient));
+        const destination = await getSearchQuery(params, queryClient, adsModeActive, mode);
+        if (adsModeActive && mode !== AppMode.ASTROPHYSICS) {
+          setMode(AppMode.ASTROPHYSICS);
+          dismissModeNotice();
+        }
+        if (adsModeActive) {
+          trackAdsDefaultsApplied('paper_form');
+        }
+        await router.push(destination);
       } catch (e) {
         setError({ form: params.form, message: (e as Error).message });
       }
@@ -342,7 +393,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
     const body = (ctx.req as ReqWithBody).body;
 
     try {
-      const destination = await getSearchQuery(body, queryClient);
+      const destination = await getSearchQuery(body, queryClient, false, mode);
 
       return {
         props: {},
@@ -395,11 +446,18 @@ const createQuery = pipe<
   join(' '),
 );
 
-const stringifyQuery = (q: string) => {
+const stringifyQuery = (q: string, adsModeEnabled: boolean, mode?: AppMode) => {
+  const { query } = applyAdsModeDefaultsToQuery({
+    query: {
+      q,
+      sort: APP_DEFAULTS.SORT,
+    } as IADSApiSearchParams,
+    adsModeEnabled,
+  });
   return stringifySearchParams({
-    q,
-    sort: APP_DEFAULTS.SORT,
+    ...query,
     p: 1,
+    d: adsModeEnabled ? AppMode.ASTROPHYSICS : mode,
   });
 };
 
@@ -414,11 +472,16 @@ const journalQueryNotEmpty = pipe<
   any((v) => v.length > 0),
 );
 
-const getSearchQuery = async (formParams: PaperFormState[PaperFormType], queryClient: QueryClient) => {
+const getSearchQuery = async (
+  formParams: PaperFormState[PaperFormType],
+  queryClient: QueryClient,
+  adsModeEnabled = false,
+  mode?: AppMode,
+) => {
   switch (formParams.form) {
     case PaperFormType.JOURNAL_QUERY: {
       if (journalQueryNotEmpty(formParams)) {
-        return `/search?${stringifyQuery(createQuery(formParams))}`;
+        return `/search?${stringifyQuery(createQuery(formParams), adsModeEnabled, mode)}`;
       }
       throw new Error('Journal query was empty');
     }
@@ -433,7 +496,7 @@ const getSearchQuery = async (formParams: PaperFormState[PaperFormType], queryCl
         });
 
         if (resolved.score !== '0.0' && typeof resolved.bibcode === 'string') {
-          return `/search?${stringifyQuery(`bibcode:${resolved.bibcode}`)}`;
+          return `/search?${stringifyQuery(`bibcode:${resolved.bibcode}`, adsModeEnabled, mode)}`;
         }
       } catch (err) {
         throw new Error('Error fetching result from reference resolver', { cause: err });
@@ -451,10 +514,10 @@ const getSearchQuery = async (formParams: PaperFormState[PaperFormType], queryCl
             queryFn: fetchVaultSearch,
             meta: { params },
           });
-          return `/search?${stringifyQuery(`docs(${qid})`)}`;
+          return `/search?${stringifyQuery(`docs(${qid})`, adsModeEnabled, mode)}`;
         }
         const q = joinBibcodeTerms(cleanBibs);
-        return `/search?${stringifyQuery(q)}`;
+        return `/search?${stringifyQuery(q, adsModeEnabled, mode)}`;
       } catch (err) {
         throw new Error('Error retrieving result for this set of bibcodes, please try again', { cause: err });
       }

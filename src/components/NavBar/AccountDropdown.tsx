@@ -3,10 +3,11 @@ import { MouseEvent, ReactElement } from 'react';
 import { MenuDropdown } from './MenuDropdown';
 import { DividerItem, ItemItem, ItemType, ListType } from './types';
 import { useSession } from '@/lib/useSession';
-import { Flex, HStack, Icon, Text } from '@chakra-ui/react';
+import { Box, Flex, HStack, Icon, Text } from '@chakra-ui/react';
 import { UserIcon } from '@heroicons/react/24/solid';
 import { useGetUserEmail } from '@/lib/useGetUserEmail';
 import { isBrowser } from '@/utils/common/guards';
+import { AdsModeToggle } from './AdsModeToggle';
 
 export const items: ItemType[] = [
   {
@@ -21,7 +22,18 @@ export const items: ItemType[] = [
   },
 ];
 
+const adsModeMenuItem: ItemType = {
+  id: 'ads-mode',
+  label: (
+    <Box>
+      <AdsModeToggle source="account_menu" showDescription />
+    </Box>
+  ),
+  static: true,
+};
+
 const loggedInItems: ItemType[] = [
+  adsModeMenuItem,
   { id: 'libraries', path: '/user/libraries', label: 'SciX Libraries' },
   { id: 'notifications', path: '/user/notifications', label: 'Email Notifications' },
   { id: 'settings', path: '/user/settings', label: 'Settings' },
@@ -55,7 +67,7 @@ export const AccountDropdown = (props: IAccountDropdown): ReactElement => {
         'divider' as DividerItem,
         ...loggedInItems,
       ]
-    : items;
+    : [adsModeMenuItem, 'divider' as DividerItem, ...items];
 
   const handleSelect = (e: MouseEvent<HTMLElement>) => {
     const id = (e.target as HTMLElement).dataset['id'];

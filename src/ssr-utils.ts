@@ -7,6 +7,7 @@ import { dehydrate, hydrate, QueryClient } from '@tanstack/react-query';
 import { getNotification, NotificationId } from '@/store/slices';
 import { logger } from '@/logger';
 import { AppMode } from '@/types';
+import { mapDisciplineParamToAppMode } from '@/utils/appMode';
 
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { isUserData } from '@/auth-utils';
@@ -15,6 +16,11 @@ const log = logger.child({}, { msgPrefix: '[ssr-inject] ' });
 
 const updateUserStateSSR: IncomingGSSP = (ctx, prevResult) => {
   const userData = ctx.req.session.token;
+  const incomingState = (prevResult?.props?.dehydratedAppState ?? {}) as AppState;
+  const urlMode = mapDisciplineParamToAppMode(ctx.query?.d);
+  const legacyMode = ctx.req.session.legacyAppReferrer ? AppMode.ASTROPHYSICS : undefined;
+  const resolvedMode = urlMode ?? legacyMode;
+  const legacyAdsMode = ctx.req.session.legacyAppReferrer ? { adsMode: { active: true } } : {};
 
   log.debug({
     msg: 'Injecting session data into client props',
@@ -33,12 +39,13 @@ const updateUserStateSSR: IncomingGSSP = (ctx, prevResult) => {
   return Promise.resolve({
     props: {
       dehydratedAppState: {
-        ...((prevResult?.props?.dehydratedAppState ?? {}) as AppState),
+        ...incomingState,
         user: isUserData(userData) ? userData : {},
         // set notification if present
         notification: getNotification(ctx.query?.notify as NotificationId),
-        // set mode to ASTROPHYSICS if user came from legacy app
-        ...(ctx.req.session.legacyAppReferrer && { mode: AppMode.ASTROPHYSICS }),
+        // discipline via URL param (d) overrides, otherwise keep legacy app mode
+        ...(resolvedMode && { mode: resolvedMode }),
+        ...legacyAdsMode,
       } as AppState,
       dehydratedState: dehydrate(qc),
     },
