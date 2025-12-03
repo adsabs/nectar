@@ -161,7 +161,8 @@ const AppModeUrlNotice: FC = () => {
       return;
     }
 
-    const alreadyHandled = normalizedParam && handledParam.current === normalizedParam && urlModeOverride === mappedMode;
+    const alreadyHandled =
+      normalizedParam && handledParam.current === normalizedParam && urlModeOverride === mappedMode;
     if (alreadyHandled) {
       return;
     }
@@ -172,7 +173,6 @@ const AppModeUrlNotice: FC = () => {
     // skip re-applying to avoid loops when we write d= ourselves.
     if (mappedMode === mode && !urlModeOverride) {
       if (process.env.NODE_ENV !== 'production') {
-        // eslint-disable-next-line no-console
         console.debug('[app-mode] skip apply, matches current', { normalizedParam, mappedMode, mode });
       }
       if (urlModePendingParam === normalizedParam) {
@@ -189,8 +189,13 @@ const AppModeUrlNotice: FC = () => {
     }
 
     if (process.env.NODE_ENV !== 'production') {
-      // eslint-disable-next-line no-console
-      console.debug('[app-mode] applying URL override', { normalizedParam, mappedMode, mode, urlModePrevious, urlModeOverride });
+      console.debug('[app-mode] applying URL override', {
+        normalizedParam,
+        mappedMode,
+        mode,
+        urlModePrevious,
+        urlModeOverride,
+      });
     }
 
     if (router.query?.d !== normalizedParam) {
@@ -256,7 +261,6 @@ const AppModeUrlNotice: FC = () => {
         return;
       }
       if (process.env.NODE_ENV !== 'production') {
-        // eslint-disable-next-line no-console
         console.debug('[app-mode] syncing URL param', { currentParam, targetParam, mode });
       }
       await syncUrlDisciplineParam(router, mode);

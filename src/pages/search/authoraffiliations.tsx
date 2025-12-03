@@ -1,4 +1,4 @@
-import { ChevronLeftIcon } from '@chakra-ui/icons';
+import { ArrowLeftIcon } from '@chakra-ui/icons';
 import { Button, Container as Box } from '@chakra-ui/react';
 import { useBackToSearchResults } from '@/lib/useBackToSearchResults';
 import { NextPage } from 'next';
@@ -26,8 +26,16 @@ const AuthorAffiliationsPage: NextPage = () => {
   return (
     <>
       {showBackLink && (
-        <Button as={SimpleLink} href={getSearchHref()} variant={'outline'} leftIcon={<ChevronLeftIcon />} mt="4">
-          Back to Results
+        <Button
+          as={SimpleLink}
+          href={getSearchHref()}
+          variant="link"
+          size="sm"
+          leftIcon={<ArrowLeftIcon />}
+          mt="4"
+          alignSelf="flex-start"
+        >
+          Return to results
         </Button>
       )}
 
