@@ -107,7 +107,9 @@ const ModalFacet = (props: ISearchFacetModalProps) => {
                 px="2"
                 flexWrap="wrap"
                 letter={letter}
-                onLetterChange={setLetter}
+                onLetterChange={(l) => {
+                  setLetter(params.isLowerCase ? l.toLowerCase() : l);
+                }}
               />
             ) : null}
           </>

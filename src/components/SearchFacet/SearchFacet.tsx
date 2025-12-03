@@ -69,6 +69,7 @@ export interface ISearchFacetProps extends AccordionItemProps {
   onVisibilityChange?: (change: { id: SearchFacetID; hidden: boolean }) => void;
   filter?: string[];
   onQueryUpdate: (queryUpdates: Partial<IADSApiSearchParams>) => void;
+  isLowerCase: boolean;
 }
 
 export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
