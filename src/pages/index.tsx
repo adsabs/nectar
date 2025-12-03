@@ -163,7 +163,18 @@ const HomePage: NextPage = () => {
           });
       }
     },
-    [applyDefaultFilters, router, sort, submitQuery],
+    [
+      adsModeActive,
+      applyDefaultFilters,
+      dismissModeNotice,
+      mode,
+      router,
+      setMode,
+      setIsLoading,
+      sort,
+      submitQuery,
+      trackAdsDefaultsApplied,
+    ],
   );
 
   const handleQueryExampleSelect = useCallback(
