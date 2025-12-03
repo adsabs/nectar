@@ -1,4 +1,4 @@
-import { ChevronLeftIcon } from '@chakra-ui/icons';
+import { ArrowLeftIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex, Heading, Stack, Text } from '@chakra-ui/react';
 
 import { useBackToSearchResults } from '@/lib/useBackToSearchResults';
@@ -27,7 +27,7 @@ export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription
   const pageTitle = title ? `${title} - ${suffix}` : suffix;
 
   return (
-    <Stack direction="column" my={{ base: '6', lg: showBackLink ? '12' : '16' }}>
+    <Stack direction="column" pt="10" mb={{ base: '6', lg: showBackLink ? '12' : '16' }}>
       <Head>
         <title>{pageTitle}</title>
         {doc && <Metatags doc={doc} />}
@@ -40,14 +40,13 @@ export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription
             <Flex>
               <Button
                 as={SimpleLink}
-                _hover={{ textDecoration: 'none' }}
-                variant={'outline'}
-                leftIcon={<ChevronLeftIcon />}
-                fontSize="sm"
-                fontWeight="normal"
+                variant="link"
+                size="sm"
+                leftIcon={<ArrowLeftIcon />}
+                alignSelf="flex-start"
                 href={getSearchHref()}
               >
-                Back to Results
+                Return to results
               </Button>
             </Flex>
           )}

@@ -229,7 +229,7 @@ const SearchPage: NextPage = () => {
         <HideOnPrint pt={10}>
           <form method="get" action="/search" onSubmit={handleOnSubmit}>
             <Flex direction="column" width="full">
-              <SearchBar isLoading={loading} />
+              <SearchBar isLoading={loading} showStartNewSearchLink />
               <NumFound count={data?.numFound} isLoading={loading} />
             </Flex>
             <FacetFilters mt="2" />
