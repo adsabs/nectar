@@ -3,6 +3,8 @@ import { Step, StepOptions } from 'shepherd.js';
 import { offset } from '@floating-ui/react-dom';
 import { useRouter } from 'next/router';
 import { useBreakpointValue } from '@chakra-ui/react';
+import * as Sentry from '@sentry/nextjs';
+import { sendGTMEvent } from '@next/third-parties/google';
 import { LocalSettings } from '@/types';
 
 export const useTour = (type?: 'home' | 'results' | 'abstract') => {
@@ -50,6 +52,31 @@ export const useTour = (type?: 'home' | 'results' | 'abstract') => {
     } else if (tourType === 'abstract') {
       localStorage.setItem(LocalSettings.SEEN_ABSTRACT_TOUR, 'true');
     }
+
+    sendGTMEvent({ event: 'tour_start', tour_type: tourType, is_mobile: !!isMobile });
+    Sentry.addBreadcrumb({ category: 'tour', message: 'tour_start', level: 'info', data: { tourType, isMobile } });
+  });
+
+  tour.on('show', () => {
+    const stepId = tour.currentStep?.id;
+
+    if (!stepId) {
+      return;
+    }
+
+    sendGTMEvent({ event: 'tour_step', tour_type: tourType, step_id: stepId });
+    Sentry.addBreadcrumb({ category: 'tour', message: 'tour_step', level: 'info', data: { tourType, stepId } });
+  });
+
+  tour.on('complete', () => {
+    sendGTMEvent({ event: 'tour_complete', tour_type: tourType });
+    Sentry.addBreadcrumb({ category: 'tour', message: 'tour_complete', level: 'info', data: { tourType } });
+  });
+
+  tour.on('cancel', () => {
+    const stepId = tour.currentStep?.id;
+    sendGTMEvent({ event: 'tour_cancel', tour_type: tourType, step_id: stepId });
+    Sentry.addBreadcrumb({ category: 'tour', message: 'tour_cancel', level: 'info', data: { tourType, stepId } });
   });
   return { tourType, tour };
 };
