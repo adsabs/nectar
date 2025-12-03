@@ -45,3 +45,40 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: vi.fn(),
   })),
 });
+
+// Guard against invalid selectors produced by third-party components in jsdom.
+const nativeMatches = Element.prototype.matches;
+Element.prototype.matches = function patchedMatches(selector: string): boolean {
+  try {
+    return nativeMatches.call(this, selector);
+  } catch (error) {
+    if ((error as DOMException)?.name === 'SyntaxError') {
+      return false;
+    }
+    throw error;
+  }
+};
+
+const nativeQuerySelector = Element.prototype.querySelector;
+Element.prototype.querySelector = function patchedQuerySelector(selectors: string): Element | null {
+  try {
+    return nativeQuerySelector.call(this, selectors);
+  } catch (error) {
+    if ((error as DOMException)?.name === 'SyntaxError') {
+      return null;
+    }
+    throw error;
+  }
+};
+
+const nativeQuerySelectorAll = Element.prototype.querySelectorAll;
+Element.prototype.querySelectorAll = function patchedQuerySelectorAll(selectors: string): NodeListOf<Element> {
+  try {
+    return nativeQuerySelectorAll.call(this, selectors);
+  } catch (error) {
+    if ((error as DOMException)?.name === 'SyntaxError') {
+      return document.createDocumentFragment().querySelectorAll('*');
+    }
+    throw error;
+  }
+};

@@ -72,10 +72,13 @@ export const syncUrlDisciplineParam = async (router: NextRouter, mode?: AppMode 
     return;
   }
 
+  const raw = router.query?.d;
   const target = appModeToDisciplineParam(mode);
-  const current = normalizeDisciplineParam(router.query?.d);
+  const current = normalizeDisciplineParam(raw);
 
-  if (target === current) {
+  // If the normalized value matches but raw casing differs, rewrite to normalize the URL.
+  const alreadyNormalized = target === current && (typeof raw === 'string' ? raw === target : true);
+  if (alreadyNormalized) {
     return;
   }
 

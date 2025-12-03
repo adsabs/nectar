@@ -144,7 +144,16 @@ const PaperForm: NextPage<{ error?: IPaperFormServerError }> = ({ error: ssrErro
         setError({ form: params.form, message: (e as Error).message });
       }
     },
-    [queryClient, router, setError],
+    [
+      adsModeActive,
+      dismissModeNotice,
+      mode,
+      queryClient,
+      router,
+      setError,
+      setMode,
+      trackAdsDefaultsApplied,
+    ],
   );
 
   return (
