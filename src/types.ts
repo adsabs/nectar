@@ -12,6 +12,14 @@ export enum AppMode {
   BIO_PHYSICAL = 'BIO_PHYSICAL_SCIENCE',
 }
 
+export enum LocalSettings {
+  SEEN_LANDING_TOUR = 'seen-landing-tour',
+  SEEN_ABSTRACT_TOUR = 'seen-abstract-tour',
+  SEEN_RESULTS_TOUR = 'seen-results-tour',
+  LAST_DISMISSED_SYS_MSG = 'last-sys-msg',
+  CAROUSEL = 'carousels',
+}
+
 export enum AppErrorCode {
   SERVER_ERROR,
 }
@@ -38,7 +46,7 @@ export interface SessionData {
   isAuthenticated: boolean;
 }
 
-export type NumPerPageType = typeof APP_DEFAULTS['PER_PAGE_OPTIONS'][number];
+export type NumPerPageType = (typeof APP_DEFAULTS)['PER_PAGE_OPTIONS'][number];
 
 export type SafeSearchUrlParams = Omit<IADSApiSearchParams, 'fl' | 'start' | 'rows' | 'id'> & { p?: number };
 

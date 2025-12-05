@@ -57,6 +57,7 @@ export const AbstractPreview = ({ bibcode }: IAbstractPreviewProps): ReactElemen
           fontSize="md"
           isLoading={isFetching}
           icon={show ? <ChevronUpIcon /> : <ChevronDownIcon />}
+          id="tour-view-abstract"
         />
       </VStack>
     </Flex>

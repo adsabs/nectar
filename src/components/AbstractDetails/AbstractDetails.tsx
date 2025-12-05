@@ -81,6 +81,7 @@ export const AbstractDetails = ({ doc }: IDetailsProps): ReactElement => {
                     cursor="pointer"
                     size="xs"
                     onClick={onCitationOpen}
+                    id="tour-quick-citation-copy"
                   >
                     <FontAwesomeIcon icon={faQuoteLeft} size="xs" />
                   </Button>

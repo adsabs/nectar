@@ -12,6 +12,7 @@ import shallow from 'zustand/shallow';
 import * as Sentry from '@sentry/nextjs';
 import { IADSApiSearchParams } from './api/search/types';
 import { useGlobalErrorHandler } from './lib/useGlobalErrorHandler';
+import { ShepherdJourneyProvider } from 'react-shepherd';
 
 const windowState = {
   navigationStart: performance?.timeOrigin || performance?.timing?.navigationStart || 0,
@@ -29,17 +30,19 @@ export const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps
   return (
     <GoogleReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? ''}>
       <MathJaxProvider>
-        <ChakraProvider theme={theme}>
-          <StoreProvider createStore={createStore}>
-            <QCProvider>
-              <Hydrate state={pageProps.dehydratedState}>
-                <Telemetry />
-                {children}
-              </Hydrate>
-              <ReactQueryDevtools />
-            </QCProvider>
-          </StoreProvider>
-        </ChakraProvider>
+        <ShepherdJourneyProvider>
+          <ChakraProvider theme={theme}>
+            <StoreProvider createStore={createStore}>
+              <QCProvider>
+                <Hydrate state={pageProps.dehydratedState}>
+                  <Telemetry />
+                  {children}
+                </Hydrate>
+                <ReactQueryDevtools />
+              </QCProvider>
+            </StoreProvider>
+          </ChakraProvider>
+        </ShepherdJourneyProvider>
       </MathJaxProvider>
     </GoogleReCaptchaProvider>
   );
