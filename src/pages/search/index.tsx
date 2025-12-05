@@ -148,44 +148,8 @@ const SearchPage: NextPage = () => {
 
   const { isOpen: isAddToLibraryOpen, onClose: onCloseAddToLibrary, onOpen: onOpenAddToLibrary } = useDisclosure();
 
-  const Shepherd = useShepherd();
-  const [isRendered, setIsRendered] = useState(false);
-
-  // tour should not start until the first element is rendered
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      const element = document.getElementById('sort-order');
-      if (element) {
-        setIsRendered(true);
-        observer.disconnect();
-      }
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (isRendered && !localStorage.getItem(LocalSettings.SEEN_RESULTS_TOUR)) {
-      const tour = new Shepherd.Tour({
-        useModalOverlay: true,
-        defaultStepOptions: {
-          scrollTo: false,
-          cancelIcon: {
-            enabled: true,
-          },
-        },
-        exitOnEsc: true,
-      });
-      tour.addSteps(getResultsSteps());
-      localStorage.setItem(LocalSettings.SEEN_RESULTS_TOUR, 'true');
-
-      setTimeout(() => {
-        tour.start();
-      }, 1000);
-    }
-  }, [isRendered]);
+  // start tour on the first time
+  useTour();
 
   // on Sort change handler
   const handleSortChange = (sort: SolrSort) => {
@@ -529,6 +493,47 @@ const PartialResultsWarning = (props: { params: IADSApiSearchParams }) => {
       </Text>
     </Alert>
   );
+};
+
+const useTour = () => {
+  const Shepherd = useShepherd();
+  const [isRendered, setIsRendered] = useState(false);
+
+  // tour should not start until the first element is rendered
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      const element = document.getElementById('sort-order');
+      if (element) {
+        setIsRendered(true);
+        observer.disconnect();
+      }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (isRendered && !localStorage.getItem(LocalSettings.SEEN_RESULTS_TOUR)) {
+      const tour = new Shepherd.Tour({
+        useModalOverlay: true,
+        defaultStepOptions: {
+          scrollTo: false,
+          cancelIcon: {
+            enabled: true,
+          },
+        },
+        exitOnEsc: true,
+      });
+      tour.addSteps(getResultsSteps());
+      localStorage.setItem(LocalSettings.SEEN_RESULTS_TOUR, 'true');
+
+      setTimeout(() => {
+        tour.start();
+      }, 1000);
+    }
+  }, [isRendered]);
 };
 
 export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
