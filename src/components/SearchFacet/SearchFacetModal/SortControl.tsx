@@ -14,10 +14,13 @@ export const SortControl = ({
   onlyCount?: boolean;
 }) => {
   const [value, dir] = sort;
+  const isIndexSort = value === 'index';
+  const isDesc = dir === 'desc';
 
   const handleSortChange: ChangeEventHandler<HTMLSelectElement> = (ev) => {
     const sortVal = ev.currentTarget.value as 'count' | 'index';
-    return onSortChange([sortVal, dir]);
+    const nextDir = sortVal === 'index' && sortVal !== value ? 'asc' : dir;
+    return onSortChange([sortVal, nextDir]);
   };
 
   const toggleDir = () => {
@@ -42,10 +45,24 @@ export const SortControl = ({
         onClick={toggleDir}
         size="sm"
         p="2"
-        icon={<Icon as={dir === 'desc' ? BarsArrowDownIcon : BarsArrowUpIcon} fontSize="xl" />}
+        icon={
+          <Icon
+            as={
+              // In A-Z mode, invert the icon so ascending shows the downward bars (A..Z) to reduce confusion
+              isIndexSort
+                ? isDesc
+                  ? BarsArrowUpIcon
+                  : BarsArrowDownIcon
+                : isDesc
+                ? BarsArrowDownIcon
+                : BarsArrowUpIcon
+            }
+            fontSize="xl"
+          />
+        }
         colorScheme="gray"
         borderLeftRadius="none"
-        aria-label="sort asc"
+        aria-label={dir === 'asc' ? 'Sort descending' : 'Sort ascending'}
       />
     </Flex>
   );
