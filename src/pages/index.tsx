@@ -55,9 +55,10 @@ const HomePage: NextPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const clearSelectedDocs = useStore((state) => state.clearAllSelected);
   const setNotification = useStore((state) => state.setNotification);
-  const Shepherd = useShepherd();
-  const { isScreenSmall, isScreenLarge } = useScreenSize();
-  const [isRendered, setIsRendered] = useState(false);
+  const { isScreenSmall } = useScreenSize();
+
+  // start tour if first time
+  useTour();
 
   useEffect(() => {
     const setNotify = () => {
@@ -74,41 +75,6 @@ const HomePage: NextPage = () => {
     clearSelectedDocs();
     setQuery('');
   }, [clearSelectedDocs]);
-
-  // tour should not start until the first element is rendered
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      const element = document.getElementById('tour-search-input');
-      if (element) {
-        setIsRendered(true);
-        observer.disconnect();
-      }
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (isRendered && !localStorage.getItem(LocalSettings.SEEN_LANDING_TOUR)) {
-      const tour = new Shepherd.Tour({
-        useModalOverlay: true,
-        defaultStepOptions: {
-          scrollTo: false,
-          cancelIcon: {
-            enabled: true,
-          },
-        },
-        exitOnEsc: true,
-      });
-      tour.addSteps(getHomeSteps(!isScreenLarge));
-      localStorage.setItem(LocalSettings.SEEN_LANDING_TOUR, 'true');
-      setTimeout(() => {
-        tour.start();
-      }, 1000);
-    }
-  }, [isRendered]);
 
   /**
    * Take in a query object and apply any FQ filters
@@ -443,4 +409,45 @@ const FloatingIntroLink = () => {
       </Button>
     </SimpleLink>
   );
+};
+
+const useTour = () => {
+  const Shepherd = useShepherd();
+  const { isScreenLarge } = useScreenSize();
+  const [isRendered, setIsRendered] = useState(false);
+
+  // tour should not start until the first element is rendered
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      const element = document.getElementById('tour-search-input');
+      if (element) {
+        setIsRendered(true);
+        observer.disconnect();
+      }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (isRendered && !localStorage.getItem(LocalSettings.SEEN_LANDING_TOUR)) {
+      const tour = new Shepherd.Tour({
+        useModalOverlay: true,
+        defaultStepOptions: {
+          scrollTo: false,
+          cancelIcon: {
+            enabled: true,
+          },
+        },
+        exitOnEsc: true,
+      });
+      tour.addSteps(getHomeSteps(!isScreenLarge));
+      localStorage.setItem(LocalSettings.SEEN_LANDING_TOUR, 'true');
+      setTimeout(() => {
+        tour.start();
+      }, 1000);
+    }
+  }, [isRendered]);
 };

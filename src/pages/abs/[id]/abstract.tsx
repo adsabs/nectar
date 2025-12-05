@@ -68,46 +68,8 @@ const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated
   const authors = useGetAuthors({ doc, includeAff: false });
   const { isOpen: isAddToLibraryOpen, onClose: onCloseAddToLibrary, onOpen: onOpenAddToLibrary } = useDisclosure();
 
-  const Shepherd = useShepherd();
-  const { isScreenLarge } = useScreenSize();
-  const [isRendered, setIsRendered] = useState(false);
-
-  // tour should not start until the first element is rendered
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      const element = document.getElementById(
-        isScreenLarge ? 'accordion-button-tour-full-text-sources' : 'menu-button-tour-full-text-sources',
-      );
-      if (element) {
-        setIsRendered(true);
-        observer.disconnect();
-      }
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (isRendered && !localStorage.getItem(LocalSettings.SEEN_ABSTRACT_TOUR)) {
-      const tour = new Shepherd.Tour({
-        useModalOverlay: true,
-        defaultStepOptions: {
-          scrollTo: false,
-          cancelIcon: {
-            enabled: true,
-          },
-        },
-        exitOnEsc: true,
-      });
-      tour.addSteps(getAbstractSteps(!isScreenLarge));
-      localStorage.setItem(LocalSettings.SEEN_ABSTRACT_TOUR, 'true');
-      setTimeout(() => {
-        tour.start();
-      }, 1000);
-    }
-  }, [isRendered]);
+  // start tour if first time
+  useTour();
 
   const handleFeedback = () => {
     void router.push({ pathname: feedbackItems.record.path, query: { bibcode: doc.bibcode } });
@@ -216,6 +178,49 @@ const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated
 };
 
 export default AbstractPage;
+
+const useTour = () => {
+  const Shepherd = useShepherd();
+  const { isScreenLarge } = useScreenSize();
+  const [isRendered, setIsRendered] = useState(false);
+
+  // tour should not start until the first element is rendered
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      const element = document.getElementById(
+        isScreenLarge ? 'accordion-button-tour-full-text-sources' : 'menu-button-tour-full-text-sources',
+      );
+      if (element) {
+        setIsRendered(true);
+        observer.disconnect();
+      }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (isRendered && !localStorage.getItem(LocalSettings.SEEN_ABSTRACT_TOUR)) {
+      const tour = new Shepherd.Tour({
+        useModalOverlay: true,
+        defaultStepOptions: {
+          scrollTo: false,
+          cancelIcon: {
+            enabled: true,
+          },
+        },
+        exitOnEsc: true,
+      });
+      tour.addSteps(getAbstractSteps(!isScreenLarge));
+      localStorage.setItem(LocalSettings.SEEN_ABSTRACT_TOUR, 'true');
+      setTimeout(() => {
+        tour.start();
+      }, 1000);
+    }
+  }, [isRendered]);
+};
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const bsRes = await bootstrap(ctx.req, ctx.res);
