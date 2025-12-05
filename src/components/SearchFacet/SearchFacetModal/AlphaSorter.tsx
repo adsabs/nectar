@@ -5,10 +5,11 @@ import { FC } from 'react';
 interface IAlphaSorterProps extends FlexProps {
   letter: string;
   onLetterChange: (letter: string) => void;
+  lowercase?: boolean;
 }
 
 export const AlphaSorter: FC<IAlphaSorterProps> = (props) => {
-  const { letter = 'All', onLetterChange, ...flexProps } = props;
+  const { letter = 'All', onLetterChange, lowercase = false, ...flexProps } = props;
   const { getRootProps, getRadioProps } = useRadioGroup({
     onChange: onLetterChange,
     value: letter,
@@ -17,15 +18,19 @@ export const AlphaSorter: FC<IAlphaSorterProps> = (props) => {
   return (
     <Flex {...getRootProps()} {...flexProps}>
       <LetterRadio {...getRadioProps({ value: 'All' })} />
-      {range(65, 91).map((i) => (
-        <LetterRadio key={i} {...getRadioProps({ value: String.fromCharCode(i) })} />
-      ))}
+      {range(65, 91).map((i) => {
+        const char = String.fromCharCode(i);
+        const value = lowercase ? char.toLowerCase() : char;
+
+        return <LetterRadio key={i} label={char} {...getRadioProps({ value })} />;
+      })}
     </Flex>
   );
 };
 
-const LetterRadio = (props: Omit<RadioProps, 'onBeforeInput'>) => {
+const LetterRadio = (props: Omit<RadioProps, 'onBeforeInput'> & { label?: string }) => {
   const { getInputProps, htmlProps, getRadioProps, state, getLabelProps } = useRadio(props);
+  const label = props.label ?? (props.value as string);
 
   return (
     <chakra.label {...htmlProps} cursor="pointer">
@@ -43,7 +48,7 @@ const LetterRadio = (props: Omit<RadioProps, 'onBeforeInput'>) => {
         py="0.5"
         px="2"
       >
-        <Box {...getLabelProps()}>{props.value}</Box>
+        <Box {...getLabelProps()}>{label}</Box>
       </Box>
     </chakra.label>
   );

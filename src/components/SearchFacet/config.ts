@@ -132,7 +132,10 @@ export const facetConfig: Record<SearchFacetID, Omit<ISearchFacetProps, 'onQuery
   uat: {
     label: 'UAT',
     field: 'uat_facet_hier' as FacetField,
-    hasChildren: true,
+    hasChildren: false,
+    // UAT needs hierarchical API prefixing (0/) but has no expandable children
+    forceHierarchicalPrefix: true,
+    maxDepth: 1,
     logic: defaultLogic,
     storeId: 'uat',
     noLoadMore: true,

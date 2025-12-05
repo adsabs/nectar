@@ -17,6 +17,7 @@ type FacetParams = {
   forceUppercaseInitial?: boolean;
   maxDepth?: number;
   isLowerCase: boolean;
+  forceHierarchicalPrefix?: boolean;
 };
 
 type SelectionState = {
@@ -139,6 +140,7 @@ export const FacetStoreProvider: FC<{ facetId: SearchFacetID }> = ({ children, f
       'forceUppercaseInitial',
       'maxDepth',
       'isLowerCase',
+      'forceHierarchicalPrefix',
     ],
     facetConfig[facetId],
   ) as FacetParams;
