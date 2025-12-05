@@ -172,7 +172,7 @@ export const NavMenus = (): ReactElement => {
           </Drawer>
         </Box>
       ) : (
-        <Box flexDirection="row" mx={3} alignItems="center">
+        <Flex flexDirection="row" mx={3} alignItems="center">
           {/* Cannot use stack here, will produce warning with popper in menu */}
           <Button mx={2} onClick={handleStartTour}>
             Tour
@@ -191,7 +191,7 @@ export const NavMenus = (): ReactElement => {
           </Menu>
           <AccountDropdown type={ListType.DROPDOWN} />
           <ColorModeMenu type="icon" />
-        </Box>
+        </Flex>
       )}
     </Flex>
   );
