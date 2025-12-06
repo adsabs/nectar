@@ -155,7 +155,7 @@ export async function middleware(req: NextRequest) {
   void emitAnalytics(req);
 
   // Skip middleware for some paths
-  if (path === '/' || path.startsWith('/_next/data')) {
+  if (path.startsWith('/_next/data')) {
     return res;
   }
 
