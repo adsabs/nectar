@@ -154,8 +154,16 @@ export async function middleware(req: NextRequest) {
   // Emit analytics
   void emitAnalytics(req);
 
-  // Skip middleware for some paths
+  // Skip middleware for data prefetches
   if (path.startsWith('/_next/data')) {
+    return res;
+  }
+
+  // For the home page, only hydrate session and run legacy detection to avoid redirect loops
+  if (path === '/') {
+    const session = await getIronSession(req, res, sessionConfig);
+    await initSession(req, res, session);
+    await legacyAppDetectionMiddleware(req, res, session);
     return res;
   }
 
