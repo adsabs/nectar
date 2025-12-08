@@ -10,6 +10,7 @@ import { ItemsSkeleton } from '@/components/ResultList/ItemsSkeleton';
 import { useGetAbstract, useGetCitations } from '@/api/search/search';
 import { IDocsEntity } from '@/api/search/types';
 import { getCitationsParams } from '@/api/search/models';
+import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
 
 const CitationsPage: NextPage = () => {
   const router = useRouter();
@@ -59,7 +60,7 @@ const CitationsPage: NextPage = () => {
 
 export default CitationsPage;
 
-export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
+export const getServerSideProps = createAbsGetServerSideProps('citations');
 // export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
 //   try {
 //     const { id } = ctx.params as { id: string };

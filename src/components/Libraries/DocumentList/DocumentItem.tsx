@@ -60,6 +60,7 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
     hideResources = true,
   } = props;
   const { bibcode, pubdate, title = ['Untitled'], author = [], author_count, pub } = doc;
+  const encodedCanonicalID = bibcode ? encodeURIComponent(bibcode) : '';
   const formattedPubDate = getFormattedNumericPubdate(pubdate);
   const isClient = useIsClient();
   const colors = useColorModeColors();
@@ -74,7 +75,7 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
     typeof doc.citation_count_norm === 'number' && doc.citation_count_norm > 0 ? (
       <SimpleLink
         href={{
-          pathname: `/abs/${bibcode}/citations`,
+          pathname: `/abs/${encodedCanonicalID}/citations`,
           search: 'p=1',
         }}
       >
@@ -84,7 +85,7 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
   ) : typeof doc.citation_count === 'number' && doc.citation_count > 0 ? (
     <SimpleLink
       href={{
-        pathname: `/abs/${bibcode}/citations`,
+        pathname: `/abs/${encodedCanonicalID}/citations`,
         search: 'p=1',
       }}
     >
@@ -111,7 +112,7 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
       </Flex>
       <Stack direction="column" width="full" spacing={0} mx={3} mt={2}>
         <Flex justifyContent="space-between">
-          <SimpleLink href={`/abs/${bibcode}/abstract`} fontWeight="semibold">
+          <SimpleLink href={`/abs/${encodedCanonicalID}/abstract`} fontWeight="semibold">
             <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
           </SimpleLink>
           <Flex alignItems="start" ml={1}>

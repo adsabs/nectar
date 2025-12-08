@@ -42,6 +42,8 @@ export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDro
     }
   }, [hasCopied]);
 
+  const encodedCanonicalID = doc?.bibcode ? encodeURIComponent(doc.bibcode) : '';
+
   let fullSourceItems: IItem[] = [];
 
   let dataProductItems: IItem[] = [];
@@ -86,7 +88,7 @@ export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDro
     referenceItems.push({
       id: `ref-dropdown-cit-${doc.bibcode}`,
       label: `Citations (${num_citations})`,
-      path: `/abs/${doc.bibcode}/citations`,
+      path: `/abs/${encodedCanonicalID}/citations`,
     });
   }
 
@@ -94,7 +96,7 @@ export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDro
     referenceItems.push({
       id: `ref-dropdown-ref-${doc.bibcode}`,
       label: `References (${num_references})`,
-      path: `/abs/${doc.bibcode}/references`,
+      path: `/abs/${encodedCanonicalID}/references`,
     });
   }
 
@@ -153,7 +155,7 @@ export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDro
   );
 
   const handleCopyAbstractUrl = () => {
-    setValue(`${process.env.NEXT_PUBLIC_BASE_CANONICAL_URL}/abs/${doc.bibcode}/abstract`);
+    setValue(`${process.env.NEXT_PUBLIC_BASE_CANONICAL_URL}/abs/${encodedCanonicalID}/abstract`);
   };
 
   const handleCitationCopied = () => {

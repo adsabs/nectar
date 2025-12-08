@@ -1,37 +1,31 @@
 import { Box, Button, Flex, IconButton, Stack, Text, Tooltip, useDisclosure, VisuallyHidden } from '@chakra-ui/react';
 import { EditIcon } from '@chakra-ui/icons';
+import { FolderPlusIcon } from '@heroicons/react/24/solid';
+import dynamic from 'next/dynamic';
+import { NextPage } from 'next';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import { isNil, path } from 'ramda';
+import { useShepherd } from 'react-shepherd';
+import { MathJax } from 'better-react-mathjax';
 
 import { IAllAuthorsModalProps } from '@/components/AllAuthorsModal';
 import { useGetAuthors } from '@/components/AllAuthorsModal/useGetAuthors';
 import { OrcidActiveIcon } from '@/components/icons/Orcid';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
-import { APP_DEFAULTS, sessionConfig } from '@/config';
-import { MathJax } from 'better-react-mathjax';
-import { GetServerSideProps, NextPage } from 'next';
-import dynamic from 'next/dynamic';
-import { isNil, path } from 'ramda';
-import { useRouter } from 'next/router';
-import { FolderPlusIcon } from '@heroicons/react/24/solid';
-import { dehydrate, QueryClient } from '@tanstack/react-query';
-import { logger } from '@/logger';
+import { RecordNotFound } from '@/components/RecordNotFound';
 import { feedbackItems, getAbstractSteps } from '@/components/NavBar';
 import { SearchQueryLink } from '@/components/SearchQueryLink';
 import { AbstractSources } from '@/components/AbstractSources';
 import { AddToLibraryModal } from '@/components/Libraries';
-import { searchKeys, useGetAbstract } from '@/api/search/search';
-import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity } from '@/api/search/types';
-import { getAbstractParams } from '@/api/search/models';
-import { useTrackAbstractView } from '@/lib/useTrackAbstractView';
 import { AbstractDetails, AbstractMetadata, IAbstractMetadata } from '@/components/AbstractDetails';
-import { bootstrap } from '@/lib/serverside/bootstrap';
-import { ApiTargets } from '@/api/models';
-import { stringifySearchParams } from '@/utils/common/search';
-import { getIronSession } from 'iron-session/edge';
-import { isAuthenticated } from '@/api/api';
-import { useShepherd } from 'react-shepherd';
+import { APP_DEFAULTS } from '@/config';
+import { useTrackAbstractView } from '@/lib/useTrackAbstractView';
 import { useScreenSize } from '@/lib/useScreenSize';
 import { LocalSettings } from '@/types';
-import { useEffect, useState } from 'react';
+import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
+import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
+import { useGetAbstract } from '@/api/search/search';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   () =>
@@ -47,6 +41,17 @@ const createQuery = (type: 'author' | 'orcid', value: string): IADSApiSearchPara
   return { q: `${type}:"${value}"`, sort: ['score desc'] };
 };
 
+const safeDecode = (value?: string) => {
+  if (!value) {
+    return '';
+  }
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+};
+
 interface AbstractPageProps {
   initialDoc?: IDocsEntity | null;
   isAuthenticated?: boolean;
@@ -59,26 +64,31 @@ const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated
   useTrackAbstractView(doc);
 
   const metadata: IAbstractMetadata = {
-    refereed: doc.property?.includes('REFEREED'),
-    doctype: doc.doctype && doc.doctype !== 'erratum' ? doc.doctype : undefined,
-    erratum: doc.doctype === 'erratum',
+    refereed: !!doc?.property?.includes('REFEREED'),
+    doctype: doc?.doctype && doc.doctype !== 'erratum' ? doc.doctype : undefined,
+    erratum: doc?.doctype === 'erratum',
   };
+  const identifier = safeDecode(router.query.id as string);
 
-  // process authors from doc
   const authors = useGetAuthors({ doc, includeAff: false });
   const { isOpen: isAddToLibraryOpen, onClose: onCloseAddToLibrary, onOpen: onOpenAddToLibrary } = useDisclosure();
 
-  // start tour if first time
   useTour();
 
   const handleFeedback = () => {
-    void router.push({ pathname: feedbackItems.record.path, query: { bibcode: doc.bibcode } });
+    const bibcode = doc?.bibcode ?? identifier;
+    void router.push({
+      pathname: feedbackItems.record.path,
+      query: { bibcode },
+    });
   };
 
   return (
     <AbsLayout doc={doc} titleDescription={''} label="Abstract">
       <Box as="article" aria-labelledby="title">
-        {doc && (
+        {!doc ? (
+          <RecordNotFound recordId={identifier || 'N/A'} onFeedback={handleFeedback} />
+        ) : (
           <Stack direction="column" gap={2}>
             <Flex wrap="wrap" as="section" aria-labelledby="author-list" id="tour-authors-list">
               <VisuallyHidden as="h2" id="author-list">
@@ -172,7 +182,9 @@ const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated
           </Stack>
         )}
       </Box>
-      <AddToLibraryModal isOpen={isAddToLibraryOpen} onClose={onCloseAddToLibrary} bibcodes={[doc?.bibcode]} />
+      {doc ? (
+        <AddToLibraryModal isOpen={isAddToLibraryOpen} onClose={onCloseAddToLibrary} bibcodes={[doc.bibcode]} />
+      ) : null}
     </AbsLayout>
   );
 };
@@ -219,49 +231,7 @@ const useTour = () => {
         tour.start();
       }, 1000);
     }
-  }, [isRendered]);
+  }, [isRendered, isScreenLarge]);
 };
 
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const bsRes = await bootstrap(ctx.req, ctx.res);
-  if (bsRes.error) {
-    logger.error({ error: bsRes.error, url: ctx.resolvedUrl }, 'Error during bootstrap');
-    return { props: { pageError: bsRes.error } };
-  }
-
-  const params = getAbstractParams(ctx.params.id as string);
-  const queryClient = new QueryClient();
-
-  const url = new URL(`${process.env.API_HOST_SERVER}${ApiTargets.SEARCH}`);
-  url.search = stringifySearchParams(params);
-
-  const session = await getIronSession(ctx.req, ctx.res, sessionConfig);
-
-  try {
-    const result = await fetch(url, {
-      headers: new Headers({ Authorization: `Bearer ${bsRes.token.access_token}` }),
-    });
-    const data = (await result.json()) as IADSApiSearchResponse;
-    queryClient.setQueryData(searchKeys.abstract(ctx.params.id as string), data);
-    queryClient.setQueryData(['user'], bsRes.token);
-    ctx.res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
-
-    const initialDoc = data?.response?.docs?.[0] ?? null;
-
-    return {
-      props: {
-        isAuthenticated: isAuthenticated(session.token),
-        dehydratedState: dehydrate(queryClient),
-        initialDoc,
-      },
-    };
-  } catch (error) {
-    logger.error({ error, url: url.toString() }, 'Error fetching abstract data');
-    return {
-      props: {
-        pageError: 'Failed to load abstract data',
-        initialDoc: null,
-      },
-    };
-  }
-};
+export const getServerSideProps = createAbsGetServerSideProps('abstract');

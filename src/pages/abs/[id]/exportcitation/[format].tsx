@@ -11,6 +11,7 @@ import { ExportApiFormatKey } from '@/api/export/types';
 import { useGetAbstract } from '@/api/search/search';
 import { IDocsEntity } from '@/api/search/types';
 import { useExportFormats } from '@/lib/useExportFormats';
+import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
 
 const ExportCitationPage: NextPage = () => {
   const router = useRouter();
@@ -65,4 +66,8 @@ const ExportCitationPage: NextPage = () => {
 
 export default ExportCitationPage;
 
-export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
+export const getServerSideProps = createAbsGetServerSideProps((ctx) => {
+  const rawFormat = Array.isArray(ctx.params?.format) ? ctx.params?.format.join('/') : (ctx.params?.format as string);
+  const safeFormat = rawFormat ? encodeURIComponent(rawFormat) : '';
+  return safeFormat ? `exportcitation/${safeFormat}` : 'exportcitation';
+});

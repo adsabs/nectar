@@ -146,7 +146,7 @@ const ReferencesList = ({ link }: { link: IPaperNetworkLinkDetails }): ReactElem
           {papers.map((p) => (
             <Tr key={`ref-${p.bibcode}`}>
               <Th>
-                <SimpleLink href={`/abs/${p.bibcode}`} newTab={true}>
+                <SimpleLink href={`/abs/${encodeURIComponent(p.bibcode)}`} newTab={true}>
                   {p.bibcode}
                 </SimpleLink>
               </Th>
@@ -162,17 +162,18 @@ const ReferencesList = ({ link }: { link: IPaperNetworkLinkDetails }): ReactElem
 
 const PaperItem = ({ doc }: { doc: IDocsEntity }) => {
   const { bibcode, title, citation_count, author } = doc;
+  const encodedCanonicalID = bibcode ? encodeURIComponent(bibcode) : '';
 
   const cite =
     typeof doc.citation_count === 'number' && doc.citation_count > 0 ? (
-      <SimpleLink href={{ pathname: `/abs/${bibcode}/citations`, search: 'p=1' }} newTab>
+      <SimpleLink href={{ pathname: `/abs/${encodedCanonicalID}/citations`, search: 'p=1' }} newTab>
         cited: {citation_count}
       </SimpleLink>
     ) : null;
 
   return (
     <Box my={0.5}>
-      <SimpleLink href={`/abs/${bibcode}/abstract`} fontWeight="semibold">
+      <SimpleLink href={`/abs/${encodedCanonicalID}/abstract`} fontWeight="semibold">
         <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
       </SimpleLink>
       <HStack>

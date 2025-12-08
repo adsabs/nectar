@@ -9,6 +9,7 @@ import { parseAPIError } from '@/utils/common/parseAPIError';
 import { AbstractRefList } from '@/components/AbstractRefList';
 import { useGetAbstract, useGetCoreads } from '@/api/search/search';
 import { getCoreadsParams } from '@/api/search/models';
+import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
 
 const CoreadsPage: NextPage = () => {
   const router = useRouter();
@@ -43,7 +44,7 @@ const CoreadsPage: NextPage = () => {
 
 export default CoreadsPage;
 
-export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
+export const getServerSideProps = createAbsGetServerSideProps('coreads');
 // export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
 //   try {
 //     const { id } = ctx.params as { id: string };

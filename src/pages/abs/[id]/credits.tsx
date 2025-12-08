@@ -6,6 +6,7 @@ import { AbsLayout } from '@/components/Layout';
 import { ItemsSkeleton } from '@/components/ResultList';
 import { APP_DEFAULTS } from '@/config';
 import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
+import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
 import { Alert, AlertIcon } from '@chakra-ui/react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -64,4 +65,4 @@ const CreditsPage: NextPage = () => {
 
 export default CreditsPage;
 
-export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
+export const getServerSideProps = createAbsGetServerSideProps('credits');

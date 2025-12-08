@@ -10,6 +10,7 @@ import { ItemsSkeleton } from '@/components/ResultList/ItemsSkeleton';
 import { useGetAbstract, useGetReferences } from '@/api/search/search';
 import { IDocsEntity } from '@/api/search/types';
 import { getReferencesParams } from '@/api/search/models';
+import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
 
 const ReferencesPage: NextPage = () => {
   const router = useRouter();
@@ -58,7 +59,7 @@ const ReferencesPage: NextPage = () => {
 
 export default ReferencesPage;
 
-export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
+export const getServerSideProps = createAbsGetServerSideProps('references');
 // export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
 //   try {
 //     const { id } = ctx.params as { id: string };
