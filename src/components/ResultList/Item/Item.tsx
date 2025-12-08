@@ -69,6 +69,7 @@ export const Item = (props: IItemProps): ReactElement => {
     defaultCitation = '',
   } = props;
   const { bibcode, pubdate, title = ['Untitled'], author = [], author_count, pub } = doc;
+  const encodedCanonicalID = bibcode ? encodeURIComponent(bibcode) : '';
   const formattedPubDate = getFormattedNumericPubdate(pubdate);
   const isClient = useIsClient();
   const truncatedPub =
@@ -86,7 +87,7 @@ export const Item = (props: IItemProps): ReactElement => {
   const cite = useNormCite ? (
     typeof doc.citation_count_norm === 'number' && doc.citation_count_norm > 0 ? (
       <SimpleLink
-        href={{ pathname: `/abs/${bibcode}/citations`, search: 'p=1' }}
+        href={{ pathname: `/abs/${encodedCanonicalID}/citations`, search: 'p=1' }}
         newTab={linkNewTab}
         onClick={saveScrollPosition}
       >
@@ -95,7 +96,7 @@ export const Item = (props: IItemProps): ReactElement => {
     ) : null
   ) : typeof doc.citation_count === 'number' && doc.citation_count > 0 ? (
     <SimpleLink
-      href={{ pathname: `/abs/${bibcode}/citations`, search: 'p=1' }}
+      href={{ pathname: `/abs/${encodedCanonicalID}/citations`, search: 'p=1' }}
       newTab={linkNewTab}
       onClick={saveScrollPosition}
     >
@@ -107,7 +108,7 @@ export const Item = (props: IItemProps): ReactElement => {
   const credited =
     Array.isArray(doc.credit) && doc.credit.length > 0 ? (
       <SimpleLink
-        href={{ pathname: `/abs/${bibcode}/credits`, search: 'p=1' }}
+        href={{ pathname: `/abs/${encodedCanonicalID}/credits`, search: 'p=1' }}
         newTab={linkNewTab}
         onClick={saveScrollPosition}
       >
@@ -141,7 +142,7 @@ export const Item = (props: IItemProps): ReactElement => {
       <Stack direction="column" width="full" spacing={0} mx={3} mt={2}>
         <Flex justifyContent="space-between" minH="40px">
           <SimpleLink
-            href={`/abs/${bibcode}/abstract`}
+            href={`/abs/${encodedCanonicalID}/abstract`}
             fontWeight="semibold"
             className="article-title"
             onClick={saveScrollPosition}

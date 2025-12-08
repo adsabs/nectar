@@ -9,6 +9,7 @@ import { MetricsPane } from '@/components/Visualizations';
 import { useGetAbstract } from '@/api/search/search';
 import { IDocsEntity } from '@/api/search/types';
 import { useGetMetrics } from '@/api/metrics/metrics';
+import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
 
 const MetricsPage: NextPage = () => {
   const router = useRouter();
@@ -45,7 +46,7 @@ const MetricsPage: NextPage = () => {
 
 export default MetricsPage;
 
-export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
+export const getServerSideProps = createAbsGetServerSideProps('metrics');
 // export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
 //   try {
 //     const { id } = ctx.params as { id: string };

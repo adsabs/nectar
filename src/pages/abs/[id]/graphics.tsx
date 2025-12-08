@@ -12,6 +12,7 @@ import { IDocsEntity } from '@/api/search/types';
 import { useGetGraphics } from '@/api/graphics/graphics';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage } from '@fortawesome/free-solid-svg-icons';
+import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
 
 const GraphicsPage: NextPage = () => {
   const router = useRouter();
@@ -88,7 +89,7 @@ const GraphicsPage: NextPage = () => {
 
 export default GraphicsPage;
 
-export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
+export const getServerSideProps = createAbsGetServerSideProps('graphics');
 // export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
 //   try {
 //     const { id } = ctx.params as { id: string };

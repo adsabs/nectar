@@ -282,6 +282,7 @@ export const Item = ({
   showCheckbox: boolean;
 }) => {
   const { bibcode, title, score } = entry;
+  const encodedCanonicalID = bibcode ? encodeURIComponent(bibcode) : '';
 
   const { author_count, author = [], pubdate, pub, citation_count } = doc;
 
@@ -294,7 +295,9 @@ export const Item = ({
 
   const cite =
     typeof citation_count === 'number' && citation_count > 0 ? (
-      <SimpleLink href={{ pathname: `/abs/${bibcode}/citations`, search: 'p=1' }}>cited: {citation_count}</SimpleLink>
+      <SimpleLink href={{ pathname: `/abs/${encodedCanonicalID}/citations`, search: 'p=1' }}>
+        cited: {citation_count}
+      </SimpleLink>
     ) : null;
 
   return (
@@ -316,7 +319,7 @@ export const Item = ({
       )}
       <Stack direction="column" width="full" spacing={0} mx={3} mt={2}>
         <Flex justifyContent="space-between">
-          <SimpleLink href={`/abs/${bibcode}/abstract`} fontWeight="semibold">
+          <SimpleLink href={`/abs/${encodedCanonicalID}/abstract`} fontWeight="semibold">
             <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
           </SimpleLink>
           <Text fontSize="sm">Score: {score}</Text>

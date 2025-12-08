@@ -63,7 +63,8 @@ export const Metatags = (props: IMetatagsProps): ReactElement => {
 
   const title = doc.title ? doc.title.join('; ') : '';
 
-  const url = `${baseUrl}/abs/${doc.bibcode}/abstract`;
+  const encodedCanonicalID = doc.bibcode ? encodeURIComponent(doc.bibcode) : '';
+  const url = `${baseUrl}/abs/${encodedCanonicalID}/abstract`;
 
   const logo = `${baseUrl}/styles/images/transparent_logo.svg`;
 
@@ -82,7 +83,7 @@ export const Metatags = (props: IMetatagsProps): ReactElement => {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(docToJsonld(doc, baseUrl)) }}
       />
 
-      <link rel="canonical" href={`${baseUrl}/abs/${doc.bibcode}/abstract`} />
+      <link rel="canonical" href={`${baseUrl}/abs/${encodedCanonicalID}/abstract`} />
 
       <meta name="description" content={doc.abstract} />
 

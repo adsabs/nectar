@@ -102,17 +102,18 @@ const PapersList = ({ papers }: { papers: IAuthorNetworkNodeDetails['papers'] })
 
 const PaperItem = ({ paper }: { paper: Paper }) => {
   const { bibcode, title, citation_count, groupAuthorCount } = paper;
+  const encodedCanonicalID = bibcode ? encodeURIComponent(bibcode) : '';
 
   const cite =
     typeof citation_count === 'number' && citation_count > 0 ? (
-      <SimpleLink href={{ pathname: `/abs/${bibcode}/citations`, search: 'p=1' }} newTab>
+      <SimpleLink href={{ pathname: `/abs/${encodedCanonicalID}/citations`, search: 'p=1' }} newTab>
         cited: {citation_count}
       </SimpleLink>
     ) : null;
 
   return (
     <Box my={0.5}>
-      <SimpleLink href={`/abs/${bibcode}/abstract`} fontWeight="semibold">
+      <SimpleLink href={`/abs/${encodedCanonicalID}/abstract`} fontWeight="semibold">
         <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
       </SimpleLink>
       <HStack>

@@ -11,6 +11,7 @@ import { StandardAlertMessage } from '@/components/Feedbacks';
 import { useGetAbstract, useGetToc } from '@/api/search/search';
 import { IDocsEntity } from '@/api/search/types';
 import { getTocParams } from '@/api/search/models';
+import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
 
 const VolumePage: NextPage = () => {
   const router = useRouter();
@@ -49,7 +50,7 @@ const VolumePage: NextPage = () => {
 
 export default VolumePage;
 
-export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
+export const getServerSideProps = createAbsGetServerSideProps('toc');
 // export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
 //   try {
 //     const { id } = ctx.params as { id: string };

@@ -7,6 +7,7 @@ import { edgeLogger } from '@/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimit } from '@/rateLimit';
 import { isLegacySearchURL, legacySearchURLMiddleware } from '@/middlewares/legacySearchURLMiddleware';
+import { ErrorSource, handleError } from '@/lib/errorHandler';
 
 const log = edgeLogger.child({}, { msgPrefix: '[middleware] ' });
 
@@ -85,6 +86,101 @@ const loginMiddleware = async (req: NextRequest, res: NextResponse) => {
   return res;
 };
 
+export const normalizeAbsPath = (
+  pathname: string,
+): { shouldRewrite: boolean; rewrittenPath?: string; rawIdentifier?: string; view?: string } => {
+  if (!pathname.startsWith('/abs/')) {
+    return { shouldRewrite: false };
+  }
+
+  const parts = pathname.split('/').filter(Boolean); // ['abs', 'id', '...view']
+  if (parts.length < 2) {
+    return { shouldRewrite: false };
+  }
+
+  const knownViews = new Set([
+    'abstract',
+    'citations',
+    'references',
+    'credits',
+    'mentions',
+    'coreads',
+    'similar',
+    'graphics',
+    'metrics',
+    'toc',
+    'exportcitation',
+  ]);
+
+  let view = 'abstract';
+  let idSegments: string[] = [];
+  const hasEncodedId = parts.some((segment, idx) => idx > 0 && segment.includes('%2F'));
+
+  if (parts.length >= 3 && parts[parts.length - 2] === 'exportcitation') {
+    view = `exportcitation/${parts[parts.length - 1]}`;
+    idSegments = parts.slice(1, -2);
+  } else {
+    const viewCandidate = parts[parts.length - 1];
+    const hasKnownView = knownViews.has(viewCandidate);
+
+    if (!hasKnownView) {
+      view = 'abstract';
+      if (hasEncodedId) {
+        idSegments = parts.length > 2 ? parts.slice(1, -1) : parts.slice(1);
+      } else if (parts.length === 3) {
+        idSegments = parts.slice(1); // treat as no explicit view, keep both segments
+      } else if (parts.length > 3) {
+        idSegments = parts.slice(1, -1); // drop trailing unknown segment
+      } else {
+        idSegments = parts.slice(1);
+      }
+    } else {
+      view = viewCandidate;
+      idSegments = parts.slice(1, -1);
+      if (idSegments.length <= 1) {
+        return { shouldRewrite: false };
+      }
+    }
+  }
+
+  if (idSegments.length <= 1 && !hasEncodedId) {
+    return { shouldRewrite: false };
+  }
+
+  const rawIdentifier = idSegments.join('/');
+  const encodedIdentifier = hasEncodedId ? rawIdentifier : encodeURIComponent(rawIdentifier);
+  const rewrittenPath = `/abs/${encodedIdentifier}/${view}`;
+
+  return { shouldRewrite: true, rewrittenPath, rawIdentifier, view };
+};
+
+export const rewriteAbsIdentifier = (req: NextRequest) => {
+  try {
+    const { shouldRewrite, rewrittenPath, rawIdentifier, view } = normalizeAbsPath(req.nextUrl.pathname);
+
+    if (!shouldRewrite || !rewrittenPath) {
+      return null;
+    }
+
+    const rewrittenUrl = req.nextUrl.clone();
+    rewrittenUrl.pathname = rewrittenPath;
+
+    log.info(
+      { rawIdentifier, view, pathname: req.nextUrl.pathname, rewritten: rewrittenUrl.pathname },
+      'Rewriting abs path',
+    );
+
+    return NextResponse.rewrite(rewrittenUrl);
+  } catch (error) {
+    handleError(error, {
+      source: ErrorSource.MIDDLEWARE,
+      context: { pathname: req.nextUrl.pathname },
+      tags: { feature: 'abs-canonical', stage: 'rewrite' },
+    });
+    return null;
+  }
+};
+
 const protectedRoute = async (req: NextRequest, res: NextResponse) => {
   log.debug('Accessing protected route');
   const session = await getIronSession(req, res, sessionConfig);
@@ -114,7 +210,7 @@ const emitAnalytics = async (req: NextRequest): Promise<void> => {
   const path = req.nextUrl.pathname;
 
   // For abs/ routes we want to send emit an event to the link gateway
-  if (path.startsWith('/abs')) {
+  if (path.startsWith('/abs') && process.env.BASE_URL) {
     const url = `${process.env.BASE_URL}/link_gateway${path.replace('/abs', '')}`;
     log.debug({ path, url }, 'Emitting abs route event to link gateway');
 
@@ -122,7 +218,11 @@ const emitAnalytics = async (req: NextRequest): Promise<void> => {
       await fetch(url, { method: 'GET' });
       log.debug('Event successfully sent to link gateway');
     } catch (err) {
-      log.error({ err: err as Error }, 'Error sending event to link gateway');
+      handleError(err, {
+        source: ErrorSource.MIDDLEWARE,
+        context: { path, url },
+        tags: { feature: 'abs-canonical', stage: 'emit-analytics' },
+      });
     }
   }
   return Promise.resolve();
@@ -148,6 +248,11 @@ export async function middleware(req: NextRequest) {
     },
     'Request',
   );
+
+  const maybeAbsRewrite = rewriteAbsIdentifier(req);
+  if (maybeAbsRewrite) {
+    return maybeAbsRewrite;
+  }
 
   const res = NextResponse.next();
 

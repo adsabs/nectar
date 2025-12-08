@@ -39,21 +39,25 @@ const nextConfig = {
   },
   async rewrites() {
     if (process.env.NODE_ENV !== 'production') {
-      return {
-        beforeFiles: [
-          // rewrites for link_gateway
-          {
-            source: '/link_gateway/:path*',
-            destination: `${process.env.BASE_CANONICAL_URL}/link_gateway/:path*`,
-          },
+      const beforeFiles = [];
 
-          // rewrites for API calls to the server
-          {
-            source: '/v1/:path*',
-            destination: `${process.env.API_HOST_CLIENT}/:path*`,
-          },
-        ],
-      };
+      if (process.env.BASE_CANONICAL_URL) {
+        beforeFiles.push({
+          source: '/link_gateway/:path*',
+          destination: `${process.env.BASE_CANONICAL_URL}/link_gateway/:path*`,
+        });
+      }
+
+      if (process.env.API_HOST_CLIENT) {
+        beforeFiles.push({
+          source: '/v1/:path*',
+          destination: `${process.env.API_HOST_CLIENT}/:path*`,
+        });
+      }
+
+      if (beforeFiles.length > 0) {
+        return { beforeFiles };
+      }
     }
     return {};
   },
