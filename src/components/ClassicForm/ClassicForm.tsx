@@ -24,7 +24,6 @@ import {
 } from '@chakra-ui/react';
 import { CalendarIcon } from '@chakra-ui/icons';
 
-import { APP_DEFAULTS } from '@/config';
 import { useErrorMessage } from '@/lib/useErrorMessage';
 import { useIsClient } from '@/lib/useIsClient';
 import { useRouter } from 'next/router';
@@ -51,7 +50,7 @@ const propTypes = {
 };
 
 export const defaultClassicFormState: IClassicFormState = {
-  limit: ['astronomy'],
+  limit: ['astronomy', 'physics'],
   author: '',
   logic_author: 'and',
   object: '',
@@ -64,7 +63,7 @@ export const defaultClassicFormState: IClassicFormState = {
   logic_abstract_keywords: 'and',
   property: [],
   bibstems: '',
-  sort: APP_DEFAULTS.SORT,
+  sort: ['date desc'],
 };
 
 export interface IClassicFormProps {
@@ -114,7 +113,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
         {/* Collection selection */}
         <FormControl as="fieldset">
           <FormLabel as="legend">Collection</FormLabel>
-          <CheckboxGroup defaultValue={['astronomy']}>
+          <CheckboxGroup defaultValue={['astronomy', 'physics']}>
             <HStack spacing="6">
               <Checkbox value="astronomy" {...register('limit')}>
                 Astronomy
@@ -349,6 +348,7 @@ const CurrentQuery = (props: { control: Control<IClassicFormState> }) => {
   return (
     <Expandable
       title="Generated Query"
+      defaultOpen
       description={
         <HStack>
           <Code>{query}</Code>

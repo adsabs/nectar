@@ -310,7 +310,7 @@ export const getSearchQuery = (
 ): string => {
   if (isEmpty(params)) {
     const { query } = applyAdsModeDefaultsToQuery({
-      query: { q: APP_DEFAULTS.EMPTY_QUERY, sort: APP_DEFAULTS.SORT } as IADSApiSearchParams,
+      query: { q: APP_DEFAULTS.EMPTY_QUERY, sort: ['date desc'] } as IADSApiSearchParams,
       adsModeEnabled: options.adsModeEnabled ?? false,
     });
     return makeSearchParams({ ...query, d: options.adsModeEnabled ? AppMode.ASTROPHYSICS : options.mode });

@@ -122,7 +122,7 @@ describe('Classic Form Query Handling', () => {
   test('getSearchQuery handles empty input', () => {
     const query = getSearchQuery({} as IRawClassicFormState);
     const actual = new URLSearchParams(query);
-    expect(actual.toString()).toBe('n=10&p=1&q=*%3A*&sort=score+desc&sort=date+desc');
+    expect(actual.toString()).toBe('n=10&p=1&q=*%3A*&sort=date+desc');
   });
 
   test('getSearchQuery properly generates search query', () => {
