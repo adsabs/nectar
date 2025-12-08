@@ -94,7 +94,7 @@ export const AbstractSources = ({ doc, style }: IAbstractSourcesProps): ReactEle
       {style === 'accordion' ? (
         <Box id="resources-container">
           <Accordion variant="abs-resources" allowMultiple defaultIndex={fullTextResources.length === 0 ? [] : [0]}>
-            <AccordionItem isDisabled={fullTextResources.length === 0}>
+            <AccordionItem isDisabled={fullTextResources.length === 0} id="tour-full-text-sources">
               <AccordionButton>
                 <Box flex="1" textAlign="left" fontWeight="medium">
                   Full Text Sources
@@ -105,7 +105,7 @@ export const AbstractSources = ({ doc, style }: IAbstractSourcesProps): ReactEle
                 <FullTextSourceItems resources={fullTextResources} type="list" />
               </AccordionPanel>
             </AccordionItem>
-            <AccordionItem isDisabled={dataProductResources.length === 0}>
+            <AccordionItem isDisabled={dataProductResources.length === 0} id="tour-data-products">
               <AccordionButton>
                 <Box flex="1" textAlign="left" fontWeight="medium">
                   Data Products
@@ -150,7 +150,7 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
   const { dataProducts, relatedWorks } = props;
 
   return (
-    <Menu>
+    <Menu id="tour-data-products">
       <MenuButton
         as={Button}
         rightIcon={<ChevronDownIcon />}

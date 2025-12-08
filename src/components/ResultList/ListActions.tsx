@@ -183,6 +183,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
                 aria-label="Create email notification of this query"
                 variant="outline"
                 onClick={onCreateNotificationOpen}
+                id="tour-email-notification"
               />
               <SettingsMenu />
             </Flex>
@@ -216,7 +217,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
               )}
             </Stack>
             <Stack direction="row" mx={5} order={{ base: '1', md: '2' }} wrap="wrap">
-              <Menu>
+              <Menu id="tour-bulk-actions">
                 <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
                   Bulk Actions
                 </MenuButton>
@@ -246,7 +247,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
                   </MenuList>
                 </Portal>
               </Menu>
-              <Menu>
+              <Menu id="tour-explore">
                 <MenuButton as={Button} rightIcon={<ChevronDownIcon />} data-testid="explorer-menu-btn">
                   Explore
                 </MenuButton>
@@ -311,12 +312,14 @@ const sortSelector: [
 const SortWrapper = ({ onChange }: { onChange: ISortProps<SolrSort, SolrSortField>['onChange'] }) => {
   const query = useStore(...sortSelector);
 
-  return <Sort<SolrSort, SolrSortField> sort={query.sort[0]} onChange={onChange} options={solrSortOptions} />;
+  return (
+    <Sort<SolrSort, SolrSortField> sort={query.sort[0]} onChange={onChange} options={solrSortOptions} id="sort-order" />
+  );
 };
 
 const SettingsMenu = () => {
   return (
-    <Menu isLazy autoSelect={false}>
+    <Menu isLazy autoSelect={false} id="tour-view-highlights">
       <MenuButton as={IconButton} aria-label="Result list settings" variant="outline" icon={<SettingsIcon />} />
       <MenuList>
         <HighlightsToggle />
