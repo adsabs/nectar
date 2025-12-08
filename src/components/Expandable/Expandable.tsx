@@ -5,10 +5,16 @@ import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons';
 export interface IExpandableProps extends StackProps {
   title: string;
   description: string | ReactElement;
+  defaultOpen?: boolean;
 }
 
-export const Expandable = ({ title, description, ...stackProps }: IExpandableProps): ReactElement => {
-  const { isOpen, onToggle } = useDisclosure();
+export const Expandable = ({
+  title,
+  description,
+  defaultOpen = false,
+  ...stackProps
+}: IExpandableProps): ReactElement => {
+  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: defaultOpen });
 
   const handleToggle = () => {
     onToggle();
