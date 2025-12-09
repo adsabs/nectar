@@ -107,7 +107,11 @@ const ModalFacet = (props: ISearchFacetModalProps) => {
                 px="2"
                 flexWrap="wrap"
                 letter={letter}
-                onLetterChange={setLetter}
+                lowercase={params.isLowerCase}
+                onLetterChange={(l) => {
+                  // AlphaSorter already handles casing; preserve the sentinel 'All'
+                  setLetter(l === 'All' ? 'All' : l);
+                }}
               />
             ) : null}
           </>
@@ -133,7 +137,10 @@ const useGetSearchTerm = () => {
   const search = useFacetStore((state) => state.search);
 
   const searchTerm = useDebounce(
-    useMemo(() => (sort[0] === 'index' ? (letter === 'All' ? '' : letter) : search), [sort[0], letter, search]),
+    useMemo(
+      () => (sort[0] === 'index' ? (letter.toLowerCase() === 'all' ? '' : letter) : search),
+      [sort[0], letter, search],
+    ),
     SEARCH_DEBOUNCE_WAIT,
   );
 

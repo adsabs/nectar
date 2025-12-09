@@ -61,6 +61,11 @@ export interface ISearchFacetProps extends AccordionItemProps {
   /** Disallow loading more, regardless of result */
   noLoadMore?: boolean;
   forceUppercaseInitial?: boolean;
+  /**
+   * Force hierarchical prefixing for API requests without enabling expansion in the UI
+   * (useful for facets that require 0/ prefixes but do not have child levels)
+   */
+  forceHierarchicalPrefix?: boolean;
   logic: {
     single: FacetLogic[];
     multiple: FacetLogic[];
@@ -69,6 +74,7 @@ export interface ISearchFacetProps extends AccordionItemProps {
   onVisibilityChange?: (change: { id: SearchFacetID; hidden: boolean }) => void;
   filter?: string[];
   onQueryUpdate: (queryUpdates: Partial<IADSApiSearchParams>) => void;
+  isLowerCase: boolean;
 }
 
 export const SearchFacet = (props: ISearchFacetProps): ReactElement => {

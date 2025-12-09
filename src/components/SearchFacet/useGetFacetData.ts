@@ -22,6 +22,8 @@ export interface IUseGetFacetDataProps {
   filter?: string[];
   enabled?: boolean;
   hasChildren?: boolean;
+  /** Force hierarchical prefix usage even when not expandable */
+  forceHierarchicalPrefix?: boolean;
   searchTerm?: string;
   limit?: number;
   offset?: number;
@@ -43,6 +45,7 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
     prefix,
     enabled = true,
     hasChildren = false,
+    forceHierarchicalPrefix = false,
     filter = [],
     searchTerm,
     limit,
@@ -72,6 +75,7 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
         offset: offset ?? pagination.startIndex,
         limit,
         hasChildren,
+        forceHierarchicalPrefix,
         searchTerm,
       }),
     },
@@ -218,7 +222,7 @@ const getSearchFacetParams = (props: IUseGetFacetDataProps & { offset: number; l
       numBuckets: true,
       sort: `${props.sortField ?? 'index'} ${props.sortDir ?? 'desc'}`,
       ...(props.query ? { query: props.query } : {}),
-      ...(props.hasChildren
+      ...(props.hasChildren || props.forceHierarchicalPrefix
         ? { prefix: getPrefix(props.prefix, sanitize(props.searchTerm)) }
         : { prefix: sanitize(props.searchTerm) }),
     },
