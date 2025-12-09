@@ -4,6 +4,7 @@ import { MenuDropdown } from './MenuDropdown';
 import { isBrowser } from '@/utils/common/guards';
 
 const items = [
+  { id: 'whats-new', path: '/scixhelp/whats_new/', label: "What's New" },
   {
     id: 'about',
     path: '/scixabout',
