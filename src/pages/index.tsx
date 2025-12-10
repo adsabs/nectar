@@ -46,6 +46,7 @@ import { syncUrlDisciplineParam } from '@/utils/appMode';
 import { LocalSettings } from '@/types';
 import { getHomeSteps } from '@/components/NavBar';
 import { useShepherd } from 'react-shepherd';
+import { useIsClient } from '@/lib/useIsClient';
 import { useScreenSize } from '@/lib/useScreenSize';
 
 const HomePage: NextPage = () => {
@@ -68,6 +69,7 @@ const HomePage: NextPage = () => {
   const urlModeOverride = useStore((state) => state.urlModeOverride);
   const setUrlModeOverride = useStore((state) => state.setUrlModeOverride);
   const { isScreenSmall } = useScreenSize();
+  const isClient = useIsClient();
 
   // start tour if first time
   useTour();
@@ -160,10 +162,11 @@ const HomePage: NextPage = () => {
         if (applied) {
           trackAdsDefaultsApplied('home');
         }
+        const d = adsModeActive ? urlModeOverride ?? AppMode.ASTROPHYSICS : mode;
         void router
           .push({
             pathname: '/search',
-            search: makeSearchParams({ ...adsQuery, d: adsModeActive ? AppMode.ASTROPHYSICS : mode }),
+            search: makeSearchParams({ ...adsQuery, d }),
           })
           .finally(() => {
             setIsLoading(false);
@@ -181,6 +184,7 @@ const HomePage: NextPage = () => {
       sort,
       submitQuery,
       trackAdsDefaultsApplied,
+      urlModeOverride,
     ],
   );
 
@@ -204,7 +208,7 @@ const HomePage: NextPage = () => {
           <Box my={2}>
             <SearchBar isLoading={isLoading} query={query} queryAddition={queryAddition} />
           </Box>
-          {isScreenSmall ? (
+          {isScreenSmall && isClient ? (
             <>
               <Heading as="h3" my={5}>
                 <Center>
@@ -215,7 +219,7 @@ const HomePage: NextPage = () => {
             </>
           ) : (
             <Box mb={2} mt={5} minW="md">
-              <Carousel onExampleSelect={handleQueryExampleSelect} />
+              <Carousel onSelectExample={handleQueryExampleSelect} />
             </Box>
           )}
         </Flex>
@@ -231,9 +235,9 @@ const HomePage: NextPage = () => {
 
 export default HomePage;
 
-const Carousel = (props: { onExampleSelect: (text: string) => void }) => {
+const Carousel = (props: { onSelectExample: (text: string) => void }) => {
   const [initialPage, setInitialPage] = useState<number>(0);
-  const { onExampleSelect } = props;
+  const { onSelectExample } = props;
 
   useEffect(() => {
     setInitialPage(parseInt(localStorage.getItem(LocalSettings.CAROUSEL) ?? '0', 10));
@@ -332,7 +336,7 @@ const Carousel = (props: { onExampleSelect: (text: string) => void }) => {
         {
           uniqueId: 'search-examples',
           title: 'Search Examples',
-          content: <SearchExamples onSelectExample={onExampleSelect} />,
+          content: <SearchExamples onSelectExample={onSelectExample} />,
         },
       ]}
     />

@@ -10,6 +10,7 @@ import {
   getTitle,
 } from '../helpers';
 import { CollectionChoice, IRawClassicFormState, LogicChoice, PropertyChoice } from '../types';
+import { AppMode } from '@/types';
 import { describe, expect, test } from 'vitest';
 
 describe('Classic Form Query Handling', () => {
@@ -174,5 +175,29 @@ describe('Classic Form Query Handling', () => {
     expect(fqDatabase).toContain('database:"astronomy"');
     expect(fqDatabase).toContain('database:"physics"');
     expect(result.getAll('fq')).toContain('{!type=aqp v=$fq_database}');
+  });
+
+  test('getSearchQuery sets d to ASTROPHYSICS when ADS mode is enabled without override', () => {
+    const params = new URLSearchParams(
+      getSearchQuery({} as IRawClassicFormState, { adsModeEnabled: true, mode: AppMode.GENERAL }),
+    );
+    expect(params.get('d')).toBe('astrophysics');
+  });
+
+  test('getSearchQuery uses urlModeOverride for d when ADS mode is enabled', () => {
+    const params = new URLSearchParams(
+      getSearchQuery(
+        {} as IRawClassicFormState,
+        { adsModeEnabled: true, mode: AppMode.GENERAL, urlModeOverride: AppMode.HELIOPHYSICS },
+      ),
+    );
+    expect(params.get('d')).toBe('heliophysics');
+  });
+
+  test('getSearchQuery uses current mode for d when ADS mode is disabled', () => {
+    const params = new URLSearchParams(
+      getSearchQuery({} as IRawClassicFormState, { adsModeEnabled: false, mode: AppMode.PLANET_SCIENCE }),
+    );
+    expect(params.get('d')).toBe('planetary');
   });
 });

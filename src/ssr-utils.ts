@@ -14,13 +14,17 @@ import { isUserData } from '@/auth-utils';
 
 const log = logger.child({}, { msgPrefix: '[ssr-inject] ' });
 
-const updateUserStateSSR: IncomingGSSP = (ctx, prevResult) => {
+export const updateUserStateSSR: IncomingGSSP = (ctx, prevResult) => {
   const userData = ctx.req.session.token;
   const incomingState = (prevResult?.props?.dehydratedAppState ?? {}) as AppState;
+
+  // Only apply legacy mode if there's no persisted state for adsMode
+  const applyLegacyMode = ctx.req.session.legacyAppReferrer && incomingState.adsMode === undefined;
+
   const urlMode = mapDisciplineParamToAppMode(ctx.query?.d);
-  const legacyMode = ctx.req.session.legacyAppReferrer ? AppMode.ASTROPHYSICS : undefined;
+  const legacyMode = applyLegacyMode ? AppMode.ASTROPHYSICS : undefined;
   const resolvedMode = urlMode ?? legacyMode;
-  const legacyAdsMode = ctx.req.session.legacyAppReferrer ? { adsMode: { active: true } } : {};
+  const legacyAdsMode = applyLegacyMode ? { adsMode: { active: true } } : {};
 
   log.debug({
     msg: 'Injecting session data into client props',

@@ -76,6 +76,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
   const [queryError, setQueryError] = useErrorMessage<string>(props.ssrError);
   const adsModeActive = useStore((state) => state.adsMode.active);
   const mode = useStore((state) => state.mode);
+  const urlModeOverride = useStore((state) => state.urlModeOverride);
   const setMode = useStore((state) => state.setMode);
   const dismissModeNotice = useStore((state) => state.dismissModeNotice);
 
@@ -88,7 +89,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
 
     void handleSubmit((params) => {
       try {
-        const search = getSearchQuery(params, { adsModeEnabled: adsModeActive, mode });
+        const search = getSearchQuery(params, { adsModeEnabled: adsModeActive, mode, urlModeOverride });
         if (adsModeActive && mode !== AppMode.ASTROPHYSICS) {
           setMode(AppMode.ASTROPHYSICS);
           dismissModeNotice();

@@ -36,7 +36,7 @@ import { logger } from '@/logger';
 import { useStore } from '@/store';
 import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 import { BibstemPicker } from '@/components/BibstemPicker';
-import { stringifySearchParams } from '@/utils/common/search';
+import { makeSearchParams } from '@/utils/common/search';
 import { fetchVaultSearch, vaultKeys } from '@/api/vault/vault';
 import { SimpleLink } from '@/components/SimpleLink';
 import { applyAdsModeDefaultsToQuery, trackAdsDefaultsApplied } from '@/lib/adsMode';
@@ -131,7 +131,7 @@ const PaperForm: NextPage<{ error?: IPaperFormServerError }> = ({ error: ssrErro
   const handleSubmit = useCallback(
     async (params: PaperFormState[PaperFormType]) => {
       try {
-        const destination = await getSearchQuery(params, queryClient, adsModeActive, mode);
+        const destination = await getSearchQuery(params, queryClient, adsModeActive, mode, urlModeOverride);
         if (adsModeActive && mode !== AppMode.ASTROPHYSICS) {
           setMode(AppMode.ASTROPHYSICS);
           dismissModeNotice();
@@ -153,6 +153,7 @@ const PaperForm: NextPage<{ error?: IPaperFormServerError }> = ({ error: ssrErro
       setError,
       setMode,
       trackAdsDefaultsApplied,
+      urlModeOverride,
     ],
   );
 
@@ -402,7 +403,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
     const body = (ctx.req as ReqWithBody).body;
 
     try {
-      const destination = await getSearchQuery(body, queryClient, false, mode);
+      const destination = await getSearchQuery(body, queryClient, false, undefined);
 
       return {
         props: {},
@@ -455,7 +456,7 @@ const createQuery = pipe<
   join(' '),
 );
 
-const stringifyQuery = (q: string, adsModeEnabled: boolean, mode?: AppMode) => {
+const stringifyQuery = (q: string, adsModeEnabled: boolean, mode?: AppMode, urlModeOverride?: AppMode | null) => {
   const { query } = applyAdsModeDefaultsToQuery({
     query: {
       q,
@@ -463,10 +464,11 @@ const stringifyQuery = (q: string, adsModeEnabled: boolean, mode?: AppMode) => {
     } as IADSApiSearchParams,
     adsModeEnabled,
   });
-  return stringifySearchParams({
+  const d = adsModeEnabled ? urlModeOverride ?? AppMode.ASTROPHYSICS : mode;
+  return makeSearchParams({
     ...query,
     p: 1,
-    d: adsModeEnabled ? AppMode.ASTROPHYSICS : mode,
+    d,
   });
 };
 
@@ -481,16 +483,17 @@ const journalQueryNotEmpty = pipe<
   any((v) => v.length > 0),
 );
 
-const getSearchQuery = async (
+export const getSearchQuery = async (
   formParams: PaperFormState[PaperFormType],
   queryClient: QueryClient,
   adsModeEnabled = false,
   mode?: AppMode,
+  urlModeOverride?: AppMode | null,
 ) => {
   switch (formParams.form) {
     case PaperFormType.JOURNAL_QUERY: {
       if (journalQueryNotEmpty(formParams)) {
-        return `/search?${stringifyQuery(createQuery(formParams), adsModeEnabled, mode)}`;
+        return `/search?${stringifyQuery(createQuery(formParams), adsModeEnabled, mode, urlModeOverride)}`;
       }
       throw new Error('Journal query was empty');
     }
@@ -505,7 +508,7 @@ const getSearchQuery = async (
         });
 
         if (resolved.score !== '0.0' && typeof resolved.bibcode === 'string') {
-          return `/search?${stringifyQuery(`bibcode:${resolved.bibcode}`, adsModeEnabled, mode)}`;
+          return `/search?${stringifyQuery(`bibcode:${resolved.bibcode}`, adsModeEnabled, mode, urlModeOverride)}`;
         }
       } catch (err) {
         throw new Error('Error fetching result from reference resolver', { cause: err });
@@ -523,10 +526,10 @@ const getSearchQuery = async (
             queryFn: fetchVaultSearch,
             meta: { params },
           });
-          return `/search?${stringifyQuery(`docs(${qid})`, adsModeEnabled, mode)}`;
+          return `/search?${stringifyQuery(`docs(${qid})`, adsModeEnabled, mode, urlModeOverride)}`;
         }
         const q = joinBibcodeTerms(cleanBibs);
-        return `/search?${stringifyQuery(q, adsModeEnabled, mode)}`;
+        return `/search?${stringifyQuery(q, adsModeEnabled, mode, urlModeOverride)}`;
       } catch (err) {
         throw new Error('Error retrieving result for this set of bibcodes, please try again', { cause: err });
       }

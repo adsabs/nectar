@@ -306,14 +306,15 @@ export const getBibstems = (bibstems: string) => {
  */
 export const getSearchQuery = (
   params: IRawClassicFormState,
-  options: { adsModeEnabled?: boolean; mode?: AppMode } = {},
+  options: { adsModeEnabled?: boolean; mode?: AppMode; urlModeOverride?: AppMode | null } = {},
 ): string => {
+  const d = options.adsModeEnabled ? options.urlModeOverride ?? AppMode.ASTROPHYSICS : options.mode;
   if (isEmpty(params)) {
     const { query } = applyAdsModeDefaultsToQuery({
       query: { q: APP_DEFAULTS.EMPTY_QUERY, sort: ['date desc'] } as IADSApiSearchParams,
       adsModeEnabled: options.adsModeEnabled ?? false,
     });
-    return makeSearchParams({ ...query, d: options.adsModeEnabled ? AppMode.ASTROPHYSICS : options.mode });
+    return makeSearchParams({ ...query, d });
   }
 
   // sanitize strings
@@ -355,5 +356,5 @@ export const getSearchQuery = (
     adsModeEnabled: options.adsModeEnabled ?? false,
   });
 
-  return makeSearchParams({ ...adsQuery, d: options.adsModeEnabled ? AppMode.ASTROPHYSICS : options.mode });
+  return makeSearchParams({ ...adsQuery, d });
 };
