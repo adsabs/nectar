@@ -50,6 +50,26 @@ export async function legacyAppDetectionMiddleware(
   res: NextResponse,
   session: IronSession,
 ): Promise<void> {
+  const referer = req.headers.get('referer');
+  if (referer) {
+    try {
+      const refererUrl = new URL(referer);
+      const currentHost = req.nextUrl.hostname;
+      if (refererUrl.hostname === currentHost) {
+        // Self-referral. If the legacy flag is on, turn it off.
+        if (session.legacyAppReferrer) {
+          log.debug('Self-referral detected, turning off legacyAppReferrer');
+          session.legacyAppReferrer = false;
+          await session.save();
+        }
+        return;
+      }
+    } catch (error) {
+      log.debug({ referer, error }, 'Failed to parse referer URL in middleware');
+      // ignore, proceed to legacy check
+    }
+  }
+
   const isLegacyReferrer = isFromLegacyApp(req);
 
   if (isLegacyReferrer && !session.legacyAppReferrer) {

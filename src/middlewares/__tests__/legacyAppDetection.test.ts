@@ -54,6 +54,18 @@ describe('legacyAppDetectionMiddleware', () => {
     expect(mockSession.save).toHaveBeenCalledOnce();
   });
 
+  test('should set legacyAppReferrer to false when referer is a self-referral', async () => {
+    mockSession.legacyAppReferrer = true;
+    const req = new NextRequest('https://scixplorer.org/search');
+    req.headers.set('referer', 'https://scixplorer.org/some/path');
+    const res = NextResponse.next();
+
+    await legacyAppDetectionMiddleware(req, res, mockSession);
+
+    expect(mockSession.legacyAppReferrer).toBe(false);
+    expect(mockSession.save).toHaveBeenCalledOnce();
+  });
+
   test('should not modify session when referer is not from legacy app', async () => {
     const req = new NextRequest('https://scixplorer.org/search');
     req.headers.set('referer', 'https://google.com');
