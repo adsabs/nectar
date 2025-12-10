@@ -159,7 +159,7 @@ export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDro
   };
 
   const handleCitationCopied = () => {
-    if (defaultCitation !== '') {
+    if (!!defaultCitation) {
       toast({ status: 'info', title: 'Copied to Clipboard' });
     } else {
       toast({ status: 'error', title: 'There was a problem fetching citation. Try reloading the page.' });
