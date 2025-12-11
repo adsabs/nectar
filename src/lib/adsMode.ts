@@ -39,7 +39,7 @@ export const applyAdsModeDefaultsToQuery = ({
 
   const { fq, fq_database } = applyFiltersToQuery({
     field: 'database',
-    logic: 'and' as FacetLogic,
+    logic: 'or' as FacetLogic,
     values: ADS_DEFAULT_COLLECTIONS as unknown as string[],
     query: queryWithoutAdsDb,
   });
