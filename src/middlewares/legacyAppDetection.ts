@@ -35,8 +35,9 @@ export function isFromLegacyApp(req: NextRequest): boolean {
  * Middleware to detect users coming from the legacy ADS app and mark them in the session
  * so their mode can be set to ASTROPHYSICS during SSR hydration.
  *
- * Once set to true, the flag persists for the entire session lifetime.
- * This allows SSR hydration to set the default mode to ASTROPHYSICS for legacy users.
+ * The flag is set to true when a legacy referrer is detected, and is automatically
+ * cleared after being applied once in SSR (see ssr-utils.ts) or when a self-referral
+ * is detected (user navigating within the app).
  *
  * Performance: Only saves session when the flag changes from false → true,
  * avoiding expensive encryption on every request.
