@@ -62,6 +62,7 @@ export const useOrcid = () => {
           });
           logout();
         }
+        // TODO: figure out why this runs even when orcid mode is off
         if (profileState.error.response?.status >= 500) {
           toast({
             status: 'error',

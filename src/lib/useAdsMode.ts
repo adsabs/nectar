@@ -45,7 +45,18 @@ export const useAdsMode = () => {
         data: { source },
       });
     },
-    [mode, setAdsMode, setMode, urlModeOverride, router],
+    [
+      setAdsMode,
+      mode,
+      urlModeOverride,
+      setUrlModeUserSelected,
+      setUrlModePendingParam,
+      setUrlModeOverride,
+      setUrlModePrevious,
+      setMode,
+      dismissModeNotice,
+      router,
+    ],
   );
 
   const disable = useCallback(
