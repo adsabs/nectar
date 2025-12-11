@@ -118,6 +118,12 @@ export const getHomeSteps = (isMobile: boolean) => {
       },
       buttons: [
         {
+          text: 'Prev',
+          action: function () {
+            this.back();
+          },
+        },
+        {
           text: 'Next',
           action: function () {
             this.next();
@@ -138,6 +144,12 @@ export const getHomeSteps = (isMobile: boolean) => {
         middleware: [offset(10)],
       },
       buttons: [
+        {
+          text: 'Prev',
+          action: function () {
+            this.back();
+          },
+        },
         {
           text: 'Next',
           action: function () {
@@ -164,6 +176,12 @@ export const getHomeSteps = (isMobile: boolean) => {
       },
       buttons: [
         {
+          text: 'Prev',
+          action: function () {
+            this.back();
+          },
+        },
+        {
           text: 'Next',
           action: function () {
             this.next();
@@ -184,6 +202,12 @@ export const getHomeSteps = (isMobile: boolean) => {
         middleware: [offset(10)],
       },
       buttons: [
+        {
+          text: 'Prev',
+          action: function () {
+            this.back();
+          },
+        },
         {
           text: 'Close',
           action: function () {
@@ -232,6 +256,12 @@ export const getResultsSteps = () => {
       },
       buttons: [
         {
+          text: 'Prev',
+          action: function () {
+            this.back();
+          },
+        },
+        {
           text: 'Next',
           action: function () {
             this.next();
@@ -252,6 +282,12 @@ export const getResultsSteps = () => {
         middleware: [offset(10)],
       },
       buttons: [
+        {
+          text: 'Prev',
+          action: function () {
+            this.back();
+          },
+        },
         {
           text: 'Next',
           action: function () {
@@ -274,6 +310,12 @@ export const getResultsSteps = () => {
       },
       buttons: [
         {
+          text: 'Prev',
+          action: function () {
+            this.back();
+          },
+        },
+        {
           text: 'Next',
           action: function () {
             this.next();
@@ -294,6 +336,12 @@ export const getResultsSteps = () => {
         middleware: [offset(10)],
       },
       buttons: [
+        {
+          text: 'Prev',
+          action: function () {
+            this.back();
+          },
+        },
         {
           text: 'Next',
           action: function () {
@@ -316,6 +364,12 @@ export const getResultsSteps = () => {
       },
       buttons: [
         {
+          text: 'Prev',
+          action: function () {
+            this.back();
+          },
+        },
+        {
           text: 'Next',
           action: function () {
             this.next();
@@ -336,6 +390,12 @@ export const getResultsSteps = () => {
         middleware: [offset(10)],
       },
       buttons: [
+        {
+          text: 'Prev',
+          action: function () {
+            this.back();
+          },
+        },
         {
           text: 'Next',
           action: function () {
@@ -358,6 +418,12 @@ export const getResultsSteps = () => {
       },
       buttons: [
         {
+          text: 'Prev',
+          action: function () {
+            this.back();
+          },
+        },
+        {
           text: 'Next',
           action: function () {
             this.next();
@@ -378,6 +444,12 @@ export const getResultsSteps = () => {
         middleware: [offset(10)],
       },
       buttons: [
+        {
+          text: 'Prev',
+          action: function () {
+            this.back();
+          },
+        },
         {
           text: 'Close',
           action: function () {
@@ -431,6 +503,12 @@ export const getAbstractSteps = (isMobile: boolean) => {
       },
       buttons: [
         {
+          text: 'Prev',
+          action: function () {
+            this.back();
+          },
+        },
+        {
           text: 'Next',
           action: function () {
             this.next();
@@ -457,6 +535,12 @@ export const getAbstractSteps = (isMobile: boolean) => {
       },
       buttons: [
         {
+          text: 'Prev',
+          action: function () {
+            this.back();
+          },
+        },
+        {
           text: 'Next',
           action: function () {
             this.next();
@@ -477,6 +561,12 @@ export const getAbstractSteps = (isMobile: boolean) => {
         middleware: [offset(10)],
       },
       buttons: [
+        {
+          text: 'Prev',
+          action: function () {
+            this.back();
+          },
+        },
         {
           text: 'Next',
           action: function () {
@@ -501,6 +591,12 @@ export const getAbstractSteps = (isMobile: boolean) => {
         middleware: [offset(10)],
       },
       buttons: [
+        {
+          text: 'Prev',
+          action: function () {
+            this.back();
+          },
+        },
         {
           text: 'Next',
           action: function () {
@@ -529,6 +625,12 @@ export const getAbstractSteps = (isMobile: boolean) => {
       },
       buttons: [
         {
+          text: 'Prev',
+          action: function () {
+            this.back();
+          },
+        },
+        {
           text: 'Close',
           action: function () {
             this.complete();
@@ -554,6 +656,12 @@ export const getAbstractSteps = (isMobile: boolean) => {
         );
       },
       buttons: [
+        {
+          text: 'Prev',
+          action: function () {
+            this.back();
+          },
+        },
         {
           text: 'Close',
           action: function () {
