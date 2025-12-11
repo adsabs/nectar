@@ -41,9 +41,8 @@ import {
 } from '@heroicons/react/24/solid';
 import { InfoIcon } from '@chakra-ui/icons';
 import { applyAdsModeDefaultsToQuery, trackAdsDefaultsApplied } from '@/lib/adsMode';
-import { AppMode } from '@/types';
+import { AppMode, LocalSettings } from '@/types';
 import { syncUrlDisciplineParam } from '@/utils/appMode';
-import { LocalSettings } from '@/types';
 import { getHomeSteps } from '@/components/NavBar';
 import { useShepherd } from 'react-shepherd';
 import { useIsClient } from '@/lib/useIsClient';
@@ -75,11 +74,13 @@ const HomePage: NextPage = () => {
   useTour();
 
   useEffect(() => {
-    const setNotify = () => {
+    const handleRouteChange = () => {
       if (router.query.notify) {
         setNotification(router.query.notify as NotificationId);
       }
+
       dismissModeNoticeSilently();
+
       if (urlModeOverride) {
         const fallbackMode = urlModePrevious ?? AppMode.GENERAL;
         if (mode !== fallbackMode) {
@@ -87,19 +88,24 @@ const HomePage: NextPage = () => {
         }
         setUrlModeOverride(null);
         void syncUrlDisciplineParam(router, fallbackMode);
+        return;
       }
-      if (adsModeActive && mode !== AppMode.ASTROPHYSICS) {
-        setMode(AppMode.ASTROPHYSICS);
+
+      if (adsModeActive) {
+        if (mode !== AppMode.ASTROPHYSICS) {
+          setMode(AppMode.ASTROPHYSICS);
+        }
+        return;
       }
-      if (!adsModeActive && urlModePrevious) {
+
+      if (urlModePrevious) {
         setMode(urlModePrevious);
       }
-      if (!adsModeActive) {
-        setUrlModePrevious(null);
-      }
+      setUrlModePrevious(null);
     };
-    router.events.on('routeChangeComplete', setNotify);
-    return () => router.events.off('routeChangeComplete', setNotify);
+
+    router.events.on('routeChangeComplete', handleRouteChange);
+    return () => router.events.off('routeChangeComplete', handleRouteChange);
   }, [
     router,
     setNotification,
@@ -324,7 +330,7 @@ const Carousel = (props: { onSelectExample: (text: string) => void }) => {
               </Text>
               <Text fontSize="xl">
                 Use the{' '}
-                <SimpleLink href="/scixhelp/" anchorProps={{ display: 'inline' }} newTab>
+                <SimpleLink href="/scixhelp/" display="inline" newTab>
                   quick start guide
                 </SimpleLink>{' '}
                 to start your search of the portal and find out where to go with any questions about advanced tools and

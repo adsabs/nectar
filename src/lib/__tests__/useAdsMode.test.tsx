@@ -78,4 +78,27 @@ describe('useAdsMode', () => {
     expect(state.mode).toBe(AppMode.HELIOPHYSICS);
     expect(state.modeNoticeVisible).toBe(true);
   });
+
+  it('enable callback uses current state values, not stale closures', () => {
+    const { store, wrapper } = setupStore({
+      mode: AppMode.GENERAL,
+      adsMode: { active: false },
+      urlModeOverride: null,
+      modeNoticeVisible: false,
+    });
+    const { result } = renderHook(() => useAdsMode(), { wrapper });
+
+    act(() => {
+      store.setState({ mode: AppMode.HELIOPHYSICS });
+    });
+
+    act(() => {
+      result.current.enable('test');
+    });
+
+    const state = store.getState();
+    expect(state.adsMode.active).toBe(true);
+    expect(state.mode).toBe(AppMode.ASTROPHYSICS);
+    expect(state.urlModePrevious).toBe(AppMode.HELIOPHYSICS);
+  });
 });
