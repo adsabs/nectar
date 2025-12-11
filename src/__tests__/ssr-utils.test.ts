@@ -78,4 +78,55 @@ describe('updateUserStateSSR', () => {
       }),
     );
   });
+
+  test('should clear legacyAppReferrer flag when applying legacy mode', async () => {
+    const mockSession = {
+      legacyAppReferrer: true,
+      save: vi.fn().mockResolvedValue(undefined),
+      destroy: vi.fn().mockResolvedValue(undefined),
+    };
+    const context = getMockContext(mockSession);
+
+    await updateUserStateSSR(context, { props: {} });
+
+    expect(context.req.session.legacyAppReferrer).toBe(false);
+    expect(context.req.session.save).toHaveBeenCalledOnce();
+  });
+
+  test('should clear legacyAppReferrer flag even with persisted state (migration)', async () => {
+    const mockSession = {
+      legacyAppReferrer: true,
+      save: vi.fn().mockResolvedValue(undefined),
+      destroy: vi.fn().mockResolvedValue(undefined),
+    };
+    const context = getMockContext(mockSession);
+    const props = {
+      props: {
+        dehydratedAppState: {
+          adsMode: { active: false },
+          mode: AppMode.GENERAL,
+        },
+      },
+    };
+
+    await updateUserStateSSR(context, props);
+
+    expect(context.req.session.legacyAppReferrer).toBe(false);
+    expect(context.req.session.save).toHaveBeenCalledOnce();
+    expect(props.props.dehydratedAppState.adsMode).toEqual({ active: false });
+    expect(props.props.dehydratedAppState.mode).toBe(AppMode.GENERAL);
+  });
+
+  test('should not save session when legacyAppReferrer is not set', async () => {
+    const mockSession = {
+      legacyAppReferrer: false,
+      save: vi.fn().mockResolvedValue(undefined),
+      destroy: vi.fn().mockResolvedValue(undefined),
+    };
+    const context = getMockContext(mockSession);
+
+    await updateUserStateSSR(context, { props: {} });
+
+    expect(context.req.session.save).not.toHaveBeenCalled();
+  });
 });
