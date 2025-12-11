@@ -14,12 +14,20 @@ import { isUserData } from '@/auth-utils';
 
 const log = logger.child({}, { msgPrefix: '[ssr-inject] ' });
 
-export const updateUserStateSSR: IncomingGSSP = (ctx, prevResult) => {
+export const updateUserStateSSR: IncomingGSSP = async (ctx, prevResult) => {
   const userData = ctx.req.session.token;
   const incomingState = (prevResult?.props?.dehydratedAppState ?? {}) as AppState;
 
   // Only apply legacy mode if there's no persisted state for adsMode
   const applyLegacyMode = ctx.req.session.legacyAppReferrer && incomingState.adsMode === undefined;
+
+  // Always clear the flag if present to prevent it from overriding user choices on subsequent navigation.
+  // This handles both new users (after first application) and existing sessions with the flag stuck from
+  // before this fix was deployed (migration).
+  if (ctx.req.session.legacyAppReferrer) {
+    ctx.req.session.legacyAppReferrer = false;
+    await ctx.req.session.save();
+  }
 
   const urlMode = mapDisciplineParamToAppMode(ctx.query?.d);
   const legacyMode = applyLegacyMode ? AppMode.ASTROPHYSICS : undefined;
