@@ -82,7 +82,7 @@
     "lucene": "^2.1.1",
     "match-sorter": "^6.3.1",
     "memoize-one": "^6.0.0",
-    "next": "15.5.7",
+    "next": "15.5.9",
     "next-build-id": "^3.0.0",
     "nprogress": "^0.2.0",
     "pino": "^8.16.2",
