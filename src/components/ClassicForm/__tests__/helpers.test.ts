@@ -123,7 +123,7 @@ describe('Classic Form Query Handling', () => {
   test('getSearchQuery handles empty input', () => {
     const query = getSearchQuery({} as IRawClassicFormState);
     const actual = new URLSearchParams(query);
-    expect(actual.toString()).toBe('n=10&p=1&q=*%3A*&sort=date+desc');
+    expect(actual.toString()).toBe('p=1&q=*%3A*&sort=date+desc');
   });
 
   test('getSearchQuery properly generates search query', () => {
@@ -186,10 +186,11 @@ describe('Classic Form Query Handling', () => {
 
   test('getSearchQuery uses urlModeOverride for d when ADS mode is enabled', () => {
     const params = new URLSearchParams(
-      getSearchQuery(
-        {} as IRawClassicFormState,
-        { adsModeEnabled: true, mode: AppMode.GENERAL, urlModeOverride: AppMode.HELIOPHYSICS },
-      ),
+      getSearchQuery({} as IRawClassicFormState, {
+        adsModeEnabled: true,
+        mode: AppMode.GENERAL,
+        urlModeOverride: AppMode.HELIOPHYSICS,
+      }),
     );
     expect(params.get('d')).toBe('heliophysics');
   });
