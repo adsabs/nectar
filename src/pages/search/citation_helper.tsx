@@ -370,7 +370,7 @@ const SelectAllCheckbox = ({
 };
 
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-  const { qid = null, p, n, ...query } = parseQueryFromUrl<{ qid: string }>(ctx.req.url);
+  const { qid = null, p, ...query } = parseQueryFromUrl<{ qid: string }>(ctx.req.url);
 
   if (!query && !qid) {
     return {

@@ -121,14 +121,14 @@ export const parseNumberWithEnumDefault = (
  * @param {Object} [options] - Optional settings for parsing.
  * @param {SolrSort} [options.sortPostfix] - Optional postfix to append to the sort parameter.
  *
- * @returns {IADSApiSearchParams & { p?: number; n?: number } & TExtra } An object containing the parsed and normalized
+ * @returns {IADSApiSearchParams & { p?: number;  } & TExtra } An object containing the parsed and normalized
  *  query parameters, including optional page (`p`) and number per page (`n`) parameters, as well as any additional
  *  parameters defined by `TExtra`.
  */
 export const parseQueryFromUrl = <TExtra extends Record<string, string | number | Array<string | number>>>(
   url: string,
   { sortPostfix }: { sortPostfix?: SolrSort } = {},
-): IADSApiSearchParams & { p?: number; n?: number } & TExtra => {
+): IADSApiSearchParams & { p?: number } & TExtra => {
   const queryString = url.indexOf('?') === -1 ? '' : url.split('?')[1];
   const params = parseSearchParams(queryString) as Record<string, string | string[]>;
   const normalizedParams = normalizeURLParams(params, ['fq']);
@@ -138,9 +138,8 @@ export const parseQueryFromUrl = <TExtra extends Record<string, string | number 
     q: q === '' ? APP_DEFAULTS.EMPTY_QUERY : q,
     sort: normalizeSolrSort(params.sort, sortPostfix),
     p: parseNumberAndClamp(normalizedParams?.p, 1),
-    n: parseNumberWithEnumDefault(params?.n, APP_DEFAULTS.PER_PAGE_OPTIONS),
     ...(params.fq ? { fq: safeSplitString(params.fq) } : {}),
-  } as IADSApiSearchParams & { p?: number; n?: number } & TExtra;
+  } as IADSApiSearchParams & { p?: number } & TExtra;
 };
 
 /**
@@ -218,7 +217,7 @@ const omitSearchParams: (arg0: object) => object = omit(IGNORED_URL_KEYS);
  * @returns {string} The serialized search parameters for use in a URL.
  */
 export const makeSearchParams = (params: SafeSearchUrlParams, options: { omit?: string[] } = {}): string => {
-  const cleanParams = omitSearchParams(params) as SafeSearchUrlParams & { p?: number; n?: number };
+  const cleanParams = omitSearchParams(params) as SafeSearchUrlParams & { p?: number };
   const disciplineParam =
     appModeToDisciplineParam(cleanParams.d as unknown as AppMode) ??
     normalizeDisciplineParam(cleanParams.d as unknown as string | string[]) ??
@@ -228,7 +227,6 @@ export const makeSearchParams = (params: SafeSearchUrlParams, options: { omit?: 
       ...cleanParams,
       sort: normalizeSolrSort(cleanParams.sort),
       p: parseNumberAndClamp(cleanParams?.p as unknown as string, 1),
-      n: parseNumberWithEnumDefault(cleanParams?.n as unknown as string, APP_DEFAULTS.PER_PAGE_OPTIONS),
       d: disciplineParam,
     }),
   );
