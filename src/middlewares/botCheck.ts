@@ -48,20 +48,20 @@ const getBotToken = (result: CRAWLER_RESULT): IronSessionData['token'] => {
     case CRAWLER_RESULT.BOT:
       log.debug('Bot detected');
       return {
-        access_token: process.env.VERIFIED_BOTS_ACCESS_TOKEN,
         ...baseToken,
+        access_token: process.env.VERIFIED_BOTS_ACCESS_TOKEN,
       };
     case CRAWLER_RESULT.UNVERIFIABLE:
       log.debug('Unverifiable bot detected');
       return {
-        access_token: process.env.UNVERIFIABLE_BOTS_ACCESS_TOKEN,
         ...baseToken,
+        access_token: process.env.UNVERIFIABLE_BOTS_ACCESS_TOKEN,
       };
     case CRAWLER_RESULT.POTENTIAL_MALICIOUS_BOT:
       log.debug('Potentially malicious bot detected');
       return {
-        access_token: process.env.MALICIOUS_BOTS_ACCESS_TOKEN,
         ...baseToken,
+        access_token: process.env.MALICIOUS_BOTS_ACCESS_TOKEN,
       };
     case CRAWLER_RESULT.HUMAN:
     default:

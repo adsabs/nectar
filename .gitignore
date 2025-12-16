@@ -128,9 +128,12 @@ storybook-static/
 /test-results/
 /playwright-report/
 /playwright/.cache/
+/e2e/test-results/
+/e2e/playwright-report/
 
 # Sentry Config File
 .sentryclirc
 
 # Sentry Config File
 .sentryclirc
+.pnpm-store/

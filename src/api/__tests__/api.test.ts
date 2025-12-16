@@ -163,7 +163,7 @@ test('Fallback to bootstrapping directly if the /api/user endpoint continuously 
   // the refresh header was added to force a new session
   expect(onReq.mock.calls[1][0].headers.get('x-refresh-token')).toMatchInlineSnapshot('"1"');
   expect(onReq.mock.calls[3][0].headers.get('authorization')).toMatchInlineSnapshot(
-    '"Bearer ------ mocked token ---------"',
+    '"Bearer mocked-anonymous-token"',
   );
 });
 
@@ -176,7 +176,7 @@ test('passing token initially skips bootstrap', async ({ server }: TestContext) 
   // only a single call since bootstrapping was unnecessary
   expect(onReq).toBeCalledTimes(1);
   expect(onReq.mock.calls[0][0].headers.get('authorization')).toEqual(`Bearer ${mockUserData.access_token}`);
-  expect(onReq.mock.calls[0][0].headers.get('cookie')).toEqual('session=test-session');
+  expect(onReq.mock.calls[0][0].headers.get('cookie')).toEqual('ads_session=test-session');
 });
 
 test('expired userdata causes bootstrap', async ({ server }: TestContext) => {

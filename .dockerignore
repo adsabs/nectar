@@ -10,3 +10,16 @@ stories
 .prettier*
 LICENSE
 README.md
+.git
+.cache
+out
+build
+.env.local
+.env*.local
+coverage
+*.log
+.turbo
+.vercel
+.idea
+e2e-stub
+dev

@@ -54,8 +54,9 @@ export const isAuthenticated = (user: IUserData) =>
 /**
  * Bootstraps the session (to get a new token)
  * @param cookie
+ * @param testHeaders - Optional headers for E2E testing scenarios
  */
-const bootstrap = async (cookie?: string) => {
+const bootstrap = async (cookie?: string, testHeaders?: Record<string, string>) => {
   if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled') {
     return {
       token: {
@@ -77,6 +78,13 @@ const bootstrap = async (cookie?: string) => {
   if (cookie) {
     headers.append('cookie', `${process.env.ADS_SESSION_COOKIE_NAME}=${cookie}`);
   }
+
+  if (testHeaders) {
+    Object.entries(testHeaders).forEach(([key, value]) => {
+      headers.append(key, value);
+    });
+  }
+
   try {
     log.debug({ url, headers }, 'Bootstrapping');
     const res = await fetch(url, {
@@ -119,7 +127,7 @@ const bootstrap = async (cookie?: string) => {
  * @param str - String to hash
  * @returns Hex-encoded SHA-1 hash, or empty string if input is empty/error
  */
-const hash = async (str?: string) => {
+export const hash = async (str?: string) => {
   if (!str) {
     return '';
   }
@@ -188,8 +196,11 @@ export const initSession = async (req: NextRequest, res: NextResponse, session: 
   // check if the user is a bot
   await botCheck(req, res);
 
+  const testScenario = req.headers.get('x-test-scenario');
+  const testHeaders = testScenario ? { 'x-test-scenario': testScenario } : undefined;
+
   // bootstrap a new token, passing in the current session cookie value
-  const bootstrapResult = await bootstrap(adsSessionCookie);
+  const bootstrapResult = await bootstrap(adsSessionCookie, testHeaders);
 
   if (!bootstrapResult) {
     log.error({

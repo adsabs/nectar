@@ -13,9 +13,11 @@ import { bibstemHandlers } from '@/mocks/handlers/bibstems';
 import { librariesHandlers } from '@/mocks/handlers/libraries';
 import { notificationsHandlers } from './handlers/notifications';
 import { resolverHandlers } from '@/mocks/handlers/resolver';
+import { analyticsHandlers } from '@/mocks/handlers/analytics';
 
 export const handlers = [
   ...accountHandlers,
+  ...analyticsHandlers,
   ...authorAffiliationHandlers,
   ...bibstemHandlers,
   ...exportHandlers,

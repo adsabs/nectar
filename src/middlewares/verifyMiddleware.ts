@@ -5,6 +5,7 @@ import { edgeLogger } from '@/logger';
 import { ApiTargets } from '@/api/models';
 import { IVerifyAccountResponse } from '@/api/user/types';
 import { createErrorHandler, ErrorSource, ErrorSeverity } from '@/lib/errorHandler.edge';
+import setCookie from 'set-cookie-parser';
 
 const log = edgeLogger.child({}, { msgPrefix: '[verifyMiddleware] ' });
 const handleMiddlewareError = createErrorHandler({
@@ -12,7 +13,7 @@ const handleMiddlewareError = createErrorHandler({
   tags: { middleware: 'verifyMiddleware' },
 });
 
-const extractToken = (path: string) => {
+export const extractToken = (path: string) => {
   try {
     if (typeof path === 'string') {
       const parts = path.split('/');
@@ -58,6 +59,12 @@ export const verifyMiddleware = async (req: NextRequest, res: NextResponse) => {
         cookie: `${process.env.ADS_SESSION_COOKIE_NAME}=${req.cookies.get(process.env.ADS_SESSION_COOKIE_NAME)?.value}`,
       });
 
+      // Forward test scenario header for E2E testing
+      const testScenario = req.headers.get('x-test-scenario');
+      if (testScenario) {
+        headers.set('x-test-scenario', testScenario);
+      }
+
       const result = await fetch(url, {
         method: 'GET',
         headers,
@@ -79,8 +86,25 @@ export const verifyMiddleware = async (req: NextRequest, res: NextResponse) => {
 
       if (json.message === 'success') {
         log.debug('Token was verified, redirecting...');
-        // apply the session cookie to the response
-        res.headers.set('set-cookie', result.headers.get('set-cookie'));
+
+        // Parse and propagate the Set-Cookie header from the verify endpoint
+        const setCookieHeader = result.headers.get('set-cookie');
+        if (setCookieHeader) {
+          const parsedCookies = setCookie.parse(setCookieHeader);
+          const apiCookie = parsedCookies[0];
+
+          if (apiCookie) {
+            // Sanitize cookie attributes similar to initSession
+            res.cookies.set(process.env.ADS_SESSION_COOKIE_NAME, apiCookie.value, {
+              httpOnly: apiCookie.httpOnly ?? true,
+              secure: apiCookie.secure ?? process.env.NODE_ENV === 'production',
+              sameSite: apiCookie.sameSite === 'none' ? 'none' : 'lax',
+              path: apiCookie.path ?? '/',
+              maxAge: apiCookie.maxAge,
+            });
+          }
+        }
+
         newUrl.pathname = '/user/account/login';
         return redirect(newUrl, req, 'verify-account-success');
       }
