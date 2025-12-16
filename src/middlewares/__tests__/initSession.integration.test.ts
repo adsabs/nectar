@@ -58,6 +58,22 @@ describe('initSession integration', () => {
     updateConfig: ReturnType<typeof vi.fn>;
   };
 
+  const bootstrapPayload = {
+    access_token: 'new-token',
+    username: 'user@example.com',
+    anonymous: false,
+    expires_at: `${Math.floor(Date.now() / 1000) + 3600}`,
+  };
+
+  const makeBootstrapResponse = (cookieValue: string) =>
+    new Response(JSON.stringify(bootstrapPayload), {
+      status: 200,
+      headers: {
+        'set-cookie': `${cookieName}=${cookieValue}; Domain=example.com; SameSite=None; HttpOnly; Secure; Path=/; Max-Age=3600`,
+        'content-type': 'application/json',
+      },
+    });
+
   it('uses fast path when token is valid and hash matches', async () => {
     const cookieValue = 'abc123';
     const cookieHash = await hash(cookieValue);
@@ -153,5 +169,72 @@ describe('initSession integration', () => {
     expect(res.cookies.get(cookieName)).toBeUndefined();
     expect(session.token?.access_token).toBe('expired');
     expect(session.apiCookieHash).toBe('stale');
+  });
+
+  it('forces slow path when refresh header present even with valid token', async () => {
+    const cookieValue = 'abc123';
+    const session = createSession({
+      token: {
+        access_token: 'valid',
+        expires_at: `${Math.floor(Date.now() / 1000) + 300}`,
+        username: 'user',
+        anonymous: false,
+      },
+      apiCookieHash: await hash(cookieValue),
+      isAuthenticated: true,
+    });
+
+    const req = new NextRequest('https://example.com/search', {
+      headers: {
+        cookie: `${cookieName}=${cookieValue}`,
+        'x-refresh-token': '1',
+      },
+    });
+    const res = NextResponse.next();
+
+    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(makeBootstrapResponse('new-cookie') as Response);
+
+    await initSession(req, res, session as never);
+
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    expect(botCheckMock).toHaveBeenCalledTimes(1);
+    expect(session.save).toHaveBeenCalledTimes(1);
+    expect(session.token?.access_token).toBe(bootstrapPayload.access_token);
+    expect(session.apiCookieHash).toBe(await hash('new-cookie'));
+    const setCookie = res.cookies.get(cookieName);
+    expect(setCookie?.value).toBe('new-cookie');
+    expect(setCookie?.sameSite).toBe('lax');
+    expect(setCookie?.httpOnly).toBe(true);
+    expect(setCookie?.secure).toBe(true);
+    expect(setCookie?.path).toBe('/');
+  });
+
+  it('does not set response cookie when API cookie value is unchanged', async () => {
+    const cookieValue = 'unchanged';
+    const session = createSession({
+      token: {
+        access_token: 'valid',
+        expires_at: `${Math.floor(Date.now() / 1000) - 10}`,
+        username: 'user',
+        anonymous: false,
+      },
+      apiCookieHash: 'old-hash',
+    });
+
+    const req = new NextRequest('https://example.com/search', {
+      headers: {
+        cookie: `${cookieName}=${cookieValue}`,
+      },
+    });
+    const res = NextResponse.next();
+
+    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(makeBootstrapResponse(cookieValue) as Response);
+
+    await initSession(req, res, session as never);
+
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    expect(session.save).toHaveBeenCalledTimes(1);
+    expect(res.cookies.get(cookieName)).toBeUndefined();
+    expect(session.apiCookieHash).toBe(await hash(cookieValue));
   });
 });
