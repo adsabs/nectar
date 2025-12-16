@@ -124,6 +124,17 @@ describe('middleware route integration', () => {
     expect(legacySearchMiddlewareMock).toHaveBeenCalled();
   });
 
+  it('emits analytics for abs paths when BASE_URL is set', async () => {
+    process.env.BASE_URL = 'https://base.example.com';
+    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(new Response(null, { status: 200 }) as Response);
+    const req = makeReq('https://example.com/abs/123%2F456/abstract');
+    await middleware(req);
+    expect(fetchSpy).toHaveBeenCalledWith('https://base.example.com/link_gateway/123%2F456/abstract', {
+      method: 'GET',
+    });
+    fetchSpy.mockRestore();
+  });
+
   it('honors rate limiting and short-circuits', async () => {
     rateLimitMock.mockReturnValue(false);
     const req = makeReq('https://example.com/search');
