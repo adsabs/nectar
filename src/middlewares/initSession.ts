@@ -6,8 +6,13 @@ import { edgeLogger } from '@/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import setCookie from 'set-cookie-parser';
 import { botCheck } from '@/middlewares/botCheck';
+import { createErrorHandler, ErrorSource } from '@/lib/errorHandler.edge';
 
 const log = edgeLogger.child({}, { msgPrefix: '[initSession] ' });
+const handleMiddlewareError = createErrorHandler({
+  source: ErrorSource.MIDDLEWARE,
+  tags: { middleware: 'initSession' },
+});
 
 /**
  * Checks if the user data is valid
@@ -73,11 +78,25 @@ const bootstrap = async (cookie?: string) => {
     headers.append('cookie', `${process.env.ADS_SESSION_COOKIE_NAME}=${cookie}`);
   }
   try {
-    log.debug('Bootstrapping');
+    log.debug({ url, headers }, 'Bootstrapping');
     const res = await fetch(url, {
       method: 'GET',
       headers,
     });
+
+    if (!res.ok) {
+      const errorText = await res.text().catch(() => 'Unable to read response body');
+      handleMiddlewareError(new Error(`Bootstrap request failed: ${res.status} ${res.statusText}`), {
+        context: {
+          status: res.status,
+          statusText: res.statusText,
+          body: errorText,
+          url,
+        },
+      });
+      return null;
+    }
+
     const json = (await res.json()) as IBootstrapPayload;
     log.debug({
       msg: 'Bootstrap successful',
@@ -87,10 +106,9 @@ const bootstrap = async (cookie?: string) => {
       token: pick(['access_token', 'username', 'anonymous', 'expires_at'], json) as IUserData,
       headers: res.headers,
     };
-  } catch (error) {
-    log.error({
-      msg: 'Bootstrapping failed',
-      error,
+  } catch (err) {
+    handleMiddlewareError(err, {
+      context: { url, operation: 'bootstrap' },
     });
     return null;
   }
@@ -108,7 +126,9 @@ const hash = async (str?: string) => {
     const buffer = await globalThis.crypto.subtle.digest('SHA-1', Buffer.from(str, 'utf-8'));
     return Array.from(new Uint8Array(buffer)).toString();
   } catch (err) {
-    log.error({ err, str }, 'Error caught attempting to hash string');
+    handleMiddlewareError(err, {
+      context: { operation: 'hash' },
+    });
     return '';
   }
 };

@@ -1,12 +1,17 @@
-import { describe, test, expect, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { GetServerSidePropsContext } from 'next';
 import { IronSession } from 'iron-session';
 import { ParsedUrlQuery } from 'querystring';
 
 import { AppMode } from '@/types';
 import { updateUserStateSSR } from '@/ssr-utils';
+import { AppState } from '@/store/types';
 
-const getMockContext = (sessionData: Partial<IronSession>, query: ParsedUrlQuery = {}) =>
+type SSRPropsWithState = {
+  dehydratedAppState?: Partial<AppState>;
+} & Record<string, unknown>;
+
+const getMockContext = (sessionData: Partial<IronSession>, query: ParsedUrlQuery = {}, resolvedUrl = '/search') =>
   ({
     req: {
       session: {
@@ -16,6 +21,7 @@ const getMockContext = (sessionData: Partial<IronSession>, query: ParsedUrlQuery
       },
     },
     query,
+    resolvedUrl,
   } as unknown as GetServerSidePropsContext);
 
 describe('updateUserStateSSR', () => {
@@ -23,7 +29,11 @@ describe('updateUserStateSSR', () => {
     const context = getMockContext({ legacyAppReferrer: true });
     const result = await updateUserStateSSR(context, { props: {} });
 
-    expect(result.props.dehydratedAppState).toEqual(
+    if (!('props' in result)) {
+      throw new Error('Expected props in result');
+    }
+    const props = result.props as SSRPropsWithState;
+    expect(props.dehydratedAppState).toEqual(
       expect.objectContaining({
         adsMode: { active: true },
         mode: AppMode.ASTROPHYSICS,
@@ -33,17 +43,21 @@ describe('updateUserStateSSR', () => {
 
   test('should respect persisted state even with legacy referrer', async () => {
     const context = getMockContext({ legacyAppReferrer: true });
-    const props = {
+    const inputProps = {
       props: {
         dehydratedAppState: {
           adsMode: { active: false },
           mode: AppMode.GENERAL,
-        },
+        } as Partial<AppState>,
       },
     };
-    const result = await updateUserStateSSR(context, props);
+    const result = await updateUserStateSSR(context, inputProps as never);
 
-    expect(result.props.dehydratedAppState).toEqual(
+    if (!('props' in result)) {
+      throw new Error('Expected props in result');
+    }
+    const resultProps = result.props as SSRPropsWithState;
+    expect(resultProps.dehydratedAppState).toEqual(
       expect.objectContaining({
         adsMode: { active: false },
         mode: AppMode.GENERAL,
@@ -56,22 +70,30 @@ describe('updateUserStateSSR', () => {
     const initialAppState = {
       user: { email: 'test@example.com' },
     };
-    const props = {
+    const inputProps = {
       props: {
-        dehydratedAppState: { ...initialAppState },
+        dehydratedAppState: { ...initialAppState } as unknown as Partial<AppState>,
       },
     };
-    const result = await updateUserStateSSR(context, props);
-    expect(result.props.dehydratedAppState).not.toHaveProperty('adsMode');
-    expect(result.props.dehydratedAppState).not.toHaveProperty('mode');
-    expect(result.props.dehydratedAppState.user).toEqual({});
+    const result = await updateUserStateSSR(context, inputProps as never);
+    if (!('props' in result)) {
+      throw new Error('Expected props in result');
+    }
+    const resultProps = result.props as SSRPropsWithState;
+    expect(resultProps.dehydratedAppState).not.toHaveProperty('adsMode');
+    expect(resultProps.dehydratedAppState).not.toHaveProperty('mode');
+    expect(resultProps.dehydratedAppState?.user).toEqual({});
   });
 
   test('should prioritize URL param over legacy referrer mode', async () => {
     const context = getMockContext({ legacyAppReferrer: true }, { d: 'heliophysics' });
     const result = await updateUserStateSSR(context, { props: {} });
 
-    expect(result.props.dehydratedAppState).toEqual(
+    if (!('props' in result)) {
+      throw new Error('Expected props in result');
+    }
+    const props = result.props as SSRPropsWithState;
+    expect(props.dehydratedAppState).toEqual(
       expect.objectContaining({
         adsMode: { active: true },
         mode: AppMode.HELIOPHYSICS,
@@ -100,21 +122,21 @@ describe('updateUserStateSSR', () => {
       destroy: vi.fn().mockResolvedValue(undefined),
     };
     const context = getMockContext(mockSession);
-    const props = {
+    const inputProps = {
       props: {
         dehydratedAppState: {
           adsMode: { active: false },
           mode: AppMode.GENERAL,
-        },
+        } as Partial<AppState>,
       },
     };
 
-    await updateUserStateSSR(context, props);
+    await updateUserStateSSR(context, inputProps as never);
 
     expect(context.req.session.legacyAppReferrer).toBe(false);
     expect(context.req.session.save).toHaveBeenCalledOnce();
-    expect(props.props.dehydratedAppState.adsMode).toEqual({ active: false });
-    expect(props.props.dehydratedAppState.mode).toBe(AppMode.GENERAL);
+    expect(inputProps.props.dehydratedAppState.adsMode).toEqual({ active: false });
+    expect(inputProps.props.dehydratedAppState.mode).toBe(AppMode.GENERAL);
   });
 
   test('should not save session when legacyAppReferrer is not set', async () => {
@@ -128,5 +150,57 @@ describe('updateUserStateSSR', () => {
     await updateUserStateSSR(context, { props: {} });
 
     expect(context.req.session.save).not.toHaveBeenCalled();
+  });
+
+  test('should apply d param when on /search page', async () => {
+    const context = getMockContext({}, { d: 'heliophysics' }, '/search');
+    const result = await updateUserStateSSR(context, { props: {} });
+
+    if (!('props' in result)) {
+      throw new Error('Expected props in result');
+    }
+    const props = result.props as SSRPropsWithState;
+    expect(props.dehydratedAppState).toEqual(
+      expect.objectContaining({
+        mode: AppMode.HELIOPHYSICS,
+      }),
+    );
+  });
+
+  test('should ignore d param when NOT on /search page', async () => {
+    const context = getMockContext({}, { d: 'heliophysics' }, '/abs/2026Icar..44416827M/abstract?d=heliophysics');
+    const result = await updateUserStateSSR(context, { props: {} });
+
+    if (!('props' in result)) {
+      throw new Error('Expected props in result');
+    }
+    const props = result.props as SSRPropsWithState;
+    expect(props.dehydratedAppState).not.toHaveProperty('mode');
+  });
+
+  test('should ignore d param on other pages even with query params', async () => {
+    const context = getMockContext(
+      {},
+      { d: 'planetary', some: 'other' },
+      '/abs/2026Icar..44416827M/abstract?d=planetary&some=other',
+    );
+    const result = await updateUserStateSSR(context, { props: {} });
+
+    if (!('props' in result)) {
+      throw new Error('Expected props in result');
+    }
+    const props = result.props as SSRPropsWithState;
+    expect(props.dehydratedAppState).not.toHaveProperty('mode');
+  });
+
+  test('should handle invalid d param on /search page', async () => {
+    const context = getMockContext({}, { d: 'invalid-discipline' }, '/search');
+    const result = await updateUserStateSSR(context, { props: {} });
+
+    if (!('props' in result)) {
+      throw new Error('Expected props in result');
+    }
+    const props = result.props as SSRPropsWithState;
+    expect(props.dehydratedAppState).not.toHaveProperty('mode');
   });
 });
