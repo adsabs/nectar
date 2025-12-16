@@ -1,0 +1,22 @@
+FROM node:18-alpine
+
+# Install pnpm and wget for healthchecks
+RUN apk add --no-cache wget && \
+    corepack enable && corepack prepare pnpm@10.18.1 --activate
+
+WORKDIR /app
+
+# Copy package files
+COPY package.json pnpm-lock.yaml ./
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Copy source
+COPY . .
+
+ENV NODE_TLS_REJECT_UNAUTHORIZED=0
+
+EXPOSE 8000
+
+CMD ["sh", "-c", "PORT=${PORT:-8000} pnpm next dev -H 0.0.0.0"]

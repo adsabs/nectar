@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  stub:
+    build:
+      context: ../e2e-stub
+      dockerfile: Dockerfile
+    ports:
+      - "18080:18080"
+    networks:
+      - e2e-net
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:18080/__test__/calls"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  nectar:
+    build:
+      context: ..
+      dockerfile: Dockerfile.e2e
+    ports:
+      - "8000:8000"
+    networks:
+      - e2e-net
+    environment:
+      - PORT=8000
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
+      - API_HOST_SERVER=http://stub:18080
+      - API_HOST_CLIENT=http://stub:18080
+      - NEXT_PUBLIC_API_HOST_CLIENT=http://127.0.0.1:18080
+      - BASE_URL=http://stub:18080
+      - NEXT_PUBLIC_BASE_CANONICAL_URL=http://127.0.0.1:8000
+      - ADS_SESSION_COOKIE_NAME=ads_session
+      - SCIX_SESSION_COOKIE_NAME=scix_session
+      - COOKIE_SECRET=test-secret-must-be-at-least-32-chars-long
+      - AUTH_SECRET=test-auth-secret-must-be-at-least-32-chars
+      - NEXT_PUBLIC_LOG_LEVEL=debug
+      - RATE_LIMIT_COUNT=100
+      - RATE_LIMIT_MAX=1500
+      - RATE_LIMIT_TTL=60000
+    depends_on:
+      stub:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "--no-check-certificate", "http://localhost:8000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+
+  tests:
+    image: mcr.microsoft.com/playwright:v1.57.0-jammy
+    working_dir: /app
+    volumes:
+      - ..:/app
+    networks:
+      - e2e-net
+    environment:
+      - BASE_URL=http://nectar:8000
+      - NECTAR_URL=http://nectar:8000
+      - STUB_URL=http://stub:18080
+      - CI=true
+    depends_on:
+      nectar:
+        condition: service_healthy
+    command: >
+      sh -c "
+        cd /app &&
+        npm install -g pnpm@10.18.1 &&
+        pnpm install --frozen-lockfile &&
+        pnpm test:e2e
+      "
+
+networks:
+  e2e-net:
+    driver: bridge
