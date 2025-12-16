@@ -119,7 +119,7 @@ const bootstrap = async (cookie?: string) => {
  * @param str - String to hash
  * @returns Hex-encoded SHA-1 hash, or empty string if input is empty/error
  */
-const hash = async (str?: string) => {
+export const hash = async (str?: string) => {
   if (!str) {
     return '';
   }

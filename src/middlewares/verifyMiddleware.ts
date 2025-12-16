@@ -12,7 +12,7 @@ const handleMiddlewareError = createErrorHandler({
   tags: { middleware: 'verifyMiddleware' },
 });
 
-const extractToken = (path: string) => {
+export const extractToken = (path: string) => {
   try {
     if (typeof path === 'string') {
       const parts = path.split('/');
