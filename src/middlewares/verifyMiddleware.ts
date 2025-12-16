@@ -4,7 +4,7 @@ import { sessionConfig } from '@/config';
 import { edgeLogger } from '@/logger';
 import { ApiTargets } from '@/api/models';
 import { IVerifyAccountResponse } from '@/api/user/types';
-import { createErrorHandler, ErrorSource } from '@/lib/errorHandler.edge';
+import { createErrorHandler, ErrorSource, ErrorSeverity } from '@/lib/errorHandler.edge';
 
 const log = edgeLogger.child({}, { msgPrefix: '[verifyMiddleware] ' });
 const handleMiddlewareError = createErrorHandler({
@@ -40,7 +40,16 @@ export const verifyMiddleware = async (req: NextRequest, res: NextResponse) => {
     log.debug({
       msg: 'Verifying token',
       route,
+      hasToken: !!session.token,
     });
+
+    if (!session.token?.access_token) {
+      handleMiddlewareError(new Error('No access token available for verification'), {
+        context: { route, hasSession: !!session, hasToken: !!session.token },
+        severity: ErrorSeverity.ERROR,
+      });
+      return redirect(newUrl, req, 'verify-account-failed');
+    }
 
     try {
       const url = `${process.env.API_HOST_SERVER}${ApiTargets.VERIFY}/${token}`;

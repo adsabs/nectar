@@ -7,7 +7,7 @@ import { edgeLogger } from '@/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimit } from '@/rateLimit';
 import { isLegacySearchURL, legacySearchURLMiddleware } from '@/middlewares/legacySearchURLMiddleware';
-import { ErrorSource, handleError } from '@/lib/errorHandler';
+import { ErrorSource, handleError } from '@/lib/errorHandler.edge';
 
 const log = edgeLogger.child({}, { msgPrefix: '[middleware] ' });
 
