@@ -115,8 +115,9 @@ const bootstrap = async (cookie?: string) => {
 };
 
 /**
- * Hashes a string using SHA-1
- * @param str
+ * Hashes a string using SHA-1 and returns hex-encoded string
+ * @param str - String to hash
+ * @returns Hex-encoded SHA-1 hash, or empty string if input is empty/error
  */
 const hash = async (str?: string) => {
   if (!str) {
@@ -124,7 +125,9 @@ const hash = async (str?: string) => {
   }
   try {
     const buffer = await globalThis.crypto.subtle.digest('SHA-1', Buffer.from(str, 'utf-8'));
-    return Array.from(new Uint8Array(buffer)).toString();
+    return Array.from(new Uint8Array(buffer))
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
   } catch (err) {
     handleMiddlewareError(err, {
       context: { operation: 'hash' },
@@ -134,10 +137,27 @@ const hash = async (str?: string) => {
 };
 
 /**
- * Middleware to initialize the session
- * @param req
- * @param res
- * @param session
+ * Middleware to initialize the session using the Sidecar Session pattern
+ *
+ * The Sidecar Session pattern enables session interoperability between different domains:
+ * - Driver (Source of Truth): Flask Cookie (ads_session) - cryptographically signed by backend
+ * - Sidecar (Cache): iron-session in Next.js - holds decrypted user data for fast access
+ * - The Link: Hash of the Flask cookie (apiCookieHash) - used to detect cookie changes
+ *
+ * Flow:
+ * 1. Check: Compare hash of incoming Flask cookie against cached hash
+ * 2. Sync:
+ *    - Match: Use cached data (0ms latency)
+ *    - Mismatch/Missing: Call API bootstrap to get fresh token and update cache
+ *
+ * Cookie Security:
+ * - Domain: Stripped (defaults to host-only for better security)
+ * - SameSite: Forced to 'lax' (allows cross-site navigation while preventing CSRF)
+ * - Secure/HttpOnly: Preserved from API
+ *
+ * @param req - The incoming request
+ * @param res - The response to modify
+ * @param session - The iron-session to update
  */
 export const initSession = async (req: NextRequest, res: NextResponse, session: IronSession) => {
   log.debug({ session }, 'Initializing session');
@@ -151,7 +171,7 @@ export const initSession = async (req: NextRequest, res: NextResponse, session: 
   const isUserIdentifiedAsBot = session.bot && isValidToken(session.token);
   const hasRefreshTokenHeader = req.headers.has('x-refresh-token');
   const isTokenValid = isValidToken(session.token);
-  const isApiCookieHashPresent = apiCookieHash !== null;
+  const isApiCookieHashPresent = apiCookieHash !== '';
   const isApiCookieHashMatching = apiCookieHash === session.apiCookieHash;
 
   const isValidSession =
@@ -169,17 +189,68 @@ export const initSession = async (req: NextRequest, res: NextResponse, session: 
   await botCheck(req, res);
 
   // bootstrap a new token, passing in the current session cookie value
-  const { token, headers } = (await bootstrap(adsSessionCookie)) ?? {};
+  const bootstrapResult = await bootstrap(adsSessionCookie);
+
+  if (!bootstrapResult) {
+    log.error({
+      msg: 'Bootstrap failed, session will remain invalid',
+      hasIncomingCookie: !!adsSessionCookie,
+    });
+    return res;
+  }
+
+  const { token, headers } = bootstrapResult;
 
   // validate token, update session, forward cookies
   if (isValidToken(token)) {
     log.debug('Refreshed token is valid');
     session.token = token;
     session.isAuthenticated = isAuthenticated(token);
-    const sessionCookieValue = setCookie.parse(headers.get('set-cookie') ?? '')[0].value;
-    res.cookies.set(process.env.ADS_SESSION_COOKIE_NAME, sessionCookieValue);
-    session.apiCookieHash = await hash(res.cookies.get(process.env.ADS_SESSION_COOKIE_NAME)?.value);
+
+    // Parse the Set-Cookie header from the API
+    const setCookieHeader = headers.get('set-cookie');
+    if (setCookieHeader) {
+      const parsedCookies = setCookie.parse(setCookieHeader);
+      const apiCookie = parsedCookies[0];
+
+      if (apiCookie) {
+        // Only update if the cookie value actually changed (prevents race conditions)
+        const currentCookieValue = adsSessionCookie;
+        const newCookieValue = apiCookie.value;
+
+        if (currentCookieValue !== newCookieValue) {
+          log.debug({
+            msg: 'Cookie value changed, synchronizing',
+            cookieChanged: true,
+          });
+
+          // Sanitize cookie attributes according to the Sidecar Session pattern
+          res.cookies.set(process.env.ADS_SESSION_COOKIE_NAME, newCookieValue, {
+            httpOnly: apiCookie.httpOnly ?? true,
+            secure: apiCookie.secure ?? process.env.NODE_ENV === 'production',
+            sameSite: apiCookie.sameSite === 'none' ? 'none' : 'lax',
+            path: apiCookie.path ?? '/',
+            maxAge: apiCookie.maxAge,
+          });
+
+          session.apiCookieHash = await hash(newCookieValue);
+        } else {
+          log.debug({
+            msg: 'Cookie value unchanged, skipping sync',
+            cookieChanged: false,
+          });
+          session.apiCookieHash = apiCookieHash;
+        }
+      }
+    }
+
     await session.save();
     log.debug('Saved to session');
+  } else {
+    log.error({
+      msg: 'Bootstrap returned invalid token',
+      hasToken: !!token,
+      tokenData: token ? { username: token.username, anonymous: token.anonymous } : null,
+    });
   }
 };
