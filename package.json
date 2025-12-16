@@ -7,8 +7,8 @@
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "dev": "PORT=8000 next dev | pino-pretty --colorizeObjects=false -S",
-    "dev:mocks": "NEXT_PUBLIC_API_MOCKING=enabled PORT=8000 next dev | pino-pretty --colorizeObjects=false -S",
+    "dev": "NODE_TLS_REJECT_UNAUTHORIZED=0 PORT=8000 next dev | pino-pretty --colorizeObjects=false -S",
+    "dev:mocks": "NODE_TLS_REJECT_UNAUTHORIZED=0 NEXT_PUBLIC_API_MOCKING=enabled PORT=8000 next dev | pino-pretty --colorizeObjects=false -S",
     "build": "./scripts/build-prod.sh",
     "build:local": "./scripts/build-local.sh",
     "start": "NODE_ENV=production PORT=8000 DIST_DIR=./dist/ node dist/standalone/server.js",
