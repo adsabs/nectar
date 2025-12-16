@@ -1,0 +1,133 @@
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { NextRequest, NextResponse } from 'next/server';
+import { middleware } from '@/middleware';
+import { getIronSession } from 'iron-session/edge';
+
+// Mock dependencies used inside middleware.ts
+vi.mock('iron-session/edge', async (orig) => {
+  const actual = await orig<typeof import('iron-session/edge')>();
+  return { ...actual, getIronSession: vi.fn() };
+});
+
+vi.mock('@/middlewares/initSession', () => ({
+  initSession: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock('@/middlewares/legacyAppDetection', () => ({
+  legacyAppDetectionMiddleware: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock('@/middlewares/verifyMiddleware', () => ({
+  verifyMiddleware: vi.fn().mockResolvedValue(new NextResponse('verify')),
+}));
+
+vi.mock('@/middlewares/legacySearchURLMiddleware', () => ({
+  isLegacySearchURL: vi.fn().mockReturnValue(true),
+  legacySearchURLMiddleware: vi.fn(() => NextResponse.redirect('https://example.com/search?q=foo')),
+}));
+
+vi.mock('@/rateLimit', () => ({
+  rateLimit: vi.fn().mockReturnValue(true),
+}));
+
+describe('middleware route integration', () => {
+  const getIronSessionMock = getIronSession as unknown as ReturnType<typeof vi.fn>;
+  let initSessionMock: ReturnType<typeof vi.mocked<typeof import('@/middlewares/initSession')['initSession']>>;
+  let legacyAppDetectionMock: ReturnType<
+    typeof vi.mocked<typeof import('@/middlewares/legacyAppDetection')['legacyAppDetectionMiddleware']>
+  >;
+  let verifyMiddlewareMock: ReturnType<
+    typeof vi.mocked<typeof import('@/middlewares/verifyMiddleware')['verifyMiddleware']>
+  >;
+  let legacySearchMiddlewareMock: ReturnType<
+    typeof vi.mocked<typeof import('@/middlewares/legacySearchURLMiddleware')['legacySearchURLMiddleware']>
+  >;
+  let rateLimitMock: ReturnType<typeof vi.mocked<typeof import('@/rateLimit')['rateLimit']>>;
+
+  beforeAll(async () => {
+    process.env.ADS_SESSION_COOKIE_NAME = 'ads_session';
+    initSessionMock = vi.mocked((await import('@/middlewares/initSession')).initSession);
+    legacyAppDetectionMock = vi.mocked((await import('@/middlewares/legacyAppDetection')).legacyAppDetectionMiddleware);
+    verifyMiddlewareMock = vi.mocked((await import('@/middlewares/verifyMiddleware')).verifyMiddleware);
+    legacySearchMiddlewareMock = vi.mocked(
+      (await import('@/middlewares/legacySearchURLMiddleware')).legacySearchURLMiddleware,
+    );
+    rateLimitMock = vi.mocked((await import('@/rateLimit')).rateLimit);
+  });
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    getIronSessionMock.mockResolvedValue({
+      token: { access_token: 'token' },
+      isAuthenticated: true,
+      save: vi.fn(),
+      destroy: vi.fn(),
+      updateConfig: vi.fn(),
+    });
+    rateLimitMock.mockReturnValue(true);
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  const makeReq = (url: string, init?: RequestInit) => new NextRequest(url, init);
+
+  it('hydrates root path without redirect', async () => {
+    const session = { save: vi.fn(), destroy: vi.fn(), updateConfig: vi.fn() };
+    getIronSessionMock.mockResolvedValue(session);
+    const req = makeReq('https://example.com/');
+    const res = await middleware(req);
+    expect(initSessionMock).toHaveBeenCalledWith(req, expect.any(NextResponse), session);
+    expect(legacyAppDetectionMock).toHaveBeenCalled();
+    expect(res.headers.get('location')).toBeNull();
+  });
+
+  it('redirects unauthenticated protected routes to login with next param', async () => {
+    getIronSessionMock.mockResolvedValue({
+      isAuthenticated: false,
+      token: { access_token: 'token' },
+      save: vi.fn(),
+      destroy: vi.fn(),
+      updateConfig: vi.fn(),
+    });
+    const req = makeReq('https://example.com/user/libraries');
+    const res = (await middleware(req)) as NextResponse;
+    const location = res.headers.get('location');
+    expect(res.status).toBe(307);
+    expect(location).toContain('/user/account/login');
+    expect(location).toContain('notify=login-required');
+  });
+
+  it('allows authenticated protected routes to continue', async () => {
+    getIronSessionMock.mockResolvedValue({
+      isAuthenticated: true,
+      token: { access_token: 'token' },
+      save: vi.fn(),
+      destroy: vi.fn(),
+      updateConfig: vi.fn(),
+    });
+    const req = makeReq('https://example.com/user/settings');
+    const res = await middleware(req);
+    expect(res.headers.get('location')).toBeNull();
+  });
+
+  it('routes verify endpoints through verifyMiddleware', async () => {
+    const req = makeReq('https://example.com/user/account/verify/change-email/token123');
+    await middleware(req);
+    expect(verifyMiddlewareMock).toHaveBeenCalled();
+  });
+
+  it('redirects legacy search URLs via legacySearchURLMiddleware', async () => {
+    const req = makeReq('https://example.com/search/q=foo');
+    await middleware(req);
+    expect(legacySearchMiddlewareMock).toHaveBeenCalled();
+  });
+
+  it('honors rate limiting and short-circuits', async () => {
+    rateLimitMock.mockReturnValue(false);
+    const req = makeReq('https://example.com/search');
+    const res = (await middleware(req)) as NextResponse;
+    expect(res.headers.get('location')).toContain('notify=rate-limit-exceeded');
+  });
+});
