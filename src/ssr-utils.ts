@@ -29,7 +29,8 @@ export const updateUserStateSSR: IncomingGSSP = async (ctx, prevResult) => {
     await ctx.req.session.save();
   }
 
-  const urlMode = mapDisciplineParamToAppMode(ctx.query?.d);
+  const pathname = new URL(ctx.resolvedUrl, 'http://localhost').pathname;
+  const urlMode = pathname === '/search' ? mapDisciplineParamToAppMode(ctx.query?.d) : null;
   const legacyMode = applyLegacyMode ? AppMode.ASTROPHYSICS : undefined;
   const resolvedMode = urlMode ?? legacyMode;
   const legacyAdsMode = applyLegacyMode ? { adsMode: { active: true } } : {};
@@ -55,7 +56,7 @@ export const updateUserStateSSR: IncomingGSSP = async (ctx, prevResult) => {
         user: isUserData(userData) ? userData : {},
         // set notification if present
         notification: getNotification(ctx.query?.notify as NotificationId),
-        // discipline via URL param (d) overrides, otherwise keep legacy app mode
+        // discipline via URL param (d) applies only on /search, otherwise keep legacy app mode
         ...(resolvedMode && { mode: resolvedMode }),
         ...legacyAdsMode,
       } as AppState,

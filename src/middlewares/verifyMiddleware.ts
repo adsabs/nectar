@@ -4,8 +4,13 @@ import { sessionConfig } from '@/config';
 import { edgeLogger } from '@/logger';
 import { ApiTargets } from '@/api/models';
 import { IVerifyAccountResponse } from '@/api/user/types';
+import { createErrorHandler, ErrorSource } from '@/lib/errorHandler.edge';
 
 const log = edgeLogger.child({}, { msgPrefix: '[verifyMiddleware] ' });
+const handleMiddlewareError = createErrorHandler({
+  source: ErrorSource.MIDDLEWARE,
+  tags: { middleware: 'verifyMiddleware' },
+});
 
 const extractToken = (path: string) => {
   try {
@@ -17,7 +22,9 @@ const extractToken = (path: string) => {
     }
     return { route: '', token: '' };
   } catch (err) {
-    log.error({ err, path }, 'Error caught attempting to extract verify token');
+    handleMiddlewareError(err, {
+      context: { path, operation: 'extractToken' },
+    });
     return { route: '', token: '' };
   }
 };
@@ -47,6 +54,18 @@ export const verifyMiddleware = async (req: NextRequest, res: NextResponse) => {
         headers,
       });
 
+      if (!result.ok) {
+        const errorText = await result.text().catch(() => 'Unable to read response body');
+        handleMiddlewareError(new Error(`Token verification failed: ${result.status} ${result.statusText}`), {
+          context: {
+            status: result.status,
+            statusText: result.statusText,
+            errorText,
+            url,
+          },
+        });
+      }
+
       const json = (await result.json()) as IVerifyAccountResponse;
 
       if (json.message === 'success') {
@@ -59,30 +78,26 @@ export const verifyMiddleware = async (req: NextRequest, res: NextResponse) => {
 
       // known error messages
       if (json?.error.indexOf('unknown verification token') > -1) {
-        log.error({
-          msg: 'Token was invalid, verify failed, redirecting...',
-          error: json?.error,
+        handleMiddlewareError(new Error('Invalid verification token'), {
+          context: { error: json?.error, route },
         });
         return redirect(newUrl, req, 'verify-account-failed');
       }
 
       if (json?.error.indexOf('already been validated') > -1) {
-        log.error({
-          msg: 'Token was already validated, redirecting...',
-          error: json?.error,
+        handleMiddlewareError(new Error('Token already validated'), {
+          context: { error: json?.error, route },
         });
         return redirect(newUrl, req, 'verify-account-was-valid');
       }
 
-      log.error({
-        msg: 'Unknown issue, unable to verify, redirecting...',
-        error: json?.error,
+      handleMiddlewareError(new Error('Unknown verification issue'), {
+        context: { error: json?.error, route },
       });
       return redirect(newUrl, req, 'verify-account-failed');
-    } catch (error) {
-      log.error({
-        msg: 'Unknown issue, unable to verify, redirecting...',
-        error,
+    } catch (err) {
+      handleMiddlewareError(err, {
+        context: { route, operation: 'verifyAccount' },
       });
       return redirect(newUrl, req, 'verify-account-failed');
     }
