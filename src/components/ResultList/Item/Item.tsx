@@ -29,6 +29,7 @@ import { useColorModeColors } from '@/lib/useColorModeColors';
 
 import { getFormattedNumericPubdate, unwrapStringValue } from '@/utils/common/formatters';
 import { IDocsEntity } from '@/api/search/types';
+import { keys, toPairs } from 'ramda';
 
 const AbstractPreview = dynamic<IAbstractPreviewProps>(
   () =>
@@ -48,7 +49,7 @@ export interface IItemProps {
   useNormCite?: boolean;
   showHighlights?: boolean;
   isFetchingHighlights?: boolean;
-  highlights?: string[];
+  highlights?: Record<string, string[]>;
   extraInfo?: string;
   linkNewTab?: boolean;
   defaultCitation: string;
@@ -209,21 +210,30 @@ const Highlights = ({
         showIndicator && <CircularProgress mt={5} isIndeterminate size="20px" />
       ) : (
         <Fade in={!!highlights}>
-          {highlights.length > 0 ? (
-            highlights.map((hl) => (
-              <Text
-                sx={{
-                  // Apply a style to the <em> tag, which is included in the highlight string
-                  '& em': {
-                    backgroundColor: 'blue.100',
-                    color: 'gray.800',
-                    padding: 'var(--chakra-space-1)',
-                    fontWeight: 'bold',
-                  },
-                }}
-                key={hl}
-                dangerouslySetInnerHTML={{ __html: hl }}
-              ></Text>
+          {keys(highlights).length > 0 ? (
+            toPairs(highlights).map(([key, hls]) => (
+              <>
+                <Text fontSize="sm" fontWeight="semibold">
+                  {key.toLocaleUpperCase()}
+                </Text>
+                {hls.map((hl) => (
+                  <Text
+                    ml={2}
+                    my={1}
+                    sx={{
+                      // Apply a style to the <em> tag, which is included in the highlight string
+                      '& em': {
+                        backgroundColor: 'blue.100',
+                        color: 'gray.800',
+                        padding: 'var(--chakra-space-1)',
+                        fontWeight: 'bold',
+                      },
+                    }}
+                    key={hl}
+                    dangerouslySetInnerHTML={{ __html: hl }}
+                  ></Text>
+                ))}
+              </>
             ))
           ) : (
             <Text>No Highlights</Text>
