@@ -1,4 +1,4 @@
-import { Button, ButtonProps, forwardRef, HStack, Icon, Text, useToast } from '@chakra-ui/react';
+import { Button, ButtonProps, forwardRef, HStack, Icon, Text, Tooltip, useToast } from '@chakra-ui/react';
 import { TOAST_DEFAULTS } from '@/components/Orcid/helpers';
 import { useAddWorks } from '@/lib/orcid/useAddWorks';
 
@@ -34,21 +34,23 @@ export const AddToOrcidButton = forwardRef<IOrcidActionBtnProps, 'button'>((prop
   const { lightText } = useColorModeColors();
 
   return (
-    <Button
-      variant="outline"
-      color="gray.500"
-      isLoading={isLoading}
-      onClick={() => addWorks([identifier])}
-      w={28}
-      ref={ref}
-      {...buttonProps}
-    >
-      <HStack spacing={1}>
-        <Icon as={OrcidInactiveLogo} boxSize={4} aria-hidden />
-        <Text fontSize="xs" color={lightText}>
-          Claim
-        </Text>
-      </HStack>
-    </Button>
+    <Tooltip label="Claim this paper">
+      <Button
+        variant="outline"
+        color="gray.500"
+        isLoading={isLoading}
+        onClick={() => addWorks([identifier])}
+        w={28}
+        ref={ref}
+        {...buttonProps}
+      >
+        <HStack spacing={1}>
+          <Icon as={OrcidInactiveLogo} boxSize={4} aria-hidden />
+          <Text fontSize="xs" color={lightText}>
+            Claim
+          </Text>
+        </HStack>
+      </Button>
+    </Tooltip>
   );
 });

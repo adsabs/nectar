@@ -1,4 +1,4 @@
-import { Button, ButtonProps, forwardRef, HStack, Icon, Text, useToast } from '@chakra-ui/react';
+import { Button, ButtonProps, forwardRef, HStack, Icon, Text, Tooltip, useToast } from '@chakra-ui/react';
 import { TOAST_DEFAULTS } from '@/components/Orcid/helpers';
 import { useRemoveWorks } from '@/lib/orcid/useRemoveWorks';
 
@@ -37,21 +37,23 @@ export const DeleteFromOrcidButton = forwardRef<IOrcidActionBtnProps, 'button'>(
   const { lightText } = useColorModeColors();
 
   return (
-    <Button
-      variant="outline"
-      color="gray.500"
-      onClick={() => removeWorks([identifier])}
-      isLoading={isLoading}
-      ref={ref}
-      w={28}
-      {...buttonProps}
-    >
-      <HStack spacing={1}>
-        <Icon as={OrcidLogo} boxSize="4" aria-hidden />
-        <Text fontSize="xs" color={lightText}>
-          Delete Claim
-        </Text>
-      </HStack>
-    </Button>
+    <Tooltip label="Delete claim">
+      <Button
+        variant="outline"
+        color="gray.500"
+        onClick={() => removeWorks([identifier])}
+        isLoading={isLoading}
+        ref={ref}
+        w={28}
+        {...buttonProps}
+      >
+        <HStack spacing={1}>
+          <Icon as={OrcidLogo} boxSize="4" aria-hidden />
+          <Text fontSize="xs" color={lightText}>
+            Delete Claim
+          </Text>
+        </HStack>
+      </Button>
+    </Tooltip>
   );
 });
