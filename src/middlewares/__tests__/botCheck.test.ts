@@ -9,7 +9,22 @@ vi.mock('iron-session/edge', async (orig) => {
 });
 
 describe('botCheck', () => {
-  const getIronSessionMock = getIronSession as unknown as ReturnType<typeof vi.fn>;
+  type IronSessionMock = {
+    token?: {
+      access_token: string;
+      expires_at: string;
+      username: string;
+      anonymous: boolean;
+    } | null;
+    apiCookieHash?: string;
+    isAuthenticated?: boolean;
+    bot?: boolean;
+    save: ReturnType<typeof vi.fn>;
+    destroy: ReturnType<typeof vi.fn>;
+    updateConfig: ReturnType<typeof vi.fn>;
+  };
+
+  const getIronSessionMock = getIronSession as unknown as ReturnType<typeof vi.fn<[], Promise<IronSessionMock>>>;
   const baseEnv = { ...process.env };
 
   beforeEach(() => {

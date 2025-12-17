@@ -66,7 +66,7 @@ describe('initSession msw contracts', () => {
         receivedCookie = req.headers.get('cookie');
         return res(
           ctx.status(200),
-          ctx.set('set-cookie', bootstrapCookie),
+          (ctx.set as (name: string, value: string) => never)('set-cookie', bootstrapCookie),
           ctx.json({
             username: 'contract@example.com',
             scopes: [],
@@ -110,7 +110,7 @@ describe('initSession msw contracts', () => {
       rest.get('https://api.example.com/accounts/bootstrap', (_req, res, ctx) =>
         res(
           ctx.status(200),
-          ctx.set(
+          (ctx.set as (name: string, value: string) => never)(
             'set-cookie',
             `${cookieName}=unchanged; Domain=.example.com; SameSite=None; HttpOnly; Secure; Path=/; Max-Age=3600`,
           ),

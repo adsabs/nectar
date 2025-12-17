@@ -100,7 +100,11 @@ describe('verifyMiddleware', () => {
         rest.get('https://api.example.com/accounts/verify/:token', (req, res, ctx) => {
           authHeader = req.headers.get('authorization');
           cookieHeader = req.headers.get('cookie');
-          return res(ctx.status(200), ctx.set('set-cookie', setCookieValue), ctx.json({ message: 'success' }));
+          return res(
+            ctx.status(200),
+            (ctx.set as (name: string, value: string) => never)('set-cookie', setCookieValue),
+            ctx.json({ message: 'success' }),
+          );
         }),
       );
 

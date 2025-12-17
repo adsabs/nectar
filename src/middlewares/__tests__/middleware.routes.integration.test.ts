@@ -142,10 +142,10 @@ describe('middleware route integration', () => {
       method: 'GET',
       nextUrl: {
         pathname: '/_next/data/build-id/search.json',
-        toString: () => 'https://example.com/_next/data/build-id/search.json',
+        toString: (): string => 'https://example.com/_next/data/build-id/search.json',
       },
       headers: new Headers(),
-      cookies: { get: () => undefined },
+      cookies: { get: (): undefined => undefined },
     } as unknown as NextRequest;
     const res = await middleware(req);
     expect(res.headers.get('location')).toBeNull();
