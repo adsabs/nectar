@@ -32,8 +32,6 @@ const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@nivo/core', '@nivo/line', '@nivo/bar'],
   experimental: {
-    esmExternals: 'loose',
-    newNextLinkBehavior: false,
     webVitalsAttribution: ['CLS', 'LCP'],
     optimizePackageImports: ['@api', '@components', '@chakra-ui/react', 'ramda'],
   },
@@ -163,14 +161,6 @@ const nextConfig = {
     ];
   },
   trailingSlash: false,
-  publicRuntimeConfig: {
-    apiHost: process.env.API_HOST_CLIENT,
-    experiments: process.env.NEXT_PUBLIC_ENABLE_EXPERIMENTS?.split(',') || [],
-  },
-  serverRuntimeConfig: {
-    apiHost: process.env.API_HOST_SERVER,
-    baseCanonicalUrl: process.env.BASE_CANONICAL_URL,
-  },
   images: {
     remotePatterns: [
       {
@@ -184,8 +174,6 @@ const nextConfig = {
   },
   // set standalone output on
   output: process.env.STANDALONE ? 'standalone' : undefined,
-  // we do not need to check eslint during build
-  eslint: { dirs: ['src'], ignoreDuringBuilds: true },
   // we do not need to check types during build
   typescript: { ignoreBuildErrors: true },
   // we don't need i18n

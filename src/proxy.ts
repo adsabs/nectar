@@ -7,7 +7,7 @@ import { edgeLogger } from '@/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimit } from '@/rateLimit';
 import { isLegacySearchURL, legacySearchURLMiddleware } from '@/middlewares/legacySearchURLMiddleware';
-import { ErrorSource, handleError } from '@/lib/errorHandler';
+import { ErrorSource, handleError } from '@/lib/errorHandler.edge';
 
 const log = edgeLogger.child({}, { msgPrefix: '[middleware] ' });
 
@@ -238,7 +238,7 @@ const getIp = (req: NextRequest) =>
     .split(',')
     .shift() || 'unknown';
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
   log.info(
     {

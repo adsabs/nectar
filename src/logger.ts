@@ -9,7 +9,7 @@ export const logger: Logger = pino({
   base: {
     env: process.env.NODE_ENV || 'development',
   },
-  enabled: process.env.NODE_ENV !== 'test', // disable logging in tests
+  enabled: process.env.NODE_ENV !== 'test',
 });
 
 // for use in edge functions (i.e. middleware)
@@ -34,4 +34,6 @@ export const edgeLogger: Logger = pino({
   base: {
     env: process.env.NODE_ENV || 'development',
   },
+  // disable logger in tests
+  enabled: process.env.NODE_ENV !== 'test',
 });

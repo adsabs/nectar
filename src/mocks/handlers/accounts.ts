@@ -32,4 +32,22 @@ export const accountHandlers = [
       }),
     );
   }),
+  rest.get('*/accounts/verify/:token', (req, res, ctx) => {
+    const token = req.params.token as string;
+    const mode = req.url.searchParams.get('mode');
+
+    if (mode === 'unknown') {
+      return res(ctx.status(200), ctx.json({ error: 'unknown verification token' }));
+    }
+
+    if (mode === 'validated') {
+      return res(ctx.status(200), ctx.json({ error: 'already been validated' }));
+    }
+
+    return res(
+      ctx.status(200),
+      ctx.cookie('session', `verified-${token}`),
+      ctx.json({ message: 'success', email: 'verified@example.com' }),
+    );
+  }),
 ];
