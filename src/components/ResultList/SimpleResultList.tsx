@@ -90,7 +90,7 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
           hideCheckbox={!isClient ? true : hideCheckboxes}
           hideActions={hideActions}
           showHighlights={allowHighlight && showHighlights}
-          highlights={highlights?.[index] ?? []}
+          highlights={highlights?.[index] ?? {}}
           isFetchingHighlights={allowHighlight && isFetchingHighlights}
           useNormCite={useNormCite}
           defaultCitation={defaultCitations?.get(doc.bibcode)}
