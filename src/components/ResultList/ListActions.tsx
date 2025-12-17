@@ -178,13 +178,15 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
           <SortWrapper onChange={onSortChange} />
           {isClient && (
             <Flex gap={1}>
-              <IconButton
-                icon={<BellIcon />}
-                aria-label="Create email notification of this query"
-                variant="outline"
-                onClick={onCreateNotificationOpen}
-                id="tour-email-notification"
-              />
+              <Tooltip label="Create email notification for this query">
+                <IconButton
+                  icon={<BellIcon />}
+                  aria-label="Create email notification for this query"
+                  variant="outline"
+                  onClick={onCreateNotificationOpen}
+                  id="tour-email-notification"
+                />
+              </Tooltip>
               <SettingsMenu />
             </Flex>
           )}
@@ -320,7 +322,9 @@ const SortWrapper = ({ onChange }: { onChange: ISortProps<SolrSort, SolrSortFiel
 const SettingsMenu = () => {
   return (
     <Menu isLazy autoSelect={false} id="tour-view-highlights">
-      <MenuButton as={IconButton} aria-label="Result list settings" variant="outline" icon={<SettingsIcon />} />
+      <Tooltip label="Turn on/off highlights">
+        <MenuButton as={IconButton} aria-label="Result list settings" variant="outline" icon={<SettingsIcon />} />
+      </Tooltip>
       <MenuList>
         <HighlightsToggle />
       </MenuList>

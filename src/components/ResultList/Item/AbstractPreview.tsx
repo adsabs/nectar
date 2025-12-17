@@ -1,4 +1,4 @@
-import { Collapse, Flex, IconButton, Text, useToast, VStack } from '@chakra-ui/react';
+import { Collapse, Flex, IconButton, Text, Tooltip, useToast, VStack } from '@chakra-ui/react';
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import { MathJax } from 'better-react-mathjax';
 import { ReactElement, useState } from 'react';
@@ -47,18 +47,20 @@ export const AbstractPreview = ({ bibcode }: IAbstractPreviewProps): ReactElemen
         </Collapse>
       )}
       <VStack>
-        <IconButton
-          aria-label={show ? 'hide abstract' : 'show abstract'}
-          onClick={() => setShow(!show)}
-          disabled={false}
-          variant="unstyled"
-          width="fit-content"
-          display="flex"
-          fontSize="md"
-          isLoading={isFetching}
-          icon={show ? <ChevronUpIcon /> : <ChevronDownIcon />}
-          id="tour-view-abstract"
-        />
+        <Tooltip label={show ? 'Hide abstract' : 'Show abstract'}>
+          <IconButton
+            aria-label={show ? 'hide abstract' : 'show abstract'}
+            onClick={() => setShow(!show)}
+            disabled={false}
+            variant="unstyled"
+            width="fit-content"
+            display="flex"
+            fontSize="md"
+            isLoading={isFetching}
+            icon={show ? <ChevronUpIcon /> : <ChevronDownIcon />}
+            id="tour-view-abstract"
+          />
+        </Tooltip>
       </VStack>
     </Flex>
   );
