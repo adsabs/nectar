@@ -238,7 +238,7 @@ const getIp = (req: NextRequest) =>
     .split(',')
     .shift() || 'unknown';
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
   log.info(
     {

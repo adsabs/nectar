@@ -1,6 +1,4 @@
-import { AppRuntimeConfig } from '@/types';
 import { AxiosRequestConfig } from 'axios';
-import getConfig from 'next/config';
 import qs from 'qs';
 import { APP_DEFAULTS } from '@/config';
 
@@ -13,23 +11,13 @@ const resolveApiBaseUrl = (defaultBaseUrl = ''): string => {
     return 'http://localhost';
   }
 
-  // use a known URL for development
-  if (
-    typeof window !== 'undefined' &&
-    process.env.NODE_ENV === 'development' &&
-    typeof process.env.NEXT_PUBLIC_API_HOST_CLIENT === 'string'
-  ) {
-    return process.env.NEXT_PUBLIC_API_HOST_CLIENT;
+  // Client-side: use NEXT_PUBLIC_API_HOST
+  if (typeof window !== 'undefined') {
+    return process.env.NEXT_PUBLIC_API_HOST ?? defaultBaseUrl;
   }
 
-  const config = getConfig() as AppRuntimeConfig;
-
-  if (typeof config === 'undefined') {
-    return defaultBaseUrl;
-  }
-
-  const configType = typeof window === 'undefined' ? 'serverRuntimeConfig' : 'publicRuntimeConfig';
-  return config[configType]?.apiHost ?? defaultBaseUrl;
+  // Server-side: use API_HOST_SERVER
+  return process.env.API_HOST_SERVER ?? defaultBaseUrl;
 };
 
 export const defaultRequestConfig: AxiosRequestConfig = {
