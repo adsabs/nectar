@@ -26,7 +26,7 @@ vi.mock('@/middlewares/verifyMiddleware', () => ({
 vi.mock('@/middlewares/legacySearchURLMiddleware', () => {
   const redirect = NextResponse.redirect('https://example.com/search?q=foo');
   return {
-    isLegacySearchURL: vi.fn().mockReturnValue(true),
+    isLegacySearchURL: vi.fn().mockReturnValue(false),
     legacySearchURLMiddleware: vi.fn(() => redirect),
   };
 });
@@ -48,15 +48,18 @@ describe('middleware route integration', () => {
   let legacySearchMiddlewareMock: ReturnType<
     typeof vi.mocked<typeof import('@/middlewares/legacySearchURLMiddleware')['legacySearchURLMiddleware']>
   >;
+  let isLegacySearchURLMock: ReturnType<
+    typeof vi.mocked<typeof import('@/middlewares/legacySearchURLMiddleware')['isLegacySearchURL']>
+  >;
   let rateLimitMock: ReturnType<typeof vi.mocked<typeof import('@/rateLimit')['rateLimit']>>;
 
   beforeAll(async () => {
     initSessionMock = vi.mocked((await import('@/middlewares/initSession')).initSession);
     legacyAppDetectionMock = vi.mocked((await import('@/middlewares/legacyAppDetection')).legacyAppDetectionMiddleware);
     verifyMiddlewareMock = vi.mocked((await import('@/middlewares/verifyMiddleware')).verifyMiddleware);
-    legacySearchMiddlewareMock = vi.mocked(
-      (await import('@/middlewares/legacySearchURLMiddleware')).legacySearchURLMiddleware,
-    );
+    const legacySearchModule = await import('@/middlewares/legacySearchURLMiddleware');
+    legacySearchMiddlewareMock = vi.mocked(legacySearchModule.legacySearchURLMiddleware);
+    isLegacySearchURLMock = vi.mocked(legacySearchModule.isLegacySearchURL);
     rateLimitMock = vi.mocked((await import('@/rateLimit')).rateLimit);
   });
 
@@ -70,6 +73,7 @@ describe('middleware route integration', () => {
       destroy: vi.fn(),
       updateConfig: vi.fn(),
     });
+    isLegacySearchURLMock.mockReturnValue(false);
     rateLimitMock.mockReturnValue(true);
   });
 
@@ -104,6 +108,7 @@ describe('middleware route integration', () => {
     expect(res.status).toBe(307);
     expect(location).toContain('/user/account/login');
     expect(location).toContain('notify=login-required');
+    expect(location).toContain('next=%252Fuser%252Flibraries');
   });
 
   it('allows authenticated protected routes to continue', async () => {
@@ -126,9 +131,151 @@ describe('middleware route integration', () => {
   });
 
   it('redirects legacy search URLs via legacySearchURLMiddleware', async () => {
+    isLegacySearchURLMock.mockReturnValue(true);
     const req = makeReq('https://example.com/search/q=foo');
     await middleware(req);
     expect(legacySearchMiddlewareMock).toHaveBeenCalled();
+  });
+
+  it('skips auth middleware for Next.js data prefetch routes', async () => {
+    const req = {
+      method: 'GET',
+      nextUrl: {
+        pathname: '/_next/data/build-id/search.json',
+        toString: () => 'https://example.com/_next/data/build-id/search.json',
+      },
+      headers: new Headers(),
+      cookies: { get: () => undefined },
+    } as unknown as NextRequest;
+    const res = await middleware(req);
+    expect(res.headers.get('location')).toBeNull();
+    expect(getIronSessionMock).not.toHaveBeenCalled();
+    expect(initSessionMock).not.toHaveBeenCalled();
+    expect(legacyAppDetectionMock).not.toHaveBeenCalled();
+    expect(rateLimitMock).not.toHaveBeenCalled();
+  });
+
+  it('redirects to / when session token is missing after initSession', async () => {
+    getIronSessionMock.mockResolvedValue({
+      isAuthenticated: false,
+      token: undefined,
+      save: vi.fn(),
+      destroy: vi.fn(),
+      updateConfig: vi.fn(),
+    });
+    const req = makeReq('https://example.com/search');
+    const res = (await middleware(req)) as NextResponse;
+    expect(res.status).toBe(307);
+    expect(res.headers.get('location')).toContain('/?notify=api-connect-failed');
+  });
+
+  it('login route: redirects authenticated users to decoded relative next param', async () => {
+    getIronSessionMock.mockResolvedValue({
+      isAuthenticated: true,
+      token: { access_token: 'token' },
+      save: vi.fn(),
+      destroy: vi.fn(),
+      updateConfig: vi.fn(),
+    });
+    const req = makeReq('https://example.com/user/account/login?next=%2Fuser%2Fsettings');
+    const res = (await middleware(req)) as NextResponse;
+    expect(res.status).toBe(307);
+    expect(res.headers.get('location')).toBe('https://example.com/user/settings?notify=account-login-success');
+  });
+
+  it('login route: redirects authenticated users to / when next param is external', async () => {
+    getIronSessionMock.mockResolvedValue({
+      isAuthenticated: true,
+      token: { access_token: 'token' },
+      save: vi.fn(),
+      destroy: vi.fn(),
+      updateConfig: vi.fn(),
+    });
+    const req = makeReq('https://example.com/user/account/login?next=https%3A%2F%2Fevil.example%2Fpwn');
+    const res = (await middleware(req)) as NextResponse;
+    expect(res.status).toBe(307);
+    expect(res.headers.get('location')).toBe('https://example.com/?notify=account-login-success');
+  });
+
+  it('login route: redirects authenticated users to / when next param is missing', async () => {
+    getIronSessionMock.mockResolvedValue({
+      isAuthenticated: true,
+      token: { access_token: 'token' },
+      save: vi.fn(),
+      destroy: vi.fn(),
+      updateConfig: vi.fn(),
+    });
+    const req = makeReq('https://example.com/user/account/login');
+    const res = (await middleware(req)) as NextResponse;
+    expect(res.status).toBe(307);
+    expect(res.headers.get('location')).toBe('https://example.com/');
+  });
+
+  it('login route: allows unauthenticated users to continue', async () => {
+    getIronSessionMock.mockResolvedValue({
+      isAuthenticated: false,
+      token: { access_token: 'token' },
+      save: vi.fn(),
+      destroy: vi.fn(),
+      updateConfig: vi.fn(),
+    });
+    const req = makeReq('https://example.com/user/account/login');
+    const res = await middleware(req);
+    expect(res.headers.get('location')).toBeNull();
+  });
+
+  it('register route: redirects authenticated users to /', async () => {
+    getIronSessionMock.mockResolvedValue({
+      isAuthenticated: true,
+      token: { access_token: 'token' },
+      save: vi.fn(),
+      destroy: vi.fn(),
+      updateConfig: vi.fn(),
+    });
+    const req = makeReq('https://example.com/user/account/register');
+    const res = (await middleware(req)) as NextResponse;
+    expect(res.status).toBe(307);
+    expect(res.headers.get('location')).toBe('https://example.com/');
+  });
+
+  it('register route: allows unauthenticated users to continue', async () => {
+    getIronSessionMock.mockResolvedValue({
+      isAuthenticated: false,
+      token: { access_token: 'token' },
+      save: vi.fn(),
+      destroy: vi.fn(),
+      updateConfig: vi.fn(),
+    });
+    const req = makeReq('https://example.com/user/account/register');
+    const res = await middleware(req);
+    expect(res.headers.get('location')).toBeNull();
+  });
+
+  it('forgot password route: redirects authenticated users to /', async () => {
+    getIronSessionMock.mockResolvedValue({
+      isAuthenticated: true,
+      token: { access_token: 'token' },
+      save: vi.fn(),
+      destroy: vi.fn(),
+      updateConfig: vi.fn(),
+    });
+    const req = makeReq('https://example.com/user/forgotpassword');
+    const res = (await middleware(req)) as NextResponse;
+    expect(res.status).toBe(307);
+    expect(res.headers.get('location')).toBe('https://example.com/');
+  });
+
+  it('forgot password route: allows unauthenticated users to continue', async () => {
+    getIronSessionMock.mockResolvedValue({
+      isAuthenticated: false,
+      token: { access_token: 'token' },
+      save: vi.fn(),
+      destroy: vi.fn(),
+      updateConfig: vi.fn(),
+    });
+    const req = makeReq('https://example.com/user/forgotpassword');
+    const res = await middleware(req);
+    expect(res.headers.get('location')).toBeNull();
   });
 
   it('rewrites abs identifiers to canonical form', async () => {
