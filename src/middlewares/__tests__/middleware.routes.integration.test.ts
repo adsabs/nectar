@@ -1,6 +1,8 @@
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { MockedRequest, rest } from 'msw';
 import { NextRequest, NextResponse } from 'next/server';
 import { middleware } from '@/middleware';
+import { server } from '@/mocks/server';
 import { getIronSession } from 'iron-session/edge';
 
 // Mock dependencies used inside middleware.ts
@@ -21,16 +23,20 @@ vi.mock('@/middlewares/verifyMiddleware', () => ({
   verifyMiddleware: vi.fn().mockResolvedValue(new NextResponse('verify')),
 }));
 
-vi.mock('@/middlewares/legacySearchURLMiddleware', () => ({
-  isLegacySearchURL: vi.fn().mockReturnValue(true),
-  legacySearchURLMiddleware: vi.fn(() => NextResponse.redirect('https://example.com/search?q=foo')),
-}));
+vi.mock('@/middlewares/legacySearchURLMiddleware', () => {
+  const redirect = NextResponse.redirect('https://example.com/search?q=foo');
+  return {
+    isLegacySearchURL: vi.fn().mockReturnValue(true),
+    legacySearchURLMiddleware: vi.fn(() => redirect),
+  };
+});
 
 vi.mock('@/rateLimit', () => ({
   rateLimit: vi.fn().mockReturnValue(true),
 }));
 
 describe('middleware route integration', () => {
+  const baseEnv = { ...process.env };
   const getIronSessionMock = getIronSession as unknown as ReturnType<typeof vi.fn>;
   let initSessionMock: ReturnType<typeof vi.mocked<typeof import('@/middlewares/initSession')['initSession']>>;
   let legacyAppDetectionMock: ReturnType<
@@ -45,7 +51,6 @@ describe('middleware route integration', () => {
   let rateLimitMock: ReturnType<typeof vi.mocked<typeof import('@/rateLimit')['rateLimit']>>;
 
   beforeAll(async () => {
-    process.env.ADS_SESSION_COOKIE_NAME = 'ads_session';
     initSessionMock = vi.mocked((await import('@/middlewares/initSession')).initSession);
     legacyAppDetectionMock = vi.mocked((await import('@/middlewares/legacyAppDetection')).legacyAppDetectionMiddleware);
     verifyMiddlewareMock = vi.mocked((await import('@/middlewares/verifyMiddleware')).verifyMiddleware);
@@ -57,6 +62,7 @@ describe('middleware route integration', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    process.env = { ...baseEnv, ADS_SESSION_COOKIE_NAME: 'ads_session' };
     getIronSessionMock.mockResolvedValue({
       token: { access_token: 'token' },
       isAuthenticated: true,
@@ -68,6 +74,7 @@ describe('middleware route integration', () => {
   });
 
   afterEach(() => {
+    process.env = { ...baseEnv };
     vi.clearAllMocks();
   });
 
@@ -139,6 +146,37 @@ describe('middleware route integration', () => {
       method: 'GET',
     });
     fetchSpy.mockRestore();
+  });
+
+  it('routes analytics calls through msw when BASE_URL is configured', async () => {
+    process.env.BASE_URL = 'https://base.example.com';
+    const requests: string[] = [];
+    server.use(
+      rest.get('https://base.example.com/link_gateway/:identifier/:view', (req, res, ctx) => {
+        requests.push(req.url.toString());
+        return res(ctx.status(200));
+      }),
+    );
+
+    const waitForAnalytics = () =>
+      new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => reject(new Error('Analytics request not observed')), 500);
+        const onMatch = (req: MockedRequest) => {
+          if (req.url.href.includes('/link_gateway/789/abstract')) {
+            clearTimeout(timeout);
+            server.events.removeListener('request:match', onMatch);
+            resolve();
+          }
+        };
+        server.events.on('request:match', onMatch);
+      });
+
+    const req = makeReq('https://example.com/abs/789/abstract');
+    const requestPromise = waitForAnalytics();
+    await middleware(req);
+    await requestPromise;
+
+    expect(requests[0]).toBe('https://base.example.com/link_gateway/789/abstract');
   });
 
   it('honors rate limiting and short-circuits', async () => {
