@@ -1,7 +1,7 @@
 import { AppRuntimeConfig } from '@/types';
 import getConfig from 'next/config';
-import { ReactElement } from 'react';
-import { getFormattedNumericPubdate } from '@/utils/common/formatters';
+import { Fragment, ReactElement } from 'react';
+import { getFormattedNumericPubdate, getFormattedCitationDate } from '@/utils/common/formatters';
 import { Esources, IDocsEntity } from '@/api/search/types';
 import { logger } from '@/logger';
 import { docToJsonld } from '@/components/Metatags/json-ld-abstract/docToJsonld';
@@ -16,32 +16,10 @@ const getBaseUrl = () => {
 };
 
 const baseUrl = getBaseUrl();
-const LINKGWAY_BASE_URL = `${baseUrl}/link_gateway`;
+const LINKGATEWAY_BASE_URL = `${baseUrl}/link_gateway`;
 interface IMetatagsProps {
   doc: IDocsEntity;
 }
-
-export const metatagsQueryFields: Partial<keyof IDocsEntity>[] = [
-  'abstract',
-  'aff',
-  'author',
-  'bibcode',
-  'bibstem',
-  'doctype',
-  'doi',
-  'esources',
-  'identifier',
-  'isbn',
-  'issn',
-  'issue',
-  'keyword',
-  'page',
-  'page_range',
-  'pub',
-  'pubdate',
-  'title',
-  'volume',
-];
 
 export const Metatags = (props: IMetatagsProps): ReactElement => {
   const { doc } = props;
@@ -69,6 +47,7 @@ export const Metatags = (props: IMetatagsProps): ReactElement => {
   const logo = `${baseUrl}/styles/images/transparent_logo.svg`;
 
   const formatted_numeric_pubdate = doc.pubdate ? getFormattedNumericPubdate(doc.pubdate) ?? '' : '';
+  const citation_date = doc.pubdate ? getFormattedCitationDate(doc.pubdate) ?? '' : '';
 
   const last_page = doc.page_range ? getLastPage(doc.page_range) : '';
 
@@ -87,69 +66,79 @@ export const Metatags = (props: IMetatagsProps): ReactElement => {
 
       <meta name="description" content={doc.abstract} />
 
-      <meta property="og:type" content={doc.doctype} />
+      <meta property="og:type" content={doc.doctype} data-highwire="true" />
 
-      <meta property="og:title" content={title} />
+      <meta property="og:title" content={title} data-highwire="true" />
 
-      <meta property="og:site_name" content="NASA/ADS" />
+      <meta property="og:site_name" content="NASA/ADS" data-highwire="true" />
 
-      <meta property="og:description" content={doc.abstract} />
+      <meta property="og:description" content={doc.abstract} data-highwire="true" />
 
-      <meta property="og:url" content={url} />
+      <meta property="og:url" content={url} data-highwire="true" />
 
-      <meta property="og:image" content={logo} />
+      <meta property="og:image" content={logo} data-highwire="true" />
 
-      {doc.pubdate && <meta property="article:published_time" content={formatted_numeric_pubdate} />}
+      {doc.pubdate && <meta property="article:published_time" content={citation_date} />}
 
       {doc.author && authors.map((a, i) => <meta key={`aa-${i}`} name="article:author" content={a} />)}
 
       {doc.doctype === 'Proceedings' ? (
-        doc.bibstem && doc.bibstem.length > 0 && <meta name="citation_conference" content={doc.bibstem[0]} />
+        doc.bibstem &&
+        doc.bibstem.length > 0 && <meta name="citation_conference" content={doc.bibstem[0]} data-highwire="true" />
+      ) : doc.pub_raw ? (
+        <meta name="citation_journal_title" content={doc.pub_raw} data-highwire="true" />
       ) : doc.pub ? (
-        <meta name="citation_journal_title" content={doc.pub} />
+        <meta name="citation_journal_title" content={doc.pub} data-highwire="true" />
       ) : null}
 
-      {doc.pubdate && <meta name="citation_date" content={formatted_numeric_pubdate} />}
+      {doc.pubdate && <meta name="citation_date" content={citation_date} data-highwire="true" />}
 
-      {doc.author && authors.map((a, i) => <meta key={`ca-${i}`} name="citation_authors" content={a} />)}
+      {doc.author &&
+        authors.map((author, i) => (
+          <Fragment key={`author-${i}`}>
+            <meta name="citation_author" content={author} data-highwire="true" />
+            {doc.aff && doc.aff[i] && (
+              <meta name="citation_author_institution" content={doc.aff[i]} data-highwire="true" />
+            )}
+          </Fragment>
+        ))}
 
-      {doc.title && <meta name="citation_title" content={title} />}
+      {doc.title && <meta name="citation_title" content={title} data-highwire="true" />}
 
-      {doc.pubdate && <meta name="citation_date" content={formatted_numeric_pubdate} />}
+      {doc.volume && <meta name="citation_volume" content={doc.volume} data-highwire="true" />}
 
-      {doc.volume && <meta name="citation_volume" content={doc.volume} />}
+      {doc.issue && <meta name="citation_issue" content={doc.issue} data-highwire="true" />}
 
-      {doc.issue && <meta name="citation_issue" content={doc.issue} />}
+      {doc.page && <meta name="citation_firstpage" content={doc.page} data-highwire="true" />}
 
-      {doc.page && <meta name="citation_firstpage" content={doc.page} />}
+      {doc.doi && doc.doi.length > 0 && <meta name="citation_doi" content={doc.doi[0]} data-highwire="true" />}
 
-      {doc.doi && doc.doi.length > 0 && <meta name="citation_doi" content={doc.doi[0]} />}
+      {doc.issn && doc.issn.length > 0 && <meta name="citation_issn" content={doc.issn[0]} data-highwire="true" />}
 
-      {doc.issn && doc.issn.length > 0 && <meta name="citation_issn" content={doc.issn[0]} />}
+      {doc.isbn && doc.isbn.length > 0 && <meta name="citation_isbn" content={doc.isbn[0]} data-highwire="true" />}
 
-      {doc.isbn && doc.isbn.length > 0 && <meta name="citation_isbn" content={doc.isbn[0]} />}
+      <meta name="citation_language" content="en" data-highwire="true" />
 
-      <meta name="citation_language" content="en" />
+      {doc.keyword &&
+        doc.keyword.map((kw, i) => (
+          <meta key={`keyword-${i}`} name="citation_keywords" content={kw} data-highwire="true" />
+        ))}
 
-      {doc.keyword && <meta name="citation_keywords" content={doc.keyword.join('; ')} />}
+      {doc.doctype === 'PhD Thesis' && <meta name="citation_dissertation_name" content="Phd" data-highwire="true" />}
 
-      {doc.doctype === 'PhD Thesis' && <meta name="citation_dissertation_name" content="Phd" />}
+      {doc.doctype === 'Masters Thesis' && <meta name="citation_dissertation_name" content="MS" data-highwire="true" />}
 
-      {doc.doctype === 'Masters Thesis' && <meta name="citation_dissertation_name" content="MS" />}
+      <meta name="citation_abstract_html_url" content={url} data-highwire="true" />
 
-      <meta name="citation_abstract_html_url" content={url} />
-
-      {doc.pubdate && <meta name="citation_publication_date" content={formatted_numeric_pubdate} />}
-
-      {doc.aff && doc.aff.map((a) => <meta key={a} name="citation_author_institution" content={a} />)}
+      {doc.pubdate && <meta name="citation_publication_date" content={citation_date} data-highwire="true" />}
 
       {doc.esources && doc.esources.find((e) => e === Esources.PUB_PDF) && (
-        <meta name="citation_pdf_url" content={`${LINKGWAY_BASE_URL}/${doc.bibcode}/PUB_PDF`} />
+        <meta name="citation_pdf_url" content={`${LINKGATEWAY_BASE_URL}/${doc.bibcode}/PUB_PDF`} data-highwire="true" />
       )}
 
-      {doc.page_range && <meta name="citation_lastpage" content={last_page} />}
+      {doc.page_range && <meta name="citation_lastpage" content={last_page} data-highwire="true" />}
 
-      {arXiv !== '' && <meta name="citation_arxiv_id" content={arXiv} />}
+      {arXiv !== '' && <meta name="citation_arxiv_id" content={arXiv} data-highwire="true" />}
 
       <link title="schema(PRISM)" rel="schema.prism" href="http://prismstandard.org/namespaces/1.2/basic/" />
 
@@ -177,19 +166,19 @@ export const Metatags = (props: IMetatagsProps): ReactElement => {
 
       {doc.author && authors.map((a, i) => <meta key={`dcc-${i}`} name="dc.creator" content={a} />)}
 
-      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:card" content="summary" data-highwire="true" />
 
-      <meta name="twitter:description" content={doc.abstract} />
+      <meta name="twitter:description" content={doc.abstract} data-highwire="true" />
 
-      <meta name="twitter:title" content={title} />
+      <meta name="twitter:title" content={title} data-highwire="true" />
 
-      <meta name="twitter:site" content="@adsabs" />
+      <meta name="twitter:site" content="@adsabs" data-highwire="true" />
 
-      <meta name="twitter:domain" content="NASA/ADS" />
+      <meta name="twitter:domain" content="NASA/ADS" data-highwire="true" />
 
-      <meta name="twitter:image:src" content={logo} />
+      <meta name="twitter:image:src" content={logo} data-highwire="true" />
 
-      <meta name="twitter:creator" content="@adsabs" />
+      <meta name="twitter:creator" content="@adsabs" data-highwire="true" />
     </>
   );
 };

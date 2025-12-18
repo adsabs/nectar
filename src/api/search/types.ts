@@ -266,8 +266,8 @@ export interface IDocsEntity {
   ids_data?: string;
   indexstamp?: string;
   inst?: string;
-  isbn?: string;
-  issn?: string;
+  isbn?: string[];
+  issn?: string[];
   issue?: string;
   keyword_facet?: string;
   keyword_norm?: string;
