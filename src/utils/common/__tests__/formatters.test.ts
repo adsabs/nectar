@@ -1,41 +1,51 @@
-import { describe, expect, it } from 'vitest';
-import { getReadablePublDate } from '../formatters';
+import { describe, test, expect } from 'vitest';
+import { getFormattedNumericPubdate, getFormattedCitationDate } from '../formatters';
 
-describe('getReadablePublDate', () => {
-  it('should return empty string for empty input', () => {
-    expect(getReadablePublDate('')).toBe('');
-    expect(getReadablePublDate('   ')).toBe('   ');
+describe('getFormattedNumericPubdate', () => {
+  test('formats full date as YYYY/MM', () => {
+    expect(getFormattedNumericPubdate('2014-04-15')).toBe('2014/04');
   });
 
-  it('should return original value for non-date strings', () => {
-    expect(getReadablePublDate('not-a-date')).toBe('not-a-date');
-    expect(getReadablePublDate('2024-13-01')).toBe('2024-13-01'); // Invalid month
+  test('formats date with zero month as YYYY', () => {
+    expect(getFormattedNumericPubdate('2014-00-00')).toBe('2014');
   });
 
-  it('should format year-only dates', () => {
-    expect(getReadablePublDate('2024')).toBe('2024');
+  test('returns null for invalid date', () => {
+    expect(getFormattedNumericPubdate('invalid')).toBeNull();
   });
 
-  it('should format year-month dates', () => {
-    expect(getReadablePublDate('2024-01')).toBe('January 2024');
-    expect(getReadablePublDate('2024-03')).toBe('March 2024');
-    expect(getReadablePublDate('2024-12')).toBe('December 2024');
+  test('handles single digit month with leading zero', () => {
+    expect(getFormattedNumericPubdate('2014-01-15')).toBe('2014/01');
+  });
+});
+
+describe('getFormattedCitationDate', () => {
+  test('formats full date as MM/YYYY', () => {
+    expect(getFormattedCitationDate('2014-04-15')).toBe('04/2014');
   });
 
-  it('should format full dates', () => {
-    expect(getReadablePublDate('2024-01-15')).toBe('January 15, 2024');
-    expect(getReadablePublDate('2024-03-01')).toBe('March 1, 2024');
-    expect(getReadablePublDate('2024-12-31')).toBe('December 31, 2024');
+  test('formats date with zero month as YYYY only', () => {
+    expect(getFormattedCitationDate('2014-00-00')).toBe('2014');
   });
 
-  it('should handle zero values correctly', () => {
-    expect(getReadablePublDate('2024-00')).toBe('2024');
-    expect(getReadablePublDate('2024-01-00')).toBe('January 2024');
-    expect(getReadablePublDate('2024-00-00')).toBe('2024');
+  test('returns null for invalid date', () => {
+    expect(getFormattedCitationDate('invalid')).toBeNull();
   });
 
-  it('should handle null and undefined inputs', () => {
-    expect(getReadablePublDate(null as unknown as string)).toBe(null);
-    expect(getReadablePublDate(undefined as unknown as string)).toBe(undefined);
+  test('handles single digit month with leading zero', () => {
+    expect(getFormattedCitationDate('2014-01-15')).toBe('01/2014');
+  });
+
+  test('handles December correctly', () => {
+    expect(getFormattedCitationDate('2014-12-31')).toBe('12/2014');
+  });
+
+  test('handles various month formats', () => {
+    expect(getFormattedCitationDate('2020-03-00')).toBe('03/2020');
+    expect(getFormattedCitationDate('2020-11-00')).toBe('11/2020');
+  });
+
+  test('returns year only when month is 00', () => {
+    expect(getFormattedCitationDate('2023-00-00')).toBe('2023');
   });
 });

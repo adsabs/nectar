@@ -54,6 +54,22 @@ export const getFormattedNumericPubdate = (pubdate: string): string | null => {
   return extractedDate ? `${extractedDate.year}/${extractedDate.month}`.replace('/00', '') : null;
 };
 
+/**
+ * Formats a publication date string into citation metadata format (MM/YYYY).
+ *
+ * @param {string} pubdate - The publication date in string format.
+ * @returns {string | null} - The formatted date as 'MM/YYYY' or 'YYYY' if month is 00, or null if invalid.
+ */
+export const getFormattedCitationDate = (pubdate: string): string | null => {
+  const extractedDate = extractYearAndMonth(pubdate);
+  if (!extractedDate) {
+    return null;
+  }
+
+  const month = extractedDate.month === '00' ? '' : `${extractedDate.month}/`;
+  return month ? `${month}${extractedDate.year}` : extractedDate.year;
+};
+
 export const getCleanedPublDate = (pubdate: string): string => {
   if (!pubdate) {
     return pubdate;
