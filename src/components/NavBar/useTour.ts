@@ -355,7 +355,7 @@ export const getResultsSteps = () => {
       title: 'View highlights',
       text: 'Turn on highlights to see the context of your search terms. Note that the length of returned highlights is limited by publishers.',
       attachTo: {
-        element: '#menu-button-tour-view-highlights',
+        element: '#tour-view-highlights',
         on: 'bottom',
       },
       classes: 'example-step-extra-class',
