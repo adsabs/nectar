@@ -1,10 +1,9 @@
-import { BellIcon, ChevronDownIcon, SettingsIcon } from '@chakra-ui/icons';
+import { BellIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
   Checkbox,
   Flex,
-  Icon,
   IconButton,
   Menu,
   MenuButton,
@@ -17,7 +16,6 @@ import {
   MenuOptionGroup,
   Portal,
   Stack,
-  Switch,
   Text,
   Tooltip,
   useDisclosure,
@@ -48,8 +46,9 @@ import { SolrSort, SolrSortField } from '@/api/models';
 import { useVaultBigQuerySearch } from '@/api/vault/vault';
 import { Bibcode } from '@/api/search/types';
 import { ExportApiFormatKey } from '@/api/export/types';
-import { DocumentTextIcon } from '@heroicons/react/24/outline';
 import { useExportFormats } from '@/lib/useExportFormats';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHighlighter } from '@fortawesome/free-solid-svg-icons';
 
 export interface IListActionsProps {
   onSortChange?: ISortProps<SolrSort, SolrSortField>['onChange'];
@@ -187,7 +186,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
                   id="tour-email-notification"
                 />
               </Tooltip>
-              <SettingsMenu />
+              <HighlightsToggle />
             </Flex>
           )}
         </Flex>
@@ -319,31 +318,19 @@ const SortWrapper = ({ onChange }: { onChange: ISortProps<SolrSort, SolrSortFiel
   );
 };
 
-const SettingsMenu = () => {
-  return (
-    <Menu isLazy autoSelect={false} id="tour-view-highlights">
-      <Tooltip label="Turn on/off highlights">
-        <MenuButton as={IconButton} aria-label="Result list settings" variant="outline" icon={<SettingsIcon />} />
-      </Tooltip>
-      <MenuList>
-        <HighlightsToggle />
-      </MenuList>
-    </Menu>
-  );
-};
-
 const HighlightsToggle = () => {
   const showHighlights = useStore((state) => state.showHighlights);
   const toggleShowHighlights = useStore((state) => state.toggleShowHighlights);
 
   return (
-    <Tooltip label="Show or hide keyword highlights in the results.">
-      <MenuItem onClick={toggleShowHighlights} icon={<Icon as={DocumentTextIcon} fontSize={20} />} iconSpacing={4}>
-        <Flex justifyContent="space-between">
-          Highlights
-          <Switch isChecked={showHighlights} id="show-highlights" onClick={toggleShowHighlights} />
-        </Flex>
-      </MenuItem>
+    <Tooltip label={`${showHighlights ? 'Hide' : 'Show'} keyword highlights in the results.`}>
+      <IconButton
+        id="tour-view-highlights"
+        icon={<FontAwesomeIcon icon={faHighlighter} />}
+        aria-label={`${showHighlights ? 'Hide' : 'Show'} keyword highlights in the results.`}
+        variant={showHighlights ? 'solid' : 'outline'}
+        onClick={toggleShowHighlights}
+      />
     </Tooltip>
   );
 };
