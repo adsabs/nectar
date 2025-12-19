@@ -175,7 +175,10 @@ const SearchPage: NextPage = () => {
   });
 
   const searchParams = omitP(params) as IADSApiSearchParams;
-  const { data, isSuccess, isLoading, isFetching, error, isError, refetch } = useSearch(searchParams);
+  const { data, isSuccess, isLoading, isFetching, error, isError, refetch } = useSearch<IADSApiSearchResponse>(
+    searchParams,
+    { select: (data) => data },
+  );
   const histogramContainerRef = useRef<HTMLDivElement>(null);
   const isClient = useIsClient();
 
@@ -253,8 +256,8 @@ const SearchPage: NextPage = () => {
 
   // Update the store when we have data
   useEffect(() => {
-    if (data?.docs.length > 0) {
-      setDocs(data.docs.map((d) => d.bibcode));
+    if (data?.response.docs.length > 0) {
+      setDocs(data.response.docs.map((d) => d.bibcode));
       setQuery(searchParams);
       submitQuery();
     }
@@ -288,8 +291,8 @@ const SearchPage: NextPage = () => {
 
   // conditions
   const loading = isLoading || isFetching;
-  const noResults = !loading && isSuccess && data?.numFound === 0;
-  const hasResults = !loading && isSuccess && data?.numFound > 0;
+  const noResults = !loading && isSuccess && data?.response.numFound === 0;
+  const hasResults = !loading && isSuccess && data?.response.numFound > 0;
   const showFilters = !isPrint && isClient && hasResults;
   const showListActions = !isPrint && (loading || hasResults);
 
@@ -303,7 +306,7 @@ const SearchPage: NextPage = () => {
           <form method="get" action="/search" onSubmit={handleOnSubmit}>
             <Flex direction="column" width="full">
               <SearchBar isLoading={loading} showStartNewSearchLink />
-              <NumFound count={data?.numFound} isLoading={loading} />
+              <NumFound count={data?.response.numFound} isLoading={loading} />
             </Flex>
             <FacetFilters mt="2" />
           </form>
@@ -376,7 +379,7 @@ const SearchPage: NextPage = () => {
                           fallbackRender={(props) => <ErrorFallback {...props} label="Unable to display results. Please try again." />}
                         >
                           <SimpleResultList
-                            docs={data.docs}
+                            docs={data.response.docs}
                             indexStart={params.start}
                             useNormCite={sort.startsWith('citation_count_norm')}
                           />
@@ -387,7 +390,7 @@ const SearchPage: NextPage = () => {
                       <Pagination
                         numPerPage={storeNumPerPage}
                         page={params.p as number}
-                        totalResults={data.numFound}
+                        totalResults={data.response.numFound}
                         onPerPageSelect={handlePerPageChange}
                       />
                     )}
