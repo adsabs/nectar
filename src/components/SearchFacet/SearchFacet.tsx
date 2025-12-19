@@ -382,12 +382,13 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
   };
 
   // update state when facet is hidden or shown individually (not by drag and drop)
-  const handleVisibilityChange: ISearchFacetProps['onVisibilityChange'] = ({ id, hidden }) => {
+  // Memoized to prevent unnecessary re-renders of facet items
+  const handleVisibilityChange: ISearchFacetProps['onVisibilityChange'] = useCallback(({ id, hidden }) => {
     setFacetsList((prev) => ({
       visible: uniq(hidden ? without([id], prev.visible) : append(id, prev.visible)),
       hidden: uniq(hidden ? append(id, prev.hidden) : without([id], prev.hidden)),
     }));
-  };
+  }, []);
 
   const visibleItems = useMemo(() => {
     return facetsList.visible.map((facetId) => {
