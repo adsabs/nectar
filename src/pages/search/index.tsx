@@ -2,7 +2,7 @@ import dynamic from 'next/dynamic';
 import { IYearHistogramSliderProps } from '@/components/SearchFacet/YearHistogramSlider';
 import { ISearchFacetsProps } from '@/components/SearchFacet';
 import { AppState, useStore, useStoreApi } from '@/store';
-import { last, omit, path } from 'ramda';
+import { last, omit } from 'ramda';
 import shallow from 'zustand/shallow';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -144,7 +144,9 @@ const SearchPage: NextPage = () => {
 
   const queryClient = useQueryClient();
   const queries = queryClient.getQueriesData<IADSApiSearchResponse>([SEARCH_API_KEYS.primary]);
-  const numFound = queries.length > 1 ? path<number>(['1', 'response', 'numFound'], last(queries)) : null;
+  // Safely extract numFound with defensive null checks
+  const lastQuery = queries.length > 1 ? last(queries) : null;
+  const numFound = lastQuery?.[1]?.response?.numFound;
   const [isPrint] = useMediaQuery('print');
 
   // parse the query params from the URL, this should match what the server parsed
@@ -176,6 +178,31 @@ const SearchPage: NextPage = () => {
   const { data, isSuccess, isLoading, isFetching, error, isError, refetch } = useSearch(searchParams);
   const histogramContainerRef = useRef<HTMLDivElement>(null);
   const isClient = useIsClient();
+
+  // Track if search is taking longer than expected
+  const SLOW_SEARCH_THRESHOLD_MS = 5000;
+  const [isSlowSearch, setIsSlowSearch] = useState(false);
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout | null = null;
+    let isMounted = true;
+
+    if (isLoading || isFetching) {
+      timeoutId = setTimeout(() => {
+        if (isMounted) {
+          setIsSlowSearch(true);
+        }
+      }, SLOW_SEARCH_THRESHOLD_MS);
+    } else {
+      setIsSlowSearch(false);
+    }
+
+    return () => {
+      isMounted = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [isLoading, isFetching]);
 
   // Scroll restoration hook - automatically restores scroll position when returning from abstract page
   useScrollRestoration();
@@ -326,7 +353,17 @@ const SearchPage: NextPage = () => {
             ) : (
               <>
                 {noResults ? <NoResultsMsg /> : null}
-                {loading ? <ItemsSkeleton count={storeNumPerPage} /> : null}
+                {loading ? (
+                  <>
+                    {isSlowSearch && (
+                      <Alert status="info" mb={2} borderRadius="md" role="status" aria-live="polite">
+                        <AlertIcon />
+                        <Text>This search is taking longer than expected. Please wait...</Text>
+                      </Alert>
+                    )}
+                    <ItemsSkeleton count={storeNumPerPage} />
+                  </>
+                ) : null}
                 <PartialResultsWarning isPartialResults={data?.responseHeader?.partialResults} />
 
                 {data && (
