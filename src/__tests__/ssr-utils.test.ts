@@ -47,7 +47,6 @@ describe('updateUserStateSSR', () => {
     const inputProps = {
       props: {
         dehydratedAppState: {
-          adsMode: { active: false },
           mode: AppMode.GENERAL,
         } as Partial<AppState>,
       },
@@ -60,7 +59,6 @@ describe('updateUserStateSSR', () => {
     const resultProps = result.props as SSRPropsWithState;
     expect(resultProps.dehydratedAppState).toEqual(
       expect.objectContaining({
-        adsMode: { active: false },
         mode: AppMode.GENERAL,
       }),
     );
@@ -127,7 +125,6 @@ describe('updateUserStateSSR', () => {
     const inputProps = {
       props: {
         dehydratedAppState: {
-          adsMode: { active: false },
           mode: AppMode.GENERAL,
         } as Partial<AppState>,
       },
@@ -137,7 +134,6 @@ describe('updateUserStateSSR', () => {
 
     expect(context.req.session.legacyAppReferrer).toBe(false);
     expect(context.req.session.save).toHaveBeenCalledOnce();
-    expect(inputProps.props.dehydratedAppState.adsMode).toEqual({ active: false });
     expect(inputProps.props.dehydratedAppState.mode).toBe(AppMode.GENERAL);
   });
 
