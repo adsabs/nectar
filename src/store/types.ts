@@ -15,8 +15,6 @@ import {
   ISettingsState,
   IUserAction,
   IUserState,
-  IAdsModeAction,
-  IAdsModeState,
 } from './slices';
 
 export type AppSerializableState = IDocsState &
@@ -24,7 +22,6 @@ export type AppSerializableState = IDocsState &
   ISettingsState &
   IAppModeState &
   IUserState &
-  IAdsModeState &
   IORCIDState &
   INotificationState;
 
@@ -33,7 +30,6 @@ export type AppActions = IDocsAction &
   ISettingsAction &
   IAppModeAction &
   IUserAction &
-  IAdsModeAction &
   IORCIDAction &
   INotificationAction;
 
