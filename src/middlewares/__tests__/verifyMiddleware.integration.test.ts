@@ -3,15 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { rest } from 'msw';
 import { verifyMiddleware } from '@/middlewares/verifyMiddleware';
 import { server } from '@/mocks/server';
-import { getIronSession } from 'iron-session/edge';
-
-vi.mock('iron-session/edge', async (orig) => {
-  const actual = await orig<typeof import('iron-session/edge')>();
-  return { ...actual, getIronSession: vi.fn() };
-});
 
 describe('verifyMiddleware', () => {
-  const getIronSessionMock = getIronSession as unknown as ReturnType<typeof vi.fn>;
   const baseEnv = { ...process.env };
   const cookieName = 'ads_session';
 
@@ -47,9 +40,9 @@ describe('verifyMiddleware', () => {
       .mockResolvedValue(new Response(JSON.stringify(body), { status, headers }) as unknown as Response);
 
   it('redirects to login with success notify when verification succeeds', async () => {
-    getIronSessionMock.mockResolvedValue(makeSession());
+    const session = makeSession();
     const fetchSpy = mockFetch({ message: 'success' }, 200, { 'set-cookie': `${cookieName}=new-value` });
-    const res = await verifyMiddleware(makeReq('/user/account/verify/change-email/abc'), NextResponse.next());
+    const res = await verifyMiddleware(makeReq('/user/account/verify/change-email/abc'), NextResponse.next(), session);
     const location = (res as NextResponse).headers.get('location');
     expect(fetchSpy).toHaveBeenCalledTimes(1);
     expect(location).toContain('/user/account/login');
@@ -57,36 +50,44 @@ describe('verifyMiddleware', () => {
   });
 
   it('redirects with failure when access token is missing', async () => {
-    getIronSessionMock.mockResolvedValue(makeSession(false));
-    const res = await verifyMiddleware(makeReq('/user/account/verify/change-email/abc'), NextResponse.next());
+    const session = makeSession(false);
+    const res = await verifyMiddleware(makeReq('/user/account/verify/change-email/abc'), NextResponse.next(), session);
     expect((res as NextResponse).headers.get('location')).toContain('notify=verify-account-failed');
   });
 
   it('handles unknown verification token error', async () => {
-    getIronSessionMock.mockResolvedValue(makeSession());
+    const session = makeSession();
     mockFetch({ error: 'unknown verification token' });
-    const res = await verifyMiddleware(makeReq('/user/account/verify/change-email/bad-token'), NextResponse.next());
+    const res = await verifyMiddleware(
+      makeReq('/user/account/verify/change-email/bad-token'),
+      NextResponse.next(),
+      session,
+    );
     expect((res as NextResponse).headers.get('location')).toContain('notify=verify-account-failed');
   });
 
   it('handles already validated token error', async () => {
-    getIronSessionMock.mockResolvedValue(makeSession());
+    const session = makeSession();
     mockFetch({ error: 'already been validated' });
-    const res = await verifyMiddleware(makeReq('/user/account/verify/change-email/reused'), NextResponse.next());
+    const res = await verifyMiddleware(
+      makeReq('/user/account/verify/change-email/reused'),
+      NextResponse.next(),
+      session,
+    );
     expect((res as NextResponse).headers.get('location')).toContain('notify=verify-account-was-valid');
   });
 
   it('redirects with failure on non-200 responses', async () => {
-    getIronSessionMock.mockResolvedValue(makeSession());
+    const session = makeSession();
     mockFetch({ error: 'server error' }, 500);
-    const res = await verifyMiddleware(makeReq('/user/account/verify/change-email/abc'), NextResponse.next());
+    const res = await verifyMiddleware(makeReq('/user/account/verify/change-email/abc'), NextResponse.next(), session);
     expect((res as NextResponse).headers.get('location')).toContain('notify=verify-account-failed');
   });
 
   it('redirects with failure when fetch throws', async () => {
-    getIronSessionMock.mockResolvedValue(makeSession());
+    const session = makeSession();
     vi.spyOn(global, 'fetch').mockRejectedValue(new Error('network down'));
-    const res = await verifyMiddleware(makeReq('/user/account/verify/change-email/abc'), NextResponse.next());
+    const res = await verifyMiddleware(makeReq('/user/account/verify/change-email/abc'), NextResponse.next(), session);
     expect((res as NextResponse).headers.get('location')).toContain('notify=verify-account-failed');
   });
 
@@ -108,9 +109,9 @@ describe('verifyMiddleware', () => {
         }),
       );
 
-      getIronSessionMock.mockResolvedValue(makeSession());
+      const session = makeSession();
       const initialResponse = NextResponse.next();
-      const res = await verifyMiddleware(makeReq('/user/account/verify/register/msw-token'), initialResponse);
+      const res = await verifyMiddleware(makeReq('/user/account/verify/register/msw-token'), initialResponse, session);
       const location = (res as NextResponse).headers.get('location');
 
       expect(authHeader).toBe('Bearer token');
@@ -126,8 +127,12 @@ describe('verifyMiddleware', () => {
         ),
       );
 
-      getIronSessionMock.mockResolvedValue(makeSession());
-      const res = await verifyMiddleware(makeReq('/user/account/verify/change-email/msw-bad'), NextResponse.next());
+      const session = makeSession();
+      const res = await verifyMiddleware(
+        makeReq('/user/account/verify/change-email/msw-bad'),
+        NextResponse.next(),
+        session,
+      );
       expect((res as NextResponse).headers.get('location')).toContain('notify=verify-account-was-valid');
     });
   });

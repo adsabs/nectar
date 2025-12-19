@@ -311,7 +311,7 @@ export async function middleware(req: NextRequest) {
   }
 
   if (path.startsWith('/user/account/verify/change-email') || path.startsWith('/user/account/verify/register')) {
-    return verifyMiddleware(req, res);
+    return verifyMiddleware(req, res, session);
   }
 
   // check if URL is a search redirect
