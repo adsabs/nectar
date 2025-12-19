@@ -20,9 +20,11 @@ import { ParsedSolrError, SOLR_ERROR, useSolrError } from '@/lib/useSolrError';
 
 interface ISolrErrorAlertProps {
   error: AxiosError<IADSApiSearchResponse> | Error;
+  onRetry?: () => void;
+  isRetrying?: boolean;
 }
 
-export const SearchErrorAlert = ({ error }: ISolrErrorAlertProps) => {
+export const SearchErrorAlert = ({ error, onRetry, isRetrying = false }: ISolrErrorAlertProps) => {
   const data = useSolrError(error);
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: true });
   const detailsId = 'search-error-details';
@@ -32,7 +34,7 @@ export const SearchErrorAlert = ({ error }: ISolrErrorAlertProps) => {
   const { title, message } = solrErrorToCopy(data, { includeFieldName: !!data.field });
 
   return (
-    <Box minH="sm" w="full">
+    <Box w="full">
       <Alert status="error" variant="subtle" alignItems="flex-start" borderRadius="md">
         <VStack align="stretch" spacing={2} w="full">
           <HStack align="start" w="full">
@@ -43,6 +45,11 @@ export const SearchErrorAlert = ({ error }: ISolrErrorAlertProps) => {
             </VStack>
 
             <HStack>
+              {onRetry && (
+                <Button onClick={onRetry} colorScheme="blue" size="sm" isLoading={isRetrying}>
+                  Try Again
+                </Button>
+              )}
               <Tooltip label={hasCopied ? 'Copied!' : 'Copy full error'}>
                 <Button onClick={onCopy} leftIcon={<CopyIcon />} variant="ghost" size="sm">
                   {hasCopied ? 'Copied' : 'Copy'}
