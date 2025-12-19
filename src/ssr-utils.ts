@@ -18,8 +18,8 @@ export const updateUserStateSSR: IncomingGSSP = async (ctx, prevResult) => {
   const userData = ctx.req.session.token;
   const incomingState = (prevResult?.props?.dehydratedAppState ?? {}) as AppState;
 
-  // Only apply legacy mode if there's no persisted state for adsMode
-  const applyLegacyMode = ctx.req.session.legacyAppReferrer && incomingState.adsMode === undefined;
+  // Apply legacy mode if user is coming from legacy ADS app and has no persisted mode preference
+  const applyLegacyMode = ctx.req.session.legacyAppReferrer && incomingState.mode === undefined;
 
   // Always clear the flag if present to prevent it from overriding user choices on subsequent navigation.
   // This handles both new users (after first application) and existing sessions with the flag stuck from
@@ -33,7 +33,6 @@ export const updateUserStateSSR: IncomingGSSP = async (ctx, prevResult) => {
   const urlMode = pathname === '/search' ? mapDisciplineParamToAppMode(ctx.query?.d) : null;
   const legacyMode = applyLegacyMode ? AppMode.ASTROPHYSICS : undefined;
   const resolvedMode = urlMode ?? legacyMode;
-  const legacyAdsMode = applyLegacyMode ? { adsMode: { active: true } } : {};
 
   log.debug({
     msg: 'Injecting session data into client props',
@@ -56,9 +55,8 @@ export const updateUserStateSSR: IncomingGSSP = async (ctx, prevResult) => {
         user: isUserData(userData) ? userData : {},
         // set notification if present
         notification: getNotification(ctx.query?.notify as NotificationId),
-        // discipline via URL param (d) applies only on /search, otherwise keep legacy app mode
+        // discipline via URL param (d) applies only on /search, otherwise set to ASTROPHYSICS for legacy ADS users
         ...(resolvedMode && { mode: resolvedMode }),
-        ...legacyAdsMode,
       } as AppState,
       dehydratedState: dehydrate(qc),
     },

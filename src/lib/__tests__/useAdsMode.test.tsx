@@ -23,7 +23,8 @@ const setupStore = (initialState = {}) => {
 };
 
 describe('useAdsMode', () => {
-  it('enabling ADS mode forces AppMode to Astrophysics and dismisses notice', () => {
+  // ADSMode is temporarily disabled - skip these tests until re-enabled
+  it.skip('enabling ADS mode forces AppMode to Astrophysics and dismisses notice', () => {
     const { store, wrapper } = setupStore({
       mode: AppMode.GENERAL,
       adsMode: { active: false },
@@ -60,7 +61,7 @@ describe('useAdsMode', () => {
     expect(state.modeNoticeVisible).toBe(true);
   });
 
-  it('enabling ADS mode does not override an active URL mode override', () => {
+  it.skip('enabling ADS mode does not override an active URL mode override', () => {
     const { store, wrapper } = setupStore({
       mode: AppMode.HELIOPHYSICS,
       adsMode: { active: false },
@@ -79,7 +80,7 @@ describe('useAdsMode', () => {
     expect(state.modeNoticeVisible).toBe(true);
   });
 
-  it('enable callback uses current state values, not stale closures', () => {
+  it.skip('enable callback uses current state values, not stale closures', () => {
     const { store, wrapper } = setupStore({
       mode: AppMode.GENERAL,
       adsMode: { active: false },

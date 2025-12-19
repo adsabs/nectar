@@ -7,7 +7,6 @@ import { Box, Flex, HStack, Icon, Text } from '@chakra-ui/react';
 import { UserIcon } from '@heroicons/react/24/solid';
 import { useGetUserEmail } from '@/lib/useGetUserEmail';
 import { isBrowser } from '@/utils/common/guards';
-import { AdsModeToggle } from './AdsModeToggle';
 
 export const items: ItemType[] = [
   {
@@ -22,18 +21,7 @@ export const items: ItemType[] = [
   },
 ];
 
-const adsModeMenuItem: ItemType = {
-  id: 'ads-mode',
-  label: (
-    <Box>
-      <AdsModeToggle source="account_menu" showDescription />
-    </Box>
-  ),
-  static: true,
-};
-
 const loggedInItems: ItemType[] = [
-  adsModeMenuItem,
   { id: 'libraries', path: '/user/libraries', label: 'SciX Libraries' },
   { id: 'notifications', path: '/user/notifications', label: 'Email Notifications' },
   { id: 'settings', path: '/user/settings', label: 'Settings' },
@@ -67,7 +55,7 @@ export const AccountDropdown = (props: IAccountDropdown): ReactElement => {
         'divider' as DividerItem,
         ...loggedInItems,
       ]
-    : [adsModeMenuItem, 'divider' as DividerItem, ...items];
+    : items;
 
   const handleSelect = (e: MouseEvent<HTMLElement>) => {
     const id = (e.target as HTMLElement).dataset['id'];

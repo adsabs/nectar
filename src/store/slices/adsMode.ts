@@ -16,5 +16,6 @@ const initialState: IAdsModeState['adsMode'] = {
 
 export const adsModeSlice: StoreSlice<IAdsModeState & IAdsModeAction> = (set) => ({
   adsMode: initialState,
-  setAdsMode: (active) => set(() => ({ adsMode: { active } }), false, 'adsMode/setAdsMode'),
+  // ADS Mode is temporarily disabled - always force to false
+  setAdsMode: () => set(() => ({ adsMode: { active: false } }), false, 'adsMode/setAdsMode'),
 });

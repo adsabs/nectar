@@ -25,7 +25,7 @@ const getMockContext = (sessionData: Partial<IronSession>, query: ParsedUrlQuery
   } as unknown as GetServerSidePropsContext);
 
 describe('updateUserStateSSR', () => {
-  test('should set adsMode and mode for legacy referrer with no persisted state', async () => {
+  test('should set mode for legacy referrer with no persisted state', async () => {
     const context = getMockContext({ legacyAppReferrer: true });
     const result = await updateUserStateSSR(context, { props: {} });
 
@@ -35,10 +35,11 @@ describe('updateUserStateSSR', () => {
     const props = result.props as SSRPropsWithState;
     expect(props.dehydratedAppState).toEqual(
       expect.objectContaining({
-        adsMode: { active: true },
         mode: AppMode.ASTROPHYSICS,
       }),
     );
+    // ADSMode should not be set by legacy detection
+    expect(props.dehydratedAppState).not.toHaveProperty('adsMode');
   });
 
   test('should respect persisted state even with legacy referrer', async () => {
@@ -95,10 +96,11 @@ describe('updateUserStateSSR', () => {
     const props = result.props as SSRPropsWithState;
     expect(props.dehydratedAppState).toEqual(
       expect.objectContaining({
-        adsMode: { active: true },
         mode: AppMode.HELIOPHYSICS,
       }),
     );
+    // ADSMode should not be set by legacy detection
+    expect(props.dehydratedAppState).not.toHaveProperty('adsMode');
   });
 
   test('should clear legacyAppReferrer flag when applying legacy mode', async () => {
