@@ -34,7 +34,7 @@ import {
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { calculateStartIndex } from '@/components/ResultList/Pagination/usePagination';
-import { FormEventHandler, RefObject, useEffect, useMemo, useRef, useState } from 'react';
+import { FormEventHandler, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useIsClient } from '@/lib/useIsClient';
 import { useScrollRestoration } from '@/lib/useScrollRestoration';
 import { LocalSettings, NumPerPageType } from '@/types';
@@ -61,6 +61,9 @@ import { SearchErrorAlert } from '@/components/SolrErrorAlert/SolrErrorAlert';
 import { useSettings } from '@/lib/useSettings';
 import { getResultsSteps } from '@/components/NavBar';
 import { useShepherd } from 'react-shepherd';
+import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
+import { QueryErrorResetBoundary } from '@tanstack/react-query';
+import { handleBoundaryError } from '@/lib/errorHandler';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
   () =>
@@ -93,6 +96,21 @@ const selectors = {
 };
 
 const omitP = omit(['p']);
+
+/**
+ * Error fallback component for error boundaries
+ */
+const ErrorFallback = ({ label, resetErrorBoundary }: FallbackProps & { label: string }) => (
+  <Alert status="error" my={2} borderRadius="md">
+    <AlertIcon />
+    <Box flex="1">
+      <Text>{label}</Text>
+    </Box>
+    <Button size="sm" colorScheme="blue" onClick={resetErrorBoundary}>
+      Try Again
+    </Button>
+  </Alert>
+);
 
 const SearchPage: NextPage = () => {
   const router = useRouter();
@@ -139,7 +157,7 @@ const SearchPage: NextPage = () => {
   });
 
   const searchParams = omitP(params) as IADSApiSearchParams;
-  const { data, isSuccess, isLoading, isFetching, error, isError } = useSearch(searchParams);
+  const { data, isSuccess, isLoading, isFetching, error, isError, refetch } = useSearch(searchParams);
   const histogramContainerRef = useRef<HTMLDivElement>(null);
   const isClient = useIsClient();
 
@@ -197,7 +215,14 @@ const SearchPage: NextPage = () => {
       setQuery(searchParams);
       submitQuery();
     }
-  }, [data]);
+    // Note: setDocs, setQuery, submitQuery are stable Zustand actions
+    // searchParams is derived from router, changes trigger new data fetch
+  }, [data, setDocs, setQuery, submitQuery, searchParams]);
+
+  // Memoized retry handler for error alert
+  const handleRetry = useCallback(() => {
+    refetch();
+  }, [refetch]);
 
   /**
    * When updating perPage, this updates the store with both the current
@@ -243,52 +268,83 @@ const SearchPage: NextPage = () => {
         </HideOnPrint>
         <Flex direction="row" gap={{ base: 0, lg: 10 }} width="full">
           {showFilters ? (
-            <SearchFacetFilters
-              onSearchFacetSubmission={handleSearchFacetSubmission}
-              histogramContainerRef={histogramContainerRef}
-            />
+            <QueryErrorResetBoundary>
+              {({ reset }) => (
+                <ErrorBoundary
+                  onReset={reset}
+                  onError={(error, errorInfo) => handleBoundaryError(error, errorInfo, { component: 'SearchFacetFilters' })}
+                  fallbackRender={(props) => <ErrorFallback {...props} label="Unable to load filters. Please try again." />}
+                >
+                  <SearchFacetFilters
+                    onSearchFacetSubmission={handleSearchFacetSubmission}
+                    histogramContainerRef={histogramContainerRef}
+                  />
+                </ErrorBoundary>
+              )}
+            </QueryErrorResetBoundary>
           ) : null}
           <Box width="full">
             {showListActions ? (
-              <ListActions
-                onSortChange={handleSortChange}
-                onOpenAddToLibrary={onOpenAddToLibrary}
-                isLoading={isLoading}
-              />
+              <QueryErrorResetBoundary>
+                {({ reset }) => (
+                  <ErrorBoundary
+                    onReset={reset}
+                    onError={(error, errorInfo) => handleBoundaryError(error, errorInfo, { component: 'ListActions' })}
+                    fallbackRender={(props) => <ErrorFallback {...props} label="Unable to load actions. Please try again." />}
+                  >
+                    <ListActions
+                      onSortChange={handleSortChange}
+                      onOpenAddToLibrary={onOpenAddToLibrary}
+                      isLoading={isLoading}
+                    />
+                  </ErrorBoundary>
+                )}
+              </QueryErrorResetBoundary>
             ) : null}
             <VisuallyHidden as="h2" id="search-form-title">
               Search Results
             </VisuallyHidden>
 
-            {noResults ? <NoResultsMsg /> : null}
-            {loading ? <ItemsSkeleton count={storeNumPerPage} /> : null}
-            <PartialResultsWarning params={searchParams} />
-
-            {data && (
+            {isError ? (
+              <SearchErrorAlert error={error} onRetry={handleRetry} isRetrying={isFetching} />
+            ) : (
               <>
-                <SimpleResultList
-                  docs={data.docs}
-                  indexStart={params.start}
-                  useNormCite={sort.startsWith('citation_count_norm')}
-                />
-                {!isPrint && (
-                  <Pagination
-                    numPerPage={storeNumPerPage}
-                    page={params.p as number}
-                    totalResults={data.numFound}
-                    onPerPageSelect={handlePerPageChange}
-                  />
+                {noResults ? <NoResultsMsg /> : null}
+                {loading ? <ItemsSkeleton count={storeNumPerPage} /> : null}
+                <PartialResultsWarning params={searchParams} />
+
+                {data && (
+                  <>
+                    <QueryErrorResetBoundary>
+                      {({ reset }) => (
+                        <ErrorBoundary
+                          onReset={reset}
+                          onError={(error, errorInfo) => handleBoundaryError(error, errorInfo, { component: 'SimpleResultList' })}
+                          fallbackRender={(props) => <ErrorFallback {...props} label="Unable to display results. Please try again." />}
+                        >
+                          <SimpleResultList
+                            docs={data.docs}
+                            indexStart={params.start}
+                            useNormCite={sort.startsWith('citation_count_norm')}
+                          />
+                        </ErrorBoundary>
+                      )}
+                    </QueryErrorResetBoundary>
+                    {!isPrint && (
+                      <Pagination
+                        numPerPage={storeNumPerPage}
+                        page={params.p as number}
+                        totalResults={data.numFound}
+                        onPerPageSelect={handlePerPageChange}
+                      />
+                    )}
+                  </>
                 )}
               </>
             )}
           </Box>
         </Flex>
       </Stack>
-      {isError ? (
-        <Center aria-labelledby="search-form-title" mt={4}>
-          <SearchErrorAlert error={error} />
-        </Center>
-      ) : null}
       <AddToLibraryModal isOpen={isAddToLibraryOpen} onClose={onCloseAddToLibrary} />
     </Box>
   );
