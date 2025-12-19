@@ -3,6 +3,7 @@ import { IYearHistogramSliderProps } from '@/components/SearchFacet/YearHistogra
 import { ISearchFacetsProps } from '@/components/SearchFacet';
 import { AppState, useStore, useStoreApi } from '@/store';
 import { last, omit, path } from 'ramda';
+import shallow from 'zustand/shallow';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useQueryClient } from '@tanstack/react-query';
@@ -81,18 +82,29 @@ const SearchFacets = dynamic<ISearchFacetsProps>(
   { ssr: false },
 );
 
+/**
+ * Consolidated selector for search page store values
+ * Using shallow comparison to prevent unnecessary re-renders
+ */
+const useSearchPageStore = () =>
+  useStore(
+    (state) => ({
+      numPerPage: state.numPerPage,
+      sort: state.query.sort[0],
+      setQuery: state.setQuery,
+      updateQuery: state.updateQuery,
+      submitQuery: state.submitQuery,
+      setNumPerPage: state.setNumPerPage,
+      setDocs: state.setDocs,
+      clearAllSelected: state.clearAllSelected,
+    }),
+    shallow,
+  );
+
 const selectors = {
-  setQuery: (state: AppState) => state.setQuery,
-  updateQuery: (state: AppState) => state.updateQuery,
-  submitQuery: (state: AppState) => state.submitQuery,
-  setNumPerPage: (state: AppState) => state.setNumPerPage,
-  numPerPage: (state: AppState) => state.numPerPage,
-  setDocs: (state: AppState) => state.setDocs,
   showFilters: (state: AppState) => state.settings.searchFacets.open,
   toggleSearchFacetsOpen: (state: AppState) => state.toggleSearchFacetsOpen,
   resetSearchFacets: (state: AppState) => state.resetSearchFacets,
-  clearAllSelected: (state: AppState) => state.clearAllSelected,
-  query: (state: AppState) => state.query,
 };
 
 const omitP = omit(['p']);
@@ -114,16 +126,20 @@ const ErrorFallback = ({ label, resetErrorBoundary }: FallbackProps & { label: s
 
 const SearchPage: NextPage = () => {
   const router = useRouter();
-
   const store = useStoreApi();
-  const storeNumPerPage = useStore(selectors.numPerPage);
-  const setQuery = useStore(selectors.setQuery);
-  const updateQuery = useStore(selectors.updateQuery);
-  const submitQuery = useStore(selectors.submitQuery);
-  const setNumPerPage = useStore(selectors.setNumPerPage);
-  const setDocs = useStore(selectors.setDocs);
-  const clearSelectedDocs = useStore(selectors.clearAllSelected);
-  const sort = useStore(selectors.query).sort[0];
+
+  // Consolidated store selector - reduces subscription overhead
+  const {
+    numPerPage: storeNumPerPage,
+    sort,
+    setQuery,
+    updateQuery,
+    submitQuery,
+    setNumPerPage,
+    setDocs,
+    clearAllSelected: clearSelectedDocs,
+  } = useSearchPageStore();
+
   const { settings } = useSettings({ suspense: false });
 
   const queryClient = useQueryClient();
@@ -311,7 +327,7 @@ const SearchPage: NextPage = () => {
               <>
                 {noResults ? <NoResultsMsg /> : null}
                 {loading ? <ItemsSkeleton count={storeNumPerPage} /> : null}
-                <PartialResultsWarning params={searchParams} />
+                <PartialResultsWarning isPartialResults={data?.responseHeader?.partialResults} />
 
                 {data && (
                   <>
@@ -526,17 +542,9 @@ export default SearchPage;
 /**
  * Shows a warning if the returned search is flagged as having partial results.
  * This is used to inform users that the results may not be complete.
- *
- * @param props
- * @constructor
  */
-const PartialResultsWarning = (props: { params: IADSApiSearchParams }) => {
-  const { params } = props;
-  const { data: isPartialResults, isError } = useSearch(params, {
-    select: (data) => data.responseHeader?.partialResults,
-  });
-
-  if (!isPartialResults || isError) {
+const PartialResultsWarning = ({ isPartialResults }: { isPartialResults?: boolean }) => {
+  if (!isPartialResults) {
     return null;
   }
 
