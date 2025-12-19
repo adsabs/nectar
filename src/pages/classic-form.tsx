@@ -37,23 +37,13 @@ const ClassicFormPage: NextPage<{ ssrError?: string }> = ({ ssrError }) => {
       }
       setUrlModeOverride(null);
       void syncUrlDisciplineParam(router, fallbackMode);
+      return;
     }
     if (urlModePrevious) {
       setMode(urlModePrevious);
+      setUrlModePrevious(null);
     }
-    setUrlModePrevious(null);
-  }, [
-    clearQuery,
-    clearSelectedDocs,
-    dismissModeNoticeSilently,
-    mode,
-    setMode,
-    urlModePrevious,
-    setUrlModePrevious,
-    urlModeOverride,
-    setUrlModeOverride,
-    router,
-  ]);
+  }, [router, mode, urlModePrevious, urlModeOverride]);
 
   return (
     <Box as="section" aria-labelledby="form-title" my={16}>

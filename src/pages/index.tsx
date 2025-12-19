@@ -90,23 +90,13 @@ const HomePage: NextPage = () => {
 
       if (urlModePrevious) {
         setMode(urlModePrevious);
+        setUrlModePrevious(null);
       }
-      setUrlModePrevious(null);
     };
 
     router.events.on('routeChangeComplete', handleRouteChange);
     return () => router.events.off('routeChangeComplete', handleRouteChange);
-  }, [
-    router,
-    setNotification,
-    dismissModeNoticeSilently,
-    mode,
-    setMode,
-    urlModePrevious,
-    setUrlModePrevious,
-    urlModeOverride,
-    setUrlModeOverride,
-  ]);
+  }, [router, mode, urlModePrevious, urlModeOverride]);
 
   // clear search on mount
   useEffect(() => {

@@ -101,23 +101,13 @@ const PaperForm: NextPage<{ error?: IPaperFormServerError }> = ({ error: ssrErro
       }
       setUrlModeOverride(null);
       void syncUrlDisciplineParam(router, fallbackMode);
+      return;
     }
     if (urlModePrevious) {
       setMode(urlModePrevious);
+      setUrlModePrevious(null);
     }
-    setUrlModePrevious(null);
-  }, [
-    clearQuery,
-    clearSelectedDocs,
-    dismissModeNoticeSilently,
-    mode,
-    setMode,
-    urlModePrevious,
-    setUrlModePrevious,
-    urlModeOverride,
-    setUrlModeOverride,
-    router,
-  ]);
+  }, [router, mode, urlModePrevious, urlModeOverride]);
 
   const handleSubmit = useCallback(
     async (params: PaperFormState[PaperFormType]) => {
