@@ -1,13 +1,15 @@
-import { Flex, VisuallyHidden } from '@chakra-ui/react';
+import { Alert, AlertIcon, Box, Flex, Text, VisuallyHidden } from '@chakra-ui/react';
 import { useIsClient } from '@/lib/useIsClient';
 import PT from 'prop-types';
 import { HTMLAttributes, ReactElement, useMemo } from 'react';
-import { Item } from './Item';
+import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
+import { Item, IItemProps } from './Item';
 import { useHighlights } from './useHighlights';
 import { IDocsEntity } from '@/api/search/types';
 import { useGetExportCitation } from '@/api/export/export';
 import { useSettings } from '@/lib/useSettings';
 import { logger } from '@/logger';
+import { handleBoundaryError } from '@/lib/errorHandler';
 
 export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
   docs: IDocsEntity[];
@@ -24,6 +26,32 @@ const propTypes = {
   indexStart: PT.number,
   hideCheckboxes: PT.bool,
 };
+
+/**
+ * Error fallback for individual result items
+ * Shows a minimal error message when a single item fails to render
+ */
+const ItemErrorFallback = ({ bibcode }: { bibcode: string } & FallbackProps) => (
+  <Box border="1px" borderColor="red.200" borderRadius="md" mb={1} p={3}>
+    <Alert status="error" variant="subtle" borderRadius="md">
+      <AlertIcon />
+      <Text fontSize="sm">Unable to display this result ({bibcode})</Text>
+    </Alert>
+  </Box>
+);
+
+/**
+ * Wraps an Item component with an error boundary to prevent one bad record
+ * from crashing the entire results list
+ */
+const SafeItem = (props: IItemProps) => (
+  <ErrorBoundary
+    onError={(error, errorInfo) => handleBoundaryError(error, errorInfo, { component: 'Item', bibcode: props.doc.bibcode })}
+    fallbackRender={(fallbackProps) => <ItemErrorFallback {...fallbackProps} bibcode={props.doc.bibcode} />}
+  >
+    <Item {...props} />
+  </ErrorBoundary>
+);
 
 export const SimpleResultList = (props: ISimpleResultListProps): ReactElement => {
   const {
@@ -83,7 +111,7 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
         Results
       </VisuallyHidden>
       {docs.map((doc, index) => (
-        <Item
+        <SafeItem
           doc={doc}
           key={doc.bibcode}
           index={start + index}
