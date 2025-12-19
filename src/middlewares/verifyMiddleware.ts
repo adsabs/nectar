@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getIronSession } from 'iron-session/edge';
-import { sessionConfig } from '@/config';
+import { IronSession } from 'iron-session';
 import { edgeLogger } from '@/logger';
 import { ApiTargets } from '@/api/models';
 import { IVerifyAccountResponse } from '@/api/user/types';
@@ -30,9 +29,8 @@ export const extractToken = (path: string) => {
   }
 };
 
-export const verifyMiddleware = async (req: NextRequest, res: NextResponse) => {
+export const verifyMiddleware = async (req: NextRequest, res: NextResponse, session: IronSession) => {
   log.debug('Handling verify request');
-  const session = await getIronSession(req, res, sessionConfig);
   const { route, token } = extractToken(req.nextUrl.pathname);
   const newUrl = req.nextUrl.clone();
   newUrl.pathname = '/';
