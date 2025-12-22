@@ -206,12 +206,6 @@ importers:
       react-compound-slider:
         specifier: ^3.4.0
         version: 3.4.0(react@18.3.1)
-      react-copy-html-to-clipboard:
-        specifier: ^6.0.4
-        version: 6.0.4(react@18.3.1)
-      react-copy-to-clipboard:
-        specifier: ^5.1.0
-        version: 5.1.0(react@18.3.1)
       react-device-detect:
         specifier: ^2.2.3
         version: 2.2.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3266,9 +3260,6 @@ packages:
     resolution: {integrity: sha512-yCEafptTtb4bk7GLEQoM8KVJpxAfdBJYaXyzQEgQQQgYrZiDp8SJmGKlYza6CYjEDNstAdNdKA3UuoULlEbS6w==}
     engines: {node: '>=12.13'}
 
-  copy-html-to-clipboard@4.0.1:
-    resolution: {integrity: sha512-uvEr7smwMQReydH7XzSgpxM1SywZfxS+1NLhlSvzLIGz8esPbY248y1Tg7LTYsr/yVP/1kUyf8Ypgd9ljJJkBw==}
-
   copy-to-clipboard@3.3.3:
     resolution: {integrity: sha512-2KV8NhB5JqC3ky0r9PMCAZKbUHSwtEo4CwCs0KXgruG43gX5PMqDEBbVU4OUzw2MuAWUfsuFmWvEKG5QRfSnJA==}
 
@@ -5306,16 +5297,6 @@ packages:
     resolution: {integrity: sha512-KSje/rB0xSvvcb7YV0+82hkiXTV5ljSS7axKrNiXLf9AEO+rrr1Xq4MJWA+6v030YNNo/RoSoEB6D6fnoy+8ng==}
     peerDependencies:
       react: '>=16.9'
-
-  react-copy-html-to-clipboard@6.0.4:
-    resolution: {integrity: sha512-lUV84N9OiL3exfM+lK7XEN30xgK7XLRqAqcr+8m9ZtQ82xGUjT7fCWwvOS88YH/TaANqokWWZRtrgSMK1m8huw==}
-    peerDependencies:
-      react: ^15.3.0
-
-  react-copy-to-clipboard@5.1.0:
-    resolution: {integrity: sha512-k61RsNgAayIJNoy9yDsYzDe/yAZAzEbEgcz3DZMhF686LEyukcE1hzurxe85JandPUG+yTfGVFzuEw3xt8WP/A==}
-    peerDependencies:
-      react: ^15.3.0 || 16 || 17 || 18
 
   react-device-detect@2.2.3:
     resolution: {integrity: sha512-buYY3qrCnQVlIFHrC5UcUoAj7iANs/+srdkwsnNjI7anr3Tt7UY6MqNxtMLlr0tMBied0O49UZVK8XKs3ZIiPw==}
@@ -9591,10 +9572,6 @@ snapshots:
     dependencies:
       is-what: 4.1.16
 
-  copy-html-to-clipboard@4.0.1:
-    dependencies:
-      toggle-selection: 1.0.6
-
   copy-to-clipboard@3.3.3:
     dependencies:
       toggle-selection: 1.0.6
@@ -11970,18 +11947,6 @@ snapshots:
       d3-array: 2.12.1
       react: 18.3.1
       warning: 4.0.3
-
-  react-copy-html-to-clipboard@6.0.4(react@18.3.1):
-    dependencies:
-      copy-html-to-clipboard: 4.0.1
-      prop-types: 15.8.1
-      react: 18.3.1
-
-  react-copy-to-clipboard@5.1.0(react@18.3.1):
-    dependencies:
-      copy-to-clipboard: 3.3.3
-      prop-types: 15.8.1
-      react: 18.3.1
 
   react-device-detect@2.2.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:

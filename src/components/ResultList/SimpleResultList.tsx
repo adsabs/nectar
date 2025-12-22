@@ -8,7 +8,6 @@ import { useHighlights } from './useHighlights';
 import { IDocsEntity } from '@/api/search/types';
 import { useGetExportCitation } from '@/api/export/export';
 import { useSettings } from '@/lib/useSettings';
-import { logger } from '@/logger';
 import { handleBoundaryError } from '@/lib/errorHandler';
 
 export interface ISimpleResultListProps extends HTMLAttributes<HTMLDivElement> {
@@ -79,6 +78,7 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
       format: defaultCitationFormat,
       bibcode: bibcodes,
       sort: ['bibcode asc'],
+      outputformat: 2,
     },
     { enabled: !!settings?.defaultCitationFormat },
   );
@@ -86,17 +86,13 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
   // a map from bibcode to citation
   const defaultCitations = useMemo(() => {
     const citationSet = new Map<string, string>();
-    try {
-      if (!!citationData) {
-        citationData.export.split('\n').forEach((c, index) => {
-          citationSet.set(bibcodes[index], c);
-        });
-      }
-    } catch (err) {
-      logger.error({ err }, 'Error processing citation data');
+    if (!!citationData) {
+      citationData.docs.map((doc) => {
+        citationSet.set(doc.bibcode, doc.reference);
+      });
     }
     return citationSet;
-  }, [citationData, bibcodes]);
+  }, [citationData]);
 
   return (
     <Flex
