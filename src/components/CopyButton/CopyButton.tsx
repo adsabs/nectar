@@ -1,12 +1,15 @@
 import { CheckIcon, CopyIcon } from '@chakra-ui/icons';
-import { Button, ButtonProps, IconButton, MenuItem, MenuItemProps, useClipboard } from '@chakra-ui/react';
+import { Button, ButtonProps, IconButton, MenuItem, MenuItemProps } from '@chakra-ui/react';
 import { ReactElement, useEffect, useState } from 'react';
 
-export interface ICopyButtonProps extends ButtonProps {
+interface ICopyProps {
   text: string;
   onCopyComplete?: () => void;
   timeout?: number;
   asHtml?: boolean;
+}
+
+export interface ICopyButtonProps extends ICopyProps, ButtonProps {
   iconPos?: 'left' | 'right';
 }
 
@@ -109,16 +112,33 @@ export const LabeledCopyButton = (props: ICopyButtonProps & { label: string }): 
   );
 };
 
-export const CopyMenuItem = (props: MenuItemProps & { label: string; text: string }): ReactElement => {
-  const { label, text, ...rest } = props;
-  const { onCopy, setValue } = useClipboard(text);
+export const CopyMenuItem = (props: MenuItemProps & ICopyProps & { label: string }): ReactElement => {
+  const { label, text, timeout = DEFAULT_TIMEOUT, onCopyComplete, asHtml = false, ...rest } = props;
+
+  const [hasCopied, setHasCopied] = useState(false);
 
   useEffect(() => {
-    setValue(text);
-  }, [text]);
+    if (hasCopied) {
+      const timeoutId = setTimeout(() => {
+        setHasCopied(false);
+      }, timeout);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [hasCopied]);
+
+  const handleCopied = (asHtml: boolean) => {
+    if (asHtml) {
+      copyHtmlToClipboard(text);
+    } else {
+      copyPlainTextToClipboard(text);
+    }
+    setHasCopied(true);
+    onCopyComplete?.();
+  };
 
   return (
-    <MenuItem onClick={onCopy} {...rest}>
+    <MenuItem onClick={() => handleCopied(asHtml)} {...rest}>
       {label} <CopyIcon mx={2} />
     </MenuItem>
   );

@@ -37,7 +37,7 @@ export const AbstractCitationModal = ({
 
   const { formatOptions, getFormatOptionById } = useExportFormats();
 
-  const options = formatOptions.filter((o) => o.type === 'HTML' || MostUsedExportFormats.includes(o.id));
+  const options = formatOptions.filter((o) => MostUsedExportFormats.includes(o.id));
 
   const defaultOption = settings.defaultCitationFormat
     ? getFormatOptionById(settings.defaultCitationFormat)

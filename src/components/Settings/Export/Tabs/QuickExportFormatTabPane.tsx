@@ -1,4 +1,4 @@
-import { Box, Stack, Text } from '@chakra-ui/react';
+import { Box, Stack, Text, Textarea } from '@chakra-ui/react';
 
 import { UserDataSetterEvent } from '@/pages/user/settings/export';
 import { Dispatch, useMemo } from 'react';
@@ -7,7 +7,8 @@ import { IDocsEntity } from '@/api/search/types';
 import { useGetExportCitation } from '@/api/export/export';
 import { Select } from '@/components/Select';
 import { ExportFormatOption, useExportFormats } from '@/lib/useExportFormats';
-import { ExportApiFormatKey } from '@/api/export/types';
+import { ExportApiFormatKey, MostUsedExportFormats } from '@/api/export/types';
+import { LoadingMessage } from '@/components/Feedbacks';
 
 export interface QuickExportFormatTabPaneProps {
   sampleBib: IDocsEntity['bibcode'];
@@ -17,9 +18,11 @@ export interface QuickExportFormatTabPaneProps {
 export const QuickExportFormatTabPane = ({ sampleBib, dispatch }: QuickExportFormatTabPaneProps) => {
   const { settings: userSettings } = useSettings({ suspense: false });
 
+  const { defaultCitationFormat } = userSettings;
+
   const { formatOptions } = useExportFormats();
 
-  const citationFormatOptions = formatOptions.filter((o) => o.type === 'HTML');
+  const citationFormatOptions = formatOptions.filter((o) => MostUsedExportFormats.includes(o.id));
 
   // default export format changed
   const handleApplyDefaulCitationFormat = (format: ExportFormatOption) => {
@@ -27,15 +30,13 @@ export const QuickExportFormatTabPane = ({ sampleBib, dispatch }: QuickExportFor
   };
 
   const defaultCitationFormatOpt = useMemo(() => {
-    const { defaultCitationFormat } = userSettings;
-
     return (
       citationFormatOptions.find((option) => option.id === defaultCitationFormat) ??
       citationFormatOptions.find((option) => option.id === ExportApiFormatKey.agu)
     );
-  }, [userSettings, citationFormatOptions]);
+  }, [defaultCitationFormat, citationFormatOptions]);
 
-  const { data } = useGetExportCitation({
+  const { data, isLoading } = useGetExportCitation({
     format: defaultCitationFormatOpt.id,
     bibcode: [sampleBib],
     maxauthor: [2000],
@@ -56,7 +57,17 @@ export const QuickExportFormatTabPane = ({ sampleBib, dispatch }: QuickExportFor
       <Text size="md" fontWeight="bold">
         Sample Format
       </Text>
-      <Box fontWeight="medium" dangerouslySetInnerHTML={{ __html: data?.export }} />
+      {isLoading ? (
+        <LoadingMessage message="Loading" />
+      ) : (
+        <>
+          {defaultCitationFormatOpt.type === 'HTML' ? (
+            <Box fontWeight="medium" dangerouslySetInnerHTML={{ __html: data?.export }} />
+          ) : (
+            <Textarea value={data.export} fontSize="sm" fontWeight="medium" mb={2} h={150} />
+          )}
+        </>
+      )}
     </Stack>
   );
 };
