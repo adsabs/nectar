@@ -1,5 +1,5 @@
 import { useGetExportCitation } from '@/api/export/export';
-import { ExportApiFormatKey } from '@/api/export/types';
+import { ExportApiFormatKey, MostUsedExportFormats } from '@/api/export/types';
 import { useExportFormats } from '@/lib/useExportFormats';
 import { useSettings } from '@/lib/useSettings';
 import { parseAPIError } from '@/utils/common/parseAPIError';
@@ -16,11 +16,13 @@ import {
   AlertTitle,
   AlertDescription,
   Flex,
+  Textarea,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { SimpleCopyButton } from '../CopyButton';
 import { LoadingMessage } from '../Feedbacks';
 import { Select } from '../Select';
+import { SimpleLink } from '../SimpleLink';
 
 export const AbstractCitationModal = ({
   isOpen,
@@ -35,7 +37,7 @@ export const AbstractCitationModal = ({
 
   const { formatOptions, getFormatOptionById } = useExportFormats();
 
-  const options = formatOptions.filter((o) => o.type === 'HTML');
+  const options = formatOptions.filter((o) => o.type === 'HTML' || MostUsedExportFormats.includes(o.id));
 
   const defaultOption = settings.defaultCitationFormat
     ? getFormatOptionById(settings.defaultCitationFormat)
@@ -68,6 +70,11 @@ export const AbstractCitationModal = ({
             onChange={(o) => setSelectedOption(o)}
             stylesTheme="default.sm"
           />
+          <Flex justifyContent="end" my={1}>
+            <SimpleLink href={`/abs/${bibcode}/exportcitation/bibtex`} fontSize="sm" fontWeight="bold">
+              Advanced options
+            </SimpleLink>
+          </Flex>
           <Box my={6}>
             {isLoading ? (
               <LoadingMessage message="Loading" />
@@ -79,10 +86,21 @@ export const AbstractCitationModal = ({
               </Alert>
             ) : (
               <>
-                <Box fontSize="sm" fontWeight="medium" dangerouslySetInnerHTML={{ __html: data.export }} />
-                <Flex justifyContent="end">
-                  <SimpleCopyButton text={data.export} variant="outline" size="xs" asHtml />
-                </Flex>
+                {selectedOption.type === 'HTML' ? (
+                  <>
+                    <Box fontSize="sm" fontWeight="medium" dangerouslySetInnerHTML={{ __html: data.export }} />
+                    <Flex justifyContent="end">
+                      <SimpleCopyButton text={data.export} variant="outline" size="xs" asHtml />
+                    </Flex>
+                  </>
+                ) : (
+                  <>
+                    <Textarea value={data.export} fontSize="sm" fontWeight="medium" mb={2} h={150} />
+                    <Flex justifyContent="end">
+                      <SimpleCopyButton text={data.export} variant="outline" size="xs" />
+                    </Flex>
+                  </>
+                )}
               </>
             )}
           </Box>
