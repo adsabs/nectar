@@ -33,8 +33,6 @@ import { Control, Controller, useForm, UseFormRegisterReturn, useWatch } from 'r
 import { getSearchQuery } from './helpers';
 import { IClassicFormState, IRawClassicFormState } from './types';
 import { useStore } from '@/store';
-import { trackAdsDefaultsApplied } from '@/lib/adsMode';
-import { AppMode } from '@/types';
 
 import { solrSortOptions } from '@/components/Sort/model';
 import { SimpleLink } from '@/components/SimpleLink';
@@ -74,11 +72,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
   const isClient = useIsClient();
   const router = useRouter();
   const [queryError, setQueryError] = useErrorMessage<string>(props.ssrError);
-  const adsModeActive = useStore((state) => state.adsMode.active);
   const mode = useStore((state) => state.mode);
-  const urlModeOverride = useStore((state) => state.urlModeOverride);
-  const setMode = useStore((state) => state.setMode);
-  const dismissModeNotice = useStore((state) => state.dismissModeNotice);
 
   const { register, control, handleSubmit } = useForm<IClassicFormState>({
     defaultValues: defaultClassicFormState,
@@ -89,14 +83,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
 
     void handleSubmit((params) => {
       try {
-        const search = getSearchQuery(params, { adsModeEnabled: adsModeActive, mode, urlModeOverride });
-        if (adsModeActive && mode !== AppMode.ASTROPHYSICS) {
-          setMode(AppMode.ASTROPHYSICS);
-          dismissModeNotice();
-        }
-        if (adsModeActive) {
-          trackAdsDefaultsApplied('classic_form');
-        }
+        const search = getSearchQuery(params, { mode });
         void router.push({ pathname: '/search', search });
       } catch (e) {
         setQueryError((e as Error)?.message);

@@ -15,10 +15,6 @@ vi.mock('@/middlewares/initSession', () => ({
   initSession: vi.fn().mockResolvedValue(undefined),
 }));
 
-vi.mock('@/middlewares/legacyAppDetection', () => ({
-  legacyAppDetectionMiddleware: vi.fn().mockResolvedValue(undefined),
-}));
-
 vi.mock('@/middlewares/verifyMiddleware', () => ({
   verifyMiddleware: vi.fn().mockResolvedValue(new NextResponse('verify')),
 }));
@@ -39,9 +35,6 @@ describe('middleware route integration', () => {
   const baseEnv = { ...process.env };
   const getIronSessionMock = getIronSession as unknown as ReturnType<typeof vi.fn>;
   let initSessionMock: ReturnType<typeof vi.mocked<typeof import('@/middlewares/initSession')['initSession']>>;
-  let legacyAppDetectionMock: ReturnType<
-    typeof vi.mocked<typeof import('@/middlewares/legacyAppDetection')['legacyAppDetectionMiddleware']>
-  >;
   let verifyMiddlewareMock: ReturnType<
     typeof vi.mocked<typeof import('@/middlewares/verifyMiddleware')['verifyMiddleware']>
   >;
@@ -55,7 +48,6 @@ describe('middleware route integration', () => {
 
   beforeAll(async () => {
     initSessionMock = vi.mocked((await import('@/middlewares/initSession')).initSession);
-    legacyAppDetectionMock = vi.mocked((await import('@/middlewares/legacyAppDetection')).legacyAppDetectionMiddleware);
     verifyMiddlewareMock = vi.mocked((await import('@/middlewares/verifyMiddleware')).verifyMiddleware);
     const legacySearchModule = await import('@/middlewares/legacySearchURLMiddleware');
     legacySearchMiddlewareMock = vi.mocked(legacySearchModule.legacySearchURLMiddleware);
@@ -90,7 +82,6 @@ describe('middleware route integration', () => {
     const req = makeReq('https://example.com/');
     const res = await middleware(req);
     expect(initSessionMock).toHaveBeenCalledWith(req, expect.any(NextResponse), session);
-    expect(legacyAppDetectionMock).toHaveBeenCalled();
     expect(res.headers.get('location')).toBeNull();
   });
 
@@ -151,7 +142,6 @@ describe('middleware route integration', () => {
     expect(res.headers.get('location')).toBeNull();
     expect(getIronSessionMock).not.toHaveBeenCalled();
     expect(initSessionMock).not.toHaveBeenCalled();
-    expect(legacyAppDetectionMock).not.toHaveBeenCalled();
     expect(rateLimitMock).not.toHaveBeenCalled();
   });
 

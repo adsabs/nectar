@@ -4,7 +4,7 @@ import { webcrypto } from 'crypto';
 import { normalizeAbsPath } from '@/middleware';
 import { isAuthenticated, isTokenExpired, isUserData, isValidToken, hash } from '@/middlewares/initSession';
 import { isLegacySearchURL, legacySearchURLMiddleware } from '@/middlewares/legacySearchURLMiddleware';
-import { isFromLegacyApp } from '@/middlewares/legacyAppDetection';
+import { isFromLegacyApp } from '@/utils/legacyAppDetection';
 import { extractToken } from '@/middlewares/verifyMiddleware';
 
 describe('normalizeAbsPath', () => {
@@ -167,17 +167,18 @@ describe('legacy search helpers', () => {
 });
 
 describe('referer helpers', () => {
-  it('identifies requests from legacy app domains', () => {
-    const req = new NextRequest('https://scixplorer.org/search');
-    req.headers.set('referer', 'https://ui.adsabs.harvard.edu/search');
-    expect(isFromLegacyApp(req)).toBe(true);
+  it('identifies referers from legacy app domains', () => {
+    expect(isFromLegacyApp('https://ui.adsabs.harvard.edu/search')).toBe(true);
+    expect(isFromLegacyApp('https://devui.adsabs.harvard.edu/search')).toBe(true);
+    expect(isFromLegacyApp('https://qa.adsabs.harvard.edu/search')).toBe(true);
+    expect(isFromLegacyApp('https://dev.adsabs.harvard.edu/search')).toBe(true);
   });
 
   it('returns false for missing or invalid referer', () => {
-    const req = new NextRequest('https://scixplorer.org/search');
-    expect(isFromLegacyApp(req)).toBe(false);
-    req.headers.set('referer', ':::::');
-    expect(isFromLegacyApp(req)).toBe(false);
+    expect(isFromLegacyApp()).toBe(false);
+    expect(isFromLegacyApp('')).toBe(false);
+    expect(isFromLegacyApp(':::::')).toBe(false);
+    expect(isFromLegacyApp('https://google.com')).toBe(false);
   });
 });
 

@@ -44,7 +44,6 @@ import { CollectionChoice, IClassicFormState, IRawClassicFormState, LogicChoice,
 import { getTerms } from '@/query';
 import { APP_DEFAULTS } from '@/config';
 import { makeSearchParams } from '@/utils/common/search';
-import { applyAdsModeDefaultsToQuery } from '@/lib/adsMode';
 import { IADSApiSearchParams } from '@/api/search/types';
 
 const DEFAULT_PREFIXES = ['-', '+', '='];
@@ -306,15 +305,11 @@ export const getBibstems = (bibstems: string) => {
  */
 export const getSearchQuery = (
   params: IRawClassicFormState,
-  options: { adsModeEnabled?: boolean; mode?: AppMode; urlModeOverride?: AppMode | null } = {},
+  options: { mode?: AppMode } = {},
 ): string => {
-  const d = options.adsModeEnabled ? options.urlModeOverride ?? AppMode.ASTROPHYSICS : options.mode;
+  const d = options.mode;
   if (isEmpty(params)) {
-    const { query } = applyAdsModeDefaultsToQuery({
-      query: { q: APP_DEFAULTS.EMPTY_QUERY, sort: ['date desc'] } as IADSApiSearchParams,
-      adsModeEnabled: options.adsModeEnabled ?? false,
-    });
-    return makeSearchParams({ ...query, d });
+    return makeSearchParams({ q: APP_DEFAULTS.EMPTY_QUERY, sort: ['date desc'], d });
   }
 
   // sanitize strings
@@ -346,15 +341,5 @@ export const getSearchQuery = (
     getBibstems(cleanParams.bibstems),
   ]);
 
-  const queryParams: IADSApiSearchParams = {
-    q: query,
-    sort: cleanParams.sort,
-  };
-
-  const { query: adsQuery } = applyAdsModeDefaultsToQuery({
-    query: queryParams,
-    adsModeEnabled: options.adsModeEnabled ?? false,
-  });
-
-  return makeSearchParams({ ...adsQuery, d });
+  return makeSearchParams({ q: query, sort: cleanParams.sort, d });
 };

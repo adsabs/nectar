@@ -8,7 +8,6 @@ import {
   docsSlice,
   notificationSlice,
   orcidSlice,
-  adsModeSlice,
   searchSlice,
   settingsSlice,
   userSlice,
@@ -29,7 +28,6 @@ export const createStore = (preloadedState: Partial<AppState> = {}) => {
     ...settingsSlice(set, get),
     ...orcidSlice(set, get),
     ...notificationSlice(set, get),
-    ...adsModeSlice(set, get),
     ...preloadedState,
   });
 
@@ -57,7 +55,6 @@ export const createStore = (preloadedState: Partial<AppState> = {}) => {
             numPerPage: state.numPerPage,
             settings: state.settings,
             orcid: state.orcid,
-            adsMode: state.adsMode,
           }),
           merge: mergeDeepLeft,
         }),

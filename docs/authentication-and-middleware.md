@@ -56,11 +56,12 @@ The main middleware file (`src/middleware.ts`) orchestrates several smaller, sin
 
 The core of the authentication system. It ensures every request has a valid, synchronized user session by implementing the detailed workflow described above.
 
-### `legacyAppDetectionMiddleware` (`src/middlewares/legacyAppDetection.ts`)
+### Legacy App Detection (`src/utils/legacyAppDetection.ts`)
 
-A UX enhancement middleware that inspects the `Referer` header.
--   **Function:** If a user navigates from the legacy application's domain, it sets a temporary `legacyAppReferrer = true` flag in the `scix_session`.
--   **Purpose:** This flag is consumed during Server-Side Rendering (`src/ssr-utils.ts`) to adjust the application's default state for a seamless user experience. The flag is cleared after use.
+A UX enhancement utility that inspects the `Referer` header during Server-Side Rendering.
+-   **Function:** The `isFromLegacyApp()` utility checks if a user is navigating from the legacy ADS application domain.
+-   **Purpose:** Used in SSR (`src/ssr-utils.ts`) to detect legacy app referrers and adjust the application's default mode to ASTROPHYSICS for a seamless user experience.
+-   **Implementation:** Detection happens directly in SSR by checking `ctx.req.headers.referer`, avoiding the need for middleware session flags.
 
 ## 5. Cookie Strategy
 
