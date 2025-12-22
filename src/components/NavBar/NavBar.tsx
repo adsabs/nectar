@@ -3,7 +3,6 @@ import { ScixAndTextLogo_H } from '@/components/images/ScixAndTextLogo-H';
 import dynamic from 'next/dynamic';
 import { FC } from 'react';
 import { SimpleLink } from '@/components/SimpleLink';
-import { AdsModeToggle } from './AdsModeToggle';
 import { AppModeUrlNotice } from './AppModeUrlNotice';
 import { useStore } from '@/store';
 import { ByADSModes } from '@/types';
@@ -53,7 +52,6 @@ export const NavBar: FC = () => {
           <AppModeUrlNotice />
         </HStack>
         <HStack>
-          <AdsModeToggle source="navbar" />
           <NavMenus />
         </HStack>
       </Flex>

@@ -10,7 +10,6 @@ import {
   getTitle,
 } from '../helpers';
 import { CollectionChoice, IRawClassicFormState, LogicChoice, PropertyChoice } from '../types';
-import { AppMode } from '@/types';
 import { describe, expect, test } from 'vitest';
 
 describe('Classic Form Query Handling', () => {
@@ -148,57 +147,5 @@ describe('Classic Form Query Handling', () => {
       `collection:(astronomy physics) pubdate:[2020-12 TO 2022-01] author:("Smith, A" "Jones, B" ="Jones, Bob") object:(IRAS HIP) property:(refereed article) title:("Black Hole" -"Milky Way" -star) abs:("Event Horizon" Singularity) bibstem:(PhRvL) -bibstem:(Apj)`,
     );
     expect(result.getAll('sort')).toStrictEqual(['score desc', 'date desc']);
-  });
-
-  test('getSearchQuery applies ADS defaults when enabled', () => {
-    const state: IRawClassicFormState = {
-      limit: ['earthscience'],
-      sort: ['score desc'],
-      author: '',
-      logic_author: 'and',
-      object: '',
-      logic_object: 'and',
-      pubdate_start: '',
-      pubdate_end: '',
-      title: '',
-      logic_title: 'and',
-      abstract_keywords: '',
-      logic_abstract_keywords: 'and',
-      property: [],
-      bibstems: '',
-    };
-
-    const result = new URLSearchParams(getSearchQuery(state, { adsModeEnabled: true }));
-    expect(result.getAll('sort')).toStrictEqual(['date desc']);
-    const fqDatabase = result.get('fq_database');
-    expect(fqDatabase).toBeTruthy();
-    expect(fqDatabase).toContain('database:"astronomy"');
-    expect(fqDatabase).toContain('database:"physics"');
-    expect(result.getAll('fq')).toContain('{!type=aqp v=$fq_database}');
-  });
-
-  test('getSearchQuery sets d to ASTROPHYSICS when ADS mode is enabled without override', () => {
-    const params = new URLSearchParams(
-      getSearchQuery({} as IRawClassicFormState, { adsModeEnabled: true, mode: AppMode.GENERAL }),
-    );
-    expect(params.get('d')).toBe('astrophysics');
-  });
-
-  test('getSearchQuery uses urlModeOverride for d when ADS mode is enabled', () => {
-    const params = new URLSearchParams(
-      getSearchQuery({} as IRawClassicFormState, {
-        adsModeEnabled: true,
-        mode: AppMode.GENERAL,
-        urlModeOverride: AppMode.HELIOPHYSICS,
-      }),
-    );
-    expect(params.get('d')).toBe('heliophysics');
-  });
-
-  test('getSearchQuery uses current mode for d when ADS mode is disabled', () => {
-    const params = new URLSearchParams(
-      getSearchQuery({} as IRawClassicFormState, { adsModeEnabled: false, mode: AppMode.PLANET_SCIENCE }),
-    );
-    expect(params.get('d')).toBe('planetary');
   });
 });

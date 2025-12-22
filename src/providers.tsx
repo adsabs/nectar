@@ -57,7 +57,6 @@ const Telemetry: FC = () => {
   const query = useStore((state) => state.query, shallow);
   const user = useStore((state) => state.user, shallow);
   const docs = useStore((state) => state.docs.current, shallow);
-  const adsModeActive = useStore((state) => state.adsMode.active);
 
   // Initialize global error handlers
   useGlobalErrorHandler();
@@ -71,8 +70,6 @@ const Telemetry: FC = () => {
         });
       }
 
-      Sentry.setTag('ads_mode', adsModeActive ? 'true' : 'false');
-
       if (query) {
         sendQueryAsTags(query);
       }
@@ -84,7 +81,7 @@ const Telemetry: FC = () => {
     } catch (err) {
       logger.error({ err }, 'Telemetry: error');
     }
-  }, [adsModeActive, query, user, docs]);
+  }, [query, user, docs]);
 
   return <></>;
 };

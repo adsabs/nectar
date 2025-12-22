@@ -7,15 +7,12 @@ import { logger } from '@/logger';
 const OnboardPage: NextPage = () => null;
 
 export const getServerSideProps: GetServerSideProps = withIronSessionSsr(async (ctx) => {
-  ctx.req.session.legacyAppReferrer = true;
-  await ctx.req.session.save();
-
   const referer = ctx.req.headers.referer ?? null;
   Sentry.captureMessage('onboard_redirect', {
     level: 'info',
     extra: { referer },
   });
-  logger.info({ referer }, 'Onboard route hit, enabling ads mode and redirecting');
+  logger.info({ referer }, 'Onboard route hit, redirecting to home (legacy mode detected via referer)');
 
   return {
     redirect: {

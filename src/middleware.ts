@@ -1,7 +1,6 @@
 import { sessionConfig } from '@/config';
 import { initSession } from '@/middlewares/initSession';
 import { verifyMiddleware } from '@/middlewares/verifyMiddleware';
-import { legacyAppDetectionMiddleware } from '@/middlewares/legacyAppDetection';
 import { getIronSession } from 'iron-session/edge';
 import { edgeLogger } from '@/logger';
 import { NextRequest, NextResponse } from 'next/server';
@@ -264,11 +263,10 @@ export async function middleware(req: NextRequest) {
     return res;
   }
 
-  // For the home page, only hydrate session and run legacy detection to avoid redirect loops
+  // For the home page, only hydrate session to avoid redirect loops
   if (path === '/') {
     const session = await getIronSession(req, res, sessionConfig);
     await initSession(req, res, session);
-    await legacyAppDetectionMiddleware(req, res, session);
     return res;
   }
 
@@ -291,8 +289,6 @@ export async function middleware(req: NextRequest) {
     url.pathname = '/';
     return redirect(url, req, { message: 'api-connect-failed' });
   }
-
-  await legacyAppDetectionMiddleware(req, res, session);
 
   if (path.startsWith('/user/account/login')) {
     return loginMiddleware(req, res);

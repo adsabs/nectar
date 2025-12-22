@@ -8,6 +8,7 @@ import { getNotification, NotificationId } from '@/store/slices';
 import { logger } from '@/logger';
 import { AppMode } from '@/types';
 import { mapDisciplineParamToAppMode } from '@/utils/appMode';
+import { isFromLegacyApp } from '@/utils/legacyAppDetection';
 
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { isUserData } from '@/auth-utils';
@@ -18,28 +19,27 @@ export const updateUserStateSSR: IncomingGSSP = async (ctx, prevResult) => {
   const userData = ctx.req.session.token;
   const incomingState = (prevResult?.props?.dehydratedAppState ?? {}) as AppState;
 
-  // Only apply legacy mode if there's no persisted state for adsMode
-  const applyLegacyMode = ctx.req.session.legacyAppReferrer && incomingState.adsMode === undefined;
+  // Check referer header directly to detect legacy ADS app referrers
+  const referer = ctx.req.headers.referer;
+  const isLegacyReferrer = isFromLegacyApp(referer);
 
-  // Always clear the flag if present to prevent it from overriding user choices on subsequent navigation.
-  // This handles both new users (after first application) and existing sessions with the flag stuck from
-  // before this fix was deployed (migration).
-  if (ctx.req.session.legacyAppReferrer) {
-    ctx.req.session.legacyAppReferrer = false;
-    await ctx.req.session.save();
-  }
+  // Only apply legacy mode if there's no persisted mode preference
+  const applyLegacyMode = isLegacyReferrer && incomingState.mode === undefined;
 
   const pathname = new URL(ctx.resolvedUrl, 'http://localhost').pathname;
   const urlMode = pathname === '/search' ? mapDisciplineParamToAppMode(ctx.query?.d) : null;
   const legacyMode = applyLegacyMode ? AppMode.ASTROPHYSICS : undefined;
   const resolvedMode = urlMode ?? legacyMode;
-  const legacyAdsMode = applyLegacyMode ? { adsMode: { active: true } } : {};
 
   log.debug({
     msg: 'Injecting session data into client props',
     userData,
     isValidUserData: isUserData(userData),
     token: isUserData(userData) ? userData.access_token : null,
+    referer,
+    isLegacyReferrer,
+    applyLegacyMode,
+    resolvedMode,
   });
 
   const qc = new QueryClient();
@@ -58,7 +58,6 @@ export const updateUserStateSSR: IncomingGSSP = async (ctx, prevResult) => {
         notification: getNotification(ctx.query?.notify as NotificationId),
         // discipline via URL param (d) applies only on /search, otherwise keep legacy app mode
         ...(resolvedMode && { mode: resolvedMode }),
-        ...legacyAdsMode,
       } as AppState,
       dehydratedState: dehydrate(qc),
     },
