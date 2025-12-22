@@ -30,6 +30,20 @@ export enum ExportApiFormatKey {
   votable = 'votable',
 }
 
+export const MostUsedExportFormats = [
+  ExportApiFormatKey.bibtex,
+  ExportApiFormatKey.agu,
+  ExportApiFormatKey.ris,
+  ExportApiFormatKey.aastex,
+  ExportApiFormatKey.endnote,
+  ExportApiFormatKey.ieee,
+  ExportApiFormatKey.mnras,
+  ExportApiFormatKey.icarus,
+  ExportApiFormatKey.soph,
+  ExportApiFormatKey.procite,
+  ExportApiFormatKey.refworks,
+];
+
 export enum ExportApiErrorKey {
   NO_RESULT = 'no result from solr',
   QUERY_ISSUE = 'unable to query solr',
