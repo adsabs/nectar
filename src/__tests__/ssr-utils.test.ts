@@ -11,13 +11,21 @@ type SSRPropsWithState = {
   dehydratedAppState?: Partial<AppState>;
 } & Record<string, unknown>;
 
-const getMockContext = (sessionData: Partial<IronSession>, query: ParsedUrlQuery = {}, resolvedUrl = '/search') =>
+const getMockContext = (
+  sessionData: Partial<IronSession>,
+  query: ParsedUrlQuery = {},
+  resolvedUrl = '/search',
+  referer?: string,
+) =>
   ({
     req: {
       session: {
         ...sessionData,
         save: vi.fn().mockResolvedValue(undefined),
         destroy: vi.fn().mockResolvedValue(undefined),
+      },
+      headers: {
+        referer,
       },
     },
     query,
@@ -26,7 +34,7 @@ const getMockContext = (sessionData: Partial<IronSession>, query: ParsedUrlQuery
 
 describe('updateUserStateSSR', () => {
   test('should set adsMode and mode for legacy referrer with no persisted state', async () => {
-    const context = getMockContext({ legacyAppReferrer: true });
+    const context = getMockContext({}, {}, '/search', 'https://ui.adsabs.harvard.edu/search');
     const result = await updateUserStateSSR(context, { props: {} });
 
     if (!('props' in result)) {
@@ -42,7 +50,7 @@ describe('updateUserStateSSR', () => {
   });
 
   test('should respect persisted state even with legacy referrer', async () => {
-    const context = getMockContext({ legacyAppReferrer: true });
+    const context = getMockContext({}, {}, '/search', 'https://ui.adsabs.harvard.edu/search');
     const inputProps = {
       props: {
         dehydratedAppState: {
@@ -86,7 +94,7 @@ describe('updateUserStateSSR', () => {
   });
 
   test('should prioritize URL param over legacy referrer mode', async () => {
-    const context = getMockContext({ legacyAppReferrer: true }, { d: 'heliophysics' });
+    const context = getMockContext({}, { d: 'heliophysics' }, '/search', 'https://ui.adsabs.harvard.edu/search');
     const result = await updateUserStateSSR(context, { props: {} });
 
     if (!('props' in result)) {
@@ -101,56 +109,6 @@ describe('updateUserStateSSR', () => {
     );
   });
 
-  test('should clear legacyAppReferrer flag when applying legacy mode', async () => {
-    const mockSession = {
-      legacyAppReferrer: true,
-      save: vi.fn().mockResolvedValue(undefined),
-      destroy: vi.fn().mockResolvedValue(undefined),
-    };
-    const context = getMockContext(mockSession);
-
-    await updateUserStateSSR(context, { props: {} });
-
-    expect(context.req.session.legacyAppReferrer).toBe(false);
-    expect(context.req.session.save).toHaveBeenCalledOnce();
-  });
-
-  test('should clear legacyAppReferrer flag even with persisted state (migration)', async () => {
-    const mockSession = {
-      legacyAppReferrer: true,
-      save: vi.fn().mockResolvedValue(undefined),
-      destroy: vi.fn().mockResolvedValue(undefined),
-    };
-    const context = getMockContext(mockSession);
-    const inputProps = {
-      props: {
-        dehydratedAppState: {
-          adsMode: { active: false },
-          mode: AppMode.GENERAL,
-        } as Partial<AppState>,
-      },
-    };
-
-    await updateUserStateSSR(context, inputProps as never);
-
-    expect(context.req.session.legacyAppReferrer).toBe(false);
-    expect(context.req.session.save).toHaveBeenCalledOnce();
-    expect(inputProps.props.dehydratedAppState.adsMode).toEqual({ active: false });
-    expect(inputProps.props.dehydratedAppState.mode).toBe(AppMode.GENERAL);
-  });
-
-  test('should not save session when legacyAppReferrer is not set', async () => {
-    const mockSession = {
-      legacyAppReferrer: false,
-      save: vi.fn().mockResolvedValue(undefined),
-      destroy: vi.fn().mockResolvedValue(undefined),
-    };
-    const context = getMockContext(mockSession);
-
-    await updateUserStateSSR(context, { props: {} });
-
-    expect(context.req.session.save).not.toHaveBeenCalled();
-  });
 
   test('should apply d param when on /search page', async () => {
     const context = getMockContext({}, { d: 'heliophysics' }, '/search');
