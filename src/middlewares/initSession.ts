@@ -7,6 +7,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import setCookie from 'set-cookie-parser';
 import { botCheck } from '@/middlewares/botCheck';
 import { createErrorHandler, ErrorSource } from '@/lib/errorHandler.edge';
+import { TRACING_HEADERS } from '@/config';
+import { sanitizeHeaderValue } from '@/utils/logging';
 
 const log = edgeLogger.child({}, { msgPrefix: '[initSession] ' });
 const handleMiddlewareError = createErrorHandler({
@@ -55,8 +57,13 @@ export const isAuthenticated = (user: IUserData) =>
  * Bootstraps the session (to get a new token)
  * @param cookie
  * @param testHeaders - Optional headers for E2E testing scenarios
+ * @param tracingHeaders - Optional tracing headers for distributed tracing
  */
-const bootstrap = async (cookie?: string, testHeaders?: Record<string, string>) => {
+const bootstrap = async (
+  cookie?: string,
+  testHeaders?: Record<string, string>,
+  tracingHeaders?: Record<string, string>,
+) => {
   if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled') {
     return {
       token: {
@@ -85,8 +92,14 @@ const bootstrap = async (cookie?: string, testHeaders?: Record<string, string>) 
     });
   }
 
+  if (tracingHeaders) {
+    Object.entries(tracingHeaders).forEach(([key, value]) => {
+      headers.append(key, value);
+    });
+  }
+
   try {
-    log.debug({ url, headers }, 'Bootstrapping');
+    log.debug({ url, headers: Object.fromEntries(headers.entries()), tracing: tracingHeaders }, 'Bootstrapping');
     const res = await fetch(url, {
       method: 'GET',
       headers,
@@ -199,8 +212,17 @@ export const initSession = async (req: NextRequest, res: NextResponse, session: 
   const testScenario = req.headers.get('x-test-scenario');
   const testHeaders = testScenario ? { 'x-test-scenario': testScenario } : undefined;
 
-  // bootstrap a new token, passing in the current session cookie value
-  const bootstrapResult = await bootstrap(adsSessionCookie, testHeaders);
+  // extract tracing headers from the request
+  const tracingHeaders = TRACING_HEADERS.reduce((acc, key) => {
+    const value = req.headers.get(key);
+    if (value) {
+      acc[key] = sanitizeHeaderValue(value);
+    }
+    return acc;
+  }, {} as Record<string, string>);
+
+  // bootstrap a new token, passing in the current session cookie value and tracing headers
+  const bootstrapResult = await bootstrap(adsSessionCookie, testHeaders, tracingHeaders);
 
   if (!bootstrapResult) {
     log.error({
