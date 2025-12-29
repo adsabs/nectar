@@ -322,4 +322,18 @@ describe('middleware route integration', () => {
     const res = (await middleware(req)) as NextResponse;
     expect(res.headers.get('location')).toContain('notify=rate-limit-exceeded');
   });
+
+  it('handles requests with tracing headers', async () => {
+    const req = makeReq('https://example.com/search', {
+      headers: {
+        'X-Original-Uri': '/original/path',
+        'X-Original-Forwarded-For': '10.0.0.1',
+        'X-Forwarded-For': '192.168.1.1',
+        'X-Amzn-Trace-Id': 'Root=1-67890-abc123',
+      },
+    });
+    const res = await middleware(req);
+    expect(res).toBeDefined();
+    expect(initSessionMock).toHaveBeenCalled();
+  });
 });

@@ -1,4 +1,4 @@
-import { sessionConfig } from '@/config';
+import { sessionConfig, TRACING_HEADERS } from '@/config';
 import { initSession } from '@/middlewares/initSession';
 import { verifyMiddleware } from '@/middlewares/verifyMiddleware';
 import { getIronSession } from 'iron-session/edge';
@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { rateLimit } from '@/rateLimit';
 import { isLegacySearchURL, legacySearchURLMiddleware } from '@/middlewares/legacySearchURLMiddleware';
 import { ErrorSource, handleError } from '@/lib/errorHandler.edge';
+import { getUserLogId, sanitizeHeaderValue } from '@/utils/logging';
 
 const log = edgeLogger.child({}, { msgPrefix: '[middleware] ' });
 
@@ -19,7 +20,6 @@ const redirect = (
   },
 ) => {
   const clear = options?.clearParams ?? true;
-  log.debug({ options, url: url.searchParams.toString() }, 'redirection');
   if (clear) {
     url.search = '';
     url.searchParams.forEach((_, key, search) => search.delete(key));
@@ -30,58 +30,89 @@ const redirect = (
   if (options?.message) {
     url.searchParams.set('notify', options?.message);
   }
+
+  log.info(
+    {
+      from: req.nextUrl.pathname,
+      to: url.pathname,
+      message: options?.message,
+      clearParams: clear,
+    },
+    'Redirect',
+  );
+
   return NextResponse.redirect(url, req);
 };
 
 const redirectIfAuthenticated = async (req: NextRequest, res: NextResponse) => {
-  log.debug('Redirect if Authenticated Middleware');
   const session = await getIronSession(req, res, sessionConfig);
 
   // if the user is authenticated, redirect them to the root
   if (session.isAuthenticated) {
+    log.info(
+      {
+        path: req.nextUrl.pathname,
+        userId: await getUserLogId(session.token?.username),
+        authenticated: session.isAuthenticated,
+      },
+      'Auth exception route - user authenticated, redirecting to home',
+    );
     const url = req.nextUrl.clone();
-    log.debug({ msg: 'User is authenticated, redirecting to home', url });
     url.pathname = '/';
     return redirect(url, req);
   }
+  log.debug({ path: req.nextUrl.pathname }, 'Auth exception route - user not authenticated, continuing');
   return res;
 };
 
 const loginMiddleware = async (req: NextRequest, res: NextResponse) => {
-  log.debug('Login middleware');
   const session = await getIronSession(req, res, sessionConfig);
 
   if (session.isAuthenticated) {
-    log.debug('User is authenticated, checking for presence of next param');
-
     const next = req.nextUrl.searchParams.get('next');
     if (next) {
-      log.debug({
-        msg: 'Next param found',
-        nextParam: next,
-      });
       const nextUrl = new URL(decodeURIComponent(next), req.nextUrl.origin);
       const url = req.nextUrl.clone();
       if (nextUrl.origin !== url.origin) {
-        log.debug('Next param is external, redirecting to root');
+        log.warn(
+          {
+            nextParam: next,
+            nextOrigin: nextUrl.origin,
+            currentOrigin: url.origin,
+            userId: await getUserLogId(session.token?.username),
+          },
+          'Login - external next param rejected',
+        );
         url.searchParams.delete('next');
         url.pathname = '/';
         return redirect(url, req, { message: 'account-login-success' });
       }
 
-      log.debug('Next param is relative, redirecting to it');
+      log.info(
+        {
+          nextParam: next,
+          userId: await getUserLogId(session.token?.username),
+        },
+        'Login - authenticated user, redirecting to next param',
+      );
       url.searchParams.delete('next');
       url.pathname = nextUrl.pathname;
       return redirect(url, req, { message: 'account-login-success' });
     }
 
-    log.debug('No next param found, redirecting to root');
+    log.info(
+      {
+        userId: await getUserLogId(session.token?.username),
+        authenticated: session.isAuthenticated,
+      },
+      'Login - authenticated user, redirecting to home',
+    );
     const url = req.nextUrl.clone();
     url.pathname = '/';
     return redirect(url, req);
   }
 
-  log.debug('User is not authenticated, proceeding to login page');
+  log.debug('Login - user not authenticated, showing login page');
   return res;
 };
 
@@ -165,12 +196,18 @@ export const rewriteAbsIdentifier = (req: NextRequest) => {
     rewrittenUrl.pathname = rewrittenPath;
 
     log.info(
-      { rawIdentifier, view, pathname: req.nextUrl.pathname, rewritten: rewrittenUrl.pathname },
-      'Rewriting abs path',
+      {
+        rawIdentifier,
+        view,
+        originalPath: req.nextUrl.pathname,
+        rewrittenPath: rewrittenUrl.pathname,
+      },
+      'Abs path rewrite',
     );
 
     return NextResponse.rewrite(rewrittenUrl);
   } catch (error) {
+    log.error({ err: error, pathname: req.nextUrl.pathname }, 'Abs path rewrite failed');
     handleError(error, {
       source: ErrorSource.MIDDLEWARE,
       context: { pathname: req.nextUrl.pathname },
@@ -181,13 +218,23 @@ export const rewriteAbsIdentifier = (req: NextRequest) => {
 };
 
 const protectedRoute = async (req: NextRequest, res: NextResponse) => {
-  log.debug('Accessing protected route');
   const session = await getIronSession(req, res, sessionConfig);
   if (session.isAuthenticated) {
-    log.debug('User is authenticated, proceeding');
+    log.debug(
+      {
+        path: req.nextUrl.pathname,
+        userId: await getUserLogId(session.token?.username),
+      },
+      'Protected route - authenticated, proceeding',
+    );
     return res;
   }
-  log.debug('User is not authenticated, redirecting to login');
+  log.info(
+    {
+      path: req.nextUrl.pathname,
+    },
+    'Protected route - not authenticated, redirecting to login',
+  );
   const url = req.nextUrl.clone();
   const originalPath = url.pathname;
   url.pathname = '/user/account/login';
@@ -211,12 +258,23 @@ const emitAnalytics = async (req: NextRequest): Promise<void> => {
   // For abs/ routes we want to send emit an event to the link gateway
   if (path.startsWith('/abs') && process.env.BASE_URL) {
     const url = `${process.env.BASE_URL}/link_gateway${path.replace('/abs', '')}`;
-    log.debug({ path, url }, 'Emitting abs route event to link gateway');
+    log.debug({ path, analyticsUrl: url }, 'Emitting abs route analytics event');
 
     try {
-      await fetch(url, { method: 'GET' });
-      log.debug('Event successfully sent to link gateway');
+      const startTime = Date.now();
+      const response = await fetch(url, { method: 'GET' });
+      const duration = Date.now() - startTime;
+
+      if (response.ok) {
+        log.debug({ path, analyticsUrl: url, duration, status: response.status }, 'Analytics event sent successfully');
+      } else {
+        log.warn(
+          { path, analyticsUrl: url, duration, status: response.status },
+          'Analytics event returned non-2xx status',
+        );
+      }
     } catch (err) {
+      log.error({ err, path, analyticsUrl: url }, 'Failed to send analytics event');
       handleError(err, {
         source: ErrorSource.MIDDLEWARE,
         context: { path, url },
@@ -238,18 +296,38 @@ const getIp = (req: NextRequest) =>
     .shift() || 'unknown';
 
 export async function middleware(req: NextRequest) {
+  const startTime = Date.now();
   const path = req.nextUrl.pathname;
+  const ip = getIp(req);
+  const userAgent = sanitizeHeaderValue(req.headers.get('user-agent')) || 'unknown';
+  const referer = req.headers.get('referer') || '';
+  const tracingHeaders = TRACING_HEADERS.reduce(
+    (acc, key) => {
+      const value = req.headers.get(key);
+      if (value) {
+        acc[key] = sanitizeHeaderValue(value);
+      }
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
+
   log.info(
     {
       method: req.method,
       url: req.nextUrl.toString(),
       path,
+      ip,
+      userAgent,
+      referer,
+      tracing: tracingHeaders,
     },
-    'Request',
+    'Request received',
   );
 
   const maybeAbsRewrite = rewriteAbsIdentifier(req);
   if (maybeAbsRewrite) {
+    log.info({ path, duration: Date.now() - startTime }, 'Abs path rewrite applied');
     return maybeAbsRewrite;
   }
 
@@ -260,6 +338,7 @@ export async function middleware(req: NextRequest) {
 
   // Skip middleware for data prefetches
   if (path.startsWith('/_next/data')) {
+    log.debug({ path, duration: Date.now() - startTime }, 'Skipping data prefetch');
     return res;
   }
 
@@ -267,34 +346,65 @@ export async function middleware(req: NextRequest) {
   if (path === '/') {
     const session = await getIronSession(req, res, sessionConfig);
     await initSession(req, res, session);
+    log.info(
+      {
+        path,
+        authenticated: session.isAuthenticated,
+        userId: await getUserLogId(session.token?.username),
+        anonymous: session.token?.anonymous,
+        duration: Date.now() - startTime,
+      },
+      'Home page session initialized',
+    );
     return res;
   }
 
-  const ip = getIp(req);
-
   // Apply rate limiting
   if (!rateLimit(ip)) {
-    log.warn({ msg: 'Rate limit exceeded', ip });
+    log.warn({ ip, path, duration: Date.now() - startTime }, 'Rate limit exceeded');
     const url = req.nextUrl.clone();
     url.pathname = '/';
     return redirect(url, req, { message: 'rate-limit-exceeded' });
   }
 
+  log.debug({ ip, path }, 'Rate limit check passed');
+
   const session = await getIronSession(req, res, sessionConfig);
   await initSession(req, res, session);
 
+  log.info(
+    {
+      path,
+      authenticated: session.isAuthenticated,
+      userId: await getUserLogId(session.token?.username),
+      anonymous: session.token?.anonymous,
+      hasToken: !!session.token,
+      sessionDuration: Date.now() - startTime,
+    },
+    'Session initialized',
+  );
+
   if (!session.token) {
-    log.error('Failed to create a new session, redirecting back to root');
+    log.error(
+      {
+        path,
+        ip,
+        duration: Date.now() - startTime,
+      },
+      'Failed to create session - no token',
+    );
     const url = req.nextUrl.clone();
     url.pathname = '/';
     return redirect(url, req, { message: 'api-connect-failed' });
   }
 
   if (path.startsWith('/user/account/login')) {
+    log.debug({ path, authenticated: session.isAuthenticated }, 'Login route');
     return loginMiddleware(req, res);
   }
 
   if (path.startsWith('/user/account/register') || path.startsWith('/user/forgotpassword')) {
+    log.debug({ path, authenticated: session.isAuthenticated }, 'Auth exception route');
     return redirectIfAuthenticated(req, res);
   }
 
@@ -303,19 +413,30 @@ export async function middleware(req: NextRequest) {
     path.startsWith('/user/settings') ||
     path.startsWith('/user/notifications')
   ) {
+    log.debug({ path, authenticated: session.isAuthenticated }, 'Protected route');
     return protectedRoute(req, res);
   }
 
   if (path.startsWith('/user/account/verify/change-email') || path.startsWith('/user/account/verify/register')) {
+    log.debug({ path }, 'Verify route');
     return verifyMiddleware(req, res, session);
   }
 
   // check if URL is a search redirect
   if (isLegacySearchURL(req)) {
+    log.debug({ path }, 'Legacy search URL redirect');
     return legacySearchURLMiddleware(req);
   }
 
-  log.debug({ msg: 'Non-special route, continuing', res });
+  log.info(
+    {
+      path,
+      authenticated: session.isAuthenticated,
+      userId: await getUserLogId(session.token?.username),
+      duration: Date.now() - startTime,
+    },
+    'Request processed successfully',
+  );
   return res;
 }
 
