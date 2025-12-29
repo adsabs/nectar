@@ -28,7 +28,14 @@ describe('verifyMiddleware', () => {
     });
 
   const makeSession = (hasToken = true) => ({
-    token: hasToken ? { access_token: 'token' } : undefined,
+    token: hasToken
+      ? {
+          access_token: 'token',
+          anonymous: false,
+          expires_at: `${Math.floor(Date.now() / 1000) + 3600}`,
+          username: 'test@example.com',
+        }
+      : undefined,
     save: vi.fn(),
     destroy: vi.fn(),
     updateConfig: vi.fn(),

@@ -2,6 +2,7 @@ import { beforeAll, beforeEach, describe, expect, it, vi, afterEach } from 'vite
 import { NextRequest, NextResponse } from 'next/server';
 import { webcrypto } from 'crypto';
 import { initSession, isValidToken, hash } from '@/middlewares/initSession';
+import { TRACING_HEADERS } from '@/config';
 
 const botCheckMock = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 
@@ -236,5 +237,48 @@ describe('initSession integration', () => {
     expect(session.save).toHaveBeenCalledTimes(1);
     expect(res.cookies.get(cookieName)).toBeUndefined();
     expect(session.apiCookieHash).toBe(await hash(cookieValue));
+  });
+
+  it('forwards tracing headers to bootstrap call', async () => {
+    const cookieValue = 'test-cookie';
+    const session = createSession({
+      token: {
+        access_token: 'expired',
+        expires_at: `${Math.floor(Date.now() / 1000) - 10}`,
+        username: 'user',
+        anonymous: false,
+      },
+      apiCookieHash: 'stale',
+    });
+
+    const tracingHeaderValues: Record<string, string> = {
+      'X-Original-Uri': '/original/path',
+      'X-Original-Forwarded-For': '10.0.0.1',
+      'X-Forwarded-For': '192.168.1.1',
+      'X-Amzn-Trace-Id': 'Root=1-67890-abc123',
+    };
+
+    const req = new NextRequest('https://example.com/search', {
+      headers: {
+        cookie: `${cookieName}=${cookieValue}`,
+        ...tracingHeaderValues,
+      },
+    });
+    const res = NextResponse.next();
+
+    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(makeBootstrapResponse('new-cookie') as Response);
+
+    await initSession(req, res, session as never);
+
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    const fetchCall = fetchSpy.mock.calls[0];
+    const fetchHeaders = fetchCall[1]?.headers as Headers;
+
+    TRACING_HEADERS.forEach((headerKey) => {
+      expect(fetchHeaders.get(headerKey)).toBe(tracingHeaderValues[headerKey]);
+    });
+
+    expect(session.save).toHaveBeenCalledTimes(1);
+    expect(session.token?.access_token).toBe(bootstrapPayload.access_token);
   });
 });
