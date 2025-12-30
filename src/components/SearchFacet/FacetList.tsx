@@ -636,7 +636,7 @@ export const LoadMoreBtn = (props: ILoadMoreBtnProps) => {
       <Tooltip label="Opens full list with search and filter options" placement="right">
         <Stack direction="row" justifyContent={pullRight ? 'end' : 'normal'}>
           <IconButton
-            icon={<ArrowUpRightIcon />}
+            icon={<ArrowUpRightIcon width={20} />}
             size="xs"
             variant="outline"
             colorScheme="gray"
