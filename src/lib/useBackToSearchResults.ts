@@ -10,7 +10,7 @@ const selector = {
 
 export const useBackToSearchResults = () => {
   const latestQuery = useStore(selector.latestQuery);
-  const show = latestQuery.q !== '' && latestQuery.q !== '*:*';
+  const show = latestQuery.q !== '';
 
   const getSearchHref = useCallback<() => ISimpleLinkProps['href']>(() => {
     const search = makeSearchParams({ ...latestQuery, p: calculatePage(latestQuery.start, latestQuery.rows) });
