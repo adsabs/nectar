@@ -19,7 +19,7 @@ export const useTrackAbstractView = (doc: IDocsEntity | undefined | null) => {
     database.forEach((db) => {
       const payload = {
         item_id: bibcode,
-        item_name: title[0],
+        item_name: title?.[0] ?? bibcode,
         item_brand: journal,
         item_category: db,
         item_category2: keyword?.[0],

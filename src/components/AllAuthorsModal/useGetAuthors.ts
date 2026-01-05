@@ -32,12 +32,16 @@ const buildAuthors = (doc: IDocsEntity, includeAff: boolean): string[][] => {
     return [];
   }
 
-  const { author, aff, orcid_other = [], orcid_pub = [], orcid_user = [] } = doc;
+  const { author, aff } = doc;
   const len = author?.length ?? 0;
 
   if (len === 0) {
     return [];
   }
+
+  const orcid_other = doc.orcid_other ?? repeat('', len);
+  const orcid_pub = doc.orcid_pub ?? repeat('', len);
+  const orcid_user = doc.orcid_user ?? repeat('', len);
 
   const authorIndex = map((v) => v.toLocaleString(), range(1, len + 1));
 
