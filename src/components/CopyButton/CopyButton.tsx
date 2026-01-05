@@ -1,17 +1,37 @@
 import { CheckIcon, CopyIcon } from '@chakra-ui/icons';
-import { Button, ButtonProps, IconButton, MenuItem, MenuItemProps, useClipboard } from '@chakra-ui/react';
+import { Button, ButtonProps, IconButton, MenuItem, MenuItemProps } from '@chakra-ui/react';
 import { ReactElement, useEffect, useState } from 'react';
-import CopyToClipboard from 'react-copy-html-to-clipboard';
 
-export interface ICopyButtonProps extends ButtonProps {
+interface ICopyProps {
   text: string;
   onCopyComplete?: () => void;
   timeout?: number;
   asHtml?: boolean;
+}
+
+export interface ICopyButtonProps extends ICopyProps, ButtonProps {
   iconPos?: 'left' | 'right';
 }
 
 const DEFAULT_TIMEOUT = 1500;
+
+const copyPlainTextToClipboard = (text: string) => {
+  navigator.clipboard.writeText(text);
+};
+
+const copyHtmlToClipboard = (html: string) => {
+  const blobHtml = new Blob([html], { type: 'text/html' });
+  const blobText = new Blob([html.replace(/<[^>]+>/g, '')], {
+    type: 'text/plain',
+  });
+
+  const item = new ClipboardItem({
+    'text/html': blobHtml,
+    'text/plain': blobText,
+  });
+
+  navigator.clipboard.write([item]);
+};
 
 export const SimpleCopyButton = (props: ICopyButtonProps): ReactElement => {
   const { text, onCopyComplete, timeout = DEFAULT_TIMEOUT, asHtml = false, ...rest } = props;
@@ -28,13 +48,18 @@ export const SimpleCopyButton = (props: ICopyButtonProps): ReactElement => {
     }
   }, [hasCopied]);
 
-  const handleCopied = () => {
+  const handleCopied = (asHtml: boolean) => {
+    if (asHtml) {
+      copyHtmlToClipboard(text);
+    } else {
+      copyPlainTextToClipboard(text);
+    }
     setHasCopied(true);
     onCopyComplete?.();
   };
 
   return (
-    <CopyToClipboard text={text} onCopy={handleCopied} options={{ asHtml: asHtml }}>
+    <>
       {hasCopied ? (
         <IconButton aria-label="copied" icon={<CheckIcon />} variant="link" color="green.500" {...rest} />
       ) : (
@@ -42,11 +67,11 @@ export const SimpleCopyButton = (props: ICopyButtonProps): ReactElement => {
           icon={<CopyIcon />}
           variant="link"
           aria-label="copy to clipboard"
-          onClick={handleCopied}
+          onClick={() => handleCopied(asHtml)}
           {...rest}
         />
       )}
-    </CopyToClipboard>
+    </>
   );
 };
 
@@ -64,35 +89,56 @@ export const LabeledCopyButton = (props: ICopyButtonProps & { label: string }): 
     }
   }, [hasCopied]);
 
-  const handleCopied = () => {
+  const handleCopied = (asHtml: boolean) => {
+    if (asHtml) {
+      copyHtmlToClipboard(text);
+    } else {
+      copyPlainTextToClipboard(text);
+    }
     setHasCopied(true);
     onCopyComplete?.();
   };
 
   return (
-    <CopyToClipboard text={text} onCopy={handleCopied} options={{ asHtml: asHtml }}>
-      <Button
-        variant="link"
-        aria-label="copy to clipboard"
-        {...(iconPos === 'left' ? { leftIcon: <CopyIcon /> } : { rightIcon: <CopyIcon /> })}
-        {...rest}
-      >
-        {hasCopied ? 'Copied to clipboard!' : label}
-      </Button>
-    </CopyToClipboard>
+    <Button
+      variant="link"
+      aria-label="copy to clipboard"
+      onClick={() => handleCopied(asHtml)}
+      {...(iconPos === 'left' ? { leftIcon: <CopyIcon /> } : { rightIcon: <CopyIcon /> })}
+      {...rest}
+    >
+      {hasCopied ? 'Copied to clipboard!' : label}
+    </Button>
   );
 };
 
-export const CopyMenuItem = (props: MenuItemProps & { label: string; text: string }): ReactElement => {
-  const { label, text, ...rest } = props;
-  const { onCopy, setValue } = useClipboard(text);
+export const CopyMenuItem = (props: MenuItemProps & ICopyProps & { label: string }): ReactElement => {
+  const { label, text, timeout = DEFAULT_TIMEOUT, onCopyComplete, asHtml = false, ...rest } = props;
+
+  const [hasCopied, setHasCopied] = useState(false);
 
   useEffect(() => {
-    setValue(text);
-  }, [text]);
+    if (hasCopied) {
+      const timeoutId = setTimeout(() => {
+        setHasCopied(false);
+      }, timeout);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [hasCopied]);
+
+  const handleCopied = (asHtml: boolean) => {
+    if (asHtml) {
+      copyHtmlToClipboard(text);
+    } else {
+      copyPlainTextToClipboard(text);
+    }
+    setHasCopied(true);
+    onCopyComplete?.();
+  };
 
   return (
-    <MenuItem onClick={onCopy} {...rest}>
+    <MenuItem onClick={() => handleCopied(asHtml)} {...rest}>
       {label} <CopyIcon mx={2} />
     </MenuItem>
   );

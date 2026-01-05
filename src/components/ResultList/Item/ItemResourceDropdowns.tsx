@@ -19,7 +19,7 @@ import { MouseEventHandler, ReactElement, useEffect } from 'react';
 import { SimpleLinkDropdown } from '@/components/Dropdown';
 import { isBrowser } from '@/utils/common/guards';
 import { IDocsEntity } from '@/api/search/types';
-import CopyToClipboard from 'react-copy-html-to-clipboard';
+import { CopyMenuItem } from '@/components/CopyButton';
 
 export interface IItemResourceDropdownsProps {
   doc: IDocsEntity;
@@ -303,10 +303,12 @@ export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDro
           />
           <MenuList>
             <MenuItem onClick={handleCopyAbstractUrl}>Copy URL</MenuItem>
-
-            <CopyToClipboard text={defaultCitation} onCopy={handleCitationCopied} options={{ asHtml: true }}>
-              <MenuItem>Copy Citation</MenuItem>
-            </CopyToClipboard>
+            <CopyMenuItem
+              text={defaultCitation ?? ''}
+              onCopyComplete={handleCitationCopied}
+              label="Copy Citation"
+              asHtml
+            />
           </MenuList>
         </Menu>
       </Tooltip>

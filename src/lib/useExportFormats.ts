@@ -1,5 +1,5 @@
 import { useGetExportFormats } from '@/api/export/export';
-import { ExportFormatsApiResponse, IExportFormat } from '@/api/export/types';
+import { ExportFormatsApiResponse, IExportFormat, MostUsedExportFormats } from '@/api/export/types';
 import { DEFAULT_EXPORT_FORMATS } from '@/components/CitationExporter';
 import { SelectOption } from '@/components/Select';
 import { UseQueryOptions } from '@tanstack/react-query';
@@ -67,7 +67,11 @@ export const useExportFormats = (options?: UseQueryOptions<ExportFormatsApiRespo
 
   const isValidCitationFormatId = useCallback(
     (id: string) => {
-      return typeof id === 'string' && formatOptions.findIndex((o) => o.id === id && o.type === 'HTML') > -1;
+      return (
+        typeof id === 'string' &&
+        formatOptions.findIndex((o) => o.id === id) > -1 &&
+        MostUsedExportFormats.includes(id as ExportApiFormatKey)
+      );
     },
     [formatOptions],
   );
