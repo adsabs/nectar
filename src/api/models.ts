@@ -173,6 +173,11 @@ export const solrDefaultSortDirection: Record<SolrSortField, SortDirection> = {
   id: 'desc',
 };
 
+export const biblibDefaultSortDirection: Record<BiblibSortField, SortDirection> = {
+  ...solrDefaultSortDirection,
+  time: 'desc',
+};
+
 export type BiblibSortField =
   | 'author_count'
   | 'bibcode'

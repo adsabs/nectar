@@ -1,5 +1,5 @@
 import { range } from 'ramda';
-import { SolrSortField } from '@/api/models';
+import { BiblibSortField, SolrSortField } from '@/api/models';
 
 export interface IADSApiUserResponse {
   [key: string]: unknown;
@@ -125,6 +125,7 @@ export enum UserDataKeys {
   MIN_AUTHOR_RESULT = 'minAuthorsPerResult',
   ABS_AUTHOR_CUTOFF = 'bibtexABSAuthorCutoff',
   PREFERRED_SEARCH_SORT = 'preferredSearchSort',
+  PREFERRED_LIB_SORT = 'preferredLibrarySort', // documents in a library
 }
 
 export type CustomFormat = { id: string; code: string; name: string };
@@ -169,9 +170,10 @@ export interface IADSApiUserDataResponse {
   [UserDataKeys.DEFAULT_EXPORT_FORMAT]: string;
   [UserDataKeys.DEFAULT_CITATION_FORMAT]: string;
   [UserDataKeys.DEFAULT_HIDE_SIDEBARS]: string;
-  [UserDataKeys.MIN_AUTHOR_RESULT]: typeof MinAuthorsPerResultOptions[number];
+  [UserDataKeys.MIN_AUTHOR_RESULT]: (typeof MinAuthorsPerResultOptions)[number];
   [UserDataKeys.ABS_AUTHOR_CUTOFF]: string;
   [UserDataKeys.PREFERRED_SEARCH_SORT]: SolrSortField;
+  [UserDataKeys.PREFERRED_LIB_SORT]: BiblibSortField;
 }
 
 export type IADSApiUserDataParams = Partial<IADSApiUserDataResponse>;
