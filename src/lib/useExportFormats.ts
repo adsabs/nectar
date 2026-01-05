@@ -68,7 +68,9 @@ export const useExportFormats = (options?: UseQueryOptions<ExportFormatsApiRespo
   const isValidCitationFormatId = useCallback(
     (id: string) => {
       return (
-        typeof id === 'string' && formatOptions.findIndex((o) => o.id === id) > -1 && MostUsedExportFormats.includes(id)
+        typeof id === 'string' &&
+        formatOptions.findIndex((o) => o.id === id) > -1 &&
+        MostUsedExportFormats.includes(id as ExportApiFormatKey)
       );
     },
     [formatOptions],

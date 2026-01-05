@@ -64,7 +64,7 @@ export const QuickExportFormatTabPane = ({ sampleBib, dispatch }: QuickExportFor
           {defaultCitationFormatOpt.type === 'HTML' ? (
             <Box fontWeight="medium" dangerouslySetInnerHTML={{ __html: data?.export }} />
           ) : (
-            <Textarea value={data.export} fontSize="sm" fontWeight="medium" mb={2} h={150} />
+            <Textarea value={data?.export ?? ''} fontSize="sm" fontWeight="medium" mb={2} h={150} />
           )}
         </>
       )}

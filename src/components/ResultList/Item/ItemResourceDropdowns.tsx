@@ -303,7 +303,12 @@ export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDro
           />
           <MenuList>
             <MenuItem onClick={handleCopyAbstractUrl}>Copy URL</MenuItem>
-            <CopyMenuItem text={defaultCitation} onCopyComplete={handleCitationCopied} label="Copy Citation" asHtml />
+            <CopyMenuItem
+              text={defaultCitation ?? ''}
+              onCopyComplete={handleCitationCopied}
+              label="Copy Citation"
+              asHtml
+            />
           </MenuList>
         </Menu>
       </Tooltip>
