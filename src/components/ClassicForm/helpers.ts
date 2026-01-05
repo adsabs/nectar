@@ -44,7 +44,6 @@ import { CollectionChoice, IClassicFormState, IRawClassicFormState, LogicChoice,
 import { getTerms } from '@/query';
 import { APP_DEFAULTS } from '@/config';
 import { makeSearchParams } from '@/utils/common/search';
-import { IADSApiSearchParams } from '@/api/search/types';
 
 const DEFAULT_PREFIXES = ['-', '+', '='];
 const NOT_PREFIX = ['-'];
@@ -303,10 +302,7 @@ export const getBibstems = (bibstems: string) => {
 /**
  * Run classic form parameters through parsers and generate URL query string
  */
-export const getSearchQuery = (
-  params: IRawClassicFormState,
-  options: { mode?: AppMode } = {},
-): string => {
+export const getSearchQuery = (params: IRawClassicFormState, options: { mode?: AppMode } = {}): string => {
   const d = options.mode;
   if (isEmpty(params)) {
     return makeSearchParams({ q: APP_DEFAULTS.EMPTY_QUERY, sort: ['date desc'], d });
