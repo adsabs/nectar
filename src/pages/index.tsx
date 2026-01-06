@@ -46,6 +46,7 @@ import { getHomeSteps } from '@/components/NavBar';
 import { useShepherd } from 'react-shepherd';
 import { useIsClient } from '@/lib/useIsClient';
 import { useScreenSize } from '@/lib/useScreenSize';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 const HomePage: NextPage = () => {
   const { settings } = useSettings();
@@ -194,7 +195,13 @@ const HomePage: NextPage = () => {
   );
 };
 
-export default HomePage;
+const HomePageWithErrorBoundary: NextPage = () => (
+  <PageErrorBoundary pageName="HomePage" fallbackTitle="Error Loading Home">
+    <HomePage />
+  </PageErrorBoundary>
+);
+
+export default HomePageWithErrorBoundary;
 
 const Carousel = (props: { onSelectExample: (text: string) => void }) => {
   const [initialPage, setInitialPage] = useState<number>(0);

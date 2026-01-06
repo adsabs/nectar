@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
 import { handleQueryError } from './errorHandler';
+import { shouldRetry, retryDelayFn } from './retry';
 
 export const useCreateQueryClient = () => {
   const queryCache = new QueryCache({
@@ -42,9 +43,10 @@ export const useCreateQueryClient = () => {
           queries: {
             refetchOnWindowFocus: false,
             refetchOnMount: false,
-            refetchOnReconnect: false,
+            refetchOnReconnect: true,
             staleTime: Infinity,
-            retry: false,
+            retry: shouldRetry,
+            retryDelay: retryDelayFn,
             retryOnMount: false,
           },
         },

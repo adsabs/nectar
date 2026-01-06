@@ -65,6 +65,7 @@ import { useShepherd } from 'react-shepherd';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { handleBoundaryError } from '@/lib/errorHandler';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
   () =>
@@ -577,7 +578,13 @@ const NoResultsMsg = () => (
   />
 );
 
-export default SearchPage;
+const SearchPageWithErrorBoundary: NextPage = () => (
+  <PageErrorBoundary pageName="SearchPage" fallbackTitle="Search Error">
+    <SearchPage />
+  </PageErrorBoundary>
+);
+
+export default SearchPageWithErrorBoundary;
 
 /**
  * Shows a warning if the returned search is flagged as having partial results.

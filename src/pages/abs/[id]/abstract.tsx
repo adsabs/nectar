@@ -26,6 +26,7 @@ import { LocalSettings } from '@/types';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
 import { IADSApiSearchParams, IDocsEntity } from '@/api/search/types';
 import { useGetAbstract } from '@/api/search/search';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   () =>
@@ -189,7 +190,13 @@ const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated
   );
 };
 
-export default AbstractPage;
+const AbstractPageWithErrorBoundary: NextPage<AbstractPageProps> = (props) => (
+  <PageErrorBoundary pageName="AbstractPage" fallbackTitle="Error Loading Record">
+    <AbstractPage {...props} />
+  </PageErrorBoundary>
+);
+
+export default AbstractPageWithErrorBoundary;
 
 const useTour = () => {
   const Shepherd = useShepherd();
