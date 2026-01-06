@@ -11,6 +11,10 @@ import { useEffect, useState } from 'react';
 import { htmlToRtfPreprocess } from '../helpers';
 import { useExportFormats } from '@/lib/useExportFormats';
 
+const replaceNewLineWithHtml = (html: string) => {
+  return html.replaceAll('\n', '<br/>');
+};
+
 export const ResultArea = ({
   result = '',
   format = ExportApiFormatKey.bibtex,
@@ -77,7 +81,7 @@ export const ResultArea = ({
           </Button>
           <LabeledCopyButton
             label={'Copy to Clipboard'}
-            text={result}
+            text={formatOption.type === 'HTML' ? replaceNewLineWithHtml(result) : result}
             data-testid="export-copy"
             isDisabled={isLoading}
             width={isFullWidth ? 'full' : 'auto'}
@@ -98,7 +102,7 @@ export const ResultArea = ({
           {result.length > 0 ? (
             <Box
               fontWeight="medium"
-              dangerouslySetInnerHTML={{ __html: result }}
+              dangerouslySetInnerHTML={{ __html: replaceNewLineWithHtml(result) }}
               overflowY="scroll"
               height="72"
               border="1px"
