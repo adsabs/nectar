@@ -52,7 +52,7 @@ import { normalizeSolrSort } from '@/utils/common/search';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { LibraryIdentifier } from '@/api/biblib/types';
 import { Bibcode, IDocsEntity } from '@/api/search/types';
-import { BiblibSort, BiblibSortField } from '@/api/models';
+import { BiblibSort, BiblibSortField, biblibDefaultSortDirection } from '@/api/models';
 import { useEditLibraryDocuments, useGetLibraryEntity } from '@/api/biblib/libraries';
 import { useBigQuerySearch } from '@/api/search/search';
 import { getSearchParams } from '@/api/search/models';
@@ -61,6 +61,7 @@ import { ExportApiFormatKey } from '@/api/export/types';
 import { useVaultBigQuerySearch } from '@/api/vault/vault';
 import { useRouter } from 'next/router';
 import { useExportFormats } from '@/lib/useExportFormats';
+import { APP_DEFAULTS } from '@/config';
 export interface ILibraryEntityPaneProps {
   id: LibraryIdentifier;
   publicView: boolean;
@@ -75,7 +76,17 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
 
   const [onPageNum, setOnPageNum] = useState(1);
 
-  const [sort, setSort] = useState<BiblibSort>('time desc');
+  const [sort, setSort] = useState<BiblibSort>(
+    `${APP_DEFAULTS.PREFERRED_LIB_SORT} ${biblibDefaultSortDirection[APP_DEFAULTS.PREFERRED_LIB_SORT]}`,
+  );
+
+  const { settings } = useSettings();
+
+  useEffect(() => {
+    if (settings.preferredLibrarySort) {
+      setSort(`${settings.preferredLibrarySort} ${biblibDefaultSortDirection[settings.preferredLibrarySort]}`);
+    }
+  }, [settings.preferredLibrarySort]);
 
   const [selected, setSelected] = useState<string[]>([]);
 
@@ -405,7 +416,9 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
                   options={biblibSortOptions}
                   disableWhenNoJs
                 />
-                <SearchQueryLink params={{ ...getSearchParams, q: `docs(library/${id})`, sort: 'date desc' }}>
+                <SearchQueryLink
+                  params={{ ...getSearchParams, q: `docs(library/${id})`, sort: isSolrSort(sort) ? sort : 'date desc' }}
+                >
                   View as search results
                 </SearchQueryLink>
               </Flex>

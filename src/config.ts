@@ -23,6 +23,7 @@ export const APP_DEFAULTS = {
   API_TIMEOUT: 30000,
   SSR_API_TIMEOUT: 30000,
   PREFERRED_SEARCH_SORT: 'score',
+  PREFERRED_LIB_SORT: 'time',
 } as const;
 
 export const GOOGLE_RECAPTCHA_KEY = '6Lex_aQUAAAAAMwJFbdGFeigshN7mRQdbXoGQ7-N';
