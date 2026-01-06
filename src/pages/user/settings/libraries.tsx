@@ -64,7 +64,7 @@ const LibsSettingsPage = () => {
   const label = (
     <>
       <FormLabel>Default Sort</FormLabel>
-      <Text mb={1}>How records in a library is sorted by</Text>
+      <Text mb={1}>How records in a library are sorted</Text>
     </>
   );
   return (
