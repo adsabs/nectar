@@ -334,8 +334,8 @@ const Stats = () => {
       mt={5}
       as="section"
       aria-label="Stats Section"
-      alignItems="center"
-      w="83%"
+      alignItems="top"
+      w="87%"
       display="flex"
       flexDirection={{ base: 'column', sm: 'row' }}
     >
@@ -373,7 +373,7 @@ const Stats = () => {
 
 const IntroVideoSection = () => {
   return (
-    <Stack flexDirection={{ base: 'column', sm: 'row' }} alignItems="top" mt={10} gap={4} w="83%">
+    <Stack flexDirection={{ base: 'column', sm: 'row' }} alignItems="top" mt={10} gap={4} w="87%">
       <SimpleLink href="https://www.youtube.com/watch?v=sgJ-LolRLu8&ab_channel=ScienceExplorer%28SciX%29">
         <Box
           position="relative"
