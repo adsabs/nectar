@@ -44,7 +44,7 @@ export const theme = extendTheme(
       },
     },
     fontSizes: {
-      xs: '0.8rem',
+      xs: '0.9rem',
       sm: '0.95rem',
       md: '1rem',
       lg: '1.25rem',
@@ -75,7 +75,7 @@ export const theme = extendTheme(
           backgroundColor: mode('white', 'gray.800')(props),
         },
         a: {
-          color: mode('blue.400', 'blue.200')(props),
+          color: mode('blue.500', 'blue.200')(props),
         },
       }),
     },
@@ -92,7 +92,7 @@ export const theme = extendTheme(
       },
       Link: (props: StyleFunctionProps) => ({
         baseStyle: {
-          color: mode('blue.400', 'blue.200')(props),
+          color: mode('blue.500', 'blue.200')(props),
         },
         variants: {
           footer: {
@@ -272,7 +272,7 @@ export const theme = extendTheme(
             borderRadius: '5px 0 0 5px',
             borderColor: 'gray.200',
             backgroundColor: 'transparent',
-            color: mode('blue.400', 'blue.200')(props),
+            color: mode('blue.500', 'blue.200')(props),
           }),
           pageBetween: {
             borderWidth: '1px',
@@ -285,7 +285,7 @@ export const theme = extendTheme(
             borderRadius: '0 5px 5px 0',
             borderColor: 'gray.200',
             backgroundColor: 'transparent',
-            color: mode('blue.400', 'blue.200')(props),
+            color: mode('blue.500', 'blue.200')(props),
           }),
           warning: {
             backgroundColor: 'red.500',
@@ -337,13 +337,8 @@ export const theme = extendTheme(
       },
     },
   },
-  // withDefaultColorScheme({ colorScheme: 'blue' }),
-  withDefaultSize({
-    size: 'sm',
-    components: ['Button', 'IconButton', 'Table'],
-  }),
   withDefaultSize({
     size: 'md',
-    components: ['Input', 'Textarea', 'Select'],
+    components: ['Input', 'Textarea', 'Select', 'Button', 'IconButton', 'Table'],
   }),
 );
