@@ -14,6 +14,7 @@ import { SimpleLink } from '@/components/SimpleLink';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { IUserResetPasswordCredentials } from '@/api/user/types';
 import { useResetPassword } from '@/api/user/user';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 const ResetPasswordPage: NextPage = () => {
   const router = useRouter();
@@ -116,7 +117,13 @@ const ResetPasswordPage: NextPage = () => {
   );
 };
 
-export default ResetPasswordPage;
+const ResetPasswordPageWithErrorBoundary: NextPage = () => (
+  <PageErrorBoundary pageName="ResetPassword" fallbackTitle="Error Loading Page">
+    <ResetPasswordPage />
+  </PageErrorBoundary>
+);
+
+export default ResetPasswordPageWithErrorBoundary;
 
 export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
 

@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { VizPageLayout } from '@/components/Layout';
 import { ConceptCloudPageContainer } from '@/components/Visualizations';
 import { parseQueryFromUrl } from '@/utils/common/search';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 const ConceptCloudPage: NextPage = () => {
   const router = useRouter();
@@ -24,5 +25,11 @@ const ConceptCloudPage: NextPage = () => {
   );
 };
 
-export default ConceptCloudPage;
+const ConceptCloudPageWithErrorBoundary: NextPage = () => (
+  <PageErrorBoundary pageName="ConceptCloudPage" fallbackTitle="Error Loading Concept Cloud">
+    <ConceptCloudPage />
+  </PageErrorBoundary>
+);
+
+export default ConceptCloudPageWithErrorBoundary;
 export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

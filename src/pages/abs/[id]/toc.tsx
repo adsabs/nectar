@@ -12,6 +12,7 @@ import { useGetAbstract, useGetToc } from '@/api/search/search';
 import { IDocsEntity } from '@/api/search/types';
 import { getTocParams } from '@/api/search/models';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 const VolumePage: NextPage = () => {
   const router = useRouter();
@@ -48,7 +49,13 @@ const VolumePage: NextPage = () => {
   );
 };
 
-export default VolumePage;
+const VolumePageWithErrorBoundary: NextPage = () => (
+  <PageErrorBoundary pageName="VolumePage" fallbackTitle="Error Loading Volume Content">
+    <VolumePage />
+  </PageErrorBoundary>
+);
+
+export default VolumePageWithErrorBoundary;
 
 export const getServerSideProps = createAbsGetServerSideProps('toc');
 // export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {

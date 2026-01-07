@@ -20,6 +20,7 @@ import { categorizeError, getErrorMessage, isTransientError } from '@/lib/retry'
 interface PageErrorFallbackProps extends Partial<FallbackProps> {
   title?: string;
   showTechnicalDetails?: boolean;
+  hideHomeButton?: boolean;
 }
 
 export const PageErrorFallback = ({
@@ -27,6 +28,7 @@ export const PageErrorFallback = ({
   resetErrorBoundary,
   title = 'Something went wrong',
   showTechnicalDetails = process.env.NODE_ENV === 'development',
+  hideHomeButton = false,
 }: PageErrorFallbackProps) => {
   const cardBg = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
@@ -85,16 +87,18 @@ export const PageErrorFallback = ({
                 Try Again
               </Button>
             )}
-            <Button
-              size="md"
-              width="full"
-              variant={canRetry ? 'outline' : 'solid'}
-              colorScheme={canRetry ? 'gray' : 'blue'}
-              leftIcon={<Icon as={HomeIcon} />}
-              onClick={handleGoHome}
-            >
-              Go to Home
-            </Button>
+            {!hideHomeButton && (
+              <Button
+                size="md"
+                width="full"
+                variant={canRetry ? 'outline' : 'solid'}
+                colorScheme={canRetry ? 'gray' : 'blue'}
+                leftIcon={<Icon as={HomeIcon} />}
+                onClick={handleGoHome}
+              >
+                Go to Home
+              </Button>
+            )}
           </VStack>
 
           {showTechnicalDetails && error && (

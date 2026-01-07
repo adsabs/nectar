@@ -8,6 +8,7 @@ import { LibraryEntityPane } from '@/components/Libraries';
 import { unwrapStringValue } from '@/utils/common/formatters';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { useGetLibraryEntity } from '@/api/biblib/libraries';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 const PublicLibraries: NextPage = () => {
   const router = useRouter();
@@ -30,6 +31,12 @@ const PublicLibraries: NextPage = () => {
   );
 };
 
-export default PublicLibraries;
+const PublicLibrariesWithErrorBoundary: NextPage = () => (
+  <PageErrorBoundary pageName="PublicLibraries" fallbackTitle="Error Loading Library">
+    <PublicLibraries />
+  </PageErrorBoundary>
+);
+
+export default PublicLibrariesWithErrorBoundary;
 
 export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

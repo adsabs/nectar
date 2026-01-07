@@ -34,6 +34,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { ascend, descend, prop, sortWith } from 'ramda';
 import { ChangeEvent, useMemo, useState } from 'react';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 const AbstractPage: NextPage = () => {
   const [searchType, setSearchType] = useState('journal');
@@ -297,5 +298,11 @@ const IssnSearch = () => {
   );
 };
 
-export default AbstractPage;
+const JournalsDBWithErrorBoundary: NextPage = () => (
+  <PageErrorBoundary pageName="JournalsDB" fallbackTitle="Error Loading Journals Database">
+    <AbstractPage />
+  </PageErrorBoundary>
+);
+
+export default JournalsDBWithErrorBoundary;
 export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

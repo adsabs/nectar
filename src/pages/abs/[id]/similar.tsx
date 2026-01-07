@@ -13,6 +13,7 @@ import { useGetAbstract, useGetSimilar } from '@/api/search/search';
 import { IDocsEntity } from '@/api/search/types';
 import { getSimilarParams } from '@/api/search/models';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 const SimilarPage: NextPage = () => {
   const router = useRouter();
@@ -44,7 +45,13 @@ const SimilarPage: NextPage = () => {
   );
 };
 
-export default SimilarPage;
+const SimilarPageWithErrorBoundary: NextPage = () => (
+  <PageErrorBoundary pageName="SimilarPage" fallbackTitle="Error Loading Similar Papers">
+    <SimilarPage />
+  </PageErrorBoundary>
+);
+
+export default SimilarPageWithErrorBoundary;
 
 export const getServerSideProps = createAbsGetServerSideProps('similar');
 // export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {

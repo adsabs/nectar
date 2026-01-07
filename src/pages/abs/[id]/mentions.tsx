@@ -7,6 +7,7 @@ import { ItemsSkeleton } from '@/components/ResultList';
 import { APP_DEFAULTS } from '@/config';
 import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 import { Alert, AlertIcon } from '@chakra-ui/react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -63,6 +64,12 @@ const MentionsPage: NextPage = () => {
   );
 };
 
-export default MentionsPage;
+const MentionsPageWithErrorBoundary: NextPage = () => (
+  <PageErrorBoundary pageName="MentionsPage" fallbackTitle="Error Loading Mentions">
+    <MentionsPage />
+  </PageErrorBoundary>
+);
+
+export default MentionsPageWithErrorBoundary;
 
 export const getServerSideProps = createAbsGetServerSideProps('mentions');

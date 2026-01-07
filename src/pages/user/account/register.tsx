@@ -28,6 +28,7 @@ import { StandardAlertMessage } from '@/components/Feedbacks';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { IUserRegistrationCredentials } from '@/api/user/types';
 import { useRegisterUser } from '@/api/user/user';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 const initialParams: IUserRegistrationCredentials = {
   givenName: '',
@@ -196,7 +197,13 @@ const Register: NextPage = () => {
   );
 };
 
-export default Register;
+const RegisterWithErrorBoundary: NextPage = () => (
+  <PageErrorBoundary pageName="Register" fallbackTitle="Error Loading Registration">
+    <Register />
+  </PageErrorBoundary>
+);
+
+export default RegisterWithErrorBoundary;
 export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
 
 const RequirementsController = ({ control }: { control: Control<typeof initialParams> }) => {

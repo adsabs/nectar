@@ -11,6 +11,7 @@ interface PageErrorBoundaryProps {
   fallbackTitle?: string;
   onReset?: () => void;
   fallbackRender?: (props: FallbackProps) => ReactNode;
+  hideHomeButton?: boolean;
 }
 
 const DefaultLoading = () => (
@@ -25,11 +26,17 @@ export const PageErrorBoundary = ({
   fallbackTitle,
   onReset,
   fallbackRender,
+  hideHomeButton,
 }: PageErrorBoundaryProps) => {
   const renderFallback =
     fallbackRender ??
     ((props: FallbackProps) => (
-      <PageErrorFallback error={props.error} resetErrorBoundary={props.resetErrorBoundary} title={fallbackTitle} />
+      <PageErrorFallback
+        error={props.error}
+        resetErrorBoundary={props.resetErrorBoundary}
+        title={fallbackTitle}
+        hideHomeButton={hideHomeButton}
+      />
     ));
 
   return (

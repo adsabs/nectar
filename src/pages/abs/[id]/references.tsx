@@ -11,6 +11,7 @@ import { useGetAbstract, useGetReferences } from '@/api/search/search';
 import { IDocsEntity } from '@/api/search/types';
 import { getReferencesParams } from '@/api/search/models';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 const ReferencesPage: NextPage = () => {
   const router = useRouter();
@@ -57,7 +58,13 @@ const ReferencesPage: NextPage = () => {
   );
 };
 
-export default ReferencesPage;
+const ReferencesPageWithErrorBoundary: NextPage = () => (
+  <PageErrorBoundary pageName="ReferencesPage" fallbackTitle="Error Loading References">
+    <ReferencesPage />
+  </PageErrorBoundary>
+);
+
+export default ReferencesPageWithErrorBoundary;
 
 export const getServerSideProps = createAbsGetServerSideProps('references');
 // export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {

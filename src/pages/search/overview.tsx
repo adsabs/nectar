@@ -6,6 +6,7 @@ import { VizPageLayout } from '@/components/Layout';
 import { OverviewPageContainer } from '@/components/Visualizations';
 import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
 import { IADSApiSearchParams } from '@/api/search/types';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 const OverviewPage: NextPage = () => {
   const router = useRouter();
@@ -32,5 +33,11 @@ const OverviewPage: NextPage = () => {
   );
 };
 
-export default OverviewPage;
+const OverviewPageWithErrorBoundary: NextPage = () => (
+  <PageErrorBoundary pageName="OverviewPage" fallbackTitle="Error Loading Overview">
+    <OverviewPage />
+  </PageErrorBoundary>
+);
+
+export default OverviewPageWithErrorBoundary;
 export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

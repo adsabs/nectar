@@ -196,7 +196,7 @@ const HomePage: NextPage = () => {
 };
 
 const HomePageWithErrorBoundary: NextPage = () => (
-  <PageErrorBoundary pageName="HomePage" fallbackTitle="Error Loading Home">
+  <PageErrorBoundary pageName="HomePage" fallbackTitle="Error Loading Home" hideHomeButton>
     <HomePage />
   </PageErrorBoundary>
 );

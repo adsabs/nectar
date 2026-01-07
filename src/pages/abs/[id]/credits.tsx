@@ -7,6 +7,7 @@ import { ItemsSkeleton } from '@/components/ResultList';
 import { APP_DEFAULTS } from '@/config';
 import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 import { Alert, AlertIcon } from '@chakra-ui/react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -63,6 +64,12 @@ const CreditsPage: NextPage = () => {
   );
 };
 
-export default CreditsPage;
+const CreditsPageWithErrorBoundary: NextPage = () => (
+  <PageErrorBoundary pageName="CreditsPage" fallbackTitle="Error Loading Credits">
+    <CreditsPage />
+  </PageErrorBoundary>
+);
+
+export default CreditsPageWithErrorBoundary;
 
 export const getServerSideProps = createAbsGetServerSideProps('credits');

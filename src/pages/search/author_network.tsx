@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { VizPageLayout } from '@/components/Layout';
 import { AuthorNetworkPageContainer } from '@/components/Visualizations';
 import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 export const AuthorNetworkPage: NextPage = () => {
   const router = useRouter();
@@ -24,5 +25,11 @@ export const AuthorNetworkPage: NextPage = () => {
   );
 };
 
-export default AuthorNetworkPage;
+const AuthorNetworkPageWithErrorBoundary: NextPage = () => (
+  <PageErrorBoundary pageName="AuthorNetworkPage" fallbackTitle="Error Loading Author Network">
+    <AuthorNetworkPage />
+  </PageErrorBoundary>
+);
+
+export default AuthorNetworkPageWithErrorBoundary;
 export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

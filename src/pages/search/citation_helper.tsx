@@ -45,6 +45,7 @@ import { AppState, useStore } from '@/store';
 import { NumPerPageType } from '@/types';
 import { isNumPerPageType } from '@/utils/common/guards';
 import { uniq } from 'ramda';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 interface ICitationHelperPageProps {
   query: IADSApiSearchParams;
@@ -436,4 +437,10 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
   }
 });
 
-export default CitationHelperPage;
+const CitationHelperPageWithErrorBoundary: NextPage<ICitationHelperPageProps> = (props) => (
+  <PageErrorBoundary pageName="CitationHelperPage" fallbackTitle="Error Loading Citation Helper">
+    <CitationHelperPage {...props} />
+  </PageErrorBoundary>
+);
+
+export default CitationHelperPageWithErrorBoundary;

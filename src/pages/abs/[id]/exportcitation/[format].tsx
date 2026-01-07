@@ -12,6 +12,7 @@ import { useGetAbstract } from '@/api/search/search';
 import { IDocsEntity } from '@/api/search/types';
 import { useExportFormats } from '@/lib/useExportFormats';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 const ExportCitationPage: NextPage = () => {
   const router = useRouter();
@@ -64,7 +65,13 @@ const ExportCitationPage: NextPage = () => {
   );
 };
 
-export default ExportCitationPage;
+const ExportCitationPageWithErrorBoundary: NextPage = () => (
+  <PageErrorBoundary pageName="ExportCitationPage" fallbackTitle="Error Loading Export">
+    <ExportCitationPage />
+  </PageErrorBoundary>
+);
+
+export default ExportCitationPageWithErrorBoundary;
 
 export const getServerSideProps = createAbsGetServerSideProps((ctx) => {
   const rawFormat = Array.isArray(ctx.params?.format) ? ctx.params?.format.join('/') : (ctx.params?.format as string);
