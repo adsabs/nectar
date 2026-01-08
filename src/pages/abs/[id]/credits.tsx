@@ -4,13 +4,13 @@ import { IDocsEntity } from '@/api/search/types';
 import { AbstractRefList } from '@/components/AbstractRefList';
 import { AbsLayout } from '@/components/Layout';
 import { ItemsSkeleton } from '@/components/ResultList';
-import { APP_DEFAULTS } from '@/config';
 import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
 import { Alert, AlertIcon } from '@chakra-ui/react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { path } from 'ramda';
+import { NumPerPageType } from '@/types';
 
 const CreditsPage: NextPage = () => {
   const router = useRouter();
@@ -22,7 +22,8 @@ const CreditsPage: NextPage = () => {
   } = useGetAbstract({ id: router.query.id as string });
   const doc = path<IDocsEntity>(['docs', 0], abstractDoc);
   const pageIndex = router.query.p ? parseInt(router.query.p as string) - 1 : 0;
-  const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode);
+  const { getParams, onPageChange, onPageSizeChange } = useGetAbstractParams(doc?.bibcode);
+  const { rows } = getParams();
 
   // get the primary response from server (or cache)
   const {
@@ -31,10 +32,14 @@ const CreditsPage: NextPage = () => {
     error: creditsError,
     isLoading: creditsLoading,
     isFetching: creditsFetching,
-  } = useGetCredits({ ...getParams(), start: pageIndex * APP_DEFAULTS.RESULT_PER_PAGE }, { keepPreviousData: true });
+  } = useGetCredits({ ...getParams(), start: pageIndex * rows });
 
   const isLoading = absLoading || absFetching || creditsLoading || creditsFetching;
-  const creditsParams = getCreditsParams(doc?.bibcode, 0);
+  const creditsParams = getCreditsParams(doc?.bibcode, 0, rows);
+
+  const handlePageSizeChange = (n: NumPerPageType) => {
+    onPageSizeChange(n);
+  };
 
   return (
     <AbsLayout doc={doc} titleDescription="Papers that credited" label="Credits">
@@ -54,6 +59,8 @@ const CreditsPage: NextPage = () => {
               docs={data.docs}
               totalResults={data.numFound}
               onPageChange={onPageChange}
+              pageSize={rows}
+              onPageSizeChange={handlePageSizeChange}
               searchLinkParams={creditsParams}
             />
           )}

@@ -3,7 +3,6 @@ import { useRouter } from 'next/router';
 
 import { path } from 'ramda';
 import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
-import { APP_DEFAULTS } from '@/config';
 import { AbsLayout } from '@/components/Layout';
 import { ItemsSkeleton } from '@/components/ResultList';
 import { StandardAlertMessage } from '@/components/Feedbacks';
@@ -13,19 +12,26 @@ import { useGetAbstract, useGetSimilar } from '@/api/search/search';
 import { IDocsEntity } from '@/api/search/types';
 import { getSimilarParams } from '@/api/search/models';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
+import { NumPerPageType } from '@/types';
 
 const SimilarPage: NextPage = () => {
   const router = useRouter();
   const { data: abstractResult } = useGetAbstract({ id: router.query.id as string });
   const doc = path<IDocsEntity>(['docs', 0], abstractResult);
   const pageIndex = router.query.p ? parseInt(router.query.p as string) - 1 : 0;
+  const { getParams, onPageChange, onPageSizeChange } = useGetAbstractParams(doc?.bibcode);
+  const { rows } = getParams();
 
-  const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode);
-  const { data, isSuccess, isLoading, isFetching, isError, error } = useGetSimilar(
-    { ...getParams(), start: pageIndex * APP_DEFAULTS.RESULT_PER_PAGE },
-    { keepPreviousData: true },
-  );
-  const similarParams = getSimilarParams(doc?.bibcode, 0);
+  const { data, isSuccess, isLoading, isFetching, isError, error } = useGetSimilar({
+    ...getParams(),
+    start: pageIndex * rows,
+  });
+
+  const handlePageSizeChange = (n: NumPerPageType) => {
+    onPageSizeChange(n);
+  };
+
+  const similarParams = getSimilarParams(doc?.bibcode, 0, rows);
 
   return (
     <AbsLayout doc={doc} titleDescription="Papers similar to" label="Similar Papers">
@@ -37,6 +43,8 @@ const SimilarPage: NextPage = () => {
           docs={data.docs}
           totalResults={data.numFound}
           onPageChange={onPageChange}
+          pageSize={rows}
+          onPageSizeChange={handlePageSizeChange}
           searchLinkParams={similarParams}
         />
       ) : null}
