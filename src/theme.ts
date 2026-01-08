@@ -38,18 +38,18 @@ export const theme = extendTheme(
         '400': '#969696',
         '500': '#808080',
         '600': '#666666',
-        '700': '#303130',
+        '700': '#333333',
         '800': '#1C1C1C',
         '900': '#000000',
       },
     },
     fontSizes: {
-      xs: '0.75rem',
-      sm: '0.8rem',
-      md: '0.95rem',
-      lg: '1rem',
-      xl: '1.25rem',
-      '2xl': '1.5rem',
+      xs: '0.9rem',
+      sm: '0.95rem',
+      md: '1rem',
+      lg: '1.25rem',
+      xl: '1.5rem',
+      '2xl': '1.75rem',
       '3xl': '1.875rem',
       '4xl': '2.25rem',
       '5xl': '3rem',
@@ -69,13 +69,13 @@ export const theme = extendTheme(
     styles: {
       global: (props: StyleFunctionProps) => ({
         'html, body': {
-          color: mode('gray.600', 'white')(props),
+          color: mode('gray.700', 'white')(props),
           fontSize: 'md',
           fontWeight: 'normal',
           backgroundColor: mode('white', 'gray.800')(props),
         },
         a: {
-          color: mode('blue.400', 'blue.200')(props),
+          color: mode('blue.500', 'blue.200')(props),
         },
       }),
     },
@@ -92,7 +92,7 @@ export const theme = extendTheme(
       },
       Link: (props: StyleFunctionProps) => ({
         baseStyle: {
-          color: mode('blue.400', 'blue.200')(props),
+          color: mode('blue.500', 'blue.200')(props),
         },
         variants: {
           footer: {
@@ -272,7 +272,7 @@ export const theme = extendTheme(
             borderRadius: '5px 0 0 5px',
             borderColor: 'gray.200',
             backgroundColor: 'transparent',
-            color: mode('blue.400', 'blue.200')(props),
+            color: mode('blue.500', 'blue.200')(props),
           }),
           pageBetween: {
             borderWidth: '1px',
@@ -285,7 +285,7 @@ export const theme = extendTheme(
             borderRadius: '0 5px 5px 0',
             borderColor: 'gray.200',
             backgroundColor: 'transparent',
-            color: mode('blue.400', 'blue.200')(props),
+            color: mode('blue.500', 'blue.200')(props),
           }),
           warning: {
             backgroundColor: 'red.500',
@@ -337,13 +337,8 @@ export const theme = extendTheme(
       },
     },
   },
-  // withDefaultColorScheme({ colorScheme: 'blue' }),
-  withDefaultSize({
-    size: 'sm',
-    components: ['Button', 'IconButton', 'Table'],
-  }),
   withDefaultSize({
     size: 'md',
-    components: ['Input', 'Textarea', 'Select'],
+    components: ['Input', 'Textarea', 'Select', 'Button', 'IconButton', 'Table'],
   }),
 );

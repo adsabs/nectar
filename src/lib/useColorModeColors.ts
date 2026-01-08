@@ -29,7 +29,7 @@ export const useColorModeColors = (): ColorModeColors => {
         background: 'white',
         text: 'gray.700',
         disabledText: 'gray.400',
-        link: 'blue.400',
+        link: 'blue.500',
         highlightBackground: 'blue.100',
         highlightForeground: 'gray.800',
         disabledBackground: 'gray.50',

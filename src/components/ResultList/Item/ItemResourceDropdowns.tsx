@@ -13,10 +13,8 @@ import { LockIcon, UnlockIcon } from '@chakra-ui/icons';
 import { processLinkData } from '@/components/AbstractSources/linkGenerator';
 import { SimpleAction } from '@/components/Orcid/SimpleAction';
 import { Bars4Icon, CircleStackIcon, DocumentTextIcon, ShareIcon } from '@heroicons/react/24/outline';
-import { useIsClient } from '@/lib/useIsClient';
 import { useRouter } from 'next/router';
 import { MouseEventHandler, ReactElement, useEffect } from 'react';
-import { SimpleLinkDropdown } from '@/components/Dropdown';
 import { isBrowser } from '@/utils/common/guards';
 import { IDocsEntity } from '@/api/search/types';
 import { CopyMenuItem } from '@/components/CopyButton';
@@ -34,7 +32,6 @@ export interface IItem {
 
 export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDropdownsProps): ReactElement => {
   const router = useRouter();
-  const isClient = useIsClient();
   const toast = useToast({ duration: 2000 });
 
   const { hasCopied, onCopy, setValue, value } = useClipboard('');
@@ -134,36 +131,6 @@ export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDro
     }
   };
 
-  const simpleFullSourceItemsLabel = (
-    <IconButton
-      aria-label={fullSourceItems.length > 0 ? 'Full text sources' : 'No full text sources'}
-      icon={<DocumentTextIcon />}
-      isDisabled={fullSourceItems.length === 0}
-      variant="link"
-      size="xs"
-    />
-  );
-
-  const simpleRefItemsLabel = (
-    <IconButton
-      aria-label={referenceItems.length > 0 ? 'References and citations' : 'No references and citations'}
-      icon={<Bars4Icon />}
-      isDisabled={referenceItems.length === 0}
-      variant="link"
-      size="xs"
-    />
-  );
-
-  const simpleDataItemsLabel = (
-    <IconButton
-      aria-label={dataProductItems.length > 0 ? 'Data products' : 'No data products'}
-      icon={<CircleStackIcon />}
-      isDisabled={dataProductItems.length === 0}
-      variant="link"
-      size="xs"
-    />
-  );
-
   const handleCopyAbstractUrl = () => {
     setValue(`${process.env.NEXT_PUBLIC_BASE_CANONICAL_URL}/abs/${encodedCanonicalID}/abstract`);
   };
@@ -181,125 +148,82 @@ export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDro
       {/* orcid menu */}
       <SimpleAction doc={doc} />
       {/* full resources menu */}
-      {isClient ? (
-        <Tooltip label="Full text sources" shouldWrapChildren>
-          <Menu variant="compact">
-            <MenuButton
-              as={IconButton}
-              aria-label={fullSourceItems.length > 0 ? 'Full text sources' : 'No full text sources'}
-              icon={<DocumentTextIcon width="18px" height="18px" />}
-              isDisabled={fullSourceItems.length === 0}
-              variant="link"
-              size="xs"
-            />
-            {fullSourceItems.length > 0 && (
-              <MenuList>
-                {fullSourceItems.map((item) => (
-                  <MenuItem key={item.id} data-id={item.id} onClick={handleResourceClick}>
-                    {item.label}
-                  </MenuItem>
-                ))}
-              </MenuList>
-            )}
-          </Menu>
-        </Tooltip>
-      ) : (
-        <>
-          {fullSourceItems.length === 0 ? (
-            simpleFullSourceItemsLabel
-          ) : (
-            <SimpleLinkDropdown
-              items={fullSourceItems}
-              label={simpleFullSourceItemsLabel}
-              minListWidth="180px"
-              alignRight={true}
-            />
+      <Tooltip label="Full text sources" shouldWrapChildren>
+        <Menu variant="compact">
+          <MenuButton
+            as={IconButton}
+            aria-label={fullSourceItems.length > 0 ? 'Full text sources' : 'No full text sources'}
+            icon={<DocumentTextIcon width="20px" height="20px" />}
+            isDisabled={fullSourceItems.length === 0}
+            variant="link"
+            size="sm"
+          />
+          {fullSourceItems.length > 0 && (
+            <MenuList>
+              {fullSourceItems.map((item) => (
+                <MenuItem key={item.id} data-id={item.id} onClick={handleResourceClick}>
+                  {item.label}
+                </MenuItem>
+              ))}
+            </MenuList>
           )}
-        </>
-      )}
+        </Menu>
+      </Tooltip>
+
       {/* reference and citation items menu */}
-      {isClient ? (
-        <Tooltip label="References and citations" shouldWrapChildren>
-          <Menu variant="compact">
-            <MenuButton
-              as={IconButton}
-              aria-label={referenceItems.length > 0 ? 'References and citations' : 'No references and citations'}
-              icon={<Bars4Icon width="18px" height="18px" />}
-              isDisabled={referenceItems.length === 0}
-              variant="link"
-              size="xs"
-            />
-            {referenceItems.length > 0 && (
-              <MenuList>
-                {referenceItems.map((item) => (
-                  <MenuItem key={item.id} data-id={item.id} onClick={handleReferenceClick}>
-                    {item.label}
-                  </MenuItem>
-                ))}
-              </MenuList>
-            )}
-          </Menu>
-        </Tooltip>
-      ) : (
-        <>
-          {referenceItems.length === 0 ? (
-            simpleRefItemsLabel
-          ) : (
-            <SimpleLinkDropdown
-              items={referenceItems}
-              label={simpleRefItemsLabel}
-              minListWidth="150px"
-              alignRight={true}
-            />
+      <Tooltip label="References and citations" shouldWrapChildren>
+        <Menu variant="compact">
+          <MenuButton
+            as={IconButton}
+            aria-label={referenceItems.length > 0 ? 'References and citations' : 'No references and citations'}
+            icon={<Bars4Icon width="20px" height="20" />}
+            isDisabled={referenceItems.length === 0}
+            variant="link"
+            size="sm"
+          />
+          {referenceItems.length > 0 && (
+            <MenuList>
+              {referenceItems.map((item) => (
+                <MenuItem key={item.id} data-id={item.id} onClick={handleReferenceClick}>
+                  {item.label}
+                </MenuItem>
+              ))}
+            </MenuList>
           )}
-        </>
-      )}
+        </Menu>
+      </Tooltip>
+
       {/* data product items menu */}
-      {isClient ? (
-        <Tooltip label="Data products" shouldWrapChildren>
-          <Menu variant="compact">
-            <MenuButton
-              as={IconButton}
-              aria-label={dataProductItems.length > 0 ? 'Data products' : 'No data products'}
-              icon={<CircleStackIcon width="18px" height="18px" />}
-              isDisabled={dataProductItems.length === 0}
-              variant="link"
-              size="xs"
-            />
-            {dataProductItems.length > 0 && (
-              <MenuList>
-                {dataProductItems.map((item) => (
-                  <MenuItem key={item.id} data-id={item.id} onClick={handleDataProductClick}>
-                    {item.label}
-                  </MenuItem>
-                ))}
-              </MenuList>
-            )}
-          </Menu>
-        </Tooltip>
-      ) : (
-        <>
-          {dataProductItems.length === 0 ? (
-            simpleDataItemsLabel
-          ) : (
-            <SimpleLinkDropdown
-              items={dataProductItems}
-              label={simpleDataItemsLabel}
-              minListWidth="120px"
-              alignRight={true}
-            />
+      <Tooltip label="Data products" shouldWrapChildren>
+        <Menu variant="compact">
+          <MenuButton
+            as={IconButton}
+            aria-label={dataProductItems.length > 0 ? 'Data products' : 'No data products'}
+            icon={<CircleStackIcon width="20px" height="20px" />}
+            isDisabled={dataProductItems.length === 0}
+            variant="link"
+            size="sm"
+          />
+          {dataProductItems.length > 0 && (
+            <MenuList>
+              {dataProductItems.map((item) => (
+                <MenuItem key={item.id} data-id={item.id} onClick={handleDataProductClick}>
+                  {item.label}
+                </MenuItem>
+              ))}
+            </MenuList>
           )}
-        </>
-      )}
+        </Menu>
+      </Tooltip>
       {/* share menu */}
       <Tooltip label="Share options" shouldWrapChildren>
         <Menu variant="compact">
           <MenuButton
             as={IconButton}
             aria-label="share options"
-            icon={<ShareIcon width="18px" height="18px" />}
+            icon={<ShareIcon width="20px" height="20px" />}
             variant="link"
-            size="xs"
+            size="sm"
           />
           <MenuList>
             <MenuItem onClick={handleCopyAbstractUrl}>Copy URL</MenuItem>
