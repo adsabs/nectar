@@ -1,7 +1,6 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
-import { APP_DEFAULTS } from '@/config';
 import { AbsLayout } from '@/components/Layout';
 import { ItemsSkeleton } from '@/components/ResultList';
 import { StandardAlertMessage } from '@/components/Feedbacks';
@@ -10,6 +9,7 @@ import { AbstractRefList } from '@/components/AbstractRefList';
 import { useGetAbstract, useGetCoreads } from '@/api/search/search';
 import { getCoreadsParams } from '@/api/search/models';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
+import { NumPerPageType } from '@/types';
 
 const CoreadsPage: NextPage = () => {
   const router = useRouter();
@@ -17,13 +17,18 @@ const CoreadsPage: NextPage = () => {
   const doc = abstractDoc?.docs?.[0];
   const pageIndex = router.query.p ? parseInt(router.query.p as string) - 1 : 0;
 
-  const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode);
+  const { getParams, onPageChange, onPageSizeChange } = useGetAbstractParams(doc?.bibcode);
+  const { rows } = getParams();
 
-  const { data, isSuccess, isLoading, isFetching, error, isError } = useGetCoreads(
-    { ...getParams(), start: pageIndex * APP_DEFAULTS.RESULT_PER_PAGE },
-    { keepPreviousData: true },
-  );
-  const coreadsParams = getCoreadsParams(doc?.bibcode, 0);
+  const { data, isSuccess, isLoading, isFetching, error, isError } = useGetCoreads({
+    ...getParams(),
+    start: pageIndex * rows,
+  });
+  const coreadsParams = getCoreadsParams(doc?.bibcode, 0, rows);
+
+  const handlePageSizeChange = (n: NumPerPageType) => {
+    onPageSizeChange(n);
+  };
 
   return (
     <AbsLayout doc={doc} titleDescription="Papers also read by those who read" label="Coreads">
@@ -35,6 +40,8 @@ const CoreadsPage: NextPage = () => {
           docs={data.docs}
           totalResults={data.numFound}
           onPageChange={onPageChange}
+          pageSize={rows}
+          onPageSizeChange={handlePageSizeChange}
           searchLinkParams={coreadsParams}
         />
       ) : null}

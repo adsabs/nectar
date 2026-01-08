@@ -5,12 +5,12 @@ import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { path } from 'ramda';
-import { APP_DEFAULTS } from '@/config';
 import { ItemsSkeleton } from '@/components/ResultList/ItemsSkeleton';
 import { useGetAbstract, useGetCitations } from '@/api/search/search';
 import { IDocsEntity } from '@/api/search/types';
 import { getCitationsParams } from '@/api/search/models';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
+import { NumPerPageType } from '@/types';
 
 const CitationsPage: NextPage = () => {
   const router = useRouter();
@@ -22,7 +22,8 @@ const CitationsPage: NextPage = () => {
   } = useGetAbstract({ id: router.query.id as string });
   const doc = path<IDocsEntity>(['docs', 0], abstractDoc);
   const pageIndex = router.query.p ? parseInt(router.query.p as string) - 1 : 0;
-  const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode);
+  const { getParams, onPageChange, onPageSizeChange } = useGetAbstractParams(doc?.bibcode);
+  const { rows } = getParams();
 
   // get the primary response from server (or cache)
   const {
@@ -31,10 +32,14 @@ const CitationsPage: NextPage = () => {
     error: citationsError,
     isLoading: citLoading,
     isFetching: citFetching,
-  } = useGetCitations({ ...getParams(), start: pageIndex * APP_DEFAULTS.RESULT_PER_PAGE }, { keepPreviousData: true });
+  } = useGetCitations({ ...getParams(), start: pageIndex * rows });
 
   const isLoading = absLoading || absFetching || citLoading || citFetching;
-  const citationsParams = getCitationsParams(doc?.bibcode, 0);
+  const citationsParams = getCitationsParams(doc?.bibcode, 0, rows);
+
+  const handlePageSizeChange = (n: NumPerPageType) => {
+    onPageSizeChange(n);
+  };
 
   return (
     <AbsLayout doc={doc} titleDescription="Papers that cite" label="Citations">
@@ -51,6 +56,8 @@ const CitationsPage: NextPage = () => {
           docs={data.docs}
           totalResults={data.numFound}
           onPageChange={onPageChange}
+          pageSize={rows}
+          onPageSizeChange={handlePageSizeChange}
           searchLinkParams={citationsParams}
         />
       )}

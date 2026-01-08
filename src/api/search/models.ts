@@ -36,52 +36,83 @@ export const getSearchParams = (params: IADSApiSearchParams): IADSApiSearchParam
   ...params,
 });
 
-export const getCitationsParams = (bibcode: IDocsEntity['bibcode'], start: number): IADSApiSearchParams => ({
+export const getCitationsParams = (
+  bibcode: IDocsEntity['bibcode'],
+  start: number,
+  rows: number,
+): IADSApiSearchParams => ({
   ...defaultParams,
   q: `citations(identifier:"${bibcode}")`,
   start,
+  rows,
 });
 
-export const getReferencesParams = (bibcode: IDocsEntity['bibcode'], start: number): IADSApiSearchParams => ({
+export const getReferencesParams = (
+  bibcode: IDocsEntity['bibcode'],
+  start: number,
+  rows: number,
+): IADSApiSearchParams => ({
   ...defaultParams,
   q: `references(identifier:"${bibcode}")`,
   sort: ['first_author asc'],
   start,
+  rows,
 });
 
-export const getMentionsParams = (bibcode: IDocsEntity['bibcode'], start: number): IADSApiSearchParams => ({
+export const getMentionsParams = (
+  bibcode: IDocsEntity['bibcode'],
+  start: number,
+  rows: number,
+): IADSApiSearchParams => ({
   ...defaultParams,
   q: `credit:${bibcode}`, // ideally, we will have `mentions(identifier:"${bibcode}")`
   start,
+  rows,
 });
 
-export const getCreditsParams = (bibcode: IDocsEntity['bibcode'], start: number): IADSApiSearchParams => ({
+export const getCreditsParams = (
+  bibcode: IDocsEntity['bibcode'],
+  start: number,
+  rows: number,
+): IADSApiSearchParams => ({
   ...defaultParams,
   q: `mention:${bibcode}`, // ideally, we will have `credits(identifier:"${bibcode}")`,
   start,
+  rows,
 });
 
-export const getCoreadsParams = (bibcode: IDocsEntity['bibcode'], start: number): IADSApiSearchParams => ({
+export const getCoreadsParams = (
+  bibcode: IDocsEntity['bibcode'],
+  start: number,
+  rows: number,
+): IADSApiSearchParams => ({
   ...defaultParams,
   q: `trending(identifier:"${bibcode}") -identifier:"${bibcode}"`,
   sort: ['score desc'],
   start,
+  rows,
 });
 
-export const getSimilarParams = (bibcode: IDocsEntity['bibcode'], start: number): IADSApiSearchParams => ({
+export const getSimilarParams = (
+  bibcode: IDocsEntity['bibcode'],
+  start: number,
+  rows: number,
+): IADSApiSearchParams => ({
   ...defaultParams,
   q: `similar(identifier:"${bibcode}")`,
   sort: ['score desc'],
   start,
+  rows,
 });
 
-export const getTocParams = (bibcode: IDocsEntity['bibcode'], start: number): IADSApiSearchParams => {
+export const getTocParams = (bibcode: IDocsEntity['bibcode'], start: number, rows: number): IADSApiSearchParams => {
   const volumeId = bibcode?.[13] === 'E' ? `${bibcode?.substring(0, 14)}*` : `${bibcode?.substring(0, 13)}*`;
 
   return {
     ...defaultParams,
     q: `identifier:"${volumeId}"`,
     start,
+    rows,
   };
 };
 

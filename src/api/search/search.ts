@@ -32,7 +32,7 @@ import {
 import { resolveObjectQuery, resolveObjectQuerySSR } from '@/api/objects/objects';
 import { GetServerSidePropsContext } from 'next';
 import { defaultRequestConfig } from '../config';
-import { TRACING_HEADERS } from '@/config';
+import { APP_DEFAULTS, TRACING_HEADERS } from '@/config';
 import { isString } from '@/utils/common/guards';
 import { IADSApiSearchParams, IADSApiSearchResponse, IBigQueryMutationParams, IDocsEntity } from '@/api/search/types';
 import { ADSMutation, ADSQuery, InfiniteADSQuery } from '@/api/types';
@@ -63,9 +63,7 @@ export const highlightingSelector = (
 });
 export const facetFieldSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['facets'] => data.facets;
 
-type SearchKeyProps =
-  | { bibcode: IDocsEntity['bibcode']; start?: number }
-  | { bibcode: IDocsEntity['bibcode']; start: number };
+type SearchKeyProps = { bibcode: IDocsEntity['bibcode']; start?: number; rows?: number };
 
 export enum SEARCH_API_KEYS {
   primary = 'search/primary',
@@ -81,13 +79,13 @@ export const searchKeys = {
   preview: (bibcode: IDocsEntity['bibcode']) => ['search/preview', { bibcode }] as const,
   abstract: (id: string) => ['search/abstract', { id }] as const,
   affiliations: ({ bibcode }: SearchKeyProps) => ['search/affiliations', { bibcode }] as const,
-  citations: ({ bibcode, start }: SearchKeyProps) => ['search/citations', { bibcode, start }] as const,
-  references: ({ bibcode, start }: SearchKeyProps) => ['search/references', { bibcode, start }] as const,
-  credits: ({ bibcode, start }: SearchKeyProps) => ['search/credits', { bibcode, start }] as const,
-  mentions: ({ bibcode, start }: SearchKeyProps) => ['search/mentions', { bibcode, start }] as const,
-  coreads: ({ bibcode, start }: SearchKeyProps) => ['search/coreads', { bibcode, start }] as const,
-  similar: ({ bibcode, start }: SearchKeyProps) => ['search/similar', { bibcode, start }] as const,
-  toc: ({ bibcode, start }: SearchKeyProps) => ['search/toc', { bibcode, start }] as const,
+  citations: ({ bibcode, start, rows }: SearchKeyProps) => ['search/citations', { bibcode, start, rows }] as const,
+  references: ({ bibcode, start, rows }: SearchKeyProps) => ['search/references', { bibcode, start, rows }] as const,
+  credits: ({ bibcode, start, rows }: SearchKeyProps) => ['search/credits', { bibcode, start, rows }] as const,
+  mentions: ({ bibcode, start, rows }: SearchKeyProps) => ['search/mentions', { bibcode, start, rows }] as const,
+  coreads: ({ bibcode, start, rows }: SearchKeyProps) => ['search/coreads', { bibcode, start, rows }] as const,
+  similar: ({ bibcode, start, rows }: SearchKeyProps) => ['search/similar', { bibcode, start, rows }] as const,
+  toc: ({ bibcode, start, rows }: SearchKeyProps) => ['search/toc', { bibcode, start, rows }] as const,
   stats: (params: IADSApiSearchParams) => ['search/stats', params] as const,
   facet: (params: IADSApiSearchParams) => ['search/facet', params] as const,
   infinite: (params: IADSApiSearchParams) => [SEARCH_API_KEYS.infinite, params] as const,
@@ -127,7 +125,11 @@ export function useSearch<TData = IADSApiSearchResponse['response']>(
   });
 }
 
-type SubPageQuery = SearchADSQuery<{ bibcode: IDocsEntity['bibcode']; start?: IADSApiSearchParams['start'] }>;
+type SubPageQuery = SearchADSQuery<{
+  bibcode: IDocsEntity['bibcode'];
+  start?: IADSApiSearchParams['start'];
+  rows?: IADSApiSearchParams['rows'];
+}>;
 
 /**
  * Get highlights based on a search query
@@ -149,10 +151,10 @@ export const useGetHighlights: SearchADSQuery<
 /**
  * Get citations based on a bibcode and start
  */
-export const useGetCitations: SubPageQuery = ({ bibcode, start = 0 }, options) => {
-  const params = getCitationsParams(bibcode, start);
+export const useGetCitations: SubPageQuery = ({ bibcode, start = 0, rows = APP_DEFAULTS.RESULT_PER_PAGE }, options) => {
+  const params = getCitationsParams(bibcode, start, rows);
   return useQuery({
-    queryKey: searchKeys.citations({ bibcode, start }),
+    queryKey: searchKeys.citations({ bibcode, start, rows }),
     queryFn: fetchSearch,
     meta: { params },
     select: responseSelector,
@@ -163,10 +165,13 @@ export const useGetCitations: SubPageQuery = ({ bibcode, start = 0 }, options) =
 /**
  * Get references based on a bibcode and start
  */
-export const useGetReferences: SubPageQuery = ({ bibcode, start = 0 }, options) => {
-  const params = getReferencesParams(bibcode, start);
+export const useGetReferences: SubPageQuery = (
+  { bibcode, start = 0, rows = APP_DEFAULTS.RESULT_PER_PAGE },
+  options,
+) => {
+  const params = getReferencesParams(bibcode, start, rows);
   return useQuery({
-    queryKey: searchKeys.references({ bibcode, start }),
+    queryKey: searchKeys.references({ bibcode, start, rows }),
     queryFn: fetchSearch,
     meta: { params },
     select: responseSelector,
@@ -177,10 +182,10 @@ export const useGetReferences: SubPageQuery = ({ bibcode, start = 0 }, options) 
 /**
  * Get credits based on a bibcode and start
  */
-export const useGetCredits: SubPageQuery = ({ bibcode, start = 0 }, options) => {
-  const params = getCreditsParams(bibcode, start);
+export const useGetCredits: SubPageQuery = ({ bibcode, start = 0, rows = APP_DEFAULTS.RESULT_PER_PAGE }, options) => {
+  const params = getCreditsParams(bibcode, start, rows);
   return useQuery({
-    queryKey: searchKeys.credits({ bibcode, start }),
+    queryKey: searchKeys.credits({ bibcode, start, rows }),
     queryFn: fetchSearch,
     meta: { params },
     select: responseSelector,
@@ -191,10 +196,10 @@ export const useGetCredits: SubPageQuery = ({ bibcode, start = 0 }, options) => 
 /**
  * Get mentions based on a bibcode and start
  */
-export const useGetMentions: SubPageQuery = ({ bibcode, start = 0 }, options) => {
-  const params = getMentionsParams(bibcode, start);
+export const useGetMentions: SubPageQuery = ({ bibcode, start = 0, rows = APP_DEFAULTS.RESULT_PER_PAGE }, options) => {
+  const params = getMentionsParams(bibcode, start, rows);
   return useQuery({
-    queryKey: searchKeys.mentions({ bibcode, start }),
+    queryKey: searchKeys.mentions({ bibcode, start, rows }),
     queryFn: fetchSearch,
     meta: { params },
     select: responseSelector,
@@ -205,10 +210,10 @@ export const useGetMentions: SubPageQuery = ({ bibcode, start = 0 }, options) =>
 /**
  * Get coreads based on a bibcode and start
  */
-export const useGetCoreads: SubPageQuery = ({ bibcode, start = 0 }, options) => {
-  const params = getCoreadsParams(bibcode, start);
+export const useGetCoreads: SubPageQuery = ({ bibcode, start = 0, rows = APP_DEFAULTS.RESULT_PER_PAGE }, options) => {
+  const params = getCoreadsParams(bibcode, start, rows);
   return useQuery({
-    queryKey: searchKeys.coreads({ bibcode, start }),
+    queryKey: searchKeys.coreads({ bibcode, start, rows }),
     queryFn: fetchSearch,
     meta: { params },
     select: responseSelector,
@@ -219,10 +224,10 @@ export const useGetCoreads: SubPageQuery = ({ bibcode, start = 0 }, options) => 
 /**
  * Get similar docs based on a bibcode and start
  */
-export const useGetSimilar: SubPageQuery = ({ bibcode, start = 0 }, options) => {
-  const params = getSimilarParams(bibcode, start);
+export const useGetSimilar: SubPageQuery = ({ bibcode, start = 0, rows = APP_DEFAULTS.RESULT_PER_PAGE }, options) => {
+  const params = getSimilarParams(bibcode, start, rows);
   return useQuery({
-    queryKey: searchKeys.similar({ bibcode, start }),
+    queryKey: searchKeys.similar({ bibcode, start, rows }),
     queryFn: fetchSearch,
     meta: { params },
     select: responseSelector,
@@ -233,10 +238,10 @@ export const useGetSimilar: SubPageQuery = ({ bibcode, start = 0 }, options) => 
 /**
  * Get TOC docs based on a bibcode and start
  */
-export const useGetToc: SubPageQuery = ({ bibcode, start = 0 }, options) => {
-  const params = getTocParams(bibcode, start);
+export const useGetToc: SubPageQuery = ({ bibcode, start = 0, rows = APP_DEFAULTS.RESULT_PER_PAGE }, options) => {
+  const params = getTocParams(bibcode, start, rows);
   return useQuery({
-    queryKey: searchKeys.toc({ bibcode, start }),
+    queryKey: searchKeys.toc({ bibcode, start, rows }),
     queryFn: fetchSearch,
     meta: { params },
     select: responseSelector,
