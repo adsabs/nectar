@@ -12,24 +12,29 @@ import { useGetAbstract, useGetToc } from '@/api/search/search';
 import { IDocsEntity } from '@/api/search/types';
 import { getTocParams } from '@/api/search/models';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
+import { NumPerPageType } from '@/types';
 
 const VolumePage: NextPage = () => {
   const router = useRouter();
   const { data: abstractResult } = useGetAbstract({ id: router.query.id as string });
   const doc = path<IDocsEntity>(['docs', 0], abstractResult);
 
-  const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode);
+  const { getParams, onPageChange, onPageSizeChange } = useGetAbstractParams(doc?.bibcode);
+  const { rows } = getParams();
 
   const { data, isSuccess, isLoading, isFetching, isError, error } = useGetToc(getParams(), {
     enabled: !!getParams && !!doc?.bibcode,
-    keepPreviousData: true,
   });
+
+  const handlePageSizeChange = (n: NumPerPageType) => {
+    onPageSizeChange(n);
+  };
 
   const tocParams = useMemo(() => {
     if (doc?.bibcode) {
-      return getTocParams(doc.bibcode, 0);
+      return getTocParams(doc.bibcode, 0, rows);
     }
-  }, [doc]);
+  }, [doc, rows]);
 
   return (
     <AbsLayout doc={doc} titleDescription="Papers in the same volume as" label="Volume Content">
@@ -41,6 +46,8 @@ const VolumePage: NextPage = () => {
           docs={data.docs}
           totalResults={data.numFound}
           onPageChange={onPageChange}
+          pageSize={rows}
+          onPageSizeChange={handlePageSizeChange}
           searchLinkParams={tocParams}
         />
       ) : null}
