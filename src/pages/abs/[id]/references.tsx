@@ -5,12 +5,12 @@ import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { path } from 'ramda';
-import { APP_DEFAULTS } from '@/config';
 import { ItemsSkeleton } from '@/components/ResultList/ItemsSkeleton';
 import { useGetAbstract, useGetReferences } from '@/api/search/search';
 import { IDocsEntity } from '@/api/search/types';
 import { getReferencesParams } from '@/api/search/models';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
+import { NumPerPageType } from '@/types';
 
 const ReferencesPage: NextPage = () => {
   const router = useRouter();
@@ -22,18 +22,23 @@ const ReferencesPage: NextPage = () => {
   } = useGetAbstract({ id: router.query.id as string });
   const doc = path<IDocsEntity>(['docs', 0], abstractDoc);
   const pageIndex = router.query.p ? parseInt(router.query.p as string) - 1 : 0;
+  const { getParams, onPageChange, onPageSizeChange } = useGetAbstractParams(doc?.bibcode);
+  const { rows } = getParams();
 
-  const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode);
   const {
     data,
     isSuccess,
     isLoading: refLoading,
     isFetching: refFetching,
     error: referencesError,
-  } = useGetReferences({ ...getParams(), start: pageIndex * APP_DEFAULTS.RESULT_PER_PAGE }, { keepPreviousData: true });
+  } = useGetReferences({ ...getParams(), start: pageIndex * rows });
 
   const isLoading = refLoading || refFetching || absLoading || absFetching;
-  const referencesParams = getReferencesParams(doc?.bibcode, 0);
+  const referencesParams = getReferencesParams(doc?.bibcode, 0, rows);
+
+  const handlePageSizeChange = (n: NumPerPageType) => {
+    onPageSizeChange(n);
+  };
 
   return (
     <AbsLayout doc={doc} titleDescription="Papers referenced by" label="References">
@@ -50,6 +55,8 @@ const ReferencesPage: NextPage = () => {
           docs={data.docs}
           totalResults={data.numFound}
           onPageChange={onPageChange}
+          pageSize={rows}
+          onPageSizeChange={handlePageSizeChange}
           searchLinkParams={referencesParams}
         />
       )}
