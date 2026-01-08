@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { ResultsGraphPageContainer } from '@/components/Visualizations';
 import { VizPageLayout } from '@/components/Layout';
 import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 const ResultsGraphPage: NextPage = () => {
   const router = useRouter();
@@ -24,5 +25,11 @@ const ResultsGraphPage: NextPage = () => {
   );
 };
 
-export default ResultsGraphPage;
+const ResultsGraphPageWithErrorBoundary: NextPage = () => (
+  <PageErrorBoundary pageName="ResultsGraphPage" fallbackTitle="Error Loading Results Graph">
+    <ResultsGraphPage />
+  </PageErrorBoundary>
+);
+
+export default ResultsGraphPageWithErrorBoundary;
 export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

@@ -4,6 +4,7 @@ import { AssociatedArticlesForm, FeedbackAlert } from '@/components/FeedbackForm
 import { NextPage } from 'next';
 import { useMemo, useState } from 'react';
 import { FeedbackLayout } from '@/components/Layout';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 const AssociatedArticles: NextPage = () => {
   const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({
@@ -71,5 +72,11 @@ const AssociatedArticles: NextPage = () => {
   );
 };
 
-export default AssociatedArticles;
+const AssociatedArticlesWithErrorBoundary: NextPage = () => (
+  <PageErrorBoundary pageName="AssociatedArticles" fallbackTitle="Error Loading Feedback Form">
+    <AssociatedArticles />
+  </PageErrorBoundary>
+);
+
+export default AssociatedArticlesWithErrorBoundary;
 export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

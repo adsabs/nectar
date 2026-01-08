@@ -42,6 +42,7 @@ import { SimpleLink } from '@/components/SimpleLink';
 import { IADSApiSearchParams } from '@/api/search/types';
 import { AppMode } from '@/types';
 import { syncUrlDisciplineParam } from '@/utils/appMode';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 const MAX_SIMPLE_QUERY_BIBCODES = 50;
 
@@ -135,7 +136,13 @@ const PaperForm: NextPage<{ error?: IPaperFormServerError }> = ({ error: ssrErro
     </VStack>
   );
 };
-export default PaperForm;
+const PaperFormWithErrorBoundary: NextPage<{ error?: IPaperFormServerError }> = (props) => (
+  <PageErrorBoundary pageName="PaperForm" fallbackTitle="Error Loading Paper Form">
+    <PaperForm {...props} />
+  </PageErrorBoundary>
+);
+
+export default PaperFormWithErrorBoundary;
 
 const validateNotEmpty = pipe(isEmpty, not);
 

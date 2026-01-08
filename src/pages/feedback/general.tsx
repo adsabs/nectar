@@ -43,6 +43,7 @@ import { parseAPIError } from '@/utils/common/parseAPIError';
 import { useFeedback } from '@/api/feedback/feedback';
 import { logger } from '@/logger';
 import { SimpleLink } from '@/components/SimpleLink';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 type FormValues = {
   name: string;
@@ -259,5 +260,11 @@ const General: NextPage = () => {
   );
 };
 
-export default General;
+const GeneralWithErrorBoundary: NextPage = () => (
+  <PageErrorBoundary pageName="GeneralFeedback" fallbackTitle="Error Loading Feedback Form">
+    <General />
+  </PageErrorBoundary>
+);
+
+export default GeneralWithErrorBoundary;
 export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

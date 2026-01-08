@@ -10,6 +10,7 @@ import { useGetAbstract } from '@/api/search/search';
 import { IDocsEntity } from '@/api/search/types';
 import { useGetMetrics } from '@/api/metrics/metrics';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 const MetricsPage: NextPage = () => {
   const router = useRouter();
@@ -44,7 +45,13 @@ const MetricsPage: NextPage = () => {
   );
 };
 
-export default MetricsPage;
+const MetricsPageWithErrorBoundary: NextPage = () => (
+  <PageErrorBoundary pageName="MetricsPage" fallbackTitle="Error Loading Metrics">
+    <MetricsPage />
+  </PageErrorBoundary>
+);
+
+export default MetricsPageWithErrorBoundary;
 
 export const getServerSideProps = createAbsGetServerSideProps('metrics');
 // export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {

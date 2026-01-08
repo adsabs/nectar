@@ -6,6 +6,7 @@ import { useMemo, useState } from 'react';
 import { FeedbackLayout } from '@/components/Layout';
 import { SimpleLink } from '@/components/SimpleLink';
 import { feedbackItems } from '@/components/NavBar';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 const MissingReferences: NextPage = () => {
   const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({
@@ -66,5 +67,11 @@ const MissingReferences: NextPage = () => {
   );
 };
 
-export default MissingReferences;
+const MissingReferencesWithErrorBoundary: NextPage = () => (
+  <PageErrorBoundary pageName="MissingReferences" fallbackTitle="Error Loading Feedback Form">
+    <MissingReferences />
+  </PageErrorBoundary>
+);
+
+export default MissingReferencesWithErrorBoundary;
 export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

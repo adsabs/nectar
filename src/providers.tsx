@@ -13,6 +13,7 @@ import * as Sentry from '@sentry/nextjs';
 import { IADSApiSearchParams } from './api/search/types';
 import { useGlobalErrorHandler } from './lib/useGlobalErrorHandler';
 import { ShepherdJourneyProvider } from 'react-shepherd';
+import { NetworkStatusIndicator } from './components/NetworkStatusIndicator';
 
 const windowState = {
   navigationStart: performance?.timeOrigin || performance?.timing?.navigationStart || 0,
@@ -36,6 +37,7 @@ export const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps
               <QCProvider>
                 <Hydrate state={pageProps.dehydratedState}>
                   <Telemetry />
+                  <NetworkStatusIndicator />
                   {children}
                 </Hydrate>
                 <ReactQueryDevtools />
