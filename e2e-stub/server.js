@@ -137,6 +137,36 @@ app.get('/accounts/bootstrap', (req, res) => {
     });
 });
 
+app.post('/accounts/user/login', (req, res) => {
+  const scenario = req.headers['x-test-scenario'];
+
+  calls.push({
+    endpoint: '/accounts/user/login',
+    scenario,
+    body: req.body,
+    timestamp: Date.now(),
+  });
+
+  console.log(`[STUB] Login called with scenario: ${scenario || 'default'}`);
+
+  if (scenario === 'login-success') {
+    return res
+      .status(200)
+      .set('Set-Cookie', 'ads_session=authenticated-session; Domain=example.com; SameSite=None; Secure')
+      .json({ message: 'success' });
+  }
+
+  if (scenario === 'login-failure') {
+    return res.status(401).json({ error: 'invalid-credentials' });
+  }
+
+  // default: success
+  return res
+    .status(200)
+    .set('Set-Cookie', 'ads_session=authenticated-session; Domain=example.com; SameSite=None; Secure')
+    .json({ message: 'success' });
+});
+
 app.get('/accounts/verify/:token', (req, res) => {
   const { token } = req.params;
   const scenario = req.headers['x-test-scenario'];
@@ -203,6 +233,7 @@ app.listen(PORT, () => {
   console.log(`[STUB] E2E stub backend listening on http://127.0.0.1:${PORT}`);
   console.log('[STUB] Endpoints:');
   console.log('  - GET  /accounts/bootstrap');
+  console.log('  - POST /accounts/user/login');
   console.log('  - GET  /accounts/verify/:token');
   console.log('  - ALL  /link_gateway/*');
   console.log('  - GET  /__test__/calls');

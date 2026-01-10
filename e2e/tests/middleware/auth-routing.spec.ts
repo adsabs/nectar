@@ -154,4 +154,102 @@ test.describe('Auth Routing (Suite C)', () => {
 
     expect(page.url()).toBe(`${NECTAR_URL}/`);
   });
+
+  test('C6: Login form redirects to next param after successful login', async ({ page, context }) => {
+    await context.addCookies([
+      {
+        name: 'ads_session',
+        value: 'anonymous-session',
+        domain: DOMAIN,
+        path: '/',
+      },
+    ]);
+
+    // start with anonymous session, then switch to authenticated after login
+    await page.setExtraHTTPHeaders({
+      'x-test-scenario': 'bootstrap-anonymous',
+    });
+
+    // navigate to login with next param
+    await page.goto(`${NECTAR_URL}/user/account/login?next=%2Fsearch%3Fq%3Dtest`);
+
+    // verify we're on login page
+    expect(page.url()).toContain('/user/account/login');
+
+    // fill in credentials
+    await page.fill('input[name="email"]', 'test@example.com');
+    await page.fill('input[name="password"]', 'password123');
+
+    // intercept and respond to login request, then switch to authenticated scenario
+    await page.route('**/api/auth/login', async (route) => {
+      // simulate successful login by responding to the API call
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ success: true }),
+      });
+    });
+
+    // set authenticated scenario for subsequent requests
+    await page.setExtraHTTPHeaders({
+      'x-test-scenario': 'bootstrap-authenticated',
+    });
+
+    // submit the form
+    await page.click('button[type="submit"]');
+
+    // wait for navigation to complete
+    await page.waitForURL(/\/search/);
+
+    // verify we're redirected to the next URL
+    expect(page.url()).toContain('/search');
+    expect(page.url()).toContain('q=test');
+  });
+
+  test('C7: Login form falls back to reload when next param is invalid', async ({ page, context }) => {
+    await context.addCookies([
+      {
+        name: 'ads_session',
+        value: 'anonymous-session',
+        domain: DOMAIN,
+        path: '/',
+      },
+    ]);
+
+    await page.setExtraHTTPHeaders({
+      'x-test-scenario': 'bootstrap-anonymous',
+    });
+
+    // navigate to login with an external (invalid) next param
+    await page.goto(`${NECTAR_URL}/user/account/login?next=https%3A%2F%2Fevil.example`);
+
+    // fill in credentials
+    await page.fill('input[name="email"]', 'test@example.com');
+    await page.fill('input[name="password"]', 'password123');
+
+    // intercept and respond to login request
+    await page.route('**/api/auth/login', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ success: true }),
+      });
+    });
+
+    // set authenticated scenario for subsequent requests
+    await page.setExtraHTTPHeaders({
+      'x-test-scenario': 'bootstrap-authenticated',
+    });
+
+    // submit the form
+    await page.click('button[type="submit"]');
+
+    // wait a bit for reload to happen
+    await page.waitForLoadState('networkidle');
+
+    // should still be on login page (reloaded) or redirected to home by middleware
+    // since external URLs are blocked, we expect a reload or middleware redirect
+    const url = page.url();
+    expect(url).toMatch(/\/(user\/account\/login|\?notify=account-login-success)?$/);
+  });
 });

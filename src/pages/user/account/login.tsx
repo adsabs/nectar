@@ -56,8 +56,23 @@ const Login: NextPage = () => {
         throw new Error(data.error);
       }
 
-      // reset the user and reload the page
+      // reset the user
       await resetUser();
+
+      // redirect to the next page if provided, otherwise reload
+      const next = router.query.next as string | undefined;
+      if (next) {
+        try {
+          const decodedNext = decodeURIComponent(next);
+          // security: only allow relative paths (starts with / but not //)
+          if (decodedNext.startsWith('/') && !decodedNext.startsWith('//')) {
+            await router.push(decodedNext);
+            return undefined;
+          }
+        } catch {
+          // invalid URL encoding, fall through to reload
+        }
+      }
       reload();
 
       // the returned data is not being used

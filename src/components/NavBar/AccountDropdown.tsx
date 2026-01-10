@@ -62,6 +62,14 @@ export const AccountDropdown = (props: IAccountDropdown): ReactElement => {
     if (isBrowser()) {
       if (id === 'logout') {
         logout();
+      } else if (id === 'login') {
+        // include current path as next param so user returns after login
+        const currentPath = router.asPath;
+        const loginUrl =
+          currentPath !== '/'
+            ? `/user/account/login?next=${encodeURIComponent(currentPath)}`
+            : '/user/account/login';
+        void router.push(loginUrl);
       } else {
         const item = itemsToShow.find((item) => item !== 'divider' && id === (item as ItemItem).id);
         void router.push(item ? (item as ItemItem).path : '/');
