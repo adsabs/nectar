@@ -1,19 +1,8 @@
-import {
-  Box,
-  BoxProps,
-  Checkbox,
-  CheckboxProps,
-  Flex,
-  IconButton,
-  Stack,
-  Text,
-  Tooltip,
-  useDisclosure,
-} from '@chakra-ui/react';
-import { AllAuthorsModal } from '@/components/AllAuthorsModal';
+import { Checkbox, CheckboxProps, Flex, IconButton, Stack, Text, Tooltip, useDisclosure } from '@chakra-ui/react';
+import { AuthorList } from '@/components/AllAuthorsModal';
 import { ItemResourceDropdowns } from '@/components/ResultList/Item';
 import { APP_DEFAULTS } from '@/config';
-
+import { useAuthorsPerResult } from '@/lib/useAuthorsPerResult';
 import { useIsClient } from '@/lib/useIsClient';
 import { MathJax } from 'better-react-mathjax';
 import { ChangeEvent, ReactElement } from 'react';
@@ -65,6 +54,7 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
   const encodedCanonicalID = bibcode ? encodeURIComponent(bibcode) : '';
   const formattedPubDate = getFormattedNumericPubdate(pubdate);
   const isClient = useIsClient();
+  const maxAuthors = useAuthorsPerResult();
   const colors = useColorModeColors();
   const truncatedPub =
     pub?.length > APP_DEFAULTS.RESULT_ITEM_PUB_CUTOFF ? pub.slice(0, APP_DEFAULTS.RESULT_ITEM_PUB_CUTOFF) + '...' : pub;
@@ -131,7 +121,7 @@ export const DocumentItem = (props: IItemProps): ReactElement => {
           </Flex>
         </Flex>
         <Flex direction="column">
-          <AuthorList author={author} authorCount={author_count} bibcode={doc.bibcode} />
+          <AuthorList author={author} authorCount={author_count} bibcode={doc.bibcode} maxAuthors={maxAuthors} />
           <Text fontSize="xs" mt={0.5}>
             {formattedPubDate}
             {formattedPubDate && pub ? <span className="px-2">·</span> : ''}
@@ -185,35 +175,5 @@ const ItemCheckbox = (props: IItemCheckboxProps) => {
       {...checkboxProps}
       data-testid="document-checkbox"
     />
-  );
-};
-
-interface IAuthorListProps extends BoxProps {
-  author: IDocsEntity['author'];
-  authorCount: IDocsEntity['author_count'];
-  bibcode: IDocsEntity['bibcode'];
-}
-
-const MAX_AUTHORS = APP_DEFAULTS.RESULTS_MAX_AUTHORS;
-/**
- * Displays author list and includes a button to open all authors modal
- */
-const AuthorList = (props: IAuthorListProps): ReactElement => {
-  const { author, authorCount, bibcode, ...boxProps } = props;
-
-  if (authorCount === 0) {
-    return null;
-  }
-
-  return (
-    <Box fontSize="sm" {...boxProps}>
-      {author.slice(0, MAX_AUTHORS).join('; ')}
-      {'; '}
-      {authorCount > MAX_AUTHORS ? (
-        <AllAuthorsModal bibcode={bibcode} label={`and ${authorCount - MAX_AUTHORS} more`} />
-      ) : (
-        <AllAuthorsModal bibcode={bibcode} label={'show details'} />
-      )}
-    </Box>
   );
 };
