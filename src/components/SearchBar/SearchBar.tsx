@@ -6,6 +6,7 @@ import { ISearchInputProps, SearchInput } from '@/components/SearchBar/SearchInp
 import { initialState, reducer } from '@/components/SearchBar/searchInputReducer';
 import { QuickFields } from '@/components/SearchBar/QuickFields';
 import { SimpleLink } from '@/components/SimpleLink';
+import { useLandingFormPreference } from '@/lib/useLandingFormPreference';
 
 interface SearchBarProps extends Omit<ISearchInputProps, 'dispatch' | 'state'> {
   query?: string;
@@ -19,6 +20,7 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>((props, re
   const [state, dispatch] = useReducer(reducer, initialState);
   const inputRef = useRef<HTMLInputElement>(null);
   const refs = useMergeRefs(inputRef, ref);
+  const { landingFormUrl } = useLandingFormPreference();
 
   useEffect(() => {
     if (query !== undefined) {
@@ -37,7 +39,7 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>((props, re
       {showStartNewSearchLink ? (
         <Button
           as={SimpleLink}
-          href="/"
+          href={landingFormUrl}
           variant="link"
           size="sm"
           leftIcon={<ArrowLeftIcon />}

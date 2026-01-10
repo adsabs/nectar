@@ -20,10 +20,18 @@ import {
 } from '@/components/Settings';
 import { DescriptionCollapse } from '@/components/CitationExporter';
 import { parseAPIError } from '@/utils/common/parseAPIError';
-import { DatabaseEnum, ExternalLinkAction, IADSApiUserDataParams, UserDataKeys } from '@/api/user/types';
+import {
+  DatabaseEnum,
+  ExternalLinkAction,
+  IADSApiUserDataParams,
+  LandingFormPreference,
+  UserDataKeys,
+} from '@/api/user/types';
 import { SolrSortField } from '@/api/models';
 import { DEFAULT_USER_DATA } from '@/api/user/models';
 import { fetchUserSettings, userKeys } from '@/api/user/user';
+import { useStore } from '@/store';
+import { AppMode } from '@/types';
 
 // generate options for select component
 const useGetOptions = () => {
@@ -33,8 +41,15 @@ const useGetOptions = () => {
       label: v,
       value: v,
     })),
+    landingFormOptions: Object.values(LandingFormPreference).map((v) => ({
+      id: v,
+      label: v,
+      value: v,
+    })),
   };
 };
+
+const defaultLandingPageDescription = `Choose which search form to display when starting a new search. "Auto" remembers the last form you used. This setting only applies to the Astrophysics discipline, which has multiple search form options.`;
 
 const Page = () => {
   return (
@@ -60,9 +75,10 @@ const Page = () => {
 
 const AppSettingsPage = () => {
   const { settings, updateSettings } = useSettings();
+  const mode = useStore((state) => state.mode);
 
   // options for the select dropdown
-  const { externalLinksOptions } = useGetOptions();
+  const { externalLinksOptions, landingFormOptions } = useGetOptions();
 
   // params used to update user data
   const [params, setParams] = useState<IADSApiUserDataParams>({});
@@ -81,14 +97,16 @@ const AppSettingsPage = () => {
       selected: settings.defaultDatabase?.filter((d) => d.value === true).map((d) => d.name) ?? [],
     };
     const preferredSortOption = solrSortOptions.filter((o) => o.id === settings.preferredSearchSort);
+    const landingFormPreference = landingFormOptions.find((option) => option.id === settings.homePage);
 
     return {
       authorsVisible,
       externalLinksAction,
       databases,
       preferredSortOption,
+      landingFormPreference,
     };
-  }, [settings, externalLinksOptions]);
+  }, [settings, externalLinksOptions, landingFormOptions]);
 
   // apply changes
   const handleApplyPreferredSort = ({ id }: SelectOption<SolrSortField>) => {
@@ -101,6 +119,10 @@ const AppSettingsPage = () => {
 
   const handleApplyExternalLinks = ({ id }: SelectOption<ExternalLinkAction>) => {
     setParams({ [UserDataKeys.EXTERNAL_LINK_ACTION]: id });
+  };
+
+  const handleApplyLandingFormPreference = ({ id }: SelectOption<LandingFormPreference>) => {
+    setParams({ [UserDataKeys.HOMEPAGE]: id });
   };
 
   const handleApplyDatabases = useCallback(
@@ -209,6 +231,31 @@ const AppSettingsPage = () => {
             </FormControl>
           )}
         </DescriptionCollapse>
+        {mode === AppMode.ASTROPHYSICS && (
+          <DescriptionCollapse body={defaultLandingPageDescription} label="Default Landing Page">
+            {({ btn, content }) => (
+              <FormControl>
+                <Select<SelectOption<LandingFormPreference>>
+                  value={selectedValues.landingFormPreference}
+                  options={landingFormOptions}
+                  stylesTheme="default"
+                  onChange={handleApplyLandingFormPreference}
+                  label={
+                    <Box mb="2">
+                      <FormLabel htmlFor="landing-form-selector" fontSize={['sm', 'md']}>
+                        {'Default Landing Page'} {btn}
+                      </FormLabel>
+                      {content}
+                    </Box>
+                  }
+                  id="landing-form-selector"
+                  instanceId="landing-form-selector-instance"
+                  hideLabel={false}
+                />
+              </FormControl>
+            )}
+          </DescriptionCollapse>
+        )}
       </Stack>
     </>
   );

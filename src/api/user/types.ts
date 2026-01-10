@@ -144,6 +144,13 @@ export enum ExternalLinkAction {
   OpenCurrentTab = 'Open in current tab',
 }
 
+export enum LandingFormPreference {
+  Auto = 'Auto',
+  Modern = 'Modern Form',
+  Classic = 'Classic Form',
+  Paper = 'Paper Form',
+}
+
 export enum JournalFormatName {
   AASTeXMacros = 'Use AASTeX macros',
   Abbreviations = 'Use Journal Abbreviations',

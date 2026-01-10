@@ -46,6 +46,7 @@ import { getHomeSteps } from '@/components/NavBar';
 import { useShepherd } from 'react-shepherd';
 import { useIsClient } from '@/lib/useIsClient';
 import { useScreenSize } from '@/lib/useScreenSize';
+import { useLandingFormPreference } from '@/lib/useLandingFormPreference';
 
 const HomePage: NextPage = () => {
   const { settings } = useSettings();
@@ -66,9 +67,15 @@ const HomePage: NextPage = () => {
   const setUrlModeOverride = useStore((state) => state.setUrlModeOverride);
   const { isScreenSmall } = useScreenSize();
   const isClient = useIsClient();
+  const { persistCurrentForm } = useLandingFormPreference();
 
   // start tour if first time
   useTour();
+
+  // Track this form as the last-used landing form
+  useEffect(() => {
+    persistCurrentForm('modern');
+  }, [persistCurrentForm]);
 
   useEffect(() => {
     const handleRouteChange = () => {

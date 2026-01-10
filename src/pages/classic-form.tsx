@@ -12,6 +12,7 @@ import { parseAPIError } from '@/utils/common/parseAPIError';
 import { useRouter } from 'next/router';
 import { AppMode } from '@/types';
 import { syncUrlDisciplineParam } from '@/utils/appMode';
+import { useLandingFormPreference } from '@/lib/useLandingFormPreference';
 
 const ClassicFormPage: NextPage<{ ssrError?: string }> = ({ ssrError }) => {
   const router = useRouter();
@@ -24,6 +25,12 @@ const ClassicFormPage: NextPage<{ ssrError?: string }> = ({ ssrError }) => {
   const setUrlModePrevious = useStore((state) => state.setUrlModePrevious);
   const urlModeOverride = useStore((state) => state.urlModeOverride);
   const setUrlModeOverride = useStore((state) => state.setUrlModeOverride);
+  const { persistCurrentForm } = useLandingFormPreference();
+
+  // Track this form as the last-used landing form
+  useEffect(() => {
+    persistCurrentForm('classic');
+  }, [persistCurrentForm]);
 
   // clear search on mount
   useEffect(() => {
