@@ -42,6 +42,7 @@ import { SimpleLink } from '@/components/SimpleLink';
 import { IADSApiSearchParams } from '@/api/search/types';
 import { AppMode } from '@/types';
 import { syncUrlDisciplineParam } from '@/utils/appMode';
+import { useLandingFormPreference } from '@/lib/useLandingFormPreference';
 
 const MAX_SIMPLE_QUERY_BIBCODES = 50;
 
@@ -88,6 +89,12 @@ const PaperForm: NextPage<{ error?: IPaperFormServerError }> = ({ error: ssrErro
   const setUrlModePrevious = useStore((state) => state.setUrlModePrevious);
   const urlModeOverride = useStore((state) => state.urlModeOverride);
   const setUrlModeOverride = useStore((state) => state.setUrlModeOverride);
+  const { persistCurrentForm } = useLandingFormPreference();
+
+  // Track this form as the last-used landing form
+  useEffect(() => {
+    persistCurrentForm('paper');
+  }, [persistCurrentForm]);
 
   // clear search on mount
   useEffect(() => {

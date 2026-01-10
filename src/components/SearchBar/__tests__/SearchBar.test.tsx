@@ -7,9 +7,16 @@ const mocks = vi.hoisted(() => ({
     query: { q: '' },
     events: { on: vi.fn(), off: vi.fn() },
   })),
+  useLandingFormPreference: vi.fn(() => ({
+    landingFormUrl: '/',
+    persistCurrentForm: vi.fn(),
+  })),
 }));
 
 vi.mock('next/router', () => ({ useRouter: mocks.useRouter }));
+vi.mock('@/lib/useLandingFormPreference', () => ({
+  useLandingFormPreference: mocks.useLandingFormPreference,
+}));
 
 test('SearchBar renders without crashing', () => render(<SearchBar />));
 
