@@ -20,6 +20,7 @@ export enum LocalSettings {
   SEEN_RESULTS_TOUR = 'seen-results-tour',
   LAST_DISMISSED_SYS_MSG = 'last-sys-msg',
   CAROUSEL = 'carousels',
+  LAST_LANDING_FORM = 'last-landing-form',
 }
 
 export enum AppErrorCode {
