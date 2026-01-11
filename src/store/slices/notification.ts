@@ -52,6 +52,11 @@ export const NOTIFICATIONS: Record<NotificationId, Notification> = {
     status: 'error',
     message: 'There was an issue authenticating with ORCiD. Please try again later.',
   },
+  'orcid-session-expired': {
+    id: 'orcid-session-expired',
+    status: 'warning',
+    message: 'Your ORCiD session has expired. Please log in again to continue using ORCiD features.',
+  },
   'account-deleted-success': {
     id: 'account-deleted-success',
     status: 'success',
@@ -151,8 +156,9 @@ export type NotificationId =
   | 'account-reset-password-success'
   | 'api-connect-failed'
   | 'login-required'
-  | 'rate-limit-exceeded'
   | 'orcid-auth-failed'
+  | 'orcid-session-expired'
+  | 'rate-limit-exceeded'
   | 'verify-account-failed'
   | 'verify-account-success'
   | 'verify-account-was-valid'
