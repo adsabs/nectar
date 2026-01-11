@@ -3,7 +3,7 @@ import { useIsClient } from '@/lib/useIsClient';
 import { ORCID_LOGIN_URL } from '@/config';
 import { useRouter } from 'next/router';
 import { isValidIOrcidUser } from '@/api/orcid/models';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { useToast } from '@chakra-ui/react';
 import { parseAPIError } from '@/utils/common/parseAPIError';
@@ -14,6 +14,7 @@ const activeSelector = (state: AppState) => state.orcid.active;
 const isAuthenticatedSelector = (state: AppState) => state.orcid.isAuthenticated;
 const orcidUserSelector = (state: AppState) => state.orcid.user;
 const resetSelector = (state: AppState) => state.resetOrcid;
+const setNotificationSelector = (state: AppState) => state.setNotification;
 
 export const useOrcid = () => {
   const router = useRouter();
@@ -23,8 +24,10 @@ export const useOrcid = () => {
   const isAuthenticated = useStore(isAuthenticatedSelector);
   const reset = useStore(resetSelector);
   const user = useStore(orcidUserSelector);
+  const setNotification = useStore(setNotificationSelector);
   const [error, setError] = useState<string | null>(null);
   const toast = useToast({ id: 'orcid' });
+  const hasShownSessionExpired = useRef(false);
 
   const { data: name, ...nameState } = useOrcidGetName(
     { user },
@@ -49,25 +52,25 @@ export const useOrcid = () => {
 
       // handle ORCiD session expired or ORCiD error
       if (axios.isAxiosError(profileState.error)) {
-        // prevent duplicate toasts
-        if (toast.isActive('orcid')) {
-          return;
-        }
-
         if (profileState.error.response?.status === 401) {
-          toast({
-            status: 'error',
-            title: 'ORCiD Session Expired',
-            description: 'Your ORCID session has expired. Please log in again.',
-          });
+          // Show session expired warning only once
+          if (!hasShownSessionExpired.current) {
+            setNotification('orcid-session-expired');
+            hasShownSessionExpired.current = true;
+          }
           logout();
         }
         // TODO: figure out why this runs even when orcid mode is off
         if (profileState.error.response?.status >= 500) {
+          // prevent duplicate toasts
+          if (toast.isActive('orcid')) {
+            return;
+          }
           toast({
             status: 'error',
             title: 'Problem connecting with ORCiD',
-            description: 'There was an error retrieving your ORCiD profile. Please try again later.',
+            description:
+              'There was an error retrieving your ORCiD profile. Please try again later.',
           });
 
           // toggle orcid mode off
@@ -79,6 +82,13 @@ export const useOrcid = () => {
       setError(null);
     }
   }, [nameState.error, profileState.error]);
+
+  // Reset the session expired flag when user authenticates again
+  useEffect(() => {
+    if (isAuthenticated) {
+      hasShownSessionExpired.current = false;
+    }
+  }, [isAuthenticated]);
 
   const login = () => {
     if (isClient) {
