@@ -5,6 +5,7 @@ import {
   Checkbox,
   Flex,
   IconButton,
+  Link,
   Menu,
   MenuButton,
   MenuDivider,
@@ -14,6 +15,13 @@ import {
   MenuItemOption,
   MenuList,
   MenuOptionGroup,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTrigger,
   Portal,
   Stack,
   Text,
@@ -25,6 +33,7 @@ import {
 
 import { useIsClient } from '@/lib/useIsClient';
 import { AppState, useStore, useStoreApi } from '@/store';
+import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { curryN } from 'ramda';
 import { isNonEmptyString } from 'ramda-adjunct';
@@ -177,15 +186,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
           <SortWrapper onChange={onSortChange} />
           {isClient && (
             <Flex gap={1}>
-              <Tooltip label="Create email notification for this query">
-                <IconButton
-                  icon={<BellIcon />}
-                  aria-label="Create email notification for this query"
-                  variant="outline"
-                  onClick={onCreateNotificationOpen}
-                  id="tour-email-notification"
-                />
-              </Tooltip>
+              <NotificationBellButton isAuthenticated={isAuthenticated} onOpenNotification={onCreateNotificationOpen} />
               <HighlightsToggle />
             </Flex>
           )}
@@ -334,6 +335,58 @@ const HighlightsToggle = () => {
     </Tooltip>
   );
 };
+
+interface NotificationBellButtonProps {
+  isAuthenticated: boolean;
+  onOpenNotification: () => void;
+}
+
+function NotificationBellButton({ isAuthenticated, onOpenNotification }: NotificationBellButtonProps): ReactElement {
+  if (isAuthenticated) {
+    return (
+      <Tooltip label="Create email notification for this query">
+        <IconButton
+          icon={<BellIcon />}
+          aria-label="Create email notification for this query"
+          variant="outline"
+          onClick={onOpenNotification}
+          id="tour-email-notification"
+        />
+      </Tooltip>
+    );
+  }
+
+  return (
+    <Popover placement="bottom">
+      <PopoverTrigger>
+        <IconButton
+          icon={<BellIcon />}
+          aria-label="Create email notification for this query (login required)"
+          variant="outline"
+          color="gray.400"
+          id="tour-email-notification"
+        />
+      </PopoverTrigger>
+      <PopoverContent>
+        <PopoverArrow />
+        <PopoverCloseButton />
+        <PopoverHeader fontWeight="semibold">Login Required</PopoverHeader>
+        <PopoverBody>
+          <Text mb={2}>Email notifications are only available for logged-in users.</Text>
+          <Stack direction="row" spacing={2}>
+            <Link as={NextLink} href="/user/account/login" color="blue.500">
+              Login
+            </Link>
+            <Text>or</Text>
+            <Link as={NextLink} href="/user/account/register" color="blue.500">
+              Create Account
+            </Link>
+          </Stack>
+        </PopoverBody>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 const selectors = {
   selectAll: (state: AppState) => state.selectAll,
