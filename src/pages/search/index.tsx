@@ -318,8 +318,12 @@ const SearchPage: NextPage = () => {
               {({ reset }) => (
                 <ErrorBoundary
                   onReset={reset}
-                  onError={(error, errorInfo) => handleBoundaryError(error, errorInfo, { component: 'SearchFacetFilters' })}
-                  fallbackRender={(props) => <ErrorFallback {...props} label="Unable to load filters. Please try again." />}
+                  onError={(error, errorInfo) =>
+                    handleBoundaryError(error, errorInfo, { component: 'SearchFacetFilters' })
+                  }
+                  fallbackRender={(props) => (
+                    <ErrorFallback {...props} label="Unable to load filters. Please try again." />
+                  )}
                 >
                   <SearchFacetFilters
                     onSearchFacetSubmission={handleSearchFacetSubmission}
@@ -336,7 +340,9 @@ const SearchPage: NextPage = () => {
                   <ErrorBoundary
                     onReset={reset}
                     onError={(error, errorInfo) => handleBoundaryError(error, errorInfo, { component: 'ListActions' })}
-                    fallbackRender={(props) => <ErrorFallback {...props} label="Unable to load actions. Please try again." />}
+                    fallbackRender={(props) => (
+                      <ErrorFallback {...props} label="Unable to load actions. Please try again." />
+                    )}
                   >
                     <ListActions
                       onSortChange={handleSortChange}
@@ -375,8 +381,12 @@ const SearchPage: NextPage = () => {
                       {({ reset }) => (
                         <ErrorBoundary
                           onReset={reset}
-                          onError={(error, errorInfo) => handleBoundaryError(error, errorInfo, { component: 'SimpleResultList' })}
-                          fallbackRender={(props) => <ErrorFallback {...props} label="Unable to display results. Please try again." />}
+                          onError={(error, errorInfo) =>
+                            handleBoundaryError(error, errorInfo, { component: 'SimpleResultList' })
+                          }
+                          fallbackRender={(props) => (
+                            <ErrorFallback {...props} label="Unable to display results. Please try again." />
+                          )}
                         >
                           <SimpleResultList
                             docs={data.response.docs}
@@ -427,12 +437,13 @@ const SearchFacetFilters = (props: {
             <Button
               position="fixed"
               transform="rotate(90deg)"
+              transformOrigin="bottom left"
               borderBottomRadius="none"
               size="xs"
               type="button"
               onClick={onOpenFacet}
               top="240px"
-              left="-28px"
+              left="0"
               id="tour-search-facets"
             >
               Show Filters
@@ -529,12 +540,13 @@ const SearchFacetFilters = (props: {
         <Button
           position="absolute"
           transform="rotate(90deg)"
+          transformOrigin="bottom left"
           borderBottomRadius="none"
           size="xs"
           type="button"
           onClick={handleToggleFilters}
           top="240px"
-          left="-28px"
+          left="0"
           id="tour-search-facets"
         >
           Show Filters

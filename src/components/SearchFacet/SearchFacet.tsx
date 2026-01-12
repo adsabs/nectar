@@ -209,12 +209,9 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
               borderBottom={isOpen ? 'none' : 'auto'}
               borderBottomRightRadius={isOpen ? 'none' : 'auto'}
               color="gray.200"
-              size="sm"
-              fontSize="sm"
               variant="ghost"
               aria-label={facetState.hidden ? `Show ${label} filter` : `Hide ${label} filter`}
               m={0}
-              height={8}
               icon={<Center>{facetState.hidden ? <Icon as={EyeSlashIcon} /> : <Icon as={EyeIcon} />}</Center>}
               onKeyDown={handleFacetKeyDown}
             />
