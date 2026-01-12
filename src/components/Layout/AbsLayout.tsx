@@ -10,7 +10,7 @@ import { Metatags } from '@/components/Metatags';
 import { SimpleLink } from '@/components/SimpleLink';
 import { AbstractSources } from '@/components/AbstractSources';
 import { AbstractSideNav } from '@/components/AbstractSideNav';
-import { unwrapStringValue } from '@/utils/common/formatters';
+import { stripHtml, unwrapStringValue } from '@/utils/common/formatters';
 import { IDocsEntity } from '@/api/search/types';
 
 interface IAbsLayoutProps {
@@ -22,7 +22,8 @@ interface IAbsLayoutProps {
 export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription, label }) => {
   const { getSearchHref, show: showBackLink } = useBackToSearchResults();
 
-  const title = doc ? unwrapStringValue(doc.title) : '';
+  const rawTitle = doc ? unwrapStringValue(doc.title) : '';
+  const title = stripHtml(rawTitle);
   const suffix = `${BRAND_NAME_FULL} ${label}`;
   const pageTitle = title ? `${title} - ${suffix}` : suffix;
 
@@ -62,7 +63,7 @@ export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription
                 <Text as="span" fontSize="xl">
                   {titleDescription}
                 </Text>{' '}
-                <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
+                <Text as={MathJax} dangerouslySetInnerHTML={{ __html: rawTitle }} />
               </Heading>
               <div id="abstract-subview-content">{children}</div>
             </Stack>

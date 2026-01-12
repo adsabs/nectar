@@ -1,7 +1,7 @@
 import { AppRuntimeConfig } from '@/types';
 import getConfig from 'next/config';
 import { Fragment, ReactElement } from 'react';
-import { getFormattedNumericPubdate, getFormattedCitationDate } from '@/utils/common/formatters';
+import { getFormattedNumericPubdate, getFormattedCitationDate, stripHtml } from '@/utils/common/formatters';
 import { Esources, IDocsEntity } from '@/api/search/types';
 import { logger } from '@/logger';
 import { docToJsonld } from '@/components/Metatags/json-ld-abstract/docToJsonld';
@@ -39,7 +39,7 @@ export const Metatags = (props: IMetatagsProps): ReactElement => {
     });
   };
 
-  const title = doc.title ? doc.title.join('; ') : '';
+  const title = doc.title ? stripHtml(doc.title.join('; ')) : '';
 
   const encodedCanonicalID = doc.bibcode ? encodeURIComponent(doc.bibcode) : '';
   const url = `${baseUrl}/abs/${encodedCanonicalID}/abstract`;

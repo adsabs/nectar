@@ -420,4 +420,45 @@ describe('Metatags Component', () => {
       expect(allMetaTags.length).toBeGreaterThanOrEqual(23);
     });
   });
+
+  describe('HTML Stripping', () => {
+    test('strips HTML tags from title in meta tags', () => {
+      const doc = createMockDoc({
+        title: ['Observation of Λ Hyperon Polarization at √<sub>s<sub>NN</sub></sub>=8.16 TeV'],
+      });
+      const { container } = render(<Metatags doc={doc} />);
+
+      const ogTitle = container.querySelector('meta[property="og:title"]');
+      const twitterTitle = container.querySelector('meta[name="twitter:title"]');
+      const citationTitle = container.querySelector('meta[name="citation_title"]');
+      const dcTitle = container.querySelector('meta[name="dc.title"]');
+
+      const expectedPlainText = 'Observation of Λ Hyperon Polarization at √sNN=8.16 TeV';
+
+      expect(ogTitle?.getAttribute('content')).toBe(expectedPlainText);
+      expect(twitterTitle?.getAttribute('content')).toBe(expectedPlainText);
+      expect(citationTitle?.getAttribute('content')).toBe(expectedPlainText);
+      expect(dcTitle?.getAttribute('content')).toBe(expectedPlainText);
+    });
+
+    test('strips sup and sub tags from title', () => {
+      const doc = createMockDoc({
+        title: ['H<sub>2</sub>O and CO<sub>2</sub> in the <sup>13</sup>C isotope'],
+      });
+      const { container } = render(<Metatags doc={doc} />);
+
+      const citationTitle = container.querySelector('meta[name="citation_title"]');
+      expect(citationTitle?.getAttribute('content')).toBe('H2O and CO2 in the 13C isotope');
+    });
+
+    test('strips italic and bold tags from title', () => {
+      const doc = createMockDoc({
+        title: ['Study of <i>Drosophila melanogaster</i> and <b>key findings</b>'],
+      });
+      const { container } = render(<Metatags doc={doc} />);
+
+      const citationTitle = container.querySelector('meta[name="citation_title"]');
+      expect(citationTitle?.getAttribute('content')).toBe('Study of Drosophila melanogaster and key findings');
+    });
+  });
 });
