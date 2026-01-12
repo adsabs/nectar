@@ -13,6 +13,7 @@ import { useGetGraphics } from '@/api/graphics/graphics';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage } from '@fortawesome/free-solid-svg-icons';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 const GraphicsPage: NextPage = () => {
   const router = useRouter();
@@ -87,7 +88,13 @@ const GraphicsPage: NextPage = () => {
   );
 };
 
-export default GraphicsPage;
+const GraphicsPageWithErrorBoundary: NextPage = () => (
+  <PageErrorBoundary pageName="GraphicsPage" fallbackTitle="Error Loading Graphics">
+    <GraphicsPage />
+  </PageErrorBoundary>
+);
+
+export default GraphicsPageWithErrorBoundary;
 
 export const getServerSideProps = createAbsGetServerSideProps('graphics');
 // export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {

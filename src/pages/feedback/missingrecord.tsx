@@ -11,6 +11,7 @@ import { FeedbackLayout } from '@/components/Layout';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { getSingleRecordParams } from '@/api/search/models';
 import { fetchSearch, searchKeys } from '@/api/search/search';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 const Record: NextPage = () => {
   const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({
@@ -105,7 +106,13 @@ const Record: NextPage = () => {
   );
 };
 
-export default Record;
+const RecordWithErrorBoundary: NextPage = () => (
+  <PageErrorBoundary pageName="MissingRecord" fallbackTitle="Error Loading Feedback Form">
+    <Record />
+  </PageErrorBoundary>
+);
+
+export default RecordWithErrorBoundary;
 
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
   const { bibcode } = ctx.query;

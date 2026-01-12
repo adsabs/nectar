@@ -29,6 +29,7 @@ import { parseAPIError } from '@/utils/common/parseAPIError';
 import { IUserCredentials } from '@/api/user/types';
 import { NotificationId } from '@/store/slices';
 import { useStore } from '@/store';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 const initialParams: IUserCredentials = { email: '', password: '' };
 
@@ -199,6 +200,12 @@ const LoginErrorMessage = (props: { error: AxiosError<ILoginResponse> | Error })
   }
 };
 
-export default Login;
+const LoginWithErrorBoundary: NextPage = () => (
+  <PageErrorBoundary pageName="Login" fallbackTitle="Error Loading Login">
+    <Login />
+  </PageErrorBoundary>
+);
+
+export default LoginWithErrorBoundary;
 
 export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

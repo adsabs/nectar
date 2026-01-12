@@ -23,6 +23,7 @@ import { ExportApiFormatKey } from '@/api/export/types';
 import { IADSApiSearchParams } from '@/api/search/types';
 import { fetchSearchInfinite, searchKeys, useSearchInfinite } from '@/api/search/search';
 import { exportCitationKeys, fetchExportCitation, fetchExportFormats } from '@/api/export/export';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 interface IExportCitationPageProps {
   format: string;
@@ -210,4 +211,10 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
   }
 });
 
-export default ExportCitationPage;
+const ExportCitationPageWithErrorBoundary: NextPage<IExportCitationPageProps> = (props) => (
+  <PageErrorBoundary pageName="ExportCitationPage" fallbackTitle="Error Loading Export">
+    <ExportCitationPage {...props} />
+  </PageErrorBoundary>
+);
+
+export default ExportCitationPageWithErrorBoundary;

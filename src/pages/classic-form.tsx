@@ -12,6 +12,7 @@ import { parseAPIError } from '@/utils/common/parseAPIError';
 import { useRouter } from 'next/router';
 import { AppMode } from '@/types';
 import { syncUrlDisciplineParam } from '@/utils/appMode';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 const ClassicFormPage: NextPage<{ ssrError?: string }> = ({ ssrError }) => {
   const router = useRouter();
@@ -55,7 +56,13 @@ const ClassicFormPage: NextPage<{ ssrError?: string }> = ({ ssrError }) => {
   );
 };
 
-export default ClassicFormPage;
+const ClassicFormPageWithErrorBoundary: NextPage<{ ssrError?: string }> = (props) => (
+  <PageErrorBoundary pageName="ClassicFormPage" fallbackTitle="Error Loading Form">
+    <ClassicFormPage {...props} />
+  </PageErrorBoundary>
+);
+
+export default ClassicFormPageWithErrorBoundary;
 
 type ReqWithBody = GetServerSidePropsContext['req'] & {
   body: IClassicFormState;

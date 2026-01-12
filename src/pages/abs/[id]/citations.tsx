@@ -11,6 +11,7 @@ import { useGetAbstract, useGetCitations } from '@/api/search/search';
 import { IDocsEntity } from '@/api/search/types';
 import { getCitationsParams } from '@/api/search/models';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 const CitationsPage: NextPage = () => {
   const router = useRouter();
@@ -58,7 +59,13 @@ const CitationsPage: NextPage = () => {
   );
 };
 
-export default CitationsPage;
+const CitationsPageWithErrorBoundary: NextPage = () => (
+  <PageErrorBoundary pageName="CitationsPage" fallbackTitle="Error Loading Citations">
+    <CitationsPage />
+  </PageErrorBoundary>
+);
+
+export default CitationsPageWithErrorBoundary;
 
 export const getServerSideProps = createAbsGetServerSideProps('citations');
 // export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {

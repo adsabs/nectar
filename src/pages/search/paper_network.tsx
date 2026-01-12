@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { VizPageLayout } from '@/components/Layout';
 import { PaperNetworkPageContainer } from '@/components/Visualizations';
 import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 const PaperMetworkPage: NextPage = () => {
   const router = useRouter();
@@ -24,5 +25,11 @@ const PaperMetworkPage: NextPage = () => {
   );
 };
 
-export default PaperMetworkPage;
+const PaperNetworkPageWithErrorBoundary: NextPage = () => (
+  <PageErrorBoundary pageName="PaperNetworkPage" fallbackTitle="Error Loading Paper Network">
+    <PaperMetworkPage />
+  </PageErrorBoundary>
+);
+
+export default PaperNetworkPageWithErrorBoundary;
 export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

@@ -23,6 +23,8 @@ import api from '@/api/api';
 import { userKeys } from '@/api/user/user';
 import { Providers } from '@/providers';
 import { isValidToken } from '@/auth-utils';
+import { ErrorBoundary } from 'react-error-boundary';
+import { PageErrorFallback } from '@/components/PageErrorFallback';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -64,7 +66,9 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
         <TopProgressBar />
         <UserSync />
         <Layout>
-          <Component {...pageProps} />
+          <ErrorBoundary FallbackComponent={PageErrorFallback}>
+            <Component {...pageProps} />
+          </ErrorBoundary>
           <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
         </Layout>
       </Providers>

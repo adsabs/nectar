@@ -8,6 +8,7 @@ import { MetricsPageContainer } from '@/components/Visualizations';
 import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { IADSApiSearchParams } from '@/api/search/types';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 interface IMetricsProps {
   originalQuery: IADSApiSearchParams;
@@ -78,4 +79,10 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
   }
 });
 
-export default MetricsPage;
+const MetricsPageWithErrorBoundary: NextPage<IMetricsProps> = (props) => (
+  <PageErrorBoundary pageName="MetricsPage" fallbackTitle="Error Loading Metrics">
+    <MetricsPage {...props} />
+  </PageErrorBoundary>
+);
+
+export default MetricsPageWithErrorBoundary;

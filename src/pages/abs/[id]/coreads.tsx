@@ -10,6 +10,7 @@ import { AbstractRefList } from '@/components/AbstractRefList';
 import { useGetAbstract, useGetCoreads } from '@/api/search/search';
 import { getCoreadsParams } from '@/api/search/models';
 import { createAbsGetServerSideProps } from '@/lib/serverside/absCanonicalization';
+import { PageErrorBoundary } from '@/components/PageErrorBoundary';
 
 const CoreadsPage: NextPage = () => {
   const router = useRouter();
@@ -42,7 +43,13 @@ const CoreadsPage: NextPage = () => {
   );
 };
 
-export default CoreadsPage;
+const CoreadsPageWithErrorBoundary: NextPage = () => (
+  <PageErrorBoundary pageName="CoreadsPage" fallbackTitle="Error Loading Coreads">
+    <CoreadsPage />
+  </PageErrorBoundary>
+);
+
+export default CoreadsPageWithErrorBoundary;
 
 export const getServerSideProps = createAbsGetServerSideProps('coreads');
 // export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {

@@ -122,7 +122,6 @@ export function useSearch<TData = IADSApiSearchResponse['response']>(
     queryFn: fetchSearch,
     meta: { params },
     select,
-    retry: (failCount, error) => failCount < 1 && axios.isAxiosError(error) && error.response?.status !== 400,
     ...(options as Omit<UseQueryOptions<IADSApiSearchResponse, ErrorType, TData>, 'queryKey' | 'queryFn' | 'select'>),
   });
 }
