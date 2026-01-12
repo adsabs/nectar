@@ -133,7 +133,7 @@ export const getLimit = (limit: CollectionChoice[]) => {
   const isLimit = (limit: string): limit is CollectionChoice => allPass([isString, includes(__, limits)])(limit);
   const limitIsValid = both(isNotEmpty, all(isLimit));
 
-  return ifElse(limitIsValid, pipe(logicJoin('and'), wrapWithField('collection')), always(''))(limit);
+  return ifElse(limitIsValid, pipe(logicJoin('or'), wrapWithField('collection')), always(''))(limit);
 };
 
 /**

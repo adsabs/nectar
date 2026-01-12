@@ -17,8 +17,8 @@ describe('Classic Form Query Handling', () => {
   test.concurrent.each<[CollectionChoice[], string]>([
     [[], ''],
     [['astronomy'], 'collection:(astronomy)'],
-    [['astronomy', 'physics'], 'collection:(astronomy physics)'],
-    [['astronomy', 'physics', 'general'], 'collection:(astronomy physics general)'],
+    [['astronomy', 'physics'], 'collection:(astronomy OR physics)'],
+    [['astronomy', 'physics', 'general'], 'collection:(astronomy OR physics OR general)'],
   ])('getLimit(%s) -> %s', (choice, expected) => expect(getLimit(choice)).toBe(expected));
 
   // author
@@ -144,7 +144,7 @@ describe('Classic Form Query Handling', () => {
     };
     const result = new URLSearchParams(getSearchQuery(state));
     expect(result.get('q')).toBe(
-      `collection:(astronomy physics) pubdate:[2020-12 TO 2022-01] author:("Smith, A" "Jones, B" ="Jones, Bob") object:(IRAS HIP) property:(refereed article) title:("Black Hole" -"Milky Way" -star) abs:("Event Horizon" Singularity) bibstem:(PhRvL) -bibstem:(Apj)`,
+      `collection:(astronomy OR physics) pubdate:[2020-12 TO 2022-01] author:("Smith, A" "Jones, B" ="Jones, Bob") object:(IRAS HIP) property:(refereed article) title:("Black Hole" -"Milky Way" -star) abs:("Event Horizon" Singularity) bibstem:(PhRvL) -bibstem:(Apj)`,
     );
     expect(result.getAll('sort')).toStrictEqual(['score desc', 'date desc']);
   });
