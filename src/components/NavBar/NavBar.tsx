@@ -6,6 +6,7 @@ import { SimpleLink } from '@/components/SimpleLink';
 import { AppModeUrlNotice } from './AppModeUrlNotice';
 import { useStore } from '@/store';
 import { ByADSModes } from '@/types';
+import { useLandingFormPreference } from '@/lib/useLandingFormPreference';
 
 const AppModeDropdown = dynamic<Record<string, never>>(
   () =>
@@ -27,12 +28,13 @@ const NavMenus = dynamic<Record<string, never>>(
 
 export const NavBar: FC = () => {
   const mode = useStore((state) => state.mode);
+  const { landingFormUrl } = useLandingFormPreference();
 
   return (
     <Box as="nav" backgroundColor="gray.900" position="relative" zIndex="overlay">
       <Flex direction="row" alignItems="center" justifyContent="space-between" mx={4} my={2}>
         <HStack spacing={3}>
-          <SimpleLink href="/" _hover={{ textDecoration: 'none' }}>
+          <SimpleLink href={landingFormUrl} _hover={{ textDecoration: 'none' }}>
             <HStack cursor="pointer" spacing={1}>
               <DarkMode>
                 <Heading as="h1" size="sm">
