@@ -32,14 +32,20 @@ export const NavBar: FC = () => {
 
   return (
     <Box as="nav" backgroundColor="gray.900" position="relative" zIndex="overlay">
-      <Flex direction="row" alignItems="center" justifyContent="space-between" mx={4} my={2}>
-        <HStack spacing={3}>
-          <SimpleLink href={landingFormUrl} _hover={{ textDecoration: 'none' }}>
+      <Flex direction="row" alignItems="center" justifyContent="space-between" mx={{ base: 2, sm: 4 }} my={2}>
+        <HStack spacing={{ base: 1, sm: 3 }} flexShrink={1} minW={0}>
+          <SimpleLink href={landingFormUrl} _hover={{ textDecoration: 'none' }} flexShrink={0}>
             <HStack cursor="pointer" spacing={1}>
               <DarkMode>
                 <Heading as="h1" size="sm">
                   <Flex direction="column" alignItems="end">
-                    <Icon as={ScixAndTextLogo_H} width="6em" height="3em" color="gray.50" aria-label="Scix Home" />
+                    <Icon
+                      as={ScixAndTextLogo_H}
+                      width={{ base: '4.5em', sm: '6em' }}
+                      height={{ base: '2.25em', sm: '3em' }}
+                      color="gray.50"
+                      aria-label="Scix Home"
+                    />
                     {ByADSModes.includes(mode) ? (
                       <Text color="chakra-body-text" fontSize={'xs'} mt={-3}>
                         by ADS
@@ -50,10 +56,12 @@ export const NavBar: FC = () => {
               </DarkMode>
             </HStack>
           </SimpleLink>
-          <AppModeDropdown />
+          <Box display={{ base: 'none', md: 'block' }}>
+            <AppModeDropdown />
+          </Box>
           <AppModeUrlNotice />
         </HStack>
-        <HStack>
+        <HStack flexShrink={0}>
           <NavMenus />
         </HStack>
       </Flex>

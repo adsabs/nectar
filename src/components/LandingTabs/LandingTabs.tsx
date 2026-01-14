@@ -1,4 +1,4 @@
-import { Box, Center, Flex, HStack, Icon, Show, VisuallyHidden, Text, DarkMode } from '@chakra-ui/react';
+import { Box, Center, Flex, HStack, Icon, VisuallyHidden, Text, DarkMode } from '@chakra-ui/react';
 import { useStore } from '@/store';
 import { AppMode, ByADSModes } from '@/types';
 import Image from 'next/image';
@@ -91,15 +91,20 @@ const TitleLogo = () => {
 
   return (
     <Center>
-      <Show above="sm">
-        <Icon as={ScixAndNasaLogo_H} height="4em" width="25em" aria-hidden />
-        {ByADSModes.includes(mode) ? (
-          <>
-            <Text color="chakra-body-text">by ADS</Text>
-            <Image src="/images/ads-logo.svg" alt="ads logo" width={40} height={40} ml={3} />
-          </>
-        ) : null}
-      </Show>
+      <Icon
+        as={ScixAndNasaLogo_H}
+        height={{ base: '2.5em', sm: '4em' }}
+        width={{ base: '15em', sm: '25em' }}
+        aria-hidden
+      />
+      {ByADSModes.includes(mode) ? (
+        <>
+          <Text color="chakra-body-text" fontSize={{ base: 'sm', sm: 'md' }}>
+            by ADS
+          </Text>
+          <Image src="/images/ads-logo.svg" alt="ads logo" width={40} height={40} ml={3} />
+        </>
+      ) : null}
       <VisuallyHidden>Science Explorer</VisuallyHidden>
     </Center>
   );
