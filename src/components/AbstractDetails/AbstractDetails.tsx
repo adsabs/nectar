@@ -44,6 +44,7 @@ interface IDetailProps<T = string | Array<string>> {
   newTab?: boolean;
   value: T;
   copiable?: boolean;
+  copyLabel?: string;
   children?: (value: T) => ReactElement;
 }
 
@@ -113,7 +114,7 @@ export const AbstractDetails = ({ doc }: IDetailsProps): ReactElement => {
             href={createUrlByType(doc?.bibcode, 'arxiv', arxiv?.split(':')[1])}
             newTab
           />
-          <Detail label="Bibcode" value={doc.bibcode} copiable />
+          <Detail label="Bibcode" value={doc.bibcode} copiable copyLabel="Copy Bibcode" />
           <Collections collections={doc.database ?? []} />
           <Keywords keywords={doc.keyword} />
           <UATKeywords keywords={doc.uat} ids={doc.uat_id} />
@@ -130,7 +131,7 @@ export const AbstractDetails = ({ doc }: IDetailsProps): ReactElement => {
 
 // TODO: this should take in a list of deps or the whole doc and show/hide based on that
 const Detail = <T extends string | string[]>(props: IDetailProps<T>): ReactElement => {
-  const { label, href, newTab = false, value, copiable = false, children } = props;
+  const { label, href, newTab = false, value, copiable = false, copyLabel = 'Copy', children } = props;
 
   // show nothing if no value
   if (isNilOrEmpty(value)) {
@@ -172,7 +173,7 @@ const Detail = <T extends string | string[]>(props: IDetailProps<T>): ReactEleme
           ? children(value)
           : !href && <span dangerouslySetInnerHTML={{ __html: normalizedValue }} />}
         {copiable && (
-          <Tooltip label="Copy" shouldWrapChildren>
+          <Tooltip label={copyLabel} shouldWrapChildren>
             <SimpleCopyButton text={normalizedValue as string} size="xs" variant="outline" mx={2} />
           </Tooltip>
         )}
