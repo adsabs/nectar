@@ -350,7 +350,7 @@ function NotificationBellButton({ isAuthenticated, onOpenNotification }: Notific
           aria-label="Create email notification for this query"
           variant="outline"
           onClick={onOpenNotification}
-          id="tour-email-notification"
+          data-id="tour-email-notification"
         />
       </Tooltip>
     );
@@ -364,7 +364,7 @@ function NotificationBellButton({ isAuthenticated, onOpenNotification }: Notific
           aria-label="Create email notification for this query (login required)"
           variant="outline"
           color="gray.400"
-          id="tour-email-notification"
+          data-id="tour-email-notification"
         />
       </PopoverTrigger>
       <PopoverContent>

@@ -436,7 +436,7 @@ export const getResultsSteps = () => {
       title: 'Email notification',
       text: 'Turn on email notifications for this query. This will generate daily or weekly emails which include new results',
       attachTo: {
-        element: '#tour-email-notification',
+        element: 'button[data-id="tour-email-notification"]',
         on: 'bottom',
       },
       classes: 'example-step-extra-class',
