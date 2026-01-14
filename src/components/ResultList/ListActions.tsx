@@ -218,9 +218,9 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
                 </>
               )}
             </Stack>
-            <Stack direction="row" mx={{ base: 0, md: 5 }} order={{ base: '1', md: '2' }} wrap="wrap">
+            <Stack direction="row" mx={{ base: 0, md: 5 }} order={{ base: '1', md: '2' }} wrap="wrap" gap={2}>
               <Menu id="tour-bulk-actions">
-                <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+                <MenuButton as={Button} rightIcon={<ChevronDownIcon />} size={{ base: 'md', md: 'md' }}>
                   Bulk Actions
                 </MenuButton>
                 <Portal>
@@ -250,7 +250,12 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
                 </Portal>
               </Menu>
               <Menu id="tour-explore">
-                <MenuButton as={Button} rightIcon={<ChevronDownIcon />} data-testid="explorer-menu-btn">
+                <MenuButton
+                  as={Button}
+                  rightIcon={<ChevronDownIcon />}
+                  data-testid="explorer-menu-btn"
+                  size={{ base: 'md', md: 'md' }}
+                >
                   Explore
                 </MenuButton>
                 <Portal>

@@ -141,17 +141,23 @@ export const Item = (props: IItemProps): ReactElement => {
         </Text>
         {hideCheckbox ? null : <ItemCheckbox index={index} bibcode={bibcode} label={title} isChecked={isChecked} />}
       </Flex>
-      <Stack direction="column" width="full" spacing={0} mx={3} mt={2}>
-        <Flex justifyContent="space-between" minH="40px">
+      <Stack direction="column" width="full" spacing={0} mx={{ base: 2, md: 3 }} mt={2}>
+        <Flex
+          direction={{ base: 'column', sm: 'row' }}
+          justifyContent="space-between"
+          minH={{ base: 'auto', sm: '40px' }}
+          gap={{ base: 1, sm: 0 }}
+        >
           <SimpleLink
             href={`/abs/${encodedCanonicalID}/abstract`}
             fontWeight="semibold"
             className="article-title"
             onClick={saveScrollPosition}
+            flex="1"
           >
             <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
           </SimpleLink>
-          <Flex alignItems="start" ml={1}>
+          <Flex alignItems="start" ml={{ base: 0, sm: 1 }} flexShrink={0}>
             {!isClient || hideActions ? null : <ItemResourceDropdowns doc={doc} defaultCitation={defaultCitation} />}
           </Flex>
         </Flex>
@@ -159,11 +165,13 @@ export const Item = (props: IItemProps): ReactElement => {
           {author_count > 0 && (
             <AuthorList author={author} authorCount={author_count} bibcode={doc.bibcode} maxAuthors={maxAuthors} />
           )}
-          <Flex fontSize="xs" mt={0.5}>
+          <Flex fontSize="xs" mt={0.5} flexWrap="wrap" rowGap={0.5} columnGap={0}>
             {formattedPubDate}
             {formattedPubDate && pub ? <Text px="2">·</Text> : ''}
             <Tooltip label={pub} aria-label="publication tooltip" placement="top">
-              <span>{truncatedPub}</span>
+              <Text as="span" noOfLines={1} maxW={{ base: '150px', sm: '250px', md: 'none' }}>
+                {truncatedPub}
+              </Text>
             </Tooltip>
             {cite && (formattedPubDate || pub) ? <Text px="2">·</Text> : null}
             {cite}
