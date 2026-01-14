@@ -97,14 +97,20 @@ export const Pager = (props: IPagerProps) => {
         onBlur={() => setShouldWiggle(false)}
       >
         <Flex direction="row" alignItems="flex-start">
-          <Box mt={arrowMargin}>
+          <Box mt={arrowMargin} display={{ base: 'none', md: 'block' }}>
             <ChangePageButton direction="previous" onClick={prev} />
           </Box>
-          <Flex direction="column" alignItems="center">
+          <Flex direction="column" alignItems="center" maxW="100%">
             {title}
             <TabPanels>
               {pages.map((page, index) => (
-                <TabPanel key={page.uniqueId} alignContent="center" minW="2xl" w="2xl">
+                <TabPanel
+                  key={page.uniqueId}
+                  alignContent="center"
+                  minW={{ base: 'full', md: '2xl' }}
+                  w={{ base: 'full', md: '2xl' }}
+                  px={{ base: 2, md: 4 }}
+                >
                   {typeof page.content === 'function'
                     ? page.content({ page: index, title: page.title, next, prev })
                     : page.content}
@@ -112,7 +118,7 @@ export const Pager = (props: IPagerProps) => {
               ))}
             </TabPanels>
           </Flex>
-          <Box mt={arrowMargin}>
+          <Box mt={arrowMargin} display={{ base: 'none', md: 'block' }}>
             <ChangePageButton
               direction="next"
               onClick={next}

@@ -129,7 +129,7 @@ export const Item = (props: IItemProps): ReactElement => {
         mr="2"
         px="2"
         borderLeftRadius="md"
-        w="64px"
+        w={{ base: '40px', md: '64px' }}
       >
         <Text
           color={isChecked ? colors.background : 'initial'}

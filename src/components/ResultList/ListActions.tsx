@@ -218,7 +218,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
                 </>
               )}
             </Stack>
-            <Stack direction="row" mx={5} order={{ base: '1', md: '2' }} wrap="wrap">
+            <Stack direction="row" mx={{ base: 0, md: 5 }} order={{ base: '1', md: '2' }} wrap="wrap">
               <Menu id="tour-bulk-actions">
                 <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
                   Bulk Actions
