@@ -1,5 +1,4 @@
 import { IOrcidProfileEntry } from '@/api/orcid/types/orcid-profile';
-import { UseToastOptions } from '@chakra-ui/react';
 import { IDocsEntity } from '@/api/search/types';
 
 export const isClaimedBySciX = (profile: IOrcidProfileEntry) => {
@@ -10,10 +9,6 @@ export const isInSciX = (profile: IOrcidProfileEntry) => {
   return profile.status !== 'not in ADS';
 };
 
-export const TOAST_DEFAULTS: UseToastOptions = {
-  duration: 5000,
-  position: 'bottom-right',
-};
 /**
  * Helper utility that retrieves the first entry of the identifier field
  * or the single string if no array, or picks the bibcode (if available)

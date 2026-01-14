@@ -22,7 +22,7 @@ const frequencyOptions: SelectOption<NotificationFrequency>[] = [
 ];
 
 export const QueryForm = ({ onClose, onUpdated = noop }: { onClose: () => void; onUpdated?: () => void }) => {
-  const toast = useToast({ duration: 2000 });
+  const toast = useToast();
 
   const query = useStore((state) => state.query);
 

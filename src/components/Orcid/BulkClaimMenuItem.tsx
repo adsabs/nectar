@@ -2,7 +2,6 @@ import { Center, MenuItem, MenuItemProps, Spinner, ToastId, useToast } from '@ch
 import { useAddWorks } from '@/lib/orcid/useAddWorks';
 import { AppState, useStore } from '@/store';
 import React, { useCallback, useRef } from 'react';
-import { TOAST_DEFAULTS } from '@/components/Orcid/helpers';
 import { IOrcidResponse } from '@/api/orcid/types';
 import { BulkClaimErrorDetails } from '@/components/Orcid/BulkDeleteMenuItem';
 
@@ -13,7 +12,7 @@ import { logger } from '@/logger';
 const selectedDocsSelector = (state: AppState) => state.docs.selected;
 
 export const BulkClaimMenuItem = (props: MenuItemProps) => {
-  const toast = useToast(TOAST_DEFAULTS);
+  const toast = useToast();
   const mainToastIdRef = useRef<ToastId>();
   const { addWorks } = useAddWorks(
     {},
@@ -33,7 +32,6 @@ export const BulkClaimMenuItem = (props: MenuItemProps) => {
             status: 'warning',
             title: `Unable to claim ${rejected.length} ${pluralize('work', rejected.length)}`,
             description: <BulkClaimErrorDetails rejected={rejected} result={data} />,
-            isClosable: true,
           });
           toast.close(mainToastIdRef.current);
         }
@@ -62,7 +60,6 @@ export const BulkClaimMenuItem = (props: MenuItemProps) => {
     mainToastIdRef.current = toast({
       status: 'info',
       title: `Attempting to claim ${selected.length} ${pluralize('work', selected.length)} from SciX`,
-      isClosable: true,
       description: (
         <Center>
           <Spinner />

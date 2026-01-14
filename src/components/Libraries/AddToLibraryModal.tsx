@@ -55,9 +55,7 @@ export const AddToLibraryModal = ({
 
   const { mutate: addDocsByQuery, isLoading: isAddingDocs } = useAddDocumentsByQuery();
 
-  const toast = useToast({
-    duration: 2000,
-  });
+  const toast = useToast();
 
   const handleAddToLibrary = (id: LibraryIdentifier) => {
     if (bibcodes?.length > 0 || selectedDocs?.length > 0) {
@@ -234,9 +232,7 @@ const AddToNewLibraryPane = ({
 
   const { mutate: addLibrary, isLoading: isAddingLib } = useAddLibrary();
 
-  const toast = useToast({
-    duration: 2000,
-  });
+  const toast = useToast();
 
   const handleOnSubmit = () => {
     const { name, desc, isPublic } = getValues();

@@ -27,9 +27,7 @@ export const CollabTable = ({ id }: { id: LibraryIdentifier }) => {
 
   const { mutate: modifyPermission } = useModifyPermission();
 
-  const toast = useToast({
-    duration: 2000,
-  });
+  const toast = useToast();
 
   const collaborators = useMemo(
     () =>

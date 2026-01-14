@@ -70,7 +70,6 @@ export const NavMenus = (): ReactElement => {
         title: 'How to use tour',
         description: 'Try a search with more than one result to start the tour.',
         status: 'warning',
-        isClosable: true,
       });
     } else if (tourType !== 'none') {
       tour.start();
@@ -80,7 +79,6 @@ export const NavMenus = (): ReactElement => {
         description:
           'You can start the tour at the landing page, search results page, or abstract page. Then click "Tour" again.',
         status: 'warning',
-        isClosable: true,
       });
     }
   };

@@ -12,12 +12,7 @@ import { useExportFormats } from './useExportFormats';
 
 export const useSettings = (options?: UseQueryOptions<IADSApiUserDataResponse>, hideToast?: boolean) => {
   const { isAuthenticated } = useSession();
-  const toast = useToast({
-    position: 'bottom',
-    isClosable: true,
-    duration: 3000,
-    id: 'settings',
-  });
+  const toast = useToast({ id: 'settings' });
   const queryClient = useQueryClient();
   const { data: settingsdata, ...getSettingsState } = useGetUserSettings({
     suspense: true,

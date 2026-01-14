@@ -12,10 +12,7 @@ export const Notification = () => {
   const notification = useStore((state) => state.notification);
   const resetNotification = useStore((state) => state.resetNotification);
   const toast = useToast({
-    position: 'top',
     duration: TIMEOUT,
-    isClosable: true,
-    variant: 'subtle',
   });
 
   // Reset notification (clear from store and close toast)

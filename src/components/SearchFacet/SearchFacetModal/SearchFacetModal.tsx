@@ -183,7 +183,7 @@ const UnExpandButton = () => {
 
 const FacetDownloadButton = () => {
   const [enabled, setEnabled] = useState(false);
-  const toast = useToast({ duration: 2000, id: 'facet-download' });
+  const toast = useToast({ id: 'facet-download' });
   const params = useFacetStore((state) => state.params);
   const { sort } = useGetSearchTerm();
   const focused = useFacetStore((state) => state.focused);

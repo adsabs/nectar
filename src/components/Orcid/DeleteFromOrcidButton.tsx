@@ -1,5 +1,4 @@
 import { Button, ButtonProps, forwardRef, HStack, Icon, Text, Tooltip, useToast } from '@chakra-ui/react';
-import { TOAST_DEFAULTS } from '@/components/Orcid/helpers';
 import { useRemoveWorks } from '@/lib/orcid/useRemoveWorks';
 
 import React from 'react';
@@ -14,7 +13,7 @@ interface IOrcidActionBtnProps extends ButtonProps {
 
 export const DeleteFromOrcidButton = forwardRef<IOrcidActionBtnProps, 'button'>((props, ref) => {
   const { identifier, ...buttonProps } = props;
-  const toast = useToast(TOAST_DEFAULTS);
+  const toast = useToast();
   const { removeWorks, isLoading } = useRemoveWorks(
     {
       onError: (error) => {

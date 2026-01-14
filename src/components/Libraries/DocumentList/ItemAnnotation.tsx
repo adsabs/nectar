@@ -111,9 +111,7 @@ const Annotation = ({
 
   const isLoading = isDeleting || isAdding || isUpdating;
 
-  const toast = useToast({
-    duration: 2000,
-  });
+  const toast = useToast();
 
   const handleNoteChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setNoteValue(e.target.value);
