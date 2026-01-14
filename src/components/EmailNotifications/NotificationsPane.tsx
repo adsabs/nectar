@@ -230,7 +230,7 @@ export const NotificationsPane = () => {
                     <Th w="30%">Name</Th>
                     <Th>Type</Th>
                     <Th>Frequency</Th>
-                    <Th>Updated</Th>
+                    {!isMobile && <Th>Updated</Th>}
                     {!isMobile && <Th>Actions</Th>}
                   </Tr>
                 </Thead>
@@ -245,9 +245,11 @@ export const NotificationsPane = () => {
                       <Td>{n.name}</Td>
                       <Td>{n.type === 'template' ? n.template : 'query'}</Td>
                       <Td>{n.frequency}</Td>
-                      <Td>
-                        <TimeSince date={n.updated} />
-                      </Td>
+                      {!isMobile && (
+                        <Td>
+                          <TimeSince date={n.updated} />
+                        </Td>
+                      )}
                       {!isMobile && (
                         <Td>
                           <Action

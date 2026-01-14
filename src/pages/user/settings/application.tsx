@@ -139,7 +139,7 @@ const AppSettingsPage = () => {
         });
       }
 
-      const defaultDatabases: typeof settings[UserDataKeys.DEFAULT_DATABASE] = [];
+      const defaultDatabases: (typeof settings)[UserDataKeys.DEFAULT_DATABASE] = [];
       for (const db of currentDatabases) {
         // skip ALL
         if (db.name === DatabaseEnum.All) {
@@ -209,7 +209,7 @@ const AppSettingsPage = () => {
               </Box>
 
               <CheckboxGroup onChange={handleApplyDatabases} value={selectedValues.databases.selected}>
-                <Stack direction="row" id="default-collections" spacing="6">
+                <Stack direction={{ base: 'column', md: 'row' }} id="default-collections" spacing={{ base: 2, md: 6 }}>
                   <Checkbox value="All">All</Checkbox>
                   <Checkbox value="Physics" isDisabled={selectedValues.databases.selected.includes(DatabaseEnum.All)}>
                     Physics
