@@ -235,7 +235,7 @@ const JournalQueryForm = ({ onSubmit, error }: SubFormProps) => {
           <Button size="sm" isDisabled={isSubmitting} type="submit" isLoading={isSubmitting}>
             Search
           </Button>
-          <Button type="reset" variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
+          <Button size="sm" type="reset" variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
             Reset
           </Button>
         </Stack>
@@ -292,7 +292,7 @@ const ReferenceQueryForm = ({ onSubmit, error }: SubFormProps) => {
           <Button size="sm" isDisabled={isSubmitting} type="submit" isLoading={isSubmitting}>
             Search
           </Button>
-          <Button type="reset" variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
+          <Button size="sm" type="reset" variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
             Reset
           </Button>
         </Stack>
@@ -349,7 +349,7 @@ const BibcodeQueryForm = ({ onSubmit, error }: SubFormProps) => {
           <Button size="sm" isDisabled={isSubmitting} type="submit" isLoading={isSubmitting}>
             Search
           </Button>
-          <Button type="reset" variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
+          <Button size="sm" type="reset" variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
             Reset
           </Button>
         </Stack>
