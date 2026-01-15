@@ -1,5 +1,5 @@
 import { render } from '@/test-utils';
-import { describe, test, expect, vi, beforeAll, afterAll } from 'vitest';
+import { describe, test, expect, beforeAll, afterAll } from 'vitest';
 import { Metatags } from '../Metatags';
 import { IDocsEntity, Esources } from '@/api/search/types';
 

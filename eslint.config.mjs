@@ -25,6 +25,17 @@ export default [
           enforceForJSX: true,
         },
       ],
+
+      // Disable React Compiler rules (not using React Compiler)
+      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/preserve-manual-memoization': 'off',
+      'react-hooks/immutability': 'off',
+      'react-hooks/refs': 'off',
+      'react-hooks/use-memo': 'off',
+      'react-hooks/incompatible-library': 'off',
+
+      // Keep exhaustive-deps as warning (matching previous behavior)
+      'react-hooks/exhaustive-deps': 'warn',
     },
   },
 ];
