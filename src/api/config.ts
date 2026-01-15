@@ -1,35 +1,21 @@
-import { AppRuntimeConfig } from '@/types';
 import { AxiosRequestConfig } from 'axios';
-import getConfig from 'next/config';
 import qs from 'qs';
 import { APP_DEFAULTS } from '@/config';
 
 /**
- * Figure out which config to pick, based on the current environment
+ * Resolve API base URL from environment variables.
+ * Server-side uses API_HOST_SERVER, client-side uses NEXT_PUBLIC_API_HOST_CLIENT.
  */
 const resolveApiBaseUrl = (defaultBaseUrl = ''): string => {
-  // for mocking requests, just shortcut the baseURL here
   if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled') {
     return 'http://localhost';
   }
 
-  // use a known URL for development
-  if (
-    typeof window !== 'undefined' &&
-    process.env.NODE_ENV === 'development' &&
-    typeof process.env.NEXT_PUBLIC_API_HOST_CLIENT === 'string'
-  ) {
-    return process.env.NEXT_PUBLIC_API_HOST_CLIENT;
+  if (typeof window === 'undefined') {
+    return process.env.API_HOST_SERVER ?? defaultBaseUrl;
   }
 
-  const config = getConfig() as AppRuntimeConfig;
-
-  if (typeof config === 'undefined') {
-    return defaultBaseUrl;
-  }
-
-  const configType = typeof window === 'undefined' ? 'serverRuntimeConfig' : 'publicRuntimeConfig';
-  return config[configType]?.apiHost ?? defaultBaseUrl;
+  return process.env.NEXT_PUBLIC_API_HOST_CLIENT ?? defaultBaseUrl;
 };
 
 export const defaultRequestConfig: AxiosRequestConfig = {
