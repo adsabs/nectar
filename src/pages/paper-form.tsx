@@ -191,8 +191,8 @@ const JournalQueryForm = ({ onSubmit, error }: SubFormProps) => {
       <form method="POST" action={router.route} onSubmit={formSubmit} data-testid={PaperFormType.JOURNAL_QUERY}>
         <input type="hidden" name="form" defaultValue={PaperFormType.JOURNAL_QUERY} {...register('form')} />
         {/* Bibstem picker */}
-        <Grid templateColumns="repeat(5, 1fr)" gap={4}>
-          <GridItem colSpan={6}>
+        <Grid templateColumns={{ base: '1fr', md: 'repeat(6, 1fr)' }} gap={4}>
+          <GridItem colSpan={{ base: 1, md: 6 }}>
             {isClient ? (
               <Controller
                 name="bibstem"
@@ -209,21 +209,21 @@ const JournalQueryForm = ({ onSubmit, error }: SubFormProps) => {
               </FormControl>
             )}
           </GridItem>
-          <GridItem colSpan={2}>
+          <GridItem colSpan={{ base: 1, md: 2 }}>
             <FormControl>
               <FormLabel htmlFor="year">Year</FormLabel>
               <Input id="year" name="year" placeholder="Year" {...register('year', { maxLength: 4, pattern: /\d+/ })} />
               <FormErrorMessage>{errors.year && errors.year.message}</FormErrorMessage>
             </FormControl>
           </GridItem>
-          <GridItem colSpan={2}>
+          <GridItem colSpan={{ base: 1, md: 2 }}>
             <FormControl>
               <FormLabel htmlFor="volume">Volume</FormLabel>
               <Input id="volume" name="volume" placeholder="Volume" {...register('volume')} />
               <FormErrorMessage>{errors.volume && errors.volume.message}</FormErrorMessage>
             </FormControl>
           </GridItem>
-          <GridItem colSpan={2}>
+          <GridItem colSpan={{ base: 1, md: 2 }}>
             <FormControl>
               <FormLabel htmlFor="page">Page / Id</FormLabel>
               <Input id="page" name="page" placeholder="Page / Id" {...register('page')} />
@@ -235,7 +235,7 @@ const JournalQueryForm = ({ onSubmit, error }: SubFormProps) => {
           <Button size="sm" isDisabled={isSubmitting} type="submit" isLoading={isSubmitting}>
             Search
           </Button>
-          <Button type="reset" variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
+          <Button size="sm" type="reset" variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
             Reset
           </Button>
         </Stack>
@@ -292,7 +292,7 @@ const ReferenceQueryForm = ({ onSubmit, error }: SubFormProps) => {
           <Button size="sm" isDisabled={isSubmitting} type="submit" isLoading={isSubmitting}>
             Search
           </Button>
-          <Button type="reset" variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
+          <Button size="sm" type="reset" variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
             Reset
           </Button>
         </Stack>
@@ -349,7 +349,7 @@ const BibcodeQueryForm = ({ onSubmit, error }: SubFormProps) => {
           <Button size="sm" isDisabled={isSubmitting} type="submit" isLoading={isSubmitting}>
             Search
           </Button>
-          <Button type="reset" variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
+          <Button size="sm" type="reset" variant="outline" onClick={handleReset} isDisabled={isSubmitting}>
             Reset
           </Button>
         </Stack>
@@ -446,10 +446,7 @@ const journalQueryNotEmpty = pipe<
   any((v) => v.length > 0),
 );
 
-export const getSearchQuery = async (
-  formParams: PaperFormState[PaperFormType],
-  queryClient: QueryClient,
-) => {
+export const getSearchQuery = async (formParams: PaperFormState[PaperFormType], queryClient: QueryClient) => {
   switch (formParams.form) {
     case PaperFormType.JOURNAL_QUERY: {
       if (journalQueryNotEmpty(formParams)) {

@@ -11,7 +11,6 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
-  HStack,
   Input,
   InputGroup,
   InputLeftElement,
@@ -102,7 +101,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
         <FormControl as="fieldset">
           <FormLabel as="legend">Collection</FormLabel>
           <CheckboxGroup defaultValue={['astronomy', 'physics']}>
-            <HStack spacing="6">
+            <Stack direction={{ base: 'column', md: 'row' }} spacing={{ base: 2, md: 6 }}>
               <Checkbox value="astronomy" {...register('limit')}>
                 Astronomy
               </Checkbox>
@@ -115,7 +114,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
               <Checkbox value="earthscience" {...register('limit')}>
                 Earth Science
               </Checkbox>
-            </HStack>
+            </Stack>
           </CheckboxGroup>
         </FormControl>
 
@@ -224,14 +223,14 @@ export const ClassicForm = (props: IClassicFormProps) => {
         <FormControl as="fieldset">
           <FormLabel as="legend">Property</FormLabel>
           <CheckboxGroup>
-            <HStack spacing={4}>
+            <Flex gap={{ base: 2, sm: 4 }} wrap="wrap">
               <Checkbox fontWeight="bold" value="refereed-only" {...register('property')}>
                 Refereed only
               </Checkbox>
               <Checkbox fontWeight="bold" value="articles-only" {...register('property')}>
                 Articles only
               </Checkbox>
-            </HStack>
+            </Flex>
           </CheckboxGroup>
         </FormControl>
 
@@ -338,10 +337,12 @@ const CurrentQuery = (props: { control: Control<IClassicFormState> }) => {
       title="Generated Query"
       defaultOpen
       description={
-        <HStack>
-          <Code>{query}</Code>
+        <Flex gap={2} wrap="wrap" alignItems="center">
+          <Code wordBreak="break-all" whiteSpace="pre-wrap">
+            {query}
+          </Code>
           {typeof query === 'string' ? <SimpleCopyButton text={query} /> : null}
-        </HStack>
+        </Flex>
       }
     ></Expandable>
   );

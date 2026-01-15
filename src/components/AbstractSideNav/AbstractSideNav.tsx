@@ -176,7 +176,10 @@ export const AbstractSideNav = (props: IAbstractSideNavProps): ReactElement => {
         menuItems={menuItems}
         activeItem={activeItem}
         display={{ base: 'initial', lg: 'none' }}
-        mx={2}
+        mx="auto"
+        maxW="400px"
+        w="full"
+        px={2}
       />
     </div>
   );

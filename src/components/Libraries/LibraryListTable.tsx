@@ -90,7 +90,7 @@ const columns: { id: Column; heading: string; sortable: boolean; hint?: string }
 ];
 
 // hide columns for small display
-const hideColsSmallDisplay: Column[] = ['public', 'num_users', 'permission', 'date_last_modified'];
+const hideColsSmallDisplay: Column[] = ['public', 'num_users', 'owner', 'permission', 'date_last_modified'];
 
 export interface ILibraryListTableSort {
   col: IADSApiLibraryParams['sort'];

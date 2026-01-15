@@ -97,8 +97,8 @@ const AffiliationTable = (props: { query: IADSApiSearchParams; formState: AffTab
   }
 
   return (
-    <TableContainer>
-      <Table size="sm">
+    <TableContainer overflowX="auto">
+      <Table size="sm" minW="600px">
         <Thead>
           <Tr>
             <Th>#</Th>
@@ -205,7 +205,7 @@ const Row = (props: { context: IGroupedAuthorAffilationData; idx: number }) => {
           aria-label={`select author ${ctx.authorName}`}
         >
           <Tooltip label={ctx.authorName} aria-label={ctx.authorName}>
-            <Text isTruncated w="3xs">
+            <Text isTruncated w={{ base: '24', md: '3xs' }}>
               {ctx.authorName}
             </Text>
           </Tooltip>
@@ -224,7 +224,7 @@ const Row = (props: { context: IGroupedAuthorAffilationData; idx: number }) => {
               aria-label={`select affiliation ${aff} for author ${ctx.authorName}`}
             >
               <Tooltip label={aff} aria-label={aff}>
-                <Text isTruncated w={['xs', 'sm']}>
+                <Text isTruncated w={{ base: '28', sm: 'xs', md: 'sm' }}>
                   {aff === NONESYMBOL ? '(none)' : aff}
                 </Text>
               </Tooltip>
@@ -237,7 +237,7 @@ const Row = (props: { context: IGroupedAuthorAffilationData; idx: number }) => {
           {ctx.years.map((years, i) => (
             <li key={`years_${years.join(',')}_${i}`}>
               <Tooltip label={years.join(', ')} aria-label={years.join(', ')}>
-                <Text isTruncated w="24">
+                <Text isTruncated w={{ base: '16', md: '24' }}>
                   {years.join(', ')}
                 </Text>
               </Tooltip>

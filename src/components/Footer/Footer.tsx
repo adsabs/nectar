@@ -1,4 +1,4 @@
-import { Box, Flex, HStack, Text, VisuallyHidden } from '@chakra-ui/react';
+import { Box, Flex, Text, VisuallyHidden } from '@chakra-ui/react';
 
 import { FC } from 'react';
 import { EXTERNAL_URLS } from '@/config';
@@ -18,7 +18,7 @@ export const Footer: FC = () => {
       color="gray.50"
       sx={{ a: { color: 'gray.50' } }}
     >
-      <Flex direction="column" width="96" mx={5}>
+      <Flex direction="column" width={{ base: 'full', md: '96' }} mx={{ base: 3, sm: 5 }}>
         <Text fontWeight="semibold">
           © The{' '}
           <Text as="abbr" title="Smithsonian Astrophysical Observatory">
@@ -43,7 +43,7 @@ export const Footer: FC = () => {
           </Text>
         ) : null}
 
-        <HStack my={3} spacing={4}>
+        <Flex my={3} gap={{ base: 2, sm: 4 }} wrap="wrap" alignItems="center">
           <SimpleLink href={EXTERNAL_URLS.SMITHSONIAN_HOME_PAGE} variant="footer">
             <VisuallyHidden>Smithsonian Institution</VisuallyHidden>
             <SmithsonianLogo width="72.6px" height="72.6px" aria-hidden />
@@ -58,7 +58,7 @@ export const Footer: FC = () => {
             </VisuallyHidden>
             <NASAPartnerLogo width="96.8px" height="72.89px" aria-hidden />
           </SimpleLink>
-        </HStack>
+        </Flex>
 
         <Text fontStyle="italic" fontSize="xx-small">
           *The material contained in this document is based upon work supported by a National Aeronautics and Space

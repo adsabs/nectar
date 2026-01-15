@@ -44,6 +44,7 @@ interface IDetailProps<T = string | Array<string>> {
   newTab?: boolean;
   value: T;
   copiable?: boolean;
+  copyLabel?: string;
   children?: (value: T) => ReactElement;
 }
 
@@ -63,12 +64,25 @@ export const AbstractDetails = ({ doc }: IDetailsProps): ReactElement => {
   const { isOpen: isCitationOpen, onOpen: onCitationOpen, onClose: onCitationClose } = useDisclosure();
 
   return (
-    <Box as="section" border="1px" borderColor="gray.50" borderRadius="md" shadow="sm" aria-labelledby="details">
+    <Box
+      as="section"
+      border="1px"
+      borderColor="gray.50"
+      borderRadius="md"
+      shadow="sm"
+      aria-labelledby="details"
+      overflowX="hidden"
+    >
       <VisuallyHidden as="h2" id="details">
         Details
       </VisuallyHidden>
-      <Table colorScheme="gray" size="md" role="presentation">
-        <Tbody>
+      <Table
+        colorScheme="gray"
+        size={{ base: 'sm', md: 'md' }}
+        role="presentation"
+        display={{ base: 'block', md: 'table' }}
+      >
+        <Tbody display={{ base: 'block', md: 'table-row-group' }}>
           <Detail label="Publication" value={doc.pub_raw}>
             {(pub_raw) => (
               <>
@@ -100,7 +114,7 @@ export const AbstractDetails = ({ doc }: IDetailsProps): ReactElement => {
             href={createUrlByType(doc?.bibcode, 'arxiv', arxiv?.split(':')[1])}
             newTab
           />
-          <Detail label="Bibcode" value={doc.bibcode} copiable />
+          <Detail label="Bibcode" value={doc.bibcode} copiable copyLabel="Copy Bibcode" />
           <Collections collections={doc.database ?? []} />
           <Keywords keywords={doc.keyword} />
           <UATKeywords keywords={doc.uat} ids={doc.uat_id} />
@@ -117,7 +131,7 @@ export const AbstractDetails = ({ doc }: IDetailsProps): ReactElement => {
 
 // TODO: this should take in a list of deps or the whole doc and show/hide based on that
 const Detail = <T extends string | string[]>(props: IDetailProps<T>): ReactElement => {
-  const { label, href, newTab = false, value, copiable = false, children } = props;
+  const { label, href, newTab = false, value, copiable = false, copyLabel = 'Copy', children } = props;
 
   // show nothing if no value
   if (isNilOrEmpty(value)) {
@@ -127,9 +141,29 @@ const Detail = <T extends string | string[]>(props: IDetailProps<T>): ReactEleme
   const normalizedValue: string = Array.isArray(value) ? value.join('; ') : value;
 
   return (
-    <Tr>
-      <Td>{label}</Td>
-      <Td wordBreak="break-word">
+    <Tr
+      display={{ base: 'flex', md: 'table-row' }}
+      flexDirection={{ base: 'column', md: 'row' }}
+      py={{ base: 2, md: 0 }}
+    >
+      <Td
+        fontWeight={{ base: 'semibold', md: 'normal' }}
+        pb={{ base: 1, md: 4 }}
+        pt={{ base: 2, md: 4 }}
+        px={{ base: 2, md: 6 }}
+        border={{ base: 'none', md: '1px' }}
+        borderColor={{ md: 'inherit' }}
+      >
+        {label}
+      </Td>
+      <Td
+        wordBreak="break-word"
+        pt={{ base: 0, md: 4 }}
+        pb={{ base: 2, md: 4 }}
+        px={{ base: 2, md: 6 }}
+        border={{ base: 'none', md: '1px' }}
+        borderColor={{ md: 'inherit' }}
+      >
         {href && (
           <SimpleLink href={href} newTab={newTab}>
             {normalizedValue}
@@ -139,7 +173,7 @@ const Detail = <T extends string | string[]>(props: IDetailProps<T>): ReactEleme
           ? children(value)
           : !href && <span dangerouslySetInnerHTML={{ __html: normalizedValue }} />}
         {copiable && (
-          <Tooltip label="Copy" shouldWrapChildren>
+          <Tooltip label={copyLabel} shouldWrapChildren>
             <SimpleCopyButton text={normalizedValue as string} size="xs" variant="outline" mx={2} />
           </Tooltip>
         )}
@@ -184,9 +218,17 @@ const Keywords = memo(({ keywords }: { keywords: Array<string> }) => {
       {(keywords) => (
         <Flex flexWrap={'wrap'}>
           {keywords.map((keyword) => (
-            <Tag size="md" variant="subtle" whiteSpace="nowrap" m="1" px={2} py={1} key={keyword}>
-              <HStack spacing="1">
-                <Text>{keyword}</Text>
+            <Tag
+              size="md"
+              variant="subtle"
+              whiteSpace={{ base: 'normal', md: 'nowrap' }}
+              m="1"
+              px={2}
+              py={1}
+              key={keyword}
+            >
+              <HStack spacing="1" flexWrap="wrap">
+                <Text wordBreak="break-word">{keyword}</Text>
                 <SearchQueryLink
                   params={{ q: `keyword:"${keyword}"` }}
                   textDecoration="none"
@@ -227,8 +269,16 @@ const UATKeywords = memo(({ keywords, ids }: { keywords: Array<string>; ids: Arr
       {(keywords) => (
         <Flex flexWrap={'wrap'}>
           {keywords.map((keyword, index) => (
-            <Tag size="md" variant="subtle" whiteSpace="nowrap" m="1" px={2} py={1} key={keyword}>
-              <HStack spacing="1">
+            <Tag
+              size="md"
+              variant="subtle"
+              whiteSpace={{ base: 'normal', md: 'nowrap' }}
+              m="1"
+              px={2}
+              py={1}
+              key={keyword}
+            >
+              <HStack spacing="1" flexWrap="wrap">
                 <Tooltip label={keyword}>
                   <SimpleLink href={`https://astrothesaurus.org/uat/${encodeURIComponent(ids[index])}`} newTab>
                     {shortenKeyword(keyword)}
@@ -267,9 +317,9 @@ const Collections = memo(({ collections }: { collections: Array<string> }) => {
       {(collections) => (
         <Flex flexWrap={'wrap'}>
           {collections.map((collection) => (
-            <Tag size="md" variant="subtle" whiteSpace="nowrap" m="1" key={collection}>
-              <HStack spacing="2">
-                <Text>{collection}</Text>
+            <Tag size="md" variant="subtle" whiteSpace={{ base: 'normal', md: 'nowrap' }} m="1" key={collection}>
+              <HStack spacing="2" flexWrap="wrap">
+                <Text wordBreak="break-word">{collection}</Text>
                 <SearchQueryLink
                   params={{ q: `collection:"${collection}"` }}
                   textDecoration="none"
@@ -320,9 +370,9 @@ const Bibgroups = memo(({ bibgroups }: { bibgroups: Array<string> }) => {
       {(bibgroups) => (
         <Flex flexWrap={'wrap'}>
           {bibgroups.map((bibgroup) => (
-            <Tag size="md" variant="subtle" whiteSpace="nowrap" m="1" key={bibgroup}>
-              <HStack spacing="2">
-                <Text>{bibgroup}</Text>
+            <Tag size="md" variant="subtle" whiteSpace={{ base: 'normal', md: 'nowrap' }} m="1" key={bibgroup}>
+              <HStack spacing="2" flexWrap="wrap">
+                <Text wordBreak="break-word">{bibgroup}</Text>
                 <SearchQueryLink
                   params={{ q: `bibgroup:"${bibgroup}"` }}
                   textDecoration="none"
@@ -359,8 +409,16 @@ const PlanetaryFeatures = memo(({ features, ids }: { features: Array<string>; id
       {(features) => (
         <Flex flexWrap={'wrap'}>
           {features.map((feature, index) => (
-            <Tag size="md" variant="subtle" whiteSpace="nowrap" m="1" px={2} py={1} key={feature}>
-              <HStack spacing="1">
+            <Tag
+              size="md"
+              variant="subtle"
+              whiteSpace={{ base: 'normal', md: 'nowrap' }}
+              m="1"
+              px={2}
+              py={1}
+              key={feature}
+            >
+              <HStack spacing="1" flexWrap="wrap">
                 <SimpleLink
                   href={`${EXTERNAL_URLS.USGS_PLANETARY_FEATURES}${ids[index]}`}
                   aria-label={usgsLabel}

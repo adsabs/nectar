@@ -8,7 +8,9 @@
  * @returns First 12 characters of SHA-256 hash (undefined if no username)
  */
 export const getUserLogId = async (username?: string): Promise<string | undefined> => {
-  if (!username) return undefined;
+  if (!username) {
+    return undefined;
+  }
 
   const buffer = await globalThis.crypto.subtle.digest('SHA-256', Buffer.from(username, 'utf-8'));
   const hash = Array.from(new Uint8Array(buffer))
@@ -26,7 +28,9 @@ export const getUserLogId = async (username?: string): Promise<string | undefine
  * @returns Sanitized string, empty string if null
  */
 export const sanitizeHeaderValue = (value: string | null): string => {
-  if (!value) return '';
+  if (!value) {
+    return '';
+  }
 
   // Remove control characters (newlines, tabs, null bytes, ANSI codes)
   // This prevents log injection while preserving the full header value for tracing
@@ -39,11 +43,8 @@ export const sanitizeHeaderValue = (value: string | null): string => {
  * @returns Record with sanitized values
  */
 export const sanitizeHeaders = (headers: Record<string, string>): Record<string, string> => {
-  return Object.entries(headers).reduce(
-    (acc, [key, value]) => {
-      acc[key] = sanitizeHeaderValue(value);
-      return acc;
-    },
-    {} as Record<string, string>,
-  );
+  return Object.entries(headers).reduce((acc, [key, value]) => {
+    acc[key] = sanitizeHeaderValue(value);
+    return acc;
+  }, {} as Record<string, string>);
 };
