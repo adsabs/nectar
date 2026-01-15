@@ -175,9 +175,7 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
 
   const { mutate: editLibraryDocuments } = useEditLibraryDocuments();
 
-  const toast = useToast({
-    duration: 2000,
-  });
+  const toast = useToast();
 
   const handleNextPage = () => {
     setOnPageNum((prev) => prev + 1);

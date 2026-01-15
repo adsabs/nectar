@@ -1,5 +1,4 @@
 import { Button, ButtonProps, forwardRef, HStack, Icon, Text, Tooltip, useToast } from '@chakra-ui/react';
-import { TOAST_DEFAULTS } from '@/components/Orcid/helpers';
 import { useAddWorks } from '@/lib/orcid/useAddWorks';
 
 import React from 'react';
@@ -13,7 +12,7 @@ interface IOrcidActionBtnProps extends ButtonProps {
 }
 export const AddToOrcidButton = forwardRef<IOrcidActionBtnProps, 'button'>((props, ref) => {
   const { identifier, ...buttonProps } = props;
-  const toast = useToast(TOAST_DEFAULTS);
+  const toast = useToast();
   const { addWorks, isLoading } = useAddWorks(
     {},
     {

@@ -147,9 +147,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
 
   const colors = useColorModeColors();
 
-  const toast = useToast({
-    duration: 2000,
-  });
+  const toast = useToast();
 
   const handleSettings = (id: LibraryIdentifier) => {
     void router.push({ pathname: `/user/libraries/${id}/settings`, query: { from: 'landing' } });

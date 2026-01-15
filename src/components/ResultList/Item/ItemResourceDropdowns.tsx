@@ -32,7 +32,7 @@ export interface IItem {
 
 export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDropdownsProps): ReactElement => {
   const router = useRouter();
-  const toast = useToast({ duration: 2000 });
+  const toast = useToast();
 
   const { hasCopied, onCopy, setValue, value } = useClipboard('');
 

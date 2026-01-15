@@ -19,7 +19,6 @@ import { useAddWorks } from '@/lib/orcid/useAddWorks';
 import { useRemoveWorks } from '@/lib/orcid/useRemoveWorks';
 import React, { useEffect, useRef } from 'react';
 import { isOrcidProfileEntry } from '@/api/orcid/models';
-import { TOAST_DEFAULTS } from '@/components/Orcid/helpers';
 import { AddToOrcidButton } from '@/components/Orcid/AddToOrcidButton';
 import { Cog8ToothIcon } from '@heroicons/react/20/solid';
 import { parseAPIError } from '@/utils/common/parseAPIError';
@@ -70,7 +69,7 @@ interface IOrcidActionProps extends MenuItemProps {
 
 const SyncToOrcidMenuItem = (props: IOrcidActionProps) => {
   const { work, ...menuItemProps } = props;
-  const toast = useToast(TOAST_DEFAULTS);
+  const toast = useToast();
   const toastId = useRef<ToastId>();
   const { updateWork, error } = useUpdateWork(
     {},
@@ -95,7 +94,6 @@ const SyncToOrcidMenuItem = (props: IOrcidActionProps) => {
     toastId.current = toast({
       status: 'info',
       title: <SimpleLoadingTitle title="Syncing claim" />,
-      isClosable: true,
       duration: 30 * 1000, // 30 seconds
     });
     if (work) {
@@ -117,7 +115,7 @@ const SyncToOrcidMenuItem = (props: IOrcidActionProps) => {
 
 const AddClaimMenuItem = (props: IOrcidActionProps) => {
   const { identifier, ...menuItemProps } = props;
-  const toast = useToast(TOAST_DEFAULTS);
+  const toast = useToast();
   const toastId = useRef<ToastId>();
   const { addWorks } = useAddWorks(
     {},
@@ -150,7 +148,6 @@ const AddClaimMenuItem = (props: IOrcidActionProps) => {
     toastId.current = toast({
       status: 'info',
       title: <SimpleLoadingTitle title="Adding claim" />,
-      isClosable: true,
       duration: 30 * 1000, // 30 seconds
     });
 
@@ -165,7 +162,7 @@ const AddClaimMenuItem = (props: IOrcidActionProps) => {
 };
 const DeleteClaimMenuItem = (props: IOrcidActionProps) => {
   const { identifier, ...menuItemProps } = props;
-  const toast = useToast(TOAST_DEFAULTS);
+  const toast = useToast();
   const toastId = useRef<ToastId>();
   const { removeWorks } = useRemoveWorks({
     onError: (error) => {
@@ -195,7 +192,6 @@ const DeleteClaimMenuItem = (props: IOrcidActionProps) => {
     toastId.current = toast({
       status: 'info',
       title: <SimpleLoadingTitle title="Deleting claim" />,
-      isClosable: true,
       duration: 30 * 1000, // 30 seconds
     });
     removeWorks([identifier]);

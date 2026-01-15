@@ -27,7 +27,7 @@ export const KeywordsForm = ({
   onUpdated?: () => void;
   notification?: INotification;
 }) => {
-  const toast = useToast({ duration: 2000 });
+  const toast = useToast();
 
   const [keywords, setKeywords] = useState(notification?.data ?? '');
 

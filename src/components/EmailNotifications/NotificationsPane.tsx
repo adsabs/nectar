@@ -56,7 +56,7 @@ import {
 import { INotification, NotificationTemplate } from '@/api/vault/types';
 
 export const NotificationsPane = () => {
-  const toast = useToast({ duration: 2000 });
+  const toast = useToast();
 
   const breakpoint = useBreakpoint();
 
@@ -326,7 +326,7 @@ const Action = ({
 }) => {
   const colors = useColorModeColors();
 
-  const toast = useToast({ duration: 2000 });
+  const toast = useToast();
 
   const router = useRouter();
 

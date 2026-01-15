@@ -73,9 +73,7 @@ export const LibrarySettingsPane = ({ id, isFromLanding = false }: ISettingsPane
 
   const { mutate: deleteLibrary } = useDeleteLibrary();
 
-  const toast = useToast({
-    duration: 2000,
-  });
+  const toast = useToast();
 
   const { mutate: updateMeta } = useEditLibraryMeta();
 

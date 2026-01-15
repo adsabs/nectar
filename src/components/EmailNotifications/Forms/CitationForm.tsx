@@ -35,7 +35,7 @@ export const CitationForm = ({
   template?: 'citations' | 'authors';
   notification?: INotification;
 }) => {
-  const toast = useToast({ duration: 2000 });
+  const toast = useToast();
 
   const [authors, setAuthors] = useState<Author[]>([]);
 

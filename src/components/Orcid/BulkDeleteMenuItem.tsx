@@ -11,7 +11,6 @@ import {
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
-import { TOAST_DEFAULTS } from '@/components/Orcid/helpers';
 import { useRemoveWorks } from '@/lib/orcid/useRemoveWorks';
 import { AppState, useStore } from '@/store';
 import React, { useCallback } from 'react';
@@ -23,7 +22,7 @@ import { logger } from '@/logger';
 
 const selectedDocsSelector = (state: AppState) => state.docs.selected;
 export const BulkDeleteMenuItem = (props: MenuItemProps) => {
-  const toast = useToast(TOAST_DEFAULTS);
+  const toast = useToast();
   const mainToastIdRef = React.useRef<ToastId>();
   const { removeWorks } = useRemoveWorks({
     onError: (error, variables) => {
@@ -60,7 +59,6 @@ export const BulkDeleteMenuItem = (props: MenuItemProps) => {
       status: 'info',
       title: `Attempting to delete ${selected.length} ${pluralize('claim', selected.length)} from SciX`,
       duration: 30 * 1000, // 30 seconds
-      isClosable: true,
       description: (
         <Center>
           <Spinner />

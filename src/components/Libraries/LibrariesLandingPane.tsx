@@ -21,9 +21,7 @@ export const LibrariesLandingPane = () => {
 
   const setPageSize = useStore((state: AppState) => state.setNumPerPage);
 
-  const toast = useToast({
-    duration: 2000,
-  });
+  const toast = useToast();
 
   const [pageIndex, setPageIndex] = useState(0);
 
