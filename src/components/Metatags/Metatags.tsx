@@ -1,21 +1,9 @@
-import { AppRuntimeConfig } from '@/types';
-import getConfig from 'next/config';
 import { Fragment, ReactElement } from 'react';
 import { getFormattedNumericPubdate, getFormattedCitationDate, stripHtml } from '@/utils/common/formatters';
 import { Esources, IDocsEntity } from '@/api/search/types';
-import { logger } from '@/logger';
 import { docToJsonld } from '@/components/Metatags/json-ld-abstract/docToJsonld';
 
-const getBaseUrl = () => {
-  try {
-    return (getConfig() as AppRuntimeConfig).serverRuntimeConfig?.baseCanonicalUrl ?? '';
-  } catch (err) {
-    logger.error({ err }, 'Error caught resolving base url');
-    return '';
-  }
-};
-
-const baseUrl = getBaseUrl();
+const baseUrl = process.env.BASE_CANONICAL_URL ?? '';
 const LINKGATEWAY_BASE_URL = `${baseUrl}/link_gateway`;
 interface IMetatagsProps {
   doc: IDocsEntity;

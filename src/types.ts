@@ -69,12 +69,3 @@ declare global {
   };
 }
 
-export interface AppRuntimeConfig {
-  publicRuntimeConfig: {
-    apiHost: string;
-  };
-  serverRuntimeConfig: {
-    apiHost: string;
-    baseCanonicalUrl: string;
-  };
-}

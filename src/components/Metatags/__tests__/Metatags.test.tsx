@@ -1,15 +1,17 @@
 import { render } from '@/test-utils';
-import { describe, test, expect, vi } from 'vitest';
+import { describe, test, expect, vi, beforeAll, afterAll } from 'vitest';
 import { Metatags } from '../Metatags';
 import { IDocsEntity, Esources } from '@/api/search/types';
 
-vi.mock('next/config', () => ({
-  default: () => ({
-    serverRuntimeConfig: {
-      baseCanonicalUrl: 'https://scixplorer.org',
-    },
-  }),
-}));
+const originalEnv = process.env.BASE_CANONICAL_URL;
+
+beforeAll(() => {
+  process.env.BASE_CANONICAL_URL = 'https://scixplorer.org';
+});
+
+afterAll(() => {
+  process.env.BASE_CANONICAL_URL = originalEnv;
+});
 
 const createMockDoc = (overrides: Partial<IDocsEntity> = {}): IDocsEntity => ({
   bibcode: '2014ApJ...788..106L',
