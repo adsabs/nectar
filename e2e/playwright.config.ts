@@ -7,6 +7,7 @@ export default defineConfig({
   retries: 0,
   workers: process.env.CI ? 1 : '50%',
   reporter: 'list',
+  timeout: process.env.CI ? 60000 : 30000,
 
   use: {
     baseURL: process.env.BASE_URL || 'http://127.0.0.1:8000',

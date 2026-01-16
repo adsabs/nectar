@@ -1,9 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { extractCookie, getDomainFromUrl } from '../../fixtures/helpers';
+import { extractCookie } from '../../fixtures/helpers';
 
 const NECTAR_URL = process.env.NECTAR_URL || process.env.BASE_URL || 'http://127.0.0.1:8000';
 const STUB_URL = process.env.STUB_URL || 'http://127.0.0.1:18080';
-const DOMAIN = getDomainFromUrl(NECTAR_URL);
 
 test.describe('Verify Routes (Suite D)', () => {
   test.beforeEach(async ({ context, request }) => {
@@ -16,8 +15,7 @@ test.describe('Verify Routes (Suite D)', () => {
       {
         name: 'ads_session',
         value: 'test-session',
-        domain: DOMAIN,
-        path: '/',
+        url: NECTAR_URL,
       },
     ]);
 
@@ -47,8 +45,7 @@ test.describe('Verify Routes (Suite D)', () => {
       {
         name: 'ads_session',
         value: 'test-session',
-        domain: DOMAIN,
-        path: '/',
+        url: NECTAR_URL,
       },
     ]);
 
@@ -66,8 +63,7 @@ test.describe('Verify Routes (Suite D)', () => {
       {
         name: 'ads_session',
         value: 'test-session',
-        domain: DOMAIN,
-        path: '/',
+        url: NECTAR_URL,
       },
     ]);
 
@@ -87,8 +83,7 @@ test.describe('Verify Routes (Suite D)', () => {
       {
         name: 'ads_session',
         value: 'test-session',
-        domain: DOMAIN,
-        path: '/',
+        url: NECTAR_URL,
       },
     ]);
 
@@ -106,8 +101,7 @@ test.describe('Verify Routes (Suite D)', () => {
       {
         name: 'ads_session',
         value: 'test-session',
-        domain: DOMAIN,
-        path: '/',
+        url: NECTAR_URL,
       },
     ]);
 

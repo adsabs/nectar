@@ -1,9 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { extractCookie, getDomainFromUrl } from '../../fixtures/helpers';
+import { extractCookie } from '../../fixtures/helpers';
 
 const NECTAR_URL = process.env.NECTAR_URL || process.env.BASE_URL || 'http://127.0.0.1:8000';
 const STUB_URL = process.env.STUB_URL || 'http://127.0.0.1:18080';
-const DOMAIN = getDomainFromUrl(NECTAR_URL);
 
 test.describe('Session Bootstrap (Suite B)', () => {
   test.beforeEach(async ({ context, request }) => {
@@ -16,8 +15,7 @@ test.describe('Session Bootstrap (Suite B)', () => {
       {
         name: 'ads_session',
         value: 'seed-session',
-        domain: DOMAIN,
-        path: '/',
+        url: NECTAR_URL,
       },
     ]);
 
@@ -49,8 +47,7 @@ test.describe('Session Bootstrap (Suite B)', () => {
       {
         name: 'ads_session',
         value: 'unchanged-session',
-        domain: DOMAIN,
-        path: '/',
+        url: NECTAR_URL,
       },
     ]);
 
@@ -67,13 +64,16 @@ test.describe('Session Bootstrap (Suite B)', () => {
     expect(adsSessionCookie).toBeUndefined();
   });
 
-  test('B3: Force refresh via header triggers bootstrap even with valid session', async ({ page, context, request }) => {
+  test('B3: Force refresh via header triggers bootstrap even with valid session', async ({
+    page,
+    context,
+    request,
+  }) => {
     await context.addCookies([
       {
         name: 'ads_session',
         value: 'valid-session',
-        domain: DOMAIN,
-        path: '/',
+        url: NECTAR_URL,
       },
     ]);
 
@@ -100,8 +100,7 @@ test.describe('Session Bootstrap (Suite B)', () => {
       {
         name: 'ads_session',
         value: 'test-session',
-        domain: DOMAIN,
-        path: '/',
+        url: NECTAR_URL,
       },
     ]);
 
