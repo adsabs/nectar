@@ -1,9 +1,7 @@
 import { test, expect } from '@playwright/test';
-import { getDomainFromUrl } from '../../fixtures/helpers';
 
 const NECTAR_URL = process.env.NECTAR_URL || process.env.BASE_URL || 'http://127.0.0.1:8000';
 const STUB_URL = process.env.STUB_URL || 'http://127.0.0.1:18080';
-const DOMAIN = getDomainFromUrl(NECTAR_URL);
 
 test.describe('Auth Routing (Suite C)', () => {
   test.beforeEach(async ({ context, request }) => {
@@ -16,20 +14,29 @@ test.describe('Auth Routing (Suite C)', () => {
       {
         name: 'ads_session',
         value: 'anonymous-session',
-        domain: DOMAIN,
-        path: '/',
+        url: NECTAR_URL,
       },
     ]);
 
-    await page.setExtraHTTPHeaders({
-      'x-test-scenario': 'bootstrap-anonymous',
+    // Use route interception to add header - ensures header persists through redirects
+    await page.route('**/*', async (route) => {
+      const headers = {
+        ...route.request().headers(),
+        'x-test-scenario': 'bootstrap-anonymous',
+      };
+      await route.continue({ headers });
     });
 
-    await page.goto(`${NECTAR_URL}/user/libraries`);
+    // Use waitUntil: 'commit' to avoid timeout waiting for full page load
+    const response = await page.goto(`${NECTAR_URL}/user/libraries`, {
+      waitUntil: 'commit',
+    });
 
-    expect(page.url()).toContain('/user/account/login');
-    expect(page.url()).toContain('next=');
-    expect(page.url()).toContain('notify=login-required');
+    // Check the final URL after redirects
+    const finalUrl = response?.url() || page.url();
+    expect(finalUrl).toContain('/user/account/login');
+    expect(finalUrl).toContain('next=');
+    expect(finalUrl).toContain('notify=login-required');
   });
 
   test('C2: Protected route authenticated allows access', async ({ page, context }) => {
@@ -37,8 +44,7 @@ test.describe('Auth Routing (Suite C)', () => {
       {
         name: 'ads_session',
         value: 'authenticated-session',
-        domain: DOMAIN,
-        path: '/',
+        url: NECTAR_URL,
       },
     ]);
 
@@ -54,13 +60,15 @@ test.describe('Auth Routing (Suite C)', () => {
     expect(page.url()).toContain('/user/settings');
   });
 
-  test('C3: Login route authenticated redirects based on next param - valid relative path', async ({ page, context }) => {
+  test('C3: Login route authenticated redirects based on next param - valid relative path', async ({
+    page,
+    context,
+  }) => {
     await context.addCookies([
       {
         name: 'ads_session',
         value: 'authenticated-session',
-        domain: DOMAIN,
-        path: '/',
+        url: NECTAR_URL,
       },
     ]);
 
@@ -80,8 +88,7 @@ test.describe('Auth Routing (Suite C)', () => {
       {
         name: 'ads_session',
         value: 'authenticated-session',
-        domain: DOMAIN,
-        path: '/',
+        url: NECTAR_URL,
       },
     ]);
 
@@ -100,8 +107,7 @@ test.describe('Auth Routing (Suite C)', () => {
       {
         name: 'ads_session',
         value: 'authenticated-session',
-        domain: DOMAIN,
-        path: '/',
+        url: NECTAR_URL,
       },
     ]);
 
@@ -120,8 +126,7 @@ test.describe('Auth Routing (Suite C)', () => {
       {
         name: 'ads_session',
         value: 'authenticated-session',
-        domain: DOMAIN,
-        path: '/',
+        url: NECTAR_URL,
       },
     ]);
 
@@ -140,8 +145,7 @@ test.describe('Auth Routing (Suite C)', () => {
       {
         name: 'ads_session',
         value: 'authenticated-session',
-        domain: DOMAIN,
-        path: '/',
+        url: NECTAR_URL,
       },
     ]);
 
@@ -160,8 +164,7 @@ test.describe('Auth Routing (Suite C)', () => {
       {
         name: 'ads_session',
         value: 'anonymous-session',
-        domain: DOMAIN,
-        path: '/',
+        url: NECTAR_URL,
       },
     ]);
 
@@ -211,8 +214,7 @@ test.describe('Auth Routing (Suite C)', () => {
       {
         name: 'ads_session',
         value: 'anonymous-session',
-        domain: DOMAIN,
-        path: '/',
+        url: NECTAR_URL,
       },
     ]);
 
