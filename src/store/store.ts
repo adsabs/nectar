@@ -50,7 +50,9 @@ export const createStore = (preloadedState: Partial<AppState> = {}) => {
         persist(state, {
           name: APP_STORAGE_KEY,
           partialize: (state) => ({
-            user: state.user,
+            // Note: user is NOT persisted - it comes fresh from the server session
+            // via dehydratedAppState on each page load. Persisting it can cause
+            // stale auth data to override fresh session data.
             mode: state.mode,
             numPerPage: state.numPerPage,
             settings: state.settings,

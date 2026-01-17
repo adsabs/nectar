@@ -23,6 +23,7 @@ import api from '@/api/api';
 import { userKeys } from '@/api/user/user';
 import { Providers } from '@/providers';
 import { isValidToken } from '@/auth-utils';
+import { NuqsAdapter } from 'nuqs/adapters/next/pages';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -54,7 +55,7 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
   }, [router]);
 
   return (
-    <>
+    <NuqsAdapter>
       <Head>
         <title>{BRAND_NAME_FULL}</title>
         <DefaultMeta />
@@ -68,7 +69,7 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
           <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
         </Layout>
       </Providers>
-    </>
+    </NuqsAdapter>
   );
 });
 NectarApp.displayName = 'NectarApp';

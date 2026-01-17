@@ -1,10 +1,9 @@
 import { Box, FormLabel, OrderedList } from '@chakra-ui/react';
 import { Select, SelectOption } from '@/components/Select';
 import { values } from 'ramda';
-import { Dispatch, ReactElement, useMemo } from 'react';
-import { CitationExporterEvent } from '../CitationExporter.machine';
+import { ReactElement, useMemo } from 'react';
 import { DescriptionCollapse } from './DescriptionCollapse';
-import { ExportApiJournalFormat, IExportApiParams } from '@/api/export/types';
+import { ExportApiJournalFormat } from '@/api/export/types';
 
 type JournalFormatOption = SelectOption<ExportApiJournalFormat>;
 
@@ -29,49 +28,46 @@ export const journalFormats: Record<ExportApiJournalFormat, JournalFormatOption>
   },
 };
 
-export const JournalFormatSelect = (props: {
-  journalformat: IExportApiParams['journalformat'];
-  dispatch?: Dispatch<CitationExporterEvent>;
-  onChange?: (format: ExportApiJournalFormat) => void;
+export interface IJournalFormatSelectProps {
+  journalformat: ExportApiJournalFormat[] | ExportApiJournalFormat;
+  onChange: (format: ExportApiJournalFormat) => void;
   label?: string;
   description?: ReactElement;
-}) => {
-  const { journalformat: [journalformat] = [], dispatch, onChange } = props;
+}
+
+export const JournalFormatSelect = (props: IJournalFormatSelectProps) => {
+  const journalformat = Array.isArray(props.journalformat) ? props.journalformat[0] : props.journalformat;
+  const { onChange } = props;
   const formats = useMemo(() => values(journalFormats), []);
 
   const handleOnChange = ({ id }: JournalFormatOption) => {
-    if (typeof dispatch === 'function') {
-      dispatch({ type: 'SET_JOURNAL_FORMAT', payload: id });
-    }
-    if (typeof onChange === 'function') {
-      onChange(id);
-    }
+    onChange(id);
   };
 
+  const labelText = props.label ?? 'Journal Format';
+
   return (
-    <DescriptionCollapse body={props.description ?? description} label="Journal Format">
+    <DescriptionCollapse body={props.description ?? description} label={labelText}>
       {({ btn, content }) => (
-        <>
-          <Select<JournalFormatOption>
-            name="journalformat"
-            label={
-              <Box mb="2">
-                <FormLabel htmlFor="journal-format-select" fontSize={['sm', 'md']}>
-                  {props.label ?? 'Journal Format'} {btn}
-                </FormLabel>
-                {content}
-              </Box>
-            }
-            aria-label="Journal Format"
-            hideLabel={false}
-            id="journal-format-select"
-            options={formats}
-            value={journalFormats[journalformat]}
-            onChange={handleOnChange}
-            data-testid="export-select"
-            stylesTheme="default"
-          />
-        </>
+        <Select<JournalFormatOption>
+          name="journalformat"
+          label={
+            <Box mb="2">
+              <FormLabel htmlFor="journal-format-select" fontSize={['sm', 'md']}>
+                {labelText} {btn}
+              </FormLabel>
+              {content}
+            </Box>
+          }
+          aria-label={labelText}
+          hideLabel={false}
+          id="journal-format-select"
+          options={formats}
+          value={journalFormats[journalformat]}
+          onChange={handleOnChange}
+          data-testid="export-select"
+          stylesTheme="default"
+        />
       )}
     </DescriptionCollapse>
   );

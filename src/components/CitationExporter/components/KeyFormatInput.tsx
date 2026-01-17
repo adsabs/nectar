@@ -1,42 +1,41 @@
 import { Box, Code, FormControl, FormLabel, Input } from '@chakra-ui/react';
-import { ChangeEventHandler, Dispatch, ReactElement, useCallback } from 'react';
-import { CitationExporterEvent } from '../CitationExporter.machine';
+import { ChangeEventHandler, ReactElement, useCallback } from 'react';
 import { DescriptionCollapse } from './DescriptionCollapse';
-import { IExportApiParams } from '@/api/export/types';
 
 interface IKeyFormatInputProps {
-  keyformat: IExportApiParams['keyformat'];
-  dispatch: Dispatch<CitationExporterEvent>;
+  keyformat: string | string[];
+  onKeyformatChange: (keyformat: string) => void;
   label?: string;
   description?: ReactElement;
 }
 
 export const KeyFormatInput = (props: IKeyFormatInputProps) => {
-  const { keyformat, dispatch, label } = props;
+  const { keyformat, onKeyformatChange, label } = props;
+  const keyformatValue = Array.isArray(keyformat) ? keyformat[0] : keyformat;
 
   const handleOnChange: ChangeEventHandler<HTMLInputElement> = useCallback(
     (e) => {
-      dispatch({ type: 'SET_KEY_FORMAT', payload: e.currentTarget.value });
+      onKeyformatChange(e.currentTarget.value);
     },
-    [dispatch],
+    [onKeyformatChange],
   );
 
+  const labelText = label ?? 'Key Format';
+
   return (
-    <FormControl>
-      <DescriptionCollapse body={props.description ?? description} label={label ?? 'Key Format'}>
-        {({ btn, content }) => (
-          <FormControl>
-            <Box mb="2">
-              <FormLabel fontSize={['sm', 'md']}>
-                {label ?? 'Key Format'} {btn}
-              </FormLabel>
-              {content}
-            </Box>
-            <Input value={keyformat} size="md" borderRadius="sm" onChange={handleOnChange} placeholder="%1H:%Y:%q" />
-          </FormControl>
-        )}
-      </DescriptionCollapse>
-    </FormControl>
+    <DescriptionCollapse body={props.description ?? description} label={labelText}>
+      {({ btn, content }) => (
+        <FormControl>
+          <Box mb="2">
+            <FormLabel fontSize={['sm', 'md']}>
+              {labelText} {btn}
+            </FormLabel>
+            {content}
+          </Box>
+          <Input value={keyformatValue} size="md" borderRadius="sm" onChange={handleOnChange} placeholder="%1H:%Y:%q" />
+        </FormControl>
+      )}
+    </DescriptionCollapse>
   );
 };
 

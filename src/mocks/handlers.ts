@@ -14,6 +14,7 @@ import { librariesHandlers } from '@/mocks/handlers/libraries';
 import { notificationsHandlers } from './handlers/notifications';
 import { resolverHandlers } from '@/mocks/handlers/resolver';
 import { analyticsHandlers } from '@/mocks/handlers/analytics';
+import { userSettingsHandlers } from '@/mocks/handlers/user-settings';
 
 export const handlers = [
   ...accountHandlers,
@@ -30,6 +31,7 @@ export const handlers = [
   ...referenceHandlers,
   ...searchHandlers,
   ...userHandlers,
+  ...userSettingsHandlers,
   ...librariesHandlers,
   ...notificationsHandlers,
 ];

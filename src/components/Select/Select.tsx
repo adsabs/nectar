@@ -124,6 +124,10 @@ function SelectImpl<
             boxShadow: `0 0 0 1px ${colors.border}`,
             zIndex: 10,
           }),
+          menuPortal: (provided) => ({
+            ...provided,
+            zIndex: 9999,
+          }),
         },
         'default.sm': {
           container: (provided) => ({

@@ -7,28 +7,29 @@ import {
   NumberInputField,
   NumberInputStepper,
 } from '@chakra-ui/react';
-import { Dispatch, ReactElement, useEffect, useState } from 'react';
-import { CitationExporterEvent } from '../CitationExporter.machine';
+import { ReactElement, useEffect, useState } from 'react';
 import { DescriptionCollapse } from './DescriptionCollapse';
 import { APP_DEFAULTS } from '@/config';
 import { useDebounce } from 'use-debounce';
-import { IExportApiParams } from '@/api/export/types';
 
-export const AuthorCutoffField = (props: {
-  authorcutoff: IExportApiParams['authorcutoff'];
-  dispatch: Dispatch<CitationExporterEvent>;
+export interface IAuthorCutoffFieldProps {
+  authorcutoff: number[] | number;
+  onAuthorcutoffChange: (authorcutoff: number) => void;
   label?: string;
   description?: ReactElement;
-}) => {
-  const { authorcutoff: [authorcutoff] = [], dispatch } = props;
+}
+
+export const AuthorCutoffField = (props: IAuthorCutoffFieldProps) => {
+  const authorcutoff = Array.isArray(props.authorcutoff) ? props.authorcutoff[0] : props.authorcutoff;
+  const { onAuthorcutoffChange } = props;
   const [value, setValue] = useState(authorcutoff);
   const [debouncedValue] = useDebounce(value, 500);
 
   useEffect(() => {
     if (debouncedValue >= APP_DEFAULTS.MIN_AUTHORCUTOFF && debouncedValue <= APP_DEFAULTS.MAX_AUTHORCUTOFF) {
-      dispatch({ type: 'SET_AUTHOR_CUTOFF', payload: debouncedValue });
+      onAuthorcutoffChange(debouncedValue);
     }
-  }, [debouncedValue]);
+  }, [debouncedValue, onAuthorcutoffChange]);
 
   const label = props.label ?? 'Author Cut-off';
 

@@ -15,7 +15,8 @@ export const accountHandlers = [
       return res(ctx.status(500, 'Server Error'));
     }
 
-    if (scenario === 'bootstrap-authenticated') {
+    // Default to authenticated for easier development/testing
+    if (scenario !== 'bootstrap-anonymous') {
       return res(
         ctx.status(200),
         ctx.set('Set-Cookie', 'ads_session=authenticated-session; Domain=example.com; SameSite=None; Secure'),

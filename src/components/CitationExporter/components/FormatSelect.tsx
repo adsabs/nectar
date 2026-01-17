@@ -1,33 +1,33 @@
-import { Dispatch } from 'react';
-import { CitationExporterEvent } from '../CitationExporter.machine';
 import { Select } from '@/components/Select';
 import { ExportFormatOption, useExportFormats } from '@/lib/useExportFormats';
 
 export interface IFormatSelectProps {
   format: string;
-  dispatch: Dispatch<CitationExporterEvent>;
+  onFormatChange: (format: string) => void;
   isLoading?: boolean;
   label?: string;
 }
+
 export const FormatSelect = (props: IFormatSelectProps) => {
+  const { format, onFormatChange, isLoading, label } = props;
   const { formatOptionsNoCustom, getFormatOptionById } = useExportFormats();
 
   const handleOnChange = ({ id }: ExportFormatOption) => {
-    props.dispatch({ type: 'SET_FORMAT', payload: id });
+    onFormatChange(id);
   };
 
   return (
     <Select<ExportFormatOption>
       name="format"
-      label={props.label ?? 'Format'}
+      label={label ?? 'Format'}
       hideLabel={false}
       id="export-format-select"
       options={formatOptionsNoCustom}
-      value={getFormatOptionById(props.format)}
+      value={getFormatOptionById(format)}
       onChange={handleOnChange}
       data-testid="export-select"
       stylesTheme="default"
-      isDisabled={props.isLoading}
+      isDisabled={isLoading}
     />
   );
 };
