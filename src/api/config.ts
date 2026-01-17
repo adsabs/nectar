@@ -7,8 +7,9 @@ import { APP_DEFAULTS } from '@/config';
  * Server-side uses API_HOST_SERVER, client-side uses NEXT_PUBLIC_API_HOST_CLIENT.
  */
 const resolveApiBaseUrl = (defaultBaseUrl = ''): string => {
+  // for mocking requests, use same origin as the app so the service worker can intercept
   if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled') {
-    return 'http://localhost';
+    return typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8000';
   }
 
   if (typeof window === 'undefined') {

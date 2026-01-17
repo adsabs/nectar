@@ -2,13 +2,16 @@ import withBundleAnalyzer from '@next/bundle-analyzer';
 import { withSentryConfig } from '@sentry/nextjs';
 import nextBuildId from 'next-build-id';
 
+// Allow http://localhost in development mode for MSW mocking
+const devConnectSrc = process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' ? 'http://localhost http://localhost:*' : '';
+
 const CSP = `
   default-src 'self';
   script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.google-analytics.com https://www.googletagmanager.com https://www.google.com https://recaptcha.google.com https://www.recaptcha.net https://recaptcha.net https://www.googleadservices.com https://www.googlesyndication.com https://www.gstatic.com https://www.gstatic.cn;
   style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com;
   base-uri 'self';
   object-src 'none';
-  connect-src 'self' https://*.google-analytics.com https://*.adsabs.harvard.edu https://o1060269.ingest.sentry.io https://scixplorer.org https://*.scixplorer.org https://www.googletagmanager.com https://www.google.com https://recaptcha.google.com https://www.recaptcha.net https://recaptcha.net https://www.gstatic.com https://www.gstatic.cn https://*.googleapis.com https://*.clients6.google.com https://cdn.jsdelivr.net;
+  connect-src 'self' ${devConnectSrc} https://*.google-analytics.com https://*.adsabs.harvard.edu https://o1060269.ingest.sentry.io https://scixplorer.org https://*.scixplorer.org https://www.googletagmanager.com https://www.google.com https://recaptcha.google.com https://www.recaptcha.net https://recaptcha.net https://www.gstatic.com https://www.gstatic.cn https://*.googleapis.com https://*.clients6.google.com https://cdn.jsdelivr.net;
   font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.gstatic.com https://cdn.jsdelivr.net;
   frame-src https://www.youtube-nocookie.com https://www.google.com https://www.google.com/recaptcha/ https://recaptcha.google.com https://www.recaptcha.net https://recaptcha.net;
   form-action 'self';

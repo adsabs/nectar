@@ -65,15 +65,17 @@ const bootstrap = async (
   tracingHeaders?: Record<string, string>,
 ) => {
   if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled') {
+    // Return a properly formed mock token for development
+    const farFutureTimestamp = String(Math.floor(Date.now() / 1000) + 86400 * 365); // 1 year from now
     return {
       token: {
-        access_token: 'mocked',
-        username: 'mocked',
+        access_token: 'mocked-authenticated-token',
+        username: 'test@example.com',
         anonymous: false,
-        expires_at: 'mocked',
+        expires_at: farFutureTimestamp,
       },
       headers: new Headers({
-        'set-cookie': `${process.env.ADS_SESSION_COOKIE_NAME}=mocked`,
+        'set-cookie': `${process.env.ADS_SESSION_COOKIE_NAME}=mocked-session`,
       }),
     };
   }
