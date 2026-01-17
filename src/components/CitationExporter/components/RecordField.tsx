@@ -1,47 +1,42 @@
 import {
-  Box,
-  FormLabel,
+  HStack,
   NumberDecrementStepper,
   NumberIncrementStepper,
   NumberInput,
   NumberInputField,
   NumberInputStepper,
+  Text,
 } from '@chakra-ui/react';
-import { Dispatch, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
-import { CitationExporterEvent, ICitationExporterState } from '../CitationExporter.machine';
-import { DescriptionCollapse } from './DescriptionCollapse';
 
-export const RecordField = (props: {
+export interface IRecordFieldProps {
   records: string[];
-  range: ICitationExporterState['range'];
-  dispatch: Dispatch<CitationExporterEvent>;
-}) => {
-  const { range, records, dispatch } = props;
+  range: [number, number];
+  onRangeChange: (end: number) => void;
+}
+
+export const RecordField = (props: IRecordFieldProps) => {
+  const { range, records, onRangeChange } = props;
   const [value, setValue] = useState(range[1]);
   const [debouncedValue] = useDebounce(value, 500);
 
   useEffect(() => {
-    dispatch({ type: 'SET_RANGE', payload: debouncedValue });
-  }, [debouncedValue]);
+    onRangeChange(debouncedValue);
+  }, [debouncedValue, onRangeChange]);
 
   return (
-    <Box>
-      <DescriptionCollapse body={description} label="Limit Records">
-        {({ btn, content }) => (
-          <>
-            <FormLabel htmlFor="records-input" fontSize={['sm', 'md']}>
-              Limit Records {btn}
-            </FormLabel>
-            {content}
-          </>
-        )}
-      </DescriptionCollapse>
+    <HStack spacing={2} align="center">
+      <Text fontSize="sm" whiteSpace="nowrap">
+        Export first
+      </Text>
       <NumberInput
         id="records-input"
         defaultValue={range[1]}
         min={1}
         max={records.length}
+        size="sm"
+        maxW="100px"
         onChange={(v) => {
           if (v.length > 0) {
             setValue(parseInt(v));
@@ -54,8 +49,9 @@ export const RecordField = (props: {
           <NumberDecrementStepper />
         </NumberInputStepper>
       </NumberInput>
-    </Box>
+      <Text fontSize="sm" color="gray.600" whiteSpace="nowrap">
+        of {records.length.toLocaleString()} records
+      </Text>
+    </HStack>
   );
 };
-
-const description = <>Limit the number of total records retrieved.</>;

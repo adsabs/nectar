@@ -1,9 +1,8 @@
-import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons';
+import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
-  Collapse,
-  Divider,
+  Flex,
   Grid,
   GridItem,
   Stack,
@@ -12,14 +11,12 @@ import {
   TabPanel,
   TabPanels,
   Tabs,
-  useDisclosure,
+  Text,
   VStack,
 } from '@chakra-ui/react';
 import { APP_DEFAULTS } from '@/config';
-import { useRouter } from 'next/router';
-import { ChangeEventHandler, Dispatch, HTMLAttributes, ReactElement, useEffect, useState } from 'react';
+import { FormEventHandler, HTMLAttributes, ReactElement, useCallback, useMemo, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { CitationExporterEvent } from './CitationExporter.machine';
 import { AuthorCutoffField } from './components/AuthorCutoffField';
 import { CustomFormatSelect } from './components/CustomFormatSelect';
 import { ErrorFallback } from './components/ErrorFallback';
@@ -31,38 +28,77 @@ import { MaxAuthorsField } from './components/MaxAuthorsField';
 import { RecordField } from './components/RecordField';
 import { ResultArea } from './components/ResultArea';
 import { useCitationExporter } from './useCitationExporter';
-import { noop } from '@/utils/common/noop';
-import { ExportApiFormatKey, ExportApiJournalFormat, IExportApiParams } from '@/api/export/types';
+import { ExportApiFormatKey, ExportApiJournalFormat } from '@/api/export/types';
 import { IDocsEntity } from '@/api/search/types';
 import { SolrSort } from '@/api/models';
-import { logger } from '@/logger';
 import { useExportFormats } from '@/lib/useExportFormats';
 
 export interface ICitationExporterProps extends HTMLAttributes<HTMLDivElement> {
-  singleMode?: boolean;
+  // Initial values from URL or defaults
+  format?: string;
   initialFormat?: string;
-  authorcutoff?: number;
+  customFormat?: string;
   keyformat?: string;
   journalformat?: ExportApiJournalFormat;
+  authorcutoff?: number;
   maxauthor?: number;
   records?: IDocsEntity['bibcode'][];
+  sort?: SolrSort[];
+  singleMode?: boolean;
+
+  // Pagination info
   totalRecords?: number;
   page?: number;
-  nextPage?: () => void;
   hasNextPage?: boolean;
-  sort?: SolrSort[];
+  hasPrevPage?: boolean;
+  onNextPage?: () => void;
+  onPrevPage?: () => void;
+
+  // Optional callback when user submits - updates URL with final values
+  onExportSubmit?: (params: {
+    format: string;
+    customFormat: string;
+    keyformat: string;
+    journalformat: ExportApiJournalFormat;
+    authorcutoff: number;
+    maxauthor: number;
+  }) => void;
 }
 
+interface ExportState {
+  format: string;
+  customFormat: string;
+  keyformat: string;
+  journalformat: ExportApiJournalFormat;
+  authorcutoff: number;
+  maxauthor: number;
+  rangeEnd: number;
+}
+
+const getDefaultMaxAuthor = (format: string, explicitMaxAuthor?: number): number => {
+  if (explicitMaxAuthor !== undefined) {
+    return explicitMaxAuthor;
+  }
+  switch (format) {
+    case ExportApiFormatKey.bibtex:
+      return APP_DEFAULTS.BIBTEX_DEFAULT_MAX_AUTHOR;
+    case ExportApiFormatKey.bibtexabs:
+      return APP_DEFAULTS.BIBTEX_ABS_DEFAULT_MAX_AUTHOR;
+    default:
+      return 0;
+  }
+};
+
 /**
- * Citation export component
+ * Citation export component.
+ * Uses draft/submitted pattern - form edits don't trigger fetch until Submit.
  */
 export const CitationExporter = (props: ICitationExporterProps): ReactElement => {
-  // early escape here, to skip extra work if nothing is passed
-  if (props.records.length === 0 || typeof props.records[0] !== 'string') {
+  const records = props.records ?? [];
+  if (records.length === 0 || typeof records[0] !== 'string') {
     return <ExportContainer header={<>No Records</>} />;
   }
 
-  // wrap component here with error boundary to capture run-away errors
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <Exporter {...props} />
@@ -72,149 +108,172 @@ export const CitationExporter = (props: ICitationExporterProps): ReactElement =>
 
 const Exporter = (props: ICitationExporterProps): ReactElement => {
   const {
-    singleMode = false,
-    initialFormat = ExportApiFormatKey.bibtex,
-    authorcutoff,
-    keyformat,
-    journalformat,
-    maxauthor,
+    format: propsFormat,
+    initialFormat,
+    customFormat: propsCustomFormat,
+    keyformat: propsKeyformat,
+    journalformat: propsJournalformat,
+    authorcutoff: propsAuthorcutoff,
+    maxauthor: propsMaxauthor,
     records = [],
+    sort,
+    singleMode = false,
     totalRecords = records.length,
     page = 0,
-    nextPage = noop,
-    hasNextPage = true,
-    sort,
+    hasNextPage = false,
+    hasPrevPage = false,
+    onNextPage,
+    onPrevPage,
+    onExportSubmit,
     ...divProps
   } = props;
 
-  const { data, state, dispatch } = useCitationExporter({
-    format: initialFormat,
-    authorcutoff,
-    keyformat,
-    journalformat,
-    maxauthor,
-    records,
-    singleMode,
+  // Derive initial state from props
+  const initialState = useMemo((): ExportState => {
+    const format = propsFormat ?? initialFormat ?? ExportApiFormatKey.bibtex;
+    return {
+      format,
+      customFormat: propsCustomFormat ?? '%1H:%Y:%q',
+      keyformat: propsKeyformat ?? '%R',
+      journalformat: propsJournalformat ?? ExportApiJournalFormat.AASTeXMacros,
+      authorcutoff: propsAuthorcutoff ?? APP_DEFAULTS.BIBTEX_DEFAULT_AUTHOR_CUTOFF,
+      maxauthor: getDefaultMaxAuthor(format, propsMaxauthor),
+      rangeEnd: records.length,
+    };
+  }, []); // Only compute once on mount
+
+  // Draft state - what user is editing in the form
+  const [draft, setDraft] = useState<ExportState>(initialState);
+
+  // Submitted state - what's actually being fetched
+  const [submitted, setSubmitted] = useState<ExportState>(initialState);
+
+  // Compute bibcodes to export based on SUBMITTED rangeEnd
+  const bibcodesToExport = records.slice(0, submitted.rangeEnd);
+
+  // Fetch export data using SUBMITTED state (not draft)
+  const { data, isLoading } = useCitationExporter({
+    format: submitted.format,
+    customFormat: submitted.customFormat,
+    keyformat: submitted.keyformat,
+    journalformat: submitted.journalformat,
+    authorcutoff: submitted.authorcutoff,
+    maxauthor: submitted.maxauthor,
+    bibcodes: bibcodesToExport,
     sort,
   });
-  const ctx = state.context;
-  const isLoading = state.matches('fetching');
-  const router = useRouter();
 
-  const { isValidFormat } = useExportFormats();
+  // Draft state setters
+  const setFormat = useCallback((format: string) => {
+    setDraft((d) => ({ ...d, format }));
+  }, []);
 
-  // Updates the route when format has changed
-  useEffect(() => {
-    if (
-      router.query.format !== ctx.params.format &&
-      (state.matches('idle') || (state.matches('fetching') && !singleMode))
-    ) {
-      void router.push(
-        {
-          pathname: router.pathname,
-          query: { ...router.query, format: ctx.params.format },
-        },
-        null,
-        {
-          shallow: true,
-        },
-      );
-    }
-  }, [state.value, router.query, ctx.params.format]);
+  const setKeyformat = useCallback((keyformat: string) => {
+    setDraft((d) => ({ ...d, keyformat }));
+  }, []);
 
-  // Attempt to parse the url to grab the format, then update it, otherwise allow the server to handle the path
-  useEffect(() => {
-    router.beforePopState(({ as }) => {
-      try {
-        const format = as.split('?')[0].slice(as.lastIndexOf('/') + 1);
-        if (isValidFormat(format)) {
-          dispatch({ type: 'SET_FORMAT', payload: format });
-          dispatch('FORCE_SUBMIT');
-          return false;
-        }
-      } catch (err) {
-        logger.error({ err, as }, 'Error caught attempting to parse format from url');
-        dispatch({ type: 'SET_FORMAT', payload: ExportApiFormatKey.bibtex });
-        dispatch('FORCE_SUBMIT');
-      }
-      return true;
-    });
-    return () => router.beforePopState(() => true);
-  }, [dispatch, router]);
+  const setJournalformat = useCallback((journalformat: ExportApiJournalFormat) => {
+    setDraft((d) => ({ ...d, journalformat }));
+  }, []);
 
-  const handleOnSubmit: ChangeEventHandler<HTMLFormElement> = (e) => {
+  const setAuthorcutoff = useCallback((authorcutoff: number) => {
+    setDraft((d) => ({ ...d, authorcutoff }));
+  }, []);
+
+  const setMaxauthor = useCallback((maxauthor: number) => {
+    setDraft((d) => ({ ...d, maxauthor }));
+  }, []);
+
+  const setRangeEnd = useCallback((rangeEnd: number) => {
+    setDraft((d) => ({ ...d, rangeEnd }));
+  }, []);
+
+  // Submit handler - copies draft to submitted and notifies parent
+  const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
-    dispatch({ type: 'SUBMIT' });
+    setSubmitted(draft);
+    onExportSubmit?.(draft);
   };
 
+  // Handle tab change between built-in and custom formats
   const handleTabChange = (index: number) => {
-    dispatch({
-      type: 'SET_IS_CUSTOM_FORMAT',
-      payload: { isCustomFormat: index === 1 },
-    });
+    const newFormat = index === 1 ? ExportApiFormatKey.custom : ExportApiFormatKey.bibtex;
+    setFormat(newFormat);
+    // Auto-submit on tab change since it's a major format change
+    setSubmitted((s) => ({ ...s, format: newFormat }));
+    onExportSubmit?.({ ...draft, format: newFormat });
   };
+
+  // Handle custom format submit (from CustomFormatSelect's Submit button)
+  const handleCustomFormatSubmit = useCallback(
+    (customFormat: string) => {
+      const newDraft = { ...draft, customFormat };
+      setDraft(newDraft);
+      setSubmitted(newDraft);
+      onExportSubmit?.(newDraft);
+    },
+    [draft, onExportSubmit],
+  );
+
+  // Determine which tab should be active
+  const isCustomFormat = draft.format === ExportApiFormatKey.custom;
+  const tabIndex = isCustomFormat ? 1 : 0;
 
   return (
     <ExportContainer
       header={
-        <Stack direction="row" alignItems="center" gap={4}>
-          <>
-            Exporting record{ctx.range[1] - ctx.range[0] > 1 ? 's' : ''}{' '}
-            {ctx.range[0] + 1 + page * APP_DEFAULTS.EXPORT_PAGE_SIZE} to{' '}
-            {ctx.range[1] + page * APP_DEFAULTS.EXPORT_PAGE_SIZE} (total: {totalRecords.toLocaleString()})
-          </>
-          {!singleMode && hasNextPage && (
-            <Button
-              variant="outline"
-              rightIcon={<ChevronRightIcon fontSize="2xl" />}
-              onClick={nextPage}
-              isLoading={isLoading}
-            >
-              Next {APP_DEFAULTS.EXPORT_PAGE_SIZE}
-            </Button>
-          )}
-        </Stack>
+        <Text>
+          Showing records {1 + page * APP_DEFAULTS.EXPORT_PAGE_SIZE}–
+          {draft.rangeEnd + page * APP_DEFAULTS.EXPORT_PAGE_SIZE} of {totalRecords.toLocaleString()}
+        </Text>
       }
       isLoading={isLoading}
       {...divProps}
     >
       <Grid templateColumns={{ base: 'auto', md: 'repeat(2, 1fr)' }} templateRows={{ base: '1fr', md: '1fr' }} gap={4}>
         <GridItem>
-          <Tabs onChange={handleTabChange} defaultIndex={initialFormat === ExportApiFormatKey.custom ? 1 : 0}>
+          <Tabs index={tabIndex} onChange={handleTabChange}>
             <TabList>
-              <Tab>Built-in Formats</Tab>
-              <Tab>Custom Formats</Tab>
+              <Tab>Standard Formats</Tab>
+              <Tab>Custom Format</Tab>
             </TabList>
             <TabPanels>
               <TabPanel>
-                <form method="GET" onSubmit={handleOnSubmit}>
-                  <Stack direction={['column', 'row']} spacing={4} align="stretch">
-                    <Stack spacing="4" flex="1">
-                      <FormatSelect format={ctx.params.format} dispatch={dispatch} />
-                      <AdvancedControls dispatch={dispatch} params={ctx.params} />
-                      {ctx.records.length > 1 && (
-                        <RecordField range={ctx.range} records={ctx.records} dispatch={dispatch} />
-                      )}
-
-                      <Stack direction={'row'}>
-                        {(!singleMode ||
-                          (singleMode &&
-                            (ctx.params.format === ExportApiFormatKey.bibtex ||
-                              ctx.params.format === ExportApiFormatKey.bibtexabs))) && (
-                          <Button type="submit" data-testid="export-submit" isLoading={isLoading} width="full">
-                            Submit
-                          </Button>
-                        )}
-                      </Stack>
-                      <Divider display={['block', 'none']} />
-                    </Stack>
+                <form method="GET" onSubmit={handleSubmit}>
+                  <Stack spacing={4}>
+                    <FormatSelect format={draft.format} onFormatChange={setFormat} />
+                    <BibTeXOptions
+                      format={draft.format}
+                      keyformat={draft.keyformat}
+                      journalformat={draft.journalformat}
+                      authorcutoff={draft.authorcutoff}
+                      maxauthor={draft.maxauthor}
+                      onKeyformatChange={setKeyformat}
+                      onJournalformatChange={setJournalformat}
+                      onAuthorcutoffChange={setAuthorcutoff}
+                      onMaxauthorChange={setMaxauthor}
+                    />
+                    {records.length > 1 && (
+                      <RecordField range={[0, draft.rangeEnd]} records={records} onRangeChange={setRangeEnd} />
+                    )}
+                    {(!singleMode ||
+                      (singleMode &&
+                        (draft.format === ExportApiFormatKey.bibtex ||
+                          draft.format === ExportApiFormatKey.bibtexabs))) && (
+                      <Button type="submit" data-testid="export-submit" isLoading={isLoading} width="full">
+                        Export
+                      </Button>
+                    )}
                   </Stack>
                 </form>
               </TabPanel>
               <TabPanel>
                 <Stack direction={['column', 'row']} spacing={4}>
                   <Stack spacing="4" flexGrow={[3, 2]} maxW="lg">
-                    <CustomFormatSelect dispatch={dispatch} />
+                    <CustomFormatSelect
+                      customFormat={draft.customFormat}
+                      onCustomFormatChange={handleCustomFormatSubmit}
+                    />
                   </Stack>
                 </Stack>
               </TabPanel>
@@ -222,85 +281,136 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
           </Tabs>
         </GridItem>
         <GridItem>
-          <ResultArea result={data?.export} format={ctx.params.format} isLoading={isLoading} flexGrow={5} />
+          <ResultArea result={data?.export} format={submitted.format} isLoading={isLoading} flexGrow={5} />
         </GridItem>
       </Grid>
+      {!singleMode && (hasPrevPage || hasNextPage) && (
+        <Flex justify="center" gap={4} mt={6}>
+          {hasPrevPage && onPrevPage && (
+            <Button variant="outline" leftIcon={<ChevronLeftIcon fontSize="xl" />} onClick={onPrevPage}>
+              Previous {APP_DEFAULTS.EXPORT_PAGE_SIZE}
+            </Button>
+          )}
+          {hasNextPage && onNextPage && (
+            <Button
+              variant="outline"
+              rightIcon={<ChevronRightIcon fontSize="xl" />}
+              onClick={onNextPage}
+              isLoading={isLoading}
+            >
+              Next {APP_DEFAULTS.EXPORT_PAGE_SIZE}
+            </Button>
+          )}
+        </Flex>
+      )}
     </ExportContainer>
   );
 };
 
-const AdvancedControls = ({
-  dispatch,
-  params,
-}: {
-  dispatch: Dispatch<CitationExporterEvent>;
-  params: IExportApiParams;
-}) => {
-  const { onToggle, isOpen } = useDisclosure();
+interface BibTeXOptionsProps {
+  format: string;
+  keyformat: string;
+  journalformat: ExportApiJournalFormat;
+  authorcutoff: number;
+  maxauthor: number;
+  onKeyformatChange: (keyformat: string) => void;
+  onJournalformatChange: (journalformat: ExportApiJournalFormat) => void;
+  onAuthorcutoffChange: (authorcutoff: number) => void;
+  onMaxauthorChange: (maxauthor: number) => void;
+}
 
-  // if default cutoff and max authors are equal, show basic mode, otherwise use advance mode
-
-  const [isBasicMode, setIsBasicMode] = useState(params.authorcutoff[0] === params.maxauthor[0]);
+/**
+ * BibTeX-specific options panel.
+ * Only shown when BibTeX or BibTeX ABS format is selected.
+ * Options are displayed directly (not hidden behind a collapse).
+ */
+const BibTeXOptions = ({
+  format,
+  keyformat,
+  journalformat,
+  authorcutoff,
+  maxauthor,
+  onKeyformatChange,
+  onJournalformatChange,
+  onAuthorcutoffChange,
+  onMaxauthorChange,
+}: BibTeXOptionsProps) => {
+  // Local UI state: basic mode links maxauthor and authorcutoff
+  const [isBasicMode, setIsBasicMode] = useState(authorcutoff === maxauthor);
 
   const toggleMode = () => {
     setIsBasicMode((prev) => !prev);
   };
 
-  if (params.format === ExportApiFormatKey.bibtex || params.format === ExportApiFormatKey.bibtexabs) {
-    return (
-      <Box>
-        <Button variant="link" rightIcon={isOpen ? <ChevronDownIcon /> : <ChevronRightIcon />} onClick={onToggle}>
-          More Options
-        </Button>
-        <Collapse in={isOpen}>
-          <Stack spacing="4">
-            <Divider />
-            <JournalFormatSelect journalformat={params.journalformat} dispatch={dispatch} />
-            <KeyFormatInput keyformat={params.keyformat} dispatch={dispatch} />
-            {isBasicMode ? (
-              <VStack alignItems="end">
-                <Button variant="link" onClick={toggleMode}>
-                  switch to advanced mode
-                </Button>
-              </VStack>
-            ) : (
-              <VStack alignItems="end">
-                <Button variant="link" onClick={toggleMode}>
-                  switch to basic mode
-                </Button>
-              </VStack>
-            )}
-            {!isBasicMode && <AuthorCutoffField authorcutoff={params.authorcutoff} dispatch={dispatch} />}
-            <MaxAuthorsField maxauthor={params.maxauthor} dispatch={dispatch} isBasicMode={isBasicMode} />
-          </Stack>
-        </Collapse>
-      </Box>
-    );
+  // In basic mode, when maxauthor changes, also update authorcutoff
+  const handleMaxauthorChange = useCallback(
+    (value: number) => {
+      onMaxauthorChange(value);
+      if (isBasicMode) {
+        onAuthorcutoffChange(value);
+      }
+    },
+    [onMaxauthorChange, onAuthorcutoffChange, isBasicMode],
+  );
+
+  if (format !== ExportApiFormatKey.bibtex && format !== ExportApiFormatKey.bibtexabs) {
+    return null;
   }
-  return null;
+
+  return (
+    <Box p={4} borderWidth="1px" borderRadius="md" borderColor="gray.200" bg="gray.50">
+      <Text fontSize="sm" fontWeight="medium" color="gray.600" mb={3}>
+        BibTeX Options
+      </Text>
+      <Stack spacing={3}>
+        <JournalFormatSelect journalformat={[journalformat]} onChange={onJournalformatChange} />
+        <KeyFormatInput keyformat={[keyformat]} onKeyformatChange={onKeyformatChange} />
+        <MaxAuthorsField maxauthor={[maxauthor]} onMaxauthorChange={handleMaxauthorChange} isBasicMode={isBasicMode} />
+        {!isBasicMode && (
+          <AuthorCutoffField authorcutoff={[authorcutoff]} onAuthorcutoffChange={onAuthorcutoffChange} />
+        )}
+        <VStack alignItems="end">
+          <Button variant="link" size="sm" onClick={toggleMode}>
+            {isBasicMode ? 'Show advanced options' : 'Hide advanced options'}
+          </Button>
+        </VStack>
+      </Stack>
+    </Box>
+  );
 };
 
 /**
- * Static component for SSR
+ * Static component for SSR - simplified, no controls
  */
-const Static = (props: Omit<ICitationExporterProps, 'page' | 'nextPage'>): ReactElement => {
-  const { records, initialFormat, singleMode, totalRecords, sort, ...divProps } = props;
+const Static = (
+  props: {
+    format: string;
+    records: IDocsEntity['bibcode'][];
+    singleMode?: boolean;
+    totalRecords?: number;
+    sort?: SolrSort[];
+  } & HTMLAttributes<HTMLDivElement>,
+): ReactElement => {
+  const { records, format, singleMode, totalRecords = records.length, sort, ...divProps } = props;
 
-  const { data, state } = useCitationExporter({
-    format: initialFormat,
-    records,
-    singleMode: true,
+  const { data } = useCitationExporter({
+    format,
+    customFormat: '%1H:%Y:%q',
+    keyformat: '%R',
+    journalformat: ExportApiJournalFormat.AASTeXMacros,
+    authorcutoff: APP_DEFAULTS.BIBTEX_DEFAULT_AUTHOR_CUTOFF,
+    maxauthor: APP_DEFAULTS.BIBTEX_DEFAULT_MAX_AUTHOR,
+    bibcodes: records,
     sort,
   });
-  const ctx = state.context;
 
   const { getFormatById } = useExportFormats();
-  const format = getFormatById(ctx.params.format);
+  const formatInfo = getFormatById(format);
 
   if (singleMode) {
     return (
-      <ExportContainer header={<>Exporting record in {format.name} format</>} {...divProps}>
-        <ResultArea result={data?.export} format={ctx.params.format} />
+      <ExportContainer header={<>Exporting record in {formatInfo.name} format</>} {...divProps}>
+        <ResultArea result={data?.export} format={format} />
       </ExportContainer>
     );
   }
@@ -309,13 +419,12 @@ const Static = (props: Omit<ICitationExporterProps, 'page' | 'nextPage'>): React
     <ExportContainer
       header={
         <>
-          Exporting record{ctx.range[1] - ctx.range[0] > 1 ? 's' : ''} {ctx.range[0] + 1} to {ctx.range[1]} (total:{' '}
-          {totalRecords.toLocaleString()})
+          Exporting record{records.length > 1 ? 's' : ''} 1 to {records.length} (total: {totalRecords.toLocaleString()})
         </>
       }
       {...divProps}
     >
-      <ResultArea result={data?.export} format={ctx.params.format} />
+      <ResultArea result={data?.export} format={format} />
     </ExportContainer>
   );
 };

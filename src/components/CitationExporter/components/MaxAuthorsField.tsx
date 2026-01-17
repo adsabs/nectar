@@ -8,65 +8,65 @@ import {
   NumberInputStepper,
 } from '@chakra-ui/react';
 import { APP_DEFAULTS } from '@/config';
-import { Dispatch, ReactElement, useEffect, useState } from 'react';
-import { CitationExporterEvent } from '../CitationExporter.machine';
+import { ReactElement, useEffect, useState } from 'react';
 import { DescriptionCollapse } from './DescriptionCollapse';
 import { useDebounce } from 'use-debounce';
-import { IExportApiParams } from '@/api/export/types';
 
-export const MaxAuthorsField = (props: {
-  maxauthor: IExportApiParams['maxauthor'];
-  dispatch: Dispatch<CitationExporterEvent>;
+export interface IMaxAuthorsFieldProps {
+  maxauthor: number[] | number;
+  onMaxauthorChange: (maxauthor: number) => void;
+  onAuthorcutoffChange?: (authorcutoff: number) => void;
   isBasicMode: boolean;
   label?: string;
   description?: ReactElement;
-}) => {
-  const { maxauthor: [maxauthor] = [], isBasicMode, dispatch } = props;
+}
+
+export const MaxAuthorsField = (props: IMaxAuthorsFieldProps) => {
+  const maxauthor = Array.isArray(props.maxauthor) ? props.maxauthor[0] : props.maxauthor;
+  const { isBasicMode, onMaxauthorChange, onAuthorcutoffChange } = props;
   const [value, setValue] = useState(maxauthor);
   const [debouncedValue] = useDebounce(value, 500);
 
   // in basic mode, max author and author cutoff are always the same
   useEffect(() => {
     if (debouncedValue >= 0 && debouncedValue <= APP_DEFAULTS.MAX_EXPORT_AUTHORS) {
-      dispatch({ type: 'SET_MAX_AUTHOR', payload: debouncedValue });
-      if (isBasicMode) {
-        dispatch({ type: 'SET_AUTHOR_CUTOFF', payload: debouncedValue });
+      onMaxauthorChange(debouncedValue);
+      if (isBasicMode && onAuthorcutoffChange) {
+        onAuthorcutoffChange(debouncedValue);
       }
     }
-  }, [debouncedValue]);
+  }, [debouncedValue, onMaxauthorChange, onAuthorcutoffChange, isBasicMode]);
 
   const label = props.label ?? 'Max Authors';
 
   return (
-    <>
-      <DescriptionCollapse body={props.description ?? description} label={label}>
-        {({ btn, content }) => (
-          <>
-            <FormLabel htmlFor="maxauthor-input" fontSize={['sm', 'md']}>
-              {label} <span aria-hidden="true">({value === 0 ? 'ALL' : value})</span> {btn}
-            </FormLabel>
-            {content}
-            <NumberInput
-              id="maxauthor-input"
-              defaultValue={maxauthor}
-              min={0}
-              max={APP_DEFAULTS.MAX_EXPORT_AUTHORS}
-              onChange={(v) => {
-                if (v.length > 0) {
-                  setValue(parseInt(v));
-                }
-              }}
-            >
-              <NumberInputField />
-              <NumberInputStepper>
-                <NumberIncrementStepper />
-                <NumberDecrementStepper />
-              </NumberInputStepper>
-            </NumberInput>
-          </>
-        )}
-      </DescriptionCollapse>
-    </>
+    <DescriptionCollapse body={props.description ?? description} label={label}>
+      {({ btn, content }) => (
+        <>
+          <FormLabel htmlFor="maxauthor-input" fontSize={['sm', 'md']}>
+            {label} <span aria-hidden="true">({value === 0 ? 'ALL' : value})</span> {btn}
+          </FormLabel>
+          {content}
+          <NumberInput
+            id="maxauthor-input"
+            defaultValue={maxauthor}
+            min={0}
+            max={APP_DEFAULTS.MAX_EXPORT_AUTHORS}
+            onChange={(v) => {
+              if (v.length > 0) {
+                setValue(parseInt(v));
+              }
+            }}
+          >
+            <NumberInputField />
+            <NumberInputStepper>
+              <NumberIncrementStepper />
+              <NumberDecrementStepper />
+            </NumberInputStepper>
+          </NumberInput>
+        </>
+      )}
+    </DescriptionCollapse>
   );
 };
 
