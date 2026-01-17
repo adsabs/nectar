@@ -131,6 +131,22 @@ const ExportCitationPageContent = ({
   const { data, fetchNextPage, hasNextPage, error, isLoading } = useSearchInfinite(searchParams);
   const { getSearchHref, show: showSearchHref } = useBackToSearchResults();
 
+  // Preserve search-related query params across navigation
+  const preservedSearchParams = useMemo(() => {
+    const preserved: Record<string, string> = {};
+    const keysToPreserve = ['q', 'fq', 'fq_database', 'p', 'd', 'qid', 'referrer'];
+
+    for (const key of keysToPreserve) {
+      if (router.query[key]) {
+        preserved[key] = router.query[key] as string;
+      }
+    }
+    if (router.query.sort) {
+      preserved.sort = Array.isArray(router.query.sort) ? router.query.sort.join(',') : router.query.sort;
+    }
+    return preserved;
+  }, [router.query]);
+
   // Handle submit - update URL with new params
   const handleSubmit = useCallback(
     (params: {
@@ -141,36 +157,9 @@ const ExportCitationPageContent = ({
       authorcutoff: number;
       maxauthor: number;
     }) => {
-      // Build new query params, preserving search params
-      const newQuery: Record<string, string> = {};
+      const newQuery: Record<string, string> = { ...preservedSearchParams };
 
-      // Preserve search-related params
-      if (router.query.q) {
-        newQuery.q = router.query.q as string;
-      }
-      if (router.query.fq) {
-        newQuery.fq = router.query.fq as string;
-      }
-      if (router.query.fq_database) {
-        newQuery.fq_database = router.query.fq_database as string;
-      }
-      if (router.query.sort) {
-        newQuery.sort = Array.isArray(router.query.sort) ? router.query.sort.join(',') : router.query.sort;
-      }
-      if (router.query.p) {
-        newQuery.p = router.query.p as string;
-      }
-      if (router.query.d) {
-        newQuery.d = router.query.d as string;
-      }
-      if (router.query.qid) {
-        newQuery.qid = router.query.qid as string;
-      }
-      if (router.query.referrer) {
-        newQuery.referrer = router.query.referrer as string;
-      }
-
-      // Add export params
+      // Add export params only when non-default
       if (params.customFormat && params.customFormat !== '%1H:%Y:%q') {
         newQuery.customFormat = params.customFormat;
       }
@@ -196,7 +185,7 @@ const ExportCitationPageContent = ({
         { shallow: true },
       );
     },
-    [router],
+    [router, preservedSearchParams],
   );
 
   // Track which page of loaded data to display

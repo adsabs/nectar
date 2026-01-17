@@ -257,9 +257,8 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
                       <RecordField range={[0, draft.rangeEnd]} records={records} onRangeChange={setRangeEnd} />
                     )}
                     {(!singleMode ||
-                      (singleMode &&
-                        (draft.format === ExportApiFormatKey.bibtex ||
-                          draft.format === ExportApiFormatKey.bibtexabs))) && (
+                      draft.format === ExportApiFormatKey.bibtex ||
+                      draft.format === ExportApiFormatKey.bibtexabs) && (
                       <Button type="submit" data-testid="export-submit" isLoading={isLoading} width="full">
                         Export
                       </Button>
@@ -363,12 +362,10 @@ const BibTeXOptions = ({
         BibTeX Options
       </Text>
       <Stack spacing={3}>
-        <JournalFormatSelect journalformat={[journalformat]} onChange={onJournalformatChange} />
-        <KeyFormatInput keyformat={[keyformat]} onKeyformatChange={onKeyformatChange} />
-        <MaxAuthorsField maxauthor={[maxauthor]} onMaxauthorChange={handleMaxauthorChange} isBasicMode={isBasicMode} />
-        {!isBasicMode && (
-          <AuthorCutoffField authorcutoff={[authorcutoff]} onAuthorcutoffChange={onAuthorcutoffChange} />
-        )}
+        <JournalFormatSelect journalformat={journalformat} onChange={onJournalformatChange} />
+        <KeyFormatInput keyformat={keyformat} onKeyformatChange={onKeyformatChange} />
+        <MaxAuthorsField maxauthor={maxauthor} onMaxauthorChange={handleMaxauthorChange} isBasicMode={isBasicMode} />
+        {!isBasicMode && <AuthorCutoffField authorcutoff={authorcutoff} onAuthorcutoffChange={onAuthorcutoffChange} />}
         <VStack alignItems="end">
           <Button variant="link" size="sm" onClick={toggleMode}>
             {isBasicMode ? 'Show advanced options' : 'Hide advanced options'}
