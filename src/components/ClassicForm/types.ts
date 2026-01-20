@@ -37,3 +37,12 @@ export interface IRawClassicFormState {
   bibstems: string;
   sort: string[];
 }
+
+export interface IClassicFormQueryParams {
+  q: string;
+  sort: string[];
+  d?: string;
+  fq?: string[];
+  fq_database?: string;
+  fq_property?: string;
+}
