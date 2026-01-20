@@ -155,4 +155,67 @@ describe('updateUserStateSSR', () => {
     const props = result.props as SSRPropsWithState;
     expect(props.dehydratedAppState).not.toHaveProperty('mode');
   });
+
+  describe('forceMode handling', () => {
+    test('should apply forceMode on home page', async () => {
+      const context = getMockContext({}, { forceMode: 'planetary' }, '/');
+      const result = await updateUserStateSSR(context, { props: {} });
+
+      if (!('props' in result)) {
+        throw new Error('Expected props in result');
+      }
+      const props = result.props as SSRPropsWithState;
+      expect(props.dehydratedAppState).toEqual(
+        expect.objectContaining({
+          mode: AppMode.PLANET_SCIENCE,
+        }),
+      );
+    });
+
+    test('should prioritize forceMode over d param on /search', async () => {
+      const context = getMockContext({}, { forceMode: 'earth', d: 'heliophysics' }, '/search');
+      const result = await updateUserStateSSR(context, { props: {} });
+
+      if (!('props' in result)) {
+        throw new Error('Expected props in result');
+      }
+      const props = result.props as SSRPropsWithState;
+      expect(props.dehydratedAppState).toEqual(
+        expect.objectContaining({
+          mode: AppMode.EARTH_SCIENCE,
+        }),
+      );
+    });
+
+    test('should prioritize forceMode over legacy referrer', async () => {
+      const context = getMockContext(
+        {},
+        { forceMode: 'biophysical' },
+        '/search',
+        'https://ui.adsabs.harvard.edu/search',
+      );
+      const result = await updateUserStateSSR(context, { props: {} });
+
+      if (!('props' in result)) {
+        throw new Error('Expected props in result');
+      }
+      const props = result.props as SSRPropsWithState;
+      expect(props.dehydratedAppState).toEqual(
+        expect.objectContaining({
+          mode: AppMode.BIO_PHYSICAL,
+        }),
+      );
+    });
+
+    test('should handle invalid forceMode gracefully', async () => {
+      const context = getMockContext({}, { forceMode: 'invalid' }, '/');
+      const result = await updateUserStateSSR(context, { props: {} });
+
+      if (!('props' in result)) {
+        throw new Error('Expected props in result');
+      }
+      const props = result.props as SSRPropsWithState;
+      expect(props.dehydratedAppState).not.toHaveProperty('mode');
+    });
+  });
 });
