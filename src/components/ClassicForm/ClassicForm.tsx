@@ -30,7 +30,7 @@ import { useRouter } from 'next/router';
 import PT from 'prop-types';
 import { FormEventHandler, useMemo } from 'react';
 import { Control, Controller, useForm, UseFormRegisterReturn, useWatch } from 'react-hook-form';
-import { getSearchQuery } from './helpers';
+import { getSearchQuery, getSearchQueryParams } from './helpers';
 import { IClassicFormState, IRawClassicFormState } from './types';
 import { useStore } from '@/store';
 
@@ -325,11 +325,23 @@ const LogicRadios = (props: { variant: 'andor' | 'all'; radioProps: UseFormRegis
 const CurrentQuery = (props: { control: Control<IClassicFormState> }) => {
   const { control } = props;
   const values = useWatch<IClassicFormState>({ control });
-  const query = useMemo(() => {
+
+  const { query, filters } = useMemo(() => {
     try {
-      return new URLSearchParams(getSearchQuery(values as IRawClassicFormState)).get('q');
+      const params = getSearchQueryParams(values as IRawClassicFormState);
+      const filterList: string[] = [];
+      if (params.fq_database) {
+        filterList.push(params.fq_database);
+      }
+      if (params.fq_property) {
+        filterList.push(params.fq_property);
+      }
+      return { query: params.q, filters: filterList };
     } catch (e) {
-      return <Text color="red.500">{(e as Error)?.message}</Text>;
+      return {
+        query: <Text color="red.500">{(e as Error)?.message}</Text>,
+        filters: [],
+      };
     }
   }, [values]);
 
@@ -338,10 +350,29 @@ const CurrentQuery = (props: { control: Control<IClassicFormState> }) => {
       title="Generated Query"
       defaultOpen
       description={
-        <HStack>
-          <Code>{query}</Code>
-          {typeof query === 'string' ? <SimpleCopyButton text={query} /> : null}
-        </HStack>
+        <Stack spacing={2}>
+          <HStack>
+            <Text fontWeight="semibold" fontSize="sm">
+              Query:
+            </Text>
+            <Code>{query}</Code>
+            {typeof query === 'string' ? <SimpleCopyButton text={query} /> : null}
+          </HStack>
+          {filters.length > 0 && (
+            <HStack alignItems="flex-start">
+              <Text fontWeight="semibold" fontSize="sm">
+                Filters:
+              </Text>
+              <Stack spacing={1}>
+                {filters.map((filter, i) => (
+                  <Code key={i} fontSize="sm">
+                    {filter}
+                  </Code>
+                ))}
+              </Stack>
+            </HStack>
+          )}
+        </Stack>
       }
     ></Expandable>
   );
