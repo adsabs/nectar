@@ -2,9 +2,11 @@ import {
   getAbs,
   getAuthor,
   getBibstems,
+  getDatabaseFilter,
   getLimit,
   getObject,
   getProperty,
+  getPropertyFilter,
   getPubdate,
   getSearchQuery,
   getSearchQueryParams,
@@ -21,6 +23,26 @@ describe('Classic Form Query Handling', () => {
     [['astronomy', 'physics'], 'collection:(astronomy OR physics)'],
     [['astronomy', 'physics', 'general'], 'collection:(astronomy OR physics OR general)'],
   ])('getLimit(%s) -> %s', (choice, expected) => expect(getLimit(choice)).toBe(expected));
+
+  // database filter
+  test.concurrent.each<[CollectionChoice[], string | undefined]>([
+    [[], undefined],
+    [['astronomy'], 'database: (astronomy)'],
+    [['astronomy', 'physics'], 'database: (astronomy OR physics)'],
+    [['astronomy', 'physics', 'general'], 'database: (astronomy OR physics OR general)'],
+    [
+      ['astronomy', 'physics', 'general', 'earthscience'],
+      'database: (astronomy OR physics OR general OR earthscience)',
+    ],
+  ])('getDatabaseFilter(%s) -> %s', (choice, expected) => expect(getDatabaseFilter(choice)).toBe(expected));
+
+  // property filter
+  test.concurrent.each<[PropertyChoice[], string | undefined]>([
+    [[], undefined],
+    [['refereed-only'], 'property: (refereed)'],
+    [['articles-only'], 'property: (article)'],
+    [['refereed-only', 'articles-only'], 'property: (refereed AND article)'],
+  ])('getPropertyFilter(%s) -> %s', (choices, expected) => expect(getPropertyFilter(choices)).toBe(expected));
 
   // author
   test.concurrent.each<[string, LogicChoice, string]>([
