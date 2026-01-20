@@ -43,15 +43,29 @@ describe('useAuthorsPerResult', () => {
     expect(result.current).toBe(7);
   });
 
-  test.each(['all', 'ALL', 'All'])('returns DETAILS_MAX_AUTHORS when preference is "%s"', (preference) => {
+  test.each(['all', 'ALL', 'All'])(
+    'returns MAX_AUTHORS_PER_RESULT_OPTION when preference is "%s" (backwards compat)',
+    (preference) => {
+      mockedUseSession.mockReturnValue({ isAuthenticated: true });
+      mockedUseSettings.mockReturnValue({
+        settings: { minAuthorsPerResult: preference },
+      });
+
+      const { result } = renderHook(() => useAuthorsPerResult());
+
+      expect(result.current).toBe(APP_DEFAULTS.MAX_AUTHORS_PER_RESULT_OPTION);
+    },
+  );
+
+  test('returns preference value for numbers in extended range (1-50)', () => {
     mockedUseSession.mockReturnValue({ isAuthenticated: true });
     mockedUseSettings.mockReturnValue({
-      settings: { minAuthorsPerResult: preference },
+      settings: { minAuthorsPerResult: '25' },
     });
 
     const { result } = renderHook(() => useAuthorsPerResult());
 
-    expect(result.current).toBe(APP_DEFAULTS.DETAILS_MAX_AUTHORS);
+    expect(result.current).toBe(25);
   });
 
   test('returns default for invalid preference value', () => {
