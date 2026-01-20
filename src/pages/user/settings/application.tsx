@@ -1,5 +1,6 @@
 import { Box, Checkbox, CheckboxGroup, FormControl, FormLabel, Spinner, Stack } from '@chakra-ui/react';
 
+import { APP_DEFAULTS } from '@/config';
 import { composeNextGSSP } from '@/ssr-utils';
 import { GetServerSideProps } from 'next';
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
@@ -139,7 +140,7 @@ const AppSettingsPage = () => {
         });
       }
 
-      const defaultDatabases: typeof settings[UserDataKeys.DEFAULT_DATABASE] = [];
+      const defaultDatabases: (typeof settings)[UserDataKeys.DEFAULT_DATABASE] = [];
       for (const db of currentDatabases) {
         // skip ALL
         if (db.name === DatabaseEnum.All) {
@@ -169,7 +170,7 @@ const AppSettingsPage = () => {
         />
         <NumberSlider
           min={1}
-          max={10}
+          max={APP_DEFAULTS.MAX_AUTHORS_PER_RESULT_OPTION}
           value={selectedValues.authorsVisible}
           description={authorsPerResultsDescription}
           label="Authors Visible per Result"
