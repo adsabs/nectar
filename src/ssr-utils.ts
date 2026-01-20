@@ -26,10 +26,20 @@ export const updateUserStateSSR: IncomingGSSP = async (ctx, prevResult) => {
   // Only apply legacy mode if there's no persisted mode preference
   const applyLegacyMode = isLegacyReferrer && incomingState.mode === undefined;
 
-  const pathname = new URL(ctx.resolvedUrl, 'http://localhost').pathname;
+  const url = new URL(ctx.resolvedUrl, 'http://localhost');
+  const pathname = url.pathname;
+
+  // forceMode query param takes highest precedence (from discipline routes or legacy referrer)
+  const forceMode = mapDisciplineParamToAppMode(ctx.query?.forceMode);
+
+  // URL discipline param (d) only applies on /search
   const urlMode = pathname === '/search' ? mapDisciplineParamToAppMode(ctx.query?.d) : null;
+
+  // Legacy referrer fallback - only applies if no explicit mode is provided
+  // and no persisted mode exists
   const legacyMode = applyLegacyMode ? AppMode.ASTROPHYSICS : undefined;
-  const resolvedMode = urlMode ?? legacyMode;
+
+  const resolvedMode = forceMode ?? urlMode ?? legacyMode;
 
   log.debug({
     msg: 'Injecting session data into client props',
