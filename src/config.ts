@@ -5,6 +5,7 @@ export const APP_DEFAULTS = {
   DETAILS_MAX_AUTHORS: 50,
   RESULTS_MAX_AUTHORS: 10,
   DEFAULT_AUTHORS_PER_RESULT: 4,
+  MAX_AUTHORS_PER_RESULT_OPTION: 50, // Max value for authors-per-result preference (also used for legacy "all")
   RESULT_PER_PAGE: 10,
   PER_PAGE_OPTIONS: [10, 25, 50, 100, 500],
   SORT: ['score desc', 'date desc'] as SolrSort[],
