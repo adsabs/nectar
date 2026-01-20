@@ -37,6 +37,18 @@ export const mapDisciplineParamToAppMode = (value?: string | string[]): AppMode 
   return disciplineMap[normalized] ?? null;
 };
 
+/**
+ * Maps a URL path segment to an AppMode.
+ * Used for discipline-specific routes like /astrophysics, /heliophysics, etc.
+ */
+export const mapPathToDisciplineParam = (path: string): string | null => {
+  const segment = path.split('/')[1]?.toLowerCase();
+  if (segment && disciplineMap[segment]) {
+    return segment;
+  }
+  return null;
+};
+
 export const appModeToDisciplineParam = (mode?: AppMode | null): string | null => {
   if (!mode) {
     return null;
