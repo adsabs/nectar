@@ -9,6 +9,7 @@ import { isLegacySearchURL, legacySearchURLMiddleware } from '@/middlewares/lega
 import { ErrorSource, handleError } from '@/lib/errorHandler.edge';
 import { getUserLogId, sanitizeHeaderValue } from '@/utils/logging';
 import { mapPathToDisciplineParam } from '@/utils/appMode';
+import { isFromLegacyApp } from '@/utils/legacyAppDetection';
 
 const log = edgeLogger.child({}, { msgPrefix: '[middleware] ' });
 
@@ -336,6 +337,17 @@ export async function middleware(req: NextRequest) {
     url.searchParams.set('forceMode', disciplineParam);
     log.info({ path, disciplineParam, duration: Date.now() - startTime }, 'Discipline route redirect');
     return NextResponse.redirect(url);
+  }
+
+  // Legacy ADS app referrer handling - redirect to /?forceMode=astrophysics
+  // This ensures the discipline switch happens immediately, not on next search
+  if (path === '/' && !req.nextUrl.searchParams.has('forceMode')) {
+    if (isFromLegacyApp(referer)) {
+      const url = new URL('/', req.url);
+      url.searchParams.set('forceMode', 'astrophysics');
+      log.info({ referer, duration: Date.now() - startTime }, 'Legacy ADS referrer redirect');
+      return NextResponse.redirect(url);
+    }
   }
 
   const res = NextResponse.next();
