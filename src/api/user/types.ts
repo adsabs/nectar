@@ -157,9 +157,7 @@ export enum JournalFormatName {
   FullName = 'Use Full Journal Name',
 }
 
-export const MinAuthorsPerResultOptions = range(1, 11)
-  .map((n) => n.toString())
-  .concat(['all']);
+export const MinAuthorsPerResultOptions = range(1, 51).map((n) => n.toString());
 
 export interface IADSApiUserDataResponse {
   [UserDataKeys.HOMEPAGE]: string;
