@@ -70,7 +70,7 @@ export const getAppModeLabel = (mode: AppMode): string => {
       return 'Biological & Physical Science';
     case AppMode.GENERAL:
     default:
-      return 'General Science';
+      return 'No preferred discipline';
   }
 };
 

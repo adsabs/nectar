@@ -5,7 +5,7 @@ export const modes: Record<AppMode, SelectOption<AppMode>> = {
   [AppMode.GENERAL]: {
     id: AppMode.GENERAL,
     value: 'general',
-    label: 'General Science',
+    label: 'No preferred discipline',
   },
   [AppMode.ASTROPHYSICS]: {
     id: AppMode.ASTROPHYSICS,
