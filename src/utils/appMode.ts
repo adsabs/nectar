@@ -1,4 +1,4 @@
-import { NextRouter } from 'next/router';
+import type { NextRouter } from 'next/router';
 import { AppMode } from '@/types';
 
 const disciplineMap: Record<string, AppMode> = {
