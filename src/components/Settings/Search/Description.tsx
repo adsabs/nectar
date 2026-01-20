@@ -1,7 +1,7 @@
 export const authorsPerResultsDescription = (
   <>
-    Specifies the number of authors to show under each result before the list is truncated. (<strong>default: 4</strong>
-    )
+    Specifies the number of authors to show under each result before the list is truncated. Choose a value from 1 to 50.
+    (<strong>default: 4</strong>)
   </>
 );
 
