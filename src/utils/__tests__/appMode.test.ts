@@ -27,7 +27,7 @@ describe('mapDisciplineParamToAppMode', () => {
 
 describe('getAppModeLabel', () => {
   it('returns readable labels', () => {
-    expect(getAppModeLabel(AppMode.GENERAL)).toBe('General Science');
+    expect(getAppModeLabel(AppMode.GENERAL)).toBe('No preferred discipline');
     expect(getAppModeLabel(AppMode.ASTROPHYSICS)).toBe('Astrophysics');
     expect(getAppModeLabel(AppMode.HELIOPHYSICS)).toBe('Heliophysics');
     expect(getAppModeLabel(AppMode.PLANET_SCIENCE)).toBe('Planetary Science');
