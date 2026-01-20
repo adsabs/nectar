@@ -144,10 +144,18 @@ describe('Classic Form Query Handling', () => {
       sort: ['score desc', 'date desc'],
     };
     const result = new URLSearchParams(getSearchQuery(state));
+
+    // q no longer contains collection or property
     expect(result.get('q')).toBe(
-      `collection:(astronomy OR physics) pubdate:[2020-12 TO 2022-01] author:("Smith, A" "Jones, B" ="Jones, Bob") object:(IRAS HIP) property:(refereed article) title:("Black Hole" -"Milky Way" -star) abs:("Event Horizon" Singularity) bibstem:(PhRvL) -bibstem:(Apj)`,
+      `pubdate:[2020-12 TO 2022-01] author:("Smith, A" "Jones, B" ="Jones, Bob") object:(IRAS HIP) title:("Black Hole" -"Milky Way" -star) abs:("Event Horizon" Singularity) bibstem:(PhRvL) -bibstem:(Apj)`,
     );
     expect(result.getAll('sort')).toStrictEqual(['score desc', 'date desc']);
+
+    // Filters are now in fq params
+    expect(result.getAll('fq')).toContain('{!type=aqp v=$fq_database}');
+    expect(result.getAll('fq')).toContain('{!type=aqp v=$fq_property}');
+    expect(result.get('fq_database')).toBe('database: (astronomy OR physics)');
+    expect(result.get('fq_property')).toBe('property: (refereed AND article)');
   });
 
   test('getSearchQueryParams returns structured params with filters', () => {
@@ -174,5 +182,31 @@ describe('Classic Form Query Handling', () => {
     expect(result.fq).toContain('{!type=aqp v=$fq_property}');
     expect(result.fq_database).toBe('database: (astronomy OR physics)');
     expect(result.fq_property).toBe('property: (refereed)');
+  });
+
+  test('getSearchQuery generates URL with fq params', () => {
+    const state: IRawClassicFormState = {
+      limit: ['astronomy', 'physics'],
+      author: 'Smith, A',
+      logic_author: 'and',
+      object: '',
+      logic_object: 'and',
+      pubdate_start: '',
+      pubdate_end: '',
+      title: '',
+      logic_title: 'and',
+      abstract_keywords: '',
+      logic_abstract_keywords: 'and',
+      property: ['refereed-only'],
+      bibstems: '',
+      sort: ['date desc'],
+    };
+    const result = new URLSearchParams(getSearchQuery(state));
+
+    expect(result.get('q')).toBe('author:("Smith, A")');
+    expect(result.getAll('fq')).toContain('{!type=aqp v=$fq_database}');
+    expect(result.getAll('fq')).toContain('{!type=aqp v=$fq_property}');
+    expect(result.get('fq_database')).toBe('database: (astronomy OR physics)');
+    expect(result.get('fq_property')).toBe('property: (refereed)');
   });
 });
